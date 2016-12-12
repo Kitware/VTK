@@ -4,20 +4,23 @@ cdef class Info:
     Info
     """
 
-    def __cinit__(self):
+    def __cinit__(self, Info info=None):
         self.ob_mpi = MPI_INFO_NULL
+        if info is None: return
+        self.ob_mpi = info.ob_mpi
 
     def __dealloc__(self):
         if not (self.flags & PyMPI_OWNED): return
         CHKERR( del_Info(&self.ob_mpi) )
 
     def __richcmp__(self, other, int op):
-        if not isinstance(self,  Info): return NotImplemented
         if not isinstance(other, Info): return NotImplemented
         cdef Info s = <Info>self, o = <Info>other
         if   op == Py_EQ: return (s.ob_mpi == o.ob_mpi)
         elif op == Py_NE: return (s.ob_mpi != o.ob_mpi)
-        else: raise TypeError("only '==' and '!='")
+        cdef str mod = type(self).__module__
+        cdef str cls = type(self).__name__
+        raise TypeError("unorderable type: '%s.%s'" % (mod, cls))
 
     def __bool__(self):
         return self.ob_mpi != MPI_INFO_NULL
@@ -27,7 +30,7 @@ cdef class Info:
         """
         Create a new, empty info object
         """
-        cdef Info info = <Info>cls()
+        cdef Info info = <Info>Info.__new__(Info)
         CHKERR( MPI_Info_create(&info.ob_mpi) )
         return info
 
@@ -36,13 +39,14 @@ cdef class Info:
         Free a info object
         """
         CHKERR( MPI_Info_free(&self.ob_mpi) )
+        if self is __INFO_ENV__: self.ob_mpi = MPI_INFO_ENV
 
     def Dup(self):
         """
         Duplicate an existing info object, creating a new object, with
         the same (key, value) pairs and the same ordering of keys
         """
-        cdef Info info = <Info>type(self)()
+        cdef Info info = <Info>Info.__new__(Info)
         CHKERR( MPI_Info_dup(self.ob_mpi, &info.ob_mpi) )
         return info
 
@@ -55,7 +59,7 @@ cdef class Info:
         cdef char *ckey = NULL
         cdef char *cvalue = NULL
         cdef int flag = 0
-        key = asmpistr(key, &ckey, NULL)
+        key = asmpistr(key, &ckey)
         cdef tmp = allocate((maxlen+1), sizeof(char), <void**>&cvalue)
         CHKERR( MPI_Info_get(self.ob_mpi, ckey, maxlen, cvalue, &flag) )
         cvalue[maxlen] = 0 # just in case
@@ -69,8 +73,8 @@ cdef class Info:
         """
         cdef char *ckey = NULL
         cdef char *cvalue = NULL
-        key = asmpistr(key, &ckey, NULL)
-        value = asmpistr(value, &cvalue, NULL)
+        key = asmpistr(key, &ckey)
+        value = asmpistr(value, &cvalue)
         CHKERR( MPI_Info_set(self.ob_mpi, ckey, cvalue) )
 
     def Delete(self, object key):
@@ -78,7 +82,7 @@ cdef class Info:
         Remove a (key, value) pair from info
         """
         cdef char *ckey = NULL
-        key = asmpistr(key, &ckey, NULL)
+        key = asmpistr(key, &ckey)
         CHKERR( MPI_Info_delete(self.ob_mpi, ckey) )
 
     def Get_nkeys(self):
@@ -112,7 +116,7 @@ cdef class Info:
     def f2py(cls, arg):
         """
         """
-        cdef Info info = <Info>cls()
+        cdef Info info = <Info>Info.__new__(Info)
         info.ob_mpi = MPI_Info_f2c(arg)
         return info
 
@@ -128,7 +132,7 @@ cdef class Info:
         cdef char *ckey = NULL
         cdef int dummy = 0
         cdef int haskey = 0
-        key = asmpistr(key, &ckey, NULL)
+        key = asmpistr(key, &ckey)
         CHKERR( MPI_Info_get_valuelen(self.ob_mpi, ckey, &dummy, &haskey) )
         return <bint>haskey
 
@@ -208,18 +212,21 @@ cdef class Info:
     def clear(self):
         """info clear"""
         if not self: return None
-        cdef int k = 0, nkeys = self.Get_nkeys()
         cdef object key
-        for k from 0 <= k < nkeys:
+        cdef int k = 0, nkeys = self.Get_nkeys()
+        while k < nkeys:
             key = self.Get_nthkey(0)
             self.Delete(key)
+            k += 1
 
 
 
 cdef Info __INFO_NULL__ = new_Info(MPI_INFO_NULL)
+cdef Info __INFO_ENV__  = new_Info(MPI_INFO_ENV)
 
 
 # Predefined info handles
 # -----------------------
 
 INFO_NULL = __INFO_NULL__  #: Null info handle
+INFO_ENV  = __INFO_ENV__   #: Environment info handle

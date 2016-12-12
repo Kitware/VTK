@@ -15,7 +15,7 @@
 
 %init %{
 if (import_mpi4py() < 0)
-#if PY_VERSION_HEX >= 0x03000000
+#if PY_MAJOR_VERSION >= 3
   return NULL;
 #else
   return;
@@ -60,13 +60,14 @@ SWIG_From_dec(Type)(Type v) {
 %define SWIG_TYPECHECK_MPI_Comm       400 %enddef
 %define SWIG_TYPECHECK_MPI_Datatype   401 %enddef
 %define SWIG_TYPECHECK_MPI_Request    402 %enddef
-%define SWIG_TYPECHECK_MPI_Status     403 %enddef
-%define SWIG_TYPECHECK_MPI_Op         404 %enddef
-%define SWIG_TYPECHECK_MPI_Group      405 %enddef
-%define SWIG_TYPECHECK_MPI_Info       406 %enddef
-%define SWIG_TYPECHECK_MPI_File       407 %enddef
-%define SWIG_TYPECHECK_MPI_Win        408 %enddef
-%define SWIG_TYPECHECK_MPI_Errhandler 409 %enddef
+%define SWIG_TYPECHECK_MPI_Message    403 %enddef
+%define SWIG_TYPECHECK_MPI_Status     404 %enddef
+%define SWIG_TYPECHECK_MPI_Op         405 %enddef
+%define SWIG_TYPECHECK_MPI_Group      406 %enddef
+%define SWIG_TYPECHECK_MPI_Info       407 %enddef
+%define SWIG_TYPECHECK_MPI_File       408 %enddef
+%define SWIG_TYPECHECK_MPI_Win        409 %enddef
+%define SWIG_TYPECHECK_MPI_Errhandler 410 %enddef
 
 %define %mpi4py_checkcode(Type)
 %checkcode(Type)

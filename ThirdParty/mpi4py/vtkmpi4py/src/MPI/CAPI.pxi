@@ -41,6 +41,18 @@ cdef api MPI_Request* PyMPIRequest_Get(object arg) except NULL:
 
 # -----------------------------------------------------------------------------
 
+#  Message
+
+cdef api object PyMPIMessage_New(MPI_Message arg):
+    cdef Message obj = <Message>Message.__new__(Message)
+    obj.ob_mpi = arg
+    return obj
+
+cdef api MPI_Message* PyMPIMessage_Get(object arg) except NULL:
+    return &(<Message?>arg).ob_mpi
+
+# -----------------------------------------------------------------------------
+
 #  Op
 
 cdef api object PyMPIOp_New(MPI_Op arg):
@@ -89,17 +101,17 @@ cdef api object PyMPIComm_New(MPI_Comm arg):
             cls = Intercomm
         else:
             CHKERR( MPI_Topo_test(arg, &topo) )
-            if topo == <int>MPI_UNDEFINED:
+            if topo == MPI_UNDEFINED:
                 cls = Intracomm
-            elif topo == <int>MPI_CART:
+            elif topo == MPI_CART:
                 cls = Cartcomm
-            elif topo == <int>MPI_GRAPH:
+            elif topo == MPI_GRAPH:
                 cls = Graphcomm
-            elif topo == <int>MPI_DIST_GRAPH:
+            elif topo == MPI_DIST_GRAPH:
                 cls = Distgraphcomm
             else:
                 cls = Intracomm
-    cdef Comm obj = <Comm>cls()
+    cdef Comm obj = <Comm>cls.__new__(cls)
     obj.ob_mpi = arg
     return obj
 

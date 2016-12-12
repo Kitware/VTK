@@ -6,21 +6,22 @@ cdef class Request:
 
     def __cinit__(self, Request request=None):
         self.ob_mpi = MPI_REQUEST_NULL
-        if request is not None:
-            self.ob_mpi = request.ob_mpi
-            self.ob_buf = request.ob_buf
+        if request is None: return
+        self.ob_mpi = request.ob_mpi
+        self.ob_buf = request.ob_buf
 
     def __dealloc__(self):
         if not (self.flags & PyMPI_OWNED): return
         CHKERR( del_Request(&self.ob_mpi) )
 
     def __richcmp__(self, other, int op):
-        if not isinstance(self,  Request): return NotImplemented
         if not isinstance(other, Request): return NotImplemented
         cdef Request s = <Request>self, o = <Request>other
         if   op == Py_EQ: return (s.ob_mpi == o.ob_mpi)
         elif op == Py_NE: return (s.ob_mpi != o.ob_mpi)
-        else: raise TypeError("only '==' and '!='")
+        cdef str mod = type(self).__module__
+        cdef str cls = type(self).__name__
+        raise TypeError("unorderable type: '%s.%s'" % (mod, cls))
 
     def __bool__(self):
         return self.ob_mpi != MPI_REQUEST_NULL
@@ -154,45 +155,45 @@ cdef class Request:
         cdef int outcount = MPI_UNDEFINED, *iindices = NULL
         cdef MPI_Status *istatuses = MPI_STATUSES_IGNORE
         #
-        cdef tmp = acquire_rs(requests, statuses,
-                              &incount, &irequests, &istatuses)
-        cdef object indices = newarray_int(incount, &iindices)
+        cdef tmp1 = acquire_rs(requests, statuses,
+                               &incount, &irequests, &istatuses)
+        cdef tmp2 = mkarray_int(incount, &iindices)
         try:
             with nogil: CHKERR( MPI_Waitsome(
                 incount, irequests, &outcount, iindices, istatuses) )
         finally:
             release_rs(requests, statuses, incount, irequests, istatuses)
         #
-        if outcount == MPI_UNDEFINED:
-            del indices[:]
-        else:
-            del indices[outcount:]
-        return (outcount, indices)
+        cdef int i = 0
+        cdef object indices = None
+        if outcount != MPI_UNDEFINED:
+            indices = [iindices[i] for i from 0 <= i < outcount]
+        return indices
 
     @classmethod
     def Testsome(cls, requests, statuses=None):
         """
         Test for completion of some previously initiated requests
         """
-        cdef int incount = <int>len(requests)
+        cdef int incount = 0
         cdef MPI_Request *irequests = NULL
         cdef int outcount = MPI_UNDEFINED, *iindices = NULL
         cdef MPI_Status *istatuses = MPI_STATUSES_IGNORE
         #
-        cdef tmp = acquire_rs(requests, statuses,
-                              &incount, &irequests, &istatuses)
-        cdef object indices = newarray_int(incount, &iindices)
+        cdef tmp1 = acquire_rs(requests, statuses,
+                               &incount, &irequests, &istatuses)
+        cdef tmp2 = mkarray_int(incount, &iindices)
         try:
             with nogil: CHKERR( MPI_Testsome(
                 incount, irequests, &outcount, iindices, istatuses) )
         finally:
             release_rs(requests, statuses, incount, irequests, istatuses)
         #
-        if outcount == MPI_UNDEFINED:
-            del indices[:]
-        else:
-            del indices[outcount:]
-        return (outcount, indices)
+        cdef int i = 0
+        cdef object indices = None
+        if outcount != MPI_UNDEFINED:
+            indices = [iindices[i] for i from 0 <= i < outcount]
+        return indices
 
     # Cancel
     # ------
@@ -215,7 +216,11 @@ cdef class Request:
     def f2py(cls, arg):
         """
         """
-        cdef Request request = <Request>cls()
+        cdef Request request = <Request>Request.__new__(Request)
+        if issubclass(cls, Prequest):
+            request = <Request>Prequest.__new__(Prequest)
+        if issubclass(cls, Grequest):
+            request = <Request>Grequest.__new__(Grequest)
         request.ob_mpi = MPI_Request_f2c(arg)
         return request
 
@@ -281,8 +286,8 @@ cdef class Prequest(Request):
     """
 
     def __cinit__(self, Request request=None):
-        if self.ob_mpi != MPI_REQUEST_NULL:
-            <void>(<Prequest?>request)
+        if self.ob_mpi == MPI_REQUEST_NULL: return
+        <void>(<Prequest?>request)
 
     def Start(self):
         """
@@ -314,8 +319,8 @@ cdef class Grequest(Request):
 
     def __cinit__(self, Request request=None):
         self.ob_grequest = self.ob_mpi
-        if self.ob_mpi != MPI_REQUEST_NULL:
-            <void>(<Grequest?>request)
+        if self.ob_mpi == MPI_REQUEST_NULL: return
+        <void>(<Grequest?>request)
 
     @classmethod
     def Start(cls, query_fn, free_fn, cancel_fn,
@@ -323,7 +328,7 @@ cdef class Grequest(Request):
         """
         Create and return a user-defined request
         """
-        cdef Grequest request = <Grequest>cls()
+        cdef Grequest request = <Grequest>Grequest.__new__(Grequest)
         cdef _p_greq state = \
              _p_greq(query_fn, free_fn, cancel_fn, args, kargs)
         with nogil: CHKERR( MPI_Grequest_start(

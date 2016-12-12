@@ -11,6 +11,7 @@ dl_dlopen(PyObject *self, PyObject *args)
   void *handle = NULL;
   char *filename = NULL;
   int mode = 0;
+  (void)self; /* unused */
   if (!PyArg_ParseTuple(args, (char *)"zi:dlopen",
                         &filename, &mode)) return NULL;
   handle = dlopen(filename, mode);
@@ -24,6 +25,7 @@ dl_dlsym(PyObject *self, PyObject *args)
   void *handle = NULL;
   char *symbol = NULL;
   void *symval = NULL;
+  (void)self; /* unused */
   if (!PyArg_ParseTuple(args, (char *)"Os:dlsym",
                         &arg0, &symbol)) return NULL;
 #ifdef RTLD_DEFAULT
@@ -41,21 +43,26 @@ dl_dlsym(PyObject *self, PyObject *args)
 static PyObject *
 dl_dlclose(PyObject *self, PyObject *arg0)
 {
+  int err = 0;
   void *handle = NULL;
+  (void)self; /* unused */
   if (arg0 != Py_None) {
     handle = PyLong_AsVoidPtr(arg0);
     if (!handle && PyErr_Occurred())
       return NULL;
   }
-  if (handle)
-    dlclose(handle);
-  return Py_BuildValue((char *)"");
+  if (!handle)
+    (void)dlerror();
+  else
+    err = dlclose(handle);
+  return Py_BuildValue((char *)"i", err);
 }
 
 static PyObject *
 dl_dlerror(PyObject *self, PyObject *args)
 {
   char *errmsg = NULL;
+  (void)self; (void)args; /* unused */
   errmsg = dlerror();
   return Py_BuildValue((char *)"z", errmsg);
 }

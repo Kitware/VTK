@@ -2,80 +2,85 @@ __doc__ = """
 Message Passing Interface
 """
 
-include "mpi4py/mpi.pxi"
+from mpi4py.libmpi cimport *
 
 include "stdlib.pxi"
 include "atimport.pxi"
 
+bootstrap()
 initialize()
-startup()
 
 include "asmpistr.pxi"
 include "asbuffer.pxi"
 include "asmemory.pxi"
 include "asarray.pxi"
 include "helpers.pxi"
-include "message.pxi"
-include "pickled.pxi"
-
+include "mpierrhdl.pxi"
+include "msgbuffer.pxi"
+include "msgpickle.pxi"
 include "CAPI.pxi"
+
+
+# Assorted constants
+# ------------------
+
+UNDEFINED = MPI_UNDEFINED
+#: Undefined integer value
+
+ANY_SOURCE = MPI_ANY_SOURCE
+#: Wildcard source value for receives
+
+ANY_TAG = MPI_ANY_TAG
+#: Wildcard tag value for receives
+
+PROC_NULL = MPI_PROC_NULL
+#: Special process rank for send/receive
+
+ROOT = MPI_ROOT
+#: Root process for collective inter-communications
+
+BOTTOM = __BOTTOM__
+#: Special address for buffers
+
+IN_PLACE = __IN_PLACE__
+#: *In-place* option for collective communications
+
+
+# Predefined Attribute Keyvals
+# ----------------------------
+
+KEYVAL_INVALID    = MPI_KEYVAL_INVALID
+
+TAG_UB            = MPI_TAG_UB
+HOST              = MPI_HOST
+IO                = MPI_IO
+WTIME_IS_GLOBAL   = MPI_WTIME_IS_GLOBAL
+
+UNIVERSE_SIZE     = MPI_UNIVERSE_SIZE
+APPNUM            = MPI_APPNUM
+
+LASTUSEDCODE      = MPI_LASTUSEDCODE
+
+WIN_BASE          = MPI_WIN_BASE
+WIN_SIZE          = MPI_WIN_SIZE
+WIN_DISP_UNIT     = MPI_WIN_DISP_UNIT
+WIN_CREATE_FLAVOR = MPI_WIN_CREATE_FLAVOR
+WIN_FLAVOR        = MPI_WIN_CREATE_FLAVOR
+WIN_MODEL         = MPI_WIN_MODEL
+
 
 include "Exception.pyx"
 include "Errhandler.pyx"
 include "Datatype.pyx"
 include "Status.pyx"
 include "Request.pyx"
+include "Message.pyx"
 include "Info.pyx"
 include "Op.pyx"
 include "Group.pyx"
 include "Comm.pyx"
 include "Win.pyx"
 include "File.pyx"
-
-# Assorted constants
-# ------------------
-
-UNDEFINED = MPI_UNDEFINED
-#"""Undefined integer value"""
-
-ANY_SOURCE = MPI_ANY_SOURCE
-#"""Wildcard source value for receives"""
-
-ANY_TAG = MPI_ANY_TAG
-#"""Wildcard tag value for receives"""
-
-PROC_NULL = MPI_PROC_NULL
-#"""Special process rank for send/receive"""
-
-ROOT = MPI_ROOT
-#"""Root process for collective inter-communications"""
-
-BOTTOM = __BOTTOM__
-#"""Special address for buffers"""
-
-IN_PLACE = __IN_PLACE__
-#"""*In-place* option for collective communications"""
-
-
-
-# Predefined Attribute Keyvals
-# ----------------------------
-
-KEYVAL_INVALID  = MPI_KEYVAL_INVALID
-
-TAG_UB          = MPI_TAG_UB
-HOST            = MPI_HOST
-IO              = MPI_IO
-WTIME_IS_GLOBAL = MPI_WTIME_IS_GLOBAL
-
-UNIVERSE_SIZE   = MPI_UNIVERSE_SIZE
-APPNUM          = MPI_APPNUM
-
-LASTUSEDCODE    = MPI_LASTUSEDCODE
-
-WIN_BASE        = MPI_WIN_BASE
-WIN_SIZE        = MPI_WIN_SIZE
-WIN_DISP_UNIT   = MPI_WIN_DISP_UNIT
 
 
 # Memory Allocation
@@ -98,7 +103,6 @@ def Free_mem(memory):
     asmemory(memory, &base, NULL)
     CHKERR( MPI_Free_mem(base) )
 
-
 # Initialization and Exit
 # -----------------------
 
@@ -107,29 +111,29 @@ def Init():
     Initialize the MPI execution environment
     """
     CHKERR( MPI_Init(NULL, NULL) )
-    startup()
+    initialize()
 
 def Finalize():
     """
     Terminate the MPI execution environment
     """
-    cleanup()
+    finalize()
     CHKERR( MPI_Finalize() )
 
 # Levels of MPI threading support
 # -------------------------------
 
 THREAD_SINGLE     = MPI_THREAD_SINGLE
-# """Only one thread will execute"""
+#: Only one thread will execute
 
 THREAD_FUNNELED   = MPI_THREAD_FUNNELED
-# """MPI calls are *funneled* to the main thread"""
+#: MPI calls are *funneled* to the main thread
 
 THREAD_SERIALIZED = MPI_THREAD_SERIALIZED
-# """MPI calls are *serialized*"""
+#: MPI calls are *serialized*
 
 THREAD_MULTIPLE   = MPI_THREAD_MULTIPLE
-# """Multiple threads may call MPI"""
+#: Multiple threads may call MPI
 
 def Init_thread(int required=THREAD_MULTIPLE):
     """
@@ -137,7 +141,7 @@ def Init_thread(int required=THREAD_MULTIPLE):
     """
     cdef int provided = MPI_THREAD_SINGLE
     CHKERR( MPI_Init_thread(NULL, NULL, required, &provided) )
-    startup()
+    initialize()
     return provided
 
 def Query_thread():
@@ -193,6 +197,15 @@ def Get_version():
     CHKERR( MPI_Get_version(&version, &subversion) )
     return (version, subversion)
 
+def Get_library_version():
+    """
+    Obtain the version string of the MPI library
+    """
+    cdef char name[MPI_MAX_LIBRARY_VERSION_STRING+1]
+    cdef int nlen = 0
+    CHKERR( MPI_Get_library_version(name, &nlen) )
+    return tompistr(name, nlen)
+
 # Environmental Inquires
 # ----------------------
 
@@ -227,7 +240,7 @@ def Pcontrol(int level):
     """
     Control profiling
     """
-    if level < 0 or level > 2: CHKERR(MPI_ERR_ARG)
+    if level < 0 or level > 2: CHKERR( MPI_ERR_ARG )
     CHKERR( MPI_Pcontrol(level) )
 
 
@@ -243,13 +256,13 @@ MAX_INFO_KEY       = MPI_MAX_INFO_KEY
 MAX_INFO_VAL       = MPI_MAX_INFO_VAL
 MAX_OBJECT_NAME    = MPI_MAX_OBJECT_NAME
 MAX_DATAREP_STRING = MPI_MAX_DATAREP_STRING
-
-
+# MPI-3
+MAX_LIBRARY_VERSION_STRING = MPI_MAX_LIBRARY_VERSION_STRING
 
 # --------------------------------------------------------------------
 
-cdef extern from "vendor.h":
-    int MPI_Get_vendor(const_char**,int*,int*,int*)
+cdef extern from *:
+    int PyMPI_Get_vendor(const char**,int*,int*,int*) nogil
 
 def get_vendor():
     """
@@ -259,9 +272,99 @@ def get_vendor():
       - a string with the name of the MPI implementation
       - an integer 3-tuple version ``(major, minor, micro)``
     """
-    cdef const_char *name=NULL
+    cdef const char *name=NULL
     cdef int major=0, minor=0, micro=0
-    CHKERR( MPI_Get_vendor(&name, &major, &minor, &micro) )
+    CHKERR( PyMPI_Get_vendor(&name, &major, &minor, &micro) )
     return (mpistr(name), (major, minor, micro))
+
+# --------------------------------------------------------------------
+
+cdef extern from "Python.h":
+    ctypedef ssize_t Py_intptr_t
+    ctypedef size_t  Py_uintptr_t
+
+cdef inline int _mpi_type(object arg, type cls) except -1:
+    if isinstance(arg, type):
+        if issubclass(arg, cls): return 1
+    else:
+        if isinstance(arg, cls): return 1
+    return 0
+
+def _sizeof(arg):
+    """
+    Size in bytes of the underlying MPI handle
+    """
+    if _mpi_type(arg, Status):     return sizeof(MPI_Status)
+    if _mpi_type(arg, Datatype):   return sizeof(MPI_Datatype)
+    if _mpi_type(arg, Request):    return sizeof(MPI_Request)
+    if _mpi_type(arg, Message):    return sizeof(MPI_Message)
+    if _mpi_type(arg, Op):         return sizeof(MPI_Op)
+    if _mpi_type(arg, Group):      return sizeof(MPI_Group)
+    if _mpi_type(arg, Info):       return sizeof(MPI_Info)
+    if _mpi_type(arg, Errhandler): return sizeof(MPI_Errhandler)
+    if _mpi_type(arg, Comm):       return sizeof(MPI_Comm)
+    if _mpi_type(arg, Win):        return sizeof(MPI_Win)
+    if _mpi_type(arg, File):       return sizeof(MPI_File)
+    raise TypeError("expecting an MPI type or instance")
+
+def _addressof(arg):
+    """
+    Memory address of the underlying MPI handle
+    """
+    cdef void *ptr = NULL
+    if isinstance(arg, Status):
+        ptr = <void*>&(<Status>arg).ob_mpi
+    elif isinstance(arg, Datatype):
+        ptr = <void*>&(<Datatype>arg).ob_mpi
+    elif isinstance(arg, Request):
+        ptr = <void*>&(<Request>arg).ob_mpi
+    elif isinstance(arg, Message):
+        ptr = <void*>&(<Message>arg).ob_mpi
+    elif isinstance(arg, Op):
+        ptr = <void*>&(<Op>arg).ob_mpi
+    elif isinstance(arg, Group):
+        ptr = <void*>&(<Group>arg).ob_mpi
+    elif isinstance(arg, Info):
+        ptr = <void*>&(<Info>arg).ob_mpi
+    elif isinstance(arg, Errhandler):
+        ptr = <void*>&(<Errhandler>arg).ob_mpi
+    elif isinstance(arg, Comm):
+        ptr = <void*>&(<Comm>arg).ob_mpi
+    elif isinstance(arg, Win):
+        ptr = <void*>&(<Win>arg).ob_mpi
+    elif isinstance(arg, File):
+        ptr = <void*>&(<File>arg).ob_mpi
+    else:
+        raise TypeError("expecting an MPI instance")
+    return PyLong_FromVoidPtr(ptr)
+
+def _handleof(arg):
+    """
+    Unsigned integer value with the underlying MPI handle
+    """
+    if isinstance(arg, Status):
+        raise NotImplementedError
+    elif isinstance(arg, Datatype):
+        return <Py_uintptr_t>((<Datatype>arg).ob_mpi)
+    elif isinstance(arg, Request):
+        return <Py_uintptr_t>((<Request>arg).ob_mpi)
+    elif isinstance(arg, Message):
+        return <Py_uintptr_t>((<Message>arg).ob_mpi)
+    elif isinstance(arg, Op):
+        return <Py_uintptr_t>((<Op>arg).ob_mpi)
+    elif isinstance(arg, Group):
+        return <Py_uintptr_t>((<Group>arg).ob_mpi)
+    elif isinstance(arg, Info):
+        return <Py_uintptr_t>((<Info>arg).ob_mpi)
+    elif isinstance(arg, Errhandler):
+        return <Py_uintptr_t>((<Errhandler>arg).ob_mpi)
+    elif isinstance(arg, Comm):
+        return <Py_uintptr_t>((<Comm>arg).ob_mpi)
+    elif isinstance(arg, Win):
+        return <Py_uintptr_t>((<Win>arg).ob_mpi)
+    elif isinstance(arg, File):
+        return <Py_uintptr_t>((<File>arg).ob_mpi)
+    else:
+        raise TypeError("expecting an MPI instance")
 
 # --------------------------------------------------------------------

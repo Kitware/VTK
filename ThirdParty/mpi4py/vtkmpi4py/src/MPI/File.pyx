@@ -1,25 +1,51 @@
 # Opening modes
 # -------------
 
-MODE_RDONLY          = MPI_MODE_RDONLY           #: Read only
-MODE_WRONLY          = MPI_MODE_WRONLY           #: Write only
-MODE_RDWR            = MPI_MODE_RDWR             #: Reading and writing
-MODE_CREATE          = MPI_MODE_CREATE           #: Create the file if it does not exist
-MODE_EXCL            = MPI_MODE_EXCL             #: Error if creating file that already exists
-MODE_DELETE_ON_CLOSE = MPI_MODE_DELETE_ON_CLOSE  #: Delete file on close
-MODE_UNIQUE_OPEN     = MPI_MODE_UNIQUE_OPEN      #: File will not be concurrently opened elsewhere
-MODE_SEQUENTIAL      = MPI_MODE_SEQUENTIAL       #: File will only be accessed sequentially
-MODE_APPEND          = MPI_MODE_APPEND           #: Set initial position of all file pointers to end of file
+MODE_RDONLY = MPI_MODE_RDONLY
+#: Read only
+
+MODE_WRONLY = MPI_MODE_WRONLY
+#: Write only
+
+MODE_RDWR  = MPI_MODE_RDWR
+#: Reading and writing
+
+MODE_CREATE = MPI_MODE_CREATE
+#: Create the file if it does not exist
+
+MODE_EXCL = MPI_MODE_EXCL
+#: Error if creating file that already exists
+
+MODE_DELETE_ON_CLOSE = MPI_MODE_DELETE_ON_CLOSE
+#: Delete file on close
+
+MODE_UNIQUE_OPEN = MPI_MODE_UNIQUE_OPEN
+#: File will not be concurrently opened elsewhere
+
+MODE_SEQUENTIAL = MPI_MODE_SEQUENTIAL
+#: File will only be accessed sequentially
+
+MODE_APPEND = MPI_MODE_APPEND
+#: Set initial position of all file pointers to end of file
 
 
 # Positioning
 # -----------
 
-SEEK_SET = MPI_SEEK_SET  #: File pointer is set to offset
-SEEK_CUR = MPI_SEEK_CUR  #: File pointer is set to the current position plus offset
-SEEK_END = MPI_SEEK_END  #: File pointer is set to the end plus offset
-DISPLACEMENT_CURRENT = MPI_DISPLACEMENT_CURRENT  #: Special displacement value for files opened in sequential mode
-DISP_CUR             = MPI_DISPLACEMENT_CURRENT  #: Convenience alias for `DISPLACEMENT_CURRENT`
+SEEK_SET = MPI_SEEK_SET
+#: File pointer is set to offset
+
+SEEK_CUR = MPI_SEEK_CUR
+#: File pointer is set to the current position plus offset
+
+SEEK_END = MPI_SEEK_END
+#: File pointer is set to the end plus offset
+
+DISPLACEMENT_CURRENT = MPI_DISPLACEMENT_CURRENT
+#: Special displacement value for files opened in sequential mode
+
+DISP_CUR = MPI_DISPLACEMENT_CURRENT
+#: Convenience alias for `DISPLACEMENT_CURRENT`
 
 
 cdef class File:
@@ -30,29 +56,27 @@ cdef class File:
 
     def __cinit__(self, File file=None):
         self.ob_mpi = MPI_FILE_NULL
-        if file is not None:
-            self.ob_mpi = file.ob_mpi
+        if file is None: return
+        self.ob_mpi = file.ob_mpi
 
     def __dealloc__(self):
         if not (self.flags & PyMPI_OWNED): return
         CHKERR( del_File(&self.ob_mpi) )
 
     def __richcmp__(self, other, int op):
-        if not isinstance(self,  File): return NotImplemented
         if not isinstance(other, File): return NotImplemented
         cdef File s = <File>self, o = <File>other
         if   op == Py_EQ: return (s.ob_mpi == o.ob_mpi)
         elif op == Py_NE: return (s.ob_mpi != o.ob_mpi)
-        else: raise TypeError("only '==' and '!='")
+        cdef str mod = type(self).__module__
+        cdef str cls = type(self).__name__
+        raise TypeError("unorderable type: '%s.%s'" % (mod, cls))
 
     def __bool__(self):
         return self.ob_mpi != MPI_FILE_NULL
 
-    # [9.2] File Manipulation
-    # -----------------------
-
-    # [9.2.1] Opening a File
-    # ----------------------
+    # File Manipulation
+    # -----------------
 
     @classmethod
     def Open(cls, Intracomm comm not None, filename,
@@ -61,15 +85,13 @@ cdef class File:
         Open a file
         """
         cdef char *cfilename = NULL
-        filename = asmpistr(filename, &cfilename, NULL)
+        filename = asmpistr(filename, &cfilename)
         cdef MPI_Info cinfo = arg_Info(info)
-        cdef File file = <File>cls()
+        cdef File file = <File>File.__new__(File)
         with nogil: CHKERR( MPI_File_open(
             comm.ob_mpi, cfilename, amode, cinfo, &file.ob_mpi) )
+        file_set_eh(file.ob_mpi)
         return file
-
-    # [9.2.2] Closing a File
-    # ----------------------
 
     def Close(self):
         """
@@ -77,21 +99,15 @@ cdef class File:
         """
         with nogil: CHKERR( MPI_File_close(&self.ob_mpi) )
 
-    # [9.2.3] Deleting a File
-    # -----------------------
-
     @classmethod
     def Delete(cls, filename, Info info=INFO_NULL):
         """
         Delete a file
         """
         cdef char *cfilename = NULL
-        filename = asmpistr(filename, &cfilename, NULL)
+        filename = asmpistr(filename, &cfilename)
         cdef MPI_Info cinfo = arg_Info(info)
         with nogil: CHKERR( MPI_File_delete(cfilename, cinfo) )
-
-    # [9.2.4] Resizing a File
-    # -----------------------
 
     def Set_size(self, Offset size):
         """
@@ -99,17 +115,12 @@ cdef class File:
         """
         with nogil: CHKERR( MPI_File_set_size(self.ob_mpi, size) )
 
-    # [9.2.5] Preallocating Space for a File
-    # --------------------------------------
-
     def Preallocate(self, Offset size):
         """
         Preallocate storage space for a file
         """
         with nogil: CHKERR( MPI_File_preallocate(self.ob_mpi, size) )
 
-    # [9.2.6] Querying the Size of a File
-    # -----------------------------------
     def Get_size(self):
         """
         Return the file size
@@ -123,8 +134,21 @@ cdef class File:
         def __get__(self):
             return self.Get_size()
 
-    # [9.2.7] Querying File Parameters
-    # --------------------------------
+    def Get_amode(self):
+        """
+        Return the file access mode
+        """
+        cdef int amode = 0
+        with nogil: CHKERR( MPI_File_get_amode(self.ob_mpi, &amode) )
+        return amode
+
+    property amode:
+        """file access mode"""
+        def __get__(self):
+            return self.Get_amode()
+
+    # File Group
+    # ----------
 
     def Get_group(self):
         """
@@ -140,21 +164,8 @@ cdef class File:
         def __get__(self):
             return self.Get_group()
 
-    def Get_amode(self):
-        """
-        Return the file access mode
-        """
-        cdef int amode = 0
-        with nogil: CHKERR( MPI_File_get_amode(self.ob_mpi, &amode) )
-        return amode
-
-    property amode:
-        """file access mode"""
-        def __get__(self):
-            return self.Get_amode()
-
-    # [9.2.8] File Info
-    # -----------------
+    # File Info
+    # ---------
 
     def Set_info(self, Info info not None):
         """
@@ -166,7 +177,7 @@ cdef class File:
     def Get_info(self):
         """
         Return the hints for a file that
-        are actually being used by MPI
+        that are currently in use
         """
         cdef Info info = <Info>Info.__new__(Info)
         with nogil: CHKERR( MPI_File_get_info(self.ob_mpi, &info.ob_mpi) )
@@ -179,8 +190,8 @@ cdef class File:
         def __set__(self, info):
             self.Set_info(info)
 
-    # [9.3] File Views
-    # ----------------
+    # File Views
+    # ----------
 
     def Set_view(self, Offset disp=0,
                  Datatype etype=None, Datatype filetype=None,
@@ -189,7 +200,7 @@ cdef class File:
         Set the file view
         """
         cdef char *cdatarep = b"native"
-        if datarep is not None: datarep = asmpistr(datarep, &cdatarep, NULL)
+        if datarep is not None: datarep = asmpistr(datarep, &cdatarep)
         cdef MPI_Datatype cetype = MPI_BYTE
         if etype is not None: cetype = etype.ob_mpi
         cdef MPI_Datatype cftype = cetype
@@ -208,16 +219,17 @@ cdef class File:
         cdef char cdatarep[MPI_MAX_DATAREP_STRING+1]
         with nogil: CHKERR( MPI_File_get_view(
             self.ob_mpi, &disp, &etype.ob_mpi, &ftype.ob_mpi, cdatarep) )
-        fix_fileview_Datatype(etype); fix_fileview_Datatype(ftype)
+        #if builtin_Datatype(etype.ob_mpi): etype.flags = 0
+        #if builtin_Datatype(ftype.ob_mpi): ftype.flags = 0
         cdatarep[MPI_MAX_DATAREP_STRING] = 0 # just in case
         cdef object datarep = mpistr(cdatarep)
         return (disp, etype, ftype, datarep)
 
-    # [9.4] Data Access
-    # -----------------
+    # Data Access
+    # -----------
 
-    # [9.4.2] Data Access with Explicit Offsets
-    # -----------------------------------------
+    # Data Access with Explicit Offsets
+    # ---------------------------------
 
     def Read_at(self, Offset offset, buf, Status status=None):
         """
@@ -266,6 +278,17 @@ cdef class File:
         request.ob_buf = m
         return request
 
+    def Iread_at_all(self, Offset offset, buf):
+        """
+        Nonblocking collective read using explicit offset
+        """
+        cdef _p_msg_io m = message_io_read(buf)
+        cdef Request request = <Request>Request.__new__(Request)
+        with nogil: CHKERR( MPI_File_iread_at_all(
+            self.ob_mpi, offset, m.buf, m.count, m.dtype, &request.ob_mpi) )
+        request.ob_buf = m
+        return request
+
     def Iwrite_at(self, Offset offset, buf):
         """
         Nonblocking write using explicit offset
@@ -277,8 +300,19 @@ cdef class File:
         request.ob_buf = m
         return request
 
-    # [9.4.3] Data Access with Individual File Pointers
-    # -------------------------------------------------
+    def Iwrite_at_all(self, Offset offset, buf):
+        """
+        Nonblocking collective write using explicit offset
+        """
+        cdef _p_msg_io m = message_io_write(buf)
+        cdef Request request = <Request>Request.__new__(Request)
+        with nogil: CHKERR( MPI_File_iwrite_at_all(
+            self.ob_mpi, offset, m.buf, m.count, m.dtype, &request.ob_mpi) )
+        request.ob_buf = m
+        return request
+
+    # Data Access with Individual File Pointers
+    # -----------------------------------------
 
     def Read(self, buf, Status status=None):
         """
@@ -327,6 +361,17 @@ cdef class File:
         request.ob_buf = m
         return request
 
+    def Iread_all(self, buf):
+        """
+        Nonblocking collective read using individual file pointer
+        """
+        cdef _p_msg_io m = message_io_read(buf)
+        cdef Request request = <Request>Request.__new__(Request)
+        with nogil: CHKERR( MPI_File_iread_all(
+            self.ob_mpi, m.buf, m.count, m.dtype, &request.ob_mpi) )
+        request.ob_buf = m
+        return request
+
     def Iwrite(self, buf):
         """
         Nonblocking write using individual file pointer
@@ -334,6 +379,17 @@ cdef class File:
         cdef _p_msg_io m = message_io_write(buf)
         cdef Request request = <Request>Request.__new__(Request)
         with nogil: CHKERR( MPI_File_iwrite(
+            self.ob_mpi, m.buf, m.count, m.dtype, &request.ob_mpi) )
+        request.ob_buf = m
+        return request
+
+    def Iwrite_all(self, buf):
+        """
+        Nonblocking collective write using individual file pointer
+        """
+        cdef _p_msg_io m = message_io_write(buf)
+        cdef Request request = <Request>Request.__new__(Request)
+        with nogil: CHKERR( MPI_File_iwrite_all(
             self.ob_mpi, m.buf, m.count, m.dtype, &request.ob_mpi) )
         request.ob_buf = m
         return request
@@ -363,8 +419,8 @@ cdef class File:
             self.ob_mpi, offset, &disp) )
         return disp
 
-    # [9.4.4] Data Access with Shared File Pointers
-    # ---------------------------------------------
+    # Data Access with Shared File Pointers
+    # -------------------------------------
 
     def Read_shared(self, buf, Status status=None):
         """
@@ -428,7 +484,8 @@ cdef class File:
         """
         Update the shared file pointer
         """
-        with nogil: CHKERR( MPI_File_seek_shared(self.ob_mpi, offset, whence) )
+        with nogil: CHKERR( MPI_File_seek_shared(
+            self.ob_mpi, offset, whence) )
 
     def Get_position_shared(self):
         """
@@ -436,11 +493,12 @@ cdef class File:
         in etype units relative to the current view
         """
         cdef MPI_Offset offset = 0
-        with nogil: CHKERR( MPI_File_get_position_shared(self.ob_mpi, &offset) )
+        with nogil: CHKERR( MPI_File_get_position_shared(
+            self.ob_mpi, &offset) )
         return offset
 
-    # [9.4.5] Split Collective Data Access Routines
-    # ---------------------------------------------
+    # Split Collective Data Access Routines
+    # -------------------------------------
 
     # explicit offset
 
@@ -558,11 +616,8 @@ cdef class File:
         with nogil: CHKERR( MPI_File_write_ordered_end(
             self.ob_mpi, m.buf, statusp) )
 
-    # [9.5] File Interoperability
-    # ---------------------------
-
-    # [9.5.1] Datatypes for File Interoperability
-    # -------------------------------------------
+    # File Interoperability
+    # ---------------------
 
     def Get_type_extent(self, Datatype datatype not None):
         """
@@ -573,11 +628,8 @@ cdef class File:
             self.ob_mpi, datatype.ob_mpi, &extent) )
         return extent
 
-    # [9.6] Consistency and Semantics
-    # -------------------------------
-
-    # [9.6.1] File Consistency
-    # ------------------------
+    # Consistency and Semantics
+    # -------------------------
 
     def Set_atomicity(self, bint flag):
         """
@@ -607,8 +659,8 @@ cdef class File:
         """
         with nogil: CHKERR( MPI_File_sync(self.ob_mpi) )
 
-    # [9.7] I/O Error Handling
-    # ------------------------
+    # Error Handling
+    # --------------
 
     def Get_errhandler(self):
         """
@@ -642,7 +694,7 @@ cdef class File:
     def f2py(cls, arg):
         """
         """
-        cdef File file = <File>cls()
+        cdef File file = <File>File.__new__(File)
         file.ob_mpi = MPI_File_f2c(arg)
         return file
 
@@ -655,3 +707,23 @@ cdef File __FILE_NULL__ = new_File(MPI_FILE_NULL)
 # -----------------------
 
 FILE_NULL = __FILE_NULL__  #: Null file handle
+
+
+# User-defined data representations
+# ---------------------------------
+
+def Register_datarep(datarep, read_fn, write_fn, extent_fn):
+    """
+    Register user-defined data representations
+    """
+    cdef char *cdatarep = NULL
+    datarep = asmpistr(datarep, &cdatarep)
+    cdef object state = _p_datarep(read_fn, write_fn, extent_fn)
+    cdef MPI_Datarep_conversion_function *rd = MPI_CONVERSION_FN_NULL
+    cdef MPI_Datarep_conversion_function *wr = MPI_CONVERSION_FN_NULL
+    cdef MPI_Datarep_extent_function     *ex = datarep_extent_fn
+    cdef void* xs = <void*>state
+    if read_fn  is not None: rd = datarep_read_fn
+    if write_fn is not None: wr = datarep_write_fn
+    CHKERR ( MPI_Register_datarep(cdatarep, rd, wr, ex, xs) )
+    datarep_registry[datarep] = state

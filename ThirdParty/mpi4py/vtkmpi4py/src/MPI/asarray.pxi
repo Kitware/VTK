@@ -1,42 +1,28 @@
 # -----------------------------------------------------------------------------
 
-cdef type arraytype
-from array import array as arraytype
-
-cdef extern from "Python.h":
-    int PySequence_DelItem(object, Py_ssize_t) except -1
-    object PySequence_InPlaceRepeat(object, Py_ssize_t)
-
 cdef inline object newarray_int(Py_ssize_t n, int **p):
-    cdef object ary = arraytype('i', [0])
-    if n <= 0:
-        PySequence_DelItem(ary, 0)
-    elif n > 1:
-        ary = PySequence_InPlaceRepeat(ary, n)
-    cdef int *base = NULL
-    cdef Py_ssize_t size = 0
-    PyObject_AsWriteBuffer(ary, <void**>&base, &size)
-    if p != NULL: p[0] = base
-    return ary
+    return allocate(n, sizeof(int), <void**>p)
 
 cdef inline object getarray_int(object ob, int *n, int **p):
     cdef int *base = NULL
     cdef Py_ssize_t i = 0, size = len(ob)
-    cdef object ary = newarray_int(size, &base)
-    for i from 0 <= i < size:
-        base[i] = ob[i]
-    if n != NULL: n[0] = <int> size # XXX overflow?
-    if p != NULL: p[0] = base
-    return ary
+    cdef object mem = newarray_int(size, &base)
+    for i from 0 <= i < size: base[i] = ob[i]
+    p[0] = base
+    n[0] = downcast(size)
+    return mem
 
-cdef inline object chkarray_int(object ob, Py_ssize_t size, int **p):
-    cdef int n = 0
-    cdef object ary = getarray_int(ob, &n, p)
-    if size != <Py_ssize_t>n: raise ValueError(
-        "expecting %d items, got %d" % (size, n))
-    return ary
+cdef inline object chkarray_int(object ob, int n, int **p):
+    cdef int size = 0
+    cdef object mem = getarray_int(ob, &size, p)
+    if n != size: raise ValueError(
+        "expecting %d items, got %d" % (n, size))
+    return mem
 
 # -----------------------------------------------------------------------------
+
+cdef inline object mkarray_int(Py_ssize_t size, int **p):
+     return allocate(size, sizeof(int), <void**>p)
 
 cdef inline object asarray_int(object sequence,
                                Py_ssize_t size, int **p):
@@ -77,7 +63,7 @@ cdef inline object asarray_Datatype(object sequence,
 cdef inline object asarray_Info(object sequence,
                                 Py_ssize_t size, MPI_Info **p):
      cdef MPI_Info *array = NULL
-     cdef Py_ssize_t i = 0, n = size
+     cdef Py_ssize_t i = 0
      cdef MPI_Info info = MPI_INFO_NULL
      cdef object ob
      if sequence is None or isinstance(sequence, Info):
@@ -87,9 +73,8 @@ cdef inline object asarray_Info(object sequence,
          for i from 0 <= i < size:
              array[i] = info
      else:
-         n = len(sequence)
-         if size != n: raise ValueError(
-             "expecting %d items, got %d" % (size, n))
+         if size != len(sequence): raise ValueError(
+             "expecting %d items, got %d" % (size, len(sequence)))
          ob = allocate(size, sizeof(MPI_Datatype), <void**>&array)
          for i from 0 <= i < size:
              array[i] = (<Info?>sequence[i]).ob_mpi
@@ -98,16 +83,21 @@ cdef inline object asarray_Info(object sequence,
 
 # -----------------------------------------------------------------------------
 
-cdef inline object asarray_str(object sequence,
-                               Py_ssize_t size, char ***p):
-     cdef Py_ssize_t i = 0, n = len(sequence)
-     if size != n: raise ValueError(
-         "expecting %d items, got %d" % (size, n))
+cdef inline int is_string(object obj):
+     return (isinstance(obj, str) or
+             isinstance(obj, bytes) or
+             isinstance(obj, unicode))
+
+cdef inline object asarray_str(object sequence, char ***p):
+     if is_string(sequence):
+         raise ValueError("expecting a sequence of strings")
+     sequence = list(sequence)
+     cdef Py_ssize_t i = 0, size = len(sequence)
      cdef char** array = NULL
-     cdef object ob = allocate((n+1), sizeof(char*), <void**>&array)
-     for i from 0 <= i < n:
-         sequence[i] = asmpistr(sequence[i], &array[i], NULL)
-     array[n] = NULL
+     cdef object ob = allocate(size+1, sizeof(char*), <void**>&array)
+     for i from 0 <= i < size:
+         sequence[i] = asmpistr(sequence[i], &array[i])
+     array[size] = NULL
      p[0] = array
      return (sequence, ob)
 
@@ -115,22 +105,37 @@ cdef inline object asarray_argv(object sequence, char ***p):
      if sequence is None:
          p[0] = MPI_ARGV_NULL
          return None
-     cdef Py_ssize_t size = len(sequence)
-     return asarray_str(sequence, size, p)
+     if is_string(sequence):
+         sequence = [sequence]
+     return asarray_str(sequence, p)
+
+cdef inline object asarray_cmds(object sequence,
+                               int *count, char ***p):
+     if is_string(sequence):
+         raise ValueError("expecting a sequence of strings")
+     count[0] = <int>len(sequence)
+     return asarray_str(sequence, p)
 
 cdef inline object asarray_argvs(object sequence,
                                  Py_ssize_t size, char ****p):
      if sequence is None:
          p[0] = MPI_ARGVS_NULL
          return None
-     cdef Py_ssize_t i = 0, n = len(sequence)
-     if size != n: raise ValueError(
-         "expecting %d items, got %d" % (size, n))
+     if is_string(sequence):
+         sequence = [sequence] * size
+     else:
+         sequence = list(sequence)
+         if size != len(sequence): raise ValueError(
+             "expecting %d items, got %d" % (size, len(sequence)))
+     cdef Py_ssize_t i = 0
      cdef char*** array = NULL
-     cdef object ob = allocate((n+1), sizeof(char**), <void**>&array)
-     for i from 0 <= i < n:
-         sequence[i] = asarray_argv(sequence[i], &array[i])
-     array[n] = NULL
+     cdef object ob = allocate(size+1, sizeof(char**), <void**>&array)
+     cdef object argv
+     for i from 0 <= i < size:
+         argv = sequence[i]
+         if argv is None: argv = []
+         sequence[i] = asarray_argv(argv, &array[i])
+     array[size] = NULL
      p[0] = array
      return (sequence, ob)
 
@@ -140,16 +145,14 @@ cdef inline object asarray_nprocs(object sequence,
      cdef int value = 1
      cdef int *array = NULL
      cdef object ob
-     if sequence is None or is_int(sequence):
-         if sequence is None:
-             value = 1
-         else:
+     if sequence is None or is_integral(sequence):
+         if sequence is not None:
              value = sequence
          ob = newarray_int(size, &array)
          for i from 0 <= i < size:
              array[i] = value
      else:
-         ob = asarray_int(sequence, <int>size, &array)
+         ob = asarray_int(sequence, size, &array)
      p[0] = array
      return ob
 

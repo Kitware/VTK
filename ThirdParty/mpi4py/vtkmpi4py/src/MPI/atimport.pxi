@@ -1,5 +1,9 @@
 # -----------------------------------------------------------------------------
 
+cdef extern from "atimport.h": pass
+
+# -----------------------------------------------------------------------------
+
 cdef extern from "Python.h":
     int Py_IsInitialized() nogil
     void PySys_WriteStderr(char*,...)
@@ -11,136 +15,160 @@ cdef extern from "Python.h":
 
 # -----------------------------------------------------------------------------
 
-cdef extern from "atimport.h":
-    pass
+cdef extern from *:
+    enum: USE_MATCHED_RECV "PyMPI_USE_MATCHED_RECV"
 
-# -----------------------------------------------------------------------------
-
-ctypedef struct RCParams:
+ctypedef struct Options:
     int initialize
-    int threaded
+    int threads
     int thread_level
     int finalize
+    int fast_reduce
+    int recv_mprobe
+    int errors
 
-cdef int warnRC(object attr, object value) except -1:
+cdef Options options
+options.initialize = 1
+options.threads = 1
+options.thread_level = MPI_THREAD_MULTIPLE
+options.finalize = 1
+options.fast_reduce = 1
+options.recv_mprobe = 1
+options.errors = 1
+
+cdef int warnOpt(object name, object value) except -1:
     cdef object warn
     from warnings import warn
-    warn("mpi4py.rc: '%s': unexpected value '%r'" % (attr, value))
+    warn("mpi4py.rc: '%s': unexpected value '%r'" % (name, value))
 
-cdef int getRCParams(RCParams* rc) except -1:
-    #
-    rc.initialize = 1
-    rc.threaded = 1
-    rc.thread_level = MPI_THREAD_MULTIPLE
-    rc.finalize = 1
-    #
-    cdef object rcmod
-    try: from mpi4py import rc as rcmod
+cdef int getOptions(Options* opts) except -1:
+    cdef object rc
+    opts.initialize = 1
+    opts.threads = 1
+    opts.thread_level = MPI_THREAD_MULTIPLE
+    opts.finalize = 1
+    opts.fast_reduce = 1
+    opts.recv_mprobe = 1
+    opts.errors = 1
+    try: from mpi4py import rc
     except: return 0
     #
     cdef object initialize = True
-    cdef object threaded = True
+    cdef object threads = True
     cdef object thread_level = 'multiple'
-    cdef object finalize = True
-    try: initialize = rcmod.initialize
+    cdef object finalize = None
+    cdef object fast_reduce = True
+    cdef object recv_mprobe = True
+    cdef object errors = 'exception'
+    try: initialize = rc.initialize
     except: pass
-    try: threaded = rcmod.threaded
+    try: threads = rc.threads
     except: pass
-    try: thread_level = rcmod.thread_level
+    try: threads = rc.threaded # backward
+    except: pass               # compatibility
+    try: thread_level = rc.thread_level
     except: pass
-    try: finalize = rcmod.finalize
+    try: finalize = rc.finalize
+    except: pass
+    try: fast_reduce = rc.fast_reduce
+    except: pass
+    try: recv_mprobe = rc.recv_mprobe
+    except: pass
+    try: errors = rc.errors
     except: pass
     #
     if initialize in (True, 'yes'):
-        rc.initialize = 1
+        opts.initialize = 1
     elif initialize in (False, 'no'):
-        rc.initialize = 0
+        opts.initialize = 0
     else:
-        warnRC("initialize", initialize)
+        warnOpt("initialize", initialize)
     #
-    if threaded in (True, 'yes'):
-        rc.threaded = 1
-    elif threaded in (False, 'no'):
-        rc.threaded = 0
+    if threads in (True, 'yes'):
+        opts.threads = 1
+    elif threads in (False, 'no'):
+        opts.threads = 0
     else:
-        warnRC("threaded", threaded)
+        warnOpt("threads", threads)
     #
     if thread_level == 'single':
-        rc.thread_level = MPI_THREAD_SINGLE
+        opts.thread_level = MPI_THREAD_SINGLE
     elif thread_level == 'funneled':
-        rc.thread_level = MPI_THREAD_FUNNELED
+        opts.thread_level = MPI_THREAD_FUNNELED
     elif thread_level == 'serialized':
-        rc.thread_level = MPI_THREAD_SERIALIZED
+        opts.thread_level = MPI_THREAD_SERIALIZED
     elif thread_level == 'multiple':
-        rc.thread_level = MPI_THREAD_MULTIPLE
+        opts.thread_level = MPI_THREAD_MULTIPLE
     else:
-        warnRC("thread_level", thread_level)
+        warnOpt("thread_level", thread_level)
     #
-    if finalize in (True, 'yes'):
-        rc.finalize = 1
+    if finalize is None:
+        opts.finalize = opts.initialize
+    elif finalize in (True, 'yes'):
+        opts.finalize = 1
     elif finalize in (False, 'no'):
-        rc.finalize = 0
+        opts.finalize = 0
     else:
-        warnRC("finalize", finalize)
+        warnOpt("finalize", finalize)
+    #
+    if fast_reduce in (True, 'yes'):
+        opts.fast_reduce = 1
+    elif fast_reduce in (False, 'no'):
+        opts.fast_reduce = 0
+    else:
+        warnOpt("fast_reduce", fast_reduce)
+    #
+    if recv_mprobe in (True, 'yes'):
+        opts.recv_mprobe = 1 and USE_MATCHED_RECV
+    elif recv_mprobe in (False, 'no'):
+        opts.recv_mprobe = 0
+    else:
+        warnOpt("recv_mprobe", recv_mprobe)
+    #
+    if errors == 'default':
+        opts.errors = 0
+    elif errors == 'exception':
+        opts.errors = 1
+    elif errors == 'fatal':
+        opts.errors = 2
+    else:
+        warnOpt("errors", errors)
     #
     return 0
 
 # -----------------------------------------------------------------------------
 
 cdef extern from *:
-    #
-    int PyMPI_STARTUP_DONE
-    int PyMPI_StartUp() nogil
-    #
-    int PyMPI_CLEANUP_DONE
-    int PyMPI_CleanUp() nogil
+    int PyMPI_Commctx_finalize() nogil
 
-cdef int inited_atimport = 0
-cdef int finalize_atexit = 0
-
-PyMPI_STARTUP_DONE = 0
-PyMPI_CLEANUP_DONE = 0
-
-cdef int initialize() except -1:
-    global inited_atimport
-    global finalize_atexit
-    cdef int ierr = MPI_SUCCESS
-    # MPI initialized ?
-    cdef int initialized = 1
-    ierr = MPI_Initialized(&initialized)
-    # MPI finalized ?
-    cdef int finalized = 1
-    ierr = MPI_Finalized(&finalized)
-    # Do we have to initialize MPI?
-    if initialized:
-        if not finalized:
-            # Cleanup at (the very end of) Python exit
-            if Py_AtExit(atexit) < 0:
-                PySys_WriteStderr(b"warning: could not register "
-                                  b"cleanup with Py_AtExit()\n", 0)
-        return 0
-    # Use user parameters from 'mpi4py.rc' module
-    cdef RCParams rc
-    getRCParams(&rc)
-    cdef int required = MPI_THREAD_SINGLE
-    cdef int provided = MPI_THREAD_SINGLE
-    if rc.initialize: # We have to initialize MPI
-        if rc.threaded:
-            required = rc.thread_level
-            ierr = MPI_Init_thread(NULL, NULL, required, &provided)
-            if ierr != MPI_SUCCESS: raise RuntimeError(
-                "MPI_Init_thread() failed [error code: %d]" % ierr)
-        else:
-            ierr = MPI_Init(NULL, NULL)
-            if ierr != MPI_SUCCESS: raise RuntimeError(
-                "MPI_Init() failed [error code: %d]" % ierr)
-        inited_atimport = 1 # We initialized MPI
-        if rc.finalize:     # We have to finalize MPI
-            finalize_atexit = 1
+cdef int bootstrap() except -1:
+    # Get options from 'mpi4py.rc' module
+    getOptions(&options)
     # Cleanup at (the very end of) Python exit
     if Py_AtExit(atexit) < 0:
         PySys_WriteStderr(b"warning: could not register "
                           b"cleanup with Py_AtExit()\n", 0)
+    # Do we have to initialize MPI?
+    cdef int initialized = 1
+    <void>MPI_Initialized(&initialized)
+    if initialized:
+        options.finalize = 0
+        return 0
+    if not options.initialize:
+        return 0
+    # MPI initialization
+    cdef int ierr = MPI_SUCCESS
+    cdef int required = MPI_THREAD_SINGLE
+    cdef int provided = MPI_THREAD_SINGLE
+    if options.threads:
+        required = options.thread_level
+        ierr = MPI_Init_thread(NULL, NULL, required, &provided)
+        if ierr != MPI_SUCCESS: raise RuntimeError(
+            "MPI_Init_thread() failed [error code: %d]" % ierr)
+    else:
+        ierr = MPI_Init(NULL, NULL)
+        if ierr != MPI_SUCCESS: raise RuntimeError(
+            "MPI_Init() failed [error code: %d]" % ierr)
     return 0
 
 cdef inline int mpi_active() nogil:
@@ -148,43 +176,36 @@ cdef inline int mpi_active() nogil:
     # MPI initialized ?
     cdef int initialized = 0
     ierr = MPI_Initialized(&initialized)
-    if not initialized or ierr: return 0
+    if not initialized or ierr != MPI_SUCCESS: return 0
     # MPI finalized ?
     cdef int finalized = 1
     ierr = MPI_Finalized(&finalized)
-    if finalized or ierr: return 0
+    if finalized or ierr != MPI_SUCCESS: return 0
     # MPI should be active ...
     return 1
 
-cdef void startup() nogil:
-    cdef int ierr = MPI_SUCCESS
-    if not mpi_active(): return
-    #DBG# fprintf(stderr, b"statup: BEGIN\n"); fflush(stderr)
-    ierr = PyMPI_StartUp();
-    if ierr: pass
-    #DBG# fprintf(stderr, b"statup: END\n"); fflush(stderr)
+cdef int initialize() nogil except -1:
+    if not mpi_active(): return 0
+    comm_set_eh(MPI_COMM_SELF)
+    comm_set_eh(MPI_COMM_WORLD)
+    return 0
 
-cdef void cleanup() nogil:
-    cdef int ierr = MPI_SUCCESS
+cdef void finalize() nogil:
     if not mpi_active(): return
-    #DBG# fprintf(stderr, b"cleanup: BEGIN\n"); fflush(stderr)
-    ierr = PyMPI_CleanUp()
-    if ierr: pass
-    #DBG# fprintf(stderr, b"cleanup: END\n"); fflush(stderr)
+    <void>PyMPI_Commctx_finalize()
 
 cdef void atexit() nogil:
-    cdef int ierr = MPI_SUCCESS
     if not mpi_active(): return
-    #DBG# fprintf(stderr, b"atexit: BEGIN\n"); fflush(stderr)
-    cleanup()
-    if not finalize_atexit: return
-    ierr = MPI_Finalize()
-    if ierr: pass
-    #DBG# fprintf(stderr, b"atexit: END\n"); fflush(stderr)
+    finalize()
+    if options.finalize:
+        <void>MPI_Finalize()
 
 # -----------------------------------------------------------------------------
 
 # Vile hack for raising a exception and not contaminate the traceback
+
+cdef extern from *:
+    enum: PyMPI_ERR_UNAVAILABLE
 
 cdef extern from *:
     void PyErr_SetObject(object, object)
@@ -194,7 +215,7 @@ cdef extern from *:
 cdef object MPIException = <object>PyExc_RuntimeError
 
 cdef int PyMPI_Raise(int ierr) except -1 with gil:
-    if ierr == -1:
+    if ierr == PyMPI_ERR_UNAVAILABLE:
         PyErr_SetObject(<object>PyExc_NotImplementedError, None)
         return 0
     if (<void*>MPIException) != NULL:
@@ -204,7 +225,7 @@ cdef int PyMPI_Raise(int ierr) except -1 with gil:
     return 0
 
 cdef inline int CHKERR(int ierr) nogil except -1:
-    if ierr == 0: return 0
+    if ierr == MPI_SUCCESS: return 0
     PyMPI_Raise(ierr)
     return -1
 
