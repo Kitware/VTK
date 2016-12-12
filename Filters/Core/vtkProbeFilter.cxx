@@ -579,7 +579,7 @@ public:
     this->Initialize();
   }
 
-  const CellStorage& operator=(const CellStorage&)
+  CellStorage& operator=(const CellStorage&)
   {
     this->Clear();
     this->Initialize();
