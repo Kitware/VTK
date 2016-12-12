@@ -2575,7 +2575,12 @@ int Test_void_InsertNextTuple_tuple()
     {
       tuple.push_back(static_cast<TupleArgT>(((t * comps) + c) % 17));
     }
-    source->InsertNextTuple(&tuple[0]);
+    vtkIdType result = source->InsertNextTuple(&tuple[0]);
+    if (result != t)
+    {
+      DataArrayAPIError("Return value should be " << t << ", but got " << result
+                        << ".");
+    }
     if (source->GetSize() < ((t + 1) * comps))
     {
       DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
