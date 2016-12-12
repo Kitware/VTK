@@ -21,11 +21,12 @@
 #include <vtkGPUVolumeRayCastMapper.h>
 
 // Forward declarations
+class vtkGenericOpenGLResourceFreeCallback;
+class vtkImplicitFunction;
 class vtkOpenGLCamera;
 class vtkShaderProgram;
 class vtkTextureObject;
-class vtkGenericOpenGLResourceFreeCallback;
-class vtkImplicitFunction;
+class vtkVolumeTexture;
 
 //----------------------------------------------------------------------------
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
@@ -85,6 +86,13 @@ public:
   vtkSetVector2Macro(NoiseTextureSize, int);
   //@}
 
+  /**
+   * Set a fixed number of partitions in which to split the volume
+   * during rendring. This will force by-block rendering without
+   * trying to compute an optimum number of partitions.
+   */
+  void SetPartitions(unsigned short x, unsigned short y, unsigned short z);
+
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
   ~vtkOpenGLGPUVolumeRayCastMapper();
@@ -130,7 +138,6 @@ protected:
   // Method that performs the actual rendering given a volume and a shader
   void DoGPURender(vtkRenderer* ren,
                    vtkVolume* vol,
-                   vtkImageData* input,
                    vtkOpenGLCamera* cam,
                    vtkShaderProgram* shaderProgram,
                    int noOfComponents,
@@ -169,6 +176,9 @@ protected:
 private:
   class vtkInternal;
   vtkInternal* Impl;
+
+  friend class vtkVolumeTexture;
+  vtkVolumeTexture* VolumeTexture;
 
   vtkImplicitFunction* NoiseGenerator;
   int NoiseTextureSize[2];

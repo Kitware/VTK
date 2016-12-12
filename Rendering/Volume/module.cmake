@@ -13,6 +13,7 @@ vtk_module(vtkRenderingVolume
     vtkImagingHybrid
     vtkInteractionStyle
     vtkIOLegacy
+    vtkIOImage
   KIT
     vtkRendering
   DEPENDS

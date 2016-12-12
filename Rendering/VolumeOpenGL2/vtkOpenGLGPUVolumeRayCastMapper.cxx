@@ -72,6 +72,7 @@
 #include <vtkUnsignedIntArray.h>
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
+#include <vtkVolumeTexture.h>
 #include <vtkWeakPointer.h>
 #include <vtkHardwareSelector.h>
 
@@ -101,8 +102,6 @@ public:
     this->CubeVBOId = 0;
     this->CubeVAOId = 0;
     this->CubeIndicesId = 0;
-    this->InterpolationType = vtkTextureObject::Linear;
-    this->VolumeTextureObject = 0;
     this->NoiseTextureObject = NULL;
     this->DepthTextureObject = 0;
     this->TextureWidth = 1024;
@@ -120,10 +119,6 @@ public:
     this->LastDepthPassWindowSize[0] = this->LastDepthPassWindowSize[1] = 0;
     this->LastRenderToImageWindowSize[0] = 0;
     this->LastRenderToImageWindowSize[1] = 0;
-    this->ScalarsRange[0][0] = this->ScalarsRange[0][1] = 0.0;
-    this->ScalarsRange[1][0] = this->ScalarsRange[1][1] = 0.0;
-    this->ScalarsRange[2][0] = this->ScalarsRange[2][1] = 0.0;
-    this->ScalarsRange[3][0] = this->ScalarsRange[3][1] = 0.0;
     this->CurrentSelectionPass = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
 
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
@@ -235,10 +230,6 @@ public:
   void Initialize(vtkRenderer* ren, vtkVolume* vol,
                   int noOfComponents, int independentComponents);
 
-  bool LoadVolume(vtkRenderer* ren, vtkImageData* imageData,
-                  vtkVolumeProperty* volumeProperty,
-                  vtkDataArray* scalars, int independentComponents);
-
   bool LoadMask(vtkRenderer* ren, vtkImageData* input,
                 vtkImageData* maskInput, int textureExtent[6],
                 vtkVolume* volume);
@@ -248,10 +239,7 @@ public:
   void ComputeBounds(vtkImageData* input);
 
   // Update OpenGL volume information
-  int UpdateVolume(vtkVolumeProperty* volumeProperty);
-
-  // Update interpolation to be used for 3D volume
-  int UpdateInterpolationType(vtkVolumeProperty* volumeProperty);
+  void UpdateVolume(vtkVolumeProperty* volumeProperty);
 
   // Update transfer color function based on the incoming inputs
   // and number of scalar components.
@@ -364,15 +352,11 @@ public:
   bool ValidTransferFunction;
   bool LoadDepthTextureExtensionsSucceeded;
   bool CameraWasInsideInLastUpdate;
-  bool HandleLargeDataTypes;
 
   GLuint CubeVBOId;
   GLuint CubeVAOId;
   GLuint CubeIndicesId;
 
-  int InterpolationType;
-
-  vtkTextureObject* VolumeTextureObject;
   vtkTextureObject* NoiseTextureObject;
   vtkTextureObject* DepthTextureObject;
 
@@ -393,7 +377,6 @@ public:
   int LastDepthPassWindowSize[2];
   int LastRenderToImageWindowSize[2];
 
-  double ScalarsRange[4][2];
   double LoadedBounds[6];
   int Extents[6];
   double DatasetStepSize[3];
@@ -626,309 +609,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
   this->InitializationTime.Modified();
 }
 
-//----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
-  vtkRenderer* ren,
-  vtkImageData* imageData,
-  vtkVolumeProperty* volumeProperty,
-  vtkDataArray* scalars,
-  int vtkNotUsed(independentComponents))
-{
-  // Allocate data with internal format and foramt as (GL_RED)
-  GLint internalFormat = 0;
-  GLenum format = 0;
-  GLenum type = 0;
-
-  this->HandleLargeDataTypes = false;
-  int noOfComponents = scalars->GetNumberOfComponents();
-
-  if (!this->VolumeTextureObject)
-  {
-    this->VolumeTextureObject = vtkTextureObject::New();
-  }
-
-  this->VolumeTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                         ren->GetRenderWindow()));
-
-  int scalarType = scalars->GetDataType();
-
-  // Get the default choices for format from the texture
-  format = this->VolumeTextureObject->GetDefaultFormat(
-    scalarType, noOfComponents,false);
-  internalFormat = this->VolumeTextureObject->GetDefaultInternalFormat(
-    scalarType, noOfComponents,false);
-  type = this->VolumeTextureObject->GetDefaultDataType(scalarType);
-
-  bool supportsFloat = true;
-
-  // scale and bias
-  // NP = P*scale + bias
-  // given two point matcvhes a,b to c,d the fomula
-  // is scale = (d-c)/(b-a) and
-  // bias = c - a*scale
-  // for unsigned/float types c is zero
-  std::vector<double> bias(noOfComponents, 0.0);
-  std::vector<double> scale(noOfComponents, 1.0);
-  double oglScale = 1.0;
-  double oglBias = 0.0;
-
-  switch(scalarType)
-  {
-    case VTK_FLOAT:
-      if (supportsFloat)
-      {
-        switch(noOfComponents)
-        {
-          case 1:
-            internalFormat = GL_R16F;
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG16F;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB16F;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA16F;
-            format = GL_RGBA;
-            break;
-        }
-      }
-      else
-      {
-        switch(noOfComponents)
-        {
-          case 1:
-            internalFormat = GL_RED;
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-        }
-      }
-      break;
-    case VTK_UNSIGNED_CHAR:
-      oglScale = 1.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
-      oglBias = 0.0;
-      break;
-    case VTK_SIGNED_CHAR:
-      oglScale = 2.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
-      oglBias = -1.0 - VTK_SIGNED_CHAR_MIN * oglScale;
-      break;
-    case VTK_CHAR:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_BIT:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_ID_TYPE:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_INT:
-    case VTK_DOUBLE:
-    case VTK___INT64:
-    case VTK_LONG:
-    case VTK_LONG_LONG:
-    case VTK_UNSIGNED_INT:
-    case VTK_UNSIGNED___INT64:
-    case VTK_UNSIGNED_LONG:
-    case VTK_UNSIGNED_LONG_LONG:
-      this->HandleLargeDataTypes = true;
-      type = GL_FLOAT;
-      switch(noOfComponents)
-      {
-        case 1:
-          if (supportsFloat)
-          {
-            internalFormat = GL_R16F;
-          }
-          else
-          {
-            internalFormat = GL_RED;
-          }
-          format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
-      }
-      break;
-    case VTK_SHORT:
-      oglScale = 2.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
-      oglBias = -1.0 - VTK_SHORT_MIN * oglScale;
-      break;
-    case VTK_STRING:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      oglScale = 1.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
-      oglBias = 0.0;
-      break;
-    default:
-      assert("check: impossible case" && 0);
-      break;
-  }
-
-  for (int n = 0; n < noOfComponents; ++n)
-  {
-    double oglA = this->ScalarsRange[n][0] * oglScale + oglBias;
-    double oglB = this->ScalarsRange[n][1] * oglScale + oglBias;
-    scale[n] = 1.0/ (oglB - oglA);
-    bias[n] = 0.0 - oglA*scale[n];
-  }
-
-  // Update scale and bias
-  this->Scale = scale;
-  this->Bias = bias;
-
-  // Update texture size
-  imageData->GetExtent(this->Extents);
-
-  if (this->Parent->CellFlag)
-  {
-    int i = 1;
-    while (i < 6)
-    {
-      this->Extents[i]--;
-      i += 2;
-    }
-  }
-
-  int i = 0;
-  while(i < 3)
-  {
-    this->TextureSize[i] = this->Extents[2*i+1] - this->Extents[2*i] + 1;
-    ++i;
-  }
-
-  this->VolumeTextureObject->SetDataType(type);
-  this->VolumeTextureObject->SetFormat(format);
-  this->VolumeTextureObject->SetInternalFormat(internalFormat);
-
-  this->UpdateInterpolationType(volumeProperty);
-
-  if (!this->HandleLargeDataTypes)
-  {
-    void* dataPtr = scalars->GetVoidPointer(0);
-
-    this->VolumeTextureObject->Create3DFromRaw(
-      this->TextureSize[0],
-      this->TextureSize[1],
-      this->TextureSize[2],
-      noOfComponents,
-      scalarType,
-      dataPtr);
-    this->VolumeTextureObject->Activate();
-    this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
-    this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
-    this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
-  }
-  else
-  {
-    // Convert and send to the GPU, z-slice by z-slice so that we won't allocate
-    // memory at once.Allocate memory on the GPU (NULL data pointer with the
-    // right dimensions). Here we are assuming that
-    // GL_ARB_texture_non_power_of_two is available
-    this->VolumeTextureObject->Create3DFromRaw(
-      this->TextureSize[0],
-      this->TextureSize[1],
-      this->TextureSize[2],
-      noOfComponents,
-      scalarType,
-      0);
-    this->VolumeTextureObject->Activate();
-    this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
-    this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
-    this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-    // Send the slices one by one to the GPU. We are not sending all of them
-    // together so as to avoid allocating big data on the GPU which may not
-    // work if the original dataset is big as well.
-    vtkFloatArray* sliceArray = vtkFloatArray::New();
-    sliceArray->SetNumberOfComponents(noOfComponents);
-    sliceArray->SetNumberOfTuples(this->TextureSize[0] * this->TextureSize[1]);
-    void* slicePtr = sliceArray->GetVoidPointer(0);
-    int k = 0;
-    int kInc = (this->Dimensions[0] - this->Parent->CellFlag) *
-               (this->Dimensions[1] - this->Parent->CellFlag);
-    int kOffset = (this->Extents[4] *
-                  (this->Dimensions[1] - this->Parent->CellFlag) +
-                   this->Extents[2]) *
-                  (this->Dimensions[0] - this->Parent->CellFlag) +
-                   this->Extents[0];
-    float *tupPtr = new float [noOfComponents];
-    while(k < this->TextureSize[2])
-    {
-      int j = 0;
-      int jOffset = 0;
-      int jDestOffset = 0;
-      while(j < this->TextureSize[1])
-      {
-        i = 0;
-        while(i < this->TextureSize[0])
-        {
-          double * scalarPtr = scalars->GetTuple(kOffset + jOffset + i);
-          for (int n = 0; n < noOfComponents; ++n)
-          {
-            tupPtr[n] = scalarPtr[n]*scale[n] + bias[n];
-          }
-          sliceArray->SetTuple(jDestOffset + i, tupPtr);
-          ++i;
-        }
-        ++j;
-        jOffset += this->Dimensions[0] - this->Parent->CellFlag;
-        jDestOffset += this->TextureSize[0];
-      }
-
-      // Here we are assuming that GL_ARB_texture_non_power_of_two is
-      // available
-      glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, k,
-                      this->TextureSize[0], this->TextureSize[1], 1,
-                      format, type, slicePtr);
-      ++k;
-      kOffset += kInc;
-    }
-    delete [] tupPtr;
-    sliceArray->Delete();
-  }
-  // do not tie up the texture unit unless we are activly using it
-  // textures can exist without being active
-  this->VolumeTextureObject->Deactivate();
-  return 1;
-}
-
 //-----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
   vtkImageData* vtkNotUsed(input), vtkImageData* maskInput,
@@ -1008,17 +688,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
   input->GetOrigin(origin);
   input->GetExtent(this->Extents);
 
-
-  if (this->Parent->CellFlag)
-  {
-    int i = 1;
-    while (i < 6)
-    {
-      this->Extents[i]--;
-      i += 2;
-    }
-  }
-
   int swapBounds[3];
   swapBounds[0] = (this->CellSpacing[0] < 0);
   swapBounds[1] = (this->CellSpacing[1] < 0);
@@ -1051,105 +720,33 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
   // Loaded extents represent cells
   else
   {
-    int wholeTextureExtent[6];
-    input->GetExtent(wholeTextureExtent);
-    int i = 1;
-    while (i < 6)
-    {
-      wholeTextureExtent[i]--;
-      i += 2;
-    }
-
-    i = 0;
+    int i = 0;
     while (i < 3)
     {
-      if(this->Extents[2 * i] == wholeTextureExtent[2 * i])
-      {
-        this->LoadedBounds[2 * i + swapBounds[i]] = origin[i];
-      }
-      else
-      {
-        this->LoadedBounds[2 * i + swapBounds[i]] = origin[i] +
-          (static_cast<double>(this->Extents[2 * i]) + 0.5) *
-          this->CellSpacing[i];
-      }
+      this->LoadedBounds[2 * i + swapBounds[i]] = origin[i] +
+        (static_cast<double>(this->Extents[2 * i])) *
+        this->CellSpacing[i];
 
-      if(this->Extents[2 * i + 1] == wholeTextureExtent[2 * i + 1])
-      {
-        this->LoadedBounds[2 * i + 1 - swapBounds[i]] = origin[i] +
-          (static_cast<double>(this->Extents[2 * i + 1]) + 1.0) *
-          this->CellSpacing[i];
-      }
-      else
-      {
-        this->LoadedBounds[2 * i + 1-swapBounds[i]] = origin[i] +
-          (static_cast<double>(this->Extents[2 * i + 1]) + 0.5) *
-          this->CellSpacing[i];
-      }
-      ++i;
+      this->LoadedBounds[2 * i + 1 - swapBounds[i]] = origin[i] +
+        (static_cast<double>(this->Extents[2 * i + 1]) + 1.0) *
+        this->CellSpacing[i];
+
+      i++;
     }
   }
 }
 
 //----------------------------------------------------------------------------
-int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolume(
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolume(
   vtkVolumeProperty* volumeProperty)
 {
   if (volumeProperty->GetMTime() > this->VolumeUpdateTime.GetMTime())
-  {
-    int interpolationType = this->InterpolationType;
-
-    this->UpdateInterpolationType(volumeProperty);
-
-    if (interpolationType != this->InterpolationType)
     {
-      this->VolumeTextureObject->Activate();
-      this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
-      this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
+    int const newInterp = volumeProperty->GetInterpolationType();
+    this->Parent->VolumeTexture->UpdateInterpolationType(newInterp);
     }
-  }
+
   this->VolumeUpdateTime.Modified();
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
-  vtkVolumeProperty* volumeProperty)
-{
-    if (volumeProperty != NULL)
-    {
-      if (volumeProperty->GetInterpolationType() ==
-          VTK_LINEAR_INTERPOLATION &&
-          this->InterpolationType != vtkTextureObject::Linear)
-      {
-        this->InterpolationType = vtkTextureObject::Linear;
-        return 0;
-      }
-      else if(volumeProperty->GetInterpolationType() ==
-              VTK_NEAREST_INTERPOLATION &&
-              this->InterpolationType != vtkTextureObject::Nearest)
-      {
-        this->InterpolationType = vtkTextureObject::Nearest;
-        return 0;
-      }
-      else if (volumeProperty->GetInterpolationType() !=
-               VTK_LINEAR_INTERPOLATION &&
-               volumeProperty->GetInterpolationType() !=
-               VTK_NEAREST_INTERPOLATION)
-      {
-        std::cerr << "Invalid interpolation type for volume texture"
-                  << std::endl;
-        return 1;
-      }
-      else
-      {
-        // Do nothing
-        return 0;
-      }
-    }
-
-    return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1166,28 +763,26 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   vtkColorTransferFunction* colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(component);
 
+  double componentRange[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    componentRange[i] = this->Parent->VolumeTexture->ScalarRange[component][i];
+  }
+
   // Add points only if its not being added before
   if (colorTransferFunction->GetSize() < 1)
   {
-    colorTransferFunction->AddRGBPoint(this->ScalarsRange[component][0],
-                                       0.0, 0.0, 0.0);
-    colorTransferFunction->AddRGBPoint(this->ScalarsRange[component][1],
-                                       1.0, 1.0, 1.0);
+    colorTransferFunction->AddRGBPoint(componentRange[0], 0.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(componentRange[1], 1.0, 1.0, 1.0);
   }
 
   int filterVal =
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
-  double scalarRange[2];
-  for (int i = 0; i < 2; ++i)
-  {
-    scalarRange[i] = this->ScalarsRange[component][i];
-  }
-
   this->RGBTables->GetTable(component)->Update(
     volumeProperty->GetRGBTransferFunction(component),
-    scalarRange,
+    componentRange,
 #if GL_ES_VERSION_3_0 != 1
     filterVal,
 #else
@@ -1200,13 +795,13 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   {
     vtkColorTransferFunction* colorTransferFunc =
       volumeProperty->GetRGBTransferFunction(1);
-    this->Mask1RGBTable->Update(colorTransferFunc, scalarRange,
+    this->Mask1RGBTable->Update(colorTransferFunc, componentRange,
                                 vtkTextureObject::Nearest,
                                 vtkOpenGLRenderWindow::SafeDownCast(
                                   ren->GetRenderWindow()));
 
     colorTransferFunc = volumeProperty->GetRGBTransferFunction(2);
-    this->Mask2RGBTable->Update(colorTransferFunc, scalarRange,
+    this->Mask2RGBTable->Update(colorTransferFunc, componentRange,
                                 vtkTextureObject::Nearest,
                                 vtkOpenGLRenderWindow::SafeDownCast(
                                   ren->GetRenderWindow()));
@@ -1234,26 +829,26 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   vtkPiecewiseFunction* scalarOpacity =
     volumeProperty->GetScalarOpacity(lookupTableIndex);
 
+  double componentRange[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    componentRange[i] = this->Parent->VolumeTexture->ScalarRange[component][i];
+  }
+
   if (scalarOpacity->GetSize() < 1)
   {
-    scalarOpacity->AddPoint(this->ScalarsRange[component][0], 0.0);
-    scalarOpacity->AddPoint(this->ScalarsRange[component][1], 0.5);
+    scalarOpacity->AddPoint(componentRange[0], 0.0);
+    scalarOpacity->AddPoint(componentRange[1], 0.5);
   }
 
   int filterVal =
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
-  double scalarRange[2];
-  for (int i = 0; i < 2; ++i)
-  {
-    scalarRange[i] = this->ScalarsRange[component][i];
-  }
-
   this->OpacityTables->GetTable(lookupTableIndex)->Update(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
-    scalarRange,
+    componentRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
 #if GL_ES_VERSION_3_0 != 1
     filterVal,
@@ -1293,26 +888,26 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   vtkPiecewiseFunction* gradientOpacity =
     volumeProperty->GetGradientOpacity(lookupTableIndex);
 
+  double componentRange[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    componentRange[i] = this->Parent->VolumeTexture->ScalarRange[component][i];
+  }
+
   if (gradientOpacity->GetSize() < 1)
   {
-    gradientOpacity->AddPoint(this->ScalarsRange[component][0], 0.0);
-    gradientOpacity->AddPoint(this->ScalarsRange[component][1], 0.5);
+    gradientOpacity->AddPoint(componentRange[0], 0.0);
+    gradientOpacity->AddPoint(componentRange[1], 0.5);
   }
 
   int filterVal =
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
-  double scalarRange[2];
-  for (int i = 0; i < 2; ++i)
-  {
-    scalarRange[i] = this->ScalarsRange[component][i];
-  }
-
   this->GradientOpacityTables->GetTable(lookupTableIndex)->Update(
     gradientOpacity,
     this->ActualSampleDistance,
-    scalarRange,
+    componentRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
 #if GL_ES_VERSION_3_0 != 1
     filterVal,
@@ -1676,8 +1271,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
   if (this->NeedToInitializeResources ||
       input->GetMTime() > this->InputUpdateTime.GetMTime() ||
       this->IsCameraInside(ren, vol) ||
-      this->CameraWasInsideInLastUpdate)
-  {
+      this->CameraWasInsideInLastUpdate || (this->BBoxPolyData &&
+      this->Parent->VolumeTexture->UploadTime > this->BBoxPolyData->GetMTime()))
+    {
     vtkNew<vtkTessellatedBoxSource> boxSource;
     boxSource->SetBounds(this->LoadedBounds);
     boxSource->QuadsOn();
@@ -2555,6 +2151,9 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLGPUVolumeRayCastMapper>(this,
     &vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources);
+
+  this->VolumeTexture = vtkVolumeTexture::New();
+  this->VolumeTexture->SetMapper(this);
 }
 
 //----------------------------------------------------------------------------
@@ -2574,7 +2173,10 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
   }
 
   delete this->Impl;
-  this->Impl = 0;
+  this->Impl = NULL;
+
+  this->VolumeTexture->Delete();
+  this->VolumeTexture = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -2624,31 +2226,29 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 
   this->Impl->DeleteBufferObjects();
 
-  if (this->Impl->VolumeTextureObject)
+  if (this->VolumeTexture)
   {
-    this->Impl->VolumeTextureObject->ReleaseGraphicsResources(window);
-    this->Impl->VolumeTextureObject->Delete();
-    this->Impl->VolumeTextureObject = 0;
+    this->VolumeTexture->ReleaseGraphicsResources(window);
   }
 
   if (this->Impl->NoiseTextureObject)
   {
     this->Impl->NoiseTextureObject->ReleaseGraphicsResources(window);
     this->Impl->NoiseTextureObject->Delete();
-    this->Impl->NoiseTextureObject = 0;
+    this->Impl->NoiseTextureObject = NULL;
   }
 
   if (this->Impl->DepthTextureObject)
   {
     this->Impl->DepthTextureObject->ReleaseGraphicsResources(window);
     this->Impl->DepthTextureObject->Delete();
-    this->Impl->DepthTextureObject = 0;
+    this->Impl->DepthTextureObject = NULL;
   }
 
   this->Impl->ReleaseRenderToTextureGraphicsResources(window);
   this->Impl->ReleaseDepthPassGraphicsResources(window);
 
-  if(this->Impl->MaskTextures != 0)
+  if(this->Impl->MaskTextures != NULL)
   {
     if(!this->Impl->MaskTextures->Map.empty())
     {
@@ -2669,7 +2269,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   {
     this->Impl->RGBTables->ReleaseGraphicsResources(window);
     delete this->Impl->RGBTables;
-    this->Impl->RGBTables = 0;
+    this->Impl->RGBTables = NULL;
   }
 
   if(this->Impl->Mask1RGBTable)
@@ -2690,14 +2290,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   {
     this->Impl->OpacityTables->ReleaseGraphicsResources(window);
     delete this->Impl->OpacityTables;
-    this->Impl->OpacityTables = 0;
+    this->Impl->OpacityTables = NULL;
   }
 
   if (this->Impl->GradientOpacityTables)
   {
     this->Impl->GradientOpacityTables->ReleaseGraphicsResources(window);
     delete this->Impl->GradientOpacityTables;
-    this->Impl->GradientOpacityTables = 0;
+    this->Impl->GradientOpacityTables = NULL;
   }
 
   this->Impl->ReleaseResourcesTime.Modified();
@@ -3216,15 +2816,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     vtkErrorMacro("Three dependent components are not supported");
   }
 
-  for (int n = 0; n < noOfComponents; ++n)
-  {
-    double* range = scalars->GetRange(n);
-    for (int i = 0; i < 2; ++i)
-    {
-      this->Impl->ScalarsRange[n][i] = range[i];
-    }
-  }
-
   // Update the volume if needed
   bool volumeModified = false;
   if (this->Impl->NeedToInitializeResources ||
@@ -3234,9 +2825,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     input->GetDimensions(this->Impl->Dimensions);
 
     // Update bounds, data, and geometry
+    this->VolumeTexture->LoadVolume(ren, input, scalars,
+      volumeProperty->GetInterpolationType());
+
     this->Impl->ComputeBounds(input);
-    this->Impl->LoadVolume(ren, input, volumeProperty,
-                           scalars, independentComponents);
     this->Impl->ComputeCellToPointMatrix();
     this->Impl->LoadMask(ren, input, this->MaskInput,
                          this->Impl->Extents, vol);
@@ -3297,48 +2889,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Grab depth sampler buffer (to handle cases when we are rendering geometry
   // and in_volume together
   this->Impl->CaptureDepthTexture(ren, vol);
-
-
-  // Update sampling distance
-  int* loadedExtent = input->GetExtent();
-
-  this->Impl->CellStep[0] =
-    (1.0/static_cast<double>(loadedExtent[1] - loadedExtent[0]));
-  this->Impl->CellStep[1] =
-    (1.0/static_cast<double>(loadedExtent[3] - loadedExtent[2]));
-  this->Impl->CellStep[2] =
-    (1.0/static_cast<double>(loadedExtent[5] -loadedExtent[4]));
-
-  this->Impl->CellScale[0] = (this->Impl->LoadedBounds[1] -
-                              this->Impl->LoadedBounds[0]) * 0.5;
-  this->Impl->CellScale[1] = (this->Impl->LoadedBounds[3] -
-                              this->Impl->LoadedBounds[2]) * 0.5;
-  this->Impl->CellScale[2] = (this->Impl->LoadedBounds[5] -
-                              this->Impl->LoadedBounds[4]) * 0.5;
-
-  this->Impl->DatasetStepSize[0] = 1.0 / (this->Impl->LoadedBounds[1] -
-                                          this->Impl->LoadedBounds[0]);
-  this->Impl->DatasetStepSize[1] = 1.0 / (this->Impl->LoadedBounds[3] -
-                                          this->Impl->LoadedBounds[2]);
-  this->Impl->DatasetStepSize[2] = 1.0 / (this->Impl->LoadedBounds[5] -
-                                          this->Impl->LoadedBounds[4]);
-
-  // Compute texture to dataset matrix
-  this->Impl->TextureToDataSetMat->Identity();
-  this->Impl->TextureToDataSetMat->SetElement(0, 0,
-    (1.0 / this->Impl->DatasetStepSize[0]));
-  this->Impl->TextureToDataSetMat->SetElement(1, 1,
-    (1.0 / this->Impl->DatasetStepSize[1]));
-  this->Impl->TextureToDataSetMat->SetElement(2, 2,
-    (1.0 / this->Impl->DatasetStepSize[2]));
-  this->Impl->TextureToDataSetMat->SetElement(3, 3,
-    1.0);
-  this->Impl->TextureToDataSetMat->SetElement(0, 3,
-    this->Impl->LoadedBounds[0]);
-  this->Impl->TextureToDataSetMat->SetElement(1, 3,
-    this->Impl->LoadedBounds[2]);
-  this->Impl->TextureToDataSetMat->SetElement(2, 3,
-    this->Impl->LoadedBounds[4]);
 
   this->Impl->ShaderCache = vtkOpenGLRenderWindow::SafeDownCast(
     ren->GetRenderWindow())->GetShaderCache();
@@ -3423,8 +2973,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->ShaderProgram->SetUniformi("in_depthPassSampler",
       this->Impl->DPDepthBufferTextureObject->GetTextureUnit());
 
-    this->DoGPURender(ren, vol, input,
-                      cam, this->Impl->ShaderProgram,
+    this->DoGPURender(ren, vol, cam, this->Impl->ShaderProgram,
                       noOfComponents, independentComponents);
 
     this->Impl->DPDepthBufferTextureObject->Deactivate();
@@ -3467,16 +3016,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->SetupRenderToTexture(ren);
 
 
-      this->DoGPURender(ren, vol, input,
-                         cam, this->Impl->ShaderProgram,
+      this->DoGPURender(ren, vol, cam, this->Impl->ShaderProgram,
                          noOfComponents, independentComponents);
 
       this->Impl->ExitRenderToTexture(ren);
     }
     else
     {
-      this->DoGPURender(ren, vol, input,
-                         cam, this->Impl->ShaderProgram,
+      this->DoGPURender(ren, vol, cam, this->Impl->ShaderProgram,
                          noOfComponents, independentComponents);
     }
   }
@@ -3498,25 +3045,97 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
                                                   vtkVolume* vol,
-                                                  vtkImageData* input,
                                                   vtkOpenGLCamera* cam,
                                                   vtkShaderProgram* prog,
                                                   int noOfComponents,
                                                   int independentComponents)
 {
+  // Cell spacing is required to be computed globally (full volume extents)
+  // given that gradients are computed globally (not per block).
+  float fvalue3[3]; /* temporary value container */
+  vtkInternal::ToFloat(this->Impl->CellSpacing, fvalue3);
+  prog->SetUniform3fv("in_cellSpacing", 1, &fvalue3);
+
+  // Sort blocks in case the viewpoint changed, it immediately returns if there
+  // is a single block.
+  this->VolumeTexture->SortBlocksBackToFront(ren, vol->GetMatrix());
+
+  vtkVolumeTexture::VolumeBlock* block = this->VolumeTexture->GetNextBlock();
+
+  while(block != NULL)
+  {
+  this->Impl->ComputeBounds(block->ImageData);
+
+  // Cell step/scale are adjusted per block.
+  // Step should be dependent on the bounds and not on the texture size
+  // since we can have a non-uniform voxel size / spacing / aspect ratio.
+  this->Impl->CellStep[0] =
+    (1.0/static_cast<double>(this->Impl->Extents[1] - this->Impl->Extents[0]));
+  this->Impl->CellStep[1] =
+    (1.0/static_cast<double>(this->Impl->Extents[3] - this->Impl->Extents[2]));
+  this->Impl->CellStep[2] =
+    (1.0/static_cast<double>(this->Impl->Extents[5] - this->Impl->Extents[4]));
+
+  this->Impl->CellScale[0] = (this->Impl->LoadedBounds[1] -
+                              this->Impl->LoadedBounds[0]) * 0.5;
+  this->Impl->CellScale[1] = (this->Impl->LoadedBounds[3] -
+                              this->Impl->LoadedBounds[2]) * 0.5;
+  this->Impl->CellScale[2] = (this->Impl->LoadedBounds[5] -
+                              this->Impl->LoadedBounds[4]) * 0.5;
+
+  vtkInternal::ToFloat(this->Impl->CellStep, fvalue3);
+  prog->SetUniform3fv("in_cellStep", 1, &fvalue3);
+  vtkInternal::ToFloat(this->Impl->CellScale, fvalue3);
+  prog->SetUniform3fv("in_cellScale", 1, &fvalue3);
+
+  // Update sampling distance
+  this->Impl->DatasetStepSize[0] = 1.0 / (this->Impl->LoadedBounds[1] -
+                                          this->Impl->LoadedBounds[0]);
+  this->Impl->DatasetStepSize[1] = 1.0 / (this->Impl->LoadedBounds[3] -
+                                          this->Impl->LoadedBounds[2]);
+  this->Impl->DatasetStepSize[2] = 1.0 / (this->Impl->LoadedBounds[5] -
+                                          this->Impl->LoadedBounds[4]);
+
+  // Compute texture to dataset matrix
+  this->Impl->TextureToDataSetMat->Identity();
+  this->Impl->TextureToDataSetMat->SetElement(0, 0,
+    (1.0 / this->Impl->DatasetStepSize[0]));
+  this->Impl->TextureToDataSetMat->SetElement(1, 1,
+    (1.0 / this->Impl->DatasetStepSize[1]));
+  this->Impl->TextureToDataSetMat->SetElement(2, 2,
+    (1.0 / this->Impl->DatasetStepSize[2]));
+  this->Impl->TextureToDataSetMat->SetElement(3, 3,
+    1.0);
+  this->Impl->TextureToDataSetMat->SetElement(0, 3,
+    this->Impl->LoadedBounds[0]);
+  this->Impl->TextureToDataSetMat->SetElement(1, 3,
+    this->Impl->LoadedBounds[2]);
+  this->Impl->TextureToDataSetMat->SetElement(2, 3,
+    this->Impl->LoadedBounds[4]);
+
+  // Activate/bind DepthTextureObject to a texture unit first as it was already
+  // activated in CaptureDepthTexture. Certain APPLE implementations seem to be
+  // sensitive to swaping the activation order (causing GL_INVALID_OPERATION after
+  // the glDraw call).
+#if GL_ES_VERSION_3_0 != 1
+  // currently broken on ES
+  this->Impl->DepthTextureObject->Activate();
+  prog->SetUniformi("in_depthSampler",
+    this->Impl->DepthTextureObject->GetTextureUnit());
+#endif
+
+  // Bind current volume texture
+  block->TextureObject->Activate();
+  prog->SetUniformi("in_volume", block->TextureObject->GetTextureUnit());
+
   // Temporary variables
   float fvalue2[2];
-  float fvalue3[3];
   float fvalue4[4];
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   // Bind textures
   //--------------------------------------------------------------------------
-  this->Impl->VolumeTextureObject->Activate();
-  prog->SetUniformi("in_volume",
-                    this->Impl->VolumeTextureObject->GetTextureUnit());
-
   // Opacity, color, and gradient opacity samplers / textures
   int numberOfSamplers = (independentComponents ? noOfComponents : 1);
 
@@ -3550,13 +3169,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     prog->SetUniformi("in_noiseSampler",
       this->Impl->NoiseTextureObject->GetTextureUnit());
   }
-
-// currently broken on ES
-#if GL_ES_VERSION_3_0 != 1
-  this->Impl->DepthTextureObject->Activate();
-  prog->SetUniformi("in_depthSampler",
-    this->Impl->DepthTextureObject->GetTextureUnit());
-#endif
 
   if (this->Impl->CurrentMask)
   {
@@ -3677,36 +3289,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   prog->SetUniformi("in_noOfComponents", noOfComponents);
   prog->SetUniformi("in_independentComponents", independentComponents);
 
+  // LargeDataTypes have been already biased and scaled so in those cases 0s
+  // and 1s are passed repectively.
   float tscale[4] = {1.0, 1.0, 1.0, 1.0};
   float tbias[4] = {0.0, 0.0, 0.0, 0.0};
-  if (!this->Impl->HandleLargeDataTypes && (noOfComponents == 1 ||
-      noOfComponents == 2 || independentComponents))
-  {
-    for (int i = 0; i < noOfComponents; i++)
+  float (*scalePtr) [4] = &tscale;
+  float (*biasPtr) [4] = &tbias;
+  if (!this->VolumeTexture->HandleLargeDataTypes &&
+    (noOfComponents == 1 || noOfComponents == 2 || independentComponents))
     {
-      tscale[i] = this->Impl->Scale[i];
-      tbias[i] = this->Impl->Bias[i];
+    scalePtr = &this->VolumeTexture->Scale;
+    biasPtr = &this->VolumeTexture->Bias;
     }
-  }
-
-  prog->SetUniform4f("in_volume_scale", tscale);
-  prog->SetUniform4f("in_volume_bias", tbias);
-
-  // Step should be dependant on the bounds and not on the texture size
-  // since we can have non uniform voxel size / spacing / aspect ratio
-  vtkInternal::ToFloat(this->Impl->CellStep, fvalue3);
-  prog->SetUniform3fv("in_cellStep", 1, &fvalue3);
-
-  vtkInternal::ToFloat(this->Impl->CellScale, fvalue3);
-  prog->SetUniform3fv("in_cellScale", 1, &fvalue3);
-
-  vtkInternal::ToFloat(this->Impl->CellSpacing, fvalue3);
-  prog->SetUniform3fv("in_cellSpacing", 1, &fvalue3);
+  prog->SetUniform4fv("in_volume_scale", 1, scalePtr);
+  prog->SetUniform4fv("in_volume_bias", 1, biasPtr);
 
   prog->SetUniformf("in_sampleDistance", this->Impl->ActualSampleDistance);
 
   float scalarsRange[4][2];
-  vtkInternal::ToFloat(this->Impl->ScalarsRange, scalarsRange);
+  vtkInternal::ToFloat(this->VolumeTexture->ScalarRange, scalarsRange);
   prog->SetUniform2fv("in_scalarsRange", 4, scalarsRange);
 
   vtkInternal::ToFloat(cam->GetPosition(), fvalue3, 3);
@@ -3808,17 +3409,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
 
   // Render volume geometry to trigger render
   //--------------------------------------------------------------------------
-  this->Impl->RenderVolumeGeometry(ren, prog, vol, input);
-
+  this->Impl->RenderVolumeGeometry(ren, prog, vol, block->ImageData);
 
   // Undo binds and de-activate buffers
   //--------------------------------------------------------------------------
-  this->Impl->VolumeTextureObject->Deactivate();
+  block->TextureObject->Deactivate();
   if (this->Impl->NoiseTextureObject)
   {
     this->Impl->NoiseTextureObject->Deactivate();
   }
-  this->Impl->DepthTextureObject->Deactivate();
+#if GL_ES_VERSION_3_0 != 1
+  if (this->Impl->DepthTextureObject)
+  {
+    this->Impl->DepthTextureObject->Deactivate();
+  }
+#endif
 
   for (int i = 0; i < numberOfSamplers; ++i)
   {
@@ -3849,8 +3454,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
+
+  // Update next block to render
+  //---------------------------------------------------------------------------
+  block = this->VolumeTexture->GetNextBlock();
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkOpenGLGPUVolumeRayCastMapper, NoiseGenerator,
   vtkImplicitFunction);
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::SetPartitions(unsigned short x,
+  unsigned short y, unsigned short z)
+{
+  this->VolumeTexture->SetPartitions(x, y, z);
+}
