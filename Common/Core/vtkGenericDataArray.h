@@ -332,13 +332,15 @@ protected:
   // valid/accessible.
   bool EnsureAccessToTuple(vtkIdType tupleIdx);
 
+  std::vector<double> LegacyTuple;
+  std::vector<ValueType> LegacyValueRange;
+
   vtkGenericDataArrayLookupHelper<SelfType> Lookup;
+
 private:
   vtkGenericDataArray(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
 
-  std::vector<double> LegacyTuple;
-  std::vector<ValueType> LegacyValueRange;
 };
 
 #include "vtkGenericDataArray.txx"

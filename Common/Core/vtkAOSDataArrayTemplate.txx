@@ -79,6 +79,139 @@ void vtkAOSDataArrayTemplate<ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
+                                                   const float *tuple)
+{
+  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+  std::copy(tuple, tuple + this->NumberOfComponents,
+            this->Buffer->GetBuffer() + valueIdx);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
+                                                   const double *tuple)
+{
+  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+  std::copy(tuple, tuple + this->NumberOfComponents,
+            this->Buffer->GetBuffer() + valueIdx);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx,
+                                                      const float *tuple)
+{
+  if (this->EnsureAccessToTuple(tupleIdx))
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    std::copy(tuple, tuple + this->NumberOfComponents,
+              this->Buffer->GetBuffer() + valueIdx);
+    this->MaxId = std::max(this->MaxId,
+                           valueIdx + this->NumberOfComponents - 1);
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx,
+                                                      const double *tuple)
+{
+  if (this->EnsureAccessToTuple(tupleIdx))
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    std::copy(tuple, tuple + this->NumberOfComponents,
+              this->Buffer->GetBuffer() + valueIdx);
+    this->MaxId = std::max(this->MaxId,
+                           valueIdx + this->NumberOfComponents - 1);
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>
+::InsertComponent(vtkIdType tupleIdx, int compIdx, double value)
+{
+  const vtkIdType newMaxId = tupleIdx * this->NumberOfComponents + compIdx;
+  if (newMaxId >= this->Size)
+  {
+    if (!this->Resize(newMaxId / this->NumberOfComponents + 1))
+    {
+      return;
+    }
+  }
+
+  this->Buffer->GetBuffer()[newMaxId] = static_cast<ValueTypeT>(value);
+  this->MaxId = std::max(newMaxId, this->MaxId);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
+::InsertNextTuple(const float *tuple)
+{
+  vtkIdType newMaxId = this->MaxId + this->NumberOfComponents;
+  const vtkIdType tupleIdx = newMaxId / this->NumberOfComponents;
+  if (newMaxId >= this->Size)
+  {
+    if (!this->Resize(tupleIdx + 1))
+    {
+      return -1;
+    }
+  }
+
+  std::copy(tuple, tuple + this->NumberOfComponents,
+            this->Buffer->GetBuffer() + this->MaxId + 1);
+  this->MaxId = newMaxId;
+  return tupleIdx;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
+::InsertNextTuple(const double *tuple)
+{
+  vtkIdType newMaxId = this->MaxId + this->NumberOfComponents;
+  const vtkIdType tupleIdx = newMaxId / this->NumberOfComponents;
+  if (newMaxId >= this->Size)
+  {
+    if (!this->Resize(tupleIdx + 1))
+    {
+      return -1;
+    }
+  }
+
+  std::copy(tuple, tuple + this->NumberOfComponents,
+            this->Buffer->GetBuffer() + this->MaxId + 1);
+  this->MaxId = newMaxId;
+  return tupleIdx;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx,
+                                                   double *tuple)
+{
+  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+  std::copy(this->Buffer->GetBuffer() + valueIdx,
+            this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents,
+            tuple);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+double *vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx)
+{
+  assert(!this->LegacyTuple.empty() && "Number of components is nonzero.");
+  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+  std::copy(this->Buffer->GetBuffer() + valueIdx,
+            this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents,
+            this->LegacyTuple.begin());
+  return &this->LegacyTuple[0];
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
 vtkArrayIterator* vtkAOSDataArrayTemplate<ValueTypeT>::NewIterator()
 {
   vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
