@@ -278,7 +278,7 @@ void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
     this->AoSCopy = vtkBuffer<ValueType>::New();
   }
 
-  if (!this->AoSCopy->Allocate(numValues))
+  if (!this->AoSCopy->Allocate(static_cast<vtkIdType>(numValues)))
   {
     vtkErrorMacro(<<"Error allocating a buffer of " << numValues << " '"
                   << this->GetDataTypeAsString() << "' elements.");
