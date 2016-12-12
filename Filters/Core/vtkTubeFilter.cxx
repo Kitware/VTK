@@ -679,21 +679,17 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
   }
 
   double s0, s;
-  //The first texture coordinate is always 0.
-  for ( k=0; k < numSides; k++)
-  {
-    newTCoords->InsertTuple2(offset+k,0.0,0.0);
-  }
   if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS )
   {
     s0 = inScalars->GetTuple1(pts[0]);
-    for (i=1; i < npts; i++)
+    for (i=0; i < npts; i++)
     {
       s = inScalars->GetTuple1(pts[i]);
       tc = (s - s0) / this->TextureLength;
       for ( k=0; k < numSides; k++)
       {
-        newTCoords->InsertTuple2(offset+i*numSides+k,tc,0.0);
+        double tcy = static_cast<double>(k) / (numSides - 1);
+        newTCoords->InsertTuple2(offset + i * numSides + k, tc, tcy);
       }
     }
   }
@@ -701,15 +697,17 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
   {
     double xPrev[3], x[3], len=0.0;
     inPts->GetPoint(pts[0],xPrev);
-    for (i=1; i < npts; i++)
+    for (i=0; i < npts; i++)
     {
       inPts->GetPoint(pts[i],x);
-      len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+      len += sqrt(vtkMath::Distance2BetweenPoints(x, xPrev));
       tc = len / this->TextureLength;
       for ( k=0; k < numSides; k++)
       {
-        newTCoords->InsertTuple2(offset+i*numSides+k,tc,0.0);
+        double tcy = static_cast<double>(k) / (numSides - 1);
+        newTCoords->InsertTuple2(offset + i * numSides + k, tc, tcy);
       }
+
       xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
     }
   }
@@ -717,7 +715,7 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
   {
     double xPrev[3], x[3], length=0.0, len=0.0;
     inPts->GetPoint(pts[0],xPrev);
-    for (i=1; i < npts; i++)
+    for (i=0; i < npts; i++)
     {
       inPts->GetPoint(pts[i],x);
       length += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
@@ -725,14 +723,15 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
     }
 
     inPts->GetPoint(pts[0],xPrev);
-    for (i=1; i < npts; i++)
+    for (i=0; i < npts; i++)
     {
       inPts->GetPoint(pts[i],x);
       len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
       tc = len / length;
       for ( k=0; k < numSides; k++)
       {
-        newTCoords->InsertTuple2(offset+i*numSides+k,tc,0.0);
+        double tcy = static_cast<double>(k) / (numSides - 1);
+        newTCoords->InsertTuple2(offset + i * numSides + k, tc, tcy);
       }
       xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
     }
