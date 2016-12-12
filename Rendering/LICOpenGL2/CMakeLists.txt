@@ -2,6 +2,7 @@ set(Module_SRCS
   vtkImageDataLIC2D.cxx
   vtkLICNoiseHelper.cxx
   vtkLineIntegralConvolution2D.cxx
+  vtkPainterCommunicator.h
   vtkStructuredGridLIC2D.cxx
   vtkSurfaceLICComposite.cxx
   vtkSurfaceLICHelper.cxx
@@ -14,7 +15,7 @@ set(Module_SRCS
 set_source_files_properties(
   vtkLICNoiseHelper.cxx
   vtkSurfaceLICHelper.cxx
-  vtkLineIntegralConvolution2D.cxx
+  vtkPainterCommunicator.h
   vtkSurfaceLICComposite.cxx
   vtkTextureIO.cxx
   PROPERTIES

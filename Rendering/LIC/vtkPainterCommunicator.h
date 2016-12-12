@@ -13,11 +13,9 @@
 
 =========================================================================*/
 /**
- * @class   vtkPainterCommunicator
- * ranks that will execute a painter chain.
+ * @class vtkPainterCommunicator
+ * @brief A communicator that can safely be used inside a painter.
  *
- *
- * A communicator that can safely be used inside a painter.
  * A simple container holding a handle to an MPI communicator.
  * This API is sufficient to allow for control flow with/without
  * MPI. The parallel parts of the code should use the derived
