@@ -240,12 +240,22 @@ typedef signed long   vtkTypeInt64;
 // #endif
 #define VTK_HAS_MTIME_TYPE
 
-// Select an unsigned 64-bit integer type for use in MTime values.
-// If possible, use 'unsigned long' as we have historically.
-#if VTK_SIZEOF_LONG == 8
+// If this is a 64-bit platform, or the user has indicated that 64-bit
+// timestamps should be used, select an unsigned 64-bit integer type
+// for use in MTime values. If possible, use 'unsigned long' as we have
+// historically.
+#if defined(VTK_USE_64BIT_TIMESTAMPS) || VTK_SIZEOF_VOID_P == 8
+# if VTK_SIZEOF_LONG == 8
 typedef unsigned long vtkMTimeType;
-#else
+# else
 typedef vtkTypeUInt64 vtkMTimeType;
+# endif
+#else
+# if VTK_SIZEOF_LONG == 4
+typedef unsigned long vtkMTimeType;
+# else
+typedef vtkTypeUInt32 vtkMTimeType;
+# endif
 #endif
 
 /* Select a 32-bit floating point type.  */

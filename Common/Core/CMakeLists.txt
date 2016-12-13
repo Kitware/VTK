@@ -1,17 +1,15 @@
 # Core configuration options.
 if("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
  set(VTK_USE_64BIT_IDS_DEFAULT ON)
- set(VTK_USE_64BIT_TIMESTAMPS_DEFAULTS ON)
 else()
  set(VTK_USE_64BIT_IDS_DEFAULT OFF)
- set(VTK_USE_64BIT_TIMESTAMPS_DEFAULTS OFF)
+ set(VTK_USE_64BIT_TIMESTAMPS_DEFAULT OFF)
+ option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamps"
+  ${VTK_USE_64BIT_TIMESTAMPS_DEFAULT})
 endif()
 
 option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
   ${VTK_USE_64BIT_IDS_DEFAULT})
-
-option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamps"
-  ${VTK_USE_64BIT_TIMESTAMPS_DEFAULTS})
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 
@@ -348,11 +346,6 @@ if(vtkCommonDataModel_ENABLED)
   include_directories(${VTK_BINARY_DIR}/Common/DataModel)
   set_property(SOURCE vtkInformationDataObjectKey.cxx
     PROPERTY COMPILE_DEFINITIONS vtkCommonDataModel_ENABLED)
-endif()
-
-if(VTK_USE_64BIT_TIMESTAMPS)
-  set_property(SOURCE vtkTimestamp.cxx
-    PROPERTY COMPILE_DEFINITIONS VTK_USE_64BIT_TIMESTAMPS)
 endif()
 
 if(WIN32)
