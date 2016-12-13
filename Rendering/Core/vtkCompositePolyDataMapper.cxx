@@ -227,6 +227,7 @@ void vtkCompositePolyDataMapper::ComputeBounds()
     {
       pd->GetBounds( this->Bounds );
     }
+    this->BoundsMTime.Modified();
     return;
   }
 
