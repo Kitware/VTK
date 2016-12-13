@@ -2908,7 +2908,7 @@ int vtkEnSightGoldReader::CheckForUndefOrPartial(const char *line)
 {
   char undefvar[16];
   // Look for keyword 'partial' or 'undef':
-  int r = sscanf(line, "%*s %s", undefvar);
+  int r = sscanf(line, "%*s %15s", undefvar);
   if( r == 1)
   {
     char subline[80];
@@ -2970,6 +2970,10 @@ int vtkEnSightGoldReader::CheckForUndefOrPartial(const char *line)
         vtkErrorMacro( << "Unknow section type: " << subline );
       }
       return 1; //meaning 'partial', so other steps are necesserary
+    }
+    else
+    {
+      vtkErrorMacro( << "Unknown value for undef or partial: " << undefvar );
     }
   }
   return 0;
