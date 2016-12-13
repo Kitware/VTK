@@ -143,7 +143,7 @@ void vtkADIOSReader::AddPostReadOperation(TObjectData* obj,
 }
 
 //----------------------------------------------------------------------------
-int vtkADIOSReader::CanReadFile(const char* name)
+int vtkADIOSReader::CanReadFile(const char* vtkNotUsed(name))
 {
   return 1;
 }
@@ -245,7 +245,7 @@ int vtkADIOSReader::RequestInformation(vtkInformation *vtkNotUsed(req),
   const ADIOS::Scalar *varTimeSteps = this->Tree->GetScalar("TimeStamp");
   this->TimeSteps.clear();
   this->TimeSteps.resize(varTimeSteps->GetNumSteps());
-  for(int t = 0; t < varTimeSteps->GetNumSteps(); ++t)
+  for(size_t t = 0; t < varTimeSteps->GetNumSteps(); ++t)
   {
     // Always read time info from block0
     this->TimeSteps[t] = varTimeSteps->GetValue<double>(t, 0);
