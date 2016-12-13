@@ -81,7 +81,6 @@ class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeTexture : public vtkObject
 {
   typedef vtkTuple<int, 6> Size6;
   typedef vtkTuple<int, 3> Size3;
-  struct SortBlocks;
 
 public:
   static vtkVolumeTexture* New();

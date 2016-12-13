@@ -31,6 +31,8 @@ foreach(d
     Viewpoint
     EnSight
     Delaunay
+    headmr3blocks
+    headmr3blocks/headmr3blocks
     )
   list(APPEND data "DATA{${VTK_TEST_INPUT_DIR}/${d}/,REGEX:.*}")
 endforeach()
