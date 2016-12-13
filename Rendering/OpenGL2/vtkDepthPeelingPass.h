@@ -121,9 +121,10 @@ public:
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
-                                   vtkProp *prop);
+                                   vtkProp *prop) VTK_OVERRIDE;
   virtual bool SetShaderParameters(vtkShaderProgram *program,
-                                   vtkAbstractMapper *mapper, vtkProp *prop);
+                           vtkAbstractMapper *mapper, vtkProp *prop,
+                           vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
 
  protected:
   /**

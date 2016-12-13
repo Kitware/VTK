@@ -47,7 +47,8 @@ bool vtkOpenGLRenderPass::PostReplaceShaderValues(
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderPass::SetShaderParameters(vtkShaderProgram *,
-                                              vtkAbstractMapper *, vtkProp *)
+                                              vtkAbstractMapper *, vtkProp *,
+                                              vtkOpenGLVertexArrayObject *)
 {
   return true;
 }

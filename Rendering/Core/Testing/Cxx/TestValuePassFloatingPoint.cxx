@@ -310,5 +310,6 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
     interactor->Start();
   }
 
+  valuePass->ReleaseGraphicsResources(window);
   return !retVal;
 }

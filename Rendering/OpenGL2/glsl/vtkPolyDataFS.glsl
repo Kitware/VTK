@@ -73,6 +73,8 @@ void main()
 
   //VTK::Clip::Impl
 
+  //VTK::ValuePass::Impl
+
   //VTK::Color::Impl
 
   // Generate the normal if we are not passed in one

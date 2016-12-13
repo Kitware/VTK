@@ -83,7 +83,6 @@ set(Module_SRCS
   vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
   vtkValuePass.cxx
-  vtkValuePassHelper.cxx
   vtkVolumetricPass.cxx
   )
 
@@ -118,7 +117,6 @@ set_source_files_properties(
   vtkTextureObject
   vtkTextureUnitManager
   vtkTransformFeedback
-  vtkValuePassHelper
   WRAP_EXCLUDE)
 
 set_source_files_properties(
@@ -127,7 +125,6 @@ set_source_files_properties(
   vtkOpenGLGlyph3DHelper
   vtkOpenGLHelper
   vtkOpenGLRenderTimer
-  vtkValuePassHelper
   PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 
 set_source_files_properties(

@@ -62,7 +62,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDualDepthPeelingPass:
 public:
   static vtkDualDepthPeelingPass* New();
   vtkTypeMacro(vtkDualDepthPeelingPass, vtkDepthPeelingPass)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   virtual void Render(const vtkRenderState *s);
   virtual void ReleaseGraphicsResources(vtkWindow *w);
@@ -72,10 +72,11 @@ public:
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
-                                   vtkProp *prop);
+                                   vtkProp *prop) VTK_OVERRIDE;
   virtual bool SetShaderParameters(vtkShaderProgram *program,
-                                   vtkAbstractMapper *mapper, vtkProp *prop);
-  virtual vtkMTimeType GetShaderStageMTime();
+                          vtkAbstractMapper *mapper, vtkProp *prop,
+                          vtkOpenGLVertexArrayObject *VAO = NULL) VTK_OVERRIDE;
+  virtual vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
 
 protected:
 

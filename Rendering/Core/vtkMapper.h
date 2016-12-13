@@ -327,12 +327,16 @@ public:
   //@}
 
   /**
-   * Get the array name or number and component to color by.
+   * Set/Get the array name or number and component to color by.
    */
-  char* GetArrayName() { return this->ArrayName; }
-  int GetArrayId() { return this->ArrayId; }
-  int GetArrayAccessMode() { return this->ArrayAccessMode; }
-  int GetArrayComponent() { return this->ArrayComponent; }
+  vtkGetStringMacro(ArrayName);
+  vtkSetStringMacro(ArrayName);
+  vtkGetMacro(ArrayId, int);
+  vtkSetMacro(ArrayId, int);
+  vtkGetMacro(ArrayAccessMode, int);
+  vtkSetMacro(ArrayAccessMode, int);
+  vtkGetMacro(ArrayComponent, int);
+  vtkSetMacro(ArrayComponent, int);
 
   /**
    * Return the method for obtaining scalar data.
@@ -562,42 +566,6 @@ public:
    */
   virtual int CanUseTextureMapForColoring(vtkDataObject* input);
 
-  //@{
-  /**
-   * Used internally by vtkValuePass
-   */
-  void UseInvertibleColorFor(vtkDataObject *input,
-    int scalarMode,
-    int arrayAccessMode,
-    int arrayId,
-    const char *arrayName,
-    int arrayComponent,
-    double *scalarRange);
-  void UseInvertibleColorFor(int scalarMode,
-    int arrayAccessMode,
-    int arrayId,
-    const char *arrayName,
-    int arrayComponent,
-    double *scalarRange);
-  //@}
-
-  /**
-   * Used internally by vtkValuePass.
-   */
-  void ClearInvertibleColor();
-
-  /**
-   * Convert a floating point value to an RGB triplet.
-   */
-  static void ValueToColor(double value, double min, double scale,
-    unsigned char *color);
-
-  /**
-   * Convert an RGB triplet to a floating point value.
-   */
-  static void ColorToValue(unsigned char *color, double min, double scale,
-    double &value);
-
   /**
    * Call to force a rebuild of color result arrays on next MapScalars.
    * Necessary when using arrays in the case of multiblock data.
@@ -634,11 +602,6 @@ protected:
   vtkImageData* ColorTextureMap;
   void MapScalarsToTexture(vtkAbstractArray* scalars, double alpha);
 
-  // Makes a lookup table that can be used for deferred colormaps
-  void AcquireInvertibleLookupTable();
-  bool UseInvertibleColors;
-  static vtkScalarsToColors *InvertibleLookupTable;
-
   vtkScalarsToColors *LookupTable;
   int ScalarVisibility;
   vtkTimeStamp BuildTime;
@@ -653,7 +616,7 @@ protected:
 
   // for coloring by a component of a field data array
   int ArrayId;
-  char ArrayName[256];
+  char* ArrayName;
   int ArrayComponent;
   int ArrayAccessMode;
 
@@ -664,8 +627,6 @@ protected:
   int Static;
 
   int ForceCompileOnly;
-
-  vtkAbstractArray *InvertibleScalars;
 
   double CoincidentPolygonFactor;
   double CoincidentPolygonOffset;
