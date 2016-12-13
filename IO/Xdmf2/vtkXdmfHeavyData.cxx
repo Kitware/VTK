@@ -326,7 +326,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
     }
     else
     {
-      vtkErrorWithObjectMacro(this->Reader, << "Cannot find DataItem element in topology xml, no caching possible");
+      //vtkErrorWithObjectMacro(this->Reader, << "Cannot find DataItem element in topology xml, no caching possible");
       caching = false;
     }
   }
