@@ -134,8 +134,8 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
     std::cout << "Validating time step " << this->CurrentTimeStepIndex
               << std::endl;
 
-    vtkDataObject *input = this->GetInputDataObject(0, 0);
-    vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(input);
+    vtkMultiBlockDataSet *mbInput = vtkMultiBlockDataSet::SafeDownCast(
+      this->GetInputDataObject(0, 0));
 
     if(mbInput->GetNumberOfBlocks() != 1)
     {
@@ -147,7 +147,8 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
 
     vtkMultiPieceDataSet *mpInput =
       vtkMultiPieceDataSet::SafeDownCast(mbInput->GetBlock(0));
-    if(mpInput->GetNumberOfPieces() != controller->GetNumberOfProcesses())
+    if(mpInput->GetNumberOfPieces() !=
+       static_cast<unsigned int>(controller->GetNumberOfProcesses()))
     {
       vtkErrorMacro("Number of pieces read != number of pieces written");
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
@@ -225,7 +226,7 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
 
     // Advance to the next time step
     ++this->CurrentTimeStepIndex;
-    if(CurrentTimeStepIndex >= this->TimeSteps.size())
+    if(this->CurrentTimeStepIndex >= static_cast<int>(this->TimeSteps.size()))
     {
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
     }
