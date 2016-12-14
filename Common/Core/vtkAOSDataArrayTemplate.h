@@ -172,6 +172,33 @@ public:
                     int deleteMethod) VTK_OVERRIDE;
   //@}
 
+  // Overridden for optimized implementations:
+  void SetTuple(vtkIdType tupleIdx, const float *tuple) VTK_OVERRIDE;
+  void SetTuple(vtkIdType tupleIdx, const double *tuple) VTK_OVERRIDE;
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+  // using Superclass::SetTuple;
+  void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                vtkAbstractArray *source) VTK_OVERRIDE
+  { this->Superclass::SetTuple(dstTupleIdx, srcTupleIdx, source); }
+  void InsertTuple(vtkIdType tupleIdx, const float *source) VTK_OVERRIDE;
+  void InsertTuple(vtkIdType tupleIdx, const double *source) VTK_OVERRIDE;
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+  // using Superclass::InsertTuple;
+  void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                   vtkAbstractArray *source) VTK_OVERRIDE
+  { this->Superclass::InsertTuple(dstTupleIdx, srcTupleIdx, source); }
+  void InsertComponent(vtkIdType tupleIdx, int compIdx,
+                       double value) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(const float *tuple) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(const double *tuple) VTK_OVERRIDE;
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+  // using Superclass::InsertNextTuple;
+  vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
+                            vtkAbstractArray *source) VTK_OVERRIDE
+  { return this->Superclass::InsertNextTuple(srcTupleIdx, source); }
+  void GetTuple(vtkIdType tupleIdx, double * tuple) VTK_OVERRIDE;
+  double *GetTuple(vtkIdType tupleIdx) VTK_OVERRIDE;
+
   /**
    * Tell the array explicitly that a single data element has
    * changed. Like DataChanged(), then is only necessary when you
