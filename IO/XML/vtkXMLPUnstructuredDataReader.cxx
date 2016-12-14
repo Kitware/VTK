@@ -144,6 +144,13 @@ void vtkXMLPUnstructuredDataReader::CopyOutputInformation(
   vtkInformation *outInfo, int port)
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
+
+  vtkInformation *localInfo =
+    this->GetExecutive()->GetOutputInformation( port );
+  if (localInfo->Has(CAN_HANDLE_PIECE_REQUEST()))
+  {
+    outInfo->CopyEntry(localInfo, CAN_HANDLE_PIECE_REQUEST());
+  }
 }
 
 //----------------------------------------------------------------------------
