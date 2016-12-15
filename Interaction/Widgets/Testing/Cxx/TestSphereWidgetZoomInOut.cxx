@@ -20,12 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkMathUtilities.h"
-
-#include <iostream>
-#include <iomanip>
 
 // Callback for the interaction
 class vtkSphWCallback : public vtkCommand
@@ -300,7 +295,8 @@ int TestSphereWidgetZoomInOut(int argc, char *argv[])
   recorder->Off();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  //int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  int retVal = vtkRegressionTestImage(renWin);
 
   iren->Start();
 
