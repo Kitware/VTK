@@ -58,12 +58,6 @@ public:
   void Start(void);
 
   /**
-   * This computes the size of the render window
-   * before calling the superclass' Render() method
-   */
-  void Render();
-
-  /**
    * Tells if this window is the current graphics context for the calling
    * thread.
    */

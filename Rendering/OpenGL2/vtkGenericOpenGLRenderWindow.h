@@ -119,6 +119,15 @@ public:
   void SetIsCurrent(bool newValue);
   //@}
 
+  /**
+   * Override the Render method to do some state management.
+   * This method saves the OpenGL state before asking its child renderers to
+   * render their image. Once this is done, the OpenGL state is restored.
+   * \sa vtkOpenGLRenderWindow::SaveGLState()
+   * \sa vtkOpenGLRenderWindow::RestoreGLState()
+   */
+  void Render();
+
 protected:
   int DirectStatus;
   int SupportsOpenGLStatus;
