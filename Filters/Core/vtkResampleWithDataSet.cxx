@@ -102,6 +102,27 @@ bool vtkResampleWithDataSet::GetPassFieldArrays()
 }
 
 //----------------------------------------------------------------------------
+void vtkResampleWithDataSet::SetTolerance(double arg)
+{
+  this->Prober->SetTolerance(arg);
+}
+
+double vtkResampleWithDataSet::GetTolerance()
+{
+  return this->Prober->GetTolerance();
+}
+
+void vtkResampleWithDataSet::SetComputeTolerance(bool arg)
+{
+  this->Prober->SetComputeTolerance(arg);
+}
+
+bool vtkResampleWithDataSet::GetComputeTolerance()
+{
+  return this->Prober->GetComputeTolerance();
+}
+
+//----------------------------------------------------------------------------
 vtkMTimeType vtkResampleWithDataSet::GetMTime()
 {
   return std::max(this->Superclass::GetMTime(), this->Prober->GetMTime());
@@ -307,7 +328,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(input->NewIterator());
-    for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       vtkDataSet *ds = static_cast<vtkDataSet*>(iter->GetCurrentDataObject());
       if (ds)
