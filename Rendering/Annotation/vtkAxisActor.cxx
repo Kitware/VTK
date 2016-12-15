@@ -1092,9 +1092,9 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
   double labelSin = fabs(sin(labelAngle));
   vtkAxisFollower* pAxisFollower = NULL;
 
-  for (int i = 0; i < this->NumberOfLabelsBuilt && i < this->MajorTickPts->GetNumberOfPoints(); i++)
+  for (int i = 0, ptIdx = 0; i < this->NumberOfLabelsBuilt &&
+    ((ptIdx + 1) < this->MajorTickPts->GetNumberOfPoints()); i++, ptIdx += 4)
   {
-    int ptIdx = 4 * i;
     this->MajorTickPts->GetPoint(ptIdx, tickTop);
     this->MajorTickPts->GetPoint(ptIdx + 1, tickBottom);
 
@@ -1203,7 +1203,6 @@ void vtkAxisActor::SetLabelPositions2D(vtkViewport* viewport, bool force)
       break;
   }
 
-  int ptIdx;
   //
   // xadjust & yadjust are used for positioning the label correctly
   // depending upon the 'orientation' of the axis as determined
@@ -1230,10 +1229,9 @@ void vtkAxisActor::SetLabelPositions2D(vtkViewport* viewport, bool force)
     return;
   }
 
-  for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
+  for (int i = 0, ptIdx = 1; i < this->NumberOfLabelsBuilt &&
+    ((ptIdx + 1) < this->MajorTickPts->GetNumberOfPoints()); i++, ptIdx += 4)
   {
-    ptIdx = 4 * i + 1;
-
     this->MajorTickPts->GetPoint(ptIdx, tick);
 
     center[0] = tick[0] + xmult * this->MinorTickSize;
