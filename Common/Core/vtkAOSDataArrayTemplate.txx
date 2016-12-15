@@ -82,9 +82,15 @@ template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
                                                    const float *tuple)
 {
-  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-  std::copy(tuple, tuple + this->NumberOfComponents,
-            this->Buffer->GetBuffer() + valueIdx);
+  // While std::copy is the obvious choice here, it kills performance on MSVC
+  // debugging builds as their STL calls are poorly optimized. Just use a for
+  // loop instead.
+  ValueTypeT *data =
+      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    data[i] = static_cast<ValueType>(tuple[i]);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -92,9 +98,13 @@ template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::SetTuple(vtkIdType tupleIdx,
                                                    const double *tuple)
 {
-  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-  std::copy(tuple, tuple + this->NumberOfComponents,
-            this->Buffer->GetBuffer() + valueIdx);
+  // See note in SetTuple about std::copy vs for loops on MSVC.
+  ValueTypeT *data =
+      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    data[i] = static_cast<ValueType>(tuple[i]);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -104,9 +114,13 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx,
 {
   if (this->EnsureAccessToTuple(tupleIdx))
   {
+    // See note in SetTuple about std::copy vs for loops on MSVC.
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-    std::copy(tuple, tuple + this->NumberOfComponents,
-              this->Buffer->GetBuffer() + valueIdx);
+    ValueTypeT *data = this->Buffer->GetBuffer() + valueIdx;
+    for (int i = 0; i < this->NumberOfComponents; ++i)
+    {
+      data[i] = static_cast<ValueType>(tuple[i]);
+    }
     this->MaxId = std::max(this->MaxId,
                            valueIdx + this->NumberOfComponents - 1);
   }
@@ -119,9 +133,13 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuple(vtkIdType tupleIdx,
 {
   if (this->EnsureAccessToTuple(tupleIdx))
   {
+    // See note in SetTuple about std::copy vs for loops on MSVC.
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-    std::copy(tuple, tuple + this->NumberOfComponents,
-              this->Buffer->GetBuffer() + valueIdx);
+    ValueTypeT *data = this->Buffer->GetBuffer() + valueIdx;
+    for (int i = 0; i < this->NumberOfComponents; ++i)
+    {
+      data[i] = static_cast<ValueType>(tuple[i]);
+    }
     this->MaxId = std::max(this->MaxId,
                            valueIdx + this->NumberOfComponents - 1);
   }
@@ -160,8 +178,12 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
     }
   }
 
-  std::copy(tuple, tuple + this->NumberOfComponents,
-            this->Buffer->GetBuffer() + this->MaxId + 1);
+  // See note in SetTuple about std::copy vs for loops on MSVC.
+  ValueTypeT *data = this->Buffer->GetBuffer() + this->MaxId + 1;
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    data[i] = static_cast<ValueType>(tuple[i]);
+  }
   this->MaxId = newMaxId;
   return tupleIdx;
 }
@@ -181,8 +203,12 @@ vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>
     }
   }
 
-  std::copy(tuple, tuple + this->NumberOfComponents,
-            this->Buffer->GetBuffer() + this->MaxId + 1);
+  // See note in SetTuple about std::copy vs for loops on MSVC.
+  ValueTypeT *data = this->Buffer->GetBuffer() + this->MaxId + 1;
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    data[i] = static_cast<ValueType>(tuple[i]);
+  }
   this->MaxId = newMaxId;
   return tupleIdx;
 }
@@ -192,21 +218,27 @@ template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx,
                                                    double *tuple)
 {
-  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-  std::copy(this->Buffer->GetBuffer() + valueIdx,
-            this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents,
-            tuple);
+  ValueTypeT *data =
+      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  // See note in SetTuple about std::copy vs for loops on MSVC.
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    tuple[i] = static_cast<double>(data[i]);
+  }
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
 double *vtkAOSDataArrayTemplate<ValueTypeT>::GetTuple(vtkIdType tupleIdx)
 {
-  assert(!this->LegacyTuple.empty() && "Number of components is nonzero.");
-  const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-  std::copy(this->Buffer->GetBuffer() + valueIdx,
-            this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents,
-            this->LegacyTuple.begin());
+  ValueTypeT *data =
+      this->Buffer->GetBuffer() + tupleIdx * this->NumberOfComponents;
+  double *tuple = &this->LegacyTuple[0];
+  // See note in SetTuple about std::copy vs for loops on MSVC.
+  for (int i = 0; i < this->NumberOfComponents; ++i)
+  {
+    tuple[i] = static_cast<double>(data[i]);
+  }
   return &this->LegacyTuple[0];
 }
 
