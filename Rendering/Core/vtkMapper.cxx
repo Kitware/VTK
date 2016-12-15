@@ -107,6 +107,7 @@ vtkMapper::~vtkMapper()
   {
     this->ColorTextureMap->UnRegister(this);
   }
+  this->SetArrayName(NULL);
 }
 
 // Get the bounds for the input of this mapper as
