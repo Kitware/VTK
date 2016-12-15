@@ -102,7 +102,7 @@ int vtkDICOMImageReader::CanReadFile(const char* fname)
   }
   else
   {
-    vtkErrorMacro("DICOMParser couldn't parse : " << fname);
+    vtkWarningMacro("DICOMParser couldn't parse : " << fname);
     return 0;
   }
 }
