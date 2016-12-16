@@ -32,26 +32,6 @@
 #include <sstream>
 #include <algorithm>
 
-#define CHECK_ERROR_MSG(errorObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error.. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
 static vtkSmartPointer<vtkPolyData> MakePolyData(
   unsigned int numPoints);
 

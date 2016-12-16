@@ -36,24 +36,6 @@
 
 #include <vector>
 
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
-
 int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 {
   bool status;
@@ -101,8 +83,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     cerr << "Using CREATE on an existing file should have failed but did not.\n";
     return 1;
   }
-  CHECK_ERROR_MSG(errorObserver,
-                  "You specified creating a database but the file exists");
+  int status1 = errorObserver->CheckErrorMessage("You specified creating a database but the file exists");
   db2->Delete();
 
   vtkSQLiteDatabase* db3 = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://local.db" ) );
@@ -137,8 +118,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
       cerr << "Select query succeeded when it shouldn't have." << endl;
       return 1;
   }
-  CHECK_ERROR_MSG(queryObserver,
-                  "Query is not null but prepared statement is");
+  status1 += queryObserver->CheckErrorMessage("Query is not null but prepared statement is");
   db4->Delete();
   query4->Delete();
 

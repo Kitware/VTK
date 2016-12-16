@@ -24,26 +24,6 @@
 
 static vtkSmartPointer<vtkImageData> MakeVolume(int, int, int);
 
-#define CHECK_ERROR_MSG(errorObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
 int UnitTestImplicitDataSet (int, char*[])
 {
   int status = 0;
@@ -64,16 +44,15 @@ int UnitTestImplicitDataSet (int, char*[])
 
   // Test error messages
   std::cout << "Testing errors...";
-  int status1 = 0;
   vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
   impVol->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   impVol->EvaluateFunction(0.0, 0.0, 0.0);
-  CHECK_ERROR_MSG(errorObserver, "Can't evaluate function: either data set is missing or data set has no point data", status1);
+  int status1 = errorObserver->CheckErrorMessage("Can't evaluate function: either data set is missing or data set has no point data");
   double zero[3], zg[3];;
   zero[0] = zero[1] = zero[2] = 0.0;
   impVol->EvaluateGradient(zero, zg);
-  CHECK_ERROR_MSG(errorObserver, "Can't evaluate gradient: either data set is missing or data set has no point data", status1);
+  status1 += errorObserver->CheckErrorMessage("Can't evaluate gradient: either data set is missing or data set has no point data");
   if (status1)
   {
     std::cout << "Failed" << std::endl;

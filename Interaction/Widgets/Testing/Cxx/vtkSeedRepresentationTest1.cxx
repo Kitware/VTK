@@ -27,24 +27,6 @@
 #include "vtkTextActor.h"
 #include "vtkPointHandleRepresentation3D.h"
 
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
-
 int vtkSeedRepresentationTest1(int , char * [] )
 {
   vtkSmartPointer< vtkSeedRepresentation > node1 = vtkSmartPointer< vtkSeedRepresentation >::New();
@@ -63,11 +45,11 @@ int vtkSeedRepresentationTest1(int , char * [] )
   node1->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   node1->SetSeedDisplayPosition(s, pos);
 
-  CHECK_ERROR_MSG(errorObserver, "Trying to access non-existent handle");
+  int status = errorObserver->CheckErrorMessage("Trying to access non-existent handle");
   node1->GetSeedWorldPosition(s, pos2);
-  CHECK_ERROR_MSG(errorObserver, "Trying to access non-existent handle");
+  status += errorObserver->CheckErrorMessage("Trying to access non-existent handle");
   node1->GetSeedDisplayPosition(s,pos);
-  CHECK_ERROR_MSG(errorObserver, "Trying to access non-existent handle");
+  status += errorObserver->CheckErrorMessage("Trying to access non-existent handle");
 
   // set/get display and world position will fail without seeds having been
   // created, so add some and then do the testing of return values.

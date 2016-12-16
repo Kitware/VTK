@@ -27,26 +27,6 @@
 #include <sstream>
 static vtkSmartPointer<vtkTetra> MakeTetra();
 
-#define CHECK_ERROR_MSG(msg, status)                   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
 int UnitTestPlanesIntersection(int, char*[])
 {
   int status = 0;
@@ -312,7 +292,7 @@ int UnitTestPlanesIntersection(int, char*[])
     vtkSmartPointer<vtkPlanesIntersection>::New();
   empty->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   empty->GetRegionVertices(&v, 0);
-  CHECK_ERROR_MSG("invalid region", status3);
+  status3 += errorObserver->CheckErrorMessage("invalid region");
 
   if (status3)
   {
@@ -415,7 +395,7 @@ int UnitTestPlanesIntersection(int, char*[])
   }
   else
   {
-    CHECK_ERROR_MSG("invalid region - less than 4 planes", status1);
+  status1 += errorObserver->CheckErrorMessage("invalid region - less than 4 planes");
   }
 
   // Invalid Region
@@ -447,7 +427,7 @@ int UnitTestPlanesIntersection(int, char*[])
   }
   else
   {
-    CHECK_ERROR_MSG("Invalid region: zero-volume intersection", status1);
+  status1 += errorObserver->CheckErrorMessage("Invalid region: zero-volume intersection");
   }
   vtkSmartPointer<vtkPlanesIntersection> invalidBox =
     vtkSmartPointer<vtkPlanesIntersection>::New();
@@ -493,7 +473,7 @@ int UnitTestPlanesIntersection(int, char*[])
   }
   else
   {
-    CHECK_ERROR_MSG("invalid box", status1);
+    status1 += errorObserver->CheckErrorMessage("invalid box");
   }
 
   if (status1)

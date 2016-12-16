@@ -18,24 +18,6 @@
 #include <vtkXMLDataParser.h>
 #include "vtkTestErrorObserver.h"
 
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
-
 int TestXMLReaderBadData(int argc, char* argv[])
 {
   // Verify input arguments
@@ -64,7 +46,6 @@ int TestXMLReaderBadData(int argc, char* argv[])
   reader->SetReaderErrorObserver(errorObserver1);
   reader->SetParserErrorObserver(errorObserver2);
   reader->Update();
-  CHECK_ERROR_MSG(errorObserver2,
-                  "vtkXMLDataParser");
-  return EXIT_SUCCESS;
+  int status = errorObserver2->CheckErrorMessage("vtkXMLDataParser");
+  return status;
 }

@@ -1,3 +1,18 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestComputeQuartiles.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
 #include "vtkComputeQuartiles.h"
 #include "vtkDoubleArray.h"
 #include "vtkMultiBlockDataSet.h"
@@ -7,24 +22,6 @@
 
 #include "vtkTestErrorObserver.h"
 #include "vtkExecutive.h"
-
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
 
 //----------------------------------------------------------------------------
 int TestComputeQuartiles(int , char * [])
@@ -74,7 +71,7 @@ int TestComputeQuartiles(int , char * [])
   // First verify that absence of input does not cause trouble
   quartiles->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1.GetPointer());
   quartiles->Update();
-  CHECK_ERROR_MSG(errorObserver1, "Input port 0 of algorithm vtkComputeQuartiles");
+  errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkComputeQuartiles");
 
   // Now set the real input table
   quartiles->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table.GetPointer());

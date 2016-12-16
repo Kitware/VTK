@@ -57,46 +57,6 @@ static vtkSmartPointer<vtkDataSet> CreateStructuredGrid(bool blank = false);
 static vtkSmartPointer<vtkDataSet> CreateBadAttributes();
 static vtkSmartPointer<vtkDataSet> CreateGenericCellData(int cellType);
 
-#define CHECK_ERROR_MSG(errorObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
-#define CHECK_WARNING_MSG(warningObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!warningObserver->GetWarning()) \
-  { \
-    std::cout << "Failed to catch any warning. Expected the warning message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(warningObserver->GetWarningMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Warning message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  warningObserver->Clear()
-
 namespace test
 {
 // What to expect for a cell
@@ -426,8 +386,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   ext[4] = tmpext[4]; ext[5] = tmpext[5];
   bool faces[6] = {true, true, true, true, true, true};
   filter->UniformGridExecute(ugrid, polyData, ext, ext, faces);
-  int status1 = 0;
-  CHECK_ERROR_MSG(errorObserver, "Strips are not supported for uniform grid!", status1);
+  int status1 = errorObserver->CheckErrorMessage("Strips are not supported for uniform grid!");
   if (status1)
   {
     std::cout << " FAILED." << std::endl;
@@ -449,8 +408,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   filter->AddObserver(vtkCommand::WarningEvent, warningObserver);
   filter->Update();
 
-  int status1 = 0;
-  CHECK_WARNING_MSG(warningObserver, "Number of cells is zero, no data to process.", status1);
+  int status1 = warningObserver->CheckWarningMessage("Number of cells is zero, no data to process.");
   if (status1)
   {
     std::cout << " FAILED." << std::endl;
@@ -477,8 +435,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
     vtkSmartPointer<vtkPolyData>::New();
   filter->DataSetExecute(ugrid, polyData);
 
-  int status1 = 0;
-  CHECK_WARNING_MSG(warningObserver, "Number of cells is zero, no data to process.", status1);
+  int status1 = warningObserver->CheckWarningMessage("Number of cells is zero, no data to process.");
   if (status1)
   {
     std::cout << " FAILED." << std::endl;
@@ -510,8 +467,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
 
   filter->StructuredExecute(ugrid, polyData, ext, ext);
 
-  int status1 = 0;
-  CHECK_ERROR_MSG(errorObserver, "Invalid data set type: 4", status1);
+  int status1 = errorObserver->CheckErrorMessage("Invalid data set type: 4");
   if (status1)
   {
     std::cout << " FAILED." << std::endl;
@@ -535,8 +491,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   filter->GetInput()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   filter->Update();
 
-  int status1 = 0;
-  CHECK_ERROR_MSG(errorObserver, "Point array PointDataTestArray with 1 components, only has 2 tuples but there are 3 points", status1);
+  int status1 = errorObserver->CheckErrorMessage("Point array PointDataTestArray with 1 components, only has 2 tuples but there are 3 points");
   if (status1)
   {
     std::cout << " FAILED." << std::endl;
