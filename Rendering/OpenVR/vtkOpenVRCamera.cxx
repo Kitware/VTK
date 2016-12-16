@@ -105,7 +105,7 @@ void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
   vr::HmdMatrix44_t mat =
     hMD->GetProjectionMatrix( vr::Eye_Left,
       this->ClippingRange[0],
-      this->ClippingRange[1], vr::API_OpenGL);
+      this->ClippingRange[1]);
   for(int i = 0; i < 4; ++i)
   {
     for (int j = 0; j < 4; ++j)
@@ -117,7 +117,7 @@ void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
   mat =
     hMD->GetProjectionMatrix( vr::Eye_Right,
       this->ClippingRange[0],
-      this->ClippingRange[1], vr::API_OpenGL);
+      this->ClippingRange[1]);
   for(int i = 0; i < 4; ++i)
   {
     for (int j = 0; j < 4; ++j)

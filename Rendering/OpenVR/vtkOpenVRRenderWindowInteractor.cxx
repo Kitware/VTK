@@ -123,7 +123,7 @@ void vtkOpenVRRenderWindowInteractor::UpdateTouchPadPosition(
    vr::TrackedDeviceIndex_t tdi)
 {
   vr::VRControllerState_t cstate;
-  pHMD->GetControllerState(tdi,&cstate);
+  pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
 
   for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
   {
