@@ -67,13 +67,9 @@ int TestAVSucdReader(int argc, char* argv[])
 
   renWin->Render();
   int r = vtkRegressionTestImage(renWin.GetPointer());
-  if (r == vtkRegressionTester::FAILED)
-  {
-    return EXIT_FAILURE;
-  }
   if (r == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
-  return EXIT_SUCCESS;
+  return !r;
 }

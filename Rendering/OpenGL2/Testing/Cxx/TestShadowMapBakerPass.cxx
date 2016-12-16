@@ -124,5 +124,5 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   }
 
   bakerPass->ReleaseGraphicsResources(renderWindow.Get());
-  return EXIT_SUCCESS;
+  return !retVal;
 }

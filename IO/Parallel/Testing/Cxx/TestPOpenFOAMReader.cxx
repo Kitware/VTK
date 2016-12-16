@@ -134,6 +134,6 @@ int TestPOpenFOAMReader(int argc, char* argv[])
     renderWindowInteractor->Start();
   }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 
 }

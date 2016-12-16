@@ -134,5 +134,5 @@ int TestOpenFOAMReader(int argc, char* argv[])
     renderWindowInteractor->Start();
   }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }
