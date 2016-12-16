@@ -20,19 +20,18 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 // Callback for the interaction
 class vtkSphWCallback : public vtkCommand
 {
-public:
-  static vtkSphWCallback *New()
-  { return new vtkSphWCallback; }
-  void Execute(vtkObject*, unsigned long, void*) VTK_OVERRIDE
-  {
-  }
-  vtkSphWCallback() {}
+  public:
+    static vtkSphWCallback *New()
+    { return new vtkSphWCallback; }
+    void Execute(vtkObject*, unsigned long, void*) VTK_OVERRIDE
+    {
+    }
+    vtkSphWCallback() {}
 };
 
 const char SphereWidgetEventLog[] =
@@ -250,12 +249,13 @@ const char SphereWidgetEventLog[] =
   "ExitEvent 102 64 0 0 101 1 e\n"
   ;
 
-int TestSphereWidgetZoomInOut( int argc, char *argv[] )
+int TestSphereWidgetZoomInOut(int argc, char *argv[])
 {
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->SetMultiSamples(0); // Turn off anti-aliasing
   renWin->AddRenderer(renderer);
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -263,16 +263,16 @@ int TestSphereWidgetZoomInOut( int argc, char *argv[] )
 
   vtkSmartPointer<vtkSphereWidget> sphWidget =
     vtkSmartPointer<vtkSphereWidget>::New();
-  sphWidget->SetInteractor( iren );
-  sphWidget->SetPlaceFactor( 1.25 );
+  sphWidget->SetInteractor(iren);
+  sphWidget->SetPlaceFactor(1.25);
 
-  renderer->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   //Callback
   vtkSmartPointer<vtkSphWCallback> myCallback =
     vtkSmartPointer<vtkSphWCallback>::New();
-  sphWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
+  sphWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
 
   // record events
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
@@ -287,29 +287,18 @@ int TestSphereWidgetZoomInOut( int argc, char *argv[] )
   // render the image
   //
   iren->Initialize();
-  renWin->SetMultiSamples(0);
+
   renWin->Render();
   recorder->Play();
-
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
   recorder->Off();
-
   renWin->Render();
-  int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-  {
-    iren->Start();
-  }
 
-  // Clean up
-  recorder->Off();
+  //int retVal = vtkRegressionTestImageThreshold(renWin, 70);
+  int retVal = vtkRegressionTestImage(renWin);
 
-  // radius should be 0.2388
-  if ( sphWidget->GetRadius() < 0.23 || sphWidget->GetRadius() > 0.24 )
-  {
-    return EXIT_FAILURE;
-  }
+  iren->Start();
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }
