@@ -1187,13 +1187,16 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   master.foreach<DiyBlock>(&ReceiveResampledPoints,
                            this->Prober->GetValidPointMaskArrayName());
 
-  // mark the blank points and cells of output
-  for (size_t i = 0; i < block.OutputBlocks.size(); ++i)
+  if (this->MarkBlankPointsAndCells)
   {
-    vtkDataSet *ds = block.OutputBlocks[i];
-    if (ds)
+    // mark the blank points and cells of output
+    for (size_t i = 0; i < block.OutputBlocks.size(); ++i)
     {
-      this->SetBlankPointsAndCells(ds);
+      vtkDataSet *ds = block.OutputBlocks[i];
+      if (ds)
+      {
+        this->SetBlankPointsAndCells(ds);
+      }
     }
   }
 

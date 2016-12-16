@@ -113,6 +113,16 @@ public:
   vtkBooleanMacro(ComputeTolerance, bool);
   //@}
 
+  //@{
+  /**
+   * Set whether points without resampled values, and their corresponding cells,
+   * should be marked as Blank. Default is On.
+   */
+  vtkSetMacro(MarkBlankPointsAndCells, bool);
+  vtkGetMacro(MarkBlankPointsAndCells, bool);
+  vtkBooleanMacro(MarkBlankPointsAndCells, bool);
+  //@}
+
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
@@ -140,6 +150,7 @@ protected:
   void SetBlankPointsAndCells(vtkDataSet *data);
 
   vtkNew<vtkCompositeDataProbeFilter> Prober;
+  bool MarkBlankPointsAndCells;
 
 private:
   vtkResampleWithDataSet(const vtkResampleWithDataSet&) VTK_DELETE_FUNCTION;

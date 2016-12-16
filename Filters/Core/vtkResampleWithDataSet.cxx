@@ -38,6 +38,7 @@ vtkObjectFactoryNewMacro(vtkResampleWithDataSet);
 
 //-----------------------------------------------------------------------------
 vtkResampleWithDataSet::vtkResampleWithDataSet()
+  : MarkBlankPointsAndCells(true)
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
@@ -316,7 +317,10 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
     this->Prober->SetSourceData(source);
     this->Prober->Update();
     output->ShallowCopy(this->Prober->GetOutput());
-    this->SetBlankPointsAndCells(output);
+    if (this->MarkBlankPointsAndCells)
+    {
+      this->SetBlankPointsAndCells(output);
+    }
   }
   else if (inDataObject->IsA("vtkCompositeDataSet"))
   {
@@ -339,7 +343,10 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
         vtkDataSet *block = result->NewInstance();
         block->DeepCopy(result);
-        this->SetBlankPointsAndCells(block);
+        if (this->MarkBlankPointsAndCells)
+        {
+          this->SetBlankPointsAndCells(block);
+        }
         output->SetDataSet(iter.GetPointer(), block);
         block->Delete();
       }
