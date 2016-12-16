@@ -341,6 +341,12 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
   // from the eye (like cells laying on a 2D plane).
 
   vtkDataSet *data = mapper->GetInput();
+  if ( !data )
+  {
+    vtkDebugMacro( "Mapper input is not a vtkDataSet" );
+    return VTK_DOUBLE_MAX;
+  }
+
   double tMin = VTK_DOUBLE_MAX;
   double minPCoords[3];
   double pDistMin = VTK_DOUBLE_MAX;

@@ -67,6 +67,10 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
   {
     input = mapper->GetInput();
+    if ( !input )
+    {
+      return VTK_DOUBLE_MAX;
+    }
   }
   else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != NULL )
   {
