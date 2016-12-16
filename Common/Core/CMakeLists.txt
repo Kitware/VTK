@@ -3,6 +3,9 @@ if("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
  set(VTK_USE_64BIT_IDS_DEFAULT ON)
 else()
  set(VTK_USE_64BIT_IDS_DEFAULT OFF)
+ set(VTK_USE_64BIT_TIMESTAMPS_DEFAULT OFF)
+ option(VTK_USE_64BIT_TIMESTAMPS "Build VTK with 64 bit timestamps"
+  ${VTK_USE_64BIT_TIMESTAMPS_DEFAULT})
 endif()
 
 option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
@@ -18,12 +21,13 @@ option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 option(VTK_ALL_NEW_OBJECT_FACTORY
   "Build all vtkObject derived classes with object factory new methods." OFF)
 
-mark_as_advanced(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS VTK_ALL_NEW_OBJECT_FACTORY)
+mark_as_advanced(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS VTK_ALL_NEW_OBJECT_FACTORY VTK_USE_64BIT_TIMESTAMPS)
 
 set(vtkCommonCore_EXPORT_OPTIONS
   VTK_DEBUG_LEAKS
   VTK_USE_64BIT_IDS
   VTK_ALL_NEW_OBJECT_FACTORY
+  VTK_USE_64BIT_TIMESTAMPS
   )
 
 # Choose which multi-threaded parallelism library to use
