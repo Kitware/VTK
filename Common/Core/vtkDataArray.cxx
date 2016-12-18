@@ -1380,9 +1380,10 @@ void vtkDataArray::FillComponent(int compIdx, double value)
     return;
   }
 
-  vtkIdType i;
-
-  for (i = 0; i < this->GetNumberOfTuples(); i++)
+  // Xcode 8.2 calls GetNumberOfTuples() after each iteration.
+  // Prevent this by storing the result in a local variable.
+  vtkIdType numberOfTuples = this->GetNumberOfTuples();
+  for (vtkIdType i = 0; i < numberOfTuples; i++)
   {
     this->SetComponent(i, compIdx, value);
   }
