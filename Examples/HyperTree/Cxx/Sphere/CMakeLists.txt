@@ -1,10 +1,5 @@
 cmake_minimum_required (VERSION 2.8.8)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+
 
 project(HyperTreeGridSphere)
 
@@ -15,7 +10,7 @@ endif()
 
 link_directories(${VTK_LIBRARY_DIRS})
 
-set(HyperTreeGridSphere_SRCS 
+set(HyperTreeGridSphere_SRCS
   Cell.cxx
   Node.cxx
   Mesh.cxx

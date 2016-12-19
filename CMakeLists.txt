@@ -1,24 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
-
-option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
-mark_as_advanced(VTK_ENABLE_KITS)
-if(VTK_ENABLE_KITS)
-  # Kits use INTERFACE libraries which were introduced in 3.0.
-  cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-endif()
-
-foreach(p
-    CMP0020 # CMake 2.8.11
-    CMP0022 # CMake 2.8.12
-    CMP0025 # CMake 3.0
-    CMP0053 # CMake 3.1
-    CMP0054 # CMake 3.1
-    CMP0063 # CMake 3.3
-    )
-  if(POLICY ${p})
-    cmake_policy(SET ${p} NEW)
-  endif()
-endforeach()
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.
@@ -33,12 +13,8 @@ endif()
 
 project(VTK)
 
-if (NOT CMAKE_VERSION VERSION_LESS "3.1")
-  option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
-         OFF)
-else()
-  set(VTK_USE_CXX11_FEATURES OFF)
-endif()
+option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
+       OFF)
 if (VTK_USE_CXX11_FEATURES)
   set(CMAKE_CXX_STANDARD 11)
   set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -501,6 +477,11 @@ endif()
 # This is not normally necessary, but could be desirable in some circumstances.
 option(VTK_MAKE_INSTANTIATORS "Should all modules build instantiators" OFF)
 mark_as_advanced(VTK_MAKE_INSTANTIATORS)
+
+# Kits bundle multiple modules together into a single library, this
+# is used to dramatically reduce the number of generated libraries.
+option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
+mark_as_advanced(VTK_ENABLE_KITS)
 
 #----------------------------------------------------------------------
 # Load the module DAG, assess all modules etc.
