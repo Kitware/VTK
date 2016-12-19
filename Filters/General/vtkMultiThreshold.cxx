@@ -645,7 +645,7 @@ void vtkMultiThreshold::UpdateDependents(
     }
 
     // If this dependent state has already been handled (i.e., is INCLUDE or EXCLUDE), skip the rest of the loop
-    if ( setStates[bset->Id] < INCONCLUSIVE )
+    if ( ! bset || ( setStates[bset->Id] < INCONCLUSIVE ) )
       continue;
 
     int decision = INCONCLUSIVE;
