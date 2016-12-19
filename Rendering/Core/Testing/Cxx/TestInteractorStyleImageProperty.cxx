@@ -120,7 +120,7 @@ int TestInteractorStyleImageProperty(int argc, char *argv[])
     bool foundProperty = (style->GetCurrentImageProperty() == property);
     style->OnLeftButtonUp();
 
-    if (!foundProperty ^ (sliceOrder == 3))
+    if ((!foundProperty) ^ (sliceOrder == 3))
     {
       cerr << "TestInteractorStyleImagePropertyInternal failed with sliceOrder parameter " << sliceOrder << "." << std::endl;
       return EXIT_FAILURE;
