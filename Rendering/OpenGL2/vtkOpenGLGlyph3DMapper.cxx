@@ -134,12 +134,17 @@ public:
   };
   ~vtkOpenGLGlyph3DMapperSubArray()
   {
+    this->ClearEntries();
+  };
+  void ClearEntries()
+  {
     std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter = this->Entries.begin();
     for (;miter != this->Entries.end(); miter++)
     {
       delete miter->second;
     }
-  };
+    this->Entries.clear();
+  }
 };
 
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray
@@ -388,7 +393,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   bool numberOfSourcesChanged = false;
   if (numberOfSources != subarray->Entries.size())
   {
-    subarray->Entries.clear();
+    subarray->ClearEntries();
     for (size_t cc = 0; cc < numberOfSources; cc++)
     {
       subarray->Entries.insert(std::make_pair(cc,
