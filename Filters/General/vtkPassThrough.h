@@ -50,16 +50,32 @@ public:
   vtkBooleanMacro(DeepCopyInput, int);
   //@}
 
+  /**
+   * Allow the filter to execute without error when no input connection is
+   * specified. In this case, and empty vtkPolyData dataset will be created.
+   * By default, this setting is false.
+   * @{
+   */
+  vtkSetMacro(AllowNullInput, bool)
+  vtkGetMacro(AllowNullInput, bool)
+  vtkBooleanMacro(AllowNullInput, bool)
+  /**@}*/
+
 protected:
   vtkPassThrough();
   ~vtkPassThrough() VTK_OVERRIDE;
 
+  int RequestDataObject(
+      vtkInformation *request,
+      vtkInformationVector **inVec,
+      vtkInformationVector *outVec) VTK_OVERRIDE;
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
     vtkInformationVector*) VTK_OVERRIDE;
 
   int DeepCopyInput;
+  bool AllowNullInput;
 
 private:
   vtkPassThrough(const vtkPassThrough&) VTK_DELETE_FUNCTION;
