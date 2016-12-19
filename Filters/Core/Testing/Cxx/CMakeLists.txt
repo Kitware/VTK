@@ -33,6 +33,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestResampleToImage.cxx,NO_VALID
   TestResampleWithDataSet.cxx,
   TestResampleWithDataSet2.cxx
+  TestResampleWithDataSet3.cxx
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
   TestStripper.cxx,NO_VALID
