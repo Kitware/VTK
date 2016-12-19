@@ -152,7 +152,6 @@ int TestOSPRayImplicits(int argc, char* argv[])
   renderer->AddActor(actor);
   actor->SetPosition(x0+dx*2, y0+dy*0, z0+dz*0);
   vtkInformation *mapInfo = mapper->GetInformation();
-  mapInfo = mapper->GetInformation();
   mapInfo->Set(vtkOSPRayActorNode::ENABLE_SCALING(), 1);
   mapInfo->Set(vtkOSPRayActorNode::SCALE_ARRAY_NAME(),"testarray1");
   vtkOSPRayTestInteractor::AddName("Points SCALE_ARRAY");

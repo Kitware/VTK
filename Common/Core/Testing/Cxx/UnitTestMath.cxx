@@ -2488,7 +2488,7 @@ int Diagonalize3x3()
   vtkMath::Identity3x3(mat);
   mat[0][0] = 5.0;
   mat[1][1] = 5.0;
-  mat[1][1] = 1.0;
+  mat[2][2] = 1.0;
 
   vtkMath::Diagonalize3x3(mat, eigen, eigenVector);
   std::cout << "eigen: "
@@ -2499,7 +2499,7 @@ int Diagonalize3x3()
   vtkMath::Identity3x3(mat);
   mat[0][0] = 2.0;
   mat[1][1] = 2.0;
-  mat[1][1] = 2.0;
+  mat[2][2] = 2.0;
 
   vtkMath::Diagonalize3x3(mat, eigen, eigenVector);
   std::cout << "eigen: "

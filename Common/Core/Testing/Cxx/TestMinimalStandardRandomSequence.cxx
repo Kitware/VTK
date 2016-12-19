@@ -36,10 +36,8 @@ int TestMinimalStandardRandomSequence(int,char *[])
 
   seq->SetSeedOnly(1);
 
-  bool status=true;
-
   // Check seed has been set
-  status=seq->GetSeed()==1;
+  bool status=seq->GetSeed()==1;
 
   if(status)
   {

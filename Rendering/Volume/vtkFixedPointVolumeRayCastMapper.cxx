@@ -1627,12 +1627,14 @@ void vtkFixedPointVolumeRayCastMapper::CreateCanonicalView( vtkVolume *vol,
 
   double bnds[6];
   vol->GetBounds(bnds);
+#if 0
   double d = sqrt((bnds[1]-bnds[0])*(bnds[1]-bnds[0]) +
                   (bnds[3]-bnds[2])*(bnds[3]-bnds[2]) +
                   (bnds[5]-bnds[4])*(bnds[5]-bnds[4]));
+#endif
 
   // For now use x distance - need to change this
-  d = bnds[1]-bnds[0];
+  double d = bnds[1]-bnds[0];
 
   // Set up the camera in parallel
   cam->SetFocalPoint( center );

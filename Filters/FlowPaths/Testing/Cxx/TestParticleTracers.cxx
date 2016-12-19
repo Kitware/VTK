@@ -292,6 +292,7 @@ int TestParticlePathFilter()
   }
 
   int numRequestData = imageSource->GetNumRequestData();
+  EXPECT(numRequestData == 5, "Wrong");
 
   filter->SetTerminationTime(4.0);
   filter->Update();

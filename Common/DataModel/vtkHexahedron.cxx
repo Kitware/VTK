@@ -522,11 +522,11 @@ int vtkHexahedron::IntersectWithLine(double p1[3], double p2[3], double tol,
         switch (faceNum)
         {
           case 0:
-            pcoords[0] = 0.0; pcoords[0] = pc[0]; pcoords[1] = 0.0;
+            pcoords[0] = 0.0; pcoords[1] = pc[0]; pcoords[2] = 0.0;
             break;
 
           case 1:
-            pcoords[0] = 1.0; pcoords[0] = pc[0]; pcoords[1] = 0.0;
+            pcoords[0] = 1.0; pcoords[1] = pc[0]; pcoords[2] = 0.0;
             break;
 
           case 2:
