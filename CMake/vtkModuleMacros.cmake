@@ -264,8 +264,9 @@ macro(vtk_module_export_info)
   if(${vtk-module}_IMPLEMENTS)
     set(_code "${_code}set(${vtk-module}_IMPLEMENTS \"${${vtk-module}_IMPLEMENTS}\")\n")
   endif()
-  set(vtk-module-EXPORT_CODE-build "${_code}${${vtk-module}_EXPORT_CODE_BUILD}")
-  set(vtk-module-EXPORT_CODE-install "${_code}${${vtk-module}_EXPORT_CODE_INSTALL}")
+  set(vtk-module-EXPORT_CODE-build "${_code}${${vtk-module}_EXPORT_CODE_BUILD}\n")
+  set(vtk-module-EXPORT_CODE-install "${_code}${${vtk-module}_EXPORT_CODE_INSTALL}\n")
+
   if(${vtk-module}_WRAP_HINTS)
     set(vtk-module-EXPORT_CODE-build
       "${vtk-module-EXPORT_CODE-build}set(${vtk-module}_WRAP_HINTS \"${${vtk-module}_WRAP_HINTS}\")\n")
