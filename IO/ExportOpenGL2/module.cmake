@@ -8,6 +8,7 @@ vtk_module(vtkIOExportOpenGL2
     vtkIOExport
   BACKEND
     OpenGL2
+  IMPLEMENTATION_REQUIRED_BY_BACKEND
   TEST_DEPENDS
     vtkRenderingContextOpenGL2
     vtkTestingRendering

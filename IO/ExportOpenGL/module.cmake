@@ -6,6 +6,7 @@ vtk_module(vtkIOExportOpenGL
     vtkIOExport
   BACKEND
     OpenGL
+  IMPLEMENTATION_REQUIRED_BY_BACKEND
   TEST_DEPENDS
     vtkTestingRendering
     vtkViewsContext2D
