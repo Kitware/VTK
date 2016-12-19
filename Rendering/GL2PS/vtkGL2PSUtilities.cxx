@@ -543,10 +543,7 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
          static_cast<float>(rgba[1])/255.f << " " <<
          static_cast<float>(rgba[2])/255.f <<
          (strokeWidth > 1e-5 ? " RG" : " rg") << endl;
-  // opacity
-//  out << static_cast<float>(rgba[3])/255.f
-//      << (strokeWidth > 1e-5 ? " CA" : " ca") << endl;
-  // translate
+  // translation
   out << 1.f << " " << 0.f << " " << 0.f << " " << 1.f << " "
       << windowPos[0] << " " << windowPos[1] << " cm" << endl;
   // rotate
