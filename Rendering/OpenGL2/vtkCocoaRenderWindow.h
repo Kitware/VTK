@@ -371,9 +371,7 @@ protected:
 
   void CreateAWindow();
   void DestroyWindow();
-  void DestroyOffScreenWindow();
 
-  int OffScreenInitialized;
   int OnScreenInitialized;
 
   //@{
@@ -406,7 +404,6 @@ private:
   int      CursorHidden;
 
   int      ForceMakeCurrent;
-  char     *Capabilities;
 };
 
 #endif
