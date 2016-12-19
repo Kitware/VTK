@@ -558,7 +558,7 @@ void vtkOpenGLGlyph3DMapper::Render(
         cdsIter->GoToNextItem();
       }
 
-      if (pd)
+      if (pd && pd->GetNumberOfPoints() > 0)
       {
         vtkOpenGLGlyph3DHelper *gh = entry->Mappers[mapperIdx];
         gh->CurrentInput = pd;

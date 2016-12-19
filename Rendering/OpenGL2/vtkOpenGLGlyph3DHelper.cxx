@@ -574,7 +574,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     reinterpret_cast<const GLvoid *>(NULL),
     numPts);
 #else
-  if (GLEW_ARB_instanced_arrays)
+  if (GLEW_ARB_instanced_arrays &&
+      this->Primitives[PrimitiveTris].IBO->IndexCount > 0)
   {
     glDrawElementsInstancedARB(GL_TRIANGLES,
       static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
