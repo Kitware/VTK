@@ -435,6 +435,9 @@ set(VTK_CONFIG_TARGETS_FILE "${VTK_BINARY_DIR}/VTKTargets.cmake")
 set(VTK_CONFIG_MODULE_API_FILE "${VTK_SOURCE_DIR}/CMake/vtkModuleAPI.cmake")
 # Target used to ensure VTKConfig is load just once
 set(VTK_COMMON_TARGET vtkCommonCore)
+# VTK_CONFIG_INSTALLED is used to toggle between build and install versions
+# inside VTKConfig.cmake.in
+set(VTK_CONFIG_INSTALLED FALSE)
 configure_file(CMake/VTKConfig.cmake.in VTKConfig.cmake @ONLY)
 
 # Generate VTKConfig.cmake for the install tree.
@@ -466,6 +469,7 @@ set(VTK_CONFIG_CMAKE_DIR "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}")
 set(VTK_CONFIG_TARGETS_CONDITION "")
 set(VTK_CONFIG_TARGETS_FILE "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/VTKTargets.cmake")
 set(VTK_CONFIG_MODULE_API_FILE "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/vtkModuleAPI.cmake")
+set(VTK_CONFIG_INSTALLED TRUE)
 configure_file(CMake/VTKConfig.cmake.in CMakeFiles/VTKConfig.cmake @ONLY)
 
 include(CMakePackageConfigHelpers)

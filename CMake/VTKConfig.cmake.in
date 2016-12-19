@@ -6,6 +6,8 @@
 # to load VTK's settings for an external project.
 @VTK_CONFIG_CODE@
 
+set (__vtk_install_tree @VTK_CONFIG_INSTALLED@)
+
 set(VTK_USE_CXX11_FEATURES @VTK_USE_CXX11_FEATURES@)
 if (VTK_USE_CXX11_FEATURES)
   if (CMAKE_VERSION VERSION_LESS "3.1")
@@ -33,6 +35,20 @@ SET(VTK_USE_FILE "${VTK_CMAKE_DIR}/UseVTK.cmake")
 
 # The rendering backend VTK was configured to use.
 set(VTK_RENDERING_BACKEND "@VTK_RENDERING_BACKEND@")
+
+if (__vtk_install_tree)
+  if (WIN32)
+    set (VTK_RUNTIME_DIRS "@CMAKE_INSTALL_PREFIX@/@VTK_INSTALL_RUNTIME_DIR@")
+  else ()
+    set (VTK_RUNTIME_DIRS "@CMAKE_INSTALL_PREFIX@/@VTK_INSTALL_LIBRARY_DIR@")
+  endif ()
+else()
+  if (WIN32)
+    set (VTK_RUNTIME_DIRS "@CMAKE_BINARY_DIR@/bin")
+  else ()
+    set (VTK_RUNTIME_DIRS "@CMAKE_BINARY_DIR@/lib")
+  endif ()
+endif()
 
 #-----------------------------------------------------------------------------
 # Load requested modules.
