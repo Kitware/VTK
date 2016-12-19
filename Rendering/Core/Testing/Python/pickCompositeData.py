@@ -58,7 +58,6 @@ rw.Render()
 
 cellPicker = vtk.vtkCellPicker()
 pointPicker = vtk.vtkPointPicker()
-worldPicker = vtk.vtkWorldPointPicker()
 cellCount = 0
 pointCount = 0
 r.IsInViewport(0,0)
@@ -71,7 +70,6 @@ for i in range(0,n):
 
     pos=list(r.GetActiveCamera().GetPosition())
     rw.Render()
-    worldPicker.Pick(p[0],p[1],0,r)
     cid=cellPicker.Pick(p[0],p[1],0,r)
     if cellPicker.GetDataSet():
         print('camera at {} pick at {} picked cell {}'.format(pos,p,cellPicker.GetCellId()))
