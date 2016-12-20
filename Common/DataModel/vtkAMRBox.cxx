@@ -312,7 +312,13 @@ void vtkAMRBox::Deserialize(
 bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox &other, const int q)
 {
   assert( "pre: dimension is out-of-bounds!" && (q >= 0) && (q <= 2) );
-  if(this->EmptyDimension(q) || other.EmptyDimension(q))
+  bool e1 = this->EmptyDimension(q);
+  bool e2 = other.EmptyDimension(q);
+  if (e1 && e2)
+  {
+    return true;
+  }
+  if (e1 || e2)
   {
     return false;
   }
@@ -324,7 +330,7 @@ bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox &other, const int q)
   {
     this->HiCorner[q] = other.HiCorner[q];
   }
-  if (this->LoCorner[q] >= this->HiCorner[q])
+  if (this->LoCorner[q] > this->HiCorner[q])
   {
     return false;
   }
