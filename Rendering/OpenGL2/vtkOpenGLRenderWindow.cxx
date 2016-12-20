@@ -435,7 +435,9 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
                       GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
+#ifdef GL_POINT_SPRITE
   glEnable(GL_POINT_SPRITE);
+#endif
 
   // Default OpenGL is 4 bytes but it is only safe with RGBA format.
   // If format is RGB, row alignment is 4 bytes only if the width is divisible
