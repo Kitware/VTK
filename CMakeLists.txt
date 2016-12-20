@@ -30,9 +30,20 @@ find_package(MPI REQUIRED)
 # -------------------------------------------------------------------------
 # For mpich which is not build with fortran some symbols are not found at
 # link time. The following solution prevents this.
-add_definitions(-DPyMPI_MISSING_MPI_Type_create_f90_integer
-                -DPyMPI_MISSING_MPI_Type_create_f90_real
-                -DPyMPI_MISSING_MPI_Type_create_f90_complex)
+check_function_exists(MPI_Type_create_f90_integer f90_integer_defined)
+if (NOT f90_integer_defined)
+  # Assume the other MPI_Type_create_f90_* functions are unavailable
+  add_definitions(-DPyMPI_MISSING_MPI_Type_create_f90_integer
+                  -DPyMPI_MISSING_MPI_Type_create_f90_real
+                  -DPyMPI_MISSING_MPI_Type_create_f90_complex)
+endif()
+
+check_function_exists(MPI_Status_fc2 f2c_defined)
+if (NOT f2c_defined)
+  # Assume MPI_Status_c2f is not defined either
+  add_definitions(-DPyMPI_MISSING_MPI_Status_f2c
+                  -DPyMPI_MISSING_MPI_Status_c2f)
+endif()
 
 # -----------------------------------------------------------------------------
 # Note: In ParaView FindPythonLibs.cmake module is additionally defined in VTK
