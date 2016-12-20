@@ -27,24 +27,6 @@
 #include <vtkTestErrorObserver.h>
 #include <vtkRegressionTestImage.h>
 
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
-
 int TestMFIXReader(int argc, char *argv[])
 {
   // Read file name.
@@ -63,8 +45,7 @@ int TestMFIXReader(int argc, char *argv[])
 
   // Update without a filename should cause an error
   reader->Update();
-  CHECK_ERROR_MSG(errorObserver1,
-                  "No filename specified");
+  errorObserver1->CheckErrorMessage("No filename specified");
 
   reader->SetFileName(filename);
   delete [] filename;

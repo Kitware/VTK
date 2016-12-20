@@ -31,46 +31,6 @@
 
 #include <sstream>
 
-#define CHECK_ERROR_MSG(errorObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
-#define CHECK_WARNING_MSG(warningObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!warningObserver->GetWarning()) \
-  { \
-    std::cout << "Failed to catch any warning. Expected the warning message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(warningObserver->GetWarningMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Warning message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  warningObserver->Clear()
-
 template<typename T> int TestSubdivision();
 
 int UnitTestSubdivisionFilters (int, char*[])
@@ -107,10 +67,7 @@ template<typename T> int TestSubdivision()
   subdivision0->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, executiveObserver);
   subdivision0->Update();
 
-  int status1 = 0;
-  CHECK_ERROR_MSG(executiveObserver,
-                  "has 0 connections but is not optional.",
-                  status1);
+  int status1 = executiveObserver->CheckErrorMessage("has 0 connections but is not optional.");
   if (status1 == 0)
   {
     std::cout << "PASSED" << std::endl;
@@ -132,10 +89,7 @@ template<typename T> int TestSubdivision()
   subdivision0->SetNumberOfSubdivisions(4);
   subdivision0->Update();
 
-  int status2 = 0;
-  CHECK_ERROR_MSG(errorObserver,
-                  "No data to subdivide",
-                  status2);
+  int status2 = errorObserver->CheckErrorMessage("No data to subdivide");
   if (status2 == 0)
   {
     std::cout << "PASSED" << std::endl;
@@ -200,10 +154,7 @@ template<typename T> int TestSubdivision()
   subdivision0->SetInputData(nonManifoldPolyData);
   subdivision0->Modified();
   subdivision0->Update();
-  int status3 = 0;
-  CHECK_ERROR_MSG(errorObserver,
-                  "Dataset is non-manifold and cannot be subdivided",
-                  status3);
+  int status3 = errorObserver->CheckErrorMessage("Dataset is non-manifold and cannot be subdivided");
   if (status3 == 0)
   {
     std::cout << "PASSED" << std::endl;
@@ -234,10 +185,7 @@ template<typename T> int TestSubdivision()
   subdivision0->SetInputData(mixedPolyData);
   subdivision0->Update();
 
-  int status4 = 0;
-  CHECK_ERROR_MSG(errorObserver,
-                  "only operates on triangles, but this data set has other cell types present",
-                  status4);
+  int status4 = errorObserver->CheckErrorMessage("only operates on triangles, but this data set has other cell types present");
   if (status4 == 0)
   {
     std::cout << "PASSED" << std::endl;

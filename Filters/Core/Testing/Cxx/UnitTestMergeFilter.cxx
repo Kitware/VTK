@@ -31,26 +31,6 @@
 static vtkSmartPointer<vtkPointData> MakePointData(unsigned int numberOfPoints);
 static vtkSmartPointer<vtkCellData> MakeCellData(unsigned int numberOfCells);
 
-#define CHECK_WARNING_MSG(warningObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!warningObserver->GetWarning()) \
-  { \
-    std::cout << "Failed to catch any warning.. Expected the warning message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(warningObserver->GetWarningMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Warning message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  warningObserver->Clear()
-
 int UnitTestMergeFilter (int, char*[])
 {
   int status = 0;
@@ -119,7 +99,7 @@ int UnitTestMergeFilter (int, char*[])
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
   merge0->AddObserver(vtkCommand::WarningEvent, warningObserver);
   merge0->Update();
-  CHECK_WARNING_MSG(warningObserver, "Nothing to merge!", status0);
+  status0 += warningObserver->CheckWarningMessage("Nothing to merge!");
   if (status0)
   {
     status++;
@@ -239,7 +219,7 @@ int UnitTestMergeFilter (int, char*[])
   merge1->AddField("", polyData2);
 
   merge1->Update();
-  CHECK_WARNING_MSG(warningObserver, "cannot be merged", status);
+  status += warningObserver->CheckWarningMessage("cannot be merged");
   if (status)
   {
     return EXIT_FAILURE;

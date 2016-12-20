@@ -34,24 +34,6 @@
 
 #include "vtkTestErrorObserver.h"
 
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
-
 //----------------------------------------------------------------------------
 int TestBoxPlot2(int , char* [])
 {
@@ -155,7 +137,7 @@ int TestBoxPlot2(int , char* [])
 
   // Detect bad input error message from PlotBox
   view->Render();
-  CHECK_ERROR_MSG(errorObserver, "Input table must contain 5 rows per column");
+  int status = errorObserver->CheckErrorMessage("Input table must contain 5 rows per column");
 
   // Now render a valid plot
   vtkTable *outTable = quartiles->GetOutput();
@@ -164,5 +146,5 @@ int TestBoxPlot2(int , char* [])
 
   view->GetInteractor()->Start();
 
-  return EXIT_SUCCESS;
+  return status;
 }

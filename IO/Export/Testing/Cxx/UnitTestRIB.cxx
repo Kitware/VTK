@@ -32,46 +32,6 @@
 
 #include <sstream>
 
-#define CHECK_ERROR_MSG(msg) \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << "\"" << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
-#define CHECK_WARNING_MSG(msg) \
-  { \
-  std::string expectedMsg(msg); \
-  if (!warningObserver->GetWarning()) \
-  { \
-    std::cout << "Failed to catch any warning. Expected the warning message to contain \"" << expectedMsg << "\"" << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(warningObserver->GetWarningMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Warning message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  warningObserver->Clear()
-
 #define TEST_SET_GET_VALUE( variable, command ) \
   if( variable != command )   \
   {   \
@@ -174,15 +134,15 @@ int TestRIBProperty()
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
   prop->AddObserver(vtkCommand::WarningEvent, warningObserver);
   prop->SetParameter("floatVar", "5.678");
-  CHECK_WARNING_MSG("SetParameter is deprecated");
+  status += warningObserver->CheckWarningMessage("SetParameter is deprecated");
 
   TEST_SET_GET_VALUE(std::string(
                        " \"floatVar\" [5.678]"),
                      std::string(prop->GetParameters()));
-  CHECK_WARNING_MSG("GetParameters is deprecated");
+  status+= warningObserver->CheckWarningMessage("GetParameters is deprecated");
 
   prop->AddParameter("colorVar", "1 .5 .1");
-  CHECK_WARNING_MSG("AddParameter is deprecated");
+  status += warningObserver->CheckWarningMessage("AddParameter is deprecated");
   TEST_SET_GET_VALUE(std::string(
                        " \"floatVar\" [5.678] \"colorVar\" [1 .5 .1]"),
                      std::string(prop->GetSurfaceShaderParameters()));
@@ -369,29 +329,30 @@ int TestRIBExporter()
 
   prop->SetRepresentationToWireframe();
   exporter->Update();
-  CHECK_ERROR_MSG("Bad representation. Only Surface is supported.");
+
+  status += errorObserver->CheckErrorMessage("Bad representation. Only Surface is supported.");
 
   prop->SetRepresentationToSurface();
   prop2->SetRepresentationToWireframe();
   exporter->Update();
-  CHECK_ERROR_MSG("Bad representation. Only Surface is supported.");
+  status += errorObserver->CheckErrorMessage("Bad representation. Only Surface is supported.");
 
   exporter->SetFilePrefix(NULL);
   exporter->Update();
-  CHECK_ERROR_MSG("Please specify file name for the rib file");
+  status += errorObserver->CheckErrorMessage("Please specify file name for the rib file");
 
   vtkSmartPointer<vtkRenderer> ren2 =
     vtkSmartPointer<vtkRenderer>::New ();
   renWin->AddRenderer(ren2);
   exporter->SetFilePrefix("dummy");
   exporter->Update();
-  CHECK_ERROR_MSG("RIB files only support one renderer per window");
+  status += errorObserver->CheckErrorMessage("RIB files only support one renderer per window");
 
   renWin->RemoveRenderer(ren2);
   ren1->RemoveActor(sphere);
   ren1->RemoveActor(strip);
   exporter->Update();
-  CHECK_ERROR_MSG("No actors found for writing .RIB file");
+  status += errorObserver->CheckErrorMessage("No actors found for writing .RIB file");
 
   std::cout << ".PASSED" << std::endl;
 

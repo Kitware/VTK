@@ -34,26 +34,6 @@
 
 #include <sstream>
 
-#define CHECK_ERROR_MSG(errorObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
 static int ComparePolyData (vtkPolyData *p1, vtkPolyData *p2);
 int UnitTestProjectSphereFilter(int, char*[])
 {
@@ -97,10 +77,7 @@ int UnitTestProjectSphereFilter(int, char*[])
     filter->SetInputData(badPoly);
     filter->Update();
 
-    int status1 = 0;
-    CHECK_ERROR_MSG(errorObserver,
-                    "Can only deal with vtkPolyData polys",
-                    status1);
+    int status1 =  errorObserver->CheckErrorMessage("Can only deal with vtkPolyData polys");
     if (status1 == 0)
     {
       std::cout << "PASSED" << std::endl;

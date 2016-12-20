@@ -25,26 +25,6 @@
 
 #include <vtksys/SystemTools.hxx>
 
-#define CHECK_ERROR_MSG(msg, status)                   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
 int UnitTestSTLWriter(int argc,char *argv[])
 {
   int status = 0;
@@ -108,8 +88,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetInputData(emptyPolyData);
   writer2->SetFileTypeToASCII();
   writer2->Update();
-  int status1 = 0;
-  CHECK_ERROR_MSG("No data to write", status1);
+  int status1 = errorObserver->CheckErrorMessage("No data to write");
   if (status1)
   {
     ++status;
@@ -118,8 +97,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetInputData(emptyPolyData);
   writer2->SetFileTypeToBinary();
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("No data to write", status);
+  status1 = errorObserver->CheckErrorMessage("No data to write");
   if (status1)
   {
     ++status;
@@ -129,8 +107,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToASCII();
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("Please specify FileName to write", status);
+  status1 = errorObserver->CheckErrorMessage("Please specify FileName to write");
   if (status1)
   {
     ++status;
@@ -140,8 +117,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToBinary();
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("Please specify FileName to write", status);
+  status1 = errorObserver->CheckErrorMessage("Please specify FileName to write");
   if (status1)
   {
     ++status;
@@ -151,8 +127,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToASCII();
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("Couldn't open file: /", status);
+  status1 = errorObserver->CheckErrorMessage("Couldn't open file: /");
   if (status1)
   {
     ++status;
@@ -162,13 +137,11 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToBinary();
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("Couldn't open file: /", status);
+  status1 = errorObserver->CheckErrorMessage("Couldn't open file: /");
   if (status1)
   {
     ++status;
   }
-
 
   if (vtksys::SystemTools::FileExists("/dev/full"))
   {
@@ -176,8 +149,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
     writer2->SetInputConnection(sphere->GetOutputPort());
     writer2->SetFileTypeToASCII();
     writer2->Update();
-    status1 = 0;
-    CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);
+    status1 = errorObserver->CheckErrorMessage("Ran out of disk space; deleting file: /dev/full");
     if (status1)
     {
       ++status;
@@ -185,8 +157,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
 
     writer2->SetInputConnection(stripper->GetOutputPort());
     writer2->Update();
-    status1 = 0;
-    CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);
+    status1 = errorObserver->CheckErrorMessage("Ran out of disk space; deleting file: /dev/full");
     if (status1)
     {
       ++status;
@@ -196,15 +167,15 @@ int UnitTestSTLWriter(int argc,char *argv[])
     writer2->SetInputConnection(sphere->GetOutputPort());
     writer2->SetFileTypeToBinary();
     writer2->Update();
-    status1 = 0;
-    CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);    if (status1)
+    status1 = errorObserver->CheckErrorMessage("Ran out of disk space; deleting file: /dev/full");
+    if (status1)
     {
       ++status;
     }
     writer2->SetInputConnection(stripper->GetOutputPort());
     writer2->Update();
-    status1 = 0;
-    CHECK_ERROR_MSG("Ran out of disk space; deleting file: /dev/full", status);    if (status1)
+    status1 = errorObserver->CheckErrorMessage("Ran out of disk space; deleting file: /dev/full");
+    if (status1)
     {
       ++status;
     }
@@ -216,8 +187,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
 
   writer2->SetFileTypeToASCII();
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("STL file only supports triangles", status);
+  status1 = errorObserver->CheckErrorMessage("STL file only supports triangles");
   if (status1)
   {
     ++status;
@@ -225,8 +195,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
 
   writer2->SetFileTypeToBinary();
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("STL file only supports triangles", status);
+  status1 = errorObserver->CheckErrorMessage("STL file only supports triangles");
   if (status1)
   {
     ++status;
@@ -236,8 +205,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer2->SetFileTypeToBinary();
   writer2->SetHeader("solid");
   writer2->Update();
-  status1 = 0;
-  CHECK_ERROR_MSG("Invalid header for Binary STL file. Cannot start with \"solid\"", status1);
+  status1 = errorObserver->CheckErrorMessage("Invalid header for Binary STL file. Cannot start with \"solid\"");
   if (status1)
   {
     ++status;

@@ -30,24 +30,6 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
-
 static bool TestGlyph3D_WithBadArray()
 {
   vtkSmartPointer<vtkDoubleArray> vectors =
@@ -84,8 +66,8 @@ static bool TestGlyph3D_WithBadArray()
   glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver1);
   glyph3D->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver2);
   glyph3D->Update();
-  CHECK_ERROR_MSG(errorObserver1, "vtkDataArray Normals has more than 3 components");
-  CHECK_ERROR_MSG(errorObserver2, "Algorithm vtkGlyph3D");
+  int status = errorObserver1->CheckErrorMessage("vtkDataArray Normals has more than 3 components");
+  status += errorObserver2->CheckErrorMessage("Algorithm vtkGlyph3D");
   return true;
 }
 

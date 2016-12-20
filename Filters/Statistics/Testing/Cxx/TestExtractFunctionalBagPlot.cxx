@@ -31,24 +31,6 @@
 
 #include <vtksys/SystemTools.hxx>
 
-#define CHECK_ERROR_MSG(observer, msg)   \
-  { \
-  std::string expectedMsg(msg); \
-  if (!observer->GetError()) \
-  { \
-    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-  } \
-  else \
-  { \
-    std::string gotMsg(observer->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-    } \
-  } \
-  } \
-  observer->Clear()
-
 //----------------------------------------------------------------------------
 const double densities[] = {
   0.00013383,
@@ -157,7 +139,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
    // First verify that absence of input does not cause trouble
   ebp->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1.GetPointer());
   ebp->Update();
-  CHECK_ERROR_MSG(errorObserver1, "Input port 0 of algorithm vtkExtractFunctionalBagPlot");
+  int status = errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkExtractFunctionalBagPlot");
 
   ebp->SetInputData(0, table.GetPointer());
   ebp->SetInputData(1, inTableDensity.GetPointer());
@@ -217,5 +199,5 @@ int TestExtractFunctionalBagPlot(int , char * [])
     cout << "## Failure: bad values found in Q3Points or QMedPoints" << endl;
     return EXIT_FAILURE;
   }
-  return EXIT_SUCCESS;
+  return status;
 }

@@ -33,26 +33,6 @@ static vtkSmartPointer<vtkBridgeDataSet> CreatePolyData(const int xres, const in
 static vtkSmartPointer<vtkBridgeDataSet> CreateVertexData();
 static vtkSmartPointer<vtkBridgeDataSet> CreateTetraData();
 
-#define CHECK_ERROR_MSG(errorObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
 int UnitTestGenericGeometryFilter(int, char*[])
 {
   const int xres = 20, yres = 10;
@@ -216,11 +196,11 @@ int UnitTestGenericGeometryFilter(int, char*[])
   filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   filter->SetInputData (vtkSmartPointer<vtkBridgeDataSet>::New());
   filter->Update();
-  CHECK_ERROR_MSG(errorObserver, "Number of cells is zero, no data to process.", status);
+  status += errorObserver->CheckErrorMessage("Number of cells is zero, no data to process.");
 
   filter->SetInputData (CreateVertexData());
   filter->Update();
-  CHECK_ERROR_MSG(errorObserver, "Cell of dimension 0 not handled yet.", status);
+  status += errorObserver->CheckErrorMessage("Cell of dimension 0 not handled yet.");
 
   if (status)
   {

@@ -26,26 +26,6 @@
 
 static vtkSmartPointer<vtkImageData> MakeImage(int, int, int);
 
-#define CHECK_ERROR_MSG(errorObserver, msg, status)      \
-  { \
-  std::string expectedMsg(msg); \
-  if (!errorObserver->GetError()) \
-  { \
-    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
-    status++; \
-  } \
-  else \
-  { \
-    std::string gotMsg(errorObserver->GetErrorMessage()); \
-    if (gotMsg.find(expectedMsg) == std::string::npos) \
-    { \
-      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
-      status++; \
-    } \
-  } \
-  } \
-  errorObserver->Clear()
-
 int UnitTestSimpleScalarTree(int, char*[])
 {
   int status = 0;
@@ -61,10 +41,9 @@ int UnitTestSimpleScalarTree(int, char*[])
   std::cout << "Passed" << std::endl;
 
   std::cout << "Testing no data error...";
-  int status1 = 0;
   stree->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   stree->BuildTree();
-  CHECK_ERROR_MSG(errorObserver, "No data to build tree with", status1);
+  int status1 = errorObserver->CheckErrorMessage("No data to build tree with");
   if (status1)
   {
     status++;
@@ -76,13 +55,12 @@ int UnitTestSimpleScalarTree(int, char*[])
   }
 
   std::cout << "Testing no scalar data error...";
-  int status2 = 0;
   vtkSmartPointer<vtkSphereSource> aSphere =
     vtkSmartPointer<vtkSphereSource>::New();
   aSphere->Update();
   stree->SetDataSet(aSphere->GetOutput());
   stree->BuildTree();
-  CHECK_ERROR_MSG(errorObserver, "No scalar data to build trees with", status2);
+  int status2 = errorObserver->CheckErrorMessage("No scalar data to build trees with");
   if (status2)
   {
     status++;
