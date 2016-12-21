@@ -866,7 +866,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -1023,7 +1023,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -1183,5 +1183,5 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
 }

@@ -3506,8 +3506,9 @@ static void gl2psPutPDFText(GL2PSstring *text, int cnt, GLfloat x, GLfloat y)
   }
 }
 
-static void gl2psPutPDFSpecial(GL2PSstring *text)
+static void gl2psPutPDFSpecial(int prim, int sec, GL2PSstring *text)
 {
+  gl2ps->streamlength += gl2psPrintf("/GS%d%d gs\n", prim, sec);
   gl2ps->streamlength += gl2psPrintf("%s\n", text->str);
 }
 
@@ -3703,7 +3704,7 @@ static void gl2psSortOutTrianglePDFgroup(GL2PSpdfgroup *gro)
 
 static void gl2psPDFgroupListWriteMainStream(void)
 {
-  int i, j, lastel;
+  int i, j, lastel, count;
   GL2PSprimitive *prim = NULL, *prev = NULL;
   GL2PSpdfgroup *gro;
   GL2PStriangle t;
@@ -3711,7 +3712,9 @@ static void gl2psPDFgroupListWriteMainStream(void)
   if(!gl2ps->pdfgrouplist)
     return;
 
-  for(i = 0; i < gl2psListNbr(gl2ps->pdfgrouplist); ++i){
+  count = gl2psListNbr(gl2ps->pdfgrouplist);
+
+  for(i = 0; i < count; ++i){
     gro = (GL2PSpdfgroup*)gl2psListPointer(gl2ps->pdfgrouplist, i);
 
     lastel = gl2psListNbr(gro->ptrlist) - 1;
@@ -3882,9 +3885,13 @@ static void gl2psPDFgroupListWriteMainStream(void)
       }
       break;
     case GL2PS_SPECIAL:
+      lastel = gl2psListNbr(gro->ptrlist) - 1;
+      if(lastel < 0)
+        continue;
+
       for(j = 0; j <= lastel; ++j){
         prim = *(GL2PSprimitive**)gl2psListPointer(gro->ptrlist, j);
-        gl2psPutPDFSpecial(prim->data.text);
+        gl2psPutPDFSpecial(i, j, prim->data.text);
       }
     default:
       break;
@@ -3897,17 +3904,39 @@ static void gl2psPDFgroupListWriteMainStream(void)
 static int gl2psPDFgroupListWriteGStateResources(void)
 {
   GL2PSpdfgroup *gro;
+  GL2PSprimitive* prim;
+  float op = 1;
   int offs = 0;
-  int i;
+  int i, j;
+  int index = 0;
+  int lastel;
 
   offs += fprintf(gl2ps->stream,
                   "/ExtGState\n"
                   "<<\n"
                   "/GSa 7 0 R\n");
+
   for(i = 0; i < gl2psListNbr(gl2ps->pdfgrouplist); ++i){
     gro = (GL2PSpdfgroup*)gl2psListPointer(gl2ps->pdfgrouplist, i);
     if(gro->gsno >= 0)
+    {
       offs += fprintf(gl2ps->stream, "/GS%d %d 0 R\n", gro->gsno, gro->gsobjno);
+      index = gro->gsno;
+    }
+
+    lastel = gl2psListNbr(gro->ptrlist) - 1;
+    if(lastel < 0)
+      continue;
+
+    for(j = 0; j <= lastel; ++j)
+    {
+      prim = *(GL2PSprimitive**)gl2psListPointer(gro->ptrlist, j);
+      if (prim->type == GL2PS_SPECIAL)
+      {
+      op = prim->verts[0].rgba[3];
+      offs += fprintf(gl2ps->stream, "/GS%d%d <<\n /CA %f\n /ca %f\n >>\n", i, j, op, op);
+      }
+    }
   }
   offs += fprintf(gl2ps->stream, ">>\n");
   return offs;
@@ -6000,9 +6029,9 @@ GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname, GLshort font
                       NULL);
 }
 
-GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str)
+GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str, GL2PSrgba rgba)
 {
-  return gl2psAddText(GL2PS_SPECIAL, str, "", 0, format, 0.0F, NULL);
+  return gl2psAddText(GL2PS_SPECIAL, str, "", 0, format, 0.0F, rgba);
 }
 
 GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
