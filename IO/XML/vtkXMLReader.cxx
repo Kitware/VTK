@@ -32,6 +32,7 @@
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
+#include "vtkLZ4DataCompressor.h"
 #include "vtkObjectFactory.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -403,9 +404,16 @@ void vtkXMLReader::SetupCompressor(const char* type)
 
   // In static builds, the vtkZLibDataCompressor may not have been
   // registered with the vtkInstantiator.  Check for it here.
-  if (!compressor && (strcmp(type, "vtkZLibDataCompressor") == 0))
+  if (!compressor)
   {
-    compressor = vtkZLibDataCompressor::New();
+    if (strcmp(type, "vtkZLibDataCompressor") == 0)
+    {
+      compressor = vtkZLibDataCompressor::New();
+    }
+    else if (strcmp(type, "vtkLZ4DataCompressor") == 0)
+    {
+      compressor = vtkLZ4DataCompressor::New();
+    }
   }
 
   if (!compressor)

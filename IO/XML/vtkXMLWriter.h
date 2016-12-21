@@ -146,7 +146,8 @@ public:
   enum CompressorType
   {
     NONE,
-    ZLIB
+    ZLIB,
+    LZ4
   };
 
   //@{
@@ -157,6 +158,10 @@ public:
   void SetCompressorTypeToNone()
   {
     this->SetCompressorType(NONE);
+  }
+  void SetCompressorTypeToLZ4()
+  {
+    this->SetCompressorType(LZ4);
   }
   void SetCompressorTypeToZLib()
   {
