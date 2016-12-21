@@ -1,6 +1,7 @@
 include(vtkObjectFactory)
 
 set(Module_SRCS
+  vtkPLagrangianParticleTracker.cxx
   vtkPTemporalStreamTracer.cxx
   vtkPStreamTracer.cxx
   vtkPParticleTracer.cxx
@@ -11,6 +12,7 @@ set(Module_SRCS
 
 # Overrides for object factory.
 set(parallel_overrides
+  LagrangianParticleTracker
   StreamTracer
   TemporalStreamTracer
   ParticleTracer

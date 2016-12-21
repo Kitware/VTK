@@ -1861,9 +1861,18 @@ double vtkPolygon::ComputeArea(vtkPoints *p, vtkIdType numPts, vtkIdType *pts,
 
     for (i=0; i<numPts; i++)
     {
-      p->GetPoint(pts[i],v0);
-      p->GetPoint(pts[(i+1)%numPts],v1);
-      p->GetPoint(pts[(i+2)%numPts],v2);
+      if (pts)
+      {
+        p->GetPoint(pts[i], v0);
+        p->GetPoint(pts[(i + 1) % numPts], v1);
+        p->GetPoint(pts[(i + 2) % numPts], v2);
+      }
+      else
+      {
+        p->GetPoint(i, v0);
+        p->GetPoint((i + 1) % numPts, v1);
+        p->GetPoint((i + 2) % numPts, v2);
+      }
       switch (coord)
       {
         case 0:

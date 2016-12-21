@@ -1,18 +1,22 @@
 set(Module_SRCS
   vtkAbstractInterpolatedVelocityField.cxx
   vtkAMRInterpolatedVelocityField.cxx
+  vtkCachingInterpolatedVelocityField.cxx
+  vtkCellLocatorInterpolatedVelocityField.cxx
   vtkCompositeInterpolatedVelocityField.cxx
   vtkInterpolatedVelocityField.cxx
-  vtkStreamTracer.cxx
+  vtkLagrangianParticleTracker.cxx
+  vtkLagrangianBasicIntegrationModel.cxx
+  vtkLagrangianParticle.cxx
+  vtkLagrangianMatidaIntegrationModel.cxx
   vtkModifiedBSPTree.cxx
-  vtkCellLocatorInterpolatedVelocityField.cxx
-  vtkTemporalStreamTracer.cxx
-  vtkParticleTracerBase.cxx
-  vtkParticleTracer.cxx
-  vtkStreaklineFilter.cxx
   vtkParticlePathFilter.cxx
+  vtkParticleTracer.cxx
+  vtkParticleTracerBase.cxx
+  vtkStreaklineFilter.cxx
+  vtkStreamTracer.cxx
   vtkTemporalInterpolatedVelocityField.cxx
-  vtkCachingInterpolatedVelocityField.cxx
+  vtkTemporalStreamTracer.cxx
   )
 
 set_source_files_properties(
@@ -20,6 +24,11 @@ set_source_files_properties(
   vtkCompositeInterpolatedVelocityField.cxx
   vtkParticleTracerBase
   ABSTRACT
+  )
+
+set_source_files_properties(
+  vtkLagrangianParticle.cxx
+  WRAP_EXCLUDE
   )
 
 if(NOT VTK_LEGACY_REMOVE)
