@@ -302,6 +302,8 @@ public:
    * UpdateTranslucentPolygonalGeometry().
    * Subclasses of vtkRenderer that can deal with depth peeling must
    * override this method.
+   * If UseDepthPeeling and UseDepthPeelingForVolumes are true, volumetric data
+   * will be rendered here as well.
    * It updates boolean ivar LastRenderingUsedDepthPeeling.
    */
   virtual void DeviceRenderTranslucentPolygonalGeometry();
@@ -585,6 +587,15 @@ public:
   vtkGetMacro(UseDepthPeeling,int);
   vtkBooleanMacro(UseDepthPeeling,int);
   //@}
+
+  /**
+   * This this flag is on and the GPU supports it, depth-peel volumes along with
+   * the translucent geometry. Only supported on OpenGL2 with dual-depth
+   * peeling. Default is false.
+   */
+  vtkSetMacro(UseDepthPeelingForVolumes, bool)
+  vtkGetMacro(UseDepthPeelingForVolumes, bool)
+  vtkBooleanMacro(UseDepthPeelingForVolumes, bool)
 
   //@{
   /**
@@ -892,6 +903,12 @@ protected:
    * Initial value is off.
    */
   int UseDepthPeeling;
+
+  /**
+   * This this flag is on and the GPU supports it, depth-peel volumes along with
+   * the translucent geometry. Default is false;
+   */
+  bool UseDepthPeelingForVolumes;
 
   /**
    * In case of use of depth peeling technique for rendering translucent

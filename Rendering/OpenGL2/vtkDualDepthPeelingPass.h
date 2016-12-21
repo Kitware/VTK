@@ -23,6 +23,10 @@
  * technique is described in "Order independent transparency with dual depth
  * peeling" (February 2008) by L. Bavoil, K. Myers.
  *
+ * This algorithm has been extended to also peel volumetric data along with
+ * translucent geometry. To use this feature, set VolumetricPass to an
+ * appropriate RenderPass (usually vtkVolumetricPass).
+ *
  * The pass occurs in several stages:
  *
  * 1. Copy the current (opaque geometry) depth buffer into a texture.
@@ -67,18 +71,52 @@ public:
   void Render(const vtkRenderState *s) VTK_OVERRIDE;
   void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
 
+  //@{
+  /**
+   * Delegate for rendering the volumetric geometry, if needed.
+   * It is usually set to a vtkVolumetricPass.
+   * Initial value is a NULL pointer.
+   */
+  vtkGetObjectMacro(VolumetricPass, vtkRenderPass)
+  virtual void SetVolumetricPass(vtkRenderPass *volumetricPass);
+  //@}
+
   // vtkOpenGLRenderPass virtuals:
+  bool PreReplaceShaderValues(std::string &vertexShader,
+                              std::string &geometryShader,
+                              std::string &fragmentShader,
+                              vtkAbstractMapper *mapper,
+                              vtkProp *prop) VTK_OVERRIDE;
   bool PostReplaceShaderValues(std::string &vertexShader,
-                                   std::string &geometryShader,
-                                   std::string &fragmentShader,
-                                   vtkAbstractMapper *mapper,
-                                   vtkProp *prop) VTK_OVERRIDE;
+                               std::string &geometryShader,
+                               std::string &fragmentShader,
+                               vtkAbstractMapper *mapper,
+                               vtkProp *prop) VTK_OVERRIDE;
   bool SetShaderParameters(vtkShaderProgram *program,
-                          vtkAbstractMapper *mapper, vtkProp *prop,
-                          vtkOpenGLVertexArrayObject *VAO = NULL) VTK_OVERRIDE;
-  vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
+                           vtkAbstractMapper *mapper,
+                           vtkProp *prop,
+                           vtkOpenGLVertexArrayObject *VAO = NULL) VTK_OVERRIDE;
+  virtual vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
 
 protected:
+
+  bool PostReplaceTranslucentShaderValues(std::string &vertexShader,
+                                          std::string &geometryShader,
+                                          std::string &fragmentShader,
+                                          vtkAbstractMapper *mapper,
+                                          vtkProp *prop);
+  bool PreReplaceVolumetricShaderValues(std::string &vertexShader,
+                                        std::string &geometryShader,
+                                        std::string &fragmentShader,
+                                        vtkAbstractMapper *mapper,
+                                        vtkProp *prop);
+  bool SetTranslucentShaderParameters(vtkShaderProgram *program,
+                                      vtkAbstractMapper *mapper, vtkProp *prop,
+                                      vtkOpenGLVertexArrayObject *VAO);
+  bool SetVolumetricShaderParameters(vtkShaderProgram *program,
+                                     vtkAbstractMapper *mapper, vtkProp *prop,
+                                     vtkOpenGLVertexArrayObject *VAO);
+
 
   // Name the textures used by this render pass. These are indexes into
   // this->Textures
@@ -106,10 +144,17 @@ protected:
     Inactive = -1,
   };
 
+  enum PeelType
+  {
+    TranslucentPeel,
+    VolumetricPeel
+  };
+
   vtkDualDepthPeelingPass();
   ~vtkDualDepthPeelingPass() VTK_OVERRIDE;
 
   void SetCurrentStage(ShaderStage stage);
+  vtkSetMacro(CurrentPeelType, PeelType)
 
   /**
    * Release all FBOs and textures.
@@ -122,9 +167,16 @@ protected:
   void RenderTranslucentPass();
 
   /**
+   * Render any volumetric geometry.
+   */
+  void RenderVolumetricPass();
+
+  bool IsRenderingVolumes();
+
+  /**
    * Allocate and configure FBOs and textures.
    */
-  void Initialize(const vtkRenderState *s);
+  void Initialize(const vtkRenderState *state);
 
   //@{
   /**
@@ -136,15 +188,16 @@ protected:
   void InitFramebuffer(const vtkRenderState *s);
   //@}
 
-  //@{
   /**
    * Fill textures with initial values, bind the framebuffer.
    */
   void Prepare();
+
   void InitializeOcclusionQuery();
   void CopyOpaqueDepthBuffer();
   void InitializeDepth();
-  //@}
+
+  void PeelVolumesOutsideTranslucentRange();
 
   bool PeelingDone();
 
@@ -153,9 +206,11 @@ protected:
    */
   void Peel();
 
-  void InitializeTargets();
+  void InitializeTargetsForTranslucentPass();
+  void InitializeTargetsForVolumetricPass();
 
-  void PeelRender();
+  void PeelTranslucentGeometry();
+  void PeelVolumetricGeometry();
 
   void BlendBackBuffer();
   void StartOcclusionQuery();
@@ -164,7 +219,8 @@ protected:
   /**
    * Swap the src/dest render targets:
    */
-  void SwapTargets();
+  void SwapTargetsForTranslucentPass();
+  void SwapTargetsForVolumetricPass();
 
   void Finalize();
 
@@ -173,6 +229,7 @@ protected:
   void BlendFinalImage();
   void DeleteOcclusionQueryId();
 
+  vtkRenderPass *VolumetricPass;
   const vtkRenderState *RenderState;
 
   vtkShaderProgram *CopyDepthProgram;
@@ -196,8 +253,10 @@ protected:
   TextureName DepthDestination; // The current depth destination buffer
 
   ShaderStage CurrentStage;
+  PeelType CurrentPeelType;
   vtkTimeStamp CurrentStageTimeStamp;
 
+  bool LastPeelHadVolumes;
   int CurrentPeel;
   unsigned int OcclusionQueryId;
   unsigned int WrittenPixels;

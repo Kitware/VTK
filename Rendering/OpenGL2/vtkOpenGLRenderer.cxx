@@ -45,7 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTranslucentPass.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
-
+#include "vtkVolumetricPass.h"
 
 #include <cmath>
 #include <cassert>
@@ -370,7 +370,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       if (dualDepthPeelingSupported)
       {
         vtkDebugMacro("Using dual depth peeling.");
-        this->DepthPeelingPass = vtkDualDepthPeelingPass::New();
+        vtkDualDepthPeelingPass *ddpp = vtkDualDepthPeelingPass::New();
+        this->DepthPeelingPass = ddpp;
       }
       else
       {
@@ -382,6 +383,34 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       this->DepthPeelingPass->SetTranslucentPass(tp);
       tp->Delete();
     }
+
+    if (this->UseDepthPeelingForVolumes)
+    {
+      vtkDualDepthPeelingPass *ddpp = vtkDualDepthPeelingPass::SafeDownCast(
+            this->DepthPeelingPass);
+      if (!ddpp)
+      {
+        vtkWarningMacro("UseDepthPeelingForVolumes requested, but unsupported "
+                        "since DualDepthPeeling is not available.");
+        this->UseDepthPeelingForVolumes = false;
+      }
+      else if (!ddpp->GetVolumetricPass())
+      {
+        vtkVolumetricPass *vp = vtkVolumetricPass::New();
+        ddpp->SetVolumetricPass(vp);
+        vp->Delete();
+      }
+    }
+    else
+    {
+      vtkDualDepthPeelingPass *ddpp = vtkDualDepthPeelingPass::SafeDownCast(
+            this->DepthPeelingPass);
+      if (ddpp)
+      {
+        ddpp->SetVolumetricPass(NULL);
+      }
+    }
+
     this->DepthPeelingPass->SetMaximumNumberOfPeels(this->MaximumNumberOfPeels);
     this->DepthPeelingPass->SetOcclusionRatio(this->OcclusionRatio);
     vtkRenderState s(this);
