@@ -16,7 +16,7 @@
 #include "vtkNew.h"
 #include "vtkRenderWindow.h"
 
-int TestOffscreenIsOffscreen(int argc, char* argv[])
+int TestOffscreenIsOffscreen(int, char* [])
 {
   vtkNew<vtkRenderWindow> renWin;
   // This test is only run if VTK_USE_OFFSCREEN is on. So the default should
