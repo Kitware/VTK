@@ -323,12 +323,11 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       // - float textures (ARB_texture_float)
       // - RG textures (ARB_texture_rg)
       // - MAX blending (not available in ES2, but added in ES3).
-      bool dualDepthPeelingSupported = false;
 #if GL_ES_VERSION_3_0 == 1
       // ES3 is supported:
-      dualDepthPeelingSupported = true;
+      bool dualDepthPeelingSupported = true;
 #else
-      dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
+      bool dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
           (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
 #endif
 

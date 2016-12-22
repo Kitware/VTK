@@ -123,12 +123,12 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
     vtkShaderProgram::Substitute(FSSource,"VSOut","GSOut");
   }
 
+#if GL_ES_VERSION_3_0 == 1
+  std::string version = "#version 300 es\n";
+  bool needFragDecls = true;
+#else
   std::string version = "#version 120\n";
   bool needFragDecls = false;
-#if GL_ES_VERSION_3_0 == 1
-  version = "#version 300 es\n";
-  needFragDecls = true;
-#else
   int glMajorVersion = 2;
   int glMinorVersion = 0;
   glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);

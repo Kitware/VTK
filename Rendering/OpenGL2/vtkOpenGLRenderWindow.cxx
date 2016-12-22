@@ -533,12 +533,12 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
   this->TextureInternalFormats[VTK_SHORT][0][4] = GL_RGBA16_SNORM;
 #endif
 
+#if GL_ES_VERSION_3_0 == 1
+  bool haveFloatTextures = true;
+  bool haveIntTextures = true;
+#else
   bool haveFloatTextures = false;
   bool haveIntTextures = false;
-#if GL_ES_VERSION_3_0 == 1
-  haveFloatTextures = true;
-  haveIntTextures = true;
-#else
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
   {
     haveFloatTextures = true;

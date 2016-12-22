@@ -356,8 +356,7 @@ int vtkGraphReader::RequestData(
   vtkGraph* const output = vtkGraph::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  bool valid = true;
-  valid = output->CheckedShallowCopy(builder);
+  bool valid = output->CheckedShallowCopy(builder);
 
   vtkMolecule *mol = vtkMolecule::SafeDownCast(output);
   if (valid && hasLattice && mol)

@@ -538,12 +538,14 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
   double *center=volume->GetCenter();
   double bounds[6];
   volume->GetBounds(bounds);
+#if 0
   double d=sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                 (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                 (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+#endif
 
   // For now use x distance - need to change this
-  d=bounds[1]-bounds[0];
+  double d=bounds[1]-bounds[0];
 
   // Set up the camera in parallel
   canonicalViewCamera->SetFocalPoint(center);

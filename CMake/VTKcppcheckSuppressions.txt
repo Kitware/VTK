@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X with cppcheck 1.75.
+// at least on Mac OS X with cppcheck 1.76.1.
 
 // To run:
 // cd /path/to/VTK/
@@ -37,7 +37,7 @@ memleakOnRealloc
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
 memsetClassFloat
 
-// There are just too many of these to manage, so suppress them all.  Can look again one day.
+// There are just too many of these to manage, so suppress many/all.  Can look again one day.
 // 2364 warnings
 variableScope
 // 1109 warnings
@@ -50,91 +50,47 @@ noExplicitConstructor
 invalidscanf
 // 137 warnings
 unreadVariable
-// 60 warnings
-redundantAssignment
 // 34 warnings
 noCopyConstructor
 // 20 warnings
 useInitializationList
+// 18 warnings
+redundantAssignment:Filters/General/vtkBoxClipDataSet.cxx
+redundantAssignment:*/Testing/*
 
 // Gives too many false positives.
 assertWithSideEffect
 argumentSize
 
-// A regression between 1.73 and 1.74 results in lots of false positives for this warning
-// <https://sourceforge.net/p/cppcheck/discussion/general/thread/21296d8f/?limit=25#6cab>
-clarifyCondition:Filters/General/vtkContourTriangulator.cxx
-clarifyCondition:Imaging/Core/vtkImageStencilData.cxx
-clarifyCondition:Imaging/Stencil/vtkPolyDataToImageStencil.cxx
-clarifyCondition:IO/ODBC/vtkODBCQuery.cxx
-clarifyCondition:Rendering/OSPRay/Testing/Cxx/TestOSPRayRenderMesh.cxx
-
 // False positives.
-argumentSize:Common/DataModel/vtkAMRBox.cxx
-argumentSize:Common/DataModel/vtkStructuredGrid.h
-arrayIndexOutOfBounds:Common/DataModel/vtkCell.h
-assignBoolToPointer:Common/Math/vtkMatrix4x4.h
 AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
 CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
-clarifyCondition:Rendering/Core/Testing/Cxx/TestInteractorStyleImageProperty.cxx
-comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
-deallocDealloc:Wrapping/Tools/vtkParseMerge.c
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
-duplicateExpression:Filters/General/vtkContourTriangulator.cxx
-duplicateExpression:Filters/General/vtkVoxelContoursToSurfaceFilter.cxx
 duplicateExpression:Rendering/Annotation/vtkScalarBarActor.cxx
-invalidPrintfArgType_int:Wrapping/PythonCore/vtkPythonUtil.cxx
-knownConditionTrueFalse:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
 memleak:Common/Core/Testing/Cxx/TestGarbageCollector.cxx
 memleak:Examples/Infovis/Cxx/MultiView.cxx
-memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
 memleak:IO/Image/vtkJPEGReader.cxx
+memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
 multiCondition:Filters/Matlab/vtkMatlabMexAdapter.cxx
-negativeIndex:Common/DataModel/vtkPerlinNoise.cxx
 nullPointer:Interaction/Style/vtkInteractorStyleJoystickActor.cxx
 nullPointer:Interaction/Style/vtkInteractorStyleTrackballActor.cxx
-nullPointer:IO/Exodus/vtkExodusIIReaderParser.cxx
-nullPointerRedundantCheck:Filters/General/vtkMultiThreshold.cxx
 operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
-oppositeInnerCondition:Rendering/VolumeOpenGL/vtkOpenGLVolumeTextureMapper3D.cxx
-pointerPositive:Common/DataModel/vtkUnstructuredGridCellIterator.cxx
 redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
-redundantAssignment:Filters/General/vtkApproximatingSubdivisionFilter.cxx
 redundantAssignment:Filters/General/vtkInterpolatingSubdivisionFilter.cxx
-redundantAssignment:Rendering/OpenGL2/vtkOpenGLRenderWindow.cxx
-redundantAssignment:Rendering/OpenGL2/vtkRenderbuffer.cxx
-redundantAssignment:Rendering/OpenGL2/vtkTextureObject.cxx
-redundantAssignment:Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.cxx
+redundantAssignment:Wrapping/Tcl/vtkTclUtil.cxx
+redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
 stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
 stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
 unassignedVariable:Filters/Core/vtkFlyingEdges3D.cxx
 unassignedVariable:Rendering/Core/vtkCamera.cxx
-uninitdata:IO/Import/vtk3DSImporter.cxx
-uninitvar:Common/Transforms/vtkAbstractTransform.cxx
-uninitvar:Common/Transforms/vtkHomogeneousTransform.cxx
-uninitvar:Common/Transforms/vtkLinearTransform.cxx
-uninitvar:Common/Transforms/vtkPerspectiveTransform.cxx
-uninitvar:Common/Transforms/vtkTransform2D.cxx
-uninitvar:Filters/SMP/vtkSMPTransform.cxx
-uninitvar:IO/Exodus/vtkExodusIIReader.cxx
-uninitvar:Rendering/ContextOpenGL2/vtkOpenGLContextDevice2D.cxx
-uninitvar:Rendering/Core/vtkCamera.cxx
 unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
-unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
-unusedLabelSwitch:IO/Exodus/vtkCPExodusIINodalCoordinatesTemplate.txx
-unusedStructMember:Common/Core/vtkTypeList.txx
-unusedStructMember:Common/Misc/vtkHeap.cxx
-unusedStructMember:IO/Image/vtkMRCReader.cxx
-unusedStructMember:IO/Infovis/vtkTulipReader.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
-uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
-zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
 
 // Not worth fixing, but not actually false positives.
 knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
@@ -143,17 +99,47 @@ passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 
 // There are a fair number of these, but they are probably worth working through.
 // 217 warnings
-postfixOperator
+postfixOperator:Common/*
+postfixOperator:Examples/HyperTree/Cxx/*
+postfixOperator:Filters/*
+postfixOperator:IO/*
+postfixOperator:Parallel/Core/*
+postfixOperator:Rendering/*
+postfixOperator:Utilities/*
 // 30 warnings
-duplInheritedMember
-// 12 warnings
-invalidPointerCast
+duplInheritedMember:Charts/Core/vtkChartMatrix.h
+duplInheritedMember:Charts/Core/vtkPlot3D.h
+duplInheritedMember:Common/DataModel/vtkGenericCellTessellator.h
+duplInheritedMember:Common/DataModel/vtkPlanes.h
+duplInheritedMember:Common/ExecutionModel/vtkStreamingDemandDrivenPipeline.h
+duplInheritedMember:Filters/FlowPaths/vtkAbstractInterpolatedVelocityField.h
+duplInheritedMember:Filters/Sources/vtkOutlineSource.h
+duplInheritedMember:IO/EnSight/vtkGenericEnSightReader.h
+duplInheritedMember:IO/Geometry/vtkMoleculeReaderBase.h
+duplInheritedMember:IO/SQL/vtkTableToDatabaseWriter.h
+duplInheritedMember:Imaging/Core/vtkImageReslice.h
+duplInheritedMember:Interaction/Widgets/vtkBiDimensionalRepresentation.h
+duplInheritedMember:Rendering/Core/vtkColorTransferFunction.h
+duplInheritedMember:Rendering/OpenGL/vtkStandardPolyDataPainter.h
+duplInheritedMember:Rendering/OpenGL/vtkXRenderWindowInteractor.h
+duplInheritedMember:Rendering/OpenGL2/vtkImageProcessingPass.h
+duplInheritedMember:Views/Infovis/vtkRenderView.h
+duplInheritedMember:Views/Infovis/vtkRenderedRepresentation.h
+// 16 warnings
+invalidPointerCast:Rendering/GL2PSOpenGL2/vtkOpenGLGL2PSHelperImpl.cxx
+invalidPointerCast:Rendering/OSPRay/vtkOSPRayPolyDataMapperNode.cxx
+invalidPointerCast:Rendering/OpenGL2/vtkOpenGLSphereMapper.cxx
+invalidPointerCast:Rendering/OpenGL2/vtkOpenGLStickMapper.cxx
+invalidPointerCast:Rendering/OpenGL2/vtkOpenGLVertexBufferObject.cxx
+invalidPointerCast:Rendering/ParallelLIC/vtkParallelTimer.cxx
 // 6 warnings
-noConstructor
+noConstructor:Common/Core/Testing/Cxx/TestCxxFeatures.cxx
+noConstructor:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
+noConstructor:Common/Core/vtkTypeList.txx
+noConstructor:Filters/ParallelDIY2/vtkPResampleWithDataSet.cxx
+noConstructor:Rendering/Core/Testing/Cxx/TestInteractorTimers.cxx
 
 // To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
 nullPointerRedundantCheck:IO/Exodus/vtkExodusIIReaderParser.cxx
-redundantAssignment:Filters/General/vtkBoxClipDataSet.cxx
-redundantAssignment:Rendering/Volume/vtkFixedPointVolumeRayCastMapper.cxx
-redundantAssignment:Rendering/Volume/vtkGPUVolumeRayCastMapper.cxx:
+redundantAssignment:IO/Image/vtkJPEGReader.cxx
