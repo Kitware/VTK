@@ -245,10 +245,13 @@ int vtkOpenGLRenderer::UpdateGeometry()
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
-  for ( i = 0; i < this->PropArrayCount; i++ )
+  if (!this->UseDepthPeelingForVolumes)
   {
-    this->NumberOfPropsRendered +=
-      this->PropArray[i]->RenderVolumetricGeometry(this);
+    for ( i = 0; i < this->PropArrayCount; i++ )
+    {
+      this->NumberOfPropsRendered +=
+        this->PropArray[i]->RenderVolumetricGeometry(this);
+    }
   }
 
   // loop through props and give them a chance to

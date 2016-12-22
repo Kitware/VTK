@@ -105,8 +105,13 @@ void vtkDualDepthPeelingPass::Render(const vtkRenderState *s)
 }
 
 //------------------------------------------------------------------------------
-void vtkDualDepthPeelingPass::ReleaseGraphicsResources(vtkWindow *)
+void vtkDualDepthPeelingPass::ReleaseGraphicsResources(vtkWindow* win)
 {
+  if (this->VolumetricPass)
+  {
+    this->VolumetricPass->ReleaseGraphicsResources(win);
+  }
+
   this->FreeGLObjects();
 }
 
@@ -373,7 +378,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
   switch (this->CurrentStage)
   {
     case vtkDualDepthPeelingPass::InitializingDepth:
-      vtkErrorMacro("InitializingDepth pass only valid for translucent peels.");
+      //vtkErrorMacro("InitializingDepth pass only valid for translucent peels.");
       return false;
 
     case vtkDualDepthPeelingPass::Peeling:
@@ -393,13 +398,16 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  // Negate the near depths; they're negative for MAX blending:\n"
             "  float frontStartDepth = -outerDepths.x;\n"
             "  float frontEndDepth   = -innerDepths.x;\n"
-            "  float backStartDepth  = innerDepth.y;\n"
-            "  float backEndDepth    = outerDepth.y;\n"
+            "  float backStartDepth  = innerDepths.y;\n"
+            "  float backEndDepth    = outerDepths.y;\n"
             "\n"
             "  // TODO some logic for detecting if inner == outer range\n"
             "\n"
-            "  vec4 frontColor = computeColor(frontStartDepth, frontEndDepth);\n"
-            "  vec4 backColor  = computeColor(backStartDepth, backEndDepth);\n"
+            "  initializeRayCast();\n"
+            "  vec3 cachedDataPos = g_dataPos;\n"
+            "  vec4 frontColor = rayMarchingLoop(frontStartDepth, frontEndDepth);\n"
+            "  g_dataPos = cachedDataPos; //TODO\n"
+            "  vec4 backColor  = rayMarchingLoop(backStartDepth, backEndDepth);\n"
             "\n"
             "  // Back color is written out with pre-multiplied alpha:\n"
             "  gl_FragData[0] = vec4(backColor.rgb * backColor.a,\n"
@@ -416,6 +424,46 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  // Write out (1-alpha) for MAX blending:\n"
             "  gl_FragData[1].a = 1. - (lastFrontColor.a * (1. - frontColor.a));\n"
             );
+
+      vtkShaderProgram::Substitute(fragmentShader, "//VTK::DepthPeeling::Ray::Init",
+            "  //Transform zStart and zEnd to texture_coordinates\n"
+            "  mat4 NDCToTextureCoords = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix *\n"
+            "    in_inverseModelViewMatrix * in_inverseProjectionMatrix;\n"
+            "  \n"
+            "  /// Start point (point on the entry zPlane)\n"
+            "  // Win coords to NDC\n"
+            "  vec4 startPoint = vec4(0.0, 0.0, 0.0, 1.0);\n"
+            "  startPoint.x = (gl_FragCoord.x - in_windowLowerLeftCorner.x) * 2.0 *\n"
+            "                       in_inverseWindowSize.x - 1.0;\n"
+            "  startPoint.y = (gl_FragCoord.y - in_windowLowerLeftCorner.y) * 2.0 *\n"
+            "                       in_inverseWindowSize.y - 1.0;\n"
+            "  startPoint.z = (2.0 * zStart - (gl_DepthRange.near + gl_DepthRange.far)) /\n"
+            "    gl_DepthRange.diff;\n"
+            "  \n"
+            "  startPoint = NDCToTextureCoords * startPoint;\n"
+            "  startPoint /= startPoint.w;\n"
+            "  \n"
+            "  g_dataPos = startPoint.xyz;\n"
+            "  \n"
+            "  ///// End point\n"
+            "  //// Win coords to NDC\n"
+            "  vec4 endPoint = vec4(0.0, 0.0, 0.0, 1.0);\n"
+            "  endPoint.x = (gl_FragCoord.x - in_windowLowerLeftCorner.x) * 2.0 *\n"
+            "                       in_inverseWindowSize.x - 1.0;\n"
+            "  endPoint.y = (gl_FragCoord.y - in_windowLowerLeftCorner.y) * 2.0 *\n"
+            "                       in_inverseWindowSize.y - 1.0;\n"
+            "  endPoint.z = (2.0 * zEnd - (gl_DepthRange.near + gl_DepthRange.far)) /\n"
+            "    gl_DepthRange.diff;\n"
+            "  \n"
+            "  endPoint = NDCToTextureCoords * endPoint;\n"
+            "  endPoint /= endPoint.w;\n"
+            );
+
+      vtkShaderProgram::Substitute(fragmentShader, "//VTK::DepthPeeling::Ray::Terminate",
+            "//Next ray step lies after the end point.\n"
+            "///TODO\n"
+            );
+
       break;
 
     case vtkDualDepthPeelingPass::AlphaBlending:
@@ -429,7 +477,8 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  float startDepth = -depthRange.x;\n"
             "  float endDepth = depthRange.y;\n"
             "\n"
-            "  vec4 color = computeColor(startDepth, endDepth);\n"
+            "  initializeRayCast();\n"
+            "  vec4 color = rayMarchingLoop(startDepth, endDepth);\n"
             "\n"
             "  // Write out pre-multiplied alpha for back-blending:\n"
             "  gl_FragData[0] = vec4(color.rgb * color.a, color.a);\n"
@@ -550,6 +599,11 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
 vtkDualDepthPeelingPass::~vtkDualDepthPeelingPass()
 {
   this->FreeGLObjects();
+
+  if (this->VolumetricPass)
+  {
+    this->SetVolumetricPass(NULL);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -922,6 +976,7 @@ void vtkDualDepthPeelingPass::InitializeDepth()
   this->Framebuffer->ActivateDrawBuffers(targets, 2);
 
   this->SetCurrentStage(InitializingDepth);
+  this->SetCurrentPeelType(TranslucentPeel);
   this->Textures[this->DepthDestination]->Activate();
 
   glEnable(GL_BLEND);
@@ -1272,6 +1327,7 @@ void vtkDualDepthPeelingPass::AlphaBlendRender()
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   this->SetCurrentStage(AlphaBlending);
+  //this->SetCurrentPeelType(TranslucentPeel);
   this->Framebuffer->ActivateDrawBuffer(Back);
   this->Textures[this->DepthSource]->Activate();
 

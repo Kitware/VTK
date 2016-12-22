@@ -39,6 +39,7 @@
 #include <vtkFloatArray.h>
 #include <vtkOpenGLFramebufferObject.h>
 #include <vtkImageData.h>
+#include "vtkInformation.h"
 #include <vtkLightCollection.h>
 #include <vtkLight.h>
 #include <vtkMath.h>
@@ -47,6 +48,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkOpenGLError.h>
 #include <vtkOpenGLCamera.h>
+#include <vtkOpenGLRenderPass.h>
 #include <vtkOpenGLRenderWindow.h>
 #include "vtkOpenGLResourceFreeCallback.h"
 #include <vtkOpenGLShaderCache.h>
@@ -2330,6 +2332,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
+  this->ReplaceShaderRenderPass(vertexShader, fragmentShader, vol, true);
+
   // Every volume should have a property (cannot be NULL);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
   int independentComponents = volumeProperty->GetIndependentComponents();
@@ -2390,6 +2394,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     "//VTK::Base::Dec",
     vtkvolume::BaseDeclarationVertex(ren, this, vol),
     true);
+
+  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::CallWorker::Impl",
+    vtkvolume::WorkerImplementation(ren, this, vol), true);
 
   fragmentShader = vtkvolume::replace(
     fragmentShader,
@@ -2674,6 +2681,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
         ren, this, vol), true);
   }
 
+  this->ReplaceShaderRenderPass(vertexShader, fragmentShader, vol, false);
+
   // Now compile the shader
   //--------------------------------------------------------------------------
   this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShaderProgram(
@@ -2920,6 +2929,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   this->Impl->CheckPickingState(ren);
 
+  vtkMTimeType renderPassTime = this->GetRenderPassStageMTime(vol);
+
   if (this->UseDepthPass && this->GetBlendMode() ==
       vtkVolumeMapper::COMPOSITE_BLEND)
   {
@@ -2929,7 +2940,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
         volumeProperty->GetMTime() > this->Impl->DepthPassSetupTime.GetMTime() ||
         this->GetMTime() > this->Impl->DepthPassSetupTime.GetMTime() ||
         cam->GetParallelProjection() != this->Impl->LastProjectionParallel ||
-        this->Impl->SelectionStateTime.GetMTime() > this->Impl->ShaderBuildTime.GetMTime())
+        this->Impl->SelectionStateTime.GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
+        renderPassTime > this->Impl->ShaderBuildTime)
     {
       this->Impl->LastProjectionParallel =
         cam->GetParallelProjection();
@@ -3019,11 +3031,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     // to make sure that shader cache knows the state of various shader programs
     // in use.
     if (this->Impl->NeedToInitializeResources ||
-        volumeProperty->GetMTime() >
-        this->Impl->ShaderBuildTime.GetMTime() ||
+        volumeProperty->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
         this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
         cam->GetParallelProjection() != this->Impl->LastProjectionParallel ||
-        this->Impl->SelectionStateTime.GetMTime() > this->Impl->ShaderBuildTime.GetMTime())
+        this->Impl->SelectionStateTime.GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
+        renderPassTime > this->Impl->ShaderBuildTime)
     {
       this->Impl->LastProjectionParallel =
         cam->GetParallelProjection();
@@ -3076,11 +3088,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     return;
   }
 
+//  this->Impl->ShaderProgram->SetFileNamePrefixForDebugging("/home/alvaro/testShaders/"
+//    "depthPeeling_");
+//  this->Impl->ShaderCache->ReleaseCurrentShader();
+//  this->Impl->ShaderCache->ReadyShaderProgram(this->Impl->ShaderProgram, NULL);
+
   // Cell spacing is required to be computed globally (full volume extents)
   // given that gradients are computed globally (not per block).
   float fvalue3[3]; /* temporary value container */
   vtkInternal::ToFloat(this->Impl->CellSpacing, fvalue3);
   prog->SetUniform3fv("in_cellSpacing", 1, &fvalue3);
+
+  this->SetShaderParametersRenderPass(vol);
 
   // Sort blocks in case the viewpoint changed, it immediately returns if there
   // is a single block.
@@ -3491,4 +3510,124 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetPartitions(unsigned short x,
   unsigned short y, unsigned short z)
 {
   this->VolumeTexture->SetPartitions(x, y, z);
+}
+
+//-----------------------------------------------------------------------------
+vtkMTimeType vtkOpenGLGPUVolumeRayCastMapper::GetRenderPassStageMTime(vtkVolume* vol)
+{
+  vtkInformation *info = vol->GetPropertyKeys();
+  vtkMTimeType renderPassMTime = 0;
+
+  int curRenderPasses = 0;
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
+  {
+    curRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+  }
+
+  int lastRenderPasses = 0;
+  if (this->LastRenderPassInfo->Has(vtkOpenGLRenderPass::RenderPasses()))
+  {
+    lastRenderPasses =
+        this->LastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
+  }
+
+  // Determine the last time a render pass changed stages:
+  if (curRenderPasses != lastRenderPasses)
+  {
+    // Number of passes changed, definitely need to update.
+    // Fake the time to force an update:
+    renderPassMTime = VTK_MTIME_MAX;
+  }
+  else
+  {
+    // Compare the current to the previous render passes:
+    for (int i = 0; i < curRenderPasses; ++i)
+    {
+      vtkObjectBase *curRP = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkObjectBase *lastRP =
+          this->LastRenderPassInfo->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+
+      if (curRP != lastRP)
+      {
+        // Render passes have changed. Force update:
+        renderPassMTime = VTK_MTIME_MAX;
+        break;
+      }
+      else
+      {
+        // Render passes have not changed -- check MTime.
+        vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(curRP);
+        renderPassMTime = std::max(renderPassMTime, rp->GetShaderStageMTime());
+      }
+    }
+  }
+
+  // Cache the current set of render passes for next time:
+  if (info)
+  {
+    this->LastRenderPassInfo->CopyEntry(info,
+                                        vtkOpenGLRenderPass::RenderPasses());
+  }
+  else
+  {
+    this->LastRenderPassInfo->Clear();
+  }
+
+  return renderPassMTime;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderRenderPass(std::string& vertShader,
+  std::string& fragShader, vtkVolume* vol, bool prePass)
+{
+  std::string geomShader; // Currently unused
+  vtkInformation* info = vol->GetPropertyKeys();
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
+  {
+    int numRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    for (int i = 0; i < numRenderPasses; ++i)
+    {
+      vtkObjectBase *rpBase = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(rpBase);
+      if (prePass)
+      {
+        if (!rp->PreReplaceShaderValues(vertShader, geomShader, fragShader,
+          this, vol))
+        {
+          vtkErrorMacro("vtkOpenGLRenderPass::PreReplaceShaderValues failed for "
+            << rp->GetClassName());
+        }
+      }
+      else
+      {
+        if (!rp->PostReplaceShaderValues(vertShader, geomShader, fragShader,
+          this, vol))
+        {
+          vtkErrorMacro("vtkOpenGLRenderPass::PostReplaceShaderValues failed for "
+            << rp->GetClassName());
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::SetShaderParametersRenderPass(
+  vtkVolume* vol)
+{
+  vtkInformation *info = vol->GetPropertyKeys();
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
+  {
+    int numRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    for (int i = 0; i < numRenderPasses; ++i)
+    {
+      vtkObjectBase *rpBase = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(rpBase);
+      if (!rp->SetShaderParameters(this->Impl->ShaderProgram, this, vol))
+      {
+        vtkErrorMacro("RenderPass::SetShaderParameters failed for renderpass: "
+                      << rp->GetClassName());
+      }
+    }
+  }
 }

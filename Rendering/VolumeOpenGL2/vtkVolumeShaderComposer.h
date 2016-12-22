@@ -361,7 +361,7 @@ namespace vtkvolume
         \n    }\
         \n\
         \n  // Flag to deternmine if voxel should be considered for the rendering\
-        \n  bool l_skip = false;");
+        \n  l_skip = false;");
 
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
     {
@@ -991,10 +991,31 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string ShadingDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
-                                         vtkVolumeMapper* vtkNotUsed(mapper),
+                                         vtkVolumeMapper* mapper,
                                          vtkVolume* vtkNotUsed(vol))
   {
-    return std::string();
+    if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
+    {
+      return std::string();
+    }
+    else if (mapper->GetBlendMode() ==
+             vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
+    {
+      return std::string();
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      return std::string();
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
+    {
+      return std::string("\
+        \n  vec4 l_sumValue;");
+    }
+    else
+    {
+      return std::string();
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -1578,7 +1599,7 @@ namespace vtkvolume
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
       \n\
-      \n  float l_terminatePointMax = 0.0;\
+      \n  l_terminatePointMax = 0.0;\
       \n\
       \n#ifdef GL_ES\
       \n  vec4 l_depthValue = vec4(1.0,1.0,1.0,1.0);\
@@ -1621,7 +1642,7 @@ namespace vtkvolume
       \n\
       \n  l_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
       \n                        length(g_dirStep);\
-      \n  float l_currentT = 0.0;");
+      \n  l_currentT = 0.0;");
   }
 
   //--------------------------------------------------------------------------
@@ -2209,6 +2230,17 @@ namespace vtkvolume
     \n  gl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5),\
     \n                        1.0);"
   );
+  }
+
+  //---------------------------------------------------------------------------
+  std::string WorkerImplementation(vtkRenderer* vtkNotUsed(ren),
+                                     vtkVolumeMapper* vtkNotUsed(mapper),
+                                     vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+    \n  initializeRayCast();\
+    \n  rayMarchingLoop(-1.0, -1.0);\
+    \n  finalizeRayCast();");
   }
 }
 

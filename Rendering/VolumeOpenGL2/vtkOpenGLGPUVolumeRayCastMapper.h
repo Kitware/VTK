@@ -16,9 +16,9 @@
 #ifndef vtkOpenGLGPUVolumeRayCastMapper_h
 #define vtkOpenGLGPUVolumeRayCastMapper_h
 
+#include "vtkNew.h"                          // For vtkNew
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
-
-#include <vtkGPUVolumeRayCastMapper.h>
+#include "vtkGPUVolumeRayCastMapper.h"
 
 // Forward declarations
 class vtkGenericOpenGLResourceFreeCallback;
@@ -179,6 +179,30 @@ protected:
   {
     return 1;
   }
+
+  //@{
+  /**
+   *  \brief vtkOpenGLRenderPass API
+   */
+  vtkMTimeType GetRenderPassStageMTime(vtkVolume* vol);
+
+  /**
+   *  RenderPass string replacements on shader templates.
+   */
+  void ReplaceShaderRenderPass(std::string& vertShader, std::string& fragShader,
+    vtkVolume* vol, bool prePass);
+
+  /**
+   *  Update parameters from RenderPass
+   */
+  void SetShaderParametersRenderPass(vtkVolume* vol);
+  /**
+   *  Caches the vtkOpenGLRenderPass::RenderPasses() information.
+   *  Note: Do not dereference the pointers held by this object. There is no
+   *  guarantee that they are still valid!
+   */
+  vtkNew<vtkInformation> LastRenderPassInfo;
+  //@}
 
   double ReductionFactor;
   int    CurrentPass;

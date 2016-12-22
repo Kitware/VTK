@@ -44,6 +44,12 @@ vec4 g_srcColor;
 vec4 g_eyePosObj;
 bool g_exit;
 
+///TOOD Review if they need to be global and rename
+bool l_skip;
+float l_currentT;
+float l_terminatePointMax;
+
+
 uniform vec4 in_volume_scale;
 uniform vec4 in_volume_bias;
 
@@ -73,6 +79,8 @@ uniform vec4 in_volume_bias;
 
 //VTK::Picking::Dec
 
+//VTK::DepthPeeling::Dec
+
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
 /// planes (origin, normal)
@@ -82,11 +90,12 @@ uniform float in_bias;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
-/// Main
+/// Ray marching
 ///
 //////////////////////////////////////////////////////////////////////////////
-void main()
-  {
+
+void initializeRayCast()
+{
   /// Initialize g_fragColor (output) to 0
   g_fragColor = vec4(0.0);
   g_dirStep = vec3(0.0);
@@ -97,6 +106,9 @@ void main()
 
   //VTK::Terminate::Init
 
+  // TODO Fix broken features (e.g. See fix for TestGPURayCastAdditive;
+  // need to make some variables globally accessible for all sections
+  // of WorkerImpl).
   //VTK::Shading::Init
 
   //VTK::Cropping::Init
@@ -106,10 +118,15 @@ void main()
   //VTK::RenderToImage::Init
 
   //VTK::DepthPass::Init
+};
+
+vec4 rayMarchingLoop(const float zStart, const float zEnd)
+{
+  //VTK::DepthPeeling::Ray::Init
 
   /// For all samples along the ray
   while (!g_exit)
-    {
+  {
     //VTK::Base::Impl
 
     //VTK::Cropping::Impl
@@ -129,9 +146,19 @@ void main()
     /// Advance ray
     g_dataPos += g_dirStep;
 
+    // TODO Split termination criteria to include only those necessary
+    // (termination steps not needed in DepthPeeling), since start and
+    // end are delimited.
     //VTK::Terminate::Impl
-    }
 
+    //VTK::DepthPeeling::Ray::Terminate
+  }
+
+  return g_fragColor;
+};
+
+void finalizeRayCast()
+{
   //VTK::Base::Exit
 
   //VTK::Terminate::Exit
@@ -152,4 +179,14 @@ void main()
   //VTK::RenderToImage::Exit
 
   //VTK::DepthPass::Exit
-  }
+};
+
+//////////////////////////////////////////////////////////////////////////////
+///
+/// Main
+///
+//////////////////////////////////////////////////////////////////////////////
+void main()
+{
+  //VTK::CallWorker::Impl
+}
