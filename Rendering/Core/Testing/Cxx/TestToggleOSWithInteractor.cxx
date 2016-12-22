@@ -29,6 +29,9 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+// test works on Windows, in the future we need to
+// make sure it works for OSX and Linux/EGL
+#ifdef WIN32
 int TestToggleOSWithInteractor(int argc, char* argv[])
 {
   // run through a couple cases
@@ -124,4 +127,9 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
   }
 
   return !retVal;
+#else
+int TestToggleOSWithInteractor(int, char* [])
+{
+  return 0;
+#endif
 }

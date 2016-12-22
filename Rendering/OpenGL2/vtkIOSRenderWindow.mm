@@ -37,6 +37,7 @@ vtkIOSRenderWindow::vtkIOSRenderWindow()
   this->SetWindowName("Visualization Toolkit - IOS");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
+  this->Capabilities = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
   // it seems that LEFT/RIGHT cause issues on IOS so we just use
@@ -64,11 +65,15 @@ vtkIOSRenderWindow::~vtkIOSRenderWindow()
     ren->SetRenderWindow(NULL);
   }
 
+  delete[] this->Capabilities;
+  this->Capabilities = 0;
+
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
   this->SetRootWindow(NULL);
   this->SetWindowId(NULL);
   this->SetParentId(NULL);
+
 }
 
 //----------------------------------------------------------------------------

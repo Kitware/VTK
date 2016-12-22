@@ -92,11 +92,6 @@ public:
   virtual void SetSize(int,int);
   virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);}
 
-  /**
-   * Map/Unmap the window
-   */
-  virtual void SetMapped(int i);
-
   //@{
   /**
    * Get the X properties of an ideal rendering window.
@@ -282,6 +277,11 @@ public:
    */
   void Render();
 
+  /**
+   * Render without displaying the window.
+   */
+  void SetOffScreenRendering(int i);
+
   //@{
   /**
    * Ability to push and pop this window's context
@@ -293,9 +293,6 @@ public:
   virtual void PushContext();
   virtual void PopContext();
   //@}
-
-  // override due to OSMesa
-  virtual void SetOffScreenRendering(int i);
 
 protected:
   vtkXOpenGLRenderWindow();
@@ -314,6 +311,7 @@ protected:
   int      CursorHidden;
   int      ForceMakeCurrent;
   int      UsingHardware;
+  char    *Capabilities;
 
   std::stack<Display *> DisplayStack;
   std::stack<Drawable> DrawableStack;
@@ -334,10 +332,11 @@ protected:
 
   void CreateAWindow();
   void DestroyWindow();
+  void CreateOffScreenWindow(int width, int height);
+  void DestroyOffScreenWindow();
+  void ResizeOffScreenWindow(int width, int height);
   void CloseDisplay();
 
-  void CreateOSMesaWindow(int w, int h);
-  void ResizeOSMesaWindow(int w, int h);
 
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
