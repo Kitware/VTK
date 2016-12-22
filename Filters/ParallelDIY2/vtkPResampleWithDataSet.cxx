@@ -142,6 +142,7 @@ struct Point
 class Partition
 {
 public:
+  virtual ~Partition() {}
   virtual void CreatePartition(const std::vector<vtkDataSet*> &blocks) = 0;
   virtual void FindPointsInBounds(const double bounds[6],
                                   std::vector<Point> &points) const = 0;
@@ -152,7 +153,7 @@ public:
 class RegularPartition : public Partition
 {
 public:
-  void CreatePartition(const std::vector<vtkDataSet*> &blocks)
+  void CreatePartition(const std::vector<vtkDataSet*> &blocks) VTK_OVERRIDE
   {
     // compute the bounds of the composite dataset
     size_t totalNumberOfPoints = 0;
@@ -259,7 +260,7 @@ public:
     }
   }
 
-  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const
+  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const VTK_OVERRIDE
   {
     if (this->Nodes.empty())
     {
@@ -351,7 +352,7 @@ private:
 class BalancedPartition : public Partition
 {
 public:
-  void CreatePartition(const std::vector<vtkDataSet*> &blocks)
+  void CreatePartition(const std::vector<vtkDataSet*> &blocks) VTK_OVERRIDE
   {
     // count total number of points
     vtkIdType totalNumberOfPoints = 0;
@@ -399,7 +400,7 @@ public:
                          &this->Splits[0], &this->Splits[splitsSize], 0);
   }
 
-  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const
+  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const VTK_OVERRIDE
   {
     int tag = 0;
     for (int i = 0; i < 3; ++i)
@@ -519,7 +520,7 @@ void ForEachDataSetBlock(vtkDataObject *data, const Functor &func)
 
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(composite->NewIterator());
-    for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       func(static_cast<vtkDataSet*>(iter->GetCurrentDataObject()));
     }
@@ -574,7 +575,7 @@ void CopyDataSetStructure(vtkDataObject *input, vtkDataObject *output)
 
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(compositeIn->NewIterator());
-    for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       vtkDataSet *in = static_cast<vtkDataSet*>(iter->GetCurrentDataObject());
       if (in)
@@ -686,9 +687,9 @@ inline void ComputeExtentsForBounds(const double origin[3], const double spacing
     }
     else
     {
-      result[2*i] = std::min(extents[2*i], static_cast<int>(std::floor(
+      result[2*i] = std::max(extents[2*i], static_cast<int>(std::floor(
                       (bounds[2*i] - origin[i])/spacing[i])));
-      result[2*i + 1] = std::max(extents[2*i + 1], static_cast<int>(std::ceil(
+      result[2*i + 1] = std::min(extents[2*i + 1], static_cast<int>(std::ceil(
                           (bounds[2*i + 1] - origin[i])/spacing[i])));
     }
   }
@@ -1135,15 +1136,13 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
 
   // partition the input points, using the user specified partition algorithm,
   // to make it easier to find the set of points inside a bounding-box
-  RegularPartition regular;
-  BalancedPartition balanced;
   if (this->UseBalancedPartitionForPointsLookup)
   {
-    block.PointsLookup = &balanced;
+    block.PointsLookup = new BalancedPartition;
   }
   else
   {
-    block.PointsLookup = &regular;
+    block.PointsLookup = new RegularPartition;
   }
   // We dont want ImageData points in the lookup structure
   {
@@ -1177,6 +1176,9 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   this->Prober->SetSourceData(source);
   // find and send local points that overlap remote source blocks
   master.foreach<DiyBlock>(&FindPointsToSend);
+  // the lookup structures are no longer required
+  delete block.PointsLookup;
+  block.PointsLookup = NULL;
   master.exchange();
   // perform resampling on local and remote points
   master.foreach<DiyBlock>(&PerformResampling, this->Prober.GetPointer());
@@ -1185,13 +1187,16 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   master.foreach<DiyBlock>(&ReceiveResampledPoints,
                            this->Prober->GetValidPointMaskArrayName());
 
-  // mark the blank points and cells of output
-  for (size_t i = 0; i < block.OutputBlocks.size(); ++i)
+  if (this->MarkBlankPointsAndCells)
   {
-    vtkDataSet *ds = block.OutputBlocks[i];
-    if (ds)
+    // mark the blank points and cells of output
+    for (size_t i = 0; i < block.OutputBlocks.size(); ++i)
     {
-      this->SetBlankPointsAndCells(ds);
+      vtkDataSet *ds = block.OutputBlocks[i];
+      if (ds)
+      {
+        this->SetBlankPointsAndCells(ds);
+      }
     }
   }
 

@@ -38,6 +38,7 @@ vtkObjectFactoryNewMacro(vtkResampleWithDataSet);
 
 //-----------------------------------------------------------------------------
 vtkResampleWithDataSet::vtkResampleWithDataSet()
+  : MarkBlankPointsAndCells(true)
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
@@ -99,6 +100,27 @@ void vtkResampleWithDataSet::SetPassFieldArrays(bool arg)
 bool vtkResampleWithDataSet::GetPassFieldArrays()
 {
   return this->Prober->GetPassFieldArrays() ? true : false;
+}
+
+//----------------------------------------------------------------------------
+void vtkResampleWithDataSet::SetTolerance(double arg)
+{
+  this->Prober->SetTolerance(arg);
+}
+
+double vtkResampleWithDataSet::GetTolerance()
+{
+  return this->Prober->GetTolerance();
+}
+
+void vtkResampleWithDataSet::SetComputeTolerance(bool arg)
+{
+  this->Prober->SetComputeTolerance(arg);
+}
+
+bool vtkResampleWithDataSet::GetComputeTolerance()
+{
+  return this->Prober->GetComputeTolerance();
 }
 
 //----------------------------------------------------------------------------
@@ -295,7 +317,10 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
     this->Prober->SetSourceData(source);
     this->Prober->Update();
     output->ShallowCopy(this->Prober->GetOutput());
-    this->SetBlankPointsAndCells(output);
+    if (this->MarkBlankPointsAndCells)
+    {
+      this->SetBlankPointsAndCells(output);
+    }
   }
   else if (inDataObject->IsA("vtkCompositeDataSet"))
   {
@@ -307,7 +332,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(input->NewIterator());
-    for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       vtkDataSet *ds = static_cast<vtkDataSet*>(iter->GetCurrentDataObject());
       if (ds)
@@ -318,7 +343,10 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
 
         vtkDataSet *block = result->NewInstance();
         block->DeepCopy(result);
-        this->SetBlankPointsAndCells(block);
+        if (this->MarkBlankPointsAndCells)
+        {
+          this->SetBlankPointsAndCells(block);
+        }
         output->SetDataSet(iter.GetPointer(), block);
         block->Delete();
       }

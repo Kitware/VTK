@@ -92,6 +92,37 @@ public:
   vtkBooleanMacro(PassFieldArrays, bool);
   //@}
 
+  //@{
+  /**
+   * Set the tolerance used to compute whether a point in the
+   * source is in a cell of the input.  This value is only used
+   * if ComputeTolerance is off.
+   */
+  void SetTolerance(double arg);
+  double GetTolerance();
+  //@}
+
+  //@{
+  /**
+   * Set whether to use the Tolerance field or precompute the tolerance.
+   * When on, the tolerance will be computed and the field
+   * value is ignored. Off by default.
+   */
+  void SetComputeTolerance(bool arg);
+  bool GetComputeTolerance();
+  vtkBooleanMacro(ComputeTolerance, bool);
+  //@}
+
+  //@{
+  /**
+   * Set whether points without resampled values, and their corresponding cells,
+   * should be marked as Blank. Default is On.
+   */
+  vtkSetMacro(MarkBlankPointsAndCells, bool);
+  vtkGetMacro(MarkBlankPointsAndCells, bool);
+  vtkBooleanMacro(MarkBlankPointsAndCells, bool);
+  //@}
+
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
@@ -119,6 +150,7 @@ protected:
   void SetBlankPointsAndCells(vtkDataSet *data);
 
   vtkNew<vtkCompositeDataProbeFilter> Prober;
+  bool MarkBlankPointsAndCells;
 
 private:
   vtkResampleWithDataSet(const vtkResampleWithDataSet&) VTK_DELETE_FUNCTION;
