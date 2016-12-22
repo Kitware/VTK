@@ -100,6 +100,7 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   vtkNew<vtkPNGReader> reader;
   reader->SetFileName(fname);
   reader->Update();
+  delete [] fname;
 
   vtkNew<vtkLogoRepresentation> logo;
   logo->SetImage(reader->GetOutput());
