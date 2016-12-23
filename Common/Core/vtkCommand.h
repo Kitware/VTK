@@ -270,6 +270,7 @@
     _vtk_add_event(RenderWindowMessageEvent)\
     _vtk_add_event(WrongTagEvent)\
     _vtk_add_event(StartAnimationCueEvent)\
+    _vtk_add_event(ResliceAxesChangedEvent)\
         /*^ used by vtkAnimationCue*/ \
     _vtk_add_event(AnimationCueTickEvent)\
     _vtk_add_event(EndAnimationCueEvent)\
