@@ -1,6 +1,5 @@
-if(ANDROID OR APPLE_IOS) # No gl2ps on mobile
-  set(gl2ps_depends)
-  set(gl2ps_test_depends)
+if(ANDROID OR APPLE_IOS) # No GL2PS on mobile
+  return()
 elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
   set(gl2ps_depends vtkRenderingGL2PS)
   set(gl2ps_test_depends vtkIOExportOpenGL)
