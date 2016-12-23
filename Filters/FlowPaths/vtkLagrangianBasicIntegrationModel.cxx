@@ -516,11 +516,11 @@ vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel():
   SurfaceArrayDescription surfaceTypeDescription;
   surfaceTypeDescription.nComp = 1;
   surfaceTypeDescription.type = VTK_INT;
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(0, "ModelDefined"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(1, "Terminate"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(2, "Bounce"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(3, "BreakUp"));
-  surfaceTypeDescription.enumValues.push_back(std::make_pair(4, "PassThrough"));
+  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_MODEL, "ModelDefined"));
+  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_TERM, "Terminate"));
+  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_BOUNCE, "Bounce"));
+  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_BREAK, "BreakUp"));
+  surfaceTypeDescription.enumValues.push_back(std::make_pair(SURFACE_TYPE_PASS, "PassThrough"));
   this->SurfaceArrayDescriptions["SurfaceType"] = surfaceTypeDescription;
 
   this->SeedArrayNames->InsertNextValue("ParticleInitialVelocity");
@@ -1529,11 +1529,9 @@ bool vtkLagrangianBasicIntegrationModel::ManualIntegration(
 
 //---------------------------------------------------------------------------
 void vtkLagrangianBasicIntegrationModel::ComputeSurfaceDefaultValues(
-  const char* vtkNotUsed(arrayName), vtkDataSet* vtkNotUsed(dataset),
+  const char* arrayName, vtkDataSet* vtkNotUsed(dataset),
   int nComponents, double* defaultValues)
 {
-  for (int i = 0; i < nComponents; i++)
-  {
-    defaultValues[i]  = 0.f;
-  }
+  double defVal = (strcmp(arrayName, "SurfaceType") == 0) ? static_cast<double>(SURFACE_TYPE_TERM) : 0.0;
+  std::fill(defaultValues, defaultValues + nComponents, defVal);
 }

@@ -71,6 +71,7 @@ vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
   this->ParticlePathsRenderingPointsThreshold = 100;
 
   this->CreateOutOfDomainParticle = false;
+  this->ParticleCounter = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -115,7 +116,7 @@ void vtkLagrangianParticleTracker::PrintSelf(ostream& os, vtkIndent indent)
     << this->ParticlePathsRenderingPointsThreshold << endl;
   os << indent << "MinimumVelocityMagnitude: " << this->MinimumVelocityMagnitude << endl;
   os << indent << "MinimumReductionFactor: " << this->MinimumReductionFactor << endl;
-  os << indent << "ParticleCounter: " << this->ParticleCounter << std::endl;
+  os << indent << "ParticleCounter: " << this->ParticleCounter << endl;
 }
 
 //---------------------------------------------------------------------------
