@@ -80,11 +80,6 @@ public:
   virtual void WindowRemap(void);
 
   /**
-   * Map/Unmap the window to the screen
-   */
-  virtual void SetMapped(int m);
-
-  /**
    * Set the preferred window size to full screen.
    */
   virtual void PrefFullScreen(void);
@@ -259,6 +254,12 @@ public:
 
   virtual bool DetectDPI();
 
+  /**
+   * Override the default implementation so that we can actively switch between
+   * on and off screen rendering.
+   */
+  virtual void SetOffScreenRendering(int offscreen);
+
   //@{
   /**
    * Ability to push and pop this window's context
@@ -290,6 +291,8 @@ protected:
   std::stack<HGLRC> ContextStack;
   std::stack<HDC> DCStack;
 
+  int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
+
   // message handler
   virtual LRESULT MessageProc(HWND hWnd, UINT message,
                               WPARAM wParam, LPARAM lParam);
@@ -299,11 +302,14 @@ protected:
   int CursorHidden;
   int ForceMakeCurrent;
 
+  char   *Capabilities;
   int WindowIdReferenceCount;
   void ResizeWhileOffscreen(int xsize, int ysize);
   virtual void CreateAWindow();
   virtual void DestroyWindow();
   void InitializeApplication();
+  void CleanUpOffScreenRendering(void);
+  void CreateOffScreenWindow(int width,int height);
   void CleanUpRenderers();
   void VTKRegisterClass();
 

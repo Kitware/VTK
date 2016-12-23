@@ -234,6 +234,7 @@ protected:
   int      ScreenSize[2];
   int      CursorHidden;
   int      ForceMakeCurrent;
+  char    *Capabilities;
 
   void CreateAWindow();
   void DestroyWindow();

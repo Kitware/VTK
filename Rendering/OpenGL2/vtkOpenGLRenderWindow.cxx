@@ -26,7 +26,6 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
@@ -113,7 +112,11 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->WindowName = new char[strlen(defaultWindowName) + 1];
   strcpy(this->WindowName, defaultWindowName);
 
-  this->OffScreenFramebuffer = NULL;
+  this->OffScreenUseFrameBuffer = 0;
+  this->FrameBufferObject = 0;
+  this->HardwareBufferSize[0] = 0;
+  this->HardwareBufferSize[1] = 0;
+  this->HardwareOffScreenBuffersBind = false;
 
   this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
@@ -121,6 +124,10 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
   this->BackBuffer = static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
+
+  #ifndef VTK_LEGACY_REMOVE
+  this->LastGraphicError = static_cast<unsigned int>(GL_NO_ERROR);
+  #endif
 
   this->DrawPixelsTextureObject = NULL;
 
@@ -131,59 +138,14 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->OpenGLSupportResult = 0;
   this->OpenGLSupportMessage = "Not tested yet";
 
-  this->AlphaBitPlanes = 8;
-  this->Capabilities = 0;
-}
-
-const char* vtkOpenGLRenderWindow::ReportCapabilities()
-{
-  this->MakeCurrent();
-
-  const char *glVendor = (const char *) glGetString(GL_VENDOR);
-  const char *glRenderer = (const char *) glGetString(GL_RENDERER);
-  const char *glVersion = (const char *) glGetString(GL_VERSION);
-
-  std::ostringstream strm;
-  if(glVendor)
-  {
-    strm << "OpenGL vendor string:  " << glVendor << endl;
-  }
-  if(glRenderer)
-  {
-    strm << "OpenGL renderer string:  " << glRenderer << endl;
-  }
-  if(glVersion)
-  {
-    strm << "OpenGL version string:  " << glVersion << endl;
-  }
-
-  strm << "OpenGL extensions:  " << endl;
-  GLint n, i;
-  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-  for (i = 0; i < n; i++)
-  {
-    const char *ext = (const char *)glGetStringi(GL_EXTENSIONS, i);
-    strm << "  " << ext << endl;
-  }
-
-  delete [] this->Capabilities;
-
-  size_t len = strm.str().length() + 1;
-  this->Capabilities = new char[len];
-  strncpy(this->Capabilities, strm.str().c_str(), len);
-
-  return this->Capabilities;
+  this->NumberOfFrameBuffers = 0;
+  this->DepthRenderBufferObject = 0;
 }
 
 // free up memory & close the window
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
-  if (this->OffScreenFramebuffer)
-  {
-    this->OffScreenFramebuffer->Delete();
-    this->OffScreenFramebuffer = 0;
-  }
   if(this->DrawPixelsTextureObject != 0)
   {
     this->DrawPixelsTextureObject->UnRegister(this);
@@ -200,19 +162,12 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   this->GLStateIntegers.clear();
 
   this->ShaderCache->UnRegister(this);
-
-  delete [] this->Capabilities;
-  this->Capabilities = 0;
 }
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
   // release the registered resources
-  if (this->OffScreenFramebuffer)
-  {
-    this->OffScreenFramebuffer->ReleaseGraphicsResources(renWin);
-  }
 
   std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
    = this->Resources.begin();
@@ -408,9 +363,11 @@ void vtkOpenGLRenderWindow::SetSize(int x, int y)
   }
 
   this->Superclass::SetSize(x, y);
-  if (this->OffScreenRendering && this->OffScreenFramebuffer)
+  if (this->HardwareOffScreenBuffersBind)
   {
-    this->OffScreenFramebuffer->Resize(x,y);
+    // We activate the offscreen buffers again so they will be
+    // recreated at the new window size
+    this->SetUseOffScreenBuffers(true);
   }
 }
 
@@ -699,9 +656,6 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
     }
 #endif
   }
-
-  // build offscreen support now that it may be needed
-  this->UpdateOffScreenFramebuffer();
 }
 
 void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -761,7 +715,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   rgba[2] = 0;
   rgba[3] = 0;
 
-  if ( this->Initialized)
+  if ( this->Mapped)
   {
     this->MakeCurrent();
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
@@ -828,7 +782,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   }
   else
   {
-    vtkDebugMacro(<< "OpenGL is not initialized yet!" );
+    vtkDebugMacro(<< "Window is not mapped yet!" );
     rgba[0] = 8;
     rgba[1] = 8;
     rgba[2] = 8;
@@ -1881,6 +1835,344 @@ int vtkOpenGLRenderWindow::GetTextureUnitForTexture(vtkTextureObject *texture)
 
 // ----------------------------------------------------------------------------
 // Description:
+// Create an offScreen window based on OpenGL framebuffer extension.
+// Return if the creation was successful or not.
+// \pre positive_width: width>0
+// \pre positive_height: height>0
+// \pre not_initialized: !OffScreenUseFrameBuffer
+// \post valid_result: (result==0 || result==1)
+//                     && (result implies OffScreenUseFrameBuffer)
+int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
+{
+  assert("pre: positive_width" && width>0);
+  assert("pre: positive_height" && height>0);
+  assert("pre: not_initialized" && !this->OffScreenUseFrameBuffer);
+
+  this->CreateAWindow();
+  this->MakeCurrent();
+  this->OpenGLInit();
+
+  int result = this->CreateHardwareOffScreenBuffers(width, height);
+  if (!result)
+  {
+    this->DestroyWindow();
+  }
+  else
+  {
+    this->BindHardwareOffScreenBuffers();
+    this->OffScreenUseFrameBuffer = 1;
+  }
+
+  // A=>B = !A || B
+  assert("post: valid_result" && (result==0 || result==1)
+         && (!result || OffScreenUseFrameBuffer));
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Create an offScreen rendering buffer based on OpenGL framebuffer extension.
+// Return if the creation was successful or not.
+int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
+                                                          bool bind)
+{
+  assert("pre: positive_width" && width>0);
+  assert("pre: positive_height" && height>0);
+
+  // This implementation currently ignores multisampling configurations:
+  // the following code causes tests to fail, commenting it out
+  // if (this->MultiSamples > 1)
+  //   {
+  //   vtkDebugMacro(<<"Multisampling is not currently supported by the "
+  //                 "accelerated offscreen rendering backend. Falling back to "
+  //                 "a platform-specific offscreen solution...");
+  //   return 0;
+  //   }
+
+  this->MakeCurrent();
+
+  if (this->FrameBufferObject &&
+    this->HardwareBufferSize[0] == width &&
+    this->HardwareBufferSize[1] == height)
+  {
+    if (bind)
+    {
+      this->BindHardwareOffScreenBuffers();
+    }
+    return 1;
+  }
+  if (this->FrameBufferObject)
+  {
+    this->DestroyHardwareOffScreenBuffers();
+  }
+
+  this->FrameBufferObject = 0;
+  this->HardwareBufferSize[0] = 0;
+  this->HardwareBufferSize[1] = 0;
+
+  int glMajorVersion = 2;
+#if GL_ES_VERSION_3_0 != 1
+  glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
+  if (glMajorVersion < 3 &&
+    !glewIsSupported("GL_EXT_framebuffer_object") &&
+    !glewIsSupported("GL_ARB_framebuffer_object"))
+  {
+    vtkDebugMacro( << " extension GL_EXT_framebuffer_object is not supported. "
+      "Hardware accelerated offscreen rendering is not available" );
+    return 0;
+  }
+#endif
+
+  int result = 0;
+
+  this->NumberOfFrameBuffers = 1;
+#ifdef GL_STEREO
+  GLboolean isStereo;
+  glGetBooleanv(GL_STEREO, &isStereo);
+  if (isStereo)
+  {
+    this->NumberOfFrameBuffers = 2;
+  }
+#endif
+
+  // Up to 2 for stereo
+  GLuint textureObjects[2] = { 0, 0 };
+  GLuint frameBufferObject;
+  GLuint depthRenderBufferObject;
+  glGenFramebuffers(1, &frameBufferObject); // color
+  glGenRenderbuffers(1, &depthRenderBufferObject); // depth
+  glGenTextures(this->NumberOfFrameBuffers, textureObjects);
+  // Bind the color buffer
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
+
+  GLenum target = GL_TEXTURE_2D;
+
+  for (int i = 0; i < this->NumberOfFrameBuffers; i++)
+  {
+    glBindTexture(target, textureObjects[i]);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#ifdef GL_RGBA8
+    glTexImage2D(target,0,GL_RGBA8,width,height,
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#else
+    glTexImage2D(target,0,GL_RGBA,width,height,
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#endif
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           GL_COLOR_ATTACHMENT0+i,
+                           target, textureObjects[i], 0);
+  }
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (status != GL_FRAMEBUFFER_COMPLETE)
+  {
+    vtkDebugMacro(<< "Hardware does not support GPU Offscreen rendering.");
+    glBindTexture(target, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteFramebuffers(1, &frameBufferObject);
+    glDeleteRenderbuffers(1, &depthRenderBufferObject);
+    glDeleteTextures(this->NumberOfFrameBuffers, textureObjects);
+    bind = true;
+  }
+  else
+  {
+    // Set up the depth (and stencil), render buffer
+    glBindRenderbuffer(GL_RENDERBUFFER,
+                       depthRenderBufferObject);
+#ifdef GL_DEPTH_STENCIL
+    if (this->StencilCapable)
+    {
+      glRenderbufferStorage(GL_RENDERBUFFER,
+                            GL_DEPTH_STENCIL, width, height);
+    }
+    else
+#endif
+    {
+#ifdef GL_DEPTH_COMPONENT24
+      glRenderbufferStorage(GL_RENDERBUFFER,
+                            GL_DEPTH_COMPONENT24, width, height);
+#else
+      glRenderbufferStorage(GL_RENDERBUFFER,
+                            GL_DEPTH_COMPONENT16, width, height);
+#endif
+    }
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                              GL_DEPTH_ATTACHMENT,
+                              GL_RENDERBUFFER,
+                              depthRenderBufferObject);
+    if (this->StencilCapable)
+    {
+      glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                GL_STENCIL_ATTACHMENT,
+                                GL_RENDERBUFFER,
+                                depthRenderBufferObject);
+    }
+
+    // Last check to see if the FBO is supported or not.
+    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+      vtkDebugMacro(<< "Hardware does not support GPU Offscreen rendering with"
+                       "this depth/stencil configuration.");
+      glBindTexture(target, 0);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      glDeleteFramebuffers(1, &frameBufferObject);
+      glDeleteRenderbuffers(1, &depthRenderBufferObject);
+      glDeleteTextures(this->NumberOfFrameBuffers, textureObjects);
+      bind = true;
+    }
+    else
+    {
+      result = 1;
+      // Save GL objects by static casting to standard C types. GL* types
+      // are not allowed in VTK header files.
+      this->FrameBufferObject =
+        static_cast<unsigned int>(frameBufferObject);
+      this->DepthRenderBufferObject =
+        static_cast<unsigned int>(depthRenderBufferObject);
+      for (int i = 0; i < this->NumberOfFrameBuffers; i++)
+      {
+        this->TextureObjects[i] = static_cast<unsigned int>(textureObjects[i]);
+      }
+      this->HardwareBufferSize[0] = width;
+      this->HardwareBufferSize[1] = height;
+      this->HardwareOffScreenBuffersBind = true;
+
+      if (bind)
+      {
+        unsigned int buffer =
+          static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+        this->BackLeftBuffer  = buffer;
+        this->FrontLeftBuffer = buffer;
+        this->BackBuffer      = buffer;
+        this->FrontBuffer     = buffer;
+
+        if (this->NumberOfFrameBuffers == 2)
+        {
+          buffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0+1);
+          this->BackRightBuffer = buffer;
+          this->FrontRightBuffer = buffer;
+        }
+      }
+    }
+  }
+
+  if (!bind)
+  {
+    // Rebind the hardware on-screen buffer for now
+    this->UnbindHardwareOffScreenBuffers();
+  }
+
+  // A=>B = !A || B
+  assert("post: valid_result" && (result==0 || result==1)
+         && (!result || this->FrameBufferObject));
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::BindHardwareOffScreenBuffers()
+{
+  if (!this->FrameBufferObject || this->HardwareOffScreenBuffersBind)
+  {
+    return;
+  }
+
+  this->MakeCurrent();
+  glBindFramebuffer(GL_FRAMEBUFFER,
+    static_cast<GLuint>(this->FrameBufferObject));
+
+  unsigned int buffer =
+    static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+  this->BackLeftBuffer  = buffer;
+  this->FrontLeftBuffer = buffer;
+  this->BackBuffer      = buffer;
+  this->FrontBuffer     = buffer;
+
+  if (this->NumberOfFrameBuffers == 2)
+  {
+    buffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0+1);
+    this->BackRightBuffer = buffer;
+    this->FrontRightBuffer = buffer;
+  }
+
+  this->HardwareOffScreenBuffersBind = true;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::UnbindHardwareOffScreenBuffers()
+{
+  if (!this->FrameBufferObject || !this->HardwareOffScreenBuffersBind)
+  {
+    return;
+  }
+
+  this->MakeCurrent();
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  // Restore framebuffer names.
+  this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
+  this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
+  this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
+  this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
+  this->BackBuffer = static_cast<unsigned int>(GL_BACK);
+  this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
+
+  this->HardwareOffScreenBuffersBind = false;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::DestroyHardwareOffScreenBuffers()
+{
+  if (!this->FrameBufferObject)
+  {
+    return;
+  }
+  this->UnbindHardwareOffScreenBuffers();
+
+  GLuint frameBufferObject = static_cast<GLuint>(this->FrameBufferObject);
+  glDeleteFramebuffers(1, &frameBufferObject);
+  this->FrameBufferObject = 0;
+
+  GLuint depthRenderBufferObject =
+    static_cast<GLuint>(this->DepthRenderBufferObject);
+  glDeleteFramebuffers(1, &depthRenderBufferObject);
+  this->DepthRenderBufferObject = 0;
+
+  GLuint textureObjects[4];
+  for (int i = 0; i < this->NumberOfFrameBuffers; i++)
+  {
+    textureObjects[i] = static_cast<GLuint>(this->TextureObjects[i]);
+  }
+
+  glDeleteTextures(this->NumberOfFrameBuffers, textureObjects);
+
+  this->DepthRenderBufferObject = 0;
+  this->FrameBufferObject = 0;
+  this->HardwareBufferSize[0] = 0;
+  this->HardwareBufferSize[1] = 0;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Destroy an offscreen window based on OpenGL framebuffer extension.
+// \pre initialized: OffScreenUseFrameBuffer
+// \post destroyed: !OffScreenUseFrameBuffer
+void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
+{
+  assert("pre: initialized" && this->OffScreenUseFrameBuffer);
+
+  this->UnbindHardwareOffScreenBuffers();
+  this->DestroyHardwareOffScreenBuffers();
+
+  this->OffScreenUseFrameBuffer = 0;
+
+  this->DestroyWindow();
+}
+
+// ----------------------------------------------------------------------------
+// Description:
 // Returns its texture unit manager object. A new one will be created if one
 // hasn't already been set up.
 vtkTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
@@ -1942,129 +2234,38 @@ void vtkOpenGLRenderWindow::RestoreGLState()
 }
 
 // ----------------------------------------------------------------------------
-// Description:
-// Create an offScreen rendering buffer based on OpenGL framebuffer extension.
-// Return if the creation was successful or not.
-int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(
-  int width, int height)
+int vtkOpenGLRenderWindow::SetUseOffScreenBuffers(bool offScreen)
 {
-  assert("pre: positive_width" && width>0);
-  assert("pre: positive_height" && height>0);
-
-  this->MakeCurrent();
-
-  unsigned int numberOfColorBuffers = 1;
-
-#ifdef GL_STEREO
-  GLboolean isStereo;
-  glGetBooleanv(GL_STEREO, &isStereo);
-  if (isStereo)
+  if (this->OffScreenRendering ||
+    (!offScreen && !this->HardwareOffScreenBuffersBind))
   {
-    numberOfColorBuffers = 2;
-  }
-#endif
-
-  if (!this->OffScreenFramebuffer)
-  {
-    this->OffScreenFramebuffer = vtkOpenGLFramebufferObject::New();
-    this->OffScreenFramebuffer->SetContext(this);
-    this->OffScreenFramebuffer->SaveCurrentBindingsAndBuffers();
-
-    this->OffScreenFramebuffer->PopulateFramebuffer(width, height,
-      false, // no textures, use renderbuffers
-      numberOfColorBuffers, VTK_UNSIGNED_CHAR,
-      true, 24, // have a depth buffer
-      0); // leave multisamples off because glReadPixels cannot
-          // read from a MSAA Framebuffer, you have to blit to a
-          // non MSAA Framebuffer first.
-  }
-  else
-  {
-    this->OffScreenFramebuffer->SaveCurrentBindingsAndBuffers();
-    this->OffScreenFramebuffer->Bind();
-    this->OffScreenFramebuffer->Resize(width, height);
+    return 1;
   }
 
-  return 1;
-}
 
-// ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::DestroyOffScreenFramebuffer()
-{
-  if (this->OffScreenFramebuffer)
+  if (!offScreen)
   {
-    this->OffScreenFramebuffer->Delete();
-    this->OffScreenFramebuffer = 0;
-  }
-}
-
-// ----------------------------------------------------------------------------
-// In some cases people want to set this first but defer
-// initialization till laster, so this method sets the ivar
-// and defers creation until Initialization
-void vtkOpenGLRenderWindow::SetOffScreenRendering(int offScreen)
-{
-  if (this->OffScreenRendering == offScreen)
-  {
-    return;
-  }
-
-  this->OffScreenRendering = offScreen;
-
-  // make sure we have a reasonable size
-  if (this->Size[0] == 0 || this->Size[1]== 0)
-  {
-    this->Size[0] = 300;
-    this->Size[1] = 300;
-  }
-
-  if (this->Initialized)
-  {
-    this->UpdateOffScreenFramebuffer();
-  }
-
-  this->Modified();
-}
-
-void vtkOpenGLRenderWindow::UpdateOffScreenFramebuffer()
-{
-  // turn on offscreen
-  if (this->OffScreenRendering)
-  {
-    // create the Framebuffer if needed
-    this->CreateOffScreenFramebuffer(this->Size[0], this->Size[1]);
-
-    // make sure it is bound
-    this->OffScreenFramebuffer->Bind();
-
-    unsigned int buffer =
-      static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
-    this->BackLeftBuffer  = buffer;
-    this->FrontLeftBuffer = buffer;
-    this->BackBuffer      = buffer;
-    this->FrontBuffer     = buffer;
-
-    if (this->OffScreenFramebuffer->GetNumberOfColorAttachments(
-      this->OffScreenFramebuffer->GetDrawMode()) == 2)
+    if (!this->OffScreenUseFrameBuffer)
     {
-      buffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0+1);
-      this->BackRightBuffer = buffer;
-      this->FrontRightBuffer = buffer;
+      this->UnbindHardwareOffScreenBuffers();
     }
+    return 1;
   }
 
-  if (!this->OffScreenRendering && this->OffScreenFramebuffer)
+  if (this->OffScreenUseFrameBuffer)
   {
-    this->OffScreenFramebuffer->UnBind();
-    this->OffScreenFramebuffer->RestorePreviousBindingsAndBuffers();
-    // Restore framebuffer names.
-    this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
-    this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
-    this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
-    this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
-    this->BackBuffer = static_cast<unsigned int>(GL_BACK);
-    this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
+    return 1;
   }
+  // We are currently in on screen rendering mode.
+  // Create offscreen buffers at the screen size.
+  int* size = this->GetSize();
+  return this->CreateHardwareOffScreenBuffers(size[0], size[1], true);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOpenGLRenderWindow::GetUseOffScreenBuffers()
+{
+  return this->HardwareOffScreenBuffersBind || this->OffScreenRendering;
 }
 
 // ----------------------------------------------------------------------------

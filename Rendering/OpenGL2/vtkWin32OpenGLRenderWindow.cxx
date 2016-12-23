@@ -52,7 +52,9 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->MFChandledWindow = FALSE;       // hsr
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   this->CursorHidden = 0;
+  this->Capabilities = 0;
 
+  this->CreatingOffScreenWindow = 0;
   this->WindowIdReferenceCount = 0;
 }
 
@@ -67,6 +69,8 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
   {
     ren->SetRenderWindow(NULL);
   }
+
+  delete[] this->Capabilities;
 }
 
 void vtkWin32OpenGLRenderWindow::Clean()
@@ -299,7 +303,21 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
       this->Interactor->SetSize(x, y);
     }
 
-    if (!this->OffScreenRendering && this->Mapped)
+    if (this->OffScreenRendering)
+    {
+      if(!this->CreatingOffScreenWindow)
+      {
+        if (!resizing)
+        {
+          resizing = 1;
+          this->CleanUpOffScreenRendering();
+          this->CreateOffScreenWindow(x,y);
+          resizing = 0;
+        }
+      }
+    }
+
+    else if (this->Mapped)
     {
       if (!resizing)
       {
@@ -546,11 +564,16 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       WGL_DRAW_TO_WINDOW_ARB, TRUE,
       WGL_DOUBLE_BUFFER_ARB, TRUE,
       WGL_COLOR_BITS_ARB, bpp/4*3,
-      WGL_ALPHA_BITS_ARB, bpp/4,
       WGL_DEPTH_BITS_ARB, zbpp/4*3,
       WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    unsigned int n = 16;
+    unsigned int n = 14;
+    if (this->AlphaBitPlanes)
+    {
+      attrib[n] = WGL_ALPHA_BITS_ARB;
+      attrib[n+1] = bpp/4;
+      n += 2;
+    }
     if (this->StencilCapable)
     {
       attrib[n] = WGL_STENCIL_BITS_ARB;
@@ -959,7 +982,6 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       if(!this->OffScreenRendering)
       {
         ShowWindow(this->WindowId, SW_SHOW);
-        this->Mapped = 1;
       }
       //UpdateWindow(this->WindowId);
       this->OwnWindow = 1;
@@ -986,24 +1008,13 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
     // wipe out any existing display lists
     this->ReleaseGraphicsResources(this);
     this->OpenGLInit();
+    this->Mapped = 1;
     this->WindowIdReferenceCount = 1;
   }
   else
   {
     ++this->WindowIdReferenceCount;
   }
-}
-
-void vtkWin32OpenGLRenderWindow::SetMapped(int m)
-{
-  if (this->Mapped == m)
-  {
-    return;
-  }
-
-  this->Mapped = m;
-  ShowWindow(this->WindowId, m ? SW_SHOW : SW_HIDE);
-  this->Modified();
 }
 
 // Initialize the window for rendering.
@@ -1027,9 +1038,20 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize()
 void vtkWin32OpenGLRenderWindow::Initialize (void)
 {
   // make sure we havent already been initialized
-  if (!this->ContextId)
+  if (!this->OffScreenRendering && !this->ContextId)
   {
     this->WindowInitialize();
+  }
+  else
+  {
+    if(this->OffScreenRendering && !(this->ContextId ||
+                                     this->OffScreenUseFrameBuffer))
+    {
+      this->InitializeApplication();
+      int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
+      int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+      this->CreateOffScreenWindow(width,height);
+    }
   }
 }
 
@@ -1040,6 +1062,10 @@ void vtkWin32OpenGLRenderWindow::Finalize (void)
     this->ShowCursor();
   }
 
+  if (this->OffScreenRendering)
+  {
+    this->CleanUpOffScreenRendering();
+  }
   this->DestroyWindow();
 }
 
@@ -1259,7 +1285,6 @@ void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
     this->WindowId = arg;
     if (this->ContextId)
     {
-      this->ReleaseGraphicsResources(this);
       wglDeleteContext(this->ContextId);
     }
     this->ContextId = 0;
@@ -1346,6 +1371,46 @@ void vtkWin32OpenGLRenderWindow::Start(void)
 
   // set the current window
   this->MakeCurrent();
+}
+
+
+void vtkWin32OpenGLRenderWindow::SetOffScreenRendering(int offscreen)
+{
+  if (offscreen == this->OffScreenRendering)
+  {
+    return;
+  }
+
+  this->vtkRenderWindow::SetOffScreenRendering(offscreen);
+
+  if (offscreen)
+  {
+    int size[2];
+    size[0] = (this->Size[0] > 0) ? this->Size[0] : 300;
+    size[1] = (this->Size[1] > 0) ? this->Size[1] : 300;
+    this->CreateOffScreenWindow(size[0],size[1]);
+  }
+  else
+  {
+    this->CleanUpOffScreenRendering();
+  }
+}
+
+void vtkWin32OpenGLRenderWindow::CreateOffScreenWindow(int width,
+                                                       int height)
+{
+  int status = this->CreatingOffScreenWindow;
+  this->CreatingOffScreenWindow = 1;
+  this->CreateHardwareOffScreenWindow(width,height);
+  this->CreatingOffScreenWindow = status;
+}
+
+void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
+{
+  if(this->OffScreenUseFrameBuffer)
+  {
+    this->DestroyHardwareOffScreenWindow();
+  }
 }
 
 //----------------------------------------------------------------------------
