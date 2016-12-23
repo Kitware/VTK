@@ -1116,6 +1116,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
     pAxisFollower->GetBounds(bounds);
     double labelWidth = (bounds[1] - bounds[0]);
     double labelHeight = (bounds[3] - bounds[2]);
+    double labelMagnitude = sqrt(labelWidth * labelWidth + labelHeight * labelHeight);
 
     if (this->CalculateLabelOffset)
     {
@@ -1135,9 +1136,10 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
       pos[2] = (tickTop[2] + tickBottom[2]) / 2;
     }
 
-    double delta = 0.5 * (labelWidth * labelSin + labelHeight * labelCos);
-    pAxisFollower->SetScreenOffset(this->LabelOffset + (delta) * this->ScreenSize);
-    this->LabelProps3D[i]->SetScreenOffset(this->LabelOffset + (delta) * this->ScreenSize);
+    double deltaPixels =
+      0.5 * (labelWidth * labelSin + labelHeight * labelCos) / labelMagnitude;
+    pAxisFollower->SetScreenOffset(this->LabelOffset + deltaPixels * this->ScreenSize);
+    this->LabelProps3D[i]->SetScreenOffset(this->LabelOffset + deltaPixels * this->ScreenSize);
 
     pAxisFollower->SetPosition(pos[0], pos[1], pos[2]);
     this->LabelProps3D[i]->SetPosition(pos[0], pos[1], pos[2]);
