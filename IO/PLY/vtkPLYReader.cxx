@@ -302,8 +302,8 @@ int vtkPLYReader::RequestData(
       if ( intensityAvailable )
       {
         vtkPLY::ply_get_property (ply, elemName, &faceProps[1]);
-        RGBCells->SetNumberOfComponents(1);
-        RGBCells->SetNumberOfTuples(numPolys);
+        intensity->SetNumberOfComponents(1);
+        intensity->SetNumberOfTuples(numPolys);
       }
       if ( RGBCellsAvailable )
       {

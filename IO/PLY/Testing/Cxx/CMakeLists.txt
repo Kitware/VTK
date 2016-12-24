@@ -1,5 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPLYReader.cxx
+  TestPLYReaderIntensity.cxx
   TestPLYReaderTextureUV.cxx
   TestPLYWriter.cxx,NO_VALID
   )
