@@ -155,20 +155,7 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
     }
 
     this->Enabled = 1;
-
-    // Compute the viewport for the widget w.r.t. to the current renderer
-    double currentViewport[4];
-    this->CurrentRenderer->GetViewport(currentViewport);
-    double vp[4], currentViewportRange[2];
-    for (int i = 0; i < 2; ++i)
-    {
-      currentViewportRange[i] = currentViewport[i+2] - currentViewport[i];
-      vp[i] = this->Viewport[i] * currentViewportRange[i] +
-              currentViewport[i];
-      vp[i+2] = this->Viewport[i+2] * currentViewportRange[i] +
-              currentViewport[i];
-    }
-    this->Renderer->SetViewport(vp);
+    this->UpdateInternalViewport();
 
     vtkRenderWindow* renwin = this->CurrentRenderer->GetRenderWindow();
     renwin->AddRenderer( this->Renderer );
@@ -959,14 +946,35 @@ void vtkOrientationMarkerWidget::UpdateViewport()
 }
 
 //-------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::UpdateInternalViewport()
+{
+  if (!this->Renderer || !this->GetCurrentRenderer())
+    {
+    return;
+    }
+
+  // Compute the viewport for the widget w.r.t. to the current renderer
+  double currentViewport[4];
+  this->CurrentRenderer->GetViewport(currentViewport);
+  double vp[4], currentViewportRange[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    currentViewportRange[i] = currentViewport[i+2] - currentViewport[i];
+    vp[i] = this->Viewport[i] * currentViewportRange[i] +
+            currentViewport[i];
+    vp[i+2] = this->Viewport[i+2] * currentViewportRange[i] +
+            currentViewport[i];
+  }
+  this->Renderer->SetViewport(vp);
+}
+
+//-------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::Modified()
 {
-  if (this->Renderer)
-  {
-    this->Renderer->SetViewport(this->Viewport);
-  }
+  this->UpdateInternalViewport();
   this->vtkInteractorObserver::Modified() ;
 }
+
 //-------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
