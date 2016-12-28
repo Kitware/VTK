@@ -2,17 +2,17 @@ include(vtkQt)
 
 # set up sources to build
 set(QVTKLibSrcs
-  vtkEventQtSlotConnect.cxx
-  vtkQtConnection.cxx
-  QVTKApplication.cxx
-  QVTKInteractor.cxx
-  QVTKInteractorAdapter.cxx
-  QVTKWidget.cxx
   QFilterTreeProxyModel.cxx
+  QVTKApplication.cxx
+  QVTKInteractorAdapter.cxx
+  QVTKInteractor.cxx
   QVTKPaintEngine.cxx
   QVTKPaintEngine.h
+  QVTKWidget.cxx
+  vtkEventQtSlotConnect.cxx
   vtkQtAbstractModelAdapter.cxx
   vtkQtAnnotationLayersModelAdapter.cxx
+  vtkQtConnection.cxx
   vtkQtDebugLeaksModel.cxx
   vtkQtDebugLeaksView.cxx
   vtkQtTableModelAdapter.cxx
@@ -20,19 +20,25 @@ set(QVTKLibSrcs
   )
 
 set(QVTKMocHeaders
+  QFilterTreeProxyModel.h
   QVTKApplication.h
   QVTKInteractorAdapter.h
   QVTKInteractorInternal.h
   QVTKWidget.h
-  vtkQtConnection.h
-  QFilterTreeProxyModel.h
   vtkQtAbstractModelAdapter.h
   vtkQtAnnotationLayersModelAdapter.h
+  vtkQtConnection.h
   vtkQtDebugLeaksModel.h
   vtkQtDebugLeaksView.h
   vtkQtTableModelAdapter.h
   vtkQtTreeModelAdapter.h
   )
+
+if(VTK_QT_VERSION VERSION_GREATER "4" AND
+    VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  list(APPEND QVTKLibSrcs QVTKOpenGLWidget.cxx)
+  list(APPEND QVTKMocHeaders QVTKOpenGLWidget.h)
+endif()
 
 if(VTK_USE_X AND VTK_USE_TDX)
   set(QVTKMocHeaders ${QVTKMocHeaders}
