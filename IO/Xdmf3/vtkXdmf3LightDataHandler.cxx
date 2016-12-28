@@ -97,6 +97,7 @@ void vtkXdmf3LightDataHandler::InspectXDMF
     shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(item);
     if (grid)
     {
+      grid->read();
       //atomic dataset
       vtkIdType parent = parentVertex;
       if (parentVertex == -1)
@@ -143,6 +144,10 @@ void vtkXdmf3LightDataHandler::InspectXDMF
     //four cases: domain, temporal, spatial or hierarchical
     shared_ptr<XdmfGridCollection> asGC =
       shared_dynamic_cast<XdmfGridCollection>(item);
+    if (asGC)
+      {
+      asGC->read();
+      }
     bool isDomain = asGC?false:true;
 
     bool isTemporal = false;
@@ -176,26 +181,31 @@ void vtkXdmf3LightDataHandler::InspectXDMF
         continue;
       }
       shared_ptr<XdmfGrid> child = coll->getGridCollection(i);
+      child->read();
       this->InspectXDMF(child, silVertex, depth+1);
     }
     for (unsigned int i = 0; i < coll->getNumberUnstructuredGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getUnstructuredGrid(i);
+      child->read();
       this->InspectXDMF(child, silVertex, depth+1);
     }
     for (unsigned int i = 0; i < coll->getNumberRectilinearGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getRectilinearGrid(i);
+      child->read();
       this->InspectXDMF(child, silVertex, depth+1);
     }
     for (unsigned int i = 0; i < coll->getNumberCurvilinearGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getCurvilinearGrid(i);
+      child->read();
       this->InspectXDMF(child, silVertex, depth+1);
     }
     for (unsigned int i = 0; i < coll->getNumberRegularGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = coll->getRegularGrid(i);
+      child->read();
       this->InspectXDMF(child, silVertex, depth+1);
     }
     for (unsigned int i = 0; i < coll->getNumberGraphs(); i++)
@@ -380,26 +390,31 @@ void vtkXdmf3LightDataHandler::InspectTime(shared_ptr<XdmfItem> item)
     for (unsigned int i = 0; i < gc->getNumberGridCollections(); i++)
     {
       shared_ptr<XdmfGrid> child = gc->getGridCollection(i);
+      child->read();
       this->GetSetTime(child, cnt);
     }
     for (unsigned int i = 0; i < gc->getNumberUnstructuredGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = gc->getUnstructuredGrid(i);
+      child->read();
       this->GetSetTime(child, cnt);
     }
     for (unsigned int i = 0; i < gc->getNumberRectilinearGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = gc->getRectilinearGrid(i);
+      child->read();
       this->GetSetTime(child, cnt);
     }
     for (unsigned int i = 0; i < gc->getNumberCurvilinearGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = gc->getCurvilinearGrid(i);
+      child->read();
       this->GetSetTime(child, cnt);
     }
     for (unsigned int i = 0; i < gc->getNumberRegularGrids(); i++)
     {
       shared_ptr<XdmfGrid> child = gc->getRegularGrid(i);
+      child->read();
       this->GetSetTime(child, cnt);
     }
     for (unsigned int i = 0; gc->getNumberGraphs(); i++)

@@ -30,6 +30,8 @@
 
 #include "vtkDataObjectAlgorithm.h"
 
+class vtkDoubleArray;
+
 class VTKIOXDMF3_EXPORT vtkXdmf3Writer : public vtkDataObjectAlgorithm
 {
 public:
@@ -48,6 +50,15 @@ public:
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
+
+  //@{
+  /**
+   * We never write out ghost cells.  This variable is here to satisfy
+   * the behavior of ParaView on invoking a parallel writer.
+   */
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
   //@}
 
   /**
@@ -97,6 +108,23 @@ protected:
   char *FileName;
   unsigned int LightDataLimit;
   bool WriteAllTimeSteps;
+  int GhostLevel;
+  int NumberOfProcesses;
+  int MyRank;
+
+  vtkDoubleArray* TimeValues;
+  vtkDataObject *OriginalInput;
+  void WriteDataParallel (vtkInformation* request);
+  void WriteDataInternal (vtkInformation* request);
+  int CheckParametersInternal (int NumberOfProcesses, int MyRank);
+  virtual int CheckParameters ();
+  // If writing in parallel multiple time steps exchange after each time step
+  // if we should continue the execution. Pass local continueExecution as a
+  // parameter and return the global continueExecution.
+  virtual int GlobalContinueExecuting(int localContinueExecution);
+
+  bool initWriters;
+  bool useParallel;
 
 private:
   vtkXdmf3Writer(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
@@ -104,6 +132,9 @@ private:
 
   class Internals;
   Internals *Internal;
+
+  class ParallelInternals;
+  ParallelInternals *ParallelInternal;
 };
 
 #endif /* vtkXdmf3Writer_h */

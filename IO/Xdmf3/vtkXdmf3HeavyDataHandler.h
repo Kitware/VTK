@@ -29,7 +29,22 @@
 
 #include "vtkIOXdmf3Module.h" // For export macro
 
+#include "XdmfInformation.hpp"
+
 #include "XdmfItem.hpp"
+#include "XdmfSharedPtr.hpp"
+
+#include "vtkXdmf3ArrayKeeper.h"
+#include "vtkXdmf3ArraySelection.h"
+
+#include "XdmfCurvilinearGrid.hpp"
+#include "XdmfGraph.hpp"
+#include "XdmfGrid.hpp"
+#include "XdmfRectilinearGrid.hpp"
+#include "XdmfRegularGrid.hpp"
+#include "XdmfSet.hpp"
+#include "XdmfUnstructuredGrid.hpp"
+#include "XdmfDomain.hpp"
 
 class vtkDataObject;
 class vtkDataSet;
@@ -38,17 +53,6 @@ class vtkMutableDirectedGraph;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
-class vtkXdmf3ArrayKeeper;
-class vtkXdmf3ArraySelection;
-
-class XdmfCurvilinearGrid;
-class XdmfGraph;
-class XdmfGrid;
-class XdmfItem;
-class XdmfRectilinearGrid;
-class XdmfRegularGrid;
-class XdmfSet;
-class XdmfUnstructuredGrid;
 
 class VTKIOXDMF3_EXPORT vtkXdmf3HeavyDataHandler
 {
@@ -75,9 +79,14 @@ public:
   /**
    * recursively create and populate vtk data objects for the provided Xdmf item
    */
-  vtkDataObject *Populate(shared_ptr<XdmfItem> item, vtkDataObject *toFill);
+  vtkDataObject *Populate(shared_ptr<XdmfGrid> item, vtkDataObject *toFill);
+  vtkDataObject *Populate(shared_ptr<XdmfDomain> item, vtkDataObject *toFill);
+  vtkDataObject *Populate(shared_ptr<XdmfGraph> item, vtkDataObject *toFill);
 
   vtkXdmf3ArrayKeeper* Keeper;
+
+  shared_ptr<XdmfGrid> testItem1;
+  shared_ptr<XdmfDomain> testItem2;
 
 protected:
 

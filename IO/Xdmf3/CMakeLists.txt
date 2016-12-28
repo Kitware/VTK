@@ -20,4 +20,12 @@ set_source_files_properties(
 )
 
 include_directories(${XdmfCore_INCLUDE_DIRS} ${XdmfDSM_INCLUDE_DIRS})
+
+mark_as_advanced(CLEAR Boost_INCLUDE_DIR)
+find_package(Boost REQUIRED)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+  mark_as_advanced(FORCE Boost_INCLUDE_DIR)
+endif(Boost_FOUND)
+
 vtk_module_library(vtkIOXdmf3 ${Module_SRCS})

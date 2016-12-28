@@ -183,17 +183,20 @@ public:
         this->VTKType = VTK_RECTILINEAR_GRID;
         //keep a reference to get extent from
         this->TopGrid = toCheck->getRectilinearGrid(0);
+        toCheck->getRectilinearGrid(0)->read();
       }
       else if (nCurvilinearGrids>0)
       {
         this->VTKType = VTK_STRUCTURED_GRID;
         //keep a reference to get extent from
         this->TopGrid = toCheck->getCurvilinearGrid(0);
+        toCheck->getCurvilinearGrid(0)->read();
       }
       else if (nUnstructuredGrids>0)
       {
         this->VTKType = VTK_UNSTRUCTURED_GRID;
         this->TopGrid = toCheck->getUnstructuredGrid(0);
+        toCheck->getUnstructuredGrid(0)->read();
       }
       else if (nGraphs>0)
       {
@@ -205,6 +208,10 @@ public:
       {
         shared_ptr<XdmfGrid> grid =
           shared_dynamic_cast<XdmfGrid>(this->TopGrid);
+        if (grid)
+        {
+          grid->read();
+        }
         if (grid && grid->getNumberSets()>0)
         {
           this->VTKType = VTK_MULTIBLOCK_DATA_SET;
@@ -321,26 +328,49 @@ private:
           for (j = 0; j < fdomain->getNumberGridCollections(); j++)
           {
             topc->insert(fdomain->getGridCollection(j));
+            if(fdomain->getGridCollection(j))
+            {
+              fdomain->getGridCollection(j)->read();
+            }
           }
           for (j = 0; j < fdomain->getNumberUnstructuredGrids(); j++)
           {
             topc->insert(fdomain->getUnstructuredGrid(j));
+            if(fdomain->getUnstructuredGrid(j))
+            {
+              fdomain->getUnstructuredGrid(j)->read();
+            }
           }
           for (j = 0; j < fdomain->getNumberRectilinearGrids(); j++)
           {
             topc->insert(fdomain->getRectilinearGrid(j));
+            if(fdomain->getRectilinearGrid(j))
+            {
+              fdomain->getRectilinearGrid(j)->read();
+            }
           }
           for (j = 0; j < fdomain->getNumberCurvilinearGrids(); j++)
           {
             topc->insert(fdomain->getCurvilinearGrid(j));
+            if(fdomain->getCurvilinearGrid(j))
+            {
+              fdomain->getCurvilinearGrid(j)->read();
+            }
           }
           for (j = 0; j < fdomain->getNumberRegularGrids(); j++)
           {
             topc->insert(fdomain->getRegularGrid(j));
+            if(fdomain->getRegularGrid(j))
+            {
+              fdomain->getRegularGrid(j)->read();
+            }
           }
           for (j = 0; j < fdomain->getNumberGraphs(); j++)
           {
-            topc->insert(fdomain->getGraph(j));
+            if(fdomain->getGraph(j))
+            {
+              topc->insert(fdomain->getGraph(j));
+            }
           }
         }
       }
@@ -609,6 +639,7 @@ int vtkXdmf3Reader::RequestInformation(vtkInformation *,
       shared_dynamic_cast<XdmfRegularGrid>(this->Internal->TopGrid);
     if (regGrid)
     {
+      regGrid->read();
       vtkImageData *dataSet = vtkImageData::New();
       vtkXdmf3DataSet::CopyShape(regGrid.get(), dataSet, this->Internal->Keeper);
       dataSet->GetExtent(whole_extent);
@@ -620,6 +651,7 @@ int vtkXdmf3Reader::RequestInformation(vtkInformation *,
       shared_dynamic_cast<XdmfRectilinearGrid>(this->Internal->TopGrid);
     if (recGrid)
     {
+      recGrid->read();
       vtkRectilinearGrid *dataSet = vtkRectilinearGrid::New();
       vtkXdmf3DataSet::CopyShape(recGrid.get(), dataSet, this->Internal->Keeper);
       dataSet->GetExtent(whole_extent);
@@ -629,6 +661,7 @@ int vtkXdmf3Reader::RequestInformation(vtkInformation *,
       shared_dynamic_cast<XdmfCurvilinearGrid>(this->Internal->TopGrid);
     if (crvGrid)
     {
+      crvGrid->read();
       vtkStructuredGrid *dataSet = vtkStructuredGrid::New();
       vtkXdmf3DataSet::CopyShape(crvGrid.get(), dataSet, this->Internal->Keeper);
       dataSet->GetExtent(whole_extent);

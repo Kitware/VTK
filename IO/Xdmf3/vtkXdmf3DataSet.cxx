@@ -95,6 +95,7 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
   vtkXdmf3ArrayKeeper *keeper
 )
 {
+  bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xArray);
   //TODO: verify the 32/64 choices are correct in all configurations
   shared_ptr<const XdmfArrayType> arrayType = xArray->getArrayType();
   vtkDataArray* vArray = NULL;
@@ -170,7 +171,7 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
 
     vArray->SetNumberOfComponents(static_cast<int>(ncomp));
     vArray->SetNumberOfTuples(ntuples);
-    bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xArray);
+    //bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(xArray);
 #define DO_DEEPREAD 0
 #if DO_DEEPREAD
     //deepcopy

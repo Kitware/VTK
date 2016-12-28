@@ -4,7 +4,7 @@ set(${vtk-module}_SYSTEM_INCLUDE_DIRS
     ${Boost_INCLUDE_DIRS})
 
 vtk_module_third_party(xdmf3
-  LIBRARIES vtkxdmf3
+  LIBRARIES vtkxdmf3 XdmfCore
   INCLUDE_DIRS
    ${CMAKE_CURRENT_SOURCE_DIR}/vtkxdmf3
    ${CMAKE_CURRENT_SOURCE_DIR}/vtkxdmf3/core
