@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkCamera.h"
 #include "vtkCameraPass.h"
 #include "vtkLightsPass.h"
 #include "vtkObjectFactory.h"
@@ -206,6 +207,24 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
     int viewportX, viewportY;
     int viewportWidth, viewportHeight;
+    int right = 0;
+    if (rwin)
+    {
+      if (rwin->GetStereoRender() == 1)
+      {
+        if (rwin->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
+        {
+          vtkCamera *camera = ren->GetActiveCamera();
+          if (camera)
+          {
+            if (!camera->GetLeftEye())
+            {
+              right = 1;
+            }
+          }
+        }
+      }
+    }
     ren->GetTiledSizeAndOrigin(&viewportWidth,&viewportHeight,
                                 &viewportX,&viewportY);
     vtkOSPRayRendererNode* oren= vtkOSPRayRendererNode::SafeDownCast
@@ -223,7 +242,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
         viewportX+viewportWidth-1,
         viewportY+viewportHeight-1,
         this->SceneGraph->GetBuffer(),
-        0, vtkOSPRayRendererNode::GetCompositeOnGL(ren) );
+        0, vtkOSPRayRendererNode::GetCompositeOnGL(ren), right);
     }
     else
     {
@@ -236,7 +255,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
         (viewportX,  viewportY,
          viewportX+viewportWidth-1,
          viewportY+viewportHeight-1,
-         0);
+         0, right);
       oren->WriteLayer(ontoRGBA, ontoZ, viewportWidth, viewportHeight, layer);
       rwin->SetZbufferData(
          viewportX,  viewportY,
@@ -248,7 +267,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
          viewportX+viewportWidth-1,
          viewportY+viewportHeight-1,
          ontoRGBA,
-         0, vtkOSPRayRendererNode::GetCompositeOnGL(ren) );
+         0, vtkOSPRayRendererNode::GetCompositeOnGL(ren), right);
       delete[] ontoZ;
       delete[] ontoRGBA;
     }
