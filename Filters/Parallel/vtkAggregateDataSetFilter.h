@@ -36,20 +36,6 @@ public:
   vtkTypeMacro(vtkAggregateDataSetFilter, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-  //@{
-  /**
-   * Controls the output type. This is required because processes receiving
-   * data cannot know their output type in RequestDataObject without
-   * communicating with other processes. Since communicating with other
-   * processes in RequestDataObject is dangerous (can cause deadlock because
-   * it may happen out-of-sync), the application has to set the output
-   * type. The default is VTK_POLY_DATA.
-   */
-  void SetOutputDataType(int);
-  vtkGetMacro(OutputDataType, int);
-  //@}
-
   //@{
   /**
    * Number of target processes. Valid values are between 1 and the total
@@ -67,15 +53,12 @@ public:
 
 protected:
   vtkAggregateDataSetFilter();
-  ~vtkAggregateDataSetFilter();
+  ~vtkAggregateDataSetFilter() VTK_OVERRIDE;
 
-  virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
   virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
+  virtual int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  int OutputDataType;
   int NumberOfTargetProcesses;
 
 private:

@@ -102,7 +102,6 @@ int AggregateDataSet(int argc, char *argv[])
   threshold->ThresholdBetween(0, 500);
   threshold->SetInputConnection(wavelet->GetOutputPort());
   aggregate->SetInputConnection(threshold->GetOutputPort());
-  aggregate->SetOutputDataType(VTK_UNSTRUCTURED_GRID);
 
   vtkContourFilter* contour = vtkContourFilter::New();
   double scalar_range[2] = {50, 400};
@@ -111,10 +110,10 @@ int AggregateDataSet(int argc, char *argv[])
   mapper->SetInputConnection(contour->GetOutputPort());
   mapper->Update();
 
-  if (me % 2 == 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 4851)
+  if (me % 2 == 0 && vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints() != 5082)
   {
     vtkGenericWarningMacro("Wrong number of unstructured grid points on process "
-                           << me << ". Should be 4851 but is " <<
+                           << me << ". Should be 5082 but is " <<
                            vtkDataSet::SafeDownCast(aggregate->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }

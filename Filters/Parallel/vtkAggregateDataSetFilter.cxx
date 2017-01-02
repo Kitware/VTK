@@ -32,31 +32,12 @@ vtkStandardNewMacro(vtkAggregateDataSetFilter);
 //-----------------------------------------------------------------------------
 vtkAggregateDataSetFilter::vtkAggregateDataSetFilter()
 {
-  this->OutputDataType = VTK_POLY_DATA;
   this->NumberOfTargetProcesses = 1;
 }
 
 //-----------------------------------------------------------------------------
 vtkAggregateDataSetFilter::~vtkAggregateDataSetFilter()
 {
-}
-
-//-----------------------------------------------------------------------------
-void vtkAggregateDataSetFilter::SetOutputDataType(int dt)
-{
-  if (dt != this->OutputDataType)
-  {
-    if (dt == VTK_POLY_DATA || dt == VTK_UNSTRUCTURED_GRID)
-    {
-      this->OutputDataType = dt;
-      this->Modified();
-    }
-    else
-    {
-      vtkErrorMacro("Invalid output data type. Only VTK_POLY_DATA (0) "
-                      << " or VTK_UNSTRUCTURED_GRID (4) supported");
-    }
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -87,43 +68,9 @@ void vtkAggregateDataSetFilter::SetNumberOfTargetProcesses(int tp)
 //----------------------------------------------------------------------------
 int vtkAggregateDataSetFilter::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-  return 1;
-}
-
-//-----------------------------------------------------------------------------
-int vtkAggregateDataSetFilter::RequestDataObject(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
-{
-  vtkDataSet* output = vtkDataSet::GetData(outputVector, 0);
-
-  vtkDataSet* outputCopy = 0;
-  if (this->OutputDataType == VTK_POLY_DATA)
-  {
-    if (output && output->IsA("vtkPolyData"))
-    {
-      return 1;
-    }
-    outputCopy = vtkPolyData::New();
-  }
-  else if (this->OutputDataType == VTK_UNSTRUCTURED_GRID)
-  {
-    if (output && output->IsA("vtkUnstructuredGrid"))
-    {
-      return 1;
-    }
-    outputCopy = vtkUnstructuredGrid::New();
-  }
-  else
-  {
-    vtkErrorMacro("Invalid output type: " << this->OutputDataType
-                  << ". Cannot create output.");
-    return 0;
-  }
-
-  outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), outputCopy);
-  outputCopy->Delete();
   return 1;
 }
 
@@ -143,7 +90,8 @@ int vtkAggregateDataSetFilter::RequestData(
   vtkMultiProcessController* controller =
     vtkMultiProcessController::GetGlobalController();
 
-  if (controller->GetNumberOfProcesses() == this->NumberOfTargetProcesses)
+  int numberOfProcesses = controller->GetNumberOfProcesses();
+  if (numberOfProcesses == this->NumberOfTargetProcesses)
   {
     if (input)
     {
@@ -161,9 +109,15 @@ int vtkAggregateDataSetFilter::RequestData(
   }
   else
   {
-    int localColor = controller->GetLocalProcessId() / this->NumberOfTargetProcesses;
-    int localKey = controller->GetLocalProcessId() % this->NumberOfTargetProcesses;
-    subController.TakeReference(controller->PartitionController(localColor, localKey));
+    int localProcessId = controller->GetLocalProcessId();
+    int numberOfProcessesPerGroup = numberOfProcesses/this->NumberOfTargetProcesses;
+    int localColor = localProcessId/numberOfProcessesPerGroup;
+    if (numberOfProcesses % this->NumberOfTargetProcesses)
+    {
+      double d = 1.*numberOfProcesses/this->NumberOfTargetProcesses;
+      localColor = int(localProcessId/d);
+    }
+    subController.TakeReference(controller->PartitionController(localColor, 0));
   }
 
   int subNumProcs = subController->GetNumberOfProcesses();
@@ -194,7 +148,7 @@ int vtkAggregateDataSetFilter::RequestData(
     {
       output->ShallowCopy(input);
     }
-    else if (this->OutputDataType == VTK_POLY_DATA)
+    else if (input->IsA("vtkPolyData"))
     {
       vtkNew<vtkAppendPolyData> appendFilter;
       for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it=recvBuffer.begin();
@@ -205,7 +159,7 @@ int vtkAggregateDataSetFilter::RequestData(
       appendFilter->Update();
       output->ShallowCopy(appendFilter->GetOutput());
     }
-    else if (this->OutputDataType == VTK_UNSTRUCTURED_GRID)
+    else if (input->IsA("vtkUnstructuredGrid"))
     {
       vtkNew<vtkAppendFilter> appendFilter;
       appendFilter->MergePointsOn();
@@ -227,18 +181,5 @@ void vtkAggregateDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfTargetProcesses: " << this->NumberOfTargetProcesses << endl;
-  os << indent << "OutputDataType: ";
-  if (this->OutputDataType == VTK_POLY_DATA)
-  {
-    os << "VTK_POLY_DATA";
-  }
-  else if (this->OutputDataType == VTK_UNSTRUCTURED_GRID)
-  {
-    os << "VTK_UNSTRUCTURED_GRID";
-  }
-  else
-  {
-    os << "Unrecognized output type " << this->OutputDataType;
-  }
   os << endl;
 }
