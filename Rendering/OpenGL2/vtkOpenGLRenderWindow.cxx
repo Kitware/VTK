@@ -392,9 +392,31 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
                       GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
-#ifdef GL_POINT_SPRITE
-  glEnable(GL_POINT_SPRITE);
+if (this->LineSmoothing)
+  {
+#ifdef GL_LINE_SMOOTH
+    glEnable(GL_LINE_SMOOTH);
 #endif
+  }
+  else
+  {
+#ifdef GL_LINE_SMOOTH
+    glDisable(GL_LINE_SMOOTH);
+#endif
+  }
+
+  if (this->PolygonSmoothing)
+  {
+#ifdef GL_POLYGON_SMOOTH
+    glEnable(GL_POLYGON_SMOOTH);
+#endif
+  }
+  else
+  {
+#ifdef GL_POLYGON_SMOOTH
+    glDisable(GL_POLYGON_SMOOTH);
+#endif
+  }
 
   // Default OpenGL is 4 bytes but it is only safe with RGBA format.
   // If format is RGB, row alignment is 4 bytes only if the width is divisible
