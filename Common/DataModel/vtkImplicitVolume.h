@@ -70,9 +70,8 @@ public:
    * Evaluate the ImplicitVolume. This returns the interpolated scalar value
    * at x[3].
    */
+  using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) VTK_OVERRIDE;
-  double EvaluateFunction(double x, double y, double z)
-    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
   //@}
 
   /**
