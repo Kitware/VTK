@@ -1386,9 +1386,8 @@ bool vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceData(int idx, vtkDataSe
     default:
       vtkErrorMacro(<< "Only FIELD_ASSOCIATION_POINTS and FIELD_ASSOCIATION_CELLS "
         << "are supported in this method");
-      return false;
   }
-  return false; // Never reached
+  return false;
 }
 
 //----------------------------------------------------------------------------
