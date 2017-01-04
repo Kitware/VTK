@@ -489,7 +489,6 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_HIGHER_ORDER_POLYGON] = 2;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 {
@@ -937,8 +936,8 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
     int dimensionality;
 
     // Compute some information for progress methods
-    //
-    vtkIdType progressInterval = numCells/20 + 1;
+    vtkIdType numCuts = 3*numCells;
+    vtkIdType progressInterval = numCuts/20 + 1;
     int cellId=0;
 
     // We skip 0d cells (points), because they cannot be cut (generate no data).
@@ -954,7 +953,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
         if (!(++cellId % progressInterval) )
         {
           vtkDebugMacro(<<"Cutting #" << cellId);
-          this->UpdateProgress (static_cast<double>(cellId)/numCells);
+          this->UpdateProgress (static_cast<double>(cellId)/numCuts);
           abortExecute = this->GetAbortExecute();
         }
 
