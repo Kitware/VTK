@@ -175,10 +175,16 @@
 typedef unsigned char vtkTypeUInt8;
 typedef signed char   vtkTypeInt8;
 # define VTK_TYPE_UINT8 VTK_UNSIGNED_CHAR
+# define VTK_TYPE_UINT8_MIN VTK_UNSIGNED_CHAR_MIN
+# define VTK_TYPE_UINT8_MAX VTK_UNSIGNED_CHAR_MAX
 # if VTK_TYPE_CHAR_IS_SIGNED
 #  define VTK_TYPE_INT8 VTK_CHAR
+#  define VTK_TYPE_INT8_MIN VTK_CHAR_MIN
+#  define VTK_TYPE_INT8_MAX VTK_CHAR_MAX
 # else
 #  define VTK_TYPE_INT8 VTK_SIGNED_CHAR
+#  define VTK_TYPE_INT8_MIN VTK_SIGNED_CHAR_MIN
+#  define VTK_TYPE_INT8_MAX VTK_SIGNED_CHAR_MAX
 # endif
 #else
 # error "No native data type can represent an 8-bit integer."
@@ -189,12 +195,20 @@ typedef signed char   vtkTypeInt8;
 typedef unsigned short vtkTypeUInt16;
 typedef signed short   vtkTypeInt16;
 # define VTK_TYPE_UINT16 VTK_UNSIGNED_SHORT
+# define VTK_TYPE_UINT16_MIN VTK_UNSIGNED_SHORT_MIN
+# define VTK_TYPE_UINT16_MAX VTK_UNSIGNED_SHORT_MAX
 # define VTK_TYPE_INT16 VTK_SHORT
+# define VTK_TYPE_INT16_MIN VTK_SHORT_MIN
+# define VTK_TYPE_INT16_MAX VTK_SHORT_MAX
 #elif VTK_SIZEOF_INT == 2
 typedef unsigned int vtkTypeUInt16;
 typedef signed int   vtkTypeInt16;
 # define VTK_TYPE_UINT16 VTK_UNSIGNED_INT
+# define VTK_TYPE_UINT16_MIN VTK_UNSIGNED_INT_MIN
+# define VTK_TYPE_UINT16_MAX VTK_UNSIGNED_INT_MAX
 # define VTK_TYPE_INT16 VTK_INT
+# define VTK_TYPE_INT16_MIN VTK_INT_MIN
+# define VTK_TYPE_INT16_MAX VTK_INT_MAX
 #else
 # error "No native data type can represent a 16-bit integer."
 #endif
@@ -204,12 +218,20 @@ typedef signed int   vtkTypeInt16;
 typedef unsigned int vtkTypeUInt32;
 typedef signed int   vtkTypeInt32;
 # define VTK_TYPE_UINT32 VTK_UNSIGNED_INT
+# define VTK_TYPE_UINT32_MIN VTK_UNSIGNED_INT_MIN
+# define VTK_TYPE_UINT32_MAX VTK_UNSIGNED_INT_MAX
 # define VTK_TYPE_INT32 VTK_INT
+# define VTK_TYPE_INT32_MIN VTK_INT_MIN
+# define VTK_TYPE_INT32_MAX VTK_INT_MAX
 #elif VTK_SIZEOF_LONG == 4
 typedef unsigned long vtkTypeUInt32;
 typedef signed long   vtkTypeInt32;
 # define VTK_TYPE_UINT32 VTK_UNSIGNED_LONG
+# define VTK_TYPE_UINT32_MIN VTK_UNSIGNED_LONG_MIN
+# define VTK_TYPE_UINT32_MAX VTK_UNSIGNED_LONG_MAX
 # define VTK_TYPE_INT32 VTK_LONG
+# define VTK_TYPE_INT32_MIN VTK_LONG_MIN
+# define VTK_TYPE_INT32_MAX VTK_LONG_MAX
 #else
 # error "No native data type can represent a 32-bit integer."
 #endif
@@ -219,12 +241,20 @@ typedef signed long   vtkTypeInt32;
 typedef unsigned long long vtkTypeUInt64;
 typedef signed long long   vtkTypeInt64;
 # define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG_LONG
+# define VTK_TYPE_UINT64_MIN VTK_UNSIGNED_LONG_LONG_MIN
+# define VTK_TYPE_UINT64_MAX VTK_UNSIGNED_LONG_LONG_MAX
 # define VTK_TYPE_INT64 VTK_LONG_LONG
+# define VTK_TYPE_INT64_MIN VTK_LONG_LONG_MIN
+# define VTK_TYPE_INT64_MAX VTK_LONG_LONG_MAX
 #elif VTK_SIZEOF_LONG == 8
 typedef unsigned long vtkTypeUInt64;
 typedef signed long   vtkTypeInt64;
 # define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG
+# define VTK_TYPE_UINT64_MIN VTK_UNSIGNED_LONG_MIN
+# define VTK_TYPE_UINT64_MAX VTK_UNSIGNED_LONG_MAX
 # define VTK_TYPE_INT64 VTK_LONG
+# define VTK_TYPE_INT64_MIN VTK_LONG_MIN
+# define VTK_TYPE_INT64_MAX VTK_LONG_MAX
 #else
 # error "No native data type can represent a 64-bit integer."
 #endif
@@ -247,14 +277,26 @@ typedef signed long   vtkTypeInt64;
 #if defined(VTK_USE_64BIT_TIMESTAMPS) || VTK_SIZEOF_VOID_P == 8
 # if VTK_SIZEOF_LONG == 8
 typedef unsigned long vtkMTimeType;
+#  define VTK_MTIME_TYPE_IMPL VTK_UNSIGNED_LONG
+#  define VTK_MTIME_MIN VTK_UNSIGNED_LONG_MIN
+#  define VTK_MTIME_MAX VTK_UNSIGNED_LONG_MAX
 # else
 typedef vtkTypeUInt64 vtkMTimeType;
+#  define VTK_MTIME_TYPE_IMPL VTK_TYPE_UINT64
+#  define VTK_MTIME_MIN VTK_TYPE_UINT64_MIN
+#  define VTK_MTIME_MAX VTK_TYPE_UINT64_MAX
 # endif
 #else
 # if VTK_SIZEOF_LONG == 4
 typedef unsigned long vtkMTimeType;
+#  define VTK_MTIME_TYPE_IMPL VTK_UNSIGNED_LONG
+#  define VTK_MTIME_MIN VTK_UNSIGNED_LONG_MIN
+#  define VTK_MTIME_MAX VTK_UNSIGNED_LONG_MAX
 # else
 typedef vtkTypeUInt32 vtkMTimeType;
+#  define VTK_MTIME_TYPE_IMPL VTK_TYPE_UINT32
+#  define VTK_MTIME_MIN VTK_TYPE_UINT32_MIN
+#  define VTK_MTIME_MAX VTK_TYPE_UINT32_MAX
 # endif
 #endif
 
