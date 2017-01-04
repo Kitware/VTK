@@ -52,38 +52,38 @@ Modify lex.yy.c:
  * then skip to the end of the line.
  * Return 0 if no match found.
  */
-static int skip_comment();
+static int skip_comment(void);
 static int skip_trailing_comment(const char *text, size_t l);
 static int skip_ahead_multi(const char *strings[]);
 static int skip_ahead_until(const char *text);
-static int skip_to_next_directive();
-static int skip_conditional_block();
+static int skip_to_next_directive(void);
+static int skip_conditional_block(void);
 
-static void doxygen_comment();
-static void doxygen_cpp_comment();
-static void doxygen_group_start();
-static void doxygen_group_end();
-static void vtk_comment();
-static void vtk_name_comment();
-static void vtk_section_comment();
-static void cpp_comment_line();
-static void blank_line();
+static void doxygen_comment(void);
+static void doxygen_cpp_comment(void);
+static void doxygen_group_start(void);
+static void doxygen_group_end(void);
+static void vtk_comment(void);
+static void vtk_name_comment(void);
+static void vtk_section_comment(void);
+static void cpp_comment_line(void);
+static void blank_line(void);
 
 static const char *raw_string(const char *begin);
 
 static void preprocessor_directive(const char *text, size_t l);
 static void print_preprocessor_error(int result, const char *cp, size_t n);
-static const char *get_macro_arguments();
+static const char *get_macro_arguments(void);
 
-static void push_buffer();
-static int pop_buffer();
+static void push_buffer(void);
+static int pop_buffer(void);
 
 static void push_include(const char *filename);
-static void pop_include();
+static void pop_include(void);
 
 static void push_macro(MacroInfo *macro);
-static void pop_macro();
-static int in_macro();
+static void pop_macro(void);
+static int in_macro(void);
 
 %}
 

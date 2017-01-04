@@ -272,7 +272,7 @@ void print_parser_error(const char *text, const char *cp, size_t n);
 /* helper functions */
 const char *type_class(unsigned int type, const char *classname);
 void start_class(const char *classname, int is_struct_or_union);
-void end_class();
+void end_class(void);
 void add_base_class(ClassInfo *cls, const char *name, int access_lev,
                     unsigned int extra);
 void output_friend_function(void);
@@ -288,7 +288,7 @@ void add_using(const char *name, int is_namespace);
 void start_enum(const char *name, int is_scoped,
                 unsigned int type, const char *basename);
 void add_enum(const char *name, const char *value);
-void end_enum();
+void end_enum(void);
 unsigned int guess_constant_type(const char *value);
 void add_constant(const char *name, const char *value,
                   unsigned int type, const char *typeclass, int global);
@@ -500,7 +500,7 @@ struct DoxygenCommandInfo doxygenCommands[] = {
   { NULL, 0, DOX_COMMAND_OTHER }
 };
 
-void closeComment();
+void closeComment(void);
 
 /* Clear the comment buffer */
 void clearComment()
@@ -768,7 +768,7 @@ void applyComment(ClassInfo *cls)
 }
 
 /* This is called when a comment block ends */
-void closeComment()
+void closeComment(void)
 {
   const char *cp;
   size_t l;
@@ -11448,7 +11448,7 @@ void start_class(const char *classname, int is_struct_or_union)
 }
 
 /* reached the end of a class definition */
-void end_class()
+void end_class(void)
 {
   /* add default constructors */
   vtkParse_AddDefaultConstructors(currentClass, data->Strings);
@@ -11552,7 +11552,7 @@ void start_enum(const char *name, int is_scoped,
 }
 
 /* finish the enum */
-void end_enum()
+void end_enum(void)
 {
   if (currentClass && currentClass->ItemType == VTK_ENUM_INFO)
   {

@@ -383,7 +383,7 @@ static int parse_check_options(int argc, char *argv[], int multi)
 }
 
 /* Return a pointer to the static OptionInfo struct */
-OptionInfo *vtkParse_GetCommandLineOptions()
+OptionInfo *vtkParse_GetCommandLineOptions(void)
 {
   return &options;
 }
