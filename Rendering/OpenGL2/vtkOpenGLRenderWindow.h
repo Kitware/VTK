@@ -336,6 +336,11 @@ public:
   virtual int SupportsOpenGL();
 
   /**
+   * Get report of capabilities for the render window
+   */
+  const char *ReportCapabilities();
+
+  /**
    * Initialize the rendering window.  This will setup all system-specific
    * resources.  This method and Finalize() must be symmetric and it
    * should be possible to call them multiple times, even changing WindowId
@@ -501,6 +506,8 @@ protected:
   bool Initialized; // ensure glewinit has been called
 
   float MaximumHardwareLineWidth;
+
+  char *Capabilities;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;

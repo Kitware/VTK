@@ -311,7 +311,6 @@ protected:
   int      CursorHidden;
   int      ForceMakeCurrent;
   int      UsingHardware;
-  char    *Capabilities;
 
   std::stack<Display *> DisplayStack;
   std::stack<Drawable> DrawableStack;

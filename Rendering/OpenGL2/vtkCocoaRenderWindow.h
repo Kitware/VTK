@@ -406,7 +406,6 @@ private:
   int      CursorHidden;
 
   int      ForceMakeCurrent;
-  char     *Capabilities;
 };
 
 #endif

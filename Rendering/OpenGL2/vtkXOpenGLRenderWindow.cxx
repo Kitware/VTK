@@ -358,9 +358,6 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->XCSizeSE    = 0;
   this->XCSizeSW    = 0;
   this->XCHand      = 0;
-
-  this->Capabilities = 0;
-
 }
 
 // free up memory & close the window
@@ -766,9 +763,6 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   }
 
   this->CloseDisplay();
-
-  delete[] this->Capabilities;
-  this->Capabilities = 0;
 
   // make sure all other code knows we're not mapped anymore
   this->Mapped = 0;

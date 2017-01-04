@@ -140,6 +140,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->NumberOfFrameBuffers = 0;
   this->DepthRenderBufferObject = 0;
+  this->Capabilities = 0;
 }
 
 // free up memory & close the window
@@ -162,6 +163,49 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   this->GLStateIntegers.clear();
 
   this->ShaderCache->UnRegister(this);
+
+  delete [] this->Capabilities;
+  this->Capabilities = 0;
+}
+
+const char* vtkOpenGLRenderWindow::ReportCapabilities()
+{
+  this->MakeCurrent();
+
+  const char *glVendor = (const char *) glGetString(GL_VENDOR);
+  const char *glRenderer = (const char *) glGetString(GL_RENDERER);
+  const char *glVersion = (const char *) glGetString(GL_VERSION);
+
+  std::ostringstream strm;
+  if(glVendor)
+  {
+    strm << "OpenGL vendor string:  " << glVendor << endl;
+  }
+  if(glRenderer)
+  {
+    strm << "OpenGL renderer string:  " << glRenderer << endl;
+  }
+  if(glVersion)
+  {
+    strm << "OpenGL version string:  " << glVersion << endl;
+  }
+
+  strm << "OpenGL extensions:  " << endl;
+  GLint n, i;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+  for (i = 0; i < n; i++)
+  {
+    const char *ext = (const char *)glGetStringi(GL_EXTENSIONS, i);
+    strm << "  " << ext << endl;
+  }
+
+  delete [] this->Capabilities;
+
+  size_t len = strm.str().length() + 1;
+  this->Capabilities = new char[len];
+  strncpy(this->Capabilities, strm.str().c_str(), len);
+
+  return this->Capabilities;
 }
 
 // ----------------------------------------------------------------------------
