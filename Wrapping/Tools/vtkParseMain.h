@@ -69,7 +69,7 @@ extern "C" {
 /**
  * Return the options provided on the command line
  */
-OptionInfo *vtkParse_GetCommandLineOptions();
+OptionInfo *vtkParse_GetCommandLineOptions(void);
 
 /**
  * The main function, parses the file and returns the result.

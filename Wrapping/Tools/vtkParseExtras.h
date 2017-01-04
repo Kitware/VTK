@@ -211,12 +211,12 @@ void vtkParse_IntantiateFunctionTemplate(
 /**
  * Get a zero-terminated array of the types in vtkTemplateMacro.
  */
-const char **vtkParse_GetTemplateMacroTypes();
+const char **vtkParse_GetTemplateMacroTypes(void);
 
 /**
  * Get a zero-terminated array of the types in vtkArray.
  */
-const char **vtkParse_GetArrayTypes();
+const char **vtkParse_GetArrayTypes(void);
 
 
 #ifdef __cplusplus

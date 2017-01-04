@@ -1766,7 +1766,7 @@ void vtkParse_InstantiateClassTemplate(
 }
 
 /* Get a zero-terminated array of the types in vtkTemplateMacro. */
-const char **vtkParse_GetTemplateMacroTypes()
+const char **vtkParse_GetTemplateMacroTypes(void)
 {
   static const char *types[] = {
     "char", "signed char", "unsigned char", "short", "unsigned short",
@@ -1778,7 +1778,7 @@ const char **vtkParse_GetTemplateMacroTypes()
 }
 
 /* Get a zero-terminated array of the types in vtkArray. */
-const char **vtkParse_GetArrayTypes()
+const char **vtkParse_GetArrayTypes(void)
 {
   static const char *types[] = {
     "char", "signed char", "unsigned char", "short", "unsigned short",

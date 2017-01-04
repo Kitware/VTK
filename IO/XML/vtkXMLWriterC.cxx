@@ -71,7 +71,7 @@ struct vtkXMLWriterC_s
 };
 
 //----------------------------------------------------------------------------
-vtkXMLWriterC* vtkXMLWriterC_New()
+vtkXMLWriterC* vtkXMLWriterC_New(void)
 {
   if(vtkXMLWriterC* self = new vtkXMLWriterC)
   {
