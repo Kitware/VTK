@@ -2510,7 +2510,7 @@ void vtkMPASReader::UpdateDimensions(bool force)
   }
 
   typedef std::set<std::string>::const_iterator SetIter;
-  this->Internals->extraDims->Allocate(dimSet.size());
+  this->Internals->extraDims->Allocate(static_cast<vtkIdType>(dimSet.size()));
   for (SetIter it = dimSet.begin(), itEnd = dimSet.end(); it != itEnd; ++it)
   {
     this->Internals->extraDims->InsertNextValue(it->c_str());

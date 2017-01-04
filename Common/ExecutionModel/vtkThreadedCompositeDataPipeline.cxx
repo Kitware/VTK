@@ -278,7 +278,7 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
   vtkSmartPointer<vtkProgressObserver> origPo(this->Algorithm->GetProgressObserver());
   vtkNew<vtkSMPProgressObserver> po;
   this->Algorithm->SetProgressObserver(po.GetPointer());
-  vtkSMPTools::For(0, inObjs.size(), processBlock);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(inObjs.size()), processBlock);
   this->Algorithm->SetProgressObserver(origPo);
 
   int i =0;

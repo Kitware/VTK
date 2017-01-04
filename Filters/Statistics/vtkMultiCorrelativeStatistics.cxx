@@ -392,7 +392,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   //  Row 0: cardinality of sample
   //  Rows 1 to m - 1: means of each variable
   //  Rows m to m + colPairs.size(): variances/covariances for each pair of variables
-  col3->SetNumberOfTuples( 1 + m + colPairs.size() );
+  col3->SetNumberOfTuples( static_cast<vtkIdType>(1 + m + colPairs.size()));
   col3->FillComponent( 0, 0. );
 
   // Retrieve pointer to values and skip Cardinality entry

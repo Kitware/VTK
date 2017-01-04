@@ -454,7 +454,7 @@ void vtkSparseArray<T>::SetExtentsFromContents()
   vtkArrayExtents new_extents;
 
   const vtkIdType row_begin = 0;
-  const vtkIdType row_end = row_begin + this->Values.size();
+  const vtkIdType row_end = row_begin + static_cast<vtkIdType>(this->Values.size());
   const DimensionT dimension_count = this->GetDimensions();
   for(DimensionT dimension = 0; dimension != dimension_count; ++dimension)
   {
