@@ -39,7 +39,7 @@
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 #include "vtkLagrangianParticleTracker.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // for ivars
 
 class MasterFlagManager;
 class ParticleStreamManager;
@@ -116,7 +116,7 @@ protected:
   RankFlagManager* RFlagManager;
 
 private:
-  vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&);  // Not implemented.
-  void operator=(const vtkPLagrangianParticleTracker&);  // Not implemented.
+  vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&) VTK_DELETE_FUNCTION;  // Not implemented.
+  void operator=(const vtkPLagrangianParticleTracker&) VTK_DELETE_FUNCTION;  // Not implemented.
 };
 #endif
