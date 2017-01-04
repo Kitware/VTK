@@ -52,7 +52,6 @@ vtkPNGWriter::vtkPNGWriter()
   this->FileLowerLeft = 1;
   this->FileDimensionality = 2;
   this->CompressionLevel = 5;
-  this->WriteToMemory = 0;
   this->Result = 0;
   this->TempFP = 0;
   this->Internals = new vtkInternals();
@@ -387,7 +386,6 @@ void vtkPNGWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Result: " << this->Result << "\n";
-  os << indent << "WriteToMemory: " << (this->WriteToMemory ? "On" : "Off") << "\n";
 }
 
 void vtkPNGWriter::AddText(const char* key, const char* value)

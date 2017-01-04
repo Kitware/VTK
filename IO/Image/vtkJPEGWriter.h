@@ -89,7 +89,6 @@ protected:
 private:
   int Quality;
   unsigned int Progressive;
-  unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
 

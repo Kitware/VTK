@@ -97,6 +97,10 @@ protected:
   int FileNumber;
   int FileLowerLeft;
   char *InternalFileName;
+  // Required for subclasses that need to prevent the writer
+  // from touching the file system. The getter/setter are only
+  // available in these subclasses.
+  unsigned int WriteToMemory;
 
   virtual void RecursiveWrite(int dim,
                               vtkImageData *region,

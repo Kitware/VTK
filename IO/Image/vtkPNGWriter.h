@@ -104,7 +104,6 @@ protected:
 
   void WriteSlice(vtkImageData *data, int* uExtent);
   int CompressionLevel;
-  unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
   class vtkInternals;
