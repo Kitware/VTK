@@ -345,7 +345,7 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
   {
     // Number of passes changed, definitely need to update.
     // Fake the time to force an update:
-    renderPassMTime = VTK_UNSIGNED_LONG_MAX;
+    renderPassMTime = VTK_MTIME_MAX;
   }
   else
   {
@@ -359,7 +359,7 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
       if (curRP != lastRP)
       {
         // Render passes have changed. Force update:
-        renderPassMTime = VTK_UNSIGNED_LONG_MAX;
+        renderPassMTime = VTK_MTIME_MAX;
         break;
       }
       else
