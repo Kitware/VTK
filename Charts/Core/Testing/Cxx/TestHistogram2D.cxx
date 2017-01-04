@@ -13,17 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartHistogram2D.h"
-#include "vtkPlotHistogram2D.h"
-#include "vtkImageData.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkDoubleArray.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
+#include "vtkPlotHistogram2D.h"
+#include "vtkPlotLine.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
+#include "vtkVector.h"
 
 //----------------------------------------------------------------------------
 int TestHistogram2D(int, char * [])
@@ -32,9 +37,55 @@ int TestHistogram2D(int, char * [])
   int size = 400;
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(size, size);
-  vtkNew<vtkChartHistogram2D> chart;
 
+  // Define a chart
+  vtkNew<vtkChartHistogram2D> chart;
   view->GetScene()->AddItem(chart.GetPointer());
+
+  view->GetRenderWindow()->SetMultiSamples(0);
+  view->GetInteractor()->Initialize();
+  view->GetRenderWindow()->Render();
+
+  // Add only a plot without an image data
+  vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
+  vtkSmartPointer<vtkDoubleArray> X = vtkSmartPointer<vtkDoubleArray>::New();
+  X->SetName("X");
+  X->SetNumberOfComponents(1);
+  X->SetNumberOfTuples(size);
+  vtkSmartPointer<vtkDoubleArray> Y = vtkSmartPointer<vtkDoubleArray>::New();
+  Y->SetName("Y");
+  Y->SetNumberOfComponents(1);
+  Y->SetNumberOfTuples(size);
+
+  for (int i = 0; i < size; i++)
+  {
+    X->SetTuple1(i, i);
+    Y->SetTuple1(i, i);
+  }
+  table->AddColumn(X);
+  table->AddColumn(Y);
+
+  vtkPlotLine* plot = vtkPlotLine::SafeDownCast(chart->AddPlot((int)vtkChart::LINE));
+  plot->SetInputData(table, 0, 1);
+  plot->SetColor(1.0, 0.0, 0.0);
+  plot->SetWidth(5);
+
+  vtkContextMouseEvent mouseEvent;
+  mouseEvent.SetInteractor(view->GetInteractor());
+  vtkVector2i mousePosition;
+
+  // Test interactions when there is only a plot and no image data
+  mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
+  int x = chart->GetPoint1()[0] + 4;
+  int y = chart->GetPoint1()[1] + 10;
+  mousePosition.Set(x, y);
+  mouseEvent.SetScreenPos(mousePosition);
+  chart->MouseButtonPressEvent(mouseEvent);
+  chart->MouseButtonReleaseEvent(mouseEvent);
+
+  // Remove the plot and add an image data
+  vtkIdType id = chart->GetPlotIndex(plot);
+  chart->RemovePlot(id);
 
   vtkNew<vtkImageData> data;
   data->SetExtent(0, size-1, 0, size-1, 0, 0);
@@ -64,9 +115,7 @@ int TestHistogram2D(int, char * [])
   transferFunction->Build();
   chart->SetTransferFunction(transferFunction.GetPointer());
 
-  //Finally render the scene and compare the image to a reference image
-  view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
+
   return EXIT_SUCCESS;
 }
