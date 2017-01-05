@@ -117,7 +117,7 @@ vtkMTimeType vtkLassoStencilSource::GetMTime()
       {
         mTime = t;
       }
-      iter++;
+      ++iter;
     }
   }
 

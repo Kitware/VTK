@@ -46,8 +46,8 @@ public:
       int nbIter = index;
       while(nbIter > 0)
       {
-        nbIter--;
-        iter++;
+        --nbIter;
+        ++iter;
       }
       return iter->first.c_str();
     }
@@ -63,8 +63,8 @@ public:
       int nbIter = index;
       while(nbIter > 0)
       {
-        nbIter--;
-        iter++;
+        --nbIter;
+        ++iter;
       }
       return iter->second.c_str();
     }
