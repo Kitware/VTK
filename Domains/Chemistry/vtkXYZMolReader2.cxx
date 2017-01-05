@@ -182,7 +182,7 @@ int vtkXYZMolReader2::RequestData(
       vtkWarningMacro ("XYZMolReader2 using its first timestep value of "
                       << requestedTimeStep);
     }
-    for (it = this->TimeSteps.begin(); it < this->TimeSteps.end(); it++, timestep++)
+    for (it = this->TimeSteps.begin(); it < this->TimeSteps.end(); ++it, ++timestep)
     {
       if ((*it > requestedTimeStep))
         break;
@@ -190,18 +190,19 @@ int vtkXYZMolReader2::RequestData(
 
     if(it != this->TimeSteps.end())
     {
-      it--;
-      timestep--;
+      --it;
+      --timestep;
       if(fabs(*it - requestedTimeStep) > fabs(*(it+1) - requestedTimeStep))
       {
         // closer to next timestep value
-        timestep++;
-        it++;
+        ++timestep;
+        ++it;
       }
     }
     else
     {
-      it--; timestep--;
+      --timestep;
+      --it;
     }
   }
   else

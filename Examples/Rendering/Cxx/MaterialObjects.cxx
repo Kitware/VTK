@@ -131,7 +131,7 @@ void gridLayoutActors( std::vector<vtkActor*> actors )
     // Z
     if( b[4]<bounds[4] ) bounds[4] = b[4];
     if( b[5]>bounds[5] ) bounds[5] = b[5];
-    it++;
+    ++it;
   }
 
   double step[3] = {1.25 * (bounds[1]-bounds[0]),
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
   while( it != itEnd )
   {
     ren1->AddActor(*it);
-    it++;
+    ++it;
   }
 
   ren1->SetBackground(0.1, 0.2, 0.4);
@@ -303,8 +303,8 @@ int main(int argc, char* argv[])
                                        << (*it)->GetPosition()[1] << ", "
                                        << (*it)->GetPosition()[2] << endl;
     (*it)->Delete();
-    it++;
-    count++;
+    ++it;
+    ++count;
   }
 #endif
 
