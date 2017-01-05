@@ -594,7 +594,7 @@ void vtkTemporalStreamTracer::AssignUniqueIds(
   vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints)
 {
   vtkIdType ParticleCountOffset = 0;
-  vtkIdType numParticles = LocalSeedPoints.size();
+  vtkIdType numParticles = static_cast<vtkIdType>(LocalSeedPoints.size());
   for (vtkIdType i=0; i<numParticles; i++)
   {
     LocalSeedPoints[i].UniqueParticleId =

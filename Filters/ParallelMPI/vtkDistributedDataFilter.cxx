@@ -4298,7 +4298,7 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
 
     globalPtIds[proc]->Delete();
 
-    vtkIdType numUniqueCellIds = subGridCellIds.size();
+    vtkIdType numUniqueCellIds = static_cast<vtkIdType>(subGridCellIds.size());
 
     if (numUniqueCellIds == 0)
     {

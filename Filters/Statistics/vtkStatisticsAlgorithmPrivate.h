@@ -153,7 +153,7 @@ public:
     {
       ++ it;
     }
-    return it->size();
+    return static_cast<vtkIdType>(it->size());
   }
   // --------------------------------------------------------------------
   //@}

@@ -304,7 +304,7 @@ struct ArrayList
   // Return the number of arrays
   vtkIdType GetNumberOfArrays()
   {
-      return Arrays.size();
+    return static_cast<vtkIdType>(Arrays.size());
   }
 
 };
