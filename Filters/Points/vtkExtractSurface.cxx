@@ -1369,7 +1369,8 @@ int vtkExtractSurface::RequestData(
   }
 
   void *ptr = input->GetArrayPointerForExtent(inScalars, exExt);
-  vtkIdType *incs = input->GetIncrements();
+  vtkIdType incs[3];
+  input->GetIncrements(incs);
   switch (inScalars->GetDataType())
   {
     vtkTemplateMacro(vtkExtractSurfaceAlgorithm<VTK_TT>::

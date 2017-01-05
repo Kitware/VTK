@@ -297,7 +297,8 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
 
   double *spacing = grid->GetSpacing();
   double *origin = grid->GetOrigin();
-  vtkIdType *increments = grid->GetIncrements();
+  vtkIdType increments[3];
+  grid->GetIncrements(increments);
 
   double invScale = 1.0/scale;
 

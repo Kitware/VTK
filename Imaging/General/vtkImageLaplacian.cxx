@@ -100,7 +100,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   unsigned long target;
   int axesNum;
   int *wholeExtent;
-  vtkIdType *inIncs;
+  vtkIdType inIncs[3];
   double r[3], d, sum;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
 
@@ -127,7 +127,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   r[2] = 1.0 / (r[2] * r[2]);
 
   // get some other info we need
-  inIncs = inData->GetIncrements();
+  inData->GetIncrements(inIncs);
   wholeExtent = inData->GetExtent();
 
   // Loop through output pixels
