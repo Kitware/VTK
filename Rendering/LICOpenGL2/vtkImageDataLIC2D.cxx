@@ -445,7 +445,7 @@ int vtkImageDataLIC2D::RequestData(
 
     vtkOpenGLFramebufferObject *drawFbo = vtkOpenGLFramebufferObject::New();
     drawFbo->SetContext(this->Context);
-    drawFbo->SaveCurrentBindings();
+    drawFbo->SaveCurrentBindingsAndBuffers();
     drawFbo->Bind(GL_FRAMEBUFFER);
     drawFbo->AddColorAttachment(GL_FRAMEBUFFER, 0U, magVectorTex);
     drawFbo->ActivateDrawBuffer(0U);
@@ -493,7 +493,7 @@ int vtkImageDataLIC2D::RequestData(
     vectorTex->Delete();
     shaderHelper.ReleaseGraphicsResources(this->Context);
 
-    drawFbo->UnBind(GL_FRAMEBUFFER);
+    drawFbo->RestorePreviousBindingsAndBuffers();
     drawFbo->Delete();
   }
 
