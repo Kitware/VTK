@@ -203,3 +203,9 @@ vtkOpenGLRenderTimer::GetElapsedNanoseconds()
   return 0;
 #endif // NO_TIMESTAMP_QUERIES
 }
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderTimer::ReleaseGraphicsResources()
+{
+  this->Reset();
+}
