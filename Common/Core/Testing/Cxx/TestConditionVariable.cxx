@@ -1,3 +1,4 @@
+#include "vtkAtomicTypes.h"
 #include "vtkConditionVariable.h"
 #include "vtkMultiThreader.h"
 #include "vtksys/SystemTools.hxx"
@@ -8,7 +9,7 @@
 typedef struct {
   vtkMutexLock* Lock;
   vtkConditionVariable* Condition;
-  int Done;
+  vtkAtomicInt32 Done;
   int NumberOfWorkers;
 } vtkThreadUserData;
 
