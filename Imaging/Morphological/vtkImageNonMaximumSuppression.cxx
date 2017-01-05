@@ -134,7 +134,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
   double d, normalizeFactor, vector[3], *ratio;
   int neighborA, neighborB;
   int *wholeExtent;
-  vtkIdType *inIncs;
+  vtkIdType inIncs[3];
   int axesNum;
 
   vector[0] = 0.0;
@@ -152,7 +152,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
   // Get the dimensionality of the gradient.
   axesNum = self->GetDimensionality();
   // get some other info we need
-  inIncs = in1Data->GetIncrements();
+  in1Data->GetIncrements(inIncs);
   wholeExtent = in1Data->GetExtent();
 
   // Get increments to march through data

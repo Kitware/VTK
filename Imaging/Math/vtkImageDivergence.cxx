@@ -123,7 +123,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   unsigned long count = 0;
   unsigned long target;
   int *wholeExtent;
-  vtkIdType *inIncs;
+  vtkIdType inIncs[3];
   double r[3], d, sum;
   int useMin[3], useMax[3];
 
@@ -153,7 +153,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   r[2] = -0.5 / r[2];
 
   // get some other info we need
-  inIncs = inData->GetIncrements();
+  inData->GetIncrements(inIncs);
   wholeExtent = inData->GetExtent();
 
   // Loop through output pixels

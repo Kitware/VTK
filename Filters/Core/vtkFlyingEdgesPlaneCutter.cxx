@@ -1263,7 +1263,8 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
   }
 
   void *ptr = input->GetArrayPointerForExtent(inScalars, exExt);
-  vtkIdType *incs = input->GetIncrements(inScalars);
+  vtkIdType incs[3];
+  input->GetIncrements(inScalars, incs);
   switch (inScalars->GetDataType())
   {
     vtkTemplateMacro(vtkFlyingEdgesPlaneCutterAlgorithm<VTK_TT>::

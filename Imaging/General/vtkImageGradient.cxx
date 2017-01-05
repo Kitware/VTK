@@ -153,7 +153,7 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   int axesNum;
   int *inExt = inData->GetExtent();
   int *wholeExtent;
-  vtkIdType *inIncs;
+  vtkIdType inIncs[3];
   double r[3], d;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
 
@@ -180,7 +180,7 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   r[2] = -0.5 / r[2];
 
   // get some other info we need
-  inIncs = inData->GetIncrements();
+  inData->GetIncrements(inIncs);
   wholeExtent = inData->GetExtent();
 
   // Move the pointer to the correct starting position.

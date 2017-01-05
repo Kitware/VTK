@@ -159,7 +159,8 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
   int width = inMax0 - inMin0 + 1;
   int height = inMax1 - inMin1 + 1;
 
-  vtkIdType* tempIncs = data->GetIncrements();
+  vtkIdType tempIncs[3];
+  data->GetIncrements(tempIncs);
   vtkIdType inInc1 = tempIncs[1];
 
   int bpp = data->GetNumberOfScalarComponents();
@@ -272,7 +273,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   int width = inMax0 - inMin0 + 1;
   int height = inMax1 - inMin1 + 1;
 
-  vtkIdType* tempIncs = data->GetIncrements();
+  vtkIdType tempIncs[3];
+  data->GetIncrements(tempIncs);
   vtkIdType inInc1 = tempIncs[1];
 
   int bpp = data->GetNumberOfScalarComponents();
@@ -402,7 +404,8 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
   int width = inMax0 - inMin0 + 1;
   int height = inMax1 - inMin1 + 1;
 
-  vtkIdType* tempIncs = data->GetIncrements();
+  vtkIdType tempIncs[3];
+  data->GetIncrements(tempIncs);
   vtkIdType inInc1 = tempIncs[1];
 
   int bpp = data->GetPointData()->GetScalars()->GetNumberOfComponents();

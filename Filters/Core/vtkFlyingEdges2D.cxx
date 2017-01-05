@@ -636,7 +636,8 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
   // The only problem with using the update extent is that one or two
   // sources enlarge the update extent.  This behavior is slated to be
   // eliminated.
-  vtkIdType *incs = input->GetIncrements();
+  vtkIdType incs[3];
+  input->GetIncrements(incs);
   int *ext = input->GetExtent();
 
   // Figure out which 2D plane the image lies in. Capture information for
