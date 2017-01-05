@@ -65,6 +65,7 @@ set(Module_SRCS
   vtkThresholdPoints.cxx
   vtkTransposeTable.cxx
   vtkTriangleFilter.cxx
+  vtkTriangleMeshPointNormals.cxx
   vtkTubeFilter.cxx
   vtkUnstructuredGridQuadricDecimation.cxx
   vtkVectorDot.cxx

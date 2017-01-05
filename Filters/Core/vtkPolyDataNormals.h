@@ -46,6 +46,12 @@
  * @warning
  * Triangle strips are broken up into triangle polygons. You may want to
  * restrip the triangles.
+ *
+ * @sa
+ * For high-performance rendering, you could use vtkPolygonalMeshPointNormals
+ * if you know that you have a polygonal mesh which does not require splitting
+ * nor consistency check on the cell orientations.
+ *
 */
 
 #ifndef vtkPolyDataNormals_h
