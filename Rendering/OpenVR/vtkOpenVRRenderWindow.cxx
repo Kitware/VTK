@@ -667,9 +667,9 @@ void vtkOpenVRRenderWindow::Frame(void)
     // for now as fast as possible
     if ( this->HMD )
     {
-      vr::Texture_t leftEyeTexture = {(void*)this->LeftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
+      vr::Texture_t leftEyeTexture = {(void*)this->LeftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
       vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
-      vr::Texture_t rightEyeTexture = {(void*)this->RightEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
+      vr::Texture_t rightEyeTexture = {(void*)this->RightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
       vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
     }
     this->RenderDistortion();
@@ -706,7 +706,8 @@ void vtkOpenVRRenderWindow::SetupDistortion()
       vbodata.push_back( Xoffset+u );
       vbodata.push_back( -1+2*y*h );
 
-      vr::DistortionCoordinates_t dc0 = this->HMD->ComputeDistortion(vr::Eye_Left, u, v);
+      vr::DistortionCoordinates_t dc0;
+      this->HMD->ComputeDistortion(vr::Eye_Left, u, v, &dc0);
 
       vbodata.push_back( dc0.rfRed[0] );
       vbodata.push_back( 1 - dc0.rfRed[1] );
@@ -728,7 +729,8 @@ void vtkOpenVRRenderWindow::SetupDistortion()
       vbodata.push_back( Xoffset+u );
       vbodata.push_back( -1+2*y*h );
 
-      vr::DistortionCoordinates_t dc0 = this->HMD->ComputeDistortion( vr::Eye_Right, u, v );
+      vr::DistortionCoordinates_t dc0;
+      this->HMD->ComputeDistortion( vr::Eye_Right, u, v, &dc0 );
 
       vbodata.push_back( dc0.rfRed[0] );
       vbodata.push_back( 1 - dc0.rfRed[1] );
