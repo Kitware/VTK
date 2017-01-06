@@ -150,6 +150,7 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   if (this->RenderWindow)
   {
     // tell the vtk window what the size of this window is
+    this->RenderWindow->SetReadyForRendering(false);
     this->RenderWindow->SetSize(this->width(), this->height());
     this->RenderWindow->SetPosition(this->x(), this->y());
 
@@ -342,6 +343,7 @@ void QVTKOpenGLWidget::paintGL()
   if (this->NeedToReinitializeWindow && this->RenderWindow)
   {
     this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
+    this->RenderWindow->SetReadyForRendering(true);
     this->RenderWindow->InitializeFromCurrentContext();
     this->NeedToReinitializeWindow = false;
   }
@@ -368,6 +370,7 @@ void QVTKOpenGLWidget::cleanupContext()
   if (this->RenderWindow)
   {
     this->RenderWindow->Finalize();
+    this->RenderWindow->SetReadyForRendering(false);
   }
   this->markCachedImageAsDirty();
 }

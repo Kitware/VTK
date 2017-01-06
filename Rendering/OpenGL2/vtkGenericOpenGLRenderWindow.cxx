@@ -25,6 +25,7 @@ vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
 
 vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
 {
+  this->ReadyForRendering = true;
   this->DirectStatus = 0;
   this->CurrentStatus = false;
   this->SupportsOpenGLStatus = 0;
@@ -230,11 +231,14 @@ void vtkGenericOpenGLRenderWindow::SetIsCurrent(bool newValue)
 
 void vtkGenericOpenGLRenderWindow::Render()
 {
-  // Query current GL state and store them
-  this->SaveGLState();
+  if (this->ReadyForRendering)
+  {
+    // Query current GL state and store them
+    this->SaveGLState();
 
-  this->Superclass::Render();
+    this->Superclass::Render();
 
-  // Restore state to previous known value
-  this->RestoreGLState();
+    // Restore state to previous known value
+    this->RestoreGLState();
+  }
 }
