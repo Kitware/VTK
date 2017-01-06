@@ -226,7 +226,6 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->SetWindowName("Visualization Toolkit - Cocoa");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
-  this->Capabilities = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
 }
@@ -247,9 +246,6 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
   {
     ren->SetRenderWindow(NULL);
   }
-
-  delete[] this->Capabilities;
-  this->Capabilities = 0;
 
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);

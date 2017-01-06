@@ -52,7 +52,6 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->MFChandledWindow = FALSE;       // hsr
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   this->CursorHidden = 0;
-  this->Capabilities = 0;
 
   this->CreatingOffScreenWindow = 0;
   this->WindowIdReferenceCount = 0;
@@ -69,8 +68,6 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
   {
     ren->SetRenderWindow(NULL);
   }
-
-  delete[] this->Capabilities;
 }
 
 void vtkWin32OpenGLRenderWindow::Clean()
