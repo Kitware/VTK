@@ -41,6 +41,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestThreshold.cxx,NO_VALID
   TestThresholdPoints.cxx,NO_VALID
   TestTransposeTable.cxx,NO_VALID
+  TestTriangleMeshPointNormals.cxx
   TestTubeFilter.cxx
   TestUnstructuredGridQuadricDecimation.cxx,NO_VALID
   UnitTestMaskPoints.cxx,NO_VALID
