@@ -117,6 +117,8 @@ void vtkOpenGLFXAAFilter::Execute(vtkOpenGLRenderer *ren)
 void vtkOpenGLFXAAFilter::ReleaseGraphicsResources()
 {
   this->FreeGLObjects();
+  this->PreparationTimer->ReleaseGraphicsResources();
+  this->FXAATimer->ReleaseGraphicsResources();
 }
 
 //------------------------------------------------------------------------------

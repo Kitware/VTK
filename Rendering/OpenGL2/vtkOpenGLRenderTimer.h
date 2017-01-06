@@ -78,6 +78,12 @@ public:
   vtkTypeUInt64 GetElapsedNanoseconds();
   //@}
 
+  /**
+   * Simply calls Reset() to ensure that query ids are freed. All stored timing
+   * information will be lost.
+   */
+  void ReleaseGraphicsResources();
+
 protected:
   bool StartReady;
   bool EndReady;
