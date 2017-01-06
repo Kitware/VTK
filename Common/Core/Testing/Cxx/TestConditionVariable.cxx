@@ -23,8 +23,8 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
   {
     if ( threadId == 0 )
     {
-      td->Done = 0;
       td->Lock->Lock();
+      td->Done = 0;
       cout << "Thread " << ( threadId + 1 ) << " of " << threadCount << " initializing.\n";
       cout.flush();
       td->Lock->Unlock();
@@ -61,10 +61,22 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
     else
     {
       // Wait for thread 0 to initialize... Ugly but effective
-      while ( td->Done < 0 )
+      bool done = false;
+      do
       {
-        vtksys::SystemTools::Delay( 200 ); // 0.2 s between checking
+        td->Lock->Lock();
+        if (td->Done)
+        {
+          done = true;
+          td->Lock->Unlock();
+        }
+        else
+        {
+          td->Lock->Unlock();
+          vtksys::SystemTools::Delay( 200 ); // 0.2 s between checking
+        }
       }
+      while (!done);
 
       // Wait for the condition and then note we were signaled.
       // This part looks like a Hansen Monitor:
