@@ -1088,6 +1088,11 @@ int vtkSocketCommunicator::CheckForErrorInternal(int id)
     vtkSocketCommunicatorErrorMacro("No port for process " << id << " exists.");
     return 1;
   }
+  else if (!this->Socket)
+  {
+    vtkSocketCommunicatorErrorMacro("Socket does not exist.");
+    return 1;
+  }
   return 0;
 }
 
