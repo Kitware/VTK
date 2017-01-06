@@ -341,6 +341,7 @@ void QVTKOpenGLWidget::paintGL()
   this->Superclass::paintGL();
   if (this->NeedToReinitializeWindow && this->RenderWindow)
   {
+    this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
     this->RenderWindow->InitializeFromCurrentContext();
     this->NeedToReinitializeWindow = false;
   }

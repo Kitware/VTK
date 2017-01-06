@@ -28,6 +28,7 @@ vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
   this->DirectStatus = 0;
   this->CurrentStatus = false;
   this->SupportsOpenGLStatus = 0;
+  this->ForceMaximumHardwareLineWidth = 0;
 }
 
 vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
@@ -46,6 +47,12 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
 void vtkGenericOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+float vtkGenericOpenGLRenderWindow::GetMaximumHardwareLineWidth()
+{
+  return this->ForceMaximumHardwareLineWidth > 0 ? this->ForceMaximumHardwareLineWidth
+                                                 : this->Superclass::GetMaximumHardwareLineWidth();
 }
 
 void vtkGenericOpenGLRenderWindow::SetFrontBuffer(unsigned int b)
