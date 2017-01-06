@@ -21,6 +21,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -39,6 +40,25 @@
 
 #include <cassert>
 #include <vector>
+
+namespace {
+int getNumberOfChildren(vtkDataObjectTree *tree)
+{
+  int result = 0;
+  if (tree)
+  {
+    vtkDataObjectTreeIterator *it = tree->NewTreeIterator();
+    it->SetTraverseSubTree(false);
+    it->SetVisitOnlyLeaves(false);
+    for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
+    {
+      ++result;
+    }
+    it->Delete();
+  }
+  return result;
+}
+}
 
 // Return NULL if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper)
@@ -520,8 +540,17 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
   // FB
 
   // Compute indexRange.
+  vtkDataObjectTree *sourceTableTree = this->GetSourceTableTree();
+  int numberOfSources = this->UseSourceTableTree
+      ? getNumberOfChildren(sourceTableTree)
+      : this->GetNumberOfInputConnections(1);
+
+  if (numberOfSources < 1)
+  {
+    return true; // just return the dataset bounds.
+  }
+
   int indexRange[2] = {0, 0};
-  int numberOfSources=this->GetNumberOfInputConnections(1);
   vtkDataArray *indexArray = this->GetSourceIndexArray(ds);
   if (indexArray)
   {
@@ -579,21 +608,108 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
         this->Range);
     }
   }
-  int index=indexRange[0];
-  while(index<=indexRange[1])
+
+  if (this->UseSourceTableTree)
   {
-    vtkPolyData *source=this->GetSource(index);
-    // Make sure we're not indexing into empty glyph
-    if(source!=0)
+    if (sourceTableTree)
     {
-      double bounds[6];
-      source->GetBounds(bounds);// can be invalid/uninitialized
-      if(vtkMath::AreBoundsInitialized(bounds))
+      vtkDataObjectTreeIterator *sTTIter = sourceTableTree->NewTreeIterator();
+      sTTIter->SetTraverseSubTree(false);
+      sTTIter->SetVisitOnlyLeaves(false);
+      sTTIter->SetSkipEmptyNodes(false);
+
+      // Advance to first indexed dataset:
+      sTTIter->InitTraversal();
+      int idx = 0;
+      for (; idx < indexRange[0]; ++idx)
       {
-        bbox.AddBounds(bounds);
+        sTTIter->GoToNextItem();
       }
+
+      // Add the bounds from the appropriate datasets:
+      while (idx <= indexRange[1])
+      {
+        vtkDataObject *sourceDObj = sTTIter->GetCurrentDataObject();
+
+        // The source table tree may have composite nodes:
+        vtkCompositeDataSet *sourceCDS =
+            vtkCompositeDataSet::SafeDownCast(sourceDObj);
+        vtkCompositeDataIterator *sourceIter = NULL;
+        if (sourceCDS)
+        {
+          sourceIter = sourceCDS->NewIterator();
+          sourceIter->SetSkipEmptyNodes(true);
+          sourceIter->InitTraversal();
+        }
+
+        // Or, it may just have polydata:
+        vtkPolyData *sourcePD = vtkPolyData::SafeDownCast(sourceDObj);
+
+        for (;;)
+        {
+          // Extract the polydata from the composite dataset if it exists:
+          if (sourceIter)
+          {
+            sourcePD =
+                vtkPolyData::SafeDownCast(sourceIter->GetCurrentDataObject());
+          }
+
+          // Get the bounds of the current dataset:
+          if (sourcePD)
+          {
+            double bounds[6];
+            sourcePD->GetBounds(bounds);
+            if (vtkMath::AreBoundsInitialized(bounds))
+            {
+              bbox.AddBounds(bounds);
+            }
+          }
+
+          // Advance the composite source iterator if it exists:
+          if (sourceIter)
+          {
+            sourceIter->GoToNextItem();
+          }
+
+          // If the sourceDObj is not composite, or we've exhausted the
+          // iterator, break the loop.
+          if (!sourceIter || sourceIter->IsDoneWithTraversal())
+          {
+            break;
+          }
+        }
+
+        if (sourceIter)
+        {
+          sourceIter->Delete();
+          sourceIter = NULL;
+        }
+
+        // Move to the next node in the source table tree.
+        sTTIter->GoToNextItem();
+        ++idx;
+      }
+      sTTIter->Delete();
     }
-    ++index;
+  }
+  else // non-source-table-tree table
+  {
+    int index=indexRange[0];
+    while(index<=indexRange[1])
+    {
+      vtkPolyData *source = this->GetSource(index);
+      // Make sure we're not indexing into empty glyph
+      if(source!=0)
+      {
+        double bounds[6];
+        source->GetBounds(bounds);// can be invalid/uninitialized
+        if(vtkMath::AreBoundsInitialized(bounds))
+        {
+          bbox.AddBounds(bounds);
+        }
+      }
+      ++index;
+    }
   }
 
   if(this->Scaling)
