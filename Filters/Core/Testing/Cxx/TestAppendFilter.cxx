@@ -124,6 +124,10 @@ int strcmp_null(const char* s1, const char* s2)
   {
     return (s2 != NULL);
   }
+  if (s2 == NULL)
+  {
+    return (s1 != NULL);
+  }
 
   return strcmp(s1, s2);
 }
