@@ -142,10 +142,9 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 {ID}"_EXPORT"  /* ignore EXPORT macros */
 
 "vtkNotUsed" { /* let the wrappers see the parameter */
-      const char *args = NULL;
+      const char *args = get_macro_arguments();
       const char *cp;
       size_t l = 0;
-      args = get_macro_arguments();
       if (args)
       {
         cp = args;

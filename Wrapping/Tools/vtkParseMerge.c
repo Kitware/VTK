@@ -528,7 +528,7 @@ void vtkParseMerge_MergeHelper(
   char *new_classname = NULL;
   const char **template_args = NULL;
   int template_arg_count = 0;
-  const char *nspacename = NULL;
+  const char *nspacename;
   const char *header;
   const char *filename;
   int i, j, n, m;
@@ -741,10 +741,8 @@ MergeInfo *vtkParseMerge_MergeSuperClasses(
 {
   HierarchyInfo *hinfo = NULL;
   MergeInfo *info = NULL;
-  OptionInfo *oinfo = NULL;
+  OptionInfo *oinfo = vtkParse_GetCommandLineOptions();
   int i, n;
-
-  oinfo = vtkParse_GetCommandLineOptions();
 
   if (oinfo->HierarchyFileNames)
   {

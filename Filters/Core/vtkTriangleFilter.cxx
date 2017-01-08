@@ -59,7 +59,7 @@ int vtkTriangleFilter::RequestData(
 
   // Do each of the verts, lines, polys, and strips separately
   // verts
-  if ( !abort && input->GetVerts()->GetNumberOfCells() > 0 )
+  if ( input->GetVerts()->GetNumberOfCells() > 0 )
   {
     cells = input->GetVerts();
     if ( this->PassVerts )

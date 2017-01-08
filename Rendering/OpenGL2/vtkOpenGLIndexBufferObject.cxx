@@ -543,8 +543,7 @@ void vtkOpenGLIndexBufferObject::AppendEdgeFlagIndexBuffer(
   vtkIdType* pts(NULL);
   vtkIdType npts(0);
 
-  unsigned char *ucef = NULL;
-  ucef = vtkArrayDownCast<vtkUnsignedCharArray>(ef)->GetPointer(0);
+  unsigned char *ucef = vtkArrayDownCast<vtkUnsignedCharArray>(ef)->GetPointer(0);
 
   // possibly adjust size
   if (cells->GetNumberOfConnectivityEntries() >

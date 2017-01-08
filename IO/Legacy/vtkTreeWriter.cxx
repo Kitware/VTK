@@ -67,9 +67,9 @@ void vtkTreeWriter::WriteData()
 
   *fp << "DATASET TREE\n";
 
-  int error_occurred = 0;
+  bool error_occurred = 0;
 
-  if(!error_occurred && !this->WriteFieldData(fp, input->GetFieldData()))
+  if(!this->WriteFieldData(fp, input->GetFieldData()))
   {
     error_occurred = 1;
   }

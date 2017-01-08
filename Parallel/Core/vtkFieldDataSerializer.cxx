@@ -173,8 +173,7 @@ void vtkFieldDataSerializer::SerializeTuples(
    vtkDataArray *dataArray = fieldData->GetArray( array );
 
    // STEP 2: For each array extract only the selected tuples, i.e., a subset
-   vtkDataArray *subSet = NULL;
-   subSet = vtkFieldDataSerializer::ExtractSelectedTuples(tupleIds,dataArray);
+   vtkDataArray *subSet = vtkFieldDataSerializer::ExtractSelectedTuples(tupleIds,dataArray);
    assert("pre: subset array is NULL!" && (subSet != NULL) );
 
    // STEP 3: Serialize only a subset of the data
@@ -210,8 +209,7 @@ void vtkFieldDataSerializer::SerializeSubExtent(
     vtkDataArray *dataArray = fieldData->GetArray( array );
 
     // STEP 2: Extract the data within the requested sub-extent
-    vtkDataArray *subSet = NULL;
-    subSet = vtkFieldDataSerializer::ExtractSubExtentData(
+    vtkDataArray *subSet = vtkFieldDataSerializer::ExtractSubExtentData(
         subext,gridExtent,dataArray);
     assert("pre: subset array is NULL!" && (subSet != NULL) );
 

@@ -1419,7 +1419,7 @@ int vtkReebGraph::Implementation::SimplifyBranches(double simplificationThreshol
     bool simplified=false;
 
     // M is a maximum
-    if (!simplified && !Mup)
+    if (!Mup)
     {
       if ((Down = FindSplitNode(A, RouteOld)))
       {

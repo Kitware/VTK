@@ -99,8 +99,7 @@ int vtkCollectPolyData::RequestData(
   { // This is a client.  We assume no data on client for input.
     if ( ! this->PassThrough)
     {
-      vtkPolyData *pd = NULL;;
-      pd = vtkPolyData::New();
+      vtkPolyData *pd = vtkPolyData::New();
       this->SocketController->Receive(pd, 1, 121767);
       output->CopyStructure(pd);
       output->GetPointData()->PassData(pd->GetPointData());

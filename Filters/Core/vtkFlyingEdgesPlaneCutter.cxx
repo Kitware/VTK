@@ -1247,11 +1247,10 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
   vtkCellArray *newTris = vtkCellArray::New();
   vtkPoints *newPts = vtkPoints::New();
   newPts->SetDataTypeToFloat();
-  vtkDataArray *newScalars = NULL;
   vtkFloatArray *newNormals = NULL;
 
   // We are interpolating scalars across the plane
-  newScalars = inScalars->NewInstance();
+  vtkDataArray *newScalars = inScalars->NewInstance();
   newScalars->SetNumberOfComponents(1);
   newScalars->SetName(inScalars->GetName());
 

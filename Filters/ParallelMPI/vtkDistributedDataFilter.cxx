@@ -1969,14 +1969,12 @@ vtkUnstructuredGrid *
 vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(
   vtkIdType myCount, int vtkNotUsed(tag))
 {
-  vtkIdTypeArray *countArray = NULL;
-
   int nprocs = this->NumProcesses;
 
   vtkIdType *counts = new vtkIdType [nprocs];
   this->Controller->AllGather(&myCount, counts, 1);
 
-  countArray = vtkIdTypeArray::New();
+  vtkIdTypeArray *countArray = vtkIdTypeArray::New();
   countArray->SetArray(counts, nprocs, 0,
     vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
   return countArray;

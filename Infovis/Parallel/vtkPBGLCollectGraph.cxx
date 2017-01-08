@@ -203,8 +203,7 @@ int vtkPBGLCollectGraph::RequestData(
           //       integer types that might be valid.  (vtkIdType should be
           //       okay for now since the GetVertexOwner() and GetVertexIndex()
           //       methods take a vtkIdType vale. (i.e., TemplateMacro <egad!>)
-          vtkIdTypeArray * distributedIdArray = NULL;
-          distributedIdArray = vtkArrayDownCast<vtkIdTypeArray>( arrays[arrayIndex]);
+          vtkIdTypeArray * distributedIdArray = vtkArrayDownCast<vtkIdTypeArray>( arrays[arrayIndex]);
           if(distributedIdArray)
           {
             for(vtkIdType vertIndex=0; vertIndex < myNumVertices; ++vertIndex)

@@ -1535,7 +1535,6 @@ int vtkPStreamTracer::RequestData(
   // processes is greater than that of the blocks)
   vtkAbstractInterpolatedVelocityField * func = NULL;
   int maxCellSize = 0;
-  func = NULL;
   if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
   {
     vtkDebugMacro("No appropriate inputs have been found..");

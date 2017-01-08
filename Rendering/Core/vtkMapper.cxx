@@ -471,9 +471,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
                                             double alpha,
                                             int &cellFlag)
 {
-  vtkAbstractArray *scalars = NULL;
-
-  scalars = vtkAbstractMapper::
+  vtkAbstractArray *scalars = vtkAbstractMapper::
     GetAbstractScalars(input, this->ScalarMode, this->ArrayAccessMode,
                        this->ArrayId, this->ArrayName, cellFlag);
 

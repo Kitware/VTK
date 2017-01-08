@@ -115,13 +115,10 @@ int vtkProcessIdScalars::RequestData(
 //----------------------------------------------------------------------------
 vtkIntArray *vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
 {
-  vtkIdType i;
-  vtkIntArray *pieceColors = NULL;
-
-  pieceColors = vtkIntArray::New();
+  vtkIntArray *pieceColors = vtkIntArray::New();
   pieceColors->SetNumberOfTuples(num);
 
-  for (i = 0; i < num; ++i)
+  for (vtkIdType i = 0; i < num; ++i)
   {
     pieceColors->SetValue(i, piece);
   }
@@ -132,17 +129,13 @@ vtkIntArray *vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
 //----------------------------------------------------------------------------
 vtkFloatArray *vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
 {
-  vtkIdType i;
-  vtkFloatArray *pieceColors = NULL;
-  float randomValue;
-
   vtkMath::RandomSeed(piece);
-  randomValue = vtkMath::Random();
+  float randomValue = vtkMath::Random();
 
-  pieceColors = vtkFloatArray::New();
+  vtkFloatArray *pieceColors = vtkFloatArray::New();
   pieceColors->SetNumberOfTuples(num);
 
-  for (i = 0; i < num; ++i)
+  for (vtkIdType i = 0; i < num; ++i)
   {
     pieceColors->SetValue(i, randomValue);
   }
