@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.3)
 
 file(GLOB vtk_java_files "${VTK_BINARY_DIR}/java/vtk/*.java")
 file(GLOB vtk_java_rendering_files "${VTK_BINARY_DIR}/java/vtk/rendering/*.java")

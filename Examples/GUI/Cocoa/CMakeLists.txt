@@ -3,10 +3,8 @@
 #--  All rights reserved.
 #--  BSD License: http://www.opensource.org/licenses/bsd-license.html
 #--////////////////////////////////////////////////////////////////////////////
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12 FATAL_ERROR)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+
 project(SimpleCocoaVTK)
 
 if(NOT VTK_BINARY_DIR)
