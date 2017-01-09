@@ -36,6 +36,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCamera : public vtkOpenGLCamera
 public:
   static vtkOpenVRCamera *New();
   vtkTypeMacro(vtkOpenVRCamera, vtkOpenGLCamera);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Implement base class method.
@@ -60,6 +61,11 @@ public:
   vtkGetVector3Macro(Translation,double);
   //@}
 
+  // apply the left or right eye pose to the camera
+  // position and focal point.  Factor is typically
+  // 1.0 to add or -1.0 to subtract
+  void ApplyEyePose(bool left, double factor);
+
 protected:
   vtkOpenVRCamera();
   ~vtkOpenVRCamera();
@@ -69,14 +75,10 @@ protected:
   void GetHMDEyePoses(vtkRenderer *);
   void GetHMDEyeProjections(vtkRenderer *);
 
-  vtkMatrix4x4 *LeftEyePose;
-  vtkMatrix4x4 *RightEyePose;
+  double LeftEyePose[3];
+  double RightEyePose[3];
   vtkMatrix4x4 *LeftEyeProjection;
   vtkMatrix4x4 *RightEyeProjection;
-
-  vtkMatrix4x4 *RightWCDCMatrix;
-  vtkMatrix4x4 *RightWCVCMatrix;
-  vtkMatrix4x4 *RightVCDCMatrix;
 
   vtkMatrix4x4 *LeftEyeTCDCMatrix;
   vtkMatrix4x4 *RightEyeTCDCMatrix;
@@ -87,8 +89,8 @@ protected:
   vtkNew<vtkTransform> PoseTransform;
 
 private:
-  vtkOpenVRCamera(const vtkOpenVRCamera&);  // Not implemented.
-  void operator=(const vtkOpenVRCamera&);  // Not implemented.
+  vtkOpenVRCamera(const vtkOpenVRCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

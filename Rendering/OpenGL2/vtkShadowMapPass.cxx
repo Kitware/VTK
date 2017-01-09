@@ -150,6 +150,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
      // Test for Hardware support. If not supported, just render the delegate.
     bool supported=vtkOpenGLFramebufferObject::IsSupported(context);
 
+    this->ShadowTextureUnits.clear();
+    this->ShadowAttenuation.clear();
+
     if(!supported)
     {
       vtkErrorMacro("FBOs are not supported by the context. Cannot use shadow mapping.");
@@ -168,9 +171,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     }
 
     vtkLightCollection *lights=r->GetLights();
-    this->ShadowTextureUnits.clear();
     this->ShadowTextureUnits.resize(lights->GetNumberOfItems());
-    this->ShadowAttenuation.clear();
     this->ShadowAttenuation.resize(lights->GetNumberOfItems());
 
     // get the shadow maps and activate them
@@ -401,14 +402,14 @@ void vtkShadowMapPass::BuildShaderCode()
     "       && projected.y >= 0.0 && projected.y <= 1.0)\n"
     "      {\n"
     "      result = 0.0;\n"
-    "      float zval = shadowCoord.z - 0.005;\n"
+    "      float zval = min(shadowCoord.z/shadowCoord.w, 1.0) - 0.005;\n"
     "      vec2 projT = projected*" + toString.str() + ";\n"
     "      projT = fract(projT);\n"
     "      if (texture2D(shadowMap,projected + (vec2(-1.0,-1.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + (1.0-projT.x)*(1.0-projT.y); }\n"
     "      if (texture2D(shadowMap,projected + (vec2(0.0,-1.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + (1.0-projT.y); }\n"
     "      if (texture2D(shadowMap,projected + (vec2(1.0,-1.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + projT.x*(1.0-projT.y); }\n"
     "      if (texture2D(shadowMap,projected + (vec2(1.0,0.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + projT.x; }\n"
-    "      if (texture2D(shadowMap,projected + (vec2(0.0,0.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + 1.0; }\n"
+    "      if (texture2D(shadowMap,projected).r - zval > 0.0) { result = result + 1.0; }\n"
     "      if (texture2D(shadowMap,projected + (vec2(-1.0,0.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + (1.0-projT.x); }\n"
     "      if (texture2D(shadowMap,projected + (vec2(0.0,1.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + projT.y; }\n"
     "      if (texture2D(shadowMap,projected + (vec2(-1.0,1.0)/" + toString.str() + ")).r - zval > 0.0) { result = result + (1.0-projT.x)*projT.y; }\n"

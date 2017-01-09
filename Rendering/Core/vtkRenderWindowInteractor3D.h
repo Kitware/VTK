@@ -225,6 +225,14 @@ public:
 
   //@{
   /**
+   * Override to set pointers down
+   */
+  void MiddleButtonPressEvent() VTK_OVERRIDE;
+  void MiddleButtonReleaseEvent() VTK_OVERRIDE;
+  //@}
+
+  //@{
+  /**
    * Set/Get the latest touchpad position
    */
   vtkSetVector2Macro(TouchPadPosition,float);

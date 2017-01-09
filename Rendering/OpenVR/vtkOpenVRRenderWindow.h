@@ -49,7 +49,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtk_glew.h" // used for methods
 
+class vtkCamera;
 class vtkOpenVRModel;
+class vtkOpenVROverlay;
 class vtkOpenGLVertexBufferObject;
 class vtkTransform;
 
@@ -180,6 +182,19 @@ public:
   vr::IVRSystem *GetHMD() { return this->HMD; };
 
   /**
+   * Draw the overlay
+   */
+  void RenderOverlay();
+
+  //@{
+  /**
+   * Set/Get the overlay to use on the VR dashboard
+   */
+  vtkGetObjectMacro(DashboardOverlay, vtkOpenVROverlay);
+  void SetDashboardOverlay(vtkOpenVROverlay *);
+  //@}
+
+  /**
    * Update the HMD pose
    */
   void UpdateHMDMatrixPose();
@@ -216,6 +231,28 @@ public:
    */
   vr::TrackedDevicePose_t &GetTrackedDevicePose(vr::TrackedDeviceIndex_t idx) {
     return this->TrackedDevicePose[idx]; };
+
+  /**
+   * Initialize the Vive to World setting and camera settings so
+   * that the VR world view most closely matched the view from
+   * the provided camera. This method is useful for initialing
+   * a VR world from an existing on screen window and camera.
+   * The Renderer and its camera must already be created and
+   * set when this is called.
+   */
+  void InitializeViewFromCamera(vtkCamera *cam);
+
+  //@{
+  /**
+   * Control the Vive to World transformations. IN
+   * some cases users may not want the Y axis to be up
+   * and these methods allow them to control it.
+   */
+  vtkSetVector3Macro(InitialViewDirection, double);
+  vtkSetVector3Macro(InitialViewUp, double);
+  vtkGetVector3Macro(InitialViewDirection, double);
+  vtkGetVector3Macro(InitialViewUp, double);
+  //@}
 
 protected:
   vtkOpenVRRenderWindow();
@@ -255,16 +292,6 @@ protected:
   uint32_t RenderWidth;
   uint32_t RenderHeight;
 
-  //@{
-  /**
-   * Handle lens distortion
-   */
-  void SetupDistortion();
-  void RenderDistortion();
-  vtkOpenGLHelper Distortion;
-  vtkOpenGLVertexBufferObject *DistortionVBO;
-  //@}
-
   // convert a device index to a human string
   std::string GetTrackedDeviceString(
     vr::IVRSystem *pHmd,
@@ -282,10 +309,15 @@ protected:
 
   // used in computing the pose
   vtkTransform *HMDTransform;
+  double InitialViewDirection[3];
+  double InitialViewUp[3];
+
+  // for the overlay
+  vtkOpenVROverlay *DashboardOverlay;
 
 private:
-  vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&);  // Not implemented.
-  void operator=(const vtkOpenVRRenderWindow&);  // Not implemented.
+  vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 

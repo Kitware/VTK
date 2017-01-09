@@ -54,6 +54,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
+class vtkCamera;
 class vtkPropPicker3D;
 class vtkProp3D;
 class vtkMatrix3x3;
@@ -77,6 +78,8 @@ public:
   void OnLeftButtonUp() VTK_OVERRIDE;
   void OnRightButtonDown() VTK_OVERRIDE;
   void OnRightButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -94,6 +97,39 @@ public:
   // This method handles updating the camera based on changes in the devices
   // pose. We use Dolly as the state to mean moving the camera forward
   void Dolly() VTK_OVERRIDE;
+
+  // This method handles updating the clip plane for all mappers
+  // in the renderer
+  virtual void Clip();
+
+  //@{
+  /**
+   * Interaction mode for adjusting a hardware clipping plane
+   */
+  virtual void StartClip();
+  virtual void EndClip();
+  //@}
+
+    //@{
+  /**
+   * Set/Get the dolly motion factor used when flying in 3D.
+   * Defaults to 2.0 to simulate 2 meters per second
+   * of movement in physical space. The dolly speed is
+   * adjusted by the touchpad position as well. The maximum
+   * rate is twice this setting.
+   */
+  vtkSetMacro(DollyMotionFactor, double);
+  vtkGetMacro(DollyMotionFactor, double);
+  //@}
+
+  /**
+   * Set the distance for the camera. The distance
+   * in VR represents the scaling from world
+   * to physical space. So when we set it to a new
+   * value we also adjust the HMD position to maintain
+   * the same relative position.
+   */
+  void SetDistance(vtkCamera *cam, double distance);
 
 protected:
   vtkInteractorStyle3D();
@@ -113,6 +149,8 @@ protected:
   vtkMatrix4x4 *TempMatrix4;
   vtkTransform *TempTransform;
   double AppliedTranslation[3];
+
+  double DollyMotionFactor;
 
 private:
   vtkInteractorStyle3D(const vtkInteractorStyle3D&) VTK_DELETE_FUNCTION;  // Not implemented.

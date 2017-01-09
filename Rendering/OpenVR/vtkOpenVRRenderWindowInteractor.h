@@ -124,11 +124,12 @@ protected:
     vtkRenderer *ren,
     vr::TrackedDevicePose_t &tdPose,
     double pos[3],
-    double wxyz[4]);
+    double wxyz[4],
+    double ppos[3]);
 
 private:
-  vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkOpenVRRenderWindowInteractor&);  // Not implemented.
+  vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

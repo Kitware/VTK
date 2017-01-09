@@ -18,29 +18,29 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 =========================================================================*/
 #include "vtkOpenVRRenderWindow.h"
 
-#include "vtkIdList.h"
 #include "vtkCommand.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
 #include "vtkOpenGLShaderCache.h"
-#include "vtkRendererCollection.h"
-#include "vtkStringOutputWindow.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRDefaultOverlay.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkOpenGLVertexBufferObject.h"
-#include "vtkOpenGLIndexBufferObject.h"
-#include "vtkOpenGLVertexArrayObject.h"
-#include "vtkTransform.h"
-#include "vtkFloatArray.h"
-#include "vtkPointData.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkTextureObject.h"
-#include "vtkShaderProgram.h"
+#include "vtkRendererCollection.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkOpenVRCamera.h"
+#include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
+#include "vtkTransform.h"
 
 #include <cmath>
 #include <sstream>
@@ -81,6 +81,7 @@ protected:
 
   bool Show;
   bool Loaded;
+  bool FailedToLoad;
 
   vr::RenderModel_TextureMap_t *RawTexture;
   vtkOpenGLHelper ModelHelper;
@@ -97,6 +98,7 @@ vtkOpenVRModel::vtkOpenVRModel()
   this->RawTexture = NULL;
   this->Loaded = false;
   this->ModelVBO = vtkOpenGLVertexBufferObject::New();
+  this->FailedToLoad = false;
 };
 
 vtkOpenVRModel::~vtkOpenVRModel()
@@ -196,15 +198,26 @@ void vtkOpenVRModel::Render(
   vtkOpenVRRenderWindow *win,
   const vr::TrackedDevicePose_t &pose)
 {
+  if (this->FailedToLoad)
+  {
+    return;
+  }
+
   // do we not have the model loaded? Keep trying it is async
   if (!this->RawModel)
   {
       // start loading the model if we didn't find one
-    if (vr::VRRenderModels()->LoadRenderModel_Async(
-        this->GetName().c_str(), &this->RawModel)
+    vr::EVRRenderModelError result = vr::VRRenderModels()->LoadRenderModel_Async(
+        this->GetName().c_str(), &this->RawModel);
+    if (result
         > vr::EVRRenderModelError::VRRenderModelError_Loading)
     {
-      vtkErrorMacro("Unable to load render model " << this->GetName() );
+      this->FailedToLoad = true;
+      if (result != vr::VRRenderModelError_NotEnoughTexCoords)
+      {
+        vtkErrorMacro("Unable to load render model " <<
+          this->GetName() << " with error code " <<  result);
+      }
       return; // move on to the next tracked device
     }
   }
@@ -245,10 +258,8 @@ void vtkOpenVRModel::Render(
     this->ModelHelper.Program->SetUniformi("diffuse",
       this->TextureObject->GetTextureUnit());
 
-    vtkRenderer *ren;
-    vtkCollectionSimpleIterator rit;
-    win->GetRenderers()->InitTraversal(rit);
-    ren = win->GetRenderers()->GetNextRenderer(rit);
+    vtkRenderer *ren = static_cast<vtkRenderer *>(
+      win->GetRenderers()->GetItemAsObject(0));
     if (ren)
     {
       vtkOpenVRCamera *cam =
@@ -291,25 +302,36 @@ void vtkOpenVRModel::Render(
 //
 vtkStandardNewMacro(vtkOpenVRRenderWindow);
 
+vtkCxxSetObjectMacro(vtkOpenVRRenderWindow, DashboardOverlay, vtkOpenVROverlay);
+
 vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
 {
+  this->SetInitialViewDirection(0.0, 0.0, -1.0);
+  this->SetInitialViewUp(0.0, 1.0, 0.0);
+
   this->StereoCapableWindow = 1;
   this->StereoRender = 1;
-  this->Size[0] = 640; // we double this for two eyes
+  this->Size[0] = 640;
   this->Size[1] = 720;
-  this->Position[0] = 700;
+  this->Position[0] = 100;
   this->Position[1] = 100;
   this->OpenVRRenderModels = NULL;
   this->HMD = NULL;
-  this->DistortionVBO = vtkOpenGLVertexBufferObject::New();
   this->HMDTransform = vtkTransform::New();
   this->ContextId = 0;
   this->WindowId = 0;
   memset(this->TrackedDeviceToRenderModel, 0, sizeof(this->TrackedDeviceToRenderModel));
+  this->DashboardOverlay = vtkOpenVRDefaultOverlay::New();
 }
 
 vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
 {
+  if (this->DashboardOverlay)
+  {
+    this->DashboardOverlay->Delete();
+    this->DashboardOverlay = 0;
+  }
+
   this->Finalize();
 
   vtkRenderer *ren;
@@ -319,8 +341,6 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
   {
     ren->SetRenderWindow(NULL);
   }
-  this->DistortionVBO->Delete();
-  this->DistortionVBO = 0;
   this->HMDTransform->Delete();
   this->HMDTransform = 0;
 }
@@ -329,13 +349,75 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
 void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
   this->Superclass::ReleaseGraphicsResources(renWin);
-  this->DistortionVBO->ReleaseGraphicsResources();
-  this->Distortion.ReleaseGraphicsResources(renWin);
   for( std::vector< vtkOpenVRModel * >::iterator i = this->VTKRenderModels.begin();
        i != this->VTKRenderModels.end(); ++i )
   {
     (*i)->ReleaseGraphicsResources(renWin);
   }
+}
+
+void vtkOpenVRRenderWindow::InitializeViewFromCamera(vtkCamera *srccam)
+{
+  vtkRenderer *ren = static_cast<vtkRenderer *>(
+    this->GetRenderers()->GetItemAsObject(0));
+  if (!ren)
+  {
+    vtkErrorMacro("The renderer must be set prior to calling InitializeViewFromCamera");
+    return;
+  }
+
+  vtkOpenVRCamera *cam =
+    static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
+  if (!cam)
+  {
+    vtkErrorMacro("The renderer's active camera must be set prior to calling InitializeViewFromCamera");
+    return;
+  }
+
+  // make sure the view up is reasonable based on the view up
+  // that was set in PV
+  double distance =
+    sin(vtkMath::RadiansFromDegrees(srccam->GetViewAngle())/2.0) *
+    srccam->GetDistance() /
+    sin(vtkMath::RadiansFromDegrees(cam->GetViewAngle())/2.0);
+
+  double *oldVup = srccam->GetViewUp();
+  int maxIdx = fabs(oldVup[0]) > fabs(oldVup[1]) ?
+    (fabs(oldVup[0]) > fabs(oldVup[2]) ? 0 : 2) :
+    (fabs(oldVup[1]) > fabs(oldVup[2]) ? 1 : 2);
+
+  cam->SetViewUp(
+    (maxIdx == 0 ? (oldVup[0] > 0 ? 1 : -1) : 0.0),
+    (maxIdx == 1 ? (oldVup[1] > 0 ? 1 : -1) : 0.0),
+    (maxIdx == 2 ? (oldVup[2] > 0 ? 1 : -1) : 0.0));
+  this->SetInitialViewUp(
+    (maxIdx == 0 ? (oldVup[0] > 0 ? 1 : -1) : 0.0),
+    (maxIdx == 1 ? (oldVup[1] > 0 ? 1 : -1) : 0.0),
+    (maxIdx == 2 ? (oldVup[2] > 0 ? 1 : -1) : 0.0));
+
+  double *oldFP = srccam->GetFocalPoint();
+  double *cvup = cam->GetViewUp();
+  cam->SetFocalPoint(oldFP);
+  cam->SetTranslation(
+      cvup[0]*distance - oldFP[0],
+      cvup[1]*distance - oldFP[1],
+      cvup[2]*distance - oldFP[2]);
+
+  double *oldDOP = srccam->GetDirectionOfProjection();
+  int dopMaxIdx = fabs(oldDOP[0]) > fabs(oldDOP[1]) ?
+    (fabs(oldDOP[0]) > fabs(oldDOP[2]) ? 0 : 2) :
+    (fabs(oldDOP[1]) > fabs(oldDOP[2]) ? 1 : 2);
+  this->SetInitialViewDirection(
+    (dopMaxIdx == 0 ? (oldDOP[0] > 0 ? 1 : -1) : 0.0),
+    (dopMaxIdx == 1 ? (oldDOP[1] > 0 ? 1 : -1) : 0.0),
+    (dopMaxIdx == 2 ? (oldDOP[2] > 0 ? 1 : -1) : 0.0));
+  double *idop = this->GetInitialViewDirection();
+  cam->SetPosition(
+    -idop[0]*distance + oldFP[0],
+    -idop[1]*distance + oldFP[1],
+    -idop[2]*distance + oldFP[2]);
+
+  ren->ResetCameraClippingRange();
 }
 
 // Purpose: Helper to get a string from a tracked device property and turn it
@@ -410,7 +492,7 @@ void vtkOpenVRRenderWindow::RenderModels()
     {
       continue;
     }
-    // do we not have amodel loaded yet? try loading one
+    // do we not have a model loaded yet? try loading one
     if (!this->TrackedDeviceToRenderModel[ unTrackedDevice ])
     {
       std::string sRenderModelName =
@@ -548,63 +630,60 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
       vr::TrackedDevicePose_t &tdPose =
         this->TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd];
       double pos[3];
-      for (int i = 0; i < 3; i++)
-      {
-        pos[i] = tdPose.mDeviceToAbsoluteTracking.m[i][3];
-      }
+
+      // Vive to world axes
+      double *vup = this->InitialViewUp;
+      double *dop = this->InitialViewDirection;
+      double vright[3];
+      vtkMath::Cross(dop, vup, vright);
+
+      // extract HMD axes
+      double hvright[3];
+      hvright[0] = tdPose.mDeviceToAbsoluteTracking.m[0][0];
+      hvright[1] = tdPose.mDeviceToAbsoluteTracking.m[1][0];
+      hvright[2] = tdPose.mDeviceToAbsoluteTracking.m[2][0];
+      double hvup[3];
+      hvup[0] = tdPose.mDeviceToAbsoluteTracking.m[0][1];
+      hvup[1] = tdPose.mDeviceToAbsoluteTracking.m[1][1];
+      hvup[2] = tdPose.mDeviceToAbsoluteTracking.m[2][1];
+
+      pos[0] = tdPose.mDeviceToAbsoluteTracking.m[0][3];
+      pos[1] = tdPose.mDeviceToAbsoluteTracking.m[1][3];
+      pos[2] = tdPose.mDeviceToAbsoluteTracking.m[2][3];
 
       double distance = cam->GetDistance();
       double *trans = cam->GetTranslation();
 
+      // convert position to world coordinates
+      double npos[3];
+      npos[0] = pos[0]*vright[0] + pos[1]*vup[0] - pos[2]*dop[0];
+      npos[1] = pos[0]*vright[1] + pos[1]*vup[1] - pos[2]*dop[1];
+      npos[2] = pos[0]*vright[2] + pos[1]*vup[2] - pos[2]*dop[2];
+      // now adjust for scale and translation
       for (int i = 0; i < 3; i++)
       {
-        pos[i] = pos[i]*distance - trans[i];
+        pos[i] = npos[i]*distance - trans[i];
       }
 
-      double ortho[3][3];
-      for (int i = 0; i < 3; i++)
-      {
-        ortho[0][i] = tdPose.mDeviceToAbsoluteTracking.m[0][i];
-        ortho[1][i] = tdPose.mDeviceToAbsoluteTracking.m[1][i];
-        ortho[2][i] = tdPose.mDeviceToAbsoluteTracking.m[2][i];
-      }
-      if (vtkMath::Determinant3x3(ortho) < 0)
-      {
-        ortho[0][2] = -ortho[0][2];
-        ortho[1][2] = -ortho[1][2];
-        ortho[2][2] = -ortho[2][2];
-      }
-      double wxyz[4];
-      vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
+      // convert axes to world coordinates
+      double fvright[3]; // final vright
+      fvright[0] = hvright[0]*vright[0] + hvright[1]*vup[0] - hvright[2]*dop[0];
+      fvright[1] = hvright[0]*vright[1] + hvright[1]*vup[1] - hvright[2]*dop[1];
+      fvright[2] = hvright[0]*vright[2] + hvright[1]*vup[2] - hvright[2]*dop[2];
+      double fvup[3]; // final vup
+      fvup[0] = hvup[0]*vright[0] + hvup[1]*vup[0] - hvup[2]*dop[0];
+      fvup[1] = hvup[0]*vright[1] + hvup[1]*vup[1] - hvup[2]*dop[1];
+      fvup[2] = hvup[0]*vright[2] + hvup[1]*vup[2] - hvup[2]*dop[2];
+      double fdop[3];
+      vtkMath::Cross(fvup, fvright, fdop);
 
-      // calc the return value wxyz
-     double mag = sqrt( wxyz[1] * wxyz[1] + wxyz[2] * wxyz[2] + wxyz[3] * wxyz[3] );
-      if ( mag != 0.0 )
-      {
-        wxyz[0] = 2.0 * vtkMath::DegreesFromRadians( atan2( mag, wxyz[0] ) );
-        wxyz[1] /= mag;
-        wxyz[2] /= mag;
-        wxyz[3] /= mag;
-      }
-      else
-      {
-        wxyz[0] = 0.0;
-        wxyz[1] = 0.0;
-        wxyz[2] = 0.0;
-        wxyz[3] = 1.0;
-      }
-
-      this->HMDTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
-      cam->SetFocalPoint(0,0,-1);
-      cam->SetPosition(0,0,0);
-      cam->SetViewUp(0,1,0);
-      cam->ApplyTransform(this->HMDTransform);
-      double *dop = cam->GetDirectionOfProjection();
+      cam->SetPosition(pos);
       cam->SetFocalPoint(
-        pos[0] + dop[0]*distance,
-        pos[1] + dop[1]*distance,
-        pos[2] + dop[2]*distance);
-      cam->SetPosition(pos[0], pos[1], pos[2]);
+        pos[0] + fdop[0]*distance,
+        pos[1] + fdop[1]*distance,
+        pos[2] + fdop[2]*distance);
+      cam->SetViewUp(fvup);
+      ren->UpdateLightsGeometryToFollowCamera();
     }
   }
 }
@@ -656,6 +735,16 @@ void  vtkOpenVRRenderWindow::StereoRenderComplete()
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
+
+  // reset the camera to a neutral position
+  vtkRenderer *ren = static_cast<vtkRenderer *>(
+    this->GetRenderers()->GetItemAsObject(0));
+  if (ren)
+  {
+    vtkOpenVRCamera *cam =
+      static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
+    cam->ApplyEyePose(false, -1.0);
+  }
 }
 
 // End the rendering process and display the image.
@@ -672,222 +761,15 @@ void vtkOpenVRRenderWindow::Frame(void)
       vr::Texture_t rightEyeTexture = {(void*)this->RightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
       vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
     }
-    this->RenderDistortion();
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->RightEyeDesc.m_nResolveFramebufferId );
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
+    glBlitFramebuffer( 0, 0, this->RenderWidth, this->RenderHeight, 0, 0, this->Size[0], this->Size[1],
+      GL_COLOR_BUFFER_BIT, GL_LINEAR  );
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
     SDL_GL_SwapWindow( this->WindowId );
   }
-}
-
-// setup the Shader, VBO/IBO/VAO for the lens distortion pass
-// THis pass is not actually part of rendering to the OPenVR
-// device. It is just for simulating the user's view on the
-// screen. It could be replaced with a more simple bitblt
-// for a very tiny performance improvement.
-void vtkOpenVRRenderWindow::SetupDistortion()
-{
-  GLushort iLensGridSegmentCountH = 43;
-  GLushort iLensGridSegmentCountV = 43;
-
-  float w = (float)( 1.0/float(iLensGridSegmentCountH-1));
-  float h = (float)( 1.0/float(iLensGridSegmentCountV-1));
-
-  float u, v = 0;
-
-  std::vector<float> vbodata(0);
-
-  //left eye distortion verts
-  float Xoffset = -1;
-  for( int y=0; y < iLensGridSegmentCountV; y++ )
-  {
-    v = 1-y*h;
-    for( int x=0; x < iLensGridSegmentCountH; x++ )
-    {
-      u = x*w;
-      vbodata.push_back( Xoffset+u );
-      vbodata.push_back( -1+2*y*h );
-
-      vr::DistortionCoordinates_t dc0;
-      this->HMD->ComputeDistortion(vr::Eye_Left, u, v, &dc0);
-
-      vbodata.push_back( dc0.rfRed[0] );
-      vbodata.push_back( 1 - dc0.rfRed[1] );
-      vbodata.push_back( dc0.rfGreen[0] );
-      vbodata.push_back( 1 - dc0.rfGreen[1] );
-      vbodata.push_back( dc0.rfBlue[0] );
-      vbodata.push_back( 1 - dc0.rfBlue[1] );
-    }
-  }
-
-  //right eye distortion verts
-  Xoffset = 0;
-  for( int y=0; y < iLensGridSegmentCountV; y++ )
-  {
-    v = 1-y*h;
-    for( int x=0; x < iLensGridSegmentCountH; x++ )
-    {
-      u = x*w;
-      vbodata.push_back( Xoffset+u );
-      vbodata.push_back( -1+2*y*h );
-
-      vr::DistortionCoordinates_t dc0;
-      this->HMD->ComputeDistortion( vr::Eye_Right, u, v, &dc0 );
-
-      vbodata.push_back( dc0.rfRed[0] );
-      vbodata.push_back( 1 - dc0.rfRed[1] );
-      vbodata.push_back( dc0.rfGreen[0] );
-      vbodata.push_back( 1 - dc0.rfGreen[1] );
-      vbodata.push_back( dc0.rfBlue[0] );
-      vbodata.push_back( 1 - dc0.rfBlue[1] );
-    }
-  }
-
-  this->DistortionVBO->Upload(vbodata, vtkOpenGLBufferObject::ArrayBuffer);
-
-  std::vector<GLushort> vIndices;
-  GLushort a,b,c,d;
-
-  GLushort offset = 0;
-  for( GLushort y=0; y < iLensGridSegmentCountV-1; y++ )
-  {
-    for( GLushort x=0; x < iLensGridSegmentCountH-1; x++ )
-    {
-      a = iLensGridSegmentCountH*y+x +offset;
-      b = iLensGridSegmentCountH*y+x+1 +offset;
-      c = (y+1) * iLensGridSegmentCountH+x+1 +offset;
-      d = (y+1) * iLensGridSegmentCountH+x +offset;
-      vIndices.push_back( a );
-      vIndices.push_back( b );
-      vIndices.push_back( c );
-
-      vIndices.push_back( a );
-      vIndices.push_back( c );
-      vIndices.push_back( d );
-    }
-  }
-
-  offset = (iLensGridSegmentCountH)*(iLensGridSegmentCountV);
-  for( GLushort y=0; y < iLensGridSegmentCountV-1; y++ )
-  {
-    for( GLushort x=0; x < iLensGridSegmentCountH-1; x++ )
-    {
-      a = iLensGridSegmentCountH*y+x +offset;
-      b = iLensGridSegmentCountH*y+x+1 +offset;
-      c = (y+1)*iLensGridSegmentCountH+x+1 +offset;
-      d = (y+1)*iLensGridSegmentCountH+x +offset;
-      vIndices.push_back( a );
-      vIndices.push_back( b );
-      vIndices.push_back( c );
-
-      vIndices.push_back( a );
-      vIndices.push_back( c );
-      vIndices.push_back( d );
-    }
-  }
-
-  this->Distortion.IBO->Upload(vIndices, vtkOpenGLBufferObject::ElementArrayBuffer);
-  this->Distortion.IBO->IndexCount = vIndices.size();
-
-  this->Distortion.Program = this->GetShaderCache()->ReadyShaderProgram(
-    // vertex shader
-    "//VTK::System::Dec\n"
-    "attribute vec4 position;\n"
-    "attribute vec2 redTC;\n"
-    "attribute vec2 greenTC;\n"
-    "attribute vec2 blueTC;\n"
-    "noperspective out vec2 v2UVred;\n"
-    "noperspective out vec2 v2UVgreen;\n"
-    "noperspective out vec2 v2UVblue;\n"
-    "void main()\n"
-    "{\n"
-    " v2UVred = redTC;\n"
-    " v2UVgreen = greenTC;\n"
-    " v2UVblue = blueTC;\n"
-    " gl_Position = position;\n"
-    "}\n",
-    // fragment shader
-    "//VTK::System::Dec\n"
-    "//VTK::Output::Dec\n"
-    "uniform sampler2D mytexture;\n"
-    "noperspective  in vec2 v2UVred;\n"
-    "noperspective  in vec2 v2UVgreen;\n"
-    "noperspective  in vec2 v2UVblue;\n"
-
-    "void main()\n"
-    "{\n"
-    " float fBoundsCheck = ( (dot( vec2( lessThan( v2UVgreen.xy, vec2(0.05, 0.05)) ), vec2(1.0, 1.0))+dot( vec2( greaterThan( v2UVgreen.xy, vec2( 0.95, 0.95)) ), vec2(1.0, 1.0))) );\n"
-    " if( fBoundsCheck > 1.0 )\n"
-    " { gl_FragData[0] = vec4( 0, 0, 0, 1.0 ); }\n"
-    " else\n"
-    " {\n"
-    "   float red = texture(mytexture, v2UVred).x;\n"
-    "   float green = texture(mytexture, v2UVgreen).y;\n"
-    "   float blue = texture(mytexture, v2UVblue).z;\n"
-    "   gl_FragData[0] = vec4( red, green, blue, 1.0  ); }\n"
-    "}\n",
-
-    // geom shader
-    ""
-    );
-
-  vtkShaderProgram *program = this->Distortion.Program;
-  this->Distortion.VAO->Bind();
-  if (!this->Distortion.VAO->AddAttributeArray(program,
-        this->DistortionVBO,
-        "position", 0, 8*sizeof(float),
-        VTK_FLOAT, 2, false))
-  {
-      vtkErrorMacro(<< "Error setting position in shader VAO.");
-  }
-  if (!this->Distortion.VAO->AddAttributeArray(program,
-        this->DistortionVBO,
-        "redTC", 2*sizeof(float), 8*sizeof(float),
-        VTK_FLOAT, 2, false))
-  {
-      vtkErrorMacro(<< "Error setting redTC in shader VAO.");
-  }
-  if (!this->Distortion.VAO->AddAttributeArray(program,
-        this->DistortionVBO,
-        "greenTC", 4*sizeof(float), 8*sizeof(float),
-        VTK_FLOAT, 2, false))
-  {
-      vtkErrorMacro(<< "Error setting greenTC in shader VAO.");
-  }
-  if (!this->Distortion.VAO->AddAttributeArray(program,
-        this->DistortionVBO,
-        "blueTC", 6*sizeof(float), 8*sizeof(float),
-        VTK_FLOAT, 2, false))
-  {
-      vtkErrorMacro(<< "Error setting blueTC in shader VAO.");
-  }
-}
-
-void vtkOpenVRRenderWindow::RenderDistortion()
-{
-  glDisable(GL_DEPTH_TEST);
-  glViewport( 0, 0, this->Size[0]*2, this->Size[1] );
-
-  this->GetShaderCache()->ReadyShaderProgram(this->Distortion.Program);
-  this->Distortion.VAO->Bind();
-  this->Distortion.IBO->Bind();
-
-  //render left lens (first half of index array )
-  glBindTexture(GL_TEXTURE_2D, this->LeftEyeDesc.m_nResolveTextureId );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-  glDrawElements( GL_TRIANGLES,
-    static_cast<GLsizei>(this->Distortion.IBO->IndexCount/2), GL_UNSIGNED_SHORT, 0 );
-
-  //render right lens (second half of index array )
-  glBindTexture(GL_TEXTURE_2D, this->RightEyeDesc.m_nResolveTextureId  );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-  glDrawElements( GL_TRIANGLES,
-    static_cast<GLsizei>(this->Distortion.IBO->IndexCount/2),
-    GL_UNSIGNED_SHORT, (const void *)(this->Distortion.IBO->IndexCount/2*sizeof(unsigned short)) );
 }
 
 bool vtkOpenVRRenderWindow::CreateFrameBuffer( int nWidth, int nHeight, FramebufferDesc &framebufferDesc )
@@ -978,6 +860,12 @@ void vtkOpenVRRenderWindow::Initialize (void)
     return;
   }
 
+  this->HMD->GetRecommendedRenderTargetSize(
+    &this->RenderWidth, &this->RenderHeight );
+
+  this->Size[0] = this->RenderWidth/2;
+  this->Size[1] = this->RenderHeight/2;
+
   Uint32 unWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
   //Uint32 unWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
 
@@ -991,7 +879,7 @@ void vtkOpenVRRenderWindow::Initialize (void)
 
   this->WindowId = SDL_CreateWindow( this->WindowName,
     this->Position[0], this->Position[1],
-    this->Size[0]*2, this->Size[1],
+    this->Size[0], this->Size[1],
     unWindowFlags );
   if (this->WindowId == NULL)
   {
@@ -1007,6 +895,7 @@ void vtkOpenVRRenderWindow::Initialize (void)
   }
 
   this->OpenGLInit();
+  glDepthRange(0., 1.);
 
   // make sure vsync is off
   if ( SDL_GL_SetSwapInterval( 0 ) < 0 )
@@ -1027,19 +916,16 @@ void vtkOpenVRRenderWindow::Initialize (void)
   this->SetWindowName(strWindowTitle.c_str());
   SDL_SetWindowTitle( this->WindowId, this->WindowName );
 
-  this->HMD->GetRecommendedRenderTargetSize(
-    &this->RenderWidth, &this->RenderHeight );
-
   this->CreateFrameBuffer( this->RenderWidth, this->RenderHeight, this->LeftEyeDesc );
   this->CreateFrameBuffer( this->RenderWidth, this->RenderHeight, this->RightEyeDesc );
-
-  this->SetupDistortion();
 
   if ( !vr::VRCompositor() )
   {
     vtkErrorMacro("Compositor initialization failed." );
     return;
   }
+
+  this->DashboardOverlay->Create(this);
 }
 
 void vtkOpenVRRenderWindow::Finalize (void)
@@ -1091,4 +977,9 @@ void vtkOpenVRRenderWindow::Start(void)
 
   // set the current window
   this->MakeCurrent();
+}
+
+void vtkOpenVRRenderWindow::RenderOverlay()
+{
+  this->DashboardOverlay->Render();
 }

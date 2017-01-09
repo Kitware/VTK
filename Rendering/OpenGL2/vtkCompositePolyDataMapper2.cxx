@@ -16,6 +16,7 @@
 
 #include "vtk_glew.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositeDataDisplayAttributes.h"
@@ -43,6 +44,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
+#include "vtkTransform.h"
 
 #include <algorithm>
 #include <sstream>
@@ -477,9 +479,23 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   this->VBOs->ClearAllVBOs();
   this->VBOs->ClearAllDataArrays();
 
+  if (this->Data.begin() == this->Data.end())
+  {
+    this->VBOBuildTime.Modified();
+    return;
+  }
+
+  vtkBoundingBox bbox;
+  double bounds[6];
+  this->Data.begin()->second->Data->GetPoints()->GetBounds(bounds);
+  bbox.SetBounds(bounds);
   for (iter = this->Data.begin(); iter != this->Data.end(); ++iter)
   {
     vtkCompositeMapperHelperData *hdata = iter->second;
+
+    hdata->Data->GetPoints()->GetBounds(bounds);
+    bbox.AddBounds(bounds);
+
     hdata->StartVertex = voffset;
     for (int i = 0; i < PrimitiveEnd; i++)
     {
@@ -493,6 +509,32 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     {
       hdata->NextIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
+    }
+  }
+
+  vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
+  if (posVBO && this->ShiftScaleMethod ==
+      vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+  {
+    posVBO->SetCoordShiftAndScaleMethod(vtkOpenGLVertexBufferObject::MANUAL_SHIFT_SCALE);
+    bbox.GetBounds(bounds);
+    std::vector<double> shift;
+    std::vector<double> scale;
+    for (int i = 0; i < 3; i++)
+    {
+      shift.push_back(0.5*(bounds[i*2] + bounds[i*2+1]));
+      scale.push_back((bounds[i*2+1] - bounds[i*2]) ? 1.0/(bounds[i*2+1] - bounds[i*2]) : 1.0);
+    }
+    posVBO->SetShift(shift);
+    posVBO->SetScale(scale);
+    // If the VBO coordinates were shifted and scaled, prepare the inverse transform
+    // for application to the model->view matrix:
+    if (posVBO->GetCoordShiftAndScaleEnabled())
+    {
+      this->VBOInverseTransform->Identity();
+      this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+      this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
     }
   }
 

@@ -21,16 +21,123 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 
 #include "vtkObjectFactory.h"
 
+#include "vtkActor.h"
+#include "vtkImageCanvasSource2D.h"
+#include "vtkInformation.h"
+#include "vtkNew.h"
+#include "vtkOpenVRRenderWindow.h"
+#include "vtkPlaneSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkTexture.h"
+
+
 vtkStandardNewMacro(vtkOpenVRRenderer);
 
 vtkOpenVRRenderer::vtkOpenVRRenderer()
 {
   // better default
   this->ClippingRangeExpansion = 0.05;
+
+  this->FloorActor = vtkActor::New();
+
+  vtkNew<vtkPolyDataMapper> pdm;
+  this->FloorActor->SetMapper(pdm.Get());
+  vtkNew<vtkPlaneSource> plane;
+  pdm->SetInputConnection(plane->GetOutputPort());
+  plane->SetOrigin(-5.0, 0.0,-5.0);
+  plane->SetPoint1( 5.0, 0.0,-5.0);
+  plane->SetPoint2(-5.0, 0.0, 5.0);
+
+  vtkNew<vtkTransform> tf;
+  tf->Identity();
+  this->FloorActor->SetUserTransform(tf.Get());
+
+  vtkNew<vtkTexture> texture;
+  this->FloorActor->SetTexture(texture.Get());
+
+  // build a grid fading off in the distance
+  vtkNew<vtkImageCanvasSource2D> grid;
+  grid->SetScalarTypeToUnsignedChar();
+  grid->SetNumberOfScalarComponents(4);
+  grid->SetExtent(0,511,0,511,0,0);
+  int divisions = 16;
+  int divSize = 512/divisions;
+  double alpha = 1.0;
+  for (int i = 0; i < divisions; i++)
+  {
+    for (int j = 0; j < divisions; j++)
+    {
+      grid->SetDrawColor(255, 255, 255, 255*alpha);
+      grid->FillBox(i*divSize, (i+1)*divSize-1, j*divSize, (j+1)*divSize-1);
+      grid->SetDrawColor(230, 230, 230, 255*alpha);
+      grid->DrawSegment(i*divSize, j*divSize, (i+1)*divSize-1, j*divSize);
+      grid->DrawSegment(i*divSize, j*divSize, i*divSize, (j+1)*divSize-1);
+    }
+  }
+
+  texture->SetInputConnection(grid->GetOutputPort());
+
+  this->FloorActor->SetUseBounds(false);
+
+  this->ShowFloor = false;
 }
 
 vtkOpenVRRenderer::~vtkOpenVRRenderer()
 {
+  this->FloorActor->Delete();
+  this->FloorActor = 0;
+}
+
+// adjust the floor if we need to
+void vtkOpenVRRenderer::DeviceRender()
+{
+  if (this->ShowFloor)
+  {
+    vtkOpenVRCamera *cam = static_cast<vtkOpenVRCamera *>(
+      this->GetActiveCamera());
+    vtkOpenVRRenderWindow *win =
+      static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
+
+    double distance = cam->GetDistance();
+
+    double trans[3];
+    cam->GetTranslation(trans);
+
+    double *vup = win->GetInitialViewUp();
+    double *dop = win->GetInitialViewDirection();
+    double vr[3];
+    vtkMath::Cross(dop,vup,vr);
+    double rot[16] = {
+      vr[0], vup[0], -dop[0], 0.0,
+      vr[1], vup[1], -dop[1], 0.0,
+      vr[2], vup[2], -dop[2], 0.0,
+      0.0, 0.0, 0.0, 1.0};
+
+    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Identity();
+    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Translate(-trans[0], -trans[1], -trans[2]);
+    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Scale(distance, distance, distance);
+    static_cast<vtkTransform *>(this->FloorActor->GetUserTransform())->Concatenate(rot);
+  }
+  this->Superclass::DeviceRender();
+}
+
+void vtkOpenVRRenderer::SetShowFloor(bool value)
+{
+  if (this->ShowFloor == value)
+  {
+    return;
+  }
+
+  this->ShowFloor = value;
+
+  if (this->ShowFloor)
+  {
+    this->AddActor(this->FloorActor);
+  }
+  else
+  {
+    this->RemoveActor(this->FloorActor);
+  }
 }
 
 // Automatically set up the camera based on the visible actors.
@@ -41,7 +148,6 @@ void vtkOpenVRRenderer::ResetCamera()
 {
   this->Superclass::ResetCamera();
 }
-
 
 // Automatically set up the camera based on a specified bounding box
 // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
@@ -169,4 +275,65 @@ void vtkOpenVRRenderer::ResetCamera(double xmin, double xmax,
   bounds[5] = zmax;
 
   this->ResetCamera(bounds);
+}
+
+// Reset the camera clipping range to include this entire bounding box
+void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
+{
+  double  range[2];
+  int     i, j, k;
+
+  // Don't reset the clipping range when we don't have any 3D visible props
+  if (!vtkMath::AreBoundsInitialized(bounds))
+  {
+    return;
+  }
+
+  this->GetActiveCameraAndResetIfCreated();
+  if ( this->ActiveCamera == NULL )
+  {
+    vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
+    return;
+  }
+
+  this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
+
+  double distance = this->ActiveCamera->GetDistance();
+  double trans[3];
+  static_cast<vtkOpenVRCamera *>(this->ActiveCamera)->GetTranslation(trans);
+
+  range[0] = 0.2; // 20 cm in front of HMD
+  range[1] = 0.0;
+
+  // Find the farthest bounding box vertex
+  for ( k = 0; k < 2; k++ )
+  {
+    for ( j = 0; j < 2; j++ )
+    {
+      for ( i = 0; i < 2; i++ )
+      {
+        double fard = sqrt(
+          (bounds[i] - trans[0])*(bounds[i] - trans[0]) +
+          (bounds[2+j] - trans[1])*(bounds[2+j] - trans[1]) +
+          (bounds[4+k] - trans[2])*(bounds[4+k] - trans[2]));
+        range[1] = (fard > range[1]) ? fard : range[1];
+      }
+    }
+  }
+
+  range[1] /= distance; // convert to physical scale
+  range[1] += 3.0; // add 3 meters for room to walk around
+
+  // to see transmitters make sure far is at least 10 meters
+  if (range[1] < 10.0)
+  {
+    range[1] = 10.0;
+  }
+
+  this->ActiveCamera->SetClippingRange( range[0]*distance, range[1]*distance );
+}
+
+void vtkOpenVRRenderer::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }
