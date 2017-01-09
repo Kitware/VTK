@@ -22,7 +22,6 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkErrorCode.h"
-#include "vtkByteSwap.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 #include "vtkCommand.h"
@@ -777,7 +776,6 @@ int vtkNIFTIImageWriter::RequestData(
                     (this->OwnHeader->GetDataType() == NIFTI_TYPE_RGB24 ||
                      this->OwnHeader->GetDataType() == NIFTI_TYPE_RGBA32));
 
-  int swapBytes = 0;
   int scalarSize = data->GetScalarSize();
   int numComponents = data->GetNumberOfScalarComponents();
   int outSizeX = static_cast<int>(this->OwnHeader->GetDim(1));
@@ -799,7 +797,7 @@ int vtkNIFTIImageWriter::RequestData(
 
   // add a buffer for planar-vector to packed-vector conversion
   unsigned char *rowBuffer = 0;
-  if (vectorDim > 1 || planarRGB || swapBytes)
+  if (vectorDim > 1 || planarRGB)
   {
     rowBuffer = new unsigned char[outSizeX*fileVoxelIncr];
   }
@@ -846,7 +844,7 @@ int vtkNIFTIImageWriter::RequestData(
 
   while (!this->AbortExecute && !this->ErrorCode)
   {
-    if (vectorDim == 1 && !planarRGB && !swapBytes)
+    if (vectorDim == 1 && !planarRGB)
     {
       // write directly from input, instead of using a buffer
       rowBuffer = ptr;
@@ -865,11 +863,6 @@ int vtkNIFTIImageWriter::RequestData(
         // skip past the other components
         ptr += skipOther;
       }
-    }
-
-    if (swapBytes != 0 && scalarSize > 1)
-    {
-      vtkByteSwap::SwapVoidRange(rowBuffer, rowSize, scalarSize);
     }
 
     if (isCompressed)
@@ -932,7 +925,7 @@ int vtkNIFTIImageWriter::RequestData(
 
   // only delete this if it was alloced (if it was not alloced, it
   // would have been set directly to a row out the output image)
-  if (vectorDim > 1 || swapBytes || planarRGB)
+  if (vectorDim > 1 || planarRGB)
   {
     delete [] rowBuffer;
   }
