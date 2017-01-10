@@ -7,6 +7,13 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestQtTreeModelAdapter.cxx
   )
 
+if(VTK_QT_VERSION VERSION_GREATER "4" AND
+    VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
+    TestQVTKOpenGLWidget.cxx
+    )
+endif()
+
 if(WIN32)
   vtk_add_test_cxx(${vtk-module}CxxTests tests
     NO_VALID
