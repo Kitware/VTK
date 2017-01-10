@@ -766,7 +766,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (vtkTypeUInt64 &value)
 {
   assert(this->Internals->Data.front() == vtkInternals::uint64_value);
   this->Internals->Data.pop_front();
-  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(unsigned int));
+  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(vtkTypeUInt64));
   return (*this);
 }
 
