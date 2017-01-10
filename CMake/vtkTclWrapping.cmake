@@ -20,9 +20,6 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
     ${VTK_BINARY_DIR}/Wrapping/Tcl
     ${TCL_INCLUDE_PATH})
 
-  if(NOT CMAKE_HAS_TARGET_INCLUDES)
-    include_directories(${_tcl_include_dirs})
-  endif()
 
   # FIXME: These must be here for now, should be fixed in the wrap hierarchy stuff
   if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
@@ -55,10 +52,8 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   set(tcl_module ${${module_name}_TCL_NAME})
   vtk_wrap_tcl3(${tcl_module}TCL Tcl_SRCS "${module_srcs}" "")
   vtk_add_library(${tcl_module}TCL ${Tcl_SRCS} ${extra_srcs})
-  if(CMAKE_HAS_TARGET_INCLUDES)
-    set_property(TARGET ${tcl_module}TCL APPEND
-      PROPERTY INCLUDE_DIRECTORIES ${_tcl_include_dirs})
-  endif()
+  set_property(TARGET ${tcl_module}TCL APPEND
+    PROPERTY INCLUDE_DIRECTORIES ${_tcl_include_dirs})
   if(${module_name}_IMPLEMENTS)
     set_property(TARGET ${tcl_module}TCL PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")

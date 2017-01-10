@@ -29,10 +29,6 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
     ${JAVA_INCLUDE_PATH}
     ${JAVA_INCLUDE_PATH2})
 
-  if(NOT CMAKE_HAS_TARGET_INCLUDES)
-    include_directories(${_java_include_dirs})
-  endif()
-
   if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
     set(KIT_HIERARCHY_FILE ${${module_name}_WRAP_HIERARCHY_FILE})
   endif()
@@ -45,10 +41,8 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
     set_target_properties(${module_name}Java PROPERTIES PREFIX "")
   endif()
   vtk_target_export(${module_name}Java)
-  if(CMAKE_HAS_TARGET_INCLUDES)
-    set_property(TARGET ${module_name}Java APPEND
-      PROPERTY INCLUDE_DIRECTORIES ${_java_include_dirs})
-  endif()
+  set_property(TARGET ${module_name}Java APPEND
+    PROPERTY INCLUDE_DIRECTORIES ${_java_include_dirs})
   # Force JavaClasses to build in the right order by adding a depenency.
   add_dependencies(${module_name}JavaJavaClasses ${module_name}Java)
   if(${module_name}_IMPLEMENTS)

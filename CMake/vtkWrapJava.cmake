@@ -41,7 +41,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
     set(_common_args "${_common_args}--types \"${KIT_HIERARCHY_FILE}\"\n")
   endif()
 
-  if(NOT CMAKE_VERSION VERSION_LESS 3.1 AND NOT VTK_ENABLE_KITS)
+  if(NOT VTK_ENABLE_KITS)
     # write wrapper-tool arguments to a file
     set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.$<CONFIGURATION>.args)
     file(GENERATE OUTPUT ${_args_file} CONTENT "${_common_args}
