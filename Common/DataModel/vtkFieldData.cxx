@@ -397,7 +397,7 @@ vtkAbstractArray *vtkFieldData::GetAbstractArray(int i)
 {
   if ( i < 0 || i >= this->GetNumberOfArrays() || this->Data == NULL)
   {
-    return 0;
+    return NULL;
   }
   return this->Data[i];
 }

@@ -1675,17 +1675,35 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes::FieldList& list,
                                     vtkDataSetAttributes* fromDSA,
                                     int idx, vtkIdType fromId, vtkIdType toId)
 {
-  vtkAbstractArray *fromDA;
-  vtkAbstractArray *toDA;
 
-  int i;
-  for (i=0; i < list.NumberOfFields; i++)
+  for (int i=0; i < list.NumberOfFields; i++)
   {
     if ( list.FieldIndices[i] >= 0 && list.DSAIndices[idx][i] >= 0 )
     {
-      toDA = this->GetAbstractArray(list.FieldIndices[i]);
-      fromDA = fromDSA->GetAbstractArray(list.DSAIndices[idx][i]);
+      vtkAbstractArray *toDA = this->GetAbstractArray(list.FieldIndices[i]);
+      vtkAbstractArray *fromDA = fromDSA->GetAbstractArray(list.DSAIndices[idx][i]);
       this->CopyTuple(fromDA, toDA, fromId, toId);
+    }
+  }
+}
+
+//--------------------------------------------------------------------------
+// Description:
+// A special form of CopyData() to be used with FieldLists. Use it when you are
+// copying data from a set of vtkDataSetAttributes. Make sure that you have
+// called the special form of CopyAllocate that accepts FieldLists.
+void vtkDataSetAttributes::CopyData(vtkDataSetAttributes::FieldList& list,
+                                    vtkDataSetAttributes* fromDSA,
+                                    int idx, vtkIdType dstStart, vtkIdType n,
+                                    vtkIdType srcStart)
+{
+  for (int i=0; i < list.NumberOfFields; i++)
+  {
+    if ( list.FieldIndices[i] >= 0 && list.DSAIndices[idx][i] >= 0 )
+    {
+      vtkAbstractArray *toDA = this->GetAbstractArray(list.FieldIndices[i]);
+      vtkAbstractArray *fromDA = fromDSA->GetAbstractArray(list.DSAIndices[idx][i]);
+      this->CopyTuples(fromDA, toDA, dstStart, n, srcStart);
     }
   }
 }
