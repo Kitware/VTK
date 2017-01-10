@@ -15,10 +15,6 @@ endif()
 
 include(vtkWrapHierarchy)
 
-if(${CMAKE_VERSION} VERSION_GREATER 2.8.7.20120314)
-  set(CMAKE_HAS_TARGET_INCLUDES TRUE)
-endif()
-
 # This is the main function, always called from the vtk_module_library function
 # when a new module library is added.
 function(vtk_add_wrapping module_name module_srcs module_hdrs)

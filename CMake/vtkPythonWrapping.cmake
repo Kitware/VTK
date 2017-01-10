@@ -83,10 +83,6 @@ function(vtk_add_python_wrapping_library module srcs)
     ${PYTHON_INCLUDE_DIRS})
   set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
 
-  if(NOT CMAKE_HAS_TARGET_INCLUDES)
-    include_directories(${_python_include_dirs})
-  endif()
-
   # Figure out the dependent PythonXYD libraries for the module
   set(extra_links)
   string(REPLACE "Kit" "" kit_basename "${module}")
@@ -115,10 +111,8 @@ function(vtk_add_python_wrapping_library module srcs)
   get_property(output_name TARGET ${module}PythonD PROPERTY OUTPUT_NAME)
   string(REPLACE "PythonD" "Python${XY}D" output_name "${output_name}")
   set_property(TARGET ${module}PythonD PROPERTY OUTPUT_NAME ${output_name})
-  if(CMAKE_HAS_TARGET_INCLUDES)
-    set_property(TARGET ${module}PythonD APPEND
-      PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
-  endif()
+  set_property(TARGET ${module}PythonD APPEND
+    PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
   target_link_libraries(${module}PythonD LINK_PUBLIC
     vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
 
@@ -141,10 +135,8 @@ function(vtk_add_python_wrapping_library module srcs)
   endif()
   _vtk_add_python_module(${module}Python ${prefix}PythonInit.cxx)
   target_link_libraries(${module}Python ${module}PythonD)
-  if(CMAKE_HAS_TARGET_INCLUDES)
-    set_property(TARGET ${module}Python APPEND
-      PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
-  endif()
+  set_property(TARGET ${module}Python APPEND
+    PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
 endfunction()
 
 #------------------------------------------------------------------------------
