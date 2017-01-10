@@ -44,11 +44,6 @@ else()
   set(VTK_BUILD_COMMAND BUILD_COMMAND make)
 endif()
 
-set(BUILD_ALWAYS_STRING)
-if(${CMAKE_VERSION} GREATER 3.0)
-  set(BUILD_ALWAYS_STRING BUILD_ALWAYS 1)
-endif()
-
 # Compile a minimal VTK for its compile tools
 macro(compile_vtk_tools)
   ExternalProject_Add(
@@ -58,7 +53,7 @@ macro(compile_vtk_tools)
     BINARY_DIR ${CMAKE_BINARY_DIR}/CompileTools
     INSTALL_COMMAND ""
     ${VTK_BUILD_COMMAND} vtkCompileTools
-    ${BUILD_ALWAYS_STRING}
+    BUILD_ALWAYS 1
     CMAKE_CACHE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF

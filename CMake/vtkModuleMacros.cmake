@@ -721,16 +721,8 @@ VTK_AUTOINIT(${vtk-module})
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
     # time to do that, we skip visibility flags for static libraries.
-    if(CMAKE_VERSION VERSION_LESS 3.3)
-      #CMake 3.3 deprecates add_compiler_export_flags and also has policy
-      #CMP0063 which properly propagates visibility flags to OBJECT libs
-      vtk_add_compiler_export_flags(my_abi_flags)
-      set_property(TARGET ${vtk-module}${target_suffix} APPEND
-        PROPERTY COMPILE_FLAGS "${my_abi_flags}")
-    else()
-      set_property(TARGET ${vtk-module}${target_suffix}
-        PROPERTY CXX_VISIBILITY_PRESET "hidden")
-    endif()
+    set_property(TARGET ${vtk-module}${target_suffix}
+                 PROPERTY CXX_VISIBILITY_PRESET "hidden")
   endif()
 
   if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest AND VTK_SOURCE_DIR)
@@ -851,13 +843,7 @@ macro(vtk_module_third_party _pkg)
       list(APPEND __extra_args ${_components})
     endif()
     if (_optional_components)
-      if ("${CMAKE_VERSION}" VERSION_GREATER "2.8.7")
-        list(APPEND __extra_args "OPTIONAL_COMPONENTS" ${_optional_components})
-      else ()
-        # for cmake version <= 2.8.7, since OPTIONAL_COMPONENTS is not
-        # available, we just treat them as required components.
-        list(APPEND __extra_args ${_optional_components})
-      endif()
+      list(APPEND __extra_args "OPTIONAL_COMPONENTS" ${_optional_components})
     endif()
     find_package(${_pkg} ${_version} REQUIRED ${__extra_args})
     if(NOT ${_upper}_FOUND AND NOT ${_pkg}_FOUND)
