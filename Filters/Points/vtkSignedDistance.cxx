@@ -110,7 +110,7 @@ struct SignedDistance
               {
                 p = this->Pts + 3*pIds->GetId(ii);
                 n = this->Normals + 3*pIds->GetId(ii);
-                dist += n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
+                dist += n[0]*(p[0]-x[0]) + n[1]*(p[1]-x[1]) + n[2]*(p[2]-x[2]);
               }
               this->Scalars[ptId] = dist / static_cast<double>(numPts);
             }//if nearby points
