@@ -140,6 +140,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->NumberOfFrameBuffers = 0;
   this->DepthRenderBufferObject = 0;
+  this->AlphaBitPlanes = 8;
   this->Capabilities = 0;
 }
 
