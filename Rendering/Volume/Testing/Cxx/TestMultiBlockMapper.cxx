@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestMultiBlock.cxx
+  Module:    TestMultiBlockMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -56,8 +56,8 @@ int TestMultiBlockMapper(int argc, char *argv[])
   mapper->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);
   mapper->SetVectorComponent(0);
   mapper->SetVectorMode(1); // vtkSmartVolumeMapper::COMPONENT
+  mapper->SetJitteringResolution(1920, 1080); // alleviate seam artifacts
 
-  // Known x-component velocity values
   vtkNew<vtkColorTransferFunction> color;
   color->AddHSVPoint(1.0, 0.095, 0.33, 0.82);
   color->AddHSVPoint(53.3, 0.04, 0.7, 0.63);

@@ -1,3 +1,17 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkMultiBlockVolumeMapper.cxx
+
+  copyright (c) ken martin, will schroeder, bill lorensen
+  all rights reserved.
+  see copyright.txt or http://www.kitware.com/copyright.htm for details.
+
+  this software is distributed without any warranty; without even
+  the implied warranty of merchantability or fitness for a particular
+  purpose.  see the above copyright notice for more information.
+
+=========================================================================*/
 #include <algorithm>
 
 #include "vtkBlockSortHelper.h"
@@ -8,11 +22,11 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockVolumeMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLGPUVolumeRayCastMapper.h"
+#include "vtkPerlinNoise.h"
 #include "vtkSmartVolumeMapper.h"
 
 
-///TODO Fix camera inside a block
-///TODO Fix sampling seams (add sampling from camera position)
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMultiBlockVolumeMapper)
 
@@ -20,6 +34,7 @@ vtkStandardNewMacro(vtkMultiBlockVolumeMapper)
 vtkMultiBlockVolumeMapper::vtkMultiBlockVolumeMapper()
 : RenderingMapper(vtkSmartVolumeMapper::New())
 {
+  this->RenderingMapper->SetRequestedRenderModeToGPU();
 }
 
 //------------------------------------------------------------------------------
@@ -111,7 +126,6 @@ void vtkMultiBlockVolumeMapper::ComputeBounds()
     return;
   }
 
-  ///TODO Move this to vtkCompositeDataSet::GetBounds<BoundedClass>();
   // Loop over the hierarchy of data objects to compute bounds
   vtkCompositeDataIterator* iter = input->NewIterator();
   iter->GoToFirstItem();
@@ -156,8 +170,6 @@ vtkDataObjectTree* vtkMultiBlockVolumeMapper::GetDataObjectTreeInput()
   return vtkDataObjectTree::SafeDownCast(this->GetInputDataObject(0, 0));
 }
 
-///TODO Optimization, check for the total required memory for all the blocks and
-///use a separate mapper per block
 //------------------------------------------------------------------------------
 void vtkMultiBlockVolumeMapper::LoadBlocks()
 {
@@ -220,9 +232,11 @@ void vtkMultiBlockVolumeMapper::ReleaseGraphicsResources(vtkWindow* window)
 }
 
 //------------------------------------------------------------------------------
-int vtkMultiBlockVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
+int vtkMultiBlockVolumeMapper::FillInputPortInformation(int vtkNotUsed(port),
+  vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
+  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -285,4 +299,96 @@ void vtkMultiBlockVolumeMapper::SetVectorComponent(int component)
 int vtkMultiBlockVolumeMapper::GetVectorComponent()
 {
   return this->RenderingMapper->GetVectorComponent();
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetJitteringResolution(int x, int y)
+{
+  vtkOpenGLGPUVolumeRayCastMapper* glMapper =
+    vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(this->RenderingMapper->GetGPUMapper());
+
+  if (glMapper == NULL)
+  {
+    vtkWarningMacro("Jittering is not supported in this RenderMode.");
+    return;
+  }
+
+  if (x <= 0 || y <= 0)
+  {
+    glMapper->UseJitteringOff();
+  }
+
+  vtkPerlinNoise* generator = vtkPerlinNoise::New();
+  generator->SetFrequency(static_cast<double>(x), static_cast<double>(y), 1.0);
+  generator->SetAmplitude(0.5);
+
+  int texSize[2] = {x, y};
+  glMapper->SetNoiseTextureSize(texSize);
+  glMapper->SetNoiseGenerator(generator);
+  glMapper->UseJitteringOn();
+
+  generator->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetBlendMode(int mode)
+{
+  this->RenderingMapper->SetBlendMode(mode);
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiBlockVolumeMapper::GetBlendMode()
+{
+  return this->RenderingMapper->GetBlendMode();
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetCropping(int mode)
+{
+  this->RenderingMapper->SetCropping(mode);
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiBlockVolumeMapper::GetCropping()
+{
+  return this->RenderingMapper->GetCropping();
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetCroppingRegionFlags(int mode)
+{
+  this->RenderingMapper->SetCroppingRegionFlags(mode);
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiBlockVolumeMapper::GetCroppingRegionFlags()
+{
+  return this->RenderingMapper->GetCroppingRegionFlags();
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(double* planes)
+{
+  this->SetCroppingRegionPlanes(planes[0], planes[1], planes[2], planes[3],
+    planes[4],planes[5]);
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(double arg1, double arg2,
+  double arg3, double arg4, double arg5, double arg6)
+{
+  this->RenderingMapper->SetCroppingRegionPlanes(arg1, arg2, arg3,
+    arg4, arg5, arg6);
+}
+
+//----------------------------------------------------------------------------
+void vtkMultiBlockVolumeMapper::GetCroppingRegionPlanes(double* planes)
+{
+  this->RenderingMapper->GetCroppingRegionPlanes(planes);
+}
+
+//----------------------------------------------------------------------------
+double* vtkMultiBlockVolumeMapper::GetCroppingRegionPlanes()
+{
+  return this->RenderingMapper->GetCroppingRegionPlanes();
 }

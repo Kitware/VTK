@@ -13,12 +13,20 @@
 
 =========================================================================*/
 /**
- * @class vtkMultiBlockVolumeMapper
- * @brief Mapper to render volumes defined as vtkMultiBlockDataSet.
+ * \class vtkMultiBlockVolumeMapper
+ * \brief Mapper to render volumes defined as vtkMultiBlockDataSet.
  *
- * Defers actual rendering to an internal volume mapper (RenderingMapper).
- * All of the blocks of the vtkMultiBlockDataSet are expected to be
- * vtkImageData.
+ * vtkMultiBlockVolumeMapper renders vtkMultiBlockDataSet instances containing
+ * vtkImageData blocks (all of the blocks are expected to be vtkImageData). Bounds
+ * containing the full set of blocks are computed so that vtkRenderer can adjust the
+ * clipping planes appropriately. At render time, blocks are sorted back-to-front
+ * and each block is rendered independently. The mapper defers actual rendering to its
+ * internal vtkSmartVolumeMapper.
+ *
+ * Jittering is used to alleviate seam artifacts at the block edges due to the
+ * discontinuous resolution between blocks.  Jittering is disabled by default until
+ * valid resolution is set (e.g. x > 0 && y > 0).  Jittering is only supported in
+ * GPURenderMode.
  *
  */
 #ifndef vtkMultiBlockVolumeMapper_h
@@ -28,7 +36,7 @@
 
 #include "vtkTimeStamp.h"                    // For BlockLoadingTime
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
-#include "vtkAbstractVolumeMapper.h"
+#include "vtkVolumeMapper.h"
 
 
 class vtkDataObjectTree;
@@ -38,12 +46,12 @@ class vtkMultiBlockDataSet;
 class vtkSmartVolumeMapper;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockVolumeMapper :
-  public vtkAbstractVolumeMapper
+  public vtkVolumeMapper
 {
 public:
   static vtkMultiBlockVolumeMapper *New();
-  vtkTypeMacro(vtkMultiBlockVolumeMapper,vtkAbstractVolumeMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkMultiBlockVolumeMapper,vtkVolumeMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -51,9 +59,11 @@ public:
    *  \sa vtkAbstractVolumeMapper
    */
   double* GetBounds() VTK_OVERRIDE;
+  using vtkAbstractVolumeMapper::GetBounds;
+
   void SelectScalarArray(int arrayNum) VTK_OVERRIDE;
   void SelectScalarArray(char const* arrayName) VTK_OVERRIDE;
-  void SetScalarMode(int ScalarMode);
+  void SetScalarMode(int ScalarMode) VTK_OVERRIDE;
 
   /**
    * Render the current dataset.
@@ -80,6 +90,48 @@ public:
   int GetVectorComponent();
   //@}
 
+  /**
+   * Set the resolution of the noise texture used for ray jittering (viewport's
+   * resolution is normally a good choice).  In this mapper jittering is used to
+   * alleviate seam artifacts at the block edges due to discontinuous resolution
+   * between blocks.  Jittering is disabled by default until valid resolution is
+   * set (e.g. x > 0 && y > 0).
+   */
+  void SetJitteringResolution(int x, int y);
+
+  //@{
+  /**
+   * Blending mode API from vtkVolumeMapper
+   * \sa vtkVolumeMapper::SetBlendMode
+   */
+  void SetBlendMode(int mode) VTK_OVERRIDE;
+  int GetBlendMode() VTK_OVERRIDE;
+  //@}
+
+  //@{
+  /**
+   * Cropping API from vtkVolumeMapper
+   * \sa vtkVolumeMapper::SetCropping
+   */
+  void SetCropping(int mode) VTK_OVERRIDE;
+  int GetCropping() VTK_OVERRIDE;
+
+  /**
+   * \sa vtkVolumeMapper::SetCroppingRegionPlanes
+   */
+  void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
+    double arg4, double arg5, double arg6) VTK_OVERRIDE;
+  void SetCroppingRegionPlanes(double *planes) VTK_OVERRIDE;
+  void GetCroppingRegionPlanes(double *planes) VTK_OVERRIDE;
+  double *GetCroppingRegionPlanes() VTK_OVERRIDE;
+
+  /**
+   * \sa vtkVolumeMapper::SetCroppingRegionFlags
+   */
+  void SetCroppingRegionFlags(int mode) VTK_OVERRIDE;
+  int GetCroppingRegionFlags() VTK_OVERRIDE;
+  //@}
+
 protected:
   vtkMultiBlockVolumeMapper();
   ~vtkMultiBlockVolumeMapper();
@@ -89,7 +141,7 @@ protected:
    * vtkDataObjectTree, internally checks whether all the blocks of the data
    * set are vtkImageData.
    *
-   * @sa vtkAlgorithm::FillInputPortInformation
+   * \sa vtkAlgorithm::FillInputPortInformation
    */
   int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
