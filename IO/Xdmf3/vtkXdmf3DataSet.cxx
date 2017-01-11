@@ -1532,7 +1532,6 @@ void vtkXdmf3DataSet::CopyShape(
         //                          ...]
         cell_types[cc] = vtk_cell_typeI;
         *cells_ptr++ = numPointsPerCell + numFacesPerCell + 1;
-        sub++; // used to shrink the cells array at the end.
         *cells_ptr++ = numFacesPerCell;
         for(vtkIdType i = 0 ;
             i < static_cast<vtkIdType>(numPointsPerCell + numFacesPerCell); i++ )
