@@ -380,6 +380,12 @@ public:
   virtual void PushContext() { this->MakeCurrent(); }
   virtual void PopContext() {}
 
+  /**
+   * Initialize the render window from the information associated
+   * with the currently activated OpenGL context.
+   */
+  bool InitializeFromCurrentContext() VTK_OVERRIDE;
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();

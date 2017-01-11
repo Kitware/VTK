@@ -128,10 +128,35 @@ public:
    */
   void Render();
 
+  /**
+   * Overridden to pass explicitly specified MaximumHardwareLineWidth, if any.
+   */
+  float GetMaximumHardwareLineWidth() VTK_OVERRIDE;
+
+  //@{
+  /**
+   * Specificy a non-zero line width to force the hardware line width determined
+   * by the window.
+   */
+  vtkSetClampMacro(ForceMaximumHardwareLineWidth, float, 0, VTK_FLOAT_MAX);
+  vtkGetMacro(ForceMaximumHardwareLineWidth, float);
+  //@}
+
+  //@{
+  /**
+   * Set this to true to indicate that the context is now ready. For backwards
+   * compatibility reasons, it's set to true by default. If set to false, the
+   * `Render` call will be skipped entirely.
+   */
+  vtkSetMacro(ReadyForRendering, bool);
+  vtkGetMacro(ReadyForRendering, bool);
+
 protected:
   int DirectStatus;
   int SupportsOpenGLStatus;
   bool CurrentStatus;
+  float ForceMaximumHardwareLineWidth;
+  bool ReadyForRendering;
 
 private:
   vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&) VTK_DELETE_FUNCTION;

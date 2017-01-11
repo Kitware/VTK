@@ -178,9 +178,7 @@ bool vtkWin32OpenGLRenderWindow::InitializeFromCurrentContext()
     this->SetWindowId(WindowFromDC(wglGetCurrentDC()));
     this->SetDeviceContext(wglGetCurrentDC());
     this->SetContextId(currentContext);
-    this->OpenGLInit();
-    this->OwnContext = 0;
-    return true;
+    return this->Superclass::InitializeFromCurrentContext();
   }
   return false;
 }

@@ -3,6 +3,7 @@ vtk_module(vtkGUISupportQt
     Qt
   TEST_DEPENDS
     vtkTestingCore
+    vtkTestingRendering
   EXCLUDE_FROM_WRAPPING
   DEPENDS
     vtkCommonCore

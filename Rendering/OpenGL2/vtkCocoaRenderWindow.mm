@@ -328,9 +328,7 @@ bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
       this->SetWindowId(currentView);
       this->SetRootWindow(window);
       this->SetContextId((void*)currentContext);
-      this->OpenGLInit();
-      this->OwnContext = 0;
-      return true;
+      return this->Superclass::InitializeFromCurrentContext();
     }
   }
   return false;

@@ -201,15 +201,26 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   }
 
   attributes[index++] = None;
+
+  // cout << "Trying config: " << endl
+  //      << "         DisplayId : " << DisplayId << endl
+  //      << "     drawable_type : " << drawable_type << endl
+  //      << "        doublebuff : " << doublebuff << endl
+  //      << "            stereo : " << stereo << endl
+  //      << "      multisamples : " << multisamples << endl
+  //      << "    alphaBitPlanes : " << alphaBitPlanes << endl
+  //      << "           stencil : " << stencil << endl;
   int tmp;
   GLXFBConfig* fb = glXChooseFBConfig(DisplayId, XDefaultScreen(DisplayId),
                                       attributes, &tmp);
   if (fb && tmp > 0)
   {
+    // cout << "            STATUS : SUCCESS!!!" << endl;
     GLXFBConfig result = fb[0];
     XFree(fb);
     return result;
   }
+  // cout << "            STATUS : FAILURE!!!" << endl;
   return None;
 }
 
@@ -304,7 +315,6 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 
     this->OwnDisplay = 1;
   }
-
   this->Internal->FBConfig =
     vtkXOpenGLRenderWindowGetDesiredFBConfig(
       this->DisplayId,
@@ -397,9 +407,7 @@ bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()
     this->SetDisplayId((void*)glXGetCurrentDisplay());
     this->SetWindowId((void*)glXGetCurrentDrawable());
     this->Internal->ContextId = currentContext;
-    this->OpenGLInit();
-    this->OwnContext = 0;
-    return true;
+    return this->Superclass::InitializeFromCurrentContext();
   }
   return false;
 }
