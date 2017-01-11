@@ -20,6 +20,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 
 # Each of these must be added in a separate vtk_add_test_cxx
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestJPEGReader.cxx,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/beach.jpg}")
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDICOMImageReader.cxx,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/dicom/prostate.IMG}")
 
