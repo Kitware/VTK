@@ -799,7 +799,8 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
     NSWindow* theWindow = nil;
 
-    // Get the screen's size (in points).
+    // Get the screen's size (in points).  (If there's no mainScreen, the
+    // rectangle will become all zeros and not used anyway.)
     NSScreen *screen = [NSScreen mainScreen];
     NSRect screenRect = [screen frame];
 
@@ -1189,9 +1190,16 @@ int *vtkCocoaRenderWindow::GetSize()
 // Get the current size of the screen in pixels.
 int *vtkCocoaRenderWindow::GetScreenSize()
 {
-  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  GLint currentScreen = [context currentVirtualScreen];
-  NSScreen* screen = [[NSScreen screens] objectAtIndex:currentScreen];
+  // Get the NSScreen that the NSWindow is mostly on.  Either could be nil.
+  NSWindow *window = (NSWindow*)this->GetRootWindow();
+  NSScreen *screen = [window screen];
+
+  // If screen is nil, then fall back to mainScreen, which CreateAWindow()
+  // also uses (it could be nil too).
+  if (!screen)
+  {
+    screen = [NSScreen mainScreen];
+  }
 
   // Get the screen's size (in points).
   NSRect screenRect = [screen frame];
