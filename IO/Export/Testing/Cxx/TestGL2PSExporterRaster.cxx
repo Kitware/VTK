@@ -108,7 +108,6 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   logo->SetPosition(0.8, 0.0);
   logo->SetPosition2(0.1, 0.1);
   logo->GetImageProperty()->SetOpacity(0.8);
-  logo->GetImageProperty()->SetDisplayLocationToBackground();
   logo->SetRenderer(ren.GetPointer());
   ren->AddActor(logo.GetPointer());
 
