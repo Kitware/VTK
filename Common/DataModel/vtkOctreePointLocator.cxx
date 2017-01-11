@@ -91,8 +91,9 @@ namespace
     void GetSortedIds(vtkIdList* ids)
     {
         ids->Reset();
-        vtkIdType numIds = (this->NumDesiredPoints < this->NumPoints)
-          ? this->NumDesiredPoints : this->NumPoints;
+        vtkIdType numIds = static_cast<vtkIdType>(
+          (this->NumDesiredPoints < this->NumPoints)
+            ? this->NumDesiredPoints : this->NumPoints);
         ids->SetNumberOfIds(numIds);
         vtkIdType counter = 0;
         std::map<float, std::list<vtkIdType> >::iterator it=

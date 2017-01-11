@@ -538,11 +538,16 @@ int vtkTemporalPathLineFilter::RequestData(
   this->TrailId             = vtkSmartPointer<vtkFloatArray>::New();
   //
   size_t size = this->Internals->Trails.size();
-  this->LineCoordinates->Allocate(size*this->MaxTrackLength);
-  this->Vertices->Allocate(size);
-  this->VertexCoordinates->Allocate(size);
-  this->PolyLines->Allocate(2*size*this->MaxTrackLength);
-  this->TrailId->Allocate(size*this->MaxTrackLength);
+  this->LineCoordinates->Allocate(
+    static_cast<vtkIdType>(size*this->MaxTrackLength));
+  this->Vertices->Allocate(
+    static_cast<vtkIdType>(size));
+  this->VertexCoordinates->Allocate(
+    static_cast<vtkIdType>(size));
+  this->PolyLines->Allocate(
+    static_cast<vtkIdType>(2*size*this->MaxTrackLength));
+  this->TrailId->Allocate(
+    static_cast<vtkIdType>(size*this->MaxTrackLength));
   this->TrailId->SetName("TrailId");
   //
   std::vector<vtkIdType> TempIds(this->MaxTrackLength);

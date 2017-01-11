@@ -479,7 +479,7 @@ public:
   // Public only for vtkCompactHyperOctree.
   vtkIdType GetChildHistorySize()
   {
-      return this->ChildHistory.size();
+      return static_cast<vtkIdType>(this->ChildHistory.size());
   }
 
 protected:
@@ -713,7 +713,7 @@ public:
   //---------------------------------------------------------------------------
   vtkIdType GetNumberOfLeaves() VTK_OVERRIDE
   {
-      return this->LeafParent.size();
+      return static_cast<vtkIdType>(this->LeafParent.size());
   }
 
   //---------------------------------------------------------------------------

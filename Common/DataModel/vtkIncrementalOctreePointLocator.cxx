@@ -108,8 +108,9 @@ namespace
     {
         // determine how many points will be actually exported
         idList->Reset();
-        vtkIdType numIds = ( this->NumRequested < this->NumberPoints )
-                           ? this->NumRequested : this->NumberPoints;
+        vtkIdType numIds = static_cast<vtkIdType>(
+          ( this->NumRequested < this->NumberPoints )
+            ? this->NumRequested : this->NumberPoints);
 
         idList->SetNumberOfIds( numIds );
 

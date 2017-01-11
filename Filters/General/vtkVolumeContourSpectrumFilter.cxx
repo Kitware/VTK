@@ -305,7 +305,8 @@ int vtkVolumeContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
       // now prepare the output
       vtkVariantArray *outputSignature = vtkVariantArray::New();
-      outputSignature->SetNumberOfTuples(samples.size());
+      outputSignature->SetNumberOfTuples(
+        static_cast<vtkIdType>(samples.size()));
       for(unsigned int i = 0; i < samples.size(); i++)
       {
         outputSignature->SetValue(i, samples[i].second);

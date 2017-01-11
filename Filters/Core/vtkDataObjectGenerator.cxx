@@ -690,7 +690,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
          git++)
     {
       vtkInternalStructureCache *gptr = *git;
-      vtkIdType nds = gptr->children.size();
+      vtkIdType nds = static_cast<vtkIdType>(gptr->children.size());
       blocksPerLevel.push_back(nds);
     }
 

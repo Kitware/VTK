@@ -48,7 +48,7 @@ vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i, CoordinateT j, Coordinat
 
 vtkArrayCoordinates::DimensionT vtkArrayCoordinates::GetDimensions() const
 {
-  return this->Storage.size();
+  return static_cast<vtkArrayCoordinates::DimensionT>(this->Storage.size());
 }
 
 void vtkArrayCoordinates::SetDimensions(DimensionT dimensions)

@@ -342,7 +342,7 @@ static int vtkXMLWriterWriteBinaryDataBlocks(
     size_t cur_offset = 0; // offset into the temp_buffer.
     while (index < numStrings && cur_offset < maxCharsPerBlock)
     {
-      vtkStdString &str = iter->GetValue(index);
+      vtkStdString &str = iter->GetValue(static_cast<vtkIdType>(index));
       vtkStdString::size_type length = str.size();
       const char* data = str.c_str();
       data += stringOffset; // advance by the chars already written.
@@ -365,7 +365,7 @@ static int vtkXMLWriterWriteBinaryDataBlocks(
         else
         {
           size_t bytes_to_copy =  (maxCharsPerBlock - cur_offset);
-          stringOffset = bytes_to_copy;
+          stringOffset = static_cast<vtkIdType>(bytes_to_copy);
           memcpy(&temp_buffer[cur_offset], data, bytes_to_copy);
           cur_offset += bytes_to_copy;
         }

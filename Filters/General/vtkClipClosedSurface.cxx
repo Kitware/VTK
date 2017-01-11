@@ -301,7 +301,7 @@ vtkIdType *vtkCCSEdgeLocator::InsertUniqueEdge(
   node = node->next;
   node->ptId0 = i0;
   node->ptId1 = i1;
-  node->edgeId = this->EdgeMap.size()-1;
+  node->edgeId = static_cast<vtkIdType>(this->EdgeMap.size()-1);
   return &node->edgeId;
 }
 

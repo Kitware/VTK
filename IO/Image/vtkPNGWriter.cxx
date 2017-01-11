@@ -166,7 +166,8 @@ extern "C"
     {
       vtkUnsignedCharArray *uc = self->GetResult();
       // write to the uc array
-      unsigned char *ptr = uc->WritePointer(uc->GetMaxId()+1,sizeToWrite);
+      unsigned char *ptr = uc->WritePointer(uc->GetMaxId()+1,
+        static_cast<vtkIdType>(sizeToWrite));
       memcpy(ptr, data, sizeToWrite);
     }
   }

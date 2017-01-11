@@ -48,7 +48,7 @@ vtkArraySort::vtkArraySort(DimensionT i, DimensionT j, DimensionT k) :
 
 vtkArraySort::DimensionT vtkArraySort::GetDimensions() const
 {
-  return this->Storage.size();
+  return static_cast<vtkArraySort::DimensionT>(this->Storage.size());
 }
 
 void vtkArraySort::SetDimensions(DimensionT dimensions)

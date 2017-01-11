@@ -94,7 +94,7 @@ void vtkArrayExtents::Append(const vtkArrayRange& extent)
 
 vtkArrayExtents::DimensionT vtkArrayExtents::GetDimensions() const
 {
-  return this->Storage.size();
+  return static_cast<vtkArrayExtents::DimensionT>(this->Storage.size());
 }
 
 vtkTypeUInt64 vtkArrayExtents::GetSize() const

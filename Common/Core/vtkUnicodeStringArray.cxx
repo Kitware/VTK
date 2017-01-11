@@ -346,7 +346,7 @@ vtkIdType vtkUnicodeStringArray::LookupValue(vtkVariant value)
   for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
   {
     if(this->Internal->Storage[i] == search_value)
-      return i;
+      return static_cast<vtkIdType>(i);
   }
 
   return -1;
@@ -360,7 +360,7 @@ void vtkUnicodeStringArray::LookupValue(vtkVariant value, vtkIdList* ids)
   for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
   {
     if(this->Internal->Storage[i] == search_value)
-      ids->InsertNextId(i);
+      ids->InsertNextId(static_cast<vtkIdType>(i));
   }
 }
 

@@ -1049,25 +1049,25 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   size_t size = vertCellIds.size();
   for ( size_t i = 0; i < size; ++i )
   {
-    outputCD->CopyData(cd, vertCellIds[i], i );
+    outputCD->CopyData(cd, vertCellIds[i], static_cast<vtkIdType>(i) );
   }
   offset += size;
   size = lineCellIds.size();
   for ( size_t i = 0; i < size; ++i )
   {
-    outputCD->CopyData(cd, lineCellIds[i], i+offset );
+    outputCD->CopyData(cd, lineCellIds[i], static_cast<vtkIdType>(i+offset) );
   }
   offset += size;
   size = polyCellIds.size();
   for ( size_t i = 0; i < size; ++i )
   {
-    outputCD->CopyData(cd, polyCellIds[i], i+offset );
+    outputCD->CopyData(cd, polyCellIds[i], static_cast<vtkIdType>(i+offset) );
   }
   offset += size;
   size = stripCellIds.size();
   for ( size_t i = 0; i < size; ++i )
   {
-    outputCD->CopyData(cd, stripCellIds[i], i+offset );
+    outputCD->CopyData(cd, stripCellIds[i], static_cast<vtkIdType>(i+offset) );
   }
 
   output->Squeeze();
