@@ -51,7 +51,7 @@
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
-  PIMPL() : VisibleColumnsModified(true), BigChart(NULL),
+  PIMPL() : VisibleColumnsModified(true), BigChart(NULL), BigChartPos(0, 0),
     ResizingBigChart(false), AnimationCallbackInitialized(false), TimerId(0),
     TimerCallbackInitialized(false)
   {
