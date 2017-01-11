@@ -697,7 +697,7 @@ void vtkCornerAnnotation::SetText(int i, const char *text)
   }
 
   if (!text ||
-      (this->CornerText[i] && text && (!strcmp(this->CornerText[i],text))))
+      (this->CornerText[i] && (!strcmp(this->CornerText[i],text))))
   {
     return;
   }

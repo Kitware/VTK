@@ -1177,11 +1177,10 @@ void vtkXdmf3DataSet::CopyShape(
   }
   dataSet->SetExtent(whole_extent);
 
-  vtkDataArray *vCoords = NULL;
   shared_ptr<XdmfArray> xCoords;
 
   xCoords = grid->getCoordinates(0);
-  vCoords = vtkXdmf3DataSet::XdmfToVTKArray
+  vtkDataArray *vCoords = vtkXdmf3DataSet::XdmfToVTKArray
     (xCoords.get(), xCoords->getName(), 1, keeper);
   dataSet->SetXCoordinates(vCoords);
   if (vCoords)
@@ -1218,13 +1217,12 @@ void vtkXdmf3DataSet::VTKToXdmf(
   bool hasTime, double time,
   const char* name)
 {
-  vtkDataArray *vCoords = NULL;
   shared_ptr<XdmfArray> xXCoords = XdmfArray::New();
   shared_ptr<XdmfArray> xYCoords = XdmfArray::New();
   shared_ptr<XdmfArray> xZCoords = XdmfArray::New();
 
   bool OK = true;
-  vCoords = dataSet->GetXCoordinates();
+  vtkDataArray *vCoords = dataSet->GetXCoordinates();
   OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xZCoords.get());
   if (OK)
   {

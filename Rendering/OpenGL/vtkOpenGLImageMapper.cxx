@@ -688,9 +688,6 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   int front =
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
-#if defined(sparc) && defined(GL_VERSION_1_1)
-  glDisable(GL_BLEND);
-#endif
   switch (data->GetPointData()->GetScalars()->GetDataType())
   {
     vtkTemplateMacro(
@@ -707,9 +704,6 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW);
   glPopMatrix();
   glEnable( GL_LIGHTING);
-#if defined(sparc) && defined(GL_VERSION_1_1)
-  glEnable(GL_BLEND);
-#endif
 
   vtkOpenGLCheckErrorMacro("failed after RenderData");
 }

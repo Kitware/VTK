@@ -1185,7 +1185,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::TexImage3D = reinterpret_cast<vtkgl::PFNGLTEXIMAGE3DPROC>(manager->GetProcAddress("glTexImage3DEXT"));
     vtkgl::TexSubImage3D = reinterpret_cast<vtkgl::PFNGLTEXSUBIMAGE3DPROC>(manager->GetProcAddress("glTexSubImage3DEXT"));
     vtkgl::CopyTexSubImage3D = reinterpret_cast<vtkgl::PFNGLCOPYTEXSUBIMAGE3DPROC>(manager->GetProcAddress("glCopyTexSubImage3DEXT"));
-    return 1 && (vtkgl::TexImage3D != NULL) && (vtkgl::TexSubImage3D != NULL)
+    return (vtkgl::TexImage3D != NULL) && (vtkgl::TexSubImage3D != NULL)
       && (vtkgl::CopyTexSubImage3D != NULL);
   }
 
@@ -1212,7 +1212,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
   if (strcmp(name, "GL_EXT_draw_range_elements") == 0)
   {
     vtkgl::DrawRangeElements = reinterpret_cast<vtkgl::PFNGLDRAWRANGEELEMENTSPROC>(manager->GetProcAddress("glDrawRangeElementsEXT"));
-    return 1 && (vtkgl::DrawRangeElements != NULL);
+    return (vtkgl::DrawRangeElements != NULL);
   }
 
   if (strcmp(name, "GL_SGI_color_table") == 0)
@@ -1227,14 +1227,14 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetColorTable = reinterpret_cast<vtkgl::PFNGLGETCOLORTABLESGIPROC>(manager->GetProcAddress("glGetColorTableSGI"));
     vtkgl::GetColorTableParameterfv = reinterpret_cast<vtkgl::PFNGLGETCOLORTABLEPARAMETERFVSGIPROC>(manager->GetProcAddress("glGetColorTableParameterfvSGI"));
     vtkgl::GetColorTableParameteriv = reinterpret_cast<vtkgl::PFNGLGETCOLORTABLEPARAMETERIVSGIPROC>(manager->GetProcAddress("glGetColorTableParameterivSGI"));
-    return 1 && (vtkgl::ColorTable != NULL) && (vtkgl::ColorTableParameterfv != NULL) && (vtkgl::ColorTableParameteriv != NULL) && (vtkgl::CopyColorTable != NULL) && (vtkgl::GetColorTable != NULL) && (vtkgl::GetColorTableParameterfv != NULL) && (vtkgl::GetColorTableParameteriv != NULL);
+    return (vtkgl::ColorTable != NULL) && (vtkgl::ColorTableParameterfv != NULL) && (vtkgl::ColorTableParameteriv != NULL) && (vtkgl::CopyColorTable != NULL) && (vtkgl::GetColorTable != NULL) && (vtkgl::GetColorTableParameterfv != NULL) && (vtkgl::GetColorTableParameteriv != NULL);
   }
 
   if (strcmp(name, "GL_EXT_color_subtable") == 0)
   {
     vtkgl::ColorSubTable = reinterpret_cast<vtkgl::PFNGLCOLORSUBTABLEPROC>(manager->GetProcAddress("glColorSubTableEXT"));
     vtkgl::CopyColorSubTable = reinterpret_cast<vtkgl::PFNGLCOPYCOLORSUBTABLEPROC>(manager->GetProcAddress("glCopyColorSubTableEXT"));
-    return 1 && (vtkgl::ColorSubTable != NULL) && (vtkgl::CopyColorSubTable != NULL);
+    return (vtkgl::ColorSubTable != NULL) && (vtkgl::CopyColorSubTable != NULL);
   }
 
   if (strcmp(name, "GL_EXT_convolution") == 0)
@@ -1252,7 +1252,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetConvolutionParameteriv = reinterpret_cast<vtkgl::PFNGLGETCONVOLUTIONPARAMETERIVPROC>(manager->GetProcAddress("glGetConvolutionParameterivEXT"));
     vtkgl::GetSeparableFilter = reinterpret_cast<vtkgl::PFNGLGETSEPARABLEFILTERPROC>(manager->GetProcAddress("glGetSeparableFilterEXT"));
     vtkgl::SeparableFilter2D = reinterpret_cast<vtkgl::PFNGLSEPARABLEFILTER2DPROC>(manager->GetProcAddress("glSeparableFilter2DEXT"));
-    return 1 && (vtkgl::ConvolutionFilter1D != NULL) && (vtkgl::ConvolutionFilter2D != NULL) && (vtkgl::ConvolutionParameterf != NULL) && (vtkgl::ConvolutionParameterfv != NULL) && (vtkgl::ConvolutionParameteri != NULL) && (vtkgl::ConvolutionParameteriv != NULL) && (vtkgl::CopyConvolutionFilter1D != NULL) && (vtkgl::CopyConvolutionFilter2D != NULL) && (vtkgl::GetConvolutionFilter != NULL) && (vtkgl::GetConvolutionParameterfv != NULL) && (vtkgl::GetConvolutionParameteriv != NULL) && (vtkgl::GetSeparableFilter != NULL) && (vtkgl::SeparableFilter2D != NULL);
+    return (vtkgl::ConvolutionFilter1D != NULL) && (vtkgl::ConvolutionFilter2D != NULL) && (vtkgl::ConvolutionParameterf != NULL) && (vtkgl::ConvolutionParameterfv != NULL) && (vtkgl::ConvolutionParameteri != NULL) && (vtkgl::ConvolutionParameteriv != NULL) && (vtkgl::CopyConvolutionFilter1D != NULL) && (vtkgl::CopyConvolutionFilter2D != NULL) && (vtkgl::GetConvolutionFilter != NULL) && (vtkgl::GetConvolutionParameterfv != NULL) && (vtkgl::GetConvolutionParameteriv != NULL) && (vtkgl::GetSeparableFilter != NULL) && (vtkgl::SeparableFilter2D != NULL);
   }
 
   if (strcmp(name, "GL_HP_convolution_border_modes") == 0)
@@ -1277,19 +1277,19 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::Minmax = reinterpret_cast<vtkgl::PFNGLMINMAXPROC>(manager->GetProcAddress("glMinmaxEXT"));
     vtkgl::ResetHistogram = reinterpret_cast<vtkgl::PFNGLRESETHISTOGRAMPROC>(manager->GetProcAddress("glResetHistogramEXT"));
     vtkgl::ResetMinmax = reinterpret_cast<vtkgl::PFNGLRESETMINMAXPROC>(manager->GetProcAddress("glResetMinmaxEXT"));
-    return 1 && (vtkgl::GetHistogram != NULL) && (vtkgl::GetHistogramParameterfv != NULL) && (vtkgl::GetHistogramParameteriv != NULL) && (vtkgl::GetMinmax != NULL) && (vtkgl::GetMinmaxParameterfv != NULL) && (vtkgl::GetMinmaxParameteriv != NULL) && (vtkgl::Histogram != NULL) && (vtkgl::Minmax != NULL) && (vtkgl::ResetHistogram != NULL) && (vtkgl::ResetMinmax != NULL);
+    return (vtkgl::GetHistogram != NULL) && (vtkgl::GetHistogramParameterfv != NULL) && (vtkgl::GetHistogramParameteriv != NULL) && (vtkgl::GetMinmax != NULL) && (vtkgl::GetMinmaxParameterfv != NULL) && (vtkgl::GetMinmaxParameteriv != NULL) && (vtkgl::Histogram != NULL) && (vtkgl::Minmax != NULL) && (vtkgl::ResetHistogram != NULL) && (vtkgl::ResetMinmax != NULL);
   }
 
   if (strcmp(name, "GL_EXT_blend_color") == 0)
   {
     vtkgl::BlendColor = reinterpret_cast<vtkgl::PFNGLBLENDCOLORPROC>(manager->GetProcAddress("glBlendColorEXT"));
-    return 1 && (vtkgl::BlendColor != NULL);
+    return (vtkgl::BlendColor != NULL);
   }
 
   if (strcmp(name, "GL_EXT_blend_minmax") == 0)
   {
     vtkgl::BlendEquation = reinterpret_cast<vtkgl::PFNGLBLENDEQUATIONPROC>(manager->GetProcAddress("glBlendEquationEXT"));
-    return 1 && (vtkgl::BlendEquation != NULL);
+    return (vtkgl::BlendEquation != NULL);
   }
   if (strcmp(name, "GL_EXT_blend_subtract") == 0)
   {
@@ -1307,7 +1307,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::CompressedTexSubImage2D = reinterpret_cast<vtkgl::PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>(manager->GetProcAddress("glCompressedTexSubImage2DARB"));
     vtkgl::CompressedTexSubImage1D = reinterpret_cast<vtkgl::PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC>(manager->GetProcAddress("glCompressedTexSubImage1DARB"));
     vtkgl::GetCompressedTexImage = reinterpret_cast<vtkgl::PFNGLGETCOMPRESSEDTEXIMAGEPROC>(manager->GetProcAddress("glGetCompressedTexImageARB"));
-    return 1 && (vtkgl::CompressedTexImage3D != NULL) && (vtkgl::CompressedTexImage2D != NULL) && (vtkgl::CompressedTexImage1D != NULL) && (vtkgl::CompressedTexSubImage3D != NULL) && (vtkgl::CompressedTexSubImage2D != NULL) && (vtkgl::CompressedTexSubImage1D != NULL) && (vtkgl::GetCompressedTexImage != NULL);
+    return (vtkgl::CompressedTexImage3D != NULL) && (vtkgl::CompressedTexImage2D != NULL) && (vtkgl::CompressedTexImage1D != NULL) && (vtkgl::CompressedTexSubImage3D != NULL) && (vtkgl::CompressedTexSubImage2D != NULL) && (vtkgl::CompressedTexSubImage1D != NULL) && (vtkgl::GetCompressedTexImage != NULL);
   }
 
   if (strcmp(name, "GL_ARB_texture_cube_map") == 0)
@@ -1318,7 +1318,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
   if (strcmp(name, "GL_ARB_multisample") == 0)
   {
     vtkgl::SampleCoverage = reinterpret_cast<vtkgl::PFNGLSAMPLECOVERAGEPROC>(manager->GetProcAddress("glSampleCoverageARB"));
-    return 1 && (vtkgl::SampleCoverage != NULL);
+    return (vtkgl::SampleCoverage != NULL);
   }
 
   if (strcmp(name, "GL_ARB_multitexture") == 0)
@@ -1357,7 +1357,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::MultiTexCoord4iv = reinterpret_cast<vtkgl::PFNGLMULTITEXCOORD4IVPROC>(manager->GetProcAddress("glMultiTexCoord4ivARB"));
     vtkgl::MultiTexCoord4s = reinterpret_cast<vtkgl::PFNGLMULTITEXCOORD4SPROC>(manager->GetProcAddress("glMultiTexCoord4sARB"));
     vtkgl::MultiTexCoord4sv = reinterpret_cast<vtkgl::PFNGLMULTITEXCOORD4SVPROC>(manager->GetProcAddress("glMultiTexCoord4svARB"));
-    return 1 && (vtkgl::ActiveTexture != NULL) && (vtkgl::ClientActiveTexture != NULL) && (vtkgl::MultiTexCoord1d != NULL) && (vtkgl::MultiTexCoord1dv != NULL) && (vtkgl::MultiTexCoord1f != NULL) && (vtkgl::MultiTexCoord1fv != NULL) && (vtkgl::MultiTexCoord1i != NULL) && (vtkgl::MultiTexCoord1iv != NULL) && (vtkgl::MultiTexCoord1s != NULL) && (vtkgl::MultiTexCoord1sv != NULL) && (vtkgl::MultiTexCoord2d != NULL) && (vtkgl::MultiTexCoord2dv != NULL) && (vtkgl::MultiTexCoord2f != NULL) && (vtkgl::MultiTexCoord2fv != NULL) && (vtkgl::MultiTexCoord2i != NULL) && (vtkgl::MultiTexCoord2iv != NULL) && (vtkgl::MultiTexCoord2s != NULL) && (vtkgl::MultiTexCoord2sv != NULL) && (vtkgl::MultiTexCoord3d != NULL) && (vtkgl::MultiTexCoord3dv != NULL) && (vtkgl::MultiTexCoord3f != NULL) && (vtkgl::MultiTexCoord3fv != NULL) && (vtkgl::MultiTexCoord3i != NULL) && (vtkgl::MultiTexCoord3iv != NULL) && (vtkgl::MultiTexCoord3s != NULL) && (vtkgl::MultiTexCoord3sv != NULL) && (vtkgl::MultiTexCoord4d != NULL) && (vtkgl::MultiTexCoord4dv != NULL) && (vtkgl::MultiTexCoord4f != NULL) && (vtkgl::MultiTexCoord4fv != NULL) && (vtkgl::MultiTexCoord4i != NULL) && (vtkgl::MultiTexCoord4iv != NULL) && (vtkgl::MultiTexCoord4s != NULL) && (vtkgl::MultiTexCoord4sv !=NULL);
+    return (vtkgl::ActiveTexture != NULL) && (vtkgl::ClientActiveTexture != NULL) && (vtkgl::MultiTexCoord1d != NULL) && (vtkgl::MultiTexCoord1dv != NULL) && (vtkgl::MultiTexCoord1f != NULL) && (vtkgl::MultiTexCoord1fv != NULL) && (vtkgl::MultiTexCoord1i != NULL) && (vtkgl::MultiTexCoord1iv != NULL) && (vtkgl::MultiTexCoord1s != NULL) && (vtkgl::MultiTexCoord1sv != NULL) && (vtkgl::MultiTexCoord2d != NULL) && (vtkgl::MultiTexCoord2dv != NULL) && (vtkgl::MultiTexCoord2f != NULL) && (vtkgl::MultiTexCoord2fv != NULL) && (vtkgl::MultiTexCoord2i != NULL) && (vtkgl::MultiTexCoord2iv != NULL) && (vtkgl::MultiTexCoord2s != NULL) && (vtkgl::MultiTexCoord2sv != NULL) && (vtkgl::MultiTexCoord3d != NULL) && (vtkgl::MultiTexCoord3dv != NULL) && (vtkgl::MultiTexCoord3f != NULL) && (vtkgl::MultiTexCoord3fv != NULL) && (vtkgl::MultiTexCoord3i != NULL) && (vtkgl::MultiTexCoord3iv != NULL) && (vtkgl::MultiTexCoord3s != NULL) && (vtkgl::MultiTexCoord3sv != NULL) && (vtkgl::MultiTexCoord4d != NULL) && (vtkgl::MultiTexCoord4dv != NULL) && (vtkgl::MultiTexCoord4f != NULL) && (vtkgl::MultiTexCoord4fv != NULL) && (vtkgl::MultiTexCoord4i != NULL) && (vtkgl::MultiTexCoord4iv != NULL) && (vtkgl::MultiTexCoord4s != NULL) && (vtkgl::MultiTexCoord4sv !=NULL);
   }
 
   if (strcmp(name, "GL_ARB_texture_env_add") == 0)
@@ -1386,7 +1386,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::LoadTransposeMatrixd = reinterpret_cast<vtkgl::PFNGLLOADTRANSPOSEMATRIXDPROC>(manager->GetProcAddress("glLoadTransposeMatrixdARB"));
     vtkgl::MultTransposeMatrixf = reinterpret_cast<vtkgl::PFNGLMULTTRANSPOSEMATRIXFPROC>(manager->GetProcAddress("glMultTransposeMatrixfARB"));
     vtkgl::MultTransposeMatrixd = reinterpret_cast<vtkgl::PFNGLMULTTRANSPOSEMATRIXDPROC>(manager->GetProcAddress("glMultTransposeMatrixdARB"));
-    return 1 && (vtkgl::LoadTransposeMatrixf != NULL) && (vtkgl::LoadTransposeMatrixd != NULL) && (vtkgl::MultTransposeMatrixf != NULL) && (vtkgl::MultTransposeMatrixd != NULL);
+    return (vtkgl::LoadTransposeMatrixf != NULL) && (vtkgl::LoadTransposeMatrixd != NULL) && (vtkgl::MultTransposeMatrixf != NULL) && (vtkgl::MultTransposeMatrixd != NULL);
   }
 
   // OpenGL 1.4
@@ -1418,21 +1418,21 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::FogCoordd = reinterpret_cast<vtkgl::PFNGLFOGCOORDDPROC>(manager->GetProcAddress("glFogCoorddEXT"));
     vtkgl::FogCoorddv = reinterpret_cast<vtkgl::PFNGLFOGCOORDDVPROC>(manager->GetProcAddress("glFogCoorddvEXT"));
     vtkgl::FogCoordPointer = reinterpret_cast<vtkgl::PFNGLFOGCOORDPOINTERPROC>(manager->GetProcAddress("glFogCoordPointerEXT"));
-    return 1 && (vtkgl::FogCoordf != NULL) && (vtkgl::FogCoordfv != NULL) && (vtkgl::FogCoordd != NULL) && (vtkgl::FogCoorddv != NULL) && (vtkgl::FogCoordPointer != NULL);
+    return (vtkgl::FogCoordf != NULL) && (vtkgl::FogCoordfv != NULL) && (vtkgl::FogCoordd != NULL) && (vtkgl::FogCoorddv != NULL) && (vtkgl::FogCoordPointer != NULL);
   }
 
   if (strcmp(name, "GL_EXT_multi_draw_arrays") == 0)
   {
     vtkgl::MultiDrawArrays = reinterpret_cast<vtkgl::PFNGLMULTIDRAWARRAYSPROC>(manager->GetProcAddress("glMultiDrawArraysEXT"));
     vtkgl::MultiDrawElements = reinterpret_cast<vtkgl::PFNGLMULTIDRAWELEMENTSPROC>(manager->GetProcAddress("glMultiDrawElementsEXT"));
-    return 1 && (vtkgl::MultiDrawArrays != NULL) && (vtkgl::MultiDrawElements != NULL);
+    return (vtkgl::MultiDrawArrays != NULL) && (vtkgl::MultiDrawElements != NULL);
   }
 
   if (strcmp(name, "GL_ARB_point_parameters") == 0)
   {
     vtkgl::PointParameterf = reinterpret_cast<vtkgl::PFNGLPOINTPARAMETERFPROC>(manager->GetProcAddress("glPointParameterfARB"));
     vtkgl::PointParameterfv = reinterpret_cast<vtkgl::PFNGLPOINTPARAMETERFVPROC>(manager->GetProcAddress("glPointParameterfvARB"));
-    return 1 && (vtkgl::PointParameterf != NULL) && (vtkgl::PointParameterfv != NULL);
+    return (vtkgl::PointParameterf != NULL) && (vtkgl::PointParameterfv != NULL);
   }
 
 
@@ -1455,13 +1455,13 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::SecondaryColor3us = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLOR3USPROC>(manager->GetProcAddress("glSecondaryColor3usEXT"));
     vtkgl::SecondaryColor3usv = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLOR3USVPROC>(manager->GetProcAddress("glSecondaryColor3usvEXT"));
     vtkgl::SecondaryColorPointer = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLORPOINTERPROC>(manager->GetProcAddress("glSecondaryColorPointerEXT"));
-    return 1 && (vtkgl::SecondaryColor3b != NULL) && (vtkgl::SecondaryColor3bv != NULL) && (vtkgl::SecondaryColor3d != NULL) && (vtkgl::SecondaryColor3dv != NULL) && (vtkgl::SecondaryColor3f != NULL) && (vtkgl::SecondaryColor3fv != NULL) && (vtkgl::SecondaryColor3i != NULL) && (vtkgl::SecondaryColor3iv != NULL) && (vtkgl::SecondaryColor3s != NULL) && (vtkgl::SecondaryColor3sv != NULL) && (vtkgl::SecondaryColor3ub!= NULL) && (vtkgl::SecondaryColor3ubv != NULL) && (vtkgl::SecondaryColor3ui != NULL) && (vtkgl::SecondaryColor3uiv != NULL) && (vtkgl::SecondaryColor3us != NULL) && (vtkgl::SecondaryColor3usv != NULL) && (vtkgl::SecondaryColorPointer != NULL);
+    return (vtkgl::SecondaryColor3b != NULL) && (vtkgl::SecondaryColor3bv != NULL) && (vtkgl::SecondaryColor3d != NULL) && (vtkgl::SecondaryColor3dv != NULL) && (vtkgl::SecondaryColor3f != NULL) && (vtkgl::SecondaryColor3fv != NULL) && (vtkgl::SecondaryColor3i != NULL) && (vtkgl::SecondaryColor3iv != NULL) && (vtkgl::SecondaryColor3s != NULL) && (vtkgl::SecondaryColor3sv != NULL) && (vtkgl::SecondaryColor3ub!= NULL) && (vtkgl::SecondaryColor3ubv != NULL) && (vtkgl::SecondaryColor3ui != NULL) && (vtkgl::SecondaryColor3uiv != NULL) && (vtkgl::SecondaryColor3us != NULL) && (vtkgl::SecondaryColor3usv != NULL) && (vtkgl::SecondaryColorPointer != NULL);
   }
 
   if (strcmp(name, "GL_EXT_blend_func_separate") == 0)
   {
     vtkgl::BlendFuncSeparate = reinterpret_cast<vtkgl::PFNGLBLENDFUNCSEPARATEPROC>(manager->GetProcAddress("glBlendFuncSeparateEXT"));
-    return 1 && (vtkgl::BlendFuncSeparate != NULL);
+    return (vtkgl::BlendFuncSeparate != NULL);
   }
 
   if (strcmp(name, "GL_EXT_stencil_wrap") == 0)
@@ -1502,7 +1502,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::WindowPos3iv = reinterpret_cast<vtkgl::PFNGLWINDOWPOS3IVPROC>(manager->GetProcAddress("glWindowPos3ivARB"));
     vtkgl::WindowPos3s = reinterpret_cast<vtkgl::PFNGLWINDOWPOS3SPROC>(manager->GetProcAddress("glWindowPos3sARB"));
     vtkgl::WindowPos3sv = reinterpret_cast<vtkgl::PFNGLWINDOWPOS3SVPROC>(manager->GetProcAddress("glWindowPos3svARB"));
-    return 1 && (vtkgl::WindowPos2d != NULL) && (vtkgl::WindowPos2dv != NULL) && (vtkgl::WindowPos2f != NULL) && (vtkgl::WindowPos2fv != NULL) && (vtkgl::WindowPos2i != NULL) && (vtkgl::WindowPos2iv != NULL) && (vtkgl::WindowPos2s != NULL) && (vtkgl::WindowPos2sv != NULL) && (vtkgl::WindowPos3d != NULL) && (vtkgl::WindowPos3dv != NULL) && (vtkgl::WindowPos3f != NULL) && (vtkgl::WindowPos3fv != NULL) && (vtkgl::WindowPos3i != NULL) && (vtkgl::WindowPos3iv != NULL) && (vtkgl::WindowPos3s != NULL) && (vtkgl::WindowPos3sv != NULL);
+    return (vtkgl::WindowPos2d != NULL) && (vtkgl::WindowPos2dv != NULL) && (vtkgl::WindowPos2f != NULL) && (vtkgl::WindowPos2fv != NULL) && (vtkgl::WindowPos2i != NULL) && (vtkgl::WindowPos2iv != NULL) && (vtkgl::WindowPos2s != NULL) && (vtkgl::WindowPos2sv != NULL) && (vtkgl::WindowPos3d != NULL) && (vtkgl::WindowPos3dv != NULL) && (vtkgl::WindowPos3f != NULL) && (vtkgl::WindowPos3fv != NULL) && (vtkgl::WindowPos3i != NULL) && (vtkgl::WindowPos3iv != NULL) && (vtkgl::WindowPos3s != NULL) && (vtkgl::WindowPos3sv != NULL);
   }
 
   // OpenGL 1.5
@@ -1520,7 +1520,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::UnmapBuffer = reinterpret_cast<vtkgl::PFNGLUNMAPBUFFERPROC>(manager->GetProcAddress("glUnmapBufferARB"));
     vtkgl::GetBufferParameteriv = reinterpret_cast<vtkgl::PFNGLGETBUFFERPARAMETERIVPROC>(manager->GetProcAddress("glGetBufferParameterivARB"));
     vtkgl::GetBufferPointerv = reinterpret_cast<vtkgl::PFNGLGETBUFFERPOINTERVPROC>(manager->GetProcAddress("glGetBufferPointervARB"));
-    return 1 && (vtkgl::BindBuffer != NULL) && (vtkgl::DeleteBuffers != NULL) && (vtkgl::GenBuffers != NULL) && (vtkgl::IsBuffer != NULL) && (vtkgl::BufferData != NULL) && (vtkgl::BufferSubData != NULL) && (vtkgl::GetBufferSubData != NULL) && (vtkgl::MapBuffer != NULL) && (vtkgl::UnmapBuffer != NULL) && (vtkgl::GetBufferParameteriv != NULL) && (vtkgl::GetBufferPointerv != NULL);
+    return (vtkgl::BindBuffer != NULL) && (vtkgl::DeleteBuffers != NULL) && (vtkgl::GenBuffers != NULL) && (vtkgl::IsBuffer != NULL) && (vtkgl::BufferData != NULL) && (vtkgl::BufferSubData != NULL) && (vtkgl::GetBufferSubData != NULL) && (vtkgl::MapBuffer != NULL) && (vtkgl::UnmapBuffer != NULL) && (vtkgl::GetBufferParameteriv != NULL) && (vtkgl::GetBufferPointerv != NULL);
   }
 
   if (strcmp(name, "GL_ARB_occlusion_query") == 0)
@@ -1533,7 +1533,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetQueryiv = reinterpret_cast<vtkgl::PFNGLGETQUERYIVPROC>(manager->GetProcAddress("glGetQueryivARB"));
     vtkgl::GetQueryObjectiv = reinterpret_cast<vtkgl::PFNGLGETQUERYOBJECTIVPROC>(manager->GetProcAddress("glGetQueryObjectivARB"));
     vtkgl::GetQueryObjectuiv = reinterpret_cast<vtkgl::PFNGLGETQUERYOBJECTUIVPROC>(manager->GetProcAddress("glGetQueryObjectuivARB"));
-    return 1 && (vtkgl::GenQueries != NULL) && (vtkgl::DeleteQueries != NULL) && (vtkgl::IsQuery != NULL) && (vtkgl::BeginQuery != NULL) && (vtkgl::EndQuery != NULL) && (vtkgl::GetQueryiv != NULL) && (vtkgl::GetQueryObjectiv != NULL) && (vtkgl::GetQueryObjectuiv != NULL);
+    return (vtkgl::GenQueries != NULL) && (vtkgl::DeleteQueries != NULL) && (vtkgl::IsQuery != NULL) && (vtkgl::BeginQuery != NULL) && (vtkgl::EndQuery != NULL) && (vtkgl::GetQueryiv != NULL) && (vtkgl::GetQueryObjectiv != NULL) && (vtkgl::GetQueryObjectuiv != NULL);
   }
 
   if (strcmp(name, "GL_EXT_shadow_funcs") == 0)
@@ -1604,7 +1604,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetUniformfv = reinterpret_cast<vtkgl::PFNGLGETUNIFORMFVPROC>(manager->GetProcAddress("glGetUniformfvARB"));
     vtkgl::GetUniformiv = reinterpret_cast<vtkgl::PFNGLGETUNIFORMIVPROC>(manager->GetProcAddress("glGetUniformivARB"));
     vtkgl::GetShaderSource = reinterpret_cast<vtkgl::PFNGLGETSHADERSOURCEPROC>(manager->GetProcAddress("glGetShaderSourceARB"));
-    return 1 && (vtkgl::DeleteProgram != NULL) && (vtkgl::DeleteShader != NULL) && (vtkgl::IsProgram != NULL) && (vtkgl::IsShader != NULL) && (vtkgl::DetachShader != NULL) && (vtkgl::CreateShader != NULL) && (vtkgl::ShaderSource != NULL) && (vtkgl::CompileShader != NULL) && (vtkgl::CreateProgram != NULL) && (vtkgl::AttachShader != NULL) && (vtkgl::LinkProgram != NULL) && (vtkgl::UseProgram != NULL) && (vtkgl::ValidateProgram != NULL) && (vtkgl::Uniform1f != NULL) && (vtkgl::Uniform2f != NULL) && (vtkgl::Uniform3f != NULL) && (vtkgl::Uniform4f != NULL) && (vtkgl::Uniform1i != NULL) && (vtkgl::Uniform2i != NULL) && (vtkgl::Uniform3i != NULL) && (vtkgl::Uniform4i != NULL) && (vtkgl::Uniform1fv != NULL) && (vtkgl::Uniform2fv != NULL) && (vtkgl::Uniform3fv != NULL) && (vtkgl::Uniform4fv != NULL) && (vtkgl::Uniform1iv != NULL) && (vtkgl::Uniform2iv != NULL) && (vtkgl::Uniform3iv != NULL) && (vtkgl::Uniform4iv != NULL) && (vtkgl::UniformMatrix2fv != NULL) && (vtkgl::UniformMatrix3fv != NULL) && (vtkgl::UniformMatrix4fv != NULL) && (vtkgl::GetProgramiv != NULL) && (vtkgl::GetShaderiv != NULL) && (vtkgl::GetProgramInfoLog != NULL) && (vtkgl::GetShaderInfoLog != NULL) && (vtkgl::GetAttachedShaders != NULL) && (vtkgl::GetUniformLocation != NULL) && (vtkgl::GetActiveUniform != NULL) && (vtkgl::GetUniformfv != NULL) && (vtkgl::GetUniformiv != NULL) && (vtkgl::GetShaderSource != NULL);
+    return (vtkgl::DeleteProgram != NULL) && (vtkgl::DeleteShader != NULL) && (vtkgl::IsProgram != NULL) && (vtkgl::IsShader != NULL) && (vtkgl::DetachShader != NULL) && (vtkgl::CreateShader != NULL) && (vtkgl::ShaderSource != NULL) && (vtkgl::CompileShader != NULL) && (vtkgl::CreateProgram != NULL) && (vtkgl::AttachShader != NULL) && (vtkgl::LinkProgram != NULL) && (vtkgl::UseProgram != NULL) && (vtkgl::ValidateProgram != NULL) && (vtkgl::Uniform1f != NULL) && (vtkgl::Uniform2f != NULL) && (vtkgl::Uniform3f != NULL) && (vtkgl::Uniform4f != NULL) && (vtkgl::Uniform1i != NULL) && (vtkgl::Uniform2i != NULL) && (vtkgl::Uniform3i != NULL) && (vtkgl::Uniform4i != NULL) && (vtkgl::Uniform1fv != NULL) && (vtkgl::Uniform2fv != NULL) && (vtkgl::Uniform3fv != NULL) && (vtkgl::Uniform4fv != NULL) && (vtkgl::Uniform1iv != NULL) && (vtkgl::Uniform2iv != NULL) && (vtkgl::Uniform3iv != NULL) && (vtkgl::Uniform4iv != NULL) && (vtkgl::UniformMatrix2fv != NULL) && (vtkgl::UniformMatrix3fv != NULL) && (vtkgl::UniformMatrix4fv != NULL) && (vtkgl::GetProgramiv != NULL) && (vtkgl::GetShaderiv != NULL) && (vtkgl::GetProgramInfoLog != NULL) && (vtkgl::GetShaderInfoLog != NULL) && (vtkgl::GetAttachedShaders != NULL) && (vtkgl::GetUniformLocation != NULL) && (vtkgl::GetActiveUniform != NULL) && (vtkgl::GetUniformfv != NULL) && (vtkgl::GetUniformiv != NULL) && (vtkgl::GetShaderSource != NULL);
   }
 
   if (strcmp(name, "GL_ARB_vertex_shader") == 0)
@@ -1660,7 +1660,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::VertexAttrib4usv = reinterpret_cast<vtkgl::PFNGLVERTEXATTRIB4USVPROC>(manager->GetProcAddress("glVertexAttrib4usvARB"));
     vtkgl::VertexAttribPointer = reinterpret_cast<vtkgl::PFNGLVERTEXATTRIBPOINTERPROC>(manager->GetProcAddress("glVertexAttribPointerARB"));
 
-    return 1 && (vtkgl::BindAttribLocation != NULL) && (vtkgl::GetActiveAttrib != NULL) && (vtkgl::GetAttribLocation != NULL) && (vtkgl::DisableVertexAttribArray != NULL) && (vtkgl::EnableVertexAttribArray != NULL) && (vtkgl::GetVertexAttribdv != NULL) && (vtkgl::GetVertexAttribfv != NULL) && (vtkgl::GetVertexAttribiv != NULL) && (vtkgl::GetVertexAttribPointerv != NULL) && (vtkgl::VertexAttrib1d != NULL) && (vtkgl::VertexAttrib1dv != NULL) && (vtkgl::VertexAttrib1f != NULL) && (vtkgl::VertexAttrib1fv != NULL) && (vtkgl::VertexAttrib1s != NULL) && (vtkgl::VertexAttrib1sv != NULL) && (vtkgl::VertexAttrib2d != NULL) && (vtkgl::VertexAttrib2dv != NULL) && (vtkgl::VertexAttrib2f != NULL) && (vtkgl::VertexAttrib2fv != NULL) && (vtkgl::VertexAttrib2s != NULL) && (vtkgl::VertexAttrib2sv != NULL) && (vtkgl::VertexAttrib3d != NULL) && (vtkgl::VertexAttrib3dv != NULL) && (vtkgl::VertexAttrib3f != NULL) && (vtkgl::VertexAttrib3fv != NULL) && (vtkgl::VertexAttrib3s != NULL) && (vtkgl::VertexAttrib3sv != NULL) && (vtkgl::VertexAttrib4Nbv != NULL) && (vtkgl::VertexAttrib4Niv != NULL) && (vtkgl::VertexAttrib4Nsv != NULL) && (vtkgl::VertexAttrib4Nub != NULL) && (vtkgl::VertexAttrib4Nubv != NULL) && (vtkgl::VertexAttrib4Nuiv != NULL) && (vtkgl::VertexAttrib4Nusv != NULL) && (vtkgl::VertexAttrib4bv != NULL) && (vtkgl::VertexAttrib4d != NULL) && (vtkgl::VertexAttrib4dv != NULL) && (vtkgl::VertexAttrib4f != NULL) && (vtkgl::VertexAttrib4fv != NULL) && (vtkgl::VertexAttrib4iv != NULL) && (vtkgl::VertexAttrib4s != NULL) && (vtkgl::VertexAttrib4sv != NULL) && (vtkgl::VertexAttrib4ubv != NULL) && (vtkgl::VertexAttrib4uiv != NULL) && (vtkgl::VertexAttrib4usv != NULL) && (vtkgl::VertexAttribPointer != NULL);
+    return (vtkgl::BindAttribLocation != NULL) && (vtkgl::GetActiveAttrib != NULL) && (vtkgl::GetAttribLocation != NULL) && (vtkgl::DisableVertexAttribArray != NULL) && (vtkgl::EnableVertexAttribArray != NULL) && (vtkgl::GetVertexAttribdv != NULL) && (vtkgl::GetVertexAttribfv != NULL) && (vtkgl::GetVertexAttribiv != NULL) && (vtkgl::GetVertexAttribPointerv != NULL) && (vtkgl::VertexAttrib1d != NULL) && (vtkgl::VertexAttrib1dv != NULL) && (vtkgl::VertexAttrib1f != NULL) && (vtkgl::VertexAttrib1fv != NULL) && (vtkgl::VertexAttrib1s != NULL) && (vtkgl::VertexAttrib1sv != NULL) && (vtkgl::VertexAttrib2d != NULL) && (vtkgl::VertexAttrib2dv != NULL) && (vtkgl::VertexAttrib2f != NULL) && (vtkgl::VertexAttrib2fv != NULL) && (vtkgl::VertexAttrib2s != NULL) && (vtkgl::VertexAttrib2sv != NULL) && (vtkgl::VertexAttrib3d != NULL) && (vtkgl::VertexAttrib3dv != NULL) && (vtkgl::VertexAttrib3f != NULL) && (vtkgl::VertexAttrib3fv != NULL) && (vtkgl::VertexAttrib3s != NULL) && (vtkgl::VertexAttrib3sv != NULL) && (vtkgl::VertexAttrib4Nbv != NULL) && (vtkgl::VertexAttrib4Niv != NULL) && (vtkgl::VertexAttrib4Nsv != NULL) && (vtkgl::VertexAttrib4Nub != NULL) && (vtkgl::VertexAttrib4Nubv != NULL) && (vtkgl::VertexAttrib4Nuiv != NULL) && (vtkgl::VertexAttrib4Nusv != NULL) && (vtkgl::VertexAttrib4bv != NULL) && (vtkgl::VertexAttrib4d != NULL) && (vtkgl::VertexAttrib4dv != NULL) && (vtkgl::VertexAttrib4f != NULL) && (vtkgl::VertexAttrib4fv != NULL) && (vtkgl::VertexAttrib4iv != NULL) && (vtkgl::VertexAttrib4s != NULL) && (vtkgl::VertexAttrib4sv != NULL) && (vtkgl::VertexAttrib4ubv != NULL) && (vtkgl::VertexAttrib4uiv != NULL) && (vtkgl::VertexAttrib4usv != NULL) && (vtkgl::VertexAttribPointer != NULL);
 
     // bug in the glext.h file:
     // the following method are in GL_ARB_vertex_program instead of
@@ -1682,7 +1682,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
   if (strcmp(name, "GL_ARB_draw_buffers") == 0)
   {
     vtkgl::DrawBuffers = reinterpret_cast<vtkgl::PFNGLDRAWBUFFERSPROC>(manager->GetProcAddress("glDrawBuffersARB"));
-    return 1 && (vtkgl::DrawBuffers != NULL);
+    return (vtkgl::DrawBuffers != NULL);
   }
 
   if (strcmp(name, "GL_ARB_texture_non_power_of_two") == 0)
@@ -1698,7 +1698,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
   if (strcmp(name, "GL_EXT_blend_equation_separate") == 0)
   {
     vtkgl::BlendEquationSeparate = reinterpret_cast<vtkgl::PFNGLBLENDEQUATIONSEPARATEPROC>(manager->GetProcAddress("glBlendEquationSeparateEXT"));
-    return 1 && (vtkgl::BlendEquationSeparate != NULL);
+    return (vtkgl::BlendEquationSeparate != NULL);
   }
 
   if (strcmp(name, "GL_EXT_blend_logic_op") == 0)
@@ -1713,7 +1713,7 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
   {
     vtkgl::StencilOpSeparate = reinterpret_cast<vtkgl::PFNGLSTENCILOPSEPARATEPROC>(manager->GetProcAddress("glStencilOpSeparateATI"));
     vtkgl::StencilFuncSeparate = reinterpret_cast<vtkgl::PFNGLSTENCILFUNCSEPARATEPROC>(manager->GetProcAddress("glStencilFuncSeparateATI"));
-    return 1 && (vtkgl::StencilOpSeparate != NULL) && (vtkgl::StencilFuncSeparate != NULL);
+    return (vtkgl::StencilOpSeparate != NULL) && (vtkgl::StencilFuncSeparate != NULL);
     // StencilMaskSeparate?
   }
 

@@ -2412,10 +2412,9 @@ case 22:
 YY_RULE_SETUP
 
 { /* let the wrappers see the parameter */
-      const char *args = NULL;
+      const char *args = get_macro_arguments();
       const char *cp;
       size_t l = 0;
-      args = get_macro_arguments();
       if (args)
         {
         cp = args;

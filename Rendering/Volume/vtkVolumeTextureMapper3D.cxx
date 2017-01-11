@@ -471,9 +471,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
   // Do final error checking on limits - make sure they are all within bounds
   // of the scalar input
 
-  x_start = (x_start<0)?(0):(x_start);
-  y_start = (y_start<0)?(0):(y_start);
-  z_start = (z_start<0)?(0):(z_start);
+  assert(z_start >= 0);
 
   x_limit = (x_limit>dim[0])?(outputDim[0]):(x_limit);
   y_limit = (y_limit>dim[1])?(outputDim[1]):(y_limit);

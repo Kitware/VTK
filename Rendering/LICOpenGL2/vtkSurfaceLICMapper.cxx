@@ -186,8 +186,7 @@ void vtkSurfaceLICMapper::RenderPiece(
   }
 
   this->CurrentInput = this->GetInput();
-  vtkDataArray *vectors = NULL;
-  vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
   this->LICInterface->SetHasVectors(vectors != NULL ? true : false);
 
   if (!this->LICInterface->CanRenderSurfaceLIC(actor))
@@ -245,8 +244,7 @@ void vtkSurfaceLICMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
     return;
   }
 
-  vtkDataArray *vectors = NULL;
-  vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
 
   int numComp = vectors->GetNumberOfComponents();
   this->VectorVBO->VertexCount = vectors->GetNumberOfTuples();

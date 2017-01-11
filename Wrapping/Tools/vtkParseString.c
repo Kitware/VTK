@@ -605,9 +605,7 @@ void vtkParse_FreeStringCache(StringCache *cache)
 /* duplicate the first n bytes of a string and terminate it */
 const char *vtkParse_CacheString(StringCache *cache, const char *in, size_t n)
 {
-  char *res = NULL;
-
-  res = vtkParse_NewString(cache, n);
+  char *res = vtkParse_NewString(cache, n);
   strncpy(res, in, n);
   res[n] = '\0';
 

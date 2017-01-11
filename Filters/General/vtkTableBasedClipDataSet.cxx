@@ -1955,21 +1955,15 @@ void vtkTableBasedClipDataSet::ClipImageData( vtkDataSet * inputGrd,
   int                  dataDims[3];
   double               spacings[3];
   double               tmpValue = 0.0;
-  double             * dataBBox = NULL;
-  vtkImageData       * volImage = NULL;
-  vtkDoubleArray     * pxCoords = NULL;
-  vtkDoubleArray     * pyCoords = NULL;
-  vtkDoubleArray     * pzCoords = NULL;
   vtkRectilinearGrid * rectGrid = NULL;
-
-  volImage = vtkImageData::SafeDownCast( inputGrd );
+  vtkImageData       * volImage = vtkImageData::SafeDownCast( inputGrd );
   volImage->GetDimensions( dataDims );
   volImage->GetSpacing( spacings );
-  dataBBox = volImage->GetBounds();
+  double             * dataBBox = volImage->GetBounds();
 
-  pxCoords = vtkDoubleArray::New();
-  pyCoords = vtkDoubleArray::New();
-  pzCoords = vtkDoubleArray::New();
+  vtkDoubleArray     * pxCoords = vtkDoubleArray::New();
+  vtkDoubleArray     * pyCoords = vtkDoubleArray::New();
+  vtkDoubleArray     * pzCoords = vtkDoubleArray::New();
   vtkDoubleArray * tmpArays[3] = { pxCoords, pyCoords, pzCoords };
   for ( j = 0; j < 3; j ++ )
   {

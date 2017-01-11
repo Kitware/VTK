@@ -749,10 +749,9 @@ void vtkTecplotReader::GetArraysFromPointPackingZone
   int     isXcoord;
   int     isYcoord;
   int     isZcoord;
-  int   * anyCoord = NULL; // is any coordinate?
-  int   * coordIdx = NULL; // index of the coordinate array, just in case
-  int   * selected = NULL; // is a selected data array?
-  float * cordsPtr = NULL;
+  int   * anyCoord; // is any coordinate?
+  int   * coordIdx; // index of the coordinate array, just in case
+  int   * selected; // is a selected data array?
   float * arrayPtr = NULL;
   float   theValue;
   vtkFloatArray * theArray = NULL;
@@ -765,7 +764,7 @@ void vtkTecplotReader::GetArraysFromPointPackingZone
   // geoemtry: 3D point coordinates (note that this array must be initialized
   // since only 2D coordinates might be provided by a Tecplot file)
   theNodes->SetNumberOfPoints( numNodes );
-  cordsPtr = static_cast< float * > (  theNodes->GetVoidPointer( 0 )  );
+  float * cordsPtr = static_cast< float * > (  theNodes->GetVoidPointer( 0 )  );
   memset( cordsPtr, 0, sizeof( float ) * 3 * numNodes );
 
   // three arrays used to determine the role of each variable (including
@@ -883,9 +882,8 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
   int     isXcoord;
   int     isYcoord;
   int     isZcoord;
-  int   * anyCoord = NULL; // is any coordinate?
-  int   * selected = NULL; // is a selected data attribute?
-  float * cordsPtr = NULL;
+  int   * anyCoord; // is any coordinate?
+  int   * selected; // is a selected data attribute?
   float * arrayPtr = NULL;
   vtkFloatArray * theArray = NULL;
   std::vector< vtkFloatArray * > zoneData;
@@ -896,7 +894,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
   // geoemtry: 3D point coordinates (note that this array must be initialized
   // since only 2D coordinates might be provided by a Tecplot file)
   theNodes->SetNumberOfPoints( numNodes );
-  cordsPtr = static_cast< float * > (  theNodes->GetVoidPointer( 0 )  );
+  float * cordsPtr = static_cast< float * > (  theNodes->GetVoidPointer( 0 )  );
   memset( cordsPtr, 0, sizeof( float ) * 3 * numNodes );
 
   // two arrays used to determine the role of each variable (including

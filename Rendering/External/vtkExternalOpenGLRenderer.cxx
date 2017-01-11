@@ -106,10 +106,9 @@ void vtkExternalOpenGLRenderer::Render(void)
     glGetBooleanv(curLight, &status);
 
     int l_ind = static_cast<int> (curLight - GL_LIGHT0);
-    vtkLight* light = NULL;
     bool light_created = false;
-    light = vtkLight::SafeDownCast(
-              this->GetLights()->GetItemAsObject(l_ind));
+    vtkLight* light = vtkLight::SafeDownCast(
+                        this->GetLights()->GetItemAsObject(l_ind));
     if (light)
     {
       if (!status)

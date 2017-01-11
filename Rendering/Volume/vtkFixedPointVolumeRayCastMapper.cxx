@@ -124,16 +124,10 @@ void vtkFixedPointVolumeRayCastMapperComputeCS1CGradients( T *dataPtr,
   z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
                   dim[2] );
 
-  // Do final error checking on limits - make sure they are all within bounds
+  // Do sanity checking on limits - make sure they are all within bounds
   // of the scalar input
-
-  x_start = (x_start<0)?(0):(x_start);
-  y_start = (y_start<0)?(0):(y_start);
-  z_start = (z_start<0)?(0):(z_start);
-
-  x_limit = (x_limit>dim[0])?(dim[0]):(x_limit);
-  y_limit = (y_limit>dim[1])?(dim[1]):(y_limit);
-  z_limit = (z_limit>dim[2])?(dim[2]):(z_limit);
+  assert(z_start >= 0);
+  assert(z_limit <= dim[2]);
 
 
   int *dxBuffer = new int[dim[0]];
@@ -445,18 +439,6 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   y_limit = dim[1];
   z_start = 0;
   z_limit = dim[2];
-
-  // Do final error checking on limits - make sure they are all within bounds
-  // of the scalar input
-
-  x_start = (x_start<0)?(0):(x_start);
-  y_start = (y_start<0)?(0):(y_start);
-  z_start = (z_start<0)?(0):(z_start);
-
-  x_limit = (x_limit>dim[0])?(dim[0]):(x_limit);
-  y_limit = (y_limit>dim[1])?(dim[1]):(y_limit);
-  z_limit = (z_limit>dim[2])?(dim[2]):(z_limit);
-
 
   int increment = (independent)?(components):(1);
 

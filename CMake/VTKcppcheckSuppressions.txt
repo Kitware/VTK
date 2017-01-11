@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X with cppcheck 1.76.1.
+// at least on macOS with cppcheck 1.77.
 
 // To run:
 // cd /path/to/VTK/
@@ -68,13 +68,10 @@ CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
 duplicateExpression:Rendering/Annotation/vtkScalarBarActor.cxx
-memleak:Common/Core/Testing/Cxx/TestGarbageCollector.cxx
 memleak:Examples/Infovis/Cxx/MultiView.cxx
 memleak:IO/Image/vtkJPEGReader.cxx
 memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
 multiCondition:Filters/Matlab/vtkMatlabMexAdapter.cxx
-nullPointer:Interaction/Style/vtkInteractorStyleJoystickActor.cxx
-nullPointer:Interaction/Style/vtkInteractorStyleTrackballActor.cxx
 operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
 redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
 redundantAssignment:Filters/General/vtkInterpolatingSubdivisionFilter.cxx
@@ -92,10 +89,27 @@ uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
+// false positive: <http://trac.cppcheck.net/ticket/7878>
+bufferAccessOutOfBounds:IO/Xdmf3/Testing/Cxx/TestXdmf3Parallel.cxx
+
+// false positive: <http://trac.cppcheck.net/ticket/7888>
+knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
+
+// false positive: <http://trac.cppcheck.net/ticket/7889>
+knownConditionTrueFalse:IO/Parallel/vtkMultiBlockPLOT3DReader.cxx
+knownConditionTrueFalse:Parallel/MPI/Testing/Cxx/ExerciseMultiProcessController.cxx
+
+// false positive: <http://trac.cppcheck.net/ticket/7890>
+knownConditionTrueFalse:IO/LSDyna/vtkLSDynaReader.cxx
+knownConditionTrueFalse:Rendering/Annotation/vtkScalarBarActor.cxx
+knownConditionTrueFalse:Rendering/Volume/vtkFixedPointVolumeRayCastMIPHelper.cxx
+
 // Not worth fixing, but not actually false positives.
 knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
 knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
+knownConditionTrueFalse:IO/XML/Testing/Cxx/TestHyperOctreeIO.cxx
+knownConditionTrueFalse:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
 
 // There are a fair number of these, but they are probably worth working through.
 // 217 warnings
@@ -138,8 +152,15 @@ noConstructor:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
 noConstructor:Common/Core/vtkTypeList.txx
 noConstructor:Filters/ParallelDIY2/vtkPResampleWithDataSet.cxx
 noConstructor:Rendering/Core/Testing/Cxx/TestInteractorTimers.cxx
+noConstructor:Examples/GUI/Win32/vtkMFC/vtkSDI/vtkSDIView.h
 
-// To investigate further...
+// Need someone that knows this code...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
 nullPointerRedundantCheck:IO/Exodus/vtkExodusIIReaderParser.cxx
 redundantAssignment:IO/Image/vtkJPEGReader.cxx
+knownConditionTrueFalse:IO/Exodus/vtkExodusIIWriter.cxx
+knownConditionTrueFalse:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
+knownConditionTrueFalse:Filters/Parallel/Testing/Cxx/DistributedData.cxx
+knownConditionTrueFalse:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
+knownConditionTrueFalse:Rendering/Label/vtkLabelSizeCalculator.cxx
+redundantAssignment:Rendering/OSPRay/vtkOSPRayRendererNode.cxx

@@ -448,10 +448,9 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   vtkDataArray* selectionArray = this->GetSelectionIdArray(dataset);
 
   /// FIXME: Didn't handle the premultiplycolorswithalpha aspect...
-  vtkUnsignedCharArray* colors = NULL;
   this->ColorMapper->SetInputDataObject(dataset);
   this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
-  colors = ((vtkOpenGLGlyph3DMappervtkColorMapper *)this->ColorMapper)->GetColors();
+  vtkUnsignedCharArray* colors = ((vtkOpenGLGlyph3DMappervtkColorMapper *)this->ColorMapper)->GetColors();
   //  bool multiplyWithAlpha =
   //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   // Traverse all Input points, transforming Source points

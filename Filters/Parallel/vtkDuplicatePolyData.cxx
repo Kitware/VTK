@@ -227,11 +227,10 @@ int vtkDuplicatePolyData::RequestData(
   myId = this->Controller->GetLocalProcessId();
 
   // Collect.
-  vtkPolyData *pd = NULL;;
 
   vtkAppendPolyData *append = vtkAppendPolyData::New();
   // First append the input from this process.
-  pd = vtkPolyData::New();
+  vtkPolyData *pd = vtkPolyData::New();
   pd->CopyStructure(input);
   pd->GetPointData()->PassData(input->GetPointData());
   pd->GetCellData()->PassData(input->GetCellData());

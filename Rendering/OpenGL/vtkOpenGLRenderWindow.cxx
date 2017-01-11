@@ -574,33 +574,6 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 
   glDisable( GL_SCISSOR_TEST );
 
-#if defined(sparc) && !defined(GL_VERSION_1_2)
-  // We need to read the image data one row at a time and convert it
-  // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
-  long    xloop, yloop;
-  unsigned char *buffer;
-  unsigned char *p_data = NULL;
-
-  buffer = new unsigned char [4*(x_hi - x_low + 1)];
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-  {
-    // read in a row of pixels
-    glReadPixels(x_low,yloop,(x_hi-x_low+1),1,
-                 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    for (xloop = 0; xloop <= x_hi-x_low; xloop++)
-    {
-      *p_data = buffer[xloop*4]; p_data++;
-      *p_data = buffer[xloop*4+1]; p_data++;
-      *p_data = buffer[xloop*4+2]; p_data++;
-    }
-  }
-
-  delete [] buffer;
-#else
-  // If the Sun bug is ever fixed, then we could use the following
-  // technique which provides a vast speed improvement on the SGI
-
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
@@ -609,7 +582,6 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
                GL_UNSIGNED_BYTE, data);
-#endif
 
   if (glGetError() != GL_NO_ERROR)
   {
@@ -718,53 +690,6 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glDisable( GL_SCISSOR_TEST );
   glViewport(0, 0, this->Size[0], this->Size[1]);
 
-#if defined(sparc) && !defined(GL_VERSION_1_2)
-  // We need to read the image data one row at a time and convert it
-  // from RGBA to RGB to get around a bug in Sun OpenGL 1.1
-  long    xloop, yloop;
-  unsigned char *buffer;
-  unsigned char *p_data = NULL;
-
-  buffer = new unsigned char [4*(x_hi - x_low + 1)];
-
-  // now write the binary info one row at a time
-  glDisable(GL_BLEND);
-  p_data = data;
-  for (yloop = y_low; yloop <= y_hi; yloop++)
-  {
-    for (xloop = 0; xloop <= x_hi - x_low; xloop++)
-    {
-      buffer[xloop*4] = *p_data; p_data++;
-      buffer[xloop*4+1] = *p_data; p_data++;
-      buffer[xloop*4+2] = *p_data; p_data++;
-      buffer[xloop*4+3] = 0xff;
-    }
-    /* write out a row of pixels */
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
-                   (2.0 * static_cast<GLfloat>(yloop) / this->Size[1] - 1),
-                   -1.0 );
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-  }
-
-  // This seems to be necessary for the image to show up
-  glFlush();
-
-  glEnable(GL_BLEND);
-#else
-  // If the Sun bug is ever fixed, then we could use the following
-  // technique which provides a vast speed improvement on the SGI
-
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
@@ -792,7 +717,6 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   // This seems to be necessary for the image to show up
   glFlush();
-#endif
 
   glDrawBuffer(buffer);
 

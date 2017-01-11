@@ -118,8 +118,8 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(unsigned64Variant < positive64Variant);
   CHECK_EXPRESSION_FALSE(unsigned64Variant < negative64Variant);
 
-  CHECK_EXPRESSION_FALSE(positiveFloat < negativeFloat);
-  CHECK_EXPRESSION_FALSE(positiveDouble < negativeDouble);
+  CHECK_EXPRESSION_FALSE(positiveFloatVariant < negativeFloatVariant);
+  CHECK_EXPRESSION_FALSE(positiveDoubleVariant < negativeDoubleVariant);
 
   CHECK_EXPRESSION_FALSE(alphaString < numberString);
 

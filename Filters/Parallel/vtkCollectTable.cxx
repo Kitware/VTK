@@ -99,8 +99,7 @@ int vtkCollectTable::RequestData(
   { // This is a client.  We assume no data on client for input.
     if ( ! this->PassThrough)
     {
-      vtkTable* table = NULL;;
-      table = vtkTable::New();
+      vtkTable* table = vtkTable::New();
       this->SocketController->Receive(table, 1, 121767);
       output->ShallowCopy(table);
       table->Delete();
