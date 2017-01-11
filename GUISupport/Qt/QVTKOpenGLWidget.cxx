@@ -226,6 +226,7 @@ void QVTKOpenGLWidget::saveImageToCache()
   const int* wsize = this->RenderWindow->GetSize();
   this->CachedTexture->Allocate2D(wsize[0], wsize[1], 3, VTK_UNSIGNED_CHAR);
   this->CachedTexture->CopyFromFrameBuffer(0, 0, 0, 0, wsize[0], wsize[1]);
+  this->CachedTexture->Deactivate();
   emit this->cachedImageClean();
 }
 
@@ -389,6 +390,7 @@ bool QVTKOpenGLWidget::paintCachedImage()
     this->CachedTexture->CopyToFrameBuffer(0, 0, this->CachedTexture->GetWidth() - 1,
       this->CachedTexture->GetHeight() - 1, 0, 0, this->width() - 1, this->height() - 1, NULL,
       NULL);
+    this->CachedTexture->Deactivate();
     return true;
   }
   return false;
