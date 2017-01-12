@@ -111,6 +111,14 @@ void vtkCameraPass::Render(const vtkRenderState *s)
 
   if(fbo==0)
   {
+    unsigned int dfbo = win->GetDefaultFrameBufferId();
+    if (dfbo)
+    {
+      // If the render window is using an FBO to render into, we ensure that
+      // it's selected.
+      glBindFramebuffer(GL_FRAMEBUFFER, dfbo);
+    }
+
     // find out if we should stereo render
     bool stereo = win->GetStereoRender()==1;
     this->GetTiledSizeAndOrigin(s, &usize,&vsize,lowerLeft,lowerLeft+1);

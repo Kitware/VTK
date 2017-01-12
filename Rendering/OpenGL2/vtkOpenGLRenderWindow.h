@@ -386,6 +386,15 @@ public:
    */
   bool InitializeFromCurrentContext() VTK_OVERRIDE;
 
+  /**
+   * Returns the id for the frame buffer object, if any, used by the render window
+   * in which the window does all its rendering. This may be 0, in which case
+   * the render window is rendering to the default OpenGL render buffers.
+   *
+   * @returns the name (or id) of the frame buffer object to render to.
+   */
+  vtkGetMacro(DefaultFrameBufferId, unsigned int);
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -489,6 +498,7 @@ protected:
   unsigned int FrontRightBuffer;
   unsigned int FrontBuffer;
   unsigned int BackBuffer;
+  unsigned int DefaultFrameBufferId;
 
   #ifndef VTK_LEGACY_REMOVE
   /**
