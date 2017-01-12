@@ -344,11 +344,18 @@ void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
                                     vtkCellArray *polys, vtkUnsignedCharArray *colors)
 {
   vtkIdList* ptIds = vtkIdList::New();
-  ptIds->SetNumberOfIds(this->Resolution + 1);
+  if ( this->Filled ) //it's a polygon!
+  {
+    ptIds->SetNumberOfIds(this->Resolution);
+  }
+  else
+  {
+    ptIds->SetNumberOfIds(this->Resolution + 1);
+  }
 
   double x[3], theta;
 
-  // generate eight points in a circle
+  // generate points around a circle
   x[2] = 0.0;
   theta = 2.0 * vtkMath::Pi() / static_cast<double>(this->Resolution);
   for (int i=0; i<this->Resolution; i++)
@@ -358,13 +365,13 @@ void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
     ptIds->SetId(i, pts->InsertNextPoint(x));
   }
 
-  ptIds->SetId(this->Resolution, ptIds->GetId(0));
   if ( this->Filled )
   {
     polys->InsertNextCell(ptIds);
   }
   else
-  {
+  {// close the line
+    ptIds->SetId(this->Resolution, ptIds->GetId(0));
     lines->InsertNextCell(ptIds);
   }
   colors->InsertNextValue(this->RGB[0]);
