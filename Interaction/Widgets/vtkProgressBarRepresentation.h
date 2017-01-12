@@ -126,7 +126,6 @@ protected:
   bool DrawBackground;
 
   vtkPoints      *Points;
-  vtkUnsignedCharArray  *BackgroundData;
   vtkUnsignedCharArray  *ProgressBarData;
   vtkProperty2D  *Property;
   vtkActor2D     *Actor;
