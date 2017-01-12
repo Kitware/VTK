@@ -1802,7 +1802,8 @@ int vtkReebGraph::Implementation::CommitSimplification()
     {
       vtkVariantArray *edgeProperties = vtkVariantArray::New();
       vtkIdTypeArray  *vertexList = vtkIdTypeArray::New();
-      vertexList->SetNumberOfValues(after[i].second.size());
+      vertexList->SetNumberOfValues(
+        static_cast<vtkIdType>(after[i].second.size()));
       for(unsigned int j = 0; j < after[i].second.size(); j++)
         vertexList->SetValue(j, after[i].second[j]);
       edgeProperties->SetNumberOfValues(1);
@@ -2048,7 +2049,8 @@ void vtkReebGraph::CloseStream()
     {
       vtkVariantArray *edgeProperties = vtkVariantArray::New();
       vtkIdTypeArray  *vertexList = vtkIdTypeArray::New();
-      vertexList->SetNumberOfValues(globalAdjacency[i].second.size());
+      vertexList->SetNumberOfValues(
+        static_cast<vtkIdType>(globalAdjacency[i].second.size()));
       for(unsigned int j = 0; j < globalAdjacency[i].second.size(); j++)
         vertexList->SetValue(j, globalAdjacency[i].second[j]);
       edgeProperties->SetNumberOfValues(1);

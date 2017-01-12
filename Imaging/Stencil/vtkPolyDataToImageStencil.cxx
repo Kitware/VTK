@@ -654,8 +654,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
             // check if points are coincident
             if (distance2 == 0)
             {
-              firstIndex = i;
-              secondIndex = j;
+              firstIndex = static_cast<vtkIdType>(i);
+              secondIndex = static_cast<vtkIdType>(j);
               isCoincident = true;
               break;
             }
@@ -688,8 +688,8 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
             if ((checkOnHull && !isOnHull) ||
                 (checkOnHull == isOnHull && dotprod > maxval*distance2))
             {
-              firstIndex = i;
-              secondIndex = j;
+              firstIndex = static_cast<vtkIdType>(i);
+              secondIndex = static_cast<vtkIdType>(j);
               isOnHull |= checkOnHull;
               maxval = dotprod/distance2;
             }

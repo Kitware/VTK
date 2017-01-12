@@ -644,7 +644,7 @@ int vtkXMLDataReaderReadArrayValues(
       result = 0;
       break;
     }
-    bufstart += chars_read;
+    bufstart += static_cast<vtkIdType>(chars_read);
     // now read strings
     const char* ptr = buffer;
     const char* end_ptr = &buffer[chars_read];

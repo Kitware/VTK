@@ -57,7 +57,7 @@ vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArra
 
 vtkIdType vtkArrayExtentsList::GetCount() const
 {
-  return this->Storage.size();
+  return static_cast<vtkIdType>(this->Storage.size());
 }
 
 void vtkArrayExtentsList::SetCount(vtkIdType count)

@@ -251,7 +251,8 @@ vtkIdType vtkMergeCells::AddNewCellsDataSet(vtkDataSet *set, vtkIdType *idMap)
 
     if (success)
     {
-      nextCellId = this->GlobalCellIdMap->IdTypeMap.size();
+      nextCellId =
+        static_cast<vtkIdType>(this->GlobalCellIdMap->IdTypeMap.size());
       duplicateCellTest = 1;
     }
   }
@@ -340,7 +341,8 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
 
     if (success)
     {
-      vtkIdType nextLocalId = this->GlobalCellIdMap->IdTypeMap.size();
+      vtkIdType nextLocalId =
+        static_cast<vtkIdType>(this->GlobalCellIdMap->IdTypeMap.size());
 
       duplicateCellIds = vtkIdList::New();
 
@@ -600,7 +602,8 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingGlobalIds(vtkDataSet *set)
 
   vtkIdType *idMap = new vtkIdType [npoints];
 
-  vtkIdType nextNewLocalId = this->GlobalIdMap->IdTypeMap.size();
+  vtkIdType nextNewLocalId =
+    static_cast<vtkIdType>(this->GlobalIdMap->IdTypeMap.size());
 
   // map global point Ids to Ids in the new data set
 

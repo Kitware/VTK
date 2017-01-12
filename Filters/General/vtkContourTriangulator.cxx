@@ -2116,7 +2116,9 @@ int vtkCCSFindCuts(
 
         // This check is done for both cuts
         if (vtkCCSCheckCut(polys, points, normal, polyGroup,
-                           outerPolyId, innerPolyId, k, j))
+                           outerPolyId, innerPolyId,
+                           static_cast<vtkIdType>(k),
+                           static_cast<vtkIdType>(j)))
         {
           cuts[cutId][0] = k;
           cuts[cutId][1] = j;

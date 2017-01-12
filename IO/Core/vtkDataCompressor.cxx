@@ -66,7 +66,7 @@ vtkDataCompressor::Compress(unsigned char const* uncompressedData,
   // Allocate a buffer.
   vtkUnsignedCharArray* outputArray = vtkUnsignedCharArray::New();
   outputArray->SetNumberOfComponents(1);
-  outputArray->SetNumberOfTuples(compressionSpace);
+  outputArray->SetNumberOfTuples(static_cast<vtkIdType>(compressionSpace));
   unsigned char* compressedData = outputArray->GetPointer(0);
 
   // Compress the data.
@@ -82,7 +82,7 @@ vtkDataCompressor::Compress(unsigned char const* uncompressedData,
   }
 
   // Store the actual size.
-  outputArray->SetNumberOfTuples(compressedSize);
+  outputArray->SetNumberOfTuples(static_cast<vtkIdType>(compressedSize));
 
   return outputArray;
 }
@@ -96,7 +96,7 @@ vtkDataCompressor::Uncompress(unsigned char const* compressedData,
   // Allocate a buffer.
   vtkUnsignedCharArray* outputArray = vtkUnsignedCharArray::New();
   outputArray->SetNumberOfComponents(1);
-  outputArray->SetNumberOfTuples(uncompressedSize);
+  outputArray->SetNumberOfTuples(static_cast<vtkIdType>(uncompressedSize));
   unsigned char* uncompressedData = outputArray->GetPointer(0);
 
   // Decompress the data.
@@ -112,7 +112,7 @@ vtkDataCompressor::Uncompress(unsigned char const* compressedData,
   }
 
   // Store the actual size.
-  outputArray->SetNumberOfTuples(decSize);
+  outputArray->SetNumberOfTuples(static_cast<vtkIdType>(decSize));
 
   return outputArray;
 }
