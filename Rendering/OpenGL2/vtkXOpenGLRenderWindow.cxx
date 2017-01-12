@@ -149,7 +149,6 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
                                                   int doublebuff,
                                                   int stereo,
                                                   int multisamples,
-                                                  int alphaBitPlanes,
                                                   int stencil)
 {
   int           index;
@@ -169,11 +168,8 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   attributes[index++] = 1;
   attributes[index++] = GLX_DEPTH_SIZE;
   attributes[index++] = 1;
-  if (alphaBitPlanes)
-  {
-    attributes[index++] = GLX_ALPHA_SIZE;
-    attributes[index++] = 1;
-  }
+  attributes[index++] = GLX_ALPHA_SIZE;
+  attributes[index++] = 1;
   if (doublebuff)
   {
     attributes[index++] = GLX_DOUBLEBUFFER;
@@ -227,14 +223,12 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                 int doublebuff, int stereo,
                                                 int multisamples,
-                                                int alphaBitPlanes,
                                                 int stencil)
 {
   GLXFBConfig fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
        GLX_WINDOW_BIT,
        doublebuff,
        stereo, multisamples,
-       alphaBitPlanes,
        stencil);
 
   XVisualInfo *v = glXGetVisualFromFBConfig( DisplayId, fbc);
@@ -247,7 +241,6 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
   int &win_stereo,
   int &win_multisamples,
   int &win_doublebuffer,
-  int &win_alphaplanes,
   int drawable_type,
   int &stencil)
 {
@@ -256,6 +249,7 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
   int           stereo = 0;
 
   // try every possibility stoping when we find one that works
+  // start by adjusting stereo and multisamples
   for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
   {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
@@ -264,15 +258,19 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  drawable_type,
                                                  win_doublebuffer,
                                                  stereo, multi,
-                                                 win_alphaplanes,
                                                  stencil);
-      if (fbc && win_stereo && !stereo)
+      if (fbc)
       {
-        // requested a stereo capable window but we could not get one
-        win_stereo = 0;
+        // found a valid config
+        win_stereo = stereo;
+        win_multisamples = multi;
+        return fbc;
       }
     }
   }
+
+  // OK adjusting stereo and multisamples did not work
+  // try flipping the double buffer requirement and try again
   for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
   {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
@@ -281,20 +279,20 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  drawable_type,
                                                  !win_doublebuffer,
                                                  stereo, multi,
-                                                 win_alphaplanes,
                                                  stencil);
+      // we found a valid result
       if (fbc)
       {
         win_doublebuffer = !win_doublebuffer;
-      }
-      if (fbc && win_stereo && !stereo)
-      {
-        // requested a stereo capable window but we could not get one
-        win_stereo = 0;
+        win_stereo = stereo;
+        win_multisamples = multi;
+        return fbc;
       }
     }
   }
-  return ( fbc );
+
+  // we failed
+  return ( None );
 }
 
 XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
@@ -321,7 +319,6 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
       this->StereoCapableWindow,
       this->MultiSamples,
       this->DoubleBuffer,
-      this->AlphaBitPlanes,
       GLX_WINDOW_BIT,
       this->StencilCapable);
 
@@ -844,8 +841,7 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         // get FBConfig
         GLXFBConfig fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
           this->DisplayId,this->StereoCapableWindow, this->MultiSamples,
-          this->DoubleBuffer,this->AlphaBitPlanes, GLX_PBUFFER_BIT,
-          this->StencilCapable);
+          this->DoubleBuffer, GLX_PBUFFER_BIT, this->StencilCapable);
         if(fb)
         {
           // NOTE: It is not necessary to create or make current to a context before

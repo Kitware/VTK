@@ -559,16 +559,11 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       WGL_DRAW_TO_WINDOW_ARB, TRUE,
       WGL_DOUBLE_BUFFER_ARB, TRUE,
       WGL_COLOR_BITS_ARB, bpp/4*3,
+      WGL_ALPHA_BITS_ARB, bpp/4,
       WGL_DEPTH_BITS_ARB, zbpp/4*3,
       WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    unsigned int n = 14;
-    if (this->AlphaBitPlanes)
-    {
-      attrib[n] = WGL_ALPHA_BITS_ARB;
-      attrib[n+1] = bpp/4;
-      n += 2;
-    }
+    unsigned int n = 16;
     if (this->StencilCapable)
     {
       attrib[n] = WGL_STENCIL_BITS_ARB;
