@@ -112,11 +112,11 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   backgroundPolydata->SetPoints(this->Points);
   backgroundPolydata->SetPolys(background.Get());
 
-  // Create cell data to color background
-  this->BackgroundData = vtkUnsignedCharArray::New();
-  this->BackgroundData->SetNumberOfComponents(3);
-  this->BackgroundData->SetNumberOfTuples(4);
-  backgroundPolydata->GetPointData()->SetScalars(this->BackgroundData);
+  // first four points of ProgressBarData are the background
+  // so we use the same array (which is good as we are using the
+  // same points and there are 8 of them so we need 8 colors
+  // anyhow even though our cells only use the first 4
+  backgroundPolydata->GetPointData()->SetScalars(this->ProgressBarData);
 
   // Add transform, mapper and actor
   vtkNew<vtkTransformPolyDataFilter> backgroundTransformFilter;
@@ -134,7 +134,6 @@ vtkProgressBarRepresentation::~vtkProgressBarRepresentation()
 {
   this->Points->Delete();
   this->ProgressBarData->Delete();
-  this->BackgroundData->Delete();
   this->Property->Delete();
   this->Actor->Delete();
   this->BackgroundActor->Delete();
@@ -158,7 +157,6 @@ void vtkProgressBarRepresentation::BuildRepresentation()
   for (int i = 0; i < 4; i++)
   {
     this->ProgressBarData->SetTuple(i, backgroundColor);
-    this->BackgroundData->SetTuple(i, backgroundColor);
     this->ProgressBarData->SetTuple(i+4, progressBarColor);
   }
 
