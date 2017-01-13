@@ -2249,6 +2249,9 @@ private:
   vtkStdString HeaderClassName;
   vtkFoamError E;
 
+  bool Use64BitLabels;
+  bool Use64BitFloats;
+
   // inform IO object if lagrangian/positions has extra data (OF 1.4 - 2.4)
   const bool LagrangianPositionsExtraData;
 
@@ -2257,6 +2260,8 @@ private:
 public:
   vtkFoamIOobject(const vtkStdString& casePath, vtkOpenFOAMReader *reader) :
     vtkFoamFile(casePath, reader), Format(UNDEFINED), E(),
+    Use64BitLabels(reader->GetUse64BitLabels()),
+    Use64BitFloats(reader->GetUse64BitFloats()),
     LagrangianPositionsExtraData(!reader->GetPositionsIsIn13Format())
   {
   }
@@ -2297,6 +2302,8 @@ public:
     this->ObjectName.erase();
     this->HeaderClassName.erase();
     this->E.erase();
+    this->Use64BitLabels = this->Reader->GetUse64BitLabels();
+    this->Use64BitFloats = this->Reader->GetUse64BitFloats();
   }
   fileFormat GetFormat() const
   {
@@ -2317,6 +2324,14 @@ public:
   void SetError(const vtkFoamError& e)
   {
     this->E = e;
+  }
+  bool GetUse64BitLabels() const
+  {
+    return this->Use64BitLabels;
+  }
+  bool GetUse64BitFloats() const
+  {
+    return this->Use64BitFloats;
   }
   bool GetLagrangianPositionsExtraData() const
   {
@@ -2500,24 +2515,31 @@ public:
     {
       if (isPositions) // lagrangian/positions (class Cloud)
       {
-        size_t labelSize = io.GetReader()->GetUse64BitLabels() ? 8 : 4;
-
         // xyz (3*scalar) + celli (label)
         // in OpenFOAM 1.4 -> 2.4 also had facei (label) and stepFraction (scalar)
-        const size_t sz1 = sizeof(double) * nComponents + labelSize;
-        const size_t sz2 = sizeof(double) * (nComponents + 1) + 2 * labelSize;
 
-        const int nBytes = static_cast<int>((io.GetLagrangianPositionsExtraData() ? sz2 : sz1));
+        const unsigned labelSize = (io.GetUse64BitLabels() ? 8 : 4);
+        const unsigned tupleLength =
+        (
+            sizeof(primitiveT)*nComponents + labelSize
+          +
+            (
+                io.GetLagrangianPositionsExtraData()
+              ? (labelSize + sizeof(primitiveT))
+              : 0
+            )
+        );
 
+        // MSVC doesn't support variable-sized stack arrays (JAN-2017)
+        // memory management via std::vector
         std::vector<unsigned char> bufferContainer;
-        bufferContainer.resize(nBytes);
-        // This is templated code, but hardcoded to use doubles...I'm just gonna
-        // leave it as-is since it seems to be working for users.
-        double *buffer = reinterpret_cast<double*>(&bufferContainer[0]);
+        bufferContainer.resize(tupleLength);
+        primitiveT *buffer = reinterpret_cast<primitiveT*>(&bufferContainer[0]);
+
         for (int i = 0; i < size; i++)
         {
           io.ReadExpecting('(');
-          io.Read(reinterpret_cast<unsigned char *>(buffer), nBytes);
+          io.Read(reinterpret_cast<unsigned char *>(buffer), tupleLength);
           io.ReadExpecting(')');
           this->Ptr->SetTuple(i, buffer);
         }
@@ -2529,11 +2551,11 @@ public:
         // Compiler hint for better unrolling:
         VTK_ASSUME(this->Ptr->GetNumberOfComponents() == nComponents);
 
-        const int tupleLength = sizeof(primitiveT) * nComponents;
+        const int tupleLength = sizeof(primitiveT)*nComponents;
+        primitiveT buffer[nComponents];
         for (int i = 0; i < size; i++)
         {
-          primitiveT buffer[nComponents];
-          int readLength =
+          const int readLength =
               io.Read(reinterpret_cast<unsigned char *>(buffer), tupleLength);
           if (readLength != tupleLength)
           {
@@ -2910,7 +2932,7 @@ public:
 
       else if(io.GetClassName() == "scalarField")
       {
-        if (io.GetReader()->GetUse64BitFloats())
+        if (io.GetUse64BitFloats())
         {
           this->ReadNonuniformList
               <SCALARLIST, listTraits<vtkFloatArray, double> >(io);
@@ -2924,7 +2946,7 @@ public:
       }
       else if(io.GetClassName() == "sphericalTensorField")
       {
-        if (io.GetReader()->GetUse64BitFloats())
+        if (io.GetUse64BitFloats())
         {
           this->ReadNonuniformList<VECTORLIST,
               vectorListTraits<vtkFloatArray, double, 1, false> >(io);
@@ -2939,7 +2961,7 @@ public:
 
       else if(io.GetClassName() == "vectorField")
       {
-        if (io.GetReader()->GetUse64BitFloats())
+        if (io.GetUse64BitFloats())
         {
           this->ReadNonuniformList<VECTORLIST,
               vectorListTraits<vtkFloatArray, double, 3, false> >(io);
@@ -2952,7 +2974,7 @@ public:
       }
       else if(io.GetClassName() == "symmTensorField")
       {
-        if (io.GetReader()->GetUse64BitFloats())
+        if (io.GetUse64BitFloats())
         {
           this->ReadNonuniformList<VECTORLIST,
               vectorListTraits<vtkFloatArray, double, 6, false> >(io);
@@ -2965,7 +2987,7 @@ public:
       }
       else if(io.GetClassName() == "tensorField")
       {
-        if (io.GetReader()->GetUse64BitFloats())
+        if (io.GetUse64BitFloats())
         {
           this->ReadNonuniformList<VECTORLIST,
               vectorListTraits<vtkFloatArray, double, 9, false> >(io);
@@ -3981,8 +4003,8 @@ void vtkFoamEntryValue::ReadDictionary(vtkFoamIOobject& io,
 {
   this->Superclass::DictPtr = new vtkFoamDict(this->UpperEntryPtr->GetUpperDictPtr());
   this->DictPtr->SetLabelType(
-        io.GetReader()->GetUse64BitLabels() ? vtkFoamToken::INT64
-                                            : vtkFoamToken::INT32);
+        io.GetUse64BitLabels() ? vtkFoamToken::INT64
+                               : vtkFoamToken::INT32);
   this->Superclass::Type = this->Superclass::DICTIONARY;
   this->Superclass::DictPtr->Read(io, true, firstKeyword);
 }
@@ -3992,8 +4014,8 @@ void vtkFoamEntryValue::ReadDictionary(vtkFoamIOobject& io,
 // composite entry value, 1 otherwise
 int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
 {
-  this->SetLabelType(io.GetReader()->GetUse64BitLabels() ? vtkFoamToken::INT64
-                                                         : vtkFoamToken::INT32);
+  this->SetLabelType(io.GetUse64BitLabels() ? vtkFoamToken::INT64
+                                            : vtkFoamToken::INT32);
 
   vtkFoamToken currToken;
   currToken.SetLabelType(this->LabelType);
@@ -4058,7 +4080,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     this->IsUniform = false;
     if (currToken == "List<scalar>")
     {
-      if (io.GetReader()->GetUse64BitFloats())
+      if (io.GetUse64BitFloats())
       {
         this->ReadNonuniformList
             <SCALARLIST, listTraits<vtkFloatArray, double> >(io);
@@ -4071,7 +4093,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<sphericalTensor>")
     {
-      if (io.GetReader()->GetUse64BitFloats())
+      if (io.GetUse64BitFloats())
       {
         this->ReadNonuniformList<VECTORLIST,
             vectorListTraits<vtkFloatArray, double, 1, false> >(io);
@@ -4084,7 +4106,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<vector>")
     {
-      if (io.GetReader()->GetUse64BitFloats())
+      if (io.GetUse64BitFloats())
       {
         this->ReadNonuniformList<VECTORLIST,
             vectorListTraits<vtkFloatArray, double, 3, false> >(io);
@@ -4097,7 +4119,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<symmTensor>")
     {
-      if (io.GetReader()->GetUse64BitFloats())
+      if (io.GetUse64BitFloats())
       {
         this->ReadNonuniformList<VECTORLIST,
             vectorListTraits<vtkFloatArray, double, 6, false> >(io);
@@ -4110,7 +4132,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<tensor>")
     {
-      if (io.GetReader()->GetUse64BitFloats())
+      if (io.GetUse64BitFloats())
       {
         this->ReadNonuniformList<VECTORLIST,
             vectorListTraits<vtkFloatArray, double, 9, false> >(io);
@@ -4272,7 +4294,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
           {
             this->Superclass::push_back(new vtkFoamEntryValue(
                 *identifiedEntry->operator[](valueI), this));
-            this->back()->SetLabelType(io.GetReader()->GetUse64BitLabels()
+            this->back()->SetLabelType(io.GetUse64BitLabels()
                                        ? vtkFoamToken::INT64
                                        : vtkFoamToken::INT32);
           }
@@ -8207,9 +8229,16 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     vtkFoamEntryValue dict(NULL);
     try
     {
-      dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-      vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true> >(
-          io);
+      if (io.GetUse64BitFloats())
+      {
+        dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+            vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true> >(io);
+      }
+      else
+      {
+        dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+            vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true> >(io);
+      }
     }
     catch(vtkFoamError& e)
     {
