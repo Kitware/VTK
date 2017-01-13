@@ -4446,7 +4446,8 @@ void vtkOpenFOAMReaderPrivate::ClearMeshes()
 
 void vtkOpenFOAMReaderPrivate::SetTimeValue(const double requestedTime)
 {
-  vtkIdType nTimeValues = this->TimeValues->GetNumberOfTuples();
+  const vtkIdType nTimeValues = this->TimeValues->GetNumberOfTuples();
+
   if (nTimeValues > 0)
   {
     int minTimeI = 0;
@@ -4998,6 +4999,8 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
     return false;
   }
 
+  const bool ignore0Dir = this->Parent->GetSkipZeroTime();
+
   // search all the directories in the case directory and detect
   // directories with names convertible to numbers
   this->TimeValues->Initialize();
@@ -5006,38 +5009,37 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
   for (vtkIdType i = 0; i < nFiles; i++)
   {
     const vtkStdString dir = test->GetFile(i);
-    if (test->FileIsDirectory(dir.c_str()))
+    bool isTimeDir = test->FileIsDirectory(dir.c_str());
+
+    // optionally ignore 0/ directory
+    if (ignore0Dir && dir == "0")
     {
-      // check if the name is convertible to a number
-      bool isTimeDir = true;
-      for (size_t j = 0; j < dir.length(); j++)
-      {
-        const char c = dir[j];
-        if (!isdigit(c) && c != '+' && c != '-' && c != '.' && c != 'e' && c
-            != 'E')
-        {
-          isTimeDir = false;
-          break;
-        }
-      }
-      if (!isTimeDir)
-      {
-        continue;
-      }
-
-      // convert to a number
-      char *endptr;
-      double timeValue = strtod(dir.c_str(), &endptr);
-      // check if the value really was converted to a number
-      if (timeValue == 0.0 && endptr == dir.c_str())
-      {
-        continue;
-      }
-
-      // add to the instance list
-      this->TimeValues->InsertNextValue(timeValue);
-      this->TimeNames->InsertNextValue(dir);
+      isTimeDir = false;
     }
+
+    // check if the name is convertible to a number
+    for (size_t j = 0; j < dir.length() && isTimeDir; ++j)
+    {
+      const char c = dir[j];
+      isTimeDir = (isdigit(c) || c == '+' || c == '-' || c == '.' || c == 'e' || c == 'E');
+    }
+    if (!isTimeDir)
+    {
+      continue;
+    }
+
+    // convert to a number
+    char *endptr;
+    double timeValue = strtod(dir.c_str(), &endptr);
+    // check if the value really was converted to a number
+    if (timeValue == 0.0 && endptr == dir.c_str())
+    {
+      continue;
+    }
+
+    // add to the instance list
+    this->TimeValues->InsertNextValue(timeValue);
+    this->TimeNames->InsertNextValue(dir);
   }
   test->Delete();
 
@@ -5073,7 +5075,8 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
       }
     }
   }
-  else if (this->TimeValues->GetNumberOfTuples() == 0)
+
+  if (this->TimeValues->GetNumberOfTuples() == 0)
   {
     // set the number of timesteps to 1 if the constant subdirectory exists
     test = vtkDirectory::New();
@@ -5081,7 +5084,7 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
     {
       this->TimeValues->InsertNextValue(0.0);
       this->TimeValues->Squeeze();
-      this->TimeNames->InsertNextValue("0");
+      this->TimeNames->InsertNextValue("constant");
       this->TimeNames->Squeeze();
     }
     test->Delete();
@@ -5103,7 +5106,9 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(
   // list timesteps (skip parsing controlDict entirely if
   // ListTimeStepsByControlDict is false)
   bool ret = false; // tentatively set to false to suppress warning by older compilers
-  if (this->Parent->GetListTimeStepsByControlDict())
+
+  bool listByControlDict = this->Parent->GetListTimeStepsByControlDict();
+  if (listByControlDict)
   {
     vtkFoamIOobject io(this->CasePath, this->Parent);
 
@@ -5158,10 +5163,12 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(
     }
     else
     {
-      ret = this->ListTimeDirectoriesByInstances();
+      // cannot list by controlDict, fall through to below
+      listByControlDict = false;
     }
   }
-  else
+
+  if (!listByControlDict)
   {
     ret = this->ListTimeDirectoriesByInstances();
   }
@@ -9091,6 +9098,10 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   this->ReadZones = 0; // turned off by default
   this->ReadZonesOld = 0;
 
+  // Ignore 0/ time directory, which is normally missing Lagrangian fields
+  this->SkipZeroTime = false;
+  this->SkipZeroTimeOld = false;
+
   // determine if time directories are to be listed according to controlDict
   this->ListTimeStepsByControlDict = 0;
   this->ListTimeStepsByControlDictOld = 0;
@@ -9171,6 +9182,7 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PositionsIsIn13Format: " << this->PositionsIsIn13Format
      << endl;
   os << indent << "ReadZones: " << this->ReadZones << endl;
+  os << indent << "SkipZeroTime: " << this->SkipZeroTime << endl;
   os << indent << "ListTimeStepsByControlDict: "
      << this->ListTimeStepsByControlDict << endl;
   os << indent << "AddDimensionsToArrayNames: "
@@ -9249,15 +9261,19 @@ void vtkOpenFOAMReader::EnableAllSelectionArrays(vtkDataArraySelection *s)
 // RequestInformation
 int vtkOpenFOAMReader::RequestInformation(vtkInformation *vtkNotUsed(request), vtkInformationVector **vtkNotUsed(inputVector), vtkInformationVector *outputVector)
 {
-  if (!this->FileName || strlen(this->FileName) == 0)
+  if (!this->FileName || !*(this->FileName))
   {
     vtkErrorMacro("FileName has to be specified!");
     return 0;
   }
 
-  if (this->Parent == this && (*this->FileNameOld != this->FileName
-      || this->ListTimeStepsByControlDict
-          != this->ListTimeStepsByControlDictOld || this->Refresh))
+  if (this->Parent == this
+   && (*this->FileNameOld != this->FileName
+       || this->ListTimeStepsByControlDict != this->ListTimeStepsByControlDictOld
+       || this->SkipZeroTime != this->SkipZeroTimeOld
+       || this->Refresh
+      )
+     )
   {
     // retain selection status when just refreshing a case
     if (*this->FileNameOld != "" && *this->FileNameOld != this->FileName)
@@ -9297,9 +9313,15 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
   double requestedTimeValue(0);
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
-    requestedTimeValue
-        = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+    requestedTimeValue =
+    (
+        1 == nSteps
+        // Only one time-step available, UPDATE_TIME_STEP is unreliable
+      ? outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0)
+      : outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())
+    );
   }
 
   if (nSteps > 0)
@@ -9324,6 +9346,7 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
          (!this->Parent->CacheMesh)
       || (this->Parent->DecomposePolyhedra != this->Parent->DecomposePolyhedraOld)
       || (this->Parent->ReadZones != this->Parent->ReadZonesOld)
+      || (this->Parent->SkipZeroTime != this->Parent->SkipZeroTimeOld)
       || (this->Parent->ListTimeStepsByControlDict != this->Parent->ListTimeStepsByControlDictOld)
       || (this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld)
       || (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
@@ -9396,24 +9419,22 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
 void vtkOpenFOAMReader::SetTimeInformation(vtkInformationVector *outputVector,
     vtkDoubleArray *timeValues)
 {
+  double timeRange[2];
   if (timeValues->GetNumberOfTuples() > 0)
   {
     outputVector->GetInformationObject(0)->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
         timeValues->GetPointer(0),
         static_cast<int>(timeValues->GetNumberOfTuples()));
 
-    double timeRange[2];
     timeRange[0] = timeValues->GetValue(0);
     timeRange[1] = timeValues->GetValue(timeValues->GetNumberOfTuples() - 1);
-    outputVector->GetInformationObject(0)->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
   else
   {
-    double timeRange[2];
     timeRange[0] = timeRange[1] = 0.0;
     outputVector->GetInformationObject(0)->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeRange, 0);
-    outputVector->GetInformationObject(0)->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
+  outputVector->GetInformationObject(0)->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 }
 
 //-----------------------------------------------------------------------------
@@ -9633,6 +9654,7 @@ void vtkOpenFOAMReader::UpdateStatus()
   this->DecomposePolyhedraOld = this->DecomposePolyhedra;
   this->PositionsIsIn13FormatOld = this->PositionsIsIn13Format;
   this->ReadZonesOld = this->ReadZones;
+  this->SkipZeroTimeOld = this->SkipZeroTime;
   this->ListTimeStepsByControlDictOld = this->ListTimeStepsByControlDict;
   this->AddDimensionsToArrayNamesOld = this->AddDimensionsToArrayNames;
   this->Use64BitLabelsOld = this->Use64BitLabels;

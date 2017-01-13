@@ -245,6 +245,16 @@ public:
 
   //@{
   /**
+   * Ignore 0/ time directory, which is normally missing Lagrangian fields
+   * and may have many dictionary functionality that we cannot easily handle.
+   */
+  vtkSetMacro(SkipZeroTime, bool);
+  vtkGetMacro(SkipZeroTime, bool);
+  vtkBooleanMacro(SkipZeroTime, bool);
+  //@}
+
+  //@{
+  /**
    * Determine if time directories are to be listed according to controlDict
    */
   vtkSetMacro(ListTimeStepsByControlDict, int);
@@ -319,6 +329,9 @@ protected:
   // for reading point/face/cell-Zones
   int ReadZones;
 
+  // Ignore 0/ directory
+  bool SkipZeroTime;
+
   // determine if time directories are listed according to controlDict
   int ListTimeStepsByControlDict;
 
@@ -351,6 +364,7 @@ protected:
 
   // preserved old information
   vtkStdString *FileNameOld;
+  bool SkipZeroTimeOld;
   int ListTimeStepsByControlDictOld;
   int CreateCellToPointOld;
   int DecomposePolyhedraOld;
