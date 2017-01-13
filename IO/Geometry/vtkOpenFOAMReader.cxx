@@ -58,6 +58,7 @@
 
 #include <vector>
 #include "vtksys/SystemTools.hxx"
+#include "vtksys/RegularExpression.hxx"
 #include <sstream>
 #include "vtk_zlib.h"
 
@@ -3571,6 +3572,25 @@ void vtkFoamIOobject::ReadHeader()
   // case does matter (e. g. "BINARY" is treated as ascii)
   // cf. src/OpenFOAM/db/IOstreams/IOstreams/IOstream.C
   this->Format = (formatEntry->ToString() == "binary" ? BINARY : ASCII);
+
+  // Newer (binary) files have 'arch' entry with "label=(32|64) scalar=(32|64)"
+  // If this entry does not exist, or is incomplete, uses the fallback values
+  // that come from the reader (defined in constructor and Close)
+  const vtkFoamEntry *archEntry = headerDict.Lookup("arch");
+  if (archEntry)
+  {
+    const vtkStdString archValue = archEntry->ToString();
+    vtksys::RegularExpression re;
+
+    if (re.compile("^.*label *= *(32|64).*$") && re.find(archValue.c_str()))
+    {
+      this->Use64BitLabels = ("64" == re.match(1));
+    }
+    if (re.compile("^.*scalar *= *(32|64).*$") && re.find(archValue.c_str()))
+    {
+      this->Use64BitFloats = ("64" == re.match(1));
+    }
+  }
 
   const vtkFoamEntry *classEntry = headerDict.Lookup("class");
   if (classEntry == NULL)
