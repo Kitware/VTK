@@ -708,9 +708,6 @@ void vtkSurfaceLICInterface::CopyToScreen()
 
   //
   this->Internals->Updated();
-
-  // Restore the FBO bindings:
-  this->Internals->FBO->RestorePreviousBindingsAndBuffers();
 }
 
 //----------------------------------------------------------------------------
@@ -1160,9 +1157,6 @@ void vtkSurfaceLICInterface::InitializeResources()
     this->Internals->FBO = fbo;
     fbo->Delete();
   }
-
-  // Store the current framebuffer config so we can restore it after rendering:
-  this->Internals->FBO->SaveCurrentBindingsAndBuffers();
 
   // load shader codes
   vtkOpenGLRenderWindow *renWin = this->Internals->Context;
