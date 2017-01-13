@@ -601,7 +601,7 @@ int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer, vtkDataObject *ob
   vtkSmartPointer<vtkDataObject> dobj = vtkCommunicator::UnMarshalDataObject(buffer);
   if (dobj)
   {
-    if (!object->IsA(dobj->GetClassName()))
+    if (!dobj->IsA(object->GetClassName()))
     {
       vtkGenericWarningMacro("Type mismatch while unmarshalling data.");
     }
