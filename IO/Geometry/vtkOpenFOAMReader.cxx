@@ -664,7 +664,7 @@ public:
     // vtkObject-derived list types
     STRINGLIST, LABELLIST, SCALARLIST, VECTORLIST,
     // original list types
-    LABELLISTLIST, ENTRYVALUELIST, EMPTYLIST, DICTIONARY,
+    LABELLISTLIST, ENTRYVALUELIST, BOOLLIST, EMPTYLIST, DICTIONARY,
     // error state
     TOKEN_ERROR
   };
@@ -729,6 +729,7 @@ protected:
       case VECTORLIST:
       case LABELLISTLIST:
       case ENTRYVALUELIST:
+      case BOOLLIST:
       case EMPTYLIST:
       case DICTIONARY:
       case TOKEN_ERROR:
@@ -936,6 +937,7 @@ public:
       case VECTORLIST:
       case LABELLISTLIST:
       case ENTRYVALUELIST:
+      case BOOLLIST:
       case EMPTYLIST:
       case DICTIONARY:
         break;
@@ -943,6 +945,12 @@ public:
     return str;
   }
 };
+
+template<> inline bool vtkFoamToken::Is<char>() const
+{
+  // masquerade for bool
+  return this->Type == LABEL;
+}
 
 template<> inline bool vtkFoamToken::Is<vtkTypeInt32>() const
 {
@@ -964,6 +972,11 @@ template<> inline bool vtkFoamToken::Is<float>() const
 template<> inline bool vtkFoamToken::Is<double>() const
 {
   return this->Type == SCALAR;
+}
+
+template<> inline char vtkFoamToken::To<char>() const
+{
+  return static_cast<char>(this->Int);
 }
 
 template<> inline vtkTypeInt32 vtkFoamToken::To<vtkTypeInt32>() const
@@ -2349,6 +2362,12 @@ public:
 };
 
 template<> inline
+char vtkFoamReadValue<char>::ReadValue(vtkFoamIOobject& io)
+{
+  return static_cast<char>(io.ReadIntValue());
+}
+
+template<> inline
 vtkTypeInt32 vtkFoamReadValue<vtkTypeInt32>::ReadValue(vtkFoamIOobject& io)
 {
   return static_cast<vtkTypeInt32>(io.ReadIntValue());
@@ -3674,6 +3693,8 @@ vtkFoamEntryValue::vtkFoamEntryValue(
         this->DictPtr = NULL;
       }
       break;
+    case BOOLLIST:
+      break;
     case EMPTYLIST:
       break;
     case UNDEFINED:
@@ -3720,6 +3741,7 @@ void vtkFoamEntryValue::Clear()
       case STRING:
       case IDENTIFIER:
       case TOKEN_ERROR:
+      case BOOLLIST:
       case EMPTYLIST:
       default:
         break;
@@ -4163,8 +4185,9 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
             vectorListTraits<vtkFloatArray, float, 9, false> >(io);
       }
     }
-    // List<bool> is read as List<label>
-    else if (currToken =="List<label>" || currToken == "List<bool>")
+    // List<bool> may or may not be read as List<label>,
+    // this needs checking but not many bool fields in use
+    else if (currToken == "List<label>" || currToken == "List<bool>")
     {
       assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
       if (this->LabelType == INT64)
@@ -4200,9 +4223,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
   }
   // zones have list without a uniform/nonuniform keyword
-  // List<bool> is read as List<label>
-  // (e. g. flipMap entry in faceZones)
-  else if (currToken == "List<label>" || currToken == "List<bool>")
+  else if (currToken == "List<label>")
   {
     this->IsUniform = false;
     assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
@@ -4216,6 +4237,13 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
       this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array,
                                                      vtkTypeInt32> >(io);
     }
+  }
+  else if (currToken == "List<bool>")
+  {
+    // List<bool> is read as a list of bytes (binary) or ints (ascii)
+    // - primary location is the flipMap entry in faceZones
+    this->IsUniform = false;
+    this->ReadNonuniformList<BOOLLIST, listTraits<vtkCharArray, char> >(io);
   }
   else if (currToken.GetType() == this->Superclass::PUNCTUATION
       || currToken.GetType() == this->Superclass::LABEL || currToken.GetType()
