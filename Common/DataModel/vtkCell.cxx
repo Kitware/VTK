@@ -54,6 +54,23 @@ void vtkCell::Initialize(int npts, vtkIdType *pts, vtkPoints *p)
 }
 
 //----------------------------------------------------------------------------
+// Instantiate cell from outside. A simplified version of
+// vtkCell::Initialize() that assumes point ids are simply the index into the
+// points. This is a convenience function.
+//
+void vtkCell::Initialize(int npts, vtkPoints *p)
+{
+  this->PointIds->Reset();
+  this->Points->Reset();
+
+  for (int i=0; i<npts; i++)
+  {
+    this->PointIds->InsertId(i,i);
+    this->Points->InsertPoint(i,p->GetPoint(i));
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkCell::ShallowCopy(vtkCell *c)
 {
   this->Points->ShallowCopy(c->Points);
