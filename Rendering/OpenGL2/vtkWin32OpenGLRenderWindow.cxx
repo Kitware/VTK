@@ -545,7 +545,13 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   }
 
   // make sure glew is initialized with fake window
-  this->OpenGLInit();
+  GLenum result = glewInit();
+  bool m_valid = (result == GLEW_OK);
+  if (!m_valid)
+  {
+    vtkErrorMacro("GLEW could not be initialized.");
+    return;
+  }
 
   // First we try to use the newer wglChoosePixelFormatARB which enables
   // features like multisamples.
