@@ -542,7 +542,7 @@ public:
                     vtkIdType ext=1000);
 
   /**
-   * A special form of CopyData() to be used with FieldLists. Use it when
+   * Special forms of CopyData() to be used with FieldLists. Use it when
    * you are copying data from a set of vtkDataSetAttributes. Make sure
    * that you have called the special form of CopyAllocate that accepts
    * FieldLists.
@@ -550,6 +550,9 @@ public:
   void CopyData(vtkDataSetAttributes::FieldList& list,
                 vtkDataSetAttributes* dsa, int idx, vtkIdType fromId,
                 vtkIdType toId);
+  void CopyData(vtkDataSetAttributes::FieldList& list,
+                vtkDataSetAttributes* dsa, int idx, vtkIdType dstStart,
+                vtkIdType n, vtkIdType srcStart);
 
   /**
    * A special form of InterpolateAllocate() to be used with FieldLists. Use it

@@ -150,11 +150,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   vtkDataArray *newPtNormals = NULL;
   vtkDataArray *newPtTCoords = NULL;
   vtkDataArray *newPtTensors = NULL;
-  int i;
-  vtkIdType *pts = 0;
-  vtkIdType *pPolys;
-  vtkIdType npts = 0;
-  vtkIdType ptId, cellId;
+  vtkIdType *pStrips, *pLines, *pPolys,*pVerts;
 
   vtkDebugMacro(<<"Appending polydata");
 
@@ -167,6 +163,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   int countCD=0;
 
   vtkIdType numVerts = 0, numLines = 0, numStrips = 0;
+  vtkIdType sizeLines = 0, sizeStrips = 0, sizeVerts = 0;
 
   // These Field lists are very picky.  Count the number of non empty inputs
   // so we can initialize them properly.
@@ -216,11 +213,24 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
       // Although we cannot have cells without points ... let's not nest.
       if (ds->GetNumberOfCells() > 0)
       {
+        if (ds->GetVerts())
+        {
+          sizeVerts += ds->GetVerts()->GetNumberOfConnectivityEntries();
+        }
+        if (ds->GetLines())
+        {
+          sizeLines += ds->GetLines()->GetNumberOfConnectivityEntries();
+        }
         // keep track of the size of the poly cell array
         if (ds->GetPolys())
         {
           sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
         }
+        if (ds->GetStrips())
+        {
+          sizeStrips += ds->GetStrips()->GetNumberOfConnectivityEntries();
+        }
+
         numCells += ds->GetNumberOfCells();
         // Count the cells of each type.
         // This is used to ensure that cell data is copied at the correct
@@ -293,18 +303,36 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   newPts->SetNumberOfPoints(numPts);
 
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(numCells*4);
+  pVerts = newVerts->WritePointer(numVerts, sizeVerts);
+
+  if (sizeVerts > 0 && !pVerts)
+  {
+    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    return 0;
+  }
 
   newLines = vtkCellArray::New();
-  newLines->Allocate(numCells*4);
+  pLines = newLines->WritePointer(numLines, sizeLines);
 
-  newStrips = vtkCellArray::New();
-  newStrips->Allocate(numCells*4);
+  if (sizeLines > 0 && !pLines)
+  {
+    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    return 0;
+  }
 
   newPolys = vtkCellArray::New();
   pPolys = newPolys->WritePointer(numPolys, sizePolys);
 
-  if (!pPolys && sizePolys > 0)
+  if (sizePolys > 0 && !pPolys)
+  {
+    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    return 0;
+  }
+
+  newStrips = vtkCellArray::New();
+  pStrips = newStrips->WritePointer(numStrips, sizeStrips);
+
+  if (sizeStrips > 0 && !pStrips)
   {
     vtkErrorMacro(<<"Memory allocation failed in append filter");
     return 0;
@@ -391,9 +419,9 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   // loop over all input sets
   vtkIdType ptOffset = 0;
   vtkIdType vertOffset = 0;
-  vtkIdType linesOffset = 0;
-  vtkIdType polysOffset = 0;
-  vtkIdType stripsOffset = 0;
+  vtkIdType linesOffset = numVerts;
+  vtkIdType polysOffset = numVerts+numLines;
+  vtkIdType stripsOffset = numVerts+numLines+numPolys;
   countPD = countCD = 0;
   for (idx = 0; idx < numInputs; ++idx)
   {
@@ -427,7 +455,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         // copy scalars directly
         if (newPtScalars)
         {
-          this->AppendData(newPtScalars,inPD->GetScalars(), ptOffset);
+          this->AppendData(newPtScalars, inPD->GetScalars(), ptOffset);
         }
         // copy normals directly
         if (newPtNormals)
@@ -450,87 +478,34 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
           this->AppendData(newPtTensors, inPD->GetTensors(), ptOffset);
         }
         // append the remainder of the field data
-        for (ptId=0; ptId < numPts; ptId++)
-        {
-          outputPD->CopyData(ptList,inPD,countPD,ptId,ptId+ptOffset);
-        }
+        outputPD->CopyData(ptList, inPD, countPD, ptOffset, numPts, 0);
         ++countPD;
       }
-
 
       if (ds->GetNumberOfCells() > 0)
       {
         // These are the cellIDs at which each of the cell types start.
+        vtkIdType vertsIndex = 0;
         vtkIdType linesIndex = ds->GetNumberOfVerts();
         vtkIdType polysIndex = linesIndex + ds->GetNumberOfLines();
         vtkIdType stripsIndex = polysIndex + ds->GetNumberOfPolys();
 
-        // cell data could be made efficient like the point data,
-        // but I will wait on that.
-        // copy cell data
-        for (cellId=0; cellId < numCells; cellId++)
-        {
-          vtkIdType outCellId = 0;
-          if (cellId < linesIndex)
-          {
-            outCellId = vertOffset;
-            vertOffset++;
-          }
-          else if (cellId < polysIndex)
-          {
-            // outCellId = number of lines we already added + total number of
-            // verts expected in the output.
-            outCellId = linesOffset + numVerts;
-            linesOffset++;
-          }
-          else if (cellId < stripsIndex)
-          {
-            // outCellId = number of polys we already added + total number of
-            // verts and lines expected in the output.
-            outCellId = polysOffset + numLines + numVerts;
-            polysOffset++;
-          }
-          else
-          {
-            // outCellId = number of tstrips we already added + total number of
-            // polys, verts and lines expected in the output.
-            outCellId = stripsOffset + numPolys + numLines + numVerts;
-            stripsOffset++;
-          }
-          outputCD->CopyData(cellList,inCD,countCD,cellId,outCellId);
-        }
-        ++countCD;
-
         // copy the cells
+        pVerts = this->AppendCells(pVerts, inVerts, ptOffset);
+        pLines = this->AppendCells(pLines, inLines, ptOffset);
         pPolys = this->AppendCells(pPolys, inPolys, ptOffset);
+        pStrips = this->AppendCells(pStrips, inStrips, ptOffset);
 
-        // These other cell arrays could be made efficient like polys ...
-        for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
-        {
-          newVerts->InsertNextCell(npts);
-          for (i=0; i < npts; i++)
-          {
-            newVerts->InsertCellPoint(pts[i]+ptOffset);
-          }
-        }
-
-        for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-        {
-          newLines->InsertNextCell(npts);
-          for (i=0; i < npts; i++)
-          {
-            newLines->InsertCellPoint(pts[i]+ptOffset);
-          }
-        }
-
-        for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
-        {
-          newStrips->InsertNextCell(npts);
-          for (i=0; i < npts; i++)
-          {
-            newStrips->InsertCellPoint(pts[i]+ptOffset);
-          }
-        }
+        // copy cell data
+        outputCD->CopyData(cellList, inCD, countCD, vertOffset, ds->GetNumberOfVerts(), vertsIndex);
+        vertOffset += ds->GetNumberOfVerts();
+        outputCD->CopyData(cellList, inCD, countCD, linesOffset, ds->GetNumberOfLines(), linesIndex);
+        linesOffset += ds->GetNumberOfLines();
+        outputCD->CopyData(cellList, inCD, countCD, polysOffset, ds->GetNumberOfPolys(), polysIndex);
+        polysOffset += ds->GetNumberOfPolys();
+        outputCD->CopyData(cellList, inCD, countCD, stripsOffset, ds->GetNumberOfStrips(), stripsIndex);
+        stripsOffset += ds->GetNumberOfStrips();
+        ++countCD;
       }
       ptOffset += numPts;
     }
