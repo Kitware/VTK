@@ -5295,85 +5295,40 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
   const vtkStdString pointPath =
       this->CurrentTimeRegionMeshPath(this->PolyMeshPointsDir) + "points";
 
-  // These pointers are updated in the try blocks below:
-  vtkFoamEntryValue *dict = NULL;
-  vtkFoamIOobject *io = NULL;
+  vtkFoamIOobject io(this->CasePath, this->Parent);
+  if (!(io.Open(pointPath) || io.Open(pointPath + ".gz")))
+  {
+    vtkErrorMacro(<<"Error opening " << io.GetFileName().c_str() << ": "
+        << io.GetError().c_str());
+    return NULL;
+  }
 
-  // OpenFOAM is hardcoded to expect a float array for its data, so if we end
-  // up reading doubles, we'll need to cast the array.
   vtkFloatArray *pointArray = NULL;
 
-  // We now have a Use64BitFloats flag on the reader, but let's keep the
-  // try/catch pattern below. We can get away with this here because it's
-  // easy to rebuild the io object if we need to restart the read, and if the
-  // points data doesn't match the requested float size, we can warn the user
-  // so they'll know why reading e.g. attribute data fails later.
-
-  // Try to read the values as 32-bit floats
   try
   {
-    vtkFoamEntryValue dictFlt(NULL);
-    dict = &dictFlt;
+    vtkFoamEntryValue dict(NULL);
 
-    vtkFoamIOobject ioFlt(this->CasePath, this->Parent);
-    if (!(ioFlt.Open(pointPath) || ioFlt.Open(pointPath + ".gz")))
+    if (io.GetUse64BitFloats())
     {
-      vtkErrorMacro(<<"Error opening " << ioFlt.GetFileName().c_str() << ": "
-          << ioFlt.GetError().c_str());
-      return NULL;
+      dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, false> >(io);
     }
-    io = &ioFlt;
-
-    dict->ReadNonuniformList<vtkFoamToken::VECTORLIST,
-    vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false> >(*io);
-
-    if (this->Parent->GetUse64BitFloats())
+    else
     {
-      vtkWarningMacro("Detected 32-bit floats in the point file, but "
-                      "Use64BitFloats is true. Reading may fail for other "
-                      "arrays.")
+      dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false> >(io);
     }
 
-    pointArray = static_cast<vtkFloatArray *>(dict->Ptr());
+    pointArray = static_cast<vtkFloatArray *>(dict.Ptr());
   }
-  catch(vtkFoamError &)
-  {
-    try
-    { // Failed to read as float -- try double?
-      vtkFoamEntryValue dictDbl(NULL);
-      dict = &dictDbl;
-
-      vtkFoamIOobject ioDbl(this->CasePath, this->Parent);
-      if (!(ioDbl.Open(pointPath) || ioDbl.Open(pointPath + ".gz")))
-      {
-        vtkErrorMacro(<<"Error opening " << ioDbl.GetFileName().c_str() << ": "
-            << ioDbl.GetError().c_str());
-        return NULL;
-      }
-      io = &ioDbl;
-
-      dict->ReadNonuniformList<vtkFoamToken::VECTORLIST,
-          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, false>
-          >(*io);
-
-      if (!this->Parent->GetUse64BitFloats())
-      {
-        vtkWarningMacro("Detected 64-bit floats in the point file, but "
-                        "Use64BitFloats is false. Reading may fail for other "
-                        "arrays.")
-      }
-
-      // Cast the double array to a float array:
-      pointArray = static_cast<vtkFloatArray *>(dict->Ptr());
-    }
-    catch(vtkFoamError& e)
-    { // Something is horribly wrong.
-      vtkErrorMacro("Binary float data is neither 32 nor 64 bit, or some other "
-                    "parse error occurred while reading points. Failed at line "
-                    << io->GetLineNumber() << " of "
-                    << io->GetFileName().c_str() << ": " << e.c_str());
-      return NULL;
-    }
+  catch(vtkFoamError& e)
+  { // Something is horribly wrong.
+    vtkErrorMacro("Mesh points data are neither 32 nor 64 bit, or some other "
+                  "parse error occurred while reading points. Failed at line "
+                  << io.GetLineNumber() << " of "
+                  << io.GetFileName().c_str() << ": " << e.c_str());
+    return NULL;
   }
 
   assert(pointArray);
