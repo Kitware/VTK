@@ -124,6 +124,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
   this->BackBuffer = static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
+  this->DefaultFrameBufferId = 0;
 
   #ifndef VTK_LEGACY_REMOVE
   this->LastGraphicError = static_cast<unsigned int>(GL_NO_ERROR);
@@ -666,6 +667,7 @@ bool vtkOpenGLRenderWindow::InitializeFromCurrentContext()
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &frameBufferBinding);
   if (frameBufferBinding == 0)
   {
+    this->DefaultFrameBufferId = 0;
     this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
     this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
     this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
@@ -675,6 +677,7 @@ bool vtkOpenGLRenderWindow::InitializeFromCurrentContext()
   }
   else
   {
+    this->DefaultFrameBufferId = frameBufferBinding;
     GLint attachment = GL_COLOR_ATTACHMENT0;
 #ifdef GL_DRAW_BUFFER
     glGetIntegerv(GL_DRAW_BUFFER, &attachment);
@@ -767,6 +770,7 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
 void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "DefaultFrameBufferId: " << this->DefaultFrameBufferId << endl;
 }
 
 int vtkOpenGLRenderWindow::GetDepthBufferSize()

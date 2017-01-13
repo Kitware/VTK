@@ -19,14 +19,16 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPainterCommunicator.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
-
-#include "vtkOpenGLVertexBufferObject.h"
-#include "vtkOpenGLVertexArrayObject.h"
-#include "vtkOpenGLIndexBufferObject.h"
 
 // use parallel timer for benchmarks and scaling
 // if not defined vtkTimerLOG is used.
@@ -201,6 +203,14 @@ void vtkSurfaceLICMapper::RenderPiece(
     return;
   }
 
+  // Before start rendering LIC, capture some essential state so we can restore
+  // it.
+  bool blendEnabled = (glIsEnabled(GL_BLEND) == GL_TRUE);
+
+  vtkNew<vtkOpenGLFramebufferObject> fbo;
+  fbo->SetContext(vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow()));
+  fbo->SaveCurrentBindingsAndBuffers();
+
   // allocate rendering resources, initialize or update
   // textures and shaders.
   this->LICInterface->InitializeResources();
@@ -223,6 +233,17 @@ void vtkSurfaceLICMapper::RenderPiece(
 
   // ----------------------------------------------- depth test and copy to screen
   this->LICInterface->CopyToScreen();
+
+  fbo->RestorePreviousBindingsAndBuffers();
+
+  if (blendEnabled)
+  {
+    glEnable(GL_BLEND);
+  }
+  else
+  {
+    glDisable(GL_BLEND);
+  }
 
   // clear opengl error flags and be absolutely certain that nothing failed.
   vtkOpenGLCheckErrorMacro("failed during surface lic painter");

@@ -60,6 +60,13 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
   {
+    unsigned int dfbo = win->GetDefaultFrameBufferId();
+    if (dfbo)
+    {
+      // If the render window is using an FBO to render into, we ensure that
+      // it's selected.
+      glBindFramebuffer(GL_FRAMEBUFFER, dfbo);
+    }
     switch ((ren->GetRenderWindow())->GetStereoType())
     {
       case VTK_STEREO_CRYSTAL_EYES:

@@ -63,6 +63,26 @@ Ph.D. thesis of Christian BOUCHENY.
 
 //#define VTK_EDL_SHADING_DEBUG
 
+// Define to print debug statements to the OpenGL CS stream (useful for e.g.
+// apitrace debugging):
+// #define ANNOTATE_STREAM
+namespace
+{
+void annotate(const std::string &str)
+{
+#ifdef ANNOTATE_STREAM
+  vtkOpenGLStaticCheckErrorMacro("Error before glDebug.")
+  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
+                       GL_DEBUG_SEVERITY_NOTIFICATION,
+                       0, str.size(), str.c_str());
+  vtkOpenGLClearErrorMacro();
+#else // ANNOTATE_STREAM
+  (void)str;
+#endif // ANNOTATE_STREAM
+}
+}
+
+
 vtkStandardNewMacro(vtkEDLShading);
 
 // ----------------------------------------------------------------------------
@@ -223,6 +243,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
   this->ProjectionDepthTexture->SendParameters();
 
   this->ProjectionFBO->UnBind();
+  this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
 
   //  EDL-RES1 FBO and TEXTURE
   //
@@ -660,6 +681,7 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
 void vtkEDLShading::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
+  annotate("Start vtkEDLShading::Render");
 
   this->NumberOfRenderedProps = 0;
   vtkRenderer *r = s->GetRenderer();
@@ -704,9 +726,11 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     //cout << " -- ZNEAR/ZFAR : " << Zn << " || " << Zf << endl;
     this->ProjectionFBO->SaveCurrentBindingsAndBuffers();
     this->ProjectionFBO->Bind();
+    annotate("Start vtkEDLShading::RenderDelegate");
     this->RenderDelegate(s,this->Width,this->Height,
          this->W,this->H,this->ProjectionFBO,
          this->ProjectionColorTexture,this->ProjectionDepthTexture);
+    annotate("End vtkEDLShading::RenderDelegate");
 
     this->ProjectionFBO->UnBind();
 
@@ -757,6 +781,8 @@ void vtkEDLShading::Render(const vtkRenderState *s)
   {
     vtkWarningMacro(<<" no delegate.");
   }
+
+  annotate("END vtkEDLShading::Render");
 }
 
 // --------------------------------------------------------------------------

@@ -58,7 +58,23 @@ public:
       switch (eventId)
       {
         case vtkCommand::WindowMakeCurrentEvent:
-          this->Target->makeCurrent();
+          {
+            // We do not call QOpenGLWidget::makeCurrent() as that also makes the
+            // frame buffer object used by QOpenGLWidget active. This can have
+            // unintended side effects when MakeCurrent gets called in a
+            // render-pass, for example. We should only be making the context
+            // active. To do that, we use this trick. We rely on the
+            // QOpenGLContext have been called makeCurrent() previously so we
+            // can get to the surface that was used to do that. We simply
+            // reactivate on that surface.
+            QOpenGLContext* ctxt = this->Target->context();
+            QSurface* surface = ctxt? ctxt->surface() : NULL;
+            if (surface)
+            {
+              ctxt->makeCurrent(surface);
+            }
+            Q_ASSERT(ctxt == NULL || surface != NULL);
+          }
           break;
 
         case vtkCommand::WindowIsCurrentEvent:
@@ -274,7 +290,6 @@ void QVTKOpenGLWidget::copyToFormat(vtkRenderWindow* win, QSurfaceFormat& format
     format.setStereo(oglWin->GetStereoCapableWindow());
     format.setSamples(oglWin->GetMultiSamples());
     format.setStencilBufferSize(oglWin->GetStencilCapable() ? 8 : 0);
-    // FIXME:
   }
 }
 
@@ -305,8 +320,6 @@ void QVTKOpenGLWidget::initializeGL()
   if (this->RenderWindow)
   {
     // use QSurfaceFormat for the widget, update ivars on the vtkRenderWindow.
-    // FIXME: not sure if we should do this, or except client code to keep
-    // things in sync?
     QVTKOpenGLWidget::copyFromFormat(this->format(), this->RenderWindow);
   }
 
@@ -367,6 +380,10 @@ void QVTKOpenGLWidget::paintGL()
 //-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::cleanupContext()
 {
+  // QOpenGLWidget says when this slot is called, the context may not be current
+  // and hence is a good practice to make it so.
+  this->makeCurrent();
+
   vtkQVTKOpenGLWidgetDebugMacro("cleanupContext");
   if (this->RenderWindow)
   {
