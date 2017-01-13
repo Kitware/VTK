@@ -19,14 +19,16 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPainterCommunicator.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
-
-#include "vtkOpenGLVertexBufferObject.h"
-#include "vtkOpenGLVertexArrayObject.h"
-#include "vtkOpenGLIndexBufferObject.h"
 
 // use parallel timer for benchmarks and scaling
 // if not defined vtkTimerLOG is used.
@@ -206,6 +208,10 @@ void vtkSurfaceLICMapper::RenderPiece(
   // it.
   bool blendEnabled = (glIsEnabled(GL_BLEND) == GL_TRUE);
 
+  vtkNew<vtkOpenGLFramebufferObject> fbo;
+  fbo->SetContext(vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow()));
+  fbo->SaveCurrentBindingsAndBuffers();
+
   // allocate rendering resources, initialize or update
   // textures and shaders.
   this->LICInterface->InitializeResources();
@@ -228,6 +234,8 @@ void vtkSurfaceLICMapper::RenderPiece(
 
   // ----------------------------------------------- depth test and copy to screen
   this->LICInterface->CopyToScreen();
+
+  fbo->RestorePreviousBindingsAndBuffers();
 
   if (blendEnabled)
   {
