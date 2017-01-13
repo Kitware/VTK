@@ -1091,7 +1091,6 @@ public:
   };
 
 private:
-  bool Is13Positions;
   inputModes InputMode;
 
   // inclusion handling
@@ -1231,8 +1230,10 @@ private:
 
 public:
   vtkFoamFile(const vtkStdString& casePath, vtkOpenFOAMReader *reader) :
-    vtkFoamFileStack(reader), Is13Positions(false), InputMode(INPUT_MODE_ERROR),
-        StackI(0), CasePath(casePath)
+    vtkFoamFileStack(reader),
+    InputMode(INPUT_MODE_ERROR),
+    StackI(0),
+    CasePath(casePath)
   {
   }
   ~vtkFoamFile()
@@ -1240,14 +1241,6 @@ public:
     this->Close();
   }
 
-  void SetIs13Positions(const bool is13Positions)
-  {
-    this->Is13Positions = is13Positions;
-  }
-  bool GetIs13Positions() const
-  {
-    return this->Is13Positions;
-  }
   inputModes GetInputMode() const
   {
     return this->InputMode;
@@ -1932,7 +1925,7 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
   return nonNegative ? num : -num;
 }
 
-// extreamely simplified high-performing string to floating point
+// extremely simplified high-performing string to floating point
 // conversion code based on
 // ParaView3/VTK/Utilities/vtksqlite/vtk_sqlite3.c
 template <typename FloatType>
@@ -2256,11 +2249,15 @@ private:
   vtkStdString HeaderClassName;
   vtkFoamError E;
 
+  // inform IO object if lagrangian/positions has extra data (OF 1.4 - 2.4)
+  const bool LagrangianPositionsExtraData;
+
   vtkFoamIOobject();
   void ReadHeader(); // defined later
 public:
   vtkFoamIOobject(const vtkStdString& casePath, vtkOpenFOAMReader *reader) :
-    vtkFoamFile(casePath, reader), Format(UNDEFINED), E()
+    vtkFoamFile(casePath, reader), Format(UNDEFINED), E(),
+    LagrangianPositionsExtraData(!reader->GetPositionsIsIn13Format())
   {
   }
   ~vtkFoamIOobject()
@@ -2320,6 +2317,10 @@ public:
   void SetError(const vtkFoamError& e)
   {
     this->E = e;
+  }
+  bool GetLagrangianPositionsExtraData() const
+  {
+    return this->LagrangianPositionsExtraData;
   }
 };
 
@@ -2440,9 +2441,9 @@ public:
   // reads rank 1 lists of types vector, sphericalTensor, symmTensor
   // and tensor. if isPositions is true it reads Cloud type of data as
   // particle positions. cf. (the positions format)
-  // src/lagrangian/basic/particle/particleIO.C
+  // src/lagrangian/basic/particle/particleIO.C - writePosition()
   template <typename listT, typename primitiveT, int nComponents,
-      bool isPositions> class vectorListTraits
+      bool isPositions=false> class vectorListTraits
   {
     listT *Ptr;
 
@@ -2501,14 +2502,13 @@ public:
       {
         size_t labelSize = io.GetReader()->GetUse64BitLabels() ? 8 : 4;
 
-        // skip label celli, label facei and scalar stepFraction
-        const size_t sz1 = sizeof(double) * (nComponents + 1) + 2 * labelSize;
+        // xyz (3*scalar) + celli (label)
+        // in OpenFOAM 1.4 -> 2.4 also had facei (label) and stepFraction (scalar)
+        const size_t sz1 = sizeof(double) * nComponents + labelSize;
+        const size_t sz2 = sizeof(double) * (nComponents + 1) + 2 * labelSize;
 
-        // skip label celli
-        const size_t sz2 = sizeof(double) * nComponents + labelSize;
+        const int nBytes = static_cast<int>((io.GetLagrangianPositionsExtraData() ? sz2 : sz1));
 
-        const int nBytes = static_cast<int>((io.GetIs13Positions() ? sz2
-                                                                   : sz1));
         std::vector<unsigned char> bufferContainer;
         bufferContainer.resize(nBytes);
         // This is templated code, but hardcoded to use doubles...I'm just gonna
@@ -2518,8 +2518,8 @@ public:
         {
           io.ReadExpecting('(');
           io.Read(reinterpret_cast<unsigned char *>(buffer), nBytes);
-          this->Ptr->SetTuple(i, buffer);
           io.ReadExpecting(')');
+          this->Ptr->SetTuple(i, buffer);
         }
       }
       else
@@ -2529,9 +2529,9 @@ public:
         // Compiler hint for better unrolling:
         VTK_ASSUME(this->Ptr->GetNumberOfComponents() == nComponents);
 
+        const int tupleLength = sizeof(primitiveT) * nComponents;
         for (int i = 0; i < size; i++)
         {
-          int tupleLength = sizeof(primitiveT) * nComponents;
           primitiveT buffer[nComponents];
           int readLength =
               io.Read(reinterpret_cast<unsigned char *>(buffer), tupleLength);
@@ -5101,7 +5101,7 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(
   this->Parent = parent;
 
   // list timesteps (skip parsing controlDict entirely if
-  // ListTimeStepsByControlDict is set to 0)
+  // ListTimeStepsByControlDict is false)
   bool ret = false; // tentatively set to false to suppress warning by older compilers
   if (this->Parent->GetListTimeStepsByControlDict())
   {
@@ -8197,10 +8197,6 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       continue;
     }
 
-    // tell the IO object if the file is in OF 1.3 binary
-    // lagrangian/positions format
-    io.SetIs13Positions(this->Parent->GetPositionsIsIn13Format() != 0);
-
     vtkFoamEntryValue dict(NULL);
     try
     {
@@ -8295,6 +8291,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       this->AddArrayToFieldData(meshI->GetCellData(), lData, selectionName);
       if (this->Parent->GetCreateCellToPoint())
       {
+        // questionable if this is worth bothering with:
         this->AddArrayToFieldData(meshI->GetPointData(), lData, selectionName);
       }
       lData->Delete();
@@ -8503,7 +8500,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(vtkMultiBlockDataSet *faceZoneMes
     // set faceZone size
     fzm->Allocate(nFaces);
 
-    // aloocate array for converting int vector to vtkIdType vector:
+    // allocate array for converting int vector to vtkIdType vector:
     // workaround for 64bit machines
     vtkIdType maxNFacePoints = 0;
     for (vtkIdType j = 0; j < nFaces; j++)
@@ -9053,7 +9050,7 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   // must be false to avoid reloading by vtkAppendCompositeDataLeaves::Update()
   this->Refresh = false;
 
-  // INTIALIZE FILE NAME
+  // initialize file name
   this->FileName = NULL;
   this->FileNameOld = new vtkStdString;
 
@@ -9085,9 +9082,10 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   this->DecomposePolyhedra = 0;
   this->DecomposePolyhedraOld = 0;
 
-  // for reading old binary lagrangian/positions format
-  this->PositionsIsIn13Format = 0; // turned off by default
-  this->PositionsIsIn13FormatOld = 0;
+  // for lagrangian/positions format without the additional data that existed
+  // in OpenFOAM 1.4-2.4
+  this->PositionsIsIn13Format = 1;
+  this->PositionsIsIn13FormatOld = 1;
 
   // for reading zones
   this->ReadZones = 0; // turned off by default
@@ -9107,9 +9105,9 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   this->CurrentReaderIndex = 0;
   this->NumberOfReaders = 0;
   this->Use64BitLabels = false;
+  this->Use64BitFloats = true;
   this->Use64BitLabelsOld = false;
-  this->Use64BitFloats = false;
-  this->Use64BitFloatsOld = false;
+  this->Use64BitFloatsOld = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -9165,18 +9163,18 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)")
-      << endl;
+     << endl;
   os << indent << "Refresh: " << this->Refresh << endl;
   os << indent << "CreateCellToPoint: " << this->CreateCellToPoint << endl;
   os << indent << "CacheMesh: " << this->CacheMesh << endl;
   os << indent << "DecomposePolyhedra: " << this->DecomposePolyhedra << endl;
   os << indent << "PositionsIsIn13Format: " << this->PositionsIsIn13Format
-      << endl;
+     << endl;
   os << indent << "ReadZones: " << this->ReadZones << endl;
   os << indent << "ListTimeStepsByControlDict: "
-      << this->ListTimeStepsByControlDict << endl;
+     << this->ListTimeStepsByControlDict << endl;
   os << indent << "AddDimensionsToArrayNames: "
-      << this->AddDimensionsToArrayNames << endl;
+     << this->AddDimensionsToArrayNames << endl;
 
   this->Readers->InitTraversal();
   vtkObject *reader;
@@ -9322,31 +9320,28 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
 
   // compute flags
   // internal mesh selection change is detected within each reader
-  const bool recreateInternalMesh = (!this->Parent->CacheMesh)
-      || this->Parent->DecomposePolyhedra
-          != this->Parent->DecomposePolyhedraOld || this->Parent->ReadZones
-      != this->Parent->ReadZonesOld || this->Parent->ListTimeStepsByControlDict
-      != this->Parent->ListTimeStepsByControlDictOld
-      || this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld
-      || this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld;
+  const bool recreateInternalMesh =
+         (!this->Parent->CacheMesh)
+      || (this->Parent->DecomposePolyhedra != this->Parent->DecomposePolyhedraOld)
+      || (this->Parent->ReadZones != this->Parent->ReadZonesOld)
+      || (this->Parent->ListTimeStepsByControlDict != this->Parent->ListTimeStepsByControlDictOld)
+      || (this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld)
+      || (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
+
   const bool recreateBoundaryMesh =
-      this->Parent->PatchDataArraySelection->GetMTime()
-          != this->Parent->PatchSelectionMTimeOld
-      || this->Parent->CreateCellToPoint != this->Parent->CreateCellToPointOld
-      || this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld
-      || this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld;
-  const bool updateVariables = this->Parent->CellDataArraySelection->GetMTime()
-      != this->Parent->CellSelectionMTimeOld
-      || this->Parent->PointDataArraySelection->GetMTime()
-          != this->Parent->PointSelectionMTimeOld
-      || this->Parent->LagrangianDataArraySelection->GetMTime()
-          != this->Parent->LagrangianSelectionMTimeOld
-      || this->Parent->PositionsIsIn13Format
-          != this->Parent->PositionsIsIn13FormatOld
-      || this->Parent->AddDimensionsToArrayNames
-          != this->Parent->AddDimensionsToArrayNamesOld
-      || this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld
-      || this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld;
+         (this->Parent->PatchDataArraySelection->GetMTime() != this->Parent->PatchSelectionMTimeOld)
+      || (this->Parent->CreateCellToPoint != this->Parent->CreateCellToPointOld)
+      || (this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld)
+      || (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
+
+  const bool updateVariables =
+         (this->Parent->CellDataArraySelection->GetMTime() != this->Parent->CellSelectionMTimeOld)
+      || (this->Parent->PointDataArraySelection->GetMTime() != this->Parent->PointSelectionMTimeOld)
+      || (this->Parent->LagrangianDataArraySelection->GetMTime() != this->Parent->LagrangianSelectionMTimeOld)
+      || (this->Parent->PositionsIsIn13Format != this->Parent->PositionsIsIn13FormatOld)
+      || (this->Parent->AddDimensionsToArrayNames != this->Parent->AddDimensionsToArrayNamesOld)
+      || (this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld)
+      || (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
 
   // create dataset
   int ret = 1;
