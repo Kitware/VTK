@@ -202,6 +202,10 @@ void vtkSurfaceLICMapper::RenderPiece(
     return;
   }
 
+  // Before start rendering LIC, capture some essential state so we can restore
+  // it.
+  bool blendEnabled = (glIsEnabled(GL_BLEND) == GL_TRUE);
+
   // allocate rendering resources, initialize or update
   // textures and shaders.
   this->LICInterface->InitializeResources();
@@ -224,6 +228,15 @@ void vtkSurfaceLICMapper::RenderPiece(
 
   // ----------------------------------------------- depth test and copy to screen
   this->LICInterface->CopyToScreen();
+
+  if (blendEnabled)
+  {
+    glEnable(GL_BLEND);
+  }
+  else
+  {
+    glDisable(GL_BLEND);
+  }
 
   // clear opengl error flags and be absolutely certain that nothing failed.
   vtkOpenGLCheckErrorMacro("failed during surface lic painter");
