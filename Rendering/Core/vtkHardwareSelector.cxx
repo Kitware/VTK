@@ -128,7 +128,7 @@ public:
       vtkIdTypeArray* ids = vtkIdTypeArray::New();
       ids->SetName("SelectedIds");
       ids->SetNumberOfComponents(1);
-      ids->SetNumberOfTuples(iter->second.size());
+      ids->SetNumberOfTuples(static_cast<vtkIdType>(iter->second.size()));
       vtkIdType* ptr = ids->GetPointer(0);
       std::set<vtkIdType>::const_iterator idIter;
       vtkIdType cc=0;

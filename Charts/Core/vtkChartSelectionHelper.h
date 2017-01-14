@@ -132,7 +132,7 @@ static void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelecti
   {
     output.push_back(ptrOldSelection[iOld++]);
   }
-  selection->SetNumberOfTuples(output.size());
+  selection->SetNumberOfTuples(static_cast<vtkIdType>(output.size()));
   ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
   for (std::vector<vtkIdType>::iterator it = output.begin();
        it != output.end(); ++it, ++ptrSelection)
@@ -211,7 +211,7 @@ static void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelect
   {
     output.push_back(ptrOldSelection[iOld++]);
   }
-  selection->SetNumberOfTuples(output.size());
+  selection->SetNumberOfTuples(static_cast<vtkIdType>(output.size()));
   ptrSelection = static_cast<vtkIdType *>(selection->GetVoidPointer(0));
   for (std::vector<vtkIdType>::iterator it = output.begin();
        it != output.end(); ++it, ++ptrSelection)

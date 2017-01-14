@@ -505,7 +505,7 @@ void vtkLSDynaPartCollection::InitCollection(LSDynaMetaData *metaData,
   //reserve enough space for the grids. Each node
   //will have a part allocated, since we don't know yet
   //how the cells map to parts.
-  this->Storage = new LSDynaPartStorage(metaData->PartIds.size());
+  this->Storage = new LSDynaPartStorage(static_cast<vtkIdType>(metaData->PartIds.size()));
 
   this->MinIds = new vtkIdType[LSDynaMetaData::NUM_CELL_TYPES];
   this->MaxIds = new vtkIdType[LSDynaMetaData::NUM_CELL_TYPES];

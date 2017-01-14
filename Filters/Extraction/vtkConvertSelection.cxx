@@ -269,7 +269,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
 
   vtkSmartPointer<vtkUnsignedIntArray> selectionList =
     vtkSmartPointer<vtkUnsignedIntArray>::New();
-  selectionList->SetNumberOfTuples(indices.size());
+  selectionList->SetNumberOfTuples(static_cast<vtkIdType>(indices.size()));
   std::set<unsigned int>::iterator siter;
   vtkIdType index = 0;
   for (siter = indices.begin(); siter != indices.end(); ++siter, ++index)

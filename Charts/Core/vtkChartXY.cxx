@@ -1173,7 +1173,7 @@ vtkIdType vtkChartXY::AddPlot(vtkPlot* plot)
   }
   plot->Register(this);
   this->ChartPrivate->plots.push_back(plot);
-  vtkIdType plotIndex = this->ChartPrivate->plots.size() - 1;
+  vtkIdType plotIndex = static_cast<vtkIdType>(this->ChartPrivate->plots.size() - 1);
   this->SetPlotCorner(plot, 0);
   // Ensure that the bounds are recalculated
   this->PlotTransformValid = false;
@@ -1354,7 +1354,7 @@ vtkTooltipItem* vtkChartXY::GetTooltip()
 //-----------------------------------------------------------------------------
 vtkIdType vtkChartXY::GetNumberOfPlots()
 {
-  return this->ChartPrivate->plots.size();
+  return static_cast<vtkIdType>(this->ChartPrivate->plots.size());
 }
 
 //-----------------------------------------------------------------------------

@@ -147,7 +147,7 @@ void MergePoints(std::vector<vtkMergePointsData>& data,
     mergePoints.Begin = second;
     mergePoints.End = end;
     // Actual work
-    vtkSMPTools::For(0, nonEmptyBuckets.size(), mergePoints);
+    vtkSMPTools::For(0, static_cast<vtkIdType>(nonEmptyBuckets.size()), mergePoints);
     //mergePoints.operator()(0, nonEmptyBuckets.size());
 
     // Fixup output sizes.

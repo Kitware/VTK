@@ -316,7 +316,7 @@ int vtkFLUENTReader::RequestData(
     else if (this->Cells->value[i].type == 7 )
     {
       this->ConvexPointSet->GetPointIds()->
-            SetNumberOfIds(this->Cells->value[i].nodes.size());
+            SetNumberOfIds(static_cast<vtkIdType>(this->Cells->value[i].nodes.size()));
       for (int j = 0; j < (int)this->Cells->value[i].nodes.size(); j++)
       {
         this->ConvexPointSet->GetPointIds()->

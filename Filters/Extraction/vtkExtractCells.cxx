@@ -130,7 +130,7 @@ int vtkExtractCells::RequestData(
     ((vtkUnstructuredGrid::SafeDownCast(input)) != NULL);
 
   vtkIdType numCellsInput = input->GetNumberOfCells();
-  vtkIdType numCells = this->CellList->IdTypeSet.size();
+  vtkIdType numCells = static_cast<vtkIdType>(this->CellList->IdTypeSet.size());
 
   if (numCells == numCellsInput)
   {
@@ -420,7 +420,7 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
                                        vtkUnstructuredGrid *output)
 {
-  output->Allocate(this->CellList->IdTypeSet.size());
+  output->Allocate(static_cast<vtkIdType>(this->CellList->IdTypeSet.size()));
 
   vtkCellData *oldCD = input->GetCellData();
   vtkCellData *newCD = output->GetCellData();

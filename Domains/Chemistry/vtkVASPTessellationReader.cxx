@@ -600,7 +600,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     for (size_t faceId = 0; faceId < faceData.size(); ++faceId)
     {
       const std::vector<vtkIdType> &face = faceData[faceId];
-      faceStream.push_back(face.size());
+      faceStream.push_back(static_cast<vtkIdType>(face.size()));
       for (std::vector<vtkIdType>::const_iterator it = face.begin(),
            itEnd = face.end(); it != itEnd; ++it)
       {
@@ -618,7 +618,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     voronoi->InsertNextCell(VTK_POLYHEDRON,
                             static_cast<vtkIdType>(pointIds.size()),
                             pointIds.empty() ? NULL : &pointIds[0],
-                            faceData.size(),
+                            static_cast<vtkIdType>(faceData.size()),
                             faceStream.empty() ? NULL : &faceStream[0]);
     tessAtomicNumbers->InsertNextValue(atom.GetAtomicNumber());
     tessAtomIds->InsertNextValue(atom.GetId());

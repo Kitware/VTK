@@ -145,7 +145,7 @@ namespace {
     // Check to see that last point is the same as the first. Such a loop is
     // closed and can be directly output. Otherwise, check on the strategy
     // for closing the loop and close as appropriate.
-    vtkIdType num = sortedPoints.size();
+    vtkIdType num = static_cast<vtkIdType>(sortedPoints.size());
     if ( sortedPoints[0].Id == sortedPoints[num-1].Id )
     {
       --num;

@@ -246,7 +246,7 @@ private:
       {
         ;
       }
-      cellArray->InsertNextCell( clit->size(), ids );
+      cellArray->InsertNextCell( static_cast<vtkIdType>(clit->size()), ids );
       delete [] ids;
     }
   }

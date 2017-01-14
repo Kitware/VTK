@@ -120,7 +120,7 @@ int TestPolygonSelection( int argc, char* argv[] )
   {
     vtkNew<vtkIntArray> polygonPointsArray;
     polygonPointsArray->SetNumberOfComponents(2);
-    polygonPointsArray->SetNumberOfTuples(points.size());
+    polygonPointsArray->SetNumberOfTuples(static_cast<vtkIdType>(points.size()));
     for (unsigned int j = 0; j < points.size(); ++j)
     {
       const vtkVector2i &v = points[j];

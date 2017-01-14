@@ -896,7 +896,7 @@ vtkIdType vtkLSDynaPart::GetMaxGlobalPointId() const
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::BuildCells()
 {
-  this->NumberOfCells = this->Cells->size();
+  this->NumberOfCells = static_cast<vtkIdType>(this->Cells->size());
 
   //make the unstrucuted grid data structures point to the
   //Cells vectors underlying memory
