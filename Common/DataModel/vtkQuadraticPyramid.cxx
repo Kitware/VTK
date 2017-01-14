@@ -375,13 +375,13 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   this->PointData->CopyAllOn();
   this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,14);
-  this->CellData->CopyAllocate(inCd,6);
+  this->CellData->CopyAllocate(inCd,10);
   for (i=0; i<13; i++)
   {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
     this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
   }
-  for (i=0; i<6; i++)
+  for (i=0; i<10; i++)
   {
     this->CellData->CopyData(inCd,cellId,i);
   }
@@ -454,7 +454,7 @@ void vtkQuadraticPyramid::Contour(double value,
       this->Scalars->SetTuple(j,this->CellScalars->GetTuple(LinearPyramids[i][j]));
     }
     this->Tetra->Contour(value,this->Scalars,locator,verts,lines,polys,
-                         this->PointData,outPd,this->CellData,cellId,outCd);
+                         this->PointData,outPd,this->CellData,i,outCd);
   }
 }
 
