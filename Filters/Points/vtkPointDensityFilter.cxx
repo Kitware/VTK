@@ -253,7 +253,7 @@ struct ComputeGradients
         for ( int i=0; i < dims[0]; ++i)
         {
           idx[0] = i;
-          nonZeroComp = (d[0] != 0.0 || d[1] != 0.0 || d[2] != 0.0 ? true : false);
+          nonZeroComp = false;
           for (int ii=0; ii < 3; ++ii)
           {
             if ( idx[ii] == 0 )
@@ -275,7 +275,7 @@ struct ComputeGradients
               f = 0.5;
             }
             grad[ii] = f * (dp-dm) / spacing[ii];
-            nonZeroComp = ( dp != 0.0 || dm != 0.0 ? true : nonZeroComp );
+            nonZeroComp = (( dp != 0.0 || dm != 0.0) ? true : nonZeroComp );
           }
 
           // magnitude
