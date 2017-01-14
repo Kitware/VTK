@@ -124,6 +124,7 @@ function(vtk_add_test_mpi exename _tests)
   set(mpi_options
     TESTING_DATA
     CUSTOM_BASELINES
+    NO_VALID
     )
   _vtk_test_parse_args("${mpi_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${mpi_options}" "" ${options})
@@ -160,10 +161,13 @@ function(vtk_add_test_mpi exename _tests)
     if(local_TESTING_DATA)
       set(_D -D ${data_dir})
       set(_T -T ${VTK_TEST_OUTPUT_DIR})
-      if(local_CUSTOM_BASELINES)
-        set(_V -V "${data_dir}/Baseline")
-      else()
-        set(_V -V "DATA{${baseline_dir}/${test_name}.png,:}")
+      set(_V "")
+      if(NOT local_NO_VALID)
+        if(local_CUSTOM_BASELINES)
+          set(_V -V "${data_dir}/Baseline")
+        else()
+          set(_V -V "DATA{${baseline_dir}/${test_name}.png,:}")
+        endif()
       endif()
     endif()
 
