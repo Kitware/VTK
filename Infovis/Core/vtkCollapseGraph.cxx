@@ -55,7 +55,7 @@ static void BuildGraph(vtkGraph* input_graph, const std::vector<vtkIdType>& vert
       continue;
 
     output_graph->AddVertex();
-    output_vertex_data->CopyData(input_vertex_data, i, vertex_map[i]);
+    output_vertex_data->CopyData(input_vertex_data, static_cast<vtkIdType>(i), vertex_map[i]);
   }
 
   vtkDataSetAttributes* const input_edge_data = input_graph->GetEdgeData();

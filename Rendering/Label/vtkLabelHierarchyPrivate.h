@@ -147,7 +147,7 @@ public:
       ++ this->TotalAnchors;
     }
     void Increment() { ++ this->TotalAnchors; }
-    vtkIdType GetLocalAnchorCount() const { return this->size(); }
+    vtkIdType GetLocalAnchorCount() const { return static_cast<vtkIdType>(this->size()); }
     vtkIdType GetTotalAnchorCount() const { return this->TotalAnchors; }
 
     vtkIdType TotalAnchors; // Count of all anchors stored in this node and its children.

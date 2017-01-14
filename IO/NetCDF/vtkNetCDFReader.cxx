@@ -708,10 +708,11 @@ vtkSmartPointer<vtkDoubleArray> vtkNetCDFReader::GetTimeValues(int ncFD,
   size_t dimLength;
   CALL_NETCDF(nc_inq_dimlen(ncFD, dimId, &dimLength));
   timeValues->SetNumberOfComponents(1);
-  timeValues->SetNumberOfTuples(dimLength);
+  timeValues->SetNumberOfTuples(static_cast<vtkIdType>(dimLength));
   for (size_t j = 0; j < dimLength; j++)
   {
-    timeValues->SetValue(j, static_cast<double>(j));
+    timeValues->SetValue(static_cast<vtkIdType>(j),
+      static_cast<double>(j));
   }
   return timeValues;
 }
@@ -762,7 +763,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
          start[0] < static_cast<size_t>(timeValues->GetNumberOfTuples());
          start[0]++)
     {
-      if (timeValues->GetValue(start[0]) >= time) break;
+      if (timeValues->GetValue(static_cast<vtkIdType>(start[0])) >= time) break;
     }
     count[0] = 1;
     numDims--;
@@ -816,7 +817,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
     // If loading cell data, subtract one from the data being loaded.
     if (!loadingPointData) count[i+timeIndexOffset]--;
 
-    arraySize *= count[i+timeIndexOffset];
+    arraySize *= static_cast<vtkIdType>(count[i+timeIndexOffset]);
   }
 
   // Allocate an array of the right type.

@@ -141,12 +141,12 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
   this->Coordinates = vtkSmartPointer<vtkDoubleArray>::New();
   this->Coordinates->SetName((this->Name + "_Coordinates").c_str());
   this->Coordinates->SetNumberOfComponents(1);
-  this->Coordinates->SetNumberOfTuples(dimLen);
+  this->Coordinates->SetNumberOfTuples(static_cast<vtkIdType>(dimLen));
 
   this->Bounds = vtkSmartPointer<vtkDoubleArray>::New();
   this->Bounds->SetName((this->Name + "_Bounds").c_str());
   this->Bounds->SetNumberOfComponents(1);
-  this->Bounds->SetNumberOfTuples(dimLen+1);
+  this->Bounds->SetNumberOfTuples(static_cast<vtkIdType>(dimLen+1));
 
   this->SpecialVariables = vtkSmartPointer<vtkStringArray>::New();
 
@@ -170,13 +170,13 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
     // Check to see if the spacing is regular.
     this->Origin = this->Coordinates->GetValue(0);
     this->Spacing
-      = (this->Coordinates->GetValue(dimLen-1) - this->Origin)/(dimLen-1);
+      = (this->Coordinates->GetValue(static_cast<vtkIdType>(dimLen-1)) - this->Origin)/(dimLen-1);
     this->HasRegularSpacing = true;     // Then check to see if it is false.
     double tolerance = 0.01*this->Spacing;
     for (size_t i = 1; i < dimLen; i++)
     {
       double expectedValue = this->Origin + i*this->Spacing;
-      double actualValue = this->Coordinates->GetValue(i);
+      double actualValue = this->Coordinates->GetValue(static_cast<vtkIdType>(i));
       if (   (actualValue < expectedValue-tolerance)
           || (actualValue > expectedValue+tolerance) )
       {
@@ -337,7 +337,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       start[0] = dimLen-1;  start[1] = 1;
       count[0] = 1;  count[1] = 1;
       CALL_NETCDF_GW(nc_get_vars_double(ncFD, boundsVarId, start, count, NULL,
-                                        this->Bounds->GetPointer(dimLen)));
+        this->Bounds->GetPointer(static_cast<vtkIdType>(dimLen))));
     }
     else
     {
@@ -351,7 +351,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
         this->Bounds->SetValue(i, 0.5*(v0+v1));
       }
       this->Bounds->SetValue(dimLen,
-                       this->Coordinates->GetValue(dimLen-1)+0.5*this->Spacing);
+        this->Coordinates->GetValue(static_cast<vtkIdType>(dimLen-1))+0.5*this->Spacing);
     }
   }
   else
@@ -359,10 +359,13 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
     // Fake coordinates
     for (size_t i = 0; i < dimLen; i++)
     {
-      this->Coordinates->SetValue(i, static_cast<double>(i));
-      this->Bounds->SetValue(i, static_cast<double>(i) - 0.5);
+      this->Coordinates->SetValue(static_cast<vtkIdType>(i),
+        static_cast<double>(i));
+      this->Bounds->SetValue(static_cast<vtkIdType>(i),
+        static_cast<double>(i) - 0.5);
     }
-    this->Bounds->SetValue(dimLen, static_cast<double>(dimLen) - 0.5);
+    this->Bounds->SetValue(static_cast<vtkIdType>(dimLen),
+      static_cast<double>(dimLen) - 0.5);
     this->HasRegularSpacing = true;
     this->Origin = 0.0;
     this->Spacing = 1.0;

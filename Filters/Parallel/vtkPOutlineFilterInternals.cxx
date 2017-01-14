@@ -198,7 +198,7 @@ int vtkPOutlineFilterInternals::RequestData(
     double* temp = new double[6*this->BoundsList.size()];
     this->Controller->Reduce(&boundsList[0],
                              temp,
-                             6*this->BoundsList.size(),
+                             static_cast<vtkIdType>(6*this->BoundsList.size()),
                              &operation,
                              0);
     memcpy(&boundsList[0], temp, 6*this->BoundsList.size()*sizeof(double));

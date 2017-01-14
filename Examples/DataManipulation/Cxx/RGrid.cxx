@@ -29,7 +29,7 @@
 int main()
 {
   int i;
-  static float x[47]={
+  static double x[47]={
          -1.22396, -1.17188, -1.11979, -1.06771, -1.01562, -0.963542,
          -0.911458, -0.859375, -0.807292, -0.755208, -0.703125, -0.651042,
          -0.598958, -0.546875, -0.494792, -0.442708, -0.390625, -0.338542,
@@ -38,13 +38,13 @@ int main()
           0.338542, 0.390625, 0.442708, 0.494792, 0.546875, 0.598958,
           0.651042, 0.703125, 0.755208, 0.807292, 0.859375, 0.911458,
           0.963542, 1.01562, 1.06771, 1.11979, 1.17188};
-  static float y[33]={-1.25, -1.17188, -1.09375, -1.01562, -0.9375, -0.859375,
+  static double y[33]={-1.25, -1.17188, -1.09375, -1.01562, -0.9375, -0.859375,
          -0.78125, -0.703125, -0.625, -0.546875, -0.46875, -0.390625,
          -0.3125, -0.234375, -0.15625, -0.078125, 0, 0.078125,
           0.15625, 0.234375, 0.3125, 0.390625, 0.46875, 0.546875,
           0.625, 0.703125, 0.78125, 0.859375, 0.9375, 1.01562,
           1.09375, 1.17188, 1.25};
-  static float z[44]={0, 0.1, 0.2, 0.3, 0.4, 0.5,
+  static double z[44]={0, 0.1, 0.2, 0.3, 0.4, 0.5,
          0.6, 0.7, 0.75, 0.8, 0.9, 1,
          1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
          1.7, 1.75, 1.8, 1.9, 2, 2.1,
@@ -56,13 +56,21 @@ int main()
   // Create a rectilinear grid by defining three arrays specifying the
   // coordinates in the x-y-z directions.
   vtkFloatArray *xCoords = vtkFloatArray::New();
-  for (i=0; i<47; i++) xCoords->InsertNextValue(x[i]);
-
+  for (i=0; i<47; i++)
+  {
+    xCoords->InsertNextValue(x[i]);
+  }
   vtkFloatArray *yCoords = vtkFloatArray::New();
-  for (i=0; i<33; i++) yCoords->InsertNextValue(y[i]);
+  for (i=0; i<33; i++)
+  {
+    yCoords->InsertNextValue(y[i]);
+  }
 
   vtkFloatArray *zCoords = vtkFloatArray::New();
-  for (i=0; i<44; i++) zCoords->InsertNextValue(z[i]);
+  for (i=0; i<44; i++)
+  {
+    zCoords->InsertNextValue(z[i]);
+  }
 
   // The coordinates are assigned to the rectilinear grid. Make sure that
   // the number of values in each of the XCoordinates, YCoordinates,

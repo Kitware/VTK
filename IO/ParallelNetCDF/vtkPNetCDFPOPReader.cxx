@@ -383,8 +383,9 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
                             rStride+2, &buffer[wholeCount[0] + wholeCount[1]]);
         }
 
-        this->Controller->Broadcast( &buffer[0], (wholeCount[0] + wholeCount[1] + wholeCount[2]),
-                                     this->Internals->ReaderRanks[0]);
+        this->Controller->Broadcast( &buffer[0],
+          static_cast<vtkIdType>(wholeCount[0] + wholeCount[1] + wholeCount[2]),
+          this->Internals->ReaderRanks[0]);
 
         // Extract the values we need out of buffer and store them in the x, y & z buffers
         float* x = new float[count[0]];
@@ -396,15 +397,15 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
 
         // Note the axis swap:  xcoords gets the z data and zcoords gets the x data
         vtkFloatArray *xCoords = vtkFloatArray::New();
-        xCoords->SetArray(z, count[2], 0, 1);
+        xCoords->SetArray(z, static_cast<vtkIdType>(count[2]), 0, 1);
         vtkFloatArray *yCoords = vtkFloatArray::New();
-        yCoords->SetArray(y, count[1], 0, 1);
+        yCoords->SetArray(y, static_cast<vtkIdType>(count[1]), 0, 1);
         for (unsigned int q=0; q<count[0]; q++)
         {
           x[q] = -x[q];
         }
         vtkFloatArray *zCoords = vtkFloatArray::New();
-        zCoords->SetArray(x, count[0], 0, 1);
+        zCoords->SetArray(x, static_cast<vtkIdType>(count[0]), 0, 1);
         rgrid->SetXCoordinates(xCoords);
         rgrid->SetYCoordinates(yCoords);
         rgrid->SetZCoordinates(zCoords);
@@ -414,7 +415,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
       }
       //create vtkFloatArray and get the scalars into it
       vtkFloatArray *scalars = vtkFloatArray::New();
-      vtkIdType numberOfTuples = (count[0])*(count[1])*(count[2]);
+      vtkIdType numberOfTuples = static_cast<vtkIdType>(count[0]*count[1]*count[2]);
       float* data = new float[numberOfTuples];
 
 

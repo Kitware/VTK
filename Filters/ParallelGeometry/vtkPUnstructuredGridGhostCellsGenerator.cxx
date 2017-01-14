@@ -423,7 +423,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePoints()
 
     // Now reduce surface point global ids on ALL ranks
     ::AllGatherV(this->Controller, &globalIdsOfSurfacePoints[0],
-      globalIdsOfSurfacePoints.size(),
+      static_cast<vtkIdType>(globalIdsOfSurfacePoints.size()),
       this->Internals->AllGlobalIdsOfSurfacePoints,
       this->Internals->AllSizes, this->Internals->AllOffsets);
   }
@@ -563,7 +563,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndSendGhostCells(
   {
     int toRank = iter->first;
     std::set<vtkIdType>& cellsToShare = iter->second;
-    cellIdsList->SetNumberOfIds(cellsToShare.size());
+    cellIdsList->SetNumberOfIds(static_cast<vtkIdType>(cellsToShare.size()));
     std::set<vtkIdType>::iterator sIter = cellsToShare.begin();
     for (vtkIdType i = 0; sIter != cellsToShare.end(); ++sIter, i++)
     {

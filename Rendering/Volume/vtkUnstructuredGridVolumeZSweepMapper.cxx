@@ -1921,7 +1921,7 @@ public:
   }
 
   // Return width*height
-  vtkIdType GetSize() { return this->Vector.size(); }
+  vtkIdType GetSize() { return static_cast<vtkIdType>(this->Vector.size()); }
 
   // Return the size of the list at pixel `i'.
   vtkIdType GetListSize(int i)
@@ -1977,7 +1977,7 @@ public:
   {
       assert("pre: mm_exists" && mm!=0);
       vtkIdType i=0;
-      vtkIdType c=this->Vector.size();
+      vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
       {
         vtkPixelList *l=&(Vector[i]);
@@ -2119,7 +2119,7 @@ public:
     :Vector(size)
   {
       vtkIdType i=0;
-      vtkIdType c=this->Vector.size();
+      vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
       {
         this->Vector[i]=0;
@@ -2133,7 +2133,7 @@ public:
   ~vtkUseSet()
   {
       vtkIdType i=0;
-      vtkIdType c=this->Vector.size();
+      vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
       {
         if(this->Vector[i]!=0)
@@ -2169,7 +2169,7 @@ public:
   void Clear()
   {
       vtkIdType i=0;
-      vtkIdType c=this->Vector.size();
+      vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
       {
         if(this->Vector[i]!=0)

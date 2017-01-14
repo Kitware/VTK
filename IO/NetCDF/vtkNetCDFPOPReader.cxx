@@ -278,15 +278,15 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
                           start+2, count+2, rStride+2, z);
 #endif
         vtkFloatArray *xCoords = vtkFloatArray::New();
-        xCoords->SetArray(z, count[2], 0, 1);
+        xCoords->SetArray(z, static_cast<vtkIdType>(count[2]), 0, 1);
         vtkFloatArray *yCoords = vtkFloatArray::New();
-        yCoords->SetArray(y, count[1], 0, 1);
+        yCoords->SetArray(y, static_cast<vtkIdType>(count[1]), 0, 1);
         for (unsigned int q=0; q<count[0]; q++)
         {
           x[q] = -x[q];
         }
         vtkFloatArray *zCoords = vtkFloatArray::New();
-        zCoords->SetArray(x, count[0], 0, 1);
+        zCoords->SetArray(x, static_cast<vtkIdType>(count[0]), 0, 1);
         rgrid->SetXCoordinates(xCoords);
         rgrid->SetYCoordinates(yCoords);
         rgrid->SetZCoordinates(zCoords);
@@ -296,7 +296,7 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
       }
       //create vtkFloatArray and get the scalars into it
       vtkFloatArray *scalars = vtkFloatArray::New();
-      vtkIdType numberOfTuples = (count[0])*(count[1])*(count[2]);
+      vtkIdType numberOfTuples = static_cast<vtkIdType>((count[0])*(count[1])*(count[2]));
       float* data = new float[numberOfTuples];
 #if 0
       nc_get_vara_float(this->NCDFFD, varidp, start, count, data);

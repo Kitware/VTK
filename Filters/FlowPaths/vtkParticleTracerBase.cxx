@@ -683,7 +683,7 @@ void vtkParticleTracerBase::AssignUniqueIds(
   vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints)
 {
   vtkIdType particleCountOffset = 0;
-  vtkIdType numParticles = localSeedPoints.size();
+  vtkIdType numParticles = static_cast<vtkIdType>(localSeedPoints.size());
   for (vtkIdType i=0; i<numParticles; i++)
   {
     localSeedPoints[i].UniqueParticleId =

@@ -64,7 +64,7 @@ void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray *weights)
   double *weightsArray = new double[this->Internals->CumulativeWeights.size()];
   std::copy(this->Internals->CumulativeWeights.begin(),
     this->Internals->CumulativeWeights.end(), weightsArray);
-  weights->SetArray(weightsArray, this->Internals->CumulativeWeights.size(), 0);
+  weights->SetArray(weightsArray, static_cast<vtkIdType>(this->Internals->CumulativeWeights.size()), 0);
 }
 
 //----------------------------------------------------------------------------

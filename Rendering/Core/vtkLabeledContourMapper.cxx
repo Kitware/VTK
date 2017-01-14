@@ -825,7 +825,7 @@ bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
   vtkIdType numLabels = 0;
   while (outerLabels != outerLabelsEnd)
   {
-    numLabels += (outerLabels++)->size();
+    numLabels += static_cast<vtkIdType>((outerLabels++)->size());
   }
 
   if (!this->AllocateTextActors(numLabels))
