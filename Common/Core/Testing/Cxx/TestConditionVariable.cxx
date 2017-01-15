@@ -42,17 +42,19 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
       }
 
       i = 0;
+      int currNumWorkers = 0;
       do
       {
         td->Lock->Lock();
         td->Done = 1;
         cout << "Broadcasting...\n";
         cout.flush();
+        currNumWorkers = td->NumberOfWorkers;
         td->Lock->Unlock();
         td->Condition->Broadcast();
         vtksys::SystemTools::Delay( 200 ); // 0.2 s between broadcasts
       }
-      while ( td->NumberOfWorkers > 0 && ( i ++ < 1000 ) );
+      while ( currNumWorkers > 0 && ( i ++ < 1000 ) );
       if ( i >= 1000 )
       {
         exit( 2 );
