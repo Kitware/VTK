@@ -5,6 +5,7 @@ vtk_add_test_python(
   TestPointInterpolator2.py
   TestPointInterpolator2D.py
   TestPointInterpolator2D2.py
+  TestPointOccupancyFilter.py
   TestSPHInterpolator.py
   TestSPHInterpolator2D.py
   )
