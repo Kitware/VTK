@@ -219,28 +219,28 @@ void vtkInterpolatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
     id = 0;
     newCellPts[id++] = pts[0];
     newCellPts[id++] = (int) edgePts[1];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id] = (int) edgePts[0];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
     newCellPts[id++] = (int) edgePts[1];
     newCellPts[id++] = pts[1];
-    newCellPts[id++] = (int) edgePts[2];
+    newCellPts[id] = (int) edgePts[2];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
     newCellPts[id++] = (int) edgePts[2];
     newCellPts[id++] = pts[2];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id] = (int) edgePts[0];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
 
     id = 0;
     newCellPts[id++] = (int) edgePts[1];
     newCellPts[id++] = (int) edgePts[2];
-    newCellPts[id++] = (int) edgePts[0];
+    newCellPts[id] = (int) edgePts[0];
     newId = outputPolys->InsertNextCell (3, newCellPts);
     outputCD->CopyData (inputCD, cellId, newId);
   }

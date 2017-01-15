@@ -142,6 +142,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
 #else
       typeChar = 'I';
 #endif
+      break;
     case VTK_PARSE_ID_TYPE:
 #ifdef VTK_USE_64BIT_IDS
       typeChar = 'k';

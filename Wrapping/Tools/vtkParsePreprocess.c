@@ -1892,12 +1892,11 @@ static int preproc_include_file(
   int state = 0;
   int result = VTK_PARSE_OK;
   FILE *fp = NULL;
-  const char *path = NULL;
   const char *save_filename;
   int save_external;
 
   /* check to see if the file has aleady been included */
-  path = preproc_find_include_file(info, filename, system_first, 1);
+  const char *path = preproc_find_include_file(info, filename, system_first, 1);
   if (path != 0)
   {
 #if PREPROC_DEBUG
