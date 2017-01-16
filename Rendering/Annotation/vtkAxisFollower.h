@@ -132,9 +132,9 @@ public:
   * property, texture map and then mapper. If a property hasn't been
   * assigned, then the actor will create one automatically.
   */
- virtual int RenderOpaqueGeometry(vtkViewport *viewport);
- virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
- virtual void Render(vtkRenderer *ren);
+ int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+ int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+ void Render(vtkRenderer *ren) VTK_OVERRIDE;
  //@}
 
  /**
@@ -146,7 +146,7 @@ public:
  /**
   * Shallow copy of a follower. Overloads the virtual vtkProp method.
   */
- void ShallowCopy(vtkProp *prop);
+ void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
  /**
   * Calculate scale factor to maintain same size of a object
@@ -157,7 +157,7 @@ public:
 
 protected:
  vtkAxisFollower();
- ~vtkAxisFollower();
+ ~vtkAxisFollower() VTK_OVERRIDE;
 
  void CalculateOrthogonalVectors(double Rx[3], double Ry[3], double Rz[3],
                                  vtkAxisActor *axis1, double *dop,
@@ -197,7 +197,7 @@ private:
  void operator =(const vtkAxisFollower&) VTK_DELETE_FUNCTION;
 
  // hide the two parameter Render() method from the user and the compiler.
- virtual void Render(vtkRenderer *, vtkMapper *) {}
+ void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE {}
 
  //Internal matrices to avoid New/Delete for performance reasons
  vtkMatrix4x4 *InternalMatrix;

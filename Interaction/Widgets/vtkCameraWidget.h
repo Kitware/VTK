@@ -51,7 +51,7 @@ public:
    * Standar VTK class methods.
    */
   vtkTypeMacro(vtkCameraWidget,vtkBorderWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -65,18 +65,18 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkCameraWidget();
-  ~vtkCameraWidget();
+  ~vtkCameraWidget() VTK_OVERRIDE;
 
   /**
    * When selecting the interior of this widget, special operations occur
    * (i.e., adding a camera view, deleting a path, animating a path). Thus
    * this methods overrides the superclasses' method.
    */
-  virtual void SelectRegion(double eventPos[2]);
+  void SelectRegion(double eventPos[2]) VTK_OVERRIDE;
 
 private:
   vtkCameraWidget(const vtkCameraWidget&) VTK_DELETE_FUNCTION;

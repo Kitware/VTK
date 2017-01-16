@@ -68,7 +68,7 @@ public:
 
   static vtkValuePass *New();
   vtkTypeMacro(vtkValuePass, vtkOpenGLRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkSetMacro(RenderingMode, int);
   vtkGetMacro(RenderingMode, int);
@@ -81,7 +81,7 @@ public:
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
   /**
    * Interface to get the rendered image in FLOATING_POINT mode.  Returns a
@@ -109,7 +109,7 @@ public:
    */
   bool IsFloatingPointModeSupported(vtkRenderWindow* renWin);
 
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
 
   /**
    * Convert an RGB triplet to a floating point value. This method is exposed
@@ -120,7 +120,7 @@ public:
 
  protected:
   vtkValuePass();
-  virtual ~vtkValuePass();
+  ~vtkValuePass() VTK_OVERRIDE;
 
   ///@{
   /**
@@ -132,7 +132,7 @@ public:
    * the shader sources. Gets called after other mapper shader replacements.
    * Return false on error.
    */
-  virtual bool PostReplaceShaderValues(std::string &vertexShader,
+  bool PostReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
@@ -141,7 +141,7 @@ public:
    * Update the uniforms of the shader program.
    * Return false on error.
    */
-  virtual bool SetShaderParameters(vtkShaderProgram* program,
+  bool SetShaderParameters(vtkShaderProgram* program,
                                    vtkAbstractMapper* mapper, vtkProp* prop,
                                    vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
   /**
@@ -151,7 +151,7 @@ public:
    * return the last time that the shader stage changed, or 0 if the shader
    * is single-stage.
    */
-  virtual vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
+  vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
   ///@}
 
   /**

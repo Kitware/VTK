@@ -83,7 +83,7 @@ public:
   /**
    * We need to check the modified time of the lookup table too.
    */
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -96,9 +96,9 @@ public:
 
 protected:
   vtkImageMapToColors();
-  ~vtkImageMapToColors();
+  ~vtkImageMapToColors() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *,
+  int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
                                  vtkInformationVector *) VTK_OVERRIDE;
 
@@ -108,7 +108,7 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector) VTK_OVERRIDE;
 

@@ -37,7 +37,7 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageNoiseSource : public vtkImageAlgorithm
 public:
   static vtkImageNoiseSource *New();
   vtkTypeMacro(vtkImageNoiseSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -63,14 +63,14 @@ public:
 
 protected:
   vtkImageNoiseSource();
-  ~vtkImageNoiseSource() {}
+  ~vtkImageNoiseSource()VTK_OVERRIDE {}
 
   double Minimum;
   double Maximum;
   int WholeExtent[6];
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
+  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) VTK_OVERRIDE;
 private:
   vtkImageNoiseSource(const vtkImageNoiseSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageNoiseSource&) VTK_DELETE_FUNCTION;

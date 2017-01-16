@@ -56,7 +56,7 @@ class VTKVIEWSCORE_EXPORT vtkView : public vtkObject
 public:
   static vtkView *New();
   vtkTypeMacro(vtkView, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Adds the representation to the view.
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkView();
-  ~vtkView();
+  ~vtkView() VTK_OVERRIDE;
 
   /**
    * Called to process events.

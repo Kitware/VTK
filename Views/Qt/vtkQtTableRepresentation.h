@@ -65,7 +65,7 @@ class VTKVIEWSQT_EXPORT vtkQtTableRepresentation : public vtkDataRepresentation
 {
 public:
   vtkTypeMacro(vtkQtTableRepresentation, vtkDataRepresentation);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -105,7 +105,7 @@ public:
 
  protected:
   vtkQtTableRepresentation();
-  ~vtkQtTableRepresentation();
+  ~vtkQtTableRepresentation() VTK_OVERRIDE;
 
   /**
    * Update the table representation
@@ -126,9 +126,9 @@ public:
   /**
    * Prepare the input connections to this representation.
    */
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   virtual void ResetModel();
   virtual void CreateSeriesColors();

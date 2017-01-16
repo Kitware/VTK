@@ -41,7 +41,7 @@ class VTKIOPARALLEL_EXPORT vtkPChacoReader : public vtkChacoReader
 public:
   static vtkPChacoReader *New();
   vtkTypeMacro(vtkPChacoReader,vtkChacoReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set/Get the communicator object (we'll use global World controller
@@ -53,12 +53,12 @@ public:
 
 protected:
   vtkPChacoReader();
-  ~vtkPChacoReader();
+  ~vtkPChacoReader() VTK_OVERRIDE;
 
   int RequestInformation(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkPChacoReader(const vtkPChacoReader&) VTK_DELETE_FUNCTION;

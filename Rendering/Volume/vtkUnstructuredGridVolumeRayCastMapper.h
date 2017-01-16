@@ -45,7 +45,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public 
 public:
   static vtkUnstructuredGridVolumeRayCastMapper *New();
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastMapper,vtkUnstructuredGridVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -127,7 +127,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * );
+  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -135,7 +135,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   vtkGetVectorMacro( ImageInUseSize, int, 2 );
   vtkGetVectorMacro( ImageOrigin, int, 2 );
@@ -145,7 +145,7 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeRayCastMapper();
-  ~vtkUnstructuredGridVolumeRayCastMapper();
+  ~vtkUnstructuredGridVolumeRayCastMapper() VTK_OVERRIDE;
 
   float                        ImageSampleDistance;
   float                        MinimumImageSampleDistance;

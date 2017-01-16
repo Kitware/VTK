@@ -34,7 +34,7 @@ class VTKIOIMAGE_EXPORT vtkImageWriter : public vtkImageAlgorithm
 public:
   static vtkImageWriter *New();
   vtkTypeMacro(vtkImageWriter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkImageWriter();
-  ~vtkImageWriter();
+  ~vtkImageWriter() VTK_OVERRIDE;
 
   int FileDimensionality;
   char *FilePrefix;
@@ -114,9 +114,9 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int MinimumFileNumber;
   int MaximumFileNumber;

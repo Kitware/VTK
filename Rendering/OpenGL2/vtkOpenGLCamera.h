@@ -39,16 +39,16 @@ public:
   /**
    * Implement base class method.
    */
-  virtual void Render(vtkRenderer *ren);
+  void Render(vtkRenderer *ren) VTK_OVERRIDE;
 
-  virtual void UpdateViewport(vtkRenderer *ren);
+  void UpdateViewport(vtkRenderer *ren) VTK_OVERRIDE;
 
   virtual void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
     vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix, vtkMatrix4x4 *&WCDCMatrix);
 
 protected:
   vtkOpenGLCamera();
-  ~vtkOpenGLCamera();
+  ~vtkOpenGLCamera() VTK_OVERRIDE;
 
   vtkMatrix4x4 *WCDCMatrix;
   vtkMatrix4x4 *WCVCMatrix;

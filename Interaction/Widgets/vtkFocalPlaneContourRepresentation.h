@@ -46,7 +46,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkFocalPlaneContourRepresentation,vtkContourRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -55,8 +55,8 @@ public:
    * n is the last node and the loop is closed). Returns
    * 1 on success or 0 if n or idx are out of range.
    */
-  virtual int GetIntermediatePointWorldPosition( int n,
-                                                 int idx, double point[3] );
+  int GetIntermediatePointWorldPosition( int n,
+                                                 int idx, double point[3] ) VTK_OVERRIDE;
 
   /**
    * Get the world position of the intermediate point at
@@ -72,14 +72,14 @@ public:
    * 1 on success, or 0 if there are not at least
    * (n+1) nodes (0 based counting).
    */
-  virtual int GetNthNodeDisplayPosition( int n, double pos[2] );
+  int GetNthNodeDisplayPosition( int n, double pos[2] ) VTK_OVERRIDE;
 
   /**
    * Get the nth node's world position. Will return
    * 1 on success, or 0 if there are not at least
    * (n+1) nodes (0 based counting).
    */
-  virtual int GetNthNodeWorldPosition( int n, double pos[3] );
+  int GetNthNodeWorldPosition( int n, double pos[3] ) VTK_OVERRIDE;
 
   /**
    * The class maintains its true contour locations based on display co-ords
@@ -91,13 +91,13 @@ public:
    * The method must be called whenever the contour needs to be updated, usually
    * from RenderOpaqueGeometry()
    */
-  virtual int UpdateContour();
+  int UpdateContour() VTK_OVERRIDE;
 
-  virtual void UpdateLines( int index );
+  void UpdateLines( int index ) VTK_OVERRIDE;
 
 protected:
   vtkFocalPlaneContourRepresentation();
-  ~vtkFocalPlaneContourRepresentation();
+  ~vtkFocalPlaneContourRepresentation() VTK_OVERRIDE;
 
 private:
   vtkFocalPlaneContourRepresentation(const vtkFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;

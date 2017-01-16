@@ -41,7 +41,7 @@ public:
   static vtkProcessIdScalars *New();
 
   vtkTypeMacro(vtkProcessIdScalars,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Option to centerate cell scalars of points scalars.  Default is point
@@ -71,11 +71,11 @@ public:
 
 protected:
   vtkProcessIdScalars();
-  ~vtkProcessIdScalars();
+  ~vtkProcessIdScalars() VTK_OVERRIDE;
 
   // Append the pieces.
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkIntArray *MakeProcessIdScalars(int piece, vtkIdType numScalars);
   vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);

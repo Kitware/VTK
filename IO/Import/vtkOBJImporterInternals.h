@@ -134,9 +134,9 @@ public:
   void ReadVertices(bool gotFirstUseMaterialTag, char *pLine, float xyz, int lineNr, const double v_scale, bool everything_ok, vtkPoints* points, const bool use_scale);
 protected:
   vtkOBJPolyDataProcessor();
-  ~vtkOBJPolyDataProcessor();
+  ~vtkOBJPolyDataProcessor() VTK_OVERRIDE;
   int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) /*override*/;
+                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE /*override*/;
 
   vtkSetMacro(SuccessParsingFiles,int)
 

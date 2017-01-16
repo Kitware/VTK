@@ -47,7 +47,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkContourLineInterpolator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -90,7 +90,7 @@ public:
 
  protected:
   vtkContourLineInterpolator();
-  ~vtkContourLineInterpolator();
+  ~vtkContourLineInterpolator() VTK_OVERRIDE;
 
 private:
   vtkContourLineInterpolator(const vtkContourLineInterpolator&) VTK_DELETE_FUNCTION;

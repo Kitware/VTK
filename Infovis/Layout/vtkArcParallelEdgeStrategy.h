@@ -38,13 +38,13 @@ class VTKINFOVISLAYOUT_EXPORT vtkArcParallelEdgeStrategy : public vtkEdgeLayoutS
 public:
   static vtkArcParallelEdgeStrategy* New();
   vtkTypeMacro(vtkArcParallelEdgeStrategy,vtkEdgeLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This is the layout method where the graph that was
    * set in SetGraph() is laid out.
    */
-  virtual void Layout();
+  void Layout() VTK_OVERRIDE;
 
   //@{
   /**
@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkArcParallelEdgeStrategy();
-  ~vtkArcParallelEdgeStrategy();
+  ~vtkArcParallelEdgeStrategy() VTK_OVERRIDE;
 
   int NumberOfSubdivisions;
 

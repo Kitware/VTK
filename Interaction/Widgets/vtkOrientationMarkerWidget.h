@@ -83,7 +83,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkOrientationMarkerWidget : public vtkIntera
 public:
   static vtkOrientationMarkerWidget* New();
   vtkTypeMacro(vtkOrientationMarkerWidget, vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -96,7 +96,7 @@ public:
   /**
    * Enable/disable the widget. Default is 0 (disabled).
    */
-  virtual void SetEnabled(int);
+  void SetEnabled(int) VTK_OVERRIDE;
 
   /**
    * Callback to keep the camera for the orientation marker up to date with the
@@ -155,12 +155,12 @@ public:
   /**
    * Need to reimplement this->Modified() because of the vtkSetVector4Macro/vtkGetVector4Macro use
    */
-  void Modified();
+  void Modified() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkOrientationMarkerWidget();
-  ~vtkOrientationMarkerWidget();
+  ~vtkOrientationMarkerWidget() VTK_OVERRIDE;
 
   vtkRenderer *Renderer;
   vtkProp     *OrientationMarker;

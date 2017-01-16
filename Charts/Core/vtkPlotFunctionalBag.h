@@ -46,7 +46,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotFunctionalBag : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotFunctionalBag, vtkPlot);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a functional bag plot object.
@@ -62,19 +62,19 @@ public:
   /**
    * Reimplemented to enforce visibility when selected.
    */
-  virtual bool GetVisible();
+  bool GetVisible() VTK_OVERRIDE;
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the plot, called whenever the chart needs to be drawn.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Paint legend event for the plot, called whenever the legend needs the
@@ -82,19 +82,19 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex);
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex) VTK_OVERRIDE;
 
   /**
    * Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
    */
-  virtual void GetBounds(double bounds[4]);
+  void GetBounds(double bounds[4]) VTK_OVERRIDE;
 
   /**
    * Get the non-log-scaled bounds on chart inputs for this plot as
    * (Xmin, Xmax, Ymin, Ymax).
    */
-  virtual void GetUnscaledInputBounds(double bounds[4]);
+  void GetUnscaledInputBounds(double bounds[4]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -115,23 +115,23 @@ public:
    * Returns the index of the data series with which the point is associated or
    * -1.
    */
-  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+  vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location);
+                                    vtkVector2f* location) VTK_OVERRIDE;
 
   /**
    * Select all points in the specified rectangle.
    */
-  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) VTK_OVERRIDE;
 
   /**
    * Select all points in the specified polygon.
    */
-  virtual bool SelectPointsInPolygon(const vtkContextPolygon &polygon);
+  bool SelectPointsInPolygon(const vtkContextPolygon &polygon) VTK_OVERRIDE;
 
 protected:
   vtkPlotFunctionalBag();
-  ~vtkPlotFunctionalBag();
+  ~vtkPlotFunctionalBag() VTK_OVERRIDE;
 
   /**
    * Populate the data arrays ready to operate on input data.

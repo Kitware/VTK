@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkCuller();
-  ~vtkCuller();
+  ~vtkCuller() VTK_OVERRIDE;
 
 private:
   vtkCuller(const vtkCuller&) VTK_DELETE_FUNCTION;

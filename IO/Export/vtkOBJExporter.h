@@ -38,7 +38,7 @@ class VTKIOEXPORT_EXPORT vtkOBJExporter : public vtkExporter
 public:
   static vtkOBJExporter *New();
   vtkTypeMacro(vtkOBJExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -51,9 +51,9 @@ public:
 
 protected:
   vtkOBJExporter();
-  ~vtkOBJExporter();
+  ~vtkOBJExporter() VTK_OVERRIDE;
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
   void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);
   char *FilePrefix;
 private:

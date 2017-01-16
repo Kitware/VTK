@@ -39,23 +39,25 @@
 #include <QtPlugin>
 #include <QWidget>
 
+#include "vtkConfigure.h" //for VTK_OVERRIDE
+
 
 // implement Designer Custom Widget interface
 class QVTKWidgetPlugin : public QDesignerCustomWidgetInterface
 {
   public:
     QVTKWidgetPlugin();
-    ~QVTKWidgetPlugin();
+    ~QVTKWidgetPlugin() VTK_OVERRIDE;
 
-    QString name() const;
-    QString domXml() const;
-    QWidget* createWidget(QWidget* parent = 0);
-    QString group() const;
-    QIcon icon() const;
-    QString includeFile() const;
-    QString toolTip() const;
-    QString whatsThis() const;
-    bool isContainer() const;
+    QString name() const VTK_OVERRIDE;
+    QString domXml() const VTK_OVERRIDE;
+    QWidget* createWidget(QWidget* parent = 0) VTK_OVERRIDE;
+    QString group() const VTK_OVERRIDE;
+    QIcon icon() const VTK_OVERRIDE;
+    QString includeFile() const VTK_OVERRIDE;
+    QString toolTip() const VTK_OVERRIDE;
+    QString whatsThis() const VTK_OVERRIDE;
+    bool isContainer() const VTK_OVERRIDE;
 };
 
 // implement designer widget collection interface
@@ -68,9 +70,9 @@ class QVTKPlugin : public QObject, public QDesignerCustomWidgetCollectionInterfa
   Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
   public:
   QVTKPlugin();
-  virtual ~QVTKPlugin();
+  ~QVTKPlugin() VTK_OVERRIDE;
 
-  virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
+  QList<QDesignerCustomWidgetInterface*> customWidgets() const VTK_OVERRIDE;
   private:
     QVTKWidgetPlugin* mQVTKWidgetPlugin;
 };

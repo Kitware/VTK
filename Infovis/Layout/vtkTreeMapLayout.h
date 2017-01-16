@@ -54,7 +54,7 @@ public:
   static vtkTreeMapLayout *New();
 
   vtkTypeMacro(vtkTreeMapLayout,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -94,16 +94,16 @@ public:
   /**
    * Get the modification time of the layout algorithm.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkTreeMapLayout();
-  ~vtkTreeMapLayout();
+  ~vtkTreeMapLayout() VTK_OVERRIDE;
 
   char * RectanglesFieldName;
   vtkTreeMapLayoutStrategy* LayoutStrategy;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
 

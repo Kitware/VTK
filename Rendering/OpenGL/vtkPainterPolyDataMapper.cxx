@@ -45,7 +45,7 @@ public:
   static vtkPainterPolyDataMapperObserver* New()
     { return new vtkPainterPolyDataMapperObserver; }
 
-  virtual void Execute(vtkObject* caller, unsigned long event, void*)
+  void Execute(vtkObject* caller, unsigned long event, void*) VTK_OVERRIDE
   {
     vtkPainter* p = vtkPainter::SafeDownCast(caller);
     if (this->Target && p && event == vtkCommand::ProgressEvent)

@@ -75,7 +75,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCaptionActor2D,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkCaptionActor2D *New();
 
@@ -190,7 +190,7 @@ public:
    * Shallow copy of this scaled text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   //@{
   /**
@@ -209,7 +209,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   //@{
   /**
@@ -217,19 +217,19 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the legend box to the screen.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;}
-  int RenderOverlay(vtkViewport* viewport);
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* ) VTK_OVERRIDE {return 0;}
+  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
 protected:
   vtkCaptionActor2D();
-  ~vtkCaptionActor2D();
+  ~vtkCaptionActor2D() VTK_OVERRIDE;
 
   vtkCoordinate *AttachmentPointCoordinate;
 

@@ -50,18 +50,18 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleSwitch
 public:
   static vtkInteractorStyleSwitch *New();
   vtkTypeMacro(vtkInteractorStyleSwitch, vtkInteractorStyleSwitchBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * The sub styles need the interactor too.
    */
-  void SetInteractor(vtkRenderWindowInteractor *iren);
+  void SetInteractor(vtkRenderWindowInteractor *iren) VTK_OVERRIDE;
 
   /**
    * We must override this method in order to pass the setting down to
    * the underlying styles
    */
-  void SetAutoAdjustCameraClippingRange( int value );
+  void SetAutoAdjustCameraClippingRange( int value ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -79,20 +79,20 @@ public:
    * Only care about the char event, which is used to switch between
    * different styles.
    */
-  virtual void OnChar();
+  void OnChar() VTK_OVERRIDE;
 
   //@{
   /**
    * Overridden from vtkInteractorObserver because the interactor styles
    * used by this class must also be updated.
    */
-  virtual void SetDefaultRenderer(vtkRenderer*);
-  virtual void SetCurrentRenderer(vtkRenderer*);
+  void SetDefaultRenderer(vtkRenderer*) VTK_OVERRIDE;
+  void SetCurrentRenderer(vtkRenderer*) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkInteractorStyleSwitch();
-  ~vtkInteractorStyleSwitch();
+  ~vtkInteractorStyleSwitch() VTK_OVERRIDE;
 
   void SetCurrentStyle();
 

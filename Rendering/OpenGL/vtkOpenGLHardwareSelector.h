@@ -35,26 +35,26 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareSe
 public:
   static vtkOpenGLHardwareSelector* New();
   vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Called by the mapper (vtkHardwareSelectionPolyDataPainter) before and after
    * rendering each prop.
    */
-  virtual void BeginRenderProp()
+  void BeginRenderProp() VTK_OVERRIDE
     { this->vtkHardwareSelector::BeginRenderProp(); }
 
-  virtual void EndRenderProp()
+  void EndRenderProp() VTK_OVERRIDE
     { this->vtkHardwareSelector::EndRenderProp(); }
 
 protected:
   vtkOpenGLHardwareSelector();
-  virtual ~vtkOpenGLHardwareSelector();
+  ~vtkOpenGLHardwareSelector() VTK_OVERRIDE;
 
   // Called internally before and after each prop is rendered
   // for device specific configuration/preparation etc.
-  virtual void BeginRenderProp(vtkRenderWindow *);
-  virtual void EndRenderProp(vtkRenderWindow *);
+  void BeginRenderProp(vtkRenderWindow *) VTK_OVERRIDE;
+  void EndRenderProp(vtkRenderWindow *) VTK_OVERRIDE;
 
   // for internal state
   class vtkInternals;

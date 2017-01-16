@@ -38,17 +38,17 @@ class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleCamera : public vtkTDxInterac
 public:
   static vtkTDxInteractorStyleCamera *New();
   vtkTypeMacro(vtkTDxInteractorStyleCamera,vtkTDxInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Action on motion event.
    * \pre: motionInfo_exist: motionInfo!=0
    */
-  virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
+  void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo) VTK_OVERRIDE;
 
 protected:
   vtkTDxInteractorStyleCamera();
-  virtual ~vtkTDxInteractorStyleCamera();
+  ~vtkTDxInteractorStyleCamera() VTK_OVERRIDE;
 
   vtkTransform *Transform; // Used for internal intermediate calculation.
 

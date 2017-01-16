@@ -33,7 +33,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPCellDataToPointData : public vtkCellDataToPo
 {
 public:
   vtkTypeMacro(vtkPCellDataToPointData,vtkCellDataToPointData);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPCellDataToPointData *New();
 
@@ -49,15 +49,15 @@ public:
 
 protected:
   vtkPCellDataToPointData();
-  ~vtkPCellDataToPointData() {}
+  ~vtkPCellDataToPointData() VTK_OVERRIDE {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
-  virtual int RequestUpdateExtent(vtkInformation*,
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) VTK_OVERRIDE;
 
   int PieceInvariant;
 private:

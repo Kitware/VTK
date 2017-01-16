@@ -56,7 +56,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageEuclideanDistance : public vtkImageDecomp
 public:
   static vtkImageEuclideanDistance *New();
   vtkTypeMacro(vtkImageEuclideanDistance,vtkImageDecomposeFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -104,13 +104,13 @@ public:
     { this->SetAlgorithm(VTK_EDT_SAITO_CACHED); }
   //@}
 
-  virtual int IterativeRequestData(vtkInformation*,
+  int IterativeRequestData(vtkInformation*,
                                    vtkInformationVector**,
-                                   vtkInformationVector*);
+                                   vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkImageEuclideanDistance();
-  ~vtkImageEuclideanDistance() {}
+  ~vtkImageEuclideanDistance()VTK_OVERRIDE {}
 
   double MaximumDistance;
   int Initialize;
@@ -122,10 +122,10 @@ protected:
                                      int outExt[6],
                                      vtkInformation* outInfo);
 
-  virtual int IterativeRequestInformation(vtkInformation* in,
-                                          vtkInformation* out);
-  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out);
+  int IterativeRequestInformation(vtkInformation* in,
+                                          vtkInformation* out) VTK_OVERRIDE;
+  int IterativeRequestUpdateExtent(vtkInformation* in,
+                                           vtkInformation* out) VTK_OVERRIDE;
 
 private:
   vtkImageEuclideanDistance(const vtkImageEuclideanDistance&) VTK_DELETE_FUNCTION;

@@ -92,21 +92,21 @@ public:
    * Draw the scalar bar and annotation text to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE { return 0; };
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE { return 0; };
   int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
 
   /**
    * Fills rect with the dimensions of the scalar bar in viewport coordinates.
@@ -482,7 +482,7 @@ public:
 
 protected:
   vtkScalarBarActor();
-  ~vtkScalarBarActor();
+  ~vtkScalarBarActor() VTK_OVERRIDE;
 
   /**
    * Called from within \a RenderOpaqueGeometry when the internal state

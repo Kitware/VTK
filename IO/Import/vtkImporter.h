@@ -55,7 +55,7 @@ class VTKIOIMPORT_EXPORT vtkImporter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkImporter,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 
   //@{
@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkImporter();
-  ~vtkImporter();
+  ~vtkImporter() VTK_OVERRIDE;
 
   virtual int ImportBegin () {return 1;};
   virtual void ImportEnd () {}

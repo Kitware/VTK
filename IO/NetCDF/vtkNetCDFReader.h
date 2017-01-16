@@ -53,7 +53,7 @@ class VTKIONETCDF_EXPORT vtkNetCDFReader : public vtkDataObjectAlgorithm
 public:
   vtkTypeMacro(vtkNetCDFReader, vtkDataObjectAlgorithm);
   static vtkNetCDFReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   virtual void SetFileName(const char *filename);
   vtkGetStringMacro(FileName);
@@ -148,7 +148,7 @@ public:
 
 protected:
   vtkNetCDFReader();
-  ~vtkNetCDFReader();
+  ~vtkNetCDFReader() VTK_OVERRIDE;
 
   char *FileName;
   vtkTimeStamp FileNameMTime;
@@ -177,17 +177,17 @@ protected:
 
   int WholeExtent[6];
 
-  virtual int RequestDataObject(vtkInformation *request,
+  int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector);
+                                vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   /**
    * Callback registered with the VariableArraySelection.

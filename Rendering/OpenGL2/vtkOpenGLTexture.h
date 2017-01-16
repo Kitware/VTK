@@ -42,16 +42,16 @@ public:
    * to make sure the texture maps Input is valid, then it invokes the
    * Load() method.
    */
-  virtual void Render(vtkRenderer* ren);
+  void Render(vtkRenderer* ren) VTK_OVERRIDE;
 
   /**
    * Implement base class method.
    */
-  void Load(vtkRenderer*);
+  void Load(vtkRenderer*) VTK_OVERRIDE;
 
   // Descsription:
   // Clean up after the rendering is complete.
-  virtual void PostRender(vtkRenderer*);
+  void PostRender(vtkRenderer*) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this texture.
@@ -59,7 +59,7 @@ public:
    * resources to release. Using the same texture object in multiple
    * render windows is NOT currently supported.
    */
-  void ReleaseGraphicsResources(vtkWindow*);
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
 
   /**
    * copy the renderers read buffer into this texture
@@ -88,7 +88,7 @@ public:
   /**
    * Return the texture unit used for this texture
    */
-  virtual int GetTextureUnit();
+  int GetTextureUnit() VTK_OVERRIDE;
 
   /**
    * Is this Texture Translucent?
@@ -96,11 +96,11 @@ public:
    * only fully transparent pixels and fully opaque pixels and the
    * Interpolate flag is turn off.
    */
-  virtual int IsTranslucent();
+  int IsTranslucent() VTK_OVERRIDE;
 
 protected:
   vtkOpenGLTexture();
-  ~vtkOpenGLTexture();
+  ~vtkOpenGLTexture() VTK_OVERRIDE;
 
   vtkTimeStamp   LoadTime;
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render

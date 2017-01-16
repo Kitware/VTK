@@ -48,7 +48,7 @@ public:
    */
   static vtkVoronoiKernel *New();
   vtkTypeMacro(vtkVoronoiKernel,vtkInterpolationKernel);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -58,7 +58,7 @@ public:
    * method returns the number of points in the basis. Typically this method
    * is called before ComputeWeights().
    */
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0);
+  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) VTK_OVERRIDE;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
@@ -69,12 +69,12 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly.
    */
-  virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights);
+  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
+                                   vtkDoubleArray *weights) VTK_OVERRIDE;
 
 protected:
   vtkVoronoiKernel();
-  ~vtkVoronoiKernel();
+  ~vtkVoronoiKernel() VTK_OVERRIDE;
 
 private:
   vtkVoronoiKernel(const vtkVoronoiKernel&) VTK_DELETE_FUNCTION;

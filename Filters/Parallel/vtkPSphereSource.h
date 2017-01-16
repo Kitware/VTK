@@ -44,9 +44,9 @@ public:
 
 protected:
   vtkPSphereSource() {}
-  ~vtkPSphereSource() {}
+  ~vtkPSphereSource() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 private:
   vtkPSphereSource(const vtkPSphereSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPSphereSource&) VTK_DELETE_FUNCTION;

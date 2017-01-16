@@ -160,7 +160,7 @@ public:
 
 protected:
   vtkNIFTIImageWriter();
-  ~vtkNIFTIImageWriter();
+  ~vtkNIFTIImageWriter() VTK_OVERRIDE;
 
   /**
    * Generate the header information for the file.
@@ -170,9 +170,9 @@ protected:
   /**
    * The main execution method, which writes the file.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   /**
    * Make a new filename by replacing extension "ext1" with "ext2".

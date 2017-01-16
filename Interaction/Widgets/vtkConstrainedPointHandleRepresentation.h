@@ -65,7 +65,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkConstrainedPointHandleRepresentation,vtkHandleRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -152,7 +152,7 @@ public:
    * co-ordinates to world co-ordinates. It returns 1 if the point lies
    * within the constrained region, otherwise return 0
    */
-  virtual int CheckConstraint(vtkRenderer *renderer, double pos[2]);
+  int CheckConstraint(vtkRenderer *renderer, double pos[2]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -196,39 +196,39 @@ public:
    * are the methods that the widget and its representation use to
    * communicate with each other.
    */
-  virtual void SetRenderer(vtkRenderer *ren);
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modify);
+  void SetRenderer(vtkRenderer *ren) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify) VTK_OVERRIDE;
   //@}
 
   /**
    * Method overridden from Superclass. computes the world
    * co-ordinates using GetIntersectionPosition()
    */
-  virtual void SetDisplayPosition(double pos[3]);
+  void SetDisplayPosition(double pos[3]) VTK_OVERRIDE;
 
   //@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  virtual void GetActors(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int HasTranslucentPolygonalGeometry();
-  virtual void ShallowCopy(vtkProp* prop);
+  void GetActors(vtkPropCollection *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void ShallowCopy(vtkProp* prop) VTK_OVERRIDE;
   //@}
 
   enum {XAxis=0,YAxis,ZAxis,Oblique};
 
-  void Highlight(int highlight);
+  void Highlight(int highlight) VTK_OVERRIDE;
 
 protected:
   vtkConstrainedPointHandleRepresentation();
-  ~vtkConstrainedPointHandleRepresentation();
+  ~vtkConstrainedPointHandleRepresentation() VTK_OVERRIDE;
 
   // Render the cursor
   vtkActor             *Actor;

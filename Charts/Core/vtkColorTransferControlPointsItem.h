@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkColorTransferControlPointsItem: public vtkControlP
 {
 public:
   vtkTypeMacro(vtkColorTransferControlPointsItem, vtkControlPointsItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a piecewise control points object
@@ -58,35 +58,35 @@ public:
   /**
    * Return the number of points in the color transfer function.
    */
-  virtual vtkIdType GetNumberOfPoints()const;
+  vtkIdType GetNumberOfPoints()const VTK_OVERRIDE;
 
   /**
    * Returns the x and y coordinates as well as the midpoint and sharpness
    * of the control point corresponding to the index.
    * Note: The y (point[1]) is always 0.5
    */
-  virtual void GetControlPoint(vtkIdType index, double *point)const;
+  void GetControlPoint(vtkIdType index, double *point)const VTK_OVERRIDE;
 
   /**
    * Sets the x and y coordinates as well as the midpoint and sharpness
    * of the control point corresponding to the index.
    * Changing the y has no effect, it will always be 0.5
    */
-  virtual void SetControlPoint(vtkIdType index, double *point);
+  void SetControlPoint(vtkIdType index, double *point) VTK_OVERRIDE;
 
   /**
    * Add a point to the function. Returns the index of the point (0 based),
    * or -1 on error.
    * Subclasses should reimplement this function to do the actual work.
    */
-  virtual vtkIdType AddPoint(double* newPos);
+  vtkIdType AddPoint(double* newPos) VTK_OVERRIDE;
 
   /**
    * Remove a point of the function. Returns the index of the point (0 based),
    * or -1 on error.
    * Subclasses should reimplement this function to do the actual work.
    */
-  virtual vtkIdType RemovePoint(double* pos);
+  vtkIdType RemovePoint(double* pos) VTK_OVERRIDE;
 
   //@{
   /**
@@ -100,27 +100,27 @@ public:
 
 protected:
   vtkColorTransferControlPointsItem();
-  virtual ~vtkColorTransferControlPointsItem();
+  ~vtkColorTransferControlPointsItem() VTK_OVERRIDE;
 
   /**
    * Returns true if control points are to be rendered in log-space. This is
    * true when vtkScalarsToColors is using log-scale, for example. Default
    * implementation always return false.
    */
-  virtual bool UsingLogScale();
+  bool UsingLogScale() VTK_OVERRIDE;
 
-  virtual void emitEvent(unsigned long event, void* params);
+  void emitEvent(unsigned long event, void* params) VTK_OVERRIDE;
 
-  virtual vtkMTimeType GetControlPointsMTime();
+  vtkMTimeType GetControlPointsMTime() VTK_OVERRIDE;
 
-  virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
-  virtual void EditPoint(float tX, float tY);
+  void DrawPoint(vtkContext2D* painter, vtkIdType index) VTK_OVERRIDE;
+  void EditPoint(float tX, float tY) VTK_OVERRIDE;
 
   /**
    * Compute the bounds for this item. Overridden to use the
    * vtkColorTransferFunction range.
    */
-  virtual void ComputeBounds(double* bounds);
+  void ComputeBounds(double* bounds) VTK_OVERRIDE;
 
   vtkColorTransferFunction* ColorTransferFunction;
 

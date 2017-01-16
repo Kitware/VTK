@@ -53,12 +53,12 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractMapper : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkAbstractMapper, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Override Modifiedtime as we have added Clipping planes
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkAbstractMapper();
-  ~vtkAbstractMapper();
+  ~vtkAbstractMapper() VTK_OVERRIDE;
 
   vtkTimerLog *Timer;
   double TimeToDraw;

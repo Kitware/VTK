@@ -63,7 +63,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkGraphAnnotationLayersFilter: public vtkPo
 public:
   static vtkGraphAnnotationLayersFilter *New();
   vtkTypeMacro(vtkGraphAnnotationLayersFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -109,22 +109,22 @@ public:
   /**
    * The modified time of this filter.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkGraphAnnotationLayersFilter();
-  ~vtkGraphAnnotationLayersFilter();
+  ~vtkGraphAnnotationLayersFilter() VTK_OVERRIDE;
 
   /**
    * This is called by the superclass. This is the method you should override.
    */
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Set the input to vtkGraph and vtkAnnotationLayers.
    */
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;

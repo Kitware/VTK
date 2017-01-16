@@ -69,7 +69,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkAffineRepresentation2D,vtkAffineRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -107,7 +107,7 @@ public:
    * scale, translate, rotate, shear) are concatenated with the internal
    * transform.
    */
-  virtual void GetTransform(vtkTransform *t);
+  void GetTransform(vtkTransform *t) VTK_OVERRIDE;
 
   //@{
   /**
@@ -140,34 +140,34 @@ public:
    * transformation matrix (i.e., sets it to identity). It also sets the
    * origin for scaling and rotation.
    */
-  virtual void PlaceWidget(double bounds[6]);
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual void EndWidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void BuildRepresentation();
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void EndWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  virtual void ShallowCopy(vtkProp *prop);
-  virtual void GetActors2D(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  virtual int RenderOverlay(vtkViewport *viewport);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkAffineRepresentation2D();
-  ~vtkAffineRepresentation2D();
+  ~vtkAffineRepresentation2D() VTK_OVERRIDE;
 
   // Methods to manipulate the cursor
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
   void Rotate(double eventPos[2]);
   void Shear(double eventPos[2]);
-  void Highlight(int highlight);
+  void Highlight(int highlight) VTK_OVERRIDE;
   void UpdateText(const char *text, double eventPos[2]);
 
   // The width of the widget in normalized viewport coordinates.

@@ -42,7 +42,7 @@ class VTKIOXML_EXPORT vtkXMLCompositeDataReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLCompositeDataReader,vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,30 +54,30 @@ public:
 
 protected:
   vtkXMLCompositeDataReader();
-  ~vtkXMLCompositeDataReader();
+  ~vtkXMLCompositeDataReader() VTK_OVERRIDE;
 
   // Get the name of the data set being read.
-  virtual const char* GetDataSetName();
+  const char* GetDataSetName() VTK_OVERRIDE;
 
   // Returns the primary element pass to ReadPrimaryElement().
   vtkXMLDataElement* GetPrimaryElement();
 
-  virtual void ReadXMLData();
-  virtual int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  void ReadXMLData() VTK_OVERRIDE;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
 
   // Setup the output with no data available.  Used in error cases.
-  virtual void SetupEmptyOutput();
+  void SetupEmptyOutput() VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int, vtkInformation* info);
+  int FillOutputPortInformation(int, vtkInformation* info) VTK_OVERRIDE;
 
   // Create a default executive.
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   vtkXMLReader* GetReaderOfType(const char* type);
 
-  virtual int RequestInformation(vtkInformation*,
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*);
+                                 vtkInformationVector*) VTK_OVERRIDE;
 
 
 

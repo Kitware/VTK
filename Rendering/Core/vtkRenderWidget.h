@@ -27,7 +27,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWidget : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRenderWidget ,vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkRenderWidget* New();
 
   /**
@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkRenderWidget();
-  ~vtkRenderWidget();
+  ~vtkRenderWidget() VTK_OVERRIDE;
 
   vtkVector2i Position; // Position of the widget in screen coordinates.
   vtkVector2i Size; // Position of the widget in screen coordinates.

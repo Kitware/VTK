@@ -57,30 +57,30 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow* win) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow* win) VTK_OVERRIDE;
 
   //@{
   /**
    * Support the standard render methods.
    */
-  virtual int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
-  virtual int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Return this object's modified time.
    */
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Shallow copy of this vtkTexturedActor2D. Overrides vtkActor2D method.
    */
-  virtual void ShallowCopy(vtkProp* prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp* prop) VTK_OVERRIDE;
 
 protected:
   vtkTexturedActor2D();
-  ~vtkTexturedActor2D();
+  ~vtkTexturedActor2D() VTK_OVERRIDE;
 
   vtkTexture* Texture;
 

@@ -40,7 +40,7 @@ class VTKIOLEGACY_EXPORT vtkDataObjectWriter : public vtkWriter
 public:
   static vtkDataObjectWriter *New();
   vtkTypeMacro(vtkDataObjectWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -68,12 +68,12 @@ public:
 
 protected:
   vtkDataObjectWriter();
-  ~vtkDataObjectWriter();
+  ~vtkDataObjectWriter() VTK_OVERRIDE;
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
   vtkDataWriter *Writer;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkDataObjectWriter(const vtkDataObjectWriter&) VTK_DELETE_FUNCTION;

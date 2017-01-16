@@ -65,9 +65,9 @@ public:
 protected:
 
   vtkExtractUserDefinedPiece();
-  ~vtkExtractUserDefinedPiece();
+  ~vtkExtractUserDefinedPiece() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   void ComputeCellTagsWithFunction(vtkIntArray *tags, vtkIdList *pointOwnership,
                                    vtkUnstructuredGrid *input);

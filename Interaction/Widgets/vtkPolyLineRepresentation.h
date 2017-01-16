@@ -41,7 +41,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolyLineRepresentation : public vtkCurveRe
 public:
   static vtkPolyLineRepresentation* New();
   vtkTypeMacro(vtkPolyLineRepresentation, vtkCurveRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Grab the polydata (including points) that defines the poly line.
@@ -51,23 +51,23 @@ public:
    * provides the vtkPolyData and the points and polyline are added to
    * it.
    */
-  void GetPolyData(vtkPolyData *pd);
+  void GetPolyData(vtkPolyData *pd) VTK_OVERRIDE;
 
   /**
    * Set the number of handles for this widget.
    */
-  virtual void SetNumberOfHandles(int npts);
+  void SetNumberOfHandles(int npts) VTK_OVERRIDE;
 
   /**
    * Get the positions of the handles.
    */
-  virtual vtkDoubleArray* GetHandlePositions();
+  vtkDoubleArray* GetHandlePositions() VTK_OVERRIDE;
 
   /**
    * Get the true length of the poly line. Calculated as the summed
    * lengths of the individual straight line segments.
    */
-  double GetSummedLength();
+  double GetSummedLength() VTK_OVERRIDE;
 
   /**
    * Convenience method to allocate and set the handles from a
@@ -75,22 +75,22 @@ public:
    * the poly line sets Closed to on and disregards the last point,
    * otherwise Closed remains unchanged.
    */
-  virtual void InitializeHandles(vtkPoints* points);
+  void InitializeHandles(vtkPoints* points) VTK_OVERRIDE;
 
   /**
    * Build the representation for the poly line.
    */
-  virtual void BuildRepresentation();
+  void BuildRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkPolyLineRepresentation();
-  ~vtkPolyLineRepresentation();
+  ~vtkPolyLineRepresentation() VTK_OVERRIDE;
 
   // The poly line source
   vtkPolyLineSource *PolyLineSource;
 
   // Specialized method to insert a handle on the poly line.
-  virtual void InsertHandleOnLine(double* pos);
+  void InsertHandleOnLine(double* pos) VTK_OVERRIDE;
 
 private:
   vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;

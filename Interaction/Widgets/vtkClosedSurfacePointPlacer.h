@@ -49,7 +49,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkClosedSurfacePointPlacer,vtkPointPlacer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -86,7 +86,7 @@ public:
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double worldPos[3],
-                            double worldOrient[9] );
+                            double worldOrient[9] ) VTK_OVERRIDE;
 
   /**
    * Given a renderer, a display position and a reference position, "worldPos"
@@ -103,20 +103,20 @@ public:
                             double displayPos[2],
                             double refWorldPos[2],
                             double worldPos[3],
-                            double worldOrient[9] );
+                            double worldOrient[9] ) VTK_OVERRIDE;
 
   /**
    * Give a world position check if it is valid - does
    * it lie on the plane and within the bounds? Returns
    * 1 if it is valid, 0 otherwise.
    */
-  int ValidateWorldPosition( double worldPos[3] );
+  int ValidateWorldPosition( double worldPos[3] ) VTK_OVERRIDE;
 
   // Descrption:
   // Orientationation is ignored, and the above method
   // is called instead.
   int ValidateWorldPosition( double worldPos[3],
-                             double worldOrient[9]);
+                             double worldOrient[9]) VTK_OVERRIDE;
 
   // Descrption:
   // The minimum distance the object should be from the faces of the object.
@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkClosedSurfacePointPlacer();
-  ~vtkClosedSurfacePointPlacer();
+  ~vtkClosedSurfacePointPlacer() VTK_OVERRIDE;
 
   // A collection of planes used to bound the projection
   // plane

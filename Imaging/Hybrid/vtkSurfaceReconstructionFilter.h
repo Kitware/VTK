@@ -35,7 +35,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkSurfaceReconstructionFilter : public vtkImageAl
 {
 public:
   vtkTypeMacro(vtkSurfaceReconstructionFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with NeighborhoodSize=20.
@@ -66,19 +66,19 @@ public:
 
 protected:
   vtkSurfaceReconstructionFilter();
-  ~vtkSurfaceReconstructionFilter() {}
+  ~vtkSurfaceReconstructionFilter() VTK_OVERRIDE {}
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData (vtkInformation *,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData (vtkInformation *,
                            vtkInformationVector **,
-                           vtkInformationVector *);
+                           vtkInformationVector *) VTK_OVERRIDE;
 
   int NeighborhoodSize;
   double SampleSpacing;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&) VTK_DELETE_FUNCTION;

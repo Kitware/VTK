@@ -55,7 +55,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkParallelCoordinatesInteractorStyle : public 
 public:
   static vtkParallelCoordinatesInteractorStyle *New();
   vtkTypeMacro(vtkParallelCoordinatesInteractorStyle, vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum {
     INTERACT_HOVER=0,
@@ -87,14 +87,14 @@ public:
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
-  virtual void OnLeave();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
+  void OnLeave() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -104,25 +104,25 @@ public:
   //@}
 
   //@{
-  virtual void StartZoom();
-  virtual void Zoom();
-  virtual void EndZoom();
+  void StartZoom() VTK_OVERRIDE;
+  void Zoom() VTK_OVERRIDE;
+  void EndZoom() VTK_OVERRIDE;
   //@}
 
   //@{
-  virtual void StartPan();
-  virtual void Pan();
-  virtual void EndPan();
+  void StartPan() VTK_OVERRIDE;
+  void Pan() VTK_OVERRIDE;
+  void EndPan() VTK_OVERRIDE;
   //@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
    */
-  virtual void OnChar();
+  void OnChar() VTK_OVERRIDE;
 
 protected:
   vtkParallelCoordinatesInteractorStyle();
-  ~vtkParallelCoordinatesInteractorStyle();
+  ~vtkParallelCoordinatesInteractorStyle() VTK_OVERRIDE;
 
   int CursorStartPosition[2];
   int CursorCurrentPosition[2];

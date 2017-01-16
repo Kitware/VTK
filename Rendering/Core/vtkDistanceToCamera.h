@@ -42,7 +42,7 @@ class VTKRENDERINGCORE_EXPORT vtkDistanceToCamera : public vtkPolyDataAlgorithm
 public:
   static vtkDistanceToCamera *New();
   vtkTypeMacro(vtkDistanceToCamera,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -73,16 +73,16 @@ public:
   /**
    * The modified time of this filter.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkDistanceToCamera();
-  ~vtkDistanceToCamera();
+  ~vtkDistanceToCamera() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
   vtkRenderer* Renderer;
   double ScreenSize;

@@ -61,7 +61,7 @@ public:
    * Standard methods for instances of the class.
    */
   vtkTypeMacro(vtkProp3DButtonRepresentation,vtkButtonRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -86,39 +86,39 @@ public:
   /**
    * Extend the vtkButtonRepresentation::SetState() method.
    */
-  virtual void SetState(int state);
+  void SetState(int state) VTK_OVERRIDE;
 
   //@{
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void BuildRepresentation();
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
   //@}
 
   /**
    * This method positions (translates and scales the props) into the
    * bounding box specified. Note all the button props are scaled.
    */
-  virtual void PlaceWidget(double bounds[6]);
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
 
   //@{
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
-  virtual void ShallowCopy(vtkProp *prop);
-  virtual double *GetBounds();
-  virtual void GetActors(vtkPropCollection *pc);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderVolumetricGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  double *GetBounds() VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderVolumetricGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkProp3DButtonRepresentation();
-  ~vtkProp3DButtonRepresentation();
+  ~vtkProp3DButtonRepresentation() VTK_OVERRIDE;
 
   // The current vtkProp3D used to represent the button
   vtkProp3D *CurrentProp;
@@ -135,7 +135,7 @@ protected:
   vtkPropPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  virtual void RegisterPickers();
+  void RegisterPickers() VTK_OVERRIDE;
 
 private:
   vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&) VTK_DELETE_FUNCTION;

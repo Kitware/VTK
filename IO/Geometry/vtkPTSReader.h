@@ -34,7 +34,7 @@ class VTKIOGEOMETRY_EXPORT vtkPTSReader : public vtkPolyDataAlgorithm
 public:
   static vtkPTSReader *New();
   vtkTypeMacro(vtkPTSReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -114,10 +114,10 @@ public:
 
 protected:
   vtkPTSReader();
-  ~vtkPTSReader();
+  ~vtkPTSReader() VTK_OVERRIDE;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   char *FileName;
   bool OutputDataTypeIsDouble;

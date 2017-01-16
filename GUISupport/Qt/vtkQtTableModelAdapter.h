@@ -50,28 +50,28 @@ class VTKGUISUPPORTQT_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelA
 public:
   vtkQtTableModelAdapter(QObject *parent = 0);
   vtkQtTableModelAdapter(vtkTable* table, QObject *parent = 0);
-  ~vtkQtTableModelAdapter();
+  ~vtkQtTableModelAdapter() VTK_OVERRIDE;
 
   //@{
   /**
    * Set/Get the VTK data object as input to this adapter
    */
-  virtual void SetVTKDataObject(vtkDataObject *data);
-  virtual vtkDataObject* GetVTKDataObject() const;
+  void SetVTKDataObject(vtkDataObject *data) VTK_OVERRIDE;
+  vtkDataObject* GetVTKDataObject() const VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Selection conversion from VTK land to Qt land
    */
-  virtual vtkSelection* QModelIndexListToVTKIndexSelection(
-    const QModelIndexList qmil) const;
-  virtual QItemSelection VTKIndexSelectionToQItemSelection(
-    vtkSelection *vtksel) const;
+  vtkSelection* QModelIndexListToVTKIndexSelection(
+    const QModelIndexList qmil) const VTK_OVERRIDE;
+  QItemSelection VTKIndexSelectionToQItemSelection(
+    vtkSelection *vtksel) const VTK_OVERRIDE;
   //@}
 
-  virtual void SetKeyColumnName(const char* name);
-  virtual void SetColorColumnName(const char* name);
+  void SetKeyColumnName(const char* name) VTK_OVERRIDE;
+  void SetColorColumnName(const char* name) VTK_OVERRIDE;
   void SetIconIndexColumnName(const char* name);
 
   enum
@@ -108,22 +108,22 @@ public:
    */
   void setTable(vtkTable* table);
   vtkTable* table() const { return this->Table; }
-  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-  Qt::ItemFlags flags(const QModelIndex &index) const;
+  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const VTK_OVERRIDE;
+  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) VTK_OVERRIDE;
+  Qt::ItemFlags flags(const QModelIndex &index) const VTK_OVERRIDE;
   QVariant headerData(int section, Qt::Orientation orientation,
-                      int role = Qt::DisplayRole) const;
+                      int role = Qt::DisplayRole) const VTK_OVERRIDE;
   QModelIndex index(int row, int column,
-                    const QModelIndex &parent = QModelIndex()) const;
-  QModelIndex parent(const QModelIndex &index) const;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const;
+                    const QModelIndex &parent = QModelIndex()) const VTK_OVERRIDE;
+  QModelIndex parent(const QModelIndex &index) const VTK_OVERRIDE;
+  int rowCount(const QModelIndex &parent = QModelIndex()) const VTK_OVERRIDE;
+  int columnCount(const QModelIndex &parent = QModelIndex()) const VTK_OVERRIDE;
   //@}
 
-  virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) ;
-  virtual QMimeData * mimeData ( const QModelIndexList & indexes ) const;
-  virtual QStringList mimeTypes () const ;
-  Qt::DropActions supportedDropActions() const;
+  bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) VTK_OVERRIDE ;
+  QMimeData * mimeData ( const QModelIndexList & indexes ) const VTK_OVERRIDE;
+  QStringList mimeTypes () const VTK_OVERRIDE;
+  Qt::DropActions supportedDropActions() const VTK_OVERRIDE;
 
   void SetIconSheet(QImage sheet);
   void SetIconSize(int w, int h);

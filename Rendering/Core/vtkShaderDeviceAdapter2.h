@@ -35,7 +35,7 @@ class VTKRENDERINGCORE_EXPORT vtkShaderDeviceAdapter2 : public vtkObject
 {
 public:
   vtkTypeMacro(vtkShaderDeviceAdapter2, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Sends a single attribute to the graphics card.
@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkShaderDeviceAdapter2();
-  ~vtkShaderDeviceAdapter2();
+  ~vtkShaderDeviceAdapter2() VTK_OVERRIDE;
 
   vtkShaderProgram2* ShaderProgram;
 

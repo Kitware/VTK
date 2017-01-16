@@ -44,7 +44,7 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
 {
  public:
   vtkTypeMacro(vtkLinearSelector,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkLinearSelector* New();
 
@@ -99,13 +99,13 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
 
  protected:
   vtkLinearSelector();
-  virtual ~vtkLinearSelector();
+  ~vtkLinearSelector() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   /**
    * The main routine that iterates over cells and looks for those that

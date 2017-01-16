@@ -54,7 +54,7 @@ class VTKIOIMAGE_EXPORT vtkImageReader2 : public vtkImageAlgorithm
 public:
   static vtkImageReader2 *New();
   vtkTypeMacro(vtkImageReader2,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -301,7 +301,7 @@ public:
   }
 protected:
   vtkImageReader2();
-  ~vtkImageReader2();
+  ~vtkImageReader2() VTK_OVERRIDE;
   //@}
 
   vtkStringArray *FileNames;
@@ -332,11 +332,11 @@ protected:
   int FileNameSliceOffset;
   int FileNameSliceSpacing;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
   virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) VTK_OVERRIDE;
   virtual void ComputeDataIncrements();
 private:
   vtkImageReader2(const vtkImageReader2&) VTK_DELETE_FUNCTION;

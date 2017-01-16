@@ -49,7 +49,7 @@ class VTKINFOVISCORE_EXPORT vtkMutableGraphHelper : public vtkObject
 public:
   static vtkMutableGraphHelper *New();
   vtkTypeMacro(vtkMutableGraphHelper, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkMutableGraphHelper();
-  ~vtkMutableGraphHelper();
+  ~vtkMutableGraphHelper() VTK_OVERRIDE;
 
   vtkGetObjectMacro(InternalGraph, vtkGraph);
   void SetInternalGraph(vtkGraph* g);

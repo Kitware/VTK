@@ -99,15 +99,15 @@ public:
 
 protected:
   vtkImageSlabReslice();
-  ~vtkImageSlabReslice();
+  ~vtkImageSlabReslice() VTK_OVERRIDE;
 
   /**
    * This method simply calls the superclass method. In addition, it also
    * precomputes the NumBlendSamplePoints based on the SlabThickness and
    * SlabResolution.
    */
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
   int    BlendMode; // can be MIN, MIP, MAX
   double SlabThickness;

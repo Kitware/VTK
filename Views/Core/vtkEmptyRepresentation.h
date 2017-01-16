@@ -37,22 +37,22 @@ class VTKVIEWSCORE_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
 public:
   static vtkEmptyRepresentation* New();
   vtkTypeMacro(vtkEmptyRepresentation, vtkDataRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Since this representation has no inputs, override superclass
    * implementation with one that ignores "port" and "conn" and still allows it
    * to have an annotation output.
    */
-  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort()
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort() VTK_OVERRIDE
     { return this->GetInternalAnnotationOutputPort(0); }
-  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port)
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port) VTK_OVERRIDE
     { return this->GetInternalAnnotationOutputPort(port, 0); }
-  virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn);
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn) VTK_OVERRIDE;
 
 protected:
   vtkEmptyRepresentation();
-  ~vtkEmptyRepresentation();
+  ~vtkEmptyRepresentation() VTK_OVERRIDE;
 
 private:
   vtkEmptyRepresentation(const vtkEmptyRepresentation&) VTK_DELETE_FUNCTION;

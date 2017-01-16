@@ -87,14 +87,14 @@ class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesRepresentation : public vtkRe
 public:
   static vtkParallelCoordinatesRepresentation* New();
   vtkTypeMacro(vtkParallelCoordinatesRepresentation, vtkRenderedRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Apply the theme to this view.  CellColor is used for line coloring
    * and titles.  EdgeLabelColor is used for axis color. CellOpacity is
    * used for line opacity.
    */
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
+  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
 
   /**
    * Returns the hover text at an x,y location.
@@ -238,22 +238,22 @@ public:
 
 protected:
   vtkParallelCoordinatesRepresentation();
-  virtual ~vtkParallelCoordinatesRepresentation();
+  ~vtkParallelCoordinatesRepresentation() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   //@{
   /**
    * Add/remove the props and actors to/from a view
    */
-  virtual bool AddToView(vtkView* view);
-  virtual bool RemoveFromView(vtkView* view);
-  virtual void PrepareForRendering(vtkRenderView* view);
+  bool AddToView(vtkView* view) VTK_OVERRIDE;
+  bool RemoveFromView(vtkView* view) VTK_OVERRIDE;
+  void PrepareForRendering(vtkRenderView* view) VTK_OVERRIDE;
   //@}
 
   /**
@@ -324,7 +324,7 @@ protected:
    * Select a set of points using the prescribed operator (add, subtract, etc.) and class
    */
   virtual void SelectRows(vtkIdType brushClass, vtkIdType brushOperator, vtkIdTypeArray* rowIds);
-  virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
+  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) VTK_OVERRIDE;
   virtual void BuildInverseSelection();
   virtual vtkPolyDataMapper2D* InitializePlotMapper(vtkPolyData* input, vtkActor2D* actor, bool forceStandard=false);
   //@}

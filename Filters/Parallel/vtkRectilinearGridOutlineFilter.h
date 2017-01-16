@@ -37,10 +37,10 @@ public:
 
 protected:
   vtkRectilinearGridOutlineFilter() {}
-  ~vtkRectilinearGridOutlineFilter() {}
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  ~vtkRectilinearGridOutlineFilter() VTK_OVERRIDE {}
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;

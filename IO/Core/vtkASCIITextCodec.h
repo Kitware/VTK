@@ -46,20 +46,20 @@ class VTKIOCORE_EXPORT vtkASCIITextCodec : public vtkTextCodec
 public:
   vtkTypeMacro(vtkASCIITextCodec, vtkTextCodec);
   static vtkASCIITextCodec* New() ;
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * The name this codec goes by - should match the string the factory will take to create it
    */
-  virtual const char* Name();
-  virtual bool CanHandle(const char* NameString);
+  const char* Name() VTK_OVERRIDE;
+  bool CanHandle(const char* NameString) VTK_OVERRIDE;
   //@}
 
   /**
    * is the given sample valid for this codec?
    */
-  virtual bool IsValid(istream& InputStream);
+  bool IsValid(istream& InputStream) VTK_OVERRIDE;
 
 
   /**
@@ -67,18 +67,18 @@ public:
    * to the output iterator.  The stream will be advanced to its end so subsequent use
    * would need to reset it.
    */
-  virtual void ToUnicode(istream& InputStream,
-                         vtkTextCodec::OutputIterator& output) ;
+  void ToUnicode(istream& InputStream,
+                         vtkTextCodec::OutputIterator& output) VTK_OVERRIDE ;
 
   /**
    * Return the next code point from the sequence represented by the stream
    * advancing the stream through however many places needed to assemble that code point
    */
-  virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) ;
+  vtkUnicodeString::value_type NextUnicode(istream& inputStream) VTK_OVERRIDE ;
 
 protected:
   vtkASCIITextCodec() ;
-  ~vtkASCIITextCodec() ;
+  ~vtkASCIITextCodec() VTK_OVERRIDE;
 
 private:
   vtkASCIITextCodec(const vtkASCIITextCodec &) VTK_DELETE_FUNCTION;

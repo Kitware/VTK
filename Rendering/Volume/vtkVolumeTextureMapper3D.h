@@ -89,7 +89,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper3D : public vtkVolumeMappe
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper3D,vtkVolumeMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkVolumeTextureMapper3D *New();
 
@@ -149,7 +149,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  virtual void Render(vtkRenderer *, vtkVolume *) {}
+  void Render(vtkRenderer *, vtkVolume *) VTK_OVERRIDE {}
 
   /**
    * What rendering method is supported?
@@ -199,7 +199,7 @@ public:
 
 protected:
   vtkVolumeTextureMapper3D();
-  ~vtkVolumeTextureMapper3D();
+  ~vtkVolumeTextureMapper3D() VTK_OVERRIDE;
 
   float                    *PolygonBuffer;
   float                    *IntersectionBuffer;

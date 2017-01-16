@@ -44,7 +44,7 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageStack : public vtkImageSlice
 {
 public:
   vtkTypeMacro(vtkImageStack,vtkImageSlice);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkImageStack *New();
 
   /**
@@ -88,25 +88,25 @@ public:
   /**
    * Get the mapper for the currently active image.
    */
-  vtkImageMapper3D *GetMapper();
+  vtkImageMapper3D *GetMapper() VTK_OVERRIDE;
 
   /**
    * Get the property for the currently active image.
    */
-  vtkImageProperty *GetProperty();
+  vtkImageProperty *GetProperty() VTK_OVERRIDE;
 
   //@{
   /**
    * Get the combined bounds of all of the images.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
   void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
   //@}
 
   /**
    * Return the max MTime of all the images.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Return the mtime of anything that would cause the rendered image to
@@ -114,12 +114,12 @@ public:
    * prop plus anything else it depends on such as properties, mappers,
    * etc.
    */
-  vtkMTimeType GetRedrawMTime();
+  vtkMTimeType GetRedrawMTime() VTK_OVERRIDE;
 
   /**
    * Shallow copy of this prop. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   /**
    * For some exporters and other other operations we must be
@@ -132,29 +132,29 @@ public:
   /**
    * Support the standard render methods.
    */
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any resources held by this prop.
    */
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
 
   //@{
   /**
    * Methods for traversing the stack as if it was an assembly.
    * The traversal only gives the view prop for the active layer.
    */
-  void InitPathTraversal();
-  vtkAssemblyPath *GetNextPath();
-  int GetNumberOfPaths();
+  void InitPathTraversal() VTK_OVERRIDE;
+  vtkAssemblyPath *GetNextPath() VTK_OVERRIDE;
+  int GetNumberOfPaths() VTK_OVERRIDE;
   //@}
 
   /**
@@ -162,11 +162,11 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Used to construct assembly paths and perform part traversal.
    */
-  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
+  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path) VTK_OVERRIDE;
 
 protected:
   vtkImageStack();
-  ~vtkImageStack();
+  ~vtkImageStack() VTK_OVERRIDE;
 
   void SetMapper(vtkImageMapper3D *mapper);
   void SetProperty(vtkImageProperty *property);

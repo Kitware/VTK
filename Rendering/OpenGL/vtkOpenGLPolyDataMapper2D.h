@@ -40,11 +40,11 @@ public:
   /**
    * Actually draw the poly data.
    */
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLPolyDataMapper2D() {}
-  ~vtkOpenGLPolyDataMapper2D() {}
+  ~vtkOpenGLPolyDataMapper2D() VTK_OVERRIDE {}
 
 private:
   vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&) VTK_DELETE_FUNCTION;

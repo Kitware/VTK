@@ -44,18 +44,18 @@ public:
   /**
    * Implement base class method.  Perform the render.
    */
-  void Render(vtkRenderer *ren, vtkImageSlice *prop);
+  void Render(vtkRenderer *ren, vtkImageSlice *prop) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this
    * mapper, the image texture in particular. Using the same texture
    * in multiple render windows is NOT currently supported.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLImageSliceMapper();
-  ~vtkOpenGLImageSliceMapper();
+  ~vtkOpenGLImageSliceMapper() VTK_OVERRIDE;
 
   /**
    * Recursive internal method, will call the non-recursive method
@@ -106,7 +106,7 @@ protected:
    */
   void ComputeTextureSize(
     const int extent[6], int &xdim, int &ydim,
-    int imageSize[2], int textureSize[2]);
+    int imageSize[2], int textureSize[2]) VTK_OVERRIDE;
 
   /**
    * Test whether a given texture size is supported.  This includes a

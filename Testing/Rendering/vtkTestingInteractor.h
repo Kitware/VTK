@@ -46,10 +46,10 @@ public:
    * Type and printing information.
    */
   vtkTypeMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
-  virtual void Start();
+  void Start() VTK_OVERRIDE;
 
   static int         TestReturnStatus;  // Return status of the test
   static double      ErrorThreshold;    // Error Threshold

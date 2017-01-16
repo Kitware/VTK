@@ -49,7 +49,7 @@ class VTKIOGEOMETRY_EXPORT vtkAVSucdReader : public vtkUnstructuredGridAlgorithm
 public:
   static vtkAVSucdReader *New();
   vtkTypeMacro(vtkAVSucdReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -155,9 +155,9 @@ public:
 
 protected:
   vtkAVSucdReader();
-  ~vtkAVSucdReader();
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  ~vtkAVSucdReader() VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   char *FileName;
   int BinaryFile;

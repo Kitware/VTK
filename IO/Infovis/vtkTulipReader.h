@@ -73,7 +73,7 @@ class VTKIOINFOVIS_EXPORT vtkTulipReader : public vtkUndirectedGraphAlgorithm
 public:
   static vtkTulipReader *New();
   vtkTypeMacro(vtkTulipReader, vtkUndirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -85,17 +85,17 @@ public:
 
 protected:
   vtkTulipReader();
-  ~vtkTulipReader();
+  ~vtkTulipReader() VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Set the outputs to vtkUndirectedGraph and vtkAnnotationLayers.
    */
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   char* FileName;

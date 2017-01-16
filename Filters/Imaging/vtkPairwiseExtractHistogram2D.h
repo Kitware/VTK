@@ -59,7 +59,7 @@ class VTKFILTERSIMAGING_EXPORT vtkPairwiseExtractHistogram2D : public vtkStatist
 public:
   static vtkPairwiseExtractHistogram2D* New();
   vtkTypeMacro(vtkPairwiseExtractHistogram2D, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -157,11 +157,11 @@ public:
   /**
    * Given a collection of models, calculate aggregate model.  Not used
    */
-  virtual void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) {}
+  void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) VTK_OVERRIDE {}
 
 protected:
   vtkPairwiseExtractHistogram2D();
-  ~vtkPairwiseExtractHistogram2D();
+  ~vtkPairwiseExtractHistogram2D() VTK_OVERRIDE;
 
   int NumberOfBins[2];
   int ScalarType;
@@ -176,43 +176,43 @@ protected:
    * Execute the calculations required by the Learn option.
    * Does the actual histogram computation works.
    */
-  virtual void Learn( vtkTable* inData,
+  void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+                      vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Derive option. Not used.
    */
-  virtual void Derive( vtkMultiBlockDataSet* ) {}
+  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE {}
 
   /**
    * Execute the assess option. Not implemented.
    */
-  virtual void Assess( vtkTable*,
+  void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
-                       vtkTable* ) {}
+                       vtkTable* ) VTK_OVERRIDE {}
 
   /**
    * Execute the calculations required by the Test option.
    */
-  virtual void Test( vtkTable*,
+  void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) { return; };
+                     vtkTable* ) VTK_OVERRIDE { return; };
 
   /**
    * Provide the appropriate assessment functor.
    */
-  virtual void SelectAssessFunctor( vtkTable* vtkNotUsed(outData),
+  void SelectAssessFunctor( vtkTable* vtkNotUsed(outData),
                                     vtkDataObject* vtkNotUsed(inMeta),
                                     vtkStringArray* vtkNotUsed(rowNames),
-                                    AssessFunctor*& vtkNotUsed(dfunc) ) {}
+                                    AssessFunctor*& vtkNotUsed(dfunc) ) VTK_OVERRIDE {}
 
   /**
    * Generate a new histogram filter
    */
   virtual vtkExtractHistogram2D* NewHistogramFilter();
 
-  virtual int FillOutputPortInformation( int port, vtkInformation* info );
+  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
   vtkTimeStamp BuildTime;
 private:

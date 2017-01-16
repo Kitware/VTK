@@ -52,7 +52,7 @@ public:
    */
   static vtkResliceImageViewerMeasurements *New();
   vtkTypeMacro(vtkResliceImageViewerMeasurements,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkResliceImageViewerMeasurements();
-  ~vtkResliceImageViewerMeasurements();
+  ~vtkResliceImageViewerMeasurements() VTK_OVERRIDE;
 
   //@{
   /**

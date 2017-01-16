@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
 
 protected:
   vtkRenderWindowCollection() {}
-  ~vtkRenderWindowCollection() {}
+  ~vtkRenderWindowCollection() VTK_OVERRIDE {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

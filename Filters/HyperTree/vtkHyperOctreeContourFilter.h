@@ -70,7 +70,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeContourFilter : public vtkPolyDat
 {
 public:
   vtkTypeMacro(vtkHyperOctreeContourFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with initial range (0,1) and single contour value
@@ -158,7 +158,7 @@ public:
   /**
    * Modified GetMTime Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -177,15 +177,15 @@ public:
 
 protected:
   vtkHyperOctreeContourFilter();
-  ~vtkHyperOctreeContourFilter();
+  ~vtkHyperOctreeContourFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
-  virtual int RequestUpdateExtent(vtkInformation*,
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+                                  vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   /**
    * Do the recursive contour of the node pointed by Cursor.

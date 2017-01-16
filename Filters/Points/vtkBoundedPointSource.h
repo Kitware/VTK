@@ -41,7 +41,7 @@ public:
    */
   static vtkBoundedPointSource *New();
   vtkTypeMacro(vtkBoundedPointSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -103,9 +103,9 @@ public:
 
 protected:
   vtkBoundedPointSource();
-  ~vtkBoundedPointSource() {}
+  ~vtkBoundedPointSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkIdType NumberOfPoints;
   double Bounds[6];

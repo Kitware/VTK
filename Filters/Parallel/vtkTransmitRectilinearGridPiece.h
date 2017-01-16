@@ -39,11 +39,11 @@ class VTKFILTERSPARALLEL_EXPORT vtkTransmitRectilinearGridPiece : public vtkTran
 public:
   static vtkTransmitRectilinearGridPiece *New();
   vtkTypeMacro(vtkTransmitRectilinearGridPiece, vtkTransmitStructuredDataPiece);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTransmitRectilinearGridPiece();
-  ~vtkTransmitRectilinearGridPiece();
+  ~vtkTransmitRectilinearGridPiece() VTK_OVERRIDE;
 
 private:
   vtkTransmitRectilinearGridPiece(const vtkTransmitRectilinearGridPiece&) VTK_DELETE_FUNCTION;

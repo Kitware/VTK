@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLStickMapper : public vtkOpenGLPolyData
 public:
   static vtkOpenGLStickMapper* New();
   vtkTypeMacro(vtkOpenGLStickMapper, vtkOpenGLPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -55,31 +55,31 @@ public:
 
 protected:
   vtkOpenGLStickMapper();
-  ~vtkOpenGLStickMapper();
+  ~vtkOpenGLStickMapper() VTK_OVERRIDE;
 
   /**
    * Create the basic shaders before replacement
    */
-  virtual void GetShaderTemplate(
+  void GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
+    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Perform string replacments on the shader templates
    */
-  virtual void ReplaceShaderValues(
+  void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
+    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Set the shader parameters related to the Camera
    */
-  virtual void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Set the shader parameters related to the actor/mapper
    */
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   const char *ScaleArray;
   const char *OrientationArray;
@@ -88,14 +88,14 @@ protected:
   /**
    * Does the VBO/IBO need to be rebuilt
    */
-  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Update the VBO to contain point based values
    */
-  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
-  virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
+  void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
 private:
   vtkOpenGLStickMapper(const vtkOpenGLStickMapper&) VTK_DELETE_FUNCTION;

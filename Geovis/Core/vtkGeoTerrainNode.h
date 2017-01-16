@@ -39,7 +39,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTerrainNode : public vtkGeoTreeNode
 public:
   static vtkGeoTerrainNode *New();
   vtkTypeMacro(vtkGeoTerrainNode, vtkGeoTreeNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -118,26 +118,26 @@ public:
   /**
    * Shallow and Deep copy.
    */
-  virtual void ShallowCopy(vtkGeoTreeNode *src);
-  virtual void DeepCopy(vtkGeoTreeNode *src);
+  void ShallowCopy(vtkGeoTreeNode *src) VTK_OVERRIDE;
+  void DeepCopy(vtkGeoTreeNode *src) VTK_OVERRIDE;
   //@}
 
   /**
    * Returns whether this node has valid data associated
    * with it, or if it is an "empty" node.
    */
-  virtual bool HasData();
+  bool HasData() VTK_OVERRIDE;
 
   /**
    * Deletes the data associated with the node to make this
    * an "empty" node. This is performed when the node has
    * been unused for a certain amount of time.
    */
-  virtual void DeleteData();
+  void DeleteData() VTK_OVERRIDE;
 
 protected:
   vtkGeoTerrainNode();
-  ~vtkGeoTerrainNode();
+  ~vtkGeoTerrainNode() VTK_OVERRIDE;
 
   vtkSmartPointer<vtkPolyData> Model;
 

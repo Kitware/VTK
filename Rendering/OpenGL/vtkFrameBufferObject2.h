@@ -88,7 +88,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject2 : public vtkObject
 public:
   static vtkFrameBufferObject2* New();
   vtkTypeMacro(vtkFrameBufferObject2, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -330,7 +330,7 @@ protected:
   int GetOpenGLType(int vtkType);
 
   vtkFrameBufferObject2();
-  ~vtkFrameBufferObject2();
+  ~vtkFrameBufferObject2() VTK_OVERRIDE;
 
   vtkWeakPointer<vtkRenderWindow> Context;
 

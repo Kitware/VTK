@@ -46,14 +46,14 @@ class VTKGUISUPPORTQT_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbs
 public:
   vtkQtAnnotationLayersModelAdapter(QObject *parent = 0);
   vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = 0);
-  ~vtkQtAnnotationLayersModelAdapter();
+  ~vtkQtAnnotationLayersModelAdapter() VTK_OVERRIDE;
 
   //@{
   /**
    * Set/Get the VTK data object as input to this adapter
    */
-  virtual void SetVTKDataObject(vtkDataObject *data);
-  virtual vtkDataObject* GetVTKDataObject() const;
+  void SetVTKDataObject(vtkDataObject *data) VTK_OVERRIDE;
+  vtkDataObject* GetVTKDataObject() const VTK_OVERRIDE;
   //@}
 
   //@{
@@ -64,14 +64,14 @@ public:
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKAnnotationLayersToQItemSelection(
     vtkAnnotationLayers *vtkann) const;
-  virtual vtkSelection* QModelIndexListToVTKIndexSelection(
-    const QModelIndexList qmil) const;
-  virtual QItemSelection VTKIndexSelectionToQItemSelection(
-    vtkSelection *vtksel) const;
+  vtkSelection* QModelIndexListToVTKIndexSelection(
+    const QModelIndexList qmil) const VTK_OVERRIDE;
+  QItemSelection VTKIndexSelectionToQItemSelection(
+    vtkSelection *vtksel) const VTK_OVERRIDE;
   //@}
 
-  virtual void SetKeyColumnName(const char* name);
-  virtual void SetColorColumnName(const char* name);
+  void SetKeyColumnName(const char* name) VTK_OVERRIDE;
+  void SetColorColumnName(const char* name) VTK_OVERRIDE;
 
   //@{
   /**
@@ -79,16 +79,16 @@ public:
    */
   void setAnnotationLayers(vtkAnnotationLayers* annotations);
   vtkAnnotationLayers* annotationLayers() const { return this->Annotations; }
-  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-  Qt::ItemFlags flags(const QModelIndex &index) const;
+  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const VTK_OVERRIDE;
+  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) VTK_OVERRIDE;
+  Qt::ItemFlags flags(const QModelIndex &index) const VTK_OVERRIDE;
   QVariant headerData(int section, Qt::Orientation orientation,
-                      int role = Qt::DisplayRole) const;
+                      int role = Qt::DisplayRole) const VTK_OVERRIDE;
   QModelIndex index(int row, int column,
-                    const QModelIndex &parent = QModelIndex()) const;
-  QModelIndex parent(const QModelIndex &index) const;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const;
+                    const QModelIndex &parent = QModelIndex()) const VTK_OVERRIDE;
+  QModelIndex parent(const QModelIndex &index) const VTK_OVERRIDE;
+  int rowCount(const QModelIndex &parent = QModelIndex()) const VTK_OVERRIDE;
+  int columnCount(const QModelIndex &parent = QModelIndex()) const VTK_OVERRIDE;
 /*
   Qt::DropActions supportedDropActions() const;
   Qt::DropActions supportedDragActions() const;

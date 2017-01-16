@@ -31,16 +31,16 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToBondStickFilter
 {
  public:
   vtkTypeMacro(vtkMoleculeToBondStickFilter,vtkMoleculeToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkMoleculeToBondStickFilter *New();
 
 protected:
   vtkMoleculeToBondStickFilter();
-  ~vtkMoleculeToBondStickFilter();
+  ~vtkMoleculeToBondStickFilter() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&) VTK_DELETE_FUNCTION;

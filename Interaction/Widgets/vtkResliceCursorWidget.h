@@ -55,7 +55,7 @@ public:
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkResliceCursorWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -76,14 +76,14 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
   /**
    * Methods for activiating this widget. This implementation extends the
    * superclasses' in order to resize the widget handles due to a render
    * start event.
    */
-  virtual void SetEnabled(int);
+  void SetEnabled(int) VTK_OVERRIDE;
 
   //@{
   /**
@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkResliceCursorWidget();
-  ~vtkResliceCursorWidget();
+  ~vtkResliceCursorWidget() VTK_OVERRIDE;
 
   // These are the callbacks for this widget
   static void SelectAction(vtkAbstractWidget*);
@@ -124,7 +124,7 @@ protected:
   static void ResetResliceCursorAction(vtkAbstractWidget*);
 
   // helper methods for cursor management
-  void SetCursor(int state);
+  void SetCursor(int state) VTK_OVERRIDE;
 
   // Start Window Level
   void StartWindowLevel();

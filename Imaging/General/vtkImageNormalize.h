@@ -36,12 +36,12 @@ public:
 
 protected:
   vtkImageNormalize();
-  ~vtkImageNormalize() {}
+  ~vtkImageNormalize()VTK_OVERRIDE {}
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+                       int extent[6], int id) VTK_OVERRIDE;
 private:
   vtkImageNormalize(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageNormalize&) VTK_DELETE_FUNCTION;

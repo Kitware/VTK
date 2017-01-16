@@ -55,21 +55,21 @@ class VTKFILTERSPARALLELIMAGING_EXPORT vtkPPairwiseExtractHistogram2D : public v
 public:
   static vtkPPairwiseExtractHistogram2D* New();
   vtkTypeMacro(vtkPPairwiseExtractHistogram2D, vtkPairwiseExtractHistogram2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller,vtkMultiProcessController);
 
 protected:
   vtkPPairwiseExtractHistogram2D();
-  ~vtkPPairwiseExtractHistogram2D();
+  ~vtkPPairwiseExtractHistogram2D() VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 
   /**
    * Generate a new histogram filter, but actually generate a parallel one this time.
    */
-  virtual vtkExtractHistogram2D* NewHistogramFilter();
+  vtkExtractHistogram2D* NewHistogramFilter() VTK_OVERRIDE;
 
 private:
   vtkPPairwiseExtractHistogram2D(const vtkPPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;

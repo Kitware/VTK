@@ -70,7 +70,7 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
 
 protected:
   vtkPropCollection() {}
-  ~vtkPropCollection() {}
+  ~vtkPropCollection() VTK_OVERRIDE {}
 
 
 private:

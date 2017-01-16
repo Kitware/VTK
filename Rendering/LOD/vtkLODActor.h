@@ -71,7 +71,7 @@ class VTKRENDERINGLOD_EXPORT vtkLODActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkLODActor, vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a vtkLODActor with the following defaults: origin(0,0,0)
@@ -84,20 +84,20 @@ public:
    * This causes the actor to be rendered.
    * It, in turn, will render the actor's property and then mapper.
    */
-  virtual void Render(vtkRenderer *, vtkMapper *);
+  void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE;
 
   /**
    * This method is used internally by the rendering process. We overide
    * the superclass method to properly set the estimated render time.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport);
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow*);
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
 
   /**
    * Add another level of detail.
@@ -136,16 +136,16 @@ public:
   /**
    * When this objects gets modified, this method also modifies the object.
    */
-  void Modified();
+  void Modified() VTK_OVERRIDE;
 
   /**
    * Shallow copy of an LOD actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
 protected:
   vtkLODActor();
-  ~vtkLODActor();
+  ~vtkLODActor() VTK_OVERRIDE;
 
   vtkActor* Device;
   vtkMapperCollection* LODMappers;

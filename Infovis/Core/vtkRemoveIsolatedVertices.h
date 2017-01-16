@@ -38,16 +38,16 @@ class VTKINFOVISCORE_EXPORT vtkRemoveIsolatedVertices : public vtkGraphAlgorithm
 public:
   static vtkRemoveIsolatedVertices* New();
   vtkTypeMacro(vtkRemoveIsolatedVertices,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkRemoveIsolatedVertices();
-  ~vtkRemoveIsolatedVertices();
+  ~vtkRemoveIsolatedVertices() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkRemoveIsolatedVertices(const vtkRemoveIsolatedVertices&) VTK_DELETE_FUNCTION;

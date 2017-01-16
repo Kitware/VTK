@@ -47,9 +47,9 @@ class VTKRENDERINGCORE_EXPORT vtkLabeledContourMapper : public vtkMapper
 public:
   static vtkLabeledContourMapper *New();
   vtkTypeMacro(vtkLabeledContourMapper, vtkMapper)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual void Render(vtkRenderer *ren, vtkActor *act);
+  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   //@{
   /**
@@ -64,8 +64,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  virtual double *GetBounds();
-  virtual void GetBounds(double bounds[6]);
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE;
   //@}
 
   /**
@@ -137,15 +137,15 @@ public:
   vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
   //@}
 
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkLabeledContourMapper();
-  ~vtkLabeledContourMapper();
+  ~vtkLabeledContourMapper() VTK_OVERRIDE;
 
   virtual void ComputeBounds();
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   void Reset();
 

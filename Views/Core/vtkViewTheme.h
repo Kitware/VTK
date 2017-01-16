@@ -44,7 +44,7 @@ class VTKVIEWSCORE_EXPORT vtkViewTheme : public vtkObject
 public:
   static vtkViewTheme* New();
   vtkTypeMacro(vtkViewTheme, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -292,7 +292,7 @@ public:
 
 protected:
   vtkViewTheme();
-  ~vtkViewTheme();
+  ~vtkViewTheme() VTK_OVERRIDE;
 
   double PointSize;
   double LineWidth;

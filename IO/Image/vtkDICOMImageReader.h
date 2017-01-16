@@ -58,14 +58,14 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   /**
    * Prints the ivars.
    */
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Set the filename for the file to read. If this method is used,
    * the reader will only read a single file.
    */
-  void SetFileName(const char* fn)
+  void SetFileName(const char* fn) VTK_OVERRIDE
   {
     delete [] this->DirectoryName;
     delete [] this->FileName;
@@ -181,12 +181,12 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   //
   // Can I read the file?
   //
-  virtual int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname) VTK_OVERRIDE;
 
   //
   // What file extensions are supported?
   //
-  virtual const char* GetFileExtensions()
+  const char* GetFileExtensions() VTK_OVERRIDE
   {
     return ".dcm";
   }
@@ -194,7 +194,7 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  virtual const char* GetDescriptiveName()
+  const char* GetDescriptiveName() VTK_OVERRIDE
   {
     return "DICOM";
   }
@@ -205,8 +205,8 @@ protected:
   //
   void SetupOutputInformation(int num_slices);
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
+  void ExecuteInformation() VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) VTK_OVERRIDE;
 
   //
   // Constructor
@@ -216,7 +216,7 @@ protected:
   //
   // Destructor
   //
-  virtual ~vtkDICOMImageReader();
+  ~vtkDICOMImageReader() VTK_OVERRIDE;
 
   //
   // Instance of the parser used to parse the file.

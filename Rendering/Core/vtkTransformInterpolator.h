@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkTransformInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTransformInterpolator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate the class.
@@ -186,11 +186,11 @@ public:
    * Override GetMTime() because we depend on the interpolators which may be
    * modified outside of this class.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkTransformInterpolator();
-  virtual ~vtkTransformInterpolator();
+  ~vtkTransformInterpolator() VTK_OVERRIDE;
 
   // Control the interpolation type
   int InterpolationType;

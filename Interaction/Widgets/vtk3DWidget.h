@@ -68,7 +68,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtk3DWidget : public vtkInteractorObserver
 {
 public:
   vtkTypeMacro(vtk3DWidget,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -132,7 +132,7 @@ public:
 
 protected:
   vtk3DWidget();
-  ~vtk3DWidget();
+  ~vtk3DWidget() VTK_OVERRIDE;
 
   // Used to position and scale the widget initially
   vtkProp3D *Prop3D;

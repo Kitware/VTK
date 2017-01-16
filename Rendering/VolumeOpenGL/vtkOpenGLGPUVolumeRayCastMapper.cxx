@@ -289,7 +289,7 @@ protected:
       this->LastLinearInterpolation=false;
       this->LastRange[0] = this->LastRange[1] = 0.0;
   }
-  virtual ~vtkTextureTable()
+  ~vtkTextureTable() VTK_OVERRIDE
   {
       if(this->TextureId!=0)
       {
@@ -469,7 +469,7 @@ protected:
       this->LastSampleDistance=1.0;
   }
 
-  ~vtkOpacityTable() {};
+  ~vtkOpacityTable() VTK_OVERRIDE {};
 
   int LastBlendMode;
   double LastSampleDistance;
@@ -592,7 +592,7 @@ public:
 
 protected:
   vtkRGBTable() {};
-  ~vtkRGBTable() {};
+  ~vtkRGBTable() VTK_OVERRIDE {};
 
 private:
   vtkRGBTable(const vtkRGBTable &other) VTK_DELETE_FUNCTION;

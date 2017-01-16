@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkGeoTerrain2D();
-  ~vtkGeoTerrain2D();
+  ~vtkGeoTerrain2D() VTK_OVERRIDE;
 
   double LocationTolerance;
   double TextureTolerance;
@@ -84,19 +84,19 @@ protected:
   /**
    * AddActors() calls this to setup parameters for evaluating nodes.
    */
-  virtual void InitializeNodeAnalysis(vtkRenderer* ren);
+  void InitializeNodeAnalysis(vtkRenderer* ren) VTK_OVERRIDE;
 
   /**
    * AddActors() calls this to determine if a node is in the current
    * viewport.
    */
-  virtual bool NodeInViewport(vtkGeoTerrainNode* node);
+  bool NodeInViewport(vtkGeoTerrainNode* node) VTK_OVERRIDE;
 
   /**
    * AddActors() calls to to evaluate whether a node should be
    * refined (1), coarsened (-1), or remain at the same level (0).
    */
-  virtual int EvaluateNode(vtkGeoTerrainNode* node);
+  int EvaluateNode(vtkGeoTerrainNode* node) VTK_OVERRIDE;
 
   double CameraBounds[4];
   double PixelSize;

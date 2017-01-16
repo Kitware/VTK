@@ -67,14 +67,14 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPolygonalSurfacePointPlacer,vtkPolyDataPointPlacer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   // Descuription:
   // Add /remove a prop, to place points on
-  virtual void AddProp( vtkProp * );
-  virtual void RemoveViewProp(vtkProp *prop);
-  virtual void RemoveAllProps();
+  void AddProp( vtkProp * ) VTK_OVERRIDE;
+  void RemoveViewProp(vtkProp *prop) VTK_OVERRIDE;
+  void RemoveAllProps() VTK_OVERRIDE;
 
   /**
    * Given a renderer and a display position in pixel coordinates,
@@ -84,10 +84,10 @@ public:
    * For the Terrain point placer this computes world points that
    * lie at the specified height above the terrain.
    */
-  virtual int ComputeWorldPosition( vtkRenderer *ren,
+  int ComputeWorldPosition( vtkRenderer *ren,
                                     double displayPos[2],
                                     double worldPos[3],
-                                    double worldOrient[9] );
+                                    double worldOrient[9] ) VTK_OVERRIDE;
 
   /**
    * Given a renderer, a display position, and a reference world
@@ -95,35 +95,35 @@ public:
    * of this point. This method is typically used by the
    * representation to move the point.
    */
-  virtual int ComputeWorldPosition( vtkRenderer *ren,
+  int ComputeWorldPosition( vtkRenderer *ren,
                                     double displayPos[2],
                                     double refWorldPos[3],
                                     double worldPos[3],
-                                    double worldOrient[9] );
+                                    double worldOrient[9] ) VTK_OVERRIDE;
 
   /**
    * Given a world position check the validity of this
    * position according to the constraints of the placer
    */
-  virtual int ValidateWorldPosition( double worldPos[3] );
+  int ValidateWorldPosition( double worldPos[3] ) VTK_OVERRIDE;
 
   /**
    * Give the node a chance to update its auxiliary point id.
    */
-  virtual int UpdateNodeWorldPosition( double worldPos[3],
-                                       vtkIdType nodePointId );
+  int UpdateNodeWorldPosition( double worldPos[3],
+                                       vtkIdType nodePointId ) VTK_OVERRIDE;
 
   /**
    * Given a display position, check the validity of this position.
    */
-  virtual int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] );
+  int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] ) VTK_OVERRIDE;
 
   /**
    * Given a world position and a world orientation,
    * validate it according to the constraints of the placer.
    */
-  virtual int ValidateWorldPosition( double worldPos[3],
-                                     double worldOrient[9] );
+  int ValidateWorldPosition( double worldPos[3],
+                                     double worldOrient[9] ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -172,7 +172,7 @@ public:
 
 protected:
   vtkPolygonalSurfacePointPlacer();
-  ~vtkPolygonalSurfacePointPlacer();
+  ~vtkPolygonalSurfacePointPlacer() VTK_OVERRIDE;
 
   // The props that represents the terrain data (one or more) in a rendered
   // scene

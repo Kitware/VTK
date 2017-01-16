@@ -32,7 +32,7 @@ class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeStringToImage : public vtkStringToI
 {
 public:
   vtkTypeMacro(vtkFreeTypeStringToImage, vtkStringToImage);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkFreeTypeStringToImage *New();
 
@@ -50,10 +50,10 @@ public:
    * is valid (it may not if GetBoundingBox() failed or if the string
    * was empty).
    */
-  virtual vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkUnicodeString& string, int dpi);
-  virtual vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkStdString& string, int dpi);
+  vtkVector2i GetBounds(vtkTextProperty *property,
+                                const vtkUnicodeString& string, int dpi) VTK_OVERRIDE;
+  vtkVector2i GetBounds(vtkTextProperty *property,
+                                const vtkStdString& string, int dpi) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -64,21 +64,21 @@ public:
    * This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
    * not match the dimensions of the rendered text.
    */
-  virtual int RenderString(vtkTextProperty *property,
+  int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL);
-  virtual int RenderString(vtkTextProperty *property,
+                           int textDims[2] = NULL) VTK_OVERRIDE;
+  int RenderString(vtkTextProperty *property,
                            const vtkStdString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL);
+                           int textDims[2] = NULL) VTK_OVERRIDE;
   //@}
 
   /**
    * Should we produce images at powers of 2, makes rendering on old OpenGL
    * hardware easier. Default is false.
    */
-  virtual void SetScaleToPowerOfTwo(bool scale);
+  void SetScaleToPowerOfTwo(bool scale) VTK_OVERRIDE;
 
   /**
    * Make a deep copy of the supplied utility class.
@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkFreeTypeStringToImage();
-  ~vtkFreeTypeStringToImage();
+  ~vtkFreeTypeStringToImage() VTK_OVERRIDE;
 
   class Internals;
   Internals* Implementation;

@@ -53,15 +53,15 @@ public:
   /**
    * Support the standard render methods.
    */
-  virtual int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   //@{
   /**
@@ -129,26 +129,26 @@ public:
   /**
    * Return this objects MTime.
    */
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  virtual void GetActors2D(vtkPropCollection *pc) VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection *pc) VTK_OVERRIDE;
 
   /**
    * Shallow copy of this vtkActor2D. Overloads the virtual vtkProp method.
    */
-  virtual void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Return the actual vtkCoordinate reference that the mapper should use
@@ -168,7 +168,7 @@ public:
 
 protected:
   vtkActor2D();
-  ~vtkActor2D();
+  ~vtkActor2D() VTK_OVERRIDE;
 
   vtkMapper2D *Mapper;
   int LayerNumber;

@@ -39,36 +39,36 @@ class QVTKPaintEngine : public QPaintEngine
 {
 public:
   QVTKPaintEngine();
-  ~QVTKPaintEngine();
+  ~QVTKPaintEngine() VTK_OVERRIDE;
 
   // Description:
   // begin painting on device (QVTKWidget)
-  bool begin(QPaintDevice* dev);
+  bool begin(QPaintDevice* dev) VTK_OVERRIDE;
 
   // Description:
   // end painting on device
-  bool end();
+  bool end() VTK_OVERRIDE;
 
   // Description:
   // returns type User
-  QPaintEngine::Type type() const;
+  QPaintEngine::Type type() const VTK_OVERRIDE;
 
   // Description:
   // updateState
-  void updateState(const QPaintEngineState&);
+  void updateState(const QPaintEngineState&) VTK_OVERRIDE;
 
   // Description:
   // draw a pixmap
-  void drawPixmap(const QRectF& r, const QPixmap& pm, const QRectF& sr);
+  void drawPixmap(const QRectF& r, const QPixmap& pm, const QRectF& sr) VTK_OVERRIDE;
 
   // Description:
   // draw a path
-  void drawPath(const QPainterPath& path);
+  void drawPath(const QPainterPath& path) VTK_OVERRIDE;
 
   // Description:
   // draw a polygon
-  void drawPolygon(const QPointF* points, int pointCount, PolygonDrawMode mode);
-  void drawPolygon(const QPoint* points, int pointCount, PolygonDrawMode mode);
+  void drawPolygon(const QPointF* points, int pointCount, PolygonDrawMode mode) VTK_OVERRIDE;
+  void drawPolygon(const QPoint* points, int pointCount, PolygonDrawMode mode) VTK_OVERRIDE;
 
 protected:
 

@@ -59,7 +59,7 @@ class VTKRENDERINGCORE_EXPORT vtkProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with object color, ambient color, diffuse color,
@@ -484,7 +484,7 @@ public:
 
 protected:
   vtkProperty();
-  ~vtkProperty();
+  ~vtkProperty() VTK_OVERRIDE;
 
   /**
    * Computes composite color. Used by GetColor().

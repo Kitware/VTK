@@ -37,7 +37,7 @@ public:
    * Standard methids for printing and determining type information.
    */
   vtkTypeMacro(vtkGraphGeodesicPath,vtkGeodesicPath);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkGraphGeodesicPath();
-  ~vtkGraphGeodesicPath();
+  ~vtkGraphGeodesicPath() VTK_OVERRIDE;
 
   vtkIdType StartVertex;
   vtkIdType EndVertex;

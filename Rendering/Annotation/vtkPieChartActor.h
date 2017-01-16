@@ -57,7 +57,7 @@ public:
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkPieChartActor,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -167,26 +167,26 @@ public:
   /**
    * Draw the pie plot.
    */
-  int RenderOverlay(vtkViewport*);
-  int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;}
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* ) VTK_OVERRIDE {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkPieChartActor();
-  ~vtkPieChartActor();
+  ~vtkPieChartActor() VTK_OVERRIDE;
 
 private:
 

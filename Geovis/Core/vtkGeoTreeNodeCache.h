@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkGeoTreeNodeCache();
-  ~vtkGeoTreeNodeCache();
+  ~vtkGeoTreeNodeCache() VTK_OVERRIDE;
 
   /**
    * Removes data from the oldest nodes and removes them from

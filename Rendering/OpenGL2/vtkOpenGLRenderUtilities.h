@@ -36,7 +36,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOpenGLRenderUtilities, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkOpenGLRenderUtilities();
-  ~vtkOpenGLRenderUtilities();
+  ~vtkOpenGLRenderUtilities() VTK_OVERRIDE;
 
 private:
   vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;

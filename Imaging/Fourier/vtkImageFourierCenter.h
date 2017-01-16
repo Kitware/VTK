@@ -38,19 +38,19 @@ public:
 
 protected:
   vtkImageFourierCenter();
-  ~vtkImageFourierCenter() {}
+  ~vtkImageFourierCenter()VTK_OVERRIDE {}
 
-  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out);
+  int IterativeRequestUpdateExtent(vtkInformation* in,
+                                           vtkInformation* out) VTK_OVERRIDE;
 
-  virtual void ThreadedRequestData(
+  void ThreadedRequestData(
     vtkInformation* vtkNotUsed( request ),
     vtkInformationVector** vtkNotUsed( inputVector ),
     vtkInformationVector* outputVector,
     vtkImageData ***inDataVec,
     vtkImageData **outDataVec,
     int outExt[6],
-    int threadId);
+    int threadId) VTK_OVERRIDE;
 private:
   vtkImageFourierCenter(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;

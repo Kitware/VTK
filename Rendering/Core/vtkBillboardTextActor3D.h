@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkBillboardTextActor3D();
-  ~vtkBillboardTextActor3D();
+  ~vtkBillboardTextActor3D() VTK_OVERRIDE;
 
   bool InputIsValid();
 

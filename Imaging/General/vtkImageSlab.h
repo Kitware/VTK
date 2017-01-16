@@ -36,7 +36,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageSlab : public vtkThreadedImageAlgorithm
 public:
   static vtkImageSlab *New();
   vtkTypeMacro(vtkImageSlab, vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -123,17 +123,17 @@ public:
 
 protected:
   vtkImageSlab();
-  ~vtkImageSlab();
+  ~vtkImageSlab() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual void ThreadedRequestData(vtkInformation *request,
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id);
+                                   vtkImageData **outData, int ext[6], int id) VTK_OVERRIDE;
 
   vtkSetMacro(OutputScalarType, int);
 

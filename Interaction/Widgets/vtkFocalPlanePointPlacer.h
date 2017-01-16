@@ -38,7 +38,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkFocalPlanePointPlacer,vtkPointPlacer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   // Descirption:
@@ -52,7 +52,7 @@ public:
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double worldPos[3],
-                            double worldOrient[9] );
+                            double worldOrient[9] ) VTK_OVERRIDE;
 
   /**
    * Given a renderer, a display position, and a reference
@@ -68,16 +68,16 @@ public:
                             double displayPos[2],
                             double refWorldPos[3],
                             double worldPos[3],
-                            double worldOrient[9] );
+                            double worldOrient[9] ) VTK_OVERRIDE;
 
   //@{
   /**
    * Validate a world position. All world positions
    * are valid so these methods always return 1.
    */
-  int ValidateWorldPosition( double worldPos[3] );
+  int ValidateWorldPosition( double worldPos[3] ) VTK_OVERRIDE;
   int ValidateWorldPosition( double worldPos[3],
-                             double worldOrient[9]);
+                             double worldOrient[9]) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkFocalPlanePointPlacer();
-  ~vtkFocalPlanePointPlacer();
+  ~vtkFocalPlanePointPlacer() VTK_OVERRIDE;
 
   void GetCurrentOrientation( double worldOrient[9] );
 

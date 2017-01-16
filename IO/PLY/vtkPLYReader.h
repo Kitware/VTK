@@ -40,7 +40,7 @@ class VTKIOPLY_EXPORT vtkPLYReader : public vtkAbstractPolyDataReader
 {
 public:
   vtkTypeMacro(vtkPLYReader,vtkAbstractPolyDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with merging set to true.
@@ -54,9 +54,9 @@ public:
 
 protected:
   vtkPLYReader();
-  ~vtkPLYReader();
+  ~vtkPLYReader() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 private:
   vtkPLYReader(const vtkPLYReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPLYReader&) VTK_DELETE_FUNCTION;

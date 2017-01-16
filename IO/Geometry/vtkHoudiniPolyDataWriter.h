@@ -35,7 +35,7 @@ class VTKIOGEOMETRY_EXPORT vtkHoudiniPolyDataWriter : public vtkWriter
 public:
   static vtkHoudiniPolyDataWriter* New();
   vtkTypeMacro(vtkHoudiniPolyDataWriter, vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -47,11 +47,11 @@ public:
 
 protected:
   vtkHoudiniPolyDataWriter();
-  ~vtkHoudiniPolyDataWriter();
+  ~vtkHoudiniPolyDataWriter() VTK_OVERRIDE;
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   char* FileName;
 

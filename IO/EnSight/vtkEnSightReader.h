@@ -34,7 +34,7 @@ class VTKIOENSIGHT_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
 public:
   vtkTypeMacro(vtkEnSightReader, vtkGenericEnSightReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum ElementTypesList
   {
@@ -97,36 +97,18 @@ public:
   vtkGetStringMacro(MatchFileName);
   //@}
 
-  //@{
-  /**
-   * The MeasuredGeometryFile should list particle coordinates
-   * from 0->N-1.
-   * If a file is loaded where point Ids are listed from 1-N
-   * the Id to points reference will be wrong and the data
-   * will be generated incorrectly.
-   * Setting ParticleCoordinatesByIndex to true will force
-   * all Id's to increment from 0->N-1 (relative to their order
-   * in the file) and regardless of the actual Id of of the point.
-   * Warning, if the Points are listed in non sequential order
-   * then setting this flag will reorder them.
-   */
-  vtkSetMacro(ParticleCoordinatesByIndex, int);
-  vtkGetMacro(ParticleCoordinatesByIndex, int);
-  vtkBooleanMacro(ParticleCoordinatesByIndex, int);
-  //@}
-
 protected:
   vtkEnSightReader();
-  ~vtkEnSightReader();
+  ~vtkEnSightReader() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation*,
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*);
-  virtual int RequestData(vtkInformation*,
+                                 vtkInformationVector*) VTK_OVERRIDE;
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual void ClearForNewCaseFileName();
+  void ClearForNewCaseFileName() VTK_OVERRIDE;
 
   //@{
   /**
@@ -365,8 +347,6 @@ protected:
   int InitialRead;
 
   int CheckOutputConsistency();
-
-  int ParticleCoordinatesByIndex;
 
   double ActualTimeValue;
 

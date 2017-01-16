@@ -47,22 +47,22 @@ class VTKINFOVISCORE_EXPORT vtkRemoveHiddenData : public vtkPassInputTypeAlgorit
 public:
   static vtkRemoveHiddenData *New();
   vtkTypeMacro(vtkRemoveHiddenData, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkRemoveHiddenData();
-  ~vtkRemoveHiddenData();
+  ~vtkRemoveHiddenData() VTK_OVERRIDE;
 
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Set the input type of the algorithm to vtkGraph.
    */
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkRemoveHiddenData(const vtkRemoveHiddenData&) VTK_DELETE_FUNCTION;

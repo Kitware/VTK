@@ -88,7 +88,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkApplyColors : public vtkPassInputTypeAlgorithm
 public:
   static vtkApplyColors *New();
   vtkTypeMacro(vtkApplyColors, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -252,22 +252,22 @@ public:
   /**
    * Retrieve the modified time for this filter.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkApplyColors();
-  ~vtkApplyColors();
+  ~vtkApplyColors() VTK_OVERRIDE;
 
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Set the input type of the algorithm to vtkGraph.
    */
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   void ProcessColorArray(
     vtkUnsignedCharArray* colorArr,

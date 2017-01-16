@@ -56,7 +56,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkResliceCursorRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -121,7 +121,7 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  virtual void BuildRepresentation();
+  void BuildRepresentation() VTK_OVERRIDE;
 
   //@{
   /**
@@ -247,7 +247,7 @@ public:
 
 protected:
   vtkResliceCursorRepresentation();
-  ~vtkResliceCursorRepresentation();
+  ~vtkResliceCursorRepresentation() VTK_OVERRIDE;
 
   //@{
   /**

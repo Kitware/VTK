@@ -48,7 +48,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkTextRepresentation,vtkBorderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -71,8 +71,8 @@ public:
   /**
    * Satisfy the superclasses API.
    */
-  virtual void BuildRepresentation();
-  virtual void GetSize(double size[2])
+  void BuildRepresentation() VTK_OVERRIDE;
+  void GetSize(double size[2]) VTK_OVERRIDE
     {size[0]=2.0; size[1]=2.0;}
 
   //@{
@@ -80,12 +80,12 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  virtual void GetActors2D(vtkPropCollection*);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  void GetActors2D(vtkPropCollection*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
   enum
@@ -120,8 +120,8 @@ public:
    * Set the text position, by overiding the same function of
    * vtkBorderRepresentation so that the Modified() will be called.
    */
-  virtual void SetPosition(double x, double y);
-  virtual void SetPosition(double pos[2])
+  void SetPosition(double x, double y) VTK_OVERRIDE;
+  void SetPosition(double pos[2]) VTK_OVERRIDE
     { this->SetPosition(pos[0], pos[1]);};
   //@}
 
@@ -135,7 +135,7 @@ public:
 
 protected:
   vtkTextRepresentation();
-  ~vtkTextRepresentation();
+  ~vtkTextRepresentation() VTK_OVERRIDE;
 
   // Initialize text actor
   virtual void InitializeTextActor();

@@ -34,26 +34,26 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
 public:
   static vtkOpenGLLabeledContourMapper *New();
   vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Release graphics resources
    */
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLLabeledContourMapper();
-  ~vtkOpenGLLabeledContourMapper();
+  ~vtkOpenGLLabeledContourMapper() VTK_OVERRIDE;
 
   // We override this for compatibilty with the OpenGL backend:
   // The old backend pushes actor matrices onto the matrix stack, so the text
   // actors already accounted for any transformations on this mapper's actor.
   // The new backend passes each actor's matrix to the shader individually, and
   // this mapper's actor matrix doesn't affect the label rendering.
-  bool CreateLabels(vtkActor *actor);
+  bool CreateLabels(vtkActor *actor) VTK_OVERRIDE;
 
-  bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
-  bool RemoveStencil();
+  bool ApplyStencil(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  bool RemoveStencil() VTK_OVERRIDE;
 
   vtkOpenGLHelper *StencilBO;
   vtkMatrix4x4 *TempMatrix4;

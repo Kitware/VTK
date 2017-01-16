@@ -35,7 +35,7 @@ class VTKIOGEOMETRY_EXPORT vtkProStarReader : public vtkUnstructuredGridAlgorith
 public:
   static vtkProStarReader *New();
   vtkTypeMacro(vtkProStarReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -85,12 +85,12 @@ public:
 
 protected:
   vtkProStarReader();
-  ~vtkProStarReader();
+  ~vtkProStarReader() VTK_OVERRIDE;
 
   int RequestInformation
-    (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int RequestData
-    (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * The name of the file to be read.  If it has a .cel, .vrt, or .inp

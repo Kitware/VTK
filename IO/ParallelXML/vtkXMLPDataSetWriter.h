@@ -36,7 +36,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPDataSetWriter : public vtkXMLPDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLPDataSetWriter,vtkXMLPDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLPDataSetWriter* New();
 
   /**
@@ -46,18 +46,18 @@ public:
 
 protected:
   vtkXMLPDataSetWriter();
-  ~vtkXMLPDataSetWriter();
+  ~vtkXMLPDataSetWriter() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   // Override writing method from superclass.
-  virtual int WriteInternal();
+  int WriteInternal() VTK_OVERRIDE;
 
   // Dummies to satisfy pure virtuals from superclass.
-  const char* GetDataSetName();
-  const char* GetDefaultFileExtension();
-  vtkXMLWriter* CreatePieceWriter(int index);
+  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  vtkXMLWriter* CreatePieceWriter(int index) VTK_OVERRIDE;
 
 private:
   vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;

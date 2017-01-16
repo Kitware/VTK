@@ -42,7 +42,7 @@ class VTKIOEXODUS_EXPORT vtkExodusIIReaderParser : public vtkXMLParser
 public:
   static vtkExodusIIReaderParser* New();
   vtkTypeMacro(vtkExodusIIReaderParser, vtkXMLParser);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -89,10 +89,10 @@ public:
 
 protected:
   vtkExodusIIReaderParser();
-  ~vtkExodusIIReaderParser();
+  ~vtkExodusIIReaderParser() VTK_OVERRIDE;
 
-  virtual void StartElement( const char* tagName, const char** attrs);
-  virtual void EndElement(const char* tagName);
+  void StartElement( const char* tagName, const char** attrs) VTK_OVERRIDE;
+  void EndElement(const char* tagName) VTK_OVERRIDE;
   void FinishedParsing();
 
   const char* GetValue(const char* attr,const char** attrs)

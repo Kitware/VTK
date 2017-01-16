@@ -47,7 +47,7 @@ class VTKRENDERINGCORE_EXPORT vtkImageSlice : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkImageSlice,vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates an Image with the following defaults: origin(0,0,0)
@@ -82,7 +82,7 @@ public:
    * Get the bounds - either all six at once
    * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
   void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
   double GetMinXBound();
   double GetMaxXBound();
@@ -95,7 +95,7 @@ public:
   /**
    * Return the MTime also considering the property etc.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Return the mtime of anything that would cause the rendered image to
@@ -103,7 +103,7 @@ public:
    * prop plus anything else it depends on such as properties, mappers,
    * etc.
    */
-  vtkMTimeType GetRedrawMTime();
+  vtkMTimeType GetRedrawMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -117,7 +117,7 @@ public:
   /**
    * Shallow copy of this vtkImageSlice. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   /**
    * For some exporters and other other operations we must be
@@ -130,16 +130,16 @@ public:
   /**
    * Support the standard render methods.
    */
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Internal method, should only be used by rendering.
    * This method will always return 0 unless ForceTranslucent is On.
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * This causes the image and its mapper to be rendered. Note that a side
@@ -150,7 +150,7 @@ public:
   /**
    * Release any resources held by this prop.
    */
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
 
   /**
    * For stacked image rendering, set the pass.  The first pass
@@ -162,7 +162,7 @@ public:
 
 protected:
   vtkImageSlice();
-  ~vtkImageSlice();
+  ~vtkImageSlice() VTK_OVERRIDE;
 
   vtkImageMapper3D *Mapper;
   vtkImageProperty *Property;

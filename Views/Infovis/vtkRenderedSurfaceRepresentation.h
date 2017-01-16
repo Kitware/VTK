@@ -51,7 +51,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkRenderedSurfaceRepresentation : public vtkRender
 public:
   static vtkRenderedSurfaceRepresentation *New();
   vtkTypeMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Sets the color array name
@@ -63,43 +63,43 @@ public:
   /**
    * Apply a theme to this representation.
    */
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
+  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
 
 protected:
   vtkRenderedSurfaceRepresentation();
-  ~vtkRenderedSurfaceRepresentation();
+  ~vtkRenderedSurfaceRepresentation() VTK_OVERRIDE;
 
   /**
    * Sets the input pipeline connection to this representation.
    */
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   /**
    * Performs per-render operations.
    */
-  virtual void PrepareForRendering(vtkRenderView* view);
+  void PrepareForRendering(vtkRenderView* view) VTK_OVERRIDE;
 
   /**
    * Adds the representation to the view.  This is called from
    * vtkView::AddRepresentation().
    */
-  virtual bool AddToView(vtkView* view);
+  bool AddToView(vtkView* view) VTK_OVERRIDE;
 
   /**
    * Removes the representation to the view.  This is called from
    * vtkView::RemoveRepresentation().
    */
-  virtual bool RemoveFromView(vtkView* view);
+  bool RemoveFromView(vtkView* view) VTK_OVERRIDE;
 
   /**
    * Convert the selection to a type appropriate for sharing with other
    * representations through vtkAnnotationLink.
    * If the selection cannot be applied to this representation, returns NULL.
    */
-  virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
+  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) VTK_OVERRIDE;
 
   //@{
   /**

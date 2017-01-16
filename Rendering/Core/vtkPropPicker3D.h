@@ -42,7 +42,7 @@ public:
   static vtkPropPicker3D *New();
 
   vtkTypeMacro(vtkPropPicker3D, vtkAbstractPropPicker);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the pick and set the PickedProp ivar. If something is picked, a
@@ -65,16 +65,16 @@ public:
    * Overide superclasses' Pick() method.
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
-           vtkRenderer *renderer);
+           vtkRenderer *renderer) VTK_OVERRIDE;
   int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->Pick( selectionPt[0],
                          selectionPt[1], selectionPt[2], renderer); }
 
 protected:
   vtkPropPicker3D();
-  ~vtkPropPicker3D();
+  ~vtkPropPicker3D() VTK_OVERRIDE;
 
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   vtkPropCollection* PickFromProps;
 

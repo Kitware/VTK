@@ -40,7 +40,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkTooltipItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkTooltipItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Chart object.
@@ -96,16 +96,16 @@ public:
   /**
    * Update the geometry of the tooltip.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the tooltip.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
 protected:
   vtkTooltipItem();
-  ~vtkTooltipItem();
+  ~vtkTooltipItem() VTK_OVERRIDE;
 
   vtkVector2f PositionVector;
   float* Position;

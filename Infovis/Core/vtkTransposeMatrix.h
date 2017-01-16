@@ -38,16 +38,16 @@ class VTKINFOVISCORE_EXPORT vtkTransposeMatrix : public vtkArrayDataAlgorithm
 public:
   static vtkTransposeMatrix* New();
   vtkTypeMacro(vtkTransposeMatrix, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTransposeMatrix();
-  ~vtkTransposeMatrix();
+  ~vtkTransposeMatrix() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkTransposeMatrix(const vtkTransposeMatrix&) VTK_DELETE_FUNCTION;

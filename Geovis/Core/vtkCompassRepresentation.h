@@ -66,7 +66,7 @@ public:
    */
   vtkTypeMacro(vtkCompassRepresentation,
                        vtkContinuousValueWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -118,24 +118,24 @@ public:
    * assumes that the parameter bounds[6] specifies the location in display
    * space where the widget should be placed.
    */
-  virtual void PlaceWidget(double bounds[6]);
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
   virtual void TiltWidgetInteraction(double eventPos[2]);
   virtual void DistanceWidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void Highlight(int);
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void Highlight(int) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  virtual void GetActors(vtkPropCollection*);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
+  void GetActors(vtkPropCollection*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
   //@}
 
   virtual void SetHeading(double value);
@@ -148,7 +148,7 @@ public:
   virtual double GetDistance();
   virtual void UpdateDistance(double time);
   virtual void EndDistance();
-  virtual void SetRenderer(vtkRenderer *ren);
+  void SetRenderer(vtkRenderer *ren) VTK_OVERRIDE;
 
   // Enums are used to describe what is selected
   enum _InteractionState
@@ -166,7 +166,7 @@ public:
 
 protected:
   vtkCompassRepresentation();
-  ~vtkCompassRepresentation();
+  ~vtkCompassRepresentation() VTK_OVERRIDE;
 
   // Positioning the widget
   vtkCoordinate *Point1Coordinate;

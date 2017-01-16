@@ -70,7 +70,7 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
 
 protected:
   vtkVolumeCollection() {}
-  ~vtkVolumeCollection() {}
+  ~vtkVolumeCollection() VTK_OVERRIDE {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

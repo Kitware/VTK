@@ -37,7 +37,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageGradientMagnitude : public vtkThreadedIma
 public:
   static vtkImageGradientMagnitude *New();
   vtkTypeMacro(vtkImageGradientMagnitude,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,20 +59,20 @@ public:
 
 protected:
   vtkImageGradientMagnitude();
-  ~vtkImageGradientMagnitude() {}
+  ~vtkImageGradientMagnitude()VTK_OVERRIDE {}
 
   int HandleBoundaries;
   int Dimensionality;
 
-  virtual int RequestInformation (vtkInformation*,
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector*) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) VTK_OVERRIDE;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+                       int extent[6], int id) VTK_OVERRIDE;
 private:
   vtkImageGradientMagnitude(const vtkImageGradientMagnitude&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageGradientMagnitude&) VTK_DELETE_FUNCTION;

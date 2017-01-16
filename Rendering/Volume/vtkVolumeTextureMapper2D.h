@@ -35,7 +35,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper2D : public vtkVolumeTextu
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper2D,vtkVolumeTextureMapper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkVolumeTextureMapper2D *New();
 
@@ -79,7 +79,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  virtual void Render(vtkRenderer *, vtkVolume *) {}
+  void Render(vtkRenderer *, vtkVolume *) VTK_OVERRIDE {}
 
   virtual void RenderQuads( int vtkNotUsed(count),
                             float *vtkNotUsed(v), float *vtkNotUsed(t),
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkVolumeTextureMapper2D();
-  ~vtkVolumeTextureMapper2D();
+  ~vtkVolumeTextureMapper2D() VTK_OVERRIDE;
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol )
     {this->InitializeRender( ren, vol, -1 );}

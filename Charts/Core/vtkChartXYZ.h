@@ -46,7 +46,7 @@ class VTKCHARTSCORE_EXPORT vtkChartXYZ : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartXYZ, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkChartXYZ * New();
 
@@ -107,12 +107,12 @@ public:
   /**
    * Perform any updates to the item that may be necessary before rendering.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Adds a plot to the chart.
@@ -140,33 +140,33 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse press event. Keep track of zoom anchor position.
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse move event. Perform pan or zoom as specified by the mouse bindings.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse wheel event.  Zooms in or out.
    */
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) VTK_OVERRIDE;
 
   /**
    * Key press event.  This allows the user to snap the chart to one of three
    * different 2D views.  "x" changes the view so we're looking down the X axis.
    * Similar behavior occurs for "y" or "z".
    */
-  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
+  bool KeyPressEvent(const vtkContextKeyEvent &key) VTK_OVERRIDE;
 
 protected:
   vtkChartXYZ();
-  ~vtkChartXYZ();
+  ~vtkChartXYZ() VTK_OVERRIDE;
 
   /**
    * Calculate the transformation matrices used to draw data points and axes

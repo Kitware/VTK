@@ -39,12 +39,12 @@ class VTKIOXML_EXPORT vtkXMLCompositeDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLCompositeDataWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the default file extension for files written by this writer.
    */
-  virtual const char* GetDefaultFileExtension();
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
   /**
    * Get/Set the number of pieces into which the inputs are split.
@@ -71,19 +71,19 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*);
+                     vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkXMLCompositeDataWriter();
-  ~vtkXMLCompositeDataWriter();
+  ~vtkXMLCompositeDataWriter() VTK_OVERRIDE;
 
   /**
    * Methods to define the file's major and minor version numbers.
    * Major version incremented since v0.1 composite data readers cannot read
    * the files written by this new reader.
    */
-  virtual int GetDataSetMajorVersion() { return 1; }
-  virtual int GetDataSetMinorVersion() { return 0; }
+  int GetDataSetMajorVersion() VTK_OVERRIDE { return 1; }
+  int GetDataSetMinorVersion() VTK_OVERRIDE { return 0; }
 
   /**
    * Create a filename for the given index.
@@ -91,18 +91,18 @@ protected:
   vtkStdString CreatePieceFileName(int Piece);
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   int RequestData(
-    vtkInformation*  , vtkInformationVector** , vtkInformationVector*);
+    vtkInformation*  , vtkInformationVector** , vtkInformationVector*) VTK_OVERRIDE;
   int RequestUpdateExtent(
     vtkInformation*  , vtkInformationVector** , vtkInformationVector*);
 
-  virtual int WriteData();
-  virtual const char* GetDataSetName();
+  int WriteData() VTK_OVERRIDE;
+  const char* GetDataSetName() VTK_OVERRIDE;
 
   // Create a default executive.
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   vtkInformation* InputInformation;
 

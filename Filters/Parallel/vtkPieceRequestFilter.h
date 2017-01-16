@@ -33,7 +33,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPieceRequestFilter : public vtkAlgorithm
 public:
   static vtkPieceRequestFilter *New();
   vtkTypeMacro(vtkPieceRequestFilter,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,13 +70,13 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 protected:
   vtkPieceRequestFilter();
-  ~vtkPieceRequestFilter() {}
+  ~vtkPieceRequestFilter() VTK_OVERRIDE {}
 
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
@@ -90,8 +90,8 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   int NumberOfPieces;
   int Piece;

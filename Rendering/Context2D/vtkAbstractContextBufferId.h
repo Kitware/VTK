@@ -47,7 +47,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextBufferId : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextBufferId, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkAbstractContextBufferId * New();
 
@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkAbstractContextBufferId();
-  virtual ~vtkAbstractContextBufferId();
+  ~vtkAbstractContextBufferId() VTK_OVERRIDE;
 
   int Width;
   int Height;

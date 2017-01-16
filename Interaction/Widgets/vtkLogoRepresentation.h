@@ -55,7 +55,7 @@ public:
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkLogoRepresentation,vtkBorderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -77,21 +77,21 @@ public:
   /**
    * Satisfy the superclasses' API.
    */
-  virtual void BuildRepresentation();
+  void BuildRepresentation() VTK_OVERRIDE;
 
   //@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  virtual void GetActors2D(vtkPropCollection *pc);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOverlay(vtkViewport*);
+  void GetActors2D(vtkPropCollection *pc) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkLogoRepresentation();
-  ~vtkLogoRepresentation();
+  ~vtkLogoRepresentation() VTK_OVERRIDE;
 
   // data members
   vtkImageData  *Image;

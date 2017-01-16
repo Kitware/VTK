@@ -33,43 +33,43 @@ class VTKIOEXPORT_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
 public:
   static vtkX3DExporterXMLWriter *New();
   vtkTypeMacro(vtkX3DExporterXMLWriter, vtkX3DExporterWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual void CloseFile();
-  virtual int OpenFile(const char* file);
-  virtual void Flush();
+  void CloseFile() VTK_OVERRIDE;
+  int OpenFile(const char* file) VTK_OVERRIDE;
+  void Flush() VTK_OVERRIDE;
 
-  virtual int OpenStream();
+  int OpenStream() VTK_OVERRIDE;
 
-  void StartDocument();
-  void EndDocument();
+  void StartDocument() VTK_OVERRIDE;
+  void EndDocument() VTK_OVERRIDE;
 
   // Elements
-  void StartNode(int elementID);
-  void EndNode();
+  void StartNode(int elementID) VTK_OVERRIDE;
+  void EndNode() VTK_OVERRIDE;
 
   // Attributes
   // SFString / MFString
-  void SetField(int attributeID, const char*, bool mfstring = true);
+  void SetField(int attributeID, const char*, bool mfstring = true) VTK_OVERRIDE;
   // SFInt32
-  void SetField(int attributeID, int);
+  void SetField(int attributeID, int) VTK_OVERRIDE;
   // SFFloat
-  void SetField(int attributeID, float);
+  void SetField(int attributeID, float) VTK_OVERRIDE;
   // SFDouble
-  void SetField(int attributeID, double);
+  void SetField(int attributeID, double) VTK_OVERRIDE;
   // SFBool
-  void SetField(int attributeID, bool);
+  void SetField(int attributeID, bool) VTK_OVERRIDE;
 
   // For MFxxx attributes
-  void SetField(int attributeID, int type, const double* a);
-  void SetField(int attributeID, int type, vtkDataArray* a);
-  void SetField(int attributeID, const double* values, size_t size);
+  void SetField(int attributeID, int type, const double* a) VTK_OVERRIDE;
+  void SetField(int attributeID, int type, vtkDataArray* a) VTK_OVERRIDE;
+  void SetField(int attributeID, const double* values, size_t size) VTK_OVERRIDE;
   // MFInt32, SFIMAGE
-  void SetField(int attributeID, const int* values, size_t size, bool image = false);
+  void SetField(int attributeID, const int* values, size_t size, bool image = false) VTK_OVERRIDE;
 
 protected:
   vtkX3DExporterXMLWriter();
-  ~vtkX3DExporterXMLWriter();
+  ~vtkX3DExporterXMLWriter() VTK_OVERRIDE;
 
 private:
 

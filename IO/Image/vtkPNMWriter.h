@@ -35,12 +35,12 @@ public:
 
 protected:
   vtkPNMWriter() {}
-  ~vtkPNMWriter() {}
+  ~vtkPNMWriter() VTK_OVERRIDE {}
 
-  virtual void WriteFile(
-    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]);
-  virtual void WriteFileHeader(
-    ofstream *, vtkImageData *, int wExt[6]);
+  void WriteFile(
+    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) VTK_OVERRIDE;
+  void WriteFileHeader(
+    ofstream *, vtkImageData *, int wExt[6]) VTK_OVERRIDE;
 private:
   vtkPNMWriter(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPNMWriter&) VTK_DELETE_FUNCTION;

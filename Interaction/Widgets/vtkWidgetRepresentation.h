@@ -59,7 +59,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkWidgetRepresentation,vtkProp);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -178,21 +178,21 @@ public:
    * (i.e., not implementing the Render() methods properly) or leaking graphics resources
    * (i.e., not implementing ReleaseGraphicsResources() properly).
    */
-  virtual double *GetBounds() {return NULL;}
-  virtual void ShallowCopy(vtkProp *prop);
-  virtual void GetActors(vtkPropCollection *) {}
-  virtual void GetActors2D(vtkPropCollection *) {}
-  virtual void GetVolumes(vtkPropCollection *) {}
-  virtual void ReleaseGraphicsResources(vtkWindow *) {}
-  virtual int RenderOverlay(vtkViewport *vtkNotUsed(viewport)) {return 0;}
-  virtual int RenderOpaqueGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
-  virtual int RenderVolumetricGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
-  virtual int HasTranslucentPolygonalGeometry() { return 0; }
+  double *GetBounds() VTK_OVERRIDE {return NULL;}
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *) VTK_OVERRIDE {}
+  void GetActors2D(vtkPropCollection *) VTK_OVERRIDE {}
+  void GetVolumes(vtkPropCollection *) VTK_OVERRIDE {}
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
+  int RenderOverlay(vtkViewport *vtkNotUsed(viewport)) VTK_OVERRIDE {return 0;}
+  int RenderOpaqueGeometry(vtkViewport *vtkNotUsed(viewport)) VTK_OVERRIDE {return 0;}
+  int RenderTranslucentPolygonalGeometry(vtkViewport *vtkNotUsed(viewport)) VTK_OVERRIDE {return 0;}
+  int RenderVolumetricGeometry(vtkViewport *vtkNotUsed(viewport)) VTK_OVERRIDE {return 0;}
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE { return 0; }
 
 protected:
   vtkWidgetRepresentation();
-  ~vtkWidgetRepresentation();
+  ~vtkWidgetRepresentation() VTK_OVERRIDE;
 
   // The renderer in which this widget is placed
   vtkWeakPointer<vtkRenderer> Renderer;

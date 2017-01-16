@@ -47,14 +47,14 @@ public:
   /**
    * Implement superclass render method.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *a);
+  void RenderPiece(vtkRenderer *ren, vtkActor *a) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Draw method for OpenGL.
@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkOpenGLPolyDataMapper();
-  ~vtkOpenGLPolyDataMapper();
+  ~vtkOpenGLPolyDataMapper() VTK_OVERRIDE;
 
   void DrawPoints(int idx,
                   vtkPoints *p,

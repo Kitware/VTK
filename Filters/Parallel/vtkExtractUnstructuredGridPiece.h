@@ -32,7 +32,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnst
 public:
   static vtkExtractUnstructuredGridPiece *New();
   vtkTypeMacro(vtkExtractUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -45,12 +45,12 @@ public:
 
 protected:
   vtkExtractUnstructuredGridPiece();
-  ~vtkExtractUnstructuredGridPiece() {}
+  ~vtkExtractUnstructuredGridPiece() VTK_OVERRIDE {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,

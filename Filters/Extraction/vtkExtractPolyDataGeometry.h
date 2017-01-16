@@ -52,7 +52,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDat
 {
 public:
   vtkTypeMacro(vtkExtractPolyDataGeometry,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with ExtractInside turned on.
@@ -62,7 +62,7 @@ public:
   /**
    * Return the MTime taking into account changes to the implicit function
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -105,10 +105,10 @@ public:
 
 protected:
   vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
-  ~vtkExtractPolyDataGeometry();
+  ~vtkExtractPolyDataGeometry() VTK_OVERRIDE;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;

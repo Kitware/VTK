@@ -36,12 +36,12 @@ class VTKRENDERINGOPENGL_EXPORT vtkPainterPolyDataMapper : public vtkPolyDataMap
 public:
   static vtkPainterPolyDataMapper* New();
   vtkTypeMacro(vtkPainterPolyDataMapper, vtkPolyDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
+  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,7 +59,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release. Merely propagates the call to the painter.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Select a data array from the point/cell data
@@ -72,23 +72,23 @@ public:
    * componentno indicates which component from the data array must be passed as
    * the attribute. If -1, then all components are passed.
    */
-  virtual void MapDataArrayToVertexAttribute(
+  void MapDataArrayToVertexAttribute(
     const char* vertexAttributeName,
-    const char* dataArrayName, int fieldAssociation, int componentno=-1);
+    const char* dataArrayName, int fieldAssociation, int componentno=-1) VTK_OVERRIDE;
 
-  virtual void MapDataArrayToMultiTextureAttribute(
+  void MapDataArrayToMultiTextureAttribute(
     int unit,
-    const char* dataArrayName, int fieldAssociation, int componentno=-1);
+    const char* dataArrayName, int fieldAssociation, int componentno=-1) VTK_OVERRIDE;
 
   /**
    * Remove a vertex attribute mapping.
    */
-  virtual void RemoveVertexAttributeMapping(const char* vertexAttributeName);
+  void RemoveVertexAttributeMapping(const char* vertexAttributeName) VTK_OVERRIDE;
 
   /**
    * Remove all vertex attributes.
    */
-  virtual void RemoveAllVertexAttributeMappings();
+  void RemoveAllVertexAttributeMappings() VTK_OVERRIDE;
 
   //@{
   /**
@@ -104,7 +104,7 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  virtual bool GetSupportsSelection()
+  bool GetSupportsSelection() VTK_OVERRIDE
     { return (this->SelectionPainter != 0); }
 
   /**
@@ -117,18 +117,18 @@ public:
    * Overridden to use the actual data and ScalarMode to determine if we have
    * opaque geometry.
    */
-  virtual bool GetIsOpaque();
+  bool GetIsOpaque() VTK_OVERRIDE;
 
 protected:
   vtkPainterPolyDataMapper();
-  ~vtkPainterPolyDataMapper();
+  ~vtkPainterPolyDataMapper() VTK_OVERRIDE;
 
   /**
    * Called in GetBounds(). When this method is called, the consider the input
    * to be updated depending on whether this->Static is set or not. This method
    * simply obtains the bounds from the data-object and returns it.
    */
-  virtual void ComputeBounds();
+  void ComputeBounds() VTK_OVERRIDE;
 
   /**
    * Called when the PainterInformation becomes obsolete.

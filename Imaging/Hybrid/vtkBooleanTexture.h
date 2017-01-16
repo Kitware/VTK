@@ -53,7 +53,7 @@ public:
   static vtkBooleanTexture *New();
 
   vtkTypeMacro(vtkBooleanTexture,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -153,10 +153,10 @@ public:
 
 protected:
   vtkBooleanTexture();
-  ~vtkBooleanTexture() {}
+  ~vtkBooleanTexture() VTK_OVERRIDE {}
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
+  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) VTK_OVERRIDE;
 
   int XSize;
   int YSize;

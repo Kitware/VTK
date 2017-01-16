@@ -50,21 +50,21 @@ public:
   vtkSetStringMacro(IPArrayName);
   //@}
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkNetworkHierarchy();
-  ~vtkNetworkHierarchy();
+  ~vtkNetworkHierarchy() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   int FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info);
+    int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
   int FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info);
+    int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkNetworkHierarchy(const vtkNetworkHierarchy&) VTK_DELETE_FUNCTION;

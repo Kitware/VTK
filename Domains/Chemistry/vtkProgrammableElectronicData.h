@@ -34,14 +34,14 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkProgrammableElectronicData
 public:
   static vtkProgrammableElectronicData *New();
   vtkTypeMacro(vtkProgrammableElectronicData,vtkAbstractElectronicData);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Get/Set the number of molecular orbitals. Setting this will resize this
    * internal array of MOs.
    */
-  virtual vtkIdType GetNumberOfMOs();
+  vtkIdType GetNumberOfMOs() VTK_OVERRIDE;
   virtual void SetNumberOfMOs(vtkIdType);
   //@}
 
@@ -50,7 +50,10 @@ public:
    * Get/Set the number of electrons in the molecule. Needed for HOMO/LUMO
    * convenience functions
    */
-  vtkGetMacro(NumberOfElectrons, vtkIdType);
+  vtkIdType GetNumberOfElectrons() VTK_OVERRIDE
+  {
+    return this->NumberOfElectrons;
+  }
   vtkSetMacro(NumberOfElectrons, vtkIdType);
   //@}
 
@@ -58,7 +61,7 @@ public:
   /**
    * Get/Set the vtkImageData for the requested molecular orbital.
    */
-  virtual vtkImageData * GetMO(vtkIdType orbitalNumber);
+  vtkImageData * GetMO(vtkIdType orbitalNumber) VTK_OVERRIDE;
   void SetMO(vtkIdType orbitalNumber, vtkImageData *data);
   //@}
 
@@ -66,27 +69,29 @@ public:
   /**
    * Get/Set the vtkImageData for the molecule's electron density.
    */
-  vtkGetObjectMacro(ElectronDensity, vtkImageData);
+  vtkImageData* GetElectronDensity() VTK_OVERRIDE
+  {
+    return this->ElectronDensity;
+  }
   virtual void SetElectronDensity(vtkImageData *);
   //@}
 
   //@{
   /**
-   * Set/Get the padding around the molecule to which the cube extends. This
+   * Set the padding around the molecule to which the cube extends. This
    * is used to determine the dataset bounds.
    */
   vtkSetMacro(Padding, double);
-  vtkGetMacro(Padding, double);
   //@}
 
   /**
    * Deep copies the data object into this.
    */
-  virtual void DeepCopy(vtkDataObject *obj);
+  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
 
 protected:
   vtkProgrammableElectronicData();
-  ~vtkProgrammableElectronicData();
+  ~vtkProgrammableElectronicData() VTK_OVERRIDE;
 
   /**
    * Electronic data set property

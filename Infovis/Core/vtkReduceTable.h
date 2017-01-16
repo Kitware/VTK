@@ -50,7 +50,7 @@ class VTKINFOVISCORE_EXPORT vtkReduceTable : public vtkTableAlgorithm
 public:
   static vtkReduceTable* New();
   vtkTypeMacro(vtkReduceTable,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -105,12 +105,12 @@ public:
 
 protected:
   vtkReduceTable();
-  ~vtkReduceTable();
+  ~vtkReduceTable() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   /**
    * Initialize the output table to have the same types of columns as

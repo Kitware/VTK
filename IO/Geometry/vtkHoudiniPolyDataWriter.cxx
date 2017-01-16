@@ -175,7 +175,7 @@ namespace
       this->Value.resize(this->Array->GetNumberOfComponents());
     }
 
-    void StreamHeader(std::ostream& out) const
+    void StreamHeader(std::ostream& out) const VTK_OVERRIDE
     {
       std::string s = this->Array->GetName();
       std::replace(s.begin(), s.end(), ' ', '_');
@@ -191,7 +191,7 @@ namespace
       }
     }
 
-    void StreamData(std::ostream& out, vtkIdType index) const
+    void StreamData(std::ostream& out, vtkIdType index) const VTK_OVERRIDE
     {
       assert(index < this->Array->GetNumberOfTuples());
 

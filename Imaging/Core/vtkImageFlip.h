@@ -86,9 +86,9 @@ public:
 
 protected:
   vtkImageFlip();
-  ~vtkImageFlip() {}
+  ~vtkImageFlip()VTK_OVERRIDE {}
 
-  virtual int RequestInformation(vtkInformation *,
+  int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
                                  vtkInformationVector *) VTK_OVERRIDE;
 

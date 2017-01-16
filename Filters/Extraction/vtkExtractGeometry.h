@@ -47,7 +47,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractGeometry : public vtkUnstructuredGri
 {
 public:
   vtkTypeMacro(vtkExtractGeometry,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with ExtractInside turned on.
@@ -57,7 +57,7 @@ public:
   /**
    * Return the MTime taking into account changes to the implicit function
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -93,12 +93,12 @@ public:
 
 protected:
   vtkExtractGeometry(vtkImplicitFunction *f=NULL);
-  ~vtkExtractGeometry();
+  ~vtkExtractGeometry() VTK_OVERRIDE;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;

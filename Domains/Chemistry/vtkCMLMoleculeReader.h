@@ -32,14 +32,14 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkCMLMoleculeReader : public vtkMoleculeAlgori
 public:
   static vtkCMLMoleculeReader *New();
   vtkTypeMacro(vtkCMLMoleculeReader,vtkMoleculeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
   vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *);
+  void SetOutput(vtkMolecule *) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -52,11 +52,11 @@ public:
 
 protected:
   vtkCMLMoleculeReader();
-  ~vtkCMLMoleculeReader();
+  ~vtkCMLMoleculeReader() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
-  int FillOutputPortInformation(int, vtkInformation*);
+                  vtkInformationVector *) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   char *FileName;
 

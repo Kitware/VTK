@@ -49,7 +49,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkStackedTreeLayoutStrategy :
 public:
   static vtkStackedTreeLayoutStrategy* New();
   vtkTypeMacro(vtkStackedTreeLayoutStrategy,vtkAreaLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the layout of the input tree, and store the sector
@@ -57,15 +57,15 @@ public:
    * (innerRadius, outerRadius, startAngle, endAngle)
    * in a data array.
    */
-  virtual void Layout(vtkTree *inputTree, vtkDataArray *sectorArray,
-      vtkDataArray* sizeArray);
+  void Layout(vtkTree *inputTree, vtkDataArray *sectorArray,
+      vtkDataArray* sizeArray) VTK_OVERRIDE;
 
   /**
    * Fill edgeRoutingTree with points suitable for routing edges of
    * an overlaid graph.
    */
-  virtual void LayoutEdgePoints(vtkTree *inputTree, vtkDataArray *sectorArray,
-      vtkDataArray* sizeArray, vtkTree *edgeRoutingTree);
+  void LayoutEdgePoints(vtkTree *inputTree, vtkDataArray *sectorArray,
+      vtkDataArray* sizeArray, vtkTree *edgeRoutingTree) VTK_OVERRIDE;
 
   //@{
   /**
@@ -138,11 +138,11 @@ public:
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it).
    */
-  virtual vtkIdType FindVertex(vtkTree* tree, vtkDataArray* array, float pnt[2]);
+  vtkIdType FindVertex(vtkTree* tree, vtkDataArray* array, float pnt[2]) VTK_OVERRIDE;
 
 protected:
   vtkStackedTreeLayoutStrategy();
-  ~vtkStackedTreeLayoutStrategy();
+  ~vtkStackedTreeLayoutStrategy() VTK_OVERRIDE;
 
   float InteriorRadius;
   float RingThickness;

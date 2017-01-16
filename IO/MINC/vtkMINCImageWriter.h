@@ -102,7 +102,7 @@ public:
   /**
    * Set the file name.
    */
-  virtual void SetFileName(const char *name);
+  void SetFileName(const char *name) VTK_OVERRIDE;
 
   /**
    * Write the data.  This will attempt to stream the data
@@ -110,7 +110,7 @@ public:
    * unless the whole extent of the input has already been
    * updated.
    */
-  virtual void Write();
+  void Write() VTK_OVERRIDE;
 
   //@{
   /**
@@ -171,7 +171,7 @@ public:
 
 protected:
   vtkMINCImageWriter();
-  ~vtkMINCImageWriter();
+  ~vtkMINCImageWriter() VTK_OVERRIDE;
 
   int MINCImageType;
   int MINCImageTypeSigned;
@@ -220,19 +220,19 @@ protected:
   virtual void FindRescale(double &rescaleSlope, double &rescaleIntercept);
   virtual void FindMINCValidRange(double range[2]);
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation *request,
+  int RequestUpdateExtent(vtkInformation *request,
                                   vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector);
+                                  vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 private:
   vtkMINCImageWriter(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;

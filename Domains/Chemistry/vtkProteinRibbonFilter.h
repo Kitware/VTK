@@ -38,7 +38,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkProteinRibbonFilter
 {
 public:
   vtkTypeMacro(vtkProteinRibbonFilter, vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkProteinRibbonFilter* New();
 
@@ -84,13 +84,13 @@ public:
 
 protected:
   vtkProteinRibbonFilter();
-  ~vtkProteinRibbonFilter();
+  ~vtkProteinRibbonFilter() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   void CreateThinStrip(vtkPolyData* poly, vtkUnsignedCharArray *pointsColors,
                        vtkPoints* p, std::vector<std::pair<vtkVector3f, bool> >& p1,

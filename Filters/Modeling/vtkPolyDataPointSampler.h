@@ -57,7 +57,7 @@ public:
    * Standard macros for type information and printing.
    */
   vtkTypeMacro(vtkPolyDataPointSampler,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -114,9 +114,9 @@ public:
 
 protected:
   vtkPolyDataPointSampler();
-  ~vtkPolyDataPointSampler() {}
+  ~vtkPolyDataPointSampler() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Distance;
   double Distance2;

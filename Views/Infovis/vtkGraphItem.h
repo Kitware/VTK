@@ -46,7 +46,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkGraphItem : public vtkContextItem
 public:
   static vtkGraphItem *New();
   vtkTypeMacro(vtkGraphItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -76,13 +76,13 @@ public:
 
 protected:
   vtkGraphItem();
-  ~vtkGraphItem();
+  ~vtkGraphItem() VTK_OVERRIDE;
 
   /**
    * Paints the graph. This method will call RebuildBuffers()
    * if the graph is dirty, then call PaintBuffers().
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Builds a cache of data from the graph by calling the virtual functions
@@ -197,18 +197,18 @@ protected:
   /**
    * Handle mouse events.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &event);
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &event);
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &event);
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &event);
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &event, int delta);
+  bool MouseMoveEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseLeaveEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseEnterEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseWheelEvent(const vtkContextMouseEvent &event, int delta) VTK_OVERRIDE;
   //@}
 
   /**
    * Whether this graph item is hit.
    */
-  virtual bool Hit(const vtkContextMouseEvent &event);
+  bool Hit(const vtkContextMouseEvent &event) VTK_OVERRIDE;
 
   /**
    * Change the position of the tooltip based on the vertex hovered.

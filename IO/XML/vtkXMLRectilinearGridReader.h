@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLRectilinearGridReader : public vtkXMLStructuredDataR
 {
 public:
   vtkTypeMacro(vtkXMLRectilinearGridReader,vtkXMLStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLRectilinearGridReader *New();
 
   //@{
@@ -51,19 +51,19 @@ public:
 
 protected:
   vtkXMLRectilinearGridReader();
-  ~vtkXMLRectilinearGridReader();
+  ~vtkXMLRectilinearGridReader() VTK_OVERRIDE;
 
-  const char* GetDataSetName();
-  void SetOutputExtent(int* extent);
+  const char* GetDataSetName() VTK_OVERRIDE;
+  void SetOutputExtent(int* extent) VTK_OVERRIDE;
 
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
-  void SetupOutputData();
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData();
+  void SetupPieces(int numPieces) VTK_OVERRIDE;
+  void DestroyPieces() VTK_OVERRIDE;
+  void SetupOutputData() VTK_OVERRIDE;
+  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
+  int ReadPieceData() VTK_OVERRIDE;
   int ReadSubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                          vtkXMLDataElement* da, vtkDataArray* array);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   // The elements representing the coordinate arrays for each piece.
   vtkXMLDataElement** CoordinateElements;

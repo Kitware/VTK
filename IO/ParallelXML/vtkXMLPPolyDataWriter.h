@@ -39,7 +39,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPPolyDataWriter : public vtkXMLPUnstructured
 public:
   static vtkXMLPPolyDataWriter* New();
   vtkTypeMacro(vtkXMLPPolyDataWriter,vtkXMLPUnstructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get/Set the writer's input.
@@ -49,17 +49,17 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension();
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
 protected:
   vtkXMLPPolyDataWriter();
-  ~vtkXMLPPolyDataWriter();
+  ~vtkXMLPPolyDataWriter() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  const char* GetDataSetName();
-  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter();
+  const char* GetDataSetName() VTK_OVERRIDE;
+  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter() VTK_OVERRIDE;
 
 private:
   vtkXMLPPolyDataWriter(const vtkXMLPPolyDataWriter&) VTK_DELETE_FUNCTION;

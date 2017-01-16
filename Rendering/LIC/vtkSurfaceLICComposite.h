@@ -41,7 +41,7 @@ class VTKRENDERINGLIC_EXPORT vtkSurfaceLICComposite : public vtkObject
 public:
   static vtkSurfaceLICComposite *New();
   vtkTypeMacro(vtkSurfaceLICComposite, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Initialize the object based on the following description of the
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkSurfaceLICComposite();
-  ~vtkSurfaceLICComposite();
+  ~vtkSurfaceLICComposite() VTK_OVERRIDE;
 
   /**
    * For serial run. Make a decomposition disjoint. Sorts extents and

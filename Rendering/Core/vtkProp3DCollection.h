@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkProp3DCollection() {}
-  ~vtkProp3DCollection() {}
+  ~vtkProp3DCollection() VTK_OVERRIDE {}
 
 
 private:

@@ -48,14 +48,14 @@ public:
   vtkTypeMacro(vtkUnstructuredGridHomogeneousRayIntegrator,
                        vtkUnstructuredGridVolumeRayIntegrator);
   static vtkUnstructuredGridHomogeneousRayIntegrator *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual void Initialize(vtkVolume *volume, vtkDataArray *scalars);
+  void Initialize(vtkVolume *volume, vtkDataArray *scalars) VTK_OVERRIDE;
 
-  virtual void Integrate(vtkDoubleArray *intersectionLengths,
+  void Integrate(vtkDoubleArray *intersectionLengths,
                          vtkDataArray *nearIntersections,
                          vtkDataArray *farIntersections,
-                         float color[4]);
+                         float color[4]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,7 +69,7 @@ public:
 
 protected:
   vtkUnstructuredGridHomogeneousRayIntegrator();
-  ~vtkUnstructuredGridHomogeneousRayIntegrator();
+  ~vtkUnstructuredGridHomogeneousRayIntegrator() VTK_OVERRIDE;
 
   vtkVolume *Volume;
   vtkVolumeProperty *Property;

@@ -103,7 +103,7 @@ class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataS
 public:
   static vtkMultiBlockPLOT3DReader *New();
   vtkTypeMacro(vtkMultiBlockPLOT3DReader,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -308,7 +308,7 @@ public:
 
 protected:
   vtkMultiBlockPLOT3DReader();
-  ~vtkMultiBlockPLOT3DReader();
+  ~vtkMultiBlockPLOT3DReader() VTK_OVERRIDE;
 
   vtkDataArray* CreateFloatArray();
 
@@ -419,14 +419,14 @@ protected:
   int ScalarFunctionNumber;
   int VectorFunctionNumber;
 
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation*,
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
-  virtual int RequestInformation(vtkInformation*,
+                          vtkInformationVector*) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*);
+                                 vtkInformationVector*) VTK_OVERRIDE;
 
   vtkMultiBlockPLOT3DReaderInternals* Internal;
 

@@ -52,7 +52,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContext2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContext2D, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Painter object.
@@ -521,7 +521,7 @@ public:
 
 protected:
   vtkContext2D();
-  ~vtkContext2D();
+  ~vtkContext2D() VTK_OVERRIDE;
 
   vtkContextDevice2D *Device; // The underlying device
   vtkTransform2D *Transform;  // Current transform

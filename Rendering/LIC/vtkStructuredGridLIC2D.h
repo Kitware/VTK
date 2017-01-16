@@ -55,7 +55,7 @@ class VTKRENDERINGLIC_EXPORT vtkStructuredGridLIC2D
 public:
   static vtkStructuredGridLIC2D* New();
   vtkTypeMacro(vtkStructuredGridLIC2D, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkStructuredGridLIC2D();
-  ~vtkStructuredGridLIC2D();
+  ~vtkStructuredGridLIC2D() VTK_OVERRIDE;
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -131,8 +131,8 @@ protected:
    * port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info);
+  int FillInputPortInformation(int port,
+                                       vtkInformation *info) VTK_OVERRIDE;
 
   /**
    * Fill the output port information objects for this algorithm.
@@ -140,16 +140,16 @@ protected:
    * each port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillOutputPortInformation(int port,
-                                        vtkInformation *info);
+  int FillOutputPortInformation(int port,
+                                        vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
          vtkInformationVector **inputVector,
-         vtkInformationVector *outputVector);
+         vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   int RequestUpdateExtent (vtkInformation *request,
                            vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector);
+                           vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   /**
    * Stolen from vtkImageAlgorithm. Should be in vtkStructuredGridAlgorithm.
@@ -166,9 +166,9 @@ protected:
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   int    Steps;
   double StepSize;

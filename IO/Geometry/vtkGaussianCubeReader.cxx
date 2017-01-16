@@ -34,7 +34,6 @@ vtkStandardNewMacro(vtkGaussianCubeReader);
 // Construct object with merging set to true.
 vtkGaussianCubeReader::vtkGaussianCubeReader()
 {
-  this->FileName = NULL;
   this->Transform = vtkTransform::New();
   // Add the second output for the grid data
 
@@ -49,7 +48,6 @@ vtkGaussianCubeReader::vtkGaussianCubeReader()
 //----------------------------------------------------------------------------
 vtkGaussianCubeReader::~vtkGaussianCubeReader()
 {
-  delete [] this->FileName;
 
   this->Transform->Delete();
   // must delete the second output added

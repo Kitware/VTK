@@ -103,7 +103,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericGlyph3DFilter : public vtkPolyDataAlgor
 {
 public:
   vtkTypeMacro(vtkGenericGlyph3DFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with scaling on, scaling mode is by scalar value,
@@ -284,13 +284,13 @@ public:
 
 protected:
   vtkGenericGlyph3DFilter();
-  ~vtkGenericGlyph3DFilter();
+  ~vtkGenericGlyph3DFilter() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude

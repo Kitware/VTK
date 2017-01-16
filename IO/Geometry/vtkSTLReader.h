@@ -47,7 +47,7 @@ class VTKIOGEOMETRY_EXPORT vtkSTLReader : public vtkAbstractPolyDataReader
 {
 public:
   vtkTypeMacro(vtkSTLReader,vtkAbstractPolyDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with merging set to true.
@@ -58,7 +58,7 @@ public:
    * Overload standard modified time function. If locator is modified,
    * then this object is modified as well.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkSTLReader();
-  ~vtkSTLReader();
+  ~vtkSTLReader() VTK_OVERRIDE;
 
   /**
    * Create default locator. Used to create one when none is specified.
@@ -100,7 +100,7 @@ protected:
   int ScalarTags;
   vtkIncrementalPointLocator *Locator;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   bool ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
   bool ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*,
                     vtkFloatArray* scalars=0);

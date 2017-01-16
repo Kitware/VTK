@@ -60,7 +60,7 @@ public:
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkFinitePlaneRepresentation, vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -126,22 +126,22 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  virtual void PlaceWidget(double bounds[6]);
-  virtual void BuildRepresentation();
-  virtual int  ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void StartWidgetInteraction(double e[2]);
-  virtual void WidgetInteraction(double e[2]);
-  virtual double *GetBounds();
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  int  ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  double *GetBounds() VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods supporting, and required by, the rendering process.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int  RenderOpaqueGeometry(vtkViewport*);
-  virtual int  RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int  HasTranslucentPolygonalGeometry();
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int  RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int  RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
+  int  HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
   vtkSetClampMacro(InteractionState, int, Outside, Pushing);
@@ -219,7 +219,7 @@ public:
 
 protected:
   vtkFinitePlaneRepresentation();
-  ~vtkFinitePlaneRepresentation();
+  ~vtkFinitePlaneRepresentation() VTK_OVERRIDE;
 
   virtual void CreateDefaultProperties();
 
@@ -227,7 +227,7 @@ protected:
   virtual void SizeHandles();
 
   // Register internal Pickers within PickingManager
-  virtual void RegisterPickers();
+  void RegisterPickers() VTK_OVERRIDE;
 
   void SetHighlightNormal(int highlight);
   void SetHighlightPlane(int highlight);

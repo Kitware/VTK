@@ -86,7 +86,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkBalloonRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -187,18 +187,18 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  virtual void StartWidgetInteraction(double e[2]);
-  virtual void EndWidgetInteraction(double e[2]);
-  virtual void BuildRepresentation();
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void EndWidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
-  virtual int RenderOverlay(vtkViewport *viewport);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
@@ -208,7 +208,7 @@ public:
 
 protected:
   vtkBalloonRepresentation();
-  ~vtkBalloonRepresentation();
+  ~vtkBalloonRepresentation() VTK_OVERRIDE;
 
   // The balloon text and image
   char         *BalloonText;

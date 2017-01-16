@@ -34,7 +34,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLRepresentationPainter :
 public:
   static vtkOpenGLRepresentationPainter* New();
   vtkTypeMacro(vtkOpenGLRepresentationPainter, vtkRepresentationPainter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This painter overrides GetTimeToDraw() to never pass the request to the
@@ -43,20 +43,20 @@ public:
    * responsibility is borne by the painter causing the multiple rendering
    * requests i.e. this painter itself.
    */
-  virtual double GetTimeToDraw()
+  double GetTimeToDraw() VTK_OVERRIDE
   {
     return this->TimeToDraw;
   }
 
 protected:
   vtkOpenGLRepresentationPainter();
-  ~vtkOpenGLRepresentationPainter();
+  ~vtkOpenGLRepresentationPainter() VTK_OVERRIDE;
 
   /**
    * Changes the polygon mode according to the representation.
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-                      unsigned long typeflags,bool forceCompileOnly);
+                      unsigned long typeflags,bool forceCompileOnly) VTK_OVERRIDE;
 
 private:
   vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;

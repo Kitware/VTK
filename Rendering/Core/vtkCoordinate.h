@@ -171,7 +171,7 @@ public:
 
 protected:
   vtkCoordinate();
-  ~vtkCoordinate();
+  ~vtkCoordinate() VTK_OVERRIDE;
 
   double Value[3];
   int CoordinateSystem;

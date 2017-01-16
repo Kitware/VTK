@@ -44,7 +44,7 @@ class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartXY, vtkChart);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Chart object.
@@ -56,38 +56,38 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D* painter);
+  bool Paint(vtkContext2D* painter) VTK_OVERRIDE;
 
   /**
    * Add a plot to the chart, defaults to using the name of the y column
    */
-  virtual vtkPlot* AddPlot(int type);
+  vtkPlot* AddPlot(int type) VTK_OVERRIDE;
 
   /**
    * Adds a plot to the chart
    */
-  virtual vtkIdType AddPlot(vtkPlot* plot);
+  vtkIdType AddPlot(vtkPlot* plot) VTK_OVERRIDE;
 
   /**
    * Remove the plot at the specified index, returns true if successful,
    * false if the index was invalid.
    */
-  virtual bool RemovePlot(vtkIdType index);
+  bool RemovePlot(vtkIdType index) VTK_OVERRIDE;
 
   /**
    * Remove all plots from the chart.
    */
-  virtual void ClearPlots();
+  void ClearPlots() VTK_OVERRIDE;
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
    */
-  virtual vtkPlot* GetPlot(vtkIdType index);
+  vtkPlot* GetPlot(vtkIdType index) VTK_OVERRIDE;
 
   /**
    * Get the index of the specified plot, returns -1 if the plot does not
@@ -128,7 +128,7 @@ public:
   /**
    * Get the number of plots the chart contains.
    */
-  virtual vtkIdType GetNumberOfPlots();
+  vtkIdType GetNumberOfPlots() VTK_OVERRIDE;
 
   /**
    * Figure out which quadrant the plot is in.
@@ -145,17 +145,17 @@ public:
    * position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
    * vtkAxis::RIGHT and vtkAxis::TOP.
    */
-  virtual vtkAxis* GetAxis(int axisIndex);
+  vtkAxis* GetAxis(int axisIndex) VTK_OVERRIDE;
 
   /**
    * Set whether the chart should draw a legend.
    */
-  virtual void SetShowLegend(bool visible);
+  void SetShowLegend(bool visible) VTK_OVERRIDE;
 
   /**
    * Get the vtkChartLegend object that will be displayed by the chart.
    */
-  virtual vtkChartLegend* GetLegend();
+  vtkChartLegend* GetLegend() VTK_OVERRIDE;
 
   /**
    * Set the vtkTooltipItem object that will be displayed by the chart.
@@ -170,13 +170,13 @@ public:
   /**
    * Get the number of axes in the current chart.
    */
-  virtual vtkIdType GetNumberOfAxes();
+  vtkIdType GetNumberOfAxes() VTK_OVERRIDE;
 
   /**
    * Request that the chart recalculates the range of its axes. Especially
    * useful in applications after the parameters of plots have been modified.
    */
-  virtual void RecalculateBounds();
+  void RecalculateBounds() VTK_OVERRIDE;
 
   /**
    * Set the selection method, which controls how selections are handled by the
@@ -185,7 +185,7 @@ public:
    * for finer-grained selections specific to each plot, and so to each XY
    * column pair.
    */
-  virtual void SetSelectionMethod(int method);
+  void SetSelectionMethod(int method) VTK_OVERRIDE;
 
   //@{
   /**
@@ -269,46 +269,46 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  virtual bool Hit(const vtkContextMouseEvent& mouse);
+  bool Hit(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
 
   /**
    * Mouse enter event.
    */
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent& mouse);
+  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
 
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent& mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
 
   /**
    * Mouse leave event.
    */
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent& mouse);
+  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button down event
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse);
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button release event.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse);
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
 
   /**
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    */
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta);
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) VTK_OVERRIDE;
 
   /**
    * Key press event.
    */
-  virtual bool KeyPressEvent(const vtkContextKeyEvent& key);
+  bool KeyPressEvent(const vtkContextKeyEvent& key) VTK_OVERRIDE;
 
 protected:
   vtkChartXY();
-  ~vtkChartXY();
+  ~vtkChartXY() VTK_OVERRIDE;
 
   /**
    * Recalculate the necessary transforms.

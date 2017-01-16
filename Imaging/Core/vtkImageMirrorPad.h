@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkImageMirrorPad() {}
-  ~vtkImageMirrorPad() {}
+  ~vtkImageMirrorPad()VTK_OVERRIDE {}
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wExt[6]) VTK_OVERRIDE;
   void ThreadedRequestData (vtkInformation* request,

@@ -33,7 +33,7 @@ class VTKIOSQL_EXPORT vtkTableToSQLiteWriter : public vtkTableToDatabaseWriter
 public:
   static vtkTableToSQLiteWriter *New();
   vtkTypeMacro(vtkTableToSQLiteWriter,vtkTableToDatabaseWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -45,10 +45,10 @@ public:
 
 protected:
    vtkTableToSQLiteWriter();
-  ~vtkTableToSQLiteWriter();
-  void WriteData();
+  ~vtkTableToSQLiteWriter() VTK_OVERRIDE;
+  void WriteData() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkTable *Input;
 

@@ -43,7 +43,7 @@ public:
   static vtkImageViewer *New();
 
   vtkTypeMacro(vtkImageViewer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get name of rendering window
@@ -147,7 +147,7 @@ public:
 
 protected:
   vtkImageViewer();
-  ~vtkImageViewer();
+  ~vtkImageViewer() VTK_OVERRIDE;
 
   vtkRenderWindow *RenderWindow;
   vtkRenderer *Renderer;

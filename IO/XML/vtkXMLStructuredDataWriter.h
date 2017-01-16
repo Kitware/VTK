@@ -34,7 +34,7 @@ class VTKIOXML_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -74,10 +74,10 @@ public:
 
 protected:
   vtkXMLStructuredDataWriter();
-  ~vtkXMLStructuredDataWriter();
+  ~vtkXMLStructuredDataWriter() VTK_OVERRIDE;
 
   // Writing drivers defined by subclasses.
-  virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
   virtual void WriteInlinePiece(vtkIndent indent);
@@ -98,7 +98,7 @@ protected:
   void SetInputUpdateExtent(int piece);
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector);
+                     vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   vtkSetVector6Macro(InternalWriteExtent, int);
 

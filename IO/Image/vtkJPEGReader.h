@@ -41,14 +41,14 @@ public:
   /**
    * Is the given file a JPEG file?
    */
-  int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname) VTK_OVERRIDE;
 
   /**
    * Get the file extensions for this format.
    * Returns a string with a space separated list of extensions in
    * the format .extension
    */
-  virtual const char* GetFileExtensions()
+  const char* GetFileExtensions() VTK_OVERRIDE
   {
       return ".jpeg .jpg";
   }
@@ -56,16 +56,16 @@ public:
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  virtual const char* GetDescriptiveName()
+  const char* GetDescriptiveName() VTK_OVERRIDE
   {
       return "JPEG";
   }
 protected:
   vtkJPEGReader() {}
-  ~vtkJPEGReader() {}
+  ~vtkJPEGReader() VTK_OVERRIDE {}
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
+  void ExecuteInformation() VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) VTK_OVERRIDE;
 private:
   vtkJPEGReader(const vtkJPEGReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkJPEGReader&) VTK_DELETE_FUNCTION;

@@ -37,7 +37,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
  public:
   static vtkRenderPassCollection *New();
   vtkTypeMacro(vtkRenderPassCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Add an RenderPass to the list.
@@ -62,7 +62,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
 
 protected:
   vtkRenderPassCollection();
-  ~vtkRenderPassCollection();
+  ~vtkRenderPassCollection() VTK_OVERRIDE;
 
 private:
   // hide the standard AddItem from the user and the compiler.

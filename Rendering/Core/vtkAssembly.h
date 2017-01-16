@@ -110,14 +110,14 @@ public:
    * its parts.
    */
   int RenderOpaqueGeometry(vtkViewport *ren) VTK_OVERRIDE;
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *ren) VTK_OVERRIDE;
-  virtual int RenderVolumetricGeometry(vtkViewport *ren) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *ren) VTK_OVERRIDE;
+  int RenderVolumetricGeometry(vtkViewport *ren) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
@@ -172,7 +172,7 @@ public:
 
 protected:
   vtkAssembly();
-  ~vtkAssembly();
+  ~vtkAssembly() VTK_OVERRIDE;
 
   // Keep a list of direct descendants of the assembly hierarchy
   vtkProp3DCollection *Parts;

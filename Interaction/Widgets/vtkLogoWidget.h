@@ -48,7 +48,7 @@ public:
    * Standar VTK class methods.
    */
   vtkTypeMacro(vtkLogoWidget,vtkBorderWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -62,11 +62,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkLogoWidget();
-  ~vtkLogoWidget();
+  ~vtkLogoWidget() VTK_OVERRIDE;
 
 private:
   vtkLogoWidget(const vtkLogoWidget&) VTK_DELETE_FUNCTION;

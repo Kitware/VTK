@@ -33,7 +33,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageThreshold : public vtkThreadedImageAlgorithm
 public:
   static vtkImageThreshold *New();
   vtkTypeMacro(vtkImageThreshold,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * The values greater than or equal to the value match.
@@ -124,7 +124,7 @@ public:
 
 protected:
   vtkImageThreshold();
-  ~vtkImageThreshold() {}
+  ~vtkImageThreshold()VTK_OVERRIDE {}
 
   double UpperThreshold;
   double LowerThreshold;
@@ -135,13 +135,13 @@ protected:
 
   int OutputScalarType;
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
+                           int extent[6], int id) VTK_OVERRIDE;
 
 private:
   vtkImageThreshold(const vtkImageThreshold&) VTK_DELETE_FUNCTION;

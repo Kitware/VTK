@@ -51,7 +51,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractGrid : public vtkStructuredGridAlgor
 public:
   static vtkExtractGrid *New();
   vtkTypeMacro(vtkExtractGrid,vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -91,11 +91,11 @@ public:
 
 protected:
   vtkExtractGrid();
-  ~vtkExtractGrid();
+  ~vtkExtractGrid() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Implementation for RequestData using a specified VOI. This is because the

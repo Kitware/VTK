@@ -41,18 +41,18 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeToUniformGridFilter : public vtkI
 public:
   static vtkHyperOctreeToUniformGridFilter *New();
   vtkTypeMacro(vtkHyperOctreeToUniformGridFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkHyperOctreeToUniformGridFilter();
-  ~vtkHyperOctreeToUniformGridFilter();
+  ~vtkHyperOctreeToUniformGridFilter() VTK_OVERRIDE;
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   void CopyCellData(int cellExtent[6]);
 

@@ -79,13 +79,13 @@ public:
 
 protected:
   vtkSTLWriter();
-  ~vtkSTLWriter()
+  ~vtkSTLWriter() VTK_OVERRIDE
   {
     delete[] this->FileName;
     delete[] this->Header;
   }
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
   void WriteBinarySTL(
     vtkPoints *pts, vtkCellArray *polys, vtkCellArray *strips);
@@ -96,7 +96,7 @@ protected:
   char *Header;
   int   FileType;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkSTLWriter(const vtkSTLWriter&) VTK_DELETE_FUNCTION;

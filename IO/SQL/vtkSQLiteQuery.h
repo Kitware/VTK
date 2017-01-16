@@ -59,65 +59,65 @@ class VTKIOSQL_EXPORT vtkSQLiteQuery : public vtkSQLQuery
 
 public:
   vtkTypeMacro(vtkSQLiteQuery, vtkSQLQuery);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkSQLiteQuery *New();
 
   /**
    * Set the SQL query string.  This must be performed before
    * Execute() or BindParameter() can be called.
    */
-  bool SetQuery(const char *query);
+  bool SetQuery(const char *query) VTK_OVERRIDE;
 
   /**
    * Execute the query.  This must be performed
    * before any field name or data access functions
    * are used.
    */
-  bool Execute();
+  bool Execute() VTK_OVERRIDE;
 
   /**
    * The number of fields in the query result.
    */
-  int GetNumberOfFields();
+  int GetNumberOfFields() VTK_OVERRIDE;
 
   /**
    * Return the name of the specified query field.
    */
-  const char* GetFieldName(int i);
+  const char* GetFieldName(int i) VTK_OVERRIDE;
 
   /**
    * Return the type of the field, using the constants defined in vtkType.h.
    */
-  int GetFieldType(int i);
+  int GetFieldType(int i) VTK_OVERRIDE;
 
   /**
    * Advance row, return false if past end.
    */
-  bool NextRow();
+  bool NextRow() VTK_OVERRIDE;
 
   /**
    * Return true if there is an error on the current query.
    */
-  bool HasError();
+  bool HasError() VTK_OVERRIDE;
 
   //@{
   /**
    * Begin, abort (roll back), or commit a transaction.
    */
-  bool BeginTransaction();
-  bool RollbackTransaction();
-  bool CommitTransaction();
+  bool BeginTransaction() VTK_OVERRIDE;
+  bool RollbackTransaction() VTK_OVERRIDE;
+  bool CommitTransaction() VTK_OVERRIDE;
   //@}
 
   /**
    * Return data in current row, field c
    */
-  vtkVariant DataValue(vtkIdType c);
+  vtkVariant DataValue(vtkIdType c) VTK_OVERRIDE;
 
   /**
    * Get the last error text from the query
    */
-  const char* GetLastErrorText();
+  const char* GetLastErrorText() VTK_OVERRIDE;
 
   /**
    * The following methods bind a parameter value to a placeholder in
@@ -128,46 +128,46 @@ public:
    */
 
   using vtkSQLQuery::BindParameter;
-  bool BindParameter(int index, unsigned char value);
-  bool BindParameter(int index, signed char value);
-  bool BindParameter(int index, unsigned short value);
-  bool BindParameter(int index, short value);
-  bool BindParameter(int index, unsigned int value);
+  bool BindParameter(int index, unsigned char value) VTK_OVERRIDE;
+  bool BindParameter(int index, signed char value) VTK_OVERRIDE;
+  bool BindParameter(int index, unsigned short value) VTK_OVERRIDE;
+  bool BindParameter(int index, short value) VTK_OVERRIDE;
+  bool BindParameter(int index, unsigned int value) VTK_OVERRIDE;
 
-  bool BindParameter(int index, int value);
+  bool BindParameter(int index, int value) VTK_OVERRIDE;
 
-  bool BindParameter(int index, unsigned long value);
-  bool BindParameter(int index, long value);
-  bool BindParameter(int index, unsigned long long value);
-  bool BindParameter(int index, long long value);
+  bool BindParameter(int index, unsigned long value) VTK_OVERRIDE;
+  bool BindParameter(int index, long value) VTK_OVERRIDE;
+  bool BindParameter(int index, unsigned long long value) VTK_OVERRIDE;
+  bool BindParameter(int index, long long value) VTK_OVERRIDE;
 
-  bool BindParameter(int index, float value);
-  bool BindParameter(int index, double value);
+  bool BindParameter(int index, float value) VTK_OVERRIDE;
+  bool BindParameter(int index, double value) VTK_OVERRIDE;
   /**
    * Bind a string value -- string must be null-terminated
    */
-  bool BindParameter(int index, const char *stringValue);
+  bool BindParameter(int index, const char *stringValue) VTK_OVERRIDE;
   /**
    * Bind a string value by specifying an array and a size
    */
-  bool BindParameter(int index, const char *stringValue, size_t length);
+  bool BindParameter(int index, const char *stringValue, size_t length) VTK_OVERRIDE;
 
-  bool BindParameter(int index, const vtkStdString &string);
+  bool BindParameter(int index, const vtkStdString &string) VTK_OVERRIDE;
 
-  bool BindParameter(int index, vtkVariant value);
+  bool BindParameter(int index, vtkVariant value) VTK_OVERRIDE;
   //@{
   /**
    * Bind a blob value.  Not all databases support blobs as a data
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
    * make sure.
    */
-  bool BindParameter(int index, const void *data, size_t length);
-  bool ClearParameterBindings();
+  bool BindParameter(int index, const void *data, size_t length) VTK_OVERRIDE;
+  bool ClearParameterBindings() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkSQLiteQuery();
-  ~vtkSQLiteQuery();
+  ~vtkSQLiteQuery() VTK_OVERRIDE;
 
   vtkSetStringMacro(LastErrorText);
 

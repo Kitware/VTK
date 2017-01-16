@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkGPUInfoList : public vtkObject
 public:
   static vtkGPUInfoList *New();
   vtkTypeMacro(vtkGPUInfoList, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Build the list of vtkInfoGPU if not done yet.
@@ -73,7 +73,7 @@ protected:
    * Default constructor. Set Probed to false. Set Array to NULL.
    */
   vtkGPUInfoList();
-  virtual ~vtkGPUInfoList();
+  ~vtkGPUInfoList() VTK_OVERRIDE;
   //@}
 
   bool Probed;

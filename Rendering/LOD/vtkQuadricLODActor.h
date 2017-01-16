@@ -71,7 +71,7 @@ public:
    * Standard class methods.
    */
   vtkTypeMacro(vtkQuadricLODActor, vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -208,29 +208,29 @@ public:
    * it will use either a full resolution render or an interactive render (i.e.,
    * it will use the decimated geometry).
    */
-  virtual void Render(vtkRenderer *, vtkMapper *);
+  void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE;
 
   /**
    * This method is used internally by the rendering process. We overide
    * the superclass method to properly set the estimated render time.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport);
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Shallow copy of an LOD actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
 protected:
   vtkQuadricLODActor();
-  ~vtkQuadricLODActor();
+  ~vtkQuadricLODActor() VTK_OVERRIDE;
 
   // Renders the LOD
   vtkActor *LODActor;

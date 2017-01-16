@@ -46,7 +46,7 @@ class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageThresholdConnectivity :
 public:
   static vtkImageThresholdConnectivity *New();
   vtkTypeMacro(vtkImageThresholdConnectivity, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -168,7 +168,7 @@ public:
   /**
    * Override the MTime to account for the seed points.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -180,7 +180,7 @@ public:
 
 protected:
   vtkImageThresholdConnectivity();
-  ~vtkImageThresholdConnectivity();
+  ~vtkImageThresholdConnectivity() VTK_OVERRIDE;
 
   double UpperThreshold;
   double LowerThreshold;
@@ -206,11 +206,11 @@ protected:
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkImageThresholdConnectivity(const vtkImageThresholdConnectivity&) VTK_DELETE_FUNCTION;

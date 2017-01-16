@@ -46,7 +46,7 @@ class VTKINFOVISCORE_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
 public:
   static vtkArrayNorm* New();
   vtkTypeMacro(vtkArrayNorm, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -84,12 +84,12 @@ public:
 
 protected:
   vtkArrayNorm();
-  ~vtkArrayNorm();
+  ~vtkArrayNorm() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkArrayNorm(const vtkArrayNorm&) VTK_DELETE_FUNCTION;

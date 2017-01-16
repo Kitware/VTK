@@ -55,36 +55,36 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkResliceCursorLineRepresentation,vtkResliceCursorRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  virtual void BuildRepresentation();
-  virtual int  ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void StartWidgetInteraction(double startEventPos[2]);
-  virtual void WidgetInteraction(double e[2]);
-  virtual void Highlight(int highlightOn);
+  void BuildRepresentation() VTK_OVERRIDE;
+  int  ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void StartWidgetInteraction(double startEventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void Highlight(int highlightOn) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int HasTranslucentPolygonalGeometry();
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
   /**
    * Get the bounds of this prop. This simply returns the bounds of the
    * reslice cursor object.
    */
-  virtual double * GetBounds();
+  double * GetBounds() VTK_OVERRIDE;
 
   //@{
   /**
@@ -97,7 +97,7 @@ public:
   /**
    * Get the reslice cursor.
    */
-  virtual vtkResliceCursor * GetResliceCursor();
+  vtkResliceCursor * GetResliceCursor() VTK_OVERRIDE;
 
   /**
    * Set the user matrix on all the internal actors.
@@ -106,9 +106,9 @@ public:
 
 protected:
   vtkResliceCursorLineRepresentation();
-  ~vtkResliceCursorLineRepresentation();
+  ~vtkResliceCursorLineRepresentation() VTK_OVERRIDE;
 
-  virtual vtkResliceCursorPolyDataAlgorithm * GetCursorAlgorithm();
+  vtkResliceCursorPolyDataAlgorithm * GetCursorAlgorithm() VTK_OVERRIDE;
 
   double RotateAxis( double evenPos[2], int axis );
 

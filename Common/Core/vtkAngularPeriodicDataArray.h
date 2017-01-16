@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkAngularPeriodicDataArray();
-  ~vtkAngularPeriodicDataArray();
+  ~vtkAngularPeriodicDataArray() VTK_OVERRIDE;
 
   /**
    * Transform the provided tuple

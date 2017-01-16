@@ -35,7 +35,7 @@ class VTKIOLEGACY_EXPORT vtkSimplePointsReader : public vtkPolyDataAlgorithm
 public:
   static vtkSimplePointsReader* New();
   vtkTypeMacro(vtkSimplePointsReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -47,13 +47,13 @@ public:
 
 protected:
   vtkSimplePointsReader();
-  ~vtkSimplePointsReader();
+  ~vtkSimplePointsReader() VTK_OVERRIDE;
 
   char* FileName;
 
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*);
+                  vtkInformationVector*) VTK_OVERRIDE;
 private:
   vtkSimplePointsReader(const vtkSimplePointsReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSimplePointsReader&) VTK_DELETE_FUNCTION;

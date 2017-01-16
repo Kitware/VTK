@@ -43,7 +43,7 @@ class VTKIOAMR_EXPORT vtkAMRBaseReader :
 {
 public:
   vtkTypeMacro( vtkAMRBaseReader, vtkOverlappingAMRAlgorithm );
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Initializes the AMR reader.
@@ -138,7 +138,7 @@ public:
 
 protected:
   vtkAMRBaseReader();
-  virtual ~vtkAMRBaseReader();
+  ~vtkAMRBaseReader() VTK_OVERRIDE;
 
   // Desscription:
   // Checks if this reader instance is attached to a communicator
@@ -258,15 +258,15 @@ protected:
   /**
    * Standard Pipeline methods, subclasses may override this method if needed.
    */
- virtual int RequestData(
+ int RequestData(
       vtkInformation* vtkNotUsed(request),
       vtkInformationVector** vtkNotUsed(inputVector),
-      vtkInformationVector* outputVector );
-  virtual int RequestInformation(
+      vtkInformationVector* outputVector ) VTK_OVERRIDE;
+  int RequestInformation(
       vtkInformation* rqst,
       vtkInformationVector** inputVector,
-      vtkInformationVector* outputVector );
-  int FillOutputPortInformation(int port,vtkInformation *info);
+      vtkInformationVector* outputVector ) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port,vtkInformation *info) VTK_OVERRIDE;
   //@}
 
   // Array selection member variables and methods

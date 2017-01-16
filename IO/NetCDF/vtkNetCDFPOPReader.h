@@ -43,7 +43,7 @@ class VTKIONETCDF_EXPORT vtkNetCDFPOPReader : public vtkRectilinearGridAlgorithm
 public:
   vtkTypeMacro(vtkNetCDFPOPReader,vtkRectilinearGridAlgorithm);
   static vtkNetCDFPOPReader *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -73,13 +73,13 @@ public:
 
 protected:
   vtkNetCDFPOPReader();
-  ~vtkNetCDFPOPReader();
+  ~vtkNetCDFPOPReader() VTK_OVERRIDE;
 
   int RequestData(vtkInformation*,vtkInformationVector**,
-                  vtkInformationVector*);
-  virtual int RequestInformation(vtkInformation* request,
+                  vtkInformationVector*) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   static void SelectionModifiedCallback(vtkObject *caller, unsigned long eid,
                                         void *clientdata, void *calldata);

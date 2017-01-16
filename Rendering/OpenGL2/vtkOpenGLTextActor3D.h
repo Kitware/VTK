@@ -31,13 +31,13 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextActor3D: public vtkTextActor3D
 public:
   static vtkOpenGLTextActor3D* New();
   vtkTypeMacro(vtkOpenGLTextActor3D, vtkTextActor3D)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLTextActor3D();
-  ~vtkOpenGLTextActor3D();
+  ~vtkOpenGLTextActor3D() VTK_OVERRIDE;
 
   int RenderGL2PS(vtkViewport *vp, vtkOpenGLGL2PSHelper *gl2ps);
 

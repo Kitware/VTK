@@ -52,11 +52,11 @@ public:
   vtkTypeMacro(vtkOpenGLProjectedTetrahedraMapper,
                        vtkProjectedTetrahedraMapper);
   static vtkOpenGLProjectedTetrahedraMapper *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
+  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
 
-  virtual void Render(vtkRenderer *renderer, vtkVolume *volume);
+  void Render(vtkRenderer *renderer, vtkVolume *volume) VTK_OVERRIDE;
 
   //@{
   /**
@@ -72,11 +72,11 @@ public:
    * Return true if the rendering context provides
    * the nececessary functionality to use this class.
    */
-  virtual bool IsSupported(vtkRenderWindow *context);
+  bool IsSupported(vtkRenderWindow *context) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLProjectedTetrahedraMapper();
-  ~vtkOpenGLProjectedTetrahedraMapper();
+  ~vtkOpenGLProjectedTetrahedraMapper() VTK_OVERRIDE;
 
   void Initialize(vtkRenderer *ren);
   bool Initialized;

@@ -66,7 +66,7 @@ class VTKIOEXPORT_EXPORT vtkRIBExporter : public vtkExporter
 public:
   static vtkRIBExporter *New();
   vtkTypeMacro(vtkRIBExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -138,7 +138,7 @@ public:
 
 protected:
   vtkRIBExporter();
-  ~vtkRIBExporter();
+  ~vtkRIBExporter() VTK_OVERRIDE;
 
   int Background;
   int Size[2];
@@ -167,7 +167,7 @@ protected:
                     vtkProperty *aProperty);
   //@}
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
   void WriteActor(vtkActor *anActor);
 
   /**

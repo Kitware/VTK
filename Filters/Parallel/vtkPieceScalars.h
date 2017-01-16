@@ -40,7 +40,7 @@ public:
   static vtkPieceScalars *New();
 
   vtkTypeMacro(vtkPieceScalars,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Option to centerate cell scalars of points scalars.  Default is point scalars.
@@ -58,10 +58,10 @@ public:
 
 protected:
   vtkPieceScalars();
-  ~vtkPieceScalars();
+  ~vtkPieceScalars() VTK_OVERRIDE;
 
   // Append the pieces.
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkIntArray *MakePieceScalars(int piece, vtkIdType numScalars);
   vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);

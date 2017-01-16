@@ -38,31 +38,31 @@ class VTKIOAMR_EXPORT vtkAMRFlashParticlesReader :
 public:
   static vtkAMRFlashParticlesReader* New();
   vtkTypeMacro( vtkAMRFlashParticlesReader, vtkAMRBaseParticlesReader );
-  void PrintSelf(ostream &os, vtkIndent indent );
+  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
    */
-  int GetTotalNumberOfParticles();
+  int GetTotalNumberOfParticles() VTK_OVERRIDE;
 
 protected:
   vtkAMRFlashParticlesReader();
-  virtual ~vtkAMRFlashParticlesReader();
+  ~vtkAMRFlashParticlesReader() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseParticlesReader::ReadMetaData
    */
-  void ReadMetaData();
+  void ReadMetaData() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseParticlesReader::SetupParticlesDataSelections
    */
-  void SetupParticleDataSelections();
+  void SetupParticleDataSelections() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseParticlesReader::ReadParticles
    */
-  vtkPolyData* ReadParticles( const int blkidx );
+  vtkPolyData* ReadParticles( const int blkidx ) VTK_OVERRIDE;
 
   /**
    * Reads the particlles of the given block from the given file.

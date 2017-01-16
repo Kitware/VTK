@@ -32,6 +32,8 @@
 #ifndef Q_VTK_INTERACTOR_INTERNAL_H
 #define Q_VTK_INTERACTOR_INTERNAL_H
 
+#include "vtkConfigure.h" //for VTK_OVERRIDE
+
 #include <QtCore/QObject>
 
 #include <map>
@@ -45,7 +47,7 @@ class QVTKInteractorInternal : public QObject
   Q_OBJECT
 public:
   QVTKInteractorInternal(QVTKInteractor* p);
-  ~QVTKInteractorInternal();
+  ~QVTKInteractorInternal() VTK_OVERRIDE;
 public Q_SLOTS:
   void TimerEvent(int id);
 public:

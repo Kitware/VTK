@@ -66,7 +66,7 @@ class VTKINFOVISCORE_EXPORT vtkDotProductSimilarity : public vtkTableAlgorithm
 public:
   static vtkDotProductSimilarity* New();
   vtkTypeMacro(vtkDotProductSimilarity, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -149,14 +149,14 @@ public:
 
 protected:
   vtkDotProductSimilarity();
-  ~vtkDotProductSimilarity();
+  ~vtkDotProductSimilarity() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkDotProductSimilarity(const vtkDotProductSimilarity&) VTK_DELETE_FUNCTION;

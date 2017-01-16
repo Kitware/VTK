@@ -36,10 +36,10 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkPropItem: public vtkAbstractContextItem
 public:
   static vtkPropItem *New();
   vtkTypeMacro(vtkPropItem, vtkAbstractContextItem)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual bool Paint(vtkContext2D *painter);
-  virtual void ReleaseGraphicsResources();
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  void ReleaseGraphicsResources() VTK_OVERRIDE;
 
   /**
    * The actor to render.
@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkPropItem();
-  ~vtkPropItem();
+  ~vtkPropItem() VTK_OVERRIDE;
 
   // Sync the active vtkCamera with the GL state set by the painter.
   virtual void UpdateTransforms();

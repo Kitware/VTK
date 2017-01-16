@@ -40,14 +40,14 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkXYZMolReader2 : public vtkMoleculeAlgorithm
 public:
   static vtkXYZMolReader2 *New();
   vtkTypeMacro(vtkXYZMolReader2,vtkMoleculeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
   vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *);
+  void SetOutput(vtkMolecule *) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -60,12 +60,12 @@ public:
 
 protected:
   vtkXYZMolReader2();
-  ~vtkXYZMolReader2();
+  ~vtkXYZMolReader2() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   char *FileName;
   std::vector<istream::pos_type> file_positions; // to store begining of each tstep

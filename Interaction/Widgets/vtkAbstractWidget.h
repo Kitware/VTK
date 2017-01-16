@@ -68,7 +68,7 @@ public:
    * Standard macros implementing standard VTK methods.
    */
   vtkTypeMacro(vtkAbstractWidget,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -78,7 +78,7 @@ public:
    * to interaction. If ProcessEvents is Off, enabling/disabling a widget
    * merely affects the visibility of the representation.
    */
-  virtual void SetEnabled(int);
+  void SetEnabled(int) VTK_OVERRIDE;
 
   //@{
   /**
@@ -156,11 +156,11 @@ public:
    * priority of the widget. Unlike the superclass documentation, no
    * methods such as SetInteractor to null and reset it etc. are necessary
    */
-  virtual void SetPriority( float );
+  void SetPriority( float ) VTK_OVERRIDE;
 
 protected:
   vtkAbstractWidget();
-  ~vtkAbstractWidget();
+  ~vtkAbstractWidget() VTK_OVERRIDE;
 
   // Handles the events; centralized here for all widgets.
   static void ProcessEventsHandler(vtkObject* object, unsigned long event,

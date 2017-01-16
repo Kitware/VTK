@@ -40,55 +40,55 @@ class vtkTextureMapToPlane;
 class VTKRENDERINGQT_EXPORT vtkQtLabelRenderStrategy : public vtkLabelRenderStrategy
 {
  public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkQtLabelRenderStrategy, vtkLabelRenderStrategy);
   static vtkQtLabelRenderStrategy* New();
 
   /**
    * Compute the bounds of a label. Must be performed after the renderer is set.
    */
-  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
-                                  double bds[4])
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label,
+                                  double bds[4]) VTK_OVERRIDE
     { this->Superclass::ComputeLabelBounds(tprop, label, bds); }
-  virtual void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
-                                  double bds[4]);
+  void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label,
+                                  double bds[4]) VTK_OVERRIDE;
 
   //@{
   /**
    * Render a label at a location in world coordinates.
    * Must be performed between StartFrame() and EndFrame() calls.
    */
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label) VTK_OVERRIDE
     { this->Superclass::RenderLabel(x, tprop, label); }
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
-                           int maxWidth)
+  void RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label,
+                           int maxWidth) VTK_OVERRIDE
     { this->Superclass::RenderLabel(x, tprop, label, maxWidth); }
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label);
-  virtual void RenderLabel(int x[2], vtkTextProperty* tprop,
-                           vtkUnicodeString label, int maxWidth);
+  void RenderLabel(int x[2], vtkTextProperty* tprop,
+                           vtkUnicodeString label) VTK_OVERRIDE;
+  void RenderLabel(int x[2], vtkTextProperty* tprop,
+                           vtkUnicodeString label, int maxWidth) VTK_OVERRIDE;
   //@}
 
   /**
    * Start a rendering frame. Renderer must be set.
    */
-  virtual void StartFrame();
+  void StartFrame() VTK_OVERRIDE;
 
   /**
    * End a rendering frame.
    */
-  virtual void EndFrame();
+  void EndFrame() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this strategy.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
+  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
 
 protected:
   vtkQtLabelRenderStrategy();
-  ~vtkQtLabelRenderStrategy();
+  ~vtkQtLabelRenderStrategy() VTK_OVERRIDE;
 
   class Internals;
   Internals* Implementation;

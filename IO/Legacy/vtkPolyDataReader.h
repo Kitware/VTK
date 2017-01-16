@@ -41,7 +41,7 @@ class VTKIOLEGACY_EXPORT vtkPolyDataReader : public vtkDataReader
 public:
   static vtkPolyDataReader *New();
   vtkTypeMacro(vtkPolyDataReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,18 +54,18 @@ public:
 
 protected:
   vtkPolyDataReader();
-  ~vtkPolyDataReader();
+  ~vtkPolyDataReader() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   // Update extent of PolyData is specified in pieces.
   // Since all DataObjects should be able to set UpdateExent as pieces,
   // just copy output->UpdateExtent  all Inputs.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkPolyDataReader(const vtkPolyDataReader&) VTK_DELETE_FUNCTION;

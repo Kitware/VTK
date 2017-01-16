@@ -54,7 +54,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractTensorComponents : public vtkDataSet
 {
 public:
   vtkTypeMacro(vtkExtractTensorComponents,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object to extract nothing and to not pass tensor data
@@ -187,9 +187,9 @@ public:
 
 protected:
   vtkExtractTensorComponents();
-  ~vtkExtractTensorComponents() {}
+  ~vtkExtractTensorComponents()VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int PassTensorsToOutput;
 

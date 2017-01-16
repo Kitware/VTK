@@ -75,7 +75,7 @@ public:
    * Standard methods for type and printing.
    */
   vtkTypeMacro(vtkGeneralizedKernel, vtkInterpolationKernel)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -88,7 +88,7 @@ public:
    * ComputeWeights(). Note that ptId is optional in most cases, although in
    * some kernels it is used to facilitate basis computation.
    */
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0);
+  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) VTK_OVERRIDE;
 
   /**
    * Given a point x, a list of basis points pIds, and a probability
@@ -116,7 +116,7 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly.
    */
-  virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights) VTK_OVERRIDE
   {
     return this->ComputeWeights(x,pIds,NULL,weights);
   }
@@ -181,7 +181,7 @@ public:
 
 protected:
   vtkGeneralizedKernel();
-  ~vtkGeneralizedKernel();
+  ~vtkGeneralizedKernel() VTK_OVERRIDE;
 
   int KernelFootprint;
   double Radius;

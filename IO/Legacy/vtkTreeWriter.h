@@ -35,7 +35,7 @@ class VTKIOLEGACY_EXPORT vtkTreeWriter : public vtkDataWriter
 public:
   static vtkTreeWriter *New();
   vtkTypeMacro(vtkTreeWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -47,11 +47,11 @@ public:
 
 protected:
   vtkTreeWriter() {}
-  ~vtkTreeWriter() {}
+  ~vtkTreeWriter() VTK_OVERRIDE {}
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkTreeWriter(const vtkTreeWriter&) VTK_DELETE_FUNCTION;

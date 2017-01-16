@@ -55,7 +55,7 @@ public:
   static vtkTransferAttributes *New();
 
   vtkTypeMacro(vtkTransferAttributes,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -114,11 +114,11 @@ public:
   /**
    * Set the input type of the algorithm to vtkGraph.
    */
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 protected:
   vtkTransferAttributes();
-  ~vtkTransferAttributes();
+  ~vtkTransferAttributes() VTK_OVERRIDE;
 
   bool DirectMapping;
   char* SourceArrayName;
@@ -131,7 +131,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkTransferAttributes(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;

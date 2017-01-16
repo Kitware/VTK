@@ -45,7 +45,7 @@ class VTKCHARTSCORE_EXPORT vtkChart : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChart, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Enum of the available chart types
@@ -90,7 +90,7 @@ public:
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter) = 0;
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE = 0;
 
   /**
    * Add a plot to the chart, defaults to using the name of the y column
@@ -365,7 +365,7 @@ public:
 
 protected:
   vtkChart();
-  ~vtkChart();
+  ~vtkChart() VTK_OVERRIDE;
 
   /**
    * Given the x and y vtkAxis, and a transform, calculate the transform that

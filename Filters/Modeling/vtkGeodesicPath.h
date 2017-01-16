@@ -37,14 +37,14 @@ public:
    * Standard methids for printing and determining type information.
    */
   vtkTypeMacro(vtkGeodesicPath,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkGeodesicPath();
-  ~vtkGeodesicPath();
+  ~vtkGeodesicPath() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkGeodesicPath(const vtkGeodesicPath&) VTK_DELETE_FUNCTION;

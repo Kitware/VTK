@@ -34,7 +34,7 @@ class VTKIOGEOMETRY_EXPORT vtkUGFacetReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkUGFacetReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object to extract all parts, and with point merging
@@ -46,7 +46,7 @@ public:
    * Overload standard modified time function. If locator is modified,
    * then this object is modified as well.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -102,9 +102,9 @@ public:
 
 protected:
   vtkUGFacetReader();
-  ~vtkUGFacetReader();
+  ~vtkUGFacetReader() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   char *FileName;
   vtkShortArray *PartColors;

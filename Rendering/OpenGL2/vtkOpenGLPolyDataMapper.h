@@ -47,12 +47,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMap
 public:
   static vtkOpenGLPolyDataMapper* New();
   vtkTypeMacro(vtkOpenGLPolyDataMapper, vtkPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
+  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   //@{
   /**
@@ -68,7 +68,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   vtkGetMacro(PopulateSelectionSettings,int);
   void SetPopulateSelectionSettings(int v) { this->PopulateSelectionSettings = v; };
@@ -79,7 +79,7 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  virtual bool GetSupportsSelection() { return true; }
+  bool GetSupportsSelection() VTK_OVERRIDE { return true; }
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -91,7 +91,7 @@ public:
    * Overridden to use the actual data and ScalarMode to determine if we have
    * opaque geometry.
    */
-  virtual bool GetIsOpaque();
+  bool GetIsOpaque() VTK_OVERRIDE;
 
   // used by RenderPiece and functions it calls to reduce
   // calls to get the input and allow for rendering of
@@ -227,7 +227,7 @@ public:
 
 protected:
   vtkOpenGLPolyDataMapper();
-  ~vtkOpenGLPolyDataMapper();
+  ~vtkOpenGLPolyDataMapper() VTK_OVERRIDE;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
@@ -251,7 +251,7 @@ protected:
    * to be updated depending on whether this->Static is set or not. This method
    * simply obtains the bounds from the data-object and returns it.
    */
-  virtual void ComputeBounds();
+  void ComputeBounds() VTK_OVERRIDE;
 
   /**
    * Make sure appropriate shaders are defined, compiled and bound.  This method

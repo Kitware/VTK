@@ -41,7 +41,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedRows : public vtkTableAlgori
 public:
   static vtkExtractSelectedRows* New();
   vtkTypeMacro(vtkExtractSelectedRows,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * A convenience method for setting the second input (i.e. the selection).
@@ -56,7 +56,7 @@ public:
   /**
    * Specify the first vtkGraph input and the second vtkSelection input.
    */
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,12 +70,12 @@ public:
 
 protected:
   vtkExtractSelectedRows();
-  ~vtkExtractSelectedRows();
+  ~vtkExtractSelectedRows() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   bool AddOriginalRowIdsArray;
 private:

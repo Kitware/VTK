@@ -42,7 +42,7 @@ class VTKINFOVISCORE_EXPORT vtkEdgeCenters : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkEdgeCenters,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with vertex cell generation turned off.
@@ -60,10 +60,10 @@ public:
 
 protected:
   vtkEdgeCenters();
-  ~vtkEdgeCenters() {}
+  ~vtkEdgeCenters()VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int VertexCells;
 private:

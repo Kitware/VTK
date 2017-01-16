@@ -35,7 +35,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLPDataWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -90,12 +90,12 @@ public:
    * Overridden to handle passing the CONTINUE_EXECUTING() flags to the
    * executive.
    */
-  virtual int ProcessRequest(vtkInformation* request,
-    vtkInformationVector** inputVector, vtkInformationVector* outputVector);
+  int ProcessRequest(vtkInformation* request,
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 protected:
   vtkXMLPDataWriter();
-  ~vtkXMLPDataWriter();
+  ~vtkXMLPDataWriter() VTK_OVERRIDE;
 
   /**
    * Overridden to make appropriate piece request from upstream.
@@ -104,7 +104,7 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
   // Override writing method from superclass.
-  virtual int WriteInternal();
+  int WriteInternal() VTK_OVERRIDE;
 
   // Subclasses can override this method to collect information between ranks
   // before writing the summary file. This method is called on all ranks while
@@ -113,8 +113,8 @@ protected:
 
   virtual vtkXMLWriter* CreatePieceWriter(int index)=0;
 
-  virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
-  int WriteData();
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  int WriteData() VTK_OVERRIDE;
   virtual void WritePData(vtkIndent indent);
   virtual void WritePPieceAttributes(int index);
 

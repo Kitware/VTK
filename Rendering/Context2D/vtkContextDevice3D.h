@@ -42,7 +42,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice3D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice3D, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkContextDevice3D * New();
 
@@ -138,7 +138,7 @@ public:
 
 protected:
   vtkContextDevice3D();
-  ~vtkContextDevice3D();
+  ~vtkContextDevice3D() VTK_OVERRIDE;
 
 private:
   vtkContextDevice3D(const vtkContextDevice3D &) VTK_DELETE_FUNCTION;

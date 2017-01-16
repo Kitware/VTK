@@ -101,7 +101,7 @@ class VTKFILTERSHYBRID_EXPORT vtkImplicitModeller : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkImplicitModeller,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with sample dimensions=(50,50,50), and so that model bounds are
@@ -282,19 +282,19 @@ public:
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*);
+                     vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkImplicitModeller();
-  ~vtkImplicitModeller();
+  ~vtkImplicitModeller() VTK_OVERRIDE;
 
   double GetScalarTypeMax(int type);
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData (vtkInformation *,
-                           vtkInformationVector **, vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData (vtkInformation *,
+                           vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   void StartAppend(int internal);
   void Cap(vtkDataArray *s);
@@ -321,7 +321,7 @@ protected:
   // the max distance computed during that one call
   double InternalMaxDistance;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkImplicitModeller(const vtkImplicitModeller&) VTK_DELETE_FUNCTION;

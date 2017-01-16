@@ -38,7 +38,7 @@ public:
   static vtkThreadedSynchronizedTemplatesCutter3D *New();
 
   vtkTypeMacro(vtkThreadedSynchronizedTemplatesCutter3D,vtkThreadedSynchronizedTemplates3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Needed by templated functions.
@@ -67,20 +67,20 @@ public:
    * Override GetMTime because we delegate to vtkContourValues and refer to
    * vtkImplicitFunction.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkThreadedSynchronizedTemplatesCutter3D();
-  ~vtkThreadedSynchronizedTemplatesCutter3D();
+  ~vtkThreadedSynchronizedTemplatesCutter3D() VTK_OVERRIDE;
 
   vtkImplicitFunction *CutFunction;
   int OutputPointsPrecision;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 private:
   vtkThreadedSynchronizedTemplatesCutter3D(const vtkThreadedSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkThreadedSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;

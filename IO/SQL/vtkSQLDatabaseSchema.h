@@ -62,7 +62,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
 {
  public:
   vtkTypeMacro(vtkSQLDatabaseSchema, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkSQLDatabaseSchema* New();
 
   /**
@@ -431,7 +431,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
 
  protected:
   vtkSQLDatabaseSchema();
-  ~vtkSQLDatabaseSchema();
+  ~vtkSQLDatabaseSchema() VTK_OVERRIDE;
 
   char* Name;
 

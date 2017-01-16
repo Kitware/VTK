@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPolyDataReader,vtkXMLUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLPolyDataReader *New();
 
   //@{
@@ -61,28 +61,28 @@ public:
 
 protected:
   vtkXMLPolyDataReader();
-  ~vtkXMLPolyDataReader();
+  ~vtkXMLPolyDataReader() VTK_OVERRIDE;
 
-  const char* GetDataSetName();
-  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
-  void SetupOutputTotals();
-  void SetupNextPiece();
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
+  const char* GetDataSetName() VTK_OVERRIDE;
+  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel) VTK_OVERRIDE;
+  void SetupOutputTotals() VTK_OVERRIDE;
+  void SetupNextPiece() VTK_OVERRIDE;
+  void SetupPieces(int numPieces) VTK_OVERRIDE;
+  void DestroyPieces() VTK_OVERRIDE;
 
-  void SetupOutputData();
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData();
+  void SetupOutputData() VTK_OVERRIDE;
+  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
+  int ReadPieceData() VTK_OVERRIDE;
 
   // Read a data array whose tuples coorrespond to cells.
-  virtual int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray);
+  int ReadArrayForCells(vtkXMLDataElement* da,
+    vtkAbstractArray* outArray) VTK_OVERRIDE;
 
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.
-  virtual vtkIdType GetNumberOfCellsInPiece(int piece);
+  vtkIdType GetNumberOfCellsInPiece(int piece) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   // The size of the UpdatePiece.
   int TotalNumberOfVerts;

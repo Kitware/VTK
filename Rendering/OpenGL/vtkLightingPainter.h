@@ -29,11 +29,11 @@ class VTKRENDERINGOPENGL_EXPORT vtkLightingPainter : public vtkPolyDataPainter
 public:
   static vtkLightingPainter* New();
   vtkTypeMacro(vtkLightingPainter, vtkPolyDataPainter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkLightingPainter();
-  ~vtkLightingPainter();
+  ~vtkLightingPainter() VTK_OVERRIDE;
 
 private:
   vtkLightingPainter(const vtkLightingPainter&) VTK_DELETE_FUNCTION;

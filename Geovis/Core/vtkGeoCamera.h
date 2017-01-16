@@ -85,7 +85,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoCamera : public vtkObject
 public:
   static vtkGeoCamera *New();
   vtkTypeMacro(vtkGeoCamera, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -204,7 +204,7 @@ public:
 
 protected:
   vtkGeoCamera();
-  ~vtkGeoCamera();
+  ~vtkGeoCamera() VTK_OVERRIDE;
 
   void UpdateVTKCamera();
   void UpdateAngleRanges();

@@ -47,7 +47,7 @@ class VTKINFOVISCORE_EXPORT vtkStringToCategory : public vtkDataObjectAlgorithm
 public:
   static vtkStringToCategory* New();
   vtkTypeMacro(vtkStringToCategory,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -60,27 +60,27 @@ public:
   /**
    * This is required to capture REQUEST_DATA_OBJECT requests.
    */
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 protected:
   vtkStringToCategory();
-  ~vtkStringToCategory();
+  ~vtkStringToCategory() VTK_OVERRIDE;
 
   /**
    * Creates the same output type as the input type.
    */
-  virtual int RequestDataObject(vtkInformation* request,
+  int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   char *CategoryArrayName;
 

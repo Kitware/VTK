@@ -41,7 +41,7 @@ class VTKIOAMR_EXPORT vtkAMREnzoParticlesReader :
 public:
   static vtkAMREnzoParticlesReader* New();
   vtkTypeMacro( vtkAMREnzoParticlesReader, vtkAMRBaseParticlesReader );
-  void PrintSelf(ostream &os, vtkIndent indent );
+  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,11 +54,11 @@ public:
   /**
    * See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.
    */
-  int GetTotalNumberOfParticles();
+  int GetTotalNumberOfParticles() VTK_OVERRIDE;
 
 protected:
   vtkAMREnzoParticlesReader();
-  virtual ~vtkAMREnzoParticlesReader();
+  ~vtkAMREnzoParticlesReader() VTK_OVERRIDE;
 
   /**
    * Read the particles from the given particles file for the block
@@ -69,12 +69,12 @@ protected:
   /**
    * See vtkAMRBaseParticlesReader::ReadMetaData()
    */
-  void ReadMetaData();
+  void ReadMetaData() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseParticlesReader::SetupParticleDataSelections
    */
-  void SetupParticleDataSelections();
+  void SetupParticleDataSelections() VTK_OVERRIDE;
 
   /**
    * Filter's by particle type, iff particle_type is included in
@@ -90,7 +90,7 @@ protected:
   /**
    * Reads the particles.
    */
-  vtkPolyData* ReadParticles( const int blkidx );
+  vtkPolyData* ReadParticles( const int blkidx ) VTK_OVERRIDE;
 
   int ParticleType;
 

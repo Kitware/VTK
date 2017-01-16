@@ -43,20 +43,20 @@ class VTKGEOVISCORE_EXPORT vtkGeoFileImageSource : public vtkGeoSource
 public:
   static vtkGeoFileImageSource *New();
   vtkTypeMacro(vtkGeoFileImageSource,vtkGeoSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkGeoFileImageSource();
-  ~vtkGeoFileImageSource();
+  ~vtkGeoFileImageSource() VTK_OVERRIDE;
 
   /**
    * Fetches the root image representing the whole globe.
    */
-  virtual bool FetchRoot(vtkGeoTreeNode* root);
+  bool FetchRoot(vtkGeoTreeNode* root) VTK_OVERRIDE;
 
   /**
    * Fetches the child image of a parent from disk.
    */
-  virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
+  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) VTK_OVERRIDE;
 
   //@{
   /**

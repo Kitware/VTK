@@ -36,7 +36,7 @@ public:
   static vtkImageCanvasSource2D *New();
 
   vtkTypeMacro(vtkImageCanvasSource2D,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -173,7 +173,7 @@ protected:
   // Destructor: Deleting a vtkImageCanvasSource2D automatically deletes the
   // associated vtkImageData.  However, since the data is reference counted,
   // it may not actually be deleted.
-  ~vtkImageCanvasSource2D();
+  ~vtkImageCanvasSource2D() VTK_OVERRIDE;
 
   vtkImageData *ImageData;
   int WholeExtent[6];
@@ -183,12 +183,12 @@ protected:
 
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector**,
-                                  vtkInformationVector *);
-  virtual int RequestData (vtkInformation *,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData (vtkInformation *,
                            vtkInformationVector**,
-                           vtkInformationVector *);
+                           vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkImageCanvasSource2D(const vtkImageCanvasSource2D&) VTK_DELETE_FUNCTION;

@@ -38,7 +38,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextMapper2D : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkContextMapper2D, vtkAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkContextMapper2D *New();
 
   //@{
@@ -66,12 +66,12 @@ public:
 
 protected:
   vtkContextMapper2D();
-  ~vtkContextMapper2D();
+  ~vtkContextMapper2D() VTK_OVERRIDE;
 
   /**
    * Specify the types of input we can handle.
    */
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkContextMapper2D(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;

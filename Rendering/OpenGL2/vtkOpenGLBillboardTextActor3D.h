@@ -33,11 +33,11 @@ public:
   vtkTypeMacro(vtkOpenGLBillboardTextActor3D, vtkBillboardTextActor3D)
   void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *vp);
+  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLBillboardTextActor3D();
-  ~vtkOpenGLBillboardTextActor3D();
+  ~vtkOpenGLBillboardTextActor3D() VTK_OVERRIDE;
 
   int RenderGL2PS(vtkViewport *viewport, vtkOpenGLGL2PSHelper *gl2ps);
 

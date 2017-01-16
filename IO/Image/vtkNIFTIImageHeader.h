@@ -398,7 +398,7 @@ public:
 
 protected:
   vtkNIFTIImageHeader();
-  ~vtkNIFTIImageHeader();
+  ~vtkNIFTIImageHeader() VTK_OVERRIDE;
 
   char Magic[12];
   vtkTypeInt64 VoxOffset;

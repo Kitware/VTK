@@ -60,17 +60,17 @@ protected:
     this->FileName = NULL;
   }
 
-  ~vtkIVWriter()
+  ~vtkIVWriter() VTK_OVERRIDE
   {
     delete[] this->FileName;
   }
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
   void WritePolyData(vtkPolyData *polyData, FILE *fp);
 
   char *FileName;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkIVWriter(const vtkIVWriter&) VTK_DELETE_FUNCTION;

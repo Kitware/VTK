@@ -39,11 +39,11 @@ class VTKFILTERSPARALLEL_EXPORT vtkTransmitStructuredGridPiece : public vtkTrans
 public:
   static vtkTransmitStructuredGridPiece *New();
   vtkTypeMacro(vtkTransmitStructuredGridPiece, vtkTransmitStructuredDataPiece);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTransmitStructuredGridPiece();
-  ~vtkTransmitStructuredGridPiece();
+  ~vtkTransmitStructuredGridPiece() VTK_OVERRIDE;
 
 private:
   vtkTransmitStructuredGridPiece(const vtkTransmitStructuredGridPiece&) VTK_DELETE_FUNCTION;

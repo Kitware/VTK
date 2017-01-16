@@ -33,7 +33,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkSphericalDirectionEncoder : public vtkDirecti
 {
 public:
   vtkTypeMacro(vtkSphericalDirectionEncoder,vtkDirectionEncoder);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * Construct the object. Initialize the index table which will be
@@ -46,17 +46,17 @@ public:
   /**
    * Given a normal vector n, return the encoded direction
    */
-  int GetEncodedDirection( float n[3] );
+  int GetEncodedDirection( float n[3] ) VTK_OVERRIDE;
 
   /**
    * / Given an encoded value, return a pointer to the normal vector
    */
-  float *GetDecodedGradient( int value );
+  float *GetDecodedGradient( int value ) VTK_OVERRIDE;
 
   /**
    * Return the number of encoded directions
    */
-  int GetNumberOfEncodedDirections( void ) { return 65536; }
+  int GetNumberOfEncodedDirections( void )VTK_OVERRIDE { return 65536; }
 
   /**
    * Get the decoded gradient table. There are
@@ -64,7 +64,7 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  float *GetDecodedGradientTable( void )
+  float *GetDecodedGradientTable( void ) VTK_OVERRIDE
   {
       return &(this->DecodedGradientTable[0]);
   }
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkSphericalDirectionEncoder();
-  ~vtkSphericalDirectionEncoder();
+  ~vtkSphericalDirectionEncoder() VTK_OVERRIDE;
 
   static float DecodedGradientTable[65536*3];
 

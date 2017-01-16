@@ -51,7 +51,7 @@ class VTKVIEWSCORE_EXPORT vtkRenderViewBase : public vtkView
 public:
   static vtkRenderViewBase* New();
   vtkTypeMacro(vtkRenderViewBase, vtkView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Gets the renderer for this view.
@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkRenderViewBase();
-  ~vtkRenderViewBase();
+  ~vtkRenderViewBase() VTK_OVERRIDE;
 
   /**
    * Called by the view when the renderer is about to render.

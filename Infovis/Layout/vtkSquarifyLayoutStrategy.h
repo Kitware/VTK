@@ -47,7 +47,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayou
 public:
   static vtkSquarifyLayoutStrategy *New();
   vtkTypeMacro(vtkSquarifyLayoutStrategy,vtkTreeMapLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the layout of a tree and place the results as 4-tuples in
@@ -56,11 +56,11 @@ public:
   void Layout(
       vtkTree* inputTree,
       vtkDataArray* coordsArray,
-      vtkDataArray* sizeArray);
+      vtkDataArray* sizeArray) VTK_OVERRIDE;
 
 protected:
   vtkSquarifyLayoutStrategy();
-  ~vtkSquarifyLayoutStrategy();
+  ~vtkSquarifyLayoutStrategy() VTK_OVERRIDE;
 
 private:
 

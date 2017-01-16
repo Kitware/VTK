@@ -67,7 +67,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkShaderProgram2 : public vtkObject
 public:
   static vtkShaderProgram2* New();
   vtkTypeMacro(vtkShaderProgram2, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Returns if the context supports the required extensions.
@@ -419,7 +419,7 @@ public:
 
 protected:
   vtkShaderProgram2();
-  virtual ~vtkShaderProgram2();
+  ~vtkShaderProgram2() VTK_OVERRIDE;
 
   /**
    * Load the required OpenGL extentions.

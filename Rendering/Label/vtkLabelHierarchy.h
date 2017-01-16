@@ -80,12 +80,12 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchy : public vtkPointSet
 public:
   static vtkLabelHierarchy* New();
   vtkTypeMacro(vtkLabelHierarchy,vtkPointSet);
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * Override SetPoints so we can reset the hierarchy when the points change.
    */
-  virtual void SetPoints( vtkPoints* );
+  void SetPoints( vtkPoints* ) VTK_OVERRIDE;
 
   /**
    * Fill the hierarchy with the input labels.
@@ -217,15 +217,15 @@ public:
   /**
    * Inherited members (from vtkDataSet)
    */
-  virtual vtkIdType GetNumberOfCells();
-  virtual vtkCell* GetCell(vtkIdType);
-  virtual void GetCell(vtkIdType, vtkGenericCell*);
-  virtual int GetCellType(vtkIdType);
-  virtual void GetCellPoints(vtkIdType, vtkIdList*);
-  virtual void GetPointCells(vtkIdType, vtkIdList*);
-  virtual vtkIdType FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*);
-  virtual vtkIdType FindCell(double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*);
-  virtual int GetMaxCellSize();
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkCell* GetCell(vtkIdType) VTK_OVERRIDE;
+  void GetCell(vtkIdType, vtkGenericCell*) VTK_OVERRIDE;
+  int GetCellType(vtkIdType) VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType, vtkIdList*) VTK_OVERRIDE;
+  void GetPointCells(vtkIdType, vtkIdList*) VTK_OVERRIDE;
+  vtkIdType FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*) VTK_OVERRIDE;
+  vtkIdType FindCell(double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*) VTK_OVERRIDE;
+  int GetMaxCellSize() VTK_OVERRIDE;
   //@}
 
   class Implementation;
@@ -249,7 +249,7 @@ public:
 
 protected:
   vtkLabelHierarchy();
-  virtual ~vtkLabelHierarchy();
+  ~vtkLabelHierarchy() VTK_OVERRIDE;
 
   int TargetLabelCount;
   int MaximumDepth;

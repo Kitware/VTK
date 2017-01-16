@@ -502,7 +502,7 @@ public:
   typedef ArrayT LabelArrayType;
   typedef typename ArrayT::ValueType LabelType;
 
-  ~vtkFoamLabelVectorVectorImpl()
+  ~vtkFoamLabelVectorVectorImpl() VTK_OVERRIDE
   {
     this->Indices->Delete();
     this->Body->Delete();
@@ -544,7 +544,7 @@ public:
     this->Body->SetNumberOfValues(bodyLength);
   }
 
-  virtual size_t GetLabelSize() const
+  size_t GetLabelSize() const VTK_OVERRIDE
   {
     return sizeof(LabelType);
   }
@@ -552,43 +552,43 @@ public:
   // note that vtkIntArray::Resize() allocates (current size + new
   // size) bytes if current size < new size until 2010-06-27
   // cf. commit c869c3d5875f503e757b64f2fd1ec349aee859bf
-  virtual void ResizeBody(vtkIdType bodyLength)
+  void ResizeBody(vtkIdType bodyLength) VTK_OVERRIDE
   {
     this->Body->Resize(bodyLength);
   }
 
-  virtual void* WritePointer(vtkIdType i, vtkIdType bodyI, vtkIdType number)
+  void* WritePointer(vtkIdType i, vtkIdType bodyI, vtkIdType number) VTK_OVERRIDE
   {
     return this->Body->WritePointer(*this->Indices->GetPointer(i) = bodyI,
                                     number);
   }
 
-  virtual void SetIndex(vtkIdType i, vtkIdType bodyI)
+  void SetIndex(vtkIdType i, vtkIdType bodyI) VTK_OVERRIDE
   {
     this->Indices->SetValue(i, static_cast<LabelType>(bodyI));
   }
 
-  virtual void SetValue(vtkIdType bodyI, vtkTypeInt64 value)
+  void SetValue(vtkIdType bodyI, vtkTypeInt64 value) VTK_OVERRIDE
   {
     this->Body->SetValue(bodyI, static_cast<LabelType>(value));
   }
 
-  virtual void InsertValue(vtkIdType bodyI, vtkTypeInt64 value)
+  void InsertValue(vtkIdType bodyI, vtkTypeInt64 value) VTK_OVERRIDE
   {
     this->Body->InsertValue(bodyI, value);
   }
 
-  virtual const void* operator[](vtkIdType i) const
+  const void* operator[](vtkIdType i) const VTK_OVERRIDE
   {
     return this->Body->GetPointer(this->Indices->GetValue(i));
   }
 
-  virtual vtkIdType GetSize(vtkIdType i) const
+  vtkIdType GetSize(vtkIdType i) const VTK_OVERRIDE
   {
     return this->Indices->GetValue(i + 1) - this->Indices->GetValue(i);
   }
 
-  virtual void GetCell(vtkIdType cellId, CellType &cell) const
+  void GetCell(vtkIdType cellId, CellType &cell) const VTK_OVERRIDE
   {
     LabelType cellStart = this->Indices->GetValue(cellId);
     LabelType cellSize = this->Indices->GetValue(cellId + 1) - cellStart;
@@ -599,7 +599,7 @@ public:
     }
   }
 
-  virtual void SetCell(vtkIdType cellId, const CellType &cell)
+  void SetCell(vtkIdType cellId, const CellType &cell) VTK_OVERRIDE
   {
     LabelType cellStart = this->Indices->GetValue(cellId);
     LabelType cellSize = this->Indices->GetValue(cellId + 1) - cellStart;
@@ -609,17 +609,17 @@ public:
     }
   }
 
-  virtual vtkIdType GetNumberOfElements() const
+  vtkIdType GetNumberOfElements() const VTK_OVERRIDE
   {
     return this->Indices->GetNumberOfTuples() - 1;
   }
 
-  virtual vtkDataArray* GetIndices()
+  vtkDataArray* GetIndices() VTK_OVERRIDE
   {
     return this->Indices;
   }
 
-  virtual vtkDataArray* GetBody()
+  vtkDataArray* GetBody() VTK_OVERRIDE
   {
     return this->Body;
   }

@@ -58,7 +58,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
 
 protected:
   vtkLightCollection() {}
-  ~vtkLightCollection() {}
+  ~vtkLightCollection() VTK_OVERRIDE {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

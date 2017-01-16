@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkCompositeDataDisplayAttributes : public vtkObje
 public:
   static vtkCompositeDataDisplayAttributes* New();
   vtkTypeMacro(vtkCompositeDataDisplayAttributes, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Returns true if any block has any block visibility is set.
@@ -138,7 +138,7 @@ public:
 
 protected:
   vtkCompositeDataDisplayAttributes();
-  ~vtkCompositeDataDisplayAttributes();
+  ~vtkCompositeDataDisplayAttributes() VTK_OVERRIDE;
 
 private:
   vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&) VTK_DELETE_FUNCTION;

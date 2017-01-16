@@ -42,7 +42,7 @@ public:
    */
   static vtkImageDilateErode3D *New();
   vtkTypeMacro(vtkImageDilateErode3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkImageDilateErode3D();
-  ~vtkImageDilateErode3D();
+  ~vtkImageDilateErode3D() VTK_OVERRIDE;
 
   vtkImageEllipsoidSource *Ellipse;
   double DilateValue;
@@ -74,10 +74,10 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
-  virtual int RequestData(vtkInformation *request,
+                           int extent[6], int id) VTK_OVERRIDE;
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
 private:
   vtkImageDilateErode3D(const vtkImageDilateErode3D&) VTK_DELETE_FUNCTION;

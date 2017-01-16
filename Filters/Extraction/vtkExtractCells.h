@@ -41,7 +41,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractCells : public vtkUnstructuredGridAl
 {
 public:
   vtkTypeMacro(vtkExtractCells, vtkUnstructuredGridAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkExtractCells *New();
 
@@ -69,11 +69,11 @@ public:
 
 protected:
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkExtractCells();
-  ~vtkExtractCells();
+  ~vtkExtractCells() VTK_OVERRIDE;
 
 private:
 

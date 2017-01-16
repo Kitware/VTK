@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkOpenGLShaderCache();
-  ~vtkOpenGLShaderCache();
+  ~vtkOpenGLShaderCache() VTK_OVERRIDE;
 
   // perform System and Output replacments in place. Returns
   // the number of outputs

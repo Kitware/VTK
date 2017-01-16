@@ -36,31 +36,31 @@ public:
   /**
    * Implement base class method.
    */
-  void Render(vtkActor *a, vtkRenderer *ren);
+  void Render(vtkActor *a, vtkRenderer *ren) VTK_OVERRIDE;
 
   /**
    * Implement base class method.
    */
-  void BackfaceRender(vtkActor *a, vtkRenderer *ren);
+  void BackfaceRender(vtkActor *a, vtkRenderer *ren) VTK_OVERRIDE;
 
   /**
    * This method is called after the actor has been rendered.
    * Don't call this directly. This method cleans up
    * any shaders allocated.
    */
-  virtual void PostRender(vtkActor *a,
-                          vtkRenderer *r);
+  void PostRender(vtkActor *a,
+                          vtkRenderer *r) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this
    * property. The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLProperty();
-  ~vtkOpenGLProperty();
+  ~vtkOpenGLProperty() VTK_OVERRIDE;
 
   /**
    * Method called in vtkOpenGLProperty::Render() to render textures.

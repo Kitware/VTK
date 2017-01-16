@@ -84,7 +84,7 @@ class VTKRENDERINGCORE_EXPORT vtkPickingManager : public vtkObject
 public:
   static vtkPickingManager *New();
   vtkTypeMacro(vtkPickingManager,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -190,7 +190,7 @@ public:
 
 protected:
   vtkPickingManager();
-  ~vtkPickingManager();
+  ~vtkPickingManager() VTK_OVERRIDE;
 
   // Used to associate the manager with the interactor
   vtkRenderWindowInteractor* Interactor;

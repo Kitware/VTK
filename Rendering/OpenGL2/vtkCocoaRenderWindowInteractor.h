@@ -49,12 +49,12 @@ public:
   static vtkCocoaRenderWindowInteractor *New();
 
   vtkTypeMacro(vtkCocoaRenderWindowInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Initialize the even handler
    */
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   //@{
   /**
@@ -66,8 +66,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  virtual void Enable();
-  virtual void Disable();
+  void Enable() VTK_OVERRIDE;
+  void Disable() VTK_OVERRIDE;
   //@}
 
   /**
@@ -75,7 +75,7 @@ public:
    * calls PostQuitMessage(0) to terminate app. An application can Specify
    * ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
    */
-  void TerminateApp();
+  void TerminateApp() VTK_OVERRIDE;
 
   //@{
   /**
@@ -92,14 +92,14 @@ public:
    * These methods correspond to the the Exit, User and Pick
    * callbacks. They allow for the Style to invoke them.
    */
-  virtual void ExitCallback();
+  void ExitCallback() VTK_OVERRIDE;
 
 //  int GetButtonDown();
 //  void SetButtonDown(int button);
 
 protected:
   vtkCocoaRenderWindowInteractor();
-  ~vtkCocoaRenderWindowInteractor();
+  ~vtkCocoaRenderWindowInteractor() VTK_OVERRIDE;
 
   /**
    * Accessors for the Cocoa member variables. These should be used at all time, even
@@ -124,8 +124,8 @@ protected:
    * Cocoa-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
-  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
-  virtual int InternalDestroyTimer(int platformTimerId);
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
+  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
   //@}
 
   /**
@@ -133,7 +133,7 @@ protected:
    * call this method it will loop processing events until the
    * application is exited.
    */
-  virtual void StartEventLoop();
+  void StartEventLoop() VTK_OVERRIDE;
 
   //@{
   /**

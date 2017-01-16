@@ -47,12 +47,12 @@ public:
 
   bool SetLastDataSet(int level, int id);
 
-  virtual void SetLastCellId( vtkIdType c, int dataindex );
+  void SetLastCellId( vtkIdType c, int dataindex ) VTK_OVERRIDE;
 
   /**
    * Set the cell id cached by the last evaluation.
    */
-  virtual void SetLastCellId( vtkIdType c )
+  void SetLastCellId( vtkIdType c ) VTK_OVERRIDE
     { this->Superclass::SetLastCellId( c ); }
 
   /**
@@ -66,9 +66,9 @@ public:
    * still valid
    */
 
-  virtual int FunctionValues( double * x, double * f );
+  int FunctionValues( double * x, double * f ) VTK_OVERRIDE;
 
-  void PrintSelf( ostream & os, vtkIndent indent );
+  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
 
   // Descriptino:
   // Point location routine.
@@ -80,8 +80,8 @@ protected:
   int LastId;
 
   vtkAMRInterpolatedVelocityField();
-  ~vtkAMRInterpolatedVelocityField();
-  virtual int FunctionValues( vtkDataSet * ds, double * x, double * f )
+  ~vtkAMRInterpolatedVelocityField() VTK_OVERRIDE;
+  int FunctionValues( vtkDataSet * ds, double * x, double * f ) VTK_OVERRIDE
     { return this->Superclass::FunctionValues( ds, x, f ); }
 
 private:

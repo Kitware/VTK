@@ -105,7 +105,7 @@ public:
    */
   static vtkExtractSurface *New();
   vtkTypeMacro(vtkExtractSurface,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -157,18 +157,18 @@ public:
 
 protected:
   vtkExtractSurface();
-  ~vtkExtractSurface();
+  ~vtkExtractSurface() VTK_OVERRIDE;
 
   double Radius;
   bool HoleFilling;
   int ComputeNormals;
   int ComputeGradients;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkExtractSurface(const vtkExtractSurface&) VTK_DELETE_FUNCTION;

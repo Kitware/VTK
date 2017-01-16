@@ -49,7 +49,7 @@ class VTKIOINFOVIS_EXPORT vtkPhyloXMLTreeReader : public vtkXMLReader
 public:
   static vtkPhyloXMLTreeReader *New();
   vtkTypeMacro(vtkPhyloXMLTreeReader,vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -61,12 +61,12 @@ public:
 
 protected:
   vtkPhyloXMLTreeReader();
-  ~vtkPhyloXMLTreeReader();
+  ~vtkPhyloXMLTreeReader() VTK_OVERRIDE;
 
   /**
    * Read the input PhyloXML and populate our output vtkTree.
    */
-  virtual void ReadXMLData();
+  void ReadXMLData() VTK_OVERRIDE;
 
   /**
    * Read one particular XML element.  This method calls the more specific
@@ -157,10 +157,10 @@ protected:
    */
   std::string GetStringAfterColon(const char *input);
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
-  virtual const char* GetDataSetName();
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  const char* GetDataSetName() VTK_OVERRIDE;
   void SetOutput(vtkTree *output);
-  virtual void SetupEmptyOutput();
+  void SetupEmptyOutput() VTK_OVERRIDE;
 
 private:
   vtkIdType NumberOfNodes;

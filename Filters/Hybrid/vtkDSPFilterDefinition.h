@@ -41,13 +41,13 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
 {
  public:
   vtkTypeMacro(vtkDSPFilterDefinition, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkDSPFilterDefinition *New();
 
  protected:
   vtkDSPFilterDefinition();
   vtkDSPFilterDefinition(vtkDSPFilterDefinition *other);
-  ~vtkDSPFilterDefinition();
+  ~vtkDSPFilterDefinition() VTK_OVERRIDE;
 
  public:
   void Copy(vtkDSPFilterDefinition *other);

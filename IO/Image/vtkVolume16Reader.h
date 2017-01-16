@@ -62,7 +62,7 @@ class VTKIOIMAGE_EXPORT vtkVolume16Reader : public vtkVolumeReader
 {
 public:
   vtkTypeMacro(vtkVolume16Reader,vtkVolumeReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with NULL file prefix; file pattern "%s.%d"; image range
@@ -139,14 +139,14 @@ public:
   /**
    * Other objects make use of these methods
    */
-  vtkImageData *GetImage(int ImageNumber);
+  vtkImageData *GetImage(int ImageNumber) VTK_OVERRIDE;
 
 protected:
   vtkVolume16Reader();
-  ~vtkVolume16Reader();
+  ~vtkVolume16Reader() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int   DataDimensions[2];
   unsigned short DataMask;
   int   SwapBytes;

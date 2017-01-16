@@ -80,7 +80,7 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
   };
 
 public:
-  void PrintSelf (ostream&, vtkIndent);
+  void PrintSelf (ostream&, vtkIndent) VTK_OVERRIDE;
   vtkTypeMacro(vtkCellQuality, vtkDataSetAlgorithm);
   static vtkCellQuality* New ();
 
@@ -243,7 +243,7 @@ public:
   double PolygonArea (vtkCell*);
 
 protected:
- ~vtkCellQuality ();
+ ~vtkCellQuality () VTK_OVERRIDE;
   vtkCellQuality ();
 
   /**
@@ -356,8 +356,8 @@ protected:
    */
   double ComputePixelQuality (vtkCell*);
 
-  virtual int RequestData
-    (vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  int RequestData
+    (vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
   //@{
   /**

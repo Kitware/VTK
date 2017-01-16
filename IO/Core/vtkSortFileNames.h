@@ -44,7 +44,7 @@ class VTKIOCORE_EXPORT vtkSortFileNames : public vtkObject
 public:
 
   vtkTypeMacro(vtkSortFileNames,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkSortFileNames *New();
 
   //@{
@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkSortFileNames();
-  ~vtkSortFileNames();
+  ~vtkSortFileNames() VTK_OVERRIDE;
 
   int NumericSort;
   int IgnoreCase;

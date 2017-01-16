@@ -49,7 +49,7 @@ class VTKINFOVISCORE_EXPORT vtkTableToArray : public vtkArrayDataAlgorithm
 public:
   static vtkTableToArray* New();
   vtkTypeMacro(vtkTableToArray, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Reset the list of input table columns that will be mapped to columns
@@ -73,14 +73,14 @@ public:
 
 protected:
   vtkTableToArray();
-  ~vtkTableToArray();
+  ~vtkTableToArray() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkTableToArray(const vtkTableToArray&) VTK_DELETE_FUNCTION;

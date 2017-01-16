@@ -35,7 +35,7 @@ class VTKFILTERSMODELING_EXPORT vtkSectorSource : public vtkPolyDataAlgorithm
 public:
   static vtkSectorSource *New();
   vtkTypeMacro(vtkSectorSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -95,9 +95,9 @@ public:
 
 protected:
   vtkSectorSource();
-  ~vtkSectorSource() {}
+  ~vtkSectorSource() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   double InnerRadius;
   double OuterRadius;
   double ZCoord;

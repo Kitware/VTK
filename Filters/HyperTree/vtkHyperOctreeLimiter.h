@@ -52,11 +52,11 @@ public:
 
 protected:
   vtkHyperOctreeLimiter();
-  ~vtkHyperOctreeLimiter();
+  ~vtkHyperOctreeLimiter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkHyperOctree *Input;
   vtkHyperOctree *Output;

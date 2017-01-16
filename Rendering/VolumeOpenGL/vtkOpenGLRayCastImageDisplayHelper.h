@@ -48,7 +48,7 @@ public:
                       int imageInUseSize[2],
                       int imageOrigin[2],
                       float requestedDepth,
-                      unsigned char *image );
+                      unsigned char *image ) VTK_OVERRIDE;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       int imageMemorySize[2],
@@ -56,15 +56,15 @@ public:
                       int imageInUseSize[2],
                       int imageOrigin[2],
                       float requestedDepth,
-                      unsigned short *image );
+                      unsigned short *image ) VTK_OVERRIDE;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       vtkFixedPointRayCastImage *image,
-                      float requestedDepth );
+                      float requestedDepth ) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLRayCastImageDisplayHelper();
-  ~vtkOpenGLRayCastImageDisplayHelper();
+  ~vtkOpenGLRayCastImageDisplayHelper() VTK_OVERRIDE;
 
   void RenderTextureInternal( vtkVolume *vol, vtkRenderer *ren,
                               int imageMemorySize[2],

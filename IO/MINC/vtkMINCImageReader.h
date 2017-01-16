@@ -93,24 +93,24 @@ public:
   /**
    * Set the file name.
    */
-  virtual void SetFileName(const char *name);
+  void SetFileName(const char *name) VTK_OVERRIDE;
 
   /**
    * Get the entension for this file format.
    */
-  virtual const char* GetFileExtensions() {
+  const char* GetFileExtensions() VTK_OVERRIDE {
     return ".mnc"; }
 
   /**
    * Get the name of this file format.
    */
-  virtual const char* GetDescriptiveName() {
+  const char* GetDescriptiveName() VTK_OVERRIDE {
     return "MINC"; }
 
   /**
    * Test whether the specified file can be read.
    */
-  virtual int CanReadFile(const char* name);
+  int CanReadFile(const char* name) VTK_OVERRIDE;
 
   /**
    * Get a matrix that describes the orientation of the data.
@@ -174,7 +174,7 @@ public:
 
 protected:
   vtkMINCImageReader();
-  ~vtkMINCImageReader();
+  ~vtkMINCImageReader() VTK_OVERRIDE;
 
   int MINCImageType;
   int MINCImageTypeSigned;
@@ -200,8 +200,8 @@ protected:
   virtual void FindRangeAndRescaleValues();
   static int ConvertMINCTypeToVTKType(int minctype, int mincsigned);
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
+  void ExecuteInformation() VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) VTK_OVERRIDE;
 
 private:
   vtkMINCImageReader(const vtkMINCImageReader&) VTK_DELETE_FUNCTION;

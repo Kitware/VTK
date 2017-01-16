@@ -77,7 +77,7 @@ public:
   static vtkVRMLImporter *New();
 
   vtkTypeMacro(vtkVRMLImporter, vtkImporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -108,15 +108,15 @@ public:
 
 protected:
   vtkVRMLImporter();
-  ~vtkVRMLImporter();
+  ~vtkVRMLImporter() VTK_OVERRIDE;
 
   int OpenImportFile();
-  virtual int ImportBegin();
-  virtual void ImportEnd();
-  virtual void ImportActors(vtkRenderer*) {}
-  virtual void ImportCameras(vtkRenderer*) {}
-  virtual void ImportLights(vtkRenderer*) {}
-  virtual void ImportProperties(vtkRenderer*) {}
+  int ImportBegin() VTK_OVERRIDE;
+  void ImportEnd() VTK_OVERRIDE;
+  void ImportActors(vtkRenderer*) VTK_OVERRIDE {}
+  void ImportCameras(vtkRenderer*) VTK_OVERRIDE {}
+  void ImportLights(vtkRenderer*) VTK_OVERRIDE {}
+  void ImportProperties(vtkRenderer*) VTK_OVERRIDE {}
 
   //@{
   /**

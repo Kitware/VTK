@@ -40,7 +40,7 @@ class VTKIOIMAGE_EXPORT vtkImageReader : public vtkImageReader2
 public:
   static vtkImageReader *New();
   vtkTypeMacro(vtkImageReader,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -92,7 +92,7 @@ public:
 
 protected:
   vtkImageReader();
-  ~vtkImageReader();
+  ~vtkImageReader() VTK_OVERRIDE;
 
   vtkTypeUInt64 DataMask;
 
@@ -109,11 +109,11 @@ protected:
 
   char *ScalarArrayName;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) VTK_OVERRIDE;
 private:
   vtkImageReader(const vtkImageReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageReader&) VTK_DELETE_FUNCTION;

@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkImageReader2Collection() {}
-  ~vtkImageReader2Collection() {}
+  ~vtkImageReader2Collection() VTK_OVERRIDE {}
 
 
 private:

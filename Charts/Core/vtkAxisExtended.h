@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkAxisExtended();
-  ~vtkAxisExtended();
+  ~vtkAxisExtended() VTK_OVERRIDE;
 
   /**
    * This method implements an exhaustive search of the legibilty parameters.

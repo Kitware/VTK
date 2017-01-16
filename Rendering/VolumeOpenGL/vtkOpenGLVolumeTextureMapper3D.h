@@ -41,7 +41,7 @@ class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLVolumeTextureMapper3D
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeTextureMapper3D,vtkVolumeTextureMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkOpenGLVolumeTextureMapper3D *New();
 
@@ -51,14 +51,14 @@ public:
    * not support the required extensions
    */
   int IsRenderSupported(vtkVolumeProperty *,
-                        vtkRenderer *ren);
+                        vtkRenderer *ren) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol);
+  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
 
   // Desciption:
   // Initialize when we go to render, or go to answer the
@@ -71,11 +71,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLVolumeTextureMapper3D();
-  ~vtkOpenGLVolumeTextureMapper3D();
+  ~vtkOpenGLVolumeTextureMapper3D() VTK_OVERRIDE;
 
   void GetLightInformation(vtkRenderer *ren,
                            vtkVolume *vol,
@@ -148,7 +148,7 @@ protected:
    * Check if we can support this texture size for the number of components.
    */
   int IsTextureSizeSupported(int size[3],
-                             int components);
+                             int components) VTK_OVERRIDE;
 
   /**
    * Common code for setting up interpolation / clamping on 3D textures
