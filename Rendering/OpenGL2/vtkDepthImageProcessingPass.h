@@ -65,24 +65,6 @@ public:
   vtkTypeMacro(vtkDepthImageProcessingPass, vtkImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  /**
-   * Release graphics resources and ask components to release their own
-   * resources.
-   * \pre w_exists: w!=0
-   */
-  void ReleaseGraphicsResources(vtkWindow *w);
-
-  //@{
-  /**
-   * Delegate for rendering the image to be processed.
-   * If it is NULL, nothing will be rendered and a warning will be emitted.
-   * It is usually set to a vtkCameraPass or to a post-processing pass.
-   * Initial value is a NULL pointer.
-   */
-  vtkGetObjectMacro(DelegatePass,vtkRenderPass);
-  virtual void SetDelegatePass(vtkRenderPass *delegatePass);
-  //@}
-
  protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
@@ -119,7 +101,6 @@ public:
    */
   void ReadWindowSize(const vtkRenderState* s);
 
-  vtkRenderPass *DelegatePass;
   int    Width;       // parent window width
   int    Height;      // parent window height
   int    W;           // this width
