@@ -43,6 +43,8 @@ vtkImageWriter::vtkImageWriter()
 
   this->FileLowerLeft = 0;
 
+  this->WriteToMemory = 0;
+
   this->MinimumFileNumber = this->MaximumFileNumber = 0;
   this->FilesDeleted = 0;
   this->SetNumberOfOutputPorts(0);
@@ -76,6 +78,7 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
     (this->FilePattern ? this->FilePattern : "(none)") << "\n";
 
   os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
+  os << indent << "WriteToMemory: " << this->WriteToMemory << "\n";
 }
 
 
@@ -130,7 +133,10 @@ int vtkImageWriter::RequestData(
   // Write
   this->InvokeEvent(vtkCommand::StartEvent);
   this->UpdateProgress(0.0);
-  this->RecursiveWrite(2, input, inInfo, NULL);
+  if (!this->WriteToMemory)
+  {
+    this->RecursiveWrite(2, input, inInfo, NULL);
+  }
 
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {

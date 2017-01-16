@@ -38,7 +38,6 @@ vtkJPEGWriter::vtkJPEGWriter()
 
   this->Quality = 95;
   this->Progressive = 1;
-  this->WriteToMemory = 0;
   this->Result = 0;
   this->TempFP = 0;
 }
@@ -363,5 +362,4 @@ void vtkJPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Quality: " << this->Quality << "\n";
   os << indent << "Progressive: " << (this->Progressive ? "On" : "Off") << "\n";
   os << indent << "Result: " << this->Result << "\n";
-  os << indent << "WriteToMemory: " << (this->WriteToMemory ? "On" : "Off") << "\n";
 }
