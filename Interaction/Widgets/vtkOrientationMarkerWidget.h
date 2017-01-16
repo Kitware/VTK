@@ -153,7 +153,8 @@ public:
 
   //@{
   /**
-   * Need to reimplement this->Modified() because of the vtkSetVector4Macro/vtkGetVector4Macro use
+   * Need to reimplement this->Modified() because of the
+   * vtkSetVector4Macro/vtkGetVector4Macro use
    */
   void Modified();
   //@}
@@ -220,7 +221,14 @@ protected:
 
   void SquareRenderer();
   void UpdateOutline();
+
+  // Used to reverse compute the Viewport ivar with respect to the current
+  // renderer viewport
   void UpdateViewport();
+  // Used to compute and set the viewport on the internal renderer based on the
+  // Viewport ivar. The computed viewport will be with respect to the whole
+  // render window
+  void UpdateInternalViewport();
 
 private:
   vtkOrientationMarkerWidget(const vtkOrientationMarkerWidget&) VTK_DELETE_FUNCTION;
