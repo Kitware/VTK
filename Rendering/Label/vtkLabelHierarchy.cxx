@@ -525,7 +525,7 @@ public:
   {
   public:
     bool operator()(const vtkHierarchyNode & a,
-                    const vtkHierarchyNode & b)
+                    const vtkHierarchyNode & b) const
     {
       if (a.Level != b.Level)
       {
