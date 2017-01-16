@@ -27,6 +27,7 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
     TestRadiusOutlierRemoval.py
     TestSignedDistanceFilter.py
     TestStatisticalOutlierRemoval.py
+    TestUnsignedDistanceFilter.py
     TestVoxelGridFilter.py
     )
 endif ()
