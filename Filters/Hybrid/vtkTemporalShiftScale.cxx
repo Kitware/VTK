@@ -179,8 +179,61 @@ int vtkTemporalShiftScale::RequestInformation (
     this->PeriodicRange[1] = this->OutRange[1];
     if (this->Periodic)
     {
-        this->OutRange[1] = this->OutRange[0] +
-          (this->OutRange[1]-this->OutRange[0])*this->MaximumNumberOfPeriods;
+      // we need deltaTlast for the calculation of OutRange[1],
+      // because this will be 'MaximumNumberOfPeriods-1' periods after N-1,
+      // and not 'MaximumNumberOfPeriods' after 0 (==N), we get:
+      //      OutRange[1] = OutTime_(N-1) +
+      //                      range*(MaximumNumberOfPeriods-1)
+      //   => OutRange[1] = OutTime_0 + (range-deltaTlast) +
+      //                      range*(MaximumNumberOfPeriods-1)
+      //   => OutRange[1] = OutTime_0 +
+      //                      range*MaximumNumberOfPeriods -
+      //                      deltaTlast
+
+      // we can only calculate deltaTlast if TIME_STEPS() is available,
+      // otherwise nothing is changed
+      double deltaTlast = 0.0;
+      if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS())) {
+        int numTimes =
+          inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+        double *inTimes =
+          inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+        if (this->PeriodicEndCorrection) {
+          // PeriodicEndCorrection:
+          //   deltaTlast is known exactly in the case of an input where 0==N-1
+          //   it is the difference of the last two input time-steps
+          double lastT = this->ForwardConvert(inTimes[numTimes-1]);
+          double secondToLastT = this->ForwardConvert(inTimes[numTimes-2]);
+          deltaTlast = lastT - secondToLastT;
+        } else {
+          // no PeriodicEndCorrection:
+          //   in case of 0==N (N-1 is last input given),
+          //   deltaTlast can only be guessed (lastT not available)
+
+          // best guess is the average of the previous time-steps
+          // in case of non-uniform time-step-sizes we can never be sure
+          //   what the periodic time range is,
+          // the user in that case needs to repeat 0 as N and turn on
+          //   PeriodicEndCorrection
+          deltaTlast = (this->OutRange[1] - this->OutRange[0]) /
+            static_cast<double>(numTimes - 1);
+
+          // add a correction to PeriodicRange[1] so that it refers to
+          //   time-step N(==0), and not time-step N-1
+          // (in the PeriodicEndCorrection case it already refers
+          //   to the correct time-step)
+          this->PeriodicRange[1] += deltaTlast;
+        }
+      }
+
+      // the last time OutRange[1] is at the end of a cycle, and thus
+      //   deltaTlast before the cycle starts again. So we need to deduct
+      //   deltaTlast from a multiple of the periodic range
+      this->OutRange[1] = this->OutRange[0] +
+        (this->PeriodicRange[1]-this->PeriodicRange[0])*
+          this->MaximumNumberOfPeriods -
+        deltaTlast;
     }
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
       this->OutRange,2);
@@ -218,6 +271,8 @@ int vtkTemporalShiftScale::RequestInformation (
       {
         outTimes[i] = outTimes[o] + m*range;
       }
+      // this is redundant, what should we do with it?
+      // what was the original author's intent?
       else if (!this->PeriodicEndCorrection)
       {
         outTimes[i] = outTimes[o] + m*range;
@@ -251,6 +306,8 @@ int vtkTemporalShiftScale::RequestData(
   }
 
   // @TODO The time value set here is not correct if periodic is true
+  // @2017-01-15, Christian Schmitz: I believe my changes above fix this?
+  //   Can the author if this 'todo' verify?
 
   double inTime = inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 
@@ -290,7 +347,10 @@ int vtkTemporalShiftScale::RequestUpdateExtent (
     double ttime = upTime;
     if (this->Periodic)
     {
-      if (ttime>this->PeriodicRange[1])
+      // when ttime==PeriodicRange[1], then it is cyclic copy of the
+      //   first time step, and thus the modulo operation needs to be
+      //   applied to it as well
+      if (ttime>=this->PeriodicRange[1])
       {
         double m = floor((ttime - this->PeriodicRange[0])/range);
         this->TempMultiplier = m;
