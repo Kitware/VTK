@@ -157,7 +157,6 @@ nullPointerRedundantCheck:IO/Exodus/vtkExodusIIReaderParser.cxx
 redundantAssignment:IO/Image/vtkJPEGReader.cxx
 knownConditionTrueFalse:IO/Exodus/vtkExodusIIWriter.cxx
 knownConditionTrueFalse:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
-knownConditionTrueFalse:Filters/Parallel/Testing/Cxx/DistributedData.cxx
 knownConditionTrueFalse:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
 knownConditionTrueFalse:Rendering/Label/vtkLabelSizeCalculator.cxx
 redundantAssignment:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
