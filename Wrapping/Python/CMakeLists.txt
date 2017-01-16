@@ -240,6 +240,11 @@ if(VTK_USE_FFMPEG_ENCODER)
   list(APPEND VTKPYTHON_LINK_LIBS ${FFMPEG_BASIC_LIBRARIES})
 endif()
 
+# Add the libPython.dylib file and link explicitly against it.
+# This is needed because this is a new python executable, which needs it's libraries.
+find_package(PythonLibs REQUIRED)
+list(APPEND VTKPYTHON_LINK_LIBS ${vtkPython_LIBRARIES})
+
 target_link_libraries(vtkpython ${VTKPYTHON_LINK_LIBS})
 
 unset(PVTKPYTHON_EXECUTABLE)

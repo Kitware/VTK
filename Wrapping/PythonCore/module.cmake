@@ -1,10 +1,11 @@
 vtk_module(vtkWrappingPythonCore
   COMPILE_DEPENDS
     vtkWrappingTools
+    vtkPython
+  OPTIONAL_PYTHON_LINK
   EXCLUDE_FROM_ALL
   EXCLUDE_FROM_WRAPPING
   DEPENDS
     vtkCommonCore
-    vtkPython
     vtksys
   )

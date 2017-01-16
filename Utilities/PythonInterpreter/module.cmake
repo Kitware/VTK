@@ -5,4 +5,5 @@ vtk_module(vtkPythonInterpreter
     vtkCommonCore
     vtkPython
     vtksys
+  OPTIONAL_PYTHON_LINK
 )
