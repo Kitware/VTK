@@ -66,27 +66,20 @@ argumentSize
 AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
 CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
-duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
 duplicateExpression:Rendering/Annotation/vtkScalarBarActor.cxx
 memleak:Examples/Infovis/Cxx/MultiView.cxx
 memleak:IO/Image/vtkJPEGReader.cxx
 memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
 multiCondition:Filters/Matlab/vtkMatlabMexAdapter.cxx
 operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
-redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
-redundantAssignment:Filters/General/vtkInterpolatingSubdivisionFilter.cxx
 redundantAssignment:Wrapping/Tcl/vtkTclUtil.cxx
 redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
 stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
 stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
-unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
-unassignedVariable:Filters/Core/vtkFlyingEdges3D.cxx
-unassignedVariable:Rendering/Core/vtkCamera.cxx
 unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
-uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
 // false positive: <http://trac.cppcheck.net/ticket/7878>
@@ -98,13 +91,17 @@ knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
 // false positive: <http://trac.cppcheck.net/ticket/7889>
 knownConditionTrueFalse:IO/Parallel/vtkMultiBlockPLOT3DReader.cxx
 knownConditionTrueFalse:Parallel/MPI/Testing/Cxx/ExerciseMultiProcessController.cxx
-
 // false positive: <http://trac.cppcheck.net/ticket/7890>
 knownConditionTrueFalse:IO/LSDyna/vtkLSDynaReader.cxx
 knownConditionTrueFalse:Rendering/Annotation/vtkScalarBarActor.cxx
 knownConditionTrueFalse:Rendering/Volume/vtkFixedPointVolumeRayCastMIPHelper.cxx
 
+// false positive: <http://trac.cppcheck.net/ticket/7896>
+unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
+unassignedVariable:Rendering/Core/vtkCamera.cxx
+
 // Not worth fixing, but not actually false positives.
+duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
 knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
 knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
