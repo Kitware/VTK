@@ -103,7 +103,8 @@ public:
    * sure that the min's are less than the max's.
    */
   vtkSetVector6Macro(Bounds,double);
-  vtkGetVector6Macro(Bounds,double);
+  using Superclass::GetBounds;
+  double *GetBounds() VTK_OVERRIDE { return this->Bounds; }
   //@}
 
   //@{
@@ -646,8 +647,6 @@ protected:
   int GetNumTicks( double range, double fxt);
 
   void UpdateLabels(vtkAxisActor **axis, int index);
-
-  double Bounds[6]; //Define bounds explicitly
 
   vtkCamera *Camera;
 

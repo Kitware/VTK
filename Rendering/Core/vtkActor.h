@@ -154,7 +154,7 @@ public:
    * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
-  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
+  using Superclass::GetBounds;
   double *GetBounds() VTK_OVERRIDE;
 
   /**
