@@ -2269,14 +2269,19 @@ private:
   // inform IO object if lagrangian/positions has extra data (OF 1.4 - 2.4)
   const bool LagrangianPositionsExtraData;
 
-  vtkFoamIOobject();
   void ReadHeader(); // defined later
+
+  // Disallow default bitwise copy/assignment constructor
+  vtkFoamIOobject(const vtkFoamIOobject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFoamIOobject&) VTK_DELETE_FUNCTION;
+  vtkFoamIOobject() VTK_DELETE_FUNCTION;
+
 public:
   vtkFoamIOobject(const vtkStdString& casePath, vtkOpenFOAMReader *reader) :
     vtkFoamFile(casePath, reader), Format(UNDEFINED), E(),
     Use64BitLabels(reader->GetUse64BitLabels()),
     Use64BitFloats(reader->GetUse64BitFloats()),
-    LagrangianPositionsExtraData(!reader->GetPositionsIsIn13Format())
+    LagrangianPositionsExtraData(static_cast<bool>(!reader->GetPositionsIsIn13Format()))
   {
   }
   ~vtkFoamIOobject()
@@ -5079,7 +5084,7 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
   for (vtkIdType i = 0; i < nFiles; i++)
   {
     const vtkStdString dir = test->GetFile(i);
-    bool isTimeDir = test->FileIsDirectory(dir.c_str());
+    int isTimeDir = test->FileIsDirectory(dir.c_str());
 
     // optionally ignore 0/ directory
     if (ignore0Dir && dir == "0")
@@ -5177,7 +5182,7 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(
   // ListTimeStepsByControlDict is false)
   bool ret = false; // tentatively set to false to suppress warning by older compilers
 
-  bool listByControlDict = this->Parent->GetListTimeStepsByControlDict();
+  int listByControlDict = this->Parent->GetListTimeStepsByControlDict();
   if (listByControlDict)
   {
     vtkFoamIOobject io(this->CasePath, this->Parent);
