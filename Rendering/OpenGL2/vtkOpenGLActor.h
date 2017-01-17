@@ -41,7 +41,7 @@ public:
   /**
    * Actual actor render method.
    */
-  void Render(vtkRenderer *ren, vtkMapper *mapper);
+  void Render(vtkRenderer *ren, vtkMapper *mapper) VTK_OVERRIDE;
 
   void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
 
@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkOpenGLActor();
-  ~vtkOpenGLActor();
+  ~vtkOpenGLActor() VTK_OVERRIDE;
 
   vtkMatrix4x4 *MCWCMatrix;
   vtkMatrix3x3 *NormalMatrix;

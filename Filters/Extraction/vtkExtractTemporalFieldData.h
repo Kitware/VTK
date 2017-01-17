@@ -52,7 +52,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractTemporalFieldData : public vtkDataOb
 public:
   static vtkExtractTemporalFieldData *New();
   vtkTypeMacro(vtkExtractTemporalFieldData,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the number of time steps
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkExtractTemporalFieldData();
-  ~vtkExtractTemporalFieldData();
+  ~vtkExtractTemporalFieldData() VTK_OVERRIDE;
 
   int RequestDataObject(vtkInformation*,
                         vtkInformationVector**,

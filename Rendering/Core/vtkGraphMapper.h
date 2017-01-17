@@ -58,8 +58,8 @@ class VTKRENDERINGCORE_EXPORT vtkGraphMapper : public vtkMapper
 public:
   static vtkGraphMapper *New();
   vtkTypeMacro(vtkGraphMapper, vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
-  void Render(vtkRenderer *ren, vtkActor *act);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   //@{
   /**
@@ -232,12 +232,12 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Get the mtime also considering the lookup table.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -251,8 +251,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  virtual double *GetBounds();
-  virtual void GetBounds(double* bounds)
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double* bounds) VTK_OVERRIDE
     { Superclass::GetBounds(bounds); }
 
   //@{
@@ -265,7 +265,7 @@ public:
 
 protected:
   vtkGraphMapper();
-  ~vtkGraphMapper();
+  ~vtkGraphMapper() VTK_OVERRIDE;
 
   //@{
   /**
@@ -314,7 +314,7 @@ protected:
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkGraphMapper(const vtkGraphMapper&) VTK_DELETE_FUNCTION;

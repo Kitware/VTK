@@ -90,7 +90,7 @@ class VTKIOEXODUS_EXPORT vtkModelMetadata : public vtkObject
 {
 public:
   vtkTypeMacro(vtkModelMetadata, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkModelMetadata *New();
 
   /**
@@ -664,7 +664,7 @@ public:
 
 protected:
   vtkModelMetadata();
-  ~vtkModelMetadata();
+  ~vtkModelMetadata() VTK_OVERRIDE;
 
 private:
   void InitializeAllMetadata();

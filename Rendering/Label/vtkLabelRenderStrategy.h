@@ -36,7 +36,7 @@ class vtkTextProperty;
 class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
 {
  public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkLabelRenderStrategy, vtkObject);
 
   /**
@@ -123,7 +123,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
 
 protected:
   vtkLabelRenderStrategy();
-  ~vtkLabelRenderStrategy();
+  ~vtkLabelRenderStrategy() VTK_OVERRIDE;
 
   vtkRenderer* Renderer;
   vtkTextProperty* DefaultTextProperty;

@@ -13,13 +13,12 @@ endif()
 
 project(VTK)
 
-option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
-       OFF)
-if (VTK_USE_CXX11_FEATURES)
-  set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_STANDARD_REQUIRED True)
-  set(CMAKE_CXX_EXTENSIONS False)
-endif()
+# Make sure we have C++11 enabled.
+# Needed to make sure libraries and executables not built
+# through the module system use C++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS False)
 
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)

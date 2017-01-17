@@ -58,7 +58,7 @@ class VTKRENDERINGCORE_EXPORT vtkVisibilitySort : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVisibilitySort, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -136,7 +136,7 @@ public:
 
 protected:
   vtkVisibilitySort();
-  virtual ~vtkVisibilitySort();
+  ~vtkVisibilitySort() VTK_OVERRIDE;
 
   vtkTimeStamp LastSortTime;
 

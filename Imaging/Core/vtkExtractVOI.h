@@ -93,15 +93,15 @@ public:
 
 protected:
   vtkExtractVOI();
-  ~vtkExtractVOI();
+  ~vtkExtractVOI() VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestInformation (vtkInformation*,
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector) VTK_OVERRIDE;
 

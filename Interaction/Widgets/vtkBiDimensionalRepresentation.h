@@ -57,7 +57,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkBiDimensionalRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -207,7 +207,7 @@ public:
 
 protected:
   vtkBiDimensionalRepresentation();
-  ~vtkBiDimensionalRepresentation();
+  ~vtkBiDimensionalRepresentation() VTK_OVERRIDE;
 
   // Keep track if modifier is set
   int Modifier;

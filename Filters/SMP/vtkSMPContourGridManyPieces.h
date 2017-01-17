@@ -35,7 +35,7 @@ class VTKFILTERSSMP_EXPORT vtkSMPContourGridManyPieces : public vtkContourGrid
 {
 public:
   vtkTypeMacro(vtkSMPContourGridManyPieces,vtkContourGrid);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Constructor.
@@ -44,11 +44,11 @@ public:
 
 protected:
   vtkSMPContourGridManyPieces();
-  ~vtkSMPContourGridManyPieces();
+  ~vtkSMPContourGridManyPieces() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;

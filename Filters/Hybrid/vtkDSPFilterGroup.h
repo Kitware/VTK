@@ -46,7 +46,7 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterGroup : public vtkObject
 public:
   static vtkDSPFilterGroup *New();
   vtkTypeMacro(vtkDSPFilterGroup,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 
   void AddFilter(vtkDSPFilterDefinition *filter);
@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkDSPFilterGroup();
-  ~vtkDSPFilterGroup();
+  ~vtkDSPFilterGroup() VTK_OVERRIDE;
 
 
   vtkDSPFilterGroupVectorArraySTLCloak * /*std::vector<vtkFloatArray *>*/ CachedInputs;

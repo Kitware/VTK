@@ -36,7 +36,7 @@ class VTKIOLEGACY_EXPORT vtkStructuredGridWriter : public vtkDataWriter
 public:
   static vtkStructuredGridWriter *New();
   vtkTypeMacro(vtkStructuredGridWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -48,11 +48,11 @@ public:
 
 protected:
   vtkStructuredGridWriter() {}
-  ~vtkStructuredGridWriter() {}
+  ~vtkStructuredGridWriter() VTK_OVERRIDE {}
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkStructuredGridWriter(const vtkStructuredGridWriter&) VTK_DELETE_FUNCTION;

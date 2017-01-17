@@ -49,7 +49,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkDefaultPainter : public vtkPainter
 public:
   static vtkDefaultPainter *New();
   vtkTypeMacro(vtkDefaultPainter, vtkPainter);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -114,8 +114,8 @@ public:
    * These methods are overridden so that the delegate is set
    * to the end of the Painter Chain.
    */
-  virtual void SetDelegatePainter(vtkPainter*);
-  virtual vtkPainter* GetDelegatePainter() { return this->DefaultPainterDelegate; }
+  void SetDelegatePainter(vtkPainter*) VTK_OVERRIDE;
+  vtkPainter* GetDelegatePainter() VTK_OVERRIDE { return this->DefaultPainterDelegate; }
 
   /**
    * Overridden to setup the chain of painter depending on the
@@ -125,8 +125,8 @@ public:
    * Building of the chain does not depend on input polydata,
    * hence it does not check if the input has changed at all.
    */
-  virtual void Render(vtkRenderer* renderer, vtkActor* actor,
-                      unsigned long typeflags, bool forceCompileOnly);
+  void Render(vtkRenderer* renderer, vtkActor* actor,
+                      unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this painter.
@@ -134,18 +134,18 @@ public:
    * resources to release.
    * The call is propagated to the delegate painter, if any.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Expand or shrink the estimated bounds based on the geometric
    * transformations applied in the painter. The bounds are left unchanged
    * if the painter does not change the geometry.
    */
-  void UpdateBounds(double bounds[6]);
+  void UpdateBounds(double bounds[6]) VTK_OVERRIDE;
 
 protected:
   vtkDefaultPainter();
-  ~vtkDefaultPainter();
+  ~vtkDefaultPainter() VTK_OVERRIDE;
 
   /**
    * Setups the the painter chain.

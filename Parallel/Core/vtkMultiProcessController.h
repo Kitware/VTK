@@ -77,7 +77,7 @@ class VTKPARALLELCORE_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMultiProcessController,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This method is for setting up the processes.
@@ -1423,7 +1423,7 @@ public:
 
 protected:
   vtkMultiProcessController();
-  ~vtkMultiProcessController();
+  ~vtkMultiProcessController() VTK_OVERRIDE;
 
   /**
    * Implementation for TriggerRMI() provides subclasses an opportunity to

@@ -41,7 +41,7 @@ public:
   static vtkGeoAdaptiveArcs *New();
 
   vtkTypeMacro(vtkGeoAdaptiveArcs,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -86,16 +86,16 @@ public:
   /**
    * Return the modified time of this object.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkGeoAdaptiveArcs();
-  ~vtkGeoAdaptiveArcs();
+  ~vtkGeoAdaptiveArcs() VTK_OVERRIDE;
 
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   vtkRenderer *Renderer;
   double GlobeRadius;

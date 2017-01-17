@@ -43,7 +43,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepr
 public:
   static vtkGeoAlignedImageRepresentation *New();
   vtkTypeMacro(vtkGeoAlignedImageRepresentation,vtkDataRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Retrieve the most refined image patch that covers the specified
@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkGeoAlignedImageRepresentation();
-  ~vtkGeoAlignedImageRepresentation();
+  ~vtkGeoAlignedImageRepresentation() VTK_OVERRIDE;
 
   //@{
   /**

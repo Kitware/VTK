@@ -47,18 +47,18 @@ public:
   void SetMappedUnstructuredGrid(
       vtkMappedUnstructuredGrid<ImplementationType, ThisType> *grid);
 
-  bool IsDoneWithTraversal();
-  vtkIdType GetCellId();
+  bool IsDoneWithTraversal() VTK_OVERRIDE;
+  vtkIdType GetCellId() VTK_OVERRIDE;
 
 protected:
   vtkMappedUnstructuredGridCellIterator();
-  ~vtkMappedUnstructuredGridCellIterator();
+  ~vtkMappedUnstructuredGridCellIterator() VTK_OVERRIDE;
 
-  void ResetToFirstCell();
-  void IncrementToNextCell();
-  void FetchCellType();
-  void FetchPointIds();
-  void FetchPoints();
+  void ResetToFirstCell() VTK_OVERRIDE;
+  void IncrementToNextCell() VTK_OVERRIDE;
+  void FetchCellType() VTK_OVERRIDE;
+  void FetchPointIds() VTK_OVERRIDE;
+  void FetchPoints() VTK_OVERRIDE;
 
 private:
   vtkMappedUnstructuredGridCellIterator(const vtkMappedUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;

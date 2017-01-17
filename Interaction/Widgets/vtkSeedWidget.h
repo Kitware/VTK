@@ -90,7 +90,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkSeedWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -98,19 +98,19 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  virtual void SetEnabled(int);
+  void SetEnabled(int) VTK_OVERRIDE;
 
   /**
    * Set the current renderer. This method also propagates to all the child
    * handle widgets, if any exist
    */
-  virtual void SetCurrentRenderer( vtkRenderer * );
+  void SetCurrentRenderer( vtkRenderer * ) VTK_OVERRIDE;
 
   /**
    * Set the interactor. This method also propagates to all the child
    * handle widgets, if any exist
    */
-  virtual void SetInteractor( vtkRenderWindowInteractor * );
+  void SetInteractor( vtkRenderWindowInteractor * ) VTK_OVERRIDE;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -132,13 +132,13 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
   /**
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  virtual void SetProcessEvents(int);
+  void SetProcessEvents(int) VTK_OVERRIDE;
 
   /**
    * Method to be called when the seed widget should stop responding to
@@ -195,7 +195,7 @@ public:
 
 protected:
   vtkSeedWidget();
-  ~vtkSeedWidget();
+  ~vtkSeedWidget() VTK_OVERRIDE;
 
 
   int WidgetState;

@@ -50,7 +50,7 @@ public:
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkTensorProbeWidget, vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -73,11 +73,11 @@ public:
   /**
    * See vtkWidgetRepresentation for details.
    */
-  virtual void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkTensorProbeWidget();
-  ~vtkTensorProbeWidget();
+  ~vtkTensorProbeWidget() VTK_OVERRIDE;
 
   // 1 when the probe has been selected, for instance when dragging it around
   int           Selected;

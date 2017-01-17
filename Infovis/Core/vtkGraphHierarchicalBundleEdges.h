@@ -64,7 +64,7 @@ public:
   static vtkGraphHierarchicalBundleEdges *New();
 
   vtkTypeMacro(vtkGraphHierarchicalBundleEdges,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -92,11 +92,11 @@ public:
   /**
    * Set the input type of the algorithm to vtkGraph.
    */
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 protected:
   vtkGraphHierarchicalBundleEdges();
-  ~vtkGraphHierarchicalBundleEdges() {}
+  ~vtkGraphHierarchicalBundleEdges()VTK_OVERRIDE {}
 
   double BundlingStrength;
   bool DirectMapping;
@@ -104,7 +104,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkGraphHierarchicalBundleEdges(const vtkGraphHierarchicalBundleEdges&) VTK_DELETE_FUNCTION;

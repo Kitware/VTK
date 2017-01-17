@@ -73,7 +73,7 @@ class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableGlyphFilter : public vtkPolyD
 {
 public:
   vtkTypeMacro(vtkProgrammableGlyphFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with NULL GlyphMethod() and no source object. The ColorMode
@@ -159,10 +159,10 @@ public:
 
 protected:
   vtkProgrammableGlyphFilter();
-  ~vtkProgrammableGlyphFilter();
+  ~vtkProgrammableGlyphFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   double Point[3]; // Coordinates of point
   vtkIdType PointId; // Current point id during processing

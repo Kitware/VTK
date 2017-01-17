@@ -57,7 +57,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkLeaderActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkLeaderActor2D,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object.
@@ -195,22 +195,22 @@ public:
   /**
    * Methods required by vtkProp and vtkActor2D superclasses.
    */
-  int RenderOverlay(vtkViewport* viewport);
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
+  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *) VTK_OVERRIDE {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
-  void ReleaseGraphicsResources(vtkWindow *);
-  void ShallowCopy(vtkProp *prop);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
 protected:
   vtkLeaderActor2D();
-  ~vtkLeaderActor2D();
+  ~vtkLeaderActor2D() VTK_OVERRIDE;
 
   // Internal helper methods
   virtual void BuildLeader(vtkViewport *viewport);

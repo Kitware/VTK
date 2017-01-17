@@ -108,7 +108,7 @@ class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageConnectivityFilter :
 public:
   static vtkImageConnectivityFilter *New();
   vtkTypeMacro(vtkImageConnectivityFilter, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Enum constants for SetLabelMode().
@@ -295,7 +295,7 @@ public:
 
 protected:
   vtkImageConnectivityFilter();
-  ~vtkImageConnectivityFilter();
+  ~vtkImageConnectivityFilter() VTK_OVERRIDE;
 
   int LabelMode;
   int ExtractionMode;
@@ -314,13 +314,13 @@ protected:
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestInformation(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestInformation(
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkImageConnectivityFilter(const vtkImageConnectivityFilter&) VTK_DELETE_FUNCTION;

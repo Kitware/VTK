@@ -46,7 +46,7 @@ public:
   /**
    * Handle the render method.
    */
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE
     { this->RenderStart(viewport, actor); }
 
   /**
@@ -54,7 +54,7 @@ public:
    * the image to the screen.
    */
   void RenderData(vtkViewport* viewport, vtkImageData* data,
-                  vtkActor2D* actor);
+                  vtkActor2D* actor) VTK_OVERRIDE;
 
   /**
    * draw the data once it has been converted to uchar, windowed leveled
@@ -66,11 +66,11 @@ public:
    * Release any graphics resources that are being consumed by this
    * mapper, the image texture in particular.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLImageMapper();
-  ~vtkOpenGLImageMapper();
+  ~vtkOpenGLImageMapper() VTK_OVERRIDE;
 
   vtkTexturedActor2D *Actor;
 

@@ -65,7 +65,7 @@ class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeTools : public vtkObject
 {
 public:
   vtkTypeMacro(vtkFreeTypeTools, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Return the singleton instance with no reference counting.
@@ -332,7 +332,7 @@ protected:
   bool ScaleToPowerTwo;
 
   vtkFreeTypeTools();
-  virtual ~vtkFreeTypeTools();
+  ~vtkFreeTypeTools() VTK_OVERRIDE;
 
   /**
    * Attempt to get the typeface of the specified font.

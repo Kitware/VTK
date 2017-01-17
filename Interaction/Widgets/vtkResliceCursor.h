@@ -150,7 +150,7 @@ public:
   /**
    * Get the MTime. Check the MTime of the internal planes as well.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Reset the cursor to the default position, ie with the axes, normal
@@ -161,7 +161,7 @@ public:
 
 protected:
   vtkResliceCursor();
-  ~vtkResliceCursor();
+  ~vtkResliceCursor() VTK_OVERRIDE;
 
   virtual void BuildCursorGeometry();
   virtual void BuildPolyData();

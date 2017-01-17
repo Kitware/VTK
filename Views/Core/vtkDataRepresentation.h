@@ -68,7 +68,7 @@ class VTKVIEWSCORE_EXPORT vtkDataRepresentation : public vtkPassInputTypeAlgorit
 public:
   static vtkDataRepresentation *New();
   vtkTypeMacro(vtkDataRepresentation, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Convenience override method for obtaining the input connection
@@ -227,7 +227,7 @@ public:
 
 protected:
   vtkDataRepresentation();
-  ~vtkDataRepresentation();
+  ~vtkDataRepresentation() VTK_OVERRIDE;
 
   /**
    * Subclasses should override this to connect inputs to the internal pipeline
@@ -239,10 +239,10 @@ protected:
    * GetInternalSelectionOutputPort should be used to obtain a selection or
    * annotation port whose selections are localized for a particular input data object.
    */
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*)
+    vtkInformationVector*) VTK_OVERRIDE
     { return 1; }
 
   /**

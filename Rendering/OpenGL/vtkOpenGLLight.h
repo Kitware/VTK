@@ -38,11 +38,11 @@ public:
   /**
    * Implement base class method.
    */
-  void Render(vtkRenderer *ren, int light_index);
+  void Render(vtkRenderer *ren, int light_index) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLLight() {}
-  ~vtkOpenGLLight() {}
+  ~vtkOpenGLLight() VTK_OVERRIDE {}
 
 private:
   vtkOpenGLLight(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;

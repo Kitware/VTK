@@ -50,7 +50,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkConvertSelection : public vtkSelectionAlgor
 public:
   static vtkConvertSelection *New();
   vtkTypeMacro(vtkConvertSelection, vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * A convenience method for setting the second input (i.e. the data object).
@@ -197,12 +197,12 @@ public:
 
 protected:
   vtkConvertSelection();
-  ~vtkConvertSelection();
+  ~vtkConvertSelection() VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
   int Convert(
     vtkSelection* input,
@@ -227,8 +227,8 @@ protected:
   int ConvertToBlockSelection(
     vtkSelection* input, vtkCompositeDataSet* data, vtkSelection* output);
 
-  virtual int FillInputPortInformation(
-    int port, vtkInformation* info);
+  int FillInputPortInformation(
+    int port, vtkInformation* info) VTK_OVERRIDE;
 
   int OutputType;
   int InputFieldType;

@@ -35,44 +35,44 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkBlockItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkBlockItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkBlockItem *New();
 
   /**
    * Paint event for the item.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Returns true if the supplied x, y coordinate is inside the item.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse enter event.
    */
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse leave event.
    */
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button down event.
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button release event.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Set the block label.
@@ -108,7 +108,7 @@ public:
 
 protected:
   vtkBlockItem();
-  ~vtkBlockItem();
+  ~vtkBlockItem() VTK_OVERRIDE;
 
   float Dimensions[4];
 

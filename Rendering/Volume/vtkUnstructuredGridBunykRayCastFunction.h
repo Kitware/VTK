@@ -90,15 +90,15 @@ public:
   /**
    * Called by the ray cast mapper at the start of rendering
    */
-  virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol );
+  void Initialize( vtkRenderer *ren, vtkVolume   *vol ) VTK_OVERRIDE;
 
   /**
    * Called by the ray cast mapper at the end of rendering
    */
-  virtual void Finalize();
+  void Finalize() VTK_OVERRIDE;
 
   VTK_NEWINSTANCE
-  virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator();
+  vtkUnstructuredGridVolumeRayCastIterator *NewIterator() VTK_OVERRIDE;
 
   // Used to store each triangle - made public because of the
   // templated function
@@ -168,7 +168,7 @@ public:
 
 protected:
   vtkUnstructuredGridBunykRayCastFunction();
-  ~vtkUnstructuredGridBunykRayCastFunction();
+  ~vtkUnstructuredGridBunykRayCastFunction() VTK_OVERRIDE;
 
   // These are cached during the initialize method so that they do not
   // need to be passed into subsequent CastRay calls.

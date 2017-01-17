@@ -158,12 +158,12 @@ public:
   // Reintroduced as pure virtual since the base vtkGenericDataArray method
   // requires new allocation/resize APIs, though existing MappedDataArrays
   // would just use the vtkDataArray-level virtuals.
-  virtual int Allocate(vtkIdType size, vtkIdType ext = 1000) = 0;
-  virtual int Resize(vtkIdType numTuples) = 0;
+  int Allocate(vtkIdType size, vtkIdType ext = 1000) VTK_OVERRIDE = 0;
+  int Resize(vtkIdType numTuples) VTK_OVERRIDE = 0;
 
 protected:
   vtkTypedDataArray();
-  ~vtkTypedDataArray();
+  ~vtkTypedDataArray() VTK_OVERRIDE;
 
   /**
    * Needed for vtkGenericDataArray API, but just aborts. Override Allocate

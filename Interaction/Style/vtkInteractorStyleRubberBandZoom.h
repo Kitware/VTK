@@ -35,22 +35,22 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandZoom : public vtkIn
 public:
   static vtkInteractorStyleRubberBandZoom *New();
   vtkTypeMacro(vtkInteractorStyleRubberBandZoom, vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Event bindings
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkInteractorStyleRubberBandZoom();
-  ~vtkInteractorStyleRubberBandZoom();
+  ~vtkInteractorStyleRubberBandZoom() VTK_OVERRIDE;
 
-  virtual void Zoom();
+  void Zoom() VTK_OVERRIDE;
 
   int StartPosition[2];
   int EndPosition[2];

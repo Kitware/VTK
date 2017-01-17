@@ -43,7 +43,7 @@ class VTKFILTERSAMR_EXPORT vtkAMRSliceFilter :
 public:
   static vtkAMRSliceFilter* New();
   vtkTypeMacro( vtkAMRSliceFilter, vtkOverlappingAMRAlgorithm );
-  void PrintSelf(ostream &os, vtkIndent indent );
+  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
 
   // Inline Gettters & Setters
   vtkSetMacro(OffSetFromOrigin,double);
@@ -94,29 +94,29 @@ public:
   //@}
 
   // Standard Pipeline methods
-  virtual int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int RequestData(
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   /**
    * Makes upstream request to a source, typically, a concrete instance of
    * vtkAMRBaseReader, for which blocks to load.
    */
-  virtual int RequestInformation(
+  int RequestInformation(
       vtkInformation *rqst,
       vtkInformationVector **inputVector,
-      vtkInformationVector *outputVector );
+      vtkInformationVector *outputVector ) VTK_OVERRIDE;
 
   /**
    * Performs upstream requests to the reader
    */
-  virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector* );
+  int RequestUpdateExtent(
+      vtkInformation*, vtkInformationVector**,vtkInformationVector* ) VTK_OVERRIDE;
 
 protected:
   vtkAMRSliceFilter();
-  ~vtkAMRSliceFilter();
+  ~vtkAMRSliceFilter() VTK_OVERRIDE;
 
   /**
    * Returns the cell index w.r.t. the given input grid which contains

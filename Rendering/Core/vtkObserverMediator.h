@@ -52,7 +52,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkObserverMediator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkObserverMediator();
-  ~vtkObserverMediator();
+  ~vtkObserverMediator() VTK_OVERRIDE;
 
   // The render window whose cursor we are controlling
   vtkRenderWindowInteractor *Interactor;

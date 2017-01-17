@@ -128,7 +128,7 @@ public:
 
 protected:
   vtkMNITransformReader();
-  ~vtkMNITransformReader();
+  ~vtkMNITransformReader() VTK_OVERRIDE;
 
   char *FileName;
   vtkAbstractTransform *Transform;
@@ -159,9 +159,9 @@ protected:
 
   virtual int ReadFile();
 
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo);
+                             vtkInformationVector* outInfo) VTK_OVERRIDE;
 
 private:
   vtkMNITransformReader(const vtkMNITransformReader&) VTK_DELETE_FUNCTION;

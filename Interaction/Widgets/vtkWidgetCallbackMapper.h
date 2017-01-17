@@ -51,7 +51,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkWidgetCallbackMapper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkWidgetCallbackMapper();
-  ~vtkWidgetCallbackMapper();
+  ~vtkWidgetCallbackMapper() VTK_OVERRIDE;
 
   // Translates VTK events into widget events
   vtkWidgetEventTranslator *EventTranslator;

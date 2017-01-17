@@ -44,7 +44,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkRenderedRepresentation : public vtkDataRepresent
 public:
   static vtkRenderedRepresentation* New();
   vtkTypeMacro(vtkRenderedRepresentation, vtkDataRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,7 +59,7 @@ public:
 
 protected:
   vtkRenderedRepresentation();
-  ~vtkRenderedRepresentation();
+  ~vtkRenderedRepresentation() VTK_OVERRIDE;
 
   //@{
   /**

@@ -37,7 +37,7 @@ public:
   static vtk3DSImporter *New();
 
   vtkTypeMacro(vtk3DSImporter,vtkImporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -71,14 +71,14 @@ public:
 
 protected:
   vtk3DSImporter();
-  ~vtk3DSImporter();
+  ~vtk3DSImporter() VTK_OVERRIDE;
 
-  virtual int ImportBegin ();
-  virtual void ImportEnd ();
-  virtual void ImportActors (vtkRenderer *renderer);
-  virtual void ImportCameras (vtkRenderer *renderer);
-  virtual void ImportLights (vtkRenderer *renderer);
-  virtual void ImportProperties (vtkRenderer *renderer);
+  int ImportBegin () VTK_OVERRIDE;
+  void ImportEnd () VTK_OVERRIDE;
+  void ImportActors (vtkRenderer *renderer) VTK_OVERRIDE;
+  void ImportCameras (vtkRenderer *renderer) VTK_OVERRIDE;
+  void ImportLights (vtkRenderer *renderer) VTK_OVERRIDE;
+  void ImportProperties (vtkRenderer *renderer) VTK_OVERRIDE;
   vtkPolyData *GeneratePolyData (vtk3DSMesh *meshPtr);
   int Read3DS ();
 

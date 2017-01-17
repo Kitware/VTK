@@ -51,13 +51,13 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation2D,vtkDistanceRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * Satisfy the superclasses API.
    */
-  virtual double GetDistance()
+  double GetDistance() VTK_OVERRIDE
     {return this->Distance;}
 
   //@{
@@ -66,18 +66,18 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
-  double* GetPoint1WorldPosition();
-  double* GetPoint2WorldPosition();
-  void GetPoint1WorldPosition(double pos[3]);
-  void GetPoint2WorldPosition(double pos[3]);
-  void SetPoint1WorldPosition(double pos[3]);
-  void SetPoint2WorldPosition(double pos[3]);
+  double* GetPoint1WorldPosition() VTK_OVERRIDE;
+  double* GetPoint2WorldPosition() VTK_OVERRIDE;
+  void GetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
+  void GetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
   //@}
 
-  void SetPoint1DisplayPosition(double pos[3]);
-  void SetPoint2DisplayPosition(double pos[3]);
-  void GetPoint1DisplayPosition(double pos[3]);
-  void GetPoint2DisplayPosition(double pos[3]);
+  void SetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void GetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void GetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -92,20 +92,20 @@ public:
   /**
    * Method to satisfy superclasses' API.
    */
-  virtual void BuildRepresentation();
+  void BuildRepresentation() VTK_OVERRIDE;
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkDistanceRepresentation2D();
-  ~vtkDistanceRepresentation2D();
+  ~vtkDistanceRepresentation2D() VTK_OVERRIDE;
 
   // Add a line to the mix
   vtkAxisActor2D *AxisActor;

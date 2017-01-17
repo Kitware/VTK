@@ -45,7 +45,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeMapper : public vtkMapper
 public:
   static vtkMoleculeMapper *New();
   vtkTypeMacro(vtkMoleculeMapper,vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -271,17 +271,17 @@ public:
   /**
    * Reimplemented from base class
    */
-  virtual void Render(vtkRenderer *, vtkActor *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  double * GetBounds();
-  void GetBounds(double bounds[6]) { vtkAbstractMapper3D::GetBounds(bounds); }
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual bool GetSupportsSelection() {return true;}
+  void Render(vtkRenderer *, vtkActor *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  double * GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE { vtkAbstractMapper3D::GetBounds(bounds); }
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  bool GetSupportsSelection() VTK_OVERRIDE {return true;}
   //@}
 
 protected:
   vtkMoleculeMapper();
-  ~vtkMoleculeMapper();
+  ~vtkMoleculeMapper() VTK_OVERRIDE;
 
   //@{
   /**

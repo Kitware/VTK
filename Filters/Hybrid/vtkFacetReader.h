@@ -47,7 +47,7 @@ class VTKFILTERSHYBRID_EXPORT vtkFacetReader : public vtkPolyDataAlgorithm
 public:
   static vtkFacetReader *New();
   vtkTypeMacro(vtkFacetReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -61,9 +61,9 @@ public:
 
 protected:
   vtkFacetReader();
-  ~vtkFacetReader();
+  ~vtkFacetReader() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   char *FileName;
 

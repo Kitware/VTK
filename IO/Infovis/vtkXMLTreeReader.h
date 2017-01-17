@@ -96,7 +96,7 @@ class VTKIOINFOVIS_EXPORT vtkXMLTreeReader : public vtkTreeAlgorithm
 public:
   static vtkXMLTreeReader* New();
   vtkTypeMacro(vtkXMLTreeReader,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -182,7 +182,7 @@ public:
 
 protected:
   vtkXMLTreeReader();
-  ~vtkXMLTreeReader();
+  ~vtkXMLTreeReader() VTK_OVERRIDE;
   char* FileName;
   char* XMLString;
   bool ReadCharData;
@@ -196,7 +196,7 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkXMLTreeReader(const vtkXMLTreeReader&) VTK_DELETE_FUNCTION;

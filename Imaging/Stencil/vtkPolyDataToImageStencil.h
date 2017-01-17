@@ -75,7 +75,7 @@ class VTKIMAGINGSTENCIL_EXPORT vtkPolyDataToImageStencil :
 public:
   static vtkPolyDataToImageStencil* New();
   vtkTypeMacro(vtkPolyDataToImageStencil, vtkImageStencilSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkPolyDataToImageStencil();
-  ~vtkPolyDataToImageStencil();
+  ~vtkPolyDataToImageStencil() VTK_OVERRIDE;
 
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
@@ -110,10 +110,10 @@ protected:
   static void PolyDataSelector(vtkPolyData *input, vtkPolyData *output,
                                double z, double thickness);
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   /**
    * The tolerance distance for favoring the inside of the stencil

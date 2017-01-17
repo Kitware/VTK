@@ -42,7 +42,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkViewUpdater : public vtkObject
 public:
   static vtkViewUpdater *New();
   vtkTypeMacro(vtkViewUpdater, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void AddView(vtkView* view);
   void RemoveView(vtkView* view);
@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkViewUpdater();
-  ~vtkViewUpdater();
+  ~vtkViewUpdater() VTK_OVERRIDE;
 
 private:
   vtkViewUpdater(const vtkViewUpdater&) VTK_DELETE_FUNCTION;

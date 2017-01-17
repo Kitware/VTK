@@ -34,13 +34,13 @@ class VTKRENDERINGOPENGL_EXPORT vtkGLSLShaderDeviceAdapter2
 public:
   vtkTypeMacro(vtkGLSLShaderDeviceAdapter2, vtkShaderDeviceAdapter2);
   static vtkGLSLShaderDeviceAdapter2 *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // Descrition:
   // This method is called before rendering. This gives the shader device
   // adapter an opportunity to collect information, such as attribute indices
   // that it will need while rendering.
-  virtual void PrepareForRender();
+  void PrepareForRender() VTK_OVERRIDE;
 
   /**
    * Sends a single attribute to the graphics card.
@@ -57,15 +57,15 @@ public:
    * If attribute is NULL, the OpenGL ID for the attribute will simply be
    * cached.
    */
-  virtual void SendAttribute(const char* attrname,
+  void SendAttribute(const char* attrname,
                              int components,
                              int type,
                              const void *attribute,
-                             unsigned long offset=0);
+                             unsigned long offset=0) VTK_OVERRIDE;
 
 protected:
   vtkGLSLShaderDeviceAdapter2();
-  ~vtkGLSLShaderDeviceAdapter2();
+  ~vtkGLSLShaderDeviceAdapter2() VTK_OVERRIDE;
 
   int GetAttributeLocation(const char* attrName);
 

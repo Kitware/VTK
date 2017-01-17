@@ -40,22 +40,22 @@ class VTKINFOVISCORE_EXPORT vtkExtractSelectedTree : public vtkTreeAlgorithm
 public:
   static vtkExtractSelectedTree* New();
   vtkTypeMacro(vtkExtractSelectedTree,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * A convenience method for setting the second input (i.e. the selection).
    */
   void SetSelectionConnection(vtkAlgorithmOutput* in);
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 protected:
   vtkExtractSelectedTree();
-  ~vtkExtractSelectedTree();
+  ~vtkExtractSelectedTree() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   int BuildTree(vtkTree * inputTree, vtkIdTypeArray * list, vtkMutableDirectedGraph * builder);
 

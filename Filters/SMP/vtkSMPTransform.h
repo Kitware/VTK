@@ -35,25 +35,25 @@ class VTKFILTERSSMP_EXPORT vtkSMPTransform : public vtkTransform
  public:
   static vtkSMPTransform *New();
   vtkTypeMacro(vtkSMPTransform, vtkTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) VTK_OVERRIDE;
 
   /**
    * Apply the transformation to a series of normals, and append the
    * results to outNms.
    */
-  virtual void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms);
+  void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms) VTK_OVERRIDE;
 
   /**
    * Apply the transformation to a series of vectors, and append the
    * results to outVrs.
    */
-  virtual void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs);
+  void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs) VTK_OVERRIDE;
 
   /**
    * Apply the transformation to a combination of points, normals
@@ -64,11 +64,11 @@ class VTKFILTERSSMP_EXPORT vtkSMPTransform : public vtkTransform
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs);
+                                     vtkDataArray *outVrs) VTK_OVERRIDE;
 
 protected:
   vtkSMPTransform () {}
-  ~vtkSMPTransform () {}
+  ~vtkSMPTransform () VTK_OVERRIDE {}
 
 private:
   vtkSMPTransform (const vtkSMPTransform&) VTK_DELETE_FUNCTION;

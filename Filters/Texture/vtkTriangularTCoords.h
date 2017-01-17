@@ -40,14 +40,14 @@ class VTKFILTERSTEXTURE_EXPORT vtkTriangularTCoords : public vtkPolyDataAlgorith
 public:
   static vtkTriangularTCoords *New();
   vtkTypeMacro(vtkTriangularTCoords,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTriangularTCoords() {}
-  ~vtkTriangularTCoords() {}
+  ~vtkTriangularTCoords() VTK_OVERRIDE {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 private:
   vtkTriangularTCoords(const vtkTriangularTCoords&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTriangularTCoords&) VTK_DELETE_FUNCTION;

@@ -59,7 +59,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkSliderRepresentation3D,vtkSliderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -93,8 +93,8 @@ public:
    * Specify the title text for this widget. If the value is not set, or set
    * to the empty string "", then the title text is not displayed.
    */
-  virtual void SetTitleText(const char*);
-  virtual const char* GetTitleText();
+  void SetTitleText(const char*) VTK_OVERRIDE;
+  const char* GetTitleText() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -146,33 +146,33 @@ public:
   /**
    * Methods to interface with the vtkSliderWidget.
    */
-  virtual void PlaceWidget(double bounds[6]);
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double newEventPos[2]);
-  virtual void Highlight(int);
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
+  void Highlight(int) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  virtual double *GetBounds();
-  virtual void GetActors(vtkPropCollection*);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  double *GetBounds() VTK_OVERRIDE;
+  void GetActors(vtkPropCollection*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
   /**
    * Override GetMTime to include point coordinates
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkSliderRepresentation3D();
-  ~vtkSliderRepresentation3D();
+  ~vtkSliderRepresentation3D() VTK_OVERRIDE;
 
   // Positioning the widget
   vtkCoordinate *Point1Coordinate;
@@ -192,7 +192,7 @@ protected:
   vtkCellPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  virtual void RegisterPickers();
+  void RegisterPickers() VTK_OVERRIDE;
 
   // Determine the parameter t along the slider
   virtual double ComputePickPosition(double eventPos[2]);

@@ -44,7 +44,7 @@ class VTKIOEXODUS_EXPORT vtkCPExodusIIInSituReader :
 public:
   static vtkCPExodusIIInSituReader *New();
   vtkTypeMacro(vtkCPExodusIIInSituReader, vtkMultiBlockDataSetAlgorithm)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -80,15 +80,15 @@ public:
 
 protected:
   vtkCPExodusIIInSituReader();
-  ~vtkCPExodusIIInSituReader();
+  ~vtkCPExodusIIInSituReader() VTK_OVERRIDE;
 
   int ProcessRequest(vtkInformation *request,
                      vtkInformationVector **inputVector,
-                     vtkInformationVector *outputVector);
+                     vtkInformationVector *outputVector) VTK_OVERRIDE;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *);
+                         vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &) VTK_DELETE_FUNCTION;

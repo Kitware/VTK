@@ -45,7 +45,7 @@ public:
   static vtkImageHistogram *New();
   vtkTypeMacro(vtkImageHistogram,vtkThreadedImageAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Scale types for the histogram image.
@@ -189,28 +189,28 @@ public:
    * This is part of the executive, but is public so that it can be accessed
    * by non-member functions.
    */
-  virtual void ThreadedRequestData(vtkInformation *request,
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id);
+                                   vtkImageData **outData, int ext[6], int id) VTK_OVERRIDE;
 
 protected:
   vtkImageHistogram();
-  ~vtkImageHistogram();
+  ~vtkImageHistogram() VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
+  int RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector **inInfo,
-                                 vtkInformationVector *vtkNotUsed(outInfo));
-  virtual int RequestInformation(vtkInformation *vtkNotUsed(request),
+                                 vtkInformationVector *vtkNotUsed(outInfo)) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector **inInfo,
-                                 vtkInformationVector *vtkNotUsed(outInfo));
-  virtual int RequestData(vtkInformation *,
+                                 vtkInformationVector *vtkNotUsed(outInfo)) VTK_OVERRIDE;
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   /**
    * Compute the range of the data.  The GetScalarRange() function of

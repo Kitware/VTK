@@ -42,18 +42,18 @@ class VTKRENDERINGCORE_EXPORT vtkRenderedAreaPicker : public vtkAreaPicker
 public:
   static vtkRenderedAreaPicker *New();
   vtkTypeMacro(vtkRenderedAreaPicker, vtkAreaPicker);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform pick operation in volume behind the given screen coordinates.
    * Props intersecting the selection frustum will be accessible via GetProp3D.
    * GetPlanes returns a vtkImplicitFunciton suitable for vtkExtractGeometry.
    */
-  virtual int AreaPick(double x0, double y0, double x1, double y1, vtkRenderer *);
+  int AreaPick(double x0, double y0, double x1, double y1, vtkRenderer *) VTK_OVERRIDE;
 
 protected:
   vtkRenderedAreaPicker();
-  ~vtkRenderedAreaPicker();
+  ~vtkRenderedAreaPicker() VTK_OVERRIDE;
 
 private:
   vtkRenderedAreaPicker(const vtkRenderedAreaPicker&) VTK_DELETE_FUNCTION;

@@ -53,7 +53,7 @@ public:
   static vtkImageConnector *New();
 
   vtkTypeMacro(vtkImageConnector,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkImageConnectorSeed *NewSeed(int index[3], void *ptr);
   void AddSeed(vtkImageConnectorSeed *seed);
@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkImageConnector();
-  ~vtkImageConnector();
+  ~vtkImageConnector() VTK_OVERRIDE;
 
   unsigned char ConnectedValue;
   unsigned char UnconnectedValue;

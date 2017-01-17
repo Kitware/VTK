@@ -122,7 +122,7 @@ protected:
   //@}
 
   vtkGlobFileNames();
-  ~vtkGlobFileNames();
+  ~vtkGlobFileNames() VTK_OVERRIDE;
 
 private:
   char* Directory;          // Directory for search.

@@ -49,7 +49,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkAreaLayoutStrategy : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAreaLayoutStrategy,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the layout of the input tree, and store the sector
@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkAreaLayoutStrategy();
-  ~vtkAreaLayoutStrategy();
+  ~vtkAreaLayoutStrategy() VTK_OVERRIDE;
 
   double ShrinkPercentage;
 

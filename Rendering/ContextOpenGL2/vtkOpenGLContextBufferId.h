@@ -35,7 +35,7 @@ class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextBufferId : public vtkAbs
 {
 public:
   vtkTypeMacro(vtkOpenGLContextBufferId, vtkAbstractContextBufferId);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Painter object.
@@ -45,21 +45,21 @@ public:
   /**
    * Release any graphics resources that are being consumed by this object.
    */
-  virtual void ReleaseGraphicsResources();
+  void ReleaseGraphicsResources() VTK_OVERRIDE;
 
   //@{
   /**
    * Set/Get the OpenGL context owning the texture object resource.
    */
-  virtual void SetContext(vtkRenderWindow *context);
-  virtual vtkRenderWindow *GetContext();
+  void SetContext(vtkRenderWindow *context) VTK_OVERRIDE;
+  vtkRenderWindow *GetContext() VTK_OVERRIDE;
   //@}
 
   /**
    * Returns if the context supports the required extensions.
    * \pre context_is_set: this->GetContext()!=0
    */
-  virtual bool IsSupported();
+  bool IsSupported() VTK_OVERRIDE;
 
   /**
    * Allocate the memory for at least Width*Height elements.
@@ -67,20 +67,20 @@ public:
    * \pre positive_height: GetHeight()>0
    * \pre context_is_set: this->GetContext()!=0
    */
-  virtual void Allocate();
+  void Allocate() VTK_OVERRIDE;
 
   /**
    * Tell if the buffer has been allocated.
    */
-  virtual bool IsAllocated() const;
+  bool IsAllocated() const VTK_OVERRIDE;
 
   /**
    * Copy the contents of the current read buffer to the internal texture
    * starting at lower left corner of the framebuffer (srcXmin,srcYmin).
    * \pre is_allocated: this->IsAllocated()
    */
-  virtual void SetValues(int srcXmin,
-                         int srcYmin);
+  void SetValues(int srcXmin,
+                         int srcYmin) VTK_OVERRIDE;
 
   /**
    * Return item under abscissa x and ordinate y.
@@ -90,11 +90,11 @@ public:
    * \pre is_allocated: IsAllocated()
    * \post valid_result: result>=-1
    */
-  virtual vtkIdType GetPickedItem(int x, int y);
+  vtkIdType GetPickedItem(int x, int y) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLContextBufferId();
-  virtual ~vtkOpenGLContextBufferId();
+  ~vtkOpenGLContextBufferId() VTK_OVERRIDE;
 
   vtkOpenGLRenderWindow *Context;
   vtkTextureObject *Texture;

@@ -55,7 +55,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkTreeAreaView : public vtkRenderView
 public:
   static vtkTreeAreaView *New();
   vtkTypeMacro(vtkTreeAreaView, vtkRenderView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -226,7 +226,7 @@ public:
 
 protected:
   vtkTreeAreaView();
-  ~vtkTreeAreaView();
+  ~vtkTreeAreaView() VTK_OVERRIDE;
 
   //@{
   /**
@@ -252,7 +252,7 @@ protected:
    * Overrides behavior in vtkView to create a vtkRenderedGraphRepresentation
    * by default.
    */
-  virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
+  vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn) VTK_OVERRIDE;
   virtual vtkRenderedTreeAreaRepresentation* GetTreeAreaRepresentation();
   //@}
 

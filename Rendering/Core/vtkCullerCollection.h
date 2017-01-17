@@ -70,7 +70,7 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
 
 protected:
   vtkCullerCollection() {}
-  ~vtkCullerCollection() {}
+  ~vtkCullerCollection() VTK_OVERRIDE {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

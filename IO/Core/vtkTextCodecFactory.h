@@ -49,7 +49,7 @@ class VTKIOCORE_EXPORT vtkTextCodecFactory : public vtkObject
 public:
   vtkTypeMacro(vtkTextCodecFactory, vtkObject);
   static vtkTextCodecFactory* New() ;
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Type for Creation callback.
@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkTextCodecFactory();
-  ~vtkTextCodecFactory();
+  ~vtkTextCodecFactory() VTK_OVERRIDE;
 
 private:
   vtkTextCodecFactory(const vtkTextCodecFactory &) VTK_DELETE_FUNCTION;

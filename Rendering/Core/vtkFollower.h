@@ -41,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
 {
  public:
   vtkTypeMacro(vtkFollower,vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a follower with no camera set
@@ -63,35 +63,35 @@ class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
    * property, texture map and then mapper. If a property hasn't been
    * assigned, then the actor will create one automatically.
    */
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   virtual void Render(vtkRenderer *ren);
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources associated with this vtkProp3DFollower.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow*);
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
 
   /**
    * Generate the matrix based on ivars. This method overloads its superclasses
    * ComputeMatrix() method due to the special vtkFollower matrix operations.
    */
-  virtual void ComputeMatrix();
+  void ComputeMatrix() VTK_OVERRIDE;
 
   /**
    * Shallow copy of a follower. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
 protected:
   vtkFollower();
-  ~vtkFollower();
+  ~vtkFollower() VTK_OVERRIDE;
 
   vtkCamera *Camera;
   vtkActor  *Device;
@@ -101,7 +101,7 @@ private:
   void operator=(const vtkFollower&) VTK_DELETE_FUNCTION;
 
   // hide the two parameter Render() method from the user and the compiler.
-  virtual void Render(vtkRenderer *, vtkMapper *) {}
+  void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE {}
 
   //Internal matrices to avoid New/Delete for performance reasons
   vtkMatrix4x4 *InternalMatrix;

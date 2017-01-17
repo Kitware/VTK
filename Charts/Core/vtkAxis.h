@@ -69,7 +69,7 @@ class VTKCHARTSCORE_EXPORT vtkAxis : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkAxis, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Enumeration of the axis locations in a conventional XY chart. Other
@@ -499,12 +499,12 @@ public:
    * Update the geometry of the axis. Takes care of setting up the tick mark
    * locations etc. Should be called by the scene before rendering.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the axis, called whenever the axis needs to be drawn.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Use this function to autoscale the axes after setting the minimum and
@@ -577,7 +577,7 @@ public:
 
 protected:
   vtkAxis();
-  ~vtkAxis();
+  ~vtkAxis() VTK_OVERRIDE;
 
   /**
    * Update whether log scaling will be used for layout and rendering.

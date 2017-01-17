@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkRayCastImageDisplayHelper();
-  ~vtkRayCastImageDisplayHelper();
+  ~vtkRayCastImageDisplayHelper() VTK_OVERRIDE;
 
   /**
    * Have the colors already been multiplied by alpha?

@@ -36,7 +36,7 @@ class VTKPARALLELCORE_EXPORT vtkPDirectory : public vtkObject
  public:
   static vtkPDirectory *New();
   vtkTypeMacro(vtkPDirectory,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -88,7 +88,7 @@ class VTKPARALLELCORE_EXPORT vtkPDirectory : public vtkObject
 
  protected:
   vtkPDirectory();
-  ~vtkPDirectory();
+  ~vtkPDirectory() VTK_OVERRIDE;
 
  private:
   // Array of Files

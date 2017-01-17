@@ -79,7 +79,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkParallelCoordinatesActor : public vtkActo
 {
 public:
   vtkTypeMacro(vtkParallelCoordinatesActor,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object with autorange computation;
@@ -149,15 +149,15 @@ public:
   /**
    * Draw the parallel coordinates plot.
    */
-  int RenderOpaqueGeometry(vtkViewport*);
-  int RenderOverlay(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *) VTK_OVERRIDE {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Set the input to the parallel coordinates actor. Creates
@@ -181,11 +181,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkParallelCoordinatesActor();
-  ~vtkParallelCoordinatesActor();
+  ~vtkParallelCoordinatesActor() VTK_OVERRIDE;
 
 private:
 

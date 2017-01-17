@@ -42,7 +42,7 @@ public:
 
 
   vtkTypeMacro(vtkXMLDataReader,vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the number of points in the output.
@@ -56,19 +56,19 @@ public:
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
 
 protected:
   vtkXMLDataReader();
-  ~vtkXMLDataReader();
+  ~vtkXMLDataReader() VTK_OVERRIDE;
 
   // Add functionality to methods from superclass.
-  virtual void CreateXMLParser();
-  virtual void DestroyXMLParser();
-  virtual void SetupOutputInformation(vtkInformation *outInfo);
+  void CreateXMLParser() VTK_OVERRIDE;
+  void DestroyXMLParser() VTK_OVERRIDE;
+  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
 
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
-  void SetupOutputData();
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
+  void SetupOutputData() VTK_OVERRIDE;
 
   // Setup the reader for a given number of pieces.
   virtual void SetupPieces(int numPieces);
@@ -82,7 +82,7 @@ protected:
   int ReadPieceData(int piece);
   virtual int ReadPieceData();
 
-  virtual void ReadXMLData();
+  void ReadXMLData() VTK_OVERRIDE;
 
   // Read a data array whose tuples coorrespond to points or cells.
   virtual int ReadArrayForPoints(vtkXMLDataElement* da,

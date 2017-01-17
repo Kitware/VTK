@@ -44,7 +44,7 @@ public:
   static vtkLookupTableWithEnabling *New();
 
   vtkTypeMacro(vtkLookupTableWithEnabling,vtkLookupTable);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -62,7 +62,7 @@ public:
    */
   void MapScalarsThroughTable2(void *input, unsigned char *output,
                                int inputDataType, int numberOfValues,
-                               int inputIncrement, int outputIncrement);
+                               int inputIncrement, int outputIncrement) VTK_OVERRIDE;
 
   /**
    * A convenience method for taking a color and desaturating it.
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkLookupTableWithEnabling(int sze=256, int ext=256);
-  ~vtkLookupTableWithEnabling();
+  ~vtkLookupTableWithEnabling() VTK_OVERRIDE;
 
   vtkDataArray *EnabledArray;
 

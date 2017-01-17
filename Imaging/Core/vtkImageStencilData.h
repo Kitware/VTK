@@ -147,8 +147,8 @@ public:
    * Override these to handle origin, spacing, scalar type, and scalar
    * number of components.  See vtkDataObject for details.
    */
-  virtual void CopyInformationFromPipeline(vtkInformation *info) VTK_OVERRIDE;
-  virtual void CopyInformationToPipeline(vtkInformation *info) VTK_OVERRIDE;
+  void CopyInformationFromPipeline(vtkInformation *info) VTK_OVERRIDE;
+  void CopyInformationToPipeline(vtkInformation *info) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -184,7 +184,7 @@ public:
 
 protected:
   vtkImageStencilData();
-  ~vtkImageStencilData();
+  ~vtkImageStencilData() VTK_OVERRIDE;
 
   enum Operation { Merge, Erase };
 

@@ -39,7 +39,7 @@ class VTKCHARTSCORE_EXPORT vtkColorLegend: public vtkChartLegend
 {
 public:
   vtkTypeMacro(vtkColorLegend, vtkChartLegend);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkColorLegend* New();
 
   /**
@@ -61,14 +61,14 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint the texture into a rectangle defined by the bounds. If
    * MaskAboveCurve is true and a shape has been provided by a subclass, it
    * draws the texture into the shape
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   //@{
   /**
@@ -82,7 +82,7 @@ public:
   /**
    * Set the point this legend is anchored to.
    */
-  virtual void SetPoint(float x, float y);
+  void SetPoint(float x, float y) VTK_OVERRIDE;
 
   /**
    * Set the size of the scalar bar drawn by this legend.
@@ -109,7 +109,7 @@ public:
    * height being the total width/height required by the axis. In order to
    * ensure the numbers are correct, Update() should be called first.
    */
-  vtkRectf GetBoundingRect(vtkContext2D* painter);
+  vtkRectf GetBoundingRect(vtkContext2D* painter) VTK_OVERRIDE;
 
   //@{
   /**
@@ -141,11 +141,11 @@ public:
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
 protected:
   vtkColorLegend();
-  virtual ~vtkColorLegend();
+  ~vtkColorLegend() VTK_OVERRIDE;
 
   /**
    * Need to be reimplemented by subclasses, ComputeTexture() is called at

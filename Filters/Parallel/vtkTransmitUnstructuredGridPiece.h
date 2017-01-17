@@ -36,7 +36,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkTransmitUnstructuredGridPiece : public vtkUns
 public:
   static vtkTransmitUnstructuredGridPiece *New();
   vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -58,10 +58,10 @@ public:
 
 protected:
   vtkTransmitUnstructuredGridPiece();
-  ~vtkTransmitUnstructuredGridPiece();
+  ~vtkTransmitUnstructuredGridPiece() VTK_OVERRIDE;
 
   // Data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void RootExecute(vtkUnstructuredGrid *input, vtkUnstructuredGrid *output,
                    vtkInformation *outInfo);
   void SatelliteExecute(int procId, vtkUnstructuredGrid *output,

@@ -12,12 +12,6 @@ if (CMAKE_VERSION VERSION_LESS "3.3")
     message(FATAL_ERROR "VTK now requires CMake 3.3 or newer")
   endif()
 
-set(VTK_USE_CXX11_FEATURES @VTK_USE_CXX11_FEATURES@)
-if (VTK_USE_CXX11_FEATURES)
-  set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_STANDARD_REQUIRED 11)
-endif()
-
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
 SET(VTK_REQUIRED_CXX_FLAGS "@VTK_REQUIRED_CXX_FLAGS@")

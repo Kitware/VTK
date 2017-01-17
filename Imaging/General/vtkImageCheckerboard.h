@@ -35,7 +35,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageCheckerboard : public vtkThreadedImageAlg
 public:
   static vtkImageCheckerboard *New();
   vtkTypeMacro(vtkImageCheckerboard,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -53,14 +53,14 @@ public:
 
 protected:
   vtkImageCheckerboard();
-  ~vtkImageCheckerboard() {}
+  ~vtkImageCheckerboard()VTK_OVERRIDE {}
 
-  virtual void ThreadedRequestData(vtkInformation *request,
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId);
+                                   int extent[6], int threadId) VTK_OVERRIDE;
   int NumberOfDivisions[3];
 private:
   vtkImageCheckerboard(const vtkImageCheckerboard&) VTK_DELETE_FUNCTION;

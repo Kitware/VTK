@@ -48,7 +48,7 @@ class VTKINFOVISCORE_EXPORT vtkExpandSelectedGraph : public vtkSelectionAlgorith
 public:
   static vtkExpandSelectedGraph* New();
   vtkTypeMacro(vtkExpandSelectedGraph,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * A convenience method for setting the second input (i.e. the graph).
@@ -58,7 +58,7 @@ public:
   /**
    * Specify the first vtkSelection input and the second vtkGraph input.
    */
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   //@{
   /**
@@ -101,12 +101,12 @@ public:
 
 protected:
   vtkExpandSelectedGraph();
-  ~vtkExpandSelectedGraph();
+  ~vtkExpandSelectedGraph() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   void Expand(vtkIdTypeArray*,vtkGraph*);
 

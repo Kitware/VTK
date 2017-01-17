@@ -49,8 +49,8 @@ public:
   static vtkPainterObserver* New()
     { return new vtkPainterObserver; }
 
-  virtual void Execute(vtkObject *caller,
-    unsigned long event, void* vtkNotUsed(v))
+  void Execute(vtkObject *caller,
+    unsigned long event, void* vtkNotUsed(v)) VTK_OVERRIDE
   {
     vtkPainter* delegate = vtkPainter::SafeDownCast(caller);
     if (delegate && event == vtkCommand::ProgressEvent && this->Self)

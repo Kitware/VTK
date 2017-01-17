@@ -70,7 +70,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkAxisActor2D,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object.
@@ -319,22 +319,22 @@ public:
   /**
    * Draw the axis.
    */
-  int RenderOverlay(vtkViewport* viewport);
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
+  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *) VTK_OVERRIDE {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * This method computes the range of the axis given an input range.
@@ -380,11 +380,11 @@ public:
   /**
    * Shallow copy of an axis actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
 protected:
   vtkAxisActor2D();
-  ~vtkAxisActor2D();
+  ~vtkAxisActor2D() VTK_OVERRIDE;
 
   vtkTextProperty *TitleTextProperty;
   vtkTextProperty *LabelTextProperty;

@@ -177,7 +177,7 @@ public:
 
 protected:
   vtkFixedPointRayCastImage();
-  ~vtkFixedPointRayCastImage();
+  ~vtkFixedPointRayCastImage() VTK_OVERRIDE;
 
   // This is how big the image would be if it covered the entire viewport
   int             ImageViewportSize[2];

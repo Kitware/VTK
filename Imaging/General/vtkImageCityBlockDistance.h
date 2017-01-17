@@ -44,13 +44,13 @@ public:
 
 protected:
   vtkImageCityBlockDistance();
-  ~vtkImageCityBlockDistance() {}
+  ~vtkImageCityBlockDistance()VTK_OVERRIDE {}
 
-  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out);
-  virtual int IterativeRequestData(vtkInformation*,
+  int IterativeRequestUpdateExtent(vtkInformation* in,
+                                           vtkInformation* out) VTK_OVERRIDE;
+  int IterativeRequestData(vtkInformation*,
                                     vtkInformationVector**,
-                                    vtkInformationVector*);
+                                    vtkInformationVector*) VTK_OVERRIDE;
 
   void AllocateOutputScalars(vtkImageData *outData,
                              int* updateExtent,

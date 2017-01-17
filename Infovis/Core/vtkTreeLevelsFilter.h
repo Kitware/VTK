@@ -43,13 +43,13 @@ class VTKINFOVISCORE_EXPORT vtkTreeLevelsFilter : public vtkTreeAlgorithm
 public:
   static vtkTreeLevelsFilter *New();
   vtkTypeMacro(vtkTreeLevelsFilter,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTreeLevelsFilter();
-  ~vtkTreeLevelsFilter() {}
+  ~vtkTreeLevelsFilter()VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkTreeLevelsFilter(const vtkTreeLevelsFilter&) VTK_DELETE_FUNCTION;

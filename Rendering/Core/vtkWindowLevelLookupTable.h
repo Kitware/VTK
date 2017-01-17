@@ -44,13 +44,13 @@ class VTKRENDERINGCORE_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 public:
   static vtkWindowLevelLookupTable *New();
   vtkTypeMacro(vtkWindowLevelLookupTable,vtkLookupTable);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Generate lookup table as a linear ramp between MinimumTableValue
    * and MaximumTableValue.
    */
-  void Build();
+  void Build() VTK_OVERRIDE;
 
   //@{
   /**
@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
-  ~vtkWindowLevelLookupTable() {}
+  ~vtkWindowLevelLookupTable() VTK_OVERRIDE {}
 
   double Window;
   double Level;

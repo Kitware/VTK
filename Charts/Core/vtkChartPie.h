@@ -35,7 +35,7 @@ class VTKCHARTSCORE_EXPORT vtkChartPie : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartPie, vtkChart);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Chart object.
@@ -47,88 +47,88 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Add a plot to the chart.
    */
-  virtual vtkPlot * AddPlot(int type);
+  vtkPlot * AddPlot(int type) VTK_OVERRIDE;
 
   /**
    * Add a plot to the chart. Return the index of the plot, -1 if it failed.
    */
-  virtual vtkIdType AddPlot(vtkPlot* plot)
+  vtkIdType AddPlot(vtkPlot* plot) VTK_OVERRIDE
     { return Superclass::AddPlot(plot); }
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
    */
-  virtual vtkPlot* GetPlot(vtkIdType index);
+  vtkPlot* GetPlot(vtkIdType index) VTK_OVERRIDE;
 
   /**
    * Get the number of plots the chart contains.
    */
-  virtual vtkIdType GetNumberOfPlots();
+  vtkIdType GetNumberOfPlots() VTK_OVERRIDE;
 
   /**
    * Set whether the chart should draw a legend.
    */
-  virtual void SetShowLegend(bool visible);
+  void SetShowLegend(bool visible) VTK_OVERRIDE;
 
   /**
    * Get the legend for the chart, if available. Can return NULL if there is no
    * legend.
    */
-  virtual vtkChartLegend * GetLegend();
+  vtkChartLegend * GetLegend() VTK_OVERRIDE;
 
   /**
    * Set the vtkContextScene for the item, always set for an item in a scene.
    */
-  virtual void SetScene(vtkContextScene *scene);
+  void SetScene(vtkContextScene *scene) VTK_OVERRIDE;
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse enter event.
    */
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse);
+  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse leave event.
    */
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button down event
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button release event.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    */
-  virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
+  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) VTK_OVERRIDE;
 
 protected:
   vtkChartPie();
-  ~vtkChartPie();
+  ~vtkChartPie() VTK_OVERRIDE;
 
   /**
    * Recalculate the necessary transforms.

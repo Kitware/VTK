@@ -37,7 +37,7 @@ class VTKINFOVISCORE_EXPORT vtkGroupLeafVertices : public vtkTreeAlgorithm
 public:
   static vtkGroupLeafVertices* New();
   vtkTypeMacro(vtkGroupLeafVertices,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,12 +54,12 @@ public:
 
 protected:
   vtkGroupLeafVertices();
-  ~vtkGroupLeafVertices();
+  ~vtkGroupLeafVertices() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   char* GroupDomain;
 

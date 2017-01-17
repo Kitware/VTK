@@ -45,7 +45,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkTanglegramItem : public vtkContextItem
 public:
   static vtkTanglegramItem *New();
   vtkTypeMacro(vtkTanglegramItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set the first tree
@@ -139,17 +139,17 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Propagate any double click onto the dendrograms to check if any
    * subtrees should be collapsed or expanded.
    */
-  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &event);
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
 
 protected:
   vtkTanglegramItem();
-  ~vtkTanglegramItem();
+  ~vtkTanglegramItem() VTK_OVERRIDE;
 
   /**
    * Update the bounds of our two dendrograms.
@@ -201,7 +201,7 @@ protected:
   /**
    * Paints the tree & associated table as a heatmap.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
 private:
   vtkSmartPointer<vtkDendrogramItem> Dendrogram1;

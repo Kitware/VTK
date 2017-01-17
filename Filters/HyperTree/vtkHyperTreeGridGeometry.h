@@ -41,15 +41,15 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkPolyDataAl
 public:
   static vtkHyperTreeGridGeometry* New();
   vtkTypeMacro( vtkHyperTreeGridGeometry, vtkPolyDataAlgorithm );
-  void PrintSelf( ostream&, vtkIndent );
+  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
 protected:
   vtkHyperTreeGridGeometry();
-  ~vtkHyperTreeGridGeometry();
+  ~vtkHyperTreeGridGeometry() VTK_OVERRIDE;
 
-  virtual int RequestData( vtkInformation*,
-    vtkInformationVector**, vtkInformationVector* );
-  virtual int FillInputPortInformation( int, vtkInformation* );
+  int RequestData( vtkInformation*,
+    vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   void ProcessTrees();
   void RecursiveProcessTree( void* );

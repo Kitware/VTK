@@ -123,7 +123,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkContourRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -412,21 +412,21 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  virtual void BuildRepresentation()=0;
-  virtual int ComputeInteractionState(int X, int Y, int modified=0)=0;
-  virtual void StartWidgetInteraction(double e[2])=0;
-  virtual void WidgetInteraction(double e[2])=0;
+  void BuildRepresentation() VTK_OVERRIDE =0;
+  int ComputeInteractionState(int X, int Y, int modified=0) VTK_OVERRIDE =0;
+  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE =0;
+  void WidgetInteraction(double e[2]) VTK_OVERRIDE =0;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w)=0;
-  virtual int RenderOverlay(vtkViewport *viewport)=0;
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport)=0;
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport)=0;
-  virtual int HasTranslucentPolygonalGeometry()=0;
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE =0;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE =0;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE =0;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE =0;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE =0;
   //@}
 
   //@{
@@ -464,7 +464,7 @@ public:
 
 protected:
   vtkContourRepresentation();
-  ~vtkContourRepresentation();
+  ~vtkContourRepresentation() VTK_OVERRIDE;
 
   // Selection tolerance for the handles
   int    PixelTolerance;

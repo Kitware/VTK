@@ -34,15 +34,15 @@ class VTKIOGEOMETRY_EXPORT vtkPDBReader : public vtkMoleculeReaderBase
 {
 public:
   vtkTypeMacro(vtkPDBReader,vtkMoleculeReaderBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPDBReader *New();
 
 protected:
   vtkPDBReader();
-  ~vtkPDBReader();
+  ~vtkPDBReader() VTK_OVERRIDE;
 
-  void ReadSpecificMolecule(FILE* fp);
+  void ReadSpecificMolecule(FILE* fp) VTK_OVERRIDE;
 
 private:
   vtkPDBReader(const vtkPDBReader&) VTK_DELETE_FUNCTION;

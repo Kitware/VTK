@@ -63,7 +63,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkLegendScaleActor,vtkProp);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   enum AttributeLocation
@@ -204,15 +204,15 @@ public:
    * Standard methods supporting the rendering process.
    */
   virtual void BuildRepresentation(vtkViewport *viewport);
-  virtual void GetActors2D(vtkPropCollection*);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
+  void GetActors2D(vtkPropCollection*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkLegendScaleActor();
-  ~vtkLegendScaleActor();
+  ~vtkLegendScaleActor() VTK_OVERRIDE;
 
   int    LabelMode;
   int    RightBorderOffset;

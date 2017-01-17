@@ -53,7 +53,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkAngularPeriodicFilter : public vtkPeriodicFil
 public:
   static vtkAngularPeriodicFilter* New();
   vtkTypeMacro(vtkAngularPeriodicFilter, vtkPeriodicFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -121,11 +121,11 @@ public:
 
 protected:
   vtkAngularPeriodicFilter();
-  ~vtkAngularPeriodicFilter();
+  ~vtkAngularPeriodicFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Create a transform copy of the provided data array
@@ -145,9 +145,9 @@ protected:
   /**
    * Manually set the number of period on a specific leaf
    */
-  virtual void SetPeriodNumber(vtkCompositeDataIterator* loc,
+  void SetPeriodNumber(vtkCompositeDataIterator* loc,
                                vtkCompositeDataSet* output,
-                               int nbPeriod);
+                               int nbPeriod) VTK_OVERRIDE;
 
   /**
    * Compute periodic pointset, rotating point, using provided angle
@@ -167,7 +167,7 @@ protected:
    */
   void CreatePeriodicDataSet(vtkCompositeDataIterator* loc,
                              vtkCompositeDataSet* output,
-                             vtkCompositeDataSet* input);
+                             vtkCompositeDataSet* input) VTK_OVERRIDE;
 
   /**
    * Generate a name for a piece in the periodic dataset from the input dataset

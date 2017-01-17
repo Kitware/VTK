@@ -33,7 +33,7 @@ class VTKIMAGINGSTENCIL_EXPORT vtkImageStencil : public vtkThreadedImageAlgorith
 public:
   static vtkImageStencil *New();
   vtkTypeMacro(vtkImageStencil, vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -93,18 +93,18 @@ public:
 
 protected:
   vtkImageStencil();
-  ~vtkImageStencil();
+  ~vtkImageStencil() VTK_OVERRIDE;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
+                           int extent[6], int id) VTK_OVERRIDE;
 
   int ReverseStencil;
   double BackgroundColor[4];
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkImageStencil(const vtkImageStencil&) VTK_DELETE_FUNCTION;

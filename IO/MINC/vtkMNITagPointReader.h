@@ -159,7 +159,7 @@ public:
 
 protected:
   vtkMNITagPointReader();
-  ~vtkMNITagPointReader();
+  ~vtkMNITagPointReader() VTK_OVERRIDE;
 
   char *FileName;
   int NumberOfVolumes;
@@ -188,9 +188,9 @@ protected:
 
   virtual int ReadFile(vtkPolyData *output1, vtkPolyData *output2);
 
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inInfo,
-                          vtkInformationVector* outInfo);
+                          vtkInformationVector* outInfo) VTK_OVERRIDE;
 
 private:
   vtkMNITagPointReader(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;

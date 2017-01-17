@@ -43,7 +43,7 @@ class VTKIOCORE_EXPORT vtkWriter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkWriter,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Write data to output. Method executes subclasses WriteData() method, as
@@ -82,11 +82,11 @@ public:
 
 protected:
   vtkWriter();
-  ~vtkWriter();
+  ~vtkWriter() VTK_OVERRIDE;
 
-  virtual int ProcessRequest(vtkInformation *request,
+  int ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector);
+                             vtkInformationVector *outputVector) VTK_OVERRIDE;
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);

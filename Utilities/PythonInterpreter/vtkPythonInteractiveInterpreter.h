@@ -46,7 +46,7 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonInteractiveInterpreter : public vtkOb
 public:
   static vtkPythonInteractiveInterpreter* New();
   vtkTypeMacro(vtkPythonInteractiveInterpreter, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Push a line of code. It should have have trailing newlines. It can have

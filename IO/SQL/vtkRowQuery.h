@@ -63,7 +63,7 @@ class VTKIOSQL_EXPORT vtkRowQuery : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRowQuery, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Execute the query.  This must be performed
@@ -143,7 +143,7 @@ public:
 
 protected:
   vtkRowQuery();
-  ~vtkRowQuery();
+  ~vtkRowQuery() VTK_OVERRIDE;
   bool CaseSensitiveFieldNames;
 private:
   vtkRowQuery(const vtkRowQuery &) VTK_DELETE_FUNCTION;

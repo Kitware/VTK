@@ -57,7 +57,7 @@ public:
   static vtkConeLayoutStrategy *New();
 
   vtkTypeMacro(vtkConeLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -100,11 +100,11 @@ public:
   /**
    * Perform the layout.
    */
-  void Layout();
+  void Layout() VTK_OVERRIDE;
 
 protected:
   vtkConeLayoutStrategy();
-  ~vtkConeLayoutStrategy();
+  ~vtkConeLayoutStrategy() VTK_OVERRIDE;
 
   /**
    * Helper operations for tree layout.  Layout is performed

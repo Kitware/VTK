@@ -262,7 +262,7 @@ public:
 
 protected:
   vtkAbstractImageInterpolator();
-  ~vtkAbstractImageInterpolator();
+  ~vtkAbstractImageInterpolator() VTK_OVERRIDE;
 
   /**
    * Subclass-specific updates.

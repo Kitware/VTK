@@ -38,14 +38,14 @@ public:
   /**
    * Is the given file name a tiff file?
    */
-  virtual int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname) VTK_OVERRIDE;
 
   /**
    * Get the file extensions for this format.
    * Returns a string with a space separated list of extensions in
    * the format .extension
    */
-  virtual const char* GetFileExtensions()
+  const char* GetFileExtensions() VTK_OVERRIDE
   {
     return ".tif .tiff";
   }
@@ -54,7 +54,7 @@ public:
    * Return a descriptive name for the file format that might be useful
    * in a GUI.
    */
-  virtual const char* GetDescriptiveName()
+  const char* GetDescriptiveName() VTK_OVERRIDE
   {
     return "TIFF";
   }
@@ -101,12 +101,12 @@ public:
 
 protected:
   vtkTIFFReader();
-  ~vtkTIFFReader();
+  ~vtkTIFFReader() VTK_OVERRIDE;
 
   enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
+  void ExecuteInformation() VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) VTK_OVERRIDE;
 
 private:
   vtkTIFFReader(const vtkTIFFReader&) VTK_DELETE_FUNCTION;

@@ -50,7 +50,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractArraysOverTime : public vtkMultiBloc
 public:
   static vtkExtractArraysOverTime *New();
   vtkTypeMacro(vtkExtractArraysOverTime, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -101,17 +101,17 @@ public:
 
 protected:
   vtkExtractArraysOverTime();
-  ~vtkExtractArraysOverTime();
+  ~vtkExtractArraysOverTime() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
-  virtual int RequestUpdateExtent(vtkInformation* request,
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation* request,
                                   vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
-  virtual int RequestData(vtkInformation* request,
+                                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   virtual void PostExecute(vtkInformation* request,
                            vtkInformationVector** inputVector,
@@ -128,7 +128,7 @@ protected:
    */
   int DetermineSelectionType(vtkSelection*);
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   void ExecuteAtTimeStep(vtkInformationVector** inputV,
     vtkInformation* outInfo);

@@ -75,7 +75,7 @@ public:
    */
   static vtkPointInterpolator2D *New();
   vtkTypeMacro(vtkPointInterpolator2D,vtkPointInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkPointInterpolator2D();
-  ~vtkPointInterpolator2D();
+  ~vtkPointInterpolator2D() VTK_OVERRIDE;
 
   // Interpolate z values?
   bool InterpolateZ;
@@ -110,7 +110,7 @@ protected:
   vtkStdString ZArrayName;
 
   // The driver of the algorithm
-  virtual void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
+  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output) VTK_OVERRIDE;
 
 private:
   vtkPointInterpolator2D(const vtkPointInterpolator2D&) VTK_DELETE_FUNCTION;

@@ -42,13 +42,13 @@ class VTKVIEWSINFOVIS_EXPORT vtkTreeMapView : public vtkTreeAreaView
 public:
   static vtkTreeMapView *New();
   vtkTypeMacro(vtkTreeMapView, vtkTreeAreaView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Sets the treemap layout strategy
    */
-  virtual void SetLayoutStrategy(vtkAreaLayoutStrategy* s);
+  void SetLayoutStrategy(vtkAreaLayoutStrategy* s) VTK_OVERRIDE;
   virtual void SetLayoutStrategy(const char* name);
   virtual void SetLayoutStrategyToBox();
   virtual void SetLayoutStrategyToSliceAndDice();
@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkTreeMapView();
-  ~vtkTreeMapView();
+  ~vtkTreeMapView() VTK_OVERRIDE;
 
   vtkSmartPointer<vtkBoxLayoutStrategy> BoxLayout;
   vtkSmartPointer<vtkSliceAndDiceLayoutStrategy> SliceAndDiceLayout;

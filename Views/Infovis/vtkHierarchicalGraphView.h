@@ -51,7 +51,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkHierarchicalGraphView : public vtkGraphLayoutVie
 public:
   static vtkHierarchicalGraphView *New();
   vtkTypeMacro(vtkHierarchicalGraphView, vtkGraphLayoutView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -129,15 +129,15 @@ public:
 
 protected:
   vtkHierarchicalGraphView();
-  ~vtkHierarchicalGraphView();
+  ~vtkHierarchicalGraphView() VTK_OVERRIDE;
 
   //@{
   /**
    * Overrides behavior in vtkGraphLayoutView to create a
    * vtkRenderedHierarchyRepresentation by default.
    */
-  virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
-  virtual vtkRenderedGraphRepresentation* GetGraphRepresentation();
+  vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn) VTK_OVERRIDE;
+  vtkRenderedGraphRepresentation* GetGraphRepresentation() VTK_OVERRIDE;
   virtual vtkRenderedHierarchyRepresentation* GetHierarchyRepresentation();
   //@}
 

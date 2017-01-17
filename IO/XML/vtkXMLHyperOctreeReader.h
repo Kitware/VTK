@@ -40,7 +40,7 @@ class VTKIOXML_EXPORT vtkXMLHyperOctreeReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLHyperOctreeReader,vtkXMLDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLHyperOctreeReader *New();
 
   //@{
@@ -53,31 +53,31 @@ public:
 
 protected:
   vtkXMLHyperOctreeReader();
-  ~vtkXMLHyperOctreeReader();
+  ~vtkXMLHyperOctreeReader() VTK_OVERRIDE;
 
-  const char* GetDataSetName();
+  const char* GetDataSetName() VTK_OVERRIDE;
 
   // Setup the output with no data available.  Used in error cases.
-  void SetupEmptyOutput();
+  void SetupEmptyOutput() VTK_OVERRIDE;
 
   // Declare that this reader produces HyperOctrees
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   //These defer to the HyperOctree output.
-  vtkIdType GetNumberOfPoints();
-  vtkIdType GetNumberOfCells();
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
 
   // Overriden here to do allocation.
-  virtual int ReadArrayForPoints(vtkXMLDataElement* da,
-                                 vtkAbstractArray* outArray);
-  virtual int ReadArrayForCells(vtkXMLDataElement* da,
-                                vtkAbstractArray* outArray);
+  int ReadArrayForPoints(vtkXMLDataElement* da,
+                                 vtkAbstractArray* outArray) VTK_OVERRIDE;
+  int ReadArrayForCells(vtkXMLDataElement* da,
+                                vtkAbstractArray* outArray) VTK_OVERRIDE;
 
 
 
   // The most important stuff is here.
   // Read the rest of the file and create the HyperOctree.
-  void ReadXMLData();
+  void ReadXMLData() VTK_OVERRIDE;
 
   // Recover the structure of the HyperOctree, used by ReadXMLData.
   void ReadTopology(vtkXMLDataElement *elem);

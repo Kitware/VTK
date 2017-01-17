@@ -54,7 +54,7 @@ class VTKIOLEGACY_EXPORT vtkGenericDataObjectReader : public vtkDataReader
 public:
   static vtkGenericDataObjectReader *New();
   vtkTypeMacro(vtkGenericDataObjectReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -92,20 +92,20 @@ public:
   /**
    * See vtkAlgorithm for information.
    */
-  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *);
+  int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *) VTK_OVERRIDE;
 
 protected:
   vtkGenericDataObjectReader();
-  ~vtkGenericDataObjectReader();
+  ~vtkGenericDataObjectReader() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
                                 vtkInformationVector *);
-  virtual int FillOutputPortInformation(int, vtkInformation *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+  int FillOutputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;

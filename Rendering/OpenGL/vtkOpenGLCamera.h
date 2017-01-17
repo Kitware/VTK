@@ -38,13 +38,13 @@ public:
   /**
    * Implement base class method.
    */
-  void Render(vtkRenderer *ren);
+  void Render(vtkRenderer *ren) VTK_OVERRIDE;
 
-  void UpdateViewport(vtkRenderer *ren);
+  void UpdateViewport(vtkRenderer *ren) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLCamera() {}
-  ~vtkOpenGLCamera() {}
+  ~vtkOpenGLCamera() VTK_OVERRIDE {}
 private:
   vtkOpenGLCamera(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;

@@ -55,89 +55,89 @@ public:
 
 protected:
   vtkEnSightGoldReader();
-  ~vtkEnSightGoldReader();
+  ~vtkEnSightGoldReader() VTK_OVERRIDE;
 
   /**
    * Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
    */
-  virtual int ReadGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output);
+  int ReadGeometryFile(const char* fileName, int timeStep,
+    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
 
   /**
    * Read the measured geometry file.  If an error occurred, 0 is returned;
    * otherwise 1.
    */
-  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output);
+  int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
+    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
 
   /**
    * Read scalars per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.  If there will be more than one component in
    * the data array, it is assumed that 0 is the first component added.
    */
-  virtual int ReadScalarsPerNode(const char* fileName, const char* description,
+  int ReadScalarsPerNode(const char* fileName, const char* description,
     int timeStep, vtkMultiBlockDataSet *output,
     int measured = 0,
     int numberOfComponents = 1,
-    int component = 0);
+    int component = 0) VTK_OVERRIDE;
 
   /**
    * Read vectors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadVectorsPerNode(const char* fileName, const char* description,
+  int ReadVectorsPerNode(const char* fileName, const char* description,
     int timeStep, vtkMultiBlockDataSet *output,
-    int measured = 0);
+    int measured = 0) VTK_OVERRIDE;
 
   /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadTensorsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output);
+  int ReadTensorsPerNode(const char* fileName, const char* description,
+    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.  If there will be more than one componenet in the
    * data array, it is assumed that 0 is the first component added.
    */
-  virtual int ReadScalarsPerElement(const char* fileName, const char* description,
+  int ReadScalarsPerElement(const char* fileName, const char* description,
     int timeStep, vtkMultiBlockDataSet *output,
     int numberOfComponents = 1,
-    int component = 0);
+    int component = 0) VTK_OVERRIDE;
 
   /**
    * Read vectors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadVectorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output);
+  int ReadVectorsPerElement(const char* fileName, const char* description,
+    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
 
   /**
    * Read tensors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
-  virtual int ReadTensorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output);
+  int ReadTensorsPerElement(const char* fileName, const char* description,
+    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
 
   /**
    * Read an unstructured part (partId) from the geometry file and create a
    * vtkUnstructuredGrid output.  Return 0 if EOF reached. Return -1 if
    * an error occurred.
    */
-  virtual int CreateUnstructuredGridOutput(int partId,
+  int CreateUnstructuredGridOutput(int partId,
     char line[256],
     const char* name,
-    vtkMultiBlockDataSet *output);
+    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkStructuredGrid output.  Return 0 if EOF reached.
    */
-  virtual int CreateStructuredGridOutput(int partId,
+  int CreateStructuredGridOutput(int partId,
     char line[256],
     const char* name,
-    vtkMultiBlockDataSet *output);
+    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
 
   /**
    * Read a structured part from the geometry file and create a
@@ -152,30 +152,6 @@ protected:
    */
   int CreateImageDataOutput(int partId, char line[256], const char* name,
     vtkMultiBlockDataSet *output);
-
-  //@{
-  /**
-   * Set/Get the Model file name.
-   */
-  vtkSetStringMacro(GeometryFileName);
-  vtkGetStringMacro(GeometryFileName);
-  //@}
-
-  //@{
-  /**
-   * Set/Get the Measured file name.
-   */
-  vtkSetStringMacro(MeasuredFileName);
-  vtkGetStringMacro(MeasuredFileName);
-  //@}
-
-  //@{
-  /**
-   * Set/Get the Match file name.
-   */
-  vtkSetStringMacro(MatchFileName);
-  vtkGetStringMacro(MatchFileName);
-  //@}
 
   /**
    * Skip next line in file if the 'undef' or 'partial' keyword was

@@ -38,7 +38,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLModelViewProjectionMonitor : public vtk
 public:
   static vtkOpenGLModelViewProjectionMonitor* New();
   vtkTypeMacro(vtkOpenGLModelViewProjectionMonitor, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Fetches the current GL state and updates the
@@ -67,7 +67,7 @@ protected:
   vtkOpenGLModelViewProjectionMonitor() : UpTime(0)
   { this->Initialize(); }
 
-  ~vtkOpenGLModelViewProjectionMonitor(){}
+  ~vtkOpenGLModelViewProjectionMonitor() VTK_OVERRIDE{}
 
   void Initialize();
 

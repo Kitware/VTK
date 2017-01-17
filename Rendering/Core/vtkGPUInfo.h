@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkGPUInfo : public vtkObject
 public:
   static vtkGPUInfo* New();
   vtkTypeMacro(vtkGPUInfo, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkGPUInfo();
-  ~vtkGPUInfo();
+  ~vtkGPUInfo() VTK_OVERRIDE;
 
   vtkTypeUInt64 DedicatedVideoMemory;
   vtkTypeUInt64 DedicatedSystemMemory;

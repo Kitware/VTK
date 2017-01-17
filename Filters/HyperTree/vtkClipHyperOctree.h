@@ -83,7 +83,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkClipHyperOctree : public vtkUnstructuredGrid
 {
 public:
   vtkTypeMacro(vtkClipHyperOctree,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with user-specified implicit function; InsideOut turned off;
@@ -170,13 +170,13 @@ public:
   /**
    * Return the mtime also considering the locator and clip function.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkClipHyperOctree(vtkImplicitFunction *cf=NULL);
-  ~vtkClipHyperOctree();
+  ~vtkClipHyperOctree() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Clip the sub-hierarchy pointed by cursor.
@@ -187,7 +187,7 @@ protected:
                 int level,
                 double bounds[6]);
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
   vtkImplicitFunction *ClipFunction;
 
   vtkIncrementalPointLocator *Locator;

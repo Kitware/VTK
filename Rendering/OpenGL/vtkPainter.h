@@ -62,7 +62,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkPainter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPainter, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Keys used to specify control the behaviour of the painter.
@@ -176,7 +176,7 @@ public:
 
 protected:
   vtkPainter();
-  ~vtkPainter();
+  ~vtkPainter() VTK_OVERRIDE;
 
   /**
    * Take part in garbage collection.

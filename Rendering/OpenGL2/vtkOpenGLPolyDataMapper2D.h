@@ -55,21 +55,21 @@ public:
   /**
    * Actually draw the poly data.
    */
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /// Return the mapper's vertex buffer object.
   vtkGetObjectMacro(VBO,vtkOpenGLVertexBufferObject);
 
 protected:
   vtkOpenGLPolyDataMapper2D();
-  ~vtkOpenGLPolyDataMapper2D();
+  ~vtkOpenGLPolyDataMapper2D() VTK_OVERRIDE;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 

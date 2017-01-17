@@ -56,7 +56,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
 {
  public:
   vtkTypeMacro(vtkRenderPass,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform rendering according to a render state \p s.
@@ -88,7 +88,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
   /**
    * Destructor. Do nothing.
    */
-  virtual ~vtkRenderPass();
+  ~vtkRenderPass() VTK_OVERRIDE;
 
   /**
    * Call UpdateCamera() on Renderer. This ugly mechanism gives access to

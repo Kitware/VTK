@@ -44,7 +44,7 @@ class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
   public:
     static vtkFieldDataSerializer* New();
     vtkTypeMacro(vtkFieldDataSerializer,vtkObject);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     /**
      * Serializes the metadata of the given field data instance, i.e., the
@@ -111,7 +111,7 @@ class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
 
   protected:
     vtkFieldDataSerializer();
-    virtual ~vtkFieldDataSerializer();
+    ~vtkFieldDataSerializer() VTK_OVERRIDE;
 
     /**
      * Given an input data array and list of tuples, it extracts the selected

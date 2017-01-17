@@ -38,7 +38,7 @@ class VTKIOEXPORT_EXPORT vtkOOGLExporter : public vtkExporter
 public:
   static vtkOOGLExporter *New();
   vtkTypeMacro(vtkOOGLExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -50,9 +50,9 @@ public:
 
 protected:
   vtkOOGLExporter();
-  ~vtkOOGLExporter();
+  ~vtkOOGLExporter() VTK_OVERRIDE;
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp, int count);
   char *FileName;

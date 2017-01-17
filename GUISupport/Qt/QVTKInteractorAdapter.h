@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Destructor
-  ~QVTKInteractorAdapter();
+  ~QVTKInteractorAdapter() VTK_OVERRIDE;
 
   // Description:
   // Process a QEvent and send it to the interactor

@@ -49,7 +49,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelection : public vtkExtractSelecti
 public:
   static vtkExtractSelection *New();
   vtkTypeMacro(vtkExtractSelection, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -74,19 +74,19 @@ public:
 
 protected:
   vtkExtractSelection();
-  ~vtkExtractSelection();
+  ~vtkExtractSelection() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   //sets up empty output dataset
-  virtual int RequestDataObject(vtkInformation* request,
+  int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   // runs the algorithm and fills the output with results
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   // used for composite, non-hierarhical input.
   vtkDataObject* RequestDataInternal(

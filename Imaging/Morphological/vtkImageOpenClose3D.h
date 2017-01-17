@@ -48,27 +48,27 @@ public:
    */
   static vtkImageOpenClose3D *New();
   vtkTypeMacro(vtkImageOpenClose3D,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * This method considers the sub filters MTimes when computing this objects
    * modified time.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
    * Turn debugging output on. (in sub filters also)
    */
-  void DebugOn();
-  void DebugOff();
+  void DebugOn() VTK_OVERRIDE;
+  void DebugOff() VTK_OVERRIDE;
   //@}
 
   /**
    * Pass modified message to sub filters.
    */
-  void Modified();
+  void Modified() VTK_OVERRIDE;
 
   // Forward Source messages to filter1
 
@@ -106,23 +106,23 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
   /**
    * Override to send the request to internal pipeline.
    */
-  virtual int
+  int
   ComputePipelineMTime(vtkInformation* request,
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       vtkMTimeType* mtime);
+                       vtkMTimeType* mtime) VTK_OVERRIDE;
 
 protected:
   vtkImageOpenClose3D();
-  ~vtkImageOpenClose3D();
+  ~vtkImageOpenClose3D() VTK_OVERRIDE;
 
   vtkImageDilateErode3D *Filter0;
   vtkImageDilateErode3D *Filter1;

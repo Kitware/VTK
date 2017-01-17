@@ -42,7 +42,7 @@ class VTKFILTERSAMR_EXPORT vtkAMRToMultiBlockFilter :
 public:
   static vtkAMRToMultiBlockFilter* New();
   vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm );
-  void PrintSelf(ostream &oss, vtkIndent indent );
+  void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -55,14 +55,14 @@ public:
 
   // Standard pipeline routines
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
-  virtual int RequestData(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(
+      vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
 protected:
   vtkAMRToMultiBlockFilter();
-  virtual ~vtkAMRToMultiBlockFilter();
+  ~vtkAMRToMultiBlockFilter() VTK_OVERRIDE;
 
   //@{
   /**

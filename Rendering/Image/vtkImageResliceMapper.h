@@ -48,7 +48,7 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
 public:
   static vtkImageResliceMapper *New();
   vtkTypeMacro(vtkImageResliceMapper,vtkImageMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set the slice that will be used to cut through the image.
@@ -168,27 +168,27 @@ public:
   /**
    * This should only be called by the renderer.
    */
-  virtual void Render(vtkRenderer *renderer, vtkImageSlice *prop);
+  void Render(vtkRenderer *renderer, vtkImageSlice *prop) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by
    * this mapper.  The parameter window is used to determine
    * which graphic resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Get the mtime for the mapper.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
    * The bounding box (array of six doubles) of the data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds();
-  void GetBounds(double bounds[6])
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE
     { this->vtkAbstractMapper3D::GetBounds(bounds); };
   //@}
 
@@ -197,11 +197,11 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inInfo,
-                     vtkInformationVector* outInfo);
+                     vtkInformationVector* outInfo) VTK_OVERRIDE;
 
 protected:
   vtkImageResliceMapper();
-  ~vtkImageResliceMapper();
+  ~vtkImageResliceMapper() VTK_OVERRIDE;
 
   /**
    * Do a checkerboard pattern to the alpha of an RGBA image
@@ -250,10 +250,10 @@ protected:
   /**
    * Override Update to handle some tricky details.
    */
-  virtual void Update(int port);
-  virtual void Update();
-  virtual int Update(int port, vtkInformationVector* requests);
-  virtual int Update(vtkInformation* requests);
+  void Update(int port) VTK_OVERRIDE;
+  void Update() VTK_OVERRIDE;
+  int Update(int port, vtkInformationVector* requests) VTK_OVERRIDE;
+  int Update(vtkInformation* requests) VTK_OVERRIDE;
   //@}
 
   /**

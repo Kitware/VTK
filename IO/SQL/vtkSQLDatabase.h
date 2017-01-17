@@ -85,7 +85,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabase : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSQLDatabase, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Open a new connection to the database.
@@ -127,7 +127,7 @@ public:
   /**
    * Get the type of the database (e.g. mysql, psql,..).
    */
-  virtual char* GetDatabaseType() = 0;
+  virtual const char* GetDatabaseType() = 0;
 
   /**
    * Get the list of tables from the database.
@@ -241,7 +241,7 @@ public:
 
 protected:
   vtkSQLDatabase();
-  ~vtkSQLDatabase();
+  ~vtkSQLDatabase() VTK_OVERRIDE;
 
   /**
    * Subclasses should override this method to determine connection parameters

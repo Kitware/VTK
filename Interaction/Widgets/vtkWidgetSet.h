@@ -121,7 +121,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkWidgetSet,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -192,7 +192,7 @@ public:
 
 protected:
   vtkWidgetSet();
-  ~vtkWidgetSet();
+  ~vtkWidgetSet() VTK_OVERRIDE;
 
 private:
   vtkWidgetSet(const vtkWidgetSet&) VTK_DELETE_FUNCTION;

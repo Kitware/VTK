@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkImageResliceToColors();
-  ~vtkImageResliceToColors();
+  ~vtkImageResliceToColors() VTK_OVERRIDE;
 
   vtkScalarsToColors *LookupTable;
   vtkScalarsToColors *DefaultLookupTable;

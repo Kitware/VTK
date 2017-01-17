@@ -309,7 +309,7 @@ public:
 
 protected:
   vtkPeriodicDataArray();
-  ~vtkPeriodicDataArray();
+  ~vtkPeriodicDataArray() VTK_OVERRIDE;
 
   //@{
   /**

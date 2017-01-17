@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkGeoTerrain();
-  ~vtkGeoTerrain();
+  ~vtkGeoTerrain() VTK_OVERRIDE;
 
   virtual void SetGeoSource(vtkGeoSource* source);
   vtkGeoSource* GeoSource;

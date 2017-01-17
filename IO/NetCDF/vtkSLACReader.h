@@ -51,7 +51,7 @@ class VTKIONETCDF_EXPORT vtkSLACReader : public vtkMultiBlockDataSetAlgorithm
 public:
   vtkTypeMacro(vtkSLACReader, vtkMultiBlockDataSetAlgorithm);
   static vtkSLACReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkGetStringMacro(MeshFileName);
   vtkSetStringMacro(MeshFileName);
@@ -216,7 +216,7 @@ public:
 
 protected:
   vtkSLACReader();
-  ~vtkSLACReader();
+  ~vtkSLACReader() VTK_OVERRIDE;
 
   class vtkInternal;
   vtkInternal *Internal;
@@ -246,13 +246,13 @@ protected:
    */
   bool FrequencyModes;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector);
+                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   /**
    * Callback registered with the VariableArraySelection.

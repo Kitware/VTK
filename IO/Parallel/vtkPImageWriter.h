@@ -35,7 +35,7 @@ class VTKIOPARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
 public:
   static vtkPImageWriter *New();
   vtkTypeMacro(vtkPImageWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -48,13 +48,13 @@ public:
 
 protected:
   vtkPImageWriter();
-  ~vtkPImageWriter();
+  ~vtkPImageWriter() VTK_OVERRIDE;
 
   unsigned long MemoryLimit;
 
-  virtual void RecursiveWrite(int dim, vtkImageData *region, vtkInformation* inInfo, ofstream *file);
-  virtual void RecursiveWrite(int dim, vtkImageData *cache,
-                              vtkImageData *data, vtkInformation* inInfo, ofstream *file)
+  void RecursiveWrite(int dim, vtkImageData *region, vtkInformation* inInfo, ofstream *file) VTK_OVERRIDE;
+  void RecursiveWrite(int dim, vtkImageData *cache,
+                              vtkImageData *data, vtkInformation* inInfo, ofstream *file) VTK_OVERRIDE
   {this->vtkImageWriter::RecursiveWrite(dim,cache,data,inInfo,file);};
 
   vtkPipelineSize *SizeEstimator;

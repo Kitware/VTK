@@ -62,20 +62,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapPass : public vtkOpenGLRenderPass
 public:
   static vtkShadowMapPass *New();
   vtkTypeMacro(vtkShadowMapPass,vtkOpenGLRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
 
   //@{
   /**
@@ -128,17 +128,17 @@ public:
     return this->FragmentImplementation; }
 
   // vtkOpenGLRenderPass virtuals:
-  virtual bool PreReplaceShaderValues(std::string &vertexShader,
+  bool PreReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
                                    vtkProp *prop) VTK_OVERRIDE;
-  virtual bool PostReplaceShaderValues(std::string &vertexShader,
+  bool PostReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
                                    vtkProp *prop) VTK_OVERRIDE;
-  virtual bool SetShaderParameters(vtkShaderProgram *program,
+  bool SetShaderParameters(vtkShaderProgram *program,
                           vtkAbstractMapper *mapper, vtkProp *prop,
                           vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
 
@@ -151,7 +151,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkShadowMapPass();
+  ~vtkShadowMapPass() VTK_OVERRIDE;
 
   /**
    * Check if shadow mapping is supported by the current OpenGL context.

@@ -54,21 +54,21 @@ public:
    */
   static vtkSPHQuinticKernel *New();
   vtkTypeMacro(vtkSPHQuinticKernel,vtkSPHKernel);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * Produce the computational parameters for the kernel. Invoke this method
    * after setting initial values like SpatialStep.
    */
-  virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd);
+  void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
+                          vtkPointData *pd) VTK_OVERRIDE;
 
   //@{
   /**
    * Compute weighting factor given a normalized distance from a sample point.
    */
-  virtual double ComputeFunctionWeight(const double d)
+  double ComputeFunctionWeight(const double d) VTK_OVERRIDE
   {
     double tmp1 = 3.0 - std::min(d,3.0);
     double tmp2 = 2.0 - std::min(d,2.0);
@@ -83,7 +83,7 @@ public:
    * Compute weighting factor for derivative quantities given a normalized
    * distance from a sample point.
    */
-  virtual double ComputeDerivWeight(const double d)
+  double ComputeDerivWeight(const double d) VTK_OVERRIDE
   {
     double tmp1 = 3.0 - std::min(d,3.0);
     double tmp2 = 2.0 - std::min(d,2.0);
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkSPHQuinticKernel();
-  ~vtkSPHQuinticKernel();
+  ~vtkSPHQuinticKernel() VTK_OVERRIDE;
 
 private:
   vtkSPHQuinticKernel(const vtkSPHQuinticKernel&) VTK_DELETE_FUNCTION;

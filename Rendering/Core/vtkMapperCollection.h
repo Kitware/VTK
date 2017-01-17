@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
 
 protected:
   vtkMapperCollection() {}
-  ~vtkMapperCollection() {}
+  ~vtkMapperCollection() VTK_OVERRIDE {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

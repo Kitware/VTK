@@ -39,7 +39,7 @@ class VTKIOXML_EXPORT vtkXMLStructuredGridWriter : public vtkXMLStructuredDataWr
 public:
   static vtkXMLStructuredGridWriter* New();
   vtkTypeMacro(vtkXMLStructuredGridWriter,vtkXMLStructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get/Set the writer's input.
@@ -49,28 +49,28 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension();
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
 protected:
   vtkXMLStructuredGridWriter();
-  ~vtkXMLStructuredGridWriter();
+  ~vtkXMLStructuredGridWriter() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  void WriteAppendedPiece(int index, vtkIndent indent);
-  void WriteAppendedPieceData(int index);
-  void WriteInlinePiece(vtkIndent indent);
-  void GetInputExtent(int* extent);
-  const char* GetDataSetName();
+  void WriteAppendedPiece(int index, vtkIndent indent) VTK_OVERRIDE;
+  void WriteAppendedPieceData(int index) VTK_OVERRIDE;
+  void WriteInlinePiece(vtkIndent indent) VTK_OVERRIDE;
+  void GetInputExtent(int* extent) VTK_OVERRIDE;
+  const char* GetDataSetName() VTK_OVERRIDE;
   void CalculateSuperclassFraction(float* fractions);
 
   // The position of the appended data offset attribute for the points
   // array.
   OffsetsManagerGroup *PointsOM;  //one per piece
 
-  virtual void AllocatePositionArrays();
-  virtual void DeletePositionArrays();
+  void AllocatePositionArrays() VTK_OVERRIDE;
+  void DeletePositionArrays() VTK_OVERRIDE;
 
 private:
   vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&) VTK_DELETE_FUNCTION;

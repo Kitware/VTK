@@ -113,7 +113,7 @@ public:
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkImplicitPlaneWidget2,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -126,7 +126,7 @@ public:
   // Descritpion:
   // Disable/Enable the widget if needed.
   // Unobserved the camera if the widget is disabled.
-  void SetEnabled(int enabling);
+  void SetEnabled(int enabling) VTK_OVERRIDE;
 
   /**
    * Observe/Unobserve the camera if the widget is locked/unlocked to update the
@@ -143,11 +143,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkImplicitPlaneWidget2();
-  ~vtkImplicitPlaneWidget2();
+  ~vtkImplicitPlaneWidget2() VTK_OVERRIDE;
 
   // Manage the state of the widget
   int WidgetState;

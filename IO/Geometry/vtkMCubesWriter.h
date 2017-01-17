@@ -47,7 +47,7 @@ class VTKIOGEOMETRY_EXPORT vtkMCubesWriter : public vtkWriter
 public:
   static vtkMCubesWriter *New();
   vtkTypeMacro(vtkMCubesWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -75,9 +75,9 @@ public:
 
 protected:
   vtkMCubesWriter();
-  ~vtkMCubesWriter();
+  ~vtkMCubesWriter() VTK_OVERRIDE;
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
   void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals,
                    vtkCellArray *polys);
@@ -87,7 +87,7 @@ protected:
 
   char *FileName;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkMCubesWriter(const vtkMCubesWriter&) VTK_DELETE_FUNCTION;

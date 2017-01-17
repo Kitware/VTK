@@ -65,11 +65,11 @@ public:
 
 protected:
   vtkButterflySubdivisionFilter () {}
-  ~vtkButterflySubdivisionFilter () {}
+  ~vtkButterflySubdivisionFilter () VTK_OVERRIDE {}
 
 private:
   int GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,
-                                vtkPoints *outputPts, vtkPointData *outputPD);
+                                vtkPoints *outputPts, vtkPointData *outputPD) VTK_OVERRIDE;
   void GenerateButterflyStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
                                 vtkIdList *stencilIds, double *weights);
   void GenerateLoopStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,

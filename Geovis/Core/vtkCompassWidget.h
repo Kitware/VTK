@@ -84,7 +84,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkCompassWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -99,7 +99,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
   //@{
   /**
@@ -115,7 +115,7 @@ public:
 
 protected:
   vtkCompassWidget();
-  ~vtkCompassWidget() {}
+  ~vtkCompassWidget() VTK_OVERRIDE {}
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);

@@ -105,7 +105,7 @@ public:
   };
 
   vtkTypeMacro(vtkParticleTracerBase,vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   void PrintParticleHistories();
 
   //@{
@@ -280,41 +280,41 @@ public:
   //@}
 
   vtkParticleTracerBase();
-  virtual ~vtkParticleTracerBase();
+  ~vtkParticleTracerBase() VTK_OVERRIDE;
 
   //
   // Make sure the pipeline knows what type we expect as input
   //
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   //
   // The usual suspects
   //
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+  int ProcessRequest(vtkInformation* request,
+                     vtkInformationVector** inputVector,
+                     vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   //
   // Store any information we need in the output and fetch what we can
   // from the input
   //
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+  int RequestInformation(vtkInformation* request,
+                         vtkInformationVector** inputVector,
+                         vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   //
   // Compute input time steps given the output step
   //
-  virtual int RequestUpdateExtent(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
+  int RequestUpdateExtent(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   //
   // what the pipeline calls for each time step
   //
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   //
   // these routines are internally called to actually generate the output

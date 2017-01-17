@@ -32,7 +32,7 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageEllipsoidSource : public vtkImageAlgorith
 public:
   static vtkImageEllipsoidSource *New();
   vtkTypeMacro(vtkImageEllipsoidSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkImageEllipsoidSource();
-  ~vtkImageEllipsoidSource();
+  ~vtkImageEllipsoidSource() VTK_OVERRIDE;
 
   int WholeExtent[6];
   double Center[3];
@@ -116,12 +116,12 @@ protected:
   double OutValue;
   int OutputScalarType;
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *,
+                          vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkImageEllipsoidSource(const vtkImageEllipsoidSource&) VTK_DELETE_FUNCTION;

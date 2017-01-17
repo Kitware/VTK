@@ -59,7 +59,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
 public:
   static vtkShadowMapBakerPass *New();
   vtkTypeMacro(vtkShadowMapBakerPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * If this key exists on the PropertyKeys of a prop, the prop is viewed as a
@@ -77,14 +77,14 @@ public:
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
 
   //@{
   /**
@@ -213,7 +213,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkShadowMapBakerPass();
+  ~vtkShadowMapBakerPass() VTK_OVERRIDE;
 
   /**
    * Helper method to compute the mNearest point in a given direction.

@@ -41,7 +41,7 @@ public:
   static vtkGeoSampleArcs *New();
 
   vtkTypeMacro(vtkGeoSampleArcs,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -97,12 +97,12 @@ public:
 
 protected:
   vtkGeoSampleArcs();
-  ~vtkGeoSampleArcs();
+  ~vtkGeoSampleArcs() VTK_OVERRIDE;
 
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double GlobeRadius;
   double MaximumDistanceMeters;

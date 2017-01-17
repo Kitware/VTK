@@ -59,7 +59,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPointPlacer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -157,7 +157,7 @@ public:
 
 protected:
   vtkPointPlacer();
-  ~vtkPointPlacer();
+  ~vtkPointPlacer() VTK_OVERRIDE;
 
   int          PixelTolerance;
   double       WorldTolerance;

@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkRendererDelegate : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRendererDelegate,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Render the props of vtkRenderer if Used is on.
@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkRendererDelegate();
-  virtual ~vtkRendererDelegate();
+  ~vtkRendererDelegate() VTK_OVERRIDE;
 
   bool Used;
 

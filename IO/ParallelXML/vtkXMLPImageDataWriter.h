@@ -39,7 +39,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPImageDataWriter : public vtkXMLPStructuredD
 public:
   static vtkXMLPImageDataWriter* New();
   vtkTypeMacro(vtkXMLPImageDataWriter,vtkXMLPStructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get/Set the writer's input.
@@ -49,18 +49,18 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension();
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
 protected:
   vtkXMLPImageDataWriter();
-  ~vtkXMLPImageDataWriter();
+  ~vtkXMLPImageDataWriter() VTK_OVERRIDE;
 
-  const char* GetDataSetName();
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
-  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter();
+  const char* GetDataSetName() VTK_OVERRIDE;
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&) VTK_DELETE_FUNCTION;

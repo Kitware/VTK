@@ -154,12 +154,12 @@ public:
   /**
    * Write the file.
    */
-  virtual int Write();
+  int Write() VTK_OVERRIDE;
 
   /**
    * Get the MTime.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -171,7 +171,7 @@ public:
 
 protected:
   vtkMNITagPointWriter();
-  ~vtkMNITagPointWriter();
+  ~vtkMNITagPointWriter() VTK_OVERRIDE;
 
   vtkPoints *Points[2];
   vtkStringArray *LabelText;
@@ -180,13 +180,13 @@ protected:
   vtkIntArray *PatientIds;
   char *Comments;
 
-  virtual void WriteData() {}
+  void WriteData() VTK_OVERRIDE {}
   virtual void WriteData(vtkPointSet *inputs[2]);
 
-  int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   char* FileName;
 

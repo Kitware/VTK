@@ -55,7 +55,7 @@ class VTKRENDERINGCORE_EXPORT vtkTupleInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTupleInterpolator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate the class.
@@ -156,7 +156,7 @@ public:
 
 protected:
   vtkTupleInterpolator();
-  virtual ~vtkTupleInterpolator();
+  ~vtkTupleInterpolator() VTK_OVERRIDE;
 
   // The number of components being interpolated
   int NumberOfComponents;

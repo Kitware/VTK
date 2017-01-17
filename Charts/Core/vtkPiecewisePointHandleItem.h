@@ -40,7 +40,7 @@ class VTKCHARTSCORE_EXPORT vtkPiecewisePointHandleItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPiecewisePointHandleItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPiecewisePointHandleItem *New();
   static void CallRedraw(vtkObject* sender, unsigned long event, void* receiver, void* params);
@@ -48,12 +48,12 @@ public:
   /**
    * Set the parent item, which should be a vtkControlPointItem
    */
-  virtual void SetParent(vtkAbstractContextItem *parent);
+  void SetParent(vtkAbstractContextItem *parent) VTK_OVERRIDE;
 
   /**
    * Paint event for the item.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   //@{
   /**
@@ -80,26 +80,26 @@ public:
   /**
    * Returns true if the supplied x, y coordinate is inside the item.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button down event.
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button release event.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
 protected:
   vtkPiecewisePointHandleItem();
-  ~vtkPiecewisePointHandleItem();
+  ~vtkPiecewisePointHandleItem() VTK_OVERRIDE;
 
   /**
    * Redraw all the handles

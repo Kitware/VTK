@@ -69,7 +69,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkStreamer : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkStreamer,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Specify the start of the streamline in the cell coordinate system. That
@@ -235,7 +235,7 @@ protected:
    * 0.2; and maximum propagation time 100.0.
    */
   vtkStreamer();
-  ~vtkStreamer();
+  ~vtkStreamer() VTK_OVERRIDE;
   //@}
 
   // Integrate data
@@ -353,7 +353,7 @@ protected:
   vtkMultiThreader           *Threader;
   int                        NumberOfThreads;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkStreamer(const vtkStreamer&) VTK_DELETE_FUNCTION;

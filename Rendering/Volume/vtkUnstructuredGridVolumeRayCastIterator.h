@@ -44,7 +44,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastIterator : publi
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastIterator, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Initializes the iteration to the start of the ray at the given screen
@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeRayCastIterator();
-  ~vtkUnstructuredGridVolumeRayCastIterator();
+  ~vtkUnstructuredGridVolumeRayCastIterator() VTK_OVERRIDE;
 
   double Bounds[2];
 

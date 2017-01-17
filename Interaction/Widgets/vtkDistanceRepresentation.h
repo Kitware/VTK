@@ -41,7 +41,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -165,15 +165,15 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  virtual void BuildRepresentation();
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void StartWidgetInteraction(double e[2]);
-  virtual void WidgetInteraction(double e[2]);
+  void BuildRepresentation() VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkDistanceRepresentation();
-  ~vtkDistanceRepresentation();
+  ~vtkDistanceRepresentation() VTK_OVERRIDE;
 
   // The handle and the rep used to close the handles
   vtkHandleRepresentation *HandleRepresentation;

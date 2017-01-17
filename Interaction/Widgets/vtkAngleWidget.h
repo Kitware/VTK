@@ -92,7 +92,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkAngleWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -100,7 +100,7 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  virtual void SetEnabled(int);
+  void SetEnabled(int) VTK_OVERRIDE;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -113,7 +113,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
   /**
    * Return the representation as a vtkAngleRepresentation.
@@ -131,7 +131,7 @@ public:
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  virtual void SetProcessEvents(int);
+  void SetProcessEvents(int) VTK_OVERRIDE;
 
   /**
    * Enum defining the state of the widget. By default the widget is in Start mode,
@@ -164,7 +164,7 @@ public:
 
 protected:
   vtkAngleWidget();
-  ~vtkAngleWidget();
+  ~vtkAngleWidget() VTK_OVERRIDE;
 
   // The state of the widget
   int WidgetState;

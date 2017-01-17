@@ -41,7 +41,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseTableSource : public vtkTableAlgorithm
 public:
   static vtkSQLDatabaseTableSource* New();
   vtkTypeMacro(vtkSQLDatabaseTableSource, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkStdString GetURL();
   void SetURL(const vtkStdString& url);
@@ -72,12 +72,12 @@ public:
 
 protected:
   vtkSQLDatabaseTableSource();
-  ~vtkSQLDatabaseTableSource();
+  ~vtkSQLDatabaseTableSource() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;

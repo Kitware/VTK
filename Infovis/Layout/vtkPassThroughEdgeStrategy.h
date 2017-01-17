@@ -36,17 +36,17 @@ class VTKINFOVISLAYOUT_EXPORT vtkPassThroughEdgeStrategy : public vtkEdgeLayoutS
 public:
   static vtkPassThroughEdgeStrategy* New();
   vtkTypeMacro(vtkPassThroughEdgeStrategy,vtkEdgeLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This is the layout method where the graph that was
    * set in SetGraph() is laid out.
    */
-  virtual void Layout();
+  void Layout() VTK_OVERRIDE;
 
 protected:
   vtkPassThroughEdgeStrategy();
-  ~vtkPassThroughEdgeStrategy();
+  ~vtkPassThroughEdgeStrategy() VTK_OVERRIDE;
 
 private:
   vtkPassThroughEdgeStrategy(const vtkPassThroughEdgeStrategy&) VTK_DELETE_FUNCTION;

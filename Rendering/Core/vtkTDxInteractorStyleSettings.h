@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleSettings : public vtkObject
 public:
   static vtkTDxInteractorStyleSettings *New();
   vtkTypeMacro(vtkTDxInteractorStyleSettings,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkTDxInteractorStyleSettings();
-  virtual ~vtkTDxInteractorStyleSettings();
+  ~vtkTDxInteractorStyleSettings() VTK_OVERRIDE;
 
   double AngleSensitivity;
   bool UseRotationX;

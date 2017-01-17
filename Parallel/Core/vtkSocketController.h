@@ -51,38 +51,38 @@ class VTKPARALLELCORE_EXPORT vtkSocketController : public vtkMultiProcessControl
 public:
   static vtkSocketController *New();
   vtkTypeMacro(vtkSocketController,vtkMultiProcessController);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This method is for initialiazing sockets.
    * One of these is REQUIRED for Windows.
    */
-  virtual void Initialize(int* argc, char*** argv, int)
+  void Initialize(int* argc, char*** argv, int) VTK_OVERRIDE
     { this->Initialize(argc,argv); }
-  virtual void Initialize(int* argc, char*** argv);
+  void Initialize(int* argc, char*** argv) VTK_OVERRIDE;
   virtual void Initialize()
     { this->Initialize(0,0); }
 
   /**
    * Does not apply to sockets. Does nothing.
    */
-  void Finalize() {}
-  void Finalize(int) {}
+  void Finalize() VTK_OVERRIDE {}
+  void Finalize(int) VTK_OVERRIDE {}
 
   /**
    * Does not apply to sockets. Does nothing.
    */
-  void SingleMethodExecute() {}
+  void SingleMethodExecute() VTK_OVERRIDE {}
 
   /**
    * Does not apply to sockets.  Does nothing.
    */
-  void MultipleMethodExecute() {}
+  void MultipleMethodExecute() VTK_OVERRIDE {}
 
   /**
    * Does not apply to sockets. Does nothing.
    */
-  void CreateOutputWindow() {}
+  void CreateOutputWindow() VTK_OVERRIDE {}
 
   /**
    * Wait for connection on a given port, forwarded
@@ -130,7 +130,7 @@ public:
 protected:
 
   vtkSocketController();
-  ~vtkSocketController();
+  ~vtkSocketController() VTK_OVERRIDE;
 
   // Initialize only once, finialize on destruction.
   static int Initialized;

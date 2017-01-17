@@ -103,7 +103,7 @@ public:
     //@}
 
   vtkTypeMacro(vtkTextRenderer, vtkObject)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This is a singleton pattern New. There will be only ONE reference
@@ -285,7 +285,7 @@ public:
 
 protected:
   vtkTextRenderer();
-  ~vtkTextRenderer();
+  ~vtkTextRenderer() VTK_OVERRIDE;
 
   //@{
   /**

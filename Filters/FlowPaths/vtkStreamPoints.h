@@ -37,7 +37,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
   vtkTypeMacro(vtkStreamPoints,vtkStreamer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with time increment set to 1.0.
@@ -54,10 +54,10 @@ public:
 
 protected:
   vtkStreamPoints();
-  ~vtkStreamPoints() {}
+  ~vtkStreamPoints() VTK_OVERRIDE {}
 
   // Convert streamer array into vtkPolyData
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   // the separation of points
   double TimeIncrement;

@@ -51,7 +51,7 @@ class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToSphere : public vtkDataSetAlgorith
 {
 public:
   vtkTypeMacro(vtkTextureMapToSphere,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create object with Center (0,0,0) and the PreventSeam ivar is set to
@@ -91,9 +91,9 @@ public:
 
 protected:
   vtkTextureMapToSphere();
-  ~vtkTextureMapToSphere() {}
+  ~vtkTextureMapToSphere() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Center[3];
   int AutomaticSphereGeneration;

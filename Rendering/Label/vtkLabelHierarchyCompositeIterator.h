@@ -72,27 +72,27 @@ public:
    * This could include labels placed during a previous rendering or
    * a label located under the mouse pointer. You may pass a null pointer.
    */
-  virtual void Begin( vtkIdTypeArray* );
+  void Begin( vtkIdTypeArray* ) VTK_OVERRIDE;
 
   /**
    * Advance the iterator.
    */
-  virtual void Next();
+  void Next() VTK_OVERRIDE;
 
   /**
    * Returns true if the iterator is at the end.
    */
-  virtual bool IsAtEnd();
+  bool IsAtEnd() VTK_OVERRIDE;
 
   /**
    * Retrieves the current label id.
    */
-  virtual vtkIdType GetLabelId();
+  vtkIdType GetLabelId() VTK_OVERRIDE;
 
   /**
    * Retrieve the current label hierarchy.
    */
-  virtual vtkLabelHierarchy* GetHierarchy();
+  vtkLabelHierarchy* GetHierarchy() VTK_OVERRIDE;
 
   /**
    * Retrieve the coordinates of the center of the current hierarchy node
@@ -100,21 +100,21 @@ public:
    * Nodes are n-cubes, so the size is the length of any edge of the cube.
    * This is used by BoxNode().
    */
-  virtual void GetNodeGeometry( double ctr[3], double& size );
+  void GetNodeGeometry( double ctr[3], double& size ) VTK_OVERRIDE;
 
   /**
    * Not implemented.
    */
-  virtual void BoxNode() { }
+  void BoxNode() VTK_OVERRIDE { }
 
   /**
    * Not implemented.
    */
-  virtual void BoxAllNodes( vtkPolyData* ) { }
+  void BoxAllNodes( vtkPolyData* ) VTK_OVERRIDE { }
 
 protected:
   vtkLabelHierarchyCompositeIterator();
-  virtual ~vtkLabelHierarchyCompositeIterator();
+  ~vtkLabelHierarchyCompositeIterator() VTK_OVERRIDE;
 
   class Internal;
   Internal* Implementation;

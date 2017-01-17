@@ -38,17 +38,17 @@ class VTKCHARTSCORE_EXPORT vtkPlotPoints3D : public vtkPlot3D
 {
 public:
   vtkTypeMacro(vtkPlotPoints3D, vtkPlot3D);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkPlotPoints3D * New();
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
 protected:
   vtkPlotPoints3D();
-  ~vtkPlotPoints3D();
+  ~vtkPlotPoints3D() VTK_OVERRIDE;
 
   /**
    * The selected points.

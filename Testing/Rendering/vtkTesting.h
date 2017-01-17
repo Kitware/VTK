@@ -79,7 +79,7 @@ class VTKTESTINGRENDERING_EXPORT vtkTesting : public vtkObject
 public:
   static vtkTesting *New();
   vtkTypeMacro(vtkTesting,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum ReturnValue {
     FAILED = 0,
@@ -312,7 +312,7 @@ public:
 
 protected:
   vtkTesting();
-  ~vtkTesting();
+  ~vtkTesting() VTK_OVERRIDE;
 
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);

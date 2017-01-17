@@ -87,7 +87,7 @@ class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableAttributeDataFilter : public 
 public:
   static vtkProgrammableAttributeDataFilter *New();
   vtkTypeMacro(vtkProgrammableAttributeDataFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Add a dataset to the list of data to process.
@@ -128,9 +128,9 @@ public:
 
 protected:
   vtkProgrammableAttributeDataFilter();
-  ~vtkProgrammableAttributeDataFilter();
+  ~vtkProgrammableAttributeDataFilter() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   vtkDataSetCollection *InputList; //list of datasets to process
   ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;

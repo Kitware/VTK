@@ -86,7 +86,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkMapper, vtkAbstractMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Make a shallow copy of this mapper.
@@ -97,7 +97,7 @@ public:
    * Overload standard modified time function. If lookup table is modified,
    * then this object is modified as well.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Method initiates the mapping process. Generally sent by the actor
@@ -110,7 +110,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *) {}
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
 
   //@{
   /**
@@ -471,8 +471,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  virtual double *GetBounds();
-  virtual void GetBounds(double bounds[6])
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE
     { this->vtkAbstractMapper3D::GetBounds(bounds); }
 
   /**
@@ -589,7 +589,7 @@ public:
 
 protected:
   vtkMapper();
-  ~vtkMapper();
+  ~vtkMapper() VTK_OVERRIDE;
 
   // color mapped colors
   vtkUnsignedCharArray *Colors;

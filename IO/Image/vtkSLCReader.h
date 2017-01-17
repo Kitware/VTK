@@ -33,15 +33,7 @@ class VTKIOIMAGE_EXPORT vtkSLCReader : public vtkImageReader2
 public:
   static vtkSLCReader *New();
   vtkTypeMacro(vtkSLCReader,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  //@{
-  /**
-   * Set/Get the name of the file to read.
-   */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  //@}
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -53,11 +45,11 @@ public:
   /**
    * Is the given file an SLC file?
    */
-  int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname) VTK_OVERRIDE;
   /**
    * .slc
    */
-  virtual const char* GetFileExtensions()
+  const char* GetFileExtensions() VTK_OVERRIDE
   {
       return ".slc";
   }
@@ -65,21 +57,21 @@ public:
   /**
    * SLC
    */
-  virtual const char* GetDescriptiveName()
+  const char* GetDescriptiveName() VTK_OVERRIDE
   {
       return "SLC";
   }
 
 protected:
   vtkSLCReader();
-  ~vtkSLCReader();
+  ~vtkSLCReader() VTK_OVERRIDE;
 
   // Reads the file name and builds a vtkStructuredPoints dataset.
-  virtual void ExecuteDataWithInformation(vtkDataObject*, vtkInformation*);
+  void ExecuteDataWithInformation(vtkDataObject*, vtkInformation*) VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   // Decodes an array of eight bit run-length encoded data.
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );

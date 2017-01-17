@@ -42,7 +42,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandPick : public vtkIn
 public:
   static vtkInteractorStyleRubberBandPick *New();
   vtkTypeMacro(vtkInteractorStyleRubberBandPick, vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void StartSelect();
 
@@ -50,15 +50,15 @@ public:
   /**
    * Event bindings
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnChar();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnChar() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkInteractorStyleRubberBandPick();
-  ~vtkInteractorStyleRubberBandPick();
+  ~vtkInteractorStyleRubberBandPick() VTK_OVERRIDE;
 
   virtual void Pick();
   void RedrawRubberBand();

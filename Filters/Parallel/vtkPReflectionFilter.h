@@ -33,7 +33,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPReflectionFilter : public vtkReflectionFilte
 public:
   static vtkPReflectionFilter* New();
   vtkTypeMacro(vtkPReflectionFilter, vtkReflectionFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -45,12 +45,12 @@ public:
 
 protected:
   vtkPReflectionFilter();
-  ~vtkPReflectionFilter();
+  ~vtkPReflectionFilter() VTK_OVERRIDE;
 
   /**
    * Internal method to compute bounds.
    */
-  virtual int ComputeBounds(vtkDataObject* input, double bounds[6]);
+  int ComputeBounds(vtkDataObject* input, double bounds[6]) VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 private:

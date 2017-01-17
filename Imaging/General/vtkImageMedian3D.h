@@ -35,7 +35,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageMedian3D : public vtkImageSpatialAlgorith
 public:
   static vtkImageMedian3D *New();
   vtkTypeMacro(vtkImageMedian3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This method sets the size of the neighborhood.  It also sets the
@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkImageMedian3D();
-  ~vtkImageMedian3D();
+  ~vtkImageMedian3D() VTK_OVERRIDE;
 
   int NumberOfElements;
 
@@ -60,7 +60,7 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
+                           int extent[6], int id) VTK_OVERRIDE;
 
 private:
   vtkImageMedian3D(const vtkImageMedian3D&) VTK_DELETE_FUNCTION;

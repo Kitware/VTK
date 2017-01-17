@@ -49,7 +49,7 @@ Q_OBJECT
 public:
   static vtkQtRecordView *New();
   vtkTypeMacro(vtkQtRecordView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -57,7 +57,7 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  virtual QWidget* GetWidget();
+  QWidget* GetWidget() VTK_OVERRIDE;
 
   enum
   {
@@ -84,15 +84,15 @@ public:
   /**
    * Updates the view.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
 protected:
 
   vtkQtRecordView();
-  ~vtkQtRecordView();
+  ~vtkQtRecordView() VTK_OVERRIDE;
 
-  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
-  virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
+  void AddRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
+  void RemoveRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
 
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
 

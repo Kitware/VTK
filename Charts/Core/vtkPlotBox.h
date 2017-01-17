@@ -39,7 +39,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotBox : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotBox, vtkPlot);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a box plot.
@@ -51,12 +51,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the plot, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Paint legend event for the plot, called whenever the legend needs the
@@ -64,16 +64,16 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex);
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex) VTK_OVERRIDE;
 
   //@{
   /**
    * This is a convenience function to set the input table.
    */
-  virtual void SetInputData(vtkTable *table);
-  virtual void SetInputData(vtkTable *table, const vtkStdString&,
-                            const vtkStdString&)
+  void SetInputData(vtkTable *table) VTK_OVERRIDE;
+  void SetInputData(vtkTable *table, const vtkStdString&,
+                            const vtkStdString&) VTK_OVERRIDE
   {
     this->SetInputData(table);
   }
@@ -83,16 +83,16 @@ public:
    * Get the plot labels. If this array has a length greater than 1 the index
    * refers to the stacked objects in the plot.
    */
-  virtual vtkStringArray *GetLabels();
+  vtkStringArray *GetLabels() VTK_OVERRIDE;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
    * Returns the index of the data series with which the point is associated
    * or -1.
    */
-  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+  vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location);
+                                    vtkVector2f* location) VTK_OVERRIDE;
 
   //@{
   /**
@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkPlotBox();
-  ~vtkPlotBox();
+  ~vtkPlotBox() VTK_OVERRIDE;
 
   void DrawBoxPlot(int, unsigned char*, double, vtkContext2D*);
 

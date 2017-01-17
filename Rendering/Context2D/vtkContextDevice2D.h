@@ -49,7 +49,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice2D, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkContextDevice2D * New();
 
@@ -379,7 +379,7 @@ public:
 
 protected:
   vtkContextDevice2D();
-  ~vtkContextDevice2D();
+  ~vtkContextDevice2D() VTK_OVERRIDE;
 
   /**
    * Store the width and height of the device in pixels.

@@ -50,33 +50,33 @@ public:
   static vtkGeoInteractorStyle *New();
   vtkTypeMacro(vtkGeoInteractorStyle,
                        vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Event bindings
    */
-  virtual void OnEnter();
-  virtual void OnLeave();
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonUp();
-  virtual void OnLeftButtonDown();
-  virtual void OnMiddleButtonDown();
-  virtual void OnRightButtonDown();
-  virtual void OnChar();
+  void OnEnter() VTK_OVERRIDE;
+  void OnLeave() VTK_OVERRIDE;
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnChar() VTK_OVERRIDE;
   //@}
 
   virtual void RubberBandZoom();
-  virtual void Pan();
-  virtual void Dolly();
+  void Pan() VTK_OVERRIDE;
+  void Dolly() VTK_OVERRIDE;
 
   // Public for render callback.
   void RedrawRectangle();
 
   // See cxx for description of why we need this method.
-  void StartState(int newstate);
+  void StartState(int newstate) VTK_OVERRIDE;
 
   // Used for updating the terrain.
   vtkGeoCamera* GetGeoCamera();
@@ -93,7 +93,7 @@ public:
    * Set/Get the Interactor wrapper being controlled by this object.
    * (Satisfy superclass API.)
    */
-  virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
+  void SetInteractor(vtkRenderWindowInteractor *interactor) VTK_OVERRIDE;
 
   int ViewportToWorld(double x, double y,
                       double &wx, double &wy, double &wz);
@@ -108,7 +108,7 @@ public:
   /**
    * Override to make the renderer use this camera subclass
    */
-  virtual void SetCurrentRenderer(vtkRenderer*);
+  void SetCurrentRenderer(vtkRenderer*) VTK_OVERRIDE;
 
   //@{
   /**
@@ -126,13 +126,13 @@ public:
 
 protected:
   vtkGeoInteractorStyle();
-  ~vtkGeoInteractorStyle();
+  ~vtkGeoInteractorStyle() VTK_OVERRIDE;
 
   // To avoid a warning.
   // We should really inherit directy from vtkInteractorStyle
-  virtual void Dolly(double);
+  void Dolly(double) VTK_OVERRIDE;
 
-  void OnTimer();
+  void OnTimer() VTK_OVERRIDE;
   // Used to get a constant speed regardless of frame rate.
   double LastTime;
 

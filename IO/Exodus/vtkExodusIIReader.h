@@ -55,7 +55,7 @@ class VTKIOEXODUS_EXPORT vtkExodusIIReader : public vtkMultiBlockDataSetAlgorith
 public:
   static vtkExodusIIReader *New();
   vtkTypeMacro(vtkExodusIIReader,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Determine if the file can be readed with this reader.
@@ -67,7 +67,7 @@ public:
   /**
    * Return the object's MTime. This is overridden to include the timestamp of its internal class.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Return the MTime of the internal data structure.
@@ -771,7 +771,7 @@ public:
 
 protected:
   vtkExodusIIReader();
-  ~vtkExodusIIReader();
+  ~vtkExodusIIReader() VTK_OVERRIDE;
 
   // helper for finding IDs
   static int GetIDHelper ( const char *arrayName, vtkDataSet *data, int localID, int searchType );
@@ -800,9 +800,9 @@ protected:
    */
   void AdvertiseTimeSteps( vtkInformation* outputInfo );
 
-  int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   //int RequestDataOverTime( vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Parameters for controlling what is read in.

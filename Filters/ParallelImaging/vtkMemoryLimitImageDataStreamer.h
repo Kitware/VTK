@@ -33,7 +33,7 @@ class VTKFILTERSPARALLELIMAGING_EXPORT vtkMemoryLimitImageDataStreamer : public 
 public:
   static vtkMemoryLimitImageDataStreamer *New();
   vtkTypeMacro(vtkMemoryLimitImageDataStreamer,vtkImageDataStreamer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -46,11 +46,11 @@ public:
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*);
+                     vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkMemoryLimitImageDataStreamer();
-  ~vtkMemoryLimitImageDataStreamer() {}
+  ~vtkMemoryLimitImageDataStreamer() VTK_OVERRIDE {}
 
   unsigned long  MemoryLimit;
 private:

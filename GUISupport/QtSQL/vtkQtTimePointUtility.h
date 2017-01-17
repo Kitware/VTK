@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkQtTimePointUtility() {}
-  ~vtkQtTimePointUtility() {}
+  ~vtkQtTimePointUtility() VTK_OVERRIDE {}
 
 private:
   vtkQtTimePointUtility(const vtkQtTimePointUtility&) VTK_DELETE_FUNCTION;

@@ -43,49 +43,49 @@ class VTKGUISUPPORTQTSQL_EXPORT vtkQtSQLQuery : public vtkSQLQuery
 public:
   static vtkQtSQLQuery* New();
   vtkTypeMacro(vtkQtSQLQuery, vtkSQLQuery);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Execute the query.  This must be performed
    * before any field name or data access functions
    * are used.
    */
-  virtual bool Execute();
+  bool Execute() VTK_OVERRIDE;
 
   /**
    * The number of fields in the query result.
    */
-  virtual int GetNumberOfFields();
+  int GetNumberOfFields() VTK_OVERRIDE;
 
   /**
    * Return the name of the specified query field.
    */
-  virtual const char* GetFieldName(int col);
+  const char* GetFieldName(int col) VTK_OVERRIDE;
 
   /**
    * Return the type of the specified query field, as defined in vtkType.h.
    */
-  virtual int GetFieldType(int col);
+  int GetFieldType(int col) VTK_OVERRIDE;
 
   /**
    * Advance row, return false if past end.
    */
-  virtual bool NextRow();
+  bool NextRow() VTK_OVERRIDE;
 
   /**
    * Return data in current row, field c
    */
-  virtual vtkVariant DataValue(vtkIdType c);
+  vtkVariant DataValue(vtkIdType c) VTK_OVERRIDE;
 
   /**
    * Returns true if an error is set, otherwise false.
    */
-  virtual bool HasError();
+  bool HasError() VTK_OVERRIDE;
 
   /**
    * Get the last error text from the query
    */
-  virtual const char* GetLastErrorText();
+  const char* GetLastErrorText() VTK_OVERRIDE;
 
 protected:
   vtkQtSQLQuery();

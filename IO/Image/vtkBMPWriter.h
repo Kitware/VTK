@@ -38,10 +38,10 @@ public:
 
 protected:
   vtkBMPWriter();
-  ~vtkBMPWriter() {}
+  ~vtkBMPWriter() VTK_OVERRIDE {}
 
-  virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
+  void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]) VTK_OVERRIDE;
+  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) VTK_OVERRIDE;
 private:
   vtkBMPWriter(const vtkBMPWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBMPWriter&) VTK_DELETE_FUNCTION;

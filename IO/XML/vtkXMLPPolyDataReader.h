@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLPPolyDataReader : public vtkXMLPUnstructuredDataRead
 {
 public:
   vtkTypeMacro(vtkXMLPPolyDataReader,vtkXMLPUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLPPolyDataReader *New();
 
   //@{
@@ -51,24 +51,24 @@ public:
 
 protected:
   vtkXMLPPolyDataReader();
-  ~vtkXMLPPolyDataReader();
+  ~vtkXMLPPolyDataReader() VTK_OVERRIDE;
 
-  const char* GetDataSetName();
-  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
-  vtkIdType GetNumberOfCellsInPiece(int piece);
+  const char* GetDataSetName() VTK_OVERRIDE;
+  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel) VTK_OVERRIDE;
+  vtkIdType GetNumberOfCellsInPiece(int piece) VTK_OVERRIDE;
   vtkIdType GetNumberOfVertsInPiece(int piece);
   vtkIdType GetNumberOfLinesInPiece(int piece);
   vtkIdType GetNumberOfStripsInPiece(int piece);
   vtkIdType GetNumberOfPolysInPiece(int piece);
-  void SetupOutputTotals();
+  void SetupOutputTotals() VTK_OVERRIDE;
 
-  void SetupOutputData();
-  void SetupNextPiece();
-  int ReadPieceData();
+  void SetupOutputData() VTK_OVERRIDE;
+  void SetupNextPiece() VTK_OVERRIDE;
+  int ReadPieceData() VTK_OVERRIDE;
 
-  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray);
-  vtkXMLDataReader* CreatePieceReader();
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) VTK_OVERRIDE;
+  vtkXMLDataReader* CreatePieceReader() VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   // The size of the UpdatePiece.
   vtkIdType TotalNumberOfVerts;

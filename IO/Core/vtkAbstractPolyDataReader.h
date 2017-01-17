@@ -37,7 +37,7 @@ class VTKIOCORE_EXPORT vtkAbstractPolyDataReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkAbstractPolyDataReader, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkAbstractPolyDataReader();
-  ~vtkAbstractPolyDataReader();
+  ~vtkAbstractPolyDataReader() VTK_OVERRIDE;
 
   char *FileName;
 private:

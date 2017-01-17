@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLPDataReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLPDataReader,vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -49,20 +49,20 @@ public:
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
 
 protected:
   vtkXMLPDataReader();
-  ~vtkXMLPDataReader();
+  ~vtkXMLPDataReader() VTK_OVERRIDE;
 
   // Pipeline execute information driver.  Called by vtkXMLReader.
-  int ReadXMLInformation();
-  virtual void SetupOutputInformation(vtkInformation *outInfo);
+  int ReadXMLInformation() VTK_OVERRIDE;
+  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
 
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
 
   vtkDataSet* GetPieceInputAsDataSet(int piece);
-  void SetupOutputData();
+  void SetupOutputData() VTK_OVERRIDE;
 
   virtual vtkXMLDataReader* CreatePieceReader()=0;
   virtual vtkIdType GetNumberOfPoints()=0;

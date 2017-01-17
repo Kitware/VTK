@@ -49,7 +49,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelSizeCalculator : public vtkPassInputTypeA
 {
 public:
   static vtkLabelSizeCalculator* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   vtkTypeMacro(vtkLabelSizeCalculator,vtkPassInputTypeAlgorithm);
 
   //@{
@@ -83,13 +83,13 @@ public:
 
 protected:
   vtkLabelSizeCalculator();
-  virtual ~vtkLabelSizeCalculator();
+  ~vtkLabelSizeCalculator() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int RequestData(
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int RequestData(
     vtkInformation* request,
     vtkInformationVector** inInfo,
-    vtkInformationVector* outInfo );
+    vtkInformationVector* outInfo ) VTK_OVERRIDE;
 
   virtual vtkIntArray* LabelSizesForArray( vtkAbstractArray* labels, vtkIntArray* types );
 

@@ -60,7 +60,7 @@ class VTKRENDERINGCORE_EXPORT vtkInteractorObserver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInteractorObserver,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Methods for turning the interactor observer on and off, and determining
@@ -201,7 +201,7 @@ public:
 
 protected:
   vtkInteractorObserver();
-  ~vtkInteractorObserver();
+  ~vtkInteractorObserver() VTK_OVERRIDE;
 
   //@{
   /**

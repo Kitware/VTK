@@ -79,7 +79,7 @@ class VTKINFOVISCORE_EXPORT vtkTableToGraph : public vtkGraphAlgorithm
 public:
   static vtkTableToGraph* New();
   vtkTypeMacro(vtkTableToGraph,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Add a vertex to the link graph.  Specify the column name, the domain name
@@ -128,7 +128,7 @@ public:
   /**
    * Get the current modified time.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * A convenience method for setting the vertex table input.  This
@@ -141,24 +141,24 @@ public:
 
 protected:
   vtkTableToGraph();
-  ~vtkTableToGraph();
+  ~vtkTableToGraph() VTK_OVERRIDE;
 
   /**
    * Validate that the link graph is in the appropriate format.
    */
   int ValidateLinkGraph();
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual int RequestDataObject(
+  int RequestDataObject(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   bool Directed;
   vtkMutableDirectedGraph* LinkGraph;

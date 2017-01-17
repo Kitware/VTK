@@ -34,63 +34,63 @@ class VTKIOAMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 public:
   static vtkAMRFlashReader* New();
   vtkTypeMacro( vtkAMRFlashReader, vtkAMRBaseReader );
-  void PrintSelf(ostream &os, vtkIndent indent );
+  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::GetNumberOfBlocks
    */
-  int GetNumberOfBlocks();
+  int GetNumberOfBlocks() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::GetNumberOfLevels
    */
-  int GetNumberOfLevels();
+  int GetNumberOfLevels() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::SetFileName
    */
-  void SetFileName( const char* fileName );
+  void SetFileName( const char* fileName ) VTK_OVERRIDE;
 
 protected:
   vtkAMRFlashReader();
-  ~vtkAMRFlashReader();
+  ~vtkAMRFlashReader() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::ReadMetaData
    */
-  void ReadMetaData();
+  void ReadMetaData() VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::GetBlockLevel
    */
-  int GetBlockLevel( const int blockIdx );
+  int GetBlockLevel( const int blockIdx ) VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::FillMetaData
    */
-  int FillMetaData( );
+  int FillMetaData( ) VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::GetAMRGrid
    */
-  vtkUniformGrid* GetAMRGrid( const int blockIdx );
+  vtkUniformGrid* GetAMRGrid( const int blockIdx ) VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
   void GetAMRGridData(
-      const int blockIdx, vtkUniformGrid *block, const char *field);
+      const int blockIdx, vtkUniformGrid *block, const char *field) VTK_OVERRIDE;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
   void GetAMRGridPointData(
-      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) {;}
+      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) VTK_OVERRIDE {;}
 
   /**
    * See vtkAMRBaseReader::SetUpDataArraySelections
    */
-  void SetUpDataArraySelections();
+  void SetUpDataArraySelections() VTK_OVERRIDE;
 
   bool IsReady;
 

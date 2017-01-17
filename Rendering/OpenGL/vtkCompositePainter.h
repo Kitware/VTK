@@ -40,13 +40,13 @@ class VTKRENDERINGOPENGL_EXPORT vtkCompositePainter : public vtkPainter
 public:
   static vtkCompositePainter* New();
   vtkTypeMacro(vtkCompositePainter, vtkPainter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the output data object from this painter. The default implementation
    * simply forwards the input data object as the output.
    */
-  virtual vtkDataObject* GetOutput();
+  vtkDataObject* GetOutput() VTK_OVERRIDE;
 
   /**
    * Key used to pass a vtkCompositeDataDisplayAttributes instance doing the
@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkCompositePainter();
-  ~vtkCompositePainter();
+  ~vtkCompositePainter() VTK_OVERRIDE;
 
   /**
    * Take part in garbage collection.
@@ -75,7 +75,7 @@ protected:
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  virtual void ProcessInformation(vtkInformation* information);
+  void ProcessInformation(vtkInformation* information) VTK_OVERRIDE;
 
   /**
    * Performs the actual rendering. Subclasses may override this method.
@@ -84,8 +84,8 @@ protected:
    * DelegatePainter is in sync with this painter i.e. UpdateDelegatePainter()
    * has been called.
    */
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-    unsigned long typeflags, bool forceCompileOnly);
+  void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
+    unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
 
   class RenderBlockState
   {

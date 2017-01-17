@@ -48,7 +48,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject : public vtkFrameBufferObje
 public:
   static vtkFrameBufferObject* New();
   vtkTypeMacro(vtkFrameBufferObject, vtkFrameBufferObjectBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -183,7 +183,19 @@ public:
   /**
    * Dimensions in pixels of the framebuffer.
    */
-  vtkGetVector2Macro(LastSize,int);
+  int *GetLastSize() VTK_OVERRIDE
+  {
+    return this->LastSize;
+  }
+  void GetLastSize (int &_arg1, int &_arg2) VTK_OVERRIDE
+  {
+    _arg1 = this->LastSize[0];
+    _arg2 = this->LastSize[1];
+  }
+  void GetLastSize (int _arg[2]) VTK_OVERRIDE
+  {
+    this->GetLastSize(_arg[0], _arg[1]);
+  }
   //@}
 
   /**
@@ -259,7 +271,7 @@ protected:
   void DisplayBuffer(int value);
 
   vtkFrameBufferObject();
-  ~vtkFrameBufferObject();
+  ~vtkFrameBufferObject() VTK_OVERRIDE;
 
   vtkWeakPointer<vtkRenderWindow> Context;
 

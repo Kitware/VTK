@@ -38,7 +38,7 @@ class vtkContextScene;
 class VTKVIEWSCONTEXT2D_EXPORT vtkContextView : public vtkRenderViewBase
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkContextView, vtkRenderViewBase);
 
   static vtkContextView* New();
@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkContextView();
-  ~vtkContextView();
+  ~vtkContextView() VTK_OVERRIDE;
 
   vtkSmartPointer<vtkContextScene> Scene;
   vtkSmartPointer<vtkContext2D> Context;

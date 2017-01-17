@@ -44,7 +44,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
 {
  public:
   vtkTypeMacro(vtkMoleculeToAtomBallFilter,vtkMoleculeToPolyDataFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkMoleculeToAtomBallFilter *New();
 
@@ -65,10 +65,10 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
 
 protected:
   vtkMoleculeToAtomBallFilter();
-  ~vtkMoleculeToAtomBallFilter();
+  ~vtkMoleculeToAtomBallFilter() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   int Resolution;
   double RadiusScale;

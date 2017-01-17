@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLDataSetWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLDataSetWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLDataSetWriter* New();
 
   /**
@@ -56,17 +56,17 @@ public:
 
 protected:
   vtkXMLDataSetWriter();
-  ~vtkXMLDataSetWriter();
+  ~vtkXMLDataSetWriter() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   // Override writing method from superclass.
-  virtual int WriteInternal();
+  int WriteInternal() VTK_OVERRIDE;
 
   // Dummies to satisfy pure virtuals from superclass.
-  const char* GetDataSetName();
-  const char* GetDefaultFileExtension();
+  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
   // Callback registered with the ProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,

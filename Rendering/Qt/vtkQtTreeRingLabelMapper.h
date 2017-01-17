@@ -66,14 +66,14 @@ class VTKRENDERINGQT_EXPORT vtkQtTreeRingLabelMapper : public vtkLabeledDataMapp
 public:
   static vtkQtTreeRingLabelMapper *New();
   vtkTypeMacro(vtkQtTreeRingLabelMapper,vtkLabeledDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Draw the text to the screen at each input point.
    */
-  virtual void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
-  virtual void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor);
+  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
+  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) VTK_OVERRIDE;
   //@}
 
   /**
@@ -92,11 +92,12 @@ public:
    * (set with a second integer parameter) are not currently supported,
    * but are provided to avoid compiler warnings.
    */
-  virtual void SetLabelTextProperty(vtkTextProperty *p);
-  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-  virtual void SetLabelTextProperty(vtkTextProperty *p, int type)
+  void SetLabelTextProperty(vtkTextProperty *p) VTK_OVERRIDE;
+  vtkTextProperty* GetLabelTextProperty() VTK_OVERRIDE
+    { return this->LabelTextProperty; }
+  void SetLabelTextProperty(vtkTextProperty *p, int type) VTK_OVERRIDE
     { this->Superclass::SetLabelTextProperty(p, type); }
-  virtual vtkTextProperty* GetLabelTextProperty(int type)
+  vtkTextProperty* GetLabelTextProperty(int type) VTK_OVERRIDE
     { return this->Superclass::GetLabelTextProperty(type); }
   //@}
 
@@ -112,7 +113,7 @@ public:
    * Return the object's MTime. This is overridden to include
    * the timestamp of its internal class.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   void SetRenderer(vtkRenderer* ren)
   {
@@ -126,7 +127,7 @@ public:
 
 protected:
   vtkQtTreeRingLabelMapper();
-  ~vtkQtTreeRingLabelMapper();
+  ~vtkQtTreeRingLabelMapper() VTK_OVERRIDE;
   void LabelTree(vtkTree *tree, vtkDataArray *sectorInfo,
                  vtkDataArray *numericData, vtkStringArray *stringData, vtkUnicodeStringArray *uStringData,
                  int activeComp, int numComps, vtkViewport* viewport);

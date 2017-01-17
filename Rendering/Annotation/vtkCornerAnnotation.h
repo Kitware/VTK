@@ -48,7 +48,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkCornerAnnotation : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCornerAnnotation,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object with a rectangle in normaled view coordinates
@@ -60,15 +60,15 @@ public:
   /**
    * Draw the scalar bar and annotation text to the screen.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
-  int RenderOverlay(vtkViewport* viewport);
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* ) VTK_OVERRIDE {return 0;};
+  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   //@{
   /**
@@ -112,7 +112,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   //@{
   /**
@@ -196,7 +196,7 @@ public:
 
 protected:
   vtkCornerAnnotation();
-  ~vtkCornerAnnotation();
+  ~vtkCornerAnnotation() VTK_OVERRIDE;
 
   double MaximumLineHeight;
 

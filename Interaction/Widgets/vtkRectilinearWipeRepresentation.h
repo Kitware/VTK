@@ -65,7 +65,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkRectilinearWipeRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -108,10 +108,10 @@ public:
    * are the methods that the widget and its representation use to
    * communicate with each other.
    */
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
   //@}
 
   // Enums define the state of the prop relative to the mouse pointer
@@ -129,17 +129,17 @@ public:
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  virtual void GetActors2D(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int HasTranslucentPolygonalGeometry();
+  void GetActors2D(vtkPropCollection *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkRectilinearWipeRepresentation();
-  ~vtkRectilinearWipeRepresentation();
+  ~vtkRectilinearWipeRepresentation() VTK_OVERRIDE;
 
   // Instances that this class manipulates
   vtkImageRectilinearWipe *RectilinearWipe;

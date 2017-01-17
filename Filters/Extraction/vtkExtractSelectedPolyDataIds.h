@@ -34,19 +34,19 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedPolyDataIds : public vtkPoly
 {
 public:
   vtkTypeMacro(vtkExtractSelectedPolyDataIds,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkExtractSelectedPolyDataIds *New();
 
 protected:
   vtkExtractSelectedPolyDataIds();
-  ~vtkExtractSelectedPolyDataIds();
+  ~vtkExtractSelectedPolyDataIds() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   // Usual data generation method
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkExtractSelectedPolyDataIds(const vtkExtractSelectedPolyDataIds&) VTK_DELETE_FUNCTION;

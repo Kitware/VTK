@@ -35,38 +35,38 @@ class VTKRENDERINGOPENGL_EXPORT vtkGenericOpenGLRenderWindow : public vtkOpenGLR
 public:
   static vtkGenericOpenGLRenderWindow* New();
   vtkTypeMacro(vtkGenericOpenGLRenderWindow, vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 protected:
   vtkGenericOpenGLRenderWindow();
-  ~vtkGenericOpenGLRenderWindow();
+  ~vtkGenericOpenGLRenderWindow() VTK_OVERRIDE;
 
 public:
 
   //! Cleans up graphics resources allocated in the context for this VTK scene.
-  void Finalize();
+  void Finalize() VTK_OVERRIDE;
 
   //! flush the pending drawing operations
   //! Class user may to watch for WindowFrameEvent and act on it
-  void Frame();
+  void Frame() VTK_OVERRIDE;
 
   //! Makes the context current.  It is the class user's
   //! responsibility to watch for WindowMakeCurrentEvent and set it current.
-  void MakeCurrent();
+  void MakeCurrent() VTK_OVERRIDE;
 
   //! Returns if the context is current.  It is the class user's
   //! responsibility to watch for WindowIsCurrentEvent and set the bool* flag
   //! passed through the call data parameter.
-  bool IsCurrent();
+  bool IsCurrent() VTK_OVERRIDE;
 
   //! Returns if OpenGL is supported.  It is the class user's
   //! responsibility to watch for WindowSupportsOpenGLEvent and set the int* flag
   //! passed through the call data parameter.
-  int SupportsOpenGL();
+  int SupportsOpenGL() VTK_OVERRIDE;
 
   //! Returns if the context is direct.  It is the class user's
   //! responsibility to watch for WindowIsDirectEvent and set the int* flag
   //! passed through the call data parameter.
-  int IsDirect();
+  int IsDirect() VTK_OVERRIDE;
 
   // {@
   //! set the drawing buffers to use
@@ -85,27 +85,27 @@ public:
 
   // {@
   //! does nothing
-  void SetWindowId(void*);
-  void* GetGenericWindowId();
-  void SetDisplayId(void*);
-  void SetParentId(void*);
-  void* GetGenericDisplayId();
-  void* GetGenericParentId();
-  void* GetGenericContext();
-  void* GetGenericDrawable();
-  void SetWindowInfo(char*);
-  void SetParentInfo(char*);
-  int* GetScreenSize();
-  void Start();
-  void HideCursor();
-  void ShowCursor();
-  void SetFullScreen(int);
-  void WindowRemap();
-  int  GetEventPending();
-  void SetNextWindowId(void*);
-  void SetNextWindowInfo(char*);
-  void CreateAWindow();
-  void DestroyWindow();
+  void SetWindowId(void*) VTK_OVERRIDE;
+  void* GetGenericWindowId() VTK_OVERRIDE;
+  void SetDisplayId(void*) VTK_OVERRIDE;
+  void SetParentId(void*) VTK_OVERRIDE;
+  void* GetGenericDisplayId() VTK_OVERRIDE;
+  void* GetGenericParentId() VTK_OVERRIDE;
+  void* GetGenericContext() VTK_OVERRIDE;
+  void* GetGenericDrawable() VTK_OVERRIDE;
+  void SetWindowInfo(char*) VTK_OVERRIDE;
+  void SetParentInfo(char*) VTK_OVERRIDE;
+  int* GetScreenSize() VTK_OVERRIDE;
+  void Start() VTK_OVERRIDE;
+  void HideCursor() VTK_OVERRIDE;
+  void ShowCursor() VTK_OVERRIDE;
+  void SetFullScreen(int) VTK_OVERRIDE;
+  void WindowRemap() VTK_OVERRIDE;
+  int  GetEventPending() VTK_OVERRIDE;
+  void SetNextWindowId(void*) VTK_OVERRIDE;
+  void SetNextWindowInfo(char*) VTK_OVERRIDE;
+  void CreateAWindow() VTK_OVERRIDE;
+  void DestroyWindow() VTK_OVERRIDE;
   // }@
 
   //@{

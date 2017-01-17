@@ -90,7 +90,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkCenteredSliderWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -110,7 +110,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
   /**
    * Get the value fo this widget.
@@ -119,7 +119,7 @@ public:
 
 protected:
   vtkCenteredSliderWidget();
-  ~vtkCenteredSliderWidget() {}
+  ~vtkCenteredSliderWidget() VTK_OVERRIDE {}
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);

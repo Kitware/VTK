@@ -46,7 +46,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDataTransferHelper : public vtkObject
 public:
   static vtkDataTransferHelper* New();
   vtkTypeMacro(vtkDataTransferHelper, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -223,7 +223,7 @@ public:
 
 protected:
   vtkDataTransferHelper();
-  ~vtkDataTransferHelper();
+  ~vtkDataTransferHelper() VTK_OVERRIDE;
 
   int CPUExtent[6];
   int GPUExtent[6];

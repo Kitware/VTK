@@ -48,18 +48,18 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtk
 public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
   vtkTypeMacro( vtkHyperTreeGridToUnstructuredGrid, vtkUnstructuredGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent );
+  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();
-  ~vtkHyperTreeGridToUnstructuredGrid();
+  ~vtkHyperTreeGridToUnstructuredGrid() VTK_OVERRIDE;
 
   unsigned int Dimension;
   unsigned int CellSize;
   unsigned int* Coefficients;
 
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
-  virtual int FillInputPortInformation( int, vtkInformation* );
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   void ProcessTrees();
   void RecursiveProcessTree( void* );

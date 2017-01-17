@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLPImageDataReader : public vtkXMLPStructuredDataReade
 {
 public:
   vtkTypeMacro(vtkXMLPImageDataReader,vtkXMLPStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLPImageDataReader *New();
 
   //@{
@@ -51,28 +51,28 @@ public:
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
 
 protected:
   vtkXMLPImageDataReader();
-  ~vtkXMLPImageDataReader();
+  ~vtkXMLPImageDataReader() VTK_OVERRIDE;
 
   double Origin[3];
   double Spacing[3];
 
   vtkImageData* GetPieceInput(int index);
 
-  void SetupEmptyOutput();
-  const char* GetDataSetName();
-  void SetOutputExtent(int* extent);
-  void GetPieceInputExtent(int index, int* extent);
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  void SetupEmptyOutput() VTK_OVERRIDE;
+  const char* GetDataSetName() VTK_OVERRIDE;
+  void SetOutputExtent(int* extent) VTK_OVERRIDE;
+  void GetPieceInputExtent(int index, int* extent) VTK_OVERRIDE;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
 
   // Setup the output's information.
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
 
-  vtkXMLDataReader* CreatePieceReader();
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  vtkXMLDataReader* CreatePieceReader() VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkXMLPImageDataReader(const vtkXMLPImageDataReader&) VTK_DELETE_FUNCTION;

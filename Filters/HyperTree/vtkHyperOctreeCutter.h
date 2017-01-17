@@ -72,7 +72,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeCutter : public vtkPolyDataAlgori
 {
 public:
   vtkTypeMacro(vtkHyperOctreeCutter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with user-specified implicit function; initial value of 0.0; and
@@ -140,7 +140,7 @@ public:
    * Override GetMTime because we delegate to vtkContourValues and refer to
    * vtkImplicitFunction.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -219,11 +219,11 @@ public:
 
 protected:
   vtkHyperOctreeCutter(vtkImplicitFunction *cf=NULL);
-  ~vtkHyperOctreeCutter();
+  ~vtkHyperOctreeCutter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   /**
    * Cut the sub-hierarchy pointed by cursor.

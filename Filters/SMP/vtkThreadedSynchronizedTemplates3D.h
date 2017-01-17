@@ -43,12 +43,12 @@ public:
   static vtkThreadedSynchronizedTemplates3D *New();
 
   vtkTypeMacro(vtkThreadedSynchronizedTemplates3D,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -173,16 +173,16 @@ public:
 
 protected:
   vtkThreadedSynchronizedTemplates3D();
-  ~vtkThreadedSynchronizedTemplates3D();
+  ~vtkThreadedSynchronizedTemplates3D() VTK_OVERRIDE;
 
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int ArrayComponent;
 

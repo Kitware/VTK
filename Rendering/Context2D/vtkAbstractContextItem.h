@@ -41,7 +41,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextItem : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextItem, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -290,7 +290,7 @@ public:
 
 protected:
   vtkAbstractContextItem();
-  ~vtkAbstractContextItem();
+  ~vtkAbstractContextItem() VTK_OVERRIDE;
 
   /**
    * Point to the scene the item is on - can be null.

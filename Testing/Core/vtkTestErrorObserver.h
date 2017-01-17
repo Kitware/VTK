@@ -49,9 +49,9 @@ public:
   this->ErrorMessage = "";
   this->WarningMessage = "";
   }
-  virtual void Execute(vtkObject *vtkNotUsed(caller),
-                       unsigned long event,
-                       void *calldata)
+  void Execute(vtkObject *vtkNotUsed(caller),
+               unsigned long event,
+               void *calldata) VTK_OVERRIDE
   {
   switch(event)
   {

@@ -49,17 +49,17 @@ public:
    */
   vtkTypeMacro(vtkOrientedPolygonalHandleRepresentation3D,
                        vtkAbstractPolygonalHandleRepresentation3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkOrientedPolygonalHandleRepresentation3D();
-  ~vtkOrientedPolygonalHandleRepresentation3D();
+  ~vtkOrientedPolygonalHandleRepresentation3D() VTK_OVERRIDE;
 
   /**
    * Override the superclass method.
    */
-  virtual void UpdateHandle();
+  void UpdateHandle() VTK_OVERRIDE;
 
 private:
   vtkOrientedPolygonalHandleRepresentation3D(const vtkOrientedPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;

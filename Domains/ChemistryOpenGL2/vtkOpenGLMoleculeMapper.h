@@ -39,8 +39,8 @@ public:
   /**
    * Reimplemented from base class
    */
-  virtual void Render(vtkRenderer *, vtkActor *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void Render(vtkRenderer *, vtkActor *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
   //@}
 
   /**
@@ -51,10 +51,10 @@ public:
 
 protected:
   vtkOpenGLMoleculeMapper();
-  ~vtkOpenGLMoleculeMapper();
+  ~vtkOpenGLMoleculeMapper() VTK_OVERRIDE;
 
-  virtual void UpdateAtomGlyphPolyData();
-  virtual void UpdateBondGlyphPolyData();
+  void UpdateAtomGlyphPolyData() VTK_OVERRIDE;
+  void UpdateBondGlyphPolyData() VTK_OVERRIDE;
 
   //@{
   /**

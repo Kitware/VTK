@@ -1174,7 +1174,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastHelper : public vtkObj
 public:
   static vtkFixedPointVolumeRayCastHelper *New();
   vtkTypeMacro(vtkFixedPointVolumeRayCastHelper,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   virtual void   GenerateImage( int,
                                 int,
@@ -1183,7 +1183,7 @@ public:
 
 protected:
   vtkFixedPointVolumeRayCastHelper();
-  ~vtkFixedPointVolumeRayCastHelper();
+  ~vtkFixedPointVolumeRayCastHelper() VTK_OVERRIDE;
 
 
 private:

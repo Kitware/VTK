@@ -71,7 +71,7 @@ class VTKIOIMAGE_EXPORT vtkMetaImageWriter : public vtkImageWriter
 {
 public:
   vtkTypeMacro(vtkMetaImageWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with FlipNormals turned off and Normals set to true.
@@ -81,8 +81,8 @@ public:
   /**
    * Specify file name of meta file
    */
-  virtual void SetFileName(const char* fname);
-  virtual char* GetFileName() { return this->MHDFileName; }
+  void SetFileName(const char* fname) VTK_OVERRIDE;
+  char* GetFileName() VTK_OVERRIDE { return this->MHDFileName; }
 
   //@{
   /**
@@ -103,11 +103,11 @@ public:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual void Write();
+  void Write() VTK_OVERRIDE;
 
 protected:
   vtkMetaImageWriter();
-  ~vtkMetaImageWriter();
+  ~vtkMetaImageWriter() VTK_OVERRIDE;
 
   vtkSetStringMacro(MHDFileName);
   char* MHDFileName;

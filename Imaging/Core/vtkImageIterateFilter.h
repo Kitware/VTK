@@ -47,17 +47,17 @@ public:
 
 protected:
   vtkImageIterateFilter();
-  ~vtkImageIterateFilter();
+  ~vtkImageIterateFilter() VTK_OVERRIDE;
 
   // Implement standard requests by calling iterative versions the
   // specified number of times.
-  virtual int RequestUpdateExtent(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestInformation (vtkInformation*,
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector) VTK_OVERRIDE;
 

@@ -92,9 +92,9 @@ class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
 
 protected:
   vtkActor2DCollection() {}
-  ~vtkActor2DCollection();
+  ~vtkActor2DCollection() VTK_OVERRIDE;
 
-  virtual void DeleteElement(vtkCollectionElement *);
+  void DeleteElement(vtkCollectionElement *) VTK_OVERRIDE;
 
 private:
   // hide the standard AddItem from the user and the compiler.

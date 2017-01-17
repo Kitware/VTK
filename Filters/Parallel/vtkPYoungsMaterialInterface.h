@@ -43,12 +43,12 @@ class VTKFILTERSPARALLEL_EXPORT vtkPYoungsMaterialInterface : public vtkYoungsMa
 public:
   static vtkPYoungsMaterialInterface* New();
   vtkTypeMacro(vtkPYoungsMaterialInterface,vtkYoungsMaterialInterface);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Parallel implementation of the material aggregation.
    */
-  virtual void Aggregate ( int, int* );
+  void Aggregate ( int, int* ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkPYoungsMaterialInterface ();
-  virtual ~vtkPYoungsMaterialInterface ();
+  ~vtkPYoungsMaterialInterface () VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 

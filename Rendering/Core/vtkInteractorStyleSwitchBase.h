@@ -37,13 +37,13 @@ class VTKRENDERINGCORE_EXPORT vtkInteractorStyleSwitchBase
 public:
   static vtkInteractorStyleSwitchBase *New();
   vtkTypeMacro(vtkInteractorStyleSwitchBase, vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  vtkRenderWindowInteractor* GetInteractor();
+  vtkRenderWindowInteractor* GetInteractor() VTK_OVERRIDE;
 
 protected:
   vtkInteractorStyleSwitchBase();
-  ~vtkInteractorStyleSwitchBase();
+  ~vtkInteractorStyleSwitchBase() VTK_OVERRIDE;
 
 private:
   vtkInteractorStyleSwitchBase(const vtkInteractorStyleSwitchBase&) VTK_DELETE_FUNCTION;

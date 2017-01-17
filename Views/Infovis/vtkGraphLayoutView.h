@@ -55,7 +55,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkGraphLayoutView : public vtkRenderView
 public:
   static vtkGraphLayoutView *New();
   vtkTypeMacro(vtkGraphLayoutView, vtkRenderView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -396,17 +396,17 @@ public:
 
 protected:
   vtkGraphLayoutView();
-  ~vtkGraphLayoutView();
+  ~vtkGraphLayoutView() VTK_OVERRIDE;
 
   //@{
   /**
    * Overrides behavior in vtkView to create a vtkRenderedGraphRepresentation
    * by default.
    */
-  virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
+  vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn) VTK_OVERRIDE;
   virtual vtkRenderedGraphRepresentation* GetGraphRepresentation();
   // Called to process events.  Overrides behavior in vtkRenderView.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData);
+  void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData) VTK_OVERRIDE;
   //@}
 
 private:

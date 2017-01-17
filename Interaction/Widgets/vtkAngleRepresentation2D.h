@@ -51,13 +51,13 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkAngleRepresentation2D,vtkAngleRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * Satisfy the superclasses API.
    */
-  virtual double GetAngle();
+  double GetAngle() VTK_OVERRIDE;
 
   //@{
   /**
@@ -65,15 +65,15 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
-  virtual void GetPoint1WorldPosition(double pos[3]);
-  virtual void GetCenterWorldPosition(double pos[3]);
-  virtual void GetPoint2WorldPosition(double pos[3]);
-  virtual void SetPoint1DisplayPosition(double pos[3]);
-  virtual void SetCenterDisplayPosition(double pos[3]);
-  virtual void SetPoint2DisplayPosition(double pos[3]);
-  virtual void GetPoint1DisplayPosition(double pos[3]);
-  virtual void GetCenterDisplayPosition(double pos[3]);
-  virtual void GetPoint2DisplayPosition(double pos[3]);
+  void GetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
+  void GetCenterWorldPosition(double pos[3]) VTK_OVERRIDE;
+  void GetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetCenterDisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void GetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void GetCenterDisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void GetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -91,19 +91,19 @@ public:
    * Method defined by vtkWidgetRepresentation superclass and
    * needed here.
    */
-  void BuildRepresentation();
+  void BuildRepresentation() VTK_OVERRIDE;
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
-  virtual int RenderOverlay(vtkViewport *viewport);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkAngleRepresentation2D();
-  ~vtkAngleRepresentation2D();
+  ~vtkAngleRepresentation2D() VTK_OVERRIDE;
 
   // The pieces that make up the angle representations
   vtkLeaderActor2D *Ray1;

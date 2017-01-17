@@ -36,7 +36,7 @@ public:
   static vtkMRCReader* New();
   vtkTypeMacro(vtkMRCReader, vtkImageAlgorithm)
 
-  void PrintSelf(ostream& stream, vtkIndent indent);
+  void PrintSelf(ostream& stream, vtkIndent indent) VTK_OVERRIDE;
 
   // .Description
   // Get/Set the file to read
@@ -45,13 +45,13 @@ public:
 
 protected:
   vtkMRCReader();
-  virtual ~vtkMRCReader();
+  ~vtkMRCReader() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
-  virtual void ExecuteDataWithInformation(vtkDataObject *output,
-                                          vtkInformation* outInfo);
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *output,
+                                          vtkInformation* outInfo) VTK_OVERRIDE;
 
   char* FileName;
 

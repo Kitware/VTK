@@ -37,7 +37,7 @@ class VTKINFOVISCORE_EXPORT vtkDataObjectToTable : public vtkTableAlgorithm
 public:
   static vtkDataObjectToTable* New();
   vtkTypeMacro(vtkDataObjectToTable,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum
   {
@@ -59,14 +59,14 @@ public:
 
 protected:
   vtkDataObjectToTable();
-  ~vtkDataObjectToTable();
+  ~vtkDataObjectToTable() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   int FieldType;
 

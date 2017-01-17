@@ -45,7 +45,7 @@ class VTKRENDERINGCORE_EXPORT vtkVolume : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkVolume, vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a Volume with the following defaults: origin(0,0,0)
@@ -75,7 +75,7 @@ public:
    * able to collect all the actors or volumes. This method
    * is used in that process.
    */
-  void GetVolumes(vtkPropCollection *vc);
+  void GetVolumes(vtkPropCollection *vc) VTK_OVERRIDE;
 
   /**
    * Update the volume rendering pipeline by updating the volume mapper
@@ -87,7 +87,7 @@ public:
    * Get the bounds - either all six at once
    * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
   void GetBounds(double bounds[6])
     { this->vtkProp3D::GetBounds(bounds); }
   double GetMinXBound();
@@ -101,7 +101,7 @@ public:
   /**
    * Return the MTime also considering the property etc.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Return the mtime of anything that would cause the rendered image to
@@ -109,12 +109,12 @@ public:
    * prop plus anything else it depends on such as properties, mappers,
    * etc.
    */
-  vtkMTimeType GetRedrawMTime();
+  vtkMTimeType GetRedrawMTime() VTK_OVERRIDE;
 
   /**
    * Shallow copy of this vtkVolume. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -124,7 +124,7 @@ public:
    * this method (FRAMEBUFFER volume such as texture mapping will
    * be rendered this way)
    */
-  int RenderVolumetricGeometry(vtkViewport *viewport);
+  int RenderVolumetricGeometry(vtkViewport *viewport) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -132,7 +132,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -206,12 +206,12 @@ public:
   /// selection.
   /// @warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   /// DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  virtual bool GetSupportsSelection()
+  bool GetSupportsSelection() VTK_OVERRIDE
    { return true; }
 
 protected:
   vtkVolume();
-  ~vtkVolume();
+  ~vtkVolume() VTK_OVERRIDE;
 
   vtkAbstractVolumeMapper *Mapper;
   vtkVolumeProperty *Property;

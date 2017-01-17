@@ -32,7 +32,7 @@ class VTKIOXML_EXPORT vtkRTXMLPolyDataReader : public vtkXMLPolyDataReader
 {
 public:
   vtkTypeMacro(vtkRTXMLPolyDataReader,vtkXMLPolyDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkRTXMLPolyDataReader* New();
 
   // This sets the DataLocation and also
@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkRTXMLPolyDataReader();
-  ~vtkRTXMLPolyDataReader();
+  ~vtkRTXMLPolyDataReader() VTK_OVERRIDE;
 
   //@{
   /**

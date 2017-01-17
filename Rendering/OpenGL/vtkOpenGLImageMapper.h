@@ -45,7 +45,7 @@ public:
   /**
    * Handle the render method.
    */
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE
     { this->RenderStart(viewport, actor); }
 
   /**
@@ -53,11 +53,11 @@ public:
    * the image to the screen.
    */
   void RenderData(vtkViewport* viewport, vtkImageData* data,
-                  vtkActor2D* actor);
+                  vtkActor2D* actor) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLImageMapper();
-  ~vtkOpenGLImageMapper();
+  ~vtkOpenGLImageMapper() VTK_OVERRIDE;
 
 private:
   vtkOpenGLImageMapper(const vtkOpenGLImageMapper&) VTK_DELETE_FUNCTION;

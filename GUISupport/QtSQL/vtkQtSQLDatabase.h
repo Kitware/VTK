@@ -45,39 +45,39 @@ class VTKGUISUPPORTQTSQL_EXPORT vtkQtSQLDatabase : public vtkSQLDatabase
 public:
   static vtkQtSQLDatabase* New();
   vtkTypeMacro(vtkQtSQLDatabase, vtkSQLDatabase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Open a new connection to the database.
    * You need to set up any database parameters before calling this function.
    * Returns true is the database was opened successfully, and false otherwise.
    */
-  virtual bool Open(const char* password);
+  bool Open(const char* password) VTK_OVERRIDE;
 
   /**
    * Close the connection to the database.
    */
-  virtual void Close();
+  void Close() VTK_OVERRIDE;
 
   /**
    * Return whether the database has an open connection
    */
-  virtual bool IsOpen();
+  bool IsOpen() VTK_OVERRIDE;
 
   /**
    * Return an empty query on this database.
    */
-  virtual vtkSQLQuery* GetQueryInstance();
+  vtkSQLQuery* GetQueryInstance() VTK_OVERRIDE;
 
   /**
    * Get the list of tables from the database
    */
-  vtkStringArray* GetTables();
+  vtkStringArray* GetTables() VTK_OVERRIDE;
 
   /**
    * Get the list of fields for a particular table
    */
-  vtkStringArray* GetRecord(const char *table);
+  vtkStringArray* GetRecord(const char *table) VTK_OVERRIDE;
 
   /**
    * Returns a list of columns for a particular table.
@@ -96,23 +96,26 @@ public:
   /**
    * Return whether a feature is supported by the database.
    */
-  virtual bool IsSupported(int feature);
+  bool IsSupported(int feature) VTK_OVERRIDE;
 
   /**
    * Did the last operation generate an error
    */
-  bool HasError();
+  bool HasError() VTK_OVERRIDE;
 
   /**
    * Get the last error text from the database
    */
-  const char* GetLastErrorText();
+  const char* GetLastErrorText() VTK_OVERRIDE;
 
   //@{
   /**
    * String representing Qt database type (e.g. "mysql").
    */
-  vtkGetStringMacro(DatabaseType);
+  const char* GetDatabaseType() VTK_OVERRIDE
+  {
+    return this->DatabaseType;
+  }
   vtkSetStringMacro(DatabaseType);
   //@}
 
@@ -166,7 +169,7 @@ public:
   /**
    * Get the URL of the database.
    */
-  virtual vtkStdString GetURL();
+  vtkStdString GetURL() VTK_OVERRIDE;
 
 protected:
   vtkQtSQLDatabase();
@@ -188,7 +191,7 @@ protected:
    * This is called by CreateFromURL() to initialize the instance.
    * Look at CreateFromURL() for details about the URL format.
    */
-  virtual bool ParseURL(const char* url);
+  bool ParseURL(const char* url) VTK_OVERRIDE;
 private:
 
   // Storing the tables in the database, this array

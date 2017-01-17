@@ -31,7 +31,7 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageGaussianSource : public vtkImageAlgorithm
 public:
   static vtkImageGaussianSource *New();
   vtkTypeMacro(vtkImageGaussianSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set/Get the extent of the whole output image.
@@ -65,15 +65,15 @@ public:
 
 protected:
   vtkImageGaussianSource();
-  ~vtkImageGaussianSource() {}
+  ~vtkImageGaussianSource()VTK_OVERRIDE {}
 
   double StandardDeviation;
   int WholeExtent[6];
   double Center[3];
   double Maximum;
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 private:
   vtkImageGaussianSource(const vtkImageGaussianSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageGaussianSource&) VTK_DELETE_FUNCTION;

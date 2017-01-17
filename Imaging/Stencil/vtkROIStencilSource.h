@@ -38,7 +38,7 @@ class VTKIMAGINGSTENCIL_EXPORT vtkROIStencilSource : public vtkImageStencilSourc
 public:
   static vtkROIStencilSource *New();
   vtkTypeMacro(vtkROIStencilSource, vtkImageStencilSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum {
     BOX = 0,
@@ -74,10 +74,10 @@ public:
 
 protected:
   vtkROIStencilSource();
-  ~vtkROIStencilSource();
+  ~vtkROIStencilSource() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   int Shape;
   double Bounds[6];

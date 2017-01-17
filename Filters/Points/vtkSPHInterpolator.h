@@ -100,7 +100,7 @@ public:
    */
   static vtkSPHInterpolator *New();
   vtkTypeMacro(vtkSPHInterpolator,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -378,11 +378,11 @@ public:
   /**
    * Get the MTime of this object also considering the locator and kernel.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkSPHInterpolator();
-  ~vtkSPHInterpolator();
+  ~vtkSPHInterpolator() VTK_OVERRIDE;
 
   vtkAbstractPointLocator *Locator;
   vtkSPHKernel *Kernel;
@@ -410,12 +410,12 @@ protected:
   bool PassPointArrays;
   bool PassFieldArrays;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Virtual for specialized subclass(es)

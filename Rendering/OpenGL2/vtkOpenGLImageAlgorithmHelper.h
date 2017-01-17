@@ -51,7 +51,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageAlgorithmHelper : public vtkObjec
 public:
   static vtkOpenGLImageAlgorithmHelper *New();
   vtkTypeMacro(vtkOpenGLImageAlgorithmHelper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void Execute(
     vtkOpenGLImageAlgorithmCallback *cb,
@@ -69,7 +69,7 @@ public:
 
  protected:
   vtkOpenGLImageAlgorithmHelper();
-  virtual ~vtkOpenGLImageAlgorithmHelper();
+  ~vtkOpenGLImageAlgorithmHelper() VTK_OVERRIDE;
 
   vtkSmartPointer<vtkOpenGLRenderWindow> RenderWindow;
   vtkOpenGLHelper Quad;

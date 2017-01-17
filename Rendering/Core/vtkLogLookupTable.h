@@ -35,11 +35,11 @@ public:
   static vtkLogLookupTable *New();
 
   vtkTypeMacro(vtkLogLookupTable, vtkLookupTable);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkLogLookupTable(int sze = 256, int ext = 256);
-  ~vtkLogLookupTable() {}
+  ~vtkLogLookupTable() VTK_OVERRIDE {}
 private:
   vtkLogLookupTable(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;

@@ -34,7 +34,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPMaskPoints : public vtkMaskPoints
 public:
   static vtkPMaskPoints *New();
   vtkTypeMacro(vtkPMaskPoints,vtkMaskPoints);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -46,13 +46,13 @@ public:
 
 protected:
   vtkPMaskPoints();
-  ~vtkPMaskPoints();
+  ~vtkPMaskPoints() VTK_OVERRIDE;
 
-  virtual void InternalScatter(unsigned long*, unsigned long *, int, int);
-  virtual void InternalGather(unsigned long*, unsigned long*, int, int);
-  virtual int InternalGetNumberOfProcesses();
-  virtual int InternalGetLocalProcessId();
-  virtual void InternalBarrier();
+  void InternalScatter(unsigned long*, unsigned long *, int, int) VTK_OVERRIDE;
+  void InternalGather(unsigned long*, unsigned long*, int, int) VTK_OVERRIDE;
+  int InternalGetNumberOfProcesses() VTK_OVERRIDE;
+  int InternalGetLocalProcessId() VTK_OVERRIDE;
+  void InternalBarrier() VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 private:

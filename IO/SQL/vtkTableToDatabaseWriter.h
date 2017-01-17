@@ -35,7 +35,7 @@ class VTKIOSQL_EXPORT vtkTableToDatabaseWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkTableToDatabaseWriter, vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set the database.  Must already be open.
@@ -65,10 +65,10 @@ public:
 
 protected:
    vtkTableToDatabaseWriter();
-  ~vtkTableToDatabaseWriter();
-  virtual void WriteData() = 0;
+  ~vtkTableToDatabaseWriter() VTK_OVERRIDE;
+  void WriteData() VTK_OVERRIDE = 0;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 
   vtkSQLDatabase *Database;

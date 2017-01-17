@@ -42,7 +42,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkXYPlotWidget : public vtkInteractorObserve
 public:
   static vtkXYPlotWidget *New();
   vtkTypeMacro(vtkXYPlotWidget,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -55,11 +55,11 @@ public:
   /**
    * Methods for turning the interactor observer on and off.
    */
-  virtual void SetEnabled(int);
+  void SetEnabled(int) VTK_OVERRIDE;
 
 protected:
   vtkXYPlotWidget();
-  ~vtkXYPlotWidget();
+  ~vtkXYPlotWidget() VTK_OVERRIDE;
 
   // the actor that is used
   vtkXYPlotActor *XYPlotActor;

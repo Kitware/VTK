@@ -87,7 +87,7 @@ class VTKFILTERSHYBRID_EXPORT vtkImageToPolyDataFilter : public vtkPolyDataAlgor
 {
 public:
   vtkTypeMacro(vtkImageToPolyDataFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object with initial number of colors 256.
@@ -198,10 +198,10 @@ public:
 
 protected:
   vtkImageToPolyDataFilter();
-  ~vtkImageToPolyDataFilter();
+  ~vtkImageToPolyDataFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int OutputStyle;
   int ColorMode;

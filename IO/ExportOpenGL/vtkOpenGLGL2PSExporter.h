@@ -110,13 +110,13 @@ class VTKIOEXPORTOPENGL_EXPORT vtkOpenGLGL2PSExporter : public vtkGL2PSExporter
 public:
   static vtkOpenGLGL2PSExporter *New();
   vtkTypeMacro(vtkOpenGLGL2PSExporter, vtkGL2PSExporter)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLGL2PSExporter();
-  ~vtkOpenGLGL2PSExporter();
+  ~vtkOpenGLGL2PSExporter() VTK_OVERRIDE;
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
   void SavePropVisibility(vtkRendererCollection *renCol,
                           vtkIntArray *volVis, vtkIntArray *actVis,

@@ -41,16 +41,16 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastCompositeShadeHelper :
 public:
   static vtkFixedPointVolumeRayCastCompositeShadeHelper *New();
   vtkTypeMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper,vtkFixedPointVolumeRayCastHelper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
-  virtual void  GenerateImage( int threadID,
+  void  GenerateImage( int threadID,
                                int threadCount,
                                vtkVolume *vol,
-                               vtkFixedPointVolumeRayCastMapper *mapper);
+                               vtkFixedPointVolumeRayCastMapper *mapper) VTK_OVERRIDE;
 
 protected:
   vtkFixedPointVolumeRayCastCompositeShadeHelper();
-  ~vtkFixedPointVolumeRayCastCompositeShadeHelper();
+  ~vtkFixedPointVolumeRayCastCompositeShadeHelper() VTK_OVERRIDE;
 
 private:
   vtkFixedPointVolumeRayCastCompositeShadeHelper(const vtkFixedPointVolumeRayCastCompositeShadeHelper&) VTK_DELETE_FUNCTION;

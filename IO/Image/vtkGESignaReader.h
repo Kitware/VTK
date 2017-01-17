@@ -45,12 +45,12 @@ public:
   /**
    * Is the given file a GESigna file?
    */
-  virtual int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname) VTK_OVERRIDE;
 
   /**
    * Valid extentsions
    */
-  virtual const char* GetFileExtensions()
+  const char* GetFileExtensions() VTK_OVERRIDE
   {
       return ".MR .CT";
   }
@@ -58,17 +58,17 @@ public:
   /**
    * A descriptive name for this format
    */
-  virtual const char* GetDescriptiveName()
+  const char* GetDescriptiveName() VTK_OVERRIDE
   {
       return "GESigna";
   }
 
 protected:
   vtkGESignaReader() {}
-  ~vtkGESignaReader() {}
+  ~vtkGESignaReader() VTK_OVERRIDE {}
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo);
+  void ExecuteInformation() VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo) VTK_OVERRIDE;
 
 private:
   vtkGESignaReader(const vtkGESignaReader&) VTK_DELETE_FUNCTION;

@@ -52,7 +52,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarRepresentation : public vtkBorder
 {
 public:
   vtkTypeMacro(vtkScalarBarRepresentation, vtkBorderRepresentation);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkScalarBarRepresentation *New();
 
   //@{
@@ -67,9 +67,9 @@ public:
   /**
    * Satisfy the superclass' API.
    */
-  virtual void BuildRepresentation();
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual void GetSize(double size[2])
+  void BuildRepresentation() VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void GetSize(double size[2]) VTK_OVERRIDE
     {size[0]=2.0; size[1]=2.0;}
   //@}
 
@@ -78,14 +78,14 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  virtual int GetVisibility();
-  virtual void SetVisibility(int);
-  virtual void GetActors2D(vtkPropCollection *collection);
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  int GetVisibility() VTK_OVERRIDE;
+  void SetVisibility(int) VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection *collection) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkScalarBarRepresentation();
-  ~vtkScalarBarRepresentation();
+  ~vtkScalarBarRepresentation() VTK_OVERRIDE;
 
   /**
    * Change horizontal <--> vertical orientation, rotate the corners of the

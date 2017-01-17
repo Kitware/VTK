@@ -146,7 +146,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLExtensionManager : public vtkObject
 public:
   vtkTypeMacro(vtkOpenGLExtensionManager, vtkObject);
   static vtkOpenGLExtensionManager *New();
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -379,7 +379,7 @@ public:
 
 protected:
   vtkOpenGLExtensionManager();
-  virtual ~vtkOpenGLExtensionManager();
+  ~vtkOpenGLExtensionManager() VTK_OVERRIDE;
 
   int OwnRenderWindow;
   char *ExtensionsString;

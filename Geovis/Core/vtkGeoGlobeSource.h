@@ -39,21 +39,21 @@ class VTKGEOVISCORE_EXPORT vtkGeoGlobeSource : public vtkGeoSource
 public:
   static vtkGeoGlobeSource *New();
   vtkTypeMacro(vtkGeoGlobeSource,vtkGeoSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Fetches a low-resolution sphere for the entire globe.
    */
-  virtual bool FetchRoot(vtkGeoTreeNode* root);
+  bool FetchRoot(vtkGeoTreeNode* root) VTK_OVERRIDE;
 
   /**
    * Fetches a refined geometry patch, a section of a sphere.
    */
-  virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
+  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) VTK_OVERRIDE;
 
 protected:
   vtkGeoGlobeSource();
-  ~vtkGeoGlobeSource();
+  ~vtkGeoGlobeSource() VTK_OVERRIDE;
 
 private:
   vtkGeoGlobeSource(const vtkGeoGlobeSource&) VTK_DELETE_FUNCTION;

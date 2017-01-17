@@ -39,7 +39,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotGrid : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlotGrid, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Chart object.
@@ -59,11 +59,11 @@ public:
   /**
    * Paint event for the axis, called whenever the axis needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
 protected:
   vtkPlotGrid();
-  ~vtkPlotGrid();
+  ~vtkPlotGrid() VTK_OVERRIDE;
 
   //@{
   /**

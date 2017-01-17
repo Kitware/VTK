@@ -41,7 +41,7 @@ class VTKIOLEGACY_EXPORT vtkStructuredGridReader : public vtkDataReader
 public:
   static vtkStructuredGridReader *New();
   vtkTypeMacro(vtkStructuredGridReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -56,18 +56,18 @@ public:
    * Read the meta information from the file.  This needs to be public to it
    * can be accessed by vtkDataSetReader.
    */
-  virtual int ReadMetaData(vtkInformation *outInfo);
+  int ReadMetaData(vtkInformation *outInfo) VTK_OVERRIDE;
 
 protected:
   vtkStructuredGridReader();
-  ~vtkStructuredGridReader();
+  ~vtkStructuredGridReader() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 private:
   vtkStructuredGridReader(const vtkStructuredGridReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredGridReader&) VTK_DELETE_FUNCTION;

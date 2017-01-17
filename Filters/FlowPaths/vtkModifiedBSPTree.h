@@ -160,7 +160,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    * Standard Type-Macro
    */
   vtkTypeMacro(vtkModifiedBSPTree,vtkAbstractCellLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -175,17 +175,17 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   /**
    * Free tree memory
    */
-  void FreeSearchStructure();
+  void FreeSearchStructure() VTK_OVERRIDE;
 
   /**
    * Build Tree
    */
-  void BuildLocator();
+  void BuildLocator() VTK_OVERRIDE;
 
   /**
    * Generate BBox representation of Nth level
    */
-  virtual void GenerateRepresentation(int level, vtkPolyData *pd);
+  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
 
   /**
    * Generate BBox representation of all leaf nodes
@@ -196,17 +196,17 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. Uses fast tree-search BBox rejection tests.
    */
-  virtual int IntersectWithLine(
+  int IntersectWithLine(
     double p1[3], double p2[3], double tol, double &t, double x[3],
-    double pcoords[3], int &subId, vtkIdType &cellId);
+    double pcoords[3], int &subId, vtkIdType &cellId) VTK_OVERRIDE;
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic cell.
    */
-  virtual int IntersectWithLine(
+  int IntersectWithLine(
     double p1[3], double p2[3], double tol, double &t, double x[3],
-    double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell);
+    double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell) VTK_OVERRIDE;
 
   /**
    * Take the passed line segment and intersect it with the data set.
@@ -224,10 +224,10 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    * Test a point to find if it is inside a cell. Returns the cellId if inside
    * or -1 if not.
    */
-  virtual vtkIdType FindCell(double x[3], double tol2, vtkGenericCell *GenCell,
-    double pcoords[3], double *weights);
+  vtkIdType FindCell(double x[3], double tol2, vtkGenericCell *GenCell,
+    double pcoords[3], double *weights) VTK_OVERRIDE;
 
-  bool InsideCellBounds(double x[3], vtkIdType cell_ID);
+  bool InsideCellBounds(double x[3], vtkIdType cell_ID) VTK_OVERRIDE;
 
   /**
    * After subdivision has completed, one may wish to query the tree to find
@@ -238,7 +238,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
 
   protected:
    vtkModifiedBSPTree();
-  ~vtkModifiedBSPTree();
+  ~vtkModifiedBSPTree() VTK_OVERRIDE;
   //
   BSPNode  *mRoot;               // bounding box root node
   int       npn;

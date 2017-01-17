@@ -92,7 +92,7 @@ public:
    * Standard methods for class.
    */
   vtkTypeMacro(vtkBorderWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -137,11 +137,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  virtual void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkBorderWidget();
-  ~vtkBorderWidget();
+  ~vtkBorderWidget() VTK_OVERRIDE;
 
   /**
    * Subclasses generally implement this method. The SelectRegion() method
@@ -168,7 +168,7 @@ protected:
   virtual int SubclassMoveAction() {return 0;}
 
   // helper methods for cursoe management
-  virtual void SetCursor(int State);
+  void SetCursor(int State) VTK_OVERRIDE;
 
   //widget state
   int WidgetState;

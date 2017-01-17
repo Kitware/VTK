@@ -37,26 +37,26 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
  public:
   static vtkBridgeAttribute *New();
   vtkTypeMacro(vtkBridgeAttribute,vtkGenericAttribute);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Name of the attribute. (e.g. "velocity")
    * \post result_may_not_exist: result!=0 || result==0
    */
-  const char *GetName();
+  const char *GetName() VTK_OVERRIDE;
 
   /**
    * Dimension of the attribute. (1 for scalar, 3 for velocity)
    * \post positive_result: result>=0
    */
-  int GetNumberOfComponents();
+  int GetNumberOfComponents() VTK_OVERRIDE;
 
   /**
    * Is the attribute centered either on points, cells or boundaries?
    * \post valid_result: (result==vtkCenteringPoints) ||
    * (result==vtkCenteringCells) || (result==vtkCenteringBoundaries)
    */
-  int GetCentering();
+  int GetCentering() VTK_OVERRIDE;
 
   /**
    * Type of the attribute: scalar, vector, normal, texture coordinate, tensor
@@ -66,7 +66,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * ||(result==vtkDataSetAttributes::TCOORDS)
    * ||(result==vtkDataSetAttributes::TENSORS)
    */
-  int GetType();
+  int GetType() VTK_OVERRIDE;
 
   /**
    * Type of the components of the attribute: int, float, double
@@ -77,18 +77,18 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * ||(result==VTK_UNSIGNED_LONG) ||(result==VTK_FLOAT)
    * ||(result==VTK_DOUBLE)        ||(result==VTK_ID_TYPE)
    */
-  int GetComponentType();
+  int GetComponentType() VTK_OVERRIDE;
 
   /**
    * Number of tuples.
    * \post valid_result: result>=0
    */
-  vtkIdType GetSize();
+  vtkIdType GetSize() VTK_OVERRIDE;
 
   /**
    * Size in kibibytes (1024 bytes) taken by the attribute.
    */
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   /**
    * Range of the attribute component `component'. It returns double, even if
@@ -97,7 +97,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
    * \post result_exists: result!=0
    */
-  double *GetRange(int component);
+  double *GetRange(int component) VTK_OVERRIDE;
 
   /**
    * Range of the attribute component `component'.
@@ -105,13 +105,13 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
    */
   void GetRange(int component,
-                double range[2]);
+                double range[2]) VTK_OVERRIDE;
 
   /**
    * Return the maximum euclidean norm for the tuples.
    * \post positive_result: result>=0
    */
-  double GetMaxNorm();
+  double GetMaxNorm() VTK_OVERRIDE;
 
   /**
    * Attribute at all points of cell `c'.
@@ -120,7 +120,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \post result_exists: result!=0
    * \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
    */
-  virtual double *GetTuple(vtkGenericAdaptorCell *c);
+  double *GetTuple(vtkGenericAdaptorCell *c) VTK_OVERRIDE;
 
   /**
    * Put attribute at all points of cell `c' in `tuple'.
@@ -129,7 +129,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \pre tuple_exists: tuple!=0
    * \pre valid_tuple: sizeof(tuple)>=GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
    */
-  virtual void GetTuple(vtkGenericAdaptorCell *c, double *tuple);
+  void GetTuple(vtkGenericAdaptorCell *c, double *tuple) VTK_OVERRIDE;
 
   /**
    * Attribute at all points of cell `c'.
@@ -138,7 +138,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \post result_exists: result!=0
    * \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
    */
-  double *GetTuple(vtkGenericCellIterator *c);
+  double *GetTuple(vtkGenericCellIterator *c) VTK_OVERRIDE;
 
   /**
    * Put attribute at all points of cell `c' in `tuple'.
@@ -147,7 +147,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \pre tuple_exists: tuple!=0
    * \pre valid_tuple: sizeof(tuple)>=GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
    */
-  void GetTuple(vtkGenericCellIterator *c, double *tuple);
+  void GetTuple(vtkGenericCellIterator *c, double *tuple) VTK_OVERRIDE;
 
   /**
    * Value of the attribute at position `p'.
@@ -156,7 +156,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \post result_exists: result!=0
    * \post valid_result_size: sizeof(result)==GetNumberOfComponents()
    */
-  double *GetTuple(vtkGenericPointIterator *p);
+  double *GetTuple(vtkGenericPointIterator *p) VTK_OVERRIDE;
 
   /**
    * Put the value of the attribute at position `p' into `tuple'.
@@ -165,7 +165,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \pre tuple_exists: tuple!=0
    * \pre valid_tuple_size: sizeof(tuple)>=GetNumberOfComponents()
    */
-  void GetTuple(vtkGenericPointIterator *p, double *tuple);
+  void GetTuple(vtkGenericPointIterator *p, double *tuple) VTK_OVERRIDE;
 
   /**
    * Put component `i' of the attribute at all points of cell `c' in `values'.
@@ -175,7 +175,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \pre values_exist: values!=0
    * \pre valid_values: sizeof(values)>=c->GetCell()->GetNumberOfPoints()
    */
-  void GetComponent(int i,vtkGenericCellIterator *c, double *values);
+  void GetComponent(int i,vtkGenericCellIterator *c, double *values) VTK_OVERRIDE;
 
   /**
    * Value of the component `i' of the attribute at position `p'.
@@ -183,21 +183,21 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
    * \pre p_exists: p!=0
    * \pre p_valid: !p->IsAtEnd()
    */
-  double GetComponent(int i,vtkGenericPointIterator *p);
+  double GetComponent(int i,vtkGenericPointIterator *p) VTK_OVERRIDE;
 
   /**
    * Recursive duplication of `other' in `this'.
    * \pre other_exists: other!=0
    * \pre not_self: other!=this
    */
-  void DeepCopy(vtkGenericAttribute *other);
+  void DeepCopy(vtkGenericAttribute *other) VTK_OVERRIDE;
 
   /**
    * Update `this' using fields of `other'.
    * \pre other_exists: other!=0
    * \pre not_self: other!=this
    */
-  void ShallowCopy(vtkGenericAttribute *other);
+  void ShallowCopy(vtkGenericAttribute *other) VTK_OVERRIDE;
 
   /**
    * Set the current attribute to be centered on points with attribute `i' of
@@ -225,7 +225,7 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~vtkBridgeAttribute();
+  ~vtkBridgeAttribute() VTK_OVERRIDE;
 
   /**
    * If size>InternalTupleCapacity, allocate enough memory.

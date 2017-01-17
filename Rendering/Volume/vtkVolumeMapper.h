@@ -47,7 +47,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeMapper : public vtkAbstractVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeMapper,vtkAbstractVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -182,7 +182,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
+  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE =0;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -190,7 +190,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *) {}
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
 
   /**
    * Blend modes.
@@ -236,7 +236,7 @@ public:
 
 protected:
   vtkVolumeMapper();
-  ~vtkVolumeMapper();
+  ~vtkVolumeMapper() VTK_OVERRIDE;
 
   /**
    * Compute a sample distance from the data spacing. When the number of
@@ -265,7 +265,7 @@ protected:
   void ConvertCroppingRegionPlanesToVoxels();
   //@}
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkVolumeMapper(const vtkVolumeMapper&) VTK_DELETE_FUNCTION;

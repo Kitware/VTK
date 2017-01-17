@@ -40,7 +40,7 @@ class VTKIMAGINGFOURIER_EXPORT vtkImageButterworthLowPass : public vtkThreadedIm
 public:
   static vtkImageButterworthLowPass *New();
   vtkTypeMacro(vtkImageButterworthLowPass,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkImageButterworthLowPass();
-  ~vtkImageButterworthLowPass() {}
+  ~vtkImageButterworthLowPass()VTK_OVERRIDE {}
 
   int Order;
   double CutOff[3];
@@ -79,7 +79,7 @@ protected:
                             vtkInformationVector **inputVector,
                             vtkInformationVector *outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int outExt[6], int id);
+                            int outExt[6], int id) VTK_OVERRIDE;
 private:
   vtkImageButterworthLowPass(const vtkImageButterworthLowPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageButterworthLowPass&) VTK_DELETE_FUNCTION;

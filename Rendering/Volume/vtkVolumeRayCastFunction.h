@@ -164,7 +164,7 @@ protected:
   {
     VTK_LEGACY_BODY(vtkVolumeRayCastMapper::vtkVolumeRayCastMapper,"VTK 7.0");
   }
-  ~vtkVolumeRayCastFunction() {}
+  ~vtkVolumeRayCastFunction()VTK_OVERRIDE {}
 
   /**
    * This method gives the subclass a chance to do any special

@@ -45,7 +45,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkEncodedGradientEstimator,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -212,7 +212,7 @@ public:
 
 protected:
   vtkEncodedGradientEstimator();
-  ~vtkEncodedGradientEstimator();
+  ~vtkEncodedGradientEstimator() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 

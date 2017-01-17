@@ -41,7 +41,7 @@ public:
   static vtkTreeRingToPolyData *New();
 
   vtkTypeMacro(vtkTreeRingToPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * The field containing quadruples of the form (start angle, end angle,
@@ -61,15 +61,15 @@ public:
   vtkGetMacro(ShrinkPercentage, double);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 protected:
   vtkTreeRingToPolyData();
-  ~vtkTreeRingToPolyData();
+  ~vtkTreeRingToPolyData() VTK_OVERRIDE;
 
   double ShrinkPercentage;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 private:
   vtkTreeRingToPolyData(const vtkTreeRingToPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeRingToPolyData&) VTK_DELETE_FUNCTION;

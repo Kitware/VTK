@@ -58,7 +58,7 @@ public:
   vtkTypeMacro(vtkProjectedTetrahedraMapper,
                        vtkUnstructuredGridVolumeMapper);
   static vtkProjectedTetrahedraMapper *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   virtual void SetVisibilitySort(vtkVisibilitySort *sort);
   vtkGetObjectMacro(VisibilitySort, vtkVisibilitySort);
@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkProjectedTetrahedraMapper();
-  ~vtkProjectedTetrahedraMapper();
+  ~vtkProjectedTetrahedraMapper() VTK_OVERRIDE;
 
   vtkVisibilitySort *VisibilitySort;
 

@@ -49,7 +49,7 @@ class VTKRENDERINGLIC_EXPORT vtkImageDataLIC2D : public vtkImageAlgorithm
 public:
   static vtkImageDataLIC2D* New();
   vtkTypeMacro(vtkImageDataLIC2D, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -111,10 +111,10 @@ public:
 
 protected:
   vtkImageDataLIC2D();
-  ~vtkImageDataLIC2D();
+  ~vtkImageDataLIC2D() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *,
+    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -122,20 +122,20 @@ protected:
    * port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info);
+  int FillInputPortInformation(int port,
+                                       vtkInformation *info) VTK_OVERRIDE;
 
   int RequestUpdateExtent (vtkInformation * vtkNotUsed(request),
                            vtkInformationVector **inputVector,
-                           vtkInformationVector *vtkNotUsed( outputVector ));
+                           vtkInformationVector *vtkNotUsed( outputVector )) VTK_OVERRIDE;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   vtkWeakPointer<vtkRenderWindow> Context;
   bool OwnWindow;

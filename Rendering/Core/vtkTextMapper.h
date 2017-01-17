@@ -48,7 +48,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkTextMapper,vtkMapper2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a new text mapper.
@@ -123,13 +123,13 @@ public:
                                          int *stringSize, float sizeFactor);
   //@}
 
-  void RenderOverlay(vtkViewport *, vtkActor2D *);
-  void ReleaseGraphicsResources(vtkWindow *);
-  vtkMTimeType GetMTime();
+  void RenderOverlay(vtkViewport *, vtkActor2D *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkTextMapper();
-  ~vtkTextMapper();
+  ~vtkTextMapper() VTK_OVERRIDE;
 
   char* Input;
   vtkTextProperty *TextProperty;

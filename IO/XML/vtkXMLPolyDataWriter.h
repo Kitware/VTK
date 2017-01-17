@@ -39,7 +39,7 @@ class VTKIOXML_EXPORT vtkXMLPolyDataWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLPolyDataWriter,vtkXMLUnstructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLPolyDataWriter* New();
 
   /**
@@ -50,28 +50,28 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension();
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
 protected:
   vtkXMLPolyDataWriter();
-  ~vtkXMLPolyDataWriter();
+  ~vtkXMLPolyDataWriter() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  const char* GetDataSetName();
+  const char* GetDataSetName() VTK_OVERRIDE;
 
-  virtual void AllocatePositionArrays();
-  virtual void DeletePositionArrays();
+  void AllocatePositionArrays() VTK_OVERRIDE;
+  void DeletePositionArrays() VTK_OVERRIDE;
 
-  void WriteInlinePieceAttributes();
-  void WriteInlinePiece(vtkIndent indent);
+  void WriteInlinePieceAttributes() VTK_OVERRIDE;
+  void WriteInlinePiece(vtkIndent indent) VTK_OVERRIDE;
 
-  void WriteAppendedPieceAttributes(int index);
-  void WriteAppendedPiece(int index, vtkIndent indent);
-  void WriteAppendedPieceData(int index);
+  void WriteAppendedPieceAttributes(int index) VTK_OVERRIDE;
+  void WriteAppendedPiece(int index, vtkIndent indent) VTK_OVERRIDE;
+  void WriteAppendedPieceData(int index) VTK_OVERRIDE;
 
-  virtual vtkIdType GetNumberOfInputCells();
+  vtkIdType GetNumberOfInputCells() VTK_OVERRIDE;
   void CalculateSuperclassFraction(float* fractions);
 
   // Positions of attributes for each piece.

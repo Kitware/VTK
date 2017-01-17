@@ -67,7 +67,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 public:
   static vtkVolumeRayCastMapper *New();
   vtkTypeMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -167,7 +167,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * );
+  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -175,7 +175,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -188,17 +188,17 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Values needed by the volume
    */
-  virtual float GetGradientMagnitudeScale();
-  virtual float GetGradientMagnitudeBias();
-  virtual float GetGradientMagnitudeScale(int)
+  float GetGradientMagnitudeScale() VTK_OVERRIDE;
+  float GetGradientMagnitudeBias() VTK_OVERRIDE;
+  float GetGradientMagnitudeScale(int) VTK_OVERRIDE
     {return this->GetGradientMagnitudeScale();};
-  virtual float GetGradientMagnitudeBias(int)
+  float GetGradientMagnitudeBias(int) VTK_OVERRIDE
     {return this->GetGradientMagnitudeBias();};
   //@}
 
 protected:
   vtkVolumeRayCastMapper();
-  ~vtkVolumeRayCastMapper();
+  ~vtkVolumeRayCastMapper() VTK_OVERRIDE;
 
   vtkVolumeRayCastFunction     *VolumeRayCastFunction;
   vtkEncodedGradientEstimator  *GradientEstimator;

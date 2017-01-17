@@ -39,13 +39,13 @@ public:
 
 protected:
   vtkImageHybridMedian2D();
-  ~vtkImageHybridMedian2D() {}
+  ~vtkImageHybridMedian2D()VTK_OVERRIDE {}
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
+                           int outExt[6], int id) VTK_OVERRIDE;
 private:
   vtkImageHybridMedian2D(const vtkImageHybridMedian2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageHybridMedian2D&) VTK_DELETE_FUNCTION;

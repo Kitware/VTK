@@ -71,9 +71,9 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollectio
 
 protected:
   vtkImageSliceCollection() {}
-  ~vtkImageSliceCollection();
+  ~vtkImageSliceCollection() VTK_OVERRIDE;
 
-  virtual void DeleteElement(vtkCollectionElement *);
+  void DeleteElement(vtkCollectionElement *) VTK_OVERRIDE;
 
 private:
   // hide the standard AddItem from the user and the compiler.

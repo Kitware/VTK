@@ -56,7 +56,7 @@ class VTKPARALLELCORE_EXPORT vtkProcessGroup : public vtkObject
 public:
   vtkTypeMacro(vtkProcessGroup, vtkObject);
   static vtkProcessGroup *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkProcessGroup();
-  virtual ~vtkProcessGroup();
+  ~vtkProcessGroup() VTK_OVERRIDE;
 
   int *ProcessIds;
   int NumberOfProcessIds;

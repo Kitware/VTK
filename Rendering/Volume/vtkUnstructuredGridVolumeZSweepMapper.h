@@ -70,7 +70,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public v
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeZSweepMapper,vtkUnstructuredGridVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * Set MaxPixelListSize to 32.
@@ -157,7 +157,7 @@ public:
    * Render the volume
    */
   void Render(vtkRenderer *ren,
-              vtkVolume *vol);
+              vtkVolume *vol) VTK_OVERRIDE;
 
   vtkGetVectorMacro( ImageInUseSize, int, 2 );
   vtkGetVectorMacro( ImageOrigin, int, 2 );
@@ -165,7 +165,7 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeZSweepMapper();
-  ~vtkUnstructuredGridVolumeZSweepMapper();
+  ~vtkUnstructuredGridVolumeZSweepMapper() VTK_OVERRIDE;
 
   /**
    * For each vertex, find the list of incident faces.

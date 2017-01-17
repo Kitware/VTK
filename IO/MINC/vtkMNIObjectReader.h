@@ -115,7 +115,7 @@ public:
 
 protected:
   vtkMNIObjectReader();
-  ~vtkMNIObjectReader();
+  ~vtkMNIObjectReader() VTK_OVERRIDE;
 
   char *FileName;
   vtkProperty *Property;
@@ -146,9 +146,9 @@ protected:
 
   virtual int ReadFile(vtkPolyData *output);
 
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inInfo,
-                          vtkInformationVector* outInfo);
+                          vtkInformationVector* outInfo) VTK_OVERRIDE;
 
 private:
   vtkMNIObjectReader(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;

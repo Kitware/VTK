@@ -37,7 +37,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTransform : public vtkAbstractTransform
 {
 public:
   static vtkGeoTransform* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   vtkTypeMacro(vtkGeoTransform,vtkAbstractTransform);
 
   //@{
@@ -59,20 +59,20 @@ public:
   /**
    * Transform many points at once.
    */
-  virtual void TransformPoints( vtkPoints* src, vtkPoints* dst );
+  void TransformPoints( vtkPoints* src, vtkPoints* dst ) VTK_OVERRIDE;
 
   /**
    * Invert the transformation.
    */
-  virtual void Inverse();
+  void Inverse() VTK_OVERRIDE;
 
   //@{
   /**
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  virtual void InternalTransformPoint( const float in[3], float out[3] );
-  virtual void InternalTransformPoint( const double in[3], double out[3] );
+  void InternalTransformPoint( const float in[3], float out[3] ) VTK_OVERRIDE;
+  void InternalTransformPoint( const double in[3], double out[3] ) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -82,18 +82,18 @@ public:
    * transformation at that point.  This method does not call Update.
    * Meant for use only within other VTK classes.
    */
-  virtual void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] );
-  virtual void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] );
+  void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] ) VTK_OVERRIDE;
+  void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] ) VTK_OVERRIDE;
   //@}
 
   /**
    * Make another transform of the same type.
    */
-  virtual vtkAbstractTransform* MakeTransform();
+  vtkAbstractTransform* MakeTransform() VTK_OVERRIDE;
 
 protected:
   vtkGeoTransform();
-  virtual ~vtkGeoTransform();
+  ~vtkGeoTransform() VTK_OVERRIDE;
 
   void InternalTransformPoints( double* ptsInOut, vtkIdType numPts, int stride );
 

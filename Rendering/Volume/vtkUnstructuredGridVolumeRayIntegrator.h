@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeRayIntegrator();
-  ~vtkUnstructuredGridVolumeRayIntegrator();
+  ~vtkUnstructuredGridVolumeRayIntegrator() VTK_OVERRIDE;
 
 private:
   vtkUnstructuredGridVolumeRayIntegrator(const vtkUnstructuredGridVolumeRayIntegrator&) VTK_DELETE_FUNCTION;

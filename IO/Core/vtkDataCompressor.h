@@ -34,7 +34,7 @@ class VTKIOCORE_EXPORT vtkDataCompressor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDataCompressor,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the maximum space that may be needed to store data of the
@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkDataCompressor();
-  ~vtkDataCompressor();
+  ~vtkDataCompressor() VTK_OVERRIDE;
 
   // Actual compression method.  This must be provided by a subclass.
   // Must return the size of the compressed data, or zero on error.

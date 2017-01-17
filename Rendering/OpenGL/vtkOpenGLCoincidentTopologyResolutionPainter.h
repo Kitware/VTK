@@ -31,11 +31,11 @@ public:
   static vtkOpenGLCoincidentTopologyResolutionPainter* New();
   vtkTypeMacro(vtkOpenGLCoincidentTopologyResolutionPainter,
     vtkCoincidentTopologyResolutionPainter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLCoincidentTopologyResolutionPainter();
-  ~vtkOpenGLCoincidentTopologyResolutionPainter();
+  ~vtkOpenGLCoincidentTopologyResolutionPainter() VTK_OVERRIDE;
 
   /**
    * Performs the actual rendering. Subclasses may override this method.
@@ -44,8 +44,8 @@ protected:
    * DelegatePainter is in sync with this painter i.e. UpdatePainter()
    * has been called.
    */
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-                              unsigned long typeflags, bool forceCompileOnly);
+  void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
+                              unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
 
   void RenderPolygonOffset(vtkRenderer *renderer, vtkActor *actor,
     unsigned long typeflags, bool forceCompileOnly);

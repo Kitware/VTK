@@ -41,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkPointPicker : public vtkPicker
 public:
   static vtkPointPicker *New();
   vtkTypeMacro(vtkPointPicker,vtkPicker);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -62,15 +62,15 @@ public:
 
 protected:
   vtkPointPicker();
-  ~vtkPointPicker() {}
+  ~vtkPointPicker() VTK_OVERRIDE {}
 
   vtkIdType PointId; //picked point
   int UseCells;  // Use cell points vs. points directly
 
   double IntersectWithLine(double p1[3], double p2[3], double tol,
                           vtkAssemblyPath *path, vtkProp3D *p,
-                          vtkAbstractMapper3D *m);
-  void Initialize();
+                          vtkAbstractMapper3D *m) VTK_OVERRIDE;
+  void Initialize() VTK_OVERRIDE;
 
 private:
   vtkPointPicker(const vtkPointPicker&) VTK_DELETE_FUNCTION;

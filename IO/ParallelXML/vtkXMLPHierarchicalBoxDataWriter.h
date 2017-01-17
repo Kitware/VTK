@@ -33,11 +33,11 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPHierarchicalBoxDataWriter :
 public:
   static vtkXMLPHierarchicalBoxDataWriter* New();
   vtkTypeMacro(vtkXMLPHierarchicalBoxDataWriter, vtkXMLPUniformGridAMRWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkXMLPHierarchicalBoxDataWriter();
-  ~vtkXMLPHierarchicalBoxDataWriter();
+  ~vtkXMLPHierarchicalBoxDataWriter() VTK_OVERRIDE;
 
 private:
   vtkXMLPHierarchicalBoxDataWriter(const vtkXMLPHierarchicalBoxDataWriter&) VTK_DELETE_FUNCTION;

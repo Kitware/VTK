@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObject :
 public:
   static vtkOpenGLVertexBufferObject *New();
   vtkTypeMacro(vtkOpenGLVertexBufferObject, vtkOpenGLBufferObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Take the points, and pack them into this VBO. This currently
   // takes whatever the input type might be and packs them into a VBO using
@@ -132,7 +132,7 @@ public:
 
 protected:
   vtkOpenGLVertexBufferObject();
-  ~vtkOpenGLVertexBufferObject();
+  ~vtkOpenGLVertexBufferObject() VTK_OVERRIDE;
 
   double CoordShift[3];
   double CoordScale[3];

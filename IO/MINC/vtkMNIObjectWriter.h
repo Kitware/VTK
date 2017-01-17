@@ -152,7 +152,7 @@ public:
 
 protected:
   vtkMNIObjectWriter();
-  ~vtkMNIObjectWriter();
+  ~vtkMNIObjectWriter() VTK_OVERRIDE;
 
   vtkProperty *Property;
   vtkMapper *Mapper;
@@ -175,13 +175,13 @@ protected:
   int WritePolygonObject(vtkPolyData *output);
   int WriteLineObject(vtkPolyData *output);
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
   char* FileName;
 
   int FileType;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   ostream *OpenFile();
   void CloseFile(ostream *fp);

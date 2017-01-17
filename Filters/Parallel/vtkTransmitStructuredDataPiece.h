@@ -36,7 +36,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkTransmitStructuredDataPiece : public vtkDataS
 public:
   static vtkTransmitStructuredDataPiece *New();
   vtkTypeMacro(vtkTransmitStructuredDataPiece, vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -58,16 +58,16 @@ public:
 
 protected:
   vtkTransmitStructuredDataPiece();
-  ~vtkTransmitStructuredDataPiece();
+  ~vtkTransmitStructuredDataPiece() VTK_OVERRIDE;
 
   // Data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void RootExecute(vtkDataSet *input, vtkDataSet *output,
                    vtkInformation *outInfo);
   void SatelliteExecute(int procId, vtkDataSet *output,
                         vtkInformation *outInfo);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int CreateGhostCells;
   vtkMultiProcessController *Controller;

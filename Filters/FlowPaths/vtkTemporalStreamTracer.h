@@ -86,7 +86,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalStreamTracer : public vtkStreamTrace
 public:
 
     vtkTypeMacro(vtkTemporalStreamTracer,vtkStreamTracer);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     /**
      * Construct object using 2nd order Runge Kutta
@@ -238,41 +238,41 @@ public:
   protected:
 
      vtkTemporalStreamTracer();
-    ~vtkTemporalStreamTracer();
+    ~vtkTemporalStreamTracer() VTK_OVERRIDE;
 
     //
     // Make sure the pipeline knows what type we expect as input
     //
-    virtual int FillInputPortInformation(int port, vtkInformation* info);
+    int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
     //
     // The usual suspects
     //
-    virtual int ProcessRequest(vtkInformation* request,
+    int ProcessRequest(vtkInformation* request,
                                vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector);
+                               vtkInformationVector* outputVector) VTK_OVERRIDE;
 
     //
     // Store any information we need in the output and fetch what we can
     // from the input
     //
-    virtual int RequestInformation(vtkInformation* request,
+    int RequestInformation(vtkInformation* request,
                                   vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
+                                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
     //
     // Compute input time steps given the output step
     //
-    virtual int RequestUpdateExtent(vtkInformation* request,
+    int RequestUpdateExtent(vtkInformation* request,
                                     vtkInformationVector** inputVector,
-                                    vtkInformationVector* outputVector);
+                                    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
     //
     // what the pipeline calls for each time step
     //
-    virtual int RequestData(vtkInformation* request,
+    int RequestData(vtkInformation* request,
                             vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector);
+                            vtkInformationVector* outputVector) VTK_OVERRIDE;
 
     //
     // these routines are internally called to actually generate the output

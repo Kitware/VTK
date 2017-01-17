@@ -45,7 +45,7 @@ class VTKCHARTSCORE_EXPORT vtkPlot3D : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlot3D, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -129,7 +129,7 @@ public:
 
 protected:
   vtkPlot3D();
-  ~vtkPlot3D();
+  ~vtkPlot3D() VTK_OVERRIDE;
 
   /**
    * Generate a bounding cube for our data.

@@ -52,7 +52,7 @@ public:
   static vtkKCoreDecomposition *New();
 
   vtkTypeMacro(vtkKCoreDecomposition, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -99,9 +99,9 @@ public:
 
 protected:
   vtkKCoreDecomposition();
-  ~vtkKCoreDecomposition();
+  ~vtkKCoreDecomposition() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
 

@@ -40,7 +40,7 @@ class VTKINFOVISCORE_EXPORT vtkPruneTreeFilter : public vtkTreeAlgorithm
 public:
   static vtkPruneTreeFilter* New();
   vtkTypeMacro(vtkPruneTreeFilter,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkPruneTreeFilter();
-  ~vtkPruneTreeFilter();
+  ~vtkPruneTreeFilter() VTK_OVERRIDE;
 
   vtkIdType ParentVertex;
   bool ShouldPruneParentVertex;
@@ -69,7 +69,7 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkPruneTreeFilter(const vtkPruneTreeFilter&) VTK_DELETE_FUNCTION;

@@ -32,7 +32,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotLine : public vtkPlotPoints
 {
 public:
   vtkTypeMacro(vtkPlotLine, vtkPlotPoints);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Chart object.
@@ -42,7 +42,7 @@ public:
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -50,8 +50,8 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex);
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex) VTK_OVERRIDE;
 
   //@{
   /**
@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkPlotLine();
-  ~vtkPlotLine();
+  ~vtkPlotLine() VTK_OVERRIDE;
 
   /**
    * Poly line (true) or line segments(false).

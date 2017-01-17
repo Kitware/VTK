@@ -84,7 +84,7 @@ public:
    * Standard methids for printing and determining type information.
    */
   vtkTypeMacro(vtkProjectedTerrainPath,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -162,11 +162,11 @@ public:
 
 protected:
   vtkProjectedTerrainPath();
-  ~vtkProjectedTerrainPath();
+  ~vtkProjectedTerrainPath() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   // Supporting methods
   void GetImageIndex(double x[3], double loc[2], int ij[2]);

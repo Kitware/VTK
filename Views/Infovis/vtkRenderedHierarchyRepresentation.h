@@ -34,7 +34,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkRenderedHierarchyRepresentation : public vtkRend
 public:
   static vtkRenderedHierarchyRepresentation* New();
   vtkTypeMacro(vtkRenderedHierarchyRepresentation, vtkRenderedGraphRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -111,14 +111,14 @@ public:
 
 protected:
   vtkRenderedHierarchyRepresentation();
-  ~vtkRenderedHierarchyRepresentation();
+  ~vtkRenderedHierarchyRepresentation() VTK_OVERRIDE;
 
   //@{
   /**
    * Called by the view to add/remove this representation.
    */
-  virtual bool AddToView(vtkView* view);
-  virtual bool RemoveFromView(vtkView* view);
+  bool AddToView(vtkView* view) VTK_OVERRIDE;
+  bool RemoveFromView(vtkView* view) VTK_OVERRIDE;
   //@}
 
   /**
@@ -126,19 +126,19 @@ protected:
    */
   bool ValidIndex(int idx);
 
-  virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
+  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * Sets up the input connections for this representation.
    */
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
+  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
 
   class Internals;
   Internals* Implementation;

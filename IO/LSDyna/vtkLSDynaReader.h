@@ -165,7 +165,7 @@ class VTKIOLSDYNA_EXPORT vtkLSDynaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkLSDynaReader,vtkMultiBlockDataSetAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkLSDynaReader *New();
 
   /**
@@ -558,7 +558,7 @@ protected:
   char* InputDeck;
 
   vtkLSDynaReader();
-  virtual ~vtkLSDynaReader();
+  ~vtkLSDynaReader() VTK_OVERRIDE;
 
   /**
    * This function populates the reader's private dictionary with
@@ -581,8 +581,8 @@ protected:
    */
   int ScanDatabaseTimeSteps();
 
-  virtual int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
   //@{
   /**

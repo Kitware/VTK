@@ -45,7 +45,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchyAlgorithm : public vtkAlgorithm
 public:
   static vtkLabelHierarchyAlgorithm *New();
   vtkTypeMacro(vtkLabelHierarchyAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,9 +59,9 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
   // this method is not recommended for use, but lots of old style filters use it
   vtkDataObject* GetInput();
@@ -90,7 +90,7 @@ public:
 
 protected:
   vtkLabelHierarchyAlgorithm();
-  ~vtkLabelHierarchyAlgorithm();
+  ~vtkLabelHierarchyAlgorithm() VTK_OVERRIDE;
 
   /**
    * This is called by the superclass.
@@ -126,8 +126,8 @@ protected:
     vtkInformationVector* );
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation( int port, vtkInformation* info );
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
 private:
   vtkLabelHierarchyAlgorithm( const vtkLabelHierarchyAlgorithm& ) VTK_DELETE_FUNCTION;

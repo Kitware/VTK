@@ -47,7 +47,7 @@ class VTKPARALLELCORE_EXPORT vtkProcess : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProcess,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Entry point of the process.

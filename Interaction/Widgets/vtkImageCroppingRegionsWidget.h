@@ -49,7 +49,7 @@ public:
    */
   static vtkImageCroppingRegionsWidget *New();
   vtkTypeMacro(vtkImageCroppingRegionsWidget, vtk3DWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -57,13 +57,13 @@ public:
    * Place/Adjust widget within bounds
    */
   using vtk3DWidget::PlaceWidget;
-  virtual void PlaceWidget(double bounds[6]);
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
   //@}
 
   /**
    * Enable/disable the widget
    */
-  virtual void SetEnabled(int enabling);
+  void SetEnabled(int enabling) VTK_OVERRIDE;
 
   //@{
   /**
@@ -193,7 +193,7 @@ public:
 protected:
 
   vtkImageCroppingRegionsWidget();
-  ~vtkImageCroppingRegionsWidget();
+  ~vtkImageCroppingRegionsWidget() VTK_OVERRIDE;
 
   vtkVolumeMapper *VolumeMapper;
 

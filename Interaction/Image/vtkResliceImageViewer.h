@@ -51,28 +51,28 @@ public:
    */
   static vtkResliceImageViewer *New();
   vtkTypeMacro(vtkResliceImageViewer,vtkImageViewer2);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * Render the resulting image.
    */
-  virtual void Render();
+  void Render() VTK_OVERRIDE;
 
   //@{
   /**
    * Set/Get the input image to the viewer.
    */
-  virtual void SetInputData(vtkImageData *in);
-  virtual void SetInputConnection(vtkAlgorithmOutput* input);
+  void SetInputData(vtkImageData *in) VTK_OVERRIDE;
+  void SetInputConnection(vtkAlgorithmOutput* input) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Set window and level for mapping pixels to colors.
    */
-  virtual void SetColorWindow(double s);
-  virtual void SetColorLevel(double s);
+  void SetColorWindow(double s) VTK_OVERRIDE;
+  void SetColorLevel(double s) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -171,12 +171,12 @@ public:
 
 protected:
   vtkResliceImageViewer();
-  ~vtkResliceImageViewer();
+  ~vtkResliceImageViewer() VTK_OVERRIDE;
 
-  virtual void InstallPipeline();
-  virtual void UnInstallPipeline();
-  virtual void UpdateOrientation();
-  virtual void UpdateDisplayExtent();
+  void InstallPipeline() VTK_OVERRIDE;
+  void UnInstallPipeline() VTK_OVERRIDE;
+  void UpdateOrientation() VTK_OVERRIDE;
+  void UpdateDisplayExtent() VTK_OVERRIDE;
   virtual void UpdatePointPlacer();
 
   //@{

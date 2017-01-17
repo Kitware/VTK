@@ -37,18 +37,18 @@ class VTKCHARTSCORE_EXPORT vtkPlotSurface : public vtkPlot3D
 {
 public:
   vtkTypeMacro(vtkPlotSurface, vtkPlot3D);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkPlotSurface * New();
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Set the input to the surface plot.
    */
-  virtual void SetInputData(vtkTable *input);
+  void SetInputData(vtkTable *input) VTK_OVERRIDE;
 
   //@{
   /**
@@ -56,15 +56,15 @@ public:
    * Do not use these versions of SetInputData, as all the parameters
    * beyond the vtkTable are ignored.
    */
-  virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
+  void SetInputData(vtkTable *input, const vtkStdString &xName,
                             const vtkStdString &yName,
-                            const vtkStdString &zName);
-  virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
+                            const vtkStdString &zName) VTK_OVERRIDE;
+  void SetInputData(vtkTable *input, const vtkStdString &xName,
                             const vtkStdString &yName,
                             const vtkStdString &zName,
-                            const vtkStdString &colorName);
-  virtual void SetInputData(vtkTable *input, vtkIdType xColumn,
-                            vtkIdType yColumn, vtkIdType zColumn);
+                            const vtkStdString &colorName) VTK_OVERRIDE;
+  void SetInputData(vtkTable *input, vtkIdType xColumn,
+                            vtkIdType yColumn, vtkIdType zColumn) VTK_OVERRIDE;
   //@}
 
   /**
@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkPlotSurface();
-  ~vtkPlotSurface();
+  ~vtkPlotSurface() VTK_OVERRIDE;
 
   /**
    * Generate a surface (for OpenGL) from our list of points.

@@ -28,7 +28,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
 {
 public:
   vtkTypeMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPPolyDataNormals *New();
 
@@ -44,11 +44,11 @@ public:
 
 protected:
   vtkPPolyDataNormals();
-  ~vtkPPolyDataNormals() {}
+  ~vtkPPolyDataNormals() VTK_OVERRIDE {}
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int PieceInvariant;
 private:

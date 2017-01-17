@@ -81,7 +81,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleImage : public vtkInteractorS
 public:
   static vtkInteractorStyleImage *New();
   vtkTypeMacro(vtkInteractorStyleImage, vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -96,19 +96,19 @@ public:
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
   //@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
    */
-  virtual void OnChar();
+  void OnChar() VTK_OVERRIDE;
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -198,7 +198,7 @@ public:
 
 protected:
   vtkInteractorStyleImage();
-  ~vtkInteractorStyleImage();
+  ~vtkInteractorStyleImage() VTK_OVERRIDE;
 
   int WindowLevelStartPosition[2];
   int WindowLevelCurrentPosition[2];

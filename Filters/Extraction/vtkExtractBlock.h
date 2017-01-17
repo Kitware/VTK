@@ -38,7 +38,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractBlock : public vtkMultiBlockDataSetA
 public:
   static vtkExtractBlock* New();
   vtkTypeMacro(vtkExtractBlock, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkExtractBlock();
-  ~vtkExtractBlock();
+  ~vtkExtractBlock() VTK_OVERRIDE;
 
   /**
    * Internal key, used to avoid pruning of a branch.
@@ -86,9 +86,9 @@ protected:
   static vtkInformationIntegerKey* DONT_PRUNE();
 
   /// Implementation of the algorithm.
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
 
   /// Extract subtree

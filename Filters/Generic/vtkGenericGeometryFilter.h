@@ -58,7 +58,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericGeometryFilter : public vtkPolyDataAlgo
 public:
   static vtkGenericGeometryFilter *New();
   vtkTypeMacro(vtkGenericGeometryFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -161,7 +161,7 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -177,15 +177,15 @@ public:
 
 protected:
   vtkGenericGeometryFilter();
-  ~vtkGenericGeometryFilter();
+  ~vtkGenericGeometryFilter() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void PolyDataExecute(); //special cases for performance
   void UnstructuredGridExecute();
   void StructuredGridExecute();
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   vtkIdType PointMaximum;
   vtkIdType PointMinimum;

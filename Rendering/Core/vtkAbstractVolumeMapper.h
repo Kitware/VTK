@@ -39,7 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractVolumeMapper : public vtkAbstractMapper
 {
 public:
   vtkTypeMacro(vtkAbstractVolumeMapper,vtkAbstractMapper3D);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,8 +54,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  virtual double *GetBounds();
-  virtual void GetBounds(double bounds[6])
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE
     { this->vtkAbstractMapper3D::GetBounds(bounds); };
   //@}
 
@@ -132,14 +132,14 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *) {}
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
 
 protected:
   vtkAbstractVolumeMapper();
-  ~vtkAbstractVolumeMapper();
+  ~vtkAbstractVolumeMapper() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   int         ScalarMode;
   char       *ArrayName;

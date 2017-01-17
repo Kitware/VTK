@@ -174,9 +174,9 @@ public:
 
 protected:
   vtkImageBlend();
-  ~vtkImageBlend();
+  ~vtkImageBlend() VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation *,
+  int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *) VTK_OVERRIDE;
 
@@ -190,10 +190,10 @@ protected:
                             int ext[6], int id) VTK_OVERRIDE;
 
   // see vtkAlgorithm for docs.
-  virtual int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   // see vtkAlgorithm for docs.
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector) VTK_OVERRIDE;
 

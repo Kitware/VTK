@@ -56,15 +56,15 @@ public:
   static vtkCirclePackFrontChainLayoutStrategy *New();
 
   vtkTypeMacro(vtkCirclePackFrontChainLayoutStrategy,vtkCirclePackLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the layout of the input tree, and store the circle
    * bounds of each vertex as a tuple in a data array.
    * (Xcenter, Ycenter, Radius).
    */
-  virtual void Layout(vtkTree *inputTree, vtkDataArray *areaArray,
-                      vtkDataArray* sizeArray);
+  void Layout(vtkTree *inputTree, vtkDataArray *areaArray,
+                      vtkDataArray* sizeArray) VTK_OVERRIDE;
 
   //@{
   /**
@@ -79,7 +79,7 @@ public:
 
 protected:
   vtkCirclePackFrontChainLayoutStrategy();
-  ~vtkCirclePackFrontChainLayoutStrategy();
+  ~vtkCirclePackFrontChainLayoutStrategy() VTK_OVERRIDE;
 
   char * CirclesFieldName;
   int Width;

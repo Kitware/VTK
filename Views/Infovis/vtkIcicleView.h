@@ -39,7 +39,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkIcicleView : public vtkTreeAreaView
 public:
   static vtkIcicleView *New();
   vtkTypeMacro(vtkIcicleView, vtkTreeAreaView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkIcicleView();
-  ~vtkIcicleView();
+  ~vtkIcicleView() VTK_OVERRIDE;
 
 private:
   vtkIcicleView(const vtkIcicleView&) VTK_DELETE_FUNCTION;

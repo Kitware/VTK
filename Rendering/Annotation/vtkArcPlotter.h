@@ -66,7 +66,7 @@ public:
   static vtkArcPlotter *New();
 
   vtkTypeMacro(vtkArcPlotter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -162,13 +162,13 @@ public:
   /**
    * New GetMTime because of camera dependency.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkArcPlotter();
-  ~vtkArcPlotter();
+  ~vtkArcPlotter() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
                    vtkPoints *newPts, double offset,
                    double *range, double val);

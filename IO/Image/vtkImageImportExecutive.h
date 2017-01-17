@@ -35,13 +35,13 @@ public:
   /**
    * Override to implement some requests with callbacks.
    */
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo);
+                             vtkInformationVector* outInfo) VTK_OVERRIDE;
 
 protected:
   vtkImageImportExecutive() {}
-  ~vtkImageImportExecutive() {}
+  ~vtkImageImportExecutive() VTK_OVERRIDE {}
 
 private:
   vtkImageImportExecutive(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;

@@ -138,19 +138,19 @@ public:
   /**
    * Render the volume
    */
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol);
+  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this volume
    * renderer.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Set/get whether or not the data structures should be stored on the GPU
    * for better peformance.
    */
-  virtual void SetGPUDataStructures(bool);
+  void SetGPUDataStructures(bool) VTK_OVERRIDE;
 
   /**
    * Check hardware support for the HAVS algorithm.  Necessary
@@ -158,14 +158,14 @@ public:
    * render targets, and framebuffer objects.
    * Subclasses must override this method to indicate if supported by Hardware.
    */
-  virtual bool SupportedByHardware(vtkRenderer *r);
+  bool SupportedByHardware(vtkRenderer *r) VTK_OVERRIDE;
 protected:
 
   vtkOpenGLHAVSVolumeMapper();
-  ~vtkOpenGLHAVSVolumeMapper();
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  ~vtkOpenGLHAVSVolumeMapper() VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  virtual void Initialize(vtkRenderer *ren, vtkVolume *vol);
+  void Initialize(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
   virtual void InitializeLookupTables(vtkVolume *vol);
   void InitializeGPUDataStructures();
   void InitializeShaders();

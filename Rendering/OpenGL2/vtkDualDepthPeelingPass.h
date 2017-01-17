@@ -62,21 +62,21 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDualDepthPeelingPass:
 public:
   static vtkDualDepthPeelingPass* New();
   vtkTypeMacro(vtkDualDepthPeelingPass, vtkDepthPeelingPass)
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual void Render(const vtkRenderState *s);
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
 
   // vtkOpenGLRenderPass virtuals:
-  virtual bool PostReplaceShaderValues(std::string &vertexShader,
+  bool PostReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
                                    vtkProp *prop) VTK_OVERRIDE;
-  virtual bool SetShaderParameters(vtkShaderProgram *program,
+  bool SetShaderParameters(vtkShaderProgram *program,
                           vtkAbstractMapper *mapper, vtkProp *prop,
                           vtkOpenGLVertexArrayObject *VAO = NULL) VTK_OVERRIDE;
-  virtual vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
+  vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
 
 protected:
 
@@ -107,7 +107,7 @@ protected:
   };
 
   vtkDualDepthPeelingPass();
-  ~vtkDualDepthPeelingPass();
+  ~vtkDualDepthPeelingPass() VTK_OVERRIDE;
 
   void SetCurrentStage(ShaderStage stage);
 

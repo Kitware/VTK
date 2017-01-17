@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkChartBox : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartBox, vtkChart);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a box chart
@@ -49,12 +49,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   //@{
   /**
@@ -97,12 +97,12 @@ public:
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
    */
-  virtual vtkPlot* GetPlot(vtkIdType index);
+  vtkPlot* GetPlot(vtkIdType index) VTK_OVERRIDE;
 
   /**
    * Get the number of plots the chart contains.
    */
-  virtual vtkIdType GetNumberOfPlots();
+  vtkIdType GetNumberOfPlots() VTK_OVERRIDE;
 
   /**
    * Get the chart Y axis
@@ -128,22 +128,22 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button down event
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Mouse button release event.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Set the vtkTooltipItem object that will be displayed by the chart.
@@ -165,7 +165,7 @@ public:
 
 protected:
   vtkChartBox();
-  ~vtkChartBox();
+  ~vtkChartBox() VTK_OVERRIDE;
 
   //@{
   /**
