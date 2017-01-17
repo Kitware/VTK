@@ -99,6 +99,7 @@ public:
    * Standard vtkDataSet interface.
    */
   vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  using vtkDataSet::GetCell;
   vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
   int GetCellType(vtkIdType cellId) VTK_OVERRIDE;

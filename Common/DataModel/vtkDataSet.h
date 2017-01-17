@@ -110,6 +110,11 @@ public:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   virtual vtkCell *GetCell(vtkIdType cellId) = 0;
+  virtual vtkCell *GetCell(int vtkNotUsed(i), int vtkNotUsed(j), int vtkNotUsed(k))
+  {
+    vtkErrorMacro("ijk indices are only valid with structured data!");
+    return NULL;
+  }
 
   /**
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.

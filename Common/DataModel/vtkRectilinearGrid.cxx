@@ -242,6 +242,101 @@ vtkCell *vtkRectilinearGrid::GetCell(vtkIdType cellId)
 }
 
 //----------------------------------------------------------------------------
+vtkCell *vtkRectilinearGrid::GetCell(int iMin, int jMin, int kMin) {
+  vtkCell *cell = NULL;
+  vtkIdType idx, npts;
+  int loc[3];
+  int iMax, jMax, kMax;
+  int d01 = this->Dimensions[0] * this->Dimensions[1];
+  double x[3];
+
+  iMin = iMax = jMin = jMax = kMin = kMax = 0;
+
+  switch (this->DataDescription) {
+  case VTK_EMPTY:
+    // return this->EmptyCell;
+    return NULL;
+
+  case VTK_SINGLE_POINT: // cellId can only be = 0
+    cell = this->Vertex;
+    break;
+
+  case VTK_X_LINE:
+    iMax = iMin + 1;
+    jMin = jMax = 0;
+    kMin = kMax = 0;
+    cell = this->Line;
+    break;
+
+  case VTK_Y_LINE:
+    iMin = iMax = 0;
+    jMax = jMin + 1;
+    kMin = kMax = 0;
+    cell = this->Line;
+    break;
+
+  case VTK_Z_LINE:
+    iMin = iMax = 0;
+    jMin = jMax = 0;
+    kMax = kMin + 1;
+    cell = this->Line;
+    break;
+
+  case VTK_XY_PLANE:
+    iMax = iMin + 1;
+    jMax = jMin + 1;
+    kMin = kMax = 0;
+    cell = this->Pixel;
+    break;
+
+  case VTK_YZ_PLANE:
+    iMin = iMax = 0;
+    jMax = jMin + 1;
+    kMax = kMin + 1;
+    cell = this->Pixel;
+    break;
+
+  case VTK_XZ_PLANE:
+    iMax = iMin + 1;
+    jMin = kMax = 0;
+    kMax = kMin + 1;
+    cell = this->Pixel;
+    break;
+
+  case VTK_XYZ_GRID:
+    iMax = iMin + 1;
+    jMax = jMin + 1;
+    kMax = kMin + 1;
+    cell = this->Voxel;
+    break;
+
+  default:
+    vtkErrorMacro(<< "Invalid DataDescription.");
+    return NULL;
+  }
+
+  // Extract point coordinates and point ids
+  for (npts = 0, loc[2] = kMin; loc[2] <= kMax; loc[2]++)
+  {
+    x[2] = this->ZCoordinates->GetComponent(loc[2], 0);
+    for (loc[1] = jMin; loc[1] <= jMax; loc[1]++)
+    {
+      x[1] = this->YCoordinates->GetComponent(loc[1], 0);
+      for (loc[0] = iMin; loc[0] <= iMax; loc[0]++)
+      {
+        x[0] = this->XCoordinates->GetComponent(loc[0], 0);
+
+        idx = loc[0] + loc[1] * this->Dimensions[0] + loc[2] * d01;
+        cell->PointIds->SetId(npts, idx);
+        cell->Points->SetPoint(npts++, x);
+      }
+    }
+  }
+
+  return cell;
+}
+
+//----------------------------------------------------------------------------
 void vtkRectilinearGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
   vtkIdType idx, npts;
