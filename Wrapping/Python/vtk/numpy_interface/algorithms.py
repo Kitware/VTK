@@ -463,7 +463,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
         # Now that we know which blocks are shared by more than
         # 1 rank. The ones that have a count of 2 or more.
         reduce_ids = []
-        for _id in xrange(len(id_count)):
+        for _id in range(len(id_count)):
             if id_count[_id] > 1:
                 reduce_ids.append(_id)
 
@@ -510,7 +510,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
             return dsa.NoneArray
 
         # Fill in the reduced values.
-        for i in xrange(to_reduce):
+        for i in range(to_reduce):
             _id = reduce_ids[i]
             success = True
             try:
