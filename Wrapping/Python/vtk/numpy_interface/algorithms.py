@@ -394,7 +394,7 @@ def min(array, axis=None, controller=None):
     return _global_func(MinImpl(), array, axis, controller)
 
 def _global_per_block(impl, array, axis=None, controller=None):
-    if axis > 0:
+    if axis is not None and axis > 0:
         return impl.op()(array, axis=axis, controller=controller)
 
     try:
@@ -568,7 +568,7 @@ def count_per_block(array, axis=None, controller=None):
     - if axis is 0, the number of tuples is returned.
     """
 
-    if axis > 0:
+    if axis is not None and axis > 0:
         raise ValueError("Only axis=None and axis=0 are supported for count")
 
     class CountPerBlockImpl:
