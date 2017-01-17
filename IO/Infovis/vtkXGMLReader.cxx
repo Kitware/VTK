@@ -39,10 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <fstream>
 #include <sstream>
 #include <map>
-
-#if defined (__BORLANDC__)
 #include <cctype> // for isspace, isdigit
-#endif
 
 // Copied from vtkTulipReader.cxx ..
 static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');

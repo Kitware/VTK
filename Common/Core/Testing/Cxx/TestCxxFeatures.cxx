@@ -310,7 +310,7 @@ int TestNonTypeTemplate()
 
 /* Test mixed type and non-type template arguments in a non-trival way.  */
 
-#if !defined(__BORLANDC__)
+#if !(defined(__BORLANDC__) && (__BORLANDC__ < 0x660))
 // Borland does not support this fancy array template.
 template <class T, int N>
 int TestMixedTypeTemplateFunction(T (*)[N])
@@ -537,7 +537,7 @@ int main()
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
-#if !defined(__BORLANDC__)
+#if !(defined(__BORLANDC__) && (__BORLANDC__ < 0x660))
   DO_TEST(TestMixedTypeTemplate);
 #endif
   DO_TEST(TestSafeBoolIdiom);

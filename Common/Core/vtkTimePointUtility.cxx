@@ -24,11 +24,7 @@
 #include "vtkStdString.h"
 
 #include <sstream>
-
-#if defined (__BORLANDC__)
-#include <ctype.h> // for isdigit
-#endif
-
+#include <cctype> // for isdigit
 #include <locale> // C++ locale
 
 

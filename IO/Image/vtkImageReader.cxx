@@ -297,14 +297,7 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       outPtr0 = outPtr1;
 
       // read the row.
-      self->GetFile()->read((char *)buf, streamRead);
-#ifdef __APPLE_CC__
-      if (static_cast<unsigned long>(self->GetFile()->gcount()) != streamRead)
-      // Apple's gcc3 returns fail when reading _to_ eof
-#else
-      if ( static_cast<unsigned long>(self->GetFile()->gcount()) !=
-           streamRead || self->GetFile()->fail())
-#endif
+      if (!self->GetFile()->read((char *)buf, streamRead))
       {
         vtkGenericWarningMacro("File operation failed. row = " << idx1
                                << ", Tried to Read = " << streamRead
@@ -349,26 +342,6 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       // move to the next row in the file and data
       filePos = self->GetFile()->tellg();
 
-/* Unfortunately this doesn't work as a fix, but I'll leave it here for a bit
-   to provoke ideas.
-      if (filePos == -1)
-        {
-        self->GetFile()->clear(self->GetFile()->rdstate() & ~ios::eofbit);
-        self->GetFile()->clear(self->GetFile()->rdstate() & ~ios::failbit);
-        filePos = self->GetFile()->tellg();
-        }
-*/
-#if (defined(__BORLANDC__) || defined (__APPLE_CC__))
-      // With Borland CBuilder 6 and Apple's gcc3:
-      // seems that after a read that just reaches EOF, tellg reports a -1.
-      // clear() does not work, so we have to reopen the file.
-      if (filePos == -1)
-      {
-        self->OpenFile();
-        self->GetFile()->seekg(0,ios::end);
-        filePos = self->GetFile()->tellg();
-      }
-#endif
       // watch for case where we might rewind too much
       // if that happens, store the value in correction and apply later
       if (filePos + streamSkip0 >= 0)

@@ -86,7 +86,7 @@
 // dashboard compilers failed to link in the methods, so we have a special
 // case here.  If we find more platforms that do not support it correctly,
 // then we should probably implement a TRY_COMPILE in the CMakeLists.txt.
-#ifndef __BORLANDC__
+#if !(defined(__BORLANDC__) && (__BORLANDC__ < 0x660))
 # define VTK_HAS_STD_NUMERIC_LIMITS
 #endif
 
@@ -96,7 +96,7 @@
 // because exceptions for really bad operations like division by 0 are on).
 // This flag will instruct vtkMath not to make these comparisons.  (The next
 // fallback is to do IEEE-754 bit comparisons.)
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 # define VTK_NON_FINITE_CAUSES_EXCEPTIONS
 #endif
 
