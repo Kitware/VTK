@@ -134,7 +134,16 @@ public:
   /**
    * Returns min and max position of all function points.
    */
-  vtkGetVector2Macro( Range, double );
+  double* GetRange() VTK_OVERRIDE { return this->Range; }
+  virtual void GetRange(double& arg1, double& arg2)
+  {
+    arg1 = this->Range[0];
+    arg2 = this->Range[1];
+  }
+  virtual void GetRange(double _arg[2])
+  {
+    this->GetRange(_arg[0],_arg[1]);
+  }
   //@}
 
   /**
