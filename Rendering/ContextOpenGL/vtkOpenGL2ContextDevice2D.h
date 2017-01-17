@@ -76,6 +76,15 @@ public:
   void DrawImage(const vtkRectf& pos, vtkImageData *image) VTK_OVERRIDE;
 
   /**
+   * Draw the supplied PolyData at the given x, y (p[0], p[1]) (bottom corner),
+   * scaled by scale (1.0 would match the actual dataset).
+   *
+   * @warning This functionality is not supported with the legacy OpenGL backend.
+   */
+  void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
+    vtkUnsignedCharArray* colors, int scalarMode) VTK_OVERRIDE;
+
+  /**
    * Release any graphics resources that are being consumed by this device.
    * The parameter window could be used to determine which graphic
    * resources to release.

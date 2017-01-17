@@ -216,6 +216,13 @@ public:
   void DrawImage(const vtkRectf& pos, vtkImageData *image) VTK_OVERRIDE;
 
   /**
+   * Draw the supplied PolyData at the given x, y (p[0], p[1]) (bottom corner),
+   * scaled by scale (1.0 would match the actual dataset).
+   */
+  void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
+    vtkUnsignedCharArray* colors, int scalarMode) VTK_OVERRIDE;
+
+  /**
    * Set the color for the device using unsigned char of length 4, RGBA.
    */
   void SetColor4(unsigned char color[4]) VTK_OVERRIDE;
@@ -391,6 +398,9 @@ protected:
    */
   class Private;
   Private *Storage;
+
+  class CellArrayHelper;
+  CellArrayHelper* PolyDataImpl;
   //@}
 
   /**
@@ -418,8 +428,8 @@ protected:
     float *v, int nv,
     unsigned char *coolors, int nc,
     float *tcoords);
-  void CoreDrawTriangles(std::vector<float> &tverts);
-
+  void CoreDrawTriangles(std::vector<float> &tverts, unsigned char* colors = NULL,
+    int numComp = 0);
   // used for stipples
   unsigned short LinePattern;
 

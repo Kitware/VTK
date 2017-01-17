@@ -190,6 +190,8 @@ protected:
    * is active.
    */
   void LayoutAxes(vtkContext2D *painter);
+  virtual void SetAxisRange(vtkRectd const& data);
+  virtual void ComputeViewTransform();
 
   /**
    * Return the draw area's geometry.
@@ -281,15 +283,20 @@ protected:
    */
   bool FillViewport;
 
-private:
-  vtkContextArea(const vtkContextArea &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextArea &) VTK_DELETE_FUNCTION;
+  /**
+   * Initialize the drawing area's item hierarchy
+   */
+  virtual void InitializeDrawArea();
 
   // Smart pointers for axis lifetime management. See this->Axes.
   vtkNew<vtkAxis> TopAxis;
   vtkNew<vtkAxis> BottomAxis;
   vtkNew<vtkAxis> LeftAxis;
   vtkNew<vtkAxis> RightAxis;
+
+private:
+  vtkContextArea(const vtkContextArea &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextArea &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkContextArea_h

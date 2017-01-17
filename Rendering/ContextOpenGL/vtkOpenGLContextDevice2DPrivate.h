@@ -37,6 +37,7 @@
 
 #include "vtkColor.h"
 #include "vtkTextProperty.h"
+#include "vtkTexture.h"
 #include "vtkFreeTypeTools.h"
 #include "vtkStdString.h"
 #include "vtkUnicodeString.h"
