@@ -1,5 +1,9 @@
 set(CMAKE_SYSTEM_NAME Darwin)
 
+if(POLICY CMP0012)
+  cmake_policy(SET CMP0012 NEW)
+endif()
+
 # Set developer directory
 execute_process(COMMAND /usr/bin/xcode-select -print-path
                 OUTPUT_VARIABLE XCODE_DEVELOPER_DIR
