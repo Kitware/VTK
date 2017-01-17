@@ -46,7 +46,7 @@ public:
   static ContextGL2PSTest *New();
   vtkTypeMacro(ContextGL2PSTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 };
 
 //----------------------------------------------------------------------------
