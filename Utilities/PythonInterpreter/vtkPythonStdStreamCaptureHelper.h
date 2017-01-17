@@ -224,6 +224,7 @@ static PyObject* vtkClose(PyObject* self, PyObject* args)
 
 static vtkPythonStdStreamCaptureHelper* NewPythonStdStreamCaptureHelper(bool for_stderr=false)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   if(PyType_Ready(&vtkPythonStdStreamCaptureHelperType) < 0)
     {
     return 0;
