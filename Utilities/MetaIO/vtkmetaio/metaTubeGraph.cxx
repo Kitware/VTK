@@ -82,7 +82,7 @@ MetaTubeGraph::
   while(it != m_PointList.end())
     {
     TubeGraphPnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
     }
   m_PointList.clear();
@@ -161,7 +161,7 @@ Clear(void)
   while(it != m_PointList.end())
   {
     TubeGraphPnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -230,7 +230,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   mF = MET_GetFieldRecord("Offset",&m_Fields);
@@ -242,7 +242,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   mF = MET_GetFieldRecord("ElementSpacing",&m_Fields);
@@ -254,7 +254,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   mF = MET_GetFieldRecord("CenterOfRotation",&m_Fields);
@@ -266,7 +266,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   if(m_Root>0)
@@ -548,7 +548,7 @@ M_Write(void)
         MET_DoubleToValue((double)(*it)->m_T[d],m_ElementType,data,i++);
         }
 
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,
@@ -577,7 +577,7 @@ M_Write(void)
 
       *m_WriteStream << METAIO_STREAM::endl;
 
-      it++;
+      ++it;
       }
     }
   return true;

@@ -332,7 +332,7 @@ void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   this->DistortionVBO->ReleaseGraphicsResources();
   this->Distortion.ReleaseGraphicsResources(renWin);
   for( std::vector< vtkOpenVRModel * >::iterator i = this->VTKRenderModels.begin();
-       i != this->VTKRenderModels.end(); i++ )
+       i != this->VTKRenderModels.end(); ++i )
   {
     (*i)->ReleaseGraphicsResources(renWin);
   }
@@ -367,7 +367,7 @@ vtkOpenVRModel *vtkOpenVRRenderWindow::FindOrLoadRenderModel(
 {
   vtkOpenVRModel *pRenderModel = NULL;
   for( std::vector< vtkOpenVRModel * >::iterator i = this->VTKRenderModels.begin();
-       i != this->VTKRenderModels.end(); i++ )
+       i != this->VTKRenderModels.end(); ++i )
   {
     if( !stricmp( (*i)->GetName().c_str(), pchRenderModelName ) )
     {
@@ -1053,7 +1053,7 @@ void vtkOpenVRRenderWindow::Finalize (void)
   }
 
   for( std::vector< vtkOpenVRModel * >::iterator i = this->VTKRenderModels.begin();
-       i != this->VTKRenderModels.end(); i++ )
+       i != this->VTKRenderModels.end(); ++i )
   {
     (*i)->Delete();
   }

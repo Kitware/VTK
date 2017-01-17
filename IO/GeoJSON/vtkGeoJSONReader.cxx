@@ -114,7 +114,7 @@ GeoJSONReaderInternal::ParseRoot(
   vtkAbstractArray *array;
   std::vector<GeoJSONProperty>::iterator iter =
     this->PropertySpecs.begin();
-  for (; iter != this->PropertySpecs.end(); iter++)
+  for (; iter != this->PropertySpecs.end(); ++iter)
   {
     array = NULL;
     switch (iter->Value.GetType())
@@ -285,7 +285,7 @@ void vtkGeoJSONReader::GeoJSONReaderInternal::ParseFeatureProperties(
   GeoJSONProperty property;
   std::vector<GeoJSONProperty>::iterator iter =
     this->PropertySpecs.begin();
-  for (; iter != this->PropertySpecs.end(); iter++)
+  for (; iter != this->PropertySpecs.end(); ++iter)
   {
     spec = *iter;
     property.Name = spec.Name;
@@ -343,7 +343,7 @@ GeoJSONReaderInternal::InsertFeatureProperties(vtkPolyData *polyData,
 {
   std::vector<GeoJSONProperty>::const_iterator iter =
     featureProperties.begin();
-  for(; iter != featureProperties.end(); iter++)
+  for(; iter != featureProperties.end(); ++iter)
   {
     std::string name = iter->Name;
     vtkVariant value = iter->Value;
@@ -402,7 +402,7 @@ AddFeatureProperty(const char *name, vtkVariant& typeAndDefaultValue)
   // Traverse internal list checking if name already used
   std::vector<GeoJSONReaderInternal::GeoJSONProperty>::iterator iter =
     this->Internal->PropertySpecs.begin();
-  for (; iter != this->Internal->PropertySpecs.end(); iter++)
+  for (; iter != this->Internal->PropertySpecs.end(); ++iter)
   {
     if (iter->Name == name)
     {

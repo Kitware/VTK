@@ -815,7 +815,7 @@ void vtkUnstructuredGridQuadricDecimationFaceMap::clear()
   while (i!=faces.end())
   {
     delete (*i).second;
-    i++;
+    ++i;
   }
   // clear the hash table
   faces.clear();
@@ -1246,7 +1246,7 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::BuildFullMesh()
   {
     vtkUnstructuredGridQuadricDecimationFace *f = (*fi).second;
     f->UpdateQuadric(boundaryWeight);
-    fi++;
+    ++fi;
   }
 }
 

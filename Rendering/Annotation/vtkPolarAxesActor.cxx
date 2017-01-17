@@ -1828,7 +1828,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 
     std::list<double>::iterator itList;
     vtkIdType i = 0;
-    for (itList = labelValList.begin(); itList != labelValList.end(); i++, itList++)
+    for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
       sprintf(label, this->PolarLabelFormat, *itList);
@@ -2072,7 +2072,7 @@ void vtkPolarAxesActor::BuildLabelsLog()
 
     std::list<double>::iterator itList;
     vtkIdType i = 0;
-    for (itList = labelValList.begin(); itList != labelValList.end(); i++, itList++)
+    for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
       sprintf(label, this->PolarLabelFormat, *itList);
@@ -2129,7 +2129,7 @@ std::string vtkPolarAxesActor::FindExponentAndAdjustValues(std::list<double>& va
   int count = 0;
 
   // find common exponent
-  for (itDouble = valuesList.begin(); itDouble != valuesList.end(); itDouble++)
+  for (itDouble = valuesList.begin(); itDouble != valuesList.end(); ++itDouble)
   {
     if (*itDouble != 0.0)
     {
@@ -2167,7 +2167,7 @@ std::string vtkPolarAxesActor::FindExponentAndAdjustValues(std::list<double>& va
   exponentMean = intPart;
 
   // shift every values
-  for (itDouble = valuesList.begin(); itDouble != valuesList.end(); itDouble++)
+  for (itDouble = valuesList.begin(); itDouble != valuesList.end(); ++itDouble)
   {
     if (*itDouble != 0.0)
     {
@@ -2206,7 +2206,7 @@ void vtkPolarAxesActor::GetSignificantPartFromValues(
 
   std::list<double>::iterator itList;
   vtkIdType i = 0;
-  for (itList = valuesList.begin(); itList != valuesList.end(); i++, itList++)
+  for (itList = valuesList.begin(); itList != valuesList.end(); ++i, ++itList)
   {
     char label[64];
     if (this->ExponentLocation == VTK_EXPONENT_LABELS)

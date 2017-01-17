@@ -126,7 +126,7 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
   // add them onto the list of filenames
   for ( std::vector<std::string>::const_iterator iter = files.begin();
         iter != files.end();
-        iter++)
+        ++iter)
   {
     this->FileNames->InsertNextValue(iter->c_str());
   }

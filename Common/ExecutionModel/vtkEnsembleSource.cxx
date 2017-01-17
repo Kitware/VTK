@@ -109,7 +109,7 @@ int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
         this->Internal->Algorithms.begin();
       std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator end =
         this->Internal->Algorithms.end();
-      for(; iter != end; iter++)
+      for(; iter != end; ++iter)
       {
         int retVal = (*iter)->ProcessRequest(request, inputVector, outputVector);
         if (!retVal)

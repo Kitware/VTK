@@ -1234,7 +1234,7 @@ namespace
 
     ~TaskManager()
     {
-      for( BufferList::iterator itr=SendBuffers.begin();itr!=SendBuffers.end();itr++)
+      for( BufferList::iterator itr=SendBuffers.begin();itr!=SendBuffers.end();++itr)
       {
         MessageBuffer* buf = *itr;
         AssertNe(buf->GetRequest().Test(),0);
@@ -1352,7 +1352,7 @@ namespace
       {
         MessageBuffer* buf(*itr);
         BufferList::iterator next = itr;
-        next++;
+        ++next;
         if(buf->GetRequest().Test())
         {
           delete buf;
@@ -1648,7 +1648,7 @@ int vtkPStreamTracer::RequestData(
   // container. We append them all together here.
   vtkNew<vtkAppendPolyData> append;
   for (traceOutputsType::iterator it = traceOutputs.begin();
-       it != traceOutputs.end(); it++)
+       it != traceOutputs.end(); ++it)
   {
     vtkPolyData* inp = it->GetPointer();
     if ( inp->GetNumberOfCells() > 0 )

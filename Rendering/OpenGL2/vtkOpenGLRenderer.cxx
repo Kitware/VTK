@@ -710,7 +710,7 @@ void vtkOpenGLRenderer::DonePick()
     std::map<unsigned int,float>::const_iterator dvItr =
       this->PickInfo->PickValues.begin();
     this->PickedZ = 1.0;
-    for ( ; dvItr != this->PickInfo->PickValues.end(); dvItr++)
+    for ( ; dvItr != this->PickInfo->PickValues.end(); ++dvItr)
     {
       if(dvItr->second < this->PickedZ)
       {
@@ -861,7 +861,7 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
   std::map<unsigned int,float>::const_iterator dvItr =
     this->PickInfo->PickValues.begin();
   this->PickedZ = 1.0;
-  for ( ; dvItr != this->PickInfo->PickValues.end() && k < max; dvItr++)
+  for ( ; dvItr != this->PickInfo->PickValues.end() && k < max; ++dvItr)
   {
     *optr = static_cast<unsigned int>(dvItr->first);
     optr++;

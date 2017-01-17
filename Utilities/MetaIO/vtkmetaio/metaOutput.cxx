@@ -276,7 +276,7 @@ bool MetaOutput::AddListField(METAIO_STL::string name,
   while(it != list.end())
     {
     field.value.push_back(*it);
-    it++;
+    ++it;
     }
   field.type = LIST;
   m_FieldVector.push_back(field);
@@ -425,7 +425,7 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
     {
     if((*itInput).name == "GenerateMetaOutput")
       {
-      itInput++;
+      ++itInput;
       continue;
       }
 
@@ -468,9 +468,9 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
         buffer += " externalData=\"out\"";
         }
       buffer += "/>\n";
-      itField++;
+      ++itField;
       }
-    itInput++;
+    ++itInput;
     }
 
   buffer += "</Inputs>\n";
@@ -500,11 +500,11 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
         delete [] val;
         }
       buffer += "=\"" + *itValue + "\"";
-      itValue++;
+      ++itValue;
       index++;
       }
     buffer += "/>\n";
-    itOutput++;
+    ++itOutput;
     }
   buffer += "</Outputs>\n";
 
@@ -560,7 +560,7 @@ void MetaOutput::Write()
     {
     if(!(*itStream)->IsEnable())
       {
-      itStream++;
+      ++itStream;
       continue;
       }
 
@@ -587,7 +587,7 @@ void MetaOutput::Write()
         {
         (*itStream)->Write(this->GenerateXML().c_str());
         }
-      it++;
+      ++it;
       }
 
     if(!(*itStream)->Close())
@@ -596,7 +596,7 @@ void MetaOutput::Write()
                           << METAIO_STREAM::endl;
       return;
       }
-    itStream++;
+    ++itStream;
     }
 }
 
@@ -632,7 +632,7 @@ void MetaOutput::EnableStream(const char* name)
       {
       (*itStream)->Enable();
       }
-    itStream++;
+    ++itStream;
     }
 }
 
@@ -646,7 +646,7 @@ void MetaOutput::DisableStream(const char* name)
       {
       (*itStream)->Disable();
       }
-    itStream++;
+    ++itStream;
     }
 }
 

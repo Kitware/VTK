@@ -380,7 +380,7 @@ int vtkPlot3DMetaReader::RequestInformation(
   Json::Value::Members::iterator memberIterator;
   for (memberIterator = members.begin();
        memberIterator != members.end();
-       memberIterator++)
+       ++memberIterator)
   {
     std::map<std::string, Plot3DFunction>::iterator iter =
       this->Internal->FunctionMap.find(*memberIterator);
@@ -402,7 +402,7 @@ int vtkPlot3DMetaReader::RequestInformation(
   std::vector<double> timeValues;
   for (iter  = this->Internal->TimeSteps.begin();
        iter != this->Internal->TimeSteps.end();
-       iter++)
+       ++iter)
   {
     timeValues.push_back(iter->Time);
   }

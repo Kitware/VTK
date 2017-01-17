@@ -807,7 +807,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
     std::map<std::pair<int,int>, int>::iterator it;
     for (it = this->Internal->NewRegions.begin();
          it != this->Internal->NewRegions.end();
-         it++)
+         ++it)
     {
       int index = it->second;
       outMaterialIDs->SetValue(index, index);

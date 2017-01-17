@@ -166,7 +166,7 @@ public:
     while (it != this->tmap.end())
     {
       this->Steps[i] = it->first;
-      it++;
+      ++it;
       i++;
     }
     *outSteps = this->Steps;
@@ -304,7 +304,7 @@ public:
     int i = 0;
     for (std::set<int>::iterator it = unique_blocks.begin();
          it!= unique_blocks.end();
-         it++)
+         ++it)
     {
       //keep record of the "name" of the block for GUI to choose from
       self->BlockChoices->AddArray(to_string(*it).c_str());
@@ -887,7 +887,7 @@ int vtkTRUCHASReader::RequestData(
     {
       tit = ttit;
     }
-    ttit++;
+    ++ttit;
   }
   //open the corresponding section in the hdf5 file to get arrays from
   std::string time_group_name ="/Simulations/MAIN/Series Data/" + tit->second;
@@ -928,7 +928,7 @@ int vtkTRUCHASReader::RequestData(
   std::map<std::string, int>::iterator nit;
   for (nit = this->Internals->array_names.begin();
        nit != this->Internals->array_names.end();
-       nit++)
+       ++nit)
   {
     std::string name = nit->first;
     int align = nit->second;

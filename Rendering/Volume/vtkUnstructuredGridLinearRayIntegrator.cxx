@@ -129,7 +129,7 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     color->GetColor(x1, rgb);
     vtkMath::RGBToHSV(rgb, hsv);
     hue1 = hsv[0];
-    for (i++; i != cpset.end(); i++)
+    for (++i; i != cpset.end(); ++i)
     {
       x2 = *i;
       color->GetColor(x2, rgb);
@@ -446,7 +446,7 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
       // integrate each piece.
       std::set<double>::iterator segi = segments.begin();
       double nearInterpolant = *segi;
-      for (segi++; segi != segments.end(); segi++)
+      for (++segi; segi != segments.end(); ++segi)
       {
         double farInterpolant = *segi;
         double nearcolor[4] = {0.0, 0.0, 0.0, 0.0};

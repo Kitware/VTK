@@ -357,7 +357,7 @@ bool vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
   //read the message for the particles that we really want
   int counter = 0;
   for(std::vector<vtkIdType>::iterator it=realOwningProcess.begin();
-      it!=realOwningProcess.end();it++)
+      it!=realOwningProcess.end();++it)
   {
     if(*it != -1)
     {
@@ -484,7 +484,7 @@ bool vtkPParticleTracerBase::IsPointDataValid(vtkDataObject* input)
     {
       stream << (int)arrayNames.size();
       for(std::vector<std::string>::iterator it=arrayNames.begin();
-          it!=arrayNames.end();it++)
+          it!=arrayNames.end();++it)
       {
         stream << *it;
       }

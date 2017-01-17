@@ -787,7 +787,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::FindGhostCells()
 
     // iterate over all cells sent to toRank
     std::set<vtkIdType>::iterator cellidIter = cellids.begin();
-    for (; cellidIter != cellids.end(); cellidIter++)
+    for (; cellidIter != cellids.end(); ++cellidIter)
     {
       // iterate over each point in the cell
       vtkIdType cellid = *cellidIter;
@@ -827,7 +827,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::FindGhostCells()
     int toRank = iter->first;
     std::set<vtkIdType>& cellids = this->Internals->CellsToSend[toRank];
     std::set<vtkIdType>::iterator cellidIter = cellids.begin();
-    for (; cellidIter != cellids.end(); cellidIter++)
+    for (; cellidIter != cellids.end(); ++cellidIter)
     {
       this->Internals->SentCells[toRank].insert(*cellidIter);
       this->Internals->SentCellsLastRound[toRank].insert(*cellidIter);

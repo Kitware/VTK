@@ -417,7 +417,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
     for(VectorIterator = this->mefi->PutArrNames.begin();
         VectorIterator != this->mefi->PutArrNames.end();
-        VectorIterator++)
+        ++VectorIterator)
     {
       currentArray = 0;
 
@@ -479,7 +479,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
     for(VectorIterator = this->mefi->GetArrNames.begin();
         VectorIterator != this->mefi->GetArrNames.end();
-        VectorIterator++)
+        ++VectorIterator)
     {
       currentArray = this->mengi->GetVtkDataArray(VectorIterator->MatArrName.c_str());
 
@@ -572,7 +572,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
     for(VectorIterator = this->mefi->PutArrNames.begin();
         VectorIterator != this->mefi->PutArrNames.end();
-        VectorIterator++)
+        ++VectorIterator)
     {
       currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
 
@@ -635,7 +635,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
     for(VectorIterator = this->mefi->GetArrNames.begin();
         VectorIterator != this->mefi->GetArrNames.end();
-        VectorIterator++){
+        ++VectorIterator){
       currentArray = this->mengi->GetVtkDataArray(VectorIterator->MatArrName.c_str());
 
       if(!currentArray)
@@ -678,7 +678,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
   {
     for(VectorIterator = this->mefi->PutArrNames.begin();
         VectorIterator != this->mefi->PutArrNames.end();
-        VectorIterator++)
+        ++VectorIterator)
     {
       int index = atoi(VectorIterator->VTKArrName.c_str());
 
@@ -733,7 +733,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
       for(VectorIterator = this->mefi->GetArrNames.begin();
           VectorIterator != this->mefi->GetArrNames.end();
-          VectorIterator++)
+          ++VectorIterator)
       {
         cArray = this->mengi->GetVtkArray(VectorIterator->MatArrName.c_str());
 
@@ -787,7 +787,7 @@ int vtkMatlabEngineFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
 
   for(VectorIterator = this->mefi->PutArrNames.begin();
       VectorIterator != this->mefi->PutArrNames.end();
-      VectorIterator++)
+      ++VectorIterator)
   {
     currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
 
@@ -849,7 +849,7 @@ int vtkMatlabEngineFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
 
     for(VectorIterator = this->mefi->GetArrNames.begin();
         VectorIterator != this->mefi->GetArrNames.end();
-        VectorIterator++)
+        ++VectorIterator)
     {
       currentArray = this->mengi->GetVtkDataArray(VectorIterator->MatArrName.c_str());
 

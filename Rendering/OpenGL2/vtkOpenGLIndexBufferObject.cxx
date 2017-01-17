@@ -627,7 +627,7 @@ void vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
     indexArray.reserve(targetSize);
   }
 
-  for (std::set<vtkIdType>::const_iterator i = vertsUsed.begin(); i != vertsUsed.end(); i++)
+  for (std::set<vtkIdType>::const_iterator i = vertsUsed.begin(); i != vertsUsed.end(); ++i)
   {
     indexArray.push_back(*i);
   }

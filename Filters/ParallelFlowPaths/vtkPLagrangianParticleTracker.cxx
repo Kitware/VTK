@@ -285,7 +285,7 @@ public:
       }
       else
       {
-        it++;
+        ++it;
       }
     }
   }

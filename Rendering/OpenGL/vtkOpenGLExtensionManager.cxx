@@ -708,7 +708,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 
   // Look for the function in each library.
   for (std::list<std::string>::iterator i = ogl_libraries.begin();
-       i != ogl_libraries.end(); i++)
+       i != ogl_libraries.end(); ++i)
   {
     vtkLibHandle lh = vtkDynamicLoader::OpenLibrary((*i).c_str());
     void *f = vtkDynamicLoader::GetSymbolAddress(lh, fname);

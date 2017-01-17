@@ -549,7 +549,7 @@ static void WriteHeader(ostream &file, const char *generator,
 static void WriteClassDeclarationGuts(ostream &hfile, int type)
 {
   for (std::list<Extension>::iterator iextension = extensions.begin();
-       iextension != extensions.end(); iextension++)
+       iextension != extensions.end(); ++iextension)
     {
     if (iextension->type != type) continue;
     hfile << endl << "  //Definitions for " << iextension->GetName().c_str() << endl;
@@ -558,7 +558,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
     if (cExts != consts.end())
       {
       for (std::list<Constant>::iterator iconst = cExts->second.begin();
-           iconst != cExts->second.end(); iconst++)
+           iconst != cExts->second.end(); ++iconst)
         {
         // New versions of the NVIDIA OpenGL headers for Linux can
         // #define the same constant with the same value in multiple
@@ -601,7 +601,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
     if (tExts != types.end())
       {
       for (std::list<Typedef>::iterator itype = tExts->second.begin();
-           itype != tExts->second.end(); itype++)
+           itype != tExts->second.end(); ++itype)
         {
         hfile << "  " << itype->definition.c_str() << endl;
         }
@@ -611,7 +611,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
     if (fExts != functs.end())
       {
       for (std::list<Function>::iterator ifunc = fExts->second.begin();
-           ifunc != fExts->second.end(); ifunc++)
+           ifunc != fExts->second.end(); ++ifunc)
         {
         hfile << "  extern VTKRENDERINGOPENGL_EXPORT " << ifunc->GetProcType()
               << " " << ifunc->GetName().c_str() << ";" << endl;
@@ -625,12 +625,12 @@ static void WriteFunctionPointerDeclarations(ostream &cxxfile, int type)
   Extension::WriteSupportWrapperBegin(cxxfile, type);
   for (std::map<Extension, std::list<Function> >::iterator fExts
          = functs.begin();
-       fExts != functs.end(); fExts++)
+       fExts != functs.end(); ++fExts)
     {
     if (fExts->first.type != type) continue;
     cxxfile << "//Functions for " << fExts->first.GetName().c_str() << endl;
     for (std::list<Function>::iterator ifunc = fExts->second.begin();
-         ifunc != fExts->second.end(); ifunc++)
+         ifunc != fExts->second.end(); ++ifunc)
       {
       cxxfile << "vtk" << Extension::TypeToString(type) << "::"
               << ifunc->GetProcType()
@@ -672,10 +672,10 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
         << "/* into a header file that gets it wrong.                                   */" << endl;
   for (std::map<Extension, std::list<Constant> >::iterator constlist
          = consts.begin();
-       constlist != consts.end(); constlist++)
+       constlist != consts.end(); ++constlist)
     {
     for (std::list<Constant>::iterator c = (*constlist).second.begin();
-         c != (*constlist).second.end(); c++)
+         c != (*constlist).second.end(); ++c)
       {
       hfile << "#ifdef " << (*c).GetName().c_str() << endl;
       hfile << "#undef " << (*c).GetName().c_str() << endl;
@@ -754,7 +754,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   cxxfile << "int vtkgl::LoadExtension(const char *name, vtkOpenGLExtensionManager *manager)" << endl
           << "{" << endl;
   for (iextension = extensions.begin();
-       iextension != extensions.end(); iextension++)
+       iextension != extensions.end(); ++iextension)
     {
     iextension->WriteSupportWrapperBegin(cxxfile);
     cxxfile << "  if (strcmp(name, \"" << iextension->GetName().c_str()
@@ -764,7 +764,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
     vtkglclass += Extension::TypeToString(iextension->type);
     std::list<Function>::iterator ifunct;
     for (ifunct = functs[*iextension].begin();
-         ifunct != functs[*iextension].end(); ifunct++)
+         ifunct != functs[*iextension].end(); ++ifunct)
       {
       cxxfile << "    " << vtkglclass.c_str() << "::"
               << ifunct->GetName().c_str() << " = reinterpret_cast<" << vtkglclass.c_str() << "::"
@@ -775,7 +775,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
       }
     cxxfile << "    return 1";
     for (ifunct = functs[*iextension].begin();
-         ifunct != functs[*iextension].end(); ifunct++)
+         ifunct != functs[*iextension].end(); ++ifunct)
       {
       cxxfile << " && (" << vtkglclass.c_str() << "::" << ifunct->GetName().c_str()
               << " != NULL)";
@@ -794,7 +794,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
           << "{" << endl
           << "  return \"";
   for (iextension = extensions.begin();
-       iextension != extensions.end(); iextension++)
+       iextension != extensions.end(); ++iextension)
     {
     if (strncmp("GL_VERSION_", iextension->GetName().c_str(), 11) == 0)
       {
@@ -808,7 +808,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
           << "{" << endl
           << "  return \"";
   for (iextension = extensions.begin();
-       iextension != extensions.end(); iextension++)
+       iextension != extensions.end(); ++iextension)
     {
     if (strncmp("GLX_VERSION_", iextension->GetName().c_str(), 12) == 0)
       {

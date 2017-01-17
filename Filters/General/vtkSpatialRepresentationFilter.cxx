@@ -87,7 +87,7 @@ int vtkSpatialRepresentationFilter::RequestData(
   std::set<int>::iterator it;
   for ( it = this->Internal->Levels.begin();
         it != this->Internal->Levels.end();
-        it++ )
+        ++it )
   {
     if ( *it <= this->MaximumLevel )
     {

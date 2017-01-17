@@ -353,7 +353,7 @@ int vtkSelectionSource::RequestData(
           // iterate over ids and insert to the selection list
           vtkSelectionSourceInternals::StringIDSetType::iterator iter =
             selSet.begin();
-          for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+          for (vtkIdType idx2=0; iter != selSet.end(); ++iter, ++idx2)
           {
             selectionList->SetValue(idx2, *iter);
           }
@@ -415,7 +415,7 @@ int vtkSelectionSource::RequestData(
           // iterate over ids and insert to the selection list
           vtkSelectionSourceInternals::IDSetType::iterator iter =
             selSet.begin();
-          for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
+          for (vtkIdType idx2=0; iter != selSet.end(); ++iter, ++idx2)
           {
             selectionList->SetValue(idx2, *iter);
           }

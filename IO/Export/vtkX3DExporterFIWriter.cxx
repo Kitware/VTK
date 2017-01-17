@@ -233,7 +233,7 @@ void vtkX3DExporterFIByteWriter::PutBits(const std::string &bitstring)
   while(I != bitstring.end())
   {
     this->PutBit((*I) == '1');
-    I++;
+    ++I;
   }
 }
 

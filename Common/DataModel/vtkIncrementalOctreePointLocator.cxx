@@ -82,7 +82,7 @@ namespace
           {
             // we need to go to the very last entry
             it = this->dist2ToIds.end();
-            it --;
+            --it;
 
             // Even if we remove the very last entry, the number of points
             // will still be greater than that of requested points. This
@@ -96,7 +96,7 @@ namespace
               this->NumberPoints -= it->second.size();
               std::map<  double,  std::list< vtkIdType >  >::iterator
                 it2 = it;
-              it2 --;
+              --it2;
               this->LargestDist2 = it2->first;
               this->dist2ToIds.erase( it );
             }
@@ -128,10 +128,10 @@ namespace
           {
             idList->InsertId( counter, *lit );
             counter ++;
-            lit ++;
+            ++lit;
           }
 
-          it ++;
+          ++it;
         }
     }
 
@@ -342,7 +342,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation
   nodeQuads = vtkCellArray::New();
   nodeQuads->Allocate(  6  *  static_cast < int > ( nodesList.size() )  );
   for ( std::list< vtkIncrementalOctreeNode * >::iterator
-        lit = nodesList.begin(); lit != nodesList.end(); lit ++ )
+        lit = nodesList.begin(); lit != nodesList.end(); ++lit )
   {
     vtkIncrementalOctreePointLocator::AddPolys( *lit, thePoints, nodeQuads );
   }

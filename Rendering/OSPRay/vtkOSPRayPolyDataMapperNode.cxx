@@ -55,7 +55,7 @@ namespace vtkosp {
       while (it != geoms.end())
       {
         ospRelease((OSPGeometry)*it);
-        it++;
+        ++it;
       }
       geoms.clear();
     }
@@ -69,7 +69,7 @@ namespace vtkosp {
       while (it != geoms.end())
       {
         ospAddGeometry(oModel, *it);
-        it++;
+        ++it;
       }
     }
   };

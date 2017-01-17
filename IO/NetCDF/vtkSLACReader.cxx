@@ -453,7 +453,7 @@ bool vtkSLACReader::MidpointIdMap::GetNextMidpoint(EdgeEndpoints &edge,
   edge = this->Internal->Iterator->first;
   midpoint = this->Internal->Iterator->second;
 
-  this->Internal->Iterator++;
+  ++this->Internal->Iterator;
   return true;
 }
 
@@ -757,8 +757,8 @@ int vtkSLACReader::RequestInformation(
     // the time steps we have.
     std::vector<vtkStdString>::iterator fileitr
       = this->Internal->ModeFileNames.begin();
-    fileitr++;
-    for ( ; fileitr != this->Internal->ModeFileNames.end(); fileitr++)
+    ++fileitr;
+    for ( ; fileitr != this->Internal->ModeFileNames.end(); ++fileitr)
     {
       vtkSLACReaderAutoCloseNetCDF modeFD(*fileitr, NC_NOWRITE);
       if (!modeFD.Valid()) return 0;
@@ -779,7 +779,7 @@ int vtkSLACReader::RequestInformation(
     std::map<double, vtkStdString>::iterator timeitr
       = this->Internal->TimeStepToFile.begin();
     range[0] = timeitr->first;
-    for ( ; timeitr != this->Internal->TimeStepToFile.end(); timeitr++)
+    for ( ; timeitr != this->Internal->TimeStepToFile.end(); ++timeitr)
     {
       range[1] = timeitr->first;        // Eventually set to last value.
       surfaceOutInfo->Append(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
@@ -796,12 +796,12 @@ int vtkSLACReader::RequestInformation(
     // all the files (and we have already read the first one) and record them.
     std::vector<vtkStdString>::iterator fileitr =
         this->Internal->ModeFileNames.begin();
-    fileitr++;
+    ++fileitr;
     std::vector<double>::iterator frequencyiter =
         this->Internal->Frequencies.begin();
-    frequencyiter++;
+    ++frequencyiter;
     for ( ; fileitr != this->Internal->ModeFileNames.end();
-          fileitr++, frequencyiter++)
+          ++fileitr, ++frequencyiter)
     {
       assert(frequencyiter != this->Internal->Frequencies.end());
 
@@ -988,7 +988,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
     modeFDVector.reserve(modeFileNames.size());
     for (std::vector<vtkStdString>::iterator nameIter = modeFileNames.begin();
          nameIter != modeFileNames.end();
-         nameIter++)
+         ++nameIter)
     {
       vtkSLACReaderAutoCloseNetCDF modeFD(*nameIter, NC_NOWRITE);
       if (modeFD.Valid())

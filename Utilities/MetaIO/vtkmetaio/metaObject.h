@@ -289,7 +289,7 @@ class METAIO_EXPORT MetaObject
         FieldsContainerType::iterator it;
         for(it = container.begin();
             it != container.end();
-            it++)
+            ++it)
           {
           if(strcmp((*it)->name,fieldName) == 0)
             {

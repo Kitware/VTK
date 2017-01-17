@@ -44,7 +44,7 @@ vtkMultiTimeStepAlgorithm::vtkMultiTimeStepAlgorithm()
 bool vtkMultiTimeStepAlgorithm::IsInCache(double time, size_t& idx)
 {
   std::vector<TimeCache>::iterator it = this->Cache.begin();
-  for(idx = 0; it != this->Cache.end(); it++, idx++)
+  for(idx = 0; it != this->Cache.end(); ++it, ++idx)
   {
     if (time == it->TimeValue)
     {

@@ -458,7 +458,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
     dicom_stl::vector<DICOMCallback*> * cbVector = mv.second;
     for (dicom_stl::vector<DICOMCallback*>::iterator cbiter = cbVector->begin();
          cbiter != cbVector->end();
-         cbiter++)
+         ++cbiter)
       {
       (*cbiter)->Execute(this,      // parser
                        ge.first,  // group
@@ -625,7 +625,7 @@ void DICOMParser::AddDICOMTagCallbacks(doublebyte group, doublebyte element, VRT
     {
     for (dicom_stl::vector<DICOMCallback*>::iterator iter = cbVector->begin();
          iter != cbVector->end();
-         iter++)
+         ++iter)
       {
       dicom_stl::vector<DICOMCallback*>* callbacks = (*miter).second.second;
       callbacks->push_back(*iter);
@@ -658,7 +658,7 @@ void DICOMParser::AddDICOMTagCallbackToAllTags(DICOMCallback* cb)
   DICOMParserMap::iterator miter;
   for (miter = Implementation->Map.begin();
        miter != Implementation->Map.end();
-       miter++)
+       ++miter)
   {
   dicom_stl::vector<DICOMCallback*>* callbacks = (*miter).second.second;
   callbacks->push_back(cb);
@@ -762,7 +762,7 @@ void DICOMParser::GetGroupsElementsDatatypes(dicom_stl::vector<doublebyte>& grou
 
   for (giter = this->Implementation->Groups.begin(), eiter = this->Implementation->Elements.begin(), diter = this->Implementation->Datatypes.begin();
        (giter != this->Implementation->Groups.end()) && (eiter != this->Implementation->Elements.end()) && (diter != this->Implementation->Datatypes.end());
-       giter++, eiter++, diter++)
+       ++giter, ++eiter, ++diter)
     {
     groups.push_back(*giter);
     elements.push_back(*eiter);
@@ -776,7 +776,7 @@ void DICOMParser::ClearAllDICOMTagCallbacks()
 
   for (mapIter = this->Implementation->Map.begin();
        mapIter != this->Implementation->Map.end();
-       mapIter++)
+       ++mapIter)
        {
        dicom_stl::pair<const DICOMMapKey, DICOMMapValue> mapPair = *mapIter;
        DICOMMapValue mapVal = mapPair.second;

@@ -301,7 +301,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
     std::map<int, vtkIdType>::iterator iterII;
     for (iterII = blockID_to_partVertexID.begin();
       iterII != blockID_to_partVertexID.end();
-      iterII++)
+      ++iterII)
     {
       int blockID = iterII->first;
       vtkIdType partVertex = iterII->second;

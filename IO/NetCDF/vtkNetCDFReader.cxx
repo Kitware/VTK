@@ -635,12 +635,12 @@ int vtkNetCDFReader::ReadMetaData(int ncFD)
   // Add and remove variables.  This will be a no-op if the variables have not
   // changed.
   for (stringSet::iterator removeItr = variablesToRemove.begin();
-       removeItr != variablesToRemove.end(); removeItr++)
+       removeItr != variablesToRemove.end(); ++removeItr)
   {
     this->VariableArraySelection->RemoveArrayByName(removeItr->c_str());
   }
   for (stringSet::iterator addItr = variablesToAdd.begin();
-       addItr != variablesToAdd.end(); addItr++)
+       addItr != variablesToAdd.end(); ++addItr)
   {
     this->VariableArraySelection->AddArray(addItr->c_str());
   }

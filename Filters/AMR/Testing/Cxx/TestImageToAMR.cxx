@@ -107,7 +107,7 @@ int TestImageToAMR(int, char *[])
 
       vtkIdTypeArray* cd = vtkArrayDownCast<vtkIdTypeArray>(image->GetCellData()->GetArray("vtkIdFilter_Ids"));
       assert(cd);
-      for(std::vector<vtkVector3d>::iterator itr=samples.begin(); itr!=samples.end();itr++)
+      for(std::vector<vtkVector3d>::iterator itr=samples.begin(); itr!=samples.end();++itr)
       {
         double* x =(*itr).GetData();
         vtkIdType cellId = FindCell(image,x);

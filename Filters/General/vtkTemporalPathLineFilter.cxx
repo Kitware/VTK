@@ -432,7 +432,7 @@ int vtkTemporalPathLineFilter::RequestData(
   //
   for (vtkTemporalPathLineFilterInternals::TrailIterator t=
     this->Internals->Trails.begin();
-    t!=this->Internals->Trails.end(); t++)
+    t!=this->Internals->Trails.end(); ++t)
   {
     t->second->alive = 0;
     t->second->updated = 0;
@@ -518,7 +518,7 @@ int vtkTemporalPathLineFilter::RequestData(
     deadIds.reserve(this->Internals->Trails.size());
     for (vtkTemporalPathLineFilterInternals::TrailIterator t=
       this->Internals->Trails.begin();
-      t!=this->Internals->Trails.end(); t++)
+      t!=this->Internals->Trails.end(); ++t)
     {
       if (!t->second->alive) deadIds.push_back(t->first);
     }
@@ -555,7 +555,7 @@ int vtkTemporalPathLineFilter::RequestData(
   //
   for (vtkTemporalPathLineFilterInternals::TrailIterator t=
     this->Internals->Trails.begin();
-    t!=this->Internals->Trails.end(); t++)
+    t!=this->Internals->Trails.end(); ++t)
   {
     TrailPointer tp = t->second;
     if (tp->length>0)

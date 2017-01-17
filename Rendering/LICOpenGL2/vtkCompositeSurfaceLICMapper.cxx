@@ -109,7 +109,7 @@ vtkCompositeSurfaceLICMapper::~vtkCompositeSurfaceLICMapper()
 {
   std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter =
     this->Helpers.begin();
-  for (;miter != this->Helpers.end(); miter++)
+  for (;miter != this->Helpers.end(); ++miter)
   {
     if (miter->second)
     {
@@ -535,7 +535,7 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer *ren, vtkActor *actor)
   {
     std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter
       = this->Helpers.begin();
-    for (;miter != this->Helpers.end(); miter++)
+    for (;miter != this->Helpers.end(); ++miter)
     {
       miter->second->Delete();
     }
@@ -550,7 +550,7 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer *ren, vtkActor *actor)
     {
       std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter
         = this->Helpers.begin();
-      for (;miter != this->Helpers.end(); miter++)
+      for (;miter != this->Helpers.end(); ++miter)
       {
         this->CopyMapperValuesToHelper(miter->second);
       }
@@ -576,7 +576,7 @@ void vtkCompositeSurfaceLICMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter =
     this->Helpers.begin();
-  for (;miter != this->Helpers.end(); miter++)
+  for (;miter != this->Helpers.end(); ++miter)
   {
     miter->second->ReleaseGraphicsResources(win);
   }
@@ -590,7 +590,7 @@ void vtkCompositeSurfaceLICMapper::ReportReferences(vtkGarbageCollector *collect
 
   std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter =
     this->Helpers.begin();
-  for (;miter != this->Helpers.end(); miter++)
+  for (;miter != this->Helpers.end(); ++miter)
   {
     vtkGarbageCollectorReport(collector, miter->second, "Helper Mapper");
   }

@@ -195,7 +195,7 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
     source->Internals->Children.begin();
   vtkDataObjectTreeInternals::Iterator myIter =
     this->Internals->Children.begin();
-  for (; srcIter != source->Internals->Children.end(); ++srcIter, myIter++)
+  for (; srcIter != source->Internals->Children.end(); ++srcIter, ++myIter)
   {
     vtkDataObjectTree* compositeSrc =
       vtkDataObjectTree::SafeDownCast(srcIter->DataObject);

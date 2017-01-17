@@ -1444,7 +1444,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayNames()
   this->SurfaceArrayNames->SetNumberOfValues(0);
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it !=
-    this->SurfaceArrayDescriptions.end(); it++)
+    this->SurfaceArrayDescriptions.end(); ++it)
   {
     this->SurfaceArrayNames->InsertNextValue(it->first.c_str());
   }
@@ -1457,7 +1457,7 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayComps()
   this->SurfaceArrayComps->SetNumberOfValues(0);
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it !=
-    this->SurfaceArrayDescriptions.end(); it++)
+    this->SurfaceArrayDescriptions.end(); ++it)
   {
     this->SurfaceArrayComps->InsertNextValue(it->second.nComp);
   }
@@ -1469,7 +1469,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
   this->SurfaceArrayEnumValues->SetNumberOfValues(0);
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it !=
-    this->SurfaceArrayDescriptions.end(); it++)
+    this->SurfaceArrayDescriptions.end(); ++it)
   {
     this->SurfaceArrayEnumValues->InsertVariantValue(
       this->SurfaceArrayEnumValues->GetNumberOfValues(), it->second.enumValues.size());
@@ -1488,7 +1488,7 @@ vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues
   this->SurfaceArrayDefaultValues->SetNumberOfValues(0);
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it !=
-    this->SurfaceArrayDescriptions.end(); it++)
+    this->SurfaceArrayDescriptions.end(); ++it)
   {
     double* defaultValues = new double [it->second.nComp];
     for (size_t iDs = 0; iDs < this->Surfaces->size(); iDs++)
@@ -1508,7 +1508,7 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayTypes()
   this->SurfaceArrayTypes->SetNumberOfValues(0);
   std::map<std::string, SurfaceArrayDescription>::const_iterator it;
   for (it = this->SurfaceArrayDescriptions.begin(); it !=
-    this->SurfaceArrayDescriptions.end(); it++)
+    this->SurfaceArrayDescriptions.end(); ++it)
   {
     this->SurfaceArrayTypes->InsertNextValue(it->second.type);
   }

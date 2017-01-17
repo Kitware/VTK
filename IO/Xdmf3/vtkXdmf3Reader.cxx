@@ -394,7 +394,7 @@ private:
      while (it != times.end())
      {
        this->TimeSteps.push_back(*it);
-       it++;
+       ++it;
      }
     vtkTimerLog::MarkEndEvent("X3R::GatherMetaInfo");
   }
@@ -709,7 +709,7 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
       this->Internal->TimeSteps.begin(), this->Internal->TimeSteps.end(), time);
     if (it != this->Internal->TimeSteps.begin())
     {
-      it--;
+      --it;
     }
     time = *it;
   }
