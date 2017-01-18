@@ -261,45 +261,6 @@ void MyProcess::Execute()
     this->Controller->Receive(&this->ReturnValue,1,0,MY_RETURN_VALUE_MESSAGE);
   }
 
-  if (0 && this->ReturnValue == vtkTesting::PASSED)
-  {
-    // Now try using the memory conserving *Lean methods.  The
-    // image produced should be identical
-
-    dd->UseMinimalMemoryOn();
-    mapper->SetPiece(me);
-    mapper->SetNumberOfPieces(numProcs);
-    mapper->Update();
-
-    if (me == 0)
-    {
-      renderer->ResetCamera();
-      vtkCamera *camera = renderer->GetActiveCamera();
-      camera->UpdateViewport(renderer);
-      camera->ParallelProjectionOn();
-      camera->SetParallelScale(16);
-
-      renWin->Render();
-      renWin->Render();
-
-      this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
-                                                  10);
-
-      for (i=1; i < numProcs; i++)
-      {
-        this->Controller->Send(&this->ReturnValue,1,i,MY_RETURN_VALUE_MESSAGE);
-      }
-
-      prm->StopServices();
-    }
-    else
-    {
-      prm->StartServices();
-      this->Controller->Receive(&this->ReturnValue,1,0,
-                                MY_RETURN_VALUE_MESSAGE);
-    }
-  }
-
   // CLEAN UP
 
   mapper->Delete();
