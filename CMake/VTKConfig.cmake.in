@@ -12,6 +12,17 @@ if (CMAKE_VERSION VERSION_LESS "3.3")
     message(FATAL_ERROR "VTK now requires CMake 3.3 or newer")
   endif()
 
+# Make sure we have C++11 enabled.
+# If CMake used to build VTK failed to detect what compiler is being used,
+# allow an escape for advanced users
+set(VTK_IGNORE_CMAKE_CXX11_CHECKS @VTK_IGNORE_CMAKE_CXX11_CHECKS@)
+if( NOT cxx_nullptr IN_LIST CMAKE_CXX11_COMPILE_FEATURES)
+  if(NOT VTK_IGNORE_CXX11_REQUIREMENT)
+    message(FATAL_ERROR "VTK now requires a compiler that supports C++11")
+  endif()
+endif()
+
+
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
 SET(VTK_REQUIRED_CXX_FLAGS "@VTK_REQUIRED_CXX_FLAGS@")

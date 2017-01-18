@@ -545,7 +545,9 @@ function(vtk_add_library name)
   # We use compile features to specify that VTK requires C++11
   # But at the same time don't have to be concerned about
   # polluting non-VTK targets with that requirement
-  target_compile_features(${name} PUBLIC cxx_nullptr)
+  if(NOT VTK_IGNORE_CMAKE_CXX11_CHECKS)
+    target_compile_features(${name} PUBLIC cxx_nullptr)
+  endif()
   if(NOT ARGV1 STREQUAL OBJECT)
     vtk_target(${name})
   endif()
