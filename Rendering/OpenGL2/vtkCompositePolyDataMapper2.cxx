@@ -191,7 +191,7 @@ vtkStandardNewMacro(vtkCompositeMapperHelper2);
 
 vtkCompositeMapperHelper2::~vtkCompositeMapperHelper2()
 {
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); it++)
+  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
   {
     delete it->second;
   }
@@ -318,7 +318,7 @@ void vtkCompositeMapperHelper2::ReplaceShaderColor(
 
 void vtkCompositeMapperHelper2::ClearMark()
 {
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); it++)
+  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
   {
     it->second->Marked = false;
   }
@@ -358,7 +358,7 @@ int vtkCompositeMapperHelper2::CanUseTextureMapForColoring(vtkDataObject*)
 
   int cellFlag=0;
   vtkScalarsToColors *scalarsLookupTable = 0;
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); it++)
+  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
   {
     vtkPolyData *pd = it->second->Data;
     vtkDataArray* scalars = vtkAbstractMapper::GetScalars(pd,
@@ -472,7 +472,7 @@ void vtkCompositeMapperHelper2::DrawIBO(
       do
       {
         endhdata = it->second;
-        it++;
+        ++it;
       }
       while (it != this->Data.end() &&
         !(this->HaveAppleBug && haveCellTexture) &&
@@ -604,7 +604,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
 
   dataIter iter;
   unsigned int voffset = 0;
-  for (iter = this->Data.begin(); iter != this->Data.end(); iter++)
+  for (iter = this->Data.begin(); iter != this->Data.end(); ++iter)
   {
     vtkCompositeMapperHelperData *hdata = iter->second;
     hdata->StartVertex =
@@ -1032,7 +1032,7 @@ vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 vtkCompositePolyDataMapper2::~vtkCompositePolyDataMapper2()
 {
   helpIter miter = this->Helpers.begin();
-  for (;miter != this->Helpers.end(); miter++)
+  for (;miter != this->Helpers.end(); ++miter)
   {
     miter->second->Delete();
   }
@@ -1316,12 +1316,12 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
 void vtkCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
 {
   helpIter miter = this->Helpers.begin();
-  for (;miter != this->Helpers.end(); miter++)
+  for (;miter != this->Helpers.end(); ++miter)
   {
     miter->second->ReleaseGraphicsResources(win);
   }
   miter = this->Helpers.begin();
-  for (;miter != this->Helpers.end(); miter++)
+  for (;miter != this->Helpers.end(); ++miter)
   {
     miter->second->Delete();
   }
@@ -1346,7 +1346,7 @@ void vtkCompositePolyDataMapper2::Render(
       this->HelperMTime < this->GetMTime())
   {
     // clear old helpers
-    for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); hiter++)
+    for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
     {
       hiter->second->ClearMark();
     }
@@ -1455,7 +1455,7 @@ void vtkCompositePolyDataMapper2::Render(
   }
 
 
-  for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); hiter++)
+  for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
   {
     vtkCompositeMapperHelper2 *helper = hiter->second;
     helper->RenderPiece(ren,actor);

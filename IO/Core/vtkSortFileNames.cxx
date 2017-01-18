@@ -278,7 +278,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
       }
       else
       {
-        p++;
+        ++p;
       }
     }
 

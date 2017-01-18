@@ -76,12 +76,12 @@ namespace
           if(this->NumPoints > this->NumDesiredPoints)
           {
             it=this->dist2ToIds.end();
-            it--;
+            --it;
             if((this->NumPoints-it->second.size()) > this->NumDesiredPoints)
             {
               this->NumPoints -= it->second.size();
               std::map<float, std::list<vtkIdType> >::iterator it2 = it;
-              it2--;
+              --it2;
               this->LargestDist2 = it2->first;
               this->dist2ToIds.erase(it);
             }
@@ -105,9 +105,9 @@ namespace
           {
             ids->InsertId(counter, *lit);
             counter++;
-            lit++;
+            ++lit;
           }
-          it++;
+          ++it;
         }
     }
 
@@ -1078,7 +1078,7 @@ void vtkOctreePointLocator::GenerateRepresentation(int level,
   polys->Allocate(npolys);
 
   for(std::list<vtkOctreePointLocatorNode*>::iterator it=nodesAtLevel.begin();
-      it!=nodesAtLevel.end();it++)
+      it!=nodesAtLevel.end();++it)
   {
     vtkOctreePointLocator::AddPolys(*it, pts, polys);
   }

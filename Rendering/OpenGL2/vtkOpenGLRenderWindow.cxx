@@ -246,7 +246,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
     vtkErrorMacro("There are still active textures when there should not be.");
     typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;
     TRIter found = this->TextureResourceIds.begin();
-    for ( ; found != this->TextureResourceIds.end(); found++)
+    for ( ; found != this->TextureResourceIds.end(); ++found)
     {
       vtkErrorMacro("Leaked for texture object: " << const_cast<vtkTextureObject *>(found->first));
     }

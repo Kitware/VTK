@@ -105,7 +105,7 @@ void vtkPExodusIIWriter::CheckBlockInfoMap ()
   {
     int maxId = -1;
     std::map<int, Block>::const_iterator iter;
-    for (iter = this->BlockInfoMap.begin (); iter != this->BlockInfoMap.end (); iter ++)
+    for (iter = this->BlockInfoMap.begin (); iter != this->BlockInfoMap.end (); ++iter)
     {
       if (iter->first > maxId)
       {

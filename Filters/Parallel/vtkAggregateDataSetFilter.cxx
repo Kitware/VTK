@@ -152,7 +152,7 @@ int vtkAggregateDataSetFilter::RequestData(
     {
       vtkNew<vtkAppendPolyData> appendFilter;
       for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it=recvBuffer.begin();
-           it!=recvBuffer.end();it++)
+           it!=recvBuffer.end();++it)
       {
         appendFilter->AddInputData(vtkPolyData::SafeDownCast(*it));
       }
@@ -164,7 +164,7 @@ int vtkAggregateDataSetFilter::RequestData(
       vtkNew<vtkAppendFilter> appendFilter;
       appendFilter->MergePointsOn();
       for (std::vector<vtkSmartPointer<vtkDataObject> >::iterator it=recvBuffer.begin();
-           it!=recvBuffer.end();it++)
+           it!=recvBuffer.end();++it)
       {
         appendFilter->AddInputData(*it);
       }

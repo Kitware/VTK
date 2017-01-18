@@ -993,7 +993,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
   int index = 0;
   for (iter = this->BlockInfoMap.begin ();
        iter != this->BlockInfoMap.end ();
-       iter ++)
+       ++iter)
   {
     iter->second.ElementStartIndex = runningCount;
     runningCount += iter->second.NumElements;
@@ -1188,12 +1188,12 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     std::map<int, Block>::const_iterator blockIter;
     for (blockIter = this->BlockInfoMap.begin ();
          blockIter != this->BlockInfoMap.end ();
-         blockIter ++)
+         ++blockIter)
     {
       std::map<std::string, VariableInfo>::const_iterator varIter;
       for (varIter = this->BlockVariableMap.begin ();
            varIter != this->BlockVariableMap.end ();
-           varIter ++)
+           ++varIter)
       {
         vtkCellData *cd =
           this->FlattenedInput[blockIter->second.GridIndex]->GetCellData();
@@ -1383,7 +1383,7 @@ int vtkExodusIIWriter::CreateBlockIdMetadata(vtkModelMetadata *em)
   std::map<int, Block>::const_iterator iter;
   for(iter = this->BlockInfoMap.begin();
       iter != this->BlockInfoMap.end();
-      iter++)
+      ++iter)
   {
     int index = iter->second.OutputIndex;
     blockIds[index] = iter->first;
@@ -1424,7 +1424,7 @@ int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
     std::map<std::string, VariableInfo>::const_iterator var_iter;
     for (var_iter = this->BlockVariableMap.begin ();
          var_iter != this->BlockVariableMap.end ();
-         var_iter ++)
+         ++var_iter)
     {
       nms[index] =
         vtkExodusIIWriter::StrDupWithNew (var_iter->first.c_str ());
@@ -1453,7 +1453,7 @@ int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
     std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->NodeVariableMap.begin ();
          iter != this->NodeVariableMap.end ();
-         iter ++)
+         ++iter)
     {
       nms[index] =
             vtkExodusIIWriter::StrDupWithNew (iter->first.c_str ());
@@ -1854,7 +1854,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
   // within it's block in the ExodusModel object.
   for (blockIter = this->BlockInfoMap.begin ();
        blockIter != this->BlockInfoMap.end ();
-       blockIter ++)
+       ++blockIter)
   {
     int outputIndex = blockIter->second.OutputIndex;
     int numElts = blockIter->second.NumElements;
@@ -1981,7 +1981,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
   int fail = 0;
   for (blockIter = this->BlockInfoMap.begin ();
        blockIter != this->BlockInfoMap.end ();
-       blockIter ++)
+       ++blockIter)
   {
     char *type_name = vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type);
     if (blockIter->second.NodesPerElement == 0 &&
@@ -2119,7 +2119,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->GlobalVariableMap.begin ();
          iter != this->GlobalVariableMap.end ();
-         iter ++)
+         ++iter)
     {
       int off = iter->second.ScalarOutOffset;
       for (int j=0; j< iter->second.NumComponents; j++)
@@ -2159,7 +2159,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->BlockVariableMap.begin ();
          iter != this->BlockVariableMap.end ();
-         iter ++)
+         ++iter)
     {
       int off = iter->second.ScalarOutOffset;
       for (int j=0; j< iter->second.NumComponents; j++)
@@ -2211,7 +2211,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     std::map<std::string, VariableInfo>::const_iterator iter;
     for (iter = this->NodeVariableMap.begin ();
          iter != this->NodeVariableMap.end ();
-         iter ++)
+         ++iter)
     {
       int off = iter->second.ScalarOutOffset;
       for (int j=0; j<iter->second.NumComponents; j++)
@@ -2288,7 +2288,7 @@ void vtkExodusIIWriter::ConvertVariableNames(
   // Global output variable names
   for (varIter = variableMap.begin ();
        varIter != variableMap.end ();
-       varIter ++)
+       ++varIter)
   {
     int numComp = varIter->second.NumComponents;
     if (numComp == 1)
@@ -2317,7 +2317,7 @@ char **vtkExodusIIWriter::FlattenOutVariableNames(
   std::map<std::string, VariableInfo>::const_iterator iter;
   for (iter = variableMap.begin ();
        iter != variableMap.end ();
-       iter ++)
+       ++iter)
   {
     for (int component = 0; component < iter->second.NumComponents; component ++)
     {
@@ -3081,7 +3081,7 @@ int vtkExodusIIWriter::WriteGlobalData (int timestep, vtkDataArray *buffer)
   buffer->SetNumberOfTuples (this->NumberOfScalarGlobalArrays);
   for (varIter = this->GlobalVariableMap.begin ();
        varIter != this->GlobalVariableMap.end ();
-       varIter ++)
+       ++varIter)
   {
     const char *nameIn = varIter->first.c_str ();
     int numComp = varIter->second.NumComponents;
@@ -3119,7 +3119,7 @@ int vtkExodusIIWriter::WriteCellData (int timestep, vtkDataArray *buffer)
   std::map<std::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->BlockVariableMap.begin ();
        varIter != this->BlockVariableMap.end ();
-       varIter ++)
+       ++varIter)
   {
     const char *nameIn = varIter->first.c_str ();
     int numComp = varIter->second.NumComponents;
@@ -3133,7 +3133,7 @@ int vtkExodusIIWriter::WriteCellData (int timestep, vtkDataArray *buffer)
       std::map<int, Block>::const_iterator blockIter;
       for (blockIter = this->BlockInfoMap.begin ();
            blockIter != this->BlockInfoMap.end ();
-           blockIter ++)
+           ++blockIter)
       {
         int numElts = blockIter->second.NumElements;
         if (numElts < 1) continue;   // no cells in this block
@@ -3180,7 +3180,7 @@ int vtkExodusIIWriter::WritePointData (int timestep, vtkDataArray *buffer)
   std::map<std::string, VariableInfo>::const_iterator varIter;
   for (varIter = this->NodeVariableMap.begin ();
        varIter != this->NodeVariableMap.end ();
-       varIter ++)
+       ++varIter)
   {
     const char *nameIn = varIter->first.c_str ();
     int numComp = varIter->second.NumComponents;

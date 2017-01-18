@@ -578,7 +578,7 @@ int vtkTulipReader::RequestData(
 
   // Create annotations.
   std::set<vtkStdString>::iterator labels = uniqueLabels.begin();
-  for (; labels != uniqueLabels.end(); labels++)
+  for (; labels != uniqueLabels.end(); ++labels)
   {
     vtkSmartPointer<vtkAnnotation> annotation = vtkSmartPointer<vtkAnnotation>::New();
     annotation->GetInformation()->Set(vtkAnnotation::COLOR(), 0.0, 0.0, 1.0);

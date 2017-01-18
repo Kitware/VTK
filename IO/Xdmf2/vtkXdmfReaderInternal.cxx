@@ -340,14 +340,14 @@ int vtkXdmfDomain::GetIndexForTime(double time)
   else
   {
     // Back up one to the item we really want.
-    iter--;
+    --iter;
   }
 
   std::map<XdmfFloat64, int>::iterator iter2 = this->TimeSteps.begin();
   int counter = 0;
   while (iter2 != iter)
   {
-    iter2++;
+    ++iter2;
     counter++;
   }
 

@@ -94,7 +94,7 @@ public:
       UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
       while( idx )
       {
-        it++;
+        ++it;
         idx--;
       }
       return it->Name.c_str();
@@ -108,7 +108,7 @@ public:
       UserDefinedValues::const_iterator it = UserDefinedValuePool.begin();
       while( idx )
       {
-        it++;
+        ++it;
         idx--;
       }
       return it->Value.c_str();

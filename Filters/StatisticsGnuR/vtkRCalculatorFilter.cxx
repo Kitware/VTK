@@ -560,7 +560,7 @@ int vtkRCalculatorFilter::ProcessInputDataSet(vtkDataSet* dsIn)
 
   for(VectorIterator = this->rcfi->PutArrNames.begin();
     VectorIterator != this->rcfi->PutArrNames.end();
-    VectorIterator++)
+    ++VectorIterator)
   {
     currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
 
@@ -596,7 +596,7 @@ int vtkRCalculatorFilter::ProcessOutputDataSet(vtkDataSet* dsOut)
   std::vector<ArrNames>::iterator VectorIterator;
   for(VectorIterator = this->rcfi->GetArrNames.begin();
     VectorIterator != this->rcfi->GetArrNames.end();
-    VectorIterator++)
+    ++VectorIterator)
   {
     currentArray = this->ri->AssignRVariableToVTKDataArray(VectorIterator->RarrName.c_str());
 
@@ -658,7 +658,7 @@ int vtkRCalculatorFilter::ProcessInputGraph(vtkGraph* gIn)
   vtkDataArray* currentArray = 0;
   for(VectorIterator = this->rcfi->PutArrNames.begin();
     VectorIterator != this->rcfi->PutArrNames.end();
-    VectorIterator++)
+    ++VectorIterator)
   {
     currentArray = PointinFD->GetArray(VectorIterator->VTKArrName.c_str());
 
@@ -695,7 +695,7 @@ int vtkRCalculatorFilter::ProcessOutputGraph(vtkGraph* gOut)
   std::vector<ArrNames>::iterator VectorIterator;
   for(VectorIterator = this->rcfi->GetArrNames.begin();
     VectorIterator != this->rcfi->GetArrNames.end();
-    VectorIterator++)
+    ++VectorIterator)
   {
     currentArray = this->ri->AssignRVariableToVTKDataArray(VectorIterator->RarrName.c_str());
 
@@ -746,7 +746,7 @@ int vtkRCalculatorFilter::ProcessInputArrayData(vtkArrayData * adIn)
   std::vector<ArrNames>::iterator VectorIterator;
   for(VectorIterator = this->rcfi->PutArrNames.begin();
     VectorIterator != this->rcfi->PutArrNames.end();
-    VectorIterator++)
+    ++VectorIterator)
   {
     int index = atoi(VectorIterator->VTKArrName.c_str());
 
@@ -771,7 +771,7 @@ int vtkRCalculatorFilter::ProcessOutputArrayData(vtkArrayData * adOut)
   std::vector<ArrNames>::iterator VectorIterator;
   for(VectorIterator = this->rcfi->GetArrNames.begin();
     VectorIterator != this->rcfi->GetArrNames.end();
-    VectorIterator++)
+    ++VectorIterator)
   {
     cArray = this->ri->AssignRVariableToVTKArray(VectorIterator->RarrName.c_str());
 

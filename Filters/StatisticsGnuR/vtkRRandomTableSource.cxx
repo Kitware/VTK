@@ -403,7 +403,7 @@ int vtkRRandomTableSource::RequestData(
 
   output1->Initialize();
 
-  for(it = this->impl->col_list.begin(); it != this->impl->col_list.end(); it++)
+  for(it = this->impl->col_list.begin(); it != this->impl->col_list.end(); ++it)
   {
     arr = CreateRandomArray((*it).name.c_str(),
                             (*it).t,

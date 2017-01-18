@@ -270,7 +270,7 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
 
   // user specified pre replacements
   for (RIter i = this->UserShaderReplacements.begin();
-    i != this->UserShaderReplacements.end(); i++)
+    i != this->UserShaderReplacements.end(); ++i)
   {
     if (i->first.ReplaceFirst)
     {
@@ -287,7 +287,7 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
 
   // user specified post replacements
   for (RIter i = this->UserShaderReplacements.begin();
-    i != this->UserShaderReplacements.end(); i++)
+    i != this->UserShaderReplacements.end(); ++i)
   {
     if (!i->first.ReplaceFirst)
     {

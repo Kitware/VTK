@@ -420,7 +420,7 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
 
       // For each higher res box fill in the cells that
       // it covers
-      for (iter=dsChildren.begin(); iter!=dsChildren.end(); iter++)
+      for (iter=dsChildren.begin(); iter!=dsChildren.end(); ++iter)
       {
         vtkAMRBox ibox;;
         int childGridIndex  = amr->GetCompositeIndex(levelIdx+1, *iter);

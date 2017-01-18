@@ -521,7 +521,7 @@ vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
   while (sr_start != this->SubRecords.end()
     && sr_start->FooterOffset < startOffset)
   {
-    sr_start++;
+    ++sr_start;
   }
   assert(sr_start != this->SubRecords.end());
 
@@ -532,7 +532,7 @@ vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
     && sr_end->FooterOffset < endOffset)
   {
     markers.push_back(sr_end->FooterOffset);
-    sr_end++;
+    ++sr_end;
     assert(sr_end != this->SubRecords.end());
     endOffset += vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth;
   }

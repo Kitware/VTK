@@ -638,7 +638,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
     static_cast<vtkIdType>(this->Internal->GlobalToLocalIds.size()));
   vtkInternal::GlobalToLocalIdType::iterator itr;
   for (itr = this->Internal->GlobalToLocalIds.begin();
-       itr != this->Internal->GlobalToLocalIds.end(); itr++)
+       itr != this->Internal->GlobalToLocalIds.end(); ++itr)
   {
     this->Internal->LocalToGlobalIds->InsertNextValue(itr->first);
   }
@@ -1033,7 +1033,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   for (posIter = midpointsToRedistribute.position.begin(),
          topIter = midpointsToRedistribute.topology.begin();
        posIter != midpointsToRedistribute.position.end();
-       posIter++, topIter++)
+       ++posIter, ++topIter)
   {
     midpointPointersType mp;
     mp.position = &(*posIter);  mp.topology = &(*topIter);
@@ -1112,7 +1112,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   for (posIter = midpointsToReceive.position.begin(),
          topIter = midpointsToReceive.topology.begin();
        posIter != midpointsToReceive.position.end();
-       posIter++, topIter++)
+       ++posIter, ++topIter)
   {
     if (topIter->globalId < 0) continue;
 

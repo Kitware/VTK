@@ -696,7 +696,7 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
   while (it != readerRanks.end())
   {
     this->Internals->ReaderRanks.push_back( *it);
-    it++;
+    ++it;
   }
 }
 

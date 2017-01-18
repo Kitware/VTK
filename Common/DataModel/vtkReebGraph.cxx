@@ -1978,7 +1978,7 @@ void vtkReebGraph::CloseStream()
         }
       }
     }
-      aIt++;
+      ++aIt;
   }
   while(aIt != localAdjacency.end());
 

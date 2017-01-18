@@ -76,7 +76,7 @@ vtkDataSet * Mesh::getDataSet()
   // creation des points
   vtkPoints * points = vtkPoints::New();
   points->SetNumberOfPoints (_nodes.size());
-  for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
+  for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); ++it)
   {
     int id = (*it)->getId();
     if (id != -1) points->SetPoint (id, (*it)->getX(),(*it)->getY(),(*it)->getZ());
@@ -88,7 +88,7 @@ vtkDataSet * Mesh::getDataSet()
 
   int count = 0;
   // ajout des mailles
-  for (vector<Cell*>::iterator it = _cells.begin(); it != _cells.end(); it++)
+  for (vector<Cell*>::iterator it = _cells.begin(); it != _cells.end(); ++it)
   {
     if (!(*it)->isRefined())
     {
@@ -223,7 +223,7 @@ void Mesh::refine()
   vector<Cell*> tempCells = _cells;
 
   // on itere sur toutes les mailles
-  for (vector<Cell*>::iterator it = tempCells.begin(); it != tempCells.end(); it++)
+  for (vector<Cell*>::iterator it = tempCells.begin(); it != tempCells.end(); ++it)
   {
     (*it)->refineIfNeeded();
   }
@@ -237,7 +237,7 @@ void Mesh::mergePoints ()
 
   map<double, map<double , map<double, Node * > > > nodesMap;
 
-  for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
+  for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); ++it)
   {
     Node * n = (*it);
     double x = n->getX();

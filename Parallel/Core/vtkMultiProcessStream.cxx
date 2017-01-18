@@ -63,7 +63,7 @@ public:
     {
       unsigned char type = *iter;
       int wordSize = 1;
-      iter++;
+      ++iter;
       switch(type)
       {
       case int32_value:
@@ -110,14 +110,14 @@ public:
 
       while (wordSize>0)
       {
-        iter++;
+        ++iter;
         wordSize--;
       }
 
       // Skip String chars
       for (int cc=0; cc < nbSkip; cc++)
       {
-        iter++;
+        ++iter;
       }
     }
   }
@@ -810,10 +810,10 @@ void vtkMultiProcessStream::SetRawData(const std::vector<unsigned char>& data)
   this->Internals->Data.clear();
   unsigned char endianness = data.front();
   std::vector<unsigned char>::const_iterator iter = data.begin();
-  iter++;
+  ++iter;
   this->Internals->Data.resize(data.size()-1);
   int cc=0;
-  for (;iter != data.end(); iter++, cc++)
+  for (;iter != data.end(); ++iter, ++cc)
   {
     this->Internals->Data[cc] = *iter;
   }

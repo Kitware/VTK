@@ -129,7 +129,7 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
     {
       sendBuffer = new int[sendSize];
       ExtentsType::iterator iter = this->Extents.begin();
-      for (int count = 0; iter != this->Extents.end(); iter++, count++)
+      for (int count = 0; iter != this->Extents.end(); ++iter, ++count)
       {
         sendBuffer[count*7] = iter->first;
         memcpy(&sendBuffer[count*7+1], &iter->second[0], 6*sizeof(int));

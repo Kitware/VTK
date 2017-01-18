@@ -44,7 +44,7 @@ public:
     vtkOpenGLClearErrorMacro();
     DisplayListMapType::iterator iter;
     for (iter = this->DisplayListMap.begin(); iter != this->DisplayListMap.end();
-      iter++)
+      ++iter)
     {
       glDeleteLists(iter->second, 1);
     }

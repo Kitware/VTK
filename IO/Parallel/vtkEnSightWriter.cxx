@@ -342,7 +342,7 @@ void vtkEnSightWriter::WriteData()
   partNumbers.unique();
 
   //write out each part
-  for (iter=partNumbers.begin();iter!=partNumbers.end();iter++)
+  for (iter=partNumbers.begin();iter!=partNumbers.end();++iter)
   {
     unsigned int j;
     std::list<int>::iterator iter2;
@@ -402,7 +402,7 @@ void vtkEnSightWriter::WriteData()
       //write the Node ID's to the file
       //also set up the NodeID->order map
       int NodeCount=0;
-      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
+      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();++iter2)
       {
         this->WriteIntToFile(*iter2,fd);
         NodeIdToOrder[*iter2]=NodeCount+1;
@@ -414,15 +414,15 @@ void vtkEnSightWriter::WriteData()
       //write the X Coordinates
 
       vtkPoints* inputPoints=input->GetPoints();
-      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
+      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();++iter2)
       {
         this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[0]),fd);
       }
-      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
+      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();++iter2)
       {
         this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[1]),fd);
       }
-      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();iter2++)
+      for (iter2=NodesPerPart.begin();iter2!=NodesPerPart.end();++iter2)
       {
         this->WriteFloatToFile((float)(inputPoints->GetPoint(*iter2)[2]),fd);
       }
@@ -441,7 +441,7 @@ void vtkEnSightWriter::WriteData()
         CurrentDimension++)
       {
         for (std::list<int>::iterator k=NodesPerPart.begin();
-          k!=NodesPerPart.end();k++)
+          k!=NodesPerPart.end();++k)
         {
           this->WriteFloatToFile((float)
             (DataArray->

@@ -223,11 +223,11 @@ public:
           this->ChildIndex++;
           if (this->Reverse)
           {
-            this->ReverseIter++;
+            ++this->ReverseIter;
           }
           else
           {
-            this->Iter++;
+            ++this->Iter;
           }
           this->InitChildIterator();
         }

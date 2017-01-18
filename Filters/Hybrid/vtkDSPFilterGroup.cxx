@@ -155,7 +155,7 @@ void vtkDSPFilterGroup::RemoveFilter(char *a_outputVariableName)
   std::vector< std::vector<vtkFloatArray *> >::iterator l_cachedOutputsIter = this->CachedOutputs->m_vector.begin();
   std::vector< std::vector<int> >::iterator l_cachedOutputTimesIter = this->CachedOutputTimesteps->m_vector.begin();
 
-  for(l_iter=this->FilterDefinitions->m_vector.begin();l_iter!=this->FilterDefinitions->m_vector.end();l_iter++)
+  for(l_iter=this->FilterDefinitions->m_vector.begin();l_iter!=this->FilterDefinitions->m_vector.end();++l_iter)
   {
       if(!strcmp(a_outputVariableName,(*l_iter)->GetOutputVariableName()))
       {
@@ -167,8 +167,8 @@ void vtkDSPFilterGroup::RemoveFilter(char *a_outputVariableName)
       this->CachedOutputTimesteps->m_vector.erase(l_cachedOutputTimesIter);
     break;
       }
-      l_cachedOutputsIter++;
-      l_cachedOutputTimesIter++;
+      ++l_cachedOutputsIter;
+      ++l_cachedOutputTimesIter;
   }
 
 #if 0

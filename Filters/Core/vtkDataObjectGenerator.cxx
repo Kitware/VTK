@@ -113,7 +113,7 @@ public:
     std::vector<vtkInternalStructureCache *>::iterator it;
     for (it = this->children.begin();
          it != this->children.end();
-         it++)
+         ++it)
     {
       delete *it;
     }
@@ -143,7 +143,7 @@ public:
     std::vector<vtkInternalStructureCache *>::iterator it;
     for (it = this->children.begin();
          it != this->children.end();
-         it++)
+         ++it)
     {
       (*it)->print(level+1);
     }
@@ -687,7 +687,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     std::vector<vtkInternalStructureCache *>::iterator git;
     for (git = structure->children.begin();
          git != structure->children.end();
-         git++)
+         ++git)
     {
       vtkInternalStructureCache *gptr = *git;
       vtkIdType nds = static_cast<vtkIdType>(gptr->children.size());
@@ -701,7 +701,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     vtkIdType gcnt = 0;
     for (git = structure->children.begin();
          git != structure->children.end();
-         git++)
+         ++git)
     {
       //cerr << "LVL=" << gcnt  << endl;
 
@@ -728,7 +728,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
            dit != gptr->children.end()
              && dcnt<maxchildren //ignore extra children
              ;
-           dit++)
+           ++dit)
       {
         //cerr << "DS=" << dcnt  << endl;
         vtkInternalStructureCache *dptr = *dit;
@@ -811,7 +811,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
 
     for (git = structure->children.begin();
          git != structure->children.end();
-         git++)
+         ++git)
     {
       this->ZOffset += 1.0;
       vtkInternalStructureCache *gptr = *git;

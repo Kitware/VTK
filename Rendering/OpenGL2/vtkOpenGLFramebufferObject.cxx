@@ -261,12 +261,12 @@ vtkOpenGLFramebufferObject::~vtkOpenGLFramebufferObject()
   delete this->DrawDepthBuffer;
   delete this->ReadDepthBuffer;
   for (foIter i = this->DrawColorBuffers.begin();
-    i != this->DrawColorBuffers.end(); i++)
+    i != this->DrawColorBuffers.end(); ++i)
   {
     delete i->second;
   }
   for (foIter i = this->ReadColorBuffers.begin();
-    i != this->ReadColorBuffers.end(); i++)
+    i != this->ReadColorBuffers.end(); ++i)
   {
     delete i->second;
   }
@@ -459,7 +459,7 @@ void vtkOpenGLFramebufferObject::UpdateSize()
   // loop through all attachments and
   // verify they are of the same size.
   for (foIter i = this->DrawColorBuffers.begin();
-    i != this->DrawColorBuffers.end(); i++)
+    i != this->DrawColorBuffers.end(); ++i)
   {
     if (!i->second->CreatedByFO && i->second->IsSet())
     {
@@ -480,7 +480,7 @@ void vtkOpenGLFramebufferObject::UpdateSize()
     }
   }
   for (foIter i = this->ReadColorBuffers.begin();
-    i != this->ReadColorBuffers.end(); i++)
+    i != this->ReadColorBuffers.end(); ++i)
   {
     if (!i->second->CreatedByFO && i->second->IsSet())
     {
@@ -570,12 +570,12 @@ void vtkOpenGLFramebufferObject::Resize(int width, int height)
   // loop through all attachments and
   // verify they are of the same size.
   for (foIter i = this->DrawColorBuffers.begin();
-    i != this->DrawColorBuffers.end(); i++)
+    i != this->DrawColorBuffers.end(); ++i)
   {
     i->second->Resize(this->LastSize);
   }
   for (foIter i = this->ReadColorBuffers.begin();
-    i != this->ReadColorBuffers.end(); i++)
+    i != this->ReadColorBuffers.end(); ++i)
   {
     i->second->Resize(this->LastSize);
   }
@@ -793,12 +793,12 @@ void vtkOpenGLFramebufferObject::Attach()
   {
     // attach all buffers if not already attached
     for (foIter i = this->DrawColorBuffers.begin();
-      i != this->DrawColorBuffers.end(); i++)
+      i != this->DrawColorBuffers.end(); ++i)
     {
       i->second->Attach();
     }
     for (foIter i = this->ReadColorBuffers.begin();
-      i != this->ReadColorBuffers.end(); i++)
+      i != this->ReadColorBuffers.end(); ++i)
     {
       i->second->Attach();
     }
@@ -924,12 +924,12 @@ void vtkOpenGLFramebufferObject::DestroyDepthBuffer(vtkWindow *)
 void vtkOpenGLFramebufferObject::DestroyColorBuffers(vtkWindow *)
 {
   for (foIter i = this->DrawColorBuffers.begin();
-    i != this->DrawColorBuffers.end(); i++)
+    i != this->DrawColorBuffers.end(); ++i)
   {
     i->second->Clear();
   }
   for (foIter i = this->ReadColorBuffers.begin();
-    i != this->ReadColorBuffers.end(); i++)
+    i != this->ReadColorBuffers.end(); ++i)
   {
     i->second->Clear();
   }

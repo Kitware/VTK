@@ -81,7 +81,7 @@ public:
   ~vtkOpenGLGlyph3DMapperSubArray()
   {
     std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter = this->Entries.begin();
-    for (;miter != this->Entries.end(); miter++)
+    for (;miter != this->Entries.end(); ++miter)
     {
       delete miter->second;
     }
@@ -95,7 +95,7 @@ public:
   ~vtkOpenGLGlyph3DMapperArray()
   {
     std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->Entries.begin();
-    for (;miter != this->Entries.end(); miter++)
+    for (;miter != this->Entries.end(); ++miter)
     {
       delete miter->second;
     }
@@ -721,10 +721,10 @@ void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
   if (this->GlyphValues)
   {
     std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->GlyphValues->Entries.begin();
-    for (;miter != this->GlyphValues->Entries.end(); miter++)
+    for (;miter != this->GlyphValues->Entries.end(); ++miter)
     {
       std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
-      for (;miter2 != miter->second->Entries.end(); miter2++)
+      for (;miter2 != miter->second->Entries.end(); ++miter2)
       {
         miter2->second->Mapper->ReleaseGraphicsResources(window);
       }

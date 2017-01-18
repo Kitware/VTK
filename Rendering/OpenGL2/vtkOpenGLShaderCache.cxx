@@ -99,7 +99,7 @@ vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
 {
   typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter iter = this->Internal->ShaderPrograms.begin();
-  for ( ; iter != this->Internal->ShaderPrograms.end(); iter++)
+  for ( ; iter != this->Internal->ShaderPrograms.end(); ++iter)
   {
     iter->second->Delete();
   }
@@ -404,7 +404,7 @@ void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
 
   typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter iter = this->Internal->ShaderPrograms.begin();
-  for ( ; iter != this->Internal->ShaderPrograms.end(); iter++)
+  for ( ; iter != this->Internal->ShaderPrograms.end(); ++iter)
   {
     iter->second->ReleaseGraphicsResources(win);
   }

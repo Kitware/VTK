@@ -188,7 +188,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
   vtkRTTestResult *bestTestResult = NULL;
   bool initialized = false;
   std::vector<vtkRTTestResult>::iterator trItr;
-  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); trItr++)
+  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); ++trItr)
     {
     if (!initialized)
       {
@@ -225,7 +225,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
 void vtkRTTestSequence::ReportDetailedResults(ostream &ost)
 {
   std::vector<vtkRTTestResult>::iterator trItr;
-  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); trItr++)
+  for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); ++trItr)
     {
     ost << this->RenderTimings->GetSystemName() << ", ";
     trItr->ReportResults(this->Test, ost);
@@ -265,7 +265,7 @@ int vtkRenderTimings::RunTests()
   if (useRegex)
     {
     testCount = 0;
-    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); testItr++)
+    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); ++testItr)
       {
       if (re.find((*testItr)->GetName()))
         {
@@ -273,7 +273,7 @@ int vtkRenderTimings::RunTests()
         }
       }
     }
-  for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); testItr++)
+  for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); ++testItr)
     {
     if (!useRegex || re.find((*testItr)->GetName()))
       {
@@ -294,7 +294,7 @@ void vtkRenderTimings::ReportResults()
   // report the summary results to cout
   cout << "Summary results: (detailed results written to " << this->DetailedResultsFileName << ")" << endl;
   std::vector<vtkRTTestSequence *>::iterator tsItr;
-  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); tsItr++)
+  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); ++tsItr)
     {
     (*tsItr)->ReportSummaryResults(cout);
     }
@@ -302,7 +302,7 @@ void vtkRenderTimings::ReportResults()
   // then the detailed to a csv file
   ofstream rfile;
   rfile.open (this->DetailedResultsFileName.c_str());
-  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); tsItr++)
+  for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); ++tsItr)
     {
     (*tsItr)->ReportDetailedResults(rfile);
     }
@@ -375,7 +375,7 @@ int vtkRenderTimings::ParseCommandLineArguments( int argc, char *argv[] )
       re.compile(this->Regex);
       }
     std::vector<vtkRTTest *>::iterator testItr;
-    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); testItr++)
+    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); ++testItr)
       {
       if (!useRegex || re.find((*testItr)->GetName()))
         {

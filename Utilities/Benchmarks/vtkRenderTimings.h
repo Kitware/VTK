@@ -87,7 +87,7 @@ public:
   {
     ost << test->GetName();
     std::map<std::string, double>::iterator rItr;
-    for (rItr = this->Results.begin(); rItr != this->Results.end(); rItr++)
+    for (rItr = this->Results.begin(); rItr != this->Results.end(); ++rItr)
       {
       ost << ", " << rItr->first << ", " << rItr->second;
       }

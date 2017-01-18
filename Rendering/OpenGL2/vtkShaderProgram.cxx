@@ -292,12 +292,12 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
 
 void vtkShaderProgram::ClearMaps()
 {
-  for (IterT i = this->UniformLocs.begin(); i != this->UniformLocs.end(); i++)
+  for (IterT i = this->UniformLocs.begin(); i != this->UniformLocs.end(); ++i)
   {
     free(const_cast<char *>(i->first));
   }
   this->UniformLocs.clear();
-  for (IterT i = this->AttributeLocs.begin(); i != this->AttributeLocs.end(); i++)
+  for (IterT i = this->AttributeLocs.begin(); i != this->AttributeLocs.end(); ++i)
   {
     free(const_cast<char *>(i->first));
   }
