@@ -47,12 +47,12 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelPlacementMapper : public vtkMapper2D
 public:
   static vtkLabelPlacementMapper *New();
   vtkTypeMacro(vtkLabelPlacementMapper, vtkMapper2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Draw non-overlapping labels to the screen.
    */
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor);
+  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) VTK_OVERRIDE;
 
   //@{
   /**
@@ -217,15 +217,15 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkLabelPlacementMapper();
-  ~vtkLabelPlacementMapper();
+  ~vtkLabelPlacementMapper() VTK_OVERRIDE;
 
   virtual void SetAnchorTransform( vtkCoordinate* );
 
-  virtual int FillInputPortInformation( int port, vtkInformation* info );
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
 
   class Internal;
   Internal* Buckets;

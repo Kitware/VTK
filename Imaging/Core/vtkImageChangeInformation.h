@@ -124,7 +124,7 @@ public:
 
 protected:
   vtkImageChangeInformation();
-  ~vtkImageChangeInformation();
+  ~vtkImageChangeInformation() VTK_OVERRIDE;
 
   int CenterImage;
 
@@ -139,18 +139,18 @@ protected:
   double OriginScale[3];
   double OriginTranslation[3];
 
-  virtual int RequestUpdateExtent (vtkInformation *,
+  int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
                                    vtkInformationVector *) VTK_OVERRIDE;
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkImageChangeInformation(const vtkImageChangeInformation&) VTK_DELETE_FUNCTION;

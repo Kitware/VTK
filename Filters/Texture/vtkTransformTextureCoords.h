@@ -42,7 +42,7 @@ class VTKFILTERSTEXTURE_EXPORT vtkTransformTextureCoords : public vtkDataSetAlgo
 {
 public:
   vtkTypeMacro(vtkTransformTextureCoords,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
@@ -120,9 +120,9 @@ public:
 
 protected:
   vtkTransformTextureCoords();
-  ~vtkTransformTextureCoords() {}
+  ~vtkTransformTextureCoords() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Origin[3]; //point around which map rotates
   double Position[3]; //controls translation of map

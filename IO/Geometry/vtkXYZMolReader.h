@@ -34,7 +34,7 @@ class VTKIOGEOMETRY_EXPORT vtkXYZMolReader : public vtkMoleculeReaderBase
 {
 public:
   vtkTypeMacro(vtkXYZMolReader,vtkMoleculeReaderBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkXYZMolReader *New();
 
@@ -62,9 +62,9 @@ public:
 
 protected:
   vtkXYZMolReader();
-  ~vtkXYZMolReader();
+  ~vtkXYZMolReader() VTK_OVERRIDE;
 
-  void ReadSpecificMolecule(FILE* fp);
+  void ReadSpecificMolecule(FILE* fp) VTK_OVERRIDE;
 
   /**
    * Get next line that is not a comment. It returns the beginning of data on

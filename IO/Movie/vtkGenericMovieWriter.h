@@ -37,7 +37,7 @@ class VTKIOMOVIE_EXPORT vtkGenericMovieWriter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenericMovieWriter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkGenericMovieWriter();
-  ~vtkGenericMovieWriter();
+  ~vtkGenericMovieWriter() VTK_OVERRIDE;
 
   char *FileName;
   int Error;

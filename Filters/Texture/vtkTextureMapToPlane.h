@@ -47,7 +47,7 @@ class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToPlane : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkTextureMapToPlane,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with s,t range=(0,1) and automatic plane generation turned on.
@@ -116,9 +116,9 @@ public:
 
 protected:
   vtkTextureMapToPlane();
-  ~vtkTextureMapToPlane() {}
+  ~vtkTextureMapToPlane() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void ComputeNormal(vtkDataSet *output);
 
   double Origin[3];

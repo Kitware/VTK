@@ -37,16 +37,16 @@ class VTKIOEXPORT_EXPORT vtkRIBLight : public vtkLight
 public:
   static vtkRIBLight *New();
   vtkTypeMacro(vtkRIBLight,vtkLight);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkBooleanMacro(Shadows,int);
   vtkSetMacro(Shadows,int);
   vtkGetMacro(Shadows,int);
 
-  void Render(vtkRenderer *ren, int index);
+  void Render(vtkRenderer *ren, int index) VTK_OVERRIDE;
 protected:
   vtkRIBLight();
-  ~vtkRIBLight();
+  ~vtkRIBLight() VTK_OVERRIDE;
 
   vtkLight *Light;
   int Shadows;

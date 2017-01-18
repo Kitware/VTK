@@ -42,13 +42,13 @@ public:
 
 protected:
   vtkGenericOutlineFilter();
-  ~vtkGenericOutlineFilter();
+  ~vtkGenericOutlineFilter() VTK_OVERRIDE;
 
   vtkOutlineSource *OutlineSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkGenericOutlineFilter(const vtkGenericOutlineFilter&) VTK_DELETE_FUNCTION;

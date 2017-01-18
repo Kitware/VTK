@@ -33,19 +33,19 @@ class VTKIMAGINGCOLOR_EXPORT vtkImageRGBToYIQ : public vtkThreadedImageAlgorithm
 public:
   static vtkImageRGBToYIQ *New();
   vtkTypeMacro(vtkImageRGBToYIQ,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkSetMacro(Maximum,double);
   vtkGetMacro(Maximum,double);
 
 protected:
   vtkImageRGBToYIQ();
-  ~vtkImageRGBToYIQ() {}
+  ~vtkImageRGBToYIQ() VTK_OVERRIDE {}
 
   double Maximum;      // Maximum value of pixel intensity allowed
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id);
+                       int ext[6], int id) VTK_OVERRIDE;
 private:
   vtkImageRGBToYIQ(const vtkImageRGBToYIQ&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageRGBToYIQ&) VTK_DELETE_FUNCTION;

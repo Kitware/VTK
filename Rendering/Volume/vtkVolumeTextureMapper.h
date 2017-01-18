@@ -40,7 +40,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -83,31 +83,31 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
+  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE =0;
 
   //@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Values needed by the volume
    */
-  virtual float GetGradientMagnitudeScale();
-  virtual float GetGradientMagnitudeBias();
-  virtual float GetGradientMagnitudeScale(int)
+  float GetGradientMagnitudeScale() VTK_OVERRIDE;
+  float GetGradientMagnitudeBias() VTK_OVERRIDE;
+  float GetGradientMagnitudeScale(int) VTK_OVERRIDE
     { return this->GetGradientMagnitudeScale(); };
-  virtual float GetGradientMagnitudeBias(int)
+  float GetGradientMagnitudeBias(int) VTK_OVERRIDE
     { return this->GetGradientMagnitudeBias(); };
   //@}
 
   /**
    * see vtkAlgorithm for details
    */
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkVolumeTextureMapper();
-  ~vtkVolumeTextureMapper();
+  ~vtkVolumeTextureMapper() VTK_OVERRIDE;
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 

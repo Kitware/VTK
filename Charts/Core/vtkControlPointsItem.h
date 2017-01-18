@@ -42,7 +42,7 @@ class VTKCHARTSCORE_EXPORT vtkControlPointsItem: public vtkPlot
 {
 public:
   vtkTypeMacro(vtkControlPointsItem, vtkPlot);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // Events fires by this class (and subclasses).
   // \li CurrentPointChangedEvent is fired when the current point index is changed.
@@ -59,7 +59,7 @@ public:
    * Bounds of the item, typically the bound of all the control points
    * except if custom bounds have been set \sa SetUserBounds.
    */
-  virtual void GetBounds(double bounds[4]);
+  void GetBounds(double bounds[4]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
    * on the scene zoom factor. Selected and unselected points are drawn
    * with a different color.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Select a point by its ID
@@ -147,7 +147,7 @@ public:
   /**
    * Select all points in the specified rectangle.
    */
-  virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) VTK_OVERRIDE;
 
   /**
    * Return the number of selected points.
@@ -351,21 +351,21 @@ public:
   /**
    * Mouse button down event.
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse);
-  virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
   //@}
 
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse);
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
-  virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
-  virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
+  bool KeyPressEvent(const vtkContextKeyEvent &key) VTK_OVERRIDE;
+  bool KeyReleaseEvent(const vtkContextKeyEvent &key) VTK_OVERRIDE;
 
 protected:
   vtkControlPointsItem();
-  virtual ~vtkControlPointsItem();
+  ~vtkControlPointsItem() VTK_OVERRIDE;
 
   void StartChanges();
   void EndChanges();
@@ -390,7 +390,7 @@ protected:
   /**
    * Returns true if the supplied x, y coordinate is on a control point.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse);
+  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   //@{
   /**
@@ -433,7 +433,7 @@ protected:
   /**
    * Mouse button release event.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
 
   /**
    * Generate label for a control point.

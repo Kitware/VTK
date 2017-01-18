@@ -73,7 +73,7 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
 {
  public:
   vtkTypeMacro(vtkQuadRotationalExtrusionFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -152,12 +152,12 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
 
  protected:
   vtkQuadRotationalExtrusionFilter();
-  ~vtkQuadRotationalExtrusionFilter() {}
+  ~vtkQuadRotationalExtrusionFilter() VTK_OVERRIDE {}
 
-  int FillInputPortInformation( int , vtkInformation* );
+  int FillInputPortInformation( int , vtkInformation* ) VTK_OVERRIDE;
   int RequestData( vtkInformation*,
                    vtkInformationVector**,
-                   vtkInformationVector* );
+                   vtkInformationVector* ) VTK_OVERRIDE;
 
   int RotateAroundAxis( double,
                         vtkIdType,

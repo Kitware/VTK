@@ -83,13 +83,13 @@ public:
    */
   static vtkDepthImageToPointCloud *New();
   vtkTypeMacro(vtkDepthImageToPointCloud, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * Return the MTime also considering the camera.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Indicates what camera was used to generate the depth image. The camera
@@ -163,7 +163,7 @@ public:
 
 protected:
   vtkDepthImageToPointCloud();
-  ~vtkDepthImageToPointCloud();
+  ~vtkDepthImageToPointCloud() VTK_OVERRIDE;
 
   vtkCamera *Camera;
   bool CullNearPoints;
@@ -172,20 +172,20 @@ protected:
   bool ProduceVertexCellArray;
   int OutputPointsPrecision;
 
-  virtual int RequestInformation(vtkInformation*,
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*);
+                                 vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation *request,
+  int RequestUpdateExtent(vtkInformation *request,
                                   vtkInformationVector **inInfo,
-                                  vtkInformationVector *outInfo);
+                                  vtkInformationVector *outInfo) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkDepthImageToPointCloud(const vtkDepthImageToPointCloud&) VTK_DELETE_FUNCTION;

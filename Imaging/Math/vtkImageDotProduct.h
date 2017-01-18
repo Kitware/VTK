@@ -42,18 +42,18 @@ public:
 
 protected:
   vtkImageDotProduct();
-  ~vtkImageDotProduct() {}
+  ~vtkImageDotProduct() VTK_OVERRIDE {}
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual void ThreadedRequestData(vtkInformation *request,
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId);
+                                   int extent[6], int threadId) VTK_OVERRIDE;
 
 private:
   vtkImageDotProduct(const vtkImageDotProduct&) VTK_DELETE_FUNCTION;

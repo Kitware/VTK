@@ -40,7 +40,7 @@ class VTKIOXML_EXPORT vtkXMLHyperOctreeWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLHyperOctreeWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLHyperOctreeWriter* New();
 
   /**
@@ -51,25 +51,25 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension();
+  const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
 protected:
   vtkXMLHyperOctreeWriter();
-  ~vtkXMLHyperOctreeWriter();
+  ~vtkXMLHyperOctreeWriter() VTK_OVERRIDE;
 
-  const char* GetDataSetName();
+  const char* GetDataSetName() VTK_OVERRIDE;
 
   // specify that we require HyperOctree input
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   // The most important method, make the XML file for my input.
-  int WriteData();
+  int WriteData() VTK_OVERRIDE;
 
   // <HyperOctree ...
   int StartPrimElement(vtkIndent);
 
   // ... dim, size, origin>
-  void WritePrimaryElementAttributes(ostream &, vtkIndent);
+  void WritePrimaryElementAttributes(ostream &, vtkIndent) VTK_OVERRIDE;
 
   // Tree Structure
   int WriteTopology(vtkIndent);

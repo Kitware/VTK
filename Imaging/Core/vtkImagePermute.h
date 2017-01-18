@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkImagePermute();
-  ~vtkImagePermute() {}
+  ~vtkImagePermute()VTK_OVERRIDE {}
 
   int FilteredAxes[3];
 

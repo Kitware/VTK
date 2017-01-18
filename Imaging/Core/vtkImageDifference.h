@@ -48,7 +48,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageDifference : public vtkThreadedImageAlgorith
 public:
   static vtkImageDifference *New();
   vtkTypeMacro(vtkImageDifference,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkImageDifference();
-  ~vtkImageDifference() {}
+  ~vtkImageDifference() VTK_OVERRIDE {}
 
   // Parameters
   int AllowShift;
@@ -123,22 +123,22 @@ protected:
   double Error;
   double ThresholdedError;
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData(vtkInformation *,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual void ThreadedRequestData(vtkInformation *request,
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId);
+                                   int extent[6], int threadId) VTK_OVERRIDE;
 
   // Used for vtkMultiThreader operation.
   vtkImageDifferenceThreadData *ThreadData;

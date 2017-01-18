@@ -49,17 +49,17 @@ class VTKINFOVISLAYOUT_EXPORT vtkTreeMapLayoutStrategy : public vtkAreaLayoutStr
 {
 public:
   vtkTypeMacro(vtkTreeMapLayoutStrategy, vtkAreaLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Find the vertex at a certain location, or -1 if none found.
    */
-  virtual vtkIdType FindVertex(
-      vtkTree* tree, vtkDataArray* areaArray, float pnt[2]);
+  vtkIdType FindVertex(
+      vtkTree* tree, vtkDataArray* areaArray, float pnt[2]) VTK_OVERRIDE;
 
 protected:
   vtkTreeMapLayoutStrategy();
-  ~vtkTreeMapLayoutStrategy();
+  ~vtkTreeMapLayoutStrategy() VTK_OVERRIDE;
   void AddBorder( float *boxInfo);
 private:
   vtkTreeMapLayoutStrategy(const vtkTreeMapLayoutStrategy&) VTK_DELETE_FUNCTION;

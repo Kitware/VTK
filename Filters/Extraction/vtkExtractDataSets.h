@@ -38,7 +38,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractDataSets :
 public:
   static vtkExtractDataSets* New();
   vtkTypeMacro(vtkExtractDataSets, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Add a dataset to be extracted.
@@ -52,13 +52,13 @@ public:
 
 protected:
   vtkExtractDataSets();
-  ~vtkExtractDataSets();
+  ~vtkExtractDataSets() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkExtractDataSets(const vtkExtractDataSets&) VTK_DELETE_FUNCTION;

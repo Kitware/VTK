@@ -44,12 +44,14 @@ class vtkAbstractContextBufferId;
 class vtkPen;
 class vtkBrush;
 class vtkRectf;
+class vtkPolyData;
+class vtkUnsignedCharArray;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice2D, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkContextDevice2D * New();
 
@@ -202,6 +204,13 @@ public:
    * will be drawn scaled to that size.
    */
   virtual void DrawImage(const vtkRectf& pos, vtkImageData *image) = 0;
+
+  /**
+   * Draw the supplied PolyData at the given x, y (p[0], p[1]) (bottom corner),
+   * scaled by scale (1.0 would match the actual dataset).
+   */
+  virtual void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
+    vtkUnsignedCharArray* colors, int scalarMode) = 0;
 
   /**
    * Apply the supplied pen which controls the outlines of shapes, as well as
@@ -379,7 +388,7 @@ public:
 
 protected:
   vtkContextDevice2D();
-  ~vtkContextDevice2D();
+  ~vtkContextDevice2D() VTK_OVERRIDE;
 
   /**
    * Store the width and height of the device in pixels.

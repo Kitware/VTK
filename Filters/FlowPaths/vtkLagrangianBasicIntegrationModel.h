@@ -84,7 +84,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianBasicIntegrationModel :
 {
 public:
   vtkTypeMacro(vtkLagrangianBasicIntegrationModel, vtkFunctionSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   typedef enum SurfaceType
   {
@@ -111,7 +111,7 @@ public:
    * in found this will call
    * FunctionValues(vtkDataSet* detaSet, vtkIdType cellId, double* x, double* f)
    */
-  virtual int FunctionValues(double* x, double* f);
+  int FunctionValues(double* x, double* f) VTK_OVERRIDE;
 
   //@{
   /**
@@ -365,7 +365,7 @@ public:
 
 protected:
   vtkLagrangianBasicIntegrationModel();
-  virtual ~vtkLagrangianBasicIntegrationModel();
+  ~vtkLagrangianBasicIntegrationModel() VTK_OVERRIDE;
 
   /**
    * Actually compute the integration model velocity field

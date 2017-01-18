@@ -55,7 +55,7 @@ class VTKIOGEOMETRY_EXPORT vtkMFIXReader : public vtkUnstructuredGridAlgorithm
 public:
   static vtkMFIXReader *New();
   vtkTypeMacro(vtkMFIXReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -146,11 +146,11 @@ public:
 
 protected:
   vtkMFIXReader();
-  ~vtkMFIXReader();
+  ~vtkMFIXReader() VTK_OVERRIDE;
   int RequestInformation(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *);
+    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int RequestData(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *);
+    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   //
   // ParaView Variables

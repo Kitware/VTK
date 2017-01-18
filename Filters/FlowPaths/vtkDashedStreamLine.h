@@ -45,7 +45,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkDashedStreamLine : public vtkStreamLine
 public:
   static vtkDashedStreamLine *New();
   vtkTypeMacro(vtkDashedStreamLine,vtkStreamLine);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,10 +59,10 @@ public:
 
 protected:
   vtkDashedStreamLine();
-  ~vtkDashedStreamLine() {}
+  ~vtkDashedStreamLine() VTK_OVERRIDE {}
 
   // Convert streamer array into vtkPolyData
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   // the fraction of on versus off in dash
   double DashFactor;

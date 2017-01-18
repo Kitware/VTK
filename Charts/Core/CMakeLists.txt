@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkContextArea.cxx
   vtkContextPolygon.cxx
   vtkControlPointsItem.cxx
+  vtkInteractiveArea.cxx
   vtkLookupTableItem.cxx
   vtkPiecewiseControlPointsItem.cxx
   vtkPiecewiseFunctionItem.cxx

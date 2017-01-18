@@ -71,7 +71,7 @@ public:
    * Standard methods to obtain type information, and print information.
    */
   vtkTypeMacro(vtkPointCloudFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkPointCloudFilter();
-  ~vtkPointCloudFilter();
+  ~vtkPointCloudFilter() VTK_OVERRIDE;
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned on error.
@@ -133,9 +133,9 @@ protected:
   // Should output vertex cells be created?
   bool GenerateVertices;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   void GenerateVerticesIfRequested(vtkPolyData *output);
 

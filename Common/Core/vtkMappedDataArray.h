@@ -54,36 +54,36 @@ public:
    */
   static vtkMappedDataArray<Scalar>* FastDownCast(vtkAbstractArray *source);
 
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // vtkAbstractArray virtual method that must be reimplemented.
-  void DeepCopy(vtkAbstractArray *aa) = 0;
-  vtkVariant GetVariantValue(vtkIdType idx) = 0;
-  void SetVariantValue(vtkIdType idx, vtkVariant value) = 0;
-  void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output) = 0;
-  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) = 0;
+  void DeepCopy(vtkAbstractArray *aa) VTK_OVERRIDE = 0;
+  vtkVariant GetVariantValue(vtkIdType idx) VTK_OVERRIDE = 0;
+  void SetVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE = 0;
+  void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output) VTK_OVERRIDE = 0;
+  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) VTK_OVERRIDE = 0;
   void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-                        vtkAbstractArray *source, double *weights) = 0;
+                        vtkAbstractArray *source, double *weights) VTK_OVERRIDE = 0;
   void InterpolateTuple(vtkIdType i, vtkIdType id1,
                         vtkAbstractArray* source1, vtkIdType id2,
-                        vtkAbstractArray* source2, double t) = 0;
+                        vtkAbstractArray* source2, double t) VTK_OVERRIDE = 0;
 
   // vtkDataArray virtual method that must be reimplemented.
-  void DeepCopy(vtkDataArray *da) = 0;
+  void DeepCopy(vtkDataArray *da) VTK_OVERRIDE = 0;
 
   /**
    * Print an error and create an internal, long-lived temporary array. This
    * method should not be used on vtkMappedDataArray subclasses. See
    * vtkArrayDispatch for a better way.
    */
-  void * GetVoidPointer(vtkIdType id);
+  void * GetVoidPointer(vtkIdType id) VTK_OVERRIDE;
 
   /**
    * Copy the internal data to the void pointer. The pointer is cast to this
    * array's Scalar type and vtkTypedDataArrayIterator is used to populate
    * the input array.
    */
-  void ExportToVoidPointer(void *ptr);
+  void ExportToVoidPointer(void *ptr) VTK_OVERRIDE;
 
   /**
    * Read the data from the internal temporary array (created by GetVoidPointer)
@@ -92,22 +92,22 @@ public:
    * default implementation uses vtkTypedDataArrayIterator to extract the mapped
    * data.
    */
-  void DataChanged();
+  void DataChanged() VTK_OVERRIDE;
 
   //@{
   /**
    * These methods don't make sense for mapped data array. Prints an error and
    * returns.
    */
-  void SetVoidArray(void *, vtkIdType, int);
-  void SetVoidArray(void *, vtkIdType, int, int);
+  void SetVoidArray(void *, vtkIdType, int) VTK_OVERRIDE;
+  void SetVoidArray(void *, vtkIdType, int, int) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Not implemented. Print error and return NULL.
    */
-  void * WriteVoidPointer(vtkIdType /*id*/, vtkIdType /*number*/)
+  void * WriteVoidPointer(vtkIdType /*id*/, vtkIdType /*number*/) VTK_OVERRIDE
   {
     vtkErrorMacro(<<"WriteVoidPointer: Method not implemented.");
     return NULL;
@@ -117,16 +117,16 @@ public:
   /**
    * Invalidate the internal temporary array and call superclass method.
    */
-  void Modified();
+  void Modified() VTK_OVERRIDE;
 
   // vtkAbstractArray override:
-  bool HasStandardMemoryLayout() { return false; }
+  bool HasStandardMemoryLayout() VTK_OVERRIDE { return false; }
 
 protected:
   vtkMappedDataArray();
-  ~vtkMappedDataArray();
+  ~vtkMappedDataArray() VTK_OVERRIDE;
 
-  virtual int GetArrayType()
+  int GetArrayType() VTK_OVERRIDE
   {
     return vtkAbstractArray::MappedDataArray;
   }
@@ -155,7 +155,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray)
 // Otherwise, use vtkMappedDataArrayTypeMacro.
 #define vtkMappedDataArrayNewInstanceMacro(thisClass) \
   protected: \
-  vtkObjectBase *NewInstanceInternal() const \
+  vtkObjectBase *NewInstanceInternal() const VTK_OVERRIDE  \
   { \
     if (vtkDataArray *da = \
         vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE)) \

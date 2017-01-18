@@ -33,7 +33,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPassThroughFilter : public vtkDataSetAlgorith
 {
 public:
   vtkTypeMacro(vtkPassThroughFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create a new vtkPassThroughFilter.
@@ -44,9 +44,9 @@ public:
 protected:
 
   vtkPassThroughFilter() {}
-  virtual ~vtkPassThroughFilter() {}
+  ~vtkPassThroughFilter() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkPassThroughFilter(const vtkPassThroughFilter&) VTK_DELETE_FUNCTION;

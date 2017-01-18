@@ -54,7 +54,7 @@ Q_OBJECT
 public:
   static vtkQtTableView *New();
   vtkTypeMacro(vtkQtTableView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -62,7 +62,7 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  virtual QWidget* GetWidget();
+  QWidget* GetWidget() VTK_OVERRIDE;
 
   /**
    * Have the view show/hide its column headers
@@ -157,7 +157,7 @@ public:
   /**
    * Updates the view.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   //@{
   /**
@@ -179,7 +179,7 @@ public:
   /**
    * Apply a view theme to this view.
    */
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
+  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
 
   enum
   {
@@ -214,10 +214,10 @@ public:
 
 protected:
   vtkQtTableView();
-  ~vtkQtTableView();
+  ~vtkQtTableView() VTK_OVERRIDE;
 
-  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
-  virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
+  void AddRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
+  void RemoveRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);

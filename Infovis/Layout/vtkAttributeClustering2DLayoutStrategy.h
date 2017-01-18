@@ -49,7 +49,7 @@ public:
   static vtkAttributeClustering2DLayoutStrategy *New();
 
   vtkTypeMacro(vtkAttributeClustering2DLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -132,7 +132,7 @@ public:
    * This strategy sets up some data structures
    * for faster processing of each Layout() call
    */
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   /**
    * This is the layout method where the graph that was
@@ -141,17 +141,17 @@ public:
    * graph. If you have an iterative layout please implement
    * the IsLayoutComplete() method.
    */
-  virtual void Layout();
+  void Layout() VTK_OVERRIDE;
 
   /**
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  virtual int IsLayoutComplete() {return this->LayoutComplete;}
+  int IsLayoutComplete() VTK_OVERRIDE {return this->LayoutComplete;}
 
 protected:
   vtkAttributeClustering2DLayoutStrategy();
-  ~vtkAttributeClustering2DLayoutStrategy();
+  ~vtkAttributeClustering2DLayoutStrategy() VTK_OVERRIDE;
 
   int    MaxNumberOfIterations;  //Maximum number of iterations.
   float  InitialTemperature;

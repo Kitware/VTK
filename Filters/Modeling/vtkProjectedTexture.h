@@ -43,7 +43,7 @@ class VTKFILTERSMODELING_EXPORT vtkProjectedTexture : public vtkDataSetAlgorithm
 public:
   static vtkProjectedTexture *New();
   vtkTypeMacro(vtkProjectedTexture,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -130,9 +130,9 @@ public:
 
 protected:
   vtkProjectedTexture();
-  ~vtkProjectedTexture() {}
+  ~vtkProjectedTexture() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void ComputeNormal();
 
   int CameraMode;

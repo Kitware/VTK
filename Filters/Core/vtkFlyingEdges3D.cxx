@@ -669,7 +669,7 @@ InterpolateEdge(double value, vtkIdType ijk[3],
 
   if ( this->NeedGradients )
   {
-    float gTmp[3], g0[3], g1[3];
+    float g0[3], g1[3];
     this->ComputeBoundaryGradient(ijk0,
                                   s0+incs[0], s0-incs[0],
                                   s0+incs[1], s0-incs[1],
@@ -681,17 +681,24 @@ InterpolateEdge(double value, vtkIdType ijk[3],
                                   s1+incs[2], s1-incs[2],
                                   g1);
 
-    float *g = ( this->NewGradients ? this->NewGradients + 3*vId : gTmp );
-    g[0] = g0[0] + t*(g1[0]-g0[0]);
-    g[1] = g0[1] + t*(g1[1]-g0[1]);
-    g[2] = g0[2] + t*(g1[2]-g0[2]);
+    float gTmp0 = g0[0] + t*(g1[0]-g0[0]);
+    float gTmp1 = g0[1] + t*(g1[1]-g0[1]);
+    float gTmp2 = g0[2] + t*(g1[2]-g0[2]);
+
+    if (this->NewGradients)
+    {
+      float *g = this->NewGradients + 3*vId;
+      g[0] = gTmp0;
+      g[1] = gTmp1;
+      g[2] = gTmp2;
+    }
 
     if ( this->NewNormals )
     {
       float *n = this->NewNormals + 3*vId;
-      n[0] = -g[0];
-      n[1] = -g[1];
-      n[2] = -g[2];
+      n[0] = -gTmp0;
+      n[1] = -gTmp1;
+      n[2] = -gTmp2;
       vtkMath::Normalize(n);
     }
   }//if normals or gradients required

@@ -53,7 +53,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightActor : public vtkProp3D
 public:
   static vtkLightActor *New();
   vtkTypeMacro(vtkLightActor, vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -77,33 +77,33 @@ public:
   /**
    * Support the standard render methods.
    */
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
 
   /**
    * Does this prop have some translucent polygonal geometry? No.
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
 
   /**
    * Get the actors mtime plus consider its properties and texture if set.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkLightActor();
-  ~vtkLightActor();
+  ~vtkLightActor() VTK_OVERRIDE;
 
   void UpdateViewProps();
 

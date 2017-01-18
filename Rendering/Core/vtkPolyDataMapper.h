@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper : public vtkMapper
 public:
   static vtkPolyDataMapper *New();
   vtkTypeMacro(vtkPolyDataMapper, vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
@@ -48,7 +48,7 @@ public:
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).
    */
-  virtual void Render(vtkRenderer *ren, vtkActor *act);
+  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   //@{
   /**
@@ -62,10 +62,10 @@ public:
   /**
    * Bring this algorithm's outputs up-to-date.
    */
-  virtual void Update(int port);
-  virtual void Update();
-  virtual int Update(int port, vtkInformationVector* requests);
-  virtual int Update(vtkInformation* requests);
+  void Update(int port) VTK_OVERRIDE;
+  void Update() VTK_OVERRIDE;
+  int Update(int port, vtkInformationVector* requests) VTK_OVERRIDE;
+  int Update(vtkInformation* requests) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -92,8 +92,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  virtual double *GetBounds();
-  virtual void GetBounds(double bounds[6])
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE
     { this->Superclass::GetBounds(bounds); }
 
   /**
@@ -133,13 +133,13 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkPolyDataMapper();
-  ~vtkPolyDataMapper() {}
+  ~vtkPolyDataMapper() VTK_OVERRIDE {}
 
   /**
    * Called in GetBounds(). When this method is called, the consider the input
@@ -153,7 +153,7 @@ protected:
   int NumberOfSubPieces;
   int GhostLevel;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkPolyDataMapper(const vtkPolyDataMapper&) VTK_DELETE_FUNCTION;

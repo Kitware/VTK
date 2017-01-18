@@ -40,7 +40,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkIncrementalForceLayout : public vtkObject
 {
 public:
   vtkTypeMacro(vtkIncrementalForceLayout, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkIncrementalForceLayout* New();
 
   //@{
@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkIncrementalForceLayout();
-  ~vtkIncrementalForceLayout();
+  ~vtkIncrementalForceLayout() VTK_OVERRIDE;
 
   vtkGraph* Graph;
   class Implementation;

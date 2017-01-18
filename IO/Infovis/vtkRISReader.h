@@ -48,7 +48,7 @@ class VTKIOINFOVIS_EXPORT vtkRISReader : public vtkTableAlgorithm
 public:
   static vtkRISReader* New();
   vtkTypeMacro(vtkRISReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -76,12 +76,12 @@ public:
 
  protected:
   vtkRISReader();
-  ~vtkRISReader();
+  ~vtkRISReader() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   char* FileName;
   char* Delimiter;

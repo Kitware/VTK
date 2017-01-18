@@ -95,7 +95,7 @@ class VTKIOPARALLEL_EXPORT vtkPlot3DMetaReader : public vtkMultiBlockDataSetAlgo
 public:
   static vtkPlot3DMetaReader* New();
   vtkTypeMacro(vtkPlot3DMetaReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -108,14 +108,14 @@ public:
 
 protected:
   vtkPlot3DMetaReader();
-  ~vtkPlot3DMetaReader();
+  ~vtkPlot3DMetaReader() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation* request,
+  int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
-  virtual int RequestData(vtkInformation*,
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) VTK_OVERRIDE;
 
 
   char* FileName;

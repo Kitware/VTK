@@ -64,13 +64,13 @@ public:
 
 protected:
   vtkImageResample();
-  ~vtkImageResample() {}
+  ~vtkImageResample() VTK_OVERRIDE {}
 
   double MagnificationFactors[3];
   double OutputSpacing[3];
   int Dimensionality;
 
-  virtual int RequestInformation(vtkInformation *,
+  int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
                                  vtkInformationVector *) VTK_OVERRIDE;
 

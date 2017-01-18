@@ -57,30 +57,30 @@ public:
   virtual void SetZKernel(vtkFloatArray*);
   vtkGetObjectMacro ( ZKernel, vtkFloatArray );
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Overload standard modified time function. If kernel arrays are modified,
    * then this object is modified as well.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkImageSeparableConvolution();
-  ~vtkImageSeparableConvolution();
+  ~vtkImageSeparableConvolution() VTK_OVERRIDE;
 
   vtkFloatArray* XKernel;
   vtkFloatArray* YKernel;
   vtkFloatArray* ZKernel;
 
-  virtual int IterativeRequestData(vtkInformation*,
+  int IterativeRequestData(vtkInformation*,
                                    vtkInformationVector**,
-                                   vtkInformationVector*);
+                                   vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual int IterativeRequestInformation(vtkInformation* in,
-                                          vtkInformation* out);
-  virtual int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out);
+  int IterativeRequestInformation(vtkInformation* in,
+                                          vtkInformation* out) VTK_OVERRIDE;
+  int IterativeRequestUpdateExtent(vtkInformation* in,
+                                           vtkInformation* out) VTK_OVERRIDE;
 
 private:
   vtkImageSeparableConvolution(const vtkImageSeparableConvolution&) VTK_DELETE_FUNCTION;

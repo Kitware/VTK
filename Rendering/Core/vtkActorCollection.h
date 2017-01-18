@@ -79,7 +79,7 @@ public:
 
 protected:
   vtkActorCollection() {}
-  ~vtkActorCollection() {}
+  ~vtkActorCollection() VTK_OVERRIDE {}
 
 
 private:

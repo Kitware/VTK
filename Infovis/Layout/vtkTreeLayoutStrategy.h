@@ -52,12 +52,12 @@ public:
   static vtkTreeLayoutStrategy *New();
 
   vtkTypeMacro(vtkTreeLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the tree layout.
    */
-  void Layout();
+  void Layout() VTK_OVERRIDE;
 
   //@{
   /**
@@ -132,7 +132,7 @@ public:
 
 protected:
   vtkTreeLayoutStrategy();
-  ~vtkTreeLayoutStrategy();
+  ~vtkTreeLayoutStrategy() VTK_OVERRIDE;
 
   double Angle;
   bool Radial;

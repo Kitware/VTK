@@ -33,7 +33,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotArea : public vtkPlot
 public:
   static vtkPlotArea* New();
   vtkTypeMacro(vtkPlotArea, vtkPlot);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Convenience method to set the input arrays. vtkPlotArea supports the
@@ -48,9 +48,9 @@ public:
   /**
    * Overridden to set the brush color.
    */
-  virtual void SetColor(unsigned char r, unsigned char g, unsigned char b,
-                        unsigned char a);
-  virtual void SetColor(double r,  double g, double b);
+  void SetColor(unsigned char r, unsigned char g, unsigned char b,
+                        unsigned char a) VTK_OVERRIDE;
+  void SetColor(double r,  double g, double b) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -64,24 +64,24 @@ public:
   /**
    * Perform any updates to the item that may be necessary before rendering.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
    */
-  virtual void GetBounds(double bounds[4]);
+  void GetBounds(double bounds[4]) VTK_OVERRIDE;
 
   /**
    * Subclasses that build data caches to speed up painting should override this
    * method to update such caches. This is called on each Paint, hence
    * subclasses must add checks to avoid rebuilding of cache, unless necessary.
    */
-  virtual void UpdateCache();
+  void UpdateCache() VTK_OVERRIDE;
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Paint legend event for the plot, called whenever the legend needs the
@@ -90,29 +90,29 @@ public:
    * and 3). The plot can choose how to fill the space supplied. The index is used
    * by Plots that return more than one label.
    */
-  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex);
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex) VTK_OVERRIDE;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
    * Returns the index of the data series with which the point is associated, or
    * -1 if no point was found.
    */
-  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+  vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location);
+                                    vtkVector2f* location) VTK_OVERRIDE;
 
   /**
    * Generate and return the tooltip label string for this plot
    * The segmentIndex parameter is ignored, except for vtkPlotBar
    */
-  virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
+  vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex);
+                                       vtkIdType segmentIndex) VTK_OVERRIDE;
 
 protected:
   vtkPlotArea();
-  ~vtkPlotArea();
+  ~vtkPlotArea() VTK_OVERRIDE;
 
   /**
    * Name of the valid point mask array.

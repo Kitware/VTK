@@ -36,21 +36,21 @@ class VTKFILTERSEXTRACTION_EXPORT vtkProbeSelectedLocations : public vtkExtractS
 public:
   static vtkProbeSelectedLocations* New();
   vtkTypeMacro(vtkProbeSelectedLocations, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkProbeSelectedLocations();
-  ~vtkProbeSelectedLocations();
+  ~vtkProbeSelectedLocations() VTK_OVERRIDE;
 
   /**
    * Sets up empty output dataset
    */
-  virtual int RequestDataObject(vtkInformation* request,
+  int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkProbeSelectedLocations(const vtkProbeSelectedLocations&) VTK_DELETE_FUNCTION;

@@ -43,7 +43,7 @@ class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyle : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTDxInteractorStyle,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Action on motion event. Default implementation is empty.
@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkTDxInteractorStyle();
-  virtual ~vtkTDxInteractorStyle();
+  ~vtkTDxInteractorStyle() VTK_OVERRIDE;
 
   vtkTDxInteractorStyleSettings *Settings;
 

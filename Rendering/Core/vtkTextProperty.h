@@ -256,7 +256,7 @@ public:
 
 protected:
   vtkTextProperty();
-  ~vtkTextProperty();
+  ~vtkTextProperty() VTK_OVERRIDE;
 
   double Color[3];
   double Opacity;

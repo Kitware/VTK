@@ -118,12 +118,12 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
 
  protected:
   vtkCellDistanceSelector ();
-  virtual ~vtkCellDistanceSelector ();
+  ~vtkCellDistanceSelector () VTK_OVERRIDE;
 
   void AddSelectionNode(vtkSelection* output, vtkSmartPointer<vtkDataArray> outIndices, int partNumber, int d);
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestData(vtkInformation*,vtkInformationVector**,vtkInformationVector*);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
 
   /**
    * Tological radius from seed cells to be used to select cells

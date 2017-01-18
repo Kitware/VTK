@@ -51,7 +51,7 @@ class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableFilter : public vtkPassInputT
 public:
   static vtkProgrammableFilter *New();
   vtkTypeMacro(vtkProgrammableFilter,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Signature definition for programmable method callbacks. Methods passed to
@@ -126,10 +126,10 @@ public:
 
 protected:
   vtkProgrammableFilter();
-  ~vtkProgrammableFilter();
+  ~vtkProgrammableFilter() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;

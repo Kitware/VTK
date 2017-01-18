@@ -56,7 +56,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesView : public vtkRenderView
 public:
   vtkTypeMacro(vtkParallelCoordinatesView, vtkRenderView);
   static vtkParallelCoordinatesView *New();
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   enum {VTK_BRUSH_LASSO=0,VTK_BRUSH_ANGLE,VTK_BRUSH_FUNCTION,VTK_BRUSH_AXISTHRESHOLD,VTK_BRUSH_MODECOUNT};
   enum {VTK_BRUSHOPERATOR_ADD=0,VTK_BRUSHOPERATOR_SUBTRACT,VTK_BRUSHOPERATOR_INTERSECT,VTK_BRUSHOPERATOR_REPLACE,VTK_BRUSHOPERATOR_MODECOUNT};
@@ -87,11 +87,11 @@ public:
   vtkSetMacro(CurrentBrushClass,int);
   vtkGetMacro(CurrentBrushClass,int);
 
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
+  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
 
 protected:
   vtkParallelCoordinatesView();
-  virtual ~vtkParallelCoordinatesView();
+  ~vtkParallelCoordinatesView() VTK_OVERRIDE;
 
   int SelectedAxisPosition;
 
@@ -117,10 +117,10 @@ protected:
   vtkTimeStamp WorldBuildTime;
   bool RebuildNeeded;
 
-  virtual void ProcessEvents(vtkObject *caller, unsigned long event, void *callData);
-  virtual vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn);
+  void ProcessEvents(vtkObject *caller, unsigned long event, void *callData) VTK_OVERRIDE;
+  vtkDataRepresentation* CreateDefaultRepresentation(vtkAlgorithmOutput* conn) VTK_OVERRIDE;
 
-  void PrepareForRendering();
+  void PrepareForRendering() VTK_OVERRIDE;
 
   //@{
   /**

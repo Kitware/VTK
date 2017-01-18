@@ -48,17 +48,17 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBand3D : public vtkInte
 public:
   static vtkInteractorStyleRubberBand3D *New();
   vtkTypeMacro(vtkInteractorStyleRubberBand3D, vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
-  virtual void OnMouseMove();
-  virtual void OnMouseWheelForward();
-  virtual void OnMouseWheelBackward();
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnMouseWheelForward() VTK_OVERRIDE;
+  void OnMouseWheelBackward() VTK_OVERRIDE;
 
   //@{
   /**
@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkInteractorStyleRubberBand3D();
-  ~vtkInteractorStyleRubberBand3D();
+  ~vtkInteractorStyleRubberBand3D() VTK_OVERRIDE;
 
   // The interaction mode
   int Interaction;

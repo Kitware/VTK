@@ -34,20 +34,20 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageSobel3D : public vtkImageSpatialAlgorithm
 public:
   static vtkImageSobel3D *New();
   vtkTypeMacro(vtkImageSobel3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkImageSobel3D();
-  ~vtkImageSobel3D() {}
+  ~vtkImageSobel3D()VTK_OVERRIDE {}
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
-  virtual int RequestInformation (vtkInformation *request,
+                           int outExt[6], int id) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *request,
                                   vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector);
+                                  vtkInformationVector *outputVector) VTK_OVERRIDE;
 
 private:
   vtkImageSobel3D(const vtkImageSobel3D&) VTK_DELETE_FUNCTION;

@@ -6,6 +6,7 @@ vtk_module(vtkRenderingContext2D
     vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkViewsContext2D
+    vtkChartsCore
   KIT
     vtkRendering
   DEPENDS

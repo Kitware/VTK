@@ -106,7 +106,7 @@ public:
 
   // Description:
   // Implemented by sub classes. Actual rendering is done here.
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
+  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // keep track of what data is being used as the multiblock
   // can change
@@ -125,7 +125,7 @@ protected:
   {
     this->Parent = 0;
   };
-  ~vtkCompositeMapperHelper2();
+  ~vtkCompositeMapperHelper2() VTK_OVERRIDE;
 
   void DrawIBO(
     vtkRenderer* ren, vtkActor *actor,
@@ -148,11 +148,11 @@ protected:
 
   // Description:
   // Determine if the buffer objects need to be rebuilt
-  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Build the VBO/IBO, called by UpdateBufferObjects
-  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
   virtual void AppendOneBufferObject(vtkRenderer *ren,
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
     unsigned int flat_index,
@@ -163,14 +163,14 @@ protected:
   // Returns if we can use texture maps for scalar coloring. Note this doesn't
   // say we "will" use scalar coloring. It says, if we do use scalar coloring,
   // we will use a texture. Always off for this mapper.
-  virtual int CanUseTextureMapForColoring(vtkDataObject*);
+  int CanUseTextureMapForColoring(vtkDataObject*) VTK_OVERRIDE;
 
   std::vector<unsigned int> VertexOffsets;
 
   // vert line poly strip edge stripedge
   std::vector<unsigned int> IndexArray[PrimitiveEnd];
 
-  virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
+  void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   bool PrimIDUsed;
   bool OverideColorUsed;

@@ -54,7 +54,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelPlacer : public vtkPolyDataAlgorithm
 public:
   static vtkLabelPlacer* New();
   vtkTypeMacro(vtkLabelPlacer,vtkPolyDataAlgorithm);
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   vtkGetObjectMacro(Renderer,vtkRenderer);
   virtual void SetRenderer( vtkRenderer* );
@@ -133,7 +133,7 @@ public:
   vtkBooleanMacro(UseUnicodeStrings,bool);
   //@}
 
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -188,13 +188,13 @@ public:
 
 protected:
   vtkLabelPlacer();
-  virtual ~vtkLabelPlacer();
+  ~vtkLabelPlacer() VTK_OVERRIDE;
 
   virtual void SetAnchorTransform( vtkCoordinate* );
 
-  int FillInputPortInformation( int port, vtkInformation* info );
-  virtual int RequestData( vtkInformation* request,
-    vtkInformationVector** inputVector, vtkInformationVector* outputVector );
+  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int RequestData( vtkInformation* request,
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
   class Internal;
   Internal* Buckets;

@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
 public:
   static vtkPointGaussianMapper* New();
   vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -147,7 +147,7 @@ public:
 
 protected:
   vtkPointGaussianMapper();
-  ~vtkPointGaussianMapper();
+  ~vtkPointGaussianMapper() VTK_OVERRIDE;
 
   char *ScaleArray;
   char *OpacityArray;

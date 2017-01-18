@@ -31,13 +31,13 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextMapper: public vtkTextMapper
 public:
   static vtkOpenGLTextMapper* New();
   vtkTypeMacro(vtkOpenGLTextMapper, vtkTextMapper)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  void RenderOverlay(vtkViewport *vp, vtkActor2D *act);
+  void RenderOverlay(vtkViewport *vp, vtkActor2D *act) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLTextMapper();
-  ~vtkOpenGLTextMapper();
+  ~vtkOpenGLTextMapper() VTK_OVERRIDE;
 
   void RenderGL2PS(vtkViewport *vp, vtkActor2D *act,
                    vtkOpenGLGL2PSHelper *gl2ps);

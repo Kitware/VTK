@@ -52,7 +52,7 @@ public:
    */
   static vtkProbabilisticVoronoiKernel *New();
   vtkTypeMacro(vtkProbabilisticVoronoiKernel,vtkGeneralizedKernel);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   // Re-use any superclass signatures that we don't override.
@@ -72,12 +72,12 @@ public:
    * are estimates of local confidence of weights. The prob may be NULL in
    * which all probabilities are considered =1.
    */
-  virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights);
+  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights) VTK_OVERRIDE;
 
 protected:
   vtkProbabilisticVoronoiKernel();
-  ~vtkProbabilisticVoronoiKernel();
+  ~vtkProbabilisticVoronoiKernel() VTK_OVERRIDE;
 
 private:
   vtkProbabilisticVoronoiKernel(const vtkProbabilisticVoronoiKernel&) VTK_DELETE_FUNCTION;

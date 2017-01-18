@@ -37,12 +37,12 @@ public:
 
 protected:
   vtkPostScriptWriter() {}
-  ~vtkPostScriptWriter() {}
+  ~vtkPostScriptWriter() VTK_OVERRIDE {}
 
-  virtual void WriteFile(
-    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
-  virtual void WriteFileTrailer(ofstream *, vtkImageData *);
+  void WriteFile(
+    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) VTK_OVERRIDE;
+  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) VTK_OVERRIDE;
+  void WriteFileTrailer(ofstream *, vtkImageData *) VTK_OVERRIDE;
 private:
   vtkPostScriptWriter(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;

@@ -41,7 +41,7 @@ public:
   static vtkRandomLayoutStrategy *New();
 
   vtkTypeMacro(vtkRandomLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -88,16 +88,16 @@ public:
   /**
    * Set the graph to layout.
    */
-  void SetGraph(vtkGraph *graph);
+  void SetGraph(vtkGraph *graph) VTK_OVERRIDE;
 
   /**
    * Perform the random layout.
    */
-  void Layout();
+  void Layout() VTK_OVERRIDE;
 
 protected:
   vtkRandomLayoutStrategy();
-  ~vtkRandomLayoutStrategy();
+  ~vtkRandomLayoutStrategy() VTK_OVERRIDE;
 
   int RandomSeed;
   double GraphBounds[6];

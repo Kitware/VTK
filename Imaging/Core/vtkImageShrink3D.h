@@ -32,7 +32,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageShrink3D : public vtkThreadedImageAlgorithm
 public:
   static vtkImageShrink3D *New();
   vtkTypeMacro(vtkImageShrink3D,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkImageShrink3D();
-  ~vtkImageShrink3D() {}
+  ~vtkImageShrink3D()VTK_OVERRIDE {}
 
   int ShrinkFactors[3];
   int Shift[3];
@@ -90,14 +90,14 @@ protected:
   int Maximum;
   int Median;
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int ext[6], int id);
+                           int ext[6], int id) VTK_OVERRIDE;
 
   void InternalRequestUpdateExtent(int *inExt, int *outExt);
 

@@ -39,7 +39,7 @@ class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageNonMaximumSuppression : public vtkT
 public:
   static vtkImageNonMaximumSuppression *New();
   vtkTypeMacro(vtkImageNonMaximumSuppression,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,25 +69,25 @@ public:
 
 protected:
   vtkImageNonMaximumSuppression();
-  ~vtkImageNonMaximumSuppression() {}
+  ~vtkImageNonMaximumSuppression()VTK_OVERRIDE {}
 
   int HandleBoundaries;
   int Dimensionality;
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual void ThreadedRequestData(vtkInformation *request,
+  void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId);
+                                   int extent[6], int threadId) VTK_OVERRIDE;
 
 private:
   vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;

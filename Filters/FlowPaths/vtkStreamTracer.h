@@ -98,7 +98,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkStreamTracer : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkStreamTracer,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object to start from position (0,0,0), with forward
@@ -356,17 +356,17 @@ public:
 protected:
 
   vtkStreamTracer();
-  ~vtkStreamTracer();
+  ~vtkStreamTracer() VTK_OVERRIDE;
 
   // Create a default executive.
-  virtual vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
                            vtkDoubleArray* cellVectors, double vorticity[3] );

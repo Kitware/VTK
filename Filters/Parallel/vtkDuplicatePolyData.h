@@ -35,7 +35,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkDuplicatePolyData : public vtkPolyDataAlgorit
 public:
   static vtkDuplicatePolyData *New();
   vtkTypeMacro(vtkDuplicatePolyData, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -84,11 +84,11 @@ public:
 
 protected:
   vtkDuplicatePolyData();
-  ~vtkDuplicatePolyData();
+  ~vtkDuplicatePolyData() VTK_OVERRIDE;
 
   // Data generation method
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void ClientExecute(vtkPolyData *output);
 
   vtkMultiProcessController *Controller;

@@ -20,7 +20,6 @@ vtkStandardNewMacro(vtkXMLFileReadTester);
 //----------------------------------------------------------------------------
 vtkXMLFileReadTester::vtkXMLFileReadTester()
 {
-  this->FileName = 0;
   this->FileDataType = 0;
   this->FileVersion = 0;
 }
@@ -28,7 +27,6 @@ vtkXMLFileReadTester::vtkXMLFileReadTester()
 //----------------------------------------------------------------------------
 vtkXMLFileReadTester::~vtkXMLFileReadTester()
 {
-  this->SetFileName(0);
   this->SetFileDataType(0);
   this->SetFileVersion(0);
 }
@@ -37,8 +35,6 @@ vtkXMLFileReadTester::~vtkXMLFileReadTester()
 void vtkXMLFileReadTester::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: "
-     << (this->FileName? this->FileName:"") << "\n";
   os << indent << "FileDataType: "
      << (this->FileDataType? this->FileDataType:"") << "\n";
   os << indent << "FileVersion: "

@@ -65,32 +65,32 @@ public:
   static vtkInteractorStyleTerrain *New();
 
   vtkTypeMacro(vtkInteractorStyleTerrain,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
   //@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
    */
-  virtual void OnChar();
+  void OnChar() VTK_OVERRIDE;
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion.
-  virtual void Rotate();
-  virtual void Pan();
-  virtual void Dolly();
+  void Rotate() VTK_OVERRIDE;
+  void Pan() VTK_OVERRIDE;
+  void Dolly() VTK_OVERRIDE;
 
   //@{
   /**
@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkInteractorStyleTerrain();
-  ~vtkInteractorStyleTerrain();
+  ~vtkInteractorStyleTerrain() VTK_OVERRIDE;
 
   // Internal helper attributes
   int LatLongLines;

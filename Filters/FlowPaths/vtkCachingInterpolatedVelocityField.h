@@ -79,7 +79,7 @@ public:
    * Evaluate the velocity field, f={u,v,w}, at {x, y, z}.
    * returns 1 if valid, 0 if test failed
    */
-  virtual int FunctionValues(double* x, double* f);
+  int FunctionValues(double* x, double* f) VTK_OVERRIDE;
   virtual int InsideTest(double* x);
   //@}
 
@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkCachingInterpolatedVelocityField();
- ~vtkCachingInterpolatedVelocityField();
+ ~vtkCachingInterpolatedVelocityField() VTK_OVERRIDE;
 
   vtkGenericCell          *TempCell;
   int                      CellCacheHit;

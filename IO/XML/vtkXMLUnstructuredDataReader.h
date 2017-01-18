@@ -38,17 +38,17 @@ class VTKIOXML_EXPORT vtkXMLUnstructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataReader,vtkXMLDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the number of points in the output.
    */
-  virtual vtkIdType GetNumberOfPoints();
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
 
   /**
    * Get the number of cells in the output.
    */
-  virtual vtkIdType GetNumberOfCells();
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
 
   /**
    * Get the number of pieces in the file
@@ -65,12 +65,12 @@ public:
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
 
 
 protected:
   vtkXMLUnstructuredDataReader();
-  ~vtkXMLUnstructuredDataReader();
+  ~vtkXMLUnstructuredDataReader() VTK_OVERRIDE;
 
   vtkPointSet* GetOutputAsPointSet();
   vtkXMLDataElement* FindDataArrayWithName(vtkXMLDataElement* eParent,
@@ -79,22 +79,22 @@ protected:
   vtkUnsignedCharArray* ConvertToUnsignedCharArray(vtkDataArray* a);
 
   // Pipeline execute data driver.  Called by vtkXMLReader.
-  void ReadXMLData();
+  void ReadXMLData() VTK_OVERRIDE;
 
-  virtual void SetupEmptyOutput();
+  void SetupEmptyOutput() VTK_OVERRIDE;
   virtual void GetOutputUpdateExtent(int& piece, int& numberOfPieces,
                                      int& ghostLevel)=0;
   virtual void SetupOutputTotals();
   virtual void SetupNextPiece();
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
+  void SetupPieces(int numPieces) VTK_OVERRIDE;
+  void DestroyPieces() VTK_OVERRIDE;
 
   // Setup the output's information.
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
 
-  void SetupOutputData();
-  int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData();
+  void SetupOutputData() VTK_OVERRIDE;
+  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
+  int ReadPieceData() VTK_OVERRIDE;
   int ReadCellArray(vtkIdType numberOfCells, vtkIdType totalNumberOfCells,
                     vtkXMLDataElement* eCells, vtkCellArray* outCells);
 
@@ -103,7 +103,7 @@ protected:
                     vtkIdTypeArray* outFaces, vtkIdTypeArray* outFaceOffsets);
 
   // Read a data array whose tuples coorrespond to points.
-  virtual int ReadArrayForPoints(vtkXMLDataElement* da, vtkAbstractArray* outArray);
+  int ReadArrayForPoints(vtkXMLDataElement* da, vtkAbstractArray* outArray) VTK_OVERRIDE;
 
   // Get the number of points/cells in the given piece.  Valid after
   // UpdateInformation.

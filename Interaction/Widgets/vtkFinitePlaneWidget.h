@@ -88,7 +88,7 @@ public:
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkFinitePlaneWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -102,11 +102,11 @@ public:
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkFinitePlaneRepresentation class.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkFinitePlaneWidget();
-  ~vtkFinitePlaneWidget();
+  ~vtkFinitePlaneWidget() VTK_OVERRIDE;
 
   int WidgetState;
   enum _WidgetState {Start = 0, Active};

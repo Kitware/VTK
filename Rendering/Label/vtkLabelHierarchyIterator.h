@@ -41,7 +41,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchyIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLabelHierarchyIterator,vtkObject);
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * Initializes the iterator. lastLabels is an array holding labels
@@ -149,7 +149,7 @@ public:
 
 protected:
   vtkLabelHierarchyIterator();
-  virtual ~vtkLabelHierarchyIterator();
+  ~vtkLabelHierarchyIterator() VTK_OVERRIDE;
 
   void BoxNodeInternal3( const double* ctr, double sz );
   void BoxNodeInternal2( const double* ctr, double sz );

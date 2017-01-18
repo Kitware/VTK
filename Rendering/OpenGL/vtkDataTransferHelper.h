@@ -47,7 +47,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkDataTransferHelper : public vtkObject
 public:
   static vtkDataTransferHelper* New();
   vtkTypeMacro(vtkDataTransferHelper, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -224,7 +224,7 @@ public:
 
 protected:
   vtkDataTransferHelper();
-  ~vtkDataTransferHelper();
+  ~vtkDataTransferHelper() VTK_OVERRIDE;
 
   /**
    * Load all necessary extensions.

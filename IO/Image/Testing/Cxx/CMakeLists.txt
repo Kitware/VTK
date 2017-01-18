@@ -59,6 +59,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCompressedTIFFReader,TestCompressedTIFFReader.cxx,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/al_foam_smallest.0.tif}")
 
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestWriteToMemoryPNG,TestWriteToMemory.cxx,NO_DATA NO_VALID NO_OUTPUT
+    "test.png")
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestWriteToMemoryJPEG,TestWriteToMemory.cxx,NO_DATA NO_VALID NO_OUTPUT
+    "test.jpeg")
+
 if (VTK_USE_LARGE_DATA)
   vtk_add_test_cxx(${vtk-module}CxxTests large_data_tests
     TestMRCReader,TestMRCReader.cxx,NO_OUTPUT

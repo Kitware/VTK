@@ -33,7 +33,7 @@
 #include <string>
 #include <math.h>
 #include <algorithm>
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 #include <mem.h> // for memcpy
 #endif
 

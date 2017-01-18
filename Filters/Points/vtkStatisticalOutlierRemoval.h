@@ -67,7 +67,7 @@ public:
    */
   static vtkStatisticalOutlierRemoval *New();
   vtkTypeMacro(vtkStatisticalOutlierRemoval,vtkPointCloudFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkStatisticalOutlierRemoval();
-  ~vtkStatisticalOutlierRemoval();
+  ~vtkStatisticalOutlierRemoval() VTK_OVERRIDE;
 
   int SampleSize;
   double StandardDeviationFactor;
@@ -133,7 +133,7 @@ protected:
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  virtual int FilterPoints(vtkPointSet *input);
+  int FilterPoints(vtkPointSet *input) VTK_OVERRIDE;
 
 private:
   vtkStatisticalOutlierRemoval(const vtkStatisticalOutlierRemoval&) VTK_DELETE_FUNCTION;

@@ -49,7 +49,7 @@ class VTKIOLEGACY_EXPORT vtkDataSetReader : public vtkDataReader
 public:
   static vtkDataSetReader *New();
   vtkTypeMacro(vtkDataSetReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -82,17 +82,17 @@ public:
 
 protected:
   vtkDataSetReader();
-  ~vtkDataSetReader();
+  ~vtkDataSetReader() VTK_OVERRIDE;
 
-  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
                                 vtkInformationVector *);
-  virtual int FillOutputPortInformation(int, vtkInformation *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+  int FillOutputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkDataSetReader(const vtkDataSetReader&) VTK_DELETE_FUNCTION;

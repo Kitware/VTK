@@ -69,7 +69,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkTexturedButtonRepresentation2D,vtkButtonRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -116,9 +116,9 @@ public:
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void BuildRepresentation();
-  virtual void Highlight(int state);
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void Highlight(int state) VTK_OVERRIDE;
   //@}
 
   /**
@@ -128,7 +128,7 @@ public:
    * set to zero. Note that PlaceWidget() is typically called at the end of configuring
    * the button representation.
    */
-  virtual void PlaceWidget(double bounds[6]);
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
 
   /**
    * This alternative PlaceWidget() method can be used to anchor the button
@@ -146,17 +146,17 @@ public:
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
-  virtual void ShallowCopy(vtkProp *prop);
-  virtual double *GetBounds();
-  virtual void GetActors(vtkPropCollection *pc);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  double *GetBounds() VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkTexturedButtonRepresentation2D();
-  ~vtkTexturedButtonRepresentation2D();
+  ~vtkTexturedButtonRepresentation2D() VTK_OVERRIDE;
 
   // Representing the button
   vtkBalloonRepresentation *Balloon;

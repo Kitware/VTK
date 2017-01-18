@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkGenericRenderWindowInteractor : public vtkRende
 public:
   static vtkGenericRenderWindowInteractor *New();
   vtkTypeMacro(vtkGenericRenderWindowInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Fire TimerEvent. SetEventInformation should be called just prior
@@ -63,15 +63,15 @@ public:
 
 protected:
   vtkGenericRenderWindowInteractor();
-  ~vtkGenericRenderWindowInteractor();
+  ~vtkGenericRenderWindowInteractor() VTK_OVERRIDE;
 
   //@{
   /**
    * Generic internal timer methods. See the superclass for detailed
    * documentation.
    */
-  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
-  virtual int InternalDestroyTimer(int platformTimerId);
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
+  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
   //@}
 
   int TimerEventResetsTimer;

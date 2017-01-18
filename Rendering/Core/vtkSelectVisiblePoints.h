@@ -55,7 +55,7 @@ class VTKRENDERINGCORE_EXPORT vtkSelectVisiblePoints : public vtkPolyDataAlgorit
 {
 public:
   vtkTypeMacro(vtkSelectVisiblePoints, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object with no renderer; window selection turned off;
@@ -134,14 +134,14 @@ public:
   /**
    * Return MTime also considering the renderer.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkSelectVisiblePoints();
-  ~vtkSelectVisiblePoints();
+  ~vtkSelectVisiblePoints() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkRenderer *Renderer;
   vtkMatrix4x4 *CompositePerspectiveTransform;

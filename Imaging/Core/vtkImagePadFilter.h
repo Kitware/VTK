@@ -56,15 +56,15 @@ public:
 
 protected:
   vtkImagePadFilter();
-  ~vtkImagePadFilter() {}
+  ~vtkImagePadFilter() VTK_OVERRIDE {}
 
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
 
-  virtual int RequestInformation (vtkInformation*,
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestUpdateExtent(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*) VTK_OVERRIDE;
 

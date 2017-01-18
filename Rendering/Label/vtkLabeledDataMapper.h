@@ -75,7 +75,7 @@ public:
   static vtkLabeledDataMapper *New();
 
   vtkTypeMacro(vtkLabeledDataMapper,vtkMapper2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -175,14 +175,14 @@ public:
   /**
    * Draw the text to the screen at each input point.
    */
-  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
   //@}
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   //@{
   /**
@@ -213,7 +213,7 @@ public:
   /**
    * Return the modified time for this object.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -242,7 +242,7 @@ public:
 
 protected:
   vtkLabeledDataMapper();
-  ~vtkLabeledDataMapper();
+  ~vtkLabeledDataMapper() VTK_OVERRIDE;
 
   vtkDataSet *Input;
 
@@ -261,7 +261,7 @@ protected:
   double* LabelPositions;
   vtkTransform *Transform;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   void AllocateLabels(int numLabels);
   void BuildLabels();

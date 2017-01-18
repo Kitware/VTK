@@ -853,6 +853,14 @@ void vtkContext2D::DrawImage(const vtkRectf& pos, vtkImageData *image)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolyData(float x, float y, vtkPolyData* polyData,
+  vtkUnsignedCharArray* colors, int scalarMode)
+{
+  float p[] = {x, y};
+  this->Device->DrawPolyData(&p[0], 1.0, polyData, colors, scalarMode);
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::ApplyPen(vtkPen *pen)
 {
   this->Device->ApplyPen(pen);

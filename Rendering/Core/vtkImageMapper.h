@@ -43,12 +43,12 @@ class VTKRENDERINGCORE_EXPORT vtkImageMapper : public vtkMapper2D
 public:
   vtkTypeMacro(vtkImageMapper, vtkMapper2D);
   static vtkImageMapper *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Override Modifiedtime as we have added a lookuptable
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -147,7 +147,7 @@ public:
 
 protected:
   vtkImageMapper();
-  ~vtkImageMapper();
+  ~vtkImageMapper() VTK_OVERRIDE;
 
   double ColorWindow;
   double ColorLevel;
@@ -158,7 +158,7 @@ protected:
   int CustomDisplayExtents[4];
   int RenderToRectangle;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 private:
   vtkImageMapper(const vtkImageMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageMapper&) VTK_DELETE_FUNCTION;

@@ -47,34 +47,34 @@ public:
    */
   vtkTypeMacro(vtkEllipsoidTensorProbeRepresentation,
                                 vtkTensorProbeRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
-  virtual void BuildRepresentation();
-  virtual int RenderOpaqueGeometry(vtkViewport *);
+  void BuildRepresentation() VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *) VTK_OVERRIDE;
 
   /**
    * Can we pick the tensor glyph at the current cursor pos
    */
-  virtual int SelectProbe( int pos[2] );
+  int SelectProbe( int pos[2] ) VTK_OVERRIDE;
 
   //@{
   /**
    * See vtkProp for details.
    */
-  virtual void GetActors(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void GetActors(vtkPropCollection *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkEllipsoidTensorProbeRepresentation();
-  ~vtkEllipsoidTensorProbeRepresentation();
+  ~vtkEllipsoidTensorProbeRepresentation() VTK_OVERRIDE;
 
   // Get the interpolated tensor at the current position
   void EvaluateTensor( double t[9] );
 
   // Register internal Pickers within PickingManager
-  virtual void RegisterPickers();
+  void RegisterPickers() VTK_OVERRIDE;
 
   vtkActor           * EllipsoidActor;
   vtkPolyDataMapper  * EllipsoidMapper;

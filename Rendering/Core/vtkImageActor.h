@@ -44,7 +44,7 @@ class VTKRENDERINGCORE_EXPORT vtkImageActor : public vtkImageSlice
 {
 public:
   vtkTypeMacro(vtkImageActor,vtkImageSlice);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate the image actor.
@@ -101,7 +101,7 @@ public:
    * In either case the boudns is expressed as a 6-vector
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
   void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); };
   //@}
 
@@ -152,7 +152,7 @@ public:
    * ForceOpaqueOn(), which forces this method to return false, or
    * ForceTranslucentOn(), which forces this method to return true.
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   //@{
   /**
@@ -166,7 +166,7 @@ public:
 
 protected:
   vtkImageActor();
-  ~vtkImageActor();
+  ~vtkImageActor() VTK_OVERRIDE;
 
   /**
    * Guess the orientation from the extent.  The orientation will be Z

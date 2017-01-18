@@ -47,35 +47,35 @@ public:
   static vtkInteractorStyleJoystickActor *New();
 
   vtkTypeMacro(vtkInteractorStyleJoystickActor,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
   //@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
   // they might be called from OnTimer, they do not have mouse coord parameters
   // (use interactor's GetEventPosition and GetLastEventPosition)
-  virtual void Rotate();
-  virtual void Spin();
-  virtual void Pan();
-  virtual void Dolly();
-  virtual void UniformScale();
+  void Rotate() VTK_OVERRIDE;
+  void Spin() VTK_OVERRIDE;
+  void Pan() VTK_OVERRIDE;
+  void Dolly() VTK_OVERRIDE;
+  void UniformScale() VTK_OVERRIDE;
 
 protected:
   vtkInteractorStyleJoystickActor();
-  ~vtkInteractorStyleJoystickActor();
+  ~vtkInteractorStyleJoystickActor() VTK_OVERRIDE;
 
   void FindPickedActor(int x, int y);
 

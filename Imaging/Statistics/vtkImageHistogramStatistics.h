@@ -44,7 +44,7 @@ public:
   static vtkImageHistogramStatistics *New();
   vtkTypeMacro(vtkImageHistogramStatistics,vtkImageHistogram);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the minimum value present in the image.  This value is computed
@@ -115,11 +115,11 @@ public:
 
 protected:
   vtkImageHistogramStatistics();
-  ~vtkImageHistogramStatistics();
+  ~vtkImageHistogramStatistics() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   double Minimum;
   double Maximum;

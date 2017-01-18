@@ -68,7 +68,7 @@ public:
   void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value)
   { this->Array->SetTypedComponent(tupleIdx,compIdx,value); }
 
-  void *GetVoidPointer(vtkIdType valueIdx)
+  void *GetVoidPointer(vtkIdType valueIdx) VTK_OVERRIDE
   { return this->Array->GetVoidPointer(valueIdx); }
 
 protected:

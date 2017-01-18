@@ -27,7 +27,6 @@
       this->WriteFileTrailer(file,cache); \
       file->close(); \
       delete file; \
-      file = NULL; \
     } \
 
 vtkStandardNewMacro(vtkPImageWriter);

@@ -36,11 +36,11 @@ class VTKRENDERINGOPENGL_EXPORT vtkLinesPainter : public vtkPrimitivePainter
 public:
   static vtkLinesPainter* New();
   vtkTypeMacro(vtkLinesPainter, vtkPrimitivePainter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkLinesPainter();
-  ~vtkLinesPainter();
+  ~vtkLinesPainter() VTK_OVERRIDE;
 
   int RenderPolys; // Flag indicating if the line loops are to be closed.
 
@@ -48,15 +48,15 @@ protected:
    * Overriden to set RenderPolys flag. When set, polys are rendered
    * as line loops.
    */
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-                              unsigned long typeflags, bool forceCompileOnly);
+  void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
+                              unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
 
   /**
    * The actual rendering happens here. This method is called only when
    * SupportedPrimitive is present in typeflags when Render() is invoked.
    */
-  virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
-    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
+  int RenderPrimitive(unsigned long flags, vtkDataArray* n,
+    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) VTK_OVERRIDE;
 
 private:
   vtkLinesPainter(const vtkLinesPainter&) VTK_DELETE_FUNCTION;

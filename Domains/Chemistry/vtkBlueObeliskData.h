@@ -53,7 +53,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
 {
  public:
   vtkTypeMacro(vtkBlueObeliskData,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkBlueObeliskData *New();
 
   /**
@@ -122,7 +122,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   friend class vtkBlueObeliskDataParser;
 
   vtkBlueObeliskData();
-  ~vtkBlueObeliskData();
+  ~vtkBlueObeliskData() VTK_OVERRIDE;
 
   vtkSimpleMutexLock *WriteMutex;
   bool Initialized;

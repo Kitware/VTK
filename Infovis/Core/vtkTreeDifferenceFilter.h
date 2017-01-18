@@ -43,7 +43,7 @@ class VTKINFOVISCORE_EXPORT vtkTreeDifferenceFilter : public vtkGraphAlgorithm
 public:
   static vtkTreeDifferenceFilter* New();
   vtkTypeMacro(vtkTreeDifferenceFilter,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -93,14 +93,14 @@ public:
 
 protected:
   vtkTreeDifferenceFilter();
-  ~vtkTreeDifferenceFilter();
+  ~vtkTreeDifferenceFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   /**
    * Populate VertexMap and EdgeMap with meaningful values.  These maps

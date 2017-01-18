@@ -36,7 +36,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageSpatialAlgorithm : public vtkThreadedImag
 public:
   static vtkImageSpatialAlgorithm *New();
   vtkTypeMacro(vtkImageSpatialAlgorithm,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,16 +54,16 @@ public:
 
 protected:
   vtkImageSpatialAlgorithm();
-  ~vtkImageSpatialAlgorithm() {}
+  ~vtkImageSpatialAlgorithm()VTK_OVERRIDE {}
 
   int   KernelSize[3];
   int   KernelMiddle[3];      // Index of kernel origin
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void InternalRequestUpdateExtent(int *extent, int *inExtent, int *wholeExtent);
 
 private:

@@ -39,13 +39,13 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpaquePass : public vtkDefaultPass
 public:
   static vtkOpaquePass *New();
   vtkTypeMacro(vtkOpaquePass,vtkDefaultPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
  protected:
   /**
@@ -56,7 +56,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkOpaquePass();
+  ~vtkOpaquePass() VTK_OVERRIDE;
 
  private:
   vtkOpaquePass(const vtkOpaquePass&) VTK_DELETE_FUNCTION;

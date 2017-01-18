@@ -45,11 +45,11 @@ public:
   vtkTypeMacro(vtkPNMReader,vtkImageReader);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname) VTK_OVERRIDE;
   /**
    * .pnm .pgm .ppm
    */
-  virtual const char* GetFileExtensions()
+  const char* GetFileExtensions() VTK_OVERRIDE
   {
       return ".pnm .pgm .ppm";
   }
@@ -57,15 +57,15 @@ public:
   /**
    * PNM
    */
-  virtual const char* GetDescriptiveName()
+  const char* GetDescriptiveName() VTK_OVERRIDE
   {
       return "PNM";
   }
 
 protected:
   vtkPNMReader() {}
-  ~vtkPNMReader() {}
-  void ExecuteInformation();
+  ~vtkPNMReader() VTK_OVERRIDE {}
+  void ExecuteInformation() VTK_OVERRIDE;
 private:
   vtkPNMReader(const vtkPNMReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPNMReader&) VTK_DELETE_FUNCTION;

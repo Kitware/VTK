@@ -53,21 +53,21 @@ class VTKRENDERINGOPENGL_EXPORT vtkStandardPolyDataPainter : public vtkPolyDataP
 {
 public:
   vtkTypeMacro(vtkStandardPolyDataPainter, vtkPolyDataPainter);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkStandardPolyDataPainter *New();
 
   void AddMultiTextureCoordsArray(vtkDataArray * array);
 
 protected:
   vtkStandardPolyDataPainter();
-  ~vtkStandardPolyDataPainter();
+  ~vtkStandardPolyDataPainter() VTK_OVERRIDE;
 
   /**
    * Generates rendering primitives of appropriate type(s). Multiple types
    * of preimitives can be requested by or-ring the primitive flags.
    */
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-                              unsigned long typeflags, bool forceCompileOnly);
+  void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
+                              unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
 
   void DrawCells(int mode, vtkCellArray *connectivity,
                  vtkIdType startCellId,
@@ -79,7 +79,7 @@ protected:
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  virtual void ProcessInformation(vtkInformation*);
+  void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
 
   void UpdateGenericAttributesCache(vtkShaderDeviceAdapter2 *shaderDevice2);
 

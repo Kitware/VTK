@@ -65,39 +65,39 @@ class VTKRENDERINGCORE_EXPORT vtkInteractorStyle3D : public vtkInteractorStyle
 public:
   static vtkInteractorStyle3D *New();
   vtkTypeMacro(vtkInteractorStyle3D,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Event bindings for gestures
    */
-  virtual void OnPinch();
-  virtual void OnPan();
+  void OnPinch() VTK_OVERRIDE;
+  void OnPan() VTK_OVERRIDE;
   //@}
 
   // This method handles updating the prop based on changes in the devices
   // pose. We use rotate as the state to mean adjusting-the-actor-pose
-  virtual void Rotate();
+  void Rotate() VTK_OVERRIDE;
 
   // This method handles updating the camera based on changes in the devices
   // pose. We use Dolly as the state to mean moving the camera forward
-  virtual void Dolly();
+  void Dolly() VTK_OVERRIDE;
 
 protected:
   vtkInteractorStyle3D();
-  ~vtkInteractorStyle3D();
+  ~vtkInteractorStyle3D() VTK_OVERRIDE;
 
   void FindPickedActor(double x, double y, double z);
 

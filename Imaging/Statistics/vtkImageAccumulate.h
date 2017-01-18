@@ -47,7 +47,7 @@ class VTKIMAGINGSTATISTICS_EXPORT vtkImageAccumulate : public vtkImageAlgorithm
 public:
   static vtkImageAccumulate *New();
   vtkTypeMacro(vtkImageAccumulate,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -138,21 +138,21 @@ public:
 
 protected:
   vtkImageAccumulate();
-  ~vtkImageAccumulate();
+  ~vtkImageAccumulate() VTK_OVERRIDE;
 
   double ComponentSpacing[3];
   double ComponentOrigin[3];
   int ComponentExtent[6];
 
-  virtual int RequestUpdateExtent(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                                    vtkInformationVector**,
-                                   vtkInformationVector*);
-  virtual int RequestInformation (vtkInformation*,
+                                   vtkInformationVector*) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestData(vtkInformation* request,
+                                  vtkInformationVector*) VTK_OVERRIDE;
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int    IgnoreZero;
   double Min[3];
@@ -163,7 +163,7 @@ protected:
 
   int ReverseStencil;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkImageAccumulate(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;

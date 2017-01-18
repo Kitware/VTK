@@ -293,7 +293,7 @@ public:
 
 protected:
   vtkMINCImageAttributes();
-  ~vtkMINCImageAttributes();
+  ~vtkMINCImageAttributes() VTK_OVERRIDE;
 
   const char *ConvertDataArrayToString(vtkDataArray *array);
 

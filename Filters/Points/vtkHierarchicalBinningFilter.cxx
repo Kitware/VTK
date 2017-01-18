@@ -340,7 +340,7 @@ struct BinTree : public vtkBinTree
   }
 
   // Release allocated memory
-  virtual ~BinTree()
+  ~BinTree() VTK_OVERRIDE
   {
       delete [] this->Map;
       //Offsets data array deleted by superclass
@@ -545,7 +545,7 @@ struct BinTree : public vtkBinTree
   }; //ShuffleArray
 
   // Bin the points, produce output
-  void Execute(vtkPointSet *input, vtkPolyData *output)
+  void Execute(vtkPointSet *input, vtkPolyData *output) VTK_OVERRIDE
   {
       vtkPoints *inPts = input->GetPoints();
       void *pts = inPts->GetVoidPointer(0);
@@ -658,7 +658,7 @@ struct BinTree : public vtkBinTree
       }//for each candidate array
   }
 
-  virtual vtkIdType GetLevelOffset(int level, vtkIdType& npts)
+  vtkIdType GetLevelOffset(int level, vtkIdType& npts) VTK_OVERRIDE
   {
     vtkIdType offset = this->Offsets[this->Tree[level]->LevelOffset];
     vtkIdType offset2 = this->Offsets[this->Tree[level+1]->LevelOffset];
@@ -667,7 +667,7 @@ struct BinTree : public vtkBinTree
     return offset;
   }
 
-  virtual vtkIdType GetBinOffset(int globalBin, vtkIdType& npts)
+  vtkIdType GetBinOffset(int globalBin, vtkIdType& npts) VTK_OVERRIDE
   {
     vtkIdType offset = this->Offsets[globalBin];
     vtkIdType offset2 = this->Offsets[globalBin+1];
@@ -676,7 +676,7 @@ struct BinTree : public vtkBinTree
     return offset;
   }
 
-  virtual vtkIdType GetLocalBinOffset(int level, int localBin, vtkIdType& npts)
+  vtkIdType GetLocalBinOffset(int level, int localBin, vtkIdType& npts) VTK_OVERRIDE
   {
     vtkIdType offset = this->Offsets[this->Tree[level]->LevelOffset] + localBin;
     vtkIdType offset2 = this->Offsets[this->Tree[level]->LevelOffset] + localBin + 1;

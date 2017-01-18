@@ -35,7 +35,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageRange3D : public vtkImageSpatialAlgorithm
 public:
   static vtkImageRange3D *New();
   vtkTypeMacro(vtkImageRange3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This method sets the size of the neighborhood.  It also sets the
@@ -45,21 +45,21 @@ public:
 
 protected:
   vtkImageRange3D();
-  ~vtkImageRange3D();
+  ~vtkImageRange3D() VTK_OVERRIDE;
 
   vtkImageEllipsoidSource *Ellipse;
 
-  virtual int RequestInformation (vtkInformation *request,
+  int RequestInformation (vtkInformation *request,
                                   vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector);
+                                  vtkInformationVector *outputVector) VTK_OVERRIDE;
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id);
-  virtual int RequestData(vtkInformation *request,
+                           int extent[6], int id) VTK_OVERRIDE;
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
 private:
   vtkImageRange3D(const vtkImageRange3D&) VTK_DELETE_FUNCTION;

@@ -110,18 +110,18 @@ public:
   static vtkSplineWidget *New();
 
   vtkTypeMacro(vtkSplineWidget,vtk3DWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Methods that satisfy the superclass' API.
    */
-  virtual void SetEnabled(int);
-  virtual void PlaceWidget(double bounds[6]);
-  void PlaceWidget()
+  void SetEnabled(int) VTK_OVERRIDE;
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void PlaceWidget() VTK_OVERRIDE
     {this->Superclass::PlaceWidget();}
   void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax)
+                   double zmin, double zmax) VTK_OVERRIDE
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
   //@}
 
@@ -287,7 +287,7 @@ public:
 
 protected:
   vtkSplineWidget();
-  ~vtkSplineWidget();
+  ~vtkSplineWidget() VTK_OVERRIDE;
 
   // Manage the state of the widget
   int State;
@@ -345,7 +345,7 @@ protected:
   vtkSphereSource   **HandleGeometry;
   void Initialize();
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
-  virtual void SizeHandles();
+  void SizeHandles() VTK_OVERRIDE;
   void InsertHandleOnLine(double* pos);
   void EraseHandle(const int&);
 
@@ -356,7 +356,7 @@ protected:
   int CurrentHandleIndex;
 
   // Register internal Pickers within PickingManager
-  virtual void RegisterPickers();
+  void RegisterPickers() VTK_OVERRIDE;
 
   // Methods to manipulate the spline.
   void MovePoint(double *p1, double *p2);

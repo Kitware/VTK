@@ -40,14 +40,14 @@ public:
 
   vtkTypeMacro(vtkHyperOctreeClipCutPointsGrabber,vtkHyperOctreePointsGrabber);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set the dimension of the hyperoctree.
    * \pre valid_dim: (dim==2 || dim==3)
    * \post is_set: GetDimension()==dim
    */
-  virtual void SetDimension(int dim);
+  void SetDimension(int dim) VTK_OVERRIDE;
 
   /**
    * Initialize the points insertion scheme.
@@ -57,31 +57,31 @@ public:
    * that lie on an hyperoctant.
    * \pre only_in_3d: GetDimension()==3
    */
-  virtual void InitPointInsertion();
+  void InitPointInsertion() VTK_OVERRIDE;
 
   /**
    * Insert a point, assuming the point is unique and does not require a
    * locator. Tt does not mean it does not use a locator. It just mean that
    * some implementation may skip the use of a locator.
    */
-  virtual void InsertPoint(vtkIdType ptId,
+  void InsertPoint(vtkIdType ptId,
                            double pt[3],
                            double pcoords[3],
-                           int ijk[3]);
+                           int ijk[3]) VTK_OVERRIDE;
 
   /**
    * Insert a point using a locator.
    */
-  virtual void InsertPointWithMerge(vtkIdType ptId,
+  void InsertPointWithMerge(vtkIdType ptId,
                                     double pt[3],
                                     double pcoords[3],
-                                    int ijk[3]);
+                                    int ijk[3]) VTK_OVERRIDE;
 
   /**
    * Insert a point in the quadtree case.
    */
-  virtual void InsertPoint2D(double pt[3],
-                             int ijk[3]);
+  void InsertPoint2D(double pt[3],
+                             int ijk[3]) VTK_OVERRIDE;
 
   /**
    * Return the ordered triangulator.
@@ -97,7 +97,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctreeClipCutPointsGrabber();
-  ~vtkHyperOctreeClipCutPointsGrabber();
+  ~vtkHyperOctreeClipCutPointsGrabber() VTK_OVERRIDE;
 
   vtkOrderedTriangulator *Triangulator;
   vtkPolygon *Polygon;

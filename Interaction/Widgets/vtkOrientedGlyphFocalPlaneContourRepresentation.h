@@ -57,7 +57,7 @@ public:
    */
   vtkTypeMacro(vtkOrientedGlyphFocalPlaneContourRepresentation,
                                     vtkFocalPlaneContourRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -109,29 +109,29 @@ public:
    * are the methods that the widget and its representation use to
    * communicate with each other.
    */
-  virtual void SetRenderer(vtkRenderer *ren);
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modified=0);
+  void SetRenderer(vtkRenderer *ren) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modified=0) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  virtual void GetActors2D(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int HasTranslucentPolygonalGeometry();
+  void GetActors2D(vtkPropCollection *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
   /**
    * Get the points in this contour as a vtkPolyData.
    */
-  virtual vtkPolyData * GetContourRepresentationAsPolyData();
+  vtkPolyData * GetContourRepresentationAsPolyData() VTK_OVERRIDE;
 
   /**
    * Direction cosines of the plane on which the contour lies
@@ -144,7 +144,7 @@ public:
 
 protected:
   vtkOrientedGlyphFocalPlaneContourRepresentation();
-  ~vtkOrientedGlyphFocalPlaneContourRepresentation();
+  ~vtkOrientedGlyphFocalPlaneContourRepresentation() VTK_OVERRIDE;
 
   // Render the cursor
   vtkActor2D           *Actor;
@@ -197,7 +197,7 @@ protected:
   // widget is focused - maintain this distance during interaction.
   double InteractionOffset[2];
 
-  void BuildLines();
+  void BuildLines() VTK_OVERRIDE;
 
 private:
   vtkOrientedGlyphFocalPlaneContourRepresentation(const vtkOrientedGlyphFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;

@@ -87,7 +87,7 @@ public:
    */
   static vtkHierarchicalBinningFilter *New();
   vtkTypeMacro(vtkHierarchicalBinningFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -189,7 +189,7 @@ public:
 
 protected:
   vtkHierarchicalBinningFilter();
-  ~vtkHierarchicalBinningFilter();
+  ~vtkHierarchicalBinningFilter() VTK_OVERRIDE;
 
   // IVars
   int NumberOfLevels;
@@ -201,9 +201,9 @@ protected:
   // that the convenience functions can be invoked on the bin tree.
   vtkBinTree *Tree;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkHierarchicalBinningFilter(const vtkHierarchicalBinningFilter&) VTK_DELETE_FUNCTION;

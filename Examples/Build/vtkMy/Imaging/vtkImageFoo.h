@@ -32,7 +32,7 @@ class VTK_MY_IMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
 public:
   static vtkImageFoo *New();
   vtkTypeMacro(vtkImageFoo,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -80,14 +80,14 @@ protected:
   int OutputScalarType;
   vtkBar* Bar;
 
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector* outputVector);
+  int RequestInformation(vtkInformation*,
+                         vtkInformationVector**,
+                         vtkInformationVector* outputVector) VTK_OVERRIDE;
   void ThreadedRequestData(vtkInformation* request,
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector,
                            vtkImageData*** inData, vtkImageData** outData,
-                           int outExt[6], int id);
+                           int outExt[6], int id) VTK_OVERRIDE;
 private:
   vtkImageFoo(const vtkImageFoo&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageFoo&) VTK_DELETE_FUNCTION;

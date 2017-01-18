@@ -50,15 +50,15 @@ class VTKRENDERINGCORE_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
   vtkTypeMacro(vtkCellCenterDepthSort, vtkVisibilitySort);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkCellCenterDepthSort *New();
 
-  virtual void InitTraversal();
-  virtual vtkIdTypeArray *GetNextCells();
+  void InitTraversal() VTK_OVERRIDE;
+  vtkIdTypeArray *GetNextCells() VTK_OVERRIDE;
 
 protected:
   vtkCellCenterDepthSort();
-  virtual ~vtkCellCenterDepthSort();
+  ~vtkCellCenterDepthSort() VTK_OVERRIDE;
 
   vtkIdTypeArray *SortedCells;
   vtkIdTypeArray *SortedCellPartition;

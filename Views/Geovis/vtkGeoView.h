@@ -61,7 +61,7 @@ class VTKVIEWSGEOVIS_EXPORT vtkGeoView : public vtkRenderView
 public:
   static vtkGeoView *New();
   vtkTypeMacro(vtkGeoView, vtkRenderView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Adds an image representation with a simple terrain model using
@@ -72,7 +72,7 @@ public:
   /**
    * Prepares the view for rendering.
    */
-  virtual void PrepareForRendering();
+  void PrepareForRendering() VTK_OVERRIDE;
 
   /**
    * Rebuild low-res earth source; call after (re)setting origin.
@@ -110,11 +110,11 @@ public:
   /**
    * Update and render the view.
    */
-  virtual void Render();
+  void Render() VTK_OVERRIDE;
 
 protected:
   vtkGeoView();
-  ~vtkGeoView();
+  ~vtkGeoView() VTK_OVERRIDE;
 
   vtkGlobeSource*    LowResEarthSource;
   vtkPolyDataMapper* LowResEarthMapper;

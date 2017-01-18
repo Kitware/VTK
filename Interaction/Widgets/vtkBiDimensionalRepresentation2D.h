@@ -68,7 +68,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkBiDimensionalRepresentation2D,vtkBiDimensionalRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -95,41 +95,41 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  virtual void BuildRepresentation();
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void StartWidgetDefinition(double e[2]);
-  virtual void Point2WidgetInteraction(double e[2]);
-  virtual void Point3WidgetInteraction(double e[2]);
-  virtual void StartWidgetManipulation(double e[2]);
-  virtual void WidgetInteraction(double e[2]);
-  virtual void Highlight(int highlightOn);
+  void BuildRepresentation() VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void StartWidgetDefinition(double e[2]) VTK_OVERRIDE;
+  void Point2WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void Point3WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void StartWidgetManipulation(double e[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void Highlight(int highlightOn) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
-  virtual int RenderOverlay(vtkViewport *viewport);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Get the text shown in the widget's label.
    */
-  char* GetLabelText();
+  char* GetLabelText() VTK_OVERRIDE;
 
   //@{
   /**
    * Get the position of the widget's label in display coordinates.
    */
-  double* GetLabelPosition();
-  void GetLabelPosition(double pos[3]);
-  void GetWorldLabelPosition(double pos[3]);
+  double* GetLabelPosition() VTK_OVERRIDE;
+  void GetLabelPosition(double pos[3]) VTK_OVERRIDE;
+  void GetWorldLabelPosition(double pos[3]) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkBiDimensionalRepresentation2D();
-  ~vtkBiDimensionalRepresentation2D();
+  ~vtkBiDimensionalRepresentation2D() VTK_OVERRIDE;
 
   // Keep track if modifier is set
   int Modifier;

@@ -53,7 +53,7 @@ class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToCylinder : public vtkDataSetAlgori
 {
 public:
   vtkTypeMacro(vtkTextureMapToCylinder,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create object with cylinder axis parallel to z-axis (points (0,0,-0.5)
@@ -102,9 +102,9 @@ public:
 
 protected:
   vtkTextureMapToCylinder();
-  ~vtkTextureMapToCylinder() {}
+  ~vtkTextureMapToCylinder() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double Point1[3];
   double Point2[3];

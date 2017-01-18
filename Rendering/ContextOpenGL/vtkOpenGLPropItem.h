@@ -41,13 +41,13 @@ public:
 
 protected:
   vtkOpenGLPropItem();
-  ~vtkOpenGLPropItem();
+  ~vtkOpenGLPropItem() VTK_OVERRIDE;
 
   // Sync the active vtkCamera with the GL state set by the painter.
-  virtual void UpdateTransforms();
+  void UpdateTransforms() VTK_OVERRIDE;
 
   // Restore the vtkCamera state.
-  virtual void ResetTransforms();
+  void ResetTransforms() VTK_OVERRIDE;
 
 private:
   vtkNew<vtkCamera> CameraCache;

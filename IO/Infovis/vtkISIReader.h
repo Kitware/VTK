@@ -46,7 +46,7 @@ class VTKIOINFOVIS_EXPORT vtkISIReader : public vtkTableAlgorithm
 public:
   static vtkISIReader* New();
   vtkTypeMacro(vtkISIReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -74,12 +74,12 @@ public:
 
  protected:
   vtkISIReader();
-  ~vtkISIReader();
+  ~vtkISIReader() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   char* FileName;
   char* Delimiter;

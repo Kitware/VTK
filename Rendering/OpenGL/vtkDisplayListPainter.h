@@ -31,7 +31,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkDisplayListPainter : public vtkPainter
 public:
   static vtkDisplayListPainter* New();
   vtkTypeMacro(vtkDisplayListPainter, vtkPainter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Turn on/off flag to control whether data is rendered using
@@ -48,17 +48,17 @@ public:
    * Overridden to avoid adding of delegate rendering time
    * when Display Lists are used.
    */
-  virtual double GetTimeToDraw();
+  double GetTimeToDraw() VTK_OVERRIDE;
 
 protected:
   vtkDisplayListPainter();
-  ~vtkDisplayListPainter();
+  ~vtkDisplayListPainter() VTK_OVERRIDE;
 
   /**
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  virtual void ProcessInformation(vtkInformation*);
+  void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
 
 
   // These methods set the ivars. These are purposefully protected.

@@ -41,13 +41,13 @@ class VTKCHARTSCORE_EXPORT vtkScalarsToColorsItem: public vtkPlot
 {
 public:
   vtkTypeMacro(vtkScalarsToColorsItem, vtkPlot);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Bounds of the item, use the UserBounds if valid otherwise compute
    * the bounds of the item (based on the transfer function range).
    */
-  void GetBounds(double bounds[4]);
+  void GetBounds(double bounds[4]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -64,7 +64,7 @@ public:
    * MaskAboveCurve is true and a shape has been provided by a subclass, it
    * draws the texture into the shape
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   //@{
   /**
@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkScalarsToColorsItem();
-  virtual ~vtkScalarsToColorsItem();
+  ~vtkScalarsToColorsItem() VTK_OVERRIDE;
 
   /**
    * Bounds of the item, by default (0, 1, 0, 1) but it depends on the

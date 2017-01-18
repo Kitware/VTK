@@ -36,12 +36,12 @@ public:
   static vtkTreeOrbitLayoutStrategy *New();
 
   vtkTypeMacro(vtkTreeOrbitLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the orbital layout.
    */
-  void Layout();
+  void Layout() VTK_OVERRIDE;
 
   //@{
   /**
@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkTreeOrbitLayoutStrategy();
-  ~vtkTreeOrbitLayoutStrategy();
+  ~vtkTreeOrbitLayoutStrategy() VTK_OVERRIDE;
 
   void OrbitChildren(vtkTree *t, vtkPoints *p, vtkIdType parent, double radius);
 

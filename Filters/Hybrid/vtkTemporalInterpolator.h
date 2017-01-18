@@ -64,7 +64,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkMultiTimeStepA
 public:
   static vtkTemporalInterpolator *New();
   vtkTypeMacro(vtkTemporalInterpolator, vtkMultiTimeStepAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -105,30 +105,30 @@ public:
 
 protected:
   vtkTemporalInterpolator();
-  ~vtkTemporalInterpolator();
+  ~vtkTemporalInterpolator() VTK_OVERRIDE;
 
 
   double DiscreteTimeStepInterval;
   int    ResampleFactor;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
 
 
-  virtual int RequestDataObject(vtkInformation *,
+  int RequestDataObject(vtkInformation *,
                                 vtkInformationVector **,
-                                vtkInformationVector *);
+                                vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent(vtkInformation *,
+  int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
-                                 vtkInformationVector *);
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * General interpolation routine for any type on input data. This is

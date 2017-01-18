@@ -137,7 +137,7 @@ public:
 
 protected:
   vtkMNITransformWriter();
-  ~vtkMNITransformWriter();
+  ~vtkMNITransformWriter() VTK_OVERRIDE;
 
   char *FileName;
   vtkAbstractTransform *Transform;
@@ -156,9 +156,9 @@ protected:
 
   virtual int WriteFile();
 
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo);
+                             vtkInformationVector* outInfo) VTK_OVERRIDE;
 
 private:
   vtkMNITransformWriter(const vtkMNITransformWriter&) VTK_DELETE_FUNCTION;

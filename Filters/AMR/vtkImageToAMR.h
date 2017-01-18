@@ -34,7 +34,7 @@ class VTKFILTERSAMR_EXPORT vtkImageToAMR : public vtkOverlappingAMRAlgorithm
 public:
   static vtkImageToAMR* New();
   vtkTypeMacro(vtkImageToAMR, vtkOverlappingAMRAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -63,22 +63,22 @@ public:
 
 protected:
   vtkImageToAMR();
-  ~vtkImageToAMR();
+  ~vtkImageToAMR() VTK_OVERRIDE;
 
   /**
    * Fill the input port information objects for this algorithm.  This
    * is invoked by the first call to GetInputPortInformation for each
    * port so subclasses can specify what they can handle.
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   int NumberOfLevels;
   int MaximumNumberOfBlocks;

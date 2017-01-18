@@ -38,12 +38,12 @@ class VTKIOIMAGE_EXPORT vtkJPEGWriter : public vtkImageWriter
 public:
   static vtkJPEGWriter *New();
   vtkTypeMacro(vtkJPEGWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * The main interface which triggers the writer to start.
    */
-  virtual void Write();
+  void Write() VTK_OVERRIDE;
 
   //@{
   /**
@@ -82,14 +82,13 @@ public:
 
 protected:
   vtkJPEGWriter();
-  ~vtkJPEGWriter();
+  ~vtkJPEGWriter() VTK_OVERRIDE;
 
   void WriteSlice(vtkImageData *data, int* uExtent);
 
 private:
   int Quality;
   unsigned int Progressive;
-  unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
 

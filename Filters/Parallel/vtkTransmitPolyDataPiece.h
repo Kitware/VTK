@@ -36,7 +36,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataAlg
 public:
   static vtkTransmitPolyDataPiece *New();
   vtkTypeMacro(vtkTransmitPolyDataPiece, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -58,10 +58,10 @@ public:
 
 protected:
   vtkTransmitPolyDataPiece();
-  ~vtkTransmitPolyDataPiece();
+  ~vtkTransmitPolyDataPiece() VTK_OVERRIDE;
 
   // Data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   void RootExecute(vtkPolyData *input, vtkPolyData *output, vtkInformation *outInfo);
   void SatelliteExecute(int procId, vtkPolyData *output, vtkInformation *outInfo);
 

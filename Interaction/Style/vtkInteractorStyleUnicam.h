@@ -111,7 +111,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUnicam : public vtkInteractor
 public:
   static vtkInteractorStyleUnicam *New();
   vtkTypeMacro(vtkInteractorStyleUnicam,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void SetWorldUpVector(double a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
   void SetWorldUpVector(double x, double y, double z);
@@ -121,9 +121,9 @@ public:
   /**
    * Concrete implementation of event bindings
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
   virtual void OnLeftButtonMove();
   //@}
 
@@ -131,11 +131,11 @@ public:
    * OnTimer calls RotateCamera, RotateActor etc which should be overridden by
    * style subclasses.
    */
-  virtual void OnTimer();
+  void OnTimer() VTK_OVERRIDE;
 
 protected:
   vtkInteractorStyleUnicam();
-  virtual ~vtkInteractorStyleUnicam();
+  ~vtkInteractorStyleUnicam() VTK_OVERRIDE;
 
   vtkWorldPointPicker *InteractionPicker;
 

@@ -42,7 +42,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotBag : public vtkPlotPoints
 {
 public:
   vtkTypeMacro(vtkPlotBag, vtkPlotPoints);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a new Bag Plot object.
@@ -54,12 +54,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -67,22 +67,22 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex);
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex) VTK_OVERRIDE;
 
   /**
    * Get the plot labels. If this array has a length greater than 1 the index
    * refers to the stacked objects in the plot. See vtkPlotBar for example.
    */
-  virtual vtkStringArray *GetLabels();
+  vtkStringArray *GetLabels() VTK_OVERRIDE;
 
   /**
    * Generate and return the tooltip label string for this plot
    * The segmentIndex parameter is ignored, except for vtkPlotBar
    */
-  virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
+  vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex);
+                                       vtkIdType segmentIndex) VTK_OVERRIDE;
 
   //@{
   /**
@@ -92,9 +92,9 @@ public:
    * Inherited method will call the last SetInputData method with default
    * paramaters.
    */
-  virtual void SetInputData(vtkTable *table);
-  virtual void SetInputData(vtkTable *table, const vtkStdString &yColumn,
-                            const vtkStdString &densityColumn);
+  void SetInputData(vtkTable *table) VTK_OVERRIDE;
+  void SetInputData(vtkTable *table, const vtkStdString &yColumn,
+                            const vtkStdString &densityColumn) VTK_OVERRIDE;
   virtual void SetInputData(vtkTable *table, const vtkStdString &xColumn,
                             const vtkStdString &yColumn,
                             const vtkStdString &densityColumn);
@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkPlotBag();
-  ~vtkPlotBag();
+  ~vtkPlotBag() VTK_OVERRIDE;
 
   void UpdateTableCache(vtkDataArray*);
 

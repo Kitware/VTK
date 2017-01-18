@@ -39,16 +39,16 @@ class VTKIOMOVIE_EXPORT vtkOggTheoraWriter : public vtkGenericMovieWriter
 public:
   static vtkOggTheoraWriter *New();
   vtkTypeMacro(vtkOggTheoraWriter,vtkGenericMovieWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * These methods start writing an Movie file, write a frame to the file
    * and then end the writing process.
    */
-  void Start();
-  void Write();
-  void End();
+  void Start() VTK_OVERRIDE;
+  void Write() VTK_OVERRIDE;
+  void End() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkOggTheoraWriter();
-  ~vtkOggTheoraWriter();
+  ~vtkOggTheoraWriter() VTK_OVERRIDE;
 
   vtkOggTheoraWriterInternal *Internals;
 

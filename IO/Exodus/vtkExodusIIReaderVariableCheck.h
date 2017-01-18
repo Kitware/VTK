@@ -52,8 +52,8 @@ class vtkExodusIIReaderScalarCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderScalarCheck();
-  virtual bool StartInternal( std::string name, const int*, int );
-  virtual bool Add( std::string, const int* );
+  bool StartInternal( std::string name, const int*, int ) VTK_OVERRIDE;
+  bool Add( std::string, const int* ) VTK_OVERRIDE;
 };
 
 /// This looks for n-D vectors whose names are identical except for a single final character.
@@ -61,9 +61,9 @@ class vtkExodusIIReaderVectorCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderVectorCheck( const char* seq, int n );
-  virtual bool StartInternal( std::string name, const int*, int );
-  virtual bool Add( std::string name, const int* truth );
-  virtual std::vector<std::string>::size_type Length();
+  bool StartInternal( std::string name, const int*, int ) VTK_OVERRIDE;
+  bool Add( std::string name, const int* truth ) VTK_OVERRIDE;
+  std::vector<std::string>::size_type Length() VTK_OVERRIDE;
 protected:
   std::string Endings;
   bool StillAdding;
@@ -79,9 +79,9 @@ class vtkExodusIIReaderTensorCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderTensorCheck( const char* seq, int n, int rank, int dim );
-  virtual bool StartInternal( std::string name, const int*, int );
-  virtual bool Add( std::string name, const int* truth );
-  virtual std::vector<std::string>::size_type Length();
+  bool StartInternal( std::string name, const int*, int ) VTK_OVERRIDE;
+  bool Add( std::string name, const int* truth ) VTK_OVERRIDE;
+  std::vector<std::string>::size_type Length() VTK_OVERRIDE;
 protected:
   std::string Endings;
   vtkTypeUInt64 NumEndings;
@@ -95,9 +95,9 @@ class vtkExodusIIReaderIntPointCheck : public vtkExodusIIReaderVariableCheck
 {
 public:
   vtkExodusIIReaderIntPointCheck();
-  virtual bool StartInternal( std::string name, const int*, int );
-  virtual bool Add( std::string name, const int* );
-  virtual std::vector<std::string>::size_type Length();
+  bool StartInternal( std::string name, const int*, int ) VTK_OVERRIDE;
+  bool Add( std::string name, const int* ) VTK_OVERRIDE;
+  std::vector<std::string>::size_type Length() VTK_OVERRIDE;
   /*
   virtual int Accept(
     std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr, int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )

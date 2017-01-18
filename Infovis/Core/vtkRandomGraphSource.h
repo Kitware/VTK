@@ -43,7 +43,7 @@ class VTKINFOVISCORE_EXPORT vtkRandomGraphSource : public vtkGraphAlgorithm
 public:
   static vtkRandomGraphSource* New();
   vtkTypeMacro(vtkRandomGraphSource,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -176,7 +176,7 @@ public:
 
 protected:
   vtkRandomGraphSource();
-  ~vtkRandomGraphSource();
+  ~vtkRandomGraphSource() VTK_OVERRIDE;
   int NumberOfVertices;
   int NumberOfEdges;
   double EdgeProbability;
@@ -192,17 +192,17 @@ protected:
   char* VertexPedigreeIdArrayName;
   char* EdgePedigreeIdArrayName;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   /**
    * Creates directed or undirected output based on Directed flag.
    */
-  virtual int RequestDataObject(vtkInformation*,
+  int RequestDataObject(vtkInformation*,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 private:
   vtkRandomGraphSource(const vtkRandomGraphSource&) VTK_DELETE_FUNCTION;

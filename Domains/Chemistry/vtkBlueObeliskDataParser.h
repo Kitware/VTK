@@ -63,7 +63,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
   /**
    * Start parsing
    */
-  virtual int Parse();
+  int Parse() VTK_OVERRIDE;
 
   //@{
   /**
@@ -71,18 +71,18 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
    * virtual overloads. This function simply call Parse(); the arguments are
    * ignored.
    */
-  virtual int Parse(const char *);
-  virtual int Parse(const char *, unsigned int);
+  int Parse(const char *) VTK_OVERRIDE;
+  int Parse(const char *, unsigned int) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkBlueObeliskDataParser();
-  ~vtkBlueObeliskDataParser();
+  ~vtkBlueObeliskDataParser() VTK_OVERRIDE;
 
-  void StartElement(const char *name, const char **attr);
-  void EndElement(const char *name);
+  void StartElement(const char *name, const char **attr) VTK_OVERRIDE;
+  void EndElement(const char *name) VTK_OVERRIDE;
 
-  void CharacterDataHandler(const char *data, int length);
+  void CharacterDataHandler(const char *data, int length) VTK_OVERRIDE;
 
   void SetCurrentValue(const char *data, int length);
   void SetCurrentValue(const char *data);

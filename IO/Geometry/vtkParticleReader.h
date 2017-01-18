@@ -46,7 +46,7 @@ class VTKIOGEOMETRY_EXPORT vtkParticleReader : public vtkPolyDataAlgorithm
 public:
   static vtkParticleReader *New();
   vtkTypeMacro(vtkParticleReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -129,15 +129,15 @@ public:
 
 protected:
   vtkParticleReader();
-  ~vtkParticleReader();
+  ~vtkParticleReader() VTK_OVERRIDE;
 
   void OpenFile();
 
   char *FileName;
   ifstream *File;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   //@{
   /**

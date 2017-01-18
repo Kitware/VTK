@@ -56,7 +56,7 @@ class VTKRENDERINGCORE_EXPORT vtkPicker : public vtkAbstractPropPicker
 public:
   static vtkPicker *New();
   vtkTypeMacro(vtkPicker, vtkAbstractPropPicker);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -119,8 +119,8 @@ public:
    * the third value is =0. Return non-zero if something was successfully
    * picked.
    */
-  virtual int Pick(double selectionX, double selectionY, double selectionZ,
-                   vtkRenderer *renderer);
+  int Pick(double selectionX, double selectionY, double selectionZ,
+                   vtkRenderer *renderer) VTK_OVERRIDE;
 
   /**
    * Perform pick operation with selection point provided. Normally the first
@@ -132,14 +132,14 @@ public:
 
 protected:
   vtkPicker();
-  ~vtkPicker();
+  ~vtkPicker() VTK_OVERRIDE;
 
   void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m,
                   double tMin, double mapperPos[3]);
   virtual double IntersectWithLine(double p1[3], double p2[3], double tol,
                                   vtkAssemblyPath *path, vtkProp3D *p,
                                   vtkAbstractMapper3D *m);
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   double Tolerance;  //tolerance for computation (% of window)
   double MapperPosition[3]; //selection point in untransformed coordinates

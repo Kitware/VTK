@@ -34,7 +34,7 @@ class VTKFILTERSMODELING_EXPORT vtkOutlineFilter : public vtkPolyDataAlgorithm
 public:
   static vtkOutlineFilter *New();
   vtkTypeMacro(vtkOutlineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -47,12 +47,12 @@ public:
 
 protected:
   vtkOutlineFilter();
-  ~vtkOutlineFilter();
+  ~vtkOutlineFilter() VTK_OVERRIDE;
 
   int GenerateFaces;
   vtkOutlineSource *OutlineSource;
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkOutlineFilter(const vtkOutlineFilter&) VTK_DELETE_FUNCTION;

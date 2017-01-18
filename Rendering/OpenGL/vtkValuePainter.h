@@ -41,7 +41,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkValuePainter :
 public:
   static vtkValuePainter* New();
   vtkTypeMacro(vtkValuePainter, vtkStandardPolyDataPainter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -91,18 +91,18 @@ public:
 
 protected:
   vtkValuePainter();
-  ~vtkValuePainter();
+  ~vtkValuePainter() VTK_OVERRIDE;
 
   /**
    * overridden to look for informationkeys that specify what array to draw
    */
-  virtual void ProcessInformation(vtkInformation*);
+  void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
 
   /**
    * overridden to draw the chosen array value directly as color
    */
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-    unsigned long typeflags, bool forceCompileOnly);
+  void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
+    unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
 
   /**
    * overridden

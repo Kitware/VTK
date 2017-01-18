@@ -34,13 +34,13 @@ class VTKIOEXPORTOPENGL2_EXPORT vtkOpenGLGL2PSExporter: public vtkGL2PSExporter
 public:
   static vtkOpenGLGL2PSExporter *New();
   vtkTypeMacro(vtkOpenGLGL2PSExporter, vtkGL2PSExporter)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLGL2PSExporter();
-  ~vtkOpenGLGL2PSExporter();
+  ~vtkOpenGLGL2PSExporter() VTK_OVERRIDE;
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
   bool RasterizeBackground(vtkImageData *image);
   bool CaptureVectorProps();

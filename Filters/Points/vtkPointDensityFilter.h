@@ -98,7 +98,7 @@ public:
    */
   static vtkPointDensityFilter *New();
   vtkTypeMacro(vtkPointDensityFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -236,7 +236,7 @@ public:
 
 protected:
   vtkPointDensityFilter();
-  ~vtkPointDensityFilter();
+  ~vtkPointDensityFilter() VTK_OVERRIDE;
 
   int SampleDimensions[3]; // dimensions of volume over which to estimate density
   double ModelBounds[6]; // bounding box of splatting dimensions
@@ -250,13 +250,13 @@ protected:
   bool ComputeGradient; // Compute the gradient vector and magnitude
   vtkAbstractPointLocator *Locator; //accelerate point searches
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int RequestInformation (vtkInformation *,
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData(vtkInformation *,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   void ComputeModelBounds(vtkDataSet *input, vtkImageData *output,
                           vtkInformation *outInfo);

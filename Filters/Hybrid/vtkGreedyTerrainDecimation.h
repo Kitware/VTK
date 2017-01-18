@@ -90,7 +90,7 @@ class VTKFILTERSHYBRID_EXPORT vtkGreedyTerrainDecimation : public vtkPolyDataAlg
 {
 public:
   vtkTypeMacro(vtkGreedyTerrainDecimation,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate the class.
@@ -179,10 +179,10 @@ public:
 
 protected:
   vtkGreedyTerrainDecimation();
-  ~vtkGreedyTerrainDecimation();
+  ~vtkGreedyTerrainDecimation() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   int ComputeNormals;
   vtkFloatArray* Normals;

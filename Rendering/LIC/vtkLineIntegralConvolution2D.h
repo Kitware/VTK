@@ -109,7 +109,7 @@ class VTKRENDERINGLIC_EXPORT vtkLineIntegralConvolution2D : public vtkObject
 public:
   static vtkLineIntegralConvolution2D *New();
   vtkTypeMacro(vtkLineIntegralConvolution2D, vtkObject);
-  void PrintSelf(ostream & os, vtkIndent indent);
+  void PrintSelf(ostream & os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Returns if the context supports the required extensions.
@@ -369,7 +369,7 @@ public:
 
 protected:
   vtkLineIntegralConvolution2D();
-  virtual ~vtkLineIntegralConvolution2D();
+  ~vtkLineIntegralConvolution2D() VTK_OVERRIDE;
 
   void SetVTShader(vtkShaderProgram2 *prog);
   void SetLIC0Shader(vtkShaderProgram2 *prog);

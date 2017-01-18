@@ -77,7 +77,7 @@ class VTKINTERACTIONIMAGE_EXPORT vtkImageViewer2 : public vtkObject
 public:
   static vtkImageViewer2 *New();
   vtkTypeMacro(vtkImageViewer2,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the name of rendering window.
@@ -229,7 +229,7 @@ public:
 
 protected:
   vtkImageViewer2();
-  ~vtkImageViewer2();
+  ~vtkImageViewer2() VTK_OVERRIDE;
 
   virtual void InstallPipeline();
   virtual void UnInstallPipeline();

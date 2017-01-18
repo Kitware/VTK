@@ -48,7 +48,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleFlight : public vtkInteractor
 public:
   static vtkInteractorStyleFlight *New();
   vtkTypeMacro(vtkInteractorStyleFlight,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Move the Eye/Camera to a specific location (no intermediate
@@ -118,23 +118,23 @@ public:
   /**
    * Concrete implementation of Mouse event bindings for flight
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Concrete implementation of Keyboard event bindings for flight
    */
-  virtual void OnChar();
-  virtual void OnKeyDown();
-  virtual void OnKeyUp();
-  virtual void OnTimer();
+  void OnChar() VTK_OVERRIDE;
+  void OnKeyDown() VTK_OVERRIDE;
+  void OnKeyUp() VTK_OVERRIDE;
+  void OnTimer() VTK_OVERRIDE;
   //
   virtual void ForwardFly();
   virtual void ReverseFly();
@@ -147,7 +147,7 @@ public:
 
 protected:
    vtkInteractorStyleFlight();
-  ~vtkInteractorStyleFlight();
+  ~vtkInteractorStyleFlight() VTK_OVERRIDE;
 
   //@{
   /**

@@ -45,6 +45,7 @@ class vtkContextDevice2D;
 class vtkPen;
 class vtkBrush;
 class vtkImageData;
+class vtkPolyData;
 class vtkTransform2D;
 class vtkAbstractContextBufferId;
 
@@ -52,7 +53,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContext2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContext2D, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Painter object.
@@ -334,6 +335,13 @@ public:
    */
   void DrawImage(const vtkRectf& pos, vtkImageData *image);
 
+  /**
+   * Draw the supplied polyData at the given x, y position (bottom corner).
+   * \note Supports only 2D meshes.
+   */
+  void DrawPolyData(float x, float y, vtkPolyData* polyData,
+    vtkUnsignedCharArray* colors, int scalarMode);
+
   //@{
   /**
    * Draw some text to the screen in a bounding rectangle with the alignment
@@ -521,7 +529,7 @@ public:
 
 protected:
   vtkContext2D();
-  ~vtkContext2D();
+  ~vtkContext2D() VTK_OVERRIDE;
 
   vtkContextDevice2D *Device; // The underlying device
   vtkTransform2D *Transform;  // Current transform

@@ -53,7 +53,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPointHandleRepresentation2D,vtkHandleRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -71,7 +71,7 @@ public:
    * the superclasses SetDisplayPosition in order to set the focal point
    * of the cursor.
    */
-  virtual void SetDisplayPosition(double xyz[3]);
+  void SetDisplayPosition(double xyz[3]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -89,25 +89,25 @@ public:
    * methods. These are the methods that the widget and its representation
    * use to communicate with each other.
    */
-  virtual double *GetBounds();
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  double *GetBounds() VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  virtual void ShallowCopy(vtkProp *prop);
-  virtual void DeepCopy(vtkProp *prop);
-  virtual void GetActors2D(vtkPropCollection *);
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-  virtual int RenderOverlay(vtkViewport *viewport);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void DeepCopy(vtkProp *prop) VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
-  void Highlight(int highlight);
+  void Highlight(int highlight) VTK_OVERRIDE;
 
   /**
    * Override the superclass implementation. This class does not use a
@@ -115,11 +115,11 @@ public:
    * space. Since this class constrains points to lie in an overlay
    * plane anyway, we don't care. Just returns.
    */
-  virtual void SetPointPlacer ( vtkPointPlacer * );
+  void SetPointPlacer ( vtkPointPlacer * ) VTK_OVERRIDE;
 
 protected:
   vtkPointHandleRepresentation2D();
-  ~vtkPointHandleRepresentation2D();
+  ~vtkPointHandleRepresentation2D() VTK_OVERRIDE;
 
   // Render the cursor
   vtkActor2D           *Actor;

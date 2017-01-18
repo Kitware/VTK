@@ -66,7 +66,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkCheckerboardWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -74,7 +74,7 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  virtual void SetEnabled(int);
+  void SetEnabled(int) VTK_OVERRIDE;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -93,11 +93,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkCheckerboardWidget();
-  ~vtkCheckerboardWidget();
+  ~vtkCheckerboardWidget() VTK_OVERRIDE;
 
   // The four slider widgets
   vtkSliderWidget *TopSlider;

@@ -35,7 +35,7 @@ class VTKIOCORE_EXPORT vtkInputStream : public vtkObject
 public:
   vtkTypeMacro(vtkInputStream,vtkObject);
   static vtkInputStream *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkInputStream();
-  ~vtkInputStream();
+  ~vtkInputStream() VTK_OVERRIDE;
 
   // The real input stream.
   istream* Stream;

@@ -36,7 +36,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkChooserPainter : public vtkPolyDataPainter
 public:
   static vtkChooserPainter *New();
   vtkTypeMacro(vtkChooserPainter, vtkPolyDataPainter);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   void SetVertPainter(vtkPolyDataPainter*);
   void SetLinePainter(vtkPolyDataPainter*);
@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkChooserPainter();
-  ~vtkChooserPainter();
+  ~vtkChooserPainter() VTK_OVERRIDE;
 
   vtkPolyDataPainter *VertPainter;
   vtkPolyDataPainter *LinePainter;
@@ -69,7 +69,7 @@ protected:
    * but before RenderInternal().
    * Overridden to setup the the painters if needed.
    */
-  virtual void PrepareForRendering(vtkRenderer*, vtkActor*);
+  void PrepareForRendering(vtkRenderer*, vtkActor*) VTK_OVERRIDE;
 
   /**
    * Called to pick which painters to used based on the current state of
@@ -104,8 +104,8 @@ protected:
    * DelegatePainter is in sync with this painter i.e. UpdatePainter()
    * has been called.
    */
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-                              unsigned long typeflags, bool forceCompileOnly);
+  void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
+                              unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
 
   /**
    * Take part in garbage collection.

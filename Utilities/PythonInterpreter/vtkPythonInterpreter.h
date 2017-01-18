@@ -62,7 +62,7 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
 public:
   static vtkPythonInterpreter* New();
   vtkTypeMacro(vtkPythonInterpreter, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Call this method to initialize Python. This has no effect if Python is

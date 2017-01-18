@@ -59,7 +59,7 @@ public:
    * Standard methids for printing and determining type information.
    */
   vtkTypeMacro(vtkDijkstraGraphGeodesicPath,vtkGraphGeodesicPath);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -112,10 +112,10 @@ public:
 
 protected:
   vtkDijkstraGraphGeodesicPath();
-  ~vtkDijkstraGraphGeodesicPath();
+  ~vtkDijkstraGraphGeodesicPath() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   // Build a graph description of the input.
   virtual void BuildAdjacency( vtkDataSet *inData );

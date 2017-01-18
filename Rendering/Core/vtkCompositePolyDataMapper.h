@@ -49,36 +49,36 @@ public:
    * Standard method for rendering a mapper. This method will be
    * called by the actor.
    */
-  void Render(vtkRenderer *ren, vtkActor *a);
+  void Render(vtkRenderer *ren, vtkActor *a) VTK_OVERRIDE;
 
   //@{
   /**
    * Standard vtkProp method to get 3D bounds of a 3D prop
    */
-  double *GetBounds();
-  void GetBounds(double bounds[6]) { this->Superclass::GetBounds( bounds ); };
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE { this->Superclass::GetBounds( bounds ); };
   //@}
 
   /**
    * Release the underlying resources associated with this mapper
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
 protected:
   vtkCompositePolyDataMapper();
-  ~vtkCompositePolyDataMapper();
+  ~vtkCompositePolyDataMapper() VTK_OVERRIDE;
 
   /**
    * We need to override this method because the standard streaming
    * demand driven pipeline is not what we want - we are expecting
    * hierarchical data as input
    */
-  vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   /**
    * Need to define the type of data handled by this mapper.
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * This is the build method for creating the internal polydata

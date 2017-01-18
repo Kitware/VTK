@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeRayCastFunction() {}
-  ~vtkUnstructuredGridVolumeRayCastFunction() {}
+  ~vtkUnstructuredGridVolumeRayCastFunction()VTK_OVERRIDE {}
 
 private:
   vtkUnstructuredGridVolumeRayCastFunction(const vtkUnstructuredGridVolumeRayCastFunction&) VTK_DELETE_FUNCTION;

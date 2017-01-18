@@ -67,7 +67,7 @@ public:
 
   static vtkDIMACSGraphReader *New();
   vtkTypeMacro(vtkDIMACSGraphReader, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -96,11 +96,11 @@ public:
 protected:
 
   vtkDIMACSGraphReader();
-  ~vtkDIMACSGraphReader();
+  ~vtkDIMACSGraphReader() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   int buildGenericGraph(vtkGraph     * output,
                         vtkStdString & defaultVertexAttrArrayName,
@@ -112,9 +112,9 @@ protected:
   /**
    * Creates directed or undirected output based on Directed flag.
    */
-  virtual int RequestDataObject(vtkInformation*,
+  int RequestDataObject(vtkInformation*,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int ReadGraphMetaData();
 

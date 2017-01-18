@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkImageFourierFilter() {}
-  ~vtkImageFourierFilter() {}
+  ~vtkImageFourierFilter()VTK_OVERRIDE {}
 
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out,
                        int N, int bsize, int fb);
@@ -124,7 +124,7 @@ protected:
    */
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector);
+                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 private:
   vtkImageFourierFilter(const vtkImageFourierFilter&) VTK_DELETE_FUNCTION;

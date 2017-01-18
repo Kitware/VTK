@@ -66,7 +66,7 @@ public:
    */
   static vtkRadiusOutlierRemoval *New();
   vtkTypeMacro(vtkRadiusOutlierRemoval,vtkPointCloudFilter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkRadiusOutlierRemoval();
-  ~vtkRadiusOutlierRemoval();
+  ~vtkRadiusOutlierRemoval() VTK_OVERRIDE;
 
   double Radius;
   int NumberOfNeighbors;
@@ -106,7 +106,7 @@ protected:
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  virtual int FilterPoints(vtkPointSet *input);
+  int FilterPoints(vtkPointSet *input) VTK_OVERRIDE;
 
 private:
   vtkRadiusOutlierRemoval(const vtkRadiusOutlierRemoval&) VTK_DELETE_FUNCTION;

@@ -38,7 +38,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkVASPAnimationReader:
 public:
   static vtkVASPAnimationReader* New();
   vtkTypeMacro(vtkVASPAnimationReader, vtkMoleculeAlgorithm)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -50,14 +50,14 @@ public:
 
 protected:
   vtkVASPAnimationReader();
-  ~vtkVASPAnimationReader();
+  ~vtkVASPAnimationReader() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inInfoVecs,
-                          vtkInformationVector *outInfoVec);
-  virtual int RequestInformation(vtkInformation *request,
+                          vtkInformationVector *outInfoVec) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inInfoVecs,
-                                 vtkInformationVector *outInfoVec);
+                                 vtkInformationVector *outInfoVec) VTK_OVERRIDE;
 
   /**
    * Advance @a in to the start of the data for the next timestep. Parses the

@@ -37,7 +37,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPMultiBlockDataWriter : public vtkXMLMultiBl
 public:
   static vtkXMLPMultiBlockDataWriter* New();
   vtkTypeMacro(vtkXMLPMultiBlockDataWriter, vtkXMLMultiBlockDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -72,16 +72,16 @@ public:
    * is set to flag only on process 0 and all other processes have
    * WriteMetaFile set to 0 by default.
    */
-  virtual void SetWriteMetaFile(int flag);
+  void SetWriteMetaFile(int flag) VTK_OVERRIDE;
 
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*);
+                     vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkXMLPMultiBlockDataWriter();
-  ~vtkXMLPMultiBlockDataWriter();
+  ~vtkXMLPMultiBlockDataWriter() VTK_OVERRIDE;
 
   /**
    * Determine the data types for each of the leaf nodes.
@@ -91,7 +91,7 @@ protected:
    * that a piece of a dataset may be distributed in multiple pieces
    * over multiple processes.
    */
-  virtual void FillDataTypes(vtkCompositeDataSet*);
+  void FillDataTypes(vtkCompositeDataSet*) VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 
@@ -104,8 +104,8 @@ protected:
    * no files were written from compositeData.  Process 0 creates
    * the metadata for all of the processes/files.
    */
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
-                             vtkXMLDataElement* parent, int &currentFileIndex);
+  int WriteComposite(vtkCompositeDataSet* compositeData,
+                             vtkXMLDataElement* parent, int &currentFileIndex) VTK_OVERRIDE;
 
   /**
    * Internal method to write a non vtkCompositeDataSet subclass as
@@ -134,7 +134,7 @@ protected:
    * Utility function to remove any already written files
    * in case writer failed.
    */
-  virtual void RemoveWrittenFiles(const char* subDirectory);
+  void RemoveWrittenFiles(const char* subDirectory) VTK_OVERRIDE;
 
   //@{
   /**

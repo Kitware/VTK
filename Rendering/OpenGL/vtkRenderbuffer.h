@@ -34,7 +34,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderbuffer : public vtkObject
 public:
   static vtkRenderbuffer* New();
   vtkTypeMacro(vtkRenderbuffer, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Returns if the context supports the required extensions.
@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkRenderbuffer();
-  ~vtkRenderbuffer();
+  ~vtkRenderbuffer() VTK_OVERRIDE;
 
   bool LoadRequiredExtensions(vtkRenderWindow *renWin);
   void Alloc();

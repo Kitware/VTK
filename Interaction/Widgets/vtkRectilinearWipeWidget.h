@@ -96,7 +96,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkRectilinearWipeWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -116,11 +116,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  virtual void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkRectilinearWipeWidget();
-  ~vtkRectilinearWipeWidget();
+  ~vtkRectilinearWipeWidget() VTK_OVERRIDE;
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
@@ -128,7 +128,7 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
 
   // helper methods for cursor management
-  void SetCursor(int state);
+  void SetCursor(int state) VTK_OVERRIDE;
 
   // Manage the state of the widget
   int WidgetState;

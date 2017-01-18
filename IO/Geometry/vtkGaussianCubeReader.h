@@ -38,26 +38,23 @@ class VTKIOGEOMETRY_EXPORT vtkGaussianCubeReader : public vtkMoleculeReaderBase
 public:
   static vtkGaussianCubeReader *New();
   vtkTypeMacro(vtkGaussianCubeReader,vtkMoleculeReaderBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkGetObjectMacro(Transform,vtkTransform);
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
   vtkImageData *GetGridOutput();
 
 protected:
   vtkGaussianCubeReader();
-  ~vtkGaussianCubeReader();
+  ~vtkGaussianCubeReader() VTK_OVERRIDE;
 
-  char *FileName;
   vtkTransform *Transform;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  void ReadSpecificMolecule(FILE* fp);
+  void ReadSpecificMolecule(FILE* fp) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 private:
   vtkGaussianCubeReader(const vtkGaussianCubeReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGaussianCubeReader&) VTK_DELETE_FUNCTION;

@@ -52,17 +52,17 @@ class VTKRENDERINGOPENGL2_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWi
 public:
   static vtkCocoaRenderWindow *New();
   vtkTypeMacro(vtkCocoaRenderWindow,vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Begin the rendering process.
    */
-  virtual void Start();
+  void Start() VTK_OVERRIDE;
 
   /**
    * Finish the rendering process.
    */
-  virtual void Frame();
+  void Frame() VTK_OVERRIDE;
 
   /**
    * Specify various window parameters.
@@ -77,7 +77,7 @@ public:
   /**
    * Initialize the rendering window.
    */
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   /**
    * Change the window to fill the entire screen.  This is only partially
@@ -85,12 +85,12 @@ public:
    * before the window has been created, and it might not work on all
    * versions of OS X.
    */
-  virtual void SetFullScreen(int);
+  void SetFullScreen(int) VTK_OVERRIDE;
 
   /**
    * Remap the window.  This is not implemented for the vtkCocoaRenderWindow.
    */
-  virtual void WindowRemap();
+  void WindowRemap() VTK_OVERRIDE;
 
   /**
    * Set the preferred window size to full screen.  This is not implemented
@@ -102,53 +102,53 @@ public:
   /**
    * Set the size of the window in pixels.
    */
-  virtual void SetSize(int a[2]);
-  virtual void SetSize(int,int);
+  void SetSize(int a[2]) VTK_OVERRIDE;
+  void SetSize(int,int) VTK_OVERRIDE;
   //@}
 
   /**
    * Get the current size of the window in pixels.
    */
-  virtual int *GetSize();
+  int *GetSize() VTK_OVERRIDE;
 
   //@{
   /**
    * Set the position of the window.
    */
-  virtual void SetPosition(int a[2]);
-  virtual void SetPosition(int,int);
+  void SetPosition(int a[2]) VTK_OVERRIDE;
+  void SetPosition(int,int) VTK_OVERRIDE;
   //@}
 
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int *GetScreenSize();
+  int *GetScreenSize() VTK_OVERRIDE;
 
   /**
    * Get the position in screen coordinates of the window.
    */
-  virtual int *GetPosition();
+  int *GetPosition() VTK_OVERRIDE;
 
   /**
    * Set the name of the window. This appears at the top of the window
    * normally.
    */
-  virtual void SetWindowName(const char *);
+  void SetWindowName(const char *) VTK_OVERRIDE;
 
-  void SetNextWindowInfo(char *)
+  void SetNextWindowInfo(char *) VTK_OVERRIDE
   {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
   }
-  virtual void* GetGenericDrawable()
+  void* GetGenericDrawable() VTK_OVERRIDE
   {
       vtkWarningMacro("Method not implemented.");
       return 0;
   }
-  virtual void SetDisplayId(void*)
+  void SetDisplayId(void*) VTK_OVERRIDE
   {
       vtkWarningMacro("Method not implemented.");
   }
-  virtual void *GetGenericDisplayId()
+  void *GetGenericDisplayId() VTK_OVERRIDE
   {
       vtkWarningMacro("Method not implemented.");
       return 0;
@@ -159,16 +159,16 @@ public:
    * The paramater is an ASCII string of a decimal number representing
    * a pointer to the window.
    */
-  virtual void SetWindowInfo(char*);
+  void SetWindowInfo(char*) VTK_OVERRIDE;
 
   /**
    * See the documenation for SetParentId().  This method allows the ParentId
    * to be set as an ASCII string of a decimal number that is the memory
    * address of the parent NSView.
    */
-  virtual void SetParentInfo(char*);
+  void SetParentInfo(char*) VTK_OVERRIDE;
 
-  void SetNextWindowId(void*)
+  void SetNextWindowId(void*) VTK_OVERRIDE
   {
       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
   }
@@ -177,12 +177,12 @@ public:
    * Initialize the render window from the information associated
    * with the currently activated OpenGL context.
    */
-  virtual bool InitializeFromCurrentContext();
+  bool InitializeFromCurrentContext() VTK_OVERRIDE;
 
   /**
    * Update system if needed due to stereo rendering.
    */
-  virtual void StereoUpdate();
+  void StereoUpdate() VTK_OVERRIDE;
 
   /**
    * Prescribe that the window be created in a stereo-capable mode. This
@@ -190,17 +190,17 @@ public:
    * overrrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  virtual void SetStereoCapableWindow(int capable);
+  void SetStereoCapableWindow(int capable) VTK_OVERRIDE;
 
   /**
    * Make this windows OpenGL context the current context.
    */
-  virtual void MakeCurrent();
+  void MakeCurrent() VTK_OVERRIDE;
 
   /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
-  virtual bool IsCurrent();
+  bool IsCurrent() VTK_OVERRIDE;
 
   /**
    * Test if the window has a valid drawable. This is
@@ -208,7 +208,7 @@ public:
    * to an invalid drawable results in all OpenGL calls to fail
    * with "invalid framebuffer operation".
    */
-  virtual bool IsDrawable();
+  bool IsDrawable() VTK_OVERRIDE;
 
   /**
    * Update this window's OpenGL context, e.g. when the window is resized.
@@ -218,25 +218,25 @@ public:
   /**
    * Get report of capabilities for the render window
    */
-  const char *ReportCapabilities();
+  const char *ReportCapabilities() VTK_OVERRIDE;
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect();
+  int IsDirect() VTK_OVERRIDE;
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.
    * MakeCurrent() reverts to original behavior of cache-checking
    * on the next render.
    */
-  virtual void SetForceMakeCurrent();
+  void SetForceMakeCurrent() VTK_OVERRIDE;
 
   /**
    * Check to see if an event is pending for this window.
    * This is a useful check to abort a long render.
    */
-  virtual  int GetEventPending();
+   int GetEventPending() VTK_OVERRIDE;
 
   //@{
   /**
@@ -250,7 +250,7 @@ public:
   /**
    * Clean up device contexts, rendering contexts, etc.
    */
-  void Finalize();
+  void Finalize() VTK_OVERRIDE;
 
   //@{
   /**
@@ -259,15 +259,15 @@ public:
    * Set cursor position in window (note that (0,0) is the lower left
    * corner).
    */
-  virtual void HideCursor();
-  virtual void ShowCursor();
-  virtual void SetCursorPosition(int x, int y);
+  void HideCursor() VTK_OVERRIDE;
+  void ShowCursor() VTK_OVERRIDE;
+  void SetCursorPosition(int x, int y) VTK_OVERRIDE;
   //@}
 
   /**
    * Change the shape of the cursor.
    */
-  virtual void SetCurrentCursor(int);
+  void SetCurrentCursor(int) VTK_OVERRIDE;
 
   /**
    * Get the ViewCreated flag. It is 1 if this object created an instance
@@ -287,7 +287,7 @@ public:
    */
   void SetContextId(void *);
   void *GetContextId();
-  virtual void *GetGenericContext()   {return this->GetContextId();}
+  void *GetGenericContext() VTK_OVERRIDE   {return this->GetContextId();}
   //@}
 
   /**
@@ -317,13 +317,13 @@ public:
    * and SetWindowId(), respectively, early on (before WindowInitialize()
    * is executed). In the case of Java, you should call only SetWindowId().
    */
-  virtual void SetWindowId(void *);
+  void SetWindowId(void *) VTK_OVERRIDE;
 
   /**
    * Returns the NSView* associated with this vtkRenderWindow.
    */
   virtual void *GetWindowId();
-  virtual void *GetGenericWindowId() {return this->GetWindowId();}
+  void *GetGenericWindowId() VTK_OVERRIDE {return this->GetWindowId();}
 
   /**
    * Set the NSView* for the vtkRenderWindow to be parented within.  The
@@ -331,7 +331,7 @@ public:
    * NSView that the vtkRenderWindow will create within this parent.
    * If you set the WindowId, then this ParentId will be ignored.
    */
-  virtual void SetParentId(void *nsview);
+  void SetParentId(void *nsview) VTK_OVERRIDE;
 
   /**
    * Get the parent NSView* for this vtkRenderWindow.  This method will
@@ -339,7 +339,7 @@ public:
    * SetParentInfo().
    */
   virtual void *GetParentId();
-  virtual void *GetGenericParentId() { return this->GetParentId(); }
+  void *GetGenericParentId() VTK_OVERRIDE { return this->GetParentId(); }
 
   //@{
   /**
@@ -357,20 +357,20 @@ public:
    * and when done releasing resources restore
    * the prior context
    */
-  virtual void PushContext();
-  virtual void PopContext();
+  void PushContext() VTK_OVERRIDE;
+  void PopContext() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkCocoaRenderWindow();
-  ~vtkCocoaRenderWindow();
+  ~vtkCocoaRenderWindow() VTK_OVERRIDE;
 
   std::stack<void *> ContextStack;
 
   void CreateGLContext();
 
-  void CreateAWindow();
-  void DestroyWindow();
+  void CreateAWindow() VTK_OVERRIDE;
+  void DestroyWindow() VTK_OVERRIDE;
   void DestroyOffScreenWindow();
 
   int OffScreenInitialized;

@@ -38,8 +38,8 @@ class VTKRENDERINGCORE_EXPORT vtkDataSetMapper : public vtkMapper
 public:
   static vtkDataSetMapper *New();
   vtkTypeMacro(vtkDataSetMapper, vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
-  void Render(vtkRenderer *ren, vtkActor *act);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   //@{
   /**
@@ -53,12 +53,12 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Get the mtime also considering the lookup table.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkDataSetMapper();
-  ~vtkDataSetMapper();
+  ~vtkDataSetMapper() VTK_OVERRIDE;
 
   vtkDataSetSurfaceFilter *GeometryExtractor;
   vtkPolyDataMapper *PolyDataMapper;
@@ -78,7 +78,7 @@ protected:
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkDataSetMapper(const vtkDataSetMapper&) VTK_DELETE_FUNCTION;

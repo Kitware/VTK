@@ -36,7 +36,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotHistogram2D : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotHistogram2D, vtkPlot);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a new object.
@@ -48,12 +48,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the item, called whenever it needs to be drawn.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Set the input, we are expecting a vtkImageData with just one component,
@@ -61,8 +61,8 @@ public:
    * functions as a double to generate a color.
    */
   virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
-  virtual void SetInputData(vtkTable*) { }
-  virtual void SetInputData(vtkTable*, const vtkStdString&, const vtkStdString&) { }
+  void SetInputData(vtkTable*)VTK_OVERRIDE { }
+  void SetInputData(vtkTable*, const vtkStdString&, const vtkStdString&)VTK_OVERRIDE { }
 
   /**
    * Get the input table used by the plot.
@@ -80,7 +80,7 @@ public:
    */
   vtkScalarsToColors * GetTransferFunction();
 
-  virtual void GetBounds(double bounds[4]);
+  void GetBounds(double bounds[4]) VTK_OVERRIDE;
 
   virtual void SetPosition(const vtkRectf& pos);
   virtual vtkRectf GetPosition();
@@ -103,9 +103,9 @@ public:
    * Any other characters or unrecognized format tags are printed in the
    * tooltip label verbatim.
    */
-  virtual vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
+  vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex);
+                                       vtkIdType segmentIndex) VTK_OVERRIDE;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
@@ -115,13 +115,13 @@ public:
    * The referent of "location" is set to the x and y integer indices of the
    * histogram cell.
    */
-  virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
+  vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location);
+                                    vtkVector2f* location) VTK_OVERRIDE;
 
 protected:
   vtkPlotHistogram2D();
-  ~vtkPlotHistogram2D();
+  ~vtkPlotHistogram2D() VTK_OVERRIDE;
 
   /**
    * Where all the magic happens...

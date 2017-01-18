@@ -37,7 +37,7 @@ class VTKIMAGINGMATH_EXPORT vtkImageWeightedSum : public vtkThreadedImageAlgorit
 public:
   static vtkImageWeightedSum *New();
   vtkTypeMacro(vtkImageWeightedSum,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkImageWeightedSum();
-  ~vtkImageWeightedSum();
+  ~vtkImageWeightedSum() VTK_OVERRIDE;
 
   // Array to hold all the weights
   vtkDoubleArray *Weights;
@@ -82,14 +82,14 @@ protected:
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
     vtkInformationVector** vtkNotUsed( inputVector ),
-    vtkInformationVector *outputVector);
+    vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id);
-  int FillInputPortInformation(int i, vtkInformation* info);
+                            int ext[6], int id) VTK_OVERRIDE;
+  int FillInputPortInformation(int i, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkImageWeightedSum(const vtkImageWeightedSum&) VTK_DELETE_FUNCTION;

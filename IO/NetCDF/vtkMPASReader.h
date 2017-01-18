@@ -96,7 +96,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
  public:
   static vtkMPASReader *New();
   vtkTypeMacro(vtkMPASReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -230,11 +230,11 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
    */
   static int CanReadFile(const char *filename);
 
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
  protected:
   vtkMPASReader();
-  ~vtkMPASReader();
+  ~vtkMPASReader() VTK_OVERRIDE;
   void ReleaseNcData();
   void DestroyData();
 
@@ -247,9 +247,9 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkCallbackCommand* SelectionObserver;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *);
+                         vtkInformationVector *) VTK_OVERRIDE;
 
 
   static void SelectionCallback(vtkObject* caller, unsigned long eid,

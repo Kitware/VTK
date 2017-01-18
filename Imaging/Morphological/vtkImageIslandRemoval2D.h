@@ -45,7 +45,7 @@ public:
    */
   static vtkImageIslandRemoval2D *New();
   vtkTypeMacro(vtkImageIslandRemoval2D,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -83,16 +83,16 @@ public:
 
 protected:
   vtkImageIslandRemoval2D();
-  ~vtkImageIslandRemoval2D() {}
+  ~vtkImageIslandRemoval2D()VTK_OVERRIDE {}
 
   int AreaThreshold;
   int SquareNeighborhood;
   double IslandValue;
   double ReplaceValue;
 
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&) VTK_DELETE_FUNCTION;

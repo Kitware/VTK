@@ -65,7 +65,7 @@ public:
    * Define standard methods.
    */
   vtkTypeMacro(vtkBorderRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -205,19 +205,19 @@ public:
    * Return the MTime of this object. It takes into account MTimes
    * of position coordinates and border's property.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
    * Subclasses should implement these methods. See the superclasses'
    * documentation for more information.
    */
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double eventPos[2]);
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
   virtual void GetSize(double size[2])
     {size[0]=1.0; size[1]=1.0;}
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -225,17 +225,17 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  virtual void GetActors2D(vtkPropCollection*);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  void GetActors2D(vtkPropCollection*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkBorderRepresentation();
-  ~vtkBorderRepresentation();
+  ~vtkBorderRepresentation() VTK_OVERRIDE;
 
   // Ivars
   int           ShowVerticalBorder;

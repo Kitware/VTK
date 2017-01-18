@@ -40,7 +40,7 @@ public:
   /**
    * The main interface which triggers the writer to start.
    */
-  virtual void Write();
+  void Write() VTK_OVERRIDE;
 
   enum { // Compression types
     NoCompression,
@@ -66,11 +66,11 @@ public:
 
 protected:
   vtkTIFFWriter();
-  ~vtkTIFFWriter() {}
+  ~vtkTIFFWriter() VTK_OVERRIDE {}
 
-  virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
-  virtual void WriteFileTrailer(ofstream *, vtkImageData *);
+  void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]) VTK_OVERRIDE;
+  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) VTK_OVERRIDE;
+  void WriteFileTrailer(ofstream *, vtkImageData *) VTK_OVERRIDE;
 
   void* TIFFPtr;
   int Compression;

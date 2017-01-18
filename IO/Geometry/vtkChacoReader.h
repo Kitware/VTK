@@ -41,7 +41,7 @@ class VTKIOGEOMETRY_EXPORT vtkChacoReader : public vtkUnstructuredGridAlgorithm
 public:
   static vtkChacoReader *New();
   vtkTypeMacro(vtkChacoReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Specify the base name of the Chaco files.  The reader will try to
@@ -162,7 +162,7 @@ public:
 
 protected:
   vtkChacoReader();
-  ~vtkChacoReader();
+  ~vtkChacoReader() VTK_OVERRIDE;
 
   int BuildOutputGrid(vtkUnstructuredGrid *gr);
 
@@ -228,9 +228,9 @@ protected:
   int RemakeDataCacheFlag;
 
   int RequestInformation(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   vtkChacoReader(const vtkChacoReader&) VTK_DELETE_FUNCTION;

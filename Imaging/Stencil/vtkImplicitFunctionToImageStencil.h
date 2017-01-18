@@ -37,7 +37,7 @@ class VTKIMAGINGSTENCIL_EXPORT vtkImplicitFunctionToImageStencil : public vtkIma
 public:
   static vtkImplicitFunctionToImageStencil *New();
   vtkTypeMacro(vtkImplicitFunctionToImageStencil, vtkImageStencilSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -58,14 +58,14 @@ public:
   /**
    * Override GetMTime() to account for the implicit function.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkImplicitFunctionToImageStencil();
-  ~vtkImplicitFunctionToImageStencil();
+  ~vtkImplicitFunctionToImageStencil() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   vtkImplicitFunction *Input;
   double Threshold;

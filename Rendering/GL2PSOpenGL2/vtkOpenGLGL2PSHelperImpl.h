@@ -34,35 +34,35 @@ class VTKRENDERINGGL2PSOPENGL2_EXPORT vtkOpenGLGL2PSHelperImpl
 public:
   static vtkOpenGLGL2PSHelperImpl *New();
   vtkTypeMacro(vtkOpenGLGL2PSHelperImpl, vtkOpenGLGL2PSHelper)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual void ProcessTransformFeedback(vtkTransformFeedback *tfc,
-                                        vtkRenderer *ren, vtkActor *act);
-  virtual void ProcessTransformFeedback(vtkTransformFeedback *tfc,
+  void ProcessTransformFeedback(vtkTransformFeedback *tfc,
+                                        vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren,
-                                        unsigned char col[4]);
-  virtual void ProcessTransformFeedback(vtkTransformFeedback *tfc,
+                                        unsigned char col[4]) VTK_OVERRIDE;
+  void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren,
-                                        float col[4]);
+                                        float col[4]) VTK_OVERRIDE;
 
-  virtual void DrawString(const std::string &str, vtkTextProperty *tprop,
+  void DrawString(const std::string &str, vtkTextProperty *tprop,
                           double pos[3], double backgroundDepth,
-                          vtkRenderer *ren);
+                          vtkRenderer *ren) VTK_OVERRIDE;
 
-  virtual void DrawPath(vtkPath *path, double rasterPos[3], double windowPos[2],
+  void DrawPath(vtkPath *path, double rasterPos[3], double windowPos[2],
                         unsigned char rgba[4], double scale[2] = NULL,
                         double rotateAngle = 0.0, float strokeWidth = -1,
-                        const char *label = NULL);
+                        const char *label = NULL) VTK_OVERRIDE;
 
-  virtual void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
+  void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
                           double rasterPos[3], unsigned char actorColor[4],
-                          vtkRenderer *ren, const char *label = NULL);
+                          vtkRenderer *ren, const char *label = NULL) VTK_OVERRIDE;
 
-  virtual void DrawImage(vtkImageData *image, double pos[3]);
+  void DrawImage(vtkImageData *image, double pos[3]) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLGL2PSHelperImpl();
-  ~vtkOpenGLGL2PSHelperImpl();
+  ~vtkOpenGLGL2PSHelperImpl() VTK_OVERRIDE;
 
   /**
    * Translate the tprop's fontname into a Postscript font name.

@@ -41,20 +41,20 @@ public:
   static vtkBoxLayoutStrategy *New();
 
   vtkTypeMacro(vtkBoxLayoutStrategy,vtkTreeMapLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the layout of a tree and place the results as 4-tuples in
    * coordsArray (Xmin, Xmax, Ymin, Ymax).
    */
-  virtual void Layout(
+  void Layout(
       vtkTree* inputTree,
       vtkDataArray* coordsArray,
-      vtkDataArray* sizeArray);
+      vtkDataArray* sizeArray) VTK_OVERRIDE;
 
 protected:
   vtkBoxLayoutStrategy();
-  ~vtkBoxLayoutStrategy();
+  ~vtkBoxLayoutStrategy() VTK_OVERRIDE;
 
 private:
 

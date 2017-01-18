@@ -43,7 +43,7 @@ class VTKFILTERSAMR_EXPORT vtkAMRGaussianPulseSource :
 public:
   static vtkAMRGaussianPulseSource* New();
   vtkTypeMacro(vtkAMRGaussianPulseSource, vtkOverlappingAMRAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -114,15 +114,15 @@ public:
 
 protected:
   vtkAMRGaussianPulseSource();
-  virtual ~vtkAMRGaussianPulseSource();
+  ~vtkAMRGaussianPulseSource() VTK_OVERRIDE;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector);
+                          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
   //@{
   /**

@@ -38,11 +38,11 @@ public:
   /**
    * Actual actor render method.
    */
-  void Render(vtkRenderer *ren, vtkMapper *mapper);
+  void Render(vtkRenderer *ren, vtkMapper *mapper) VTK_OVERRIDE;
 
 protected:
   vtkOpenGLActor() {}
-  ~vtkOpenGLActor() {}
+  ~vtkOpenGLActor() VTK_OVERRIDE {}
 
 private:
   vtkOpenGLActor(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;

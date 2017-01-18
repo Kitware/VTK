@@ -28,22 +28,22 @@ class VTKCHARTSCORE_EXPORT vtkPiecewiseFunctionItem: public vtkScalarsToColorsIt
 public:
   static vtkPiecewiseFunctionItem* New();
   vtkTypeMacro(vtkPiecewiseFunctionItem, vtkScalarsToColorsItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   void SetPiecewiseFunction(vtkPiecewiseFunction* t);
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
 
 protected:
   vtkPiecewiseFunctionItem();
-  virtual ~vtkPiecewiseFunctionItem();
+  ~vtkPiecewiseFunctionItem() VTK_OVERRIDE;
 
   // Description:
   // Reimplemented to return the range of the piecewise function
-  virtual void ComputeBounds(double bounds[4]);
+  void ComputeBounds(double bounds[4]) VTK_OVERRIDE;
 
   // Description
   // Compute the texture from the PiecewiseFunction
-  virtual void ComputeTexture();
+  void ComputeTexture() VTK_OVERRIDE;
 
   vtkPiecewiseFunction* PiecewiseFunction;
 

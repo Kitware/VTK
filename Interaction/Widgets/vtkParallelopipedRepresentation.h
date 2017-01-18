@@ -61,13 +61,13 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkParallelopipedRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
    * Methods to satisfy the superclass.
    */
-  virtual void GetActors(vtkPropCollection *pc);
+  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
 
   //@{
   /**
@@ -85,7 +85,7 @@ public:
    * Corner 3 - 7 - 4 - 0 - 3  forms a face
    */
   virtual void PlaceWidget(double corners[8][3]);
-  virtual void PlaceWidget(double bounds[6]);
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -113,7 +113,7 @@ public:
   /**
    * The parallelopiped polydata.
    */
-  virtual double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
 
   //@{
   /**
@@ -161,22 +161,22 @@ public:
    * This actually constructs the geometry of the widget from the various
    * data parameters.
    */
-  virtual void BuildRepresentation();
+  void BuildRepresentation() VTK_OVERRIDE;
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
-  virtual int  RenderOverlay(vtkViewport *viewport);
-  virtual int  RenderOpaqueGeometry(vtkViewport *viewport);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  int  RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int  RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Given and x-y display coordinate, compute the interaction state of
    * the widget.
    */
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
 
   // Manage the state of the widget
   enum _InteractionState
@@ -221,7 +221,7 @@ public:
 
 protected:
   vtkParallelopipedRepresentation();
-  ~vtkParallelopipedRepresentation();
+  ~vtkParallelopipedRepresentation() VTK_OVERRIDE;
 
   /**
    * Translate the nth PtId (0 <= n <= 15) by the specified amount.

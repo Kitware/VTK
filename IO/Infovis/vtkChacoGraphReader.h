@@ -56,7 +56,7 @@ class VTKIOINFOVIS_EXPORT vtkChacoGraphReader : public vtkUndirectedGraphAlgorit
 public:
   static vtkChacoGraphReader *New();
   vtkTypeMacro(vtkChacoGraphReader, vtkUndirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -68,12 +68,12 @@ public:
 
 protected:
   vtkChacoGraphReader();
-  ~vtkChacoGraphReader();
+  ~vtkChacoGraphReader() VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   char* FileName;

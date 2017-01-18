@@ -46,13 +46,13 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
 {
  public:
   vtkTypeMacro(vtkPolyDataSourceWidget, vtk3DWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Overrides vtk3DWidget PlaceWidget() so that it doesn't complain if
    * there's no Input and no Prop3D.
    */
-  virtual void PlaceWidget();
+  void PlaceWidget() VTK_OVERRIDE;
 
   /**
    * We have to redeclare this abstract, PlaceWidget() requires it.  You HAVE
@@ -60,13 +60,13 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
    * and no Input, your PlaceWidget must make use of the underlying
    * PolyDataSource to do its work.
    */
-  virtual void PlaceWidget(double bounds[6]) = 0;
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE = 0;
 
   /**
    * Convenience method brought over from vtkPlaneWidget.
    */
   void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax)
+                   double zmin, double zmax) VTK_OVERRIDE
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   /**

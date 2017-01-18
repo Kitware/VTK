@@ -42,11 +42,11 @@ class VTKRENDERINGQT_EXPORT vtkQtInitialization : public vtkObject
 public:
   static vtkQtInitialization* New();
   vtkTypeMacro(vtkQtInitialization, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkQtInitialization();
-  ~vtkQtInitialization();
+  ~vtkQtInitialization() VTK_OVERRIDE;
 
 private:
   vtkQtInitialization(const vtkQtInitialization &) VTK_DELETE_FUNCTION;

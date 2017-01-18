@@ -59,14 +59,14 @@ class VTKRENDERINGLABEL_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDa
 public:
   static vtkLabeledTreeMapDataMapper *New();
   vtkTypeMacro(vtkLabeledTreeMapDataMapper,vtkLabeledDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Draw the text to the screen at each input point.
    */
-  virtual void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
-  virtual void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor);
+  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
+  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) VTK_OVERRIDE;
   //@}
 
   /**
@@ -108,7 +108,7 @@ public:
   /**
    * Release any graphics resources that are being consumed by this actor.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   //@{
   /**
@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkLabeledTreeMapDataMapper();
-  ~vtkLabeledTreeMapDataMapper();
+  ~vtkLabeledTreeMapDataMapper() VTK_OVERRIDE;
   void LabelTree(vtkTree *tree, vtkFloatArray *boxInfo,
                  vtkDataArray *numericData, vtkStringArray *stringData,
                  int activeComp, int numComps);

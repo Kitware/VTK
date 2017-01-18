@@ -62,7 +62,7 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
     /**
      * Print the current connections between VTK and Qt
      */
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     /**
      * Connect a vtk object's event with a Qt object's slot.  Multiple
@@ -97,7 +97,7 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
     void RemoveConnection(vtkQtConnection*);
 
     vtkEventQtSlotConnect();
-    ~vtkEventQtSlotConnect();
+    ~vtkEventQtSlotConnect() VTK_OVERRIDE;
 
   private:
     vtkEventQtSlotConnect(const vtkEventQtSlotConnect&) VTK_DELETE_FUNCTION;

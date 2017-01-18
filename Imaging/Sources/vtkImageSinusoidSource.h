@@ -31,7 +31,7 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageSinusoidSource : public vtkImageAlgorithm
 public:
   static vtkImageSinusoidSource *New();
   vtkTypeMacro(vtkImageSinusoidSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set/Get the extent of the whole output image.
@@ -75,7 +75,7 @@ public:
 
 protected:
   vtkImageSinusoidSource();
-  ~vtkImageSinusoidSource() {}
+  ~vtkImageSinusoidSource()VTK_OVERRIDE {}
 
   int WholeExtent[6];
   double Direction[3];
@@ -83,8 +83,8 @@ protected:
   double Phase;
   double Amplitude;
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
+  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) VTK_OVERRIDE;
 private:
   vtkImageSinusoidSource(const vtkImageSinusoidSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageSinusoidSource&) VTK_DELETE_FUNCTION;

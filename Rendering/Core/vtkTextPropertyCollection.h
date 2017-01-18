@@ -65,7 +65,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
 
 protected:
   vtkTextPropertyCollection();
-  ~vtkTextPropertyCollection();
+  ~vtkTextPropertyCollection() VTK_OVERRIDE;
 
 private:
   // hide the standard AddItem from the user and the compiler.

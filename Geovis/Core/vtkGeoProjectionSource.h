@@ -43,17 +43,17 @@ class VTKGEOVISCORE_EXPORT vtkGeoProjectionSource : public vtkGeoSource
 public:
   static vtkGeoProjectionSource *New();
   vtkTypeMacro(vtkGeoProjectionSource,vtkGeoSource);
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   vtkGeoProjectionSource();
-  ~vtkGeoProjectionSource();
+  ~vtkGeoProjectionSource() VTK_OVERRIDE;
 
   //@{
   /**
    * Blocking methods for sources with low latency.
    */
-  virtual bool FetchRoot(vtkGeoTreeNode* root);
-  virtual bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child);
+  bool FetchRoot(vtkGeoTreeNode* root) VTK_OVERRIDE;
+  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -75,7 +75,7 @@ public:
   /**
    * Return the projection transformation used by this 2D terrain.
    */
-  virtual vtkAbstractTransform* GetTransform();
+  vtkAbstractTransform* GetTransform() VTK_OVERRIDE;
 
 protected:
   void RefineAndComputeError(vtkGeoTerrainNode* node);

@@ -152,11 +152,11 @@ public:
 
 protected:
   vtkEnSightWriter();
-  virtual ~vtkEnSightWriter();
+  ~vtkEnSightWriter() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  virtual void WriteData(); // method to allow this class to be instantiated and delegated to
+  void WriteData() VTK_OVERRIDE; // method to allow this class to be instantiated and delegated to
 
   virtual void WriteStringToFile(const char* string, FILE* file);
   virtual void WriteTerminatedStringToFile(const char* string, FILE* file);

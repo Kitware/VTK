@@ -53,7 +53,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkFastSplatter : public vtkImageAlgorithm
 public:
   vtkTypeMacro(vtkFastSplatter, vtkImageAlgorithm);
   static vtkFastSplatter *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkFastSplatter();
-  virtual ~vtkFastSplatter();
+  ~vtkFastSplatter() VTK_OVERRIDE;
 
   double ModelBounds[6];
   int OutputDimensions[3];
@@ -130,16 +130,16 @@ protected:
 
   vtkImageData *Buckets;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestInformation(vtkInformation *,
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
-                                 vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation*,
+                                 vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
-  virtual int RequestData(vtkInformation *,
+                                  vtkInformationVector*) VTK_OVERRIDE;
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   // Used internally for converting points in world space to indices in
   // the output image.

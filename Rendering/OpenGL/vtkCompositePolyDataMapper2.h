@@ -36,7 +36,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkCompositePolyDataMapper2 : public vtkPainterP
 public:
   static vtkCompositePolyDataMapper2* New();
   vtkTypeMacro(vtkCompositePolyDataMapper2, vtkPainterPolyDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -48,7 +48,7 @@ public:
    * Overridden to use the actual data and ScalarMode to determine if we have
    * opaque geometry.
    */
-  virtual bool GetIsOpaque();
+  bool GetIsOpaque() VTK_OVERRIDE;
 
   //@{
   /**
@@ -95,30 +95,30 @@ public:
 
 protected:
   vtkCompositePolyDataMapper2();
-  ~vtkCompositePolyDataMapper2();
+  ~vtkCompositePolyDataMapper2() VTK_OVERRIDE;
 
   /**
    * We need to override this method because the standard streaming
    * demand driven pipeline is not what we want - we are expecting
    * hierarchical data as input
    */
-  vtkExecutive* CreateDefaultExecutive();
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   /**
    * Need to define the type of data handled by this mapper.
    */
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   /**
    * Need to loop over the hierarchy to compute bounds
    */
-  virtual void ComputeBounds();
+  void ComputeBounds() VTK_OVERRIDE;
 
   /**
    * Called when the PainterInformation becomes obsolete. Overridden to pass
    * CompositeDataDisplayAttributes to the painters.
    */
-  virtual void UpdatePainterInformation();
+  void UpdatePainterInformation() VTK_OVERRIDE;
 
   /**
    * Time stamp for computation of bounds.

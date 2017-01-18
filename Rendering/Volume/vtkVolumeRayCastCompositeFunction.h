@@ -42,7 +42,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVo
 public:
   static vtkVolumeRayCastCompositeFunction *New();
   vtkTypeMacro(vtkVolumeRayCastCompositeFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -59,18 +59,18 @@ public:
   //@}
 
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
-                vtkVolumeRayCastStaticInfo *staticInfo);
+                vtkVolumeRayCastStaticInfo *staticInfo) VTK_OVERRIDE;
 
-  float GetZeroOpacityThreshold( vtkVolume *vol );
+  float GetZeroOpacityThreshold( vtkVolume *vol ) VTK_OVERRIDE;
 
 protected:
   vtkVolumeRayCastCompositeFunction();
-  ~vtkVolumeRayCastCompositeFunction();
+  ~vtkVolumeRayCastCompositeFunction() VTK_OVERRIDE;
 
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
-                                   vtkVolumeRayCastMapper *mapper );
+                                   vtkVolumeRayCastMapper *mapper ) VTK_OVERRIDE;
 
   int           CompositeMethod;
 private:

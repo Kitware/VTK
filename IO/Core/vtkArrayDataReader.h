@@ -45,7 +45,7 @@ class VTKIOCORE_EXPORT vtkArrayDataReader :
 public:
   static vtkArrayDataReader* New();
   vtkTypeMacro(vtkArrayDataReader, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -87,12 +87,12 @@ public:
 
 protected:
   vtkArrayDataReader();
-  ~vtkArrayDataReader();
+  ~vtkArrayDataReader() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   char* FileName;
   vtkStdString InputString;

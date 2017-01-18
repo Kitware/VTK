@@ -63,7 +63,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkInterpolatedVelocityField
 public:
   vtkTypeMacro( vtkInterpolatedVelocityField,
                         vtkCompositeInterpolatedVelocityField );
-  void PrintSelf( ostream & os, vtkIndent indent );
+  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * Construct a vtkInterpolatedVelocityField without an initial dataset.
@@ -77,12 +77,12 @@ public:
    * match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
    * DATASET FOR THREAD SAFETY REASONS.
    */
-  virtual void AddDataSet( vtkDataSet * dataset );
+  void AddDataSet( vtkDataSet * dataset ) VTK_OVERRIDE;
 
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */
-  virtual int FunctionValues( double * x, double * f );
+  int FunctionValues( double * x, double * f ) VTK_OVERRIDE;
 
   /**
    * Project the provided point on current cell, current dataset.
@@ -92,17 +92,17 @@ public:
   /**
    * Set the cell id cached by the last evaluation within a specified dataset.
    */
-  virtual void SetLastCellId( vtkIdType c, int dataindex );
+  void SetLastCellId( vtkIdType c, int dataindex ) VTK_OVERRIDE;
 
   /**
    * Set the cell id cached by the last evaluation.
    */
-  virtual void SetLastCellId( vtkIdType c )
+  void SetLastCellId( vtkIdType c ) VTK_OVERRIDE
     { this->Superclass::SetLastCellId( c ); }
 
 protected:
   vtkInterpolatedVelocityField() { }
-  ~vtkInterpolatedVelocityField() { }
+  ~vtkInterpolatedVelocityField() VTK_OVERRIDE { }
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
@@ -111,7 +111,7 @@ protected:
    * invoking vtkImageData/vtkRectilinearGrid::FindCell() to fulfill the same
    * task if the point is outside the current cell.
    */
-  virtual int FunctionValues( vtkDataSet * ds, double * x, double * f )
+  int FunctionValues( vtkDataSet * ds, double * x, double * f ) VTK_OVERRIDE
     { return this->Superclass::FunctionValues( ds, x, f ); }
 
 private:

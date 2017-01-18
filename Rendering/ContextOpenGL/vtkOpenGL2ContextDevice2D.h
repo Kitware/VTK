@@ -41,7 +41,7 @@ class VTKRENDERINGCONTEXTOPENGL_EXPORT vtkOpenGL2ContextDevice2D :
 {
 public:
   vtkTypeMacro(vtkOpenGL2ContextDevice2D, vtkOpenGLContextDevice2D);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a 2D Painter object.
@@ -59,37 +59,46 @@ public:
    * drawn and the size is set using SetPointSize. Points are colored by colors array
    * which has nc_comps components
    */
-  virtual void DrawPointSprites(vtkImageData *sprite, float *points, int n,
-                                unsigned char* colors = 0, int nc_comps = 0);
+  void DrawPointSprites(vtkImageData *sprite, float *points, int n,
+                                unsigned char* colors = 0, int nc_comps = 0) VTK_OVERRIDE;
 
   /**
    * Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),
    * scaled by scale (1.0 would match the image).
    */
-  virtual void DrawImage(float p[2], float scale, vtkImageData *image);
+  void DrawImage(float p[2], float scale, vtkImageData *image) VTK_OVERRIDE;
 
   /**
    * Draw the supplied image at the given position. The origin, width, and
    * height are specified by the supplied vtkRectf variable pos. The image
    * will be drawn scaled to that size.
    */
-  void DrawImage(const vtkRectf& pos, vtkImageData *image);
+  void DrawImage(const vtkRectf& pos, vtkImageData *image) VTK_OVERRIDE;
+
+  /**
+   * Draw the supplied PolyData at the given x, y (p[0], p[1]) (bottom corner),
+   * scaled by scale (1.0 would match the actual dataset).
+   *
+   * @warning This functionality is not supported with the legacy OpenGL backend.
+   */
+  void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
+    vtkUnsignedCharArray* colors, int scalarMode) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this device.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *window);
+  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
 
 protected:
   vtkOpenGL2ContextDevice2D();
-  virtual ~vtkOpenGL2ContextDevice2D();
+  ~vtkOpenGL2ContextDevice2D() VTK_OVERRIDE;
 
   /**
    * Load the OpenGL extensions we need.
    */
-  virtual bool LoadExtensions(vtkOpenGLExtensionManager *m);
+  bool LoadExtensions(vtkOpenGLExtensionManager *m) VTK_OVERRIDE;
 
 private:
   vtkOpenGL2ContextDevice2D(const vtkOpenGL2ContextDevice2D &) VTK_DELETE_FUNCTION;

@@ -46,7 +46,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkPolyDataAlg
 public:
   static vtkHyperTreeGridAxisCut* New();
   vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkPolyDataAlgorithm );
-  void PrintSelf( ostream&, vtkIndent );
+  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -66,10 +66,10 @@ public:
 
 protected:
   vtkHyperTreeGridAxisCut();
-  ~vtkHyperTreeGridAxisCut();
+  ~vtkHyperTreeGridAxisCut() VTK_OVERRIDE;
 
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
-  virtual int FillInputPortInformation( int, vtkInformation* );
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   void ProcessTrees();
   void RecursiveProcessTree( void* );

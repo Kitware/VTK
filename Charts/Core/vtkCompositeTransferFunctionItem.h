@@ -28,26 +28,26 @@ class VTKCHARTSCORE_EXPORT vtkCompositeTransferFunctionItem: public vtkColorTran
 public:
   static vtkCompositeTransferFunctionItem* New();
   vtkTypeMacro(vtkCompositeTransferFunctionItem, vtkColorTransferFunctionItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
 
 protected:
   vtkCompositeTransferFunctionItem();
-  virtual ~vtkCompositeTransferFunctionItem();
+  ~vtkCompositeTransferFunctionItem() VTK_OVERRIDE;
 
   // Description:
   // Returns true if we are rendering in log space.
   // Since vtkPiecewiseFunction doesn't support log, we show this transfer
   // function in non-log space always.
-  virtual bool UsingLogScale() { return false; }
+  bool UsingLogScale()VTK_OVERRIDE { return false; }
 
   // Description:
   // Reimplemented to return the range of the piecewise function
-  virtual void ComputeBounds(double bounds[4]);
+  void ComputeBounds(double bounds[4]) VTK_OVERRIDE;
 
-  virtual void ComputeTexture();
+  void ComputeTexture() VTK_OVERRIDE;
   vtkPiecewiseFunction* OpacityFunction;
 
 private:

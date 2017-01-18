@@ -77,7 +77,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowInteractor : public vtkObject
 public:
   static vtkRenderWindowInteractor *New();
   vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -96,7 +96,7 @@ public:
    * This Method detects loops of RenderWindow-Interactor,
    * so objects are freed properly.
    */
-  virtual void UnRegister(vtkObjectBase *o);
+  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
 
   /**
    * Start the event loop. This is provided so that you do not have to
@@ -783,7 +783,7 @@ public:
 
 protected:
   vtkRenderWindowInteractor();
-  ~vtkRenderWindowInteractor();
+  ~vtkRenderWindowInteractor() VTK_OVERRIDE;
 
   vtkRenderWindow       *RenderWindow;
   vtkInteractorObserver *InteractorStyle;

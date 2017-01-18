@@ -20,4 +20,7 @@ vtk_module(vtkWebCore
     vtkRenderingCore
     vtkWebGLExporter
     vtksys
+  COMPILE_DEPENDS
+    vtkPython
+  OPTIONAL_PYTHON_LINK
 )

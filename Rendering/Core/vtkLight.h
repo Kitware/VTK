@@ -56,7 +56,7 @@ class VTKRENDERINGCORE_EXPORT vtkLight : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLight,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create a light with the focal point at the origin and its position
@@ -286,7 +286,7 @@ public:
 
 protected:
   vtkLight();
-  ~vtkLight();
+  ~vtkLight() VTK_OVERRIDE;
 
   double FocalPoint[3];
   double Position[3];

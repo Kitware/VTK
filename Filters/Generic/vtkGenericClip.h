@@ -74,7 +74,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericClip : public vtkUnstructuredGridAlgori
 {
 public:
   vtkTypeMacro(vtkGenericClip,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with user-specified implicit function; InsideOut turned off;
@@ -175,7 +175,7 @@ public:
   /**
    * Return the mtime also considering the locator and clip function.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -189,10 +189,10 @@ public:
 
 protected:
   vtkGenericClip(vtkImplicitFunction *cf=NULL);
-  ~vtkGenericClip();
+  ~vtkGenericClip() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation*);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   vtkImplicitFunction *ClipFunction;
 

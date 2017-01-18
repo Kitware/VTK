@@ -39,7 +39,7 @@ public:
   static vtkGeoArcs *New();
 
   vtkTypeMacro(vtkGeoArcs,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -73,9 +73,9 @@ public:
 
 protected:
   vtkGeoArcs();
-  ~vtkGeoArcs() {}
+  ~vtkGeoArcs() VTK_OVERRIDE {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   double GlobeRadius;
   double ExplodeFactor;

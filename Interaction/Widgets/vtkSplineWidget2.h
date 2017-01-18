@@ -36,7 +36,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkSplineWidget2 : public vtkAbstractWidget
 public:
   static vtkSplineWidget2* New();
   vtkTypeMacro(vtkSplineWidget2, vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -53,11 +53,11 @@ public:
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkSplineRepresentation class.
    */
-  void CreateDefaultRepresentation();
+  void CreateDefaultRepresentation() VTK_OVERRIDE;
 
 protected:
   vtkSplineWidget2();
-  ~vtkSplineWidget2();
+  ~vtkSplineWidget2() VTK_OVERRIDE;
 
   int WidgetState;
   enum _WidgetState {Start=0,Active};

@@ -84,7 +84,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericStreamTracer : public vtkPolyDataAlgori
 {
 public:
   vtkTypeMacro(vtkGenericStreamTracer,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object to start from position (0,0,0), integrate forward,
@@ -118,7 +118,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   enum Units
   {
@@ -363,13 +363,13 @@ public:
 
 protected:
   vtkGenericStreamTracer();
-  ~vtkGenericStreamTracer();
+  ~vtkGenericStreamTracer() VTK_OVERRIDE;
 
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkGenericDataSet not a vtkDataObject."); };
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Compute the vorticity at point `pcoords' in cell `cell' for the

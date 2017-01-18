@@ -30,7 +30,7 @@ class VTKIOCORE_EXPORT vtkZLibDataCompressor : public vtkDataCompressor
 {
 public:
   vtkTypeMacro(vtkZLibDataCompressor,vtkDataCompressor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkZLibDataCompressor* New();
 
   /**
@@ -39,7 +39,7 @@ public:
    * size of the output buffer that can be passed to the four-argument
    * Compress method.
    */
-  size_t GetMaximumCompressionSpace(size_t size);
+  size_t GetMaximumCompressionSpace(size_t size) VTK_OVERRIDE;
 
   //@{
   /**
@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkZLibDataCompressor();
-  ~vtkZLibDataCompressor();
+  ~vtkZLibDataCompressor() VTK_OVERRIDE;
 
   int CompressionLevel;
 
@@ -59,12 +59,12 @@ protected:
   size_t CompressBuffer(unsigned char const* uncompressedData,
                         size_t uncompressedSize,
                         unsigned char* compressedData,
-                        size_t compressionSpace);
+                        size_t compressionSpace) VTK_OVERRIDE;
   // Decompression method required by vtkDataCompressor.
   size_t UncompressBuffer(unsigned char const* compressedData,
                           size_t compressedSize,
                           unsigned char* uncompressedData,
-                          size_t uncompressedSize);
+                          size_t uncompressedSize) VTK_OVERRIDE;
 private:
   vtkZLibDataCompressor(const vtkZLibDataCompressor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkZLibDataCompressor&) VTK_DELETE_FUNCTION;

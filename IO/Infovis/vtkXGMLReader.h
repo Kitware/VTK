@@ -42,7 +42,7 @@ class VTKIOINFOVIS_EXPORT vtkXGMLReader : public vtkUndirectedGraphAlgorithm
 public:
   static vtkXGMLReader *New();
   vtkTypeMacro(vtkXGMLReader, vtkUndirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -54,12 +54,12 @@ public:
 
 protected:
   vtkXGMLReader();
-  ~vtkXGMLReader();
+  ~vtkXGMLReader() VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
 private:
   char* FileName;

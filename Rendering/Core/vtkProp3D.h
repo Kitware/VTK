@@ -44,12 +44,12 @@ class VTKRENDERINGCORE_EXPORT vtkProp3D : public vtkProp
 {
 public:
   vtkTypeMacro(vtkProp3D,vtkProp);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Shallow copy of this vtkProp3D.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   //@{
   /**
@@ -181,7 +181,7 @@ public:
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
   void GetBounds(double bounds[6]);
-  virtual double *GetBounds() = 0;
+  double *GetBounds() VTK_OVERRIDE = 0;
   //@}
 
   /**
@@ -300,18 +300,18 @@ public:
    * vtkProp3D will be restored. This method is used to support
    * picking and assembly structures.
    */
-  void PokeMatrix(vtkMatrix4x4 *matrix);
+  void PokeMatrix(vtkMatrix4x4 *matrix) VTK_OVERRIDE;
 
   /**
    * Overload vtkProp's method for setting up assembly paths. See
    * the documentation for vtkProp.
    */
-  void InitPathTraversal();
+  void InitPathTraversal() VTK_OVERRIDE;
 
   /**
    * Get the vtkProp3D's mtime
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Get the modified time of the user matrix or user transform.
@@ -327,7 +327,7 @@ public:
   /**
    * Get a pointer to an internal vtkMatrix4x4. that represents
    */
-  vtkMatrix4x4 *GetMatrix()
+  vtkMatrix4x4 *GetMatrix() VTK_OVERRIDE
   {
     this->ComputeMatrix();
     return this->Matrix;
@@ -343,7 +343,7 @@ public:
 
 protected:
   vtkProp3D();
-  ~vtkProp3D();
+  ~vtkProp3D() VTK_OVERRIDE;
 
   vtkLinearTransform *UserTransform;
   vtkMatrix4x4 *UserMatrix;

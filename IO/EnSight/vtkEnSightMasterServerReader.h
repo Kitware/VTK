@@ -29,7 +29,7 @@ class VTKIOENSIGHT_EXPORT vtkEnSightMasterServerReader : public vtkGenericEnSigh
 {
 public:
   vtkTypeMacro(vtkEnSightMasterServerReader, vtkGenericEnSightReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkEnSightMasterServerReader* New();
 
@@ -57,12 +57,12 @@ public:
 
 protected:
   vtkEnSightMasterServerReader();
-  ~vtkEnSightMasterServerReader();
+  ~vtkEnSightMasterServerReader() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
   vtkSetStringMacro(PieceCaseFileName);
   char* PieceCaseFileName;

@@ -12,39 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#include "vtkOpenGL2ContextDevice2D.h"
-
-#include "vtkVector.h"
-#include "vtkRect.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
-#include "vtkTextProperty.h"
-#include "vtkPoints2D.h"
-#include "vtkMatrix3x3.h"
 #include "vtkFloatArray.h"
-#include "vtkSmartPointer.h"
-
+#include "vtkgl.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkOpenGLContextDevice2DPrivate.h"
+#include "vtkOpenGL2ContextDevice2D.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
+#include "vtkRect.h"
+#include "vtkRenderer.h"
+#include "vtkSetGet.h"
+#include "vtkShaderProgram2.h"
+#include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
+#include "vtkVector.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-#include "vtkTexture.h"
-#include "vtkImageData.h"
-
-#include "vtkRenderer.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLExtensionManager.h"
-#include "vtkShaderProgram2.h"
-#include "vtkgl.h"
-#include "vtkOpenGLError.h"
-
-#include "vtkObjectFactory.h"
-
-#include "vtkOpenGLContextDevice2DPrivate.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGL2ContextDevice2D);
@@ -232,4 +224,13 @@ bool vtkOpenGL2ContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 void vtkOpenGL2ContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGL2ContextDevice2D::DrawPolyData(float vtkNotUsed(p)[2],
+  float vtkNotUsed(scale), vtkPolyData* vtkNotUsed(polyData),
+  vtkUnsignedCharArray* vtkNotUsed(colors), int vtkNotUsed(scalarMode))
+{
+  vtkWarningMacro("This functionality is not supported with the legacy OpenGL "
+    "backend!");
 }

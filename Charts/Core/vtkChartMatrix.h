@@ -39,7 +39,7 @@ class VTKCHARTSCORE_EXPORT vtkChartMatrix : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkChartMatrix, vtkAbstractContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a new object.
@@ -49,12 +49,12 @@ public:
   /**
    * Perform any updates to the item that may be necessary before rendering.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the chart matrix.
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Set the width and height of the chart matrix. This will cause an immediate
@@ -149,7 +149,7 @@ public:
 
 protected:
   vtkChartMatrix();
-  ~vtkChartMatrix();
+  ~vtkChartMatrix() VTK_OVERRIDE;
 
   class PIMPL;
   PIMPL *Private;

@@ -31,7 +31,7 @@ class vtkDataSet;
 class VTKIOPARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkPDataSetReader,vtkDataSetAlgorithm);
   static vtkPDataSetReader *New();
 
@@ -58,11 +58,11 @@ public:
 
 protected:
   vtkPDataSetReader();
-  ~vtkPDataSetReader();
+  ~vtkPDataSetReader() VTK_OVERRIDE;
 
-  virtual int RequestDataObject(vtkInformation* request,
+  int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector);
+                                vtkInformationVector* outputVector) VTK_OVERRIDE;
   void ReadPVTKFileInformation(ifstream *fp,
                                vtkInformation* request,
                                vtkInformationVector** inputVector,
@@ -72,13 +72,13 @@ protected:
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector);
 
-  virtual int RequestInformation(vtkInformation*,
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*);
+                                 vtkInformationVector*) VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation*,
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) VTK_OVERRIDE;
   int PolyDataExecute(vtkInformation*,
                       vtkInformationVector**,
                       vtkInformationVector*);

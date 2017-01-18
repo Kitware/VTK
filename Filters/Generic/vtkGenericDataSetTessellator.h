@@ -52,7 +52,7 @@ public:
   static vtkGenericDataSetTessellator *New();
   vtkTypeMacro(vtkGenericDataSetTessellator,
                        vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -96,15 +96,15 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkGenericDataSetTessellator();
-  ~vtkGenericDataSetTessellator();
+  ~vtkGenericDataSetTessellator() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   // See Set/Get KeepCellIds() for explanations.
   int KeepCellIds;

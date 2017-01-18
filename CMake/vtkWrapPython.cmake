@@ -179,7 +179,12 @@ endmacro()
 
 if(VTK_WRAP_PYTHON_FIND_LIBS)
   get_filename_component(_CURRENT_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-  find_package(PythonLibs)
+  if (VTK_UNDEFINED_SYMBOLS_ALLOWED)
+    set(_QUIET_LIBRARY "QUIET")
+  else()
+    set(_QUIET_LIBRARY "REQUIRED")
+  endif()
+  find_package(PythonLibs ${_QUIET_LIBRARY})
 
   # Use separate debug/optimized libraries if they are different.
   if(PYTHON_DEBUG_LIBRARY)

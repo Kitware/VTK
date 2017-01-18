@@ -54,13 +54,13 @@ class VTKRENDERINGCORE_EXPORT vtkColorTransferFunction : public vtkScalarsToColo
 public:
   static vtkColorTransferFunction *New();
   vtkTypeMacro(vtkColorTransferFunction,vtkScalarsToColors);
-  void DeepCopy( vtkScalarsToColors *f );
+  void DeepCopy( vtkScalarsToColors *f ) VTK_OVERRIDE;
   void ShallowCopy( vtkColorTransferFunction *f );
 
   /**
    * Print method for vtkColorTransferFunction
    */
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * How many nodes define this function?
@@ -104,7 +104,7 @@ public:
    */
   double *GetColor(double x) {
     return vtkScalarsToColors::GetColor(x); }
-  void GetColor(double x, double rgb[3]);
+  void GetColor(double x, double rgb[3]) VTK_OVERRIDE;
 
   //@{
   /**
@@ -128,13 +128,22 @@ public:
   /**
    * Map one value through the lookup table.
    */
-  virtual unsigned char *MapValue(double v);
+  unsigned char *MapValue(double v) VTK_OVERRIDE;
 
   //@{
   /**
    * Returns min and max position of all function points.
    */
-  vtkGetVector2Macro( Range, double );
+  double* GetRange() VTK_OVERRIDE { return this->Range; }
+  virtual void GetRange(double& arg1, double& arg2)
+  {
+    arg1 = this->Range[0];
+    arg2 = this->Range[1];
+  }
+  virtual void GetRange(double _arg[2])
+  {
+    this->GetRange(_arg[0],_arg[1]);
+  }
   //@}
 
   /**
@@ -279,9 +288,9 @@ public:
   /**
    * Map a set of scalars through the lookup table.
    */
-  virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
+  void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
-                                       int inputIncrement, int outputIncrement);
+                                       int inputIncrement, int outputIncrement) VTK_OVERRIDE;
 
   //@{
   /**
@@ -296,7 +305,7 @@ public:
   /**
    * Get the number of available colors for mapping to.
    */
-  virtual vtkIdType GetNumberOfAvailableColors();
+  vtkIdType GetNumberOfAvailableColors() VTK_OVERRIDE;
 
   /**
    * Return a color given an integer index.
@@ -304,7 +313,7 @@ public:
    * This is used to assign colors to annotations (given an offset into the list of annotations).
    * If there are no control points or \a idx < 0, then NanColor is returned.
    */
-  virtual void GetIndexedColor(vtkIdType idx, double rgba[4]);
+  void GetIndexedColor(vtkIdType idx, double rgba[4]) VTK_OVERRIDE;
 
   /**
    * Estimates the minimum size of a table such that it would correctly sample this function.
@@ -314,7 +323,7 @@ public:
 
 protected:
   vtkColorTransferFunction();
-  ~vtkColorTransferFunction();
+  ~vtkColorTransferFunction() VTK_OVERRIDE;
 
   vtkColorTransferFunctionInternals *Internal;
 
@@ -399,7 +408,7 @@ protected:
    * Set the range of scalars being mapped. This method has no functionality
    * in this subclass of vtkScalarsToColors.
    */
-  virtual void SetRange(double, double) {}
+  void SetRange(double, double) VTK_OVERRIDE {}
   void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
 
   /**

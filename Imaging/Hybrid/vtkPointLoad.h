@@ -37,7 +37,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkPointLoad :  public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkPointLoad,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -96,12 +96,12 @@ public:
 
 protected:
   vtkPointLoad();
-  ~vtkPointLoad() {}
+  ~vtkPointLoad() VTK_OVERRIDE {}
 
-  virtual int RequestInformation (vtkInformation *,
+  int RequestInformation (vtkInformation *,
                                    vtkInformationVector **,
-                                   vtkInformationVector *);
-  virtual void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *);
+                                   vtkInformationVector *) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *) VTK_OVERRIDE;
 
   double LoadValue;
   double PoissonsRatio;

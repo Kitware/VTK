@@ -46,36 +46,36 @@ class VTKIOCORE_EXPORT vtkUTF8TextCodec : public vtkTextCodec
 public:
   vtkTypeMacro(vtkUTF8TextCodec, vtkTextCodec);
   static vtkUTF8TextCodec* New() ;
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * The name this codec goes by - should match the string the factory will take to create it
    */
-  virtual const char* Name() {return "UTF-8" ;}
-  virtual bool CanHandle(const char* testStr);
+  const char* Name() VTK_OVERRIDE {return "UTF-8" ;}
+  bool CanHandle(const char* testStr) VTK_OVERRIDE;
 
   /**
    * is the given sample valid for this codec?
    */
-  virtual bool IsValid(istream& InputStream) ;
+  bool IsValid(istream& InputStream) VTK_OVERRIDE ;
 
   /**
    * Iterate through the sequence represented by the stream assigning the result
    * to the output iterator.  The stream will be advanced to its end so subsequent use
    * would need to reset it.
    */
-  virtual void ToUnicode(istream& InputStream,
-                         vtkTextCodec::OutputIterator& output) ;
+  void ToUnicode(istream& InputStream,
+                         vtkTextCodec::OutputIterator& output) VTK_OVERRIDE ;
 
   /**
    * Return the next code point from the sequence represented by the stream
    * advancing the stream through however many places needed to assemble that code point
    */
-  virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) ;
+  vtkUnicodeString::value_type NextUnicode(istream& inputStream) VTK_OVERRIDE ;
 
 protected:
   vtkUTF8TextCodec() ;
-  ~vtkUTF8TextCodec() ;
+  ~vtkUTF8TextCodec() VTK_OVERRIDE;
 
 private:
   vtkUTF8TextCodec(const vtkUTF8TextCodec &) VTK_DELETE_FUNCTION;

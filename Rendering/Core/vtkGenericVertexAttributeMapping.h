@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkGenericVertexAttributeMapping : public vtkObjec
 public:
   static vtkGenericVertexAttributeMapping* New();
   vtkTypeMacro(vtkGenericVertexAttributeMapping, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Select a data array from the point/cell data
@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkGenericVertexAttributeMapping();
-  ~vtkGenericVertexAttributeMapping();
+  ~vtkGenericVertexAttributeMapping() VTK_OVERRIDE;
 
 private:
   vtkGenericVertexAttributeMapping(const vtkGenericVertexAttributeMapping&) VTK_DELETE_FUNCTION;

@@ -35,21 +35,21 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPStructuredDataWriter : public vtkXMLPDataWr
 {
 public:
   vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkXMLPStructuredDataWriter();
-  ~vtkXMLPStructuredDataWriter();
+  ~vtkXMLPStructuredDataWriter() VTK_OVERRIDE;
 
   virtual vtkXMLStructuredDataWriter* CreateStructuredPieceWriter()=0;
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
-  void WritePPieceAttributes(int index);
-  vtkXMLWriter* CreatePieceWriter(int index);
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void WritePPieceAttributes(int index) VTK_OVERRIDE;
+  vtkXMLWriter* CreatePieceWriter(int index) VTK_OVERRIDE;
 
-  virtual int WriteInternal();
+  int WriteInternal() VTK_OVERRIDE;
 
-  virtual void PrepareSummaryFile();
-  virtual int WritePiece(int index);
+  void PrepareSummaryFile() VTK_OVERRIDE;
+  int WritePiece(int index) VTK_OVERRIDE;
 
 private:
   vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;

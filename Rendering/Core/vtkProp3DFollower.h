@@ -54,7 +54,7 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
    * Standard VTK methods for type and printing.
    */
   vtkTypeMacro(vtkProp3DFollower,vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -80,49 +80,49 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
    * property, texture map and then mapper. If a property hasn't been
    * assigned, then the actor will create one automatically.
    */
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int RenderVolumetricGeometry(vtkViewport *viewport);
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderVolumetricGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources associated with this vtkProp3DFollower.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow*);
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
 
   /**
    * Generate the matrix based on ivars. This method overloads its superclasses
    * ComputeMatrix() method due to the special vtkProp3DFollower matrix operations.
    */
-  virtual void ComputeMatrix();
+  void ComputeMatrix() VTK_OVERRIDE;
 
   /**
    * Shallow copy of a follower. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   /**
    * Return the bounds of this vtkProp3D.
    */
-  virtual double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
 
   //@{
   /**
    * Overload vtkProp's method for setting up assembly paths. See
    * the documentation for vtkProp.
    */
-  void InitPathTraversal();
-  virtual vtkAssemblyPath *GetNextPath();
+  void InitPathTraversal() VTK_OVERRIDE;
+  vtkAssemblyPath *GetNextPath() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkProp3DFollower();
-  ~vtkProp3DFollower();
+  ~vtkProp3DFollower() VTK_OVERRIDE;
 
   vtkCamera *Camera;
   vtkProp3D  *Device;

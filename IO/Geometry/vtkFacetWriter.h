@@ -49,7 +49,7 @@ class VTKIOGEOMETRY_EXPORT vtkFacetWriter : public vtkPolyDataAlgorithm
 public:
   static vtkFacetWriter *New();
   vtkTypeMacro(vtkFacetWriter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -68,15 +68,15 @@ public:
 
 protected:
   vtkFacetWriter();
-  ~vtkFacetWriter();
+  ~vtkFacetWriter() VTK_OVERRIDE;
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                            vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
+                           vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int, vtkInformation *);
+  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   int WriteDataToStream(ostream* ost, vtkPolyData* data);
 

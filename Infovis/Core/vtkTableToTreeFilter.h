@@ -40,21 +40,21 @@ class VTKINFOVISCORE_EXPORT vtkTableToTreeFilter : public vtkTreeAlgorithm
 public:
   static vtkTableToTreeFilter* New();
   vtkTypeMacro(vtkTableToTreeFilter,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTableToTreeFilter();
-  ~vtkTableToTreeFilter();
+  ~vtkTableToTreeFilter() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   int FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info);
+    int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
   int FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info);
+    int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkTableToTreeFilter(const vtkTableToTreeFilter&) VTK_DELETE_FUNCTION;

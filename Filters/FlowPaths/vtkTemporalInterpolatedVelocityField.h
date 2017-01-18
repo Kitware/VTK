@@ -82,7 +82,7 @@ public:
    * Evaluate the velocity field, f, at (x, y, z, t).
    * For now, t is ignored.
    */
-  virtual int FunctionValues(double* x, double* u);
+  int FunctionValues(double* x, double* u) VTK_OVERRIDE;
   int FunctionValuesAtT(int T, double* x, double* u);
   //@}
 
@@ -157,7 +157,7 @@ public:
 
 protected:
   vtkTemporalInterpolatedVelocityField();
-  ~vtkTemporalInterpolatedVelocityField();
+  ~vtkTemporalInterpolatedVelocityField() VTK_OVERRIDE;
 
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
   virtual void SetVectorsSelection(const char *v);

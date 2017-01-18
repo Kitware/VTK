@@ -39,7 +39,7 @@ class VTKFILTERSAMR_EXPORT vtkParallelAMRUtilities : public vtkAMRUtilities
 public:
   // Standard Routines
   vtkTypeMacro(vtkParallelAMRUtilities,vtkAMRUtilities);
-  void PrintSelf(ostream& os, vtkIndent indent );
+  void PrintSelf(ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * This method detects and strips partially overlapping cells from a

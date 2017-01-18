@@ -35,49 +35,49 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareS
 public:
   static vtkOpenGLHardwareSelector* New();
   vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Called by the mapper before and after
    * rendering each prop.
    */
-  virtual void BeginRenderProp();
-  virtual void EndRenderProp()
+  void BeginRenderProp() VTK_OVERRIDE;
+  void EndRenderProp() VTK_OVERRIDE
     { this->vtkHardwareSelector::EndRenderProp(); }
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render a composite-index.
    * Currently indices >= 0xffffff are not supported.
    */
-  virtual void RenderCompositeIndex(unsigned int index);
+  void RenderCompositeIndex(unsigned int index) VTK_OVERRIDE;
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render an attribute's id.
    */
-  virtual void RenderAttributeId(vtkIdType attribid);
+  void RenderAttributeId(vtkIdType attribid) VTK_OVERRIDE;
 
   /**
    * Called by any vtkMapper or subclass to render process id. This has any
    * effect when this->UseProcessIdFromData is true.
    */
-  virtual void RenderProcessId(unsigned int processid);
+  void RenderProcessId(unsigned int processid) VTK_OVERRIDE;
 
   // we need to initialze the depth buffer
-  virtual void BeginSelection();
+  void BeginSelection() VTK_OVERRIDE;
 
 protected:
   vtkOpenGLHardwareSelector();
-  virtual ~vtkOpenGLHardwareSelector();
+  ~vtkOpenGLHardwareSelector() VTK_OVERRIDE;
 
   void PreCapturePass(int pass) VTK_OVERRIDE;
   void PostCapturePass(int pass) VTK_OVERRIDE;
 
   // Called internally before and after each prop is rendered
   // for device specific configuration/preparation etc.
-  virtual void BeginRenderProp(vtkRenderWindow *);
-  virtual void EndRenderProp(vtkRenderWindow *);
+  void BeginRenderProp(vtkRenderWindow *) VTK_OVERRIDE;
+  void EndRenderProp(vtkRenderWindow *) VTK_OVERRIDE;
 
-  virtual void SavePixelBuffer(int passNo);
+  void SavePixelBuffer(int passNo) VTK_OVERRIDE;
 
   // for internal state
   class vtkInternals;

@@ -40,7 +40,7 @@ public:
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkTransformCoordinateSystems, vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -84,7 +84,7 @@ public:
   /**
    * Return the MTime also considering the instance of vtkCoordinate.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -100,9 +100,9 @@ public:
 
 protected:
   vtkTransformCoordinateSystems();
-  ~vtkTransformCoordinateSystems();
+  ~vtkTransformCoordinateSystems() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int InputCoordinateSystem;
   int OutputCoordinateSystem;

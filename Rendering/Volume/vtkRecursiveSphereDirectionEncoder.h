@@ -36,7 +36,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkD
 {
 public:
   vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
 /**
  * Construct the object. Initialize the index table which will be
@@ -49,17 +49,17 @@ public:
   /**
    * Given a normal vector n, return the encoded direction
    */
-  int GetEncodedDirection( float n[3] );
+  int GetEncodedDirection( float n[3] ) VTK_OVERRIDE;
 
   /**
    * / Given an encoded value, return a pointer to the normal vector
    */
-  float *GetDecodedGradient( int value );
+  float *GetDecodedGradient( int value ) VTK_OVERRIDE;
 
   /**
    * Return the number of encoded directions
    */
-  int GetNumberOfEncodedDirections( void );
+  int GetNumberOfEncodedDirections( void ) VTK_OVERRIDE;
 
   /**
    * Get the decoded gradient table. There are
@@ -67,7 +67,7 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  float *GetDecodedGradientTable( void );
+  float *GetDecodedGradientTable( void ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkRecursiveSphereDirectionEncoder();
-  ~vtkRecursiveSphereDirectionEncoder();
+  ~vtkRecursiveSphereDirectionEncoder() VTK_OVERRIDE;
 
   // How far to recursively divide the sphere
   int                     RecursionDepth;

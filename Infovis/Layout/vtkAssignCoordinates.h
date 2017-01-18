@@ -40,7 +40,7 @@ public:
   static vtkAssignCoordinates *New();
 
   vtkTypeMacro(vtkAssignCoordinates, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -75,10 +75,10 @@ public:
 
 protected:
   vtkAssignCoordinates();
-  ~vtkAssignCoordinates();
+  ~vtkAssignCoordinates() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
 

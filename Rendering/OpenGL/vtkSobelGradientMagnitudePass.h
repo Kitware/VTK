@@ -75,20 +75,20 @@ class VTKRENDERINGOPENGL_EXPORT vtkSobelGradientMagnitudePass : public vtkImageP
 public:
   static vtkSobelGradientMagnitudePass *New();
   vtkTypeMacro(vtkSobelGradientMagnitudePass,vtkImageProcessingPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
 
  protected:
   /**
@@ -99,7 +99,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkSobelGradientMagnitudePass();
+  ~vtkSobelGradientMagnitudePass() VTK_OVERRIDE;
 
   /**
    * Graphics resources.

@@ -36,7 +36,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageLaplacian : public vtkThreadedImageAlgori
 public:
   static vtkImageLaplacian *New();
   vtkTypeMacro(vtkImageLaplacian,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -48,17 +48,17 @@ public:
 
 protected:
   vtkImageLaplacian();
-  ~vtkImageLaplacian() {}
+  ~vtkImageLaplacian()VTK_OVERRIDE {}
 
   int Dimensionality;
 
-  virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) VTK_OVERRIDE;
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
+                           int outExt[6], int id) VTK_OVERRIDE;
 
 private:
   vtkImageLaplacian(const vtkImageLaplacian&) VTK_DELETE_FUNCTION;

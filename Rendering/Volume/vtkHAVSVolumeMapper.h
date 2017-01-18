@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkHAVSVolumeMapper();
-  ~vtkHAVSVolumeMapper();
+  ~vtkHAVSVolumeMapper() VTK_OVERRIDE;
 
   virtual void Initialize(vtkRenderer *ren, vtkVolume *vol) = 0;
   void InitializePrimitives(vtkVolume *vol);

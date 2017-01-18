@@ -40,7 +40,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotParallelCoordinates : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotParallelCoordinates, vtkPlot);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Creates a parallel coordinates chart
@@ -52,12 +52,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -65,13 +65,13 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex);
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
+                           int legendIndex) VTK_OVERRIDE;
 
   /**
    * Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  virtual void GetBounds(double bounds[4]);
+  void GetBounds(double bounds[4]) VTK_OVERRIDE;
 
   /**
    * Set the selection criteria on the given axis in normalized space (0.0 - 1.0).
@@ -87,9 +87,9 @@ public:
   /**
    * This is a convenience function to set the input table.
    */
-  virtual void SetInputData(vtkTable *table);
-  virtual void SetInputData(vtkTable *table, const vtkStdString&,
-                            const vtkStdString&)
+  void SetInputData(vtkTable *table) VTK_OVERRIDE;
+  void SetInputData(vtkTable *table, const vtkStdString&,
+                            const vtkStdString&) VTK_OVERRIDE
   {
     this->SetInputData(table);
   }
@@ -135,7 +135,7 @@ public:
 
 protected:
   vtkPlotParallelCoordinates();
-  ~vtkPlotParallelCoordinates();
+  ~vtkPlotParallelCoordinates() VTK_OVERRIDE;
 
   /**
    * Update the table cache.

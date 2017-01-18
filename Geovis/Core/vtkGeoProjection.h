@@ -40,7 +40,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoProjection : public vtkObject
 {
 public:
   static vtkGeoProjection* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   vtkTypeMacro(vtkGeoProjection,vtkObject);
 
   /**
@@ -136,7 +136,7 @@ public:
 
 protected:
   vtkGeoProjection();
-  virtual ~vtkGeoProjection();
+  ~vtkGeoProjection() VTK_OVERRIDE;
 
   /**
    * Determine whether the current projection structure has any

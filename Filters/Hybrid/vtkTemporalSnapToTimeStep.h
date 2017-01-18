@@ -42,7 +42,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkAlgorithm
 public:
   static vtkTemporalSnapToTimeStep *New();
   vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum {
     VTK_SNAP_NEAREST=0,
@@ -58,17 +58,17 @@ public:
 
 protected:
   vtkTemporalSnapToTimeStep();
-  ~vtkTemporalSnapToTimeStep();
+  ~vtkTemporalSnapToTimeStep() VTK_OVERRIDE;
 
   /**
    * see vtkAlgorithm for details
    */
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
+                             vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
 
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,

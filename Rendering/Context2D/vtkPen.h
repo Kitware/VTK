@@ -37,7 +37,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkPen : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPen, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPen *New();
 
@@ -155,7 +155,7 @@ public:
 
 protected:
   vtkPen();
-  ~vtkPen();
+  ~vtkPen() VTK_OVERRIDE;
 
   //@{
   /**

@@ -54,7 +54,7 @@ public:
   static vtkGenerateIndexArray *New();
 
   vtkTypeMacro(vtkGenerateIndexArray, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -100,22 +100,22 @@ public:
 
 protected:
   vtkGenerateIndexArray();
-  ~vtkGenerateIndexArray();
+  ~vtkGenerateIndexArray() VTK_OVERRIDE;
 
-  virtual int ProcessRequest(
+  int ProcessRequest(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int RequestDataObject(
+  int RequestDataObject(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   char* ArrayName;
   int FieldType;

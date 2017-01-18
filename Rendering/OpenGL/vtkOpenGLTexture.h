@@ -43,11 +43,11 @@ public:
   /**
    * Implement base class method.
    */
-  void Load(vtkRenderer*);
+  void Load(vtkRenderer*) VTK_OVERRIDE;
 
   // Descsription:
   // Clean up after the rendering is complete.
-  virtual void PostRender(vtkRenderer*);
+  void PostRender(vtkRenderer*) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this texture.
@@ -55,7 +55,7 @@ public:
    * resources to release. Using the same texture object in multiple
    * render windows is NOT currently supported.
    */
-  void ReleaseGraphicsResources(vtkWindow*);
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
 
   //@{
   /**
@@ -68,7 +68,7 @@ public:
 protected:
 
   vtkOpenGLTexture();
-  ~vtkOpenGLTexture();
+  ~vtkOpenGLTexture() VTK_OVERRIDE;
 
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize,
                                       unsigned char *dptr, int bpp);

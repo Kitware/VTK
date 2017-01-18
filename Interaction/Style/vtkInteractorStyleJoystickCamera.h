@@ -44,36 +44,36 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleJoystickCamera : public vtkIn
 public:
   static vtkInteractorStyleJoystickCamera *New();
   vtkTypeMacro(vtkInteractorStyleJoystickCamera,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  virtual void OnMouseMove();
-  virtual void OnLeftButtonDown();
-  virtual void OnLeftButtonUp();
-  virtual void OnMiddleButtonDown();
-  virtual void OnMiddleButtonUp();
-  virtual void OnRightButtonDown();
-  virtual void OnRightButtonUp();
-  virtual void OnMouseWheelForward();
-  virtual void OnMouseWheelBackward();
+  void OnMouseMove() VTK_OVERRIDE;
+  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonUp() VTK_OVERRIDE;
+  void OnMouseWheelForward() VTK_OVERRIDE;
+  void OnMouseWheelBackward() VTK_OVERRIDE;
   //@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
   // they are called by OnTimer, they do not have mouse coord parameters
   // (use interactor's GetEventPosition and GetLastEventPosition)
-  virtual void Rotate();
-  virtual void Spin();
-  virtual void Pan();
-  virtual void Dolly();
+  void Rotate() VTK_OVERRIDE;
+  void Spin() VTK_OVERRIDE;
+  void Pan() VTK_OVERRIDE;
+  void Dolly() VTK_OVERRIDE;
 
 protected:
   vtkInteractorStyleJoystickCamera();
-  ~vtkInteractorStyleJoystickCamera();
+  ~vtkInteractorStyleJoystickCamera() VTK_OVERRIDE;
 
   virtual void Dolly(double factor);
 

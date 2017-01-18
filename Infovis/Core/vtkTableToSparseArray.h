@@ -57,7 +57,7 @@ class VTKINFOVISCORE_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
 public:
   static vtkTableToSparseArray* New();
   vtkTypeMacro(vtkTableToSparseArray, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -86,14 +86,14 @@ public:
 
 protected:
   vtkTableToSparseArray();
-  ~vtkTableToSparseArray();
+  ~vtkTableToSparseArray() VTK_OVERRIDE;
 
-  int FillInputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
 private:
   vtkTableToSparseArray(const vtkTableToSparseArray&) VTK_DELETE_FUNCTION;

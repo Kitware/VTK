@@ -40,7 +40,7 @@ class VTKIOIMAGE_EXPORT vtkImageImport : public vtkImageAlgorithm
 public:
   static vtkImageImport *New();
   vtkTypeMacro(vtkImageImport,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Import data and make an internal copy of it.  If you do not want
@@ -141,18 +141,18 @@ public:
   /**
    * Propagates the update extent through the callback if it is set.
    */
-  virtual int RequestUpdateExtent(  vtkInformation* request,
+  int RequestUpdateExtent(  vtkInformation* request,
                                     vtkInformationVector** inputVector,
-                                    vtkInformationVector* outputVector);
+                                    vtkInformationVector* outputVector) VTK_OVERRIDE;
   /**
    * Override vtkAlgorithm
    */
-  virtual int
+  int
   ComputePipelineMTime(vtkInformation* request,
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       vtkMTimeType* mtime);
+                       vtkMTimeType* mtime) VTK_OVERRIDE;
 
   //@{
   /**
@@ -320,10 +320,10 @@ public:
 
 protected:
   vtkImageImport();
-  ~vtkImageImport();
+  ~vtkImageImport() VTK_OVERRIDE;
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *);
+  int RequestInformation (vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *) VTK_OVERRIDE;
 
 
   void *ImportVoidPointer;
@@ -352,7 +352,7 @@ protected:
   DataExtentCallbackType            DataExtentCallback;
   BufferPointerCallbackType         BufferPointerCallback;
 
-  virtual void ExecuteDataWithInformation(vtkDataObject *d, vtkInformation* outInfo);
+  void ExecuteDataWithInformation(vtkDataObject *d, vtkInformation* outInfo) VTK_OVERRIDE;
 
 private:
   vtkImageImport(const vtkImageImport&) VTK_DELETE_FUNCTION;

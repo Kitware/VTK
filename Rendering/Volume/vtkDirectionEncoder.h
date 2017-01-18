@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkDirectionEncoder() {}
-  ~vtkDirectionEncoder() {}
+  ~vtkDirectionEncoder()VTK_OVERRIDE {}
 private:
   vtkDirectionEncoder(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;

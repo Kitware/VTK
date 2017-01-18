@@ -45,7 +45,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextActor3D : public vtkProp3D
 public:
   static vtkTextActor3D *New();
   vtkTypeMacro(vtkTextActor3D,vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -75,12 +75,12 @@ public:
    * Shallow copy of this text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   /**
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  virtual double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
   void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
 
   /**
@@ -97,7 +97,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Force the actor to render during the opaque or translucent pass.
@@ -119,19 +119,19 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the text actor to the screen.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
-  int RenderOverlay(vtkViewport* viewport);
+  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
 protected:
    vtkTextActor3D();
-  ~vtkTextActor3D();
+  ~vtkTextActor3D() VTK_OVERRIDE;
 
   char            *Input;
 

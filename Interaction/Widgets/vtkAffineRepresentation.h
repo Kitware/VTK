@@ -52,7 +52,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkAffineRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -87,11 +87,11 @@ public:
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
-  virtual void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
 protected:
   vtkAffineRepresentation();
-  ~vtkAffineRepresentation();
+  ~vtkAffineRepresentation() VTK_OVERRIDE;
 
   // The tolerance for selecting different parts of the widget.
   int Tolerance;

@@ -53,7 +53,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkCheckerboardRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -115,18 +115,18 @@ public:
   /**
    * Methods required by superclass.
    */
-  virtual void BuildRepresentation();
-  virtual void GetActors(vtkPropCollection*);
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  virtual int HasTranslucentPolygonalGeometry();
+  void BuildRepresentation() VTK_OVERRIDE;
+  void GetActors(vtkPropCollection*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkCheckerboardRepresentation();
-  ~vtkCheckerboardRepresentation();
+  ~vtkCheckerboardRepresentation() VTK_OVERRIDE;
 
   // Instances that this class manipulates
   vtkImageCheckerboard *Checkerboard;

@@ -63,7 +63,7 @@ signals:
 public:
   static vtkQtTreeView *New();
   vtkTypeMacro(vtkQtTreeView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -71,7 +71,7 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  virtual QWidget* GetWidget();
+  QWidget* GetWidget() VTK_OVERRIDE;
 
   /**
    * Have the view show/hide its column headers (default is ON)
@@ -163,7 +163,7 @@ public:
   /**
    * Updates the view.
    */
-  virtual void Update();
+  void Update() VTK_OVERRIDE;
 
   /**
    * Set item delegate to something custom
@@ -187,14 +187,14 @@ public:
   vtkBooleanMacro(ColorByArray, bool);
   //@}
 
-  virtual void ApplyViewTheme(vtkViewTheme* theme);
+  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
 
 protected:
   vtkQtTreeView();
-  ~vtkQtTreeView();
+  ~vtkQtTreeView() VTK_OVERRIDE;
 
-  virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
-  virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
+  void AddRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
+  void RemoveRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);

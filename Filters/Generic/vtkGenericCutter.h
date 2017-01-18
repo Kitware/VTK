@@ -60,7 +60,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericCutter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenericCutter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct with user-specified implicit function; initial value of 0.0; and
@@ -120,7 +120,7 @@ public:
    * Override GetMTime because we delegate to vtkContourValues and refer to
    * vtkImplicitFunction.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -158,14 +158,14 @@ public:
 
 protected:
   vtkGenericCutter(vtkImplicitFunction *cf=NULL);
-  ~vtkGenericCutter();
+  ~vtkGenericCutter() VTK_OVERRIDE;
 
   //@{
   /**
    * Actual implementation of the cutter operation.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation*);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
   //@}
 
   vtkImplicitFunction *CutFunction;

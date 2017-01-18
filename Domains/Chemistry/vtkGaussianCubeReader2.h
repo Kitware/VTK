@@ -36,14 +36,14 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkGaussianCubeReader2 : public vtkMoleculeAlgo
 public:
   static vtkGaussianCubeReader2 *New();
   vtkTypeMacro(vtkGaussianCubeReader2,vtkMoleculeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
   vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *);
+  void SetOutput(vtkMolecule *) VTK_OVERRIDE;
   //@}
 
   /**
@@ -61,13 +61,13 @@ public:
 
 protected:
   vtkGaussianCubeReader2();
-  ~vtkGaussianCubeReader2();
+  ~vtkGaussianCubeReader2() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
-  int FillOutputPortInformation(int, vtkInformation*);
+                  vtkInformationVector *) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   char *FileName;
 private:

@@ -36,11 +36,11 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackball : public vtkInterac
 public:
   static vtkInteractorStyleTrackball *New();
   vtkTypeMacro(vtkInteractorStyleTrackball,vtkInteractorStyleSwitch);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkInteractorStyleTrackball();
-  ~vtkInteractorStyleTrackball();
+  ~vtkInteractorStyleTrackball() VTK_OVERRIDE;
 
 private:
   vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&) VTK_DELETE_FUNCTION;

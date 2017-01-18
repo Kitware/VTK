@@ -28,7 +28,6 @@ vtkOutlineCornerSource::vtkOutlineCornerSource()
     : vtkOutlineSource()
 {
   this->CornerFactor = 0.2;
-  this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
 }
 
 //----------------------------------------------------------------------------

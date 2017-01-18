@@ -35,17 +35,17 @@ class VTKIOXML_EXPORT vtkXMLStructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLStructuredDataReader,vtkXMLDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Get the number of points in the output.
    */
-  virtual vtkIdType GetNumberOfPoints();
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
 
   /**
    * Get the number of cells in the output.
    */
-  virtual vtkIdType GetNumberOfCells();
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
 
   //@{
   /**
@@ -63,19 +63,19 @@ public:
    * For the specified port, copy the information this reader sets up in
    * SetupOutputInformation to outInfo
    */
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
 
 protected:
   vtkXMLStructuredDataReader();
-  ~vtkXMLStructuredDataReader();
+  ~vtkXMLStructuredDataReader() VTK_OVERRIDE;
 
   virtual void SetOutputExtent(int* extent)=0;
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
 
   // Pipeline execute data driver.  Called by vtkXMLReader.
-  void ReadXMLData();
+  void ReadXMLData() VTK_OVERRIDE;
 
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
 
   // Internal representation of pieces in the file that may have come
   // from a streamed write.
@@ -103,16 +103,16 @@ protected:
   int SubCellDimensions[3];
 
   // Override methods from superclass.
-  void SetupEmptyOutput();
-  void SetupPieces(int numPieces);
-  void DestroyPieces();
-  virtual int ReadArrayForPoints(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray);
-  virtual int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray);
+  void SetupEmptyOutput() VTK_OVERRIDE;
+  void SetupPieces(int numPieces) VTK_OVERRIDE;
+  void DestroyPieces() VTK_OVERRIDE;
+  int ReadArrayForPoints(vtkXMLDataElement* da,
+    vtkAbstractArray* outArray) VTK_OVERRIDE;
+  int ReadArrayForCells(vtkXMLDataElement* da,
+    vtkAbstractArray* outArray) VTK_OVERRIDE;
 
   // Internal utility methods.
-  int ReadPiece(vtkXMLDataElement* ePiece);
+  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
   virtual int ReadSubExtent(
     int* inExtent, int* inDimensions, vtkIdType* inIncrements,
     int* outExtent,int* outDimensions,vtkIdType* outIncrements,

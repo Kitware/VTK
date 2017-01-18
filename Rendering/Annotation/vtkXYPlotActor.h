@@ -128,7 +128,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkXYPlotActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkXYPlotActor,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object with autorange computation; bold, italic, and shadows
@@ -718,7 +718,7 @@ enum Alignment {
   /**
    * Take into account the modified time of internal helper classes.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * Write the XY Ploat Actor as a CSV (comma separated value) representation.
@@ -731,22 +731,22 @@ enum Alignment {
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the x-y plot.
    */
-  int RenderOpaqueGeometry(vtkViewport*);
-  int RenderOverlay(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *) VTK_OVERRIDE {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   //@{
   /**
@@ -848,7 +848,7 @@ enum Alignment {
 
 protected:
   vtkXYPlotActor();
-  ~vtkXYPlotActor();
+  ~vtkXYPlotActor() VTK_OVERRIDE;
 
   vtkXYPlotActorConnections* InputConnectionHolder;
   char** SelectedInputScalars; // list of data set arrays to plot

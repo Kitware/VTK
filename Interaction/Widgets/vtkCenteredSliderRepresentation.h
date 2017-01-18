@@ -71,7 +71,7 @@ public:
    */
   vtkTypeMacro(vtkCenteredSliderRepresentation,
                        vtkSliderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -99,8 +99,8 @@ public:
    * Specify the label text for this widget. If the value is not set, or set
    * to the empty string "", then the label text is not displayed.
    */
-  virtual void SetTitleText(const char*);
-  virtual const char* GetTitleText();
+  void SetTitleText(const char*) VTK_OVERRIDE;
+  const char* GetTitleText() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -132,27 +132,27 @@ public:
    * assumes that the parameter bounds[6] specifies the location in display
    * space where the widget should be placed.
    */
-  virtual void PlaceWidget(double bounds[6]);
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual void Highlight(int);
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void Highlight(int) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  virtual void GetActors(vtkPropCollection*);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOverlay(vtkViewport*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
+  void GetActors(vtkPropCollection*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
   //@}
 
 protected:
   vtkCenteredSliderRepresentation();
-  ~vtkCenteredSliderRepresentation();
+  ~vtkCenteredSliderRepresentation() VTK_OVERRIDE;
 
   // Positioning the widget
   vtkCoordinate *Point1Coordinate;

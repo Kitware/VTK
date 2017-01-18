@@ -46,7 +46,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkImageActorPointPlacer,vtkPointPlacer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   /**
@@ -60,7 +60,7 @@ public:
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double worldPos[3],
-                            double worldOrient[9] );
+                            double worldOrient[9] ) VTK_OVERRIDE;
 
   /**
    * This method is identical to the one above since the
@@ -71,7 +71,7 @@ public:
                             double displayPos[2],
                             double refWorldPos[2],
                             double worldPos[3],
-                            double worldOrient[9] );
+                            double worldOrient[9] ) VTK_OVERRIDE;
 
   /**
    * This method validates a world position by checking to see
@@ -79,14 +79,14 @@ public:
    * of the internal placer (essentially - is this world position
    * on the image?)
    */
-  int ValidateWorldPosition( double worldPos[3] );
+  int ValidateWorldPosition( double worldPos[3] ) VTK_OVERRIDE;
 
   /**
    * This method is identical to the one above since the bounded
    * plane point placer ignores orientation
    */
   int ValidateWorldPosition( double worldPos[3],
-                             double worldOrient[9]);
+                             double worldOrient[9]) VTK_OVERRIDE;
 
 
   /**
@@ -97,7 +97,7 @@ public:
    */
   int UpdateWorldPosition( vtkRenderer *ren,
                            double worldPos[3],
-                           double worldOrient[9]);
+                           double worldOrient[9]) VTK_OVERRIDE;
 
   /**
    * A method for configuring the internal placer according
@@ -107,7 +107,7 @@ public:
    * which would then cause the representation to update
    * all of its points
    */
-  int UpdateInternalState();
+  int UpdateInternalState() VTK_OVERRIDE;
 
   //@{
   /**
@@ -135,11 +135,11 @@ public:
    * Set the world tolerance. This propagates it to the internal
    * BoundedPlanePointPlacer.
    */
-  virtual void SetWorldTolerance( double s );
+  void SetWorldTolerance( double s ) VTK_OVERRIDE;
 
 protected:
   vtkImageActorPointPlacer();
-  ~vtkImageActorPointPlacer();
+  ~vtkImageActorPointPlacer() VTK_OVERRIDE;
 
 
   // The reference image actor. Must be configured before this placer

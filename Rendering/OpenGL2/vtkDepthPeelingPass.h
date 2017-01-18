@@ -58,20 +58,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDepthPeelingPass
 public:
   static vtkDepthPeelingPass *New();
   vtkTypeMacro(vtkDepthPeelingPass,vtkOpenGLRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s);
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
 
   //@{
   /**
@@ -117,12 +117,12 @@ public:
    */
 
   // vtkOpenGLRenderPass virtuals:
-  virtual bool PostReplaceShaderValues(std::string &vertexShader,
+  bool PostReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
                                    vtkProp *prop) VTK_OVERRIDE;
-  virtual bool SetShaderParameters(vtkShaderProgram *program,
+  bool SetShaderParameters(vtkShaderProgram *program,
                            vtkAbstractMapper *mapper, vtkProp *prop,
                            vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
 
@@ -135,7 +135,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkDepthPeelingPass();
+  ~vtkDepthPeelingPass() VTK_OVERRIDE;
 
   vtkRenderPass *TranslucentPass;
   vtkTimeStamp CheckTime;

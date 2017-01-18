@@ -109,7 +109,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkCheckerboardSplatter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkCheckerboardSplatter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Construct object with dimensions=(50,50,50); automatic computation of
@@ -317,15 +317,15 @@ public:
 
 protected:
   vtkCheckerboardSplatter();
-  ~vtkCheckerboardSplatter() {}
+  ~vtkCheckerboardSplatter() VTK_OVERRIDE {}
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int RequestInformation (vtkInformation *,
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData(vtkInformation *,
+                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   int OutputScalarType; //the type of output scalars
   int SampleDimensions[3]; // dimensions of volume to splat into

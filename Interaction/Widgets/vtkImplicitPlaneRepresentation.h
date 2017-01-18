@@ -73,7 +73,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitPlaneRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -309,23 +309,23 @@ public:
   /**
    * Methods to interface with the vtkSliderWidget.
    */
-  virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  virtual void PlaceWidget(double bounds[6]);
-  virtual void BuildRepresentation();
-  virtual void StartWidgetInteraction(double eventPos[2]);
-  virtual void WidgetInteraction(double newEventPos[2]);
-  virtual void EndWidgetInteraction(double newEventPos[2]);
+  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void BuildRepresentation() VTK_OVERRIDE;
+  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
+  void EndWidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
   //@}
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  virtual double *GetBounds();
-  virtual void GetActors(vtkPropCollection *pc);
-  virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  double *GetBounds() VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
   //@}
 
   // Manage the state of the widget
@@ -364,7 +364,7 @@ public:
 
 protected:
   vtkImplicitPlaneRepresentation();
-  ~vtkImplicitPlaneRepresentation();
+  ~vtkImplicitPlaneRepresentation() VTK_OVERRIDE;
 
   int RepresentationState;
 
@@ -441,7 +441,7 @@ protected:
   vtkCellPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  virtual void RegisterPickers();
+  void RegisterPickers() VTK_OVERRIDE;
 
   // Transform the normal (used for rotation)
   vtkTransform *Transform;

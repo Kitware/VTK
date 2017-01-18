@@ -40,16 +40,16 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedLocations : public vtkExtrac
 public:
   static vtkExtractSelectedLocations *New();
   vtkTypeMacro(vtkExtractSelectedLocations, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkExtractSelectedLocations();
-  ~vtkExtractSelectedLocations();
+  ~vtkExtractSelectedLocations() VTK_OVERRIDE;
 
   // Usual data generation method
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
                    vtkDataSet *output);

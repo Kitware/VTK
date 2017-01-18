@@ -50,7 +50,7 @@ class VTKRENDERINGCORE_EXPORT vtkFrustumCoverageCuller : public vtkCuller
 public:
   static vtkFrustumCoverageCuller *New();
   vtkTypeMacro(vtkFrustumCoverageCuller,vtkCuller);
-  void PrintSelf(ostream& os,vtkIndent indent);
+  void PrintSelf(ostream& os,vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -95,11 +95,11 @@ public:
    * the render process
    */
   double Cull( vtkRenderer *ren, vtkProp **propList,
-              int& listLength, int& initialized );
+              int& listLength, int& initialized ) VTK_OVERRIDE;
 
 protected:
   vtkFrustumCoverageCuller();
-  ~vtkFrustumCoverageCuller() {}
+  ~vtkFrustumCoverageCuller() VTK_OVERRIDE {}
 
   double       MinimumCoverage;
   double       MaximumCoverage;

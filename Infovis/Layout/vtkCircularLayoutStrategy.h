@@ -37,16 +37,16 @@ public:
   static vtkCircularLayoutStrategy *New();
 
   vtkTypeMacro(vtkCircularLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform the layout.
    */
-  void Layout();
+  void Layout() VTK_OVERRIDE;
 
 protected:
   vtkCircularLayoutStrategy();
-  ~vtkCircularLayoutStrategy();
+  ~vtkCircularLayoutStrategy() VTK_OVERRIDE;
 
 private:
   vtkCircularLayoutStrategy(const vtkCircularLayoutStrategy&) VTK_DELETE_FUNCTION;

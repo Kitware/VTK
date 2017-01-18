@@ -46,7 +46,7 @@ class VTKIOLEGACY_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkDataWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Created object with default header, ASCII format, and default names for
@@ -290,13 +290,13 @@ public:
 
 protected:
   vtkDataWriter();
-  ~vtkDataWriter();
+  ~vtkDataWriter() VTK_OVERRIDE;
 
   int WriteToOutputString;
   char *OutputString;
   int OutputStringLength;
 
-  void WriteData(); //dummy method to allow this class to be instantiated and delegated to
+  void WriteData() VTK_OVERRIDE; //dummy method to allow this class to be instantiated and delegated to
 
   char *FileName;
   char *Header;

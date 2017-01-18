@@ -376,7 +376,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             this->ReadNextDataLine(line);
             if (strncmp(line, "model:", 6) == 0)
             {
-              if (sscanf(line, " %*s %d %d %s", &xtimeSet, &fileSet, subLine) == 3)
+              if (sscanf(line, " %*s %d %d%*[ \t]%s", &xtimeSet, &fileSet, subLine) == 3)
               {
                 timeSet = xtimeSet;
                 fileSet = xfileSet;
@@ -500,7 +500,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         this->ReadNextDataLine(line);
         if (strncmp(line, "model:", 6) == 0)
         {
-          if (sscanf(line, " %*s %d %d %s", &xtimeSet, &fileSet, subLine) == 3)
+          if (sscanf(line, " %*s %d %d%*[ \t]%s", &xtimeSet, &fileSet, subLine) == 3)
           {
             timeSet = xtimeSet;
             fileSet = xfileSet;

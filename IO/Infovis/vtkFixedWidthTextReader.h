@@ -55,7 +55,7 @@ class VTKIOINFOVIS_EXPORT vtkFixedWidthTextReader : public vtkTableAlgorithm
 public:
   static vtkFixedWidthTextReader* New();
   vtkTypeMacro(vtkFixedWidthTextReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
@@ -98,12 +98,12 @@ public:
 
  protected:
   vtkFixedWidthTextReader();
-  ~vtkFixedWidthTextReader();
+  ~vtkFixedWidthTextReader() VTK_OVERRIDE;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) VTK_OVERRIDE;
 
   void OpenFile();
 

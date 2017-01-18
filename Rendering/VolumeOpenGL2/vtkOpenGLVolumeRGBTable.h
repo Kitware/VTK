@@ -181,7 +181,7 @@ protected:
   }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLVolumeRGBTable()
+  ~vtkOpenGLVolumeRGBTable() VTK_OVERRIDE
   {
     if (this->TextureObject)
     {

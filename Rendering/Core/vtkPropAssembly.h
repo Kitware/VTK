@@ -51,7 +51,7 @@ class VTKRENDERINGCORE_EXPORT vtkPropAssembly : public vtkProp
 {
 public:
   vtkTypeMacro(vtkPropAssembly,vtkProp);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create with an empty parts list.
@@ -79,40 +79,40 @@ public:
    * recursive. The parts of each assembly are rendered only if the
    * visibility for the prop is turned on.
    */
-  int RenderOpaqueGeometry(vtkViewport *ren);
-  virtual int RenderTranslucentPolygonalGeometry( vtkViewport *ren);
-  virtual int RenderVolumetricGeometry( vtkViewport *ren);
-  int RenderOverlay(vtkViewport *ren);
+  int RenderOpaqueGeometry(vtkViewport *ren) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry( vtkViewport *ren) VTK_OVERRIDE;
+  int RenderVolumetricGeometry( vtkViewport *ren) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *ren) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *);
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Get the bounds for this prop assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    * May return NULL in some cases (meaning the bounds is undefined).
    */
-  double *GetBounds();
+  double *GetBounds() VTK_OVERRIDE;
 
   /**
    * Shallow copy of this vtkPropAssembly.
    */
-  void ShallowCopy(vtkProp *Prop);
+  void ShallowCopy(vtkProp *Prop) VTK_OVERRIDE;
 
   /**
    * Override default GetMTime method to also consider all of the
    * prop assembly's parts.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -125,9 +125,9 @@ public:
    * when the list is exhausted. (See the superclass vtkProp for more
    * information about paths.)
    */
-  void InitPathTraversal();
-  vtkAssemblyPath *GetNextPath();
-  int GetNumberOfPaths();
+  void InitPathTraversal() VTK_OVERRIDE;
+  vtkAssemblyPath *GetNextPath() VTK_OVERRIDE;
+  int GetNumberOfPaths() VTK_OVERRIDE;
   //@}
 
   /**
@@ -135,11 +135,11 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Overload the superclass' vtkProp BuildPaths() method.
    */
-  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
+  void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path) VTK_OVERRIDE;
 
 protected:
   vtkPropAssembly();
-  ~vtkPropAssembly();
+  ~vtkPropAssembly() VTK_OVERRIDE;
 
   vtkPropCollection *Parts;
   double Bounds[6];

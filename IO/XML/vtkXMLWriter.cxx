@@ -69,10 +69,7 @@
 # include <io.h> /* unlink */
 #endif
 
-#if defined(__BORLANDC__)
-#include <cctype> // isalnum is defined here for some versions of Borland
-#endif
-
+#include <cctype> // for isalnum
 #include <locale> // C++ locale
 
 

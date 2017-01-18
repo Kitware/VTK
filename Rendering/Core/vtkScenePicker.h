@@ -61,7 +61,7 @@ class VTKRENDERINGCORE_EXPORT vtkScenePicker : public vtkObject
 public:
   static vtkScenePicker* New();
   vtkTypeMacro(vtkScenePicker, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -105,7 +105,7 @@ public:
 
 protected:
   vtkScenePicker();
-  ~vtkScenePicker();
+  ~vtkScenePicker() VTK_OVERRIDE;
 
   // Pick render entire viewport
   // Automatically invoked from vtkRenderer at the end of a still render.

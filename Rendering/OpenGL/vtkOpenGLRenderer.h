@@ -35,17 +35,17 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLRenderer : public vtkRenderer
 public:
   static vtkOpenGLRenderer *New();
   vtkTypeMacro(vtkOpenGLRenderer, vtkRenderer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Concrete open gl render method.
    */
-  void DeviceRender(void);
+  void DeviceRender(void) VTK_OVERRIDE;
 
   /**
    * Overridden to support hidden line removal.
    */
-  virtual void DeviceRenderOpaqueGeometry();
+  void DeviceRenderOpaqueGeometry() VTK_OVERRIDE;
 
   /**
    * Render translucent polygonal geometry. Default implementation just call
@@ -53,20 +53,20 @@ public:
    * Subclasses of vtkRenderer that can deal with depth peeling must
    * override this method.
    */
-  virtual void DeviceRenderTranslucentPolygonalGeometry();
+  void DeviceRenderTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   /**
    * Internal method temporarily removes lights before reloading them
    * into graphics pipeline.
    */
-  virtual void ClearLights(void);
+  void ClearLights(void) VTK_OVERRIDE;
 
-  virtual void Clear(void);
+  void Clear(void) VTK_OVERRIDE;
 
   /**
    * Ask lights to load themselves into graphics pipeline.
    */
-  int UpdateLights(void);
+  int UpdateLights(void) VTK_OVERRIDE;
 
   /**
    * Is rendering at translucent geometry stage using depth peeling and
@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkOpenGLRenderer();
-  ~vtkOpenGLRenderer();
+  ~vtkOpenGLRenderer() VTK_OVERRIDE;
 
   /**
    * Check the compilation status of some fragment shader source.
@@ -94,17 +94,17 @@ protected:
   void CheckCompilation(unsigned int fragmentShader);
 
   // Internal method to release graphics resources in any derived renderers.
-  virtual void ReleaseGraphicsResources(vtkWindow *w);
+  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
 
   // Picking functions to be implemented by sub-classes
-  virtual void DevicePickRender();
-  virtual void StartPick(unsigned int pickFromSize);
-  virtual void UpdatePickId();
-  virtual void DonePick();
-  virtual unsigned int GetPickedId();
-  virtual unsigned int GetNumPickedIds();
-  virtual int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer);
-  virtual double GetPickedZ();
+  void DevicePickRender() VTK_OVERRIDE;
+  void StartPick(unsigned int pickFromSize) VTK_OVERRIDE;
+  void UpdatePickId() VTK_OVERRIDE;
+  void DonePick() VTK_OVERRIDE;
+  unsigned int GetPickedId() VTK_OVERRIDE;
+  unsigned int GetNumPickedIds() VTK_OVERRIDE;
+  int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer) VTK_OVERRIDE;
+  double GetPickedZ() VTK_OVERRIDE;
 
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;

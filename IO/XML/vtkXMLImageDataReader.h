@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLImageDataReader : public vtkXMLStructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLImageDataReader,vtkXMLStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLImageDataReader *New();
 
   //@{
@@ -53,25 +53,25 @@ public:
    * For the specified port, copy the information this reader sets up in
    * SetupOutputInformation to outInfo
    */
-  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
 
 protected:
   vtkXMLImageDataReader();
-  ~vtkXMLImageDataReader();
+  ~vtkXMLImageDataReader() VTK_OVERRIDE;
 
   double Origin[3];
   double Spacing[3];
   int PieceExtent[6];
 
-  const char* GetDataSetName();
-  void SetOutputExtent(int* extent);
+  const char* GetDataSetName() VTK_OVERRIDE;
+  void SetOutputExtent(int* extent) VTK_OVERRIDE;
 
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
 
   // Setup the output's information.
-  void SetupOutputInformation(vtkInformation *outInfo);
+  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 
 

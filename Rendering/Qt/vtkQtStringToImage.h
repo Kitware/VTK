@@ -34,7 +34,7 @@ class VTKRENDERINGQT_EXPORT vtkQtStringToImage : public vtkStringToImage
 {
 public:
   vtkTypeMacro(vtkQtStringToImage, vtkStringToImage);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkQtStringToImage *New();
 
@@ -52,10 +52,10 @@ public:
    * is valid (it may not if GetBoundingBox() failed or if the string
    * was empty).
    */
-  virtual vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkUnicodeString& string, int dpi);
-  virtual vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkStdString& string, int dpi);
+  vtkVector2i GetBounds(vtkTextProperty *property,
+                                const vtkUnicodeString& string, int dpi) VTK_OVERRIDE;
+  vtkVector2i GetBounds(vtkTextProperty *property,
+                                const vtkStdString& string, int dpi) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -64,14 +64,14 @@ public:
    * vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
    * will be overwritten by the pixel width and height of the rendered string.
    */
-  virtual int RenderString(vtkTextProperty *property,
+  int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL);
-  virtual int RenderString(vtkTextProperty *property,
+                           int textDims[2] = NULL) VTK_OVERRIDE;
+  int RenderString(vtkTextProperty *property,
                            const vtkStdString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL);
+                           int textDims[2] = NULL) VTK_OVERRIDE;
   //@}
 
   /**
@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkQtStringToImage();
-  ~vtkQtStringToImage();
+  ~vtkQtStringToImage() VTK_OVERRIDE;
 
   class Internals;
   Internals* Implementation;

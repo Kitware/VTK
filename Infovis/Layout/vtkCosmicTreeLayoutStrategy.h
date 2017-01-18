@@ -42,13 +42,13 @@ class VTKINFOVISLAYOUT_EXPORT vtkCosmicTreeLayoutStrategy : public vtkGraphLayou
 {
 public:
   static vtkCosmicTreeLayoutStrategy* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   vtkTypeMacro(vtkCosmicTreeLayoutStrategy,vtkGraphLayoutStrategy);
 
   /**
    * Perform the layout.
    */
-  virtual void Layout();
+  void Layout() VTK_OVERRIDE;
 
   //@{
   /**
@@ -113,7 +113,7 @@ protected:
   };
 
   vtkCosmicTreeLayoutStrategy();
-  virtual ~vtkCosmicTreeLayoutStrategy();
+  ~vtkCosmicTreeLayoutStrategy() VTK_OVERRIDE;
 
   /**
    * Recursive routine used to lay out tree nodes. Called from Layout().

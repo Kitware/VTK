@@ -69,7 +69,7 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractPicker : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractPicker,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -143,7 +143,7 @@ public:
 
 protected:
   vtkAbstractPicker();
-  ~vtkAbstractPicker();
+  ~vtkAbstractPicker() VTK_OVERRIDE;
 
   virtual void Initialize();
 

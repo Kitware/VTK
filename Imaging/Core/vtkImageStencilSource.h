@@ -46,7 +46,7 @@ public:
   static vtkImageStencilSource *New();
   vtkTypeMacro(vtkImageStencilSource, vtkImageStencilAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -97,10 +97,10 @@ public:
 
 protected:
   vtkImageStencilSource();
-  ~vtkImageStencilSource();
+  ~vtkImageStencilSource() VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
   vtkImageData *InformationInput;
 

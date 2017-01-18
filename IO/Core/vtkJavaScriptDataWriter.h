@@ -38,7 +38,7 @@ class VTKIOCORE_EXPORT vtkJavaScriptDataWriter : public vtkWriter
 public:
   static vtkJavaScriptDataWriter* New();
   vtkTypeMacro(vtkJavaScriptDataWriter, vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -85,16 +85,16 @@ public:
 
 protected:
   vtkJavaScriptDataWriter();
-  ~vtkJavaScriptDataWriter();
+  ~vtkJavaScriptDataWriter() VTK_OVERRIDE;
 
   ofstream* OpenFile();
 
-  virtual void WriteData();
+  void WriteData() VTK_OVERRIDE;
   virtual void WriteTable(vtkTable* table, ostream *stream_ptr);
 
   // see algorithm for more info.
   // This writer takes in vtkTable.
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   char* VariableName;
   char* FileName;

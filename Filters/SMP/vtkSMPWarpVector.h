@@ -33,11 +33,11 @@ class VTKFILTERSSMP_EXPORT vtkSMPWarpVector : public vtkWarpVector
 public :
   vtkTypeMacro(vtkSMPWarpVector,vtkWarpVector);
   static vtkSMPWarpVector *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected :
   vtkSMPWarpVector();
-  ~vtkSMPWarpVector();
+  ~vtkSMPWarpVector() VTK_OVERRIDE;
 
 
   /**
@@ -45,7 +45,7 @@ protected :
    */
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
 
 private :
   vtkSMPWarpVector(const vtkSMPWarpVector&) VTK_DELETE_FUNCTION;

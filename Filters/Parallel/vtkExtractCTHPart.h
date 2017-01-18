@@ -67,7 +67,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkExtractCTHPart : public vtkMultiBlockDataSetA
 public:
   static vtkExtractCTHPart *New();
   vtkTypeMacro(vtkExtractCTHPart,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -130,7 +130,7 @@ public:
   /**
    * Look at clip plane to compute MTime.
    */
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -143,11 +143,11 @@ public:
 
 protected:
   vtkExtractCTHPart();
-  ~vtkExtractCTHPart();
+  ~vtkExtractCTHPart() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   /**
    * Compute the bounds over the composite dataset, some sub-dataset

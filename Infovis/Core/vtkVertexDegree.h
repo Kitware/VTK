@@ -39,7 +39,7 @@ public:
   static vtkVertexDegree *New();
 
   vtkTypeMacro(vtkVertexDegree, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -51,9 +51,9 @@ public:
 
 protected:
   vtkVertexDegree();
-  ~vtkVertexDegree();
+  ~vtkVertexDegree() VTK_OVERRIDE;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
 private:
 

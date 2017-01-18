@@ -61,7 +61,7 @@ public:
   static vtkAssemblyNode *New();
 
   vtkTypeMacro(vtkAssemblyNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -87,11 +87,11 @@ public:
    * Override the standard GetMTime() to check for the modified times
    * of the prop and matrix.
    */
-  virtual vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkAssemblyNode();
-  ~vtkAssemblyNode();
+  ~vtkAssemblyNode() VTK_OVERRIDE;
 
 private:
   vtkProp *ViewProp; //reference to vtkProp

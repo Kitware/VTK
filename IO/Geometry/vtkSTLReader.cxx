@@ -338,8 +338,11 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 {
   vtkDebugMacro(<< "Reading ASCII STL file");
 
-  // Ingest header and junk to get to first vertex
   char line[256];
+  float x[3];
+  int currentSolid = 0;
+
+  // header: solid ...
   if (!fgets(line, 255, fp))
   {
     vtkErrorMacro("STLReader error reading file: " << this->FileName
@@ -347,60 +350,59 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
     return false;
   }
 
-  int lineCount = 1;
-  int done = (fgets(line, 255, fp) == 0);
-  float x[3];
-  lineCount++;
-  if (!strcmp(line, "COLOR") || !strcmp(line, "color"))
+  int done = !fgets(line, 255, fp); // facet normal
+  int lineCount = 2;
+  if (strstr(line, "COLOR") || strstr(line, "color"))
   {
-      // if there is a color field, skip it
-      done = (fgets(line, 255, fp) == 0);
+      // was actually "color ..."
+      // get and discard next line, which should be "facet normal"
+      done = !fgets(line, 255, fp);
       lineCount++;
   }
 
   try
   {
-    int currentSolid = 0;
     // Go into loop, reading facet normal and vertices
     while (!done)
     {
+      vtkIdType pts[3];
+
       if (!fgets(line, 255, fp))
       {
-        throw std::runtime_error("unable to read outer loop.");
+        throw std::runtime_error("unable to read STL outer loop.");
       }
       lineCount++;
 
       if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
       {
-        throw std::runtime_error("unable to read point.");
+        throw std::runtime_error("unable to read STL vertex.");
       }
       lineCount++;
-
-      vtkIdType pts[3];
       pts[0] = newPts->InsertNextPoint(x);
+
       if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
       {
-        throw std::runtime_error("unable to read point.");
+        throw std::runtime_error("unable to read STL vertex.");
       }
       lineCount++;
-
       pts[1] = newPts->InsertNextPoint(x);
+
       if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
       {
-        throw std::runtime_error("unable to read reading point.");
+        throw std::runtime_error("unable to read STL vertex.");
       }
       lineCount++;
-
       pts[2] = newPts->InsertNextPoint(x);
-      if (!fgets(line, 255, fp)) // end loop
+
+      if (!fgets(line, 255, fp)) // endloop
       {
-        throw std::runtime_error("unable to read end loop.");
+        throw std::runtime_error("unable to read STL endloop.");
       }
       lineCount++;
 
-      if (!fgets(line, 255, fp)) // end facet
+      if (!fgets(line, 255, fp)) // endfacet
       {
-        throw std::runtime_error("unable to read end facet.");
+        throw std::runtime_error("unable to read STL endfacet.");
       }
       lineCount++;
 
@@ -414,13 +416,14 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       {
         this->UpdateProgress((newPolys->GetNumberOfCells()%50000) / 50000.0);
       }
-      done = (fscanf(fp,"%s", line) == EOF);
+
+      done = (fscanf(fp, "%s", line) == EOF);
       if (!strcmp(line, "ENDSOLID") || !strcmp(line, "endsolid"))
       {
         currentSolid++;
         if (!fgets(line, 255, fp) && !feof(fp))
         {
-          throw std::runtime_error("unable to read end solid.");
+          throw std::runtime_error("unable to read STL endsolid.");
         }
 
         done = feof(fp);
@@ -433,24 +436,32 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
             done = feof(fp);
             if (!done)
             {
-              throw std::runtime_error("unable to read solid.");
+              throw std::runtime_error("unable to read STL solid.");
             }
           }
           lineCount++;
           done = feof(fp);
         }
 
-        done = (fscanf(fp,"%s", line)==EOF);
-        if (!strstr(line, "COLOR") || !strstr(line, "color"))
+        // get facet, but could also have color
+        done = (fscanf(fp, "%s", line)==EOF);
+        if (!strcmp(line, "COLOR") || !strcmp(line, "color"))
         {
-          done = (fgets(line, 255, fp) == 0);
+          done = !fgets(line, 255, fp); // skip color field
           lineCount++;
-          done = done || (fscanf(fp,"%s", line)==EOF);
+        }
+
+        if (!done)
+        {
+          done = !fgets(line, 255, fp); // facet ...
+          lineCount++;
         }
       }
       else if (!done)
       {
-        done = (fgets(line, 255, fp) == 0);
+        // was 'endfacet'
+        // get and discard next line, which should be "facet normal"
+        done = !fgets(line, 255, fp);
         lineCount++;
       }
     }

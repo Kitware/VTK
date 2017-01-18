@@ -36,7 +36,7 @@ class VTKIOIMAGE_EXPORT vtkMedicalImageReader2 : public vtkImageReader2
 public:
   static vtkMedicalImageReader2 *New();
   vtkTypeMacro(vtkMedicalImageReader2,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkMedicalImageReader2();
-  ~vtkMedicalImageReader2();
+  ~vtkMedicalImageReader2() VTK_OVERRIDE;
 
   /**
    * Medical Image properties

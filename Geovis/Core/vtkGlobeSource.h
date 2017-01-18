@@ -48,7 +48,7 @@ class VTKGEOVISCORE_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlobeSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 
   //@{
@@ -146,12 +146,12 @@ public:
 
 protected:
   vtkGlobeSource();
-  ~vtkGlobeSource() {}
+  ~vtkGlobeSource() VTK_OVERRIDE {}
 
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
   void AddPoint(
     double theta, double phi, double radius,

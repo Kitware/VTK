@@ -36,18 +36,18 @@ class VTKPARALLELCORE_EXPORT vtkDummyCommunicator : public vtkCommunicator
 public:
   vtkTypeMacro(vtkDummyCommunicator, vtkCommunicator);
   static vtkDummyCommunicator *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
    * Since there is no one to communicate with, these methods just report an
    * error.
    */
-  virtual int SendVoidArray(const void *, vtkIdType, int, int, int) {
+  int SendVoidArray(const void *, vtkIdType, int, int, int) VTK_OVERRIDE {
     vtkWarningMacro("There is no one to send to.");
     return 0;
   }
-  virtual int ReceiveVoidArray(void *, vtkIdType, int, int, int) {
+  int ReceiveVoidArray(void *, vtkIdType, int, int, int) VTK_OVERRIDE {
     vtkWarningMacro("There is no one to receive from.");
     return 0;
   }
@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkDummyCommunicator();
-  virtual ~vtkDummyCommunicator();
+  ~vtkDummyCommunicator() VTK_OVERRIDE;
 
 private:
   vtkDummyCommunicator(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
