@@ -67,7 +67,7 @@ vtkVector2f vtkContextPolygon::GetPoint(vtkIdType index) const
 //-----------------------------------------------------------------------------
 vtkIdType vtkContextPolygon::GetNumberOfPoints() const
 {
-  return d->points.size();
+  return static_cast<vtkIdType>(d->points.size());
 }
 
 //-----------------------------------------------------------------------------

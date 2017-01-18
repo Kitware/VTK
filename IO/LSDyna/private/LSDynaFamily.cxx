@@ -427,7 +427,8 @@ int LSDynaFamily::BufferChunk( WordType wType, vtkIdType chunkSizeInWords )
   this->ChunkWord = 0;
   while ( bytesLeft )
   {
-    bytesRead = VTK_LSDYNA_READ(this->FD,(void*) buf,bytesLeft);
+    bytesRead = static_cast<vtkIdType>(
+      VTK_LSDYNA_READ(this->FD,(void*) buf,bytesLeft));
     this->ChunkValid += bytesRead;
     if ( bytesRead < bytesLeft )
     {
@@ -705,7 +706,7 @@ vtkIdType LSDynaFamily::GetStateSize() const
 //-----------------------------------------------------------------------------
 vtkIdType LSDynaFamily::GetNumberOfFiles()
 {
-  return this->Files.size();
+  return static_cast<vtkIdType>(this->Files.size());
 }
 
 //-----------------------------------------------------------------------------

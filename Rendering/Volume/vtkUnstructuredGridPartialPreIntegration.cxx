@@ -418,7 +418,7 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
       for (int j = 0; j < numscalars; j++)
       {
         std::vector<double> &cp = this->TransferFunctions[j].ControlPoints;
-        vtkIdType numcp = cp.size();
+        vtkIdType numcp = static_cast<vtkIdType>(cp.size());
         double minscalar, maxscalar;
         if (nearScalars[j] < farScalars[j])
         {

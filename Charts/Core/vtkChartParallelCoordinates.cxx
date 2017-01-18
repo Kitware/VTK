@@ -344,7 +344,7 @@ vtkAxis* vtkChartParallelCoordinates::GetAxis(int index)
 //-----------------------------------------------------------------------------
 vtkIdType vtkChartParallelCoordinates::GetNumberOfAxes()
 {
-  return this->Storage->Axes.size();
+  return static_cast<vtkIdType>(this->Storage->Axes.size());
 }
 
 //-----------------------------------------------------------------------------

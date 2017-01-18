@@ -149,7 +149,7 @@ void vtkContextScene::PaintIds()
   }
   for (size_t i = 0; i < size; ++i)
   {
-    this->LastPainter->ApplyId(i+1);
+    this->LastPainter->ApplyId(static_cast<vtkIdType>(i+1));
     (*this->Children)[i]->Paint(this->LastPainter);
   }
   this->Storage->IsDirty = false;

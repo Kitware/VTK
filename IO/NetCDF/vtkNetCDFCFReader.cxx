@@ -350,7 +350,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
         double v1 = this->Coordinates->GetValue(i);
         this->Bounds->SetValue(i, 0.5*(v0+v1));
       }
-      this->Bounds->SetValue(dimLen,
+      this->Bounds->SetValue(static_cast<vtkIdType>(dimLen),
         this->Coordinates->GetValue(static_cast<vtkIdType>(dimLen-1))+0.5*this->Spacing);
     }
   }
