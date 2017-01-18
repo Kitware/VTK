@@ -63,7 +63,7 @@ MET_GetFieldRecord(const char * _fieldName,
                    METAIO_STL::vector<MET_FieldRecordType *> * _fields)
   {
   METAIO_STL::vector<MET_FieldRecordType *>::iterator fieldIter;
-  for(fieldIter=_fields->begin(); fieldIter!=_fields->end(); ++fieldIter)
+  for(fieldIter=_fields->begin(); fieldIter!=_fields->end(); fieldIter++)
     {
     if(!strcmp((*fieldIter)->name, _fieldName))
       {
@@ -531,7 +531,7 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
   if(compressionTable->offsetList.size()>0)
     {
     MET_CompressionOffsetListType::const_iterator it = compressionTable->offsetList.end();
-    --it;
+    it--;
 
     if(uncompressedSeekPosition < (*it).uncompressedOffset)
       {
@@ -1033,7 +1033,7 @@ static bool MET_SkipToVal(METAIO_STREAM::istream &fp)
 static bool MET_IsComplete(METAIO_STL::vector<MET_FieldRecordType *> * fields)
   {
   METAIO_STL::vector<MET_FieldRecordType *>::iterator fieldIter;
-  for(fieldIter=fields->begin(); fieldIter!=fields->end(); ++fieldIter)
+  for(fieldIter=fields->begin(); fieldIter!=fields->end(); fieldIter++)
     {
     if((*fieldIter)->required && !(*fieldIter)->defined)
       {
@@ -1093,7 +1093,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
       }
 
     found = false;
-    for(fieldIter=fields->begin(); fieldIter!=fields->end(); ++fieldIter)
+    for(fieldIter=fields->begin(); fieldIter!=fields->end(); fieldIter++)
       {
       if(!strcmp((*fieldIter)->name, s))
         {
@@ -1297,7 +1297,7 @@ bool MET_Write(METAIO_STREAM::ostream &fp,
 
   int j;
   METAIO_STL::vector<MET_FieldRecordType *>::iterator fieldIter;
-  for(fieldIter=fields->begin(); fieldIter!=fields->end(); ++fieldIter)
+  for(fieldIter=fields->begin(); fieldIter!=fields->end(); fieldIter++)
     {
     switch((*fieldIter)->type)
       {
