@@ -35,7 +35,7 @@
  * shaders are defined in order to adjust its behavior for either type of data.
  *
  * @sa
- * vtkRenderPass vtkOpenGLRenderPass vtkValuePassHelper
+ * vtkRenderPass vtkOpenGLRenderPass
 */
 #ifndef vtkValuePass_h
 #define vtkValuePass_h

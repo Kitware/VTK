@@ -40,7 +40,6 @@ class vtkOpenGLVertexBufferObject;
 class vtkTextureObject;
 class vtkTransform;
 class vtkGenericOpenGLResourceFreeCallback;
-class vtkValuePassHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -492,10 +491,6 @@ protected:
   char *FragmentShaderCode;
   char *GeometryShaderCode;
   unsigned int TimerQuery;
-
-#if GL_ES_VERSION_3_0 != 1
-  vtkSmartPointer<vtkValuePassHelper> ValuePassHelper;
-#endif
 
   // are we currently drawing spheres/tubes
   bool DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor);
