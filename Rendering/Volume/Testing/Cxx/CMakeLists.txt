@@ -56,6 +56,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastAverageIP.cxx
   TestGPURayCastBlendModes.cxx
   TestGPURayCastCameraInside.cxx
+  TestGPURayCastCameraInsideClipping.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCameraInsideTransformation.cxx
   TestGPURayCastCellData.cxx

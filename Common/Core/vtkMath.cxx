@@ -3008,6 +3008,73 @@ vtkTypeBool vtkMath::PointIsWithinBounds(double point[3], double bounds[6], doub
 }
 
 //-----------------------------------------------------------------------------
+int vtkMath::PlaneIntersectsAABB(double const bounds[6],
+    double const normal[3], double const point[3])
+{
+  if (!bounds || !point || !normal)
+  {
+    return -2;
+  }
+
+  double nPoint[3];
+  double pPoint[3];
+
+  // X Component
+  if(normal[0] >= 0)
+  {
+    nPoint[0] = bounds[0];
+    pPoint[0] = bounds[1];
+  }
+  else
+  {
+    nPoint[0] = bounds[1];
+    pPoint[0] = bounds[0];
+  }
+
+  // Y Component
+  if(normal[1] >= 0)
+  {
+    nPoint[1] = bounds[2];
+    pPoint[1] = bounds[3];
+  }
+  else
+  {
+    nPoint[1] = bounds[3];
+    pPoint[1] = bounds[2];
+  }
+
+  // Z Component
+  if(normal[2] >= 0)
+  {
+    nPoint[2] = bounds[4];
+    pPoint[2] = bounds[5];
+  }
+  else
+  {
+    nPoint[2] = bounds[5];
+    pPoint[2] = bounds[4];
+  }
+
+  // Compute distances from nPoint/pPoint to the plane
+  // Distance = unit_N  *  (P_x - P_plane)
+  //          = a * px_1 + b * px_2 + c * px_3 - d
+  double const d = vtkMath::Dot(normal, point);
+
+  if ((nPoint[0] * normal[0] + nPoint[1] * normal[1] +
+    nPoint[2] * normal[2] - d) > 0)
+  {
+    return 1;
+  }
+  else if ((pPoint[0] * normal[0] + pPoint[1] * normal[1] +
+    pPoint[2] * normal[2] - d) < 0)
+  {
+    return -1;
+  }
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 double vtkMath::AngleBetweenVectors(const double v1[3], const double v2[3])
 {
   double cross[3];
