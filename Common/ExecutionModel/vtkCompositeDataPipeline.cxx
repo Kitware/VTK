@@ -17,6 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationExecutivePortKey.h"
@@ -366,6 +367,10 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
   {
     compositeOutput->PrepareForNewData();
     compositeOutput->CopyStructure(input);
+    if (input && input->GetFieldData())
+    {
+      compositeOutput->GetFieldData()->PassData(input->GetFieldData());
+    }
 
     vtkSmartPointer<vtkInformation> r =
       vtkSmartPointer<vtkInformation>::New();
