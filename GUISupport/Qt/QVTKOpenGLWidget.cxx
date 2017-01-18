@@ -499,18 +499,6 @@ void QVTKOpenGLWidget::doDeferredRender()
 //-----------------------------------------------------------------------------
 bool QVTKOpenGLWidget::event(QEvent* evt)
 {
-  switch (evt->type())
-  {
-    case QEvent::MouseButtonDblClick:
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonRelease:
-    case QEvent::MouseMove:
-      emit this->mouseEvent(static_cast<QMouseEvent*>(evt));
-      break;
-    default:
-      break;
-  }
-
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
     this->InteractorAdaptor->ProcessEvent(evt, this->RenderWindow->GetInteractor());
@@ -526,5 +514,38 @@ void QVTKOpenGLWidget::moveEvent(QMoveEvent* evt)
   if (this->RenderWindow)
   {
     this->RenderWindow->SetPosition(this->x(), this->y());
+  }
+}
+
+void QVTKOpenGLWidget::mousePressEvent(QMouseEvent* event)
+{
+  emit mouseEvent(event);
+
+  if (this->RenderWindow && this->RenderWindow->GetInteractor())
+  {
+    this->InteractorAdaptor->ProcessEvent(event,
+                                          this->RenderWindow->GetInteractor());
+  }
+}
+
+void QVTKOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
+{
+  emit mouseEvent(event);
+
+  if (this->RenderWindow && this->RenderWindow->GetInteractor())
+  {
+    this->InteractorAdaptor->ProcessEvent(event,
+                                          this->RenderWindow->GetInteractor());
+  }
+}
+
+void QVTKOpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  emit mouseEvent(event);
+
+  if (this->RenderWindow && this->RenderWindow->GetInteractor())
+  {
+    this->InteractorAdaptor->ProcessEvent(event,
+                                          this->RenderWindow->GetInteractor());
   }
 }
