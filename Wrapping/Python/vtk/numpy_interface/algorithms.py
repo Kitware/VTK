@@ -28,6 +28,8 @@ except ImportError:
 
 if sys.hexversion < 0x03000000:
     izip = itertools.izip
+    def next(itr):
+        return itr.next()
 else:
     izip = zip
 
@@ -941,7 +943,7 @@ def unstructured_from_composite_arrays(points, arrays, controller=None):
             itr = cpts.__iter__()
             while not it.IsDoneWithTraversal():
                 _id = it.GetCurrentFlatIndex()
-                if itr.next() is not dsa.NoneArray:
+                if next(itr) is not dsa.NoneArray:
                     lownership[_id] = rank
                 it.GoToNextItem()
         mpitype = _lookup_mpi_type(numpy.int32)
