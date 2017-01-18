@@ -105,7 +105,10 @@ public:
   /**
    * String representing database type (e.g. "mysql").
    */
-  vtkGetStringMacro(DatabaseType);
+  const char* GetDatabaseType() VTK_OVERRIDE
+  {
+    return this->DatabaseType;
+  }
   //@}
 
   //@{

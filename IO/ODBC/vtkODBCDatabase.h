@@ -155,7 +155,10 @@ public:
   /**
    * String representing database type (e.g. "ODBC").
    */
-  vtkGetStringMacro(DatabaseType);
+  const char* GetDatabaseType() VTK_OVERRIDE
+  {
+    return this->DatabaseType;
+  }
   //@}
 
   vtkStdString GetURL();

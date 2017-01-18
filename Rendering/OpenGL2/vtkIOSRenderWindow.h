@@ -51,17 +51,17 @@ class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWind
 public:
   static vtkIOSRenderWindow *New();
   vtkTypeMacro(vtkIOSRenderWindow,vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Begin the rendering process.
    */
-  virtual void Start();
+  void Start() VTK_OVERRIDE;
 
   /**
    * Finish the rendering process.
    */
-  virtual void Frame();
+  void Frame() VTK_OVERRIDE;
 
   /**
    * Specify various window parameters.
@@ -76,7 +76,7 @@ public:
   /**
    * Initialize the rendering window.
    */
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   /**
    * Change the window to fill the entire screen.  This is only partially
@@ -84,12 +84,12 @@ public:
    * before the window has been created, and it might not work on all
    * versions of OS X.
    */
-  virtual void SetFullScreen(int);
+  void SetFullScreen(int) VTK_OVERRIDE;
 
   /**
    * Remap the window.  This is not implemented for the vtkIOSRenderWindow.
    */
-  virtual void WindowRemap();
+  void WindowRemap() VTK_OVERRIDE;
 
   /**
    * Set the preferred window size to full screen.  This is not implemented
@@ -101,38 +101,38 @@ public:
   /**
    * Set the size of the window in pixels.
    */
-  virtual void SetSize(int a[2]);
-  virtual void SetSize(int,int);
+  void SetSize(int a[2]) VTK_OVERRIDE;
+  void SetSize(int,int) VTK_OVERRIDE;
   //@}
 
   /**
    * Get the current size of the window in pixels.
    */
-  virtual int *GetSize();
+  int *GetSize() VTK_OVERRIDE;
 
   //@{
   /**
    * Set the position of the window.
    */
-  virtual void SetPosition(int a[2]);
-  virtual void SetPosition(int,int);
+  void SetPosition(int a[2]) VTK_OVERRIDE;
+  void SetPosition(int,int) VTK_OVERRIDE;
   //@}
 
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int *GetScreenSize();
+  int *GetScreenSize() VTK_OVERRIDE;
 
   /**
    * Get the position in screen coordinates of the window.
    */
-  virtual int *GetPosition();
+  int *GetPosition() VTK_OVERRIDE;
 
   /**
    * Set the name of the window. This appears at the top of the window
    * normally.
    */
-  virtual void SetWindowName(const char *);
+  void SetWindowName(const char *) VTK_OVERRIDE;
 
   void SetNextWindowInfo(char *)
   {
