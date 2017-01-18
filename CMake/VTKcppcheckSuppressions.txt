@@ -79,6 +79,7 @@ stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
 unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
+unusedLabelSwitch:IO/Exodus/vtkCPExodusIINodalCoordinatesTemplate.txx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
@@ -91,6 +92,7 @@ knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
 // false positive: <http://trac.cppcheck.net/ticket/7889>
 knownConditionTrueFalse:IO/Parallel/vtkMultiBlockPLOT3DReader.cxx
 knownConditionTrueFalse:Parallel/MPI/Testing/Cxx/ExerciseMultiProcessController.cxx
+
 // false positive: <http://trac.cppcheck.net/ticket/7890>
 knownConditionTrueFalse:IO/LSDyna/vtkLSDynaReader.cxx
 knownConditionTrueFalse:Rendering/Annotation/vtkScalarBarActor.cxx
@@ -109,33 +111,6 @@ knownConditionTrueFalse:IO/XML/Testing/Cxx/TestHyperOctreeIO.cxx
 knownConditionTrueFalse:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
 
 // There are a fair number of these, but they are probably worth working through.
-// 217 warnings
-postfixOperator:Common/*
-postfixOperator:Examples/HyperTree/Cxx/*
-postfixOperator:Filters/*
-postfixOperator:IO/*
-postfixOperator:Parallel/Core/*
-postfixOperator:Rendering/*
-postfixOperator:Utilities/*
-// 30 warnings
-duplInheritedMember:Charts/Core/vtkChartMatrix.h
-duplInheritedMember:Charts/Core/vtkPlot3D.h
-duplInheritedMember:Common/DataModel/vtkGenericCellTessellator.h
-duplInheritedMember:Common/DataModel/vtkPlanes.h
-duplInheritedMember:Common/ExecutionModel/vtkStreamingDemandDrivenPipeline.h
-duplInheritedMember:Filters/FlowPaths/vtkAbstractInterpolatedVelocityField.h
-duplInheritedMember:Filters/Sources/vtkOutlineSource.h
-duplInheritedMember:IO/EnSight/vtkGenericEnSightReader.h
-duplInheritedMember:IO/Geometry/vtkMoleculeReaderBase.h
-duplInheritedMember:IO/SQL/vtkTableToDatabaseWriter.h
-duplInheritedMember:Imaging/Core/vtkImageReslice.h
-duplInheritedMember:Interaction/Widgets/vtkBiDimensionalRepresentation.h
-duplInheritedMember:Rendering/Core/vtkColorTransferFunction.h
-duplInheritedMember:Rendering/OpenGL/vtkStandardPolyDataPainter.h
-duplInheritedMember:Rendering/OpenGL/vtkXRenderWindowInteractor.h
-duplInheritedMember:Rendering/OpenGL2/vtkImageProcessingPass.h
-duplInheritedMember:Views/Infovis/vtkRenderView.h
-duplInheritedMember:Views/Infovis/vtkRenderedRepresentation.h
 // 16 warnings
 invalidPointerCast:Rendering/GL2PSOpenGL2/vtkOpenGLGL2PSHelperImpl.cxx
 invalidPointerCast:Rendering/OSPRay/vtkOSPRayPolyDataMapperNode.cxx
