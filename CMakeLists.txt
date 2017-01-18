@@ -1,4 +1,6 @@
+cmake_policy(SET CMP0025 OLD)
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_policy(SET CMP0025 OLD)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.
@@ -14,11 +16,22 @@ endif()
 project(VTK)
 
 # Make sure we have C++11 enabled.
-# Needed to make sure libraries and executables not built
-# through the module system use C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_EXTENSIONS False)
+# If CMake fails to detect what compiler is being used, allow an escape
+# for advanced users
+if( NOT cxx_nullptr IN_LIST CMAKE_CXX11_COMPILE_FEATURES)
+  option(VTK_IGNORE_CXX11_REQUIREMENT OFF)
+  if(NOT VTK_IGNORE_CMAKE_CXX11_CHECKS)
+    message(FATAL_ERROR "VTK now requires a compiler that supports C++11")
+  endif()
+endif()
+
+if(NOT VTK_IGNORE_CMAKE_CXX11_CHECKS)
+  # Needed to make sure libraries and executables not built by the
+  # vtkModuleMacros still have the C++11 compiler flags enabled
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED True)
+  set(CMAKE_CXX_EXTENSIONS False)
+endif()
 
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
