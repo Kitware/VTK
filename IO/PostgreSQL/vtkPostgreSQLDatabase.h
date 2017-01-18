@@ -101,7 +101,10 @@ public:
   /**
    * String representing database type (e.g. "psql").
    */
-  vtkGetStringMacro(DatabaseType);
+  const char* GetDatabaseType() VTK_OVERRIDE
+  {
+    return this->DatabaseType;
+  }
   //@}
 
   //@{
