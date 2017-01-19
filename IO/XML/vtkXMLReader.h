@@ -378,8 +378,7 @@ protected:
   int InReadData;
 
   virtual void ConvertGhostLevelsToGhostType(
-    FieldType type, vtkAbstractArray* data, vtkIdType startIndex,
-    vtkIdType numValues) {}
+    FieldType, vtkAbstractArray*, vtkIdType, vtkIdType) {}
 
   void ReadFieldData();
 

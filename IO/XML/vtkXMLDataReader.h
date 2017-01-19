@@ -125,7 +125,7 @@ private:
 
   void ConvertGhostLevelsToGhostType(
     FieldType type, vtkAbstractArray* data, vtkIdType startIndex,
-    vtkIdType numValues);
+    vtkIdType numValues) VTK_OVERRIDE;
 
 };
 
