@@ -18,7 +18,6 @@
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkDataSet.h"
 #include "vtkDataObjectTreeIterator.h"
-#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
@@ -93,6 +92,7 @@ public:
 
     this->ComponentBuffer->SetNumberOfComponents(1);
     this->OutputFloatArray->SetNumberOfComponents(1); /* GL_RED */
+    this->CCMapTime = 0;
   }
 
   ~vtkInternalsFloat()
@@ -153,6 +153,7 @@ public:
   vtkOpenGLBufferObject* CellFloatBuffer;
   vtkFloatArray* OutputFloatArray;
   std::vector<unsigned int> CellCellMap;
+  vtkMTimeType CCMapTime;
 private:
   vtkInternalsFloat(const vtkInternalsFloat&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInternalsFloat&) VTK_DELETE_FUNCTION;
@@ -328,6 +329,7 @@ vtkValuePass::vtkValuePass()
 , PassState(new Parameters())
 , RenderingMode(INVERTIBLE_LUT)
 {
+  this->MultiBlocksArray = NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -397,6 +399,82 @@ void vtkValuePass::SetScalarRange(double min, double max)
 }
 
 // ----------------------------------------------------------------------------
+void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
+{
+  int const count = s->GetPropArrayCount();
+  for (int i = 0; i < count; ++i)
+  {
+    vtkProp* prop = s->GetPropArray()[i];
+    vtkActor* actor = vtkActor::SafeDownCast(prop);
+    if (!actor)
+    {
+      continue;
+    }
+    vtkProperty* property = actor->GetProperty();
+    vtkMapper* mapper = actor->GetMapper();
+
+    vtkOpenGLPolyDataMapper *pdm =
+      vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+
+    unsigned long maptime = pdm->GetInputDataObject(0,0)->GetMTime();
+    if (this->ImplFloat->CCMapTime >= maptime)
+      {
+      //reuse
+      return;
+      }
+    this->ImplFloat->CellCellMap.clear();
+    this->ImplFloat->CCMapTime = maptime;
+
+    vtkCompositePolyDataMapper2 *cpdm =
+      vtkCompositePolyDataMapper2::SafeDownCast(mapper);
+    if (cpdm)
+      {
+      unsigned int offset = 0;
+      std::vector<vtkPolyData *> pdl = cpdm->GetRenderedList();
+      std::vector<vtkPolyData *>::iterator it;
+      for (it=pdl.begin(); it!=pdl.end(); ++it)
+        {
+        vtkPolyData *poly = *it;
+        vtkCellArray *prims[4];
+        prims[0] = poly->GetVerts();
+        prims[1] = poly->GetLines();
+        prims[2] = poly->GetPolys();
+        prims[3] = poly->GetStrips();
+        int representation = property->GetRepresentation();
+        vtkPoints *points = poly->GetPoints();
+        std::vector<unsigned int> aCellCellMap;
+        vtkOpenGLPolyDataMapper::MakeCellCellMap
+          (aCellCellMap,
+           cpdm->GetHaveAppleBug(),
+           poly, prims, representation, points);
+        for (unsigned int c = 0; c < aCellCellMap.size(); ++c)
+          {
+          this->ImplFloat->CellCellMap.push_back(aCellCellMap[c]+offset);
+          }
+        offset += poly->GetNumberOfCells();
+        }
+      }
+    else if (pdm)
+      {
+      vtkPolyData *poly = pdm->CurrentInput;
+      vtkCellArray *prims[4];
+      prims[0] = poly->GetVerts();
+      prims[1] = poly->GetLines();
+      prims[2] = poly->GetPolys();
+      prims[3] = poly->GetStrips();
+      int representation = property->GetRepresentation();
+      vtkPoints *points = poly->GetPoints();
+      vtkOpenGLPolyDataMapper::MakeCellCellMap
+          (this->ImplFloat->CellCellMap,
+           pdm->GetHaveAppleBug(),
+           poly, prims, representation, points);
+      }
+
+    break; //only ever draw one actor at a time in value mode so OK
+  }
+}
+
+// ----------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
@@ -407,25 +485,12 @@ void vtkValuePass::Render(const vtkRenderState *s)
   // GLRenderPass
   this->PreRender(s);
 
-  int const count = s->GetPropArrayCount();
-  for (int i = 0; i < count; i++)
-  {
-    vtkProp* prop = s->GetPropArray()[i];
-    vtkActor* actor = vtkActor::SafeDownCast(prop);
-    if (!actor)
+
+  if (this->RenderingMode==vtkValuePass::FLOATING_POINT &&
+      this->PassState->ArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
     {
-      continue;
+    this->PopulateCellCellMap(s);
     }
-    vtkProperty* property = actor->GetProperty();
-    vtkMapper* mapper = actor->GetMapper();
-    vtkOpenGLPolyDataMapper *pdm = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
-    if (!pdm)
-      {
-      continue;
-      }
-    std::vector<unsigned int> cellCellMap = pdm->GetCellCellMap();
-    this->ImplFloat->CellCellMap = cellCellMap;
-  }
   this->BeginPass(s->GetRenderer());
   this->NumberOfRenderedProps = 0;
   this->RenderOpaqueGeometry(s);
@@ -816,13 +881,15 @@ void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr)
     }
     else if (this->PassState->ArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
     {
+      //unroll the cell values such that every drawn triangle
+      //gets a copy of the value from its parent cell
+      //todo: cache and reuse if are stuck with uploading always
       size_t len = this->ImplFloat->CellCellMap.size();
       float *unrolled_data = new float[this->ImplFloat->CellCellMap.size()];
-      for (int i = 0; i < len; i++)
+      for (unsigned int i = 0; i < len; ++i)
       {
         unrolled_data[i] = data[this->ImplFloat->CellCellMap[i]];
       }
-
       this->ImplFloat->CellFloatBuffer->Upload(unrolled_data, len,
         vtkOpenGLBufferObject::TextureBuffer);
       delete[] unrolled_data;
@@ -1003,6 +1070,8 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
   if (!abstractArray)
   {
     abstractArray = this->GetArrayFromCompositeData(mapper, arrayPar);
+    this->MultiBlocksArray = abstractArray;
+    abstractArray->Delete();
   }
 
   if (!abstractArray)
@@ -1020,9 +1089,8 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(
    vtkMapper* mapper, Parameters* arrayPar)
 {
   vtkAbstractArray* abstractArray = NULL;
-  vtkCompositePolyDataMapper2 *cpdm = vtkCompositePolyDataMapper2::SafeDownCast(
-    mapper);
-
+  vtkCompositePolyDataMapper2 *cpdm =
+    vtkCompositePolyDataMapper2::SafeDownCast(mapper);
   if (cpdm)
   {
     std::vector<vtkPolyData *> pdl = cpdm->GetRenderedList();

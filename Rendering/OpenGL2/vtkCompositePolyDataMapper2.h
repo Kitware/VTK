@@ -130,12 +130,6 @@ public:
     {
     return this->RenderedList;
     }
-  /**
-   * Overridden to return aggregate data from block helpers.
-   */
-  void ClearCellCellMaps();
-  void AddCellCellMap(vtkPolyData *pd, std::vector<unsigned int> ccm);
-  virtual std::vector<unsigned int> GetCellCellMap();
 
 protected:
   vtkCompositePolyDataMapper2();
@@ -207,7 +201,6 @@ protected:
    */
   bool ColorMissingArraysWithNanColor;
 
-  std::map<vtkPolyData*, std::vector<unsigned int> > CellCellMaps;
   std::vector<vtkPolyData*> RenderedList;
 
 private:

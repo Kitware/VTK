@@ -42,7 +42,7 @@
 
 #include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-
+#include "vtkSmartPointer.h" //for ivar
 
 class vtkAbstractArray;
 class vtkActor;
@@ -231,6 +231,10 @@ public:
 
   vtkAbstractArray* GetArrayFromCompositeData(vtkMapper* mapper,
     Parameters* arrayPar);
+
+  vtkSmartPointer<vtkAbstractArray> MultiBlocksArray;
+
+  void PopulateCellCellMap(const vtkRenderState *s);
 
   vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkValuePass&) VTK_DELETE_FUNCTION;
