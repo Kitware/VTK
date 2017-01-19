@@ -380,7 +380,7 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
     = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Figure out the real bounds to use.
-  double *bounds;
+  const double *bounds;
   if (   (   (this->ModelBounds[0] < this->ModelBounds[1])
           || (this->OutputDimensions[0] == 1) )
       && (   (this->ModelBounds[2] < this->ModelBounds[3])

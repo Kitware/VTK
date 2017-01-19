@@ -876,7 +876,7 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet *ds)
   for (vtkIdType i = 0; i < num; i++)
   {
     ids->SetValue(i, this->CellIdCounter++);
-    double *bds = ds->GetCell(i)->GetBounds();
+    const double *bds = ds->GetCell(i)->GetBounds();
     xcoords->SetValue(i, (bds[0]+bds[1])*0.5);
     ycoords->SetValue(i, (bds[2]+bds[3])*0.5);
     zcoords->SetValue(i, (bds[4]+bds[5])*0.5);

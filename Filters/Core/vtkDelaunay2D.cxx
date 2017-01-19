@@ -321,7 +321,6 @@ int vtkDelaunay2D::RequestData(
   double center[3], radius, tol, x[3];
   double n1[3], n2[3];
   int *triUse = NULL;
-  double *bounds;
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
 
@@ -404,7 +403,7 @@ int vtkDelaunay2D::RequestData(
     tPoints = NULL;
   }
 
-  bounds = points->GetBounds();
+  const double *bounds = points->GetBounds();
   center[0] = (bounds[0]+bounds[1])/2.0;
   center[1] = (bounds[2]+bounds[3])/2.0;
   center[2] = (bounds[4]+bounds[5])/2.0;

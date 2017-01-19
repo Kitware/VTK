@@ -301,7 +301,7 @@ int TestValuePasses(int argc, char* argv[])
 
   vtkSmartPointer<vtkElevationFilter> ef = vtkSmartPointer<vtkElevationFilter>::New();
   ef->SetInputConnection(imageSource->GetOutputPort());
-  double *bds = image->GetBounds();
+  const double *bds = image->GetBounds();
   ef->SetLowPoint(bds[0],bds[2],bds[4]);
   ef->SetHighPoint(bds[0],bds[2],bds[5]);
 

@@ -397,7 +397,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
     return;
   }
 
-  double *bounds = this->GetMapper()->GetBounds();
+  const double *bounds = this->GetMapper()->GetBounds();
 
   // Offset by half of width.
   double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * this->Scale[0];

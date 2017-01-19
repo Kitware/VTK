@@ -206,7 +206,7 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( numIds > 0 )
   {
-    double *bounds=this->GetBounds();
+    const double *bounds=this->GetBounds();
 
     os << indent << "Bounds: \n";
     os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";

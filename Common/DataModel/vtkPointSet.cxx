@@ -90,13 +90,11 @@ void vtkPointSet::Initialize()
 //----------------------------------------------------------------------------
 void vtkPointSet::ComputeBounds()
 {
-  double *bounds;
-
   if ( this->Points )
   {
     if ( this->GetMTime() >= this->ComputeTime )
     {
-      bounds = this->Points->GetBounds();
+      const double *bounds = this->Points->GetBounds();
       for (int i=0; i<6; i++)
       {
         this->Bounds[i] = bounds[i];

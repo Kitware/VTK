@@ -156,7 +156,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       double scale[3];
       data->GetOrigin(origin);
       vol->GetScale(scale);
-      double *bds = vol->GetBounds();
+      const double *bds = vol->GetBounds();
       origin[0] = bds[0];
       origin[1] = bds[2];
       origin[2] = bds[4];

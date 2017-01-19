@@ -217,7 +217,7 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  double *bounds = this->GetBounds();
+  const double *bounds = this->GetBounds();
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";

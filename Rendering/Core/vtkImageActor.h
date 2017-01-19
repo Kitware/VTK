@@ -98,7 +98,7 @@ public:
   /**
    * Get the bounds of this image actor. Either copy the bounds
    * into a user provided array or return a pointer to an array.
-   * In either case the boudns is expressed as a 6-vector
+   * In either case the bounds is expressed as a 6-vector
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   double *GetBounds() VTK_OVERRIDE;

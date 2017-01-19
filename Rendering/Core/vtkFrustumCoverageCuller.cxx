@@ -40,18 +40,18 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
                                       int& listLength,
                                       int& initialized )
 {
-  vtkProp            *prop;
+  vtkProp              *prop;
   double               total_time;
-  double             *bounds, center[3];
+  double               center[3];
   double               radius = 0.0;
-  double              planes[24], d;
+  double               planes[24], d;
   double               coverage, screen_bounds[4];
   double               previous_time;
-  int                 i, propLoop;
+  int                  i, propLoop;
   double               full_w, full_h, part_w, part_h;
   double               *allocatedTimeList;
   double               *distanceList;
-  int                 index1, index2;
+  int                  index1, index2;
   double               tmp;
 
   // We will create a center distance entry for each prop in the list
@@ -91,7 +91,7 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     }
 
     // Get the bounds of the prop and compute an enclosing sphere
-    bounds = prop->GetBounds();
+    const double *bounds = prop->GetBounds();
 
     // We start with a coverage of 1.0 and set it to zero if the prop
     // is culled during the plane tests

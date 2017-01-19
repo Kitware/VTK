@@ -1512,7 +1512,7 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   // intersect the bounding box.
   bool edgeInside[VTK_MAX_CYL_RESOLUTION];
   double x1[3], x2[3], p1[3], p2[3], t1, t2;
-  double *bounds = this->Outline->GetOutput()->GetBounds();
+  const double *bounds = this->Outline->GetOutput()->GetBounds();
   int plane1, plane2;
   for (pid=0; pid < res; ++pid)
   {

@@ -74,7 +74,7 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
 
   // add a plane
   vtkNew<vtkPlaneSource> plane;
-  double *bounds = molmapper->GetBounds();
+  const double *bounds = molmapper->GetBounds();
   plane->SetOrigin(bounds[0], bounds[2], bounds[4]);
   plane->SetPoint1(bounds[1], bounds[2], bounds[4]);
   plane->SetPoint2(bounds[0], bounds[2], bounds[5]);

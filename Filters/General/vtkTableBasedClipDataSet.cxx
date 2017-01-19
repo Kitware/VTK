@@ -1959,7 +1959,7 @@ void vtkTableBasedClipDataSet::ClipImageData( vtkDataSet * inputGrd,
   vtkImageData       * volImage = vtkImageData::SafeDownCast( inputGrd );
   volImage->GetDimensions( dataDims );
   volImage->GetSpacing( spacings );
-  double             * dataBBox = volImage->GetBounds();
+  const double       * dataBBox = volImage->GetBounds();
 
   vtkDoubleArray     * pxCoords = vtkDoubleArray::New();
   vtkDoubleArray     * pyCoords = vtkDoubleArray::New();

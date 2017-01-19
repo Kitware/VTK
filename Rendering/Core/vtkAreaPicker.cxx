@@ -251,7 +251,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
         if ( mapper )
         {
           propCandidate->PokeMatrix(path->GetLastNode()->GetMatrix());
-          double* bds = propCandidate->GetBounds();
+          const double* bds = propCandidate->GetBounds();
           propCandidate->PokeMatrix(NULL);
           for (int i = 0; i < 6; i++)
           {

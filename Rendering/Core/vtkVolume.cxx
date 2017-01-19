@@ -189,7 +189,7 @@ double vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
     double *aspect = ren->GetAspect();
     vtkMatrix4x4 *mat = cam->GetCompositeProjectionTransformMatrix(
       aspect[0]/aspect[1], 0.0, 1.0 );
-    double *bounds = this->GetBounds();
+    const double *bounds = this->GetBounds();
     double minX =  1.0;
     double maxX = -1.0;
     double minY =  1.0;
@@ -234,7 +234,7 @@ double vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
 double *vtkVolume::GetBounds()
 {
   int i,n;
-  double *bounds, bbox[24], *fptr;
+  double bbox[24], *fptr;
 
   // get the bounds of the Mapper if we have one
   if (!this->Mapper)
@@ -242,11 +242,11 @@ double *vtkVolume::GetBounds()
     return this->Bounds;
   }
 
-  bounds = this->Mapper->GetBounds();
+  const double *bounds = this->Mapper->GetBounds();
   // Check for the special case when the mapper's bounds are unknown
   if (!bounds)
   {
-    return bounds;
+    return NULL;
   }
 
   // fill out vertices of a bounding box

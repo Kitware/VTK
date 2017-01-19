@@ -614,7 +614,7 @@ void FindNeighbors(diy::mpi::communicator comm,
         vtkDataSet *ds = inputBlocks[b];
         if (ds)
         {
-          double *ibounds = ds->GetBounds();
+          const double *ibounds = ds->GetBounds();
           if ((intersects = vtkBoundingBox(sbounds).Intersects(ibounds)) == true)
           {
             break;

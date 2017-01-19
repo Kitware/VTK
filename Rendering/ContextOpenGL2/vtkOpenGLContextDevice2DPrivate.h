@@ -359,7 +359,7 @@ public:
     fptr = f;
     if (this->TextureProperties & vtkContextDevice2D::Repeat)
     {
-      double* textureBounds = this->Texture->GetInput()->GetBounds();
+      const double* textureBounds = this->Texture->GetInput()->GetBounds();
       float rangeX = (textureBounds[1] - textureBounds[0]) ?
         textureBounds[1] - textureBounds[0] : 1.;
       float rangeY = (textureBounds[3] - textureBounds[2]) ?

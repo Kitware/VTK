@@ -672,7 +672,7 @@ void vtkOpenGLGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
 
   // Get actor info
   vtkMatrix4x4 *actorMatrix = textAct->GetMatrix();
-  double *actorBounds = textAct->GetBounds();
+  const double *actorBounds = textAct->GetBounds();
   double textPos[3] = {(actorBounds[1] + actorBounds[0]) * 0.5,
                        (actorBounds[3] + actorBounds[2]) * 0.5,
                        (actorBounds[5] + actorBounds[4]) * 0.5};
@@ -837,7 +837,7 @@ void vtkOpenGLGL2PSExporter::DrawTexturedActor2D(vtkTexturedActor2D *act,
   vtkPolyData* poly = vtkPolyData::SafeDownCast(mapper->GetInputDataObject(0, 0));
   if (poly)
   {
-    double *bounds = poly->GetBounds();
+    const double *bounds = poly->GetBounds();
     rect[0] += static_cast<int>(bounds[0] + 0.5);
     rect[1] += static_cast<int>(bounds[2] + 0.5);
     rect[2] = static_cast<int>(bounds[1] - bounds[0] + 0.5);

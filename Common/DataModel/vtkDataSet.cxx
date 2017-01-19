@@ -716,8 +716,6 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  double *bounds;
-
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
 
@@ -727,7 +725,7 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point Data:\n";
   this->PointData->PrintSelf(os,indent.GetNextIndent());
 
-  bounds = this->GetBounds();
+  const double *bounds = this->GetBounds();
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";

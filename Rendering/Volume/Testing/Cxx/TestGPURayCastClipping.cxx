@@ -75,7 +75,7 @@ int TestGPURayCastClipping(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 0.5, 0.1);
 
   // Test cropping now
-  double* bounds = reader->GetOutput()->GetBounds();
+  const double* bounds = reader->GetOutput()->GetBounds();
   vtkNew<vtkPlane> clipPlane1;
   clipPlane1->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.0, 0.0);
   clipPlane1->SetNormal(0.8, 0.0, 0.0);

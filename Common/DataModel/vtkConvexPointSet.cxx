@@ -372,7 +372,8 @@ double *vtkConvexPointSet::GetParametricCoords()
 
   this->ParametricCoords->SetNumberOfComponents(3);
   this->ParametricCoords->SetNumberOfTuples(numPts);
-  double p[3], x[3], *bounds = this->GetBounds();
+  double p[3], x[3];
+  const double *bounds = this->GetBounds();
   int i, j;
   for (i=0; i < numPts; i++)
   {

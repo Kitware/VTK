@@ -207,7 +207,7 @@ double *vtkImageStack::GetBounds()
   vtkImageSlice *image = 0;
   while ( (image = this->Images->GetNextImage(pit)) != 0)
   {
-    double *b = image->GetBounds();
+    const double *b = image->GetBounds();
     if (b)
     {
       nobounds = false;

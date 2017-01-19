@@ -677,7 +677,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int maxTextMapper = 0;
     int tempi[2], fontSize;
     double sf, twr, swr;
-    double *bounds;
+    const double *bounds;
     bool iconExists   (false);
     bool symbolExists (false);
 

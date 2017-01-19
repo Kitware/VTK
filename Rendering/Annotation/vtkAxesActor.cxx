@@ -331,7 +331,7 @@ void vtkAxesActor::ReleaseGraphicsResources(vtkWindow *win)
 //----------------------------------------------------------------------------
 void vtkAxesActor::GetBounds(double bounds[6])
 {
-  double *bds = this->GetBounds();
+  const double *bds = this->GetBounds();
   bounds[0] = bds[0];
   bounds[1] = bds[1];
   bounds[2] = bds[2];

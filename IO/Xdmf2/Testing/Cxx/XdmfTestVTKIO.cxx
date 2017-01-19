@@ -111,8 +111,8 @@ bool DoDataObjectsDiffer(vtkDataObject *dobj1, vtkDataObject *dobj2)
       cerr << "Number of Cells/Points test failed" << endl;
       return true;
     }
-    double *bds1 = ds1->GetBounds();
-    double *bds2 = ds2->GetBounds();
+    const double *bds1 = ds1->GetBounds();
+    const double *bds2 = ds2->GetBounds();
     if ((bds1[0]!=bds2[0]) ||
         (bds1[1]!=bds2[1]) ||
         (bds1[2]!=bds2[2]) ||

@@ -1372,7 +1372,6 @@ void vtkStaticPointLocator::FreeSearchStructure()
 //
 void vtkStaticPointLocator::BuildLocator()
 {
-  double *bounds;
   vtkIdType numBuckets;
   double level;
   int ndivs[3];
@@ -1405,7 +1404,7 @@ void vtkStaticPointLocator::BuildLocator()
   //  level and divisions. The GetBounds() method below can be very slow;
   // hopefully it is cached or otherwise accelerated.
   //
-  bounds = this->DataSet->GetBounds();
+  const double *bounds = this->DataSet->GetBounds();
   int numNonZeroWidths = 3;
   for (i=0; i<3; i++)
   {

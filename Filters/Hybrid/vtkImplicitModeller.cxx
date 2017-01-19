@@ -367,7 +367,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   vtkImageData *output;
   double maxDistance;
   int i;
-  double *bounds, adjBounds[6];
+  double adjBounds[6];
   double *spacing;
   double *origin;
   int slabSize, slabMin, slabMax;
@@ -414,7 +414,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   }
 
 
-  bounds = userData->Input[threadId]->GetBounds();
+  const double *bounds = userData->Input[threadId]->GetBounds();
   for (i=0; i<3; i++)
   {
     adjBounds[2*i] = bounds[2*i] - maxDistance;
@@ -495,7 +495,7 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller *self,
 {
   int i, j, k, updateTime;
   vtkIdType cellNum;
-  double *bounds, adjBounds[6];
+  double adjBounds[6];
   double pcoords[3];
   int outExt[6];
   double x[3], prevDistance2, distance, distance2;
@@ -539,7 +539,7 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller *self,
   for (cellNum=0; cellNum < input->GetNumberOfCells(); cellNum++)
   {
     cell = input->GetCell(cellNum);
-    bounds = cell->GetBounds();
+    const double *bounds = cell->GetBounds();
     for (i=0; i<3; i++)
     {
       adjBounds[2*i] = bounds[2*i] - maxDistance;
@@ -912,7 +912,8 @@ int vtkImplicitModeller::RequestData(
 // Compute ModelBounds from input geometry.
 double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
 {
-  double *bounds, maxDist;
+  const double * bounds;
+  double maxDist;
   int i;
   vtkImageData *output=this->GetOutput();
   double tempd[3];

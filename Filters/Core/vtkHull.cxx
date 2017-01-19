@@ -484,7 +484,7 @@ int vtkHull::RequestData(
   vtkIdType      numPoints;
   vtkPoints      *outPoints;
   vtkCellArray   *outPolys;
-  double          *bounds      = input->GetBounds();
+  const double *bounds = input->GetBounds();
 
   // Get the number of points in the input data
   numPoints = input->GetNumberOfPoints();
@@ -572,7 +572,7 @@ void vtkHull::ComputePlaneDistances(vtkPolyData *input)
 // other planes to clip this polygon.
 void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
                                       vtkCellArray *outPolys,
-                                      double *bounds)
+                                      const double *bounds)
 {
   int            i, j, k, q;
   double         previousD, d, crosspoint;
@@ -686,7 +686,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
   delete [] pnts;
 }
 
-void vtkHull::CreateInitialPolygon( double *verts, int i, double *bounds)
+void vtkHull::CreateInitialPolygon( double *verts, int i, const double *bounds)
 {
   double         center[3], d, planeCenter[3];
   double         v1[3], v2[3], norm, dotProduct;

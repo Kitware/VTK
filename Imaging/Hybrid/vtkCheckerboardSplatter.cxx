@@ -762,7 +762,7 @@ void vtkCheckerboardSplatter::ComputeModelBounds(vtkDataSet *input,
                                                  vtkImageData *output,
                                                  vtkInformation *outInfo)
 {
-  double *bounds;
+  const double *bounds;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously
