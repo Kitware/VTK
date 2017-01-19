@@ -136,8 +136,8 @@ int vtkPOpenFOAMReader::RequestInformation(vtkInformation *request,
   }
 
   if (*this->Superclass::FileNameOld != this->Superclass::FileName
-      || this->Superclass::ListTimeStepsByControlDict
-          != this->Superclass::ListTimeStepsByControlDictOld
+      || this->Superclass::ListTimeStepsByControlDict != this->Superclass::ListTimeStepsByControlDictOld
+      || this->Superclass::SkipZeroTime != this->Superclass::SkipZeroTimeOld
       || this->Superclass::Refresh)
   {
     // retain selection status when just refreshing a case
@@ -207,6 +207,7 @@ int vtkPOpenFOAMReader::RequestInformation(vtkInformation *request,
         vtkOpenFOAMReader *masterReader = vtkOpenFOAMReader::New();
         masterReader->SetFileName(this->FileName);
         masterReader->SetParent(this);
+        masterReader->SetSkipZeroTime(this->SkipZeroTime);
         masterReader->SetUse64BitLabels(this->Use64BitLabels);
         masterReader->SetUse64BitFloats(this->Use64BitFloats);
         if (!masterReader->MakeInformationVector(outputVector, procNames

@@ -28,6 +28,7 @@
  * GUI Based selection of mesh regions and fields available in the case,
  * minor bug fixes, strict memory allocation checks,
  * minor performance enhancements by Philippose Rajan (sarith@rocketmail.com).
+ *
  * Token-based FoamFile format lexer/parser,
  * performance/stability/compatibility enhancements, gzipped file
  * support, lagrangian field support, variable timestep support,
@@ -36,6 +37,9 @@
  * support, old mesh format support, parallelization support for
  * decomposed cases in conjunction with vtkPOpenFOAMReader, et. al. by
  * Takuya Oshima of Niigata University, Japan (oshima@eng.niigata-u.ac.jp).
+ *
+ * Misc cleanup, bugfixes, improvements
+ * Mark Olesen (OpenCFD Ltd.)
 */
 
 #ifndef vtkOpenFOAMReader_h
@@ -61,7 +65,7 @@ public:
   void PrintSelf(ostream &, vtkIndent) VTK_OVERRIDE;
 
   /**
-   * Determine if the file can be readed with this reader.
+   * Determine if the file can be read with this reader.
    */
   int CanReadFile(const char *);
 
@@ -203,8 +207,8 @@ public:
   /**
    * Set/Get whether to create cell-to-point translated data for cell-type data
    */
-  vtkSetMacro(CreateCellToPoint,int);
-  vtkGetMacro(CreateCellToPoint,int);
+  vtkSetMacro(CreateCellToPoint, int);
+  vtkGetMacro(CreateCellToPoint, int);
   vtkBooleanMacro(CreateCellToPoint, int);
   //@}
 
@@ -229,11 +233,24 @@ public:
   // Option for reading old binary lagrangian/positions format
   //@{
   /**
-   * Set/Get whether the lagrangian/positions is in OF 1.3 format
+   * Set/Get whether the lagrangian/positions have additional data or not.
+   * For historical reasons, PositionsIsIn13Format is used to denote that
+   * the positions only have x,y,z value and the cell of the enclosing cell.
+   * In OpenFOAM 1.4-2.4, positions included facei and stepFraction information.
    */
   vtkSetMacro(PositionsIsIn13Format, int);
   vtkGetMacro(PositionsIsIn13Format, int);
   vtkBooleanMacro(PositionsIsIn13Format, int);
+  //@}
+
+  //@{
+  /**
+   * Ignore 0/ time directory, which is normally missing Lagrangian fields
+   * and may have many dictionary functionality that we cannot easily handle.
+   */
+  vtkSetMacro(SkipZeroTime, bool);
+  vtkGetMacro(SkipZeroTime, bool);
+  vtkBooleanMacro(SkipZeroTime, bool);
   //@}
 
   //@{
@@ -306,11 +323,14 @@ protected:
   // for decomposing polyhedra on-the-fly
   int DecomposePolyhedra;
 
-  // for reading old binary lagrangian/positions format
+  // for lagrangian/positions without extra data (OF 1.4 - 2.4)
   int PositionsIsIn13Format;
 
   // for reading point/face/cell-Zones
   int ReadZones;
+
+  // Ignore 0/ directory
+  bool SkipZeroTime;
 
   // determine if time directories are listed according to controlDict
   int ListTimeStepsByControlDict;
@@ -318,11 +338,11 @@ protected:
   // add dimensions to array names
   int AddDimensionsToArrayNames;
 
-  // Expect label size to be 64-bit integers instead of the default 32.
+  // Expect label size to be 64-bit integers instead of 32-bit.
   bool Use64BitLabels;
 
-  // Expect float data to be 64-bit floats instead of the default 32. Note that
-  // vtkFloatArrays may still be used -- this just tells the reader how to
+  // Expect float data to be 64-bit floats instead of 32-bit.
+  // Note that vtkFloatArrays may still be used -- this just tells the reader how to
   // parse the binary data.
   bool Use64BitFloats;
 
@@ -344,6 +364,7 @@ protected:
 
   // preserved old information
   vtkStdString *FileNameOld;
+  bool SkipZeroTimeOld;
   int ListTimeStepsByControlDictOld;
   int CreateCellToPointOld;
   int DecomposePolyhedraOld;
