@@ -519,13 +519,10 @@ namespace {
   }
 
   // Convenience method------------------------------------------------------
-  inline void InsertPoint(double x[3], vtkPoints *outPts, vtkCellArray *ca,
-                          vtkCellData *inCD, vtkCellData *outCD,
-                          vtkIdType cellId, vtkIdType newCellId)
+  inline void InsertPoint(double x[3], vtkPoints *outPts, vtkCellArray *ca)
   {
     vtkIdType newPtId = outPts->InsertNextPoint(x);
     ca->InsertCellPoint(newPtId);
-    outCD->CopyData(inCD,cellId,newCellId);
   }
 
   // Process a polyline-------------------------------------------------------
@@ -630,10 +627,11 @@ namespace {
       else //whole line is inside and therefore output
       {
         newCellId = outLines->InsertNextCell(npts);
+        outCellData->CopyData(inCellData,cellId,newCellId);
+
         for (i=0; i < npts; ++i)
         {
-          InsertPoint(inPts->GetPoint(pts[i]), outPts, outLines,
-                      inCellData, outCellData, cellId, newCellId);
+          InsertPoint(inPts->GetPoint(pts[i]), outPts, outLines);
         }
       }
     }//if no intersections
@@ -674,10 +672,10 @@ namespace {
       // Output line segments
       numInsertedPts = endIdx - startIdx + 1;
       newCellId = outLines->InsertNextCell(numInsertedPts);
+      outCellData->CopyData(inCellData,cellId,newCellId);
       for (i=startIdx; i <= endIdx; ++i)
       {
-        InsertPoint(sortedPoints[i].X, outPts, outLines,
-                    inCellData,outCellData,cellId,newCellId);
+        InsertPoint(sortedPoints[i].X, outPts, outLines);
       }
       startIdx = endIdx;
     }//over all sorted points
@@ -886,19 +884,19 @@ namespace {
       if ( vtkPolygon::PointInPolygon(inPts->GetPoint(pts[0]), numLoopPts, l, loopBds, n) == 1 )
       {
         newCellId = outPolys->InsertNextCell(npts);
+        outCellData->CopyData(inCellData,cellId,newCellId);
         for (i=0; i < npts; ++i)
         {// add entire poly to output
-          InsertPoint(inPts->GetPoint(pts[i]), outPts, outPolys,
-                      inCellData, outCellData, cellId, newCellId);
+          InsertPoint(inPts->GetPoint(pts[i]), outPts, outPolys);
         }
       }
       else if ( vtkPolygon::PointInPolygon(loop->Points->GetPoint(0), npts, p, polyBds, n) == 1 )
       {// add entire loop to output
         newCellId = outPolys->InsertNextCell(numLoopPts);
+        outCellData->CopyData(inCellData,cellId,newCellId);
         for (i=0; i < numLoopPts; ++i)
         {
-          InsertPoint(loop->Points->GetPoint(i), outPts, outPolys,
-                      inCellData, outCellData, cellId, newCellId);
+          InsertPoint(loop->Points->GetPoint(i), outPts, outPolys);
         }
       }
       else
@@ -996,12 +994,13 @@ namespace {
         numInsertedPts = 0;
         thisCell = cells[0];
         newCellId = outPolys->InsertNextCell(numInsertedPts);
+        outCellData->CopyData(inCellData,cellId,newCellId);
+
         do
         {
           visited[nextId] = 1;
           numInsertedPts++;
-          InsertPoint(pDataPts->GetPoint(nextId), outPts, outPolys,
-                      inCellData, outCellData, cellId, newCellId);
+          InsertPoint(pDataPts->GetPoint(nextId), outPts, outPolys);
           pData->GetCellPoints(thisCell,thisNPts,thisPts);
           nextId = (thisPts[0] != nextId ? thisPts[0] : thisPts[1] );
           pData->GetPointCells(nextId, ncells, cells);
