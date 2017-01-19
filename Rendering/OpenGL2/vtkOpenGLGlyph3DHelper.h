@@ -56,6 +56,7 @@ public:
 
   /**
    * Fast path for rendering glyphs comprised of only one type of primative
+   * Must set this->CurrentInput explicitly before calling.
    */
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
       std::vector<unsigned char> &colors, std::vector<float> &matrices,

@@ -53,6 +53,7 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
   this->ModelColor = NULL;
   this->UseFastPath = false;
   this->UsingInstancing = false;
+  this->PopulateSelectionSettings = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -380,7 +381,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   this->Primitives[PrimitiveTris].VAO->SetForceEmulation(
     !vtkOpenGLRenderWindow::GetContextSupportsOpenGL32());
 
-  this->CurrentInput = this->GetInput();
   this->UsingInstancing = false;
 
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -574,7 +574,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     reinterpret_cast<const GLvoid *>(NULL),
     numPts);
 #else
-  if (GLEW_ARB_instanced_arrays)
+  if (GLEW_ARB_instanced_arrays &&
+      this->Primitives[PrimitiveTris].IBO->IndexCount > 0)
   {
     glDrawElementsInstancedARB(GL_TRIANGLES,
       static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),

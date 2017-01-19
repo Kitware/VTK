@@ -235,6 +235,7 @@ bool vtkCompositeDataPipeline::ShouldIterateOverInput(vtkInformationVector** inI
         // the filter upstream will iterate
 
         if (strcmp(inputType, "vtkCompositeDataSet") == 0 ||
+            strcmp(inputType, "vtkDataObjectTree") == 0 ||
             strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 ||
             strcmp(inputType, "vtkOverlappingAMR") == 0 ||
             strcmp(inputType, "vtkNonOverlappingAMR") == 0 ||
