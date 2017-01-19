@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkIOSRenderWindowInteractor();
-  ~vtkIOSRenderWindowInteractor();
+  ~vtkIOSRenderWindowInteractor() VTK_OVERRIDE;
 
   /**
    * Accessors for the IOS member variables. These should be used at all time, even
