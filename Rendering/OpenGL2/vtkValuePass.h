@@ -229,7 +229,7 @@ public:
  private:
   vtkDataArray* GetCurrentArray(vtkMapper* mapper, Parameters* arrayPar);
 
-  vtkAbstractArray* GetArrayFromCompositeData(vtkDataObject* dataObject,
+  vtkAbstractArray* GetArrayFromCompositeData(vtkMapper* mapper,
     Parameters* arrayPar);
 
   vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;

@@ -115,9 +115,15 @@ public:
   bool GetMarked() { return this->Marked; }
   void SetMarked(bool v) { this->Marked = v; }
 
+  /**
+   * Accessor to the ordered list of PolyData that we end last drew.
+   */
+  std::vector<vtkPolyData*> GetRenderedList(){ return this->RenderedList; }
+
+  std::map<vtkPolyData *, vtkCompositeMapperHelperData *> Data;
+
 protected:
   vtkCompositePolyDataMapper2 *Parent;
-  std::map<vtkPolyData *, vtkCompositeMapperHelperData *> Data;
 
   bool Marked;
 
@@ -178,6 +184,8 @@ protected:
   vtkHardwareSelector *CurrentSelector;
   double CurrentAmbientIntensity;
   double CurrentDiffuseIntensity;
+
+  std::vector<vtkPolyData*> RenderedList;
 
 private:
   vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
@@ -465,12 +473,14 @@ void vtkCompositeMapperHelper2::DrawIBO(
     //   prog->SetUniform3f("ambientColorUniform", ambientColor);
     // }
 
+    this->RenderedList.clear();
     for (dataIter it = this->Data.begin(); it != this->Data.end(); )
     {
       vtkCompositeMapperHelperData *starthdata = it->second;
       vtkCompositeMapperHelperData *endhdata = starthdata;
       do
       {
+        this->RenderedList.push_back(it->first);
         endhdata = it->second;
         ++it;
       }
@@ -604,6 +614,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
 
   dataIter iter;
   unsigned int voffset = 0;
+  this->Parent->ClearCellCellMaps();
   for (iter = this->Data.begin(); iter != this->Data.end(); ++iter)
   {
     vtkCompositeMapperHelperData *hdata = iter->second;
@@ -833,6 +844,8 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
 
   this->AppendCellTextures(ren, act, prims, representation,
     newColors, newNorms, poly);
+
+  this->Parent->AddCellCellMap(poly, this->GetCellCellMap());
 
   hdata->PrimOffsets[4] = (newColors.size() ? newColors.size()/4 : newNorms.size()/4);
 
@@ -1340,6 +1353,8 @@ void vtkCompositePolyDataMapper2::Render(
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     this->GetInputDataObject(0, 0));
 
+  this->RenderedList.clear();
+
   // the first step is to gather up the polydata based on their
   // signatures (aka have normals, have scalars etc)
   if (this->HelperMTime < this->GetInputDataObject(0, 0)->GetMTime() ||
@@ -1459,6 +1474,12 @@ void vtkCompositePolyDataMapper2::Render(
   {
     vtkCompositeMapperHelper2 *helper = hiter->second;
     helper->RenderPiece(ren,actor);
+
+    std::vector<vtkPolyData *> pdl = helper->GetRenderedList();
+    for (int i = 0; i < pdl.size(); i++)
+    {
+      this->RenderedList.push_back(pdl[i]);
+    }
   }
 }
 
@@ -1542,4 +1563,56 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   {
     this->BlockState.Visibility.pop();
   }
+}
+
+//-----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::ClearCellCellMaps()
+{
+  this->CellCellMaps.clear();
+}
+
+//-----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::AddCellCellMap(vtkPolyData *pd,
+                                                 std::vector<unsigned int> map)
+{
+  this->CellCellMaps[pd] = map;
+}
+
+//-----------------------------------------------------------------------------
+std::vector<unsigned int> vtkCompositePolyDataMapper2::GetCellCellMap()
+{
+  //the order things were drawn in
+  std::vector<vtkPolyData *> pdl = this->GetRenderedList();
+
+
+  unsigned int offset = 0;
+  unsigned int blk_cnt = 0;
+
+  std::vector<vtkPolyData *>::iterator it;
+
+  //accumulated list of tri->cell ids we make
+  std::vector<unsigned int> allCellCellMap;
+  for (it=pdl.begin(); it!=pdl.end(); ++it)
+  {
+    vtkPolyData *pd = *it;
+    std::map<vtkPolyData *, std::vector<unsigned int> >::iterator ccmiter =
+      this->CellCellMaps.find(pd);
+    if (ccmiter != this->CellCellMaps.end())
+    {
+      //we found the tri->cell id list for the pd
+      std::vector<unsigned int> aCellCellMap = ccmiter->second;
+      for (int c = 0; c < aCellCellMap.size(); c++)
+      {
+        //cerr << blk_cnt << " : "
+        //     << c << " : "
+        //     << offset << " : "
+        //     << aCellCellMap[c] << " : "
+        //     << aCellCellMap[c]+offset << endl;
+        allCellCellMap.push_back(aCellCellMap[c]+offset);
+      }
+      offset += pd->GetNumberOfCells();
+      blk_cnt++;
+    }
+  }
+  return allCellCellMap;
 }

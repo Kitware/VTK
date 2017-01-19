@@ -224,6 +224,13 @@ public:
     PrimitiveEnd
   };
 
+  /**
+   * Get access to the map of glprim to vtkcell ids
+   */
+  virtual std::vector<unsigned int> GetCellCellMap() {
+    return this->CellCellMap;
+  }
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper() VTK_OVERRIDE;
@@ -503,6 +510,9 @@ protected:
   // get how big to make the points when doing point picking
   // typically 2 for points, 4 for lines, 6 for surface
   int GetPointPickingPrimitiveSize(int primType);
+
+
+  std::vector<unsigned int> CellCellMap;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;

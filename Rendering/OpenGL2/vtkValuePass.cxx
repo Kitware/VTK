@@ -15,8 +15,10 @@
 #include <cassert>
 
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositePolyDataMapper2.h"
 #include "vtkDataSet.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
@@ -26,6 +28,7 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPolyData.h"
@@ -40,7 +43,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTimeStamp.h"
 #include "vtkValuePass.h"
-
+#include <vector>
 
 struct vtkValuePass::Parameters
 {
@@ -149,7 +152,7 @@ public:
   vtkTextureObject* CellFloatTexture;
   vtkOpenGLBufferObject* CellFloatBuffer;
   vtkFloatArray* OutputFloatArray;
-
+  std::vector<unsigned int> CellCellMap;
 private:
   vtkInternalsFloat(const vtkInternalsFloat&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInternalsFloat&) VTK_DELETE_FUNCTION;
@@ -404,6 +407,25 @@ void vtkValuePass::Render(const vtkRenderState *s)
   // GLRenderPass
   this->PreRender(s);
 
+  int const count = s->GetPropArrayCount();
+  for (int i = 0; i < count; i++)
+  {
+    vtkProp* prop = s->GetPropArray()[i];
+    vtkActor* actor = vtkActor::SafeDownCast(prop);
+    if (!actor)
+    {
+      continue;
+    }
+    vtkProperty* property = actor->GetProperty();
+    vtkMapper* mapper = actor->GetMapper();
+    vtkOpenGLPolyDataMapper *pdm = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+    if (!pdm)
+      {
+      continue;
+      }
+    std::vector<unsigned int> cellCellMap = pdm->GetCellCellMap();
+    this->ImplFloat->CellCellMap = cellCellMap;
+  }
   this->BeginPass(s->GetRenderer());
   this->NumberOfRenderedProps = 0;
   this->RenderOpaqueGeometry(s);
@@ -794,8 +816,16 @@ void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr)
     }
     else if (this->PassState->ArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
     {
-      this->ImplFloat->CellFloatBuffer->Upload(data, static_cast<size_t>(numTuples),
+      size_t len = this->ImplFloat->CellCellMap.size();
+      float *unrolled_data = new float[this->ImplFloat->CellCellMap.size()];
+      for (int i = 0; i < len; i++)
+      {
+        unrolled_data[i] = data[this->ImplFloat->CellCellMap[i]];
+      }
+
+      this->ImplFloat->CellFloatBuffer->Upload(unrolled_data, len,
         vtkOpenGLBufferObject::TextureBuffer);
+      delete[] unrolled_data;
 
       this->ImplFloat->CellFloatTexture->CreateTextureBuffer(
         static_cast<unsigned int>(numTuples), 1, VTK_FLOAT,
@@ -972,7 +1002,7 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
   // Check for a composite data set
   if (!abstractArray)
   {
-    abstractArray = this->GetArrayFromCompositeData(dataObject, arrayPar);
+    abstractArray = this->GetArrayFromCompositeData(mapper, arrayPar);
   }
 
   if (!abstractArray)
@@ -987,35 +1017,38 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
 
 //-------------------------------------------------------------------
 vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(
-  vtkDataObject* dataObject, Parameters* arrayPar)
+   vtkMapper* mapper, Parameters* arrayPar)
 {
   vtkAbstractArray* abstractArray = NULL;
-  vtkCompositeDataSet *compositeInput = vtkCompositeDataSet::SafeDownCast(
-    dataObject);
+  vtkCompositePolyDataMapper2 *cpdm = vtkCompositePolyDataMapper2::SafeDownCast(
+    mapper);
 
-  if (compositeInput)
+  if (cpdm)
   {
-    vtkSmartPointer<vtkDataObjectTreeIterator> iter =
-      vtkSmartPointer<vtkDataObjectTreeIterator>::New();
-    iter->SetDataSet(compositeInput);
-    iter->SkipEmptyNodesOn();
-    iter->VisitOnlyLeavesOn();
-
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-      iter->GoToNextItem())
+    std::vector<vtkPolyData *> pdl = cpdm->GetRenderedList();
+    std::vector<vtkPolyData *>::iterator it;
+    for (it=pdl.begin(); it!=pdl.end(); ++it)
     {
-      vtkDataObject *dso = iter->GetCurrentDataObject();
-      vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
-      if (pd)
-      {
-        int cellFlag;
-        abstractArray = vtkAbstractMapper::GetAbstractScalars(pd,
+      vtkPolyData *pd = *it;
+      int cellFlag;
+      vtkAbstractArray *blocksArray =
+        vtkAbstractMapper::GetAbstractScalars(pd,
           arrayPar->ArrayMode, arrayPar->ArrayAccessMode, arrayPar->ArrayId,
           arrayPar->ArrayName.c_str(), cellFlag);
 
-        if (abstractArray)
+      if (blocksArray)
+      {
+        if (!abstractArray)
         {
-          break;
+          abstractArray = blocksArray->NewInstance();
+          abstractArray->DeepCopy(blocksArray);
+        }
+      else
+        {
+          abstractArray->InsertTuples(abstractArray->GetNumberOfTuples(),
+                                      blocksArray->GetNumberOfTuples(),
+                                      0,
+                                      blocksArray);
         }
       }
     }

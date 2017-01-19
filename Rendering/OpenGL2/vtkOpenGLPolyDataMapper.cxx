@@ -2710,6 +2710,26 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   vtkPointData *pd = poly->GetPointData();
   vtkCellData *cd = poly->GetCellData();
   vtkPoints *points = poly->GetPoints();
+
+  // TODO: do this only when needed and cache as much as possible, also
+  // reuse below rather than redo
+  // Provide access to the tri -> vtkcell mapping
+  this->CellCellMap.clear();
+  if (this->HaveAppleBug)
+    {
+    //todo: test that this works as expected with valuepass
+    unsigned int numCells = poly->GetNumberOfCells();
+    for (unsigned int i = 0; i < numCells; i++)
+      {
+      this->CellCellMap.push_back(i);
+      }
+    }
+  else
+    {
+    vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
+        prims, this->CellCellMap, representation, points);
+    }
+
   if (selector)
   {
     switch (selector->GetCurrentPass())
