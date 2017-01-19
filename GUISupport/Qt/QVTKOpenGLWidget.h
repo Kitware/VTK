@@ -250,6 +250,10 @@ protected:
   void paintGL() Q_DECL_OVERRIDE;
   void moveEvent(QMoveEvent* event) Q_DECL_OVERRIDE;
 
+  void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+  void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+  void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
   /**
    * This method is called in paintGL() to render the image cache on to the device.
    * return false, if cache couldn't be used for painting. In that case, the
