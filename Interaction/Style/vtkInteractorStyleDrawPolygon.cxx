@@ -48,7 +48,7 @@ public:
 
   vtkIdType GetNumberOfPoints() const
   {
-    return this->points.size();
+    return static_cast<vtkIdType>(this->points.size());
   }
 
   void Clear()

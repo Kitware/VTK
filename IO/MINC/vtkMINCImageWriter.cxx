@@ -1408,7 +1408,7 @@ void vtkMINCImageWriterExecuteChunk(
     // Also need to break if the spatial dimension
     // corresponding to idim has flipped.
 
-    dimprod *= count[idim];
+    dimprod *= static_cast<vtkIdType>(count[idim]);
   }
 
   T2 *outPtr = buffer;
@@ -1688,7 +1688,7 @@ int vtkMINCImageWriter::WriteMINCData(
     if (idim < nminmaxdims)
     {
       // Number of chunks is product of dimensions in minmax.
-      nchunks *= count[idim];
+      nchunks *= static_cast<vtkIdType>(count[idim]);
 
       // After each chunk, we will increment inPtr by chunkInc.
       if (chunkInc == 0)
@@ -1706,7 +1706,7 @@ int vtkMINCImageWriter::WriteMINCData(
     }
     else
     {
-      chunkSize *= count[idim];
+      chunkSize *= static_cast<vtkIdType>(count[idim]);
     }
   }
 
@@ -1750,10 +1750,11 @@ int vtkMINCImageWriter::WriteMINCData(
       count2[idim] = 1;
       if (permutedInc[idim] != 0)
       {
-        minmaxIdx += (start2[idim] - start[idim])*minmaxInc;
-        minmaxInc *= count[idim];
+        minmaxIdx += static_cast<vtkIdType>(
+          (start2[idim] - start[idim])*minmaxInc);
+        minmaxInc *= static_cast<vtkIdType>(count[idim]);
       }
-      chunkProd *= count[idim];
+      chunkProd *= static_cast<vtkIdType>(count[idim]);
     }
 
     // Space to store the computed min and max of each chunk.

@@ -156,7 +156,7 @@ int vtkTableToArray::RequestData(
   }
 
   vtkDenseArray<double>* const array = vtkDenseArray<double>::New();
-  array->Resize(table->GetNumberOfRows(), columns.size());
+  array->Resize(table->GetNumberOfRows(), static_cast<vtkIdType>(columns.size()));
   array->SetDimensionLabel(0, "row");
   array->SetDimensionLabel(1, "column");
 
@@ -164,7 +164,8 @@ int vtkTableToArray::RequestData(
   {
     for(size_t j = 0; j != columns.size(); ++j)
     {
-      array->SetValue(i, j, columns[j]->GetVariantValue(i).ToDouble());
+      array->SetValue(i, static_cast<vtkIdType>(j),
+        columns[j]->GetVariantValue(i).ToDouble());
     }
   }
 

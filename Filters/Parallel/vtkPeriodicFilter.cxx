@@ -148,7 +148,7 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
     if (controller)
     {
       controller->AllReduce(&this->PeriodNumbers.front(), reducedPeriodNumbers,
-        this->PeriodNumbers.size(), vtkCommunicator::MAX_OP);
+        static_cast<vtkIdType>(this->PeriodNumbers.size()), vtkCommunicator::MAX_OP);
       int i = 0;
       iter->InitTraversal();
       while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)

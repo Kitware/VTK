@@ -147,7 +147,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # the following warnings when built with the MS compilers. Qt guys should
   # fix their code. Until they do, keep the Qt chatter off the VTK dashboard
   # results:
-  "[Qq]t([Cc]ore|[Gg]ui).*warning C4127: conditional expression is constant"
+  "[Qq]t([Cc]ore|[Gg]ui).*(warning|note)"
   "[Qq]t.*h.*warning.*declaration of .* shadows a member of .this"
   "[Qq]t.*h.*warning.*(copy constructor|assignment operator) could not be generated"
   "warning C4244: 'initializing' : conversion from 'qint64' to 'int', possible loss of data"
@@ -157,6 +157,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "[Qq]t.*q.*h.*note: while compiling"
   "[Qq]t.*q.*h.*note: see reference"
   "[Qq]t.*ui_"
+  "[Qq]t.*note: see reference"
+  "[Qq]t.*warning C4714"
 
   # Specifically for HP compiler, mask out
   "Utilities.(vtkjpeg|vtksqlite).*warning.*more strictly aligned type"

@@ -276,7 +276,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   switch (outData->GetScalarType())
   {
     vtkTemplateMacro(
-      outIncA *= vtkImageGaussianSmoothGetTypeSize(static_cast<VTK_TT*>(0))
+      outIncA *= static_cast<vtkIdType>(
+        vtkImageGaussianSmoothGetTypeSize(static_cast<VTK_TT*>(0)))
       );
     default:
       vtkErrorMacro("Unknown scalar type");

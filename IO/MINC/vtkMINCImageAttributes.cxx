@@ -893,8 +893,8 @@ void vtkMINCImageAttributes::SetAttributeValueAsString(
 
   vtkCharArray *array = vtkCharArray::New();
   // Allocate an extra byte to store a null terminator.
-  array->Resize(length + 1);
-  char *dest = array->WritePointer(0, length);
+  array->Resize(static_cast<vtkIdType>(length + 1));
+  char *dest = array->WritePointer(0, static_cast<vtkIdType>(length));
   strncpy(dest, value, length);
   dest[length] = '\0';
   this->SetAttributeValueAsArray(variable, attribute, array);

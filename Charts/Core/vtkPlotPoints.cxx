@@ -440,7 +440,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
       if (low->pos.GetX() >= min.GetX() && low->pos.GetX() <= max.GetX() &&
           low->pos.GetY() >= min.GetY() && low->pos.GetY() <= max.GetY())
       {
-        selected.push_back(low->index);
+        selected.push_back(static_cast<int>(low->index));
       }
       else if (low->pos.GetX() > max.GetX())
       {
@@ -448,7 +448,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
       }
       ++low;
   }
-  this->Selection->SetNumberOfTuples(selected.size());
+  this->Selection->SetNumberOfTuples(static_cast<vtkIdType>(selected.size()));
   vtkIdType *ptr = static_cast<vtkIdType *>(this->Selection->GetVoidPointer(0));
   for (size_t i = 0; i < selected.size(); ++i)
   {

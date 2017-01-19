@@ -900,7 +900,7 @@ void vtkLSDynaPart::BuildCells()
 
   //make the unstrucuted grid data structures point to the
   //Cells vectors underlying memory
-  vtkIdType cellDataSize = this->Cells->dataSize();
+  vtkIdType cellDataSize = static_cast<vtkIdType>(this->Cells->dataSize());
 
   //copy the contents from the part into a cell array.
   vtkIdTypeArray *cellArray = vtkIdTypeArray::New();

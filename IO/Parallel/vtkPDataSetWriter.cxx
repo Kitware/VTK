@@ -367,7 +367,7 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
     int nRanks = this->Controller->GetNumberOfProcesses();
 
     int nPiecesTotal = 0;
-    vtkIdType nPieces = this->Extents.size();
+    vtkIdType nPieces = static_cast<vtkIdType>(this->Extents.size());
 
     vtkIdType* offsets = 0;
     vtkIdType* nPiecesAll = 0;

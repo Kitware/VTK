@@ -313,7 +313,7 @@ class vtkPlotBarSegment : public vtkObject {
               (targetPoint.GetY() < 0 && targetPoint.GetY() > low->pos.GetY()))
           {
             *location = low->pos;
-            return low->index;
+            return static_cast<vtkIdType>(low->index);
           }
         }
         // Is the left side of the bar beyond the point?
@@ -386,7 +386,7 @@ class vtkPlotBarSegment : public vtkObject {
               (targetMax.GetY() < 0 && low->pos.GetY() <= targetMax.GetY()) ||
               (targetMin.GetY() < 0 && targetMax.GetY() > 0))
           {
-            selected.push_back(low->index);
+            selected.push_back(static_cast<int>(low->index));
           }
         }
         // Is the left side of the bar beyond the box?
@@ -403,7 +403,7 @@ class vtkPlotBarSegment : public vtkObject {
       }
       else
       {
-        this->Bar->GetSelection()->SetNumberOfTuples(selected.size());
+        this->Bar->GetSelection()->SetNumberOfTuples(static_cast<vtkIdType>(selected.size()));
         vtkIdType *ptr =
             static_cast<vtkIdType *>(this->Bar->GetSelection()->GetVoidPointer(0));
         for (size_t i = 0; i < selected.size(); ++i)

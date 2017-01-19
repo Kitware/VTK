@@ -2405,9 +2405,9 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
   {
     p->CurrentState = 0;
   }
-  else if ( p->CurrentState >= (int) p->TimeValues.size() )
+  else if ( p->CurrentState >= static_cast<vtkIdType>(p->TimeValues.size()) )
   {
-    p->CurrentState = p->TimeValues.size() - 1;
+    p->CurrentState = static_cast<vtkIdType>(p->TimeValues.size() - 1);
   }
 
   int newAdaptLevel = p->Fam.TimeAdaptLevel( p->CurrentState );
@@ -3143,7 +3143,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
 
   //make sure that the root files has room left for the amount of data we are going to request
   //if it doesn't we know it can't have part names
-  vtkIdType numParts = p->PartIds.size();
+  vtkIdType numParts = static_cast<vtkIdType>(p->PartIds.size());
   vtkIdType partTitlesByteSize = p->Fam.GetWordSize() * (2 + numParts); //NType + NUMPRop + (header part ids)
   partTitlesByteSize += (numParts * 72); //names are constant at 72 bytes each independent of word size
 

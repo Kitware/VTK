@@ -321,7 +321,7 @@ int vtkSelectionSource::RequestData(
     vtkIdType numCommonElems = 0;
     if (!this->Internal->StringIDs.empty())
     {
-      numCommonElems = this->Internal->StringIDs[0].size();
+      numCommonElems = static_cast<vtkIdType>(this->Internal->StringIDs[0].size());
     }
     if (piece+1 >= (int)this->Internal->StringIDs.size() &&
         numCommonElems == 0)
@@ -349,7 +349,7 @@ int vtkSelectionSource::RequestData(
         if (!selSet.empty())
         {
           // Create the selection list
-          selectionList->SetNumberOfTuples(selSet.size());
+          selectionList->SetNumberOfTuples(static_cast<vtkIdType>(selSet.size()));
           // iterate over ids and insert to the selection list
           vtkSelectionSourceInternals::StringIDSetType::iterator iter =
             selSet.begin();
@@ -382,7 +382,7 @@ int vtkSelectionSource::RequestData(
     vtkIdType numCommonElems = 0;
     if (!this->Internal->IDs.empty())
     {
-      numCommonElems = this->Internal->IDs[0].size();
+      numCommonElems = static_cast<vtkIdType>(this->Internal->IDs[0].size());
     }
     if (piece+1 >= (int)this->Internal->IDs.size() &&
         numCommonElems == 0)
@@ -411,7 +411,7 @@ int vtkSelectionSource::RequestData(
         if (!selSet.empty())
         {
           // Create the selection list
-          selectionList->SetNumberOfTuples(selSet.size());
+          selectionList->SetNumberOfTuples(static_cast<vtkIdType>(selSet.size()));
           // iterate over ids and insert to the selection list
           vtkSelectionSourceInternals::IDSetType::iterator iter =
             selSet.begin();
@@ -433,7 +433,8 @@ int vtkSelectionSource::RequestData(
     // Create the selection list
     vtkDoubleArray* selectionList = vtkDoubleArray::New();
     selectionList->SetNumberOfComponents(3);
-    selectionList->SetNumberOfValues(this->Internal->Locations.size());
+    selectionList->SetNumberOfValues(
+      static_cast<vtkIdType>(this->Internal->Locations.size()));
 
     std::vector<double>::iterator iter =
       this->Internal->Locations.begin();
@@ -458,7 +459,8 @@ int vtkSelectionSource::RequestData(
     // Create the selection list
     vtkDoubleArray* selectionList = vtkDoubleArray::New();
     selectionList->SetNumberOfComponents(1);
-    selectionList->SetNumberOfValues(this->Internal->Thresholds.size());
+    selectionList->SetNumberOfValues(
+      static_cast<vtkIdType>(this->Internal->Thresholds.size()));
 
     std::vector<double>::iterator iter =
       this->Internal->Thresholds.begin();
@@ -494,7 +496,8 @@ int vtkSelectionSource::RequestData(
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
     vtkUnsignedIntArray* selectionList = vtkUnsignedIntArray::New();
     selectionList->SetNumberOfComponents(1);
-    selectionList->SetNumberOfTuples(this->Internal->Blocks.size());
+    selectionList->SetNumberOfTuples(
+      static_cast<vtkIdType>(this->Internal->Blocks.size()));
     vtkSelectionSourceInternals::IDSetType::iterator iter;
     vtkIdType cc=0;
     for (iter = this->Internal->Blocks.begin();

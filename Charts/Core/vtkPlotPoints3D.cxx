@@ -93,7 +93,8 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
       this->SelectedPoints.reserve(nSelected);
       for (size_t i = 0; i < nSelected; ++i)
       {
-        this->SelectedPoints.push_back(this->Points[this->Selection->GetValue(i)]);
+        this->SelectedPoints.push_back(this->Points[
+          this->Selection->GetValue(static_cast<vtkIdType>(i))]);
       }
       this->SelectedPointsBuildTime.Modified();
     }

@@ -163,7 +163,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
       {
         line[j].Set(this->Storage->AxisPos[j], (*this->Storage)[j][i]);
       }
-      painter->GetPen()->SetColor(this->Colors->GetPointer(nc));
+      painter->GetPen()->SetColor(this->Colors->GetPointer(static_cast<vtkIdType>(nc)));
       painter->DrawPoly(line[0].GetData(), static_cast<int>(cols));
     }
   }
@@ -252,7 +252,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
       if (col[i] >= low && col[i] <= high)
       {
         // Remove this point - no longer selected
-        this->Selection->InsertNextValue(i);
+        this->Selection->InsertNextValue(static_cast<vtkIdType>(i));
       }
     }
     this->Storage->SelectionInitialized = true;
