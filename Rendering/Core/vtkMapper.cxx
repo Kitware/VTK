@@ -924,6 +924,14 @@ void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
     // In the future, we could extend vtkScalarsToColors.
     vtkIdType numberOfColors = this->LookupTable->GetNumberOfAvailableColors();
     numberOfColors += 2;
+    // number of available colors can return 2^24
+    // which is an absurd size for a tmap in this case. So we
+    // watch for cases like that and reduce it to a
+    // more reasonable size
+    if (numberOfColors > 65538) // 65536+2
+    {
+      numberOfColors = 8192;
+    }
     double k = (range[1]-range[0]) / (numberOfColors-1-2);
     vtkDoubleArray* tmp = vtkDoubleArray::New();
     tmp->SetNumberOfTuples(numberOfColors*2);
