@@ -12,16 +12,40 @@ if (CMAKE_VERSION VERSION_LESS "3.3")
     message(FATAL_ERROR "VTK now requires CMake 3.3 or newer")
   endif()
 
-# Make sure we have C++11 enabled.
-# If CMake used to build VTK failed to detect what compiler is being used,
-# allow an escape for advanced users
-set(VTK_IGNORE_CMAKE_CXX11_CHECKS @VTK_IGNORE_CMAKE_CXX11_CHECKS@)
-if( NOT cxx_nullptr IN_LIST CMAKE_CXX11_COMPILE_FEATURES)
-  if(NOT VTK_IGNORE_CXX11_REQUIREMENT)
-    message(FATAL_ERROR "VTK now requires a compiler that supports C++11")
-  endif()
-endif()
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: GCC >= 4.6
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.6)
+  message(FATAL_ERROR "GCC 4.6 or later is required.")
+endif ()
 
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: LLVM Clang >= 3.0
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "LLVM Clang 3.0 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Apple Clang >= 3.0 (Xcode 4.2)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "Apple Clang 3.0 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Microsoft C/C++ >= 17.0 (aka VS 2012 aka VS 11.0)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17.0)
+  message(FATAL_ERROR "Microsoft Visual Studio 2012 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Intel C++ (ICC) >= 14
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14.0)
+  message(FATAL_ERROR "Intel C++ (ICC) 14.0 or later is required.")
+endif ()
 
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")

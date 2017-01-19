@@ -1,6 +1,4 @@
-cmake_policy(SET CMP0025 OLD)
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
-cmake_policy(SET CMP0025 OLD)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.
@@ -15,23 +13,51 @@ endif()
 
 project(VTK)
 
-# Make sure we have C++11 enabled.
-# If CMake fails to detect what compiler is being used, allow an escape
-# for advanced users
-if( NOT cxx_nullptr IN_LIST CMAKE_CXX11_COMPILE_FEATURES)
-  option(VTK_IGNORE_CXX11_REQUIREMENT OFF)
-  if(NOT VTK_IGNORE_CMAKE_CXX11_CHECKS)
-    message(FATAL_ERROR "VTK now requires a compiler that supports C++11")
-  endif()
-endif()
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: GCC >= 4.6
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.6)
+  message(FATAL_ERROR "GCC 4.6 or later is required.")
+endif ()
 
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: LLVM Clang >= 3.0
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "LLVM Clang 3.0 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Apple Clang >= 3.0 (Xcode 4.2)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "Apple Clang 3.0 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Microsoft C/C++ >= 17.0 (aka VS 2012 aka VS 11.0)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17.0)
+  message(FATAL_ERROR "Microsoft Visual Studio 2012 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Intel C++ (ICC) >= 14
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14.0)
+  message(FATAL_ERROR "Intel C++ (ICC) 14.0 or later is required.")
+endif ()
+
+# Make sure we have C++11 enabled.
 if(NOT VTK_IGNORE_CMAKE_CXX11_CHECKS)
   # Needed to make sure libraries and executables not built by the
   # vtkModuleMacros still have the C++11 compiler flags enabled
+  # Wrap this in an escape hatch for unknown compilers
   set(CMAKE_CXX_STANDARD 11)
   set(CMAKE_CXX_STANDARD_REQUIRED True)
   set(CMAKE_CXX_EXTENSIONS False)
 endif()
+
 
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
@@ -258,41 +284,6 @@ if(APPLE)
     message(FATAL_ERROR "Minimun OS X deployment target is 10.6, please update CMAKE_OSX_DEPLOYMENT_TARGET.")
   endif ()
 endif()
-
-#-----------------------------------------------------------------------------
-# Minimum compiler version check: GCC >= 4.2
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.2)
-  message(FATAL_ERROR "GCC 4.2 or later is required.")
-endif ()
-
-#-----------------------------------------------------------------------------
-# Minimum compiler version check: LLVM Clang >= 3.0
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
-  message(FATAL_ERROR "LLVM Clang 3.0 or later is required.")
-endif ()
-
-#-----------------------------------------------------------------------------
-# Minimum compiler version check: Apple Clang >= 3.0 (Xcode 4.2)
-if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
-  message(FATAL_ERROR "Apple Clang 3.0 or later is required.")
-endif ()
-
-#-----------------------------------------------------------------------------
-# Minimum compiler version check: Microsoft C/C++ >= 15.0 (aka VS 2008 aka VS 9.0)
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0)
-  message(FATAL_ERROR "Microsoft Visual Studio 2008 or later is required.")
-endif ()
-
-#-----------------------------------------------------------------------------
-# Minimum compiler version check: Intel C++ (ICC) >= 10.0
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
-  message(FATAL_ERROR "Intel C++ (ICC) 10.0 or later is required.")
-endif ()
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
