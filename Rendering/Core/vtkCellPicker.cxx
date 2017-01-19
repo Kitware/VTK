@@ -16,6 +16,8 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkCommand.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkMath.h"
 #include "vtkBox.h"
 #include "vtkPiecewiseFunction.h"
@@ -136,6 +138,8 @@ void vtkCellPicker::ResetPickInfo()
   // vtkPicker does not have a ResetPickInfo method
   this->DataSet = 0;
   this->Mapper = 0;
+  this->CompositeDataSet = 0;
+  this->FlatBlockIndex = -1;
 
   // Reset all the information specific to this class
   this->ResetCellPickerInfo();
@@ -329,10 +333,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
                                                vtkProp3D *prop,
                                                vtkMapper *mapper)
 {
-  // This code was taken from the original CellPicker with almost no
-  // modification except for the locator and texture additions.
-
-  // Intersect each cell with ray.  Keep track of one closest to
+  // Intersect each cell with ray. Keep track of the one closest to
   // the eye (within the tolerance tol) and within the clipping range).
   // Note that we fudge the "closest to" (tMin+this->Tolerance) a little and
   // keep track of the cell with the best pick based on parametric
@@ -340,151 +341,85 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
   // breaks ties in a reasonable way when cells are the same distance
   // from the eye (like cells laying on a 2D plane).
 
-  vtkDataSet *data = mapper->GetInput();
-  if ( !data )
-  {
-    vtkDebugMacro( "Mapper input is not a vtkDataSet" );
-    return VTK_DOUBLE_MAX;
-  }
-
   double tMin = VTK_DOUBLE_MAX;
+
   double minPCoords[3];
   double pDistMin = VTK_DOUBLE_MAX;
   vtkIdType minCellId = -1;
   int minSubId = -1;
   double minXYZ[3];
   minXYZ[0] = minXYZ[1] = minXYZ[2] = 0.0;
-
-  // Polydata has no 3D cells
-  vtkTypeBool isPolyData = data->IsA("vtkPolyData");
-
-  vtkCollectionSimpleIterator iter;
   vtkAbstractCellLocator *locator = 0;
-  this->Locators->InitTraversal(iter);
-  while ( (locator = static_cast<vtkAbstractCellLocator *>(
-           this->Locators->GetNextItemAsObject(iter))) )
-  {
-    if (locator->GetDataSet() == data)
-    {
-      break;
-    }
-  }
+  vtkIdType flatIndex = -1;
 
-  // Make a new p1 and p2 using the clipped t1 and t2
-  double q1[3], q2[3];
-  q1[0] = p1[0]; q1[1] = p1[1]; q1[2] = p1[2];
-  q2[0] = p2[0]; q2[1] = p2[1]; q2[2] = p2[2];
-  if (t1 != 0.0 || t2 != 1.0)
-  {
-    for (int j = 0; j < 3; j++)
-    {
-      q1[j] = p1[j]*(1.0 - t1) + p2[j]*t1;
-      q2[j] = p1[j]*(1.0 - t2) + p2[j]*t2;
-    }
-  }
 
-  // Use the locator if one exists for this data
-  if (locator)
+  vtkDataSet *data = mapper->GetInput();
+  if ( data )
   {
-    if (!locator->IntersectWithLine(q1, q2, tol, tMin, minXYZ,
-                                    minPCoords, minSubId, minCellId,
-                                    this->Cell))
+    bool ok = this->IntersectDataSetWithLine(data, p1, p2, t1, t2, tol,
+                                     locator, minCellId, minSubId,
+                                     tMin, pDistMin, minXYZ, minPCoords);
+    if ( !ok )
     {
       return VTK_DOUBLE_MAX;
     }
-
-    // Stretch tMin out to the original range
-    if (t1 != 0.0 || t2 != 1.0)
-    {
-      tMin = t1*(1.0 - tMin) + t2*tMin;
-    }
-
-    // If cell is a strip, then replace cell with a sub-cell
-    this->SubCellFromCell(this->Cell, minSubId);
   }
   else
   {
-    vtkIdList *pointIds = this->PointIds;
-    vtkIdType numCells = data->GetNumberOfCells();
+    // Construct the ray
+    //
+    double ray[3];
+    ray[0] = p2[0] - p1[0];
+    ray[1] = p2[1] - p1[1];
+    ray[2] = p2[2] - p1[2];
 
-    for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+    vtkCompositeDataSet* composite =
+        vtkCompositeDataSet::SafeDownCast(mapper->GetInputDataObject(0,0));
+    if ( composite )
     {
-      double t;
-      double x[3];
-      double pcoords[3];
-      pcoords[0] = pcoords[1] = pcoords[2] = 0;
-      int newSubId = -1;
-      int numSubIds = 1;
-
-      // If it is a strip, we need to iterate over the subIds
-      int cellType = data->GetCellType(cellId);
-      int useSubCells = this->HasSubCells(cellType);
-      if (useSubCells)
+      vtkSmartPointer<vtkCompositeDataIterator> iter;
+      iter.TakeReference( composite->NewIterator() );
+      for (iter->InitTraversal();
+           !iter->IsDoneWithTraversal();
+           iter->GoToNextItem())
       {
-        // Get the pointIds for the strip and the length of the strip
-        data->GetCellPoints(cellId, pointIds);
-        numSubIds = this->GetNumberOfSubCells(pointIds, cellType);
+        vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        if (!ds)
+        {
+          vtkDebugMacro(<< "Skipping "
+                        << iter->GetCurrentDataObject()->GetClassName()
+                        << " block at index "<< iter->GetCurrentFlatIndex()
+                        << ": not a dataset");
+          continue;
+        }
+
+        // First check if the bounding box of the data set is hit.
+        double bounds[6];
+        ds->GetBounds(bounds);
+        bounds[0] -= tol; bounds[1] += tol;
+        bounds[2] -= tol; bounds[3] += tol;
+        bounds[4] -= tol; bounds[5] += tol;
+        double tDummy;
+        double xyzDummy[3];
+
+        if ( !vtkBox::IntersectBox(bounds, const_cast<double*>(p1), ray,
+                                   xyzDummy, tDummy))
+        {
+          // box not hit: no need to intersect...
+          continue;
+        }
+        vtkAbstractCellLocator* loc = 0;
+        bool ok = this->IntersectDataSetWithLine(ds, p1, p2, t1, t2, tol,
+                                         loc, minCellId, minSubId,
+                                         tMin, pDistMin, minXYZ, minPCoords);
+        if ( ok )
+        {
+          flatIndex = iter->GetCurrentFlatIndex();
+          data = ds;
+          locator = loc;
+        }
       }
-
-      // This will only loop once unless we need to deal with a strip
-      for (int subId = 0; subId < numSubIds; subId++)
-      {
-        if (useSubCells)
-        {
-          // Get a sub-cell from a the strip
-          this->GetSubCell(data, pointIds, subId, cellType, this->Cell);
-        }
-        else
-        {
-          data->GetCell(cellId, this->Cell);
-        }
-
-        int cellPicked = 0;
-        if (isPolyData)
-        {
-          // Polydata can always be picked with original endpoints
-          cellPicked = this->Cell->IntersectWithLine(
-                         const_cast<double *>(p1), const_cast<double *>(p2),
-                         tol, t, x, pcoords, newSubId);
-        }
-        else
-        {
-          // Any 3D cells need to be intersected with a line segment that
-          // has been clipped with the clipping planes, in case one end is
-          // actually inside the cell.
-          cellPicked = this->Cell->IntersectWithLine(
-                         q1, q2, tol, t, x, pcoords, newSubId);
-
-          // Stretch t out to the original range
-          if (t1 != 0.0 || t2 != 1.0)
-          {
-            t = t1*(1.0 - t) + t2*t;
-          }
-        }
-
-        if (cellPicked && t <= (tMin + this->Tolerance) && t >= t1 && t <= t2)
-        {
-          double pDist = this->Cell->GetParametricDistance(pcoords);
-          if (pDist < pDistMin || (pDist == pDistMin && t < tMin))
-          {
-            tMin = t;
-            pDistMin = pDist;
-            // save all of these
-            minCellId = cellId;
-            minSubId = newSubId;
-            if (useSubCells)
-            {
-              minSubId = subId;
-            }
-            for (int k = 0; k < 3; k++)
-            {
-              minXYZ[k] = x[k];
-              minPCoords[k] = pcoords[k];
-            }
-          } // for all subIds
-        } // if minimum, maximum
-      } // if a close cell
-    } // for all cells
+    }
   }
 
   // Do this if a cell was intersected
@@ -573,6 +508,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
     {
       // Return the polydata to the user
       this->DataSet = data;
+      this->FlatBlockIndex = flatIndex;
       this->CellId = minCellId;
       this->SubId = minSubId;
       this->PCoords[0] = minPCoords[0];
@@ -617,6 +553,169 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
   }
 
   return tMin;
+}
+
+bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet,
+                                             const double p1[3],
+                                             const double p2[3],
+                                             double t1, double t2, double tol,
+                                             vtkAbstractCellLocator* &locator,
+                                             vtkIdType& minCellId,
+                                             int& minSubId,
+                                             double& tMin, double& pDistMin,
+                                             double minXYZ[3],
+                                             double minPCoords[3])
+{
+  bool cellWasPicked = false;
+  // Polydata has no 3D cells
+  vtkTypeBool isPolyData = dataSet->IsA("vtkPolyData");
+
+  // Make a new p1 and p2 using the clipped t1 and t2
+  double q1[3], q2[3];
+  q1[0] = p1[0]; q1[1] = p1[1]; q1[2] = p1[2];
+  q2[0] = p2[0]; q2[1] = p2[1]; q2[2] = p2[2];
+  if (t1 != 0.0 || t2 != 1.0)
+  {
+    for (int j = 0; j < 3; j++)
+    {
+      q1[j] = p1[j]*(1.0 - t1) + p2[j]*t1;
+      q2[j] = p1[j]*(1.0 - t2) + p2[j]*t2;
+    }
+  }
+
+  // Use the locator if one exists for this data
+  vtkCollectionSimpleIterator iter;
+  locator = 0;
+  this->Locators->InitTraversal(iter);
+  while ( (locator = static_cast<vtkAbstractCellLocator *>(
+           this->Locators->GetNextItemAsObject(iter))) )
+  {
+    if (locator->GetDataSet() == dataSet)
+    {
+      break;
+    }
+  }
+  if (locator)
+  {
+    double t = tMin;
+    double xyz[3];
+    double pcoords[3];
+    int subId;
+    vtkIdType cellId;
+    if (locator->IntersectWithLine(q1, q2, tol, t, xyz, pcoords,
+                                   subId, cellId, this->Cell))
+    {
+
+      // Stretch tMin out to the original range
+      if (t1 != 0.0 || t2 != 1.0)
+      {
+        t = t1*(1.0 - tMin) + t2*t;
+      }
+
+      // If cell is a strip, then replace cell with a sub-cell
+      this->SubCellFromCell(this->Cell, subId);
+
+      if ( t <= (tMin + this->Tolerance) && t >= t1 && t <= t2 )
+      {
+        cellWasPicked = true;
+        minCellId = cellId;
+        minSubId = subId;
+        minXYZ[0] = xyz[0];
+        minXYZ[1] = xyz[1];
+        minXYZ[2] = xyz[2];
+        minPCoords[0] = pcoords[0];
+        minPCoords[1] = pcoords[1];
+        minPCoords[2] = pcoords[2];
+        tMin = t;
+      }
+    }
+  }
+  else
+  {
+    vtkIdList *pointIds = this->PointIds;
+    vtkIdType numCells = dataSet->GetNumberOfCells();
+
+    for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+    {
+      double t;
+      double x[3];
+      double pcoords[3];
+      pcoords[0] = pcoords[1] = pcoords[2] = 0;
+      int newSubId = -1;
+      int numSubIds = 1;
+
+      // If it is a strip, we need to iterate over the subIds
+      int cellType = dataSet->GetCellType(cellId);
+      int useSubCells = this->HasSubCells(cellType);
+      if (useSubCells)
+      {
+        // Get the pointIds for the strip and the length of the strip
+        dataSet->GetCellPoints(cellId, pointIds);
+        numSubIds = this->GetNumberOfSubCells(pointIds, cellType);
+      }
+
+      // This will only loop once unless we need to deal with a strip
+      for (int subId = 0; subId < numSubIds; subId++)
+      {
+        if (useSubCells)
+        {
+          // Get a sub-cell from a the strip
+          this->GetSubCell(dataSet, pointIds, subId, cellType, this->Cell);
+        }
+        else
+        {
+          dataSet->GetCell(cellId, this->Cell);
+        }
+
+        int cellPicked = 0;
+        if (isPolyData)
+        {
+          // Polydata can always be picked with original endpoints
+          cellPicked = this->Cell->IntersectWithLine(
+                         const_cast<double *>(p1), const_cast<double *>(p2),
+                         tol, t, x, pcoords, newSubId);
+        }
+        else
+        {
+          // Any 3D cells need to be intersected with a line segment that
+          // has been clipped with the clipping planes, in case one end is
+          // actually inside the cell.
+          cellPicked = this->Cell->IntersectWithLine(
+                         q1, q2, tol, t, x, pcoords, newSubId);
+
+          // Stretch t out to the original range
+          if (t1 != 0.0 || t2 != 1.0)
+          {
+            t = t1*(1.0 - t) + t2*t;
+          }
+        }
+
+        if (cellPicked && t <= (tMin + this->Tolerance) && t >= t1 && t <= t2)
+        {
+          cellWasPicked = true;
+          double pDist = this->Cell->GetParametricDistance(pcoords);
+          if (pDist < pDistMin || (pDist == pDistMin && t < tMin))
+          {
+            tMin = t;
+            pDistMin = pDist;
+            // save all of these
+            minCellId = cellId;
+            minSubId = newSubId;
+            if (useSubCells)
+            {
+              minSubId = subId;
+            }
+            for (int k = 0; k < 3; k++)
+            {
+              minXYZ[k] = x[k];
+              minPCoords[k] = pcoords[k];
+            }
+          } // for all subIds
+        } // if minimum, maximum
+      } // if a close cell
+    } // for all cells
+  }
+  return cellWasPicked;
 }
 
 //----------------------------------------------------------------------------

@@ -45,6 +45,7 @@
 #include "vtkAbstractPropPicker.h"
 
 class vtkAbstractMapper3D;
+class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkTransform;
 class vtkActorCollection;
@@ -89,6 +90,23 @@ public:
    * was picked then NULL is returned.
    */
   vtkGetObjectMacro(DataSet, vtkDataSet);
+  //@}
+
+  //@{
+  /**
+   * Get a pointer to the composite dataset that was picked (if any). If nothing
+   * was picked or a non-composite data object was picked then NULL is returned.
+   */
+  vtkGetObjectMacro(CompositeDataSet, vtkCompositeDataSet);
+  //@}
+
+  //@{
+  /**
+   * Get the flat block index of the vtkDataSet in the composite dataset
+   * that was picked (if any). If nothing
+   * was picked or a non-composite data object was picked then -1 is returned.
+   */
+  vtkGetMacro(FlatBlockIndex, vtkIdType);
   //@}
 
   /**
@@ -136,16 +154,23 @@ protected:
 
   void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m,
                   double tMin, double mapperPos[3]);
+  void MarkPickedData(vtkAssemblyPath *path,
+                  double tMin, double mapperPos[3], vtkAbstractMapper3D* mapper,
+                  vtkDataSet* input, vtkIdType flatBlockIndex = -1);
   virtual double IntersectWithLine(double p1[3], double p2[3], double tol,
                                   vtkAssemblyPath *path, vtkProp3D *p,
                                   vtkAbstractMapper3D *m);
   void Initialize() VTK_OVERRIDE;
+  static bool CalculateRay(double p1[3], double p2[3],
+                           double ray[3], double &rayFactor);
 
   double Tolerance;  //tolerance for computation (% of window)
   double MapperPosition[3]; //selection point in untransformed coordinates
 
   vtkAbstractMapper3D *Mapper; //selected mapper (if the prop has a mapper)
   vtkDataSet *DataSet; //selected dataset (if there is one)
+  vtkCompositeDataSet* CompositeDataSet;
+  vtkIdType FlatBlockIndex; // flat block index, for a composite data set
 
   double GlobalTMin; //parametric coordinate along pick ray where hit occurred
   vtkTransform *Transform; //use to perform ray transformation

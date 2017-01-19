@@ -258,6 +258,14 @@ protected:
                                         double t1, double t2, double tol,
                                         vtkProp3D *prop, vtkMapper *mapper);
 
+  virtual bool IntersectDataSetWithLine(vtkDataSet* dataSet,
+                                        const double p1[3], const double p2[3],
+                                        double t1, double t2, double tol,
+                                        vtkAbstractCellLocator* &locator,
+                                        vtkIdType& cellId, int& subId,
+                                        double &tMin, double &pDistMin,
+                                        double xyz[3], double minPCoords[3] );
+
   virtual double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],
                                          double t1, double t2,

@@ -19,6 +19,8 @@
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkImageData.h"
 #include "vtkLODProp3D.h"
 #include "vtkMapper.h"
@@ -52,6 +54,8 @@ vtkPicker::vtkPicker()
 
   this->Mapper = NULL;
   this->DataSet = NULL;
+  this->CompositeDataSet = NULL;
+  this->FlatBlockIndex = -1;
   this->GlobalTMin = VTK_DOUBLE_MAX;
   this->Actors = vtkActorCollection::New();
   this->Prop3Ds = vtkProp3DCollection::New();
@@ -75,41 +79,51 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path,
                            vtkAbstractMapper3D *m,
                            double tMin, double mapperPos[3])
 {
-  int i;
   vtkMapper *mapper;
   vtkAbstractVolumeMapper *volumeMapper;
   vtkImageMapper3D *imageMapper;
 
-  this->SetPath(path);
-  this->GlobalTMin = tMin;
-
-  for (i=0; i < 3; i++)
+  if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL)
   {
-    this->MapperPosition[i] = mapperPos[i];
-  }
-  if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
-  {
-    this->DataSet = mapper->GetInput();
-    this->Mapper = mapper;
+    this->MarkPickedData(path, tMin, mapperPos, mapper, mapper->GetInput());
   }
   else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != NULL )
   {
-    this->DataSet = volumeMapper->GetDataSetInput();
-    this->Mapper = volumeMapper;
+    this->MarkPickedData(path, tMin, mapperPos,
+                         volumeMapper, volumeMapper->GetDataSetInput());
   }
   else if ( (imageMapper=vtkImageMapper3D::SafeDownCast(m)) != NULL )
   {
-    this->DataSet = imageMapper->GetInput();
-    this->Mapper = imageMapper;
+    this->MarkPickedData(path, tMin, mapperPos,
+                         imageMapper, imageMapper->GetInput());
   }
   else
   {
-    this->DataSet = NULL;
+    this->MarkPickedData(path, tMin, mapperPos, NULL, NULL);
   }
+}
 
+void vtkPicker::MarkPickedData(vtkAssemblyPath* path,
+                               double tMin, double mapperPos[3],
+                               vtkAbstractMapper3D* mapper,
+                               vtkDataSet* input, vtkIdType flatIndex)
+{
+  this->SetPath(path);
+  this->GlobalTMin = tMin;
+
+  for (int i=0; i < 3; i++)
+  {
+    this->MapperPosition[i] = mapperPos[i];
+  }
   // The point has to be transformed back into world coordinates.
   // Note: it is assumed that the transform is in the correct state.
-  this->Transform->TransformPoint(mapperPos,this->PickPosition);
+  this->Transform->TransformPoint(mapperPos, this->PickPosition);
+
+  this->Mapper = mapper;
+  this->DataSet = input;
+  this->CompositeDataSet =
+      vtkCompositeDataSet::SafeDownCast(mapper->GetInputDataObject(0,0));
+  this->FlatBlockIndex = flatIndex;
 }
 
 //----------------------------------------------------------------------
@@ -444,12 +458,11 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
 //----------------------------------------------------------------------
 // Intersect data with specified ray.
 double vtkPicker::IntersectWithLine(double p1[3], double p2[3],
-                                   double vtkNotUsed(tol),
+                                   double tol,
                                    vtkAssemblyPath *path,
                                    vtkProp3D *prop3D,
                                    vtkAbstractMapper3D *mapper)
 {
-  int i;
   double center[3], t, ray[3], rayFactor;
 
   // Get the data from the modeler
@@ -462,25 +475,96 @@ double vtkPicker::IntersectWithLine(double p1[3], double p2[3],
     return VTK_DOUBLE_MAX;
   }
 
-  for (i=0; i<3; i++)
+  if ( !vtkPicker::CalculateRay(p1, p2, ray, rayFactor) )
   {
-    ray[i] = p2[i] - p1[i];
-  }
-  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 )
-  {
+    vtkDebugMacro("Zero length ray");
     return 2.0;
   }
 
   // Project the center point onto the ray and determine its parametric value
   //
-  t = (ray[0]*(center[0]-p1[0]) + ray[1]*(center[1]-p1[1])
-       + ray[2]*(center[2]-p1[2])) / rayFactor;
+  t = (ray[0]*(center[0]-p1[0]) +
+       ray[1]*(center[1]-p1[1]) +
+       ray[2]*(center[2]-p1[2])) / rayFactor;
 
   if ( t >= 0.0 && t <= 1.0 && t < this->GlobalTMin )
   {
-    this->MarkPicked(path, prop3D, mapper, t, center);
+    // If this is a composite dataset, find the nearest picked dataset
+    vtkCompositeDataSet* composite =
+        vtkCompositeDataSet::SafeDownCast(mapper->GetInputDataObject(0,0));
+    if ( composite )
+    {
+      double tMinDS = VTK_DOUBLE_MAX;
+      double centerMinDS[3];
+      vtkDataSet* minDS = 0;
+      vtkIdType minDSIndex =-1;
+      vtkSmartPointer<vtkCompositeDataIterator> iter;
+      iter.TakeReference( composite->NewIterator() );
+      for (iter->InitTraversal();
+           !iter->IsDoneWithTraversal();
+           iter->GoToNextItem())
+      {
+        vtkDataSet* ds =
+            vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        if ( !ds )
+        {
+          continue;
+        }
+
+        // First check if the bounding box of the data set is hit.
+        double bounds[6];
+        ds->GetBounds(bounds);
+        bounds[0] -= tol; bounds[1] += tol;
+        bounds[2] -= tol; bounds[3] += tol;
+        bounds[4] -= tol; bounds[5] += tol;
+        double tDummy;
+        double xyzDummy[3];
+        if ( !vtkBox::IntersectBox(bounds, p1, ray, xyzDummy, tDummy) )
+        {
+          // box not hit: no need to intersect...
+          continue;
+        }
+
+        double centerDS[3];
+        ds->GetCenter( centerDS );
+
+        // Project the center point onto the ray and
+        // determine its parametric value
+        double tDS = (ray[0]*(centerDS[0]-p1[0]) +
+                      ray[1]*(centerDS[1]-p1[1]) +
+                      ray[2]*(centerDS[2]-p1[2])) / rayFactor;
+
+        if ( tDS >= 0.0 && tDS <= 1.0 && tDS < tMinDS )
+        {
+          tMinDS = tDS;
+          centerMinDS[0] = centerDS[0];
+          centerMinDS[1] = centerDS[1];
+          centerMinDS[2] = centerDS[2];
+          minDS = ds;
+          minDSIndex = iter->GetCurrentFlatIndex();
+        }
+      }
+      // Note that the mapper position is not the center of the entire
+      // composite data set but the center of the nearest data set
+      this->MarkPickedData(path,tMinDS,centerMinDS,mapper,minDS,minDSIndex);
+    }
+    else
+    {
+      this->MarkPicked(path, prop3D, mapper, t, center);
+    }
   }
   return t;
+}
+
+bool vtkPicker::CalculateRay(double p1[3], double p2[3],
+                             double ray[3], double &rayFactor)
+{
+  ray[0] = p2[0] - p1[0];
+  ray[1] = p2[1] - p1[1];
+  ray[2] = p2[2] - p1[2];
+
+  rayFactor = vtkMath::Dot(ray,ray);
+  return ( rayFactor > 0.0 );
 }
 
 //----------------------------------------------------------------------
@@ -499,6 +583,8 @@ void vtkPicker::Initialize()
 
   this->Mapper = NULL;
   this->DataSet = NULL;
+  this->CompositeDataSet = NULL;
+  this->FlatBlockIndex = -1;
   this->GlobalTMin = VTK_DOUBLE_MAX;
 }
 
@@ -528,12 +614,28 @@ void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "DataSet: (none)";
   }
+  if ( this->CompositeDataSet )
+  {
+    os << indent << "CompositeDataSet: "<<this->CompositeDataSet<<"\n";
+  }
+  else
+  {
+    os << indent << "CompositeDataSet: (none)\n";
+  }
+  if ( this->FlatBlockIndex > -1 )
+  {
+    os << indent << "FlatBlockIndex: "<<this->FlatBlockIndex<<"\n";
+  }
+  else
+  {
+    os << indent << "FlatBlockIndex: (none)\n";
+  }
 
   os << indent << "Mapper: " << this->Mapper << "\n";
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 
-  os << indent << "Mapper Position: (" <<  this->MapperPosition[0] << ","
+  os << indent << "MapperPosition: (" <<  this->MapperPosition[0] << ","
      << this->MapperPosition[1] << ","
      << this->MapperPosition[2] << ")\n";
 }

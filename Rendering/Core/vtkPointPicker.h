@@ -36,6 +36,8 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPicker.h"
 
+class vtkDataSet;
+
 class VTKRENDERINGCORE_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
@@ -72,6 +74,13 @@ protected:
                           vtkAbstractMapper3D *m) VTK_OVERRIDE;
   void Initialize() VTK_OVERRIDE;
 
+  vtkIdType IntersectDataSetWithLine(double p1[3], double ray[3],
+                                     double rayFactor, double tol,
+                                     vtkDataSet* dataSet,
+                                     double& tMin, double minXYZ[3]);
+  bool UpdateClosestPoint(double x[3], double p1[3],
+                          double ray[3], double rayFactor, double tol,
+                          double& tMin, double& distMin);
 private:
   vtkPointPicker(const vtkPointPicker&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPointPicker&) VTK_DELETE_FUNCTION;
