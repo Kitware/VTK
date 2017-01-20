@@ -19,7 +19,6 @@
 #include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPLYReader.h"
-#include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -28,6 +27,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
+#include "vtkTriangleMeshPointNormals.h"
 
 
 #define VTK_CREATE(type, name) \
@@ -105,7 +105,7 @@ int TestUserShader2(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
-  vtkNew<vtkPolyDataNormals> norms;
+  vtkNew<vtkTriangleMeshPointNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
   norms->Update();
 

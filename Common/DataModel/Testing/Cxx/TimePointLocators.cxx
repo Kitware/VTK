@@ -25,7 +25,7 @@
 
 int TimePointLocators(int , char *[])
 {
-  int nPts = 1000000;
+  int nPts = 100000;
   int nQ = nPts/10;
   int N = 10;
   double R = 0.01;

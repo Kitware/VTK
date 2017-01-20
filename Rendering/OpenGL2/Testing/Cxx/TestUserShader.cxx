@@ -21,6 +21,7 @@
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkTriangleMeshPointNormals.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
@@ -47,7 +48,7 @@ int TestUserShader(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
-  vtkNew<vtkPolyDataNormals> norms;
+  vtkNew<vtkTriangleMeshPointNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
   norms->Update();
 

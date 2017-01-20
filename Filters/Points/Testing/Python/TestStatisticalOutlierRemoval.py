@@ -7,7 +7,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Interpolate onto a volume
 
 # Parameters for debugging
-NPts = 100000
+NPts = 20000
 math = vtk.vtkMath()
 math.RandomSeed(31415)
 
@@ -111,6 +111,7 @@ ren0.SetViewport(0,0,.5,1)
 ren1 = vtk.vtkRenderer()
 ren1.SetViewport(0.5,0,1,1)
 renWin = vtk.vtkRenderWindow()
+renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()

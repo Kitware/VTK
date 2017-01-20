@@ -76,7 +76,7 @@ int MomentCheck(double min, double max, std::size_t nValues)
   std::cout<<"Skewness: "<<empiricalSkewness<<" "<<analyticSkewness<<std::endl;
   std::cout<<"Kurtosis: "<<empiricalKurtosis<<" "<<analyticKurtosis<<std::endl;
 
-#define EPSILON 1.e-3
+#define EPSILON 2.e-3
 
   if (fabs(empiricalMean - analyticMean) > EPSILON)
   {
@@ -231,7 +231,7 @@ int ConsistencyCheck()
 
 int TestMersenneTwister(int,char *[])
 {
-  if (MomentCheck(0.,1.,1.e7) != VTK_SUCCESS)
+  if (MomentCheck(0.,1.,1.e6) != VTK_SUCCESS)
   {
     return VTK_FAILURE;
   }

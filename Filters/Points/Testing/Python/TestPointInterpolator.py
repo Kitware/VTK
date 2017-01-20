@@ -5,7 +5,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Parameters for debugging
-res = 1000
+res = 200
 
 # create pipeline
 #
@@ -186,6 +186,7 @@ ren2.SetViewport(0,0.5,.5,1)
 ren3 = vtk.vtkRenderer()
 ren3.SetViewport(0.5,0.5,1,1)
 renWin = vtk.vtkRenderWindow()
+renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
 renWin.AddRenderer(ren2)

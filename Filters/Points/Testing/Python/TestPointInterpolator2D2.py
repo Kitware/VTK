@@ -5,7 +5,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Parameters for debugging
-res = 500
+res = 200
 math = vtk.vtkMath()
 
 # create pipeline: use terrain dataset. Just for kicks we'll treat the elevations
