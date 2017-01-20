@@ -41,7 +41,6 @@ vtkXMLDataReader::vtkXMLDataReader()
   this->Piece = 0;
   this->NumberOfPointArrays = 0;
   this->NumberOfCellArrays = 0;
-  this->InReadData = 0;
 
   // Setup a callback for when the XMLParser's data reading routines
   // report progress.
@@ -499,34 +498,7 @@ void vtkXMLDataReader::ReadXMLData()
   // Let superclasses read data.  This also allocates output data.
   this->Superclass::ReadXMLData();
 
-  if (this->FieldDataElement) // read the field data information
-  {
-    int numTuples;
-    vtkFieldData *fieldData = this->GetCurrentOutput()->GetFieldData();
-    for (int i = 0; i < this->FieldDataElement->GetNumberOfNestedElements() &&
-             !this->AbortExecute; i++)
-    {
-      vtkXMLDataElement* eNested = this->FieldDataElement->GetNestedElement(i);
-      vtkAbstractArray* array = this->CreateArray(eNested);
-      if (array)
-      {
-        if (eNested->GetScalarAttribute("NumberOfTuples", numTuples))
-        {
-          array->SetNumberOfTuples(numTuples);
-        }
-        else
-        {
-          numTuples = 0;
-        }
-        fieldData->AddArray(array);
-        array->Delete();
-        if (!this->ReadArrayValues(eNested, 0, array, 0, numTuples*array->GetNumberOfComponents()))
-        {
-          this->DataError = 1;
-        }
-      }
-    }
-  }
+  this->ReadFieldData();
 }
 
 //----------------------------------------------------------------------------
@@ -547,141 +519,6 @@ int vtkXMLDataReader::ReadArrayForCells(vtkXMLDataElement* da,
   vtkIdType numberOfTuples = this->GetNumberOfCells();
   return this->ReadArrayValues(
     da, 0, outArray,0, numberOfTuples*components, CELL_DATA);
-}
-
-//----------------------------------------------------------------------------
-template <class iterT>
-int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
-  vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,
-  iterT* iter, vtkIdType startIndex, vtkIdType numValues)
-{
-  if (!iter)
-  {
-    return 0;
-  }
-  vtkAbstractArray* array = iter->GetArray();
-  // For all contiguous arrays (except vtkBitArray).
-  size_t num = numValues;
-  int result;
-  void* data = array->GetVoidPointer(arrayIndex);
-  if (da->GetAttribute("offset"))
-  {
-    vtkTypeInt64 offset = 0;
-    da->GetScalarAttribute("offset", offset);
-    result = (xmlparser->ReadAppendedData(offset, data, startIndex,
-        numValues, array->GetDataType()) == num);
-  }
-  else
-  {
-    int isAscii = 1;
-    const char* format = da->GetAttribute("format");
-    if (format && (strcmp(format, "binary") == 0))
-    {
-      isAscii = 0;
-    }
-    result = (xmlparser->ReadInlineData(da, isAscii, data,
-        startIndex, numValues, array->GetDataType()) == num);
-  }
-  return result;
-}
-
-//----------------------------------------------------------------------------
-template<>
-int vtkXMLDataReaderReadArrayValues(
-  vtkXMLDataElement* da,
-  vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,
-  vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType startIndex, vtkIdType numValues)
-{
-  // now, for strings, we have to read from the start, as we don't have
-  // support for index array yet.
-  // So this specialization will read all strings starting from the beginning,
-  // start putting the strings at the requested indices into the array
-  // until the request numValues are put into the array.
-  vtkIdType bufstart = 0;
-  vtkIdType actualNumValues = startIndex + numValues;
-
-  int size = 1024;
-  char* buffer = new char[size + 1 + 7]; // +7 is leeway.
-  buffer[1024] = 0; // to avoid string reads beyond buffer size.
-
-  int inline_data = (da->GetAttribute("offset") == NULL);
-
-  vtkTypeInt64 offset = 0;
-  if (inline_data == 0)
-  {
-    da->GetScalarAttribute("offset", offset);
-  }
-
-  int isAscii = 1;
-  const char* format = da->GetAttribute("format");
-  if (format && (strcmp(format, "binary") == 0))
-  {
-    isAscii = 0;
-  }
-
-  // Now read a buffer full of data,
-  // create strings out of it.
-  int result = 1;
-  vtkIdType inIndex = 0;
-  vtkIdType outIndex = arrayIndex;
-  vtkStdString prev_string;
-  while (result && inIndex < actualNumValues)
-  {
-    size_t chars_read = 0;
-    if (inline_data)
-    {
-      chars_read = xmlparser->ReadInlineData(da, isAscii, buffer,
-        bufstart, size, VTK_CHAR);
-    }
-    else
-    {
-      chars_read = xmlparser->ReadAppendedData(offset, buffer, bufstart,
-        size, VTK_CHAR);
-    }
-    if (!chars_read)
-    {
-      // failed.
-      result = 0;
-      break;
-    }
-    bufstart += static_cast<vtkIdType>(chars_read);
-    // now read strings
-    const char* ptr = buffer;
-    const char* end_ptr = &buffer[chars_read];
-    buffer[chars_read] = 0;
-
-    while (ptr < end_ptr)
-    {
-      vtkStdString temp_string = ptr; // will read in string until 0x0;
-      ptr += temp_string.size() + 1;
-      if (prev_string.size() > 0)
-      {
-        temp_string = prev_string + temp_string;
-        prev_string = "";
-      }
-      // now decide if the string terminated or buffer was full.
-      if (ptr > end_ptr)
-      {
-        // buffer ended -- string is incomplete.
-        // keep the prefix in temp_string.
-        prev_string = temp_string;
-      }
-      else
-      {
-        // string read fully.
-        if (inIndex >= startIndex)
-        {
-          // add string to the array.
-          iter->GetValue(outIndex) = temp_string; // copy the value.
-          outIndex++;
-        }
-        inIndex++;
-      }
-    }
-
-  }
-  delete [] buffer;
-  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -712,49 +549,6 @@ void vtkXMLDataReader::ConvertGhostLevelsToGhostType(
     }
     data->SetName(vtkDataSetAttributes::GhostArrayName());
   }
-}
-
-
-
-//----------------------------------------------------------------------------
-int vtkXMLDataReader::ReadArrayValues(
-  vtkXMLDataElement* da, vtkIdType arrayIndex,
-  vtkAbstractArray* array, vtkIdType startIndex,
-  vtkIdType numValues, FieldType fieldType)
-{
-  // Skip real read if aborting.
-  if (this->AbortExecute)
-  {
-    return 0;
-  }
-  this->InReadData = 1;
-  int result;
-  // All arrays types except vtkBitArray.
-  vtkArrayIterator* iter = array->NewIterator();
-  switch (array->GetDataType())
-  {
-    vtkArrayIteratorTemplateMacro(
-      result = vtkXMLDataReaderReadArrayValues(da, this->XMLParser,
-        arrayIndex, static_cast<VTK_TT*>(iter), startIndex, numValues));
-  default:
-    result = 0;
-  }
-  if (iter)
-  {
-    iter->Delete();
-  }
-
-  this->ConvertGhostLevelsToGhostType(fieldType, array, startIndex, numValues);
-  // Marking the array modified is essential, since otherwise, when reading
-  // multiple time-steps, the array does not realize that its contents may have
-  // changed and does not recompute the array ranges.
-  // This becomes an issue only because we reuse the vtkAbstractArray* instance
-  // when reading time-steps. The array is allocated only for the first timestep
-  // read (see vtkXMLReader::ReadXMLData() and its use of
-  // this->TimeStepWasReadOnce flag).
-  array->Modified();
-  this->InReadData = 0;
-  return result;
 }
 
 //----------------------------------------------------------------------------

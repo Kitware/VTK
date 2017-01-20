@@ -46,6 +46,14 @@ public:
   vtkTypeMacro(vtkXMLReader, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
+  enum FieldType
+  {
+    POINT_DATA,
+    CELL_DATA,
+    OTHER
+  };
+
+
   //@{
   /**
    * Get/Set the name of the input file.
@@ -256,6 +264,14 @@ protected:
   char** CreateStringArray(int numStrings);
   void DestroyStringArray(int numStrings, char** strings);
 
+  // Read an Array values starting at the given index and up to numValues.
+  // This method assumes that the array is of correct size to
+  // accommodate all numValues values. arrayIndex is the value index at which the read
+  // values will be put in the array.
+  virtual int ReadArrayValues(
+    vtkXMLDataElement* da, vtkIdType arrayIndex, vtkAbstractArray* array,
+    vtkIdType startIndex, vtkIdType numValues, FieldType type = OTHER);
+
   // Setup the data array selections for the input's set of arrays.
   void SetDataArraySelections(vtkXMLDataElement* eDSA,
                               vtkDataArraySelection* sel);
@@ -356,6 +372,15 @@ protected:
 
   vtkDataObject* GetCurrentOutput();
   vtkInformation* GetCurrentOutputInformation();
+
+  // Flag for whether DataProgressCallback should actually update
+  // progress.
+  int InReadData;
+
+  virtual void ConvertGhostLevelsToGhostType(
+    FieldType, vtkAbstractArray*, vtkIdType, vtkIdType) {}
+
+  void ReadFieldData();
 
 private:
   // The stream used to read the input if it is in a file.

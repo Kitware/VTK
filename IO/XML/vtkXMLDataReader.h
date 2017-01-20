@@ -33,13 +33,6 @@
 class VTKIOXML_EXPORT vtkXMLDataReader : public vtkXMLReader
 {
 public:
-  enum FieldType
-  {
-    POINT_DATA,
-    CELL_DATA,
-    OTHER
-  };
-
 
   vtkTypeMacro(vtkXMLDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
@@ -90,15 +83,6 @@ protected:
   virtual int ReadArrayForCells(vtkXMLDataElement* da,
                                 vtkAbstractArray* outArray);
 
-  // Read an Array values starting at the given index and up to numValues.
-  // This method assumes that the array is of correct size to
-  // accommodate all numValues values. arrayIndex is the value index at which the read
-  // values will be put in the array.
-  int ReadArrayValues(
-    vtkXMLDataElement* da, vtkIdType arrayIndex, vtkAbstractArray* array,
-    vtkIdType startIndex, vtkIdType numValues, FieldType type = OTHER);
-
-
 
   // Callback registered with the DataProgressObserver.
   static void DataProgressCallbackFunction(vtkObject*, unsigned long, void*,
@@ -121,10 +105,6 @@ protected:
   int NumberOfPointArrays;
   int NumberOfCellArrays;
 
-  // Flag for whether DataProgressCallback should actually update
-  // progress.
-  int InReadData;
-
   // The observer to report progress from reading data from XMLParser.
   vtkCallbackCommand* DataProgressObserver;
 
@@ -145,7 +125,7 @@ private:
 
   void ConvertGhostLevelsToGhostType(
     FieldType type, vtkAbstractArray* data, vtkIdType startIndex,
-    vtkIdType numValues);
+    vtkIdType numValues) VTK_OVERRIDE;
 
 };
 
