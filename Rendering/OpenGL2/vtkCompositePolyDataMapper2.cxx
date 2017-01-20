@@ -115,6 +115,11 @@ public:
   bool GetMarked() { return this->Marked; }
   void SetMarked(bool v) { this->Marked = v; }
 
+  /**
+   * Accessor to the ordered list of PolyData that we last drew.
+   */
+  std::vector<vtkPolyData*> GetRenderedList(){ return this->RenderedList; }
+
 protected:
   vtkCompositePolyDataMapper2 *Parent;
   std::map<vtkPolyData *, vtkCompositeMapperHelperData *> Data;
@@ -178,6 +183,8 @@ protected:
   vtkHardwareSelector *CurrentSelector;
   double CurrentAmbientIntensity;
   double CurrentDiffuseIntensity;
+
+  std::vector<vtkPolyData*> RenderedList;
 
 private:
   vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
@@ -465,12 +472,14 @@ void vtkCompositeMapperHelper2::DrawIBO(
     //   prog->SetUniform3f("ambientColorUniform", ambientColor);
     // }
 
+    this->RenderedList.clear();
     for (dataIter it = this->Data.begin(); it != this->Data.end(); )
     {
       vtkCompositeMapperHelperData *starthdata = it->second;
       vtkCompositeMapperHelperData *endhdata = starthdata;
       do
       {
+        this->RenderedList.push_back(it->first);
         endhdata = it->second;
         ++it;
       }
@@ -1340,6 +1349,8 @@ void vtkCompositePolyDataMapper2::Render(
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     this->GetInputDataObject(0, 0));
 
+  this->RenderedList.clear();
+
   // the first step is to gather up the polydata based on their
   // signatures (aka have normals, have scalars etc)
   if (this->HelperMTime < this->GetInputDataObject(0, 0)->GetMTime() ||
@@ -1459,6 +1470,12 @@ void vtkCompositePolyDataMapper2::Render(
   {
     vtkCompositeMapperHelper2 *helper = hiter->second;
     helper->RenderPiece(ren,actor);
+
+    std::vector<vtkPolyData *> pdl = helper->GetRenderedList();
+    for (unsigned int i = 0; i < pdl.size(); ++i)
+    {
+      this->RenderedList.push_back(pdl[i]);
+    }
   }
 }
 

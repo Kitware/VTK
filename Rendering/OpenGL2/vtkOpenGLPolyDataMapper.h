@@ -37,9 +37,11 @@ class vtkMatrix3x3;
 class vtkOpenGLTexture;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexBufferObject;
+class vtkPoints;
 class vtkTextureObject;
 class vtkTransform;
 class vtkGenericOpenGLResourceFreeCallback;
+
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -223,6 +225,15 @@ public:
     PrimitiveVertices,
     PrimitiveEnd
   };
+
+  /**
+   * Get access to the map of glprim to vtkcell ids
+   */
+  static void MakeCellCellMap(std::vector<unsigned int> &CellCellMap,
+                              bool HaveAppleBug,
+                              vtkPolyData *poly,
+                              vtkCellArray **prims, int representation,
+                              vtkPoints *points);
 
 protected:
   vtkOpenGLPolyDataMapper();
@@ -503,6 +514,9 @@ protected:
   // get how big to make the points when doing point picking
   // typically 2 for points, 4 for lines, 6 for surface
   int GetPointPickingPrimitiveSize(int primType);
+
+  // a map from drawn triangles back to containing cell id
+  std::vector<unsigned int> CellCellMap;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;

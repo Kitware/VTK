@@ -32,6 +32,7 @@
 #include "vtkColor.h" // used for ivars
 #include <map> // use for ivars
 #include <stack> // used for ivars
+#include <vector> // used for ivars
 
 class vtkCompositeDataDisplayAttributes;
 class vtkCompositeMapperHelper2;
@@ -122,6 +123,14 @@ public:
    */
   void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
+  /**
+   * Accessor to the ordered list of PolyData that we end last drew.
+   */
+  std::vector<vtkPolyData*> GetRenderedList()
+    {
+    return this->RenderedList;
+    }
+
 protected:
   vtkCompositePolyDataMapper2();
   ~vtkCompositePolyDataMapper2() VTK_OVERRIDE;
@@ -191,6 +200,8 @@ protected:
    * dataset by the LookupTable's NaN color, if the lookup table supports it.
    */
   bool ColorMissingArraysWithNanColor;
+
+  std::vector<vtkPolyData*> RenderedList;
 
 private:
   vtkMTimeType LastOpaqueCheckTime;

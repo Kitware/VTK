@@ -2853,19 +2853,9 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     }
     // now traverse the opengl to vtk mapping
     std::vector<unsigned int> cellCellMap;
-    if (this->HaveAppleBug)
-    {
-      unsigned int numCells = poly->GetNumberOfCells();
-      for (unsigned int i = 0; i < numCells; i++)
-      {
-        cellCellMap.push_back(i);
-      }
-    }
-    else
-    {
-      vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, representation, points);
-    }
+    this->MakeCellCellMap(cellCellMap,
+                          this->HaveAppleBug,
+                          poly, prims, representation, points);
 
     for (unsigned int i = 0; i < cellCellMap.size(); i++)
     {
@@ -2882,19 +2872,9 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   if (this->HaveCellScalars || this->HaveCellNormals || this->HavePickScalars)
   {
     std::vector<unsigned int> cellCellMap;
-    if (this->HaveAppleBug)
-    {
-      unsigned int numCells = poly->GetNumberOfCells();
-      for (unsigned int i = 0; i < numCells; i++)
-      {
-        cellCellMap.push_back(i);
-      }
-    }
-    else
-    {
-      vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, representation, points);
-    }
+    this->MakeCellCellMap(cellCellMap,
+                          this->HaveAppleBug,
+                          poly, prims, representation, points);
 
     if (this->HaveCellScalars || this->HavePickScalars)
     {
@@ -3565,4 +3545,27 @@ int vtkOpenGLPolyDataMapper::GetPointPickingPrimitiveSize(int primType)
 void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::MakeCellCellMap(
+  std::vector<unsigned int> &CellCellMap,
+  bool HaveAppleBug,
+  vtkPolyData *poly,
+  vtkCellArray **prims, int representation, vtkPoints *points)
+{
+  CellCellMap.clear();
+  if (HaveAppleBug)
+    {
+    unsigned int numCells = poly->GetNumberOfCells();
+    for (unsigned int i = 0; i < numCells; ++i)
+      {
+      CellCellMap.push_back(i);
+      }
+    }
+  else
+    {
+    vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
+        prims, CellCellMap, representation, points);
+    }
 }
