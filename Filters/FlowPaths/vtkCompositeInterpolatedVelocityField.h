@@ -111,9 +111,6 @@ protected:
   vtkCompositeInterpolatedVelocityField();
   ~vtkCompositeInterpolatedVelocityField() VTK_OVERRIDE;
 
-  static const double TOLERANCE_SCALE;
-
-
   int       LastDataSetIndex;
   vtkCompositeInterpolatedVelocityFieldDataSetsType * DataSets;
 

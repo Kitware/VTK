@@ -22,9 +22,6 @@
 #include "vtkObjectFactory.h"
 
 
-const double vtkCompositeInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
-
-
 vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 {
   this->LastDataSetIndex = 0;
