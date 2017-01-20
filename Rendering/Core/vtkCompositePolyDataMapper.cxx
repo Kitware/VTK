@@ -249,14 +249,17 @@ void vtkCompositePolyDataMapper::ComputeBounds()
       if ( vtkMath::AreBoundsInitialized(this->Bounds) )
       {
         pd->GetBounds(bounds);
-        for(i=0; i<3; i++)
+        if ( vtkMath::AreBoundsInitialized(bounds) )
         {
-          this->Bounds[i*2] =
-            (bounds[i*2]<this->Bounds[i*2])?
-            (bounds[i*2]):(this->Bounds[i*2]);
-          this->Bounds[i*2+1] =
-            (bounds[i*2+1]>this->Bounds[i*2+1])?
-            (bounds[i*2+1]):(this->Bounds[i*2+1]);
+          for(i=0; i<3; i++)
+          {
+            this->Bounds[i*2] =
+                (bounds[i*2]<this->Bounds[i*2])?
+                  (bounds[i*2]):(this->Bounds[i*2]);
+            this->Bounds[i*2+1] =
+                (bounds[i*2+1]>this->Bounds[i*2+1])?
+                  (bounds[i*2+1]):(this->Bounds[i*2+1]);
+          }
         }
       }
       // If this is our first time through, just get the bounds
