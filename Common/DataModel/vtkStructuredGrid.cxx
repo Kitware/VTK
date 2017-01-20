@@ -1019,6 +1019,18 @@ void vtkStructuredGrid::GetDimensions (int dim[3])
   dim[2] = extent[5] - extent[4] + 1;
 }
 
+class CellVisibility
+{
+public:
+  CellVisibility(vtkStructuredGrid *input) : Input(input) {}
+  bool operator()(const vtkIdType id)
+  {
+    return !Input->IsCellVisible(id);
+  }
+private:
+  vtkStructuredGrid *Input;
+};
+
 //----------------------------------------------------------------------------
 void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                          vtkIdList *cellIds)
@@ -1044,16 +1056,43 @@ void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
   // If blanking, remove blanked cells.
   if(this->GetPointGhostArray() || this->GetCellGhostArray())
   {
-    int xcellId;
-    for (int i=0; i<cellIds->GetNumberOfIds(); i++)
-    {
-      xcellId = cellIds->GetId(i);
-      if ( !this->IsCellVisible(xcellId) )
-      {
-        cellIds->DeleteId(xcellId);
-      }
-    }
+    vtkIdType *pCellIds = cellIds->GetPointer(0);
+    vtkIdType *end = std::remove_if(pCellIds,pCellIds+cellIds->GetNumberOfIds(), CellVisibility(this));
+    cellIds->Resize(std::distance(pCellIds, end));
   }
+
+ }
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                                         vtkIdList *cellIds, int *seedLoc)
+{
+  int numPtIds=ptIds->GetNumberOfIds();
+
+  // Use special methods for speed
+  switch (numPtIds)
+  {
+    case 0:
+      cellIds->Reset();
+      return;
+
+    case 1: case 2: case 4: //vertex, edge, face neighbors
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds,cellIds,
+                                          this->GetDimensions(), seedLoc);
+      break;
+
+    default:
+      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+  }
+
+  // If blanking, remove blanked cells.
+  if(this->GetPointGhostArray() || this->GetCellGhostArray())
+  {
+    vtkIdType *pCellIds = cellIds->GetPointer(0);
+    vtkIdType *end = std::remove_if(pCellIds,pCellIds+cellIds->GetNumberOfIds(), CellVisibility(this));
+    cellIds->Resize(std::distance(pCellIds,end));
+  }
+
 }
 
 //----------------------------------------------------------------------------

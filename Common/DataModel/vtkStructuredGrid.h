@@ -97,6 +97,8 @@ public:
   int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds) VTK_OVERRIDE;
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                        vtkIdList *cellIds, int *seedLoc);
   //@}
 
   //@{

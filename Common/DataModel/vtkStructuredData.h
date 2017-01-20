@@ -159,6 +159,8 @@ public:
    */
   static void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                vtkIdList *cellIds, int dim[3]);
+  static void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                                 vtkIdList *cellIds, int dim[3], int seedLoc[3]);
 
   /**
    * Given a location in structured coordinates (i-j-k), and the extent

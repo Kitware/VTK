@@ -1139,10 +1139,19 @@ int vtkDataSetSurfaceFilter::StructuredWithBlankingExecute(vtkStructuredGrid *in
             this->RecordOrigCellId(newCellId, cellId);
             break;
           case 3:
+            int even[3] = {i,j,k};
+            int odd[3] = {i+1,j+1,k+1};
             for (int m = 0; m < cell->GetNumberOfFaces(); ++m)
             {
               face = cell->GetFace(m);
-              input->GetCellNeighbors(cellId, face->PointIds, cellIds);
+              if (m%2)
+              {
+                input->GetCellNeighbors(cellId, face->PointIds, cellIds, odd);
+              }
+              else
+              {
+                input->GetCellNeighbors(cellId, face->PointIds, cellIds, even);
+              }
               // faces with only blank neighbors count as external faces
               bool noNeighbors = cellIds->GetNumberOfIds() <= 0;
               for (vtkIdType ci = 0; ci < cellIds->GetNumberOfIds(); ci++)
