@@ -91,9 +91,18 @@ protected:
 };
 
 #ifndef vtkImageIterator_cxx
+#ifdef _MSC_VER
+#pragma warning (push)
+// The following is needed when the vtkImageIterator is declared
+// dllexport and is used from another class in vtkCommonCore
+#pragma warning (disable: 4910) // extern and dllexport incompatible
+#endif
 vtkExternTemplateMacro(
   extern template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator
 )
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
 #endif
 
 #endif
