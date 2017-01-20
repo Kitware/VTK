@@ -361,9 +361,8 @@ void vtkOpenGLVertexBufferObject::AppendDataArray(
   int offset = this->NumberOfTuples * this->Stride/sizeof(float);
 
   // compute auto Shift & Scale on first block
-  typedef vtkOpenGLVertexBufferObject::ShiftScaleMethod ShiftScaleMethod;
   if (offset == 0 &&
-      this->GetCoordShiftAndScaleMethod() == ShiftScaleMethod::AUTO_SHIFT_SCALE)
+      this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
   {
     std::vector<double> shift;
     std::vector<double> scale;
