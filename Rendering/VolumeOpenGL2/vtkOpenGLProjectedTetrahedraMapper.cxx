@@ -662,13 +662,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
   // build the VBO and IBOs,  we so these in chuncks as based on
   // the settings of the VisibilitySort tclass
-
-  this->VBO->VertexOffset = 0;
-  this->VBO->NormalOffset = 0;
-  this->VBO->ColorOffset = 3*sizeof(float);
-  this->VBO->ColorComponents = 3;
-  this->VBO->TCoordOffset = 4*sizeof(float);
-  this->VBO->TCoordComponents = 2;
   this->VBO->Stride = 6*sizeof(float);
 
   // Establish vertex arrays.
@@ -1009,7 +1002,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     }
 
     this->VBO->Upload(packedVBO, vtkOpenGLBufferObject::ArrayBuffer);
-    this->VBO->VertexCount = numPts;
     this->VBO->Bind();
 
     this->Tris.VAO->Bind();
@@ -1017,27 +1009,27 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         this->Tris.ShaderSourceTime > this->Tris.AttributeUpdateTime))
     {
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
-                                      "vertexDC", this->VBO->VertexOffset,
+                                      "vertexDC", 0,
                                       this->VBO->Stride, VTK_FLOAT, 3, false))
       {
         vtkErrorMacro(<< "Error setting 'vertexDC' in shader VAO.");
       }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
-                                      "scalarColor", this->VBO->ColorOffset,
+                                      "scalarColor", 3*sizeof(float),
                                       this->VBO->Stride, VTK_UNSIGNED_CHAR,
-                                      this->VBO->ColorComponents, true))
+                                      3, true))
       {
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
       }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
-                                      "attenuationArray", this->VBO->TCoordOffset,
+                                      "attenuationArray", 4*sizeof(float),
                                       this->VBO->Stride, VTK_FLOAT,
                                       1, false))
       {
         vtkErrorMacro(<< "Error setting attenuation in shader VAO.");
       }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
-                                      "depthArray", this->VBO->TCoordOffset+sizeof(float),
+                                      "depthArray", 5*sizeof(float),
                                       this->VBO->Stride, VTK_FLOAT,
                                       1, false))
       {
@@ -1050,7 +1042,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     this->Tris.IBO->IndexCount = indexArray.size();
     this->Tris.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
+                        static_cast<GLuint>(numPts - 1),
                         static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));

@@ -94,6 +94,12 @@ protected:
 
   void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
+  virtual void CreateVBO(
+    float * points, vtkIdType numPts,
+    unsigned char *colors, int colorComponents,
+    vtkIdType nc,
+    float *sizes, vtkIdType ns, vtkRenderer *ren);
+
   // used for transparency
   bool Invert;
   float Radius;

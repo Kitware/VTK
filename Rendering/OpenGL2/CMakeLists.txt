@@ -65,6 +65,8 @@ set(Module_SRCS
   vtkOpenGLTexture.cxx
   vtkOpenGLVertexArrayObject.cxx
   vtkOpenGLVertexBufferObject.cxx
+  vtkOpenGLVertexBufferObjectCache.cxx
+  vtkOpenGLVertexBufferObjectGroup.cxx
   vtkOverlayPass.cxx
   vtkPixelBufferObject.cxx
   vtkPointFillPass.cxx
@@ -112,6 +114,7 @@ set_source_files_properties(
   vtkOpenGLShaderCache
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
+  vtkOpenGLVertexBufferObjectCache
   vtkPixelBufferObject
   vtkRenderbuffer
   vtkTextureObject

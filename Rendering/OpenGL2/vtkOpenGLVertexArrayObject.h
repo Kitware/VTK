@@ -20,6 +20,7 @@
 
 class vtkShaderProgram;
 class vtkOpenGLBufferObject;
+class vtkOpenGLVertexBufferObject;
 
 /**
  * @brief The VertexArrayObject class uses, or emulates, vertex array objects.
@@ -55,6 +56,10 @@ public:
     return this->AddAttributeArrayWithDivisor(program, buffer, name,
       offset,stride,elementType, elementTupleSize, normalize, 0, false);
   }
+
+  bool AddAttributeArray(vtkShaderProgram *program,
+                         vtkOpenGLVertexBufferObject *buffer,
+                         const std::string &name, int offset, bool normalize);
 
   bool AddAttributeArrayWithDivisor(vtkShaderProgram *program,
                          vtkOpenGLBufferObject *buffer,

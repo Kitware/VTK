@@ -35,6 +35,7 @@
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGLShaderCache;
+class vtkOpenGLVertexBufferObjectCache;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
 class vtkStdString;
@@ -246,6 +247,13 @@ public:
 
   //@{
   /**
+   * Returns an Shader Cache object
+   */
+  vtkGetObjectMacro(VBOCache,vtkOpenGLVertexBufferObjectCache);
+  //@}
+
+  //@{
+  /**
    * Returns the current default FBO (0 when OffScreenRendering is inactive).
    */
   vtkGetMacro(FrameBufferObject, unsigned int);
@@ -400,6 +408,7 @@ protected:
   ~vtkOpenGLRenderWindow() VTK_OVERRIDE;
 
   vtkOpenGLShaderCache *ShaderCache;
+  vtkOpenGLVertexBufferObjectCache *VBOCache;
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method

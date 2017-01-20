@@ -15,6 +15,7 @@
 
 #include "vtkOpenGLHelper.h"
 
+#include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -23,6 +24,7 @@
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -30,6 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkStickMapperVS.h"
 
@@ -274,66 +277,6 @@ void vtkOpenGLStickMapper::SetMapperShaderParameters(
   vtkRenderer *ren,
   vtkActor *actor)
 {
-  if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
-  {
-    vtkHardwareSelector* selector = ren->GetSelector();
-    bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
-
-    cellBO.VAO->Bind();
-    if (cellBO.Program->IsAttributeUsed("orientMC"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                         "orientMC",
-                                         this->VBO->ColorOffset + sizeof(float),
-                                         this->VBO->Stride, VTK_FLOAT, 3,
-                                         false))
-      {
-        vtkErrorMacro(<< "Error setting 'orientMC' in shader VAO.");
-      }
-    }
-    if (cellBO.Program->IsAttributeUsed("offsetMC"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                         "offsetMC",
-                                         this->VBO->ColorOffset+4*sizeof(float),
-                                         this->VBO->Stride, VTK_UNSIGNED_CHAR,
-                                         3, false))
-      {
-        vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
-      }
-    }
-    if (cellBO.Program->IsAttributeUsed("radiusMC"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                         "radiusMC",
-                                         this->VBO->ColorOffset+5*sizeof(float),
-                                         this->VBO->Stride, VTK_FLOAT, 1,
-                                         false))
-      {
-        vtkErrorMacro(<< "Error setting 'radiusMC' in shader VAO.");
-      }
-    }
-    if (picking &&
-        (!selector ||
-         (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)) &&
-        cellBO.Program->IsAttributeUsed("selectionId"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                         "selectionId",
-                                         this->VBO->ColorOffset+6*sizeof(float),
-                                         this->VBO->Stride, VTK_UNSIGNED_CHAR,
-                                         4, true))
-      {
-        vtkErrorMacro(<< "Error setting 'selectionId' in shader VAO.");
-      }
-    }
-    else
-    {
-      cellBO.VAO->RemoveAttributeArray("selectionId");
-    }
-  }
-
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
 }
 
@@ -352,163 +295,126 @@ void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
               float *orients,
               float *sizes,
               vtkIdType *selectionIds,
-              vtkOpenGLVertexBufferObject *VBO)
+              vtkOpenGLVertexBufferObjectGroup *VBOs,
+              vtkViewport *ren)
 {
-  // Figure out how big each block will be, currently 6 or 7 floats.
-  int blockSize = 3;
-  VBO->VertexOffset = 0;
-  VBO->NormalOffset = 0;
-  VBO->TCoordOffset = 0;
-  VBO->TCoordComponents = 0;
-  VBO->ColorComponents = colorComponents;
-  VBO->ColorOffset = sizeof(float) * blockSize;
-  ++blockSize;
+  vtkFloatArray *verts = vtkFloatArray::New();
+  verts->SetNumberOfComponents(3);
+  verts->SetNumberOfTuples(numPts*6);
+  float *vPtr = static_cast<float *>(verts->GetVoidPointer(0));
 
-  // three more floats for orient + 2 for offset + 1 for radius
-  blockSize += 5;
-  if (selectionIds)
-  {
-    blockSize++;
-  }
-  VBO->Stride = sizeof(float) * blockSize;
+  vtkFloatArray *orientDA = vtkFloatArray::New();
+  orientDA->SetNumberOfComponents(3);
+  orientDA->SetNumberOfTuples(numPts*6);
+  float *orPtr = static_cast<float *>(orientDA->GetVoidPointer(0));
 
-  // Create a buffer, and copy the data over.
-  VBO->PackedVBO.resize(blockSize * numPts * 6);
-  std::vector<float>::iterator it = VBO->PackedVBO.begin();
+  vtkFloatArray *radiusDA = vtkFloatArray::New();
+  radiusDA->SetNumberOfComponents(1);
+  radiusDA->SetNumberOfTuples(numPts*6);
+  float *radPtr = static_cast<float *>(radiusDA->GetVoidPointer(0));
+
+  vtkUnsignedCharArray *offsets = vtkUnsignedCharArray::New();
+  offsets->SetNumberOfComponents(4);
+  offsets->SetNumberOfTuples(numPts*6);
+  unsigned char *oPtr = static_cast<unsigned char *>(offsets->GetVoidPointer(0));
+
+  vtkUnsignedCharArray *ucolors = vtkUnsignedCharArray::New();
+  ucolors->SetNumberOfComponents(4);
+  ucolors->SetNumberOfTuples(numPts*6);
+  unsigned char *cPtr = static_cast<unsigned char *>(ucolors->GetVoidPointer(0));
 
   float *pointPtr;
   float *orientPtr;
   unsigned char *colorPtr;
 
-  vtkucfloat offsets;
-  offsets.c[3] = 0;
-  vtkucfloat selId;
-  selId.c[0] = 0;
-  selId.c[1] = 0;
-  selId.c[2] = 0;
-  selId.c[3] = 0;
-
   for (vtkIdType i = 0; i < numPts; ++i)
   {
+    // Vertices
     pointPtr = points + i*3;
-    orientPtr = orients + i*3;
-    colorPtr = colors + i*colorComponents;
-    float radius = sizes[i*3+1];
+    vPtr[0] = pointPtr[0];
+    vPtr[1] = pointPtr[1];
+    vPtr[2] = pointPtr[2];
+    // copy first point, now we have two
+    memcpy((vPtr + 3), vPtr, sizeof(float)*3);
+    // copy first two twice more
+    memcpy((vPtr + 6), vPtr, sizeof(float)*6);
+    memcpy((vPtr + 12), vPtr, sizeof(float)*6);
+    vPtr += 18;
+
+    // orientation
     float length = sizes[i*3];
+    orientPtr = orients + i*3;
+    orPtr[0] = orientPtr[0]*length;
+    orPtr[1] = orientPtr[1]*length;
+    orPtr[2] = orientPtr[2]*length;
+    // copy first point, now we have two
+    memcpy((orPtr + 3), orPtr, sizeof(float)*3);
+    // copy first two twice more
+    memcpy((orPtr + 6), orPtr, sizeof(float)*6);
+    memcpy((orPtr + 12), orPtr, sizeof(float)*6);
+    orPtr += 18;
+
+    // offsets
+    *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 0;
+    *(oPtr++) = 255; *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 0;
+    *(oPtr++) = 255; *(oPtr++) = 0; *(oPtr++) = 255; *(oPtr++) = 0;
+    *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 255; *(oPtr++) = 0;
+    *(oPtr++) = 255; *(oPtr++) = 255; *(oPtr++) = 255; *(oPtr++) = 0;
+    *(oPtr++) = 0; *(oPtr++) = 255; *(oPtr++) = 255; *(oPtr++) = 0;
+
+    // colors or selection ids
     if (selectionIds)
     {
       vtkIdType thisId = selectionIds[i] + 1;
-      selId.c[0] = thisId % 256;
-      selId.c[1] = (thisId >> 8) % 256;
-      selId.c[2] = (thisId >> 16) % 256;
-      selId.c[3] = 0;
+      cPtr[0] = thisId % 256;
+      cPtr[1] = (thisId >> 8) % 256;
+      cPtr[2] = (thisId >> 16) % 256;
+      cPtr[3] = 0;
     }
-
-    // Vertices
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = orientPtr[0]*length;
-    *(it++) = orientPtr[1]*length;
-    *(it++) = orientPtr[2]*length;
-    offsets.c[0] = 0;
-    offsets.c[1] = 0;
-    offsets.c[2] = 0;
-    *(it++) = offsets.f;
-    *(it++) = radius;
-    if (selectionIds)
+    else
     {
-      *(it++) = selId.f;
+      colorPtr = colors + i*colorComponents;
+      cPtr[0] = colorPtr[0];
+      cPtr[1] = colorPtr[1];
+      cPtr[2] = colorPtr[2];
+      cPtr[3] = (colorComponents == 4 ? colorPtr[3] : 255);
     }
+    memcpy(cPtr + 4, cPtr, 4);
+    memcpy(cPtr + 8, cPtr, 8);
+    memcpy(cPtr + 16, cPtr, 8);
+    cPtr += 24;
 
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = orientPtr[0]*length;
-    *(it++) = orientPtr[1]*length;
-    *(it++) = orientPtr[2]*length;
-    offsets.c[0] = 1;
-    offsets.c[1] = 0;
-    offsets.c[2] = 0;
-    *(it++) = offsets.f;
-    *(it++) = radius;
-    if (selectionIds)
-    {
-      *(it++) = selId.f;
-    }
-
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = orientPtr[0]*length;
-    *(it++) = orientPtr[1]*length;
-    *(it++) = orientPtr[2]*length;
-    offsets.c[0] = 1;
-    offsets.c[1] = 0;
-    offsets.c[2] = 1;
-    *(it++) = offsets.f;
-    *(it++) = radius;
-    if (selectionIds)
-    {
-      *(it++) = selId.f;
-    }
-
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = orientPtr[0]*length;
-    *(it++) = orientPtr[1]*length;
-    *(it++) = orientPtr[2]*length;
-    offsets.c[0] = 0;
-    offsets.c[1] = 0;
-    offsets.c[2] = 1;
-    *(it++) = offsets.f;
-    *(it++) = radius;
-    if (selectionIds)
-    {
-      *(it++) = selId.f;
-    }
-
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = orientPtr[0]*length;
-    *(it++) = orientPtr[1]*length;
-    *(it++) = orientPtr[2]*length;
-    offsets.c[0] = 1;
-    offsets.c[1] = 1;
-    offsets.c[2] = 1;
-    *(it++) = offsets.f;
-    *(it++) = radius;
-    if (selectionIds)
-    {
-      *(it++) = selId.f;
-    }
-
-    *(it++) = pointPtr[0];
-    *(it++) = pointPtr[1];
-    *(it++) = pointPtr[2];
-    *(it++) = *reinterpret_cast<float *>(colorPtr);
-    *(it++) = orientPtr[0]*length;
-    *(it++) = orientPtr[1]*length;
-    *(it++) = orientPtr[2]*length;
-    offsets.c[0] = 0;
-    offsets.c[1] = 1;
-    offsets.c[2] = 1;
-    *(it++) = offsets.f;
-    *(it++) = radius;
-    if (selectionIds)
-    {
-      *(it++) = selId.f;
-    }
+    float radius = sizes[i*3+1];
+    *(radPtr++) = radius;
+    *(radPtr++) = radius;
+    *(radPtr++) = radius;
+    *(radPtr++) = radius;
+    *(radPtr++) = radius;
+    *(radPtr++) = radius;
   }
-  VBO->Upload(VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
-  VBO->VertexCount = numPts*6;
+
+  VBOs->CacheDataArray("vertexMC", verts, ren, VTK_FLOAT);
+  verts->Delete();
+  VBOs->CacheDataArray("orientMC", orientDA, ren, VTK_FLOAT);
+  orientDA->Delete();
+  VBOs->CacheDataArray("offsetMC", offsets, ren, VTK_UNSIGNED_CHAR);
+  offsets->Delete();
+  VBOs->CacheDataArray("radiusMC", radiusDA, ren, VTK_FLOAT);
+  radiusDA->Delete();
+
+  if (selectionIds)
+  {
+    VBOs->CacheDataArray("scalarColor", NULL, ren, VTK_UNSIGNED_CHAR);
+    VBOs->CacheDataArray("selectionId", ucolors, ren, VTK_UNSIGNED_CHAR);
+  }
+  else
+  {
+    VBOs->CacheDataArray("scalarColor", ucolors, ren, VTK_UNSIGNED_CHAR);
+    VBOs->CacheDataArray("selectionId", NULL, ren, VTK_UNSIGNED_CHAR);
+  }
+  ucolors->Delete();
+  VBOs->BuildAllVBOs(ren);
+
   return;
 }
 }
@@ -588,7 +494,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
     picking ?
       static_cast<vtkIdType *>(poly->GetPointData()->GetArray(this->SelectionIdArray)->GetVoidPointer(0))
       : NULL,
-    this->VBO);
+    this->VBOs, ren);
 
   // create the IBO
   this->Primitives[PrimitivePoints].IBO->IndexCount = 0;
@@ -610,8 +516,9 @@ void vtkOpenGLStickMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
     this->Primitives[PrimitiveTris].IBO->Bind();
+    int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
     glDrawRangeElements(GL_TRIANGLES, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
+                        static_cast<GLuint>(numVerts - 1),
                         static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));

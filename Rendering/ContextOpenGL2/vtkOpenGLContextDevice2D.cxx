@@ -486,7 +486,7 @@ void vtkOpenGLContextDevice2D::BuildVBO(
 
   std::vector<float> va;
   va.resize(nv*stride);
-  vtkucfloat c;
+  vtkFourByteUnion c;
   for (int i = 0; i < nv; i++)
   {
     va[i*stride] = f[i*2];
