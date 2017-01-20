@@ -48,8 +48,8 @@
  * restrip the triangles.
  *
  * @sa
- * For high-performance rendering, you could use vtkPolygonalMeshPointNormals
- * if you know that you have a polygonal mesh which does not require splitting
+ * For high-performance rendering, you could use vtkTriangleMeshPointNormals
+ * if you know that you have a triangle mesh which does not require splitting
  * nor consistency check on the cell orientations.
  *
 */
