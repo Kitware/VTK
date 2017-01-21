@@ -83,7 +83,7 @@ public:
    */
   static vtkUnsignedDistance *New();
   vtkTypeMacro(vtkUnsignedDistance,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
   //@{
