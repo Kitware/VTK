@@ -202,7 +202,7 @@ public:
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*);
+                     vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkUnsignedDistance();
@@ -223,10 +223,10 @@ protected:
 
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
   virtual int RequestData (vtkInformation *,
-                           vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int, vtkInformation*);
+                           vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  virtual int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkUnsignedDistance(const vtkUnsignedDistance&) VTK_DELETE_FUNCTION;
