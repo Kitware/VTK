@@ -46,16 +46,16 @@ typedef struct _SpecialTypeInfo
 /* -------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------- */
-/* generate function for printing a special object */
-static void vtkWrapPython_NewDeleteProtocol(
-  FILE *fp, const char *classname, ClassInfo *data)
+/* check if class has a wrapped constructor, and return its name if so */
+static const char *vtkWrapPython_WrappedConstructor(
+  ClassInfo *data, HierarchyInfo *hinfo, size_t *np)
 {
-  const char *constructor;
+  const char *constructor = data->Name;
   size_t n, m;
+  int i;
 
   /* remove namespaces and template parameters from the
    * class name to get the constructor name */
-  constructor = data->Name;
   m = vtkParse_UnscopedNameLength(constructor);
   while (constructor[m] == ':' && constructor[m+1] == ':')
   {
@@ -70,22 +70,38 @@ static void vtkWrapPython_NewDeleteProtocol(
     }
   }
 
-  /* the "new" method */
-  if (data->IsAbstract)
+  /* check if a public constructor exists */
+  for (i = 0; i < data->NumberOfFunctions; i++)
   {
-    fprintf(fp,
-    "static PyObject *\n"
-    "Py%s_New(PyTypeObject *, PyObject *, PyObject *)\n"
-    "{\n"
-    "  PyErr_SetString(PyExc_TypeError,\n"
-    "                  \"this abstract class cannot be instantiated\");\n"
-    "\n"
-    "  return NULL;\n"
-    "}\n"
-    "\n",
-    classname);
+    FunctionInfo *theFunc = data->Functions[i];
+
+    if (theFunc->Name && strncmp(theFunc->Name, constructor, n) == 0 &&
+        theFunc->Name[n] == '\0' && !theFunc->Template &&
+        vtkWrapPython_MethodCheck(data, theFunc, hinfo))
+    {
+      *np = n;
+      return constructor;
+    }
   }
-  else
+
+  return NULL;
+}
+
+/* -------------------------------------------------------------------- */
+/* generate function for printing a special object */
+static void vtkWrapPython_NewDeleteProtocol(
+  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo)
+{
+  size_t n = 0;
+  const char *constructor = NULL;
+
+  if (!data->IsAbstract)
+  {
+    constructor = vtkWrapPython_WrappedConstructor(data, hinfo, &n);
+  }
+
+  /* the "new" method */
+  if (constructor)
   {
     fprintf(fp,
     "static PyObject *\n"
@@ -103,17 +119,44 @@ static void vtkWrapPython_NewDeleteProtocol(
     "\n",
     classname, classname, (int)n, (int)n, constructor);
   }
-
-  /* the delete method */
-  fprintf(fp,
-    "static void Py%s_Delete(PyObject *self)\n"
+  else
+  {
+    fprintf(fp,
+    "static PyObject *\n"
+    "Py%s_New(PyTypeObject *, PyObject *, PyObject *)\n"
     "{\n"
-    "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
-    "  delete static_cast<%s *>(obj->vtk_ptr);\n"
-    "  PyObject_Del(self);\n"
+    "  PyErr_SetString(PyExc_TypeError,\n"
+    "                  \"this class cannot be instantiated\");\n"
+    "\n"
+    "  return NULL;\n"
     "}\n"
     "\n",
-    classname, data->Name);
+    classname);
+  }
+
+  /* the delete method */
+  if (vtkWrap_HasPublicDestructor(data))
+  {
+    fprintf(fp,
+      "static void Py%s_Delete(PyObject *self)\n"
+      "{\n"
+      "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
+      "  delete static_cast<%s *>(obj->vtk_ptr);\n"
+      "  PyObject_Del(self);\n"
+      "}\n"
+      "\n",
+      classname, data->Name);
+  }
+  else
+  {
+    fprintf(fp,
+      "static void Py%s_Delete(PyObject *self)\n"
+      "{\n"
+      "  PyObject_Del(self);\n"
+      "}\n"
+      "\n",
+      classname);
+  }
 }
 
 
@@ -588,7 +631,7 @@ static void vtkWrapPython_SpecialTypeProtocols(
   info->has_compare = 0;
   info->has_sequence = 0;
 
-  vtkWrapPython_NewDeleteProtocol(fp, classname, data);
+  vtkWrapPython_NewDeleteProtocol(fp, classname, data, hinfo);
   vtkWrapPython_PrintProtocol(fp, classname, data, finfo, info);
   vtkWrapPython_RichCompareProtocol(fp, classname, data, finfo, info);
   vtkWrapPython_SequenceProtocol(fp, classname, data, hinfo, info);
@@ -600,7 +643,7 @@ static void vtkWrapPython_SpecialTypeProtocols(
  * they are wrappable */
 int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data)
 {
-  /* no templated types */
+  /* wrapping templates is only possible after template instantiation */
   if (data->Template)
   {
     return 0;
@@ -608,13 +651,6 @@ int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data)
 
   /* restrict wrapping to classes that have a "vtk" prefix */
   if (strncmp(data->Name, "vtk", 3) != 0)
-  {
-    return 0;
-  }
-
-  /* require public destructor and copy contructor */
-  if (!vtkWrap_HasPublicDestructor(data) ||
-      !vtkWrap_HasPublicCopyConstructor(data))
   {
     return 0;
   }
@@ -631,28 +667,19 @@ void vtkWrapPython_GenerateSpecialType(
   char supername[1024];
   const char *name;
   SpecialTypeInfo info;
-  const char *constructor;
-  size_t n, m;
+  const char *constructor = NULL;
+  size_t n = 0;
   int i;
   int has_constants = 0;
   int has_superclass = 0;
+  int has_copycons = 0;
   int is_external = 0;
 
   /* remove namespaces and template parameters from the
    * class name to get the constructor name */
-  constructor = data->Name;
-  m = vtkParse_UnscopedNameLength(constructor);
-  while (constructor[m] == ':' && constructor[m+1] == ':')
+  if (!data->IsAbstract)
   {
-    constructor += m + 2;
-    m = vtkParse_UnscopedNameLength(constructor);
-  }
-  for (n = 0; n < m; n++)
-  {
-    if (constructor[n] == '<')
-    {
-      break;
-    }
+    constructor = vtkWrapPython_WrappedConstructor(data, hinfo, &n);
   }
 
   /* get the superclass */
@@ -665,7 +692,7 @@ void vtkWrapPython_GenerateSpecialType(
   }
 
   /* generate all constructor methods */
-  if (!data->IsAbstract)
+  if (constructor)
   {
     vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, 0, 1);
   }
@@ -793,8 +820,10 @@ void vtkWrapPython_GenerateSpecialType(
   }
 
   /* generate the copy constructor helper function */
-  if (!data->IsAbstract)
+  if (constructor && vtkWrap_HasPublicCopyConstructor(data))
   {
+    has_copycons = 1;
+
     fprintf(fp,
     "static void *Py%s_CCopy(const void *obj)\n"
     "{\n"
@@ -831,18 +860,7 @@ void vtkWrapPython_GenerateSpecialType(
     "{\n",
     classname);
 
-  if (data->IsAbstract)
-  {
-    fprintf(fp,
-    "  PyVTKSpecialType_Add(\n"
-    "    &Py%s_Type,\n"
-    "    Py%s_Methods,\n"
-    "    NULL,\n"
-    "    Py%s_Doc(), NULL);\n"
-    "\n",
-    classname, classname, classname);
-  }
-  else
+  if (has_copycons)
   {
     fprintf(fp,
     "  PyVTKSpecialType_Add(\n"
@@ -854,6 +872,30 @@ void vtkWrapPython_GenerateSpecialType(
     classname, classname,
     classname, (int)n, (int)n, constructor,
     classname, classname);
+  }
+  else if (constructor)
+  {
+    fprintf(fp,
+    "  PyVTKSpecialType_Add(\n"
+    "    &Py%s_Type,\n"
+    "    Py%s_Methods,\n"
+    "    Py%s_%*.*s_Methods,\n"
+    "    Py%s_Doc(), NULL);\n"
+    "\n",
+    classname, classname,
+    classname, (int)n, (int)n, constructor,
+    classname);
+  }
+  else
+  {
+    fprintf(fp,
+    "  PyVTKSpecialType_Add(\n"
+    "    &Py%s_Type,\n"
+    "    Py%s_Methods,\n"
+    "    NULL,\n"
+    "    Py%s_Doc(), NULL);\n"
+    "\n",
+    classname, classname, classname);
   }
 
   fprintf(fp,
