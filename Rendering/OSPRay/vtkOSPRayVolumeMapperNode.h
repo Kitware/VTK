@@ -25,6 +25,9 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
+class vtkAbstractArray;
+class vtkDataSet;
+
 namespace osp
 {
   struct TransferFunction;
@@ -67,6 +70,9 @@ protected:
   osp::TransferFunction* TransferFunction;
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
+
+  vtkAbstractArray *GetArrayToProcess
+    (vtkDataSet* input, int& association);
 
 private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;
