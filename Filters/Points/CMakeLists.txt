@@ -31,6 +31,7 @@ set(Module_SRCS
   vtkShepardKernel.cxx
   vtkSignedDistance.cxx
   vtkStatisticalOutlierRemoval.cxx
+  vtkUnsignedDistance.cxx
   vtkVoxelGrid.cxx
   vtkVoronoiKernel.cxx
   vtkWendlandQuinticKernel.cxx
