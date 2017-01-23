@@ -1,5 +1,8 @@
 set(CMAKE_SYSTEM_NAME Darwin)
 
+if(POLICY CMP0011)
+  cmake_policy(SET CMP0011 NEW)
+endif()
 if(POLICY CMP0012)
   cmake_policy(SET CMP0012 NEW)
 endif()
