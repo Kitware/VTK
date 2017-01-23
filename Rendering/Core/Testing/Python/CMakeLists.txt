@@ -28,6 +28,7 @@ vtk_add_test_python(
   cowHair2.py
   pickCells.py
   pickCompositeData.py,NO_RT
+  pickImageData.py,NO_RT
   propAssembly.py
   rendererSource.py
   rotations.py
