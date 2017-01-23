@@ -75,6 +75,7 @@ set(Module_SRCS
   vtkStructuredGridClip.cxx
   vtkSubdivisionFilter.cxx
   vtkSubPixelPositionEdgels.cxx
+  vtkSynchronizeTimeFilter.cxx
   vtkTableBasedClipDataSet.cxx
   vtkTableToPolyData.cxx
   vtkTableToStructuredGrid.cxx

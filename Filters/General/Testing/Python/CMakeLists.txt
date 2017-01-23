@@ -14,6 +14,7 @@ vtk_add_test_python(
   TestPointConnectivityFilter.py
   TestRectilinearGridToTetrahedra.py
   TestSplineFilter.py
+  TestSynchronizeTimeFilter.py,NO_OUTPUT,NO_VALID
   WarpToImage.py
   blankGrid.py
   clipComb.py
