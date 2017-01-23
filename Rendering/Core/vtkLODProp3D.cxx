@@ -877,6 +877,7 @@ int vtkLODProp3D::RenderOpaqueGeometry(vtkViewport *viewport)
   }
 
   // Actually do the rendering
+  this->UpdateKeysForSelectedProp();
   int retval =
     this->LODs[this->SelectedLODIndex].Prop3D->RenderOpaqueGeometry(viewport);
 
@@ -905,6 +906,7 @@ int vtkLODProp3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
   }
 
   // Actually do the rendering
+  this->UpdateKeysForSelectedProp();
   int retval = this->LODs[this->SelectedLODIndex].Prop3D->
     RenderTranslucentPolygonalGeometry(viewport);
 
@@ -955,6 +957,7 @@ int vtkLODProp3D::RenderVolumetricGeometry(vtkViewport *viewport)
   }
 
   // Actually do the rendering
+  this->UpdateKeysForSelectedProp();
   int retval = this->LODs[this->SelectedLODIndex].Prop3D->
     RenderVolumetricGeometry(viewport);
 
@@ -1257,6 +1260,12 @@ int vtkLODProp3D::GetAutomaticPickPropIndex()
     }
   }
   return index;
+}
+
+void vtkLODProp3D::UpdateKeysForSelectedProp()
+{
+  this->LODs[this->SelectedLODIndex].Prop3D->SetPropertyKeys(
+        this->GetPropertyKeys());
 }
 
 int vtkLODProp3D::GetPickLODID(void)
