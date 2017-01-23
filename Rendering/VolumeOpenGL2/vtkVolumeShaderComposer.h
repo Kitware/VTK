@@ -289,14 +289,7 @@ namespace vtkvolume
         \n  vec2 fragTexCoord2 = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
         \n                        in_inverseWindowSize;\
         \n  vec4 depthValue = texture2D(in_depthPassSampler, fragTexCoord2);\
-        \n  vec4 dataPos;\
-        \n  dataPos.x = (gl_FragCoord.x - in_windowLowerLeftCorner.x) * 2.0 *\
-        \n                     in_inverseWindowSize.x - 1.0;\
-        \n  dataPos.y = (gl_FragCoord.y - in_windowLowerLeftCorner.y) * 2.0 *\
-        \n                     in_inverseWindowSize.y - 1.0;\
-        \n  dataPos.z = (2.0 * depthValue.x - (gl_DepthRange.near +\
-        \n                     gl_DepthRange.far)) / gl_DepthRange.diff;\
-        \n  dataPos.w = 1.0;\
+        \n  vec4 dataPos = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, depthValue.x);\
         \n\
         \n  // From normalized device coordinates to eye coordinates.\
         \n  // in_projectionMatrix is inversed because of way VT\
@@ -361,7 +354,7 @@ namespace vtkvolume
         \n    }\
         \n\
         \n  // Flag to deternmine if voxel should be considered for the rendering\
-        \n  l_skip = false;");
+        \n  g_skip = false;");
 
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
     {
@@ -417,7 +410,7 @@ namespace vtkvolume
                                  vtkVolume* vtkNotUsed(vol))
   {
     return std::string("\
-      \n    l_skip = false;"
+      \n    g_skip = false;"
     );
   }
 
@@ -996,16 +989,22 @@ namespace vtkvolume
   {
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
     {
-      return std::string();
+      return std::string("\
+        \n bool l_firstValue;\
+        \n vec4 l_maxValue;");
     }
     else if (mapper->GetBlendMode() ==
              vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
     {
-      return std::string();
+      return std::string("\
+        \n bool l_firstValue;\
+        \n vec4 l_minValue;");
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
     {
-      return std::string();
+      return std::string("\
+        \n  uvec4 l_numSamples;\
+        \n  vec4 l_avgValue;");
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
     {
@@ -1027,8 +1026,8 @@ namespace vtkvolume
     {
       return std::string("\
         \n  // We get data between 0.0 - 1.0 range\
-        \n  bool l_firstValue = true;\
-        \n  vec4 l_maxValue = vec4(0.0);"
+        \n  l_firstValue = true;\
+        \n  l_maxValue = vec4(0.0);"
       );
     }
     else if (mapper->GetBlendMode() ==
@@ -1036,17 +1035,17 @@ namespace vtkvolume
     {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
-        \n  bool l_firstValue = true;\
-        \n  vec4 l_minValue = vec4(1.0);"
+        \n  l_firstValue = true;\
+        \n  l_minValue = vec4(1.0);"
       );
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
     {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
-        \n  vec4 l_avgValue = vec4(0.0);\
+        \n  l_avgValue = vec4(0.0);\
         \n  // Keep track of number of samples\
-        \n  uvec4 l_numSamples = uvec4(0);"
+        \n  l_numSamples = uvec4(0);"
       );
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
@@ -1074,7 +1073,7 @@ namespace vtkvolume
     vtkOpenGLGPUVolumeRayCastMapper* glMapper =
       vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
     std::string shaderStr = std::string("\
-      \n    if (!l_skip)\
+      \n    if (!g_skip)\
       \n      {\
       \n      vec4 scalar = texture3D(in_volume, g_dataPos);"
     );
@@ -1599,7 +1598,7 @@ namespace vtkvolume
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
       \n\
-      \n  l_terminatePointMax = 0.0;\
+      \n  g_terminatePointMax = 0.0;\
       \n\
       \n#ifdef GL_ES\
       \n  vec4 l_depthValue = vec4(1.0,1.0,1.0,1.0);\
@@ -1621,14 +1620,7 @@ namespace vtkvolume
       \n\
       \n  // Abscissa of the point on the depth buffer along the ray.\
       \n  // point in texture coordinates\
-      \n  vec4 terminatePoint;\
-      \n  terminatePoint.x = (gl_FragCoord.x - in_windowLowerLeftCorner.x) * 2.0 *\
-      \n                     in_inverseWindowSize.x - 1.0;\
-      \n  terminatePoint.y = (gl_FragCoord.y - in_windowLowerLeftCorner.y) * 2.0 *\
-      \n                     in_inverseWindowSize.y - 1.0;\
-      \n  terminatePoint.z = (2.0 * l_depthValue.x - (gl_DepthRange.near +\
-      \n                     gl_DepthRange.far)) / gl_DepthRange.diff;\
-      \n  terminatePoint.w = 1.0;\
+      \n  vec4 terminatePoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
       \n\
       \n  // From normalized device coordinates to eye coordinates.\
       \n  // in_projectionMatrix is inversed because of way VT\
@@ -1640,9 +1632,9 @@ namespace vtkvolume
       \n                   terminatePoint;\
       \n  terminatePoint /= terminatePoint.w;\
       \n\
-      \n  l_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
+      \n  g_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
       \n                        length(g_dirStep);\
-      \n  l_currentT = 0.0;");
+      \n  g_currentT = 0.0;");
   }
 
   //--------------------------------------------------------------------------
@@ -1662,11 +1654,11 @@ namespace vtkvolume
       \n    // we terminated the loop or if we have hit an obstacle in the\
       \n    // direction of they ray (using depth buffer) we terminate as well.\
       \n    if((g_fragColor.a > (1.0 - 1.0/255.0)) || \
-      \n       l_currentT >= l_terminatePointMax)\
+      \n       g_currentT >= g_terminatePointMax)\
       \n      {\
       \n      break;\
       \n      }\
-      \n    ++l_currentT;"
+      \n    ++g_currentT;"
     );
   }
 
@@ -1698,6 +1690,8 @@ namespace vtkvolume
     return std::string("\
       \nuniform float in_croppingPlanes[6];\
       \nuniform int in_croppingFlags [32];\
+      \nfloat croppingPlanesTexture[6];\
+      \n\
       \n// X: axis = 0, Y: axis = 1, Z: axis = 2\
       \n// cp Cropping plane bounds (minX, maxX, minY, maxY, minZ, maxZ)\
       \nint computeRegionCoord(float cp[6], vec3 pos, int axis)\
@@ -1741,7 +1735,6 @@ namespace vtkvolume
 
     return std::string("\
       \n  // Convert cropping region to texture space\
-      \n  float croppingPlanesTexture[6];\
       \n  mat4  datasetToTextureMat = in_inverseTextureDatasetMatrix;\
       \n\
       \n  vec4 tempCrop = vec4(in_croppingPlanes[0], 0.0, 0.0, 1.0);\
@@ -1812,7 +1805,7 @@ namespace vtkvolume
       \n    if (in_croppingFlags[regionNo] == 0)\
       \n      {\
       \n      // Skip this voxel\
-      \n      l_skip = true;\
+      \n      g_skip = true;\
       \n      }"
     );
   }
@@ -1838,7 +1831,10 @@ namespace vtkvolume
                                           vtkVolumeMapper* vtkNotUsed(mapper),
                                           vtkVolume* vtkNotUsed(vol))
   {
-    return std::string();
+    return std::string("\
+      \n int clippingPlanesSize;\
+      \n vec3 objRayDir;\
+      \n mat4 textureToObjMat;");
   }
 
   //--------------------------------------------------------------------------
@@ -1861,19 +1857,18 @@ namespace vtkvolume
         \n      tempClip = tempClip/tempClip.w;\
         \n      tempClip.w = 1.0;\
         \n      }\
-        vec3 objRayDir = tempClip.xyz;");
+        \n    objRayDir = tempClip.xyz;");
     }
     else
     {
       shaderStr = std::string("\
-        vec3 objRayDir = normalize(in_projectionDirection);");
+        objRayDir = normalize(in_projectionDirection);");
     }
 
     shaderStr += std::string("\
-      \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
+      \n  clippingPlanesSize = int(in_clippingPlanes[0]);\
       \n  vec4 objDataPos = vec4(0.0);\
-      \n  mat4 textureToObjMat = in_volumeMatrix *\
-      \n                             in_textureDatasetMatrix;\
+      \n  textureToObjMat = in_volumeMatrix * in_textureDatasetMatrix;\
       \n\
       \n  vec4 terminatePointObj = textureToObjMat * terminatePoint;\
       \n  if (terminatePointObj.w != 0.0)\
@@ -1950,7 +1945,7 @@ namespace vtkvolume
       \n      // Update the number of ray marching steps to account for the clipped entry point (\
       \n      // this is necessary in case the ray hits geometry after marching behind the plane,\
       \n      // given that the number of steps was assumed to be from the not-clipped entry).\
-      \n      l_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
+      \n      g_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
       \n        length(g_dirStep);\
       \n      }\
       \n  }");
@@ -1970,7 +1965,7 @@ namespace vtkvolume
     else
     {
       return std::string("\
-        \n    for (int i = 0; i < clippingPlanesSize && !l_skip; i = i + 6)\
+        \n    for (int i = 0; i < clippingPlanesSize && !g_skip; i = i + 6)\
         \n      {\
         \n      vec4 objDataPos = textureToObjMat * vec4(g_dataPos, 1.0);\
         \n      if (objDataPos.w != 0.0)\
@@ -1985,7 +1980,7 @@ namespace vtkvolume
         \n                              in_clippingPlanes[i + 6]);\
         \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(objRayDir, planeNormal) < 0)\
         \n        {\
-        \n         l_skip = true;\
+        \n         g_skip = true;\
         \n         g_exit = true;\
         \n        }\
         \n      }"
@@ -2038,7 +2033,7 @@ namespace vtkvolume
         \nvec4 maskValue = texture3D(in_mask, g_dataPos);\
         \nif(maskValue.r <= 0.0)\
         \n  {\
-        \n  l_skip = true;\
+        \n  g_skip = true;\
         \n  }"
       );
     }
@@ -2142,17 +2137,27 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
+  std::string RenderToImageDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
+                                vtkVolumeMapper* vtkNotUsed(mapper),
+                                vtkVolume* vtkNotUsed(vol))
+  {
+    return std::string("\
+      \n  vec3 l_opaqueFragPos;\
+      \n  bool l_updateDepth;");
+  }
+
+  //--------------------------------------------------------------------------
   std::string RenderToImageInit(vtkRenderer* vtkNotUsed(ren),
                                 vtkVolumeMapper* vtkNotUsed(mapper),
                                 vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \n  vec3 l_opaqueFragPos = vec3(-1.0);\
+    \n  l_opaqueFragPos = vec3(-1.0);\
     \n  if(in_clampDepthToBackface)\
     \n    {\
     \n    l_opaqueFragPos = g_dataPos;\
     \n    }\
-    \n  bool l_updateDepth = true;"
+    \n  l_updateDepth = true;"
   );
   }
 
@@ -2162,7 +2167,7 @@ namespace vtkvolume
     vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \n    if(!l_skip && g_srcColor.a > 0.0 && l_updateDepth)\
+    \n    if(!g_skip && g_srcColor.a > 0.0 && l_updateDepth)\
     \n      {\
     \n      l_opaqueFragPos = g_dataPos;\
     \n      l_updateDepth = false;\
@@ -2209,10 +2214,10 @@ namespace vtkvolume
     vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \n    if(!l_skip && g_srcColor.a > 0.0)\
+    \n    if(!g_skip && g_srcColor.a > 0.0)\
     \n      {\
     \n      l_isoPos = g_dataPos;\
-    \n      g_exit = true; l_skip = true;\
+    \n      g_exit = true; g_skip = true;\
     \n      }"
   );
   }

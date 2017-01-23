@@ -387,6 +387,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "uniform sampler2D outerDepthTex;\n"
             "uniform sampler2D innerDepthTex;\n"
             "uniform sampler2D lastFrontColorTex;\n"
+            "uniform sampler2D opaqueDepth;\n"
             );
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::CallWorker::Impl",
@@ -404,9 +405,8 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  // TODO some logic for detecting if inner == outer range\n"
             "\n"
             "  initializeRayCast();\n"
-            "  vec3 cachedDataPos = g_dataPos;\n"
-            "  vec4 frontColor = rayMarchingLoop(frontStartDepth, frontEndDepth);\n"
-            "  g_dataPos = cachedDataPos; //TODO\n"
+            "  // TODO Unclear why inverting [start, end] works better\n"
+            "  vec4 frontColor = rayMarchingLoop(frontEndDepth, frontStartDepth);\n"
             "  vec4 backColor  = rayMarchingLoop(backStartDepth, backEndDepth);\n"
             "\n"
             "  // Back color is written out with pre-multiplied alpha:\n"
@@ -426,42 +426,34 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             );
 
       vtkShaderProgram::Substitute(fragmentShader, "//VTK::DepthPeeling::Ray::Init",
-            "  //Transform zStart and zEnd to texture_coordinates\n"
+            "  // Opaque geometry depth test\n"
+            "  ivec2 coord = ivec2(gl_FragCoord.xy);\n"
+            "  float zOpaque = texelFetch(opaqueDepth, coord, 0).r;\n"
+            "  ////TODO Z-test is required for back and front peels\n"
+            "  //if (zOpaque < zStart)\n"
+            "  //{\n"
+            "  //  // Opaque geometry in-front\n"
+            "  //  discard;\n"
+            "  //}\n"
+            "\n"
+            "  // Transform zStart and zEnd to texture_coordinates\n"
             "  mat4 NDCToTextureCoords = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix *\n"
             "    in_inverseModelViewMatrix * in_inverseProjectionMatrix;\n"
             "  \n"
-            "  /// Start point (point on the entry zPlane)\n"
-            "  // Win coords to NDC\n"
-            "  vec4 startPoint = vec4(0.0, 0.0, 0.0, 1.0);\n"
-            "  startPoint.x = (gl_FragCoord.x - in_windowLowerLeftCorner.x) * 2.0 *\n"
-            "                       in_inverseWindowSize.x - 1.0;\n"
-            "  startPoint.y = (gl_FragCoord.y - in_windowLowerLeftCorner.y) * 2.0 *\n"
-            "                       in_inverseWindowSize.y - 1.0;\n"
-            "  startPoint.z = (2.0 * zStart - (gl_DepthRange.near + gl_DepthRange.far)) /\n"
-            "    gl_DepthRange.diff;\n"
-            "  \n"
+            "  // Start point\n"
+            "  vec4 startPoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, zStart);\n"
             "  startPoint = NDCToTextureCoords * startPoint;\n"
             "  startPoint /= startPoint.w;\n"
             "  \n"
             "  g_dataPos = startPoint.xyz;\n"
             "  \n"
-            "  ///// End point\n"
-            "  //// Win coords to NDC\n"
-            "  vec4 endPoint = vec4(0.0, 0.0, 0.0, 1.0);\n"
-            "  endPoint.x = (gl_FragCoord.x - in_windowLowerLeftCorner.x) * 2.0 *\n"
-            "                       in_inverseWindowSize.x - 1.0;\n"
-            "  endPoint.y = (gl_FragCoord.y - in_windowLowerLeftCorner.y) * 2.0 *\n"
-            "                       in_inverseWindowSize.y - 1.0;\n"
-            "  endPoint.z = (2.0 * zEnd - (gl_DepthRange.near + gl_DepthRange.far)) /\n"
-            "    gl_DepthRange.diff;\n"
-            "  \n"
+            "  // End point\n"
+            "  float zCoord = min(zOpaque, zEnd); //TODO Opaque is hit first\n"
+            "  vec4 endPoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, zCoord);\n"
             "  endPoint = NDCToTextureCoords * endPoint;\n"
             "  endPoint /= endPoint.w;\n"
-            );
-
-      vtkShaderProgram::Substitute(fragmentShader, "//VTK::DepthPeeling::Ray::Terminate",
-            "//Next ray step lies after the end point.\n"
-            "///TODO\n"
+            "\n"
+            "  g_terminatePointMax = length(endPoint.xyz - startPoint.xyz) / length(g_dirStep);\n"
             );
 
       break;
@@ -548,6 +540,9 @@ bool vtkDualDepthPeelingPass::SetVolumetricShaderParameters(
       program->SetUniformi(
             "lastFrontColorTex",
             this->Textures[this->FrontSource]->GetTextureUnit());
+      program->SetUniformi(
+            "opaqueDepth",
+            this->Textures[OpaqueDepth]->GetTextureUnit());
       break;
 
     case vtkDualDepthPeelingPass::AlphaBlending:
@@ -1117,6 +1112,7 @@ void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
   this->Textures[this->FrontSource]->Activate();
   this->Textures[this->DepthSource]->Activate();
   this->Textures[this->DepthDestination]->Activate();
+  this->Textures[OpaqueDepth]->Activate();
 
   annotate("Start volumetric peeling!");
   this->RenderVolumetricPass();
@@ -1125,6 +1121,7 @@ void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
   this->Textures[this->FrontSource]->Deactivate();
   this->Textures[this->DepthSource]->Deactivate();
   this->Textures[this->DepthDestination]->Deactivate();
+  this->Textures[OpaqueDepth]->Deactivate();
 }
 
 //------------------------------------------------------------------------------

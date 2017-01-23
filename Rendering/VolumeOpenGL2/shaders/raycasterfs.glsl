@@ -43,12 +43,9 @@ vec3 g_dirStep;
 vec4 g_srcColor;
 vec4 g_eyePosObj;
 bool g_exit;
-
-///TOOD Review if they need to be global and rename
-bool l_skip;
-float l_currentT;
-float l_terminatePointMax;
-
+bool g_skip;
+float g_currentT;
+float g_terminatePointMax;
 
 uniform vec4 in_volume_scale;
 uniform vec4 in_volume_bias;
@@ -60,6 +57,8 @@ uniform vec4 in_volume_bias;
 //VTK::Termination::Dec
 
 //VTK::Cropping::Dec
+
+//VTK::Clipping::Dec
 
 //VTK::Shading::Dec
 
@@ -79,6 +78,8 @@ uniform vec4 in_volume_bias;
 
 //VTK::Picking::Dec
 
+//VTK::RenderToImage::Dec
+
 //VTK::DepthPeeling::Dec
 
 /// We support only 8 clipping planes for now
@@ -87,6 +88,29 @@ uniform vec4 in_volume_bias;
 uniform float in_clippingPlanes[49];
 uniform float in_scale;
 uniform float in_bias;
+
+//////////////////////////////////////////////////////////////////////////////
+///
+/// Helper functions
+///
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Transform window coordinate to NDC.
+ */
+vec4 WindowToNDC(const float xCoord, const float yCoord, const float zCoord)
+{
+  vec4 NDCCoord = vec4(0.0, 0.0, 0.0, 1.0);
+
+  NDCCoord.x = (xCoord - in_windowLowerLeftCorner.x) * 2.0 *
+    in_inverseWindowSize.x - 1.0;
+  NDCCoord.y = (yCoord - in_windowLowerLeftCorner.y) * 2.0 *
+    in_inverseWindowSize.y - 1.0;
+  NDCCoord.z = (2.0 * zCoord - (gl_DepthRange.near + gl_DepthRange.far)) /
+    gl_DepthRange.diff;
+
+  return NDCCoord;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -106,9 +130,6 @@ void initializeRayCast()
 
   //VTK::Terminate::Init
 
-  // TODO Fix broken features (e.g. See fix for TestGPURayCastAdditive;
-  // need to make some variables globally accessible for all sections
-  // of WorkerImpl).
   //VTK::Shading::Init
 
   //VTK::Cropping::Init

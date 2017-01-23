@@ -144,7 +144,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   // Configure depth peeling
   ren->SetUseDepthPeeling(1);
   ren->SetOcclusionRatio(0.0);
-  ren->SetMaximumNumberOfPeels(7);
+  ren->SetMaximumNumberOfPeels(10);
   ren->SetUseDepthPeelingForVolumes(true);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
