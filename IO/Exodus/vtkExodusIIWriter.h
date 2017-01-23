@@ -171,6 +171,15 @@ public:
   vtkSetStringMacro(BlockIdArrayName);
   vtkGetStringMacro(BlockIdArrayName);
 
+  /**
+   * In certain cases we know that metadata doesn't exist and
+   * we want to ignore that warning.
+   */
+
+  vtkSetMacro(IgnoreMetaDataWarning, bool);
+  vtkGetMacro(IgnoreMetaDataWarning, bool);
+  vtkBooleanMacro(IgnoreMetaDataWarning, bool);
+
 protected:
   vtkExodusIIWriter ();
   ~vtkExodusIIWriter () VTK_OVERRIDE;
@@ -195,10 +204,10 @@ protected:
   int WriteAllTimeSteps;
   int NumberOfTimeSteps;
 
-  vtkDoubleArray* TimeValues;
   int CurrentTimeIndex;
   int FileTimeOffset;
   bool TopologyChanged;
+  bool IgnoreMetaDataWarning;
 
   vtkDataObject *OriginalInput;
   std::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;

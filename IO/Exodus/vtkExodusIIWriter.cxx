@@ -83,7 +83,6 @@ vtkExodusIIWriter::vtkExodusIIWriter ()
   this->ModelMetadata = 0;
 
   this->NumberOfTimeSteps = 0;
-  this->TimeValues = 0;
   this->CurrentTimeIndex = 0;
   this->FileTimeOffset = 0;
 
@@ -100,6 +99,7 @@ vtkExodusIIWriter::vtkExodusIIWriter ()
   this->LocalNodeIdMap = 0;
   this->LocalElementIdMap = 0;
   this->TopologyChanged = false;
+  this->IgnoreMetaDataWarning = 0;
 }
 
 vtkExodusIIWriter::~vtkExodusIIWriter ()
@@ -109,10 +109,6 @@ vtkExodusIIWriter::~vtkExodusIIWriter ()
   delete [] this->FileName;
   delete [] this->BlockIdArrayName;
 
-  if (this->TimeValues)
-  {
-    this->TimeValues->Delete ();
-  }
 
   delete [] this->BlockElementVariableTruthTable;
 
@@ -138,6 +134,7 @@ void vtkExodusIIWriter::PrintSelf (ostream& os, vtkIndent indent)
   {
     this->ModelMetadata->PrintSelf (os, indent.GetNextIndent ());
   }
+  os << indent << "IgnoreMetaDataWarning " << this->IgnoreMetaDataWarning << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -190,27 +187,15 @@ int vtkExodusIIWriter::RequestUpdateExtent (
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
-  // get the requested update extent
-  if(!this->TimeValues)
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  if ( this->WriteAllTimeSteps &&
+       inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
   {
-    this->TimeValues = vtkDoubleArray::New();
-    vtkInformation *info = inputVector[0]->GetInformationObject(0);
-    double *data = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    int len = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    this->TimeValues->SetNumberOfValues (len);
-    for (int i = 0; i < len; i ++)
-    {
-      this->TimeValues->SetValue (i, data[i]);
-    }
-  }
-  if (this->WriteAllTimeSteps)
-  {
-    if(this->TimeValues->GetPointer(0))
-    {
-      double timeReq= this->TimeValues->GetValue(this->CurrentTimeIndex);
-      inputVector[0]->GetInformationObject(0)->Set
+    double* timeSteps =
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+    double timeReq= timeSteps[this->CurrentTimeIndex];
+    inputVector[0]->GetInformationObject(0)->Set
       ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),  timeReq);
-    }
   }
   return 1;
 }
@@ -580,7 +565,7 @@ int vtkExodusIIWriter::CreateNewExodusFile()
 
   if (this->NumberOfProcesses == 1)
   {
-    if (this->CurrentTimeIndex == 0)
+    if (this->WriteAllTimeSteps == false || this->CurrentTimeIndex == 0)
     {
       this->fid = ex_create(this->FileName, EX_CLOBBER, &compWordSize, &IOWordSize);
       if (fid <= 0)
@@ -593,7 +578,7 @@ int vtkExodusIIWriter::CreateNewExodusFile()
     else
     {
       char *myFileName = new char [VTK_MAXPATH];
-      sprintf(myFileName, "%s_%06d", this->FileName, this->CurrentTimeIndex);
+      sprintf(myFileName, "%s-s.%06d", this->FileName, this->CurrentTimeIndex);
       this->fid = ex_create(myFileName, EX_CLOBBER, &compWordSize, &IOWordSize);
       if (fid <= 0)
       {
@@ -607,10 +592,14 @@ int vtkExodusIIWriter::CreateNewExodusFile()
   else
   {
     std::ostringstream myFileName;
-    myFileName << this->FileName << ".";
-    if (this->CurrentTimeIndex != 0)
+    myFileName << this->FileName;
+    if (this->WriteAllTimeSteps == false || this->CurrentTimeIndex == 0)
     {
-      myFileName << "_" << std::setfill('0') << std::setw(6) <<
+      myFileName << ".";
+    }
+    else
+    {
+      myFileName << "-s." << std::setfill('0') << std::setw(6) <<
         this->CurrentTimeIndex << std::setw(0) << ".";
     }
     unsigned int numDigits = GetNumberOfDigits(
@@ -3217,13 +3206,14 @@ int vtkExodusIIWriter::WritePointData (int timestep, vtkDataArray *buffer)
 int vtkExodusIIWriter::WriteNextTimeStep()
 {
   int rc = 0;
-
   int ts = this->CurrentTimeIndex - this->FileTimeOffset;
-  float tsv = (this->TimeValues->GetNumberOfTuples() > 0 ?
-               this->TimeValues->GetValue(this->CurrentTimeIndex):
-               0.0);
+  float tsv = 0.;
+  if (this->GetInput()->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()) )
+  {
+    tsv = this->GetInput()->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+  }
 
-  vtkDataArray *buffer;
+  vtkSmartPointer<vtkDataArray> buffer;
   if (this->PassDoubles)
   {
     double dtsv = (double)tsv;
@@ -3234,7 +3224,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
                     << " fid " << this->fid << " ts " << ts + 1 << " tsv " << tsv);
       return 0;
     }
-    buffer = vtkDoubleArray::New ();
+    buffer = vtkSmartPointer<vtkDoubleArray>::New ();
   }
   else
   {
@@ -3245,7 +3235,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
                     << " fid " << this->fid << " ts " << ts + 1 << " tsv " << tsv);
       return 0;
     }
-    buffer = vtkFloatArray::New ();
+    buffer = vtkSmartPointer<vtkFloatArray>::New ();
   }
 
   // Buffer is used to help these determine the type of the data to write out
@@ -3261,8 +3251,6 @@ int vtkExodusIIWriter::WriteNextTimeStep()
   {
     return 0;
   }
-
-  buffer->Delete ();
 
   return 1;
 }
@@ -3332,7 +3320,9 @@ vtkIntArray* vtkExodusIIWriter::GetBlockIdArray (
   this->SetBlockIdArrayName(0);
   if ((this->NumberOfProcesses > 1) &&
       // you don't have metadata but you have some tuples.
-      cd->GetNumberOfTuples() > 0)
+      cd->GetNumberOfTuples() > 0 &&
+      // depending on what we're trying to write out we may not care about missing metadata
+      this->IgnoreMetaDataWarning == 0)
   {
     // Parallel apps must have a global list of all block IDs, plus a
     // list of block IDs for each cell.
