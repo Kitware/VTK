@@ -320,6 +320,9 @@ protected:
 
   int GetAutomaticPickPropIndex(void);
 
+  // Assumes that SelectedLODIndex has already been validated:
+  void UpdateKeysForSelectedProp();
+
   vtkLODProp3DEntry *LODs;
   int NumberOfEntries;
   int NumberOfLODs;
