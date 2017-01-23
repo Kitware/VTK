@@ -23,10 +23,12 @@
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPainterCommunicator.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkPixelExtent.h"
@@ -146,6 +148,9 @@ public:
 
     this->DettachBuffers(fbo);
 
+    this->QuadVBO = NULL;
+    this->LastQuadProgram = NULL;
+
     #if vtkLineIntegralConvolution2DDEBUG >= 3
     this->Print(cerr);
     #endif
@@ -154,6 +159,10 @@ public:
   ~vtkLICPingPongBufferManager()
   {
     // free buffers
+    if (this->QuadVBO)
+    {
+      this->QuadVBO->Delete();
+    }
     this->LICTexture0->Delete();
     this->SeedTexture0->Delete();
     this->LICTexture1->Delete();
@@ -706,21 +715,42 @@ public:
     computeExtent.CellToNode();
     computeExtent.GetData(quadBounds);
 
-    float tcoords[] = {
-      computeBounds[0], computeBounds[2],
-      computeBounds[1], computeBounds[2],
-      computeBounds[1], computeBounds[3],
-      computeBounds[0], computeBounds[3]};
+    if (!this->QuadVBO)
+    {
+      this->QuadVBO = vtkOpenGLBufferObject::New();
+      this->QuadVBO->GenerateBuffer(vtkOpenGLBufferObject::ArrayBuffer);
+    }
+    if (this->LastQuadProgram != cbo->Program)
+    {
+      cbo->VAO->ShaderProgramChanged();
+      cbo->VAO->Bind();
+      if (!cbo->VAO->AddAttributeArray(cbo->Program, this->QuadVBO, "vertexMC", 0,
+          sizeof(float)*5, VTK_FLOAT, 3, false))
+      {
+        vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
+      }
+      if (!cbo->VAO->AddAttributeArray(cbo->Program, this->QuadVBO, "tcoordMC", sizeof(float)*3,
+          sizeof(float)*5, VTK_FLOAT, 2, false))
+      {
+        vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");
+      }
+      this->LastQuadProgram = cbo->Program;
+    }
 
-    float verts[] = {
+    float vwt[] = {
+      computeBounds[0]*2.0f-1.0f, computeBounds[3]*2.0f-1.0f, 0.0f,
+      computeBounds[0], computeBounds[3],
       computeBounds[0]*2.0f-1.0f, computeBounds[2]*2.0f-1.0f, 0.0f,
-      computeBounds[1]*2.0f-1.0f, computeBounds[2]*2.0f-1.0f, 0.0f,
+      computeBounds[0], computeBounds[2],
       computeBounds[1]*2.0f-1.0f, computeBounds[3]*2.0f-1.0f, 0.0f,
-      computeBounds[0]*2.0f-1.0f, computeBounds[3]*2.0f-1.0f, 0.0f};
+      computeBounds[1], computeBounds[3],
+      computeBounds[1]*2.0f-1.0f, computeBounds[2]*2.0f-1.0f, 0.0f,
+      computeBounds[1], computeBounds[2]};
 
-    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords,
-      cbo->Program, cbo->VAO);
-    vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
+    this->QuadVBO->Bind();
+    this->QuadVBO->Upload(vwt, 20, vtkOpenGLBufferObject::ArrayBuffer);
+    cbo->VAO->Bind();
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   }
 
   #if (vtkLineIntegralConvolution2DDEBUG >= 1)
@@ -810,6 +840,9 @@ private:
   vtkTextureObject *SeedTexture0;
   vtkTextureObject *LICTexture1;
   vtkTextureObject *SeedTexture1;
+
+  vtkOpenGLBufferObject *QuadVBO;
+  vtkShaderProgram *LastQuadProgram;
 
   int  ReadIndex;
   vtkTextureObject *PingTextures[2];

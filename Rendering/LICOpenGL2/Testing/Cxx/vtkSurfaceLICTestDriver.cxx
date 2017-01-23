@@ -33,6 +33,7 @@
 #include "vtkCompositePolyDataMapper2.h"
 
 #include "vtkCompositeSurfaceLICMapper.h"
+#include "vtkSurfaceLICMapper.h"
 #include "vtkSurfaceLICInterface.h"
 
 #include "vtk_glew.h"
@@ -195,6 +196,8 @@ int vtkSurfaceLICTestDriver(
 
   vtkSmartPointer<vtkCompositeSurfaceLICMapper> mapper
     = vtkSmartPointer<vtkCompositeSurfaceLICMapper>::New();
+  // vtkSmartPointer<vtkSurfaceLICMapper> mapper
+  //   = vtkSmartPointer<vtkSurfaceLICMapper>::New();
 
   // print details of the test
   // convenient for debugging failed

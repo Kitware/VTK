@@ -124,9 +124,6 @@ protected:
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
 
-  // The vector VBO and its layout.
-  vtkOpenGLVertexBufferObject *VectorVBO;
-
   vtkSurfaceLICInterface *LICInterface;
 
 private:

@@ -54,6 +54,11 @@ protected:
 
   vtkNew<vtkSurfaceLICInterface> LICInterface;
 
+  virtual vtkCompositeMapperHelper2 *CreateHelper();
+
+  // copy values to the helpers
+  virtual void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper);
+
 private:
   vtkCompositeSurfaceLICMapper(
     const vtkCompositeSurfaceLICMapper&) VTK_DELETE_FUNCTION;
