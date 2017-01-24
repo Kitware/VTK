@@ -47,150 +47,7 @@
 #include <algorithm>
 #include <sstream>
 
-// this class encapsulates values tied to a
-// polydata
-class vtkCompositeMapperHelperData
-{
-public:
-  vtkPolyData *Data;
-  unsigned int FlatIndex;
-  double Opacity;
-  bool Visibility;
-  bool OverridesColor;
-  vtkColor3d AmbientColor;
-  vtkColor3d DiffuseColor;
-
-  bool Marked;
-
-  unsigned int StartVertex;
-  unsigned int NextVertex;
-
-  // point line poly strip edge stripedge
-  unsigned int StartIndex[vtkOpenGLPolyDataMapper::PrimitiveEnd];
-  unsigned int NextIndex[vtkOpenGLPolyDataMapper::PrimitiveEnd];
-
-  // Point Line Poly Strip end
-  size_t PrimOffsets[5];
-
-  bool Different(
-    vtkCompositeMapperHelperData *next,
-    vtkHardwareSelector *selector,
-    int primType)
-  {
-    return
-      (selector &&
-        selector->GetCurrentPass() ==
-            vtkHardwareSelector::COMPOSITE_INDEX_PASS) ||
-      this->Opacity != next->Opacity ||
-      this->Visibility != next->Visibility ||
-      this->OverridesColor != next->OverridesColor ||
-      this->AmbientColor != next->AmbientColor ||
-      this->DiffuseColor != next->DiffuseColor ||
-      (primType >= 0 && primType <= 3 &&
-        this->PrimOffsets[primType+1] != next->PrimOffsets[primType]);
-  }
-
-};
-
-//===================================================================
-// We define a helper class that is a subclass of vtkOpenGLPolyDataMapper
-class vtkCompositeMapperHelper2 : public vtkOpenGLPolyDataMapper
-{
-public:
-  static vtkCompositeMapperHelper2* New();
-  vtkTypeMacro(vtkCompositeMapperHelper2, vtkOpenGLPolyDataMapper);
-
-  void SetParent(vtkCompositePolyDataMapper2 *p) {
-    this->Parent = p; }
-
-  vtkCompositeMapperHelperData *AddData(vtkPolyData *pd, unsigned int flatIndex);
-
-  // Description:
-  // Implemented by sub classes. Actual rendering is done here.
-  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  // keep track of what data is being used as the multiblock
-  // can change
-  void ClearMark();
-  void RemoveUnused();
-  bool GetMarked() { return this->Marked; }
-  void SetMarked(bool v) { this->Marked = v; }
-
-  /**
-   * Accessor to the ordered list of PolyData that we last drew.
-   */
-  std::vector<vtkPolyData*> GetRenderedList(){ return this->RenderedList; }
-
-protected:
-  vtkCompositePolyDataMapper2 *Parent;
-  std::map<vtkPolyData *, vtkCompositeMapperHelperData *> Data;
-
-  bool Marked;
-
-  vtkCompositeMapperHelper2()
-  {
-    this->Parent = 0;
-  };
-  ~vtkCompositeMapperHelper2() VTK_OVERRIDE;
-
-  void DrawIBO(
-    vtkRenderer* ren, vtkActor *actor,
-    int primType,
-    vtkOpenGLHelper &CellBO,
-    GLenum mode,
-    int pointSize);
-
-  void SetShaderValues(
-    vtkShaderProgram *prog,
-    vtkCompositeMapperHelperData *hdata,
-    size_t primOffset);
-
-  // Description:
-  // Perform string replacments on the shader templates, called from
-  // ReplaceShaderValues
-  void ReplaceShaderColor(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  // Description:
-  // Determine if the buffer objects need to be rebuilt
-  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  // Description:
-  // Build the VBO/IBO, called by UpdateBufferObjects
-  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-  virtual void AppendOneBufferObject(vtkRenderer *ren,
-    vtkActor *act, vtkCompositeMapperHelperData *hdata,
-    unsigned int &flat_index,
-    std::vector<unsigned char> &colors,
-    std::vector<float> &norms);
-
-  // Description:
-  // Returns if we can use texture maps for scalar coloring. Note this doesn't
-  // say we "will" use scalar coloring. It says, if we do use scalar coloring,
-  // we will use a texture. Always off for this mapper.
-  int CanUseTextureMapForColoring(vtkDataObject*) VTK_OVERRIDE;
-
-  std::vector<unsigned int> VertexOffsets;
-
-  // vert line poly strip edge stripedge
-  std::vector<unsigned int> IndexArray[PrimitiveEnd];
-
-  void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  bool PrimIDUsed;
-  bool OverideColorUsed;
-
-  vtkHardwareSelector *CurrentSelector;
-  double CurrentAmbientIntensity;
-  double CurrentDiffuseIntensity;
-
-  std::vector<vtkPolyData*> RenderedList;
-
-private:
-  vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
-};
+#include "vtkCompositePolyDataMapper2Internal.h"
 
 typedef std::map<vtkPolyData *, vtkCompositeMapperHelperData *>::iterator dataIter;
 typedef std::map<const std::string, vtkCompositeMapperHelper2 *>::iterator helpIter;
@@ -1347,9 +1204,6 @@ void vtkCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
 void vtkCompositePolyDataMapper2::Render(
   vtkRenderer *ren, vtkActor *actor)
 {
-  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
-    this->GetInputDataObject(0, 0));
-
   this->RenderedList.clear();
 
   // the first step is to gather up the polydata based on their
@@ -1364,59 +1218,110 @@ void vtkCompositePolyDataMapper2::Render(
     }
     this->HelperDataMap.clear();
 
-    vtkSmartPointer<vtkDataObjectTreeIterator> iter =
-      vtkSmartPointer<vtkDataObjectTreeIterator>::New();
-    iter->SetDataSet(input);
-    iter->SkipEmptyNodesOn();
-    iter->VisitOnlyLeavesOn();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-        iter->GoToNextItem())
+    vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
+      this->GetInputDataObject(0, 0));
+
+    if (input)
     {
-      unsigned int flatIndex = iter->GetCurrentFlatIndex();
-      vtkDataObject *dso = iter->GetCurrentDataObject();
-      vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
-
-      if (!pd || !pd->GetPoints())
+      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+      iter->SetDataSet(input);
+      iter->SkipEmptyNodesOn();
+      iter->VisitOnlyLeavesOn();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
       {
-        continue;
+        unsigned int flatIndex = iter->GetCurrentFlatIndex();
+        vtkDataObject *dso = iter->GetCurrentDataObject();
+        vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+
+        if (!pd || !pd->GetPoints())
+        {
+          continue;
+        }
+        int cellFlag = 0;
+        bool hasScalars = this->ScalarVisibility &&
+          (vtkAbstractMapper::GetAbstractScalars(
+            pd, this->ScalarMode, this->ArrayAccessMode,
+            this->ArrayId, this->ArrayName,
+            cellFlag) != NULL);
+
+        bool hasNormals =
+          (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
+
+        bool hasTCoords = (pd->GetPointData()->GetTCoords() != NULL);
+
+        std::ostringstream toString;
+        toString.str("");
+        toString.clear();
+        toString <<
+          'A' << (hasScalars ? 1 : 0) <<
+          'B' << (hasNormals ? 1 : 0) <<
+          'C' << (hasTCoords ? 1 : 0);
+
+        vtkCompositeMapperHelper2 *helper = NULL;
+        helpIter found = this->Helpers.find(toString.str());
+        if (found == this->Helpers.end())
+        {
+          helper = this->CreateHelper();
+          helper->SetParent(this);
+          this->Helpers.insert(std::make_pair(toString.str(), helper));
+        }
+        else
+        {
+          helper = found->second;
+        }
+        this->CopyMapperValuesToHelper(helper);
+        helper->SetMarked(true);
+        this->HelperDataMap[pd] =
+          helper->AddData(pd, flatIndex);
       }
-      int cellFlag = 0;
-      bool hasScalars = this->ScalarVisibility &&
-        (vtkAbstractMapper::GetAbstractScalars(
-          pd, this->ScalarMode, this->ArrayAccessMode,
-          this->ArrayId, this->ArrayName,
-          cellFlag) != NULL);
-
-      bool hasNormals =
-        (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
-
-      bool hasTCoords = (pd->GetPointData()->GetTCoords() != NULL);
-
-      std::ostringstream toString;
-      toString.str("");
-      toString.clear();
-      toString <<
-        'A' << (hasScalars ? 1 : 0) <<
-        'B' << (hasNormals ? 1 : 0) <<
-        'C' << (hasTCoords ? 1 : 0);
-
-      vtkCompositeMapperHelper2 *helper = NULL;
-      helpIter found = this->Helpers.find(toString.str());
-      if (found == this->Helpers.end())
-      {
-        helper = vtkCompositeMapperHelper2::New();
-        helper->SetParent(this);
-        this->Helpers.insert(std::make_pair(toString.str(), helper));
-      }
-      else
-      {
-        helper = found->second;
-      }
-      this->CopyMapperValuesToHelper(helper);
-      helper->SetMarked(true);
-      this->HelperDataMap[pd] =
-        helper->AddData(pd, flatIndex);
     }
+    else
+    {
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(
+        this->GetInputDataObject(0, 0));
+      if (pd && pd->GetPoints())
+      {
+        int cellFlag = 0;
+        bool hasScalars = this->ScalarVisibility &&
+          (vtkAbstractMapper::GetAbstractScalars(
+            pd, this->ScalarMode, this->ArrayAccessMode,
+            this->ArrayId, this->ArrayName,
+            cellFlag) != NULL);
+
+        bool hasNormals =
+          (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
+
+        bool hasTCoords = (pd->GetPointData()->GetTCoords() != NULL);
+
+        std::ostringstream toString;
+        toString.str("");
+        toString.clear();
+        toString <<
+          'A' << (hasScalars ? 1 : 0) <<
+          'B' << (hasNormals ? 1 : 0) <<
+          'C' << (hasTCoords ? 1 : 0);
+
+        vtkCompositeMapperHelper2 *helper = NULL;
+        helpIter found = this->Helpers.find(toString.str());
+        if (found == this->Helpers.end())
+        {
+          helper = this->CreateHelper();
+          helper->SetParent(this);
+          this->Helpers.insert(std::make_pair(toString.str(), helper));
+        }
+        else
+        {
+          helper = found->second;
+        }
+        this->CopyMapperValuesToHelper(helper);
+        helper->SetMarked(true);
+        this->HelperDataMap[pd] =
+          helper->AddData(pd, 0);
+      }
+    }
+
     // delete unused old helpers/data
     for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); )
     {
@@ -1435,7 +1340,6 @@ void vtkCompositePolyDataMapper2::Render(
     this->HelperMTime.Modified();
   }
 
-
   // rebuild the render values if needed
   if (this->RenderValuesBuildTime < this->GetMTime() ||
       this->RenderValuesBuildTime < actor->GetProperty()->GetMTime() ||
@@ -1452,10 +1356,9 @@ void vtkCompositePolyDataMapper2::Render(
     this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
     this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
 
-    vtkCompositeDataSet *cds = vtkCompositeDataSet::SafeDownCast(
-      this->GetInputDataObject(0, 0));
     unsigned int flat_index = 0;
-    this->BuildRenderValues(ren, actor, cds, flat_index);
+    this->BuildRenderValues(ren, actor,
+      this->GetInputDataObject(0, 0), flat_index);
 
     this->BlockState.Visibility.pop();
     this->BlockState.Opacity.pop();
@@ -1478,6 +1381,11 @@ void vtkCompositePolyDataMapper2::Render(
       this->RenderedList.push_back(pdl[i]);
     }
   }
+}
+
+vtkCompositeMapperHelper2 *vtkCompositePolyDataMapper2::CreateHelper()
+{
+  return vtkCompositeMapperHelper2::New();
 }
 
 //-----------------------------------------------------------------------------

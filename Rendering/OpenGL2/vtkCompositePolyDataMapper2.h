@@ -163,8 +163,10 @@ protected:
   std::map<vtkPolyData *, vtkCompositeMapperHelperData *> HelperDataMap;
   vtkTimeStamp HelperMTime;
 
+  virtual vtkCompositeMapperHelper2 *CreateHelper();
+
   // copy values to the helpers
-  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper);
+  virtual void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper);
 
   class RenderBlockState
   {
