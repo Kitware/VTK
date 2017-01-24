@@ -499,11 +499,22 @@ void QVTKOpenGLWidget::doDeferredRender()
 //-----------------------------------------------------------------------------
 bool QVTKOpenGLWidget::event(QEvent* evt)
 {
-  if (this->RenderWindow && this->RenderWindow->GetInteractor())
+  switch (evt->type())
   {
-    this->InteractorAdaptor->ProcessEvent(evt, this->RenderWindow->GetInteractor());
-  }
+    case QEvent::MouseMove:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+      // skip events that are explicitly handled by overrides to avoid duplicate
+      // calls to InteractorAdaptor->ProcessEvent().
+      break;
 
+    default:
+      if (this->RenderWindow && this->RenderWindow->GetInteractor())
+      {
+        this->InteractorAdaptor->ProcessEvent(evt, this->RenderWindow->GetInteractor());
+      }
+  }
   return this->Superclass::event(evt);
 }
 
@@ -517,6 +528,7 @@ void QVTKOpenGLWidget::moveEvent(QMoveEvent* evt)
   }
 }
 
+//-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::mousePressEvent(QMouseEvent* event)
 {
   emit mouseEvent(event);
@@ -528,6 +540,7 @@ void QVTKOpenGLWidget::mousePressEvent(QMouseEvent* event)
   }
 }
 
+//-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 {
   emit mouseEvent(event);
@@ -539,7 +552,20 @@ void QVTKOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
   }
 }
 
+//-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  emit mouseEvent(event);
+
+  if (this->RenderWindow && this->RenderWindow->GetInteractor())
+  {
+    this->InteractorAdaptor->ProcessEvent(event,
+                                          this->RenderWindow->GetInteractor());
+  }
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLWidget::mouseDoubleClickEvent(QMouseEvent* event)
 {
   emit mouseEvent(event);
 
