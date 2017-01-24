@@ -11,6 +11,7 @@ set(Module_SRCS
   vtkBrownianPoints.cxx
   vtkCellCenters.cxx
   vtkCellDerivatives.cxx
+  vtkCellValidator.cxx
   vtkClipClosedSurface.cxx
   vtkClipConvexPolyData.cxx
   vtkClipDataSet.cxx
