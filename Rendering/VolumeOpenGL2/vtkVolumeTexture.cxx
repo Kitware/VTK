@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "vtkBlockSortHelper.h"
 #include "vtkCamera.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
@@ -14,56 +15,6 @@
 #include "vtk_glew.h"
 
 
-struct vtkVolumeTexture::SortBlocks
-{
-  vtkRenderer* Renderer;
-  double CameraPosition[4];
-
-  //----------------------------------------------------------------------------
-  SortBlocks(vtkRenderer* ren, vtkMatrix4x4* volMatrix)
-  {
-    this->Renderer = ren;
-
-    vtkCamera* cam = ren->GetActiveCamera();
-    double camWorldPos[4];
-
-    cam->GetPosition(camWorldPos);
-    camWorldPos[3] = 1.0;
-
-    // Transform the camera position to the volume (dataset) coordinate system.
-    vtkNew<vtkMatrix4x4> InverseVolumeMatrix;
-    InverseVolumeMatrix->DeepCopy(volMatrix);
-    InverseVolumeMatrix->Invert();
-    InverseVolumeMatrix->MultiplyPoint(camWorldPos, CameraPosition);
-  }
-
-  //----------------------------------------------------------------------------
-  bool operator() (vtkImageData* first, vtkImageData* second)
-  {
-    double center[3];
-    int ext[6];
-    double spacing[3];
-    first->GetSpacing(spacing);
-
-    first->GetExtent(ext);
-    center[0] = (ext[0] + (ext[1] - ext[0]) / 2.0) * spacing[0];
-    center[1] = (ext[2] + (ext[3] - ext[2]) / 2.0) * spacing[1];
-    center[2] = (ext[4] + (ext[5] - ext[4]) / 2.0) * spacing[2];
-
-    double const dist1 = vtkMath::Distance2BetweenPoints(center, this->CameraPosition);
-
-    second->GetExtent(ext);
-    center[0] = (ext[0] + (ext[1] - ext[0]) / 2.0) * spacing[0];
-    center[1] = (ext[2] + (ext[3] - ext[2]) / 2.0) * spacing[1];
-    center[2] = (ext[4] + (ext[5] - ext[4]) / 2.0) * spacing[2];
-
-    double const dist2 = vtkMath::Distance2BetweenPoints(center, this->CameraPosition);
-
-    return dist2 < dist1;
-  }
-};
-
-////////////////////////////////////////////////////////////////////////////////
 vtkVolumeTexture::vtkVolumeTexture()
 : HandleLargeDataTypes(false)
 , InterpolationType(vtkTextureObject::Linear)
@@ -674,7 +625,7 @@ void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer *ren,
 {
   if (this->ImageDataBlocks.size() > 1)
   {
-    SortBlocks sortBlocks(ren, volumeMat);
+    vtkBlockSortHelper::BackToFront sortBlocks(ren, volumeMat);
 
     std::sort(this->ImageDataBlocks.begin(), this->ImageDataBlocks.end(),
       sortBlocks);

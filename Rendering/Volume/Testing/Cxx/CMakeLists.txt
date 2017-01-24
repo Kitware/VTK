@@ -53,8 +53,8 @@ endif()
 
 # These tests are only built for the OpenGL2 backend
 set (VolumeOpenGL2CxxTests
-  TestGPURayCastBlendModes.cxx
   TestGPURayCastAverageIP.cxx
+  TestGPURayCastBlendModes.cxx
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCameraInsideTransformation.cxx
@@ -92,6 +92,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestMultiBlockMapper.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx
   TestRemoveVolumeNonCurrentContext.cxx

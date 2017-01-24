@@ -1,6 +1,7 @@
 include(vtkObjectFactory)
 
 set(Module_SRCS
+  vtkMultiBlockVolumeMapper.cxx
   vtkOpenGLGPUVolumeRayCastMapper.cxx
   vtkOpenGLProjectedTetrahedraMapper.cxx
   vtkOpenGLRayCastImageDisplayHelper.cxx

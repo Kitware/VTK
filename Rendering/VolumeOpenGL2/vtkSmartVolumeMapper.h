@@ -80,6 +80,7 @@
 class vtkFixedPointVolumeRayCastMapper;
 class vtkGPUVolumeRayCastMapper;
 class vtkImageResample;
+class vtkMultiBlockVolumeMapper;
 class vtkOSPRayVolumeInterface;
 class vtkRenderWindow;
 class vtkVolume;
@@ -433,6 +434,12 @@ protected:
    */
   void  ComputeRenderMode(vtkRenderer *ren,
                           vtkVolume *vol);
+
+  /**
+   * Expose GPU mapper for additional customization.
+   */
+  friend class vtkMultiBlockVolumeMapper;
+  vtkGetObjectMacro(GPUMapper, vtkGPUVolumeRayCastMapper);
 
   //@{
   /**

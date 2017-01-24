@@ -269,6 +269,15 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
                                            this->ArrayId, this->ArrayName,
                                            usingCellColors);
 
+  if (!scalars)
+  {
+    vtkErrorMacro("Could not find the requested vtkDataArray! " <<
+    this->ScalarMode << ", " << this->ArrayAccessMode << ", " <<
+    this->ArrayId << ", " << this->ArrayName);
+    this->Initialized = 0;
+    return;
+  }
+
   int const numComp = scalars->GetNumberOfComponents();
   this->RayCastSupported = (usingCellColors || numComp > 1) ? 0 : 1;
 

@@ -1273,7 +1273,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
       this->IsCameraInside(ren, vol) ||
       this->CameraWasInsideInLastUpdate || (this->BBoxPolyData &&
       this->Parent->VolumeTexture->UploadTime > this->BBoxPolyData->GetMTime()))
-    {
+  {
     vtkNew<vtkTessellatedBoxSource> boxSource;
     boxSource->SetBounds(this->LoadedBounds);
     boxSource->QuadsOn();
@@ -1281,8 +1281,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
 
     vtkNew<vtkDensifyPolyData> densityPolyData;
 
-    if (input->GetMTime() <= this->InputUpdateTime.GetMTime() &&
-        this->IsCameraInside(ren, vol))
+    if (this->IsCameraInside(ren, vol))
     {
       // Normals should be transformed using the transpose of inverse
       // InverseVolumeMat
