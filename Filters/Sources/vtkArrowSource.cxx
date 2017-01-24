@@ -39,6 +39,15 @@ vtkArrowSource::vtkArrowSource()
   this->SetNumberOfInputPorts(0);
 }
 
+int vtkArrowSource::RequestInformation(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+  return Superclass::RequestInformation(request, inputVector, outputVector);
+}
+
 int vtkArrowSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
