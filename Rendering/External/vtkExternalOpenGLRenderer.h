@@ -46,7 +46,7 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderer :
 public:
   static vtkExternalOpenGLRenderer *New();
   vtkTypeMacro(vtkExternalOpenGLRenderer, vtkOpenGLRenderer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Synchronize camera and light parameters

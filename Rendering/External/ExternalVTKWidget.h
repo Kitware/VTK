@@ -31,7 +31,7 @@ class VTKRENDERINGEXTERNAL_EXPORT ExternalVTKWidget : public vtkObject
 public:
   static ExternalVTKWidget *New();
   vtkTypeMacro(ExternalVTKWidget, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // Set/Get an external render window for the ExternalVTKWidget.
   // Since this is a special environment, the methods are limited to use

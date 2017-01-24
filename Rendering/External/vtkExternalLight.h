@@ -62,7 +62,7 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalLight : public vtkLight
 {
 public:
   vtkTypeMacro(vtkExternalLight, vtkLight);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create an external light object with the focal point at the origin and its

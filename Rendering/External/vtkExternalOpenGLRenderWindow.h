@@ -50,7 +50,7 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow :
 public:
   static vtkExternalOpenGLRenderWindow *New();
   vtkTypeMacro(vtkExternalOpenGLRenderWindow, vtkGenericOpenGLRenderWindow);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Begin the rendering process using the existing context.
