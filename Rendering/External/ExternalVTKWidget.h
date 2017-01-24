@@ -49,7 +49,7 @@ public:
 
 protected:
   ExternalVTKWidget();
-  ~ExternalVTKWidget();
+  ~ExternalVTKWidget() VTK_OVERRIDE;
 
   vtkExternalOpenGLRenderWindow* RenderWindow;
 

@@ -51,13 +51,13 @@ public:
   /**
    * Synchronize camera and light parameters
    */
-  void Render(void);
+  void Render(void) VTK_OVERRIDE;
 
   /**
    * Create a new Camera sutible for use with this type of Renderer.
    * This function creates the vtkExternalOpenGLCamera.
    */
-  vtkCamera* MakeCamera();
+  vtkCamera* MakeCamera() VTK_OVERRIDE;
 
   /**
    * Add an external light to the list of external lights.
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkExternalOpenGLRenderer();
-  ~vtkExternalOpenGLRenderer();
+  ~vtkExternalOpenGLRenderer() VTK_OVERRIDE;
 
   vtkLightCollection *ExternalLights;
 
