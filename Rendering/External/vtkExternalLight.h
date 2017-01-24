@@ -112,52 +112,52 @@ public:
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetPosition(double, double, double);
+  void SetPosition(double, double, double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetFocalPoint(double, double, double);
+  void SetFocalPoint(double, double, double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetAmbientColor(double, double, double);
+  void SetAmbientColor(double, double, double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetDiffuseColor(double, double, double);
+  void SetDiffuseColor(double, double, double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetSpecularColor(double, double, double);
+  void SetSpecularColor(double, double, double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetIntensity(double);
+  void SetIntensity(double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetConeAngle(double);
+  void SetConeAngle(double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetAttenuationValues(double, double, double);
+  void SetAttenuationValues(double, double, double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetExponent(double);
+  void SetExponent(double) VTK_OVERRIDE;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetPositional(int);
+  void SetPositional(int) VTK_OVERRIDE;
 
   //@{
   /**
@@ -231,7 +231,7 @@ public:
 
 protected:
   vtkExternalLight();
-  ~vtkExternalLight();
+  ~vtkExternalLight() VTK_OVERRIDE;
 
   int LightIndex;
   int ReplaceMode;
