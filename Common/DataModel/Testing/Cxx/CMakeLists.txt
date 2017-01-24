@@ -63,6 +63,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestImplicitVolume.cxx
   UnitTestLine.cxx
   UnitTestPlanesIntersection.cxx
+  UnitTestTriangleIntersection.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   quadraticIntersection.cxx

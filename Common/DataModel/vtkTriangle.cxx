@@ -26,6 +26,9 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
+#include <limits>
+#include <utility>
+
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -963,6 +966,455 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
     newCellId = tris->InsertNextCell(3,pts);
     outCd->CopyData(inCd,cellId,newCellId);
   }
+}
+
+//----------------------------------------------------------------------------
+namespace
+{
+double Determinant(double a[3], double b[3], double c[3], double d[3])
+{
+  // If > 0, d lies above the plane defined by (a,b,c)
+  // if < 0, d lies below the plane defined by (a,b,c)
+  // if = 0, d lies in the plane defined by (a,b,c)
+  return vtkMath::Determinant3x3( a[0]-d[0], a[1]-d[1], a[2]-d[2],
+                                  b[0]-d[0], b[1]-d[1], b[2]-d[2],
+                                  c[0]-d[0], c[1]-d[1], c[2]-d[2] );
+}
+
+static const double eps = 256*std::numeric_limits<double>::epsilon();
+
+// The orientation values are chosen so that any combination of 3 will produce
+// a unique value.
+enum OrientationState
+{
+  Colinear = 1,         // binary 1
+  Clockwise = 2,        // binary 10
+  Counterclockwise = 4, // binary 100
+};
+
+int Orientation(const double p1[2], const double p2[2], const double p3[2])
+{
+  // Return 4 if the path connecting p1,p2,p3 is counterclockwise.
+  // Return 2 if the path connecting p1,p2,p3 is clockwise.
+  // Return 1 if the points are colinear.
+  double v1[2] = { p2[0]-p1[0], p2[1]-p1[1] };
+  double v2[2] = { p3[0]-p1[0], p3[1]-p1[1] };
+  double signedArea = v1[0]*v2[1] - v1[1]*v2[0];
+  if ( std::abs( signedArea ) < eps )
+  {
+    return Colinear;
+  }
+  return ( signedArea > 0. ? Counterclockwise : Clockwise );
+}
+
+int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
+                               double p2[2], double q2[2], double r2[2])
+{
+  // Determine whether or not triangle T1 = (p1,q1,r1) intersects triangle
+  // T2 = (p2,q2,r2), assumming that they are coplanar. This method is adapted
+  // from Olivier Devillers, Philippe Guigue. Faster Triangle-Triangle
+  // Intersection Tests. RR-4488, IN-RIA. 2002. <inria-00072100>
+
+  // First, we swap vertices if necessary so that T1 and T2 are oriented
+  // counterclockwise.
+  if ( Orientation( p1, q1, r1 ) == Clockwise )
+  {
+    std::swap(q1,r1);
+  }
+  if ( Orientation( p2, q2, r2 ) == Clockwise )
+  {
+    std::swap(q2,r2);
+  }
+
+  // Next, we compute the orientation of p1 w.r.t. the edges that comprise T2
+  int p1Orientation[3] = { Orientation( p2, q2, p1 ),
+                           Orientation( q2, r2, p1 ),
+                           Orientation( r2, p2, p1 ) };
+
+  // Three conditions for positive intersection:
+  // 1. If all three orientations are counterclockwise, then p1 lies within T2.
+  // 2. If two orientations are colinear, then p1 lies on a vertex of T2.
+  // 3. If one orientation is colinear and the other two are counterclockwise,
+  //    then p1 lies on an edge of T2.
+  int sumOfSigns = p1Orientation[0] + p1Orientation[1] + p1Orientation[2];
+
+ static const int Three_CounterClockwise = 3*Counterclockwise;
+ static const int Two_Colinear_One_Clockwise = 2*Colinear + Clockwise;
+ static const int Two_Colinear_One_Counterclockwise = (2*Colinear +
+                                                       Counterclockwise);
+ static const int One_Colinear_Two_Counterclockwise = (Colinear +
+                                                       2*Counterclockwise);
+
+  if (sumOfSigns == Three_CounterClockwise            || // condition 1
+      sumOfSigns == Two_Colinear_One_Clockwise        || // condition 2
+      sumOfSigns == Two_Colinear_One_Counterclockwise || // condition 2
+      sumOfSigns == One_Colinear_Two_Counterclockwise )  // condition 3
+  {
+    return 1;
+  }
+
+  // If we have reached this point, then either
+  // 1. Two orientations are counterclockwise and one is clockwise, or
+  // 2. Two orientations are clockwise and one is counterclockwise.
+  // Equivalently, from "Faster Triangle-Triangle Intersection Tests":
+  // 1. p1 belongs to region R1
+  // 2. p1 belongs to region R2
+  // We permute T2 so that we have the following orienatation pattern:
+  // (counterclockwise, either orientation, clockwise).
+  // This orientation corresponds to p1 lying in either region R1 or R2
+  int index;
+  for (index = 0; index < 3; index++)
+  {
+    if (p1Orientation[index] == Counterclockwise &&
+        p1Orientation[(index+2)%3] == Clockwise)
+    {
+      break;
+    }
+  }
+
+  if (index == 3)
+  {
+    return 0;
+  }
+
+  double* T2[3] = {p2,q2,r2};
+  p2 = T2[index];
+  q2 = T2[(index+1)%3];
+  r2 = T2[(index+2)%3];
+
+  // First decision tree (p1 belongs to region R1)
+  if (p1Orientation[(index+1)%3] == Counterclockwise)
+  {
+    if (Orientation( r2, p2, q1 ) != Clockwise) // Test I
+    {
+      if (Orientation( r2, p1, q1 ) != Clockwise) // Test II.a
+      {
+        if (Orientation( p1, p2, q1 ) != Clockwise) // Test III.a
+        {
+          return 1;
+        }
+        else
+        {
+          if (Orientation( p1, p2, r1 ) != Clockwise) // Test IV.a
+          {
+            if (Orientation( q1, r1, p2 ) != Clockwise) // Test V
+            {
+              return 1;
+            }
+            else
+            {
+              return 0;
+            }
+          }
+          else
+          {
+            return 0;
+          }
+        }
+      }
+      else
+      {
+        return 0;
+      }
+    }
+    else
+    {
+      if (Orientation( r2, p2, r1 ) != Clockwise) // Test II.b
+      {
+        if (Orientation( q1, r1, r2 ) == Clockwise) // Test III.b
+        {
+          return 0;
+        }
+        else
+        {
+          // The diagram in the paper has an error. Check the text for the
+          // correct test.
+          if (Orientation( p1, p2, r1 ) == Clockwise) // Test IV.b
+          {
+            return 0;
+          }
+          else
+          {
+            return 1;
+          }
+        }
+      }
+      else
+      {
+        return 0;
+      }
+    }
+  }
+  // Second decision tree (p1 belongs to region R2)
+  else
+  {
+    if (Orientation( r2, p2, q1 ) != Clockwise) // Test I
+    {
+      if (Orientation( q2, r2, q1 ) != Clockwise) // Test II.a
+      {
+        if (Orientation( p1, p2, q1 ) != Clockwise) // Test III.a
+        {
+          if (Orientation( p1, q2, q1 ) == Counterclockwise) // Test IV.a
+          {
+            return 0;
+          }
+          else
+          {
+            return 1;
+          }
+        }
+        else
+        {
+          if (Orientation( p1, p2, r1 ) == Clockwise) // Test IV.b
+          {
+            return 0;
+          }
+          else
+          {
+            // The paper has an error here.
+            if (Orientation( p1, p2, r1 ) == Clockwise) // Test V.a
+            {
+              return 0;
+            }
+            else
+            {
+              return 1;
+            }
+          }
+        }
+      }
+      else
+      {
+        // the paper has an error here: q1 is in Region R25 when (p1,q2,q1) is
+        // clockwise.
+        if (Orientation( p1, q2, q1 ) != Counterclockwise) // Test III.b
+        {
+          if (Orientation( q2, r2, r1 ) == Clockwise) // Test IV.c
+          {
+            return 0;
+          }
+          else
+          {
+            if (Orientation( q1, r1, q2 ) == Clockwise) // Test V.b
+            {
+              return 0;
+            }
+            else
+            {
+              return 1;
+            }
+          }
+        }
+        else
+        {
+          return 0;
+        }
+      }
+    }
+    else
+    {
+      if (Orientation( r2, p2, r1 ) == Clockwise) // Test II.b
+      {
+        return 0;
+      }
+      else
+      {
+        if (Orientation( q1, r1, r2 ) != Clockwise) // Test III.c
+        {
+          if (Orientation( r1, p1, p2 ) == Clockwise) // Test IV.d
+          {
+            return 0;
+          }
+          else
+          {
+            return 1;
+          }
+        }
+        else
+        {
+          if (Orientation( q1, r1, q2 ) == Clockwise) // Test IV.e
+          {
+            return 0;
+          }
+          else
+          {
+            if (Orientation( q2, r2, r1 ) == Clockwise) // Test V.c
+            {
+              return 0;
+            }
+            else
+            {
+              return 1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+}
+
+// Determine whether or not triangle (p1,q1,r1) intersects triangle (p2,q2,r2).
+// This method is adapted from Olivier Devillers, Philippe Guigue. Faster
+// Triangle-Triangle Intersection Tests. RR-4488, IN-RIA. 2002. <inria-00072100>
+int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
+                                    double p2[3], double q2[3], double r2[3])
+{
+  // Triangle T1 = (p1,q1,r1) and lies in plane Pi1
+  // Triangle T2 = (p2,q2,r2) and lies in plane Pi2
+
+  // First, we determine whether T1 intersects Pi2
+  double det1[3] = { Determinant( p2, q2, r2, p1 ),
+                     Determinant( p2, q2, r2, q1 ),
+                     Determinant( p2, q2, r2, r1 ) };
+
+  if ( std::abs( det1[0] ) < eps && std::abs( det1[1] ) < eps &&
+       std::abs( det1[2] ) < eps)
+  {
+    // The triangles are coplanar. We pick the Cartesian principal plane that
+    // maximizes their projected area and perform the query in 2-D.
+    double v1[3], v2[3];
+    for (int i=0;i<3;i++)
+    {
+      v1[i] = q1[i] - p1[i];
+      v2[i] = r1[i] - p1[i];
+    }
+    double normal[3];
+    vtkMath::Cross( v1, v2, normal );
+
+    int index = 0;
+    for (int i=1;i<3;i++)
+    {
+      if (std::abs( normal[index] ) > std::abs( normal[i] ))
+      {
+        index = i;
+      }
+    }
+
+    if (index == 0)
+    {
+      return CoplanarTrianglesIntersect(&p1[1], &q1[1], &r1[1],
+                                        &p2[1], &q2[1], &r2[1]);
+    }
+    if (index == 1)
+    {
+      double p1_[2] = { p1[0], p1[2] };
+      double q1_[2] = { q1[0], q1[2] };
+      double r1_[2] = { r1[0], r1[2] };
+      double p2_[2] = { p2[0], p2[2] };
+      double q2_[2] = { q2[0], q2[2] };
+      double r2_[2] = { r2[0], r2[2] };
+
+      return CoplanarTrianglesIntersect(p1_, q1_, r1_, p2_, q2_, r2_);
+    }
+    else
+    {
+      return CoplanarTrianglesIntersect(p1, q1, r1, p2, q2, r2);
+    }
+  }
+
+  bool degenerate = false;
+  double* points[3] = {p1,q1,r1};
+  for (int i=0;i<3;i++)
+  {
+    if (std::abs( det1[i] ) < eps)
+    {
+      degenerate = true;
+      if (vtkTriangle::PointInTriangle(points[i], p2,q2,r2, eps))
+      {
+        return 1;
+      }
+    }
+  }
+
+  if (degenerate)
+  {
+    return 0;
+  }
+
+  // Do the three vertices of T1 lie in the same half-space defined by Pi2?
+  {
+    int sumOfSigns = ( det1[0] > 0. ) + ( det1[1] > 0. ) + ( det1[2] > 0. );
+    if (sumOfSigns == 0 || sumOfSigns == 3)
+    {
+      // Yes.
+      return 0;
+    }
+  }
+
+  // Next, we determine whether T2 intersects Pi1
+  double det2[3] = { Determinant( p1, q1, r1, p2 ),
+                     Determinant( p1, q1, r1, q2 ),
+                     Determinant( p1, q1, r1, r2 ) };
+
+  // Do the three vertices of T2 lie in the same half-space defined by Pi1?
+  {
+    int sumOfSigns = ( det2[0] > 0. ) + ( det2[1] > 0. ) + ( det2[2] > 0. );
+    if (sumOfSigns == 0 || sumOfSigns == 3)
+    {
+      // Yes.
+      return 0;
+    }
+  }
+
+  // We know that one point in T1 lies on one side of Pi2 and the other two
+  // points lie on the other side (sim. for T2 and Pi1). We permute our vertices
+  // so p1 is alone in its half-space, and q1, r1 are in the other halfspace
+  // (sim. for p2, q2, r2). Additionally, we swap q2 and r2 (sim. for q1 and r1)
+  // if necessary so that p1 lies in the positive half-space of Pi2 (sim for p2
+  // and Pi1).
+  int index1;
+  for (index1 = 0; index1 < 3; index1++)
+  {
+    int sumOfSigns = ( det1[(index1+1)%3] > 0. ) + ( det1[(index1+2)%3] > 0. );
+    if (sumOfSigns != 1)
+    {
+      break;
+    }
+  }
+  double* T1[3] = {p1,q1,r1};
+  p1 = T1[index1];
+  q1 = T1[(index1+1)%3];
+  r1 = T1[(index1+2)%3];
+  bool swap1 = (det1[index1] < -eps);
+
+  int index2;
+  for (index2 = 0; index2 < 3; index2++)
+  {
+    int sumOfSigns = ( det2[(index2+1)%3] > 0. ) + ( det2[(index2+2)%3] > 0. );
+    if (sumOfSigns != 1)
+    {
+      break;
+    }
+  }
+  double* T2[3] = {p2,q2,r2};
+  p2 = T2[index2];
+  q2 = T2[(index2+1)%3];
+  r2 = T2[(index2+2)%3];
+  bool swap2 = (det2[index2] < -eps);
+
+  if (swap1)
+  {
+    std::swap(q2,r2);
+  }
+
+  if (swap2)
+  {
+    std::swap(q1,r1);
+  }
+
+  // The final step is to determine whether or not the line segments formed by
+  // the intersection of T1 and Pi2 and the intersection of T2 and Pi1 overlap.
+  // This is done by checking the following predicate:
+  // Determinant(p1,q1,p2,q2) <= 0. ^ Determinant(p1,r1,r2,p2) <= 0.
+  if ((Determinant( p1, q1, p2, q2 ) <= 0.) *
+      (Determinant( p1, r1, r2, p2 ) <= 0.))
+  {
+    return 1;
+  }
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
