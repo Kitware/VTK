@@ -405,8 +405,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  // TODO some logic for detecting if inner == outer range\n"
             "\n"
             "  initializeRayCast();\n"
-            "  // TODO Unclear why inverting [start, end] works better\n"
-            "  vec4 frontColor = rayMarchingLoop(frontEndDepth, frontStartDepth);\n"
+            "  vec4 frontColor = rayMarchingLoop(frontStartDepth, frontEndDepth);\n"
             "  vec4 backColor  = rayMarchingLoop(backStartDepth, backEndDepth);\n"
             "\n"
             "  // Back color is written out with pre-multiplied alpha:\n"
@@ -1005,15 +1004,17 @@ void vtkDualDepthPeelingPass::Peel()
   this->InitializeTargetsForTranslucentPass();
   this->PeelTranslucentGeometry();
   this->BlendBackBuffer();
-  this->SwapTargetsForTranslucentPass();
+  this->SwapFrontBufferSourceDest();
 
   if (this->IsRenderingVolumes())
   {
     this->InitializeTargetsForVolumetricPass();
     this->PeelVolumetricGeometry();
     this->BlendBackBuffer();
-    this->SwapTargetsForVolumetricPass();
+    this->SwapFrontBufferSourceDest();
   }
+
+  this->SwapDepthBufferSourceDest();
 
   ++this->CurrentPeel;
 
@@ -1101,13 +1102,6 @@ void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
 
   this->SetCurrentStage(Peeling);
   this->SetCurrentPeelType(VolumetricPeel);
-
-  // Depths are configured as follows:
-  //
-  // depth_front_start = -DepthSource[0]
-  // depth_front_end   = -DepthDestination[0]
-  // depth_back_start = DepthDestination[1]
-  // depth_back_end   = DepthSource[1]
 
   this->Textures[this->FrontSource]->Activate();
   this->Textures[this->DepthSource]->Activate();
@@ -1242,16 +1236,15 @@ void vtkDualDepthPeelingPass::EndOcclusionQuery()
 }
 
 //------------------------------------------------------------------------------
-void vtkDualDepthPeelingPass::SwapTargetsForTranslucentPass()
+void vtkDualDepthPeelingPass::SwapFrontBufferSourceDest()
 {
   std::swap(this->FrontSource, this->FrontDestination);
-  std::swap(this->DepthSource, this->DepthDestination);
 }
 
 //------------------------------------------------------------------------------
-void vtkDualDepthPeelingPass::SwapTargetsForVolumetricPass()
+void vtkDualDepthPeelingPass::SwapDepthBufferSourceDest()
 {
-  std::swap(this->FrontSource, this->FrontDestination);
+  std::swap(this->DepthSource, this->DepthDestination);
 }
 
 //------------------------------------------------------------------------------

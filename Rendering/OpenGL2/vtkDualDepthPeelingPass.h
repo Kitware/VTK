@@ -219,8 +219,8 @@ protected:
   /**
    * Swap the src/dest render targets:
    */
-  void SwapTargetsForTranslucentPass();
-  void SwapTargetsForVolumetricPass();
+  void SwapFrontBufferSourceDest();
+  void SwapDepthBufferSourceDest();
 
   void Finalize();
 
