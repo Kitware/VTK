@@ -473,7 +473,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   this->VBOs->ClearAllVBOs();
   this->VBOs->ClearAllDataArrays();
 
-  for (iter = this->Data.begin(); iter != this->Data.end(); iter++)
+  for (iter = this->Data.begin(); iter != this->Data.end(); ++iter)
   {
     vtkCompositeMapperHelperData *hdata = iter->second;
     hdata->StartVertex = voffset;

@@ -63,7 +63,7 @@ void vtkMultiBlockVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   this->SortBlocks(ren, vol->GetMatrix());
 
   BlockVec::const_iterator end = this->DataBlocks.end();
-  for (BlockVec::const_iterator it = this->DataBlocks.begin(); it != end; it++)
+  for (BlockVec::const_iterator it = this->DataBlocks.begin(); it != end; ++it)
   {
     (*it)->Modified();
     this->RenderingMapper->SetInputData((*it));
@@ -249,7 +249,7 @@ void vtkMultiBlockVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMultiBlockVolumeMapper::ClearBlocks()
 {
   BlockVec::const_iterator end = this->DataBlocks.end();
-  for (BlockVec::const_iterator it = this->DataBlocks.begin(); it != end; it++)
+  for (BlockVec::const_iterator it = this->DataBlocks.begin(); it != end; ++it)
   {
     (*it)->Delete();
   }
