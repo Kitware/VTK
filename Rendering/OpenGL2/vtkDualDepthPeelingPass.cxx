@@ -1303,18 +1303,19 @@ void vtkDualDepthPeelingPass::AlphaBlendRender()
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   this->SetCurrentStage(AlphaBlending);
-  //this->SetCurrentPeelType(TranslucentPeel);
   this->Framebuffer->ActivateDrawBuffer(Back);
   this->Textures[this->DepthSource]->Activate();
 
+  this->SetCurrentPeelType(TranslucentPeel);
   annotate("Alpha blend translucent render start");
   this->RenderTranslucentPass();
   annotate("Alpha blend translucent render end");
 
   if (this->IsRenderingVolumes())
   {
+    this->SetCurrentPeelType(VolumetricPeel);
     annotate("Alpha blend volumetric render start");
-    this->RenderTranslucentPass();
+    this->RenderVolumetricPass();
     annotate("Alpha blend volumetric render end");
   }
 
