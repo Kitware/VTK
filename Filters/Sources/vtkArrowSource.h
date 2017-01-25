@@ -94,6 +94,7 @@ protected:
   vtkArrowSource();
   ~vtkArrowSource() VTK_OVERRIDE {}
 
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 
   int TipResolution;
