@@ -667,7 +667,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
   int i, k;
   vtkIdType list[8];
   int *mat = materials->GetPointer(0);
-  char ctype[5];
+  std::string ctype;
 
   output->Allocate();
   for(i=0; i < this->NumberOfCells; i++)
@@ -678,7 +678,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
     *(this->FileStream) >> mat[i];
     *(this->FileStream) >> ctype;
     vtkDebugMacro( << mat[i] << ", " << ctype );
-    if(!strcmp(ctype, "pt"))
+    if(ctype == "pt")
     {
       for(k=0; k < 1; k++)
       {
@@ -687,7 +687,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       }
       output->InsertNextCell(VTK_VERTEX, 1, list);
     }
-    else if(!strcmp(ctype, "line"))
+    else if(ctype == "line")
     {
       for(k=0; k < 2; k++)
       {
@@ -696,7 +696,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       }
       output->InsertNextCell(VTK_LINE, 2, list);
     }
-    else if(!strcmp(ctype, "tri"))
+    else if(ctype == "tri")
     {
       for(k=0; k < 3; k++)
       {
@@ -705,7 +705,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       }
       output->InsertNextCell(VTK_TRIANGLE, 3, list);
     }
-    else if(!strcmp(ctype, "quad"))
+    else if(ctype == "quad")
     {
       for(k=0; k < 4; k++)
       {
@@ -714,7 +714,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       }
       output->InsertNextCell(VTK_QUAD, 4, list);
     }
-    else if(!strcmp(ctype, "tet"))
+    else if(ctype == "tet")
     {
       for(k=0; k < 4; k++)
       {
@@ -723,7 +723,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       }
       output->InsertNextCell(VTK_TETRA, 4, list);
     }
-    else if(!strcmp(ctype, "pyr"))
+    else if(ctype == "pyr")
     {
       for(k=0; k < 5; k++)
       {
@@ -736,7 +736,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       list[3] = list[4]; list[4] = tmp;
       output->InsertNextCell(VTK_PYRAMID, 5, list);
     }
-    else if(!strcmp(ctype, "prism"))
+    else if(ctype == "prism")
     {
       for(k=0; k < 6; k++)
       {
@@ -745,7 +745,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       }
       output->InsertNextCell(VTK_WEDGE, 6, list);
     }
-    else if(!strcmp(ctype, "hex"))
+    else if(ctype == "hex")
     {
       for(k=0; k < 8; k++)
       {

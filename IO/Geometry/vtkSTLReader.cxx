@@ -417,7 +417,7 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
         this->UpdateProgress((newPolys->GetNumberOfCells()%50000) / 50000.0);
       }
 
-      done = (fscanf(fp, "%s", line) == EOF);
+      done = (fscanf(fp, "%255s", line) == EOF);
       if (!strcmp(line, "ENDSOLID") || !strcmp(line, "endsolid"))
       {
         currentSolid++;
@@ -444,7 +444,7 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
         }
 
         // get facet, but could also have color
-        done = (fscanf(fp, "%s", line)==EOF);
+        done = (fscanf(fp, "%255s", line)==EOF);
         if (!strcmp(line, "COLOR") || !strcmp(line, "color"))
         {
           done = !fgets(line, 255, fp); // skip color field

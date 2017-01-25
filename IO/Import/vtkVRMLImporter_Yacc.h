@@ -390,12 +390,12 @@ VrmlNodeType::addField(const char *nodeName, int type)
 void
 VrmlNodeType::addExposedField(const char *nodeName, int type)
 {
-  char tmp[1000];
+  std::vector<char> tmp(20 + strlen(nodeName));
   add(fields, nodeName, type);
-  sprintf(tmp, "set_%s", nodeName);
-  add(eventIns, tmp, type);
-  sprintf(tmp, "%s_changed", nodeName);
-  add(eventOuts, tmp, type);
+  sprintf(&tmp[0], "set_%s", nodeName);
+  add(eventIns, &tmp[0], type);
+  sprintf(&tmp[0], "%s_changed", nodeName);
+  add(eventOuts, &tmp[0], type);
 };
 
 void
@@ -427,14 +427,11 @@ VrmlNodeType::hasExposedField(const char *nodeName) const
 {
   // Must have field "name", eventIn "set_name", and eventOut
   // "name_changed", all with same type:
-  char tmp[1000];
   int type;
   if ( (type = has(fields, nodeName)) == 0) return 0;
 
-  sprintf(tmp, "set_%s\n", nodeName);
   if (type != has(eventIns, nodeName)) return 0;
 
-  sprintf(tmp, "%s_changed", nodeName);
   if (type != has(eventOuts, nodeName)) return 0;
 
   return type;
