@@ -378,7 +378,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
   switch (this->CurrentStage)
   {
     case vtkDualDepthPeelingPass::InitializingDepth:
-      //vtkErrorMacro("InitializingDepth pass only valid for translucent peels.");
+      vtkErrorMacro("InitializingDepth pass only valid for translucent peels.");
       return false;
 
     case vtkDualDepthPeelingPass::Peeling:
@@ -387,7 +387,6 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "uniform sampler2D outerDepthTex;\n"
             "uniform sampler2D innerDepthTex;\n"
             "uniform sampler2D lastFrontColorTex;\n"
-            "uniform sampler2D opaqueDepth;\n"
             );
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::CallWorker::Impl",
@@ -427,13 +426,6 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
       vtkShaderProgram::Substitute(fragmentShader, "//VTK::DepthPeeling::Ray::Init",
             "  // Opaque geometry depth test\n"
             "  ivec2 coord = ivec2(gl_FragCoord.xy);\n"
-            "  float zOpaque = texelFetch(opaqueDepth, coord, 0).r;\n"
-            "  ////TODO Z-test is required for back and front peels\n"
-            "  //if (zOpaque < zStart)\n"
-            "  //{\n"
-            "  //  // Opaque geometry in-front\n"
-            "  //  discard;\n"
-            "  //}\n"
             "\n"
             "  // Transform zStart and zEnd to texture_coordinates\n"
             "  mat4 NDCToTextureCoords = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix *\n"
@@ -447,8 +439,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  g_dataPos = startPoint.xyz;\n"
             "  \n"
             "  // End point\n"
-            "  float zCoord = min(zOpaque, zEnd); //TODO Opaque is hit first\n"
-            "  vec4 endPoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, zCoord);\n"
+            "  vec4 endPoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, zEnd);\n"
             "  endPoint = NDCToTextureCoords * endPoint;\n"
             "  endPoint /= endPoint.w;\n"
             "\n"
@@ -539,9 +530,6 @@ bool vtkDualDepthPeelingPass::SetVolumetricShaderParameters(
       program->SetUniformi(
             "lastFrontColorTex",
             this->Textures[this->FrontSource]->GetTextureUnit());
-      program->SetUniformi(
-            "opaqueDepth",
-            this->Textures[OpaqueDepth]->GetTextureUnit());
       break;
 
     case vtkDualDepthPeelingPass::AlphaBlending:
@@ -1106,7 +1094,6 @@ void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
   this->Textures[this->FrontSource]->Activate();
   this->Textures[this->DepthSource]->Activate();
   this->Textures[this->DepthDestination]->Activate();
-  this->Textures[OpaqueDepth]->Activate();
 
   annotate("Start volumetric peeling!");
   this->RenderVolumetricPass();
@@ -1115,7 +1102,6 @@ void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
   this->Textures[this->FrontSource]->Deactivate();
   this->Textures[this->DepthSource]->Deactivate();
   this->Textures[this->DepthDestination]->Deactivate();
-  this->Textures[OpaqueDepth]->Deactivate();
 }
 
 //------------------------------------------------------------------------------
