@@ -131,9 +131,7 @@ int vtkPLYReader::RequestData(
   if ( (elem = vtkPLY::find_element (ply, "vertex")) == NULL ||
        vtkPLY::find_property (elem, "x", &index) == NULL ||
        vtkPLY::find_property (elem, "y", &index) == NULL ||
-       vtkPLY::find_property (elem, "z", &index) == NULL ||
-       (elem = vtkPLY::find_element (ply, "face")) == NULL ||
-       vtkPLY::find_property (elem, "vertex_indices", &index) == NULL )
+       vtkPLY::find_property (elem, "z", &index) == NULL)
   {
     vtkErrorMacro(<<"Cannot read geometry");
     vtkPLY::ply_close (ply);
