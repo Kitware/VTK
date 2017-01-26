@@ -268,7 +268,8 @@ protected:
   unsigned int VolumetricWrittenPixels;
   unsigned int OcclusionThreshold;
 
-  int RenderCount; // Debug info, counts number of geometry passes.
+  int TranslucentRenderCount; // Debug info, counts number of geometry passes.
+  int VolumetricRenderCount; // Debug info, counts number of volumetric passes.
 
   // Cached state:
   bool SaveScissorTestState;

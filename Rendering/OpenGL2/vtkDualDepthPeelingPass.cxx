@@ -701,7 +701,8 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
     VolumetricOcclusionQueryId(0),
     VolumetricWrittenPixels(0),
     OcclusionThreshold(0),
-    RenderCount(0),
+    TranslucentRenderCount(0),
+    VolumetricRenderCount(0),
     SaveScissorTestState(false)
 {
   std::fill(this->Textures, this->Textures + static_cast<int>(NumberOfTextures),
@@ -774,13 +775,14 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
 void vtkDualDepthPeelingPass::RenderTranslucentPass()
 {
   this->TranslucentPass->Render(this->RenderState);
-  ++this->RenderCount;
+  ++this->TranslucentRenderCount;
 }
 
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::RenderVolumetricPass()
 {
   this->VolumetricPass->Render(this->RenderState);
+  ++this->VolumetricRenderCount;
   this->LastPeelHadVolumes =
       this->VolumetricPass->GetNumberOfRenderedProps() > 0;
 }
@@ -940,7 +942,8 @@ void vtkDualDepthPeelingPass::Prepare()
   glDisable(GL_DEPTH_TEST);
   this->InitializeOcclusionQuery();
   this->CurrentPeel = 0;
-  this->RenderCount = 0;
+  this->TranslucentRenderCount = 0;
+  this->VolumetricRenderCount = 0;
 
   // Save the current FBO bindings to restore them later.
   this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
@@ -1472,7 +1475,10 @@ void vtkDualDepthPeelingPass::Finalize()
 #ifdef DEBUG_FRAME
   std::cout << "Depth peel done:\n"
             << "  - Number of peels: " << this->CurrentPeel << "\n"
-            << "  - Number of geometry passes: " << this->RenderCount << "\n"
+            << "  - Number of geometry passes: "
+            << this->TranslucentRenderCount << "\n"
+            << "  - Number of volume passes: "
+            << this->VolumetricRenderCount << "\n"
             << "  - Occlusion Ratio: trans="
             << static_cast<float>(this->TranslucentWrittenPixels) /
                static_cast<float>(this->ViewportWidth * this->ViewportHeight)
