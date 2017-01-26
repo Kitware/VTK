@@ -213,8 +213,12 @@ protected:
   void PeelVolumetricGeometry();
 
   void BlendBackBuffer();
-  void StartOcclusionQuery();
-  void EndOcclusionQuery();
+
+  void StartTranslucentOcclusionQuery();
+  void EndTranslucentOcclusionQuery();
+
+  void StartVolumetricOcclusionQuery();
+  void EndVolumetricOcclusionQuery();
 
   /**
    * Swap the src/dest render targets:
@@ -227,7 +231,7 @@ protected:
   void AlphaBlendRender();
 
   void BlendFinalImage();
-  void DeleteOcclusionQueryId();
+  void DeleteOcclusionQueryIds();
 
   vtkRenderPass *VolumetricPass;
   const vtkRenderState *RenderState;
@@ -258,8 +262,10 @@ protected:
 
   bool LastPeelHadVolumes;
   int CurrentPeel;
-  unsigned int OcclusionQueryId;
-  unsigned int WrittenPixels;
+  unsigned int TranslucentOcclusionQueryId;
+  unsigned int TranslucentWrittenPixels;
+  unsigned int VolumetricOcclusionQueryId;
+  unsigned int VolumetricWrittenPixels;
   unsigned int OcclusionThreshold;
 
   int RenderCount; // Debug info, counts number of geometry passes.

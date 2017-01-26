@@ -402,6 +402,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  float backEndDepth    = outerDepths.y;\n"
             "\n"
             "  // TODO some logic for detecting if inner == outer range\n"
+            "  // If so, only do a single pass and write to back buffer.\n"
             "\n"
             "  initializeRayCast();\n"
             "  vec4 frontColor = rayMarchingLoop(frontStartDepth, frontEndDepth);\n"
@@ -567,8 +568,10 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
     CurrentPeelType(TranslucentPeel),
     LastPeelHadVolumes(false),
     CurrentPeel(0),
-    OcclusionQueryId(0),
-    WrittenPixels(0),
+    TranslucentOcclusionQueryId(0),
+    TranslucentWrittenPixels(0),
+    VolumetricOcclusionQueryId(0),
+    VolumetricWrittenPixels(0),
     OcclusionThreshold(0),
     RenderCount(0),
     SaveScissorTestState(false)
@@ -652,7 +655,6 @@ void vtkDualDepthPeelingPass::RenderVolumetricPass()
   this->VolumetricPass->Render(this->RenderState);
   this->LastPeelHadVolumes =
       this->VolumetricPass->GetNumberOfRenderedProps() > 0;
-  // TODO only peel volumetric pass when needed (re: occ ratio)
 }
 
 //------------------------------------------------------------------------------
@@ -844,12 +846,13 @@ void vtkDualDepthPeelingPass::Prepare()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::InitializeOcclusionQuery()
 {
-  // TODO split occlusion query logic to handle both trans/volumes
-  glGenQueries(1, &this->OcclusionQueryId);
+  glGenQueries(1, &this->TranslucentOcclusionQueryId);
+  glGenQueries(1, &this->VolumetricOcclusionQueryId);
 
   int numPixels = this->ViewportHeight * this->ViewportWidth;
   this->OcclusionThreshold = numPixels * this->OcclusionRatio;
-  this->WrittenPixels = this->OcclusionThreshold + 1;
+  this->TranslucentWrittenPixels = this->OcclusionThreshold + 1;
+  this->VolumetricWrittenPixels = this->OcclusionThreshold + 1;
 }
 
 //------------------------------------------------------------------------------
@@ -981,9 +984,12 @@ void vtkDualDepthPeelingPass::PeelVolumesOutsideTranslucentRange()
 //------------------------------------------------------------------------------
 bool vtkDualDepthPeelingPass::PeelingDone()
 {
-  // TODO update for volumetric occlusion queries
+  // Note that we do NOT check the volumetric occlusion info as an early
+  // termination criterion. A volume may not exist for every slice, or may
+  // only be found in the front slice (only the back is counted for occlusion
+  // tests). This can lead to incorrect early termination of volume peeling.
   return this->CurrentPeel >= this->MaximumNumberOfPeels ||
-         this->WrittenPixels <= this->OcclusionThreshold;
+         this->TranslucentWrittenPixels <= this->OcclusionThreshold;
 }
 
 //------------------------------------------------------------------------------
@@ -991,14 +997,18 @@ void vtkDualDepthPeelingPass::Peel()
 {
   this->InitializeTargetsForTranslucentPass();
   this->PeelTranslucentGeometry();
+  this->StartTranslucentOcclusionQuery();
   this->BlendBackBuffer();
+  this->EndTranslucentOcclusionQuery();
   this->SwapFrontBufferSourceDest();
 
   if (this->IsRenderingVolumes())
   {
     this->InitializeTargetsForVolumetricPass();
     this->PeelVolumetricGeometry();
+    this->StartVolumetricOcclusionQuery();
     this->BlendBackBuffer();
+    this->EndVolumetricOcclusionQuery();
     this->SwapFrontBufferSourceDest();
   }
 
@@ -1007,8 +1017,9 @@ void vtkDualDepthPeelingPass::Peel()
   ++this->CurrentPeel;
 
 #ifdef DEBUG_PEEL
-  std::cout << "Peel " << this->CurrentPeel << ": Pixels written: "
-            << this->WrittenPixels << " (threshold: "
+  std::cout << "Peel " << this->CurrentPeel << ": Pixels written: trans="
+            << this->TranslucentWrittenPixels << " volume="
+            << this->VolumetricWrittenPixels << " (threshold: "
             << this->OcclusionThreshold << ")\n";
 #endif // DEBUG_PEEL
 }
@@ -1180,11 +1191,9 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
 
   this->BackBlendVAO->Bind();
 
-  this->StartOcclusionQuery();
   annotate("Start blending back!");
   GLUtil::DrawFullScreenQuad();
   annotate("Back blended!");
-  this->EndOcclusionQuery();
 
   this->BackBlendVAO->Release();
 
@@ -1192,33 +1201,64 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
 }
 
 //------------------------------------------------------------------------------
-void vtkDualDepthPeelingPass::StartOcclusionQuery()
+void vtkDualDepthPeelingPass::StartTranslucentOcclusionQuery()
 {
   // ES 3.0 only supports checking if *any* samples passed. We'll just use
   // that query to stop peeling once all frags are processed, and ignore the
   // requested occlusion ratio.
 #if GL_ES_VERSION_3_0 == 1
-  glBeginQuery(GL_ANY_SAMPLES_PASSED, this->OcclusionQueryId);
+  glBeginQuery(GL_ANY_SAMPLES_PASSED, this->TranslucentOcclusionQueryId);
 #else // GL ES 3.0
-  glBeginQuery(GL_SAMPLES_PASSED, this->OcclusionQueryId);
+  glBeginQuery(GL_SAMPLES_PASSED, this->TranslucentOcclusionQueryId);
 #endif // GL ES 3.0
 }
 
 //------------------------------------------------------------------------------
-void vtkDualDepthPeelingPass::EndOcclusionQuery()
+void vtkDualDepthPeelingPass::EndTranslucentOcclusionQuery()
 {
 #if GL_ES_VERSION_3_0 == 1
   glEndQuery(GL_ANY_SAMPLES_PASSED);
   GLuint anySamplesPassed;
-  glGetQueryObjectuiv(this->OcclusionQueryId, GL_QUERY_RESULT,
+  glGetQueryObjectuiv(this->TranslucentOcclusionQueryId, GL_QUERY_RESULT,
                       &anySamplesPassed);
   this->WrittenPixels = anySamplesPassed ? this->OcclusionThreshold + 1
                                          : 0;
 #else // GL ES 3.0
   glEndQuery(GL_SAMPLES_PASSED);
-  glGetQueryObjectuiv(this->OcclusionQueryId, GL_QUERY_RESULT,
-                      &this->WrittenPixels);
+  glGetQueryObjectuiv(this->TranslucentOcclusionQueryId, GL_QUERY_RESULT,
+                      &this->TranslucentWrittenPixels);
 #endif // GL ES 3.0
+}
+
+//------------------------------------------------------------------------------
+void vtkDualDepthPeelingPass::StartVolumetricOcclusionQuery()
+{
+  // ES 3.0 only supports checking if *any* samples passed. We'll just use
+  // that query to stop peeling once all frags are processed, and ignore the
+  // requested occlusion ratio.
+#if GL_ES_VERSION_3_0 == 1
+  glBeginQuery(GL_ANY_SAMPLES_PASSED, this->VolumetricOcclusionQueryId);
+#else // GL ES 3.0
+  glBeginQuery(GL_SAMPLES_PASSED, this->VolumetricOcclusionQueryId);
+#endif // GL ES 3.0
+}
+
+//------------------------------------------------------------------------------
+void vtkDualDepthPeelingPass::EndVolumetricOcclusionQuery()
+{
+#if GL_ES_VERSION_3_0 == 1
+  glEndQuery(GL_ANY_SAMPLES_PASSED);
+  GLuint anySamplesPassed;
+  glGetQueryObjectuiv(this->VolumetricOcclusionQueryId, GL_QUERY_RESULT,
+                      &anySamplesPassed);
+  this->WrittenPixels = anySamplesPassed ? this->OcclusionThreshold + 1
+                                         : 0;
+#else // GL ES 3.0
+  glEndQuery(GL_SAMPLES_PASSED);
+  glGetQueryObjectuiv(this->VolumetricOcclusionQueryId, GL_QUERY_RESULT,
+                      &this->VolumetricWrittenPixels);
+#endif // GL ES 3.0
+
 }
 
 //------------------------------------------------------------------------------
@@ -1238,7 +1278,8 @@ void vtkDualDepthPeelingPass::Finalize()
 {
   // Mop up any unrendered fragments using simple alpha blending into the back
   // buffer.
-  if (this->WrittenPixels > 0)
+  if (this->TranslucentWrittenPixels > 0 ||
+      this->VolumetricWrittenPixels > 0)
   {
     this->AlphaBlendRender();
   }
@@ -1273,15 +1314,18 @@ void vtkDualDepthPeelingPass::Finalize()
   }
 
   this->RenderState = NULL;
-  this->DeleteOcclusionQueryId();
+  this->DeleteOcclusionQueryIds();
   this->SetCurrentStage(Inactive);
 
 #ifdef DEBUG_FRAME
   std::cout << "Depth peel done:\n"
             << "  - Number of peels: " << this->CurrentPeel << "\n"
             << "  - Number of geometry passes: " << this->RenderCount << "\n"
-            << "  - Occlusion Ratio: "
-            << static_cast<float>(this->WrittenPixels) /
+            << "  - Occlusion Ratio: trans="
+            << static_cast<float>(this->TranslucentWrittenPixels) /
+               static_cast<float>(this->ViewportWidth * this->ViewportHeight)
+            << " volume="
+            << static_cast<float>(this->VolumetricWrittenPixels) /
                static_cast<float>(this->ViewportWidth * this->ViewportHeight)
             << " (target: " << this->OcclusionRatio << ")\n";
 #endif // DEBUG_FRAME
@@ -1306,11 +1350,17 @@ void vtkDualDepthPeelingPass::AlphaBlendRender()
   this->Framebuffer->ActivateDrawBuffer(Back);
   this->Textures[this->DepthSource]->Activate();
 
-  this->SetCurrentPeelType(TranslucentPeel);
-  annotate("Alpha blend translucent render start");
-  this->RenderTranslucentPass();
-  annotate("Alpha blend translucent render end");
+  if (this->TranslucentWrittenPixels > 0)
+  {
+    this->SetCurrentPeelType(TranslucentPeel);
+    annotate("Alpha blend translucent render start");
+    this->RenderTranslucentPass();
+    annotate("Alpha blend translucent render end");
+  }
 
+  // Do not check VolumetricWrittenPixels to determine if alpha blending
+  // volumes is needed -- there's no guarantee that a previous slice had
+  // volume data if the current slice does.
   if (this->IsRenderingVolumes())
   {
     this->SetCurrentPeelType(VolumetricPeel);
@@ -1435,7 +1485,8 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
 }
 
 //------------------------------------------------------------------------------
-void vtkDualDepthPeelingPass::DeleteOcclusionQueryId()
+void vtkDualDepthPeelingPass::DeleteOcclusionQueryIds()
 {
-  glDeleteQueries(1, &this->OcclusionQueryId);
+  glDeleteQueries(1, &this->TranslucentOcclusionQueryId);
+  glDeleteQueries(1, &this->VolumetricOcclusionQueryId);
 }
