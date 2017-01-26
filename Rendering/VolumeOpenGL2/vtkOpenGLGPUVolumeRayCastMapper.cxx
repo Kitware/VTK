@@ -46,6 +46,7 @@
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include "vtkOpenGLActor.h" // For GLDepthMaskOverride key
 #include <vtkOpenGLError.h>
 #include <vtkOpenGLCamera.h>
 #include <vtkOpenGLRenderPass.h>
@@ -2937,6 +2938,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   vtkMTimeType renderPassTime = this->GetRenderPassStageMTime(vol);
 
+  // Check the property keys to see if we should modify the blend/etc state:
+  // Otherwise this breaks volume/translucent geo depth peeling.
+  vtkInformation *volumeKeys = vol->GetPropertyKeys();
+  bool preserveGLState = false;
+  if (volumeKeys && volumeKeys->Has(vtkOpenGLActor::GLDepthMaskOverride()))
+  {
+    int override = volumeKeys->Get(vtkOpenGLActor::GLDepthMaskOverride());
+    if (override != 0 && override != 1)
+    {
+      preserveGLState = true;
+    }
+  }
+
   if (this->UseDepthPass && this->GetBlendMode() ==
       vtkVolumeMapper::COMPOSITE_BLEND)
   {
@@ -2994,8 +3008,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     {
       this->Impl->BeginPicking(ren);
     }
+
     // Set OpenGL states
-    vtkVolumeStateRAII glState;
+    vtkVolumeStateRAII glState(preserveGLState);
 
     if (this->RenderToImage)
     {
@@ -3030,7 +3045,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->BeginPicking(ren);
     }
     // Set OpenGL states
-    vtkVolumeStateRAII glState;
+    vtkVolumeStateRAII glState(preserveGLState);
 
     // Build shader now
     // First get the shader cache from the render window. This is important
