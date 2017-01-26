@@ -192,7 +192,7 @@ void vtkOpenGLVertexBufferObjectGroup::AppendDataArray(
 
 void vtkOpenGLVertexBufferObjectGroup::ReleaseGraphicsResources(vtkWindow *)
 {
-  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); i++)
+  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
     i->second->Delete();
   }
@@ -203,7 +203,7 @@ void vtkOpenGLVertexBufferObjectGroup::AddAllAttributesToVAO(
   vtkShaderProgram *program,
   vtkOpenGLVertexArrayObject *vao)
 {
-  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); i++)
+  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
     std::string dataShaderName = i->first;
     if (program->IsAttributeUsed(dataShaderName.c_str()))
@@ -223,7 +223,7 @@ void vtkOpenGLVertexBufferObjectGroup::AddAllAttributesToVAO(
 void vtkOpenGLVertexBufferObjectGroup::ClearAllDataArrays()
 {
   for (arrayIter i = this->UsedDataArrays.begin();
-       i != this->UsedDataArrays.end(); i++)
+       i != this->UsedDataArrays.end(); ++i)
   {
     std::vector<vtkDataArray *> &vec = i->second;
     for (size_t j = 0; j < vec.size(); j++)
@@ -240,7 +240,7 @@ void vtkOpenGLVertexBufferObjectGroup::ClearAllDataArrays()
 
 void vtkOpenGLVertexBufferObjectGroup::ClearAllVBOs()
 {
-  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); i++)
+  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
     i->second->Delete();
   }
@@ -266,18 +266,18 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
     {
       i->second->UnRegister(this);
       vboIter toErase = i;
-      i++;
+      ++i;
       this->UsedVBOs.erase(toErase);
     }
     else
     {
-      i++;
+      ++i;
     }
   }
 
   // now push data to VBOs as needed
   for (arrayIter i = this->UsedDataArrays.begin();
-       i != this->UsedDataArrays.end(); i++)
+       i != this->UsedDataArrays.end(); ++i)
   {
     std::string attribute = i->first;
     std::vector<vtkDataArray *> &vec = i->second;
@@ -303,7 +303,7 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
   }
 
   // Upload updated VBOs
-  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); i++)
+  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
     vtkOpenGLVertexBufferObject* vbo = i->second;
     if(vbo->GetMTime() > vbo->GetUploadTime())

@@ -175,7 +175,7 @@ void vtkDiscretizableColorTransferFunction::Build()
 {
   this->Superclass::Build();
 
-  if (this->BuildTime > this->GetMTime())
+  if (this->LookupTableUpdateTime > this->GetMTime())
   {
     // no need to rebuild anything.
     return;
@@ -274,7 +274,7 @@ void vtkDiscretizableColorTransferFunction::Build()
 
   this->LookupTable->BuildSpecialColors();
 
-  this->BuildTime.Modified();
+  this->LookupTableUpdateTime.Modified();
 }
 
 //-----------------------------------------------------------------------------

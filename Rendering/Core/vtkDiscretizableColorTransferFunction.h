@@ -262,7 +262,7 @@ protected:
    */
   vtkLookupTable* LookupTable;
 
-  vtkTimeStamp BuildTime;
+  vtkTimeStamp LookupTableUpdateTime;
 
   bool EnableOpacityMapping;
   vtkSmartPointer<vtkPiecewiseFunction> ScalarOpacityFunction;

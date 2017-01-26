@@ -955,7 +955,7 @@ void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
       for (;miter2 != miter->second->Entries.end(); ++miter2)
       {
         vtkOpenGLGlyph3DMapperEntry::MapperMap::iterator miter3 = miter2->second->Mappers.begin();
-        for (; miter3 != miter2->second->Mappers.end(); miter3++)
+        for (; miter3 != miter2->second->Mappers.end(); ++miter3)
         {
           miter3->second->ReleaseGraphicsResources(window);
         }
