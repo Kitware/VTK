@@ -215,10 +215,15 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 
   if (info == 0)
   {
-    char buf[256];
-    sprintf(buf,"cannot create object of unknown type \"%s\"",classname);
-    PyErr_SetString(PyExc_ValueError,buf);
-    return NULL;
+    return PyErr_Format(PyExc_ValueError,
+                        "cannot create object of unknown type \"%s\"",
+                        classname);
+  }
+  else if (info->vtk_copy == 0)
+  {
+    return PyErr_Format(PyExc_ValueError,
+                        "no copy constructor for object of type \"%s\"",
+                        classname);
   }
 
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
