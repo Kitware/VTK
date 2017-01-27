@@ -1153,6 +1153,18 @@ public:
   static vtkTypeBool PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
 
   /**
+   * Implements Plane / Axis-Aligned Bounding-Box intersection as described in
+   * Graphics Gems IV, Ned Greene; pp. 75-76. Variable names are based on the
+   * description in the book. This function returns +1 if the box lies fully in
+   * the positive side of the plane (by convention, the side to which the plane's
+   * normal points to), -1 if the box fully lies in the negative side and 0 if
+   * the plane intersects the box.  -2 is returned if any of the arguments is
+   * invalid.
+   */
+  static int PlaneIntersectsAABB(double const bounds[6], double const normal[3],
+    double const point[3]);
+
+  /**
    * In Euclidean space, there is a unique circle passing through any given
    * three non-collinear points P1, P2, and P3. Using Cartesian coordinates
    * to represent these points as spatial vectors, it is possible to use the

@@ -1228,7 +1228,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   this->TempMatrix1->MultiplyPoint( camWorldPos, camPos );
 
   cam->GetFocalPoint(camFocalWorldPoint);
-  camFocalWorldPoint[3]=1.0;
+  camFocalWorldPoint[3] = 1.0;
 
   // The range (near/far) must also be transformed
   // into the local coordinate system.
@@ -1247,15 +1247,17 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   double camNearPoint[4];
 
   cam->GetClippingRange(camWorldRange);
-  camNearWorldPoint[0] = camWorldPos[0] + camWorldRange[0]*camWorldDirection[0];
-  camNearWorldPoint[1] = camWorldPos[1] + camWorldRange[0]*camWorldDirection[1];
-  camNearWorldPoint[2] = camWorldPos[2] + camWorldRange[0]*camWorldDirection[2];
+  camNearWorldPoint[0] = camWorldPos[0] + camWorldRange[0] * camWorldDirection[0];
+  camNearWorldPoint[1] = camWorldPos[1] + camWorldRange[0] * camWorldDirection[1];
+  camNearWorldPoint[2] = camWorldPos[2] + camWorldRange[0] * camWorldDirection[2];
   camNearWorldPoint[3] = 1.;
 
-  this->TempMatrix1->MultiplyPoint( camNearWorldPoint, camNearPoint );
+  this->TempMatrix1->MultiplyPoint(camNearWorldPoint, camNearPoint);
 
-  double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
-  if (vtkMath::PointIsWithinBounds(camNearPoint, this->LoadedBounds, tolerance))
+  int const result = vtkMath::PlaneIntersectsAABB(this->LoadedBounds,
+    camPlaneNormal, camNearPoint);
+
+  if (result == 0)
   {
     return true;
   }
@@ -3215,9 +3217,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   prog->SetUniform3fv("in_diffuse", numberOfSamplers, diffuse);
   prog->SetUniform3fv("in_specular", numberOfSamplers, specular);
   prog->SetUniform1fv("in_shininess", numberOfSamplers, specularPower);
-
-  double clippingRange[2];
-  cam->GetClippingRange(clippingRange);
 
   // Bind matrices
   //--------------------------------------------------------------------------
