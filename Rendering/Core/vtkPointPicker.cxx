@@ -117,16 +117,16 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     x[2] = (p1[2]*w2 - p2[2]*w1)/w;
 
     // Get the one point that will be checked
-    vtkIdType ptId = input->FindPoint(x);
-    if (ptId >= 0)
+    minPtId = input->FindPoint(x);
+    if (minPtId > -1)
     {
-      input->GetPoint(ptId, minXYZ);
-      double distMin = -1; // dummy
+      input->GetPoint(minPtId, minXYZ);
+      double distMin = VTK_DOUBLE_MAX;
       this->UpdateClosestPoint(minXYZ, p1, ray, rayFactor, tol, tMin, distMin);
 
       //  Now compare this against other actors.
       //
-      if ( minPtId > -1 && tMin < this->GlobalTMin )
+      if ( tMin < this->GlobalTMin )
       {
         this->MarkPicked(path, p, m, tMin, minXYZ);
         this->PointId = minPtId;
