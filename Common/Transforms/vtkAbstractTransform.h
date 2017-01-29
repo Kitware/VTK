@@ -450,6 +450,11 @@ protected:
   int NumberOfPreTransforms;
   int MaxNumberOfTransforms;
   vtkTransformPair *TransformList;
+
+private:
+  vtkTransformConcatenation(const vtkTransformConcatenation&)
+    VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformConcatenation&) VTK_DELETE_FUNCTION;
 };
 
 // .NAME vtkTransformConcatenationStack - Store a stack of concatenations.
@@ -489,6 +494,11 @@ protected:
   int StackSize;
   vtkTransformConcatenation **Stack;
   vtkTransformConcatenation **StackBottom;
+
+private:
+  vtkTransformConcatenationStack(const vtkTransformConcatenationStack&)
+    VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformConcatenationStack&) VTK_DELETE_FUNCTION;
 };
 
 #endif
