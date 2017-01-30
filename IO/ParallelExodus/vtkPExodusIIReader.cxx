@@ -178,7 +178,7 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
     {
       delete [] this->FileNames[i];
     }
-      delete [] this->FileNames;
+    delete [] this->FileNames;
   }
 
   // Delete all the readers we may have
@@ -236,35 +236,32 @@ int vtkPExodusIIReader::RequestInformation(
 {
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
   outInfo->Set(
-   CAN_HANDLE_PIECE_REQUEST(), 1);
+    CAN_HANDLE_PIECE_REQUEST(), 1);
 
-#ifdef DBG_PEXOIIRDR
-  this->Controller->Barrier();
-#endif // DBG_PEXOIIRDR
+  int requestInformationRetVal = 0;
   if ( this->ProcRank == 0 )
   {
-    int newName = this->GetMetadataMTime() < this->FileNameMTime;
-
-    int newPattern =
+    bool newName = this->GetMetadataMTime() < this->FileNameMTime;
+    bool newPattern =
       (
-       ( this->FilePattern &&
-         ( ! this->CurrentFilePattern ||
-           ! vtksys::SystemTools::ComparePath(
-           this->FilePattern, this->CurrentFilePattern ) ||
-           ( ( this->FileRange[0] != this->CurrentFileRange[0] ) ||
-             ( this->FileRange[1] != this->CurrentFileRange[1] ) ) ) ) ||
-       ( this->FilePrefix &&
-         ! vtksys::SystemTools::ComparePath(
-           this->FilePrefix, this->CurrentFilePrefix ) )
-      );
+        ( this->FilePattern &&
+          ( ! this->CurrentFilePattern ||
+            ! vtksys::SystemTools::ComparePath(
+              this->FilePattern, this->CurrentFilePattern ) ||
+            ( ( this->FileRange[0] != this->CurrentFileRange[0] ) ||
+              ( this->FileRange[1] != this->CurrentFileRange[1] ) ) ) ) ||
+        ( this->FilePrefix &&
+          ! vtksys::SystemTools::ComparePath(
+            this->FilePrefix, this->CurrentFilePrefix ) )
+        );
 
     // setting filename for the first time builds the prefix/pattern
     // if one clears the prefix/pattern, but the filename stays the same,
     // we should rebuild the prefix/pattern
-    int rebuildPattern =
+    bool rebuildPattern =
       newPattern && this->FilePattern[0] == '\0' && this->FilePrefix[0] == '\0';
 
-    int sanity = ( ( this->FilePattern && this->FilePrefix ) || this->FileName );
+    bool sanity = ( ( this->FilePattern && this->FilePrefix ) || this->FileName );
 
     if ( ! sanity )
     {
@@ -280,8 +277,6 @@ int vtkPExodusIIReader::RequestInformation(
       sprintf( nm, this->FilePattern, this->FilePrefix, this->FileRange[0] );
       delete [] this->FileName;
       this->FileName = nm;
-      //this->Superclass::SetFileName( nm ); // XXX Bad set
-      //delete [] nm;
     }
     else if ( newName || rebuildPattern )
     {
@@ -295,31 +290,52 @@ int vtkPExodusIIReader::RequestInformation(
       }
     }
 
-    // int mmd = this->ExodusModelMetadata;
-    // this->ExodusModelMetadata = 0;
-    //this->SetExodusModelMetadata( 0 );    // turn off for now // XXX Bad set
-
-    /*
-    std::string barfle( "/tmp/barfle_" );
-    barfle += this->ProcRank + 97;
-    barfle += ".txt";
-    ofstream fout( barfle.c_str() );
-    fout
-      << "Proc " << ( this->ProcRank + 1 ) << " of " << this->ProcSize
-      << " reading metadata from \"" << this->GetFileName() << "\"\n";
-    fout.close();
-    */
-
-    // Read in info based on this->FileName
-    if ( ! this->Superclass::RequestInformation( request, inputVector, outputVector ) )
+    int numFiles = this->NumberOfFileNames;
+    if ( numFiles <= 1 )
     {
-      this->Broadcast( this->Controller );
-      return 0;
+      numFiles = this->NumberOfFiles;
     }
 
-    //this->SetExodusModelMetadata( mmd ); // turn it back, will compute in RequestData // XXX Bad set
-    // this->ExodusModelMetadata = mmd;
+    // Go through the filenames and see if any of them actually have data
+    // in them. It's possible that some of them don't and if they don't
+    // we won't have the proper information generated.
+    int reader_idx=0;
+    for ( int fileIndex = 0; fileIndex <= numFiles; ++fileIndex, ++reader_idx )
+    {
+      if ( this->NumberOfFileNames > 1 )
+      {
+        strcpy( this->MultiFileName, this->FileNames[fileIndex] );
+        if ( this->GetGenerateFileIdArray() )
+        {
+          vtkPExodusIIReader::DetermineFileId( this->FileNames[fileIndex] );
+        }
+      }
+      else if ( this->FilePattern )
+      {
+        sprintf( this->MultiFileName, this->FilePattern, this->FilePrefix, fileIndex );
+      }
+      char* nm = new char[strlen( this->MultiFileName )+1];
+      strcpy(nm, this->MultiFileName);
+      delete [] this->FileName;
+      this->FileName = nm;
+      nm = NULL;
+
+      // Read in info based on this->FileName
+      requestInformationRetVal = this->Superclass::RequestInformation( request, inputVector, outputVector );
+
+      if ( this->Metadata->ArrayInfo.size() )
+      {
+        // We have a file with actual data in it
+        break;
+      }
+    } // loop over file names
   }
+  this->Controller->Broadcast( &requestInformationRetVal, 1, 0);
+  if (!requestInformationRetVal)
+  {
+    return 0;
+  }
+
   if ( this->ProcSize > 1 )
   {
     this->Broadcast( this->Controller );
@@ -461,7 +477,7 @@ int vtkPExodusIIReader::RequestData(
     }
   */
 
-  if ( ReaderList.size() < numMyFiles )
+  if ( this->ReaderList.size() < numMyFiles )
   {
     for ( reader_idx = static_cast<int>( this->ReaderList.size() ); reader_idx < static_cast<int>(numMyFiles); ++reader_idx )
     {
@@ -939,7 +955,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     this->NumberOfFiles = max - min + 1;
   }
 
-   // Set my info
+  // Set my info
   //this->SetFilePattern( pattern ); // XXX Bad set
   //this->SetFilePrefix( prefix ); // XXX Bad set
   //delete [] prefix;
