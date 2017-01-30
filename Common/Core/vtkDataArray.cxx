@@ -325,12 +325,9 @@ struct SetTuplesRangeWorker
 
     while (srcT < srcTEnd)
     {
-      for (vtkIdType t = 0; t < this->NumTuples; ++t)
+      for (int c = 0; c < numComps; ++c)
       {
-        for (int c = 0; c < numComps; ++c)
-        {
-          d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
-        }
+        d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
       }
       ++srcT;
       ++dstT;
@@ -577,7 +574,7 @@ void vtkDataArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
 
   vtkIdType maxSrcTupleId = srcIds->GetId(0);
   vtkIdType maxDstTupleId = dstIds->GetId(0);
-  for (int i = 0; i < dstIds->GetNumberOfIds(); ++i)
+  for (int i = 1; i < dstIds->GetNumberOfIds(); ++i)
   {
     maxSrcTupleId = std::max(maxSrcTupleId, srcIds->GetId(i));
     maxDstTupleId = std::max(maxDstTupleId, dstIds->GetId(i));
