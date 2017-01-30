@@ -123,6 +123,7 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   this->setUpdateBehavior(QOpenGLWidget::PartialUpdate);
 
   this->InteractorAdaptor = new QVTKInteractorAdapter(this);
+  this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
 
   this->setMouseTracking(true);
 
@@ -162,13 +163,17 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   // allocated on it.
   this->markCachedImageAsDirty();
 
+  this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
+
   this->RenderWindow = win;
   if (this->RenderWindow)
   {
     // tell the vtk window what the size of this window is
     this->RenderWindow->SetReadyForRendering(false);
-    this->RenderWindow->SetSize(this->width(), this->height());
-    this->RenderWindow->SetPosition(this->x(), this->y());
+    this->RenderWindow->SetSize(this->width() * this->devicePixelRatio(),
+                                this->height() * this->devicePixelRatio());
+    this->RenderWindow->SetPosition(this->x() * this->devicePixelRatio(),
+                                    this->y() * this->devicePixelRatio());
 
     // if an interactor wasn't provided, we'll make one by default
     if (!this->RenderWindow->GetInteractor())
@@ -185,7 +190,9 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     }
 
     // tell the interactor the size of this window
-    this->RenderWindow->GetInteractor()->SetSize(this->width(), this->height());
+    this->RenderWindow->GetInteractor()
+        ->SetSize(this->width() * this->devicePixelRatio(),
+                  this->height() * this->devicePixelRatio());
 
     // Add an observer to monitor when the image changes.  Should work most
     // of the time.  The application will have to call
@@ -332,9 +339,12 @@ void QVTKOpenGLWidget::initializeGL()
 void QVTKOpenGLWidget::resizeGL(int w, int h)
 {
   vtkQVTKOpenGLWidgetDebugMacro("resizeGL");
+  vtkRenderWindowInteractor* iren = this->RenderWindow ? this->RenderWindow->GetInteractor() : nullptr;
+  this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio(), iren);
   if (this->RenderWindow)
   {
-    this->RenderWindow->SetSize(w, h);
+    this->RenderWindow->SetSize(w * this->devicePixelRatio(),
+                                h * this->devicePixelRatio());
     this->markCachedImageAsDirty();
   }
   this->Superclass::resizeGL(w, h);
