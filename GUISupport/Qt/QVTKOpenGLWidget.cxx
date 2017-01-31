@@ -135,6 +135,7 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
 //-----------------------------------------------------------------------------
 QVTKOpenGLWidget::~QVTKOpenGLWidget()
 {
+  this->makeCurrent();
   this->SetRenderWindow(static_cast<vtkGenericOpenGLRenderWindow*>(NULL));
   this->Observer->SetTarget(NULL);
   delete this->InteractorAdaptor;
