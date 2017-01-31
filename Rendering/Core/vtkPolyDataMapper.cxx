@@ -145,7 +145,15 @@ double *vtkPolyDataMapper::GetBounds()
 //----------------------------------------------------------------------------
 void vtkPolyDataMapper::ComputeBounds()
 {
-  this->GetInput()->GetBounds(this->Bounds);
+  vtkPolyData *input = this->GetInput();
+  if (input)
+  {
+    input->GetBounds(this->Bounds);
+  }
+  else
+  {
+    vtkMath::UninitializeBounds(this->Bounds);
+  }
 }
 
 //----------------------------------------------------------------------------
