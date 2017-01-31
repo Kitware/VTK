@@ -31,59 +31,40 @@ uniform float     uLMaxMinDiff;  // max - min lightness over all fragments
 
 varying vec2 tcoordVC;
 
-/**
-Helper for HSL to RGB conversion.
-*/
-float Util(float v1, float v2, float vH)
-{
-  if (vH < 0.0)
-    vH += 1.0;
-
-  if (vH > 1.0)
-     vH -= 1.0;
-
-  if ((6.0 * vH) < 1.0)
-    return (v1 + (v2 - v1) * 6.0 * vH);
-
-  if ((2.0 * vH) < 1.0)
-    return (v2);
-
-  if ((3.0 * vH) < 2.0)
-    return (v1 + (v2 - v1) * ((2.0 / 3.0) - vH) * 6.0);
-
-  return v1;
-}
-
-/**
-Convert from HSL space into RGB space.
-*/
 vec3 HSLToRGB(vec3 HSL)
 {
   vec3 RGB;
-  if (HSL.y == 0.0)
-    {
-    // Gray
-    RGB.r = HSL.z;
-    RGB.g = HSL.z;
-    RGB.b = HSL.z;
+  float v;
+  float h = HSL.x;
+  float sl = HSL.y;
+  float l = HSL.z;
+
+  v = (l <= 0.5) ? (l * (1.0 + sl)) : (l + sl - l * sl);
+  if (v <= 0) {
+    RGB = vec3(0.0,0.0,0.0);
+  } else {
+    float m;
+    int sextant;
+    float fract, vsf, mid1, mid2;
+
+    m = l + l - v;
+    h *= 6.0;
+    sextant = int(h);
+    fract = h - sextant;
+
+    vsf = (v - m) * fract;
+    mid1 = m + vsf;
+    mid2 = v - vsf;
+    switch (sextant) {
+      case 0: RGB.r = v; RGB.g = mid1; RGB.b = m; break;
+      case 1: RGB.r = mid2; RGB.g = v; RGB.b = m; break;
+      case 2: RGB.r = m; RGB.g = v; RGB.b = mid1; break;
+      case 3: RGB.r = m; RGB.g = mid2; RGB.b = v; break;
+      case 4: RGB.r = mid1; RGB.g = m; RGB.b = v; break;
+      case 5: RGB.r = v; RGB.g = m; RGB.b = mid2; break;
     }
-  else
-    {
-    // Chromatic
-    float v2;
-    if (HSL.z < 0.5)
-      v2 = HSL.z * (1.0 + HSL.y);
-    else
-      v2 = (HSL.z + HSL.y) - (HSL.y * HSL.z);
-
-    float v1 = 2.0 * HSL.z - v2;
-
-    RGB.r = Util(v1, v2, HSL.x + (1.0 / 3.0));
-    RGB.g = Util(v1, v2, HSL.x);
-    RGB.b = Util(v1, v2, HSL.x - (1.0 / 3.0));
-    }
-
-  return RGB.rgb;
+  }
+  return RGB;
 }
 
 void main()
