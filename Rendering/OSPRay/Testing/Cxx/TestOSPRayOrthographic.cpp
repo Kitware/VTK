@@ -66,7 +66,6 @@ int TestOSPRayOrthographic(int argc, char* argv[])
   renWin->Render();
 
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
-  vtkOSPRayRendererNode *ren = ospray->GetSceneGraph();
   renderer->SetPass(ospray);
 
   vtkCamera *camera = renderer->GetActiveCamera();
