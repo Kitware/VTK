@@ -3221,10 +3221,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   // Bind matrices
   //--------------------------------------------------------------------------
   vtkMatrix4x4* glTransformMatrix;
-  vtkMatrix4x4* modelviewMatrix;
+  vtkMatrix4x4* modelViewMatrix;
   vtkMatrix3x3* normalMatrix;
   vtkMatrix4x4* projectionMatrix;
-  cam->GetKeyMatrices(ren, modelviewMatrix, normalMatrix,
+  cam->GetKeyMatrices(ren, modelViewMatrix, normalMatrix,
                       projectionMatrix, glTransformMatrix);
 
   this->Impl->InverseProjectionMat->DeepCopy(projectionMatrix);
@@ -3233,9 +3233,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   prog->SetUniformMatrix("in_inverseProjectionMatrix",
                          this->Impl->InverseProjectionMat.GetPointer());
 
-  this->Impl->InverseModelViewMat->DeepCopy(modelviewMatrix);
+  this->Impl->InverseModelViewMat->DeepCopy(modelViewMatrix);
   this->Impl->InverseModelViewMat->Invert();
-  prog->SetUniformMatrix("in_modelViewMatrix", modelviewMatrix);
+  prog->SetUniformMatrix("in_modelViewMatrix", modelViewMatrix);
   prog->SetUniformMatrix("in_inverseModelViewMatrix",
                          this->Impl->InverseModelViewMat.GetPointer());
 
@@ -3249,28 +3249,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
                          this->Impl->InverseVolumeMat.GetPointer());
 
   this->Impl->TempMatrix1->DeepCopy(this->Impl->TextureToDataSetMat.GetPointer());
+
+  vtkMatrix4x4::Multiply4x4(vol->GetMatrix(),
+                            this->Impl->TempMatrix1.GetPointer(),
+                            this->Impl->TextureToEyeTransposeInverse.GetPointer());
+
+  vtkMatrix4x4::Multiply4x4(modelViewMatrix,
+                            this->Impl->TextureToEyeTransposeInverse.GetPointer(),
+                            this->Impl->TextureToEyeTransposeInverse.GetPointer());
+
   this->Impl->TempMatrix1->Transpose();
   this->Impl->InverseTextureToDataSetMat->DeepCopy(
     this->Impl->TempMatrix1.GetPointer());
   this->Impl->InverseTextureToDataSetMat->Invert();
+
   prog->SetUniformMatrix("in_textureDatasetMatrix",
                          this->Impl->TempMatrix1.GetPointer());
   prog->SetUniformMatrix("in_inverseTextureDatasetMatrix",
                          this->Impl->InverseTextureToDataSetMat.GetPointer());
-
-
-  vtkMatrix4x4::Multiply4x4(this->Impl->TempMatrix1.GetPointer(),
-                            modelviewMatrix,
-                            this->Impl->TextureToEyeTransposeInverse.GetPointer());
-
-  vtkMatrix4x4::Multiply4x4(this->Impl->TextureToDataSetMat.GetPointer(),
-                            this->Impl->TextureToEyeTransposeInverse.GetPointer(),
-                            this->Impl->TextureToEyeTransposeInverse.GetPointer());
-
-
-  this->Impl->TextureToEyeTransposeInverse->Invert();
-  prog->SetUniformMatrix(
-    "in_texureToEyeIt", this->Impl->TextureToEyeTransposeInverse.GetPointer());
+  prog->SetUniformMatrix("in_textureToEye",
+                         this->Impl->TextureToEyeTransposeInverse.GetPointer());
 
   // Bind other misc parameters
   //--------------------------------------------------------------------------
