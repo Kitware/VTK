@@ -32,7 +32,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLDataSet : public vtkObject
 public:
   static vtkWebGLDataSet* New();
   vtkTypeMacro(vtkWebGLDataSet, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   void SetVertices(float* v, int size);
   void SetIndexes(short* i, int size);

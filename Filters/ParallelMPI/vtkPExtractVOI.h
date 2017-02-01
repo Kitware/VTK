@@ -44,7 +44,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractVOI : public vtkExtractVOI
 public:
   static vtkPExtractVOI* New();
   vtkTypeMacro(vtkPExtractVOI,vtkExtractVOI);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPExtractVOI();
@@ -52,11 +52,11 @@ protected:
 
   // Standard VTK Pipeline methods
   virtual int RequestData(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestInformation(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
   vtkMPIController* Controller;
 

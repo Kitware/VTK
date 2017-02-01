@@ -67,19 +67,19 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICMapper : public vtkOpenGLPolyDa
 public:
   static vtkSurfaceLICMapper* New();
   vtkTypeMacro(vtkSurfaceLICMapper, vtkOpenGLPolyDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release. In this case, releases the display lists.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow * win);
+  virtual void ReleaseGraphicsResources(vtkWindow * win) VTK_OVERRIDE;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
+  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Shallow copy of an actor.
@@ -109,20 +109,20 @@ protected:
   /**
    * Build the VBO/IBO, called by UpdateBufferObjects
    */
-  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
 protected:
   /**
    * Set the shader parameteres related to the mapper/input data, called by UpdateShader
    */
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Perform string replacments on the shader templates
    */
   virtual void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
+    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   vtkSurfaceLICInterface *LICInterface;
 

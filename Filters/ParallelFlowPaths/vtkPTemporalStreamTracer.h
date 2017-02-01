@@ -55,7 +55,7 @@ class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPTemporalStreamTracer : public vtkTe
 public:
 
     vtkTypeMacro(vtkPTemporalStreamTracer,vtkTemporalStreamTracer);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     /**
      * Construct object using 2nd order Runge Kutta
@@ -81,7 +81,7 @@ public:
     //
     virtual int RequestData(vtkInformation* request,
                             vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector);
+                            vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 //
 
@@ -96,14 +96,14 @@ public:
     virtual void AssignSeedsToProcessors(
       vtkDataSet *source, int sourceID, int ptId,
       vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints,
-      int &LocalAssignedCount);
+      int &LocalAssignedCount) VTK_OVERRIDE;
 
     /**
      * give each one a uniqu ID. We need to use MPI to find out
      * who is using which numbers.
      */
     virtual void AssignUniqueIds(
-      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints);
+      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints) VTK_OVERRIDE;
 
     /**
      * this is used during classification of seed points and also between iterations
@@ -112,7 +112,7 @@ public:
     virtual void TransmitReceiveParticles(
       vtkTemporalStreamTracerNamespace::ParticleVector &outofdomain,
       vtkTemporalStreamTracerNamespace::ParticleVector &received,
-      bool removeself);
+      bool removeself) VTK_OVERRIDE;
 
     void AddParticleToMPISendList(
       vtkTemporalStreamTracerNamespace::ParticleInformation &info);

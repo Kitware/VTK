@@ -39,7 +39,7 @@ class VTKIOXDMF2_EXPORT vtkSILBuilder : public vtkObject
 public:
   static vtkSILBuilder* New();
   vtkTypeMacro(vtkSILBuilder, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**

@@ -42,7 +42,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPPCAStatistics : public vtkPCAStati
 {
 public:
   vtkTypeMacro(vtkPPCAStatistics, vtkPCAStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkPPCAStatistics* New();
 
   //@{
@@ -64,7 +64,7 @@ protected:
   // Execute the parallel calculations required by the Learn option.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta );
+                      vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Test option.
@@ -72,9 +72,9 @@ protected:
    */
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* );
+                     vtkTable* ) VTK_OVERRIDE;
 
-  virtual vtkOrderStatistics* CreateOrderStatisticsInstance();
+  virtual vtkOrderStatistics* CreateOrderStatisticsInstance() VTK_OVERRIDE;
 
 private:
   vtkPPCAStatistics(const vtkPPCAStatistics&) VTK_DELETE_FUNCTION;

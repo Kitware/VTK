@@ -117,7 +117,7 @@ protected:
   }
   ~vtkPExodusIIReaderUpdateProgress(){}
 
-  void Execute(vtkObject*, unsigned long event, void* callData)
+  void Execute(vtkObject*, unsigned long event, void* callData) VTK_OVERRIDE
   {
     if(event == vtkCommand::ProgressEvent)
     {

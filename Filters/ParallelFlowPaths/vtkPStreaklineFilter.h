@@ -35,7 +35,7 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter: public vtkPParti
 {
  public:
   vtkTypeMacro(vtkPStreaklineFilter,vtkPParticleTracerBase)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPStreaklineFilter *New();
 
@@ -44,8 +44,8 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter: public vtkPParti
   ~vtkPStreaklineFilter(){}
   vtkPStreaklineFilter(const vtkPStreaklineFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPStreaklineFilter&) VTK_DELETE_FUNCTION;
-  virtual int OutputParticles(vtkPolyData* poly);
-  virtual void Finalize();
+  virtual int OutputParticles(vtkPolyData* poly) VTK_OVERRIDE;
+  virtual void Finalize() VTK_OVERRIDE;
 
   StreaklineFilterInternal It;
 };

@@ -31,14 +31,14 @@ class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers :
 public:
   static vtkClientServerSynchronizedRenderers* New();
   vtkTypeMacro(vtkClientServerSynchronizedRenderers, vtkSynchronizedRenderers);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkClientServerSynchronizedRenderers();
   ~vtkClientServerSynchronizedRenderers();
 
-  virtual void MasterEndRender();
-  virtual void SlaveEndRender();
+  virtual void MasterEndRender() VTK_OVERRIDE;
+  virtual void SlaveEndRender() VTK_OVERRIDE;
 
 private:
   vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;

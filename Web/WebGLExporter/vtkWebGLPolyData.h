@@ -36,12 +36,12 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLPolyData : public vtkWebGLObject
 public:
   static vtkWebGLPolyData* New();
   vtkTypeMacro(vtkWebGLPolyData, vtkWebGLObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
-  void GenerateBinaryData();
-  unsigned char* GetBinaryData(int part);
-  int GetBinarySize(int part);
-  int GetNumberOfParts();
+  void GenerateBinaryData() VTK_OVERRIDE;
+  unsigned char* GetBinaryData(int part) VTK_OVERRIDE;
+  int GetBinarySize(int part) VTK_OVERRIDE;
+  int GetNumberOfParts() VTK_OVERRIDE;
 
   void GetPoints(vtkTriangleFilter* polydata, vtkActor* actor, int maxSize);
 

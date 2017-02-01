@@ -38,7 +38,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPDataSetGhostGenerator :
 {
 public:
    vtkTypeMacro(vtkPDataSetGhostGenerator,vtkDataSetGhostGenerator);
-   void PrintSelf(ostream& os, vtkIndent indent);
+   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
    //@{
    /**
@@ -67,7 +67,7 @@ protected:
    * Creates ghost layers. Implemented by concrete implementations.
    */
   virtual void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out)=0;
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) VTK_OVERRIDE = 0;
 
   int Rank;
   bool Initialized;

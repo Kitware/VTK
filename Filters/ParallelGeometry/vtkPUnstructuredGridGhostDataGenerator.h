@@ -58,18 +58,18 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUnstructuredGridGhostDataGenerator:
 public:
   static vtkPUnstructuredGridGhostDataGenerator* New();
   vtkTypeMacro(vtkPUnstructuredGridGhostDataGenerator,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPUnstructuredGridGhostDataGenerator();
   virtual ~vtkPUnstructuredGridGhostDataGenerator();
 
   // Standard VTK pipeline routines
-  virtual int FillInputPortInformation(int port,vtkInformation *info);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  virtual int FillInputPortInformation(int port,vtkInformation *info) VTK_OVERRIDE;
+  virtual int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
   virtual int RequestData(
       vtkInformation *rqst, vtkInformationVector **inputVector,
-      vtkInformationVector* outputVector );
+      vtkInformationVector* outputVector ) VTK_OVERRIDE;
 
   vtkPUnstructuredGridConnectivity* GhostZoneBuilder;
   vtkMultiProcessController* Controller;

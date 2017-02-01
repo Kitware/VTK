@@ -37,7 +37,7 @@ public:
   static StringToPathContextTest *New();
   vtkTypeMacro(StringToPathContextTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  virtual bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 
   void SetPath(vtkPath *path) { this->Path = path; }
 

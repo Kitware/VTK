@@ -37,7 +37,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRenderManager : public vtkParallel
 public:
   vtkTypeMacro(vtkCompositeRenderManager, vtkParallelRenderManager);
   static vtkCompositeRenderManager *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -60,8 +60,8 @@ protected:
 
   vtkCompositer *Compositer;
 
-  virtual void PreRenderProcessing();
-  virtual void PostRenderProcessing();
+  virtual void PreRenderProcessing() VTK_OVERRIDE;
+  virtual void PostRenderProcessing() VTK_OVERRIDE;
 
   vtkFloatArray *DepthData;
   vtkUnsignedCharArray *TmpPixelData;

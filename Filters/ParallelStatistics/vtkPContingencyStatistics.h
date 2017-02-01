@@ -53,7 +53,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPContingencyStatistics : public vtk
 public:
   static vtkPContingencyStatistics* New();
   vtkTypeMacro(vtkPContingencyStatistics, vtkContingencyStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -69,7 +69,7 @@ public:
    */
   virtual void Learn( vtkTable*,
                       vtkTable*,
-                      vtkMultiBlockDataSet* );
+                      vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
 protected:
   vtkPContingencyStatistics();

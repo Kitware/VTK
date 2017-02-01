@@ -54,7 +54,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
  public:
   static vtkPOrderStatistics* New();
   vtkTypeMacro(vtkPOrderStatistics, vtkOrderStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -70,7 +70,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
    */
   virtual void Learn( vtkTable*,
                       vtkTable*,
-                      vtkMultiBlockDataSet* );
+                      vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
  protected:
   vtkPOrderStatistics();

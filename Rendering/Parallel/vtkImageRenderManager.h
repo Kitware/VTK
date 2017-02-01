@@ -38,14 +38,14 @@ class VTKRENDERINGPARALLEL_EXPORT vtkImageRenderManager : public vtkParallelRend
 public:
   vtkTypeMacro(vtkImageRenderManager, vtkParallelRenderManager);
   static vtkImageRenderManager *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkImageRenderManager();
   ~vtkImageRenderManager();
 
-  virtual void PreRenderProcessing();
-  virtual void PostRenderProcessing();
+  virtual void PreRenderProcessing() VTK_OVERRIDE;
+  virtual void PostRenderProcessing() VTK_OVERRIDE;
 
 private:
   vtkImageRenderManager(const vtkImageRenderManager &) VTK_DELETE_FUNCTION;

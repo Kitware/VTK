@@ -52,7 +52,7 @@ class VTKIOMPIIMAGE_EXPORT vtkPNrrdReader : public vtkNrrdReader
 public:
   vtkTypeMacro(vtkPNrrdReader, vtkNrrdReader);
   static vtkPNrrdReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -67,8 +67,8 @@ protected:
   vtkPNrrdReader();
   ~vtkPNrrdReader();
 
-  virtual int ReadHeader();
-  virtual int ReadHeader(vtkCharArray *headerBuffer);
+  virtual int ReadHeader() VTK_OVERRIDE;
+  virtual int ReadHeader(vtkCharArray *headerBuffer) VTK_OVERRIDE;
 
   /**
    * Returns the size, in bytes of the scalar data type (GetDataScalarType).
@@ -120,7 +120,7 @@ protected:
   //@}
 
   virtual void ExecuteDataWithInformation(vtkDataObject *data,
-                                          vtkInformation *outInfo);
+                                          vtkInformation *outInfo) VTK_OVERRIDE;
 
   vtkMultiProcessController *Controller;
 

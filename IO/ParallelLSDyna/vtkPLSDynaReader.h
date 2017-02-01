@@ -131,13 +131,13 @@ class VTKIOPARALLELLSDYNA_EXPORT vtkPLSDynaReader : public vtkLSDynaReader
 {
 public:
   vtkTypeMacro(vtkPLSDynaReader,vtkLSDynaReader);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
   static vtkPLSDynaReader *New();
 
   /**
    * Determine if the file can be readed with this reader.
    */
-  virtual int CanReadFile( const char* fname );
+  virtual int CanReadFile( const char* fname ) VTK_OVERRIDE;
 
   //@{
   /**
@@ -151,10 +151,10 @@ protected:
   vtkPLSDynaReader();
   virtual ~vtkPLSDynaReader();
 
-  virtual int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  virtual int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
 
-  virtual int ReadTopology();
+  virtual int ReadTopology() VTK_OVERRIDE;
 
 private:
 

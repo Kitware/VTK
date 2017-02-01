@@ -43,7 +43,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPKMeansStatistics : public vtkKMean
 public:
   static vtkPKMeansStatistics* New();
   vtkTypeMacro(vtkPKMeansStatistics, vtkKMeansStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -64,12 +64,12 @@ public:
                                      vtkDoubleArray* error,
                                      vtkIdTypeArray* startRunID,
                                      vtkIdTypeArray* endRunID,
-                                     vtkIntArray *computeRun );
+                                     vtkIntArray *computeRun ) VTK_OVERRIDE;
 
   /**
    * Subroutine to get the total number of data objects.
    */
-  virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations );
+  virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations ) VTK_OVERRIDE;
 
   /**
    * Subroutine to initialize cluster centerss if not provided by the user.
@@ -78,7 +78,7 @@ public:
                                            vtkIdTypeArray* numberOfClusters,
                                            vtkTable* inData,
                                            vtkTable* curClusterElements,
-                                           vtkTable* newClusterElements);
+                                           vtkTable* newClusterElements) VTK_OVERRIDE;
 
 
 protected:

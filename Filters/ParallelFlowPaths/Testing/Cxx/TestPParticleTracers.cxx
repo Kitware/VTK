@@ -139,7 +139,7 @@ protected:
 
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector)
+                     vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     // generate the data
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -155,7 +155,7 @@ protected:
     return this->Superclass::ProcessRequest(request, inputVector, outputVector);
   }
 
-  int FillOutputPortInformation(int, vtkInformation *info)
+  int FillOutputPortInformation(int, vtkInformation *info) VTK_OVERRIDE
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return 1;

@@ -66,10 +66,10 @@ class VTKRENDERINGPARALLEL_EXPORT vtkTreeCompositer : public vtkCompositer
 public:
   static vtkTreeCompositer *New();
   vtkTypeMacro(vtkTreeCompositer,vtkCompositer);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
-                               vtkDataArray *pTmp, vtkFloatArray *zTmp);
+                               vtkDataArray *pTmp, vtkFloatArray *zTmp) VTK_OVERRIDE;
 
 protected:
   vtkTreeCompositer();

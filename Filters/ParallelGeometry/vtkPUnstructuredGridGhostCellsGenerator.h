@@ -86,7 +86,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUnstructuredGridGhostCellsGenerator:
   vtkTypeMacro(vtkPUnstructuredGridGhostCellsGenerator, vtkUnstructuredGridAlgorithm);
 
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPUnstructuredGridGhostCellsGenerator *New();
 
@@ -169,7 +169,7 @@ protected:
   ~vtkPUnstructuredGridGhostCellsGenerator();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
 
   void GetFirstGhostLayer(int, vtkUnstructuredGrid *);
 

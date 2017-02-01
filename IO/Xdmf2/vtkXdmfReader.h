@@ -47,7 +47,7 @@ class VTKIOXDMF2_EXPORT vtkXdmfReader : public vtkDataReader
 public:
   static vtkXdmfReader* New();
   vtkTypeMacro(vtkXdmfReader, vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Until needed, multiple domains are not supported.
   //// Description:
@@ -189,13 +189,13 @@ protected:
 
   virtual int ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector);
+    vtkInformationVector *outputVector) VTK_OVERRIDE;
   virtual int RequestDataObject(vtkInformationVector *outputVector);
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) VTK_OVERRIDE;
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *);
-  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+    vtkInformationVector *) VTK_OVERRIDE;
+  virtual int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkXdmfArraySelection* GetPointArraySelection();
   vtkXdmfArraySelection* GetCellArraySelection();

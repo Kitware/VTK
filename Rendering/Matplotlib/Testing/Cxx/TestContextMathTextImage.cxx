@@ -33,7 +33,7 @@ public:
   static ContextMathTextImageTest *New();
   vtkTypeMacro(ContextMathTextImageTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  virtual bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 };
 
 //----------------------------------------------------------------------------
