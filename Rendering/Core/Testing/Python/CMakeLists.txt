@@ -26,6 +26,7 @@ vtk_add_test_python(
   cameraWarpedCone.py
   cowHair.py
   cowHair2.py
+  distanceToCamera.py
   pickCells.py
   pickCompositeData.py,NO_RT
   pickImageData.py,NO_RT

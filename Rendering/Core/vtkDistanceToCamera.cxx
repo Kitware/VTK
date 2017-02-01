@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkPolyData.h"
+#include "vtkPointSet.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
@@ -38,7 +38,9 @@ vtkDistanceToCamera::vtkDistanceToCamera()
   this->Renderer = 0;
   this->ScreenSize = 5.0;
   this->Scaling = false;
-  this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "scale");
+  this->SetInputArrayToProcess(0, 0, 0,
+                               vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               "scale");
   this->LastRendererSize[0] = 0;
   this->LastRendererSize[1] = 0;
   this->LastCameraPosition[0] = 0.0;
@@ -51,10 +53,13 @@ vtkDistanceToCamera::vtkDistanceToCamera()
   this->LastCameraViewUp[1] = 0.0;
   this->LastCameraViewUp[2] = 0.0;
   this->LastCameraParallelScale = 0.0;
+  this->DistanceArrayName = 0;
+  this->SetDistanceArrayName("DistanceToCamera");
 }
 
 vtkDistanceToCamera::~vtkDistanceToCamera()
 {
+  delete [] this->DistanceArrayName;
 }
 
 void vtkDistanceToCamera::SetRenderer(vtkRenderer* ren)
@@ -133,9 +138,9 @@ int vtkDistanceToCamera::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->GetNumberOfPoints() == 0)
@@ -148,6 +153,13 @@ int vtkDistanceToCamera::RequestData(
     vtkErrorMacro("Renderer must be non-NULL");
     return 0;
   }
+
+  if (!this->DistanceArrayName || strlen(this->DistanceArrayName) == 0)
+  {
+    vtkErrorMacro("The name of the distance array must be specified" );
+    return 0;
+  }
+
   vtkCamera* camera = this->Renderer->GetActiveCamera();
   double* pos = camera->GetPosition();
 
@@ -160,13 +172,18 @@ int vtkDistanceToCamera::RequestData(
       vtkErrorMacro("Scaling array not found.");
       return 0;
     }
+    if ( scaleArr->GetNumberOfComponents() > 1 )
+    {
+      vtkErrorMacro("Scaling array has more than one component.");
+      return 0;
+    }
   }
 
   output->ShallowCopy(input);
   vtkIdType numPoints = input->GetNumberOfPoints();
   vtkSmartPointer<vtkDoubleArray> distArr =
     vtkSmartPointer<vtkDoubleArray>::New();
-  distArr->SetName("DistanceToCamera");
+  distArr->SetName(this->DistanceArrayName);
   distArr->SetNumberOfTuples(numPoints);
   output->GetPointData()->AddArray(distArr);
   if (camera->GetParallelProjection())
@@ -177,14 +194,21 @@ int vtkDistanceToCamera::RequestData(
       size = 2.0*(camera->GetParallelScale() /
         this->Renderer->GetSize()[1]) * this->ScreenSize;
     }
-    for (vtkIdType i = 0; i < numPoints; ++i)
+    if ( scaleArr)
     {
-      double scale = 1.0;
-      if (scaleArr)
+      double tuple[1];
+      for (vtkIdType i = 0; i < numPoints; ++i)
       {
-        scale = scaleArr->GetTuple1(i);
+        scaleArr->GetTuple(i, tuple );
+        distArr->SetValue(i, size*tuple[0]);
       }
-      distArr->SetValue(i, size*scale);
+    }
+    else
+    {
+      for (vtkIdType i = 0; i < numPoints; ++i)
+      {
+        distArr->SetValue(i, size);
+      }
     }
   }
   else
@@ -196,17 +220,27 @@ int vtkDistanceToCamera::RequestData(
         * tan(vtkMath::RadiansFromDegrees(camera->GetViewAngle()/2.0))
         / this->Renderer->GetSize()[1];
     }
-    for (vtkIdType i = 0; i < numPoints; ++i)
+    if ( scaleArr )
     {
-      double dist = sqrt(
-        vtkMath::Distance2BetweenPoints(input->GetPoint(i), pos));
-      double size = factor*dist;
-      double scale = 1.0;
-      if (scaleArr)
+      double tuple[1];
+      for (vtkIdType i = 0; i < numPoints; ++i)
       {
-        scale = scaleArr->GetTuple1(i);
+        double dist = sqrt(
+          vtkMath::Distance2BetweenPoints(input->GetPoint(i), pos));
+        double size = factor*dist;
+        scaleArr->GetTuple(i,tuple);
+        distArr->SetValue(i, size*tuple[0] );
       }
-      distArr->SetValue(i, size*scale);
+    }
+    else
+    {
+      for (vtkIdType i = 0; i < numPoints; ++i)
+      {
+        double dist = sqrt(
+          vtkMath::Distance2BetweenPoints(input->GetPoint(i), pos));
+        double size = factor*dist;
+        distArr->SetValue(i, size);
+      }
     }
   }
 

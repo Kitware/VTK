@@ -33,15 +33,15 @@
 #define vtkDistanceToCamera_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkPointSetAlgorithm.h"
 
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkDistanceToCamera : public vtkPolyDataAlgorithm
+class VTKRENDERINGCORE_EXPORT vtkDistanceToCamera : public vtkPointSetAlgorithm
 {
 public:
   static vtkDistanceToCamera *New();
-  vtkTypeMacro(vtkDistanceToCamera,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkDistanceToCamera,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
@@ -70,6 +70,15 @@ public:
   vtkBooleanMacro(Scaling, bool);
   //@}
 
+  //@{
+  /**
+   * The name of the distance array. If not set, the array is
+   * named 'DistanceToCamera'.
+   */
+  vtkSetStringMacro(DistanceArrayName);
+  vtkGetStringMacro(DistanceArrayName);
+  //@}
+
   /**
    * The modified time of this filter.
    */
@@ -92,6 +101,7 @@ protected:
   double LastCameraFocalPoint[3];
   double LastCameraViewUp[3];
   double LastCameraParallelScale;
+  char*  DistanceArrayName;
 
 private:
   vtkDistanceToCamera(const vtkDistanceToCamera&) VTK_DELETE_FUNCTION;
