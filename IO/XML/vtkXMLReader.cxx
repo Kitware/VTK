@@ -885,15 +885,10 @@ int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
 //----------------------------------------------------------------------------
 int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
-  // We don't need any information from the primary element here.
-  //
-  //
-  // Let check the "TimeValues" here
-  const int tsMax = 4096;
-  double timevalues[tsMax];
   int numTimeSteps =
-    ePrimary->GetVectorAttribute("TimeValues", tsMax, timevalues);
-  assert( numTimeSteps <= tsMax);
+    ePrimary->GetVectorAttribute("TimeValues",
+                                 VTK_INT_MAX,
+                                 static_cast<double*>(NULL));
   this->SetNumberOfTimeSteps( numTimeSteps );
 
   // See if there is a FieldData element
