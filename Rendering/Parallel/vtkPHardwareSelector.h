@@ -38,7 +38,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkPHardwareSelector : public vtkOpenGLHardwar
 public:
   static vtkPHardwareSelector* New();
   vtkTypeMacro(vtkPHardwareSelector, vtkOpenGLHardwareSelector);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -57,7 +57,7 @@ public:
    * vtkHardwareSelector as the capturing of buffers progresses is done as a
    * slave to the master render.
    */
-  virtual bool CaptureBuffers();
+  virtual bool CaptureBuffers() VTK_OVERRIDE;
 
 protected:
   vtkPHardwareSelector();

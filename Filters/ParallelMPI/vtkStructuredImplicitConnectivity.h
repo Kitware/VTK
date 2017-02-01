@@ -69,7 +69,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkStructuredImplicitConnectivity :
 {
 public:
   static vtkStructuredImplicitConnectivity* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkStructuredImplicitConnectivity,vtkObject);
 
   /**

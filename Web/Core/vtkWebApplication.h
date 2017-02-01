@@ -37,7 +37,7 @@ class VTKWEBCORE_EXPORT vtkWebApplication : public vtkObject
 public:
   static vtkWebApplication* New();
   vtkTypeMacro(vtkWebApplication, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**

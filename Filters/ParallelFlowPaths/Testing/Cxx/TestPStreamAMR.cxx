@@ -68,7 +68,7 @@ public:
 
   static TestAMRVectorSource *New();
 
-  virtual int FillInputPortInformation(int, vtkInformation* info)
+  virtual int FillInputPortInformation(int, vtkInformation* info) VTK_OVERRIDE
   {
     // now add our info
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkOverlappingAMR");
@@ -91,7 +91,7 @@ protected:
   // This is the method you should override.
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector)
+                          vtkInformationVector *outputVector) VTK_OVERRIDE
   {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     vtkInformation* outInfo = outputVector->GetInformationObject(0);

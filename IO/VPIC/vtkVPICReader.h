@@ -48,7 +48,7 @@ class VTKIOVPIC_EXPORT vtkVPICReader : public vtkImageAlgorithm
 public:
   static vtkVPICReader *New();
   vtkTypeMacro(vtkVPICReader,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -159,9 +159,9 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) VTK_OVERRIDE;
   int RequestInformation(vtkInformation *, vtkInformationVector **inVector,
-                         vtkInformationVector *);
+                         vtkInformationVector *) VTK_OVERRIDE;
 
   void LoadVariableData(int var, int timeStep);
   void LoadComponent(

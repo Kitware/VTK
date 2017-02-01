@@ -64,7 +64,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUniformGridGhostDataGenerator:
 public:
   static vtkPUniformGridGhostDataGenerator* New();
   vtkTypeMacro(vtkPUniformGridGhostDataGenerator,vtkPDataSetGhostGenerator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPUniformGridGhostDataGenerator();
@@ -95,7 +95,7 @@ protected:
    * Generates ghost-layers
    */
   virtual void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out);
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) VTK_OVERRIDE;
 
   double GlobalSpacing[3];
   double GlobalOrigin[3];

@@ -86,7 +86,7 @@ public:
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act);
+  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   void SetLICInterface(vtkSurfaceLICInterface *i) {
     this->LICInterface = i; }
@@ -102,20 +102,20 @@ protected:
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
     unsigned int &flat_index,
     std::vector<unsigned char> &colors,
-    std::vector<float> &norms);
+    std::vector<float> &norms) VTK_OVERRIDE;
 
 protected:
   /**
    * Set the shader parameteres related to the mapper/input data, called by UpdateShader
    */
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Perform string replacments on the shader templates
    */
   virtual void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
+    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   vtkSurfaceLICInterface *LICInterface;
 

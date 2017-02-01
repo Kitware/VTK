@@ -44,7 +44,7 @@ class VTKIOPARALLELNETCDF_EXPORT vtkPNetCDFPOPReader : public vtkRectilinearGrid
 public:
   vtkTypeMacro(vtkPNetCDFPOPReader,vtkRectilinearGridAlgorithm);
   static vtkPNetCDFPOPReader *New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -88,10 +88,10 @@ protected:
   ~vtkPNetCDFPOPReader();
 
   int RequestData(vtkInformation*,vtkInformationVector**,
-                  vtkInformationVector*);
+                  vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   // Helper function for RequestData:  Reads part of the netCDF
   // file and sends sub-arrays to all ranks that need that data

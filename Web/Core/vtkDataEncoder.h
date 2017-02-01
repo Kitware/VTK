@@ -45,7 +45,7 @@ class VTKWEBCORE_EXPORT vtkDataEncoder : public vtkObject
 public:
   static vtkDataEncoder* New();
   vtkTypeMacro(vtkDataEncoder, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Re-initializes the encoder. This will abort any on going encoding threads

@@ -43,7 +43,7 @@ public:
    * update timing information is stored, it can be written to
    * disk by calling WriteLog.
    */
-  virtual void WriteTimerLog(const char *fileName);
+  virtual void WriteTimerLog(const char *fileName) VTK_OVERRIDE;
 
 protected:
   vtkPSurfaceLICInterface();
@@ -57,7 +57,7 @@ protected:
   virtual void GetGlobalMinMax(
         vtkPainterCommunicator *comm,
         float &min,
-        float &max);
+        float &max) VTK_OVERRIDE;
 
   /**
    * Creates a new communicator with/without the calling processes
@@ -65,13 +65,13 @@ protected:
    * is included in the new communicator. In parallel this call is mpi
    * collective on the world communicator. In serial this is a no-op.
    */
-  virtual vtkPainterCommunicator *CreateCommunicator(int include);
+  virtual vtkPainterCommunicator *CreateCommunicator(int include) VTK_OVERRIDE;
 
   /**
    * Ensure that if any rank udpates the communicator they all
    * do. This is a global collective operation.
    */
-  virtual bool NeedToUpdateCommunicator();
+  virtual bool NeedToUpdateCommunicator() VTK_OVERRIDE;
 
   //@{
   /**

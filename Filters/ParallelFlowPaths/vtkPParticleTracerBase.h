@@ -38,7 +38,7 @@ class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracerBase : public vtkPart
 {
 public:
   vtkTypeMacro(vtkPParticleTracerBase,vtkParticleTracerBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -64,14 +64,14 @@ protected:
 
   virtual int RequestUpdateExtent(vtkInformation* request,
                                   vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
+                                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 //
 
-  virtual vtkPolyData* Execute(vtkInformationVector** inputVector);
+  virtual vtkPolyData* Execute(vtkInformationVector** inputVector) VTK_OVERRIDE;
   virtual bool SendParticleToAnotherProcess(vtkParticleTracerBaseNamespace::ParticleInformation & info,
                                             vtkParticleTracerBaseNamespace::ParticleInformation & previous,
-                                            vtkPointData*);
+                                            vtkPointData*) VTK_OVERRIDE;
 
   /**
    * Before starting the particle trace, classify
@@ -83,14 +83,14 @@ protected:
   virtual void AssignSeedsToProcessors(double time,
                                        vtkDataSet *source, int sourceID, int ptId,
                                        vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints,
-                                       int &localAssignedCount);
+                                       int &localAssignedCount) VTK_OVERRIDE;
 
   /**
    * give each one a uniqu ID. We need to use MPI to find out
    * who is using which numbers.
    */
   virtual void AssignUniqueIds(
-    vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints);
+    vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints) VTK_OVERRIDE;
 
   /**
    * this is used during classification of seed points and also between iterations
@@ -99,14 +99,14 @@ protected:
    */
   virtual bool SendReceiveParticles(RemoteParticleVector &outofdomain, RemoteParticleVector &received);
 
-  virtual bool UpdateParticleListFromOtherProcesses();
+  virtual bool UpdateParticleListFromOtherProcesses() VTK_OVERRIDE;
 
   /**
    * Method that checks that the input arrays are ordered the
    * same on all data sets. This needs to be true for all
    * blocks in a composite data set as well as across all processes.
    */
-  virtual bool IsPointDataValid(vtkDataObject* input);
+  virtual bool IsPointDataValid(vtkDataObject* input) VTK_OVERRIDE;
 
 
 //

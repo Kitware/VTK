@@ -35,14 +35,14 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer: public vtkPParticl
 {
  public:
   vtkTypeMacro(vtkPParticleTracer,vtkPParticleTracerBase)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPParticleTracer *New();
 
  protected:
   vtkPParticleTracer();
   ~vtkPParticleTracer(){}
-  virtual int OutputParticles(vtkPolyData* poly);
+  virtual int OutputParticles(vtkPolyData* poly) VTK_OVERRIDE;
 private:
   vtkPParticleTracer(const vtkPParticleTracer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPParticleTracer&) VTK_DELETE_FUNCTION;

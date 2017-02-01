@@ -73,7 +73,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICInterface : public vtkObject
 public:
   static vtkSurfaceLICInterface* New();
   vtkTypeMacro(vtkSurfaceLICInterface, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     //@{
     /**

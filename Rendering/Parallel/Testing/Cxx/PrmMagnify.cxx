@@ -58,10 +58,10 @@ protected:
   vtkTestMagnifyRenderManager();
   ~vtkTestMagnifyRenderManager();
 
-  virtual void PreRenderProcessing();
-  virtual void PostRenderProcessing();
+  virtual void PreRenderProcessing() VTK_OVERRIDE;
+  virtual void PostRenderProcessing() VTK_OVERRIDE;
 
-  virtual void ReadReducedImage();
+  virtual void ReadReducedImage() VTK_OVERRIDE;
 
   vtkImageMandelbrotSource *Mandelbrot;
 

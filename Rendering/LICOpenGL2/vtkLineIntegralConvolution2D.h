@@ -111,7 +111,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkLineIntegralConvolution2D : public vtkObj
 public:
   static vtkLineIntegralConvolution2D *New();
   vtkTypeMacro(vtkLineIntegralConvolution2D, vtkObject);
-  void PrintSelf(ostream & os, vtkIndent indent);
+  void PrintSelf(ostream & os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Returns if the context supports the required extensions.

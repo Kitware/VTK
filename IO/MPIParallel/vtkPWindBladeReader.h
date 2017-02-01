@@ -42,24 +42,24 @@ public:
   static vtkPWindBladeReader *New();
   vtkTypeMacro(vtkPWindBladeReader, vtkWindBladeReader);
 
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPWindBladeReader();
   ~vtkPWindBladeReader();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   virtual void CalculatePressure(int pressure, int prespre,
-                                 int tempg, int density);
-  virtual void CalculateVorticity(int vort, int uvw, int density);
-  virtual void LoadVariableData(int var);
-  virtual bool ReadGlobalData();
-  virtual bool FindVariableOffsets();
-  virtual void CreateZTopography(float* zValues);
-  virtual void SetupBladeData();
-  virtual void LoadBladeData(int timeStep);
+                                 int tempg, int density) VTK_OVERRIDE;
+  virtual void CalculateVorticity(int vort, int uvw, int density) VTK_OVERRIDE;
+  virtual void LoadVariableData(int var) VTK_OVERRIDE;
+  virtual bool ReadGlobalData() VTK_OVERRIDE;
+  virtual bool FindVariableOffsets() VTK_OVERRIDE;
+  virtual void CreateZTopography(float* zValues) VTK_OVERRIDE;
+  virtual void SetupBladeData() VTK_OVERRIDE;
+  virtual void LoadBladeData(int timeStep) VTK_OVERRIDE;
 
 private:
   PWindBladeReaderInternal * PInternal;

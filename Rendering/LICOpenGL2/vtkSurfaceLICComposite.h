@@ -41,7 +41,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICComposite : public vtkObject
 public:
   static vtkSurfaceLICComposite *New();
   vtkTypeMacro(vtkSurfaceLICComposite, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Initialize the object based on the following description of the

@@ -45,7 +45,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractRectilinearGrid :
 public:
   static vtkPExtractRectilinearGrid* New();
   vtkTypeMacro(vtkPExtractRectilinearGrid,vtkExtractRectilinearGrid);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPExtractRectilinearGrid();
@@ -53,11 +53,11 @@ protected:
 
   // Standard VTK Pipeline methods
   virtual int RequestData(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestInformation(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
   vtkMPIController* Controller;
 

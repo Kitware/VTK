@@ -57,7 +57,7 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkParallelTimer : public vtkObject
 public:
   static vtkParallelTimer *New();
   vtkTypeMacro(vtkParallelTimer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**

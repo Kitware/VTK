@@ -44,7 +44,7 @@ public:
 protected:
   vtkRTAnalyticSource2() {}
 
-  virtual void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo)
+  virtual void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) VTK_OVERRIDE
   {
     Superclass::ExecuteDataWithInformation(output, outInfo);
 

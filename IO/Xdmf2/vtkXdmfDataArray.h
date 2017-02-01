@@ -37,7 +37,7 @@ class VTKIOXDMF2_EXPORT vtkXdmfDataArray : public vtkObject
 public:
   static vtkXdmfDataArray *New();
   vtkTypeMacro(vtkXdmfDataArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkDataArray *FromArray( void );
 

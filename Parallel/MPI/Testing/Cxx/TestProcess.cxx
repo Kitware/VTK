@@ -29,7 +29,7 @@ public:
   static MyProcess *New();
   vtkTypeMacro(MyProcess, vtkProcess);
 
-  virtual void Execute();
+  virtual void Execute() VTK_OVERRIDE;
 
   void SetArgs(int anArgc,
                char *anArgv[]);

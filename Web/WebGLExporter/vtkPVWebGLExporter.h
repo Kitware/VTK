@@ -23,7 +23,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkPVWebGLExporter : public vtkExporter
 public:
   static vtkPVWebGLExporter *New();
   vtkTypeMacro(vtkPVWebGLExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Specify the name of the VRML file to write.
@@ -34,7 +34,7 @@ protected:
   vtkPVWebGLExporter();
   ~vtkPVWebGLExporter();
 
-  void WriteData();
+  void WriteData() VTK_OVERRIDE;
 
   char *FileName;
 

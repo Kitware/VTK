@@ -35,7 +35,7 @@ class VTKFILTERSPARALLELDIY2_EXPORT vtkPResampleWithDataSet : public vtkResample
 {
 public:
   vtkTypeMacro(vtkPResampleWithDataSet, vtkResampleWithDataSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPResampleWithDataSet *New();
 

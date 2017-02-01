@@ -59,7 +59,7 @@ public:
       }
       return 0;
   }
-  void StartElement(const char* name, const char**)
+  void StartElement(const char* name, const char**) VTK_OVERRIDE
   {
       this->Done = 1;
       if(strcmp(name, "Xdmf") == 0)
@@ -76,13 +76,13 @@ protected:
   }
 
 private:
-  void ReportStrayAttribute(const char*, const char*, const char*) {}
-  void ReportMissingAttribute(const char*, const char*) {}
-  void ReportBadAttribute(const char*, const char*, const char*) {}
-  void ReportUnknownElement(const char*) {}
-  void ReportXmlParseError() {}
+  void ReportStrayAttribute(const char*, const char*, const char*) VTK_OVERRIDE {}
+  void ReportMissingAttribute(const char*, const char*) VTK_OVERRIDE {}
+  void ReportBadAttribute(const char*, const char*, const char*) VTK_OVERRIDE {}
+  void ReportUnknownElement(const char*) VTK_OVERRIDE {}
+  void ReportXmlParseError() VTK_OVERRIDE {}
 
-  int ParsingComplete() { return this->Done; }
+  int ParsingComplete() VTK_OVERRIDE { return this->Done; }
   int Valid;
   int Done;
   vtkXdmfReaderTester(const vtkXdmfReaderTester&) VTK_DELETE_FUNCTION;

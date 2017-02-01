@@ -43,7 +43,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositer : public vtkObject
 public:
   static vtkCompositer *New();
   vtkTypeMacro(vtkCompositer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * This method gets called on every process.  The final image gets

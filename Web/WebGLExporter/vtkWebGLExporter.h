@@ -49,7 +49,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLExporter : public vtkObject
 public:
   static vtkWebGLExporter* New();
   vtkTypeMacro(vtkWebGLExporter, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**

@@ -29,7 +29,7 @@ class VTKWEBCORE_EXPORT vtkObjectIdMap : public vtkObject
 public:
   static vtkObjectIdMap* New();
   vtkTypeMacro(vtkObjectIdMap, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Retreive a unique identifier for the given object or generate a new one
