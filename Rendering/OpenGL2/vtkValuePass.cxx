@@ -1071,7 +1071,10 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
   {
     abstractArray = this->GetArrayFromCompositeData(mapper, arrayPar);
     this->MultiBlocksArray = abstractArray;
-    abstractArray->Delete();
+    if (abstractArray)
+    {
+      abstractArray->Delete();
+    }
   }
 
   if (!abstractArray)
@@ -1111,7 +1114,7 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(
           abstractArray = blocksArray->NewInstance();
           abstractArray->DeepCopy(blocksArray);
         }
-      else
+        else
         {
           abstractArray->InsertTuples(abstractArray->GetNumberOfTuples(),
                                       blocksArray->GetNumberOfTuples(),
