@@ -520,6 +520,12 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
     vtkProperty* property = actor->GetProperty();
     vtkMapper* mapper = actor->GetMapper();
 
+    //Render only to make sure that we can get valid arrays out of
+    //CompositePolyDataMapper2.
+    //TODO: change CompositePolyDataMapper so that we ask it what the
+    //datasets/arrays will be before we render and then get rid of this
+    //call, leaving only the subsequent render.
+    prop->RenderOpaqueGeometry(s->GetRenderer());
     vtkDataArray* dataArray = this->GetCurrentArray(mapper, this->PassState);
     if (!dataArray)
     {
@@ -1071,7 +1077,10 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
   {
     abstractArray = this->GetArrayFromCompositeData(mapper, arrayPar);
     this->MultiBlocksArray = abstractArray;
-    abstractArray->Delete();
+    if (abstractArray)
+    {
+      abstractArray->Delete();
+    }
   }
 
   if (!abstractArray)
@@ -1111,7 +1120,7 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(
           abstractArray = blocksArray->NewInstance();
           abstractArray->DeepCopy(blocksArray);
         }
-      else
+        else
         {
           abstractArray->InsertTuples(abstractArray->GetNumberOfTuples(),
                                       blocksArray->GetNumberOfTuples(),
