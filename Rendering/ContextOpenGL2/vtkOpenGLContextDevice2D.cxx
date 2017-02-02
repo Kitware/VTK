@@ -800,9 +800,17 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   {
     this->ReadyLinesBOProgram();
     cbo = this->LinesBO;
-    cbo->Program->SetUniform4uc("vertexColor",
-      this->Pen->GetColor());
+    if (cbo->Program)
+    {
+      cbo->Program->SetUniform4uc("vertexColor",
+        this->Pen->GetColor());
+    }
   }
+  if (!cbo->Program)
+  {
+    return;
+  }
+
   cbo->Program->SetUniformi("stipple",this->LinePattern);
 
   this->SetMatrices(cbo->Program);
@@ -939,9 +947,18 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   {
     this->ReadyLinesBOProgram();
     cbo = this->LinesBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
   }
+  if (!cbo->Program)
+  {
+    return;
+  }
+
   cbo->Program->SetUniformi("stipple",this->LinePattern);
 
   this->SetMatrices(cbo->Program);
@@ -1057,11 +1074,19 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
   }
   else
   {
     this->ReadyVBOProgram();
     cbo = this->VBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
   }
@@ -1103,11 +1128,19 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     {
       this->ReadySCBOProgram();
       cbo = this->SCBO;
+      if (!cbo->Program)
+      {
+        return;
+      }
     }
     else
     {
       this->ReadySBOProgram();
       cbo = this->SBO;
+      if (!cbo->Program)
+      {
+        return;
+      }
       cbo->Program->SetUniform4uc("vertexColor",
         this->Pen->GetColor());
     }
@@ -1234,6 +1267,10 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(std::vector<float> &tverts,
   {
     this->ReadyVTBOProgram();
     cbo = this->VTBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
     this->Storage->Texture->Render(this->Renderer);
@@ -1256,6 +1293,11 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(std::vector<float> &tverts,
     }
     this->ReadyVBOProgram();
     cbo = this->VBO;
+  }
+
+  if (!cbo->Program)
+  {
+    return;
   }
 
   cbo->Program->SetUniform4uc("vertexColor",
@@ -1735,6 +1777,10 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
+  if (!cbo->Program)
+  {
+    return;
+  }
   int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
   cbo->Program->SetUniformi("texture1", tunit);
 
@@ -1939,6 +1985,10 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
+  if (!cbo->Program)
+  {
+    return;
+  }
   int tunit = vtkOpenGLTexture::SafeDownCast(
     this->Storage->Texture)->GetTextureUnit();
   cbo->Program->SetUniformi("texture1", tunit);
@@ -2053,6 +2103,10 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
   vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
+  if (!cbo->Program)
+  {
+    return;
+  }
   cbo->Program->SetUniformi("texture1", tunit);
 
   this->BuildVBO(cbo, points, 6, NULL, 0, texCoord);

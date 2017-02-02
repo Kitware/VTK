@@ -658,6 +658,11 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
     renWin->GetShaderCache()->ReadyShaderProgram(this->CopyDepthProgram);
   }
 
+  if (!this->CopyDepthProgram)
+  {
+    return;
+  }
+
   if (!this->CopyDepthVAO)
   {
     this->CopyDepthVBO = vtkOpenGLBufferObject::New();
@@ -836,6 +841,11 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
   else
   {
     renWin->GetShaderCache()->ReadyShaderProgram(this->BackBlendProgram);
+  }
+
+  if (!this->BackBlendProgram)
+  {
+    return;
   }
 
   if (!this->BackBlendVAO)
@@ -1040,6 +1050,11 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
   else
   {
     renWin->GetShaderCache()->ReadyShaderProgram(this->BlendProgram);
+  }
+
+  if (!this->BlendProgram)
+  {
+    return;
   }
 
   if (!this->BlendVAO)

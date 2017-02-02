@@ -3051,6 +3051,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
                                                   int noOfComponents,
                                                   int independentComponents)
 {
+  // if the shader didn't compile return
+  if (!prog)
+  {
+    return;
+  }
+
   // Cell spacing is required to be computed globally (full volume extents)
   // given that gradients are computed globally (not per block).
   float fvalue3[3]; /* temporary value container */

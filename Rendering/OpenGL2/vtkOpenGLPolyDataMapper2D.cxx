@@ -339,9 +339,12 @@ void vtkOpenGLPolyDataMapper2D::UpdateShaders(vtkOpenGLHelper &cellBO,
     renWin->GetShaderCache()->ReadyShaderProgram(cellBO.Program);
   }
 
-  this->SetMapperShaderParameters(cellBO, viewport, actor);
-  this->SetPropertyShaderParameters(cellBO, viewport, actor);
-  this->SetCameraShaderParameters(cellBO, viewport, actor);
+  if (cellBO.Program)
+  {
+    this->SetMapperShaderParameters(cellBO, viewport, actor);
+    this->SetPropertyShaderParameters(cellBO, viewport, actor);
+    this->SetCameraShaderParameters(cellBO, viewport, actor);
+  }
 }
 
 

@@ -2069,13 +2069,16 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
         this->ShaderProgram->Program);
     }
 
-    // bind and activate this texture
-    this->Activate();
-    int sourceId = this->GetTextureUnit();
-    this->ShaderProgram->Program->SetUniformi("source",sourceId);
-    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
-      this->ShaderProgram->VAO);
-    this->Deactivate();
+    if (this->ShaderProgram->Program)
+    {
+      // bind and activate this texture
+      this->Activate();
+      int sourceId = this->GetTextureUnit();
+      this->ShaderProgram->Program->SetUniformi("source",sourceId);
+      vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
+        this->ShaderProgram->VAO);
+      this->Deactivate();
+    }
   }
   else
   {

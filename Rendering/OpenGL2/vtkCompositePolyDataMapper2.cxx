@@ -308,6 +308,10 @@ void vtkCompositeMapperHelper2::DrawIBO(
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(CellBO, ren, actor);
     vtkShaderProgram *prog = CellBO.Program;
+    if (!prog)
+    {
+      return;
+    }
     this->PrimIDUsed = prog->IsUniformUsed("PrimitiveIDOffset");
     this->OverideColorUsed = prog->IsUniformUsed("OverridesColor");
     CellBO.IBO->Bind();
