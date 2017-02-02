@@ -29,6 +29,8 @@
 class vtkRenderer;
 class vtkInformationIntegerKey;
 class vtkInformationStringKey;
+class vtkMatrix4x4;
+
 // ospray forward decs so that someone does not need to include ospray.h
 namespace osp {
 struct Model;
@@ -181,6 +183,9 @@ protected:
   bool Accumulate;
   bool CompositeOnGL;
   float* ODepthBuffer;
+  int AccumulateCount;
+  vtkMTimeType AccumulateTime;
+  vtkMatrix4x4 *AccumulateMatrix;
 
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;

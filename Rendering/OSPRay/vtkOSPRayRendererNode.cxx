@@ -25,6 +25,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
@@ -32,6 +33,7 @@
 #include "vtkOSPRayVolumeNode.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTransform.h"
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
@@ -185,8 +187,11 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->ComputeDepth = true;
   this->OFrameBuffer = nullptr;
   this->ImageX = this->ImageY = -1;
-  this->Accumulate = false;
   this->CompositeOnGL = false;
+  this->Accumulate = true;
+  this->AccumulateCount = 0;
+  this->AccumulateTime = 0;
+  this->AccumulateMatrix = vtkMatrix4x4::New();
 }
 
 //----------------------------------------------------------------------------
@@ -206,6 +211,7 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
   {
     ospRelease(this->OFrameBuffer);
   }
+  this->AccumulateMatrix->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -569,9 +575,78 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     }
     else if (this->Accumulate)
     {
+      //check if something has changed
+      //if so we clear and start over, otherwise we continue to accumulate
+      bool canReuse = true;
+
+      //TODO: these all need some work as checks are not necessarily fast
+      //nor sufficient for all cases that matter
+
+      //check actors (and time)
+      vtkMTimeType m = 0;
+      vtkActorCollection *ac = ren->GetActors();
+      int nitems = ac->GetNumberOfItems();
+      if (nitems != this->AccumulateCount)
+      {
+        //TODO: need a hash or something to really check for added/deleted
+        this->AccumulateCount = nitems;
+        canReuse = false;
+      }
+      if (canReuse)
+      {
+        ac->InitTraversal();
+        vtkActor *nac = ac->GetNextActor();
+        while (nac)
+        {
+          if (nac->GetRedrawMTime() > m)
+          {
+            m = nac->GetRedrawMTime();
+          }
+          nac = ac->GetNextActor();
+        }
+        if (this->AccumulateTime < m)
+        {
+          this->AccumulateTime = m;
+          canReuse = false;
+        }
+      }
+
+      if (canReuse)
+      {
+        //check camera
+        //Why not cam->mtime?
+        // cam->mtime is bumped by synch after this in parallel so never reuses
+        //Why not cam->MVTO->mtime?
+        //  cam set's elements directly, so the mtime doesn't bump with motion
+        vtkMatrix4x4 *camnow =
+          ren->GetActiveCamera()->GetModelViewTransformObject()->GetMatrix();
+        for (int i = 0; i < 4; i++)
+        {
+          for (int j = 0; j < 4; j++)
+          {
+            if (this->AccumulateMatrix->GetElement(i,j) !=
+                camnow->GetElement(i,j))
+            {
+              this->AccumulateMatrix->DeepCopy(camnow);
+              canReuse = false;
+              i=4; j=4;
+            }
+          }
+        }
+      }
+      if (!canReuse)
+      {
+        ospFrameBufferClear
+          (this->OFrameBuffer,
+           OSP_FB_COLOR |
+           (this->ComputeDepth ? OSP_FB_DEPTH : 0) | OSP_FB_ACCUM);
+      }
+    }
+    else if (!this->Accumulate)
+    {
       ospFrameBufferClear
         (this->OFrameBuffer,
-         OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+         OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0));
     }
 
     vtkCamera *cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
@@ -580,12 +655,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     if (this->CompositeOnGL)
     {
       OSPTexture2D glDepthTex=NULL;
-      /*
-      if (glDepthTex)
-        {
-        ospRelease(glDepthTex);
-        }
-      */
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       int viewportX, viewportY;
