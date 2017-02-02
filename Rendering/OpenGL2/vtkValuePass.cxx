@@ -520,12 +520,6 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
     vtkProperty* property = actor->GetProperty();
     vtkMapper* mapper = actor->GetMapper();
 
-    //Render only to make sure that we can get valid arrays out of
-    //CompositePolyDataMapper2.
-    //TODO: change CompositePolyDataMapper so that we ask it what the
-    //datasets/arrays will be before we render and then get rid of this
-    //call, leaving only the subsequent render.
-    prop->RenderOpaqueGeometry(s->GetRenderer());
     vtkDataArray* dataArray = this->GetCurrentArray(mapper, this->PassState);
     if (!dataArray)
     {
