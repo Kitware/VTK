@@ -49,17 +49,33 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
     return 1;
   }
 
+  // Test that the right number of time steps can be read from a .vtu file.
+  std::string filename;
+  filename = data_root;
+  filename += "/Data/many_time_steps.vtu";
+  cout << "Loading " << filename.c_str() << endl;
+  vtkNew<vtkXMLUnstructuredGridReader> reader1;
+  reader1->SetFileName(filename.c_str());
+  reader1->Update();
+
+  int tsResult = 0;
+  if (reader1->GetNumberOfTimeSteps() != 4100)
+  {
+    std::cerr << "Expected to read 4100 timesteps, got "
+      << reader1->GetNumberOfTimeSteps() << " instead." << std::endl;
+    tsResult = 1;
+  }
+
   // Create the reader for the data (.vtu) with multiple pieces,
   // and each piece contains a pyramid cell and a polyhedron cell.
-  std::string filename;
   filename = data_root;
   filename += "/Data/polyhedron2pieces.vtu";
   cout << "Loading " << filename.c_str() << endl;
-  vtkNew<vtkXMLUnstructuredGridReader> reader;
-  reader->SetFileName(filename.c_str());
+  vtkNew<vtkXMLUnstructuredGridReader> reader2;
+  reader2->SetFileName(filename.c_str());
 
   vtkNew<vtkDataSetSurfaceFilter> surfaces;
-  surfaces->SetInputConnection(reader->GetOutputPort());
+  surfaces->SetInputConnection(reader2->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(surfaces->GetOutputPort());
@@ -89,12 +105,11 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
   // interact with data
   renwin->Render();
 
-  int retVal = vtkRegressionTestImage( renwin.GetPointer() );
-
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int rtResult = vtkRegressionTestImage( renwin.GetPointer() );
+  if ( rtResult == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
 
-  return !retVal;
+  return tsResult + !rtResult;
 }

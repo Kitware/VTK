@@ -744,14 +744,16 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name,
 template <class T>
 int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
-  if(!str || !length || !data) { return 0; }
+  if(!str || !length) { return 0; }
   std::stringstream vstr;
   vstr.imbue(std::locale::classic());
   vstr << str;
   int i;
   for(i=0;i < length;++i)
   {
-    vstr >> data[i];
+    T value;
+    vstr >> value;
+    if (data) { data[i] = value;}
     if(!vstr) { return i; }
   }
   return length;
