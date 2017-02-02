@@ -714,6 +714,13 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     //
     this->EDLInitializeShaders(renWin);
 
+    if (this->EDLShadeProgram.Program == 0 ||
+        this->EDLComposeProgram.Program == 0 ||
+        this->BilateralProgram.Program == 0)
+    {
+      return;
+    }
+
     //////////////////////////////////////////////////////
     //
     // 4. DELEGATE RENDER IN PROJECTION FBO

@@ -429,6 +429,11 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     // handle the middle
     vtkShaderProgram *program = this->Primitives[PrimitiveTris].Program;
 
+    if (!program)
+    {
+      return;
+    }
+
     // Apply the extra transform
     program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
 
@@ -522,6 +527,10 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   this->UsingInstancing = true;
   this->RenderPieceStart(ren,actor);
   this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
+  if (!this->Primitives[PrimitiveTris].Program)
+  {
+    return;
+  }
 
   // do the superclass and then reset a couple values
   if (this->Primitives[PrimitiveTris].IBO->IndexCount &&   // we have points and one of

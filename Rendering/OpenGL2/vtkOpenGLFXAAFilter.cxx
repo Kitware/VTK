@@ -311,6 +311,11 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
     renWin->GetShaderCache()->ReadyShaderProgram(this->Program);
   }
 
+  if (!this->Program)
+  {
+    return;
+  }
+
   if (!this->VAO)
   {
     this->VBO = vtkOpenGLBufferObject::New();

@@ -208,7 +208,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     renWin->GetShaderCache()->ReadyShaderProgram(this->SSAAProgram->Program);
   }
 
-  if(this->SSAAProgram->Program->GetCompiled() != true)
+  if(!this->SSAAProgram->Program)
   {
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 

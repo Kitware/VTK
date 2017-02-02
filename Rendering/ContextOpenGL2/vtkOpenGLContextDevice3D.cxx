@@ -396,11 +396,19 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
   }
   else
   {
     this->ReadyVBOProgram();
     cbo = this->VBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
     if (this->HaveWideLines())
     {
       vtkWarningMacro(<< "a line width has been requested that is larger than your system supports");
@@ -457,11 +465,19 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
   }
   else
   {
     this->ReadyVBOProgram();
     cbo = this->VBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
   }
@@ -497,11 +513,19 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
   }
   else
   {
     this->ReadyVBOProgram();
     cbo = this->VBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
   }
@@ -535,11 +559,19 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
   {
     this->ReadyVCBOProgram();
     cbo = this->VCBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
   }
   else
   {
     this->ReadyVBOProgram();
     cbo = this->VBO;
+    if (!cbo->Program)
+    {
+      return;
+    }
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
   }

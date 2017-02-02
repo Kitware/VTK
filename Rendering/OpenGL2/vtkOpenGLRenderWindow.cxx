@@ -1881,6 +1881,10 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
       "void main(void) {\n"
       "  gl_FragDepth = texture2D(source,tcoordVC).r; }\n",
       "");
+  if (!program)
+  {
+    return VTK_ERROR;
+  }
   vtkOpenGLVertexArrayObject *VAO = vtkOpenGLVertexArrayObject::New();
 
   // bind and activate this texture

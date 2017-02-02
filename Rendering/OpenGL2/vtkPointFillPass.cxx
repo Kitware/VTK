@@ -174,6 +174,11 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
     renWin->GetShaderCache()->ReadyShaderProgram(this->BlurProgram->Program);
   }
 
+  if (!this->BlurProgram->Program)
+  {
+    return;
+  }
+
   glDisable(GL_BLEND);
 //  glDisable(GL_DEPTH_TEST);
 

@@ -1799,13 +1799,16 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
     renWin->GetShaderCache()->ReadyShaderProgram(cellBO.Program);
   }
 
-  this->SetMapperShaderParameters(cellBO, ren, actor);
-  this->SetPropertyShaderParameters(cellBO, ren, actor);
-  this->SetCameraShaderParameters(cellBO, ren, actor);
-  this->SetLightingShaderParameters(cellBO, ren, actor);
+  if (cellBO.Program)
+  {
+    this->SetMapperShaderParameters(cellBO, ren, actor);
+    this->SetPropertyShaderParameters(cellBO, ren, actor);
+    this->SetCameraShaderParameters(cellBO, ren, actor);
+    this->SetLightingShaderParameters(cellBO, ren, actor);
 
-  // allow the program to set what it wants
-  this->InvokeEvent(vtkCommand::UpdateShaderEvent,&cellBO);
+    // allow the program to set what it wants
+    this->InvokeEvent(vtkCommand::UpdateShaderEvent,&cellBO);
+  }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 }

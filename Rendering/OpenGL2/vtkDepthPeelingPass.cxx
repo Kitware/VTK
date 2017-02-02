@@ -260,25 +260,28 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
       this->FinalBlendProgram->Program);
   }
 
-  this->FinalBlendProgram->Program->SetUniformi(
-    "translucentRGBATexture", this->TranslucentRGBATexture->GetTextureUnit());
+  if (this->FinalBlendProgram->Program)
+  {
+    this->FinalBlendProgram->Program->SetUniformi(
+      "translucentRGBATexture", this->TranslucentRGBATexture->GetTextureUnit());
 
-  this->OpaqueRGBATexture->Activate();
-  this->FinalBlendProgram->Program->SetUniformi(
-    "opaqueRGBATexture", this->OpaqueRGBATexture->GetTextureUnit());
+    this->OpaqueRGBATexture->Activate();
+    this->FinalBlendProgram->Program->SetUniformi(
+      "opaqueRGBATexture", this->OpaqueRGBATexture->GetTextureUnit());
 
-  this->OpaqueZTexture->Activate();
-  this->FinalBlendProgram->Program->SetUniformi(
-    "opaqueZTexture", this->OpaqueZTexture->GetTextureUnit());
+    this->OpaqueZTexture->Activate();
+    this->FinalBlendProgram->Program->SetUniformi(
+      "opaqueZTexture", this->OpaqueZTexture->GetTextureUnit());
 
-  // blend in OpaqueRGBA
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc( GL_ALWAYS );
-  this->OpaqueRGBATexture->CopyToFrameBuffer(0, 0,
-         this->ViewportWidth-1, this->ViewportHeight-1,
-         0, 0, this->ViewportWidth, this->ViewportHeight,
-         this->FinalBlendProgram->Program,
-         this->FinalBlendProgram->VAO);
+    // blend in OpaqueRGBA
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc( GL_ALWAYS );
+    this->OpaqueRGBATexture->CopyToFrameBuffer(0, 0,
+           this->ViewportWidth-1, this->ViewportHeight-1,
+           0, 0, this->ViewportWidth, this->ViewportHeight,
+           this->FinalBlendProgram->Program,
+           this->FinalBlendProgram->VAO);
+  }
   glDepthFunc( GL_LEQUAL );
 }
 
