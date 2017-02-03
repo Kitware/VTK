@@ -125,6 +125,7 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
     const vtkm::Id numberOfCells = this->GetNumberOfCells();
     const vtkm::Id connectivityLength = this->Connectivity.GetNumberOfValues();
     const vtkm::Id numberOfPointsPerCell = this->DetermineNumberOfPoints();
+    const vtkm::Id rconnSize = numberOfCells*numberOfPointsPerCell;
 
     // create a mapping of where each key is the point id and the value
     // is the cell id.
@@ -134,8 +135,8 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
     // We need to allocate pointIdKey and RConn to correct length.
     // which for this is equal to numberOfCells * numberOfPointsPerCell
     // as the connectivity has the vtk padding per cell
-    pointIdKey.Allocate(numberOfCells*numberOfPointsPerCell);
-    this->RConn.Allocate(numberOfCells*numberOfPointsPerCell);
+    pointIdKey.Allocate(rconnSize);
+    this->RConn.Allocate(rconnSize);
 
     vtkm::worklet::DispatcherMapField<ComputeReverseMapping, Device> dispatcher( ComputeReverseMapping(this->DetermineNumberOfPoints()));
     dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting(0, 1, numberOfCells),
@@ -145,8 +146,7 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
     // now we can compute the NumIndices
     vtkm::cont::ArrayHandle<vtkm::Id> reducedKeys;
     Algorithm::ReduceByKey(pointIdKey,
-      vtkm::cont::make_ArrayHandleConstant(
-        vtkm::IdComponent(1), connectivityLength),
+      vtkm::cont::make_ArrayHandleConstant(vtkm::IdComponent(1), rconnSize),
       reducedKeys, this->RNumIndices, vtkm::Add());
 
     // than a scan exclusive will give us the index offsets
