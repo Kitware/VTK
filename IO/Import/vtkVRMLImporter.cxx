@@ -1177,9 +1177,15 @@ void vtkVRMLImporter::exitField()
         }
         else
         {
-          // Redirect color into scalar position
-          this->CurrentScalars->SetComponent(pts[j++], 0,
-            this->Parser->yylval.mfint32->GetValue(index++));
+          // for some files j can go past the number
+          // of pts causing a segfault
+          // so we explicitly check to be safe
+          if (j < npts)
+          {
+            // Redirect color into scalar position
+            this->CurrentScalars->SetComponent(pts[j++], 0,
+              this->Parser->yylval.mfint32->GetValue(index++));
+          }
         }
       }
     }
