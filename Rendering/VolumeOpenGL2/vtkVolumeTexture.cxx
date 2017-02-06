@@ -244,7 +244,7 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     bool const useYStride = blockSize[1] != this->FullSize[1];
     if (useYStride)
     {
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, this->FullSizeAdjusted[1]);
+      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, this->FullSizeAdjusted[1]);
     }
 
     // Account for component offset
@@ -269,7 +269,7 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
     if (useYStride)
     {
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, 0);
+      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
     }
   }
   else // Handle 64-bit types
