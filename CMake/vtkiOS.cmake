@@ -10,10 +10,21 @@ file(REMOVE_RECURSE ${PREFIX_DIR})
 file(REMOVE_RECURSE ${BUILD_DIR})
 file(REMOVE_RECURSE ${INSTALL_DIR})
 
+# Define default architectures to compile for
 set(IOS_SIMULATOR_ARCHITECTURES "i386;x86_64"
     CACHE STRING "iOS Simulator Architectures")
 set(IOS_DEVICE_ARCHITECTURES "arm64;armv7;armv7s"
     CACHE STRING "iOS Device Architectures")
+list(REMOVE_DUPLICATES IOS_SIMULATOR_ARCHITECTURES)
+list(REMOVE_DUPLICATES IOS_DEVICE_ARCHITECTURES)
+
+# Check that at least one architure is defined
+list(LENGTH IOS_SIMULATOR_ARCHITECTURES SIMULATOR_ARCHS_NBR)
+list(LENGTH IOS_DEVICE_ARCHITECTURES DEVICE_ARCHS_NBR)
+math(EXPR IOS_ARCHS_NBR ${DEVICE_ARCHS_NBR}+${SIMULATOR_ARCHS_NBR})
+if(NOT ${IOS_ARCHS_NBR})
+  message(FATAL_ERROR "No IOS simulator or device architecture to compile for. Populate IOS_DEVICE_ARCHITECTURES and/or IOS_SIMULATOR_ARCHITECTURES.")
+endif()
 
 set(IOS_EMBED_BITCODE ON CACHE BOOL "Embed LLVM bitcode")
 
@@ -92,6 +103,7 @@ option(Module_vtkIOPLY "Turn on or off this module" OFF)
 option(Module_vtkIOInfovis "Turn on or off this module" OFF)
 option(Module_vtkRenderingFreeType "Turn on or off this module" OFF)
 option(Module_vtkRenderingVolumeOpenGL2 "Include Volume Rendering Support" ON)
+option(Module_vtkRenderingLOD "Include LOD Rendering Support" OFF)
 
 
 mark_as_advanced(Module_${vtk-module})
@@ -111,6 +123,7 @@ set(ios_cmake_flags
   -DVTK_Group_Web:BOOL=OFF
   -DModule_vtkRenderingOpenGL2:BOOL=${Module_vtkRenderingOpenGL2}
   -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
+  -DModule_vtkIOXML:BOOL=${Module_vtkIOXML}
   -DModule_vtkFiltersModeling:BOOL=${Module_vtkFiltersModeling}
   -DModule_vtkFiltersSources:BOOL=${Module_vtkFiltersSources}
   -DModule_vtkIOGeometry:BOOL=${Module_vtkIOGeometry}
@@ -119,14 +132,16 @@ set(ios_cmake_flags
   -DModule_vtkIOPLY:BOOL=${Module_vtkIOPLY}
   -DModule_vtkIOInfovis:BOOL=${Module_vtkIOInfovis}
   -DModule_vtkRenderingFreeType:BOOL=${Module_vtkRenderingFreeType}
+  -DModule_vtkRenderingVolumeOpenGL2:BOOL=${Module_vtkRenderingVolumeOpenGL2}
+  -DModule_vtkRenderingLOD:BOOL=${Module_vtkRenderingLOD}
 )
 
-if (Module_vtkRenderingOpenGL2)
-  set (ios_cmake_flags ${ios_cmake_flags}
+if (Module_vtkRenderingOpenGL2 OR Module_vtkRenderingVolumeOpenGL2)
+  list (APPEND ios_cmake_flags
     -DVTK_RENDERING_BACKEND:STRING=OpenGL2
     )
 else()
-  set (ios_cmake_flags ${ios_cmake_flags}
+  list (APPEND ios_cmake_flags
     -DVTK_RENDERING_BACKEND:STRING=None
     )
 endif()
@@ -163,12 +178,17 @@ macro(crosscompile target toolchain_file archs)
     )
 endmacro()
 
-crosscompile(vtk-ios-simulator
-  CMake/ios.simulator.toolchain.cmake
-  "${IOS_SIMULATOR_ARCHITECTURES}"
- )
+# for simulator architectures
+if (${SIMULATOR_ARCHS_NBR})
+  crosscompile(vtk-ios-simulator
+    CMake/ios.simulator.toolchain.cmake
+    "${IOS_SIMULATOR_ARCHITECTURES}"
+   )
+  set(VTK_GLOB_LIBS "${VTK_GLOB_LIBS} \"${INSTALL_DIR}/vtk-ios-simulator/lib/libvtk*.a\"" )
+  list(APPEND IOS_ARCHITECTURES vtk-ios-simulator )
+endif()
 
-# for each architecture
+# for each device architecture
 foreach (arch ${IOS_DEVICE_ARCHITECTURES})
   set(CMAKE_CC_ARCH ${arch})
   configure_file(CMake/ios.device.toolchain.cmake.in
@@ -178,21 +198,17 @@ foreach (arch ${IOS_DEVICE_ARCHITECTURES})
     ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
     ${arch}
   )
-  set(VTK_DEVICE_LIBS "${VTK_DEVICE_LIBS}
-    \"${INSTALL_DIR}/vtk-ios-device-${arch}/lib/libvtk*.a\"" )
-  set(VTK_DEVICE_DEPENDS ${VTK_DEVICE_DEPENDS}
-    vtk-ios-device-${arch} )
+  set(VTK_GLOB_LIBS "${VTK_GLOB_LIBS} \"${INSTALL_DIR}/vtk-ios-device-${arch}/lib/libvtk*.a\"" )
+  list(APPEND IOS_ARCHITECTURES vtk-ios-device-${arch} )
 endforeach()
 
 # Pile it all into a framework
-set(VTK_SIMULATOR_LIBS
-    "${INSTALL_DIR}/vtk-ios-simulator/lib/libvtk*.a" )
+list(GET IOS_ARCHITECTURES 0 IOS_ARCH_FIRST)
 set(VTK_INSTALLED_HEADERS
-    "${INSTALL_DIR}/vtk-ios-device-arm64/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-set(VTK_GLOB_LIBS "${VTK_DEVICE_LIBS} \"${VTK_SIMULATOR_LIBS}\"")
+    "${INSTALL_DIR}/${IOS_ARCH_FIRST}/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 configure_file(CMake/MakeFramework.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
                @ONLY)
 add_custom_target(vtk-framework ALL
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
-  DEPENDS ${VTK_DEVICE_DEPENDS} vtk-ios-simulator)
+  DEPENDS ${IOS_ARCHITECTURES})

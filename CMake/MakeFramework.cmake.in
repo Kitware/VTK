@@ -1,8 +1,7 @@
 #
 # Before calling this, ensure that the following variables are set:
 #
-# VTK_DEVICE_LIBS - a path containing a wildcard suitable for globbing
-# VTK_SIMULATOR_LIBS - a path containing a wildcard suitable for globbing
+# VTK_GLOB_LIBS - a path containing a wildcard suitable for globbing
 # VTK_INSTALLED_HEADERS - the path containing all headers for the framework
 # CMAKE_FRAMEWORK_INSTALL_PREFIX - the path in which to make vtk.framework
 #
