@@ -37,7 +37,8 @@ public:
   enum
   {
     VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE
   };
 
   static vtkBuffer<ScalarTypeT>* New();
@@ -118,6 +119,14 @@ void vtkBuffer<ScalarT>::SetBuffer(
       {
         free(this->Pointer);
       }
+      else if(this->DeleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
+      {
+#ifdef _WIN32
+        _aligned_free(this->Pointer);
+#else
+        free(this->Pointer);
+#endif
+      }
       else
       {
         delete [] this->Pointer;
@@ -157,7 +166,7 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
   if (newsize == 0) { return this->Allocate(0); }
 
   if (this->Pointer &&
-      (this->Save || this->DeleteMethod == VTK_DATA_ARRAY_DELETE))
+      (this->Save || this->DeleteMethod != VTK_DATA_ARRAY_FREE))
   {
     ScalarType* newArray =
         static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));

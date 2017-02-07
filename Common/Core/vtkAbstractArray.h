@@ -330,7 +330,8 @@ public:
   enum DeleteMethod
   {
     VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE
   };
 
   //@{
@@ -342,8 +343,11 @@ public:
    * actual array provided; it does not copy the data from the supplied
    * array. If specified, the delete method determines how the data array
    * will be deallocated. If the delete method is VTK_DATA_ARRAY_FREE, free()
-   * will be used. If the delete method is DELETE, delete[] will be used. The
-   * default is FREE. (Note not all subclasses can support deleteMethod.)
+   * will be used. If the delete method is VTK_DATA_ARRAY_DELETE, delete[]
+   * will be used. If the delete method is VTK_DATA_ARRAY_ALIGNED_FREE
+   * _aligned_free() will be used on windows, while free() will be used
+   * everywhere else.The default is FREE.
+   * (Note not all subclasses can support deleteMethod.)
    */
   virtual void SetVoidArray(void *vtkNotUsed(array),
                             vtkIdType vtkNotUsed(size),

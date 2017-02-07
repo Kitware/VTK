@@ -48,7 +48,8 @@ public:
   enum DeleteMethod
   {
     VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_ALIGNED_FREE
   };
 
   static vtkSOADataArrayTemplate* New();

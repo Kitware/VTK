@@ -51,7 +51,8 @@ public:
   enum DeleteMethod
   {
     VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_ALIGNED_FREE
   };
 
   static vtkAOSDataArrayTemplate* New();
@@ -163,7 +164,9 @@ public:
    * suppled array. If specified, the delete method determines how the data
    * array will be deallocated. If the delete method is
    * VTK_DATA_ARRAY_FREE, free() will be used. If the delete method is
-   * DELETE, delete[] will be used. The default is FREE.
+   * VTK_DATA_ARRAY_DELETE, delete[] will be used. If the delete method is
+   * VTK_DATA_ARRAY_ALIGNED_FREE _aligned_free() will be used on windows, while
+   * free() will be used everywhere else. The default is FREE.
    */
   void SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod);
   void SetArray(ValueType* array, vtkIdType size, int save);
