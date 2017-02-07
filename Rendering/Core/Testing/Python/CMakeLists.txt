@@ -28,6 +28,7 @@ vtk_add_test_python(
   cowHair2.py
   distanceToCamera.py
   pickCells.py
+  compositePolyDataMapperBounds.py,NO_RT
   pickCompositeData.py,NO_RT
   pickImageData.py,NO_RT
   propAssembly.py
