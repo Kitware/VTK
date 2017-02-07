@@ -904,10 +904,15 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
   range[0] = colorLevel - 0.5*colorWindow;
   range[1] = colorLevel + 0.5*colorWindow;
 
-  if (lookupTable && property && !property->GetUseLookupTableScalarRange())
+  if (lookupTable)
   {
-    // no way to do this without modifying the table
-    lookupTable->SetRange(range);
+    if (property && !property->GetUseLookupTableScalarRange())
+    {
+      // no way to do this without modifying the table
+      lookupTable->SetRange(range);
+    }
+    // make sure table is up to date
+    lookupTable->Build();
   }
 
   if (inputIsColors && !lookupTable)

@@ -134,7 +134,11 @@ int vtkImageResliceToColors::ConvertScalarInfo(
 
   // This is always called before ConvertScalars, and is
   // not called multi-threaded, so set up default table here
-  if (!this->LookupTable && !this->DefaultLookupTable)
+  if (this->LookupTable)
+  {
+    this->LookupTable->Build();
+  }
+  else if (!this->DefaultLookupTable)
   {
     // Build a default greyscale lookup table
     this->DefaultLookupTable = vtkScalarsToColors::New();
