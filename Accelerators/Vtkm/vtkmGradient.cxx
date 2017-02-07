@@ -120,9 +120,12 @@ int vtkmGradient::RequestData(vtkInformation* request,
   const bool fieldValid =
       (field.GetAssociation() == vtkm::cont::Field::ASSOC_POINTS) &&
       (field.GetName() != std::string());
-  const bool fieldIsVec = (inputArray->GetNumberOfComponents() == 3);
 
-  if(!(dataSetValid && fieldValid))
+  const bool fieldIsVec = (inputArray->GetNumberOfComponents() == 3);
+  const bool fieldIsScalar = inputArray->GetDataType() == VTK_FLOAT ||
+                             inputArray->GetDataType() == VTK_DOUBLE;
+
+  if(!(dataSetValid && fieldValid) || !fieldIsScalar)
   {
     vtkWarningMacro(<< "Unable convert dataset over to VTK-m.\n"
                     << "Falling back to vtkGradientFilter."
