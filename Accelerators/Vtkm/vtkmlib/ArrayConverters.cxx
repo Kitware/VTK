@@ -300,7 +300,7 @@ struct ArrayConverter
 
     //VTK-m allocations are all aligned
     array->SetVoidArray(stolenMemory, size, 0,
-                        vtkBuffer<ValueType>::VTK_DATA_ARRAY_ALIGNED_FREE);
+                        vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE);
 
     this->Data = array;
   }

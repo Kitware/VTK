@@ -202,7 +202,23 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
     return;
   }
 
-  this->Data[comp]->SetBuffer(array, size, save, deleteMethod);
+  if(deleteMethod == VTK_DATA_ARRAY_DELETE)
+  {
+    this->Data[comp]->SetBuffer(array, size, save, ::operator delete[] );
+  }
+  else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
+  {
+#ifdef _WIN32
+    this->Data[comp]->SetBuffer(array, size, save, _aligned_free);
+#else
+    this->Data[comp]->SetBuffer(array, size, save, free);
+#endif
+  }
+  else
+  {
+    this->Data[comp]->SetBuffer(array, size, save, free);
+  }
+
   if (updateMaxId)
   {
     this->Size = numComps * size;
