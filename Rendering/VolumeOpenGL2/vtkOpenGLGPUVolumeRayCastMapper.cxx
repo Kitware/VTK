@@ -1942,13 +1942,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
 
     this->FBO->Bind(GL_FRAMEBUFFER);
     this->FBO->AddDepthAttachment(
-      GL_DRAW_FRAMEBUFFER,
+      GL_FRAMEBUFFER,
       this->RTTDepthBufferTextureObject);
     this->FBO->AddColorAttachment(
-      GL_DRAW_FRAMEBUFFER, 0U,
+      GL_FRAMEBUFFER, 0U,
       this->RTTColorTextureObject);
     this->FBO->AddColorAttachment(
-      GL_DRAW_FRAMEBUFFER, 1U,
+      GL_FRAMEBUFFER, 1U,
       this->RTTDepthTextureObject);
     this->FBO->ActivateDrawBuffers(2);
 
@@ -1965,12 +1965,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitRenderToTexture(
 {
   if (this->Parent->RenderToImage && this->Parent->CurrentPass == RenderPass)
   {
-    this->FBO->RemoveTexDepthAttachment(GL_DRAW_FRAMEBUFFER);
-    this->FBO->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
-    this->FBO->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 1U);
+    this->FBO->RemoveTexDepthAttachment(GL_FRAMEBUFFER);
+    this->FBO->RemoveTexColorAttachment(GL_FRAMEBUFFER, 0U);
+    this->FBO->RemoveTexColorAttachment(GL_FRAMEBUFFER, 1U);
     this->FBO->DeactivateDrawBuffers();
-    this->FBO->UnBind(GL_FRAMEBUFFER);
-    this->FBO->RestorePreviousBuffers();
+    this->FBO->RestorePreviousBindingsAndBuffers();
 
     this->RTTDepthBufferTextureObject->Deactivate();
     this->RTTColorTextureObject->Deactivate();
@@ -2035,11 +2034,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
     this->DPColorTextureObject->SetAutoParameters(0);
 
     this->DPFBO->AddDepthAttachment(
-      GL_DRAW_FRAMEBUFFER,
+      GL_FRAMEBUFFER,
       this->DPDepthBufferTextureObject);
 
     this->DPFBO->AddColorAttachment(
-      GL_DRAW_FRAMEBUFFER, 0U,
+      GL_FRAMEBUFFER, 0U,
       this->DPColorTextureObject);
   }
 
@@ -2061,8 +2060,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitDepthPass(
   vtkRenderer* vtkNotUsed(ren))
 {
   this->DPFBO->DeactivateDrawBuffers();
-  this->DPFBO->UnBind(GL_FRAMEBUFFER);
-  this->DPFBO->RestorePreviousBuffers();
+  this->DPFBO->RestorePreviousBindingsAndBuffers();
 
   this->DPDepthBufferTextureObject->Deactivate();
   this->DPColorTextureObject->Deactivate();
