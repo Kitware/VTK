@@ -47,7 +47,23 @@ template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>
 ::SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
-  this->Buffer->SetBuffer(array, size, save != 0, deleteMethod);
+  if(deleteMethod == VTK_DATA_ARRAY_DELETE)
+  {
+    this->Buffer->SetBuffer(array, size, save != 0, ::operator delete[] );
+  }
+  else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
+  {
+#ifdef _WIN32
+    this->Buffer->SetBuffer(array, size, save != 0, _aligned_free);
+#else
+    this->Buffer->SetBuffer(array, size, save != 0, free);
+#endif
+  }
+  else
+  {
+    this->Buffer->SetBuffer(array, size, save != 0, free);
+  }
+
   this->Size = size;
   this->MaxId = this->Size - 1;
   this->DataChanged();

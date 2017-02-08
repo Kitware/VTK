@@ -298,7 +298,9 @@ struct ArrayConverter
     ValueType* stolenMemory = reinterpret_cast<ValueType*>(
         handle.Internals->ControlArray.StealArray());
 
-    array->SetVoidArray(stolenMemory, size, 0);
+    //VTK-m allocations are all aligned
+    array->SetVoidArray(stolenMemory, size, 0,
+                        vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE);
 
     this->Data = array;
   }

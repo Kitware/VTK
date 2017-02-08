@@ -34,11 +34,6 @@ class vtkBuffer : public vtkObject
 public:
   vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject)
   typedef ScalarTypeT ScalarType;
-  enum
-  {
-    VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE
-  };
 
   static vtkBuffer<ScalarTypeT>* New();
 
@@ -53,10 +48,10 @@ public:
    * is a pointer to the buffer data and @a size is the size of the bufffer (in
    * number of elements). If @a save is true, the buffer will not be freed when
    * this vtkBuffer object is deleted or resize -- otherwise, @a deleteMethod
-   * specifies how the buffer will be freed.
+   * is a function that will be called to free the buffer
    */
   void SetBuffer(ScalarType* array, vtkIdType size, bool save=false,
-                 int deleteMethod=VTK_DATA_ARRAY_FREE);
+                 void (*deleteFunction)(void*)=free);
 
   /**
    * Return the number of elements the current buffer can hold.
@@ -79,7 +74,7 @@ protected:
     : Pointer(NULL),
       Size(0),
       Save(false),
-      DeleteMethod(VTK_DATA_ARRAY_FREE)
+      DeleteFunction(free)
   {
   }
 
@@ -91,7 +86,7 @@ protected:
   ScalarType *Pointer;
   vtkIdType Size;
   bool Save;
-  int DeleteMethod;
+  void (*DeleteFunction)(void*);
 
 private:
   vtkBuffer(const vtkBuffer&) VTK_DELETE_FUNCTION;
@@ -108,26 +103,19 @@ inline vtkBuffer<ScalarT> *vtkBuffer<ScalarT>::New()
 template <typename ScalarT>
 void vtkBuffer<ScalarT>::SetBuffer(
     typename vtkBuffer<ScalarT>::ScalarType *array,
-    vtkIdType size, bool save, int deleteMethod)
+    vtkIdType size, bool save, void (*deleteFunction)(void*))
 {
   if (this->Pointer != array)
   {
     if (!this->Save)
     {
-      if (this->DeleteMethod == VTK_DATA_ARRAY_FREE)
-      {
-        free(this->Pointer);
-      }
-      else
-      {
-        delete [] this->Pointer;
-      }
+      this->DeleteFunction(this->Pointer);
     }
     this->Pointer = array;
   }
   this->Size = size;
   this->Save = save;
-  this->DeleteMethod = deleteMethod;
+  this->DeleteFunction = deleteFunction;
 }
 
 //------------------------------------------------------------------------------
@@ -142,7 +130,7 @@ bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
         static_cast<ScalarType*>(malloc(size * sizeof(ScalarType)));
     if (newArray)
     {
-      this->SetBuffer(newArray, size, false, VTK_DATA_ARRAY_FREE);
+      this->SetBuffer(newArray, size, false, free);
       return true;
     }
     return false;
@@ -157,7 +145,7 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
   if (newsize == 0) { return this->Allocate(0); }
 
   if (this->Pointer &&
-      (this->Save || this->DeleteMethod == VTK_DATA_ARRAY_DELETE))
+      (this->Save || this->DeleteFunction != free))
   {
     ScalarType* newArray =
         static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));
@@ -168,7 +156,7 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
     std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize),
               newArray);
     // now save the new array and release the old one too.
-    this->SetBuffer(newArray, newsize, false, VTK_DATA_ARRAY_FREE);
+    this->SetBuffer(newArray, newsize, false, free);
   }
   else
   {
