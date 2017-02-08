@@ -264,7 +264,7 @@ class VolumeCompositeDataSetBuilder(DataSetBuilder):
 
         if compress:
             for root, dirs, files in os.walk(self.dataHandler.getBasePath()):
-                print 'Compress', root
+                print('Compress', root)
                 for name in files:
                     if '.uint8' in name and '.gz' not in name:
                         with open(os.path.join(root, name), 'rb') as f_in:
@@ -319,8 +319,8 @@ class DataProberDataSetBuilder(DataSetBuilder):
                 else:
                     self.DataProber['ranges'][field] = [array.GetRange()[0], array.GetRange()[1]]
             else:
-                print 'No array for', field
-                print self.resamplerFilter.GetOutput()
+                print('No array for', field)
+                print(self.resamplerFilter.GetOutput())
 
     def stop(self, compress=True):
         # Push metadata
@@ -331,7 +331,7 @@ class DataProberDataSetBuilder(DataSetBuilder):
 
         if compress:
             for root, dirs, files in os.walk(self.dataHandler.getBasePath()):
-                print 'Compress', root
+                print('Compress', root)
                 for name in files:
                     if '.array' in name and '.gz' not in name:
                         with open(os.path.join(root, name), 'rb') as f_in:
@@ -466,7 +466,7 @@ class SortedCompositeDataSetBuilder(VolumeCompositeDataSetBuilder):
         # Go through all directories and convert them
         for root, dirs, files in os.walk(self.dataHandler.getBasePath()):
             for name in dirs:
-                print 'Process', os.path.join(root, name)
+                print('Process', os.path.join(root, name))
                 self.dataConverter.convert(os.path.join(root, name))
 
         # Rename index.json to info_origin.json
@@ -497,14 +497,14 @@ class SortedCompositeDataSetBuilder(VolumeCompositeDataSetBuilder):
         # Clean temporary data
         if clean:
             for root, dirs, files in os.walk(self.dataHandler.getBasePath()):
-                print 'Clean', root
+                print('Clean', root)
                 for name in files:
                     if '_rgb.png' in name or '_depth.uint8' in name or name == "index_origin.json":
                         os.remove(os.path.join(root, name))
 
         if compress:
             for root, dirs, files in os.walk(self.dataHandler.getBasePath()):
-                print 'Compress', root
+                print('Compress', root)
                 for name in files:
                     if '.uint8' in name and '.gz' not in name:
                         with open(os.path.join(root, name), 'rb') as f_in:
