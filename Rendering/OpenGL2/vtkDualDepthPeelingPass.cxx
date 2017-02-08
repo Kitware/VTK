@@ -410,6 +410,9 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
   DeleteHelper(this->BlendVBO);
 
   // don't delete the shader programs -- let the cache clean them up.
+  this->CopyDepthProgram = NULL;
+  this->BackBlendProgram = NULL;
+  this->BlendProgram = NULL;
 }
 
 //------------------------------------------------------------------------------
