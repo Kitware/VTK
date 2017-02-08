@@ -33,6 +33,7 @@ class vtkPath;
 class vtkPoints;
 class vtkRenderWindow;
 class vtkTextProperty;
+class vtkStdString;
 
 class VTKRENDERINGGL2PS_EXPORT vtkGL2PSUtilities : public vtkObject
 {
@@ -110,6 +111,20 @@ public:
   static float GetLineWidthFactor()
     { return vtkGL2PSUtilities::LineWidthFactor; }
 
+  /**
+   * Computes the bottom left corner 'blpos' and a string with \n replaced
+   * by space 'spaceStr' for the string 'str' with properties 'tprop'
+   * and the anchor 'pos'.
+   *
+   * We need this because PDF does not support text alignment.
+   * 'spaceStr' is needed because postscript and PDF do not support
+   * multiline text and we don't implement it yet for TextAsPath false.
+   */
+  static bool ComputeBottomLeft(vtkTextProperty* tprop,
+                                const char* str, double pos[3],
+                                double blpos[3], vtkStdString* spaceStr);
+
+
 protected:
   friend class vtkOpenGLGL2PSExporter;
 
@@ -179,7 +194,8 @@ private:
                              double halfHeight, double zfact1, double zfact2);
   static void UnprojectPoints(double *points3D, vtkIdType numPoints,
                               vtkMatrix4x4 *actorMatrix = NULL);
-};
   //@}
+};
+
 
 #endif

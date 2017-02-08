@@ -78,6 +78,9 @@ int TestGL2PSExporterMultipleRenderers( int, char *[] )
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
 
+  exp->SetFileFormatToPDF();
+  exp->Write();
+
   renWin->SetMultiSamples(0);
   renWin->GetInteractor()->Initialize();
   renWin->GetInteractor()->Start();

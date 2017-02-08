@@ -140,6 +140,9 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
 
+  exp->SetFileFormatToPDF();
+  exp->Write();
+
   renWin->SetMultiSamples(0);
   renWin->GetInteractor()->Initialize();
   renWin->GetInteractor()->Start();
