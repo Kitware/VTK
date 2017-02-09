@@ -155,6 +155,7 @@ void vtkWin32OpenGLRenderWindow::CleanUpRenderers()
        (ren = this->Renderers->GetNextRenderer(rsit));)
   {
     ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(this);
   }
 }
 
@@ -1528,14 +1529,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   GetObject(hbmp, sizeof(BITMAP), &bm);
 
   // Renderers will need to redraw anything cached in display lists
-  vtkRenderer *ren;
-  vtkCollectionSimpleIterator rsit;
-  this->Renderers->InitTraversal(rsit);
-  while ((ren = this->Renderers->GetNextRenderer(rsit)))
-  {
-    ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
-  }
+  this->CleanUpRenderers();
 
   this->MemoryBuffer = hbmp;
 
@@ -1639,15 +1633,7 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
   if (this->ContextId!=0)
   {
       this->MakeCurrent();
-      // Renderers will need to redraw anything cached in display lists
-      vtkRenderer *ren;
-      vtkCollectionSimpleIterator rsit;
-      this->Renderers->InitTraversal(rsit);
-      while ((ren = this->Renderers->GetNextRenderer(rsit)))
-      {
-        ren->SetRenderWindow(NULL);
-        ren->SetRenderWindow(this);
-      }
+      this->CleanUpRenderers();
   }
 
   if (this->MemoryBuffer)
