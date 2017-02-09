@@ -729,6 +729,7 @@ void vtkLine::Derivatives(int vtkNotUsed(subId),
 
 //----------------------------------------------------------------------------
 // support line clipping
+namespace { //required so we don't violate ODR
 typedef int LINE_LIST;
 typedef struct {
        LINE_LIST lines[2];
@@ -739,6 +740,7 @@ static LINE_CASES lineCases[] = {
 {{100,   1}},   // 1
 {{  0, 101}},   // 2
 {{100, 101}}};  // 3
+}
 
 // Clip this line using scalar value provided. Like contouring, except
 // that it cuts the line to produce other lines.

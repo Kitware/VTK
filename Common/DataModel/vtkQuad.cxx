@@ -374,6 +374,7 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 // Marching (convex) quadrilaterals
 //
+namespace { //required so we don't violate ODR
 static int edges[4][2] = { {0,1}, {1,2}, {3,2}, {0,3} };
 
 typedef int EDGE_LIST;
@@ -399,6 +400,7 @@ static LINE_CASES lineCases[] = {
   {{3, 0, -1, -1, -1}},
   {{-1, -1, -1, -1, -1}}
 };
+}
 
 //----------------------------------------------------------------------------
 int *vtkQuad::GetEdgeArray(int edgeId)
