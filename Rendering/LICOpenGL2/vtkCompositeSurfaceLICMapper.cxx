@@ -83,14 +83,6 @@ public:
   static vtkCompositeLICHelper* New();
   vtkTypeMacro(vtkCompositeLICHelper, vtkCompositeMapperHelper2);
 
-  /**
-   * Implemented by sub classes. Actual rendering is done here.
-   */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  void SetLICInterface(vtkSurfaceLICInterface *i) {
-    this->LICInterface = i; }
-
 protected:
   vtkCompositeLICHelper();
   ~vtkCompositeLICHelper();
@@ -116,8 +108,6 @@ protected:
   virtual void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  vtkSurfaceLICInterface *LICInterface;
 
 private:
   vtkCompositeLICHelper(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
@@ -199,91 +189,8 @@ void vtkCompositeLICHelper::SetMapperShaderParameters(
 {
   this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
   cellBO.Program->SetUniformi("uMaskOnSurface",
-    this->LICInterface->GetMaskOnSurface());
-}
-
-//----------------------------------------------------------------------------
-void vtkCompositeLICHelper::RenderPiece(
-        vtkRenderer *renderer,
-        vtkActor *actor)
-{
-  this->CurrentInput = this->Data.begin()->first;
-
-  this->LICInterface->ValidateContext(renderer);
-
-  vtkNew<vtkMultiBlockDataSet> mbds;
-  int i = 0;
-  for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
-  {
-    mbds->SetBlock(i, it->first);
-    i++;
-  }
-  this->LICInterface->UpdateCommunicator(renderer, actor, mbds.Get());
-
-  vtkPainterCommunicator *comm = this->LICInterface->GetCommunicator();
-
-  if (comm->GetIsNull())
-  {
-    // other rank's may have some visible data but we
-    // have none and should not participate further
-    return;
-  }
-
-  vtkDataArray *vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
-  this->LICInterface->SetHasVectors(vectors != NULL ? true : false);
-
-  if (!this->LICInterface->CanRenderSurfaceLIC(actor))
-  {
-    // we've determined that there's no work for us, or that the
-    // requisite opengl extensions are not available. pass control on
-    // to delegate renderer and return.
-    this->Superclass::RenderPiece(renderer, actor);
-    return;
-  }
-
-  // Before start rendering LIC, capture some essential state so we can restore
-  // it.
-  bool blendEnabled = (glIsEnabled(GL_BLEND) == GL_TRUE);
-
-  vtkNew<vtkOpenGLFramebufferObject> fbo;
-  fbo->SetContext(vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow()));
-  fbo->SaveCurrentBindingsAndBuffers();
-
-  // allocate rendering resources, initialize or update
-  // textures and shaders.
-  this->LICInterface->InitializeResources();
-
-  // draw the geometry
-  this->LICInterface->PrepareForGeometry();
-
-  this->RenderPieceStart(renderer, actor);
-  this->RenderPieceDraw(renderer, actor);
-  this->RenderPieceFinish(renderer, actor);
-
-  this->LICInterface->CompletedGeometry();
-
-  // --------------------------------------------- composite vectors for parallel LIC
-  this->LICInterface->GatherVectors();
-
-  // ------------------------------------------- LIC on screen
-  this->LICInterface->ApplyLIC();
-
-  // ------------------------------------------- combine scalar colors + LIC
-  this->LICInterface->CombineColorsAndLIC();
-
-  // ----------------------------------------------- depth test and copy to screen
-  this->LICInterface->CopyToScreen();
-
-  fbo->RestorePreviousBindingsAndBuffers();
-
-  if (blendEnabled)
-  {
-    glEnable(GL_BLEND);
-  }
-  else
-  {
-    glDisable(GL_BLEND);
-  }
+    static_cast<vtkCompositeSurfaceLICMapper*>(this->Parent)
+      ->GetLICInterface()->GetMaskOnSurface());
 }
 
 //-------------------------------------------------------------------------
@@ -337,7 +244,114 @@ void vtkCompositeSurfaceLICMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkCompositeSurfaceLICMapper::CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper)
 {
   this->Superclass::CopyMapperValuesToHelper(helper);
-  static_cast<vtkCompositeLICHelper *>(helper)->SetLICInterface(this->LICInterface.Get());
+  // static_cast<vtkCompositeLICHelper *>(helper)->SetLICInterface(this->LICInterface.Get());
   helper->SetInputArrayToProcess(0,
      this->GetInputArrayInformation(0));
+}
+
+// ---------------------------------------------------------------------------
+// Description:
+// Method initiates the mapping process. Generally sent by the actor
+// as each frame is rendered.
+
+void vtkCompositeSurfaceLICMapper::Render(
+  vtkRenderer *ren, vtkActor *actor)
+{
+  this->LICInterface->ValidateContext(ren);
+
+  this->LICInterface->UpdateCommunicator(ren, actor, this->GetInputDataObject(0, 0));
+
+  vtkPainterCommunicator *comm = this->LICInterface->GetCommunicator();
+
+  if (comm->GetIsNull())
+  {
+    // other rank's may have some visible data but we
+    // have none and should not participate further
+    return;
+  }
+
+  // do we have vectors? Need a leaf node to know
+  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
+    this->GetInputDataObject(0, 0));
+  bool haveVectors = true;
+  if (input)
+  {
+    vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+      vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+    iter->SetDataSet(input);
+    iter->SkipEmptyNodesOn();
+    iter->VisitOnlyLeavesOn();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+        iter->GoToNextItem())
+    {
+      vtkDataObject *dso = iter->GetCurrentDataObject();
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+      if (pd && pd->GetPoints())
+      {
+        haveVectors = haveVectors && (this->GetInputArrayToProcess(0, pd) != NULL);
+      }
+    }
+  }
+  else
+  {
+    vtkPolyData *pd = vtkPolyData::SafeDownCast(
+      this->GetInputDataObject(0, 0));
+    if (pd && pd->GetPoints())
+    {
+      haveVectors = (this->GetInputArrayToProcess(0, pd) != NULL);
+    }
+  }
+
+  this->LICInterface->SetHasVectors(haveVectors);
+
+  if (!this->LICInterface->CanRenderSurfaceLIC(actor))
+  {
+    // we've determined that there's no work for us, or that the
+    // requisite opengl extensions are not available. pass control on
+    // to delegate renderer and return.
+    this->Superclass::Render(ren, actor);
+    return;
+  }
+
+  // Before start rendering LIC, capture some essential state so we can restore
+  // it.
+  bool blendEnabled = (glIsEnabled(GL_BLEND) == GL_TRUE);
+
+  vtkNew<vtkOpenGLFramebufferObject> fbo;
+  fbo->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+  fbo->SaveCurrentBindingsAndBuffers();
+
+  // allocate rendering resources, initialize or update
+  // textures and shaders.
+  this->LICInterface->InitializeResources();
+
+  // draw the geometry
+  this->LICInterface->PrepareForGeometry();
+
+  this->Superclass::Render(ren, actor);
+
+  this->LICInterface->CompletedGeometry();
+
+  // --------------------------------------------- composite vectors for parallel LIC
+  this->LICInterface->GatherVectors();
+
+  // ------------------------------------------- LIC on screen
+  this->LICInterface->ApplyLIC();
+
+  // ------------------------------------------- combine scalar colors + LIC
+  this->LICInterface->CombineColorsAndLIC();
+
+  // ----------------------------------------------- depth test and copy to screen
+  this->LICInterface->CopyToScreen();
+
+  fbo->RestorePreviousBindingsAndBuffers();
+
+  if (blendEnabled)
+  {
+    glEnable(GL_BLEND);
+  }
+  else
+  {
+    glDisable(GL_BLEND);
+  }
 }

@@ -48,6 +48,11 @@ public:
     return this->LICInterface.Get(); }
   //@}
 
+  /**
+   * Lots of LIC setup code
+   */
+  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+
 protected:
   vtkCompositeSurfaceLICMapper();
   ~vtkCompositeSurfaceLICMapper();
