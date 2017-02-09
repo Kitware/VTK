@@ -195,6 +195,7 @@ void vtkInteractorStyleDrawPolygon::OnLeftButtonUp()
     unsigned char *pixels = this->PixelArray->GetPointer(0);
     this->Interactor->GetRenderWindow()->SetPixelData(
       0, 0, size[0]-1, size[1]-1, pixels, 1);
+    this->Interactor->GetRenderWindow()->Frame();
   }
 
   this->Moving = 0;
@@ -229,6 +230,7 @@ void vtkInteractorStyleDrawPolygon::DrawPolygon()
   }
 
   this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0]-1, size[1]-1, pixels, 1);
+  this->Interactor->GetRenderWindow()->Frame();
 }
 
 //----------------------------------------------------------------------------
