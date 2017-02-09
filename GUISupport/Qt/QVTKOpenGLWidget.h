@@ -244,6 +244,15 @@ protected slots:
    */
   virtual void cleanupContext();
 
+  /**
+   * Slot connected to `QOpenGLWidget::resized`. The `resized`
+   * signal is fired when `QOpenGLWidget` recreates the FBO used for
+   * rendering. Since this means that the `vtkOpenGLRenderWindow::DefaultFrameBufferId`
+   * may have changed, we need to tell vtkOpenGLRenderWindow to reinitialize itself
+   * the next time `QVTKOpenGLWidget::paintGL` gets called.
+   */
+  virtual void defaultFrameBufferObjectChanged();
+
 protected:
   void initializeGL() Q_DECL_OVERRIDE;
   void resizeGL(int w, int h) Q_DECL_OVERRIDE;
@@ -254,6 +263,14 @@ protected:
   void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
   void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
   void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
+
+  /**
+   * This method is called to indicate that vtkRenderWindow needs to reinitialize
+   * itself before the next render (done in QVTKOpenGLWidget::paintGL).
+   * This is needed when the context gets recreated
+   * or the default FrameBufferObject gets recreated, for example.
+   */
+  void requireRenderWindowInitialization();
 
   /**
    * This method is called in paintGL() to render the image cache on to the device.
