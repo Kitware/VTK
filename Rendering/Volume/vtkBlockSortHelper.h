@@ -25,6 +25,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
+#include "vtkVolumeMapper.h"
 
 
 namespace vtkBlockSortHelper
@@ -33,19 +34,17 @@ namespace vtkBlockSortHelper
   /**
    *  operator() for back-to-front sorting.
    *
-   *  Use as the 'comp' parameter of std::sort.
+   *  \note Use as the 'comp' parameter of std::sort.
    *
    */
+  template<typename T>
   struct BackToFront
   {
-    vtkRenderer* Renderer;
     double CameraPosition[4];
 
     //----------------------------------------------------------------------------
     BackToFront(vtkRenderer* ren, vtkMatrix4x4* volMatrix)
     {
-      this->Renderer = ren;
-
       vtkCamera* cam = ren->GetActiveCamera();
       double camWorldPos[4];
 
@@ -60,7 +59,16 @@ namespace vtkBlockSortHelper
     };
 
     //----------------------------------------------------------------------------
-    bool operator() (vtkImageData* first, vtkImageData* second)
+    bool operator()(T* first, T* second);
+
+    /**
+     * Compares distances from images (first, second) to the camera position.
+     * Returns true if the distance of first is greater than the distance of
+     * second (descending order according to the std::sort convention).
+     */
+    //----------------------------------------------------------------------------
+    inline bool CompareByDistanceDescending(vtkImageData* first,
+      vtkImageData* second)
     {
       double center[3];
       double bounds[6];
@@ -85,6 +93,25 @@ namespace vtkBlockSortHelper
       center[1] = bounds[2] + std::abs(bounds[3] - bounds[2]) / 2.0;
       center[2] = bounds[4] + std::abs(bounds[5] - bounds[4]) / 2.0;
     };
+  };
+
+  //----------------------------------------------------------------------------
+  template <>
+  inline bool BackToFront<vtkImageData>::operator() (vtkImageData* first,
+    vtkImageData* second)
+  {
+    return CompareByDistanceDescending(first, second);
+  };
+
+  //----------------------------------------------------------------------------
+  template <>
+  inline bool BackToFront<vtkVolumeMapper>::operator() (vtkVolumeMapper* first,
+    vtkVolumeMapper* second)
+  {
+    vtkImageData* firstIm = first->GetInput();
+    vtkImageData* secondIm = second->GetInput();
+
+    return CompareByDistanceDescending(firstIm, secondIm);
   };
 }
 

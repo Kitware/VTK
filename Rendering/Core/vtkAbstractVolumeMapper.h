@@ -71,8 +71,9 @@ public:
    * (ScalarModeToUseCellFieldData).  If scalars are coming from a field
    * data array, you must call SelectScalarArray.
    */
-  vtkSetMacro(ScalarMode,int);
-  vtkGetMacro(ScalarMode,int);
+  vtkSetMacro(ScalarMode, int);
+  vtkGetMacro(ScalarMode, int);
+  vtkSetMacro(ArrayAccessMode, int);
   void SetScalarModeToDefault() {
     this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
   void SetScalarModeToUsePointData() {
