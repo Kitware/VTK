@@ -18,6 +18,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QPointer>
+#include <QtDebug>
 
 #include "QVTKInteractor.h"
 #include "QVTKInteractorAdapter.h"
@@ -130,6 +131,10 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   this->DeferedRenderTimer.setSingleShot(true);
   this->DeferedRenderTimer.setInterval(0);
   this->connect(&this->DeferedRenderTimer, SIGNAL(timeout()), SLOT(doDeferredRender()));
+
+  // QOpenGLWidget::resized() is triggered when the default FBO is recreated. We need to
+  // make sure that the vtkRenderWindow knows about the new FBO id.
+  this->connect(this, SIGNAL(resized()), SLOT(defaultFrameBufferObjectChanged()));
 }
 
 //-----------------------------------------------------------------------------
@@ -144,7 +149,13 @@ QVTKOpenGLWidget::~QVTKOpenGLWidget()
 //-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::SetRenderWindow(vtkRenderWindow* win)
 {
-  this->SetRenderWindow(vtkGenericOpenGLRenderWindow::SafeDownCast(win));
+  vtkGenericOpenGLRenderWindow* gwin = vtkGenericOpenGLRenderWindow::SafeDownCast(win);
+  this->SetRenderWindow(gwin);
+  if (gwin == NULL && win != NULL)
+  {
+    qDebug() << "QVTKOpenGLWidget requires a `vtkGenericOpenGLRenderWindow`. `"
+             << win->GetClassName() << "` is not supported.";
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -167,10 +178,10 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
 
   this->RenderWindow = win;
+  this->requireRenderWindowInitialization();
   if (this->RenderWindow)
   {
     // tell the vtk window what the size of this window is
-    this->RenderWindow->SetReadyForRendering(false);
     this->RenderWindow->SetSize(this->width() * this->devicePixelRatio(),
                                 this->height() * this->devicePixelRatio());
     this->RenderWindow->SetPosition(this->x() * this->devicePixelRatio(),
@@ -201,7 +212,6 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     this->RenderWindow->AddObserver(vtkCommand::WindowMakeCurrentEvent, this->Observer.Get());
     this->RenderWindow->AddObserver(vtkCommand::WindowIsCurrentEvent, this->Observer.Get());
     this->RenderWindow->AddObserver(vtkCommand::WindowFrameEvent, this->Observer.Get());
-    this->NeedToReinitializeWindow = true;
   }
 }
 
@@ -333,7 +343,17 @@ void QVTKOpenGLWidget::initializeGL()
 
   this->connect(
     this->context(), SIGNAL(aboutToBeDestroyed()), SLOT(cleanupContext()), Qt::UniqueConnection);
+  this->requireRenderWindowInitialization();
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLWidget::requireRenderWindowInitialization()
+{
   this->NeedToReinitializeWindow = true;
+  if (this->RenderWindow)
+  {
+    this->RenderWindow->SetReadyForRendering(false);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -349,6 +369,12 @@ void QVTKOpenGLWidget::resizeGL(int w, int h)
     this->markCachedImageAsDirty();
   }
   this->Superclass::resizeGL(w, h);
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLWidget::defaultFrameBufferObjectChanged()
+{
+  this->requireRenderWindowInitialization();
 }
 
 //-----------------------------------------------------------------------------
@@ -372,6 +398,8 @@ void QVTKOpenGLWidget::paintGL()
     this->RenderWindow->InitializeFromCurrentContext();
     this->NeedToReinitializeWindow = false;
   }
+
+  Q_ASSERT(this->defaultFramebufferObject() == this->RenderWindow->GetDefaultFrameBufferId());
 
   // if we have a saved image, use it
   if (this->paintCachedImage() == false)
@@ -402,6 +430,7 @@ void QVTKOpenGLWidget::cleanupContext()
     this->RenderWindow->SetReadyForRendering(false);
   }
   this->markCachedImageAsDirty();
+  this->requireRenderWindowInitialization();
 }
 
 //-----------------------------------------------------------------------------
