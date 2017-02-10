@@ -830,21 +830,21 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
 //  vtkCellArray *conn=vtkCellArray::New();
 //  conn->Allocate(numCells);
 
-  unsigned char *cellGhostLevels=0;
-  vtkDataArray *temp=0;
-  if(cd!=0)
+  unsigned char *cellGhostLevels = 0;
+  vtkDataArray *temp = 0;
+  if (cd != 0)
   {
-    temp=cd->GetArray(vtkDataSetAttributes::GhostArrayName());
+    temp = cd->GetArray(vtkDataSetAttributes::GhostArrayName());
   }
-  if(temp!=0&&temp->GetDataType()==VTK_UNSIGNED_CHAR&&temp->GetNumberOfComponents()==1)
+  if (temp != 0 && temp->GetDataType() == VTK_UNSIGNED_CHAR &&
+      temp->GetNumberOfComponents() == 1)
   {
-    cellGhostLevels=((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    cellGhostLevels = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
   }
   else
   {
     vtkDebugMacro("No appropriate ghost levels field available.");
   }
-
 
   // Visibility of cells.
   char *cellVis;
