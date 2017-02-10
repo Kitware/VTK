@@ -78,7 +78,7 @@ vtkm::IdComponent vtkmCellSetSingleType::DetermineNumberOfPoints() const
         CellShapeTag(), vtkm::CellTraits<CellShapeTag>::IsSizeFixed(),
         numberOfPointsPerCell));
   default:
-    throw vtkm::cont::ErrorControlBadValue(
+    throw vtkm::cont::ErrorBadValue(
         "CellSetSingleType unable to determine the cell type");
   }
   return numberOfPointsPerCell;

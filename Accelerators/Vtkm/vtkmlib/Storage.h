@@ -66,7 +66,7 @@ public:
   {
     if (src.DeallocateOnRelease)
     {
-      throw vtkm::cont::ErrorControlBadValue(
+      throw vtkm::cont::ErrorBadValue(
           "Attempted to copy a storage array that needs deallocation. "
           "This is disallowed to prevent complications with deallocation.");
     }
@@ -94,7 +94,7 @@ public:
   {
     if (numberOfValues > this->GetNumberOfValues())
     {
-      throw vtkm::cont::ErrorControlBadValue(
+      throw vtkm::cont::ErrorBadValue(
           "Shrink method cannot be used to grow array.");
     }
 
@@ -159,7 +159,7 @@ public:
   {
     if (src.DeallocateOnRelease)
     {
-      throw vtkm::cont::ErrorControlBadValue(
+      throw vtkm::cont::ErrorBadValue(
           "Attempted to copy a storage array that needs deallocation. "
           "This is disallowed to prevent complications with deallocation.");
     }
@@ -187,7 +187,7 @@ public:
   {
     if (numberOfValues > this->GetNumberOfValues())
     {
-      throw vtkm::cont::ErrorControlBadValue(
+      throw vtkm::cont::ErrorBadValue(
           "Shrink method cannot be used to grow array.");
     }
 
@@ -249,7 +249,7 @@ public:
   {
     if (src.DeallocateOnRelease)
     {
-      throw vtkm::cont::ErrorControlBadValue(
+      throw vtkm::cont::ErrorBadValue(
           "Attempted to copy a storage array that needs deallocation. "
           "This is disallowed to prevent complications with deallocation.");
     }
@@ -277,7 +277,7 @@ public:
   {
     if (numberOfValues > this->GetNumberOfValues())
     {
-      throw vtkm::cont::ErrorControlBadValue(
+      throw vtkm::cont::ErrorBadValue(
           "Shrink method cannot be used to grow array.");
     }
 

@@ -31,20 +31,19 @@
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
 
 
-// Workaround so that we work with versions of vtkm that don't have
-// VTKM_ALWAYS_EXPORT defined, which was added with the vtkm_cont library
-// and is defined in vtkm/internal/ExportMacros.h
-#ifndef VTKM_ALWAYS_EXPORT
+/*--------------------------------------------------------------------------*/
+/* Support the old exceptions                                               */
+#include <vtkm/cont/ArrayHandle.h>
+#ifdef vtk_m_cont_ErrorControlBadAllocation_h
 
-#if defined(VTKM_MSVC)
-#   define VTKM_ALWAYS_EXPORT
-#   define VTKM_NEVER_EXPORT
-#else
-#   define VTKM_ALWAYS_EXPORT __attribute__((visibility("default")))
-#   define VTKM_NEVER_EXPORT __attribute__((visibility("hidden")))
+namespace vtkm {
+namespace cont {
+using ErrorBadAllocation = ErrorControlBadAllocation;
+using ErrorBadValue = ErrorControlBadValue;
+}
+}
 #endif
 
-#endif
 
 #ifndef VTKACCELERATORSVTKM_TEMPLATE_EXPORT
 # if !defined(VTKACCELERATORSVTKM_STATIC_DEFINE) && defined(_MSC_VER)
