@@ -329,7 +329,8 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
     // We couldn't find scalars
     if ( !scalars )
     {
-      vtkErrorMacro("No scalars found on input.");
+      vtkErrorMacro("No scalars named \"" << this->ArrayName <<
+        "\" or with id " << this->ArrayId << " found on input.");
       goodSoFar = 0;
     }
     // Even if we found scalars, if they are field data scalars that isn't good
