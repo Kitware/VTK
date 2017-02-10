@@ -85,6 +85,16 @@ public:
 
   //@{
   /**
+   * Turn on/off clipping of ghost cells with type
+   * vtkDataSetAttributes::DUPLICATECELL. Defaults to on.
+   */
+  vtkSetMacro(DuplicateGhostCellClipping,int);
+  vtkGetMacro(DuplicateGhostCellClipping,int);
+  vtkBooleanMacro(DuplicateGhostCellClipping,int);
+  //@}
+
+  //@{
+  /**
    * Specify the minimum point id for point id selection.
    */
   vtkSetClampMacro(PointMinimum,vtkIdType,0,VTK_ID_MAX);
@@ -212,6 +222,7 @@ protected:
   int PointClipping;
   int CellClipping;
   int ExtentClipping;
+  int DuplicateGhostCellClipping;
 
   int PassThroughCellIds;
   int PassThroughPointIds;

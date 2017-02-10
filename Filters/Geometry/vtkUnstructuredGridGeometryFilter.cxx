@@ -718,6 +718,7 @@ vtkUnstructuredGridGeometryFilter::vtkUnstructuredGridGeometryFilter()
   this->PointClipping = 0;
   this->CellClipping = 0;
   this->ExtentClipping = 0;
+  this->DuplicateGhostCellClipping = 1;
 
   this->PassThroughCellIds = 0;
   this->PassThroughPointIds = 0;
@@ -874,8 +875,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       cellId = cellIter->GetCellId();
       npts = cellIter->GetNumberOfPoints();
       pts = cellIter->GetPointIds()->GetPointer(0);
-      if((cellGhostLevels!=0 &&
-          cellGhostLevels[cellId] & vtkDataSetAttributes::DUPLICATECELL)||
+      if((cellGhostLevels != 0 &&
+         (cellGhostLevels[cellId] & vtkDataSetAttributes::DUPLICATECELL) &&
+         this->DuplicateGhostCellClipping) ||
          (this->CellClipping && (cellId < this->CellMinimum ||
                                  cellId > this->CellMaximum)) )
       {
