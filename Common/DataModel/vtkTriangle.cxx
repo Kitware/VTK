@@ -353,6 +353,7 @@ int vtkTriangle::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 //
 // Marching triangles
 //
+namespace { //required so we don't violate ODR
 typedef int EDGE_LIST;
 typedef struct {
        EDGE_LIST edges[3];
@@ -368,6 +369,7 @@ static LINE_CASES lineCases[] = {
   {{2, 0, -1}},
   {{-1, -1, -1}}
 };
+}
 
 static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
 
@@ -832,6 +834,7 @@ int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
 // at a time define a triangle, -1 ends the list). Numbers in the list >= 100
 // correspond to already existing vertices; otherwise the numbers refer to edge
 // ids.
+namespace { //required so we don't violate ODR
 typedef int TRIANGLE_EDGE_LIST;
 typedef struct {
        TRIANGLE_EDGE_LIST edges[7];
@@ -847,6 +850,7 @@ static TRIANGLE_CASES triangleCases[] = {
 {{0, 101, 2, 2, 101, 102, -1}}, // 6
 {{100, 101, 102, -1, -1, -1, -1}}       // 7
 };
+}
 
 //----------------------------------------------------------------------------
 // Clip this triangle using scalar value provided. Like contouring, except

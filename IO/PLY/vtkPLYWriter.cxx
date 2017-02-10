@@ -57,6 +57,7 @@ vtkPLYWriter::~vtkPLYWriter()
   delete [] this->FileName;
 }
 
+namespace { //required so we don't violate ODR
 typedef struct _plyVertex {
   float x[3];             // the usual 3-space position of a vertex
   unsigned char red;
@@ -72,6 +73,7 @@ typedef struct _plyFace {
   unsigned char green;
   unsigned char blue;
 } plyFace;
+}
 
 void vtkPLYWriter::WriteData()
 {
