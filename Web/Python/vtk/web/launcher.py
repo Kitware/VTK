@@ -152,7 +152,7 @@ def validateKeySet(obj, expected_keys, object_name):
     all_key_found = True
     for key in expected_keys:
         if not obj.has_key(key):
-            print "ERROR: %s is missing %s key." % (object_name, key)
+            print("ERROR: %s is missing %s key." % (object_name, key))
             all_key_found = False
     return all_key_found
 
@@ -641,18 +641,18 @@ def parseConfig(options):
     except:
         message = "ERROR: Unable to read config file.\n"
         message += str(sys.exc_info()[1]) + "\n" + str(sys.exc_info()[2])
-        print message
-        print sample_config_file
+        print(message)
+        print(sample_config_file)
         sys.exit(2)
 
     expected_keys = ["configuration", "apps", "properties", "resources"]
     if not validateKeySet(config, expected_keys, "Config file"):
-        print sample_config_file
+        print(sample_config_file)
         sys.exit(2)
 
     expected_keys = ["endpoint", "host", "port", "proxy_file", "sessionURL", "timeout", "log_dir", "fields"]
     if not validateKeySet(config["configuration"], expected_keys, "file.configuration"):
-        print sample_config_file
+        print(sample_config_file)
         sys.exit(2)
 
     if not config["configuration"].has_key("content"):

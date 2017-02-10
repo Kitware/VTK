@@ -146,8 +146,8 @@ def initialize(opts, reactor=None, cleanupMethod=None) :
     if (testModuleOptions.testScriptPath != "" and testModuleOptions.testScriptPath is not None) :
         # Check if we ran into trouble with any of the testing imports
         if import_warning_info != "" :
-            print "WARNING: Some tests may have unmet dependencies"
-            print import_warning_info
+            print("WARNING: Some tests may have unmet dependencies")
+            print(import_warning_info)
 
         if reactor is not None :
             # Add startTest callback to the reactor callback queue, so that
@@ -442,7 +442,7 @@ class BrowserBasedWebTest(WebTest):
         try:
             self.window.quit()
         except:
-            print 'Unable to call window.quit, perhaps this is expected because of unmet browser dependency.'
+            print('Unable to call window.quit, perhaps this is expected because of unmet browser dependency.')
 
 
 # =============================================================================
@@ -506,7 +506,7 @@ def get_image_data(browser, cssSelector) :
 
     # Now get the Base64 image string and decode it into image data
     base64String = imageElt.get_attribute("src")
-    b64RegEx = re.compile(ur'data:image/jpeg;base64,(.+)', re.UNICODE)
+    b64RegEx = re.compile(r'data:image/jpeg;base64,(.+)')
     b64Matcher = b64RegEx.match(base64String)
     imgdata = base64.b64decode(b64Matcher.group(1))
 
@@ -537,7 +537,7 @@ def save_image_data_as_png(browser, cssSelector, imgfilename) :
     """
     imageElt = browser.find_element_by_css_selector(cssSelector)
     base64String = imageElt.get_attribute("src")
-    b64RegEx = re.compile(ur'data:image/jpeg;base64,(.+)', re.UNICODE)
+    b64RegEx = re.compile(r'data:image/jpeg;base64,(.+)')
     b64Matcher = b64RegEx.match(base64String)
     img = Image.open(io.BytesIO(base64.b64decode(b64Matcher.group(1))))
     img.save(imgfilename)
@@ -596,8 +596,8 @@ def instantiate_test_subclass(pathToScript, **kwargs) :
                     instance.__init__(**kwargs)
                     break;
                 except Exception as inst:
-                    print 'Caught exception: ' + str(type(inst))
-                    print inst
+                    print('Caught exception: ' + str(type(inst)))
+                    print(inst)
                     raise
 
     return instance
@@ -644,7 +644,7 @@ def launch_web_test(*args, **kwargs) :
 
     # Check for a test file (python file)
     if testScriptFile is None :
-        print 'No test script file found, no test script will be run.'
+        print('No test script file found, no test script will be run.')
         test_fail(testName)
 
     # The test name will be generated from the python script name, so
@@ -655,7 +655,7 @@ def launch_web_test(*args, **kwargs) :
     if fmatch :
         testName = fmatch.group(1)
     else :
-        print 'Unable to parse testScriptFile (' + str(testScriptfile) + '), no test will be run'
+        print('Unable to parse testScriptFile (' + str(testScriptfile) + '), no test will be run')
         test_fail(testName)
 
     # If we successfully got a test name, we are ready to try and run the test
@@ -687,20 +687,20 @@ def launch_web_test(*args, **kwargs) :
                     testInstance.run_test()
                 except DependencyError as derr:
                     # TODO: trigger return SKIP_RETURN_CODE when CMake 3 is required
-                    print 'Some dependency of this test was not met, allowing it to pass'
+                    print('Some dependency of this test was not met, allowing it to pass')
                     test_pass(testName)
             else :
-                print 'Unable to instantiate test instance, failing test'
+                print('Unable to instantiate test instance, failing test')
                 test_fail(testName)
                 return
 
         except Exception as inst :
             import sys, traceback
             tb = sys.exc_info()[2]
-            print 'Caught an exception while running test script:'
-            print '  ' + str(type(inst))
-            print '  ' + str(inst)
-            print '  ' + ''.join(traceback.format_tb(tb))
+            print('Caught an exception while running test script:')
+            print('  ' + str(type(inst)))
+            print('  ' + str(inst))
+            print('  ' + ''.join(traceback.format_tb(tb)))
             test_fail(testName)
 
     # If we were passed a cleanup method to run after testing, invoke it now
@@ -735,7 +735,7 @@ def finalize() :
         for testName in resultObject :
             testResult = resultObject[testName]
             if testResult == 'fail' :
-                print '  Test -> ' + testName + ': ' + testResult
+                print('  Test -> ' + testName + ': ' + testResult)
                 failedATest = True
 
         if failedATest is True :

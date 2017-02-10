@@ -1,8 +1,9 @@
-vtk_module(vtkWebPython
+vtk_module(vtkWebPython2
   GROUPS
     Web
   EXCLUDE_FROM_WRAPPING
   DEPENDS
+    AutobahnPython
   COMPILE_DEPENDS
     vtkPython
   OPTIONAL_PYTHON_LINK
