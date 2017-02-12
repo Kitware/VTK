@@ -310,6 +310,15 @@ public:
                        int dataType, void *data);
 
   /**
+   * Create a 3D texture using the GL_PROXY_TEXTURE_3D target.  This serves
+   * as a pre-allocation step which assists in verifying that the size
+   * of the texture to be created is supported by the implementation and that
+   * there is sufficient texture memory available for it.
+   */
+  bool AllocateProxyTexture3D(unsigned int const width, unsigned int const height,
+    unsigned int const depth, int const numComps, int const dataType);
+
+  /**
    * This is used to download raw data from the texture into a pixel bufer. The
    * pixel buffer API can then be used to download the pixel buffer data to CPU
    * arrays. The caller takes on the responsibility of deleting the returns
@@ -641,6 +650,7 @@ public:
   vtkSetMacro(GenerateMipmap, bool);
   //@}
 
+  //@{
   /**
    * Query and return maximum texture size (dimension) supported by the
    * OpenGL driver for a particular context. It should be noted that this
@@ -651,6 +661,15 @@ public:
    * be returned.
    */
   static int GetMaximumTextureSize(vtkOpenGLRenderWindow* context);
+  static int GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context);
+
+  /**
+   * Overload which uses the internal context to query the maximum 3D
+   * texture size. Will make the internal context current, returns -1 if
+   * anything fails.
+   */
+  int GetMaximumTextureSize3D();
+  //@}
 
   /**
    * Returns if the context supports the required extensions. If flags

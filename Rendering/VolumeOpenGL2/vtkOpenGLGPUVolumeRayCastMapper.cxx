@@ -234,6 +234,9 @@ public:
                 vtkImageData* maskInput, int textureExtent[6],
                 vtkVolume* volume);
 
+  bool LoadData(vtkRenderer* ren, vtkVolume* vol, vtkVolumeProperty* volProp,
+    vtkImageData* input, vtkDataArray* scalars);
+
   void DeleteTransferFunctions();
 
   void ComputeBounds(vtkImageData* input);
@@ -293,8 +296,7 @@ public:
   // Update the volume geometry
   void RenderVolumeGeometry(vtkRenderer* ren,
                             vtkShaderProgram* prog,
-                            vtkVolume* vol,
-                            vtkImageData* input);
+                            vtkVolume* vol);
 
   // Update cropping params to shader
   void SetCroppingRegions(vtkRenderer* ren, vtkShaderProgram* prog,
@@ -651,6 +653,25 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
   }
 
   return result;
+}
+
+//----------------------------------------------------------------------------
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadData(vtkRenderer* ren,
+  vtkVolume* vol, vtkVolumeProperty* volProp, vtkImageData* input,
+  vtkDataArray* scalars)
+{
+    // Update bounds, data, and geometry
+    input->GetDimensions(this->Dimensions);
+    bool success = this->Parent->VolumeTexture->LoadVolume(ren, input, scalars,
+      volProp->GetInterpolationType());
+
+    this->ComputeBounds(input);
+    this->ComputeCellToPointMatrix();
+    this->LoadMask(ren, input, this->Parent->MaskInput,
+                         this->Extents, vol);
+    this->InputUpdateTime.Modified();
+
+    return success;
 }
 
 //----------------------------------------------------------------------------
@@ -1267,14 +1288,13 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
-  vtkRenderer* ren, vtkShaderProgram* prog,
-  vtkVolume* vol, vtkImageData* input)
+  vtkRenderer* ren, vtkShaderProgram* prog, vtkVolume* vol)
 {
   if (this->NeedToInitializeResources ||
-      input->GetMTime() > this->InputUpdateTime.GetMTime() ||
+      !this->BBoxPolyData ||
+      this->Parent->VolumeTexture->UploadTime > this->BBoxPolyData->GetMTime() ||
       this->IsCameraInside(ren, vol) ||
-      this->CameraWasInsideInLastUpdate || (this->BBoxPolyData &&
-      this->Parent->VolumeTexture->UploadTime > this->BBoxPolyData->GetMTime()))
+      this->CameraWasInsideInLastUpdate)
   {
     vtkNew<vtkTessellatedBoxSource> boxSource;
     boxSource->SetBounds(this->LoadedBounds);
@@ -2748,6 +2768,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
 }
 
 //----------------------------------------------------------------------------
+bool vtkOpenGLGPUVolumeRayCastMapper::PreLoadData(vtkRenderer* ren,
+  vtkVolume* vol)
+{
+  if (!this->ValidateRender(ren, vol))
+  {
+    return false;
+  }
+
+  vtkImageData* input = this->GetTransformedInput();
+  vtkVolumeProperty* volProp = vol->GetProperty();
+
+  vtkDataArray* arr = this->GetScalars(input, this->ScalarMode,
+    this->ArrayAccessMode, this->ArrayId, this->ArrayName, this->CellFlag);
+
+  return this->Impl->LoadData(ren, vol, volProp, input, arr);
+}
+
+//----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                                                 vtkVolume* vol)
 {
@@ -2800,7 +2838,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Allocate important variables
   this->Impl->Bias.resize(noOfComponents, 0.0);
 
-
   if (this->Impl->NeedToInitializeResources ||
       (volumeProperty->GetMTime() >
        this->Impl->InitializationTime.GetMTime()))
@@ -2816,21 +2853,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   }
 
   // Update the volume if needed
-  bool volumeModified = false;
   if (this->Impl->NeedToInitializeResources ||
       (input->GetMTime() > this->Impl->InputUpdateTime.GetMTime()))
   {
-    volumeModified = true;
-    input->GetDimensions(this->Impl->Dimensions);
-
-    // Update bounds, data, and geometry
-    this->VolumeTexture->LoadVolume(ren, input, scalars,
-      volumeProperty->GetInterpolationType());
-
-    this->Impl->ComputeBounds(input);
-    this->Impl->ComputeCellToPointMatrix();
-    this->Impl->LoadMask(ren, input, this->MaskInput,
-                         this->Impl->Extents, vol);
+    this->Impl->LoadData(ren, vol, volumeProperty, input, scalars);
   }
   else
   {
@@ -3031,11 +3057,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   if (this->Impl->IsPicking)
   {
     this->Impl->EndPicking(ren);
-  }
-
-  if (volumeModified)
-  {
-    this->Impl->InputUpdateTime.Modified();
   }
 
   glFinish();
@@ -3409,7 +3430,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
 
   // Render volume geometry to trigger render
   //--------------------------------------------------------------------------
-  this->Impl->RenderVolumeGeometry(ren, prog, vol, block->ImageData);
+  this->Impl->RenderVolumeGeometry(ren, prog, vol);
 
   // Undo binds and de-activate buffers
   //--------------------------------------------------------------------------
