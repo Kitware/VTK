@@ -39,6 +39,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestLogoWidgetAlphaBlending.cxx
   TestLogoWidget.cxx
   TestLogoWidgetDepthPeeling.cxx
+  TestMeasurementCubeHandleRepresentation3D.cxx
   TestMultipleViewports.cxx
   TestOrientationMarkerWidget.cxx
   TestOrientationMarkerWidget2.cxx

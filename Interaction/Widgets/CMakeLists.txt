@@ -74,6 +74,7 @@ set(Module_SRCS
   vtkLineWidget.cxx
   vtkLogoRepresentation.cxx
   vtkLogoWidget.cxx
+  vtkMeasurementCubeHandleRepresentation3D.cxx
   vtkOrientationMarkerWidget.cxx
   vtkOrientedGlyphContourRepresentation.cxx
   vtkOrientedGlyphFocalPlaneContourRepresentation.cxx
