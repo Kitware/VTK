@@ -81,10 +81,20 @@ static bool ReadTextAttribute(int ncFD, int varId, const char *name,
                               vtkStdString &result)
 {
   size_t length;
-  if (nc_inq_attlen(ncFD, varId, name, &length) != NC_NOERR) return false;
+  if (nc_inq_attlen(ncFD, varId, name, &length) != NC_NOERR) { return false; }
 
   result.resize(length);
-  if (nc_get_att_text(ncFD,varId,name,&result.at(0)) != NC_NOERR) return false;
+  if (length > 0)
+  {
+    if (nc_get_att_text(ncFD, varId, name, &result.at(0)) != NC_NOERR)
+    {
+      return false;
+    }
+  }
+  else
+  {
+    // If length == 0, then there really is nothing to read. Do nothing
+  }
 
   // The line below seems weird, but it is here for a good reason.  In general,
   // text attributes are not null terminated, so you have to add your own (which
@@ -670,7 +680,10 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   // connect to the cell in the -i topological direction.  Tuple entries 0 and 3
   // connect to the cell in the -j topological direction.
   std::vector<double> boundsData(dimSizes[0]*dimSizes[1]*4);
-  CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, &boundsData.at(0)));
+  if (boundsData.size() > 0)
+  {
+    CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, &boundsData.at(0)));
+  }
 
   // The coords array are the coords at the points.  There is one more point
   // than cell in each topological direction.
