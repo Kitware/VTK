@@ -17,6 +17,8 @@
 #ifndef vtkmlib_Storage_hxx
 #define vtkmlib_Storage_hxx
 
+#include "vtkmConfig.h"
+
 namespace vtkm {
 namespace cont {
 namespace internal {
@@ -55,7 +57,7 @@ void Storage<ValueType_, tovtkm::vtkAOSArrayContainerTag>::Allocate(
 
   if (this->UserProvidedMemory)
   {
-    throw vtkm::cont::ErrorControlBadValue(
+    throw vtkm::cont::ErrorBadValue(
         "User allocated arrays cannot be reallocated.");
   }
 
@@ -83,7 +85,7 @@ void Storage<ValueType_, tovtkm::vtkAOSArrayContainerTag>::Allocate(
     this->Array = NULL;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
-    throw vtkm::cont::ErrorControlBadAllocation(
+    throw vtkm::cont::ErrorBadAllocation(
         "Could not allocate basic control array.");
   }
 
@@ -141,7 +143,7 @@ void Storage<ValueType_, tovtkm::vtkSOAArrayContainerTag>::Allocate(
 
   if (this->UserProvidedMemory)
   {
-    throw vtkm::cont::ErrorControlBadValue(
+    throw vtkm::cont::ErrorBadValue(
         "User allocated arrays cannot be reallocated.");
   }
 
@@ -169,7 +171,7 @@ void Storage<ValueType_, tovtkm::vtkSOAArrayContainerTag>::Allocate(
     this->Array = NULL;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
-    throw vtkm::cont::ErrorControlBadAllocation(
+    throw vtkm::cont::ErrorBadAllocation(
         "Could not allocate basic control array.");
   }
 
@@ -227,7 +229,7 @@ void Storage<ValueType_, tovtkm::vtkCellArrayContainerTag>::Allocate(
 
   if (this->UserProvidedMemory)
   {
-    throw vtkm::cont::ErrorControlBadValue(
+    throw vtkm::cont::ErrorBadValue(
         "User allocated arrays cannot be reallocated.");
   }
 
@@ -253,7 +255,7 @@ void Storage<ValueType_, tovtkm::vtkCellArrayContainerTag>::Allocate(
     this->Array = NULL;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
-    throw vtkm::cont::ErrorControlBadAllocation(
+    throw vtkm::cont::ErrorBadAllocation(
         "Could not allocate basic control array.");
   }
 
