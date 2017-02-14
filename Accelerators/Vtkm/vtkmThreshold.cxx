@@ -58,7 +58,7 @@ namespace
       {
         filter.MapFieldOntoOutput(result, f, policy);
       }
-      catch (vtkm::cont::Error)
+      catch (vtkm::cont::Error&)
       { // todo: should signal we had an issue converting
       }
     }

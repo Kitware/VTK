@@ -344,7 +344,7 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
       data->SetName(input.GetName().c_str());
     }
   }
-  catch (vtkm::cont::Error e)
+  catch (vtkm::cont::Error&)
   {
   }
   return data;
@@ -366,7 +366,7 @@ vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
     points->SetData(pdata);
     pdata->FastDelete();
   }
-  catch (vtkm::cont::Error)
+  catch (vtkm::cont::Error&)
   {
   }
   return points;
