@@ -179,7 +179,7 @@ public:
   /**
    * Upload new data if necessary, bind textures, etc.
    */
-  void RenderPieceStart(vtkDataArray* dataArr);
+  void RenderPieceStart(vtkDataArray* dataArr, vtkMapper *m);
 
   /**
    * Setup the mapper state, buffer objects or property variables necessary
