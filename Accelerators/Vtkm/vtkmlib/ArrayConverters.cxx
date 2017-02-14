@@ -387,7 +387,7 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
       pd->AddArray(vfield);
       vfield->FastDelete();
     }
-    else if (vfield &&  f.GetAssociation() == vtkm::cont::Field::ASSOC_POINTS)
+    else if (vfield &&  f.GetAssociation() == vtkm::cont::Field::ASSOC_CELL_SET)
     {
       cd->AddArray(vfield);
       vfield->FastDelete();
