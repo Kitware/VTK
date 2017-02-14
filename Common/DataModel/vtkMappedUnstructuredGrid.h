@@ -161,6 +161,7 @@ public:
   void CopyStructure(vtkDataSet *pd) VTK_OVERRIDE;
   void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
   vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  using vtkDataSet::GetCell;
   vtkCell* GetCell(vtkIdType cellId) VTK_OVERRIDE;
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
   int GetCellType(vtkIdType cellId) VTK_OVERRIDE;

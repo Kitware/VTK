@@ -134,6 +134,7 @@ public:
   void Reset();
   void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
   vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  using vtkDataSet::GetCell;
   vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;

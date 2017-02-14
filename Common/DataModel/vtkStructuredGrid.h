@@ -83,6 +83,7 @@ public:
   void GetPoint(vtkIdType ptId, double p[3]) VTK_OVERRIDE
     {this->vtkPointSet::GetPoint(ptId,p);}
   vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  vtkCell *GetCell(int i, int j, int k) VTK_OVERRIDE;
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
   int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
@@ -96,6 +97,8 @@ public:
   int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds) VTK_OVERRIDE;
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                        vtkIdList *cellIds, int *seedLoc);
   //@}
 
   //@{

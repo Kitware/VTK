@@ -17,6 +17,8 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredExtent.h"
+
+#include <algorithm>
 #include <cassert>
 
 
@@ -357,6 +359,119 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   }
 
   return;
+}
+
+//------------------------------------------------------------------------------
+void vtkStructuredData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                      vtkIdList *cellIds, int dim[3], int seedLoc[3])
+{
+  vtkIdType numPts = ptIds->GetNumberOfIds();
+  cellIds->Reset();
+
+  // Start by finding the "space" of the points in i-j-k space.
+  // The points define a point, line, or plane in topological space,
+  // which results in degrees of freedom in three, two or one direction.
+  // The numbers of DOF determines which neighbors to select.
+
+  // Start by finding a seed point
+  vtkIdType id0 = seedLoc[0] + seedLoc[1]*dim[0] + seedLoc[2]*dim[0]*dim[1];
+
+  // This defines the space around the seed
+  int offset[8][3];
+  offset[0][0] = -1; offset[0][1] = -1; offset[0][2] = -1;
+  offset[1][0] =  0; offset[1][1] = -1; offset[1][2] = -1;
+  offset[2][0] = -1; offset[2][1] =  0; offset[2][2] = -1;
+  offset[3][0] =  0; offset[3][1] =  0; offset[3][2] = -1;
+  offset[4][0] = -1; offset[4][1] = -1; offset[4][2] =  0;
+  offset[5][0] =  0; offset[5][1] = -1; offset[5][2] =  0;
+  offset[6][0] = -1; offset[6][1] =  0; offset[6][2] =  0;
+  offset[7][0] =  0; offset[7][1] =  0; offset[7][2] =  0;
+
+  // For the rest of the points, trim the seed region
+  // This is essentially an intersection of edge neighbors.
+  for (vtkIdType i = 0; i < numPts; i++)
+  {
+    //  Get the location of the point
+    vtkIdType id = ptIds->GetId(i);
+    if (id - 1 == id0)
+    {
+      offset[0][0] = -10;
+      offset[2][0] = -10;
+      offset[4][0] = -10;
+      offset[6][0] = -10;
+    }
+    else if (id + 1 == id0)
+    {
+      offset[1][0] = -10;
+      offset[3][0] = -10;
+      offset[5][0] = -10;
+      offset[7][0] = -10;
+    }
+    else if (id - dim[0]  == id0)
+    {
+      offset[0][1] = -10;
+      offset[1][1] = -10;
+      offset[4][1] = -10;
+      offset[5][1] = -10;
+    }
+    else if (id + dim[0] == id0)
+    {
+      offset[2][1] = -10;
+      offset[3][1] = -10;
+      offset[6][1] = -10;
+      offset[7][1] = -10;
+    }
+    else if (id - dim[0]*dim[1] == id0)
+    {
+      offset[0][2] = -10;
+      offset[1][2] = -10;
+      offset[2][2] = -10;
+      offset[3][2] = -10;
+    }
+    else if (id + dim[0]*dim[1] == id0)
+    {
+      offset[4][2] = -10;
+      offset[5][2] = -10;
+      offset[6][2] = -10;
+      offset[7][2] = -10;
+    }
+  }
+
+  // Load the non-trimmed cells
+  int cellDim[3];
+  for (int i = 0; i < 3; i++)
+  {
+    cellDim[i] = std::max(dim[i] - 1, 1);
+  }
+
+  for (int j = 0; j < 8; j++)
+  {
+    int i = 0, cellLoc[3];
+    for (; i < 3; i++)
+    {
+      if ( offset[j][i] != -10 )
+      {
+        cellLoc[i] = seedLoc[i] + offset[j][i];
+        if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] )
+        {
+          break;
+        }
+      }
+      else
+      {
+        break;
+      }
+    }
+    if ( i >= 3 ) //add cell
+    {
+      vtkIdType id = cellLoc[0] + cellLoc[1] * cellDim[0] +
+                     cellLoc[2] * cellDim[0] * cellDim[1];
+      if (id != cellId )
+      {
+        cellIds->InsertNextId(id);
+      }
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

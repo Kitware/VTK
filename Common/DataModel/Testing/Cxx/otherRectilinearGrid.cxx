@@ -24,6 +24,7 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkLongArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
@@ -258,6 +259,242 @@ int TestORG(ostream& strm)
   }
   strm << endl << endl;
 
+  // Test GetCell(i,j,k)
+  i = 10; j = 15; k = 7;
+  cellId = k * (19 * 19) + j * 19 + i;
+  cell3D = rg3D->GetCell(i,j,k);
+  if (cell3D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell3D->GetCellType() != VTK_VOXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_VOXEL << " Returned: " << cell3D->GetCellType() << '\n';
+    return 1;
+  }
+  strm << "cell3D: " << *cell3D ;
+  rg3D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = rg2Dxy->GetCell(i,j,0);
+  if (cell2D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_PIXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_PIXEL << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  double bounds[6];
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "rg2Dxy has finite width along z\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  rg2Dxy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = rg2Dxz->GetCell(i,0,j);
+  if (cell2D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_PIXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_PIXEL << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "rg2Dxz has finite width along y\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  rg2Dxz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10; j = 15;
+  cellId = j * 19 + i;
+  cell2D = rg2Dyz->GetCell(0,i,j);
+  if (cell2D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell2D->GetCellType() != VTK_PIXEL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_PIXEL << " Returned: " << cell2D->GetCellType() << '\n';
+    return 1;
+  }
+  cell2D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "rg2Dyz has finite width along x\n";
+    return 1;
+  }
+  strm << "cell2D: " << *cell2D ;
+  rg2Dyz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = rg1Dx->GetCell(i,0,0);
+  if (cell1D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "rg1Dx has finite width along y\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "rg1Dx has finite width along z\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  rg1Dx->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = rg1Dy->GetCell(0,i,0);
+  if (cell1D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "rg1Dy has finite width along x\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[4],bounds[5]))
+  {
+    std::cerr << "rg1Dy has finite width along z\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  rg1Dy->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  i = 10;
+  cellId = i;
+  cell1D = rg1Dz->GetCell(0,0,i);
+  if (cell1D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell1D->GetCellType() != VTK_LINE)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_LINE << " Returned: " << cell1D->GetCellType() << '\n';
+    return 1;
+  }
+  cell1D->GetBounds(bounds);
+  if (!vtkMathUtilities::FuzzyCompare(bounds[0],bounds[1]))
+  {
+    std::cerr << "rg1Dz has finite width along x\n";
+    return 1;
+  }
+  else if(!vtkMathUtilities::FuzzyCompare(bounds[2],bounds[3]))
+  {
+    std::cerr << "rg1Dz has finite width along y\n";
+    return 1;
+  }
+  strm << "cell1D: " << *cell1D;
+  rg1Dz->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
+  cellId = 0;
+  cell0D = rg0D->GetCell(0,0,0);
+  if (cell0D == NULL)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned NULL instead of a valid cell.\n";
+    return 1;
+  }
+  if (cell0D->GetCellType() != VTK_VERTEX)
+  {
+    std::cerr << "vtkRectilinearGrid::GetCell returned the wrong cell type.\n"
+              << "Expected: " << VTK_VERTEX << " Returned: " << cell0D->GetCellType() << '\n';
+    return 1;
+  }
+  strm << "cell0D: " << *cell0D;
+  rg0D->GetCellPoints (cellId, ids);
+  strm << "Ids for cell " << cellId << " are ";
+  for (ii = 0; ii < ids->GetNumberOfIds(); ii++)
+  {
+    strm << ids->GetId(ii) << " ";
+  }
+  strm << endl << endl;
+
   // Test Thread Safe GetCell
   vtkGenericCell *gcell3D = vtkGenericCell::New();
   vtkGenericCell *gcell2D = vtkGenericCell::New();
@@ -300,8 +537,6 @@ int TestORG(ostream& strm)
   strm << "gcell0D: " << *gcell0D;
 
   // Test GetCellBounds
-
-  double bounds[6];
   rg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(rg3D): "
        << bounds[0] << ", " << bounds[1] << ", "

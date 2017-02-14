@@ -58,6 +58,7 @@ public:
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
+  vtkCell *GetCell(int i, int j, int k) VTK_OVERRIDE;
   vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
   vtkIdType FindCell(

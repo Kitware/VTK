@@ -146,7 +146,7 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
       for (i = 0; i < dimensions[0]; i++)
       {
         inId = i+(j+(k*dimensions[1]))*dimensions[0];
-        vtkCell *cell = input->GetCell(inId);
+        vtkCell *cell = input->GetCell(i, j, k);
         if ((i+j+k)%2 == 0)
         {
           cell->Triangulate(0, cellPtIds, cellPts);

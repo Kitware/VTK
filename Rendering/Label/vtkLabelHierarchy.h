@@ -218,6 +218,7 @@ public:
    * Inherited members (from vtkDataSet)
    */
   vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  using vtkDataSet::GetCell;
   vtkCell* GetCell(vtkIdType) VTK_OVERRIDE;
   void GetCell(vtkIdType, vtkGenericCell*) VTK_OVERRIDE;
   int GetCellType(vtkIdType) VTK_OVERRIDE;

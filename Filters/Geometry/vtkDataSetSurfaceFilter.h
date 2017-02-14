@@ -31,10 +31,10 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-
 class vtkPointData;
 class vtkPoints;
 class vtkIdTypeArray;
+class vtkStructuredGrid;
 
 // Helper structure for hashing faces.
 struct vtkFastGeomQuadStruct
@@ -151,6 +151,7 @@ public:
   virtual int UnstructuredGridExecute(vtkDataSet *input,
                                       vtkPolyData *output);
   virtual int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
+  virtual int StructuredWithBlankingExecute(vtkStructuredGrid *input, vtkPolyData *output);
   virtual int UniformGridExecute(
       vtkDataSet *input, vtkPolyData *output,
       vtkIdType *ext, vtkIdType *wholeExt, bool extractface[6] );

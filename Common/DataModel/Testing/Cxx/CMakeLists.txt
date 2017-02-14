@@ -46,8 +46,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   otherColorTransferFunction.cxx
   otherEmptyCell.cxx
   otherFieldData.cxx
+  otherImageData.cxx
   otherRectilinearGrid.cxx
   otherStructuredGrid.cxx
+  otherUniformGrid.cxx
   quadCellConsistency.cxx
   quadraticEvaluation.cxx
   TestBoundingBox.cxx

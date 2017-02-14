@@ -244,6 +244,7 @@ public:
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.
    * THIS METHOD IS NOT THREAD SAFE.
    */
+  using vtkDataSet::GetCell;
   vtkCell* GetCell( vtkIdType ) VTK_OVERRIDE;
 
   /**

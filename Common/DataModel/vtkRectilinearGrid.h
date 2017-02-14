@@ -80,6 +80,7 @@ public:
   double *GetPoint(vtkIdType ptId) VTK_OVERRIDE;
   void GetPoint(vtkIdType id, double x[3]) VTK_OVERRIDE;
   vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  vtkCell *GetCell(int i, int j, int k) VTK_OVERRIDE;
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
   vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};

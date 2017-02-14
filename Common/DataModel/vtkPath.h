@@ -85,6 +85,7 @@ public:
    * vtkPath doesn't use cells. These methods return trivial values.
    */
   vtkIdType GetNumberOfCells() VTK_OVERRIDE { return 0; }
+  using vtkDataSet::GetCell;
   vtkCell *GetCell(vtkIdType)  VTK_OVERRIDE { return NULL; }
   void GetCell(vtkIdType, vtkGenericCell *) VTK_OVERRIDE;
   int GetCellType(vtkIdType)   VTK_OVERRIDE { return 0; }
