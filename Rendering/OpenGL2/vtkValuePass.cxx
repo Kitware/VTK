@@ -22,6 +22,7 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMapper.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
@@ -576,7 +577,15 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
 #else
   glClearDepthf(1.0f);
 #endif
-  glClearColor(0.0, 0.0, 0.0, 0.0);
+  if (this->RenderingMode == vtkValuePass::FLOATING_POINT)
+    {
+    glClearColor(vtkMath::Nan(),vtkMath::Nan(),vtkMath::Nan(),0.0);
+    }
+  else
+    {
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    }
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
