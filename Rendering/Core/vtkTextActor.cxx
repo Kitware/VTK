@@ -155,6 +155,9 @@ void vtkTextActor::GetBoundingBox(
       else if ( bbox[3] < x[1] )
         bbox[3] = x[1];
     }
+    // Use pixel centers rather than pixel corners for the coordinates.
+    --bbox[1];
+    --bbox[3];
   }
   else
   {
