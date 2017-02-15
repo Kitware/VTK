@@ -376,8 +376,11 @@ vtkInformationKeyMacro(vtkDataArray, UNITS_LABEL, String);
 vtkDataArray::vtkDataArray()
 {
   this->LookupTable = NULL;
+  this->FiniteInformation = NULL;
   this->Range[0] = 0;
   this->Range[1] = 0;
+  this->FiniteRange[0] = 0;
+  this->FiniteRange[1] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -388,6 +391,7 @@ vtkDataArray::~vtkDataArray()
     this->LookupTable->Delete();
   }
   this->SetName(0);
+  this->SetFiniteInformation(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -1287,6 +1291,35 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1,
 }
 
 //----------------------------------------------------------------------------
+vtkInformation* vtkDataArray::GetFiniteInformation()
+{
+  if ( ! this->FiniteInformation )
+  {
+    vtkInformation* info = vtkInformation::New();
+    this->SetFiniteInformation( info );
+    info->FastDelete();
+  }
+  return this->FiniteInformation;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::SetFiniteInformation(vtkInformation *args)
+{
+  // Same as in vtkCxxSetObjectMacro, but no Modified() so that
+  // this doesn't cause extra pipeline updates.
+  if (this->FiniteInformation != args)
+  {
+    vtkInformation* tempSGMacroVar = this->FiniteInformation;
+    this->FiniteInformation = args;
+    if (this->FiniteInformation != NULL) { this->FiniteInformation->Register(this); }
+    if (tempSGMacroVar != NULL)
+    {
+      tempSGMacroVar->UnRegister(this);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 unsigned long vtkDataArray::GetActualMemorySize()
 {
   vtkIdType numPrims;
@@ -1469,7 +1502,7 @@ int vtkDataArray::CopyInformation(vtkInformation* infoFrom, int deep)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataArray::ComputeRange(double range[2], int comp)
+void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
 {
   //this method needs a large refactoring to be way easier to read
 
@@ -1486,7 +1519,7 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
   range[0] = vtkTypeTraits<double>::Max();
   range[1] = vtkTypeTraits<double>::Min();
 
-  vtkInformation* info = this->GetInformation();
+  vtkInformation* info = this->GetFiniteInformation();
   vtkInformationDoubleVectorKey* rkey;
   if ( comp < 0 )
   {
@@ -1495,7 +1528,7 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
     if( !hasValidKey(info,rkey,this->GetMTime(),range) )
     {
 
-      this->ComputeVectorRange(range);
+      this->ComputeFiniteVectorRange(range);
       info->Set( rkey, range, 2 );
     }
     return;
@@ -1509,7 +1542,7 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
                        this->GetMTime(), range, comp))
     {
       double* allCompRanges = new double[this->NumberOfComponents*2];
-      const bool computed = this->ComputeScalarRange(allCompRanges);
+      const bool computed = this->ComputeFiniteScalarRange(allCompRanges);
       if(computed)
       {
         //construct the keys and add them to the info object
@@ -1526,6 +1559,71 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
         infoVec->FastDelete();
 
         //update the range passed in since we have a valid range.
+        range[0] = allCompRanges[comp*2];
+        range[1] = allCompRanges[(comp*2)+1];
+      }
+      delete[] allCompRanges;
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::ComputeRange(double range[2], int comp)
+{
+  //this method needs a large refactoring to be way easier to read
+
+  if (comp >= this->NumberOfComponents)
+  { // Ignore requests for nonexistent components.
+    return;
+  }
+  // If we got component -1 on a vector array, compute vector magnitude.
+  if (comp < 0 && this->NumberOfComponents == 1)
+  {
+    comp = 0;
+  }
+
+  range[0] = vtkTypeTraits<double>::Max();
+  range[1] = vtkTypeTraits<double>::Min();
+
+  vtkInformation* info = this->GetInformation();
+  vtkInformationDoubleVectorKey* rkey;
+  if (comp < 0)
+  {
+    rkey = L2_NORM_RANGE();
+    // hasValidKey will update range to the cached value if it exists.
+    if (!hasValidKey(info, rkey, this->GetMTime(), range))
+    {
+      this->ComputeVectorRange(range);
+      info->Set(rkey, range, 2);
+    }
+    return;
+  }
+  else
+  {
+    rkey = COMPONENT_RANGE();
+
+    // hasValidKey will update range to the cached value if it exists.
+    if (!hasValidKey(info, PER_COMPONENT(), rkey,
+                     this->GetMTime(), range, comp))
+    {
+      double* allCompRanges = new double[this->NumberOfComponents*2];
+      const bool computed = this->ComputeScalarRange(allCompRanges);
+      if (computed)
+      {
+        // construct the keys and add them to the info object
+        vtkInformationVector* infoVec = vtkInformationVector::New();
+        info->Set(PER_COMPONENT(), infoVec);
+
+        infoVec->SetNumberOfInformationObjects(this->NumberOfComponents);
+        for (int i = 0; i < this->NumberOfComponents; ++i)
+        {
+          infoVec->GetInformationObject(i)->Set( rkey,
+                                                 allCompRanges+(i*2),
+                                                 2 );
+        }
+        infoVec->FastDelete();
+
+        // update the range passed in since we have a valid range.
         range[0] = allCompRanges[comp*2];
         range[1] = allCompRanges[(comp*2)+1];
       }
@@ -1570,6 +1668,34 @@ struct VectorRangeDispatchWrapper
 
 };
 
+// Wrap the DoCompute[Scalar|Vector]Range calls for vtkArrayDispatch:
+struct FiniteScalarRangeDispatchWrapper {
+  bool Success;
+  double *Range;
+
+  FiniteScalarRangeDispatchWrapper(double *range) : Success(false), Range(range) {}
+
+  template <typename ArrayT>
+  void operator()(ArrayT *array)
+  {
+    this->Success = vtkDataArrayPrivate::DoComputeScalarFiniteRange(array,
+                                                              this->Range);
+  }
+};
+
+struct FiniteVectorRangeDispatchWrapper {
+  bool Success;
+  double *Range;
+
+  FiniteVectorRangeDispatchWrapper(double *range) : Success(false), Range(range) {}
+
+  template <typename ArrayT> void operator()(ArrayT *array)
+  {
+    this->Success = vtkDataArrayPrivate::DoComputeVectorFiniteRange(array,
+                                                              this->Range);
+  }
+};
+
 } // end anon namespace
 
 //----------------------------------------------------------------------------
@@ -1589,6 +1715,24 @@ bool vtkDataArray::ComputeVectorRange(double range[2])
   VectorRangeDispatchWrapper worker(range);
   if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
   {
+    worker(this);
+  }
+  return worker.Success;
+}
+
+//----------------------------------------------------------------------------
+bool vtkDataArray::ComputeFiniteScalarRange(double *ranges) {
+  FiniteScalarRangeDispatchWrapper worker(ranges);
+  if (!vtkArrayDispatch::Dispatch::Execute(this, worker)) {
+    worker(this);
+  }
+  return worker.Success;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkDataArray::ComputeFiniteVectorRange(double range[2]) {
+  FiniteVectorRangeDispatchWrapper worker(range);
+  if (!vtkArrayDispatch::Dispatch::Execute(this, worker)) {
     worker(this);
   }
   return worker.Success;

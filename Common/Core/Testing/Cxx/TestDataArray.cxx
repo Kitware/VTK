@@ -1,5 +1,6 @@
 #include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkMathUtilities.h"
 
 // Define this to run benchmarking tests on some vtkDataArray methods:
 #undef BENCHMARK
@@ -46,6 +47,16 @@ int TestDataArray(int,char *[])
     array->Delete();
     return 1;
   }
+  array->GetFiniteRange( range, 0 );
+  if ( range[0] != VTK_DOUBLE_MAX || range[1] != VTK_DOUBLE_MIN )
+  {
+    cerr
+    << "Getting finite range of empty array failed, min: "
+    << range[0] << " max: " << range[1] << "\n";
+    array->Delete();
+    return 1;
+  }
+
   int cc;
   for ( cc = 0; cc < 10; cc ++ )
   {
@@ -57,6 +68,15 @@ int TestDataArray(int,char *[])
     cerr
       << "Getting range (" << range[0] << "-" << range[1]
       << ") of array marked for modified didn't cause recomputation of range!";
+    array->Delete();
+    return 1;
+  }
+  array->GetFiniteRange( range, 0 ); // Range is now 0-9. Used to check MTimes.
+  if ( range[0] != 0 || range[1] != 9 )
+  {
+    cerr
+    << "Getting finite range (" << range[0] << "-" << range[1]
+    << ") of array marked for modified didn't cause recomputation of range!";
     array->Delete();
     return 1;
   }
@@ -74,6 +94,15 @@ int TestDataArray(int,char *[])
     array->Delete();
     return 1;
   }
+  array->GetFiniteRange( range, 0 );
+  if ( range[0] != 0 || range[1] != 9 )
+  {
+    cerr
+    << "Getting finite range (" << range[0] << "-" << range[1]
+    << ") of array not marked as modified caused recomputation of range!";
+    array->Delete();
+    return 1;
+  }
   array->Modified(); // Now mark array so range gets recomputed
   array->GetRange( range, 0 );
   if ( range[0] != 1. || range[1] != 9. )
@@ -84,6 +113,16 @@ int TestDataArray(int,char *[])
     array->Delete();
     return 1;
   }
+  array->GetFiniteRange( range, 0 );
+  if ( range[0] != 1. || range[1] != 9. )
+  {
+    cerr
+    << "Getting finite range of array {1,2,3,5,7,8,9} failed, min: "
+    << range[0] << " max: " << range[1] << "\n";
+    array->Delete();
+    return 1;
+  }
+
   array->RemoveLastTuple();
   array->Modified();
   array->GetRange( range, 0 );
@@ -92,6 +131,15 @@ int TestDataArray(int,char *[])
     cerr
       << "Getting range of array {1,2,3,5,7,8} failed, min: "
       << range[0] << " max: " << range[1] << "\n";
+    array->Delete();
+    return 1;
+  }
+  array->GetFiniteRange( range, 0 );
+  if ( range[0] != 1. || range[1] != 8. )
+  {
+    cerr
+    << "Getting finite range of array {1,2,3,5,7,8} failed, min: "
+    << range[0] << " max: " << range[1] << "\n";
     array->Delete();
     return 1;
   }
@@ -112,7 +160,27 @@ int TestDataArray(int,char *[])
   cout << endl;
   array->Delete();
 
+  //Ensure GetFiniteRange ignores Inf and Nan.
   vtkDoubleArray* farray = vtkDoubleArray::New();
+  for ( cc = 0; cc < 10; cc ++ )
+  {
+    farray->InsertNextTuple1(cc);
+  }
+  farray->InsertNextTuple1(vtkMath::Inf());
+  farray->InsertNextTuple1(vtkMath::NegInf());
+  farray->InsertNextTuple1(vtkMath::Nan());
+  farray->GetFiniteRange( range, 0 ); // Range is now 0-9. Used to check MTimes.
+  if ( !vtkMathUtilities::FuzzyCompare( range[0], 0.0 ) || !vtkMathUtilities::FuzzyCompare( range[1], 9.0 ) )
+  {
+    cerr
+      << "Getting range (" << range[0] << "-" << range[1]
+      << ") of array containing infinity and NaN";
+    farray->Delete();
+    return 1;
+  }
+  farray->Delete();
+
+  farray = vtkDoubleArray::New();
   farray->SetNumberOfComponents(3);
   for ( cc = 0; cc < 10; cc ++ )
   {
