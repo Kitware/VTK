@@ -616,27 +616,6 @@ namespace {
       }//intersect all line segments that form the loop
     }//for all line segments that make up this polyline
 
-    // If no intersection points, then the line is either entirely in or
-    // entirely out
-    if ( numInts == 0 )
-    {
-      int segClass = ClassifySegment(sortedPoints,0,1, numLoopPts,l,loopBds,n);
-      if ( segClass == SortPoint::OUTSIDE )
-      {
-        return;
-      }
-      else //whole line is inside and therefore output
-      {
-        newCellId = outLines->InsertNextCell(npts) + cellOffset;
-        outCellData->CopyData(inCellData,cellId,newCellId);
-
-        for (i=0; i < npts; ++i)
-        {
-          InsertPoint(inPts->GetPoint(pts[i]), outPts, outLines);
-        }
-      }
-    }//if no intersections
-
     // Sort in parametric space
     std::sort(sortedPoints.begin(), sortedPoints.end(), &PointSorter);
 
