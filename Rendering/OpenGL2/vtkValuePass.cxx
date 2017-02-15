@@ -22,6 +22,7 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMapper.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
@@ -416,7 +417,7 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
     vtkOpenGLPolyDataMapper *pdm =
       vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
 
-    unsigned long maptime = pdm->GetInputDataObject(0,0)->GetMTime();
+    vtkMTimeType maptime = pdm->GetInputDataObject(0,0)->GetMTime();
     if (this->ImplFloat->CCMapTime >= maptime)
       {
       //reuse
@@ -576,7 +577,15 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
 #else
   glClearDepthf(1.0f);
 #endif
-  glClearColor(0.0, 0.0, 0.0, 0.0);
+  if (this->RenderingMode == vtkValuePass::FLOATING_POINT)
+    {
+    glClearColor(vtkMath::Nan(),vtkMath::Nan(),vtkMath::Nan(),0.0);
+    }
+  else
+    {
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    }
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -856,13 +865,20 @@ void vtkValuePass::RenderPieceFinish()
 }
 
 //-----------------------------------------------------------------------------
-void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr)
+void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr, vtkMapper *mapper)
 {
   // TODO It should only be necessary to upload the data if something has changed.
   // In the parallel case however (ParaView with IceT), the solution below causes
   // data not to be uploaded at all (leading to empty images). Because of this, data
   // is uploaded on every render pass.
-  if (this->GetMTime() > this->ImplFloat->DataUploadTime)
+  vtkOpenGLPolyDataMapper *pdm =
+    vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+  vtkMTimeType maptime = pdm->GetInputDataObject(0,0)->GetMTime();
+
+  if (this->GetMTime() > this->ImplFloat->DataUploadTime
+    ||
+    maptime > this->ImplFloat->DataUploadTime
+    )
   {
     // Copy the selected component into a buffer for uploading
     vtkIdType const numTuples = dataArr->GetNumberOfTuples();
@@ -925,7 +941,7 @@ void vtkValuePass::BeginMapperRender(vtkMapper* mapper, vtkDataArray* dataArray,
       break;
 
     case vtkValuePass::FLOATING_POINT:
-      this->RenderPieceStart(dataArray);
+      this->RenderPieceStart(dataArray, mapper);
       break;
 
     default:
