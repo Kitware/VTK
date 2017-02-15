@@ -526,7 +526,8 @@ namespace {
   }
 
   // Process a polyline-------------------------------------------------------
-  void CropLine(vtkIdType cellId, vtkIdType npts, vtkIdType *pts, vtkPoints *inPts,
+  void CropLine(vtkIdType cellId, vtkIdType cellOffset, vtkIdType npts,
+                vtkIdType *pts, vtkPoints *inPts,
                 vtkPolygon *loop, double *l, double loopBds[6], double n[3],
                 vtkCellData *inCellData, vtkPoints *outPts,
                 vtkCellArray *outLines, vtkCellData *outCellData)
@@ -626,7 +627,7 @@ namespace {
       }
       else //whole line is inside and therefore output
       {
-        newCellId = outLines->InsertNextCell(npts);
+        newCellId = outLines->InsertNextCell(npts) + cellOffset;
         outCellData->CopyData(inCellData,cellId,newCellId);
 
         for (i=0; i < npts; ++i)
@@ -671,7 +672,7 @@ namespace {
 
       // Output line segments
       numInsertedPts = endIdx - startIdx + 1;
-      newCellId = outLines->InsertNextCell(numInsertedPts);
+      newCellId = outLines->InsertNextCell(numInsertedPts) + cellOffset;
       outCellData->CopyData(inCellData,cellId,newCellId);
       for (i=startIdx; i <= endIdx; ++i)
       {
@@ -759,7 +760,8 @@ namespace {
   }
 
   // Process a polygon-------------------------------------------------------
-  void CropPoly(vtkIdType cellId, vtkPolygon *poly, vtkIdType npts,
+  void CropPoly(vtkIdType cellId, vtkIdType cellOffset,
+                vtkPolygon *poly, vtkIdType npts,
                 vtkIdType *pts, vtkPoints *inPts, vtkPolygon *loop,
                 double *l, double loopBds[6], double n[3],
                 vtkCellData *inCellData, vtkPoints *outPts,
@@ -883,7 +885,7 @@ namespace {
     {
       if ( vtkPolygon::PointInPolygon(inPts->GetPoint(pts[0]), numLoopPts, l, loopBds, n) == 1 )
       {
-        newCellId = outPolys->InsertNextCell(npts);
+        newCellId = outPolys->InsertNextCell(npts) + cellOffset;
         outCellData->CopyData(inCellData,cellId,newCellId);
         for (i=0; i < npts; ++i)
         {// add entire poly to output
@@ -892,7 +894,7 @@ namespace {
       }
       else if ( vtkPolygon::PointInPolygon(loop->Points->GetPoint(0), npts, p, polyBds, n) == 1 )
       {// add entire loop to output
-        newCellId = outPolys->InsertNextCell(numLoopPts);
+        newCellId = outPolys->InsertNextCell(numLoopPts) + cellOffset;
         outCellData->CopyData(inCellData,cellId,newCellId);
         for (i=0; i < numLoopPts; ++i)
         {
@@ -993,7 +995,7 @@ namespace {
         }
         numInsertedPts = 0;
         thisCell = cells[0];
-        newCellId = outPolys->InsertNextCell(numInsertedPts);
+        newCellId = outPolys->InsertNextCell(numInsertedPts) + cellOffset;
         outCellData->CopyData(inCellData,cellId,newCellId);
 
         do
@@ -1118,7 +1120,7 @@ int vtkCookieCutter::RequestData(
 
   // Process loops from second input. Note that the cell id in vtkPolyData
   // starts with verts, then lines, then polys, then strips.
-  vtkIdType i, npts, *pts, cellId=0, newPtId, newCellId;
+  vtkIdType i, npts, *pts, cellId=0, newPtId, newCellId, cellOffset=0;
   vtkCellArray *loopPolys = loops->GetPolys();
   for (loopPolys->InitTraversal(); loopPolys->GetNextCell(npts,pts); )
   {
@@ -1154,9 +1156,10 @@ int vtkCookieCutter::RequestData(
     // Now process lines
     if ( inLines->GetNumberOfCells() > 0 )
     {
+      cellOffset = outVerts->GetNumberOfCells();
       for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); ++cellId)
       {
-        CropLine(cellId, npts,pts,inPts, loop,l,bds,n,inCellData,
+        CropLine(cellId,cellOffset, npts,pts,inPts, loop,l,bds,n,inCellData,
                  outPts,outLines,outCellData);
       }
     }//if line cells
@@ -1164,10 +1167,11 @@ int vtkCookieCutter::RequestData(
     // Now process polygons
     if ( inPolys->GetNumberOfCells() > 0 )
     {
+      cellOffset = outVerts->GetNumberOfCells() + outLines->GetNumberOfCells();
       for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); ++cellId)
       {
         poly->Initialize(npts,pts,inPts);
-        CropPoly(cellId, poly,npts,pts,inPts,loop,l,bds,n,inCellData,
+        CropPoly(cellId,cellOffset, poly,npts,pts,inPts,loop,l,bds,n,inCellData,
                  outPts,outPolys,outCellData);
       }
     }//if polygonal cells
@@ -1175,6 +1179,7 @@ int vtkCookieCutter::RequestData(
     // Now process triangle strips
     if ( inStrips->GetNumberOfCells() > 0 )
     {
+      cellOffset = outVerts->GetNumberOfCells() + outLines->GetNumberOfCells();
       for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); ++cellId)
       {
         vtkIdType numTriPts=3, triPts[3];
@@ -1184,7 +1189,7 @@ int vtkCookieCutter::RequestData(
           triPts[1] = pts[i+1];
           triPts[2] = pts[i+2];
           poly->Initialize(3,triPts,inPts);
-          CropPoly(cellId, poly,numTriPts,triPts,inPts, loop,l,bds,n,inCellData,
+          CropPoly(cellId,cellOffset, poly,numTriPts,triPts,inPts, loop,l,bds,n,inCellData,
                    outPts,outPolys,outCellData);
         }
       }
