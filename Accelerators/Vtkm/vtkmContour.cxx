@@ -129,7 +129,7 @@ int vtkmContour::RequestData(vtkInformation* request,
         {
           filter.MapFieldOntoOutput(result, pfield, policy);
         }
-        catch (vtkm::cont::Error)
+        catch (vtkm::cont::Error&)
         { // nothing to do for now
           vtkWarningMacro(<< "Unable to use VTKm to convert field( "
                           << array->GetName() << " ) to the MarchingCubes"

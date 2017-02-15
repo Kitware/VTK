@@ -57,8 +57,6 @@ public:
   {
   }
 
-  VTKM_SUPPRESS_EXEC_WARNINGS
-  VTKM_EXEC_CONT
   vtkmCellSetExplicitAOS& operator=(const vtkmCellSetExplicitAOS& src)
   {
     this->CellSet::operator=(src);

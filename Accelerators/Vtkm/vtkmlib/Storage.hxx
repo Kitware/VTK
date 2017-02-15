@@ -79,9 +79,9 @@ void Storage<ValueType_, tovtkm::vtkAOSArrayContainerTag>::Allocate(
       VTKM_ASSERT(this->AllocatedSize == 0);
     }
   }
-  catch (std::bad_alloc err)
+  catch (std::bad_alloc& err)
   {
-    // Make sureour state is OK.
+    // Make sure our state is OK.
     this->Array = NULL;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
@@ -165,9 +165,9 @@ void Storage<ValueType_, tovtkm::vtkSOAArrayContainerTag>::Allocate(
       VTKM_ASSERT(this->AllocatedSize == 0);
     }
   }
-  catch (std::bad_alloc err)
+  catch (std::bad_alloc& err)
   {
-    // Make sureour state is OK.
+    // Make sure our state is OK.
     this->Array = NULL;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
@@ -249,9 +249,9 @@ void Storage<ValueType_, tovtkm::vtkCellArrayContainerTag>::Allocate(
       VTKM_ASSERT(this->AllocatedSize == 0);
     }
   }
-  catch (std::bad_alloc err)
+  catch (std::bad_alloc& err)
   {
-    // Make sureour state is OK.
+    // Make sure our state is OK.
     this->Array = NULL;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
