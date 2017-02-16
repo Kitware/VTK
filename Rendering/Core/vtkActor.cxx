@@ -466,14 +466,15 @@ vtkMTimeType vtkActor::GetRedrawMTime()
   vtkMTimeType mTime=this->GetMTime();
   vtkMTimeType time;
 
-  if ( this->Mapper != NULL )
+  vtkMapper *myMapper = this->GetMapper();
+  if ( myMapper != NULL )
   {
-    time = this->Mapper->GetMTime();
+    time = myMapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->GetMapper()->GetInput() != NULL)
+    if (myMapper->GetInput() != NULL)
     {
-      this->GetMapper()->GetInputAlgorithm()->Update();
-      time = this->Mapper->GetInput()->GetMTime();
+      myMapper->GetInputAlgorithm()->Update();
+      time = myMapper->GetInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
     }
   }
