@@ -124,8 +124,6 @@ public:
   // what gets returned to client code via GetOutput()
   std::vector<vtkSmartPointer<vtkPolyData> >  outVector_of_vtkPolyData;
 
-  std::vector<std::string> outVector_of_textureFilnames;
-
   std::vector<vtkSmartPointer<vtkActor> >  actor_list;
   /////////////////////
 

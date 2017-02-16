@@ -75,6 +75,11 @@ public:
   const char* GetTexturePath() const;
   //@}
 
+  /**
+   * Get a string describing an output
+   */
+  std::string GetOutputDescription(int idx);
+
 protected:
   vtkOBJImporter();
   ~vtkOBJImporter() VTK_OVERRIDE;

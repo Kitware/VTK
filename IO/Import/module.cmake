@@ -6,6 +6,7 @@ vtk_module(vtkIOImport
     vtkTestingRendering
     vtkImagingSources
     vtkInteractionStyle
+    vtkIOXML
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel

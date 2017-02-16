@@ -12,44 +12,45 @@
 #include "vtkImageCast.h"
 #include "vtkCamera.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <sstream>
 #include "vtkMapper.h"
 
-int TestOBJImporter( int argc, char * argv [] )
+#include "vtkXMLPolyDataWriter.h"
+#include "vtkTriangleFilter.h"
+
+int main( int argc, char * argv [] )
 {
   // note that the executable name is stripped out already
   // so argc argv will not have it
 
   // Files for testing demonstrate updated functionality for OBJ import:
   //       polydata + textures + actor properties all get loaded.
-  if(argc < 2)
+  if(argc < 3)
   {
-    std::cerr<<"expected TestName File1.obj [File2.obj.mtl]  [texture1]  ... "<<std::endl;
+    std::cerr<<"expected vtkimportobj OutputDirectory File1.obj [File2.obj.mtl] [texture1]"<<std::endl;
     return -1;
   }
 
-  std::string filenameOBJ(argv[1]);
+  std::string filenameOBJ(argv[2]);
 
   std::string filenameMTL,texfile1,texfile2;
 
-  if(argc >= 3)
-  {
-    filenameMTL = argv[2];
-  }
-
   if(argc >= 4)
   {
-    texfile1 = argv[3];
+    filenameMTL = argv[3];
+  }
+
+  if(argc >= 5)
+  {
+    texfile1 = argv[4];
   }
   std::string texture_path1 = vtksys::SystemTools::GetFilenamePath(texfile1);
 
   vtkNew<vtkOBJImporter> importer;
 
-  if(argc > 4)
+  if(argc > 5)
   {
     importer->DebugOn();
   }
@@ -69,26 +70,33 @@ int TestOBJImporter( int argc, char * argv [] )
 
   ren->ResetCamera();
 
-  if( 1 > ren->GetActors()->GetNumberOfItems() )
+  // save out data for actors
+  for (int i = 0; i < ren->GetActors()->GetNumberOfItems(); i++)
+  {
+    std::ostringstream os;
+    os << argv[1] << "/Model" << i << ".vtp";
+    vtkActor *act = (vtkActor *)ren->GetActors()->GetItemAsObject(i);
+    vtkNew<vtkTriangleFilter> trif;
+    trif->SetInputData((vtkDataObject *)act->GetMapper()->GetInput());
+    vtkNew<vtkXMLPolyDataWriter> writer;
+    writer->SetFileName(os.str().c_str());
+    writer->SetInputConnection(trif->GetOutputPort());
+    writer->Write();
+    std::string desc = importer->GetOutputDescription(i);
+    cerr << "Wrote " << os.str() << " " << desc << "\n";
+  }
+
+  if(ren->GetActors()->GetNumberOfItems() == 0)
   {
     std::cerr << "failed to get an actor created?!" << std::endl;
     return -1;
   }
 
-  ren->GetActiveCamera()->SetPosition(10,10,-10);
+  ren->SetBackground(0.4,0.5,0.6);
   ren->ResetCamera();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
-  {
-    renWin->SetSize(800,600);
-    renWin->SetAAFrames(3);
-    iren->Start();
-  }
 
-  // Some tests do not produce images... allow them to pass.
-  // But if we had an image, it must be within the threshold:
-  return (
-    retVal == vtkRegressionTester::PASSED ||
-    retVal == vtkRegressionTester::NOT_RUN) ?
-    0 : 1;
+  renWin->SetSize(800,600);
+  //iren->Start();
+
+  return 0;
 }
