@@ -616,27 +616,6 @@ namespace {
       }//intersect all line segments that form the loop
     }//for all line segments that make up this polyline
 
-    // If no intersection points, then the line is either entirely in or
-    // entirely out
-    if ( numInts == 0 )
-    {
-      int segClass = ClassifySegment(sortedPoints,0,1, numLoopPts,l,loopBds,n);
-      if ( segClass == SortPoint::OUTSIDE )
-      {
-        return;
-      }
-      else //whole line is inside and therefore output
-      {
-        newCellId = outLines->InsertNextCell(npts) + cellOffset;
-        outCellData->CopyData(inCellData,cellId,newCellId);
-
-        for (i=0; i < npts; ++i)
-        {
-          InsertPoint(inPts->GetPoint(pts[i]), outPts, outLines);
-        }
-      }
-    }//if no intersections
-
     // Sort in parametric space
     std::sort(sortedPoints.begin(), sortedPoints.end(), &PointSorter);
 
@@ -878,34 +857,6 @@ namespace {
         }
       }//intersect all line segments that form the loop
     }//for all line segments that make up this polygon
-
-    // If there are no intersections the polygon or the loop may be fully inside the other. Or
-    // maybe the loop and polygon just do not overlap.
-    if ( numInts <= 0 )
-    {
-      if ( vtkPolygon::PointInPolygon(inPts->GetPoint(pts[0]), numLoopPts, l, loopBds, n) == 1 )
-      {
-        newCellId = outPolys->InsertNextCell(npts) + cellOffset;
-        outCellData->CopyData(inCellData,cellId,newCellId);
-        for (i=0; i < npts; ++i)
-        {// add entire poly to output
-          InsertPoint(inPts->GetPoint(pts[i]), outPts, outPolys);
-        }
-      }
-      else if ( vtkPolygon::PointInPolygon(loop->Points->GetPoint(0), npts, p, polyBds, n) == 1 )
-      {// add entire loop to output
-        newCellId = outPolys->InsertNextCell(numLoopPts) + cellOffset;
-        outCellData->CopyData(inCellData,cellId,newCellId);
-        for (i=0; i < numLoopPts; ++i)
-        {
-          InsertPoint(loop->Points->GetPoint(i), outPts, outPolys);
-        }
-      }
-      else
-      {
-        return;
-      }
-    }//if no edge intersections
 
     // Sort in parametric coordinates around the intersected polygon and
     // loop.
