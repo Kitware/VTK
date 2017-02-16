@@ -66,6 +66,20 @@ int vtkmContour::RequestData(vtkInformation* request,
   vtkPolyData* output =
       vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  const int numContours = this->GetNumberOfContours();
+  if(numContours == 0)
+  {
+    return 1;
+  }
+  else if(numContours > 1)
+  {
+    vtkWarningMacro(<< "VTKm contour algorithm currently only supports a "
+                    << "single contour value. \n"
+                    << "Falling back to serial implementation.");
+    return this->Superclass::RequestData(request, inputVector, outputVector);
+  }
+
+
   vtkm::filter::MarchingCubes filter;
 
   // set local variables
