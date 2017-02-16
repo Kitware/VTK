@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.util.misc import vtkGetDataRoot
 
 # create planes
 # Create the RenderWindow, Renderer
@@ -132,6 +131,15 @@ loopPolys.InsertCellPoint(15)
 cookie = vtk.vtkCookieCutter()
 cookie.SetInputConnection(glyph.GetOutputPort())
 cookie.SetLoopsData(loops)
+
+cookie.Update()
+numCells = glyph.GetOutput().GetNumberOfCells()
+glyphScalars = vtk.vtkUnsignedCharArray()
+glyphScalars.SetNumberOfComponents( 4 )
+glyphScalars.SetNumberOfTuples( numCells )
+for i in range(numCells):
+    glyphScalars.SetTuple4(i, 127, 207, 80, 127)
+cookie.GetOutput().GetCellData().SetScalars(glyphScalars)
 
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(cookie.GetOutputPort())
