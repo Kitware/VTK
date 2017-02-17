@@ -176,7 +176,7 @@ public:
   //@}
 
   /**
-   * Return the bounding box coordinates of the text in viewport coordinates.
+   * Return the bounding box coordinates of the text in pixels.
    * The bbox array is populated with [ xmin, xmax, ymin, ymax ]
    * values in that order.
    */

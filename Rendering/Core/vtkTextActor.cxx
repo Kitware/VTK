@@ -155,6 +155,9 @@ void vtkTextActor::GetBoundingBox(
       else if ( bbox[3] < x[1] )
         bbox[3] = x[1];
     }
+    // Use pixel centers rather than pixel corners for the coordinates.
+    --bbox[1];
+    --bbox[3];
   }
   else
   {
@@ -878,9 +881,9 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 
   this->RectanglePoints->SetNumberOfPoints(4);
   this->RectanglePoints->SetPoint(0, xo,           yo,           0.0);
-  this->RectanglePoints->SetPoint(1, xo,           yo + dims[1] - 1, 0.0);
-  this->RectanglePoints->SetPoint(2, xo + dims[0] - 1, yo + dims[1] - 1, 0.0);
-  this->RectanglePoints->SetPoint(3, xo + dims[0] - 1, yo,           0.0);
+  this->RectanglePoints->SetPoint(1, xo,           yo + dims[1], 0.0);
+  this->RectanglePoints->SetPoint(2, xo + dims[0], yo + dims[1], 0.0);
+  this->RectanglePoints->SetPoint(3, xo + dims[0], yo,           0.0);
 }
 
 // ----------------------------------------------------------------------------
