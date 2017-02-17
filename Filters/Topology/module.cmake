@@ -1,0 +1,13 @@
+vtk_module(vtkFiltersTopology
+  GROUPS
+    StandAlone
+  TEST_DEPENDS
+    vtkTestingRendering
+    vtkIOLegacy
+  KIT
+    vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+  )
