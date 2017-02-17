@@ -24,7 +24,8 @@
 #define vtkOBJImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
-#include "vtkSmartPointer.h"
+#include <string> // for string
+#include "vtkSmartPointer.h" // for ivars
 #include "vtkImporter.h"
 
 class vtkRenderWindow;
