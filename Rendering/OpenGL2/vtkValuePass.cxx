@@ -629,7 +629,7 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
   }
 
   vtkRenderWindow* renWin = ren->GetRenderWindow();
-  if (!this->IsFloatingPointModeSupported(renWin))
+  if (!this->IsFloatingPointModeSupported())
     {
     vtkWarningMacro("Switching to INVERTIBLE_LUT mode.");
     this->RenderingMode = vtkValuePass::INVERTIBLE_LUT;
@@ -697,35 +697,33 @@ void vtkValuePass::ReleaseFBO(vtkWindow* win)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkValuePass::IsFloatingPointModeSupported(vtkRenderWindow *renWin)
+bool vtkValuePass::IsFloatingPointModeSupported()
 {
-  vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
-  if (!context)
+#if GL_ES_VERSION_3_0 == 1
+  return true;
+#else
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
   {
-    vtkErrorMacro(<< "Support for " << renWin->GetClassName()
-      << " not implemented");
-    return false;
+    return true;
+  }
+  vtkWarningMacro(<< "Context does not support OpenGL core profile 3.2. "
+    << " Will check extension support.");
+
+  bool texFloatSupport = glewIsSupported("GL_ARB_texture_float") != 0;
+  if (!texFloatSupport)
+  {
+    vtkWarningMacro(<< "ARB_texture_float not supported.");
   }
 
-#if GL_ES_VERSION_3_0 != 1
-  bool contextSupport = vtkOpenGLRenderWindow::GetContextSupportsOpenGL32();
-  if (!contextSupport)
+  bool fboSupport = glewIsSupported("GL_ARB_framebuffer_object") != 0 ||
+    glewIsSupported("GL_EXT_framebuffer_object") != 0;
+  if (!fboSupport)
   {
-    vtkWarningMacro(<< "Context does not support OpenGL core profile 3.2. "
-      << " Will check extension support.");
-  }
-
-  bool extSupport = glewIsSupported("GL_EXT_framebuffer_object") &&
-    glewIsSupported("GL_ARB_texture_float");
-  if (!extSupport)
-  {
-    vtkWarningMacro(<< "EXT_framebuffer_object or ARB_texture_float not"
+    vtkWarningMacro(<< "ARB_framebuffer_object or EXT_framebuffer_object not"
       << " supported.");
   }
 
-  return contextSupport && extSupport;
-#else
-  return true;
+  return texFloatSupport && fboSupport;
 #endif
 }
 
