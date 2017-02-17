@@ -1494,6 +1494,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     uggf->SetOriginalCellIdsName(this->GetOriginalCellIdsName());
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
     uggf->SetOriginalPointIdsName(this->GetOriginalPointIdsName());
+    uggf->DuplicateGhostCellClippingOff();
     // Disable point merging as it may prevent the correct visualization
     // of non-continuous attributes.
     uggf->MergingOff();
