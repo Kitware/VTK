@@ -116,6 +116,7 @@ public:
 
   double VertexScale; // scale vertices by this during import
 
+  std::vector<vtkOBJImportedMaterial*>  parsedMTLs;
   std::map<std::string,vtkOBJImportedMaterial*>  mtlName_to_mtlData;
 
   // our internal parsing/storage

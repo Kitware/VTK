@@ -166,7 +166,6 @@ struct vtkOBJImportedPolyDataWithMaterial
 {
   ~vtkOBJImportedPolyDataWithMaterial()
   {
-    delete mtlProperties;
   }
   vtkOBJImportedPolyDataWithMaterial()
   { // initialize some structures to store the file contents in
@@ -182,8 +181,7 @@ struct vtkOBJImportedPolyDataWithMaterial
     normals->SetNumberOfComponents(3);
 
     materialName  = "";
-    mtlProperties = new vtkOBJImportedMaterial;
-    obj_set_material_defaults( mtlProperties );
+    mtlProperties = NULL;
   }
 
   // these can be shared
@@ -231,13 +229,14 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
 //----------------------------------------------------------------------------
 vtkOBJPolyDataProcessor::~vtkOBJPolyDataProcessor()
 {
+  // clear any old mtls
+  for( size_t k = 0; k < this->parsedMTLs.size(); ++k )
+  {
+    delete this->parsedMTLs[k];
+  }
+
   for( size_t k = 0; k < poly_list.size(); ++k)
   {
-    if (poly_list[k]->mtlProperties)
-    {
-      delete poly_list[k]->mtlProperties;
-      poly_list[k]->mtlProperties = NULL;
-    }
     delete poly_list[k];
     poly_list[k] = NULL;
   }
@@ -354,11 +353,6 @@ int vtkOBJPolyDataProcessor::RequestData(
   // clear old poly list
   for( size_t k = 0; k < poly_list.size(); ++k)
   {
-    if (poly_list[k]->mtlProperties)
-    {
-      delete poly_list[k]->mtlProperties;
-      poly_list[k]->mtlProperties = NULL;
-    }
     delete poly_list[k];
     poly_list[k] = NULL;
   }
@@ -366,14 +360,20 @@ int vtkOBJPolyDataProcessor::RequestData(
 
   vtkDebugMacro(<<"Reading file" << this->FileName);
 
-  int mtlParseResult;
-  std::vector<vtkOBJImportedMaterial*>  parsedMTLs = ParseOBJandMTL(MTLFileName,mtlParseResult);
-  if(parsedMTLs.empty())
-  { // construct a default material to define the single polydata's actor.
-    parsedMTLs.push_back( new vtkOBJImportedMaterial );
+  // clear any old mtls
+  for( size_t k = 0; k < this->parsedMTLs.size(); ++k )
+  {
+    delete this->parsedMTLs[k];
   }
 
-  vtkDebugMacro("vtkOBJPolyDataProcessor parsed "   << parsedMTLs.size()
+  int mtlParseResult;
+  this->parsedMTLs = ParseOBJandMTL(MTLFileName,mtlParseResult);
+  if (this->parsedMTLs.empty())
+  { // construct a default material to define the single polydata's actor.
+    this->parsedMTLs.push_back( new vtkOBJImportedMaterial );
+  }
+
+  vtkDebugMacro("vtkOBJPolyDataProcessor parsed "   << this->parsedMTLs.size()
                 << " materials from "   << MTLFileName);
 
   vtkSmartPointer<vtkPoints>     shared_vertexs = vtkSmartPointer<vtkPoints>::New();
@@ -388,12 +388,13 @@ int vtkOBJPolyDataProcessor::RequestData(
     newMaterial->SetSharedPoints(shared_vertexs);
     newMaterial->SetSharedNormals(shared_normals);
     poly_list.push_back(newMaterial);
+    poly_list[0]->mtlProperties = parsedMTLs[0];
 
     mtlName_to_mtlData.clear();
-    for( size_t k = 0; k<parsedMTLs.size(); ++k )
+    for( size_t k = 0; k < this->parsedMTLs.size(); ++k )
     {
-      std::string mtlname_k(parsedMTLs[k]->name);
-      mtlName_to_mtlData[mtlname_k] = parsedMTLs[k];
+      std::string mtlname_k(this->parsedMTLs[k]->name);
+      mtlName_to_mtlData[mtlname_k] = this->parsedMTLs[k];
     }
   }
 
