@@ -52,7 +52,7 @@
 void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
 {
   vtkPolyData* data = source->GetOutput();
-  double* bounds = data->GetBounds();
+  const double* bounds = data->GetBounds();
 
   vtkSmartPointer<vtkElevationFilter> elevation =
     vtkSmartPointer<vtkElevationFilter>::New();

@@ -408,7 +408,7 @@ void vtkAnnotatedCubeActor::UpdateProps()
   double offset = (prop->GetRepresentation() == VTK_SURFACE)? (0.501) : (0.5);
 
   this->XPlusFaceVectorText->Update();
-  double* bounds = this->XPlusFaceVectorText->GetOutput()->GetBounds();
+  const double* bounds = this->XPlusFaceVectorText->GetOutput()->GetBounds();
   double cu = -this->FaceTextScale*fabs(0.5*(bounds[0] + bounds[1]));
   double cv = -this->FaceTextScale*fabs(0.5*(bounds[2] + bounds[3]));
 

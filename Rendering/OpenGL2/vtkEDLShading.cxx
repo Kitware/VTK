@@ -434,7 +434,7 @@ bool vtkEDLShading::EDLShadeHigh(
   bool boundsSet = false;
   for(int i=0; i<s.GetPropArrayCount(); i++)
   {
-    double* bounds = s.GetPropArray()[i]->GetBounds();
+    const double* bounds = s.GetPropArray()[i]->GetBounds();
     if (bounds)
     {
       if(!boundsSet)

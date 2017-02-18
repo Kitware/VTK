@@ -1616,7 +1616,7 @@ void vtkVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.
   float volumeOrigin[3];
-  double *bds = data->GetBounds();
+  const double *bds = data->GetBounds();
   volumeOrigin[0] = bds[0];
   volumeOrigin[1] = bds[2];
   volumeOrigin[2] = bds[4];

@@ -427,7 +427,7 @@ void vtkGaussianSplatter::ComputeModelBounds(vtkCompositeDataSet *input,
         }
         else
         {
-          double* dsBounds = ds->GetBounds();
+          const double* dsBounds = ds->GetBounds();
           for (int j = 0; j < 3; ++j)
           {
             tempBounds[2*j] = std::min(tempBounds[2*j],dsBounds[2*j]);
@@ -496,7 +496,8 @@ void vtkGaussianSplatter::ComputeModelBounds(vtkDataSet *input,
                                              vtkImageData *output,
                                              vtkInformation *outInfo)
 {
-  double *bounds, maxDist;
+  const double *bounds;
+  double maxDist;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously

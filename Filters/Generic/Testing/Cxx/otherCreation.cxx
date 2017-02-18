@@ -160,14 +160,13 @@ int TestEmpty(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b;
   double center[3];
   double *c;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
+  const double *b=ds->GetBounds();
   MacroTest(strm,indent,"volatile bounds exist",b!=0);
   MacroTest(strm,indent,"default volatile bounds",!vtkMath::AreBoundsInitialized(b));
 
@@ -359,14 +358,13 @@ int TestWithPoints(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b;
   double center[3];
   double *c;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
+  const double *b=ds->GetBounds();
   MacroTest(strm,indent,"volatile bounds exist",b!=0);
 
   //strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<endl;
@@ -807,14 +805,13 @@ int TestWithPointsAndCells(ostream &strm)
 
 
   double bounds[6];
-  double *b;
   double center[3];
   double *c;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
+  const double *b=ds->GetBounds();
   MacroTest(strm,indent,"volatile bounds exist",b!=0);
 
   strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<endl;
@@ -1185,14 +1182,13 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   strm<<"NewPointIterator() end"<<endl;
 
   double bounds[6];
-  double *b;
   double center[3];
   double *c=0;
   const double epsilon=0.000001; // 10^{-6}
 
   strm<<"GetBounds() start"<<endl;
 
-  b=ds->GetBounds();
+  const double *b=ds->GetBounds();
   MacroTest(strm,indent,"volatile bounds exist",b!=0);
 
   strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<endl;

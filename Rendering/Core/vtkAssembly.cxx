@@ -371,7 +371,7 @@ double *vtkAssembly::GetBounds()
     {
       propVisible = 1;
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
-      double* bounds = prop3D->GetBounds();
+      const double* bounds = prop3D->GetBounds();
       prop3D->PokeMatrix(NULL);
 
       // Skip any props that have uninitialized bounds

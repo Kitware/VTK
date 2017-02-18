@@ -851,7 +851,6 @@ void vtkPointLocator::FindPointsWithinRadius(double R, const double x[3],
 //
 void vtkPointLocator::BuildLocator()
 {
-  double *bounds;
   vtkIdType numBuckets;
   double level;
   int ndivs[3];
@@ -887,7 +886,7 @@ void vtkPointLocator::BuildLocator()
   //  Size the root bucket.  Initialize bucket data structure, compute
   //  level and divisions.
   //
-  bounds = this->DataSet->GetBounds();
+  const double *bounds = this->DataSet->GetBounds();
   for (i=0; i<3; i++)
   {
     this->Bounds[2*i] = bounds[2*i];

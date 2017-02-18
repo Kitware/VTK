@@ -141,7 +141,7 @@ int vtkDecimatePro::RequestData(
   vtkIdType pt1, pt2, cellId, fedges[2];
   vtkIdType *cells;
   vtkIdList *CollapseTris;
-  double max, *bounds;
+  double max;
   if (!input)
   {
     vtkErrorMacro(<<"No input!");
@@ -166,7 +166,7 @@ int vtkDecimatePro::RequestData(
   }
 
   // Initialize
-  bounds = input->GetBounds();
+  const double *bounds = input->GetBounds();
   for (max=0.0, i=0; i<3; i++)
   {
     max = ((bounds[2*i+1]-bounds[2*i]) > max ?

@@ -267,7 +267,7 @@ void vtkImageActorPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  double *bounds = this->GetBounds();
+  const double *bounds = this->GetBounds();
   if ( bounds != NULL )
   {
     os << indent << "Bounds: \n";

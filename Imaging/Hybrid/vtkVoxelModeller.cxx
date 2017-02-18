@@ -135,7 +135,8 @@ int vtkVoxelModeller::RequestData(
 
   vtkIdType cellNum, i;
   int j, k;
-  double *bounds, adjBounds[6];
+  const double *bounds;
+  double adjBounds[6];
   vtkCell *cell;
   double maxDistance, pcoords[3];
   vtkIdType numPts, idx, numCells;
@@ -237,7 +238,8 @@ int vtkVoxelModeller::RequestData(
 double vtkVoxelModeller::ComputeModelBounds(double origin[3],
                                             double spacing[3])
 {
-  double *bounds, maxDist;
+  const double *bounds;
+  double maxDist;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously

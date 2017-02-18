@@ -105,7 +105,7 @@ int TestOSPRayImplicits(int argc, char* argv[])
 
   //measure it for placements
   shrinker->Update();
-  double *bds = vtkDataSet::SafeDownCast(shrinker->GetOutputDataObject(0))->GetBounds();
+  const double *bds = vtkDataSet::SafeDownCast(shrinker->GetOutputDataObject(0))->GetBounds();
   double x0 = bds[0];
   double y0 = bds[2];
   double z0 = bds[4];

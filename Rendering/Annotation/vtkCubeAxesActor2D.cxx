@@ -702,7 +702,7 @@ double *vtkCubeAxesActor2D::GetRanges()
 // Compute the bounds
 void vtkCubeAxesActor2D::GetBounds(double bounds[6])
 {
-  double *propBounds;
+  const double *propBounds;
   int i;
 
   if ( this->GetInput() )

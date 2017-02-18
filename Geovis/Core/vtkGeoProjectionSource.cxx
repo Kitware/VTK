@@ -270,7 +270,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
 
   transformFilter->SetInputConnection(grat->GetOutputPort());
   transformFilter->Update();
-  double* realBounds = transformFilter->GetOutput()->GetBounds();
+  const double *realBounds = transformFilter->GetOutput()->GetBounds();
 
   // Extend the bounds just a tad to be safe
   double bounds[4];

@@ -1066,7 +1066,7 @@ void vtkImplicitPlaneWidget::SetOrigin(double x, double y, double z)
 // Set the origin of the plane.
 void vtkImplicitPlaneWidget::SetOrigin(double x[3])
 {
-  double *bounds = this->Outline->GetOutput()->GetBounds();
+  const double *bounds = this->Outline->GetOutput()->GetBounds();
   for (int i=0; i<3; i++)
   {
     if ( x[i] < bounds[2*i] )
@@ -1247,7 +1247,7 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
   double p2[3];
   if( !this->OutsideBounds )
   {
-    double *bounds = this->GetInput()->GetBounds();
+    const double *bounds = this->GetInput()->GetBounds();
     for (int i=0; i<3; i++)
     {
       if ( origin[i] < bounds[2*i] )

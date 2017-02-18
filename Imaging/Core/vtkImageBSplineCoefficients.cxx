@@ -407,7 +407,7 @@ const char *vtkImageBSplineCoefficients::GetOutputScalarTypeAsString()
 //----------------------------------------------------------------------------
 int vtkImageBSplineCoefficients::CheckBounds(const double point[3])
 {
-  double *bounds = this->GetOutput()->GetBounds();
+  const double *bounds = this->GetOutput()->GetBounds();
   for (int i = 0; i < 3; i++)
   {
     double a = bounds[0];

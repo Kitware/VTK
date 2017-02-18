@@ -427,7 +427,7 @@ void vtkProp3DAxisFollower::ComputerAutoCenterTranslation(
     return;
   }
 
-  double *bounds = this->GetProp3D()->GetBounds();
+  const double *bounds = this->GetProp3D()->GetBounds();
 
   // Offset by half of width.
   double halfWidth  = (bounds[1] - bounds[0]) * 0.5 * this->Scale[0];

@@ -223,7 +223,8 @@ vtkShepardMethod::vtkShepardMethod()
 double vtkShepardMethod::ComputeModelBounds(double origin[3],
                                             double spacing[3])
 {
-  double *bounds, maxDist;
+  const double *bounds;
+  double maxDist;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously

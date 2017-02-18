@@ -97,7 +97,7 @@ int vtkPropPicker3D::PickProp(
   {
     if (prop->GetPickable())
     {
-      double *bnds = prop->GetBounds();
+      const double *bnds = prop->GetBounds();
       if (bnds)
       {
         if (selectionX >= bnds[0] && selectionX <= bnds[1] &&

@@ -1056,7 +1056,7 @@ public:
   /**
    * Are the bounds initialized?
    */
-  static vtkTypeBool AreBoundsInitialized(double bounds[6]){
+  static vtkTypeBool AreBoundsInitialized(const double bounds[6]){
     if ( bounds[1]-bounds[0]<0.0 )
     {
       return 0;

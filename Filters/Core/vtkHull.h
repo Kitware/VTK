@@ -184,12 +184,12 @@ protected:
   // Internal method used to create the actual polygons from the set
   // of planes
   void      ClipPolygonsFromPlanes( vtkPoints *points, vtkCellArray *polys,
-                                    double *bounds );
+                                    const double *bounds );
 
   // Internal method used to create the initial "big" polygon from the
   // plane equation. This polygon is clipped by all other planes to form
   // the final polygon (or it may be clipped entirely)
-  void      CreateInitialPolygon( double *, int, double * );
+  void      CreateInitialPolygon( double *, int, const double * );
 
   // The method that does it all...
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

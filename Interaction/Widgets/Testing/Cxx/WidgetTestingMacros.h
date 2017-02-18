@@ -512,7 +512,7 @@
                                                                         \
     double bounds[6] = {-1.0, 0.0, -10.0, 10.0, -5.0, 2.0};              \
     object->PlaceWidget(bounds);                                        \
-    double *bounds2 = object->GetBounds();                              \
+    const double *bounds2 = object->GetBounds();                        \
     if (bounds2 == NULL)                                                \
     {                                                                 \
       std::cout << "GetBounds is null." << std::endl;                   \

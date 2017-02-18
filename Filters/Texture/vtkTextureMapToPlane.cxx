@@ -66,7 +66,6 @@ int vtkTextureMapToPlane::RequestData(
   vtkFloatArray *newTCoords;
   vtkIdType i;
   int j;
-  double *bounds;
   double proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir = 0;
   double s, t, sSf, tSf, p[3];
@@ -138,7 +137,7 @@ int vtkTextureMapToPlane::RequestData(
     //  between s_range and t_range.  Simplest to do by projecting maximum
     //  corner of bounding box unto plane and backing out scale factors.
     //
-    bounds = output->GetBounds();
+    const double *bounds = output->GetBounds();
     for (i=0; i<3; i++)
     {
       axis[i] = bounds[2*i+1] - bounds[2*i];
@@ -239,7 +238,6 @@ void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *output)
   vtkIdType ptId;
   int dir = 0, i;
   double length, w, *c1, *c2, *c3, det;
-  double *bounds;
 
   //  First thing to do is to get an initial normal and point to define
   //  the plane.  Then, use this information to construct better
@@ -247,7 +245,7 @@ void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *output)
   //  fallback value.
   //
   //  Get minimum width of bounding box.
-  bounds = output->GetBounds();
+  const double *bounds = output->GetBounds();
   length = output->GetLength();
 
   for (w=length, i=0; i<3; i++)

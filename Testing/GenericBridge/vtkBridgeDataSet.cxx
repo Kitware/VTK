@@ -505,15 +505,13 @@ vtkMTimeType vtkBridgeDataSet::GetMTime()
 // Compute the geometry bounding box.
 void vtkBridgeDataSet::ComputeBounds()
 {
-  double *bounds;
-
   if ( this->GetMTime() > this->ComputeTime )
   {
     if(this->Implementation!=0)
     {
       this->Implementation->ComputeBounds();
       this->ComputeTime.Modified();
-      bounds=this->Implementation->GetBounds();
+      const double *bounds=this->Implementation->GetBounds();
       memcpy(this->Bounds,bounds,sizeof(double)*6);
     }
     else

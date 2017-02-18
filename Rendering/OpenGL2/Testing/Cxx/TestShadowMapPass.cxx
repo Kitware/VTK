@@ -90,7 +90,7 @@ int TestShadowMapPass(int argc, char *argv[])
 
   // add a plane
   vtkNew<vtkPlaneSource> plane;
-  double *plybounds = mapper->GetBounds();
+  const double *plybounds = mapper->GetBounds();
   plane->SetOrigin(-0.2, plybounds[2], -0.2);
   plane->SetPoint1( 0.2, plybounds[2], -0.2);
   plane->SetPoint2(-0.2, plybounds[2],  0.2);

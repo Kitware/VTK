@@ -248,7 +248,7 @@ double *vtkPropAssembly::GetBounds()
 {
   vtkProp *part;
   int i, n;
-  double *bounds, bbox[24];
+  double bbox[24];
   int partVisible=0;
 
   // carefully compute the bounds
@@ -258,7 +258,7 @@ double *vtkPropAssembly::GetBounds()
   {
     if ( part->GetVisibility() && part->GetUseBounds() )
     {
-      bounds = part->GetBounds();
+      const double *bounds = part->GetBounds();
 
       if ( bounds != NULL )
       {

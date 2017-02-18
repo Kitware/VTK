@@ -347,7 +347,7 @@ vtkProperty *vtkActor::GetProperty()
 double *vtkActor::GetBounds()
 {
   int i,n;
-  double *bounds, bbox[24], *fptr;
+  double bbox[24], *fptr;
 
   vtkDebugMacro( << "Getting Bounds" );
 
@@ -357,11 +357,11 @@ double *vtkActor::GetBounds()
     return this->Bounds;
   }
 
-  bounds = this->Mapper->GetBounds();
+  const double *bounds = this->Mapper->GetBounds();
   // Check for the special case when the mapper's bounds are unknown
   if (!bounds)
   {
-    return bounds;
+    return NULL;
   }
 
   // Check for the special case when the actor is empty.

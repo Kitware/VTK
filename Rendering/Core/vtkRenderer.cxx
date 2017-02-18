@@ -896,9 +896,9 @@ void vtkRenderer::CreateLight(void)
 // Compute the bounds of the visible props
 void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
 {
-  vtkProp    *prop;
-  double      *bounds;
-  int        nothingVisible=1;
+  vtkProp      *prop;
+  const double *bounds;
+  int          nothingVisible=1;
 
   this->InvokeEvent(vtkCommand::ComputeVisiblePropBoundsEvent, this);
 

@@ -406,7 +406,7 @@ void vtkSphereHandleRepresentation::Scale(double *p1, double *p2, double eventPo
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  double *bounds = this->GetBounds();
+  const double *bounds = this->GetBounds();
 
   // Compute the scale factor
   double sf = vtkMath::Norm(v) /

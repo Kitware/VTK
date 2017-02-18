@@ -634,7 +634,7 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale: (" << this->Scale[0] << ", "
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
 
-  double *bounds = this->GetBounds();
+  const double *bounds = this->GetBounds();
   if ( bounds != NULL )
   {
     os << indent << "Bounds: \n";

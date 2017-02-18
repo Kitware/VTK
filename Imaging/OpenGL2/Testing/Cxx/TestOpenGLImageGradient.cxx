@@ -76,7 +76,7 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   renderer->SetBackground(0.2,0.3,0.4);
   renWin->AddRenderer(renderer.Get());
 
-  double *bounds = imageMapper->GetBounds();
+  const double *bounds = imageMapper->GetBounds();
   double point[3];
   point[0] = 0.5*(bounds[0] + bounds[1]);
   point[1] = 0.5*(bounds[2] + bounds[3]);

@@ -5249,7 +5249,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::SlabsFromDatasetToIndex(
   double origin[3];
 
   // take spacing sign into account
-  double *bds = this->GetInput()->GetBounds();
+  const double *bds = this->GetInput()->GetBounds();
   origin[0] = bds[0];
   origin[1] = bds[2];
   origin[2] = bds[4];
@@ -5280,7 +5280,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::SlabsFromIndexToDataset(
   double origin[3];
 
   // take spacing sign into account
-  double *bds = this->GetInput()->GetBounds();
+  const double *bds = this->GetInput()->GetBounds();
   origin[0] = bds[0];
   origin[1] = bds[2];
   origin[2] = bds[4];

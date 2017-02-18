@@ -119,7 +119,7 @@ void gridLayoutActors( std::vector<vtkActor*> actors )
   {
     // move to the origin
     (*it)->SetPosition( 0.0, 0.0, 0.0 );
-    double *b = (*it)->GetBounds();
+    const double *b = (*it)->GetBounds();
     // X
     if( b[0]<bounds[0] ) bounds[0] = b[0];
     if( b[1]>bounds[1] ) bounds[1] = b[1];
