@@ -256,10 +256,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
     cout << "\nTest Successful!!!" << endl;
     return EXIT_SUCCESS;
   }
-  else
-  {
-    cout << "\nTest Unsuccessful." << endl;
-    return EXIT_FAILURE;
-  }
-  return 1;
+
+  cout << "\nTest Unsuccessful." << endl;
+  return EXIT_FAILURE;
 }
