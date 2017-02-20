@@ -806,7 +806,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
           vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
           ef = NULL;
         }
-        if (!ef->IsA("vtkUnsignedCharArray"))
+        if (ef && !ef->IsA("vtkUnsignedCharArray"))
         {
           vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
           ef = NULL;
