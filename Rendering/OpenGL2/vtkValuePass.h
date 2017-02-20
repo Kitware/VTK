@@ -107,7 +107,7 @@ public:
   /**
    * Check for extension support.
    */
-  bool IsFloatingPointModeSupported(vtkRenderWindow* renWin);
+  bool IsFloatingPointModeSupported();
 
   void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
 
