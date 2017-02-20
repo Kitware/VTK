@@ -195,14 +195,20 @@ int TestFiberSurface(int argc, char* argv[])
     } // end for
   }   // end for
 
+  for (int i = 0; i <  15; ++i)
+  {
+    delete [] inputFSCPFiles[i];
+  }
+  delete [] inputDataFiles[0];
+  delete [] inputDataFiles[1];
+  delete [] inputDataFiles[2];
+
   if (pass)
   {
     cout << "\nTest Successful!!!" << endl;
     return EXIT_SUCCESS;
   }
-  else
-  {
-    cout << "\nTest Unsuccessful." << endl;
-    return EXIT_FAILURE;
-  }
+
+  cout << "\nTest Unsuccessful." << endl;
+  return EXIT_FAILURE;
 }
