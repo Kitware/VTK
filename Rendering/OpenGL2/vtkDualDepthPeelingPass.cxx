@@ -352,7 +352,8 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
     OcclusionQueryId(0),
     WrittenPixels(0),
     OcclusionThreshold(0),
-    RenderCount(0)
+    RenderCount(0),
+    SaveScissorTestState(false)
 {
   std::fill(this->Textures, this->Textures + static_cast<int>(NumberOfTextures),
             static_cast<vtkTextureObject*>(NULL));
@@ -543,6 +544,14 @@ void vtkDualDepthPeelingPass::InitFramebuffer(const vtkRenderState *s)
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::Prepare()
 {
+  // Since we're rendering into a temporary non-default framebuffer, we need to
+  // remove the translation from the viewport and disable the scissor test;
+  // otherwise we'll capture the wrong area of the rendered geometry.
+  glViewport(0, 0,
+             this->ViewportWidth, this->ViewportHeight);
+  this->SaveScissorTestState = glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE;
+  glDisable(GL_SCISSOR_TEST);
+
   // Prevent vtkOpenGLActor from messing with the depth mask:
   size_t numProps = this->RenderState->GetPropArrayCount();
   for (size_t i = 0; i < numProps; ++i)
@@ -1020,6 +1029,19 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+  // Restore the original viewport and scissor test settings (see note in
+  // Prepare).
+  glViewport(this->ViewportX, this->ViewportY,
+             this->ViewportWidth, this->ViewportHeight);
+  if (this->SaveScissorTestState)
+  {
+    glEnable(GL_SCISSOR_TEST);
+  }
+  else
+  {
+    glDisable(GL_SCISSOR_TEST);
+  }
 
   typedef vtkOpenGLRenderUtilities GLUtil;
 

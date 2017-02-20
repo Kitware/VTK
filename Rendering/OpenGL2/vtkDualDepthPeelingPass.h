@@ -205,6 +205,9 @@ protected:
 
   int RenderCount; // Debug info, counts number of geometry passes.
 
+  // Cached state:
+  bool SaveScissorTestState;
+
 private:
   vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
