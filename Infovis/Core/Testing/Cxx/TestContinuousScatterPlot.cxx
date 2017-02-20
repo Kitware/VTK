@@ -251,6 +251,8 @@ int TestContinuousScatterPlot(int argc, char* argv[])
 
   } // end for
 
+  delete [] inputFile;
+
   if (pass)
   {
     cout << "\nTest Successful!!!" << endl;
