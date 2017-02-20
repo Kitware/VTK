@@ -753,6 +753,24 @@ public:
 
   //@{
   /**
+   * rotate a vector by a normalized quaternion
+   * using // https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+   */
+  static void RotateVectorByNormalizedQuaternion(const float v[3], const float q[4], float r[3]);
+  static void RotateVectorByNormalizedQuaternion(const double v[3], const double q[4], double r[3]);
+  //@}
+
+  //@{
+  /**
+   * rotate a vector by WXYZ
+   * using // https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+   */
+  static void RotateVectorByWXYZ(const float v[3], const float q[4], float r[3]);
+  static void RotateVectorByWXYZ(const double v[3], const double q[4], double r[3]);
+  //@}
+
+  //@{
+  /**
    * Orthogonalize a 3x3 matrix and put the result in B.  If matrix A
    * has a negative determinant, then B will be a rotation plus a flip
    * i.e. it will have a determinant of -1.

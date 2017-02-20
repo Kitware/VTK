@@ -342,7 +342,7 @@ public:
    * Reset the camera clipping range based on the bounds of the
    * visible actors. This ensures that no props are cut off
    */
-  void ResetCameraClippingRange();
+  virtual void ResetCameraClippingRange();
 
   //@{
   /**
@@ -351,8 +351,8 @@ public:
    * If Deering frustrum is used then the bounds get expanded
    * by the camera's modelview matrix.
    */
-  void ResetCameraClippingRange( double bounds[6] );
-  void ResetCameraClippingRange( double xmin, double xmax,
+  virtual void ResetCameraClippingRange( double bounds[6] );
+  virtual void ResetCameraClippingRange( double xmin, double xmax,
                                  double ymin, double ymax,
                                  double zmin, double zmax);
   //@}

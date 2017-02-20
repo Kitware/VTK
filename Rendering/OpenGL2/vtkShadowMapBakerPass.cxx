@@ -14,8 +14,8 @@
 =========================================================================*/
 
 //#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
-#include "vtkCamera.h"
 #include "vtkCameraPass.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -296,6 +296,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
     if(hasLight)
     {
+      // at least one receiver?
       vtkCollectionSimpleIterator pit;
       vtkPropCollection *props=r->GetViewProps();
       props->InitTraversal(pit);
@@ -454,7 +455,6 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
         }
         first = false;
       }
-
       lights->InitTraversal();
       l=lights->GetNextItem();
       lightIndex=0;
@@ -501,15 +501,12 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
           vtkCamera *lightCamera = (*this->LightCameras)[lightIndex];
           if(lightCamera==0)
           {
-            lightCamera=vtkCamera::New();
+            lightCamera=vtkOpenGLCamera::New();
             (*this->LightCameras)[lightIndex] = lightCamera;
             lightCamera->Delete();
           }
 
           // Build light camera
-          r->SetActiveCamera(realCamera);
-
-
           this->BuildCameraLight(l,bb, lightCamera);
           r->SetActiveCamera(lightCamera);
 

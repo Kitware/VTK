@@ -110,6 +110,7 @@
 #define VTKIS_FORWARDFLY   8
 #define VTKIS_REVERSEFLY   9
 #define VTKIS_TWO_POINTER 10
+#define VTKIS_CLIP        11
 
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON  1

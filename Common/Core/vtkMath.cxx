@@ -1912,6 +1912,94 @@ void vtkMath::MultiplyQuaternion( const double q1[4], const double q2[4], double
   vtkQuaternionMultiplication( q1, q2, q );
 }
 
+void vtkMath::RotateVectorByNormalizedQuaternion(const float v[3], const float q[4], float r[3])
+{
+  float f = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+  float a[3];
+  if (f != 0.0)
+  {
+    a[0] = q[1] / f;
+    a[1] = q[2] / f;
+    a[2] = q[3] / f;
+
+    // atan2() provides a more accurate angle result than acos()
+    float t = 2.0*atan2(f, q[0]);
+
+    float cosT = cos(t);
+    float sinT = sin(t);
+    float dotKV = a[0]*v[0] + a[1]*v[1] + a[2]*v[2];
+    float crossKV[3];
+    vtkMath::Cross(a, v, crossKV);
+
+    r[0] = v[0]*cosT + crossKV[0]*sinT + a[0]*dotKV*(1.0 - cosT);
+    r[1] = v[1]*cosT + crossKV[1]*sinT + a[1]*dotKV*(1.0 - cosT);
+    r[2] = v[2]*cosT + crossKV[2]*sinT + a[2]*dotKV*(1.0 - cosT);
+  }
+  else
+  {
+    r[0] = v[0];
+    r[1] = v[1];
+    r[2] = v[2];
+  }
+}
+
+void vtkMath::RotateVectorByNormalizedQuaternion(const double v[3], const double q[4], double r[3])
+{
+  double f = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+  double a[3];
+  if (f != 0.0)
+  {
+    a[0] = q[1] / f;
+    a[1] = q[2] / f;
+    a[2] = q[3] / f;
+
+    // atan2() provides a more accurate angle result than acos()
+    double t = 2.0*atan2(f, q[0]);
+
+    double cosT = cos(t);
+    double sinT = sin(t);
+    double dotKV = a[0]*v[0] + a[1]*v[1] + a[2]*v[2];
+    double crossKV[3];
+    vtkMath::Cross(a, v, crossKV);
+
+    r[0] = v[0]*cosT + crossKV[0]*sinT + a[0]*dotKV*(1.0 - cosT);
+    r[1] = v[1]*cosT + crossKV[1]*sinT + a[1]*dotKV*(1.0 - cosT);
+    r[2] = v[2]*cosT + crossKV[2]*sinT + a[2]*dotKV*(1.0 - cosT);
+  }
+  else
+  {
+    r[0] = v[0];
+    r[1] = v[1];
+    r[2] = v[2];
+  }
+}
+
+void vtkMath::RotateVectorByWXYZ(const float v[3], const float q[4], float r[3])
+{
+  float cosT = cos(q[0]);
+  float sinT = sin(q[0]);
+  float dotKV = q[1]*v[0] + q[2]*v[1] + q[3]*v[2];
+  float crossKV[3];
+  vtkMath::Cross(&(q[1]), v, crossKV);
+
+  r[0] = v[0]*cosT + crossKV[0]*sinT + q[1]*dotKV*(1.0 - cosT);
+  r[1] = v[1]*cosT + crossKV[1]*sinT + q[2]*dotKV*(1.0 - cosT);
+  r[2] = v[2]*cosT + crossKV[2]*sinT + q[3]*dotKV*(1.0 - cosT);
+}
+
+void vtkMath::RotateVectorByWXYZ(const double v[3], const double q[4], double r[3])
+{
+  double cosT = cos(q[0]);
+  double sinT = sin(q[0]);
+  double dotKV = q[1]*v[0] + q[2]*v[1] + q[3]*v[2];
+  double crossKV[3];
+  vtkMath::Cross(&(q[1]), v, crossKV);
+
+  r[0] = v[0]*cosT + crossKV[0]*sinT + q[1]*dotKV*(1.0 - cosT);
+  r[1] = v[1]*cosT + crossKV[1]*sinT + q[2]*dotKV*(1.0 - cosT);
+  r[2] = v[2]*cosT + crossKV[2]*sinT + q[3]*dotKV*(1.0 - cosT);
+}
+
 //----------------------------------------------------------------------------
 //  The orthogonalization is done via quaternions in order to avoid
 //  having to use a singular value decomposition algorithm.

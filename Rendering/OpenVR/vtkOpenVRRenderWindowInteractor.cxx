@@ -18,18 +18,20 @@
 #include <cmath>
 #include <cassert>
 
+#include "vtkOpenVROverlay.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkRendererCollection.h"
 
 
 #include "vtkActor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-#include "vtkOpenVRCamera.h"
-#include "vtkNew.h"
 #include "vtkInteractorStyle3D.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenVRCamera.h"
 #include "vtkPropPicker3D.h"
+#include "vtkTextureObject.h"
 
 vtkStandardNewMacro(vtkOpenVRRenderWindowInteractor);
 
@@ -66,37 +68,68 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
   vtkRenderer *ren,
   vr::TrackedDevicePose_t &tdPose,
   double pos[3],
-  double wxyz[4])
+  double wxyz[4],
+  double ppos[3])
 {
+  vtkOpenVRRenderWindow *win =
+    vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  vtkOpenVRCamera *cam =
+    static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
+  double distance = cam->GetDistance();
+  double *trans = cam->GetTranslation();
+
+  // Vive to world axes
+  double *vup = win->GetInitialViewUp();
+  double *dop = win->GetInitialViewDirection();
+  double vright[3];
+  vtkMath::Cross(dop, vup, vright);
+
+  // extract HMD axes
+  double hvright[3];
+  hvright[0] = tdPose.mDeviceToAbsoluteTracking.m[0][0];
+  hvright[1] = tdPose.mDeviceToAbsoluteTracking.m[1][0];
+  hvright[2] = tdPose.mDeviceToAbsoluteTracking.m[2][0];
+  double hvup[3];
+  hvup[0] = tdPose.mDeviceToAbsoluteTracking.m[0][1];
+  hvup[1] = tdPose.mDeviceToAbsoluteTracking.m[1][1];
+  hvup[2] = tdPose.mDeviceToAbsoluteTracking.m[2][1];
+
+  // convert position to world coordinates
   // get the position and orientation of the button press
   for (int i = 0; i < 3; i++)
   {
     pos[i] = tdPose.mDeviceToAbsoluteTracking.m[i][3];
   }
 
-  vtkOpenVRCamera *cam =
-    static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
-  double distance = cam->GetDistance();
-  double *trans = cam->GetTranslation();
-
+  ppos[0] = pos[0]*vright[0] + pos[1]*vup[0] - pos[2]*dop[0];
+  ppos[1] = pos[0]*vright[1] + pos[1]*vup[1] - pos[2]*dop[1];
+  ppos[2] = pos[0]*vright[2] + pos[1]*vup[2] - pos[2]*dop[2];
+  // now adjust for scale and translation
   for (int i = 0; i < 3; i++)
   {
-    pos[i] = pos[i]*distance - trans[i];
+    pos[i] = ppos[i]*distance - trans[i];
   }
+
+  // convert axes to world coordinates
+  double fvright[3]; // final vright
+  fvright[0] = hvright[0]*vright[0] + hvright[1]*vup[0] - hvright[2]*dop[0];
+  fvright[1] = hvright[0]*vright[1] + hvright[1]*vup[1] - hvright[2]*dop[1];
+  fvright[2] = hvright[0]*vright[2] + hvright[1]*vup[2] - hvright[2]*dop[2];
+  double fvup[3]; // final vup
+  fvup[0] = hvup[0]*vright[0] + hvup[1]*vup[0] - hvup[2]*dop[0];
+  fvup[1] = hvup[0]*vright[1] + hvup[1]*vup[1] - hvup[2]*dop[1];
+  fvup[2] = hvup[0]*vright[2] + hvup[1]*vup[2] - hvup[2]*dop[2];
+  double fdop[3];
+  vtkMath::Cross(fvup, fvright, fdop);
 
   double ortho[3][3];
   for (int i = 0; i < 3; i++)
   {
-    ortho[0][i] = tdPose.mDeviceToAbsoluteTracking.m[0][i];
-    ortho[1][i] = tdPose.mDeviceToAbsoluteTracking.m[1][i];
-    ortho[2][i] = tdPose.mDeviceToAbsoluteTracking.m[2][i];
+    ortho[i][0] = fvright[i];
+    ortho[i][1] = fvup[i];
+    ortho[i][2] = -fdop[i];
   }
-  if (vtkMath::Determinant3x3(ortho) < 0)
-  {
-    ortho[0][2] = -ortho[0][2];
-    ortho[1][2] = -ortho[1][2];
-    ortho[2][2] = -ortho[2][2];
-  }
+
   vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
 
   // calc the return value wxyz
@@ -145,9 +178,8 @@ void  vtkOpenVRRenderWindowInteractor::StartEventLoop()
   vtkOpenVRRenderWindow *renWin =
     vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
 
-  vtkCollectionSimpleIterator rit;
-  renWin->GetRenderers()->InitTraversal(rit);
-  vtkRenderer *ren = renWin->GetRenderers()->GetNextRenderer(rit);
+  vtkRenderer *ren = static_cast<vtkRenderer *>(
+    renWin->GetRenderers()->GetItemAsObject(0));
 
   while (!this->Done)
   {
@@ -161,123 +193,178 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
 
   if (!pHMD)
   {
+    vtkErrorMacro("failed to get HMD");
+    this->Done = true;
     return;
   }
 
   vr::VREvent_t event;
+  vtkOpenVROverlay *ovl = renWin->GetDashboardOverlay();
+  bool result = false;
 
-  bool result =
-    pHMD->PollNextEvent(
-      &event,
-      sizeof(vr::VREvent_t));
-
-  if (result)
+  if (vr::VROverlay() &&
+     vr::VROverlay()->IsOverlayVisible( ovl->GetOverlayHandle() ))
   {
-    vr::TrackedDeviceIndex_t tdi = event.trackedDeviceIndex;
+    result = vr::VROverlay()->PollNextOverlayEvent(
+      ovl->GetOverlayHandle(),
+      &event, sizeof( vr::VREvent_t ) );
 
-    // is it a controller button action?
-    if (pHMD->GetTrackedDeviceClass(tdi) ==
-        vr::ETrackedDeviceClass::TrackedDeviceClass_Controller &&
-          (event.eventType == vr::VREvent_ButtonPress ||
-           event.eventType == vr::VREvent_ButtonUnpress))
+    if (result)
     {
-      vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(tdi);
-
-      this->UpdateTouchPadPosition(pHMD,tdi);
-
-      // 0 = right hand 1 = left
-      int pointerIndex =
-        (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
-      this->PointerIndexLookup[pointerIndex] = tdi;
-
-      vr::TrackedDevicePose_t &tdPose = renWin->GetTrackedDevicePose(tdi);
-      double pos[3];
-      double wxyz[4];
-      this->ConvertPoseToWorldCoordinates(ren, tdPose, pos, wxyz);
-
-      // so even though we have world coordinates we have to convert them to
-      // screen coordinates because all of VTKs picking code is currently
-      // based on screen coordinates
-      ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
-      ren->WorldToDisplay();
-      double *displayCoords = ren->GetDisplayPoint();
-
-      this->SetEventPosition(displayCoords[0],displayCoords[1],pointerIndex);
-      this->SetWorldEventPosition(pos[0],pos[1],pos[2],pointerIndex);
-      this->SetPhysicalEventPosition(
-        tdPose.mDeviceToAbsoluteTracking.m[0][3],
-        tdPose.mDeviceToAbsoluteTracking.m[1][3],
-        tdPose.mDeviceToAbsoluteTracking.m[2][3],
-        pointerIndex);
-      this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],pointerIndex);
-      this->SetPointerIndex(pointerIndex);
-
-      if (event.eventType == vr::VREvent_ButtonPress)
+      int height = ovl->GetOverlayTexture()->GetHeight();
+      switch( event.eventType )
       {
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
+        case vr::VREvent_MouseButtonDown:
         {
-          this->LeftButtonPressEvent();
+          if (event.data.mouse.button == vr::VRMouseButton_Left)
+          {
+            ovl->MouseButtonPress(event.data.mouse.x, height - event.data.mouse.y - 1);
+          }
         }
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
+        break;
+
+        case vr::VREvent_MouseButtonUp:
         {
-          this->RightButtonPressEvent();
+          if (event.data.mouse.button == vr::VRMouseButton_Left)
+          {
+            ovl->MouseButtonRelease(event.data.mouse.x, height - event.data.mouse.y - 1);
+          }
         }
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
+        break;
+
+        case vr::VREvent_MouseMove:
         {
+          ovl->MouseMoved(event.data.mouse.x, height - event.data.mouse.y - 1);
+        }
+        break;
+
+        case vr::VREvent_OverlayShown:
+        {
+          renWin->RenderOverlay();
+        }
+        break;
+
+        case vr::VREvent_Quit:
           this->Done = true;
-        }
-      }
-      if (event.eventType == vr::VREvent_ButtonUnpress)
-      {
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
-        {
-          this->LeftButtonReleaseEvent();
-        }
-        if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
-        {
-          this->RightButtonReleaseEvent();
-        }
+        break;
       }
     }
   }
   else
   {
-    // if pointers are down track the movement
-    if (this->PointersDownCount)
-    {
-      for (int i = 0; i < VTKI_MAX_POINTERS; i++)
-      {
-        if (this->PointersDown[i])
-        {
-          this->UpdateTouchPadPosition(pHMD,
-           static_cast<vr::TrackedDeviceIndex_t>(this->PointerIndexLookup[i]));
-          vr::TrackedDevicePose_t &tdPose =
-            renWin->GetTrackedDevicePose(
-            static_cast<vr::TrackedDeviceIndex_t>(this->PointerIndexLookup[i]));
-          double pos[3];
-          double wxyz[4];
-          this->ConvertPoseToWorldCoordinates(ren, tdPose, pos, wxyz);
+    result = pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t));
 
-          // so even though we have world coordinates we have to convert them to
-          // screen coordinates because all of VTKs picking code is currently
-          // based on screen coordinates
-          ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
-          ren->WorldToDisplay();
-          double *displayCoords = ren->GetDisplayPoint();
-          this->SetEventPosition(displayCoords[0], displayCoords[1], i);
-          this->SetWorldEventPosition(pos[0],pos[1],pos[2],i);
-          this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],i);
-          this->SetPhysicalEventPosition(
-            tdPose.mDeviceToAbsoluteTracking.m[0][3],
-            tdPose.mDeviceToAbsoluteTracking.m[1][3],
-            tdPose.mDeviceToAbsoluteTracking.m[2][3],
-            i);
+    if (result)
+    {
+      vr::TrackedDeviceIndex_t tdi = event.trackedDeviceIndex;
+
+      // is it a controller button action?
+      if (pHMD->GetTrackedDeviceClass(tdi) ==
+          vr::ETrackedDeviceClass::TrackedDeviceClass_Controller &&
+            (event.eventType == vr::VREvent_ButtonPress ||
+             event.eventType == vr::VREvent_ButtonUnpress))
+      {
+        vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(tdi);
+
+        this->UpdateTouchPadPosition(pHMD,tdi);
+
+        // 0 = right hand 1 = left
+        int pointerIndex =
+          (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
+        this->PointerIndexLookup[pointerIndex] = tdi;
+
+        vr::TrackedDevicePose_t &tdPose = renWin->GetTrackedDevicePose(tdi);
+        double pos[3];
+        double ppos[3];
+        double wxyz[4];
+        this->ConvertPoseToWorldCoordinates(ren, tdPose, pos, wxyz, ppos);
+
+        // so even though we have world coordinates we have to convert them to
+        // screen coordinates because all of VTKs picking code is currently
+        // based on screen coordinates
+        ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
+        ren->WorldToDisplay();
+        double *displayCoords = ren->GetDisplayPoint();
+
+        this->SetEventPosition(displayCoords[0],displayCoords[1],pointerIndex);
+        this->SetWorldEventPosition(pos[0],pos[1],pos[2],pointerIndex);
+        this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], pointerIndex);
+        this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],pointerIndex);
+        this->SetPointerIndex(pointerIndex);
+
+        if (event.eventType == vr::VREvent_ButtonPress)
+        {
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
+          {
+            this->LeftButtonPressEvent();
+          }
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
+          {
+            this->RightButtonPressEvent();
+          }
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Grip)
+          {
+            //this->MiddleButtonPressEvent();
+          }
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
+          {
+            this->Done = true;
+          }
+        }
+        if (event.eventType == vr::VREvent_ButtonUnpress)
+        {
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
+          {
+            this->LeftButtonReleaseEvent();
+          }
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
+          {
+            this->RightButtonReleaseEvent();
+          }
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Grip)
+          {
+            //this->MiddleButtonReleaseEvent();
+            ovl->LoadNextCameraPose();
+          }
         }
       }
-      this->MouseMoveEvent();
     }
+    else
+    {
+      // if pointers are down track the movement
+      if (this->PointersDownCount)
+      {
+        for (int i = 0; i < VTKI_MAX_POINTERS; i++)
+        {
+          if (this->PointersDown[i])
+          {
+            this->UpdateTouchPadPosition(pHMD,
+             static_cast<vr::TrackedDeviceIndex_t>(this->PointerIndexLookup[i]));
+            vr::TrackedDevicePose_t &tdPose =
+              renWin->GetTrackedDevicePose(
+              static_cast<vr::TrackedDeviceIndex_t>(this->PointerIndexLookup[i]));
+            double pos[3];
+            double ppos[3];
+            double wxyz[4];
+            this->ConvertPoseToWorldCoordinates(ren, tdPose, pos, wxyz, ppos);
+
+            // so even though we have world coordinates we have to convert them to
+            // screen coordinates because all of VTKs picking code is currently
+            // based on screen coordinates
+            ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
+            ren->WorldToDisplay();
+            double *displayCoords = ren->GetDisplayPoint();
+            this->SetEventPosition(displayCoords[0], displayCoords[1], i);
+            this->SetWorldEventPosition(pos[0],pos[1],pos[2],i);
+            this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],i);
+            this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], i);
+          }
+        }
+        this->MouseMoveEvent();
+      }
+    }
+    renWin->Render();
   }
-  renWin->Render();
 }
 
 

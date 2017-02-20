@@ -16,7 +16,8 @@
 #include "vtkRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPLYReader.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
@@ -39,26 +40,30 @@
 #include "vtkLight.h"
 
 #include "vtkOpenVRRenderer.h"
-     #include "vtkOpenVRCamera.h"
-     #include "vtkOpenVRRenderWindow.h"
-     #include "vtkOpenVRRenderWindowINteractor.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRRenderWindow.h"
+#include "vtkOpenVRRenderWindowINteractor.h"
 
-// #include "vtkLODPointCloudMapper.h"
-// #include "vtkXMLMultiBlockDataReader.h"
+#include "vtkWin32RenderWindowInteractor.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 
 //----------------------------------------------------------------------------
 int TestDragon(int argc, char *argv[])
 {
-  vtkNew<vtkActor> actor;
   vtkNew<vtkOpenVRRenderer> renderer;
-  renderer->SetBackground(0.2, 0.3, 0.4);
   vtkNew<vtkOpenVRRenderWindow> renderWindow;
+  vtkNew<vtkOpenVRRenderWindowInteractor>  iren;
+  vtkNew<vtkOpenVRCamera> cam;
+  renderer->SetShowFloor(true);
+
+  vtkNew<vtkActor> actor;
+  renderer->SetBackground(0.2, 0.3, 0.4);
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
-  vtkNew<vtkOpenVRRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
-  vtkNew<vtkOpenVRCamera> cam;
   renderer->SetActiveCamera(cam.Get());
+
+  //renderer->UseShadowsOn();
 
   // crazy frame rate requirement
   // need to look into that at some point
@@ -69,18 +74,9 @@ int TestDragon(int argc, char *argv[])
   renderer->RemoveCuller(renderer->GetCullers()->GetLastItem());
 
   vtkNew<vtkLight> light;
-  light->SetLightTypeToCameraLight();
+  light->SetLightTypeToSceneLight();
   light->SetPosition(1.0, 1.0, 1.0);
   renderer->AddLight(light.Get());
-
-
-  // vtkNew<vtkXMLMultiBlockDataReader> reader;
-  // reader->SetFileName("C:/Users/Kenny/Documents/vtk/village.vtmopc");
-  // reader->SetFileName("C:/Users/Kenny/Documents/vtk/20M.vtmopc");
-  // reader->Update();
-  // vtkNew<vtkLODPointCloudMapper> mapper;
-  // mapper->SetInputConnection(reader->GetOutputPort(0));
-  // actor->SetMapper(mapper.Get());
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                                "Data/dragon.ply");
@@ -89,12 +85,14 @@ int TestDragon(int argc, char *argv[])
 
   vtkNew<vtkTransform> trans;
   trans->Translate(10.0,20.0,30.0);
+  //trans->Scale(10.0,10.0,10.0);
   vtkNew<vtkTransformPolyDataFilter> tf;
   tf->SetTransform(trans.Get());
   tf->SetInputConnection(reader->GetOutputPort());
 
-  vtkNew<vtkPolyDataMapper> mapper;
+  vtkNew<vtkOpenGLPolyDataMapper> mapper;
   mapper->SetInputConnection(tf->GetOutputPort());
+  mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE);
   actor->SetMapper(mapper.Get());
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
@@ -104,14 +102,7 @@ int TestDragon(int argc, char *argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
-//  actor->GetProperty()->SetRepresentationToWireframe();
-
-  // vtkNew<vtkPlaneWidget> planeWidget;
-  // planeWidget->SetInteractor(iren.Get());
-  // planeWidget->SetInputData(tf->GetOutput());
-  // planeWidget->PlaceWidget(actor->GetBounds());
-  // planeWidget->SetRepresentationToWireframe();
-  // planeWidget->SetEnabled(1);
+  //  actor->GetProperty()->SetRepresentationToWireframe();
 
   renderer->ResetCamera();
   renderWindow->Render();
