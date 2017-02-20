@@ -59,6 +59,7 @@ vtkOpenGLVertexBufferObject* vtkOpenGLVertexBufferObjectCache::GetVBO(
   if (array == NULL || array->GetNumberOfTuples() == 0)
   {
     vtkErrorMacro( << "Cannot get VBO for empty array.");
+    return NULL;
   }
 
   // Look for VBO in map
