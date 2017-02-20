@@ -338,7 +338,7 @@ public:
    * For interpolation, the flag values can be as follows:
    * 0: Do not interpolate.
    * 1: Weighted interpolation.
-   * 2. Nearest neighbor interpolation.
+   * 2: Nearest neighbor interpolation.
    */
   void SetCopyAttribute (int index, int value, int ctype=ALLCOPY);
 
