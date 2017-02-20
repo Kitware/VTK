@@ -8,6 +8,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCubeMap.cxx
   TestDepthOfFieldPass.cxx
   TestDepthPeelingPass.cxx
+  TestDepthPeelingPassViewport.cxx
   TestEDLPass.cxx
   TestFXAAFilter.cxx
   TestGaussianBlurPass.cxx
