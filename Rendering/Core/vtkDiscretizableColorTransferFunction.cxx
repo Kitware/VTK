@@ -84,7 +84,7 @@ void vtkDiscretizableColorTransferFunction::SetNumberOfIndexedColors(
 {
   if (static_cast<unsigned int>(this->Internals->IndexedColors.size()) != count)
   {
-    this->Internals->IndexedColors.resize(count);
+    this->Internals->IndexedColors.resize(count, vtkTuple<double,3>(0.0));
     this->Modified();
   }
 }
