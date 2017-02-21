@@ -438,7 +438,7 @@ int vtkContinuousScatterplot::RequestData(
       // obtain the minimal and maximal scalar values of the cell.
       for (int pnr = 0; pnr < newPointsPD->GetNumberOfTuples(); pnr++)
       {
-        double fval = newPointsPD->GetArray((vtkIdType)fieldNr)->GetComponent(pnr, 0);
+        double fval = newPointsPD->GetArray((int)fieldNr)->GetComponent(pnr, 0);
 
         ////cout << "    fval: " << fval << endl;
         if (maxCell < fval)
@@ -489,9 +489,13 @@ int vtkContinuousScatterplot::RequestData(
         {
           // Initialise framgent face structure for the current cutting plane.
           if (fragment)
+          {
             delete fragment;
+          }
           if (residual)
+          {
             delete residual;
+          }
           fragment = new std::vector<vtkSmartPointer<vtkIdList> >();
           residual = new std::vector<vtkSmartPointer<vtkIdList> >();
 
@@ -512,7 +516,7 @@ int vtkContinuousScatterplot::RequestData(
             prevPointId = (*faceIt)->GetId(nrFaceIds - 1);
             // the scalar value of the previous point in the face
             prevScalar = newPointsPD->GetArray(
-              (vtkIdType)fieldNr)->GetComponent(prevPointId, 0);
+              (int)fieldNr)->GetComponent(prevPointId, 0);
 
             // Walk around the edge, comparing the range values between the current
             // cutting plane and the edge end points. Classify the each end point of the
@@ -528,7 +532,7 @@ int vtkContinuousScatterplot::RequestData(
               thisPointId = (*faceIt)->GetId(i);
               // get scalar value of the current point
               thisScalar = newPointsPD->GetArray(
-                (vtkIdType)fieldNr)->GetComponent(thisPointId, 0);
+                (int)fieldNr)->GetComponent(thisPointId, 0);
 
               ////cout <<  ">>> " << thisPointId << " " << thisScalar << " " << prevPointId << " "
               ///<< prevScalar << endl;
@@ -889,6 +893,18 @@ int vtkContinuousScatterplot::RequestData(
     }
     outputQ.clear();
   } // For each cell
+
+  if (fragment)
+  {
+    delete fragment;
+    fragment = nullptr;
+  }
+  if (residual)
+  {
+    delete residual;
+    residual = nullptr;
+  }
+
 
   // Create the output image data.
   output->SetExtent(0, this->ResX - 1, 0, this->ResY - 1, 0, 0);
