@@ -2012,7 +2012,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   float lightDirection[6][3];
   float lightHalfAngle[6][3];
   for(lc->InitTraversal(sit);
-      (light = lc->GetNextLight(sit)); )
+      numberOfLights < 6 && (light = lc->GetNextLight(sit)); )
   {
     float status = light->GetSwitch();
     if (status > 0.0)
@@ -2071,7 +2071,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   int lightPositional[6];
   numberOfLights = 0;
   for(lc->InitTraversal(sit);
-      (light = lc->GetNextLight(sit)); )
+      numberOfLights < 6 && (light = lc->GetNextLight(sit)); )
   {
     float status = light->GetSwitch();
     if (status > 0.0)
