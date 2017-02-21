@@ -234,7 +234,8 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(
   glDisable(GL_DEPTH_TEST);
   this->CurrentRGBATexture->CopyToFrameBuffer(0, 0,
          this->ViewportWidth-1, this->ViewportHeight-1,
-         0, 0, this->ViewportWidth, this->ViewportHeight,
+         this->ViewportX, this->ViewportY,
+         this->ViewportWidth, this->ViewportHeight,
          this->IntermediateBlendProgram->Program,
          this->IntermediateBlendProgram->VAO);
 }
@@ -278,7 +279,8 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
     glDepthFunc( GL_ALWAYS );
     this->OpaqueRGBATexture->CopyToFrameBuffer(0, 0,
            this->ViewportWidth-1, this->ViewportHeight-1,
-           0, 0, this->ViewportWidth, this->ViewportHeight,
+           this->ViewportX, this->ViewportY,
+           this->ViewportWidth, this->ViewportHeight,
            this->FinalBlendProgram->Program,
            this->FinalBlendProgram->VAO);
   }
@@ -561,7 +563,8 @@ bool vtkDepthPeelingPass::PostReplaceShaderValues(std::string &,
 {
   vtkShaderProgram::Substitute(
         fragmentShader, "//VTK::DepthPeeling::Dec",
-        "uniform vec2 screenSize;\n"
+        "uniform vec2 vpOrigin;\n"
+        "uniform vec2 vpSize;\n"
         "uniform sampler2D opaqueZTexture;\n"
         "uniform sampler2D translucentZTexture;\n"
         );
@@ -586,9 +589,10 @@ bool vtkDepthPeelingPass::PostReplaceShaderValues(std::string &,
   // minimal z seperation between pixels
   vtkShaderProgram::Substitute(
         fragmentShader, "//VTK::DepthPeeling::Impl",
-        "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
+        "vec2 dpTexCoord = (gl_FragCoord.xy - vpOrigin) / vpSize;\n"
+        "  float odepth = texture2D(opaqueZTexture, dpTexCoord).r;\n"
         "  if (gl_FragDepth >= odepth) { discard; }\n"
-        "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
+        "  float tdepth = texture2D(translucentZTexture, dpTexCoord).r;\n"
         "  if (gl_FragDepth <= tdepth + .0000001) { discard; }\n"
         );
 
@@ -605,9 +609,13 @@ bool vtkDepthPeelingPass::SetShaderParameters(vtkShaderProgram *program,
   program->SetUniformi("translucentZTexture",
                        this->TranslucentZTexture->GetTextureUnit());
 
-  float screenSize[2] = { static_cast<float>(this->ViewportWidth),
-                          static_cast<float>(this->ViewportHeight) };
-  program->SetUniform2f("screenSize", screenSize);
+  float vpOrigin[2] = { static_cast<float>(this->ViewportX),
+                        static_cast<float>(this->ViewportY) };
+  program->SetUniform2f("vpOrigin", vpOrigin);
+
+  float vpSize[2] = { static_cast<float>(this->ViewportWidth),
+                      static_cast<float>(this->ViewportHeight) };
+  program->SetUniform2f("vpSize", vpSize);
 
   return true;
 }
