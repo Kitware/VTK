@@ -42,9 +42,8 @@ public:
   /**
    * Evaluate quadric equation.
    */
+  using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) VTK_OVERRIDE;
-  double EvaluateFunction(double x, double y, double z)
-    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
   //@}
 
   /**

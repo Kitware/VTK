@@ -53,6 +53,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkDataArray;
+
 class vtkAbstractTransform;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitFunction : public vtkObject
@@ -72,6 +74,7 @@ public:
    * Evaluate function at position x-y-z and return value. Point x[3] is
    * transformed through transform (if provided).
    */
+  virtual void FunctionValue(vtkDataArray* input, vtkDataArray* output);
   double FunctionValue(const double x[3]);
   double FunctionValue(double x, double y, double z) {
     double xyz[3] = {x, y, z}; return this->FunctionValue(xyz); };
@@ -108,7 +111,8 @@ public:
    * any derived class.
    */
   virtual double EvaluateFunction(double x[3]) = 0;
-  double EvaluateFunction(double x, double y, double z) {
+  virtual void EvaluateFunction(vtkDataArray* input, vtkDataArray* output);
+  virtual double EvaluateFunction(double x, double y, double z) {
     double xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); };
   //@}
 

@@ -201,39 +201,6 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
-namespace {
-struct CutFunctionWorker
-{
-  vtkImplicitFunction *CutFunction;
-  vtkFloatArray *Output;
-
-  CutFunctionWorker(vtkImplicitFunction *cutFunction, vtkFloatArray *output)
-    : CutFunction(cutFunction), Output(output) {}
-
-  template <typename ArrayT>
-  void operator()(ArrayT *input)
-  {
-    VTK_ASSUME(input->GetNumberOfComponents() == 3);
-    VTK_ASSUME(this->Output->GetNumberOfComponents() == 1);
-
-    vtkIdType numTuples = input->GetNumberOfTuples();
-    assert(numTuples == this->Output->GetNumberOfTuples());
-
-    vtkDataArrayAccessor<ArrayT> src(input);
-
-    double in[3];
-    for (vtkIdType tIdx = 0; tIdx < numTuples; ++tIdx)
-    {
-      in[0] = static_cast<double>(src.Get(tIdx, 0));
-      in[1] = static_cast<double>(src.Get(tIdx, 1));
-      in[2] = static_cast<double>(src.Get(tIdx, 2));
-      this->Output->SetComponent(tIdx, 0,
-                                 this->CutFunction->FunctionValue(in));
-    }
-  }
-};
-} // end anon namespace
-
 //----------------------------------------------------------------------------
 void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
                                      vtkPolyData *thisOutput)
@@ -263,12 +230,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   }
 
   vtkDataArray* dataArrayInput = input->GetPoints()->GetData();
-  CutFunctionWorker worker(this->CutFunction, cutScalars);
-  if (!vtkArrayDispatch::Dispatch::Execute(dataArrayInput, worker))
-  {
-    worker(dataArrayInput); // Use vtkDataArray API if dispatch fails.
-  }
-
+  this->CutFunction->EvaluateFunction(dataArrayInput, cutScalars);
   int numContours = this->GetNumberOfContours();
 
   this->GridSynchronizedTemplates->SetDebug(this->GetDebug());

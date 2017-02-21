@@ -13,8 +13,15 @@
 
 =========================================================================*/
 #include "vtkPlane.h"
+
+#include "vtkArrayDispatch.h"
+#include "vtkAssume.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
+
+#include <algorithm>
 
 vtkStandardNewMacro(vtkPlane);
 
@@ -209,6 +216,69 @@ int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double n[3],
   else
   {
     return 0;
+  }
+}
+
+namespace {
+template <typename InputArrayType, typename OutputArrayType> struct CutWorker
+{
+  typedef typename vtkDataArrayAccessor<InputArrayType>::APIType InputValueType;
+  typedef typename vtkDataArrayAccessor<InputArrayType>::APIType OutputValueType;
+  OutputValueType Normal[3];
+  OutputValueType Origin[3];
+  vtkDataArrayAccessor<InputArrayType> src;
+  vtkDataArrayAccessor<OutputArrayType> dest;
+
+  CutWorker(InputArrayType* in, OutputArrayType* out) : src(in), dest(out) {}
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    for (vtkIdType tIdx = begin; tIdx < end; ++tIdx)
+    {
+      OutputValueType x[3];
+      x[0] = static_cast<OutputValueType>(src.Get(tIdx, 0));
+      x[1] = static_cast<OutputValueType>(src.Get(tIdx, 1));
+      x[2] = static_cast<OutputValueType>(src.Get(tIdx, 2));
+      OutputValueType out =
+          Normal[0] * (x[0] - Origin[0]) +
+          Normal[1] * (x[1] - Origin[1]) +
+          Normal[2] * (x[2] - Origin[2]);
+      dest.Set(tIdx, 0, out);
+    }
+  }
+};
+
+struct CutFunctionWorker
+{
+  double Normal[3];
+  double Origin[3];
+  CutFunctionWorker(double n[3], double o[3])
+  {
+    std::copy_n(n, 3, this->Normal);
+    std::copy_n(o, 3, this->Origin);
+  }
+  template <typename InputArrayType, typename OutputArrayType>
+  void operator()(InputArrayType* input, OutputArrayType* output)
+  {
+    VTK_ASSUME(input->GetNumberOfComponents() == 3);
+    VTK_ASSUME(output->GetNumberOfComponents() == 1);
+    vtkIdType numTuples = input->GetNumberOfTuples();
+    CutWorker<InputArrayType, OutputArrayType> cut(input, output);
+    std::copy_n(Normal, 3, cut.Normal);
+    std::copy_n(Origin, 3, cut.Origin);
+    vtkSMPTools::For(0, numTuples, cut);
+  }
+};
+} // end anon namespace
+
+void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
+{
+  CutFunctionWorker worker(this->Normal, this->Origin);
+  typedef vtkTypeList_Create_2(float, double) InputTypes;
+  typedef vtkTypeList_Create_2(float, double) OutputTypes;
+  typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes> MyDispatch;
+  if (!MyDispatch::Execute(input, output, worker))
+  {
+    worker(input, output); // Use vtkDataArray API if dispatch fails.
   }
 }
 

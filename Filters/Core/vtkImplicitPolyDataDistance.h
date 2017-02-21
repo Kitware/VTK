@@ -60,6 +60,7 @@ public:
   /**
    * Evaluate plane equation of nearest triangle to point x[3].
    */
+  using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) VTK_OVERRIDE;
 
   /**
