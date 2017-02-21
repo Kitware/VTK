@@ -80,6 +80,7 @@ int TestHistogram2D(int, char * [])
   int y = chart->GetPoint1()[1] + 10;
   mousePosition.Set(x, y);
   mouseEvent.SetScreenPos(mousePosition);
+  mouseEvent.SetPos(vtkVector2f(0.0,0.0));
   chart->MouseButtonPressEvent(mouseEvent);
   chart->MouseButtonReleaseEvent(mouseEvent);
 
