@@ -295,6 +295,9 @@ void QVTKOpenGLWidget::copyFromFormat(const QSurfaceFormat& format, vtkRenderWin
   if (vtkOpenGLRenderWindow* oglWin = vtkOpenGLRenderWindow::SafeDownCast(win))
   {
     oglWin->SetStereoCapableWindow(format.stereo() ? 1 : 0);
+    // samples may not be correct if format is obtained from
+    // QOpenGLWidget::format() after the context is created. That's because
+    // QOpenGLWidget always created context to samples=0.
     oglWin->SetMultiSamples(format.samples());
     oglWin->SetStencilCapable(format.stencilBufferSize() > 0);
   }
@@ -339,6 +342,13 @@ void QVTKOpenGLWidget::initializeGL()
   {
     // use QSurfaceFormat for the widget, update ivars on the vtkRenderWindow.
     QVTKOpenGLWidget::copyFromFormat(this->format(), this->RenderWindow);
+    // When a QOpenGLWidget is told to use a QSurfaceFormat with samples > 0,
+    // QOpenGLWidget doesn't actually create a context with multi-samples and
+    // internally changes the QSurfaceFormat to be samples=0. Thus, we can't
+    // rely on the QSurfaceFormat to indicate to us if multisampling is being
+    // used. We should use glGetRenderbufferParameteriv(..) to get
+    // GL_RENDERBUFFER_SAMPLES to determine the samples used. This is done by
+    // in paintGL().
   }
 
   this->connect(
@@ -396,6 +406,14 @@ void QVTKOpenGLWidget::paintGL()
     this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
     this->RenderWindow->SetReadyForRendering(true);
     this->RenderWindow->InitializeFromCurrentContext();
+
+    // Since QVTKOpenGLWidget::initializeGL() may not have set multi-samples
+    // state on the render window correctly, we do it here.
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    GLint samples;
+    f->glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
+    this->RenderWindow->SetMultiSamples(static_cast<int>(samples));
+
     this->NeedToReinitializeWindow = false;
   }
 
