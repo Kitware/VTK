@@ -70,7 +70,7 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname,
 }
 
 #ifndef VTK_LEGACY_REMOVE
-void vtkObjectFactory::ConstructInstance(const char* vtkNotUsed(vtkclassname))
+void vtkObjectFactory::ConstructInstance(const char* vtkclassname)
 {
   // no-op. Call vtkObjectBase::InitializeObjectBase() from the New()
   // implementation instead. That way we ensure that the
