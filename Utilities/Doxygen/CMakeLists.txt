@@ -80,4 +80,7 @@ if(NOT VTK_INSTALL_NO_DOCUMENTATION)
   install(FILES doc_readme.txt
     DESTINATION ${VTK_INSTALL_DOXYGEN_DIR}
     COMPONENT Development)
+  install(DIRECTORY ${VTK_BINARY_DIR}/Utilities/Doxygen/doc/html
+      DESTINATION ${VTK_INSTALL_DOXYGEN_DIR}
+      COMPONENT Development)
 endif()
