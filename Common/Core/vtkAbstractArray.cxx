@@ -187,8 +187,10 @@ int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
 //----------------------------------------------------------------------------
 void vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
 {
-  if (this->Resize(std::ceil(numValues /
-                             static_cast<float>(this->NumberOfComponents))))
+  vtkIdType numTuples = this->NumberOfComponents == 1 ?
+    numValues : (numValues + this->NumberOfComponents - 1) /
+    this->NumberOfComponents;
+  if (this->Resize(numTuples))
   {
     this->MaxId = numValues - 1;
   }
