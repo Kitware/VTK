@@ -34,6 +34,7 @@ set(lib_srcs
 set(headers
   vtkmClip.h
   vtkmContour.h
+  vtkmExternalFaces.h
   vtkmThreshold.h
   vtkmLevelOfDetail.h
   vtkmCellAverage.h
@@ -44,6 +45,7 @@ set(headers
 set(cpu_accelerator_srcs
   vtkmClip.cxx
   vtkmContour.cxx
+  vtkmExternalFaces.cxx
   vtkmThreshold.cxx
   vtkmLevelOfDetail.cxx
   vtkmCellAverage.cxx
@@ -58,6 +60,7 @@ set(cpu_accelerator_srcs
 set(cuda_accelerator_srcs
   vtkmClip.cu
   vtkmContour.cu
+  vtkmExternalFaces.cu
   vtkmThreshold.cu
   vtkmLevelOfDetail.cu
   vtkmCellAverage.cu

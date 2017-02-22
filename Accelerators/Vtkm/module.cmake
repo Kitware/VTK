@@ -15,5 +15,6 @@ vtk_module(vtkAcceleratorsVTKm
     vtkIOXML
     vtkImagingHybrid
     vtkImagingSources
+    vtkInteractionStyle
   EXCLUDE_FROM_ALL
   )
