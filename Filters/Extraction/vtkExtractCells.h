@@ -88,7 +88,7 @@ private:
 
   vtkExtractCellsSTLCloak *CellList;
 
-  int SubSetUGridCellArraySize;
+  vtkIdType SubSetUGridCellArraySize;
   char InputIsUgrid;
 
   vtkExtractCells(const vtkExtractCells&) VTK_DELETE_FUNCTION;
