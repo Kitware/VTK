@@ -79,7 +79,7 @@ public:
      */
     Metrics()
       : BoundingBox(0),
-        TopLeft(0), TopRight(0), BottomLeft(0), BottomRight(0)
+        TopLeft(0), TopRight(0), BottomLeft(0), BottomRight(0), ascent(0), descent(0)
     {
     }
 
@@ -99,6 +99,13 @@ public:
     vtkVector2i TopRight;
     vtkVector2i BottomLeft;
     vtkVector2i BottomRight;
+    /**
+     * Position of the highest and lowest pixel of a character. Baseline has position 0, so
+     * descent is negative. Ascent and descent is computed only for FreeType text. It is left
+     * 0 for Matplotlib text.
+     */
+    int ascent;
+    int descent;
   };
     //@}
 

@@ -42,6 +42,94 @@ bool vtkGL2PSUtilities::TextAsPath = false;
 float vtkGL2PSUtilities::PointSizeFactor = 5.f / 7.f;
 float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
 
+
+namespace
+{
+
+bool GetMetrics(vtkTextProperty* tprop, const char* str, vtkTextRenderer::Metrics& m)
+{
+    int dpi = vtkGL2PSUtilities::GetRenderWindow()->GetDPI();
+    vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
+    if (! tren)
+    {
+      return false;
+    }
+    vtkNew<vtkTextProperty> tpropTmp;
+    tpropTmp->ShallowCopy(tprop);
+    tpropTmp->SetOrientation(0.);
+    if(! tren->GetMetrics(tpropTmp.Get(), str, m, dpi))
+    {
+      return false;
+    }
+    return true;
+}
+
+// replace \n with space as PS treats it as a space but PDF just removes them.
+// we also need this so that we get the correct bounding box for PDFs
+// considering that we do not address multi-line strings yet.
+void GetSpaceStr(const char* str, vtkStdString* spaceStr)
+{
+    *spaceStr = str;
+    std::string::size_type eolPos = 0;
+    while ((eolPos = spaceStr->find('\n', eolPos)) != std::string::npos)
+    {
+      spaceStr->replace(eolPos, 1, 1, ' ');
+      ++eolPos;
+    }
+}
+
+/**
+ * Computes the bottom left corner 'blpos' and a string with \n replaced
+ * by space 'spaceStr' for the string 'str' with properties 'tprop'
+ * and the anchor 'pos'.
+ *
+ * We need this because PDF does not support text alignment.
+ * 'spaceStr' is needed because postscript and PDF do not support
+ * multiline text and we don't implement it yet for TextAsPath false.
+ */
+bool ComputeBottomLeft(vtkTextProperty* tprop, vtkTuple<int,4> bbox,
+                       double pos[3], double blpos[3])
+{
+  std::copy(pos, pos + 3, blpos);
+  // Postscript and PDF do not support multiline text - this is not
+  // implemented yet for TextAsPath == 0 implement alignment for PDF
+  if (gl2psGetFileFormat () == GL2PS_PDF &&
+      ! vtkGL2PSUtilities::GetTextAsPath() &&
+      (tprop->GetJustification() != VTK_TEXT_LEFT ||
+       tprop->GetVerticalJustification() != VTK_TEXT_BOTTOM))
+  {
+    double width = bbox[1] - bbox[0] + 1;
+    double height = bbox[3] - bbox[2] + 1;
+    switch(tprop->GetJustification())
+    {
+    case VTK_TEXT_CENTERED:
+      blpos[0] -= width / 2;
+      break;
+    case VTK_TEXT_RIGHT:
+      blpos[0] -= width;
+      break;
+    }
+    switch(tprop->GetVerticalJustification())
+    {
+    case VTK_TEXT_CENTERED:
+      blpos[1] -= height / 2;
+      break;
+    case VTK_TEXT_TOP:
+      blpos[1] -= height;
+      break;
+    }
+    blpos[2] = 0;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+}
+
+
+
 void vtkGL2PSUtilities::DrawString(const char *str,
                                    vtkTextProperty *tprop, double pos[3],
                                    double)
@@ -140,13 +228,31 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     // alignment.
     double blpos[3];
     vtkStdString spaceStr;
-    if (vtkGL2PSUtilities::ComputeBottomLeft(tprop, str, posWin, blpos, &spaceStr))
+    // compute the bounding box and the string without \n
+    vtkTextRenderer::Metrics m;
+    ::GetSpaceStr(str, &spaceStr);
+    if (! ::GetMetrics(tprop, spaceStr.c_str(), m))
     {
+      // we cannot draw the text
+      return;
+    }
+    if (::ComputeBottomLeft(tprop, m.BoundingBox, posWin, blpos))
+    {
+      // move the bottom left corner to the baseline as this is how PDF
+      // draws text
+      blpos[1] -= m.descent;
       gl2psTextOptColorBL(spaceStr.c_str(), fontname, fontSize, align, angle, rgba,
                           blpos[0], blpos[1]);
     }
     else
     {
+      // move the bottom left corner to the baseline as this
+      // how PDF draws text.
+      // See:
+      // 10.070 How do I draw glBitmap() or glDrawPixels() primitives that
+      // have an initial glRasterPos() outside the window's left or bottom edge?
+      // https://www.opengl.org/archives/resources/faq/technical/clipping.htm#0070
+      glBitmap(0, 0, 0, 0, 0, - m.descent, NULL);
       gl2psTextOptColor(str, fontname, fontSize, align, angle, rgba);
     }
   }
@@ -1003,82 +1109,5 @@ void vtkGL2PSUtilities::UnprojectPoints(double *points3D, vtkIdType numPoints,
     vtkGL2PSUtilities::UnprojectPoint(point, transformMatrix.GetPointer(),
                                       viewport, halfWidth, halfHeight, zFactor1,
                                       zFactor2);
-  }
-}
-
-
-namespace
-{
-void ComputeBottomLeft(
-  vtkTextProperty* tprop, double width, double height, double blpos[3])
-{
-  switch(tprop->GetJustification())
-  {
-  case VTK_TEXT_CENTERED:
-    blpos[0] -= width / 2;
-    break;
-  case VTK_TEXT_RIGHT:
-    blpos[0] -= width;
-    break;
-  }
-  switch(tprop->GetVerticalJustification())
-  {
-  case VTK_TEXT_CENTERED:
-    blpos[1] -= height / 2;
-    break;
-  case VTK_TEXT_TOP:
-    blpos[1] -= height;
-    break;
-  }
-  blpos[2] = 0;
-}
-}
-
-bool vtkGL2PSUtilities::ComputeBottomLeft(
-  vtkTextProperty* tprop, const char* str, double pos[3], double blpos[3],
-  vtkStdString* spaceStr)
-{
-  std::copy(pos, pos + 3, blpos);
-  // Postscript and PDF do not support multiline text - this is not
-  // implemented yet for TextAsPath == 0 implement alignment for PDF
-  if (gl2psGetFileFormat () == GL2PS_PDF &&
-      ! vtkGL2PSUtilities::GetTextAsPath() &&
-      (tprop->GetJustification() != VTK_TEXT_LEFT ||
-       tprop->GetVerticalJustification() != VTK_TEXT_BOTTOM))
-  {
-    // compute the bounding box and and the string without \n
-    int bbox[4];
-    // replace \n with space as PS treats it as a space but PDF just removes them.
-    // we also need this so that we get the correct bounding box for PDFs
-    // considering that we do not address multi-line strings yet.
-    *spaceStr = str;
-    std::string::size_type eolPos = 0;
-    while ((eolPos = spaceStr->find('\n', eolPos)) != std::string::npos)
-    {
-      spaceStr->replace(eolPos, 1, 1, ' ');
-      ++eolPos;
-    }
-
-    int dpi = vtkGL2PSUtilities::GetRenderWindow()->GetDPI();
-    vtkTextRenderer* tren = vtkTextRenderer::GetInstance();
-    if (! tren)
-    {
-      return false;
-    }
-    vtkNew<vtkTextProperty> tpropTmp;
-    tpropTmp->ShallowCopy(tprop);
-    tpropTmp->SetOrientation(0.);
-    if(! tren->GetBoundingBox(tpropTmp.Get(), *spaceStr, bbox, dpi))
-    {
-      return false;
-    }
-    ::ComputeBottomLeft(tprop,
-                        bbox[1] - bbox[0] + 1,
-                        bbox[3] - bbox[2] + 1, blpos);
-    return true;
-  }
-  else
-  {
-    return false;
   }
 }
