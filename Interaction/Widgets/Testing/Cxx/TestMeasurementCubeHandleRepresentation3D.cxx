@@ -103,7 +103,7 @@ int TestMeasurementCubeHandleRepresentation3D(int vtkNotUsed(argc),
   handleWidget->EnabledOn();
 
   ren1->SetBackground(0.1, 0.2, 0.4);
-  renWin->SetSize(900, 900);
+  renWin->SetSize(400, 400);
   ren1->ResetCamera();
   ren1->ResetCameraClippingRange();
   renWin->Render();
