@@ -471,32 +471,49 @@ template<typename T> void vtkQuaternion<T>::FromMatrix3x3(const T A[3][3])
 }
 
 //----------------------------------------------------------------------------
+// This returns the constant angular velocity interpolation of two quaternions
+// on the unit quaternion sphere :
+// http://web.mit.edu/2.998/www/QuaternionReport1.pdf
 template<typename T> vtkQuaternion<T> vtkQuaternion<T>
 ::Slerp(T t, const vtkQuaternion<T>& q1) const
 {
-  T axis0[3], axis1[3], cross[3];
-  this->GetRotationAngleAndAxis(axis0);
-  q1.GetRotationAngleAndAxis(axis1);
-  const T dot = vtkMath::Dot(axis0, axis1);
-  vtkMath::Cross(axis0, axis1, cross);
-  const T f = vtkMath::Norm(cross);
+  // Canonical scalar product on quaternion
+  T cosTheta = this->GetW() * q1.GetW() +
+               this->GetX() * q1.GetX() +
+               this->GetY() * q1.GetY() +
+               this->GetZ() * q1.GetZ();
+
+  // To prevent the SLERP interpolation from taking the long path
+  // we first check the relative orientation of the two quaternions
+  // If the angle is superior to 90 degrees we take the opposite quaternion
+  // which is closer and represents the same rotation
+  vtkQuaternion<T> qClosest = q1;
+  if (cosTheta < 0)
+  {
+    cosTheta = -cosTheta;
+    qClosest = qClosest * -1;
+  }
 
   // To avoid division by zero, perform a linear interpolation (LERP), if our
   // quarternions are nearly in the same direction, otherwise resort
   // to spherical linear interpolation. In the limiting case (for small
   // angles), SLERP is equivalent to LERP.
-
-  T t1 = 1.0-t;
-  T t2 = t;
-
-  if (f > 1e-6)
+  T t1, t2;
+  if ((1.0 - fabs(cosTheta)) < 1e-6)
   {
-    const T theta = atan2(f, dot);
-    t1 = sin((1.0-t)*theta)/sin(theta);
-    t2 = sin(t*theta)/sin(theta);
+    t1 = 1.0 - t;
+    t2 = t;
+  }
+  else
+  {
+    // Angle (defined by the canonical scalar product for quaternions)
+    // between the two quaternions
+    const T theta = acos(cosTheta);
+    t1 = sin((1.0 - t) * theta) / sin(theta);
+    t2 = sin(t * theta) / sin(theta);
   }
 
-  return (*this)*t1 + q1*t2;
+  return (*this) * t1 + qClosest * t2;
 }
 
 //----------------------------------------------------------------------------

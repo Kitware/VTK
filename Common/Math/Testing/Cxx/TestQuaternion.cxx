@@ -424,24 +424,128 @@ int TestQuaternionConversions() //this test uses vtkQuaterniond
 
 // Test the quaternion's slerp
 //----------------------------------------------------------------------------
-int TestQuaternionSlerp() //this test uses vtkQuaternionf
+int TestQuaternionSlerp() //this test uses vtkQuaterniond
 {
+  // return value
   int retVal = 0;
 
-  vtkQuaternionf q0, q1;
-  q0.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(-2.0),
-                             -3.0, 2.0, 1.0);
-  q1.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(183.0),
-                             10.0, 0.0, 1.0);
-  vtkQuaternionf halfQ1 = q0.Slerp(0.5, q1);
-  halfQ1.Normalize();
+  // first quaternion
+  vtkQuaternion<double> q1;
+  // quaternion which represents a small rotation
+  vtkQuaternion<double> dq;
+  // q2 is obtained by doing dq*q1
+  vtkQuaternion<double> q2;
+  // dqt is the rotation to multiply with q1
+  // to obtained the SLERP interpolation of q1 and q2
+  vtkQuaternion<double> dqt;
+  // qTruth is the result of dqt*q1
+  vtkQuaternion<double> qTruth;
+  // qSlerp is the result of the SLERP interpolation
+  // it should be equal to qTruth
+  vtkQuaternion<double> qSlerp;
 
-  if (!(halfQ1.Compare(vtkQuaternionf(0.99444, 0.104907, -0.00254, 0.00883),
-                        0.00001)))
+  // exhaustive test : 250000 operations
+  // Control the sampling of rotation's axis
+  const int M = 5;
+  // Control the sampling of the rotation's angle
+  const int L = 10;
+  // Control the sampling of the interpolation
+  const int N = 20;
+
+  // axis coordinates step
+  double dAxis = 1.0 / static_cast<double>(M);
+  // angle step
+  double dAngle = 360.0 / static_cast<double>(L);
+  // interpolation step
+  double dt = 1.0 / static_cast<double>(N);
+
+  double x, y, z, angle, t, distance, angleShort;
+  double axis[3];
+  double axisNorme;
+
+  // loop over x-coordinates
+  for (int i = 1; i <= M; ++i)
   {
-    std::cerr << "Error vtkQuaternionf Slerp() failed: "
-      << halfQ1 << std::endl;
-    ++retVal;
+    x = static_cast<double>(i) * dAxis;
+    // loop over y-coordinates
+    for (int j = 1; j <= M; ++j)
+    {
+      y = static_cast<double>(j) * dAxis;
+      // loop over z-coordinates
+      for (int k = 1; k <= M; ++k)
+      {
+        z = static_cast<double>(k) * dAxis;
+        axisNorme = sqrt(x * x + y * y + z * z);
+        axis[0] = x / axisNorme;
+        axis[1] = y / axisNorme;
+        axis[2] = z / axisNorme;
+        // loop over the angle of q1
+        for (int u = 1; u <= L; ++u)
+        {
+          angle = static_cast<double>(u) * dAngle;
+          q1.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(angle), axis[0], axis[1], axis[2]);
+          // loop over the angle of dq
+          for (int v = 1; v < L; ++v)
+          {
+            angleShort = (static_cast<double>(v) * dAngle) / 2;
+            dq.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(angleShort), axis[0], axis[1], axis[2]);
+            q2 = dq * q1;
+            // loop over the interpolation step
+            for (int w = 0; w <= N; ++w)
+            {
+              t = static_cast<double>(w) * dt;
+              dqt.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(t * angleShort), axis[0], axis[1], axis[2]);
+              qTruth = dqt * q1;
+              qSlerp = q1.Slerp(t, q2);
+              distance = (qSlerp - qTruth).Norm();
+              if (distance > 1e-12)
+              {
+                ++retVal;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Particular test : we test that the SLERP take the
+  // short path
+
+  double u[3] = {-0.54, -0.0321, 1};
+  double normU = sqrt(u[0] * u[0] + u[1] * u[1] + u[2] * u[2]);
+  u[0] /= normU;
+  u[1] /= normU;
+  u[2] /= normU;
+
+  // interpolation step
+  const int N2 = 1000;
+  double dtheta = 3.0;
+  // Set q1 close to the angle boundary
+  q1.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(359.5), u[0], u[1], u[2]);
+  // dq represents a small rotation
+  dq.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(dtheta), u[0], u[1], u[2]);
+  // q2 is a rotation close to q1 but the quaternion representant is far
+  q2 = dq * q1;
+
+  dt = 1.0 / static_cast<double>(N2);
+
+  for (int i = 0; i <= N2; ++i)
+  {
+    t = static_cast<double>(i) * dt;
+    dqt.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(t * dtheta), u[0], u[1], u[2]);
+    qTruth = dqt * q1;
+    qSlerp = q1.Slerp(t, q2);
+    distance = (qSlerp - qTruth).Norm();
+    if (distance > 1e-12)
+    {
+      ++retVal;
+    }
+  }
+
+  if (retVal != 0 )
+  {
+    std::cerr << "Error TestQuaternionSlerp() failed" << std::endl;
   }
 
   return retVal;
