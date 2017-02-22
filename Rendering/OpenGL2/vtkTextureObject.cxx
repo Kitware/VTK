@@ -1982,7 +1982,7 @@ void vtkTextureObject::CopyToFrameBuffer(
   int srcXmax, int srcYmax,
   int dstXmin, int dstYmin,
   int dstXmax, int dstYmax,
-  int dstSizeX, int dstSizeY,
+  int vtkNotUsed(dstSizeX), int vtkNotUsed(dstSizeY),
   vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   assert("pre: positive_srcXmin" && srcXmin>=0);
@@ -2008,7 +2008,7 @@ void vtkTextureObject::CopyToFrameBuffer(
 
   GLint saved_viewport[4];
   glGetIntegerv(GL_VIEWPORT, saved_viewport);
-  glViewport(0,0,dstSizeX,dstSizeY);
+  glViewport(dstXmin, dstYmin, dstXmax - dstXmin + 1, dstYmax - dstYmin + 1);
 
   float tcoords[] = {
     minXTexCoord, minYTexCoord,
@@ -2017,10 +2017,10 @@ void vtkTextureObject::CopyToFrameBuffer(
     minXTexCoord, maxYTexCoord};
 
   float verts[] = {
-    2.0f*dstXmin/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
-    2.0f*(dstXmax+1.0f)/dstSizeX-1.0f, 2.0f*dstYmin/dstSizeY-1.0f, 0.0f,
-    2.0f*(dstXmax+1.0f)/dstSizeX-1.0f, 2.0f*(dstYmax+1.0f)/dstSizeY-1.0f, 0.0f,
-    2.0f*dstXmin/dstSizeX-1.0f, 2.0f*(dstYmax+1.0f)/dstSizeY-1.0f, 0.0f};
+    -1.f, -1.f, 0.0f,
+    1.0f, -1.f, 0.0f,
+    1.0f, 1.0f, 0.0f,
+    -1.f, 1.0f, 0.0f};
 
     this->CopyToFrameBuffer(tcoords, verts, program, vao);
 
