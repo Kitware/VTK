@@ -44,6 +44,20 @@
 #define vtkQVTKOpenGLWidgetDebugMacro(x)
 #endif
 
+namespace
+{
+void vtkSetBackgroundAlpha(vtkRenderWindow* renWin, double value)
+{
+  vtkRendererCollection* renCollection = renWin->GetRenderers();
+  vtkCollectionSimpleIterator cookie;
+  renCollection->InitTraversal(cookie);
+  while (vtkRenderer* ren = renCollection->GetNextRenderer(cookie))
+  {
+    ren->SetBackgroundAlpha(value);
+  }
+}
+}
+
 class QVTKOpenGLWidgetObserver : public vtkCommand
 {
 public:
@@ -327,7 +341,7 @@ QSurfaceFormat QVTKOpenGLWidget::defaultFormat()
   fmt.setBlueBufferSize(1);
   fmt.setDepthBufferSize(1);
   fmt.setStencilBufferSize(0);
-  fmt.setAlphaBufferSize(0);
+  fmt.setAlphaBufferSize(1);
   fmt.setStereo(false);
   fmt.setSamples(vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples());
   return fmt;
@@ -414,6 +428,10 @@ void QVTKOpenGLWidget::paintGL()
     f->glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
     this->RenderWindow->SetMultiSamples(static_cast<int>(samples));
 
+    // On OsX (if QSurfaceFormat::alphaBufferSize() > 0) or when using Mesa, we
+    // end up rendering fully transparent windows (see through background)
+    // unless we fill it with alpha=1.0 (See paraview/paraview#17159).
+    vtkSetBackgroundAlpha(this->RenderWindow, 1.0);
     this->NeedToReinitializeWindow = false;
   }
 
@@ -515,8 +533,9 @@ void QVTKOpenGLWidget::windowFrameEventCallback()
   vtkRendererCollection* renderers = this->RenderWindow->GetRenderers();
   if (renderers)
   {
-    renderers->InitTraversal();
-    while (vtkRenderer* renderer = renderers->GetNextItem())
+    vtkCollectionSimpleIterator cookie;
+    renderers->InitTraversal(cookie);
+    while (vtkRenderer* renderer = renderers->GetNextRenderer(cookie))
     {
       if (renderer->GetSelector() != NULL)
       {
