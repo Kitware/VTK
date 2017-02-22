@@ -37,6 +37,8 @@ vtkViewport::vtkViewport()
   this->Background2[1] = 0.2;
   this->Background2[2] = 0.2;
 
+  this->BackgroundAlpha = 0.0;
+
   this->GradientBackground = false;
 
   this->Viewport[0] = 0;
@@ -375,6 +377,8 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Background2: (" << this->Background2[0] << ", "
     << this->Background2[1] << ", "  << this->Background2[2] << ")\n";
+
+  os << indent << "BackgroundAlpha: " << this->BackgroundAlpha << "\n";
 
   os << indent << "GradientBackground: "
     << (this->GradientBackground ? "On" : "Off") << "\n";
