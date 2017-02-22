@@ -214,6 +214,12 @@ int vtkPointDataToCellData::RequestData(
       delete [] weights;
       return 1;
     }
+
+    // Set the scalar to interpolate via nearest neighbor. That way, we won't
+    // get any false values (for example, a zone 4 cell appearing on the
+    // boundary of zone 3 and zone 5).
+    input->GetPointData()->SetCopyAttribute(vtkDataSetAttributes::SCALARS, 2,
+                                            vtkDataSetAttributes::INTERPOLATE);
   }
 
   cellPts = vtkIdList::New();
