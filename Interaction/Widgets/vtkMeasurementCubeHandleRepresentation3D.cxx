@@ -867,29 +867,6 @@ void vtkMeasurementCubeHandleRepresentation3D::SetMaxRelativeCubeScreenArea(
   }
 }
 
-//------------------------------------------------------------------------------
-void vtkMeasurementCubeHandleRepresentation3D::SetLengthUnit(const char *in)
-{
-  if ((this->LengthUnit == NULL && in == NULL) ||
-      (this->LengthUnit && in && strcmp(this->LengthUnit, in) == 0))
-  {
-    return;
-  }
-
-  delete[] this->LengthUnit;
-  if (in)
-  {
-    size_t n = strlen(in) + 1;
-    this->LengthUnit = new char[n];
-    std::copy(in, in + n, this->LengthUnit);
-  }
-  else
-  {
-    this->LengthUnit = NULL;
-  }
-  this->Modified();
-}
-
 //----------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::PrintSelf(ostream& os,
                                                          vtkIndent indent)
