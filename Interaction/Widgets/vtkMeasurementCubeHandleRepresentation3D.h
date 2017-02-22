@@ -211,8 +211,8 @@ public:
   /**
    * Set the label for the unit of length of a side of the cube.
    */
-  void SetLengthUnit(const char*);
-  const char* GetLengthUnit() { return this->LengthUnit; }
+  vtkSetStringMacro(LengthUnit);
+  vtkGetStringMacro(LengthUnit);
   //@}
 
 protected:
