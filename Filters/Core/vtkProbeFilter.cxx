@@ -45,6 +45,7 @@ class vtkProbeFilter::vtkVectorOfArrays :
 //----------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
 {
+  this->CategoricalData = 0;
   this->SpatialMatch = 0;
   this->ValidPoints = vtkIdTypeArray::New();
   this->MaskPoints = NULL;
@@ -148,6 +149,28 @@ int vtkProbeFilter::RequestData(
 
   // First, copy the input to the output as a starting point
   output->CopyStructure(input);
+
+  if (this->CategoricalData == 1)
+  {
+    // If the categorical data flag is enabled, then a) there must be scalars
+    // to treat as categorical data, and b) the scalars must have one component.
+    if (!source->GetPointData()->GetScalars())
+    {
+      vtkErrorMacro(<<"No input scalars!");
+      return 1;
+    }
+    if (source->GetPointData()->GetScalars()->GetNumberOfComponents() != 1)
+    {
+      vtkErrorMacro(<<"Source scalars have more than one component! Cannot categorize!");
+      return 1;
+    }
+
+    // Set the scalar to interpolate via nearest neighbor. That way, we won't
+    // get any false values (for example, a zone 4 cell appearing on the
+    // boundary of zone 3 and zone 5).
+    output->GetPointData()->SetCopyAttribute(vtkDataSetAttributes::SCALARS, 2,
+                                             vtkDataSetAttributes::INTERPOLATE);
+  }
 
   if (source)
   {

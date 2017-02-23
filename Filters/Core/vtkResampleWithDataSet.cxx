@@ -70,6 +70,18 @@ void vtkResampleWithDataSet::SetSourceData(vtkDataObject *input)
 }
 
 //----------------------------------------------------------------------------
+void vtkResampleWithDataSet::SetCategoricalData(bool arg)
+{
+  this->Prober->SetCategoricalData(arg);
+}
+
+bool vtkResampleWithDataSet::GetCategoricalData()
+{
+  // work around for Visual Studio warning C4800:
+  // 'int' : forcing value to bool 'true' or 'false' (performance warning)
+  return this->Prober->GetCategoricalData() ? true : false;
+}
+
 void vtkResampleWithDataSet::SetPassCellArrays(bool arg)
 {
   this->Prober->SetPassCellArrays(arg);
@@ -77,7 +89,7 @@ void vtkResampleWithDataSet::SetPassCellArrays(bool arg)
 
 bool vtkResampleWithDataSet::GetPassCellArrays()
 {
-  // work arround for Visual Studio warning C4800:
+  // work around for Visual Studio warning C4800:
   // 'int' : forcing value to bool 'true' or 'false' (performance warning)
   return this->Prober->GetPassCellArrays() ? true : false;
 }

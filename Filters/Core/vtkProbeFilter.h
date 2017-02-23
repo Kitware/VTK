@@ -76,6 +76,17 @@ public:
 
   //@{
   /**
+   * Control whether the source point data is to be treated as categorical. If
+   * the data is categorical, then the resultant data will be determined by
+   * a nearest neighbor interpolation scheme.
+   */
+  vtkSetMacro(CategoricalData,int);
+  vtkGetMacro(CategoricalData,int);
+  vtkBooleanMacro(CategoricalData,int);
+  //@}
+
+  //@{
+  /**
    * This flag is used only when a piece is requested to update.  By default
    * the flag is off.  Because no spatial correspondence between input pieces
    * and source pieces is known, all of the source has to be requested no
@@ -162,6 +173,8 @@ public:
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter() VTK_OVERRIDE;
+
+  int CategoricalData;
 
   int PassCellArrays;
   int PassPointArrays;

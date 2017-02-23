@@ -64,6 +64,16 @@ public:
 
   //@{
   /**
+   * Control whether the source point data is to be treated as categorical. If
+   * the data is categorical, then the resultant data will be determined by
+   * a nearest neighbor interpolation scheme.
+   */
+  void SetCategoricalData(bool arg);
+  bool GetCategoricalData();
+  //@}
+
+  //@{
+  /**
    * Shallow copy the input cell data arrays to the output.
    * Off by default.
    */
