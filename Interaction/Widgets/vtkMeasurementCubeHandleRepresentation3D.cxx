@@ -126,6 +126,7 @@ vtkMeasurementCubeHandleRepresentation3D::vtkMeasurementCubeHandleRepresentation
 vtkMeasurementCubeHandleRepresentation3D
 ::~vtkMeasurementCubeHandleRepresentation3D()
 {
+  this->SetLengthUnit(NULL);
   this->HandleTransformFilter->Delete();
   this->HandleTransform->Delete();
   this->HandleTransformMatrix->Delete();
