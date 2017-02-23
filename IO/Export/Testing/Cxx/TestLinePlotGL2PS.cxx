@@ -116,6 +116,9 @@ int TestLinePlotGL2PS(int , char * [])
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
 
+  exp->SetFileFormatToPDF();
+  exp->Write();
+
   //Finally render the scene and compare the image to a reference image
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

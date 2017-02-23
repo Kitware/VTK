@@ -469,6 +469,8 @@ bool vtkFreeTypeTools::GetMetrics(vtkTextProperty *tprop,
       metrics.TopRight    = metaData.TR;
       metrics.BottomLeft  = metaData.BL;
       metrics.BottomRight = metaData.BR;
+      metrics.ascent = metaData.ascent;
+      metrics.descent = metaData.descent;
     }
   }
   return result;
@@ -503,6 +505,8 @@ bool vtkFreeTypeTools::GetMetrics(vtkTextProperty *tprop,
       metrics.TopRight    = metaData.TR;
       metrics.BottomLeft  = metaData.BL;
       metrics.BottomRight = metaData.BR;
+      metrics.ascent = metaData.ascent;
+      metrics.descent = metaData.descent;
     }
   }
   return result;

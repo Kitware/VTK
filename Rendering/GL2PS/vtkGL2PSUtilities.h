@@ -33,6 +33,7 @@ class vtkPath;
 class vtkPoints;
 class vtkRenderWindow;
 class vtkTextProperty;
+class vtkStdString;
 
 class VTKRENDERINGGL2PS_EXPORT vtkGL2PSUtilities : public vtkObject
 {
@@ -179,7 +180,8 @@ private:
                              double halfHeight, double zfact1, double zfact2);
   static void UnprojectPoints(double *points3D, vtkIdType numPoints,
                               vtkMatrix4x4 *actorMatrix = NULL);
-};
   //@}
+};
+
 
 #endif

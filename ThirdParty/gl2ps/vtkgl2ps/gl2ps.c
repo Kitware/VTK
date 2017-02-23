@@ -865,7 +865,8 @@ static void gl2psConvertPixmapToPNG(GL2PSimage *pixmap, GL2PSlist *png)
 
 static GLint gl2psAddText(GLint type, const char *str, const char *fontname,
                           GLshort fontsize, GLint alignment, GLfloat angle,
-                          GL2PSrgba color)
+                          GL2PSrgba color, GLboolean setblpos,
+                          GLfloat blx, GLfloat bly)
 {
   GLfloat pos[4];
   GL2PSprimitive *prim;
@@ -890,11 +891,16 @@ static GLint gl2psAddText(GLint type, const char *str, const char *fontname,
   prim = (GL2PSprimitive*)gl2psMalloc(sizeof(GL2PSprimitive));
   prim->type = type;
   prim->boundary = 0;
-  prim->numverts = 1;
-  prim->verts = (GL2PSvertex*)gl2psMalloc(sizeof(GL2PSvertex));
+  prim->numverts = setblpos ? 2 : 1;
+  prim->verts = (GL2PSvertex*)gl2psMalloc(sizeof(GL2PSvertex) * prim->numverts);
   prim->verts[0].xyz[0] = pos[0];
   prim->verts[0].xyz[1] = pos[1];
   prim->verts[0].xyz[2] = pos[2];
+  if (setblpos) {
+    prim->verts[1].xyz[0] = blx;
+    prim->verts[1].xyz[1] = bly;
+    prim->verts[1].xyz[2] = 0;
+  }
   prim->culled = 0;
   prim->offset = 0;
   prim->ofactor = 0.0;
@@ -3506,6 +3512,44 @@ static void gl2psPutPDFText(GL2PSstring *text, int cnt, GLfloat x, GLfloat y)
   }
 }
 
+/*
+  This is used for producing alligned text in PDF. (x, y) is the anchor for the
+  alligned text, (xbl, ybl) is the bottom left corner. Rotation happens
+  around (x, y).*/
+static void gl2psPutPDFTextBL(GL2PSstring *text, int cnt, GLfloat x, GLfloat y,
+                              GLfloat xbl, GLfloat ybl)
+{
+  if(text->angle == 0.0F){
+    gl2ps->streamlength += gl2psPrintf
+      ("BT\n"
+       "/F%d %d Tf\n"
+       "%f %f Td\n"
+       "(%s) Tj\n"
+       "ET\n",
+       cnt, text->fontsize, xbl, ybl, text->str);
+  }
+  else{
+    GLfloat a, ca, sa;
+    GLfloat pi = 3.141593F;
+    GLfloat i = atan2(y - ybl, x - xbl);
+    GLfloat r = sqrt((y - ybl) * (y - ybl) + (x - xbl) * (x - xbl));
+
+    a = (GLfloat)(pi * text->angle / 180.0F);
+    sa = (GLfloat)sin(a);
+    ca = (GLfloat)cos(a);
+    gl2ps->streamlength += gl2psPrintf
+      ("BT\n"
+       "/F%d %d Tf\n"
+       "%f %f %f %f %f %f Tm\n"
+       "(%s) Tj\n"
+       "ET\n",
+       cnt, text->fontsize,
+       ca, sa, -sa, ca,
+       xbl + r * (cos(i) - cos(i + a)), ybl + r * (sin(i) - sin(i+a)), text->str);
+  }
+}
+
+
 static void gl2psPutPDFSpecial(int prim, int sec, GL2PSstring *text)
 {
   gl2ps->streamlength += gl2psPrintf("/GS%d%d gs\n", prim, sec);
@@ -3880,8 +3924,16 @@ static void gl2psPDFgroupListWriteMainStream(void)
       for(j = 0; j <= lastel; ++j){
         prim = *(GL2PSprimitive**)gl2psListPointer(gro->ptrlist, j);
         gl2ps->streamlength += gl2psPrintPDFFillColor(prim->verts[0].rgba);
-        gl2psPutPDFText(prim->data.text, gro->fontno, prim->verts[0].xyz[0],
-                        prim->verts[0].xyz[1]);
+        if (prim->numverts == 2) {
+          gl2psPutPDFTextBL(prim->data.text, gro->fontno, prim->verts[0].xyz[0],
+                            prim->verts[0].xyz[1],
+                            prim->verts[1].xyz[0],
+                            prim->verts[1].xyz[1]);
+        }
+        else {
+          gl2psPutPDFText(prim->data.text, gro->fontno, prim->verts[0].xyz[0],
+                          prim->verts[0].xyz[1]);
+        }
       }
       break;
     case GL2PS_SPECIAL:
@@ -6014,24 +6066,39 @@ GL2PSDLL_API GLint gl2psTextOptColor(const char *str, const char *fontname,
                                      GL2PSrgba color)
 {
   return gl2psAddText(GL2PS_TEXT, str, fontname, fontsize, alignment, angle,
-                      color);
+                      color, GL_FALSE, 0, 0);
 }
+
+/**
+ * This version of gl2psTextOptColor is used to go around the
+ * fact that PDF does not support text allignment. The extra parameters
+ * (blx, bly) represent the bottom left corner of the text bounding box.
+ */
+GL2PSDLL_API GLint gl2psTextOptColorBL(const char *str, const char *fontname,
+                                       GLshort fontsize, GLint alignment, GLfloat angle,
+                                       GL2PSrgba color, GLfloat blx, GLfloat bly)
+{
+  return gl2psAddText(GL2PS_TEXT, str, fontname, fontsize, alignment, angle,
+                      color, GL_TRUE, blx, bly);
+}
+
 
 GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname,
                                 GLshort fontsize, GLint alignment, GLfloat angle)
 {
-  return gl2psAddText(GL2PS_TEXT, str, fontname, fontsize, alignment, angle, NULL);
+  return gl2psAddText(GL2PS_TEXT, str, fontname, fontsize, alignment, angle, NULL,
+                      GL_FALSE, 0, 0);
 }
 
 GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname, GLshort fontsize)
 {
   return gl2psAddText(GL2PS_TEXT, str, fontname, fontsize, GL2PS_TEXT_BL, 0.0F,
-                      NULL);
+                      NULL, GL_FALSE, 0, 0);
 }
 
 GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str, GL2PSrgba rgba)
 {
-  return gl2psAddText(GL2PS_SPECIAL, str, "", 0, format, 0.0F, rgba);
+  return gl2psAddText(GL2PS_SPECIAL, str, "", 0, format, 0.0F, rgba, GL_FALSE, 0, 0);
 }
 
 GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,

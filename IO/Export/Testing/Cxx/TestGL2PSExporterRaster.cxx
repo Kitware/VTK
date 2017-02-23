@@ -75,14 +75,38 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   text2->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
 
   vtkNew<vtkTextActor> text3;
-  text3->SetDisplayPosition(20, 20);
-  text3->SetInput("Big text!");
+  text3->SetDisplayPosition(20, 40);
+  text3->SetInput("Bag");
   text3->GetTextProperty()->SetFontSize(45);
   text3->GetTextProperty()->SetFontFamilyToCourier();
   text3->GetTextProperty()->SetJustificationToLeft();
+  text3->GetTextProperty()->SetVerticalJustificationToBottom();
   text3->GetTextProperty()->BoldOn();
   text3->GetTextProperty()->SetOrientation(0);
   text3->GetTextProperty()->SetColor(0.2, 1.0, 0.2);
+
+  vtkNew<vtkTextActor> text4;
+  text4->SetDisplayPosition(120, 40);
+  text4->SetInput("Bag");
+  text4->GetTextProperty()->SetFontSize(45);
+  text4->GetTextProperty()->SetFontFamilyToCourier();
+  text4->GetTextProperty()->SetJustificationToLeft();
+  text4->GetTextProperty()->SetVerticalJustificationToCentered();
+  text4->GetTextProperty()->BoldOn();
+  text4->GetTextProperty()->SetOrientation(0);
+  text4->GetTextProperty()->SetColor(0.2, 1.0, 0.2);
+
+  vtkNew<vtkTextActor> text5;
+  text5->SetDisplayPosition(220, 40);
+  text5->SetInput("Bag");
+  text5->GetTextProperty()->SetFontSize(45);
+  text5->GetTextProperty()->SetFontFamilyToCourier();
+  text5->GetTextProperty()->SetJustificationToLeft();
+  text5->GetTextProperty()->SetVerticalJustificationToTop();
+  text5->GetTextProperty()->BoldOn();
+  text5->GetTextProperty()->SetOrientation(0);
+  text5->GetTextProperty()->SetColor(0.2, 1.0, 0.2);
+
 
   vtkNew<vtkRenderer> ren;
   axes->SetCamera(ren->GetActiveCamera());
@@ -91,6 +115,8 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   ren->AddActor(text1.GetPointer());
   ren->AddActor(text2.GetPointer());
   ren->AddActor(text3.GetPointer());
+  ren->AddActor(text4.GetPointer());
+  ren->AddActor(text5.GetPointer());
   ren->SetBackground(0.8, 0.8, 0.8);
 
   // logo
@@ -138,6 +164,9 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
       std::string("/TestGL2PSExporterRaster");
 
   exp->SetFilePrefix(fileprefix.c_str());
+  exp->Write();
+
+  exp->SetFileFormatToPDF();
   exp->Write();
 
   renWin->SetMultiSamples(0);
