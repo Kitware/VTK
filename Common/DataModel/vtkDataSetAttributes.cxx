@@ -1727,7 +1727,30 @@ void vtkDataSetAttributes::InterpolatePoint(
     {
       toArray = this->GetAbstractArray(list.FieldIndices[i]);
       fromArray = fromPd->GetAbstractArray(list.DSAIndices[idx][i]);
-      toArray->InterpolateTuple(toId, ptIds, fromArray, weights);
+
+      //check if the destination array needs nearest neighbor interpolation
+      int attributeIndex = this->IsArrayAnAttribute(list.DSAIndices[idx][i]);
+      if (attributeIndex != -1
+          &&
+          this->CopyAttributeFlags[INTERPOLATE][attributeIndex]==2)
+      {
+        vtkIdType numIds = ptIds->GetNumberOfIds();
+        vtkIdType maxId = ptIds->GetId(0);
+        vtkIdType maxWeight = 0.;
+        for (int j=0;j<numIds;j++)
+        {
+          if (weights[j] > maxWeight)
+          {
+            maxWeight = weights[j];
+            maxId = ptIds->GetId(j);
+          }
+        }
+        toArray->InsertTuple(toId, maxId, fromArray);
+      }
+      else
+      {
+        toArray->InterpolateTuple(toId, ptIds, fromArray, weights);
+      }
     }
   }
 }
