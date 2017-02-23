@@ -3,6 +3,7 @@ find_package(VTKm REQUIRED COMPONENTS Base)
 include_directories(${VTKm_INCLUDE_DIRS})
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestVTKMClip.cxx
   # TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx

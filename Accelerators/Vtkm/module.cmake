@@ -13,6 +13,7 @@ vtk_module(vtkAcceleratorsVTKm
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkIOLegacy
     vtkIOXML
+    vtkImagingHybrid
     vtkImagingSources
   EXCLUDE_FROM_ALL
   )

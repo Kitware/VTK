@@ -366,8 +366,10 @@ vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
     points->SetData(pdata);
     pdata->FastDelete();
   }
-  catch (vtkm::cont::Error&)
+  catch (vtkm::cont::Error &e)
   {
+    vtkGenericWarningMacro("Converting vtkm::cont::CoordinateSystem to "
+                           "vtkPoints failed: " << e.what());
   }
   return points;
 }
