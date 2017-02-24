@@ -772,13 +772,13 @@ int vtkOBJPolyDataProcessor::RequestData(
       }
       std::string strLine(pLine);
       vtkDebugMacro("strLine = " << strLine);
-      int idxNewLine = strLine.find_last_of('\n');
-      std::string mtl_name = strLine.substr(0,idxNewLine);
+      int idxNewLine = strLine.find_first_of("\r\n");
+      std::string mtl_name = strLine.substr(0, idxNewLine);
       vtkDebugMacro("'Use Material' command, usemtl with name: " << mtl_name);
 
       if (! mtlName_to_mtlData.count(mtl_name))
       {
-        vtkErrorMacro(" material " << mtl_name << " appears in OBJ but not MTL file??");
+        vtkErrorMacro(" material '" << mtl_name << "' appears in OBJ but not MTL file?");
       }
       // if this is the first usemtl then assign it to the
       // poly_list[0]
