@@ -273,6 +273,8 @@ protected:
 
   // Cached state:
   bool SaveScissorTestState;
+  int CullFaceMode;
+  bool CullFaceEnabled;
 
 private:
   vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;

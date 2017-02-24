@@ -42,7 +42,7 @@
 #include <vtkXMLImageDataReader.h>
 
 
-int TestGPURayCastDepthPeeling(int argc, char *argv[])
+int TestGPURayCastDepthPeelingOpaque(int argc, char *argv[])
 {
   double scalarRange[2];
 
@@ -130,7 +130,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   vtkNew<vtkActor> sphereActor2;
   sphereProperty = sphereActor2->GetProperty();
   sphereProperty->SetColor(0.9, 0.4, 0.1);
-  sphereProperty->SetOpacity(0.3);
+  sphereProperty->SetOpacity(1.0);
   vtkNew<vtkPolyDataMapper> sphereMapper2;
   sphereMapper2->SetInputConnection(sphereSource2->GetOutputPort());
   sphereActor2->SetMapper(sphereMapper2.GetPointer());

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastDepthPeeling.cxx
+  Module:    TestGPURayCastDepthPeelingTransVol.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -42,7 +42,7 @@
 #include <vtkXMLImageDataReader.h>
 
 
-int TestGPURayCastDepthPeeling(int argc, char *argv[])
+int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
 {
   double scalarRange[2];
 
@@ -79,7 +79,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
-  scalarOpacity->AddPoint(75, 1.0);
+  scalarOpacity->AddPoint(75, 0.06);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
@@ -89,6 +89,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
+  //colorTransferFunction->AddRGBPoint(scalarRange[0], 0.9, 0.1, 0.1);
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.6, 0.6);
 
   vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
@@ -114,6 +115,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   vtkNew<vtkActor> sphereActor;
   vtkProperty* sphereProperty = sphereActor->GetProperty();
   sphereProperty->SetColor(0.5, 0.9, 0.7);
+  //sphereProperty->SetOpacity(0.0);
   sphereProperty->SetOpacity(0.3);
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
@@ -130,6 +132,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   vtkNew<vtkActor> sphereActor2;
   sphereProperty = sphereActor2->GetProperty();
   sphereProperty->SetColor(0.9, 0.4, 0.1);
+  //sphereProperty->SetOpacity(0.0); /// TODO Test this
   sphereProperty->SetOpacity(0.3);
   vtkNew<vtkPolyDataMapper> sphereMapper2;
   sphereMapper2->SetInputConnection(sphereSource2->GetOutputPort());

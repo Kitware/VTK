@@ -3109,11 +3109,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     return;
   }
 
-//  this->Impl->ShaderProgram->SetFileNamePrefixForDebugging("/home/alvaro/testShaders/"
-//    "depthPeeling_");
-//  this->Impl->ShaderCache->ReleaseCurrentShader();
-//  this->Impl->ShaderCache->ReadyShaderProgram(this->Impl->ShaderProgram, NULL);
-
   // Cell spacing is required to be computed globally (full volume extents)
   // given that gradients are computed globally (not per block).
   float fvalue3[3]; /* temporary value container */

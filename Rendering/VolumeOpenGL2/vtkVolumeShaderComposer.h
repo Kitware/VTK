@@ -1052,7 +1052,7 @@ namespace vtkvolume
     {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
-        \n  vec4 l_sumValue = vec4(0.0);"
+        \n  l_sumValue = vec4(0.0);"
       );
     }
     else
@@ -1578,15 +1578,16 @@ namespace vtkvolume
                                              vtkVolumeMapper* vtkNotUsed(mapper),
                                              vtkVolume* vtkNotUsed(vol))
   {
-    return std::string();
+    return std::string("\
+      \n const float g_opacityThreshold = 1.0 - 1.0 / 255.0;");
   }
 
   //--------------------------------------------------------------------------
   std::string PickingActorPassDeclaration(vtkRenderer* vtkNotUsed(ren),
     vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
   {
-  return std::string("\
-  \n  uniform vec3 in_propId;");
+    return std::string("\
+      \n  uniform vec3 in_propId;");
   };
 
   //--------------------------------------------------------------------------
@@ -1653,7 +1654,7 @@ namespace vtkvolume
       \n    // if the currently composited colour alpha is already fully saturated\
       \n    // we terminated the loop or if we have hit an obstacle in the\
       \n    // direction of they ray (using depth buffer) we terminate as well.\
-      \n    if((g_fragColor.a > (1.0 - 1.0/255.0)) || \
+      \n    if((g_fragColor.a > g_opacityThreshold) || \
       \n       g_currentT >= g_terminatePointMax)\
       \n      {\
       \n      break;\
@@ -2244,7 +2245,7 @@ namespace vtkvolume
   {
   return std::string("\
     \n  initializeRayCast();\
-    \n  rayMarchingLoop(-1.0, -1.0);\
+    \n  castRay(-1.0, -1.0);\
     \n  finalizeRayCast();");
   }
 }

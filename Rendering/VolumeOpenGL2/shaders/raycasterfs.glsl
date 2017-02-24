@@ -110,11 +110,28 @@ vec4 WindowToNDC(const float xCoord, const float yCoord, const float zCoord)
     gl_DepthRange.diff;
 
   return NDCCoord;
-};
+}
+
+/**
+ * Transform NDC coordinate to window coordinates.
+ */
+vec4 NDCToWindow(const float xNDC, const float yNDC, const float zNDC)
+{
+  vec4 WinCoord = vec4(0.0, 0.0, 0.0, 1.0);
+
+  WinCoord.x = (xNDC + 1.f) / (2.f * in_inverseWindowSize.x) +
+    in_windowLowerLeftCorner.x;
+  WinCoord.y = (yNDC + 1.f) / (2.f * in_inverseWindowSize.y) +
+    in_windowLowerLeftCorner.y;
+  WinCoord.z = (zNDC * gl_DepthRange.diff +
+    (gl_DepthRange.near + gl_DepthRange.far)) / 2.f;
+
+  return WinCoord;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 ///
-/// Ray marching
+/// Ray-casting
 ///
 //////////////////////////////////////////////////////////////////////////////
 
@@ -139,11 +156,20 @@ void initializeRayCast()
   //VTK::RenderToImage::Init
 
   //VTK::DepthPass::Init
-};
+}
 
-vec4 rayMarchingLoop(const float zStart, const float zEnd)
+/**
+ * March along the ray direction sampling the volume texture.  This function
+ * takes a start and end point as arguments but it is up to the specific render
+ * pass implementation to use these values (e.g. DualDepthPeelingPass). The
+ * mapper does not use these values by default, instead it uses the number of
+ * steps defined by g_terminatePointMax.
+ */
+vec4 castRay(const float zStart, const float zEnd)
 {
   //VTK::DepthPeeling::Ray::Init
+
+  //VTK::DepthPeeling::Ray::PathCheck
 
   /// For all samples along the ray
   while (!g_exit)
@@ -167,16 +193,11 @@ vec4 rayMarchingLoop(const float zStart, const float zEnd)
     /// Advance ray
     g_dataPos += g_dirStep;
 
-    // TODO Split termination criteria to include only those necessary
-    // (termination steps not needed in DepthPeeling), since start and
-    // end are delimited.
     //VTK::Terminate::Impl
-
-    //VTK::DepthPeeling::Ray::Terminate
   }
 
   return g_fragColor;
-};
+}
 
 void finalizeRayCast()
 {
@@ -200,7 +221,7 @@ void finalizeRayCast()
   //VTK::RenderToImage::Exit
 
   //VTK::DepthPass::Exit
-};
+}
 
 //////////////////////////////////////////////////////////////////////////////
 ///
