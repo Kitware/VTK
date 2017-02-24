@@ -822,7 +822,7 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
     {
       prober->SetInputData(in);
       prober->Update();
-      block->OutputBlocks[i]->DeepCopy(prober->GetOutput());
+      block->OutputBlocks[i]->ShallowCopy(prober->GetOutput());
     }
   }
 

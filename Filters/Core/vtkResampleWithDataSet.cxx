@@ -354,7 +354,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         vtkDataSet *result = this->Prober->GetOutput();
 
         vtkDataSet *block = result->NewInstance();
-        block->DeepCopy(result);
+        block->ShallowCopy(result);
         if (this->MarkBlankPointsAndCells)
         {
           this->SetBlankPointsAndCells(block);
