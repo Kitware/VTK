@@ -871,12 +871,12 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
       std::vector<vtkIdType> pointIds;
       vtkIdType blockBegin = 0;
       vtkIdType blockEnd = blockBegin;
-      while (blockEnd < totalPoints)
+      while (blockBegin < totalPoints)
       {
         int blockId = points[blockBegin].BlockId;
 
         pointIds.clear();
-        while (points[blockEnd].BlockId == blockId)
+        while (blockEnd < totalPoints && points[blockEnd].BlockId == blockId)
         {
           if (masks[blockEnd])
           {
