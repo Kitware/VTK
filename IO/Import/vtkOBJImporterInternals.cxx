@@ -119,7 +119,7 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
 
       // material names can have spaces in them
       // get the name
-      strncpy(current_mtl->name, strtok(NULL, "\t\n"), MATERIAL_NAME_SIZE);
+      strncpy(current_mtl->name, strtok(NULL, "\t\n\r"), MATERIAL_NAME_SIZE);
       // be safe with strncpy
       if (current_mtl->name[MATERIAL_NAME_SIZE-1] != '\0')
       {
@@ -186,7 +186,7 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
     {
       /** (pk note: why was this map_Ka initially? should map_Ka be supported? ) */
       // tmap may be null so we test first before doing a strncpy
-      char *tmap = strtok(NULL, " \t\n");
+      char *tmap = strtok(NULL, " \t\n\r");
       if (tmap)
       {
         strncpy(current_mtl->texture_filename, tmap, OBJ_FILENAME_LENGTH);
@@ -207,7 +207,7 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
           vtkGenericWarningMacro(
             << "mtl file " << current_mtl->name
             << "requests texture file that appears not to exist: "
-            << current_mtl->texture_filename << "; texture path: " <<this->TexturePath<<"\r\n");
+            << current_mtl->texture_filename << "; texture path: " << this->TexturePath << "\n");
         }
       }
     }
@@ -312,16 +312,19 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
 
     vtkOBJImportedMaterial* raw_mtl_data =
       reader->GetMaterial(port_idx);
-    properties->SetDiffuseColor(raw_mtl_data->diff);
-    properties->SetSpecularColor(raw_mtl_data->spec);
-    properties->SetAmbientColor(raw_mtl_data->amb);
-    properties->SetOpacity(raw_mtl_data->trans);
-    properties->SetInterpolationToPhong();
-    properties->SetLighting(true);
-    properties->SetSpecular( raw_mtl_data->get_spec_coeff() );
-    properties->SetAmbient( raw_mtl_data->get_amb_coeff() );
-    properties->SetDiffuse( raw_mtl_data->get_diff_coeff() );
-    actor->SetProperty(properties);
+    if (raw_mtl_data)
+    {
+      properties->SetDiffuseColor(raw_mtl_data->diff);
+      properties->SetSpecularColor(raw_mtl_data->spec);
+      properties->SetAmbientColor(raw_mtl_data->amb);
+      properties->SetOpacity(raw_mtl_data->trans);
+      properties->SetInterpolationToPhong();
+      properties->SetLighting(true);
+      properties->SetSpecular( raw_mtl_data->get_spec_coeff() );
+      properties->SetAmbient( raw_mtl_data->get_amb_coeff() );
+      properties->SetDiffuse( raw_mtl_data->get_diff_coeff() );
+      actor->SetProperty(properties);
+    }
     renderer->AddActor(actor);
 
     //properties->ShadingOn(); // use ShadingOn() if loading vtkMaterial from xml
