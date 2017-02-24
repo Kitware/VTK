@@ -195,13 +195,20 @@ public:
   static void ComputeNormalDirection(double v1[3], double v2[3], double v3[3],
                                      double n[3]);
 
-  /**
-   * Given a point x, determine whether it is inside (within the
-   * tolerance squared, tol2) the triangle defined by the three
-   * coordinate values p1, p2, p3. Method is via comparing dot products.
-   * (Note: in current implementation the tolerance only works in the
-   * neighborhood of the three vertices of the triangle.
-   */
+  // Description:
+  // Determine whether or not triangle (p1,q1,r1) intersects triangle
+  // (p2,q2,r2). This method is adapted from Olivier Devillers, Philippe Guigue.
+  // Faster Triangle-Triangle Intersection Tests. RR-4488, IN-RIA. 2002.
+  // <inria-00072100>.
+  static int TrianglesIntersect(double p1[3], double q1[3], double r1[3],
+                                double p2[3], double q2[3], double r2[3]);
+
+  // Description:
+  // Given a point x, determine whether it is inside (within the
+  // tolerance squared, tol2) the triangle defined by the three
+  // coordinate values p1, p2, p3. Method is via comparing dot products.
+  // (Note: in current implementation the tolerance only works in the
+  // neighborhood of the three vertices of the triangle.
   static int PointInTriangle(double x[3], double x1[3],
                              double x2[3], double x3[3],
                              double tol2);
@@ -288,5 +295,3 @@ inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3]
 }
 
 #endif
-
-
