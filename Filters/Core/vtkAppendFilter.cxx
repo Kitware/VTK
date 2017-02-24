@@ -151,10 +151,11 @@ int vtkAppendFilter::RequestData(
   vtkSmartPointer<vtkDataSetCollection> inputs;
   inputs.TakeReference(this->GetNonEmptyInputs(inputVector));
 
-  int numInputs = inputs->GetNumberOfItems();
-  for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
+  vtkCollectionSimpleIterator iter;
+  inputs->InitTraversal(iter);
+  vtkDataSet* dataSet = 0;
+  while ((dataSet = inputs->GetNextDataSet(iter)))
   {
-    vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     totalNumPts += dataSet->GetNumberOfPoints();
     totalNumCells += dataSet->GetNumberOfCells();
   }
@@ -175,6 +176,7 @@ int vtkAppendFilter::RequestData(
   {
     // take the precision of the first pointset
     int datatype = VTK_FLOAT;
+    const int numInputs = inputVector[0]->GetNumberOfInformationObjects();
     for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
     {
       vtkInformation* inInfo = inputVector[0]->GetInformationObject(inputIndex);
@@ -220,9 +222,9 @@ int vtkAppendFilter::RequestData(
   {
     vtkBoundingBox outputBB;
 
-    for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
+    inputs->InitTraversal(iter);
+    while ((dataSet = inputs->GetNextDataSet(iter)))
     {
-      vtkDataSet* dataSet = inputs->GetItem(inputIndex);
 
       // Union of bounding boxes
       double localBox[6];
@@ -242,9 +244,10 @@ int vtkAppendFilter::RequestData(
   vtkIdType count = 0;
   vtkIdType ptOffset = 0;
   float decimal = 0.0;
-  for (int inputIndex = 0, abort = 0; inputIndex < numInputs && !abort; ++inputIndex)
+  inputs->InitTraversal(iter);
+  int abort = 0;
+  while (!abort && (dataSet = inputs->GetNextDataSet(iter)))
   {
-    vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     vtkIdType dataSetNumPts = dataSet->GetNumberOfPoints();
     vtkIdType dataSetNumCells = dataSet->GetNumberOfCells();
 
@@ -391,10 +394,11 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   vtkDataSetAttributes* firstInputData = NULL;
   vtkSmartPointer<vtkDataSetCollection> inputs;
   inputs.TakeReference(this->GetNonEmptyInputs(inputVector));
-  int numInputs = inputs->GetNumberOfItems();
-  for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
+  vtkCollectionSimpleIterator iter;
+  inputs->InitTraversal(iter);
+  vtkDataSet* dataSet = NULL;
+  while ((dataSet = inputs->GetNextDataSet(iter)))
   {
-    vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     vtkDataSetAttributes* inputData = dataSet->GetAttributes(attributesType);
 
     if (isFirstInputData)
@@ -470,10 +474,9 @@ void vtkAppendFilter::AppendArrays(int attributesType,
     attributeArrays[attribute] = firstInputData->GetAbstractAttribute(attribute);
   }
 
-  for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
+  inputs->InitTraversal(iter);
+  while ((dataSet = inputs->GetNextDataSet(iter)))
   {
-    vtkDataSet* dataSet = inputs->GetItem(inputIndex);
-
     for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
     {
       if (attributeArrays[attributeIndex])
@@ -520,10 +523,9 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   {
     attributeNeedsNullArray[attributeIndex] = true;
   }
-  for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
+  inputs->InitTraversal(iter);
+  while ((dataSet = inputs->GetNextDataSet(iter)))
   {
-    vtkDataSet* dataSet = inputs->GetItem(inputIndex);
-
     for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
     {
       // Check if the attribute array name is NULL. If attribute is
@@ -566,9 +568,9 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   // Phase 4 - Copy data
   //////////////////////////////////////////////////////////////
   vtkIdType offset = 0;
-  for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
+  inputs->InitTraversal(iter);
+  while ((dataSet = inputs->GetNextDataSet(iter)))
   {
-    vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     vtkDataSetAttributes* inputData = dataSet->GetAttributes(attributesType);
     for (std::set<std::string>::iterator it = dataArrayNames.begin(); it != dataArrayNames.end(); ++it)
     {
