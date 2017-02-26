@@ -17,13 +17,15 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkCompositeDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkCompositeDataGeometryFilter);
 
@@ -68,48 +70,40 @@ int vtkCompositeDataGeometryFilter::RequestCompositeData(
   vtkInformationVector** inputVector,
   vtkInformationVector*  outputVector)
 {
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkCompositeDataSet* input = vtkCompositeDataSet::GetData(inputVector[0], 0);
   if (!input)
   {
     vtkErrorMacro("No input composite dataset provided.");
     return 0;
   }
 
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
   if (!output)
   {
     vtkErrorMacro("No output polydata provided.");
     return 0;
   }
 
-  bool added=false;
-  vtkCompositeDataIterator* iter = input->NewIterator();
-  vtkAppendPolyData* append = vtkAppendPolyData::New();
+  vtkNew<vtkAppendPolyData> append;
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(input->NewIterator());
+
   for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds)
+    if (ds && ds->GetNumberOfPoints() > 0)
     {
-      vtkDataSetSurfaceFilter* dssf = vtkDataSetSurfaceFilter::New();
+      vtkNew<vtkDataSetSurfaceFilter> dssf;
       dssf->SetInputData(ds);
       dssf->Update();
-      append->AddInputConnection(dssf->GetOutputPort());
-      dssf->Delete();
-      added = true;
+      append->AddInputDataObject(dssf->GetOutputDataObject(0));
     }
   }
-  iter->Delete();
-  if (added)
+  if (append->GetNumberOfInputConnections(0) > 0)
   {
     append->Update();
     output->ShallowCopy(append->GetOutput());
   }
-
-  append->Delete();
 
   return 1;
 }

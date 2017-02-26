@@ -260,32 +260,21 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   {
     return;
   }
-  // first stuff out the transform
-  trans = vtkTransform::New();
-  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
 
-  fprintf(fp,"    Transform {\n");
-  tempd = trans->GetPosition();
-  fprintf(fp,"      translation %g %g %g\n", tempd[0], tempd[1], tempd[2]);
-  tempd = trans->GetOrientationWXYZ();
-  fprintf(fp,"      rotation %g %g %g %g\n", tempd[1], tempd[2],
-          tempd[3], tempd[0]*vtkMath::Pi()/180.0);
-  tempd = trans->GetScale();
-  fprintf(fp,"      scale %g %g %g\n", tempd[0], tempd[1], tempd[2]);
-  fprintf(fp,"      children [\n");
-  trans->Delete();
-
+  // Before putting out anything in the file, ensure that we have an exportable
+  // dataset being rendered by the actor.
   vtkDataObject* inputDO = anActor->GetMapper()->GetInputDataObject(0, 0);
   if (inputDO == NULL)
   {
     return;
   }
-  // we really want polydata
+
+  // we really want polydata, so apply geometry filter, if needed.
   if (inputDO->IsA("vtkCompositeDataSet"))
   {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
     gf->SetInputConnection(
-      anActor->GetMapper()->GetInputConnection(0, 0));
+        anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
     gf->Delete();
@@ -304,6 +293,26 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     anActor->GetMapper()->Update();
     pd = static_cast<vtkPolyData *>(inputDO);
   }
+
+  if (pd == NULL || pd->GetNumberOfPoints() == 0)
+  {
+    return;
+  }
+
+  // first stuff out the transform
+  trans = vtkTransform::New();
+  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
+
+  fprintf(fp,"    Transform {\n");
+  tempd = trans->GetPosition();
+  fprintf(fp,"      translation %g %g %g\n", tempd[0], tempd[1], tempd[2]);
+  tempd = trans->GetOrientationWXYZ();
+  fprintf(fp,"      rotation %g %g %g %g\n", tempd[1], tempd[2],
+          tempd[3], tempd[0]*vtkMath::Pi()/180.0);
+  tempd = trans->GetScale();
+  fprintf(fp,"      scale %g %g %g\n", tempd[0], tempd[1], tempd[2]);
+  fprintf(fp,"      children [\n");
+  trans->Delete();
 
   pm = vtkPolyDataMapper::New();
   pm->SetInputData(pd);
