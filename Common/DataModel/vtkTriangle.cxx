@@ -1373,6 +1373,8 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
       break;
     }
   }
+  assert(index1 >= 0 && index1 < 3);
+
   double* T1[3] = {p1,q1,r1};
   p1 = T1[index1];
   q1 = T1[(index1+1)%3];
@@ -1388,6 +1390,8 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
       break;
     }
   }
+  assert(index2 >= 0 && index2 < 3);
+
   double* T2[3] = {p2,q2,r2};
   p2 = T2[index2];
   q2 = T2[(index2+1)%3];
