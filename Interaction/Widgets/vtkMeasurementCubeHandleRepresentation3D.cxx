@@ -105,6 +105,7 @@ vtkMeasurementCubeHandleRepresentation3D::vtkMeasurementCubeHandleRepresentation
   this->LabelText->SetVisibility(true);
   this->LabelText->GetTextProperty()->SetFontSize( 20 );
   this->LabelText->GetTextProperty()->SetColor( 1.0, 1.0, 1.0 );
+  this->LabelText->GetTextProperty()->SetJustificationToCentered();
   this->LengthUnit = NULL;
   this->SetLengthUnit("unit");
 
@@ -614,21 +615,15 @@ void vtkMeasurementCubeHandleRepresentation3D::UpdateLabel()
     {
       // Place the label in front of and below the cube. We need to take into
       // account the viewup vector and the direction of the camera.
-      double vup[3], directionOfProjection[3], xAxis[3], bounds[6];
+      double vup[3], directionOfProjection[3], bounds[6];
 
       this->Renderer->GetActiveCamera()->GetViewUp(vup);
       this->Renderer->GetActiveCamera()->
         GetDirectionOfProjection(directionOfProjection);
-      vtkMath::Cross( directionOfProjection, vup, xAxis );
       this->Mapper->GetBounds(bounds);
       double width = sqrt( (bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
                            (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
                            (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]) );
-
-      double* textBounds = this->LabelText->GetBounds();
-      double textXWidth = std::abs((textBounds[1] - textBounds[0]) * xAxis[0] +
-                                   (textBounds[3] - textBounds[2]) * xAxis[1] +
-                                   (textBounds[4] - textBounds[5]) * xAxis[2]);
 
       for (int i=0; i<3; i++)
       {
@@ -637,9 +632,6 @@ void vtkMeasurementCubeHandleRepresentation3D::UpdateLabel()
 
         // place the label in front of the cube
         labelPosition[i] -= width/2.0 * directionOfProjection[i];
-
-        // center the label in x
-        labelPosition[i] -= textXWidth/2.0 * xAxis[i];
       }
     }
     else
