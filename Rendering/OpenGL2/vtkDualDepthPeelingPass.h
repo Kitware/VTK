@@ -206,6 +206,13 @@ protected:
    */
   void Peel();
 
+  // Depending on whether we're handling volumes or not, we'll initialize the
+  // front destination buffer by either clearing it or copying the last peel's
+  // output into it.
+  void PrepareFrontDestination();
+  void ClearFrontDestination();
+  void CopyFrontSourceToFrontDestination();
+
   void InitializeTargetsForTranslucentPass();
   void InitializeTargetsForVolumetricPass();
 
@@ -235,6 +242,10 @@ protected:
 
   vtkRenderPass *VolumetricPass;
   const vtkRenderState *RenderState;
+
+  vtkShaderProgram *CopyColorProgram;
+  vtkOpenGLVertexArrayObject *CopyColorVAO;
+  vtkOpenGLBufferObject *CopyColorVBO;
 
   vtkShaderProgram *CopyDepthProgram;
   vtkOpenGLVertexArrayObject *CopyDepthVAO;

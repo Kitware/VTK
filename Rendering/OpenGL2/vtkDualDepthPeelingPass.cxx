@@ -37,7 +37,7 @@
 
 // Define to print debug statements to the OpenGL CS stream (useful for e.g.
 // apitrace debugging):
-#define ANNOTATE_STREAM
+//#define ANNOTATE_STREAM
 
 // Define to output details about each peel:
 //#define DEBUG_PEEL
@@ -734,6 +734,9 @@ bool vtkDualDepthPeelingPass::SetVolumetricShaderParameters(
 vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
   : VolumetricPass(NULL),
     RenderState(NULL),
+    CopyColorProgram(NULL),
+    CopyColorVAO(NULL),
+    CopyColorVBO(NULL),
     CopyDepthProgram(NULL),
     CopyDepthVAO(NULL),
     CopyDepthVBO(NULL),
@@ -816,6 +819,8 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
     }
   }
 
+  DeleteHelper(this->CopyColorVAO);
+  DeleteHelper(this->CopyColorVBO);
   DeleteHelper(this->CopyDepthVAO);
   DeleteHelper(this->CopyDepthVBO);
   DeleteHelper(this->BackBlendVAO);
@@ -824,6 +829,7 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
   DeleteHelper(this->BlendVBO);
 
   // don't delete the shader programs -- let the cache clean them up.
+  this->CopyColorProgram = NULL;
   this->CopyDepthProgram = NULL;
   this->BackBlendProgram = NULL;
   this->BlendProgram = NULL;
@@ -1142,12 +1148,12 @@ void vtkDualDepthPeelingPass::InitializeDepth()
 {
   // Add the translucent geometry to our depth peeling buffer:
 
-  // We bind the front destination buffer as render target 0 -- the data we
+  // We bind the back temporary buffer as render target 0 -- the data we
   // write to it isn't used, but this makes it easier to work with the existing
   // polydata shaders as they expect gl_FragData[0] to be RGBA. The front
   // destination buffer is cleared prior to peeling, so it's just a dummy
   // buffer at this point.
-  unsigned int targets[2] = { static_cast<unsigned int>(this->FrontDestination),
+  unsigned int targets[2] = { static_cast<unsigned int>(BackTemp),
                               static_cast<unsigned int>(this->DepthSource)
                             };
   this->Framebuffer->ActivateDrawBuffers(targets, 2);
@@ -1243,38 +1249,119 @@ void vtkDualDepthPeelingPass::Peel()
 }
 
 //------------------------------------------------------------------------------
+void vtkDualDepthPeelingPass::PrepareFrontDestination()
+{
+  // If we're not using volumes, clear the front destination buffer and just
+  // let the shaders pass-through the colors from the previous peel.
+  //
+  // If we are rendering volumes, we can't rely on the shader pass-through,
+  // since the volumetric and translucent geometry may not cover the same
+  // pixels, and information would be lost if we simply cleared the front
+  // buffer. In this case, we're essentially forcing a fullscreen pass-through
+  // prior to the any actual rendering calls.
+  if (!this->IsRenderingVolumes())
+  {
+    this->ClearFrontDestination();
+  }
+  else
+  {
+    this->CopyFrontSourceToFrontDestination();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkDualDepthPeelingPass::ClearFrontDestination()
+{
+  annotate("ClearFrontDestination()");
+  this->Framebuffer->ActivateDrawBuffer(this->FrontDestination);
+  glClearColor(0.f, 0.f, 0.f, 0.f);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+//------------------------------------------------------------------------------
+void vtkDualDepthPeelingPass::CopyFrontSourceToFrontDestination()
+{
+  this->Framebuffer->ActivateDrawBuffer(this->FrontDestination);
+
+  glDisable(GL_BLEND);
+
+  typedef vtkOpenGLRenderUtilities GLUtil;
+
+  vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow*>(
+        this->RenderState->GetRenderer()->GetRenderWindow());
+  if (!this->CopyColorProgram)
+  {
+    std::string fragShader = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
+    vtkShaderProgram::Substitute(
+          fragShader, "//VTK::FSQ::Decl",
+          "uniform sampler2D inTex;\n");
+    vtkShaderProgram::Substitute(
+          fragShader, "//VTK::FSQ::Impl",
+          "  gl_FragData[0] = texture2D(inTex, texCoord);\n");
+    this->CopyColorProgram = renWin->GetShaderCache()->ReadyShaderProgram(
+          GLUtil::GetFullScreenQuadVertexShader().c_str(),
+          fragShader.c_str(),
+          GLUtil::GetFullScreenQuadGeometryShader().c_str());
+  }
+  else
+  {
+    renWin->GetShaderCache()->ReadyShaderProgram(this->CopyColorProgram);
+  }
+
+  if (!this->CopyColorProgram)
+  {
+    return;
+  }
+
+  if (!this->CopyColorVAO)
+  {
+    this->CopyColorVBO = vtkOpenGLBufferObject::New();
+    this->CopyColorVAO = vtkOpenGLVertexArrayObject::New();
+    GLUtil::PrepFullScreenVAO(this->CopyColorVBO, this->CopyColorVAO,
+                              this->CopyColorProgram);
+  }
+
+  this->Textures[this->FrontSource]->Activate();
+  this->CopyColorProgram->SetUniformi(
+        "inTex", this->Textures[this->FrontSource]->GetTextureUnit());
+
+  this->CopyColorVAO->Bind();
+
+  annotate("Copying front texture src -> dst for pre-pass initialization!");
+  GLUtil::DrawFullScreenQuad();
+  annotate("Front texture copied!");
+
+  this->CopyColorVAO->Release();
+
+  this->Textures[this->FrontSource]->Deactivate();
+}
+
+//------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::InitializeTargetsForTranslucentPass()
 {
   // Initialize destination buffers to their minima, since we're MAX blending,
   // this ensures that valid outputs are captured.
-  unsigned int destColorBuffers[2] =
-                        {
-                        static_cast<unsigned int>(this->FrontDestination),
-                        static_cast<unsigned int>(BackTemp)
-                        };
-  this->Framebuffer->ActivateDrawBuffers(destColorBuffers, 2);
+  this->Framebuffer->ActivateDrawBuffer(BackTemp);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   this->Framebuffer->ActivateDrawBuffer(this->DepthDestination);
   glClearColor(-1.f, -1.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
+
+  this->PrepareFrontDestination();
 }
 
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::InitializeTargetsForVolumetricPass()
 {
-  // Initialize destination buffers to their minima, since we're MAX blending,
-  // this ensures that valid outputs are captured.
-  // Don't clear depth, since we use that as an input for volumetric blending.
-  unsigned int destColorBuffers[2] =
-  {
-    static_cast<unsigned int>(this->FrontDestination),
-    static_cast<unsigned int>(BackTemp)
-  };
-  this->Framebuffer->ActivateDrawBuffers(destColorBuffers, 2);
+  // Clear the back buffer to ensure that current fragments are captured for
+  // later blending into the back accumulation buffer:
+  this->Framebuffer->ActivateDrawBuffer(BackTemp);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
+
+  this->PrepareFrontDestination();
 }
 
 //------------------------------------------------------------------------------
