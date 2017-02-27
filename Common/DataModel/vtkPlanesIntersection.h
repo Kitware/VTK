@@ -127,7 +127,7 @@ private:
   int outsideRegion(double v[3]) ;
 
   // plane equations
-  double *Plane;
+  double *Planes;
 
   // vertices of convex regions enclosed by the planes, also
   //    the ccw hull of that region projected in 3 orthog. directions

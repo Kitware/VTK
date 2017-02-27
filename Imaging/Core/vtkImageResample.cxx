@@ -38,7 +38,34 @@ vtkImageResample::vtkImageResample()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResample::SetAxisOutputSpacing(int axis, double spacing)
+void vtkImageResample::SetOutputSpacing(double sx, double sy, double sz)
+{
+  const double spacing[3] = { sx, sy, sz };
+  bool modified = false;
+
+  for (int axis = 0; axis < 3; axis++)
+  {
+    if (this->OutputSpacing[axis] != spacing[axis])
+    {
+      this->OutputSpacing[axis] = spacing[axis];
+      if (spacing[axis] != 0.0)
+      {
+        // Delay computing the magnification factor.
+        // Input might not be set yet.
+        this->MagnificationFactors[axis] = 0.0; // Not computed yet.
+      }
+      modified = true;
+    }
+  }
+
+  if (modified)
+  {
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageResample::SetAxisOutputSpacing(int axis, double s)
 {
   if (axis < 0 || axis > 2)
   {
@@ -46,16 +73,33 @@ void vtkImageResample::SetAxisOutputSpacing(int axis, double spacing)
     return;
   }
 
-  if (this->OutputSpacing[axis] != spacing)
+  double spacing[3];
+  this->GetOutputSpacing(spacing);
+  spacing[axis] = s;
+
+  this->SetOutputSpacing(spacing);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageResample::SetMagnificationFactors(double fx, double fy, double fz)
+{
+  const double factors[3] = { fx, fy, fz };
+  bool modified = false;
+
+  for (int axis = 0; axis < 3; axis++)
   {
-    this->OutputSpacing[axis] = spacing;
-    this->Modified();
-    if (spacing != 0.0)
+    if (this->MagnificationFactors[axis] != factors[axis])
     {
-      // Delay computing the magnification factor.
-      // Input might not be set yet.
-      this->MagnificationFactors[axis] = 0.0; // Not computed yet.
+      this->MagnificationFactors[axis] = factors[axis];
+      // Spacing is no longer valid.
+      this->OutputSpacing[axis] = 0.0; // Not computed yet.
+      modified = true;
     }
+  }
+
+  if (modified)
+  {
+    this->Modified();
   }
 }
 
@@ -68,14 +112,11 @@ void vtkImageResample::SetAxisMagnificationFactor(int axis, double factor)
     return;
   }
 
-  if (this->MagnificationFactors[axis] == factor)
-  {
-    return;
-  }
-  this->Modified();
-  this->MagnificationFactors[axis] = factor;
-  // Spacing is no longer valid.
-  this->OutputSpacing[axis] = 0.0; // Not computed yet.
+  double factors[3];
+  this->GetMagnificationFactors(factors);
+  factors[axis] = factor;
+
+  this->SetMagnificationFactors(factors);
 }
 
 //----------------------------------------------------------------------------
@@ -169,6 +210,9 @@ int vtkImageResample::RequestInformation(
 void vtkImageResample::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "MagnificationFactors: " << this->MagnificationFactors[0]
+     << " " << this->MagnificationFactors[1]
+     << " " << this->MagnificationFactors[2] << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   os << indent << "Interpolate: " << (this->GetInterpolate() ? "On\n" : "Off\n");
 }

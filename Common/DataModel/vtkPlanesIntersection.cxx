@@ -41,7 +41,7 @@ const int Zdim=2;
 
 vtkPlanesIntersection::vtkPlanesIntersection()
 {
-  this->Plane   = NULL;
+  this->Planes = NULL;
   this->RegionPts = NULL;
 }
 vtkPlanesIntersection::~vtkPlanesIntersection()
@@ -51,8 +51,8 @@ vtkPlanesIntersection::~vtkPlanesIntersection()
     this->RegionPts->Delete();
     this->RegionPts = NULL;
   }
-  delete [] this->Plane;
-  this->Plane = NULL;
+  delete [] this->Planes;
+  this->Planes = NULL;
 }
 void vtkPlanesIntersection::SetRegionVertices(vtkPoints *v)
 {
@@ -232,7 +232,7 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
 
   else
   {
-    if (this->Plane == NULL)
+    if (this->Planes == NULL)
     {
       this->SetPlaneEquations();
     }
@@ -585,9 +585,9 @@ void vtkPlanesIntersection::SetPlaneEquations()
   // vtkPlanes stores normals & pts instead of
   //   plane equation coefficients
 
-  delete [] this->Plane;
+  delete [] this->Planes;
 
-  this->Plane = new double[nplanes*4];
+  this->Planes = new double[nplanes*4];
 
   for (i=0; i<nplanes; i++)
   {
@@ -602,7 +602,7 @@ void vtkPlanesIntersection::SetPlaneEquations()
     nd[1] = n[1]; xd[1] = x[1];
     nd[2] = n[2]; xd[2] = x[2];
 
-    double *p = this->Plane + (i*4);
+    double *p = this->Planes + (i*4);
 
     vtkPlanesIntersection::PlaneEquation(nd, xd, p);
   }
@@ -632,7 +632,7 @@ void vtkPlanesIntersection::ComputeRegionVertices()
     return;
   }
 
-  if (this->Plane == NULL)
+  if (this->Planes == NULL)
   {
     this->SetPlaneEquations();
   }
@@ -699,16 +699,16 @@ void vtkPlanesIntersection::planesMatrix(int p1, int p2, int p3, double M[3][3])
   int i;
   for (i=0; i<3; i++)
   {
-    M[0][i] = this->Plane[p1*4 + i];
-    M[1][i] = this->Plane[p2*4 + i];
-    M[2][i] = this->Plane[p3*4 + i];
+    M[0][i] = this->Planes[p1*4 + i];
+    M[1][i] = this->Planes[p2*4 + i];
+    M[2][i] = this->Planes[p3*4 + i];
   }
 }
 void vtkPlanesIntersection::planesRHS(int p1, int p2, int p3, double r[3]) const
 {
-  r[0] = -(this->Plane[p1*4 + 3]);
-  r[1] = -(this->Plane[p2*4 + 3]);
-  r[2] = -(this->Plane[p3*4 + 3]);
+  r[0] = -(this->Planes[p1*4 + 3]);
+  r[1] = -(this->Planes[p2*4 + 3]);
+  r[2] = -(this->Planes[p3*4 + 3]);
 }
 int vtkPlanesIntersection::outsideRegion(double testv[3])
 {
@@ -721,7 +721,7 @@ int vtkPlanesIntersection::outsideRegion(double testv[3])
     int row=i*4;
 
     double fx =
-      vtkPlanesIntersection::EvaluatePlaneEquation(testv, this->Plane + row);
+      vtkPlanesIntersection::EvaluatePlaneEquation(testv, this->Planes + row);
 
     if (fx > VTK_SMALL_DOUBLE)
     {
@@ -827,7 +827,7 @@ int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
   //    positive half plane, or whether it straddles the plane.
   //    The normal points in direction of positive half plane.
 
-  double *p = this->Plane + (plane * 4);
+  double *p = this->Planes + (plane * 4);
 
   double negVal =
 
@@ -878,7 +878,7 @@ void vtkPlanesIntersection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Plane: " << this->Plane << endl;
+  os << indent << "Planes: " << this->Planes << endl;
   os << indent << "RegionPts: " << this->RegionPts << endl;
 
   int i, npts;
