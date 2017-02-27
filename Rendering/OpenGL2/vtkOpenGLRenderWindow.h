@@ -25,12 +25,13 @@
 #ifndef vtkOpenGLRenderWindow_h
 #define vtkOpenGLRenderWindow_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkRect.h" // for vtkRecti
 #include "vtkRenderWindow.h"
-#include <string> // for ivar
-#include <map> // for ivar
-#include <set> // for ivar
-#include "vtkType.h" // for ivar
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkType.h"                   // for ivar
+#include <map>                         // for ivar
+#include <set>                         // for ivar
+#include <string>                      // for ivar
 
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
@@ -421,10 +422,7 @@ protected:
 
   std::map<const vtkTextureObject *, int> TextureResourceIds;
 
-  virtual int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
-  int GetRGBAPixelData(int x, int y, int x2, int y2, int front, float* data);
-  int GetRGBACharPixelData(int x, int y, int x2, int y2, int front,
-                           unsigned char* data);
+  virtual int ReadPixels(const vtkRecti& rect, int front, int glFormat, int glType, void* data);
 
   /**
    * Create an offScreen window based on OpenGL framebuffer extension.

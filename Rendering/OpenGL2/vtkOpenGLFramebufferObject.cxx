@@ -1534,10 +1534,7 @@ int vtkOpenGLFramebufferObject::CheckFrameBufferStatus(unsigned int mode)
 
 //----------------------------------------------------------------------------
 int vtkOpenGLFramebufferObject::Blit(
-        int srcExt[4],
-        int destExt[4],
-        unsigned int bits,
-        unsigned int mapping)
+  const int srcExt[4], const int destExt[4], unsigned int bits, unsigned int mapping)
 {
   glBlitFramebuffer(
         (GLint)srcExt[0],

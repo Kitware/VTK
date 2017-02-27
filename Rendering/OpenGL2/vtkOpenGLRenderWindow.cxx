@@ -26,9 +26,11 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
@@ -40,7 +42,6 @@
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkOpenGLResourceFreeCallback.h"
 
 #include "vtkTextureObjectVS.h"  // a pass through shader
 
@@ -935,10 +936,13 @@ unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     x_hi  = x1;
   }
 
-  unsigned char *data =
-    new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
-  this->GetPixelData(x1, y1, x2, y2, front, data);
-  return data;
+  int width = (x_hi - x_low) + 1;
+  int height = (y_hi - y_low) + 1;
+
+  unsigned char* ucdata = new unsigned char[width * height * 3];
+  vtkRecti rect(x_low, y_low, width, height);
+  this->ReadPixels(rect, front, GL_RGB, GL_UNSIGNED_BYTE, ucdata);
+  return ucdata;
 }
 
 int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
@@ -981,40 +985,21 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     data->SetNumberOfComponents(3);
     data->SetNumberOfValues(size);
   }
-  return this->GetPixelData(x1, y1, x2, y2, front, data->GetPointer(0));
 
+  vtkRecti rect(x_low, y_low, width, height);
+  return this->ReadPixels(rect, front, GL_RGB, GL_UNSIGNED_BYTE, data->GetPointer(0));
 }
 
-int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
-                                        int x2, int y2,
-                                        int front, unsigned char* data)
+int vtkOpenGLRenderWindow::ReadPixels(
+  const vtkRecti& rect, int front, int glformat, int gltype, void* data)
 {
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-
   // set the current window
   this->MakeCurrent();
 
-  if (y1 < y2)
+  if (rect.GetWidth() < 0 || rect.GetHeight() < 0)
   {
-    y_low = y1;
-    y_hi  = y2;
-  }
-  else
-  {
-    y_low = y2;
-    y_hi  = y1;
-  }
-
-  if (x1 < x2)
-  {
-    x_low = x1;
-    x_hi  = x2;
-  }
-  else
-  {
-    x_low = x2;
-    x_hi  = x1;
+    // invalid box
+    return VTK_ERROR;
   }
 
   // Must clear previous errors first.
@@ -1023,22 +1008,68 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     ;
   }
 
-  if (front)
+  // Let's determine if we're reading from an FBO.
+  bool resolveMSAA = false;
+
+  GLint frameBufferBinding = 0;
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &frameBufferBinding);
+  if (frameBufferBinding != 0)
   {
-    glReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
-  }
-  else
-  {
-    glReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
+    // looks like we're reading from an FBO. Let's see if it's using MSAA.
+    GLint samples = 0;
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
+    resolveMSAA = (samples > 0);
   }
 
   glDisable( GL_SCISSOR_TEST );
 
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-  glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
-               GL_UNSIGNED_BYTE, data);
 
+  glReadBuffer(static_cast<GLenum>(front ? this->GetFrontLeftBuffer() : this->GetBackLeftBuffer()));
+
+  if (resolveMSAA)
+  {
+    vtkNew<vtkOpenGLFramebufferObject> resolvedFBO;
+    resolvedFBO->SetContext(this);
+    resolvedFBO->SaveCurrentBindingsAndBuffers();
+    resolvedFBO->PopulateFramebuffer(rect.GetWidth(), rect.GetHeight(),
+      /* useTextures = */ true,
+      /* numberOfColorAttachments = */ 1,
+      /* colorDataType = */ VTK_UNSIGNED_CHAR,
+      /* wantDepthAttachment = */ false,
+      /* depthBitplanes = */ 0,
+      /* multisamples = */ 0);
+
+    // PopulateFramebuffer changes active read/write buffer bindings,
+    // hence we restore the read buffer bindings to read from the original
+    // frame buffer.
+    resolvedFBO->RestorePreviousBindingsAndBuffers(GL_READ_FRAMEBUFFER);
+
+    // Now blit to resolve the MSAA and get an anti-aliased rendering in
+    // resolvedFBO.
+    // Note: extents are (x-min, x-max, y-min, y-max).
+    const int srcExtents[4] = { rect.GetLeft(), rect.GetRight(), rect.GetBottom(), rect.GetTop() };
+    const int destExtents[4] = { 0, rect.GetWidth(), 0, rect.GetHeight() };
+    vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    // Now make the resolvedFBO the read buffer and read from it.
+    resolvedFBO->SaveCurrentBindingsAndBuffers(GL_READ_FRAMEBUFFER);
+    resolvedFBO->Bind(GL_READ_FRAMEBUFFER);
+    resolvedFBO->ActivateReadBuffer(0);
+
+    // read pixels from the resolvedFBO. Note, the resolvedFBO has different
+    // dimensions than the render window, hence different read extents.
+    glReadPixels(0, 0, rect.GetWidth(), rect.GetHeight(), glformat, gltype, data);
+
+    // restore bindings and release the resolvedFBO.
+    resolvedFBO->RestorePreviousBindingsAndBuffers();
+  }
+  else
+  {
+    glReadPixels(
+      rect.GetLeft(), rect.GetBottom(), rect.GetWidth(), rect.GetHeight(), glformat, gltype, data);
+  }
   if (glGetError() != GL_NO_ERROR)
   {
     return VTK_ERROR;
@@ -1047,7 +1078,6 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   {
     return VTK_OK;
   }
-
 }
 
 int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
@@ -1256,11 +1286,10 @@ float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
   width  = abs(x_hi - x_low) + 1;
   height = abs(y_hi - y_low) + 1;
 
-  float *data = new float[ (width*height*4) ];
-  this->GetRGBAPixelData(x1, y1, x2, y2, front, data);
-
-  return data;
-
+  float* fdata = new float[(width * height * 4)];
+  vtkRecti rect(x_low, y_low, width, height);
+  this->ReadPixels(rect, front, GL_RGBA, GL_FLOAT, fdata);
+  return fdata;
 }
 
 int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
@@ -1294,86 +1323,16 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   width  = abs(x_hi - x_low) + 1;
   height = abs(y_hi - y_low) + 1;
-
   int size = 4*width*height;
-
   if ( data->GetMaxId()+1 != size)
   {
     vtkDebugMacro("Resizing array.");
     data->SetNumberOfComponents(4);
     data->SetNumberOfValues(size);
   }
-  return this->GetRGBAPixelData(x1, y1, x2, y2, front, data->GetPointer(0));
 
-}
-
-int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
-                                            int front, float* data)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  int     width, height;
-
-  // set the current window
-  this->MakeCurrent();
-
-  if (y1 < y2)
-  {
-    y_low = y1;
-    y_hi  = y2;
-  }
-  else
-  {
-    y_low = y2;
-    y_hi  = y1;
-  }
-
-  if (x1 < x2)
-  {
-    x_low = x1;
-    x_hi  = x2;
-  }
-  else
-  {
-    x_low = x2;
-    x_hi  = x1;
-  }
-
-  // Error checking
-  // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR)
-  {
-    ;
-  }
-
-  if (front)
-  {
-    glReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
-  }
-  else
-  {
-    glReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
-  }
-
-  width  = abs(x_hi - x_low) + 1;
-  height = abs(y_hi - y_low) + 1;
-
-
-  // Turn of texturing in case it is on - some drivers have a problem
-  // getting / setting pixels with texturing enabled.
-  glDisable( GL_TEXTURE_2D );
-
-  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-  glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_FLOAT, data);
-
-  if (glGetError() != GL_NO_ERROR)
-  {
-    return VTK_ERROR;
-  }
-  else
-  {
-    return VTK_OK;
-  }
+  vtkRecti rect(x_low, y_low, width, height);
+  return this->ReadPixels(rect, front, GL_RGBA, GL_FLOAT, data->GetPointer(0));
 }
 
 void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
@@ -1515,10 +1474,10 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   width  = abs(x_hi - x_low) + 1;
   height = abs(y_hi - y_low) + 1;
 
-  unsigned char *data = new unsigned char[ (width*height)*4 ];
-  this->GetRGBACharPixelData(x1, y1, x2, y2, front, data);
-
-  return data;
+  unsigned char* ucdata = new unsigned char[(width * height) * 4];
+  vtkRecti rect(x_low, y_low, width, height);
+  this->ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, ucdata);
+  return ucdata;
 }
 
 int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
@@ -1561,82 +1520,10 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
     data->SetNumberOfComponents(4);
     data->SetNumberOfValues(size);
   }
-  return this->GetRGBACharPixelData(x1, y1, x2, y2, front,
-                                    data->GetPointer(0));
+
+  vtkRecti rect(x_low, y_low, width, height);
+  return this->ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, data->GetPointer(0));
 }
-
-int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
-                                                int x2, int y2,
-                                                int front,
-                                                unsigned char* data)
-{
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-  int     width, height;
-
-
-  // set the current window
-  this->MakeCurrent();
-
-
-  if (y1 < y2)
-  {
-    y_low = y1;
-    y_hi  = y2;
-  }
-  else
-  {
-    y_low = y2;
-    y_hi  = y1;
-  }
-
-
-  if (x1 < x2)
-  {
-    x_low = x1;
-    x_hi  = x2;
-  }
-  else
-  {
-    x_low = x2;
-    x_hi  = x1;
-  }
-
-
-  // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR)
-  {
-    ;
-  }
-
-  if (front)
-  {
-    glReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
-  }
-  else
-  {
-    glReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
-  }
-
-  width  = abs(x_hi - x_low) + 1;
-  height = abs(y_hi - y_low) + 1;
-
-  glDisable( GL_SCISSOR_TEST );
-
-  glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
-                data);
-
-  if (glGetError() != GL_NO_ERROR)
-  {
-    return VTK_ERROR;
-  }
-  else
-  {
-    return VTK_OK;
-  }
-
-}
-
 
 int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
                                                 vtkUnsignedCharArray *data,

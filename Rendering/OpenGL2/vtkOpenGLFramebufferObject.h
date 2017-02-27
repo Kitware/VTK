@@ -423,12 +423,8 @@ public:
    * need to ccreate an instance when transfering between attachments
    * in the default FBO.
    */
-  static
-  int Blit(
-        int srcExt[4],
-        int destExt[4],
-        unsigned int bits,
-        unsigned int mapping);
+  static int Blit(
+    const int srcExt[4], const int destExt[4], unsigned int bits, unsigned int mapping);
 
   /**
    * Download data from the read color attachment of the currently
