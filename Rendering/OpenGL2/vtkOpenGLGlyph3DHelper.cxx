@@ -339,7 +339,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderClip(
        "//VTK::Clip::Impl",
        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
        "    {\n"
-       "    clipDistances[planeNum] = dot(clipPlanes[planeNum], vertex);\n"
+       "    clipDistancesVSOutput[planeNum] = dot(clipPlanes[planeNum], vertex);\n"
        "    }\n");
   }
 
