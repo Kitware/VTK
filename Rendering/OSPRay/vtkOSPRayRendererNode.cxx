@@ -24,6 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkMapper.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -41,6 +42,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
 
 namespace ospray {
   namespace opengl {
@@ -173,6 +175,18 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, AMBIENT_SAMPLES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, COMPOSITE_ON_GL, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, RENDERER_TYPE, String);
 
+
+class vtkOSPRayRendererNodeInternals
+{
+  //todo: move the rest of the internal data here too
+public:
+  vtkOSPRayRendererNodeInternals() {};
+
+  ~vtkOSPRayRendererNodeInternals() {};
+
+  std::map<vtkActor *, vtkMapper *> LastMapperFor;
+};
+
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayRendererNode);
 
@@ -192,6 +206,7 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->AccumulateCount = 0;
   this->AccumulateTime = 0;
   this->AccumulateMatrix = vtkMatrix4x4::New();
+  this->Internal = new vtkOSPRayRendererNodeInternals();
 }
 
 //----------------------------------------------------------------------------
@@ -212,6 +227,7 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
     ospRelease(this->OFrameBuffer);
   }
   this->AccumulateMatrix->Delete();
+  delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
@@ -602,6 +618,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
           if (nac->GetRedrawMTime() > m)
           {
             m = nac->GetRedrawMTime();
+          }
+          if (this->Internal->LastMapperFor[nac] != nac->GetMapper())
+          {
+            // a check to ensure vtkPVLODActor restarts on LOD swap
+            this->Internal->LastMapperFor[nac] = nac->GetMapper();
+            canReuse = false;
           }
           nac = ac->GetNextActor();
         }
