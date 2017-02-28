@@ -103,71 +103,23 @@ void vtkIOSRenderWindow::DestroyWindow()
   this->SetRootWindow(NULL);
 }
 
-
-int vtkIOSRenderWindow::GetPixelData(int x1, int y1,
-                                     int x2, int y2,
-                                     int front, unsigned char* data)
+int vtkIOSRenderWindow::ReadPixels(
+  const vtkRecti& rect, int front, int glFormat, int glType, void* data)
 {
-  int     y_low, y_hi;
-  int     x_low, x_hi;
-
-  // set the current window
-  this->MakeCurrent();
-
-  if (y1 < y2)
+  if (glFormat != GL_RGB || glFormat != GL_UNSIGNED_BYTE)
   {
-    y_low = y1;
-    y_hi  = y2;
+    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data);
   }
-  else
-  {
-    y_low = y2;
-    y_hi  = y1;
-  }
-
-  if (x1 < x2)
-  {
-    x_low = x1;
-    x_hi  = x2;
-  }
-  else
-  {
-    x_low = x2;
-    x_hi  = x1;
-  }
-
-  // Must clear previous errors first.
-  while(glGetError() != GL_NO_ERROR)
-  {
-    ;
-  }
-
-  if (front)
-  {
-    glReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
-  }
-  else
-  {
-    glReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
-  }
-
-  glDisable( GL_SCISSOR_TEST );
-
-  // Calling pack alignment ensures that we can grab the any size window
-  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
   // iOS has issues with getting RGB so we get RGBA
-  int width = x_hi-x_low + 1;
-  int height = y_hi-y_low+1;
-  unsigned char *localData = new unsigned char[width*height*4];
-  glReadPixels(x_low, y_low, width, height, GL_RGBA,
-               GL_UNSIGNED_BYTE, localData);
+  unsigned char* uc4data = new unsigned char[rect.GetWidth() * rect.GetHeight() * 4];
+  int retVal = this->Superclass::ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, uc4data);
 
-  unsigned char *dPtr = data;
-  unsigned char *lPtr = localData;
-  for (int i = 0; i < height; i++)
+  unsigned char* dPtr = reinterpret_cast<unsigned char*>(data);
+  const unsigned char* lPtr = uc4data;
+  for (int i = 0, height = rect.GetHeight(); i < height; i++)
   {
-    for (int j = 0; j < width; j++)
+    for (int j = 0, width = rect.GetWidth(); j < width; j++)
     {
       *(dPtr++) = *(lPtr++);
       *(dPtr++) = *(lPtr++);
@@ -175,18 +127,8 @@ int vtkIOSRenderWindow::GetPixelData(int x1, int y1,
       lPtr++;
     }
   }
-
-  delete [] localData;
-
-  if (glGetError() != GL_NO_ERROR)
-  {
-    return VTK_ERROR;
-  }
-  else
-  {
-    return VTK_OK;
-  }
-
+  delete[] uc4data;
+  return retVal;
 }
 
 
