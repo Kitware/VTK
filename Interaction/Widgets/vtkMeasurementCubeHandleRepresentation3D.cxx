@@ -555,16 +555,14 @@ void vtkMeasurementCubeHandleRepresentation3D::ScaleIfNecessary(
   // outside of our bounds
   if (relativeArea > this->MaxRelativeCubeScreenArea)
   {
-    int n = (log(relativeArea/this->MaxRelativeCubeScreenArea) /
-             log(this->RescaleFactor));
+    int n = log(relativeArea/this->MaxRelativeCubeScreenArea);
     this->SideLength /= pow(this->RescaleFactor, n);
     this->SetUniformScale(this->SideLength);
     this->Modified();
   }
   else if (relativeArea < this->MinRelativeCubeScreenArea)
   {
-    int n = ceil(log(this->MinRelativeCubeScreenArea/relativeArea) /
-                 log(this->RescaleFactor));
+    int n = ceil(log(this->MinRelativeCubeScreenArea/relativeArea));
     this->SideLength *= pow(this->RescaleFactor,n);
     this->SetUniformScale(this->SideLength);
     this->Modified();
