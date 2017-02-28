@@ -26,10 +26,11 @@
 #include "vtkRendererNode.h"
 #include <vector> // for ivars
 
-class vtkRenderer;
 class vtkInformationIntegerKey;
 class vtkInformationStringKey;
 class vtkMatrix4x4;
+class vtkOSPRayRendererNodeInternals;
+class vtkRenderer;
 
 // ospray forward decs so that someone does not need to include ospray.h
 namespace osp {
@@ -186,6 +187,7 @@ protected:
   int AccumulateCount;
   vtkMTimeType AccumulateTime;
   vtkMatrix4x4 *AccumulateMatrix;
+  vtkOSPRayRendererNodeInternals *Internal;
 
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
