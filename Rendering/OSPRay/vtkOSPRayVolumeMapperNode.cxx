@@ -246,26 +246,35 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospRelease(tfAlphaData);
     }
 
+    ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 0.7f);
+    ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.03f);
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate
       int maxBound = std::max(dim[0],dim[1]);
       maxBound = std::max(maxBound,dim[2]);
+      float minSamplingRate = 0.07f; // lower for min adaptive sampling step
       if (maxBound < 1000)
       {
         float s = 1000.0f - maxBound;
-        s = (s/1000.0f*4.0f + 0.25f);
-        ospSet1f(this->OSPRayVolume, "samplingRate", s);
+        //float s_old = (s/1000.0f*4.0f + 0.25f);
+        float s_new = (s/1000.0f*(1.0f-minSamplingRate) + minSamplingRate);
+        ospSet1f(this->OSPRayVolume, "samplingRate", s_new);
+        ospSet1f(this->OSPRayVolume, "adaptiveMaxSamplingRate", s_new*2.f);
+        //cerr << s_new << " to " << s_new*2.f << " vs " << s_old << endl;
       }
       else
       {
-        ospSet1f(this->OSPRayVolume, "samplingRate", 0.25f);
+        ospSet1f(this->OSPRayVolume, "samplingRate", minSamplingRate);
       }
     }
     else
     {
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
     }
+    ospSet1f(OSPRayVolume, "adaptiveScalar", 15.f);
+    ospSet3f(OSPRayVolume, "specular",.1f,.1f,.1f); //hardcoded for now
+    ospSet1i(OSPRayVolume, "preIntegration", 0); //turn off preIntegration
 
     this->RenderTime = volNode->GetMTime();
     this->BuildTime.Modified();
