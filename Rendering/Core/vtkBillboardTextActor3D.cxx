@@ -114,8 +114,8 @@ FastDepthAwareCoordinateConverter(vtkRenderer *ren)
 
   this->NormalizedViewport[0] = std::max(this->Viewport[0], tileViewPort[0]);
   this->NormalizedViewport[1] = std::max(this->Viewport[1], tileViewPort[1]);
-  this->NormalizedViewport[2] = std::max(this->Viewport[2], tileViewPort[2]);
-  this->NormalizedViewport[3] = std::max(this->Viewport[3], tileViewPort[3]);
+  this->NormalizedViewport[2] = std::min(this->Viewport[2], tileViewPort[2]);
+  this->NormalizedViewport[3] = std::min(this->Viewport[3], tileViewPort[3]);
 
   size = ren->GetRenderWindow()->GetSize();
   this->DisplayOffset[0] = this->Viewport[0] * size[0] + 0.5;
