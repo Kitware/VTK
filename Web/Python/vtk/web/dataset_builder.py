@@ -1,7 +1,7 @@
 from vtk import *
 from vtk.web.camera import *
 from vtk.web.query_data_model import *
-
+from vtk.web import iteritems
 import json, os, math, gzip, shutil
 
 # Global helper variables
@@ -61,10 +61,10 @@ class DataSetBuilder(object):
         self.camera = None
         self.imageCapture = CaptureRenderWindow()
 
-        for key, value in metadata.iteritems():
+        for key, value in iteritems(metadata):
             self.dataHandler.addMetaData(key, value)
 
-        for key, value in sections.iteritems():
+        for key, value in iteritems(sections):
             self.dataHandler.addSection(key, value)
 
     def getDataHandler(self):
