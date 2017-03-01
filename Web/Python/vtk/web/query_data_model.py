@@ -4,6 +4,8 @@ Core Module for Web Base Data Generation
 
 import sys, os, json
 
+from vtk.web import iteritems
+
 class DataHandler(object):
     def __init__(self, basePath):
         self.__root = basePath
@@ -50,7 +52,7 @@ class DataHandler(object):
         newArgument = {}
         argName = kwargs['name']
         self.argOrder.append(argName)
-        for key, value in kwargs.iteritems():
+        for key, value in iteritems(kwargs):
             if key == 'priority':
                 self.priority.append([argName, value])
             elif key == 'values':
@@ -70,7 +72,7 @@ class DataHandler(object):
         """
         Update the arguments index
         """
-        for key, value in kwargs.iteritems():
+        for key, value in iteritems(kwargs):
             self.current[key] = value
 
     def removeData(self, name):
@@ -82,7 +84,7 @@ class DataHandler(object):
         """
         newData = { 'metadata': {} }
         argName = kwargs['name']
-        for key, value in kwargs.iteritems():
+        for key, value in iteritems(kwargs):
             if key == 'fileName':
                 if 'rootFile' in kwargs and kwargs['rootFile']:
                     newData['pattern'] = '{pattern}/%s' % value
@@ -107,7 +109,7 @@ class DataHandler(object):
                 self.data[name]['pattern'] = dataPattern
 
         keyValuePair = {}
-        for key, value in self.current.iteritems():
+        for key, value in iteritems(self.current):
             keyValuePair[key] = self.arguments[key]['values'][value]
 
         fullpath = os.path.join(self.__root, dataPattern.format(**keyValuePair))
@@ -161,11 +163,11 @@ class DataHandler(object):
         }
 
         # Add sections
-        for key, value in self.sections.iteritems():
+        for key, value in iteritems(self.sections):
             jsonData[key] = value
 
         # Add data
-        for key, value in self.data.iteritems():
+        for key, value in iteritems(self.data):
             jsonData['data'].append(value)
 
         filePathToWrite = os.path.join(self.__root, "index.json")
