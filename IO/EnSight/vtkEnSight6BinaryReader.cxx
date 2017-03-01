@@ -33,6 +33,16 @@
 #include <cctype>
 #include <string>
 
+#if defined(_WIN32)
+# define VTK_STAT_STRUCT struct _stat64
+# define VTK_STAT_FUNC _stat64
+#else
+// here, we're relying on _FILE_OFFSET_BITS defined in vtkWin32Header.h to help
+// us on POSIX without resorting to using stat64.
+# define VTK_STAT_STRUCT struct stat64
+# define VTK_STAT_FUNC stat64
+#endif
+
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -87,11 +97,11 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
 
   // Open the new file
   vtkDebugMacro(<< "Opening file " << filename);
-  struct stat fs;
-  if ( !stat( filename, &fs) )
+  VTK_STAT_STRUCT fs;
+  if ( !VTK_STAT_FUNC( filename, &fs) )
   {
     // Find out how big the file is.
-    this->FileSize = (int)(fs.st_size);
+    this->FileSize = static_cast<vtkTypeUInt64>(fs.st_size);
 
 #ifdef _WIN32
     this->IFile = new ifstream(filename, ios::in | ios::binary);
