@@ -366,7 +366,8 @@ protected:
   int OnScreenInitialized;
 
   // IOS seems to have issues with getting RGB data
-  int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data) VTK_OVERRIDE;
+  int ReadPixels(
+    const vtkRecti& rect, int front, int glFormat, int glType, void* data) VTK_OVERRIDE;
 
 private:
   vtkIOSRenderWindow(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
