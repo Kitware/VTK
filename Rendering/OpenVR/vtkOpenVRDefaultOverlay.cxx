@@ -20,7 +20,7 @@
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
-#include "vtkOPenVRRenderer.h"
+#include "vtkOpenVRRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTextureObject.h"
 
