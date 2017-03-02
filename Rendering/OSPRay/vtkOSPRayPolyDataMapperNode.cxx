@@ -874,7 +874,6 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
           {
             vtkosp::VToOPointNormals
               (vNormals, normals);
-            // numNormals = strip_index.size();  //crashes when strip_index > vNormals->GetNumberOfTuples()
             numNormals = vNormals->GetNumberOfTuples();
           }
         }
