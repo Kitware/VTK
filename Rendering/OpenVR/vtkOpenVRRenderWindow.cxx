@@ -47,6 +47,9 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 
 #include "vtkOpenGLError.h"
 
+#if !defined(_WIN32) || defined(__CYGWIN__)
+# define stricmp strcasecmp
+#endif
 
 // this internal class is used to load models
 // such as for the trackers and controllers and to
@@ -842,7 +845,7 @@ void vtkOpenVRRenderWindow::Initialize (void)
   {
     this->HMD = NULL;
     char buf[1024];
-    sprintf_s( buf, sizeof( buf ), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription( eError ) );
+    snprintf( buf, sizeof( buf ), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription( eError ) );
     SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL );
     return;
   }
@@ -855,7 +858,7 @@ void vtkOpenVRRenderWindow::Initialize (void)
     vr::VR_Shutdown();
 
     char buf[1024];
-    sprintf_s( buf, sizeof( buf ), "Unable to get render model interface: %s", vr::VR_GetVRInitErrorAsEnglishDescription( eError ) );
+    snprintf( buf, sizeof( buf ), "Unable to get render model interface: %s", vr::VR_GetVRInitErrorAsEnglishDescription( eError ) );
     SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL );
     return;
   }

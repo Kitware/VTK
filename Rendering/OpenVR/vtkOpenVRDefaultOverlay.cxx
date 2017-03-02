@@ -20,7 +20,7 @@
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
-#include "vtkOPenVRRenderer.h"
+#include "vtkOpenVRRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTextureObject.h"
 
@@ -39,7 +39,7 @@ void handleMotionFactor(vtkObject *caller, unsigned long eid,
     vtkOpenVRDefaultOverlay *ovl = static_cast<vtkOpenVRDefaultOverlay *>(caller);
     vtkOpenVRRenderWindow *win = static_cast<vtkOpenVRRenderWindow *>(calldata);
     vtkInteractorStyle3D *is = static_cast<vtkInteractorStyle3D *>(win->GetInteractor()->GetInteractorStyle());
-    int option = reinterpret_cast<int>(clientdata);
+    int option = *(reinterpret_cast<int*>(&clientdata));
     double mf = 0.1;
     switch (option)
     {
@@ -76,7 +76,7 @@ void handleScaleFactor(vtkObject *caller, unsigned long eid,
     vtkOpenVRDefaultOverlay *ovl = static_cast<vtkOpenVRDefaultOverlay *>(caller);
     vtkOpenVRRenderWindow *win = static_cast<vtkOpenVRRenderWindow *>(calldata);
     vtkInteractorStyle3D *is = static_cast<vtkInteractorStyle3D *>(win->GetInteractor()->GetInteractorStyle());
-    int option = reinterpret_cast<int>(clientdata);
+    int option = *(reinterpret_cast<int*>(&clientdata));
     double mf = 1.0;
     switch (option)
     {
@@ -100,7 +100,7 @@ void handleSaveCamera(vtkObject *caller, unsigned long eid,
   if (eid == vtkCommand::LeftButtonReleaseEvent)
   {
     vtkOpenVRDefaultOverlay *ovl = static_cast<vtkOpenVRDefaultOverlay *>(caller);
-    int option = reinterpret_cast<int>(clientdata);
+    int option = *(reinterpret_cast<int*>(&clientdata));
 
     std::ostringstream s;
     s << "Really save the camera pose into slot " << option << " ?";
@@ -119,7 +119,7 @@ void handleLoadCamera(vtkObject *caller, unsigned long eid,
   {
     vtkOpenVRDefaultOverlay *ovl = static_cast<vtkOpenVRDefaultOverlay *>(caller);
     ovl->ReadCameraPoses();
-    int option = reinterpret_cast<int>(clientdata);
+    int option = *(reinterpret_cast<int*>(&clientdata));
     ovl->LoadCameraPose(option-1);
   }
 }
@@ -130,7 +130,7 @@ void handleShowFloor(vtkObject *caller, unsigned long eid,
   if (eid == vtkCommand::LeftButtonReleaseEvent)
   {
     vtkOpenVRDefaultOverlay *ovl = static_cast<vtkOpenVRDefaultOverlay *>(caller);
-    int option = reinterpret_cast<int>(clientdata);
+    int option = *(reinterpret_cast<int*>(&clientdata));
     vtkOpenVRRenderWindow *win = static_cast<vtkOpenVRRenderWindow *>(calldata);
     vtkOpenVRRenderer *ren = static_cast<vtkOpenVRRenderer *>(
       win->GetRenderers()->GetItemAsObject(0));
@@ -159,7 +159,7 @@ void handleSetViewUp(vtkObject * /* caller */, unsigned long eid,
   if (eid == vtkCommand::LeftButtonReleaseEvent)
   {
     vtkOpenVRRenderWindow *win = static_cast<vtkOpenVRRenderWindow *>(calldata);
-    int option = reinterpret_cast<int>(clientdata);
+    int option = *(reinterpret_cast<int*>(&clientdata));
     switch (option)
     {
       case 0: win->SetInitialViewUp(-1,0,0); win->SetInitialViewDirection(0,1,0); break;
