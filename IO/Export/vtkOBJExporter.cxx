@@ -157,7 +157,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   tempd = prop->GetSpecularColor();
   fprintf(fpMtl,"Ks %g %g %g\n",tempd[0], tempd[1], tempd[2]);
   fprintf(fpMtl,"Ns %g\n",prop->GetSpecularPower());
-  fprintf(fpMtl,"Tr %g ", prop->GetOpacity());
+  fprintf(fpMtl,"d %g\n", prop->GetOpacity());
   fprintf(fpMtl,"illum 3\n\n");
 
   // get the mappers input and matrix
