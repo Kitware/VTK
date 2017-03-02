@@ -1960,6 +1960,8 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       {
         case ' ':
           continue;
+        case '\r':
+          continue;
         case '\n':
           // pop line, peek at next
           if (!this->ReadLine(line))
