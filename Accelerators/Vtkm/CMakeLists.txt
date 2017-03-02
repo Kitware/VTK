@@ -32,6 +32,7 @@ set(lib_srcs
 
 #needed to properly setup language wrappers
 set(headers
+  vtkmClip.h
   vtkmContour.h
   vtkmThreshold.h
   vtkmLevelOfDetail.h
@@ -41,6 +42,7 @@ set(headers
 
 #implementation of the algorithms for cpu accelerators
 set(cpu_accelerator_srcs
+  vtkmClip.cxx
   vtkmContour.cxx
   vtkmThreshold.cxx
   vtkmLevelOfDetail.cxx
@@ -54,6 +56,7 @@ set(cpu_accelerator_srcs
 
 #implementation of the algorithms for gpu accelerators
 set(cuda_accelerator_srcs
+  vtkmClip.cu
   vtkmContour.cu
   vtkmThreshold.cu
   vtkmLevelOfDetail.cu
