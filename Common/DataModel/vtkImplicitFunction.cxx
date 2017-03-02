@@ -117,7 +117,7 @@ void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input,
                                            vtkDataArray* output)
 {
 
-  // defend against uninitialized onput datasets.
+  // defend against uninitialized output datasets.
   output->SetNumberOfComponents(1);
   output->SetNumberOfTuples(input->GetNumberOfTuples());
 
