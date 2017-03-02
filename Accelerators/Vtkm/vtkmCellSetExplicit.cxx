@@ -70,6 +70,7 @@ namespace cont {
 
 //------------------------------------------------------------------------------
 void vtkmCellSetExplicitAOS::Fill(
+    vtkm::Id numberOfPoints,
     const vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag>&
         cellTypes,
     const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>&
@@ -80,7 +81,7 @@ void vtkmCellSetExplicitAOS::Fill(
   this->Shapes = cellTypes;
   this->Connectivity = connectivity;
   this->IndexOffsets = offsets;
-  this->NumberOfPoints = 0;
+  this->NumberOfPoints = numberOfPoints;
 }
 
 //------------------------------------------------------------------------------

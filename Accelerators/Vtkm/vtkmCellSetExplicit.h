@@ -39,17 +39,10 @@ namespace cont {
 class vtkmCellSetExplicitAOS : public CellSet
 {
 public:
-  vtkmCellSetExplicitAOS()
-    : CellSet(std::string()), Shapes(), Connectivity(), IndexOffsets(),
-      ReverseConnectivityBuilt(false),RConn(), RNumIndices(), RIndexOffsets(),
-      NumberOfPoints(0)
-  {
-  }
-
-  vtkmCellSetExplicitAOS(const std::string& name, vtkm::Id numPoints)
+  vtkmCellSetExplicitAOS(const std::string& name = std::string())
     : CellSet(name), Shapes(), Connectivity(), IndexOffsets(),
       ReverseConnectivityBuilt(false),RConn(), RNumIndices(), RIndexOffsets(),
-      NumberOfPoints(numPoints)
+      NumberOfPoints(0)
   {
   }
 
@@ -103,6 +96,7 @@ public:
   /// Assigns the array handles to the explicit connectivity. This is
   /// the way you can fill the memory from another system without copying
   void Fill(
+      vtkm::Id numberOfPoints,
       const vtkm::cont::ArrayHandle<vtkm::UInt8,
                                     tovtkm::vtkAOSArrayContainerTag>& cellTypes,
       const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>&

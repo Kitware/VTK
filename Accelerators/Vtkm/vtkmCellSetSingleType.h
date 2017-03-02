@@ -58,10 +58,10 @@ public:
   }
 
   template <typename CellShapeTag>
-  vtkmCellSetSingleType(CellShapeTag, const std::string& name, vtkm::Id numPoints)
+  vtkmCellSetSingleType(CellShapeTag, const std::string& name)
     : CellSet(name),
       NumberOfCells(0),
-      NumberOfPoints(numPoints),
+      NumberOfPoints(0),
       CellTypeAsId(CellShapeTag::Id),
       Connectivity(),
       ReverseConnectivityBuilt(false),
@@ -111,6 +111,7 @@ public:
 
   // This is the way you can fill the memory from another system without copying
   void Fill(
+      vtkm::Id numberOfPoints,
       const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>&
           connectivity);
 
