@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkPNMWriter);
 #undef close
 #endif
 
-void vtkPNMWriter::WriteFileHeader(ofstream *file,
+void vtkPNMWriter::WriteFileHeader(ostream *file,
                                    vtkImageData *cache,
                                    int wExt[6])
 {
@@ -58,7 +58,7 @@ void vtkPNMWriter::WriteFileHeader(ofstream *file,
 }
 
 
-void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
+void vtkPNMWriter::WriteFile(ostream *file, vtkImageData *data,
                              int extent[6], int wExtent[6])
 {
   int idx0, idx1, idx2;

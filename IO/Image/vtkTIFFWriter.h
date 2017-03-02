@@ -68,9 +68,9 @@ protected:
   vtkTIFFWriter();
   ~vtkTIFFWriter() override {}
 
-  void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]) override;
-  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) override;
-  void WriteFileTrailer(ofstream *, vtkImageData *) override;
+  void WriteFile(ostream *file, vtkImageData *data, int ext[6], int wExt[6]) override;
+  void WriteFileHeader(ostream *, vtkImageData *, int wExt[6]) override;
+  void WriteFileTrailer(ostream *, vtkImageData *) override;
 
   void* TIFFPtr;
   int Compression;

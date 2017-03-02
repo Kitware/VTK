@@ -52,9 +52,9 @@ protected:
 
   unsigned long MemoryLimit;
 
-  void RecursiveWrite(int dim, vtkImageData *region, vtkInformation* inInfo, ofstream *file) override;
+  void RecursiveWrite(int dim, vtkImageData *region, vtkInformation* inInfo, ostream *file) override;
   void RecursiveWrite(int dim, vtkImageData *cache,
-                              vtkImageData *data, vtkInformation* inInfo, ofstream *file) override
+                              vtkImageData *data, vtkInformation* inInfo, ostream *file) override
   {this->vtkImageWriter::RecursiveWrite(dim,cache,data,inInfo,file);};
 
   vtkPipelineSize *SizeEstimator;

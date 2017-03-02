@@ -22,13 +22,13 @@ vtkStandardNewMacro(vtkPostScriptWriter);
 
 #define VTK_MARGIN 0.95
 
-void vtkPostScriptWriter::WriteFileTrailer(ofstream *file,
+void vtkPostScriptWriter::WriteFileTrailer(ostream *file,
                                            vtkImageData *vtkNotUsed(cache))
 {
   *file << "\ngrestore\nshowpage\n%%%%Trailer\n";
 }
 
-void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
+void vtkPostScriptWriter::WriteFileHeader(ostream *file,
                                           vtkImageData *cache,
                                           int wExt[6])
 {
@@ -120,7 +120,7 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
 }
 
 
-void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
+void vtkPostScriptWriter::WriteFile(ostream *file, vtkImageData *data,
                                     int extent[6], int wExtent[6])
 {
   int idxC, idx0, idx1, idx2;

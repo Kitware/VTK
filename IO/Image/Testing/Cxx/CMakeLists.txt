@@ -75,6 +75,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestWriteToMemoryJPEG,TestWriteToMemory.cxx,NO_DATA NO_VALID NO_OUTPUT
     "test.jpeg")
 
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestWriteToMemoryBMP,TestWriteToMemory.cxx,NO_DATA NO_VALID NO_OUTPUT
+    "test.bmp")
+
 if (VTK_USE_LARGE_DATA)
   vtk_add_test_cxx(${vtk-module}CxxTests large_data_tests
     TestMRCReader,TestMRCReader.cxx,NO_OUTPUT

@@ -17,15 +17,30 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkUnsignedCharArray.h"
+
+#include <sstream>
 
 vtkStandardNewMacro(vtkBMPWriter);
+
+vtkCxxSetObjectMacro(vtkBMPWriter,Result,vtkUnsignedCharArray);
 
 vtkBMPWriter::vtkBMPWriter()
 {
   this->FileLowerLeft = 1;
+  this->Result = nullptr;
 }
 
-void vtkBMPWriter::WriteFileHeader(ofstream *file,
+vtkBMPWriter::~vtkBMPWriter()
+{
+  if (this->Result)
+  {
+    this->Result->Delete();
+    this->Result = nullptr;
+  }
+}
+
+void vtkBMPWriter::WriteFileHeader(ostream *file,
                                    vtkImageData *,
                                    int wExt[6])
 {
@@ -81,7 +96,7 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file,
 }
 
 
-void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
+void vtkBMPWriter::WriteFile(ostream *file, vtkImageData *data,
                              int extent[6], int wExtent[6])
 {
   int idx1, idx2;
@@ -176,8 +191,33 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   }
 }
 
+void vtkBMPWriter::MemoryWrite(
+  int dim,
+  vtkImageData *input,
+  int wExt[6],
+  vtkInformation*inInfo)
+{
+  std::ostringstream *oss;
+  oss = new std::ostringstream();
+
+  this->WriteFileHeader(oss, input, wExt);
+  this->RecursiveWrite(dim, input, inInfo, oss);
+
+  vtkUnsignedCharArray *r = vtkUnsignedCharArray::New();
+  r->SetNumberOfComponents(1);
+  size_t alen = oss->str().length();
+  r->SetNumberOfTuples(static_cast<vtkIdType>(alen));
+  unsigned char *buff = static_cast<unsigned char *>(r->GetVoidPointer(0));
+  memcpy(buff, oss->str().data(), alen);
+  this->SetResult(r);
+  r->Delete();
+  delete oss;
+}
+
 //----------------------------------------------------------------------------
 void vtkBMPWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Result: " << this->Result << "\n";
 }

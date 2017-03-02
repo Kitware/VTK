@@ -99,24 +99,32 @@ protected:
   char *InternalFileName;
   size_t InternalFileNameSize;
 
+  virtual void RecursiveWrite(int dim,
+                              vtkImageData *region,
+                              vtkInformation*inInfo,
+                              ostream *file);
+  virtual void RecursiveWrite(int dim,
+                              vtkImageData *cache,
+                              vtkImageData *data,
+                              vtkInformation* inInfo,
+                              ostream *file);
+  virtual void WriteFile(ostream *file, vtkImageData *data,
+                         int extent[6], int wExtent[6]);
+  virtual void WriteFileHeader(ostream *, vtkImageData *, int [6]) {}
+  virtual void WriteFileTrailer(ostream *, vtkImageData *) {}
+
+
   // Required for subclasses that need to prevent the writer
   // from touching the file system. The getter/setter are only
   // available in these subclasses.
   unsigned int WriteToMemory;
 
-  virtual void RecursiveWrite(int dim,
-                              vtkImageData *region,
-                              vtkInformation*inInfo,
-                              ofstream *file);
-  virtual void RecursiveWrite(int dim,
-                              vtkImageData *cache,
-                              vtkImageData *data,
-                              vtkInformation* inInfo,
-                              ofstream *file);
-  virtual void WriteFile(ofstream *file, vtkImageData *data,
-                         int extent[6], int wExtent[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageData *, int [6]) {}
-  virtual void WriteFileTrailer(ofstream *, vtkImageData *) {}
+  // subclasses that do write to memory can override this
+  // to implement the simple case
+  virtual void MemoryWrite(int,
+                           vtkImageData *,
+                           int [6],
+                           vtkInformation*) {};
 
   // This is called by the superclass.
   // This is the method you should override.

@@ -108,7 +108,7 @@ void vtkTIFFWriter::Write()
 }
 
 //----------------------------------------------------------------------------
-void vtkTIFFWriter::WriteFileHeader(ofstream *, vtkImageData *data, int wExt[6])
+void vtkTIFFWriter::WriteFileHeader(ostream *, vtkImageData *data, int wExt[6])
 {
   int dims[3];
   data->GetDimensions(dims);
@@ -237,7 +237,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *, vtkImageData *data, int wExt[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
+void vtkTIFFWriter::WriteFile(ostream *, vtkImageData *data,
                               int extent[6], int*)
 {
   // Make sure we actually have data.
@@ -396,7 +396,7 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
 }
 
 //----------------------------------------------------------------------------
-void vtkTIFFWriter::WriteFileTrailer(ofstream *, vtkImageData *)
+void vtkTIFFWriter::WriteFileTrailer(ostream *, vtkImageData *)
 {
   TIFF* tif = reinterpret_cast<TIFF*>(this->TIFFPtr);
   if( tif)
