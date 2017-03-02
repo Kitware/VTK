@@ -178,6 +178,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
       //
       // Send Volumetric data to OSPRay
+
       //
       ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
       double origin[3];
@@ -246,22 +247,27 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospRelease(tfAlphaData);
     }
 
-    ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 0.7f);
-    ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.03f);
+    ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 1.2f);
+    ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.01f);
+    ospSet1i(OSPRayVolume, "adaptiveSampling", 1); //turn off preIntegration
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate
-      int maxBound = std::max(dim[0],dim[1]);
-      maxBound = std::max(maxBound,dim[2]);
-      float minSamplingRate = 0.07f; // lower for min adaptive sampling step
-      if (maxBound < 1000)
+      int minBound = std::max(dim[0],dim[1]);
+      minBound = std::min(minBound,dim[2]);
+      float minSamplingRate = 0.075f; // lower for min adaptive sampling step
+      if (minBound < 100)
       {
-        float s = 1000.0f - maxBound;
-        //float s_old = (s/1000.0f*4.0f + 0.25f);
-        float s_new = (s/1000.0f*(1.0f-minSamplingRate) + minSamplingRate);
+        float s = (100.0f - minBound)/100.0f;
+        ospSet1f(this->OSPRayVolume, "samplingRate", s*6.f + 1.f);
+        ospSet1i(OSPRayVolume, "adaptiveSampling", 0); //turn off preIntegration
+      }
+      else if (minBound < 1000)
+      {
+        float s = std::min((900.0f - minBound)/1000.0f, 1.f);
+        float s_new = (s*s*s*(0.5f-minSamplingRate) + minSamplingRate);
         ospSet1f(this->OSPRayVolume, "samplingRate", s_new);
-        ospSet1f(this->OSPRayVolume, "adaptiveMaxSamplingRate", s_new*2.f);
-        //cerr << s_new << " to " << s_new*2.f << " vs " << s_old << endl;
+        ospSet1f(this->OSPRayVolume, "adaptiveMaxSamplingRate", 2.f);
       }
       else
       {
@@ -273,7 +279,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
     }
     ospSet1f(OSPRayVolume, "adaptiveScalar", 15.f);
-    ospSet3f(OSPRayVolume, "specular",.1f,.1f,.1f); //hardcoded for now
+    ospSet3f(OSPRayVolume, "specular",.05f,.05f,.05f); //hardcoded for now
     ospSet1i(OSPRayVolume, "preIntegration", 0); //turn off preIntegration
 
     this->RenderTime = volNode->GetMTime();
