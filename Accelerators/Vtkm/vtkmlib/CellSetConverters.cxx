@@ -52,50 +52,50 @@ vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
   {
   case VTK_LINE:
   {
-    CellSetType c(vtkm::CellShapeTagLine(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagLine(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_HEXAHEDRON:
   {
-    CellSetType c(vtkm::CellShapeTagHexahedron(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagHexahedron(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_QUAD:
   {
-    CellSetType c(vtkm::CellShapeTagQuad(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagQuad(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_TETRA:
   {
-    CellSetType c(vtkm::CellShapeTagTetra(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagTetra(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_TRIANGLE:
   {
-    CellSetType c(vtkm::CellShapeTagTriangle(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagTriangle(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_VERTEX:
   {
-    CellSetType c(vtkm::CellShapeTagVertex(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagVertex(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_WEDGE:
   {
-    CellSetType c(vtkm::CellShapeTagWedge(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagWedge(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_PYRAMID:
   {
-    CellSetType c(vtkm::CellShapeTagPyramid(), "cells", numberOfPoints);
-    c.Fill(handle);
+    CellSetType c(vtkm::CellShapeTagPyramid(), "cells");
+    c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   default:
@@ -128,8 +128,8 @@ vtkm::cont::DynamicCellSet Convert(vtkUnsignedCharArray* types,
   vtkm::cont::ArrayHandle<vtkm::UInt8, ArrayTag> thandle(tstorage);
   vtkm::cont::ArrayHandle<vtkIdType, ArrayTag> lhandle(lstorage);
 
-  vtkm::cont::vtkmCellSetExplicitAOS cellset("cells", numberOfPoints);
-  cellset.Fill(thandle, chandle, lhandle);
+  vtkm::cont::vtkmCellSetExplicitAOS cellset("cells");
+  cellset.Fill(numberOfPoints, thandle, chandle, lhandle);
   return vtkm::cont::DynamicCellSet(cellset);
 }
 

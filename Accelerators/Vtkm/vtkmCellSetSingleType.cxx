@@ -86,6 +86,7 @@ vtkm::IdComponent vtkmCellSetSingleType::DetermineNumberOfPoints() const
 
 //------------------------------------------------------------------------------
 void vtkmCellSetSingleType::Fill(
+    vtkm::Id numberOfPoints,
     const vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>&
         connectivity)
 {
@@ -94,6 +95,7 @@ void vtkmCellSetSingleType::Fill(
   this->NumberOfCells =
       connectivity.GetNumberOfValues() / (numberOfPointsPerCell + 1);
   this->Connectivity = connectivity;
+  this->NumberOfPoints = numberOfPoints;
 }
 
 //------------------------------------------------------------------------------
