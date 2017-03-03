@@ -16,6 +16,7 @@
 #define vtkmConfig_h
 
 //make sure we use 64bit id's just like vtk
+#include "vtkType.h"
 #ifdef VTK_USE_64BIT_IDS
 # define VTKM_USE_64BIT_IDS
 #endif
