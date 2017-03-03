@@ -221,6 +221,12 @@ int vtkDataReader::ReadLine(char result[256])
       this->IS->ignore(VTK_INT_MAX, '\n');
     }
   }
+  // remove '\r', if present.
+  size_t slen = strlen(result);
+  if (slen > 0 && result[slen-1] == '\r')
+  {
+    result[slen-1] = '\0';
+  }
   return 1;
 }
 
@@ -1959,6 +1965,8 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       switch (line[i])
       {
         case ' ':
+          continue;
+        case '\r':
           continue;
         case '\n':
           // pop line, peek at next

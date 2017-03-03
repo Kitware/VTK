@@ -36,6 +36,8 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 
+#include <vtksys/SystemTools.hxx>
+
 namespace {
 
 static vtkInformationDoubleKey *TestDoubleKey =
@@ -200,7 +202,7 @@ int TestLegacyArrayMetaData(int argc, char *argv[])
   testWriter->WriteToOutputStringOn();
   testReader->ReadFromInputStringOn();
 
-  // Test ASCII mode:
+  // Test ASCII mode: (string).
   testWriter->SetFileTypeToASCII();
   if (!testWriter->Write())
   {
@@ -220,7 +222,7 @@ int TestLegacyArrayMetaData(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  // Test binary mode:
+  // Test binary mode: (string)
   testWriter->SetFileTypeToBinary();
   if (!testWriter->Write())
   {
@@ -240,5 +242,56 @@ int TestLegacyArrayMetaData(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  if (!testing->GetTempDirectory())
+  {
+    std::cout << "No temporary directory specified. Skipping testing read/write from files."
+              << std::endl;
+    return EXIT_SUCCESS;
+  }
+
+  const std::string temp = testing->GetTempDirectory();
+  const std::string tfilename = temp + "/TestLegacyArrayMetaData.vtk";
+
+  testWriter->WriteToOutputStringOff();
+  testWriter->SetFileName(tfilename.c_str());
+  testReader->ReadFromInputStringOff();
+  testReader->SetFileName(tfilename.c_str());
+
+  vtksys::SystemTools::RemoveFile(tfilename);
+  // Test ASCII mode: (file).
+  testWriter->SetFileTypeToASCII();
+  if (!testWriter->Write())
+  {
+    std::cerr << "Write to file (ASCII) failed!" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  testReader->Update();
+  grid = testReader->GetOutput();
+  if (!verify(grid))
+  {
+    std::cerr << "ASCII mode test (file i/o) failed.\n";
+    return EXIT_FAILURE;
+  }
+
+  // Test binary mode: (file)
+  vtksys::SystemTools::RemoveFile(tfilename);
+  testWriter->SetFileTypeToBinary();
+  if (!testWriter->Write())
+  {
+    std::cerr << "Write to file (binary) failed!" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  testReader->Update();
+  grid = testReader->GetOutput();
+
+  if (!verify(grid))
+  {
+    std::cerr << "Binary mode test (file i/o) failed.\n";
+    return EXIT_FAILURE;
+  }
+
+  vtksys::SystemTools::RemoveFile(tfilename);
   return EXIT_SUCCESS;
 }
