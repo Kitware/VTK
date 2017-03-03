@@ -221,6 +221,12 @@ int vtkDataReader::ReadLine(char result[256])
       this->IS->ignore(VTK_INT_MAX, '\n');
     }
   }
+  // remove '\r', if present.
+  size_t slen = strlen(result);
+  if (slen > 0 && result[slen-1] == '\r')
+  {
+    result[slen-1] = '\0';
+  }
   return 1;
 }
 
