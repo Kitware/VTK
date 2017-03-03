@@ -189,12 +189,16 @@ void  vtkOpenVRRenderWindowInteractor::StartEventLoop()
 
 void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, vtkRenderer *ren)
 {
+  if (!renWin || !ren)
+  {
+    return;
+  }
   vr::IVRSystem *pHMD = renWin->GetHMD();
 
   if (!pHMD)
   {
-    vtkErrorMacro("failed to get HMD");
-    this->Done = true;
+    // try rendering to create the HMD connection
+    renWin->Render();
     return;
   }
 
