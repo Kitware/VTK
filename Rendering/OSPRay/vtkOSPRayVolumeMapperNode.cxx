@@ -253,8 +253,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate
-      int minBound = std::max(dim[0],dim[1]);
-      minBound = std::min(minBound,dim[2]);
+      int minBound = std::min(std::min(dim[0],dim[1]),dim[2]);
       float minSamplingRate = 0.075f; // lower for min adaptive sampling step
       if (minBound < 100)
       {
