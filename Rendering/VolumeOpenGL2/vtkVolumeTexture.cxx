@@ -569,7 +569,7 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
   // Cache the array's scalar range
   for (int n = 0; n < noOfComponents; ++n)
   {
-    double* range = this->Scalars->GetRange(n);
+    double* range = this->Scalars->GetFiniteRange(n);
     for (int i = 0; i < 2; ++i)
     {
       this->ScalarRange[n][i] = range[i];
