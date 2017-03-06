@@ -663,7 +663,7 @@ void vtkLookupTable::SetTable(vtkUnsignedCharArray *table)
     this->Table = table;
     this->Table->Register(this);
     this->NumberOfColors = this->Table->GetNumberOfTuples();
-    this->ResizeTableForSpecialColors();
+    this->BuildSpecialColors();
 
     // If InsertTime is not modified the array will be rebuilt.  So we
     // use the same approach that the SetTableValue function does.
