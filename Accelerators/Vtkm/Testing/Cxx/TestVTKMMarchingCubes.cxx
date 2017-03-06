@@ -47,6 +47,7 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   cubes->SetNumberOfContours(1);
   cubes->SetValue(0,50.5f);
   cubes->ComputeScalarsOn();
+  cubes->ComputeNormalsOn();
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(cubes->GetOutputPort());
@@ -68,6 +69,13 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
     }
+
+  if (!cubes->GetOutput()->GetPointData()->GetNormals())
+  {
+    std::cerr << "Output normals not set.\n";
+    return EXIT_FAILURE;
+  }
+
   return (!retVal);
 }
 

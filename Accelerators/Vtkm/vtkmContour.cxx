@@ -163,6 +163,13 @@ int vtkmContour::RequestData(vtkInformation* request,
     }
 
   }
+
+  if (this->ComputeNormals)
+  {
+    output->GetPointData()->SetActiveAttribute(
+          filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
+  }
+
   // we got this far, everything is good
   return 1;
 }
