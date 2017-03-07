@@ -16,8 +16,8 @@
  * @class   vtkPolyDataCollection
  * @brief   maintain a list of polygonal data objects
  *
- * vtkPolyDataCollection is an object that creates and manipulates lists of
- * datasets of type vtkPolyData.
+ * vtkPolyDataCollection is an object that creates and manipulates ordered
+ * lists of datasets of type vtkPolyData.
  *
  * @sa
  * vtkDataSetCollection vtkCollection
@@ -39,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add a poly data to the list.
+   * Add a poly data to the bottom of the list.
    */
   void AddItem(vtkPolyData *pd)
   {

@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkLightCollection
- * @brief   a list of lights
+ * @brief   an ordered list of lights
  *
  * vtkLightCollection represents and provides methods to manipulate a list of
- * lights (i.e., vtkLight and subclasses). The list is unsorted and duplicate
+ * lights (i.e., vtkLight and subclasses). The list is ordered and duplicate
  * entries are not prevented.
  *
  * @sa
@@ -40,7 +40,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add a light to the list.
+   * Add a light to the bottom of the list.
    */
   void AddItem(vtkLight *a);
 

@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkIdListCollection
- * @brief   maintain an unordered list of dataarray objects
+ * @brief   maintain an ordered list of IdList objects
  *
  * vtkIdListCollection is an object that creates and manipulates lists of
- * datasets. See also vtkCollection and subclasses.
+ * IdLists. See also vtkCollection and subclasses.
 */
 
 #ifndef vtkIdListCollection_h
@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkIdListCollection,vtkCollection);
 
   /**
-   * Add a dataset to the list.
+   * Add an IdList to the bottom of the list.
    */
   void AddItem(vtkIdList *ds)
   {
@@ -43,13 +43,13 @@ public:
   }
 
   /**
-   * Get the next dataset in the list.
+   * Get the next IdList in the list.
    */
   vtkIdList *GetNextItem() {
     return static_cast<vtkIdList *>(this->GetNextItemAsObject());};
 
   /**
-   * Get the ith dataset in the list.
+   * Get the ith IdList in the list.
    */
   vtkIdList *GetItem(int i) {
     return static_cast<vtkIdList *>(this->GetItemAsObject(i));};

@@ -78,7 +78,7 @@ RemoveElement(vtkCollectionElement *elem, vtkCollectionElement *prev)
   this->DeleteElement(elem);
 }
 
-// Add an object to the list. Does not prevent duplicate entries.
+// Add an object to the bottom of the list. Does not prevent duplicate entries.
 void vtkCollection::AddItem(vtkObject *a)
 {
   vtkCollectionElement *elem;

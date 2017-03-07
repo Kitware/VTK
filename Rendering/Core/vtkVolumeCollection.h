@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkVolumeCollection
- * @brief   a list of volumes
+ * @brief   an ordered list of volumes
  *
  * vtkVolumeCollection represents and provides methods to manipulate a
- * list of volumes (i.e., vtkVolume and subclasses). The list is unsorted
+ * list of volumes (i.e., vtkVolume and subclasses). The list is ordered
  * and duplicate entries are not prevented.
  *
  * @sa
@@ -40,7 +40,7 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add a Volume to the list.
+   * Add a Volume to the bottom of the list.
    */
   void AddItem(vtkVolume *a)
     { this->vtkCollection::AddItem(a); }

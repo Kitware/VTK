@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkCullerCollection
- * @brief   a list of Cullers
+ * @brief   an ordered list of Cullers
  *
  * vtkCullerCollection represents and provides methods to manipulate a list
- * of Cullers (i.e., vtkCuller and subclasses). The list is unsorted and
+ * of Cullers (i.e., vtkCuller and subclasses). The list is ordered and
  * duplicate entries are not prevented.
  *
  * @sa
@@ -39,7 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add an Culler to the list.
+   * Add an Culler to the bottom of the list.
    */
   void AddItem(vtkCuller *a)
   {

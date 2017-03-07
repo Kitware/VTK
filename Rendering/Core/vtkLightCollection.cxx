@@ -21,7 +21,7 @@
 
 vtkStandardNewMacro(vtkLightCollection);
 
-// Add a light to the list.
+// Add a light to the bottom of the list.
 void vtkLightCollection::AddItem(vtkLight *a)
 {
   this->vtkCollection::AddItem(a);

@@ -17,7 +17,7 @@
  * @brief   maintain a list of structured points data objects
  *
  * vtkStructuredPointsCollection is an object that creates and manipulates
- * lists of structured points datasets. See also vtkCollection and
+ * ordered lists of structured points datasets. See also vtkCollection and
  * subclasses.
 */
 
@@ -36,7 +36,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add a pointer to a vtkStructuredPoints to the list.
+   * Add a pointer to a vtkStructuredPoints to the bottom of the list.
    */
   void AddItem(vtkStructuredPoints *ds)
   {
