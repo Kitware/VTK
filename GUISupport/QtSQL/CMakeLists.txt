@@ -45,4 +45,4 @@ if(VTK_LIBRARY_PROPERTIES)
   set_target_properties(${vtk-module} PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 endif()
 
-vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${QT_LIBRARIES})
+vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
