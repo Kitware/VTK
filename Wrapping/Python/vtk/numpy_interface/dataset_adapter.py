@@ -72,6 +72,7 @@ import sys
 from vtk import buffer_shared
 from vtk.util import numpy_support
 from vtk.vtkCommonDataModel import vtkDataObject
+from vtk.vtkCommonCore import vtkWeakReference
 import weakref
 
 if sys.hexversion < 0x03000000:
@@ -275,10 +276,9 @@ class VTKArray(numpy.ndarray):
         obj.Association = ArrayAssociation.FIELD
         # add the new attributes to the created instance
         obj.VTKObject = array
-        # if dataset:
-        #     import weakref
-        #     obj.DataSet = weakref.ref(dataset)
-        obj.DataSet = dataset
+        if dataset:
+            obj._dataset = vtkWeakReference()
+            obj._dataset.Set(dataset.VTKObject)
         # Finally, we must return the newly created object:
         return obj
 
@@ -316,6 +316,34 @@ class VTKArray(numpy.ndarray):
             return out_arr[()]
         else:
             return numpy.ndarray.__array_wrap__(self, out_arr, context)
+
+    @property
+    def DataSet(self):
+        """
+        Get the dataset this array is associated with. The reference to the
+        dataset is held through a vtkWeakReference to ensure it doesn't prevent
+        the dataset from being collected if necessary.
+        """
+        if hasattr(self, '_dataset') and self._dataset and self._dataset.Get():
+            return WrapDataObject(self._dataset.Get())
+
+        return  None
+
+    @DataSet.setter
+    def DataSet(self, dataset):
+        """
+        Set the dataset this array is associated with. The reference is held
+        through a vtkWeakReference.
+        """
+        # Do we have dataset to store
+        if dataset and dataset.VTKObject:
+            # Do we need to create a vtkWeakReference
+            if not hasattr(self, '_dataset') or self._dataset is None:
+                self._dataset = vtkWeakReference()
+
+            self._dataset.Set(dataset.VTKObject)
+        else:
+            self._dataset = None
 
 class VTKNoneArrayMetaClass(type):
     def __new__(mcs, name, parent, attr):
