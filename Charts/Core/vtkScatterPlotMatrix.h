@@ -80,6 +80,11 @@ public:
   virtual bool SetActivePlot(const vtkVector2i& position);
 
   /**
+   * Reset ActivePlotSet flag and call superclass method
+   */
+  virtual void SetSize(const vtkVector2i& size) VTK_OVERRIDE;
+
+  /**
    * Get the position of the active plot.
    */
   virtual vtkVector2i GetActivePlot();
@@ -450,6 +455,9 @@ protected:
 
   // The position of the active plot (defaults to 0, 1).
   vtkVector2i ActivePlot;
+
+  // A flag to show if the ActivePlot vector is valid or not
+  bool ActivePlotValid;
 
   // Weakly owned input data for the scatter plot matrix.
   vtkSmartPointer<vtkTable> Input;

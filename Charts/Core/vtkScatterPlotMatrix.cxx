@@ -363,6 +363,7 @@ vtkScatterPlotMatrix::vtkScatterPlotMatrix()
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleProperties->SetFontSize(12);
   this->SelectionMode = vtkContextScene::SELECTION_NONE;
+  this->ActivePlotValid = false;
 }
 
 vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
@@ -414,6 +415,7 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
   {
     // The supplied index is valid (in the lower quadrant).
     this->ActivePlot = pos;
+    this->ActivePlotValid = true;
 
     // Invoke an interaction event, to let observers know something changed.
     this->InvokeEvent(vtkCommand::AnnotationChangedEvent);
@@ -1467,7 +1469,10 @@ void vtkScatterPlotMatrix::UpdateLayout()
           }
 
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
-        this->SetActivePlot(vtkVector2i(0, n - 2));
+        if (!this->ActivePlotValid)
+        {
+          this->SetActivePlot(vtkVector2i(0, n - 2));
+        }
         }
       // Only show bottom axis label for bottom plots
       if (j > 0)
@@ -1836,6 +1841,16 @@ void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
   }
 
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkScatterPlotMatrix::SetSize(const vtkVector2i &size)
+{
+  if (this->Size.GetX() != size.GetX() || this->Size.GetY() != size.GetY())
+  {
+    this->ActivePlotValid = false;
+  }
+  this->Superclass::SetSize(size);
 }
 
 //----------------------------------------------------------------------------
