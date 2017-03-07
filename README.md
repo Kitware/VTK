@@ -71,7 +71,7 @@ VTK supports the following compilers:
 
 VTK supports the following operating systems:
 1. Windows Vista or newer
-2. Mac OS X 10.6.8 or newer
+2. Mac OS X 10.7 or newer
 3. Linux (ex: Ubuntu 12.04 or newer, Debian 4 or newer)
 
 Contributing

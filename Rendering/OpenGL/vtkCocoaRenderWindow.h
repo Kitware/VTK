@@ -18,8 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  *
  * vtkCocoaRenderWindow is a concrete implementation of the abstract
- * class vtkOpenGLRenderWindow. It is only available on Mac OS X 10.6
- * and later.
+ * class vtkOpenGLRenderWindow. It is only available on Mac OS X.
  * To use this class, build VTK with VTK_USE_COCOA turned ON (this is
  * the default).
  * This class can be used by 32 and 64 bit processes, and either in

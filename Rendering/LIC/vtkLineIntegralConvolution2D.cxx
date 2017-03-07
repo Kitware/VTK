@@ -1050,17 +1050,8 @@ bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
     return false;
   }
 
-#if defined(__APPLE__) || defined(_WIN32)
-  vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
-#endif
-#if defined(__APPLE__)
-  if (manager->DriverIsNvidia() && manager->DriverVersionIs(1,6))
-  {
-    // Mac OS X 10.6 GLSL doesn't support array initializer
-    return false;
-  }
-#endif
 #if defined(_WIN32)
+  vtkOpenGLExtensionManager *manager = context->GetExtensionManager();
   if ( manager->DriverIsIntel() && manager->DriverGLRendererHas("HD Graphics")
     && !manager->GetIgnoreDriverBugs("Intel HD 2k,3k,4k incorrect results") )
   {
