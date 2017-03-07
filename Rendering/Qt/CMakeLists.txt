@@ -19,7 +19,12 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
 else()
   # import Qt4 build settings
   find_package(Qt4 REQUIRED QtCore QtGui QUIET)
-  include(${QT_USE_FILE})
+  include_directories(${QT_INCLUDES})
+  add_definitions(${QT_DEFINITIONS})
+  set(QT_LIBRARIES Qt4::QtCore Qt4::QtGui)
+
+  # When this module is loaded by an app, load Qt too.
+  vtk_module_export_code_find_package(Qt4 COMPONENTS QtCore QtGui)
 endif()
 
 vtk_module_library(${vtk-module} ${LibSrcs})

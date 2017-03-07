@@ -27,9 +27,14 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
   vtk_module_export_code_find_package(Qt5 COMPONENTS Sql Widgets)
 else()
   # import Qt4 build settings
-  set(QT_USE_QTSQL 1)
-  find_package(Qt4 REQUIRED QUIET)
-  include(${QT_USE_FILE})
+  find_package(Qt4 REQUIRED QtCore QtSql QUIET)
+  include_directories(${QT_INCLUDES})
+  add_definitions(${QT_DEFINITIONS})
+
+  set(QT_LIBRARIES Qt4::QtCore Qt4::QtSql)
+
+  # When this module is loaded by an app, load Qt too.
+  vtk_module_export_code_find_package(Qt4 COMPONENTS QtCore QtSql)
 endif()
 
 set(${vtk-module}_NO_HeaderTest 1)
@@ -40,4 +45,4 @@ if(VTK_LIBRARY_PROPERTIES)
   set_target_properties(${vtk-module} PROPERTIES ${VTK_LIBRARY_PROPERTIES})
 endif()
 
-vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${QT_LIBRARIES})
+vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
