@@ -231,7 +231,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
 
 
   this->FunctionTextMapper = vtkSmartPointer<vtkTextMapper>::New();
-  this->FunctionTextMapper->SetInput("No functino selected.");
+  this->FunctionTextMapper->SetInput("No function selected.");
   this->FunctionTextMapper->GetTextProperty()->SetJustificationToLeft();
   this->FunctionTextMapper->GetTextProperty()->SetVerticalJustificationToTop();
 //  this->FunctionTextActor->SetInput("No function selected.");

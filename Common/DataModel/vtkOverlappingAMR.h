@@ -178,7 +178,7 @@ public:
   //@{
   /**
    * Check whether the data set is internally consistent, e.g.
-   * whether the meta data and acutal data blocks match.
+   * whether the meta data and actual data blocks match.
    * Incorrectness will be reported as error messages
    */
   void Audit();

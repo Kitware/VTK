@@ -1486,7 +1486,7 @@ void vtkXdmf3DataSet::CopyShape(
         if (unknownCell)
         {
           // encountered an unknown cell.
-          cerr << "Unkown cell type." << endl;
+          cerr << "Unknown cell type." << endl;
           vCells->Delete();
           delete [] cell_types;
           vtkXdmf3DataSet_ReleaseIfNeeded(xTopology.get(), freeMe);

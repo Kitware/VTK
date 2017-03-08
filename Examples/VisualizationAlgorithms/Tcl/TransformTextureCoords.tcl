@@ -440,7 +440,7 @@ pack $gui -side top -anchor s -fill x -expand yes
 
 #
 # We set the window manager (wm command) so that it registers a
-# command to handle the WM_DELETE_WINDOW protocal request..
+# command to handle the WM_DELETE_WINDOW protocol request..
 #
 wm title . "Texture mapper/transform demo"
 wm protocol . WM_DELETE_WINDOW ::vtk::cb_exit

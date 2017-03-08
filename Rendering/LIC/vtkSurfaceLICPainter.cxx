@@ -2369,7 +2369,7 @@ bool vtkSurfaceLICPainter::NeedToRenderGeometry(
 //----------------------------------------------------------------------------
 bool vtkSurfaceLICPainter::NeedToUpdateCommunicator()
 {
-  // no comm or externally modfied paramters
+  // no comm or externally modfied parameters
   if ( this->Internals->CommunicatorNeedsUpdate
     || this->Internals->ContextNeedsUpdate
     || this->Internals->OutputDataNeedsUpdate
@@ -2576,7 +2576,7 @@ void vtkSurfaceLICPainter::RenderInternal(
     #endif
     // create a communicator that contains only ranks
     // that have visible data. In parallel this is a
-    // collective operation accross all ranks. In
+    // collective operation across all ranks. In
     // serial this is a no-op.
     this->CreateCommunicator();
     #ifdef vtkSurfaceLICPainterTIME

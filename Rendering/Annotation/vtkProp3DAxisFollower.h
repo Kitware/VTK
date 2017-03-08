@@ -105,7 +105,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
  //@{
  /**
   * Set view angle LOD threshold (0.0 - 1.0).This determines at what view
-  * angle to geometry will make the geometry not visibile.
+  * angle to geometry will make the geometry not visible.
   * Default is 0.34.
   */
  vtkSetClampMacro(ViewAngleLODThreshold, double, 0.0, 1.0);

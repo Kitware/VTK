@@ -119,7 +119,7 @@ public:
   //@{
   /**
    * Set/Get the rendering context. A reference is not explicity held,
-   * thus refernce to the context must be held externally.
+   * thus reference to the context must be held externally.
    */
   void SetContext(vtkRenderWindow *context);
   vtkRenderWindow *GetContext();

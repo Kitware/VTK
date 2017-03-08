@@ -1895,7 +1895,7 @@ static int preproc_include_file(
   const char *save_filename;
   int save_external;
 
-  /* check to see if the file has aleady been included */
+  /* check to see if the file has already been included */
   const char *path = preproc_find_include_file(info, filename, system_first, 1);
   if (path != 0)
   {

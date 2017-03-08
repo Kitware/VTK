@@ -89,7 +89,7 @@ class METAIO_EXPORT MetaBlob : public MetaObject
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the blob
+    //       Number of points which compose the blob
     void  NPoints(int npnt);
     int   NPoints(void) const;
 

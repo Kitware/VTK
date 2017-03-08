@@ -215,22 +215,22 @@ class METAIO_EXPORT MetaMesh : public MetaObject
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the mesh
+    //       Number of points which compose the mesh
     int   NPoints(void) const;
 
     //    NCells(...)
     //       Required Field
-    //       Number of cells wich compose the mesh
+    //       Number of cells which compose the mesh
     int   NCells(void) const;
 
     //    NCellLinks(...)
     //       Required Field
-    //       Number of cellLinks wich compose the mesh
+    //       Number of cellLinks which compose the mesh
     int   NCellLinks(void) const;
 
     //    NCellTypes(...)
     //       Required Field
-    //       Number of celles wich compose the mesh
+    //       Number of celles which compose the mesh
     void  NCellTypes(int ncelltypes);
     int   NCellTypes(void) const;
 

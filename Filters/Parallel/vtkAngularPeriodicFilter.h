@@ -23,8 +23,8 @@
  * data arrays from an original data array.
  * The generated dataset is of the same type than the input (float or double).
  * To compute the rotation this filter needs
- * i) a number of periods, wich can be the maximum, i.e. a full period,
- * ii) an angle, wich can be fetched from a field data array in radian or directly
+ * i) a number of periods, which can be the maximum, i.e. a full period,
+ * ii) an angle, which can be fetched from a field data array in radian or directly
  * in degrees; iii) the axis (X, Y or Z) and the center of rotation.
  * Point coordinates are transformed, as well as all vectors (3-components) and
  * tensors (9 components) in points and cell data arrays.

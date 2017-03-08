@@ -38,7 +38,7 @@
  * with the same composite layout of surface input if any, showing all
  *     interactions between particles and the surface input
  *
- * It has a parallel implementation wich streams particle between domains.
+ * It has a parallel implementation which streams particle between domains.
  *
  * The most important parameters of this filter is it's integrationModel.
  * Only one integration model implementation exist currently in ParaView

@@ -830,7 +830,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
       // where C = P3 - P1.
       VEC3SUB(C, P3, P1);
       // When we project the lines to the xy plane (which we do by throwing
-      // away the z value), we have two equations and two unkowns.  The
+      // away the z value), we have two equations and two unknowns.  The
       // following are the solutions for alpha and beta.
       float denominator = (A[0]*B[1]-A[1]*B[0]);
       if (denominator == 0) continue;   // Must be degenerated tetrahedra.

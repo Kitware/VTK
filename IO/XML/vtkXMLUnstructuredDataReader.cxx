@@ -672,7 +672,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   if (this->Piece > this->StartPiece && outCells->GetData())
   {
     // Refer to BUG #12202 and BUG #12690. The (this->Piece > this->StartPiece)
-    // check ensures that when we are reading mulitple timesteps, we don't end
+    // check ensures that when we are reading multiple timesteps, we don't end
     // up appending to existing cell arrays infinitely. An earlier version of
     // the fix assumed that vtkXMLUnstructuredDataReader read only 1 piece at a
     // time, which was incorrect (and hence  BUG #12690).

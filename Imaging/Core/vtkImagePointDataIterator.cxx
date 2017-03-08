@@ -117,7 +117,7 @@ void vtkImagePointDataIterator::Initialize(
       (this->Extent[2] - dataExtent[2])*this->RowIncrement +
       (this->Extent[4] - dataExtent[4])*this->SliceIncrement;
 
-    // Compute the end increments (continous increments).
+    // Compute the end increments (continuous increments).
     this->RowEndIncrement = this->RowIncrement - rowSpan;
     this->SliceEndIncrement = this->RowEndIncrement +
       this->SliceIncrement - this->RowIncrement*sliceSpan;

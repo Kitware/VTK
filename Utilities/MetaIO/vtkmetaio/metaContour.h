@@ -101,7 +101,7 @@ public:
 
   //    NPoints(...)
   //       Required Field
-  //       Number of points wich compose the tube
+  //       Number of points which compose the tube
   int   NControlPoints(void) const;
 
   //    ControlPointDim(...)

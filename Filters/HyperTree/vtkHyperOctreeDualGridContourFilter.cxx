@@ -313,7 +313,7 @@ void vtkHyperOctreeDualGridContourFilter::TraverseNeighborhoodRecursively(
 }
 
 //----------------------------------------------------------------------------
-// Contour the cell assocaited with the center point.
+// Contour the cell associated with the center point.
 // if it has not already been contoured.
 void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
   vtkHyperOctreeLightWeightCursor* neighborhood,
