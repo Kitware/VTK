@@ -816,7 +816,7 @@ int vtkNrrdReader::ReadDataAscii(vtkImageData *output)
                                                         output,
                                                         (VTK_TT *)(outBuffer)));
     default:
-      vtkErrorMacro("Unkown data type");
+      vtkErrorMacro("Unknown data type");
       return 0;
   }
 

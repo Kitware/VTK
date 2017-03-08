@@ -133,7 +133,7 @@ void vtkOpenGLImageGradient::ThreadedRequestData(
   vtkOpenGLGradientCB cb;
   cb.Spacing = inData[0][0]->GetSpacing();
 
-  // build the fragement shader for 2D or 3D gradient
+  // build the fragment shader for 2D or 3D gradient
   std::string fragShader =
     "//VTK::System::Dec\n"
     "varying vec2 tcoordVSOutput;\n"

@@ -22,7 +22,7 @@
  * Generate periodic dataset by transforming points, vectors, tensors
  * data arrays from an original data array.
  * The generated dataset is of the same type than the input (float or double).
- * This is an abstract class wich do not implement the actual transformation.
+ * This is an abstract class which do not implement the actual transformation.
  * Point coordinates are transformed, as well as all vectors (3-components) and
  * tensors (9 components) in points and cell data arrays.
  * The generated multiblock will have the same tree architecture than the input,

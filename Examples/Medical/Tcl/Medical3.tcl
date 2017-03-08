@@ -84,7 +84,7 @@ vtkActor outline
 
 # Now we are creating three orthogonal planes passing through the
 # volume. Each plane uses a different texture map and therefore has
-# diferent coloration.
+# different coloration.
 
 # Start by creatin a black/white lookup table.
 vtkLookupTable bwLut

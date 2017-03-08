@@ -318,7 +318,7 @@ public:
    * xcur is the current particle variables
    * xnext is the next particle variable
    * t is the current integration time
-   * delT is the timeStep, wich is also an output for adaptative algorithm
+   * delT is the timeStep, which is also an output for adaptative algorithm
    * delTActual is the time step output corresponding to the actual movement of the particle
    * minStep is the minimum step time for adaptative algorithm
    * maxStep is the maximum step time for adaptative algorithm

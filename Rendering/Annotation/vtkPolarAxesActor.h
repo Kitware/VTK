@@ -780,7 +780,7 @@ protected:
   std::string FindExponentAndAdjustValues(std::list<double>& valuesList);
 
   /**
-   * Yield a string array whith the float part of each values. 0.01e-2 -> 0.0001
+   * Yield a string array with the float part of each values. 0.01e-2 -> 0.0001
    */
   void GetSignificantPartFromValues(vtkStringArray* valuesStr, std::list<double>& valuesList);
 
@@ -978,7 +978,7 @@ protected:
   int EnableViewAngleLOD;
 
   /**
-   * This determines at what view angle to geometry will make the geometry not visibile.
+   * This determines at what view angle to geometry will make the geometry not visible.
    * Default is 0.3.
    */
   double ViewAngleLODThreshold;

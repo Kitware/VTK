@@ -24,7 +24,7 @@
  *
  *
  *
- * This class defines a VTK interface to an embedded GNU R intepreter instance.  An
+ * This class defines a VTK interface to an embedded GNU R interpreter instance.  An
  * instance of the R interpreter is created when this class is instantiated.  Additional
  * instances of this class will share access the same R interpreter.  The R interpreter will
  * be shutdown when the application using this class exits.

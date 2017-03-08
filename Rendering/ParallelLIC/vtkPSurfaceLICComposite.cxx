@@ -560,7 +560,7 @@ int vtkPSurfaceLICComposite::AllReduceVectorMax(
   }
 
   // since integration run's into other blocks data use the max of the
-  // block and it's neighbors for gaurd cell size computation
+  // block and it's neighbors for guard cell size computation
   vectorMax.resize(this->CommSize);
   for (int r=0; r<this->CommSize; ++r)
   {
@@ -904,7 +904,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
   if (this->NormalizeVectors)
   {
     // when normalizing velocity is always 1, all extents have the
-    // same number of gaurd cells.
+    // same number of guard cells.
     int ng
       = static_cast<int>(arc)
       + this->NumberOfEEGuardPixels
@@ -936,7 +936,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
   {
     // when not normailzing during integration we need max(V) on the LIC
     // decomp. Each domain has the potential to require a unique number
-    // of gaurd cells.
+    // of guard cells.
     vector<vector<float> > vectorMax;
     this->AllReduceVectorMax(
             this->BlockExts,
@@ -1127,7 +1127,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
   #endif
 
   // save the local decomp
-  // it's the valid region as no gaurd pixels were added
+  // it's the valid region as no guard pixels were added
   this->CompositeExt = newExts[this->CommRank];
 
   int id=0;
@@ -1181,7 +1181,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
   vtkPixelExtentIO::Write(this->CommRank, "LICDecomp.vtk", newExts);
   #endif
 
-  // add gaurd cells to the new decomp that prevent artifacts
+  // add guard cells to the new decomp that prevent artifacts
   deque<deque<vtkPixelExtent> > guardExts;
   deque<deque<vtkPixelExtent> > disjointGuardExts;
   this->AddGuardPixels(newExts, guardExts, disjointGuardExts, vectors);
@@ -1206,7 +1206,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float *vectors)
     << "numberOfExtents=" << nNewExts << endl;
   #endif
 
-  // save the local decomp with gaurd cells
+  // save the local decomp with guard cells
   this->GuardExt = guardExts[this->CommRank];
   this->DisjointGuardExt = disjointGuardExts[this->CommRank];
 

@@ -98,7 +98,7 @@ int TestQuadraticPolygonFilters(int argc, char* argv[])
   delete[] connectivityQuadPoly2;
   delete[] connectivityQuads;
 
-  // to get the cell id whith the picker
+  // to get the cell id with the picker
   vtkNew<vtkIdTypeArray> id;
   id->SetName("CellID");
   id->SetNumberOfComponents(1);

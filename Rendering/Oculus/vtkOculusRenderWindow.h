@@ -125,7 +125,7 @@ public:
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
    * All other events are ignored by this method.
-   * Maybe shoudl return 1 always?
+   * Maybe should return 1 always?
    */
   virtual  int GetEventPending() { return 0;};
 

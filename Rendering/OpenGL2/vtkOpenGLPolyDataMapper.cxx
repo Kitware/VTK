@@ -3315,7 +3315,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
   bool draw_surface_with_edges =
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
 
-  // do we realy need to rebuild the IBO? Since the operation is costly we
+  // do we really need to rebuild the IBO? Since the operation is costly we
   // construst a string of values that impact the IBO and see if that string has
   // changed
 

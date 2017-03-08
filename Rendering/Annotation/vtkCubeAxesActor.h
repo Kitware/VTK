@@ -703,7 +703,7 @@ protected:
   int EnableViewAngleLOD;
 
   /**
-   * This determines at what view angle to geometry will make the geometry not visibile.
+   * This determines at what view angle to geometry will make the geometry not visible.
    * Default is 0.3.
    */
   double ViewAngleLODThreshold;

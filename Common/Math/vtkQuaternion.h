@@ -404,7 +404,7 @@ vtkQuaternionOperatorDivideScalar(quaternionType, type)
 //
 // .SECTION Description
 // This class is uses vtkQuaternion with float type data.
-// For futher description, see the templated class vtkQuaternion.
+// For further description, see the templated class vtkQuaternion.
 // @sa vtkQuaterniond vtkQuaternion
 class vtkQuaternionf : public vtkQuaternion<float>
 {
@@ -421,7 +421,7 @@ public:
 //
 // .SECTION Description
 // This class is uses vtkQuaternion with double type data.
-// For futher description, seethe templated class vtkQuaternion.
+// For further description, seethe templated class vtkQuaternion.
 // @sa vtkQuaternionf vtkQuaternion
 class vtkQuaterniond : public vtkQuaternion<double>
 {

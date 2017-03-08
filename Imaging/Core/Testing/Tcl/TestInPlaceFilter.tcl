@@ -40,7 +40,7 @@ cursor SetCursorValue 255
 cursor SetCursorRadius [expr 50 * $IMAGE_MAG_X]
 # stream to increase coverage of in place filter.
 
-# put thge two together in one image
+# put the two together in one image
 vtkImageAppend imageAppend
 imageAppend SetAppendAxis 0
 imageAppend AddInputConnection [magnify2 GetOutputPort]

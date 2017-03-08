@@ -128,7 +128,7 @@ wm withdraw .
 toplevel .top
 
 # Set the window manager (wm command) so that it registers a
-# command to handle the WM_DELETE_WINDOW protocal request. This
+# command to handle the WM_DELETE_WINDOW protocol request. This
 # request is triggered when the widget is closed using the standard
 # window manager icons or buttons. In this case the exit callback
 # will be called and it will free up any objects we created then exit

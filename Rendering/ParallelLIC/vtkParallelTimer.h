@@ -17,7 +17,7 @@
  * @class   vtkParallelTimer
  *
  *
- *  Provides ditributed log functionality. When the file is
+ *  Provides distributed log functionality. When the file is
  *  written each process data is collected by rank 0 who
  *  writes the data to a single file in rank order.
  *
@@ -29,7 +29,7 @@
  *  EndEventSynch includes a barrier before the measurement.
  *
  *  The log class implements the singleton patern so that it
- *  may be shared accross class boundaries. If the log instance
+ *  may be shared across class boundaries. If the log instance
  *  doesn't exist then one is created. It will be automatically
  *  destroyed at exit by the signleton destructor. It can be
  *  destroyed explicitly by calling DeleteGlobalInstance.
@@ -161,7 +161,7 @@ public:
 
   /**
    * The log class implements the singleton patern so that it
-   * may be shared accross class boundaries. If the log instance
+   * may be shared across class boundaries. If the log instance
    * doesn't exist then one is created. It will be automatically
    * destroyed at exit by the signleton destructor. It can be
    * destroyed explicitly by calling DeleteGlobalInstance.

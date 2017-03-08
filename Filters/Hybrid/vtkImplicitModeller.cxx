@@ -356,7 +356,7 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller *self,
 //----------------------------------------------------------------------------
 // This is the multithreaded piece of the append when doing per voxel
 // processing - it is called once for each thread, with each thread
-// taking a different slab of the output to work on.  The acutal work is done
+// taking a different slab of the output to work on.  The actual work is done
 // in vtkImplicitModellerAppendExecute; here we just setup for the per voxel
 // processing.
 static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )

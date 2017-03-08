@@ -63,7 +63,7 @@ public:
   //@{
   /**
    * This duplicate filter works in client server mode when this
-   * controller is set.  We have a client flag to diferentiate the
+   * controller is set.  We have a client flag to differentiate the
    * client and server because the socket controller is odd:
    * Proth processes think their id is 0.
    */
