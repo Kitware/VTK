@@ -46,7 +46,7 @@ void vtkOpenGLVertexBufferObjectCache::RemoveVBO(
     }
     else
     {
-      iter++;
+      ++iter;
     }
   }
 }

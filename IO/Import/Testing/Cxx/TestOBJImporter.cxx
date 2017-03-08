@@ -34,7 +34,7 @@ int TestOBJImporter( int argc, char * argv [] )
 
   std::string filenameOBJ(argv[1]);
 
-  std::string filenameMTL,texfile1,texfile2;
+  std::string filenameMTL,texfile1;
 
   if(argc >= 3)
   {
