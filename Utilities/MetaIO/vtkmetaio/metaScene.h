@@ -85,7 +85,7 @@ class METAIO_EXPORT MetaScene : public MetaObject
 
     //    NObjects(...)
     //       Required Field
-    //       Number of points wich compose the tube
+    //       Number of points which compose the tube
     void  NObjects(int nobjects);
     int   NObjects(void) const;
 

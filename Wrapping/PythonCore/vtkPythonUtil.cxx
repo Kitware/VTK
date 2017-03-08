@@ -748,7 +748,7 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
     if (i <= 0)
     {
       Py_XDECREF(tmp);
-      PyErr_SetString(PyExc_ValueError, "could not extract hexidecimal address from argument string");
+      PyErr_SetString(PyExc_ValueError, "could not extract hexadecimal address from argument string");
       return NULL;
     }
 

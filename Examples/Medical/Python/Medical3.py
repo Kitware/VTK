@@ -83,7 +83,7 @@ outline.GetProperty().SetColor(0, 0, 0)
 
 # Now we are creating three orthogonal planes passing through the
 # volume. Each plane uses a different texture map and therefore has
-# diferent coloration.
+# different coloration.
 
 # Start by creatin a black/white lookup table.
 bwLut = vtk.vtkLookupTable()

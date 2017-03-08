@@ -167,7 +167,7 @@ macro(crosscompile target toolchain_file archs)
       ${ios_cmake_flags}
   )
   #
-  # add an INSTALL_ALLWAYS since we want it and cmake lacks it
+  # add an INSTALL_ALWAYS since we want it and cmake lacks it
   #
   ExternalProject_Get_Property(${target} binary_dir)
   _ep_get_build_command(${target} INSTALL cmd)

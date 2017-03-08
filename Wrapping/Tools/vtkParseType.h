@@ -17,7 +17,7 @@
 #define vtkParseType_h
 
 /**
- * The parser identifies VTK types with 32-bit hexidecimal numbers:
+ * The parser identifies VTK types with 32-bit hexadecimal numbers:
  *
  * - One byte is for the base type.
  * - One byte is indirection i.e. & and * and "* const"

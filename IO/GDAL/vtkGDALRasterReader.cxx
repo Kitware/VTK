@@ -600,7 +600,7 @@ bool vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoint(
   }
   else
   {
-    // 1st pass: we should realy have a call to the reader that returns
+    // 1st pass: we should really have a call to the reader that returns
     // the homography, but for now, look for mathcing corner and pass back
     // the matching corner point ("0" pixel on input means "0.5" as far as
     // GDAL goes

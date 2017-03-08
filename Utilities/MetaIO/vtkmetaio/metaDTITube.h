@@ -102,7 +102,7 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the DTITube
+    //       Number of points which compose the DTITube
     void  NPoints(int npnt);
     int   NPoints(void) const;
 

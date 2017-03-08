@@ -54,7 +54,7 @@ POSSIBILITY OF SUCH DAMAGES.
  * VTK and then write it out again, you can use
  * writer->SetImageAttributes(reader->GetImageAttributes) to
  * ensure that all of the medical information contained in the
- * file is tranferred from the reader to the writer.  If you
+ * file is transferred from the reader to the writer.  If you
  * want to change any of the header information, you must
  * use ShallowCopy to make a copy of the reader's attributes
  * and then modify only the copy.

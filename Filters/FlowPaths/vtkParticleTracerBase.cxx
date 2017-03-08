@@ -857,7 +857,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     ParticleListIterator  it_next;
 
     //
-    // Perform mulitple passes. The number of passes is equal to one more than
+    // Perform multiple passes. The number of passes is equal to one more than
     // the maximum times a particle gets migrated between processes.
     bool continueExecuting = true;
     int pass = 0; // really just for debugging

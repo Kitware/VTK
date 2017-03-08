@@ -42,7 +42,7 @@
  * DEP   - depth test and copy to back buffer
  *
  * The result of each stage is cached in a texture so that during interaction
- * a stage may be skipped if the user has not modified its paramters or input
+ * a stage may be skipped if the user has not modified its parameters or input
  * data.
  *
  * The parallel parts of algorithm are implemented in vtkPSurfaceLICMapper.

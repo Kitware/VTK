@@ -97,7 +97,7 @@ class METAIO_EXPORT MetaVesselTube : public MetaObject
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the VesselTube
+    //       Number of points which compose the VesselTube
     void  NPoints(int npnt);
     int   NPoints(void) const;
 

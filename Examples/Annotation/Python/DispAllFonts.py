@@ -129,7 +129,7 @@ vtkw.pack(side="top", fill='both', expand=1)
 def quit(obj=root):
     obj.quit()
 
-# We handle the WM_DELETE_WINDOW protocal request. This request is
+# We handle the WM_DELETE_WINDOW protocol request. This request is
 # triggered when the widget is closed using the standard window
 # manager icons or buttons. In this case the quit function will be
 # called and it will free up any objects we created then exit the

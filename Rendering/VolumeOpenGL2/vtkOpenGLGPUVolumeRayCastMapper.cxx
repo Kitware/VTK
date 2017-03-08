@@ -1420,7 +1420,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
     // Now create new ones
     this->CreateBufferObjects();
 
-    // TODO: should realy use the built in VAO class
+    // TODO: should really use the built in VAO class
     // which handles these apple issues internally
 #ifdef __APPLE__
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())

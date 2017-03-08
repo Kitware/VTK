@@ -1449,7 +1449,7 @@ void vtkStaticPointLocator::BuildLocator()
     }
   }
 
-  // Clamp the i-j-k coords withing allowable range. We clamp the upper range
+  // Clamp the i-j-k coords within allowable range. We clamp the upper range
   // because we want the total number of buckets to lie within an "int" value.
   for (i=0; i<3; i++)
   {

@@ -47,7 +47,7 @@ ugrid_hex.GetPointData().SetActiveVectors("displacement")
 # Test a few deformation gradients
 F_lst  = []
 
-# Simple extentions
+# Simple extensions
 F_lst += [numpy.array([[2,0,0],
                        [0,1,0],
                        [0,0,1]])]

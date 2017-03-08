@@ -34,7 +34,7 @@ which VTK uses to map shader outputs to the framebufer.
 
 All vertex shaders should name their outputs with a postfix of VSOutput All
 geometry shaders should name their outputs with a postfix of GSOutput All
-fragment shaders shoudl name their inputs with a postfix of VSOutput.  Put
+fragment shaders should name their inputs with a postfix of VSOutput.  Put
 another way fragment shaders should assuming their input is coming from the
 vertex shader.  If a geometry shader is present VTK will rename the fragment
 shader inputs from VSOutput to GSOuput automatically.

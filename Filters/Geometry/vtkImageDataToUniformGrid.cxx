@@ -201,7 +201,7 @@ int vtkImageDataToUniformGrid::Process(
   }
   else
   {
-    vtkErrorMacro("Wrong assocation type: " << association);
+    vtkErrorMacro("Wrong association type: " << association);
     return VTK_ERROR;
   }
 

@@ -85,7 +85,7 @@ public:
 
   //@{
   /**
-   * Retuns the number of points in a bin.
+   * Returns the number of points in a bin.
    */
   vtkIdType GetNumberOfIdsInBucket(vtkIdType idx)
   {
@@ -99,7 +99,7 @@ public:
   //@}
 
   /**
-   * Retuns the number of bins.
+   * Returns the number of bins.
    */
   vtkIdType GetNumberOfBuckets() VTK_OVERRIDE
   {

@@ -34,7 +34,7 @@
 #define PyInt_FromLong PyLong_FromLong
 #define PyInt_AsLong PyLong_AsLong
 
-// Unicode/String compability
+// Unicode/String compatibility
 #define PyString_InternFromString PyUnicode_InternFromString
 #define PyString_FromFormat PyUnicode_FromFormat
 #define PyString_Check PyUnicode_Check

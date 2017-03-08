@@ -2673,7 +2673,7 @@ M_WriteElementData(METAIO_STREAM::ofstream * _fstream,
     {
     if(m_CompressedData)
       {
-      // the data is writen in writes no bigger then MaxIOChunk
+      // the data is written in writes no bigger then MaxIOChunk
       METAIO_STL::streamoff bytesRemaining = _dataQuantity;
       while ( bytesRemaining )
         {
@@ -2689,7 +2689,7 @@ M_WriteElementData(METAIO_STREAM::ofstream * _fstream,
       MET_SizeOfType(m_ElementType, &elementSize);
       METAIO_STL::streamoff elementNumberOfBytes = elementSize*m_ElementNumberOfChannels;
 
-      // the data is writen in writes no bigger then MaxIOChunk
+      // the data is written in writes no bigger then MaxIOChunk
       METAIO_STL::streamoff bytesRemaining = _dataQuantity * elementNumberOfBytes;
       while ( bytesRemaining )
         {
