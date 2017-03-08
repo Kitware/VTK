@@ -221,6 +221,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->Capabilities = 0;
   this->OnScreenInitialized = 0;
   this->OffScreenInitialized = 0;
+  this->WantsBestResolution = true;
 }
 
 //----------------------------------------------------------------------------
@@ -864,6 +865,15 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // create a view if one has not been specified
   if (!this->GetWindowId())
   {
+    // For NSViews that display OpenGL, the OS defaults to drawing magnified,
+    // not in high resolution. There is a tradeoff here between better visual
+    // quality vs memory use and processing time. VTK decides on the opposite
+    // default and enables best resolution by default. It does so partly because
+    // the system python sets NSHighResolutionCapable in this file:
+    // /System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/Info.plist
+    // If you want magnified drawing instead, call GetWantsBestResolution(true)
+    bool wantsBest = this->GetWantsBestResolution();
+
     if (this->GetParentId())
     {
       // Get the NSView's current frame (in points).
@@ -898,9 +908,11 @@ void vtkCocoaRenderWindow::CreateAWindow()
       // SetParentId() was added for) then the Tk superview handles the events.
       NSRect glRect = NSMakeRect(x, y, width, height);
       NSView *glView = [[NSView alloc] initWithFrame:glRect];
+      [glView setWantsBestResolutionOpenGLSurface:wantsBest];
       [parent addSubview:glView];
       this->SetWindowId(glView);
       this->ViewCreated = 1;
+
 #if !VTK_OBJC_IS_ARC
       [glView release];
 #endif
@@ -919,10 +931,12 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       // Create a vtkCocoaGLView.
       vtkCocoaGLView *glView = [[vtkCocoaGLView alloc] initWithFrame:viewRect];
+      [glView setWantsBestResolutionOpenGLSurface:wantsBest];
       [window setContentView:glView];
       this->SetWindowId(glView);
       this->ViewCreated = 1;
       [glView setVTKRenderWindow:this];
+
 #if !VTK_OBJC_IS_ARC
       [glView release];
 #endif
@@ -1121,7 +1135,7 @@ void vtkCocoaRenderWindow::DestroyOffScreenWindow()
 // Get the current size of the window in pixels.
 int *vtkCocoaRenderWindow::GetSize()
 {
-  // if we aren't mapped then just return the ivar
+  // if we aren't mapped then just return the ivar (which is in pixels)
   if (!this->Mapped)
   {
     return this->Superclass::GetSize();
@@ -1319,6 +1333,7 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PixelFormat: " << this->GetPixelFormat() << endl;
   os << indent << "WindowCreated: " << (this->GetWindowCreated() ? "Yes" : "No") << endl;
   os << indent << "ViewCreated: " << (this->GetViewCreated() ? "Yes" : "No") << endl;
+  os << indent << "WantsBestResolution: " << (this->GetWantsBestResolution() ? "Yes" : "No") << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -1661,4 +1676,16 @@ void vtkCocoaRenderWindow::SetCurrentCursor(int shape)
   }
 
   [cursor set];
+}
+
+//----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::GetWantsBestResolution()
+{
+  return this->WantsBestResolution;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetWantsBestResolution(bool wantsBest)
+{
+  this->WantsBestResolution = wantsBest;
 }
