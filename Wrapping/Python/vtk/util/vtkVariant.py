@@ -59,8 +59,6 @@ _variant_check_map = {
     vtk.VTK_UNSIGNED_LONG : 'IsUnsignedLong',
     vtk.VTK_LONG_LONG : 'IsLongLong',
     vtk.VTK_UNSIGNED_LONG_LONG : 'IsUnsignedLongLong',
-    vtk.VTK___INT64 : 'Is__Int64',
-    vtk.VTK_UNSIGNED___INT64 : 'IsUnsigned__Int64',
     vtk.VTK_FLOAT : 'IsFloat',
     vtk.VTK_DOUBLE : 'IsDouble',
     vtk.VTK_STRING : 'IsString',

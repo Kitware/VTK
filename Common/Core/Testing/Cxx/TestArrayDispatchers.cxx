@@ -164,8 +164,10 @@ inline bool isIntegral(int vtkType)
     case VTK_ID_TYPE:
     case VTK_LONG_LONG:
     case VTK_UNSIGNED_LONG_LONG:
+#if !defined(VTK_LEGACY_REMOVE)
     case VTK___INT64:
     case VTK_UNSIGNED___INT64:
+#endif
       return true;
   }
   return false;

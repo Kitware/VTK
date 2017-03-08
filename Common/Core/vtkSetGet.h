@@ -64,8 +64,8 @@
 (((type) == VTK_UNSIGNED_LONG) ? "unsigned long" : \
 (((type) == VTK_LONG_LONG) ? "long long" : \
 (((type) == VTK_UNSIGNED_LONG_LONG) ? "unsigned long long" : \
-(((type) == VTK___INT64) ? "__int64" : \
-(((type) == VTK_UNSIGNED___INT64) ? "unsigned __int64" : \
+(((type) == 18 /*VTK___INT64*/) ? "__int64" : \
+(((type) == 19 /*VTK_UNSIGNED___INT64*/) ? "unsigned __int64" : \
 (((type) == VTK_FLOAT) ? "float" : \
 (((type) == VTK_DOUBLE) ? "double" : \
 (((type) == VTK_ID_TYPE) ? "idtype" : \
