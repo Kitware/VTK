@@ -106,7 +106,7 @@ void vtkIOSRenderWindow::DestroyWindow()
 int vtkIOSRenderWindow::ReadPixels(
   const vtkRecti& rect, int front, int glFormat, int glType, void* data)
 {
-  if (glFormat != GL_RGB || glFormat != GL_UNSIGNED_BYTE)
+  if (glFormat != GL_RGB || glType != GL_UNSIGNED_BYTE)
   {
     return this->Superclass::ReadPixels(rect, front, glFormat, glType, data);
   }
