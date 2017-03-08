@@ -759,9 +759,9 @@ void vtkOpenVRRenderWindow::Frame(void)
     // for now as fast as possible
     if ( this->HMD )
     {
-      vr::Texture_t leftEyeTexture = {(void*)this->LeftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+      vr::Texture_t leftEyeTexture = {(void*)(long)this->LeftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
       vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
-      vr::Texture_t rightEyeTexture = {(void*)this->RightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+      vr::Texture_t rightEyeTexture = {(void*)(long)this->RightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
       vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
     }
 

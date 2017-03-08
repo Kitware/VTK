@@ -39,8 +39,8 @@ vtkStandardNewMacro(vtkOpenVROverlay);
 
 vtkOpenVROverlay::vtkOpenVROverlay()
 {
-  this->OverlayHandle = NULL;
-  this->OverlayThumbnailHandle = NULL;
+  this->OverlayHandle = 0;
+  this->OverlayThumbnailHandle = 0;
   this->OriginalTextureData = NULL;
   this->CurrentTextureData = NULL;
   this->LastSpot = NULL;
