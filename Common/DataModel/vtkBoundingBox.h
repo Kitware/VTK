@@ -111,10 +111,11 @@ public:
    */
   void AddBounds(const double bounds[]);
 
-  // Desciption:
-  // Intersect this box with bbox. The method returns 1 if
-  // both boxes are valid and they do have overlap else it will return 0.
-  // If 0 is returned the box has not been modified
+  /**
+   * Intersect this box with bbox. The method returns 1 if
+   * both boxes are valid and they do have overlap else it will return 0.
+   * If 0 is returned the box has not been modified.
+   */
   int IntersectBox(const vtkBoundingBox &bbox);
 
   /**
@@ -122,13 +123,12 @@ public:
    */
   int Intersects(const vtkBoundingBox &bbox) const;
 
-
-  // Desciption:
-  // Intersect this box with the half space defined by plane.
-   //Returns true if there is intersection---which implies that the box has been modified
-  // Returns false otherwise
+  /**
+   * Intersect this box with the half space defined by plane.
+   * Returns true if there is intersection---which implies that the box has been modified
+   * Returns false otherwise
+   */
   bool IntersectPlane(double origin[3],double normal[3]);
-
 
   /**
    * Returns 1 if the min and max points of bbox are contained

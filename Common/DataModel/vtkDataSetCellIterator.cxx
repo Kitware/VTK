@@ -127,7 +127,7 @@ void vtkDataSetCellIterator::SetDataSet(vtkDataSet *ds)
 {
   this->DataSet = ds;
   this->CellId = 0;
-  cerr << "setting data set\n";
+
   if (vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(ds))
   {
     SetArrayType(rg, this->Points);

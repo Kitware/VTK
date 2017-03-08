@@ -43,6 +43,7 @@ set(Module_SRCS
   vtkMergeDataObjectFilter.cxx
   vtkMergeFields.cxx
   vtkMergeFilter.cxx
+  vtkPlaneCutter.cxx
   vtkPointDataToCellData.cxx
   vtkPolyDataConnectivityFilter.cxx
   vtkPolyDataNormals.cxx
@@ -55,6 +56,7 @@ set(Module_SRCS
   vtkReverseSense.cxx
   vtkSimpleElevationFilter.cxx
   vtkSmoothPolyDataFilter.cxx
+  vtkSphereTreeFilter.cxx
   vtkStripper.cxx
   vtkStructuredGridOutlineFilter.cxx
   vtkSynchronizedTemplates2D.cxx
