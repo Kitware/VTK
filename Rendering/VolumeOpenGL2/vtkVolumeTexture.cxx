@@ -58,7 +58,7 @@ void vtkVolumeTexture::SetMapper(vtkOpenGLGPUVolumeRayCastMapper* mapper)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
+bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
   vtkDataArray* scalars, int const interpolation)
 {
   this->ClearBlocks();
@@ -111,8 +111,10 @@ void vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
   if (this->ImageDataBlocks.size() == 1)
   {
     VolumeBlock* onlyBlock = this->SortedVolumeBlocks.at(0);
-    this->LoadTexture(this->InterpolationType, onlyBlock);
+    return this->LoadTexture(this->InterpolationType, onlyBlock);
   }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -219,7 +221,7 @@ vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(int* extent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBlock)
+bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBlock)
 {
   int const noOfComponents = this->Scalars->GetNumberOfComponents();
   int scalarType = this->Scalars->GetDataType();
@@ -231,6 +233,7 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
   vtkTextureObject* texture = volBlock->TextureObject;
   vtkIdType const& tupleIdx = volBlock->TupleIndex;
 
+  bool success = true;
   if (!this->HandleLargeDataTypes)
   {
     // Adjust strides used by OpenGL to load the data (X and Y strides in case the
@@ -252,8 +255,16 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     vtkIdType const dataIdx = tupleIdx * noOfComponents;
     void* dataPtr = this->Scalars->GetVoidPointer(dataIdx);
 
-    texture->Create3DFromRaw(blockSize[0], blockSize[1], blockSize[2],
-      noOfComponents, scalarType, dataPtr);
+    if (this->StreamBlocks)
+    {
+      success = texture->Create3DFromRaw(blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, dataPtr);
+    }
+    else
+    {
+      success = SafeLoadTexture(texture, blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, dataPtr);
+    }
     texture->Activate();
     texture->SetWrapS(vtkTextureObject::ClampToEdge);
     texture->SetWrapT(vtkTextureObject::ClampToEdge);
@@ -278,8 +289,16 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     // GPU memory. Assumes GL_ARB_texture_non_power_of_two is available.
 
     scalarType = VTK_FLOAT;
-    texture->Create3DFromRaw(blockSize[0], blockSize[1], blockSize[2], noOfComponents,
-      scalarType, NULL);
+    if (this->StreamBlocks)
+    {
+      success = texture->Create3DFromRaw(blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, NULL);
+    }
+    else
+    {
+      success = SafeLoadTexture(texture, blockSize[0], blockSize[1],
+        blockSize[2], noOfComponents, scalarType, NULL);
+    }
     texture->Activate();
     texture->SetWrapS(vtkTextureObject::ClampToEdge);
     texture->SetWrapT(vtkTextureObject::ClampToEdge);
@@ -339,6 +358,8 @@ void vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
   texture->Deactivate();
   this->UploadTime.Modified();
+
+  return success;
 }
 
 //-----------------------------------------------------------------------------
@@ -625,8 +646,7 @@ void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer *ren,
 {
   if (this->ImageDataBlocks.size() > 1)
   {
-    vtkBlockSortHelper::BackToFront sortBlocks(ren, volumeMat);
-
+    vtkBlockSortHelper::BackToFront<vtkImageData> sortBlocks(ren, volumeMat);
     std::sort(this->ImageDataBlocks.begin(), this->ImageDataBlocks.end(),
       sortBlocks);
 
@@ -674,4 +694,47 @@ void vtkVolumeTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UploadTime: " << this->UploadTime << '\n';
   os << indent << "CurrentBlockIdx: " << this->CurrentBlockIdx << '\n';
   os << indent << "StreamBlocks: " << this->StreamBlocks << '\n';
+}
+
+//-----------------------------------------------------------------------------
+bool vtkVolumeTexture::AreDimensionsValid(vtkTextureObject* texture, int const width,
+  int const height, int const depth)
+{
+  int const maxSize = texture->GetMaximumTextureSize3D();
+  if (width > maxSize || height > maxSize || depth > maxSize)
+  {
+    std::cout << "ERROR: OpenGL MAX_3D_TEXTURE_SIZE is " << maxSize << "\n";
+    return false;
+  }
+
+  return true;
+};
+
+//-----------------------------------------------------------------------------
+bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int const width,
+  int const height, int const depth, int numComps, int dataType, void* dataPtr)
+{
+  if (!AreDimensionsValid(texture, width, height, depth))
+  {
+    vtkErrorMacro(<< "Invalid texture dimensions [" << width << ", " << height
+      << ", " << depth << "]");
+    return false;
+  }
+
+  if (!texture->AllocateProxyTexture3D(width, height, depth, numComps,
+    dataType))
+  {
+    vtkErrorMacro(<< "Capabilities check via proxy texture 3D allocation "
+      "failed!");
+    return false;
+  }
+
+  if (!texture->Create3DFromRaw(width, height, depth, numComps, dataType,
+    dataPtr))
+  {
+    vtkErrorMacro(<< "Texture 3D allocation failed! \n");
+    return false;
+  }
+
+  return true;
 }

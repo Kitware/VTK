@@ -334,7 +334,7 @@ public:
     COMPONENT = 1,
   };
 
-  vtkSetClampMacro(VectorMode, int, -1, 1);
+  void SetVectorMode(int mode);
   vtkGetMacro(VectorMode, int);
 
   vtkSetClampMacro(VectorComponent, int, 0, 3);
@@ -495,6 +495,7 @@ protected:
    */
   int VectorMode;
   int VectorComponent;
+  vtkTimeStamp MagnitudeUploadTime;
   //@}
 
 private:

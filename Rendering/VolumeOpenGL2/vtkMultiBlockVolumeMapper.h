@@ -19,9 +19,13 @@
  * vtkMultiBlockVolumeMapper renders vtkMultiBlockDataSet instances containing
  * vtkImageData blocks (all of the blocks are expected to be vtkImageData). Bounds
  * containing the full set of blocks are computed so that vtkRenderer can adjust the
- * clipping planes appropriately. At render time, blocks are sorted back-to-front
- * and each block is rendered independently. The mapper defers actual rendering to its
- * internal vtkSmartVolumeMapper.
+ * clipping planes appropriately.
+ *
+ * This mapper creates an instance of vtkSmartVolumeMapper per block to which
+ * it defers the actual rendering.  At render time, blocks (mappers) are sorted
+ * back-to-front and each block is rendered independently.  It attempts to load all
+ * of the blocks at the same time but tries to catch allocation errors in which case
+ * it falls back to using a single mapper instance and reloading data for each block.
  *
  * Jittering is used to alleviate seam artifacts at the block edges due to the
  * discontinuous resolution between blocks.  Jittering is disabled by default until
@@ -64,6 +68,7 @@ public:
   void SelectScalarArray(int arrayNum) VTK_OVERRIDE;
   void SelectScalarArray(char const* arrayName) VTK_OVERRIDE;
   void SetScalarMode(int ScalarMode) VTK_OVERRIDE;
+  void SetArrayAccessMode(int accessMode) VTK_OVERRIDE;
 
   /**
    * Render the current dataset.
@@ -85,9 +90,9 @@ public:
    * VectorMode interface exposed from vtkSmartVolumeMapper.
    */
   void SetVectorMode(int mode);
-  int GetVectorMode();
+  vtkGetMacro(VectorMode, int);
   void SetVectorComponent(int component);
-  int GetVectorComponent();
+  vtkGetMacro(VectorComponent, int);
   //@}
 
   /**
@@ -105,7 +110,6 @@ public:
    * \sa vtkVolumeMapper::SetBlendMode
    */
   void SetBlendMode(int mode) VTK_OVERRIDE;
-  int GetBlendMode() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -114,7 +118,6 @@ public:
    * \sa vtkVolumeMapper::SetCropping
    */
   void SetCropping(int mode) VTK_OVERRIDE;
-  int GetCropping() VTK_OVERRIDE;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionPlanes
@@ -122,14 +125,11 @@ public:
   void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
     double arg4, double arg5, double arg6) VTK_OVERRIDE;
   void SetCroppingRegionPlanes(double *planes) VTK_OVERRIDE;
-  void GetCroppingRegionPlanes(double *planes) VTK_OVERRIDE;
-  double *GetCroppingRegionPlanes() VTK_OVERRIDE;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionFlags
    */
   void SetCroppingRegionFlags(int mode) VTK_OVERRIDE;
-  int GetCroppingRegionFlags() VTK_OVERRIDE;
   //@}
 
 protected:
@@ -151,7 +151,19 @@ private:
    * (vtkImageData blocks). References are kept in a vector which is sorted back-to-front
    * on every render call.
    */
-  void LoadBlocks();
+  void LoadDataSet(vtkRenderer* ren, vtkVolume* vol);
+
+  /**
+   * Creates a mapper per data block and tries to load the data. If allocating
+   * fails in any of the mappers, an additional mapper instance is created
+   * (FallBackMapper) and used for rendering (single mapper). The FallBackMapper
+   * instance is created and used in single-mapper-mode for convenience, just to
+   * keep using the Mappers vector for sorting without having to manage their
+   * data.
+   */
+  void CreateMappers(vtkDataObjectTree* input, vtkRenderer* ren, vtkVolume* vol);
+
+  void ApplyJitteringResolution(vtkSmartVolumeMapper* mapper);
 
   vtkDataObjectTree* GetDataObjectTreeInput();
 
@@ -163,21 +175,31 @@ private:
   /**
    * Sort loaded vtkImageData blocks back-to-front.
    */
-  void SortBlocks(vtkRenderer* ren, vtkMatrix4x4* volumeMat);
+  void SortMappers(vtkRenderer* ren, vtkMatrix4x4* volumeMat);
 
-  void ClearBlocks();
+  void ClearMappers();
+
+  /**
+   * Create and setup a proxy rendering-mapper with the current flags.
+   */
+  vtkSmartVolumeMapper* CreateMapper();
 
   vtkMultiBlockVolumeMapper(const vtkMultiBlockVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMultiBlockVolumeMapper&) VTK_DELETE_FUNCTION;
 
   /////////////////////////////////////////////////////////////////////////////
 
-  vtkSmartVolumeMapper* RenderingMapper;
-
-  typedef std::vector<vtkImageData*> BlockVec;
-  BlockVec DataBlocks;
+  typedef std::vector<vtkSmartVolumeMapper*> MapperVec;
+  MapperVec Mappers;
+  vtkSmartVolumeMapper* FallBackMapper;
 
   vtkTimeStamp BlockLoadingTime;
   vtkTimeStamp BoundsComputeTime;
+
+  int JitteringSizeX;
+  int JitteringSizeY;
+
+  int VectorMode;
+  int VectorComponent;
 };
 #endif

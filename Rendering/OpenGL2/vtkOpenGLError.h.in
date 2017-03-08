@@ -17,6 +17,7 @@
 
 #include "vtkSetGet.h"
 #include "vtk_glew.h"
+#include <sstream>
 
 #ifndef NDEBUG
 // debug build.
@@ -29,41 +30,43 @@
 #endif // defined(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
 #endif // NDEBUG
 
-// Description:
-// The following functions can be used to detect and report, and/or
-// silently clear OpenGL error flags. These are not intended to be
-// used driectly, instead use the following macros.
-//
-// vtkOpenGLClearErrorMacro() -- Silently clear OpenGL error flags.
-//
-// vtkOpenGLCheckErrorMacro(message) -- Check and clear OpenGL's error
-// flags. Report errors detected via vtkErrorMacro.
-//
-// vtkOpenGLStaticCheckErrorMacro(message) -- Check and clear OpenGL's
-// error flags. Report errors detected via vtkGenericWarningMacro.
-// This may be used in static methods and outside of vtkObjects.
-//
-// The intended usage pattern is to 1) call vtkOpenGLClearErrorMacro
-// at the top of, and 2) vtkOpenGLCheckErrorMacro at the bottom of
-// methods that make OpenGL calls.
-//
-// By calling vtkOpenGLClearErrorMacro at the top of a method that
-// makes OpenGL calls, you isolate the code and prevent it from
-// detecting any preceding errors. By calling vtkOpenGLCheckErrorMacro
-// at the bottom of the method you clear the error flags and report
-// any errors that have occured in the method where they occured.
-//
-// The macros maybe completely disabled via the CMakeLists variable
-// VTK_REPORT_OPENGL_ERRORS. Note that in that case error flags are
-// never cleared so that if an error occurs the flags will remain dirty
-// making it impossible for anyone else to use them reliably. Please
-// don't disable them with out a good reason.
+/**
+ * The following functions can be used to detect and report, and/or
+ * silently clear OpenGL error flags. These are not intended to be
+ * used driectly, instead use the following macros.
+ *
+ * vtkOpenGLClearErrorMacro() -- Silently clear OpenGL error flags.
+ *
+ * vtkOpenGLCheckErrorMacro(message) -- Check and clear OpenGL's error
+ * flags. Report errors detected via vtkErrorMacro.
+ *
+ * vtkOpenGLStaticCheckErrorMacro(message) -- Check and clear OpenGL's
+ * error flags. Report errors detected via vtkGenericWarningMacro.
+ * This may be used in static methods and outside of vtkObjects.
+ *
+ * The intended usage pattern is to 1) call vtkOpenGLClearErrorMacro
+ * at the top of, and 2) vtkOpenGLCheckErrorMacro at the bottom of
+ * methods that make OpenGL calls.
+ *
+ * By calling vtkOpenGLClearErrorMacro at the top of a method that
+ * makes OpenGL calls, you isolate the code and prevent it from
+ * detecting any preceding errors. By calling vtkOpenGLCheckErrorMacro
+ * at the bottom of the method you clear the error flags and report
+ * any errors that have occured in the method where they occured.
+ *
+ * The macros maybe completely disabled via the CMakeLists variable
+ * VTK_REPORT_OPENGL_ERRORS. Note that in that case error flags are
+ * never cleared so that if an error occurs the flags will remain dirty
+ * making it impossible for anyone else to use them reliably. Please
+ * don't disable them with out a good reason.
+ */
 
 
 
-// Description:
-// Convert an OpenGL error code into a descriptive
-// string.
+/**
+ * Convert an OpenGL error code into a descriptive
+ * string.
+ */
 inline
 const char *vtkOpenGLStrError(unsigned int code)
 {
@@ -93,13 +96,14 @@ const char *vtkOpenGLStrError(unsigned int code)
   return "Unknown error";
 }
 
-// Description:
-// Check for OpenGL errors. Error status is querried until
-// OpenGL reports no errors. The list of errors and their
-// descriptions are returned in the user supplied arrays.
-// User passes the size of the arrays as the first argument.
-// Error flags will still be cleared if the user arays are
-// less than the number of errors.
+/**
+ * Check for OpenGL errors. Error status is querried until
+ * OpenGL reports no errors. The list of errors and their
+ * descriptions are returned in the user supplied arrays.
+ * User passes the size of the arrays as the first argument.
+ * Error flags will still be cleared if the user arays are
+ * less than the number of errors.
+ */
 #if defined(VTK_REPORT_OPENGL_ERRORS)
 inline
 int vtkGetOpenGLErrors(
@@ -140,11 +144,12 @@ int vtkGetOpenGLErrors(
 }
 #endif
 
-// Description:
-// Send a set of errors collected by GetOpenGLErrors
-// to the give stream. The number of errors is obtained
-// in the return value of GetOpenGLErrors, while the max
-// errors gives the size of the error arrays.
+/**
+ * Send a set of errors collected by GetOpenGLErrors
+ * to the give stream. The number of errors is obtained
+ * in the return value of GetOpenGLErrors, while the max
+ * errors gives the size of the error arrays.
+ */
 #if defined(VTK_REPORT_OPENGL_ERRORS)
 inline
 void vtkPrintOpenGLErrors(
@@ -184,8 +189,40 @@ void vtkPrintOpenGLErrors(
 }
 #endif
 
-// Description:
-// Clear OpenGL's error flags.
+/**
+ * Errors are queried and reported via vtkGenericWarningMacro. An optional
+ * header message can be appended to the stream. Returns true if no errors
+ * were reported.
+ */
+#if defined(VTK_REPORT_OPENGL_ERRORS)
+inline
+bool vtkOpenGLCheckErrors(const char* headerMessage = "")
+{
+  const int maxNumErrors = 16;
+  unsigned int errCode[maxNumErrors] = {0};
+  const char* errDesc[maxNumErrors] = {NULL};
+  int numErrors = vtkGetOpenGLErrors(maxNumErrors, errCode, errDesc);
+  if (numErrors > 0)
+  {
+    std::ostringstream oss;
+    vtkPrintOpenGLErrors(oss, maxNumErrors, numErrors, errCode, errDesc);
+    vtkGenericWarningMacro(<< headerMessage << oss.str().c_str());
+    return false;
+  }
+  return true;
+}
+#else
+inline
+bool vtkOpenGLCheckErrors(const char* errorMessage = "")
+{
+  (void)errorMessage;
+  return true;
+}
+#endif
+
+/**
+ * Clear OpenGL's error flags.
+ */
 #if defined(VTK_REPORT_OPENGL_ERRORS)
 inline
 void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)

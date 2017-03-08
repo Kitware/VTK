@@ -54,9 +54,7 @@ int TestMultiBlockMapper(int argc, char *argv[])
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->SelectScalarArray("MetaImage");
   mapper->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);
-  mapper->SetVectorComponent(0);
-  mapper->SetVectorMode(1); // vtkSmartVolumeMapper::COMPONENT
-  mapper->SetJitteringResolution(1920, 1080); // alleviate seam artifacts
+  mapper->SetJitteringResolution(401, 400); // alleviate seam artifacts
 
   vtkNew<vtkColorTransferFunction> color;
   color->AddHSVPoint(1.0, 0.095, 0.33, 0.82);
