@@ -35,7 +35,7 @@ int main( int argc, char * argv [] )
 
   std::string filenameOBJ(argv[2]);
 
-  std::string filenameMTL,texfile1,texfile2;
+  std::string filenameMTL,texfile1;
 
   if(argc >= 4)
   {

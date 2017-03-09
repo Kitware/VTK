@@ -69,7 +69,7 @@ vtkOpenVROverlay::~vtkOpenVROverlay()
 
 vtkOpenVRCameraPose *vtkOpenVROverlay::GetSavedCameraPose(size_t i)
 {
-  if (i >= 0 && i < this->SavedCameraPoses.size())
+  if (i < this->SavedCameraPoses.size())
   {
     return &(this->SavedCameraPoses[i]);
   }

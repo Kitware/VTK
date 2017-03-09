@@ -298,7 +298,7 @@ vtkCell *vtkRectilinearGrid::GetCell(int iMin, int jMin, int kMin) {
 
   case VTK_XZ_PLANE:
     iMax = iMin + 1;
-    jMin = kMax = 0;
+    jMin = jMax = 0;
     kMax = kMin + 1;
     cell = this->Pixel;
     break;
