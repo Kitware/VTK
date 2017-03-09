@@ -91,6 +91,7 @@ public:
    * The opacity of the image, where 1.0 is opaque and 0.0 is
    * transparent.  If the image has an alpha component, then
    * the alpha component will be multiplied by this value.
+   * The default is 1.0.
    */
   vtkSetClampMacro(Opacity, double, 0.0, 1.0);
   vtkGetMacro(Opacity, double);

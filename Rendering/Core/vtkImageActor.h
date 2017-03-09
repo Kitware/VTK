@@ -74,7 +74,7 @@ public:
   //@{
   /**
    * Set/Get the object's opacity. 1.0 is totally opaque and 0.0 is completely
-   * transparent.
+   * transparent. The default is 1.0.
    */
   virtual void SetOpacity(double);
   virtual double GetOpacity();
@@ -157,6 +157,7 @@ public:
   //@{
   /**
    * Force the actor to be rendered during the opaque rendering pass.
+   * Default is false.
    * See also: ForceTranslucentOn() to use translucent rendering pass.
    */
   vtkGetMacro(ForceOpaque, bool);

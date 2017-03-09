@@ -14,11 +14,11 @@
 =========================================================================*/
 /**
  * @class   vtkRenderPassCollection
- * @brief   a list of RenderPasses
+ * @brief   an ordered list of RenderPasses
  *
  * vtkRenderPassCollection represents a list of RenderPasses
  * (i.e., vtkRenderPass and subclasses) and provides methods to manipulate the
- * list. The list is unsorted and duplicate entries are not prevented.
+ * list. The list is ordered and duplicate entries are not prevented.
  *
  * @sa
  * vtkRenderPass vtkCollection
@@ -40,7 +40,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add an RenderPass to the list.
+   * Add an RenderPass to the bottom of the list.
    */
   void AddItem(vtkRenderPass *pass);
 

@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkActorCollection
- * @brief   a list of actors
+ * @brief   an ordered list of actors
  *
  * vtkActorCollection represents and provides methods to manipulate a list of
- * actors (i.e., vtkActor and subclasses). The list is unsorted and duplicate
+ * actors (i.e., vtkActor and subclasses). The list is ordered and duplicate
  * entries are not prevented.
  *
  * @sa
@@ -41,7 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add an actor to the list.
+   * Add an actor to the bottom of the list.
    */
   void AddItem(vtkActor *a);
 

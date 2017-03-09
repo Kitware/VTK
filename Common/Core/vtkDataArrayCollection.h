@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkDataArrayCollection
- * @brief   maintain an unordered list of dataarray objects
+ * @brief   maintain an ordered list of dataarray objects
  *
  * vtkDataArrayCollection is an object that creates and manipulates lists of
  * datasets. See also vtkCollection and subclasses.
@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkDataArrayCollection,vtkCollection);
 
   /**
-   * Add a dataarray to the list.
+   * Add a dataarray to the bottom of the list.
    */
   void AddItem(vtkDataArray *ds)
   {

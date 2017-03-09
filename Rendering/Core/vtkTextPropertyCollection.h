@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkTextPropertyCollection
- * @brief   a list of vtkTextProperty objects.
+ * @brief   an ordered list of vtkTextProperty objects.
  *
  * vtkTextPropertyCollection represents and provides methods to manipulate a
- * list of TextProperty objects. The list is unsorted and
+ * list of TextProperty objects. The list is ordered and
  * duplicate entries are not prevented.
  * @sa
  * vtkTextProperty vtkCollection
@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add a vtkTextProperty to the list.
+   * Add a vtkTextProperty to the bottom of the list.
    */
   void AddItem(vtkTextProperty *a);
 

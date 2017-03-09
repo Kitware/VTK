@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkMapperCollection
- * @brief   a list of mappers
+ * @brief   an ordered list of mappers
  *
  * vtkMapperCollection represents and provides methods to manipulate a list of
- * mappers (i.e., vtkMapper and subclasses). The list is unsorted and duplicate
+ * mappers (i.e., vtkMapper and subclasses). The list is ordered and duplicate
  * entries are not prevented.
  *
  * @sa
@@ -40,10 +40,10 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add an mapper to the list.
+   * Add an mapper to the bottom of the list.
    */
   void AddItem(vtkMapper *a)
-    { this->vtkCollection::AddItem(static_cast<vtkObject *>(a)); }
+    { this->vtkCollection::AddItem(a); }
 
   /**
    * Get the next mapper in the list.

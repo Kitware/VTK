@@ -16,8 +16,8 @@
  * @class   vtkObjectFactoryCollection
  * @brief   maintain a list of object factories
  *
- * vtkObjectFactoryCollection is an object that creates and manipulates lists
- * of object of type vtkObjectFactory.
+ * vtkObjectFactoryCollection is an object that creates and manipulates
+ * ordered lists of objects of type vtkObjectFactory.
  *
  * @sa
  * vtkCollection vtkObjectFactory
@@ -38,7 +38,7 @@ public:
   static vtkObjectFactoryCollection *New();
 
   /**
-   * Add an ObjectFactory from the list.
+   * Add an ObjectFactory the bottom of the list.
    */
   void AddItem(vtkObjectFactory *t)
   {

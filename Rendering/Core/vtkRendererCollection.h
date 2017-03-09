@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkRendererCollection
- * @brief   a list of renderers
+ * @brief   an ordered list of renderers
  *
  * vtkRendererCollection represents and provides methods to manipulate a list
- * of renderers (i.e., vtkRenderer and subclasses). The list is unsorted and
+ * of renderers (i.e., vtkRenderer and subclasses). The list is ordered and
  * duplicate entries are not prevented.
  *
  * @sa
@@ -39,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add a Renderer to the list.
+   * Add a Renderer to the bottom of the list.
    */
   void AddItem(vtkRenderer *a)
     { this->vtkCollection::AddItem(a); }

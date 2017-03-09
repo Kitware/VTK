@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkRenderWindowCollection
- * @brief   a list of RenderWindows
+ * @brief   an ordered list of RenderWindows
  *
  * vtkRenderWindowCollection represents and provides methods to manipulate a
- * list of RenderWindows. The list is unsorted and duplicate entries are
+ * list of RenderWindows. The list is ordered and duplicate entries are
  * not prevented.
  *
  * @sa
@@ -39,7 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Add a RenderWindow to the list.
+   * Add a RenderWindow to the bottom of the list.
    */
   void AddItem(vtkRenderWindow *a)
   {
