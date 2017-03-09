@@ -1573,6 +1573,7 @@ bool vtkTextureObject::AllocateProxyTexture3D(unsigned int const width,
   unsigned int const height, unsigned int depth, int const numComps,
   int const dataType)
 {
+#ifndef GL_ES_VERSION_3_0
   assert(this->Context);
 
   this->GetDataType(dataType);
@@ -1605,7 +1606,7 @@ bool vtkTextureObject::AllocateProxyTexture3D(unsigned int const width,
   {
     return false;
   }
-
+#endif
   return true;
 }
 
