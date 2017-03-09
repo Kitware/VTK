@@ -15,12 +15,11 @@
 //=============================================================================
 #include "vtkmCellAverage.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
@@ -61,7 +60,7 @@ int vtkmCellAverage::RequestData(vtkInformation* vtkNotUsed(request),
 
   // grab the input array to process to determine the field we want to average
   int association = this->GetInputArrayAssociation(0, inputVector);
-  if (association != vtkDataObject::FIELD_ASSOCIATION_CELLS)
+  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     vtkErrorMacro(<< "Must be asked to average a cell based field.");
     return 1;
@@ -76,7 +75,7 @@ int vtkmCellAverage::RequestData(vtkInformation* vtkNotUsed(request),
   const bool dataSetValid =
       in.GetNumberOfCoordinateSystems() > 0 && in.GetNumberOfCellSets() > 0;
   const bool fieldValid =
-      (field.GetAssociation() == vtkm::cont::Field::ASSOC_CELL_SET) &&
+      (field.GetAssociation() == vtkm::cont::Field::ASSOC_POINTS) &&
       (field.GetName() != std::string());
   if (!(dataSetValid && fieldValid))
   {
@@ -91,9 +90,9 @@ int vtkmCellAverage::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (result.IsValid())
   {
-    // convert back the dataset to VTK, and add the field as a point field
+    // convert back the dataset to VTK, and add the field as a cell field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField());
-    output->GetPointData()->AddArray(resultingArray);
+    output->GetCellData()->AddArray(resultingArray);
     return 1;
   }
 
