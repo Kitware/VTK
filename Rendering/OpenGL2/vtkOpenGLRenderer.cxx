@@ -195,6 +195,7 @@ int vtkOpenGLRenderer::UpdateGeometry()
 
   // if we are suing shadows then let the renderpasses handle it
   // for opaque and translucent
+  int hasTranslucentPolygonalGeometry = 0;
   if (this->UseShadows)
   {
     if (!this->ShadowMapPass)
@@ -214,7 +215,6 @@ int vtkOpenGLRenderer::UpdateGeometry()
 
     // do the render library specific stuff about translucent polygonal geometry.
     // As it can be expensive, do a quick check if we can skip this step
-    int hasTranslucentPolygonalGeometry=0;
     for ( i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount;
           i++ )
     {
@@ -245,7 +245,7 @@ int vtkOpenGLRenderer::UpdateGeometry()
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
-  if (!this->UseDepthPeelingForVolumes)
+  if (hasTranslucentPolygonalGeometry == 0 || !this->UseDepthPeelingForVolumes)
   {
     for ( i = 0; i < this->PropArrayCount; i++ )
     {

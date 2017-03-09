@@ -619,7 +619,7 @@ int vtkRenderer::UpdateGeometry()
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
-  if (!this->UseDepthPeelingForVolumes)
+  if (hasTranslucentPolygonalGeometry == 0 || !this->UseDepthPeelingForVolumes)
   {
     for ( i = 0; i < this->PropArrayCount; i++ )
     {
