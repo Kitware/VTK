@@ -25,7 +25,6 @@
 #include <vtkImageShiftScale.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
@@ -46,8 +45,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
 {
   double scalarRange[2];
 
-  vtkNew<vtkActor> outlineActor;
-  vtkNew<vtkPolyDataMapper> outlineMapper;
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
@@ -55,12 +52,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
-
-  // Add outline filter
-  vtkNew<vtkOutlineFilter> outlineFilter;
-  outlineFilter->SetInputConnection(reader->GetOutputPort());
-  outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetSampleDistance(0.1);
@@ -72,7 +63,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren.GetPointer());
   renWin->SetSize(400, 400);
-  ren->SetBackground(0.0, 0.0, 0.0);
+  ren->SetBackground(1.0, 1.0, 1.0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
@@ -89,8 +80,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
-  //colorTransferFunction->AddRGBPoint(scalarRange[0], 0.9, 0.1, 0.1);
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.6, 0.6);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.9, 0.4, 0.9);
 
   vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
   volume->SetMapper(volumeMapper.GetPointer());
@@ -115,7 +105,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   vtkNew<vtkActor> sphereActor;
   vtkProperty* sphereProperty = sphereActor->GetProperty();
   sphereProperty->SetColor(0.5, 0.9, 0.7);
-  //sphereProperty->SetOpacity(0.0);
   sphereProperty->SetOpacity(0.3);
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
@@ -132,7 +121,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   vtkNew<vtkActor> sphereActor2;
   sphereProperty = sphereActor2->GetProperty();
   sphereProperty->SetColor(0.9, 0.4, 0.1);
-  //sphereProperty->SetOpacity(0.0); /// TODO Test this
   sphereProperty->SetOpacity(0.3);
   vtkNew<vtkPolyDataMapper> sphereMapper2;
   sphereMapper2->SetInputConnection(sphereSource2->GetOutputPort());
@@ -140,7 +128,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
 
   // Add actors
   ren->AddVolume(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
   ren->AddActor(sphereActor.GetPointer());
   ren->AddActor(sphereActor2.GetPointer());
 
