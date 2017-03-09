@@ -13,6 +13,7 @@ vtk_add_test_python(
   TestMutable.py
   TestNumpySupport.py
   TestNumpyInterface.py
+  TestNumpyWeakReference.py
   TestOperators.py
   TestOverloads.py
   TestPointers.py
