@@ -1,0 +1,9 @@
+# NetCDF-3 C++ for for VTK
+
+This directory contains the NetCDF-3 C++ library with changes to support
+embedding it VTK. This includes changes made primarily to the build system to
+allow it to be embedded into another source tree as well as a header to
+facilitate mangling of the symbols to avoid conflicts with other copies of the
+library within a single process.
+
+  * Add attributes to pass commit checks within VTK.
