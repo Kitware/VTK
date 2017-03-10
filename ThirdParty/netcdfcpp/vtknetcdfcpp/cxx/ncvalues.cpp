@@ -7,7 +7,7 @@
  *   $Header: /upc/share/CVS/netcdf-3/cxx/ncvalues.cpp,v 1.12 2008/03/05 16:45:32 russ Exp $
  *********************************************************************/
 
-#include <config.h>
+// #include <config.h>
 #include <iostream>
 #include <string>
 #include <cstring>
