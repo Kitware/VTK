@@ -104,6 +104,7 @@ const char *vtkOpenGLRenderWindow::GetRenderingBackend()
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
   this->Initialized = false;
+  this->GlewInitValid = false;
 
   this->ShaderCache = vtkOpenGLShaderCache::New();
   this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
@@ -716,8 +717,8 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
   {
 #ifdef GLEW_OK
     GLenum result = glewInit();
-    bool m_valid = (result == GLEW_OK);
-    if (!m_valid)
+    this->GlewInitValid = (result == GLEW_OK);
+    if (!this->GlewInitValid)
     {
       vtkErrorMacro("GLEW could not be initialized.");
       return;
@@ -744,6 +745,9 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
     {
       this->SetContextSupportsOpenGL32(true);
     }
+#else
+    // GLEW is not being used, so avoid false failure on GL checks later.
+    this->GlewInitValid = true;
 #endif
     this->Initialized = true;
 
@@ -2291,6 +2295,11 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
   rw->SetDisplayId(this->GetGenericDisplayId());
   rw->SetOffScreenRendering(1);
   rw->Initialize();
+  if (rw->GlewInitValid == false)
+  {
+    this->OpenGLSupportMessage = "glewInit failed for this window, OpenGL not supported.";
+    return 0;
+  }
   if (rw->GetContextSupportsOpenGL32())
   {
     this->OpenGLSupportResult = 1;
