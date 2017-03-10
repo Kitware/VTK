@@ -3,7 +3,6 @@
 # TODO: Reference testing data from each module only as needed.
 set(data "DATA{${VTK_TEST_INPUT_DIR}/,REGEX:.*}")
 foreach(d
-    FiberSurface
     Infovis
     Infovis/SQLite
     Infovis/XML
