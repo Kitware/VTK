@@ -8,3 +8,4 @@ library within a single process.
 
   * Add attributes to pass commit checks within VTK.
   * Removal of `config.h` since none of its symbols are used.
+  * Add a CMake build system to the project.
