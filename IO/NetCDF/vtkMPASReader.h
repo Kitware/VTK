@@ -80,6 +80,8 @@ version available from Los Alamos National Laboratory.
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+#include "vtk_netcdfcpp_fwd.h" // Forward declarations for vtknetcdfcpp
+
 #include <string> // for std::string
 
 class vtkCallbackCommand;
@@ -87,9 +89,6 @@ class vtkDataArraySelection;
 class vtkDoubleArray;
 class vtkStdString;
 class vtkStringArray;
-
-class NcVar;
-class NcDim;
 
 class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 {

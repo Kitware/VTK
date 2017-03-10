@@ -31,7 +31,8 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-class NcFile;
+#include "vtk_netcdfcpp_fwd.h" // Forward declarations for vtknetcdfcpp
+
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 
