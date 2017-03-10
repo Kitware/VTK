@@ -38,6 +38,7 @@
 #include "vtkAbstractMapper.h"
 #include "vtkColor.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 #include "vtkFreeTypeTools.h"
 #include "vtkStdString.h"
 #include "vtkUnicodeString.h"
@@ -61,8 +62,7 @@ public:
     vtkSmartPointer<vtkTexture>   Texture;
     // Dimensions of the text. Used for generating texture coords when the image
     // dimensions are scaled to a power of two.
-    int TextWidth;
-    int TextHeight;
+    vtkTextRenderer::Metrics Metrics;
   };
 
   //@{
@@ -177,8 +177,6 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
   cacheData.ImageData = vtkSmartPointer<vtkImageData>::New();
   cacheData.Texture = vtkSmartPointer<vtkTexture>::New();
   cacheData.Texture->SetInputData(cacheData.ImageData);
-  cacheData.TextWidth = 0;
-  cacheData.TextHeight = 0;
   return this->AddCacheData(key, cacheData);
 }
 

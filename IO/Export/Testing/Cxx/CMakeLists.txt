@@ -30,6 +30,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
   ${GL2PSTests} ${GL2PSTestsPDF}
   TestOBJExporter.cxx,NO_DATA,NO_VALID
+  TestPDFContextExport.cxx
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )

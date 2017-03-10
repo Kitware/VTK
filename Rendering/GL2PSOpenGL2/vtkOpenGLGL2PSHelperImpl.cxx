@@ -411,7 +411,8 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
     {
       // move the bottom left corner to the baseline as this is how PDF
       // draws text
-      blpos[1] -= m.descent;
+      blpos[0] -= m.Descent[0];
+      blpos[1] -= m.Descent[1];
       gl2psForceRasterPos(&gl2psRasterPos);
       gl2psTextOptColorBL(spaceStr.c_str(), fontname, fontSize, align, angle, rgba,
                           blpos[0], blpos[1]);
@@ -420,7 +421,8 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
     {
       // move the bottom left corner to the baseline as this
       // how PDF draws text.
-      gl2psRasterPos.xyz[1] -= m.descent;
+      gl2psRasterPos.xyz[0] -= m.Descent[0];
+      gl2psRasterPos.xyz[1] -= m.Descent[1];
       gl2psForceRasterPos(&gl2psRasterPos);
       gl2psTextOptColor(str.c_str(), fontname, fontSize, align, angle, rgba);
     }
