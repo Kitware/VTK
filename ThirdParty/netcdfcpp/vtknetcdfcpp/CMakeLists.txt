@@ -21,7 +21,8 @@ target_include_directories(vtknetcdfcpp
 
 set(headers
   cxx/ncvalues.h
-  cxx/netcdfcpp.h)
+  cxx/netcdfcpp.h
+  cxx/vtk_netcdfcpp_mangle.h)
 
 foreach (header IN LISTS headers)
   get_filename_component(header_name "${header}" NAME)

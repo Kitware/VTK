@@ -10,6 +10,7 @@
 #ifndef Ncvalues_def
 #define Ncvalues_def
 
+#include "vtk_netcdfcpp_mangle.h"
 #include "vtknetcdfcpp_export.h"
 
 #include <iostream>

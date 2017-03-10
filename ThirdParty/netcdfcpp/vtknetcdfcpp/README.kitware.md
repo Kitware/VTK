@@ -10,3 +10,4 @@ library within a single process.
   * Removal of `config.h` since none of its symbols are used.
   * Add a CMake build system to the project.
   * Export symbols for Windows support.
+  * Mangle all exported symbols to have a `vtknetcdfcxx_` prefix.
