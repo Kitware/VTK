@@ -32,6 +32,7 @@ set(lib_srcs
 
 #needed to properly setup language wrappers
 set(headers
+  vtkmAverageToPoints.h
   vtkmClip.h
   vtkmContour.h
   vtkmExternalFaces.h
@@ -43,6 +44,7 @@ set(headers
 
 #implementation of the algorithms for cpu accelerators
 set(cpu_accelerator_srcs
+  vtkmAverageToPoints.cxx
   vtkmClip.cxx
   vtkmContour.cxx
   vtkmExternalFaces.cxx
@@ -58,6 +60,7 @@ set(cpu_accelerator_srcs
 
 #implementation of the algorithms for gpu accelerators
 set(cuda_accelerator_srcs
+  vtkmAverageToPoints.cu
   vtkmClip.cu
   vtkmContour.cu
   vtkmExternalFaces.cu
