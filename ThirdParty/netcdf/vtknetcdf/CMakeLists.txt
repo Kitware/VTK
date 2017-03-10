@@ -224,10 +224,6 @@ ENDIF()
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
 SET(WORDS_BIGENDIAN ${CMAKE_WORDS_BIGENDIAN})
 
-OPTION(NETCDF_ENABLE_CXX "Build netcdf C++ API" ON)
-mark_as_advanced(NETCDF_ENABLE_CXX)
-SET(CXX NETCDF_ENABLE_CXX)
-
 # NetCDF4 needs HDF5 HL support. VTK's usage of HDF5 will always require
 # the presence of HL libraries so we no longer need to explicitly check
 # for them
@@ -273,18 +269,13 @@ IF (NETCDF_DISABLE_COMPILER_WARNINGS)
   IF (MSVC)
     STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
         CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
-        CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W0")
-    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
   # Borland uses -w- to suppress warnings.
   ELSEIF (BORLAND)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
-    SET (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -w-")
   ELSE ()
   # Most compilers use -w to suppress warnings.
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-    SET (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -w")
   ENDIF ()
 ENDIF ()
 
@@ -313,10 +304,6 @@ IF (USE_NETCDF4)
   ADD_SUBDIRECTORY(libsrc4)
 ENDIF ()
 
-IF (NETCDF_ENABLE_CXX)
-  ADD_SUBDIRECTORY(cxx)
-ENDIF ()
-
 IF(APPLE)
   SET_SOURCE_FILES_PROPERTIES(
     v2i.c
@@ -336,9 +323,6 @@ if (UNIX)
   target_link_libraries(vtkNetCDF m)
 endif()
 
-VTK_ADD_LIBRARY(vtkNetCDF_cxx ${netcdf_cxx_SOURCES})
-TARGET_LINK_LIBRARIES(vtkNetCDF_cxx LINK_PUBLIC vtkNetCDF)
-
 #-----------------------------------------------------------------------------
 #package the result
 #-----------------------------------------------------------------------------
@@ -347,9 +331,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${VTKNETCDF_SOURCE_DIR}/include/netcdf.h
     ${VTKNETCDF_SOURCE_DIR}/include/vtk_netcdf_mangle.h
-    ${VTKNETCDF_SOURCE_DIR}/cxx/netcdf.hh
-    ${VTKNETCDF_SOURCE_DIR}/cxx/netcdfcpp.h
-    ${VTKNETCDF_SOURCE_DIR}/cxx/ncvalues.h
     ${VTKNETCDF_BINARY_DIR}/vtk_netcdf_config.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtknetcdf/include
     COMPONENT Development)
