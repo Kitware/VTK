@@ -204,7 +204,7 @@ namespace {
       return;
     }
     unsigned int cell_id = 0;
-    // the folowing are only used if we have to triangulate a polygon
+    // the following are only used if we have to triangulate a polygon
     // otherwise they just sit at NULL
     vtkPolygon *polygon = NULL;
     vtkIdList *tris = NULL;

@@ -3,7 +3,7 @@ A simple vtkTkRenderWidget for tkinter.
 
 Created by David Gobbi, April 1999
 
-May ??, 1999  - Modifications peformed by Heather Drury,
+May ??, 1999  - Modifications performed by Heather Drury,
                 to rewrite _pan to match method in TkInteractor.tcl
 May 11, 1999  - Major rewrite by David Gobbi to make the
                 interactor bindings identical to the TkInteractor.tcl

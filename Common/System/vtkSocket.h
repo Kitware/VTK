@@ -69,7 +69,7 @@ public:
 
   /**
    * Selects set of sockets. Returns 0 on timeout, -1 on error.
-   * 1 on success. Selected socket's index is returned thru
+   * 1 on success. Selected socket's index is returned through
    * selected_index
    */
   static int SelectSockets(const int* sockets_to_select, int size,

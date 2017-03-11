@@ -226,7 +226,7 @@ protected:
 
   // From vtkModifiedBSPTRee
   // We provide a function which does the cell/ray test so that
-  // it can be overriden by subclasses to perform special treatment
+  // it can be overridden by subclasses to perform special treatment
   // (Example : Particles stored in tree, have no dimension, so we must
   // override the cell test to return a value based on some particle size
   virtual int IntersectCellInternal( vtkIdType cell_ID,  const double p1[3],

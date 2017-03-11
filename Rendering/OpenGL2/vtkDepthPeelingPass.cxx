@@ -586,7 +586,7 @@ bool vtkDepthPeelingPass::PostReplaceShaderValues(std::string &,
   // counting/accumulating pixels of the same surface twice
   // simply due to this randomness in z values. So we introduce
   // an epsilon into the transparent test to require some
-  // minimal z seperation between pixels
+  // minimal z separation between pixels
   vtkShaderProgram::Substitute(
         fragmentShader, "//VTK::DepthPeeling::Impl",
         "vec2 dpTexCoord = (gl_FragCoord.xy - vpOrigin) / vpSize;\n"

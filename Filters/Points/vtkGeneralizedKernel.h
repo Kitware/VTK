@@ -24,7 +24,7 @@
  * <pre>
  * 1. The weights are normalized.
  * 2. The footprint of the basis is configurable.
- * 3. Probablistic weighting functions can be used to favor certain weights.
+ * 3. Probabilistic weighting functions can be used to favor certain weights.
  * </pre>
  * The following paragraphs describe each of these properties in more detail.
  *

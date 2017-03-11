@@ -1082,12 +1082,12 @@ protected:
   int PolarArcsVisibility;
 
   /**
-   * Visibility of the inner axes (overriden to 0 if RadialAxesVisibility is set to 0)
+   * Visibility of the inner axes (overridden to 0 if RadialAxesVisibility is set to 0)
    */
   int DrawRadialGridlines;
 
   /**
-   * Visibility of the inner arcs (overriden to 0 if PolarArcsVisibility is set to 0)
+   * Visibility of the inner arcs (overridden to 0 if PolarArcsVisibility is set to 0)
    */
   int DrawPolarArcsGridlines;
 

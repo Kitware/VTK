@@ -17,7 +17,7 @@ coneActor = vtk.vtkActor()
 coneActor.SetMapper(coneMapper)
 coneActor.GetProperty().SetOpacity(0.5)
 
-# Actor for opacity thru LUT.
+# Actor for opacity through LUT.
 elevation = vtk.vtkElevationFilter()
 elevation.SetInputConnection(cone.GetOutputPort())
 
@@ -40,7 +40,7 @@ coneActorLUT.SetMapper(coneMapper2)
 coneActorLUT.SetPosition(0.1, 1.0, 0)
 coneActorLUT.GetProperty().SetOpacity(0.99)
 
-# Actor for opacity thru texture.
+# Actor for opacity through texture.
 reader = vtk.vtkPNGReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/alphachannel.png")
 reader.Update()

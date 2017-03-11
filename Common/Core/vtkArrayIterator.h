@@ -57,7 +57,7 @@ public:
    * After Initialize() has been called, the iterator is valid
    * so long as the Array has not been modified
    * (except using the iterator itself).
-   * If the array is modified, the iterator must be re-intialized.
+   * If the array is modified, the iterator must be re-initialized.
    */
   virtual void Initialize(vtkAbstractArray* array) = 0;
 

@@ -880,7 +880,7 @@ macro(vtk_module_third_party _pkg)
     endif()
 
     #a workaround for bad FindHDF5 behavior in which deb or opt can
-    #end up empty. cmake >= 2.8.12.2 makes this uneccessary
+    #end up empty. cmake >= 2.8.12.2 makes this unnecessary
     string(REGEX MATCH "debug;.*optimized;.*"
            _remove_deb_opt "${vtk${_lower}_LIBRARIES}")
     if (_remove_deb_opt)

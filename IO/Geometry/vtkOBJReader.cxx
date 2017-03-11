@@ -126,7 +126,7 @@ int vtkOBJReader::RequestData(
 
   vtkDebugMacro(<<"Reading file");
 
-  // intialise some structures to store the file contents in
+  // initialize some structures to store the file contents in
   vtkPoints *points = vtkPoints::New();
   std::vector<vtkFloatArray*> tcoords_vector;
   vtkFloatArray *normals = vtkFloatArray::New();

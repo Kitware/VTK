@@ -51,7 +51,7 @@
 // makes OpenGL calls, you isolate the code and prevent it from
 // detecting any preceding errors. By calling vtkOpenGLCheckErrorMacro
 // at the bottom of the method you clear the error flags and report
-// any errors that have occured in the method where they occured.
+// any errors that have occurred in the method where they occurred.
 //
 // The macros maybe completely disabled via the CMakeLists variable
 // VTK_REPORT_OPENGL_ERRORS. Note that in that case error flags are

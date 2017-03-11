@@ -676,7 +676,7 @@ void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  // Input Type is internal so we dont prit it
+  // Input Type is internal so we don't print it
   //os << indent << "InputType: " << this->InputType << endl;
 
   os << indent << "Number Of Colors: " << this->NumberOfColors << endl;

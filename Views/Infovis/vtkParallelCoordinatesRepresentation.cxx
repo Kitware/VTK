@@ -845,7 +845,7 @@ int vtkParallelCoordinatesRepresentation::UpdatePlotProperties(vtkStringArray* i
 }
 
 //------------------------------------------------------------------------------
-// Clear out all of the arrays and intialize them to defaults where appropriate.
+// Clear out all of the arrays and initialize them to defaults where appropriate.
 int vtkParallelCoordinatesRepresentation::ReallocateInternals()
 {
   delete [] this->Maxs;

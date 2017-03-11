@@ -1,5 +1,5 @@
 # basic tests on the legacy filters
-# excercises line integral convolution 2d
+# exercises line integral convolution 2d
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImageDataLIC2D.cxx
   TestStructuredGridLIC2DXSlice.cxx

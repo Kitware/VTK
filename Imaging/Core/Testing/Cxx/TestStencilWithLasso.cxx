@@ -87,7 +87,7 @@ int TestStencilWithLasso(int argc, char *argv[])
 
     vtkSmartPointer<vtkPoints> points =
       vtkSmartPointer<vtkPoints>::New();
-    // excercise both open and closed contours
+    // exercise both open and closed contours
     vtkIdType npoints = (j < 2 ? 7 : 6);
     points->SetNumberOfPoints(npoints);
     for (vtkIdType i = 0; i < npoints; i++)
@@ -108,7 +108,7 @@ int TestStencilWithLasso(int argc, char *argv[])
     stencilSource->SetSliceOrientation(orientation);
     if (j == 3)
     {
-      // excercise the polygon code, too
+      // exercise the polygon code, too
       stencilSource->SetShapeToPolygon();
     }
 

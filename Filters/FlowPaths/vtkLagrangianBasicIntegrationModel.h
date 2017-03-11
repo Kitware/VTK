@@ -346,7 +346,7 @@ public:
 
   /**
    * Enable model post process on output
-   * Return true if sucessfull, false otherwise
+   * Return true if sucessful, false otherwise
    * Empty and Always return true with basic model
    */
   virtual bool FinalizeOutputs(vtkPolyData* vtkNotUsed(particlePathsOutput),
@@ -460,7 +460,7 @@ protected:
    * values for each leaf of each dataset of surface
    * nComponents could be retrived with arrayName but is
    * given for simplication purposes.
-   * it is your responsability to initialize all components of
+   * it is your responsibility to initialize all components of
    * defaultValues[nComponent]
    */
   virtual void ComputeSurfaceDefaultValues(const char* arrayName, vtkDataSet* dataset,

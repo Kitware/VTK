@@ -454,7 +454,7 @@ int vtkLeaderActor2D::ClipLeader(double center[3], int box[2], double p1[3],
   t = ( fabs(tx-0.5) < fabs(ty-0.5) ? tx : ty );
   if ( fabs(t-0.5) > 0.45 )
   {
-    return 0; //wont fit along line
+    return 0; //won't fit along line
   }
   else
   {

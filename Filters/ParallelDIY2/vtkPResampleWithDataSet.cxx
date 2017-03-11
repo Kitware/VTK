@@ -1144,7 +1144,7 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   {
     block.PointsLookup = new RegularPartition;
   }
-  // We dont want ImageData points in the lookup structure
+  // We don't want ImageData points in the lookup structure
   {
     std::vector<vtkDataSet*> dsblocks = block.InputBlocks;
     for (size_t i = 0; i < dsblocks.size(); ++i)

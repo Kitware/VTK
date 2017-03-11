@@ -47,7 +47,7 @@
  * associated color scalar image). This class performs point by point
  * transformation. The view matrix is used to transform each pixel. IMPORTANT
  * NOTE: The transformation occurs by normalizing the image pixels into the
- * (-1,1) view space (depth values are passed thru). The process follows the
+ * (-1,1) view space (depth values are passed through). The process follows the
  * vtkCoordinate class which is the standard for VTK rendering
  * transformations. Subtle differences in whether the lower left pixel origin
  * are at the center of the pixel versus the lower-left corner of the pixel

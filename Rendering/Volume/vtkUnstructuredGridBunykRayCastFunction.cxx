@@ -605,7 +605,7 @@ void *vtkUnstructuredGridBunykRayCastFunction::NewIntersection()
 
 }
 
-// The Intialize method is called from the ray caster at the start of
+// The Initialize method is called from the ray caster at the start of
 // rendering. In this method we check if the render is valid (there is
 // a renderer, a volume, a mapper, input, etc). We build the basic
 // structured if necessary. Then we compute the view dependent information

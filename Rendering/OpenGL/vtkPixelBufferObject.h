@@ -17,8 +17,8 @@
  * @brief   abstracts an OpenGL pixel buffer object.
  *
  * Provides low-level access to PBO mapped memory. Used to transfer raw data
- * to/from PBO mapped memory and the application. Once data is transfered to
- * the PBO it can then be transfered to the GPU (eg texture memory). Data may
+ * to/from PBO mapped memory and the application. Once data is transferred to
+ * the PBO it can then be transferred to the GPU (eg texture memory). Data may
  * be uploaded from the application into a pixel buffer or downloaded from the
  * pixel bufer to the application. The vtkTextureObject is used to transfer
  * data from/to the PBO to/from texture memory on the GPU.

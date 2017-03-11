@@ -1338,7 +1338,7 @@ void vtkStructuredAMRGridConnectivity::MarkNodeProperty(
 
     if( this->IsNodeOnSharedBoundary(i,j,k, gridId, gridExt) )
     {
-      // NOTE: for AMR grids, all the grids own all of ther points so we don't
+      // NOTE: for AMR grids, all the grids own all of their points so we don't
       // ignore any of the points.
       // We might use SHARED in the future
       //vtkGhostArray::SetProperty(p,vtkGhostArray::SHARED);

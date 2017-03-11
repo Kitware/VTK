@@ -569,7 +569,7 @@ void vtkAMRVolumeMapper::UpdateGrid()
 #if PRINTSTATS
   this->Grid->GetDimensions(gridDim);
   this->Grid->GetOrigin(gridOrigin);
-  std::cerr << "Grid Dimenions: (" << gridDim[0] << ", " << gridDim[1] << ", "
+  std::cerr << "Grid Dimensions: (" << gridDim[0] << ", " << gridDim[1] << ", "
             << gridDim[2]
             << ") Origin:(" << gridOrigin[0] << ", "<< gridOrigin[1] << ", "
             << gridOrigin[2] << ")\n";

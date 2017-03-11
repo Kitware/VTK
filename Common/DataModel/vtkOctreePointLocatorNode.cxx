@@ -415,7 +415,7 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       }
     }
 
-    // if there are no inner boundaries we dont want to square.
+    // if there are no inner boundaries we don't want to square.
     if(minDistance != VTK_FLOAT_MAX)
     {
       minDistance *= minDistance;

@@ -537,7 +537,7 @@ int MeshQuality( int argc, char* argv[] )
     cout << endl;
   }
 
-  // Exersize remaining methods for coverage
+  // Exercise remaining methods for coverage
   iq->Print(cout);
 
   // Check for warnings

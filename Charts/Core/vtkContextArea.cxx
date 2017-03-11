@@ -138,7 +138,7 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
   // Shorter names for compact readability:
   vtkRecti &geo = this->Geometry;
 
-  // Set the axes positions. We iterate upto 3 times to converge on the margins.
+  // Set the axes positions. We iterate up to 3 times to converge on the margins.
   vtkRecti draw(this->DrawAreaGeometry); // Start with last attempt
   vtkRecti lastDraw;
   for (int pass = 0; pass < 3; ++pass)

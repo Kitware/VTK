@@ -558,7 +558,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
       // This rank does not have the maximum number of arrays
       if (nArrays != 0)
       {
-        // this rank have an incorrect number of arrays, not suposed to happen
+        // this rank have an incorrect number of arrays, not supposed to happen
         vtkErrorMacro("Something went wrong with seed data arrays, discarding arrays");
         for (int i = 0; i < nArrays; i++)
         {

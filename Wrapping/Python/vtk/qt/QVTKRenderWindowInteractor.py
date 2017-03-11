@@ -486,7 +486,7 @@ def QVTKRenderWidgetConeExample():
     widget = QVTKRenderWindowInteractor()
     widget.Initialize()
     widget.Start()
-    # if you dont want the 'q' key to exit comment this.
+    # if you don't want the 'q' key to exit comment this.
     widget.AddObserver("ExitEvent", lambda o, e, a=app: a.quit())
 
     ren = vtk.vtkRenderer()

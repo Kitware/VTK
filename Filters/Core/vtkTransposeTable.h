@@ -24,7 +24,7 @@
  * columns (when AddIdColumn is true). Such a column can be used
  * to name the columns of the result.
  * Note that columns of the output table will have a variant type
- * is the columns of the initial table are not consistant.
+ * is the columns of the initial table are not consistent.
 */
 
 #ifndef vtkTransposeTable_h

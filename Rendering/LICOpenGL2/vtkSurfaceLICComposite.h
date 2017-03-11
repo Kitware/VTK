@@ -69,7 +69,7 @@ public:
    * IPC during compositing if any of the block extents cover
    * or intersect a number of block extents. The input data
    * needs to be shuffled but not unshuffled since for overlapping
-   * regions LIC is computed by all proccesses that overlap.
+   * regions LIC is computed by all processes that overlap.
    * If there is very little overlap between block extents
    * then this method is superior since no unshuffle is needed.
 

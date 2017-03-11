@@ -20,7 +20,7 @@ For example
 //VTK::Normal::Dec  - declaration any uniforms/varying needed for normals
 //VTK::Normal::Impl - Implementation of shader code for handling normals
 
-All shaders should start with the folowing line
+All shaders should start with the following line
 
 //VTK::System::Dec
 

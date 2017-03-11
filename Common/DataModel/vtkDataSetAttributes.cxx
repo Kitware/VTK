@@ -1812,7 +1812,7 @@ vtkDataSetAttributes::FieldList::~FieldList()
 }
 
 //----------------------------------------------------------------------------
-// To perform intersection of attribute data, use IntializeFieldList() to grab
+// To perform intersection of attribute data, use InitializeFieldList() to grab
 // an initial vtkDataSetAttributes. Then use IntersectFieldList() to add (and
 // intersect) additional vtkDataSetAttributes.
 void vtkDataSetAttributes::FieldList::InitializeFieldList(

@@ -128,7 +128,7 @@ public:
   void RemoveBlockOpacities();
 
   // If the input \a dobj is a vtkCompositeDataSet, we will loop over the
-  // hierarchy recursively starting from intial index 0 and use only visible
+  // hierarchy recursively starting from initial index 0 and use only visible
   // blocks, which is specified in the vtkCompositeDataDisplayAttributes \a cda,
   // to compute the \a bounds.
   static void ComputeVisibleBounds(
@@ -146,7 +146,7 @@ private:
 
   /**
    * If the input data \a dobj is a vtkCompositeDataSet, we will
-   * loop over the hierarchy recursively starting from intial index
+   * loop over the hierarchy recursively starting from initial index
    * \a flat_index and use only visible blocks, which is
    * specified in the vtkCompositeDataDisplayAttributes \a cda,
    * to compute bounds and the result bounds will be set to

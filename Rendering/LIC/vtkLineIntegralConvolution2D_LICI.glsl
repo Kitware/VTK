@@ -66,7 +66,7 @@ float getNoise(vec2 vectc)
 // to have the entire texture initialized to 0
 // and set clamp to border and have border color 0
 // an integer is set if the step was taken, keeping
-// an accurate step count is neccessary to prevent
+// an accurate step count is necessary to prevent
 // boundary artifacts. Don't count the step if
 // all vector lookups are identically 0. This is
 // a proxy for "stepped outside valid domain"

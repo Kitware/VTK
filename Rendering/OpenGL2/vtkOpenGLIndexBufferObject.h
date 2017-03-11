@@ -37,12 +37,12 @@ public:
   size_t IndexCount; // Number of indices in the VBO
 
   // Description:
-  // used to create an IBO for triangle primatives
+  // used to create an IBO for triangle primitives
   size_t CreateTriangleIndexBuffer(vtkCellArray *cells,
      vtkPoints *points);
 
   // Description:
-  // used to create an IBO for triangle primatives
+  // used to create an IBO for triangle primitives
   static void AppendTriangleIndexBuffer(
     std::vector<unsigned int> &indexArray,
     vtkCellArray *cells,
@@ -54,7 +54,7 @@ public:
   size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells);
 
   // Description:
-  // used to create an IBO for line primatives
+  // used to create an IBO for line primitives
   static void AppendLineIndexBuffer(
     std::vector<unsigned int> &indexArray,
     vtkCellArray *cells,
@@ -72,11 +72,11 @@ public:
     vtkIdType vertexOffset);
 
   // Description:
-  // used to create an IBO for primatives as points
+  // used to create an IBO for primitives as points
   size_t CreatePointIndexBuffer(vtkCellArray *cells);
 
   // Description:
-  // used to create an IBO for primatives as points
+  // used to create an IBO for primitives as points
   static void AppendPointIndexBuffer(
     std::vector<unsigned int> &indexArray,
     vtkCellArray *cells,
@@ -121,7 +121,7 @@ public:
   size_t CreateVertexIndexBuffer(vtkCellArray **cells);
 
   // Description:
-  // used to create an IBO for primatives as points
+  // used to create an IBO for primitives as points
   static void AppendVertexIndexBuffer(
     std::vector<unsigned int> &indexArray,
     vtkCellArray **cells,

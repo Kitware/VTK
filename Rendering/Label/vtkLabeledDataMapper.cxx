@@ -463,7 +463,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       {
         case VTK_VOID: FormatString = "0x%x"; break;
 
-        // dont use vtkTypeTraits::ParseFormat for character types as parse formats
+        // don't use vtkTypeTraits::ParseFormat for character types as parse formats
           // aren't the same as print formats for these types.
           case VTK_BIT:
           case VTK_SHORT:

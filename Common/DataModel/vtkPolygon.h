@@ -146,7 +146,7 @@ public:
    * Compute the area of a polygon in 3D. The area is returned, as well as
    * the normal (a side effect of using this method). If you desire to
    * compute the area of a triangle, use vtkTriangleArea which is faster.
-   * If pts==NULL, point indexing is suposed to be {0, 1, ..., numPts-1}.
+   * If pts==NULL, point indexing is supposed to be {0, 1, ..., numPts-1}.
    * If you already have a vtkPolygon instantiated, a convenience function,
    * ComputeArea() is provided.
    */

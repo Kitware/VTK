@@ -474,7 +474,7 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
 void vtkMultiProcessController::BroadcastTriggerRMIOnAllChildren(
     void *arg, int argLength, int rmiTag)
 {
-  // This is called by the root process, namely rank 0. The sattelite ranks
+  // This is called by the root process, namely rank 0. The satellite ranks
   // call BroadcastProcessRMIs().
 
   int triggerMessage[128];

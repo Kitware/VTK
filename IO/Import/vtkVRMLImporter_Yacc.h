@@ -987,7 +987,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   short yyssa[YYINITDEPTH];     /*  the state stack                     */
   YYSTYPE yyvsa[YYINITDEPTH];   /*  the semantic value stack            */
 
-  short *yyss = yyssa;          /*  refer to the stacks thru separate pointers */
+  short *yyss = yyssa;          /*  refer to the stacks through separate pointers */
   YYSTYPE *yyvs = yyvsa;        /*  to allow yyoverflow to reallocate them elsewhere */
 
 #ifdef YYLSP_NEEDED

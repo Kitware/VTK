@@ -572,7 +572,7 @@ int vtkMNITransformReader::ReadThinPlateSplineTransform(
   {
     displacements->Delete();
     points->Delete();
-    vtkErrorMacro("Incorrect nubmer of Displacements in "
+    vtkErrorMacro("Incorrect number of Displacements in "
                   << this->FileName << ":" << this->LineNumber);
     return 0;
   }

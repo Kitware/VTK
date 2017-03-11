@@ -100,11 +100,11 @@ int TestPRandomGraphSource(int argc, char* argv[])
       {
         doConnectedComponents = false;
       }
-      else if (arg == "--no-minumum-spanning-tree")
+      else if (arg == "--no-minimum-spanning-tree")
       {
         doMST = false;
       }
-      else if (arg == "--minumum-spanning-tree")
+      else if (arg == "--minimum-spanning-tree")
       {
         doMST = true;
       }

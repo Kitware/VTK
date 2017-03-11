@@ -325,7 +325,7 @@ void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *othe
     }
     this->AttributeInternalVector->Vector[i]->DeepCopy(
       other->AttributeInternalVector->Vector[i]);
-    // Dont need to copy the contents of AttributeIndices: it will be
+    // Don't need to copy the contents of AttributeIndices: it will be
     // recomputed because of the following Moditied call.
   }
   this->Modified();

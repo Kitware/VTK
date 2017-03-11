@@ -29,7 +29,7 @@
  * To use this filter, specify an input of type vtkPointSet (i.e., has an
  * explicit representation of points). Optionally a scalar weighting function
  * can be provided (part of the input to the filter). Then specify how the
- * local spherical neigborhood is to be defined, either by a fixed radius or
+ * local spherical neighborhood is to be defined, either by a fixed radius or
  * a radius relative to the voxel size. Finally, specify how the density is
  * specified, either as a points/volume, or as number of points. (The
  * weighting scalar array will affect both of these results if provided and
