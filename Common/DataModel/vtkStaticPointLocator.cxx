@@ -117,13 +117,13 @@ public:
   void GetBucketIndices(const double *x, int ijk[3]) const
   {
     // Compute point index. Make sure it lies within range of locator.
-    ijk[0] = static_cast<int>(((x[0] - bX) * fX));
-    ijk[1] = static_cast<int>(((x[1] - bY) * fY));
-    ijk[2] = static_cast<int>(((x[2] - bZ) * fZ));
+    vtkIdType tmp0 = static_cast<vtkIdType>(((x[0] - bX) * fX));
+    vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - bY) * fY));
+    vtkIdType tmp2 = static_cast<vtkIdType>(((x[2] - bZ) * fZ));
 
-    ijk[0] = (ijk[0] < 0 ? 0 : (ijk[0] >= xD ? xD-1 : ijk[0]));
-    ijk[1] = (ijk[1] < 0 ? 0 : (ijk[1] >= yD ? yD-1 : ijk[1]));
-    ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= zD ? zD-1 : ijk[2]));
+    ijk[0] = tmp0 < 0 ? 0 : (tmp0 >= xD ? xD-1 : tmp0);
+    ijk[1] = tmp1 < 0 ? 0 : (tmp1 >= yD ? yD-1 : tmp1);
+    ijk[2] = tmp2 < 0 ? 0 : (tmp2 >= zD ? zD-1 : tmp2);
   }
 
   //-----------------------------------------------------------------------------

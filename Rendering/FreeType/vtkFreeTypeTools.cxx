@@ -2339,7 +2339,7 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
   }
 
   // Now just step up/down until the bbox matches the target.
-  while (size[0] < targetWidth && size[1] < targetHeight && fontSize < 200)
+  while (size[0] < targetWidth && size[1] < targetHeight && fontSize < 200.)
   {
     fontSize += 1.;
     metaData.textProperty->SetFontSize(fontSize);
@@ -2355,7 +2355,7 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
     size[1] = metaData.bbox[3] - metaData.bbox[2];
   }
 
-  while ((size[0] > targetWidth || size[1] > targetHeight) && fontSize > 0)
+  while ((size[0] > targetWidth || size[1] > targetHeight) && fontSize > 1.)
   {
     fontSize -= 1.;
     metaData.textProperty->SetFontSize(fontSize);
