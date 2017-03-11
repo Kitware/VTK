@@ -420,7 +420,7 @@ int TestErrorsAndWarnings()
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, 0, -1, 1 ));
 
-  // WARNING: You passed an invalid atribute type (100)
+  // WARNING: You passed an invalid attribute type (100)
   intervalSets.push_back(threshold->AddIntervalSet(
     1, 10,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
@@ -432,7 +432,7 @@ int TestErrorsAndWarnings()
   }
   else
   {
-    std::cout << "Failed to catch expected 'You passed an invalid atribute type (100)' warning" << std::endl;
+    std::cout << "Failed to catch expected 'You passed an invalid attribute type (100)' warning" << std::endl;
     ++status;
   }
   filterObserver->Clear();

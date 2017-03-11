@@ -651,7 +651,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     // If text prop has changed, recopy it to all mappers
     // We have to use shallow copy since the color of each text prop
-    // can be overriden
+    // can be overridden
 
     if (this->EntryTextProperty->GetMTime()  > this->BuildTime)
     {

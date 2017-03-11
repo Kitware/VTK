@@ -1002,7 +1002,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
       return 0;
     }
 
-    // Copy file descripters to a structure ReadFieldData can accept.  The
+    // Copy file descriptors to a structure ReadFieldData can accept. The
     // ReadFieldData interface was designed to not use implementation of
     // private or templated objects.
     int *modeFDCopy = new int[modeFDVector.size()];

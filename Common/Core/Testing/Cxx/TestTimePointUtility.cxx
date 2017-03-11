@@ -42,7 +42,7 @@ int TestTimePointUtility(int, char *[])
       continue;
     }
 
-    // The dates October 5, 1582 thru October 14, 1582 do not exist
+    // The dates October 5, 1582 through October 14, 1582 do not exist
     if (y == 1582)
     {
       if (m == 10)

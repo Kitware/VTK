@@ -2298,7 +2298,7 @@ int vtkCCSCutHoleyPolys(
 
       if (madeCut)
       {
-        // Move successfuly cut innerPolyId into its own group
+        // Move successfully cut innerPolyId into its own group
         polyGroup.erase(polyGroup.begin() + inner);
         polyGroups[innerPolyId].push_back(innerPolyId);
       }

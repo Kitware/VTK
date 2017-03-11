@@ -135,7 +135,7 @@ InitialCausalCoefficient
                 }
                 return(c[0] + Sum / (1.0 - zn * zn));
             }
-            /* break; (unecessary because of return) */
+            /* break; (unnecessary because of return) */
 
         case VTK_IMAGE_BORDER_MIRROR:
             /* this initialization corresponds to mirror boundaries */
@@ -167,7 +167,7 @@ InitialCausalCoefficient
                 }
                 return(Sum / (1.0 - zn * zn));
             }
-            /* break; (unecessary because of return) */
+            /* break; (unnecessary because of return) */
 
         case VTK_IMAGE_BORDER_REPEAT:
             /* this initialization corresponds to periodic boundaries */
@@ -195,7 +195,7 @@ InitialCausalCoefficient
                 }
                 return(Sum / (1.0 - zn));
             }
-            /* break; (unecessary because of return) */
+            /* break; (unnecessary because of return) */
     }
 
     return(0.0);

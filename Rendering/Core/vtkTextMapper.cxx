@@ -357,7 +357,7 @@ int vtkTextMapper::SetMultipleRelativeFontSize(vtkViewport *viewport,
 //----------------------------------------------------------------------------
 void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
 {
-  // This is neccessary for GL2PS exports when this actor/mapper are part of an
+  // This is necessary for GL2PS exports when this actor/mapper are part of an
   // composite actor/mapper.
   if (!actor->GetVisibility())
   {

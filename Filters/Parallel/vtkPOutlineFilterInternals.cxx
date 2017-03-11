@@ -267,7 +267,7 @@ int vtkPOutlineFilterInternals::RequestData(
       double bounds[6];
       input->GetAMRInfo()->GetBounds(level, dataIdx, bounds);
 
-      // Check if the bounds recieved are not default bounding box
+      // Check if the bounds received are not default bounding box
       if (vtkBoundingBox::IsValid(bounds))
       {
         if (this->IsCornerSource)
@@ -315,7 +315,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input,
         double bounds[6];
         ug->GetBounds(bounds);
 
-        // Check if the bounds recieved are not default bounding box
+        // Check if the bounds received are not default bounding box
         if (vtkBoundingBox::IsValid(bounds))
         {
           if (this->IsCornerSource)

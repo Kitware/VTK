@@ -168,7 +168,7 @@ int TestResampleWithDataSet(int argc, char *argv[])
     return !vtkTesting::FAILED;
   }
 
-  // dont pass field arrays
+  // don't pass field arrays
   resample->PassFieldArraysOff();
   resample->Update();
   result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());

@@ -221,7 +221,7 @@ int vtkQuadraturePointsGenerator::Generate(
     return 1;
   }
 
-  // get the dictionnary
+  // get the dictionary
   vtkInformation *info = offsets->GetInformation();
   vtkInformationQuadratureSchemeDefinitionVectorKey *key =
       vtkQuadratureSchemeDefinition::DICTIONARY();

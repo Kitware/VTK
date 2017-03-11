@@ -121,7 +121,7 @@ public:
   double GetAngleForOrientation(int orientation);
 
   /**
-   * Get the angle that vertex labels should be rotated for the correponding
+   * Get the angle that vertex labels should be rotated for the corresponding
    * tree orientation.  For the default orientation (LEFT_TO_RIGHT), this
    * is 0 degrees.
    */

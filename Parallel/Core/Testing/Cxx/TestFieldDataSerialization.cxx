@@ -254,7 +254,7 @@ bool AreArraysEqual(vtkDataArray *A1, vtkDataArray *A2)
 bool AreFieldsEqual(vtkFieldData *F1, vtkFieldData *F2)
 {
   assert("pre: field 1 is NULL!" && (F1 !=NULL) );
-  assert("pre: fiels 2 is NULL!" && (F2 !=NULL) );
+  assert("pre: field 2 is NULL!" && (F2 !=NULL) );
 
   if( F1->GetNumberOfArrays() != F2->GetNumberOfArrays() )
   {

@@ -1,4 +1,4 @@
-"""Miscellaneous functions and classes that dont fit into specific
+"""Miscellaneous functions and classes that don't fit into specific
 categories."""
 
 import sys, os, vtk

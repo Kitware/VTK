@@ -85,7 +85,7 @@ include(FindPackageHandleStandardArgs)
 #
 # The compilers are detected in this order:
 #
-# 1. Try to find the most generic availble MPI compiler, as this is usually set up by
+# 1. Try to find the most generic available MPI compiler, as this is usually set up by
 #    cluster admins.  e.g., if plain old mpicc is available, we'll use it and assume it's
 #    the right compiler.
 #

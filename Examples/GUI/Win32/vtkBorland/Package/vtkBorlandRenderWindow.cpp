@@ -212,7 +212,7 @@ void __fastcall TvtkBorlandRenderWindow::Paint(void)
       }
     catch (...)
       {
-      // Some error trap should occurr here
+      // Some error trap should occur here
       ShowMessage("An exception occurred whilst rendering");
       }
     }

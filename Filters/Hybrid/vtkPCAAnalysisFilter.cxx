@@ -103,7 +103,7 @@ static inline void NormaliseColumns(double **m, int rows, int cols)
     }
     cl = sqrt(cl);
 
-    // If cl == 0 something is rotten, dont do anything now
+    // If cl == 0 something is rotten, don't do anything now
     if (cl != 0) {
       for (int r = 0; r < rows; r++) {
         m[r][c] /= cl;

@@ -94,7 +94,7 @@ public:
 
 protected:
   /**
-   * Default construtor. Planes=NULL. ShowLines=true. LinesLength=1.0.
+   * Default constructor. Planes=NULL. ShowLines=true. LinesLength=1.0.
    */
   vtkFrustumSource();
 

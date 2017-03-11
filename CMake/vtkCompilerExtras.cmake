@@ -2,7 +2,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 
   include(CheckCXXCompilerFlag)
 
-  # Addtional warnings for GCC
+  # Additional warnings for GCC
   set(CMAKE_CXX_FLAGS_WARN "-Wnon-virtual-dtor -Wno-long-long -ansi -Wcast-align -Wchar-subscripts -Wall -Wextra -Wpointer-arith -Wformat-security -Woverloaded-virtual -Wshadow -Wunused-parameter -fno-check-new -fno-common")
 
   # This flag is useful as not returning from a non-void function is an error

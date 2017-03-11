@@ -559,7 +559,7 @@ protected:
   std::vector< int > GridExtents; // size of this vector is 6*N
   std::vector< int > GhostedExtents; // size of this vector is 6*N
   std::vector< unsigned char > BlockTopology; // size of this vector is N
-  std::vector< int > GridLevels;  // size of ths vector is N
+  std::vector< int > GridLevels;  // size of this vector is N
   std::vector< std::vector<vtkStructuredAMRNeighbor> > Neighbors;
 
   // For each grid, [0,N], store the donor level,grid and cell information, a

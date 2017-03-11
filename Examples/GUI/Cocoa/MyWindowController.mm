@@ -22,7 +22,7 @@
 {
   [[self leftVTKView] initializeVTKSupport];
 
-  // 'smart pointers' are used because they are very similiar to reference counting in Cocoa.
+  // 'smart pointers' are used because they are very similar to reference counting in Cocoa.
 
   // Personal Taste Section. I like to use a trackball interactor
   vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
@@ -52,14 +52,14 @@
 {
   [[self rightVTKView] initializeVTKSupport];
 
-  // 'smart pointers' are used because they are very similiar to reference counting in Cocoa.
+  // 'smart pointers' are used because they are very similar to reference counting in Cocoa.
 
   // Personal Taste Section. I like to use a trackball interactor
   vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
   [[self rightVTKView] getInteractor]->SetInteractorStyle(intStyle);
 
-  // Create a cyclinder, see the "VTK User's Guide" for details
+  // Create a cylinder, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
   cylinder->SetResolution(100);
 

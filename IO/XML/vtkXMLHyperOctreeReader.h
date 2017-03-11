@@ -67,7 +67,7 @@ protected:
   vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
   vtkIdType GetNumberOfCells() VTK_OVERRIDE;
 
-  // Overriden here to do allocation.
+  // Overridden here to do allocation.
   int ReadArrayForPoints(vtkXMLDataElement* da,
                                  vtkAbstractArray* outArray) VTK_OVERRIDE;
   int ReadArrayForCells(vtkXMLDataElement* da,

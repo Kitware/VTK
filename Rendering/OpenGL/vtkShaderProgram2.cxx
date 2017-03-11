@@ -229,7 +229,7 @@ void vtkShaderProgram2::SetContext(vtkRenderWindow *renWin)
     vtkErrorMacro("The context does not support the required extensions.");
     return;
   }
-  // intialize
+  // initialize
   this->Context = renWin;
   this->Context->MakeCurrent();
 }

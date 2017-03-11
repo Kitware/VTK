@@ -109,7 +109,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   }
 
   // For efficiency: if input type is vtkPolyData, there's no need to
-  // pass it thru the geometry filter.
+  // pass it through the geometry filter.
   //
   if ( this->GetInput()->GetDataObjectType() == VTK_POLY_DATA )
   {

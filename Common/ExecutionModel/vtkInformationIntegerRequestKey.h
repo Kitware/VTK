@@ -20,7 +20,7 @@
  * UPDATE_NUMBER_OF_PIECES where downstream can request that upstream provides
  * data partitioned into a certain number of pieces. There are several components
  * that make this work. First, the key will copy itself upstream during
- * REQUEST_UPDATE_EXTENT. Second, after a successfull execution, it will stor
+ * REQUEST_UPDATE_EXTENT. Second, after a successful execution, it will stor
  * its value into a data object's information using a specific key defined by
  * its data member DataKey. Third, before execution, it will check if the requested
  * value matched the value in the data object's information. If not, it will ask

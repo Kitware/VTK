@@ -31,7 +31,7 @@
 #include <cassert>
 #include <vector>
 
-// Some usefull extent macros
+// Some useful extent macros
 #define EMIN(ext, dim) (ext[2*dim])
 #define EMAX(ext, dim) (ext[2*dim+1])
 #define IMIN(ext) (ext[0])

@@ -56,7 +56,7 @@
  * ~~~
  *
  * The example above pulls in bits of information as needed to filter out cells
- * that aren't relevent. The least expensive lookups are performed first
+ * that aren't relevant. The least expensive lookups are performed first
  * (cell type, then point ids, then points/full cell) to prevent wasted cycles
  * fetching unnecessary data. Also note that at the end of the loop, the
  * iterator must be deleted as these iterators are vtkObject subclasses.

@@ -191,7 +191,7 @@ protected:
 
   /**
    * Initializes the ParticleDataArraySelection object. This method
-   * only executes for an intial request in which case all arrays are
+   * only executes for an initial request in which case all arrays are
    * deselected.
    */
   void InitializeParticleDataSelections();

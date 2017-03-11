@@ -217,7 +217,7 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(
   // add a definition to the dictionary for each cell type.
   int nCellTypes = cellTypes->GetNumberOfTypes();
 
-  // create the offset array and store the dictionnary within
+  // create the offset array and store the dictionary within
   vtkIdTypeArray* offsets = vtkIdTypeArray::New();
   string basename = "QuadratureOffset";
   string finalname = basename;

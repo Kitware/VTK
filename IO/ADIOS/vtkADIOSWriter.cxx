@@ -526,7 +526,7 @@ void vtkADIOSWriter::Write(const std::string& path, const vtkDataArray* v)
   if(lut)
   {
     // Only check the mtime here if a LUT is present.  Otherwise it will be
-    // handled apropriately by the abstract array writer
+    // handled appropriately by the abstract array writer
     if(!this->UpdateMTimeTable(path, v))
     {
       return;

@@ -61,7 +61,7 @@ public:
 
   /**
    * Copies the tree structure from the input. All pointers to non-composite
-   * data objects are intialized to NULL. This also shallow copies the meta data
+   * data objects are initialized to NULL. This also shallow copies the meta data
    * associated with all the nodes.
    */
   virtual void CopyStructure(vtkCompositeDataSet* input)=0;

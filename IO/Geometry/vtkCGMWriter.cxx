@@ -1179,7 +1179,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
 {
 /* Start the picture.  if the sticky bit is set, set and use the defaults
  * of the previous picture.  Otherwise, reset all defaults.
- * Gej: sticky = 0 reset defaults, 1 dont reset anything, 2 only
+ * Gej: sticky = 0 reset defaults, 1 don't reset anything, 2 only
  * reset the color table
  */
   unsigned char *headerp;

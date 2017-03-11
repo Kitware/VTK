@@ -254,7 +254,7 @@ namespace eval ::vtk {
     # window and that an interactive frame rate may be used. If it is not,
     # it uses the still update rate to render the scene with full details.
     # The timer itself is a call to the ExposeEvent observer, which will
-    # finaly render the window using a still update rate.
+    # finally render the window using a still update rate.
 
     proc cb_iren_configure_event {iren} {
         # Cancel the previous timer if any

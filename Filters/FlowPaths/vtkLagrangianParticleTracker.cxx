@@ -448,7 +448,7 @@ bool vtkLagrangianParticleTracker::InitializePathsOutput(vtkInformationVector *o
   particlePathsCellData->CopyStructure(seedData);
   this->InitializePathData(particlePathsCellData);
 
-  // Intialize Particle Paths Point Data
+  // Initialize Particle Paths Point Data
   vtkPointData* particlePathsPointData = particlePathsOutput->GetPointData();
   this->InitializeParticleData(particlePathsPointData, numberOfSeeds);
 
@@ -1009,11 +1009,11 @@ int vtkLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
         interactionParticle = NULL;
       }
 
-      // Insert pass trough interaction points
-      // note : when going out of domain right after going some pass trough
-      // surfaces, the pass trough interaction point will not be
+      // Insert pass through interaction points
+      // Note: when going out of domain right after going some pass through
+      // surfaces, the pass through interaction point will not be
       // on a particle track, since we do not want to show out of domain particle
-      // track. The pass trough interaction still have occured and it is not a bug.
+      // track. The pass through interaction still has occurred and it is not a bug.
       while (!passThroughParticles.empty())
       {
         vtkLagrangianBasicIntegrationModel::PassThroughParticlesItem item =
@@ -1025,11 +1025,11 @@ int vtkLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
         delete item.second;
       }
 
-      // Particle have been correctly integrated and interracted, record it
+      // Particle has been correctly integrated and interacted, record it
       // Insert Current particle as an output point
       this->InsertPathOutputPoint(particle, particlePathsOutput, particlePathPointId);
 
-      // Particle have been terminated by surface
+      // Particle has been terminated by surface
       if (particle->GetTermination() !=
         vtkLagrangianParticle::PARTICLE_TERMINATION_NOT_TERMINATED)
       {

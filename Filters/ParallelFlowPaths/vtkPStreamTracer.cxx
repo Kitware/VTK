@@ -1028,7 +1028,7 @@ namespace
     return stream;
   }
 
-  //Descripton:
+  //Description:
   //Manages the communication of traces between processes
   class TaskManager
   {

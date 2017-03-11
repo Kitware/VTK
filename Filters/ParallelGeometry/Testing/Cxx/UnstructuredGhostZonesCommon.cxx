@@ -257,7 +257,7 @@ void GetPoint(
 }
 
 //------------------------------------------------------------------------------
-// Some usefull extent macros
+// Some useful extent macros
 #define IMIN(ext) ext[0]
 #define IMAX(ext) ext[1]
 #define JMIN(ext) ext[2]

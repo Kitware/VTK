@@ -5304,7 +5304,7 @@ void vtkOpenFOAMReaderPrivate::AppendMeshDirToArray(
 // and faces files for each time steps mesh
 void vtkOpenFOAMReaderPrivate::PopulatePolyMeshDirArrays()
 {
-  // intialize size to number of timesteps
+  // initialize size to number of timesteps
   vtkIdType nSteps = this->TimeValues->GetNumberOfTuples();
   this->PolyMeshPointsDir->SetNumberOfValues(nSteps);
   this->PolyMeshFacesDir->SetNumberOfValues(nSteps);

@@ -152,7 +152,7 @@ void vtkIVExporter::WriteData()
   VTK_INDENT_LESS;
 
   // make sure we have a default light
-  // if we dont then use a headlight
+  // if we don't then use a headlight
   lc = ren->GetLights();
   vtkCollectionSimpleIterator lsit;
   for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )

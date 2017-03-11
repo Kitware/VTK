@@ -186,14 +186,14 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
       //compute rotation vector
       vtkVector3d w = sPrev.Cross(normal);
-      if (w.Normalize() == 0.0) // cant use this segment
+      if (w.Normalize() == 0.0) // can't use this segment
       {
         continue;
       }
 
       //compute rotation of line segment
       vtkVector3d q = sNext.Cross(sPrev);
-      if (q.Normalize() == 0.0) // cant use this segment
+      if (q.Normalize() == 0.0) // can't use this segment
       {
         continue;
       }
