@@ -527,6 +527,7 @@ protected:
   vtkTextureObject *DrawPixelsTextureObject;
 
   bool Initialized; // ensure glewinit has been called
+  bool GlewInitValid; // Did glewInit initialize with a valid state?
 
   float MaximumHardwareLineWidth;
 
