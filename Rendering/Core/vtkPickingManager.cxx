@@ -245,7 +245,7 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
   vtkAbstractPicker* selectedPicker =
     this->ComputePickerSelection(X, Y, 0., renderer);
 
-  // Keep track of the lastet picker chosen & last picking time.
+  // Keep track of the last picker chosen & last picking time.
   this->LastSelectedPicker = selectedPicker;
   this->LastPickingTime = this->CurrentInteractionTime;
 
