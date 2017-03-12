@@ -42,6 +42,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   )
 # Tests with data
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+  BoxClipPointData.cxx
+  BoxClipOrientedPointData.cxx
   TestGradientAndVorticity.cxx,NO_VALID
   TestIconGlyphFilterGravity.cxx
   TestQuadraturePoints.cxx

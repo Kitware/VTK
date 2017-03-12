@@ -187,7 +187,8 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType      newCellId;
   vtkIdType      numPts = input->GetNumberOfPoints();
   vtkIdType      numCells = input->GetNumberOfCells();
-  vtkPointData  *inPD=input->GetPointData(), *outPD = output->GetPointData();
+  vtkPointData  *inPD=input->GetPointData();
+  vtkPointData  *outPD[2];
   vtkCellData   *inCD=input->GetCellData();
   vtkCellData   *outCD[2];
   vtkPoints     *newPoints;
@@ -262,21 +263,36 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   }
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
+  outPD[0] = output->GetPointData();
+  if ( this->GenerateClippedOutput )
+  {
+    outPD[1] = output->GetPointData();
+  }
 
   vtkDataArray *scalars = this->GetInputArrayToProcess(0,inputVector);
   if ( !this->GenerateClipScalars && !scalars)
   {
-    outPD->CopyScalarsOff();
+    outPD[0]->CopyScalarsOff();
+    if ( this->GenerateClippedOutput )
+    {
+      outPD[1]->CopyScalarsOff();
+    }
   }
   else
   {
-    outPD->CopyScalarsOn();
+    outPD[0]->CopyScalarsOn();
+    if ( this->GenerateClippedOutput )
+    {
+      outPD[1]->CopyScalarsOn();
+    }
   }
-  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
+  outPD[0]->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
   outCD[0] = output->GetCellData();
   outCD[0]->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
   {
+    outPD[1] = clippedOutput->GetPointData();
+    outPD[1]->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
     outCD[1] = clippedOutput->GetCellData();
     outCD[1]->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
   }
@@ -393,12 +409,12 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         if (orientation)
         {
           this->ClipHexahedron(newPoints,cell,this->Locator, conn[0],
-                               inPD, outPD, inCD, cellId, outCD[0]);
+                               inPD, outPD[0], inCD, cellId, outCD[0]);
         }
         else
         {
           this->ClipBox(newPoints,cell, this->Locator, conn[0],
-                        inPD, outPD, inCD, cellId, outCD[0]);
+                        inPD, outPD[0], inCD, cellId, outCD[0]);
         }
 
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
@@ -409,12 +425,12 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         if (orientation)
         {
           this->ClipHexahedron2D(newPoints,cell,this->Locator, conn[0],
-                                 inPD, outPD, inCD, cellId, outCD[0]);
+                                 inPD, outPD[0], inCD, cellId, outCD[0]);
         }
         else
         {
           this->ClipBox2D(newPoints,cell, this->Locator, conn[0],
-                          inPD, outPD, inCD, cellId, outCD[0]);
+                          inPD, outPD[0], inCD, cellId, outCD[0]);
         }
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
         num[0]    = conn[0]->GetNumberOfCells();
@@ -424,12 +440,12 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         if (orientation)
         {
           this->ClipHexahedron1D(newPoints,cell, this->Locator, conn[0],
-                                 inPD, outPD, inCD, cellId, outCD[0]);
+                                 inPD, outPD[0], inCD, cellId, outCD[0]);
         }
         else
         {
           this->ClipBox1D(newPoints,cell, this->Locator, conn[0],
-                          inPD, outPD, inCD, cellId, outCD[0]);
+                          inPD, outPD[0], inCD, cellId, outCD[0]);
         }
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
         num[0]    = conn[0]->GetNumberOfCells();
@@ -439,12 +455,12 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         if (orientation)
         {
           this->ClipHexahedron0D(cell, this->Locator, conn[0],
-                                 inPD, outPD, inCD, cellId, outCD[0]);
+                                 inPD, outPD[0], inCD, cellId, outCD[0]);
         }
         else
         {
           this->ClipBox0D(cell, this->Locator, conn[0],
-                          inPD, outPD, inCD, cellId, outCD[0]);
+                          inPD, outPD[0], inCD, cellId, outCD[0]);
         }
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
         num[0]    = conn[0]->GetNumberOfCells();
@@ -2776,7 +2792,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                                      vtkIncrementalPointLocator *locator,
                                      vtkCellArray **tets,
                                      vtkPointData *inPD,
-                                     vtkPointData *outPD,
+                                     vtkPointData **outPD,
                                      vtkCellData *inCD,
                                      vtkIdType cellId,
                                      vtkCellData **outCD)
@@ -2880,7 +2896,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
         {
           if ( locator->InsertUniquePoint(v_tetra[i], iid[i]) )
           {
-            outPD->CopyData(inPD,ptIdout[i], iid[i]);
+            outPD[0]->CopyData(inPD,ptIdout[i], iid[i]);
+            outPD[1]->CopyData(inPD,ptIdout[i], iid[i]);
           }
         }
         int newCellId = tets[1]->InsertNextCell(4,iid);
@@ -2898,7 +2915,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       // of intersection point merging.
       if ( locator->InsertUniquePoint(v, iid[i]) )
       {
-        outPD->CopyData(inPD,ptId, iid[i]);
+        outPD[0]->CopyData(inPD,ptId, iid[i]);
+        outPD[1]->CopyData(inPD,ptId, iid[i]);
       }
 
     }//for all points of the tetrahedron.
@@ -3013,7 +3031,9 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
             edges_inter = edges_inter * 10 + (edgeNum+1);
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
             {
-              this->InterpolateEdge(outPD, p_id[num_inter],
+              this->InterpolateEdge(outPD[0], p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
+              this->InterpolateEdge(outPD[1], p_id[num_inter],
                                     v_id[v1], v_id[v2], t);
             }
 
@@ -3319,7 +3339,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                                             vtkIncrementalPointLocator *locator,
                                             vtkCellArray **tets,
                                             vtkPointData *inPD,
-                                            vtkPointData *outPD,
+                                            vtkPointData **outPD,
                                             vtkCellData *inCD,
                                             vtkIdType cellId,
                                             vtkCellData **outCD)
@@ -3422,7 +3442,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
         {
           if ( locator->InsertUniquePoint(v_tetra[i], iid[i]) )
           {
-            outPD->CopyData(inPD,ptIdout[i], iid[i]);
+            outPD[0]->CopyData(inPD,ptIdout[i], iid[i]);
+            outPD[1]->CopyData(inPD,ptIdout[i], iid[i]);
           }
         }
         int newCellId = tets[1]->InsertNextCell(4,iid);
@@ -3440,7 +3461,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
 
       if ( locator->InsertUniquePoint(v, iid[i]) )
       {
-        outPD->CopyData(inPD,ptId, iid[i]);
+        outPD[0]->CopyData(inPD,ptId, iid[i]);
+        outPD[1]->CopyData(inPD,ptId, iid[i]);
       }
 
     }//for all points of the tetrahedron.
@@ -3568,7 +3590,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
 
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
             {
-              this->InterpolateEdge(outPD, p_id[num_inter],
+              this->InterpolateEdge(outPD[0], p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
+              this->InterpolateEdge(outPD[1], p_id[num_inter],
                                     v_id[v1], v_id[v2], t);
             }
 
@@ -4208,7 +4232,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
                                        vtkIncrementalPointLocator *locator,
                                        vtkCellArray **tets,
                                        vtkPointData *inPD,
-                                       vtkPointData *outPD,
+                                       vtkPointData **outPD,
                                        vtkCellData *inCD,
                                        vtkIdType cellId,
                                        vtkCellData **outCD)
@@ -4315,7 +4339,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
         {
           if ( locator->InsertUniquePoint(v_triangle[i], iid[i]) )
           {
-            outPD->CopyData(inPD,ptIdout[i], iid[i]);
+            outPD[0]->CopyData(inPD,ptIdout[i], iid[i]);
+            outPD[1]->CopyData(inPD,ptIdout[i], iid[i]);
           }
         }
 
@@ -4334,7 +4359,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
       // of intersection point merging.
       if ( locator->InsertUniquePoint(v, iid[i]) )
       {
-        outPD->CopyData(inPD,ptId, iid[i]);
+        outPD[0]->CopyData(inPD,ptId, iid[i]);
+        outPD[1]->CopyData(inPD,ptId, iid[i]);
       }
     }//for all points of the triangle.
 
@@ -4421,7 +4447,9 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
             edges_inter = edges_inter * 10 + (edgeNum+1);
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
             {
-              this->InterpolateEdge(outPD, p_id[num_inter],
+              this->InterpolateEdge(outPD[0], p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
+              this->InterpolateEdge(outPD[1], p_id[num_inter],
                                     v_id[v1], v_id[v2], t);
             }
 
@@ -4964,7 +4992,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                                               vtkIncrementalPointLocator *locator,
                                               vtkCellArray **tets,
                                               vtkPointData *inPD,
-                                              vtkPointData *outPD,
+                                              vtkPointData **outPD,
                                               vtkCellData *inCD,
                                               vtkIdType cellId,
                                               vtkCellData **outCD)
@@ -5069,7 +5097,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       {
         if ( locator->InsertUniquePoint(v_triangle[i], iid[i]) )
         {
-          outPD->CopyData(inPD,ptIdout[i], iid[i]);
+          outPD[0]->CopyData(inPD,ptIdout[i], iid[i]);
+          outPD[1]->CopyData(inPD,ptIdout[i], iid[i]);
         }
       }
 
@@ -5087,7 +5116,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       // of intersection point merging.
       if ( locator->InsertUniquePoint(v, iid[i]) )
       {
-        outPD->CopyData(inPD,ptId, iid[i]);
+        outPD[0]->CopyData(inPD,ptId, iid[i]);
+        outPD[1]->CopyData(inPD,ptId, iid[i]);
       }
 
     }//for all points of the trianglehedron.
@@ -5179,7 +5209,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
 
             if ( locator->InsertUniquePoint(x, p_id[num_inter]) )
             {
-              this->InterpolateEdge(outPD, p_id[num_inter],
+              this->InterpolateEdge(outPD[0], p_id[num_inter],
+                                    v_id[v1], v_id[v2], t);
+              this->InterpolateEdge(outPD[1], p_id[num_inter],
                                     v_id[v1], v_id[v2], t);
             }
 
@@ -5593,7 +5625,7 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
                                        vtkIncrementalPointLocator *locator,
                                        vtkCellArray **lines,
                                        vtkPointData *inPD,
-                                       vtkPointData *outPD,
+                                       vtkPointData **outPD,
                                        vtkCellData *inCD,
                                        vtkIdType cellId,
                                        vtkCellData **outCD)
@@ -5651,7 +5683,8 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
 
       if ( locator->InsertUniquePoint(v, iid[i]) )
       {
-        outPD->CopyData(inPD, ptId, iid[i]);
+        outPD[0]->CopyData(inPD, ptId, iid[i]);
+        outPD[1]->CopyData(inPD, ptId, iid[i]);
       }
     }
 
@@ -5768,7 +5801,8 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
         {
-          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD[0], p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD[1], p_id, v_id[0], v_id[0], t);
         }
 
         // Add the clipped line to the output.
@@ -6030,7 +6064,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
                                               vtkIncrementalPointLocator *locator,
                                               vtkCellArray **lines,
                                               vtkPointData *inPD,
-                                              vtkPointData *outPD,
+                                              vtkPointData **outPD,
                                               vtkCellData *inCD,
                                               vtkIdType cellId,
                                               vtkCellData **outCD)
@@ -6088,7 +6122,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
 
       if ( locator->InsertUniquePoint(v, iid[i]) )
       {
-        outPD->CopyData(inPD, ptId, iid[i]);
+        outPD[0]->CopyData(inPD, ptId, iid[i]);
+        outPD[1]->CopyData(inPD, ptId, iid[i]);
       }
     }
 
@@ -6186,7 +6221,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
         {
-          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD[0], p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD[1], p_id, v_id[0], v_id[0], t);
         }
 
         // Add the clipped line to the output.
@@ -6308,7 +6344,7 @@ void vtkBoxClipDataSet::ClipBoxInOut0D(vtkGenericCell *cell,
                                        vtkIncrementalPointLocator *locator,
                                        vtkCellArray **verts,
                                        vtkPointData *inPD,
-                                       vtkPointData *outPD,
+                                       vtkPointData **outPD,
                                        vtkCellData *inCD,
                                        vtkIdType cellId,
                                        vtkCellData **outCD)
@@ -6347,7 +6383,8 @@ void vtkBoxClipDataSet::ClipBoxInOut0D(vtkGenericCell *cell,
 
     if (locator->InsertUniquePoint(v, iid))
     {
-      outPD->CopyData(inPD, ptId, iid);
+      outPD[0]->CopyData(inPD, ptId, iid);
+      outPD[1]->CopyData(inPD, ptId, iid);
     }
 
     // Clipping verts is easy.  Either it is inside the box or it isn't.
@@ -6449,7 +6486,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell *cell,
                                               vtkIncrementalPointLocator *locator,
                                               vtkCellArray **verts,
                                               vtkPointData *inPD,
-                                              vtkPointData *outPD,
+                                              vtkPointData **outPD,
                                               vtkCellData *inCD,
                                               vtkIdType cellId,
                                               vtkCellData **outCD)
@@ -6488,7 +6525,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell *cell,
 
     if (locator->InsertUniquePoint(v, iid))
     {
-      outPD->CopyData(inPD, ptId, iid);
+      outPD[0]->CopyData(inPD, ptId, iid);
+      outPD[1]->CopyData(inPD, ptId, iid);
     }
 
     int inside = 1;
