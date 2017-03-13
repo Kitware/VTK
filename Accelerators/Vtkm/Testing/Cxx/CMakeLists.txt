@@ -9,6 +9,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVTKMExternalFaces.cxx
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
+  TestVTKMMarchingCubes2.cxx
   TestVTKMThreshold.cxx
   TestVTKMThreshold2.cxx
   )

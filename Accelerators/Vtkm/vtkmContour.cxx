@@ -71,20 +71,18 @@ int vtkmContour::RequestData(vtkInformation* request,
   {
     return 1;
   }
-  else if(numContours > 1)
-  {
-    vtkWarningMacro(<< "VTKm contour algorithm currently only supports a "
-                    << "single contour value. \n"
-                    << "Falling back to serial implementation.");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
-  }
-
 
   vtkm::filter::MarchingCubes filter;
 
   // set local variables
   filter.SetGenerateNormals(this->GetComputeNormals() != 0);
-  filter.SetIsoValue(this->GetValue(0));
+
+  filter.SetNumberOfIsoValues(numContours);
+  for(int i = 0; i < numContours; ++i)
+  {
+    filter.SetIsoValue(i, this->GetValue(i));
+  }
+
 
   // convert the input dataset to a vtkm::cont::DataSet
   vtkm::cont::DataSet in = tovtkm::Convert(input);
