@@ -94,6 +94,11 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 
   if(this->DelegatePass!=0)
   {
+
+    // backup GL state
+    GLboolean savedBlend = glIsEnabled(GL_BLEND);
+    GLboolean savedDepthTest = glIsEnabled(GL_DEPTH_TEST);
+
     // 1. Create a new render state with an FBO.
 
     int width;
@@ -347,6 +352,16 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
                                   this->BlurProgram->VAO);
 
     this->Pass2->Deactivate();
+
+    // restore GL state
+    if(savedBlend)
+    {
+      glEnable(GL_BLEND);
+    }
+    if(savedDepthTest)
+    {
+      glEnable(GL_DEPTH_TEST);
+    }
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
     cout << "gauss finish4" << endl;
