@@ -160,6 +160,8 @@ public:
     this->DPFBO = 0;
     this->DPDepthBufferTextureObject = 0;
     this->DPColorTextureObject = 0;
+    this->PreserveViewport = false;
+    this->PreserveGLState = false;
   }
 
   // Destructor
@@ -316,6 +318,11 @@ public:
   // Check if the mapper should enter picking mode.
   void CheckPickingState(vtkRenderer* ren);
 
+  // Look for property keys used to control the mapper's state.
+  // This is necessary for some render passes which need to ensure
+  // a specific OpenGL state when rendering through this mapper.
+  void CheckPropertyKeys(vtkVolume* vol);
+
   // Configure the vtkHardwareSelector to begin a picking pass.
   void BeginPicking(vtkRenderer* ren);
 
@@ -439,6 +446,8 @@ public:
   bool IsPicking;
 
   bool NeedToInitializeResources;
+  bool PreserveViewport;
+  bool PreserveGLState;
 
   vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
@@ -1605,6 +1614,36 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetClippingPlanes(
                         static_cast<int>(clippingPlanes.size()),
                         &clippingPlanes[0]);
   }
+}
+
+// -----------------------------------------------------------------------------
+void
+vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPropertyKeys(vtkVolume* vol)
+{
+  // Check the property keys to see if we should modify the blend/etc state:
+  // Otherwise this breaks volume/translucent geo depth peeling.
+  vtkInformation *volumeKeys = vol->GetPropertyKeys();
+  this->PreserveGLState = false;
+  if (volumeKeys && volumeKeys->Has(vtkOpenGLActor::GLDepthMaskOverride()))
+  {
+    int override = volumeKeys->Get(vtkOpenGLActor::GLDepthMaskOverride());
+    if (override != 0 && override != 1)
+    {
+      this->PreserveGLState = true;
+    }
+  }
+
+  // Some render passes (e.g. DualDepthPeeling) adjust the viewport for
+  // intermediate passes so it is necessary to preserve it. This is a
+  // temporary fix for vtkDualDepthPeelingPass to work when various viewports
+  // are defined.  The correct way of fixing this would be to avoid setting the
+  // viewport within the mapper.  It is enough for now to check for the
+  // RenderPasses() vtkInfo given that vtkDualDepthPeelingPass is the only pass
+  // currently supported by this mapper, the viewport will have to be adjusted
+  // externally before adding support for other passes.
+  vtkInformation *info = vol->GetPropertyKeys();
+  this->PreserveViewport = info && info->Has(
+    vtkOpenGLRenderPass::RenderPasses());
 }
 
 // -----------------------------------------------------------------------------
@@ -2836,10 +2875,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Check whether we have independent components or not
   int independentComponents = volumeProperty->GetIndependentComponents();
 
+  this->Impl->CheckPropertyKeys(vol);
+
   // Get window size and corners
-  ren->GetTiledSizeAndOrigin(
-    this->Impl->WindowSize, this->Impl->WindowSize + 1,
-    this->Impl->WindowLowerLeft, this->Impl->WindowLowerLeft + 1);
+  if (!this->Impl->PreserveViewport)
+  {
+    ren->GetTiledSizeAndOrigin(
+      this->Impl->WindowSize, this->Impl->WindowSize + 1,
+      this->Impl->WindowLowerLeft, this->Impl->WindowLowerLeft + 1);
+  }
+  else
+  {
+      int vp[4];
+      glGetIntegerv(GL_VIEWPORT, vp);
+      this->Impl->WindowLowerLeft[0] = vp[0];
+      this->Impl->WindowLowerLeft[1] = vp[1];
+      this->Impl->WindowSize[0] = vp[2];
+      this->Impl->WindowSize[1] = vp[3];
+  }
 
   vtkDataArray* scalars = this->GetScalars(input,
                           this->ScalarMode,
@@ -2938,19 +2991,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   vtkMTimeType renderPassTime = this->GetRenderPassStageMTime(vol);
 
-  // Check the property keys to see if we should modify the blend/etc state:
-  // Otherwise this breaks volume/translucent geo depth peeling.
-  vtkInformation *volumeKeys = vol->GetPropertyKeys();
-  bool preserveGLState = false;
-  if (volumeKeys && volumeKeys->Has(vtkOpenGLActor::GLDepthMaskOverride()))
-  {
-    int override = volumeKeys->Get(vtkOpenGLActor::GLDepthMaskOverride());
-    if (override != 0 && override != 1)
-    {
-      preserveGLState = true;
-    }
-  }
-
   if (this->UseDepthPass && this->GetBlendMode() ==
       vtkVolumeMapper::COMPOSITE_BLEND)
   {
@@ -3010,20 +3050,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
 
     // Set OpenGL states
-    vtkVolumeStateRAII glState(preserveGLState);
+    vtkVolumeStateRAII glState(this->Impl->PreserveGLState);
 
     if (this->RenderToImage)
     {
       this->Impl->SetupRenderToTexture(ren);
     }
 
-    // NOTE: This is a must call or else, multiple viewport
-    // rendering would not work. We need this primarily because
-    // FBO set it otherwise.
-    glViewport(this->Impl->WindowLowerLeft[0],
-               this->Impl->WindowLowerLeft[1],
-               this->Impl->WindowSize[0],
-               this->Impl->WindowSize[1]);
+    if (!this->Impl->PreserveViewport)
+    {
+      // NOTE: This is a must call or else, multiple viewport
+      // rendering would not work. We need this primarily because
+      // FBO set it otherwise.
+      // TODO The viewport should not be set within the mapper,
+      // causes issues when vtkOpenGLRenderPass instances modify it too.
+      glViewport(this->Impl->WindowLowerLeft[0],
+                 this->Impl->WindowLowerLeft[1],
+                 this->Impl->WindowSize[0],
+                 this->Impl->WindowSize[1]);
+    }
 
     renWin->GetShaderCache()->ReadyShaderProgram(this->Impl->ShaderProgram);
 
@@ -3045,7 +3090,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->BeginPicking(ren);
     }
     // Set OpenGL states
-    vtkVolumeStateRAII glState(preserveGLState);
+    vtkVolumeStateRAII glState(this->Impl->PreserveGLState);
 
     // Build shader now
     // First get the shader cache from the render window. This is important

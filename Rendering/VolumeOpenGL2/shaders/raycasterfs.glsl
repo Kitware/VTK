@@ -135,6 +135,12 @@ vec4 NDCToWindow(const float xNDC, const float yNDC, const float zNDC)
 ///
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Global initialization. This method should only be called once per shader
+ * invocation regardless of whether castRay() is called several times (e.g.
+ * vtkDualDepthPeelingPass). Any castRay() specific initialization should be
+ * placed within that function.
+ */
 void initializeRayCast()
 {
   /// Initialize g_fragColor (output) to 0
@@ -146,8 +152,6 @@ void initializeRayCast()
   //VTK::Base::Init
 
   //VTK::Terminate::Init
-
-  //VTK::Shading::Init
 
   //VTK::Cropping::Init
 
@@ -161,7 +165,7 @@ void initializeRayCast()
 /**
  * March along the ray direction sampling the volume texture.  This function
  * takes a start and end point as arguments but it is up to the specific render
- * pass implementation to use these values (e.g. DualDepthPeelingPass). The
+ * pass implementation to use these values (e.g. vtkDualDepthPeelingPass). The
  * mapper does not use these values by default, instead it uses the number of
  * steps defined by g_terminatePointMax.
  */
@@ -170,6 +174,8 @@ vec4 castRay(const float zStart, const float zEnd)
   //VTK::DepthPeeling::Ray::Init
 
   //VTK::DepthPeeling::Ray::PathCheck
+
+  //VTK::Shading::Init
 
   /// For all samples along the ray
   while (!g_exit)
@@ -196,9 +202,14 @@ vec4 castRay(const float zStart, const float zEnd)
     //VTK::Terminate::Impl
   }
 
+  //VTK::Shading::Exit
+
   return g_fragColor;
 }
 
+/**
+ * Finalize specific modes and set output data.
+ */
 void finalizeRayCast()
 {
   //VTK::Base::Exit
@@ -208,8 +219,6 @@ void finalizeRayCast()
   //VTK::Cropping::Exit
 
   //VTK::Clipping::Exit
-
-  //VTK::Shading::Exit
 
   //VTK::Picking::Exit
 

@@ -385,8 +385,6 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     vtkAbstractMapper *, vtkProp *)
 {
   const std::string rayInit =
-    "  ivec2 coord = ivec2(gl_FragCoord.xy);\n"
-    "\n"
     "  // Transform zStart and zEnd to texture_coordinates\n"
     "  mat4 NDCToTextureCoords = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix *\n"
     "    in_inverseModelViewMatrix * in_inverseProjectionMatrix;\n"
@@ -425,6 +423,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     "    // startPoint lies in-front (a.)\n"
     "    g_dataPos = ip_textureCoords.xyz;\n"
     "  }\n"
+    "  g_dataPos += g_rayJitter;\n"
     "  \n"
     "  // End point\n"
     "  vec4 endPoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, zEnd);\n"

@@ -1,4 +1,3 @@
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -13,8 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test volume tests whether updating the volume MTime updates the ,
-// geometry in the volume mapper.
+/**
+ * This test volume tests whether updating the volume MTime updates the ,
+ * geometry in the volume mapper.
+ *
+ * Added renderer to expand coverage for vtkDualDepthPeelingPass.
+ */
 
 #include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
@@ -26,12 +29,14 @@
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
 #include <vtkTesting.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
@@ -71,16 +76,19 @@ int TestGPURayCastCellData(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  renWin->SetSize(400, 400);
+  renWin->SetSize(800, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   iren->SetInteractorStyle(style.GetPointer());
 
-  renWin->Render(); // make sure we have an OpenGL context.
+  // Initialize OpenGL context
+  renWin->Render();
 
+  // Renderer without translucent geometry
   vtkNew<vtkRenderer> ren;
+  ren->SetViewport(0.0, 0.0, 0.5, 1.0);
   ren->SetBackground(0.2, 0.2, 0.5);
   renWin->AddRenderer(ren.GetPointer());
 
@@ -104,6 +112,36 @@ int TestGPURayCastCellData(int argc, char *argv[])
 
   ren->AddVolume(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
+
+  // Renderer with translucent geometry
+  vtkNew<vtkSphereSource> sphereSource;
+  sphereSource->SetCenter(80.0, 60.0, 30.0);
+  sphereSource->SetRadius(30.0);
+
+  vtkNew<vtkActor> sphereActor;
+  vtkProperty* sphereProperty = sphereActor->GetProperty();
+  sphereProperty->SetColor(1., 0.9, 1);
+  sphereProperty->SetOpacity(0.4);
+
+  vtkNew<vtkPolyDataMapper> sphereMapper;
+  sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
+  sphereActor->SetMapper(sphereMapper.GetPointer());
+
+  vtkNew<vtkRenderer> ren2;
+  ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
+  ren2->SetBackground(0.2, 0.2, 0.5);
+  ren2->SetActiveCamera(ren->GetActiveCamera());
+
+  ren2->SetUseDepthPeeling(1);
+  ren2->SetOcclusionRatio(0.0);
+  ren2->SetMaximumNumberOfPeels(5);
+  ren2->SetUseDepthPeelingForVolumes(true);
+
+  ren2->AddVolume(volume.GetPointer());
+  ren2->AddActor(outlineActor.GetPointer());
+  ren2->AddActor(sphereActor.GetPointer());
+  renWin->AddRenderer(ren2.GetPointer());
+
   ren->ResetCamera();
 
   renWin->Render();

@@ -187,8 +187,9 @@ namespace vtkvolume
       \n\
       \n// Others\
       \nuniform bool in_cellFlag;\
-      \n uniform bool in_useJittering;\
-      \n uniform bool in_clampDepthToBackface;\
+      \nuniform bool in_useJittering;\
+      \nvec3 g_rayJitter = vec3(0.0);\
+      \nuniform bool in_clampDepthToBackface;\
       \n\
       \nuniform vec2 in_averageIPRange;"
       );
@@ -342,16 +343,16 @@ namespace vtkvolume
         \n  vec2 fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
         \n                      in_inverseWindowSize;\
         \n\
-        \n  float jitterValue = 0;\
         \n  if (in_useJittering)\
-        \n    {\
-        \n    jitterValue = texture2D(in_noiseSampler, fragTexCoord).x;\
-        \n    g_dataPos += g_dirStep * jitterValue;\
-        \n    }\
+        \n  {\
+        \n    float jitterValue = texture2D(in_noiseSampler, fragTexCoord).x;\
+        \n    g_rayJitter = g_dirStep * jitterValue;\
+        \n    g_dataPos += g_rayJitter;\
+        \n  }\
         \n  else\
-        \n    {\
+        \n  {\
         \n    g_dataPos += g_dirStep;\
-        \n    }\
+        \n  }\
         \n\
         \n  // Flag to deternmine if voxel should be considered for the rendering\
         \n  g_skip = false;");
@@ -1882,8 +1883,8 @@ namespace vtkvolume
       \n    {\
       \n    if (in_useJittering)\
       \n      {\
-      \n      objDataPos = textureToObjMat * vec4(g_dataPos - (g_dirStep\
-      \n                                           * jitterValue), 1.0);\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_rayJitter,\
+      \n                                         1.0);\
       \n      }\
       \n    else\
       \n      {\
@@ -1920,7 +1921,7 @@ namespace vtkvolume
       \n        }\
       \n      if (in_useJittering)\
       \n        {\
-      \n        g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
+      \n        g_dataPos = newObjDataPos.xyz + g_rayJitter;\
       \n        }\
       \n      else\
       \n        {\
