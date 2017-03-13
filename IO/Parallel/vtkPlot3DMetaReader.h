@@ -81,14 +81,11 @@
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+#include "vtk_jsoncpp_fwd.h" // For forward declarations
+
 struct vtkPlot3DMetaReaderInternals;
 
 class vtkMultiBlockPLOT3DReader;
-
-namespace Json
-{
-  class Value;
-}
 
 class VTKIOPARALLEL_EXPORT vtkPlot3DMetaReader : public vtkMultiBlockDataSetAlgorithm
 {
