@@ -14,9 +14,11 @@
 =========================================================================*/
 
 #include "vtkBitArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
+#include "vtkNew.h"
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
 #include "vtkTimerLog.h"
@@ -26,10 +28,12 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vector>
 #include <algorithm>
-#include <utility>
+#include <limits>
 #include <map>
+#include <utility>
+#include <vector>
+
 
 struct NodeCompare
 {
@@ -273,6 +277,122 @@ int TestArrayLookupVariant(vtkIdType numVal)
   }
   return errors;
 }
+
+int TestArrayLookupFloat(vtkIdType numVal)
+{
+  int errors = 0;
+
+  // Create the array
+  vtkIdType arrSize = (numVal-1)*numVal/2;
+  VTK_CREATE(vtkFloatArray, arr);
+  for (vtkIdType i = 0; i < numVal; i++)
+  {
+    for (vtkIdType j = 0; j < numVal-1-i; j++)
+    {
+      arr->InsertNextValue(numVal-1-i);
+    }
+  }
+  arr->InsertNextValue(std::numeric_limits<float>::quiet_NaN());
+
+  //
+  // Test lookup implemented inside data array
+  //
+
+  // Time the lookup creation
+  VTK_CREATE(vtkTimerLog, timer);
+  timer->StartTimer();
+  arr->LookupValue(0);
+  timer->StopTimer();
+  cerr << "," << timer->GetElapsedTime();
+
+  // Time simple lookup
+  timer->StartTimer();
+  for (vtkIdType i = 0; i < numVal; i++)
+  {
+    arr->LookupValue(i);
+  }
+  timer->StopTimer();
+  cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
+
+  // Time list lookup
+  VTK_CREATE(vtkIdList, list);
+  timer->StartTimer();
+  for (vtkIdType i = 0; i < numVal; i++)
+  {
+    arr->LookupValue(i, list);
+  }
+  timer->StopTimer();
+  cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
+
+  // Test for NaN
+  {
+    vtkIdType index = arr->LookupValue(std::numeric_limits<float>::quiet_NaN());
+    if (index != arrSize) {
+      cerr << "ERROR: lookup found NaN at " << index << " instead of " << arrSize << endl;
+      errors++;
+    }
+  }
+  {
+    vtkNew<vtkIdList> NaNlist;
+    arr->LookupValue(std::numeric_limits<float>::quiet_NaN(), NaNlist.Get());
+    if (NaNlist->GetNumberOfIds() != 1)
+    {
+      cerr << "ERROR: lookup found " << list->GetNumberOfIds() << " values of NaN instead of " << 1 << endl;
+      errors++;
+    }
+    if (NaNlist->GetId(0) != arrSize)
+    {
+      cerr << "ERROR: lookup found NaN at " << list->GetId(0) << " instead of " << arrSize << endl;
+      errors++;
+    }
+  }
+
+  // Test for correctness
+  vtkIdType correctIndex = arrSize;
+  for (vtkIdType i = 0; i < numVal; i++)
+  {
+    correctIndex -= i;
+    vtkIdType index = arr->LookupValue(i);
+    if (i == 0 && index != -1)
+    {
+      cerr << "ERROR: lookup found value at " << index << " but is at -1" << endl;
+      errors++;
+    }
+    if (i != 0 && (index < correctIndex || index > correctIndex + i - 1))
+    {
+      cerr << "ERROR: vector lookup found value at " << index << " but is in range [" << correctIndex << "," << correctIndex + i - 1 << "]" << endl;
+      errors++;
+    }
+    arr->LookupValue(i, list);
+    if (list->GetNumberOfIds() != i)
+    {
+      cerr << "ERROR: lookup found " << list->GetNumberOfIds() << " matches but there should be " << i << endl;
+      errors++;
+    }
+    else
+    {
+      for (vtkIdType j = correctIndex; j < correctIndex + i; j++)
+      {
+        bool inList = false;
+        for (vtkIdType k = 0; k < i; ++k)
+        {
+          if (list->GetId(k) == j)
+          {
+            inList = true;
+            break;
+          }
+        }
+        if (!inList)
+        {
+          cerr << "ERROR: could not find " << j << " in found list" << endl;
+          errors++;
+        }
+      }
+    }
+  }
+  return errors;
+}
+
 
 int TestArrayLookupString(vtkIdType numVal)
 {
@@ -659,6 +779,7 @@ int TestArrayLookup(int argc, char* argv[])
     vtkIdType total = numVal*(numVal+1)/2;
     cerr << numVal << "," << total;
     errors += TestArrayLookupInt(numVal, runComparison);
+    errors += TestArrayLookupFloat(numVal);
     errors += TestArrayLookupString(numVal);
     errors += TestArrayLookupVariant(numVal);
     errors += TestArrayLookupBit(numVal);

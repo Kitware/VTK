@@ -23,13 +23,41 @@
 #define vtkGenericDataArrayLookupHelper_h
 
 #include <algorithm>
+#include <cmath>
 #include "vtkIdList.h"
 
 namespace detail
 {
-  // this can be removed when C++11 is required.
-  template< class T > struct remove_const { typedef T type; };
-  template< class T > struct remove_const<const T> { typedef T type; };
+// this can be removed when C++11 is required.
+template< class T > struct remove_const { typedef T type; };
+template< class T > struct remove_const<const T> { typedef T type; };
+
+template <typename T, bool> struct has_NaN;
+
+template <typename T>
+struct has_NaN<T, true>
+{
+static bool isnan(T x)
+{
+  return std::isnan(x);
+}
+};
+
+template <typename T>
+struct has_NaN<T, false>
+{
+  static bool isnan(T)
+  {
+    return false;
+  }
+};
+
+template <typename T>
+bool isnan(T x)
+{
+  // Select the correct partially specialized type.
+  return has_NaN<T, std::numeric_limits<T>::has_quiet_NaN>::isnan(x);
+}
 }
 
 template <class ArrayTypeT>
@@ -41,8 +69,8 @@ public:
 
   // Constructor.
   vtkGenericDataArrayLookupHelper()
-    : AssociatedArray(NULL),
-    SortedArray(NULL)
+    : AssociatedArray{nullptr}, SortedArray(nullptr),
+    FirstValue{nullptr}, SortedArraySize{0}
   {
   }
   ~vtkGenericDataArrayLookupHelper()
@@ -62,11 +90,29 @@ public:
   vtkIdType LookupValue(ValueType elem)
   {
     this->UpdateLookup();
+
+    if (this->SortedArraySize == 0)
+    {
+      return -1;
+    }
+
+    if(detail::isnan(elem))
+    {
+      if(this->SortedArray && detail::isnan(this->SortedArray->Value))
+      {
+        return this->SortedArray->Index;
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
     ValueWithIndex temp;
     temp.Value = elem;
     ValueWithIndex* pos =
-      std::lower_bound(this->SortedArray,
-                       this->SortedArray + this->SortedArraySize, temp);
+      std::lower_bound(this->FirstValue,
+                     this->SortedArray + this->SortedArraySize, temp);
     if (pos == (this->SortedArray + this->SortedArraySize))
     {
       return -1;
@@ -80,17 +126,36 @@ public:
 
   void LookupValue(ValueType elem, vtkIdList* ids)
   {
+    ids->Reset();
     this->UpdateLookup();
-    ValueWithIndex temp;
-    temp.Value = elem;
-    std::pair<ValueWithIndex*, ValueWithIndex*> range =
-      std::equal_range(this->SortedArray,
-                       this->SortedArray + this->SortedArraySize, temp);
-    while (range.first != range.second)
+
+    if (this->SortedArraySize == 0)
     {
-      // assert(range.first->Value == elem);
-      ids->InsertNextId(range.first->Index);
-      ++range.first;
+     return;
+    }
+
+    if(detail::isnan(elem))
+    {
+      ValueWithIndex *range = this->SortedArray;
+      while (range != this->FirstValue)
+      {
+        ids->InsertNextId(range->Index);
+        ++range;
+      }
+    }
+    else
+    {
+      ValueWithIndex temp;
+      temp.Value = elem;
+      std::pair<ValueWithIndex*, ValueWithIndex*> range =
+        std::equal_range(this->FirstValue,
+                         this->SortedArray + this->SortedArraySize, temp);
+      while (range.first != range.second)
+      {
+        // assert(range.first->Value == elem);
+        ids->InsertNextId(range.first->Index);
+        ++range.first;
+      }
     }
   }
 
@@ -120,6 +185,11 @@ private:
     }
   };
 
+  static bool isnan(const ValueWithIndex &tmp)
+  {
+    return detail::isnan(tmp.Value);
+  }
+
   void UpdateLookup()
   {
     if (!this->AssociatedArray || this->SortedArray)
@@ -145,11 +215,13 @@ private:
       item.Value = this->AssociatedArray->GetValue(cc);
       item.Index = cc;
     }
-    std::sort(this->SortedArray, this->SortedArray + this->SortedArraySize);
+    this->FirstValue = std::partition(this->SortedArray, this->SortedArray + this->SortedArraySize, isnan);
+    std::sort(this->FirstValue, this->SortedArray + this->SortedArraySize);
   }
 
   ArrayTypeT *AssociatedArray;
   ValueWithIndex* SortedArray;
+  ValueWithIndex* FirstValue;
   vtkIdType SortedArraySize;
 };
 
