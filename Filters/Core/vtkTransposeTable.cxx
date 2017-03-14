@@ -248,7 +248,7 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable,
     else
     {
       // Set the column name to the (padded) row id.
-      // We padd ids with 0 to avoid downstream dictionnary sort issues.
+      // We padd ids with 0 to avoid downstream dictionary sort issues.
       std::stringstream ss2;
       ss2 << std::setw(maxBLen) << std::setfill('0');
       ss2 << r;

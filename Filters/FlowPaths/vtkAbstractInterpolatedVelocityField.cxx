@@ -100,7 +100,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   }
   if(!this->VectorsSelection) //if a selection is not speicifed,
   {
-    //use the first one in the point set (this is a behavior for backward compatability)
+    //use the first one in the point set (this is a behavior for backward compatibility)
     vectors =  dataset->GetPointData()->GetVectors(0);
   }
   else

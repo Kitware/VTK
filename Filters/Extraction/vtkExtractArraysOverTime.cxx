@@ -142,7 +142,7 @@ public:
   }
 
   // Description:
-  // Intializes the data structure.
+  // Initializes the data structure.
   void Initialize(
     int numTimeSteps, int contentType, int fieldType, int statsOnly)
   {

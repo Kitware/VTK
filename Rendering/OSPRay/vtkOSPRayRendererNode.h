@@ -61,7 +61,7 @@ public:
   virtual void Build(bool prepass);
 
   /**
-   * Traverse graph in ospray's prefered order and render
+   * Traverse graph in ospray's preferred order and render
    */
   virtual void Render(bool prepass);
 

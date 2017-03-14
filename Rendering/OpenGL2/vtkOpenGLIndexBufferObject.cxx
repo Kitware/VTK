@@ -133,7 +133,7 @@ struct AppendTrianglesWorker
 } // end anon namespace
 
 
-// used to create an IBO for triangle primatives
+// used to create an IBO for triangle primitives
 void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
   std::vector<unsigned int> &indexArray,
   vtkCellArray *cells,
@@ -178,7 +178,7 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
     }
 }
 
-// used to create an IBO for triangle primatives
+// used to create an IBO for triangle primitives
 size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(
   vtkCellArray *cells,
   vtkPoints *points)
@@ -195,7 +195,7 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(
   return indexArray.size();
 }
 
-// used to create an IBO for point primatives
+// used to create an IBO for point primitives
 void vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
   std::vector<unsigned int> &indexArray,
   vtkCellArray *cells,
@@ -224,7 +224,7 @@ void vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
   }
 }
 
-// used to create an IBO for triangle primatives
+// used to create an IBO for triangle primitives
 size_t vtkOpenGLIndexBufferObject::CreatePointIndexBuffer(vtkCellArray *cells)
 {
   if (!cells->GetNumberOfCells())
@@ -240,7 +240,7 @@ size_t vtkOpenGLIndexBufferObject::CreatePointIndexBuffer(vtkCellArray *cells)
 }
 
 
-// used to create an IBO for primatives as lines.  This method treats each line segment
+// used to create an IBO for primitives as lines.  This method treats each line segment
 // as independent.  So for a triangle mesh you would get 6 verts per triangle
 // 3 edges * 2 verts each.  With a line loop you only get 3 verts so half the storage.
 // but... line loops are slower than line segments.
@@ -274,7 +274,7 @@ void vtkOpenGLIndexBufferObject::AppendTriangleLineIndexBuffer(
   }
 }
 
-// used to create an IBO for primatives as lines.  This method treats each line segment
+// used to create an IBO for primitives as lines.  This method treats each line segment
 // as independent.  So for a triangle mesh you would get 6 verts per triangle
 // 3 edges * 2 verts each.  With a line loop you only get 3 verts so half the storage.
 // but... line loops are slower than line segments.
@@ -293,7 +293,7 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleLineIndexBuffer(
   return indexArray.size();
 }
 
-// used to create an IBO for primatives as lines.  This method treats each
+// used to create an IBO for primitives as lines.  This method treats each
 // line segment as independent.  So for a line strip you would get multiple
 // line segments out
 void vtkOpenGLIndexBufferObject::AppendLineIndexBuffer(
@@ -330,7 +330,7 @@ void vtkOpenGLIndexBufferObject::AppendLineIndexBuffer(
   }
 }
 
-// used to create an IBO for primatives as lines.  This method treats each
+// used to create an IBO for primitives as lines.  This method treats each
 // line segment as independent.  So for a line strip you would get multiple
 // line segments out
 size_t vtkOpenGLIndexBufferObject::CreateLineIndexBuffer(vtkCellArray *cells)
@@ -593,7 +593,7 @@ size_t vtkOpenGLIndexBufferObject::CreateEdgeFlagIndexBuffer(
   return indexArray.size();
 }
 
-// used to create an IBO for point primatives
+// used to create an IBO for point primitives
 void vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
   std::vector<unsigned int> &indexArray,
   vtkCellArray **cells,
@@ -634,7 +634,7 @@ void vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
 
 }
 
-// used to create an IBO for triangle primatives
+// used to create an IBO for triangle primitives
 size_t vtkOpenGLIndexBufferObject::CreateVertexIndexBuffer(vtkCellArray **cells)
 {
   unsigned long totalCells = 0;

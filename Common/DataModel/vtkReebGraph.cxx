@@ -157,7 +157,7 @@ public:
     this->MainNodeTable.FreeZone=1;
     // Clear node
     this->GetNode(1)->ArcUpId = ((int)-2);
-    // Intialize DownArc
+    // Initialize DownArc
     this->GetNode(1)->ArcDownId = 0;
     this->MainArcTable.FreeZone=1;
     // Clear Arc label 1

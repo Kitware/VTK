@@ -145,7 +145,7 @@ protected:
   // Expat parser structure.  Exists only during call to Parse().
   void* Parser;
 
-  // Create/Allocate the internal parser (can be overriden by subclasses).
+  // Create/Allocate the internal parser (can be overridden by subclasses).
   virtual int CreateParser();
 
   // Called by Parse() to read the stream and call ParseBuffer.  Can

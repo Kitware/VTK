@@ -38,7 +38,7 @@
  *
  *  Regardless of inter-cell or global search, vtkPointLocator is employed
  *  as a crucial tool underlying the cell locator. The use of vtkPointLocator
- *  casues vtkInterpolatedVelocityField to return false target cells for
+ *  causes vtkInterpolatedVelocityField to return false target cells for
  *  datasets defined on complex grids.
  *
  * @warning

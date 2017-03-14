@@ -42,7 +42,7 @@
  * DEP   - depth test and copy to back buffer
  *
  * The result of each stage is cached in a texture so that during interaction
- * a stage may be skipped if the user has not modified its paramters or input
+ * a stage may be skipped if the user has not modified its parameterss or input
  * data.
  *
  * The parallel parts of algorithm are implemented in vtkPSurfaceLICInterface.
@@ -199,7 +199,7 @@ public:
    * of m and M are the min and max taken over all fragments.
 
    * This increase the dynamic range and contrast in the LIC'd image, both of
-   * which are natuarly attenuated by the convolution proccess.
+   * which are natuarly attenuated by the convolution process.
 
    * Values
 
@@ -264,7 +264,7 @@ public:
   /**
    * Set/Get the color mode. The color mode controls how scalar colors are
    * combined with the LIC in the final image. The BLEND mode combines scalar
-   * colors with LIC intensities with proportional blending controled by the
+   * colors with LIC intensities with proportional blending controlled by the
    * LICIntensity parameter. The MAP mode combines scalar colors with LIC,
    * by multiplication the HSL represntation of color's lightness.
 

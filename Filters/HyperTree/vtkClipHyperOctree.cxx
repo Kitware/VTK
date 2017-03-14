@@ -772,7 +772,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 
       if(!this->GenerateClippedOutput && allOut)
       {
-//        cout<<"this child is all out and we dont need to generate the other output"<<endl;
+//        cout<<"this child is all out and we don't need to generate the other output"<<endl;
         return; // we've just save a lot of useless computation
       }
 

@@ -536,7 +536,7 @@ void vtkWebGLPolyData::GetPolygonsFromPointData(vtkTriangleFilter* polydata, vtk
   for (int i=0; i<data->GetNumberOfPoints()*3; i++) vertices[i] = data->GetPoint(i/3)[i%3];
   //Index
   // ndata contain 4 values for the normal: [number of values per index, index[3]]
-  // We dont need the first value
+  // We don't need the first value
   int* indexes = new int[ndata->GetSize()*3/4];
   for (int i=0; i<ndata->GetSize(); i++)
     if (i%4 != 0) indexes[i*3/4] = ndata->GetValue(i);

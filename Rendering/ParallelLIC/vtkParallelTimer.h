@@ -148,7 +148,7 @@ public:
    * When an object is finished writing data to the log
    * object it must call Update to send the data to the writer
    * rank.
-   * This ensures that all data is transfered to the root before
+   * This ensures that all data is transferred to the root before
    * MPI_Finalize is called while allowing the write to occur
    * after Mpi_finalize. Note: This is a collective call.
    */

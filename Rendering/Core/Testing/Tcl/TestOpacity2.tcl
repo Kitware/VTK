@@ -16,7 +16,7 @@ coneActor SetMapper coneMapper
 
 
 
-# Actor for opacity thru LUT.
+# Actor for opacity through LUT.
 vtkElevationFilter elevation
 elevation SetInputConnection [cone GetOutputPort]
 
@@ -40,7 +40,7 @@ coneActorLUT SetPosition 0.1 1.0 0
 [coneActorLUT GetProperty] SetOpacity 0.99
 
 
-# Actor for opacity thru texture.
+# Actor for opacity through texture.
 vtkPNGReader reader
 reader SetFileName "$VTK_DATA_ROOT/Data/alphachannel.png"
 reader Update

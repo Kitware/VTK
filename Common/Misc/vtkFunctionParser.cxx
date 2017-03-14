@@ -1928,7 +1928,7 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
   bool scalarVar = false;
   size_t currentLen = 0;
   //Bug 7396. If a scalar variable name is a subset of a vector var name it will
-  //casue the scripting to crash. So instead of ending once we find a var name that matches in scalars
+  //cause the scripting to crash. So instead of ending once we find a var name that matches in scalars
   //we will also check vectors
   for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
   { // Variable

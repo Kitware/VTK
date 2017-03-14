@@ -87,7 +87,7 @@ VTK_TEMP_DIR = ""
 _VERBOSE = 0
 
 # Determines if it is necessary to interact with the user.  If zero
-# dont interact if 1 interact.  Set via command line args
+# don't interact if 1 interact.  Set via command line args
 _INTERACT = 0
 
 # This will be set to 1 when the image test will not be performed.

@@ -380,7 +380,7 @@ protected:
    */
 
   /**
-   * Find a decendant of the specified grid that contains the point.
+   * Find a descendant of the specified grid that contains the point.
    * If none is found then the original grid information is returned.
    * The search is limited to levels < maxLevel
    */

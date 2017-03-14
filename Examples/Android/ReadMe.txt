@@ -19,7 +19,7 @@ to handle them yourself and maniputlate the camera directly.
 
 In this example the code is a bit more distributed. The C++ code is in
 jni/main.cxx while the Java/C++ interface API is defined in JavaVTKLib.java
-The bulk of the actual applicaiton logic is in JavaVTKView.java
+The bulk of the actual application logic is in JavaVTKView.java
 
 The third example is VolumeRender and this example requires OpenGL ES 3.0
 support.  Most newer android devices should support OpenGL ES 3.0.

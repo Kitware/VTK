@@ -28,7 +28,7 @@ class vtkImageData;
 
 /**
 An interface to a random number generator. We can't use
-c stdlib since we're not gauranteed to get consistent.
+c stdlib since we're not guaranteed to get consistent.
 sequences across platform or library version and that
 would prevent consistent output during regression tests.
 */
@@ -165,7 +165,7 @@ private:
         int seed);
 
   /**
-   * A way of controling the probability (from 0.0 to 1.0) that you
+   * A way of controlling the probability (from 0.0 to 1.0) that you
    * generate values. returns 1 if you should generate a value.
    * for example this is used to control the frequency of impulse
    * noise.

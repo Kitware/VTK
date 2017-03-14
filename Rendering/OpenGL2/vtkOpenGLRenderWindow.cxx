@@ -410,7 +410,7 @@ void vtkOpenGLRenderWindow::SetSize(int x, int y)
   if (this->Size[0] == x
     && this->Size[1] == y)
   {
-    // Nothing should happend in the superclass but never knows...
+    // Nothing should've happened in the superclass but one never knows...
     this->Superclass::SetSize(x, y);
     return;
   }
@@ -1173,7 +1173,7 @@ void vtkOpenGLRenderWindow::DrawPixels(
       NULL, NULL);
 }
 
-// less generic verison, old API
+// less generic version, old API
 void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numComponents, int dataType, void *data)
 {
   int     y_low, y_hi;

@@ -300,7 +300,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
     return false;
   }
 
-  // Perform initalization if necessary, ensure program matches VAOs.
+  // Perform initialization if necessary, ensure program matches VAOs.
   if (this->Internal->HandleProgram == 0)
   {
     this->Internal->HandleProgram = static_cast<GLuint>(program->GetHandle());

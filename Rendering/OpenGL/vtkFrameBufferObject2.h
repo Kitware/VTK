@@ -247,7 +247,7 @@ public:
   /**
    * Copy from the currently bound READ FBO to the currently
    * bound DRAW FBO. The method is static so that one doesn't
-   * need to ccreate an instance when transfering between attachments
+   * need to ccreate an instance when transferring between attachments
    * in the default FBO.
    */
   static

@@ -165,7 +165,7 @@ vtkDataObject *vtkMaskPointsFilter::GetMask()
 // the mask.
 int vtkMaskPointsFilter::FilterPoints(vtkPointSet *input)
 {
-  // Grab the image data and metadata. The type and existance of image data
+  // Grab the image data and metadata. The type and existence of image data
   // should have been checked in RequestData().
   double origin[3], spacing[3];
   int dims[3];

@@ -1629,7 +1629,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   int lightComplexity = 0;
 
   // wacky backwards compatibility with old VTK lighting
-  // soooo there are many factors that determine if a primative is lit or not.
+  // soooo there are many factors that determine if a primitive is lit or not.
   // three that mix in a complex way are representation POINT, Interpolation FLAT
   // and having normals or not.
   bool needLighting = false;
@@ -2739,7 +2739,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     this->HavePickScalars = true;
   }
 
-  // handle composite ID point picking seperately as the data is on Cells
+  // handle composite ID point picking separately as the data is on Cells
   if (this->HavePickScalars &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
       selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)

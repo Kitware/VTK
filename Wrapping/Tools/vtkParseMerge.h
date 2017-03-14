@@ -36,7 +36,7 @@
  */
 typedef struct _MergeInfo
 {
-  int   NumberOfClasses;    /* number of classes in geneology */
+  int   NumberOfClasses;    /* number of classes in genealogy */
   const char **ClassNames;         /* class name */
   int   NumberOfFunctions;  /* must match FunctionInfo */
   int  *NumberOfOverrides; /* n classes that define this function */

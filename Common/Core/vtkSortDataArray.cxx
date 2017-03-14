@@ -225,7 +225,7 @@ vtkIdType* vtkSortDataArray::InitializeSortIndices(vtkIdType num)
 
 
 //---------------------------------------------------------------------------
-// Efficent function for generating sort ordering specialized to single
+// Efficient function for generating sort ordering specialized to single
 // component arrays.
 void vtkSortDataArray::
 GenerateSort1Indices(int dataType, void *dataIn, vtkIdType numKeys,

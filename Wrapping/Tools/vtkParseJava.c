@@ -505,7 +505,7 @@ int checkFunctionSignature(ClassInfo *data)
     return 0;
   }
 
-  /* The GetInput() in vtkMapper cannot be overriden with a
+  /* The GetInput() in vtkMapper cannot be overridden with a
    * different return type, Java doesn't allow this */
   if (strcmp(data->Name, "vtkMapper") == 0 &&
       strcmp(currentFunction->Name, "GetInput") == 0)

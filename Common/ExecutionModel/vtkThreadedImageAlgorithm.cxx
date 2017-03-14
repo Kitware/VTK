@@ -50,7 +50,7 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
   this->SplitPath[2] = 0;
   this->SplitPathLength = 3;
 
-  // Minumum block size
+  // Minimum block size
   this->MinimumPieceSize[0] = 16;
   this->MinimumPieceSize[1] = 1;
   this->MinimumPieceSize[2] = 1;
@@ -435,7 +435,7 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
   }
   // else
   //   {
-  //   otherwise don't use this thread. Sometimes the threads dont
+  //   otherwise don't use this thread. Sometimes the threads don't
   //   break up very well and it is just as efficient to leave a
   //   few threads idle.
   //   }

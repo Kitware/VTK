@@ -502,7 +502,7 @@ protected:
 
   //@{
   /**
-   * These arrays pointers are caches used to avoid a string comparision (when
+   * These arrays pointers are caches used to avoid a string comparison (when
    * getting ghost arrays using GetArray(name))
    */
   vtkUnsignedCharArray* PointGhostArray;

@@ -176,7 +176,7 @@ vtkm::cont::Field Convert(vtkDataArray* input, int association)
   // We need to properly deduce the ValueType of the array. This means
   // that we need to switch on Float/Double/Int, and then figure out the
   // number of components. The upside is that the Convert Method can internally
-  // figure out the number of components, and not have to generate alot
+  // figure out the number of components, and not have to generate a lot
   // of template to do so
 
   // Investigate using vtkArrayDispatch, AOS for all types, and than SOA for

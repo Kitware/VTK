@@ -839,7 +839,7 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
   {
     case WM_CREATE:
     {
-    // nothing to be done here, opengl is initilized after the call to
+    // nothing to be done here, opengl is initialized after the call to
     // create now
     return 0;
     }

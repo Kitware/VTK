@@ -548,7 +548,7 @@ inline bool vtkPStructuredGridConnectivity::IsGridRemote(const int gridID )
 //------------------------------------------------------------------------------
 inline bool vtkPStructuredGridConnectivity::IsGridLocal(const int gridID)
 {
-  assert( "pre: Instance has not been intialized!" && this->Initialized );
+  assert( "pre: Instance has not been initialized!" && this->Initialized );
   assert( "pre: gridID is out-of-bounds" &&
           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids) ) );
   assert( "pre: GridRanks is not properly allocated" &&
@@ -559,7 +559,7 @@ inline bool vtkPStructuredGridConnectivity::IsGridLocal(const int gridID)
 //------------------------------------------------------------------------------
 inline int vtkPStructuredGridConnectivity::GetGridRank( const int gridID )
 {
-  assert( "pre: Instance has not been intialized!" && this->Initialized );
+  assert( "pre: Instance has not been initialized!" && this->Initialized );
   assert( "pre: gridID out-of-bounds!" &&
           (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
   return( this->GridRanks[ gridID ] );

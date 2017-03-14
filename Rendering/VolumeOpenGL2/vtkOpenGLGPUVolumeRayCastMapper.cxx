@@ -556,7 +556,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
     }
   }
 
-  // We support upto four components
+  // We support up to four components
   if (noOfComponents > 1 && independentComponents)
   {
     this->OpacityTables = new vtkOpenGLVolumeOpacityTables(noOfComponents);
@@ -3311,7 +3311,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   prog->SetUniformi("in_independentComponents", independentComponents);
 
   // LargeDataTypes have been already biased and scaled so in those cases 0s
-  // and 1s are passed repectively.
+  // and 1s are passed respectively.
   float tscale[4] = {1.0, 1.0, 1.0, 1.0};
   float tbias[4] = {0.0, 0.0, 0.0, 0.0};
   float (*scalePtr) [4] = &tscale;

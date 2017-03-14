@@ -72,7 +72,7 @@
 # Generates a file called other_name_export.h containing the macros
 # OTHER_NAME_EXPORT, OTHER_NAME_NO_EXPORT and OTHER_NAME_DEPRECATED etc.
 #
-# The BASE_NAME may be overridden by specifiying other options in the function.
+# The BASE_NAME may be overridden by specifying other options in the function.
 # For example:
 #
 #   add_library(somelib someclass.cpp)

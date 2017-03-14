@@ -46,7 +46,7 @@ vtkTextActor::vtkTextActor()
   // so...compute equivalent coords for initial position
   this->PositionCoordinate->SetCoordinateSystemToViewport();
 
-  // This intializes the rectangle structure.
+  // This initializes the rectangle structure.
   // It will be used to display the text image as a texture map.
   this->Rectangle = vtkPolyData::New();
   this->RectanglePoints = vtkPoints::New();

@@ -55,7 +55,7 @@ public:
   }
 
   /**
-   * Fast path for rendering glyphs comprised of only one type of primative
+   * Fast path for rendering glyphs comprised of only one type of primitive
    * Must set this->CurrentInput explicitly before calling.
    */
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,

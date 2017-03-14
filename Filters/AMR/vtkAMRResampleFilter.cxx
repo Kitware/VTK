@@ -645,7 +645,7 @@ void vtkAMRResampleFilter::SearchGridDecendants(double q[3],
     {
       if (amrds->GetAMRInfo()->FindCell( q, clevel,children[i], cellId ))
       {
-        // We found a decendant so stop searching the
+        // We found a descendant so stop searching the
         // children and can instead search that grid's
         // children
         gridId = children[i];
@@ -710,7 +710,7 @@ ProbeGridPointInAMRGraph(double q[3],
     }
   }
 
-  // Now search the decendants of the donor grid
+  // Now search the descendants of the donor grid
   this->SearchGridDecendants(q,amrds,maxLevel,donorLevel,donorGridId,donorCellIdx);
   return( donorCellIdx );
 }

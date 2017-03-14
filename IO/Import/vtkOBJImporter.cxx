@@ -271,7 +271,7 @@ std::string vtkOBJPolyDataProcessor::GetTextureFilename( int idx )
 }
 
 
-// intialise some structures to store the file contents in
+// initialize some structures to store the file contents in
 
 
 /*---------------------------------------------------------------------------*\

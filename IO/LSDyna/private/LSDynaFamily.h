@@ -153,7 +153,7 @@ public:
   //Description:
   //Setup reading of a number of words to be split across multiple
   //bufferChunk. This is used to read really large buffer sections
-  //in more reasonable sizes. The paramters are used to specify the total buffer
+  //in more reasonable sizes. The parameters are used to specify the total buffer
   //size. The buffer size will always be evenly divisable by numComps and total
   //word size of all buffers will be numTuples*numComps
   vtkIdType InitPartialChunkBuffering(const vtkIdType& numTuples, const vtkIdType& numComps );

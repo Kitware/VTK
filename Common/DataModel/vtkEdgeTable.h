@@ -140,7 +140,7 @@ public:
   //@}
 
   /**
-   * Intialize traversal of edges in table.
+   * Initialize traversal of edges in table.
    */
   void InitTraversal();
 

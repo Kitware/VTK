@@ -25,7 +25,7 @@
  * where point ids 0-5 are the six corner vertices of the wedge; followed by
  * six midedge nodes (6-12). Note that these midedge nodes correspond lie
  * on the edges defined by (0,1), (1,2), (2,0), (3,4), (4,5), (5,3).
- * The Edges (0,3), (1,4), (2,5) dont have midedge nodes.
+ * The Edges (0,3), (1,4), (2,5) don't have midedge nodes.
  *
  * @sa
  * vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra

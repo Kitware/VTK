@@ -89,7 +89,7 @@ public:
   //@{
   /**
    * Turn on/off connectivity based on scalar value. If on, points are
-   * connected only if the are proximal AND the scalar value of a candiate
+   * connected only if the are proximal AND the scalar value of a candidate
    * point falls in the scalar range specified. Of course input point scalar
    * data must be provided.
    */

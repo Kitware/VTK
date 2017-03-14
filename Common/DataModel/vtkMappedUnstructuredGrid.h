@@ -69,7 +69,7 @@
  * Note that since the implementation class is used as a compile-time template
  * parameter in vtkMappedUnstructuredGrid, the above methods do not need be
  * virtuals. The compiler will statically bind the calls, making dynamic vtable
- * lookups unneccessary and giving a slight performance boost.
+ * lookups unnecessary and giving a slight performance boost.
  *
  * Adapting a filter or algorithm to safely traverse the
  * vtkMappedUnstructuredGrid's topology requires removing calls the following

@@ -68,7 +68,7 @@ protected:
                   vtkInformationVector *) VTK_OVERRIDE;
 
   char *FileName;
-  std::vector<istream::pos_type> file_positions; // to store begining of each tstep
+  std::vector<istream::pos_type> file_positions; // to store beginning of each tstep
   std::vector<double> TimeSteps;
 
   int NumberOfTimeSteps;

@@ -63,7 +63,7 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
   // Prime the pipeline. Tell the producer to start computing.
   ip->Update();
 
-  // Get the first data, adjust camera appropriatly
+  // Get the first data, adjust camera appropriately
   cf->GetOutput()->Update();
   pd->ShallowCopy(cf->GetOutput());
   ren->ResetCamera();

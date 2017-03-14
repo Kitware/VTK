@@ -20,13 +20,13 @@
  * vtkInterpolationKernel specifies an abstract interface for interpolation
  * kernels. An interpolation kernel is used to produce an interpolated data
  * value at a point X from the points + data in a local neighborhood
- * surounding X. For example, given the N nearest points surrounding X, the
+ * surrounding X. For example, given the N nearest points surrounding X, the
  * interpolation kernel provides N weights, which when combined with the N
  * data values associated with these nearest points, produces an interpolated
  * data value at point X.
  *
  * Note that various kernel initialization methods are provided. The basic
- * method requires providing a point locator to accelerate neigborhood
+ * method requires providing a point locator to accelerate neighborhood
  * queries. Some kernels may refer back to the original dataset, or the point
  * attribute data associated with the dataset. The initialization method
  * enables different styles of initialization and is kernel-dependent.

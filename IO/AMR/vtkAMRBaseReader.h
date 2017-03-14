@@ -277,7 +277,7 @@ protected:
   /**
    * Initializes the array selections. If this is an initial request,
    * i.e., the first load from the file, all the arrays are deselected,
-   * and the IntialRequest ivar is set to false.
+   * and the InitialRequest ivar is set to false.
    */
   void InitializeArraySelections();
 

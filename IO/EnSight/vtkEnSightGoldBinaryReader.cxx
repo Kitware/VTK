@@ -4252,7 +4252,7 @@ void vtkEnSightGoldBinaryReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // Seeks the IFile to the cached timestep nearest the target timestep.
-// Returns the actually seeked to timestep
+// Returns the actually sought to timestep
 //----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::SeekToCachedTimeStep(const char* fileName,
                                                      int realTimeStep)

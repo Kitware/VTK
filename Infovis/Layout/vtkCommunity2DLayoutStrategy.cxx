@@ -448,7 +448,7 @@ void vtkCommunity2DLayoutStrategy::Layout()
       float forceY = rawAttractArray[rawSourceIndex+1] + rawRepulseArray[rawSourceIndex+1];
 
       // Forces can get extreme so limit them
-      // Note: This is psuedo-normalization of the
+      // Note: This is pseudo-normalization of the
       //       force vector, just to save some cycles
 
       // Avoid divide by zero

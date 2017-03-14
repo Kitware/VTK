@@ -878,7 +878,7 @@ int checkFunctionSignature(ClassInfo *data)
     args_ok = 0;
   }
 
-  /* watch out for functions that dont have enough info */
+  /* watch out for functions that don't have enough info */
   switch (baseType)
   {
     case VTK_PARSE_FLOAT:
@@ -915,7 +915,7 @@ int checkFunctionSignature(ClassInfo *data)
     args_ok = 0;
   }
 
-  /* check for methods that will be overriden especially for Tcl */
+  /* check for methods that will be overridden especially for Tcl */
   if (!strcmp("vtkObject",data->Name))
   {
     if (!strcmp(currentFunction->Name,"AddObserver"))

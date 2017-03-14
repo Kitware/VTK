@@ -704,7 +704,7 @@ public:
                                         arrayId,arrayName,
                                         this->LoadedCellFlag);
 
-        // DONT USE GetScalarType() or GetNumberOfScalarComponents() on
+        // DON'T USE GetScalarType() or GetNumberOfScalarComponents() on
         // ImageData as it deals only with point data...
 
         int scalarType=scalars->GetDataType();
@@ -1251,7 +1251,7 @@ public:
                                         arrayId,arrayName,
                                         this->LoadedCellFlag);
 
-        // DONT USE GetScalarType() or GetNumberOfScalarComponents() on
+        // DON'T USE GetScalarType() or GetNumberOfScalarComponents() on
         // ImageData as it deals only with point data...
 
         int scalarType=scalars->GetDataType();

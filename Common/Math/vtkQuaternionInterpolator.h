@@ -133,7 +133,7 @@ public:
   /**
    * Specify which type of function to use for interpolation. By default
    * (SetInterpolationFunctionToSpline()), cubic spline interpolation using a
-   * modifed Kochanek basis is employed. Otherwise, if
+   * modified Kochanek basis is employed. Otherwise, if
    * SetInterpolationFunctionToLinear() is invoked, linear spherical interpolation
    * is used between each pair of quaternions.
    */

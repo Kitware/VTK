@@ -97,7 +97,7 @@ vtkRenderView::vtkRenderView()
   this->LabelRenderer->SetActiveCamera(this->Renderer->GetActiveCamera());
   this->RenderWindow->AddRenderer(this->LabelRenderer);
 
-  // Intialize the selector and listen to render events to help Selector know
+  // Initialize the selector and listen to render events to help Selector know
   // when to update the full-screen hardware pick.
   this->Selector->SetRenderer(this->Renderer);
   this->Selector->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);

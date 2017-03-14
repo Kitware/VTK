@@ -187,7 +187,7 @@ def GetBitcodeFromConditional( conditional, indices ):
       # This edge pair is unimportant (inequality contains
       # more constraints than are required to characterize
       # this case). Print warning and skip:
-      print '*** WARNING *** Edge comparison %s %s %s unneccessary!' % ( v[i-1], v[i], v[i+1] )
+      print '*** WARNING *** Edge comparison %s %s %s unnecessary!' % ( v[i-1], v[i], v[i+1] )
       continue
     if v[i] == ',':
       continue

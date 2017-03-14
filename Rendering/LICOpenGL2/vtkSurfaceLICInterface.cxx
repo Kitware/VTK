@@ -1193,7 +1193,7 @@ void vtkSurfaceLICInterface::InitializeResources()
 //----------------------------------------------------------------------------
 bool vtkSurfaceLICInterface::NeedToUpdateCommunicator()
 {
-  // no comm or externally modfied paramters
+  // no comm or externally modfied parameterss
   if ( this->Internals->CommunicatorNeedsUpdate
     || this->Internals->ContextNeedsUpdate
     || !this->Internals->Communicator

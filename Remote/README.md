@@ -17,4 +17,4 @@ describes the policy and procedures for adding a new module:
 __NOTE__ that in each `<remote module name>.remote.cmake`, the first
 argument of the function vtk_fetch_module() is the name of the remote
 module, and it has to be consistent with the module name defined in
-the correponding module.cmake.
+the corresponding module.cmake.

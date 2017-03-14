@@ -20,7 +20,7 @@
  * vtkVoxelGrid is a filter that subsamples a point cloud based on a regular
  * binning of space. Basically the algorithm operates by dividing space into
  * a volume of M x N x O bins, and then for each bin averaging all of the
- * points positions into a single representive point. Several strategies for
+ * points positions into a single representative point. Several strategies for
  * computing the binning can be used: 1) manual configuration of a requiring
  * specifying bin dimensions (the bounds are calculated from the data); 2) by
  * explicit specification of the bin size in world coordinates (x-y-z

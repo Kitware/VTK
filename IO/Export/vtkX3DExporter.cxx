@@ -239,7 +239,7 @@ void vtkX3DExporter::WriteData()
   writer->SetField(translation, SFVEC3F, n);
 
   // make sure we have a default light
-  // if we dont then use a headlight
+  // if we don't then use a headlight
   lc = ren->GetLights();
   vtkCollectionSimpleIterator lsit;
   for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
@@ -868,7 +868,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
 int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
 {
   // make sure we have a default light
-  // if we dont then use a headlight
+  // if we don't then use a headlight
   vtkLightCollection* lc = ren->GetLights();
   vtkCollectionSimpleIterator lsit;
   vtkLight* aLight=0;
