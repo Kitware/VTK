@@ -273,6 +273,7 @@ SET(Module_SRCS
   vtkVersion.cxx
   vtkVoidArray.cxx
   vtkWeakPointerBase.cxx
+  vtkWeakReference.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
   vtkDenseArray.txx
@@ -335,6 +336,7 @@ set(${vtk-module}_HDRS
   vtkVariantExtract.h
   vtkVariantInlineOperators.h
   vtkWeakPointer.h
+  vtkWeakReference.h
   vtkWin32Header.h
   vtkWindows.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h
