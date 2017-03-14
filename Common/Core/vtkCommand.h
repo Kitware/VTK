@@ -198,6 +198,14 @@
  *  - A int* being the number of the button
  * - vtkCommand::UpdateShaderEvent
  *  - A vtkOpenGLHelper* currently being used
+ * - vtkCommand::FourthButtonPressEvent
+ *  - most of the objects return NULL
+ * - vtkCommand::FourthButtonReleaseEvent
+ *  - most of the objects return NULL
+ * - vtkCommand::FifthButtonPressEvent
+ *  - most of the objects return NULL
+ * - vtkCommand::FifthButtonReleaseEvent
+ *  - most of the objects return NULL
  *
  * @sa
  * vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
@@ -328,7 +336,11 @@
     _vtk_add_event(EndPanEvent)\
     _vtk_add_event(TapEvent)\
     _vtk_add_event(LongTapEvent)\
-    _vtk_add_event(SwipeEvent)
+    _vtk_add_event(SwipeEvent)\
+    _vtk_add_event(FourthButtonPressEvent)\
+    _vtk_add_event(FourthButtonReleaseEvent)\
+    _vtk_add_event(FifthButtonPressEvent)\
+    _vtk_add_event(FifthButtonReleaseEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\

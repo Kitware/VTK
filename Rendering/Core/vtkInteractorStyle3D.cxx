@@ -485,6 +485,12 @@ void vtkInteractorStyle3D::OnMiddleButtonUp()
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyle3D::OnFourthButtonUp()
+{
+  this->Interactor->ExitCallback();
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorStyle3D::StartClip()
 {
   if (this->State != VTKIS_NONE)

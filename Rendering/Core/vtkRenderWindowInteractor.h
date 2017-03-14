@@ -725,6 +725,10 @@ public:
   virtual void KeyReleaseEvent();
   virtual void CharEvent();
   virtual void ExitEvent();
+  virtual void FourthButtonPressEvent();
+  virtual void FourthButtonReleaseEvent();
+  virtual void FifthButtonPressEvent();
+  virtual void FifthButtonReleaseEvent();
   //@}
 
   //@{

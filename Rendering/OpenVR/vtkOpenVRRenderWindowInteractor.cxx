@@ -312,7 +312,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
           }
           if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
           {
-            this->Done = true;
+            this->FourthButtonPressEvent();
           }
         }
         if (event.eventType == vr::VREvent_ButtonUnpress)
@@ -329,6 +329,10 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
           {
             //this->MiddleButtonReleaseEvent();
             ovl->LoadNextCameraPose();
+          }
+          if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
+          {
+            this->FourthButtonReleaseEvent();
           }
         }
       }
