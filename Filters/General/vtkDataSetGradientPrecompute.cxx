@@ -296,6 +296,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
     }
 
     cellSize->SetTuple1(c,size);
+    for(int p = 0; p < np; p++) cqs->SetTuple( curPoint + p , cellVectors[p] );
 
     // check cqs consistency
 #ifdef DEBUG
@@ -305,7 +306,6 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
     {
       checkVolume += vtkMath::Dot( cellPoints[p] , cellVectors[p] );
       ADD_VEC(checkZero,cellVectors[p]);
-      cqs->SetTuple( curPoint + p , cellVectors[p] );
     }
     checkVolume /= (double) cell->GetCellDimension();
 
