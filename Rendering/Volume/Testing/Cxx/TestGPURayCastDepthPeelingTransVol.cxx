@@ -60,10 +60,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
-  renWin->SetSize(400, 400);
-  ren->SetBackground(1.0, 1.0, 1.0);
+  renWin->SetSize(800, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
@@ -94,7 +91,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   im->GetOrigin(origin);
   im->GetSpacing(spacing);
 
-  // Add sphere 1
+  // sphere 1
   center[0] = origin[0] + spacing[0] * dims[0] / 2.0;
   center[1] = origin[1] + spacing[1] * dims[1] / 2.0;
   center[2] = origin[2] + spacing[2] * dims[2] / 2.0;
@@ -110,7 +107,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
   sphereActor->SetMapper(sphereMapper.GetPointer());
 
-  // Add sphere 2
+  // sphere 2
   center[0] += 15.0;
   center[1] += 15.0;
   center[2] += 15.0;
@@ -126,16 +123,44 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   sphereMapper2->SetInputConnection(sphereSource2->GetOutputPort());
   sphereActor2->SetMapper(sphereMapper2.GetPointer());
 
-  // Add actors
+  // sphere 3 (transparent)
+  vtkNew<vtkActor> sphereActorTransp;
+  vtkProperty* sphereProperty3 = sphereActorTransp->GetProperty();
+  sphereProperty3->SetColor(0.0, 1.0, 0.0);
+  sphereProperty3->SetOpacity(0.0);
+  vtkNew<vtkPolyDataMapper> sphereMapperTransp;
+  sphereMapperTransp->SetInputConnection(sphereSource->GetOutputPort());
+  sphereActorTransp->SetMapper(sphereMapperTransp.GetPointer());
+
+  // Translucent spheres
+  vtkNew<vtkRenderer> ren;
+  ren->SetBackground(1.0, 1.0, 1.0);
+  ren->SetViewport(0.0, 0.0, 0.5, 1.0);
+
   ren->AddVolume(volume.GetPointer());
   ren->AddActor(sphereActor.GetPointer());
   ren->AddActor(sphereActor2.GetPointer());
 
-  // Configure depth peeling
   ren->SetUseDepthPeeling(1);
   ren->SetOcclusionRatio(0.0);
   ren->SetMaximumNumberOfPeels(17);
   ren->SetUseDepthPeelingForVolumes(true);
+  renWin->AddRenderer(ren.GetPointer());
+
+  // Fully trasnparent sphere
+  vtkNew<vtkRenderer> ren2;
+  ren2->SetBackground(1.0, 1.0, 1.0);
+  ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
+  ren2->SetActiveCamera(ren->GetActiveCamera());
+
+  ren2->AddVolume(volume.GetPointer());
+  ren2->AddActor(sphereActorTransp.GetPointer());
+
+  ren2->SetUseDepthPeeling(1);
+  ren2->SetOcclusionRatio(0.0);
+  ren2->SetMaximumNumberOfPeels(17);
+  ren2->SetUseDepthPeelingForVolumes(true);
+  renWin->AddRenderer(ren2.GetPointer());
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   renWin->GetInteractor()->SetInteractorStyle(style.GetPointer());
