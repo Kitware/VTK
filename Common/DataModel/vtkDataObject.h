@@ -85,8 +85,7 @@ public:
   /**
    * Release data back to system to conserve memory resource. Used during
    * visualization network execution.  Releasing this data does not make
-   * down-stream data invalid, so it does not modify the MTime of this
-   * data object.
+   * down-stream data invalid.
    */
   void ReleaseData();
 

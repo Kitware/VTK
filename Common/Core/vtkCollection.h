@@ -68,7 +68,7 @@ public:
   void InsertItem(int i, vtkObject *);
 
   /**
-   * Replace the i'th item in the collection with a
+   * Replace the i'th item in the collection with another item.
    */
   void ReplaceItem(int i, vtkObject *);
 
