@@ -171,7 +171,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
 
       else if ( ! strncmp(line, "point_data", 10) )
       {
-        int npts;
+        vtkIdType npts;
         if (!this->Read(&npts))
         {
           vtkErrorMacro(<<"Cannot read point data!");
@@ -306,9 +306,9 @@ int vtkStructuredPointsReader::RequestData(
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   this->SetErrorCode( vtkErrorCode::NoError );
-  int numPts=0, numCells=0;
+  vtkIdType numPts=0, numCells=0;
   char line[256];
-  int npts, ncells;
+  vtkIdType npts, ncells;
   int dimsRead=0, arRead=0, originRead=0;
   vtkStructuredPoints *output = vtkStructuredPoints::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));

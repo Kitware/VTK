@@ -171,7 +171,7 @@ int vtkGraphReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "points", 6))
     {
-      int point_count = 0;
+      vtkIdType point_count = 0;
       if(!this->Read(&point_count))
       {
         vtkErrorMacro(<<"Cannot read number of points!");
@@ -185,7 +185,7 @@ int vtkGraphReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "vertices", 8))
     {
-      int vertex_count = 0;
+      vtkIdType vertex_count = 0;
       if(!this->Read(&vertex_count))
       {
         vtkErrorMacro(<<"Cannot read number of vertices!");
@@ -214,16 +214,16 @@ int vtkGraphReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "edges", 5))
     {
-      int edge_count = 0;
+      vtkIdType edge_count = 0;
       if(!this->Read(&edge_count))
       {
         vtkErrorMacro(<<"Cannot read number of edges!");
         this->CloseVTKFile ();
         return 1;
       }
-      int source = 0;
-      int target = 0;
-      for(int edge = 0; edge != edge_count; ++edge)
+      vtkIdType source = 0;
+      vtkIdType target = 0;
+      for(vtkIdType edge = 0; edge != edge_count; ++edge)
       {
         if(!(this->Read(&source) && this->Read(&target)))
         {
@@ -252,7 +252,7 @@ int vtkGraphReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "vertex_data", 10))
     {
-      int vertex_count = 0;
+      vtkIdType vertex_count = 0;
       if(!this->Read(&vertex_count))
       {
         vtkErrorMacro(<<"Cannot read number of vertices!");
@@ -267,7 +267,7 @@ int vtkGraphReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "edge_data", 9))
     {
-      int edge_count = 0;
+      vtkIdType edge_count = 0;
       if(!this->Read(&edge_count))
       {
         vtkErrorMacro(<<"Cannot read number of edges!");

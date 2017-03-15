@@ -148,7 +148,7 @@ int vtkRectilinearGridReader::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int numPts=0, npts, ncoords, numCells=0, ncells;
+  vtkIdType numPts=0, npts, ncoords, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
   vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(

@@ -160,7 +160,7 @@ int vtkStructuredGridReader::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int numPts=0, npts=0, numCells=0, ncells;
+  vtkIdType numPts=0, npts=0, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
   vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(

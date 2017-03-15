@@ -64,7 +64,6 @@
 #include <cstdio>
 #include <sstream>
 
-
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -129,7 +128,6 @@ vtkDataWriter::~vtkDataWriter()
   this->OutputString = NULL;
   this->OutputStringLength = 0;
 }
-
 
 // Open a vtk data file. Returns NULL if error.
 ostream *vtkDataWriter::OpenVTKFile()
@@ -225,7 +223,7 @@ int vtkDataWriter::WriteHeader(ostream *fp)
 // Returns 0 if error.
 int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
 {
-  int numCells;
+  vtkIdType numCells;
   vtkDataArray *scalars;
   vtkDataArray *vectors;
   vtkDataArray *normals;
@@ -372,7 +370,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
 // Returns 0 if error.
 int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
 {
-  int numPts;
+  vtkIdType numPts;
   vtkDataArray *scalars;
   vtkDataArray *vectors;
   vtkDataArray *normals;
@@ -534,7 +532,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
 // Returns 0 if error.
 int vtkDataWriter::WriteVertexData(ostream *fp, vtkGraph *ds)
 {
-  int numVertices;
+  vtkIdType numVertices;
   vtkDataArray *scalars;
   vtkDataArray *vectors;
   vtkDataArray *normals;
@@ -681,7 +679,7 @@ int vtkDataWriter::WriteVertexData(ostream *fp, vtkGraph *ds)
 // Returns 0 if error.
 int vtkDataWriter::WriteEdgeData(ostream *fp, vtkGraph *g)
 {
-  int numEdges;
+  vtkIdType numEdges;
   vtkDataArray *scalars;
   vtkDataArray *vectors;
   vtkDataArray *normals;
@@ -828,7 +826,7 @@ int vtkDataWriter::WriteEdgeData(ostream *fp, vtkGraph *g)
 // Returns 0 if error.
 int vtkDataWriter::WriteRowData(ostream *fp, vtkTable *t)
 {
-  int numRows;
+  vtkIdType numRows;
   vtkDataArray *scalars;
   vtkDataArray *vectors;
   vtkDataArray *normals;
@@ -972,9 +970,9 @@ namespace
 // We could change the format into C++ io standard ...
 template <class T>
 void vtkWriteDataArray(ostream *fp, T *data, int fileType,
-                       const char *format, int num, int numComp)
+                       const char *format, vtkIdType num, vtkIdType numComp)
 {
-  int i, j, idx, sizeT;
+  vtkIdType i, j, idx, sizeT;
   char str[1024];
 
   sizeT = sizeof(T);
@@ -1043,9 +1041,9 @@ T* GetArrayRawPointer(vtkAbstractArray* array, T* ptr, int isAOSArray)
 
 // Write out data to file specified.
 int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
-                              const char *format, int num, int numComp)
+                              const char *format, vtkIdType num, vtkIdType numComp)
 {
-  int i, j, idx;
+  vtkIdType i, j, idx;
   char str[1024];
 
   bool isAOSArray = data->HasStandardMemoryLayout();
@@ -1474,7 +1472,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
 
 int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
 {
-  int numPts;
+  vtkIdType numPts;
 
   if (points == NULL)
   {
@@ -1516,9 +1514,9 @@ int vtkDataWriter::WriteCoordinates(ostream *fp, vtkDataArray *coords,
 }
 
 // Write out scalar data.
-int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
+int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, vtkIdType num)
 {
-  int i, j, size=0;
+  vtkIdType i, j, size=0;
   const char *name;
   vtkLookupTable *lut;
   int dataType = scalars->GetDataType();
@@ -1561,7 +1559,6 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
   {
     char format[1024];
     *fp << "SCALARS ";
-
 
     if (numComp == 1)
     {
@@ -1644,7 +1641,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
   return 1;
 }
 
-int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
+int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, vtkIdType num)
 {
   char format[1024];
 
@@ -1679,7 +1676,7 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
   return this->WriteArray(fp, vectors->GetDataType(), vectors, format, num, 3);
 }
 
-int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
+int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, vtkIdType num)
 {
   char format[1024];
 
@@ -1713,7 +1710,7 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
   return this->WriteArray(fp, normals->GetDataType(), normals, format, num, 3);
 }
 
-int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
+int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, vtkIdType num)
 {
   int dim=tcoords->GetNumberOfComponents();
   char format[1024];
@@ -1741,7 +1738,6 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
     this->EncodeString(tcoordsName, this->TCoordsName, true);
   }
 
-
   *fp << "TEXTURE_COORDINATES ";
   sprintf(format, "%s %d %s\n", tcoordsName, dim, "%s");
   delete[] tcoordsName;
@@ -1750,7 +1746,7 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
                           dim);
 }
 
-int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
+int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, vtkIdType num)
 {
   char format[1024];
 
@@ -1791,7 +1787,7 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
   return this->WriteArray(fp, tensors->GetDataType(), tensors, format, num, numComp);
 }
 
-int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, int num)
+int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, vtkIdType num)
 {
   char format[1024];
 
@@ -1826,7 +1822,7 @@ int vtkDataWriter::WriteGlobalIdData(ostream *fp, vtkDataArray *globalIds, int n
   return this->WriteArray(fp, globalIds->GetDataType(), globalIds, format, num, 1);
 }
 
-int vtkDataWriter::WritePedigreeIdData(ostream *fp, vtkAbstractArray *pedigreeIds, int num)
+int vtkDataWriter::WritePedigreeIdData(ostream *fp, vtkAbstractArray *pedigreeIds, vtkIdType num)
 {
   char format[1024];
 
@@ -1861,7 +1857,7 @@ int vtkDataWriter::WritePedigreeIdData(ostream *fp, vtkAbstractArray *pedigreeId
   return this->WriteArray(fp, pedigreeIds->GetDataType(), pedigreeIds, format, num, 1);
 }
 
-int vtkDataWriter::WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num)
+int vtkDataWriter::WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, vtkIdType num)
 {
   char format[1024];
 
@@ -2081,9 +2077,9 @@ int vtkDataWriter::WriteInformation(std::ostream *fp, vtkInformation *info)
   return 1;
 }
 
-static int vtkIsInTheList(int index, int* list, int numElem)
+static int vtkIsInTheList(int index, int* list, vtkIdType numElem)
 {
-  for(int i=0; i<numElem; i++)
+  for(vtkIdType i=0; i<numElem; i++)
   {
     if (index == list[i])
     {
@@ -2097,7 +2093,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
 {
   char format[1024];
   int i, numArrays=f->GetNumberOfArrays(), actNumArrays=0;
-  int numComp, numTuples;
+  vtkIdType numComp, numTuples;
   int attributeIndices[vtkDataSetAttributes::NUM_ATTRIBUTES];
   vtkAbstractArray *array;
 
@@ -2125,7 +2121,6 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
   }
   *fp << "FIELD " << this->FieldDataName << " " << actNumArrays << "\n";
 
-
   for (i=0; i < numArrays; i++)
   {
     if (!vtkIsInTheList(i, attributeIndices,
@@ -2150,8 +2145,14 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
           buffer = new char[ strlen(array->GetName()) * 4 + 1];
           this->EncodeString(buffer, array->GetName(), true);
         }
-        sprintf(format, "%s %d %d %s\n", buffer, numComp, numTuples,
+#ifdef VTK_USE_64BIT_IDS
+        sprintf(format, "%s %lld %lld %s\n", buffer, numComp, numTuples,
                 "%s");
+#else // VTK_USE_64BIT_IDS
+        sprintf(format, "%s %ld %ld %s\n", buffer, numComp, numTuples,
+                "%s");
+#endif // VTK_USE_64BIT_IDS
+
         this->WriteArray(fp, array->GetDataType(), array, format, numTuples,
                          numComp);
         delete [] buffer;
@@ -2178,8 +2179,8 @@ int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *labe
     return 1;
   }
 
-  int ncells=cells->GetNumberOfCells();
-  int size=cells->GetNumberOfConnectivityEntries();
+  vtkIdType ncells=cells->GetNumberOfCells();
+  vtkIdType size=cells->GetNumberOfConnectivityEntries();
 
   if ( ncells < 1 )
   {
@@ -2190,7 +2191,7 @@ int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *labe
 
   if ( this->FileType == VTK_ASCII )
   {
-    int j;
+    vtkIdType j;
     vtkIdType *pts = 0;
     vtkIdType npts = 0;
     for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )

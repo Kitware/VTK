@@ -316,15 +316,15 @@ protected:
   char* EdgeFlagsName;
 
   int WriteArray(ostream *fp, int dataType, vtkAbstractArray *data, const char *format,
-                 int num, int numComp);
-  int WriteScalarData(ostream *fp, vtkDataArray *s, int num);
-  int WriteVectorData(ostream *fp, vtkDataArray *v, int num);
-  int WriteNormalData(ostream *fp, vtkDataArray *n, int num);
-  int WriteTCoordData(ostream *fp, vtkDataArray *tc, int num);
-  int WriteTensorData(ostream *fp, vtkDataArray *t, int num);
-  int WriteGlobalIdData(ostream *fp, vtkDataArray *g, int num);
-  int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, int num);
-  int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num);
+                 vtkIdType num, vtkIdType numComp);
+  int WriteScalarData(ostream *fp, vtkDataArray *s, vtkIdType num);
+  int WriteVectorData(ostream *fp, vtkDataArray *v, vtkIdType num);
+  int WriteNormalData(ostream *fp, vtkDataArray *n, vtkIdType num);
+  int WriteTCoordData(ostream *fp, vtkDataArray *tc, vtkIdType num);
+  int WriteTensorData(ostream *fp, vtkDataArray *t, vtkIdType num);
+  int WriteGlobalIdData(ostream *fp, vtkDataArray *g, vtkIdType num);
+  int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, vtkIdType num);
+  int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, vtkIdType num);
 
   bool CanWriteInformationKey(vtkInformation *info, vtkInformationKey *key);
 
