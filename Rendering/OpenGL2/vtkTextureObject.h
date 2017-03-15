@@ -179,7 +179,7 @@ public:
   //@{
   /**
    * Bind UnBind The texture must have been created using Create().
-   * A side affect is that tex parameterses are sent.
+   * A side affect is that tex parameters are sent.
    * RenderWindow must be set before calling this.
    */
   void Bind();
