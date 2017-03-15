@@ -79,6 +79,8 @@ void vtkObjectFactory::ConstructInstance(const char* vtkclassname)
                            vtkObjectBase::InitializeObjectBase);
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass(vtkclassname);
+#else
+  vtkNotUsed(vtkclassname)
 #endif // VTK_DEBUG_LEAKS
 
 }
