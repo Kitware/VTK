@@ -17,7 +17,7 @@
  * @brief   Factory object override information
  *
  * vtkOverrideInformation is used to represent the information about
- * a class which is overriden in a vtkObjectFactory.
+ * a class which is overridden in a vtkObjectFactory.
  *
 */
 
@@ -40,9 +40,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Returns the name of the class being overriden.  For example,
+   * Returns the name of the class being overridden.  For example,
    * if you had a factory that provided an override for
-   * vtkVertex, then this funciton would return "vtkVertex"
+   * vtkVertex, then this function would return "vtkVertex"
    */
   const char* GetClassOverrideName()
   {

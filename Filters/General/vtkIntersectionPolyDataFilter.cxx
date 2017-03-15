@@ -1836,7 +1836,7 @@ void vtkIntersectionPolyDataFilter::Impl
 ::Orient(vtkPolyData *pd, vtkTransform *transform, vtkPolyData *boundary,
                 vtkPolygon *boundarypoly)
 {
-  //Orient this loop in a counter clockwise direction in preperation for
+  //Orient this loop in a counter clockwise direction in preparation for
   //cell splitting. For delaunay2d, the polygon should be in CCW order, but
   //also for ear clipping method, it is nice to have also in CCW order.
   vtkSmartPointer<vtkTransformPolyDataFilter> transformer =

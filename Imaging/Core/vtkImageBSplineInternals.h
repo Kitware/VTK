@@ -17,7 +17,7 @@
  * @brief   BSpline code from P. Thevenaz
  *
  * vtkImageBSplineInternals provides code for image interpolation with
- * b-splines of various degrees.  This code computes the coefficents
+ * b-splines of various degrees.  This code computes the coefficients
  * from the image, and computes the weights for the b-spline kernels.
  *
  * This class is based on code provided by Philippe Thevenaz of

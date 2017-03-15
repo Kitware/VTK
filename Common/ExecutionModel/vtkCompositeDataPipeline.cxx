@@ -1055,7 +1055,7 @@ void vtkCompositeDataPipeline::MarkOutputsGenerated(
         size_t count = outInfo->Length(UPDATE_COMPOSITE_INDICES());
         int* indices = new int[count];
         // assume the source produced the blocks it was asked for:
-        // the indices recieved are what was requested
+        // the indices received are what was requested
         outInfo->Get(UPDATE_COMPOSITE_INDICES(),indices);
         outInfo->Set(DATA_COMPOSITE_INDICES(), indices,
           static_cast<int>(count));

@@ -18,7 +18,7 @@
  *
  *
  * Class to handle non-contiguous data transfers of data described
- * by pixel extents within a process. For transfering data between
+ * by pixel extents within a process. For transferring data between
  * processes see vtkPPixelTransfer.
  *
  * @sa

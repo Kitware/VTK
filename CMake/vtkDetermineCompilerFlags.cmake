@@ -93,11 +93,11 @@ ENDIF()
 
 IF(CMAKE_CXX_COMPILER_ID STREQUAL "PGI")
   # --diag_suppress=236 is for constant value asserts used for error handling
-  # This can be restricted to the implementation and doesn't need to propogate
+  # This can be restricted to the implementation and doesn't need to propagate
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --diag_suppress=236")
 
   # --diag_suppress=381 is for redundant semi-colons used in macros
-  # This needs to propogate to anything that includes VTK headers
+  # This needs to propagate to anything that includes VTK headers
   SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} --diag_suppress=381")
 ENDIF()
 

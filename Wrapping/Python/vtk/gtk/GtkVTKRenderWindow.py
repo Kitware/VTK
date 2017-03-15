@@ -26,9 +26,9 @@ Using GtkGLArea, March, 2002.
 Bugs:
 
   (*) There is a focus related problem.  Tkinter has a focus object
-  that handles focus events.  I dont know of an equivalent object
+  that handles focus events.  I don't know of an equivalent object
   under GTK.  So, when an 'enter_notify_event' is received on the
-  GtkVTKRenderWindow I grab the focus but I dont know what to do when
+  GtkVTKRenderWindow I grab the focus but I don't know what to do when
   I get a 'leave_notify_event'.
 
   (*) Will not work under Win32 because it uses the XID of a window in

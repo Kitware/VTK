@@ -1,6 +1,6 @@
 # This file ensures the appropriate variables are set up for a project extending
 # VTK before including vtkModuleMacros. This is the preferred way for a project
-# building aginst VTK to use the CMake infrastructure provided for module
+# building against VTK to use the CMake infrastructure provided for module
 # developers.
 
 if(NOT VTK_FOUND)

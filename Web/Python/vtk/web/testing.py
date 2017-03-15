@@ -309,7 +309,7 @@ def compare_images(test_img, baseline_img, tmp_dir="."):
     image as well as any other images in the same directory as the baseline
     image which follow the naming pattern: 'img.png', 'img_1.png', ... , 'img_N.png'
 
-        test_img: File name of output image to be compared agains baseline.
+        test_img: File name of output image to be compared against baseline.
 
         baseline_img: Fully qualified path to first of the baseline images.
 

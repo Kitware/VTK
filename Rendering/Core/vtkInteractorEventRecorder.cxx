@@ -374,7 +374,7 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
   {
     switch(event)
     {
-      case vtkCommand::ModifiedEvent: //dont want these
+      case vtkCommand::ModifiedEvent: //don't want these
         break;
 
       default:

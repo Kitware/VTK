@@ -1070,7 +1070,7 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
     } // END for all links
 
     // serialize the cellIds s.t. the remote rank knows which cell to update
-    // once the data is transfered
+    // once the data is transferred
     bytestream.Push(cellIds->GetPointer(0),cellIds->GetNumberOfIds());
 
     // serialize the data on the selected cells

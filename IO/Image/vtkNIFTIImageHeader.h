@@ -323,7 +323,7 @@ public:
   const char *GetDescrip() { return this->Descrip; }
 
   /**
-   * Get an auxilliary file, e.g. a color table, that is associated
+   * Get an auxiliary file, e.g. a color table, that is associated
    * with this data.  The length of the filename must be a maximum of
    * 24 characters, and it will be assumed to be in the same directory
    * as the NIFTI file.

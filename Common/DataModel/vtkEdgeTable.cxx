@@ -429,7 +429,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr)
 
 
 //----------------------------------------------------------------------------
-// Intialize traversal of edges in table.
+// Initialize traversal of edges in table.
 void vtkEdgeTable::InitTraversal()
 {
   this->Position[0] = 0;

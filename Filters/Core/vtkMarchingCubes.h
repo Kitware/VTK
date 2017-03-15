@@ -97,7 +97,7 @@ public:
 
   //@{
   /**
-   * Overide the default locator.  Useful for changing the number of
+   * override the default locator.  Useful for changing the number of
    * bins for performance or specifying a more aggressive locator.
    */
   void SetLocator(vtkIncrementalPointLocator *locator);

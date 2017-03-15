@@ -288,7 +288,7 @@ protected:
   vtkHardwareSelector();
   ~vtkHardwareSelector() VTK_OVERRIDE;
 
-  // Used to notify subclasses when a capture pass is occuring.
+  // Used to notify subclasses when a capture pass is occurring.
   virtual void PreCapturePass(int pass) { (void)pass; }
   virtual void PostCapturePass(int pass) { (void)pass; }
 

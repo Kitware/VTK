@@ -270,7 +270,7 @@ this template explosion in check.
 
 Starting with VTK 7.1, the Array-Of-Structs (AOS) memory layout is no longer
 the only `vtkDataArray` implementation provided by the library. The
-Struct-Of-Arrays (SOA) memory layout is now available throught the
+Struct-Of-Arrays (SOA) memory layout is now available through the
 `vtkSOADataArrayTemplate` class. The SOA layout assumes that the components of
 an array are stored separately, as in:
 

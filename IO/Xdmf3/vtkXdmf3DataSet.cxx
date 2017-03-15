@@ -1947,7 +1947,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
 //==========================================================================
 //TODO: meld this with Grid XdmfToVTKAttributes
-//TODO: enable set atribute selections
+//TODO: enable set attribute selections
 void vtkXdmf3DataSet::XdmfToVTKAttributes(
 /*
   vtkXdmf3ArraySelection *fselection,

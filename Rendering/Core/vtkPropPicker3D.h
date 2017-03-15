@@ -62,7 +62,7 @@ public:
     vtkPropCollection* pickfrom);
 
   /**
-   * Overide superclasses' Pick() method.
+   * Override superclasses' Pick() method.
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
            vtkRenderer *renderer) VTK_OVERRIDE;

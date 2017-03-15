@@ -225,7 +225,7 @@ vtkDataObject* vtkScalarsToColorsPainter::NewClone(vtkDataObject* data)
     vtkDataSet* ds = vtkDataSet::SafeDownCast(data);
     vtkDataSet* clone = ds->NewInstance();
     clone->ShallowCopy(ds);
-    // scalars passed thru this filter are colors, which will be buit in
+    // scalars passed through this filter are colors, which will be buit in
     // the pre-rendering stage.
     clone->GetCellData()->SetActiveAttribute(-1, vtkDataSetAttributes::SCALARS);
     clone->GetPointData()->SetActiveAttribute(-1, vtkDataSetAttributes::SCALARS);
@@ -789,7 +789,7 @@ void CreateColorTextureCoordinates(T* input, float* output,
                                    bool use_log_scale)
 {
   // We have to change the range used for computing texture
-  // coordinates slightly to accomodate the special above- and
+  // coordinates slightly to accommodate the special above- and
   // below-range colors that are the first and last texels,
   // respectively.
   double scalar_texel_width = (range[1] - range[0]) / static_cast<double>(tableNumberOfColors);

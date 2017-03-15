@@ -16,7 +16,7 @@
  * @brief   Backwards compatibility class
  *
  *
- * An empty class for backwards compatiblity
+ * An empty class for backwards compatibility
  *
  * @sa
  * vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR

@@ -45,7 +45,7 @@ protected:
   int RenderPolys; // Flag indicating if the line loops are to be closed.
 
   /**
-   * Overriden to set RenderPolys flag. When set, polys are rendered
+   * Overridden to set RenderPolys flag. When set, polys are rendered
    * as line loops.
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,

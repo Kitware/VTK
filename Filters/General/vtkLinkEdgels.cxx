@@ -180,7 +180,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >=
               linkThresh)
           {
-            // make sure we dont go off the edge and are >= GradientThresh
+            // make sure we don't go off the edge and are >= GradientThresh
             // and it hasn't already been set
             if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&&
                 (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&
@@ -228,7 +228,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
             if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >=
                 linkThresh)
             {
-              // make sure we dont go off the edge and are >= GradientThresh
+              // make sure we don't go off the edge and are >= GradientThresh
               // and it hasn't already been set
               if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&&
                   (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&

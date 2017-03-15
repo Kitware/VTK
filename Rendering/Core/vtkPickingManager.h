@@ -135,7 +135,7 @@ public:
   void RemovePicker(vtkAbstractPicker* picker, vtkObject* object = 0);
 
   /**
-   * Remove all occurences of the \a object from the registered list.
+   * Remove all occurrence of the \a object from the registered list.
    * If a picker associated with the \a object is not also associated with
    * any other object, it is removed from the list as well.
    */

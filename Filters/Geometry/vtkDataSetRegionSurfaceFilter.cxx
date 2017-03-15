@@ -533,7 +533,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
   cellPointer = input->GetCells()->GetPointer();
   for(cellId=0; cellId < numCells && !abort && flag2D; cellId++)
   {
-    // Direct acces to cells.
+    // Direct access to cells.
     cellType = input->GetCellType(cellId);
     numCellPts = cellPointer[0];
     ids = cellPointer+1;

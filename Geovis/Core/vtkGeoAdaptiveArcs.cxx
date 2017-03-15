@@ -314,7 +314,7 @@ void vtkGeoAdaptiveArcs::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "GlobeRadius: " << this->GlobeRadius << endl;
-  os << indent << "MinumumPixelSeparation: " << this->MinimumPixelSeparation << endl;
+  os << indent << "MinimumPixelSeparation: " << this->MinimumPixelSeparation << endl;
   os << indent << "MaximumPixelSeparation: " << this->MaximumPixelSeparation << endl;
   os << indent << "Renderer: " << (this->Renderer ? "" : "(null)") << endl;
   if (this->Renderer)

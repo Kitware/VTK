@@ -211,7 +211,7 @@ public:
   void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE;
 
   /**
-   * This method is used internally by the rendering process. We overide
+   * This method is used internally by the rendering process. We override
    * the superclass method to properly set the estimated render time.
    */
   int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;

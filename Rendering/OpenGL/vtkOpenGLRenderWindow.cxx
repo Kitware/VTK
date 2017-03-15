@@ -272,7 +272,7 @@ void vtkOpenGLRenderWindow::SetSize(int x, int y)
   if (this->Size[0] == x
     && this->Size[1] == y)
   {
-    // Nothing should happend in the superclass but never knows...
+    // Nothing should've happened in the superclass but one never knows...
     this->Superclass::SetSize(x, y);
     return;
   }

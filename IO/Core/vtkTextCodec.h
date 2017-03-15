@@ -93,7 +93,7 @@ public:
                          vtkTextCodec::OutputIterator& output) = 0;
 
   /**
-   * convinience method to take data from the stream and put it into a
+   * convenience method to take data from the stream and put it into a
    * vtkUnicodeString.
    */
   vtkUnicodeString ToUnicode(istream & inputStream);

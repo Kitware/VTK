@@ -86,7 +86,7 @@ protected:
   void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
 
   // These are method to set ivars. These are purpisefully protected.
-  // The only means to affect these values is thru information object.
+  // The only means to affect these values is through information object.
   vtkSetMacro(ResolveCoincidentTopology, int);
   vtkSetMacro(ZShift, double);
   vtkSetMacro(OffsetFaces, int);

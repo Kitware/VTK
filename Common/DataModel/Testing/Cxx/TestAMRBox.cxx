@@ -115,7 +115,7 @@ int TestAMRBoxCoarsenRefineOperators()
   hi[0] = hi[1] = hi[2] = 33;
   Construct3DAMRBox( Ar, lo, hi );
 
-  // Save the intial AMR box to A0
+  // Save the initial AMR box to A0
   A0 = A;
 
   // Refine the AMR box to Ar

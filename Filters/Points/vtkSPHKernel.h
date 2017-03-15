@@ -78,7 +78,7 @@ public:
 
   //@{
   /**
-   * The user defined intial particle spatial step. This is also referred to as
+   * The user defined initial particle spatial step. This is also referred to as
    * the smoothing length.
    */
   vtkSetClampMacro(SpatialStep,double,0.0,VTK_FLOAT_MAX);

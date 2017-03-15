@@ -457,7 +457,7 @@ print "Removing massive commits (> " . $args{"massive"} . ") ...\n";
 $intermediate_time = time();
 my $nb_removed = 0;
 
-# Remove these changes that have been commited to more than 'n' files
+# Remove these changes that have been committed to more than 'n' files
 # in the same day by the same author with same log message (= signature)
 
 foreach my $signature (sort { (scalar keys %{$log_revision_by_signature_file{$b}}) <=> (scalar keys %{$log_revision_by_signature_file{$a}}) }

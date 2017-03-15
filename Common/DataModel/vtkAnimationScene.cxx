@@ -172,7 +172,7 @@ void vtkAnimationScene::Play()
     (this->PlayMode == PLAYMODE_SEQUENCE)?  (1.0 / this->FrameRate) : 1;
   do
   {
-    this->Initialize(); // Set the Scene in unintialized mode.
+    this->Initialize(); // Set the Scene in uninitialized mode.
     this->AnimationTimer->StartTimer();
     double timer_start_time = currenttime;
     double deltatime = 0.0;

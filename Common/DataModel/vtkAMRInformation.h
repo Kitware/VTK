@@ -277,7 +277,7 @@ public:
   double Bounds[6]; //the bounds of the entire domain
 
   //-------------------------------------------------------------------------
-  // Auxillary information that be computed
+  // Auxiliary information that be computed
   //-------------------------------------------------------------------------
   vtkSmartPointer<vtkIntArray> Refinement; //refinement ratio between two adjacent levels
   vtkSmartPointer<vtkUnsignedIntArray> BlockLevel; //only necessary if need to call ComputeIndexPair

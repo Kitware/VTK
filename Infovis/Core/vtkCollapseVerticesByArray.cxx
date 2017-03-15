@@ -456,7 +456,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
           outEdgeId, edge->GetId(), inEdgeDataArraysOI[i]);
       }
 
-      // All others. Last entered will overide previous ones.
+      // All others. Last entered will override previous ones.
       for(size_t i=0; i < inEdgeDataArraysAO.size(); ++i)
       {
         outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(),
@@ -494,7 +494,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
         outEdgeDataArraysOI[i]->SetTuple(outEdgeId, outEdgeData);
       }
 
-      // All others. Last entered will overide previous ones.
+      // All others. Last entered will override previous ones.
       for(size_t i=0; i < inEdgeDataArraysAO.size(); ++i)
       {
         outEdgeDataArraysAO[i]->SetTuple(outEdgeId, edge->GetId(),

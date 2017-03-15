@@ -84,7 +84,7 @@ public:
   /**
    * Methods to change whether the widget responds to interaction.
    * Set this to Off to disable interaction. On by default.
-   * Subclasses must overide SetProcessEvents() to make sure
+   * Subclasses must override SetProcessEvents() to make sure
    * that they pass on the flag to all component widgets.
    */
   vtkSetClampMacro(ProcessEvents, int, 0, 1);

@@ -105,7 +105,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   std::string threshName=input->GetPointData()->GetArray(threshIdx)->GetName();
 
   // Add a quadrature scheme dictionary to the data set. This filter is
-  // solely for our convinience. Typically we would expect that users
+  // solely for our convenience. Typically we would expect that users
   // provide there own in XML format and use the readers or to generate
   // them on the fly.
   vtkSmartPointer<vtkQuadratureSchemeDictionaryGenerator> dictGen
@@ -119,7 +119,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   fieldInterp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
   fieldInterp->SetInputConnection(dictGen->GetOutputPort());
 
-  // Write the dataset as XML. This excercises the information writer.
+  // Write the dataset as XML. This exercises the information writer.
   vtkSmartPointer<vtkXMLUnstructuredGridWriter> xusgw
     = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
   xusgw->SetFileName(tempFile.c_str());
@@ -128,7 +128,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   xusgw=NULL;
   fieldInterp=NULL;
 
-  // Read the data back in form disk. This excercises the information reader.
+  // Read the data back in form disk. This exercises the information reader.
   xusgr=NULL;
   xusgr.TakeReference(vtkXMLUnstructuredGridReader::New());
   xusgr->SetFileName(tempFile.c_str());

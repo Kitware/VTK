@@ -461,7 +461,7 @@ inline void vtkQuadricClustering::InitializeQuadric(double quadric[9])
 
 //----------------------------------------------------------------------------
 // The error function is the volume (squared) of the tetrahedron formed by the
-// triangle and the point.  We ignore constant factors across all coefficents,
+// triangle and the point.  We ignore constant factors across all coefficients,
 // and the constant coefficient.
 // If geomertyFlag is 1 then the triangle is added to the output.  Otherwise,
 // only the quadric is affected.

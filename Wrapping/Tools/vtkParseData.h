@@ -150,7 +150,7 @@ struct _ValueInfo
   parse_access_t Access;
   const char    *Name;
   const char    *Comment;
-  const char    *Value;      /* for vars or default paramter values */
+  const char    *Value;      /* for vars or default parameters values */
   unsigned int   Type;       /* as defined in vtkParseType.h   */
   const char    *Class;      /* classname for type */
   int            Count;      /* total number of values, if known */

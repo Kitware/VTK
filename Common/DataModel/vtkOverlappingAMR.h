@@ -168,7 +168,7 @@ public:
   bool FindGrid(double q[3], unsigned int& level, unsigned int& gridId);
 
   /**
-   * Get/Set the interal representation of amr meta meta data
+   * Get/Set the internal representation of amr meta meta data
    */
   vtkAMRInformation* GetAMRInfo() VTK_OVERRIDE
     { return Superclass::GetAMRInfo();}

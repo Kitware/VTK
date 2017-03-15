@@ -122,7 +122,7 @@ protected:
   /**
    * Returns the number of edge control points for a particular edge. The
    * implementation returns GetNumberOfEdgePoints(edge) + 2 for the specified edge
-   * to incorporate the source and target vertex positions as intial
+   * to incorporate the source and target vertex positions as initial
    * and final edge points.
    */
   virtual vtkIdType NumberOfEdgePoints(vtkIdType edge);
