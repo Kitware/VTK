@@ -80,6 +80,7 @@ public:
   void OnRightButtonUp() VTK_OVERRIDE;
   void OnMiddleButtonDown() VTK_OVERRIDE;
   void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnFourthButtonUp() VTK_OVERRIDE;
   //@}
 
   //@{

@@ -1237,6 +1237,46 @@ void vtkRenderWindowInteractor::ExitEvent()
 }
 
 //------------------------------------------------------------------
+void vtkRenderWindowInteractor::FourthButtonPressEvent()
+{
+  if (!this->Enabled)
+  {
+    return;
+  }
+  this->InvokeEvent(vtkCommand::FourthButtonPressEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::FourthButtonReleaseEvent()
+{
+  if (!this->Enabled)
+  {
+    return;
+  }
+  this->InvokeEvent(vtkCommand::FourthButtonReleaseEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::FifthButtonPressEvent()
+{
+  if (!this->Enabled)
+  {
+    return;
+  }
+  this->InvokeEvent(vtkCommand::FifthButtonPressEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::FifthButtonReleaseEvent()
+{
+  if (!this->Enabled)
+  {
+    return;
+  }
+  this->InvokeEvent(vtkCommand::FifthButtonReleaseEvent, NULL);
+}
+
+//------------------------------------------------------------------
 void vtkRenderWindowInteractor::StartPinchEvent()
 {
   if (!this->Enabled)

@@ -279,6 +279,18 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
     i->AddObserver(vtkCommand::SwipeEvent,
                    this->EventCallbackCommand,
                    this->Priority);
+    i->AddObserver(vtkCommand::FourthButtonPressEvent,
+                   this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::FourthButtonReleaseEvent,
+                   this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::FifthButtonPressEvent,
+                   this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::FifthButtonReleaseEvent,
+                   this->EventCallbackCommand,
+                   this->Priority);
   }
 
   this->EventForwarder->SetTarget(this->Interactor);
@@ -1273,6 +1285,54 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       else
       {
         self->OnSwipe();
+      }
+      break;
+
+    case vtkCommand::FourthButtonPressEvent:
+      if (self->HandleObservers &&
+          self->HasObserver(vtkCommand::FourthButtonPressEvent))
+      {
+        self->InvokeEvent(vtkCommand::FourthButtonPressEvent,NULL);
+      }
+      else
+      {
+        self->OnFourthButtonDown();
+      }
+      break;
+
+    case vtkCommand::FourthButtonReleaseEvent:
+      if (self->HandleObservers &&
+          self->HasObserver(vtkCommand::FourthButtonReleaseEvent))
+      {
+        self->InvokeEvent(vtkCommand::FourthButtonReleaseEvent,NULL);
+      }
+      else
+      {
+        self->OnFourthButtonUp();
+      }
+      break;
+
+    case vtkCommand::FifthButtonPressEvent:
+      if (self->HandleObservers &&
+          self->HasObserver(vtkCommand::FifthButtonPressEvent))
+      {
+        self->InvokeEvent(vtkCommand::FifthButtonPressEvent,NULL);
+      }
+      else
+      {
+        self->OnFifthButtonDown();
+      }
+      break;
+
+    case vtkCommand::FifthButtonReleaseEvent:
+      if (self->HandleObservers &&
+          self->HasObserver(vtkCommand::FifthButtonReleaseEvent))
+      {
+        self->InvokeEvent(vtkCommand::FifthButtonReleaseEvent,NULL);
+      }
+      else
+      {
+        self->OnFifthButtonUp();
       }
       break;
 

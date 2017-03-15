@@ -222,6 +222,10 @@ public:
   virtual void OnRightButtonUp() {}
   virtual void OnMouseWheelForward() {}
   virtual void OnMouseWheelBackward() {}
+  virtual void OnFourthButtonDown() {}
+  virtual void OnFourthButtonUp() {}
+  virtual void OnFifthButtonDown() {}
+  virtual void OnFifthButtonUp() {}
 
   /**
    * OnChar is triggered when an ASCII key is pressed. Some basic key presses
