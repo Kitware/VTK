@@ -1723,53 +1723,53 @@ namespace vtkvolume
       \n  float croppingPlanesTexture[6];\
       \n  mat4  datasetToTextureMat = in_inverseTextureDatasetMatrix;\
       \n\
-      \n  vec4 temp = vec4(in_croppingPlanes[0], 0.0, 0.0, 1.0);\
-      \n  temp = datasetToTextureMat * temp;\
-      \n  if (temp[3] != 0.0)\
+      \n  vec4 tempCrop = vec4(in_croppingPlanes[0], 0.0, 0.0, 1.0);\
+      \n  tempCrop = datasetToTextureMat * tempCrop;\
+      \n  if (tempCrop[3] != 0.0)\
       \n   {\
-      \n   temp[0] /= temp[3];\
+      \n   tempCrop[0] /= tempCrop[3];\
       \n   }\
-      \n  croppingPlanesTexture[0] = temp[0];\
+      \n  croppingPlanesTexture[0] = tempCrop[0];\
       \n\
-      \n  temp = vec4(in_croppingPlanes[1], 0.0, 0.0, 1.0);\
-      \n  temp = datasetToTextureMat * temp;\
-      \n  if (temp[3] != 0.0)\
+      \n  tempCrop = vec4(in_croppingPlanes[1], 0.0, 0.0, 1.0);\
+      \n  tempCrop = datasetToTextureMat * tempCrop;\
+      \n  if (tempCrop[3] != 0.0)\
       \n   {\
-      \n   temp[0] /= temp[3];\
+      \n   tempCrop[0] /= tempCrop[3];\
       \n   }\
-      \n  croppingPlanesTexture[1] = temp[0];\
+      \n  croppingPlanesTexture[1] = tempCrop[0];\
       \n\
-      \n  temp = vec4(0.0, in_croppingPlanes[2], 0.0, 1.0);\
-      \n  temp = datasetToTextureMat * temp;\
-      \n  if (temp[3] != 0.0)\
+      \n  tempCrop = vec4(0.0, in_croppingPlanes[2], 0.0, 1.0);\
+      \n  tempCrop = datasetToTextureMat * tempCrop;\
+      \n  if (tempCrop[3] != 0.0)\
       \n   {\
-      \n   temp[1] /= temp[3];\
+      \n   tempCrop[1] /= tempCrop[3];\
       \n   }\
-      \n  croppingPlanesTexture[2] = temp[1];\
+      \n  croppingPlanesTexture[2] = tempCrop[1];\
       \n\
-      \n  temp = vec4(0.0, in_croppingPlanes[3], 0.0, 1.0);\
-      \n  temp = datasetToTextureMat * temp;\
-      \n  if (temp[3] != 0.0)\
+      \n  tempCrop = vec4(0.0, in_croppingPlanes[3], 0.0, 1.0);\
+      \n  tempCrop = datasetToTextureMat * tempCrop;\
+      \n  if (tempCrop[3] != 0.0)\
       \n   {\
-      \n   temp[1] /= temp[3];\
+      \n   tempCrop[1] /= tempCrop[3];\
       \n   }\
-      \n  croppingPlanesTexture[3] = temp[1];\
+      \n  croppingPlanesTexture[3] = tempCrop[1];\
       \n\
-      \n  temp = vec4(0.0, 0.0, in_croppingPlanes[4], 1.0);\
-      \n  temp = datasetToTextureMat * temp;\
-      \n  if (temp[3] != 0.0)\
+      \n  tempCrop = vec4(0.0, 0.0, in_croppingPlanes[4], 1.0);\
+      \n  tempCrop = datasetToTextureMat * tempCrop;\
+      \n  if (tempCrop[3] != 0.0)\
       \n   {\
-      \n   temp[2] /= temp[3];\
+      \n   tempCrop[2] /= tempCrop[3];\
       \n   }\
-      \n  croppingPlanesTexture[4] = temp[2];\
+      \n  croppingPlanesTexture[4] = tempCrop[2];\
       \n\
-      \n  temp = vec4(0.0, 0.0, in_croppingPlanes[5], 1.0);\
-      \n  temp = datasetToTextureMat * temp;\
-      \n  if (temp[3] != 0.0)\
+      \n  tempCrop = vec4(0.0, 0.0, in_croppingPlanes[5], 1.0);\
+      \n  tempCrop = datasetToTextureMat * tempCrop;\
+      \n  if (tempCrop[3] != 0.0)\
       \n   {\
-      \n   temp[2] /= temp[3];\
+      \n   tempCrop[2] /= tempCrop[3];\
       \n   }\
-      \n  croppingPlanesTexture[5] = temp[2];"
+      \n  croppingPlanesTexture[5] = tempCrop[2];"
     );
   }
 
@@ -1834,13 +1834,13 @@ namespace vtkvolume
     if (!ren->GetActiveCamera()->GetParallelProjection())
     {
       shaderStr = std::string("\
-        vec4 temp = in_volumeMatrix * vec4(rayDir, 0.0);\
-        \n    if (temp.w != 0.0)\
+        vec4 tempClip = in_volumeMatrix * vec4(rayDir, 0.0);\
+        \n    if (tempClip.w != 0.0)\
         \n      {\
-        \n      temp = temp/temp.w;\
-        \n      temp.w = 1.0;\
+        \n      tempClip = tempClip/tempClip.w;\
+        \n      tempClip.w = 1.0;\
         \n      }\
-        vec3 objRayDir = temp.xyz;");
+        vec3 objRayDir = tempClip.xyz;");
     }
     else
     {
