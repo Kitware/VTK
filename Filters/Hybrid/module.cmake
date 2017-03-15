@@ -22,4 +22,5 @@ vtk_module(vtkFiltersHybrid
     vtkImagingCore
     vtkImagingSources
     vtkRenderingCore
+    vtksys
   )

@@ -21,10 +21,10 @@
 #include "vtkPointData.h"
 #include "vtkErrorCode.h"
 
+#include <vtksys/SystemTools.hxx>
+
 #include <vector>
 #include <string>
-
-#include <sys/stat.h>
 
 #include "DICOMAppHelper.h"
 #include "DICOMParser.h"
@@ -117,8 +117,8 @@ void vtkDICOMImageReader::ExecuteInformation()
 
   if (this->FileName)
   {
-    struct stat fs;
-    if ( stat(this->FileName, &fs) )
+    vtksys::SystemTools::Stat_t fs;
+    if (vtksys::SystemTools::Stat(this->FileName, &fs))
     {
       vtkErrorMacro("Unable to open file " << this->FileName );
       return;

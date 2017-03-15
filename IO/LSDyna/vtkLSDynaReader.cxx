@@ -686,8 +686,8 @@ int vtkLSDynaReader::CanReadFile( const char* fname )
   }
   else
   {
-    struct stat st;
-    if ( stat( fname, &st ) == 0 )
+    vtksys::SystemTools::Stat_t st;
+    if ( vtksys::SystemTools::Stat( fname, &st ) == 0 )
     {
       dbName.insert( 0, "/" );
       p->Fam.SetDatabaseBaseName( dbName.c_str() );
@@ -792,8 +792,8 @@ void vtkLSDynaReader::SetFileName( const char* f )
   }
   else
   {
-    struct stat st;
-    if ( stat( f, &st ) == 0 )
+    vtksys::SystemTools::Stat_t st;
+    if ( vtksys::SystemTools::Stat( f, &st ) == 0 )
     {
       dbName.insert( 0, "/" );
       this->P->Fam.SetDatabaseBaseName( dbName.c_str() );

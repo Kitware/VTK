@@ -43,13 +43,14 @@
 #include "vtkXMLReaderVersion.h"
 #include "vtkZLibDataCompressor.h"
 
+#include <vtksys/SystemTools.hxx>
+
 #include <algorithm>
 #include <cassert>
 #include <functional>
 #include <locale> // C++ locale
 #include <sstream>
 #include <vector>
-#include <sys/stat.h>
 
 vtkCxxSetObjectMacro(vtkXMLReader,ReaderErrorObserver,vtkCommand);
 vtkCxxSetObjectMacro(vtkXMLReader,ParserErrorObserver,vtkCommand);
@@ -255,8 +256,8 @@ int vtkXMLReader::OpenVTKFile()
 
   // Need to open a file.  First make sure it exists.  This prevents
   // an empty file from being created on older compilers.
-  struct stat fs;
-  if (stat(this->FileName, &fs) != 0)
+  vtksys::SystemTools::Stat_t fs;
+  if (vtksys::SystemTools::Stat(this->FileName, &fs) != 0)
   {
     vtkErrorMacro("Error opening file " << this->FileName);
     return 0;
@@ -1322,8 +1323,8 @@ int vtkXMLReader::CanReadFile(const char* name)
 {
   // First make sure the file exists.  This prevents an empty file
   // from being created on older compilers.
-  struct stat fs;
-  if (stat(name, &fs) != 0)
+  vtksys::SystemTools::Stat_t fs;
+  if (vtksys::SystemTools::Stat(name, &fs) != 0)
   {
     return 0;
   }

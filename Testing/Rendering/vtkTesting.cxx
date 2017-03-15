@@ -37,8 +37,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 
-#include <sys/stat.h>
-
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
 
@@ -324,8 +322,8 @@ int vtkTesting::LookForFile(const char* newFileName)
   {
     return 0;
   }
-  struct stat fs;
-  if (stat(newFileName, &fs) != 0)
+  vtksys::SystemTools::Stat_t fs;
+  if (vtksys::SystemTools::Stat(newFileName, &fs) != 0)
   {
     return 0;
   }

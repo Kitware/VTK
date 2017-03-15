@@ -48,18 +48,18 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTypeInt64Array.h"
+#include "vtkTypeUInt64Array.h"
 #include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
+
+#include <vtksys/SystemTools.hxx>
+
 #include <sstream>
-
-#include "vtkTypeUInt64Array.h"
-
 #include <cctype>
-#include <sys/stat.h>
 
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
@@ -430,13 +430,14 @@ int vtkDataReader::OpenVTKFile()
 
     // first make sure the file exists, this prevents an empty file from
     // being created on older compilers
-    struct stat fs;
-    if (stat(this->FileName, &fs) != 0)
+    vtksys::SystemTools::Stat_t fs;
+    if (vtksys::SystemTools::Stat(this->FileName, &fs) != 0)
     {
       vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
       this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
       return 0;
     }
+
     this->IS = new ifstream(this->FileName, ios::in | ios::binary);
     if (this->IS->fail())
     {
