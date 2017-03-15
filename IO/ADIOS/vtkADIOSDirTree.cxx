@@ -40,7 +40,7 @@ void Tokenize(const std::string& str, std::vector<std::string> &tok,
       posPrev = posCur;
   }
 
-  if(posPrev != str.size()-1) // Only add teh last component if it's non-empty
+  if(posPrev != str.size()-1) // Only add the last component if it's non-empty
   {
     tok.push_back(str.substr(posPrev+1, str.size()-posPrev-1));
   }

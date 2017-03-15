@@ -161,7 +161,7 @@ protected:
 
   // Index information for independently stepped variables
 
-  // Map variable names to thier position in the block step index
+  // Map variable names to their position in the block step index
   // [BlockId][VarName] = IndexId
   std::vector<std::map<std::string, size_t> > BlockStepIndexIdMap;
 
@@ -193,7 +193,7 @@ protected:
    * junk data and scheduled to be filled, but they cannot be safely assigned
    * to a VTK object until the data contained in them is valid, e.g. through
    * a call to vtkUnstructuredGrid::SetPoints or similar.  Similary,
-   * they cannot have thier reference cound safely decremented until after
+   * they cannot have their reference cound safely decremented until after
    * they have been assigned to a vtk object.  To work around this, a generic
    * action queue is created to hold a list of arbitrary functions that need
    * to be called in a particular order after the reads have been

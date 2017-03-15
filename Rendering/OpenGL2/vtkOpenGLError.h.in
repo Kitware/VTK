@@ -61,8 +61,6 @@
  * don't disable them with out a good reason.
  */
 
-
-
 /**
  * Convert an OpenGL error code into a descriptive
  * string.

@@ -430,7 +430,7 @@ public:
    * Download data from the read color attachment of the currently
    * bound FBO into the retruned PBO. The PBO must be free'd when
    * you are finished with it. The number of components in the
-   * PBO is the same as in the name of the specific  download fucntion.
+   * PBO is the same as in the name of the specific download function.
    * When downloading a single color channel, the channel must be
    * identified by index, 1->red, 2->green, 3-> blue.
    */

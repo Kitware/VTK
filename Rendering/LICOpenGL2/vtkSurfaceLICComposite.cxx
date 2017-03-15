@@ -76,7 +76,7 @@ void vtkSurfaceLICComposite::Initialize(
   // TODO -- FIXME
   // type of NumberOfGuardLevels should be float. The change is
   // fairly involved and needs to be thoroughly tested. Note too
-  // few gaurd pixels and you get an incorrect result, too many
+  // few guard pixels and you get an incorrect result, too many
   // and you destroy performance and scaling. while getting this
   // right the following will quiets dashboard warnings and keeps
   // the existing well tested behavior.
@@ -278,7 +278,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(
   if (this->NormalizeVectors)
   {
     // when normalizing velocity is always 1, all extents have the
-    // same number of gaurd cells.
+    // same number of guard cells.
     int ng
       = static_cast<int>(arc)
       + this->NumberOfEEGuardPixels
@@ -302,7 +302,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(
   {
     // when not normailzing during integration we need max(V) on the LIC
     // decomp. Each domain has the potential to require a unique number
-    // of gaurd cells.
+    // of guard cells.
     vector<float> vectorMax;
     this->VectorMax(
             exts,
@@ -370,7 +370,7 @@ int vtkSurfaceLICComposite::InitializeCompositeExtents(float *vectors)
   // LIC is computed once per pixel.
   this->MakeDecompDisjoint(this->BlockExts, this->CompositeExt, vectors);
 
-  // add gaurd cells to the new decomp that prevent artifacts
+  // add guard cells to the new decomp that prevent artifacts
   this->AddGuardPixels(
         this->CompositeExt,
         this->GuardExt,

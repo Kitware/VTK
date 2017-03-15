@@ -70,7 +70,7 @@ int TestGlyph3DMapper(int argc, char *argv[])
   squad->Delete();
 
   // Useful code should you want to test clipping planes
-  // with a glyph mapper, might shoudl just uncomment
+  // with a glyph mapper, might should just uncomment
   // this and add a new valid image
   // vtkPlane *cplane = vtkPlane::New();
   // cplane->SetNormal(-0.5,0.5,0);

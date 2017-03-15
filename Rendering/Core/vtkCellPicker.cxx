@@ -783,7 +783,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
     lodVolume->GetLODProperty(lodId, &property);
   }
 
-  // Get the theshold for the opacity
+  // Get the threshold for the opacity
   double opacityThreshold = this->VolumeOpacityIsovalue;
 
   // Compute the length of the line intersecting the volume

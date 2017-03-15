@@ -655,7 +655,7 @@ public:
    * Query and return maximum texture size (dimension) supported by the
    * OpenGL driver for a particular context. It should be noted that this
    * size does not consider the internal format of the texture and therefore
-   * there is no guarentee that a texture of this size will be allocated by
+   * there is no guarantee that a texture of this size will be allocated by
    * the driver. Also, the method does not make the context current so
    * if the passed context is not valid or current, a value of -1 will
    * be returned.
@@ -742,7 +742,7 @@ public:
   /**
    * Get the shift and scale required in the shader to
    * return the texture values to their original range.
-   * Thsi is useful when for example you have unsigned char
+   * This is useful when for example you have unsigned char
    * data and it is being accessed using the floating point
    * texture calls. In that case OpenGL maps the uchar
    * range to a different floating point range under the hood.

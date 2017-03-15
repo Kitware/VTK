@@ -59,7 +59,7 @@ public:
 
   /**
    * Set the rendering context. Must set prior to use. Reference is not
-   * held, so caller must ensure the renderer is not destroyed durring
+   * held, so caller must ensure the renderer is not destroyed during
    * use.
    */
   virtual void SetContext(vtkOpenGLRenderWindow *rwin) VTK_OVERRIDE;

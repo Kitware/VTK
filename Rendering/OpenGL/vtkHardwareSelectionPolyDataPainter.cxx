@@ -161,7 +161,7 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
   // While looking at point selection we render only vertex so each pass
   // should fill the same pixels without risking of detecting vertex belonging
   // to other cells or block. BUT we do that after the ACTOR_PASS to make sure
-  // we have the proper oclusion as we keep the Z-buffer arround. In that way
+  // we have the proper occlusion as we keep the Z-buffer around. In that way
   // vertex that are hidden by some surface won't get selected.
   if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
     selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS &&

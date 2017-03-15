@@ -422,7 +422,7 @@ protected:
   ~vtkShaderProgram2() VTK_OVERRIDE;
 
   /**
-   * Load the required OpenGL extentions.
+   * Load the required OpenGL extensions.
    */
   bool LoadRequiredExtensions(vtkRenderWindow *context);
 

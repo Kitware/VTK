@@ -436,7 +436,7 @@ public:
 
   //@{
   /**
-   * Get the net paramters for handlig coincident topology
+   * Get the net parameters for handling coincident topology
    * obtained by summing the global values with the relative values.
    */
   void GetCoincidentTopologyPolygonOffsetParameters(

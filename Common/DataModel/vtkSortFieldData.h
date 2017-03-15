@@ -74,7 +74,7 @@ public:
    * it. Note that the indices are in sorted (ascending) order, and indicate
    * the final sorted position of the sort. So for example indices[0]=10
    * indicates that the original data in position 10 in the field, was moved
-   * to postion 0 after the sort. By default, returnIndices=0. (Other notes:
+   * to position 0 after the sort. By default, returnIndices=0. (Other notes:
    * if any array is not the same length as the sorting array, then it will
    * be skipped and not sorted.)
    */
@@ -94,7 +94,7 @@ public:
    * the user takes ownership of the data and must delete it. Note that the
    * indices are always in sorted (ascending) order, and indicate the final
    * sorted position of the sort. So for example indices[0]=10 indicates that
-   * the original data in position 10 in the field, was moved to postion 0
+   * the original data in position 10 in the field, was moved to position 0
    * after the sort (i.e., position 0 is the smallest value). However, if
    * sort direction dir=1, the indices do not change but the final shuffle of
    * the data is in reverse order (note idx[n-1] for n keys is the largest
