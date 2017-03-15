@@ -14,6 +14,7 @@ if(VTK_REQUIRE_LARGE_FILE_SUPPORT)
 endif()
 
 set(JSONCPP_SOURCES
+  json/json-forwards.h
   json/json.h
   jsoncpp.cpp
 )
