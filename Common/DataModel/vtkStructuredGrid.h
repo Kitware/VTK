@@ -279,7 +279,7 @@ private:
 
 inline vtkIdType vtkStructuredGrid::GetNumberOfCells()
 {
-  int nCells=1;
+  vtkIdType nCells=1;
   int dims[3];
   int i;
 

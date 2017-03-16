@@ -284,7 +284,8 @@ inline vtkIdType vtkRectilinearGrid::GetNumberOfCells()
 //----------------------------------------------------------------------------
 inline vtkIdType vtkRectilinearGrid::GetNumberOfPoints()
 {
-  return this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
+  return static_cast<vtkIdType>(this->Dimensions[0]) *
+    this->Dimensions[1] * this->Dimensions[2];
 }
 
 //----------------------------------------------------------------------------
