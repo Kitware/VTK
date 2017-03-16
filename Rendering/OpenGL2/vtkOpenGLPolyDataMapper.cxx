@@ -69,7 +69,7 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper)
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : UsingScalarColoring(false)
 {
-  this->InternalColorTexture = 0;
+  this->InternalColorTexture = NULL;
   this->PopulateSelectionSettings = 1;
   this->LastSelectionState = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
   this->CurrentInput = 0;
@@ -97,14 +97,14 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->CompositeIdArrayName = NULL;
   this->VBOs = vtkOpenGLVertexBufferObjectGroup::New();
 
-  this->AppleBugPrimIDBuffer = 0;
+  this->AppleBugPrimIDBuffer = NULL;
   this->HaveAppleBug = false;
   this->HaveAppleBugForce = 0;
   this->LastBoundBO = NULL;
 
-  this->VertexShaderCode = 0;
-  this->FragmentShaderCode = 0;
-  this->GeometryShaderCode = 0;
+  this->VertexShaderCode = NULL;
+  this->FragmentShaderCode = NULL;
+  this->GeometryShaderCode = NULL;
 
   for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
@@ -129,7 +129,7 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   if (this->InternalColorTexture)
   { // Resources released previously.
     this->InternalColorTexture->Delete();
-    this->InternalColorTexture = 0;
+    this->InternalColorTexture = NULL;
   }
   this->TempMatrix3->Delete();
   this->TempMatrix4->Delete();
@@ -137,23 +137,23 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   if (this->CellScalarTexture)
   { // Resources released previously.
     this->CellScalarTexture->Delete();
-    this->CellScalarTexture = 0;
+    this->CellScalarTexture = NULL;
   }
   if (this->CellScalarBuffer)
   { // Resources released previously.
     this->CellScalarBuffer->Delete();
-    this->CellScalarBuffer = 0;
+    this->CellScalarBuffer = NULL;
   }
 
   if (this->CellNormalTexture)
   { // Resources released previously.
     this->CellNormalTexture->Delete();
-    this->CellNormalTexture = 0;
+    this->CellNormalTexture = NULL;
   }
   if (this->CellNormalBuffer)
   { // Resources released previously.
     this->CellNormalBuffer->Delete();
-    this->CellNormalBuffer = 0;
+    this->CellNormalBuffer = NULL;
   }
 
   this->SetPointIdArrayName(NULL);
@@ -161,16 +161,16 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   this->SetProcessIdArrayName(NULL);
   this->SetCompositeIdArrayName(NULL);
   this->VBOs->Delete();
-  this->VBOs = 0;
+  this->VBOs = NULL;
 
   if (this->AppleBugPrimIDBuffer)
   {
     this->AppleBugPrimIDBuffer->Delete();
   }
 
-  this->SetVertexShaderCode(0);
-  this->SetFragmentShaderCode(0);
-  this->SetGeometryShaderCode(0);
+  this->SetVertexShaderCode(NULL);
+  this->SetFragmentShaderCode(NULL);
+  this->SetGeometryShaderCode(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -2383,7 +2383,6 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     offset -= 2.0;
-    return;
   }
 }
 
@@ -2759,7 +2758,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
       {
         unsigned int value = mapArray->GetValue(cellNum);
         value++; // see vtkHardwareSelector.cxx ID_OFFSET
-        for (int i = 0; i < npts; i++)
+        for (vtkIdType i = 0; i < npts; i++)
         {
           newColors.push_back(value & 0xff);
           newColors.push_back((value & 0xff00) >> 8);
@@ -2783,9 +2782,9 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     {
       for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
       {
-        for (int i=0; i < npts; ++i)
+        for (vtkIdType i = 0; i < npts; ++i)
         {
-          unsigned int value = indices[i];
+          vtkIdType value = indices[i];
           if (mapArrayId)
           {
             value = mapArrayId->GetValue(indices[i]);
@@ -2836,14 +2835,14 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
       } // for cell
     }
     // now traverse the opengl to vtk mapping
-    std::vector<unsigned int> cellCellMap;
+    std::vector<vtkIdType> cellCellMap;
     this->MakeCellCellMap(cellCellMap,
                           this->HaveAppleBug,
                           poly, prims, representation, points);
 
-    for (unsigned int i = 0; i < cellCellMap.size(); i++)
+    for (size_t i = 0; i < cellCellMap.size(); i++)
     {
-      unsigned int value = cellCellMap[i];
+      vtkIdType value = cellCellMap[i];
       newColors.push_back(tmpColors[value*4]);
       newColors.push_back(tmpColors[value*4+1]);
       newColors.push_back(tmpColors[value*4+2]);
@@ -2855,20 +2854,18 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   // handle cell based picking
   if (this->HaveCellScalars || this->HaveCellNormals || this->HavePickScalars)
   {
-    std::vector<unsigned int> cellCellMap;
+    std::vector<vtkIdType> cellCellMap;
     this->MakeCellCellMap(cellCellMap,
                           this->HaveAppleBug,
                           poly, prims, representation, points);
 
     if (this->HaveCellScalars || this->HavePickScalars)
     {
-      int numComp = 4;
-
       if (this->HavePickScalars)
       {
-        for (unsigned int i = 0; i < cellCellMap.size(); i++)
+        for (size_t i = 0; i < cellCellMap.size(); i++)
         {
-          unsigned int value = cellCellMap[i];
+          vtkIdType value = cellCellMap[i];
           if (mapArray)
           {
             value = mapArray->GetValue(value);
@@ -2890,14 +2887,14 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
       }
       else
       {
-        numComp = this->Colors->GetNumberOfComponents();
+        int numComp = this->Colors->GetNumberOfComponents();
         unsigned char *colorPtr = this->Colors->GetPointer(0);
         assert(numComp == 4);
         // use a single color value?
         if (this->FieldDataTupleId > -1 &&
             this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
         {
-          for (unsigned int i = 0; i < cellCellMap.size(); i++)
+          for (size_t i = 0; i < cellCellMap.size(); i++)
           {
             for (int j = 0; j < numComp; j++)
             {
@@ -2907,7 +2904,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
         }
         else
         {
-          for (unsigned int i = 0; i < cellCellMap.size(); i++)
+          for (size_t i = 0; i < cellCellMap.size(); i++)
           {
             for (int j = 0; j < numComp; j++)
             {
@@ -2922,7 +2919,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     {
       // create the cell scalar array adjusted for ogl Cells
       vtkDataArray *n = this->CurrentInput->GetCellData()->GetNormals();
-      for (unsigned int i = 0; i < cellCellMap.size(); i++)
+      for (size_t i = 0; i < cellCellMap.size(); i++)
       {
         // RGB32F requires a later version of OpenGL than 3.2
         // with 3.2 we know we have RGBA32F hence the extra value
@@ -3043,11 +3040,11 @@ vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
   // build a new PolyData with no shared cells
 
   // for each prim type
-  unsigned int newPointCount = 0;
+  vtkIdType newPointCount = 0;
   buffData.reserve(points->GetNumberOfPoints());
   for (int j = 0; j < 4; j++)
   {
-    unsigned int newCellCount = 0;
+    vtkIdType newCellCount = 0;
     if (prims[j]->GetNumberOfCells())
     {
       vtkCellArray *ca = vtkCellArray::New();
@@ -3068,7 +3065,7 @@ vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
         c.c[1] = (newCellCount >> 8)&0xff;
         c.c[2] = (newCellCount >> 16)&0xff;
         c.c[3] =  0;
-        for (int i=0; i < npts; ++i)
+        for (vtkIdType i = 0; i < npts; ++i)
         {
           // insert point data
           newPoints->InsertNextPoint(points->GetPoint(indices[i]));
@@ -3522,23 +3519,23 @@ void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::MakeCellCellMap(
-  std::vector<unsigned int> &CellCellMap,
+  std::vector<vtkIdType> &CellCellMap,
   bool HaveAppleBug,
   vtkPolyData *poly,
   vtkCellArray **prims, int representation, vtkPoints *points)
 {
   CellCellMap.clear();
   if (HaveAppleBug)
+  {
+    vtkIdType numCells = poly->GetNumberOfCells();
+    for (vtkIdType i = 0; i < numCells; ++i)
     {
-    unsigned int numCells = poly->GetNumberOfCells();
-    for (unsigned int i = 0; i < numCells; ++i)
-      {
       CellCellMap.push_back(i);
-      }
     }
+  }
   else
-    {
+  {
     vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
         prims, CellCellMap, representation, points);
-    }
+  }
 }

@@ -112,7 +112,7 @@ public:
   //
   static void CreateCellSupportArrays(
     vtkCellArray *[4],
-    std::vector<unsigned int> &cellCellMap,
+    std::vector<vtkIdType> &cellCellMap,
     int representation,
     vtkPoints *points);
 

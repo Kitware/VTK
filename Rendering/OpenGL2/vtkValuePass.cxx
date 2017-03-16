@@ -17,7 +17,6 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkDataSet.h"
-#include "vtkDataObjectTreeIterator.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
@@ -153,7 +152,7 @@ public:
   vtkTextureObject* CellFloatTexture;
   vtkOpenGLBufferObject* CellFloatBuffer;
   vtkFloatArray* OutputFloatArray;
-  std::vector<unsigned int> CellCellMap;
+  std::vector<vtkIdType> CellCellMap;
   vtkMTimeType CCMapTime;
 private:
   vtkInternalsFloat(const vtkInternalsFloat&) VTK_DELETE_FUNCTION;
@@ -419,22 +418,22 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
 
     vtkMTimeType maptime = pdm->GetInputDataObject(0,0)->GetMTime();
     if (this->ImplFloat->CCMapTime >= maptime)
-      {
+    {
       //reuse
       return;
-      }
+    }
     this->ImplFloat->CellCellMap.clear();
     this->ImplFloat->CCMapTime = maptime;
 
     vtkCompositePolyDataMapper2 *cpdm =
       vtkCompositePolyDataMapper2::SafeDownCast(mapper);
     if (cpdm)
-      {
-      unsigned int offset = 0;
+    {
+      vtkIdType offset = 0;
       std::vector<vtkPolyData *> pdl = cpdm->GetRenderedList();
       std::vector<vtkPolyData *>::iterator it;
       for (it=pdl.begin(); it!=pdl.end(); ++it)
-        {
+      {
         vtkPolyData *poly = *it;
         vtkCellArray *prims[4];
         prims[0] = poly->GetVerts();
@@ -443,20 +442,20 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
         prims[3] = poly->GetStrips();
         int representation = property->GetRepresentation();
         vtkPoints *points = poly->GetPoints();
-        std::vector<unsigned int> aCellCellMap;
+        std::vector<vtkIdType> aCellCellMap;
         vtkOpenGLPolyDataMapper::MakeCellCellMap
           (aCellCellMap,
            cpdm->GetHaveAppleBug(),
            poly, prims, representation, points);
-        for (unsigned int c = 0; c < aCellCellMap.size(); ++c)
-          {
+        for (size_t c = 0; c < aCellCellMap.size(); ++c)
+        {
           this->ImplFloat->CellCellMap.push_back(aCellCellMap[c]+offset);
-          }
-        offset += poly->GetNumberOfCells();
         }
+        offset += poly->GetNumberOfCells();
       }
+    }
     else if (pdm)
-      {
+    {
       vtkPolyData *poly = pdm->CurrentInput;
       vtkCellArray *prims[4];
       prims[0] = poly->GetVerts();
@@ -469,7 +468,7 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
           (this->ImplFloat->CellCellMap,
            pdm->GetHaveAppleBug(),
            poly, prims, representation, points);
-      }
+    }
 
     break; //only ever draw one actor at a time in value mode so OK
   }
@@ -899,8 +898,8 @@ void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr, vtkMapper *mapper)
       //gets a copy of the value from its parent cell
       //todo: cache and reuse if are stuck with uploading always
       size_t len = this->ImplFloat->CellCellMap.size();
-      float *unrolled_data = new float[this->ImplFloat->CellCellMap.size()];
-      for (unsigned int i = 0; i < len; ++i)
+      float *unrolled_data = new float[len];
+      for (size_t i = 0; i < len; ++i)
       {
         unrolled_data[i] = data[this->ImplFloat->CellCellMap[i]];
       }

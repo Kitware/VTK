@@ -230,7 +230,7 @@ public:
   /**
    * Get access to the map of glprim to vtkcell ids
    */
-  static void MakeCellCellMap(std::vector<unsigned int> &CellCellMap,
+  static void MakeCellCellMap(std::vector<vtkIdType> &CellCellMap,
                               bool HaveAppleBug,
                               vtkPolyData *poly,
                               vtkCellArray **prims, int representation,
