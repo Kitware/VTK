@@ -296,7 +296,10 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
     }
 
     cellSize->SetTuple1(c,size);
-    for(int p = 0; p < np; p++) cqs->SetTuple( curPoint + p , cellVectors[p] );
+    for(int p = 0; p < np; ++p)
+    {
+      cqs->SetTuple( curPoint + p , cellVectors[p] );
+    }
 
     // check cqs consistency
 #ifdef DEBUG
