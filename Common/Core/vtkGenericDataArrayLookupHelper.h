@@ -23,7 +23,6 @@
 #define vtkGenericDataArrayLookupHelper_h
 
 #include <algorithm>
-#include <cmath>
 #include "vtkIdList.h"
 
 namespace detail
@@ -63,24 +62,11 @@ public:
   vtkIdType LookupValue(ValueType elem)
   {
     this->UpdateLookup();
-
-    if(std::isnan(elem))
-    {
-      if(this->SortedArray && std::isnan(this->SortedArray->Value))
-      {
-        return this->SortedArray->Index;
-      }
-      else
-      {
-        return -1;
-      }
-    }
-
     ValueWithIndex temp;
     temp.Value = elem;
     ValueWithIndex* pos =
-      std::lower_bound(this->FirstValue,
-                     this->SortedArray + this->SortedArraySize, temp);
+      std::lower_bound(this->SortedArray,
+                       this->SortedArray + this->SortedArraySize, temp);
     if (pos == (this->SortedArray + this->SortedArraySize))
     {
       return -1;
@@ -95,29 +81,16 @@ public:
   void LookupValue(ValueType elem, vtkIdList* ids)
   {
     this->UpdateLookup();
-
-    if(std::isnan(elem))
+    ValueWithIndex temp;
+    temp.Value = elem;
+    std::pair<ValueWithIndex*, ValueWithIndex*> range =
+      std::equal_range(this->SortedArray,
+                       this->SortedArray + this->SortedArraySize, temp);
+    while (range.first != range.second)
     {
-      ValueWithIndex *range = this->SortedArray;
-      while (range != this->FirstValue)
-      {
-        ids->InsertNextId(range->Index);
-        ++range;
-      }
-    }
-    else
-    {
-      ValueWithIndex temp;
-      temp.Value = elem;
-      std::pair<ValueWithIndex*, ValueWithIndex*> range =
-        std::equal_range(this->FirstValue,
-                         this->SortedArray + this->SortedArraySize, temp);
-      while (range.first != range.second)
-      {
-        // assert(range.first->Value == elem);
-        ids->InsertNextId(range.first->Index);
-        ++range.first;
-      }
+      // assert(range.first->Value == elem);
+      ids->InsertNextId(range.first->Index);
+      ++range.first;
     }
   }
 
@@ -172,14 +145,11 @@ private:
       item.Value = this->AssociatedArray->GetValue(cc);
       item.Index = cc;
     }
-    this->FirstValue = std::partition(this->SortedArray, this->SortedArray + this->SortedArraySize,
-                                      [](const ValueWithIndex &tmp){return std::isnan(tmp.Value);});
-    std::sort(this->FirstValue, this->SortedArray + this->SortedArraySize);
+    std::sort(this->SortedArray, this->SortedArray + this->SortedArraySize);
   }
 
   ArrayTypeT *AssociatedArray;
   ValueWithIndex* SortedArray;
-  ValueWithIndex* FirstValue;
   vtkIdType SortedArraySize;
 };
 
