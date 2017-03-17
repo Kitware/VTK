@@ -442,6 +442,7 @@ public:
   vtkTimeStamp InitializationTime;
   vtkTimeStamp InputUpdateTime;
   vtkTimeStamp VolumeUpdateTime;
+  vtkTimeStamp MaskUpdateTime;
   vtkTimeStamp ReleaseResourcesTime;
   vtkTimeStamp DepthPassTime;
   vtkTimeStamp DepthPassSetupTime;
@@ -943,9 +944,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
   int textureExtent[6], vtkVolume* vtkNotUsed(volume))
 {
   bool result = true;
-
-  // Mask
-  if(maskInput != 0)
+  if (maskInput &&
+    (maskInput->GetMTime() > this->MaskUpdateTime))
   {
     // Find the texture.
     std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
@@ -976,6 +976,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
 
     result = result && mask->IsLoaded();
     this->CurrentMask = mask;
+    this->MaskUpdateTime.Modified();
   }
 
   return result;
@@ -1004,22 +1005,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransferFunctions()
 
   delete this->GradientOpacityTables;
   this->GradientOpacityTables = NULL;
-
-  if (this->MaskTextures != NULL)
-  {
-    if (!this->MaskTextures->Map.empty())
-    {
-      std::map<vtkImageData*,vtkVolumeMask*>::iterator it =
-        this->MaskTextures->Map.begin();
-      while(it != this->MaskTextures->Map.end())
-      {
-        vtkVolumeMask* texture = (*it).second;
-        delete texture;
-        ++it;
-      }
-      this->MaskTextures->Map.clear();
-    }
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -3268,6 +3253,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   }
   else
   {
+    this->Impl->LoadMask(ren, input, this->MaskInput, this->Impl->Extents, vol);
     this->Impl->UpdateVolume(volumeProperty);
   }
 

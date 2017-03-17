@@ -28,6 +28,7 @@ set (GenericVolumeCxxTests
   TestProjectedTetrahedra.cxx
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
+  TestGPURayCastCompositeBinaryMask1.cxx
   )
 
 # These tests are built for the OpenGL backend
