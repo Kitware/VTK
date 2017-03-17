@@ -866,6 +866,9 @@ int main(int argc, char *argv[])
     {
       /* resolve using declarations within the header files */
       vtkWrap_ApplyUsingDeclarations(data, file_info, hierarchyInfo);
+
+      /* expand typedefs */
+      vtkWrap_ExpandTypedefs(data, file_info, hierarchyInfo);
     }
   }
 
