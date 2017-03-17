@@ -89,10 +89,26 @@ function(vtk_add_python_wrapping_library module srcs)
 
   # Figure out the dependent PythonXYD libraries for the module
   set(extra_links)
+  string(REPLACE "Kit" "" kit_basename "${module}")
+  if (_${kit_basename}_is_kit)
+    set(${module}_WRAP_DEPENDS)
+    foreach (kit_module IN LISTS _${kit_basename}_modules)
+      list(APPEND ${module}_WRAP_DEPENDS
+        ${${kit_module}_WRAP_DEPENDS})
+    endforeach ()
+  endif ()
   foreach(dep IN LISTS ${module}_WRAP_DEPENDS)
-    if(NOT "${module}" STREQUAL "${dep}" AND TARGET ${dep}PythonD)
+    if (module STREQUAL dep OR kit_basename STREQUAL dep)
+      continue ()
+    endif ()
+
+    if (VTK_ENABLE_KITS AND ${dep}_KIT)
+      if (NOT ${dep}_KIT STREQUAL kit_basename)
+        list(APPEND extra_links ${${dep}_KIT}KitPythonD)
+      endif ()
+    elseif (TARGET ${dep}PythonD)
       list(APPEND extra_links ${dep}PythonD)
-    endif()
+    endif ()
   endforeach()
 
   vtk_add_library(${module}PythonD ${${srcs}})

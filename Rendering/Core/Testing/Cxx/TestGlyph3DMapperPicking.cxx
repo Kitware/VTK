@@ -225,6 +225,7 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
+  renWin->SetMultiSamples(0);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
