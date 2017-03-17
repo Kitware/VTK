@@ -76,7 +76,17 @@ void vtkExternalOpenGLRenderWindow::Start(void)
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Render()
 {
+#ifdef VTK_OPENGL2
+  // Query current GL state and store them
+  this->SaveGLState();
+
   this->Superclass::Render();
+
+  // Restore state to previous known value
+  this->RestoreGLState();
+#else
+  this->Superclass::Render();
+#endif
 }
 
 //----------------------------------------------------------------------------

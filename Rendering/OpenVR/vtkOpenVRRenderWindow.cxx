@@ -328,6 +328,7 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
 // ----------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
+  this->Superclass::ReleaseGraphicsResources(renWin);
   this->DistortionVBO->ReleaseGraphicsResources();
   this->Distortion.ReleaseGraphicsResources(renWin);
   for( std::vector< vtkOpenVRModel * >::iterator i = this->VTKRenderModels.begin();
@@ -525,6 +526,10 @@ void vtkOpenVRRenderWindow::SetPosition(int x, int y)
 
 void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
 {
+  if (!this->HMD)
+  {
+    return;
+  }
   vr::VRCompositor()->WaitGetPoses(this->TrackedDevicePose,
     vr::k_unMaxTrackedDeviceCount, NULL, 0 );
 
@@ -606,6 +611,7 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
 
 void vtkOpenVRRenderWindow::Render()
 {
+  this->UpdateHMDMatrixPose();
   this->vtkRenderWindow::Render();
 }
 
@@ -661,17 +667,14 @@ void vtkOpenVRRenderWindow::Frame(void)
     // for now as fast as possible
     if ( this->HMD )
     {
-      this->RenderDistortion();
-
       vr::Texture_t leftEyeTexture = {(void*)this->LeftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
       vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
       vr::Texture_t rightEyeTexture = {(void*)this->RightEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
       vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
     }
+    this->RenderDistortion();
 
     SDL_GL_SwapWindow( this->WindowId );
-
-    this->UpdateHMDMatrixPose();
   }
 }
 
@@ -974,6 +977,7 @@ void vtkOpenVRRenderWindow::Initialize (void)
   }
 
   Uint32 unWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+  //Uint32 unWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
 
   SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 4 );
   SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
@@ -1002,7 +1006,8 @@ void vtkOpenVRRenderWindow::Initialize (void)
 
   this->OpenGLInit();
 
-  if ( SDL_GL_SetSwapInterval( this->VBlank ? 1 : 0 ) < 0 )
+  // make sure vsync is off
+  if ( SDL_GL_SetSwapInterval( 0 ) < 0 )
   {
     vtkErrorMacro("Warning: Unable to set VSync! SDL Error: " << SDL_GetError() );
     return;

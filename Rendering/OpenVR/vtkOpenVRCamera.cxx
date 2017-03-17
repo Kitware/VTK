@@ -153,9 +153,9 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     nRange[0] = nRange[0]/distance;
     nRange[1] = nRange[1]/distance;
     // to see controllers etc make sure near is around 10 cm
-    // people tend to go cross eyed at +10 cm from HMD so we use that
+    // people tend to go cross eyed at +20 cm from HMD so we use that
     // as a limit
-    nRange[0] = 0.1;
+    nRange[0] = 0.2;
     // to see transmitters make sure far is at least 6 meters
     if (nRange[1] < 6.0)
     {
@@ -167,7 +167,6 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
       nRange[1] = 100.0;
     }
     this->SetClippingRange(nRange[0]*distance, nRange[1]*distance);
-
     // Left Eye
     if (win->GetMultiSamples())
     {
@@ -198,6 +197,8 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
 void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
         vtkMatrix3x3 *&normMat, vtkMatrix4x4 *&vcdc, vtkMatrix4x4 *&wcdc)
 {
+  static double lastDistance = 0.0;
+
   // get the eye pose and projection matricies once
   if (!this->LeftEyePose)
   {
@@ -205,6 +206,8 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
     this->RightEyePose = vtkMatrix4x4::New();
     this->LeftEyeProjection = vtkMatrix4x4::New();
     this->RightEyeProjection = vtkMatrix4x4::New();
+    this->GetHMDEyePoses(ren);
+    lastDistance = this->GetDistance();
   }
 
   // has the camera changed?
@@ -212,8 +215,18 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
       this->MTime > this->KeyMatrixTime ||
       ren->GetMTime() > this->KeyMatrixTime)
   {
-    this->GetHMDEyePoses(ren);
-
+    for(int i = 0; i < 3; ++i)
+    {
+      double distance = this->GetDistance();
+      if (distance != lastDistance)
+      {
+        this->LeftEyePose->SetElement(
+          i, 3, this->LeftEyePose->GetElement(i, 3)*distance/lastDistance);
+        this->RightEyePose->SetElement(
+          i, 3, this->RightEyePose->GetElement(i, 3)*distance/lastDistance);
+        lastDistance = distance;
+      }
+    }
     this->GetHMDEyeProjections(ren);
     // build both eye views, faster to do it all at once as
     // some calculations are shared
