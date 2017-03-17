@@ -26,7 +26,7 @@
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
-#include "vtkInteractorStyle3D.h"
+#include "vtkOpenVRInteractorStyle.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenVRCamera.h"
@@ -43,6 +43,8 @@ void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (voi
 // Construct object so that light follows camera motion.
 vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 {
+    vtkNew<vtkOpenVRInteractorStyle> style;
+    this->SetInteractorStyle(style.Get());
 }
 
 //----------------------------------------------------------------------------
@@ -308,7 +310,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
           }
           if (event.data.controller.button == vr::EVRButtonId::k_EButton_Grip)
           {
-            //this->MiddleButtonPressEvent();
+            this->MiddleButtonPressEvent();
           }
           if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
           {
@@ -327,8 +329,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
           }
           if (event.data.controller.button == vr::EVRButtonId::k_EButton_Grip)
           {
-            //this->MiddleButtonReleaseEvent();
-            ovl->LoadNextCameraPose();
+            this->MiddleButtonReleaseEvent();
           }
           if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
           {
