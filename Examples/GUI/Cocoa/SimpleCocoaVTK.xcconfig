@@ -17,3 +17,6 @@ PRODUCT_NAME = SimpleCocoaVTK
 // Use the source trees to find the VTK libs and headers.
 HEADER_SEARCH_PATHS = $(vtk-debug-include)
 LIBRARY_SEARCH_PATHS = $(vtk-debug-lib)
+
+// Use ARC memory management.
+CLANG_ENABLE_OBJC_ARC = YES
