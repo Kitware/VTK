@@ -379,7 +379,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
           System.out.println("Invalid scale type: " + scale);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      // Don't care, at least we tried.
     }
     return 1;
   }
