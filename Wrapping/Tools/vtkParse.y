@@ -1787,9 +1787,9 @@ unsigned int add_indirection_to_array(unsigned int type)
    and five from '(' constructor_args ')' in initializer */
 %expect 10
 
-/* Expect 121 reduce/reduce conflicts, these can be cleared by removing
+/* Expect 122 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
-%expect-rr 121
+%expect-rr 122
 
 /* The parser will shift/reduce values <str> or <integer>, where
    <str> is for IDs and <integer> is for types, modifiers, etc. */
@@ -3694,6 +3694,7 @@ keyword:
   | PROTECTED { $<str>$ = "protected"; }
   | PRIVATE { $<str>$ = "private"; }
   | CONST { $<str>$ = "const"; }
+  | VOLATILE { $<str>$ = "volatile"; }
   | STATIC { $<str>$ = "static"; }
   | THREAD_LOCAL { $<str>$ = "thread_local"; }
   | CONSTEXPR { $<str>$ = "constexpr"; }
