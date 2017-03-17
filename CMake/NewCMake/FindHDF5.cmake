@@ -480,8 +480,13 @@ if(NOT HDF5_FOUND AND NOT HDF5_ROOT)
       set(HDF5_COMPILER_NO_INTERROGATE False)
       # If this language isn't using the wrapper, then try to seed the
       # search options with the wrapper
+      if (${CMAKE_VERSION} VERSION_LESS "3.4")
+        set(names_per_dir_opt "")
+      else()
+        set(names_per_dir_opt "NAMES_PER_DIR")
+      endif()
       find_program(HDF5_${__lang}_COMPILER_EXECUTABLE
-        NAMES ${HDF5_${__lang}_COMPILER_NAMES} NAMES_PER_DIR
+        NAMES ${HDF5_${__lang}_COMPILER_NAMES} ${names_per_dir_opt}
         PATH_SUFFIXES bin Bin
         DOC "HDF5 ${__lang} Wrapper compiler.  Used only to detect HDF5 compile flags."
       )
