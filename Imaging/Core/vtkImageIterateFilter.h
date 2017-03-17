@@ -34,7 +34,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageIterateFilter : public vtkThreadedImageAlgor
 {
 public:
   vtkTypeMacro(vtkImageIterateFilter,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -53,13 +53,13 @@ protected:
   // specified number of times.
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*);
+                                  vtkInformationVector*) VTK_OVERRIDE;
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   // Iterative versions of standard requests.  These are given the
   // pipeline information object for the in/out pair at each

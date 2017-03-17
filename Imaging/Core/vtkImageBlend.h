@@ -88,7 +88,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageBlend : public vtkThreadedImageAlgorithm
 public:
   static vtkImageBlend *New();
   vtkTypeMacro(vtkImageBlend,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Replace one of the input connections with a new input.  You can
@@ -178,7 +178,7 @@ protected:
 
   virtual int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *);
+                                  vtkInformationVector *) VTK_OVERRIDE;
 
   void InternalComputeInputUpdateExtent(int inExt[6], int outExt[6],
                                         int inWExtent[6]);
@@ -187,15 +187,15 @@ protected:
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id);
+                            int ext[6], int id) VTK_OVERRIDE;
 
   // see vtkAlgorithm for docs.
-  virtual int FillInputPortInformation(int, vtkInformation*);
+  virtual int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   // see vtkAlgorithm for docs.
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   double *Opacity;
   int OpacityArrayLength;

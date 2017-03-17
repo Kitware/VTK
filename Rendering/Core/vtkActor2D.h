@@ -39,7 +39,7 @@ class vtkProperty2D;
 class VTKRENDERINGCORE_EXPORT vtkActor2D : public vtkProp
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkTypeMacro(vtkActor2D,vtkProp);
 
   /**
@@ -53,15 +53,15 @@ public:
   /**
    * Support the standard render methods.
    */
-  virtual int RenderOverlay(vtkViewport *viewport);
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
+  virtual int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  virtual int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  virtual int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
   //@{
   /**
@@ -129,26 +129,26 @@ public:
   /**
    * Return this objects MTime.
    */
-  virtual vtkMTimeType GetMTime();
+  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  virtual void GetActors2D(vtkPropCollection *pc);
+  virtual void GetActors2D(vtkPropCollection *pc) VTK_OVERRIDE;
 
   /**
    * Shallow copy of this vtkActor2D. Overloads the virtual vtkProp method.
    */
-  virtual void ShallowCopy(vtkProp *prop);
+  virtual void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  virtual void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   /**
    * Return the actual vtkCoordinate reference that the mapper should use

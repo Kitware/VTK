@@ -51,7 +51,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextActor : public vtkTexturedActor2D
 {
 public:
   vtkTypeMacro(vtkTextActor,vtkTexturedActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Instantiate object with a rectangle in normaled view coordinates
@@ -63,7 +63,7 @@ public:
    * Shallow copy of this text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop);
+  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
 
   //@{
   /**
@@ -262,7 +262,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  virtual void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   //@{
   /**
@@ -270,15 +270,15 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the text actor to the screen.
    */
-  virtual int RenderOpaqueGeometry(vtkViewport* viewport);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
-  virtual int RenderOverlay(vtkViewport* viewport);
+  virtual int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) VTK_OVERRIDE {return 0;};
+  virtual int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  virtual int HasTranslucentPolygonalGeometry();
+  virtual int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
 
 protected:
   /**
