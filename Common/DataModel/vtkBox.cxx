@@ -514,7 +514,7 @@ IntersectWithPlane(double bounds[6], double origin[3], double normal[3])
   // Evaluate the eight points. If there is a sign change, then there is an
   // intersection.
   double p[3], d;
-  int x, y, z, sign, firstOne=1;
+  int x, y, z, sign=1, firstOne=1;
 
   for (z=4; z <= 5; ++z)
   {

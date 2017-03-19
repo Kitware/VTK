@@ -28,7 +28,8 @@
  *
  * Once the tree is constructed, various geometric operations are available
  * for quickly selecting cells based on sphere tree operations; for example,
- * process all cells that intersect the sphere tree with a plane.
+ * process all cells intersecting a plane (i.e., use the sphere tree to identify
+ * candidate cells for plane intersection).
  *
  * This class does not necessarily create optimal sphere trees because
  * some of its requirements (fast build time, provide simple reference
@@ -51,9 +52,11 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkPlane.h" // to specify the cutting plane
+#include "vtkObject.h"
 
 class vtkDoubleArray;
 class vtkDataArray;
+class vtkIdList;
 class vtkDataSet;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
@@ -113,10 +116,34 @@ public:
   /**
    * Methods for cell selection based on a geometric query. Internally
    * different methods are used depending on the dataset type. The array
-   * returned is set to non-zero for each cell that intersects the
-   * geometric entity.
+   * returned is set to non-zero for each cell that intersects the geometric
+   * entity. SelectPoint marks all cells with a non-zero value that may
+   * contain a point. SelectLine marks all cells that may intersect an
+   * infinite line. SelectPlane marks all cells that may intersect with an
+   * infinite plane.
    */
-  const unsigned char *SelectPlane(double origin[3], double normal[3]);
+  const unsigned char *SelectPoint(double point[3],
+                                   vtkIdType &numSelected);
+  const unsigned char *SelectLine(double origin[3], double ray[3],
+                                  vtkIdType &numSelected);
+  const unsigned char *SelectPlane(double origin[3], double normal[3],
+                                   vtkIdType &numSelected);
+  //@}
+
+  //@{
+  /**
+   * Methods for cell selection based on a geometric query. Internally
+   * different methods are used depending on the dataset type. The method
+   * pupulates an vtkIdList with cell ids that may satisfy the geometric
+   * query (the user must provide a vtkLdList which the methods fill in).
+   * SelectPoint lists all cells with a non-zero value that may contain a
+   * point. SelectLine lists all cells that may intersect an infinite
+   * line. SelectPlane lists all cells that may intersect with an infinite
+   * plane.
+   */
+  void SelectPoint(double point[3], vtkIdList *cellIds);
+  void SelectLine(double origin[3], double ray[3], vtkIdList *cellIds);
+  void SelectPlane(double origin[3], double normal[3], vtkIdList *cellIds);
   //@}
 
   //@{
@@ -191,6 +218,8 @@ protected:
 
   // Supporting methods
   vtkDoubleArray *BuildTreeSpheres(vtkDataSet *input);
+  void ExtractCellIds(const unsigned char *selected, vtkIdList *cellIds,
+                      vtkIdType numSelected);
 
   void BuildTreeHierarchy(vtkDataSet *input);
   void BuildStructuredHierarchy(vtkStructuredGrid *input, double *tree);

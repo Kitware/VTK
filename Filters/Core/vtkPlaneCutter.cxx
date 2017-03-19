@@ -87,13 +87,15 @@ namespace {
 
     double* Origin;
     double* Normal;
+    vtkIdType NumSelected;
 
     CuttingFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
                    vtkSphereTree* tree, double *origin, double* normal) :
       Input(input), Output(output), Plane(plane), SphereTree(tree),
       Origin(origin), Normal(normal)
     {
-      this->Selected = this->SphereTree->SelectPlane(this->Origin,this->Normal);
+      this->Selected = this->SphereTree->SelectPlane(this->Origin,this->Normal,
+                                                     this->NumSelected);
     }
 
     virtual ~CuttingFunctor()
@@ -744,8 +746,12 @@ vtkPlaneCutter::vtkPlaneCutter()
 //----------------------------------------------------------------------------
 vtkPlaneCutter::~vtkPlaneCutter()
 {
-  this->SetPlane(NULL);
-  this->SphereTree->Delete();
+  this->SetPlane(nullptr);
+  if ( this->SphereTree )
+  {
+    this->SphereTree->Delete();
+    this->SphereTree = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -754,7 +760,7 @@ vtkPlaneCutter::~vtkPlaneCutter()
 vtkMTimeType vtkPlaneCutter::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
-  if ( this->Plane != NULL )
+  if ( this->Plane != nullptr )
   {
     vtkMTimeType mTime2=this->Plane->GetMTime();
     return ( mTime2 > mTime ? mTime2 : mTime );
@@ -775,7 +781,7 @@ RequestDataObject( vtkInformation* vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   vtkImageData *imageData = vtkImageData::GetData(inputVector[0]);
-  if ( imageData != NULL )
+  if ( imageData != nullptr )
   {
     vtkPolyData *output = vtkPolyData::GetData(outInfo);
     if (!output)
@@ -852,7 +858,7 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
   vtkDataObject *output = vtkDataObject::GetData(outputVector);
 
   vtkPlane *plane = this->Plane;
-  if ( this->Plane == NULL )
+  if ( this->Plane == nullptr )
   {
     vtkDebugMacro(<<"Cutting requires vtkPlane");
     return 0;
@@ -860,7 +866,7 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
 
   // Check input
   vtkIdType numPts, numCells;
-  if ( input == NULL || (numCells = input->GetNumberOfCells()) < 1 ||
+  if ( input == nullptr || (numCells = input->GetNumberOfCells()) < 1 ||
        (numPts = input->GetNumberOfPoints()) < 1 )
   {
     vtkDebugMacro(<<"No input");

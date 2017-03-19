@@ -5,7 +5,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control debugging parameters
-res = 100
+res = 50
 
 # Create the RenderWindow, Renderer
 #
@@ -123,5 +123,5 @@ ren1.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
-iren.Start()
+#iren.Start()
 # --- end of script --

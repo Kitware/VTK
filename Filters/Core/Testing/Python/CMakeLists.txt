@@ -29,6 +29,7 @@ vtk_add_test_python(
   TestRectilinearSynchronizedTemplates.py
   TestScalarTrees.py
   TestSphereTreeFilter.py
+  TestSphereTreeFilter2.py
   TestStructuredGridPlaneCutter.py
   TestSynchronizedTemplates2D.py
   TestSynchronizedTemplates3D.py

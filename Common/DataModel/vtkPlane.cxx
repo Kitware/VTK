@@ -25,6 +25,7 @@
 
 vtkStandardNewMacro(vtkPlane);
 
+//-----------------------------------------------------------------------------
 // Construct plane passing through origin and normal to z-axis.
 vtkPlane::vtkPlane()
 {
@@ -37,11 +38,13 @@ vtkPlane::vtkPlane()
   this->Origin[2] = 0.0;
 }
 
+//-----------------------------------------------------------------------------
 double vtkPlane::DistanceToPlane(double x[3])
 {
   return this->DistanceToPlane(x, this->GetNormal(), this->GetOrigin());
 }
 
+//-----------------------------------------------------------------------------
 void vtkPlane::ProjectPoint(double x[3], double origin[3],
                             double normal[3], double xproj[3])
 {
@@ -58,11 +61,13 @@ void vtkPlane::ProjectPoint(double x[3], double origin[3],
   xproj[2] = x[2] - t * normal[2];
 }
 
+//-----------------------------------------------------------------------------
 void vtkPlane::ProjectPoint(double x[3], double xproj[3])
 {
   this->ProjectPoint(x, this->GetOrigin(), this->GetNormal(), xproj);
 }
 
+//-----------------------------------------------------------------------------
 void vtkPlane::ProjectVector(
   double v[3], double vtkNotUsed(origin)[3], double normal[3],
   double vproj[3])
@@ -78,12 +83,14 @@ void vtkPlane::ProjectVector(
   vproj[2] = v[2] - t * normal[2] / n2;
 }
 
+//-----------------------------------------------------------------------------
 void vtkPlane::ProjectVector(double v[3], double vproj[3])
 {
   this->ProjectVector(v, this->GetOrigin(), this->GetNormal(), vproj);
 }
 
 
+//-----------------------------------------------------------------------------
 void vtkPlane::Push(double distance)
 {
   int i;
@@ -99,6 +106,7 @@ void vtkPlane::Push(double distance)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 // Project a point x onto plane defined by origin and normal. The
 // projected point is returned in xproj. NOTE : normal NOT required to
 // have magnitude 1.
@@ -128,11 +136,13 @@ void vtkPlane::GeneralizedProjectPoint(double x[3], double origin[3],
   }
 }
 
+//-----------------------------------------------------------------------------
 void vtkPlane::GeneralizedProjectPoint(double x[3], double xproj[3])
 {
   this->GeneralizedProjectPoint(x, this->GetOrigin(), this->GetNormal(), xproj);
 }
 
+//-----------------------------------------------------------------------------
 // Evaluate plane equation for point x[3].
 double vtkPlane::EvaluateFunction(double x[3])
 {
@@ -141,6 +151,7 @@ double vtkPlane::EvaluateFunction(double x[3])
            this->Normal[2]*(x[2]-this->Origin[2]) );
 }
 
+//-----------------------------------------------------------------------------
 // Evaluate function gradient at point x[3].
 void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 {
@@ -152,6 +163,7 @@ void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 
 #define VTK_PLANE_TOL 1.0e-06
 
+//-----------------------------------------------------------------------------
 // Given a line defined by the two points p1,p2; and a plane defined by the
 // normal n and point p0, compute an intersection. The parametric
 // coordinate along the line is returned in t, and the coordinates of
@@ -219,6 +231,7 @@ int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double n[3],
   }
 }
 
+// Accelerate plane cutting operation
 namespace {
 template <typename InputArrayType, typename OutputArrayType> struct CutWorker
 {
@@ -282,11 +295,13 @@ void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
   }
 }
 
+//-----------------------------------------------------------------------------
 int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double& t, double x[3])
 {
   return this->IntersectWithLine(p1, p2, this->GetNormal(), this->GetOrigin(), t, x);
 }
 
+//-----------------------------------------------------------------------------
 void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

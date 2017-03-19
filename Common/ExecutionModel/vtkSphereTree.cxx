@@ -20,19 +20,18 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkDataArray.h"
-#include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
+#include "vtkLine.h"
 #include "vtkPlane.h"
 #include "vtkSphere.h"
+#include "vtkDebugLeaks.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
 
-
-#include <algorithm>
 
 vtkStandardNewMacro(vtkSphereTree);
 vtkCxxSetObjectMacro(vtkSphereTree,DataSet,vtkDataSet);
@@ -42,14 +41,15 @@ vtkCxxSetObjectMacro(vtkSphereTree,DataSet,vtkDataSet);
 // spheres (one sphere per cell) and then the next level groupings of the
 // leaf spheres. This is done because it is easier to thread, and the
 // benefits of additional sphere tree hierarchy diminish quickly in a
-// threaded environment. Future work may want to revisit this.
+// threaded environment. Future work may want to revisit this. In particular,
+// huge datasets probably would benefit from more levels.
 //
-// Further room for improvement: while the leaf spheres are build in
+// Further room for improvement: while the leaf spheres are built in
 // parallel, the hierarchy is built serially. The hierarchy could also
 // be built in parallel.
 //
 // Note the sphere generation uses Ritter's algorithm. While fast, it can
-// overestimate the sphere size by 5-20%. Tighter spheres could improve
+// overestimate the sphere size by 5-20%. Tighter spheres would improve
 // performance.
 
 
@@ -85,7 +85,7 @@ struct vtkStructuredHierarchy : public vtkSphereTreeHierarchy
     this->Dims[0] = this->Dims[1] = this->Dims[2] = 0;
     this->GridSize = 0;
     this->GridDims[0] = this->GridDims[1] = this->GridDims[2] = 0;
-    this->GridSpheres = NULL;
+    this->GridSpheres = nullptr;
     this->H = vtkDoubleArray::New();
     this->H->SetNumberOfComponents(1);
     this->H->SetNumberOfTuples(size);
@@ -94,7 +94,7 @@ struct vtkStructuredHierarchy : public vtkSphereTreeHierarchy
   virtual ~vtkStructuredHierarchy()
   {
     this->H->Delete();
-    this->H = NULL;
+    this->H = nullptr;
   }
 };
 
@@ -116,8 +116,8 @@ struct vtkUnstructuredHierarchy : public vtkSphereTreeHierarchy
 
   vtkUnstructuredHierarchy(int dims[3], double bounds[6], double spacing[3],
                            vtkIdType numCells) :
-    NumCells(numCells), NumSpheres(NULL), Offsets(NULL),
-    CellLoc(NULL), CellMap(NULL), GridSpheres(NULL)
+    NumCells(numCells), NumSpheres(nullptr), Offsets(nullptr),
+    CellLoc(nullptr), CellMap(nullptr), GridSpheres(nullptr)
   {
     this->GridSize = dims[0] * dims[1] * dims[2];
     for (int i=0; i<3; ++i)
@@ -138,15 +138,15 @@ struct vtkUnstructuredHierarchy : public vtkSphereTreeHierarchy
   virtual ~vtkUnstructuredHierarchy()
   {
     delete [] this->NumSpheres;
-    this->NumSpheres = NULL;
+    this->NumSpheres = nullptr;
     delete [] this->Offsets;
-    this->Offsets = NULL;
+    this->Offsets = nullptr;
     delete [] this->CellLoc;
-    this->CellLoc = NULL;
+    this->CellLoc = nullptr;
     delete [] this->CellMap;
-    this->CellMap = NULL;
+    this->CellMap = nullptr;
     delete [] this->GridSpheres;
-    this->GridSpheres = NULL;
+    this->GridSpheres = nullptr;
   }
 };
 
@@ -154,8 +154,8 @@ struct vtkUnstructuredHierarchy : public vtkSphereTreeHierarchy
 //----------------------------------------------------------------------------
 namespace {
 
-//----------------------------------------------------------------------------
-// Compute bounds for each cell in any type of dataset
+  //----------------------------------------------------------------------------
+  // Compute bounds for each cell in any type of dataset
   struct DataSetSpheres
   {
     vtkDataSet *DataSet;
@@ -324,8 +324,8 @@ namespace {
 
   };
 
-//----------------------------------------------------------------------------
-// Compute bounds for each cell in an unstructured grid
+  //----------------------------------------------------------------------------
+  // Compute bounds for each cell in an unstructured grid
   struct UnstructuredSpheres : public DataSetSpheres
   {
     UnstructuredSpheres(vtkUnstructuredGrid *grid, double *s) :
@@ -362,7 +362,7 @@ namespace {
         {
           grid->GetPoint(cellIds[ptNum], p);
         }
-        vtkSphere::ComputeBoundingSphere(cellPts, numCellPts, sphere, NULL);
+        vtkSphere::ComputeBoundingSphere(cellPts, numCellPts, sphere, nullptr);
 
         // Keep a bounds for the grid
         r = sphere[3];
@@ -396,8 +396,8 @@ namespace {
   };
 
 
-//----------------------------------------------------------------------------
-// Compute bounds for each cell in an unstructured grid
+  //----------------------------------------------------------------------------
+  // Compute bounds for each cell in a structured grid
   struct StructuredSpheres : public DataSetSpheres
   {
     int Dims[3];
@@ -490,64 +490,101 @@ namespace {
     }
   };
 
-  // Select cells based on leaf-level spheres
-  struct DefaultPlaneSelect
+  //----------------------------------------------------------------------------
+  // Base class for selection of cells via geometric operations
+  struct BaseCellSelect
   {
+    vtkIdType NumberOfCells;
+    vtkIdType NumberOfCellsSelected;
+    vtkSMPThreadLocal<vtkIdType> NumberSelected;
     unsigned char *Selected;
     double *Spheres;
-    double Origin[3];
-    double Normal[3];
+    double Point[3];
 
-    DefaultPlaneSelect(vtkIdType numCells, unsigned char *select, double *spheres,
-                       double o[3], double n[3]) :
-      Selected(select), Spheres(spheres)
+    BaseCellSelect(vtkIdType numCells, unsigned char *select, double *spheres,
+                   double p[3]) :
+      NumberOfCells(numCells), Selected(select), Spheres(spheres)
     {
       for (int i=0; i < 3; ++i)
       {
-        this->Origin[i] = o[i];
-        this->Normal[i] = n[i];
+        this->Point[i] = p[i];
       }
       std::fill_n(this->Selected, numCells, 0);
+    }
+
+    void Initialize()
+    {
+      this->NumberOfCellsSelected = 0;
+      vtkIdType& numSelected = this->NumberSelected.Local();
+      numSelected = 0;
+    }
+
+    void Reduce()
+    {
+      vtkSMPThreadLocal<vtkIdType>::iterator iter;
+      vtkSMPThreadLocal<vtkIdType>::iterator end=this->NumberSelected.end();
+      this->NumberOfCellsSelected = 0;
+      for ( iter = this->NumberSelected.begin(); iter != end; ++iter)
+      {
+        this->NumberOfCellsSelected += *iter;
+      }
+    }
+  };
+
+  //----------------------------------------------------------------------------
+  // Select cells from point based on leaf-level spheres (default)
+  struct DefaultPointSelect : public BaseCellSelect
+  {
+    DefaultPointSelect(vtkIdType numCells, unsigned char *select,
+                       double *spheres,double p[3]) :
+      BaseCellSelect(numCells, select, spheres, p)
+    {
+    }
+
+    void Initialize()
+    {
+      BaseCellSelect::Initialize();
     }
 
     void operator() (vtkIdType cellId, vtkIdType endCellId)
     {
       double *sphere = this->Spheres + 4*cellId;
-      double *o=this->Origin, *n=this->Normal;
+      double *p=this->Point;
       unsigned char *s = this->Selected + cellId;
+      vtkIdType& numSelected = this->NumberSelected.Local();
 
       for ( ; cellId < endCellId; ++cellId, sphere+=4, ++s)
       {
-        if ( vtkPlane::DistanceToPlane(sphere,n,o) <= sphere[3] )
+        if ( vtkMath::Distance2BetweenPoints(sphere,p) <= (sphere[3]*sphere[3]) )
         {
           *s = 1;
+          ++numSelected;
         }
       }//for cells
     }
+
+    void Reduce()
+    {
+      BaseCellSelect::Reduce();
+    }
+
   };
 
-  // Select cells from unstructured hierarchy
-  struct UnstructuredPlaneSelect
+  // Select cells with point from unstructured hierarchy
+  struct UnstructuredPointSelect : public DefaultPointSelect
   {
-    unsigned char *Selected;
-    double *Spheres;
     vtkUnstructuredHierarchy *H;
 
-    double Origin[3];
-    double Normal[3];
-
-    UnstructuredPlaneSelect(unsigned char *select, double *spheres,
-                            vtkUnstructuredHierarchy *h, double o[3], double n[3]) :
-      Selected(select), Spheres(spheres), H(h)
+    UnstructuredPointSelect(vtkIdType numCells, unsigned char *select,
+                            double *spheres, double p[3],
+                            vtkUnstructuredHierarchy *h) :
+      DefaultPointSelect(numCells, select, spheres, p), H(h)
     {
-      for (int i=0; i < 3; ++i)
-      {
-        this->Origin[i] = o[i];
-        this->Normal[i] = n[i];
-      }
+    }
 
-      // Mark everything unselected to start
-      std::fill_n(this->Selected, h->NumCells, 0);
+    void Initialize()
+    {
+      DefaultPointSelect::Initialize();
     }
 
     void operator() (vtkIdType gridId, vtkIdType endGridId)
@@ -555,11 +592,361 @@ namespace {
       double *spheres = this->Spheres;
       double *sph;
       double *gs = this->H->GridSpheres + 4*gridId;
-      double *o=this->Origin, *n=this->Normal;
+      double *p=this->Point;
       unsigned char *s = this->Selected;
       const vtkIdType *cellMap=this->H->CellMap;
       const vtkIdType *offsets=this->H->Offsets;
       vtkIdType ii, numSph, cellId;
+      vtkIdType& numSelected = this->NumberSelected.Local();
+
+      // Loop over grid buckets. The cell spheres that are located in buckets
+      // that intersect are processed further.
+      for ( ; gridId < endGridId; ++gridId, gs+=4 )
+      {
+        if ( vtkMath::Distance2BetweenPoints(gs,p) <= (gs[3]*gs[3]) )
+        {
+          numSph = offsets[gridId+1] - offsets[gridId];
+          for (ii=0; ii<numSph; ++ii)
+          {
+            cellId = *(cellMap + offsets[gridId] + ii);
+            sph = spheres + 4*cellId;
+            if ( vtkMath::Distance2BetweenPoints(sph,p) <= (sph[3]*sph[3]) )
+            {
+              s[cellId] = 1;
+              ++numSelected;
+            }
+          }//for cells in bucket
+        }//if bucket sphere intersects point
+      }//for grid buckets
+    }
+
+    void Reduce()
+    {
+      DefaultPointSelect::Reduce();
+    }
+  };
+
+  // Select cells from unstructured hierarchy
+  struct StructuredPointSelect : public DefaultPointSelect
+  {
+    vtkStructuredHierarchy *H;
+
+    StructuredPointSelect(vtkIdType numCells, unsigned char *select,
+                          double *spheres, double p[3], vtkStructuredHierarchy *h):
+      DefaultPointSelect(numCells, select, spheres, p), H(h)
+    {
+    }
+
+    void Initialize()
+    {
+      DefaultPointSelect::Initialize();
+    }
+
+    void operator() (vtkIdType gridId, vtkIdType endGridId)
+    {
+      double *p=this->Point;
+      unsigned char *s = this->Selected;
+      double *spheres = this->Spheres;
+      double *sph, *gs = this->H->GridSpheres + 4*gridId;
+      const vtkIdType *gridDims = this->H->GridDims;
+      int gridSliceOffset = gridDims[0]*gridDims[1];
+      const vtkIdType *dims = this->H->Dims;
+      vtkIdType i0, j0, k0, i, j, k, jOffset, kOffset, sliceOffset=dims[0]*dims[1];
+      vtkIdType iEnd, jEnd, kEnd, cellId;
+      int resolution = this->H->Resolution;
+      vtkIdType& numSelected = this->NumberSelected.Local();
+
+      // Loop over grid buckets. The cell spheres that are located in buckets
+      // that intersect the point are processed further.
+      for ( ; gridId < endGridId; ++gridId, gs+=4 )
+      {
+        if ( vtkMath::Distance2BetweenPoints(gs,p) <= (gs[3]*gs[3]) )
+        {
+          // i-j-k coordinates in grid space
+          i0 = (gridId % gridDims[0]) * resolution;
+          j0 = ((gridId / gridDims[0]) % gridDims[1]) * resolution;
+          k0 = (gridId / gridSliceOffset) * resolution;
+
+          iEnd = ((i0 + resolution) < dims[0] ? i0 + resolution : dims[0]);
+          jEnd = ((j0 + resolution) < dims[1] ? j0 + resolution : dims[1]);
+          kEnd = ((k0 + resolution) < dims[2] ? k0 + resolution : dims[2]);
+
+          // Now loop over resolution*resolution*resolution block of leaf cells
+          for (k=k0; k<kEnd; ++k)
+          {
+            kOffset = k * sliceOffset;
+            for (j=j0; j<jEnd; ++j)
+            {
+              jOffset = j * dims[0];
+              for (i=i0; i<iEnd; ++i)
+              {
+                cellId = (i + jOffset + kOffset);
+                sph = spheres + 4*cellId;
+                if ( vtkMath::Distance2BetweenPoints(sph,p) <= (sph[3]*sph[3]) )
+                {
+                  s[cellId] = 1; //mark as candidate
+                  ++numSelected;
+                }
+              }
+            }
+          }
+
+        }//if bucket sphere contains point
+      }//for grid buckets
+    }
+
+    void Reduce()
+    {
+      DefaultPointSelect::Reduce();
+    }
+  };
+
+  //----------------------------------------------------------------------------
+  // Select cells from line based on leaf-level spheres (default)
+  struct DefaultLineSelect : public BaseCellSelect
+  {
+    double P1[3];
+
+    DefaultLineSelect(vtkIdType numCells, unsigned char *select, double *spheres,
+                      double p[3], double ray[3]) :
+      BaseCellSelect(numCells, select, spheres, p)
+    {
+      for (int i=0; i < 3; ++i)
+      {
+        this->P1[i] = this->Point[i] + ray[i];
+      }
+    }
+
+    void Initialize()
+    {
+      BaseCellSelect::Initialize();
+    }
+
+    void operator() (vtkIdType cellId, vtkIdType endCellId)
+    {
+      double *sph = this->Spheres + 4*cellId;
+      double *p0=this->Point, *p1=this->P1;
+      unsigned char *s = this->Selected + cellId;
+      vtkIdType& numSelected = this->NumberSelected.Local();
+
+      for ( ; cellId < endCellId; ++cellId, sph+=4, ++s)
+      {
+        if ( vtkLine::DistanceToLine(sph,p0,p1) <= (sph[3]*sph[3]) )
+        {
+          *s = 1;
+          ++numSelected;
+        }
+      }//for cells
+    }
+
+    void Reduce()
+    {
+      BaseCellSelect::Reduce();
+    }
+  };
+
+  // Select cells with line from unstructured hierarchy
+  struct UnstructuredLineSelect : public DefaultLineSelect
+  {
+    vtkUnstructuredHierarchy *H;
+
+    UnstructuredLineSelect(vtkIdType numCells, unsigned char *select, double *spheres,
+                            vtkUnstructuredHierarchy *h, double o[3], double ray[3]) :
+      DefaultLineSelect(numCells, select, spheres, o, ray), H(h)
+    {
+    }
+
+    void Initialize()
+    {
+      DefaultLineSelect::Initialize();
+    }
+
+    void operator() (vtkIdType gridId, vtkIdType endGridId)
+    {
+      double *spheres = this->Spheres;
+      double *sph;
+      double *gs = this->H->GridSpheres + 4*gridId;
+      double *p0=this->Point, *p1=this->P1;
+      unsigned char *s = this->Selected;
+      const vtkIdType *cellMap=this->H->CellMap;
+      const vtkIdType *offsets=this->H->Offsets;
+      vtkIdType ii, numSph, cellId;
+      vtkIdType& numSelected = this->NumberSelected.Local();
+
+      // Loop over grid buckets. The cell spheres that are located in buckets
+      // that intersect are processed further.
+      for ( ; gridId < endGridId; ++gridId, gs+=4 )
+      {
+        if ( vtkLine::DistanceToLine(gs,p0,p1) <= gs[3] )
+        {
+          numSph = offsets[gridId+1] - offsets[gridId];
+          for (ii=0; ii<numSph; ++ii)
+          {
+            cellId = *(cellMap + offsets[gridId] + ii);
+            sph = spheres + 4*cellId;
+            if ( vtkLine::DistanceToLine(sph,p0,p1) <= (sph[3]*sph[3]) )
+            {
+              s[cellId] = 1;
+              ++numSelected;
+            }
+          }//for cells in bucket
+        }//if bucket sphere intersects line
+      }//for grid buckets
+    }
+
+    void Reduce()
+    {
+      DefaultLineSelect::Reduce();
+    }
+  };
+
+  // Select cells from unstructured hierarchy
+  struct StructuredLineSelect : public DefaultLineSelect
+  {
+    vtkStructuredHierarchy *H;
+
+    StructuredLineSelect(vtkIdType numCells, unsigned char *select, double *spheres,
+                          vtkStructuredHierarchy *h, double o[3], double ray[3]) :
+      DefaultLineSelect(numCells, select, spheres, o, ray), H(h)
+    {
+    }
+
+    void Initialize()
+    {
+      DefaultLineSelect::Initialize();
+    }
+
+    void operator() (vtkIdType gridId, vtkIdType endGridId)
+    {
+      double *p0=this->Point, *p1=this->P1;
+      unsigned char *s = this->Selected;
+      double *spheres = this->Spheres;
+      double *sph, *gs = this->H->GridSpheres + 4*gridId;
+      const vtkIdType *gridDims = this->H->GridDims;
+      int gridSliceOffset = gridDims[0]*gridDims[1];
+      const vtkIdType *dims = this->H->Dims;
+      vtkIdType i0, j0, k0, i, j, k, jOffset, kOffset, sliceOffset=dims[0]*dims[1];
+      vtkIdType iEnd, jEnd, kEnd, cellId;
+      int resolution = this->H->Resolution;
+      vtkIdType& numSelected = this->NumberSelected.Local();
+
+      // Loop over grid buckets. The cell spheres that are located in buckets
+      // that intersect the line are processed further.
+      for ( ; gridId < endGridId; ++gridId, gs+=4 )
+      {
+        if ( vtkLine::DistanceToLine(gs,p0,p1) <= gs[3] )
+        {
+          // i-j-k coordinates in grid space
+          i0 = (gridId % gridDims[0]) * resolution;
+          j0 = ((gridId / gridDims[0]) % gridDims[1]) * resolution;
+          k0 = (gridId / gridSliceOffset) * resolution;
+
+          iEnd = ((i0 + resolution) < dims[0] ? i0 + resolution : dims[0]);
+          jEnd = ((j0 + resolution) < dims[1] ? j0 + resolution : dims[1]);
+          kEnd = ((k0 + resolution) < dims[2] ? k0 + resolution : dims[2]);
+
+          // Now loop over resolution*resolution*resolution block of leaf cells
+          for (k=k0; k<kEnd; ++k)
+          {
+            kOffset = k * sliceOffset;
+            for (j=j0; j<jEnd; ++j)
+            {
+              jOffset = j * dims[0];
+              for (i=i0; i<iEnd; ++i)
+              {
+                cellId = (i + jOffset + kOffset);
+                sph = spheres + 4*cellId;
+                if ( vtkLine::DistanceToLine(sph,p0,p1) <= (sph[3]*sph[3]) )
+                {
+                  s[cellId] = 1; //mark as candidate
+                  ++numSelected;
+                }
+              }
+            }
+          }
+
+        }//if bucket sphere intersects line
+      }//for grid buckets
+    }
+
+    void Reduce()
+    {
+      DefaultLineSelect::Reduce();
+    }
+  };
+
+  //----------------------------------------------------------------------------
+  // Select cells from plane based on leaf-level spheres (default)
+  struct DefaultPlaneSelect : public BaseCellSelect
+  {
+    double Normal[3];
+
+    DefaultPlaneSelect(vtkIdType numCells, unsigned char *select, double *spheres,
+                       double o[3], double n[3]) :
+      BaseCellSelect(numCells, select, spheres, o)
+    {
+      for (int i=0; i < 3; ++i)
+      {
+        this->Normal[i] = n[i];
+      }
+      vtkMath::Normalize(this->Normal);
+    }
+
+    void Initialize()
+    {
+      BaseCellSelect::Initialize();
+    }
+
+    void operator() (vtkIdType cellId, vtkIdType endCellId)
+    {
+      double *sphere = this->Spheres + 4*cellId;
+      double *o=this->Point, *n=this->Normal;
+      unsigned char *s = this->Selected + cellId;
+      vtkIdType& numSelected = this->NumberSelected.Local();
+
+      for ( ; cellId < endCellId; ++cellId, sphere+=4, ++s)
+      {
+        if ( vtkPlane::DistanceToPlane(sphere,n,o) <= sphere[3] )
+        {
+          *s = 1;
+          ++numSelected;
+        }
+      }//for cells
+    }
+
+    void Reduce()
+    {
+      BaseCellSelect::Reduce();
+    }
+  };
+
+  // Select cells with plane from unstructured hierarchy
+  struct UnstructuredPlaneSelect : public DefaultPlaneSelect
+  {
+    vtkUnstructuredHierarchy *H;
+
+    UnstructuredPlaneSelect(vtkIdType numCells, unsigned char *select, double *spheres,
+                            vtkUnstructuredHierarchy *h, double o[3], double n[3]) :
+      DefaultPlaneSelect(numCells, select, spheres, o, n), H(h)
+    {
+    }
+
+    void Initialize()
+    {
+      DefaultPlaneSelect::Initialize();
+    }
+
+    void operator() (vtkIdType gridId, vtkIdType endGridId)
+    {
+      double *spheres = this->Spheres;
+      double *sph;
+      double *gs = this->H->GridSpheres + 4*gridId;
+      double *o=this->Point, *n=this->Normal;
+      unsigned char *s = this->Selected;
+      const vtkIdType *cellMap=this->H->CellMap;
+      const vtkIdType *offsets=this->H->Offsets;
+      vtkIdType ii, numSph, cellId;
+      vtkIdType& numSelected = this->NumberSelected.Local();
 
       // Loop over grid buckets. The cell spheres that are located in buckets
       // that intersect are processed further.
@@ -575,41 +962,38 @@ namespace {
             if ( vtkPlane::DistanceToPlane(sph,n,o) <= sph[3] )
             {
               s[cellId] = 1;
+              ++numSelected;
             }
           }//for cells in bucket
         }//if bucket sphere intersects plane
       }//for grid buckets
     }
+
+    void Reduce()
+    {
+      DefaultPlaneSelect::Reduce();
+    }
   };
 
   // Select cells from unstructured hierarchy
-  struct StructuredPlaneSelect
+  struct StructuredPlaneSelect : public DefaultPlaneSelect
   {
-    unsigned char *Selected;
-    double *Spheres;
     vtkStructuredHierarchy *H;
 
-    double Origin[3];
-    double Normal[3];
-
-    StructuredPlaneSelect(unsigned char *select, double *spheres,
+    StructuredPlaneSelect(vtkIdType numCells, unsigned char *select, double *spheres,
                           vtkStructuredHierarchy *h, double o[3], double n[3]) :
-      Selected(select), Spheres(spheres), H(h)
+      DefaultPlaneSelect(numCells, select, spheres, o, n), H(h)
     {
+    }
 
-      for (int i=0; i<3; ++i)
-      {
-        this->Origin[i] = o[i];
-        this->Normal[i] = n[i];
-      }
-
-      // Mark everything unselected to start
-      std::fill_n(this->Selected, h->NumCells, 0);
+    void Initialize()
+    {
+      DefaultPlaneSelect::Initialize();
     }
 
     void operator() (vtkIdType gridId, vtkIdType endGridId)
     {
-      double *o=this->Origin, *n=this->Normal;
+      double *o=this->Point, *n=this->Normal;
       unsigned char *s = this->Selected;
       double *spheres = this->Spheres;
       double *sph, *gs = this->H->GridSpheres + 4*gridId;
@@ -619,6 +1003,7 @@ namespace {
       vtkIdType i0, j0, k0, i, j, k, jOffset, kOffset, sliceOffset=dims[0]*dims[1];
       vtkIdType iEnd, jEnd, kEnd, cellId;
       int resolution = this->H->Resolution;
+      vtkIdType& numSelected = this->NumberSelected.Local();
 
       // Loop over grid buckets. The cell spheres that are located in buckets
       // that intersect the plane are processed further.
@@ -649,6 +1034,7 @@ namespace {
                 if ( vtkPlane::DistanceToPlane(sph,n,o) <= sph[3] )
                 {
                   s[cellId] = 1; //mark as candidate
+                  ++numSelected;
                 }
               }
             }
@@ -656,6 +1042,11 @@ namespace {
 
         }//if bucket sphere intersects plane
       }//for grid buckets
+    }
+
+    void Reduce()
+    {
+      DefaultPlaneSelect::Reduce();
     }
   };
 
@@ -668,13 +1059,13 @@ namespace {
 // Construct object.
 vtkSphereTree::vtkSphereTree()
 {
-  this->DataSet = NULL;
-  this->Selected = NULL;
+  this->DataSet = nullptr;
+  this->Selected = nullptr;
   this->Resolution = 3;
   this->MaxLevel = 10;
   this->NumberOfLevels = 0;
-  this->Tree = NULL;
-  this->Hierarchy = NULL;
+  this->Tree = nullptr;
+  this->Hierarchy = nullptr;
   this->BuildHierarchy = 1;
   this->SphereTreeType = VTK_SPHERE_TREE_HIERARCHY_NONE;
 }
@@ -683,21 +1074,21 @@ vtkSphereTree::vtkSphereTree()
 // Destroy object.
 vtkSphereTree::~vtkSphereTree()
 {
-  this->SetDataSet(NULL);
+  this->SetDataSet(nullptr);
   if ( this->Selected )
   {
     delete [] this->Selected;
-    this->Selected = NULL;
+    this->Selected = nullptr;
   }
   if ( this->Tree )
     {
     this->Tree->Delete();
-    this->Tree = NULL;
+    this->Tree = nullptr;
     }
   if ( this->Hierarchy )
     {
     delete [] this->Hierarchy;
-    this->Hierarchy = NULL;
+    this->Hierarchy = nullptr;
     }
 }
 
@@ -720,7 +1111,7 @@ void vtkSphereTree::Build(vtkDataSet *input)
 {
   this->SetDataSet(input);
 
-  if ( this->Tree != NULL && this->Hierarchy != NULL &&
+  if ( this->Tree != nullptr && this->Hierarchy != nullptr &&
        this->BuildTime > this->MTime &&
        (this->BuildTime > this->DataSet->GetMTime()) )
     {
@@ -742,7 +1133,7 @@ void vtkSphereTree::Build(vtkDataSet *input)
 vtkDoubleArray *vtkSphereTree::BuildTreeSpheres(vtkDataSet *input)
 {
   // See if anything has to be done
-  if ( this->Tree != NULL && this->BuildTime > this->MTime )
+  if ( this->Tree != nullptr && this->BuildTime > this->MTime )
     {
     return this->Tree;
     }
@@ -785,7 +1176,7 @@ void vtkSphereTree::
 BuildTreeHierarchy(vtkDataSet *input)
 {
   // See if anything has to be done
-  if ( this->Tree != NULL && this->Hierarchy != NULL &&
+  if ( this->Tree != nullptr && this->Hierarchy != nullptr &&
        this->BuildTime > this->MTime )
   {
       return;
@@ -958,7 +1349,7 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
   if ( this->AverageRadius <= 0.0 || numCells <= 0 )
   {
     delete [] this->Hierarchy;
-    this->Hierarchy = NULL;
+    this->Hierarchy = nullptr;
   }
 
   // Currently only two levels are being built (see implementation notes).
@@ -1019,8 +1410,8 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
 
   // Free extra data. What we have left is a grid with cells associated
   // with each bucket.
-  delete [] h->NumSpheres; h->NumSpheres=NULL;
-  delete [] h->CellLoc; h->CellLoc=NULL;
+  delete [] h->NumSpheres; h->NumSpheres=nullptr;
+  delete [] h->CellLoc; h->CellLoc=nullptr;
 
   // Now it's time to create a sphere per bucket, and adjust the spheres
   // to fit all of the cell spheres contained within it.
@@ -1042,7 +1433,7 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
           cellId = *(cellMap + offsets[idx] + ii);
           tmpSpheres[ii] = tree + 4*cellId;
         }
-        vtkSphere::ComputeBoundingSphere(tmpSpheres,nSph,gs,NULL);
+        vtkSphere::ComputeBoundingSphere(tmpSpheres,nSph,gs,nullptr);
         gs += 4;
       }//i
     }//j
@@ -1053,55 +1444,167 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
 }
 
 //----------------------------------------------------------------------------
-// Note that there is a long story behind this crude method for selecting
-// cells based on the sphere tree. Initially there was a complex hierarchy of
+// Note that there is a long story behind these crude methods for selecting
+// cells based on a sphere tree. Initially there was a complex hierarchy of
 // iterators for different dataset types and geometric intersection entities
-// (e.g., plane or line). However the performance of this approach was really
-// poor and the code was excessively complex. To do it right would require
-// extensive tamplating etc. Maybe someday.... In the mean time this approach
-// (using a selection mask) is really simple and performs pretty well.
+// (e.g., point, line or plane). However the performance of this approach was
+// really poor and the code was excessively complex. To do it right requires
+// extensive templating etc. Maybe someday.... In the mean time this approach
+// (using a selection mask) is really simple and performs pretty well. It
+// also suggests future approaches which use cell locators (and other
+// classes) to produce selection masks as well.
 const unsigned char* vtkSphereTree::
-SelectPlane(double origin[3], double normal[3])
+SelectPoint(double x[3], vtkIdType &numSelected)
 {
-  if ( this->DataSet == NULL )
+  // Check input
+  if ( this->DataSet == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
 
+  vtkIdType numCells = this->DataSet->GetNumberOfCells();
+
+  // Specialized for structured grids
   if ( this->Hierarchy &&
        this->DataSet->GetDataObjectType() == VTK_STRUCTURED_GRID )
   {
     vtkStructuredHierarchy *h =
       static_cast<vtkStructuredHierarchy*>(this->Hierarchy);
     vtkIdType gridSize = h->GridSize;
-    StructuredPlaneSelect sPlaneSelect(this->Selected, this->TreePtr, h,
-                                         origin, normal);
-    vtkSMPTools::For(0,gridSize,sPlaneSelect);
+    StructuredPointSelect sPointSelect(numCells, this->Selected, this->TreePtr, x, h);
+    vtkSMPTools::For(0,gridSize,sPointSelect);
+    numSelected = sPointSelect.NumberOfCellsSelected;
   }
 
+  // Specialized for unstructured grids
   else if ( this->Hierarchy &&
             this->DataSet->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
   {
     vtkUnstructuredHierarchy *h =
       static_cast<vtkUnstructuredHierarchy*>(this->Hierarchy);
     vtkIdType gridSize = h->GridSize;
-    UnstructuredPlaneSelect uPlaneSelect(this->Selected, this->TreePtr, h,
-                                         origin, normal);
-    vtkSMPTools::For(0,gridSize,uPlaneSelect);
+    UnstructuredPointSelect uPointSelect(numCells, this->Selected, this->TreePtr, x, h);
+    vtkSMPTools::For(0,gridSize,uPointSelect);
+    numSelected = uPointSelect.NumberOfCellsSelected;
   }
 
-  else //default, process leaf spheres without hierarchy
+  // default, process leaf spheres without hierarchy
+  else
   {
-    vtkIdType numCells = this->DataSet->GetNumberOfCells();;
-    DefaultPlaneSelect defaultPlaneSelect(numCells, this->Selected,
-                                          this->TreePtr, origin, normal);
-    vtkSMPTools::For(0,numCells,defaultPlaneSelect);
+    DefaultPointSelect defaultPointSelect(numCells, this->Selected,
+                                         this->TreePtr, x);
+    vtkSMPTools::For(0,numCells,defaultPointSelect);
+    numSelected = defaultPointSelect.NumberOfCellsSelected;
   }
 
   return this->Selected;
 }
 
 //----------------------------------------------------------------------------
+// Create selection mask based on intersection with an infinite line.
+const unsigned char* vtkSphereTree::
+SelectLine(double origin[3], double ray[3], vtkIdType &numSelected)
+{
+  // Check input
+  if ( this->DataSet == nullptr )
+  {
+    return nullptr;
+  }
+
+  vtkIdType numCells = this->DataSet->GetNumberOfCells();;
+
+  // Specialized for structured grids
+  if ( this->Hierarchy &&
+       this->DataSet->GetDataObjectType() == VTK_STRUCTURED_GRID )
+  {
+    vtkStructuredHierarchy *h =
+      static_cast<vtkStructuredHierarchy*>(this->Hierarchy);
+    vtkIdType gridSize = h->GridSize;
+    StructuredLineSelect sLineSelect(numCells, this->Selected, this->TreePtr, h,
+                                     origin, ray);
+    vtkSMPTools::For(0,gridSize,sLineSelect);
+    numSelected = sLineSelect.NumberOfCellsSelected;
+  }
+
+  // Specialized for unstructured grids
+  else if ( this->Hierarchy &&
+            this->DataSet->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
+  {
+    vtkUnstructuredHierarchy *h =
+      static_cast<vtkUnstructuredHierarchy*>(this->Hierarchy);
+    vtkIdType gridSize = h->GridSize;
+    UnstructuredLineSelect uLineSelect(numCells, this->Selected, this->TreePtr, h,
+                                       origin, ray);
+    vtkSMPTools::For(0,gridSize,uLineSelect);
+    numSelected = uLineSelect.NumberOfCellsSelected;
+  }
+
+  // default, process leaf spheres without hierarchy
+  else
+  {
+    DefaultLineSelect defaultLineSelect(numCells, this->Selected,
+                                        this->TreePtr, origin, ray);
+    vtkSMPTools::For(0,numCells,defaultLineSelect);
+    numSelected = defaultLineSelect.NumberOfCellsSelected;
+  }
+
+  return this->Selected;
+}
+
+//----------------------------------------------------------------------------
+// Create selection mask based on intersection with an infinite plane.
+const unsigned char* vtkSphereTree::
+SelectPlane(double origin[3], double normal[3], vtkIdType &numSelected)
+{
+  // Check input
+  if ( this->DataSet == nullptr )
+  {
+    return nullptr;
+  }
+
+  vtkIdType numCells = this->DataSet->GetNumberOfCells();;
+
+  // Specialized for structured grids
+  if ( this->Hierarchy &&
+       this->DataSet->GetDataObjectType() == VTK_STRUCTURED_GRID )
+  {
+    vtkStructuredHierarchy *h =
+      static_cast<vtkStructuredHierarchy*>(this->Hierarchy);
+    vtkIdType gridSize = h->GridSize;
+    StructuredPlaneSelect sPlaneSelect(numCells, this->Selected, this->TreePtr, h,
+                                         origin, normal);
+    vtkSMPTools::For(0,gridSize,sPlaneSelect);
+    numSelected = sPlaneSelect.NumberOfCellsSelected;
+  }
+
+  // Specialized for unstructured grids
+  else if ( this->Hierarchy &&
+            this->DataSet->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
+  {
+    vtkUnstructuredHierarchy *h =
+      static_cast<vtkUnstructuredHierarchy*>(this->Hierarchy);
+    vtkIdType gridSize = h->GridSize;
+    UnstructuredPlaneSelect uPlaneSelect(numCells, this->Selected, this->TreePtr, h,
+                                         origin, normal);
+    vtkSMPTools::For(0,gridSize,uPlaneSelect);
+    numSelected = uPlaneSelect.NumberOfCellsSelected;
+  }
+
+  // default, process leaf spheres without hierarchy
+  else
+  {
+    DefaultPlaneSelect defaultPlaneSelect(numCells, this->Selected,
+                                          this->TreePtr, origin, normal);
+    vtkSMPTools::For(0,numCells,defaultPlaneSelect);
+    numSelected = defaultPlaneSelect.NumberOfCellsSelected;
+  }
+
+  return this->Selected;
+
+}
+
+//----------------------------------------------------------------------------
+// Simply return the leaf spheres
 const double* vtkSphereTree::GetCellSpheres()
 {
   return this->TreePtr;
@@ -1122,10 +1625,10 @@ const double* vtkSphereTree::GetTreeSpheres(int level, vtkIdType& numSpheres)
     return this->TreePtr; //just return leaf spheres
   }
   else if ( level < 0 || level >= numLevels ||
-            this->DataSet == NULL || this->Hierarchy == NULL )
+            this->DataSet == nullptr || this->Hierarchy == nullptr )
   {
     numSpheres = 0;
-    return NULL;
+    return nullptr;
   }
 
   // Asking for spheres within tree hierarchy
@@ -1146,7 +1649,62 @@ const double* vtkSphereTree::GetTreeSpheres(int level, vtkIdType& numSpheres)
 
   // worst case shouldn't happen
   numSpheres = 0;
-  return NULL;
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+void vtkSphereTree::
+SelectPoint(double point[3], vtkIdList *cellIds)
+{
+  vtkIdType numSelected;
+  const unsigned char *selected = this->SelectPoint(point, numSelected);
+  this->ExtractCellIds(selected,cellIds,numSelected);
+}
+
+//----------------------------------------------------------------------------
+void vtkSphereTree::
+SelectLine(double origin[3], double ray[3], vtkIdList *cellIds)
+{
+  vtkIdType numSelected;
+  const unsigned char *selected = this->SelectLine(origin,ray,numSelected);
+  this->ExtractCellIds(selected,cellIds,numSelected);
+}
+
+//----------------------------------------------------------------------------
+void vtkSphereTree::
+SelectPlane(double origin[3], double normal[3], vtkIdList *cellIds)
+{
+  vtkIdType numSelected;
+  const unsigned char *selected = this->SelectPlane(origin,normal,numSelected);
+  this->ExtractCellIds(selected,cellIds,numSelected);
+}
+
+//----------------------------------------------------------------------------
+void vtkSphereTree::
+ExtractCellIds(const unsigned char *selected, vtkIdList *cellIds,
+               vtkIdType numSelected)
+{
+  if ( numSelected < 1 || selected == nullptr )
+  {
+    cellIds->Reset();
+  }
+  else
+  {
+    const unsigned char *s = selected;
+    vtkIdType numCells = this->DataSet->GetNumberOfCells();
+    vtkIdType numInserted=0;
+    cellIds->SetNumberOfIds(numSelected);
+    for (vtkIdType cellId=0; cellId < numCells; ++cellId)
+    {
+      if ( *s++ > 0 )
+      {
+        cellIds->SetId(numInserted,cellId);
+        numInserted++;
+      }
+    }
+  }
+
+  return;
 }
 
 //----------------------------------------------------------------------------

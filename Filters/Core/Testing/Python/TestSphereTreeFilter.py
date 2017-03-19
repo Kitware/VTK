@@ -5,7 +5,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control debugging parameters
-res = 50
+res = 25
 
 # Create the RenderWindow, Renderer
 #
@@ -73,11 +73,17 @@ extractionSphere.SetCenter(0,0,0)
 extract = vtk.vtkExtractGeometry()
 extract.SetImplicitFunction(extractionSphere)
 extract.SetInputConnection(sample.GetOutputPort())
+extract.Update()
 
-# Create a sphere tree and see what it look like
-# (structured sphere tree)
+# This time around create a sphere tree, assign it to the filter, and see
+# what it look like (unstructured sphere tree)
+ust = vtk.vtkSphereTree()
+ust.BuildHierarchyOn()
+ust.Build(extract.GetOutput())
+print (ust)
+
 ustf = vtk.vtkSphereTreeFilter()
-ustf.SetInputConnection(extract.GetOutputPort())
+ustf.SetSphereTree(ust)
 ustf.SetLevel(0);
 
 ustfGlyphs = vtk.vtkGlyph3D()
@@ -120,5 +126,5 @@ ren1.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
-iren.Start()
+#iren.Start()
 # --- end of script --

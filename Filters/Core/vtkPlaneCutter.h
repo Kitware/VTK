@@ -17,32 +17,31 @@
  * @brief   cut any dataset with a plane and generate a
  * polygonal cut surface
  *
- * vtkPlaneCutter is a specialization of the vtkCutter
- * algorithm to cut a dataset grid with a single plane. It is designed
- * for performance and an exploratory, fast workflow. It produces output
- * polygons that result from cutting the unstructured grid cells with the
- * specified plane.
+ * vtkPlaneCutter is a specialization of the vtkCutter algorithm to cut a
+ * dataset grid with a single plane. It is designed for performance and an
+ * exploratory, fast workflow. It produces output polygons that result from
+ * cutting the icnput dataset with the specified plane.
  *
  * This algorithm is fast because is is threaded, and may build (in a
  * preprocessing step) a spatial search structure that accelerates the plane
  * cuts. The search structure, which is typically a sphere tree, is used to
  * quickly cull candidate cells. Also unlike vtkCutter, the vtkPlane implicit
  * function (representing the plane) does not need to be evaluated with each
- * cut. (Note that other methods of acceleration are used for image data, see
- * vtkFlyingEdgesPlaneCutter documentation.)
+ * cut. (Note that other methods of acceleration are delegated to for image
+ * data, see vtkFlyingEdgesPlaneCutter documentation.)
  *
  * Because this filter builds an initial data structure during a
  * preprocessing step, the first execution of the filter may take longer than
  * subsequent operations. Typically the first execution is still faster than
  * vtkCutter (especially with threading enabled), but for certain types of
  * data this may not be true. However if you are using the filter to cut a
- * dataset multiple times (as in an exploratory workflow) this filter works
- * well.
+ * dataset multiple times (as in an exploratory or interactive workflow) this
+ * filter works well.
  *
  * @warning
- * If the data is image data, or the filter executes on a single thread
- * (i.e., the VTK_SMP_IMPLEMENTATION_TYPE is Sequential) then a vtkPolyData
- * is produced as output. Otherwise a vtkMultiBlockDataSet is created.
+ * If the data is image data(i.e., the VTK_SMP_IMPLEMENTATION_TYPE is
+ * Sequential) then a vtkPolyData is produced as output. Otherwise a
+ * vtkMultiBlockDataSet is created.
  *
  * @warning
  * This filter delegates to vtkFlyingEdgesPlaneCutter to process image
@@ -126,8 +125,8 @@ public:
   /**
    * See vtkAlgorithm for details.
    */
-  virtual int ProcessRequest(vtkInformation*, vtkInformationVector**,
-                             vtkInformationVector*);
+  int ProcessRequest(vtkInformation*, vtkInformationVector**,
+                     vtkInformationVector*) VTK_OVERRIDE;
 
   /**
    * Retrieve the sphere tree used to accelerate cutting. This API may

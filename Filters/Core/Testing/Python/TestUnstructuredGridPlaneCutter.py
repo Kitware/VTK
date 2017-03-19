@@ -4,8 +4,8 @@ from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-res = 100
-res = 250
+res = 50
+
 # Create the RenderWindow, Renderer and both Actors
 #
 ren0 = vtk.vtkRenderer()
@@ -126,5 +126,5 @@ ren1.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
+#iren.Start()
 # --- end of script --
-iren.Start()
