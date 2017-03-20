@@ -5,6 +5,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestForceTime.cxx
   TestPolyDataSilhouette.cxx
   TestProcrustesAlignmentFilter.cxx,NO_VALID
+  TestTemporalArrayOperatorFilter.cxx,NO_VALID
   TestTemporalCacheSimple.cxx,NO_VALID
   TestTemporalCacheTemporal.cxx,NO_VALID
   TestTemporalFractal.cxx
