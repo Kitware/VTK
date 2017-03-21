@@ -188,6 +188,15 @@ protected:
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
+  /**
+   * Allows subclasses to customize how a request for render is handled.
+   * Default implementation checks if the render window has an interactor, if
+   * so, call interactor->Render(). If not, then renderWindow->Render() is
+   * called. Note, this may be called even when this->ShouldRerender is false,
+   * e.g. when saving images magnification > 1.
+   */
+  virtual void Render();
+
   // The following was extracted from vtkRenderLargeImage, and patch to handle viewports
   void Rescale2DActors();
   void Shift2DActors(int x, int y);

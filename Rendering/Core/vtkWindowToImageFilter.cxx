@@ -448,17 +448,7 @@ void vtkWindowToImageFilter::RequestData(
       if (this->ShouldRerender ||
           num_iterations[0] > 1 || num_iterations[1] > 1)
       {
-        // if interactor is present, trigger render through interactor. This
-        // allows for custom applications that provide interactors that
-        // customize rendering e.g. ParaView.
-        if (renWin->GetInteractor())
-        {
-          renWin->GetInteractor()->Render();
-        }
-        else
-        {
-          this->Input->Render();
-        }
+        this->Render();
       }
       this->Input->MakeCurrent();
 
@@ -710,4 +700,22 @@ int vtkWindowToImageFilter::FillOutputPortInformation(
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
+}
+//----------------------------------------------------------------------------
+void vtkWindowToImageFilter::Render()
+{
+  if (vtkRenderWindow* renWin = vtkRenderWindow::SafeDownCast(this->Input))
+  {
+    // if interactor is present, trigger render through interactor. This
+    // allows for custom applications that provide interactors that
+    // customize rendering e.g. ParaView.
+    if (renWin->GetInteractor())
+    {
+      renWin->GetInteractor()->Render();
+    }
+    else
+    {
+      renWin->Render();
+    }
+  }
 }
