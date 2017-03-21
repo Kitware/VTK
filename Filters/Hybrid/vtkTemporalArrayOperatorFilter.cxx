@@ -423,7 +423,7 @@ vtkDataArray* vtkTemporalArrayOperatorFilter::ProcessDataArray(
   outputDataArray->CopyComponentNames(inputArray0);
 
   std::string s = inputArray0->GetName() ? inputArray0->GetName() : "input_array";
-  if (this->OutputArrayNameSuffix)
+  if (this->OutputArrayNameSuffix && strlen(this->OutputArrayNameSuffix) != 0)
   {
     s += this->OutputArrayNameSuffix;
   }

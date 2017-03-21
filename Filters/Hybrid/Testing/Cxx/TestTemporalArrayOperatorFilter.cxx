@@ -168,7 +168,7 @@ int TestTemporalArrayOperatorFilter(int, char*[])
   operatorFilter->SetFirstTimeStepIndex(0);
   operatorFilter->SetSecondTimeStepIndex(4);
   operatorFilter->SetOperator(vtkTemporalArrayOperatorFilter::DIV);
-  operatorFilter->SetOutputArrayNameSuffix(NULL);
+  operatorFilter->SetOutputArrayNameSuffix("");
   operatorFilter->Update();
   diff = vtkDataSet::SafeDownCast(operatorFilter->GetOutputDataObject(0));
 
