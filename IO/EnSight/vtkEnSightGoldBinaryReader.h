@@ -234,7 +234,7 @@ protected:
 
   ifstream *IFile;
   // The size of the file could be used to choose byte order.
-  vtkIdType FileSize;
+  vtkTypeUInt64 FileSize;
 
   class FileOffsetMapInternal;
   FileOffsetMapInternal *FileOffsets;

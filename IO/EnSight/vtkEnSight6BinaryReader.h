@@ -182,7 +182,7 @@ protected:
   int ElementIdsListed;
 
   // The size of the file is used to choose byte order.
-  int FileSize;
+  vtkTypeUInt64 FileSize;
 
   ifstream *IFile;
 private:
