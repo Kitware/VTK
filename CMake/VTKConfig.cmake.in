@@ -35,7 +35,7 @@ endif ()
 
 #-----------------------------------------------------------------------------
 # Minimum compiler version check: Microsoft C/C++ >= 17.0 (aka VS 2012 aka VS 11.0)
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND
+if ("x${CMAKE_CXX_COMPILER_ID}" STREQUAL "xMSVC" AND
     CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17.0)
   message(FATAL_ERROR "Microsoft Visual Studio 2012 or later is required.")
 endif ()
