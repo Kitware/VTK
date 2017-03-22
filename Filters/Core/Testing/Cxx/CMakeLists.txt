@@ -1,4 +1,5 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestAppendArcLength.cxx,NO_VALID
   TestAppendFilter.cxx,NO_VALID
   TestAppendPolyData.cxx,NO_VALID
   TestAppendSelection.cxx,NO_VALID
