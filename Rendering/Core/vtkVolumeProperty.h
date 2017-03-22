@@ -24,11 +24,21 @@
  * the scalar opacity of a volume, the gradient opacity of a volume, and the
  * shading parameters of a volume.
  *
+ * Color, scalar opacity and gradient opacity transfer functions can be set
+ * as either 3 separate 1D functions (1 vtkColorTransferFunction and 1
+ * vtkPiecewiseFunction respectively) or as a single 2D transfer function
+ * (4-component vtkImageData; scalar value vs. gradient magnitude).
+ *
+ * - 1D Transfer functions
  * When the scalar opacity or the gradient opacity of a volume is not set,
  * then the function is defined to be a constant value of 1.0. When a
  * scalar and gradient opacity are both set simultaneously, then the opacity
  * is defined to be the product of the scalar opacity and gradient opacity
- * transfer functions.
+ * transfer functions. This is the default behavior.
+ *
+ * - 2D Transfer functions
+ * The 1D functions are used by default unless a 2D function is explicitely
+ * set.
  *
  * Most properties can be set per "component" for volume mappers that
  * support multiple independent components. If you are using 2 component
@@ -37,8 +47,7 @@
  * will be used (and all color functions will be ignored). Omitting the
  * index parameter on the Set/Get methods will access index = 0.
  *
- * @sa
- * vtkPiecewiseFunction vtkColorTransferFunction
+ * @sa vtkPiecewiseFunction vtkColorTransferFunction
 */
 
 #ifndef vtkVolumeProperty_h
@@ -47,9 +56,10 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkColorTransferFunction;
+class vtkImageData;
 class vtkPiecewiseFunction;
 class vtkTimeStamp;
-class vtkColorTransferFunction;
 
 class VTKRENDERINGCORE_EXPORT vtkVolumeProperty : public vtkObject
 {
@@ -201,6 +211,26 @@ public:
   void SetGradientOpacity(int index, vtkPiecewiseFunction *function);
   void SetGradientOpacity(vtkPiecewiseFunction *function)
     { this->SetGradientOpacity(0, function); }
+
+  //@{
+  /**
+   * Set/Get a 2D transfer function. Volume mappers interpret the x-axis of
+   * of this transfer function scalar value and the y-axis as gradient
+   * magnitude. The value at (X, Y) corresponds to the color and opacity
+   * for a salar value of X and a gradient magnitude of Y.
+   */
+  void SetTransferFunction2D(int index, vtkImageData* function);
+  void SetTransferFunction2D(vtkImageData* function)
+  {
+    this->SetTransferFunction2D(0, function);
+  }
+
+  vtkImageData* GetTransferFunction2D(int index);
+  vtkImageData* GetTransferFunction2D()
+  {
+    return this->GetTransferFunction2D(0);
+  }
+  //@}
 
   /**
    * Get the gradient magnitude opacity transfer function for
@@ -379,6 +409,18 @@ protected:
   vtkVolumeProperty();
   ~vtkVolumeProperty() VTK_OVERRIDE;
 
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * Get the time that the GrayTransferFunction was set
+   */
+  vtkTimeStamp GetTransferFunction2DMTime(int index);
+  vtkTimeStamp GetTransferFunction2DMTime()
+  {
+    return this->GetTransferFunction2DMTime(0);
+  }
+
+  virtual void CreateDefaultGradientOpacity(int index);
+
   int IndependentComponents;
   double ComponentWeight[VTK_MAX_VRCOMP];
 
@@ -398,16 +440,18 @@ protected:
 
   vtkPiecewiseFunction *GradientOpacity[VTK_MAX_VRCOMP];
   vtkTimeStamp GradientOpacityMTime[VTK_MAX_VRCOMP];
+
   vtkPiecewiseFunction *DefaultGradientOpacity[VTK_MAX_VRCOMP];
   int DisableGradientOpacity[VTK_MAX_VRCOMP];
+
+  vtkImageData* TransferFunction2D[VTK_MAX_VRCOMP];
+  vtkTimeStamp TransferFunction2DMTime[VTK_MAX_VRCOMP];
 
   int Shade[VTK_MAX_VRCOMP];
   double Ambient[VTK_MAX_VRCOMP];
   double Diffuse[VTK_MAX_VRCOMP];
   double Specular[VTK_MAX_VRCOMP];
   double SpecularPower[VTK_MAX_VRCOMP];
-
-  virtual void CreateDefaultGradientOpacity(int index);
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;

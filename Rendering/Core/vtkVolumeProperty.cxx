@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkVolumeProperty.h"
 
+#include "vtkColorTransferFunction.h"
+#include "vtkImageData.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
 
 vtkStandardNewMacro(vtkVolumeProperty);
 
@@ -36,6 +38,7 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->ScalarOpacity[i]                   = NULL;
     this->ScalarOpacityUnitDistance[i]       = 1.0;
     this->GradientOpacity[i]                 = NULL;
+    this->TransferFunction2D[i]              = NULL;
     this->DefaultGradientOpacity[i]          = NULL;
     this->DisableGradientOpacity[i]          = 0;
 
@@ -72,6 +75,11 @@ vtkVolumeProperty::~vtkVolumeProperty()
     if (this->GradientOpacity[i] != NULL)
     {
       this->GradientOpacity[i]->UnRegister(this);
+    }
+
+    if (this->TransferFunction2D[i] != NULL)
+    {
+      this->TransferFunction2D[i]->UnRegister(this);
     }
 
     if (this->DefaultGradientOpacity[i] != NULL)
@@ -140,6 +148,7 @@ void vtkVolumeProperty::UpdateMTimes()
     this->RGBTransferFunctionMTime[i].Modified();
     this->ScalarOpacityMTime[i].Modified();
     this->GradientOpacityMTime[i].Modified();
+    this->TransferFunction2DMTime[i].Modified();
   }
 }
 
@@ -157,11 +166,11 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
       {
         // time that Gray transfer function pointer was set
         time = this->GrayTransferFunctionMTime[i];
-        mTime = (mTime > time ? mTime : time);
+        mTime = vtkMath::Max(mTime, time);
 
         // time that Gray transfer function was last modified
         time = this->GrayTransferFunction[i]->GetMTime();
-        mTime = (mTime > time ? mTime : time);
+        mTime = vtkMath::Max(mTime, time);
       }
     }
     else if (this->ColorChannels[i] == 3)
@@ -170,11 +179,11 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
       {
         // time that RGB transfer function pointer was set
         time = this->RGBTransferFunctionMTime[i];
-        mTime = (mTime > time ? mTime : time);
+        mTime = vtkMath::Max(mTime, time);
 
         // time that RGB transfer function was last modified
         time = this->RGBTransferFunction[i]->GetMTime();
-        mTime = (mTime > time ? mTime : time);
+        mTime = vtkMath::Max(mTime, time);
       }
     }
 
@@ -183,24 +192,36 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
     {
       // time that Scalar opacity transfer function pointer was set
       time = this->ScalarOpacityMTime[i];
-      mTime = (mTime > time ? mTime : time);
+      mTime = vtkMath::Max(mTime, time);
 
       // time that Scalar opacity transfer function was last modified
       time = this->ScalarOpacity[i]->GetMTime();
-      mTime = (mTime > time ? mTime : time);
+      mTime = vtkMath::Max(mTime, time);
+    }
+
+    // 2D Transfer Function MTimes
+    if (this->TransferFunction2D[i])
+    {
+      // time that the TransferFunction2D pointer was set
+      time = this->TransferFunction2DMTime[i];
+      mTime = vtkMath::Max(mTime, time);
+
+      // time that the TransferFunction2D was last modified
+      time = this->TransferFunction2D[i]->GetMTime();
+      mTime = vtkMath::Max(mTime, time);
     }
 
     if (this->GradientOpacity[i])
     {
       // time that Gradient opacity transfer function pointer was set
       time = this->GradientOpacityMTime[i];
-      mTime = (mTime > time ? mTime : time);
+      mTime = vtkMath::Max(mTime, time);
 
       if (!this->DisableGradientOpacity[i])
       {
         // time that Gradient opacity transfer function was last modified
         time = this->GradientOpacity[i]->GetMTime();
-        mTime = (mTime > time ? mTime : time);
+        mTime = vtkMath::Max(mTime, time);
       }
     }
   }
@@ -421,6 +442,31 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity( int index )
   return this->GetStoredGradientOpacity(index);
 }
 
+void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
+{
+  if (this->TransferFunction2D[index] != function)
+  {
+    if (this->TransferFunction2D[index] != NULL)
+    {
+      this->TransferFunction2D[index]->UnRegister(this);
+    }
+
+    this->TransferFunction2D[index] = function;
+    if (this->TransferFunction2D[index] != NULL)
+    {
+      this->TransferFunction2D[index]->Register(this);
+    }
+
+    this->TransferFunction2DMTime[index].Modified();
+    this->Modified();
+  }
+}
+
+vtkImageData* vtkVolumeProperty::GetTransferFunction2D(int index)
+{
+  return this->TransferFunction2D[index];
+}
+
 // Get the gradient opacity transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetStoredGradientOpacity( int index )
 {
@@ -639,6 +685,8 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "DisableGradientOpacity: "
        << (this->DisableGradientOpacity[i] ? "On" : "Off") << "\n";
 
+    os << indent << "2D Transfer Function: "
+       << this->TransferFunction2D[i] << "\n";
 
     os << indent << "ComponentWeight: "
        << this->ComponentWeight[i] << "\n";
@@ -655,6 +703,4 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
   // this->GrayTransferFunctionMTime
   // this->RGBTransferFunctionMTime
   // this->ScalarOpacityMTime
-
 }
-
