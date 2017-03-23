@@ -1087,7 +1087,7 @@ vtkSphereTree::~vtkSphereTree()
     }
   if ( this->Hierarchy )
     {
-    delete [] this->Hierarchy;
+    delete this->Hierarchy;
     this->Hierarchy = nullptr;
     }
 }
@@ -1240,7 +1240,7 @@ BuildStructuredHierarchy(vtkStructuredGrid *input, double *tree)
   }
 
   // Allocate space and set up storage.
-  delete [] this->Hierarchy; //cleanup if necessary
+  delete this->Hierarchy; //cleanup if necessary
   vtkStructuredHierarchy *sH =
     new vtkStructuredHierarchy(input->GetNumberOfCells(),4*totalSize+2);
   this->Hierarchy = sH;
@@ -1348,7 +1348,7 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
   vtkIdType numCells = input->GetNumberOfCells();
   if ( this->AverageRadius <= 0.0 || numCells <= 0 )
   {
-    delete [] this->Hierarchy;
+    delete this->Hierarchy;
     this->Hierarchy = nullptr;
   }
 
