@@ -349,6 +349,18 @@ public:
   virtual void *GetParentId();
   void *GetGenericParentId() VTK_OVERRIDE { return this->GetParentId(); }
 
+  /**
+   * Whenever an NSView is created, this value will be passed to
+   * setWantsBestResolutionOpenGLSurface:. The default is true.
+   * On non-retina displays, this setting has no effect. On retina displays,
+   * when true, the full resolution is used, resulting in crisper images
+   * at the cost of more memory and processing. When false, the images are
+   * magnified instead. setWantsBestResolutionOpenGLSurface: is never invoked
+   * on NSViews not created by VTK itself (but merely given to it).
+   */
+  void SetWantsBestResolution(bool wantsBest);
+  bool GetWantsBestResolution();
+
   //@{
   /**
    * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
@@ -401,6 +413,8 @@ private:
 
   int      ForceMakeCurrent;
   char     *Capabilities;
+
+  bool     WantsBestResolution;
 };
 
 #endif
