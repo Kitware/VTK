@@ -492,16 +492,24 @@ namespace vtkvolume
         \n// c is short for component\
         \nvec4 computeGradient(int c)\
         \n  {\
-        \n  vec3 g1;\
-        \n  vec3 g2;\
-        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec)).x;\
-        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec)).x;\
-        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec)).x;\
-        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec)).x;\
-        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec)).x;\
-        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec)).x;\
-        \n  g1 = g1 * in_volume_scale.r + in_volume_bias.r;\
-        \n  g2 = g2 * in_volume_scale.r + in_volume_bias.r;\
+        \n  // Approximate Nabla(F) derivatives with central differences.\
+        \n  vec3 g1; // F_front\
+        \n  vec3 g2; // F_back\
+        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec))[c];\
+        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec))[c];\
+        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec))[c];\
+        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec))[c];\
+        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec))[c];\
+        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec))[c];\
+        \n\
+        \n  // Apply scale and bias to the fetched values.\
+        \n  g1 = g1 * in_volume_scale[c] + in_volume_bias[c];\
+        \n  g2 = g2 * in_volume_scale[c] + in_volume_bias[c];\
+        \n\
+        \n  // Central differences: (F_front - F_back) / 2h\
+        \n  // This version of computeGradient() is only used for lighting\
+        \n  // calculations (only direction matters), hence the difference is\
+        \n  // not scaled by 2h and a dummy gradient mag is returned (-1.).\
         \n  return vec4((g1 - g2), -1.0);\
         \n  }"
       );
@@ -512,51 +520,41 @@ namespace vtkvolume
         \n// c is short for component\
         \nvec4 computeGradient(int c)\
         \n  {\
-        \n  vec3 g1;\
-        \n  vec4 g2;\
-        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec)).x;\
-        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec)).x;\
-        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec)).x;\
-        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec)).x;\
-        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec)).x;\
-        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec)).x;\
-        \n  g1 = g1 * in_volume_scale.r + in_volume_bias.r;\
-        \n  g2 = g2 * in_volume_scale.r + in_volume_bias.r;\
-        \n  g1.x = in_scalarsRange[c][0] + (\
-        \n         in_scalarsRange[c][1] - in_scalarsRange[c][0]) * g1.x;\
-        \n  g1.y = in_scalarsRange[c][0] + (\
-        \n         in_scalarsRange[c][1] - in_scalarsRange[c][0]) * g1.y;\
-        \n  g1.z = in_scalarsRange[c][0] + (\
-        \n         in_scalarsRange[c][1] - in_scalarsRange[c][0]) * g1.z;\
-        \n  g2.x = in_scalarsRange[c][0] + (\
-        \n         in_scalarsRange[c][1] - in_scalarsRange[c][0]) * g2.x;\
-        \n  g2.y = in_scalarsRange[c][0] + (\
-        \n         in_scalarsRange[c][1] - in_scalarsRange[c][0]) * g2.y;\
-        \n  g2.z = in_scalarsRange[c][0] + (\
-        \n         in_scalarsRange[c][1] - in_scalarsRange[c][0]) * g2.z;\
-        \n  g2.xyz = g1 - g2.xyz;\
-        \n  g2.x /= g_aspect.x;\
-        \n  g2.y /= g_aspect.y;\
-        \n  g2.z /= g_aspect.z;\
-        \n  g2.w = 0.0;\
+        \n  // Approximate Nabla(F) derivatives with central differences.\
+        \n  vec3 g1; // F_front\
+        \n  vec3 g2; // F_back\
+        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec))[c];\
+        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec))[c];\
+        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec))[c];\
+        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec))[c];\
+        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec))[c];\
+        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec))[c];\
+        \n\
+        \n  // Apply scale and bias to the fetched values.\
+        \n  g1 = g1 * in_volume_scale[c] + in_volume_bias[c];\
+        \n  g2 = g2 * in_volume_scale[c] + in_volume_bias[c];\
+        \n\
+        \n  // Scale values the actual scalar range.\
+        \n  float range = in_scalarsRange[c][1] - in_scalarsRange[c][0];\
+        \n  g1 = in_scalarsRange[c][0] + range * g1;\
+        \n  g2 = in_scalarsRange[c][0] + range * g2;\
+        \n\
+        \n  // Central differences: (F_front - F_back) / 2h\
+        \n  g2 = g1 - g2;\
+        \n  g2 /= g_aspect;\
         \n  float grad_mag = length(g2);\
-        \n  if (grad_mag > 0.0)\
-        \n    {\
-        \n    g2.x /= grad_mag;\
-        \n    g2.y /= grad_mag;\
-        \n    g2.z /= grad_mag;\
-        \n    }\
-        \n  else\
-        \n    {\
-        \n    g2.xyz = vec3(0.0, 0.0, 0.0);\
-        \n    }\
-        \n  grad_mag = grad_mag * 1.0 / (0.25 * (in_scalarsRange[c][1] -\
-        \n                                      (in_scalarsRange[c][0])));\
+        \n\
+        \n  // Handle normalizing with grad_mag == 0.0\
+        \n  g2 = grad_mag > 0.0 ? normalize(g2) : vec3(0.0);\
+        \n\
+        \n  // Since the actual range of the gradient magnitude is unknown,\
+        \n  // assume it is in the range [0, 0.25 * dataRange].\
+        \n  range = range != 0 ? range : 1.0;\
+        \n  grad_mag = grad_mag / (0.25 * range);\
         \n  grad_mag = clamp(grad_mag, 0.0, 1.0);\
-        \n  g2.w = grad_mag;\
-        \n  return g2;\
-        \n  }"
-      );
+        \n\
+        \n  return vec4(g2.xyz, grad_mag);\
+        \n  }");
     }
     else
     {
