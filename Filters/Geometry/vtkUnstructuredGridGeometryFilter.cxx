@@ -14,39 +14,39 @@
 =========================================================================*/
 #include "vtkUnstructuredGridGeometryFilter.h"
 
+#include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticTriangle.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPentagonalPrism.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyhedron.h"
 #include "vtkPyramid.h"
-#include "vtkPentagonalPrism.h"
+#include "vtkQuadraticHexahedron.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkQuadraticPyramid.h"
+#include "vtkQuadraticTetra.h"
+#include "vtkQuadraticWedge.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTetra.h"
+#include "vtkTriQuadraticHexahedron.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
-
-#include "vtkQuadraticTetra.h"
-#include "vtkQuadraticHexahedron.h"
-#include "vtkQuadraticWedge.h"
-#include "vtkQuadraticPyramid.h"
-#include "vtkTriQuadraticHexahedron.h"
-#include "vtkQuadraticLinearWedge.h"
-#include "vtkBiQuadraticQuadraticWedge.h"
-#include "vtkBiQuadraticQuadraticHexahedron.h"
-#include "vtkBiQuadraticTriangle.h"
-#include "vtkIncrementalPointLocator.h"
 
 
 #include <vector>
@@ -1388,6 +1388,18 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
               ++face;
             }
             break;
+          case VTK_POLYHEDRON:
+          {
+            vtkIdList* faces = cellIter->GetFaces();
+            vtkIdType nbFaces = cellIter->GetNumberOfFaces();
+            for (vtkIdType f = 0, fptr = 1; f < nbFaces; f++)
+            {
+              pt = faces->GetId(fptr++);
+              this->HashTable->InsertFace(cellId, VTK_POLYGON, pt, faces->GetPointer(fptr));
+              fptr += pt;
+            }
+            break;
+          }
           default:
             vtkErrorMacro(<< "Cell type "
                           << vtkCellTypes::GetClassNameFromTypeId(cellType)
