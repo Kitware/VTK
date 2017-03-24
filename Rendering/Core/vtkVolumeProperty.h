@@ -223,13 +223,21 @@ public:
   void SetTransferFunction2D(vtkImageData* function)
   {
     this->SetTransferFunction2D(0, function);
-  }
+  };
 
   vtkImageData* GetTransferFunction2D(int index);
   vtkImageData* GetTransferFunction2D()
   {
     return this->GetTransferFunction2D(0);
-  }
+  };
+
+  enum TransferMode {
+    TF_1D,
+    TF_2D
+  };
+
+  vtkSetMacro(TransferFunctionMode, int)
+  vtkGetMacro(TransferFunctionMode, int)
   //@}
 
   /**
@@ -444,6 +452,7 @@ protected:
   vtkPiecewiseFunction *DefaultGradientOpacity[VTK_MAX_VRCOMP];
   int DisableGradientOpacity[VTK_MAX_VRCOMP];
 
+  int TransferFunctionMode;
   vtkImageData* TransferFunction2D[VTK_MAX_VRCOMP];
   vtkTimeStamp TransferFunction2DMTime[VTK_MAX_VRCOMP];
 

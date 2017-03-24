@@ -18,6 +18,7 @@
 #include "vtkOpenGLVolumeGradientOpacityTable.h"
 #include "vtkOpenGLVolumeOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
+#include "vtkOpenGLTransferFunction2D.h"
 #include "vtkVolumeShaderComposer.h"
 #include "vtkVolumeStateRAII.h"
 
@@ -267,8 +268,14 @@ public:
   template<typename T>
   static void ToFloat(T (&in)[4][2], float (&out)[4][2]);
 
-  void Initialize(vtkRenderer* ren, vtkVolume* vol,
+  ///@{
+  void InitializeTransferFunction(vtkRenderer* ren, vtkVolume* vol,
                   int noOfComponents, int independentComponents);
+  void SetupTransferFunction1D(vtkRenderer* ren, vtkVolume* vol,
+                  int noOfComponents, int independentComponents);
+  void SetupTransferFunction2D(vtkRenderer* ren, vtkVolume* vol,
+                  int noOfComponents, int independentComponents);
+  ///@}
 
   bool LoadMask(vtkRenderer* ren, vtkImageData* input,
                 vtkImageData* maskInput, int textureExtent[6],
@@ -585,9 +592,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
-  vtkRenderer* vtkNotUsed(ren), vtkVolume* vol, int
-  noOfComponents, int independentComponents)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction1D(
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vol, int noOfComponents,
+  int independentComponents)
 {
   this->DeleteTransferFunctions();
 
@@ -667,6 +674,34 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
   }
 
   this->InitializationTime.Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction2D(
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vol, int noOfComponents,
+  int independentComponents)
+{
+  std::cout << "->>> Setting up 2D TF !!!\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeTransferFunction(
+  vtkRenderer* ren, vtkVolume* vol, int noOfComponents,
+  int independentComponents)
+{
+  const int transferMode = vol->GetProperty()->GetTransferFunctionMode();
+  switch(transferMode)
+  {
+    case vtkVolumeProperty::TF_2D:
+      this->SetupTransferFunction2D(ren, vol, noOfComponents,
+        independentComponents);
+      break;
+
+    case vtkVolumeProperty::TF_1D:
+    default:
+      this->SetupTransferFunction1D(ren, vol, noOfComponents,
+        independentComponents);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3169,7 +3204,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       (volumeProperty->GetMTime() >
        this->Impl->InitializationTime.GetMTime()))
   {
-    this->Impl->Initialize(ren, vol, noOfComponents,
+    this->Impl->InitializeTransferFunction(ren, vol, noOfComponents,
                            independentComponents);
   }
 

@@ -15,10 +15,13 @@
 #include "vtkVolumeProperty.h"
 
 #include "vtkColorTransferFunction.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
+
 
 vtkStandardNewMacro(vtkVolumeProperty);
 
@@ -41,6 +44,7 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->TransferFunction2D[i]              = NULL;
     this->DefaultGradientOpacity[i]          = NULL;
     this->DisableGradientOpacity[i]          = 0;
+    this->TransferFunctionMode               = TF_1D;
 
     this->ComponentWeight[i]                 = 1.0;
 
@@ -258,6 +262,7 @@ void vtkVolumeProperty::SetColor( int index, vtkPiecewiseFunction *function )
 
     this->GrayTransferFunctionMTime[index].Modified();
     this->Modified();
+    this->TransferFunctionMode = TF_1D;
   }
 
   if (this->ColorChannels[index] != 1)
@@ -303,6 +308,7 @@ void vtkVolumeProperty::SetColor( int index, vtkColorTransferFunction *function 
     }
     this->RGBTransferFunctionMTime[index].Modified();
     this->Modified();
+    this->TransferFunctionMode = TF_1D;
   }
 
   if (this->ColorChannels[index] != 3)
@@ -349,6 +355,7 @@ void vtkVolumeProperty::SetScalarOpacity( int index, vtkPiecewiseFunction *funct
 
     this->ScalarOpacityMTime[index].Modified();
     this->Modified();
+    this->TransferFunctionMode = TF_1D;
   }
 }
 
@@ -411,6 +418,7 @@ void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *fun
 
     this->GradientOpacityMTime[index].Modified();
     this->Modified();
+    this->TransferFunctionMode = TF_1D;
   }
 }
 
@@ -446,6 +454,15 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
 {
   if (this->TransferFunction2D[index] != function)
   {
+    vtkDataArray* dataArr = function->GetPointData()->GetScalars();
+    if (dataArr->GetNumberOfComponents() != 4 ||
+      dataArr->GetArrayType() != VTK_UNSIGNED_CHAR)
+    {
+      vtkErrorMacro(<< "Invalid type or number of components for a 2D Transfer"
+        " Function, VTK_UNSIGNED_CHAR 4 Components expected!");
+      return;
+    }
+
     if (this->TransferFunction2D[index] != NULL)
     {
       this->TransferFunction2D[index]->UnRegister(this);
@@ -459,6 +476,7 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
 
     this->TransferFunction2DMTime[index].Modified();
     this->Modified();
+    this->TransferFunctionMode = TF_2D;
   }
 }
 
