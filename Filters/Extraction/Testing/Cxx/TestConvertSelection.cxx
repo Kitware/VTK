@@ -79,6 +79,12 @@ const char* SelectionTypeToString(int type)
 int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
 {
   int errors = 0;
+  if (!a || !b)
+  {
+    cerr << "ERROR: Empty Selection Node(s)" << endl;
+    errors++;
+    return errors;
+  }
   if (a->GetContentType() != b->GetContentType())
   {
     cerr << "ERROR: Content type " << SelectionTypeToString(a->GetContentType()) << " does not match " << SelectionTypeToString(b->GetContentType()) << endl;
@@ -133,11 +139,16 @@ int TestConvertSelectionType(
   vtkDataObject* data,
   int inputType,
   int outputType,
-  vtkStringArray* arr = 0)
+  vtkStringArray* arr = 0,
+  bool allowMissingArray = false)
 {
   cerr << "Testing conversion from type " << SelectionTypeToString(inputType) << " to " << SelectionTypeToString(outputType) << "..." << endl;
-  vtkSelection* s = vtkConvertSelection::ToSelectionType(selMap[inputType], data, outputType, arr);
-  int errors = CompareSelections(selMap[outputType]->GetNode(0), s->GetNode(0));
+  vtkSelection* s = vtkConvertSelection::ToSelectionType(selMap[inputType], data, outputType, arr, -1, allowMissingArray);
+  int errors = 0;
+  if (!allowMissingArray)
+  {
+    errors = CompareSelections(selMap[outputType]->GetNode(0), s->GetNode(0));
+  }
   s->Delete();
   cerr << "...done." << endl;
   return errors;
@@ -524,6 +535,14 @@ void PolyDataConvertSelections(int & errors, int size)
   //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::PEDIGREEIDS);
   //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::VALUES, arrNames);
   //errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::LOCATIONS, vtkSelectionNode::INDICES);
+
+  // Test Quiet Error
+  thresholdsArr->SetName("DoubleTmp");
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::GLOBALIDS, 0, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::PEDIGREEIDS, 0, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::VALUES, arrNames, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::INDICES, 0, true);
+  thresholdsArr->SetName("Double");
 
   //
   // Test cell selections
