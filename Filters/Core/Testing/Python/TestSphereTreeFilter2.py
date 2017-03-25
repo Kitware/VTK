@@ -394,6 +394,15 @@ ren21.SetViewport(0.33,0.67,0.67,1);
 ren22.SetViewport(0.67,0.67,1,1);
 
 renWin.SetSize(450,450)
+ren00.ResetCamera()
+ren01.ResetCamera()
+ren02.ResetCamera()
+ren10.ResetCamera()
+ren11.ResetCamera()
+ren12.ResetCamera()
+ren20.ResetCamera()
+ren21.ResetCamera()
+ren22.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
