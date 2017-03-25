@@ -24,7 +24,7 @@ ren21 = vtk.vtkRenderer()
 ren22 = vtk.vtkRenderer()
 
 renWin = vtk.vtkRenderWindow()
-renWin.SetMultiSamples(3)
+renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren00)
 renWin.AddRenderer(ren01)
 renWin.AddRenderer(ren02)
@@ -169,7 +169,7 @@ outlineActor02.SetMapper(outlineMapper02)
 
 # ======= 10
 # Create a sphere tree and see what it look like
-# (image sphere tree)
+# (structured sphere tree)
 stf10 = vtk.vtkSphereTreeFilter()
 stf10.SetInputConnection(sgrid.GetOutputPort())
 stf10.SetExtractionModeToPoint()
@@ -199,7 +199,7 @@ outlineActor10.SetMapper(outlineMapper10)
 
 # ======= 11
 # Create a sphere tree and see what it look like
-# (image sphere tree)
+# (structured sphere tree)
 stf11 = vtk.vtkSphereTreeFilter()
 stf11.SetInputConnection(sgrid.GetOutputPort())
 stf11.SetExtractionModeToLine()
@@ -230,7 +230,7 @@ outlineActor11.SetMapper(outlineMapper11)
 
 # ======= 12
 # Create a sphere tree and see what it look like
-# (image sphere tree)
+# (structured sphere tree)
 stf12 = vtk.vtkSphereTreeFilter()
 stf12.SetInputConnection(sgrid.GetOutputPort())
 stf12.SetExtractionModeToPlane()
@@ -261,7 +261,7 @@ outlineActor12.SetMapper(outlineMapper12)
 
 # ======= 20
 # Create a sphere tree and see what it look like
-# (image sphere tree)
+# (unstructured sphere tree)
 stf20 = vtk.vtkSphereTreeFilter()
 stf20.SetInputConnection(extract.GetOutputPort())
 stf20.SetExtractionModeToPoint()
@@ -291,7 +291,7 @@ outlineActor20.SetMapper(outlineMapper20)
 
 # ======= 21
 # Create a sphere tree and see what it look like
-# (image sphere tree)
+# (unstructured sphere tree)
 stf21 = vtk.vtkSphereTreeFilter()
 stf21.SetInputConnection(extract.GetOutputPort())
 stf21.SetExtractionModeToLine()
@@ -322,7 +322,7 @@ outlineActor21.SetMapper(outlineMapper21)
 
 # ======= 22
 # Create a sphere tree and see what it look like
-# (image sphere tree)
+# (unstructured sphere tree)
 stf22 = vtk.vtkSphereTreeFilter()
 stf22.SetInputConnection(extract.GetOutputPort())
 stf22.SetExtractionModeToPlane()
