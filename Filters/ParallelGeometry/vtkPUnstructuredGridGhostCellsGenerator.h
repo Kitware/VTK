@@ -164,6 +164,29 @@ public:
   vtkGetMacro(MinimumNumberOfGhostLevels, int);
   //@}
 
+  //@{
+  /**
+   * Remember cells that have been sent to specific processors and don't
+   * send again.
+   * If False, no effort made not to resend
+   * If True, cell lists will be maintained
+   */
+  vtkSetMacro(SendOnlyOnce, bool);
+  vtkGetMacro(SendOnlyOnce, bool);
+  vtkBooleanMacro(SendOnlyOnce, bool);
+  //@}
+
+  //@{
+  /**
+   * Remember cells received from processors and don't send them back
+   * If False, sendbacks can occur
+   * If True, lists will be maintained to avoid send backs
+   */
+  vtkSetMacro(NoSendBacks, bool);
+  vtkGetMacro(NoSendBacks, bool);
+  vtkBooleanMacro(NoSendBacks, bool);
+  //@}
+
 protected:
   vtkPUnstructuredGridGhostCellsGenerator();
   ~vtkPUnstructuredGridGhostCellsGenerator();
@@ -173,13 +196,13 @@ protected:
 
   void GetFirstGhostLayer(int, vtkUnstructuredGrid *);
 
-  void ExtractAndReduceSurfacePoints();
-
+  void ExchangeBoundsAndDetermineNeighbors();
+  void ExtractAndReduceSurfacePointsShareExtents();
   void ComputeSharedPoints();
 
   void ExtractAndSendGhostCells(vtkUnstructuredGridBase *);
 
-  void ReceiveAndMergeGhostCells(int, vtkUnstructuredGridBase *,
+  void ReceiveAndMergeGhostCells(int, int, vtkUnstructuredGridBase *,
     vtkUnstructuredGrid *);
 
   void AddGhostLayer(int ghostLevel, int maxGhostLevel);
@@ -193,14 +216,15 @@ protected:
 
   vtkMultiProcessController *Controller;
 
-  int NumRanks;
-  int RankId;
   char *GlobalPointIdsArrayName;
   bool UseGlobalPointIds;
   char *GlobalCellIdsArrayName;
   bool HasGlobalCellIds;
   bool BuildIfRequired;
   int MinimumNumberOfGhostLevels;
+
+  bool SendOnlyOnce;
+  bool NoSendBacks;
 
 private:
   struct vtkInternals;
