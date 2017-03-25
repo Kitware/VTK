@@ -1343,6 +1343,7 @@ void vtkImageTracerWidget::AppendLine(double* pos)
 
   this->LinePoints->InsertPoint(this->PickCount,pos);
   this->LineCells->InsertNextCell(2,this->CurrentPoints);
+  this->LineCells->Modified();
 
   this->LinePoints->GetData()->Modified();
   this->LineData->SetPoints(this->LinePoints);
