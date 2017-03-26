@@ -264,7 +264,7 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::ProcessDataObject(
 {
   vtkDataArray* inputArray0 = this->GetInputArrayToProcess(0, inputData0);
   vtkDataArray* inputArray1 = this->GetInputArrayToProcess(0, inputData1);
-  if (!inputArray1 || !inputArray1)
+  if (!inputArray0 || !inputArray1)
   {
     vtkErrorMacro(<< "Unable to retrieve data arrays to process.");
     return NULL;
