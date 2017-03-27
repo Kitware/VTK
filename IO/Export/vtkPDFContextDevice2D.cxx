@@ -34,7 +34,7 @@
 #include "vtkTextRenderer.h"
 #include "vtkUnicodeString.h"
 
-#include <hpdf.h>
+#include <vtk_libharu.h>
 
 #include <algorithm>
 #include <cassert>

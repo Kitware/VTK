@@ -27,7 +27,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 
-#include <hpdf.h>
+#include <vtk_libharu.h>
 
 #include <iomanip>
 #include <stdexcept>
