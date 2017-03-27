@@ -351,7 +351,6 @@ outlineMapper22.SetInputConnection(outline22.GetOutputPort())
 outlineActor22 = vtk.vtkActor()
 outlineActor22.SetMapper(outlineMapper22)
 
-
 # Add the actors to the renderer, set the background and size
 #
 ren00.AddActor(stfActor00)
@@ -373,16 +372,6 @@ ren21.AddActor(outlineActor21)
 ren22.AddActor(stfActor22)
 ren22.AddActor(outlineActor22)
 
-ren00.SetBackground(0,0,0)
-ren01.SetBackground(0,0,0)
-ren02.SetBackground(0,0,0)
-ren10.SetBackground(0,0,0)
-ren11.SetBackground(0,0,0)
-ren12.SetBackground(0,0,0)
-ren20.SetBackground(0,0,0)
-ren21.SetBackground(0,0,0)
-ren22.SetBackground(0,0,0)
-
 ren00.SetViewport(0,0,0.33,0.33);
 ren01.SetViewport(0.33,0,0.67,0.33);
 ren02.SetViewport(0.67,0,1,0.33);
@@ -392,6 +381,16 @@ ren12.SetViewport(0.67,0.33,1,0.67);
 ren20.SetViewport(0.0,0.67,0.33,1);
 ren21.SetViewport(0.33,0.67,0.67,1);
 ren22.SetViewport(0.67,0.67,1,1);
+
+ren00.SetBackground(0,0,0)
+ren01.SetBackground(0,0,0)
+ren02.SetBackground(0,0,0)
+ren10.SetBackground(0,0,0)
+ren11.SetBackground(0,0,0)
+ren12.SetBackground(0,0,0)
+ren20.SetBackground(0,0,0)
+ren21.SetBackground(0,0,0)
+ren22.SetBackground(0,0,0)
 
 renWin.SetSize(450,450)
 ren00.ResetCamera()

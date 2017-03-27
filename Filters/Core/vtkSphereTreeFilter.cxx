@@ -126,7 +126,6 @@ int vtkSphereTreeFilter::RequestData(vtkInformation *vtkNotUsed(request),
   // Allocate: points (center of spheres), radii, level in tree
   vtkPoints *newPts = vtkPoints::New();
   newPts->SetDataTypeToDouble();
-  newPts->Allocate(numCells);
 
   vtkDoubleArray *radii = vtkDoubleArray::New();
   radii->Allocate(numCells);
@@ -199,8 +198,8 @@ int vtkSphereTreeFilter::RequestData(vtkInformation *vtkNotUsed(request),
     {
       cellId = cellIds->GetId(i);
       sphere = cellSpheres + 4*cellId;
-      newPts->InsertPoint(cellId,sphere);
-      radii->InsertValue(cellId,sphere[3]);
+      newPts->InsertPoint(i,sphere);
+      radii->InsertValue(i,sphere[3]);
     }
     cellIds->Delete();
   }//geometric queries
