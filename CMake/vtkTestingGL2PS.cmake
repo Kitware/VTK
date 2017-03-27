@@ -29,6 +29,7 @@ function(vtk_add_gl2ps_test_cxx)
       COMMAND ${CMAKE_COMMAND}
         "-DPSFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
         "-DPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
+        "-DPDFPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster-pdf.png"
         "-DGS_EXECUTABLE=${VTK_GHOSTSCRIPT_EXECUTABLE}"
         -DREMOVEPS=1
         -DRASTERIZE_PDF=${RASTERIZE_PDF}
@@ -91,6 +92,65 @@ function(vtk_add_gl2ps_test_cxx)
         LABELS "${${vtk-module}_TEST_LABELS}"
         )
     endif()
+  endforeach()
+endfunction()
+
+# Like the above, but only tests PDF (instead of always PS and maybe PDF).
+function(vtk_add_pdf_test_cxx)
+  set(tests ${ARGN})
+  foreach(test ${tests})
+    string(REGEX REPLACE ",.*" "" testsrc "${test}")
+    get_filename_component(TName ${testsrc} NAME_WE)
+
+    # Convert pdf to png
+    add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePDFToPNG
+      COMMAND ${CMAKE_COMMAND}
+      "-DPDFFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.pdf"
+      "-DPDFPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-rasterPDF.png"
+      "-DGS_EXECUTABLE=${VTK_GHOSTSCRIPT_EXECUTABLE}"
+      -DREMOVEPDF=1
+      -DRASTERIZE_PDF=1
+      -P "${vtkTestingGL2PS_SOURCE_DIR}/RasterizePostScript.cmake"
+      )
+    set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePDFToPNG"
+      PROPERTIES
+      DEPENDS "${vtk-module}Cxx-${TName}"
+      REQUIRED_FILES
+      "${VTK_TEST_OUTPUT_DIR}/${TName}.pdf"
+      LABELS "${${vtk-module}_TEST_LABELS}"
+      )
+
+    get_filename_component(TName ${test} NAME_WE)
+    if(${${TName}Error})
+      set(_error_threshold ${${TName}Error})
+    else()
+      set(_error_threshold 15)
+    endif()
+
+    # Unit test executable containing PNGCompare test:
+    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+      set(PNGCompareTest vtkRenderingGL2PSCxxTests)
+    elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+      set(PNGCompareTest vtkRenderingGL2PSOpenGL2CxxTests)
+    endif()
+
+    # Image diff rasterized png produced from a PS with baseline
+    ExternalData_add_test(VTKData
+      NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG
+      COMMAND "${PNGCompareTest}" PNGCompare
+      -D "${VTK_TEST_DATA_DIR}"
+      -T "${VTK_TEST_OUTPUT_DIR}"
+      -E "${_error_threshold}"
+      -V "DATA{../Data/Baseline/${TName}-rasterPDFRef.png,:}"
+      --test-file "${VTK_TEST_OUTPUT_DIR}/${TName}-rasterPDF.png"
+      )
+    set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG"
+      PROPERTIES
+      DEPENDS "${vtk-module}Cxx-${TName}-RasterizePDFToPNG"
+      REQUIRED_FILES
+      "${VTK_TEST_OUTPUT_DIR}/${TName}-rasterPDF.png"
+      LABELS "${${vtk-module}_TEST_LABELS}"
+      )
   endforeach()
 endfunction()
 

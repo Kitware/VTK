@@ -51,7 +51,7 @@ public:
   bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 };
 
-int TestPDFContextExport(int argc, char* argv[])
+int TestPDFContextExport(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -67,14 +67,13 @@ int TestPDFContextExport(int argc, char* argv[])
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
 
+  std::string filename =
+      vtkTestingInteractor::TempDirectory +
+      std::string("/TestPDFContextExport.pdf");
+
   vtkNew<vtkPDFExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());
-
-//  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-//      std::string("/TestGL2PSContext");
-
-//  exp->SetFilePrefix(fileprefix.c_str());
-  exp->SetFileName("/tmp/test.pdf");
+  exp->SetFileName(filename.c_str());
   exp->Write();
 
   vtkNew<vtkRenderWindowInteractor> iren;
