@@ -288,6 +288,16 @@ protected:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
   QVTKInteractorAdapter* InteractorAdaptor;
 
+private slots:
+  /**
+   * before the frame buffer gets composed into the main UI, this slot gets
+   * called (connected to QOpenGLWidget::aboutToCompose() signal). In here, if
+   * the frame buffer was invalidated due to back-buffer-only renders triggered
+   * by the application, then we'll update the frame buffer to ensure it renders
+   * the most-recent cached image instead by calling `this->paintGL()`.
+   */
+  void handleAboutToCompose();
+
 private:
   Q_DISABLE_COPY(QVTKOpenGLWidget);
 
@@ -306,6 +316,15 @@ private:
   bool InPaintGL;
   bool NeedToReinitializeWindow;
   bool SkipRenderInPaintGL;
+
+  /**
+   * FrameBufferComposable helps QVTKOpenGLWidget know if the frame buffer
+   * has garbage in it and hence should not be composed into the onscreen widget.
+   * That may happen when VTK does back-buffer-only renders
+   * when making selections, for example.
+   */
+  bool FrameBufferComposable;
+
   vtkNew<QVTKOpenGLWidgetObserver> Observer;
   friend class QVTKOpenGLWidgetObserver;
 };
