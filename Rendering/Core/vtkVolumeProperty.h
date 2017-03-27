@@ -232,11 +232,11 @@ public:
   };
 
   enum TransferMode {
-    TF_1D,
+    TF_1D = 0,
     TF_2D
   };
 
-  vtkSetMacro(TransferFunctionMode, int)
+  vtkSetClampMacro(TransferFunctionMode, int, 0, 1)
   vtkGetMacro(TransferFunctionMode, int)
   //@}
 
@@ -285,8 +285,11 @@ public:
    * will not work as in the former case,  GetDisableGradientOpacity returns
    * false by default and in the later case, a default gradient opacity will be created.
    */
-  bool HasGradientOpacity(int index=0) {
-    return (this->GradientOpacity[index] != NULL);
+  bool HasGradientOpacity(int index = 0) {
+    switch(this->TransferFunctionMode) {
+      case TF_1D: return (this->GradientOpacity[index] != NULL);
+      case TF_2D: return true;
+    }
   }
 
   //@{

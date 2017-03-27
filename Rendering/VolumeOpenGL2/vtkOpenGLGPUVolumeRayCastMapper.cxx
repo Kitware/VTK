@@ -118,6 +118,7 @@ public:
     this->Mask1RGBTable = 0;
     this->Mask2RGBTable =  0;
     this->GradientOpacityTables = 0;
+    this->TransferFunctions2D = NULL;
     this->CurrentMask = 0;
     this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = -1;
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
@@ -239,7 +240,8 @@ public:
       this->ImageSampleVAO->Delete();
       this->ImageSampleVAO = NULL;
     }
-    this->DeleteTransferFunctions();
+    this->DeleteTransfer1D();
+    this->DeleteTransfer2D();
 
     delete this->MaskTextures;
 
@@ -269,12 +271,21 @@ public:
   static void ToFloat(T (&in)[4][2], float (&out)[4][2]);
 
   ///@{
+  /**
+   * \brief Setup and clean-up 1D and 2D transfer functions.
+   */
   void InitializeTransferFunction(vtkRenderer* ren, vtkVolume* vol,
                   int noOfComponents, int independentComponents);
+
   void SetupTransferFunction1D(vtkRenderer* ren, vtkVolume* vol,
                   int noOfComponents, int independentComponents);
+  void ReleaseGraphicsTransfer1D(vtkWindow* window);
+  void DeleteTransfer1D();
+
   void SetupTransferFunction2D(vtkRenderer* ren, vtkVolume* vol,
                   int noOfComponents, int independentComponents);
+  void ReleaseGraphicsTransfer2D(vtkWindow* window);
+  void DeleteTransfer2D();
   ///@}
 
   bool LoadMask(vtkRenderer* ren, vtkImageData* input,
@@ -283,9 +294,6 @@ public:
 
   bool LoadData(vtkRenderer* ren, vtkVolume* vol, vtkVolumeProperty* volProp,
     vtkImageData* input, vtkDataArray* scalars);
-
-  void DeleteTransferFunctions();
-  void ReleaseGraphicsTransfer1D(vtkWindow* window);
 
   void ComputeBounds(vtkImageData* input);
 
@@ -298,15 +306,17 @@ public:
                                   vtkVolume* vol,
                                   unsigned int component);
 
-  // Update opacity transfer function (not gradient opacity)
+  // Scalar opacity
   int UpdateOpacityTransferFunction(vtkRenderer* ren,
                                     vtkVolume* vol,
                                     unsigned int component);
 
-  // Update gradient opacity function
   int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
                                             vtkVolume* vol,
                                             unsigned int component);
+
+  void UpdateTransferFunction2D(vtkRenderer* ren, vtkVolume* vol,
+                                unsigned int component);
 
   // Update noise texture (used to reduce rendering artifacts
   // specifically banding effects)
@@ -460,6 +470,10 @@ public:
   vtkOpenGLVolumeGradientOpacityTables* GradientOpacityTables;
   std::map<int, std::string> GradientOpacityTablesMap;
 
+  vtkOpenGLTransferFunctions2D* TransferFunctions2D;
+  std::map<int, std::string> TransferFunctions2DMap;
+  vtkTimeStamp Transfer2DTime;
+
   vtkTimeStamp ShaderBuildTime;
 
   vtkNew<vtkMatrix4x4> TextureToDataSetMat;
@@ -598,7 +612,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction1D(
   int independentComponents)
 {
   this->ReleaseGraphicsTransfer1D(ren->GetRenderWindow());
-  this->DeleteTransferFunctions();
+  this->DeleteTransfer1D();
 
   // Create RGB lookup table
   if (noOfComponents > 1 && independentComponents)
@@ -653,6 +667,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction1D(
   this->GradientOpacityTablesMap.clear();
 
   std::ostringstream numeric;
+  /// TODO fix this:  noOfComponents should be either noOfComponents or 1
+  /// depnding on the above
   for (int i = 0; i < noOfComponents; ++i)
   {
     numeric << i;
@@ -680,10 +696,30 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction1D(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction2D(
-  vtkRenderer* vtkNotUsed(ren), vtkVolume* vol, int noOfComponents,
+  vtkRenderer* ren, vtkVolume* vol, int noOfComponents,
   int independentComponents)
 {
-  std::cout << "->>> Setting up 2D TF !!!\n";
+  this->ReleaseGraphicsTransfer2D(ren->GetRenderWindow());
+  this->DeleteTransfer2D();
+
+  unsigned int const num = (noOfComponents > 1 && independentComponents) ?
+    noOfComponents : 1;
+  this->TransferFunctions2D = new vtkOpenGLTransferFunctions2D(num);
+
+  std::ostringstream indexStream;
+  const std::string baseName = "in_transfer2D";
+  for (int i = 0; i < num; i++)
+  {
+    if (i > 0)
+    {
+      indexStream << i;
+    }
+    this->TransferFunctions2DMap[0] = baseName + indexStream.str();
+    indexStream.str("");
+    indexStream.clear();
+  }
+
+  this->Transfer2DTime.Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -800,7 +836,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ReleaseGraphicsTransfer1D(
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransferFunctions()
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransfer1D()
 {
   delete this->RGBTables;
   this->RGBTables = NULL;
@@ -822,6 +858,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransferFunctions()
 
   delete this->GradientOpacityTables;
   this->GradientOpacityTables = NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ReleaseGraphicsTransfer2D(
+  vtkWindow* window)
+{
+  if (this->TransferFunctions2D)
+  {
+    this->TransferFunctions2D->ReleaseGraphicsResources(window);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransfer2D()
+{
+  delete this->TransferFunctions2D;
+  this->TransferFunctions2D = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -961,11 +1014,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
                                 unsigned int component)
 {
-  if (!vol)
-  {
-    return 1;
-  }
-
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   // Transfer function table index based on whether independent / dependent
@@ -1007,24 +1055,45 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
+  UpdateTransferFunction2D(vtkRenderer* ren, vtkVolume* vol,
+  unsigned int component)
+{
+  vtkVolumeProperty* prop = vol->GetProperty();
+  int const transferMode = prop->GetTransferFunctionMode();
+  if (transferMode != vtkVolumeProperty::TF_2D)
+  {
+    return;
+  }
+
+  // Use the first LUT when using dependent components
+  unsigned int const lutIndex = prop->GetIndependentComponents() ?
+    component : 0;
+
+  vtkImageData* transfer2D = prop->GetTransferFunction2D(lutIndex);
+#if GL_ES_VERSION_3_0 != 1
+  int const interp = prop->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
+    vtkTextureObject::Linear : vtkTextureObject::Nearest;
+#else
+  int const interp = vtkTextureObject::Nearest;
+#endif
+
+  this->TransferFunctions2D->GetTable(lutIndex)->Update(transfer2D, interp,
+      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+}
+
+//----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   UpdateGradientOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
                                         unsigned int component)
 {
-  if (!vol)
-  {
-    return 1;
-  }
-
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   // Transfer function table index based on whether independent / dependent
   // components. If dependent, use the first gradient opacity transfer function
   unsigned int lookupTableIndex = volumeProperty->GetIndependentComponents() ?
                                   component : 0;
-  // TODO Currently we expect the all of the tables will
-  // be initialized once and if at that time, the gradient
-  // opacity was not enabled then it is not used later.
+
   if (!volumeProperty->HasGradientOpacity(lookupTableIndex) ||
       !this->GradientOpacityTables)
   {
@@ -2652,7 +2721,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   }
 
   this->Impl->ReleaseGraphicsTransfer1D(window);
-  this->Impl->DeleteTransferFunctions();
+  this->Impl->DeleteTransfer1D();
+
+  this->Impl->ReleaseGraphicsTransfer2D(window);
+  this->Impl->DeleteTransfer2D();
 
   this->Impl->ReleaseResourcesTime.Modified();
 }
@@ -2829,29 +2901,41 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
   // Compute methods replacements
   //--------------------------------------------------------------------------
-  fragmentShader = vtkvolume::replace(
-    fragmentShader,
-    "//VTK::ComputeOpacity::Dec",
-    vtkvolume::ComputeOpacityDeclaration(ren, this, vol, noOfComponents,
-                                         independentComponents,
-                                         this->Impl->OpacityTablesMap),
-    true);
+  switch(volumeProperty->GetTransferFunctionMode())
+  {
+    case vtkVolumeProperty::TF_1D:
+      fragmentShader = vtkvolume::replace(
+        fragmentShader,
+        "//VTK::ComputeOpacity::Dec",
+        vtkvolume::ComputeOpacityDeclaration(ren, this, vol, noOfComponents,
+                                             independentComponents,
+                                             this->Impl->OpacityTablesMap),
+        true);
 
-  fragmentShader = vtkvolume::replace(
-    fragmentShader,
-    "//VTK::ComputeGradient::Dec",
-    vtkvolume::ComputeGradientDeclaration(ren, this, vol, noOfComponents,
-                                          independentComponents,
-                                          this->Impl->GradientOpacityTablesMap),
-    true);
+      fragmentShader = vtkvolume::replace(
+        fragmentShader,
+        "//VTK::ComputeGradient::Dec",
+        vtkvolume::ComputeGradientDeclaration(ren, this, vol, noOfComponents,
+                                              independentComponents,
+                                              this->Impl->GradientOpacityTablesMap),
+        true);
 
-  fragmentShader = vtkvolume::replace(
-    fragmentShader,
-    "//VTK::ComputeColor::Dec",
-    vtkvolume::ComputeColorDeclaration(ren, this, vol, noOfComponents,
-                                       independentComponents,
-                                       this->Impl->RGBTablesMap),
-    true);
+      fragmentShader = vtkvolume::replace(
+        fragmentShader,
+        "//VTK::ComputeColor::Dec",
+        vtkvolume::ComputeColorDeclaration(ren, this, vol, noOfComponents,
+                                           independentComponents,
+                                           this->Impl->RGBTablesMap),
+        true);
+      break;
+    case vtkVolumeProperty::TF_2D:
+//      fragmentShader = vtkvolume::replace(fragmentShader,
+//        "//VTK::ComputeColor::Dec",
+//        vtkvolume::TransferFunction2DDeclaration(ren, this,, vol, noOfComponents,
+//          independentComponents, this->Impl->TransferFunctions2DMap),
+//        true);
+      break;
+  }
 
   fragmentShader = vtkvolume::replace(
     fragmentShader,
@@ -3155,18 +3239,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Update in_volume first to make sure states are current
   vol->Update();
-
-  // Get the input
   vtkImageData* input = this->GetTransformedInput();
 
-  // Get the volume property (must have one)
+  // vtkVolume ensures the property will be valid
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
-
-  // Get the camera
   vtkOpenGLCamera* cam = vtkOpenGLCamera::SafeDownCast(ren->GetActiveCamera());
 
   // Check whether we have independent components or not
-  int independentComponents = volumeProperty->GetIndependentComponents();
+  int const independentComponents = volumeProperty->GetIndependentComponents();
 
   this->Impl->CheckPropertyKeys(vol);
 
@@ -3194,15 +3274,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                           this->ArrayName,
                           this->CellFlag);
 
-  // How many components are there?
-  int noOfComponents = scalars->GetNumberOfComponents();
-
   // Allocate important variables
+  int const noOfComponents = scalars->GetNumberOfComponents();
   this->Impl->Bias.resize(noOfComponents, 0.0);
 
   if (this->Impl->NeedToInitializeResources ||
-      (volumeProperty->GetMTime() >
-       this->Impl->InitializationTime.GetMTime()))
+    (volumeProperty->GetMTime() > this->Impl->InitializationTime.GetMTime()))
   {
     this->Impl->InitializeTransferFunction(ren, vol, noOfComponents,
                            independentComponents);
@@ -3254,6 +3331,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->UpdateOpacityTransferFunction(ren, vol, i);
       this->Impl->UpdateGradientOpacityTransferFunction(ren, vol, i);
       this->Impl->UpdateColorTransferFunction(ren, vol, i);
+      this->Impl->UpdateTransferFunction2D(ren, vol, i);
     }
   }
   else
@@ -3264,6 +3342,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
                                                         noOfComponents - 1);
       this->Impl->UpdateColorTransferFunction(ren, vol, 0);
+      this->Impl->UpdateTransferFunction2D(ren, vol, 0);
     }
   }
 
@@ -3538,30 +3617,45 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   // Bind textures
   //--------------------------------------------------------------------------
   // Opacity, color, and gradient opacity samplers / textures
-  int numberOfSamplers = (independentComponents ? noOfComponents : 1);
-
-  for (int i = 0; i < numberOfSamplers; ++i)
+  int const numberOfSamplers = (independentComponents ? noOfComponents : 1);
+  int const transferMode = volumeProperty->GetTransferFunctionMode();
+  switch (transferMode)
   {
-    this->Impl->OpacityTables->GetTable(i)->Activate();
-    prog->SetUniformi(
-      this->Impl->OpacityTablesMap[i].c_str(),
-      this->Impl->OpacityTables->GetTable(i)->GetTextureUnit());
+    case vtkVolumeProperty::TF_1D:
+      for (int i = 0; i < numberOfSamplers; ++i)
+      {
+        this->Impl->OpacityTables->GetTable(i)->Activate();
+        prog->SetUniformi(
+          this->Impl->OpacityTablesMap[i].c_str(),
+          this->Impl->OpacityTables->GetTable(i)->GetTextureUnit());
 
-    if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-    {
-      this->Impl->RGBTables->GetTable(i)->Activate();
-      prog->SetUniformi(
-        this->Impl->RGBTablesMap[i].c_str(),
-        this->Impl->RGBTables->GetTable(i)->GetTextureUnit());
-    }
+        if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+        {
+          this->Impl->RGBTables->GetTable(i)->Activate();
+          prog->SetUniformi(
+            this->Impl->RGBTablesMap[i].c_str(),
+            this->Impl->RGBTables->GetTable(i)->GetTextureUnit());
+        }
 
-    if (this->Impl->GradientOpacityTables)
-    {
-      this->Impl->GradientOpacityTables->GetTable(i)->Activate();
-      prog->SetUniformi(
-        this->Impl->GradientOpacityTablesMap[i].c_str(),
-        this->Impl->GradientOpacityTables->GetTable(i)->GetTextureUnit());
-    }
+        if (this->Impl->GradientOpacityTables)
+        {
+          this->Impl->GradientOpacityTables->GetTable(i)->Activate();
+          prog->SetUniformi(
+            this->Impl->GradientOpacityTablesMap[i].c_str(),
+            this->Impl->GradientOpacityTables->GetTable(i)->GetTextureUnit());
+        }
+      }
+      break;
+    case vtkVolumeProperty::TF_2D:
+      for (int i = 0; i < numberOfSamplers; ++i)
+      {
+        vtkOpenGLTransferFunction2D* table =
+        this->Impl->TransferFunctions2D->GetTable(i);
+        table->Activate();
+        prog->SetUniformi(this->Impl->TransferFunctions2DMap[i].c_str(),
+          table->GetTextureUnit());
+      }
+      break;
   }
 
   if (this->Impl->NoiseTextureObject)
@@ -3821,17 +3915,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   }
 #endif
 
-  for (int i = 0; i < numberOfSamplers; ++i)
+  switch(transferMode)
   {
-    this->Impl->OpacityTables->GetTable(i)->Deactivate();
-    if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-    {
-      this->Impl->RGBTables->GetTable(i)->Deactivate();
-    }
-    if (this->Impl->GradientOpacityTables)
-    {
-      this->Impl->GradientOpacityTables->GetTable(i)->Deactivate();
-    }
+    case vtkVolumeProperty::TF_1D:
+      for (int i = 0; i < numberOfSamplers; ++i)
+      {
+        this->Impl->OpacityTables->GetTable(i)->Deactivate();
+        if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+        {
+          this->Impl->RGBTables->GetTable(i)->Deactivate();
+        }
+        if (this->Impl->GradientOpacityTables)
+        {
+          this->Impl->GradientOpacityTables->GetTable(i)->Deactivate();
+        }
+      }
+      break;
+    case vtkVolumeProperty::TF_2D:
+      for (int i = 0; i < numberOfSamplers; ++i)
+      {
+        this->Impl->TransferFunctions2D->GetTable(i)->Deactivate();
+      }
+      break;
   }
 
   if (this->Impl->CurrentMask)

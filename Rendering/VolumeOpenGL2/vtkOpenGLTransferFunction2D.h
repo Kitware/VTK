@@ -64,8 +64,8 @@ public:
   };
 
   //--------------------------------------------------------------------------
-  void Update(vtkImageData* transfer2D, double range[2], int interpolation,
-              vtkOpenGLRenderWindow* renWin)
+  void Update(vtkImageData* transfer2D, int interpolation,
+    vtkOpenGLRenderWindow* renWin)
   {
     if (!this->TextureObject)
     {
@@ -87,6 +87,7 @@ public:
       if (dims[0] != width || dims[1] != height);
       {
         this->ResizeFilter->SetInputData(transfer2D);
+        this->ResizeFilter->SetResizeMethodToOutputDimensions();
         this->ResizeFilter->SetOutputDimensions(width, height, 1);
         this->ResizeFilter->Update();
         data = this->ResizeFilter->GetOutput()->GetPointData()->GetScalars(
