@@ -557,8 +557,10 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
 
     if (this->InitializeFBO(ren))
     {
-      this->ImplFloat->ValueFBO->SaveCurrentBindings();
+      this->ImplFloat->ValueFBO->SaveCurrentBindingsAndBuffers(
+        GL_DRAW_FRAMEBUFFER);
       this->ImplFloat->ValueFBO->Bind(GL_DRAW_FRAMEBUFFER);
+      this->ImplFloat->ValueFBO->ActivateDrawBuffer(0);
     }
 
     this->InitializeBuffers(ren);
@@ -596,7 +598,8 @@ void vtkValuePass::EndPass()
   {
   case vtkValuePass::FLOATING_POINT:
     // Unbind the float FBO and glReadPixels to host side.
-    this->ImplFloat->ValueFBO->UnBind(GL_DRAW_FRAMEBUFFER);
+    this->ImplFloat->ValueFBO->RestorePreviousBindingsAndBuffers(
+      GL_DRAW_FRAMEBUFFER);
     break;
 
   case vtkValuePass::INVERTIBLE_LUT:
@@ -652,12 +655,14 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
   // Initialize the FBO into which the float value pass is rendered.
   this->ImplFloat->ValueFBO = vtkOpenGLFramebufferObject::New();
   this->ImplFloat->ValueFBO->SetContext(renWin);
-  this->ImplFloat->ValueFBO->SaveCurrentBindings();
+  this->ImplFloat->ValueFBO->SaveCurrentBindingsAndBuffers(GL_FRAMEBUFFER);
   this->ImplFloat->ValueFBO->Bind(GL_FRAMEBUFFER);
   this->ImplFloat->ValueFBO->InitializeViewport(size[0], size[1]);
   /* GL_COLOR_ATTACHMENT0 */
-  this->ImplFloat->ValueFBO->AddColorAttachment(GL_FRAMEBUFFER, 0, this->ImplFloat->ValueRBO);
-  this->ImplFloat->ValueFBO->AddDepthAttachment(GL_FRAMEBUFFER, this->ImplFloat->DepthRBO);
+  this->ImplFloat->ValueFBO->AddColorAttachment(GL_FRAMEBUFFER,
+    0, this->ImplFloat->ValueRBO);
+  this->ImplFloat->ValueFBO->AddDepthAttachment(GL_FRAMEBUFFER,
+    this->ImplFloat->DepthRBO);
 
   // Verify FBO
   if(!this->ImplFloat->ValueFBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
@@ -667,7 +672,8 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
     return false;
   }
 
-  this->ImplFloat->ValueFBO->UnBind(GL_FRAMEBUFFER);
+  this->ImplFloat->ValueFBO->RestorePreviousBindingsAndBuffers(
+    GL_FRAMEBUFFER);
   this->ImplFloat->FBOAllocated = true;
 
   return true;
@@ -753,12 +759,10 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
   int const height, void* data)
 {
   // Prepare and bind value texture and FBO.
-  this->ImplFloat->ValueFBO->SaveCurrentBindings();
+  this->ImplFloat->ValueFBO->SaveCurrentBindingsAndBuffers(
+    GL_READ_FRAMEBUFFER);
   this->ImplFloat->ValueFBO->Bind(GL_READ_FRAMEBUFFER);
-
-  GLint originalReadBuff;
-  glGetIntegerv(GL_READ_BUFFER, &originalReadBuff);
-  glReadBuffer(GL_COLOR_ATTACHMENT0);
+  this->ImplFloat->ValueFBO->ActivateReadBuffer(0);
 
   // Calling pack alignment ensures any window size can be grabbed.
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -769,8 +773,8 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
   glReadPixels(0, 0, width, height, format, GL_FLOAT,
     data);
 
-  glReadBuffer(originalReadBuff);
-  this->ImplFloat->ValueFBO->UnBind(GL_READ_FRAMEBUFFER);
+  this->ImplFloat->ValueFBO->RestorePreviousBindingsAndBuffers(
+    GL_READ_FRAMEBUFFER);
 
   vtkOpenGLCheckErrorMacro("Failed to read pixels from OpenGL buffer!");
 }
