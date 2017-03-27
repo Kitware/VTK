@@ -285,6 +285,7 @@ public:
     vtkImageData* input, vtkDataArray* scalars);
 
   void DeleteTransferFunctions();
+  void ReleaseGraphicsTransfer1D(vtkWindow* window);
 
   void ComputeBounds(vtkImageData* input);
 
@@ -593,9 +594,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction1D(
-  vtkRenderer* vtkNotUsed(ren), vtkVolume* vol, int noOfComponents,
+  vtkRenderer* ren, vtkVolume* vol, int noOfComponents,
   int independentComponents)
 {
+  this->ReleaseGraphicsTransfer1D(ren->GetRenderWindow());
   this->DeleteTransferFunctions();
 
   // Create RGB lookup table
@@ -765,6 +767,36 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadData(vtkRenderer* ren,
     this->InputUpdateTime.Modified();
 
     return success;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ReleaseGraphicsTransfer1D(
+  vtkWindow* window)
+{
+  if (this->RGBTables)
+  {
+    this->RGBTables->ReleaseGraphicsResources(window);
+  }
+
+  if (this->Mask1RGBTable)
+  {
+    this->Mask1RGBTable->ReleaseGraphicsResources(window);
+  }
+
+  if (this->Mask2RGBTable)
+  {
+    this->Mask2RGBTable->ReleaseGraphicsResources(window);
+  }
+
+  if (this->OpacityTables)
+  {
+    this->OpacityTables->ReleaseGraphicsResources(window);
+  }
+
+  if (this->GradientOpacityTables)
+  {
+    this->GradientOpacityTables->ReleaseGraphicsResources(window);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2619,40 +2651,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     }
   }
 
-  if(this->Impl->RGBTables)
-  {
-    this->Impl->RGBTables->ReleaseGraphicsResources(window);
-    delete this->Impl->RGBTables;
-    this->Impl->RGBTables = NULL;
-  }
-
-  if(this->Impl->Mask1RGBTable)
-  {
-    this->Impl->Mask1RGBTable->ReleaseGraphicsResources(window);
-    this->Impl->Mask1RGBTable->Delete();
-    this->Impl->Mask1RGBTable = NULL;
-  }
-
-  if(this->Impl->Mask2RGBTable)
-  {
-    this->Impl->Mask2RGBTable->ReleaseGraphicsResources(window);
-    this->Impl->Mask2RGBTable->Delete();
-    this->Impl->Mask2RGBTable = NULL;
-  }
-
-  if(this->Impl->OpacityTables)
-  {
-    this->Impl->OpacityTables->ReleaseGraphicsResources(window);
-    delete this->Impl->OpacityTables;
-    this->Impl->OpacityTables = NULL;
-  }
-
-  if (this->Impl->GradientOpacityTables)
-  {
-    this->Impl->GradientOpacityTables->ReleaseGraphicsResources(window);
-    delete this->Impl->GradientOpacityTables;
-    this->Impl->GradientOpacityTables = NULL;
-  }
+  this->Impl->ReleaseGraphicsTransfer1D(window);
+  this->Impl->DeleteTransferFunctions();
 
   this->Impl->ReleaseResourcesTime.Modified();
 }
