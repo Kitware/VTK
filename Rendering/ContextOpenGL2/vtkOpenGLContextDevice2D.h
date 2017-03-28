@@ -466,11 +466,6 @@ protected:
   //@}
 
   /**
-   * Implement DrawMathTextString for the GL2PS exporter.
-   */
-  void DrawMathTextStringGL2PS(float point[2], const vtkStdString &string);
-
-  /**
    * Add an ellipse to a vtkPath. Used during GL2PS export.
    */
   void AddEllipseToPath(vtkPath *path, float x, float y, float rx, float ry,
@@ -513,6 +508,9 @@ private:
       return this->Key == key;
     }
   };
+
+  void ComputeStringBoundsInternal(const vtkUnicodeString &string,
+                                   float bounds[4]);
 
   vtkTransform *ProjectionMatrix;
   vtkTransform *ModelMatrix;
