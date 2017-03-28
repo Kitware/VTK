@@ -20,6 +20,7 @@
 #ifdef VTK_USE_SYSTEM_EXPAT
 # include <expat.h>
 #else
+#cmakedefine XML_STATIC
 # include <vtkexpat/expat.h>
 #endif
 
