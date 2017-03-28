@@ -53,29 +53,26 @@ function(get_bbox_from_gs filename bbox_var)
   # If the metadata isn't provided, ask ghostscript to find out.
   # Beware, GhostScript computes a tight bbox and treats white pixels as
   # transparent, so the gs bbox is dependent on the contents of the image.
-  if(BBOX)
-    set(${bbox_var} "${BBOX}" PARENT_SCOPE)
-    return()
-  endif()
-
-  message("No '%%BoundingBox <x> <y> <w> <h>' header found. Asking ghostscript...")
-
-  execute_process(COMMAND
-    "${GS_EXECUTABLE}" -sSAFER -sBATCH -sNOPAUSE -sDEVICE=bbox "${filename}"
-    RESULT_VARIABLE EXITCODE
-    ERROR_VARIABLE BBOXOUT
-  )
-
-  if(NOT ${EXITCODE} EQUAL 0)
-    message(FATAL_ERROR "GhostScript exited with status ${EXITCODE}:\n${BBOXOUT}")
-  endif()
-
-  string(REGEX MATCH "%%BoundingBox:[ ]+[0-9-]+[ ]+[0-9-]+[ ]+[0-9]+[ ]+[0-9]+"
-    BBOX "${BBOXOUT}")
-
   if(NOT BBOX)
-    message(FATAL_ERROR
-      "Ghostscript could not determine bounding box\nOutput:\n${BBOXOUT}")
+    message("No '%%BoundingBox <x> <y> <w> <h>' header found. Asking ghostscript...")
+
+    execute_process(COMMAND
+      "${GS_EXECUTABLE}" -sSAFER -sBATCH -sNOPAUSE -sDEVICE=bbox "${filename}"
+      RESULT_VARIABLE EXITCODE
+      ERROR_VARIABLE BBOXOUT
+    )
+
+    if(NOT ${EXITCODE} EQUAL 0)
+      message(FATAL_ERROR "GhostScript exited with status ${EXITCODE}:\n${BBOXOUT}")
+    endif()
+
+    string(REGEX MATCH "%%BoundingBox:[ ]+[0-9-]+[ ]+[0-9-]+[ ]+[0-9]+[ ]+[0-9]+"
+      BBOX "${BBOXOUT}")
+
+    if(NOT BBOX)
+      message(FATAL_ERROR
+        "Ghostscript could not determine bounding box\nOutput:\n${BBOXOUT}")
+    endif()
   endif()
 
   string(REGEX REPLACE
