@@ -35,9 +35,9 @@
 
 namespace {
 
-void handle_libharu_error(HPDF_STATUS error,
-                          HPDF_STATUS detail,
-                          void *)
+void HPDF_STDCALL handle_libharu_error(HPDF_STATUS error,
+                                       HPDF_STATUS detail,
+                                       void *)
 {
   std::ostringstream out;
   out << "LibHaru failed during PDF export. Error=0x" << std::hex << error

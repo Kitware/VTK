@@ -22,13 +22,13 @@
 #ifndef vtkPDFExporter_h
 #define vtkPDFExporter_h
 
-#include "vtkIOImageModule.h" // For export macro
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
 class vtkContextActor;
 class vtkRenderer;
 
-class VTKIOIMAGE_EXPORT vtkPDFExporter: public vtkExporter
+class VTKIOEXPORT_EXPORT vtkPDFExporter: public vtkExporter
 {
 public:
   static vtkPDFExporter* New();
