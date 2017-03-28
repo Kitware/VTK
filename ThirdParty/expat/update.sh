@@ -18,7 +18,6 @@ expat/README
 expat/expat_config.h.cmake
 expat/lib/*.c
 expat/lib/*.h
-expat/lib/libexpat.def
 "
 
 extract_source () {
