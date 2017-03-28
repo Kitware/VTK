@@ -126,7 +126,7 @@ void vtkPDFContextDevice2D::DrawPoly(float *points, int n,
   }
 
   HPDF_Page_MoveTo(this->Impl->Page, points[0], points[1]);
-  for (size_t i = 1; i < n; ++i)
+  for (int i = 1; i < n; ++i)
   {
     if (nc_comps > 0)
     {
@@ -160,7 +160,7 @@ void vtkPDFContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   this->PushGraphicsState();
   this->ApplyPenState();
 
-  for (size_t i = 0; i < n / 2; ++i)
+  for (int i = 0; i < n / 2; ++i)
   {
     if (nc_comps > 0)
     {
@@ -199,7 +199,7 @@ void vtkPDFContextDevice2D::DrawPoints(float *points, int n,
   const float width= this->Pen->GetWidth();
   const float halfWidth = width * 0.5;
 
-  for (size_t i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i)
   {
     if (nc_comps > 0)
     {
@@ -296,9 +296,19 @@ void vtkPDFContextDevice2D::DrawPointSprites(vtkImageData *spriteIn,
     {
       std::vector<unsigned char> coloredBuf;
       coloredBuf.reserve(numPoints * 3);
-      for (int i = static_cast<int>(numPoints) - 1; i >= 0; --i)
+      // Using int since we're iterating to j < 0 (and vtkIdType is unsigned).
+      // It's very unlikely that numPoints will be larger than INT_MAX, but
+      // we'll check anyway:
+      if (numPoints > static_cast<vtkIdType>(VTK_INT_MAX))
       {
-        unsigned char *pointColor = bufIn + 3 * i;
+        vtkErrorMacro("FIXME: Image data too large for indexing with int.");
+        this->PopGraphicsState();
+        rgb->UnRegister(this);
+        return;
+      }
+      for (int j = static_cast<int>(numPoints) - 1; j >= 0; --j)
+      {
+        unsigned char *pointColor = bufIn + 3 * j;
         // This is what the OpenGL implementation does:
         coloredBuf.push_back(pointColor[0] * color[0]);
         coloredBuf.push_back(pointColor[1] * color[1]);
@@ -444,7 +454,7 @@ void vtkPDFContextDevice2D::DrawPolygon(float *f, int n)
 
   HPDF_Page_MoveTo(this->Impl->Page, f[0], f[1]);
 
-  for (size_t i = 1; i < n; ++i)
+  for (int i = 1; i < n; ++i)
   {
     HPDF_Page_LineTo(this->Impl->Page, f[i*2], f[i*2 + 1]);
   }
@@ -963,10 +973,10 @@ void vtkPDFContextDevice2D::ApplyLineType(int type)
   static const HPDF_UINT16 dashDotDot[] = { 3, 3, 1, 3, 3, 3 };
   static const HPDF_UINT   dashDotDotLen = 6;
 
-  switch (this->Pen->GetLineType())
+  switch (type)
   {
     default:
-      vtkErrorMacro("Unknown line type: " << this->Pen->GetLineType());
+      vtkErrorMacro("Unknown line type: " << type);
       VTK_FALLTHROUGH;
 
     case vtkPen::NO_PEN:
