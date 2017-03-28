@@ -381,13 +381,13 @@ void vtkBoundingBox::Scale(double s[3])
 // ---------------------------------------------------------------------------
 // Desciption:
 // Intersect this box with the half space defined by plane.
- //Returns 1 if there is intersection---which implies that the box has been modified
+// Returns 1 if there is intersection---which implies that the box has been modified
 // Returns 0 otherwise
 // The algorithm:
 //   Because the change can only happens in one axis aligned direction,
-//    we first figure out which direction it is (stored in dir), then
-//    update the bounding interval in that direction based on intersection
-//    of the plane with the four edges
+//   we first figure out which direction it is (stored in dir), then
+//   update the bounding interval in that direction based on intersection
+//   of the plane with the four edges
 
 bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
 {

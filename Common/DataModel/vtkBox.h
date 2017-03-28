@@ -91,12 +91,13 @@ public:
   void AddBounds(const double bounds[6]);
 
   /**
-   * Bounding box intersection modified from Graphics Gems Vol I. The method
-   * returns a non-zero value if the bounding box is hit. Origin[3] starts
-   * the ray, dir[3] is the vector components of the ray in the x-y-z
-   * directions, coord[3] is the location of hit, and t is the parametric
-   * coordinate along line. (Notes: the intersection ray dir[3] is NOT
-   * normalized.  Valid intersections will only occur between 0<=t<=1.)
+   * Bounding box intersection with line modified from Graphics Gems Vol
+   * I. The method returns a non-zero value if the bounding box is
+   * hit. Origin[3] starts the ray, dir[3] is the vector components of the
+   * ray in the x-y-z directions, coord[3] is the location of hit, and t is
+   * the parametric coordinate along line. (Notes: the intersection ray
+   * dir[3] is NOT normalized.  Valid intersections will only occur between
+   * 0<=t<=1.)
    */
   static char IntersectBox(double bounds[6], double origin[3], double dir[3],
                            double coord[3], double& t);
@@ -118,6 +119,16 @@ public:
                                double &t1, double &t2,
                                double x1[3], double x2[3],
                                int &plane1, int &plane2);
+
+  /**
+   * Plane intersection with the box. The plane is infinite in extent and
+   * defined by an origin and normal. The function indicates whether the
+   * plane intersects, not the particulars of intersection points and such.
+   * The function returns non-zero if the plane and box intersect; zero
+   * otherwise.
+   */
+  static int IntersectWithPlane(double bounds[6], double origin[3],
+                                double normal[3]);
 
 protected:
   vtkBox();
@@ -145,5 +156,3 @@ inline void vtkBox::SetXMax(double p[3])
 
 
 #endif
-
-

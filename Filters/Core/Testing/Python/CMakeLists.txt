@@ -28,6 +28,9 @@ vtk_add_test_python(
   TestProbeFilterImageInput.py
   TestRectilinearSynchronizedTemplates.py
   TestScalarTrees.py
+  TestSphereTreeFilter.py
+  TestSphereTreeFilter2.py
+  TestStructuredGridPlaneCutter.py
   TestSynchronizedTemplates2D.py
   TestSynchronizedTemplates3D.py
   TestContourGrid.py,NO_VALID
@@ -35,6 +38,7 @@ vtk_add_test_python(
   TestTensorGlyph.py,NO_RT
   TestTextureGlyph.py
   TestTriangleFilter.py
+  TestUnstructuredGridPlaneCutter.py
   TestVectorDotNorm.py
   capCow.py
   capSphere.py

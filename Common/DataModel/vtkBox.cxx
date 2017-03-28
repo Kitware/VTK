@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkBoundingBox.h"
+#include "vtkPlane.h"
 #include <cassert>
 
 vtkStandardNewMacro(vtkBox);
@@ -505,6 +506,43 @@ int vtkBox::IntersectWithLine(const double bounds[6],
 
   return 1;
 }
+
+//----------------------------------------------------------------------------
+int vtkBox::
+IntersectWithPlane(double bounds[6], double origin[3], double normal[3])
+{
+  // Evaluate the eight points. If there is a sign change, then there is an
+  // intersection.
+  double p[3], d;
+  int x, y, z, sign=1, firstOne=1;
+
+  for (z=4; z <= 5; ++z)
+  {
+    p[2] = bounds[z];
+    for (y=2; y <= 3; ++y)
+    {
+      p[1] = bounds[y];
+      for (x=0; x <= 1; ++x)
+      {
+        p[0] = bounds[x];
+        d = vtkPlane::Evaluate(normal,origin,p);
+        if ( firstOne )
+        {
+          sign = ( d >= 0 ? 1 : -1 );
+          firstOne = 0;
+        }
+        if ( d == 0.0 || (sign > 0 && d < 0.0) ||
+             (sign < 0 && d > 0.0) )
+        {
+          return 1;
+        }
+      }//x
+    }//y
+  }//z
+
+  return 0; //no intersection
+}
+
 
 //----------------------------------------------------------------------------
 void vtkBox::PrintSelf(ostream& os, vtkIndent indent)
