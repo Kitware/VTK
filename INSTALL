@@ -1,0 +1,14 @@
+Installation
+------------
+
+Installing libHaru on Linux/Unix is as easy as this:
+./configure && make && make install
+
+You might want to look at ./configure options though.
+
+See more details installation instructions here:
+http://libharu.org/wiki/Documentation/Install
+
+Windows binaries are available in the download section:
+http://libharu.org/wiki/Download
+
