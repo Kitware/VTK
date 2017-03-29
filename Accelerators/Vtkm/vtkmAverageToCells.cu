@@ -13,4 +13,4 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-#include "vtkmCellAverage.cxx"
+#include "vtkmAverageToCells.cxx"

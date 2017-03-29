@@ -14,30 +14,30 @@
 //
 //=============================================================================
 
-#ifndef vtkmCellAverage_h
-#define vtkmCellAverage_h
+#ifndef vtkmAverageToCells_h
+#define vtkmAverageToCells_h
 
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
 #include "vtkDataSetAlgorithm.h"
 
-class VTKACCELERATORSVTKM_EXPORT vtkmCellAverage : public vtkDataSetAlgorithm
+class VTKACCELERATORSVTKM_EXPORT vtkmAverageToCells : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmCellAverage, vtkDataSetAlgorithm)
+  vtkTypeMacro(vtkmAverageToCells, vtkDataSetAlgorithm)
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
-  static vtkmCellAverage* New();
+  static vtkmAverageToCells* New();
 
 protected:
-  vtkmCellAverage();
-  ~vtkmCellAverage();
+  vtkmAverageToCells();
+  ~vtkmAverageToCells();
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**,
                           vtkInformationVector*) VTK_OVERRIDE;
 
 private:
-  vtkmCellAverage(const vtkmCellAverage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmCellAverage&) VTK_DELETE_FUNCTION;
+  vtkmAverageToCells(const vtkmAverageToCells&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkmAverageToCells&) VTK_DELETE_FUNCTION;
 };
 
-#endif // vtkmCellAverage_h
-// VTK-HeaderTest-Exclude: vtkmCellAverage.h
+#endif // vtkmAverageToCells_h
+// VTK-HeaderTest-Exclude: vtkmAverageToCells.h
