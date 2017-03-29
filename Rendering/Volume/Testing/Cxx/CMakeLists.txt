@@ -88,6 +88,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastTextureStreaming.cxx
   TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
+  TestGPURayCastTransfer2D.cxx
   TestGPURayCastTwoComponentsDependent.cxx
   TestGPURayCastTwoComponentsDependentGradient.cxx
   TestGPURayCastTwoComponentsGradient.cxx

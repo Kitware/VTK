@@ -32,8 +32,8 @@
  *
  * Manages the texture fetched by the fragment shader when TransferFunction2D
  * mode is active. Update() assumes the vtkImageData instance used as source
- * is of type VTK_UNSIGNED_CHAR and has 4 components (this is checked in vtkImageData
- * when setting the function).
+ * is of type VTK_FLOAT and has 4 components (vtkVolumeProperty ensures this
+ * is the case when the function is set).
  *
  * \sa vtkVolumeProperty::SetTransferFunction2D
  */
@@ -98,7 +98,7 @@ public:
       this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
       this->TextureObject->SetMagnificationFilter(interpolation);
       this->TextureObject->SetMinificationFilter(interpolation);
-      this->TextureObject->Create2DFromRaw(width, height, 4, VTK_UNSIGNED_CHAR,
+      this->TextureObject->Create2DFromRaw(width, height, 4, VTK_FLOAT,
         data);
       this->LastInterpolation = interpolation;
       this->BuildTime.Modified();

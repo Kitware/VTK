@@ -66,13 +66,15 @@ uniform vec4 in_volume_bias;
 
 //VTK::CompositeMask::Dec
 
+//VTK::GradientCache::Dec
+
 //VTK::ComputeOpacity::Dec
 
 //VTK::ComputeGradient::Dec
 
-//VTK::ComputeLighting::Dec
+//VTK::ComputeGradientOpacity1D::Dec
 
-//VTK::PreComputeGradients::Dec
+//VTK::ComputeLighting::Dec
 
 //VTK::ComputeColor::Dec
 

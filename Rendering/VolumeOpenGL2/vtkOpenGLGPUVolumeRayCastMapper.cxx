@@ -1054,7 +1054,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   return 0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   UpdateTransferFunction2D(vtkRenderer* ren, vtkVolume* vol,
   unsigned int component)
@@ -2898,9 +2898,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                            independentComponents),
     true);
 
-
   // Compute methods replacements
   //--------------------------------------------------------------------------
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::ComputeGradient::Dec",
+    vtkvolume::ComputeGradientDeclaration(vol, noOfComponents,
+                                       independentComponents),
+    true);
+
   switch(volumeProperty->GetTransferFunctionMode())
   {
     case vtkVolumeProperty::TF_1D:
@@ -2914,10 +2920,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
       fragmentShader = vtkvolume::replace(
         fragmentShader,
-        "//VTK::ComputeGradient::Dec",
-        vtkvolume::ComputeGradientDeclaration(ren, this, vol, noOfComponents,
-                                              independentComponents,
-                                              this->Impl->GradientOpacityTablesMap),
+        "//VTK::ComputeGradientOpacity1D::Dec",
+        vtkvolume::ComputeGradientOpacity1DDecl(vol, noOfComponents,
+                                        independentComponents,
+                                        this->Impl->GradientOpacityTablesMap),
         true);
 
       fragmentShader = vtkvolume::replace(
@@ -2942,8 +2948,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
         true);
 
       fragmentShader = vtkvolume::replace(fragmentShader,
-        "//VTK::PreComputeGradients::Dec",
-        vtkvolume::PreComputeGradientsDec(ren, this, vol, noOfComponents,
+        "//VTK::GradientCache::Dec",
+        vtkvolume::GradientCacheDec(ren, this, vol, noOfComponents,
           independentComponents),
         true);
 
@@ -3341,27 +3347,48 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->ComputeReductionFactor(vol->GetAllocatedRenderTime());
   this->Impl->UpdateSamplingDistance(input, ren, vol);
 
-  // Update the transfer functions
-  if (independentComponents)
+  /// TODO Move this into a function
+  int const transferMode = vol->GetProperty()->GetTransferFunctionMode();
+  switch(transferMode)
   {
-    for (int i = 0; i < noOfComponents; ++i)
-    {
-      this->Impl->UpdateOpacityTransferFunction(ren, vol, i);
-      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol, i);
-      this->Impl->UpdateColorTransferFunction(ren, vol, i);
-      this->Impl->UpdateTransferFunction2D(ren, vol, i);
-    }
-  }
-  else
-  {
-    if (noOfComponents == 2 || noOfComponents == 4)
-    {
-      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents - 1);
-      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-                                                        noOfComponents - 1);
-      this->Impl->UpdateColorTransferFunction(ren, vol, 0);
-      this->Impl->UpdateTransferFunction2D(ren, vol, 0);
-    }
+    case vtkVolumeProperty::TF_1D:
+      if (independentComponents)
+      {
+        for (int i = 0; i < noOfComponents; ++i)
+        {
+          this->Impl->UpdateOpacityTransferFunction(ren, vol, i);
+          this->Impl->UpdateGradientOpacityTransferFunction(ren, vol, i);
+          this->Impl->UpdateColorTransferFunction(ren, vol, i);
+        }
+      }
+      else
+      {
+        if (noOfComponents == 2 || noOfComponents == 4)
+        {
+          this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents - 1);
+          this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
+                                                            noOfComponents - 1);
+          this->Impl->UpdateColorTransferFunction(ren, vol, 0);
+        }
+      }
+      break;
+
+    case vtkVolumeProperty::TF_2D:
+      if (independentComponents)
+      {
+        for (int i = 0; i < noOfComponents; ++i)
+        {
+          this->Impl->UpdateTransferFunction2D(ren, vol, i);
+        }
+      }
+      else
+      {
+        if (noOfComponents == 2 || noOfComponents == 4)
+        {
+          this->Impl->UpdateTransferFunction2D(ren, vol, 0);
+        }
+      }
+      break;
   }
 
   // Update noise sampler texture

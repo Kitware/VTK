@@ -424,13 +424,9 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string ComputeGradientDeclaration(vtkRenderer* vtkNotUsed(ren),
-                                         vtkVolumeMapper* vtkNotUsed(mapper),
-                                         vtkVolume* vol,
-                                         int noOfComponents,
-                                         int independentComponents,
-                                         std::map<int, std::string>
-                                           gradientTableMap)
+  std::string ComputeGradientOpacity1DDecl(vtkVolume* vol,
+                                int noOfComponents, int independentComponents,
+                                std::map<int, std::string> gradientTableMap)
   {
     std::string shaderStr;
     if (vol->GetProperty()->HasGradientOpacity() &&
@@ -479,6 +475,14 @@ namespace vtkvolume
         \n  }");
     }
 
+    return shaderStr;
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ComputeGradientDeclaration(vtkVolume* vol, int noOfComponents,
+                                        int independentComponents)
+  {
+    std::string shaderStr;
     if (vol->GetProperty()->GetShade() &&
         !vol->GetProperty()->HasGradientOpacity())
     {
@@ -592,10 +596,20 @@ namespace vtkvolume
           "  // Compute gradient function only once\n"
           "  vec4 gradient = computeGradient(component);\n");
           break;
-        case vtkVolumeProperty::TF_2D:  shaderStr += std::string(
+        case vtkVolumeProperty::TF_2D:
+          shaderStr += std::string(
           "  // TransferFunction2D is enabled so the gradient for\n"
-          "  // each component has already been cached\n"
-          "  vec4 gradient = g_gradients[component];\n");
+          "  // each component has already been cached\n");
+          if (independentComponents && noOfComponents > 1)
+          {
+            shaderStr +=
+          "  vec4 gradient = g_gradients[component];\n";
+          }
+          else
+          {
+            shaderStr +=
+          "  vec4 gradient = g_gradients;\n";
+          }
           break;
       }
     }
@@ -1001,7 +1015,7 @@ namespace vtkvolume
           "vec4 computeColor(vec4 scalar, float opacity)\n"
           "{\n"
           "  vec4 color = texture2D(" + colorTableMap[0]  + ",\n"
-          "    vec2(scalar.w, g_gradients.w));\n"
+          "    vec2(scalar.w, g_gradients.w));\n" /// TODO Scale all gradients with the actual texture size (?) or is this done already through the normalized magnitude to Range/4?
           "  return computeLighting(color, 0);\n"
           "}\n");
       }
@@ -1213,7 +1227,7 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string PreComputeGradientsDec(vtkRenderer* vtkNotUsed(ren),
+  std::string GradientCacheDec(vtkRenderer* vtkNotUsed(ren),
                                     vtkVolumeMapper* mapper,
                                     vtkVolume* vtkNotUsed(vol),
                                     int noOfComponents,
@@ -1224,7 +1238,7 @@ namespace vtkvolume
     {
       if (noOfComponents == 1)
       {
-        shader = std::string("uniform vec4 g_gradients;");
+        shader = std::string("vec4 g_gradients;");
       }
       else
       {
@@ -1233,7 +1247,7 @@ namespace vtkvolume
         numss << noOfComponents;
         std::string const num = numss.str();
         shader = std::string(
-          "uniform vec4 g_gradients[" + num  + "];");
+          "vec4 g_gradients[" + num  + "];");
       }
     }
     else
@@ -1242,9 +1256,11 @@ namespace vtkvolume
       // use a look-up-table).
       if (noOfComponents == 2)
       {
-        shader = std::string("uniform vec4 g_gradients;");
+        shader = std::string("vec4 g_gradients;");
       }
     }
+
+    return shader;
   }
 
   //--------------------------------------------------------------------------

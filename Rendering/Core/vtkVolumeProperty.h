@@ -215,7 +215,7 @@ public:
   //@{
   /**
    * Set/Get a 2D transfer function. Volume mappers interpret the x-axis of
-   * of this transfer function scalar value and the y-axis as gradient
+   * of this transfer function as scalar value and the y-axis as gradient
    * magnitude. The value at (X, Y) corresponds to the color and opacity
    * for a salar value of X and a gradient magnitude of Y.
    */

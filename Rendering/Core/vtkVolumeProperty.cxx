@@ -455,11 +455,14 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
   if (this->TransferFunction2D[index] != function)
   {
     vtkDataArray* dataArr = function->GetPointData()->GetScalars();
-    if (dataArr->GetNumberOfComponents() != 4 ||
-      dataArr->GetArrayType() != VTK_UNSIGNED_CHAR)
+    if (!dataArr || dataArr->GetNumberOfComponents() != 4 ||
+      dataArr->GetDataType() != VTK_FLOAT)
     {
-      vtkErrorMacro(<< "Invalid type or number of components for a 2D Transfer"
-        " Function, VTK_UNSIGNED_CHAR 4 Components expected!");
+      const int type = dataArr->GetDataType();
+      const int comp = dataArr->GetNumberOfComponents();
+      vtkErrorMacro(<< "Invalid type (" << type << ") or number of components ("
+        << comp << ") for a 2D Transfer Function, VTK_FLOAT 4 Components"
+        " expected!");
       return;
     }
 
