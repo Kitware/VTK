@@ -11,6 +11,6 @@ configure_file(
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(
     FILES       "${CMAKE_CURRENT_BINARY_DIR}/vtk_jsoncpp_fwd.h"
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtk_jsoncpp"
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}"
     COMPONENT   Development)
 endif ()
