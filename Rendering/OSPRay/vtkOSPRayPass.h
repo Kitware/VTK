@@ -19,6 +19,19 @@
  * This is a render pass that can be put into a vtkRenderWindow which makes
  * it use OSPRay instead of OpenGL to render. Adding/Removing the pass
  * will swap back and forth between the two.
+ *
+ *  OSPRay MPI - OSPRay can use its own internal MPI layer to replicate
+ *    the scene data across mpi processes and composite the image.
+ *    This results in linear performance scaling and supports secondary
+ *    rays.  To run in this mode, a special environment variable is supplied
+ *    called VTKOSPRAY_ARGS where commandline flags can be inserted for
+ *    OSPRay's init call.  As an example of this, below is a commandline
+ *    for running paraview on localhost, but having OSPRay's rendering
+ *    occur on 2 remote nodes.  ospray_mpi_worker is a seperate application
+ *    supplied with OSPRay binary packages or when built with MPI support
+ *    from source.
+ *    'mpirun -ppn 1 -hosts localhost VTKOSPRAY_ARGS=“—osp:mpi”
+ *      ./paraview : -hosts n1, n2 ./ospray_mpi_worker —osp:mpi'
 */
 
 #ifndef vtkOSPRayPass_h
