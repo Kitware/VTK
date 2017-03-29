@@ -85,7 +85,9 @@ static const char *quote_string(const char *comment, size_t maxlen)
       strcpy(&result[j],"\\n");
       j += 2;
     }
-    else if (isprint(comment[i]))
+    /* the "0x80" checks for non-ASCII chars, which we do not consider
+       to be printable since we don't know the encoding */
+    else if ((comment[i] & 0x80) == 0 && isprint(comment[i]))
     {
       result[j] = comment[i];
       j++;
