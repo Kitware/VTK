@@ -96,9 +96,9 @@ public:
       return -1;
     }
 
-    if(detail::isnan(elem))
+    if(::detail::isnan(elem))
     {
-      if(this->SortedArray && detail::isnan(this->SortedArray->Value))
+      if(this->SortedArray && ::detail::isnan(this->SortedArray->Value))
       {
         return this->SortedArray->Index;
       }
@@ -134,7 +134,7 @@ public:
      return;
     }
 
-    if(detail::isnan(elem))
+    if(::detail::isnan(elem))
     {
       ValueWithIndex *range = this->SortedArray;
       while (range != this->FirstValue)
@@ -187,7 +187,7 @@ private:
 
   static bool isnan(const ValueWithIndex &tmp)
   {
-    return detail::isnan(tmp.Value);
+    return ::detail::isnan(tmp.Value);
   }
 
   void UpdateLookup()
