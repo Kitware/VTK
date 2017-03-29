@@ -93,6 +93,7 @@ int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
     // convert back the dataset to VTK, and add the field as a cell field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField());
     output->GetCellData()->AddArray(resultingArray);
+    resultingArray->FastDelete();
     return 1;
   }
 

@@ -94,6 +94,7 @@ int vtkmAverageToPoints::RequestData(vtkInformation *request,
     //convert back the dataset to VTK, and add the field as a point field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField());
     output->GetPointData()->AddArray(resultingArray);
+    resultingArray->FastDelete();
     return 1;
     }
 
