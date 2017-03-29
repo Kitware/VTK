@@ -579,16 +579,25 @@ namespace vtkvolume
     );
 
     // Shading for composite blending only
-    int shadeReqd = volProperty->GetShade() &&
-                    (mapper->GetBlendMode() ==
-                     vtkVolumeMapper::COMPOSITE_BLEND);
+    int const shadeReqd = volProperty->GetShade() &&
+                  (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND);
+
+    int const transferMode = volProperty->GetTransferFunctionMode();
 
     if (shadeReqd || volProperty->HasGradientOpacity())
     {
-      shaderStr += std::string("\
-        \n  // Compute gradient function only once\
-        \n  vec4 gradient = computeGradient(component);"
-      );
+      switch (transferMode)
+      {
+        case vtkVolumeProperty::TF_1D:  shaderStr += std::string(
+          "  // Compute gradient function only once\n"
+          "  vec4 gradient = computeGradient(component);\n");
+          break;
+        case vtkVolumeProperty::TF_2D:  shaderStr += std::string(
+          "  // TransferFunction2D is enabled so the gradient for\n"
+          "  // each component has already been cached\n"
+          "  vec4 gradient = g_gradients[component];\n");
+          break;
+      }
     }
 
     if (shadeReqd)
@@ -771,31 +780,35 @@ namespace vtkvolume
       );
     }
 
-    if (volProperty->HasGradientOpacity() &&
-        (noOfComponents == 1 || !independentComponents))
+    // A 2D transfer function holds scalar and gradient-magnitude combined
+    if (transferMode == vtkVolumeProperty::TF_1D)
     {
-      shaderStr += std::string("\
+      if (volProperty->HasGradientOpacity() &&
+          (noOfComponents == 1 || !independentComponents))
+      {
+        shaderStr += std::string("\
+          \n  if (gradient.w >= 0.0)\
+          \n    {\
+          \n    color.a = color.a *\
+          \n              computeGradientOpacity(gradient);\
+          \n    }"
+        );
+      }
+      else if (noOfComponents > 1 && independentComponents &&
+              volProperty->HasGradientOpacity())
+      {
+        shaderStr += std::string("\
         \n  if (gradient.w >= 0.0)\
         \n    {\
-        \n    color.a = color.a *\
-        \n              computeGradientOpacity(gradient);\
+        \n    for (int i = 0; i < in_noOfComponents; ++i)\
+        \n      {\
+        \n      color.a = color.a *\
+        \n      computeGradientOpacity(gradient, i) * in_componentWeight[i];\
+        \n      }\
         \n    }"
-      );
+        );
+      }
     }
-     else if (noOfComponents > 1 && independentComponents &&
-             volProperty->HasGradientOpacity())
-     {
-      shaderStr += std::string("\
-      \n  if (gradient.w >= 0.0)\
-      \n    {\
-      \n    for (int i = 0; i < in_noOfComponents; ++i)\
-      \n      {\
-      \n      color.a = color.a *\
-      \n      computeGradientOpacity(gradient, i) * in_componentWeight[i];\
-      \n      }\
-      \n    }"
-      );
-     }
 
     shaderStr += std::string("\
       \n  finalColor.a = color.a;\
@@ -928,30 +941,30 @@ namespace vtkvolume
 
       }
 
+      shaderStr += std::string("\
+        \nfloat computeOpacity(vec4 scalar, int component)\
+        \n{");
+
+      for (int i = 0; i < noOfComponents; ++i)
+      {
+        toString << i;
         shaderStr += std::string("\
-          \nfloat computeOpacity(vec4 scalar, int component)\
-          \n{");
+          \n  if (component == " + toString.str() + ")");
 
-        for (int i = 0; i < noOfComponents; ++i)
-        {
-          toString << i;
-          shaderStr += std::string("\
-            \n  if (component == " + toString.str() + ")");
+        shaderStr += std::string("\
+          \n  {\
+          \n    return texture2D(" + opacityTableMap[i]);
 
-          shaderStr += std::string("\
-            \n  {\
-            \n    return texture2D(" + opacityTableMap[i]);
+        shaderStr += std::string(",vec2(scalar[" + toString.str() + "], 0)).r;\
+          \n  }");
 
-          shaderStr += std::string(",vec2(scalar[" + toString.str() + "], 0)).r;\
-            \n  }");
+         // Reset
+         toString.str("");
+         toString.clear();
+      }
 
-           // Reset
-           toString.str("");
-           toString.clear();
-        }
-
-        shaderStr += std::string("\n}");
-        return shaderStr;
+      shaderStr += std::string("\n}");
+      return shaderStr;
     }
     else if (noOfComponents == 2 && !independentComponents)
     {
@@ -970,6 +983,145 @@ namespace vtkvolume
         \n{\
         \n  return texture2D(" + opacityTableMap[0] + ", vec2(scalar.w, 0)).r;\
         \n}");
+    }
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ComputeColor2DDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                      vtkVolumeMapper* vtkNotUsed(mapper),
+                                      vtkVolume* vtkNotUsed(vol),
+                                      int noOfComponents,
+                                      int independentComponents,
+                                      std::map<int, std::string> colorTableMap)
+  {
+      if (noOfComponents == 1)
+      {
+        // Single component
+        return std::string(
+          "vec4 computeColor(vec4 scalar, float opacity)\n"
+          "{\n"
+          "  vec4 color = texture2D(" + colorTableMap[0]  + ",\n"
+          "    vec2(scalar.w, g_gradients.w));\n"
+          "  return computeLighting(color, 0);\n"
+          "}\n");
+      }
+      else if (noOfComponents > 1 && independentComponents)
+      {
+        // Multiple independent components
+        std::string shaderStr;
+        std::ostringstream toString;
+        shaderStr += std::string(
+          "vec4 computeColor(vec4 scalar, float opacity, int component)\n"
+          "{\n");
+
+        for (int i = 0; i < noOfComponents; ++i)
+        {
+          toString << i;
+          std::string const num = toString.str();
+          shaderStr += std::string(
+              "  if (component == " + num + ")\n"
+              "  {\n"
+              "    vec4 color = texture2D(" + colorTableMap[i] + ",\n"
+              "      vec2(scalar[" + num + "], g_gradients[" + num + "].w));\n"
+              "    return computeLighting(color, " + num + ");\n"
+              "  }\n");
+
+          toString.str("");
+          toString.clear();
+        }
+        shaderStr += std::string("}\n");
+
+        return shaderStr;
+      }
+      else if (noOfComponents == 2 && !independentComponents)
+      {
+        // Dependent components (Luminance/ Opacity)
+        return std::string(
+          "vec4 computeColor(vec4 scalar, float opacity)\n"
+          "{\n"
+          "  vec4 color = texture2D(" + colorTableMap[0]  + ",\n"
+          "    vec2(scalar.x, g_gradients.w));\n"
+          "  return computeLighting(color, 0);\n"
+          "}\n");
+      }
+      else
+      {
+        // TODO Rearrange this branches, is this one necessary (Dep RGBA ?)
+        return std::string(
+          "vec4 computeColor(vec4 scalar, float opacity)\n"
+          "{\n"
+          "  return computeLighting(vec4(scalar.xyz, opacity), 0);\n"
+          "}\n");
+      }
+  }
+
+  //--------------------------------------------------------------------------
+  std::string ComputeOpacity2DDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                        vtkVolumeMapper* vtkNotUsed(mapper),
+                                        vtkVolume* vtkNotUsed(vol),
+                                        int noOfComponents,
+                                        int independentComponents,
+                                        std::map<int, std::string> opacityTableMap)
+  {
+    // Declarations of <uniform sampler2D> variables are also used in
+    // ComputeColor2DDeclaration(), given that a single texture is fetched
+    // for RGBA.
+    if (noOfComponents > 1 && independentComponents)
+    {
+      // Multiple independent components
+      std::string shaderStr;
+      std::ostringstream toString;
+
+      for (int i = 0; i < noOfComponents; ++i)
+      {
+        shaderStr += std::string("\nuniform sampler2D ") +
+                     opacityTableMap[i] + std::string(";");
+
+      }
+
+      shaderStr += std::string(
+        "float computeOpacity(vec4 scalar, int component)\n"
+        "{\n");
+
+      for (int i = 0; i < noOfComponents; ++i)
+      {
+        toString << i;
+        std::string const num = toString.str();
+        shaderStr += std::string(
+          "  if (component == " + num + ")\n"
+          "  {\n"
+          "    return texture2D(" + opacityTableMap[i]+ ",\n"
+          "      vec2(scalar[" + num + "], g_gradients[" + num + "].w)).a;\n"
+          "  }\n");
+
+         toString.str("");
+         toString.clear();
+      }
+
+      shaderStr += std::string("}\n");
+      return shaderStr;
+    }
+    else if (noOfComponents == 2 && !independentComponents)
+    {
+      // Dependent components (Luminance/ Opacity)
+      return std::string(
+        "uniform sampler2D " + opacityTableMap[0] + ";\n"
+        "float computeOpacity(vec4 scalar)\n"
+        "{\n"
+        "  return texture2D(" + opacityTableMap[0] + ",\n"
+        "    vec2(scalar.y, g_gradients.w)).a;\n"
+        "}\n");
+    }
+    else
+    {
+      // Dependent compoennts (RGBA) || Single component
+      return std::string(
+        "uniform sampler2D " + opacityTableMap[0] + ";\n"
+        "float computeOpacity(vec4 scalar)\n"
+        "{\n"
+        "  return texture2D(" + opacityTableMap[0] + ",\n"
+        "    vec2(scalar.a, g_gradients.w)).a;\n"
+        "}\n");
     }
   }
 
@@ -1058,6 +1210,80 @@ namespace vtkvolume
     {
       return std::string();
     }
+  }
+
+  //--------------------------------------------------------------------------
+  std::string PreComputeGradientsDec(vtkRenderer* vtkNotUsed(ren),
+                                    vtkVolumeMapper* mapper,
+                                    vtkVolume* vtkNotUsed(vol),
+                                    int noOfComponents,
+                                    int independentComponents = 0)
+  {
+    std::string shader;
+    if (independentComponents)
+    {
+      if (noOfComponents == 1)
+      {
+        shader = std::string("uniform vec4 g_gradients;");
+      }
+      else
+      {
+        // Multiple components
+        std::ostringstream numss;
+        numss << noOfComponents;
+        std::string const num = numss.str();
+        shader = std::string(
+          "uniform vec4 g_gradients[" + num  + "];");
+      }
+    }
+    else
+    {
+      // Dependent components (only Luminance/Opacity since RGBA does not
+      // use a look-up-table).
+      if (noOfComponents == 2)
+      {
+        shader = std::string("uniform vec4 g_gradients;");
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------
+  std::string PreComputeGradientsImpl(vtkRenderer* vtkNotUsed(ren),
+                                    vtkVolumeMapper* mapper,
+                                    vtkVolume* vtkNotUsed(vol),
+                                    int noOfComponents,
+                                    int independentComponents = 0)
+  {
+    std::string shader;
+    if (independentComponents)
+    {
+      if (noOfComponents == 1)
+      {
+        shader = std::string(
+          "g_gradients = computeGradient(0);\n");
+      }
+      else
+      {
+        // Multiple components
+        shader = std::string(
+          "for (int comp = 0; comp < in_noOfComponents; comp++)\n"
+          "{\n"
+          "  g_gradients[comp] = computeGradient(comp); \n"
+          "}\n");
+      }
+    }
+    else
+    {
+      // Dependent components (only Luminance/Opacity since RGBA does not
+      // use a look-up-table).
+      if (noOfComponents == 2)
+      {
+        shader = std::string(
+          "g_gradients = computeGradient(0);\n");
+      }
+    }
+
+    return shader;
   }
 
   //--------------------------------------------------------------------------

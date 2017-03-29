@@ -2929,11 +2929,29 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
         true);
       break;
     case vtkVolumeProperty::TF_2D:
-//      fragmentShader = vtkvolume::replace(fragmentShader,
-//        "//VTK::ComputeColor::Dec",
-//        vtkvolume::TransferFunction2DDeclaration(ren, this,, vol, noOfComponents,
-//          independentComponents, this->Impl->TransferFunctions2DMap),
-//        true);
+      fragmentShader = vtkvolume::replace(fragmentShader,
+        "//VTK::ComputeOpacity::Dec",
+        vtkvolume::ComputeOpacity2DDeclaration(ren, this, vol, noOfComponents,
+          independentComponents, this->Impl->TransferFunctions2DMap),
+        true);
+
+      fragmentShader = vtkvolume::replace(fragmentShader,
+        "//VTK::ComputeColor::Dec",
+        vtkvolume::ComputeColor2DDeclaration(ren, this, vol, noOfComponents,
+          independentComponents, this->Impl->TransferFunctions2DMap),
+        true);
+
+      fragmentShader = vtkvolume::replace(fragmentShader,
+        "//VTK::PreComputeGradients::Dec",
+        vtkvolume::PreComputeGradientsDec(ren, this, vol, noOfComponents,
+          independentComponents),
+        true);
+
+      fragmentShader = vtkvolume::replace(fragmentShader,
+        "//VTK::PreComputeGradients::Impl",
+        vtkvolume::PreComputeGradientsImpl(ren, this, vol, noOfComponents,
+          independentComponents),
+        true);
       break;
   }
 
