@@ -451,6 +451,7 @@ protected:
 
   int OpaqueFlag;
   vtkTimeStamp OpaqueFlagBuildTime;
+  vtkTimeStamp SpecialColorsBuildTime;
 
   /**
    * Resize the LookupTable to have enough room for the out-of-range colors
