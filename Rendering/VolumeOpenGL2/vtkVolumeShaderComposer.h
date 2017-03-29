@@ -930,7 +930,7 @@ namespace vtkvolume
 
         shaderStr += std::string("\
           \nfloat computeOpacity(vec4 scalar, int component)\
-          \n  {");
+          \n{");
 
         for (int i = 0; i < noOfComponents; ++i)
         {
@@ -939,37 +939,37 @@ namespace vtkvolume
             \n  if (component == " + toString.str() + ")");
 
           shaderStr += std::string("\
-            \n    {\
-            \n    return texture2D(in_opacityTransferFunc");
-          shaderStr += (i == 0 ? "" : toString.str());
-          shaderStr += std::string(",vec2(scalar[" + toString.str() + "],0)).r;\
-            \n    }");
+            \n  {\
+            \n    return texture2D(" + opacityTableMap[i]);
+
+          shaderStr += std::string(",vec2(scalar[" + toString.str() + "], 0)).r;\
+            \n  }");
 
            // Reset
            toString.str("");
            toString.clear();
         }
 
-        shaderStr += std::string("\n  }");
+        shaderStr += std::string("\n}");
         return shaderStr;
     }
     else if (noOfComponents == 2 && !independentComponents)
     {
       return std::string("\
-        \nuniform sampler2D in_opacityTransferFunc;\
+        \nuniform sampler2D " + opacityTableMap[0] + ";\
         \nfloat computeOpacity(vec4 scalar)\
-        \n  {\
-        \n  return texture2D(in_opacityTransferFunc, vec2(scalar.y, 0)).r;\
-        \n  }");
+        \n{\
+        \n  return texture2D(" + opacityTableMap[0] + ", vec2(scalar.y, 0)).r;\
+        \n}");
     }
     else
     {
       return std::string("\
-        \nuniform sampler2D in_opacityTransferFunc;\
+        \nuniform sampler2D " + opacityTableMap[0] + ";\
         \nfloat computeOpacity(vec4 scalar)\
-        \n  {\
-        \n  return texture2D(in_opacityTransferFunc, vec2(scalar.w, 0)).r;\
-        \n  }");
+        \n{\
+        \n  return texture2D(" + opacityTableMap[0] + ", vec2(scalar.w, 0)).r;\
+        \n}");
     }
   }
 
