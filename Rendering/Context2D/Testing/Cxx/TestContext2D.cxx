@@ -49,21 +49,30 @@ vtkStandardNewMacro(ContextItem);
 //----------------------------------------------------------------------------
 bool IsVector4Same(float expected[4], float computed[4])
 {
-  double eps = 1e-6;
-  bool same = (fabs(expected[0] - computed[0]) < eps &&
-               fabs(expected[1] - computed[1]) < eps &&
-               fabs(expected[2] - computed[2]) < eps &&
-               fabs(expected[3] - computed[3]) < eps);
-  if (!same)
+
+  // The origin should be with 3 px of the expected value. This is because we
+  // align to the text data (ie. actual drawn pixels), not the texture image
+  // size, which may include a degree of padding.
+  const float originEps = 3.f;
+  const bool closeOrigin = (fabs(expected[0] - computed[0]) <= originEps &&
+                            fabs(expected[1] - computed[1]) <= originEps);
+
+  // The width / height should be the same:
+  const float sizeEps = 1e-6f;
+  const bool sameSize = (fabs(expected[2] - computed[2]) <= sizeEps &&
+                         fabs(expected[3] - computed[3]) <= sizeEps);
+
+  if (!sameSize || !closeOrigin)
   {
     std::cout << "Not the same!\n";
     std::cout << "Expected: (" << expected[0] << ", " << expected[1] << ", "
               << expected[2] << ", " << expected[3] << ")\n";
     std::cout << "Computed: (" << computed[0] << ", " << computed[1] << ", "
               << computed[2] << ", " << computed[3] << ")\n";
+    return false;
   }
 
-  return same;
+  return true;
 }
 
 //----------------------------------------------------------------------------
