@@ -19,11 +19,11 @@ for i in range(256):
 table = vtk.vtkLookupTable()
 table.SetNumberOfColors(256)
 table.SetRange(-0.5, 0.5)
+table.SetTable(colors)
 table.SetBelowRangeColor(1, 0, 0, 1)
 table.SetAboveRangeColor(0, 1, 0, 1)
 table.SetUseBelowRangeColor(useBelowRangeColor)
 table.SetUseAboveRangeColor(useAboveRangeColor)
-table.SetTable(colors)
 
 sphere = vtk.vtkSphereSource()
 sphere.SetPhiResolution(32)
