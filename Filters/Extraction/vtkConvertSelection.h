@@ -115,6 +115,16 @@ public:
 
   //@{
   /**
+   * When enabled, not finding expected array will not return an error.
+   * Defaults to OFF.
+   */
+  vtkSetMacro(AllowMissingArray, bool);
+  vtkGetMacro(AllowMissingArray, bool);
+  vtkBooleanMacro(AllowMissingArray, bool);
+  //@}
+
+  //@{
+  /**
    * Set/get a selection extractor used in some conversions to
    * obtain IDs.
    */
@@ -193,7 +203,8 @@ public:
     vtkDataObject* data,
     int type,
     vtkStringArray* arrayNames = 0,
-    int inputFieldType = -1);
+    int inputFieldType = -1,
+    bool allowMissingArray = false);
 
 protected:
   vtkConvertSelection();
@@ -234,6 +245,7 @@ protected:
   int InputFieldType;
   vtkStringArray* ArrayNames;
   bool MatchAnyValues;
+  bool AllowMissingArray;
   vtkExtractSelection* SelectionExtractor;
 
 private:

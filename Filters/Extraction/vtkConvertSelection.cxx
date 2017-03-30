@@ -65,6 +65,7 @@ vtkConvertSelection::vtkConvertSelection()
   this->ArrayNames = 0;
   this->InputFieldType = -1;
   this->MatchAnyValues = false;
+  this->AllowMissingArray = false;
   this->SelectionExtractor = 0;
 }
 
@@ -588,8 +589,15 @@ int vtkConvertSelection::Convert(
       }
       if (!dataArr)
       {
-        vtkErrorMacro("Could not find vtkDataArray for thresholds selection.");
-        return 0;
+        if (!this->AllowMissingArray)
+        {
+          vtkErrorMacro("Could not find vtkDataArray for thresholds selection.");
+          return 0;
+        }
+        else
+        {
+          return 1;
+        }
       }
       for (vtkIdType id = 0; id < dataArr->GetNumberOfTuples(); id++)
       {
@@ -663,8 +671,15 @@ int vtkConvertSelection::Convert(
       // Check array compatibility
       if (!dataArr)
       {
-        vtkErrorMacro("Selection array does not exist in input dataset.");
-        return 0;
+        if (!this->AllowMissingArray)
+        {
+          vtkErrorMacro("Selection array does not exist in input dataset.");
+          return 0;
+        }
+        else
+        {
+          return 1;
+        }
       }
 
       // Handle the special case where we have a domain array.
@@ -743,8 +758,15 @@ int vtkConvertSelection::Convert(
       // Check array existence.
       if (!outputDataArr)
       {
-        vtkErrorMacro("Output selection array does not exist in input dataset.");
-        return 0;
+        if (!this->AllowMissingArray)
+        {
+          vtkErrorMacro("Output selection array does not exist in input dataset.");
+          return 0;
+        }
+        else
+        {
+          return 1;
+        }
       }
 
       std::map<vtkStdString, vtkSmartPointer<vtkAbstractArray> > domainArrays;
@@ -1061,7 +1083,8 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   vtkDataObject* data,
   int type,
   vtkStringArray* arrayNames,
-  int inputFieldType)
+  int inputFieldType,
+  bool allowMissingArray)
 {
   VTK_CREATE(vtkConvertSelection, convert);
   vtkDataObject* dataCopy = data->NewInstance();
@@ -1073,6 +1096,7 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   convert->SetOutputType(type);
   convert->SetArrayNames(arrayNames);
   convert->SetInputFieldType(inputFieldType);
+  convert->SetAllowMissingArray(allowMissingArray);
   convert->Update();
   vtkSelection* output = convert->GetOutput();
   output->Register(0);
@@ -1088,6 +1112,7 @@ void vtkConvertSelection::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputType: " << this->OutputType << endl;
   os << indent << "SelectionExtractor: " << this->SelectionExtractor << endl;
   os << indent << "MatchAnyValues: " << (this->MatchAnyValues ? "true" : "false") << endl;
+  os << indent << "AllowMissingArray: " << (this->AllowMissingArray ? "true" : "false") << endl;
   os << indent << "ArrayNames: " << (this->ArrayNames ? "" : "(null)") << endl;
   if (this->ArrayNames)
   {
