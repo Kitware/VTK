@@ -118,6 +118,15 @@ public:
   static void MarkEndEvent(const char *EventString);
   //@}
 
+  //@{
+  /**
+   * Insert an event with a known wall time value (in seconds)
+   * and cpuTicks.
+   */
+  static void InsertTimedEvent(
+    const char *EventString, double time, int cpuTicks);
+  //@}
+
   static void DumpLogWithIndents(ostream *os, double threshold);
   static void DumpLogWithIndentsAndPercentages(ostream *os);
 

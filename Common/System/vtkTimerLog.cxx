@@ -272,6 +272,25 @@ void vtkTimerLog::MarkEndEvent(const char *event)
 }
 
 //----------------------------------------------------------------------------
+// Record a timing event with known walltime and cputicks.
+void vtkTimerLog::InsertTimedEvent(
+  const char *event, double time, int cpuTicks)
+{
+  if (! vtkTimerLog::Logging)
+  {
+    return;
+  }
+  // manually create both the start and end event and then
+  // change the start events values to appear like other events
+  vtkTimerLog::MarkStartEvent(event);
+  vtkTimerLog::MarkEndEvent(event);
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry-2].WallTime =
+    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry-1].WallTime - time;
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry-2].CpuTicks =
+    vtkTimerLog::TimerLog[vtkTimerLog::NextEntry-1].CpuTicks - cpuTicks;
+}
+
+//----------------------------------------------------------------------------
 // Record a timing event and capture walltime and cputicks.
 int vtkTimerLog::GetNumberOfEvents()
 {
