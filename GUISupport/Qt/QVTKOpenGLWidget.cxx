@@ -123,7 +123,6 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   , InPaintGL(false)
   , NeedToReinitializeWindow(false)
   , SkipRenderInPaintGL(false)
-  , FrameBufferComposable(false)
 {
   this->Observer->SetTarget(this);
 
@@ -150,8 +149,6 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   // QOpenGLWidget::resized() is triggered when the default FBO is recreated. We need to
   // make sure that the vtkRenderWindow knows about the new FBO id.
   this->connect(this, SIGNAL(resized()), SLOT(defaultFrameBufferObjectChanged()));
-
-  this->connect(this, SIGNAL(aboutToCompose()), SLOT(handleAboutToCompose()));
 }
 
 //-----------------------------------------------------------------------------
@@ -453,7 +450,6 @@ void QVTKOpenGLWidget::paintGL()
     }
   }
   this->InPaintGL = prev;
-  this->FrameBufferComposable = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -524,7 +520,6 @@ void QVTKOpenGLWidget::windowFrameEventCallback()
     }
     else
     {
-      vtkQVTKOpenGLWidgetDebugMacro("back buffer destroyed");
       // VTK has destroyed the frame buffer by rendering something in it. Now,
       // if Qt for some reason comes back with a paint request, then we'll need
       // to ensure VTK renders again (or uses cache, if caching was enabled).
@@ -548,18 +543,6 @@ void QVTKOpenGLWidget::windowFrameEventCallback()
       }
     }
   }
-
-  // In VTK, when `vtkRenderWindow::Frame` gets called on a double-buffered
-  // window without swap-buffers ON, it means the app is doing back-buffer only
-  // renders that are not intended for on-screen display. If so, we know that
-  // the OpenGL frame buffer has non-displayable content and hence we flag it as
-  // such by setting this->FrameBufferComposable to false. When the
-  // QOpenGLWidget fires aboutToCompose() signal before it composes the frame
-  // buffer with the onscreen UI, we will force a render if
-  // this->FrameBufferComposable is false, thus ensuring that the
-  // back-buffer-only garbled image doesn't get displayed.
-  this->FrameBufferComposable =
-    (this->RenderWindow->GetDoubleBuffer() && this->RenderWindow->GetSwapBuffers());
 
   // Render happened. If we have requested a render to happen, it has happened,
   // so no need to request another render. Stop the timer.
@@ -667,16 +650,5 @@ void QVTKOpenGLWidget::mouseDoubleClickEvent(QMouseEvent* event)
   {
     this->InteractorAdaptor->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
-  }
-}
-
-//-----------------------------------------------------------------------------
-void QVTKOpenGLWidget::handleAboutToCompose()
-{
-  vtkQVTKOpenGLWidgetDebugMacro("compose");
-  if (!this->FrameBufferComposable)
-  {
-    this->makeCurrent();
-    this->paintGL();
   }
 }
