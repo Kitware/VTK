@@ -39,7 +39,7 @@ set(headers
   vtkmExternalFaces.h
   vtkmThreshold.h
   vtkmLevelOfDetail.h
-  vtkmCellAverage.h
+  vtkmAverageToCells.h
   vtkmGradient.h
   )
 
@@ -52,7 +52,7 @@ set(cpu_accelerator_srcs
   vtkmExternalFaces.cxx
   vtkmThreshold.cxx
   vtkmLevelOfDetail.cxx
-  vtkmCellAverage.cxx
+  vtkmAverageToCells.cxx
   vtkmCellSetExplicit.cxx
   vtkmCellSetSingleType.cxx
   vtkmConnectivityExec.cxx
@@ -69,7 +69,7 @@ set(cuda_accelerator_srcs
   vtkmExternalFaces.cu
   vtkmThreshold.cu
   vtkmLevelOfDetail.cu
-  vtkmCellAverage.cu
+  vtkmAverageToCells.cu
   vtkmCellSetExplicit.cu
   vtkmCellSetSingleType.cu
   vtkmConnectivityExec.cu

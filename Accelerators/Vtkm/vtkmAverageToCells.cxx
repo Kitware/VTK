@@ -13,7 +13,7 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-#include "vtkmCellAverage.h"
+#include "vtkmAverageToCells.h"
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
@@ -31,20 +31,20 @@
 
 #include <vtkm/filter/CellAverage.h>
 
-vtkStandardNewMacro(vtkmCellAverage)
+vtkStandardNewMacro(vtkmAverageToCells)
 
 //------------------------------------------------------------------------------
-vtkmCellAverage::vtkmCellAverage()
+vtkmAverageToCells::vtkmAverageToCells()
 {
 }
 
 //------------------------------------------------------------------------------
-vtkmCellAverage::~vtkmCellAverage()
+vtkmAverageToCells::~vtkmAverageToCells()
 {
 }
 
 //------------------------------------------------------------------------------
-int vtkmCellAverage::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {
@@ -93,6 +93,7 @@ int vtkmCellAverage::RequestData(vtkInformation* vtkNotUsed(request),
     // convert back the dataset to VTK, and add the field as a cell field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField());
     output->GetCellData()->AddArray(resultingArray);
+    resultingArray->FastDelete();
     return 1;
   }
 
@@ -100,7 +101,7 @@ int vtkmCellAverage::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-void vtkmCellAverage::PrintSelf(ostream& os, vtkIndent indent)
+void vtkmAverageToCells::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
