@@ -62,7 +62,15 @@
 #define XMLIMPORT __declspec(dllimport)
 #endif
 
+#else
+/* building Expat */
+
+#ifdef XML_USE_MSC_EXTENSIONS
+#define XMLIMPORT __declspec(dllexport)
 #endif
+
+#endif
+
 #endif  /* not defined XML_STATIC */
 
 #if !defined(XMLIMPORT) && defined(__GNUC__) && (__GNUC__ >= 4)
