@@ -90,8 +90,8 @@ public:
    * to be a power of two. Default is true, but this member will be set
    * appropriately when GL is inited.
    */
-  vtkSetMacro(ScaleToPowerOfTwo, bool);
-  vtkGetMacro(ScaleToPowerOfTwo, bool);
+  void SetScaleToPowerOfTwo(bool val) VTK_OVERRIDE;
+  bool GetScaleToPowerOfTwo() VTK_OVERRIDE;
   //@}
 
 protected:
