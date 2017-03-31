@@ -1227,6 +1227,7 @@ void vtkTecplotReader::GetUnstructuredGridCells( int numberCells,
   else
   {
     vtkErrorMacro( << this->FileName << ": Unknown cell type for a zone." );
+    return;
   }
 
   // the storage of each cell begins with the number of points per cell,
@@ -1671,6 +1672,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
           {
             vtkErrorMacro( << this->FileName << ": Zone titles MUST be "
                            << "quoted." );
+            return;
           }
         }
         else if ( tok == "I" )
@@ -1777,18 +1779,19 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         }
         else if ( tok == "D" )
         {
-          vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
+          vtkWarningMacro( << this->FileName << "; Tecplot zone record parameter "
                          << "'D' is currently unsupported." );
+          this->Internal->GetNextToken();
         }
         else if ( tok == "STRANDID" )
         {
-          vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
+          vtkWarningMacro( << this->FileName << "; Tecplot zone record parameter "
                          << "'STRANDID' is currently unsupported." );
           this->Internal->GetNextToken();
         }
         else if ( tok == "SOLUTIONTIME" )
         {
-          vtkErrorMacro( << this->FileName << "; Tecplot zone record parameter "
+          vtkWarningMacro( << this->FileName << "; Tecplot zone record parameter "
                          << "'SOLUTIONTIME' is currently unsupported." );
           this->Internal->GetNextToken();
         }
@@ -1830,6 +1833,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         // UNKNOWN FORMAT
         vtkErrorMacro( << this->FileName << ": The format " << format.c_str()
                        << " found in the file is unknown." );
+        return;
       }
 
       zoneIndex ++;
@@ -1896,6 +1900,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       // UNKNOWN RECORD TYPE
       vtkErrorMacro( << this->FileName << ": The record type " << tok.c_str()
                      << " found in the file is unknown." );
+      return;
     }
 
     firstToken = false;
