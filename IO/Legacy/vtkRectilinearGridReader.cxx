@@ -15,6 +15,7 @@
 #include "vtkRectilinearGridReader.h"
 
 #include "vtkDataArray.h"
+#include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -72,6 +73,7 @@ int vtkRectilinearGridReader::RequestInformation(
 int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
 {
   char line[256];
+  bool dimsRead=0;
 
   vtkDebugMacro(<<"Reading vtk rectilinear grid file info...");
 
@@ -116,7 +118,7 @@ int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
         break;
       }
 
-      if ( ! strncmp(this->LowerCase(line),"dimensions",10) )
+      if ( ! strncmp(this->LowerCase(line), "dimensions",10) && !dimsRead )
       {
         int dim[3];
         if (!(this->Read(dim) &&
@@ -125,18 +127,43 @@ int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
         {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
+          return 1;
+        }
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                     0,dim[0]-1,0,dim[1]-1,0,dim[2]-1);
+        dimsRead = 1;
+      }
+
+      else if ( ! strncmp(line, "extent", 6) && !dimsRead )
+      {
+        int extent[6];
+        if (!(this->Read(extent) &&
+              this->Read(extent+1) &&
+              this->Read(extent+2) &&
+              this->Read(extent+3) &&
+              this->Read(extent+4) &&
+              this->Read(extent+5)))
+        {
+          vtkErrorMacro(<<"Error reading extent!");
+          this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return 1;
         }
 
         outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                     0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
-        // We got what we want.  Now return.
-        this->CloseVTKFile ();
-        return 1;
+                     extent[0], extent[1], extent[2], extent[3],
+                     extent[4], extent[5]);
+
+        dimsRead = 1;
       }
     }
   }
 
+  if ( !dimsRead)
+  {
+    vtkWarningMacro(<<"Could not read dimensions or extents from the file.");
+  }
   this->CloseVTKFile ();
   return 1;
 }
@@ -211,7 +238,29 @@ int vtkRectilinearGridReader::RequestData(
         output->SetFieldData(fd);
         fd->Delete(); // ?
       }
-      else if ( ! strncmp(line,"dimensions",10) )
+
+      else if ( ! strncmp(line, "extent", 6) && !dimsRead )
+      {
+        int extent[6];
+        if (!(this->Read(extent) &&
+              this->Read(extent+1) &&
+              this->Read(extent+2) &&
+              this->Read(extent+3) &&
+              this->Read(extent+4) &&
+              this->Read(extent+5)))
+        {
+          vtkErrorMacro(<<"Error reading extent!");
+          this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
+          return 1;
+        }
+
+        output->SetExtent(extent);
+        numPts = output->GetNumberOfPoints();
+        numCells = output->GetNumberOfCells();
+        dimsRead = 1;
+      }
+      else if ( ! strncmp(line, "dimensions",10) )
       {
         int dim[3];
         if (!(this->Read(dim) &&
@@ -220,6 +269,7 @@ int vtkRectilinearGridReader::RequestData(
         {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
           return 1;
         }
 

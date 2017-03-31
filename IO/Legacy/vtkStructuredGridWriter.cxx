@@ -60,8 +60,19 @@ void vtkStructuredGridWriter::WriteData()
     return;
   }
 
-  input->GetDimensions(dim);
-  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
+  if (this->WriteExtent)
+  {
+    int extent[6];
+    input->GetExtent(extent);
+    *fp << "EXTENT "
+        << extent[0] << " " << extent[1] << " " << extent[2] << " "
+        << extent[3] << " " << extent[4] << " " << extent[5] << "\n";
+  }
+  else
+  {
+    input->GetDimensions(dim);
+    *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
+  }
 
   if (!this->WritePoints(fp, input->GetPoints()))
   {

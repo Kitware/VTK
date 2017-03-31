@@ -46,13 +46,28 @@ public:
   vtkStructuredGrid* GetInput(int port);
   //@}
 
+  //@{
+  /**
+  * When WriteExtent is on, vtkStructuredPointsWriter writes
+  * data extent in the output file. Otherwise, it writes dimensions.
+  * The only time this option is useful is when the extents do
+  * not start at (0, 0, 0). This is an options to support writing
+  * of older formats while still using a newer VTK.
+  */
+  vtkSetMacro(WriteExtent, bool);
+  vtkGetMacro(WriteExtent, bool);
+  vtkBooleanMacro(WriteExtent, bool);
+  //@}
+
 protected:
-  vtkStructuredGridWriter() {}
+  vtkStructuredGridWriter() : WriteExtent(false) {}
   ~vtkStructuredGridWriter() VTK_OVERRIDE {}
 
   void WriteData() VTK_OVERRIDE;
 
   int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+
+  bool WriteExtent;
 
 private:
   vtkStructuredGridWriter(const vtkStructuredGridWriter&) VTK_DELETE_FUNCTION;
