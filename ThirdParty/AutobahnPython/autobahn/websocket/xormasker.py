@@ -72,7 +72,10 @@ except:
          for k in xrange(dlen):
             payload[k] ^= self.msk[self.ptr & 3]
             self.ptr += 1
-         return payload.tostring()
+         if six.PY3:
+             return payload.tobytes()
+         else:
+             return payload.tostring()
 
 
    class XorMaskerShifted1:
@@ -107,7 +110,10 @@ except:
          for k in xrange(dlen):
             payload[k] ^= msk[k & 3]
          self.ptr += dlen
-         return payload.tostring()
+         if six.PY3:
+             return payload.tobytes()
+         else:
+             return payload.tostring()
 
 
    def createXorMasker(mask, len = None):
