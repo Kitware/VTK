@@ -24,11 +24,17 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTestsPDF
     ${GL2PSTestsPDFBothOpenGL} ${GL2PSTestsPDFOpenGL1}
   )
-  # These only produces PDFs. They're separated since the above tests produce
+
+  # These only produce PDFs. They're separated since the above tests produce
   # and verify both PDF and PS.
-  set(PDFTests
-    TestPDFContextExport.cxx,NO_DATA
-    )
+  if (VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+    # Mark this as NO_VALID on OpenGL backend. It looks like the textured
+    # brush painting is broken. See issue #17009. We still run the test to
+    # validate the generated PDF, but won't validate the OpenGL rendering.
+    set(PDFTests TestPDFContextExport.cxx,NO_DATA,NO_VALID)
+  else()
+    set(PDFTests TestPDFContextExport.cxx,NO_DATA)
+  endif()
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests

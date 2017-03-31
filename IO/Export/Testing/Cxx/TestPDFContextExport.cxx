@@ -38,6 +38,8 @@
 #include "vtkTransform2D.h"
 #include "vtkUnsignedCharArray.h"
 
+#include "vtkRenderingOpenGLConfigure.h"
+
 #include <string>
 
 //----------------------------------------------------------------------------
@@ -76,11 +78,16 @@ int TestPDFContextExport(int, char*[])
   exp->SetFileName(filename.c_str());
   exp->Write();
 
+  // See VTK issue #17009. The OpenGL1 backend doesn't properly render brush
+  // textures, so we'll just validate the PDF and not worry about the OpenGL
+  // rendering for now.
+#ifndef VTK_OPENGL1
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(view->GetRenderWindow());
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->GetInteractor()->Initialize();
   view->GetRenderWindow()->GetInteractor()->Start();
+#endif
 
   return EXIT_SUCCESS;
 }
