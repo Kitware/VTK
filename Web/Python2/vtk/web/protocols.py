@@ -3,6 +3,10 @@ protocols that can be combined together to provide a flexible way to define
 very specific web application.
 """
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from time import time
 import os, sys, logging, types, inspect, traceback, logging, re
 
@@ -136,7 +140,7 @@ class vtkWebViewPort(vtkWebProtocol):
         camera.ResetCamera()
         try:
             # FIXME seb: view.CenterOfRotation = camera.GetFocalPoint()
-            print "FIXME"
+            print ("FIXME")
         except:
             pass
 

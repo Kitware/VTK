@@ -10,6 +10,10 @@ Use "--help" to list the supported arguments.
 
 """
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import sys, logging
 
 from vtk.web import testing
@@ -124,8 +128,8 @@ def stop_webserver() :
 # Convenience method to build a resource sub tree to reflect a desired path.
 # =============================================================================
 def handle_complex_resource_path(path, root, resource):
-    # Handle complex endpoint
-    fullpath = path.split('/')
+    # Handle complex endpoint. Twisted expects byte-type URIs.
+    fullpath = path.encode('utf-8').split(b'/')
     parent_path_item_resource = root
     for path_item in fullpath:
         if path_item == fullpath[-1]:
@@ -227,7 +231,7 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
         handle_complex_resource_path(options.lp, root, lpResource)
 
     if options.uploadPath != None :
-        from upload import UploadPage
+        from vtk.web.upload import UploadPage
         uploadResource = UploadPage(options.uploadPath)
         root.putChild("upload", uploadResource)
 

@@ -144,7 +144,7 @@ Here is a sample of what a configuration file could look like:
 # =============================================================================
 
 def generatePassword():
-    return ''.join(choice(string.letters + string.digits) for _ in xrange(16))
+    return ''.join(choice(string.letters + string.digits) for _ in range(16))
 
 # -----------------------------------------------------------------------------
 

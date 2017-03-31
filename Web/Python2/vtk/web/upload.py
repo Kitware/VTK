@@ -12,6 +12,9 @@ r"""
          Port on which upload server should listen.
 """
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 # import os to concatenate paths in a system independent way
 import os

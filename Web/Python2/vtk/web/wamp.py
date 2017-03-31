@@ -3,6 +3,10 @@ WAMP related class for the purpose of vtkWeb.
 
 """
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import inspect, types, string, random, logging, six, json, re, base64, time
 
 from threading import Timer
@@ -287,7 +291,7 @@ class CustomWampCraRouterSession(RouterSession):
         """
 
         ## if there is a pending auth, and the signature provided by client matches ..
-        if self._pending_auth and signature == self._pending_auth.signature:
+        if self._pending_auth and signature.encode('utf-8') == self._pending_auth.signature:
 
             ## accept the client
             return types.Accept(authid = self._pending_auth.authid,
@@ -405,7 +409,8 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
 
     def render(self):
         keepGoing = False
-        for k, v in self.viewToCapture.iteritems():
+        for k in self.viewToCapture:
+            v = self.viewToCapture[k];
             if v['enabled']:
                 keepGoing = True
                 view = v['view']
@@ -421,7 +426,7 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
                         'size': self.app.GetLastStillRenderImageSize(),
                         'id': k
                     }
-                    self.sendMessage(json.dumps(meta), False)
+                    self.sendMessage(json.dumps(meta, ensure_ascii = False).encode('utf8'), False)
                     self.sendMessage(base64.standard_b64decode(base64Image), True)
                 if stale:
                     self.lastStaleTime = time.time()
