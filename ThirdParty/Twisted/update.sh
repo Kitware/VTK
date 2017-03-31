@@ -10,7 +10,6 @@ readonly tag="for/vtk"
 readonly paths="
 NEWS
 LICENSE
-CONTRIBUTING
 README.rst
 .gitattributes
 src/twisted/*.py
@@ -29,17 +28,6 @@ src/twisted/spread
 src/twisted/tap
 src/twisted/web
 "
-# src/twisted/conch
-# src/twisted/enterprise
-# src/twisted/mail
-# src/twisted/names
-# src/twisted/news
-# src/twisted/pair
-# src/twisted/positioning
-# src/twisted/test
-# src/twisted/topfiles
-# src/twisted/trial
-# src/twisted/words
 extract_source () {
     # Copy over the files from Git
     git_archive
