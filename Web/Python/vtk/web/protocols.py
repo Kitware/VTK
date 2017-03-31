@@ -105,11 +105,11 @@ class vtkWebMouseHandler(vtkWebProtocol):
         pvevent = vtkWebInteractionEvent()
         pvevent.SetButtons(buttons)
         pvevent.SetModifiers(modifiers)
-        if event.has_key("x"):
+        if "x" in event:
             pvevent.SetX(event["x"])
-        if event.has_key("y"):
+        if "y" in event:
             pvevent.SetY(event["y"])
-        if event.has_key("scroll"):
+        if "scroll" in event:
             pvevent.SetScroll(event["scroll"])
         if event["action"] == 'dblclick':
             pvevent.SetRepeatCount(2)
@@ -209,13 +209,13 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
             if size[0] > 0 and size[1] > 0:
               view.SetSize(size)
         t = 0
-        if options and options.has_key("mtime"):
+        if options and "mtime" in options:
             t = options["mtime"]
         quality = 100
-        if options and options.has_key("quality"):
+        if options and "quality" in options:
             quality = options["quality"]
         localTime = 0
-        if options and options.has_key("localTime"):
+        if options and "localTime" in options:
             localTime = options["localTime"]
         reply = {}
         app = self.getApplication()
@@ -316,7 +316,7 @@ class vtkWebFileBrowser(vtkWebProtocol):
             if len(fileSplit) == 2:
                 filesToRemove.append(file)
                 gName = '*.'.join(fileSplit)
-                if groupIdx.has_key(gName):
+                if gName in groupIdx:
                     groupIdx[gName]['files'].append(file['label'])
                 else:
                     groupIdx[gName] = { 'files' : [file['label']], 'label': gName }

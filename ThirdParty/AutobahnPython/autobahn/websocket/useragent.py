@@ -295,7 +295,7 @@ def lookupWsSupport(ua, debug = True):
    """
    ws = _lookupWsSupport(ua)
    if debug:
-      if not UA_DETECT_WS_SUPPORT_DB.has_key(ua):
+      if not ua in UA_DETECT_WS_SUPPORT_DB:
          UA_DETECT_WS_SUPPORT_DB[ua] = ws
 
       if not ws[2]:
