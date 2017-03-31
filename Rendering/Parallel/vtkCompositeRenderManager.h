@@ -47,13 +47,6 @@ public:
   vtkGetObjectMacro(Compositer, vtkCompositer);
   //@}
 
-  //@{
-  /**
-   * Get rendering metrics.
-   */
-  vtkGetMacro(ImageProcessingTime, double);
-  //@}
-
 protected:
   vtkCompositeRenderManager();
   ~vtkCompositeRenderManager();

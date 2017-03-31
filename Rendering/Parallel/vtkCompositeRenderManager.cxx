@@ -56,8 +56,6 @@ vtkCompositeRenderManager::~vtkCompositeRenderManager()
 void vtkCompositeRenderManager::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "ImageProcessingTime: " << this->ImageProcessingTime << endl;
   os << indent << "Compositer: " << endl;
   this->Compositer->PrintSelf(os, indent.GetNextIndent());
 }
