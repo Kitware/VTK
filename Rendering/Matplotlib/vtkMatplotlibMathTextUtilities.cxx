@@ -1103,6 +1103,22 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
 }
 
 //----------------------------------------------------------------------------
+void vtkMatplotlibMathTextUtilities::SetScaleToPowerOfTwo(bool val)
+{
+  if (this->ScaleToPowerOfTwo != val)
+  {
+    this->ScaleToPowerOfTwo = val;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkMatplotlibMathTextUtilities::GetScaleToPowerOfTwo()
+{
+  return this->ScaleToPowerOfTwo;
+}
+
+//----------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
