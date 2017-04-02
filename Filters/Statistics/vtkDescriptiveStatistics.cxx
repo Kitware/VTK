@@ -562,8 +562,8 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
     if ( r >= nRowPrim )
     {
       vtkWarningMacro( "Incomplete input: model does not have a row "
-		       << varName.c_str()
-		       <<". Cannot test." );
+           << varName.c_str()
+           <<". Cannot test." );
       continue;
     }
 

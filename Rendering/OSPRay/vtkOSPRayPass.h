@@ -30,8 +30,8 @@
  *    occur on 2 remote nodes.  ospray_mpi_worker is a seperate application
  *    supplied with OSPRay binary packages or when built with MPI support
  *    from source.
- *    'mpirun -ppn 1 -hosts localhost VTKOSPRAY_ARGS=“—osp:mpi”
- *      ./paraview : -hosts n1, n2 ./ospray_mpi_worker —osp:mpi'
+ *    'mpirun -ppn 1 -hosts localhost VTKOSPRAY_ARGS="-osp:mpi"
+ *      ./paraview : -hosts n1, n2 ./ospray_mpi_worker -osp:mpi'
 */
 
 #ifndef vtkOSPRayPass_h

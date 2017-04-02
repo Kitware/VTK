@@ -20,7 +20,7 @@
  * vtkLagrangianBasicIntegrationModel implementation using
  * article :
  * "Matida, E. A., et al. "Improved numerical simulation of aerosol deposition in
- * an idealized mouth–throat." Journal of Aerosol Science 35.1 (2004): 1-19."
+ * an idealized mouth-throat." Journal of Aerosol Science 35.1 (2004): 1-19."
  * Input Array to process are expected as follow :
  * Index 1 is the "FlowVelocity" from flow input in the tracker
  * Index 2 is the "FlowDensity" from flow input in the tracker

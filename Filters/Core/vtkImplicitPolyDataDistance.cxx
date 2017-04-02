@@ -128,7 +128,7 @@ double vtkImplicitPolyDataDistance::EvaluateFunctionAndGetClosestPoint(double x[
 void vtkImplicitPolyDataDistance::EvaluateGradient(double x[3], double g[3])
 {
   double p[3];
-  this->SharedEvaluate(x, g, p);	// get normal, returned distance value not used and closest point not used
+  this->SharedEvaluate(x, g, p); // get normal, returned distance value not used and closest point not used
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double g[3], dou
     vtkSmartPointer<vtkGenericCell>::New();
   this->Locator->FindClosestPoint(x, p, cell, cellId, subId, vlen2);
 
-  if (cellId != -1)	// point located
+  if (cellId != -1) // point located
   {
     // dist = | point - x |
     ret = sqrt(vlen2);

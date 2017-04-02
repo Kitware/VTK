@@ -228,7 +228,7 @@ public:
    * Determine whether or not a polyhedron is convex. This method is adapted
    * from Devillers et al., "Checking the Convexity of Polytopes and the
    * Planarity of Subdivisions", Computational Geometry, Volume 11, Issues
-   * 3 – 4, December 1998, Pages 187 – 208.
+   * 3 - 4, December 1998, Pages 187 - 208.
    */
   bool IsConvex();
 

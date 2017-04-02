@@ -42,7 +42,7 @@ protected:
   vtkImageYIQToRGB();
   ~vtkImageYIQToRGB() VTK_OVERRIDE {}
 
-  double Maximum;	// Maximum value of pixel intensity allowed
+  double Maximum; // Maximum value of pixel intensity allowed
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id) VTK_OVERRIDE;

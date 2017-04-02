@@ -113,7 +113,7 @@ protected:
   int UsedRank;                         // Number of processors used in display
 
   VPICDataSet* vpicData;                // Data structure controlling access
-  GridExchange* exchanger;		// Exchange ghost cells between procs
+  GridExchange* exchanger;              // Exchange ghost cells between procs
 
   vtkIdType NumberOfNodes;              // Number of points in grid
   vtkIdType NumberOfCells;              // Number of cells in grid
