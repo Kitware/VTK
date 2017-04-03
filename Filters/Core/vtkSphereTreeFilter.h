@@ -117,7 +117,7 @@ public:
    * that if TreeHierarchy is off, then it is only possible to extract leaf
    * spheres (i.e., spheres for each cell of the associated dataset).
    */
-  vtkSetClampMacro(Level,int,-1,VTK_INT_MAX);
+  vtkSetClampMacro(Level,int,-1,VTK_SHORT_MAX);
   vtkGetMacro(Level,int);
   //@}
 

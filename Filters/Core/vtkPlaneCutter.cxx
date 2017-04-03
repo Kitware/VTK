@@ -91,7 +91,7 @@ namespace {
 
     CuttingFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
                    vtkSphereTree* tree, double *origin, double* normal) :
-      Input(input), Output(output), Plane(plane), SphereTree(tree),
+      Input(input), InPoints(0), Output(output), Plane(plane), SphereTree(tree),
       Origin(origin), Normal(normal)
     {
       this->Selected = this->SphereTree->SelectPlane(this->Origin,this->Normal,
@@ -689,8 +689,8 @@ namespace {
       vtkStructuredGrid *sgrid = vtkStructuredGrid::SafeDownCast(this->Input);
       sgrid->GetDimensions(dims);
       cellDims[0]=dims[0]-1; cellDims[1]=dims[1]-1; cellDims[2]=dims[2]-1;
-      vtkIdType sliceOffset=dims[0]*dims[1];
-      vtkIdType cellSliceOffset=cellDims[0]*cellDims[1];
+      vtkIdType sliceOffset=static_cast<vtkIdType>(dims[0]*dims[1]);
+      vtkIdType cellSliceOffset=static_cast<vtkIdType>(cellDims[0]*cellDims[1]);
       double *planeOrigin=this->Origin;
       double *planeNormal=this->Normal;
       void *ptsPtr = this->InPoints->GetVoidPointer(0);
