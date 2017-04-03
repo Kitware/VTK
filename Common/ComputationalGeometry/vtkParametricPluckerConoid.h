@@ -21,7 +21,7 @@
  * possible to set the number of folds in this class via the parameter 'N'.
  *
  * For more information, see the Wikipedia page on
- * <a href="https://en.wikipedia.org/wiki/Plücker%27s_conoid">Plucker's Conoid</a>.
+ * <a href="https://en.wikipedia.org/wiki/Pl%c3%bccker%27s_conoid">Plucker's Conoid</a>.
  * @warning
  * I haven't done any special checking on the number of folds parameter, N.
  * @par Thanks:

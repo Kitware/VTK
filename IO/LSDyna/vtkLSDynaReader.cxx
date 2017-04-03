@@ -1491,7 +1491,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // volume fractions output as history variables, and a flag
   // for the dominant group. If negative multi-material
   // species mass for each group is also output. Order is: rho,
-  // vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
+  // vf1, ... vfn, dvf flag, m1, ... mn. Density is at position 8
   // after the location for plastic strain. Any element material
   // history variables are written before the Ale variables, and
   // the six element strains components after these if
@@ -2219,7 +2219,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       // volume fractions output as history variables, and a flag
       // for the dominant group. If negative multi-material
       // species mass for each group is also output. Order is: rho,
-      // vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
+      // vf1, ... vfn, dvf flag, m1, ... mn. Density is at position 8
       // after the location for plastic strain. Any element material
       // history variables are written before the Ale variables, and
       // the six element strains components after these if

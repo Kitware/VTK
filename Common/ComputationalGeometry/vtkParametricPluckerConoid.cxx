@@ -54,7 +54,7 @@ void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3],
   double *Dv = Duvw + 3;
 
   // Location of the point, this parametrization was take from:
-  // https://en.wikipedia.org/wiki/Plücker%27s_conoid
+  // https://en.wikipedia.org/wiki/Pl%c3%bccker%27s_conoid
   Pt[0] = u * sin(v);
   Pt[1] = u * cos(v);
   Pt[2] = sin(this->N * v);

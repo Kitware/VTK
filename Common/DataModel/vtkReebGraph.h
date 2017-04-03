@@ -269,7 +269,7 @@ public:
 
    * IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
    */
-  int StreamTriangle(	vtkIdType vertex0Id, double scalar0,
+  int StreamTriangle( vtkIdType vertex0Id, double scalar0,
                       vtkIdType vertex1Id, double scalar1,
                       vtkIdType vertex2Id, double scalar2);
 
