@@ -15,8 +15,10 @@
 #include "vtkXMLParser.h"
 #include "vtkObjectFactory.h"
 #include "vtk_expat.h"
+
+#include <vtksys/SystemTools.hxx>
+
 #include <cctype>
-#include <sys/stat.h>
 
 vtkStandardNewMacro(vtkXMLParser);
 
@@ -126,8 +128,8 @@ int vtkXMLParser::Parse()
   if ( !this->InputString && !this->Stream && this->FileName )
   {
     // If it is file, open it and set the appropriate stream
-    struct stat fs;
-    if (stat(this->FileName, &fs) != 0)
+    vtksys::SystemTools::Stat_t fs;
+    if (vtksys::SystemTools::Stat(this->FileName, &fs) != 0)
     {
       vtkErrorMacro("Cannot open XML file: " << this->FileName);
       return 0;

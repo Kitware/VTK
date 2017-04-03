@@ -315,53 +315,53 @@ public:
    * dataset) must match the number of cells defined in cell attributes (unless
    * no geometry was defined).
    */
-  int ReadCellData(vtkDataSet *ds, int numCells);
+  int ReadCellData(vtkDataSet *ds, vtkIdType numCells);
 
   /**
    * Read the point data of a vtk data file. The number of points (from the
    * dataset) must match the number of points defined in point attributes
    * (unless no geometry was defined).
    */
-  int ReadPointData(vtkDataSet *ds, int numPts);
+  int ReadPointData(vtkDataSet *ds, vtkIdType numPts);
 
   /**
    * Read point coordinates. Return 0 if error.
    */
-  int ReadPoints(vtkPointSet *ps, int numPts);
+  int ReadPoints(vtkPointSet *ps, vtkIdType numPts);
 
   /**
    * Read point coordinates. Return 0 if error.
    */
-  int ReadPoints(vtkGraph *g, int numPts);
+  int ReadPoints(vtkGraph *g, vtkIdType numPts);
 
   /**
    * Read the vertex data of a vtk data file. The number of vertices (from the
    * graph) must match the number of vertices defined in vertex attributes
    * (unless no geometry was defined).
    */
-  int ReadVertexData(vtkGraph *g, int numVertices);
+  int ReadVertexData(vtkGraph *g, vtkIdType numVertices);
 
   /**
    * Read the edge data of a vtk data file. The number of edges (from the
    * graph) must match the number of edges defined in edge attributes
    * (unless no geometry was defined).
    */
-  int ReadEdgeData(vtkGraph *g, int numEdges);
+  int ReadEdgeData(vtkGraph *g, vtkIdType numEdges);
 
   /**
    * Read the row data of a vtk data file.
    */
-  int ReadRowData(vtkTable *t, int numEdges);
+  int ReadRowData(vtkTable *t, vtkIdType numEdges);
 
   /**
    * Read a bunch of "cells". Return 0 if error.
    */
-  int ReadCells(int size, int *data);
+  int ReadCells(vtkIdType size, int *data);
 
   /**
    * Read a piece of the cells (for streaming compliance)
    */
-  int ReadCells(int size, int *data, int skip1, int read2, int skip3);
+  int ReadCells(vtkIdType size, int *data, int skip1, int read2, int skip3);
 
   /**
    * Read the coordinates for a rectilinear grid. The axes parameter specifies
@@ -373,7 +373,7 @@ public:
   /**
    * Helper functions for reading data.
    */
-  vtkAbstractArray *ReadArray(const char *dataType, int numTuples, int numComp);
+  vtkAbstractArray *ReadArray(const char *dataType, vtkIdType numTuples, vtkIdType numComp);
   vtkFieldData *ReadFieldData(FieldType fieldType = FIELD_DATA);
   //@}
 
@@ -472,21 +472,21 @@ protected:
 
   char *Header;
 
-  int ReadScalarData(vtkDataSetAttributes *a, int num);
-  int ReadVectorData(vtkDataSetAttributes *a, int num);
-  int ReadNormalData(vtkDataSetAttributes *a, int num);
-  int ReadTensorData(vtkDataSetAttributes *a, int num, int numComp = 9);
-  int ReadCoScalarData(vtkDataSetAttributes *a, int num);
+  int ReadScalarData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadVectorData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadNormalData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadTensorData(vtkDataSetAttributes *a, vtkIdType num, vtkIdType numComp = 9);
+  int ReadCoScalarData(vtkDataSetAttributes *a, vtkIdType num);
   int ReadLutData(vtkDataSetAttributes *a);
-  int ReadTCoordsData(vtkDataSetAttributes *a, int num);
-  int ReadGlobalIds(vtkDataSetAttributes *a, int num);
-  int ReadPedigreeIds(vtkDataSetAttributes *a, int num);
-  int ReadEdgeFlags(vtkDataSetAttributes *a, int num);
+  int ReadTCoordsData(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadGlobalIds(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadPedigreeIds(vtkDataSetAttributes *a, vtkIdType num);
+  int ReadEdgeFlags(vtkDataSetAttributes *a, vtkIdType num);
 
   /**
    * Format is detailed \ref IOLegacyInformationFormat "here".
    */
-  int ReadInformation(vtkInformation *info, int numKeys);
+  int ReadInformation(vtkInformation *info, vtkIdType numKeys);
 
   int ReadDataSetData(vtkDataSet *ds);
 

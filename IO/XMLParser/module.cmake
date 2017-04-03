@@ -9,4 +9,5 @@ vtk_module(vtkIOXMLParser
   PRIVATE_DEPENDS
     vtkIOCore
     vtkexpat
+    vtksys
   )

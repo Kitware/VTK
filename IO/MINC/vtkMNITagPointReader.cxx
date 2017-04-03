@@ -63,8 +63,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkStringArray.h"
 
 #include <cctype>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #include <string>
 #include <vector>
@@ -110,8 +108,8 @@ int vtkMNITagPointReader::CanReadFile(const char* fname)
 {
   // First make sure the file exists.  This prevents an empty file
   // from being created on older compilers.
-  struct stat fs;
-  if(stat(fname, &fs) != 0)
+  vtksys::SystemTools::Stat_t fs;
+  if (vtksys::SystemTools::Stat(fname, &fs) != 0)
   {
     return 0;
   }
@@ -440,8 +438,8 @@ int vtkMNITagPointReader::ReadFile(
   }
 
   // Make sure that the file exists.
-  struct stat fs;
-  if(stat(this->FileName, &fs) != 0)
+  vtksys::SystemTools::Stat_t fs;
+  if (vtksys::SystemTools::Stat(this->FileName, &fs) != 0)
   {
     vtkErrorMacro("ReadFile: Can't open file " << this->FileName);
     return 0;

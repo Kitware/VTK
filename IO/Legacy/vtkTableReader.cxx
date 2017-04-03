@@ -156,7 +156,7 @@ int vtkTableReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "row_data", 8))
     {
-      int row_count = 0;
+      vtkIdType row_count = 0;
       if(!this->Read(&row_count))
       {
         vtkErrorMacro(<<"Cannot read number of rows!");

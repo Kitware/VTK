@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
 
-#include <sys/stat.h>
+#include <vtksys/SystemTools.hxx>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXYZMolReader);
@@ -178,8 +178,8 @@ int vtkXYZMolReader::CanReadFile(const char* name)
 
   // First make sure the file exists.  This prevents an empty file
   // from being created on older compilers.
-  struct stat fs;
-  if(stat(name, &fs) != 0)
+  vtksys::SystemTools::Stat_t fs;
+  if (vtksys::SystemTools::Stat(name, &fs) != 0)
   {
     return 0;
   }

@@ -22,7 +22,6 @@
 
 #include "vtksys/SystemTools.hxx"
 
-#include <sys/stat.h>
 #include <string>
 #include <algorithm>
 
@@ -191,8 +190,8 @@ static void vtkTIFFReaderInternalErrorHandler(const char* vtkNotUsed(module),
 bool vtkTIFFReader::vtkTIFFReaderInternal::Open(const char *filename)
 {
   this->Clean();
-  struct stat fs;
-  if (stat(filename, &fs))
+  vtksys::SystemTools::Stat_t fs;
+  if (vtksys::SystemTools::Stat(filename, &fs))
   {
     return false;
   }

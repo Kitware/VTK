@@ -161,7 +161,7 @@ int vtkTreeReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "points", 6))
     {
-      int point_count = 0;
+      vtkIdType point_count = 0;
       if(!this->Read(&point_count))
       {
         vtkErrorMacro(<<"Cannot read number of points!");
@@ -175,7 +175,7 @@ int vtkTreeReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "edges", 5))
     {
-      int edge_count = 0;
+      vtkIdType edge_count = 0;
       if(!this->Read(&edge_count))
       {
         vtkErrorMacro(<<"Cannot read number of edges!");
@@ -184,15 +184,15 @@ int vtkTreeReader::RequestData(
       }
 
       // Create all of the tree vertices (number of edges + 1)
-      for(int edge = 0; edge <= edge_count; ++edge)
+      for(vtkIdType edge = 0; edge <= edge_count; ++edge)
       {
         builder->AddVertex();
       }
 
       // Reparent the existing vertices so their order and topology match the original
-      int child = 0;
-      int parent = 0;
-      for(int edge = 0; edge != edge_count; ++edge)
+      vtkIdType child = 0;
+      vtkIdType parent = 0;
+      for(vtkIdType edge = 0; edge != edge_count; ++edge)
       {
         if(!(this->Read(&child) && this->Read(&parent)))
         {
@@ -216,7 +216,7 @@ int vtkTreeReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "vertex_data", 10))
     {
-      int vertex_count = 0;
+      vtkIdType vertex_count = 0;
       if(!this->Read(&vertex_count))
       {
         vtkErrorMacro(<<"Cannot read number of vertices!");
@@ -230,7 +230,7 @@ int vtkTreeReader::RequestData(
 
     if(!strncmp(this->LowerCase(line), "edge_data", 9))
     {
-      int edge_count = 0;
+      vtkIdType edge_count = 0;
       if(!this->Read(&edge_count))
       {
         vtkErrorMacro(<<"Cannot read number of edges!");

@@ -18,8 +18,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPSystemTools.h"
 #include "vtkStringArray.h"
-#include <sys/stat.h>
 #include <vtksys/Directory.hxx>
+#include <vtksys/SystemTools.hxx>
 #include <string>
 
 vtkStandardNewMacro(vtkPDirectory);
@@ -190,8 +190,8 @@ int vtkPDirectory::FileIsDirectory(const char *name)
 
     strcpy(&fullPath[n], name);
 
-    struct stat fs;
-    if(stat(fullPath, &fs) == 0)
+    vtksys::SystemTools::Stat_t fs;
+    if(vtksys::SystemTools::Stat(fullPath, &fs) == 0)
     {
 #if defined(_WIN32)
       result = ((fs.st_mode & _S_IFDIR) != 0);

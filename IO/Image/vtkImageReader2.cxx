@@ -25,7 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
-#include <sys/stat.h>
+#include "vtksys/SystemTools.hxx"
 
 vtkStandardNewMacro(vtkImageReader2);
 
@@ -577,8 +577,8 @@ int vtkImageReader2::OpenFile()
 
   // Open the new file
   vtkDebugMacro(<< "Initialize: opening file " << this->InternalFileName);
-  struct stat fs;
-  if ( !stat( this->InternalFileName, &fs) )
+  vtksys::SystemTools::Stat_t fs;
+  if ( !vtksys::SystemTools::Stat( this->InternalFileName, &fs) )
   {
 #ifdef _WIN32
     this->File = new ifstream(this->InternalFileName, ios::in | ios::binary);
@@ -630,8 +630,8 @@ unsigned long vtkImageReader2::GetHeaderSize(unsigned long idx)
     // make sure we figure out a filename to open
     this->ComputeInternalFileName(idx);
 
-    struct stat statbuf;
-    if (!stat(this->InternalFileName, &statbuf))
+    vtksys::SystemTools::Stat_t statbuf;
+    if (!vtksys::SystemTools::Stat(this->InternalFileName, &statbuf))
     {
       return (int)(statbuf.st_size -
                    (long)this->DataIncrements[this->GetFileDimensionality()]);

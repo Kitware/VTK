@@ -27,7 +27,6 @@
 #include "vtkSQLiteToTableReader.h"
 
 #include "vtksys/SystemTools.hxx"
-#include <sys/stat.h>
 
 void PrintFile(const char* name, std::ostream& os);
 bool CompareAsciiFiles(const char* file1, const char* file2);
@@ -113,8 +112,8 @@ void PrintFile(const char* name, std::ostream& os)
   // CMake/CTestCustom.cmake
   os << "CTEST_FULL_OUTPUT\n";
   os << "File \"" << name << "\"";
-  struct stat fs;
-  if(stat(name, &fs) != 0)
+  vtksys::SystemTools::Stat_t fs;
+  if(vtksys::SystemTools::Stat(name, &fs) != 0)
   {
     os << " does not exist.\n";
     return;

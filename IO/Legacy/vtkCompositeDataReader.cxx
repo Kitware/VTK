@@ -407,7 +407,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     else
     {
       // now read the amrbox information.
-      int num_tuples, num_components;
+      vtkIdType num_tuples, num_components;
       if (!this->Read(&num_tuples) || !this->Read(&num_components))
       {
         vtkErrorMacro("Failed to read values for AMRBOXES.");

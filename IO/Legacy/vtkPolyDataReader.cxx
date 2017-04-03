@@ -94,9 +94,9 @@ int vtkPolyDataReader::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int numPts=0;
+  vtkIdType numPts=0;
   char line[256];
-  int npts, size = 0, ncells, i;
+  vtkIdType npts, size = 0, ncells, i;
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int *tempArray;

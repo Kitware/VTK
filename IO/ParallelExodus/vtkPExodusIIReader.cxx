@@ -46,7 +46,6 @@
 
 #include <vtksys/RegularExpression.hxx>
 
-#include <sys/stat.h>
 #include <cctype>
 
 #undef DBG_PEXOIIRDR
@@ -889,15 +888,14 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
 
   // Count up the files
   char buffer[1024];
-  struct stat fs;
+  vtksys::SystemTools::Stat_t fs;
 
   // First go up every 100
   for ( cc = min + 100; true; cc += 100 )
   {
     sprintf( buffer, pattern, prefix.c_str(), cc );
 
-    // Stat returns -1 if file NOT found
-    if ( stat( buffer, &fs ) == -1 )
+    if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
 
   }
@@ -907,8 +905,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   {
     sprintf( buffer, pattern, prefix.c_str(), cc );
 
-    // Stat returns -1 if file NOT found
-    if ( stat( buffer, &fs ) == -1 )
+    if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
   }
   // Okay if I'm here than stat has failed so -1 on my cc
@@ -924,8 +921,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
 
     sprintf( buffer, pattern, prefix.c_str(), cc );
 
-    // Stat returns -1 if file NOT found
-    if ( stat( buffer, &fs ) == -1 )
+    if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
 
   }
@@ -939,8 +935,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
 
     sprintf( buffer, pattern, prefix.c_str(), cc );
 
-    // Stat returns -1 if file NOT found
-    if ( stat( buffer, &fs ) == -1 )
+    if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
   }
   min = cc + 1;
