@@ -119,7 +119,7 @@ struct vtkUnstructuredHierarchy : public vtkSphereTreeHierarchy
     NumCells(numCells), NumSpheres(nullptr), Offsets(nullptr),
     CellLoc(nullptr), CellMap(nullptr), GridSpheres(nullptr)
   {
-    this->GridSize = static_cast<vtkIdType>(dims[0] * dims[1] * dims[2]);
+    this->GridSize = static_cast<vtkIdType>(dims[0])*dims[1]*dims[2];
     for (int i=0; i<3; ++i)
       {
       this->Dims[i] = dims[i];
@@ -421,7 +421,7 @@ namespace {
       vtkIdType cellIds[8], ptId, idx, i, j, jOffset, kOffset, sliceOffset, hint[2];
       hint[0]=0; hint[1]=6;
       int *dims = this->Dims;
-      sliceOffset = static_cast<vtkIdType>(dims[0]*dims[1]);
+      sliceOffset = static_cast<vtkIdType>(dims[0])*dims[1];
       vtkPoints *inPts=this->Points;
       double *sphere = this->Spheres + slice*4*(dims[0]-1)*(dims[1]-1);
       double& radius = this->Radius.Local();
@@ -1286,7 +1286,7 @@ BuildStructuredHierarchy(vtkStructuredGrid *input, double *tree)
 
   for ( level=numLevels-2; level >= 0; --level)
   {
-    sliceOffset = static_cast<vtkIdType>(lDims[level][0]*lDims[level][1]);
+    sliceOffset = static_cast<vtkIdType>(lDims[level][0])*lDims[level][1];
     for (k=0; k < lDims[level][2]; ++k)
     {
       kOffset = k*sliceOffset;
@@ -1310,7 +1310,7 @@ BuildStructuredHierarchy(vtkStructuredGrid *input, double *tree)
           // Now compute bounding sphere for this block of spheres
           hints[1] = (iEnd-iStart)*(jEnd-jStart)*(kEnd-kStart) - 1;
 
-          blockSliceOffset = static_cast<vtkIdType>(lDims[level+1][0]*lDims[level+1][1]);
+          blockSliceOffset = static_cast<vtkIdType>(lDims[level+1][0])*lDims[level+1][1];
           for ( kk=kStart; kk < kEnd; ++kk)
           {
             kkOffset = kk * blockSliceOffset;
@@ -1382,7 +1382,7 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
   vtkIdType gridSize=h->GridSize;
 
   // Okay loop over all cell spheres and assign them to the grid cells.
-  vtkIdType cellId, i, j, k, ii, idx, sliceOffset=static_cast<vtkIdType>(dims[0]*dims[1]);
+  vtkIdType cellId, i, j, k, ii, idx, sliceOffset=static_cast<vtkIdType>(dims[0])*dims[1];
   double *sphere=tree;
   for ( cellId=0; cellId < numCells; ++cellId, sphere+=4 )
   {

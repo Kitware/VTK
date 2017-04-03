@@ -689,8 +689,8 @@ namespace {
       vtkStructuredGrid *sgrid = vtkStructuredGrid::SafeDownCast(this->Input);
       sgrid->GetDimensions(dims);
       cellDims[0]=dims[0]-1; cellDims[1]=dims[1]-1; cellDims[2]=dims[2]-1;
-      vtkIdType sliceOffset=static_cast<vtkIdType>(dims[0]*dims[1]);
-      vtkIdType cellSliceOffset=static_cast<vtkIdType>(cellDims[0]*cellDims[1]);
+      vtkIdType sliceOffset=static_cast<vtkIdType>(dims[0])*dims[1];
+      vtkIdType cellSliceOffset=static_cast<vtkIdType>(cellDims[0])*cellDims[1];
       double *planeOrigin=this->Origin;
       double *planeNormal=this->Normal;
       void *ptsPtr = this->InPoints->GetVoidPointer(0);
