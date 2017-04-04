@@ -34,6 +34,11 @@ import random
 import sys
 from datetime import datetime, timedelta
 from pprint import pformat
+import six
+if six.PY3:
+    # Python 3
+    # noinspection PyShadowingBuiltins
+    xrange = range
 
 
 

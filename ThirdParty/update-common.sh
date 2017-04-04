@@ -163,6 +163,8 @@ popd
 if [ -n "$basehash" ]; then
     git merge --log -s recursive "-Xsubtree=$subtree/" --no-commit "upstream-$name"
 else
+    # Note: on Windows this will likely fail. Edit the script to skip the check
+    # and use the flag.
     unrelated_histories_flag=""
     if git merge --help | grep -q -e allow-unrelated-histories; then
         unrelated_histories_flag="--allow-unrelated-histories "

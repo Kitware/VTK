@@ -60,6 +60,10 @@ from autobahn.websocket import http
 
 from six.moves import urllib
 
+if six.PY3:
+    # Python 3
+    # noinspection PyShadowingBuiltins
+    xrange = range
 ## The Python urlparse module currently does not contain the ws/wss
 ## schemes, so we add those dynamically (which is a hack of course).
 ## Since the urllib from six.moves does not seem to expose the stuff
@@ -2201,7 +2205,7 @@ class WebSocketProtocol:
       Implements :func:`autobahn.websocket.interfaces.IWebSocketChannel.sendClose`
       """
       if code is not None:
-         if type(code) != int:
+         if type(code) not in six.integer_types:
             raise Exception("invalid type %s for close code" % type(code))
          if code != 1000 and not (code >= 3000 and code <= 4999):
             raise Exception("invalid close code %d" % code)
@@ -2857,8 +2861,8 @@ class WebSocketServerProtocol(WebSocketProtocol):
 
          self.http_request_host = self.http_headers["host"].strip()
 
-         if self.http_request_host.find(":") >= 0:
-            (h, p) = self.http_request_host.split(":")
+         if self.http_request_host.find(":") >= 0 and not self.http_request_host.endswith(']'):
+            (h, p) = self.http_request_host.rsplit(":", 1)
             try:
                port = int(str(p.strip()))
             except:

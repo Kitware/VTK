@@ -144,14 +144,14 @@ Here is a sample of what a configuration file could look like:
 # =============================================================================
 
 def generatePassword():
-    return ''.join(choice(string.letters + string.digits) for _ in xrange(16))
+    return ''.join(choice(string.letters + string.digits) for _ in range(16))
 
 # -----------------------------------------------------------------------------
 
 def validateKeySet(obj, expected_keys, object_name):
     all_key_found = True
     for key in expected_keys:
-        if not obj.has_key(key):
+        if not key in obj:
             print("ERROR: %s is missing %s key." % (object_name, key))
             all_key_found = False
     return all_key_found
@@ -218,12 +218,12 @@ class SessionManager(object):
             options['id'] = id
             options['host'] = host
             options['port'] = port
-            if not options.has_key('secret'):
+            if not 'secret' in options:
                 options['secret'] = generatePassword()
             options['sessionURL'] = replaceVariables(self.config['configuration']['sessionURL'], [options, self.config['properties']])
             options['cmd'] = replaceList(self.config['apps'][options['application']]['cmd'], [options, self.config['properties']])
 
-            if self.config.has_key('sessionData') :
+            if 'sessionData' in self.config :
                 for key in self.config['sessionData'] :
                     options[key] = replaceVariables(self.config['sessionData'][key], [options, self.config['properties']])
 
@@ -241,7 +241,7 @@ class SessionManager(object):
         self.mapping.update(self.sessions)
 
     def getSession(self, id):
-        if self.sessions.has_key(id):
+        if id in self.sessions:
             return self.sessions[id]
         return None
 
@@ -278,7 +278,7 @@ class ResourceManager(object):
         for resource in resourceList:
             host = resource['host']
             portList = range(resource['port_range'][0],resource['port_range'][1]+1)
-            if self.resources.has_key(host):
+            if host in self.resources:
                 self.resources[host]['available'].extend(portList)
             else:
                 self.resources[host] = { 'available': portList, 'used': []}
@@ -306,7 +306,7 @@ class ResourceManager(object):
         """
         Free a previously reserved resource
         """
-        if self.resources.has_key(host) and port in self.resources[host]['used']:
+        if host in self.resources and port in self.resources[host]['used']:
             self.resources[host]['used'].remove(port)
             self.resources[host]['available'].append(port)
 
@@ -620,7 +620,7 @@ def startWebServer(options, config):
     web_resource.putChild(endpoint, LauncherResource(options, config))
 
     # Check if launcher should act as a file upload server as well
-    if config["configuration"].has_key("upload_dir"):
+    if "upload_dir" in config["configuration"]:
         from upload import UploadPage
         updir = replaceVariables(config['configuration']['upload_dir'], [config['properties']])
         uploadResource = UploadPage(updir)
@@ -655,7 +655,7 @@ def parseConfig(options):
         print(sample_config_file)
         sys.exit(2)
 
-    if not config["configuration"].has_key("content"):
+    if not "content" in config["configuration"]:
         config["configuration"]["content"] = ""
 
     return config

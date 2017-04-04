@@ -11,6 +11,7 @@
   * [mpi4py](mpi4py/update.sh)
   * [png](png/update.sh)
   * [tiff](tiff/update.sh)
+  * [Twisted](Twisted/update.sh)
   * [xdmf3](xdmf3/update.sh)
   * [zfp](zfp/update.sh)
   * [zlib](zlib/update.sh)
