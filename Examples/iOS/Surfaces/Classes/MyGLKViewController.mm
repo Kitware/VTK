@@ -50,9 +50,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <deque>
 
-/* 2 or 3 -- needs to match VTK version */
-#define GL_ES_VERSION 2
-
 
 @interface MyGLKViewController () {
   std::deque<vtkSmartPointer<vtkParametricFunction> > parametricObjects;
@@ -264,11 +261,7 @@ PURPOSE.  See the above copyright notice for more information.
 {
   [super viewDidLoad];
 
-#if GL_ES_VERSION == 2
-  self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-#else
   self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
-#endif
 
   if (!self.context) {
       NSLog(@"Failed to create ES context");
