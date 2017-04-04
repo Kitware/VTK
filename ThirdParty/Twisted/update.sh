@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+
 set -e
 set -x
 shopt -s dotglob
+
 readonly name="Twisted"
 readonly ownership="Twisted Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
@@ -28,8 +30,15 @@ src/twisted/spread
 src/twisted/tap
 src/twisted/web
 "
+
 extract_source () {
     # Copy over the files from Git
     git_archive
+
+    # Remove all `test/` subdirectories.
+    pushd "$extractdir"
+    find . -name "test" -type d -exec rm -rf '{}' \;
+    popd
 }
+
 . "${BASH_SOURCE%/*}/../update-common.sh"
