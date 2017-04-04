@@ -216,8 +216,11 @@ public:
     { return this->RightEyeDesc.m_nRenderFramebufferId; };
   GLuint GetRightResolveBufferId()
     { return this->RightEyeDesc.m_nResolveFramebufferId; };
-  void GetRenderBufferSize(int &width, int &height) {
-    width = this->RenderWidth; height = this->RenderHeight; };
+  void GetRenderBufferSize(int &width, int &height)
+    {
+    width = this->Size[0];
+    height = this->Size[1];
+    };
   //@}
 
   /**
@@ -286,11 +289,6 @@ protected:
   FramebufferDesc RightEyeDesc;
   bool CreateFrameBuffer( int nWidth, int nHeight,
     FramebufferDesc &framebufferDesc );
-
-  // resolution to render to for FBOs
-  // (as opposed to the window)
-  uint32_t RenderWidth;
-  uint32_t RenderHeight;
 
   // convert a device index to a human string
   std::string GetTrackedDeviceString(
