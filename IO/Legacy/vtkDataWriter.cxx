@@ -2145,14 +2145,8 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
           buffer = new char[ strlen(array->GetName()) * 4 + 1];
           this->EncodeString(buffer, array->GetName(), true);
         }
-#ifdef VTK_USE_64BIT_IDS
-        sprintf(format, "%s %lld %lld %s\n", buffer, numComp, numTuples,
+        sprintf(format, "%s %" VTK_ID_TYPE_PRId " %" VTK_ID_TYPE_PRId " %s\n", buffer, numComp, numTuples,
                 "%s");
-#else // VTK_USE_64BIT_IDS
-        sprintf(format, "%s %ld %ld %s\n", buffer, numComp, numTuples,
-                "%s");
-#endif // VTK_USE_64BIT_IDS
-
         this->WriteArray(fp, array->GetDataType(), array, format, numTuples,
                          numComp);
         delete [] buffer;
