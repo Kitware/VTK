@@ -713,9 +713,10 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
   glBindFramebuffer(GL_READ_FRAMEBUFFER, this->LeftEyeDesc.m_nRenderFramebufferId);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->LeftEyeDesc.m_nResolveFramebufferId );
 
-  glBlitFramebuffer( 0, 0, this->RenderWidth, this->RenderHeight, 0, 0, this->RenderWidth, this->RenderHeight,
+  glBlitFramebuffer(0, 0, this->Size[0], this->Size[1],
+    0, 0, this->Size[0], this->Size[1],
     GL_COLOR_BUFFER_BIT,
-    GL_LINEAR );
+    GL_LINEAR);
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
@@ -732,9 +733,10 @@ void  vtkOpenVRRenderWindow::StereoRenderComplete()
   glBindFramebuffer(GL_READ_FRAMEBUFFER, this->RightEyeDesc.m_nRenderFramebufferId );
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->RightEyeDesc.m_nResolveFramebufferId );
 
-  glBlitFramebuffer( 0, 0, this->RenderWidth, this->RenderHeight, 0, 0, this->RenderWidth, this->RenderHeight,
+  glBlitFramebuffer(0, 0, this->Size[0], this->Size[1],
+    0, 0, this->Size[0], this->Size[1],
     GL_COLOR_BUFFER_BIT,
-    GL_LINEAR  );
+    GL_LINEAR);
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
@@ -767,8 +769,10 @@ void vtkOpenVRRenderWindow::Frame(void)
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->RightEyeDesc.m_nResolveFramebufferId );
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
-    glBlitFramebuffer( 0, 0, this->RenderWidth, this->RenderHeight, 0, 0, this->Size[0], this->Size[1],
-      GL_COLOR_BUFFER_BIT, GL_LINEAR  );
+    glBlitFramebuffer(0, 0, this->Size[0], this->Size[1],
+      0, 0, this->Size[0] / 2, this->Size[1] / 2,
+      GL_COLOR_BUFFER_BIT,
+      GL_LINEAR);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
     SDL_GL_SwapWindow( this->WindowId );
@@ -863,11 +867,13 @@ void vtkOpenVRRenderWindow::Initialize (void)
     return;
   }
 
+  uint32_t renderWidth;
+  uint32_t renderHeight;
   this->HMD->GetRecommendedRenderTargetSize(
-    &this->RenderWidth, &this->RenderHeight );
+    &renderWidth, &renderHeight );
 
-  this->Size[0] = this->RenderWidth/2;
-  this->Size[1] = this->RenderHeight/2;
+  this->Size[0] = renderWidth;
+  this->Size[1] = renderHeight;
 
   Uint32 unWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
   //Uint32 unWindowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
@@ -882,7 +888,7 @@ void vtkOpenVRRenderWindow::Initialize (void)
 
   this->WindowId = SDL_CreateWindow( this->WindowName,
     this->Position[0], this->Position[1],
-    this->Size[0], this->Size[1],
+    this->Size[0] / 2, this->Size[1] / 2,
     unWindowFlags );
   if (this->WindowId == NULL)
   {
@@ -919,8 +925,8 @@ void vtkOpenVRRenderWindow::Initialize (void)
   this->SetWindowName(strWindowTitle.c_str());
   SDL_SetWindowTitle( this->WindowId, this->WindowName );
 
-  this->CreateFrameBuffer( this->RenderWidth, this->RenderHeight, this->LeftEyeDesc );
-  this->CreateFrameBuffer( this->RenderWidth, this->RenderHeight, this->RightEyeDesc );
+  this->CreateFrameBuffer(this->Size[0], this->Size[1], this->LeftEyeDesc);
+  this->CreateFrameBuffer(this->Size[0], this->Size[1], this->RightEyeDesc);
 
   if ( !vr::VRCompositor() )
   {
