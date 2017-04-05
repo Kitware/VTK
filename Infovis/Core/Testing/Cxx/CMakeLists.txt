@@ -12,6 +12,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ArrayTransposeMatrix.cxx,NO_VALID
   TestArrayNorm.cxx,NO_VALID,NO_DATA
   TestCollapseVerticesByArray.cxx,NO_VALID
+  TestContinuousScatterPlot.cxx,NO_VALID
   TestDataObjectToTable.cxx,NO_VALID
   TestExtractSelectedTree.cxx,NO_VALID
   TestExtractSelectedGraph.cxx,NO_VALID

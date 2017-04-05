@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkArrayToTable.cxx
   vtkCollapseGraph.cxx
   vtkCollapseVerticesByArray.cxx
+  vtkContinuousScatterplot.cxx
   vtkDataObjectToTable.cxx
   vtkDotProductSimilarity.cxx
   vtkExtractSelectedTree.cxx
