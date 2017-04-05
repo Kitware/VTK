@@ -6,8 +6,8 @@
 
 # If the environement var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
-  # October 17, 2016
-  set(GIT_TAG 32ed06b8465263d22578ba644fb4dda228cdd075)
+  # April 5, 2017
+  set(GIT_TAG 82917c9afd5982cfa15e4be561dd708feed28394)
 else()
   set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
