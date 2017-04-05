@@ -1,7 +1,7 @@
 from vtk import *
 from vtk.web.camera import *
 from vtk.web.query_data_model import *
-from vtk.web import iteritems
+from vtk.web import iteritems, buffer
 import json, os, math, gzip, shutil
 
 # Global helper variables
