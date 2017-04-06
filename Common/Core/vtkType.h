@@ -326,12 +326,14 @@ typedef long long vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
 #  define VTK_ID_MIN VTK_LONG_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_LONG_MAX
+#  define VTK_ID_TYPE_PRId "lld"
 # elif VTK_SIZEOF_LONG == 8
 typedef long vtkIdType;
 #  define VTK_ID_TYPE_IMPL VTK_LONG
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
 #  define VTK_ID_MIN VTK_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_MAX
+#  define VTK_ID_TYPE_PRId "ld"
 # else
 #  error "VTK_USE_64BIT_IDS is ON but no 64-bit integer type is available."
 # endif
@@ -341,6 +343,7 @@ typedef int vtkIdType;
 # define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_INT
 # define VTK_ID_MIN VTK_INT_MIN
 # define VTK_ID_MAX VTK_INT_MAX
+# define VTK_ID_TYPE_PRId "d"
 #endif
 
 /*--------------------------------------------------------------------------*/
