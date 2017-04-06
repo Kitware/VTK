@@ -698,7 +698,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 
   vtkFloatArray *pts = vtkFloatArray::New();
   pts->SetNumberOfComponents(3);
-  pts->SetNumberOfTuples(splatCount * 3);
+  pts->SetNumberOfTuples(splatCount);
   switch(poly->GetPoints()->GetDataType())
   {
     vtkTemplateMacro(
@@ -717,7 +717,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   {
     vtkFloatArray *offsets = vtkFloatArray::New();
     offsets->SetNumberOfComponents(2);
-    offsets->SetNumberOfTuples(splatCount * 3);
+    offsets->SetNumberOfTuples(splatCount);
 
     if (hasScaleArray)
     {
