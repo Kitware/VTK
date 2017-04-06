@@ -377,7 +377,6 @@ void QVTKOpenGLWidget::requireRenderWindowInitialization()
   if (this->RenderWindow)
   {
     this->RenderWindow->SetReadyForRendering(false);
-    this->markCachedImageAsDirty();
   }
 }
 
@@ -428,10 +427,6 @@ void QVTKOpenGLWidget::paintGL()
     GLint samples;
     f->glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
     this->RenderWindow->SetMultiSamples(static_cast<int>(samples));
-
-    // Set the render window's DPI so that graphical elements in charts, etc.
-    // are not super tiny.
-    this->RenderWindow->SetDPI(this->devicePixelRatio() * this->physicalDpiX());
 
     // On OsX (if QSurfaceFormat::alphaBufferSize() > 0) or when using Mesa, we
     // end up rendering fully transparent windows (see through background)
