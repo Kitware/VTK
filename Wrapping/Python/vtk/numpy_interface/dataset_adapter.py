@@ -1022,8 +1022,10 @@ class PointSet(DataSet):
         dataset has implicit points."""
         if not self.VTKObject.GetPoints():
             return None
-        return vtkDataArrayToVTKArray(
+        array = vtkDataArrayToVTKArray(
             self.VTKObject.GetPoints().GetData(), self)
+        array.Association = ArrayAssociation.POINT
+        return array
 
     def SetPoints(self, pts):
         """Given a VTKArray instance, sets the points of the dataset."""
