@@ -62,20 +62,38 @@ void vtkStructuredPointsWriter::WriteData()
     return;
   }
 
-  input->GetDimensions(dim);
-  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
+  if (this->WriteExtent)
+  {
+    int extent[6];
+    input->GetExtent(extent);
+    *fp << "EXTENT "
+        << extent[0] << " " << extent[1] << " " << extent[2] << " "
+        << extent[3] << " " << extent[4] << " " << extent[5] << "\n";
+  }
+  else
+  {
+    input->GetDimensions(dim);
+    *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
+  }
 
   input->GetSpacing(spacing);
   *fp << "SPACING " << spacing[0] << " " << spacing[1] << " " << spacing[2] << "\n";
 
   input->GetOrigin(origin);
-  // Do the electric slide. Move origin to min corner of extent.
-  // The alternative is to change the format to include an extent instead of dimensions.
-  ext = input->GetExtent();
-  origin[0] += ext[0] * spacing[0];
-  origin[1] += ext[2] * spacing[1];
-  origin[2] += ext[4] * spacing[2];
-  *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
+  if (this->WriteExtent)
+  {
+    *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
+  }
+  else
+  {
+    // Do the electric slide. Move origin to min corner of extent.
+    // The alternative is to change the format to include an extent instead of dimensions.
+    ext = input->GetExtent();
+    origin[0] += ext[0] * spacing[0];
+    origin[1] += ext[2] * spacing[1];
+    origin[2] += ext[4] * spacing[2];
+    *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
+  }
 
   if (!this->WriteCellData(fp, input))
   {

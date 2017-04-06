@@ -119,7 +119,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
         break;
       }
 
-      if ( ! strncmp(this->LowerCase(line), "dimensions",10) )
+      if ( ! strncmp(this->LowerCase(line), "dimensions",10) && !dimsRead )
       {
         int dim[3];
         if (!(this->Read(dim) &&
@@ -133,6 +133,29 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
         }
         outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                      0,dim[0]-1,0,dim[1]-1,0,dim[2]-1);
+        dimsRead = 1;
+      }
+
+      else if ( ! strncmp(line, "extent", 6) && !dimsRead )
+      {
+        int extent[6];
+        if (!(this->Read(extent) &&
+              this->Read(extent+1) &&
+              this->Read(extent+2) &&
+              this->Read(extent+3) &&
+              this->Read(extent+4) &&
+              this->Read(extent+5)))
+        {
+          vtkErrorMacro(<<"Error reading extent!");
+          this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
+          return 1;
+        }
+
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                     extent[0], extent[1], extent[2], extent[3],
+                     extent[4], extent[5]);
+
         dimsRead = 1;
       }
 
@@ -290,7 +313,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
 
     if ( !dimsRead || !arRead || !originRead)
     {
-      vtkWarningMacro(<<"Not all meta data was read form the file.");
+      vtkWarningMacro(<<"Not all meta data was read from the file.");
     }
   }
 
@@ -368,6 +391,27 @@ int vtkStructuredPointsReader::RequestData(
         vtkFieldData* fd = this->ReadFieldData();
         output->SetFieldData(fd);
         fd->Delete(); // ?
+      }
+      else if ( ! strncmp(line, "extent", 6) && !dimsRead )
+      {
+        int extent[6];
+        if (!(this->Read(extent) &&
+              this->Read(extent+1) &&
+              this->Read(extent+2) &&
+              this->Read(extent+3) &&
+              this->Read(extent+4) &&
+              this->Read(extent+5)))
+        {
+          vtkErrorMacro(<<"Error reading extent!");
+          this->CloseVTKFile ();
+          this->SetErrorCode( vtkErrorCode::FileFormatError );
+          return 1;
+        }
+
+        output->SetExtent(extent);
+        numPts = output->GetNumberOfPoints();
+        numCells = output->GetNumberOfCells();
+        dimsRead = 1;
       }
       else if ( ! strncmp(line, "dimensions",10) )
       {
