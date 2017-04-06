@@ -42,6 +42,7 @@ else()
     #find corresponding source directory
     load_cache(${OSPRAY_BUILD_DIR} READ_WITH_PREFIX OSP_
       CMAKE_HOME_DIRECTORY
+      embree_DIR
       )
     set(OSPRAY_SOURCE_DIR ${OSP_CMAKE_HOME_DIRECTORY})
 
@@ -54,7 +55,7 @@ else()
 
     set(LIB_OSPRAY_EMBREE LIB_OSPRAY_EMBREE-NOTFOUND)
     find_library(LIB_OSPRAY_EMBREE NAMES ospray_embree embree
-      PATHS ${OSPRAY_BUILD_DIR} NO_DEFAULT_PATH)
+      PATHS ${OSPRAY_BUILD_DIR} ${OSP_embree_DIR} NO_DEFAULT_PATH)
     mark_as_advanced(LIB_OSPRAY_EMBREE)
 
     set(LIB_OSPRAY_COMMON LIB_OSPRAY_COMMON-NOTFOUND)
