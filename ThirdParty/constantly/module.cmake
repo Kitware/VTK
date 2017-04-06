@@ -1,0 +1,5 @@
+vtk_module(constantly
+  COMPILE_DEPENDS
+    vtkPython
+  OPTIONAL_PYTHON_LINK
+  EXCLUDE_FROM_WRAPPING)

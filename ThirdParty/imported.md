@@ -1,5 +1,6 @@
 # Converted projects
 
+  * [constantly](constantly/update.sh)
   * [diy2](diy2/update.sh)
   * [expat](expat/update.sh)
   * [jsoncpp](jsoncpp/update.sh)
