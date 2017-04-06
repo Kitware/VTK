@@ -39,7 +39,7 @@ void otherTimerLogTest(ostream& strm)
   strm << "Test vtkTimerLog Start" << endl;
   vtkTimerLog *timer1 = vtkTimerLog::New();
 
-  timer1->SetMaxEntries (50);
+  timer1->SetMaxEntries(8);
   timer1->StartTimer();
   for (j = 0; j < 4; j++)
   {
@@ -61,10 +61,15 @@ void otherTimerLogTest(ostream& strm)
   strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
   strm << "GetCPUTime: " << timer1->GetCPUTime() << endl;
   timer1->DumpLog( "timing" );
-  timer1->DumpLogWithIndents(&cout, 0);
+  timer1->DumpLogWithIndents(&cerr, 0);
   timer1->ResetLog ();
   timer1->CleanupLog();
   unlink("timing");
+
+  cerr << "============== timer separator ================\n";
+
+  timer1->ResetLog();
+  timer1->SetMaxEntries(5);
 
   for (j = 0; j < 4; j++)
   {
@@ -85,16 +90,18 @@ void otherTimerLogTest(ostream& strm)
   strm << *timer1;
   strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
   strm << "GetCPUTime: " << timer1->GetCPUTime() << endl;
-  timer1->DumpLog( "timing" );
-  timer1->DumpLogWithIndents(&cout, 0);
+  timer1->DumpLog( "timing2" );
+  timer1->DumpLogWithIndents(&cerr, 0);
+  timer1->PrintSelf(cerr, vtkIndent());
   timer1->ResetLog ();
   timer1->CleanupLog();
-  unlink("timing");
+  unlink("timing2");
+
+  timer1->SetMaxEntries(50);
 
   timer1->Delete();
   strm << "Test vtkTimerLog End" << endl;
 }
-
 
 int otherTimerLog(int,char *[])
 {
