@@ -116,6 +116,14 @@ public:
 
   vtkObjectIdMap* GetObjectIdMap();
 
+  /**
+   * Return a hexadecimal formatted string of the VTK object's memory address,
+   * useful for uniquely identifying the object when exporting data.
+   *
+   * e.g. 0x8f05a90
+   */
+  static const char* GetObjectId(vtkObject* obj);
+
 protected:
   vtkWebApplication();
   ~vtkWebApplication();
