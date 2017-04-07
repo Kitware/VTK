@@ -481,8 +481,31 @@ def var (narray, axis=None) :
     return numpy.var(narray, axis)
 
 def volume (dataset) :
-    "Returns the volume normal of each cell in a dataset."
-    return _cell_quality(dataset, "volume")
+    "Returns the volume of each cell in a dataset."
+    #def _cell_quality (dataset, quality) :
+    if not dataset : raise RuntimeError('Need a dataset to compute volume')
+
+    # create a dataset with only our array but the same geometry/topology
+    ds = dataset.NewInstance()
+    ds.UnRegister(None)
+    ds.CopyStructure(dataset.VTKObject)
+
+    filter = vtk.vtkCellSizeFilter()
+    filter.SetInputData(ds)
+    filter.ComputePointOff()
+    filter.ComputeLengthOff()
+    filter.ComputeAreaOff()
+    filter.Update()
+
+    varray = filter.GetOutput().GetCellData().GetArray("size")
+    varray.SetName("CellQuality")
+    ans = dsa.vtkDataArrayToVTKArray(varray, dataset)
+
+    # The association information has been lost over the vtk filter
+    # we must reconstruct it otherwise lower pipeline will be broken.
+    ans.Association = dsa.ArrayAssociation.CELL
+
+    return ans
 
 def vorticity(narray, dataset=None):
     "Returns the vorticity/curl of an array of 3D vectors."

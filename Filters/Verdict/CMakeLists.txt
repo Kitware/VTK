@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkCellQuality.cxx
+  vtkCellSizeFilter.cxx
   vtkMatrixMathFilter.cxx
   vtkMeshQuality.cxx
   )
