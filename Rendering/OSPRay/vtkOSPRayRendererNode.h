@@ -26,6 +26,7 @@
 #include "vtkRendererNode.h"
 #include <vector> // for ivars
 
+class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationStringKey;
 class vtkMatrix4x4;
@@ -98,7 +99,6 @@ public:
    * When present on renderer, controls the number of ospray render calls
    * for each refresh.
    * default is 1
-   * TODO: NOT CURRENTLY USED
    */
   static vtkInformationIntegerKey* MAX_FRAMES();
   static void SetMaxFrames(int, vtkRenderer *renderer);
@@ -140,6 +140,30 @@ public:
    */
   static void SetCompositeOnGL(int, vtkRenderer *renderer);
   static int GetCompositeOnGL(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * World space direction of north pole for gradient and texture background.
+   */
+  static vtkInformationDoubleVectorKey* NORTH_POLE();
+  //@{
+  /**
+   * Convenience method to set/get NORTH_POLE on a vtkRenderer.
+   */
+  static void SetNorthPole(double *, vtkRenderer *renderer);
+  static double * GetNorthPole(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * World space direction of east pole for texture background.
+   */
+  static vtkInformationDoubleVectorKey* EAST_POLE();
+  //@{
+  /**
+   * Convenience method to set/get EAST_POLE on a vtkRenderer.
+   */
+  static void SetEastPole(double *, vtkRenderer *renderer);
+  static double * GetEastPole(vtkRenderer *renderer);
   //@}
 
   /**
