@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import vtk
+from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -32,7 +33,13 @@ sample.Update()
 convert = vtk.vtkImageDataToPointSet()
 convert.SetInputConnection(sample.GetOutputPort())
 convert.Update()
-input = convert.GetOutput()
+#input = convert.GetOutput()
+
+cthvtr = vtk.vtkXMLRectilinearGridReader()
+cthvtr.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cth.vtr")
+cthvtr.CellArrayStatus = ['Pressure', 'Void Volume Fraction', 'X Velocity', 'Y Velocity', 'Z Velocity', 'Volume Fraction for Armor Plate', 'Mass for Armor Plate', 'Volume Fraction for Body, Nose', 'Mass for Body, Nose']
+cthvtr.Update()
+input = cthvtr.GetOutput()
 
 # Create a cutting plane
 plane = vtk.vtkPlane()
@@ -43,7 +50,6 @@ plane.SetNormal(1,1,1)
 cutter = vtk.vtkCutter()
 cutter.SetInputData(input)
 cutter.SetCutFunction(plane)
-cutter.GeneratePolygons = 0
 
 cutterMapper = vtk.vtkPolyDataMapper()
 cutterMapper.SetInputConnection(cutter.GetOutputPort())

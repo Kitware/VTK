@@ -106,20 +106,20 @@ public:
    * associated with the output polygons. By default computing of normals is
    * disabled.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals, bool);
+  vtkGetMacro(ComputeNormals, bool);
+  vtkBooleanMacro(ComputeNormals, bool);
   //@}
 
   //@{
   /**
    * Indicate whether to interpolate attribute data. By default this is
    * enabled. Note that both cell data and point data is interpolated and
-   * output.
+   * outputted, except for image data input where vtkFlyingEdgesPlaneCutter applies.
    */
-  vtkSetMacro(InterpolateAttributes,int);
-  vtkGetMacro(InterpolateAttributes,int);
-  vtkBooleanMacro(InterpolateAttributes,int);
+  vtkSetMacro(InterpolateAttributes, bool);
+  vtkGetMacro(InterpolateAttributes, bool);
+  vtkBooleanMacro(InterpolateAttributes, bool);
   //@}
 
   /**
@@ -140,8 +140,8 @@ protected:
   ~vtkPlaneCutter() VTK_OVERRIDE;
 
   vtkPlane *Plane;
-  int ComputeNormals;
-  int InterpolateAttributes;
+  bool ComputeNormals;
+  bool InterpolateAttributes;
 
   // Helpers
   vtkSphereTree *SphereTree;
@@ -155,6 +155,8 @@ protected:
                           vtkInformationVector *) VTK_OVERRIDE;
   int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
   int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+
+  static void AddNormalArray(double* planeNormal, vtkDataSet* ds);
 
 private:
   vtkPlaneCutter(const vtkPlaneCutter&) VTK_DELETE_FUNCTION;

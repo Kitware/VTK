@@ -1179,13 +1179,6 @@ vtkDoubleArray *vtkSphereTree::BuildTreeSpheres(vtkDataSet *input)
 void vtkSphereTree::
 BuildTreeHierarchy(vtkDataSet *input)
 {
-  // See if anything has to be done
-  if ( this->Tree != nullptr && this->Hierarchy != nullptr &&
-       this->BuildTime > this->MTime )
-  {
-      return;
-  }
-
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
   {
     vtkSphereTree::
@@ -1271,7 +1264,7 @@ BuildStructuredHierarchy(vtkStructuredGrid *input, double *tree)
   sH->Resolution = resolution;
   sH->GridSize = size[curLevel-1];
   sH->GridDims[0] = lDims[curLevel-1][0];
-  sH->GridDims[1] = lDims[curLevel-1][2];
+  sH->GridDims[1] = lDims[curLevel-1][1];
   sH->GridDims[2] = lDims[curLevel-1][2];
   sH->GridSpheres = spheres[curLevel-1];
 
