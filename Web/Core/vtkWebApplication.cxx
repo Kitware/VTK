@@ -442,3 +442,12 @@ vtkObjectIdMap* vtkWebApplication::GetObjectIdMap()
 {
   return this->Internals->ObjectIdMap.GetPointer();
 }
+
+//----------------------------------------------------------------------------
+const char* vtkWebApplication::GetObjectId(vtkObject* obj)
+{
+  std::ostringstream oss;
+  oss << std::hex << static_cast<void*>(obj);
+  std::string str = oss.str();
+  return str.c_str();
+}
