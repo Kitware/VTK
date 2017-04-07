@@ -488,7 +488,10 @@ void vtkQuad::Contour(double value, vtkDataArray *cellScalars,
     if ( pts[0] != pts[1] )
     {
       newCellId = offset + lines->InsertNextCell(2,pts);
-      outCd->CopyData(inCd,cellId,newCellId);
+      if (outCd)
+      {
+        outCd->CopyData(inCd, cellId, newCellId);
+      }
     }
   }
 }

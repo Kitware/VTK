@@ -299,7 +299,10 @@ void vtkLine::Contour(double value, vtkDataArray *cellScalars,
       }
     }
     newCellId = verts->InsertNextCell(1,pts);
-    outCd->CopyData(inCd,cellId,newCellId);
+    if (outCd)
+    {
+      outCd->CopyData(inCd, cellId, newCellId);
+    }
   }
 }
 

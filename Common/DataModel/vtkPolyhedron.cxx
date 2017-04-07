@@ -3093,7 +3093,10 @@ void vtkPolyhedron::Contour(double value,
     }
 
     vtkIdType newCellId = offset + polys->InsertNextCell(npts, pts);
-    outCd->CopyData(inCd, cellId, newCellId);
+    if (outCd)
+    {
+      outCd->CopyData(inCd, cellId, newCellId);
+    }
   }
 
   this->Internal->RestoreFaceArrayAndEdgeTable(this->Faces, this->EdgeTable);
