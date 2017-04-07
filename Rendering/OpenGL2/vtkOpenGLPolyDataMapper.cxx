@@ -3231,48 +3231,63 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     }
   }
 
-    // Set the texture if we are going to use texture
-    // for coloring with a point attribute.
-    vtkDataArray *tcoords = NULL;
-    if (this->HaveTCoords(poly))
-    {
-      if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
-      {
-        tcoords = this->ColorCoordinates;
-      }
-      else
-      {
-        tcoords = poly->GetPointData()->GetTCoords();
-      }
-    }
-
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
-
-  this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), cache, VTK_FLOAT);
-  vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
-  if (posVBO)
+  // Set the texture if we are going to use texture
+  // for coloring with a point attribute.
+  vtkDataArray *tcoords = NULL;
+  if (this->HaveTCoords(poly))
   {
-    posVBO->SetCoordShiftAndScaleMethod(
-      static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
-    // If the VBO coordinates were shifted and scaled, prepare the inverse transform
-    // for application to the model->view matrix:
-    if (posVBO->GetCoordShiftAndScaleEnabled())
+    if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
     {
-      std::vector<double> shift = posVBO->GetShift();
-      std::vector<double> scale = posVBO->GetScale();
-      this->VBOInverseTransform->Identity();
-      this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
-      this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
-      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
+      tcoords = this->ColorCoordinates;
+    }
+    else
+    {
+      tcoords = poly->GetPointData()->GetTCoords();
     }
   }
 
-  this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
-  this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
-  this->VBOs->CacheDataArray("tcoordMC", tcoords, cache, VTK_FLOAT);
-  this->VBOs->BuildAllVBOs(cache);
-  this->VBOBuildTime.Modified(); // need to call all the time or GetNeedToRebuild will always return true;
+  // rebuild the VBO if the data has changed we create a string for the VBO what
+  // can change the VBO? points normals tcoords colors so what can change those?
+  // the input data is clearly one as it can change all four items tcoords may
+  // haveTextures or not colors may change based on quite a few mapping
+  // parameters in the mapper
+  toString.str("");
+  toString.clear();
+  toString << poly->GetMTime() <<
+    'A' << (c ? c->GetMTime() : 1) <<
+    'B' << (n ? n->GetMTime() : 1) <<
+    'C' << (tcoords ? tcoords->GetMTime() : 1);
+  if (this->VBOBuildString != toString.str())
+  {
+    vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
+
+    this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), cache, VTK_FLOAT);
+    vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
+    if (posVBO)
+    {
+      posVBO->SetCoordShiftAndScaleMethod(
+        static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
+      // If the VBO coordinates were shifted and scaled, prepare the inverse transform
+      // for application to the model->view matrix:
+      if (posVBO->GetCoordShiftAndScaleEnabled())
+      {
+        std::vector<double> shift = posVBO->GetShift();
+        std::vector<double> scale = posVBO->GetScale();
+        this->VBOInverseTransform->Identity();
+        this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+        this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+        this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
+      }
+    }
+
+    this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
+    this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
+    this->VBOs->CacheDataArray("tcoordMC", tcoords, cache, VTK_FLOAT);
+    this->VBOs->BuildAllVBOs(cache);
+    this->VBOBuildTime.Modified(); // need to call all the time or GetNeedToRebuild will always return true;
+    this->VBOBuildString = toString.str();
+  }
 
   // now create the IBOs
   this->BuildIBO(ren, act, poly);
