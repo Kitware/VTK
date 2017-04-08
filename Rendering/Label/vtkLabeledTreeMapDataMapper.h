@@ -135,8 +135,8 @@ protected:
                  vtkDataArray *numericData, vtkStringArray *stringData,
                  int activeComp, int numComps);
   void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData,
-                    vtkStringArray *stringData, int activeComp, int numComps,
-                    char *string);
+                      vtkStringArray *stringData, int activeComp, int numComps,
+                      char *string, size_t stringSize);
   void UpdateFontSizes();
   int UpdateWindowInfo(vtkViewport *viewport);
   int GetStringSize(char *string, int level);

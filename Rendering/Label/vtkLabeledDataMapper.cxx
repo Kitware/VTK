@@ -49,9 +49,9 @@ vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
 // ----------------------------------------------------------------------
 
 template<typename T>
-void vtkLabeledDataMapper_PrintComponent(char *output, const char *format, int index, const T *array)
+void vtkLabeledDataMapper_PrintComponent(char *output, size_t outputSize, const char *format, int index, const T *array)
 {
-  sprintf(output, format, array[index]);
+  snprintf(output, outputSize, format, array[index]);
 }
 
 
@@ -556,7 +556,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
         {
           switch (numericData->GetDataType())
           {
-            vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(TempString,
+            vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(TempString, sizeof(TempString),
                 LiveFormatString, activeComp, static_cast<VTK_TT *>(rawData)));
           }
           ResultString = TempString;
@@ -572,6 +572,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
             {
               vtkTemplateMacro(
                 vtkLabeledDataMapper_PrintComponent(TempString,
+                                                    sizeof(TempString),
                                                     LiveFormatString,
                                                     j,
                                                     static_cast<VTK_TT *>(rawData)));

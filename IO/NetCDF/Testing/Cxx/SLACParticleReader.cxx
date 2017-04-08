@@ -55,10 +55,11 @@ int SLACParticleReader(int argc, char *argv[])
   meshReader->SetMeshFileName(meshFileName);
   delete[] meshFileName;
 
-  char *modeFileName = new char[strlen(modeFileNamePattern) + 10];
+  size_t modeFileNameLength = strlen(modeFileNamePattern) + 10;
+  char *modeFileName = new char[modeFileNameLength];
   for (int i = 0; i < 9; i++)
   {
-    sprintf(modeFileName, modeFileNamePattern, i);
+    snprintf(modeFileName, modeFileNameLength, modeFileNamePattern, i);
     meshReader->AddModeFileName(modeFileName);
   }
   delete[] modeFileName;

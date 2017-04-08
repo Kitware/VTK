@@ -238,7 +238,8 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex,
                                                vtkDataArray *numericData,
                                                vtkStringArray *stringData,
                                                int activeComp, int numComp,
-                                               char *string)
+                                               char *string,
+                                               size_t stringSize)
 {
   char format[1024];
   double val;
@@ -255,13 +256,13 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex,
           string[0] = '\0';
           return;
         }
-        sprintf(string, this->LabelFormat,
-                static_cast<char>(numericData->GetComponent(vertex, activeComp)));
+        snprintf(string, stringSize, this->LabelFormat,
+                 static_cast<char>(numericData->GetComponent(vertex, activeComp)));
       }
       else
       {
-        sprintf(string, this->LabelFormat,
-                numericData->GetComponent(vertex, activeComp));
+        snprintf(string, stringSize, this->LabelFormat,
+                 numericData->GetComponent(vertex, activeComp));
       }
     }
     else
@@ -269,11 +270,11 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex,
       strcpy(format, "("); strcat(format, this->LabelFormat);
       for (j=0; j<(numComp-1); j++)
       {
-        sprintf(string, format, numericData->GetComponent(vertex, j));
+        snprintf(string, stringSize, format, numericData->GetComponent(vertex, j));
         strcpy(format,string); strcat(format,", ");
         strcat(format, this->LabelFormat);
       }
-      sprintf(string, format, numericData->GetComponent(vertex, numComp-1));
+      snprintf(string, stringSize, format, numericData->GetComponent(vertex, numComp-1));
       strcat(string, ")");
     }
   }
@@ -285,13 +286,13 @@ void vtkLabeledTreeMapDataMapper::GetVertexLabel(vtkIdType vertex,
       string[0] = '\0';
       return;
     }
-    sprintf(string, this->LabelFormat,
-            stringData->GetValue(vertex).c_str());
+    snprintf(string, stringSize, this->LabelFormat,
+             stringData->GetValue(vertex).c_str());
   }
   else // Use the vertex id
   {
     val = static_cast<double>(vertex);
-    sprintf(string, this->LabelFormat, val);
+    snprintf(string, stringSize, this->LabelFormat, val);
   }
 }
 
@@ -522,7 +523,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
       }
 
       this->GetVertexLabel(vertex, numericData, stringData, activeComp, numComps,
-                         string);
+                           string, sizeof(string));
       results = this->AnalyseLabel(string, level, blimitsDC, textPosWC, &tprop);
       if (results == 1)
       {

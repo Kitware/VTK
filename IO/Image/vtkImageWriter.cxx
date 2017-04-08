@@ -504,8 +504,6 @@ void vtkImageWriter::DeleteFiles()
   {
     return;
   }
-  int i;
-  char *fileName;
 
   vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
 
@@ -517,23 +515,24 @@ void vtkImageWriter::DeleteFiles()
   {
     if (this->FilePrefix)
     {
-      fileName =
-        new char[strlen(this->FilePrefix) + strlen(this->FilePattern) + 10];
+      size_t fileNameLength = strlen(this->FilePrefix) + strlen(this->FilePattern) + 10;
+      char *fileName = new char[fileNameLength];
 
-      for (i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
+      for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
-        sprintf(fileName, this->FilePattern, this->FilePrefix, i);
+        snprintf(fileName, fileNameLength, this->FilePattern, this->FilePrefix, i);
         vtksys::SystemTools::RemoveFile(fileName);
       }
       delete [] fileName;
     }
     else
     {
-      fileName = new char[strlen(this->FilePattern) + 10];
+      size_t fileNameLength = strlen(this->FilePattern) + 10;
+      char *fileName = new char[fileNameLength];
 
-      for (i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
+      for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
-        sprintf(fileName, this->FilePattern, i);
+        snprintf(fileName, fileNameLength, this->FilePattern, i);
         vtksys::SystemTools::RemoveFile(fileName);
       }
       delete [] fileName;

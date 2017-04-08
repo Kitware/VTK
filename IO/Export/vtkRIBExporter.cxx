@@ -223,8 +223,9 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
 {
 
   // create a FileName to hold the renderered image
-  char *imageFileName = new char [strlen (this->FilePrefix) + strlen (".tif") + 1];
-  sprintf (imageFileName, "%s%s", this->FilePrefix, ".tif");
+  size_t length = strlen (this->FilePrefix) + strlen (".tif") + 1;
+  char *imageFileName = new char [length];
+  snprintf (imageFileName, length, "%s%s", this->FilePrefix, ".tif");
 
   fprintf (this->FilePtr, "FrameBegin %d\n", 1);
   fprintf (this->FilePtr, "Display \"%s\" \"file\" \"rgb\"\n", imageFileName);
