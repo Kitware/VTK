@@ -189,7 +189,7 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&examnumber);
-  sprintf(tmpStr,"%d",examnumber);
+  snprintf(tmpStr,sizeof(tmpStr),"%d",examnumber);
   //this->SetStudyNumber(tmpStr);
   // Patient ID
   fseek(fp, examHdrOffset + 84, SEEK_SET);
@@ -223,7 +223,7 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&patientage);
-  sprintf(tmpStr,"%d",patientage);
+  snprintf(tmpStr,sizeof(tmpStr),"%d",patientage);
   this->GetMedicalImageProperties()->SetPatientAge( tmpStr );
   // Patient Sex
   fseek(fp, examHdrOffset + 126, SEEK_SET);
@@ -236,7 +236,7 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&patientsex);
-  sprintf(tmpStr,"%d",patientsex);
+  snprintf(tmpStr,sizeof(tmpStr),"%d",patientsex);
   this->GetMedicalImageProperties()->SetPatientSex( tmpStr );
   // Modality
   fseek(fp, examHdrOffset + 305, SEEK_SET);
@@ -262,7 +262,7 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&series);
-  sprintf(tmpStr,"%d",series);
+  snprintf(tmpStr,sizeof(tmpStr),"%d",series);
   this->SetSeries(tmpStr);
   // scan protocol name
   fseek(fp, seriesHdrOffset + 92, SEEK_SET);

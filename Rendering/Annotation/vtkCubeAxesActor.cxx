@@ -1328,7 +1328,7 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (xAxisDigits != this->LastXAxisDigits)
   {
     char  format[16];
-    sprintf(format, "%%.%df", xAxisDigits);
+    snprintf(format, sizeof(format), "%%.%df", xAxisDigits);
     this->SetXLabelFormat(format);
     this->LastXAxisDigits = xAxisDigits;
   }
@@ -1337,7 +1337,7 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (yAxisDigits != this->LastYAxisDigits)
   {
     char  format[16];
-    sprintf(format, "%%.%df", yAxisDigits);
+    snprintf(format, sizeof(format), "%%.%df", yAxisDigits);
     this->SetYLabelFormat(format);
     this->LastYAxisDigits = yAxisDigits;
   }
@@ -1346,7 +1346,7 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (zAxisDigits != this->LastZAxisDigits)
   {
     char  format[16];
-    sprintf(format, "%%.%df", zAxisDigits);
+    snprintf(format, sizeof(format), "%%.%df", zAxisDigits);
     this->SetZLabelFormat(format);
     this->LastZAxisDigits = zAxisDigits;
   }
@@ -2265,11 +2265,11 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
       }
       if (mustAdjustValue)
       {
-        sprintf(label, format, val*scaleFactor);
+        snprintf(label, sizeof(label), format, val*scaleFactor);
       }
       else
       {
-        sprintf(label, format, val);
+        snprintf(label, sizeof(label), format, val);
       }
       if (fabs(val) < 0.01)
       {
@@ -2279,27 +2279,27 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
         //
         if (strcmp(label, "-0") == 0)
         {
-          sprintf(label, "0");
+          snprintf(label, sizeof(label), "0");
         }
         else if (strcmp(label, "-0.0") == 0)
         {
-          sprintf(label, "0.0");
+          snprintf(label, sizeof(label), "0.0");
         }
         else if (strcmp(label, "-0.00") == 0)
         {
-          sprintf(label, "0.00");
+          snprintf(label, sizeof(label), "0.00");
         }
         else if (strcmp(label, "-0.000") == 0)
         {
-          sprintf(label, "0.000");
+          snprintf(label, sizeof(label), "0.000");
         }
         else if (strcmp(label, "-0.0000") == 0)
         {
-          sprintf(label, "0.0000");
+          snprintf(label, sizeof(label), "0.0000");
         }
         else if (strcmp(label, "-0.00000") == 0)
         {
-          sprintf(label, "0.00000");
+          snprintf(label, sizeof(label), "0.00000");
         }
       }
       labels->SetValue(i, label);

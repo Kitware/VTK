@@ -572,7 +572,7 @@ void vtkAffineRepresentation2D::Translate(double eventPos[2])
   if ( this->DisplayText )
   {
     char str[256];
-    sprintf(str,"(%0.2g, %0.2g)", this->CurrentTranslation[0], this->CurrentTranslation[1]);
+    snprintf(str,sizeof(str),"(%0.2g, %0.2g)", this->CurrentTranslation[0], this->CurrentTranslation[1]);
     this->UpdateText(str,eventPos);
   }
 }
@@ -659,7 +659,7 @@ void vtkAffineRepresentation2D::Scale(double eventPos[2])
   if ( this->DisplayText )
   {
     char str[256];
-    sprintf(str,"(%0.2g, %0.2g)", this->CurrentScale[0], this->CurrentScale[1]);
+    snprintf(str,sizeof(str),"(%0.2g, %0.2g)", this->CurrentScale[0], this->CurrentScale[1]);
     this->UpdateText(str,eventPos);
   }
 }
@@ -728,7 +728,7 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
   {
     char str[256];
     double angle = vtkMath::DegreesFromRadians( deltaAngle );
-    sprintf(str,"(%1.1f)", angle);
+    snprintf(str,sizeof(str),"(%1.1f)", angle);
     this->UpdateText(str,eventPos);
   }
 }
@@ -814,7 +814,7 @@ void vtkAffineRepresentation2D::Shear(double eventPos[2])
   if ( this->DisplayText )
   {
     char str[256];
-    sprintf(str,"(%0.2g)", angle);
+    snprintf(str,sizeof(str),"(%0.2g)", angle);
     this->UpdateText(str,eventPos);
   }
 }

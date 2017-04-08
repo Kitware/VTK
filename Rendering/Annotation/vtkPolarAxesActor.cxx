@@ -1831,7 +1831,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
-      sprintf(label, this->PolarLabelFormat, *itList);
+      snprintf(label, sizeof(label), this->PolarLabelFormat, *itList);
       labels->SetValue(i, label);
     }
   }
@@ -2075,7 +2075,7 @@ void vtkPolarAxesActor::BuildLabelsLog()
     for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
-      sprintf(label, this->PolarLabelFormat, *itList);
+      snprintf(label, sizeof(label), this->PolarLabelFormat, *itList);
       labels->SetValue(i, label);
     }
   }
@@ -2211,7 +2211,7 @@ void vtkPolarAxesActor::GetSignificantPartFromValues(
     char label[64];
     if (this->ExponentLocation == VTK_EXPONENT_LABELS)
     {
-      sprintf(label, this->PolarLabelFormat, *itList);
+      snprintf(label, sizeof(label), this->PolarLabelFormat, *itList);
       valuesStr->SetValue(i, label);
     }
     else

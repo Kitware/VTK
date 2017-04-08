@@ -520,7 +520,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
         val = this->AdjustedRange[0] + i * interval;
-        sprintf(string, this->LabelFormat, val);
+        snprintf(string, sizeof(string), this->LabelFormat, val);
         this->LabelMappers[i]->SetInput(string);
 
         // Check if the label text has changed

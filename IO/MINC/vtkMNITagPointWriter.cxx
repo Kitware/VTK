@@ -380,7 +380,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
       {
         double point[3];
         points[kk]->GetPoint(i, point);
-        sprintf(text, " %.15g %.15g %.15g", point[0], point[1], point[2]);
+        snprintf(text, sizeof(text), " %.15g %.15g %.15g", point[0], point[1], point[2]);
         outfile << text;
       }
     }
@@ -403,7 +403,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
         p = static_cast<int>(dataArrays[2]->GetComponent(i, 0));
       }
 
-      sprintf(text, " %.15g %d %d", w, s, p);
+      snprintf(text, sizeof(text), " %.15g %d %d", w, s, p);
       outfile << text;
     }
 
@@ -439,7 +439,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
           }
           else
           {
-            sprintf(text, "x%2.2x", (static_cast<int>(*si) & 0x00ff));
+            snprintf(text, sizeof(text), "x%2.2x", (static_cast<int>(*si) & 0x00ff));
             outfile << text;
           }
         }

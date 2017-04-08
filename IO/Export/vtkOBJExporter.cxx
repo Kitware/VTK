@@ -77,8 +77,8 @@ void vtkOBJExporter::WriteData()
   }
 
   // try opening the files
-  sprintf(nameObj,"%s.obj",this->FilePrefix);
-  sprintf(nameMtl,"%s.mtl",this->FilePrefix);
+  snprintf(nameObj,sizeof(nameObj),"%s.obj",this->FilePrefix);
+  snprintf(nameMtl,sizeof(nameMtl),"%s.mtl",this->FilePrefix);
   fpObj = fopen(nameObj,"w");
   if (!fpObj)
   {

@@ -807,7 +807,7 @@ int vtkParallelCoordinatesRepresentation::UpdatePlotProperties(vtkStringArray* i
     for (int i=0; i<this->NumberOfAxes; i++)
     {
       char title[16];
-      sprintf(title,"%c",i+65);
+      snprintf(title,sizeof(title),"%c",i+65);
       this->AxisTitles->InsertNextValue(title);
     }
   }
@@ -1625,12 +1625,12 @@ void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass,
 
     char buf[256];
     double b = xy[1] - slope*xy[0];
-    sprintf(buf,"%s = %f * %s %s %f\n",
-            this->AxisTitles->GetValue(position+1).c_str(),
-            slope,
-            this->AxisTitles->GetValue(position).c_str(),
-            (b < 0) ? "-" : "+",
-            fabs(b));
+    snprintf(buf,sizeof(buf),"%s = %f * %s %s %f\n",
+             this->AxisTitles->GetValue(position+1).c_str(),
+             slope,
+             this->AxisTitles->GetValue(position).c_str(),
+             (b < 0) ? "-" : "+",
+             fabs(b));
 
     this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();
@@ -1689,12 +1689,12 @@ void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass,
     double m = (xy1[1]-xy2[1])/(xy1[0]-xy2[0]);
     double b = xy1[1] - (xy1[1]-xy2[1])/(xy1[0]-xy2[0])*xy1[0];
     char buf[256];
-    sprintf(buf,"%s = %f * %s %s %f\n",
-            this->AxisTitles->GetValue(position+1).c_str(),
-            m,
-            this->AxisTitles->GetValue(position).c_str(),
-            (b < 0) ? "-" : "+",
-            fabs(b));
+    snprintf(buf,sizeof(buf),"%s = %f * %s %s %f\n",
+             this->AxisTitles->GetValue(position+1).c_str(),
+             m,
+             this->AxisTitles->GetValue(position).c_str(),
+             (b < 0) ? "-" : "+",
+             fabs(b));
 
     this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();

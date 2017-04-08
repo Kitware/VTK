@@ -227,7 +227,7 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
     if ( this->AutoLabel )
     {
       char string[512];
-      sprintf(string, this->LabelFormat, this->Length);
+      snprintf(string, sizeof(string), this->LabelFormat, this->Length);
       this->LabelMapper->SetInput(string);
     }
     else
@@ -540,7 +540,7 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
     if ( this->AutoLabel )
     {
       char string[512];
-      sprintf(string, this->LabelFormat, this->Angle);
+      snprintf(string, sizeof(string), this->LabelFormat, this->Angle);
       this->LabelMapper->SetInput(string);
     }
     else

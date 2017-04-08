@@ -1641,7 +1641,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       int      numNodes    = 0;
       int      numElements = 0;
       char     untitledZoneName[40];
-      sprintf( untitledZoneName, "zone%05d", zoneIndex );
+      snprintf( untitledZoneName, sizeof(untitledZoneName), "zone%05d", zoneIndex );
 
       std::string format    = "";
       std::string elemType  = "";

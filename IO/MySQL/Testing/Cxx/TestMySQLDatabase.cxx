@@ -76,7 +76,7 @@ int TestMySQLDatabase( int, char ** const )
   for ( int i = 0; i < 40; ++ i )
   {
     char insertQuery[200];
-    sprintf( insertQuery, "INSERT INTO people VALUES('John Doe %d', %d, %d)",
+    snprintf( insertQuery, sizeof(insertQuery), "INSERT INTO people VALUES('John Doe %d', %d, %d)",
             i, i, 10*i );
     cout << insertQuery << endl;
     query->SetQuery( insertQuery );

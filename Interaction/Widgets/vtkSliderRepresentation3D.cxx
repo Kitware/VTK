@@ -553,7 +553,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     else
     {
       char label[256];
-      sprintf(label, this->LabelFormat, this->Value);
+      snprintf(label, sizeof(label), this->LabelFormat, this->Value);
       double bounds[6];
       this->LabelActor->VisibilityOn();
       this->LabelText->SetText(label);

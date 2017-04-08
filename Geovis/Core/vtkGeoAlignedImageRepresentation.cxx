@@ -197,7 +197,7 @@ void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
     storedImage->ShallowCopy(node->GetTexture()->GetInput());
     vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
     char fn[512];
-    sprintf(fn, "%s/tile_%d_%ld.vti", path, node->GetLevel(), node->GetId());
+    snprintf(fn, sizeof(fn), "%s/tile_%d_%ld.vti", path, node->GetLevel(), node->GetId());
     writer->SetFileName(fn);
     writer->SetInputData(storedImage);
     writer->Write();

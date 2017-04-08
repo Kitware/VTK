@@ -1828,7 +1828,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       for ( itmp = 2; itmp <= sphAttributes; ++itmp )
       {
         int numComponents = p->Fam.GetNextWordAsInt();
-        sprintf( ctmp, "isphfg(%d)", itmp );
+        snprintf( ctmp, sizeof(ctmp), "isphfg(%d)", itmp );
         p->Dict[ ctmp ] = numComponents;
         statePerParticle += numComponents;
       }
@@ -2075,7 +2075,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
       {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
+        snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 6, 1 );
       }
     }
@@ -2089,7 +2089,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
       {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
+        snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 1, 1 );
       }
     }
@@ -2116,7 +2116,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
       {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
+        snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 6, 1 );
       }
     }
@@ -2152,7 +2152,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
       {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
+        snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 6, 1 );
       }
     }
@@ -2166,7 +2166,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
       {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
+        snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 1, 1 );
       }
     }
@@ -2182,7 +2182,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
       for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
       {
-        sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
+        snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
         p->AddCellArray( LSDynaMetaData::THICK_SHELL, ctmp, 6, 1 );
       }
     }
@@ -2232,7 +2232,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
       for (vtkIdType g=0; g < numGroups; ++g)
       {
-        sprintf( ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
+        snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
         p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
         extraValues--;
       }
@@ -2242,7 +2242,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
       for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
       {
-        sprintf( ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
+        snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
         p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
         extraValues--;
       }
@@ -2824,7 +2824,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 
     for (vtkIdType g=0; g < numGroups; ++g)
     {
-      sprintf( ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
+      snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
       VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
       extraValues--;
     }
@@ -2834,7 +2834,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 
     for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
     {
-      sprintf( ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
+      snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
       VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
       extraValues--;
     }
@@ -2883,13 +2883,13 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
     // point values (NEIPS vals).
     for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
     {
-      sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
+      snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
       VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,6);
 
-      sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
+      snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
       VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::THICK_SHELL,ctmp,1);
 
-      sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
+      snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
       VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::THICK_SHELL,ctmp,p->Dict["NEIPS"]);
     }
   }
@@ -2936,13 +2936,13 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   // point values (NEIPS vals).
   for ( itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp )
   {
-    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
+    snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1 );
     VTK_LS_CELLARRAY(p->Dict["IOSHL(1)"] != 0,LSDynaMetaData::SHELL,ctmp,6);
 
-    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
+    snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1 );
     VTK_LS_CELLARRAY(p->Dict["IOSHL(2)"] != 0,LSDynaMetaData::SHELL,ctmp,1);
 
-    sprintf( ctmp, "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
+    snprintf( ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1 );
     VTK_LS_CELLARRAY(p->Dict["NEIPS"] > 0,LSDynaMetaData::SHELL,ctmp,p->Dict["NEIPS"]);
   }
 
@@ -3210,11 +3210,11 @@ void vtkLSDynaReader::ResetPartInfo()
       { \
         realMat = mat; \
       } \
-      sprintf( partLabel, fmt " (Matl%d)", mat, realMat ); \
+      snprintf( partLabel, sizeof(partLabel), fmt " (Matl%d)", mat, realMat ); \
     } \
     else{ \
       realMat = mat; \
-      sprintf( partLabel, fmt, mat );  \
+      snprintf( partLabel, sizeof(partLabel), fmt, mat );  \
     } \
     p->PartNames.push_back( partLabel ); \
     p->PartIds.push_back( realMat ); \

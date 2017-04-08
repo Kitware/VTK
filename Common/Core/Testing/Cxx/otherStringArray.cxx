@@ -32,7 +32,7 @@ int doStringArrayTest(ostream& strm, int size)
   for (int i = 0; i < SIZE; ++i)
   {
     char buf[1024];
-    sprintf(buf, "string entry %d", i);
+    snprintf(buf, sizeof(buf), "string entry %d", i);
     strings[i] = vtkStdString(buf);
   }
 

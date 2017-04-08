@@ -269,7 +269,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_
 
     while (i < size)
     {
-      sprintf(buffer,"0x%.8x",values[i]);
+      snprintf(buffer,sizeof(buffer),"0x%.8x",values[i]);
       *this->OutputStream << buffer;
 
       if (j%(8*bpp))

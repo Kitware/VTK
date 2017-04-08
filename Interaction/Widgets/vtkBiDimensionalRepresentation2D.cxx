@@ -662,8 +662,8 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     {
       label << this->ID << ": ";
     }
-    sprintf(distStr1,this->LabelFormat, line1Dist);
-    sprintf(distStr2,this->LabelFormat, line2Dist);
+    snprintf(distStr1,sizeof(distStr1),this->LabelFormat, line1Dist);
+    snprintf(distStr2,sizeof(distStr2),this->LabelFormat, line2Dist);
 
     if (line1Dist > line2Dist)
     {

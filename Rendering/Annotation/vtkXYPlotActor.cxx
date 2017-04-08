@@ -797,7 +797,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         if ( ! this->LegendActor->GetEntryString( i ) )
         {
           static char legendString[12];
-          sprintf( legendString, "%s%d", "Curve ", i );
+          snprintf( legendString, sizeof(legendString), "%s%d", "Curve ", i );
           this->LegendActor->SetEntryString( i,legendString );
         }
       }
@@ -2290,15 +2290,15 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
   // In the meantime, let's try with the min and max
-  sprintf( str1, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[0] );
-  sprintf( str2, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[1] );
+  snprintf( str1, sizeof(str1), axisY->GetLabelFormat(), axisY->GetAdjustedRange()[0] );
+  snprintf( str2, sizeof(str2), axisY->GetLabelFormat(), axisY->GetAdjustedRange()[1] );
   tprop->ShallowCopy( axisY->GetLabelTextProperty() );
   textMapper->SetInput( strlen( str1 ) > strlen( str2 ) ? str1 : str2 );
   vtkTextMapper::SetRelativeFontSize( textMapper, viewport, size, labelSizeY, 0.015*labelFactorY*fontFactorY );
 
   // We do only care of the height of the label in the X axis, so let's
   // use the min for example
-  sprintf( str1, axisX->GetLabelFormat(), axisX->GetAdjustedRange()[0] );
+  snprintf( str1, sizeof(str1), axisX->GetLabelFormat(), axisX->GetAdjustedRange()[0] );
   tprop->ShallowCopy( axisX->GetLabelTextProperty() );
   textMapper->SetInput( str1 );
   vtkTextMapper::SetRelativeFontSize( textMapper, viewport, size, labelSizeX, 0.015*labelFactorX*fontFactorX );

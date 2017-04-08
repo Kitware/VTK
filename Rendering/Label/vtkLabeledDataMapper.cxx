@@ -543,7 +543,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 
     if ( pointIdLabels )
     {
-      sprintf(TempString, LiveFormatString, i);
+      snprintf(TempString, sizeof(TempString), LiveFormatString, i);
       ResultString = TempString;
     }
     else

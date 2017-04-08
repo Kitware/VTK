@@ -836,8 +836,8 @@ PyObject *vtkPythonArgs::GetSelfFromFirstArg(
     }
 
     char buf[256];
-    sprintf(buf, "unbound method requires a %.200s as the first argument",
-            pytype->tp_name);
+    snprintf(buf, sizeof(buf), "unbound method requires a %.200s as the first argument",
+             pytype->tp_name);
     PyErr_SetString(PyExc_TypeError, buf);
     return NULL;
   }
@@ -1240,12 +1240,12 @@ bool vtkPythonArgs::ArgCountError(int m, int n)
   const char *name = this->MethodName;
   int nargs = this->N;
 
-  sprintf(text, "%.200s%s takes %s %d argument%s (%d given)",
-          (name ? name : "function"), (name ? "()" : ""),
-          ((m == n) ? "exactly" : ((nargs < m) ? "at least" : "at most")),
-          ((nargs < m) ? m : n),
-          ((((nargs < m) ? m : n)) == 1 ? "" : "s"),
-          nargs);
+  snprintf(text, sizeof(text), "%.200s%s takes %s %d argument%s (%d given)",
+           (name ? name : "function"), (name ? "()" : ""),
+           ((m == n) ? "exactly" : ((nargs < m) ? "at least" : "at most")),
+           ((nargs < m) ? m : n),
+           ((((nargs < m) ? m : n)) == 1 ? "" : "s"),
+           nargs);
   PyErr_SetString(PyExc_TypeError, text);
   return false;
 }
@@ -1256,7 +1256,7 @@ bool vtkPythonArgs::ArgCountError(int n, const char *name)
 {
   char text[256];
 
-  sprintf(text, "no overloads of %.200s%s take %d argument%s",
+  snprintf(text, sizeof(text), "no overloads of %.200s%s take %d argument%s",
           (name ? name : "function"), (name ? "()" : ""),
           n, (n == 1 ? "" : "s"));
   PyErr_SetString(PyExc_TypeError, text);
@@ -1269,7 +1269,7 @@ bool vtkPythonArgs::PureVirtualError()
 {
   char text[256];
 
-  sprintf(text, "pure virtual method %.200s() was called",
+  snprintf(text, sizeof(text), "pure virtual method %.200s() was called",
           this->MethodName);
   PyErr_SetString(PyExc_TypeError, text);
   return false;
@@ -1321,12 +1321,12 @@ bool vtkPythonSequenceError(PyObject *o, Py_ssize_t n, Py_ssize_t m)
   char text[80];
   if (m == n)
   {
-    sprintf(text, "expected a sequence of %ld value%s, got %s",
+    snprintf(text, sizeof(text), "expected a sequence of %ld value%s, got %s",
             (long)n, ((n == 1) ? "" : "s"), Py_TYPE(o)->tp_name);
   }
   else
   {
-    sprintf(text, "expected a sequence of %ld value%s, got %ld values",
+    snprintf(text, sizeof(text), "expected a sequence of %ld value%s, got %ld values",
             (long)n, ((n == 1) ? "" : "s"), (long)m);
   }
   PyErr_SetString(PyExc_TypeError, text);

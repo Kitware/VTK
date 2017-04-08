@@ -141,11 +141,11 @@ int vtkMNITransformWriter::WriteLinearTransform(
   for (int i = 0; i < 3; i++)
   {
     outfile << "\n";
-    sprintf(text, " %.15g %.15g %.15g %.15g",
-            matrix->GetElement(i, 0),
-            matrix->GetElement(i, 1),
-            matrix->GetElement(i, 2),
-            matrix->GetElement(i, 3));
+    snprintf(text, sizeof(text), " %.15g %.15g %.15g %.15g",
+             matrix->GetElement(i, 0),
+             matrix->GetElement(i, 1),
+             matrix->GetElement(i, 2),
+             matrix->GetElement(i, 3));
     outfile << text;
   }
   outfile << ";\n";
@@ -231,7 +231,7 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
     for (j = 0; j < ndim; j++)
     {
       char text[64];
-      sprintf(text, " %.15g", p[j]);
+      snprintf(text, sizeof(text), " %.15g", p[j]);
 
       outfile << text;
     }
@@ -319,7 +319,7 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
     for (j = 0; j < ndim; j++)
     {
       char text[64];
-      sprintf(text, " %.15g", X[j][i]);
+      snprintf(text, sizeof(text), " %.15g", X[j][i]);
 
       outfile << text;
     }

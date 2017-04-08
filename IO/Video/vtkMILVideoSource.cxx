@@ -407,7 +407,7 @@ void vtkMILVideoSource::Initialize()
         {
           // try MIL 7 style of allocation
           char tmptext[256];
-          sprintf(tmptext,"\\\\.\\%s",system_types[i]);
+          snprintf(tmptext,sizeof(tmptext),"\\\\.\\%s",system_types[i]);
           this->MILSysID = MsysAlloc(tmptext,this->MILSystemNumber,
                                      M_DEFAULT,M_NULL);
         }

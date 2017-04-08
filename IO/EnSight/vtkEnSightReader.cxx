@@ -2122,8 +2122,8 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
   else if (numWildcards == 1)
     strcpy(pattern, "%d");
   else
-    sprintf(pattern, "%%0%dd", numWildcards);
-  sprintf(numStr, pattern, num);
+    snprintf(pattern, sizeof(pattern), "%%0%dd", numWildcards);
+  snprintf(numStr, sizeof(numStr), pattern, num);
   numStrLen = static_cast<int>(strlen(numStr));
   len = static_cast<int>(strlen(filename));
   cnt = 0;

@@ -343,7 +343,7 @@ void ExerciseType(vtkMultiProcessController *controller)
     sourceArrays[i]->SetNumberOfComponents(1);
     sourceArrays[i]->SetNumberOfTuples(arraySize);
     char name[80];
-    sprintf(name, "%lf", vtkMath::Random());
+    snprintf(name, sizeof(name), "%lf", vtkMath::Random());
     sourceArrays[i]->SetName(name);
     for (int j = 0; j < arraySize; j++)
     {

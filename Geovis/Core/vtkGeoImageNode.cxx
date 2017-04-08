@@ -177,7 +177,7 @@ void vtkGeoImageNode::CropImageForTile(
     storedImage->SetSpacing(this->LongitudeRange[1], this->LatitudeRange[1], 0);
     vtkXMLImageDataWriter* writer = vtkXMLImageDataWriter::New();
     char fn[512];
-    sprintf(fn, "%s/tile_%d_%lu.vti", prefix, this->Level, this->Id);
+    snprintf(fn, sizeof(fn), "%s/tile_%d_%lu.vti", prefix, this->Level, this->Id);
     writer->SetFileName(fn);
     writer->SetInputData(storedImage);
     writer->Write();
@@ -191,7 +191,7 @@ void vtkGeoImageNode::LoadAnImage(const char* prefix)
 {
   vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
   char fn[512];
-  sprintf(fn, "%s/tile_%d_%lu.vti", prefix, this->Level, this->Id);
+  snprintf(fn, sizeof(fn), "%s/tile_%d_%lu.vti", prefix, this->Level, this->Id);
   reader->SetFileName(fn);
   reader->Update();
   vtkImageData* image = reader->GetOutput();

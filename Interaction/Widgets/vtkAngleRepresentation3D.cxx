@@ -343,7 +343,7 @@ void vtkAngleRepresentation3D::BuildRepresentation()
       points->GetPoint(npoints/2, this->TextPosition );
 
       char string[512];
-      sprintf( string, this->LabelFormat, vtkMath::DegreesFromRadians( this->Angle ) );
+      snprintf( string, sizeof(string), this->LabelFormat, vtkMath::DegreesFromRadians( this->Angle ) );
 
       this->TextInput->SetText( string );
       this->TextActor->SetCamera( this->Renderer->GetActiveCamera() );

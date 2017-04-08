@@ -168,7 +168,7 @@ void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent
     if ( name[cc] < 33  || name[cc] > 126 ||
          name[cc] == '\"' || name[cc] == '%' )
     {
-      sprintf(buffer, "%02X", static_cast<unsigned char>(name[cc]));
+      snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
       {
         str << "%%";
@@ -205,7 +205,7 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePer
     if ( name[cc] < 33  || name[cc] > 126 ||
          name[cc] == '\"' || name[cc] == '%' )
     {
-      sprintf(buffer, "%02X", static_cast<unsigned char>(name[cc]));
+      snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
       if (doublePercent)
       {
         *out << "%%";

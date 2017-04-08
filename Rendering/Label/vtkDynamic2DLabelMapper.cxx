@@ -360,7 +360,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
       if ( pointIdLabels )
       {
-        sprintf(TempString, LiveFormatString, i);
+        snprintf(TempString, sizeof(TempString), LiveFormatString, i);
         ResultString = TempString;
       }
       else
