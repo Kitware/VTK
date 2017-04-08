@@ -37,7 +37,7 @@ vtkSliderRepresentation::vtkSliderRepresentation()
   this->ShowSliderLabel = 1;
 
   this->LabelFormat = new char[8];
-  sprintf( this->LabelFormat,"%s","%0.3g" );
+  snprintf( this->LabelFormat,8,"%s","%0.3g" );
 
   this->LabelHeight = 0.05;
   this->TitleHeight = 0.15;

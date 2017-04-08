@@ -54,7 +54,7 @@ vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
   this->Line2Visibility = 1;
 
   this->LabelFormat = new char[6];
-  sprintf(this->LabelFormat,"%s","%0.3g");
+  snprintf(this->LabelFormat,6,"%s","%0.3g");
 
   this->ID = VTK_ID_MAX;
   this->IDInitialized = 0;

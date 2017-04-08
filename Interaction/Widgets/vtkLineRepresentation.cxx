@@ -118,7 +118,7 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->DistanceAnnotationVisibility = 0;
   this->Distance = 0.0;
   this->DistanceAnnotationFormat = new char[8];
-  sprintf(this->DistanceAnnotationFormat,"%s","%-#6.3g");
+  snprintf(this->DistanceAnnotationFormat,8,"%s","%-#6.3g");
   this->TextInput = vtkVectorText::New();
   this->TextInput->SetText( "0" );
   this->TextMapper = vtkPolyDataMapper::New();

@@ -122,7 +122,7 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
     for (i=0; i<nv; i++)
     {
       this->VarrayName[i] = new char [64];
-      sprintf(this->VarrayName[i], "VertexWeight%d", i+1);
+      snprintf(this->VarrayName[i], 64, "VertexWeight%d", i+1);
     }
   }
   if (ne > 0)
@@ -131,7 +131,7 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
     for (i=0; i<ne; i++)
     {
       this->EarrayName[i] = new char [64];
-      sprintf(this->EarrayName[i], "EdgeWeight%d", i+1);
+      snprintf(this->EarrayName[i], 64, "EdgeWeight%d", i+1);
     }
   }
 }
@@ -830,7 +830,7 @@ int vtkChacoReader::OpenCurrentFile()
   {
     int len = static_cast<int>(strlen(this->BaseName));
     char *buf = new char [len+64];
-    sprintf(buf, "%s.coords", this->BaseName);
+    snprintf(buf, len+64, "%s.coords", this->BaseName);
 
     this->CurrentGeometryFP = fopen(buf, "r");
 
@@ -841,7 +841,7 @@ int vtkChacoReader::OpenCurrentFile()
     }
     else
     {
-      sprintf(buf, "%s.graph", this->BaseName);
+      snprintf(buf, len+64, "%s.graph", this->BaseName);
 
       this->CurrentGraphFP = fopen(buf, "r");
 

@@ -36,7 +36,7 @@ vtkDistanceRepresentation::vtkDistanceRepresentation()
   this->Placed = 0;
 
   this->LabelFormat = new char[8];
-  sprintf(this->LabelFormat,"%s","%-#6.3g");
+  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
 
   this->Scale = 1.0;
   this->RulerMode = 0;

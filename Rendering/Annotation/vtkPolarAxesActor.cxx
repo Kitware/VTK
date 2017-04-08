@@ -364,15 +364,15 @@ vtkPolarAxesActor::vtkPolarAxesActor()
 
   // Default title for polar axis (sometimes also called "Radius")
   this->PolarAxisTitle = new char[16];
-  sprintf(this->PolarAxisTitle, "%s", "Radial Distance");
+  snprintf(this->PolarAxisTitle, 16, "%s", "Radial Distance");
 
   this->PolarLabelFormat = new char[8];
-  sprintf(this->PolarLabelFormat, "%s", "%-#6.3g");
+  snprintf(this->PolarLabelFormat, 8, "%s", "%-#6.3g");
 
   this->ExponentLocation = VTK_EXPONENT_LABELS;
 
   this->RadialAngleFormat = new char[8];
-  sprintf(this->RadialAngleFormat, "%s", "%-#3.1f");
+  snprintf(this->RadialAngleFormat, 8, "%s", "%-#3.1f");
 
   this->RadialAxisTitleLocation = VTK_TITLE_BOTTOM;
   this->PolarAxisTitleLocation = VTK_TITLE_BOTTOM;

@@ -91,7 +91,7 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->AxisTitleTextProperty->ShallowCopy(this->AxisLabelTextProperty);
 
   this->LabelFormat = new char[8];
-  sprintf(this->LabelFormat,"%s","%-#6.3g");
+  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
   this->FontFactor = 1.0;
   this->CornerOffset = 0.05;
   this->Inertia = 1;
@@ -103,11 +103,11 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->ZAxisVisibility = 1;
 
   this->XLabel = new char[2];
-  sprintf(this->XLabel,"%s","X");
+  snprintf(this->XLabel,2,"%s","X");
   this->YLabel = new char[2];
-  sprintf(this->YLabel,"%s","Y");
+  snprintf(this->YLabel,2,"%s","Y");
   this->ZLabel = new char[2];
-  sprintf(this->ZLabel,"%s","Z");
+  snprintf(this->ZLabel,2,"%s","Z");
 
   // Allow the user to specify an origin for the axes. The axes will then run
   // from this origin to the bounds and will cross over at this origin.

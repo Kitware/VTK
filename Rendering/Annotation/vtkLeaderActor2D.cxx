@@ -49,7 +49,7 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->LabelFactor = 1.0;
   this->AutoLabel = 0;
   this->LabelFormat = new char[8];
-  sprintf(this->LabelFormat,"%s","%-#6.3g");
+  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
 
   this->ArrowPlacement = vtkLeaderActor2D::VTK_ARROW_BOTH;
   this->ArrowStyle = vtkLeaderActor2D::VTK_ARROW_FILLED;

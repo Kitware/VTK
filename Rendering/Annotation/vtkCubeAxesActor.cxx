@@ -223,13 +223,13 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   }
 
   this->XTitle = new char[7];
-  sprintf(this->XTitle, "%s", "X-Axis");
+  snprintf(this->XTitle, 7, "%s", "X-Axis");
   this->XUnits = NULL;
   this->YTitle = new char[7];
-  sprintf(this->YTitle, "%s", "Y-Axis");
+  snprintf(this->YTitle, 7, "%s", "Y-Axis");
   this->YUnits = NULL;
   this->ZTitle = new char[7];
-  sprintf(this->ZTitle, "%s", "Z-Axis");
+  snprintf(this->ZTitle, 7, "%s", "Z-Axis");
   this->ZUnits = NULL;
 
   this->ActualXLabel = 0;
@@ -267,11 +267,11 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->DrawZGridpolys = 0;
 
   this->XLabelFormat = new char[8];
-  sprintf(this->XLabelFormat, "%s", "%-#6.3g");
+  snprintf(this->XLabelFormat, 8, "%s", "%-#6.3g");
   this->YLabelFormat = new char[8];
-  sprintf(this->YLabelFormat, "%s", "%-#6.3g");
+  snprintf(this->YLabelFormat, 8, "%s", "%-#6.3g");
   this->ZLabelFormat = new char[8];
-  sprintf(this->ZLabelFormat, "%s", "%-#6.3g");
+  snprintf(this->ZLabelFormat, 8, "%s", "%-#6.3g");
 
   this->CornerOffset = 0.0;
 

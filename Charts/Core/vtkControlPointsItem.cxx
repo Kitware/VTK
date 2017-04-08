@@ -1849,7 +1849,7 @@ vtkStdString vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
     char *buffer = new char[1024];
     double point[4];
     this->GetControlPoint(pointId, point);
-    sprintf(buffer, this->LabelFormat, point[0], point[1], point[2], point[3]);
+    snprintf(buffer, 1024, this->LabelFormat, point[0], point[1], point[2], point[3]);
     result = buffer;
     delete []buffer;
   }

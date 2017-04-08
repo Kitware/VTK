@@ -78,7 +78,7 @@ vtkXYPlotActor::vtkXYPlotActor()
 
   this->Title = NULL;
   this->XTitle = new char[7];
-  sprintf( this->XTitle,"%s","X Axis");
+  snprintf( this->XTitle,7,"%s","X Axis");
 
   this->YTitleActor = vtkTextActor::New();
   this->YTitleActor->SetInput( "Y Axis" );
@@ -112,10 +112,10 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->AxisTitleTextProperty->SetFontFamilyToArial();
 
   this->XLabelFormat = new char[8];
-  sprintf( this->XLabelFormat,"%s","%-#6.3g");
+  snprintf( this->XLabelFormat,8,"%s","%-#6.3g");
 
   this->YLabelFormat = new char[8];
-  sprintf( this->YLabelFormat,"%s","%-#6.3g");
+  snprintf( this->YLabelFormat,8,"%s","%-#6.3g");
 
   this->Logx = 0;
 

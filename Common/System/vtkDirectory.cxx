@@ -87,12 +87,12 @@ int vtkDirectory::Open(const char* name)
   if (name[n - 1] == '/')
   {
     buf = new char[n + 1 + 1];
-    sprintf(buf, "%s*", name);
+    snprintf(buf, n + 1 + 1, "%s*", name);
   }
   else
   {
     buf = new char[n + 2 + 1];
-    sprintf(buf, "%s/*", name);
+    snprintf(buf, n + 2 + 1, "%s/*", name);
   }
   struct _finddata_t data;      // data of current file
 

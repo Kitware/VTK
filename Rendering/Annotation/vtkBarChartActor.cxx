@@ -99,7 +99,7 @@ vtkBarChartActor::vtkBarChartActor()
   this->YAxis->SetProperty(this->GetProperty());
   this->YAxis->SizeFontRelativeToAxisOn();
   this->YTitle = new char[1];
-  sprintf(this->YTitle,"%s","");
+  snprintf(this->YTitle,1,"%s","");
 
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
