@@ -39,6 +39,20 @@ source code for mangling, the addition of `.gitattributes` files, and other
 changes belong here. Functional changes should be submitted upstream (but may
 still be tracked so that they may be used).
 
+The basic steps to import a project `twisted` based on the tag
+`twisted-17.1.0` looks like this:
+
+```sh
+$ git clone https://github.com/twisted/twisted.git
+$ cd twisted/
+$ git remote add kitware git@gitlab.kitware.com:third-party/twisted.git
+$ git push -u kitware
+$ git push -u kitware --tags
+$ git checkout twisted-17.1.0
+$ git checkout -b for/vtk
+$ git push --set-upstream kitware for/vtk
+```
+
 Making the initial import involves filling out the project's `update.sh`
 script in its directory. The [update-common.sh](update-common.sh) script
 describes what is necessary, but in a nutshell, it is basically metadata such
@@ -50,7 +64,20 @@ the `paths` variable (described in the `update-common.sh` script), the
 `git_archive` function may be used if the `git archive` tool generates a
 suitable subset.
 
-Also add an entry to [imported.md](imported.md) for the project.
+Make sure `update.sh` is executable before commit. On Unix, run:
+
+```sh
+  $ chmod u+x update.sh && git add -u update.sh
+```
+
+On Windows, run:
+
+```sh
+  $ git update-index --chmod=+x update.sh
+```
+
+Also add an entry to [imported.md](imported.md) for the project, and
+`CMakeLists.txt` and `module.cmake` as appropriate.
 
 # Process
 
