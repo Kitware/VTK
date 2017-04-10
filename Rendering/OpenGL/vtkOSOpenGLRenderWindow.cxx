@@ -23,8 +23,21 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkgl.h"
 
 #ifdef VTK_USE_OSMESA
+
+# ifndef GLAPI
+#  define GLAPI extern
+# endif
+
+# ifndef GLAPIENTRY
+#  define GLAPIENTRY
+# endif
+
+# ifndef APIENTRY
+#  define APIENTRY GLAPIENTRY
+# endif
+
 # include <GL/osmesa.h>
-#endif
+#endif // VTK_USE_OSMESA
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"

@@ -48,8 +48,21 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 #endif //VTK_USE_APPLE_LOADER
 
 #ifdef VTK_USE_OSMESA
+
+# ifndef GLAPI
+#  define GLAPI extern
+# endif
+
+# ifndef GLAPIENTRY
+#  define GLAPIENTRY
+# endif
+
+# ifndef APIENTRY
+#  define APIENTRY GLAPIENTRY
+# endif
+
 # include <GL/osmesa.h>
-#endif
+#endif // VTK_USE_OSMESA
 
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
