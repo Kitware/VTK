@@ -417,7 +417,7 @@ void vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
 //
 void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
   vtkCellArray *prims[4],
-  std::vector<unsigned int> &cellCellMap,
+  std::vector<vtkIdType> &cellCellMap,
   int representation,
   vtkPoints *points)
 {
@@ -431,12 +431,12 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
 
   // make sure we have at least minSize
   cellCellMap.reserve(minSize);
-  unsigned int vtkCellCount = 0;
+  vtkIdType vtkCellCount = 0;
 
   // points
   for (prims[0]->InitTraversal(); prims[0]->GetNextCell(npts, indices); )
   {
-    for (int i=0; i < npts; ++i)
+    for (vtkIdType i=0; i < npts; ++i)
     {
       cellCellMap.push_back(vtkCellCount);
     }
@@ -449,7 +449,7 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
     {
       for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
       {
-        for (int i=0; i < npts; ++i)
+        for (vtkIdType i=0; i < npts; ++i)
         {
           cellCellMap.push_back(vtkCellCount);
         }
@@ -462,7 +462,7 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
     // lines
     for (prims[1]->InitTraversal(); prims[1]->GetNextCell(npts, indices); )
     {
-      for (int i = 0; i < npts-1; ++i)
+      for (vtkIdType i = 0; i < npts-1; ++i)
       {
         cellCellMap.push_back(vtkCellCount);
       }
@@ -474,7 +474,7 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
       // polys
       for (prims[2]->InitTraversal(); prims[2]->GetNextCell(npts, indices); )
       {
-        for (int i = 0; i < npts; ++i)
+        for (vtkIdType i = 0; i < npts; ++i)
         {
           cellCellMap.push_back(vtkCellCount);
         }
@@ -485,7 +485,7 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
       for (prims[3]->InitTraversal(); prims[3]->GetNextCell(npts, indices); )
       {
         cellCellMap.push_back(vtkCellCount);
-        for (int i = 2; i < npts; ++i)
+        for (vtkIdType i = 2; i < npts; ++i)
         {
           cellCellMap.push_back(vtkCellCount);
           cellCellMap.push_back(vtkCellCount);
@@ -500,7 +500,7 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
       {
         if (npts > 2)
         {
-          for (int i = 2; i < npts; i++)
+          for (vtkIdType i = 2; i < npts; i++)
           {
             double p1[3];
             points->GetPoint(indices[0],p1);
@@ -522,7 +522,7 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
       // strips
       for (prims[3]->InitTraversal(); prims[3]->GetNextCell(npts, indices); )
       {
-        for (int i = 2; i < npts; ++i)
+        for (vtkIdType i = 2; i < npts; ++i)
         {
           cellCellMap.push_back(vtkCellCount);
         }

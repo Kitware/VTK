@@ -33,7 +33,6 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
-#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkPointData.h"
@@ -60,9 +59,9 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->TransformedPoints = NULL;
   this->CellScalarTexture = NULL;
   this->CellScalarBuffer = NULL;
-  this->AppleBugPrimIDBuffer = 0;
+  this->AppleBugPrimIDBuffer = NULL;
   this->HaveAppleBug = false;
-  this->LastBoundBO = 0;
+  this->LastBoundBO = NULL;
   this->HaveCellScalars = false;
   this->PrimitiveIDOffset = 0;
   this->LastPickState = 0;
@@ -88,12 +87,12 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
   if (this->CellScalarTexture)
   { // Resources released previously.
     this->CellScalarTexture->Delete();
-    this->CellScalarTexture = 0;
+    this->CellScalarTexture = NULL;
   }
   if (this->CellScalarBuffer)
   { // Resources released previously.
     this->CellScalarBuffer->Delete();
-    this->CellScalarBuffer = 0;
+    this->CellScalarBuffer = NULL;
   }
   this->HaveCellScalars = false;
   if (this->AppleBugPrimIDBuffer)
@@ -101,7 +100,7 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
     this->AppleBugPrimIDBuffer->Delete();
   }
   this->VBOs->Delete();
-  this->VBOs = 0;
+  this->VBOs = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -144,7 +143,7 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShaders(
   // property modified (representation interpolation and lighting)
   // input modified
   // light complexity changed
-  if (cellBO.Program == 0 ||
+  if (cellBO.Program == NULL ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
@@ -551,10 +550,6 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
 //-------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport)
 {
-  vtkPoints      *p;
-  int            numPts;
-  int            j;
-
   vtkPolyData *poly = this->GetInput();
   if (poly == NULL)
   {
@@ -616,14 +611,14 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   prims[1] =  poly->GetLines();
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
-  std::vector<unsigned int> cellCellMap;
+  std::vector<vtkIdType> cellCellMap;
   vtkDataArray *c = this->Colors;
   if (this->HaveCellScalars)
   {
     if (this->HaveAppleBug)
     {
-      unsigned int numCells = poly->GetNumberOfCells();
-      for (unsigned int i = 0; i < numCells; i++)
+      vtkIdType numCells = poly->GetNumberOfCells();
+      for (vtkIdType i = 0; i < numCells; i++)
       {
         cellCellMap.push_back(i);
       }
@@ -647,9 +642,9 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     unsigned char *colorPtr = this->Colors->GetPointer(0);
     int numComp = this->Colors->GetNumberOfComponents();
     assert(numComp == 4);
-    for (unsigned int i = 0; i < cellCellMap.size(); i++)
+    for (size_t i = 0; i < cellCellMap.size(); i++)
     {
-      for (j = 0; j < numComp; j++)
+      for (int j = 0; j < numComp; j++)
       {
         newColors.push_back(colorPtr[cellCellMap[i]*numComp + j]);
       }
@@ -673,16 +668,16 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   }
 
   // Transform the points, if necessary
-  p = poly->GetPoints();
+  vtkPoints* p = poly->GetPoints();
   if ( this->TransformCoordinate )
   {
-    numPts = p->GetNumberOfPoints();
+    vtkIdType numPts = p->GetNumberOfPoints();
     if (!this->TransformedPoints)
     {
       this->TransformedPoints = vtkPoints::New();
     }
     this->TransformedPoints->SetNumberOfPoints(numPts);
-    for ( j=0; j < numPts; j++ )
+    for (vtkIdType j = 0; j < numPts; j++)
     {
       this->TransformCoordinate->SetValue(p->GetPoint(j));
       if (this->TransformCoordinateUseDouble)
@@ -749,8 +744,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)
 {
   vtkOpenGLClearErrorMacro();
-  int numPts;
-  vtkPolyData    *input=static_cast<vtkPolyData *>(this->GetInput());
+  vtkPolyData* input = this->GetInput();
 
   vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
@@ -759,12 +753,9 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     vtkErrorMacro(<< "No input!");
     return;
   }
-  else
-  {
-    this->GetInputAlgorithm()->Update();
-    numPts = input->GetNumberOfPoints();
-  }
 
+  this->GetInputAlgorithm()->Update();
+  vtkIdType numPts = input->GetNumberOfPoints();
   if (numPts == 0)
   {
     vtkDebugMacro(<< "No points!");
