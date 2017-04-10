@@ -61,35 +61,45 @@ vtkMapArrayValues::~vtkMapArrayValues()
 
 void vtkMapArrayValues::AddToMap(char *from, int to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(int from, int to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(int from, char *to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(char *from, char *to)
 {
-  this->Map->insert(std::make_pair< vtkVariant, vtkVariant >(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::AddToMap(vtkVariant from, vtkVariant to)
 {
-  this->Map->insert(std::make_pair(from, to));
+  vtkVariant fromVar(from);
+  vtkVariant toVar(to);
+  this->Map->insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
