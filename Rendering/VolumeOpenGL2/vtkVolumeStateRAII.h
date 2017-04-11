@@ -22,8 +22,14 @@
 class vtkVolumeStateRAII
 {
   public:
-    vtkVolumeStateRAII()
+    vtkVolumeStateRAII(bool noOp = false)
+      : NoOp(noOp)
     {
+      if (this->NoOp)
+      {
+        return;
+      }
+
       this->DepthTestEnabled = (glIsEnabled(GL_DEPTH_TEST) != GL_FALSE);
 
       this->BlendEnabled = (glIsEnabled(GL_BLEND) != GL_FALSE);
@@ -80,6 +86,11 @@ class vtkVolumeStateRAII
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+      if (this->NoOp)
+      {
+        return;
+      }
+
       glCullFace(this->CullFaceMode);
       if (!this->CullFaceEnabled)
       {
@@ -105,6 +116,7 @@ class vtkVolumeStateRAII
     }
 
 private:
+  bool NoOp;
   bool DepthTestEnabled;
   bool BlendEnabled;
   bool CullFaceEnabled;

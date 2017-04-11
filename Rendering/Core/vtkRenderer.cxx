@@ -127,6 +127,7 @@ vtkRenderer::vtkRenderer()
   this->UseHiddenLineRemoval = 0;
 
   this->UseDepthPeeling=0;
+  this->UseDepthPeelingForVolumes = false;
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
   this->LastRenderingUsedDepthPeeling=0;
@@ -604,7 +605,7 @@ int vtkRenderer::UpdateGeometry()
 
   // do the render library specific stuff about translucent polygonal geometry.
   // As it can be expensive, do a quick check if we can skip this step
-  int hasTranslucentPolygonalGeometry=0;
+  int hasTranslucentPolygonalGeometry = this->UseDepthPeelingForVolumes;
   for ( i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount;
         i++ )
   {
@@ -618,10 +619,13 @@ int vtkRenderer::UpdateGeometry()
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
-  for ( i = 0; i < this->PropArrayCount; i++ )
+  if (hasTranslucentPolygonalGeometry == 0 || !this->UseDepthPeelingForVolumes)
   {
-    this->NumberOfPropsRendered +=
-      this->PropArray[i]->RenderVolumetricGeometry(this);
+    for ( i = 0; i < this->PropArrayCount; i++ )
+    {
+      this->NumberOfPropsRendered +=
+          this->PropArray[i]->RenderVolumetricGeometry(this);
+    }
   }
 
   // loop through props and give them a chance to
