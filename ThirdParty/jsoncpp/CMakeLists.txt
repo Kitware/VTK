@@ -5,6 +5,14 @@ if (WIN32 AND VTK_USE_SYSTEM_JSONCPP)
   mark_as_advanced(VTK_SYSTEM_JSONCPP_SHARED)
 endif()
 
+if (VTK_USE_SYSTEM_JSONCPP)
+  if (EXISTS "${JsonCpp_INCLUDE_DIR}/json/json_forwards.h")
+    set (JsonCpp_FORWARDING_HEADER_NAME "json_forwards.h")
+  else ()
+    set (JsonCpp_FORWARDING_HEADER_NAME "forwards.h")
+  endif ()
+endif ()
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_jsoncpp_fwd.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_jsoncpp_fwd.h")
