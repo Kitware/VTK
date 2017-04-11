@@ -2494,9 +2494,11 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     pointPicking = true;
   }
 
+  bool draw_surface_with_edges =
+    (actor->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE) && !selector;
   int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
   for (int i = PrimitiveStart;
-       i < (selector ? PrimitiveTriStrips + 1 :  PrimitiveEnd); i++)
+       i < (draw_surface_with_edges ? PrimitiveEnd : PrimitiveTriStrips + 1); i++)
   {
     this->DrawingEdgesOrVertices = (i > PrimitiveTriStrips ? true : false);
     if (this->Primitives[i].IBO->IndexCount)
