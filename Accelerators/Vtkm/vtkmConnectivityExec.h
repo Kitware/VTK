@@ -34,7 +34,7 @@
 namespace vtkm {
 namespace exec {
 
-template <typename Device> class ConnectivityVTKAOS
+template <typename Device> class VTKM_ALWAYS_EXPORT ConnectivityVTKAOS
 {
   typedef vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag>
       ShapeHandleType;
@@ -90,7 +90,7 @@ private:
 };
 
 
-template <typename Device> class ConnectivityVTKSingleType
+template <typename Device> class VTKM_ALWAYS_EXPORT ConnectivityVTKSingleType
 {
   typedef vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>
       ConnectivityHandleType;
@@ -137,7 +137,7 @@ private:
 };
 
 
-template <typename Device> class ReverseConnectivityVTK
+template <typename Device> class VTKM_ALWAYS_EXPORT ReverseConnectivityVTK
 {
   typedef vtkm::cont::ArrayHandle<vtkm::Id> ConnectivityHandleType;
   typedef vtkm::cont::ArrayHandle<vtkm::IdComponent> NumIndicesHandleType;
@@ -189,8 +189,25 @@ private:
   IndexOffsetPortalType IndexOffsets;
 };
 
+// template methods we want to compile only once
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagSerial>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagSerial>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>;
+
+#ifdef VTKM_ENABLE_TBB
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagTBB>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>;
+#endif
+
+#ifdef VTKM_ENABLE_CUDA
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>;
+#endif
 }
 }
+
 
 #endif
 // VTK-HeaderTest-Exclude: vtkmConnectivityExec.h

@@ -18,15 +18,14 @@
 namespace vtkm {
 namespace cont {
 
-template vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
-                                           vtkm::TopologyElementTagPoint,
-                                           vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 
-template vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
-                                           vtkm::TopologyElementTagCell,
-                                           vtkm::TopologyElementTagPoint) const;
-
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 }
 }
