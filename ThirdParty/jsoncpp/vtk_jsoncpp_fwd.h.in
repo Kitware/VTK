@@ -18,7 +18,7 @@
 /* Use the JsonCpp library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_JSONCPP
 #ifdef VTK_USE_SYSTEM_JSONCPP
-# include <json/json-forward.h>
+# include <json/@JsonCpp_FORWARDING_HEADER_NAME@>
 #else
 # include <vtkjsoncpp/json/json-forwards.h>
 #endif
