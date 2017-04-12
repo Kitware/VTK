@@ -307,6 +307,8 @@ function(vtk_add_test_cxx exename _tests)
       PROPERTIES
         LABELS "${${prefix}_TEST_LABELS}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
+        # This must match VTK_SKIP_RETURN_CODE in vtkTestingObjectFactory.h"
+        SKIP_RETURN_CODE 125
       )
 
     list(APPEND ${_tests} "${test_file}")

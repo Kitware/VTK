@@ -55,6 +55,13 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 
 SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
 "
+   if (result == VTK_SKIP_RETURN_CODE)
+     {
+     printf(\"Unsupported runtime configuration: Test returned \"
+            \"VTK_SKIP_RETURN_CODE. Skipping test.\\n\");
+     return result;
+     }
+
    if (!interactive)
      {
      if (vtkTestingInteractor::TestReturnStatus != -1)
