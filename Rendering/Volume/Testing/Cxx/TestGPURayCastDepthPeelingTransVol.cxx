@@ -25,6 +25,7 @@
 #include <vtkImageShiftScale.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
+#include <vtkOpenGLRenderer.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
@@ -34,6 +35,7 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
 #include <vtkTimerLog.h>
 #include <vtkProperty.h>
@@ -43,6 +45,24 @@
 
 int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
 {
+  // Volume peeling is only supported through the dual depth peeling algorithm.
+  // If the current system only supports the legacy peeler, skip this test:
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->Render(); // Create the context
+  renWin->AddRenderer(ren.GetPointer());
+  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
+  assert(oglRen); // This test should only be enabled for OGL2 backend.
+  // This will print details about why depth peeling is unsupported:
+  oglRen->SetDebug(1);
+  bool supported = oglRen->IsDualDepthPeelingSupported();
+  oglRen->SetDebug(0);
+  if (!supported)
+  {
+    std::cerr << "Skipping test; volume peeling not supported.\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
+
   double scalarRange[2];
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
@@ -58,7 +78,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetBlendModeToComposite();
 
-  vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetSize(800, 400);
 
@@ -133,7 +152,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   sphereActorTransp->SetMapper(sphereMapperTransp.GetPointer());
 
   // Translucent spheres
-  vtkNew<vtkRenderer> ren;
   ren->SetBackground(1.0, 1.0, 1.0);
   ren->SetViewport(0.0, 0.0, 0.5, 1.0);
 
@@ -145,7 +163,6 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   ren->SetOcclusionRatio(0.0);
   ren->SetMaximumNumberOfPeels(17);
   ren->SetUseDepthPeelingForVolumes(true);
-  renWin->AddRenderer(ren.GetPointer());
 
   // Fully trasnparent sphere
   vtkNew<vtkRenderer> ren2;

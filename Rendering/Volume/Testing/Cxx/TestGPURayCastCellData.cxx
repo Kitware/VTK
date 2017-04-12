@@ -26,6 +26,7 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
 #include <vtkOutlineFilter.h>
+#include <vtkOpenGLRenderer.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkPolyDataMapper.h>
@@ -38,6 +39,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkTesting.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
@@ -45,6 +47,24 @@
 
 int TestGPURayCastCellData(int argc, char *argv[])
 {
+  // Volume peeling is only supported through the dual depth peeling algorithm.
+  // If the current system only supports the legacy peeler, skip this test:
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->Render(); // Create the context
+  renWin->AddRenderer(ren.GetPointer());
+  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
+  assert(oglRen); // This test should only be enabled for OGL2 backend.
+  // This will print details about why depth peeling is unsupported:
+  oglRen->SetDebug(1);
+  bool supported = oglRen->IsDualDepthPeelingSupported();
+  oglRen->SetDebug(0);
+  if (!supported)
+  {
+    std::cerr << "Skipping test; volume peeling not supported.\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
+
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   double scalarRange[2];
@@ -74,7 +94,6 @@ int TestGPURayCastCellData(int argc, char *argv[])
   volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetBlendModeToComposite();
 
-  vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetSize(800, 400);
 
@@ -87,10 +106,8 @@ int TestGPURayCastCellData(int argc, char *argv[])
   renWin->Render();
 
   // Renderer without translucent geometry
-  vtkNew<vtkRenderer> ren;
   ren->SetViewport(0.0, 0.0, 0.5, 1.0);
   ren->SetBackground(0.2, 0.2, 0.5);
-  renWin->AddRenderer(ren.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
