@@ -14,10 +14,12 @@
 =========================================================================*/
 #include "vtkLight.h"
 
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxSetObjectMacro(vtkLight, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 
 //----------------------------------------------------------------------------
@@ -65,6 +67,10 @@ vtkLight::vtkLight()
   this->TransformMatrix = NULL;
 
   this->ShadowAttenuation = 1.0;
+
+  this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 }
 
 vtkLight::~vtkLight()
@@ -74,6 +80,8 @@ vtkLight::~vtkLight()
       this->TransformMatrix->UnRegister(this);
       this->TransformMatrix = NULL;
   }
+
+  this->SetInformation(0);
 }
 
 // ----------------------------------------------------------------------------

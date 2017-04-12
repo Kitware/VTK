@@ -25,6 +25,9 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkLightNode.h"
 
+class vtkInformationIntegerKey;
+class vtkLight;
+
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayLightNode :
   public vtkLightNode
 {
@@ -45,6 +48,23 @@ public:
    */
   static void SetLightScale(double s);
   static double GetLightScale();
+  //@}
+
+  //state beyond rendering core...
+
+  /**
+   * When present on light, the light acts as an ambient source.
+   * An AmbientLight is one that has no specific position in space and for
+   * which only the ambient color term affects the result.
+   */
+  static vtkInformationIntegerKey* IS_AMBIENT();
+
+  //@{
+  /**
+   * Convenience method to set/get IS_AMBIENT on a vtkLight.
+   */
+  static void SetIsAmbient(int, vtkLight *);
+  static int GetIsAmbient(vtkLight *);
   //@}
 
 protected:

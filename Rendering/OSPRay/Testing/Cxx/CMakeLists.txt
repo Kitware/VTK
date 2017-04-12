@@ -1,5 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   # Surface rendering tests
+  TestOSPRayAmbient.cxx
   TestOSPRayCompositePolyDataMapper2.cxx
   TestOSPRayDynamicObject.cxx
   TestOSPRayDynamicScene.cxx

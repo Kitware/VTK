@@ -28,6 +28,7 @@
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkLight.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -657,6 +658,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   //lights
   this->Lights.clear();
   it->InitTraversal();
+  bool hasAmbient = false;
   while (!it->IsDoneWithTraversal())
   {
     vtkOSPRayLightNode *child =
@@ -664,16 +666,21 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     if (child)
     {
       child->Traverse(operation);
+      if (child->GetIsAmbient(vtkLight::SafeDownCast(child->GetRenderable())))
+      {
+        hasAmbient = true;
+      }
     }
     it->GoToNextItem();
   }
 
 #if OSPRAY_VERSION_MAJOR > 1 || \
     (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 2)
-  if (this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)) > 0)
+  if (!hasAmbient &&
+      (this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)) > 0)
+      )
   {
     //hardcode an ambient light for AO since OSP 1.2 stopped doing so.
-    //todo: remove when more user level light controls are ready
     OSPLight ospAmbient = ospNewLight(oRenderer, "AmbientLight");
     ospSetString(ospAmbient, "name", "default_ambient");
     ospSet3f(ospAmbient, "color", 1.f, 1.f, 1.f);

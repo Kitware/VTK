@@ -15,6 +15,8 @@
 #include "vtkOSPRayLightNode.h"
 
 #include "vtkCollectionIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -23,6 +25,7 @@
 #include "ospray/ospray.h"
 #include <vector>
 
+vtkInformationKeyMacro(vtkOSPRayLightNode, IS_AMBIENT, Integer);
 
 //============================================================================
 double vtkOSPRayLightNode::LightScale = 1.0;
@@ -53,6 +56,32 @@ double vtkOSPRayLightNode::GetLightScale()
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayLightNode::SetIsAmbient(int value, vtkLight *light)
+{
+  if (!light)
+  {
+    return;
+  }
+  vtkInformation *info = light->GetInformation();
+  info->Set(vtkOSPRayLightNode::IS_AMBIENT(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayLightNode::GetIsAmbient(vtkLight *light)
+{
+  if (!light)
+  {
+    return 0;
+  }
+  vtkInformation *info = light->GetInformation();
+  if (info && info->Has(vtkOSPRayLightNode::IS_AMBIENT()))
+  {
+    return (info->Get(vtkOSPRayLightNode::IS_AMBIENT()));
+  }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayLightNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -77,7 +106,23 @@ void vtkOSPRayLightNode::Render(bool prepass)
       color[1] = static_cast<float>(light->GetDiffuseColor()[1]);
       color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
     }
-    if (light->GetPositional())
+    if (vtkOSPRayLightNode::GetIsAmbient(light))
+    {
+      OSPLight ospLight = ospNewLight(oRenderer, "ambient");
+      color[0] = static_cast<float>(light->GetDiffuseColor()[0]);
+      color[1] = static_cast<float>(light->GetDiffuseColor()[1]);
+      color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
+      ospSet3f(ospLight, "color", color[0], color[1], color[2]);
+      float fI = static_cast<float>
+        (vtkOSPRayLightNode::LightScale*
+         light->GetIntensity()*
+         vtkMath::Pi() //since OSP 0.10.0
+         );
+      ospSet1f(ospLight, "intensity", fI);
+      ospCommit(ospLight);
+      orn->AddLight(ospLight);
+    }
+    else if (light->GetPositional())
     {
       double px, py, pz;
       light->GetTransformedPosition(px, py, pz);
