@@ -66,7 +66,6 @@ int TestOSPRayRendererType(int argc, char* argv[])
   renWin->Render();
 
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
-  vtkOSPRayRendererNode *ren = ospray->GetSceneGraph();
   renderer->SetPass(ospray);
 
   for (int i = 1; i<9; i++)
@@ -74,12 +73,12 @@ int TestOSPRayRendererType(int argc, char* argv[])
     if (i%2)
       {
       cerr << "Render via scivis" << endl;
-      ren->SetRendererType("scivis", renderer);
+      vtkOSPRayRendererNode::SetRendererType("scivis", renderer);
       }
     else
       {
       cerr << "Render via pathtracer" << endl;
-      ren->SetRendererType("pathtracer", renderer);
+      vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
       }
     renWin->Render();
     }

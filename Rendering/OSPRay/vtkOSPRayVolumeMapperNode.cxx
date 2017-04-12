@@ -242,7 +242,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
       ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
                volProperty->GetShade());
-      PropertyTime.Modified();
+      this->PropertyTime.Modified();
       ospRelease(colorData);
       ospRelease(tfAlphaData);
     }
