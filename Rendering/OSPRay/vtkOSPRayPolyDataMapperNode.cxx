@@ -687,7 +687,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
       std::vector<OSPMaterial> cellColors;
       vtkosp::CellColorMaterials(vColors, oRenderer, cellColors, specularf,
                                  float(property->GetSpecularPower()), opacity);
-      numCellMaterials = cellColors.size();
+      numCellMaterials = static_cast<int>(cellColors.size());
       cellMaterials = ospNewData(cellColors.size(), OSP_OBJECT, &cellColors[0]);
       ospCommit(cellMaterials);
       cellColors.clear();

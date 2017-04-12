@@ -78,7 +78,7 @@ vtkOSPRayPass::vtkOSPRayPass()
     {
       args.push_back(arg);
     }
-    int ac =args.size()+1;
+    ac = static_cast<int>(args.size()+1);
     const char** av = new const char*[ac];
     av[0] = "pvOSPRay";
     for(int i=1;i < ac; i++)

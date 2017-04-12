@@ -536,7 +536,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     }
     ospCommit(this->ORenderer);
 
-    vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
     int viewportOrigin[2];
     int viewportSize[2];
     ren->GetTiledSizeAndOrigin(
@@ -556,7 +555,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospSet1i(oRenderer,"spp",
              this->GetSamplesPerPixel(static_cast<vtkRenderer*>(this->Renderable)));
     this->CompositeOnGL =
-      this->GetCompositeOnGL(static_cast<vtkRenderer*>(this->Renderable));
+      (this->GetCompositeOnGL(static_cast<vtkRenderer*>(this->Renderable))!=0);
 
     double *bg = ren->GetBackground();
     //todo: request bgAlpha and set to 255.0*ren->GetBackgroundAlpha();

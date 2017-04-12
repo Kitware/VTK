@@ -31,7 +31,7 @@
 
 #include <string>
 namespace {
-  std::string result = "";
+  std::string resultS = "";
 }
 
 //-----------------------------------------------------------------------
@@ -45,9 +45,9 @@ public:
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
-      result += "Render ";
-      result += this->GetClassName();
-      result += "\n";
+      resultS += "Render ";
+      resultS += this->GetClassName();
+      resultS += "\n";
     }
   }
   vtkMyActorNode() {};
@@ -64,9 +64,9 @@ public:
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
-      result += "Render ";
-      result += this->GetClassName();
-      result += "\n";
+      resultS += "Render ";
+      resultS += this->GetClassName();
+      resultS += "\n";
     }
   }
   vtkMyCameraNode() {};
@@ -83,9 +83,9 @@ public:
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
-      result += "Render ";
-      result += this->GetClassName();
-      result += "\n";
+      resultS += "Render ";
+      resultS += this->GetClassName();
+      resultS += "\n";
     }
   }
   vtkMyLightNode() {};
@@ -102,9 +102,9 @@ public:
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
-      result += "Render ";
-      result += this->GetClassName();
-      result += "\n";
+      resultS += "Render ";
+      resultS += this->GetClassName();
+      resultS += "\n";
     }
   }
   vtkMyRendererNode() {};
@@ -121,9 +121,9 @@ public:
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
-      result += "Render ";
-      result += this->GetClassName();
-      result += "\n";
+      resultS += "Render ";
+      resultS += this->GetClassName();
+      resultS += "\n";
     }
   }
   vtkMyWindowNode() {};
@@ -138,7 +138,7 @@ vtkViewNode *act_maker()
 {
   vtkMyActorNode *vn = vtkMyActorNode::New();
   cerr << "make actor node " << vn << endl;
-  result = result + "make actor\n";
+  resultS += "make actor\n";
   return vn;
 }
 
@@ -146,7 +146,7 @@ vtkViewNode *cam_maker()
 {
   vtkMyCameraNode *vn = vtkMyCameraNode::New();
   cerr << "make camera node " << vn << endl;
-  result = result + "make camera\n";
+  resultS += "make camera\n";
   return vn;
 }
 
@@ -154,7 +154,7 @@ vtkViewNode *light_maker()
 {
   vtkMyLightNode *vn = vtkMyLightNode::New();
   cerr << "make light node " << vn << endl;
-  result = result + "make light\n";
+  resultS += "make light\n";
   return vn;
 }
 
@@ -162,7 +162,7 @@ vtkViewNode *ren_maker()
 {
   vtkMyRendererNode *vn = vtkMyRendererNode::New();
   cerr << "make renderer node " << vn << endl;
-  result = result + "make renderer\n";
+  resultS += "make renderer\n";
   return vn;
 }
 
@@ -170,7 +170,7 @@ vtkViewNode *win_maker()
 {
   vtkMyWindowNode *vn = vtkMyWindowNode::New();
   cerr << "make window node " << vn << endl;
-  result = result + "make window\n";
+  resultS += "make window\n";
   return vn;
 }
 
@@ -254,9 +254,9 @@ int UnitTests( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   vnf->Delete();
 
   cerr << "Results is [" << endl;
-  cerr << result << "]" << endl;
+  cerr << resultS << "]" << endl;
   std::string ok_res = "make window\nmake renderer\nmake light\nmake actor\nmake camera\nRender vtkMyWindowNode\nRender vtkMyRendererNode\nRender vtkMyLightNode\nRender vtkMyActorNode\nRender vtkMyCameraNode\n";
-  if (result != ok_res)
+  if (resultS != ok_res)
   {
     cerr << "Which does not match [" << endl;
     cerr << ok_res << "]" << endl;
