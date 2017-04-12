@@ -1,5 +1,7 @@
 vtk_module(Twisted
   DEPENDS
+    constantly
+    incremental
     ZopeInterface
   COMPILE_DEPENDS
     vtkPython
