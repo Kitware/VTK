@@ -278,7 +278,10 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
     }
     ospSet1f(OSPRayVolume, "adaptiveScalar", 15.f);
-    ospSet3f(OSPRayVolume, "specular",.05f,.05f,.05f); //hardcoded for now
+    float rs = static_cast<float>(volProperty->GetSpecular(0)/16.); //16 chosen because near GL
+    float gs = static_cast<float>(volProperty->GetSpecular(1)/16.);
+    float bs = static_cast<float>(volProperty->GetSpecular(2)/16.);
+    ospSet3f(OSPRayVolume, "specular", rs,gs,bs);
     ospSet1i(OSPRayVolume, "preIntegration", 0); //turn off preIntegration
 
     this->RenderTime = volNode->GetMTime();
