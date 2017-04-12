@@ -322,55 +322,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
   {
     if (!this->DepthPeelingPass)
     {
-      // Dual depth peeling requires:
-      // - float textures (ARB_texture_float)
-      // - RG textures (ARB_texture_rg)
-      // - MAX blending (not available in ES2, but added in ES3).
-#if GL_ES_VERSION_3_0 == 1
-      // ES3 is supported:
-      bool dualDepthPeelingSupported = true;
-#else
-      bool dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
-          (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
-#endif
-
-      // There's a bug on current mesa master that prevents dual depth peeling
-      // from functioning properly, something in the texture sampler is causing
-      // all lookups to return NaN. See discussion on
-      // https://bugs.freedesktop.org/show_bug.cgi?id=94955
-      // We'll always fallback to regular depth peeling until this is fixed.
-      // Only disable for mesa + llvmpipe/SWR, since those are the drivers that
-      // seem to be affected by this.
-      std::string glVersion =
-          reinterpret_cast<const char *>(glGetString(GL_VERSION));
-      if (glVersion.find("Mesa") != std::string::npos)
-      {
-        std::string glRenderer =
-            reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-        if (glRenderer.find("llvmpipe") != std::string::npos ||
-            glRenderer.find("SWR") != std::string::npos)
-        {
-          vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
-                        "GL_VERSION = '" << glVersion << "'; "
-                        "GL_RENDERER = '" << glRenderer << "'.");
-          dualDepthPeelingSupported = false;
-        }
-      }
-
-      // The old implemention can be force by defining the environment var
-      // "VTK_USE_LEGACY_DEPTH_PEELING":
-      if (dualDepthPeelingSupported)
-      {
-        const char *forceLegacy = getenv("VTK_USE_LEGACY_DEPTH_PEELING");
-        if (forceLegacy)
-        {
-          vtkDebugMacro("Disabling dual depth peeling -- "
-                        "VTK_USE_LEGACY_DEPTH_PEELING defined in environment.");
-          dualDepthPeelingSupported = false;
-        }
-      }
-
-      if (dualDepthPeelingSupported)
+      if (this->IsDualDepthPeelingSupported())
       {
         vtkDebugMacro("Using dual depth peeling.");
         vtkDualDepthPeelingPass *ddpp = vtkDualDepthPeelingPass::New();
@@ -870,6 +822,69 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 
   this->HaveApplePrimitiveIdBugChecked = true;
   return this->HaveApplePrimitiveIdBugValue;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
+{
+  vtkOpenGLRenderWindow *context
+    = vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow);
+  if (!context)
+  {
+    vtkDebugMacro("Cannot determine if dual depth peeling is support -- no "
+                  "vtkRenderWindow set.");
+    return false;
+  }
+
+  // Dual depth peeling requires:
+  // - float textures (ARB_texture_float)
+  // - RG textures (ARB_texture_rg)
+  // - MAX blending (not available in ES2, but added in ES3).
+#if GL_ES_VERSION_3_0 == 1
+  // ES3 is supported:
+  bool dualDepthPeelingSupported = true;
+#else
+  bool dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
+      (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
+#endif
+
+  // There's a bug on current mesa master that prevents dual depth peeling
+  // from functioning properly, something in the texture sampler is causing
+  // all lookups to return NaN. See discussion on
+  // https://bugs.freedesktop.org/show_bug.cgi?id=94955
+  // We'll always fallback to regular depth peeling until this is fixed.
+  // Only disable for mesa + llvmpipe/SWR, since those are the drivers that
+  // seem to be affected by this.
+  std::string glVersion =
+      reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  if (glVersion.find("Mesa") != std::string::npos)
+  {
+    std::string glRenderer =
+        reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+    if (glRenderer.find("llvmpipe") != std::string::npos ||
+        glRenderer.find("SWR") != std::string::npos)
+    {
+      vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
+                    "GL_VERSION = '" << glVersion << "'; "
+                    "GL_RENDERER = '" << glRenderer << "'.");
+      dualDepthPeelingSupported = false;
+    }
+  }
+
+  // The old implemention can be forced by defining the environment var
+  // "VTK_USE_LEGACY_DEPTH_PEELING":
+  if (dualDepthPeelingSupported)
+  {
+    const char *forceLegacy = getenv("VTK_USE_LEGACY_DEPTH_PEELING");
+    if (forceLegacy)
+    {
+      vtkDebugMacro("Disabling dual depth peeling -- "
+                    "VTK_USE_LEGACY_DEPTH_PEELING defined in environment.");
+      dualDepthPeelingSupported = false;
+    }
+  }
+
+  return dualDepthPeelingSupported;
 }
 
 unsigned int vtkOpenGLRenderer::GetNumPickedIds()

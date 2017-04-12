@@ -80,6 +80,13 @@ public:
    */
   bool HaveApplePrimitiveIdBug();
 
+  /**
+   * Dual depth peeling may be disabled for certain runtime configurations.
+   * This method returns true if vtkDualDepthPeelingPass will be used in place
+   * of vtkDepthPeelingPass.
+   */
+  bool IsDualDepthPeelingSupported();
+
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer() VTK_OVERRIDE;
