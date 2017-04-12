@@ -97,7 +97,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     {
       if (this->VisibleActor == -1 || this->VisibleActor == i)
       {
-        if (i < ActorNames.size())
+        if (i < static_cast<int>(ActorNames.size()))
         {
           cerr << " : " << ActorNames[i] << " ";
         }

@@ -412,7 +412,7 @@ namespace vtkosp {
       {
         //using 1D texture for point value LUT
         tc = new osp::vec2f[numPointValueTextureCoords];
-        for (size_t i = 0; i < numPointValueTextureCoords; i++)
+        for (size_t i = 0; i < static_cast<size_t>(numPointValueTextureCoords); i++)
         {
           tc[i] = osp::vec2f{pointValueTextureCoords[i],0};
         }
@@ -424,7 +424,7 @@ namespace vtkosp {
         //2d texture mapping
         tc = new osp::vec2f[numTextureCoordinates/2];
         float *itc = textureCoordinates;
-        for (size_t i = 0; i < numTextureCoordinates; i+=2)
+        for (size_t i = 0; i < static_cast<size_t>(numTextureCoordinates); i+=2)
         {
           float t1,t2;
           t1 = *itc;
