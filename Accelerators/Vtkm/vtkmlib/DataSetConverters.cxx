@@ -112,9 +112,9 @@ vtkm::cont::DataSet Convert(vtkImageData *input)
   int vdims[3];
   input->GetDimensions(vdims);
 
-  vtkm::Vec<vtkm::FloatDefault, 3> origin(vorigin[0]+extent[0],
-                                          vorigin[1]+extent[2],
-                                          vorigin[2]+extent[4]);
+  vtkm::Vec<vtkm::FloatDefault, 3> origin(extent[0]*vspacing[0] + vorigin[0],
+                                          extent[2]*vspacing[1] + vorigin[1],
+                                          extent[4]*vspacing[2] + vorigin[2]);
   vtkm::Vec<vtkm::FloatDefault, 3> spacing(vspacing[0],
                                            vspacing[1],
                                            vspacing[2]);
