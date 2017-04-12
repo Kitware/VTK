@@ -161,6 +161,102 @@ class CylindricalCamera(object):
             yield cameraData
 
 # -----------------------------------------------------------------------------
+# MultiView Cube Camera
+# -----------------------------------------------------------------------------
+
+class CubeCamera(object):
+
+    # positions = [ { position: [x,y,z], args: { i: 1, j: 0, k: 7 } }, ... ]
+    def __init__(self, dataHandler, viewForward, viewUp, positions):
+        self.dataHandler = dataHandler
+        self.cameraSettings = []
+        self.viewForward = viewForward
+        self.viewUp = viewUp
+        self.rightDirection = vectProduct(viewForward, viewUp)
+        self.positions = positions
+
+        # Register arguments to the data handler
+        self.dataHandler.registerArgument(priority=0, name='orientation', values=['f', 'b', 'r', 'l', 'u', 'd'])
+
+        # Register arguments to id position
+        self.args = {}
+        for pos in positions:
+            for key in pos['args']:
+                if key not in self.args:
+                    self.args[key] = {}
+                self.args[key][pos['args'][key]] = True
+
+        for key in self.args:
+            self.args[key] = sorted(self.args[key], key=lambda k: int(k))
+
+        self.keyList = self.args.keys()
+        for key in self.args:
+            self.dataHandler.registerArgument(priority=1, name=key, values=self.args[key])
+
+        self.dataHandler.updateBasePattern()
+
+    def updatePriority(self, priorityList):
+        keyList = ['orientation']
+        for idx in range(min(len(priorityList), len(keyList))):
+            self.dataHandler.updatePriority(keyList[idx], priorityList[idx])
+
+    def __iter__(self):
+        for pos in self.positions:
+            cameraData = {
+                'position': pos['position'],
+            }
+
+            print('='*80)
+            for key in pos['args']:
+                idx = self.args[key].index(pos['args'][key])
+                self.dataHandler.setArguments(**{ key: idx })
+                print(key, idx)
+
+            print('position', cameraData['position'])
+
+            # front
+            cameraData['focalPoint'] = [(cameraData['position'][i] + self.viewForward[i]) for i in range(3)]
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['orientation'] = 'front'
+            self.dataHandler.setArguments(orientation=0)
+            yield cameraData
+
+            # back
+            cameraData['focalPoint'] = [(cameraData['position'][i] - self.viewForward[i]) for i in range(3)]
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['orientation'] = 'back'
+            self.dataHandler.setArguments(orientation=1)
+            yield cameraData
+
+            # right
+            self.dataHandler.setArguments(orientation=2)
+            cameraData['focalPoint'] = [(cameraData['position'][i] + self.rightDirection[i]) for i in range(3)]
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['orientation'] = 'right'
+            yield cameraData
+
+            # left
+            self.dataHandler.setArguments(orientation=3)
+            cameraData['focalPoint'] = [(cameraData['position'][i] - self.rightDirection[i]) for i in range(3)]
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['orientation'] = 'left'
+            yield cameraData
+
+            # up
+            self.dataHandler.setArguments(orientation=4)
+            cameraData['focalPoint'] = [(cameraData['position'][i] + self.viewUp[i]) for i in range(3)]
+            cameraData['viewUp'] = [(-self.viewForward[i]) for i in range(3)]
+            cameraData['orientation'] = 'up'
+            yield cameraData
+
+            # doww
+            self.dataHandler.setArguments(orientation=5)
+            cameraData['focalPoint'] = [(cameraData['position'][i] - self.viewUp[i]) for i in range(3)]
+            cameraData['viewUp'] = [self.viewForward[i] for i in range(3)]
+            cameraData['orientation'] = 'down'
+            yield cameraData
+
+# -----------------------------------------------------------------------------
 # MultiView Camera
 # -----------------------------------------------------------------------------
 
