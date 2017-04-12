@@ -40,7 +40,7 @@ int vtkMultiBlockFromTimeSeriesFilter::FillInputPortInformation(
 }
 
 int vtkMultiBlockFromTimeSeriesFilter::RequestInformation(vtkInformation *vtkNotUsed(request),
-    vtkInformationVector** inInfo, vtkInformationVector* vtkNotUsed(outInfo))
+    vtkInformationVector** inInfo, vtkInformationVector* outInfoVec)
 {
   this->UpdateTimeIndex = 0;
   vtkInformation *info = inInfo[0]->GetInformationObject(0);
@@ -50,6 +50,11 @@ int vtkMultiBlockFromTimeSeriesFilter::RequestInformation(vtkInformation *vtkNot
   std::copy(timeSteps, timeSteps + len, this->TimeSteps.begin());
   this->TempDataset = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   this->TempDataset->SetNumberOfBlocks(len);
+
+  vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
+  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+
   return 1;
 }
 
