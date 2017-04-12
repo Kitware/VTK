@@ -30,6 +30,7 @@
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -38,11 +39,31 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkTestingObjectFactory.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
 int TestGPURayCastDepthPeelingBlendModes(int argc, char *argv[])
 {
+  // Volume peeling is only supported through the dual depth peeling algorithm.
+  // If the current system only supports the legacy peeler, skip this test:
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->Render(); // Create the context
+  renWin->AddRenderer(ren.GetPointer());
+  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
+  assert(oglRen); // This test should only be enabled for OGL2 backend.
+  // This will print details about why depth peeling is unsupported:
+  oglRen->SetDebug(1);
+  bool supported = oglRen->IsDualDepthPeelingSupported();
+  oglRen->SetDebug(0);
+  if (!supported)
+  {
+    std::cerr << "Skipping test; volume peeling not supported.\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
+  renWin->RemoveRenderer(ren.Get());
+
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   int dims[3] = {100, 100, 100};
@@ -98,7 +119,6 @@ int TestGPURayCastDepthPeelingBlendModes(int argc, char *argv[])
   mapper[2]->SetBlendModeToAdditive();
   mapper[3]->SetBlendModeToAverageIntensity();
 
-  vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetSize(301, 300); // Intentional NPOT size
 

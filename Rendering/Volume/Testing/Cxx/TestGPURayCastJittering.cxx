@@ -27,6 +27,7 @@
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
+#include <vtkOpenGLRenderer.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
@@ -36,6 +37,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSphereSource.h>
 #include <vtkStructuredPointsReader.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
@@ -49,6 +51,24 @@ static const char* TestGPURayCastJitteringLog =
 
 int TestGPURayCastJittering(int argc, char* argv[])
 {
+  // Volume peeling is only supported through the dual depth peeling algorithm.
+  // If the current system only supports the legacy peeler, skip this test:
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->Render(); // Create the context
+  renWin->AddRenderer(ren.GetPointer());
+  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
+  assert(oglRen); // This test should only be enabled for OGL2 backend.
+  // This will print details about why depth peeling is unsupported:
+  oglRen->SetDebug(1);
+  bool supported = oglRen->IsDualDepthPeelingSupported();
+  oglRen->SetDebug(0);
+  if (!supported)
+  {
+    std::cerr << "Skipping test; volume peeling not supported.\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
+
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   char* volumeFile = vtkTestUtilities::ExpandDataFileName(
@@ -113,14 +133,11 @@ int TestGPURayCastJittering(int argc, char* argv[])
   sphereActor2->SetMapper(sphereMapper2.GetPointer());
 
   // Render window
-  vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(800, 400);
   renWin->SetMultiSamples(0);
 
   // Renderer 1
-  vtkNew<vtkRenderer> ren;
   ren->SetViewport(0.0, 0.0, 0.5, 1.0);
-  renWin->AddRenderer(ren.GetPointer());
 
   ren->AddVolume(volume.GetPointer());
   ren->ResetCamera();
