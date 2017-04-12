@@ -126,7 +126,7 @@ PURPOSE.  See the above copyright notice for more information.
 {
   [super viewDidLoad];
 
-  self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+  self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
 
   if (!self.context) {
       NSLog(@"Failed to create ES context");

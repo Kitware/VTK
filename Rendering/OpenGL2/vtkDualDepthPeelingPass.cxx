@@ -1558,8 +1558,8 @@ void vtkDualDepthPeelingPass::EndTranslucentOcclusionQuery()
   GLuint anySamplesPassed;
   glGetQueryObjectuiv(this->TranslucentOcclusionQueryId, GL_QUERY_RESULT,
                       &anySamplesPassed);
-  this->WrittenPixels = anySamplesPassed ? this->OcclusionThreshold + 1
-                                         : 0;
+  this->TranslucentWrittenPixels =
+      anySamplesPassed ? this->OcclusionThreshold + 1 : 0;
 #else // GL ES 3.0
   glEndQuery(GL_SAMPLES_PASSED);
   glGetQueryObjectuiv(this->TranslucentOcclusionQueryId, GL_QUERY_RESULT,
@@ -1588,8 +1588,8 @@ void vtkDualDepthPeelingPass::EndVolumetricOcclusionQuery()
   GLuint anySamplesPassed;
   glGetQueryObjectuiv(this->VolumetricOcclusionQueryId, GL_QUERY_RESULT,
                       &anySamplesPassed);
-  this->WrittenPixels = anySamplesPassed ? this->OcclusionThreshold + 1
-                                         : 0;
+  this->VolumetricWrittenPixels =
+      anySamplesPassed ? this->OcclusionThreshold + 1 : 0;
 #else // GL ES 3.0
   glEndQuery(GL_SAMPLES_PASSED);
   glGetQueryObjectuiv(this->VolumetricOcclusionQueryId, GL_QUERY_RESULT,
