@@ -31,7 +31,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkLightNode :
 public:
   static vtkLightNode* New();
   vtkTypeMacro(vtkLightNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkLightNode();

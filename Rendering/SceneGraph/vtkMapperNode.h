@@ -36,7 +36,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkMapperNode :
 public:
   static vtkMapperNode* New();
   vtkTypeMacro(vtkMapperNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkMapperNode();

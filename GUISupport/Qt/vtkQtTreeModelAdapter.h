@@ -108,7 +108,7 @@ public:
    * pedigreeid vtkSelection into a QMimeData when items are dragged.
    * Currently only leaves of the tree can be dragged.
    */
-  Qt::DropActions supportedDragActions() const;
+  Qt::DropActions supportedDragActions() const VTK_OVERRIDE;
   QMimeData * mimeData ( const QModelIndexList & indexes ) const VTK_OVERRIDE;
   QStringList mimeTypes () const VTK_OVERRIDE;
   //@}

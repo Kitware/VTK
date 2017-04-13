@@ -31,7 +31,7 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayCameraNode :
 public:
   static vtkOSPRayCameraNode* New();
   vtkTypeMacro(vtkOSPRayCameraNode, vtkCameraNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Make ospray calls to render me.

@@ -39,7 +39,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkPolyDataMapperNode :
 public:
   static vtkPolyDataMapperNode* New();
   vtkTypeMacro(vtkPolyDataMapperNode, vtkMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPolyDataMapperNode();

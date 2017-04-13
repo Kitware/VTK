@@ -39,7 +39,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNode :
 {
 public:
   vtkTypeMacro(vtkViewNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //@{
   /**
@@ -51,7 +51,7 @@ public:
   /**
    * Builds myself.
    */
-  virtual void Build(bool /* prepass */) {};
+  virtual void Build(bool /* prepass */) VTK_OVERRIDE {};
 
   /**
    * Ensures that my state agrees with my Renderable's.
@@ -66,7 +66,7 @@ public:
   /**
    * Clear any cached data.
    */
-  virtual void Invalidate(bool /*prepass*/) {};
+  virtual void Invalidate(bool /*prepass*/) VTK_OVERRIDE {};
 
   //@{
   /**
@@ -112,7 +112,7 @@ public:
 
   // if you want to traverse your children in a specific order
   // or way override this method
-  virtual void Traverse(int operation);
+  virtual void Traverse(int operation) VTK_OVERRIDE;
 
   virtual void TraverseAllPasses();
 

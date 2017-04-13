@@ -40,13 +40,13 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeNode :
 public:
   static vtkOSPRayVolumeNode* New();
   vtkTypeMacro(vtkOSPRayVolumeNode, vtkVolumeNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Overridden to take into account my renderables time, including
    * mapper and data into mapper inclusive of composite input
    */
-  virtual vtkMTimeType GetMTime();
+  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkOSPRayVolumeNode();
