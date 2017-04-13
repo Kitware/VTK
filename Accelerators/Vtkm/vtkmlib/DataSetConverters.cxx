@@ -35,7 +35,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
-#include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vtkm/cont/ArrayHandle.h>
@@ -127,33 +126,6 @@ vtkm::cont::DataSet Convert(vtkImageData *input)
 }
 
 //------------------------------------------------------------------------------
-// convert an uniform grid type
-vtkm::cont::DataSet Convert(vtkUniformGrid *input)
-{
-  int extent[6];
-  input->GetExtent(extent);
-  double vorigin[3];
-  input->GetOrigin(vorigin);
-  double vspacing[3];
-  input->GetSpacing(vspacing);
-  int vdims[3];
-  input->GetDimensions(vdims);
-
-  vtkm::Vec<vtkm::FloatDefault, 3> origin(vorigin[0]+extent[0],
-                                          vorigin[1]+extent[2],
-                                          vorigin[2]+extent[4]);
-  vtkm::Vec<vtkm::FloatDefault, 3> spacing(vspacing[0],
-                                           vspacing[1],
-                                           vspacing[2]);
-  vtkm::Id3 dims(vdims[0], vdims[1], vdims[2]);
-
-  vtkm::cont::DataSet dataset =
-      vtkm::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
-
-  return dataset;
-}
-
-//------------------------------------------------------------------------------
 // convert an structured grid type
 vtkm::cont::DataSet Convert(vtkStructuredGrid *input)
 {
@@ -200,7 +172,6 @@ vtkm::cont::DataSet Convert(vtkDataSet *input)
   case VTK_STRUCTURED_GRID:
     return Convert(vtkStructuredGrid::SafeDownCast(input));
   case VTK_UNIFORM_GRID:
-    return Convert(vtkUniformGrid::SafeDownCast(input));
   case VTK_IMAGE_DATA:
     return Convert(vtkImageData::SafeDownCast(input));
   case VTK_POLY_DATA:
