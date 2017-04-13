@@ -197,7 +197,8 @@ extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleT
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>;
 #endif
 
-#ifdef VTKM_ENABLE_CUDA
+//only when cuda is enabled, and the compiler is cuda
+#if defined(VTKM_ENABLE_CUDA) && defined(VTKM_CUDA)
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>;

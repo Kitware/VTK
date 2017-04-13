@@ -203,7 +203,7 @@ extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
       vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 #endif
 
-#ifdef VTKM_ENABLE_CUDA
+#if defined(VTKM_ENABLE_CUDA) && defined(VTKM_CUDA)
 extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
   vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
