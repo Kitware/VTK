@@ -54,7 +54,7 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayPass : public vtkRenderPass
 public:
   static vtkOSPRayPass *New();
   vtkTypeMacro(vtkOSPRayPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Perform rendering according to a render state s.

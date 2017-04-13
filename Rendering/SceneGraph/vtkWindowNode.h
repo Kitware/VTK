@@ -34,17 +34,17 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkWindowNode :
 public:
   static vtkWindowNode* New();
   vtkTypeMacro(vtkWindowNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass);
+  virtual void Build(bool prepass) VTK_OVERRIDE;
 
   /**
    * Get state of my renderable.
    */
-  virtual void Synchronize(bool prepass);
+  virtual void Synchronize(bool prepass) VTK_OVERRIDE;
 
   /**
    * Return the size of the last rendered image

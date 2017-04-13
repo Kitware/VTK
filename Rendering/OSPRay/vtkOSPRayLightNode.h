@@ -31,7 +31,7 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayLightNode :
 public:
   static vtkOSPRayLightNode* New();
   vtkTypeMacro(vtkOSPRayLightNode, vtkLightNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Make ospray calls to render me.

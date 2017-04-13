@@ -37,14 +37,14 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapper
 public:
   static vtkOSPRayVolumeMapper *New();
   vtkTypeMacro(vtkOSPRayVolumeMapper,vtkOSPRayVolumeInterface);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  virtual void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   // Initialize internal constructs
   virtual void Init();
@@ -53,7 +53,7 @@ public:
    * Render the volume onto the screen.
    * Overridden to use OSPRay to do the work.
    */
-  virtual void Render(vtkRenderer *, vtkVolume *);
+  virtual void Render(vtkRenderer *, vtkVolume *) VTK_OVERRIDE;
 
 protected:
   vtkOSPRayVolumeMapper();
