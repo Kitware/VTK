@@ -46,13 +46,16 @@
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
-#include "vtkOpenGLActor.h" // For GLDepthMaskOverride key
+#include "vtkOpenGLActor.h"
 #include <vtkOpenGLError.h>
+#include <vtkOpenGLBufferObject.h>
 #include <vtkOpenGLCamera.h>
 #include <vtkOpenGLRenderPass.h>
+#include <vtkOpenGLRenderUtilities.h>
 #include <vtkOpenGLRenderWindow.h>
 #include "vtkOpenGLResourceFreeCallback.h"
 #include <vtkOpenGLShaderCache.h>
+#include <vtkOpenGLVertexArrayObject.h>
 #include <vtkPerlinNoise.h>
 #include <vtkPixelBufferObject.h>
 #include <vtkPixelExtent.h>
@@ -162,6 +165,12 @@ public:
     this->DPColorTextureObject = 0;
     this->PreserveViewport = false;
     this->PreserveGLState = false;
+
+    this->ImageSampleFBO = NULL;
+    this->ImageSampleTexture = NULL;
+    this->ImageSampleProg = NULL;
+    this->ImageSampleVAO = NULL;
+    this->ImageSampleVBO = NULL;
   }
 
   // Destructor
@@ -206,12 +215,38 @@ public:
       this->RTTColorTextureObject = NULL;
     }
 
+    if (this->ImageSampleFBO)
+    {
+      this->ImageSampleFBO->Delete();
+      this->ImageSampleFBO = NULL;
+    }
+
+    if (this->ImageSampleTexture)
+    {
+      this->ImageSampleTexture->Delete();
+      this->ImageSampleTexture = NULL;
+    }
+
+    if (this->ImageSampleVBO)
+    {
+      this->ImageSampleVBO->Delete();
+      this->ImageSampleVBO = NULL;
+    }
+
+    if (this->ImageSampleVAO)
+    {
+      this->ImageSampleVAO->Delete();
+      this->ImageSampleVAO = NULL;
+    }
     this->DeleteTransferFunctions();
 
     delete this->MaskTextures;
 
     this->Scale.clear();
     this->Bias.clear();
+
+    // Do not delete the shader programs - Let the cache clean them up.
+    this->ImageSampleProg = NULL;
   }
 
   // Helper methods
@@ -353,8 +388,13 @@ public:
   void SetupDepthPass(vtkRenderer* ren);
   void ExitDepthPass(vtkRenderer* ren);
 
-  void ReleaseRenderToTextureGraphicsResources(vtkWindow* win);
+  // Image XY Sampling
+  void BeginImageSample(vtkRenderer* ren);
+  bool InitializeImageSampleFBO(vtkRenderer* ren);
+  void EndImageSample(vtkRenderer* ren);
 
+  void ReleaseRenderToTextureGraphicsResources(vtkWindow* win);
+  void ReleaseImageSampleGraphicsResources(vtkWindow* win);
   void ReleaseDepthPassGraphicsResources(vtkWindow* win);
 
   // Private member variables
@@ -461,6 +501,12 @@ public:
   vtkOpenGLFramebufferObject* DPFBO;
   vtkTextureObject* DPDepthBufferTextureObject;
   vtkTextureObject* DPColorTextureObject;
+
+  vtkOpenGLFramebufferObject* ImageSampleFBO;
+  vtkTextureObject* ImageSampleTexture;
+  vtkShaderProgram* ImageSampleProg;
+  vtkOpenGLVertexArrayObject* ImageSampleVAO;
+  vtkOpenGLBufferObject* ImageSampleVBO;
 
   vtkNew<vtkContourFilter>  ContourFilter;
   vtkNew<vtkPolyDataMapper> ContourMapper;
@@ -1498,6 +1544,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
                    this->BBoxPolyData->GetNumberOfCells() * 3,
                    GL_UNSIGNED_INT, 0);
 
+    vtkOpenGLStaticCheckErrorMacro("Error after glDrawElements in"
+      " RenderVolumeGeometry!");
 #ifdef __APPLE__
     if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
@@ -1909,11 +1957,175 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginImageSample(
+  vtkRenderer* ren)
+{
+  float const xySampleDist = this->Parent->ImageSampleDistance;
+  if (xySampleDist != 1.f && this->InitializeImageSampleFBO(ren))
+  {
+    this->ImageSampleFBO->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+    this->ImageSampleFBO->Bind(GL_DRAW_FRAMEBUFFER);
+    this->ImageSampleFBO->ActivateDrawBuffer(0);
+
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
+  vtkRenderer* ren)
+{
+  // Set the FBO viewport size. These are used in the shader to normalize the
+  // fragment coordinate, the normalized coordinate is used to fetch the depth
+  // buffer.
+  this->WindowSize[0] /= this->Parent->ImageSampleDistance;
+  this->WindowSize[1] /= this->Parent->ImageSampleDistance;
+  this->WindowLowerLeft[0] = 0;
+  this->WindowLowerLeft[1] = 0;
+
+  // Set FBO viewport
+  glViewport(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
+    this->WindowSize[0], this->WindowSize[1]);
+
+  if (!this->ImageSampleFBO)
+  {
+    vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(
+      ren->GetRenderWindow());
+
+    this->ImageSampleTexture = vtkTextureObject::New();
+    this->ImageSampleTexture->SetContext(win);
+    this->ImageSampleTexture->Create2D(this->WindowSize[0], this->WindowSize[1],
+      4, VTK_UNSIGNED_CHAR, false);
+    this->ImageSampleTexture->Activate();
+    this->ImageSampleTexture->SetMinificationFilter(vtkTextureObject::Linear);
+    this->ImageSampleTexture->SetMagnificationFilter(vtkTextureObject::Linear);
+    this->ImageSampleTexture->SetWrapS(vtkTextureObject::ClampToEdge);
+    this->ImageSampleTexture->SetWrapT(vtkTextureObject::ClampToEdge);
+
+    this->ImageSampleFBO = vtkOpenGLFramebufferObject::New();
+    this->ImageSampleFBO->SetContext(win);
+    this->ImageSampleFBO->SaveCurrentBindingsAndBuffers(GL_FRAMEBUFFER);
+    this->ImageSampleFBO->Bind(GL_FRAMEBUFFER);
+    this->ImageSampleFBO->InitializeViewport(this->WindowSize[0],
+      this->WindowSize[1]);
+
+    this->ImageSampleFBO->AddColorAttachment(GL_FRAMEBUFFER, 0,
+      this->ImageSampleTexture);
+
+    // Verify completeness
+    if(!this->ImageSampleFBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
+    {
+      vtkGenericWarningMacro(<< "Failed to attach ImageSampleFBO!");
+      this->ImageSampleTexture->Deactivate();
+      this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_FRAMEBUFFER);
+      this->ReleaseImageSampleGraphicsResources(win);
+      return false;
+    }
+
+    this->ImageSampleTexture->Deactivate();
+    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_FRAMEBUFFER);
+    return true;
+  }
+
+  // Resize if necessary
+  int lastSize[2];
+  this->ImageSampleFBO->GetLastSize(lastSize);
+  if (lastSize[0] != this->WindowSize[0] || lastSize[1] != this->WindowSize[1])
+  {
+    this->ImageSampleFBO->Resize(this->WindowSize[0], this->WindowSize[1]);
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
+  vtkRenderer* ren)
+{
+  if (this->Parent->ImageSampleDistance != 1.f)
+  {
+    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+
+    // Render the contents of ImageSampleFBO as a quad to intermix with the
+    // rest of the scene.
+    typedef vtkOpenGLRenderUtilities GLUtil;
+    vtkOpenGLRenderWindow* win = static_cast<vtkOpenGLRenderWindow*>(
+      ren->GetRenderWindow());
+    if (!this->ImageSampleProg)
+    {
+      std::string frag = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
+
+      vtkShaderProgram::Substitute(frag, "//VTK::FSQ::Decl",
+        "uniform sampler2D renderedImage;\n");
+      vtkShaderProgram::Substitute(frag, "//VTK::FSQ::Impl",
+        "  vec4 pixelColor = texture2D(renderedImage, texCoord);\n"
+        "  if (pixelColor.a == 0.0)\n"
+        "  {\n"
+        "    discard;\n"
+        "  }\n"
+        "  \n"
+        "  gl_FragData[0] = pixelColor;\n");
+
+      this->ImageSampleProg = win->GetShaderCache()->ReadyShaderProgram(
+        GLUtil::GetFullScreenQuadVertexShader().c_str(), frag.c_str(),
+        GLUtil::GetFullScreenQuadGeometryShader().c_str());
+    }
+    else
+    {
+      win->GetShaderCache()->ReadyShaderProgram(this->ImageSampleProg);
+    }
+
+    if (!this->ImageSampleProg)
+    {
+      vtkGenericWarningMacro(<< "Failed to initialize ImageSampleProgram!");
+      return;
+    }
+
+    if (!this->ImageSampleVAO)
+    {
+      this->ImageSampleVBO = vtkOpenGLBufferObject::New();
+      this->ImageSampleVAO = vtkOpenGLVertexArrayObject::New();
+      GLUtil::PrepFullScreenVAO(this->ImageSampleVBO, this->ImageSampleVAO,
+        this->ImageSampleProg);
+    }
+
+    // Adjust the GL viewport to VTK's defined viewport
+    ren->GetTiledSizeAndOrigin(this->WindowSize, this->WindowSize + 1,
+      this->WindowLowerLeft, this->WindowLowerLeft + 1);
+    glViewport(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
+      this->WindowSize[0], this->WindowSize[1]);
+
+    // Bind objects and draw
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
+
+    this->ImageSampleTexture->Activate();
+    this->ImageSampleProg->SetUniformi("renderedImage",
+      this->ImageSampleTexture->GetTextureUnit());
+
+    this->ImageSampleVAO->Bind();
+    GLUtil::DrawFullScreenQuad();
+    this->ImageSampleVAO->Release();
+    vtkOpenGLStaticCheckErrorMacro("Error after DrawFullScreenQuad()!");
+
+    this->ImageSampleTexture->Deactivate();
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
   vtkRenderer* ren)
 {
   if (this->Parent->RenderToImage && this->Parent->CurrentPass == RenderPass)
   {
+    if (this->Parent->ImageSampleDistance != 1.f)
+    {
+      this->WindowSize[0] /= this->Parent->ImageSampleDistance;
+      this->WindowSize[1] /= this->Parent->ImageSampleDistance;
+    }
+
     if ( (this->LastRenderToImageWindowSize[0] != this->WindowSize[0]) ||
          (this->LastRenderToImageWindowSize[1] != this->WindowSize[1]) )
     {
@@ -2043,6 +2255,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitRenderToTexture(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
   vtkRenderer* ren)
 {
+  if (this->Parent->ImageSampleDistance != 1.f)
+  {
+    this->WindowSize[0] /= this->Parent->ImageSampleDistance;
+    this->WindowSize[1] /= this->Parent->ImageSampleDistance;
+  }
+
   if ( (this->LastDepthPassWindowSize[0] != this->WindowSize[0]) ||
        (this->LastDepthPassWindowSize[1] != this->WindowSize[1]) )
   {
@@ -2201,6 +2419,45 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
+  ::ReleaseImageSampleGraphicsResources(vtkWindow* win)
+{
+  vtkOpenGLRenderWindow *rwin =
+   vtkOpenGLRenderWindow::SafeDownCast(win);
+
+  if (rwin)
+  {
+    if (this->ImageSampleFBO)
+    {
+      this->ImageSampleFBO->Delete();
+      this->ImageSampleFBO = NULL;
+    }
+
+    if (this->ImageSampleTexture)
+    {
+      this->ImageSampleTexture->ReleaseGraphicsResources(win);
+      this->ImageSampleTexture->Delete();
+      this->ImageSampleTexture = NULL;
+    }
+
+    if (this->ImageSampleVBO)
+    {
+      this->ImageSampleVBO->Delete();
+      this->ImageSampleVBO = NULL;
+    }
+
+    if (this->ImageSampleVAO)
+    {
+      this->ImageSampleVAO->Delete();
+      this->ImageSampleVAO = NULL;
+    }
+
+    // Do not delete the shader program - Let the cache clean it up.
+    this->ImageSampleProg = NULL;
+  }
+}
+
+//----------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   vtkGPUVolumeRayCastMapper()
 {
@@ -2308,6 +2565,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 
   this->Impl->ReleaseRenderToTextureGraphicsResources(window);
   this->Impl->ReleaseDepthPassGraphicsResources(window);
+  this->Impl->ReleaseImageSampleGraphicsResources(window);
 
   if(this->Impl->MaskTextures != NULL)
   {
@@ -3126,8 +3384,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
     else
     {
+      this->Impl->BeginImageSample(ren);
       this->DoGPURender(ren, vol, cam, this->Impl->ShaderProgram,
-                         noOfComponents, independentComponents);
+                           noOfComponents, independentComponents);
+      this->Impl->EndImageSample(ren);
     }
   }
 
