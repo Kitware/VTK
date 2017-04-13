@@ -140,11 +140,8 @@ int vtkFixedWidthTextReader::RequestData(
 
     for (unsigned int i = 0; i < firstLineFields.size(); ++i)
     {
-      // I know it's not a great idea to use sprintf.  It's safe right
-      // here because an unsigned int will never take up enough
-      // characters to fill up this buffer.
       char fieldName[64];
-      sprintf(fieldName, "Field %u", i);
+      snprintf(fieldName, sizeof(fieldName), "Field %u", i);
       headers.push_back(fieldName);
     }
   }

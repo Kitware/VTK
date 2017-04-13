@@ -241,7 +241,7 @@ void vtkAngleRepresentation2D::BuildRepresentation()
     vtkMath::Normalize( vector2 );
     double angle = acos( vtkMath::Dot( vector1, vector2 ) );
     char string[512];
-    sprintf( string, this->LabelFormat, vtkMath::DegreesFromRadians( angle ) );
+    snprintf( string, sizeof(string), this->LabelFormat, vtkMath::DegreesFromRadians( angle ) );
     this->Arc->SetLabel(string);
 
     // Place the label and place the arc

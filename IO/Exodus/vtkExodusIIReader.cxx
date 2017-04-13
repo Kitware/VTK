@@ -3520,7 +3520,7 @@ const char* vtkExodusIIReaderPrivate::GetPartBlockInfo(int idx)
   std::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
   for (unsigned int i=0;i<blkIndices.size();i++)
   {
-    sprintf(buffer,"%d, ",blkIndices[i]);
+    snprintf(buffer,sizeof(buffer),"%d, ",blkIndices[i]);
     blocks += buffer;
   }
 
@@ -4169,7 +4169,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         blockEntryFileOffset += binfo.Size;
         if (binfo.Name.length() == 0)
         {
-          snprintf( tmpName, 255, "Unnamed block ID: %d Type: %s",
+          snprintf( tmpName, sizeof(tmpName), "Unnamed block ID: %d Type: %s",
               ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL");
           binfo.Name = tmpName;
         }
@@ -4299,7 +4299,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
         if (sinfo.Name.length() == 0)
         {
-          snprintf( tmpName, 255, "Unnamed set ID: %d", ids[obj]);
+          snprintf( tmpName, sizeof(tmpName), "Unnamed set ID: %d", ids[obj]);
           sinfo.Name = tmpName;
         }
         sortedObjects[sinfo.Id] = (int) this->SetInfo[obj_types[i]].size();
@@ -4330,8 +4330,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         }
         minfo.Name = obj_names[obj];
         if (minfo.Name.length() == 0)
-        { // make up a name. FIXME: Possible buffer overflow w/ sprintf
-          snprintf( tmpName, 255, "Unnamed map ID: %d", ids[obj] );
+        {
+          snprintf( tmpName, sizeof(tmpName), "Unnamed map ID: %d", ids[obj] );
           minfo.Name = tmpName;
         }
         sortedObjects[minfo.Id] = (int) this->MapInfo[obj_types[i]].size();

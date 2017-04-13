@@ -621,7 +621,7 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
   // Otherwise replace those trees with factored refs
 
   char buffer[5];
-  sprintf(buffer, "%02d_", pool->GetNumberOfNestedElements());
+  snprintf(buffer, sizeof(buffer), "%02d_", pool->GetNumberOfNestedElements());
 
   std::ostringstream id;
   id << buffer << tree->GetName();

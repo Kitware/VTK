@@ -1021,7 +1021,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
   vtkX3DExporterWriter* writer)
 {
   char indexString[100];
-  sprintf(indexString, "%04d", index);
+  snprintf(indexString, sizeof(indexString), "%04d", index);
 
   // write out the points
   std::string defString = "VTKcoordinates";
@@ -1075,7 +1075,7 @@ static void vtkX3DExporterUseData(bool normals, bool tcoords, bool colors, int i
   vtkX3DExporterWriter* writer)
 {
   char indexString[100];
-  sprintf(indexString, "%04d", index);
+  snprintf(indexString, sizeof(indexString), "%04d", index);
   std::string defString = "VTKcoordinates";
   writer->StartNode(Coordinate);
   writer->SetField(USE, defString.append(indexString).c_str());

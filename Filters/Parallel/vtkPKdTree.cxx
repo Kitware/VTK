@@ -199,11 +199,11 @@ int vtkPKdTree::AllCheckForFailure(int rc, const char *where, const char *how)
   {
     if (rc)
     {
-      sprintf(errmsg,"%s on my node (%s)",how, where);
+      snprintf(errmsg,sizeof(errmsg),"%s on my node (%s)",how, where);
     }
     else
     {
-      sprintf(errmsg,"%s on a remote node (%s)",how, where);
+      snprintf(errmsg,sizeof(errmsg),"%s on a remote node (%s)",how, where);
     }
     VTKWARNING(errmsg);
 

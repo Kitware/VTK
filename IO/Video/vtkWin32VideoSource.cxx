@@ -181,7 +181,7 @@ LRESULT PASCAL vtkWin32VideoSourceErrorCallbackProc(HWND hwndC,
   if (ErrID)
   {
     char buff[84];
-    sprintf(buff,"Error# %d",ErrID);
+    snprintf(buff,sizeof(buff),"Error# %d",ErrID);
     MessageBox(hwndC,lpErrorText, buff, MB_OK | MB_ICONEXCLAMATION);
     //vtkGenericWarningMacro(<< buff << ' ' << lpErrorText);
   }
@@ -1060,7 +1060,7 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
   else
   {
     char fourcchex[16], fourcc[8];
-    sprintf(fourcchex,"0x%08x",compression);
+    snprintf(fourcchex,sizeof(fourcchex),"0x%08x",compression);
     for (int i = 0; i < 4; i++)
     {
       fourcc[i] = (compression >> (8*i)) & 0xff;

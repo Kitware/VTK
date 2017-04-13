@@ -83,7 +83,7 @@ vtkAxisActor::vtkAxisActor()
 
   this->UseTextActor3D = 0;
   this->LabelFormat = new char[8];
-  sprintf(this->LabelFormat, "%s", "%-#6.3g");
+  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
 
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->SetColor(0., 0., 0.);

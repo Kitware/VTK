@@ -505,7 +505,7 @@ void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
     storedData->ShallowCopy(node->GetModel());
     vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
     char fn[512];
-    sprintf(fn, "%s/tile_%d_%ld.vtp", path, node->GetLevel(), node->GetId());
+    snprintf(fn, sizeof(fn), "%s/tile_%d_%ld.vtp", path, node->GetLevel(), node->GetId());
     writer->SetFileName(fn);
     writer->SetInputData(storedData);
     writer->Write();

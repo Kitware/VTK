@@ -265,13 +265,13 @@ void vtkMPEG2Writer::Write()
 
   MPEG2_structure* str = this->Internals->GetMPEG2Structure();
   char buffer[1024];
-  sprintf(buffer, str->tplorg, this->Time + str->frame0);
+  snprintf(buffer, sizeof(buffer), str->tplorg, this->Time + str->frame0);
   this->Internals->StoreImage(buffer, input);
 
   int last = MPEG2_putseq_one(this->ActualWrittenTime, this->Time,str);
   if ( last >= 0 )
   {
-    sprintf(buffer, str->tplorg, last + str->frame0);
+    snprintf(buffer, sizeof(buffer), str->tplorg, last + str->frame0);
     this->Internals->RemoveImage(buffer);
     this->ActualWrittenTime ++;
   }
@@ -331,7 +331,7 @@ void vtkMPEG2Writer::End()
   while ( (last = MPEG2_putseq_one(this->ActualWrittenTime, this->Time-1,str)) >= 0 )
   {
     char buffer[1024];
-    sprintf(buffer, str->tplorg, last + str->frame0);
+    snprintf(buffer, sizeof(buffer), str->tplorg, last + str->frame0);
     this->Internals->RemoveImage(buffer);
     this->ActualWrittenTime ++;
   }

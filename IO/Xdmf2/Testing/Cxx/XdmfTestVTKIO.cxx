@@ -141,9 +141,9 @@ bool TestXDMFConversion(vtkDataObject*input, char *prefix)
   char xdmffile[VTK_MAXPATH];
   char hdf5file[VTK_MAXPATH];
   char vtkfile[VTK_MAXPATH];
-  sprintf(xdmffile, "%s.xmf", prefix);
-  sprintf(hdf5file, "%s.h5", prefix);
-  sprintf(vtkfile, "%s.vtk", prefix);
+  snprintf(xdmffile, sizeof(xdmffile), "%s.xmf", prefix);
+  snprintf(hdf5file, sizeof(hdf5file), "%s.h5", prefix);
+  snprintf(vtkfile, sizeof(vtkfile), "%s.vtk", prefix);
 
   vtkXdmfWriter *xwriter = vtkXdmfWriter::New();
   xwriter->SetLightDataLimit(10000);
@@ -207,7 +207,7 @@ int XdmfTestVTKIO (int ac, char *av[])
   while (!fail && i<NUMTESTS)
   {
     char filename[VTK_MAXPATH];
-    sprintf(filename, "xdmfIOtest_%d", i);
+    snprintf(filename, sizeof(filename), "xdmfIOtest_%d", i);
     cerr << "Test vtk object " << testobject[i] << endl;
     dog->SetProgram(testobject[i]);
     dog->Update();

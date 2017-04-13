@@ -424,7 +424,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
         else if (filepatterninfo.size() >=4)
         {
           // description should be "<format> <min> <max> <step> [<subdim>]"
-          // where <format> is a string to be processed by sprintf and <min>,
+          // where <format> is a string to be processed by snprintf and <min>,
           // <max>, and <step> form the numbers.  <subdim> defines on which
           // dimension the files are split up.
           std::string format = filepatterninfo[0];
@@ -433,10 +433,11 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
           int step = atoi(filepatterninfo[3].c_str());
           subDimension = (  (filepatterninfo.size() > 4)
                           ? atoi(filepatterninfo[4].c_str()) : numDimensions );
-          char *filename = new char[format.size() + 20];
+          size_t filenamelen = format.size() + 20;
+          char *filename = new char[filenamelen];
           for (int i = min; i <= max; i += step)
           {
-            sprintf(filename, format.c_str(), i);
+            snprintf(filename, filenamelen, format.c_str(), i);
             this->DataFiles->InsertNextValue(filename);
           }
           delete[] filename;

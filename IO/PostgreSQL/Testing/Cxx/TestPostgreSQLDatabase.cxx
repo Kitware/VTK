@@ -111,7 +111,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   for ( int i = 0; i < 40; ++ i )
   {
     char insertQuery[200];
-    sprintf( insertQuery, "INSERT INTO people VALUES('John Manyjars %d', %d, %d)", i, i, 10 * i );
+    snprintf( insertQuery, sizeof(insertQuery), "INSERT INTO people VALUES('John Manyjars %d', %d, %d)", i, i, 10 * i );
     cout << insertQuery << endl;
     query->SetQuery( insertQuery );
     if ( ! query->Execute() )

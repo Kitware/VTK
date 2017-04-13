@@ -578,7 +578,7 @@ int vtkExodusIIWriter::CreateNewExodusFile()
     else
     {
       char *myFileName = new char [VTK_MAXPATH];
-      sprintf(myFileName, "%s-s.%06d", this->FileName, this->CurrentTimeIndex);
+      snprintf(myFileName, VTK_MAXPATH, "%s-s.%06d", this->FileName, this->CurrentTimeIndex);
       this->fid = ex_create(myFileName, EX_CLOBBER, &compWordSize, &IOWordSize);
       if (fid <= 0)
       {
@@ -1214,7 +1214,7 @@ int vtkExodusIIWriter::CreateDefaultMetadata ()
   time_t currentTime = time(NULL);
   char *stime = ctime(&currentTime);
 
-  sprintf(title, "Created by vtkExodusIIWriter, %s", stime);
+  snprintf(title, MAX_LINE_LENGTH + 1, "Created by vtkExodusIIWriter, %s", stime);
 
   em->SetTitle(title);
 
@@ -2418,7 +2418,7 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
     }
     // assume largest for 32 bit decimal representation
     char n[11];
-    sprintf (n, "%10d", component);
+    snprintf (n, sizeof(n), "%10d", component);
     s.append (n);
     return s;
   }

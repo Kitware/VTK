@@ -262,7 +262,7 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
 
     // Label
     char string[512];
-    sprintf(string, this->LabelFormat, this->Distance);
+    snprintf(string, sizeof(string), this->LabelFormat, this->Distance);
     this->LabelText->SetText(string);
     this->UpdateLabelPosition();
     if (this->Renderer) //make the label face the camera

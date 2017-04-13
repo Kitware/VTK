@@ -83,7 +83,7 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   this->PlaneSource = vtkPlaneSource::New();
 
   this->ThicknessLabelFormat = new char[6];
-  sprintf(this->ThicknessLabelFormat,"%s","%0.3g");
+  snprintf(this->ThicknessLabelFormat,6,"%s","%0.3g");
 
   this->ResliceAxes        = vtkMatrix4x4::New();
   this->NewResliceAxes     = vtkMatrix4x4::New();

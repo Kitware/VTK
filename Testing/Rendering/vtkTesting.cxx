@@ -293,7 +293,7 @@ int vtkTesting::IsValidImageSpecified()
 char* vtkTesting::IncrementFileName(const char* fname, int count)
 {
   char counts[256];
-  sprintf(counts, "%d", count);
+  snprintf(counts, sizeof(counts), "%d", count);
 
   int orgLen = static_cast<int>(strlen(fname));
   if (orgLen < 5)

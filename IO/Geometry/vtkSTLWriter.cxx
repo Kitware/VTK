@@ -214,7 +214,7 @@ void vtkSTLWriter::WriteBinarySTL(
   else
   {
     memset(szHeader, 32, 80);  // fill with space (ASCII=>32)
-    sprintf(szHeader, "%s", this->Header);
+    snprintf(szHeader, sizeof(szHeader), "%s", this->Header);
   }
 
   fwrite (szHeader, 1, 80, fp);

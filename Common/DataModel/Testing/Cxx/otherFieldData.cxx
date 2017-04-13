@@ -28,7 +28,7 @@ int otherFieldData(int,char *[])
   char name[128];
   for(i=0; i<5; i++)
   {
-    sprintf(name, "Array%d", i);
+    snprintf(name, sizeof(name), "Array%d", i);
     fa = vtkFloatArray::New();
     fa->SetName(name);
     // the tuples must be set before being read to avoid a UMR

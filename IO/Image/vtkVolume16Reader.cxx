@@ -280,11 +280,11 @@ void vtkVolume16Reader::ReadImage(int sliceNumber,
   // build the file name. if there is no prefix, just use the slice number
   if (this->FilePrefix)
   {
-    sprintf (filename, this->FilePattern, this->FilePrefix, sliceNumber);
+    snprintf (filename, sizeof(filename), this->FilePattern, this->FilePrefix, sliceNumber);
   }
   else
   {
-    sprintf (filename, this->FilePattern, sliceNumber);
+    snprintf (filename, sizeof(filename), this->FilePattern, sliceNumber);
   }
   if ( !(fp = fopen(filename,"rb")) )
   {
@@ -346,11 +346,11 @@ void vtkVolume16Reader::ReadVolume(int first, int last,
     // build the file name. if there is no prefix, just use the slice number
     if (this->FilePattern)
     {
-      sprintf (filename, this->FilePattern, this->FilePrefix, fileNumber);
+      snprintf (filename, sizeof(filename), this->FilePattern, this->FilePrefix, fileNumber);
     }
     else
     {
-      sprintf (filename, this->FilePattern, fileNumber);
+      snprintf (filename, sizeof(filename), this->FilePattern, fileNumber);
     }
     if ( !(fp = fopen(filename,"rb")) )
     {

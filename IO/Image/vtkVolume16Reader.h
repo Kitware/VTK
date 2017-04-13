@@ -24,7 +24,7 @@
  * 3D volume.
  *
  * File names are created using FilePattern and FilePrefix as follows:
- * sprintf (filename, FilePattern, FilePrefix, number);
+ * snprintf (filename, sizeof(filename), FilePattern, FilePrefix, number);
  * where number is in the range ImageRange[0] to ImageRange[1]. If
  * ImageRange[1] <= ImageRange[0], then slice number ImageRange[0] is
  * read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice

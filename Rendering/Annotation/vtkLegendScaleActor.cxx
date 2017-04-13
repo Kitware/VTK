@@ -411,7 +411,7 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
       double xR[3]; xR[0]=x[0];xR[1]=x[1];xR[2]=x[2];
       double len = sqrt(vtkMath::Distance2BetweenPoints(xL,xR));
       char buf[256];
-      sprintf(buf,"Scale 1 : %g",len);
+      snprintf(buf,sizeof(buf),"Scale 1 : %g",len);
       this->LabelMappers[5]->SetInput(buf);
 
       // Now specify the position of the legend labels

@@ -1769,7 +1769,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           temp->SetNumberOfComponents(1);
           temp->SetNumberOfTuples(npts);
           int k = j+1;
-          sprintf(res, "Species Density #%d", k);
+          snprintf(res, sizeof(res), "Species Density #%d", k);
           temp->SetName(res);
           if (this->ReadScalar(qFp2, extent, wextent, temp, offset, record) == 0)
           {
@@ -1788,13 +1788,13 @@ int vtkMultiBlockPLOT3DReader::RequestData(
         for(int v=0; v<nqc; v++)
         {
           vtkDataArray* rat = this->NewFloatArray();
-          sprintf(res, "Species Density #%d", v+1);
+          snprintf(res, sizeof(res), "Species Density #%d", v+1);
           vtkPointData* outputPD = nthOutput->GetPointData();
           vtkDataArray* spec = outputPD->GetArray(res);
           vtkDataArray* dens = outputPD->GetArray("Density");
           rat->SetNumberOfComponents(1);
           rat->SetNumberOfTuples(ldims[0]*ldims[1]*ldims[2]);
-          sprintf(res, "Spec Dens #%d / rho", v+1);
+          snprintf(res, sizeof(res), "Spec Dens #%d / rho", v+1);
           rat->SetName(res);
           for(int w=0; w<npts; w++)
           {
@@ -1812,7 +1812,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           temp->SetNumberOfComponents(1);
           temp->SetNumberOfTuples(ldims[0]*ldims[1]*ldims[2]);
           int k = a+1;
-          sprintf(res, "Turb Field Quant #%d", k);
+          snprintf(res, sizeof(res), "Turb Field Quant #%d", k);
           temp->SetName(res);
           if (this->ReadScalar(qFp2, extent, wextent, temp, offset, record) == 0)
           {

@@ -643,7 +643,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       }
       else
       {
-        sprintf(label,"%d",static_cast<int>(i));
+        snprintf(label,sizeof(label),"%d",static_cast<int>(i));
         this->LabelMappers[i]->SetInput(label);
       }
       this->LabelMappers[i]->GetTextProperty()->
@@ -714,7 +714,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       color = this->LegendActor->GetEntryColor(j);
       colors->InsertNextTuple3(255*color[0],255*color[1],255*color[2]);
       this->LegendActor->SetEntrySymbol(j,this->GlyphSource->GetOutput());
-      sprintf(buf,"%d",static_cast<int>(j));
+      snprintf(buf,sizeof(buf),"%d",static_cast<int>(j));
       this->LegendActor->SetEntryString(j,buf);
       for (i=0,k=0; i<numColumns && k < numComponents; k++)
       {
@@ -757,7 +757,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       color = this->LegendActor->GetEntryColor(j);
       colors->InsertNextTuple3(255*color[0],255*color[1],255*color[2]);
       this->LegendActor->SetEntrySymbol(j,this->GlyphSource->GetOutput());
-      sprintf(buf,"%d",static_cast<int>(j));
+      snprintf(buf,sizeof(buf),"%d",static_cast<int>(j));
       this->LegendActor->SetEntryString(j,buf);
       for (i=0; i<numRows; i++)
       {

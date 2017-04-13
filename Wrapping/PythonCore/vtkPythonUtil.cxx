@@ -686,10 +686,10 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif
-    sprintf(error_string, "method requires a %.500s, a %.500s was provided.",
-            vtkPythonUtil::PythonicClassName(result_type),
-            vtkPythonUtil::PythonicClassName(
-              ((vtkObjectBase *)ptr)->GetClassName()));
+    snprintf(error_string, sizeof(error_string), "method requires a %.500s, a %.500s was provided.",
+             vtkPythonUtil::PythonicClassName(result_type),
+             vtkPythonUtil::PythonicClassName(
+               ((vtkObjectBase *)ptr)->GetClassName()));
     PyErr_SetString(PyExc_TypeError, error_string);
     return NULL;
   }
@@ -757,7 +757,7 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
     if (!ptr->IsA(type))
     {
       char error_string[2048];
-      sprintf(error_string,"method requires a %.500s address, a %.500s address was provided.",
+      snprintf(error_string,sizeof(error_string),"method requires a %.500s address, a %.500s address was provided.",
               type, ptr->GetClassName());
       Py_XDECREF(tmp);
       PyErr_SetString(PyExc_TypeError, error_string);
@@ -826,7 +826,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
     {
       char error_text[2048];
       Py_DECREF(sobj);
-      sprintf(error_text, "cannot pass %.500s as a non-const %.500s reference",
+      snprintf(error_text, sizeof(error_text), "cannot pass %.500s as a non-const %.500s reference",
               object_type, result_type);
       PyErr_SetString(PyExc_TypeError, error_text);
       return NULL;
@@ -852,7 +852,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 #endif
 
   char error_string[2048];
-  sprintf(error_string,"method requires a %.500s, a %.500s was provided.",
+  snprintf(error_string, sizeof(error_string), "method requires a %.500s, a %.500s was provided.",
           result_type, object_type);
   PyErr_SetString(PyExc_TypeError, error_string);
 
@@ -957,7 +957,7 @@ char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
   int ndigits = 2*(int)sizeof(void *);
   union vtkPythonUtilConstPointerUnion u;
   u.p = ptr;
-  sprintf(ptrText, "_%*.*llx_%s", ndigits, ndigits,
+  snprintf(ptrText, sizeof(ptrText), "_%*.*llx_%s", ndigits, ndigits,
           static_cast<unsigned long long>(u.l), type);
 
   return ptrText;
@@ -1177,7 +1177,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   const sipAPIDef * api = get_sip_api();
   if(!api)
   {
-    sprintf(etext, "unable to convert to %.200s without SIP api", classname);
+    snprintf(etext, sizeof(etext), "unable to convert to %.200s without SIP api", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
   }
@@ -1185,7 +1185,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   const sipTypeDef * td = api->api_find_type(classname);
   if(!td)
   {
-    sprintf(etext, "unable to convert to %.200s without a typedef", classname);
+    snprintf(etext, sizeof(etext), "unable to convert to %.200s without a typedef", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
   }
@@ -1194,7 +1194,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   {
     if (!api->api_can_convert_to_enum(obj, td))
     {
-      sprintf(etext, "unable to convert to %.200s enum", classname);
+      snprintf(etext, sizeof(etext), "unable to convert to %.200s enum", classname);
       PyErr_SetString(PyExc_TypeError, etext);
       return NULL;
     }
@@ -1204,7 +1204,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
 
   if(!api->api_can_convert_to_type(obj, td, 0))
   {
-    sprintf(etext, "unable to convert to %.200s", classname);
+    snprintf(etext, sizeof(etext), "unable to convert to %.200s", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
   }
@@ -1213,7 +1213,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   void* ptr = api->api_convert_to_type(obj, td, NULL, 0, NULL, &iserr);
   if(iserr)
   {
-    sprintf(etext, "error while converting to %.200s", classname);
+    snprintf(etext, sizeof(etext), "error while converting to %.200s", classname);
     PyErr_SetString(PyExc_TypeError, etext);
     return NULL;
   }

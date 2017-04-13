@@ -190,7 +190,7 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     this->AxisActor->SetNumberOfLabels(this->NumberOfRulerTicks);
 
     char string[512];
-    sprintf(string, this->LabelFormat, this->Distance * this->Scale);
+    snprintf(string, sizeof(string), this->LabelFormat, this->Distance * this->Scale);
     this->AxisActor->SetTitle(string);
 
     this->BuildTime.Modified();

@@ -96,9 +96,9 @@ void vtkDynamic2DLabelMapper::SetPriorityArrayName(const char* name)
 
 //----------------------------------------------------------------------------
 template<typename T>
-void vtkDynamic2DLabelMapper_PrintComponent(char *output, const char *format, int index, const T *array)
+void vtkDynamic2DLabelMapper_PrintComponent(char *output, size_t outputSize, const char *format, int index, const T *array)
 {
-  sprintf(output, format, array[index]);
+  snprintf(output, outputSize, format, array[index]);
 }
 
 //----------------------------------------------------------------------------
@@ -360,7 +360,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
       if ( pointIdLabels )
       {
-        sprintf(TempString, LiveFormatString, i);
+        snprintf(TempString, sizeof(TempString), LiveFormatString, i);
         ResultString = TempString;
       }
       else
@@ -373,7 +373,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
           {
             switch (numericData->GetDataType())
             {
-              vtkTemplateMacro(vtkDynamic2DLabelMapper_PrintComponent(TempString, LiveFormatString, activeComp, static_cast<VTK_TT *>(rawData)));
+              vtkTemplateMacro(vtkDynamic2DLabelMapper_PrintComponent(TempString, sizeof(TempString), LiveFormatString, activeComp, static_cast<VTK_TT *>(rawData)));
             }
             ResultString = TempString;
           }
@@ -387,7 +387,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
               switch (numericData->GetDataType())
               {
                 vtkTemplateMacro(
-                  vtkDynamic2DLabelMapper_PrintComponent(TempString,
+                  vtkDynamic2DLabelMapper_PrintComponent(TempString, sizeof(TempString),
                                                       LiveFormatString,
                                                       j,
                                                       static_cast<VTK_TT *>(rawData)));

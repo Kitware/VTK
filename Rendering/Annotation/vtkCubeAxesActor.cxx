@@ -223,13 +223,13 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   }
 
   this->XTitle = new char[7];
-  sprintf(this->XTitle, "%s", "X-Axis");
+  snprintf(this->XTitle, 7, "%s", "X-Axis");
   this->XUnits = NULL;
   this->YTitle = new char[7];
-  sprintf(this->YTitle, "%s", "Y-Axis");
+  snprintf(this->YTitle, 7, "%s", "Y-Axis");
   this->YUnits = NULL;
   this->ZTitle = new char[7];
-  sprintf(this->ZTitle, "%s", "Z-Axis");
+  snprintf(this->ZTitle, 7, "%s", "Z-Axis");
   this->ZUnits = NULL;
 
   this->ActualXLabel = 0;
@@ -267,11 +267,11 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->DrawZGridpolys = 0;
 
   this->XLabelFormat = new char[8];
-  sprintf(this->XLabelFormat, "%s", "%-#6.3g");
+  snprintf(this->XLabelFormat, 8, "%s", "%-#6.3g");
   this->YLabelFormat = new char[8];
-  sprintf(this->YLabelFormat, "%s", "%-#6.3g");
+  snprintf(this->YLabelFormat, 8, "%s", "%-#6.3g");
   this->ZLabelFormat = new char[8];
-  sprintf(this->ZLabelFormat, "%s", "%-#6.3g");
+  snprintf(this->ZLabelFormat, 8, "%s", "%-#6.3g");
 
   this->CornerOffset = 0.0;
 
@@ -1328,7 +1328,7 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (xAxisDigits != this->LastXAxisDigits)
   {
     char  format[16];
-    sprintf(format, "%%.%df", xAxisDigits);
+    snprintf(format, sizeof(format), "%%.%df", xAxisDigits);
     this->SetXLabelFormat(format);
     this->LastXAxisDigits = xAxisDigits;
   }
@@ -1337,7 +1337,7 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (yAxisDigits != this->LastYAxisDigits)
   {
     char  format[16];
-    sprintf(format, "%%.%df", yAxisDigits);
+    snprintf(format, sizeof(format), "%%.%df", yAxisDigits);
     this->SetYLabelFormat(format);
     this->LastYAxisDigits = yAxisDigits;
   }
@@ -1346,7 +1346,7 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (zAxisDigits != this->LastZAxisDigits)
   {
     char  format[16];
-    sprintf(format, "%%.%df", zAxisDigits);
+    snprintf(format, sizeof(format), "%%.%df", zAxisDigits);
     this->SetZLabelFormat(format);
     this->LastZAxisDigits = zAxisDigits;
   }
@@ -2265,11 +2265,11 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
       }
       if (mustAdjustValue)
       {
-        sprintf(label, format, val*scaleFactor);
+        snprintf(label, sizeof(label), format, val*scaleFactor);
       }
       else
       {
-        sprintf(label, format, val);
+        snprintf(label, sizeof(label), format, val);
       }
       if (fabs(val) < 0.01)
       {
@@ -2279,27 +2279,27 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
         //
         if (strcmp(label, "-0") == 0)
         {
-          sprintf(label, "0");
+          snprintf(label, sizeof(label), "0");
         }
         else if (strcmp(label, "-0.0") == 0)
         {
-          sprintf(label, "0.0");
+          snprintf(label, sizeof(label), "0.0");
         }
         else if (strcmp(label, "-0.00") == 0)
         {
-          sprintf(label, "0.00");
+          snprintf(label, sizeof(label), "0.00");
         }
         else if (strcmp(label, "-0.000") == 0)
         {
-          sprintf(label, "0.000");
+          snprintf(label, sizeof(label), "0.000");
         }
         else if (strcmp(label, "-0.0000") == 0)
         {
-          sprintf(label, "0.0000");
+          snprintf(label, sizeof(label), "0.0000");
         }
         else if (strcmp(label, "-0.00000") == 0)
         {
-          sprintf(label, "0.00000");
+          snprintf(label, sizeof(label), "0.00000");
         }
       }
       labels->SetValue(i, label);

@@ -44,7 +44,7 @@ vtkAngleRepresentation::vtkAngleRepresentation()
   this->ArcVisibility = 1;
 
   this->LabelFormat = new char[8];
-  sprintf(this->LabelFormat,"%s","%-#6.3g");
+  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
 }
 
 //----------------------------------------------------------------------

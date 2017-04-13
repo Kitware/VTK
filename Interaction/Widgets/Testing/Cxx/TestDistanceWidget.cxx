@@ -837,7 +837,7 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
 
     char title[256];
     this->Distance->GetAxis()->SetRange(0.0,dist);
-    sprintf(title,"%-#6.3g",dist);
+    snprintf(title,sizeof(title),"%-#6.3g",dist);
     this->Distance->GetAxis()->SetTitle(title);
   }
   else

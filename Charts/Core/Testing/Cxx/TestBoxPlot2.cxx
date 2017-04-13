@@ -55,7 +55,7 @@ int TestBoxPlot2(int , char* [])
   for (int i = 0; i < numberOfColumns; ++i)
     {
     char num[10];
-    sprintf(num, "Run %d", i + 1);
+    snprintf(num, sizeof(num), "Run %d", i + 1);
     vtkSmartPointer<vtkIntArray> arrIndex =
       vtkSmartPointer<vtkIntArray>::New();
     arrIndex->SetName(num);

@@ -99,7 +99,7 @@ vtkBarChartActor::vtkBarChartActor()
   this->YAxis->SetProperty(this->GetProperty());
   this->YAxis->SizeFontRelativeToAxisOn();
   this->YTitle = new char[1];
-  sprintf(this->YTitle,"%s","");
+  snprintf(this->YTitle,1,"%s","");
 
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
@@ -506,7 +506,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
     }
     else
     {
-      sprintf(label,"%d",static_cast<int>(i));
+      snprintf(label,sizeof(label),"%d",static_cast<int>(i));
       this->LegendActor->SetEntryString(i,label);
     }
   }
@@ -526,7 +526,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
       }
       else
       {
-        sprintf(label,"%d",static_cast<int>(i));
+        snprintf(label,sizeof(label),"%d",static_cast<int>(i));
         this->BarMappers[i]->SetInput(label);
       }
       this->BarMappers[i]->GetTextProperty()->ShallowCopy(this->LabelTextProperty);

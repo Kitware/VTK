@@ -47,7 +47,7 @@ int TestBoxPlot(int , char* [])
   for (int i = 0; i < numParam; i++)
   {
     char num[10];
-    sprintf(num, "P%d", i);
+    snprintf(num, sizeof(num), "P%d", i);
     vtkNew<vtkIntArray> arrIndex;
     arrIndex->SetName(num);
     inputBoxPlotTable->AddColumn(arrIndex.GetPointer());

@@ -1724,7 +1724,7 @@ void vtkMFIXReader::CreateVariableNames()
             strcpy(vString, "V_s_");
             strcpy(wString, "W_s_");
             strcpy(svString, "Solids_Velocity_");
-            sprintf(tempString, "%d", j+1);
+            snprintf(tempString, sizeof(tempString), "%d", j+1);
             strcat(uString, tempString);
             strcat(vString, tempString);
             strcat(wString, tempString);
@@ -1755,7 +1755,7 @@ void vtkMFIXReader::CreateVariableNames()
               ropString[k]=0;
             }
             strcpy(ropString, "ROP_s_");
-            sprintf(tempString, "%d", j+1);
+            snprintf(tempString, sizeof(tempString), "%d", j+1);
             strcat(ropString, tempString);
             this->VariableNames->InsertValue(cnt++, ropString);
             this->VariableIndexToSPX->InsertValue(cnt-1, 5);
@@ -1796,7 +1796,7 @@ void vtkMFIXReader::CreateVariableNames()
                 temperatureString[k]=0;
               }
               strcpy(temperatureString, "T_s_");
-              sprintf(tempString, "%d", j+1);
+              snprintf(tempString, sizeof(tempString), "%d", j+1);
               strcat(temperatureString, tempString);
               this->VariableNames->InsertValue(cnt++, temperatureString);
               this->VariableIndexToSPX->InsertValue(cnt-1, 6);
@@ -1813,7 +1813,7 @@ void vtkMFIXReader::CreateVariableNames()
               variableString[k]=0;
             }
             strcpy(variableString, "X_g_");
-            sprintf(tempString, "%d", j+1);
+            snprintf(tempString, sizeof(tempString), "%d", j+1);
             strcat(variableString, tempString);
             this->VariableNames->InsertValue(cnt++, variableString);
             this->VariableIndexToSPX->InsertValue(cnt-1, 7);
@@ -1831,8 +1831,8 @@ void vtkMFIXReader::CreateVariableNames()
                 variableString[k]=0;
               }
               strcpy(variableString, "X_s_");
-              sprintf(tempString1, "%d", m);
-              sprintf(tempString2, "%d", j+1);
+              snprintf(tempString1, sizeof(tempString1), "%d", m);
+              snprintf(tempString2, sizeof(tempString2), "%d", j+1);
               strcat(variableString, tempString1);
               strcat(variableString, "_");
               strcat(variableString, tempString2);
@@ -1851,7 +1851,7 @@ void vtkMFIXReader::CreateVariableNames()
               variableString[k]=0;
             }
             strcpy(variableString, "Theta_m_");
-            sprintf(tempString, "%d", j+1);
+            snprintf(tempString, sizeof(tempString), "%d", j+1);
             strcat(variableString, tempString);
             this->VariableNames->InsertValue(cnt++, variableString);
             this->VariableIndexToSPX->InsertValue(cnt-1, 8);
@@ -1867,7 +1867,7 @@ void vtkMFIXReader::CreateVariableNames()
               variableString[k]=0;
             }
             strcpy(variableString, "Scalar_");
-            sprintf(tempString, "%d", j+1);
+            snprintf(tempString, sizeof(tempString), "%d", j+1);
             strcat(variableString, tempString);
             this->VariableNames->InsertValue(cnt++, variableString);
             this->VariableIndexToSPX->InsertValue(cnt-1, 9);
@@ -1883,7 +1883,7 @@ void vtkMFIXReader::CreateVariableNames()
               variableString[k]=0;
             }
             strcpy(variableString, "RRates_");
-            sprintf(tempString, "%d", j+1);
+            snprintf(tempString, sizeof(tempString), "%d", j+1);
             strcat(variableString, tempString);
             this->VariableNames->InsertValue(cnt++, variableString);
             this->VariableIndexToSPX->InsertValue(cnt-1, 10);

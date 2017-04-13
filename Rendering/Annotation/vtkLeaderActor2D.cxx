@@ -49,7 +49,7 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->LabelFactor = 1.0;
   this->AutoLabel = 0;
   this->LabelFormat = new char[8];
-  sprintf(this->LabelFormat,"%s","%-#6.3g");
+  snprintf(this->LabelFormat,8,"%s","%-#6.3g");
 
   this->ArrowPlacement = vtkLeaderActor2D::VTK_ARROW_BOTH;
   this->ArrowStyle = vtkLeaderActor2D::VTK_ARROW_FILLED;
@@ -227,7 +227,7 @@ void vtkLeaderActor2D::BuildLeader(vtkViewport *viewport)
     if ( this->AutoLabel )
     {
       char string[512];
-      sprintf(string, this->LabelFormat, this->Length);
+      snprintf(string, sizeof(string), this->LabelFormat, this->Length);
       this->LabelMapper->SetInput(string);
     }
     else
@@ -540,7 +540,7 @@ void vtkLeaderActor2D::BuildCurvedLeader(double p1[3], double p2[3], double ray[
     if ( this->AutoLabel )
     {
       char string[512];
-      sprintf(string, this->LabelFormat, this->Angle);
+      snprintf(string, sizeof(string), this->LabelFormat, this->Angle);
       this->LabelMapper->SetInput(string);
     }
     else

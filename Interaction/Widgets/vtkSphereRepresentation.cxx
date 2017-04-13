@@ -713,7 +713,7 @@ void vtkSphereRepresentation::BuildRepresentation()
     r = (r<=0.0 ? 1.0 : r);
     double theta = vtkMath::DegreesFromRadians( atan2( ( hc[1] - c[1] ), ( hc[0] - c[0] ) ) );
     double phi   = vtkMath::DegreesFromRadians( acos( ( hc[2] - c[2] ) / r ) );
-    sprintf(str,"(%0.2g, %1.1f, %1.1f)", r, theta, phi);
+    snprintf(str,sizeof(str),"(%0.2g, %1.1f, %1.1f)", r, theta, phi);
     this->HandleTextMapper->SetInput(str);
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, hc[0], hc[1], hc[2], tc);
     this->HandleTextActor->GetPositionCoordinate()->SetValue(tc[0]+10,tc[1]+10);
