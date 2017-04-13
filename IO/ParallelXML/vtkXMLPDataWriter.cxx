@@ -37,6 +37,8 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
   this->GhostLevel = 0;
   this->WriteSummaryFile = 1;
 
+  this->UseSubdirectory = false;
+
   this->PathName = 0;
   this->FileNameBase = 0;
   this->FileNameExtension = 0;
@@ -359,7 +361,12 @@ char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
   {
     s << path;
   }
-  s << this->FileNameBase << "_" << index;
+  s << this->FileNameBase;
+  if (this->UseSubdirectory)
+  {
+    s << "/" << this->FileNameBase;
+  }
+  s << "_" << index;
   if (this->PieceFileNameExtension)
   {
     s << this->PieceFileNameExtension;
@@ -382,6 +389,11 @@ int vtkXMLPDataWriter::WritePiece(int index)
   pWriter->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
 
   char* fileName = this->CreatePieceFileName(index, this->PathName);
+  std::string path = vtksys::SystemTools::GetParentDirectory(fileName);
+  if (path.size() > 0 && !vtksys::SystemTools::PathExists(path))
+  {
+    vtksys::SystemTools::MakeDirectory(path);
+  }
   pWriter->SetFileName(fileName);
   delete [] fileName;
 
