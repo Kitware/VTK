@@ -438,13 +438,35 @@ vtkCompositeMapperHelperData *vtkCompositeMapperHelper2::AddData(
 
 //-------------------------------------------------------------------------
 bool vtkCompositeMapperHelper2::GetNeedToRebuildBufferObjects(
-  vtkRenderer *ren, vtkActor *act)
+  vtkRenderer * /* ren */, vtkActor *act)
 {
   // might need to loop of Data and check each one?  Or is that handled
   // in parent Render
-  if (vtkCompositeMapperHelper2::Superclass::GetNeedToRebuildBufferObjects(ren, act) ||
+
+
+  // we use a string instead of just mtime because
+  // we do not want to check the actor's mtime.  Actor
+  // changes mtime every time it's position changes. But
+  // changing an actor's position does not require us to
+  // rebuild all the VBO/IBOs. So we only watch the mtime
+  // of the property/texture. But if someone changes the
+  // Property on an actor the mtime may actually go down
+  // because the new property has an older mtime. So
+  // we watch the actual mtime, to see if it changes as
+  // opposed to just checking if it is greater.
+  std::ostringstream toString;
+  toString.str("");
+  toString.clear();
+  toString <<
+    act->GetProperty()->GetMTime() <<
+    'A' << (this->CurrentInput ? this->CurrentInput->GetMTime() : 0) <<
+    'B' << (act->GetTexture() ? act->GetTexture()->GetMTime() : 0);
+
+  if (this->VBOBuildString != toString.str() ||
+      this->VBOBuildTime < this->SelectionStateChanged ||
       (this->CurrentInput && this->VBOBuildTime < this->CurrentInput->GetMTime()))
   {
+    this->VBOBuildString = toString.str();
     return true;
   }
   return false;
