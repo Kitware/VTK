@@ -52,6 +52,8 @@ template <typename Device> class VTKM_ALWAYS_EXPORT ConnectivityVTKAOS
           IndexOffsetPortalType;
 
 public:
+  typedef typename vtkm::Id SchedulingRangeType;
+
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
   ConnectivityVTKAOS();
@@ -64,9 +66,6 @@ public:
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC
   vtkm::Id GetNumberOfElements() const;
-
-  VTKM_EXEC
-  vtkm::IdComponent GetNumberOfIndices(vtkm::Id index) const;
 
   typedef vtkm::CellShapeTagGeneric CellShapeTag;
 
@@ -98,6 +97,8 @@ template <typename Device> class VTKM_ALWAYS_EXPORT ConnectivityVTKSingleType
       Device>::PortalConst ConnectivityPortalType;
 
 public:
+  typedef typename vtkm::Id SchedulingRangeType;
+
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
   ConnectivityVTKSingleType();
@@ -110,9 +111,6 @@ public:
 
   VTKM_EXEC
   vtkm::Id GetNumberOfElements() const;
-
-  VTKM_EXEC
-  vtkm::IdComponent GetNumberOfIndices(vtkm::Id index) const;
 
   typedef vtkm::CellShapeTagGeneric CellShapeTag;
 
@@ -153,6 +151,8 @@ template <typename Device> class VTKM_ALWAYS_EXPORT ReverseConnectivityVTK
           NumIndicesPortalType;
 
 public:
+  typedef typename vtkm::Id SchedulingRangeType;
+
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
   ReverseConnectivityVTK();
@@ -164,9 +164,6 @@ public:
 
   VTKM_EXEC
   vtkm::Id GetNumberOfElements() const;
-
-  VTKM_EXEC
-  vtkm::IdComponent GetNumberOfIndices(vtkm::Id index) const;
 
   typedef vtkm::CellShapeTagVertex CellShapeTag;
 

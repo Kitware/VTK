@@ -50,15 +50,6 @@ vtkm::Id ConnectivityVTKAOS<Device>::GetNumberOfElements() const
 
 //------------------------------------------------------------------------------
 template <typename Device>
-vtkm::IdComponent
-ConnectivityVTKAOS<Device>::GetNumberOfIndices(vtkm::Id index) const
-{
-  const vtkm::Id connId = this->IndexOffsets.Get(index);
-  return static_cast<vtkm::IdComponent>(this->Connectivity.Get(connId));
-}
-
-//------------------------------------------------------------------------------
-template <typename Device>
 typename ConnectivityVTKAOS<Device>::CellShapeTag
 ConnectivityVTKAOS<Device>::GetCellShape(vtkm::Id index) const
 {
@@ -109,15 +100,6 @@ vtkm::Id ConnectivityVTKSingleType<Device>::GetNumberOfElements() const
 
 //------------------------------------------------------------------------------
 template <typename Device>
-vtkm::IdComponent
-ConnectivityVTKSingleType<Device>::GetNumberOfIndices(
-    vtkm::Id vtkmNotUsed(index)) const
-{
-  return this->NumberOfPointsPerCell;
-}
-
-//------------------------------------------------------------------------------
-template <typename Device>
 typename ConnectivityVTKSingleType<Device>::CellShapeTag
 ConnectivityVTKSingleType<Device>::GetCellShape(
     vtkm::Id vtkmNotUsed(index)) const
@@ -164,14 +146,6 @@ template <typename Device>
 vtkm::Id ReverseConnectivityVTK<Device>::GetNumberOfElements() const
 {
   return this->NumIndices.GetNumberOfValues();
-}
-
-//------------------------------------------------------------------------------
-template <typename Device>
-vtkm::IdComponent
-ReverseConnectivityVTK<Device>::GetNumberOfIndices(vtkm::Id index) const
-{
-  return this->NumIndices.Get(index);
 }
 
 //------------------------------------------------------------------------------
