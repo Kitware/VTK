@@ -233,7 +233,7 @@ static void parse_expand_args(
   for (i = 0; i < argc; i++)
   {
     /* check for "@file" unless this is the command name */
-    if (i > 0 || argv[i][0] == '@')
+    if (i > 0 && argv[i][0] == '@')
     {
       /* if read_option_file returns null, add "@file" to the args */
       /* (this mimics the way that gcc expands @file arguments) */
