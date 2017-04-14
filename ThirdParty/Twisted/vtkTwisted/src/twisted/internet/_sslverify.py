@@ -35,8 +35,10 @@ class TLSVersion(Names):
 _tlsDisableFlags = {
     TLSVersion.SSLv3: SSL.OP_NO_SSLv3,
     TLSVersion.TLSv1_0: SSL.OP_NO_TLSv1,
-    TLSVersion.TLSv1_1: SSL.OP_NO_TLSv1_1,
-    TLSVersion.TLSv1_2: SSL.OP_NO_TLSv1_2,
+    # Mac OS X Sierra includes pyOpenSSL v0.13.1, which doesn't include these flags.
+    # Added in v0.14, https://github.com/pyca/pyopenssl/blob/master/doc/ChangeLog_old.txt
+    TLSVersion.TLSv1_1: getattr(SSL, "OP_NO_TLSv1_1", 0x00),
+    TLSVersion.TLSv1_2: getattr(SSL, "OP_NO_TLSv1_2", 0x00),
 
     # If we don't have TLS v1.3 yet, we can't disable it -- this is just so
     # when it makes it into OpenSSL, connections knowingly bracketed to v1.2
