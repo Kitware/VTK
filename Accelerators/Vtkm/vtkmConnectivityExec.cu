@@ -18,9 +18,9 @@
 namespace vtkm {
 namespace exec {
 
-template class ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>;
-template class ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>;
-template class ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>;
+template class VTKACCELERATORSVTKM_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>;
+template class VTKACCELERATORSVTKM_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>;
+template class VTKACCELERATORSVTKM_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>;
 
 }
 }

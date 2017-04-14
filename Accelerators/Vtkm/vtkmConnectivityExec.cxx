@@ -50,15 +50,6 @@ vtkm::Id ConnectivityVTKAOS<Device>::GetNumberOfElements() const
 
 //------------------------------------------------------------------------------
 template <typename Device>
-vtkm::IdComponent
-ConnectivityVTKAOS<Device>::GetNumberOfIndices(vtkm::Id index) const
-{
-  const vtkm::Id connId = this->IndexOffsets.Get(index);
-  return static_cast<vtkm::IdComponent>(this->Connectivity.Get(connId));
-}
-
-//------------------------------------------------------------------------------
-template <typename Device>
 typename ConnectivityVTKAOS<Device>::CellShapeTag
 ConnectivityVTKAOS<Device>::GetCellShape(vtkm::Id index) const
 {
@@ -105,15 +96,6 @@ template <typename Device>
 vtkm::Id ConnectivityVTKSingleType<Device>::GetNumberOfElements() const
 {
   return this->NumberOfCells;
-}
-
-//------------------------------------------------------------------------------
-template <typename Device>
-vtkm::IdComponent
-ConnectivityVTKSingleType<Device>::GetNumberOfIndices(
-    vtkm::Id vtkmNotUsed(index)) const
-{
-  return this->NumberOfPointsPerCell;
 }
 
 //------------------------------------------------------------------------------
@@ -168,14 +150,6 @@ vtkm::Id ReverseConnectivityVTK<Device>::GetNumberOfElements() const
 
 //------------------------------------------------------------------------------
 template <typename Device>
-vtkm::IdComponent
-ReverseConnectivityVTK<Device>::GetNumberOfIndices(vtkm::Id index) const
-{
-  return this->NumIndices.Get(index);
-}
-
-//------------------------------------------------------------------------------
-template <typename Device>
 typename ReverseConnectivityVTK<Device>::IndicesType
 ReverseConnectivityVTK<Device>::GetIndices(vtkm::Id index) const
 {
@@ -185,14 +159,14 @@ ReverseConnectivityVTK<Device>::GetIndices(vtkm::Id index) const
 }
 
 // template methods we want to compile only once
-template class ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagSerial>;
-template class ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagSerial>;
-template class ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>;
+template class VTKACCELERATORSVTKM_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagSerial>;
+template class VTKACCELERATORSVTKM_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagSerial>;
+template class VTKACCELERATORSVTKM_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>;
 
 #ifdef VTKM_ENABLE_TBB
-template class ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagTBB>;
-template class ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>;
-template class ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>;
+template class VTKACCELERATORSVTKM_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagTBB>;
+template class VTKACCELERATORSVTKM_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>;
+template class VTKACCELERATORSVTKM_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>;
 #endif
 
 }

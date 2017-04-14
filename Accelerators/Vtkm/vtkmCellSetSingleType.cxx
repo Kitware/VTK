@@ -180,28 +180,26 @@ void vtkmCellSetSingleType::PrintSummary(std::ostream& out) const
 }
 
 // template methods we want to compile only once
-template vtkm::exec::ConnectivityVTKSingleType<
-    vtkm::cont::DeviceAdapterTagSerial>
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagSerial>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
-                                           vtkm::TopologyElementTagPoint,
-                                           vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 
-template vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
-                                           vtkm::TopologyElementTagCell,
-                                           vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 
 #ifdef VTKM_ENABLE_TBB
-template vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
-                                           vtkm::TopologyElementTagPoint,
-                                           vtkm::TopologyElementTagCell) const;
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
 
-template vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
-                                           vtkm::TopologyElementTagCell,
-                                           vtkm::TopologyElementTagPoint) const;
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 #endif
-
 }
 }

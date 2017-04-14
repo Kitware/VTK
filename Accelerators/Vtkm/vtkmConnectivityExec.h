@@ -34,7 +34,7 @@
 namespace vtkm {
 namespace exec {
 
-template <typename Device> class ConnectivityVTKAOS
+template <typename Device> class VTKM_ALWAYS_EXPORT ConnectivityVTKAOS
 {
   typedef vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag>
       ShapeHandleType;
@@ -52,6 +52,8 @@ template <typename Device> class ConnectivityVTKAOS
           IndexOffsetPortalType;
 
 public:
+  typedef typename vtkm::Id SchedulingRangeType;
+
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
   ConnectivityVTKAOS();
@@ -64,9 +66,6 @@ public:
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC
   vtkm::Id GetNumberOfElements() const;
-
-  VTKM_EXEC
-  vtkm::IdComponent GetNumberOfIndices(vtkm::Id index) const;
 
   typedef vtkm::CellShapeTagGeneric CellShapeTag;
 
@@ -90,7 +89,7 @@ private:
 };
 
 
-template <typename Device> class ConnectivityVTKSingleType
+template <typename Device> class VTKM_ALWAYS_EXPORT ConnectivityVTKSingleType
 {
   typedef vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>
       ConnectivityHandleType;
@@ -98,6 +97,8 @@ template <typename Device> class ConnectivityVTKSingleType
       Device>::PortalConst ConnectivityPortalType;
 
 public:
+  typedef typename vtkm::Id SchedulingRangeType;
+
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
   ConnectivityVTKSingleType();
@@ -110,9 +111,6 @@ public:
 
   VTKM_EXEC
   vtkm::Id GetNumberOfElements() const;
-
-  VTKM_EXEC
-  vtkm::IdComponent GetNumberOfIndices(vtkm::Id index) const;
 
   typedef vtkm::CellShapeTagGeneric CellShapeTag;
 
@@ -137,7 +135,7 @@ private:
 };
 
 
-template <typename Device> class ReverseConnectivityVTK
+template <typename Device> class VTKM_ALWAYS_EXPORT ReverseConnectivityVTK
 {
   typedef vtkm::cont::ArrayHandle<vtkm::Id> ConnectivityHandleType;
   typedef vtkm::cont::ArrayHandle<vtkm::IdComponent> NumIndicesHandleType;
@@ -153,6 +151,8 @@ template <typename Device> class ReverseConnectivityVTK
           NumIndicesPortalType;
 
 public:
+  typedef typename vtkm::Id SchedulingRangeType;
+
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
   ReverseConnectivityVTK();
@@ -164,9 +164,6 @@ public:
 
   VTKM_EXEC
   vtkm::Id GetNumberOfElements() const;
-
-  VTKM_EXEC
-  vtkm::IdComponent GetNumberOfIndices(vtkm::Id index) const;
 
   typedef vtkm::CellShapeTagVertex CellShapeTag;
 
@@ -189,8 +186,26 @@ private:
   IndexOffsetPortalType IndexOffsets;
 };
 
+// template methods we want to compile only once
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagSerial>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagSerial>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>;
+
+#ifdef VTKM_ENABLE_TBB
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagTBB>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>;
+#endif
+
+//only when cuda is enabled, and the compiler is cuda
+#if defined(VTKM_ENABLE_CUDA) && defined(VTKM_CUDA)
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>;
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>;
+#endif
 }
 }
+
 
 #endif
 // VTK-HeaderTest-Exclude: vtkmConnectivityExec.h

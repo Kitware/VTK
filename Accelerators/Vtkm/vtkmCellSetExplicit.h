@@ -36,7 +36,7 @@
 namespace vtkm {
 namespace cont {
 
-class vtkmCellSetExplicitAOS : public CellSet
+class VTKACCELERATORSVTKM_EXPORT vtkmCellSetExplicitAOS : public CellSet
 {
 public:
   vtkmCellSetExplicitAOS(const std::string& name = std::string())
@@ -170,6 +170,41 @@ private:
   mutable vtkm::Id NumberOfPoints;
 
 };
+
+// template methods we want to compile only once
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagSerial>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+
+#ifdef VTKM_ENABLE_TBB
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagTBB>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
+
+#if defined(VTKM_ENABLE_CUDA) && defined(VTKM_CUDA)
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
 }
 }
 

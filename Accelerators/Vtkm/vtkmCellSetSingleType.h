@@ -39,7 +39,7 @@
 namespace vtkm {
 namespace cont {
 
-class vtkmCellSetSingleType : public CellSet
+class VTKACCELERATORSVTKM_EXPORT vtkmCellSetSingleType : public CellSet
 {
   typedef tovtkm::vtkCellArrayContainerTag ConnectivityStorageTag;
 
@@ -179,6 +179,41 @@ private:
   mutable vtkm::cont::ArrayHandle<vtkm::IdComponent> RNumIndices;
   mutable vtkm::cont::ArrayHandle<vtkm::Id> RIndexOffsets;
 };
+
+// template methods we want to compile only once
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagSerial>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagSerial>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagSerial,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+
+#ifdef VTKM_ENABLE_TBB
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
+
+#if defined(VTKM_ENABLE_CUDA) && defined(VTKM_CUDA)
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
 }
 } // namespace vtkm::cont
 
