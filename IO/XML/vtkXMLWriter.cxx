@@ -1390,8 +1390,10 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
     {
         switch (wordType)
         {
+#if !defined(VTK_LEGACY_REMOVE)
           case VTK___INT64:
           case VTK_UNSIGNED___INT64:
+#endif
           case VTK_LONG_LONG:
           case VTK_UNSIGNED_LONG_LONG:
 #ifdef VTK_USE_64BIT_IDS

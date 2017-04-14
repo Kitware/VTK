@@ -55,8 +55,6 @@ __vtkTypeNameDict = {VTK_VOID:"void",
                      VTK_SIGNED_CHAR:"signed char",
                      VTK_LONG_LONG:"long long",
                      VTK_UNSIGNED_LONG_LONG:"unsigned long long",
-                     VTK___INT64:"__int64",
-                     VTK_UNSIGNED___INT64:"unsigned __int64",
                      VTK_ID_TYPE:"vtkIdType",
                      VTK_BIT:"bit"}
 

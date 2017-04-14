@@ -770,10 +770,12 @@ public:
               scale=VTK_INT_MAX/(tableRange[1]-tableRange[0]);
               break;
             case VTK_DOUBLE:
+#if !defined(VTK_LEGACY_REMOVE)
             case VTK___INT64:
+            case VTK_UNSIGNED___INT64:
+#endif
             case VTK_LONG:
             case VTK_LONG_LONG:
-            case VTK_UNSIGNED___INT64:
             case VTK_UNSIGNED_LONG:
             case VTK_UNSIGNED_LONG_LONG:
               needTypeConversion=1; // to float
@@ -2988,10 +2990,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetTextureFormat(
         *type=GL_INT;
         break;
       case VTK_DOUBLE:
-      case VTK___INT64:
       case VTK_LONG:
       case VTK_LONG_LONG:
+#if !defined(VTK_LEGACY_REMOVE)
+      case VTK___INT64:
       case VTK_UNSIGNED___INT64:
+#endif
       case VTK_UNSIGNED_LONG:
       case VTK_UNSIGNED_LONG_LONG:
         if(this->Supports_GL_ARB_texture_float)

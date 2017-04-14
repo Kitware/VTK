@@ -136,12 +136,14 @@ inline MPI_Datatype vtkMPICommunicatorGetMPIType(int vtkType)
     case VTK_UNSIGNED_LONG_LONG:return MPI_UNSIGNED_LONG_LONG;
 #endif
 
+#if !defined(VTK_LEGACY_REMOVE)
 #if VTK_SIZEOF_LONG == 8
     case VTK___INT64:           return MPI_LONG;
     case VTK_UNSIGNED___INT64:  return MPI_UNSIGNED_LONG;
 #elif defined(MPI_LONG_LONG)
     case VTK___INT64:           return MPI_LONG_LONG;
     case VTK_UNSIGNED___INT64:  return MPI_UNSIGNED_LONG_LONG;
+#endif
 #endif
 
     default:

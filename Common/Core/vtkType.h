@@ -67,11 +67,15 @@
 #define VTK_LONG_LONG          16
 #define VTK_UNSIGNED_LONG_LONG 17
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 /* Legacy.  This type is never enabled.  */
 #define VTK___INT64            18
 
 /* Legacy.  This type is never enabled.  */
 #define VTK_UNSIGNED___INT64   19
+
+#endif
 
 /* These types are required by vtkVariant and vtkVariantArray */
 #define VTK_VARIANT 20

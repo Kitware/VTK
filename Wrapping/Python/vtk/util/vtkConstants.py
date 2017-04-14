@@ -32,12 +32,6 @@ VTK_OPAQUE          =14
 VTK_LONG_LONG          =16
 VTK_UNSIGNED_LONG_LONG =17
 
-# Legacy.  This type is never enabled.
-VTK___INT64            =18
-
-# Legacy.  This type is never enabled.
-VTK_UNSIGNED___INT64   =19
-
 # These types are required by vtkVariant and vtkVariantArray
 VTK_VARIANT =20
 VTK_OBJECT  =21

@@ -1303,8 +1303,10 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray *vda,
       break;
     case VTK_LONG_LONG:
     case VTK_UNSIGNED_LONG_LONG:
+#if !defined(VTK_LEGACY_REMOVE)
     case VTK___INT64:
     case VTK_UNSIGNED___INT64:
+#endif
     case VTK_UNSIGNED_LONG:
     case VTK_STRING:
     {

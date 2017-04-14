@@ -410,8 +410,10 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
     case VTK_OPAQUE:
     case VTK_LONG_LONG:
     case VTK_UNSIGNED_LONG_LONG:
+#if !defined(VTK_LEGACY_REMOVE)
     case VTK___INT64:
     case VTK_UNSIGNED___INT64:
+#endif
     case VTK_VARIANT:
     case VTK_OBJECT:
     case VTK_UNICODE_STRING:
