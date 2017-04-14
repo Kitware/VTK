@@ -89,7 +89,7 @@ public:
   /**
    * Set/Get a prefix for saving camera poses
    */
-  void SetSessionName(std::string name) {
+  void SetSessionName(const std::string& name) {
     this->SessionName = name; }
   std::string GetSessionName() {
     return this->SessionName; }
@@ -99,7 +99,7 @@ public:
   /**
    * Set/Get a file for the dashboard image
    */
-  void SetDashboardImageFileName(std::string name) {
+  void SetDashboardImageFileName(const std::string& name) {
     this->DashboardImageFileName = name; }
   std::string GetDashboardImageFileName() {
     return this->DashboardImageFileName; }

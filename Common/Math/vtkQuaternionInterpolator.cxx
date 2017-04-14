@@ -35,7 +35,7 @@ struct TimedQuaternion
   {
     this->Time = 0.0;
   }
-  TimedQuaternion(double t, vtkQuaterniond q)
+  TimedQuaternion(double t, const vtkQuaterniond& q)
   {
     this->Time = t;
     this->Q = q;

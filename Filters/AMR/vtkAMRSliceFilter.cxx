@@ -184,7 +184,7 @@ vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkOverlappingAMR *inp )
 
 //------------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
-  double porigin[3], int* dims, double* origin, double* spacing )
+  double origin[3], int* dims, double* gorigin, double* spacing )
 {
 //  vtkTimerLog::MarkStartEvent( "AMRSlice::GetSliceForBlock" );
 
@@ -203,9 +203,9 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceDims[1] = dims[1];
       sliceDims[2] = dims[2];
 
-      sliceOrigin[0] = porigin[0];
-      sliceOrigin[1] = origin[1];
-      sliceOrigin[2] = origin[2];
+      sliceOrigin[0] = origin[0];
+      sliceOrigin[1] = gorigin[1];
+      sliceOrigin[2] = gorigin[2];
 
       slice->SetOrigin( sliceOrigin );
       slice->SetDimensions( sliceDims );
@@ -218,9 +218,9 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceDims[1] = 1;
       sliceDims[2] = dims[2];
 
-      sliceOrigin[0] = origin[0];
-      sliceOrigin[1] = porigin[1];
-      sliceOrigin[2] = origin[2];
+      sliceOrigin[0] = gorigin[0];
+      sliceOrigin[1] = origin[1];
+      sliceOrigin[2] = gorigin[2];
 
       slice->SetOrigin( sliceOrigin );
       slice->SetDimensions( sliceDims );
@@ -233,9 +233,9 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       sliceDims[1] = dims[1];
       sliceDims[2] = 1;
 
-      sliceOrigin[0] = origin[0];
-      sliceOrigin[1] = origin[1];
-      sliceOrigin[2] = porigin[2];
+      sliceOrigin[0] = gorigin[0];
+      sliceOrigin[1] = gorigin[1];
+      sliceOrigin[2] = origin[2];
 
       slice->SetOrigin( sliceOrigin );
       slice->SetDimensions( sliceDims );

@@ -2060,13 +2060,13 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
 }
 
 //----------------------------------------------------------------------------
-// Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and
-// c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
+// Solves a quadratic equation c0*t^2 + c1*t + c2 = 0 when c0, c1, and
+// c2 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
 // Ed.  Return array contains number of (real) roots (counting
 // multiple roots as one) followed by roots themselves. Note that
 // roots[3] contains a return code further describing solution - see
 // documentation for SolveCubic() for meaining of return codes.
-double* vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double c3)
+double* vtkPolynomialSolversUnivariate::SolveQuadratic( double c0, double c1, double c2)
 {
   static double roots[4];
   roots[0] = 0.0;
@@ -2074,36 +2074,36 @@ double* vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, do
   roots[2] = 0.0;
   int num_roots;
 
-  roots[3] = vtkPolynomialSolversUnivariate::SolveQuadratic( c1, c2, c3, &roots[1], &roots[2],
+  roots[3] = vtkPolynomialSolversUnivariate::SolveQuadratic( c0, c1, c2, &roots[1], &roots[2],
                                       &num_roots );
   roots[0] = num_roots;
   return roots;
 }
 
 //----------------------------------------------------------------------------
-// Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when
-// c1, c2, and c3 are REAL.
+// Solves A Quadratic Equation c0*t^2  + c1*t  + c2 = 0 when
+// c0, c1, and c2 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Roots and number of roots are stored in user provided variables
 // r1, r2, num_roots
-int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double c3,
+int vtkPolynomialSolversUnivariate::SolveQuadratic( double c0, double c1, double c2,
                                                     double *r1, double *r2, int *num_roots )
 {
   double        Q;
   double        determinant;
 
-  // Quadratic equation: c1*t^2 + c2*t + c3 = 0
+  // Quadratic equation: c0*t^2 + c1*t + c2 = 0
 
   // Make sure this is a quadratic equation
-  if( c1 != 0.0 )
+  if( c0 != 0.0 )
   {
-    determinant = c2*c2 - 4*c1*c3;
+    determinant = c1*c1 - 4*c0*c2;
 
     if( determinant >= 0.0 )
     {
-      Q = -0.5 * (c2 + VTK_SIGN(c2)*sqrt(determinant));
+      Q = -0.5 * (c1 + VTK_SIGN(c1)*sqrt(determinant));
 
-      *r1 = Q / c1;
+      *r1 = Q / c0;
 
       if( Q == 0.0 )
       {
@@ -2111,7 +2111,7 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double
       }
       else
       {
-        *r2 = c3 / Q;
+        *r2 = c2 / Q;
       }
 
       *num_roots = 2;
@@ -2130,10 +2130,10 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double
     }
   }
 
-  else // Linear Equation: c2*t + c3 = 0
+  else // Linear Equation: c1*t + c2 = 0
   {
     // Okay this was not quadratic - lets try linear
-    return vtkPolynomialSolversUnivariate::SolveLinear( c2, c3, r1, num_roots );
+    return vtkPolynomialSolversUnivariate::SolveLinear( c1, c2, r1, num_roots );
   }
 }
 

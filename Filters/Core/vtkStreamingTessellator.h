@@ -239,10 +239,10 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
      * SetEdgeCallback(), SetTriangleCallback(), and SetTetrahedronCallback()
      * with valid values!
      */
-    void AdaptivelySample3Facet( double* v1, double* v2, double* v3, double* v4 ) const ;
-    void AdaptivelySample2Facet( double* v1, double* v2, double* v3 ) const ;
-    void AdaptivelySample1Facet( double* v1, double* v2 ) const ;
-    void AdaptivelySample0Facet( double* v1 ) const ;
+    void AdaptivelySample3Facet( double* v0, double* v1, double* v2, double* v3 ) const ;
+    void AdaptivelySample2Facet( double* v0, double* v1, double* v2 ) const ;
+    void AdaptivelySample1Facet( double* v0, double* v1 ) const ;
+    void AdaptivelySample0Facet( double* v0 ) const ;
     //@}
 
     //@{
@@ -334,9 +334,9 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     vtkStreamingTessellator();
     ~vtkStreamingTessellator() VTK_OVERRIDE;
 
-    void AdaptivelySample3Facet( double* v1, double* v2, double* v3, double* v4, int maxDepth ) const ;
-    void AdaptivelySample2Facet( double* v1, double* v2, double* v3, int maxDepth, int move=7 ) const ;
-    void AdaptivelySample1Facet( double* v1, double* v2, int maxDepth ) const ;
+    void AdaptivelySample3Facet( double* v0, double* v1, double* v2, double* v3, int maxDepth ) const ;
+    void AdaptivelySample2Facet( double* v0, double* v1, double* v2, int maxDepth, int move=7 ) const ;
+    void AdaptivelySample1Facet( double* v0, double* v1, int maxDepth ) const ;
 
     int BestTets( int*, double**, int, int ) const;
 
@@ -345,12 +345,12 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     void operator = ( const vtkStreamingTessellator& ) VTK_DELETE_FUNCTION;
 };
 
-inline void vtkStreamingTessellator::AdaptivelySample3Facet( double* v1, double* v2, double* v3, double* v4 ) const
-{ this->AdaptivelySample3Facet( v1, v2, v3, v4, this->MaximumNumberOfSubdivisions ); }
-inline void vtkStreamingTessellator::AdaptivelySample2Facet( double* v1, double* v2, double* v3 ) const
-{ this->AdaptivelySample2Facet( v1, v2, v3, this->MaximumNumberOfSubdivisions ); }
-inline void vtkStreamingTessellator::AdaptivelySample1Facet( double* v1, double* v2 ) const
-{ this->AdaptivelySample1Facet( v1, v2, this->MaximumNumberOfSubdivisions ); }
+inline void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, double* v2, double* v3 ) const
+{ this->AdaptivelySample3Facet( v0, v1, v2, v3, this->MaximumNumberOfSubdivisions ); }
+inline void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, double* v2 ) const
+{ this->AdaptivelySample2Facet( v0, v1, v2, this->MaximumNumberOfSubdivisions ); }
+inline void vtkStreamingTessellator::AdaptivelySample1Facet( double* v0, double* v1 ) const
+{ this->AdaptivelySample1Facet( v0, v1, this->MaximumNumberOfSubdivisions ); }
 
 inline int vtkStreamingTessellator::GetEmbeddingDimension( int k ) const
 { if ( k <= 0 || k >= 4 ) return -1; return this->EmbeddingDimension[k]; }

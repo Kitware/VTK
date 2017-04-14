@@ -48,7 +48,7 @@ std::string vtkWebGLObject::GetId()
 }
 
 //-----------------------------------------------------------------------------
-void vtkWebGLObject::SetId(std::string i)
+void vtkWebGLObject::SetId(const std::string& i)
 {
   this->id = i;
 }

@@ -26,7 +26,7 @@ int PNGCompare(int argc, char *argv[])
   std::string testImageFileName;
   for (int i = 0; i < argc; ++i)
   {
-    if ( strcmp(argv[i],"--test-file") == 0 && i < argc-1)
+    if (i < argc-1 && strcmp(argv[i],"--test-file") == 0)
     {
       testImageFileName = std::string(argv[i+1]);
       break;

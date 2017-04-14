@@ -55,7 +55,7 @@ protected:
   ~vtkSpherePuzzleArrows() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  void AppendArrow(int id0, int id1, vtkPoints *pts, vtkCellArray *polys);
+  void AppendArrow(int id1, int id2, vtkPoints *pts, vtkCellArray *polys);
 
   int Permutation[32];
 

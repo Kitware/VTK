@@ -118,7 +118,7 @@ public:
          << endl;
   }
 
-  void SetActorDescription( vtkProp *a, std::string s )
+  void SetActorDescription( vtkProp *a, const std::string& s )
   {
     this->m_ActorDescription[a] = s;
   }

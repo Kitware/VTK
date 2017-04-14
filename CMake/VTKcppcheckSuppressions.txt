@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.77.
+// at least on macOS with cppcheck 1.78.
 
 // To run:
 // cd /path/to/VTK/
@@ -64,6 +64,7 @@ argumentSize
 
 // False positives.
 AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
+AssignmentAddressToInteger:IO/Exodus/vtkExodusIIReader.cxx
 CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
 duplicateExpression:Rendering/Annotation/vtkScalarBarActor.cxx
@@ -118,6 +119,9 @@ invalidPointerCast:Rendering/OpenGL2/vtkOpenGLSphereMapper.cxx
 invalidPointerCast:Rendering/OpenGL2/vtkOpenGLStickMapper.cxx
 invalidPointerCast:Rendering/OpenGL2/vtkOpenGLVertexBufferObject.cxx
 invalidPointerCast:Rendering/ParallelLIC/vtkParallelTimer.cxx
+// 14 warnings
+copyCtorAndEqOperator
+
 // 6 warnings
 noConstructor:Common/Core/Testing/Cxx/TestCxxFeatures.cxx
 noConstructor:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx

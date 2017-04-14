@@ -34,7 +34,7 @@ public:
 
   virtual void Execute();
 
-  void SetArgs(int argc, char *argv[], std::string fname)
+  void SetArgs(int argc, char *argv[], const std::string& fname)
   {
       this->Argc = argc;
       this->Argv = argv;
