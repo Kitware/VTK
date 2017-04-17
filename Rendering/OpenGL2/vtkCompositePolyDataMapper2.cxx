@@ -464,6 +464,7 @@ bool vtkCompositeMapperHelper2::GetNeedToRebuildBufferObjects(
 
   if (this->VBOBuildString != toString.str() ||
       this->VBOBuildTime < this->SelectionStateChanged ||
+      this->VBOBuildTime < this->GetMTime() ||
       (this->CurrentInput && this->VBOBuildTime < this->CurrentInput->GetMTime()))
   {
     this->VBOBuildString = toString.str();
