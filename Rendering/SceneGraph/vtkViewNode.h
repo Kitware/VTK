@@ -51,7 +51,7 @@ public:
   /**
    * Builds myself.
    */
-  virtual void Build(bool /* prepass */) VTK_OVERRIDE {};
+  virtual void Build(bool /* prepass */) {};
 
   /**
    * Ensures that my state agrees with my Renderable's.
@@ -66,7 +66,7 @@ public:
   /**
    * Clear any cached data.
    */
-  virtual void Invalidate(bool /*prepass*/) VTK_OVERRIDE {};
+  virtual void Invalidate(bool /*prepass*/) {};
 
   //@{
   /**
@@ -112,7 +112,7 @@ public:
 
   // if you want to traverse your children in a specific order
   // or way override this method
-  virtual void Traverse(int operation) VTK_OVERRIDE;
+  virtual void Traverse(int operation);
 
   virtual void TraverseAllPasses();
 
