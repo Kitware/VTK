@@ -18,6 +18,7 @@
 /* Use the zlib library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_HDF5
 #ifdef VTK_USE_SYSTEM_HDF5
+#cmakedefine H5_BUILT_AS_DYNAMIC_LIB @H5_BUILT_AS_DYNAMIC_LIB@
 # include <hdf5.h>
 #else
 # include <vtkhdf5/src/hdf5.h>

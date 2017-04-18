@@ -33,7 +33,7 @@
 #include "XdmfDsmBuffer.h"
 #include "XdmfDsmComm.h"
 #include "assert.h"
-#include "hdf5.h"
+#include "vtk_hdf5.h"
 
 #include <cstring>
 #include <stdlib.h>
