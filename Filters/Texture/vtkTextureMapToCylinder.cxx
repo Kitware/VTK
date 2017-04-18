@@ -78,6 +78,9 @@ int vtkTextureMapToCylinder::RequestData(
     return 1;
   }
 
+  double point1[3] = { this->Point1[0], this->Point1[1], this->Point1[2] };
+  double point2[3] = { this->Point2[0], this->Point2[1], this->Point2[2] };
+
   if ( this->AutomaticCylinderGeneration )
   {
     vtkPoints *pts=vtkPoints::New(); pts->SetNumberOfPoints(numPts);
@@ -97,21 +100,21 @@ int vtkTextureMapToCylinder::RequestData(
     for ( i=0; i < 3; i++)
     {
       l = (mid[i] + min[i])/2.0;
-      this->Point1[i] = corner[i] + l;
-      this->Point2[i] = corner[i] + max[i] + l;
+      point1[i] = corner[i] + l;
+      point2[i] = corner[i] + max[i] + l;
     }
 
     vtkDebugMacro(<<"Cylinder axis computed as \tPoint1: ("
-                  << this->Point1[0] <<", " << this->Point1[1] <<", "
-                  << this->Point1[2] <<")\n\t\t\t\tPoint2: ("
-                  << this->Point2[0] <<", " << this->Point2[1] <<", "
-                  << this->Point2[2] <<")");
+                  << point1[0] <<", " << point1[1] <<", "
+                  << point1[2] <<")\n\t\t\t\tPoint2: ("
+                  << point2[0] <<", " << point2[1] <<", "
+                  << point2[2] <<")");
   }
 
   //compute axis which is theta (angle measure) origin
   for ( i=0; i < 3; i++ )
   {
-    axis[i] = this->Point2[i] - this->Point1[i];
+    axis[i] = point2[i] - point1[i];
   }
   if ( vtkMath::Norm(axis) == 0.0 )
   {
@@ -141,7 +144,7 @@ int vtkTextureMapToCylinder::RequestData(
   for ( ptId=0; ptId < numPts; ptId++ )
   {
     input->GetPoint(ptId, x);
-    vtkLine::DistanceToLine(x,this->Point1,this->Point2,tc[1],closest);
+    vtkLine::DistanceToLine(x,point1,point2,tc[1],closest);
 
     for (i=0; i < 3; i++)
     {
