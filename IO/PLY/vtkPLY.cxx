@@ -81,17 +81,20 @@ static void *plyAllocateMemory(size_t n)
 
 
 static const char *type_names[] = {
-"invalid",
-"char", "short", "int", "int32",
-"uchar", "ushort", "uint", "uint8",
-"float", "float32", "double",
+  "invalid",
+  "char", "short", "int", "int8", "int16", "int32",
+  "uchar", "ushort", "uint", "uint8", "uint16", "uint32",
+  "float", "float32", "double",
 };
 
 static const int ply_type_size[] = {
-  0, 1, 2, 4, 4, 1, 2, 4, 1, 4, 4, 8
+  0,
+  1, 2, 4, 1, 2, 4,
+  1, 2, 4, 1, 2, 4,
+  4, 4, 8
 };
 
-#define NO_OTHER_PROPS  (-1)
+#define NO_OTHER_PROPS  -1
 
 #define DONT_STORE_PROP  0
 #define STORE_PROP       1
@@ -208,8 +211,10 @@ PlyFile *vtkPLY::ply_open_for_writing(
   /* create the actual PlyFile structure */
 
   plyfile = vtkPLY::ply_write (fp, nelems, elem_names, file_type);
-  if (plyfile == nullptr)
+  if (plyfile == nullptr) {
+    fclose(fp);
     return (nullptr);
+  }
 
   /* say what PLY file version number we're writing */
   *version = plyfile->version;
@@ -713,8 +718,11 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   /* read and parse the file's header */
 
   words = get_words (plyfile->fp, &nwords, &orig_line);
-  if (!words || !equal_strings (words[0], "ply"))
+  if (!words || !equal_strings (words[0], "ply")) {
+    free (plyfile);
+    if(words) free (words);
     return (nullptr);
+  }
 
   while (words) {
 
@@ -832,8 +840,10 @@ PlyFile *vtkPLY::ply_open_for_reading(
   /* create the PlyFile data structure */
 
   plyfile = vtkPLY::ply_read (fp, nelems, elem_names);
-  if (plyfile == nullptr)
+  if (plyfile == nullptr) {
+    fclose(fp);
     return (nullptr);
+  }
 
   /* determine the file type and version */
 
@@ -1873,6 +1883,7 @@ double vtkPLY::get_item_value(const char *item, int type)
 {
   switch (type) {
     case PLY_CHAR:
+    case PLY_INT8:
     {
       vtkTypeInt8 value;
       memcpy(&value, item, sizeof(value));
@@ -1886,12 +1897,14 @@ double vtkPLY::get_item_value(const char *item, int type)
       return ((double) value);
     }
     case PLY_SHORT:
+    case PLY_INT16:
     {
       vtkTypeInt16 value;
       memcpy(&value, item, sizeof(value));
       return ((double) value);
     }
     case PLY_USHORT:
+    case PLY_UINT16:
     {
       vtkTypeUInt16 value;
       memcpy(&value, item, sizeof(value));
@@ -1905,6 +1918,7 @@ double vtkPLY::get_item_value(const char *item, int type)
       return ((double) value);
     }
     case PLY_UINT:
+    case PLY_UINT32:
     {
       vtkTypeUInt32 value;
       memcpy(&value, item, sizeof(value));
@@ -1956,10 +1970,12 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
 
   switch (type) {
     case PLY_CHAR:
+    case PLY_INT8:
       char_val = int_val;
       fwrite (&char_val, 1, 1, fp);
       break;
     case PLY_SHORT:
+    case PLY_INT16:
       short_val = int_val;
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&short_val) :
@@ -1979,6 +1995,7 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
       fwrite (&uchar_val, sizeof(uchar_val), 1, fp);
       break;
     case PLY_USHORT:
+    case PLY_UINT16:
       ushort_val = uint_val;
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&ushort_val) :
@@ -1986,6 +2003,7 @@ void vtkPLY::write_binary_item(PlyFile *plyfile,
       fwrite (&ushort_val, sizeof(ushort_val), 1, fp);
       break;
     case PLY_UINT:
+    case PLY_UINT32:
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&uint_val) :
         vtkByteSwap::Swap4LE(&uint_val);
@@ -2033,7 +2051,9 @@ void vtkPLY::write_ascii_item(
 {
   switch (type) {
     case PLY_CHAR:
+    case PLY_INT8:
     case PLY_SHORT:
+    case PLY_INT16:
     case PLY_INT:
     case PLY_INT32:
       fprintf (fp, "%d ", int_val);
@@ -2041,7 +2061,9 @@ void vtkPLY::write_ascii_item(
     case PLY_UCHAR:
     case PLY_UINT8:
     case PLY_USHORT:
+    case PLY_UINT16:
     case PLY_UINT:
+    case PLY_UINT32:
       fprintf (fp, "%u ", uint_val);
       break;
     case PLY_FLOAT:
@@ -2072,6 +2094,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
 {
   switch (type) {
     case PLY_CHAR:
+    case PLY_INT8:
     {
       vtkTypeInt8 value;
       memcpy(&value, item, sizeof(value));
@@ -2087,6 +2110,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
       return static_cast<double>(value);
     }
     case PLY_SHORT:
+    case PLY_INT16:
     {
       vtkTypeInt16 value;
       memcpy(&value, item, sizeof(value));
@@ -2094,6 +2118,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
       return static_cast<double>(value);
     }
     case PLY_USHORT:
+    case PLY_UINT16:
     {
       vtkTypeUInt16 value;
       memcpy(&value, item, sizeof(value));
@@ -2109,6 +2134,7 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
       return static_cast<double>(value);
     }
     case PLY_UINT:
+    case PLY_UINT32:
     {
       vtkTypeUInt32 value;
       memcpy(&value, item, sizeof(value));
@@ -2160,6 +2186,7 @@ void vtkPLY::get_stored_item(
 {
   switch (type) {
     case PLY_CHAR:
+    case PLY_INT8:
     {
       vtkTypeInt8 value;
       memcpy(&value, ptr, sizeof(value));
@@ -2179,6 +2206,7 @@ void vtkPLY::get_stored_item(
       break;
     }
     case PLY_SHORT:
+    case PLY_INT16:
     {
       vtkTypeInt16 value;
       memcpy(&value, ptr, sizeof(value));
@@ -2188,6 +2216,7 @@ void vtkPLY::get_stored_item(
       break;
     }
     case PLY_USHORT:
+    case PLY_UINT16:
     {
       vtkTypeUInt16 value;
       memcpy(&value, ptr, sizeof(value));
@@ -2207,6 +2236,7 @@ void vtkPLY::get_stored_item(
       break;
     }
     case PLY_UINT:
+    case PLY_UINT32:
     {
       vtkTypeUInt32 value;
       memcpy(&value, ptr, sizeof(value));
@@ -2265,7 +2295,8 @@ void vtkPLY::get_binary_item(
 {
   switch (type) {
     case PLY_CHAR:
-    {
+    case PLY_INT8:
+      {
       vtkTypeInt8 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
       {
@@ -2296,6 +2327,7 @@ void vtkPLY::get_binary_item(
     }
       break;
     case PLY_SHORT:
+    case PLY_INT16:
     {
       vtkTypeInt16 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
@@ -2314,6 +2346,7 @@ void vtkPLY::get_binary_item(
     }
       break;
     case PLY_USHORT:
+    case PLY_UINT16:
     {
       vtkTypeUInt16 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
@@ -2351,6 +2384,7 @@ void vtkPLY::get_binary_item(
     }
       break;
     case PLY_UINT:
+    case PLY_UINT32:
     {
       vtkTypeUInt32 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
@@ -2436,18 +2470,22 @@ void vtkPLY::get_ascii_item(
 {
   switch (type) {
     case PLY_CHAR:
+    case PLY_INT8:
     case PLY_UCHAR:
+    case PLY_UINT8:
     case PLY_SHORT:
+    case PLY_INT16:
     case PLY_USHORT:
+    case PLY_UINT16:
     case PLY_INT:
     case PLY_INT32:
-    case PLY_UINT8:
       *int_val = atoi (word);
       *uint_val = *int_val;
       *double_val = *int_val;
       break;
 
     case PLY_UINT:
+    case PLY_UINT32:
       *uint_val = strtoul (word, nullptr, 10);
       *int_val = *uint_val;
       *double_val = *uint_val;
@@ -2492,6 +2530,7 @@ void vtkPLY::store_item (
 {
   switch (type) {
     case PLY_CHAR:
+    case PLY_INT8:
     {
       vtkTypeInt8 value = static_cast<vtkTypeInt8>(int_val);
       memcpy(item, &value, sizeof(value));
@@ -2505,12 +2544,14 @@ void vtkPLY::store_item (
       break;
     }
     case PLY_SHORT:
+    case PLY_INT16:
     {
       vtkTypeInt16 value = static_cast<vtkTypeInt16>(int_val);
       memcpy(item, &value, sizeof(value));
       break;
     }
     case PLY_USHORT:
+    case PLY_UINT16:
     {
       vtkTypeUInt16 value = static_cast<vtkTypeUInt16>(uint_val);
       memcpy(item, &value, sizeof(value));
@@ -2524,6 +2565,7 @@ void vtkPLY::store_item (
       break;
     }
     case PLY_UINT:
+    case PLY_UINT32:
     {
       vtkTypeUInt32 value = static_cast<vtkTypeUInt32>(uint_val);
       memcpy(item, &value, sizeof(value));
