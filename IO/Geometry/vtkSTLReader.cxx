@@ -125,6 +125,12 @@ int vtkSTLReader::RequestData(
     if (!this->ReadASCIISTL(fp, newPts, newPolys, newScalars))
     {
       fclose(fp);
+      newPts->Delete();
+      newPolys->Delete();
+      if(newScalars)
+      {
+        newScalars->Delete();
+      }
       return 0;
     }
   }
@@ -137,12 +143,24 @@ int vtkSTLReader::RequestData(
     {
       vtkErrorMacro(<< "File " << this->FileName << " not found");
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+      newPts->Delete();
+      newPolys->Delete();
+      if(newScalars)
+      {
+        newScalars->Delete();
+      }
       return 0;
     }
 
     if (!this->ReadBinarySTL(fp, newPts, newPolys))
     {
       fclose(fp);
+      newPts->Delete();
+      newPolys->Delete();
+      if(newScalars)
+      {
+        newScalars->Delete();
+      }
       return 0;
     }
   }
