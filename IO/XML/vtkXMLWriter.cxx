@@ -344,11 +344,12 @@ static int vtkXMLWriterWriteBinaryDataBlocks(
       const char* data = str.c_str();
       data += stringOffset; // advance by the chars already written.
       length -= stringOffset;
-      stringOffset = 0;
       if (length == 0)
       {
         // just write the string termination char.
         temp_buffer[cur_offset++] = 0x0;
+        stringOffset = 0;
+        index++; // advance to the next string
       }
       else
       {
@@ -358,16 +359,18 @@ static int vtkXMLWriterWriteBinaryDataBlocks(
           memcpy(&temp_buffer[cur_offset], data, length);
           cur_offset += length;
           temp_buffer[cur_offset++] = 0x0;
+          stringOffset = 0;
+          index++; // advance to the next string
         }
         else
         {
           size_t bytes_to_copy =  (maxCharsPerBlock - cur_offset);
-          stringOffset = static_cast<vtkIdType>(bytes_to_copy);
+          stringOffset += static_cast<vtkIdType>(bytes_to_copy);
           memcpy(&temp_buffer[cur_offset], data, bytes_to_copy);
           cur_offset += bytes_to_copy;
+          // do not advance, only partially written current string
         }
       }
-      index++;
     }
     if (cur_offset > 0)
     {
