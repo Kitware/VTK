@@ -399,9 +399,10 @@ The `Do: test` command accepts the following arguments:
         excludes builds on builders matching `<arg>` (a Python regular
         expression)
 
-Multiple `Do: test` commands may be given. Upon each update to the branch,
-buildbot will reconsider all of the active commands to determine which builders
-to schedule.
+Multiple `Do: test` commands may be given in separate comments. A new `Do: test`
+command must be explicitly issued for each branch update for which testing is
+desired. Buildbot may skip tests for older branch updates that have not started
+before a test for a new update is requested.
 
 Builder names always follow this pattern:
 
