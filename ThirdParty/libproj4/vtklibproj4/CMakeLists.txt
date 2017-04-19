@@ -61,10 +61,12 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release)
 endif ()
 
+if (FALSE) # XXX(kitware): Debug suffixes are handled by VTK.
 if (MSVC OR CMAKE_CONFIGURATION_TYPES)
   # For multi-config systems and for Visual Studio, the debug version of
   # the library has _d appended.
   set (CMAKE_DEBUG_POSTFIX _d)
+endif ()
 endif ()
 
 #################################################################################
