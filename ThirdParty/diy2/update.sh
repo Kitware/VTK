@@ -11,16 +11,19 @@ readonly repo="https://gitlab.kitware.com/third-party/diy2.git"
 readonly tag="for/vtk"
 readonly paths="
 .gitattributes
+CMakeLists.vtk.txt
 include
 LEGAL.txt
 LICENSE.txt
 README.md
+README.kitware.md
 "
 
 extract_source () {
     git_archive
-    pushd ${extractdir}/${name}-reduced
+    pushd "$extractdir/$name-reduced"
     mv include/diy include/vtkdiy
+    mv CMakeLists.vtk.txt CMakeLists.txt
     popd
 }
 
