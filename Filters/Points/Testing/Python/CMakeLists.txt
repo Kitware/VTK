@@ -6,6 +6,7 @@ vtk_add_test_python(
   TestPointInterpolator2D2.py
   TestSPHInterpolator.py
   TestSPHInterpolator2D.py
+  TestSPHInterpolatorWithCutoff.py
   )
 
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")

@@ -1,6 +1,12 @@
 #!/usr/bin/env python
+try:
+    import numpy as np
+except ImportError:
+    print("Numpy (http://numpy.scipy.org) not found.")
+    print("This test requires numpy!")
+    sys.exit(0)
+
 import vtk
-import numpy as np
 import vtk.test.Testing
 from vtk.util.misc import vtkGetDataRoot
 from vtk.numpy_interface import dataset_adapter as dsa
