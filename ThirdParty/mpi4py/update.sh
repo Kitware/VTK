@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# This import runs Cython which has historically tended to include absolute
+# paths into the generated files (which we use to avoid a dependency on Cython
+# in VTK itself). No release has been made as of 20 April 2017, but the patch
+# in this pull request makes the build reproducible:
+#
+#     https://github.com/cython/cython/pull/1576
+
 set -e
 set -x
 shopt -s dotglob
