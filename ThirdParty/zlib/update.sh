@@ -43,6 +43,7 @@ zconf.h.cmakein
 
 ChangeLog
 README
+README.kitware.md
 FAQ
 INDEX
 "
