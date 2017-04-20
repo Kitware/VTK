@@ -9,7 +9,8 @@ try:
     import numpy
 except ImportError:
     print("WARNING: This test requires NumPy: http://http://www.numpy.org/")
-    sys.exit(0)
+    from vtk.test import Testing
+    Testing.skip()
 import vtk
 
 

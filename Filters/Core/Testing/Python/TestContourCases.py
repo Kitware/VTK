@@ -7,7 +7,8 @@ try:
     import numpy as np
 except ImportError:
     print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
-    sys.exit(0)
+    from vtk.test import Testing
+    Testing.skip()
 
 def GenerateCell(cellType, points):
     cell = vtk.vtkUnstructuredGrid()
