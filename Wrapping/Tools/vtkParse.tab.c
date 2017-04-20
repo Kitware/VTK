@@ -8892,12 +8892,25 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
    currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = "IsA";
-   currentFunction->Signature = "int IsA(const char *name);";
-   currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
-                "char", 0);
-   set_return(currentFunction, VTK_PARSE_INT, "int", 0);
-   output_function();
+
+   if(sizeof(vtkTypeBool) == 1 )
+   {
+     currentFunction->Signature = "bool IsA(const char *name);";
+     currentFunction->Comment = vtkstrdup(getComment());
+     add_parameter(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
+                  "char", 0);
+     set_return(currentFunction, VTK_PARSE_BOOL, "bool", 0);
+     output_function();
+   }
+   else
+   {
+     currentFunction->Signature = "int IsA(const char *name);";
+     currentFunction->Comment = vtkstrdup(getComment());
+     add_parameter(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
+                  "char", 0);
+     set_return(currentFunction, VTK_PARSE_INT, "int", 0);
+     output_function();
+   }
 
    currentFunction->Macro = "vtkTypeMacro";
    currentFunction->Name = "NewInstance";
