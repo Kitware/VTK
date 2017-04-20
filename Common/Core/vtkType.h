@@ -350,6 +350,13 @@ typedef int vtkIdType;
 # define VTK_ID_TYPE_PRId "d"
 #endif
 
+#ifndef __cplusplus
+  // Make sure that when VTK headers are used by the C compiler we make
+  // sure to define the bool type. This is possible when using IO features
+  // like vtkXMLWriterC.h
+  #include "stdbool.h"
+#endif
+
 /*--------------------------------------------------------------------------*/
 /* If not already defined, define vtkTypeBool. When VTK was started, some   */
 /* compilers did not yet support the bool type, and so VTK often used int   */
