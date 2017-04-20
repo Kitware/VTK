@@ -125,7 +125,7 @@ MetaVesselTube::
   while(it != m_PointList.end())
     {
     VesselTubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
     }
   m_PointList.clear();
@@ -239,7 +239,7 @@ Clear(void)
   while(it != m_PointList.end())
     {
     VesselTubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
     }
   m_PointList.clear();
@@ -1073,7 +1073,7 @@ M_Write(void)
       MET_SwapByteIfSystemMSB(&id,MET_INT);
       MET_DoubleToValue((double)id,m_ElementType,data,i++);
 
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,
@@ -1141,7 +1141,7 @@ M_Write(void)
       *m_WriteStream << (*it)->m_ID << " ";
 
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
   return true;

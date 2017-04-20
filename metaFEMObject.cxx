@@ -168,7 +168,7 @@ MetaFEMObject::
   while(it_Node != m_NodeList.end())
     {
     FEMObjectNode* Node = *it_Node;
-    it_Node++;
+    ++it_Node;
     delete Node;
     }
   // Delete the list of pointers to Materials.
@@ -176,7 +176,7 @@ MetaFEMObject::
   while(it_Material != m_MaterialList.end())
     {
     FEMObjectMaterial* Material = *it_Material;
-    it_Material++;
+    ++it_Material;
     delete Material;
     }
 
@@ -185,7 +185,7 @@ MetaFEMObject::
   while(it_Element != m_ElementList.end())
     {
     FEMObjectElement* Element = *it_Element;
-    it_Element++;
+    ++it_Element;
     delete Element;
     }
 
@@ -194,7 +194,7 @@ MetaFEMObject::
   while(it_Load != m_LoadList.end())
     {
     FEMObjectLoad* Load = *it_Load;
-    it_Load++;
+    ++it_Load;
     delete Load;
     }
 
@@ -233,7 +233,7 @@ Clear(void)
   while(it_Node != m_NodeList.end())
     {
     FEMObjectNode* Node = *it_Node;
-    it_Node++;
+    ++it_Node;
     delete Node;
     }
 
@@ -242,7 +242,7 @@ Clear(void)
   while(it_Element != m_ElementList.end())
     {
     FEMObjectElement* Element = *it_Element;
-    it_Element++;
+    ++it_Element;
     delete Element;
     }
 
@@ -251,7 +251,7 @@ Clear(void)
   while(it_Load != m_LoadList.end())
     {
     FEMObjectLoad* Load = *it_Load;
-    it_Load++;
+    ++it_Load;
     delete Load;
     }
 
@@ -260,7 +260,7 @@ Clear(void)
   while(it_Material != m_MaterialList.end())
     {
     FEMObjectMaterial* Material = *it_Material;
-    it_Material++;
+    ++it_Material;
     delete Material;
     }
 
@@ -459,7 +459,7 @@ M_Write(void)
     {
     FEMObjectNode* Node = *it_Node;
     this->M_Write_Node(Node);
-    it_Node++;
+    ++it_Node;
     }
   *this->m_WriteStream << "\n<END>  % End of nodes\n\n";
 
@@ -468,7 +468,7 @@ M_Write(void)
     {
     FEMObjectMaterial* Material = *it_Material;
     this->M_Write_Material(Material);
-    it_Material++;
+    ++it_Material;
     }
   *this->m_WriteStream << "\n<END>  % End of material definition\n\n";
 
@@ -478,7 +478,7 @@ M_Write(void)
     {
     FEMObjectElement* Element = *it_Element;
     this->M_Write_Element(Element);
-    it_Element++;
+    ++it_Element;
     }
   *this->m_WriteStream << "\n<END>  % End of element definition\n\n";
 
@@ -487,7 +487,7 @@ M_Write(void)
     {
     FEMObjectLoad* Load = *it_Load;
     this->M_Write_Load(Load);
-    it_Load++;
+    ++it_Load;
     }
   *this->m_WriteStream << "\n<END>  % End of load definition\n\n";
 
@@ -698,7 +698,7 @@ bool MetaFEMObject::IsClassNamePresent(std::string c_string)
     {
     if((*it) == c_string)
       return true;
-    it++;
+    ++it;
     }
   return false;
 }

@@ -205,8 +205,8 @@ PrintInfo(void) const
       }
     METAIO_STREAM::cout << METAIO_STREAM::endl;
 
-    itw++;
-    itr++;
+    ++itw;
+    ++itr;
     }
   }
 
@@ -268,7 +268,7 @@ ClearFields()
   while( it != end )
     {
     MET_FieldRecordType* field = *it;
-    it++;
+    ++it;
 
     // Check if the pointer is not in one of the user's list
     bool exists = false;
@@ -281,7 +281,7 @@ ClearFields()
         exists = true;
         break;
         }
-      it2++;
+      ++it2;
       }
 
     if(!exists)
@@ -295,7 +295,7 @@ ClearFields()
           exists = true;
           break;
           }
-        it2++;
+        ++it2;
         }
       }
 
@@ -496,7 +496,7 @@ ClearUserFields()
   while( it != end )
     {
     MET_FieldRecordType* field = *it;
-    it++;
+    ++it;
     delete field;
     }
 
@@ -518,10 +518,10 @@ ClearUserFields()
         deleted = true;
         break;
         }
-      it2++;
+      ++it2;
       }
 
-    it++;
+    ++it;
 
     if(!deleted)
       {
@@ -573,7 +573,7 @@ GetUserField(const char* _name)
         }
       return out;
       }
-    it++;
+    ++it;
     }
   return NULL;
   }
@@ -794,7 +794,7 @@ M_SetupReadFields(void)
   while( it != end )
     {
     m_Fields.push_back(*it);
-    it++;
+    ++it;
     }
   }
 
@@ -882,7 +882,7 @@ M_SetupWriteFields(void)
   while( it != end )
     {
     m_Fields.push_back(*it);
-    it++;
+    ++it;
     }
   }
 
@@ -979,7 +979,7 @@ M_Read(void)
     {
     mF = MET_GetFieldRecord((*it)->name, &m_Fields);
     m_UserDefinedWriteFields.push_back(mF);
-    it++;
+    ++it;
     }
 
   return true;
