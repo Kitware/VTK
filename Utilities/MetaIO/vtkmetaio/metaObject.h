@@ -59,6 +59,7 @@ class METAIO_EXPORT MetaObject
       double m_CenterOfRotation[10];   // "CenterOfRotation = "  0 0 0
 
       MET_OrientationEnumType m_AnatomicalOrientation[10];
+      mutable char            m_OrientationAcronym[10];
 
       MET_DistanceUnitsEnumType m_DistanceUnits;   // "DistanceUnits = mm"
 
@@ -289,7 +290,7 @@ class METAIO_EXPORT MetaObject
         FieldsContainerType::iterator it;
         for(it = container.begin();
             it != container.end();
-            it++)
+            ++it)
           {
           if(strcmp((*it)->name,fieldName) == 0)
             {
