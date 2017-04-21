@@ -171,7 +171,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   mF = MET_GetFieldRecord("Offset",&m_Fields);
@@ -183,7 +183,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   mF = MET_GetFieldRecord("ElementSpacing",&m_Fields);
@@ -195,7 +195,7 @@ M_SetupWriteFields(void)
       m_Fields.erase(it);
       break;
       }
-    it++;
+    ++it;
     }
 
   int i;
@@ -220,7 +220,7 @@ M_SetupWriteFields(void)
         m_Fields.erase(it);
         break;
         }
-      it++;
+      ++it;
       }
     }
 

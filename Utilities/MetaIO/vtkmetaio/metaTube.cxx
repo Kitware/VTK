@@ -104,7 +104,7 @@ MetaTube::
   while(it != m_PointList.end())
   {
     TubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -200,7 +200,7 @@ Clear(void)
   while(it != m_PointList.end())
   {
     TubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -803,7 +803,7 @@ M_Write(void)
       int id = (*it)->m_ID;
       MET_SwapByteIfSystemMSB(&id,MET_INT);
       MET_DoubleToValue((double)id,m_ElementType,data,i++);
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,writeSize);
@@ -851,7 +851,7 @@ M_Write(void)
       *m_WriteStream << (*it)->m_ID << " ";
 
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
   return true;

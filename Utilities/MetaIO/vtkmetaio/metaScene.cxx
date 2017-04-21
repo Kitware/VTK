@@ -432,7 +432,7 @@ Write(const char *_headName)
     {
     (*it)->BinaryData(this->BinaryData());
     (*it)->Append(_headName);
-    it++;
+    ++it;
     }
 
   return true;
@@ -452,7 +452,7 @@ Clear(void)
   while(it != m_ObjectList.end())
     {
     MetaObject* object = *it;
-    it++;
+    ++it;
     delete object;
     }
 

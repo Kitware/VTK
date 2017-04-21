@@ -202,7 +202,7 @@ Clear(void)
   while(it != itEnd)
     {
     ContourControlPnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
     }
   m_ControlPointsList.clear();
@@ -215,7 +215,7 @@ Clear(void)
   while(itInterpolated != itInterpolatedEnd)
     {
     ContourInterpolatedPnt* pnt = *itInterpolated;
-    itInterpolated++;
+    ++itInterpolated;
     delete pnt;
     }
   m_InterpolatedPointsList.clear();
@@ -784,7 +784,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&pntX,MET_FLOAT);
         MET_DoubleToValue((double)pntX,MET_FLOAT,data,i++);
         }
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,(m_NDims*3+5)*m_NControlPoints*4);
@@ -821,7 +821,7 @@ M_Write(void)
         *m_WriteStream << (*it)->m_Color[d] << " ";
         }
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
 
@@ -885,7 +885,7 @@ M_Write(void)
         MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
         MET_DoubleToValue((double)x,MET_FLOAT,data,i++);
         }
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,(m_NDims+5)*m_NInterpolatedPoints*4);
@@ -914,7 +914,7 @@ M_Write(void)
         *m_WriteStream << (*it)->m_Color[d] << " ";
         }
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
   return true;

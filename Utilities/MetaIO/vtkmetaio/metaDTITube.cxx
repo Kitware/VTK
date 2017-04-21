@@ -134,7 +134,7 @@ MetaDTITube::
   while(it != m_PointList.end())
   {
     DTITubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -231,7 +231,7 @@ Clear(void)
   while(it != m_PointList.end())
   {
     DTITubePnt* pnt = *it;
-    it++;
+    ++it;
     delete pnt;
   }
   m_PointList.clear();
@@ -326,7 +326,7 @@ M_SetupWriteFields(void)
     {
     m_PointDim += " ";
     m_PointDim += (*itFields).first;
-    itFields++;
+    ++itFields;
     }
 
   if(m_PointDim.size()>0)
@@ -540,7 +540,7 @@ M_Read(void)
           i+=sizeof(float);
           pnt->AddField((*itFields).first.c_str(),(float)td);
           }
-        itFields++;
+        ++itFields;
         }
 
       m_PointList.push_back(pnt);
@@ -651,7 +651,7 @@ M_Read(void)
           pnt->AddField((*itFields).first.c_str(),
                         v[this->GetPosition((*itFields).first.c_str())]);
           }
-        itFields++;
+        ++itFields;
         }
 
       m_PointList.push_back(pnt);
@@ -735,10 +735,10 @@ M_Write(void)
         float x = (*itFields).second;
         MET_SwapByteIfSystemMSB(&x,MET_FLOAT);
         MET_DoubleToValue((double)x,m_ElementType,data,i++);
-        itFields++;
+        ++itFields;
         }
 
-      it++;
+      ++it;
       }
 
     m_WriteStream->write((char *)data,i*elementSize);
@@ -770,11 +770,11 @@ M_Write(void)
       while(itFields !=  itFieldsEnd)
         {
         *m_WriteStream << (*itFields).second << " ";
-        itFields++;
+        ++itFields;
         }
 
       *m_WriteStream << METAIO_STREAM::endl;
-      it++;
+      ++it;
       }
     }
   return true;
