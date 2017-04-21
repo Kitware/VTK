@@ -9,3 +9,7 @@ include(vtkModuleMacrosPython)
 # package.
 vtk_module_python_package(${vtk-module} "vtk/web"
     RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}")
+
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()

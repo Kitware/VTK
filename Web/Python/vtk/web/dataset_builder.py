@@ -1,4 +1,5 @@
 from vtk import *
+from vtk.web import getJSArrayType
 from vtk.web.camera import *
 from vtk.web.query_data_model import *
 from vtk.web import iteritems, buffer
@@ -6,19 +7,6 @@ import json, os, math, gzip, shutil
 
 # Global helper variables
 encode_codes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-arrayTypesMapping = '  bBhHiIlLfd'
-jsMapping = {
-    'b': 'Int8Array',
-    'B': 'Uint8Array',
-    'h': 'Int16Array',
-    'H': 'Int16Array',
-    'i': 'Int32Array',
-    'I': 'Uint32Array',
-    'l': 'Int32Array',
-    'L': 'Uint32Array',
-    'f': 'Float32Array',
-    'd': 'Float64Array'
-}
 
 # -----------------------------------------------------------------------------
 # Capture image from render window
@@ -309,7 +297,7 @@ class DataProberDataSetBuilder(DataSetBuilder):
                 with open(self.dataHandler.getDataAbsoluteFilePath(field), 'wb') as f:
                     f.write(b)
 
-                self.DataProber['types'][field] = jsMapping[arrayTypesMapping[array.GetDataType()]]
+                self.DataProber['types'][field] = getJSArrayType(array)
                 if field in self.DataProber['ranges']:
                     dataRange = array.GetRange()
                     if dataRange[0] < self.DataProber['ranges'][field][0]:
