@@ -15,7 +15,7 @@ readonly paths="
 
 extract_source () {
     git_archive
-    disable_custom_gitattributes
+    sed -i -e '/import off/,/import on/d' "$extractdir/$name-reduced/.gitattributes"
 }
 
 . "${BASH_SOURCE%/*}/../../ThirdParty/update-common.sh"
