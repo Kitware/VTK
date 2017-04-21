@@ -22,6 +22,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGeometryFilter.h"
 #include "vtkMapper.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -124,17 +125,17 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
 {
   vtkDataSet *ds;
   vtkPolyData *pd;
-  vtkGeometryFilter *gf = NULL;
+  vtkSmartPointer<vtkGeometryFilter> gf;
   vtkPointData *pntData;
   vtkPoints *points;
-  vtkDataArray *normals = NULL;
+  vtkSmartPointer<vtkFloatArray> normals;
   vtkDataArray *tcoords;
   int i, i1, i2, idNext;
   vtkProperty *prop;
   double *tempd;
   double *p;
   vtkCellArray *cells;
-  vtkTransform *trans = vtkTransform::New();
+  vtkNew<vtkTransform> trans;
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
 
@@ -167,13 +168,14 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   {
     return;
   }
+
   anActor->GetMapper()->GetInputAlgorithm()->Update();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
 
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
   {
-    gf = vtkGeometryFilter::New();
+    gf = vtkSmartPointer<vtkGeometryFilter>::New();
     gf->SetInputConnection(
       anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
@@ -199,9 +201,9 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   pntData = pd->GetPointData();
   if (pntData->GetNormals())
   {
-    normals = vtkFloatArray::New();
+    normals = vtkSmartPointer<vtkFloatArray>::New();
     normals->SetNumberOfComponents(3);
-    trans->TransformNormals(pntData->GetNormals(),normals);
+    trans->TransformNormals(pntData->GetNormals(),normals.Get());
     for (i = 0; i < normals->GetNumberOfTuples(); i++)
     {
       p = normals->GetTuple(i);
@@ -276,7 +278,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
       fprintf(fpObj,"f ");
       for (i = 0; i < npts; i++)
       {
-        if (normals)
+        if (pntData->GetNormals())
         {
           if (tcoords)
           {
@@ -329,7 +331,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
           i1 = i - 1;
           i2 = i - 2;
         }
-        if (normals)
+        if (pntData->GetNormals())
         {
           if (tcoords)
           {
@@ -376,15 +378,6 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   }
 
   idStart = idNext;
-  trans->Delete();
-  if (normals)
-  {
-    normals->Delete();
-  }
-  if (gf)
-  {
-    gf->Delete();
-  }
 }
 
 
