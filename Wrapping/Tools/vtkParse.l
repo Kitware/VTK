@@ -250,14 +250,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 "compl"         return('~');
 
 "vtkIdType"            return(IdType);
-"vtkSetMacro"          return(SetMacro);
-"vtkGetMacro"          return(GetMacro);
-"vtkSetStringMacro"    return(SetStringMacro);
-"vtkGetStringMacro"    return(GetStringMacro);
-"vtkSetClampMacro"     return(SetClampMacro);
-"vtkSetObjectMacro"    return(SetObjectMacro);
-"vtkGetObjectMacro"    return(GetObjectMacro);
-"vtkBooleanMacro"      return(BooleanMacro);
 "vtkSetVector2Macro"   return(SetVector2Macro);
 "vtkSetVector3Macro"   return(SetVector3Macro);
 "vtkSetVector4Macro"   return(SetVector4Macro);
@@ -270,10 +262,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 "vtkGetVectorMacro"    return(GetVectorMacro);
 "vtkViewportCoordinateMacro" return(ViewportCoordinateMacro);
 "vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
-"vtkExportedTypeMacro" return(TypeMacro);
-"vtkExportedTypeRevisionMacro" return(TypeMacro);
-"vtkTypeMacro"         return(TypeMacro);
-"vtkTypeRevisionMacro" return(TypeMacro);
 "VTK_WRAP_EXTERN"      ;
 "VTK_BYTE_SWAP_DECL"   return(VTK_BYTE_SWAP_DECL);
 "vtkTypeInt8"          return(TypeInt8);

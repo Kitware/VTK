@@ -23,7 +23,6 @@ Run bison like this (use bison 3.0.2 or later)
   bison --no-lines -b vtkParse vtkParse.y
 
 Modify vtkParse.tab.c:
-  - convert TABs to spaces (eight per tab)
   - replace all instances of "static inline" with "static"
   - replace "#if ! defined lint || defined __GNUC__" with "#if 1"
   - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
@@ -31,7 +30,7 @@ Modify vtkParse.tab.c:
   - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
   - remove dead store "yynewStates = YY_NULLPTR;"
   - replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
-  - remove 'struct yy_trans_info', which is unneeded (despite the comment)
+  - replace "sizeof yynewLookaheadNeeds[0] with "sizeof (yybool)"
 */
 
 /*
@@ -359,20 +358,6 @@ static const char *vtkstrcat4(const char *str1, const char *str2,
   cp[2] = str3;
   cp[3] = str4;
   return vtkstrncat(4, cp);
-}
-
-static const char *vtkstrcat5(const char *str1, const char *str2,
-                              const char *str3, const char *str4,
-                              const char *str5)
-{
-  const char *cp[5];
-
-  cp[0] = str1;
-  cp[1] = str2;
-  cp[2] = str3;
-  cp[3] = str4;
-  cp[4] = str5;
-  return vtkstrncat(5, cp);
 }
 
 static const char *vtkstrcat7(const char *str1, const char *str2,
@@ -1938,14 +1923,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token TypeFloat64
 
 /* VTK macros */
-%token SetMacro
-%token GetMacro
-%token SetStringMacro
-%token GetStringMacro
-%token SetClampMacro
-%token SetObjectMacro
-%token GetObjectMacro
-%token BooleanMacro
 %token SetVector2Macro
 %token SetVector3Macro
 %token SetVector4Macro
@@ -1958,7 +1935,6 @@ unsigned int add_indirection_to_array(unsigned int type)
 %token GetVectorMacro
 %token ViewportCoordinateMacro
 %token WorldCoordinateMacro
-%token TypeMacro
 
 /* VTK special tokens */
 %token VTK_BYTE_SWAP_DECL
@@ -3332,117 +3308,7 @@ attribute_token:
  */
 
 declaration_macro:
-  SetMacro '(' simple_id ',' {preSig("void Set"); postSig("(");} store_type ')'
-   {
-   postSig("a);");
-   currentFunction->Macro = "vtkSetMacro";
-   currentFunction->Name = vtkstrcat("Set", $<str>3);
-   currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, getType(), getTypeId(), 0);
-   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-   output_function();
-   }
-| GetMacro '(' {postSig("Get");} simple_id ','
-   {markSig();} store_type {swapSig();} ')'
-   {
-   postSig("();");
-   currentFunction->Macro = "vtkGetMacro";
-   currentFunction->Name = vtkstrcat("Get", $<str>4);
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, getType(), getTypeId(), 0);
-   output_function();
-   }
-| SetStringMacro '(' {preSig("void Set");} simple_id ')'
-   {
-   postSig("(char *);");
-   currentFunction->Macro = "vtkSetStringMacro";
-   currentFunction->Name = vtkstrcat("Set", $<str>4);
-   currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, VTK_PARSE_CHAR_PTR, "char", 0);
-   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-   output_function();
-   }
-| GetStringMacro '(' {preSig("char *Get");} simple_id ')'
-   {
-   postSig("();");
-   currentFunction->Macro = "vtkGetStringMacro";
-   currentFunction->Name = vtkstrcat("Get", $<str>4);
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, VTK_PARSE_CHAR_PTR, "char", 0);
-   output_function();
-   }
-| SetClampMacro '(' simple_id ',' {startSig(); markSig();} store_type {closeSig();}
-     ',' ignored_expression ')'
-   {
-   const char *typeText;
-   chopSig();
-   typeText = copySig();
-
-   currentFunction->Macro = "vtkSetClampMacro";
-   currentFunction->Name = vtkstrcat("Set", $<str>3);
-   currentFunction->Signature =
-     vtkstrcat5("void ", currentFunction->Name, "(", typeText, ");");
-   currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, getType(), getTypeId(), 0);
-   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-   output_function();
-
-   currentFunction->Macro = "vtkSetClampMacro";
-   currentFunction->Name = vtkstrcat3("Get", $<str>3, "MinValue");
-   currentFunction->Signature =
-     vtkstrcat4(typeText, " ", currentFunction->Name, "();");
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, getType(), getTypeId(), 0);
-   output_function();
-
-   currentFunction->Macro = "vtkSetClampMacro";
-   currentFunction->Name = vtkstrcat3("Get", $<str>3, "MaxValue");
-   currentFunction->Signature =
-     vtkstrcat4(typeText, " ", currentFunction->Name, "();");
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, getType(), getTypeId(), 0);
-   output_function();
-   }
-| SetObjectMacro '(' simple_id ','
-  {preSig("void Set"); postSig("("); } store_type ')'
-   {
-   postSig("*);");
-   currentFunction->Macro = "vtkSetObjectMacro";
-   currentFunction->Name = vtkstrcat("Set", $<str>3);
-   currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, VTK_PARSE_OBJECT_PTR, getTypeId(), 0);
-   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-   output_function();
-   }
-| GetObjectMacro '(' {postSig("*Get");} simple_id ','
-   {markSig();} store_type {swapSig();} ')'
-   {
-   postSig("();");
-   currentFunction->Macro = "vtkGetObjectMacro";
-   currentFunction->Name = vtkstrcat("Get", $<str>4);
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, VTK_PARSE_OBJECT_PTR, getTypeId(), 0);
-   output_function();
-   }
-| BooleanMacro '(' simple_id ',' store_type ')'
-   {
-   currentFunction->Macro = "vtkBooleanMacro";
-   currentFunction->Name = vtkstrcat($<str>3, "On");
-   currentFunction->Comment = vtkstrdup(getComment());
-   currentFunction->Signature =
-     vtkstrcat3("void ", currentFunction->Name, "();");
-   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-   output_function();
-
-   currentFunction->Macro = "vtkBooleanMacro";
-   currentFunction->Name = vtkstrcat($<str>3, "Off");
-   currentFunction->Comment = vtkstrdup(getComment());
-   currentFunction->Signature =
-     vtkstrcat3("void ", currentFunction->Name, "();");
-   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
-   output_function();
-   }
-| SetVector2Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
+  SetVector2Macro '(' simple_id ',' {startSig(); markSig();} store_type ')'
    {
    chopSig();
    outputSetVectorMacro($<str>3, getType(), copySig(), 2);
@@ -3588,59 +3454,6 @@ declaration_macro:
      set_return(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 3);
      output_function();
    }
-| TypeMacro '(' simple_id ',' id_expression opt_comma ')'
-   {
-   currentFunction->Macro = "vtkTypeMacro";
-   currentFunction->Name = "GetClassName";
-   currentFunction->Signature = "const char *GetClassName();";
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
-              "char", 0);
-   output_function();
-
-   currentFunction->Macro = "vtkTypeMacro";
-   currentFunction->Name = "IsA";
-
-   if(sizeof(vtkTypeBool) == 1 )
-   {
-     currentFunction->Signature = "bool IsA(const char *name);";
-     currentFunction->Comment = vtkstrdup(getComment());
-     add_parameter(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
-                  "char", 0);
-     set_return(currentFunction, VTK_PARSE_BOOL, "bool", 0);
-     output_function();
-   }
-   else
-   {
-     currentFunction->Signature = "int IsA(const char *name);";
-     currentFunction->Comment = vtkstrdup(getComment());
-     add_parameter(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
-                  "char", 0);
-     set_return(currentFunction, VTK_PARSE_INT, "int", 0);
-     output_function();
-   }
-
-   currentFunction->Macro = "vtkTypeMacro";
-   currentFunction->Name = "NewInstance";
-   currentFunction->Signature = vtkstrcat($<str>3, " *NewInstance();");
-   currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, VTK_PARSE_NEWINSTANCE | VTK_PARSE_OBJECT_PTR,
-              $<str>3, 0);
-   output_function();
-
-   currentFunction->Macro = "vtkTypeMacro";
-   currentFunction->Name = "SafeDownCast";
-   currentFunction->Signature =
-     vtkstrcat($<str>3, " *SafeDownCast(vtkObject* o);");
-   currentFunction->Comment = vtkstrdup(getComment());
-   add_parameter(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkObject", 0);
-   set_return(currentFunction, (VTK_PARSE_STATIC | VTK_PARSE_OBJECT_PTR),
-              $<str>3, 0);
-   output_function();
-   }
-
-opt_comma:
-  | ','
 
 /*
  * Operators
