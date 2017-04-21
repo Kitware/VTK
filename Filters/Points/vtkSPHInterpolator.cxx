@@ -364,7 +364,6 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 
   // Set up the interpolation process
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkPointData *inPD = input->GetPointData();
   vtkPointData *sourcePD = source->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   outPD->InterpolateAllocate(sourcePD,numPts);
