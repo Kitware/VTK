@@ -273,7 +273,10 @@ void vtkFollower::Render(vtkRenderer *ren)
   // make sure the device has the same matrix
   this->ComputeMatrix();
   this->Device->SetUserMatrix(this->Matrix);
-
+  if (this->GetPropertyKeys())
+  {
+    this->Device->SetPropertyKeys(this->GetPropertyKeys());
+  }
   this->Device->Render(ren,this->Mapper);
 }
 
