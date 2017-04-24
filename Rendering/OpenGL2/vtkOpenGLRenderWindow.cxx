@@ -48,6 +48,8 @@
 #include <sstream>
 using std::ostringstream;
 
+#include <cassert>
+
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitManager);
 
 // Initialize static member that controls global maximum number of multisamples
@@ -59,6 +61,94 @@ static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 #endif
 
 const char* defaultWindowName = "Visualization Toolkit - OpenGL";
+
+namespace
+{
+// helper class to save/restore the framebuffer and draw/read buffer state.
+// just create it on the stack with appropriate constructor arguments and it
+// will restore the framebuffer/active buffers state in the destructor.
+class FrameBufferHelper
+{
+public:
+  enum EType
+  {
+    READ = 1,
+    DRAW = 2
+  };
+
+  FrameBufferHelper(EType type, vtkOpenGLRenderWindow* ren, int front)
+    : Type(type)
+    , LastFrameBuffer(0)
+    , LastColorBuffer(0)
+  {
+    // If default frame-buffer id is provided (which happens when using external
+    // OpenGL context), we use that. Otherwise, we check if the render window
+    // was doing offscreen rendering, if so, we use the offscreen FBO.
+    const unsigned int fb = ren->GetDefaultFrameBufferId()
+      ? ren->GetDefaultFrameBufferId()
+      : (ren->GetUseOffScreenBuffers() ? ren->GetFrameBufferObject() : 0);
+    const GLint buf = front ? ren->GetFrontLeftBuffer() : ren->GetBackLeftBuffer();
+    switch (type)
+    {
+      case READ:
+      {
+        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&this->LastFrameBuffer));
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fb);
+#ifdef GL_READ_BUFFER
+        glGetIntegerv(GL_READ_BUFFER, &this->LastColorBuffer);
+#endif
+        glReadBuffer(buf);
+      }
+      break;
+
+      case DRAW:
+      {
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&this->LastFrameBuffer));
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
+#ifdef GL_DRAW_BUFFER
+        glGetIntegerv(GL_DRAW_BUFFER, &this->LastColorBuffer);
+#endif
+        glDrawBuffer(buf);
+      }
+      break;
+
+      default:
+        assert(false);
+    }
+  }
+
+  ~FrameBufferHelper()
+  {
+    switch (this->Type)
+    {
+      case READ:
+      {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, this->LastFrameBuffer);
+#ifdef GL_READ_BUFFER
+        glReadBuffer(this->LastColorBuffer);
+#endif
+      }
+      break;
+
+      case DRAW:
+      {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->LastFrameBuffer);
+#ifdef GL_DRAW_BUFFER
+        glDrawBuffer(this->LastColorBuffer);
+#endif
+      }
+    }
+  }
+
+private:
+  FrameBufferHelper(const FrameBufferHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const FrameBufferHelper&) VTK_DELETE_FUNCTION;
+
+  EType Type;
+  GLuint LastFrameBuffer;
+  GLint LastColorBuffer;
+};
+}
 
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
@@ -1012,6 +1102,8 @@ int vtkOpenGLRenderWindow::ReadPixels(
     ;
   }
 
+  FrameBufferHelper helper(FrameBufferHelper::READ, this, front);
+
   // Let's determine if we're reading from an FBO.
   bool resolveMSAA = false;
 
@@ -1029,8 +1121,6 @@ int vtkOpenGLRenderWindow::ReadPixels(
 
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-
-  glReadBuffer(static_cast<GLenum>(front ? this->GetFrontLeftBuffer() : this->GetBackLeftBuffer()));
 
   if (resolveMSAA)
   {
@@ -1074,6 +1164,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
     glReadPixels(
       rect.GetLeft(), rect.GetBottom(), rect.GetWidth(), rect.GetHeight(), glformat, gltype, data);
   }
+
   if (glGetError() != GL_NO_ERROR)
   {
     return VTK_ERROR;
@@ -1222,20 +1313,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     ;
   }
 
-  GLint buffer;
-
-#ifdef GL_DRAW_BUFFER
-  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
-#endif
-
-  if (front)
-  {
-    glDrawBuffer(this->GetFrontBuffer());
-  }
-  else
-  {
-    glDrawBuffer(this->GetBackBuffer());
-  }
+  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front);
 
   this->DrawPixels(x1, y1, x2, y2, 3, VTK_UNSIGNED_CHAR, data);
 
@@ -1244,8 +1322,6 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   {
     glFlush();
   }
-
-  glDrawBuffer(buffer);
 
   if (glGetError() != GL_NO_ERROR)
   {
@@ -1401,20 +1477,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     ;
   }
 
-  GLint buffer;
-#ifdef GL_DRAW_BUFFER
-  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
-#endif
-
-  if (front)
-  {
-    glDrawBuffer(this->GetFrontBuffer());
-  }
-  else
-  {
-    glDrawBuffer(this->GetBackBuffer());
-  }
-
+  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front);
   if (!blend)
   {
     glDisable(GL_BLEND);
@@ -1431,8 +1494,6 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   {
     glFlush();
   }
-
-  glDrawBuffer(buffer);
 
   if (glGetError() != GL_NO_ERROR)
   {
@@ -1590,20 +1651,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     ;
   }
 
-  GLint buffer;
-#ifdef GL_DRAW_BUFFER
-  glGetIntegerv(GL_DRAW_BUFFER, &buffer);
-#endif
-
-  if (front)
-  {
-    glDrawBuffer(this->GetFrontBuffer());
-  }
-  else
-  {
-    glDrawBuffer(this->GetBackBuffer());
-  }
-
+  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front);
 
   // Disable writing on the z-buffer.
   glDepthMask(GL_FALSE);
@@ -1623,8 +1671,6 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   // Renenable writing on the z-buffer.
   glDepthMask(GL_TRUE);
   glEnable(GL_DEPTH_TEST);
-
-  glDrawBuffer(buffer);
 
   if (glGetError() != GL_NO_ERROR)
   {
@@ -2119,7 +2165,8 @@ void vtkOpenGLRenderWindow::UnbindHardwareOffScreenBuffers()
   }
 
   this->MakeCurrent();
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  // bind the default frame buffer (which generally is 0).
+  glBindFramebuffer(GL_FRAMEBUFFER, this->GetDefaultFrameBufferId());
 
   // Restore framebuffer names.
   this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
