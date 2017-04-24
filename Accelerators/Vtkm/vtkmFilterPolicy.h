@@ -178,7 +178,8 @@ struct PointListInVTK
 struct PointListOutVTK
     : vtkm::ListTagBase<
           vtkm::cont::ArrayHandleUniformPointCoordinates::StorageTag,
-          vtkm::cont::StorageTagBasic>
+          vtkm::cont::StorageTagBasic,
+          tovtkm::vtkAOSArrayContainerTag>
 {
 };
 
