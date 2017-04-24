@@ -8,6 +8,7 @@ set(Module_SRCS
   vtkOpenVRCamera.cxx
   vtkOpenVRDefaultOverlay.cxx
   vtkOpenVRInteractorStyle.cxx
+  vtkOpenVRModel.cxx
   vtkOpenVROverlay.cxx
   vtkOpenVRRenderer.cxx
   vtkOpenVRRenderWindow.cxx
@@ -18,6 +19,7 @@ set_source_files_properties(
   vtkOpenVRCamera
   vtkOpenVRDefaultOverlay
   vtkOpenVRInteractorStyle
+  vtkOpenVRModel
   vtkOpenVROverlay
   vtkOpenVRRenderer
   vtkOpenVRRenderWindow
