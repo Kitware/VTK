@@ -7,19 +7,14 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex like this:
 
-  flex --nodefault -olex.yy.c vtkParse.l
+  flex --nodefault --noline -olex.yy.c vtkParse.l
 
 Modify lex.yy.c:
-  - convert tabs to spaces (8 spaces per tab)
+  - convert tabs to spaces (2 spaces per tab)
   - remove extra space from end of lines
   - remove blank lines from end of file
-  - replace "int yyl;" with "yy_size_t yyl;"
   - compile with gcc and "-Wsign-compare", there should be no warnings
-  - replace "#line" lines with blank lines
-  - remove usage of the "register" keyword
   - add a prototype for isatty
-  - fixed 2 cppcheck warnings about "checking if unsigned variable
-    is less than zero" around lines 3670 and 3683 by changing <= to ==
 
 */
 
@@ -255,14 +250,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 "compl"         return('~');
 
 "vtkIdType"            return(IdType);
-"vtkSetMacro"          return(SetMacro);
-"vtkGetMacro"          return(GetMacro);
-"vtkSetStringMacro"    return(SetStringMacro);
-"vtkGetStringMacro"    return(GetStringMacro);
-"vtkSetClampMacro"     return(SetClampMacro);
-"vtkSetObjectMacro"    return(SetObjectMacro);
-"vtkGetObjectMacro"    return(GetObjectMacro);
-"vtkBooleanMacro"      return(BooleanMacro);
 "vtkSetVector2Macro"   return(SetVector2Macro);
 "vtkSetVector3Macro"   return(SetVector3Macro);
 "vtkSetVector4Macro"   return(SetVector4Macro);
@@ -275,10 +262,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 "vtkGetVectorMacro"    return(GetVectorMacro);
 "vtkViewportCoordinateMacro" return(ViewportCoordinateMacro);
 "vtkWorldCoordinateMacro" return(WorldCoordinateMacro);
-"vtkExportedTypeMacro" return(TypeMacro);
-"vtkExportedTypeRevisionMacro" return(TypeMacro);
-"vtkTypeMacro"         return(TypeMacro);
-"vtkTypeRevisionMacro" return(TypeMacro);
 "VTK_WRAP_EXTERN"      ;
 "VTK_BYTE_SWAP_DECL"   return(VTK_BYTE_SWAP_DECL);
 "vtkTypeInt8"          return(TypeInt8);
@@ -1081,7 +1064,7 @@ void doxygen_comment()
   int savelineno = yylineno;
   int asterisk, isfirstline = 1;
   int type = DoxygenComment;
-  size_t l = 0, i = 0, base = yyleng;
+  int l = 0, i = 0, base = yyleng;
   int c1 = 0, c2 = input();
   for (l = 0; l < yyleng; l++)
   {
@@ -1173,7 +1156,7 @@ void doxygen_comment()
 void doxygen_cpp_comment()
 {
   int type = DoxygenComment;
-  size_t pos = 2;
+  int pos = 2;
   while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
   while (pos < yyleng && yytext[pos-1] == '/' && yytext[pos] == '/') pos++;
   if (pos < yyleng && yytext[pos] == '!') pos++;
@@ -1216,7 +1199,7 @@ void vtk_comment()
  */
 void vtk_name_comment()
 {
-  size_t pos = 1;
+  int pos = 1;
   while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
   {
     pos++;
@@ -1231,7 +1214,7 @@ void vtk_name_comment()
  */
 void vtk_section_comment()
 {
-  size_t pos = 1;
+  int pos = 1;
   while (yytext[pos-1] != 'O' || yytext[pos] != 'N')
   {
     pos++;
@@ -1270,7 +1253,7 @@ void vtk_section_comment()
  */
 void cpp_comment_line()
 {
-  size_t pos = 2;
+  int pos = 2;
   while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
   addCommentLine(&yytext[pos], yyleng - pos, NormalComment);
 }
