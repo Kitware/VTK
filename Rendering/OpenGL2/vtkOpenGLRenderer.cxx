@@ -373,6 +373,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     s.SetFrameBuffer(0);
     this->LastRenderingUsedDepthPeeling=1;
     this->DepthPeelingPass->Render(&s);
+    this->NumberOfPropsRendered += this->DepthPeelingPass->GetNumberOfRenderedProps();
   }
 
   vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
