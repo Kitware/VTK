@@ -444,10 +444,9 @@ vtkObjectIdMap* vtkWebApplication::GetObjectIdMap()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkWebApplication::GetObjectId(vtkObject* obj)
+const std::string vtkWebApplication::GetObjectId(vtkObject* obj)
 {
   std::ostringstream oss;
   oss << std::hex << static_cast<void*>(obj);
-  std::string str = oss.str();
-  return str.c_str();
+  return oss.str();
 }

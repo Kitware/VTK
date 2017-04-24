@@ -26,6 +26,7 @@
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports
+#include <string>
 
 class vtkObjectIdMap;
 class vtkRenderWindow;
@@ -122,7 +123,7 @@ public:
    *
    * e.g. 0x8f05a90
    */
-  static const char* GetObjectId(vtkObject* obj);
+  static const std::string GetObjectId(vtkObject* obj);
 
 protected:
   vtkWebApplication();
