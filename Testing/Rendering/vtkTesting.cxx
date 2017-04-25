@@ -395,9 +395,14 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
 
   std::ostringstream out1;
   // perform and extra render to make sure it is displayed
+  int swapBuffers = this->RenderWindow->GetSwapBuffers();
+  // since we're reading from back-buffer, it's essential that we turn off swapping
+  // otherwise what remains in the back-buffer after the swap is undefined by OpenGL specs.
+  this->RenderWindow->SwapBuffersOff();
   this->RenderWindow->Render();
   rtW2if->ReadFrontBufferOff();
   rtW2if->Update();
+  this->RenderWindow->SetSwapBuffers(swapBuffers); // restore swap state.
   int res = this->RegressionTest(rtW2if.Get(), thresh, out1);
   if (res == FAILED)
   {
