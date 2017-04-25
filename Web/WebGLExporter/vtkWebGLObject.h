@@ -56,7 +56,7 @@ public:
 
   void SetLayer(int l);
   void SetRendererId(size_t i);
-  void SetId(std::string i);
+  void SetId(const std::string& i);
   void SetWireframeMode(bool wireframe);
   void SetVisibility(bool vis);
   void SetTransformationMatrix(vtkMatrix4x4* m);
