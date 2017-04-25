@@ -68,7 +68,8 @@ if (VTK_OPENVR_OBJECT_FACTORY)
     for (oic->InitTraversal(); oi = oic->GetNextItem(); )\n\
       {\n\
       oi->GetObjectFactory()->Disable(\"vtkRenderer\");\n\
-      }\n")
+      }\n\
+    oic->Delete();\n")
   vtk_object_factory_configure("${vtk_module_overrides}")
 
   set(Module_SRCS ${Module_SRCS}
