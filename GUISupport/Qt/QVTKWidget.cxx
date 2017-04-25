@@ -480,7 +480,7 @@ void QVTKWidget::paintEvent(QPaintEvent* )
     }
     else
     {
-      iren->Render();
+      this->doDeferredRender();
     }
   }
 
