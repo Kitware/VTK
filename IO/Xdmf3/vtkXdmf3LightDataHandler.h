@@ -99,7 +99,7 @@ private:
   /**
    * Used in SIL creation.
    */
-  std::string UniqueName(std::string name, bool ForGrid);
+  std::string UniqueName(const std::string& name, bool ForGrid);
 
   /**
    * Used in SIL creation.
