@@ -42,7 +42,7 @@ public:
   void Set(vtkObject *object);
 
   /**
-   * Get the vtkObject pointer or nullptr is the object has been collected.
+   * Get the vtkObject pointer or nullptr if the object has been collected.
    */
   vtkObject* Get();
 

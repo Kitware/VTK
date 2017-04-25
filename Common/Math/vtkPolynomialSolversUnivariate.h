@@ -214,7 +214,7 @@ public:
   static double* SolveCubic(double c0, double c1, double c2, double c3);
 
   /**
-   * Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and c3
+   * Solves a quadratic equation c0*t^2 + c1*t + c2 = 0 when c0, c1, and c2
    * are REAL.  Solution is motivated by Numerical Recipes In C 2nd Ed.
    * Return array contains number of (real) roots (counting multiple roots as
    * one) followed by roots themselves. Note that roots[3] contains a return
@@ -224,7 +224,7 @@ public:
   static double* SolveQuadratic(double c0, double c1, double c2);
 
   /**
-   * Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
+   * Solves a linear equation c0*t  + c1 = 0 when c0 and c1 are REAL.
    * Solution is motivated by Numerical Recipes In C 2nd Ed.
    * Return array contains number of roots followed by roots themselves.
    */
@@ -247,8 +247,8 @@ public:
                         double *r1, double *r2, double *r3, int *num_roots);
 
   /**
-   * Solves a quadratic equation c1*t^2  + c2*t  + c3 = 0 when
-   * c1, c2, and c3 are REAL.
+   * Solves a quadratic equation c0*t^2  + c1*t  + c2 = 0 when
+   * c0, c1, and c2 are REAL.
    * Solution is motivated by Numerical Recipes In C 2nd Ed.
    * Roots and number of roots are stored in user provided variables
    * r1, r2, num_roots
@@ -266,10 +266,10 @@ public:
   static int SolveQuadratic( double* c, double* r, int* m );
 
   /**
-   * Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
+   * Solves a linear equation c0*t + c1 = 0 when c0 and c1 are REAL.
    * Solution is motivated by Numerical Recipes In C 2nd Ed.
    * Root and number of (real) roots are stored in user provided variables
-   * r2 and num_roots.
+   * r1 and num_roots.
    */
   static int SolveLinear(double c0, double c1, double *r1, int *num_roots);
 

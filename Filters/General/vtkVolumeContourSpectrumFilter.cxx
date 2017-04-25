@@ -253,15 +253,17 @@ int vtkVolumeContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(reque
       {
         samples[i].first = 0;
         samples[i].second = 0;
-        while((scalarValues[pos] < min +
-           (i+1.0)*((max - min)/((double)NumberOfSamples)))
-           &&(pos < scalarValues.size()))
+        double temp = min + (i+1.0)*((max - min)/((double)NumberOfSamples));
+        while((pos < scalarValues.size()) && (scalarValues[pos] < temp))
         {
             samples[i].first++;
             samples[i].second += volumeSignature[pos];
             pos++;
         }
-        if(samples[i].first) samples[i].second /= samples[i].first;
+        if(samples[i].first)
+        {
+          samples[i].second /= samples[i].first;
+        }
       }
 
       // no value at the start? put 0

@@ -331,7 +331,7 @@ bool vtkXdmf3LightDataHandler::TooDeep(unsigned int depth)
 }
 
 //------------------------------------------------------------------------------
-std::string vtkXdmf3LightDataHandler::UniqueName(std::string name, bool ForGrid)
+std::string vtkXdmf3LightDataHandler::UniqueName(const std::string& name, bool ForGrid)
 {
   std::string gridName = name;
   unsigned int count=1;

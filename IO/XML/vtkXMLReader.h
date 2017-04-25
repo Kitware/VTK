@@ -69,7 +69,7 @@ public:
   vtkSetMacro(ReadFromInputString, int);
   vtkGetMacro(ReadFromInputString, int);
   vtkBooleanMacro(ReadFromInputString, int);
-  void SetInputString(std::string s) { this->InputString = s; }
+  void SetInputString(const std::string& s) { this->InputString = s; }
   //@}
 
   /**

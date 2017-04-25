@@ -504,7 +504,7 @@ int vtkContinuousScatterplot::RequestData(
 
           // Effectively, we start processing a new cell at this point.
           for (std::vector<vtkSmartPointer<vtkIdList> >::iterator faceIt = working->begin();
-               faceIt != working->end(); faceIt++)
+               faceIt != working->end(); ++faceIt)
           {
             fragmentFace = vtkSmartPointer<vtkIdList>::New();
             residualFace = vtkSmartPointer<vtkIdList>::New();
@@ -828,7 +828,7 @@ int vtkContinuousScatterplot::RequestData(
       // for each face of the fragment
       vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
       for (std::vector<vtkSmartPointer<vtkIdList> >::iterator fc = outputQ[co]->begin();
-           fc != outputQ[co]->end(); fc++)
+           fc != outputQ[co]->end(); ++fc)
       {
         poly->Reset();
         for (int pnr = 0; pnr < (*fc)->GetNumberOfIds(); pnr++)

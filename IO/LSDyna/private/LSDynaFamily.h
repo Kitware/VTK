@@ -80,10 +80,10 @@ public:
     vtkIdType Offset;
   };
 
-  void SetDatabaseDirectory( std::string dd );
+  void SetDatabaseDirectory( const std::string& dd );
   std::string GetDatabaseDirectory();
 
-  void SetDatabaseBaseName( std::string bn );
+  void SetDatabaseBaseName( const std::string& bn );
   std::string GetDatabaseBaseName();
 
   int ScanDatabaseDirectory();

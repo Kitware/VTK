@@ -226,9 +226,9 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 
 void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
-    std::string originalValue,
+    const std::string& originalValue,
     bool replaceFirst,  // do this replacement before the default
-    std::string replacementValue,
+    const std::string& replacementValue,
     bool replaceAll)
 {
   vtkOpenGLPolyDataMapper::ReplacementSpec spec;
@@ -245,7 +245,7 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
 
 void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
-    std::string originalValue,
+    const std::string& originalValue,
     bool replaceFirst)
 {
   vtkOpenGLPolyDataMapper::ReplacementSpec spec;

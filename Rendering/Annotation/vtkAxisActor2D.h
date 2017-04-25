@@ -424,7 +424,7 @@ protected:
   virtual void BuildAxis(vtkViewport *viewport);
   static double ComputeStringOffset(double width, double height, double theta);
   static void SetOffsetPosition(double xTick[3], double theta,
-                                int stringHeight, int stringWidth,
+                                int stringWidth, int stringHeight,
                                 int offset, vtkActor2D *actor);
   virtual void UpdateAdjustedRange();
 
