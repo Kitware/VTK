@@ -132,6 +132,11 @@ int vtkmClip::RequestData(vtkInformation *,
   vtkDataArray *scalars = this->GetInputArrayToProcess(0, inInfoVec);
 
   // Validate input objects:
+  if (!scalars)
+  {
+    vtkErrorMacro("Specified scalar array not found.");
+    return 1;
+  }
   if (input->GetNumberOfPoints() == 0)
   {
     vtkErrorMacro("No points in input dataset!");

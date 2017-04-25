@@ -84,6 +84,11 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output,
              vtkDataSet* input)
 {
   vtkPoints* points = fromvtkm::Convert(voutput.GetCoordinateSystem());
+  // If this fails, it's likely a missing entry in tovtkm::PointListOutVTK:
+  if (!points)
+  {
+    return false;
+  }
   output->SetPoints(points);
   points->FastDelete();
 
