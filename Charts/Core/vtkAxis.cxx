@@ -396,6 +396,20 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   float* minLabelBounds = minLabelRect.GetData();
   float* maxLabelBounds = maxLabelRect.GetData();
 
+  // Scale tickLength and labelOffset to the tiling scale of the scene
+  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
+      this->Position == vtkAxis::RIGHT)
+  {
+    // Horizontal or vertical axis.
+    tickLength *= tileScale.GetX();
+    labelOffset *= tileScale.GetX();
+  }
+  else
+  {
+    tickLength *= tileScale.GetY();
+    labelOffset *= tileScale.GetY();
+  }
+
   // Optionally draw min/max labels
   if (this->RangeLabelsVisible)
   {
@@ -465,10 +479,6 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
       this->Position == vtkAxis::RIGHT)
   {
-    // Adptating tickLength and labelOffset to the tiling of the scene
-    tickLength *= tileScale.GetX();
-    labelOffset *= tileScale.GetX();
-
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
     {
@@ -506,11 +516,6 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   }
   else if (this->Position == vtkAxis::TOP || this->Position == vtkAxis::BOTTOM)
   {
-
-    // Adptating tickLength and labelOffset to the tiling of the scene
-    tickLength *= tileScale.GetY();
-    labelOffset *= tileScale.GetY();
-
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
     {
