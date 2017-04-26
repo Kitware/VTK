@@ -50,3 +50,8 @@ void vtkOpenVRInteractorStyle::OnMiddleButtonUp()
   vtkOpenVROverlay *ovl = renWin->GetDashboardOverlay();
   ovl->LoadNextCameraPose();
 }
+
+void vtkOpenVRInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
