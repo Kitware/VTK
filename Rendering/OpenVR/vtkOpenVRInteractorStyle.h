@@ -27,24 +27,25 @@ PURPOSE.  See the above copyright notice for more information.
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRInteractorStyle : public vtkInteractorStyle3D
 {
 public:
-    static vtkOpenVRInteractorStyle *New();
-    vtkTypeMacro(vtkOpenVRInteractorStyle, vtkInteractorStyle3D);
+  static vtkOpenVRInteractorStyle *New();
+  vtkTypeMacro(vtkOpenVRInteractorStyle, vtkInteractorStyle3D);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-    //@{
-    /**
-    * Override Middle Button to load next camera position
-    */
-    void OnMiddleButtonDown() VTK_OVERRIDE;
-    void OnMiddleButtonUp() VTK_OVERRIDE;
-    //@}
+  //@{
+  /**
+  * Override Middle Button to load next camera position
+  */
+  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonUp() VTK_OVERRIDE;
+  //@}
 
 protected:
-    vtkOpenVRInteractorStyle();
-    ~vtkOpenVRInteractorStyle() VTK_OVERRIDE;
+  vtkOpenVRInteractorStyle();
+  ~vtkOpenVRInteractorStyle() VTK_OVERRIDE;
 
 private:
-    vtkOpenVRInteractorStyle(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
-    void operator=(const vtkOpenVRInteractorStyle&)VTK_DELETE_FUNCTION;  // Not implemented.
+  vtkOpenVRInteractorStyle(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
+  void operator=(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
 };
 
 #endif
