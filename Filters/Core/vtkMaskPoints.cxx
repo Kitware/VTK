@@ -374,6 +374,8 @@ int vtkMaskPoints::RequestData(
   }
 
   newPts->Allocate(numNewPts);
+  // Mask points preserves all attributes of the points, so copy all of them.
+  outputPD->CopyAllOn();
   outputPD->CopyAllocate(pd, numNewPts);
 
   // Traverse points and copy
