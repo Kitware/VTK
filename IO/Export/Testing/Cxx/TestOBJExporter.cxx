@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cstdlib>
 
-int fileSize(const std::string& filename);
+size_t fileSize(const std::string& filename);
 
 int TestOBJExporter(int argc, char *argv[])
 {
@@ -112,7 +112,7 @@ int TestOBJExporter(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-int fileSize(const std::string & filename)
+size_t fileSize(const std::string & filename)
 {
   size_t size = 0;
   FILE* f = fopen(filename.c_str(), "r");
@@ -120,12 +120,12 @@ int fileSize(const std::string & filename)
   {
     fseek(f, 0, SEEK_END);
     size = ftell(f);
+    fclose(f);
   }
   else
   {
     std::cerr << "Error: cannot open file " << filename << std::endl;
   }
-  fclose(f);
 
   return size;
 }

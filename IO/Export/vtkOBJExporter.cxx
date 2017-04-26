@@ -124,7 +124,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
                                   int &idStart)
 {
   vtkDataSet *ds;
-  vtkPolyData *pd;
+  vtkNew<vtkPolyData> pd;
   vtkPointData *pntData;
   vtkPoints *points;
   vtkDataArray *tcoords;
@@ -176,11 +176,11 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     gf->SetInputConnection(
       anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
-    pd = gf->GetOutput();
+    pd->DeepCopy(gf->GetOutput());
   }
   else
   {
-    pd = static_cast<vtkPolyData *>(ds);
+    pd->DeepCopy(ds);
   }
 
   // write out the points
