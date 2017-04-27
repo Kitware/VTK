@@ -6262,9 +6262,11 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     // OFpyramid | vtkPyramid || OFtet | vtkTetrahedron
     else if (cellType == VTK_PYRAMID || cellType == VTK_TETRA)
     {
-      size_t baseFaceId = 0, nPoints;
+      const vtkIdType nPoints = (cellType == VTK_PYRAMID ? 5 : 4);
+      size_t baseFaceId = 0;
       if (cellType == VTK_PYRAMID)
       {
+        // Find the pyramid base
         for (size_t j = 0; j < cellFaces.size(); j++)
         {
           if (facePoints.GetSize(cellFaces[j]) == 4)
@@ -6273,83 +6275,79 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             break;
           }
         }
-        nPoints = 5;
-      }
-      else // VTK_TETRA
-      {
-        baseFaceId = 0;
-        nPoints = 4;
       }
 
-      // add first face to cell points
-      vtkTypeInt64 cellBaseFaceId = cellFaces[baseFaceId];
+      const vtkTypeInt64 cellBaseFaceId = cellFaces[baseFaceId];
       vtkFoamLabelVectorVector::CellType baseFacePoints;
       facePoints.GetCell(cellBaseFaceId, baseFacePoints);
-      vtkTypeInt64 faceOwnerValue = GetLabelValue(this->FaceOwner,
-                                                  cellBaseFaceId,
-                                                  use64BitLabels);
-      if (faceOwnerValue == cellId)
+
+      // Take any adjacent (non-base) face
+      const size_t adjacentFaceId = (baseFaceId ? 0 : 1);
+      const vtkTypeInt64 cellAdjacentFaceId = cellFaces[adjacentFaceId];
+
+      vtkFoamLabelVectorVector::CellType adjacentFacePoints;
+      facePoints.GetCell(cellAdjacentFaceId, adjacentFacePoints);
+
+      // Find the apex point (non-common to the base)
+      // initialize with anything
+      // - if the search really fails, we have much bigger problems anyhow
+      vtkIdType apexPointI = adjacentFacePoints[0];
+      for (size_t ptI = 0; ptI < adjacentFacePoints.size(); ++ptI)
       {
-        // if it is an owner face flip the points
-        for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size());
-             j++)
+          apexPointI = adjacentFacePoints[ptI];
+          bool foundDup = false;
+          for (size_t baseI = 0; baseI < baseFacePoints.size(); ++baseI)
+          {
+            foundDup = (apexPointI == baseFacePoints[baseI]);
+            if (foundDup)
+            {
+              break;
+            }
+          }
+
+          if (!foundDup)
+          {
+            break;
+          }
+      }
+
+      // Add base-face points (in order) to cell points
+      if
+      (
+          GetLabelValue(this->FaceOwner, cellBaseFaceId, use64BitLabels)
+       == cellId
+      )
+      {
+        // if it is an owner face, flip the points (to point inwards)
+        for
+        (
+            vtkIdType j = 0;
+            j < static_cast<vtkIdType>(baseFacePoints.size());
+            ++j
+        )
         {
           cellPoints->SetId(j, baseFacePoints[baseFacePoints.size() - 1 - j]);
         }
       }
       else
       {
-        for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size());
-             j++)
+        for
+        (
+            vtkIdType j = 0;
+            j < static_cast<vtkIdType>(baseFacePoints.size());
+            ++j
+        )
         {
           cellPoints->SetId(j, baseFacePoints[j]);
         }
       }
 
-      // compare an adjacent face (any non base face is ok) point 1 to
-      // base face points
-      size_t adjacentFaceId = (baseFaceId == 0) ? 1 : baseFaceId - 1;
-      vtkTypeInt64 cellAdjacentFaceId = cellFaces[adjacentFaceId];
-      vtkFoamLabelVectorVector::CellType adjacentFacePoints;
-      facePoints.GetCell(cellAdjacentFaceId, adjacentFacePoints);
-      vtkTypeInt64 adjacentFacePoint1 = adjacentFacePoints[1];
-      bool foundDup = false;
-      for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size());
-           j++)
-      {
-        // if point 1 of the adjacent face matches point j of the base face...
-        if (cellPoints->GetId(j) == adjacentFacePoint1)
-        {
-          // if point 2 of the adjacent face matches the previous point
-          // of the base face use point 0 of the adjacent face as the
-          // pivot point; use point 2 otherwise
-          faceOwnerValue = GetLabelValue(this->FaceOwner, cellAdjacentFaceId,
-                                         use64BitLabels);
-          vtkIdType value =
-              (adjacentFacePoints[2] == cellPoints->GetId(
-                faceOwnerValue == cellId
-                ? static_cast<vtkIdType>(j + 1)
-                : static_cast<vtkIdType>(baseFacePoints.size() + j - 1) %
-                                         baseFacePoints.size()))
-              ? static_cast<vtkIdType>(adjacentFacePoints[0])
-              : static_cast<vtkIdType>(adjacentFacePoints[2]);
-          cellPoints->SetId(static_cast<vtkIdType>(baseFacePoints.size()),
-                            value);
-          foundDup = true;
-          break;
-        }
-      }
-      // if point 1 of the adjacent face does not match any points of
-      // the base face, it's the pivot point
-      if (!foundDup)
-      {
-        cellPoints->SetId(static_cast<vtkIdType>(baseFacePoints.size()),
-                          static_cast<vtkIdType>(adjacentFacePoint1));
-      }
+      // ... and add the apex-point
+      cellPoints->SetId(nPoints-1, apexPointI);
 
-      // create the tetra cell and insert it into the mesh
+      // create the tetra or pyramid cell and insert it into the mesh
       internalMesh->InsertNextCell(cellType,
-                                   static_cast<vtkIdType>(nPoints),
+                                   nPoints,
                                    cellPoints->GetPointer(0));
     }
 
