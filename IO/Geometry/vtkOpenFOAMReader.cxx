@@ -1439,7 +1439,7 @@ public:
 #endif
       }
     }
-    if (c == 47) // '/' == 47
+    if (c == '/')
     {
       this->PutBack(c);
       c = this->NextTokenHead();
@@ -1841,7 +1841,7 @@ public:
 #endif
       }
     }
-    if (c == 47) // '/' == 47
+    if (c == '/')
     {
       this->PutBack(c);
       c = this->NextTokenHead();
@@ -1893,14 +1893,15 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
 #endif
     }
   }
-  if (c == 47) // '/' == 47
+  if (c == '/')
   {
     this->PutBack(c);
     c = this->NextTokenHead();
   }
 
-  int nonNegative = c - 45; // '-' == 45
-  if (nonNegative == 0 || c == 43) // '+' == 43
+  // leading sign?
+  const bool negNum = (c == '-');
+  if (negNum || c == '+')
   {
     c = this->Getc();
     if (c == '\n')
@@ -1924,10 +1925,10 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
     }
   }
 
-  vtkTypeInt64 num = c - 48; // '0' == 48
+  vtkTypeInt64 num = c - '0';
   while (isdigit(c = this->Getc()))
   {
-    num = 10 * num + c - 48;
+    num = 10 * num + c - '0';
   }
 
   if (c == EOF)
@@ -1936,7 +1937,7 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
   }
   this->PutBack(c);
 
-  return nonNegative ? num : -num;
+  return negNum ? -num : num;
 }
 
 // extremely simplified high-performing string to floating point
@@ -1958,15 +1959,15 @@ FloatType vtkFoamFile::ReadFloatValue()
 #endif
     }
   }
-  if (c == 47) // '/' == 47
+  if (c == '/')
   {
     this->PutBack(c);
     c = this->NextTokenHead();
   }
 
-  // determine sign
-  int nonNegative = c - 45; // '-' == 45
-  if (nonNegative == 0 || c == 43) // '+' == 43
+  // leading sign?
+  const bool negNum = (c == '-');
+  if (negNum || c == '+')
   {
     c = this->Getc();
     if (c == '\n')
@@ -1978,52 +1979,57 @@ FloatType vtkFoamFile::ReadFloatValue()
     }
   }
 
-  if (!isdigit(c) && c != 46) // '.' == 46, isdigit() accepts EOF
+  if (!isdigit(c) && c != '.') // Attention: isdigit() accepts EOF
   {
     this->ThrowUnexpectedNondigitCharExecption(c);
   }
 
-  // read integer part
-  double num = c - 48; // '0' == 48
-  while (isdigit(c = this->Getc()))
+  double num = 0;
+
+  // read integer part (before '.')
+  if (c != '.')
   {
-    num = num * 10.0 + (c - 48);
+    num = c - '0';
+    while (isdigit(c = this->Getc()))
+    {
+      num = num * 10.0 + (c - '0');
+    }
   }
 
-  // read decimal part
-  if (c == 46) // '.'
+  // read decimal part (after '.')
+  if (c == '.')
   {
     double divisor = 1.0;
 
     while (isdigit(c = this->Getc()))
     {
-      num = num * 10.0 + (c - 48);
+      num = num * 10.0 + (c - '0');
       divisor *= 10.0;
     }
     num /= divisor;
   }
 
   // read exponent part
-  if (c == 69 || c == 101) // 'E' == 69, 'e' == 101
+  if (c == 'E' || c == 'e')
   {
     int esign = 1;
     int eval = 0;
     double scale = 1.0;
 
     c = this->Getc();
-    if (c == 45) // '-'
+    if (c == '-')
     {
       esign = -1;
       c = this->Getc();
     }
-    else if (c == 43) // '+'
+    else if (c == '+')
     {
       c = this->Getc();
     }
 
     while (isdigit(c))
     {
-      eval = eval * 10 + (c - 48);
+      eval = eval * 10 + (c - '0');
       c = this->Getc();
     }
 
@@ -2065,7 +2071,7 @@ FloatType vtkFoamFile::ReadFloatValue()
   }
   this->PutBack(c);
 
-  return static_cast<FloatType>(nonNegative ? num : -num);
+  return static_cast<FloatType>(negNum ? -num : num);
 }
 
 // hacks to keep exception throwing code out-of-line to make
