@@ -3,7 +3,6 @@
 # Test interactions of scalar coloring with various ScalarMaterialMode
 # settings.
 import vtk
-from vtk.test import Testing
 
 renWin = vtk.vtkRenderWindow()
 iRen = vtk.vtkRenderWindowInteractor()

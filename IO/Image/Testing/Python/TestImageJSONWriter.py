@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os, json, sys
 import vtk
-from vtk.test import Testing
 
 args = sys.argv[1:]
 temp_dir = args[args.index("-T") + 1]

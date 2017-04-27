@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import vtk, os, sys
-from vtk.test import Testing
 
 ss = vtk.vtkSphereSource() #make mesh to test with
 

@@ -1,6 +1,5 @@
 import vtk
 from math import sqrt
-from vtk.test import Testing
 
 plane = vtk.vtkPlane()
 plane.SetOrigin(5,5,9.8)

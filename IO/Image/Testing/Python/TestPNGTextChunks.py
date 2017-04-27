@@ -2,7 +2,6 @@
 import os
 import sys
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot, vtkGetTempDir
 
 gotWarning = False

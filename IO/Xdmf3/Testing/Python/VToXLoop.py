@@ -23,7 +23,6 @@ try:
 except ImportError:
   from vtk.util import _argparse as argparse
 
-from vtk.test import Testing
 
 CleanUpGood = True
 LightDataLimit = 10000

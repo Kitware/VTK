@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import sys
 import vtk
-from vtk.test import Testing
 
 def load_geojson(input_string, feature_properties={}):
   '''Parses input_string with vtkGeoJSONReader, returns vtkPolyData

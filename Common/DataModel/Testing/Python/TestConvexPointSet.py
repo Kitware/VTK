@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import vtk
-from vtk.test import Testing
 
 # create points in the configuration of an octant with one 2:1 face
 #

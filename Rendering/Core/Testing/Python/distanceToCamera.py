@@ -9,7 +9,6 @@
 # Zooming in and out in each renderer will change the color
 # of the hexahedron.
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 

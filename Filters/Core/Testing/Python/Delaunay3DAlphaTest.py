@@ -1,5 +1,4 @@
 import vtk
-from vtk.test import Testing
 
 # Data from our friends at Sandia
 points = vtk.vtkPoints()
