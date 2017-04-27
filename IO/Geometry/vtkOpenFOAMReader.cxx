@@ -5395,8 +5395,8 @@ vtkOpenFOAMReaderPrivate::ReadFacesFile(const vtkStdString &facePathIn)
   }
 
   vtkFoamEntryValue dict(NULL);
-  dict.SetLabelType(this->Parent->Use64BitLabels ? vtkFoamEntryValue::INT64
-                                                 : vtkFoamEntryValue::INT32);
+  dict.SetLabelType(this->Parent->Use64BitLabels ? vtkFoamToken::INT64
+                                                 : vtkFoamToken::INT32);
   try
   {
     if (io.GetClassName() == "faceCompactList")
@@ -5700,8 +5700,8 @@ vtkOpenFOAMReaderPrivate::ReadOwnerNeighborFiles(
     }
 
     vtkFoamEntryValue cellsDict(NULL);
-    cellsDict.SetLabelType(use64BitLabels ? vtkFoamEntryValue::INT64
-                                          : vtkFoamEntryValue::INT32);
+    cellsDict.SetLabelType(use64BitLabels ? vtkFoamToken::INT64
+                                          : vtkFoamToken::INT32);
     try
     {
       cellsDict.ReadLabelListList(io);
@@ -5860,7 +5860,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     // determine type of the cell
     // cf. src/OpenFOAM/meshes/meshShapes/cellMatcher/{hex|prism|pyr|tet}-
     // Matcher.C
-    int cellType = VTK_CONVEX_POINT_SET;
+    int cellType = VTK_POLYHEDRON; // Fallback value
     if (cellFaces.size() == 6)
     {
       size_t j = 0;
@@ -5920,8 +5920,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       }
     }
 
-    // not a Hex/Wedge/Pyramid/Tetra
-    if (cellType == VTK_CONVEX_POINT_SET)
+    // Not a known (standard) primitive mesh-shape
+    if (cellType == VTK_POLYHEDRON)
     {
       size_t nPoints = 0;
       for (size_t j = 0; j < cellFaces.size(); j++)
