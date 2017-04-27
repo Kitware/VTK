@@ -282,7 +282,7 @@ else()
   if (NOT VTK_INSTALL_NO_DEVELOPMENT)
     install(FILES
       ${haru_HDRS}
-      DESTINATION "${VTK_ISNTALL_INCLUDE_DIR}/vtklibharu"
+      DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtklibharu"
       COMPONENT Development
     )
   endif()
