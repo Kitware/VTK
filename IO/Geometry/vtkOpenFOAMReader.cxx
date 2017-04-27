@@ -1678,7 +1678,34 @@ public:
           else
           {
             throw this->StackString() << "Expected one of inputMode specifiers "
-            "(merge, overwrite, protect, warn, error, default), found " << modeToken;
+            "(merge, overwrite, protect, warn, error, default), found "
+            << modeToken;
+          }
+        }
+        else if (directiveToken == '{')
+        {
+          // '#{' verbatim/code block. swallow everything until a closing '#}'
+          // This hopefully matches the first one...
+          while (true)
+          {
+              c = this->NextTokenHead();
+              if (c == EOF)
+              {
+                throw this->StackString()
+                  << "Unexpected EOF while skipping over #{ directive";
+              }
+              else if (c == '#')
+              {
+                  c = this->Getc();
+                  if (c == '/')
+                  {
+                      this->PutBack(c);
+                  }
+                  else if (c == '}')
+                  {
+                      break;
+                  }
+              }
           }
         }
         else
