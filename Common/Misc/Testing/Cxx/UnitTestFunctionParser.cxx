@@ -77,6 +77,8 @@ SCALAR_FUNC(TestSqrt,sqrt,std::sqrt);
 SCALAR_FUNC(TestTan,tan,std::tan);
 SCALAR_FUNC(TestTanh,tanh,std::tanh);
 static int TestScalars();
+static int TestVariableNames();
+static int TestSpacing();
 static int TestUnaryOperations();
 static int TestScientificNotation();
 static int TestVectors();
@@ -108,6 +110,8 @@ int UnitTestFunctionParser(int,char *[])
   status += TestTanh(-1.0, 1.0);
 
   status += TestScalars();
+  status += TestVariableNames();
+  status += TestSpacing();
   status += TestUnaryOperations();
   status += TestScientificNotation();
   status += TestVectors();
@@ -191,6 +195,54 @@ int TestScalars()
   parser->SetFunction( "+(x-y)/(x-y) * -(x-y)/(x-y) + (x - x)");
   double result = parser->GetScalarResult();
   if (result != -1.0)
+  {
+    std::cout << "FAILED\n";
+    return 1;
+  }
+  else
+  {
+    std::cout << "PASSED\n";
+    return 0;
+  }
+}
+
+int TestVariableNames()
+{
+  std::cout << "Testing variable names similar to math ops with parentheses " << "...";
+  vtkSmartPointer<vtkFunctionParser> parser =
+    vtkSmartPointer<vtkFunctionParser>::New();
+  parser->SetScalarVariableValue("absolutex", 1.0);
+  parser->SetScalarVariableValue("y", 2.0);
+  parser->SetFunction( "absolutex - (y)");
+  double result = parser->GetScalarResult();
+  if (result != -1.0)
+  {
+    std::cout << "FAILED\n";
+    return 1;
+  }
+  else
+  {
+    std::cout << "PASSED\n";
+    return 0;
+  }
+}
+
+int TestSpacing()
+{
+  std::cout << "Testing spacing with math ops " << "...";
+  vtkSmartPointer<vtkFunctionParser> parser =
+    vtkSmartPointer<vtkFunctionParser>::New();
+  parser->SetScalarVariableValue("x", -1.0);
+  parser->SetFunction( "abs(x)");
+  double result = parser->GetScalarResult();
+  if (result != 1.0)
+  {
+    std::cout << "FAILED\n";
+    return 1;
+  }
+  parser->SetFunction( "abs  (x)");
+  result = parser->GetScalarResult();
+  if (result != 1.0)
   {
     std::cout << "FAILED\n";
     return 1;
