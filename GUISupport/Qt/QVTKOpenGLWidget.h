@@ -59,7 +59,7 @@
  *
  * @section OpenGL Context
  *
- * In QOpenGLWidget (supclass for QVTKOpenGLWidget), all rendering happens in a
+ * In QOpenGLWidget (superclass for QVTKOpenGLWidget), all rendering happens in a
  * framebuffer object. Thus, care must be taken in the rendering code to never
  * directly re-bind the framebuffer with ID 0.
  *
@@ -67,12 +67,11 @@
  *
  * In VTK, rendering is requested calling `vtkRenderWindow::Render`, while with
  * Qt, a widget is updated in an **paint** event. Since QVTKOpenGLWidget renders
- * to a framebuffer, any OpenGL calls don't direcly update the image shown on the
- * screen. Instead, when QVTKOpenGLWidget::paintGL returns, Qt composes the
- * rendered image with the widget stack and displays on screen. This poses a
- * challenge when VTK (or the VTK application) triggers a render outside the
- * paint event by calling `vtkRenderWindow::Render`, since the rendering results
- * won't show on screen until Qt composes the rendered image. To handle that,
+ * to a framebuffer, any OpenGL calls don't directly update the image shown on the
+ * screen. Instead Qt composes the rendered image with the widget stack and displays
+ * on screen. This poses a challenge when VTK (or the VTK application) triggers a
+ * render outside the paint event by calling `vtkRenderWindow::Render`, since the rendering
+ * results won't show on screen until Qt composes the rendered image. To handle that,
  * QVTKOpenGLWidget listens to the vtkCommand::WindowFrameEvent fired by
  * vtkGenericOpenGLRenderWindow when vtkRenderWindow::Frame is called. That
  * typically happens at the end of a render to swap the front and back buffers
@@ -97,26 +96,21 @@
 #include "vtkGUISupportQtModule.h" // for export macro
 #include "vtkNew.h"                // needed for vtkNew
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer
-#include "vtkTextureObject.h"      // needed for vtkTextureObject.
 #include <QTimer>                  // needed for QTimer.
 
+class QOpenGLDebugLogger;
+class QOpenGLFramebufferObject;
 class QVTKInteractor;
 class QVTKInteractorAdapter;
-class vtkGenericOpenGLRenderWindow;
 class QVTKOpenGLWidgetObserver;
+class vtkGenericOpenGLRenderWindow;
 
 class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QOpenGLWidget
 {
   Q_OBJECT
-  Q_PROPERTY(bool automaticImageCacheEnabled READ isAutomaticImageCacheEnabled WRITE
-      setAutomaticImageCacheEnabled)
-  Q_PROPERTY(double maxRenderRateForImageCache READ maxRenderRateForImageCache WRITE
-      setMaxRenderRateForImageCache)
   Q_PROPERTY(
     bool deferRenderInPaintEvent READ deferRenderInPaintEvent WRITE setDeferRenderInPaintEvent)
-
   typedef QOpenGLWidget Superclass;
-
 public:
   QVTKOpenGLWidget(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
   virtual ~QVTKOpenGLWidget();
@@ -134,29 +128,6 @@ public:
    * Get the QVTKInteractor that was either created by default or set by the user.
    */
   virtual QVTKInteractor* GetInteractor();
-
-  //@{
-  /**
-   * Enables/disables automatic image caching.  If disabled (the default),
-   * QOpenGLWidget will not call saveImageToCache() on its own.
-   */
-  virtual void setAutomaticImageCacheEnabled(bool flag);
-  virtual bool isAutomaticImageCacheEnabled() const { return this->AutomaticImageCacheEnabled; }
-  //@}
-
-  //@{
-  /**
-   * If automatic image caching is enabled, then the image will be cached
-   * after every render with a DesiredUpdateRate that is less than
-   * this parameter.  By default, the vtkRenderWindowInteractor will
-   * change the desired render rate depending on the user's
-   * interactions. (See vtkRenderWindow::DesiredUpdateRate,
-   * vtkRenderWindowInteractor::DesiredUpdateRate and
-   * vtkRenderWindowInteractor::StillUpdateRate for more details.)
-   */
-  virtual void setMaxRenderRateForImageCache(double rate);
-  virtual double maxRenderRateForImageCache() const { return this->MaxRenderRateForImageCache; }
-  //@}
 
   //@{
   /**
@@ -191,37 +162,11 @@ public:
    */
   static QSurfaceFormat defaultFormat();
 
-public slots:
-  /**
-   * This will mark the cached image as dirty.  This slot is automatically
-   * invoked whenever the render window has a render event or the widget is
-   * resized.  Your application should invoke this slot whenever the image in
-   * the render window is changed by some other means.  If the image goes
-   * from clean to dirty, the cachedImageDirty() signal is emitted.
-   */
-  void markCachedImageAsDirty();
-
-  /**
-   * If the cached image is dirty, it is updated with the current image in the render window
-   * and the cachedImageClean() signal is emitted.
-   */
-  void saveImageToCache();
-
 signals:
   /**
    * This signal will be emitted whenever a mouse event occurs within the QVTK window.
    */
   void mouseEvent(QMouseEvent* event);
-
-  /**
-   * This signal will be emitted whenever the cached image goes from clean to dirty.
-   */
-  void cachedImageDirty();
-
-  /**
-   * This signal will be emitted whenever the cached image is refreshed.
-   */
-  void cachedImageClean();
 
 protected slots:
   /**
@@ -244,14 +189,17 @@ protected slots:
    */
   virtual void cleanupContext();
 
+private slots:
   /**
-   * Slot connected to `QOpenGLWidget::resized`. The `resized`
-   * signal is fired when `QOpenGLWidget` recreates the FBO used for
-   * rendering. Since this means that the `vtkOpenGLRenderWindow::DefaultFrameBufferId`
-   * may have changed, we need to tell vtkOpenGLRenderWindow to reinitialize itself
-   * the next time `QVTKOpenGLWidget::paintGL` gets called.
+   * recreates the FBO used for VTK rendering.
    */
-  virtual void defaultFrameBufferObjectChanged();
+  void recreateFBO();
+
+  /**
+   * called before the render window starts to render. We ensure that this->FBO
+   * is bound and ready to use.
+   */
+  void startEventCallback();
 
 protected:
   void initializeGL() Q_DECL_OVERRIDE;
@@ -272,17 +220,7 @@ protected:
    */
   void requireRenderWindowInitialization();
 
-  /**
-   * This method is called in paintGL() to render the image cache on to the device.
-   * return false, if cache couldn't be used for painting. In that case, the
-   * paintGL() method will continue with the default painting code.
-   */
-  virtual bool paintCachedImage();
-
 protected:
-  vtkSmartPointer<vtkTextureObject> CachedTexture;
-  bool AutomaticImageCacheEnabled;
-  bool MaxRenderRateForImageCache;
   bool DeferRenderInPaintEvent;
 
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
@@ -303,11 +241,12 @@ private:
   void windowFrameEventCallback();
 
   QTimer DeferedRenderTimer;
+  QOpenGLFramebufferObject* FBO;
   bool InPaintGL;
-  bool NeedToReinitializeWindow;
   bool SkipRenderInPaintGL;
   vtkNew<QVTKOpenGLWidgetObserver> Observer;
   friend class QVTKOpenGLWidgetObserver;
+  QOpenGLDebugLogger* Logger;
 };
 
 #endif
