@@ -3,9 +3,7 @@ WAMP related class for the purpose of vtkWeb.
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import inspect, types, string, random, logging, six, json, re, base64, time
 
@@ -29,11 +27,7 @@ from autobahn.twisted.websocket import WampWebSocketServerProtocol
 from autobahn.twisted.websocket import WebSocketServerProtocol
 
 from vtk.web import protocols
-
-try:
-    from vtk.vtkWebCore import vtkWebApplication
-except ImportError:
-    from vtkWebCore import vtkWebApplication
+from vtk.vtkWebCore import vtkWebApplication
 
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))

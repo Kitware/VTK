@@ -2,7 +2,15 @@ vtk_module(vtkWebPython
   GROUPS
     Web
   EXCLUDE_FROM_WRAPPING
+  TEST_DEPENDS
+    vtkTestingCore
+  TEST_LABELS
+    VTKWEB
   DEPENDS
+    vtkCommonCore
+  PRIVATE_DEPENDS
+    vtkFiltersGeometry
+    vtkWebCore
   COMPILE_DEPENDS
     vtkPython
   OPTIONAL_PYTHON_LINK

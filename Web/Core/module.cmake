@@ -13,6 +13,7 @@ vtk_module(vtkWebCore
     vtkCommonDataModel
     vtkCommonSystem
     vtkFiltersGeneral
+    vtkFiltersGeometry
     vtkIOCore
     vtkIOImage
     vtkParallelCore
