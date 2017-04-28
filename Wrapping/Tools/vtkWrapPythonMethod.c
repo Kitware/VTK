@@ -441,9 +441,10 @@ void vtkWrapPython_ReturnValue(
   }
   else if (vtkWrap_IsEnumMember(data, val))
   {
+    vtkWrapText_PythonName(data->Name, pythonname);
     fprintf(fp,
             "      result = Py%s_%s_FromEnum(tempr);\n",
-            data->Name, val->Class);
+            pythonname, val->Class);
   }
   else if (vtkWrap_IsPythonObject(val))
   {
