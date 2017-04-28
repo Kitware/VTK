@@ -91,4 +91,4 @@ ren0.SetBackground(0.1, 0.2, 0.4)
 iren.Initialize()
 renWin.Render()
 
-#iren.Start()
+iren.Start()

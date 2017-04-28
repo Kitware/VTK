@@ -92,4 +92,4 @@ iren.Initialize()
 #
 renWin.Render()
 
-#iren.Start()
+iren.Start()
