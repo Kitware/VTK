@@ -107,4 +107,4 @@ iren.Initialize()
 # render the image
 #
 renWin.Render()
-#iren.Start()
+iren.Start()
