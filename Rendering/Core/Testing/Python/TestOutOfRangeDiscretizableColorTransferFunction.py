@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys
 import vtk
-from vtk.test import Testing
 
 useBelowRangeColor = 0
 if sys.argv.count("--useBelowRangeColor") > 0:

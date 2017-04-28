@@ -3,6 +3,7 @@ import vtk
 import array
 from vtk.test import Testing
 
+
 class TestDataEncoder(Testing.vtkTest):
     def testEncodings(self):
         # Render something

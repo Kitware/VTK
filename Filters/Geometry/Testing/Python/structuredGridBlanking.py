@@ -3,7 +3,6 @@
 #test exists to verify that structured grid blanking works as expected
 
 import vtk
-from vtk.test import Testing
 
 #make up a toy structured grid with known characteristics
 xlim=10

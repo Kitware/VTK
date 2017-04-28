@@ -6,7 +6,6 @@ then re-reading it to ensure that the contents are identical.
 """
 
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 from vtk.util.misc import vtkGetTempDir
 

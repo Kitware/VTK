@@ -1,5 +1,4 @@
 import vtk
-from vtk.test import Testing
 from vtk.util.misc import vtkGetTempDir
 VTK_TEMP_DIR = vtkGetTempDir()
 

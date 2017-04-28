@@ -2,6 +2,7 @@ from vtkWebCorePython import vtkWebApplication
 import vtk
 from vtk.test import Testing
 
+
 class TestObjectId(Testing.vtkTest):
     def testObjId(self):
         # Just make sure if we call it twice with None, the results match

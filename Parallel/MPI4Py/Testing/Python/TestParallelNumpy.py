@@ -12,7 +12,6 @@ except ImportError:
     sys.exit(0)
 
 import vtk
-from vtk.test import Testing
 import vtk.numpy_interface.dataset_adapter as dsa
 import vtk.numpy_interface.algorithms as algs
 from mpi4py import MPI
