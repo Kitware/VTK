@@ -376,7 +376,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   vtkMTimeType pointMTime)
 {
   // we always tell our triangle VAO to emulate unless we
-  // have opngl 3.2 to be safe
+  // have opengl 3.2 to be safe
   // this is because it seems that GLEW_ARB_vertex_array_object
   // does not always handle the attributes for GLEW_ARB_instanced_arrays
   this->Primitives[PrimitiveTris].VAO->SetForceEmulation(
@@ -392,7 +392,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 
 
   if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE &&
-      !selector && GLEW_ARB_instanced_arrays)
+      !selector && !ren->GetRenderWindow()->GetIsPicking()
+      && GLEW_ARB_instanced_arrays)
   {
     this->GlyphRenderInstances(ren, actor, numPts,
       colors, matrices, normalMatrices, pointMTime);
@@ -414,7 +415,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 
   for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
   {
-    if (selecting_points)
+    if (selector)
     {
       selector->RenderAttributeId(pickIds[inPtId]);
     }
@@ -512,7 +513,7 @@ void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  if (selector && selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24)
+  if (selector)
   {
     cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
   }

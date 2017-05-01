@@ -127,10 +127,8 @@ class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray
 public:
   std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>  Entries;
   vtkTimeStamp BuildTime;
-  bool LastSelectingState;
   vtkOpenGLGlyph3DMapperSubArray()
   {
-    this->LastSelectingState = false;
   };
   ~vtkOpenGLGlyph3DMapperSubArray()
   {
@@ -230,18 +228,10 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   this->SetupColorMapper();
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool selecting_points = selector && (selector->GetFieldAssociation() ==
-    vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
   if (selector)
   {
     selector->BeginRenderProp();
-  }
-
-  if (selector && !selecting_points)
-  {
-    // Selecting some other attribute. Not supported.
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   }
 
   vtkDataObject* inputDO = this->GetInputDataObject(0, 0);
@@ -342,11 +332,6 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     iter->Delete();
   }
 
-  if (selector && !selecting_points)
-  {
-    // Selecting some other attribute. Not supported.
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  }
   if (selector)
   {
     selector->EndRenderProp();
@@ -490,14 +475,11 @@ void vtkOpenGLGlyph3DMapper::Render(
   }
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool selecting_points = selector && (selector->GetFieldAssociation() ==
-    vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
   // rebuild all entries for this DataSet if it
   // has been modified
   if (subarray->BuildTime < dataset->GetMTime() ||
-      subarray->BuildTime < this->GetMTime() ||
-      subarray->LastSelectingState != selecting_points )
+      subarray->BuildTime < this->GetMTime())
   {
     rebuild = true;
   }
@@ -525,8 +507,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   // rebuild all sources for this dataset
   if (rebuild)
   {
-    this->RebuildStructures(subarray, numPts, actor, dataset, maskArray,
-            selecting_points);
+    this->RebuildStructures(subarray, numPts, actor, dataset, maskArray);
   }
 
   // for each subarray
@@ -592,7 +573,7 @@ void vtkOpenGLGlyph3DMapper::Render(
           bool primed = false;
           for (vtkIdType inPtId = 0; inPtId < entry->NumberOfPoints; inPtId++)
           {
-            if (selecting_points)
+            if (selector)
             {
               selector->RenderAttributeId(entry->PickIds[inPtId]);
             }
@@ -637,8 +618,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   vtkIdType numPts,
   vtkActor* actor,
   vtkDataSet* dataset,
-  vtkBitArray *maskArray,
-  bool selecting_points)
+  vtkBitArray *maskArray)
 {
   double den = this->Range[1] - this->Range[0];
   if (den == 0.0)
@@ -934,7 +914,6 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     }
   }
 
-  subarray->LastSelectingState = selecting_points;
   subarray->BuildTime.Modified();
   trans->Delete();
   normalTrans->Delete();
