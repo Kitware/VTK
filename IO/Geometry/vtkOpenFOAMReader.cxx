@@ -1439,7 +1439,7 @@ public:
 #endif
       }
     }
-    if (c == 47) // '/' == 47
+    if (c == '/')
     {
       this->PutBack(c);
       c = this->NextTokenHead();
@@ -1678,7 +1678,34 @@ public:
           else
           {
             throw this->StackString() << "Expected one of inputMode specifiers "
-            "(merge, overwrite, protect, warn, error, default), found " << modeToken;
+            "(merge, overwrite, protect, warn, error, default), found "
+            << modeToken;
+          }
+        }
+        else if (directiveToken == '{')
+        {
+          // '#{' verbatim/code block. swallow everything until a closing '#}'
+          // This hopefully matches the first one...
+          while (true)
+          {
+              c = this->NextTokenHead();
+              if (c == EOF)
+              {
+                throw this->StackString()
+                  << "Unexpected EOF while skipping over #{ directive";
+              }
+              else if (c == '#')
+              {
+                  c = this->Getc();
+                  if (c == '/')
+                  {
+                      this->PutBack(c);
+                  }
+                  else if (c == '}')
+                  {
+                      break;
+                  }
+              }
           }
         }
         else
@@ -1841,7 +1868,7 @@ public:
 #endif
       }
     }
-    if (c == 47) // '/' == 47
+    if (c == '/')
     {
       this->PutBack(c);
       c = this->NextTokenHead();
@@ -1893,14 +1920,15 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
 #endif
     }
   }
-  if (c == 47) // '/' == 47
+  if (c == '/')
   {
     this->PutBack(c);
     c = this->NextTokenHead();
   }
 
-  int nonNegative = c - 45; // '-' == 45
-  if (nonNegative == 0 || c == 43) // '+' == 43
+  // leading sign?
+  const bool negNum = (c == '-');
+  if (negNum || c == '+')
   {
     c = this->Getc();
     if (c == '\n')
@@ -1924,10 +1952,10 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
     }
   }
 
-  vtkTypeInt64 num = c - 48; // '0' == 48
+  vtkTypeInt64 num = c - '0';
   while (isdigit(c = this->Getc()))
   {
-    num = 10 * num + c - 48;
+    num = 10 * num + c - '0';
   }
 
   if (c == EOF)
@@ -1936,7 +1964,7 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
   }
   this->PutBack(c);
 
-  return nonNegative ? num : -num;
+  return negNum ? -num : num;
 }
 
 // extremely simplified high-performing string to floating point
@@ -1958,15 +1986,15 @@ FloatType vtkFoamFile::ReadFloatValue()
 #endif
     }
   }
-  if (c == 47) // '/' == 47
+  if (c == '/')
   {
     this->PutBack(c);
     c = this->NextTokenHead();
   }
 
-  // determine sign
-  int nonNegative = c - 45; // '-' == 45
-  if (nonNegative == 0 || c == 43) // '+' == 43
+  // leading sign?
+  const bool negNum = (c == '-');
+  if (negNum || c == '+')
   {
     c = this->Getc();
     if (c == '\n')
@@ -1978,52 +2006,57 @@ FloatType vtkFoamFile::ReadFloatValue()
     }
   }
 
-  if (!isdigit(c) && c != 46) // '.' == 46, isdigit() accepts EOF
+  if (!isdigit(c) && c != '.') // Attention: isdigit() accepts EOF
   {
     this->ThrowUnexpectedNondigitCharExecption(c);
   }
 
-  // read integer part
-  double num = c - 48; // '0' == 48
-  while (isdigit(c = this->Getc()))
+  double num = 0;
+
+  // read integer part (before '.')
+  if (c != '.')
   {
-    num = num * 10.0 + (c - 48);
+    num = c - '0';
+    while (isdigit(c = this->Getc()))
+    {
+      num = num * 10.0 + (c - '0');
+    }
   }
 
-  // read decimal part
-  if (c == 46) // '.'
+  // read decimal part (after '.')
+  if (c == '.')
   {
     double divisor = 1.0;
 
     while (isdigit(c = this->Getc()))
     {
-      num = num * 10.0 + (c - 48);
+      num = num * 10.0 + (c - '0');
       divisor *= 10.0;
     }
     num /= divisor;
   }
 
   // read exponent part
-  if (c == 69 || c == 101) // 'E' == 69, 'e' == 101
+  if (c == 'E' || c == 'e')
   {
     int esign = 1;
     int eval = 0;
     double scale = 1.0;
 
     c = this->Getc();
-    if (c == 45) // '-'
+    if (c == '-')
     {
       esign = -1;
       c = this->Getc();
     }
-    else if (c == 43) // '+'
+    else if (c == '+')
     {
       c = this->Getc();
     }
 
     while (isdigit(c))
     {
-      eval = eval * 10 + (c - 48);
+      eval = eval * 10 + (c - '0');
       c = this->Getc();
     }
 
@@ -2065,7 +2098,7 @@ FloatType vtkFoamFile::ReadFloatValue()
   }
   this->PutBack(c);
 
-  return static_cast<FloatType>(nonNegative ? num : -num);
+  return static_cast<FloatType>(negNum ? -num : num);
 }
 
 // hacks to keep exception throwing code out-of-line to make
@@ -5389,8 +5422,8 @@ vtkOpenFOAMReaderPrivate::ReadFacesFile(const vtkStdString &facePathIn)
   }
 
   vtkFoamEntryValue dict(NULL);
-  dict.SetLabelType(this->Parent->Use64BitLabels ? vtkFoamEntryValue::INT64
-                                                 : vtkFoamEntryValue::INT32);
+  dict.SetLabelType(this->Parent->Use64BitLabels ? vtkFoamToken::INT64
+                                                 : vtkFoamToken::INT32);
   try
   {
     if (io.GetClassName() == "faceCompactList")
@@ -5694,8 +5727,8 @@ vtkOpenFOAMReaderPrivate::ReadOwnerNeighborFiles(
     }
 
     vtkFoamEntryValue cellsDict(NULL);
-    cellsDict.SetLabelType(use64BitLabels ? vtkFoamEntryValue::INT64
-                                          : vtkFoamEntryValue::INT32);
+    cellsDict.SetLabelType(use64BitLabels ? vtkFoamToken::INT64
+                                          : vtkFoamToken::INT32);
     try
     {
       cellsDict.ReadLabelListList(io);
@@ -5854,7 +5887,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     // determine type of the cell
     // cf. src/OpenFOAM/meshes/meshShapes/cellMatcher/{hex|prism|pyr|tet}-
     // Matcher.C
-    int cellType = VTK_CONVEX_POINT_SET;
+    int cellType = VTK_POLYHEDRON; // Fallback value
     if (cellFaces.size() == 6)
     {
       size_t j = 0;
@@ -5914,8 +5947,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       }
     }
 
-    // not a Hex/Wedge/Pyramid/Tetra
-    if (cellType == VTK_CONVEX_POINT_SET)
+    // Not a known (standard) primitive mesh-shape
+    if (cellType == VTK_POLYHEDRON)
     {
       size_t nPoints = 0;
       for (size_t j = 0; j < cellFaces.size(); j++)
@@ -6256,9 +6289,11 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     // OFpyramid | vtkPyramid || OFtet | vtkTetrahedron
     else if (cellType == VTK_PYRAMID || cellType == VTK_TETRA)
     {
-      size_t baseFaceId = 0, nPoints;
+      const vtkIdType nPoints = (cellType == VTK_PYRAMID ? 5 : 4);
+      size_t baseFaceId = 0;
       if (cellType == VTK_PYRAMID)
       {
+        // Find the pyramid base
         for (size_t j = 0; j < cellFaces.size(); j++)
         {
           if (facePoints.GetSize(cellFaces[j]) == 4)
@@ -6267,83 +6302,79 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             break;
           }
         }
-        nPoints = 5;
-      }
-      else // VTK_TETRA
-      {
-        baseFaceId = 0;
-        nPoints = 4;
       }
 
-      // add first face to cell points
-      vtkTypeInt64 cellBaseFaceId = cellFaces[baseFaceId];
+      const vtkTypeInt64 cellBaseFaceId = cellFaces[baseFaceId];
       vtkFoamLabelVectorVector::CellType baseFacePoints;
       facePoints.GetCell(cellBaseFaceId, baseFacePoints);
-      vtkTypeInt64 faceOwnerValue = GetLabelValue(this->FaceOwner,
-                                                  cellBaseFaceId,
-                                                  use64BitLabels);
-      if (faceOwnerValue == cellId)
+
+      // Take any adjacent (non-base) face
+      const size_t adjacentFaceId = (baseFaceId ? 0 : 1);
+      const vtkTypeInt64 cellAdjacentFaceId = cellFaces[adjacentFaceId];
+
+      vtkFoamLabelVectorVector::CellType adjacentFacePoints;
+      facePoints.GetCell(cellAdjacentFaceId, adjacentFacePoints);
+
+      // Find the apex point (non-common to the base)
+      // initialize with anything
+      // - if the search really fails, we have much bigger problems anyhow
+      vtkIdType apexPointI = adjacentFacePoints[0];
+      for (size_t ptI = 0; ptI < adjacentFacePoints.size(); ++ptI)
       {
-        // if it is an owner face flip the points
-        for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size());
-             j++)
+          apexPointI = adjacentFacePoints[ptI];
+          bool foundDup = false;
+          for (size_t baseI = 0; baseI < baseFacePoints.size(); ++baseI)
+          {
+            foundDup = (apexPointI == baseFacePoints[baseI]);
+            if (foundDup)
+            {
+              break;
+            }
+          }
+
+          if (!foundDup)
+          {
+            break;
+          }
+      }
+
+      // Add base-face points (in order) to cell points
+      if
+      (
+          GetLabelValue(this->FaceOwner, cellBaseFaceId, use64BitLabels)
+       == cellId
+      )
+      {
+        // if it is an owner face, flip the points (to point inwards)
+        for
+        (
+            vtkIdType j = 0;
+            j < static_cast<vtkIdType>(baseFacePoints.size());
+            ++j
+        )
         {
           cellPoints->SetId(j, baseFacePoints[baseFacePoints.size() - 1 - j]);
         }
       }
       else
       {
-        for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size());
-             j++)
+        for
+        (
+            vtkIdType j = 0;
+            j < static_cast<vtkIdType>(baseFacePoints.size());
+            ++j
+        )
         {
           cellPoints->SetId(j, baseFacePoints[j]);
         }
       }
 
-      // compare an adjacent face (any non base face is ok) point 1 to
-      // base face points
-      size_t adjacentFaceId = (baseFaceId == 0) ? 1 : baseFaceId - 1;
-      vtkTypeInt64 cellAdjacentFaceId = cellFaces[adjacentFaceId];
-      vtkFoamLabelVectorVector::CellType adjacentFacePoints;
-      facePoints.GetCell(cellAdjacentFaceId, adjacentFacePoints);
-      vtkTypeInt64 adjacentFacePoint1 = adjacentFacePoints[1];
-      bool foundDup = false;
-      for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size());
-           j++)
-      {
-        // if point 1 of the adjacent face matches point j of the base face...
-        if (cellPoints->GetId(j) == adjacentFacePoint1)
-        {
-          // if point 2 of the adjacent face matches the previous point
-          // of the base face use point 0 of the adjacent face as the
-          // pivot point; use point 2 otherwise
-          faceOwnerValue = GetLabelValue(this->FaceOwner, cellAdjacentFaceId,
-                                         use64BitLabels);
-          vtkIdType value =
-              (adjacentFacePoints[2] == cellPoints->GetId(
-                faceOwnerValue == cellId
-                ? static_cast<vtkIdType>(j + 1)
-                : static_cast<vtkIdType>(baseFacePoints.size() + j - 1) %
-                                         baseFacePoints.size()))
-              ? static_cast<vtkIdType>(adjacentFacePoints[0])
-              : static_cast<vtkIdType>(adjacentFacePoints[2]);
-          cellPoints->SetId(static_cast<vtkIdType>(baseFacePoints.size()),
-                            value);
-          foundDup = true;
-          break;
-        }
-      }
-      // if point 1 of the adjacent face does not match any points of
-      // the base face, it's the pivot point
-      if (!foundDup)
-      {
-        cellPoints->SetId(static_cast<vtkIdType>(baseFacePoints.size()),
-                          static_cast<vtkIdType>(adjacentFacePoint1));
-      }
+      // ... and add the apex-point
+      cellPoints->SetId(nPoints-1, apexPointI);
 
-      // create the tetra cell and insert it into the mesh
+      // create the tetra or pyramid cell and insert it into the mesh
       internalMesh->InsertNextCell(cellType,
-                                   static_cast<vtkIdType>(nPoints),
+                                   nPoints,
                                    cellPoints->GetPointer(0));
     }
 
