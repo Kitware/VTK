@@ -10,6 +10,7 @@ This little example shows how a cursor can be created in
 import sys
 from functools import partial
 import vtk
+from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 

@@ -1,6 +1,7 @@
 import os, sys
 
 import vtk
+from vtk.test import Testing
 
 if sys.hexversion < 0x03000000:
     # for Python2
