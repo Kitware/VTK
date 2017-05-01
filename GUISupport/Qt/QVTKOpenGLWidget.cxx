@@ -443,6 +443,7 @@ void QVTKOpenGLWidget::paintGL()
 
     f->glBindFramebuffer(GL_READ_FRAMEBUFFER, this->FBO->handle());
     f->glReadBuffer(GL_COLOR_ATTACHMENT0);
+    f->glDisable(GL_SCISSOR_TEST); // Scissor affects glBindFramebuffer.
     f->glBlitFramebuffer(0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1],
       0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1], GL_COLOR_BUFFER_BIT,
       GL_NEAREST);
