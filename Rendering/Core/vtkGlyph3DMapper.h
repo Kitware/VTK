@@ -394,13 +394,6 @@ public:
   vtkGetMacro(SelectionColorId, unsigned int);
   //@}
 
-  //@{
-  /**
-   * Called by vtkGlyphSelectionRenderMode.
-   */
-  vtkSetMacro(SelectMode, int);
-  //@}
-
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -451,7 +444,6 @@ protected:
   bool UseSourceTableTree; // Map DataObjectTree glyph source into table
 
   unsigned int SelectionColorId;
-  int SelectMode;
 
 private:
   vtkGlyph3DMapper(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;

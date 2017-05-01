@@ -47,7 +47,6 @@ public:
    /**
     * Method initiates the mapping process. Generally sent by the actor
     * as each frame is rendered.
-    * Its behavior depends on the value of SelectMode.
     */
   void Render(vtkRenderer *ren, vtkActor *a) VTK_OVERRIDE;
 

@@ -46,7 +46,6 @@ public:
   /**
    * Method initiates the mapping process. Generally sent by the actor
    * as each frame is rendered.
-   * Its behavior depends on the value of SelectMode.
    */
   void Render(vtkRenderer *ren, vtkActor *a) VTK_OVERRIDE;
 
@@ -86,7 +85,7 @@ protected:
    */
   virtual void RebuildStructures(vtkOpenGLGlyph3DMapperSubArray *entry,
     vtkIdType numPts, vtkActor* actor, vtkDataSet* dataset,
-    vtkBitArray *maskArray, bool selecting_points);
+    vtkBitArray *maskArray);
 
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
 
