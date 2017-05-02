@@ -941,13 +941,14 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
       this->IndexArray[PrimitiveVertices], prims, voffset);
   }
 
+
+  voffset += poly->GetPoints()->GetNumberOfPoints();
+
   // free up polydata if allocated due to apple bug
   if (poly != hdata->Data)
   {
     poly->Delete();
   }
-
-  voffset += poly->GetPoints()->GetNumberOfPoints();
 }
 
 
