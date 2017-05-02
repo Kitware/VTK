@@ -404,14 +404,7 @@ namespace {
 //----------------------------------------------------------------------------
 void vtkPolyDataMapperNode::MakeConnectivity(vtkPolyData *poly,
                                     int representation,
-                                    std::vector<unsigned int> &vertex_index,
-                                    std::vector<unsigned int> &vertex_reverse,
-                                    std::vector<unsigned int> &line_index,
-                                    std::vector<unsigned int> &line_reverse,
-                                    std::vector<unsigned int> &triangle_index,
-                                    std::vector<unsigned int> &triangle_reverse,
-                                    std::vector<unsigned int> &strip_index,
-                                    std::vector<unsigned int> &strip_reverse
+                                    vtkPDConnectivity &conn
                                     )
 {
   vtkCellArray *prims[4];
@@ -420,28 +413,28 @@ void vtkPolyDataMapperNode::MakeConnectivity(vtkPolyData *poly,
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
 
-  CreatePointIndexBuffer(prims[0], vertex_index, vertex_reverse);
+  CreatePointIndexBuffer(prims[0], conn.vertex_index, conn.vertex_reverse);
   switch (representation)
   {
     case VTK_POINTS:
     {
-      CreatePointIndexBuffer(prims[1], line_index, line_reverse);
-      CreatePointIndexBuffer(prims[2], triangle_index, triangle_reverse);
-      CreatePointIndexBuffer(prims[3], strip_index, strip_reverse);
+      CreatePointIndexBuffer(prims[1], conn.line_index, conn.line_reverse);
+      CreatePointIndexBuffer(prims[2], conn.triangle_index, conn.triangle_reverse);
+      CreatePointIndexBuffer(prims[3], conn.strip_index, conn.strip_reverse);
       break;
     }
     case VTK_WIREFRAME:
     {
-      CreateLineIndexBuffer(prims[1], line_index, line_reverse);
-      CreateTriangleLineIndexBuffer(prims[2], triangle_index, triangle_reverse);
-      CreateStripIndexBuffer(prims[3], strip_index, strip_reverse, true);
+      CreateLineIndexBuffer(prims[1], conn.line_index, conn.line_reverse);
+      CreateTriangleLineIndexBuffer(prims[2], conn.triangle_index, conn.triangle_reverse);
+      CreateStripIndexBuffer(prims[3], conn.strip_index, conn.strip_reverse, true);
       break;
     }
     default:
     {
-      CreateLineIndexBuffer(prims[1], line_index, line_reverse);
-      CreateTriangleIndexBuffer(prims[2], poly->GetPoints(), triangle_index, triangle_reverse);
-      CreateStripIndexBuffer(prims[3], strip_index, strip_reverse, false);
+      CreateLineIndexBuffer(prims[1], conn.line_index, conn.line_reverse);
+      CreateTriangleIndexBuffer(prims[2], poly->GetPoints(), conn.triangle_index, conn.triangle_reverse);
+      CreateStripIndexBuffer(prims[3], conn.strip_index, conn.strip_reverse, false);
     }
   }
 }
