@@ -24,7 +24,7 @@ class NcAtt;                    // attributes
  * A netCDF file.
  * ***********************************************************************
  */
-class NcFile
+class VTKNETCDFCPP_EXPORT NcFile
 {
   public:
 
@@ -139,7 +139,7 @@ class NcFile
  * of an open netCDF file.
  * **********************************************************************
  */
-class NcDim
+class VTKNETCDFCPP_EXPORT NcDim
 {
   public:
     NcToken name( void ) const;
@@ -171,7 +171,7 @@ class NcDim
  * components of an open netCDF file.
  * **********************************************************************
  */
-class NcTypedComponent
+class VTKNETCDFCPP_EXPORT NcTypedComponent
 {
   public:
     virtual ~NcTypedComponent( void ) {}
@@ -209,7 +209,7 @@ class NcTypedComponent
  * a shape, given by a list of dimensions
  * **********************************************************************
  */
-class NcVar : public NcTypedComponent
+class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
 {
   public:
     virtual ~NcVar( void );
@@ -407,7 +407,7 @@ class NcVar : public NcTypedComponent
  * associated with a specific variable, or are global to the file.
  * **********************************************************************
  */
-class NcAtt : public NcTypedComponent
+class VTKNETCDFCPP_EXPORT NcAtt : public NcTypedComponent
 {
   public:          
     virtual ~NcAtt( void );
@@ -440,7 +440,7 @@ class NcAtt : public NcTypedComponent
  * which time the previous error-handling behavior is restored.
  * **********************************************************************
  */
-class NcError {
+class VTKNETCDFCPP_EXPORT NcError {
   public:
     enum Behavior {
         silent_nonfatal = 0,

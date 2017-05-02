@@ -12,6 +12,13 @@ target_link_libraries(vtknetcdfcpp
   PUBLIC
     ${vtknetcdf_LIBRARIES})
 
+include(GenerateExportHeader)
+generate_export_header(vtknetcdfcpp
+  EXPORT_MACRO_NAME VTKNETCDFCPP_EXPORT)
+target_include_directories(vtknetcdfcpp
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+
 set(headers
   cxx/ncvalues.h
   cxx/netcdfcpp.h)
@@ -23,6 +30,9 @@ foreach (header IN LISTS headers)
     "${CMAKE_CURRENT_BINARY_DIR}/${header_name}"
     COPYONLY)
 endforeach ()
+
+list(APPEND headers
+  "${CMAKE_CURRENT_BINARY_DIR}/vtknetcdfcpp_export.h")
 
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(

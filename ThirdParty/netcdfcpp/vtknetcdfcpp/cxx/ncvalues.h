@@ -10,6 +10,8 @@
 #ifndef Ncvalues_def
 #define Ncvalues_def
 
+#include "vtknetcdfcpp_export.h"
+
 #include <iostream>
 #include <sstream>
 #include <limits.h>
