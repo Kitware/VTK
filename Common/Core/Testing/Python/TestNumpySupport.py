@@ -16,7 +16,8 @@ try:
 except ImportError:
     print("Numpy (http://numpy.scipy.org) not found.")
     print("This test requires numpy!")
-    sys.exit(0)
+    from vtk.test import Testing
+    Testing.skip()
 
 from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
 import vtk.numpy_interface.dataset_adapter as dsa

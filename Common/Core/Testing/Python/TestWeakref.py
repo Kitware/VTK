@@ -18,7 +18,8 @@ try:
 except ImportError:
     print("No weakref in this version of Python.  Time to upgrade?")
     print("Python version:", sys.version)
-    sys.exit(0)
+    from vtk.test import Testing
+    Testing.skip()
 
 
 class TestWeakref(Testing.vtkTest):

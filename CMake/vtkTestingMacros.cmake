@@ -463,6 +463,8 @@ function(vtk_add_test_python)
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
         FAIL_REGULAR_EXPRESSION "${_vtk_fail_regex}"
+        # This must match the skip() function in vtk/test/Testing.py"
+        SKIP_RETURN_CODE 125
       )
   endforeach()
 endfunction()
