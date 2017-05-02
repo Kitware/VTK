@@ -474,8 +474,6 @@ void vtkOpenGLGlyph3DMapper::Render(
     sTTIter = NULL;
   }
 
-  vtkHardwareSelector* selector = ren->GetSelector();
-
   // rebuild all entries for this DataSet if it
   // has been modified
   if (subarray->BuildTime < dataset->GetMTime() ||
@@ -548,50 +546,9 @@ void vtkOpenGLGlyph3DMapper::Render(
       {
         vtkOpenGLGlyph3DHelper *gh = entry->Mappers[mapperIdx];
         gh->CurrentInput = pd;
-
-        // now draw, there is a fast path for a special case of
-        // only triangles
-        bool fastPath = false;
-
-        if (pd->GetNumberOfVerts() == 0 &&
-            pd->GetNumberOfLines() == 0 &&
-            pd->GetNumberOfStrips() == 0)
-        {
-          fastPath = true;
-        }
-
-        // use fast path
-        gh->SetUseFastPath(fastPath);
-        if (fastPath)
-        {
-          gh->GlyphRender(ren, actor, entry->NumberOfPoints,
-                          entry->Colors, entry->Matrices, entry->NormalMatrices,
-                          entry->PickIds, subarray->BuildTime);
-        }
-        else
-        {
-          bool primed = false;
-          for (vtkIdType inPtId = 0; inPtId < entry->NumberOfPoints; inPtId++)
-          {
-            if (selector)
-            {
-              selector->RenderAttributeId(entry->PickIds[inPtId]);
-            }
-            if (!primed)
-            {
-              gh->RenderPieceStart(ren, actor);
-              primed = true;
-            }
-            gh->SetModelColor(&(entry->Colors[inPtId*4]));
-            gh->SetModelTransform(&(entry->Matrices[inPtId*16]));
-            gh->SetModelNormalTransform(&(entry->NormalMatrices[inPtId*9]));
-            gh->RenderPieceDraw(ren, actor);
-          }
-          if (primed)
-          {
-            gh->RenderPieceFinish(ren, actor);
-          }
-        }
+        gh->GlyphRender(ren, actor, entry->NumberOfPoints,
+                        entry->Colors, entry->Matrices, entry->NormalMatrices,
+                        entry->PickIds, subarray->BuildTime);
       }
 
       if (!cdsIter || cdsIter->IsDoneWithTraversal())

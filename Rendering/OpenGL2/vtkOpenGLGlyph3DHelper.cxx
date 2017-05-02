@@ -49,10 +49,6 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
   this->NormalMatrixBuffer = vtkOpenGLBufferObject::New();
   this->MatrixBuffer = vtkOpenGLBufferObject::New();
   this->ColorBuffer = vtkOpenGLBufferObject::New();
-  this->ModelTransformMatrix = NULL;
-  this->ModelNormalMatrix = NULL;
-  this->ModelColor = NULL;
-  this->UseFastPath = false;
   this->UsingInstancing = false;
   this->PopulateSelectionSettings = 0;
 }
@@ -122,6 +118,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+  std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
 
   // deal with color
   if (this->UsingInstancing)
@@ -130,131 +127,61 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
       "//VTK::Color::Dec",
       "attribute vec4 glyphColor;\n"
       "varying vec4 vertexColorVSOutput;");
+    vtkShaderProgram::Substitute(GSSource,
+      "//VTK::Color::Dec",
+      "in vec4 vertexColorVSOutput[];\n"
+      "out vec4 vertexColorGSOutput;");
+    vtkShaderProgram::Substitute(GSSource,
+      "//VTK::Color::Impl",
+      "vertexColorGSOutput = vertexColorVSOutput[i];");
+    vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Impl",
+      "vertexColorVSOutput =  glyphColor;");
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec",
+      "varying vec4 vertexColorVSOutput;\n"
+      "//VTK::Color::Dec", false);
   }
   else
   {
     vtkShaderProgram::Substitute(VSSource,
+      "//VTK::Color::Dec", "");
+    vtkShaderProgram::Substitute(FSSource,
       "//VTK::Color::Dec",
       "uniform vec4 glyphColor;\n"
-      "varying vec4 vertexColorVSOutput;");
-  }
-  vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Impl",
-    "vertexColorVSOutput =  glyphColor;");
-
-  // crate the material/color property declarations, and VS implementation
-  // these are always defined
-  std::string colorDec =
-    "uniform float opacityUniform; // the fragment opacity\n"
-    "uniform vec3 ambientColorUniform; // intensity weighted color\n"
-    "uniform vec3 diffuseColorUniform; // intensity weighted color\n";
-  // add some if we have a backface property
-  if (actor->GetBackfaceProperty())
-  {
-    colorDec +=
-      "uniform float opacityUniformBF; // the fragment opacity\n"
-      "uniform vec3 ambientColorUniformBF; // intensity weighted color\n"
-      "uniform vec3 diffuseColorUniformBF; // intensity weighted color\n";
-  }
-  // add more for specular
-  if (this->LastLightComplexity[this->LastBoundBO])
-  {
-    colorDec +=
-      "uniform vec3 specularColorUniform; // intensity weighted color\n"
-      "uniform float specularPowerUniform;\n";
-    if (actor->GetBackfaceProperty())
-    {
-      colorDec +=
-        "uniform vec3 specularColorUniformBF; // intensity weighted color\n"
-        "uniform float specularPowerUniformBF;\n";
-    }
-  }
-  colorDec += "varying vec4 vertexColorVSOutput;\n";
-  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec", colorDec);
-
-  // now handle the more complex fragment shader implementation
-  // the following are always defined variables.  We start
-  // by assiging a default value from the uniform
-  std::string colorImpl =
-    "vec3 ambientColor;\n"
-    "  vec3 diffuseColor;\n"
-    "  float opacity;\n";
-  if (this->LastLightComplexity[this->LastBoundBO])
-  {
-    colorImpl +=
-      "  vec3 specularColor;\n"
-      "  float specularPower;\n";
-  }
-  if (actor->GetBackfaceProperty())
-  {
-    if (this->LastLightComplexity[this->LastBoundBO])
-    {
-      colorImpl +=
-        "  if (int(gl_FrontFacing) == 0) {\n"
-        "    ambientColor = ambientColorUniformBF;\n"
-        "    diffuseColor = diffuseColorUniformBF;\n"
-        "    specularColor = specularColorUniformBF;\n"
-        "    specularPower = specularPowerUniformBF;\n"
-        "    opacity = opacityUniformBF; }\n"
-        "  else {\n"
-        "    ambientColor = ambientColorUniform;\n"
-        "    diffuseColor = diffuseColorUniform;\n"
-        "    specularColor = specularColorUniform;\n"
-        "    specularPower = specularPowerUniform;\n"
-        "    opacity = opacityUniform; }\n";
-    }
-    else
-    {
-      colorImpl +=
-        "  if (int(gl_FrontFacing) == 0) {\n"
-        "    ambientColor = ambientColorUniformBF;\n"
-        "    diffuseColor = diffuseColorUniformBF;\n"
-        "    opacity = opacityUniformBF; }\n"
-        "  else {\n"
-        "    ambientColor = ambientColorUniform;\n"
-        "    diffuseColor = diffuseColorUniform;\n"
-        "    opacity = opacityUniform; }\n";
-    }
-  }
-  else
-  {
-    colorImpl +=
-      "    ambientColor = ambientColorUniform;\n"
-      "    diffuseColor = diffuseColorUniform;\n"
-      "    opacity = opacityUniform;\n";
-    if (this->LastLightComplexity[this->LastBoundBO])
-    {
-      colorImpl +=
-        "    specularColor = specularColorUniform;\n"
-        "    specularPower = specularPowerUniform;\n";
-    }
+      "//VTK::Color::Dec", false);
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+      "vec4 vertexColorVSOutput = glyphColor;\n"
+      "//VTK::Color::Impl", false);
   }
 
   // now handle scalar coloring
-  if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
+  if(!this->DrawingEdgesOrVertices)
+  {
+    if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
-         actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
-  {
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-      colorImpl +
-      "  ambientColor = vertexColorVSOutput.rgb;\n"
-      "  opacity = vertexColorVSOutput.a;");
-  }
-  else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
+          actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
+    {
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+        "//VTK::Color::Impl\n"
+        "  ambientColor = vertexColorVSOutput.rgb;\n"
+        "  opacity = opacity*vertexColorVSOutput.a;", false);
+    }
+    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
-         actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
-  {
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-      colorImpl +
-      "  diffuseColor = vertexColorVSOutput.rgb;\n"
-      "  opacity = vertexColorVSOutput.a;");
-  }
-  else
-  {
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-      colorImpl +
-      "  diffuseColor = vertexColorVSOutput.rgb;\n"
-      "  ambientColor = vertexColorVSOutput.rgb;\n"
-      "  opacity = vertexColorVSOutput.a;");
+          actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
+    {
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+        "//VTK::Color::Impl\n"
+        "  diffuseColor = vertexColorVSOutput.rgb;\n"
+        "  opacity = opacity*vertexColorVSOutput.a;");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+        "//VTK::Color::Impl\n"
+        "  diffuseColor = vertexColorVSOutput.rgb;\n"
+        "  ambientColor = vertexColorVSOutput.rgb;\n"
+        "  opacity = opacity*vertexColorVSOutput.a;");
+    }
   }
 
   if (this->UsingInstancing)
@@ -275,6 +202,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
+  shaders[vtkShader::Geometry]->SetSource(GSSource);
 
   this->Superclass::ReplaceShaderColor(shaders,ren,actor);
 }
@@ -385,14 +313,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   this->UsingInstancing = false;
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool selecting_points = selector && (selector->GetFieldAssociation() ==
-    vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
-  int representation = actor->GetProperty()->GetRepresentation();
-
-
-  if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE &&
-      !selector && !ren->GetRenderWindow()->GetIsPicking()
+  if (!selector && !ren->GetRenderWindow()->GetIsPicking()
       && GLEW_ARB_instanced_arrays)
   {
     this->GlyphRenderInstances(ren, actor, numPts,
@@ -400,110 +322,76 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     return;
   }
 
-  bool primed = false;
+  bool selecting_points = selector && (selector->GetFieldAssociation() ==
+    vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
-  // First we do the triangles, update the shader, set uniforms, etc.
-  GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
-    (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
+  int representation = actor->GetProperty()->GetRepresentation();
+
+  this->RenderPieceStart(ren,actor);
+
   if (selecting_points)
   {
 #if GL_ES_VERSION_3_0 != 1
     glPointSize(6.0);
 #endif
-    mode = GL_POINTS;
+    representation = GL_POINTS;
   }
 
-  for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
+  bool draw_surface_with_edges =
+    (actor->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE) && !selector;
+  int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
+  for (int i = PrimitiveStart;
+       i < (draw_surface_with_edges ? PrimitiveEnd : PrimitiveTriStrips + 1); i++)
   {
-    if (selector)
+    this->DrawingEdgesOrVertices = (i > PrimitiveTriStrips ? true : false);
+    if (this->Primitives[i].IBO->IndexCount)
     {
-      selector->RenderAttributeId(pickIds[inPtId]);
+      this->UpdateShaders(this->Primitives[i], ren, actor);
+      GLenum mode = this->GetOpenGLMode(representation, i);
+      this->Primitives[i].IBO->Bind();
+      for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
+      {
+        if (selector)
+        {
+          selector->RenderAttributeId(pickIds[inPtId]);
+        }
+
+        // handle the middle
+        vtkShaderProgram *program = this->Primitives[i].Program;
+
+        if (!program)
+        {
+          return;
+        }
+
+        // Apply the extra transform
+        program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
+
+        // for lit shaders set normal matrix
+        if (this->LastLightComplexity[this->LastBoundBO] > 0 &&
+            this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
+            !this->UsingInstancing)
+        {
+          program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId*9]));
+        }
+
+        program->SetUniform4uc("glyphColor", &(colors[inPtId*4]));
+
+        if (selector)
+        {
+          program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
+        }
+
+        glDrawRangeElements(mode, 0,
+                            static_cast<GLuint>(numVerts - 1),
+                            static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
+                            GL_UNSIGNED_INT,
+                            reinterpret_cast<const GLvoid *>(NULL));
+      }
+      this->Primitives[i].IBO->Release();
     }
-    if (!primed)
-    {
-      this->RenderPieceStart(ren,actor);
-      this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
-      this->Primitives[PrimitiveTris].IBO->Bind();
-      primed = true;
-    }
-
-    // handle the middle
-    vtkShaderProgram *program = this->Primitives[PrimitiveTris].Program;
-
-    if (!program)
-    {
-      return;
-    }
-
-    // Apply the extra transform
-    program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
-
-    // for lit shaders set normal matrix
-    if (this->LastLightComplexity[this->LastBoundBO] > 0 &&
-        this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
-        !this->UsingInstancing)
-    {
-      program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId*9]));
-    }
-
-    program->SetUniform4uc("glyphColor", &(colors[inPtId*4]));
-
-    if (selector)
-    {
-      program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
-    }
-
-    glDrawRangeElements(mode, 0,
-                        static_cast<GLuint>(this->VBOs->GetNumberOfTuples("vertexMC") - 1),
-                        static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
   }
-  if (primed)
-  {
-    this->Primitives[PrimitiveTris].IBO->Release();
-    this->RenderPieceFinish(ren,actor);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
-                                                    vtkRenderer* ren, vtkActor *actor)
-{
-  // do the superclass and then reset a couple values
-  this->Superclass::SetCameraShaderParameters(cellBO,ren,actor);
-
-  vtkShaderProgram *program = cellBO.Program;
-
-  // Apply the extra transform
-  if (this->ModelTransformMatrix)
-  {
-    program->SetUniformMatrix4x4("GCMCMatrix", this->ModelTransformMatrix);
-  }
-
-  // for lit shaders set normal matrix
-  if (this->LastLightComplexity[&cellBO] > 0 &&
-      this->ModelNormalMatrix &&
-      this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
-      !this->UsingInstancing)
-  {
-    program->SetUniformMatrix3x3("glyphNormalMatrix", this->ModelNormalMatrix);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkOpenGLHelper &cellBO,
-                                                         vtkRenderer *ren, vtkActor *actor)
-{
-  // do the superclass and then reset a couple values
-  this->Superclass::SetPropertyShaderParameters(cellBO,ren,actor);
-
-  vtkShaderProgram *program = cellBO.Program;
-
-  if (this->ModelColor)
-  {
-    program->SetUniform4uc("glyphColor", this->ModelColor);
-  }
+  this->RenderPieceFinish(ren,actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -527,81 +415,104 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
 {
   this->UsingInstancing = true;
   this->RenderPieceStart(ren,actor);
-  this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
-  if (!this->Primitives[PrimitiveTris].Program)
-  {
-    return;
-  }
+  int representation = actor->GetProperty()->GetRepresentation();
 
-  // do the superclass and then reset a couple values
-  if (this->Primitives[PrimitiveTris].IBO->IndexCount &&   // we have points and one of
-      (this->VBOBuildTime > this->InstanceBuffersLoadTime ||
-      this->Primitives[PrimitiveTris].ShaderSourceTime > this->InstanceBuffersLoadTime ||
-      pointMTime > this->InstanceBuffersLoadTime.GetMTime()))
+  // update the VBOs if needed
+  if (pointMTime > this->InstanceBuffersBuildTime.GetMTime())
   {
-    this->Primitives[PrimitiveTris].VAO->Bind();
-    // add 3 new BOs?
-    this->MatrixBuffer->Bind();
     this->MatrixBuffer->Upload(matrices, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!this->Primitives[PrimitiveTris].VAO->AddAttributeMatrixWithDivisor(
-      this->Primitives[PrimitiveTris].Program, this->MatrixBuffer,
-        "GCMCMatrix", 0, 16*sizeof(float), VTK_FLOAT, 4, false, 1))
-    {
-      vtkErrorMacro(<< "Error setting 'GCMCMatrix' in shader VAO.");
-    }
-    this->MatrixBuffer->Release();
 
-    if (this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
-        this->LastLightComplexity[this->LastBoundBO] > 0)
+    if (this->VBOs->GetNumberOfComponents("normalMC") == 3)
     {
-      this->NormalMatrixBuffer->Bind();
       this->NormalMatrixBuffer->Upload(
         normalMatrices, vtkOpenGLBufferObject::ArrayBuffer);
-      if (!this->Primitives[PrimitiveTris].VAO->AddAttributeMatrixWithDivisor(
-            this->Primitives[PrimitiveTris].Program, this->NormalMatrixBuffer,
-            "glyphNormalMatrix", 0, 9*sizeof(float), VTK_FLOAT, 3, false, 1))
-      {
-        vtkErrorMacro(<< "Error setting 'glyphNormalMatrix' in shader VAO.");
-      }
-      this->NormalMatrixBuffer->Release();
     }
 
-    if (this->Primitives[PrimitiveTris].Program->IsAttributeUsed("glyphColor"))
-    {
-      this->ColorBuffer->Bind();
-      this->ColorBuffer->Upload(colors, vtkOpenGLBufferObject::ArrayBuffer);
-      if (!this->Primitives[PrimitiveTris].VAO->AddAttributeArrayWithDivisor(
-            this->Primitives[PrimitiveTris].Program, this->ColorBuffer,
-            "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
-      {
-        vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
-      }
-      this->ColorBuffer->Release();
-    }
-    this->InstanceBuffersLoadTime.Modified();
+    this->ColorBuffer->Upload(colors, vtkOpenGLBufferObject::ArrayBuffer);
+    this->InstanceBuffersBuildTime.Modified();
   }
 
-  this->Primitives[PrimitiveTris].IBO->Bind();
-#if GL_ES_VERSION_3_0 == 1
-  glDrawElementsInstanced(GL_TRIANGLES,
-    static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
-    GL_UNSIGNED_INT,
-    reinterpret_cast<const GLvoid *>(NULL),
-    numPts);
-#else
-  if (GLEW_ARB_instanced_arrays &&
-      this->Primitives[PrimitiveTris].IBO->IndexCount > 0)
+  bool draw_surface_with_edges =
+    (actor->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE);
+  for (int i = PrimitiveStart;
+       i < (draw_surface_with_edges ? PrimitiveEnd : PrimitiveTriStrips + 1); i++)
   {
-    glDrawElementsInstancedARB(GL_TRIANGLES,
-      static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
-      GL_UNSIGNED_INT,
-      reinterpret_cast<const GLvoid *>(NULL),
-      numPts);
-  }
-#endif
-  vtkOpenGLCheckErrorMacro("failed after Render");
+    this->DrawingEdgesOrVertices = (i > PrimitiveTriStrips ? true : false);
+    if (this->Primitives[i].IBO->IndexCount)
+    {
+      this->UpdateShaders(this->Primitives[i], ren, actor);
+      if (!this->Primitives[i].Program)
+      {
+        return;
+      }
+      GLenum mode = this->GetOpenGLMode(representation, i);
 
-  this->Primitives[PrimitiveTris].IBO->Release();
+
+      // do the superclass and then reset a couple values
+      if ((this->InstanceBuffersBuildTime > this->InstanceBuffersLoadTime ||
+          this->Primitives[i].ShaderSourceTime > this->InstanceBuffersLoadTime))
+      {
+        this->Primitives[i].VAO->Bind();
+        this->MatrixBuffer->Bind();
+        if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
+          this->Primitives[i].Program, this->MatrixBuffer,
+            "GCMCMatrix", 0, 16*sizeof(float), VTK_FLOAT, 4, false, 1))
+        {
+          vtkErrorMacro(<< "Error setting 'GCMCMatrix' in shader VAO.");
+        }
+        this->MatrixBuffer->Release();
+
+        if (this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
+            this->LastLightComplexity[this->LastBoundBO] > 0)
+        {
+          this->NormalMatrixBuffer->Bind();
+          if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
+                this->Primitives[i].Program, this->NormalMatrixBuffer,
+                "glyphNormalMatrix", 0, 9*sizeof(float), VTK_FLOAT, 3, false, 1))
+          {
+            vtkErrorMacro(<< "Error setting 'glyphNormalMatrix' in shader VAO.");
+          }
+          this->NormalMatrixBuffer->Release();
+        }
+
+        if (this->Primitives[i].Program->IsAttributeUsed("glyphColor"))
+        {
+          this->ColorBuffer->Bind();
+          if (!this->Primitives[i].VAO->AddAttributeArrayWithDivisor(
+                this->Primitives[i].Program, this->ColorBuffer,
+                "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
+          {
+            vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
+          }
+          this->ColorBuffer->Release();
+        }
+        this->InstanceBuffersLoadTime.Modified();
+      }
+
+      this->Primitives[i].IBO->Bind();
+
+#if GL_ES_VERSION_3_0 == 1
+      glDrawElementsInstanced(mode,
+        static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
+        GL_UNSIGNED_INT,
+        reinterpret_cast<const GLvoid *>(NULL),
+        numPts);
+#else
+      if (GLEW_ARB_instanced_arrays)
+      {
+        glDrawElementsInstancedARB(mode,
+          static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
+          GL_UNSIGNED_INT,
+          reinterpret_cast<const GLvoid *>(NULL),
+          numPts);
+      }
+#endif
+
+      this->Primitives[i].IBO->Release();
+    }
+  }
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
   this->RenderPieceFinish(ren, actor);
 }
 
