@@ -516,12 +516,16 @@ endfunction()
 # added to VTK_COMPILETOOLS_TARGETS global property. This also adds install
 # rules for the target unless NO_INSTALL argument is specified or
 # VTK_INSTALL_NO_DEVELOPMENT variable is set.
+if(NOT DEFINED VTK_COMPILE_TOOLS_IMPORTED)
+  set(VTK_COMPILE_TOOLS_IMPORTED FALSE)
+endif()
 function(vtk_compile_tools_target _name)
-  if (CMAKE_CROSSCOMPILING AND NOT DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
+  if(VTK_COMPILE_TOOLS_IMPORTED)
     message(AUTHOR_WARNING
-      "vtk_compile_tools_target is being called when CMAKE_CROSSCOMPILING is true. "
+      "vtk_compile_tools_target is being called when VTK_COMPILE_TOOLS_IMPORTED is true. "
       "This generally signifies a script issue. compile-tools are not expected "
-      "to built, but rather imported when CMAKE_CROSSCOMPILING is ON")
+      "to be built, but rather imported when CMAKE_CROSSCOMPILING is ON and "
+      "CMAKE_CROSSCOMPILER_EMULATOR is undefined.")
   endif ()
   set(_install 1)
   foreach(arg IN LISTS ARGN)

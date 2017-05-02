@@ -60,7 +60,7 @@ endif()
 set_property(SOURCE vtkParseMain.c PROPERTY COMPILE_DEFINITIONS
   VTK_PARSE_VERSION="${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 
-if(NOT CMAKE_CROSSCOMPILING)
+if(NOT VTK_COMPILE_TOOLS_IMPORTED)
 
   add_executable(vtkWrapHierarchy vtkWrapHierarchy.c)
   target_link_libraries(vtkWrapHierarchy vtkWrappingTools)

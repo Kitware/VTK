@@ -248,11 +248,19 @@ if(NOT VTK_BUILD_PYTHON_MODULE_DIR)
        PATH "Directory where python modules will be put inside the build tree")
   mark_as_advanced(VTK_BUILD_PYTHON_MODULE_DIR)
 endif()
-if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED AND NOT DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
-  # if CMAKE_CROSSCOMPILING is true and CMAKE_CROSSCOMPILING_EMULATOR is not set, we need
+# Maintain backward compatibility with user setting COMPILE_TOOLS_IMPORTED
+if(DEFINED COMPILE_TOOLS_IMPORTED AND NOT DEFINED VTK_COMPILE_TOOLS_IMPORTED)
+  set(VTK_COMPILE_TOOLS_IMPORTED ${COMPILE_TOOLS_IMPORTED})
+endif()
+# Variable VTK_COMPILE_TOOLS_IMPORTED is preferred
+if(NOT DEFINED VTK_COMPILE_TOOLS_IMPORTED)
+  set(VTK_COMPILE_TOOLS_IMPORTED FALSE)
+endif()
+if(CMAKE_CROSSCOMPILING AND NOT VTK_COMPILE_TOOLS_IMPORTED AND NOT DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
+  # if CMAKE_CROSSCOMPILING is true and crosscompiling emulator is not available, we need
   # to import build-tools targets.
   find_package(VTKCompileTools REQUIRED)
-  set (COMPILE_TOOLS_IMPORTED TRUE)
+  set(VTK_COMPILE_TOOLS_IMPORTED TRUE)
 endif()
 
 #-----------------------------------------------------------------------------
