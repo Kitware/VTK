@@ -300,7 +300,7 @@ def main(vtkSourceDir, sourceFiles, renderingBackend='OpenGL'):
     print
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 3:
       displayHelp()
       exit(0)
     main(sys.argv[1], sys.argv[2:])
