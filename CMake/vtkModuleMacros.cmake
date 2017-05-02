@@ -517,7 +517,7 @@ endfunction()
 # rules for the target unless NO_INSTALL argument is specified or
 # VTK_INSTALL_NO_DEVELOPMENT variable is set.
 function(vtk_compile_tools_target _name)
-  if (CMAKE_CROSSCOMPILING)
+  if (CMAKE_CROSSCOMPILING AND NOT DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
     message(AUTHOR_WARNING
       "vtk_compile_tools_target is being called when CMAKE_CROSSCOMPILING is true. "
       "This generally signifies a script issue. compile-tools are not expected "

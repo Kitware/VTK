@@ -23,7 +23,7 @@
 
 vtk_module_export_info()
 
-IF(NOT CMAKE_CROSSCOMPILING)
+IF(NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
   ADD_EXECUTABLE(vtkParseOGLExt Tokenizer.cxx ParseOGLExt.cxx)
   vtk_compile_tools_target(vtkParseOGLExt)
 ENDIF()

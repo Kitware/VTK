@@ -12,7 +12,7 @@ vtk_module_export_info()
 # launcher for it and should always use the RPATH to find shared libs.
 SET(CMAKE_SKIP_RPATH 0)
 
-IF(NOT CMAKE_CROSSCOMPILING)
+IF(NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
   ADD_EXECUTABLE(vtkHashSource vtkHashSource.cxx)
   TARGET_LINK_LIBRARIES(vtkHashSource vtksys)
   vtk_compile_tools_target(vtkHashSource)
