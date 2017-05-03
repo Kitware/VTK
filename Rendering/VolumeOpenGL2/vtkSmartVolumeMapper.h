@@ -145,8 +145,8 @@ public:
     TextureRenderMode=3,
 #endif // !VTK_LEGACY_REMOVE
     GPURenderMode=4,
-    UndefinedRenderMode=5,
-    OSPRayRenderMode=6,
+    OSPRayRenderMode=5,
+    UndefinedRenderMode=6,
     InvalidRenderMode=7
   };
 

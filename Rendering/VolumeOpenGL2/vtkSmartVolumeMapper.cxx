@@ -708,7 +708,7 @@ void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
 
   // Make sure it is a valid mode
   if ( mode < vtkSmartVolumeMapper::DefaultRenderMode ||
-       mode > vtkSmartVolumeMapper::OSPRayRenderMode)
+       mode >= vtkSmartVolumeMapper::UndefinedRenderMode)
   {
     vtkErrorMacro("Invalid Render Mode.");
     return;
