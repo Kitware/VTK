@@ -19,6 +19,7 @@
 
 #include "vtkOSPRayRendererNode.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
 #include "vtkInformation.h"
@@ -550,8 +551,16 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       ospSet1i(oRenderer,"shadowsEnabled",0);
     }
+
+    //todo: this can be expensive and should be cached
+    //also the user might want to control
+    vtkBoundingBox bbox(ren->ComputeVisiblePropBounds());
+    float diam = static_cast<float>(bbox.GetDiagonalLength());
+    ospSet1f(oRenderer, "epsilon", diam*.0005);
+
     ospSet1i(oRenderer,"aoSamples",
              this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)));
+    ospSet1f(oRenderer, "aoDistance", diam*0.3);
     ospSet1i(oRenderer,"spp",
              this->GetSamplesPerPixel(static_cast<vtkRenderer*>(this->Renderable)));
     this->CompositeOnGL =
