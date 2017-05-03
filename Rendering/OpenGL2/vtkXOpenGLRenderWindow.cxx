@@ -21,6 +21,9 @@
 // provided by the system.
 //#define GLX_GLXEXT_LEGACY
 
+// Ensure older version of glx.h define glXGetProcAddressARB
+#define GLX_GLXEXT_PROTOTYPES
+
 // New Workaround:
 // The GLX_GLXEXT_LEGACY definition was added to work around system glxext.h
 // files that used the GLintptr and GLsizeiptr types, but did not define them.
