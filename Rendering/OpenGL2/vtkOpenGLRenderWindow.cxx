@@ -36,6 +36,7 @@
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOutputWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderTimerLog.h"
 #include "vtkShaderProgram.h"
 #include "vtkStdString.h"
 #include "vtkStringOutputWindow.h"
@@ -348,6 +349,8 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
       vtkErrorMacro("Leaked for texture object: " << const_cast<vtkTextureObject *>(found->first));
     }
   }
+
+  this->RenderTimer->ReleaseGraphicsResources();
   this->Initialized = false;
 }
 

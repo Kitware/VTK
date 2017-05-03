@@ -53,6 +53,7 @@ set(Module_SRCS
   vtkOpenGLProperty.cxx
   vtkOpenGLRenderPass.cxx
   vtkOpenGLRenderTimer.cxx
+  vtkOpenGLRenderTimerLog.cxx
   vtkOpenGLRenderUtilities.cxx
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
@@ -208,6 +209,7 @@ set(opengl_overrides
   PolyDataMapper2D
   Property
   Renderer
+  RenderTimerLog
   TextActor
   TextActor3D
   TextMapper

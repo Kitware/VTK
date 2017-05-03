@@ -43,11 +43,13 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWindow.h"
+#include "vtkNew.h" // For vtkNew
 
 class vtkFloatArray;
 class vtkPainterDeviceAdapter;
 class vtkProp;
 class vtkCollection;
+class vtkRenderTimerLog;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkRendererCollection;
@@ -114,6 +116,11 @@ public:
    * What rendering backend has the user requested
    */
   virtual const char *GetRenderingBackend();
+
+  /**
+   * Get the render timer log for this window.
+   */
+  vtkGetNewMacro(RenderTimer, vtkRenderTimerLog)
 
   /**
    * Return the collection of renderers in the render window.
@@ -727,6 +734,7 @@ protected:
 
   vtkPainterDeviceAdapter* PainterDeviceAdapter;
   vtkRendererCollection *Renderers;
+  vtkNew<vtkRenderTimerLog> RenderTimer;
   int Borders;
   int FullScreen;
   int OldScreen[5];
