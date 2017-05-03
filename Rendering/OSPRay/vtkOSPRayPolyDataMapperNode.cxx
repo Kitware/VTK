@@ -105,7 +105,7 @@ namespace vtkosp {
     {
       double *color = vColors->GetTuple(i);
       OSPMaterial oMaterial;
-      oMaterial = ospNewMaterial(oRenderer,"RayTraceMaterial");
+      oMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
       float diffusef[] =
         {
           static_cast<float>(color[0])/(255.0f),
@@ -159,7 +159,7 @@ namespace vtkosp {
        OSP_TEXTURE_FILTER_NEAREST);
 
     OSPMaterial ospMaterial;
-    ospMaterial = ospNewMaterial(oRenderer,"RayTraceMaterial");
+    ospMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
     ospSetObject(ospMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
     ospCommit(t2d);
     ospCommit(ospMaterial);
@@ -574,7 +574,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
 
   //per actor material
   OSPMaterial oMaterial;
-  oMaterial = ospNewMaterial(oRenderer,"RayTraceMaterial");
+  oMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
   float ambientf[] =
     {
       static_cast<float>(ambientColor[0]*property->GetAmbient()),
