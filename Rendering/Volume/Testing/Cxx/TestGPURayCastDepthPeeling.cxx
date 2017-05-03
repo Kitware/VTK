@@ -48,8 +48,11 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
   // If the current system only supports the legacy peeler, skip this test:
-  vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin.GetPointer());
+
+  vtkNew<vtkRenderer> ren;
   renWin->Render(); // Create the context
   renWin->AddRenderer(ren.GetPointer());
   vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
@@ -90,9 +93,6 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   renWin->SetMultiSamples(0);
   renWin->SetSize(400, 400);
   ren->SetBackground(0.0, 0.0, 0.0);
-
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);

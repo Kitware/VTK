@@ -53,9 +53,12 @@ int TestGPURayCastJittering(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
   // If the current system only supports the legacy peeler, skip this test:
-  vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin.GetPointer());
   renWin->Render(); // Create the context
+
+  vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren.GetPointer());
   vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
   assert(oglRen); // This test should only be enabled for OGL2 backend.
@@ -159,8 +162,6 @@ int TestGPURayCastJittering(int argc, char* argv[])
   ren2->AddActor(sphereActor2.GetPointer());
   ren2->SetActiveCamera(ren->GetActiveCamera());
 
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   iren->SetInteractorStyle(style.GetPointer());
 
