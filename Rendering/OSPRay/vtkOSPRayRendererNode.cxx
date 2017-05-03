@@ -19,6 +19,7 @@
 
 #include "vtkOSPRayRendererNode.h"
 
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
@@ -37,6 +38,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 #include "vtkViewNodeCollection.h"
+#include "vtkVolume.h"
+#include "vtkVolumeCollection.h"
 
 #include "ospray/ospray.h"
 #include "ospray/version.h"
@@ -185,7 +188,7 @@ public:
 
   ~vtkOSPRayRendererNodeInternals() {};
 
-  std::map<vtkActor *, vtkMapper *> LastMapperFor;
+  std::map<vtkProp3D *, vtkAbstractMapper3D *> LastMapperFor;
 };
 
 //============================================================================
@@ -635,6 +638,33 @@ void vtkOSPRayRendererNode::Render(bool prepass)
           }
           nac = ac->GetNextActor();
         }
+        if (this->AccumulateTime < m)
+        {
+          this->AccumulateTime = m;
+          canReuse = false;
+        }
+      }
+
+      if (canReuse)
+      {
+        m = 0;
+        vtkVolumeCollection *vc = ren->GetVolumes();
+        vc->InitTraversal();
+        vtkVolume* nvol = vc->GetNextVolume();
+        while (nvol)
+        {
+          if (nvol->GetRedrawMTime() > m)
+          {
+            m = nvol->GetRedrawMTime();
+          }
+          if (this->Internal->LastMapperFor[nvol] != nvol->GetMapper())
+          {
+            // a check to ensure vtkPVLODActor restarts on LOD swap
+            this->Internal->LastMapperFor[nvol] = nvol->GetMapper();
+            canReuse = false;
+          }
+          nvol = vc->GetNextVolume();
+        };
         if (this->AccumulateTime < m)
         {
           this->AccumulateTime = m;
