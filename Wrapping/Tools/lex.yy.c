@@ -368,13 +368,6 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
   (yy_c_buf_p) = yy_cp;
 #define YY_NUM_RULES 192
 #define YY_END_OF_BUFFER 193
-/* This struct is not used in this scanner,
-   but its presence is necessary. */
-struct yy_trans_info
-  {
-  flex_int32_t yy_verify;
-  flex_int32_t yy_nxt;
-  };
 static const flex_int16_t yy_accept[1184] =
     {   0,
         0,    0,  193,  191,  155,  156,  156,  190,  191,  190,
@@ -1797,7 +1790,7 @@ Modify lex.yy.c:
   - remove blank lines from end of file
   - compile with gcc and "-Wsign-compare", there should be no warnings
   - add a prototype for isatty
-
+  - remove unused struct yy_trans_info
 */
 
 /* We do not care of interactive mode */

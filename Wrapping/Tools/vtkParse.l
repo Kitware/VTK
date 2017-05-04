@@ -15,7 +15,7 @@ Modify lex.yy.c:
   - remove blank lines from end of file
   - compile with gcc and "-Wsign-compare", there should be no warnings
   - add a prototype for isatty
-
+  - remove unused struct yy_trans_info
 */
 
 /* We do not care of interactive mode */
