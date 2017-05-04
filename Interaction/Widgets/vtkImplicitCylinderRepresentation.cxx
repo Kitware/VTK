@@ -955,7 +955,7 @@ AdjustRadius(double vtkNotUsed(X), double Y, double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   double l = sqrt( vtkMath::Dot(v,v) );
 
-  dr = l / this->Outline->GetOutput()->GetLength();
+  dr = l / 4;
   if ( Y < this->LastEventPosition[1] )
   {
     dr *= -1.0;
