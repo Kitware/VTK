@@ -159,7 +159,7 @@ extern "C" int vtkTclEventProc(XtPointer clientData, XEvent *event)
 //-------------------------------------------------------------------------
 vtkXRenderWindowTclInteractor::vtkXRenderWindowTclInteractor()
 {
-  this->Internal = new vtkXRenderWindowTclInteractorInternals;
+  this->TclInternal = new vtkXRenderWindowTclInteractorInternals;
 }
 
 
@@ -172,8 +172,8 @@ vtkXRenderWindowTclInteractor::~vtkXRenderWindowTclInteractor()
                             static_cast<ClientData>(this));
   }
 
-  delete this->Internal;
-  this->Internal = 0;
+  delete this->TclInternal;
+  this->TclInternal = 0;
 }
 
 
@@ -310,7 +310,7 @@ int vtkXRenderWindowTclInteractor::InternalCreateTimer(int timerId,
                                                        unsigned long duration)
 {
   duration = (duration > 0 ? duration : this->TimerDuration);
-  vtkXTclTimer* timer = this->Internal->CreateTimer(this, timerId, duration);
+  vtkXTclTimer* timer = this->TclInternal->CreateTimer(this, timerId, duration);
   return timer->ID;
 }
 
@@ -318,7 +318,7 @@ int vtkXRenderWindowTclInteractor::InternalCreateTimer(int timerId,
 //-------------------------------------------------------------------------
 int vtkXRenderWindowTclInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  return this->Internal->DestroyTimer(platformTimerId);
+  return this->TclInternal->DestroyTimer(platformTimerId);
 }
 
 
