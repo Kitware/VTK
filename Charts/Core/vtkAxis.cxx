@@ -52,6 +52,7 @@ vtkAxis::vtkAxis()
   this->Position2.Set(0.0, 10.0);
   this->TickInterval = 1.0;
   this->NumberOfTicks = -1;
+  this->TickLength = 5;
   this->LabelProperties = vtkTextProperty::New();
   this->LabelProperties->SetColor(0.0, 0.0, 0.0);
   this->LabelProperties->SetFontSize(12);
@@ -370,7 +371,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
 
   // There are five possible tick label positions, which should be set by the
   // class laying out the axes.
-  float tickLength = 5;
+  float tickLength = this->TickLength;
   float labelOffset = this->LabelOffset;
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
       this->Position == vtkAxis::BOTTOM)
@@ -1844,6 +1845,7 @@ void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Range limits: "
     << this->MinimumLimit << " - " << this->MaximumLimit << endl;
   os << indent << "Number of tick marks: " << this->NumberOfTicks << endl;
+  os << indent << "Tick length: " << this->TickLength << endl;
   os << indent << "LogScale: " << (this->LogScale ? "TRUE" : "FALSE") << endl;
   os << indent << "LogScaleActive: " << (this->LogScaleActive ? "TRUE" : "FALSE") << endl;
   os << indent << "GridVisible: " << (this->GridVisible ? "TRUE" : "FALSE") << endl;
