@@ -110,9 +110,6 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   renderer->AddActor(actor2.Get());
   glrenderer->SetPass(NULL);
 
-  renderer->GetActiveCamera()->SetPosition(0,0,1);
-  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
-  renderer->GetActiveCamera()->SetViewUp(0,1,0);
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom(2.0);
   renderWindow->Render();

@@ -356,14 +356,25 @@ bool vtkShadowMapPass::PostReplaceShaderValues(
   vtkAbstractMapper *,
   vtkProp *)
 {
-  vtkShaderProgram::Substitute(fragmentShader,
-    "diffuse += (df * lightColor[lightNum]);",
-    "diffuse += (df * factors[lightNum] * lightColor[lightNum]);",
-    false);
-  vtkShaderProgram::Substitute(fragmentShader,
-    "specular += (sf * lightColor[lightNum]);",
-    "specular += (sf * factors[lightNum] * lightColor[lightNum]);",
-    false);
+  size_t numLights = this->ShadowTextureUnits.size();
+
+  for (size_t i = 0; i < numLights; ++i)
+  {
+    std::ostringstream toString1;
+    std::ostringstream toString2;
+    toString1 << "diffuse += (df * lightColor" << i << ");";
+    toString2 << "diffuse += (df * factor" << i << " * lightColor" << i << ");";
+    vtkShaderProgram::Substitute(fragmentShader,
+      toString1.str(), toString2.str(),
+      false);
+    std::ostringstream toString3;
+    std::ostringstream toString4;
+    toString3 << "specular += (df * lightColor" << i << ");";
+    toString4 << "specular += (df * factor" << i << " * lightColor" << i << ");";
+    vtkShaderProgram::Substitute(fragmentShader,
+      toString3.str(), toString4.str(),
+      false);
+  }
   return true;
 }
 
@@ -433,33 +444,31 @@ void vtkShadowMapPass::BuildShaderCode()
   }
 
   // build the code for the lighting factors
-  std::string fimpl = "float factors[6];\n";
+  toString.str("");
+  toString.clear();
   numSMT = 0;
-  for (size_t i = 0; i < 6; i++)
+  for (size_t i = 0; i < numLights; i++)
   {
-    toString.str("");
-    toString.clear();
-    toString << i;
-    fimpl += "  factors[" + toString.str() + "] = ";
+    toString << "float factor" << i << " = ";
     if (i < numLights && this->ShadowTextureUnits[i] >= 0)
     {
       std::ostringstream toString2;
       toString2 << numSMT;
-      fimpl += "calcShadow(vertexVC, shadowMap" +toString2.str() +
-        ", shadowTransform" + toString2.str() +
-        ", shadowAttenuation" + toString2.str() +");\n";
+      toString << "calcShadow(vertexVC, shadowMap" << toString2.str() <<
+        ", shadowTransform" << toString2.str() <<
+        ", shadowAttenuation" << toString2.str() << ");\n";
       numSMT++;
     }
     else
     {
-      fimpl += "1.0;\n";
+      toString << "1.0;\n";
     }
   }
 
   // compute the factors then do the normal lighting
-  fimpl += "//VTK::Light::Impl\n";
+  toString << "//VTK::Light::Impl\n";
   this->FragmentDeclaration = fdec;
-  this->FragmentImplementation = fimpl;
+  this->FragmentImplementation = toString.str();
 }
 
 // ----------------------------------------------------------------------------

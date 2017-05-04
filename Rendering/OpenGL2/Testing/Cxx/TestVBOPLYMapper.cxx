@@ -33,6 +33,7 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
+
 //----------------------------------------------------------------------------
 int TestVBOPLYMapper(int argc, char *argv[])
 {
