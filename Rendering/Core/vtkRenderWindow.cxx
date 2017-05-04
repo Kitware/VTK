@@ -321,7 +321,7 @@ void vtkRenderWindow::Render()
   vtkRenderTimerLog::ScopedEventLogger event;
   if (this->RenderTimer->GetLoggingEnabled())
   {
-    this->Start();
+    this->Start(); // Ensure context exists
     this->RenderTimer->MarkFrame();
     event = this->RenderTimer->StartScopedEvent("vtkRenderWindow::Render");
   }

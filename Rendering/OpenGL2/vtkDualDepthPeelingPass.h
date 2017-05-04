@@ -57,6 +57,7 @@
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexArrayObject;
+class vtkRenderTimerLog;
 class vtkShaderProgram;
 class vtkTextureObject;
 
@@ -240,6 +241,7 @@ protected:
   void BlendFinalImage();
   void DeleteOcclusionQueryIds();
 
+  vtkRenderTimerLog *Timer;
   vtkRenderPass *VolumetricPass;
   const vtkRenderState *RenderState;
 
