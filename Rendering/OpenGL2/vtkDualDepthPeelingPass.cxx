@@ -498,10 +498,15 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  bool hasAnyGeometry = hasOpaqueGeometry ||\n"
             "                        hasTranslucentGeometry;\n"
             "\n"
+#ifndef DEBUG_VOLUME_PREPASS_PIXELS
+            "  vec2 frontRange = vec2(1.f, -1.f);\n"
+            "  vec2 backRange = vec2(1.f, -1.f);\n"
+            "\n"
+#endif // not DEBUG_VOLUME_PREPASS_PIXELS
             "  if (!hasAnyGeometry)\n"
             "  { // No opaque or translucent geometry\n"
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
-            "    back = castRay(0., 1.);\n"
+            "    backRange = vec2(0., 1.);\n"
 #else // not DEBUG_VOLUME_PREPASS_PIXELS
             "    back = vec4(1.f, 0.f, 0.f, 1.f);\n"
 #endif // not DEBUG_VOLUME_PREPASS_PIXELS
@@ -510,7 +515,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  { // Opaque geometry only.\n"
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
             "    float opaqueDepth = inner.y;\n"
-            "    back = castRay(0, opaqueDepth);\n"
+            "    backRange = vec2(0.f, opaqueDepth);\n"
 #else // not DEBUG_VOLUME_PREPASS_PIXELS
             "    back = vec4(0.f, 1.f, 0.f, 1.f);\n"
 #endif // not DEBUG_VOLUME_PREPASS_PIXELS
@@ -519,14 +524,13 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  {\n"
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
             "    float opaqueDepth = hasOpaqueGeometry ? outer.y : 1.f;\n"
-            "    front = castRay(0.f, -inner.x);\n"
+            "    frontRange = vec2(0.f, -inner.x);\n"
             "\n"
-            "    back = vec4(0.0);\n"
             "    if (front.a < g_opacityThreshold)\n"
             "    {\n"
             "      // The color returned by castRay() has alpha pre-multiplied,\n"
             "      // as required for back-blending.\n"
-            "      back = castRay(inner.y, opaqueDepth);\n"
+            "      backRange = vec2(inner.y, opaqueDepth);\n"
             "    }\n"
             "\n"
 #else // not DEBUG_VOLUME_PREPASS_PIXELS
@@ -535,6 +539,17 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
 #endif // not DEBUG_VOLUME_PREPASS_PIXELS
             "  }\n"
             "\n"
+#ifndef DEBUG_VOLUME_PREPASS_PIXELS
+            "  if (frontRange.x < frontRange.y)\n"
+            "  {\n"
+            "    front = castRay(frontRange.x, frontRange.y);\n"
+            "  }\n"
+            "  if (backRange.x < backRange.y)\n"
+            "  {\n"
+            "    back = castRay(backRange.x, backRange.y);\n"
+            "  }\n"
+            "\n"
+#endif // not DEBUG_VOLUME_PREPASS_PIXELS
             "  gl_FragData[0] = back;\n"
             "  gl_FragData[1] = front;\n"
             );
