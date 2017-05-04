@@ -7,7 +7,7 @@
  *   $Header: /upc/share/CVS/netcdf-3/cxx/netcdf.cpp,v 1.18 2009/03/10 15:20:54 russ Exp $
  *********************************************************************/
 
-#include <config.h>
+// #include <config.h>
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
@@ -648,18 +648,12 @@ int NcVar::num_atts( void ) const // handles variable and global atts
 {
     int natt = 0;
     if (the_file->is_valid())
-      {
       if (the_id == ncGlobal)
-        {
 	natt = the_file->num_atts();
-        }
       else
-        {
 	NcError::set_err(
 			 nc_inq_varnatts(the_file->id(), the_id, &natt)
 			 );
-        }
-      }
     return natt;
 }
 
@@ -899,7 +893,7 @@ NcBool NcVar::put_rec( NcDim* rdim, const TYPE* vals,                         \
     if (! result )                                                            \
       return FALSE;                                                           \
                                                                               \
-    size_t* edge = edges();                                                   \
+    size_t* edge = edges();                                                     \
     edge[idx] = 1;                                                            \
     result = put(vals, edge);                                                 \
     delete [] edge;                                                           \

@@ -14,5 +14,6 @@ vtk_module(vtkIONetCDF
   PRIVATE_DEPENDS
     vtkCommonDataModel
     vtknetcdf
+    vtknetcdfcpp
     vtksys
   )

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtk_netcdf.h
+  Module:    vtk_netcdfcxx.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,12 +16,11 @@
 #define vtk_netcdfcpp_h
 
 /* Use the netcdfcpp library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_NETCDF
-
-#ifdef VTK_USE_SYSTEM_NETCDF
+#cmakedefine VTK_USE_SYSTEM_NETCDFCPP
+#ifdef VTK_USE_SYSTEM_NETCDFCPP
 # include <netcdfcpp.h>
 #else
-# include <vtknetcdf/cxx/netcdfcpp.h>
+# include <vtknetcdfcpp/netcdfcpp.h>
 #endif
 
 #endif

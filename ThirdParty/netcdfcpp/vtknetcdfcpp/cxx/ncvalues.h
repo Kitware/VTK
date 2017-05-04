@@ -10,10 +10,13 @@
 #ifndef Ncvalues_def
 #define Ncvalues_def
 
+#include "vtk_netcdfcpp_mangle.h"
+#include "vtknetcdfcpp_export.h"
+
 #include <iostream>
 #include <sstream>
 #include <limits.h>
-#include "netcdf.h"
+#include "vtk_netcdf.h"
 
 // Documentation warned this might change and now it has, for
 // consistency with C interface 
@@ -65,7 +68,7 @@ static const double ncBad_double = NC_FILL_DOUBLE;
 #define NcVal(TYPE) makename2(NcValues_,TYPE)
 
 #define NcValuesdeclare(TYPE)						      \
-class MSCPP_EXTRA NcVal(TYPE) : public NcValues				      \
+class NcVal(TYPE) : public NcValues					      \
 {									      \
   public:								      \
     NcVal(TYPE)( void );						      \
@@ -237,7 +240,7 @@ char* NcVal(TYPE)::as_string( long n ) const				      \
     return s;								      \
 }
 
-class MSCPP_EXTRA NcValues			// ABC for value blocks
+class NcValues			// ABC for value blocks
 {
   public:
     NcValues( void );

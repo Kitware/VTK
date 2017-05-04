@@ -10,28 +10,26 @@
 #ifndef NETCDF_HH
 #define NETCDF_HH
 
-// We've changed the API from upstream in VTK commits 6223f230 and
-// 64cb89e3 to use size_t* instead of long* for (some) overloads of
-// methods like NcVar::get. This define signals users of this header
-// that they should use size_t for these methods.
-#define VTK_NETCDF_USE_SIZE_T
+// VTK has modified the API from upstream in order to use `size_t*` rather than
+// `long*` for some overloads of methods such as `NcVar::get`. This define
+// signals uses of this header that `size_t` should be used instead.
+#define VTK_NETCDFCPP_USE_SIZE_T
 
 #include "ncvalues.h"          // arrays that know their element type
 
 typedef const char* NcToken;    // names for netCDF objects
 typedef unsigned int NcBool;    // many members return 0 on failure
 
-class MSCPP_EXTRA NcDim;        // dimensions
-class MSCPP_EXTRA NcVar;        // variables
-class MSCPP_EXTRA NcAtt;        // attributes
-class MSCPP_EXTRA NcError;
+class NcDim;                    // dimensions
+class NcVar;                    // variables
+class NcAtt;                    // attributes
 
 /*
  * ***********************************************************************
  * A netCDF file.
  * ***********************************************************************
  */
-class MSCPP_EXTRA NcFile
+class VTKNETCDFCPP_EXPORT NcFile
 {
   public:
 
@@ -146,7 +144,7 @@ class MSCPP_EXTRA NcFile
  * of an open netCDF file.
  * **********************************************************************
  */
-class MSCPP_EXTRA NcDim
+class VTKNETCDFCPP_EXPORT NcDim
 {
   public:
     NcToken name( void ) const;
@@ -178,7 +176,7 @@ class MSCPP_EXTRA NcDim
  * components of an open netCDF file.
  * **********************************************************************
  */
-class MSCPP_EXTRA NcTypedComponent
+class VTKNETCDFCPP_EXPORT NcTypedComponent
 {
   public:
     virtual ~NcTypedComponent( void ) {}
@@ -216,7 +214,7 @@ class MSCPP_EXTRA NcTypedComponent
  * a shape, given by a list of dimensions
  * **********************************************************************
  */
-class MSCPP_EXTRA NcVar : public NcTypedComponent
+class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
 {
   public:
     virtual ~NcVar( void );
@@ -225,7 +223,7 @@ class MSCPP_EXTRA NcVar : public NcTypedComponent
     NcBool is_valid( void ) const;
     int num_dims( void ) const;         // dimensionality of variable
     NcDim* get_dim( int ) const;        // n-th dimension
-    size_t* edges( void ) const;        // dimension sizes
+    size_t* edges( void ) const;          // dimension sizes
     int num_atts( void ) const;         // number of attributes
     NcAtt* get_att( NcToken ) const;    // attribute by name
     NcAtt* get_att( int ) const;        // n-th attribute
@@ -414,7 +412,7 @@ class MSCPP_EXTRA NcVar : public NcTypedComponent
  * associated with a specific variable, or are global to the file.
  * **********************************************************************
  */
-class MSCPP_EXTRA NcAtt : public NcTypedComponent
+class VTKNETCDFCPP_EXPORT NcAtt : public NcTypedComponent
 {
   public:          
     virtual ~NcAtt( void );
@@ -447,7 +445,7 @@ class MSCPP_EXTRA NcAtt : public NcTypedComponent
  * which time the previous error-handling behavior is restored.
  * **********************************************************************
  */
-class MSCPP_EXTRA NcError {
+class VTKNETCDFCPP_EXPORT NcError {
   public:
     enum Behavior {
         silent_nonfatal = 0,
