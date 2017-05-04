@@ -18,7 +18,7 @@
  *
  * The vtkReflectionFilter reflects a data set across one of the
  * planes formed by the data set's bounding box.
- * Since it converts data sets into unstructured grids, it is not effeicient
+ * Since it converts data sets into unstructured grids, it is not efficient
  * for structured data sets.
 */
 
@@ -110,6 +110,12 @@ protected:
    * Internal method to compute bounds.
    */
   virtual int ComputeBounds(vtkDataObject* input, double bounds[6]);
+
+  /**
+   * Generate new, non-3D cell and return the generated cells id.
+   */
+  virtual vtkIdType ReflectNon3DCell(vtkDataSet* input, vtkUnstructuredGrid* output,
+                                     vtkIdType cellId,  vtkIdType numInputPoints);
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
