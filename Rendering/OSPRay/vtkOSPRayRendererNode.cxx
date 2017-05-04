@@ -573,8 +573,13 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       (this->GetCompositeOnGL(static_cast<vtkRenderer*>(this->Renderable))!=0);
 
     double *bg = ren->GetBackground();
-    //todo: request bgAlpha and set to 255.0*ren->GetBackgroundAlpha();
+#if OSPRAY_VERSION_MAJOR > 1 || \
+    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 3)
+   ospSet4f(oRenderer,"bgColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
+#else
     ospSet3f(oRenderer,"bgColor", bg[0], bg[1], bg[2]);
+#endif
+
   }
   else
   {
@@ -771,8 +776,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
     const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
     memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
+#if OSPRAY_VERSION_MAJOR > 1 || \
+    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 3)
+    //nothing, already preset
+#else
     //with qt5 VTK requires alpha channel, set it here
-    //see todo comment about bgAlpha above
     unsigned char *pix = this->Buffer;
     for (int i = 0; i < this->Size[0]*this->Size[1]; i++)
     {
@@ -780,6 +788,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       *pix = 255*ren->GetBackgroundAlpha();
       pix++;
     }
+#endif
     ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
     if (this->ComputeDepth)
