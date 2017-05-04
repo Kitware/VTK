@@ -199,22 +199,11 @@ std::string vtkOpenVRRenderWindow::GetTrackedDeviceString(
 vtkOpenVRModel *vtkOpenVRRenderWindow::FindOrLoadRenderModel(
   const char *pchRenderModelName )
 {
-  vtkOpenVRModel *pRenderModel = NULL;
-  for( std::vector< vtkOpenVRModel * >::iterator i = this->VTKRenderModels.begin();
-       i != this->VTKRenderModels.end(); ++i )
-  {
-    if( !stricmp( (*i)->GetName().c_str(), pchRenderModelName ) )
-    {
-      pRenderModel = *i;
-      return pRenderModel;
-    }
-  }
-
   // create the model
-  pRenderModel = vtkOpenVRModel::New();
+  vtkOpenVRModel *pRenderModel = vtkOpenVRModel::New();
   pRenderModel->SetName(pchRenderModelName);
 
-  // start loading the model if we didn't find one
+  // start loading the model
   if (vr::VRRenderModels()->LoadRenderModel_Async(
       pRenderModel->GetName().c_str(), &pRenderModel->RawModel)
       > vr::EVRRenderModelError::VRRenderModelError_Loading)
