@@ -10,6 +10,7 @@ set(Module_SRCS
   vtkOpenVRInteractorStyle.cxx
   vtkOpenVRModel.cxx
   vtkOpenVROverlay.cxx
+  vtkOpenVRPropPicker.cxx
   vtkOpenVRRenderer.cxx
   vtkOpenVRRenderWindow.cxx
   vtkOpenVRRenderWindowInteractor.cxx
@@ -21,6 +22,7 @@ set_source_files_properties(
   vtkOpenVRInteractorStyle
   vtkOpenVRModel
   vtkOpenVROverlay
+  vtkOpenVRPropPicker
   vtkOpenVRRenderer
   vtkOpenVRRenderWindow
   vtkOpenVRRenderWindowInteractor
