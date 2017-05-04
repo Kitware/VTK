@@ -478,6 +478,14 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   int outCellExt[6];
   vtkStructuredData::GetCellExtentFromPointExtent(outExt,outCellExt);
 
+  // clamp outCellExt using inpCellExt. This is needed for the case where outExt
+  // is the outer face of the dataset along any of the dimensions.
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    EMIN(outCellExt, dim) = std::min(EMAX(inpCellExt, dim), EMIN(outCellExt, dim));
+    EMAX(outCellExt, dim) = std::min(EMAX(inpCellExt, dim), EMAX(outCellExt, dim));
+  }
+
   // Lists for batching copy operations:
   vtkNew<vtkIdList> srcIds;
   vtkNew<vtkIdList> dstIds;
