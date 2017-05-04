@@ -67,7 +67,6 @@ vtkInteractiveArea::vtkInteractiveArea()
 , Actions(new MouseActions)
 {
   Superclass::Interactive = true;
-  this->InitializeDrawArea();
 }
 
 //------------------------------------------------------------------------------
