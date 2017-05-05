@@ -16,12 +16,13 @@
 
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
-#include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
@@ -92,6 +93,27 @@ int vtkReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
 }
 
 //---------------------------------------------------------------------------
+vtkIdType vtkReflectionFilter::ReflectNon3DCell(
+  vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
+  vtkIdType numInputPoints)
+{
+  vtkNew<vtkIdList> cellPts;
+  input->GetCellPoints(cellId, cellPts.GetPointer());
+  int numCellPts = cellPts->GetNumberOfIds();
+  std::vector<vtkIdType> newCellPts(numCellPts);
+  for (int j = numCellPts-1; j >= 0; j--)
+  {
+    newCellPts[numCellPts-1-j] = cellPts->GetId(j);
+    if (this->CopyInput)
+    {
+      newCellPts[numCellPts-1-j] += numInputPoints;
+    }
+  }
+  return output->InsertNextCell(
+    input->GetCellType(cellId), numCellPts, &newCellPts[0]);
+}
+
+//---------------------------------------------------------------------------
 int vtkReflectionFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -143,7 +165,6 @@ int vtkReflectionFilter::RequestDataInternal(
   vtkDataSet* input, vtkUnstructuredGrid* output,
   double bounds[6])
 {
-  vtkIdType i;
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *inCD = input->GetCellData();
@@ -151,15 +172,11 @@ int vtkReflectionFilter::RequestDataInternal(
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   double tuple[3];
-  vtkPoints *outPoints;
   double point[3];
   double constant[3] = {0.0, 0.0, 0.0};
   int mirrorDir[3] = { 1, 1, 1};
-  int ptId, cellId, j;
-  vtkGenericCell *cell = vtkGenericCell::New();
-  vtkIdList *ptIds = vtkIdList::New();
-
-  outPoints = vtkPoints::New();
+  vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
 
   if (this->CopyInput)
   {
@@ -190,11 +207,10 @@ int vtkReflectionFilter::RequestDataInternal(
   // Copy first points.
   if (this->CopyInput)
   {
-    for (i = 0; i < numPts; i++)
+    for (vtkIdType i = 0; i < numPts; i++)
     {
       input->GetPoint(i, point);
-      ptId = outPoints->InsertNextPoint(point);
-      outPD->CopyData(inPD, i, ptId);
+      outPD->CopyData(inPD, i, outPoints->InsertNextPoint(point));
     }
   }
 
@@ -239,10 +255,10 @@ int vtkReflectionFilter::RequestDataInternal(
       break;
   }
 
-  for (i = 0; i < numPts; i++)
+  for (vtkIdType i = 0; i < numPts; i++)
   {
     input->GetPoint(i, point);
-    ptId =
+    vtkIdType ptId =
       outPoints->InsertNextPoint( mirrorDir[0]*point[0] + constant[0],
                                   mirrorDir[1]*point[1] + constant[1],
                                   mirrorDir[2]*point[2] + constant[2] );
@@ -261,15 +277,12 @@ int vtkReflectionFilter::RequestDataInternal(
     }
   }
 
-
-  int numCellPts,  cellType;
-  vtkIdType *newCellPts;
-  vtkIdList *cellPts;
+  vtkNew<vtkIdList> cellPts;
 
   // Copy original cells.
   if (this->CopyInput)
   {
-    for (i = 0; i < numCells; i++)
+    for (vtkIdType i = 0; i < numCells; i++)
     {
       // special handling for polyhedron cells
       if (vtkUnstructuredGrid::SafeDownCast(input) &&
@@ -288,42 +301,306 @@ int vtkReflectionFilter::RequestDataInternal(
   }
 
   // Generate reflected cells.
-  for (i = 0; i < numCells; i++)
+  for (vtkIdType i = 0; i < numCells; i++)
   {
-    input->GetCell(i, cell);
-    numCellPts = cell->GetNumberOfPoints();
-    cellType = cell->GetCellType();
-    // Triangle strips with even number of triangles have
-    // to be handled specially. A degenerate triangle is
-    // introduce to flip all the triangles properly.
-    if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
+    vtkIdType outputCellId = -1;
+    int cellType = input->GetCellType(i);
+    switch (cellType)
     {
-      cellPts = cell->GetPointIds();
-      numCellPts++;
-      newCellPts = new vtkIdType[numCellPts];
-      newCellPts[0] = cellPts->GetId(0);
-      newCellPts[1] = cellPts->GetId(2);
-      newCellPts[2] = cellPts->GetId(1);
-      newCellPts[3] = cellPts->GetId(2);
-      for (j = 4; j < numCellPts; j++)
+    case VTK_TRIANGLE_STRIP:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      int numCellPts = cellPts->GetNumberOfIds();
+      if (numCellPts % 2 != 0)
       {
-        newCellPts[j] = cellPts->GetId(j-1);
-        if (this->CopyInput)
+        this->ReflectNon3DCell(input, output, i, numPts);
+      }
+      else
+      {
+        // Triangle strips with even number of triangles have
+        // to be handled specially. A degenerate triangle is
+        // introduce to flip all the triangles properly.
+        input->GetCellPoints(i, cellPts.GetPointer());
+        numCellPts++;
+        std::vector<vtkIdType> newCellPts(numCellPts);
+        newCellPts[0] = cellPts->GetId(0);
+        newCellPts[1] = cellPts->GetId(2);
+        newCellPts[2] = cellPts->GetId(1);
+        newCellPts[3] = cellPts->GetId(2);
+        for (int j = 4; j < numCellPts; j++)
+        {
+          newCellPts[j] = cellPts->GetId(j-1);
+          if (this->CopyInput)
+          {
+            newCellPts[j] += numPts;
+          }
+        }
+        outputCellId = output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
+      }
+      break;
+    }
+    case VTK_TETRA:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[4] = {
+        cellPts->GetId(3), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(0)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 4; j++)
         {
           newCellPts[j] += numPts;
         }
       }
-      cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
-      delete [] newCellPts;
+      outputCellId = output->InsertNextCell(cellType, 4, newCellPts);
+      break;
     }
-    else if (cellType == VTK_POLYHEDRON &&
-             vtkUnstructuredGrid::SafeDownCast(input))
+    case VTK_HEXAHEDRON:
     {
-      cellPts = vtkIdList::New();
-      vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, cellPts);
-      vtkIdType* idPtr = cellPts->GetPointer(0);;
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[8] = {
+        cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 8; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 8, newCellPts);
+      break;
+    }
+    case VTK_WEDGE:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[6] = {
+        cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 4; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 4, newCellPts);
+      break;
+    }
+    case VTK_PYRAMID:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[5];
+      for (int j = 3; j >= 0; j--)
+      {
+        newCellPts[3-j] = cellPts->GetId(j);
+        if (this->CopyInput)
+        {
+          newCellPts[3-j] += numPts;
+        }
+      }
+      newCellPts[4] = cellPts->GetId(4);
+      if (this->CopyInput)
+      {
+        newCellPts[4] += numPts;
+      }
+      outputCellId = output->InsertNextCell(cellType, 5, newCellPts);
+      break;
+    }
+    case VTK_PENTAGONAL_PRISM:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[10] = {
+        cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
+        cellPts->GetId(8), cellPts->GetId(9),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
+        cellPts->GetId(3), cellPts->GetId(4)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 10; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 10, newCellPts);
+      break;
+    }
+    case VTK_HEXAGONAL_PRISM:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[12] = {
+        cellPts->GetId(6), cellPts->GetId(7), cellPts->GetId(8),
+        cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
+        cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 12; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 12, newCellPts);
+      break;
+    }
+   case VTK_QUADRATIC_TETRA:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[10] = {
+        cellPts->GetId(3), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(0),
+        cellPts->GetId(8), cellPts->GetId(5), cellPts->GetId(9), cellPts->GetId(7),
+        cellPts->GetId(4), cellPts->GetId(6)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 10; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 10, newCellPts);
+      break;
+    }
+   case VTK_QUADRATIC_HEXAHEDRON:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[20] = {
+        cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3),
+        cellPts->GetId(12), cellPts->GetId(13), cellPts->GetId(14), cellPts->GetId(15),
+        cellPts->GetId(8), cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
+        cellPts->GetId(16), cellPts->GetId(17), cellPts->GetId(18), cellPts->GetId(19)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 20; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 20, newCellPts);
+      break;
+    }
+   case VTK_QUADRATIC_WEDGE:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[15] = {
+        cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
+        cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
+        cellPts->GetId(6), cellPts->GetId(7), cellPts->GetId(8),
+        cellPts->GetId(12), cellPts->GetId(13), cellPts->GetId(14)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 15; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 15, newCellPts);
+      break;
+    }
+   case VTK_QUADRATIC_PYRAMID:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[113] = {
+        cellPts->GetId(2), cellPts->GetId(1), cellPts->GetId(0),
+        cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(6),
+        cellPts->GetId(5), cellPts->GetId(8), cellPts->GetId(7),
+        cellPts->GetId(11), cellPts->GetId(10), cellPts->GetId(9),
+        cellPts->GetId(12)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 13; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 13, newCellPts);
+      break;
+    }
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[27] = {
+        cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3),
+        cellPts->GetId(12), cellPts->GetId(13), cellPts->GetId(14), cellPts->GetId(15),
+        cellPts->GetId(8), cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
+        cellPts->GetId(16), cellPts->GetId(17), cellPts->GetId(18), cellPts->GetId(19),
+        cellPts->GetId(20), cellPts->GetId(21), cellPts->GetId(22), cellPts->GetId(23),
+        cellPts->GetId(25), cellPts->GetId(24), cellPts->GetId(26)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 27; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 27, newCellPts);
+      break;
+    }
+   case VTK_QUADRATIC_LINEAR_WEDGE:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[12] = {
+        cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
+        cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
+        cellPts->GetId(6), cellPts->GetId(7), cellPts->GetId(8)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 12; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 12, newCellPts);
+      break;
+    }
+   case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[18] = {
+        cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
+        cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
+        cellPts->GetId(6), cellPts->GetId(7), cellPts->GetId(8),
+        cellPts->GetId(12), cellPts->GetId(13), cellPts->GetId(14),
+        cellPts->GetId(15), cellPts->GetId(16), cellPts->GetId(17)};
+     if (this->CopyInput)
+      {
+        for (int j = 0; j < 18; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 18, newCellPts);
+      break;
+    }
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+    {
+      input->GetCellPoints(i, cellPts.GetPointer());
+      vtkIdType newCellPts[24] = {
+        cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
+        cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3),
+        cellPts->GetId(12), cellPts->GetId(13), cellPts->GetId(14), cellPts->GetId(15),
+        cellPts->GetId(8), cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
+        cellPts->GetId(16), cellPts->GetId(17), cellPts->GetId(18), cellPts->GetId(19),
+        cellPts->GetId(20), cellPts->GetId(21), cellPts->GetId(22), cellPts->GetId(23)};
+      if (this->CopyInput)
+      {
+        for (int j = 0; j < 24; j++)
+        {
+          newCellPts[j] += numPts;
+        }
+      }
+      outputCellId = output->InsertNextCell(cellType, 24, newCellPts);
+      break;
+    }
+    case VTK_POLYHEDRON:
+    {
+      vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, cellPts.GetPointer());
+      vtkIdType* idPtr = cellPts->GetPointer(0);
       int nfaces = static_cast<int>(*idPtr++);
-      for (j = 0; j < nfaces; j++)
+      for (int j = 0; j < nfaces; j++)
       {
         vtkIdType npts = *idPtr++;
         for (vtkIdType k = 0; k < (npts+1)/2; k++)
@@ -341,68 +618,34 @@ int vtkReflectionFilter::RequestDataInternal(
         }
         idPtr += npts;
       }
-      cellId = output->InsertNextCell(cellType, cellPts);
-      cellPts->Delete();
+      outputCellId = output->InsertNextCell(cellType, cellPts.GetPointer());
+      break;
     }
-    else if  (cellType == VTK_PYRAMID  && vtkUnstructuredGrid::SafeDownCast(input))
+   default:
     {
-      if(numCellPts != 5)
+      if (cellType > VTK_POLYHEDRON)
       {
-        vtkErrorMacro("Pyramid cell must have exactly 5 points")
+        vtkWarningMacro("Cell may be inverted");
       }
-      int four  = numCellPts-1;
-      cellPts = cell->GetPointIds();
-      newCellPts = new vtkIdType[numCellPts];
-      for (j = four-1; j >= 0; j--)
-      {
-        newCellPts[four-1-j] = cellPts->GetId(j);
-        if (this->CopyInput)
-        {
-          newCellPts[four-1-j] += numPts;
-        }
-      }
-      newCellPts[four] = cellPts->GetId(four);
-      if (this->CopyInput)
-      {
-        newCellPts[four] += numPts;
-      }
-      cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
-      delete [] newCellPts;
+      outputCellId = this->ReflectNon3DCell(input, output, i, numPts);
     }
-    else
-    {
-      cellPts = cell->GetPointIds();
-      newCellPts = new vtkIdType[numCellPts];
-      for (j = numCellPts-1; j >= 0; j--)
-      {
-        newCellPts[numCellPts-1-j] = cellPts->GetId(j);
-        if (this->CopyInput)
-        {
-          newCellPts[numCellPts-1-j] += numPts;
-        }
-      }
-      cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
-      delete [] newCellPts;
     }
-    outCD->CopyData(inCD, i, cellId);
+    outCD->CopyData(inCD, i, outputCellId);
     if (inCellVectors)
     {
       inCellVectors->GetTuple(i, tuple);
       this->FlipVector(tuple, mirrorDir);
-      outCellVectors->SetTuple(cellId, tuple);
+      outCellVectors->SetTuple(outputCellId, tuple);
     }
     if (inCellNormals)
     {
       inCellNormals->GetTuple(i, tuple);
       this->FlipVector(tuple, mirrorDir);
-      outCellNormals->SetTuple(cellId, tuple);
+      outCellNormals->SetTuple(outputCellId, tuple);
     }
   }
 
-  cell->Delete();
-  ptIds->Delete();
   output->SetPoints(outPoints);
-  outPoints->Delete();
   output->CheckAttributes();
 
   return 1;
@@ -452,7 +695,7 @@ int vtkReflectionFilter::RequestDataObject(
         newOutput = vtkUnstructuredGrid::New();
       }
       outInfo->Set(vtkDataSet::DATA_OBJECT(), newOutput);
-      newOutput->Delete();
+      newOutput->FastDelete();
     }
     return 1;
   }
