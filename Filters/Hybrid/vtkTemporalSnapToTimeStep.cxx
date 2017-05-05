@@ -19,7 +19,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCompositeDataPipeline.h"
 
 #include <cmath>
 
@@ -30,8 +29,6 @@ vtkTemporalSnapToTimeStep::vtkTemporalSnapToTimeStep()
 {
   this->HasDiscrete = 0;
   this->SnapMode = 0;
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -40,42 +37,11 @@ vtkTemporalSnapToTimeStep::~vtkTemporalSnapToTimeStep()
 }
 
 //----------------------------------------------------------------------------
-int vtkTemporalSnapToTimeStep::FillInputPortInformation(
-  int port,
-  vtkInformation* info)
-{
-  if (port==0) {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
-  }
-  return 1;
-}
-
-int vtkTemporalSnapToTimeStep::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
-{
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkTemporalSnapToTimeStep::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-  {
-    return this->RequestInformation(request, inputVector, outputVector);
-  }
-
-  // generate the data
-  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
-  {
-    int retVal = this->RequestData(request, inputVector, outputVector);
-    return retVal;
-  }
-
   //modify the time in either of these passes
   if(  request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME())
      ||request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
