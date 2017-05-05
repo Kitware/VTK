@@ -29,7 +29,8 @@
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
-#include <stdarg.h>  // Needed for ...
+#include <iterator>
+#include <stdarg.h>
 #include <string>
 #include <vector>
 
@@ -760,16 +761,24 @@ void vtkTimerLog::DumpEntry(ostream& os, int index, double ttime,
 //----------------------------------------------------------------------------
 void vtkTimerLog::SetMaxEntries(int a)
 {
+  if (a == vtkTimerLog::MaxEntries)
+  {
+    return;
+  }
+  int numEntries = vtkTimerLog::GetNumberOfEvents();
   if (vtkTimerLog::WrapFlag)
   { // if we've wrapped events, reorder them
     std::vector<vtkTimerLogEntry> tmp;
-    std::copy(&vtkTimerLog::TimerLog[vtkTimerLog::NextEntry],
-              &vtkTimerLog::TimerLog[vtkTimerLog::MaxEntries-1], tmp.begin());
-    std::copy(&vtkTimerLog::TimerLog[0], &vtkTimerLog::TimerLog[vtkTimerLog::NextEntry-1],
-              tmp.end()-1);
+    tmp.reserve(vtkTimerLog::MaxEntries);
+    std::copy(vtkTimerLog::TimerLog.begin() + vtkTimerLog::NextEntry,
+              vtkTimerLog::TimerLog.end(),
+              std::back_inserter(tmp));
+    std::copy(vtkTimerLog::TimerLog.begin(),
+              vtkTimerLog::TimerLog.begin() + vtkTimerLog::NextEntry,
+              std::back_inserter(tmp));
+    vtkTimerLog::TimerLog = tmp;
     vtkTimerLog::WrapFlag = 0;
   }
-  int numEntries = vtkTimerLog::GetNumberOfEvents();
   if (numEntries <= a)
   {
     vtkTimerLog::TimerLog.resize(a);
