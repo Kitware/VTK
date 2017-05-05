@@ -36,7 +36,7 @@
 #include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
-#include <vtkm/filter/Clip.h>
+#include <vtkm/filter/ClipWithField.h>
 
 vtkStandardNewMacro(vtkmClip)
 
@@ -160,7 +160,7 @@ int vtkmClip::RequestData(vtkInformation *,
   }
 
   // Configure vtkm filter:
-  vtkm::filter::Clip filter;
+  vtkm::filter::ClipWithField filter;
   filter.SetClipValue(this->ClipValue);
 
   // Run filter:
