@@ -148,6 +148,14 @@ public:
 
   //@{
   /**
+   * Get/set the length of tick marks (in pixels).
+   */
+  vtkSetMacro(TickLength, int);
+  vtkGetMacro(TickLength, int);
+  //@}
+
+  //@{
+  /**
    * Get the vtkTextProperty that governs how the axis lables are displayed.
    * Note that the alignment properties are not used.
    */
@@ -660,6 +668,7 @@ protected:
   vtkVector2f Position1, Position2;
   double TickInterval; // Interval between tick marks in plot space
   int NumberOfTicks;   // The number of tick marks to draw
+  int TickLength;      // The length of the tick marks
   vtkTextProperty* LabelProperties; // Text properties for the labels.
   double Minimum;      // Minimum value of the axis
   double Maximum;      // Maximum values of the axis
