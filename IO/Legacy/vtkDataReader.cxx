@@ -1958,8 +1958,10 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
   bool readyToCheckMetaData = false;
   char line[256];
   size_t peekSize = this->Peek(line, 256);
+  bool hasNewData = false;
   do
   {
+    hasNewData = false;
     // Strip leading whitespace, check for newlines:
     for (size_t i = 0; i < peekSize; ++i)
     {
@@ -1976,6 +1978,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
             return array;
           }
           peekSize = this->Peek(line, 256);
+          hasNewData = true;
           i = peekSize; // Break outer loop
           if (peekSize == 0) // EOF
           {
@@ -1989,7 +1992,13 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
       }
     }
   }
-  while (!readyToCheckMetaData && peekSize > 0);
+  // The only time peekSize will be less than 256 (the requested size)
+  // is if the end of file was reached or an error occurred.  Break this
+  // outermost loop if we are past the whitespace (readyToCheckMetaData)
+  // or the peekSize hit the end of file but wasn't read in during this
+  // time through the loop.  This handles the case of files that end in
+  // whitespace without a trailing newline.
+  while (!readyToCheckMetaData && (peekSize == 256 || hasNewData));
 
   // Peek at the next line to see if there's any array metadata:
   if (this->Peek(line, 8) < 8) // looking for "metadata"
