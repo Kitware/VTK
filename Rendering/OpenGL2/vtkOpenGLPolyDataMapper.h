@@ -407,6 +407,7 @@ protected:
 
   // values we use to determine if we need to rebuild shaders
   std::map<const vtkOpenGLHelper *, int> LastLightComplexity;
+  std::map<const vtkOpenGLHelper *, int> LastLightCount;
   std::map<const vtkOpenGLHelper *, vtkTimeStamp> LightComplexityChanged;
 
   int LastSelectionState;

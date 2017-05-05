@@ -109,6 +109,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
     this->LastLightComplexity[&this->Primitives[i]] = -1;
+    this->LastLightCount[&this->Primitives[i]] = 0;
     this->Primitives[i].PrimitiveType = i;
   }
 
@@ -603,7 +604,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     if (this->LastLightComplexity[this->LastBoundBO])
     {
       colorImpl +=
-        "  if (int(gl_FrontFacing) == 0) {\n"
+        "  if (gl_FrontFacing == false) {\n"
         "    ambientColor = ambientColorUniformBF;\n"
         "    diffuseColor = diffuseColorUniformBF;\n"
         "    specularColor = specularColorUniformBF;\n"
@@ -619,7 +620,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     else
     {
       colorImpl +=
-        "  if (int(gl_FrontFacing) == 0) {\n"
+        "  if (gl_FrontFacing == false) {\n"
         "    ambientColor = ambientColorUniformBF;\n"
         "    diffuseColor = diffuseColorUniformBF;\n"
         "    opacity = opacityUniformBF; }\n"
@@ -786,7 +787,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   }
 
   int lastLightComplexity = this->LastLightComplexity[this->LastBoundBO];
+  int lastLightCount = this->LastLightCount[this->LastBoundBO];
 
+  std::ostringstream toString;
   switch (lastLightComplexity)
   {
     case 0: // no lighting or RENDER_VALUES
@@ -798,114 +801,117 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       break;
 
     case 1:  // headlight
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
-        "  float df = max(0.0, normalVCVSOutput.z);\n"
+      toString <<
+        "  float df = max(0.0,normalVCVSOutput.z);\n"
         "  float sf = pow(df, specularPower);\n"
         "  vec3 diffuse = df * diffuseColor;\n"
         "  vec3 specular = sf * specularColor;\n"
         "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);\n"
-        "  //VTK::Light::Impl\n",
-        false
-      );
+        "  //VTK::Light::Impl\n";
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
+        toString.str(), false);
       break;
 
     case 2: // light kit
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
-        // only allow for up to 6 active lights
-        "uniform int numberOfLights;\n"
-        // intensity weighted color
-        "uniform vec3 lightColor[6];\n"
-        "uniform vec3 lightDirectionVC[6]; // normalized\n"
-        "uniform vec3 lightHalfAngleVC[6]; // normalized"
-      );
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
-        "vec3 diffuse = vec3(0,0,0);\n"
+      toString.clear();
+      toString.str("");
+      for (int i = 0; i < lastLightCount; ++i)
+      {
+        toString <<
+        "uniform vec3 lightColor" << i << ";\n"
+        "  uniform vec3 lightDirectionVC" << i << "; // normalized\n";
+      }
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec", toString.str());
+      toString.clear();
+      toString.str("");
+      toString <<
+        "  vec3 diffuse = vec3(0,0,0);\n"
         "  vec3 specular = vec3(0,0,0);\n"
-        "  for (int lightNum = 0; lightNum < numberOfLights; lightNum++)\n"
-        "    {\n"
-        "    float df = max(0.0, dot(normalVCVSOutput, -lightDirectionVC[lightNum]));\n"
-        // if you change the next line also change vtkShadowMapPass
-        "    diffuse += (df * lightColor[lightNum]);\n"
-        "    if (dot(normalVCVSOutput, lightDirectionVC[lightNum]) < 0.0)\n"
-        "      {\n"
-        "      float sf = pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVCVSOutput)), specularPower);\n"
-        // if you change the next line also change vtkShadowMapPass
-        "      specular += (sf * lightColor[lightNum]);\n"
-        "      }\n"
-        "    }\n"
+        "  float df;\n"
+        "  float sf;\n";
+      for (int i = 0; i < lastLightCount; ++i)
+      {
+        toString <<
+          "    df = max(0.0, dot(normalVCVSOutput, -lightDirectionVC" << i << "));\n"
+          // if you change the next line also change vtkShadowMapPass
+          "  diffuse += (df * lightColor" << i << ");\n" <<
+          "  sf = sign(df)*pow(max(0.0, dot( reflect(lightDirectionVC" <<i <<
+          ", normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
+          // if you change the next line also change vtkShadowMapPass
+          "  specular += (sf * lightColor" << i << ");\n";
+      }
+      toString <<
         "  diffuse = diffuse * diffuseColor;\n"
         "  specular = specular * specularColor;\n"
         "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);"
-        "  //VTK::Light::Impl",
-        false
-      );
+        "  //VTK::Light::Impl";
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
+        toString.str(), false);
       break;
 
     case 3: // positional
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
-        // only allow for up to 6 active lights
-        "uniform int numberOfLights;\n"
-        // intensity weighted color
-        "uniform vec3 lightColor[6];\n"
-        "uniform vec3 lightDirectionVC[6]; // normalized\n"
-        "uniform vec3 lightHalfAngleVC[6]; // normalized\n"
-        "uniform vec3 lightPositionVC[6];\n"
-        "uniform vec3 lightAttenuation[6];\n"
-        "uniform float lightConeAngle[6];\n"
-        "uniform float lightExponent[6];\n"
-        "uniform int lightPositional[6];"
-      );
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
+      toString.clear();
+      toString.str("");
+      for (int i = 0; i < lastLightCount; ++i)
+      {
+        toString <<
+        "uniform vec3 lightColor" << i << ";\n"
+        "uniform vec3 lightDirectionVC" << i << "; // normalized\n"
+        "uniform vec3 lightPositionVC" << i << ";\n"
+        "uniform vec3 lightAttenuation" << i << ";\n"
+        "uniform float lightConeAngle" << i << ";\n"
+        "uniform float lightExponent" << i << ";\n"
+        "uniform int lightPositional" << i << ";";
+      }
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec", toString.str());
+      toString.clear();
+      toString.str("");
+      toString <<
         "  vec3 diffuse = vec3(0,0,0);\n"
         "  vec3 specular = vec3(0,0,0);\n"
         "  vec3 vertLightDirectionVC;\n"
-        "  for (int lightNum = 0; lightNum < numberOfLights; lightNum++)\n"
-        "    {\n"
-        "    float attenuation = 1.0;\n"
-        "    if (lightPositional[lightNum] == 0)\n"
-        "      {\n"
-        "      vertLightDirectionVC = lightDirectionVC[lightNum];\n"
-        "      }\n"
-        "    else\n"
-        "      {\n"
-        "      vertLightDirectionVC = vertexVC.xyz - lightPositionVC[lightNum];\n"
-        "      float distanceVC = length(vertLightDirectionVC);\n"
-        "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
-        "      attenuation = 1.0 /\n"
-        "        (lightAttenuation[lightNum].x\n"
-        "         + lightAttenuation[lightNum].y * distanceVC\n"
-        "         + lightAttenuation[lightNum].z * distanceVC * distanceVC);\n"
-        "      // per OpenGL standard cone angle is 90 or less for a spot light\n"
-        "      if (lightConeAngle[lightNum] <= 90.0)\n"
-        "        {\n"
-        "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC[lightNum]);\n"
-        "        // if inside the cone\n"
-        "        if (coneDot >= cos(radians(lightConeAngle[lightNum])))\n"
-        "          {\n"
-        "          attenuation = attenuation * pow(coneDot, lightExponent[lightNum]);\n"
-        "          }\n"
-        "        else\n"
-        "          {\n"
-        "          attenuation = 0.0;\n"
-        "          }\n"
-        "        }\n"
-        "      }\n"
-        "    float df = max(0.0, attenuation*dot(normalVCVSOutput, -vertLightDirectionVC));\n"
-        // if you change the next line also change vtkShadowMapPass
-        "    diffuse += (df * lightColor[lightNum]);\n"
-        "    if (dot(normalVCVSOutput, vertLightDirectionVC) < 0.0)\n"
-        "      {\n"
-        "      float sf = attenuation*pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVCVSOutput)), specularPower);\n"
-        // if you change the next line also change vtkShadowMapPass
-        "      specular += (sf * lightColor[lightNum]);\n"
-        "      }\n"
-        "    }\n"
+        "  float attenuation;\n"
+        "  float df;\n"
+        "  float sf;\n"
+        ;
+      for (int i = 0; i < lastLightCount; ++i)
+      {
+        toString <<
+          "    attenuation = 1.0;\n"
+          "    if (lightPositional" << i << " == 0) {\n"
+          "      vertLightDirectionVC = lightDirectionVC" << i << "; }\n"
+          "    else {\n"
+          "      vertLightDirectionVC = vertexVC.xyz - lightPositionVC" << i << ";\n"
+          "      float distanceVC = length(vertLightDirectionVC);\n"
+          "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
+          "      attenuation = 1.0 /\n"
+          "        (lightAttenuation" << i << ".x\n"
+          "         + lightAttenuation" << i << ".y * distanceVC\n"
+          "         + lightAttenuation" << i << ".z * distanceVC * distanceVC);\n"
+          "      // per OpenGL standard cone angle is 90 or less for a spot light\n"
+          "      if (lightConeAngle" << i << " <= 90.0) {\n"
+          "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC" << i << ");\n"
+          "        // if inside the cone\n"
+          "        if (coneDot >= cos(radians(lightConeAngle" << i << "))) {\n"
+          "          attenuation = attenuation * pow(coneDot, lightExponent" << i << "); }\n"
+          "        else {\n"
+          "          attenuation = 0.0; }\n"
+          "        }\n"
+          "      }\n" <<
+          "    df = max(0.0,attenuation*dot(normalVCVSOutput, -vertLightDirectionVC));\n"
+          // if you change the next line also change vtkShadowMapPass
+          "    diffuse += (df * lightColor" << i << ");\n"
+          "    sf = sign(df)*attenuation*pow( max(0.0, dot( reflect(vertLightDirectionVC, normalVCVSOutput), normalize(-vertexVC.xyz))), specularPower);\n"
+          // if you change the next line also change vtkShadowMapPass
+          "      specular += (sf * lightColor" << i << ");\n";
+      }
+      toString <<
         "  diffuse = diffuse * diffuseColor;\n"
         "  specular = specular * specularColor;\n"
-        "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);\n"
-        "  //VTK::Light::Impl",
-        false
-        );
+        "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);"
+        "  //VTK::Light::Impl";
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
+        toString.str(), false);
       break;
   }
 
@@ -1404,7 +1410,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
             "  //VTK::UniformFlow::Impl\n" // For further replacements
             );
       vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
-        "  fdx = normalize(fdx);\n"
+        "fdx = normalize(fdx);\n"
         "  fdy = normalize(fdy);\n"
         "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
         // the code below is faster, but does not work on some devices
@@ -1627,6 +1633,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   vtkOpenGLHelper &cellBO, vtkRenderer* ren, vtkActor *actor)
 {
   int lightComplexity = 0;
+  int numberOfLights = 0;
 
   // wacky backwards compatibility with old VTK lighting
   // soooo there are many factors that determine if a primitive is lit or not.
@@ -1658,7 +1665,6 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     // consider the lighting complexity to determine which case applies
     // simple headlight, Light Kit, the whole feature set of VTK
     lightComplexity = 0;
-    int numberOfLights = 0;
     vtkLightCollection *lc = ren->GetLights();
     vtkLight *light;
 
@@ -1692,10 +1698,12 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     }
   }
 
-  if (this->LastLightComplexity[&cellBO] != lightComplexity)
+  if (this->LastLightComplexity[&cellBO] != lightComplexity ||
+      this->LastLightCount[&cellBO] != numberOfLights)
   {
     this->LightComplexityChanged[&cellBO].Modified();
     this->LastLightComplexity[&cellBO] = lightComplexity;
+    this->LastLightCount[&cellBO] = numberOfLights;
   }
 
   // has something changed that would require us to recreate the shader?
@@ -1992,6 +2000,11 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
     return;
   }
 
+  // Note:
+  // May want to do some of this in OpenGLRenderer if it becomes
+  // a performance issue with many actors.  A lot of this could
+  // be cached there along with the light complexity calc.
+
   vtkShaderProgram *program = cellBO.Program;
 
   // for lightkit case there are some parameters to set
@@ -2008,28 +2021,39 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
     info->Has(vtkLightingMapPass::RENDER_LUMINANCE());
 
   vtkCollectionSimpleIterator sit;
-  float lightColor[6][3];
-  float lightDirection[6][3];
-  float lightHalfAngle[6][3];
-  for(lc->InitTraversal(sit);
-      numberOfLights < 6 && (light = lc->GetNextLight(sit)); )
+  float lightColor[3];
+  float lightDirection[3];
+  std::string lcolor("lightColor");
+  std::string ldir("lightDirectionVC");
+  std::string latten("lightAttenuation");
+  std::string lpositional("lightPositional");
+  std::string lpos("lightPositionVC");
+  std::string lexp("lightExponent");
+  std::string lcone("lightConeAngle");
+
+  std::ostringstream toString;
+  for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
   {
     float status = light->GetSwitch();
     if (status > 0.0)
     {
+      toString.str("");
+      toString << numberOfLights;
+      std::string count = toString.str();
+
       double *dColor = light->GetDiffuseColor();
       double intensity = light->GetIntensity();
       if (renderLuminance)
       {
-        lightColor[numberOfLights][0] = intensity;
-        lightColor[numberOfLights][1] = intensity;
-        lightColor[numberOfLights][2] = intensity;
+        lightColor[0] = intensity;
+        lightColor[1] = intensity;
+        lightColor[2] = intensity;
       }
       else
       {
-        lightColor[numberOfLights][0] = dColor[0] * intensity;
-        lightColor[numberOfLights][1] = dColor[1] * intensity;
-        lightColor[numberOfLights][2] = dColor[2] * intensity;
+        lightColor[0] = dColor[0] * intensity;
+        lightColor[1] = dColor[1] * intensity;
+        lightColor[2] = dColor[2] * intensity;
       }
       // get required info from light
       double *lfp = light->GetTransformedFocalPoint();
@@ -2038,64 +2062,39 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
       vtkMath::Subtract(lfp,lp,lightDir);
       vtkMath::Normalize(lightDir);
       double *tDir = viewTF->TransformNormal(lightDir);
-      lightDirection[numberOfLights][0] = tDir[0];
-      lightDirection[numberOfLights][1] = tDir[1];
-      lightDirection[numberOfLights][2] = tDir[2];
-      lightDir[0] = -tDir[0];
-      lightDir[1] = -tDir[1];
-      lightDir[2] = -tDir[2]+1.0;
-      vtkMath::Normalize(lightDir);
-      lightHalfAngle[numberOfLights][0] = lightDir[0];
-      lightHalfAngle[numberOfLights][1] = lightDir[1];
-      lightHalfAngle[numberOfLights][2] = lightDir[2];
+      lightDirection[0] = tDir[0];
+      lightDirection[1] = tDir[1];
+      lightDirection[2] = tDir[2];
+
+      program->SetUniform3f((lcolor + count).c_str(), lightColor);
+      program->SetUniform3f((ldir + count).c_str(), lightDirection);
+
+      // we are done unless we have positional lights
+      if (this->LastLightComplexity[&cellBO] >= 3)
+      {
+        // if positional lights pass down more parameters
+        float lightAttenuation[3];
+        float lightPosition[3];
+        double *attn = light->GetAttenuationValues();
+        lightAttenuation[0] = attn[0];
+        lightAttenuation[1] = attn[1];
+        lightAttenuation[2] = attn[2];
+        double *tlp = viewTF->TransformPoint(lp);
+        lightPosition[0] = tlp[0];
+        lightPosition[1] = tlp[1];
+        lightPosition[2] = tlp[2];
+
+        program->SetUniform3f((latten + count).c_str(), lightAttenuation);
+        program->SetUniformi((lpositional + count).c_str(), light->GetPositional());
+        program->SetUniform3f((lpos + count).c_str(), lightPosition);
+        program->SetUniformf((lexp + count).c_str(), light->GetExponent());
+        program->SetUniformf((lcone + count).c_str(), light->GetConeAngle());
+      }
+
       numberOfLights++;
     }
   }
 
-  program->SetUniform3fv("lightColor", numberOfLights, lightColor);
-  program->SetUniform3fv("lightDirectionVC", numberOfLights, lightDirection);
-  program->SetUniform3fv("lightHalfAngleVC", numberOfLights, lightHalfAngle);
-  program->SetUniformi("numberOfLights", numberOfLights);
-
-  // we are done unless we have positional lights
-  if (this->LastLightComplexity[&cellBO] < 3)
-  {
-    return;
-  }
-
-  // if positional lights pass down more parameters
-  float lightAttenuation[6][3];
-  float lightPosition[6][3];
-  float lightConeAngle[6];
-  float lightExponent[6];
-  int lightPositional[6];
-  numberOfLights = 0;
-  for(lc->InitTraversal(sit);
-      numberOfLights < 6 && (light = lc->GetNextLight(sit)); )
-  {
-    float status = light->GetSwitch();
-    if (status > 0.0)
-    {
-      double *attn = light->GetAttenuationValues();
-      lightAttenuation[numberOfLights][0] = attn[0];
-      lightAttenuation[numberOfLights][1] = attn[1];
-      lightAttenuation[numberOfLights][2] = attn[2];
-      lightExponent[numberOfLights] = light->GetExponent();
-      lightConeAngle[numberOfLights] = light->GetConeAngle();
-      double *lp = light->GetTransformedPosition();
-      double *tlp = viewTF->TransformPoint(lp);
-      lightPosition[numberOfLights][0] = tlp[0];
-      lightPosition[numberOfLights][1] = tlp[1];
-      lightPosition[numberOfLights][2] = tlp[2];
-      lightPositional[numberOfLights] = light->GetPositional();
-      numberOfLights++;
-    }
-  }
-  program->SetUniform3fv("lightAttenuation", numberOfLights, lightAttenuation);
-  program->SetUniform1iv("lightPositional", numberOfLights, lightPositional);
-  program->SetUniform3fv("lightPositionVC", numberOfLights, lightPosition);
-  program->SetUniform1fv("lightExponent", numberOfLights, lightExponent);
-  program->SetUniform1fv("lightConeAngle", numberOfLights, lightConeAngle);
 }
 
 //-----------------------------------------------------------------------------
@@ -3173,8 +3172,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   // if the data or mapper or selection state changed
   // then rebuild the cell arrays
   std::ostringstream toString;
-  toString.str("");
   toString.clear();
+  toString.str("");
   toString << (prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0) <<
     'A' << (prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0) <<
     'B' << (prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0) <<
