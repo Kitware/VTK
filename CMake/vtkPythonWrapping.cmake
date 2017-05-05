@@ -191,12 +191,22 @@ function(vtk_write_python_modules_header filename)
 
   if (NOT BUILD_SHARED_LIBS)
     # fill in the init functions only when BUILD_SHARED_LIBS is OFF.
+    set(EXTERN_DEFINES "${EXTERN_DEFINES}\n#if PY_VERSION_HEX < 0x03000000")
+    set(INIT_CALLS "${INIT_CALLS}\n#if PY_VERSION_HEX < 0x03000000")
     foreach (module ${ARGN})
       set (EXTERN_DEFINES "${EXTERN_DEFINES}\n  extern void init${module}Python();")
       set (INIT_CALLS "${INIT_CALLS}\n
   static char name${module}[] = \"${module}Python\";
   PyImport_AppendInittab(name${module}, init${module}Python);")
     endforeach()
+    set(EXTERN_DEFINES "${EXTERN_DEFINES}\n#else /* PY3K */")
+    set(INIT_CALLS "${INIT_CALLS}\n#else /* PY3K */")
+    foreach (module ${ARGN})
+      set (EXTERN_DEFINES "${EXTERN_DEFINES}\n  extern PyObject *PyInit_${module}Python();")
+      set (INIT_CALLS "${INIT_CALLS}\n  PyImport_AppendInittab(\"${module}Python\", PyInit_${module}Python);")
+    endforeach()
+    set(EXTERN_DEFINES "${EXTERN_DEFINES}\n#endif /* PY3K */\n")
+    set(INIT_CALLS "${INIT_CALLS}\n#endif /* PY3K */\n")
   endif()
 
   configure_file(${VTK_CMAKE_DIR}/pythonmodules.h.in
