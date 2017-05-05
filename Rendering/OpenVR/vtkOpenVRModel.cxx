@@ -26,8 +26,174 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextureObject.h"
 #include "vtkRendererCollection.h"
 #include "vtkMatrix4x4.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorObserver.h"
 
-vtkStandardNewMacro( vtkOpenVRModel );
+/*=========================================================================
+vtkOpenVRRay
+=========================================================================*/
+class vtkOpenVRRay : public vtkObject
+{
+public:
+  static vtkOpenVRRay *New();
+  vtkTypeMacro(vtkOpenVRRay, vtkObject);
+
+  bool Build(vtkOpenVRRenderWindow *win);
+  void Render(vtkOpenVRRenderWindow *win,
+    vtkMatrix4x4 *poseMatrix);
+
+  // show the model
+  void SetShow(bool v) {
+    this->Show = v;
+  };
+  bool GetShow() {
+    return this->Show;
+  };
+
+  void SetLength(float s) {
+    this->Length = s;
+  };
+
+  void ReleaseGraphicsResources(vtkRenderWindow *win);
+
+protected:
+  vtkOpenVRRay();
+  ~vtkOpenVRRay();
+
+  bool Show;
+  bool Loaded;
+
+  vtkOpenGLHelper ModelHelper;
+  vtkOpenGLVertexBufferObject *ModelVBO;
+  vtkNew<vtkMatrix4x4> PoseMatrix;
+
+  float Length;
+};
+
+vtkStandardNewMacro(vtkOpenVRRay);
+
+vtkOpenVRRay::vtkOpenVRRay()
+{
+  this->Show = false;
+  this->Length = 1.0f;
+  this->Loaded = false;
+  this->ModelVBO = vtkOpenGLVertexBufferObject::New();
+};
+
+vtkOpenVRRay::~vtkOpenVRRay()
+{
+  this->ModelVBO->Delete();
+  this->ModelVBO = 0;
+}
+
+void vtkOpenVRRay::ReleaseGraphicsResources(vtkRenderWindow *win)
+{
+  this->ModelVBO->ReleaseGraphicsResources();
+  this->ModelHelper.ReleaseGraphicsResources(win);
+}
+
+bool vtkOpenVRRay::Build(vtkOpenVRRenderWindow *win)
+{
+  //Ray geometry
+  float vert[] = {
+    0, 0, 0,
+    0, 0, -1};
+  unsigned short ind[] = {0, 1};
+
+  this->ModelVBO->Upload(
+    vert,
+    2 * 3,
+    vtkOpenGLBufferObject::ArrayBuffer);
+  this->ModelHelper.IBO->Upload(
+    ind,
+    1 * 2,
+    vtkOpenGLBufferObject::ElementArrayBuffer);
+  this->ModelHelper.IBO->IndexCount = 1 * 2;
+
+  this->ModelHelper.Program = win->GetShaderCache()->ReadyShaderProgram(
+
+    // vertex shader
+    "//VTK::System::Dec\n"
+    "uniform mat4 matrix;\n"
+    "uniform float scale;\n"
+    "attribute vec3 position;\n"
+    "void main()\n"
+    "{\n"
+    " gl_Position =  matrix * vec4(scale * position, 1);\n"
+    "}\n",
+
+    //fragment shader
+    "//VTK::System::Dec\n"
+    "//VTK::Output::Dec\n"
+    "void main()\n"
+    "{\n"
+    "   gl_FragData[0] = vec4(1,0,0,1);\n"
+    "}\n",
+
+    // geom shader
+    ""
+    );
+  vtkShaderProgram *program = this->ModelHelper.Program;
+  this->ModelHelper.VAO->Bind();
+  if (!this->ModelHelper.VAO->AddAttributeArray(program,
+    this->ModelVBO,
+    "position",
+    0,
+    3 * sizeof(float),
+    VTK_FLOAT, 3, false))
+  {
+    vtkErrorMacro(<< "Error setting position in shader VAO.");
+  }
+
+  return true;
+}
+
+void vtkOpenVRRay::Render(
+  vtkOpenVRRenderWindow *win,
+  vtkMatrix4x4 *poseMatrix)
+{
+  //Load ray
+  if (!this->Loaded)
+  {
+    if (!this->Build(win))
+    {
+      vtkErrorMacro("Unable to build controller ray ");
+    }
+    this->Loaded = true;
+  }
+
+  // Render ray
+  win->GetShaderCache()->ReadyShaderProgram(this->ModelHelper.Program);
+  this->ModelHelper.VAO->Bind();
+  this->ModelHelper.IBO->Bind();
+
+  vtkRenderer *ren = static_cast< vtkRenderer * >(
+    win->GetRenderers()->GetItemAsObject(0));
+  if (!ren)
+  {
+    vtkErrorMacro("Unable get renderer");
+    return;
+  }
+
+  double unitV[4] = {0, 0, 0, 1};
+  double scaleFactor =
+    vtkMath::Norm( poseMatrix->MultiplyDoublePoint(unitV));
+
+  this->ModelHelper.Program->SetUniformf("scale",
+    this->Length / scaleFactor);
+
+  this->ModelHelper.Program->SetUniformMatrix("matrix",
+    poseMatrix);
+
+  glDrawElements(GL_LINES,
+    static_cast<GLsizei>(this->ModelHelper.IBO->IndexCount),
+    GL_UNSIGNED_SHORT, 0);
+}
+
+/*=========================================================================
+vtkOpenVRModel
+=========================================================================*/
+vtkStandardNewMacro(vtkOpenVRModel);
 
 vtkOpenVRModel::vtkOpenVRModel()
 {
@@ -225,12 +391,43 @@ void vtkOpenVRModel::Render(
         (double *)(tcdc->Element),
         (double *)(this->PoseMatrix->Element));
 
-      this->ModelHelper.Program->SetUniformMatrix("matrix", this->PoseMatrix.Get());
+      this->ModelHelper.Program->SetUniformMatrix("matrix",
+        this->PoseMatrix.Get());
     }
 
     glDrawElements(GL_TRIANGLES,
       static_cast<GLsizei>(this->ModelHelper.IBO->IndexCount),
       GL_UNSIGNED_SHORT, 0);
     this->TextureObject->Deactivate();
+
+    //Handle drawing of the ray associated to this model
+    if (!win->GetInteractor())
+    {
+      vtkErrorMacro("Unable to get interactor");
+      return;
+    }
+    if (!win->GetInteractor()->GetInteractorStyle())
+    {
+      vtkErrorMacro("Unable to get interactor style");
+      return;
+    }
+    //Update ray points and draw state
+    win->GetInteractor()->GetInteractorStyle()->InvokeEvent(
+      vtkCommand::RenderEvent);
+    //Draw ray
+    if (this->Ray->GetShow())
+    {
+      this->Ray->Render(win, this->PoseMatrix.Get());
+    }
   }
+}
+
+void vtkOpenVRModel::SetShowRay(bool v)
+{
+  this->Ray->SetShow(v);
+}
+
+void vtkOpenVRModel::SetRayLength(double length)
+{
+  this->Ray->SetLength(length);
 }

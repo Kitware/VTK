@@ -34,6 +34,7 @@ class vtkRenderWindow;
 class vtkOpenGLVertexBufferObject;
 class vtkTextureObject;
 class vtkMatrix4x4;
+class vtkOpenVRRay;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRModel : public vtkObject
 {
@@ -60,6 +61,9 @@ public:
     return this->Show;
   };
 
+  //Set Ray parameters
+  void SetShowRay(bool v);
+  void SetRayLength(double length);
 
   void ReleaseGraphicsResources(vtkRenderWindow *win);
 
@@ -80,6 +84,9 @@ protected:
   vtkOpenGLVertexBufferObject *ModelVBO;
   vtkNew<vtkTextureObject> TextureObject;
   vtkNew<vtkMatrix4x4> PoseMatrix;
+
+  //Controller ray
+  vtkNew<vtkOpenVRRay> Ray;
 };
 
 #endif
