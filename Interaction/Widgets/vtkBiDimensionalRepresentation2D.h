@@ -131,9 +131,6 @@ protected:
   vtkBiDimensionalRepresentation2D();
   ~vtkBiDimensionalRepresentation2D() VTK_OVERRIDE;
 
-  // Keep track if modifier is set
-  int Modifier;
-
   // Geometry of the lines
   vtkCellArray        *LineCells;
   vtkPoints           *LinePoints;
