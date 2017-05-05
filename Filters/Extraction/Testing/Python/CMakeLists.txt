@@ -1,4 +1,5 @@
 vtk_add_test_python(
+  extractBlocks.py,NO_RT,NO_VALID
   ExtractEdgesQuadraticCells.py
   extractPolyData.py
   extractRectGrid.py
