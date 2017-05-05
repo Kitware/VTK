@@ -2783,16 +2783,18 @@ static int insideBoxFunction(vtkIdType cellId, vtkUnstructuredGrid *grid, void *
 void vtkDistributedDataFilter::AddConstantUnsignedCharPointArray(
   vtkUnstructuredGrid *grid, const char *arrayName, unsigned char val)
 {
-  vtkIdType npoints = grid->GetNumberOfPoints();
-
-  unsigned char *vals = new unsigned char [npoints];
-
-  memset(vals, val, npoints);
-
   vtkUnsignedCharArray *Array = vtkUnsignedCharArray::New();
   Array->SetName(arrayName);
-  Array->SetArray(vals, npoints, 0,
-    vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE);
+
+  vtkIdType npoints = grid->GetNumberOfPoints();
+  if (npoints)
+  {
+    unsigned char *vals = new unsigned char [npoints];
+    memset(vals, val, npoints);
+
+    Array->SetArray(vals, npoints, 0,
+      vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE);
+  }
 
   grid->GetPointData()->AddArray(Array);
 
@@ -2803,15 +2805,17 @@ void vtkDistributedDataFilter::AddConstantUnsignedCharPointArray(
 void vtkDistributedDataFilter::AddConstantUnsignedCharCellArray(
   vtkUnstructuredGrid *grid, const char *arrayName, unsigned char val)
 {
-  vtkIdType ncells = grid->GetNumberOfCells();
-
-  unsigned char *vals = new unsigned char [ncells];
-
-  memset(vals, val, ncells);
-
   vtkUnsignedCharArray *Array = vtkUnsignedCharArray::New();
   Array->SetName(arrayName);
-  Array->SetArray(vals, ncells, 0, vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE);
+
+  vtkIdType ncells = grid->GetNumberOfCells();
+  if (ncells)
+  {
+    unsigned char *vals = new unsigned char [ncells];
+    memset(vals, val, ncells);
+
+    Array->SetArray(vals, ncells, 0, vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE);
+  }
 
   grid->GetCellData()->AddArray(Array);
 
