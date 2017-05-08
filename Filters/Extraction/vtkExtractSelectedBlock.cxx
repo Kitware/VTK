@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkExtractSelectedBlock.h"
 
-#include "vtkCompositeDataIterator.h"
-#include "vtkUnsignedIntArray.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkUnsignedIntArray.h"
 
 #include <set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
@@ -85,6 +85,45 @@ int vtkExtractSelectedBlock::RequestDataObject(
   return this->Superclass::RequestDataObject(req, inputVector, outputVector);
 }
 
+namespace
+{
+/**
+ * Copies subtree and removes ids for subtree from `ids`.
+ */
+void vtkCopySubTree(std::set<unsigned int>& ids, vtkCompositeDataIterator* loc,
+  vtkCompositeDataSet* output, vtkCompositeDataSet* input)
+{
+  vtkDataObject* inputNode = input->GetDataSet(loc);
+  if (vtkCompositeDataSet* cinput = vtkCompositeDataSet::SafeDownCast(inputNode))
+  {
+    vtkCompositeDataSet* coutput = vtkCompositeDataSet::SafeDownCast(output->GetDataSet(loc));
+    assert(coutput != nullptr);
+
+    // shallow copy..this pass the non-leaf nodes over.
+    coutput->ShallowCopy(cinput);
+
+    // now, we need to remove all composite ids for the subtree from the set to
+    // extract to avoid attempting to copy them multiple times (although it
+    // should not be harmful at all).
+
+    vtkCompositeDataIterator* iter = cinput->NewIterator();
+    if (vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter))
+    {
+      treeIter->VisitOnlyLeavesOff();
+    }
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      ids.erase(loc->GetCurrentFlatIndex() + iter->GetCurrentFlatIndex());
+    }
+    iter->Delete();
+  }
+  else
+  {
+    output->SetDataSet(loc, inputNode);
+  }
+  ids.erase(loc->GetCurrentFlatIndex());
+}
+}
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedBlock::RequestData(
@@ -118,12 +157,10 @@ int vtkExtractSelectedBlock::RequestData(
     vtkErrorMacro("This filter expects a single-node selection of type BLOCKS.");
     return 0;
   }
-  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
 
   bool inverse = (node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
     node->GetProperties()->Get(vtkSelectionNode::INVERSE()) == 1);
 
-  output->CopyStructure(cd);
   vtkDataArray* selectionList = vtkArrayDownCast<vtkDataArray>(
     node->GetSelectionList());
   std::set<unsigned int> blocks;
@@ -142,15 +179,39 @@ int vtkExtractSelectedBlock::RequestData(
     }
   }
 
-  vtkCompositeDataIterator* citer = cd->NewIterator();
-  for (citer->InitTraversal(); !citer->IsDoneWithTraversal();
-    citer->GoToNextItem())
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
+
+  // short-circuit if root index is present.
+  const bool has_root = (blocks.find(0) != blocks.end());
+  if (has_root && !inverse)
   {
-    std::set<unsigned int>::iterator fiter =
-      blocks.find(citer->GetCurrentFlatIndex());
+    // pass everything.
+    output->ShallowCopy(cd);
+    return 1;
+  }
+
+  if (has_root && inverse)
+  {
+    // pass nothing.
+    output->CopyStructure(cd);
+    return 1;
+  }
+
+  // pass selected ids (or invert)
+  output->CopyStructure(cd);
+
+  vtkCompositeDataIterator* citer = cd->NewIterator();
+  if (vtkDataObjectTreeIterator* diter = vtkDataObjectTreeIterator::SafeDownCast(citer))
+  {
+    diter->VisitOnlyLeavesOff();
+  }
+
+  for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
+  {
+    auto fiter = blocks.find(citer->GetCurrentFlatIndex());
     if ((inverse && fiter == blocks.end()) || (!inverse && fiter != blocks.end()))
     {
-      output->SetDataSet(citer, citer->GetCurrentDataObject());
+      vtkCopySubTree(blocks, citer, output, cd);
     }
   }
   citer->Delete();

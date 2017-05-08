@@ -13,8 +13,18 @@
 
 =========================================================================*/
 /**
- * @class   vtkExtractSelectedBlock
+ * @class vtkExtractSelectedBlock
+ * @brief Extract-Selection filter to extract blocks.
  *
+ * vtkExtractSelectedBlock extracts blocks from a composite dataset on input 0
+ * using a vtkSelection on input 1.
+ *
+ * IDs extracted can refer to leaf nodes or non-leaf nodes. When they refer to
+ * non-leaf nodes, the entire subtree is extracted.
+ *
+ * Note: this filter uses `vtkCompositeDataSet::ShallowCopy`, as a result, datasets at
+ * leaf nodes are simply passed through, rather than being shallow-copied
+ * themselves.
 */
 
 #ifndef vtkExtractSelectedBlock_h
