@@ -369,24 +369,40 @@ void vtkOpenGLVertexBufferObject::AppendDataArray(
   {
     std::vector<double> shift;
     std::vector<double> scale;
+    bool useSS = false;
     for (int i = 0; i < array->GetNumberOfComponents(); ++i)
     {
       double range[2];
       array->GetRange(range, i);
-      shift.push_back(range[0]); //-0.5 * (bds[1] + bds[0]);
+      double dshift = 0.5 * (range[1] + range[0]);
       double delta = range[1] - range[0];
-      if ((delta > 0 && fabs(shift.at(i)) / delta > 1.0e4))
+      if (delta > 0 && (
+        fabs(dshift) / delta > 1.0e3 || fabs(log10(delta)) > 3.0))
       {
-        scale.push_back(1.0 / delta);
-      }
-      else
-      {
-        shift.at(i) = 0.0;
-        scale.push_back(1.0);
+        useSS = true;
+        break;
       }
     }
-    this->SetShift(shift);
-    this->SetScale(scale);
+    if (useSS)
+    {
+      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+      {
+        double range[2];
+        array->GetRange(range, i);
+        shift.push_back(0.5 * (range[1] + range[0]));
+        double delta = range[1] - range[0];
+        if (delta > 0)
+        {
+          scale.push_back(1.0 / delta);
+        }
+        else
+        {
+          scale.push_back(1.0);
+        }
+      }
+      this->SetShift(shift);
+      this->SetScale(scale);
+    }
   }
 
   this->NumberOfTuples += array->GetNumberOfTuples();
