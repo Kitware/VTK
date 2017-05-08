@@ -326,7 +326,13 @@ void QVTKOpenGLWidget::recreateFBO()
   format.setAttachment(QOpenGLFramebufferObject::Depth);
   format.setSamples(samples);
 
-  const QSize deviceSize = this->size() * this->devicePixelRatioF();
+  qreal devicePixelRatioF;
+ #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+  devicePixelRatioF = static_cast<qreal>(this->devicePixelRatio());
+ #else
+  devicePixelRatioF = this->devicePixelRatioF();
+ #endif
+  const QSize deviceSize = this->size() * devicePixelRatioF;
   this->FBO = new QOpenGLFramebufferObject(deviceSize, format);
   this->FBO->bind();
   this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
