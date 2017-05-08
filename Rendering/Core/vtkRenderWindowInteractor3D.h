@@ -257,6 +257,11 @@ public:
   vtkGetVector3Macro(LastTranslation3D, double);
   //@}
 
+  /**
+   * Is the interactor loop done
+   */
+  vtkGetMacro(Done, bool);
+
 protected:
   vtkRenderWindowInteractor3D();
   ~vtkRenderWindowInteractor3D() VTK_OVERRIDE;
