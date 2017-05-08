@@ -37,6 +37,7 @@
 #include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
@@ -67,7 +68,8 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper)
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
-  : UsingScalarColoring(false)
+  : UsingScalarColoring(false),
+    TimerQuery(new vtkOpenGLRenderTimer)
 {
   this->InternalColorTexture = NULL;
   this->PopulateSelectionSettings = 1;
@@ -113,7 +115,6 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
     this->Primitives[i].PrimitiveType = i;
   }
 
-  this->TimerQuery = 0;
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper>(this,
     &vtkOpenGLPolyDataMapper::ReleaseGraphicsResources);
 }
@@ -172,6 +173,7 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   this->SetVertexShaderCode(NULL);
   this->SetFragmentShaderCode(NULL);
   this->SetGeometryShaderCode(NULL);
+  delete TimerQuery;
 }
 
 //-----------------------------------------------------------------------------
@@ -213,13 +215,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   {
     this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
   }
-  if (this->TimerQuery)
-  {
-#if GL_ES_VERSION_3_0 != 1
-    glDeleteQueries(1, &this->TimerQuery);
-#endif
-    this->TimerQuery = 0;
-  }
+  this->TimerQuery->ReleaseGraphicsResources();
   this->VBOBuildString = "";
   this->IBOBuildString = "";
   this->Modified();
@@ -2395,31 +2391,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 
   this->TimeToDraw = 0.0;
 
-#if GL_ES_VERSION_3_0 != 1
-  if (this->TimerQuery == 0)
-  {
-    glGenQueries(1, static_cast<GLuint*>(&this->TimerQuery));
-  }
-  else
-  {
-    GLint timerAvailable = 0;
-    glGetQueryObjectiv(static_cast<GLuint>(this->TimerQuery),
-      GL_QUERY_RESULT_AVAILABLE, &timerAvailable);
-
-    if (timerAvailable)
-    {
-      // See how much time the rendering of the mapper took
-      // in nanoseconds during the previous frame
-      GLuint timeElapsed = 0;
-      glGetQueryObjectuiv(static_cast<GLuint>(this->TimerQuery),
-        GL_QUERY_RESULT, &timeElapsed);
-      // Set the rendering time for this frame with the previous one
-      this->TimeToDraw = timeElapsed / 1.0e9;
-    }
-  }
-
-  glBeginQuery(GL_TIME_ELAPSED, static_cast<GLuint>(this->TimerQuery));
-#endif
+  this->TimerQuery->ReusableStart();
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = getPickState(ren);
@@ -2577,9 +2549,9 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
     this->InternalColorTexture->PostRender(ren);
   }
 
-#if GL_ES_VERSION_3_0 != 1
-  glEndQuery(GL_TIME_ELAPSED);
-#endif
+  this->TimerQuery->ReusableStop();
+
+  this->TimeToDraw = this->TimerQuery->GetReusableElapsedSeconds();
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
