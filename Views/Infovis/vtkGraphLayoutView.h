@@ -414,7 +414,6 @@ private:
   void operator=(const vtkGraphLayoutView&) VTK_DELETE_FUNCTION;
   bool VertexLabelsRequested;
   bool EdgeLabelsRequested;
-  bool Interacting;
 };
 
 #endif

@@ -373,11 +373,6 @@ protected:
                     int face[3]);
 
   /**
-   * Dataset to be tessellated.
-   */
-  vtkGenericDataSet *DataSet;
-
-  /**
    * Number of points in the dataset to be tessellated.
    */
   vtkIdType NumberOfPoints;

@@ -189,7 +189,6 @@ protected:
   vtkInformation* GenericRequest;
   vtkInformation* DataObjectRequest;
   vtkInformation* InformationRequest;
-  vtkInformation* UpdateExtentRequest;
   vtkInformation* DataRequest;
 
 

@@ -151,9 +151,6 @@ protected:
   vtkChartMatrix();
   ~vtkChartMatrix() VTK_OVERRIDE;
 
-  class PIMPL;
-  PIMPL *Private;
-
   // The number of charts in x and y.
   vtkVector2i Size;
 
@@ -166,6 +163,9 @@ protected:
 private:
   vtkChartMatrix(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
   void operator=(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
+
+  class PIMPL;
+  PIMPL *Private;
 };
 
 #endif //vtkChartMatrix_h

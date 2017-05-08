@@ -73,15 +73,6 @@ vtkCompositeDataPipeline::vtkCompositeDataPipeline()
   // Algorithms process this request after it is forwarded.
   this->InformationRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
-  this->UpdateExtentRequest = vtkInformation::New();
-  this->UpdateExtentRequest->Set(
-    vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT());
-  // The request is forwarded upstream through the pipeline.
-  this->UpdateExtentRequest->Set(
-    vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
-  // Algorithms process this request before it is forwarded.
-  this->UpdateExtentRequest->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
-
   this->DataRequest = vtkInformation::New();
   this->DataRequest->Set(REQUEST_DATA());
   // The request is forwarded upstream through the pipeline.
@@ -99,7 +90,6 @@ vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
   this->GenericRequest->Delete();
   this->DataObjectRequest->Delete();
   this->InformationRequest->Delete();
-  this->UpdateExtentRequest->Delete();
   this->DataRequest->Delete();
 }
 

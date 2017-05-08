@@ -195,7 +195,6 @@ protected:
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
   int TimerId;
-  vtkXRenderWindowInteractorInternals* Internal;
 
   /**
    * This will start up the X event loop and never return. If you
@@ -223,6 +222,8 @@ protected:
 private:
   vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+
+  vtkXRenderWindowInteractorInternals* Internal;
 };
 
 #endif
