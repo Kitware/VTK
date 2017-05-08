@@ -274,7 +274,7 @@ int TestOSPRayRenderMesh(int argc, char* argv[])
   {
     renderer->SetPass(ospray);
   }
-  //Now, vary of most of the many parameters that rendering can vary by.
+  //Now, vary most of the many parameters that rendering can vary by.
 
   //representations points, wireframe, surface
   renderable *ren = MakeSphereAt(5,0,-5, 10, type, rep, "points");
