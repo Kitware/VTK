@@ -31,7 +31,9 @@ vtkOpenGLRenderTimer::vtkOpenGLRenderTimer()
     StartQuery(0),
     EndQuery(0),
     StartTime(0),
-    EndTime(0)
+    EndTime(0),
+    ReusableStarted(false),
+    ReusableEnded(false)
 {
 }
 
@@ -208,4 +210,108 @@ vtkOpenGLRenderTimer::GetElapsedNanoseconds()
 void vtkOpenGLRenderTimer::ReleaseGraphicsResources()
 {
   this->Reset();
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderTimer::ReusableStart()
+{
+
+#ifndef NO_TIMESTAMP_QUERIES
+  if (this->StartQuery == 0)
+  {
+    glGenQueries(1, static_cast<GLuint*>(&this->StartQuery));
+    glQueryCounter(static_cast<GLuint>(this->StartQuery), GL_TIMESTAMP);
+    this->ReusableStarted = true;
+    this->ReusableEnded = false;
+  }
+  if (!this->ReusableStarted)
+  {
+    glQueryCounter(static_cast<GLuint>(this->StartQuery), GL_TIMESTAMP);
+    this->ReusableStarted = true;
+    this->ReusableEnded = false;
+  }
+#endif // NO_TIMESTAMP_QUERIES
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderTimer::ReusableStop()
+{
+
+#ifndef NO_TIMESTAMP_QUERIES
+  if (!this->ReusableStarted)
+  {
+    vtkGenericWarningMacro("vtkOpenGLRenderTimer::ReusableStop called before "
+                           "vtkOpenGLRenderTimer::ReusableStart. Ignoring.");
+    return;
+  }
+
+  if (this->EndQuery == 0)
+  {
+    glGenQueries(1, static_cast<GLuint*>(&this->EndQuery));
+    glQueryCounter(static_cast<GLuint>(this->EndQuery), GL_TIMESTAMP);
+    this->ReusableEnded = true;
+  }
+  if (!this->ReusableEnded)
+  {
+    glQueryCounter(static_cast<GLuint>(this->EndQuery), GL_TIMESTAMP);
+    this->ReusableEnded = true;
+  }
+#endif // NO_TIMESTAMP_QUERIES
+}
+
+//------------------------------------------------------------------------------
+float vtkOpenGLRenderTimer::GetReusableElapsedSeconds()
+{
+#ifndef NO_TIMESTAMP_QUERIES
+  // we do not have an end query yet so we cannot have a time
+  if (!this->EndQuery)
+  {
+    return 0.0;
+  }
+
+  if (this->ReusableStarted && !this->StartReady)
+  {
+    GLint ready;
+    glGetQueryObjectiv(static_cast<GLuint>(this->StartQuery),
+                       GL_QUERY_RESULT_AVAILABLE, &ready);
+    if (ready)
+    {
+     this->StartReady = true;
+    }
+  }
+
+  if (this->StartReady && this->ReusableEnded && !this->EndReady)
+  {
+    GLint ready;
+    glGetQueryObjectiv(static_cast<GLuint>(this->EndQuery),
+                       GL_QUERY_RESULT_AVAILABLE, &ready);
+    if (ready)
+    {
+      this->EndReady = true;
+    }
+  }
+
+  // if everything is ready read the times to get a new elapsed time
+  // and then prep for a new flight. This also has the benefit that
+  // if no one is getting the elapsed time then nothing is done
+  // beyond the first flight.
+  if (this->StartReady && this->EndReady)
+  {
+    glGetQueryObjectui64v(static_cast<GLuint>(this->StartQuery),
+                          GL_QUERY_RESULT,
+                          reinterpret_cast<GLuint64*>(&this->StartTime));
+    glGetQueryObjectui64v(static_cast<GLuint>(this->EndQuery),
+                          GL_QUERY_RESULT,
+                          reinterpret_cast<GLuint64*>(&this->EndTime));
+    // it was ready so prepare another flight
+    this->ReusableStarted = false;
+    this->ReusableEnded = false;
+    this->StartReady = false;
+    this->EndReady = false;
+  }
+
+  return (this->EndTime - this->StartTime) * 1e-9f;
+#else // NO_TIMESTAMP_QUERIES
+  return 0.f;
+#endif // NO_TIMESTAMP_QUERIES
 }
