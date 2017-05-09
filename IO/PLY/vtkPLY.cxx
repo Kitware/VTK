@@ -94,7 +94,7 @@ static const int ply_type_size[] = {
   4, 4, 8
 };
 
-#define NO_OTHER_PROPS  -1
+#define NO_OTHER_PROPS  (-1)
 
 #define DONT_STORE_PROP  0
 #define STORE_PROP       1
@@ -204,14 +204,16 @@ PlyFile *vtkPLY::ply_open_for_writing(
 
   fp = fopen (name, "wb");
   free (name); //wjs remove memory leak//
-  if (fp == nullptr) {
+  if (fp == nullptr)
+  {
     return (nullptr);
   }
 
   /* create the actual PlyFile structure */
 
   plyfile = vtkPLY::ply_write (fp, nelems, elem_names, file_type);
-  if (plyfile == nullptr) {
+  if (plyfile == nullptr)
+  {
     fclose(fp);
     return (nullptr);
   }
@@ -718,7 +720,8 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   /* read and parse the file's header */
 
   words = get_words (plyfile->fp, &nwords, &orig_line);
-  if (!words || !equal_strings (words[0], "ply")) {
+  if (!words || !equal_strings (words[0], "ply"))
+  {
     free (plyfile);
     if(words) free (words);
     return (nullptr);
@@ -840,7 +843,8 @@ PlyFile *vtkPLY::ply_open_for_reading(
   /* create the PlyFile data structure */
 
   plyfile = vtkPLY::ply_read (fp, nelems, elem_names);
-  if (plyfile == nullptr) {
+  if (plyfile == nullptr)
+  {
     fclose(fp);
     return (nullptr);
   }
