@@ -91,5 +91,42 @@ int TestExtractTimeSteps(int argc, char *argv[])
     }
   }
 
+  extracter->UseRangeOn();
+  extracter->SetRange(4, 27);
+  extracter->SetTimeStepInterval(3);
+  extracter->Update();
+  // This should pull out 4, 7, 10, 13, 16, 19, 22, 25
+
+  double expected2[8] = {0.0004, 0.0007, 0.0010, 0.0013, 0.0016, 0.0019, 0.0022, 0.0025};
+
+  info = extracter->GetOutputInformation(0);
+  if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
+  {
+    if (info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) != 8)
+    {
+      std::cout << "got incorrect number of time steps for use range test" << std::endl;
+      return TEST_FAILED_RETVAL;
+    }
+    result = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  }
+
+  if (!result)
+  {
+    std::cout << "result has no time steps" << std::endl;
+    return TEST_FAILED_RETVAL;
+  }
+  else
+  {
+    for (int i = 0; i < 8; ++i)
+    {
+      if (std::abs(expected2[i] - result[i]) > e)
+      {
+        std::cout << expected2[i] << " " << result[i] << std::endl;
+        std::cout << "extracted time steps values do not match for use range test" << std::endl;
+        return TEST_FAILED_RETVAL;
+      }
+    }
+  }
+
   return TEST_PASSED_RETVAL;
 }
