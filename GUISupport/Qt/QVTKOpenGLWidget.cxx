@@ -66,7 +66,7 @@ class QVTKOpenGLWidgetObserver : public vtkCommand
 {
 public:
   static QVTKOpenGLWidgetObserver* New() { return new QVTKOpenGLWidgetObserver(); }
-  vtkBaseTypeMacro(QVTKOpenGLWidgetObserver, vtkCommand);
+  vtkTypeMacro(QVTKOpenGLWidgetObserver, vtkCommand);
 
   void SetTarget(QVTKOpenGLWidget* target) { this->Target = target; }
 
