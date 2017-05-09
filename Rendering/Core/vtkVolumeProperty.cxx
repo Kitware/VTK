@@ -44,7 +44,7 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->TransferFunction2D[i]              = NULL;
     this->DefaultGradientOpacity[i]          = NULL;
     this->DisableGradientOpacity[i]          = 0;
-    this->TransferFunctionMode               = TF_1D;
+    this->TransferFunctionMode               = vtkVolumeProperty::TF_1D;
 
     this->ComponentWeight[i]                 = 1.0;
 
@@ -262,7 +262,7 @@ void vtkVolumeProperty::SetColor( int index, vtkPiecewiseFunction *function )
 
     this->GrayTransferFunctionMTime[index].Modified();
     this->Modified();
-    this->TransferFunctionMode = TF_1D;
+    this->TransferFunctionMode = vtkVolumeProperty::TF_1D;
   }
 
   if (this->ColorChannels[index] != 1)
@@ -308,7 +308,7 @@ void vtkVolumeProperty::SetColor( int index, vtkColorTransferFunction *function 
     }
     this->RGBTransferFunctionMTime[index].Modified();
     this->Modified();
-    this->TransferFunctionMode = TF_1D;
+    this->TransferFunctionMode = vtkVolumeProperty::TF_1D;
   }
 
   if (this->ColorChannels[index] != 3)
@@ -355,7 +355,7 @@ void vtkVolumeProperty::SetScalarOpacity( int index, vtkPiecewiseFunction *funct
 
     this->ScalarOpacityMTime[index].Modified();
     this->Modified();
-    this->TransferFunctionMode = TF_1D;
+    this->TransferFunctionMode = vtkVolumeProperty::TF_1D;
   }
 }
 
@@ -418,7 +418,7 @@ void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *fun
 
     this->GradientOpacityMTime[index].Modified();
     this->Modified();
-    this->TransferFunctionMode = TF_1D;
+    this->TransferFunctionMode = vtkVolumeProperty::TF_1D;
   }
 }
 
@@ -455,14 +455,15 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
   if (this->TransferFunction2D[index] != function)
   {
     vtkDataArray* dataArr = function->GetPointData()->GetScalars();
+    const int* dims = function->GetDimensions();
     if (!dataArr || dataArr->GetNumberOfComponents() != 4 ||
-      dataArr->GetDataType() != VTK_FLOAT)
+      dataArr->GetDataType() != VTK_FLOAT || dims[0] == 0)
     {
       const int type = dataArr->GetDataType();
       const int comp = dataArr->GetNumberOfComponents();
       vtkErrorMacro(<< "Invalid type (" << type << ") or number of components ("
-        << comp << ") for a 2D Transfer Function, VTK_FLOAT 4 Components"
-        " expected!");
+        << comp << ") or dimensions (" << dims[0] << ", " << dims[1] << ")."
+        " Expected VTK_FLOAT, 4 Components, dimensions > 0!");
       return;
     }
 
@@ -479,7 +480,7 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
 
     this->TransferFunction2DMTime[index].Modified();
     this->Modified();
-    this->TransferFunctionMode = TF_2D;
+    this->TransferFunctionMode = vtkVolumeProperty::TF_2D;
   }
 }
 
@@ -662,6 +663,11 @@ vtkTimeStamp vtkVolumeProperty::GetGradientOpacityMTime( int index )
 vtkTimeStamp vtkVolumeProperty::GetRGBTransferFunctionMTime( int index )
 {
   return this->RGBTransferFunctionMTime[index];
+}
+
+vtkTimeStamp vtkVolumeProperty::GetTransferFunction2DMTime(int index)
+{
+  return this->TransferFunction2DMTime[index];
 }
 
 vtkTimeStamp vtkVolumeProperty::GetGrayTransferFunctionMTime( int index )

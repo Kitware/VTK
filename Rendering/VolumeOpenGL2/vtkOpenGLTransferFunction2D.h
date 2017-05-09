@@ -84,7 +84,7 @@ public:
 
       // Resample if there is a size restriction
       void* data = transfer2D->GetPointData()->GetScalars()->GetVoidPointer(0);
-      if (dims[0] != width || dims[1] != height);
+      if (dims[0] != width || dims[1] != height)
       {
         this->ResizeFilter->SetInputData(transfer2D);
         this->ResizeFilter->SetResizeMethodToOutputDimensions();

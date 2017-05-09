@@ -479,8 +479,7 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string ComputeGradientDeclaration(vtkVolume* vol, int noOfComponents,
-                                        int independentComponents)
+  std::string ComputeGradientDeclaration(vtkVolume* vol)
   {
     std::string shaderStr;
     if (vol->GetProperty()->GetShade() &&
@@ -1015,7 +1014,7 @@ namespace vtkvolume
           "vec4 computeColor(vec4 scalar, float opacity)\n"
           "{\n"
           "  vec4 color = texture2D(" + colorTableMap[0]  + ",\n"
-          "    vec2(scalar.w, g_gradients.w));\n" /// TODO Scale all gradients with the actual texture size (?) or is this done already through the normalized magnitude to Range/4?
+          "    vec2(scalar.w, g_gradients.w));\n"
           "  return computeLighting(color, 0);\n"
           "}\n");
       }
@@ -1060,7 +1059,6 @@ namespace vtkvolume
       }
       else
       {
-        // TODO Rearrange this branches, is this one necessary (Dep RGBA ?)
         return std::string(
           "vec4 computeColor(vec4 scalar, float opacity)\n"
           "{\n"
@@ -1228,7 +1226,6 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string GradientCacheDec(vtkRenderer* vtkNotUsed(ren),
-                                    vtkVolumeMapper* mapper,
                                     vtkVolume* vtkNotUsed(vol),
                                     int noOfComponents,
                                     int independentComponents = 0)
@@ -1265,7 +1262,6 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string PreComputeGradientsImpl(vtkRenderer* vtkNotUsed(ren),
-                                    vtkVolumeMapper* mapper,
                                     vtkVolume* vtkNotUsed(vol),
                                     int noOfComponents,
                                     int independentComponents = 0)
