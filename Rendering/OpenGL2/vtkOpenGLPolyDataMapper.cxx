@@ -1529,12 +1529,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::Coincident::Dec",
-      "uniform float cfactor;\n"
-      "uniform float coffset;");
     if (factor != 0.0)
     {
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Coincident::Dec",
+        "uniform float cfactor;\n"
+        "uniform float coffset;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::UniformFlow::Impl",
         "float cscale = length(vec2(dFdx(gl_FragCoord.z),dFdy(gl_FragCoord.z)));\n"
@@ -1545,6 +1545,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
     }
     else
     {
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Coincident::Dec",
+        "uniform float coffset;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Depth::Impl",
         "gl_FragDepth = gl_FragCoord.z + 0.000016*coffset;\n"
@@ -1715,13 +1718,17 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
 
   // shape of input data changed?
+  float factor, offset;
+  this->GetCoincidentParameters(ren, actor, factor, offset);
   unsigned int scv
     = (this->CurrentInput->GetPointData()->GetNormals() ? 0x01 : 0)
     + (this->HaveCellScalars ? 0x02 : 0)
     + (this->HaveCellNormals ? 0x04 : 0)
     + (this->HavePickScalars ? 0x08 : 0)
-    + (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x10 : 0)
-    + ((this->VBOs->GetNumberOfComponents("tcoordMC") % 4) << 5);
+    + ((factor != 0.0) ? 0x10 : 0)
+    + ((offset != 0.0) ? 0x20 : 0)
+    + (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x40 : 0)
+    + ((this->VBOs->GetNumberOfComponents("tcoordMC") % 4) << 7);
 
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
@@ -2331,12 +2338,14 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   // type
   factor = 0.0;
   offset = 0.0;
-  if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
+  int primType = this->LastBoundBO->PrimitiveType;
+  if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER &&
+       (primType == PrimitiveTris || primType == PrimitiveTriStrips))
   {
     // do something rough is better than nothing
     double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
     double f = zRes*4.0;
-    factor = f;
+    offset = f;
   }
 
   vtkProperty *prop = actor->GetProperty();
@@ -2345,7 +2354,6 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
   {
     double f = 0.0;
     double u = 0.0;
-    int primType = this->LastBoundBO->PrimitiveType;
     if (primType == PrimitivePoints ||
         prop->GetRepresentation() == VTK_POINTS)
     {
