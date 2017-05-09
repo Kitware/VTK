@@ -226,7 +226,7 @@ def getArrayDescription(array, context):
 
 # -----------------------------------------------------------------------------
 
-def extractRequiredFields(fields, mapper, dataset, context):
+def extractRequiredFields(extractedFields, mapper, dataset, context, requestedFields=['Normals', 'TCoords']):
   # FIXME should evolve and support funky mapper which leverage many arrays
   if mapper.IsA('vtkMapper'):
     scalarVisibility = mapper.GetScalarVisibility()
@@ -237,12 +237,29 @@ def extractRequiredFields(fields, mapper, dataset, context):
     if scalarMode == 3:
       arrayMeta = getArrayDescription(dataset.GetPointData().GetArray(colorArrayName), context)
       arrayMeta['location'] = 'pointData';
-      fields.append(arrayMeta)
+      extractedFields.append(arrayMeta)
     if scalarMode == 4:
-      arrayMeta = dataset.GetCellData().GetArray(colorArrayName)
+      arrayMeta = getArrayDescription(dataset.GetCellData().GetArray(colorArrayName), context)
       arrayMeta['location'] = 'cellData';
-      fields.append(getArrayDescription(arrayMeta, context))
+      extractedFields.append(arrayMeta)
 
+  # Normal handling
+  if 'Normals' in requestedFields:
+    normals = dataset.GetPointData().GetNormals()
+    if normals:
+      arrayMeta = getArrayDescription(normals, context)
+      arrayMeta['location'] = 'pointData'
+      arrayMeta['registration'] = 'setNormals'
+      extractedFields.append(arrayMeta)
+
+  # TCoord handling
+  if 'TCoords' in requestedFields:
+    tcoords = dataset.GetPointData().GetTCoords()
+    if tcoords:
+      arrayMeta = getArrayDescription(tcoords, context)
+      arrayMeta['location'] = 'pointData'
+      arrayMeta['registration'] = 'setTCoords'
+      extractedFields.append(arrayMeta)
 
 # -----------------------------------------------------------------------------
 # Concrete instance serializers
