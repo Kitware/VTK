@@ -38,6 +38,6 @@ list(APPEND headers
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(
     FILES       ${headers}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtknetcdfcpp/cxx"
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtknetcdfcpp"
     COMPONENT   Development)
 endif ()
