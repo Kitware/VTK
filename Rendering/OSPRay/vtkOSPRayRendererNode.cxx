@@ -414,6 +414,21 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     }
     it->GoToNextItem();
   }
+#if OSPRAY_VERSION_MAJOR > 1 || \
+    (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 2)
+  if (this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)) > 0)
+  {
+    //hardcode an ambient light for AO since OSP 1.2 stopped doing so.
+    //todo: remove when more user level light controls are ready
+    OSPLight ospAmbient = ospNewLight(oRenderer, "AmbientLight");
+    ospSetString(ospAmbient, "name", "default_ambient");
+    ospSet3f(ospAmbient, "color", 1.f, 1.f, 1.f);
+    ospSet1f(ospAmbient, "intensity",
+             0.13f*vtkOSPRayLightNode::GetLightScale()*vtkMath::Pi());
+    ospCommit(ospAmbient);
+    this->Lights.push_back(ospAmbient);
+  }
+#endif
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
     (this->Lights.size()?&this->Lights[0]:NULL), 0);
   ospSetData(oRenderer, "lights", lightArray);
