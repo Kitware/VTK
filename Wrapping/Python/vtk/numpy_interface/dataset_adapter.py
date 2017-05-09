@@ -493,7 +493,7 @@ class VTKCompositeDataArray(object):
     """
 
     def __init__(self, arrays = [], dataset = None, name = None,
-                 association = ArrayAssociation.FIELD):
+                 association = None):
         """Construct a composite array given a container of
         arrays, a dataset, name and association. It is sufficient
         to define a container of arrays to define a composite array.
@@ -505,7 +505,19 @@ class VTKCompositeDataArray(object):
         self._Arrays = arrays
         self.DataSet = dataset
         self.Name = name
-        self.Association = association
+        validAssociation = True
+        if association == None:
+            for array in self._Arrays:
+                if hasattr(array, "Association"):
+                    if association == None:
+                        association = array.Association
+                    elif array.Association and association != array.Association:
+                        validAssociation = False
+                        break
+        if validAssociation:
+            self.Association = association
+        else:
+            self.Association = ArrayAssociation.FIELD
         self.Initialized = False
 
     def __init_from_composite(self):
