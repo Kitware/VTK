@@ -162,6 +162,11 @@ public:
    */
   static QSurfaceFormat defaultFormat();
 
+  /**
+   * Enable or disable support for HiDPI displays.
+   */
+  virtual void setEnableHiDPI(bool enable);
+
 signals:
   /**
    * This signal will be emitted whenever a mouse event occurs within the QVTK window.
@@ -225,6 +230,9 @@ protected:
 
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
   QVTKInteractorAdapter* InteractorAdaptor;
+
+  bool EnableHiDPI;
+  int OriginalDPI;
 
 private:
   Q_DISABLE_COPY(QVTKOpenGLWidget);
