@@ -1772,7 +1772,10 @@ float vtkPDFContextDevice2D::ComputeTextWidth(const vtkStdString &str)
     std::string tmp(it, itEnd);
     width = std::max(width, HPDF_Page_TextWidth(this->Impl->Page, tmp.c_str()));
   }
-  return width;
+
+  // Pad by 1 -- sometimes the TextWidth result is barely too narrow for the
+  // text that's actually drawn, causing some viewers to ignore it:
+  return width + 1;
 }
 
 //------------------------------------------------------------------------------
