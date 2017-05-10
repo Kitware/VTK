@@ -1366,7 +1366,7 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
   // convert polygon to triangles
   std::vector<float> tverts;
   int numTVerts = 3*(n-2);
-  tverts.resize(numTVerts*2);
+  tverts.reserve(numTVerts*2);
   for (int i = 0; i < n-2; i++)
   {
     tverts.push_back(f[0]);
