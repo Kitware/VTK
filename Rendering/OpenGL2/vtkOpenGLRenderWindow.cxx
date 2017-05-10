@@ -517,12 +517,15 @@ void vtkOpenGLRenderWindow::SetSize(int x, int y)
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
   OpenGLInitContext();
-  OpenGLInitState();
+  if (this->Initialized)
+  {
+    OpenGLInitState();
 
-  // This is required for some reason when using vtkSynchronizedRenderers.
-  // Without it, the initial render of an offscreen context will always be
-  // empty:
-  glFlush();
+    // This is required for some reason when using vtkSynchronizedRenderers.
+    // Without it, the initial render of an offscreen context will always be
+    // empty:
+    glFlush();
+  }
 }
 
 void vtkOpenGLRenderWindow::OpenGLInitState()
@@ -2345,6 +2348,9 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
   if (rw->GlewInitValid == false)
   {
     this->OpenGLSupportMessage = "glewInit failed for this window, OpenGL not supported.";
+    rw->Delete();
+    vtkOutputWindow::SetInstance(oldOW);
+    oldOW->Delete();
     return 0;
   }
   if (rw->GetContextSupportsOpenGL32())
