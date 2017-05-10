@@ -78,12 +78,12 @@ public:
   void DrawMathTextString(float *point, const vtkStdString &str) VTK_OVERRIDE;
   void DrawImage(float p[2], float scale, vtkImageData *image) VTK_OVERRIDE;
   void DrawImage(const vtkRectf& pos, vtkImageData *image) VTK_OVERRIDE;
-  void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
-                    vtkUnsignedCharArray* colors, int scalarMode) VTK_OVERRIDE;
   void SetColor4(unsigned char color[4]) VTK_OVERRIDE;
   void SetTexture(vtkImageData* image, int properties) VTK_OVERRIDE;
   void SetPointSize(float size) VTK_OVERRIDE;
   void SetLineWidth(float width) VTK_OVERRIDE;
+  void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
+                    vtkUnsignedCharArray* colors, int scalarMode) VTK_OVERRIDE;
 
   void SetLineType(int type) VTK_OVERRIDE;
   void SetMatrix(vtkMatrix3x3 *m) VTK_OVERRIDE;

@@ -15,7 +15,10 @@
 
 #include "vtkPDFContextDevice2D.h"
 
+#include "vtkAbstractMapper.h" // for VTK_SCALAR_MODE defines
 #include "vtkBrush.h"
+#include "vtkCellIterator.h"
+#include "vtkCellTypes.h"
 #include "vtkFloatArray.h"
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
@@ -26,6 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPen.h"
+#include "vtkPolyData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkStdString.h"
@@ -33,6 +37,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkUnicodeString.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <vtk_libharu.h>
 
@@ -43,6 +48,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 namespace {
 
@@ -952,15 +958,6 @@ void vtkPDFContextDevice2D::DrawImage(const vtkRectf &pos, vtkImageData *image)
 }
 
 //------------------------------------------------------------------------------
-void vtkPDFContextDevice2D::DrawPolyData(float[2], float,
-                                         vtkPolyData *,
-                                         vtkUnsignedCharArray*,
-                                         int)
-{
-  vtkWarningMacro("DrawPolyData is not supported by the PDF device.");
-}
-
-//------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::SetColor4(unsigned char[4])
 {
   // This is how the OpenGL2 impl handles this...
@@ -984,6 +981,109 @@ void vtkPDFContextDevice2D::SetPointSize(float size)
 void vtkPDFContextDevice2D::SetLineWidth(float width)
 {
   this->Pen->SetWidth(width);
+}
+
+//------------------------------------------------------------------------------
+void vtkPDFContextDevice2D::DrawPolyData(
+    float p[2], float scale, vtkPolyData *polyData,
+    vtkUnsignedCharArray *colors, int scalarMode)
+{
+  // Do nothing if the supported cell types do not exist in the dataset:
+  vtkNew<vtkCellTypes> types;
+  polyData->GetCellTypes(types.Get());
+  if (!types->IsType(VTK_LINE) &&
+      !types->IsType(VTK_TRIANGLE) &&
+      !types->IsType(VTK_QUAD) &&
+      !types->IsType(VTK_POLYGON))
+  {
+    return;
+  }
+
+  double bounds[6];
+  polyData->GetBounds(bounds);
+
+  // Adjust bounds for transform, account for pen width:
+  const float radius = this->Pen->GetWidth() * 0.5f;
+  bounds[0] = (bounds[0] + p[0]) * scale - radius;
+  bounds[1] = (bounds[1] + p[0]) * scale + radius;
+  bounds[2] = (bounds[2] + p[1]) * scale - radius;
+  bounds[3] = (bounds[3] + p[1]) * scale + radius;
+
+  // Accumulate all triangles in a shading object:
+  HPDF_Shading shading = HPDF_Shading_New(this->Impl->Document,
+                                          HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+                                          HPDF_CS_DEVICE_RGB,
+                                          bounds[0], bounds[1],
+                                          bounds[2], bounds[3]);
+
+  // Temporary buffers:
+  std::vector<float> verts;
+  std::vector<unsigned char> vertColors;
+
+  vtkCellIterator *cell = polyData->NewCellIterator();
+  cell->InitTraversal();
+  for (; !cell->IsDoneWithTraversal(); cell->GoToNextCell())
+  {
+    // To match the original implementation on the OpenGL2 backend, we only
+    // handle polygons and lines:
+    int cellType = cell->GetCellType();
+    switch (cellType)
+    {
+      case VTK_LINE:
+      case VTK_TRIANGLE:
+      case VTK_QUAD:
+      case VTK_POLYGON:
+        break;
+
+      default:
+        continue;
+    }
+
+    // Allocate temporary arrays:
+    vtkIdType numPoints = cell->GetNumberOfPoints();
+    if (numPoints == 0)
+    {
+      continue;
+    }
+    verts.resize(static_cast<size_t>(numPoints) * 2);
+    vertColors.resize(static_cast<size_t>(numPoints) * 4);
+
+    vtkIdType cellId = cell->GetCellId();
+    vtkIdList *pointIds = cell->GetPointIds();
+    vtkPoints *points = cell->GetPoints();
+
+    for (vtkIdType i = 0; i < numPoints; ++i)
+    {
+      const size_t vertsIdx = 2 * static_cast<size_t>(i);
+      const size_t colorIdx = 4 * static_cast<size_t>(i);
+
+      const double *point = points->GetPoint(i);
+      verts[vertsIdx  ] = (static_cast<float>(point[0]) + p[0]) * scale;
+      verts[vertsIdx+1] = (static_cast<float>(point[1]) + p[1]) * scale;
+
+      if (scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA)
+      {
+        colors->GetTypedTuple(pointIds->GetId(i), vertColors.data() + colorIdx);
+      }
+      else
+      {
+        colors->GetTypedTuple(cellId, vertColors.data() + colorIdx);
+      }
+    }
+
+    if (cellType == VTK_LINE)
+    {
+      PolyLineToShading(verts.data(), numPoints, vertColors.data(), 4, radius,
+                        shading);
+    }
+    else
+    {
+      PolygonToShading(verts.data(), numPoints, vertColors.data(), 4, shading);
+    }
+  }
+  cell->Delete();
+
+  HPDF_Page_SetShading(this->Impl->Page, shading);
 }
 
 //------------------------------------------------------------------------------
