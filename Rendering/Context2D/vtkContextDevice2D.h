@@ -213,9 +213,24 @@ public:
   /**
    * Draw the supplied PolyData at the given x, y (p[0], p[1]) (bottom corner),
    * scaled by scale (1.0 would match the actual dataset).
+   *
+   * Only lines and polys are rendered. Only the x/y coordinates of the
+   * polydata are used.
+   *
+   * @param p Offset to apply to polydata.
+   * @param scale Isotropic scale for polydata. Applied after offset.
+   * @param polyData Draw lines and polys from this dataset.
+   * @param colors RGBA for points or cells, depending on value of scalarMode.
+   * Must not be NULL.
+   * @param scalarMode Must be either VTK_SCALAR_MODE_USE_POINT_DATA or
+   * VTK_SCALAR_MODE_USE_CELL_DATA.
+   *
+   * The base implementation breaks the polydata apart and renders each polygon
+   * individually using the device API. Subclasses should override this method
+   * with a batch-drawing implementation if performance is a concern.
    */
   virtual void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
-    vtkUnsignedCharArray* colors, int scalarMode) = 0;
+    vtkUnsignedCharArray* colors, int scalarMode);
 
   /**
    * Apply the supplied pen which controls the outlines of shapes, as well as
