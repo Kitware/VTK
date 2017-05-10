@@ -851,24 +851,10 @@ void vtkPDFContextDevice2D::PopMatrix()
 //------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::SetClipping(int *x)
 {
-  HPDF_REAL xmin = static_cast<HPDF_REAL>(x[0]);
-  HPDF_REAL ymin = static_cast<HPDF_REAL>(x[1]);
-  HPDF_REAL xmax = static_cast<HPDF_REAL>(x[2]);
-  HPDF_REAL ymax = static_cast<HPDF_REAL>(x[3]);
-
-  if (xmax < xmin)
-  {
-    std::swap(xmin, xmax);
-  }
-  if (ymax < ymin)
-  {
-    std::swap(ymin, ymax);
-  }
-
-  this->ClipBox[0] = xmin;
-  this->ClipBox[1] = ymin;
-  this->ClipBox[2] = xmax - xmin;
-  this->ClipBox[3] = ymax - ymin;
+  this->ClipBox[0] = static_cast<HPDF_REAL>(x[0]);
+  this->ClipBox[1] = static_cast<HPDF_REAL>(x[1]);
+  this->ClipBox[2] = static_cast<HPDF_REAL>(x[2]);
+  this->ClipBox[3] = static_cast<HPDF_REAL>(x[3]);
 }
 
 //------------------------------------------------------------------------------
@@ -894,7 +880,6 @@ void vtkPDFContextDevice2D::EnableClipping(bool enable)
 vtkPDFContextDevice2D::vtkPDFContextDevice2D()
   : Impl(new Details),
     Renderer(nullptr),
-    IsClipping(false),
     IsInTexturedFill(false)
 {
   std::fill(this->ClipBox, this->ClipBox + 4, 0.f);

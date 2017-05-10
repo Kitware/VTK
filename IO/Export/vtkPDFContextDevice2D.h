@@ -174,7 +174,6 @@ protected:
 
   vtkRenderer *Renderer;
   float PointSize;
-  bool IsClipping;
   float ClipBox[4]; // x, y, w, h
 
   bool IsInTexturedFill;
