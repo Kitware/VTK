@@ -42,6 +42,7 @@
 #include <map>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace {
 
@@ -69,6 +70,8 @@ struct vtkPDFContextDevice2D::Details
 
   HPDF_Doc Document;
   HPDF_Page Page;
+
+  std::map<unsigned char, HPDF_ExtGState> AlphaGStateMap;
 };
 
 //------------------------------------------------------------------------------
@@ -97,6 +100,7 @@ void vtkPDFContextDevice2D::SetHaruObjects(void *doc, void *page)
     this->Impl->Document = nullptr;
     this->Impl->Page = nullptr;
   }
+  this->Impl->AlphaGStateMap.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -429,7 +433,6 @@ void vtkPDFContextDevice2D::DrawQuadStrip(float *p, int n)
     HPDF_Page_LineTo(this->Impl->Page, p[i + 4], p[i + 5]);
     HPDF_Page_LineTo(this->Impl->Page, p[i + 6], p[i + 7]);
     HPDF_Page_ClosePath(this->Impl->Page);
-
   }
 
   this->Fill();
@@ -932,19 +935,18 @@ void vtkPDFContextDevice2D::ApplyStrokeColor(unsigned char *color, int numComps)
                          static_cast<HPDF_REAL>(color[0] / 255.0),
                          static_cast<HPDF_REAL>(color[1] / 255.0),
                          static_cast<HPDF_REAL>(color[2] / 255.0));
-  if (numComps > 3)
+
+  unsigned char alpha = numComps > 3 ? color[3] : 255;
+  auto gstateIter = this->Impl->AlphaGStateMap.find(alpha);
+  if (gstateIter == this->Impl->AlphaGStateMap.end())
   {
     HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
-    HPDF_ExtGState_SetAlphaStroke(gstate,
-                                  static_cast<HPDF_REAL>(color[3] / 255.0));
-    HPDF_Page_SetExtGState(this->Impl->Page, gstate);
+    HPDF_ExtGState_SetAlphaFill(gstate, alpha / 255.f);
+    auto tmp = this->Impl->AlphaGStateMap.insert(std::make_pair(alpha, gstate));
+    gstateIter = tmp.first;
   }
-  else
-  {
-    HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
-    HPDF_ExtGState_SetAlphaStroke(gstate, 1.);
-    HPDF_Page_SetExtGState(this->Impl->Page, gstate);
-  }
+  HPDF_ExtGState alphaState = gstateIter->second;
+  HPDF_Page_SetExtGState(this->Impl->Page, alphaState);
 }
 
 //------------------------------------------------------------------------------
@@ -1062,9 +1064,16 @@ void vtkPDFContextDevice2D::ApplyFillColor(unsigned char *color, int numComps)
 //------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::ApplyFillAlpha(unsigned char alpha)
 {
-  HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
-  HPDF_ExtGState_SetAlphaFill(gstate, alpha / 255.f);
-  HPDF_Page_SetExtGState(this->Impl->Page, gstate);
+  auto gstateIter = this->Impl->AlphaGStateMap.find(alpha);
+  if (gstateIter == this->Impl->AlphaGStateMap.end())
+  {
+    HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
+    HPDF_ExtGState_SetAlphaFill(gstate, alpha / 255.f);
+    auto tmp = this->Impl->AlphaGStateMap.insert(std::make_pair(alpha, gstate));
+    gstateIter = tmp.first;
+  }
+  HPDF_ExtGState alphaState = gstateIter->second;
+  HPDF_Page_SetExtGState(this->Impl->Page, alphaState);
 }
 
 //------------------------------------------------------------------------------
