@@ -133,11 +133,6 @@ protected:
   vtkIdType NumberOfVertices;
 
   /**
-   * This array indicates how the surface should be colored.
-   */
-  vtkNew<vtkUnsignedCharArray> Colors;
-
-  /**
    * The number of components used to color the surface.
    */
   int ColorComponents;
