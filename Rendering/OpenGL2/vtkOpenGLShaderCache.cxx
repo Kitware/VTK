@@ -245,6 +245,12 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       done = !vtkShaderProgram::Substitute(FSSource, src.str(),dst.str());
       if (!done)
       {
+#if GL_ES_VERSION_3_0
+        src.str("");
+        src.clear();
+        src << count;
+        fragDecls += "layout(location = " + src.str() + ") ";
+#endif
         fragDecls += "out vec4 " + dst.str() + ";\n";
         count++;
       }
