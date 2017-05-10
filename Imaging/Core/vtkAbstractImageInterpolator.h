@@ -345,18 +345,18 @@ inline void vtkAbstractImageInterpolator::InterpolateIJK(
 
 inline bool vtkAbstractImageInterpolator::CheckBoundsIJK(const double x[3])
 {
-  double *bounds = this->StructuredBoundsDouble;
-  return !((x[0] < bounds[0]) | (x[0] > bounds[1]) |
-           (x[1] < bounds[2]) | (x[1] > bounds[3]) |
-           (x[2] < bounds[4]) | (x[2] > bounds[5]));
+  const double *bounds = this->StructuredBoundsDouble;
+  return !((x[0] < bounds[0]) || (x[0] > bounds[1]) ||
+           (x[1] < bounds[2]) || (x[1] > bounds[3]) ||
+           (x[2] < bounds[4]) || (x[2] > bounds[5]));
 }
 
 inline bool vtkAbstractImageInterpolator::CheckBoundsIJK(const float x[3])
 {
-  float *bounds = this->StructuredBoundsFloat;
-  return !((x[0] < bounds[0]) | (x[0] > bounds[1]) |
-           (x[1] < bounds[2]) | (x[1] > bounds[3]) |
-           (x[2] < bounds[4]) | (x[2] > bounds[5]));
+  const float *bounds = this->StructuredBoundsFloat;
+  return !((x[0] < bounds[0]) || (x[0] > bounds[1]) ||
+           (x[1] < bounds[2]) || (x[1] > bounds[3]) ||
+           (x[2] < bounds[4]) || (x[2] > bounds[5]));
 }
 
 inline void vtkAbstractImageInterpolator::InterpolateRow(
