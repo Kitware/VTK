@@ -59,6 +59,9 @@ public:
   void DrawQuad(float *, int) VTK_OVERRIDE;
   void DrawQuadStrip(float *, int) VTK_OVERRIDE;
   void DrawPolygon(float *, int) VTK_OVERRIDE;
+  void DrawColoredPolygon(float *points, int numPoints,
+                          unsigned char *colors = nullptr,
+                          int nc_comps = 0) VTK_OVERRIDE;
   void DrawEllipseWedge(float x, float y, float outRx, float outRy,
                         float inRx, float inRy, float startAngle,
                         float stopAngle) VTK_OVERRIDE;

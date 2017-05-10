@@ -109,7 +109,15 @@ void vtkContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   this->TextProp->PrintSelf(os, indent.GetNextIndent());
 }
 
+//-----------------------------------------------------------------------------
 void vtkContextDevice2D::DrawMarkers(int, bool, float*, int, unsigned char*,
                                      int)
 {
+}
+
+//-----------------------------------------------------------------------------
+void vtkContextDevice2D::DrawColoredPolygon(float *, int , unsigned char *,
+                                            int)
+{
+  vtkErrorMacro("DrawColoredPolygon not implemented on this device.");
 }

@@ -131,6 +131,9 @@ public:
    * Draw a polygon using the specified number of points.
    */
   void DrawPolygon(float *, int) VTK_OVERRIDE;
+  void DrawColoredPolygon(float *points, int numPoints,
+                          unsigned char *colors = nullptr,
+                          int nc_comps = 0) VTK_OVERRIDE;
 
   /**
    * Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,

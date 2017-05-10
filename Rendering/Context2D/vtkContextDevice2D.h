@@ -117,8 +117,13 @@ public:
 
   /**
    * Draw a polygon using the specified number of points.
+   * @{
    */
-  virtual void DrawPolygon(float *, int) { ; }
+  virtual void DrawPolygon(float *p, int n) { this->DrawColoredPolygon(p, n); }
+  virtual void DrawColoredPolygon(float *points, int numPoints,
+                                  unsigned char *colors = nullptr,
+                                  int nc_comps = 0);
+  /**@}*/
 
   /**
    * Draw an elliptic wedge with center at x, y, outer radii outRx, outRy,

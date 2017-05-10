@@ -588,6 +588,70 @@ void vtkPDFContextDevice2D::DrawPolygon(float *f, int n)
 }
 
 //------------------------------------------------------------------------------
+void vtkPDFContextDevice2D::DrawColoredPolygon(float *points, int numPoints,
+                                               unsigned char *colors,
+                                               int nc_comps)
+{
+  assert(numPoints > 0);
+  assert(points != nullptr);
+
+  // Just use the standard draw method if there is a texture or colors are not
+  // specified:
+  if (this->Brush->GetTexture() != NULL ||
+      nc_comps == 0)
+  {
+    this->DrawPolygon(points, numPoints);
+    return;
+  }
+
+  // If all of the points have the same color, use a more compact method to
+  // draw the poly:
+  bool sameColor = true;
+  for (int i = 1; i < numPoints && sameColor; ++i)
+  {
+    sameColor = std::equal(colors, colors + nc_comps, colors + (i * nc_comps));
+
+  }
+  if (sameColor)
+  {
+    const vtkColor4ub oldBrush = this->Brush->GetColorObject();
+    switch (nc_comps)
+    {
+      case 4:
+        this->Brush->SetOpacity(colors[3]);
+        VTK_FALLTHROUGH;
+      case 3:
+        this->Brush->SetColor(colors);
+        break;
+
+      default:
+        vtkWarningMacro("Unsupported number of color components: " << nc_comps);
+        return;
+    }
+
+    this->DrawPolygon(points, numPoints);
+    this->Brush->SetColor(oldBrush);
+    return;
+  }
+
+  this->PushGraphicsState();
+
+  HPDF_REAL bbox[4];
+  GetPointBounds(points, numPoints, bbox);
+
+  HPDF_Shading shading = HPDF_Shading_New(this->Impl->Document,
+                                          HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+                                          HPDF_CS_DEVICE_RGB,
+                                          bbox[0], bbox[1], bbox[2], bbox[3]);
+
+  PolygonToShading(points, numPoints, colors, nc_comps, shading);
+
+  HPDF_Page_SetShading(this->Impl->Page, shading);
+
+  this->PopGraphicsState();
+}
+
+//------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
                                              float outRy, float inRx,
                                              float inRy, float startAngle,

@@ -470,6 +470,45 @@ void vtkContext2D::DrawPolygon(float *points, int n)
   this->Device->DrawPoly(&closeLine[0], 2);
 }
 
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(float *x, float *y, int n, unsigned char *color,
+                               int nc_comps)
+{
+  // Copy the points into an array and draw it.
+  float *p = new float[2*n];
+  for (int i = 0; i < n; ++i)
+  {
+    p[2*i]   = x[i];
+    p[2*i+1] = y[i];
+  }
+  this->DrawPolygon(&p[0], n, color, nc_comps);
+  delete[] p;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(vtkPoints2D *points, unsigned char *color,
+                               int nc_comps)
+{
+
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
+  this->DrawPolygon(f, n, color, nc_comps);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(float *points, int n, unsigned char *color, int nc_comps)
+{
+  if (!this->Device)
+  {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+  }
+
+  // Draw the filled area of the polygon.
+  this->Device->DrawColoredPolygon(points, n, color, nc_comps);
+}
 
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
