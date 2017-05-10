@@ -1804,20 +1804,45 @@ void vtkPDFContextDevice2D::ApplyTransform()
   // together. Nor is there a way to push/pop a matrix stack. So we'll just
   // invert the current transform to unapply it before applying the new one.
   HPDF_TransMatrix oldTrans = HPDF_Page_GetTransMatrix(this->Impl->Page);
-  double oldTransMat3[9];
-  float hpdfMat[6];
+  double oldInvTransMat3[9];
   vtkPDFContextDevice2D::HPDFTransformToMatrix3(oldTrans.a, oldTrans.b,
                                                 oldTrans.c, oldTrans.d,
                                                 oldTrans.x, oldTrans.y,
-                                                oldTransMat3);
-  vtkMatrix3x3::Invert(oldTransMat3, oldTransMat3);
-  vtkPDFContextDevice2D::Matrix3ToHPDFTransform(oldTransMat3, hpdfMat);
-  HPDF_Page_Concat(this->Impl->Page, hpdfMat[0], hpdfMat[1], hpdfMat[2],
-                   hpdfMat[3], hpdfMat[4], hpdfMat[5]);
+                                                oldInvTransMat3);
+  vtkMatrix3x3::Invert(oldInvTransMat3, oldInvTransMat3);
 
-  // Now apply the current transform:
+  // Multiply the inverse current transform with the new one:
+  double newTransMat3[9];
   double *mat = this->Matrix->GetMatrix()->GetData();
-  vtkPDFContextDevice2D::Matrix4ToHPDFTransform(mat, hpdfMat);
+  vtkPDFContextDevice2D::Matrix4ToMatrix3(mat, newTransMat3);
+
+  vtkMatrix3x3::Multiply3x3(oldInvTransMat3, newTransMat3, newTransMat3);
+
+  // Test if the new transform is identity, within tolerance:
+  bool isIdentity = true;
+  const double tol = 1e-6;
+  for (size_t i = 0; i < 3 && isIdentity; ++i)
+  {
+    for (size_t j = 0; j < 3 && isIdentity; ++j)
+    {
+      const double val = newTransMat3[i * 3 + j];
+      const double exp = (i == j) ? 1. : 0.;
+      if (std::fabs(val - exp) > tol)
+      {
+        isIdentity = false;
+      }
+    }
+  }
+
+  // Do nothing if the transform would have no effect.
+  if (isIdentity)
+  {
+    return;
+  }
+
+  // Otherwise, write the new transform out.
+  float hpdfMat[6];
+  vtkPDFContextDevice2D::Matrix3ToHPDFTransform(newTransMat3, hpdfMat);
   HPDF_Page_Concat(this->Impl->Page, hpdfMat[0], hpdfMat[1], hpdfMat[2],
                    hpdfMat[3], hpdfMat[4], hpdfMat[5]);
 }
@@ -1850,15 +1875,21 @@ void vtkPDFContextDevice2D::Matrix4ToMatrix3(double mat4[16],
                                              vtkMatrix3x3 *mat3)
 {
   double *mat3Data = mat3->GetData();
-  mat3Data[ 0] = mat4[0];
-  mat3Data[ 1] = mat4[1];
-  mat3Data[ 2] = mat4[3];
-  mat3Data[ 3] = mat4[4];
-  mat3Data[ 4] = mat4[5];
-  mat3Data[ 5] = mat4[7];
-  mat3Data[ 6] = 0.;
-  mat3Data[ 7] = 0.;
-  mat3Data[ 8] = 1.;
+  vtkPDFContextDevice2D::Matrix4ToMatrix3(mat4, mat3Data);
+}
+
+//------------------------------------------------------------------------------
+void vtkPDFContextDevice2D::Matrix4ToMatrix3(double mat4[16], double mat3[9])
+{
+  mat3[ 0] = mat4[0];
+  mat3[ 1] = mat4[1];
+  mat3[ 2] = mat4[3];
+  mat3[ 3] = mat4[4];
+  mat3[ 4] = mat4[5];
+  mat3[ 5] = mat4[7];
+  mat3[ 6] = 0.;
+  mat3[ 7] = 0.;
+  mat3[ 8] = 1.;
 }
 
 //------------------------------------------------------------------------------

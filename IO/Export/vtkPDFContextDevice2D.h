@@ -154,6 +154,7 @@ protected:
   // Converts a 2D transform matrix into a 3D transform matrix, or vice versa
   static void Matrix3ToMatrix4(vtkMatrix3x3 *mat3, double mat4[16]);
   static void Matrix4ToMatrix3(double mat4[16], vtkMatrix3x3 *mat3);
+  static void Matrix4ToMatrix3(double mat4[16], double mat3[9]);
 
   // Convert a 3D transform matrix to an HPDF transformation.
   // trans = {a, b, c, d, x, y}, which define the transform:
