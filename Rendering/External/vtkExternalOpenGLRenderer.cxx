@@ -75,7 +75,7 @@ void vtkExternalOpenGLRenderer::Render(void)
   camera->SetViewUp(newViewUp);
 
   // Synchronize camera position
-  double position[4] = {0.0, 0.0, 1.0, 1.0}, newPosition[4];
+  double position[4] = {0.0, 0.0, 0.0, 1.0}, newPosition[4];
   matrix->MultiplyPoint(position, newPosition);
 
   if (newPosition[3] != 0.0)
@@ -88,7 +88,7 @@ void vtkExternalOpenGLRenderer::Render(void)
   camera->SetPosition(newPosition);
 
   // Synchronize focal point
-  double focalPoint[4] = {0.0, 0.0, 0.0, 1.0}, newFocalPoint[4];
+  double focalPoint[4] = {0.0, 0.0, -1.0, 1.0}, newFocalPoint[4];
   matrix->MultiplyPoint(focalPoint, newFocalPoint);
   camera->SetFocalPoint(newFocalPoint);
 
