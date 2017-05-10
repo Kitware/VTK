@@ -51,6 +51,103 @@ static const HPDF_TextAlignment hAlignMap[3] = {
   HPDF_TALIGN_LEFT, HPDF_TALIGN_CENTER, HPDF_TALIGN_RIGHT
 };
 
+static void GetPointBounds(float *points, int numPoints, HPDF_REAL bbox[4],
+                           const float radius = 0.f)
+{
+  bbox[0] = static_cast<HPDF_REAL>(points[0]);
+  bbox[1] = static_cast<HPDF_REAL>(points[0]);
+  bbox[2] = static_cast<HPDF_REAL>(points[1]);
+  bbox[3] = static_cast<HPDF_REAL>(points[1]);
+
+  for (int i = 1; i < numPoints; ++i)
+  {
+    bbox[0] = std::min(bbox[0], static_cast<HPDF_REAL>(points[i*2]));
+    bbox[1] = std::max(bbox[1], static_cast<HPDF_REAL>(points[i*2]));
+    bbox[2] = std::min(bbox[2], static_cast<HPDF_REAL>(points[i*2+1]));
+    bbox[3] = std::max(bbox[3], static_cast<HPDF_REAL>(points[i*2+1]));
+  }
+
+  bbox[0] -= radius;
+  bbox[1] += radius;
+  bbox[2] -= radius;
+  bbox[3] += radius;
+}
+
+static void PolygonToShading(float *points, int numPoints,
+                             unsigned char *colors, int nc_comps,
+                             HPDF_Shading shading)
+{
+  assert(numPoints >= 3);
+
+  // First triangle
+  for (int ptIdx = 0; ptIdx < 3; ++ptIdx)
+  {
+    const float *pt = points + ptIdx * 2;
+    const unsigned char *color = colors + ptIdx * nc_comps;
+    HPDF_Shading_AddVertexRGB(shading,
+                              HPDF_FREE_FORM_TRI_MESH_EDGEFLAG_NO_CONNECTION,
+                              pt[0], pt[1], color[0], color[1], color[2]);
+  }
+
+  // Fan-out additional verts
+  for (int ptIdx = 3; ptIdx < numPoints; ++ptIdx)
+  {
+    const float *pt = points + ptIdx * 2;
+    const unsigned char *color = colors + ptIdx * nc_comps;
+    HPDF_Shading_AddVertexRGB(shading,
+                              HPDF_FREE_FORM_TRI_MESH_EDGEFLAG_AC,
+                              pt[0], pt[1], color[0], color[1], color[2]);
+  }
+}
+
+static void LineSegmentToShading(const float p1[2],
+                                 const unsigned char rgb1[3],
+                                 const float p2[2],
+                                 const unsigned char rgb2[3],
+                                 float radius, HPDF_Shading shading)
+{
+  float pDy = p2[1] - p1[1];
+  float pDx = p2[0] - p1[0];
+  float nDx = -pDy;
+  float nDy = pDx;
+
+  if (nDx == 0.f && nDy == 0.f)
+  {
+    return; // Points are coincident. Avoid division by zero below:
+  }
+
+  float tmpInvNorm = 1.f / std::sqrt(nDx * nDx + nDy * nDy);
+  nDx *= tmpInvNorm * radius;
+  nDy *= tmpInvNorm * radius;
+
+  float quad[8] = {
+    p1[0] + nDx, p1[1] + nDy,
+    p1[0] - nDx, p1[1] - nDy,
+    p2[0] - nDx, p2[1] - nDy,
+    p2[0] + nDx, p2[1] + nDy
+  };
+  unsigned char color[12] = {
+    rgb1[0], rgb1[1], rgb1[2],
+    rgb1[0], rgb1[1], rgb1[2],
+    rgb2[0], rgb2[1], rgb2[2],
+    rgb2[0], rgb2[1], rgb2[2]
+  };
+  PolygonToShading(quad, 4, color, 3, shading);
+}
+
+static void PolyLineToShading(const float *points, int numPoints,
+                              const unsigned char *color, int nc_comps,
+                              float radius, HPDF_Shading shading)
+{
+  for (int i = 0; i < numPoints - 1; ++i)
+  {
+    const int n = i + 1;
+    LineSegmentToShading(points + 2 * i, color + nc_comps * i,
+                         points + 2 * n, color + nc_comps * n,
+                         radius, shading);
+  }
+}
+
 } // end anon namespace
 
 // Need to be able to use vtkColor3f in a std::map. Must be outside of the anon
@@ -124,22 +221,28 @@ void vtkPDFContextDevice2D::DrawPoly(float *points, int n,
   this->PushGraphicsState();
   this->ApplyPenState();
 
-  if (nc_comps > 0)
+  if (colors == nullptr)
   {
-    this->ApplyStrokeColor(colors, nc_comps);
-  }
-
-  HPDF_Page_MoveTo(this->Impl->Page, points[0], points[1]);
-  for (int i = 1; i < n; ++i)
-  {
-    if (nc_comps > 0)
+    HPDF_Page_MoveTo(this->Impl->Page, points[0], points[1]);
+    for (int i = 1; i < n; ++i)
     {
-      this->ApplyStrokeColor(colors + i*nc_comps, nc_comps);
+      HPDF_Page_LineTo(this->Impl->Page, points[i*2], points[i*2 + 1]);
     }
-    HPDF_Page_LineTo(this->Impl->Page, points[i*2], points[i*2 + 1]);
+    this->Stroke();
+  }
+  else
+  {
+    const float radius = this->Pen->GetWidth() * 0.5f;
+    HPDF_REAL bbox[4];
+    GetPointBounds(points, n, bbox, radius);
+
+    HPDF_Shading shading = HPDF_Shading_New(
+        this->Impl->Document, HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+        HPDF_CS_DEVICE_RGB, bbox[0], bbox[1], bbox[2], bbox[3]);
+    PolyLineToShading(points, n, colors, nc_comps, radius, shading);
+    HPDF_Page_SetShading(this->Impl->Page, shading);
   }
 
-  this->Stroke();
   this->PopGraphicsState();
 }
 
@@ -162,23 +265,38 @@ void vtkPDFContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   }
 
   this->PushGraphicsState();
-  this->ApplyPenState();
 
-  for (int i = 0; i < n / 2; ++i)
+  if (colors == nullptr)
   {
-    if (nc_comps > 0)
-    {
-      this->ApplyStrokeColor(colors + i * 2 * nc_comps, nc_comps);
-    }
-    HPDF_Page_MoveTo(this->Impl->Page, f[i*4], f[i*4 + 1]);
+    this->ApplyPenState();
 
-    if (nc_comps > 0)
+    for (int i = 0; i < n / 2; ++i)
     {
-      this->ApplyStrokeColor(colors + (i * 2 * nc_comps + 1), nc_comps);
+      HPDF_Page_MoveTo(this->Impl->Page, f[i*4], f[i*4 + 1]);
+      HPDF_Page_LineTo(this->Impl->Page, f[i*4 + 2], f[i*4 + 3]);
     }
-    HPDF_Page_LineTo(this->Impl->Page, f[i*4 + 2], f[i*4 + 3]);
-
     this->Stroke();
+  }
+  else
+  {
+    const float radius = this->Pen->GetWidth() * 0.5f;
+    HPDF_REAL bbox[4];
+    GetPointBounds(f, n, bbox, radius);
+
+    HPDF_Shading shading = HPDF_Shading_New(
+        this->Impl->Document, HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+        HPDF_CS_DEVICE_RGB, bbox[0], bbox[1], bbox[2], bbox[3]);
+
+    for (int i = 0; i < n / 2; ++i)
+    {
+      const float *p1 = f + i * 4;
+      const unsigned char *rgb1 = colors + i * 2 * nc_comps;
+      const float *p2 = f + i * 6;
+      const unsigned char *rgb2 = colors + (i * 2 + 1) * nc_comps;
+      LineSegmentToShading(p1, rgb1, p2, rgb2, radius, shading);
+    }
+
+    HPDF_Page_SetShading(this->Impl->Page, shading);
   }
 
   this->PopGraphicsState();
