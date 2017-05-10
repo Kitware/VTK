@@ -31,6 +31,7 @@
 
 class vtkContext2D;
 class vtkContext3D;
+class vtkContextDevice2D;
 class vtkContextScene;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextActor : public vtkProp
@@ -64,6 +65,15 @@ public:
   void SetScene(vtkContextScene *scene);
 
   /**
+   * Force rendering to a specific device. If left NULL, a default
+   * device will be created.
+   * @{
+   */
+  void SetForceDevice(vtkContextDevice2D *dev);
+  vtkGetObjectMacro(ForceDevice, vtkContextDevice2D)
+  /**@}*/
+
+  /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
@@ -82,6 +92,7 @@ protected:
   vtkSmartPointer<vtkContextScene> Scene;
   vtkNew<vtkContext2D> Context;
   vtkNew<vtkContext3D> Context3D;
+  vtkContextDevice2D *ForceDevice;
   bool Initialized;
 
 private:

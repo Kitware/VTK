@@ -77,19 +77,33 @@ int vtkOpenGLContextActor::RenderOverlay(vtkViewport* viewport)
 //----------------------------------------------------------------------------
 void vtkOpenGLContextActor::Initialize(vtkViewport* viewport)
 {
-  vtkOpenGLContextDevice2D *device = NULL;
+  vtkContextDevice2D *dev2D = NULL;
   vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
-  device = vtkOpenGLContextDevice2D::New();
-  if (device)
+  if (this->ForceDevice)
   {
-    this->Context->Begin(device);
+    dev2D = this->ForceDevice;
+    dev2D->Register(this);
+  }
+  else
+  {
+    dev2D = vtkOpenGLContextDevice2D::New();
+  }
 
-    vtkOpenGLContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
-    dev->Initialize(vtkRenderer::SafeDownCast(viewport), device);
-    this->Context3D->Begin(dev);
-    dev->Delete();
+  if (dev2D)
+  {
+    this->Context->Begin(dev2D);
 
-    device->Delete();
+    vtkOpenGLContextDevice2D *oglDev2D =
+        vtkOpenGLContextDevice2D::SafeDownCast(dev2D);
+    if (oglDev2D)
+    {
+      vtkOpenGLContextDevice3D *dev3D = vtkOpenGLContextDevice3D::New();
+      dev3D->Initialize(vtkRenderer::SafeDownCast(viewport), oglDev2D);
+      this->Context3D->Begin(dev3D);
+      dev3D->Delete();
+    }
+
+    dev2D->Delete();
     this->Initialized = true;
   }
   else

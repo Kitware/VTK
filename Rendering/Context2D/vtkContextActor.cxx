@@ -114,6 +114,7 @@ vtkObjectFactoryNewMacro(vtkContextActor);
 
 //----------------------------------------------------------------------------
 vtkContextActor::vtkContextActor()
+  : ForceDevice(nullptr)
 {
   this->Initialized = false;
   this->Scene = vtkSmartPointer<vtkContextScene>::New();
@@ -144,6 +145,30 @@ vtkContextScene * vtkContextActor::GetScene()
 void vtkContextActor::SetScene(vtkContextScene *scene)
 {
   this->Scene = scene;
+}
+
+//----------------------------------------------------------------------------
+void vtkContextActor::SetForceDevice(vtkContextDevice2D *dev)
+{
+  if (this->ForceDevice != dev)
+  {
+    if (this->ForceDevice)
+    {
+      this->ForceDevice->UnRegister(this);
+    }
+
+    this->ForceDevice = dev;
+
+    if (this->ForceDevice)
+    {
+      this->ForceDevice->Register(this);
+    }
+
+    this->Modified();
+
+    // Mark the class as needed reinitializion:
+    this->Initialized = false;
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -138,7 +138,6 @@ void vtkPDFExporter::PrepareDocument()
   this->Impl->Page = HPDF_AddPage(this->Impl->Document);
   HPDF_Page_SetWidth(this->Impl->Page, this->RenderWindow->GetSize()[0]);
   HPDF_Page_SetHeight(this->Impl->Page, this->RenderWindow->GetSize()[1]);
-
 }
 
 //------------------------------------------------------------------------------
@@ -175,17 +174,14 @@ void vtkPDFExporter::RenderContextActors()
 void vtkPDFExporter::RenderContextActor(vtkContextActor *actor,
                                         vtkRenderer *ren)
 {
-  vtkNew<vtkContext2D> context;
-  vtkNew<vtkPDFContextDevice2D> device;
+  vtkContextDevice2D *oldForceDevice = actor->GetForceDevice();
 
+  vtkNew<vtkPDFContextDevice2D> device;
   device->SetHaruObjects(&this->Impl->Document, &this->Impl->Page);
   device->SetRenderer(ren);
-  device->Begin(ren);
-  context->Begin(device.Get());
+  actor->SetForceDevice(device.Get());
 
-  actor->GetScene()->SetGeometry(ren->GetSize());
-  actor->GetScene()->Paint(context.Get());
+  actor->RenderOverlay(ren);
 
-  context->End();
-  device->End();
+  actor->SetForceDevice(oldForceDevice);
 }
