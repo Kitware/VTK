@@ -494,7 +494,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
           trianglePoints[5] = this->MinY;
           triangleLabelX = trianglePoints[0];
           triangleLabelY = trianglePoints[3] + 1;
-          painter->GetTextProp()->SetJustificationToLeft();
+          painter->GetTextProp()->SetJustificationToRight();
           break;
         case vtkDendrogramItem::LEFT_TO_RIGHT:
         default:

@@ -385,8 +385,7 @@ public:
 
   /**
    * Compute the bounds of the supplied string while taking into account the
-   * justification of the currently applied text property. Simple rotations
-   * (0, 90, 180, 270 degrees) are also propertly taken into account.
+   * justification and rotation of the currently applied text property.
    */
   void ComputeJustifiedStringBounds(const char* string, float bounds[4]);
 

@@ -165,6 +165,11 @@ public:
   double GetElement(int i, int j) const
     {return this->Element[i][j];}
 
+  /**
+   * Returns the raw double array holding the matrix.
+   */
+  double *GetData() { return *this->Element; }
+
   //@{
   /**
    * Legacy methods. Do not use.

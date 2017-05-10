@@ -80,10 +80,8 @@ public:
   FT_Matrix inverseRotation;
 
   // Set by CalculateBoundingBox
-  int ascent;    // position of the highest point of character from baseline which
-                 // has position 0. Negative if below baseline.
-  int descent;   // position of the the lowest point of character from baseline which
-                 // has position 0. Negative if below baseline
+  vtkVector2i ascent;  // Vector from baseline to top of characters
+  vtkVector2i descent; // Vector from baseline to bottom of characters
   int height;
   struct LineMetrics {
     vtkVector2i origin;
@@ -469,8 +467,8 @@ bool vtkFreeTypeTools::GetMetrics(vtkTextProperty *tprop,
       metrics.TopRight    = metaData.TR;
       metrics.BottomLeft  = metaData.BL;
       metrics.BottomRight = metaData.BR;
-      metrics.ascent = metaData.ascent;
-      metrics.descent = metaData.descent;
+      metrics.Ascent      = metaData.ascent;
+      metrics.Descent     = metaData.descent;
     }
   }
   return result;
@@ -505,8 +503,8 @@ bool vtkFreeTypeTools::GetMetrics(vtkTextProperty *tprop,
       metrics.TopRight    = metaData.TR;
       metrics.BottomLeft  = metaData.BL;
       metrics.BottomRight = metaData.BR;
-      metrics.ascent = metaData.ascent;
-      metrics.descent = metaData.descent;
+      metrics.Ascent      = metaData.ascent;
+      metrics.Descent     = metaData.descent;
     }
   }
   return result;
@@ -1466,8 +1464,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     // face values are usually way too big.
     heightString = defaultHeightString;
   }
-  metaData.ascent = std::numeric_limits<int>::min();
-  metaData.descent = std::numeric_limits<int>::max();
+  int ascent = 0;
+  int descent = 0;
   typename T::const_iterator it = heightString.begin();
   while (it != heightString.end())
   {
@@ -1478,15 +1476,15 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
           *it, &metaData.unrotatedScaler, glyphIndex, bitmapGlyph);
     if (bitmap)
     {
-      metaData.ascent = std::max(bitmapGlyph->top, metaData.ascent);
-      metaData.descent = std::min(-static_cast<int>((bitmap->rows -
-                                                     bitmapGlyph->top - 1)),
-                                  metaData.descent);
+      ascent = std::max(bitmapGlyph->top, ascent);
+      descent = std::min(-static_cast<int>((bitmap->rows -
+                                            bitmapGlyph->top - 1)),
+                                            descent);
     }
     ++it;
   }
   // Set line height. Descent is negative.
-  metaData.height = metaData.ascent - metaData.descent + 1;
+  metaData.height = ascent - descent + 1;
 
   // The unrotated height of the text
   int interLineSpacing = (metaData.textProperty->GetLineSpacing() - 1) * metaData.height;
@@ -1513,6 +1511,12 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   metaData.dy = vtkVector2i(0, fullHeight + 2 * pad);
   rotateVector2i(metaData.dx, s, c);
   rotateVector2i(metaData.dy, s, c);
+
+  // Rotate the ascent/descent:
+  metaData.ascent = vtkVector2i(0, ascent);
+  metaData.descent = vtkVector2i(0, descent);
+  rotateVector2i(metaData.ascent, s, c);
+  rotateVector2i(metaData.descent, s, c);
 
   // The rotated padding on the text's vertical and horizontal axes:
   vtkVector2i hPad(pad, 0);
@@ -1569,7 +1573,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   // First baseline offset from top-left corner.
   vtkVector2i penOffset(pad, -pad);
   // Account for line spacing to center the text vertically in the bbox:
-  penOffset[1] -= metaData.ascent;
+  penOffset[1] -= ascent;
   penOffset[1] -= metaData.textProperty->GetLineOffset();
   rotateVector2i(penOffset, s, c);
 

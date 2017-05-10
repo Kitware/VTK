@@ -4,6 +4,8 @@ set(Module_SRCS
   vtkIVExporter.cxx
   vtkOBJExporter.cxx
   vtkOOGLExporter.cxx
+  vtkPDFContextDevice2D.cxx
+  vtkPDFExporter.cxx
   vtkPOVExporter.cxx
   vtkRIBExporter.cxx
   vtkRIBLight.cxx
@@ -18,6 +20,7 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
+  vtkPDFContextDevice2D
   vtkX3D
   vtkX3DExporterWriter
   vtkX3DExporterFIWriter

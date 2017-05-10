@@ -240,7 +240,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     {
       // move the bottom left corner to the baseline as this is how PDF
       // draws text
-      blpos[1] -= m.descent;
+      blpos[1] -= m.Descent[1];
       gl2psTextOptColorBL(spaceStr.c_str(), fontname, fontSize, align, angle, rgba,
                           blpos[0], blpos[1]);
     }
@@ -252,7 +252,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
       // 10.070 How do I draw glBitmap() or glDrawPixels() primitives that
       // have an initial glRasterPos() outside the window's left or bottom edge?
       // https://www.opengl.org/archives/resources/faq/technical/clipping.htm#0070
-      glBitmap(0, 0, 0, 0, 0, - m.descent, NULL);
+      glBitmap(0, 0, 0, 0, 0, - m.Descent[1], NULL);
       gl2psTextOptColor(str, fontname, fontSize, align, angle, rgba);
     }
   }

@@ -1098,7 +1098,6 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
     points->SetPoint(i, newPoint);
   }
 
-
   return true;
 }
 

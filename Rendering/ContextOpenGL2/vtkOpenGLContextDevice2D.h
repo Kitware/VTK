@@ -383,11 +383,6 @@ protected:
   vtkRenderer *Renderer;
 
   /**
-   * We also need a label render strategy
-   */
-  vtkStringToImage *TextRenderer;
-
-  /**
    * Is the device currently rendering? Prevent multiple End() calls.
    */
   bool InRender;
@@ -471,11 +466,6 @@ protected:
   //@}
 
   /**
-   * Implement DrawMathTextString for the GL2PS exporter.
-   */
-  void DrawMathTextStringGL2PS(float point[2], const vtkStdString &string);
-
-  /**
    * Add an ellipse to a vtkPath. Used during GL2PS export.
    */
   void AddEllipseToPath(vtkPath *path, float x, float y, float rx, float ry,
@@ -500,8 +490,6 @@ private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
 
-  void AlignText(double orientation, float width, float height, float *p);
-
   /**
    * Retrieve a point sprite image for a given marker shape and size. The
    * image data will be either generated or retrieved from a cache. This class
@@ -520,6 +508,9 @@ private:
       return this->Key == key;
     }
   };
+
+  void ComputeStringBoundsInternal(const vtkUnicodeString &string,
+                                   float bounds[4]);
 
   vtkTransform *ProjectionMatrix;
   vtkTransform *ModelMatrix;

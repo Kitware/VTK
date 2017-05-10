@@ -21,7 +21,6 @@
 #include "vtkImageData.h"
 #include "vtkImageResize.h"
 #include "vtkMath.h"
-#include "vtkMathTextUtilities.h"
 #include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -43,7 +42,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
-#include "vtkTextRendererStringToImage.h"
+#include "vtkTextRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkTransform.h"
@@ -227,7 +226,6 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 {
   this->Renderer = 0;
   this->InRender = false;
-  this->TextRenderer = vtkTextRendererStringToImage::New();
   this->Storage = new vtkOpenGLContextDevice2D::Private;
   this->PolyDataImpl = new vtkOpenGLContextDevice2D::CellArrayHelper(this);
   this->RenderWindow = NULL;
@@ -268,7 +266,6 @@ vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
     this->MarkerCache.pop_back();
   }
 
-  this->TextRenderer->Delete();
   this->ProjectionMatrix->Delete();
   this->ModelMatrix->Delete();
   delete this->Storage;
@@ -1557,113 +1554,6 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
-                                         float height, float *p)
-{
-  // Special case multiples of 90 as no transformation is required...
-  if (orientation > -0.0001 && orientation < 0.0001)
-  {
-    switch (this->TextProp->GetJustification())
-    {
-      case VTK_TEXT_LEFT:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[0] -= floor(width / 2.0);
-        break;
-      case VTK_TEXT_RIGHT:
-        p[0] -= width;
-        break;
-    }
-    switch (this->TextProp->GetVerticalJustification())
-    {
-      case VTK_TEXT_BOTTOM:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[1] -= floor(height / 2.0);
-        break;
-      case VTK_TEXT_TOP:
-        p[1] -= height;
-        break;
-    }
-  }
-  else if (orientation > 89.9999 && orientation < 90.0001)
-  {
-    switch (this->TextProp->GetJustification())
-    {
-      case VTK_TEXT_LEFT:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[1] -= floor(height / 2.0);
-        break;
-      case VTK_TEXT_RIGHT:
-        p[1] -= height;
-        break;
-    }
-    switch (this->TextProp->GetVerticalJustification())
-    {
-      case VTK_TEXT_TOP:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[0] -= floor(width / 2.0);
-        break;
-      case VTK_TEXT_BOTTOM:
-        p[0] -= width;
-        break;
-    }
-  }
-  else if (orientation > 179.9999 && orientation < 180.0001)
-  {
-    switch (this->TextProp->GetJustification())
-    {
-      case VTK_TEXT_RIGHT:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[0] -= floor(width / 2.0);
-        break;
-      case VTK_TEXT_LEFT:
-        p[0] -= width;
-        break;
-    }
-    switch (this->TextProp->GetVerticalJustification())
-    {
-      case VTK_TEXT_TOP:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[1] -= floor(height / 2.0);
-        break;
-      case VTK_TEXT_BOTTOM:
-        p[1] -= height;
-        break;
-    }
-  }
-  else if (orientation > 269.9999 && orientation < 270.0001)
-  {
-    switch (this->TextProp->GetJustification())
-    {
-      case VTK_TEXT_LEFT:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[1] -= floor(height / 2.0);
-        break;
-      case VTK_TEXT_RIGHT:
-        p[1] -= height;
-        break;
-    }
-    switch (this->TextProp->GetVerticalJustification())
-    {
-      case VTK_TEXT_BOTTOM:
-        break;
-      case VTK_TEXT_CENTERED:
-        p[0] -= floor(width / 2.0);
-        break;
-      case VTK_TEXT_TOP:
-        p[0] -= width;
-        break;
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkStdString &string)
 {
@@ -1674,16 +1564,18 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
                                                    float bounds[4])
 {
-  this->ComputeStringBounds(vtkUnicodeString::from_utf8(string), bounds);
+  this->ComputeStringBoundsInternal(vtkUnicodeString::from_utf8(string),
+                                    bounds);
+  bounds[0] = 0.f;
+  bounds[1] = 0.f;
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::ComputeJustifiedStringBounds(const char* string, float bounds[4])
+void vtkOpenGLContextDevice2D::ComputeJustifiedStringBounds(const char* string,
+                                                            float bounds[4])
 {
-  this->ComputeStringBounds(string, bounds);
-
-  // Account for the justification and simple rotations.
-  this->AlignText(this->TextProp->GetOrientation(), bounds[2], bounds[3], bounds);
+  this->ComputeStringBoundsInternal(vtkUnicodeString::from_utf8(string),
+                                    bounds);
 }
 
 //-----------------------------------------------------------------------------
@@ -1708,6 +1600,14 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
       case vtkOpenGLGL2PSHelper::Inactive:
         break; // Render as normal.
     }
+  }
+
+  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+  if (!tren)
+  {
+    vtkErrorMacro("No text renderer available. Link to vtkRenderingFreeType "
+                  "to get the default implementation.");
+    return;
   }
 
   vtkOpenGLClearErrorMacro();
@@ -1736,13 +1636,16 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
   {
     int textDims[2];
-    if (!this->TextRenderer->RenderString(this->TextProp, string, dpi, image,
-                                          textDims))
+    if (!tren->RenderString(this->TextProp, string, image, textDims, dpi))
     {
+      vtkErrorMacro("Error rendering string: " << string);
       return;
     }
-    cache.TextWidth = textDims[0];
-    cache.TextHeight = textDims[1];
+    if (!tren->GetMetrics(this->TextProp, string, cache.Metrics, dpi))
+    {
+      vtkErrorMacro("Error computing bounding box for string: " << string);
+      return;
+    }
   }
   vtkTexture* texture = cache.Texture;
   texture->Render(this->Renderer);
@@ -1750,13 +1653,21 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   int imgDims[3];
   image->GetDimensions(imgDims);
 
-  float width = cache.TextWidth / xScale;
-  float height = cache.TextHeight / yScale;
+  float textWidth = static_cast<float>(cache.Metrics.BoundingBox[1] -
+                                       cache.Metrics.BoundingBox[0] + 1);
+  float textHeight = static_cast<float>(cache.Metrics.BoundingBox[3] -
+                                        cache.Metrics.BoundingBox[2] + 1);
 
-  float xw = cache.TextWidth / static_cast<float>(imgDims[0]);
-  float xh = cache.TextHeight / static_cast<float>(imgDims[1]);
+  float width = textWidth / xScale;
+  float height = textHeight / yScale;
 
-  this->AlignText(this->TextProp->GetOrientation(), width, height, p);
+  float xw = textWidth / static_cast<float>(imgDims[0]);
+  float xh = textHeight / static_cast<float>(imgDims[1]);
+
+  // Align the text (the 0 point of the bounding box is aligned to the
+  // rotated and justified anchor point, so just translate by the bbox origin):
+  p[0] += cache.Metrics.BoundingBox[0] / xScale;
+  p[1] += cache.Metrics.BoundingBox[2] / yScale;
 
   float points[] = { p[0]        , p[1],
                      p[0] + width, p[1],
@@ -1801,145 +1712,18 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &string,
                                                    float bounds[4])
 {
-  // TODO this currently ignores vtkContextScene::ScaleTiles. Not sure how to
-  // get at that from here, but this is better than ignoring scaling altogether.
-  // TODO Also, FreeType supports anisotropic DPI. Might be needed if the
-  // tileScale isn't homogeneous, but we'll need to update the textrenderer API
-  // and see if MPL/mathtext can support it.
-  int tileScale[2];
-  this->RenderWindow->GetTileScale(tileScale);
-  int dpi = this->RenderWindow->GetDPI() * std::max(tileScale[0], tileScale[1]);
-
-  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string, dpi);
-  // Check for invalid bounding box
-  if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
-      box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
-  {
-    bounds[0] = static_cast<float>(0);
-    bounds[1] = static_cast<float>(0);
-    bounds[2] = static_cast<float>(0);
-    bounds[3] = static_cast<float>(0);
-    return;
-  }
-
-  double *mv = this->ModelMatrix->GetMatrix()->Element[0];
-  float xScale = mv[0];
-  float yScale = mv[5];
-  bounds[0] = static_cast<float>(0);
-  bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>(box.GetX() / xScale);
-  bounds[3] = static_cast<float>(box.GetY() / yScale);
+  this->ComputeStringBoundsInternal(string, bounds);
+  bounds[0] = 0.f;
+  bounds[1] = 0.f;
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
                                                   const vtkStdString &string)
 {
-  vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
-  if (!mathText || !mathText->IsAvailable())
-  {
-    vtkWarningMacro(<<"MathText is not available to parse string "
-                    << string.c_str() << ". Install matplotlib and enable "
-                    "python to use MathText.");
-    return;
-  }
-
-  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps)
-  {
-    switch (gl2ps->GetActiveState())
-    {
-      case vtkOpenGLGL2PSHelper::Capture:
-        this->DrawMathTextStringGL2PS(point, string);
-        return;
-      case vtkOpenGLGL2PSHelper::Background:
-        return; // Do nothing.
-      case vtkOpenGLGL2PSHelper::Inactive:
-        break; // Render as normal.
-    }
-  }
-
-  vtkOpenGLClearErrorMacro();
-
-  float p[] = { std::floor(point[0]), std::floor(point[1]) };
-
-  // TODO this currently ignores vtkContextScene::ScaleTiles. Not sure how to
-  // get at that from here, but this is better than ignoring scaling altogether.
-  // TODO Also, FreeType supports anisotropic DPI. Might be needed if the
-  // tileScale isn't homogeneous, but we'll need to update the textrenderer API
-  // and see if MPL/mathtext can support it.
-  int tileScale[2];
-  this->RenderWindow->GetTileScale(tileScale);
-  int dpi = this->RenderWindow->GetDPI() * std::max(tileScale[0], tileScale[1]);
-
-  // Cache rendered text strings
-  vtkTextureImageCache<UTF8TextPropertyKey>::CacheData &cache =
-    this->Storage->MathTextTextureCache.GetCacheData(
-      UTF8TextPropertyKey(this->TextProp, string, dpi));
-  vtkImageData* image = cache.ImageData;
-  if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
-  {
-    int textDims[2];
-    if (!mathText->RenderString(string.c_str(), image, this->TextProp, dpi,
-                                textDims))
-    {
-      return;
-    }
-    cache.TextWidth = textDims[0];
-    cache.TextHeight = textDims[1];
-  }
-
-  vtkTexture* texture = cache.Texture;
-  texture->Render(this->Renderer);
-
-  double *mv = this->ModelMatrix->GetMatrix()->Element[0];
-  float xScale = mv[0];
-  float yScale = mv[5];
-
-  int imgDims[3];
-  image->GetDimensions(imgDims);
-
-  float width = cache.TextWidth / xScale;
-  float height = cache.TextHeight / yScale;
-
-  float xw = cache.TextWidth / static_cast<float>(imgDims[0]);
-  float xh = cache.TextHeight / static_cast<float>(imgDims[1]);
-
-  this->AlignText(this->TextProp->GetOrientation(), width, height, p);
-
-  float points[] = { p[0]        , p[1],
-                     p[0] + width, p[1],
-                     p[0] + width, p[1] + height,
-                     p[0]        , p[1],
-                     p[0] + width, p[1] + height,
-                     p[0]        , p[1] + height };
-
-  float texCoord[] = { 0.0f, 0.0f,
-                       xw,   0.0f,
-                       xw,   xh,
-                       0.0f,   0.0f,
-                       xw,   xh,
-                       0.0f, xh };
-
-  vtkOpenGLClearErrorMacro();
-
-  vtkOpenGLHelper *cbo = 0;
-  this->ReadyVTBOProgram();
-  cbo = this->VTBO;
-  int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
-  cbo->Program->SetUniformi("texture1", tunit);
-
-  this->BuildVBO(cbo, points, 6, NULL, 0, texCoord);
-  this->SetMatrices(cbo->Program);
-
-  glDrawArrays(GL_TRIANGLES, 0, 6);
-
-  // free everything
-  cbo->ReleaseGraphicsResources(this->RenderWindow);
-
-  texture->PostRender(this->Renderer);
-
-  vtkOpenGLCheckErrorMacro("failed after DrawMathTexString");
+  // The default text renderer detects and handles mathtext now. Just use the
+  // regular implementation.
+  this->DrawString(point, string);
 }
 
 //-----------------------------------------------------------------------------
@@ -1992,12 +1776,6 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
   int tunit = vtkOpenGLTexture::SafeDownCast(
     this->Storage->Texture)->GetTextureUnit();
   cbo->Program->SetUniformi("texture1", tunit);
-
-    cerr << "doing image\n";
-    if (this->Storage->Texture->GetTransform())
-    {
-        cerr << "have a transform\n";
-    }
 
   this->BuildVBO(cbo, points, 6, NULL, 0, texCoord);
   this->SetMatrices(cbo->Program);
@@ -2442,6 +2220,53 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::ComputeStringBoundsInternal(
+    const vtkUnicodeString &string, float bounds[4])
+{
+  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+  if (!tren)
+  {
+    vtkErrorMacro("No text renderer available. Link to vtkRenderingFreeType "
+                  "to get the default implementation.");
+    return;
+  }
+
+  // TODO this currently ignores vtkContextScene::ScaleTiles. Not sure how to
+  // get at that from here, but this is better than ignoring scaling altogether.
+  // TODO Also, FreeType supports anisotropic DPI. Might be needed if the
+  // tileScale isn't homogeneous, but we'll need to update the textrenderer API
+  // and see if MPL/mathtext can support it.
+  int tileScale[2];
+  this->RenderWindow->GetTileScale(tileScale);
+  int dpi = this->RenderWindow->GetDPI() * std::max(tileScale[0], tileScale[1]);
+
+  int bbox[4];
+  if (!tren->GetBoundingBox(this->TextProp, string, bbox, dpi))
+  {
+    vtkErrorMacro("Error computing bounding box for string: " << string);
+    return;
+  }
+
+  // Check for invalid bounding box
+  if (bbox[0] >= bbox[1] || bbox[2] >= bbox[3])
+  {
+    bounds[0] = 0.f;
+    bounds[1] = 0.f;
+    bounds[2] = 0.f;
+    bounds[3] = 0.f;
+    return;
+  }
+
+  double *mv = this->ModelMatrix->GetMatrix()->Element[0];
+  float xScale = mv[0];
+  float yScale = mv[5];
+  bounds[0] = static_cast<float>(bbox[0]) / xScale;
+  bounds[1] = static_cast<float>(bbox[2]) / yScale;
+  bounds[2] = static_cast<float>((bbox[1] - bbox[0] + 1) / xScale);
+  bounds[3] = static_cast<float>((bbox[3] - bbox[2] + 1) / yScale);
+}
+
+//-----------------------------------------------------------------------------
 vtkImageData *vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width,
                                                        bool highlight)
 {
@@ -2563,16 +2388,6 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   {
     os << endl;
     this->Renderer->PrintSelf(os, indent.GetNextIndent());
-  }
-  else
-  {
-    os << "(none)" << endl;
-  }
-  os << indent << "Text Renderer: ";
-  if (this->TextRenderer)
-  {
-    os << endl;
-    this->TextRenderer->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -3062,47 +2877,6 @@ void vtkOpenGLContextDevice2D::DrawWedgeGL2PS(
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   gl2ps->DrawPath(path.GetPointer(), rasterPos, windowPos, color, NULL, 0.0,
                   -1.f, label.str().c_str());
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::DrawMathTextStringGL2PS(
-    float point[2], const vtkStdString &string)
-{
-  // Always valid when this method is called:
-  vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
-
-  vtkNew<vtkPath> path;
-  bool ok = mathText->StringToPath(string.c_str(), path.GetPointer(),
-                                   this->TextProp,
-                                   this->RenderWindow->GetDPI());
-  if (!ok)
-  {
-    vtkErrorMacro("Error generating path info for mathtext string: " << string);
-    return;
-  }
-
-  double origin[3] = { point[0], point[1], 0.f };
-  double rotateAngle = this->TextProp->GetOrientation();
-  double dcolor[3];
-  this->TextProp->GetColor(dcolor);
-  unsigned char color[4];
-  color[0] = static_cast<unsigned char>(dcolor[0]*255);
-  color[1] = static_cast<unsigned char>(dcolor[1]*255);
-  color[2] = static_cast<unsigned char>(dcolor[2]*255);
-  color[3] = static_cast<unsigned char>(this->TextProp->GetOpacity()*255);
-
-  this->TransformPath(path.GetPointer());
-
-  std::ostringstream label;
-  label << "vtkOpenGLContextDevice2D::DrawMathTextString: string: "
-        << string;
-
-  // Instance always exists when this method is called.
-  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  gl2ps->DrawPath(path.GetPointer(), origin, origin, color, NULL,
-                  rotateAngle, -1.f, label.str().c_str());
-
-  return;
 }
 
 //------------------------------------------------------------------------------

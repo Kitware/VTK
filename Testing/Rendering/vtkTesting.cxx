@@ -467,6 +467,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     validName = validName.substr(slashPos + 1);
   }
 
+  // We want to print the filename of the best matching image for better
+  // comparisons in CDash:
+  string bestImageFileName = this->ValidImageFileName;
+
   // check the valid image
   FILE *rtFin = fopen(this->ValidImageFileName, "r");
   if (rtFin)
@@ -640,6 +644,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
       {
         errIndex = count;
         minError = error;
+        bestImageFileName = newFileName;
       }
     }
     ++count;
@@ -767,7 +772,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   }
 
   os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">";
-  os << this->ValidImageFileName;
+  os << bestImageFileName;
   os <<  "</DartMeasurementFile>";
 
   return FAILED;

@@ -24,12 +24,23 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTestsPDF
     ${GL2PSTestsPDFBothOpenGL} ${GL2PSTestsPDFOpenGL1}
   )
+
+  # These only produce PDFs. They're separated since the above tests produce
+  # and verify both PDF and PS.
+  if (VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+    # Mark this as NO_VALID on OpenGL backend. It looks like the textured
+    # brush painting is broken. See issue #17009. We still run the test to
+    # validate the generated PDF, but won't validate the OpenGL rendering.
+    set(PDFTests TestPDFContextExport.cxx,NO_DATA,NO_VALID)
+  else()
+    set(PDFTests TestPDFContextExport.cxx,NO_DATA)
+  endif()
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
-  ${GL2PSTests} ${GL2PSTestsPDF}
   TestOBJExporter.cxx,NO_DATA,NO_VALID
+  ${GL2PSTests} ${GL2PSTestsPDF} ${PDFTests}
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
@@ -88,6 +99,7 @@ endif()
 set(TestGL2PSExporterVolumeRasterError 50)
 
 include(vtkTestingGL2PS)
+vtk_add_pdf_test_cxx(${PDFTests})
 if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   # text allignment and rotation with TextAsPath off is not
   # yet implemented for the OpenGL2 backend.

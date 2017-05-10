@@ -38,7 +38,7 @@
 class vtkWindow;
 class vtkViewport;
 class vtkRenderer;
-class vtkStringToImage;
+class vtkTextRenderer;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLExtensionManager;
 
@@ -372,11 +372,6 @@ protected:
   vtkRenderer *Renderer;
 
   /**
-   * We also need a label render strategy
-   */
-  vtkStringToImage *TextRenderer;
-
-  /**
    * Is the device currently rendering? Prevent multiple End() calls.
    */
   bool InRender;
@@ -402,8 +397,6 @@ protected:
 private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
-
-  void AlignText(double orientation, float width, float height, float *p);
 
   /**
    * Retrieve a point sprite image for a given marker shape and size. The
@@ -432,6 +425,10 @@ private:
    * not be used directly -- use GetMarker, which caches results, instead.
    */
   vtkImageData * GenerateMarker(int shape, int size, bool highlight);
+
+  void ComputeStringBoundsInternal(const vtkUnicodeString &string,
+                                   float bounds[4]);
+
 
 };
 

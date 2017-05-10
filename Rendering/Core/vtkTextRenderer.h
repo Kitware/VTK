@@ -79,7 +79,8 @@ public:
      */
     Metrics()
       : BoundingBox(0),
-        TopLeft(0), TopRight(0), BottomLeft(0), BottomRight(0), ascent(0), descent(0)
+        TopLeft(0), TopRight(0), BottomLeft(0), BottomRight(0),
+        Ascent(0), Descent(0)
     {
     }
 
@@ -99,15 +100,18 @@ public:
     vtkVector2i TopRight;
     vtkVector2i BottomLeft;
     vtkVector2i BottomRight;
-    /**
-     * Position of the highest and lowest pixel of a character. Baseline has position 0, so
-     * descent is negative. Ascent and descent is computed only for FreeType text. It is left
-     * 0 for Matplotlib text.
-     */
-    int ascent;
-    int descent;
-  };
     //@}
+
+    /**
+     * Vectors representing the rotated ascent and descent of the text. This is
+     * the distance above or below the baseline. Not all backends support this,
+     * and may leave these vectors set to 0.
+     * @{
+     */
+    vtkVector2i Ascent;
+    vtkVector2i Descent;
+    /**@}*/
+  };
 
   vtkTypeMacro(vtkTextRenderer, vtkObject)
   void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
