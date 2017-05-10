@@ -236,6 +236,12 @@ public:
     return this->TrackedDevicePose[idx]; };
 
   /**
+  * Get the VRModel corresponding to the tracked device index
+  */
+  vtkOpenVRModel *GetTrackedDeviceModel(vr::TrackedDeviceIndex_t idx) {
+    return this->TrackedDeviceToRenderModel[idx]; };
+
+  /**
    * Initialize the Vive to World setting and camera settings so
    * that the VR world view most closely matched the view from
    * the provided camera. This method is useful for initialing
