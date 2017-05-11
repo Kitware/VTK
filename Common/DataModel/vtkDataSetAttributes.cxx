@@ -29,6 +29,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkShortArray.h"
+#include "vtkStructuredExtent.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -451,44 +452,84 @@ struct CopyStructuredDataWorker
   template <typename Array1T, typename Array2T>
   void operator()(Array1T *dest, Array2T *src)
   {
-    // get outExt relative to the inExt to keep the logic simple. This assumes
-    // that outExt is a subset of the inExt.
-    const int relOutExt[6] = {
-      this->OutExt[0] - this->InExt[0],
-      this->OutExt[1] - this->InExt[0],
-      this->OutExt[2] - this->InExt[2],
-      this->OutExt[3] - this->InExt[2],
-      this->OutExt[4] - this->InExt[4],
-      this->OutExt[5] - this->InExt[4]
-    };
-
-    // Give the compiler a hand -- allow optimizations that require both arrays
-    // to have the same stride.
-    VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
-
-    vtkDataArrayAccessor<Array1T> d(dest);
-    vtkDataArrayAccessor<Array2T> s(src);
-
-    const int dims[3] = { this->InExt[1] - this->InExt[0] + 1,
-                          this->InExt[3] - this->InExt[2] + 1,
-                          this->InExt[5] - this->InExt[4] + 1};
-
-    vtkIdType outTupleIdx = 0;
-    for (int outz = relOutExt[4]; outz <= relOutExt[5]; ++outz)
+    if (vtkStructuredExtent::Smaller(this->OutExt, this->InExt))
     {
-      const vtkIdType zfactor = static_cast<vtkIdType>(outz) * dims[1];
-      for (int outy = relOutExt[2]; outy <= relOutExt[3]; ++outy)
+      // get outExt relative to the inExt to keep the logic simple. This assumes
+      // that outExt is a subset of the inExt.
+      const int relOutExt[6] = {
+        this->OutExt[0] - this->InExt[0],
+        this->OutExt[1] - this->InExt[0],
+        this->OutExt[2] - this->InExt[2],
+        this->OutExt[3] - this->InExt[2],
+        this->OutExt[4] - this->InExt[4],
+        this->OutExt[5] - this->InExt[4]
+      };
+
+      // Give the compiler a hand -- allow optimizations that require both arrays
+      // to have the same stride.
+      VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
+
+      vtkDataArrayAccessor<Array1T> d(dest);
+      vtkDataArrayAccessor<Array2T> s(src);
+
+      const int dims[3] = { this->InExt[1] - this->InExt[0] + 1,
+                            this->InExt[3] - this->InExt[2] + 1,
+                            this->InExt[5] - this->InExt[4] + 1};
+
+      vtkIdType outTupleIdx = 0;
+      for (int outz = relOutExt[4]; outz <= relOutExt[5]; ++outz)
       {
-        const vtkIdType yfactor = (zfactor + outy) * dims[0];
-        for (int outx = relOutExt[0]; outx <= relOutExt[1]; ++outx)
+        const vtkIdType zfactor = static_cast<vtkIdType>(outz) * dims[1];
+        for (int outy = relOutExt[2]; outy <= relOutExt[3]; ++outy)
         {
-          const vtkIdType inTupleIdx = yfactor + outx;
-          for (int comp = 0, max = dest->GetNumberOfComponents();
-               comp < max; ++comp)
+          const vtkIdType yfactor = (zfactor + outy) * dims[0];
+          for (int outx = relOutExt[0]; outx <= relOutExt[1]; ++outx)
           {
-            d.Set(outTupleIdx, comp, s.Get(inTupleIdx, comp));
+            const vtkIdType inTupleIdx = yfactor + outx;
+            for (int comp = 0, max = dest->GetNumberOfComponents();
+                 comp < max; ++comp)
+            {
+              d.Set(outTupleIdx, comp, s.Get(inTupleIdx, comp));
+            }
+            outTupleIdx++;
           }
-          outTupleIdx++;
+        }
+      }
+    }
+    else
+    {
+      vtkDataArrayAccessor<Array1T> d(dest);
+      vtkDataArrayAccessor<Array2T> s(src);
+
+      int writeExt[6];
+      memcpy(writeExt, this->OutExt, 6*sizeof(int));
+      vtkStructuredExtent::Clamp(writeExt, this->InExt);
+
+      vtkIdType inDims[3] = {this->InExt[1] - this->InExt[0] + 1,
+                             this->InExt[3] - this->InExt[2] + 1,
+                             this->InExt[5] - this->InExt[4] + 1};
+      vtkIdType outDims[3] = {this->OutExt[1] - this->OutExt[0] + 1,
+                              this->OutExt[3] - this->OutExt[2] + 1,
+                              this->OutExt[5] - this->OutExt[4] + 1};
+
+      for (int idz = writeExt[4]; idz <= writeExt[5]; ++idz)
+      {
+        vtkIdType inTupleId1 = (idz - this->InExt[4]) * inDims[0] * inDims[1];
+        vtkIdType outTupleId1 = (idz - this->OutExt[4]) * outDims[0] * outDims[1];
+        for (int idy = writeExt[2]; idy <= writeExt[3]; ++idy)
+        {
+          vtkIdType inTupleId2 = inTupleId1 + (idy - this->InExt[2]) * inDims[0];
+          vtkIdType outTupleId2 = outTupleId1 + (idy - this->OutExt[2]) * outDims[0];
+          for (int idx = writeExt[0]; idx <= writeExt[1]; ++idx)
+          {
+            vtkIdType inTupleIdx = inTupleId2 + idx - this->InExt[0];
+            vtkIdType outTupleIdx = outTupleId2 + idx - this->OutExt[0];
+            for (int comp = 0, max = dest->GetNumberOfComponents();
+                 comp < max; ++comp)
+            {
+              d.Set(outTupleIdx, comp, s.Get(inTupleIdx, comp));
+            }
+          }
         }
       }
     }
@@ -577,7 +618,9 @@ void vtkDataSetAttributesCopyValues(
 // This is used in the imaging pipeline for copying arrays.
 // CopyAllocate needs to be called before this method.
 void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
-                                          const int *inExt, const int *outExt)
+                                              const int *inExt,
+                                              const int *outExt,
+                                              bool setSize)
 {
   int i;
 
@@ -610,7 +653,7 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
     }
     // Make sure the output extents match the actual array lengths.
     zIdx = outIncs[2]/outIncs[0]*(outExt[5]-outExt[4]+1);
-    if (outArray->GetNumberOfTuples() != zIdx)
+    if (outArray->GetNumberOfTuples() != zIdx && setSize)
     {
       // The "CopyAllocate" method only sets the size, not the number of tuples.
       outArray->SetNumberOfTuples(zIdx);
@@ -648,13 +691,21 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
 }
 
 //--------------------------------------------------------------------------
+void vtkDataSetAttributes::SetupForCopy(vtkDataSetAttributes* pd)
+{
+  this->InternalCopyAllocate(pd, COPYTUPLE, 0, 0, false, false);
+}
+
+
+//--------------------------------------------------------------------------
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.
 // If sze=0, then use the input DataSetAttributes to create (i.e., find
 // initial size of) new objects; otherwise use the sze variable.
 void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
                                                 int ctype,
                                                 vtkIdType sze, vtkIdType ext,
-                                                int shallowCopyArrays)
+                                                int shallowCopyArrays,
+                                                bool createNewArrays)
 {
   vtkAbstractArray* newAA;
   int i;
@@ -685,7 +736,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
 
   vtkAbstractArray* aa=0;
   // If we are not copying on self
-  if ( pd != this )
+  if ( (pd != this) && createNewArrays )
   {
     int attributeType;
 
@@ -738,7 +789,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
       }
     }
   }
-  else
+  else if (pd == this)
   {
     // If copying on self, resize the arrays and initialize
     // TargetIndices
@@ -747,6 +798,17 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
     {
       aa = pd->GetAbstractArray(i);
       aa->Resize(sze);
+      this->TargetIndices[i] = i;
+    }
+  }
+  else
+  {
+    // All we are asked to do is create a mapping.
+    // Here we assume that arrays are the same and ordered
+    // the same way.
+    for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End();
+        i=this->RequiredArrays.NextIndex())
+    {
       this->TargetIndices[i] = i;
     }
   }

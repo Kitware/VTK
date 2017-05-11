@@ -426,11 +426,27 @@ public:
   //@}
 
   /**
+  * Create a mapping between the input attributes and this object
+  * so that methods like CopyData() and CopyStructuredData()
+  * can be called. This method assumes that this object has the
+  * same arrays as the input and that they are ordered the same
+  * way (same array indices).
+  */
+  void SetupForCopy(vtkDataSetAttributes* pd);
+
+
+  /**
    * This method is used to copy data arrays in images.
-   * You should call "CopyAllocate" before calling this method.
+   * You should call CopyAllocate or SetupForCopy before
+   * calling this method. If setSize is true, this method
+   * will set the size of the output arrays according to
+   * the output extent. This is required when CopyAllocate()
+   * was used to setup output arrays.
    */
   void CopyStructuredData(vtkDataSetAttributes *inDsa,
-                          const int *inExt, const int *outExt);
+                          const int *inExt,
+                          const int *outExt,
+                          bool setSize = true);
 
   //@{
   /**
@@ -585,7 +601,8 @@ protected:
                             int ctype,
                             vtkIdType sze=0,
                             vtkIdType ext=1000,
-                            int shallowCopyArrays=0);
+                            int shallowCopyArrays=0,
+                            bool createNewArrays=true);
 
   void InternalCopyAllocate(
     vtkDataSetAttributes::FieldList& list,

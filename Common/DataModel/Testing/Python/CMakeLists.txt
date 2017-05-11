@@ -3,6 +3,7 @@ vtk_add_test_python(
 #  LineIntersectQuadraticCells.py
   PerlinNoise.py
   SelectionLoop.py
+  TestCopyStructuredData.py,NO_DATA,NO_VALID
   TestNumericArrayImageData.py,NO_DATA,NO_VALID
   TestQuadricClustering.py
   TestStaticPointLocator.py,NO_DATA,NO_VALID
