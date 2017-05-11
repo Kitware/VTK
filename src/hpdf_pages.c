@@ -673,6 +673,55 @@ HPDF_Page_GetExtGStateName  (HPDF_Page       page,
     return key;
 }
 
+const char*
+HPDF_Page_GetShadingName  (HPDF_Page    page,
+                           HPDF_Shading shading)
+{
+    HPDF_PageAttr attr = (HPDF_PageAttr )page->attr;
+    const char *key;
+
+    HPDF_PTRACE((" HPDF_Page_GetShadingName\n"));
+
+    if (!attr->shadings) {
+        HPDF_Dict resources;
+        HPDF_Dict shadings;
+
+        resources = HPDF_Page_GetInheritableItem (page, "Resources",
+                                                  HPDF_OCLASS_DICT);
+        if (!resources)
+            return NULL;
+
+        shadings = HPDF_Dict_New (page->mmgr);
+        if (!shadings)
+            return NULL;
+
+        if (HPDF_Dict_Add (resources, "Shading", shadings) != HPDF_OK)
+            return NULL;
+
+        attr->shadings = shadings;
+    }
+
+    /* search shading-object from shading-resource */
+    key = HPDF_Dict_GetKeyByObj (attr->shadings, shading);
+    if (!key) {
+        /* if the shading is not resisterd in shadings resource, register
+         *  to shadings resource.
+         */
+        char shading_str[HPDF_LIMIT_MAX_NAME_LEN + 1];
+        char *ptr;
+        char *end_ptr = shading_str + HPDF_LIMIT_MAX_NAME_LEN;
+
+        ptr = (char *)HPDF_StrCpy (shading_str, "Sh", end_ptr);
+        HPDF_IToA (ptr, attr->shadings->list->count, end_ptr);
+
+        if (HPDF_Dict_Add (attr->shadings, shading_str, shading) != HPDF_OK)
+            return NULL;
+
+        key = HPDF_Dict_GetKeyByObj (attr->shadings, shading);
+    }
+
+    return key;
+}
 
 static HPDF_STATUS
 AddAnnotation  (HPDF_Page        page,

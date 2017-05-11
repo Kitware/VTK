@@ -312,6 +312,37 @@ HPDF_Page_SetExtGState  (HPDF_Page        page,
     return ret;
 }
 
+/* sh */
+HPDF_EXPORT(HPDF_STATUS)
+HPDF_Page_SetShading  (HPDF_Page    page,
+                       HPDF_Shading shading)
+{
+    HPDF_STATUS ret = HPDF_Page_CheckState (page, HPDF_GMODE_PAGE_DESCRIPTION);
+    HPDF_PageAttr attr;
+    const char *local_name;
+
+    HPDF_PTRACE ((" HPDF_Page_SetShading\n"));
+
+    if (ret != HPDF_OK)
+        return ret;
+
+    if (page->mmgr != shading->mmgr)
+        return HPDF_RaiseError (page->error, HPDF_INVALID_OBJECT, 0);
+
+    attr = (HPDF_PageAttr)page->attr;
+    local_name = HPDF_Page_GetShadingName (page, shading);
+
+    if (!local_name)
+        return HPDF_CheckError (page->error);
+
+    if (HPDF_Stream_WriteEscapeName (attr->stream, local_name) != HPDF_OK)
+        return HPDF_CheckError (page->error);
+
+    if (HPDF_Stream_WriteStr (attr->stream, " sh\012") != HPDF_OK)
+        return HPDF_CheckError (page->error);
+
+    return ret;
+}
 
 /*--- Special graphic state operator --------------------------------------*/
 
