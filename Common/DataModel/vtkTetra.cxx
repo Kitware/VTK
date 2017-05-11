@@ -916,8 +916,10 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
   int allDifferent, numUnique=1;
   for (i=0; i<(edge[0]-1); i++)
   {
+    assert(i < 6 && "The point index is out-of-range.");
     for (allDifferent=1, j=i+1; j<edge[0] && allDifferent; j++)
     {
+      assert(j < 6 && "The point index is out-of-range.");
       if (pts[i] == pts[j]) allDifferent = 0;
     }
     if (allDifferent) numUnique++;
