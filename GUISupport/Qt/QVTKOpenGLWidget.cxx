@@ -125,6 +125,8 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
   , DeferRenderInPaintEvent(false)
   , InteractorAdaptor(NULL)
+  , EnableHiDPI(false)
+  , OriginalDPI(0)
   , FBO(nullptr)
   , InPaintGL(false)
   , SkipRenderInPaintGL(false)
@@ -193,6 +195,9 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   this->requireRenderWindowInitialization();
   if (this->RenderWindow)
   {
+    // set this to 0 to reinitialize it before setting the RenderWindow DPI
+    this->OriginalDPI = 0;
+
     // tell the vtk window what the size of this window is
     this->RenderWindow->SetSize(this->width() * this->devicePixelRatio(),
                                 this->height() * this->devicePixelRatio());
@@ -305,6 +310,28 @@ QSurfaceFormat QVTKOpenGLWidget::defaultFormat()
 }
 
 //-----------------------------------------------------------------------------
+void QVTKOpenGLWidget::setEnableHiDPI(bool enable)
+{
+  this->EnableHiDPI = enable;
+
+  if (this->RenderWindow)
+  {
+    if (this->OriginalDPI == 0)
+    {
+      this->OriginalDPI = this->RenderWindow->GetDPI();
+    }
+    if (this->EnableHiDPI)
+    {
+      this->RenderWindow->SetDPI(this->OriginalDPI * this->devicePixelRatio());
+    }
+    else
+    {
+      this->RenderWindow->SetDPI(this->OriginalDPI);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::recreateFBO()
 {
   vtkQVTKOpenGLWidgetDebugMacro("recreateFBO");
@@ -338,6 +365,8 @@ void QVTKOpenGLWidget::recreateFBO()
   this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
   this->RenderWindow->SetReadyForRendering(true);
   this->RenderWindow->InitializeFromCurrentContext();
+
+  this->setEnableHiDPI(this->EnableHiDPI);
 
   // On OsX (if QSurfaceFormat::alphaBufferSize() > 0) or when using Mesa, we
   // end up rendering fully transparent windows (see through background)
