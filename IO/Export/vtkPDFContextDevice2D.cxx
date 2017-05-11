@@ -1728,7 +1728,6 @@ float vtkPDFContextDevice2D::ComputeTextPosition(float pos[2],
       pos[0] -= dims[0] * 0.5f;
       break;
 
-    case VTK_TEXT_LEFT:
     default:
       break;
   }
@@ -1748,6 +1747,8 @@ float vtkPDFContextDevice2D::ComputeTextPosition(float pos[2],
 
     case VTK_TEXT_TOP:
       pos[1] += -descent;
+      break;
+
     default:
       break;
   }
