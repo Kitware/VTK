@@ -65,6 +65,14 @@ public:
 
   //@{
   /**
+   * Get/Set whether to use a subdirectory to store the pieces
+   */
+  vtkSetMacro(UseSubdirectory, bool);
+  vtkGetMacro(UseSubdirectory, bool);
+  //@}
+
+  //@{
+  /**
    * Get/Set whether the writer should write the summary file that
    * refers to all of the pieces' individual files.
    * This is on by default. Note that only the first process writes
@@ -133,6 +141,7 @@ protected:
   int NumberOfPieces;
   int GhostLevel;
   int WriteSummaryFile;
+  bool UseSubdirectory;
 
   char* PathName;
   char* FileNameBase;

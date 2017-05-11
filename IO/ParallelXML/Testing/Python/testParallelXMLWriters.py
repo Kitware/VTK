@@ -90,7 +90,7 @@ def GetSource(dataType):
         pf.SetInputData(sg)
         return pf
 
-def TestDataType(dataType, reader, writer, ext, numTris):
+def TestDataType(dataType, reader, writer, ext, numTris, useSubdir=False):
     s = GetSource(dataType)
 
     filename = VTK_TEMP_DIR + "/%s.p%s" % (dataType, ext)
@@ -104,6 +104,8 @@ def TestDataType(dataType, reader, writer, ext, numTris):
     writer.SetStartPiece(start)
     writer.SetEndPiece(end)
     writer.SetFileName(filename)
+    if useSubdir:
+        writer.SetUseSubdirectory(True)
     #writer.SetDataModeToAscii()
     writer.Write()
 
@@ -135,7 +137,10 @@ def TestDataType(dataType, reader, writer, ext, numTris):
         import os
         os.remove(filename)
         for i in range(npieces):
-            os.remove(VTK_TEMP_DIR + "/%s_%d.%s" % (dataType, i, ext))
+            if not useSubdir:
+                os.remove(VTK_TEMP_DIR + "/%s_%d.%s" % (dataType, i, ext))
+            else:
+                os.remove(VTK_TEMP_DIR + "/%s/%s_%d.%s" %(dataType, dataType, i, ext))
 
     assert da2.GetValue(0) == numTris
 
@@ -143,3 +148,9 @@ TestDataType('ImageData', vtk.vtkXMLPImageDataReader(), vtk.vtkXMLPImageDataWrit
 TestDataType('RectilinearGrid', vtk.vtkXMLPRectilinearGridReader(), vtk.vtkXMLPRectilinearGridWriter(), 'vtr', 4924)
 TestDataType('StructuredGrid', vtk.vtkXMLPStructuredGridReader(), vtk.vtkXMLPStructuredGridWriter(), 'vts', 4924)
 TestDataType('UnstructuredGrid', vtk.vtkXMLPUnstructuredGridReader(), vtk.vtkXMLPUnstructuredGridWriter(), 'vtu', 11856)
+
+# Test writers with UseSubdirectory on
+TestDataType('ImageData', vtk.vtkXMLPImageDataReader(), vtk.vtkXMLPImageDataWriter(), 'vti', 4924, useSubdir=True)
+TestDataType('RectilinearGrid', vtk.vtkXMLPRectilinearGridReader(), vtk.vtkXMLPRectilinearGridWriter(), 'vtr', 4924, useSubdir=True)
+TestDataType('StructuredGrid', vtk.vtkXMLPStructuredGridReader(), vtk.vtkXMLPStructuredGridWriter(), 'vts', 4924, useSubdir=True)
+TestDataType('UnstructuredGrid', vtk.vtkXMLPUnstructuredGridReader(), vtk.vtkXMLPUnstructuredGridWriter(), 'vtu', 11856, useSubdir=True)
