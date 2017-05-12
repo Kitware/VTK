@@ -37,19 +37,21 @@ static const char *COL_GRAY = "DeviceGray";
 static HPDF_BOOL _GetDecodeArrayVertexValues(HPDF_Shading shading,
                                              HPDF_REAL *bbox)
 {
+  HPDF_Array decodeArray;
+  HPDF_Real r;
+  int i;
+
   if (!shading) {
     return HPDF_FALSE;
   }
 
-  HPDF_Array decodeArray = (HPDF_Array)(HPDF_Dict_GetItem(shading, "Decode",
-                                                          HPDF_OCLASS_ARRAY));
+  decodeArray = (HPDF_Array)(HPDF_Dict_GetItem(shading, "Decode",
+                                               HPDF_OCLASS_ARRAY));
   if (!decodeArray) {
     return HPDF_FALSE;
   }
 
-  HPDF_Real r;
-
-  for (int i = 0; i < 4; ++i)
+  for (i = 0; i < 4; ++i)
   {
     r = HPDF_Array_GetItem(decodeArray, i, HPDF_OCLASS_REAL);
     if (!r) {
@@ -181,6 +183,7 @@ HPDF_Shading_AddVertexRGB(HPDF_Shading shading,
 {
   HPDF_STATUS ret = HPDF_OK;
   RGBVertex vert;
+  float bbox[4];
 
   HPDF_PTRACE((" HPDF_Shading_AddVertexRGB\n"));
 
@@ -188,7 +191,6 @@ HPDF_Shading_AddVertexRGB(HPDF_Shading shading,
     return HPDF_INVALID_OBJECT;
   }
 
-  float bbox[4];
   if (_GetDecodeArrayVertexValues(shading, bbox) != HPDF_TRUE) {
     return HPDF_SetError(shading->error, HPDF_INVALID_OBJECT, 0);
   }
