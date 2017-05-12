@@ -153,16 +153,15 @@ int TestCellTypeSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     cerr << "Error with VTK_QUADRATIC_TETRA\n";
     return EXIT_FAILURE;
   }
-  size[0] = size[1] = 1;
+  size[0] = size[1] = 1.;
   if(CheckCells(VTK_HEXAHEDRON, dims, vtkAlgorithm::DOUBLE_PRECISION,
                 (dims[0]+1)*(dims[1]+1)*(dims[2]+1), dims[0]*dims[1]*dims[2], size) == EXIT_FAILURE)
   {
     cerr << "Error with VTK_HEXAHEDRON\n";
     return EXIT_FAILURE;
   }
-  // can't currently properly compute quadratic hex volumes
   if(CheckCells(VTK_QUADRATIC_HEXAHEDRON, dims, vtkAlgorithm::DOUBLE_PRECISION, 733,
-                dims[0]*dims[1]*dims[2], nullptr) == EXIT_FAILURE)
+                dims[0]*dims[1]*dims[2], size) == EXIT_FAILURE)
   {
     cerr << "Error with VTK_QUADRATIC_HEXAHEDRON\n";
     return EXIT_FAILURE;
@@ -174,9 +173,8 @@ int TestCellTypeSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     cerr << "Error with VTK_WEDGE\n";
     return EXIT_FAILURE;
   }
-  // can't currently properly compute quadratic wedge volumes
   if(CheckCells(VTK_QUADRATIC_WEDGE, dims, vtkAlgorithm::DOUBLE_PRECISION,
-                733+dims[0]*dims[1]*(dims[2]+1), dims[0]*dims[1]*dims[2]*2, nullptr) == EXIT_FAILURE)
+                733+dims[0]*dims[1]*(dims[2]+1), dims[0]*dims[1]*dims[2]*2, size) == EXIT_FAILURE)
   {
     cerr << "Error with VTK_QUADRATIC_WEDGE\n";
     return EXIT_FAILURE;
@@ -189,10 +187,9 @@ int TestCellTypeSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     cerr << "Error with VTK_PYRAMID\n";
     return EXIT_FAILURE;
   }
-  // can't currently properly compute quadratic pyramid volumes
   if(CheckCells(VTK_QUADRATIC_PYRAMID, dims, vtkAlgorithm::DOUBLE_PRECISION,
                 733+9*dims[0]*dims[1]*dims[2],
-                dims[0]*dims[1]*dims[2]*6, nullptr) == EXIT_FAILURE)
+                dims[0]*dims[1]*dims[2]*6, size) == EXIT_FAILURE)
   {
     cerr << "Error with VTK_QUADRATIC_PYRAMID\n";
     return EXIT_FAILURE;

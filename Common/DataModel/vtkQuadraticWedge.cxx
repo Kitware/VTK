@@ -73,14 +73,14 @@ vtkQuadraticWedge::~vtkQuadraticWedge()
 
 //----------------------------------------------------------------------------
 // instead of using an hexahedron we could use two prims/wedge...
-static int LinearWedges[8][6] = { {0,6,8,12,15,17},
-                                  {6,7,8,15,16,17},
-                                  {6,1,7,15,13,16},
-                                  {8,7,2,17,16,14},
-                                  {12,15,17,3,9,11},
-                                  {15,16,17,9,10,11},
-                                  {15,13,16,9,4,10},
-                                  {17,16,14,11,10,5} };
+static int LinearWedges[8][6] = { {0,8,6,12,17,15},
+                                  {6,8,7,15,17,16},
+                                  {6,7,1,15,16,13},
+                                  {8,2,7,17,14,16},
+                                  {12,17,15,3,11,9},
+                                  {15,17,16,9,11,10},
+                                  {15,16,13,9,10,4},
+                                  {17,14,16,11,5,10} };
 
 static int WedgeFaces[5][8] = { {0,1,2,6,7,8,0,0},
                                 {3,5,4,11,10,9,0,0},
@@ -382,7 +382,6 @@ void vtkQuadraticWedge::Contour(double value,
 {
   //subdivide into 8 linear wedges
   this->Subdivide(inPd,inCd,cellId, cellScalars);
-
   //contour each linear wedge separately
   for (int i=0; i<8; i++) //for each wedge
   {
@@ -479,15 +478,35 @@ int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
 int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index),
                                    vtkIdList *ptIds, vtkPoints *pts)
 {
-  pts->Reset();
-  ptIds->Reset();
+  // divide up into 16 tets
+  pts->SetNumberOfPoints(16*4);
+  ptIds->SetNumberOfIds(16*4);
 
-  for ( int i=0; i < 8; i++)
+  vtkIdType ids[16][4] = {
+    {0, 7, 6, 12},
+    {6, 7, 1, 13},
+    {9, 6, 7, 12},
+    {0, 8, 7, 12},
+    {8, 2, 7, 14},
+    {10, 11, 3, 12},
+    {11, 10, 8, 12},
+    {10, 7, 8, 12},
+    {9, 10, 3, 12},
+    {10, 9, 7, 12},
+    {9, 7, 6, 13},
+    {9, 10, 7, 13},
+    {10, 9, 4, 13},
+    {10, 8, 7, 14},
+    {5, 11, 10, 14},
+    {11, 8, 10, 14} };
+  vtkIdType counter = 0;
+  for (int i=0;i<16;i++)
   {
-    for ( int j=0; j < 6; j++)
+    for (int j=0;j<4;j++)
     {
-      ptIds->InsertId(6*i+j,this->PointIds->GetId(LinearWedges[i][j]));
-      pts->InsertPoint(6*i+j,this->Points->GetPoint(LinearWedges[i][j]));
+      ptIds->SetId(counter, this->PointIds->GetId(ids[i][j]));
+      pts->SetPoint(counter, this->Points->GetPoint(ids[i][j]));
+      counter++;
     }
   }
 
