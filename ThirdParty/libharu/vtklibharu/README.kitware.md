@@ -14,6 +14,7 @@ modifications, and this file contains a summary of changes.
 * Remove unused MATH_LIB cmake variable.
 * Renamed various cmake objects to have 'vtk' prefix.
 * Link to / include vtk's png and zlib libraries.
-* Remove unused demo/, win32/, if/, script/, doc/, and autoconf files.
 * Add .gitattributes file to ignore whitespace from commit checks.
 * Edited a comment in hpdf_objects.h to remove invalid UTF8 characters.
+* Update API to add support for HPDF_Shading objects (Upstream MR #157).
+* Add link to libm on unix.

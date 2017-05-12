@@ -26,7 +26,6 @@ used when the shared library is loaded/unloaded from an executable.
 #define vtk_haru_mangle_h
 
 #define ConvertDateToXMDate vtk_haru_ConvertDateToXMDate
-#define _edata vtk_haru__edata
 #define ExtGState_Check vtk_haru_ExtGState_Check
 #define GetElement vtk_haru_GetElement
 #define HPDF_3DAnnotExData_New vtk_haru_HPDF_3DAnnotExData_New
@@ -452,6 +451,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define HPDF_Page_GetMiterLimit vtk_haru_HPDF_Page_GetMiterLimit
 #define HPDF_Page_GetRGBFill vtk_haru_HPDF_Page_GetRGBFill
 #define HPDF_Page_GetRGBStroke vtk_haru_HPDF_Page_GetRGBStroke
+#define HPDF_Page_GetShadingName vtk_haru_HPDF_Page_GetShadingName
 #define HPDF_Page_GetStrokingColorSpace vtk_haru_HPDF_Page_GetStrokingColorSpace
 #define HPDF_Page_GetTextLeading vtk_haru_HPDF_Page_GetTextLeading
 #define HPDF_Page_GetTextMatrix vtk_haru_HPDF_Page_GetTextMatrix
@@ -497,6 +497,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define HPDF_Page_SetRGBFill vtk_haru_HPDF_Page_SetRGBFill
 #define HPDF_Page_SetRGBStroke vtk_haru_HPDF_Page_SetRGBStroke
 #define HPDF_Page_SetRotate vtk_haru_HPDF_Page_SetRotate
+#define HPDF_Page_SetShading vtk_haru_HPDF_Page_SetShading
 #define HPDF_Page_SetSize vtk_haru_HPDF_Page_SetSize
 #define HPDF_Page_SetSlideShow vtk_haru_HPDF_Page_SetSlideShow
 #define HPDF_Page_SetTextLeading vtk_haru_HPDF_Page_SetTextLeading
@@ -549,6 +550,8 @@ used when the shared library is loaded/unloaded from an executable.
 #define HPDF_SetPassword vtk_haru_HPDF_SetPassword
 #define HPDF_SetPermission vtk_haru_HPDF_SetPermission
 #define HPDF_SetViewerPreference vtk_haru_HPDF_SetViewerPreference
+#define HPDF_Shading_AddVertexRGB vtk_haru_HPDF_Shading_AddVertexRGB
+#define HPDF_Shading_New vtk_haru_HPDF_Shading_New
 #define HPDF_StampAnnot_New vtk_haru_HPDF_StampAnnot_New
 #define HPDF_StrCmp vtk_haru_HPDF_StrCmp
 #define HPDF_StrCpy vtk_haru_HPDF_StrCpy

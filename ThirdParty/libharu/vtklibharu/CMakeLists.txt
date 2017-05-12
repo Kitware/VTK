@@ -136,6 +136,10 @@ if(FALSE)
 else()
   include_directories(${vtkzlib_INCLUDE_DIR} ${vtkpng_INCLUDE_DIR})
   set(ADDITIONAL_LIBRARIES ${vtkzlib_LIBRARIES} ${vtkpng_LIBRARIES})
+  # Include libm for math on unix:
+  if(UNIX)
+    list(APPEND ADDITIONAL_LIBRARIES "m")
+  endif()
 endif()
 
 # =======================================================================
@@ -217,8 +221,8 @@ endif(DEVPAK)
 # create library and demos
 # =======================================================================
 add_subdirectory(src)
-# KITWARE_LIBHARU_CHANGE The demo directory is removed to save space:
-if(FALSE)
+# KITWARE_LIBHARU_CHANGE don't build demos
+if (FALSE)
   add_subdirectory(demo)
 endif()
 
