@@ -46,7 +46,7 @@ int TestGL2PSMathTextScaling(int, char *[])
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(400, 600);
+  view->GetRenderWindow()->SetSize(500, 500);
   view->GetRenderWindow()->SetDPI(120);
   vtkNew<GL2PSMathTextScalingTest> test;
   view->GetScene()->AddItem(test.GetPointer());
@@ -74,26 +74,25 @@ int TestGL2PSMathTextScaling(int, char *[])
   return EXIT_SUCCESS;
 }
 
-// Make our new derived class to draw a diagram
 vtkStandardNewMacro(GL2PSMathTextScalingTest)
 
-// This function aims to test the primitives provided by the 2D API.
 bool GL2PSMathTextScalingTest::Paint(vtkContext2D *painter)
 {
   painter->GetBrush()->SetColor(50, 50, 128);
-  painter->DrawRect(0, 0, 400, 600);
+  painter->DrawRect(0, 0, 500, 500);
 
   painter->GetTextProp()->SetColor(.7, .4, .5);
   painter->GetTextProp()->SetJustificationToLeft();
-  painter->GetTextProp()->SetVerticalJustificationToBottom();
+  painter->GetTextProp()->SetVerticalJustificationToCentered();
+  painter->GetTextProp()->UseTightBoundingBoxOn();
 
   for (int i = 0; i < 10; ++i)
   {
     int fontSize = 5 + i * 3;
-    float y = 600 - ((pow(i, 1.2) + 1) * 40);
+    float y = 500 - ((pow(i, 1.2) + 0.5) * 30);
     painter->GetTextProp()->SetFontSize(fontSize);
     painter->DrawString(5, y, "Text");
-    painter->DrawMathTextString(120, y, "MathText");
+    painter->DrawMathTextString(120, y, "MathText$\\ast$");
   }
 
   return true;
