@@ -56,6 +56,7 @@ set(
   	hpdf_page_operator.c
   	hpdf_pages.c
   	hpdf_real.c
+  	hpdf_shading.c
   	hpdf_streams.c
   	hpdf_string.c
   	hpdf_u3d.c

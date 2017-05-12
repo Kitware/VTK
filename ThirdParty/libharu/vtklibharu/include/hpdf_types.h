@@ -557,6 +557,20 @@ typedef enum _HPDF_NameDictKey {
     HPDF_NAME_EOF
 } HPDF_NameDictKey;
 
+/*----------------------------------------------------------------------------*/
+
+typedef enum _HPDF_ShadingType {
+  HPDF_SHADING_FREE_FORM_TRIANGLE_MESH = 4 /* TODO the rest */
+} HPDF_ShadingType;
+
+typedef enum _HPDF_Shading_FreeFormTriangleMeshEdgeFlag {
+  HPDF_FREE_FORM_TRI_MESH_EDGEFLAG_NO_CONNECTION = 0,
+  HPDF_FREE_FORM_TRI_MESH_EDGEFLAG_BC,
+  HPDF_FREE_FORM_TRI_MESH_EDGEFLAG_AC
+} HPDF_Shading_FreeFormTriangleMeshEdgeFlag;
+
+/*----------------------------------------------------------------------------*/
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
