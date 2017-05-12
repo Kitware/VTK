@@ -5,6 +5,7 @@ include_directories(${VTKm_INCLUDE_DIRS})
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVTKMCleanGrid.cxx
   TestVTKMClip.cxx
+  TestVTKMClipWithImplicitFunction.cxx
   # TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMExternalFaces.cxx
   TestVTKMLevelOfDetail.cxx

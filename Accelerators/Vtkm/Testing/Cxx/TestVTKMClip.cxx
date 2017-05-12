@@ -74,16 +74,12 @@ int TestVTKMClip(int, char*[])
   sphereClipper->SetInputData(sphere);
   sphereClipper->SetComputeScalars(true);
   sphereClipper->SetClipValue(0.);
-  sphereClipper->Update();
-  if (!sphereClipper->GetOutput()->IsA("vtkPolyData"))
-  {
-    std::cerr << "Expected an input with 2D cells to produce polydata. Got: "
-              << sphereClipper->GetOutput()->GetClassName() << "\n";
-    return EXIT_FAILURE;
-  }
+
+  vtkNew<vtkDataSetSurfaceFilter> sphSurface;
+  sphSurface->SetInputConnection(sphereClipper->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> sphereMapper;
-  sphereMapper->SetInputConnection(sphereClipper->GetOutputPort());
+  sphereMapper->SetInputConnection(sphSurface->GetOutputPort());
   sphereMapper->SetScalarVisibility(1);
   sphereMapper->SetScalarModeToUsePointFieldData();
   sphereMapper->SelectColorArray("x+y");
@@ -116,13 +112,6 @@ int TestVTKMClip(int, char*[])
   tetClipper->SetInputData(tets);
   tetClipper->SetComputeScalars(true);
   tetClipper->SetClipValue(0.);
-  tetClipper->Update();
-  if (!tetClipper->GetOutput()->IsA("vtkUnstructuredGrid"))
-  {
-    std::cerr << "Expected an input with 3D cells to produce an ugrid. Got: "
-              << tetClipper->GetOutput()->GetClassName() << "\n";
-    return EXIT_FAILURE;
-  }
 
   vtkNew<vtkDataSetSurfaceFilter> tetSurface;
   tetSurface->SetInputConnection(tetClipper->GetOutputPort());
@@ -147,13 +136,6 @@ int TestVTKMClip(int, char*[])
   imageClipper->SetInputData(image);
   imageClipper->SetComputeScalars(true);
   imageClipper->SetClipValue(0.);
-  imageClipper->Update();
-  if (!tetClipper->GetOutput()->IsA("vtkUnstructuredGrid"))
-  {
-    std::cerr << "Expected an imagedata to produce a clipped ugrid. Got: "
-              << tetClipper->GetOutput()->GetClassName() << "\n";
-    return EXIT_FAILURE;
-  }
 
   vtkNew<vtkDataSetSurfaceFilter> imageSurface;
   imageSurface->SetInputConnection(imageClipper->GetOutputPort());

@@ -19,11 +19,13 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDemandDrivenPipeline.h"
+#include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkTableBasedClipDataSet.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkmlib/ArrayConverters.h"
@@ -37,6 +39,10 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/ClipWithField.h>
+#include <vtkm/filter/ClipWithImplicitFunction.h>
+
+#include <algorithm>
+
 
 vtkStandardNewMacro(vtkmClip)
 
@@ -46,13 +52,16 @@ void vtkmClip::PrintSelf(std::ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ClipValue: " << this->ClipValue << "\n";
+  os << indent << "ClipFunction: \n";
+  this->ClipFunction->PrintSelf(os, indent.GetNextIndent());
   os << indent << "ComputeScalars: " << this->ComputeScalars << "\n";
 }
 
 //------------------------------------------------------------------------------
 vtkmClip::vtkmClip()
   : ClipValue(0.),
-    ComputeScalars(true)
+    ComputeScalars(true),
+    ClipFunction(nullptr)
 {
   // Clip active point scalars by default
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -64,54 +73,26 @@ vtkmClip::~vtkmClip()
 {
 }
 
-//------------------------------------------------------------------------------
-int vtkmClip::RequestDataObject(vtkInformation *,
-                                vtkInformationVector **inVec,
-                                vtkInformationVector *outVec)
+//----------------------------------------------------------------------------
+vtkMTimeType vtkmClip::GetMTime()
 {
-  vtkInformation* inInfo = inVec[0]->GetInformationObject(0);
-  if (!inInfo)
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  if (this->ClipFunction)
   {
-    return 0;
+    mTime = std::max(mTime, this->ClipFunction->GetMTime());
   }
+  return mTime;
+}
 
-  vtkDataSet *input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (input)
+//----------------------------------------------------------------------------
+void vtkmClip::SetClipFunction(vtkImplicitFunction *clipFunction)
+{
+  if (this->ClipFunction != clipFunction)
   {
-    // If the input has 3D cells, we will produce an unstructured grid. Otherwise,
-    // we'll make a polydata:
-    bool has3DCells = false;
-    vtkCellIterator *i = input->NewCellIterator();
-    for (i->InitTraversal(); !i->IsDoneWithTraversal(); i->GoToNextCell())
-    {
-      if (i->GetCellDimension() == 3)
-      {
-        has3DCells = true;
-        break;
-      }
-    }
-    i->Delete();
-
-    vtkInformation* info = outVec->GetInformationObject(0);
-    vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-
-    if (has3DCells && (!output || !output->IsA("vtkUnstructuredGrid")))
-    {
-      vtkNew<vtkUnstructuredGrid> newOutput;
-      info->Set(vtkDataObject::DATA_OBJECT(), newOutput.Get());
-    }
-    else if (!has3DCells && (!output || !output->IsA("vtkPolyData")))
-    {
-      vtkNew<vtkPolyData> newOutput;
-      info->Set(vtkDataObject::DATA_OBJECT(), newOutput.Get());
-    }
-
-    return 1;
+    this->ClipFunction = clipFunction;
+    this->ClipFunctionConverter.Set(clipFunction);
+    this->Modified();
   }
-
-  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -124,8 +105,9 @@ int vtkmClip::RequestData(vtkInformation *,
 
   // Extract data objects from info:
   vtkDataSet *input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataObject *outputDO = outInfo->Get(vtkDataObject::DATA_OBJECT());
+    vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Find the scalar array:
   int assoc = this->GetInputArrayAssociation(0, inInfoVec);
@@ -160,17 +142,39 @@ int vtkmClip::RequestData(vtkInformation *,
   }
 
   // Configure vtkm filter:
-  vtkm::filter::ClipWithField filter;
-  filter.SetClipValue(this->ClipValue);
+  vtkm::filter::ClipWithField fieldFilter;
+  vtkm::filter::ClipWithImplicitFunction functionFilter;
 
   // Run filter:
   vtkm::filter::ResultDataSet result;
   vtkmInputFilterPolicy policy;
-  result = filter.Execute(in, field, policy);
+  if (this->ClipFunction)
+  {
+    auto function = this->ClipFunctionConverter.Get();
+    if (function.get())
+    {
+      functionFilter.SetImplicitFunction(function);
+      result = functionFilter.Execute(in, policy);
+    }
+  }
+  else
+  {
+    fieldFilter.SetClipValue(this->ClipValue);
+    result = fieldFilter.Execute(in, field, policy);
+  }
 
   if (!result.IsValid())
   {
-    vtkErrorMacro("vtkm Clip filter failed to run.");
+    vtkWarningMacro(<< "vtkm Clip filter failed to run.\n"
+                    << "Falling back to serial implementation.");
+
+    vtkNew<vtkTableBasedClipDataSet> filter;
+    filter->SetClipFunction(this->ClipFunction);
+    filter->SetValue(this->ClipValue);
+    filter->SetInputData(input);
+    filter->Update();
+    output->ShallowCopy(filter->GetOutput());
+
     return 1;
   }
 
@@ -191,7 +195,10 @@ int vtkmClip::RequestData(vtkInformation *,
 
       try
       {
-        if (!filter.MapFieldOntoOutput(result, pField, policy))
+        bool success = this->ClipFunction ?
+                       functionFilter.MapFieldOntoOutput(result, pField, policy) :
+                       fieldFilter.MapFieldOntoOutput(result, pField, policy);
+        if (!success)
         {
           throw vtkm::cont::ErrorBadValue("MapFieldOntoOutput returned false.");
         }
@@ -209,29 +216,11 @@ int vtkmClip::RequestData(vtkInformation *,
   }
 
   // Convert result to output:
-  vtkUnstructuredGrid *outputUG = vtkUnstructuredGrid::SafeDownCast(outputDO);
-  vtkPolyData *outputPD = outputUG ? NULL : vtkPolyData::SafeDownCast(outputDO);
-
-  bool outputValid = false;
-  if (outputUG)
-  {
-    outputValid = fromvtkm::Convert(result.GetDataSet(), outputUG, input);
-  }
-  else if (outputPD)
-  {
-    outputValid = fromvtkm::Convert(result.GetDataSet(), outputPD, input);
-  }
-  else
-  {
-    vtkErrorMacro("Unsupported output data object type: "
-                  << (outputDO ? outputDO->GetClassName() : "(NULL)"));
-    return 1;
-  }
-
+  bool outputValid = fromvtkm::Convert(result.GetDataSet(), output, input);
   if (!outputValid)
   {
-    vtkErrorMacro("Error generating vtkPolyData from vtkm's result.");
-    outputDO->Initialize();
+    vtkErrorMacro("Error generating vtkUnstructuredGrid from vtkm's result.");
+    output->Initialize();
     return 1;
   }
 
@@ -247,12 +236,5 @@ int vtkmClip::FillInputPortInformation(int, vtkInformation *info)
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
-  return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkmClip::FillOutputPortInformation(int, vtkInformation *info)
-{
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPointSet");
   return 1;
 }

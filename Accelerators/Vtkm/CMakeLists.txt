@@ -58,6 +58,7 @@ set(cpu_accelerator_srcs
   vtkmConnectivityExec.cxx
   vtkmGradient.cxx
   vtkmlib/Portals.cxx
+  vtkmlib/ImplicitFunctionConverter.cxx
   )
 
 #implementation of the algorithms for gpu accelerators
@@ -75,6 +76,7 @@ set(cuda_accelerator_srcs
   vtkmConnectivityExec.cu
   vtkmGradient.cu
   vtkmlib/Portals.cu
+  vtkmlib/ImplicitFunctionConverter.cu
   )
 
 set(VTKM_FILTER_INCLUDE_AOS ${VTK_DISPATCH_AOS_ARRAYS})
@@ -91,6 +93,7 @@ set_source_files_properties(
   vtkmlib/DataSetConverters
   vtkmlib/Storage
   vtkmlib/Portals
+  vtkmlib/ImplicitFunctionConverter
   vtkmCellSetExplicit
   vtkmCellSetSingleType
   vtkmConnectivityExec
