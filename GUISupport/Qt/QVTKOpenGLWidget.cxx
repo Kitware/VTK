@@ -123,11 +123,10 @@ protected:
 //-----------------------------------------------------------------------------
 QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
-  , DeferRenderInPaintEvent(false)
   , InteractorAdaptor(NULL)
   , FBO(nullptr)
   , InPaintGL(false)
-  , SkipRenderInPaintGL(false)
+  , DoVTKRenderInPaintGL(false)
   , Logger(nullptr)
 {
   this->Observer->SetTarget(this);
@@ -135,14 +134,12 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   // default to strong focus
   this->setFocusPolicy(Qt::StrongFocus);
 
+  this->setUpdateBehavior(QOpenGLWidget::PartialUpdate);
+
   this->InteractorAdaptor = new QVTKInteractorAdapter(this);
   this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
 
   this->setMouseTracking(true);
-
-  this->DeferedRenderTimer.setSingleShot(true);
-  this->DeferedRenderTimer.setInterval(0);
-  this->connect(&this->DeferedRenderTimer, SIGNAL(timeout()), SLOT(doDeferredRender()));
 
   // QOpenGLWidget::resized() is triggered when the default FBO in QOpenGLWidget is recreated.
   // We use the same signal to recreate our FBO.
@@ -252,12 +249,6 @@ QVTKInteractor* QVTKOpenGLWidget::GetInteractor()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLWidget::setDeferRenderInPaintEvent(bool val)
-{
-  this->DeferRenderInPaintEvent = val;
-}
-
-//-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::copyFromFormat(const QSurfaceFormat& format, vtkRenderWindow* win)
 {
   if (vtkOpenGLRenderWindow* oglWin = vtkOpenGLRenderWindow::SafeDownCast(win))
@@ -343,6 +334,10 @@ void QVTKOpenGLWidget::recreateFBO()
   // end up rendering fully transparent windows (see through background)
   // unless we fill it with alpha=1.0 (See paraview/paraview#17159).
   vtkSetBackgroundAlpha(this->RenderWindow, 1.0);
+
+  // Since the context or frame buffer was recreated, if a paintGL call ensues,
+  // we need to ensure we're requesting VTK to render.
+  this->DoVTKRenderInPaintGL = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -393,7 +388,6 @@ void QVTKOpenGLWidget::resizeGL(int w, int h)
   {
     this->RenderWindow->SetSize(w * this->devicePixelRatio(),
                                 h * this->devicePixelRatio());
-    this->SkipRenderInPaintGL = false;
   }
   this->Superclass::resizeGL(w, h);
 }
@@ -409,28 +403,21 @@ void QVTKOpenGLWidget::paintGL()
   Q_ASSERT(this->FBO);
   Q_ASSERT(this->FBO->handle() == this->RenderWindow->GetDefaultFrameBufferId());
 
-
   QScopedValueRollback<bool> var(this->InPaintGL, true);
   this->Superclass::paintGL();
 
-  if (this->SkipRenderInPaintGL)
+  if (this->DoVTKRenderInPaintGL && !this->renderVTK())
   {
-    vtkQVTKOpenGLWidgetDebugMacro("paintGL:skipped");
-    this->SkipRenderInPaintGL = false;
+    vtkQVTKOpenGLWidgetDebugMacro("paintGL:skipped-renderVTK");
+    // This should be very rare, but it's conceivable that subclasses of
+    // QVTKOpenGLWidget are simply not ready to do a
+    // render on VTK render window when widget is being painted.
+    // Leave the buffer unchanged.
+    return;
   }
-  else
-  {
-    if (this->DeferRenderInPaintEvent)
-    {
-      vtkQVTKOpenGLWidgetDebugMacro("paintGL:defer render");
-      this->deferRender();
-    }
-    else
-    {
-      vtkQVTKOpenGLWidgetDebugMacro("paintGL:render");
-      this->doDeferredRender();
-    }
-  }
+
+  // We just did a render, if we needed it. Turn the flag off.
+  this->DoVTKRenderInPaintGL = false;
 
   // If render was triggered by above calls, that may change the current context
   // due to things like progress events triggering updates on other widgets
@@ -490,10 +477,6 @@ void QVTKOpenGLWidget::windowFrameEventCallback()
   Q_ASSERT(this->RenderWindow);
   vtkQVTKOpenGLWidgetDebugMacro("frame");
 
-  // Render happened. If we have requested a render to happen, it has happened,
-  // so no need to request another render. Stop the timer.
-  this->DeferedRenderTimer.stop();
-
   if (!this->InPaintGL)
   {
     // Handing vtkOpenGLRenderWindow::Frame is tricky. VTK code traditionally
@@ -516,33 +499,47 @@ void QVTKOpenGLWidget::windowFrameEventCallback()
       vtkQVTKOpenGLWidgetDebugMacro("update");
       this->update();
 
-      this->SkipRenderInPaintGL = true;
+      this->DoVTKRenderInPaintGL = false;
     }
     else
     {
-      this->SkipRenderInPaintGL = false;
+      vtkQVTKOpenGLWidgetDebugMacro("buffer bad -- do not show");
+
+      // Since this->FBO right now is garbage, if paint event is received before
+      // a Render request is made on the render window, we will have to Render
+      // explicitly.
+      this->DoVTKRenderInPaintGL = true;
     }
-
   }
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLWidget::deferRender()
+bool QVTKOpenGLWidget::renderVTK()
 {
-  this->DeferedRenderTimer.start();
-}
+  vtkQVTKOpenGLWidgetDebugMacro("renderVTK");
+  Q_ASSERT(this->FBO);
 
-//-----------------------------------------------------------------------------
-void QVTKOpenGLWidget::doDeferredRender()
-{
+  // Bind the FBO we'll be rendering into. This may not be needed, since VTK will
+  // bind it anyways, but we'll be extra cautious.
+  this->FBO->bind();
+
   vtkRenderWindowInteractor* iren = this->RenderWindow ? this->RenderWindow->GetInteractor() : NULL;
-  if (iren && this->FBO)
+  if (iren)
   {
-    // Bind the FBO we'll be rendering into (is this needed? VTK will bind it anyways).
-    this->FBO->bind();
     iren->Render();
-    this->DeferedRenderTimer.stop(); // not necessary, but no harm.
   }
+  else if (this->RenderWindow)
+  {
+    this->RenderWindow->Render();
+  }
+  else
+  {
+    // no render window set, just fill with white.
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    f->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+  }
+  return true;
 }
 
 //-----------------------------------------------------------------------------

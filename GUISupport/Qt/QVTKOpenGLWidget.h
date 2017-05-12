@@ -57,35 +57,51 @@
  *
  * @endcode
  *
- * @section OpenGL Context
+ * @section OpenGLContext OpenGL Context
  *
  * In QOpenGLWidget (superclass for QVTKOpenGLWidget), all rendering happens in a
  * framebuffer object. Thus, care must be taken in the rendering code to never
- * directly re-bind the framebuffer with ID 0.
+ * directly re-bind the default framebuffer i.e. ID 0.
  *
- * @section Handling Render and Paint.
+ * QVTKOpenGLWidget creates an internal QOpenGLFramebufferObject, independent of the
+ * one created by superclass, for vtkRenderWindow to do the rendering in. This
+ * explicit double-buffering is useful in avoiding temporary back-buffer only
+ * renders done in VTK (e.g. when making selections) from destroying the results
+ * composed on screen.
  *
- * In VTK, rendering is requested calling `vtkRenderWindow::Render`, while with
- * Qt, a widget is updated in an **paint** event. Since QVTKOpenGLWidget renders
- * to a framebuffer, any OpenGL calls don't directly update the image shown on the
- * screen. Instead Qt composes the rendered image with the widget stack and displays
- * on screen. This poses a challenge when VTK (or the VTK application) triggers a
- * render outside the paint event by calling `vtkRenderWindow::Render`, since the rendering
- * results won't show on screen until Qt composes the rendered image. To handle that,
- * QVTKOpenGLWidget listens to the vtkCommand::WindowFrameEvent fired by
- * vtkGenericOpenGLRenderWindow when vtkRenderWindow::Frame is called. That
- * typically happens at the end of a render to swap the front and back buffers
- * (for example). If QVTKOpenGLWidget receives that event outside of a paintGL
- * call, then it requests Qt to update the widget by calling `QWidget::update`.
- * Note, when `paintGL` subsequently gets called, QVTKOpenGLWidget leaves the
- * framebuffer untouched i.e. doesn't call vtkRenderWindow::Render again.
- * If vtkRenderWindow::SwapBuffers if off, then the `QWidget::update` is not
- * called. The rationale is that the changes were done in back buffer, most
- * likely and hence are not intended to be shown onscreen.
+ * @section RenderAndPaint Handling Render and Paint.
+ *
+ * QWidget subclasses (including `QOpenGLWidget` and `QVTKOpenGLWidget`) display
+ * their contents on the screen in `QWidget::paint` in response to a paint event.
+ * `QOpenGLWidget` subclasses are expected to do OpenGL rendering in
+ * `QOpenGLWidget::paintGL`. QWidget can receive paint events for various
+ * reasons including widget getting focus/losing focus, some other widget on
+ * the UI e.g. QProgressBar in status bar updating, etc.
+ *
+ * In VTK applications, any time the vtkRenderWindow needs to be updated to
+ * render a new result, one call `vtkRenderWindow::Render` on it.
+ * vtkRenderWindowInteractor set on the render window ensures that as
+ * interactions happen that affect the rendered result, it calls `Render` on the
+ * render window.
+ *
+ * Since paint in Qt can be called more often then needed, we avoid potentially
+ * expensive `vtkRenderWindow::Render` calls each time that happens. Instead,
+ * QVTKOpenGLWidget relies on the VTK application calling
+ * `vtkRenderWindow::Render` on the render window when it needs to update the
+ * rendering. `paintGL` simply passes on the result rendered by the most render
+ * vtkRenderWindow::Render to Qt windowing system for composing on-screen.
+ *
+ * There may still be occasions when we may have to render in `paint` for
+ * example if the window was resized or Qt had to recreate the OpenGL context.
+ * In those cases, `QVTKOpenGLWidget::paintGL` can request a render by calling
+ * `QVTKOpenGLWidget::renderVTK`.
  *
  * @section Caveats
  * QVTKOpenGLWidget only supports **OpenGL2** rendering backend. Thus is not available
  * if VTK is built with **VTK_RENDERING_BACKEND** set to **OpenGL**.
+ *
+ * QVTKOpenGLWidget is targeted for Qt version 5.5 and above.
+ *
  */
 #ifndef QVTKOpenGLWidget_h
 #define QVTKOpenGLWidget_h
@@ -96,7 +112,6 @@
 #include "vtkGUISupportQtModule.h" // for export macro
 #include "vtkNew.h"                // needed for vtkNew
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer
-#include <QTimer>                  // needed for QTimer.
 
 class QOpenGLDebugLogger;
 class QOpenGLFramebufferObject;
@@ -108,8 +123,6 @@ class vtkGenericOpenGLRenderWindow;
 class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QOpenGLWidget
 {
   Q_OBJECT
-  Q_PROPERTY(
-    bool deferRenderInPaintEvent READ deferRenderInPaintEvent WRITE setDeferRenderInPaintEvent)
   typedef QOpenGLWidget Superclass;
 public:
   QVTKOpenGLWidget(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
@@ -128,22 +141,6 @@ public:
    * Get the QVTKInteractor that was either created by default or set by the user.
    */
   virtual QVTKInteractor* GetInteractor();
-
-  //@{
-  /**
-   * When set to true (default is false), paintEvent() will never directly trigger
-   * a render on the vtkRenderWindow (via vtkRenderWindowInteractor::Render()).
-   * Instead, it starts a timer that then triggers the render on idle. This, in
-   * general is a good strategy for cases where Render may take a while with
-   * applications wanting to report progress and consequently trigger paint
-   * events on other widgets like progress bars, etc.
-   * There is one caveat: when paintEvent() is called using a redirected paint device,
-   * then this flag is ignored and the paintEvent() will trigger
-   * vtkRenderWindowInteractor::Render(), if needed.
-   */
-  virtual void setDeferRenderInPaintEvent(bool val);
-  virtual bool deferRenderInPaintEvent() const { return this->DeferRenderInPaintEvent; }
-  //@}
 
   /**
    * Sets up vtkRenderWindow ivars using QSurfaceFormat.
@@ -170,19 +167,6 @@ signals:
 
 protected slots:
   /**
-   * Request to defer a render call i.e. start the mDeferedRenderTimer. When the
-   * timer times out, it will call doDeferredRender() to do the actual rendering.
-   */
-  virtual void deferRender();
-
-  /**
-   * Called when the mDeferedRenderTimer times out to do the rendering.
-   */
-  virtual void doDeferredRender();
-
-  bool event(QEvent* evt) Q_DECL_OVERRIDE;
-
-  /**
    * Called as a response to `QOpenGLContext::aboutToBeDestroyed`. This may be
    * called anytime during the widget lifecycle. We need to release any OpenGL
    * resources allocated in VTK work in this method.
@@ -202,6 +186,7 @@ private slots:
   void startEventCallback();
 
 protected:
+  bool event(QEvent* evt) Q_DECL_OVERRIDE;
   void initializeGL() Q_DECL_OVERRIDE;
   void resizeGL(int w, int h) Q_DECL_OVERRIDE;
   void paintGL() Q_DECL_OVERRIDE;
@@ -220,9 +205,29 @@ protected:
    */
   void requireRenderWindowInitialization();
 
-protected:
-  bool DeferRenderInPaintEvent;
+  /**
+   * This method may be called in `paintGL` to request VTK to do a render i.e.
+   * trigger render on the render window via its interactor.
+   *
+   * It will return true if render (or an equivalent action) was performed to
+   * update the frame buffer made available to VTK for rendering with latest
+   * rendering.
+   *
+   * Default implementation never returns false. However, subclasses can return
+   * false to indicate to QVTKOpenGLWidget that it cannot generate a reasonable
+   * image to be displayed in QVTKOpenGLWidget. In which case, the `paintGL`
+   * call will return leaving the `defaultFramebufferObject` untouched.
+   *
+   * Since by default `QOpenGLWidget::UpdateBehavior` is set to
+   * QOpenGLWidget::PartialUpdate, this means whatever was rendered in the frame
+   * buffer in most recent successful call will be preserved, unless the widget
+   * was forced to recreate the FBO as a result of resize or screen change.
+   *
+   * @sa Section @ref RenderAndPaint.
+   */
+  virtual bool renderVTK();
 
+protected:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
   QVTKInteractorAdapter* InteractorAdaptor;
 
@@ -240,10 +245,9 @@ private:
    */
   void windowFrameEventCallback();
 
-  QTimer DeferedRenderTimer;
   QOpenGLFramebufferObject* FBO;
   bool InPaintGL;
-  bool SkipRenderInPaintGL;
+  bool DoVTKRenderInPaintGL;
   vtkNew<QVTKOpenGLWidgetObserver> Observer;
   friend class QVTKOpenGLWidgetObserver;
   QOpenGLDebugLogger* Logger;
