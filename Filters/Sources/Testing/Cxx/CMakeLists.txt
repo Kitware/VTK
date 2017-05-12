@@ -1,5 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestArcSource.cxx,NO_VALID
+  TestCellTypeSource.cxx,NO_VALID
   TestConeSource.cxx,NO_VALID
   TestCubeSource.cxx,NO_VALID
   TestCylinderSource.cxx,NO_VALID

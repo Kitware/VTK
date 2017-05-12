@@ -7,6 +7,7 @@ vtk_module(vtkFiltersSources
     vtkInteractionStyle
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkFiltersModeling
+    vtkFiltersVerdict
     vtkIOXML
     vtkIOParallel
   KIT
