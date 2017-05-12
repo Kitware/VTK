@@ -514,7 +514,7 @@ HPDF_Page_GetLocalFontName  (HPDF_Page  page,
     /* search font-object from font-resource */
     key = HPDF_Dict_GetKeyByObj (attr->fonts, font);
     if (!key) {
-        /* if the font is not resisterd in font-resource, register font to
+        /* if the font is not registered in font-resource, register font to
          * font-resource.
          */
         char fontName[HPDF_LIMIT_MAX_NAME_LEN + 1];
@@ -603,7 +603,7 @@ HPDF_Page_GetXObjectName  (HPDF_Page     page,
     /* search xobject-object from xobject-resource */
     key = HPDF_Dict_GetKeyByObj (attr->xobjects, xobj);
     if (!key) {
-        /* if the xobject is not resisterd in xobject-resource, register
+        /* if the xobject is not registered in xobject-resource, register
          * xobject to xobject-resource.
          */
         char xobj_name[HPDF_LIMIT_MAX_NAME_LEN + 1];
@@ -654,7 +654,7 @@ HPDF_Page_GetExtGStateName  (HPDF_Page       page,
     /* search ext_gstate-object from ext_gstate-resource */
     key = HPDF_Dict_GetKeyByObj (attr->ext_gstates, state);
     if (!key) {
-        /* if the ext-gstate is not resisterd in ext-gstate resource, register
+        /* if the ext-gstate is not registered in ext-gstate resource, register
          *  to ext-gstate resource.
          */
         char ext_gstate_name[HPDF_LIMIT_MAX_NAME_LEN + 1];
@@ -704,7 +704,7 @@ HPDF_Page_GetShadingName  (HPDF_Page    page,
     /* search shading-object from shading-resource */
     key = HPDF_Dict_GetKeyByObj (attr->shadings, shading);
     if (!key) {
-        /* if the shading is not resisterd in shadings resource, register
+        /* if the shading is not registered in shadings resource, register
          *  to shadings resource.
          */
         char shading_str[HPDF_LIMIT_MAX_NAME_LEN + 1];
