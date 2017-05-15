@@ -101,7 +101,7 @@ typedef struct nifti_1_header nifti_1_header;
    when it encounters a dataset with a type it doesn't like.
 -----------------------------------------------------------------------------*/
 
-/*! \defgroup NIFTI1_DATATYPE_ALIASES
+/*! \defgroup NIFTI1_DATATYPE_ALIASES NIFTI Datatype Aliases
     \brief aliases for the nifti1 datatype codes
     @{
  */
