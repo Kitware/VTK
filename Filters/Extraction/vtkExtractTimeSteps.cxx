@@ -26,6 +26,11 @@
 
 vtkStandardNewMacro(vtkExtractTimeSteps);
 
+vtkExtractTimeSteps::vtkExtractTimeSteps() :
+  UseRange(false), TimeStepInterval(1)
+{
+}
+
 //----------------------------------------------------------------------------
 void vtkExtractTimeSteps::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -105,12 +110,28 @@ int vtkExtractTimeSteps::RequestInformation(vtkInformation*,
       inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
     std::vector<double> outTimes;
-    for (std::set<int>::iterator it = this->TimeStepIndices.begin();
-         it != this->TimeStepIndices.end(); ++it)
+    if (!this->UseRange)
     {
-      if (*it >= 0 && *it < numTimes)
+      for (std::set<int>::iterator it = this->TimeStepIndices.begin();
+           it != this->TimeStepIndices.end(); ++it)
       {
-        outTimes.push_back(inTimes[*it]);
+        if (*it >= 0 && *it < numTimes)
+        {
+          outTimes.push_back(inTimes[*it]);
+        }
+      }
+    }
+    else
+    {
+      for (int i = 0; i < numTimes; ++i)
+      {
+        if (i >= this->Range[0] && i <= this->Range[1])
+        {
+          if ((i - this->Range[0]) % this->TimeStepInterval == 0)
+          {
+            outTimes.push_back(inTimes[i]);
+          }
+        }
       }
     }
 
