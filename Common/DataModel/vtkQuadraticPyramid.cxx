@@ -543,26 +543,34 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
 int vtkQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                       vtkPoints *pts)
 {
-  int i;
-  int ii;
-  pts->Reset();
-  ptIds->Reset();
+  // split into 14 tets
+  pts->SetNumberOfPoints(14*4);
+  ptIds->SetNumberOfIds(14*4);
 
-  for (i=0; i < 6; i++)
-  {
-    for ( int j=0; j < 5; j++)
-    {
-      ptIds->InsertId(5*i+j,this->PointIds->GetId(LinearPyramids[i][j]));
-      pts->InsertPoint(5*i+j,this->Points->GetPoint(LinearPyramids[i][j]));
-    }
-  }
+  vtkIdType ids[14][4] = {
+    {7, 6, 2, 11},
+    {1, 6, 5, 10},
+    {8, 7, 3, 12},
+    {5, 8, 0, 9},
+    {7, 8, 5, 9},
+    {6, 7, 5, 9},
+    {6, 9, 5, 10},
+    {9, 6, 7, 10},
+    {10, 6, 7, 11},
+    {9, 10, 7, 11},
+    {10, 9, 4, 11},
+    {9, 7, 8, 12},
+    {9, 11, 7, 12},
+    {11, 9, 4, 12} };
 
-  for (ii=0, i=6 ; i < 10; i++, ii++)
+  vtkIdType counter = 0;
+  for (int i=0;i<14;i++)
   {
-    for ( int j=0; j < 4; j++)
+    for (int j=0;j<4;j++)
     {
-      ptIds->InsertId(4*ii+j+30,this->PointIds->GetId(LinearPyramids[i][j]));
-      pts->InsertPoint(4*ii+j+30,this->Points->GetPoint(LinearPyramids[i][j]));
+      ptIds->SetId(counter, this->PointIds->GetId(ids[i][j]));
+      pts->SetPoint(counter, this->Points->GetPoint(ids[i][j]));
+      counter++;
     }
   }
 
