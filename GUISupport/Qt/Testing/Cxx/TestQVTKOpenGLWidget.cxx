@@ -37,9 +37,17 @@ int TestQVTKOpenGLWidget(int argc, char* argv[])
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
 
-  vtkNew<vtkGenericOpenGLRenderWindow> window;
-
   QVTKOpenGLWidget widget;
+
+  {
+    vtkNew<vtkGenericOpenGLRenderWindow> window0;
+    widget.SetRenderWindow(window0.Get());
+    widget.show();
+    app.processEvents();
+  }
+
+  // make sure rendering works correctly after switching to a new render window
+  vtkNew<vtkGenericOpenGLRenderWindow> window;
   widget.SetRenderWindow(window.Get());
 
   vtkNew<vtkRenderer> ren;
@@ -55,7 +63,7 @@ int TestQVTKOpenGLWidget(int argc, char* argv[])
   ren->AddActor(actor.Get());
 
   vtktesting->SetRenderWindow(window.Get());
-  widget.show();
+  widget.update();
   app.processEvents();
 
   int retVal = vtktesting->RegressionTest(10);

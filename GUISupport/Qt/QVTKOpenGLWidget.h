@@ -243,11 +243,6 @@ private:
   Q_DISABLE_COPY(QVTKOpenGLWidget);
 
   /**
-   * initializes the render window during constructor.
-   */
-  void initializeRenderWindow(vtkGenericOpenGLRenderWindow* win);
-
-  /**
    * Called when vtkCommand::WindowFrameEvent is fired by the
    * vtkGenericOpenGLRenderWindow.
    */

@@ -184,6 +184,7 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   if (this->RenderWindow)
   {
     this->RenderWindow->RemoveObserver(this->Observer.Get());
+    this->RenderWindow->SetReadyForRendering(false);
   }
 
   this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
@@ -224,6 +225,12 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     this->RenderWindow->AddObserver(vtkCommand::WindowIsCurrentEvent, this->Observer.Get());
     this->RenderWindow->AddObserver(vtkCommand::WindowFrameEvent, this->Observer.Get());
     this->RenderWindow->AddObserver(vtkCommand::StartEvent, this->Observer.Get());
+
+    if (this->FBO)
+    {
+      this->makeCurrent();
+      this->recreateFBO();
+    }
   }
 }
 
@@ -429,8 +436,16 @@ void QVTKOpenGLWidget::paintGL()
     return;
   }
 
-  Q_ASSERT(this->FBO);
-  Q_ASSERT(this->FBO->handle() == this->RenderWindow->GetDefaultFrameBufferId());
+  if (!this->RenderWindow)
+  {
+    return;
+  }
+
+  if (!this->FBO
+    || this->FBO->handle() != this->RenderWindow->GetDefaultFrameBufferId())
+  {
+    this->recreateFBO();
+  }
 
   QScopedValueRollback<bool> var(this->InPaintGL, true);
   this->Superclass::paintGL();
@@ -547,6 +562,7 @@ bool QVTKOpenGLWidget::renderVTK()
 {
   vtkQVTKOpenGLWidgetDebugMacro("renderVTK");
   Q_ASSERT(this->FBO);
+  Q_ASSERT(this->FBO->handle() == this->RenderWindow->GetDefaultFrameBufferId());
 
   // Bind the FBO we'll be rendering into. This may not be needed, since VTK will
   // bind it anyways, but we'll be extra cautious.
