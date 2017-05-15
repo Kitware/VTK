@@ -77,7 +77,7 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
 
   //TODO: this is incorrect, so I use Insert and Squeeze instead of Set.
   int aMaximumLevel = inInfo->Get(vtkHyperOctree::LEVELS());
-  vtkIdType fact=(1<<(aMaximumLevel-1));
+  vtkIdType fact=static_cast<vtkIdType>(1)<<(aMaximumLevel-1);
   vtkIdType maxNumberOfCells=fact*fact;
 
   //give the output the same number and type of attribute data arrays

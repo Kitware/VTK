@@ -286,7 +286,7 @@ int vtkHyperOctreeSampleFunction::RequestData(
   vtkDataArray *scalars=vtkDataArray::CreateDataArray(this->OutputScalarType);
   scalars->SetNumberOfComponents(1);
 
-  vtkIdType fact=(1<<(this->Levels-1));
+  vtkIdType fact=static_cast<vtkIdType>(1)<<(this->Levels-1);
   vtkIdType maxNumberOfCells=fact;
   if(this->GetDimension()>=2)
   {
