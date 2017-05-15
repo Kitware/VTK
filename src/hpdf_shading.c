@@ -95,6 +95,7 @@ HPDF_Shading_New  (HPDF_Doc         pdf,
   HPDF_Shading shading;
   HPDF_Array decodeArray;
   HPDF_STATUS ret = HPDF_OK;
+  int i;
 
   HPDF_PTRACE((" HPDF_Shading_New\n"));
 
@@ -130,7 +131,7 @@ HPDF_Shading_New  (HPDF_Doc         pdf,
   switch (colorSpace) {
     case HPDF_CS_DEVICE_RGB:
       colName = COL_RGB;
-      for (int i = 0; i < 3; ++i) {
+      for (i = 0; i < 3; ++i) {
         ret += HPDF_Array_AddReal(decodeArray, 0.0);
         ret += HPDF_Array_AddReal(decodeArray, 1.0);
       }
