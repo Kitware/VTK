@@ -208,7 +208,7 @@ int vtkHyperOctreeFractalSource::RequestData(
   vtkFloatArray *scalars=vtkFloatArray::New();
   scalars->SetNumberOfComponents(1);
 
-  vtkIdType fact=(1<<(this->MaximumLevel-1));
+  vtkIdType fact=static_cast<vtkIdType>(1)<<(this->MaximumLevel-1);
   vtkIdType maxNumberOfCells=fact*fact*fact;
 
   scalars->Allocate(maxNumberOfCells/fact);

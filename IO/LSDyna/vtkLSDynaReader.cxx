@@ -1690,7 +1690,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   iddtmp = p->Dict["NCFDV2"];
   for ( itmp=1; itmp<11; ++itmp )
   {
-    if ( iddtmp & (vtkIdType)(1<<itmp) )
+    if ( iddtmp & (static_cast<vtkIdType>(1)<<itmp) )
     {
       sprintf( sname, LS_ARRAYNAME_SPECIES_FMT, itmp );
       p->AddPointArray( sname, 1, 1 );
