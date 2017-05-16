@@ -209,6 +209,7 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
             << "requests texture file that appears not to exist: "
             << current_mtl->texture_filename << "; texture path: " << this->TexturePath << "\n");
           }
+	}
       }
     else
       {
