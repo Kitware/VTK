@@ -113,9 +113,10 @@ void vtkOpenGLGL2PSExporter::WriteData()
                        static_cast<GLint>(winsize[1])};
 
   // Create the file.
-  char *fName = new char [strlen(this->FilePrefix) + 8];
-  sprintf(fName, "%s.%s%s", this->FilePrefix, this->GetFileExtension(),
-          (this->Compress && this->FileFormat != PDF_FILE)? ".gz" : "");
+  size_t fNameSize = strlen(this->FilePrefix) + 8;
+  char *fName = new char [fNameSize];
+  snprintf(fName, fNameSize, "%s.%s%s", this->FilePrefix, this->GetFileExtension(),
+           (this->Compress && this->FileFormat != PDF_FILE)? ".gz" : "");
   FILE *fpObj = fopen(fName, "wb");
   if (!fpObj)
   {

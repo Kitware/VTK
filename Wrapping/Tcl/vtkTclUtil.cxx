@@ -100,7 +100,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   args[1] = (char *)("Delete");
 
   // lookup the objects name
-  sprintf(temps,"%p",as->Pointer);
+  snprintf(temps,sizeof(temps),"%p",as->Pointer);
   entry = Tcl_FindHashEntry(&is->PointerLookup,temps);
   if (!entry)
   {
@@ -293,7 +293,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
   }
 
   /* first we must look up the pointer to see if it already exists */
-  sprintf(temps,"%p",static_cast<void *>(temp));
+  snprintf(temps,sizeof(temps),"%p",static_cast<void *>(temp));
   if ((entry = Tcl_FindHashEntry(&is->PointerLookup,temps)))
   {
     if (is->DebugOn)
@@ -309,7 +309,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
   }
 
   /* we must create a new name if it isn't NULL */
-  sprintf(name,"vtkTemp%i",is->Number);
+  snprintf(name,sizeof(name),"vtkTemp%i",is->Number);
   is->Number++;
 
   if (is->DebugOn)
@@ -423,7 +423,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
   }
   else
   {
-    sprintf(temps,"vtk bad argument, could not find object named %s\n", name);
+    snprintf(temps,sizeof(temps),"vtk bad argument, could not find object named %s\n", name);
     Tcl_AppendResult(interp,temps,NULL);
     error = 1;
     return NULL;
@@ -437,7 +437,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
   }
   else
   {
-    sprintf(temps,"vtk bad argument, could not find command process for %s.\n", name);
+    snprintf(temps,sizeof(temps),"vtk bad argument, could not find command process for %s.\n", name);
     Tcl_AppendResult(interp,temps,NULL);
     error = 1;
     return NULL;
@@ -466,7 +466,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     args[2] = NULL;
     command(static_cast<ClientData>(&foo),i,2,args);
 
-    sprintf(temps,"vtk bad argument, type conversion failed for object %s.\nCould not type convert %s which is of type %s, to type %s.\n", name, name, Tcl_GetStringResult(i), result_type);
+    snprintf(temps,sizeof(temps),"vtk bad argument, type conversion failed for object %s.\nCould not type convert %s which is of type %s, to type %s.\n", name, name, Tcl_GetStringResult(i), result_type);
     Tcl_AppendResult(interp,temps,NULL);
     error = 1;
     Tcl_DeleteInterp(i);
@@ -614,7 +614,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   if (!strcmp("New",argv[1]))
   {
-    sprintf(name,"vtkObj%i",is->Number);
+    snprintf(name,sizeof(name),"vtkObj%i",is->Number);
     is->Number++;
     argv[1] = name;
   }
@@ -632,7 +632,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   entry = Tcl_CreateHashEntry(&is->InstanceLookup,argv[1],&is_new);
   Tcl_SetHashValue(entry,temp);
-  sprintf(temps,"%p",static_cast<void *>(temp));
+  snprintf(temps,sizeof(temps),"%p",static_cast<void *>(temp));
   entry = Tcl_CreateHashEntry(&is->PointerLookup,temps,&is_new);
   Tcl_SetHashValue(entry,static_cast<ClientData>(strdup(argv[1])));
 

@@ -656,8 +656,8 @@ static Py_ssize_t PyVTKMutableObject_GetReadBuf(
       op, segment, ptrptr);
   }
 
-  sprintf(text, "type \'%.20s\' does not support readable buffer access",
-          Py_TYPE(op)->tp_name);
+  snprintf(text, sizeof(text), "type \'%.20s\' does not support readable buffer access",
+           Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;
@@ -677,8 +677,8 @@ static Py_ssize_t PyVTKMutableObject_GetWriteBuf(
       op, segment, ptrptr);
   }
 
-  sprintf(text, "type \'%.20s\' does not support writeable buffer access",
-          Py_TYPE(op)->tp_name);
+  snprintf(text, sizeof(text), "type \'%.20s\' does not support writeable buffer access",
+           Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;
@@ -697,8 +697,8 @@ PyVTKMutableObject_GetSegCount(PyObject *op, Py_ssize_t *lenp)
     return Py_TYPE(op)->tp_as_buffer->bf_getsegcount(op, lenp);
   }
 
-  sprintf(text, "type \'%.20s\' does not support buffer access",
-          Py_TYPE(op)->tp_name);
+  snprintf(text, sizeof(text), "type \'%.20s\' does not support buffer access",
+           Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;
@@ -718,8 +718,8 @@ static Py_ssize_t PyVTKMutableObject_GetCharBuf(
       op, segment, ptrptr);
   }
 
-  sprintf(text, "type \'%.20s\' does not support character buffer access",
-          Py_TYPE(op)->tp_name);
+  snprintf(text, sizeof(text), "type \'%.20s\' does not support character buffer access",
+           Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;

@@ -300,8 +300,9 @@ int vtkWin32OutputWindow::Initialize()
 //----------------------------------------------------------------------------
 void vtkWin32OutputWindow::PromptText(const char* someText)
 {
-  char *vtkmsg = new char [strlen(someText) + 100];
-  sprintf(vtkmsg,"%s\nPress Cancel to suppress any further messages.",
+  size_t vtkmsgsize = strlen(someText) + 100;
+  char *vtkmsg = new char [vtkmsgsize];
+  snprintf(vtkmsg,vtkmsgsize,"%s\nPress Cancel to suppress any further messages.",
           someText);
 #ifdef UNICODE
   wchar_t *wmsg = new wchar_t [mbstowcs(NULL, vtkmsg, 32000)+1];

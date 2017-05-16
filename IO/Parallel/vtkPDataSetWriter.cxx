@@ -108,7 +108,8 @@ int vtkPDataSetWriter::Write()
   // Lets compute the file root from the file name supplied by the user.
   length = static_cast<int>(strlen(this->FileName));
   fileRoot = new char [length+1];
-  fileName = new char [length+strlen(this->FilePattern)+20];
+  size_t fileNameSize = length+strlen(this->FilePattern)+20;
+  fileName = new char [fileNameSize];
   strncpy(fileRoot, this->FileName, length);
   fileRoot[length] = '\0';
   // Trim off the pvtk extension.
@@ -170,7 +171,7 @@ int vtkPDataSetWriter::Write()
   vtkDataObject *copy;
   for (i = this->StartPiece; i <= this->EndPiece; ++i)
   {
-    sprintf(fileName, this->FilePattern, fileRoot, i);
+    snprintf(fileName, fileNameSize, this->FilePattern, fileRoot, i);
     writer->SetFileName(fileName);
     inputAlg->UpdatePiece(i, this->NumberOfPieces, this->GhostLevel);
 
@@ -545,7 +546,8 @@ void vtkPDataSetWriter::DeleteFiles()
   int i;
   int length = static_cast<int>(strlen(this->FileName));
   char *fileRoot = new char[length+1];
-  char *fileName = new char[length+strlen(this->FilePattern)+20];
+  size_t fileNameSize = length+strlen(this->FilePattern)+20;
+  char *fileName = new char[fileNameSize];
 
   strncpy(fileRoot, this->FileName, length);
   fileRoot[length] = '\0';
@@ -588,7 +590,7 @@ void vtkPDataSetWriter::DeleteFiles()
 
   for (i = this->StartPiece; i <= this->EndPiece; i++)
   {
-    sprintf(fileName, this->FilePattern, fileRoot, i);
+    snprintf(fileName, fileNameSize, this->FilePattern, fileRoot, i);
     remove(fileName);
   }
 

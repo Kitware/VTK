@@ -1692,15 +1692,15 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   {
     if ( iddtmp & (vtkIdType)(1<<itmp) )
     {
-      sprintf( sname, LS_ARRAYNAME_SPECIES_FMT, itmp );
+      snprintf( sname, sizeof(sname), LS_ARRAYNAME_SPECIES_FMT, itmp );
       p->AddPointArray( sname, 1, 1 );
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-      sprintf( sname, "cfdSpec%02d", itmp );
+      snprintf( sname, sizeof(sname), "cfdSpec%02d", itmp );
       p->Dict[ sname ] = 1;
     }
     else
     {
-      sprintf( sname, "cfdSpec%02d", itmp );
+      snprintf( sname, sizeof(sname), "cfdSpec%02d", itmp );
       p->Dict[ sname ] = 0;
     }
   }

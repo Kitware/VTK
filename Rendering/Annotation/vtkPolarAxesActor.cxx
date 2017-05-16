@@ -1451,7 +1451,7 @@ void vtkPolarAxesActor::BuildRadialAxes()
       axis->SetTitleVisibility(this->RadialTitleVisibility);
       std::ostringstream title;
       title.setf(std::ios::fixed, std::ios::floatfield);
-      sprintf(titleValue, this->RadialAngleFormat, actualAngle);
+      snprintf(titleValue, sizeof(titleValue), this->RadialAngleFormat, actualAngle);
       title << titleValue << (this->RadialUnits ? " deg" : "");
       axis->SetTitle(title.str().c_str());
 
