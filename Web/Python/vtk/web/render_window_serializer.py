@@ -135,6 +135,7 @@ def initializeSerializers():
   # RenderWindows
   registerInstanceSerializer('vtkCocoaRenderWindow', renderWindowSerializer)
   registerInstanceSerializer('vtkXOpenGLRenderWindow', renderWindowSerializer)
+  registerInstanceSerializer('vtkWin32OpenGLRenderWindow', renderWindowSerializer)
 
   # Renderers
   registerInstanceSerializer('vtkOpenGLRenderer', rendererSerializer)
