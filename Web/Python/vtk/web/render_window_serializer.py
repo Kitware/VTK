@@ -389,40 +389,17 @@ def lookupTableSerializer(parent, lookupTable, lookupTableId, context, depth):
   # No children in this case, so no additions to bindings and return empty list
   # But we do need to add instance
 
-  lookupTableRange = [0, 1]
-  try:
-    # In ParaView 5.3, something is wrong with the wrapping of the
-    # GetRange() method which is supposed to return a pointer to an
-    # array of double.  So we try calling the alternate which takes
-    # the array in which to write, but that doesn't seem to work.  The
-    # same issue happens with the GetHueRange() method and it's
-    # alternate form.
-    lookupTable.GetRange(lookupTableRange)
-  except Exception as inst:
-    # if context.debugAll: print('Failed to GetRange on the lookup table:')
-    # if context.debugAll: print(inst)
-    pass
+  lookupTableRange = lookupTable.GetRange()
 
   lookupTableHueRange = [0.5, 0]
   if hasattr(lookupTable, 'GetHueRange'):
     try:
       lookupTable.GetHueRange(lookupTableHueRange)
     except Exception as inst:
-      # if context.debugAll: print('Failed to GetHueRange on the lookup table:')
-      # if context.debugAll: print(inst)
       pass
 
-  lutSatRange = [0, 1]
-  try:
-    lookupTable.GetSaturationRange(lutSatRange)
-  except Exception as inst:
-    pass
-
-  lutAlphaRange = [0, 1]
-  try:
-    lookupTable.GetAlphaRange(lutAlphaRange)
-  except Exception as inst:
-    pass
+  lutSatRange = lookupTable.GetSaturationRange()
+  lutAlphaRange = lookupTable.GetAlphaRange()
 
   return {
     'parent': getReferenceId(parent),
