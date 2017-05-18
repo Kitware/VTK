@@ -319,6 +319,7 @@ void QVTKOpenGLWidget::setEnableHiDPI(bool enable)
     {
       this->RenderWindow->SetDPI(this->OriginalDPI);
     }
+    this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
   }
 }
 
