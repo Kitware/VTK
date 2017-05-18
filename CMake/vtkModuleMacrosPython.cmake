@@ -191,11 +191,22 @@ function (vtk_module_python_module name)
 
       # add install rules.
       if (NOT _no_install AND NOT VTK_INSTALL_NO_RUNTIME)
-        install(FILES "${VTK_BUILD_PYTHON_MODULE_DIR}/${_name}"
-                      "${VTK_BUILD_PYTHON_MODULE_DIR}/${_name_we}.pyc"
-                      "${VTK_BUILD_PYTHON_MODULE_DIR}/${_name_we}.pyo"
-                DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}"
-                COMPONENT "Runtime")
+        if(VTK_PYTHON_VERSION VERSION_LESS 3)
+          install(FILES "${VTK_BUILD_PYTHON_MODULE_DIR}/${_name}"
+                        "${VTK_BUILD_PYTHON_MODULE_DIR}/${_name_we}.pyc"
+                        "${VTK_BUILD_PYTHON_MODULE_DIR}/${_name_we}.pyo"
+                  DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}"
+                  COMPONENT "Runtime")
+        else()
+          # python 3 uses a different directory for .pyc files, and .pyo files are gone.
+          install(FILES "${VTK_BUILD_PYTHON_MODULE_DIR}/${_name}"
+                  DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}"
+                  COMPONENT "Runtime")
+          file(GLOB file_matches "${VTK_BUILD_PYTHON_MODULE_DIR}/__pycache__/${_name_we}.*.pyc")
+          install(FILES ${file_matches}
+                  DESTINATION "${VTK_INSTALL_PYTHON_MODULE_DIR}/__pycache__"
+                  COMPONENT "Runtime")
+        endif()
       endif()
     endif() # NOT _use_system
   endforeach()
