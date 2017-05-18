@@ -237,30 +237,34 @@ def extractRequiredFields(extractedFields, mapper, dataset, context, requestedFi
     scalarMode = mapper.GetScalarMode()
     if scalarMode == 3:
       arrayMeta = getArrayDescription(dataset.GetPointData().GetArray(colorArrayName), context)
-      arrayMeta['location'] = 'pointData';
-      extractedFields.append(arrayMeta)
+      if arrayMeta:
+        arrayMeta['location'] = 'pointData';
+        extractedFields.append(arrayMeta)
     if scalarMode == 4:
       arrayMeta = getArrayDescription(dataset.GetCellData().GetArray(colorArrayName), context)
-      arrayMeta['location'] = 'cellData';
-      extractedFields.append(arrayMeta)
+      if arrayMeta:
+        arrayMeta['location'] = 'cellData';
+        extractedFields.append(arrayMeta)
 
   # Normal handling
   if 'Normals' in requestedFields:
     normals = dataset.GetPointData().GetNormals()
     if normals:
       arrayMeta = getArrayDescription(normals, context)
-      arrayMeta['location'] = 'pointData'
-      arrayMeta['registration'] = 'setNormals'
-      extractedFields.append(arrayMeta)
+      if arrayMeta:
+        arrayMeta['location'] = 'pointData'
+        arrayMeta['registration'] = 'setNormals'
+        extractedFields.append(arrayMeta)
 
   # TCoord handling
   if 'TCoords' in requestedFields:
     tcoords = dataset.GetPointData().GetTCoords()
     if tcoords:
       arrayMeta = getArrayDescription(tcoords, context)
-      arrayMeta['location'] = 'pointData'
-      arrayMeta['registration'] = 'setTCoords'
-      extractedFields.append(arrayMeta)
+      if arrayMeta:
+        arrayMeta['location'] = 'pointData'
+        arrayMeta['registration'] = 'setTCoords'
+        extractedFields.append(arrayMeta)
 
 # -----------------------------------------------------------------------------
 # Concrete instance serializers
