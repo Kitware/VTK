@@ -257,6 +257,158 @@ class CubeCamera(object):
             yield cameraData
 
 # -----------------------------------------------------------------------------
+# MultiView Cube Camera
+# -----------------------------------------------------------------------------
+
+class StereoCubeCamera(object):
+
+    # positions = [ { position: [x,y,z], args: { i: 1, j: 0, k: 7 } }, ... ]
+    def __init__(self, dataHandler, viewForward, viewUp, positions, eyeSpacing):
+        self.dataHandler = dataHandler
+        self.cameraSettings = []
+        self.viewForward = viewForward
+        self.viewUp = viewUp
+        self.rightDirection = vectProduct(viewForward, viewUp)
+        self.positions = positions
+        self.eyeSpacing = eyeSpacing
+
+        # Register arguments to the data handler
+        self.dataHandler.registerArgument(priority=0, name='orientation', values=['f', 'b', 'r', 'l', 'u', 'd'])
+        self.dataHandler.registerArgument(priority=0, name='eye', values=['left', 'right'])
+
+        # Register arguments to id position
+        self.args = {}
+        for pos in positions:
+            for key in pos['args']:
+                if key not in self.args:
+                    self.args[key] = {}
+                self.args[key][pos['args'][key]] = True
+
+        for key in self.args:
+            self.args[key] = sorted(self.args[key], key=lambda k: int(k))
+
+        self.keyList = self.args.keys()
+        for key in self.args:
+            self.dataHandler.registerArgument(priority=1, name=key, values=self.args[key])
+
+        self.dataHandler.updateBasePattern()
+
+    def updatePriority(self, priorityList):
+        keyList = ['orientation']
+        for idx in range(min(len(priorityList), len(keyList))):
+            self.dataHandler.updatePriority(keyList[idx], priorityList[idx])
+
+    def __iter__(self):
+        for pos in self.positions:
+            cameraData = {}
+
+            for key in pos['args']:
+                idx = self.args[key].index(pos['args'][key])
+                self.dataHandler.setArguments(**{ key: idx })
+
+            # front
+            cameraData['orientation'] = 'front'
+            self.dataHandler.setArguments(orientation=0)
+            deltaVect = [(v * float(self.eyeSpacing) * 0.5) for v in self.rightDirection]
+            ## Left-Eye
+            self.dataHandler.setArguments(eye=0)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] - deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] + self.viewForward[i] - deltaVect[i]) for i in range(3)]
+            yield cameraData
+            ## Right-Eye
+            self.dataHandler.setArguments(eye=1)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] + deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] + self.viewForward[i] + deltaVect[i]) for i in range(3)]
+            yield cameraData
+
+            # back
+            cameraData['orientation'] = 'back'
+            self.dataHandler.setArguments(orientation=1)
+            deltaVect = [-(v * float(self.eyeSpacing) * 0.5) for v in self.rightDirection]
+            ## Left-Eye
+            self.dataHandler.setArguments(eye=0)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] - deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] - self.viewForward[i] - deltaVect[i]) for i in range(3)]
+            yield cameraData
+            ## Right-Eye
+            self.dataHandler.setArguments(eye=1)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] + deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] - self.viewForward[i] + deltaVect[i]) for i in range(3)]
+            yield cameraData
+
+            # right
+            self.dataHandler.setArguments(orientation=2)
+            cameraData['orientation'] = 'right'
+            deltaVect = [-(v * float(self.eyeSpacing) * 0.5) for v in self.viewForward]
+            ## Left-Eye
+            self.dataHandler.setArguments(eye=0)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] - deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] + self.rightDirection[i] - deltaVect[i]) for i in range(3)]
+            yield cameraData
+            ## Right-Eye
+            self.dataHandler.setArguments(eye=1)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] + deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] + self.rightDirection[i] + deltaVect[i]) for i in range(3)]
+            yield cameraData
+
+            # left
+            self.dataHandler.setArguments(orientation=3)
+            cameraData['orientation'] = 'left'
+            deltaVect = [(v * float(self.eyeSpacing) * 0.5) for v in self.viewForward]
+            ## Left-Eye
+            self.dataHandler.setArguments(eye=0)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] - deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] - self.rightDirection[i] - deltaVect[i]) for i in range(3)]
+            yield cameraData
+            ## Right-Eye
+            self.dataHandler.setArguments(eye=1)
+            cameraData['viewUp'] = [self.viewUp[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] + deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] - self.rightDirection[i] + deltaVect[i]) for i in range(3)]
+            yield cameraData
+
+            # up
+            self.dataHandler.setArguments(orientation=4)
+            cameraData['orientation'] = 'up'
+            deltaVect = [(v * float(self.eyeSpacing) * 0.5) for v in self.rightDirection]
+            ## Left-Eye
+            self.dataHandler.setArguments(eye=0)
+            cameraData['viewUp'] = [(-self.viewForward[i]) for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] - deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] + self.viewUp[i] - deltaVect[i]) for i in range(3)]
+            yield cameraData
+            ## Right-Eye
+            self.dataHandler.setArguments(eye=1)
+            cameraData['viewUp'] = [(-self.viewForward[i]) for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] + deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] + self.viewUp[i] + deltaVect[i]) for i in range(3)]
+            yield cameraData
+
+            # doww
+            self.dataHandler.setArguments(orientation=5)
+            cameraData['orientation'] = 'down'
+            deltaVect = [(v * float(self.eyeSpacing) * 0.5) for v in self.rightDirection]
+            ## Left-Eye
+            self.dataHandler.setArguments(eye=0)
+            cameraData['viewUp'] = [self.viewForward[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] - deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] - self.viewUp[i] - deltaVect[i]) for i in range(3)]
+            yield cameraData
+            ## Right-Eye
+            self.dataHandler.setArguments(eye=1)
+            cameraData['viewUp'] = [self.viewForward[i] for i in range(3)]
+            cameraData['position'] = [(pos['position'][idx] + deltaVect[idx]) for idx in range(3)]
+            cameraData['focalPoint'] = [(pos['position'][i] - self.viewUp[i] + deltaVect[i]) for i in range(3)]
+            yield cameraData
+
+# -----------------------------------------------------------------------------
 # MultiView Camera
 # -----------------------------------------------------------------------------
 
