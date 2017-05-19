@@ -1037,6 +1037,12 @@ void vtkXOpenGLRenderWindow::Start(void)
 {
   this->Initialize();
 
+  // When mixing on-screen render windows with offscreen render windows,
+  // the active context state can easily get messed up. Ensuring that before we
+  // start rendering we force making the context current is a reasonable
+  // workaround for now.
+  this->SetForceMakeCurrent();
+
   // set the current window
   this->MakeCurrent();
 }
