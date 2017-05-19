@@ -305,7 +305,7 @@ def genericActorSerializer(parent, actor, actorId, context, depth):
         dependencies.append(propertyInstance)
         calls.append(['setProperty', [ wrapId(propId) ]])
 
-  if mapperInstance and propertyInstance:
+  if actorVisibility == 0 or (mapperInstance and propertyInstance):
     return {
       'parent': getReferenceId(parent),
       'id': actorId,
