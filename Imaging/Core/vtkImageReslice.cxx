@@ -1181,7 +1181,7 @@ int vtkImageReslice::RequestInformationBase(
   {
     static_cast<vtkImageInterpolator*>(interpolator)->SetInterpolationMode(interpolationMode);
   }
-  int borderMode = VTK_IMAGE_BORDER_CLAMP;
+  vtkImageBorderMode borderMode = VTK_IMAGE_BORDER_CLAMP;
   borderMode = (this->Wrap ? VTK_IMAGE_BORDER_REPEAT : borderMode);
   borderMode = (this->Mirror ? VTK_IMAGE_BORDER_MIRROR : borderMode);
   interpolator->SetBorderMode(borderMode);

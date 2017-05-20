@@ -76,11 +76,11 @@ public:
    * mirrored copies, which results in optimal smoothness at the boundary,
    * or to repeat the image, which results in a cyclic or periodic spline.
    */
-  vtkSetClampMacro(BorderMode, int, VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_MIRROR);
+  vtkSetClampMacro(BorderMode, vtkImageBorderMode, VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_MIRROR);
   void SetBorderModeToClamp() { this->SetBorderMode(VTK_IMAGE_BORDER_CLAMP); }
   void SetBorderModeToRepeat() { this->SetBorderMode(VTK_IMAGE_BORDER_REPEAT); }
   void SetBorderModeToMirror() { this->SetBorderMode(VTK_IMAGE_BORDER_MIRROR); }
-  vtkGetMacro(BorderMode, int);
+  vtkGetMacro(BorderMode, vtkImageBorderMode);
   const char* GetBorderModeAsString();
   ///@}
 
@@ -145,7 +145,7 @@ protected:
     vtkImageData* inData, vtkImageData* outData, int outExt[6], int threadId) override;
 
   int SplineDegree;
-  int BorderMode;
+  vtkImageBorderMode BorderMode;
   int OutputScalarType;
   vtkTypeBool Bypass;
   int DataWasPassed;

@@ -228,7 +228,7 @@ void vtkImageBSplineCoefficientsExecute(vtkImageBSplineCoefficients* self, vtkIm
   // change the order so the inner loop is the chosen axis
   static const int permute[3][3] = { { 0, 1, 2 }, { 1, 0, 2 }, { 2, 0, 1 } };
 
-  int borderMode = self->GetBorderMode();
+  vtkImageBorderMode borderMode = self->GetBorderMode();
 
   int inExtent[6];
   inData->GetExtent(inExtent);

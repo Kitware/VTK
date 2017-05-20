@@ -36,7 +36,8 @@
 #ifndef vtkImageBSplineInternals_h
 #define vtkImageBSplineInternals_h
 
-#include "vtkImagingCoreModule.h" // For export macro
+#include "vtkAbstractImageInterpolator.h" // For vtkImageBorderMode
+#include "vtkImagingCoreModule.h"         // For export macro
 #include "vtkSystemIncludes.h"
 
 class VTKIMAGINGCORE_EXPORT vtkImageBSplineInternals
@@ -52,8 +53,8 @@ public:
   /**
    * Internal method.  Compute the coefficients for one row of data.
    */
-  static void ConvertToInterpolationCoefficients(double data[], long size, long border,
-    double poles[4], long numPoles, double tol) VTK_SIZEHINT(data, size);
+  static void ConvertToInterpolationCoefficients(double data[], long size,
+    vtkImageBorderMode border, double poles[4], long numPoles, double tol) VTK_SIZEHINT(data, size);
 
   ///@{
   /**
@@ -70,20 +71,19 @@ public:
    * of coefficients with dimensions width x height x slices.
    */
   static int InterpolatedValue(const double* coeffs, double* value, long width, long height,
-    long slices, long depth, double x, double y, double z, long degree, long border);
+    long slices, long depth, double x, double y, double z, long degree, vtkImageBorderMode border);
   static int InterpolatedValue(const float* coeffs, float* value, long width, long height,
-    long slices, long depth, double x, double y, double z, long degree, long border);
-  ///@}
+    long slices, long depth, double x, double y, double z, long degree, vtkImageBorderMode border);
 
 protected:
   vtkImageBSplineInternals() = default;
   ~vtkImageBSplineInternals() = default;
 
   static double InitialCausalCoefficient(
-    double data[], long size, long border, double pole, double tol);
+    double data[], long size, vtkImageBorderMode border, double pole, double tol);
 
   static double InitialAntiCausalCoefficient(
-    double data[], long size, long border, double pole, double tol);
+    double data[], long size, vtkImageBorderMode border, double pole, double tol);
 
 private:
   vtkImageBSplineInternals(const vtkImageBSplineInternals&) = delete;

@@ -149,7 +149,7 @@ void vtkAbstractImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkAbstractImageInterpolator::SetBorderMode(int mode)
+void vtkAbstractImageInterpolator::SetBorderMode(vtkImageBorderMode mode)
 {
   mode = vtkMath::ClampValue(mode, VTK_IMAGE_BORDER_CLAMP, VTK_IMAGE_BORDER_MIRROR);
   if (this->BorderMode != mode)
