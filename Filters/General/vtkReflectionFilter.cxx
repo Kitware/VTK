@@ -15,6 +15,7 @@
 #include "vtkReflectionFilter.h"
 
 #include "vtkBoundingBox.h"
+#include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
@@ -101,16 +102,83 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
   input->GetCellPoints(cellId, cellPts.GetPointer());
   int numCellPts = cellPts->GetNumberOfIds();
   std::vector<vtkIdType> newCellPts(numCellPts);
-  for (int j = numCellPts-1; j >= 0; j--)
+  int cellType = input->GetCellType(cellId);
+  switch(cellType)
   {
-    newCellPts[numCellPts-1-j] = cellPts->GetId(j);
-    if (this->CopyInput)
+  case VTK_QUADRATIC_EDGE:
+  case VTK_CUBIC_LINE:
+  {
+    for (int i=0;i<numCellPts;i++)
     {
-      newCellPts[numCellPts-1-j] += numInputPoints;
+      newCellPts[i] = cellPts->GetId(i);
+    }
+    break;
+  }
+  case VTK_QUADRATIC_TRIANGLE:
+  {
+    newCellPts[0] = cellPts->GetId(2);
+    newCellPts[1] = cellPts->GetId(1);
+    newCellPts[2] = cellPts->GetId(0);
+    newCellPts[3] = cellPts->GetId(4);
+    newCellPts[4] = cellPts->GetId(3);
+    newCellPts[5] = cellPts->GetId(5);
+    break;
+  }
+  case VTK_QUADRATIC_QUAD:
+  {
+    newCellPts[0] = cellPts->GetId(1);
+    newCellPts[1] = cellPts->GetId(0);
+    newCellPts[2] = cellPts->GetId(3);
+    newCellPts[3] = cellPts->GetId(2);
+    newCellPts[4] = cellPts->GetId(4);
+    newCellPts[5] = cellPts->GetId(7);
+    newCellPts[6] = cellPts->GetId(6);
+    newCellPts[7] = cellPts->GetId(5);
+    break;
+  }
+  case VTK_BIQUADRATIC_QUAD:
+  {
+    newCellPts[0] = cellPts->GetId(1);
+    newCellPts[1] = cellPts->GetId(0);
+    newCellPts[2] = cellPts->GetId(3);
+    newCellPts[3] = cellPts->GetId(2);
+    newCellPts[4] = cellPts->GetId(4);
+    newCellPts[5] = cellPts->GetId(7);
+    newCellPts[6] = cellPts->GetId(6);
+    newCellPts[7] = cellPts->GetId(5);
+    newCellPts[8] = cellPts->GetId(8);
+    break;
+  }
+  case VTK_QUADRATIC_LINEAR_QUAD:
+  {
+    newCellPts[0] = cellPts->GetId(1);
+    newCellPts[1] = cellPts->GetId(0);
+    newCellPts[2] = cellPts->GetId(3);
+    newCellPts[3] = cellPts->GetId(2);
+    newCellPts[4] = cellPts->GetId(4);
+    newCellPts[5] = cellPts->GetId(5);
+    break;
+  }
+  default:
+  {
+    if (input->GetCell(cellId)->IsA("vtkNonLinearCell") || cellType > VTK_POLYHEDRON)
+    {
+      vtkWarningMacro("Cell may be inverted");
+    }
+    for (int j = numCellPts-1; j >= 0; j--)
+    {
+      newCellPts[numCellPts-1-j] = cellPts->GetId(j);
     }
   }
-  return output->InsertNextCell(
-    input->GetCellType(cellId), numCellPts, &newCellPts[0]);
+  } // end switch
+  if (this->CopyInput)
+  {
+    for (int j=0;j<numCellPts;j++)
+    {
+      newCellPts[j] += numInputPoints;
+    }
+  }
+  return output->InsertNextCell(cellType, numCellPts, &newCellPts[0]);
 }
 
 //---------------------------------------------------------------------------
@@ -623,10 +691,6 @@ int vtkReflectionFilter::RequestDataInternal(
     }
    default:
     {
-      if (cellType > VTK_POLYHEDRON)
-      {
-        vtkWarningMacro("Cell may be inverted");
-      }
       outputCellId = this->ReflectNon3DCell(input, output, i, numPts);
     }
     }
