@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkPDFExporter();
-  ~vtkPDFExporter();
+  ~vtkPDFExporter() VTK_OVERRIDE;
 
   void WriteData() VTK_OVERRIDE;
 
