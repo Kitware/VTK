@@ -54,6 +54,15 @@ public:
 
   //@{
   /**
+   * Set/Get the polynomial order of the "Polynomial" point field.
+   * The default is 1.
+   */
+  vtkSetClampMacro(PolynomialFieldOrder, int, 0, VTK_INT_MAX);
+  vtkGetMacro(PolynomialFieldOrder, int);
+  //@}
+
+  //@{
+  /**
    * Get the dimension of the cell blocks to be generated
    */
   int GetCellDimension();
@@ -62,11 +71,11 @@ public:
   //@{
   /**
    * Set/get the desired precision for the output points.
-   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
-   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   * vtkAlgorithm::SINGLE_PRECISION (0) - Output single-precision floating point.
+   * vtkAlgorithm::DOUBLE_PRECISION (1) - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetClampMacro(OutputPrecision,int, 0, 1);
+  vtkGetMacro(OutputPrecision,int);
   //@}
 
   //@{
@@ -101,9 +110,13 @@ protected:
   void GenerateQuadraticWedges(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuadraticPyramids(vtkUnstructuredGrid*, int extent[6]);
 
+  virtual void ComputeFields(vtkUnstructuredGrid*);
+  double GetValueOfOrder(int order, double coords[3]);
+
   int BlocksDimensions[3];
   int CellType;
-  int OutputPointsPrecision;
+  int OutputPrecision;
+  int PolynomialFieldOrder;
 
 private:
   vtkCellTypeSource(const vtkCellTypeSource&) VTK_DELETE_FUNCTION;

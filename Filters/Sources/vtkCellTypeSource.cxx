@@ -15,11 +15,14 @@
 #include "vtkCellTypeSource.h"
 
 #include "vtkCellType.h"
+#include "vtkDataArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
@@ -45,10 +48,9 @@ namespace
 }
 
 // ----------------------------------------------------------------------------
-vtkCellTypeSource::vtkCellTypeSource()
+vtkCellTypeSource::vtkCellTypeSource() :
+  CellType(VTK_HEXAHEDRON), OutputPrecision(SINGLE_PRECISION), PolynomialFieldOrder(1)
 {
-  this->CellType = VTK_HEXAHEDRON;
-  this->OutputPointsPrecision = SINGLE_PRECISION;
   for(int i=0;i<3;i++)
   {
     this->BlocksDimensions[i] = 1;
@@ -183,7 +185,7 @@ int vtkCellTypeSource::RequestData(
 
   vtkNew<vtkPoints> points;
   // Set the desired precision for the points in the output.
-  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  if(this->OutputPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     points->SetDataType(VTK_DOUBLE);
   }
@@ -204,6 +206,9 @@ int vtkCellTypeSource::RequestData(
     }
   }
   output->SetPoints(points.GetPointer());
+
+  this->ComputeFields(output);
+
   switch(this->CellType)
   {
   case VTK_LINE:
@@ -1117,6 +1122,62 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(
 }
 
 //----------------------------------------------------------------------------
+void vtkCellTypeSource::ComputeFields(vtkUnstructuredGrid* output)
+{
+  double center[3] = {this->BlocksDimensions[0]*.5, this->BlocksDimensions[1]*.5,
+                            this->BlocksDimensions[2]*.5};
+  int cellDimension = this->GetCellDimension();
+  if(cellDimension < 3)
+  {
+    center[2] = 0;
+  }
+  if(cellDimension < 2)
+  {
+    center[1] = 0;
+  }
+  const vtkIdType numberOfPoints = output->GetNumberOfPoints();
+  double coords[3];
+  vtkDataArray* distanceToCenter = output->GetPoints()->GetData()->NewInstance();
+  distanceToCenter->SetNumberOfTuples(numberOfPoints);
+  distanceToCenter->SetName("DistanceToCenter");
+  output->GetPointData()->AddArray(distanceToCenter);
+  distanceToCenter->FastDelete();
+  vtkDataArray* polynomialField = distanceToCenter->NewInstance();
+  polynomialField->SetNumberOfTuples(numberOfPoints);
+  polynomialField->SetName("Polynomial");
+  output->GetPointData()->AddArray(polynomialField);
+  polynomialField->FastDelete();
+  for(vtkIdType i=0;i<numberOfPoints;i++)
+  {
+    output->GetPoint(i, coords);
+    double d = sqrt(vtkMath::Distance2BetweenPoints(coords, center));
+    distanceToCenter->SetComponent(i, 0, d);
+    double p = 1;
+    for(int pi=1;pi<=this->PolynomialFieldOrder;pi++)
+    {
+      p += this->GetValueOfOrder(pi, coords);
+    }
+    polynomialField->SetComponent(i, 0, p);
+  }
+
+}
+
+//----------------------------------------------------------------------------
+double vtkCellTypeSource::GetValueOfOrder(int order, double coords[3])
+{
+  int v = 0;
+  for(int i=0;i<=order;i++)
+  {
+    for(int j=0;j<=order-i;j++)
+    {
+      int k=order-i-j;
+      v += pow(coords[0], i)*pow(coords[1], j)*pow(coords[2], k);
+    }
+  }
+  return v;
+}
+
+//----------------------------------------------------------------------------
 void vtkCellTypeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1125,5 +1186,6 @@ void vtkCellTypeSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->BlocksDimensions[1] << ", "
      << this->BlocksDimensions[2] << " )\n";
   os << indent << "CellType: " << this->CellType << "\n";
-  os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
+  os << indent << "OutputPrecision: " << this->OutputPrecision << "\n";
+  os << indent << "PolynomialFieldOrder: " << this->PolynomialFieldOrder << "\n";
 }
