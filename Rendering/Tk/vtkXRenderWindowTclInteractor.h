@@ -38,18 +38,18 @@ class vtkXRenderWindowTclInteractor : public vtkXRenderWindowInteractor
 public:
   static vtkXRenderWindowTclInteractor *New();
   vtkTypeMacro(vtkXRenderWindowTclInteractor,vtkXRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Initializes a Tcl/Tk specific event handler.
    */
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   /**
    * Overridden only to eliminate the "virtual function hidden" warning.
    * Implementation delegates directly to the Superclass.
    */
-  virtual void Initialize(XtAppContext app);
+  void Initialize(XtAppContext app) VTK_OVERRIDE;
 
   //@{
   /**
@@ -61,8 +61,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  virtual void Enable();
-  virtual void Disable();
+  void Enable() VTK_OVERRIDE;
+  void Disable() VTK_OVERRIDE;
   //@}
 
   /**
@@ -70,19 +70,19 @@ public:
    * presses the 'q' or 'e' key or when some other event observer calls
    * our ExitCallback method.
    */
-  virtual void Start();
+  void Start() VTK_OVERRIDE;
 
 protected:
   vtkXRenderWindowTclInteractor();
-  ~vtkXRenderWindowTclInteractor();
+  ~vtkXRenderWindowTclInteractor() VTK_OVERRIDE;
 
   //@{
   /**
    * Tcl/Tk specific internal timer methods. See the superclass for detailed
    * documentation.
    */
-  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
-  virtual int InternalDestroyTimer(int platformTimerId);
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
+  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
   //@}
 
 private:
