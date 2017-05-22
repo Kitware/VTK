@@ -546,11 +546,20 @@ endfunction()
 
 function(vtk_add_library name)
   add_library(${name} ${ARGN} ${headers})
-  # We use compile features to specify that VTK requires C++11
-  # But at the same time don't have to be concerned about
-  # polluting non-VTK targets with that requirement
+  # We use compile features to specify that VTK requires C++11.
+  # We request a series of C++11 features that will conform to VTK's
+  # desired minimum requirements.
+  # - cxx_override enforces Intel 14+, and GCC 4.7+
+  # - cxx_nullptr as this a hard requirement for all compiler
+  # CMake 3.8+ introduces the concept of meta language compiler features, and
+  # also introduces the first compilers that are only meta language feature
+  # aware. So if we have CMake 3.8+ we will also set the meta feature as
+  # a private flag ( private so we don't force consumers to also use 3.8+ )
   if(NOT VTK_IGNORE_CMAKE_CXX11_CHECKS)
-    target_compile_features(${name} PUBLIC cxx_nullptr)
+    target_compile_features(${name} PUBLIC cxx_nullptr cxx_override)
+    if(NOT CMAKE_VERSION VERSION_LESS 3.8)
+      target_compile_features(${name} PRIVATE cxx_std_11)
+    endif()
   endif()
   if(NOT ARGV1 STREQUAL OBJECT)
     vtk_target(${name})
