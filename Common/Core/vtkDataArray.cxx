@@ -435,11 +435,14 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
     this->SetNumberOfComponents(numComps);
     this->SetNumberOfTuples(numTuples);
 
-    DeepCopyWorker worker;
-    if (!vtkArrayDispatch::Dispatch2::Execute(da, this, worker))
+    if (numTuples != 0)
     {
-      // If dispatch fails, use fallback:
-      worker(da, this);
+      DeepCopyWorker worker;
+      if (!vtkArrayDispatch::Dispatch2::Execute(da, this, worker))
+      {
+        // If dispatch fails, use fallback:
+        worker(da, this);
+      }
     }
 
     this->SetLookupTable(0);
