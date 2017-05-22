@@ -123,6 +123,12 @@ protected:
                           int use_linear_depth_correction,
                           float linear_depth_correction);
 
+  /**
+   * Update progress ensuring that OpenGL state is saved and restored before
+   * invoking progress.
+   */
+  void GLSafeUpdateProgress(double value, vtkOpenGLRenderWindow* context);
+
 private:
   vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
