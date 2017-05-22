@@ -886,7 +886,7 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
   char text[128];
   char *cp;
   const char *newclass;
-  size_t n, m;
+  size_t n, m, l;
   int i;
   HierarchyEntry *entry;
   int scope_needs_free = 0;
@@ -961,6 +961,31 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
     if (entry && entry->IsTypedef)
     {
       vtkParse_ExpandTypedef(val, entry->Typedef);
+      /* check if the typedef includes a scope operator */
+      n = vtkParse_UnscopedNameLength(val->Class);
+      if (val->Class[n] == ':' && val->Class[n+1] == ':')
+      {
+        /* try to expand the scope, since it might itself be a typedef */
+        ValueInfo prefix;
+        vtkParse_InitValue(&prefix);
+        prefix.Type = VTK_PARSE_UNKNOWN;
+        prefix.Class = vtkParse_CacheString(cache, val->Class, n);
+        vtkParseHierarchy_ExpandTypedefsInValue(
+            info, &prefix, cache, scope);
+        l = strlen(prefix.Class);
+        if (l != n || strncmp(prefix.Class, val->Class, l) != 0)
+        {
+          /* use the expanded scope */
+          m = strlen(val->Class);
+          m += (l - n);
+          cp = (char *)malloc(m + 1);
+          strncpy(cp, prefix.Class, l);
+          strncpy(cp + l, &val->Class[n], m - l);
+          cp[m] = '\0';
+          val->Class = vtkParse_CacheString(cache, cp, m);
+          free(cp);
+        }
+      }
     }
     else if (entry)
     {
