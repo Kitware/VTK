@@ -59,6 +59,9 @@ public:
   void DrawQuad(float *, int) VTK_OVERRIDE;
   void DrawQuadStrip(float *, int) VTK_OVERRIDE;
   void DrawPolygon(float *, int) VTK_OVERRIDE;
+  void DrawColoredPolygon(float *points, int numPoints,
+                          unsigned char *colors = nullptr,
+                          int nc_comps = 0) VTK_OVERRIDE;
   void DrawEllipseWedge(float x, float y, float outRx, float outRy,
                         float inRx, float inRy, float startAngle,
                         float stopAngle) VTK_OVERRIDE;
@@ -75,12 +78,12 @@ public:
   void DrawMathTextString(float *point, const vtkStdString &str) VTK_OVERRIDE;
   void DrawImage(float p[2], float scale, vtkImageData *image) VTK_OVERRIDE;
   void DrawImage(const vtkRectf& pos, vtkImageData *image) VTK_OVERRIDE;
-  void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
-                    vtkUnsignedCharArray* colors, int scalarMode) VTK_OVERRIDE;
   void SetColor4(unsigned char color[4]) VTK_OVERRIDE;
   void SetTexture(vtkImageData* image, int properties) VTK_OVERRIDE;
   void SetPointSize(float size) VTK_OVERRIDE;
   void SetLineWidth(float width) VTK_OVERRIDE;
+  void DrawPolyData(float p[2], float scale, vtkPolyData* polyData,
+                    vtkUnsignedCharArray* colors, int scalarMode) VTK_OVERRIDE;
 
   void SetLineType(int type) VTK_OVERRIDE;
   void SetMatrix(vtkMatrix3x3 *m) VTK_OVERRIDE;
@@ -154,6 +157,7 @@ protected:
   // Converts a 2D transform matrix into a 3D transform matrix, or vice versa
   static void Matrix3ToMatrix4(vtkMatrix3x3 *mat3, double mat4[16]);
   static void Matrix4ToMatrix3(double mat4[16], vtkMatrix3x3 *mat3);
+  static void Matrix4ToMatrix3(double mat4[16], double mat3[9]);
 
   // Convert a 3D transform matrix to an HPDF transformation.
   // trans = {a, b, c, d, x, y}, which define the transform:
@@ -173,7 +177,6 @@ protected:
 
   vtkRenderer *Renderer;
   float PointSize;
-  bool IsClipping;
   float ClipBox[4]; // x, y, w, h
 
   bool IsInTexturedFill;

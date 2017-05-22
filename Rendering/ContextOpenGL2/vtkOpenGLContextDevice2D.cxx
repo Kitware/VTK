@@ -1366,7 +1366,7 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
   // convert polygon to triangles
   std::vector<float> tverts;
   int numTVerts = 3*(n-2);
-  tverts.resize(numTVerts*2);
+  tverts.reserve(numTVerts*2);
   for (int i = 0; i < n-2; i++)
   {
     tverts.push_back(f[0]);
@@ -1378,6 +1378,56 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
   }
 
   this->CoreDrawTriangles(tverts);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawColoredPolygon(float *f, int n,
+                                                  unsigned char *colors,
+                                                  int nc_comps)
+{
+  if (SkipDraw())
+  {
+    return;
+  }
+
+  if (!f || n <= 0)
+  {
+    vtkWarningMacro(<< "Points supplied that were not of type float.");
+    return;
+  }
+
+  // convert polygon to triangles
+  int numTVerts = 3*(n-2);
+
+  std::vector<float> tverts;
+  tverts.reserve(numTVerts*2);
+
+  std::vector<unsigned char> tcolors;
+  if (colors)
+  {
+    tcolors.resize(numTVerts * nc_comps);
+  }
+  std::vector<unsigned char>::iterator colIt = tcolors.begin();
+
+  for (int i = 0; i < n-2; i++)
+  {
+    tverts.push_back(f[0]);
+    tverts.push_back(f[1]);
+    tverts.push_back(f[i*2+2]);
+    tverts.push_back(f[i*2+3]);
+    tverts.push_back(f[i*2+4]);
+    tverts.push_back(f[i*2+5]);
+    if (colors)
+    {
+      std::copy(colors, colors + nc_comps, colIt);
+      colIt += nc_comps;
+      std::copy(colors + ((i + 1) * nc_comps),
+                colors + ((i + 3) * nc_comps), colIt);
+      colIt += 2 * nc_comps;
+    }
+  }
+
+  this->CoreDrawTriangles(tverts, colors ? tcolors.data() : nullptr, nc_comps);
 }
 
 //-----------------------------------------------------------------------------

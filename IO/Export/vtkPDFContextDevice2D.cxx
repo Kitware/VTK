@@ -15,7 +15,10 @@
 
 #include "vtkPDFContextDevice2D.h"
 
+#include "vtkAbstractMapper.h" // for VTK_SCALAR_MODE defines
 #include "vtkBrush.h"
+#include "vtkCellIterator.h"
+#include "vtkCellTypes.h"
 #include "vtkFloatArray.h"
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
@@ -26,6 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPen.h"
+#include "vtkPolyData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkStdString.h"
@@ -33,6 +37,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkUnicodeString.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <vtk_libharu.h>
 
@@ -42,6 +47,8 @@
 #include <map>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
+#include <vector>
 
 namespace {
 
@@ -49,6 +56,103 @@ namespace {
 static const HPDF_TextAlignment hAlignMap[3] = {
   HPDF_TALIGN_LEFT, HPDF_TALIGN_CENTER, HPDF_TALIGN_RIGHT
 };
+
+static void GetPointBounds(float *points, int numPoints, HPDF_REAL bbox[4],
+                           const float radius = 0.f)
+{
+  bbox[0] = static_cast<HPDF_REAL>(points[0]);
+  bbox[1] = static_cast<HPDF_REAL>(points[0]);
+  bbox[2] = static_cast<HPDF_REAL>(points[1]);
+  bbox[3] = static_cast<HPDF_REAL>(points[1]);
+
+  for (int i = 1; i < numPoints; ++i)
+  {
+    bbox[0] = std::min(bbox[0], static_cast<HPDF_REAL>(points[i*2]));
+    bbox[1] = std::max(bbox[1], static_cast<HPDF_REAL>(points[i*2]));
+    bbox[2] = std::min(bbox[2], static_cast<HPDF_REAL>(points[i*2+1]));
+    bbox[3] = std::max(bbox[3], static_cast<HPDF_REAL>(points[i*2+1]));
+  }
+
+  bbox[0] -= radius;
+  bbox[1] += radius;
+  bbox[2] -= radius;
+  bbox[3] += radius;
+}
+
+static void PolygonToShading(float *points, int numPoints,
+                             unsigned char *colors, int nc_comps,
+                             HPDF_Shading shading)
+{
+  assert(numPoints >= 3);
+
+  // First triangle
+  for (int ptIdx = 0; ptIdx < 3; ++ptIdx)
+  {
+    const float *pt = points + ptIdx * 2;
+    const unsigned char *color = colors + ptIdx * nc_comps;
+    HPDF_Shading_AddVertexRGB(shading,
+                              HPDF_FREE_FORM_TRI_MESH_EDGEFLAG_NO_CONNECTION,
+                              pt[0], pt[1], color[0], color[1], color[2]);
+  }
+
+  // Fan-out additional verts
+  for (int ptIdx = 3; ptIdx < numPoints; ++ptIdx)
+  {
+    const float *pt = points + ptIdx * 2;
+    const unsigned char *color = colors + ptIdx * nc_comps;
+    HPDF_Shading_AddVertexRGB(shading,
+                              HPDF_FREE_FORM_TRI_MESH_EDGEFLAG_AC,
+                              pt[0], pt[1], color[0], color[1], color[2]);
+  }
+}
+
+static void LineSegmentToShading(const float p1[2],
+                                 const unsigned char rgb1[3],
+                                 const float p2[2],
+                                 const unsigned char rgb2[3],
+                                 float radius, HPDF_Shading shading)
+{
+  float pDy = p2[1] - p1[1];
+  float pDx = p2[0] - p1[0];
+  float nDx = -pDy;
+  float nDy = pDx;
+
+  if (nDx == 0.f && nDy == 0.f)
+  {
+    return; // Points are coincident. Avoid division by zero below:
+  }
+
+  float tmpInvNorm = 1.f / std::sqrt(nDx * nDx + nDy * nDy);
+  nDx *= tmpInvNorm * radius;
+  nDy *= tmpInvNorm * radius;
+
+  float quad[8] = {
+    p1[0] + nDx, p1[1] + nDy,
+    p1[0] - nDx, p1[1] - nDy,
+    p2[0] - nDx, p2[1] - nDy,
+    p2[0] + nDx, p2[1] + nDy
+  };
+  unsigned char color[12] = {
+    rgb1[0], rgb1[1], rgb1[2],
+    rgb1[0], rgb1[1], rgb1[2],
+    rgb2[0], rgb2[1], rgb2[2],
+    rgb2[0], rgb2[1], rgb2[2]
+  };
+  PolygonToShading(quad, 4, color, 3, shading);
+}
+
+static void PolyLineToShading(const float *points, int numPoints,
+                              const unsigned char *color, int nc_comps,
+                              float radius, HPDF_Shading shading)
+{
+  for (int i = 0; i < numPoints - 1; ++i)
+  {
+    const int n = i + 1;
+    LineSegmentToShading(points + 2 * i, color + nc_comps * i,
+                         points + 2 * n, color + nc_comps * n,
+                         radius, shading);
+  }
+}
 
 } // end anon namespace
 
@@ -69,6 +173,8 @@ struct vtkPDFContextDevice2D::Details
 
   HPDF_Doc Document;
   HPDF_Page Page;
+
+  std::map<unsigned char, HPDF_ExtGState> AlphaGStateMap;
 };
 
 //------------------------------------------------------------------------------
@@ -97,6 +203,7 @@ void vtkPDFContextDevice2D::SetHaruObjects(void *doc, void *page)
     this->Impl->Document = nullptr;
     this->Impl->Page = nullptr;
   }
+  this->Impl->AlphaGStateMap.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -120,22 +227,28 @@ void vtkPDFContextDevice2D::DrawPoly(float *points, int n,
   this->PushGraphicsState();
   this->ApplyPenState();
 
-  if (nc_comps > 0)
+  if (colors == nullptr)
   {
-    this->ApplyStrokeColor(colors, nc_comps);
-  }
-
-  HPDF_Page_MoveTo(this->Impl->Page, points[0], points[1]);
-  for (int i = 1; i < n; ++i)
-  {
-    if (nc_comps > 0)
+    HPDF_Page_MoveTo(this->Impl->Page, points[0], points[1]);
+    for (int i = 1; i < n; ++i)
     {
-      this->ApplyStrokeColor(colors + i*nc_comps, nc_comps);
+      HPDF_Page_LineTo(this->Impl->Page, points[i*2], points[i*2 + 1]);
     }
-    HPDF_Page_LineTo(this->Impl->Page, points[i*2], points[i*2 + 1]);
+    this->Stroke();
+  }
+  else
+  {
+    const float radius = this->Pen->GetWidth() * 0.5f;
+    HPDF_REAL bbox[4];
+    GetPointBounds(points, n, bbox, radius);
+
+    HPDF_Shading shading = HPDF_Shading_New(
+        this->Impl->Document, HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+        HPDF_CS_DEVICE_RGB, bbox[0], bbox[1], bbox[2], bbox[3]);
+    PolyLineToShading(points, n, colors, nc_comps, radius, shading);
+    HPDF_Page_SetShading(this->Impl->Page, shading);
   }
 
-  this->Stroke();
   this->PopGraphicsState();
 }
 
@@ -158,23 +271,38 @@ void vtkPDFContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   }
 
   this->PushGraphicsState();
-  this->ApplyPenState();
 
-  for (int i = 0; i < n / 2; ++i)
+  if (colors == nullptr)
   {
-    if (nc_comps > 0)
-    {
-      this->ApplyStrokeColor(colors + i * 2 * nc_comps, nc_comps);
-    }
-    HPDF_Page_MoveTo(this->Impl->Page, f[i*4], f[i*4 + 1]);
+    this->ApplyPenState();
 
-    if (nc_comps > 0)
+    for (int i = 0; i < n / 2; ++i)
     {
-      this->ApplyStrokeColor(colors + (i * 2 * nc_comps + 1), nc_comps);
+      HPDF_Page_MoveTo(this->Impl->Page, f[i*4], f[i*4 + 1]);
+      HPDF_Page_LineTo(this->Impl->Page, f[i*4 + 2], f[i*4 + 3]);
     }
-    HPDF_Page_LineTo(this->Impl->Page, f[i*4 + 2], f[i*4 + 3]);
-
     this->Stroke();
+  }
+  else
+  {
+    const float radius = this->Pen->GetWidth() * 0.5f;
+    HPDF_REAL bbox[4];
+    GetPointBounds(f, n, bbox, radius);
+
+    HPDF_Shading shading = HPDF_Shading_New(
+        this->Impl->Document, HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+        HPDF_CS_DEVICE_RGB, bbox[0], bbox[1], bbox[2], bbox[3]);
+
+    for (int i = 0; i < n / 2; ++i)
+    {
+      const float *p1 = f + i * 4;
+      const unsigned char *rgb1 = colors + i * 2 * nc_comps;
+      const float *p2 = f + i * 6;
+      const unsigned char *rgb2 = colors + (i * 2 + 1) * nc_comps;
+      LineSegmentToShading(p1, rgb1, p2, rgb2, radius, shading);
+    }
+
+    HPDF_Page_SetShading(this->Impl->Page, shading);
   }
 
   this->PopGraphicsState();
@@ -429,7 +557,6 @@ void vtkPDFContextDevice2D::DrawQuadStrip(float *p, int n)
     HPDF_Page_LineTo(this->Impl->Page, p[i + 4], p[i + 5]);
     HPDF_Page_LineTo(this->Impl->Page, p[i + 6], p[i + 7]);
     HPDF_Page_ClosePath(this->Impl->Page);
-
   }
 
   this->Fill();
@@ -462,6 +589,70 @@ void vtkPDFContextDevice2D::DrawPolygon(float *f, int n)
   HPDF_Page_ClosePath(this->Impl->Page);
 
   this->Fill();
+
+  this->PopGraphicsState();
+}
+
+//------------------------------------------------------------------------------
+void vtkPDFContextDevice2D::DrawColoredPolygon(float *points, int numPoints,
+                                               unsigned char *colors,
+                                               int nc_comps)
+{
+  assert(numPoints > 0);
+  assert(points != nullptr);
+
+  // Just use the standard draw method if there is a texture or colors are not
+  // specified:
+  if (this->Brush->GetTexture() != NULL ||
+      nc_comps == 0)
+  {
+    this->DrawPolygon(points, numPoints);
+    return;
+  }
+
+  // If all of the points have the same color, use a more compact method to
+  // draw the poly:
+  bool sameColor = true;
+  for (int i = 1; i < numPoints && sameColor; ++i)
+  {
+    sameColor = std::equal(colors, colors + nc_comps, colors + (i * nc_comps));
+
+  }
+  if (sameColor)
+  {
+    const vtkColor4ub oldBrush = this->Brush->GetColorObject();
+    switch (nc_comps)
+    {
+      case 4:
+        this->Brush->SetOpacity(colors[3]);
+        VTK_FALLTHROUGH;
+      case 3:
+        this->Brush->SetColor(colors);
+        break;
+
+      default:
+        vtkWarningMacro("Unsupported number of color components: " << nc_comps);
+        return;
+    }
+
+    this->DrawPolygon(points, numPoints);
+    this->Brush->SetColor(oldBrush);
+    return;
+  }
+
+  this->PushGraphicsState();
+
+  HPDF_REAL bbox[4];
+  GetPointBounds(points, numPoints, bbox);
+
+  HPDF_Shading shading = HPDF_Shading_New(this->Impl->Document,
+                                          HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+                                          HPDF_CS_DEVICE_RGB,
+                                          bbox[0], bbox[1], bbox[2], bbox[3]);
+
+  PolygonToShading(points, numPoints, colors, nc_comps, shading);
+
+  HPDF_Page_SetShading(this->Impl->Page, shading);
 
   this->PopGraphicsState();
 }
@@ -767,15 +958,6 @@ void vtkPDFContextDevice2D::DrawImage(const vtkRectf &pos, vtkImageData *image)
 }
 
 //------------------------------------------------------------------------------
-void vtkPDFContextDevice2D::DrawPolyData(float[2], float,
-                                         vtkPolyData *,
-                                         vtkUnsignedCharArray*,
-                                         int)
-{
-  vtkWarningMacro("DrawPolyData is not supported by the PDF device.");
-}
-
-//------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::SetColor4(unsigned char[4])
 {
   // This is how the OpenGL2 impl handles this...
@@ -799,6 +981,109 @@ void vtkPDFContextDevice2D::SetPointSize(float size)
 void vtkPDFContextDevice2D::SetLineWidth(float width)
 {
   this->Pen->SetWidth(width);
+}
+
+//------------------------------------------------------------------------------
+void vtkPDFContextDevice2D::DrawPolyData(
+    float p[2], float scale, vtkPolyData *polyData,
+    vtkUnsignedCharArray *colors, int scalarMode)
+{
+  // Do nothing if the supported cell types do not exist in the dataset:
+  vtkNew<vtkCellTypes> types;
+  polyData->GetCellTypes(types.Get());
+  if (!types->IsType(VTK_LINE) &&
+      !types->IsType(VTK_TRIANGLE) &&
+      !types->IsType(VTK_QUAD) &&
+      !types->IsType(VTK_POLYGON))
+  {
+    return;
+  }
+
+  double bounds[6];
+  polyData->GetBounds(bounds);
+
+  // Adjust bounds for transform, account for pen width:
+  const float radius = this->Pen->GetWidth() * 0.5f;
+  bounds[0] = (bounds[0] + p[0]) * scale - radius;
+  bounds[1] = (bounds[1] + p[0]) * scale + radius;
+  bounds[2] = (bounds[2] + p[1]) * scale - radius;
+  bounds[3] = (bounds[3] + p[1]) * scale + radius;
+
+  // Accumulate all triangles in a shading object:
+  HPDF_Shading shading = HPDF_Shading_New(this->Impl->Document,
+                                          HPDF_SHADING_FREE_FORM_TRIANGLE_MESH,
+                                          HPDF_CS_DEVICE_RGB,
+                                          bounds[0], bounds[1],
+                                          bounds[2], bounds[3]);
+
+  // Temporary buffers:
+  std::vector<float> verts;
+  std::vector<unsigned char> vertColors;
+
+  vtkCellIterator *cell = polyData->NewCellIterator();
+  cell->InitTraversal();
+  for (; !cell->IsDoneWithTraversal(); cell->GoToNextCell())
+  {
+    // To match the original implementation on the OpenGL2 backend, we only
+    // handle polygons and lines:
+    int cellType = cell->GetCellType();
+    switch (cellType)
+    {
+      case VTK_LINE:
+      case VTK_TRIANGLE:
+      case VTK_QUAD:
+      case VTK_POLYGON:
+        break;
+
+      default:
+        continue;
+    }
+
+    // Allocate temporary arrays:
+    vtkIdType numPoints = cell->GetNumberOfPoints();
+    if (numPoints == 0)
+    {
+      continue;
+    }
+    verts.resize(static_cast<size_t>(numPoints) * 2);
+    vertColors.resize(static_cast<size_t>(numPoints) * 4);
+
+    vtkIdType cellId = cell->GetCellId();
+    vtkIdList *pointIds = cell->GetPointIds();
+    vtkPoints *points = cell->GetPoints();
+
+    for (vtkIdType i = 0; i < numPoints; ++i)
+    {
+      const size_t vertsIdx = 2 * static_cast<size_t>(i);
+      const size_t colorIdx = 4 * static_cast<size_t>(i);
+
+      const double *point = points->GetPoint(i);
+      verts[vertsIdx  ] = (static_cast<float>(point[0]) + p[0]) * scale;
+      verts[vertsIdx+1] = (static_cast<float>(point[1]) + p[1]) * scale;
+
+      if (scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA)
+      {
+        colors->GetTypedTuple(pointIds->GetId(i), vertColors.data() + colorIdx);
+      }
+      else
+      {
+        colors->GetTypedTuple(cellId, vertColors.data() + colorIdx);
+      }
+    }
+
+    if (cellType == VTK_LINE)
+    {
+      PolyLineToShading(verts.data(), numPoints, vertColors.data(), 4, radius,
+                        shading);
+    }
+    else
+    {
+      PolygonToShading(verts.data(), numPoints, vertColors.data(), 4, shading);
+    }
+  }
+  cell->Delete();
+
+  HPDF_Page_SetShading(this->Impl->Page, shading);
 }
 
 //------------------------------------------------------------------------------
@@ -848,24 +1133,10 @@ void vtkPDFContextDevice2D::PopMatrix()
 //------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::SetClipping(int *x)
 {
-  HPDF_REAL xmin = static_cast<HPDF_REAL>(x[0]);
-  HPDF_REAL ymin = static_cast<HPDF_REAL>(x[1]);
-  HPDF_REAL xmax = static_cast<HPDF_REAL>(x[2]);
-  HPDF_REAL ymax = static_cast<HPDF_REAL>(x[3]);
-
-  if (xmax < xmin)
-  {
-    std::swap(xmin, xmax);
-  }
-  if (ymax < ymin)
-  {
-    std::swap(ymin, ymax);
-  }
-
-  this->ClipBox[0] = xmin;
-  this->ClipBox[1] = ymin;
-  this->ClipBox[2] = xmax - xmin;
-  this->ClipBox[3] = ymax - ymin;
+  this->ClipBox[0] = static_cast<HPDF_REAL>(x[0]);
+  this->ClipBox[1] = static_cast<HPDF_REAL>(x[1]);
+  this->ClipBox[2] = static_cast<HPDF_REAL>(x[2]);
+  this->ClipBox[3] = static_cast<HPDF_REAL>(x[3]);
 }
 
 //------------------------------------------------------------------------------
@@ -891,7 +1162,6 @@ void vtkPDFContextDevice2D::EnableClipping(bool enable)
 vtkPDFContextDevice2D::vtkPDFContextDevice2D()
   : Impl(new Details),
     Renderer(nullptr),
-    IsClipping(false),
     IsInTexturedFill(false)
 {
   std::fill(this->ClipBox, this->ClipBox + 4, 0.f);
@@ -932,19 +1202,18 @@ void vtkPDFContextDevice2D::ApplyStrokeColor(unsigned char *color, int numComps)
                          static_cast<HPDF_REAL>(color[0] / 255.0),
                          static_cast<HPDF_REAL>(color[1] / 255.0),
                          static_cast<HPDF_REAL>(color[2] / 255.0));
-  if (numComps > 3)
+
+  unsigned char alpha = numComps > 3 ? color[3] : 255;
+  auto gstateIter = this->Impl->AlphaGStateMap.find(alpha);
+  if (gstateIter == this->Impl->AlphaGStateMap.end())
   {
     HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
-    HPDF_ExtGState_SetAlphaStroke(gstate,
-                                  static_cast<HPDF_REAL>(color[3] / 255.0));
-    HPDF_Page_SetExtGState(this->Impl->Page, gstate);
+    HPDF_ExtGState_SetAlphaFill(gstate, alpha / 255.f);
+    auto tmp = this->Impl->AlphaGStateMap.insert(std::make_pair(alpha, gstate));
+    gstateIter = tmp.first;
   }
-  else
-  {
-    HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
-    HPDF_ExtGState_SetAlphaStroke(gstate, 1.);
-    HPDF_Page_SetExtGState(this->Impl->Page, gstate);
-  }
+  HPDF_ExtGState alphaState = gstateIter->second;
+  HPDF_Page_SetExtGState(this->Impl->Page, alphaState);
 }
 
 //------------------------------------------------------------------------------
@@ -1062,9 +1331,16 @@ void vtkPDFContextDevice2D::ApplyFillColor(unsigned char *color, int numComps)
 //------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::ApplyFillAlpha(unsigned char alpha)
 {
-  HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
-  HPDF_ExtGState_SetAlphaFill(gstate, alpha / 255.f);
-  HPDF_Page_SetExtGState(this->Impl->Page, gstate);
+  auto gstateIter = this->Impl->AlphaGStateMap.find(alpha);
+  if (gstateIter == this->Impl->AlphaGStateMap.end())
+  {
+    HPDF_ExtGState gstate = HPDF_CreateExtGState(this->Impl->Document);
+    HPDF_ExtGState_SetAlphaFill(gstate, alpha / 255.f);
+    auto tmp = this->Impl->AlphaGStateMap.insert(std::make_pair(alpha, gstate));
+    gstateIter = tmp.first;
+  }
+  HPDF_ExtGState alphaState = gstateIter->second;
+  HPDF_Page_SetExtGState(this->Impl->Page, alphaState);
 }
 
 //------------------------------------------------------------------------------
@@ -1778,7 +2054,10 @@ float vtkPDFContextDevice2D::ComputeTextWidth(const vtkStdString &str)
     std::string tmp(it, itEnd);
     width = std::max(width, HPDF_Page_TextWidth(this->Impl->Page, tmp.c_str()));
   }
-  return width;
+
+  // Pad by 1 -- sometimes the TextWidth result is barely too narrow for the
+  // text that's actually drawn, causing some viewers to ignore it:
+  return width + 1;
 }
 
 //------------------------------------------------------------------------------
@@ -1795,20 +2074,45 @@ void vtkPDFContextDevice2D::ApplyTransform()
   // together. Nor is there a way to push/pop a matrix stack. So we'll just
   // invert the current transform to unapply it before applying the new one.
   HPDF_TransMatrix oldTrans = HPDF_Page_GetTransMatrix(this->Impl->Page);
-  double oldTransMat3[9];
-  float hpdfMat[6];
+  double oldInvTransMat3[9];
   vtkPDFContextDevice2D::HPDFTransformToMatrix3(oldTrans.a, oldTrans.b,
                                                 oldTrans.c, oldTrans.d,
                                                 oldTrans.x, oldTrans.y,
-                                                oldTransMat3);
-  vtkMatrix3x3::Invert(oldTransMat3, oldTransMat3);
-  vtkPDFContextDevice2D::Matrix3ToHPDFTransform(oldTransMat3, hpdfMat);
-  HPDF_Page_Concat(this->Impl->Page, hpdfMat[0], hpdfMat[1], hpdfMat[2],
-                   hpdfMat[3], hpdfMat[4], hpdfMat[5]);
+                                                oldInvTransMat3);
+  vtkMatrix3x3::Invert(oldInvTransMat3, oldInvTransMat3);
 
-  // Now apply the current transform:
+  // Multiply the inverse current transform with the new one:
+  double newTransMat3[9];
   double *mat = this->Matrix->GetMatrix()->GetData();
-  vtkPDFContextDevice2D::Matrix4ToHPDFTransform(mat, hpdfMat);
+  vtkPDFContextDevice2D::Matrix4ToMatrix3(mat, newTransMat3);
+
+  vtkMatrix3x3::Multiply3x3(oldInvTransMat3, newTransMat3, newTransMat3);
+
+  // Test if the new transform is identity, within tolerance:
+  bool isIdentity = true;
+  const double tol = 1e-6;
+  for (size_t i = 0; i < 3 && isIdentity; ++i)
+  {
+    for (size_t j = 0; j < 3 && isIdentity; ++j)
+    {
+      const double val = newTransMat3[i * 3 + j];
+      const double exp = (i == j) ? 1. : 0.;
+      if (std::fabs(val - exp) > tol)
+      {
+        isIdentity = false;
+      }
+    }
+  }
+
+  // Do nothing if the transform would have no effect.
+  if (isIdentity)
+  {
+    return;
+  }
+
+  // Otherwise, write the new transform out.
+  float hpdfMat[6];
+  vtkPDFContextDevice2D::Matrix3ToHPDFTransform(newTransMat3, hpdfMat);
   HPDF_Page_Concat(this->Impl->Page, hpdfMat[0], hpdfMat[1], hpdfMat[2],
                    hpdfMat[3], hpdfMat[4], hpdfMat[5]);
 }
@@ -1841,15 +2145,21 @@ void vtkPDFContextDevice2D::Matrix4ToMatrix3(double mat4[16],
                                              vtkMatrix3x3 *mat3)
 {
   double *mat3Data = mat3->GetData();
-  mat3Data[ 0] = mat4[0];
-  mat3Data[ 1] = mat4[1];
-  mat3Data[ 2] = mat4[3];
-  mat3Data[ 3] = mat4[4];
-  mat3Data[ 4] = mat4[5];
-  mat3Data[ 5] = mat4[7];
-  mat3Data[ 6] = 0.;
-  mat3Data[ 7] = 0.;
-  mat3Data[ 8] = 1.;
+  vtkPDFContextDevice2D::Matrix4ToMatrix3(mat4, mat3Data);
+}
+
+//------------------------------------------------------------------------------
+void vtkPDFContextDevice2D::Matrix4ToMatrix3(double mat4[16], double mat3[9])
+{
+  mat3[ 0] = mat4[0];
+  mat3[ 1] = mat4[1];
+  mat3[ 2] = mat4[3];
+  mat3[ 3] = mat4[4];
+  mat3[ 4] = mat4[5];
+  mat3[ 5] = mat4[7];
+  mat3[ 6] = 0.;
+  mat3[ 7] = 0.;
+  mat3[ 8] = 1.;
 }
 
 //------------------------------------------------------------------------------
