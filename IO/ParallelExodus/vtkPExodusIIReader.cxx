@@ -299,7 +299,7 @@ int vtkPExodusIIReader::RequestInformation(
     // in them. It's possible that some of them don't and if they don't
     // we won't have the proper information generated.
     int reader_idx=0;
-    for ( int fileIndex = 0; fileIndex <= numFiles; ++fileIndex, ++reader_idx )
+    for ( int fileIndex = 0; fileIndex < numFiles; ++fileIndex, ++reader_idx )
     {
       if ( this->NumberOfFileNames > 1 )
       {
