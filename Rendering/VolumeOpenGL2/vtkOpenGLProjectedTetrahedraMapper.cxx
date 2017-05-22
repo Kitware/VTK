@@ -37,6 +37,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -54,14 +55,42 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include "vtkOpenGLError.h"
-
 #include <cmath>
 #include <algorithm>
 
 // bring in shader code
 #include "vtkglProjectedTetrahedraVS.h"
 #include "vtkglProjectedTetrahedraFS.h"
+
+// Define to print debug statements to the OpenGL CS stream (useful for e.g.
+// apitrace debugging):
+// #define ANNOTATE_STREAM
+namespace
+{
+void annotate(const std::string& message)
+{
+#ifdef ANNOTATE_STREAM
+  vtkOpenGLStaticCheckErrorMacro("Error before glDebug.")
+    glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
+      GL_DEBUG_SEVERITY_NOTIFICATION, 0, message.size(), message.c_str());
+  vtkOpenGLClearErrorMacro();
+#else  // ANNOTATE_STREAM
+  (void)message;
+#endif // ANNOTATE_STREAM
+}
+
+class scoped_annotate
+{
+  std::string Message;
+public:
+  scoped_annotate(const std::string& message)
+    : Message(message)
+  {
+    annotate("start " + message);
+  }
+  ~scoped_annotate() { annotate("end " + this->Message); }
+};
+}
 
 static int tet_edges[6][2] = { {0,1}, {1,2}, {2,0},
                                {0,3}, {1,3}, {2,3} };
@@ -174,6 +203,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
 bool vtkOpenGLProjectedTetrahedraMapper::AllocateFOResources(vtkRenderer *r)
 {
   vtkOpenGLClearErrorMacro();
+  scoped_annotate annotator("PTM::AllocateFOResources");
 
   int *size = r->GetSize();
 
@@ -277,6 +307,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
                                                 vtkVolume *volume)
 {
   vtkOpenGLClearErrorMacro();
+  scoped_annotate annotator("PTM::Render");
 
   // load required extensions
   this->Initialize(renderer);
@@ -485,10 +516,11 @@ inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
-  vtkVolume *volume, vtkOpenGLRenderWindow* )
+void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
+  vtkRenderer* renderer, vtkVolume* volume, vtkOpenGLRenderWindow* window)
 {
   vtkOpenGLClearErrorMacro();
+  scoped_annotate annotator("PTM::ProjectTetrahedra");
 
   // after mucking about with FBO bindings be sure
   // we're saving the default fbo attributes/blend function
@@ -500,6 +532,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   if (this->UseFloatingPointFrameBuffer
     && this->CanDoFloatingPointFrameBuffer)
   {
+    scoped_annotate annotator2("PTM::UseFloatingPointFrameBuffer");
     fo = this->Framebuffer;
 
     // bind draw+read to set it up
@@ -682,12 +715,20 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   std::vector<unsigned int> indexArray;
   indexArray.reserve(3 * 4 * this->VisibilitySort->GetMaxCellsReturned());
 
+  double progressNext = 0.0;
+
   // Let's do it!
   for (vtkIdTypeArray *sorted_cell_ids = this->VisibilitySort->GetNextCells();
        sorted_cell_ids != NULL;
        sorted_cell_ids = this->VisibilitySort->GetNextCells())
   {
-    this->UpdateProgress((double)numcellsrendered/totalnumcells);
+    const double progress = static_cast<double>(numcellsrendered) / totalnumcells;
+    if (progress >= progressNext)
+    {
+      this->GLSafeUpdateProgress(progress, window);
+      progressNext += 0.1; // we report progress in 10% increments to avoid
+                           // over-reporting .
+    }
 
     if (renderer->GetRenderWindow()->CheckAbortStatus())
     {
@@ -1078,5 +1119,20 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
 
   vtkOpenGLCheckErrorMacro("failed after ProjectTetrahedra");
-  this->UpdateProgress(1.0);
+  this->GLSafeUpdateProgress(1.0, window);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLProjectedTetrahedraMapper::GLSafeUpdateProgress(
+  double value, vtkOpenGLRenderWindow* window)
+{
+  scoped_annotate annotator("GLSafeUpdateProgress");
+  vtkNew<vtkOpenGLFramebufferObject> fbo;
+  fbo->SetContext(window);
+  fbo->SaveCurrentBindingsAndBuffers();
+  // since UpdateProgress may causes GL context changes, we save and restore
+  // state.
+  this->UpdateProgress(value);
+  window->MakeCurrent();
+  fbo->RestorePreviousBindingsAndBuffers();
 }
