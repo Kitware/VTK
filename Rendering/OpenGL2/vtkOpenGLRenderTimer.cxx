@@ -44,6 +44,16 @@ vtkOpenGLRenderTimer::~vtkOpenGLRenderTimer()
 }
 
 //------------------------------------------------------------------------------
+bool vtkOpenGLRenderTimer::IsSupported()
+{
+#ifdef NO_TIMESTAMP_QUERIES
+  return false;
+#else
+  return true;
+#endif
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::Reset()
 {
 #ifndef NO_TIMESTAMP_QUERIES
@@ -201,6 +211,36 @@ vtkOpenGLRenderTimer::GetElapsedNanoseconds()
   }
 
   return (this->EndTime - this->StartTime);
+#else // NO_TIMESTAMP_QUERIES
+  return 0;
+#endif // NO_TIMESTAMP_QUERIES
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkOpenGLRenderTimer::GetStartTime()
+{
+#ifndef NO_TIMESTAMP_QUERIES
+  if (!this->Ready())
+  {
+    return 0;
+  }
+
+  return this->StartTime;
+#else // NO_TIMESTAMP_QUERIES
+  return 0;
+#endif // NO_TIMESTAMP_QUERIES
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkOpenGLRenderTimer::GetStopTime()
+{
+#ifndef NO_TIMESTAMP_QUERIES
+  if (!this->Ready())
+  {
+    return 0;
+  }
+
+  return this->EndTime;
 #else // NO_TIMESTAMP_QUERIES
   return 0;
 #endif // NO_TIMESTAMP_QUERIES

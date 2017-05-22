@@ -60,6 +60,7 @@ typedef OSMesaContext GLAPIENTRY (*OSMesaCreateContextAttribs_func)( const int *
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderTimerLog.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringOutputWindow.h"
 
@@ -377,7 +378,10 @@ void vtkXOpenGLRenderWindow::Frame()
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers
       && this->WindowId!=0)
   {
+    this->RenderTimer->MarkStartEvent("glXSwapBuffers (may stall for VSync)");
     glXSwapBuffers(this->DisplayId, this->WindowId);
+    this->RenderTimer->MarkEndEvent();
+
     vtkDebugMacro(<< " glXSwapBuffers\n");
   }
 }

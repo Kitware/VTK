@@ -77,6 +77,7 @@ int TestGPURayCastDepthPeelingOpaque(int argc, char *argv[])
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
+  delete [] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter

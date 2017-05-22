@@ -22,6 +22,7 @@
 #include "vtkPropCollection.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderTimerLog.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 #include "vtkGraphicsFactory.h"
@@ -317,6 +318,14 @@ void vtkRenderWindow::Render()
     this->Interactor->Initialize();
   }
 
+  vtkRenderTimerLog::ScopedEventLogger event;
+  if (this->RenderTimer->GetLoggingEnabled())
+  {
+    this->Start(); // Ensure context exists
+    this->RenderTimer->MarkFrame();
+    event = this->RenderTimer->StartScopedEvent("vtkRenderWindow::Render");
+  }
+
   // CAUTION:
   // This method uses this->GetSize() and allocates buffers using that size.
   // Remember that GetSize() will returns a size scaled by the TileScale factor.
@@ -476,6 +485,9 @@ void vtkRenderWindow::Render()
 
   delete [] this->ResultFrame;
   this->ResultFrame = NULL;
+
+  // Stop the render timer before invoking the EndEvent.
+  event.Stop();
 
   this->InRender = 0;
   this->InvokeEvent(vtkCommand::EndEvent,NULL);

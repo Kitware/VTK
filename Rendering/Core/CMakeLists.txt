@@ -74,6 +74,7 @@ set(Module_SRCS
   vtkRendererSource.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
+  vtkRenderTimerLog.cxx
   vtkRenderWindowCollection.cxx
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx

@@ -36,6 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyDataMapper2D.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
+#include "vtkRenderTimerLog.h"
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
 #include "vtkTexture.h"
@@ -85,6 +86,9 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 int vtkOpenGLRenderer::UpdateLights ()
 {
   vtkOpenGLClearErrorMacro();
+
+  VTK_SCOPED_RENDER_EVENT("vtkOpenGLRenderer::UpdateLights",
+                          this->GetRenderWindow()->GetRenderTimer());
 
   vtkLight *light;
   float status;
@@ -172,6 +176,9 @@ void vtkOpenGLRenderer::DeviceRender(void)
 // visualization network to update.
 int vtkOpenGLRenderer::UpdateGeometry()
 {
+  vtkRenderTimerLog *timer = this->GetRenderWindow()->GetRenderTimer();
+  VTK_SCOPED_RENDER_EVENT("vtkOpenGLRenderer::UpdateGeometry", timer);
+
   int        i;
 
   this->NumberOfPropsRendered = 0;
@@ -183,6 +190,8 @@ int vtkOpenGLRenderer::UpdateGeometry()
 
   if (this->Selector)
   {
+    VTK_SCOPED_RENDER_EVENT2("Selection", timer, selectionEvent);
+
     // When selector is present, we are performing a selection,
     // so do the selection rendering pass instead of the normal passes.
     // Delegate the rendering of the props to the selector itself.
@@ -198,6 +207,8 @@ int vtkOpenGLRenderer::UpdateGeometry()
   int hasTranslucentPolygonalGeometry = 0;
   if (this->UseShadows)
   {
+    VTK_SCOPED_RENDER_EVENT2("Shadows", timer, shadowsEvent);
+
     if (!this->ShadowMapPass)
     {
       this->ShadowMapPass = vtkShadowMapPass::New();
@@ -211,7 +222,9 @@ int vtkOpenGLRenderer::UpdateGeometry()
   else
   {
     // Opaque geometry first:
+    timer->MarkStartEvent("Opaque Geometry");
     this->DeviceRenderOpaqueGeometry();
+    timer->MarkEndEvent();
 
     // do the render library specific stuff about translucent polygonal geometry.
     // As it can be expensive, do a quick check if we can skip this step
@@ -223,7 +236,9 @@ int vtkOpenGLRenderer::UpdateGeometry()
     }
     if(hasTranslucentPolygonalGeometry)
     {
+      timer->MarkStartEvent("Translucent Geometry");
       this->DeviceRenderTranslucentPolygonalGeometry();
+      timer->MarkEndEvent();
     }
   }
 
@@ -231,6 +246,7 @@ int vtkOpenGLRenderer::UpdateGeometry()
   // are usually things like text, which are already antialiased.
   if (this->UseFXAA)
   {
+    timer->MarkStartEvent("FXAA");
     if (!this->FXAAFilter)
     {
       this->FXAAFilter = vtkOpenGLFXAAFilter::New();
@@ -241,26 +257,31 @@ int vtkOpenGLRenderer::UpdateGeometry()
     }
 
     this->FXAAFilter->Execute(this);
+    timer->MarkEndEvent();
   }
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
   if (hasTranslucentPolygonalGeometry == 0 || !this->UseDepthPeelingForVolumes)
   {
+    timer->MarkStartEvent("Volumes");
     for ( i = 0; i < this->PropArrayCount; i++ )
     {
       this->NumberOfPropsRendered +=
         this->PropArray[i]->RenderVolumetricGeometry(this);
     }
+    timer->MarkEndEvent();
   }
 
   // loop through props and give them a chance to
   // render themselves as an overlay (or underlay)
+  timer->MarkStartEvent("Overlay");
   for ( i = 0; i < this->PropArrayCount; i++ )
   {
     this->NumberOfPropsRendered +=
       this->PropArray[i]->RenderOverlay(this);
   }
+  timer->MarkEndEvent();
 
   this->RenderTime.Modified();
 

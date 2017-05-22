@@ -29,6 +29,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkRenderer.h"
 #include "vtkRenderState.h"
+#include "vtkRenderTimerLog.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtkTypeTraits.h"
@@ -62,6 +63,11 @@
 #define NO_PRECOLOR_EARLY_RETURN
 #endif
 
+using RenderEvent = vtkRenderTimerLog::ScopedEventLogger;
+
+#define TIME_FUNCTION(functionName) \
+  VTK_SCOPED_RENDER_EVENT(#functionName, this->Timer);
+
 vtkStandardNewMacro(vtkDualDepthPeelingPass)
 vtkCxxSetObjectMacro(vtkDualDepthPeelingPass, VolumetricPass, vtkRenderPass)
 
@@ -90,6 +96,9 @@ void vtkDualDepthPeelingPass::PrintSelf(std::ostream &os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::Render(const vtkRenderState *s)
 {
+  VTK_SCOPED_RENDER_EVENT("vtkDualDepthPeelingPass::Render",
+                          s->GetRenderer()->GetRenderWindow()->GetRenderTimer());
+
   // Setup vtkOpenGLRenderPass
   this->PreRender(s);
 
@@ -489,10 +498,15 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  bool hasAnyGeometry = hasOpaqueGeometry ||\n"
             "                        hasTranslucentGeometry;\n"
             "\n"
+#ifndef DEBUG_VOLUME_PREPASS_PIXELS
+            "  vec2 frontRange = vec2(1.f, -1.f);\n"
+            "  vec2 backRange = vec2(1.f, -1.f);\n"
+            "\n"
+#endif // not DEBUG_VOLUME_PREPASS_PIXELS
             "  if (!hasAnyGeometry)\n"
             "  { // No opaque or translucent geometry\n"
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
-            "    back = castRay(0., 1.);\n"
+            "    backRange = vec2(0., 1.);\n"
 #else // not DEBUG_VOLUME_PREPASS_PIXELS
             "    back = vec4(1.f, 0.f, 0.f, 1.f);\n"
 #endif // not DEBUG_VOLUME_PREPASS_PIXELS
@@ -501,7 +515,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  { // Opaque geometry only.\n"
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
             "    float opaqueDepth = inner.y;\n"
-            "    back = castRay(0, opaqueDepth);\n"
+            "    backRange = vec2(0.f, opaqueDepth);\n"
 #else // not DEBUG_VOLUME_PREPASS_PIXELS
             "    back = vec4(0.f, 1.f, 0.f, 1.f);\n"
 #endif // not DEBUG_VOLUME_PREPASS_PIXELS
@@ -510,14 +524,13 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  {\n"
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
             "    float opaqueDepth = hasOpaqueGeometry ? outer.y : 1.f;\n"
-            "    front = castRay(0.f, -inner.x);\n"
+            "    frontRange = vec2(0.f, -inner.x);\n"
             "\n"
-            "    back = vec4(0.0);\n"
             "    if (front.a < g_opacityThreshold)\n"
             "    {\n"
             "      // The color returned by castRay() has alpha pre-multiplied,\n"
             "      // as required for back-blending.\n"
-            "      back = castRay(inner.y, opaqueDepth);\n"
+            "      backRange = vec2(inner.y, opaqueDepth);\n"
             "    }\n"
             "\n"
 #else // not DEBUG_VOLUME_PREPASS_PIXELS
@@ -526,6 +539,17 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
 #endif // not DEBUG_VOLUME_PREPASS_PIXELS
             "  }\n"
             "\n"
+#ifndef DEBUG_VOLUME_PREPASS_PIXELS
+            "  if (frontRange.x < frontRange.y)\n"
+            "  {\n"
+            "    front = castRay(frontRange.x, frontRange.y);\n"
+            "  }\n"
+            "  if (backRange.x < backRange.y)\n"
+            "  {\n"
+            "    back = castRay(backRange.x, backRange.y);\n"
+            "  }\n"
+            "\n"
+#endif // not DEBUG_VOLUME_PREPASS_PIXELS
             "  gl_FragData[0] = back;\n"
             "  gl_FragData[1] = front;\n"
             );
@@ -860,6 +884,7 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::RenderTranslucentPass()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::RenderTranslucentPass);
   this->TranslucentPass->Render(this->RenderState);
   ++this->TranslucentRenderCount;
 }
@@ -867,6 +892,7 @@ void vtkDualDepthPeelingPass::RenderTranslucentPass()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::RenderVolumetricPass()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::RenderVolumetricPass);
   this->VolumetricPass->Render(this->RenderState);
   ++this->VolumetricRenderCount;
   this->LastPeelHadVolumes =
@@ -886,7 +912,7 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
   this->LastPeelHadVolumes = true;
 
   // Get current viewport size:
-  vtkRenderer *r=s->GetRenderer();
+  vtkRenderer *r = s->GetRenderer();
   if(s->GetFrameBuffer()==0)
   {
     // get the viewport dimensions
@@ -902,6 +928,12 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
     this->ViewportX =0 ;
     this->ViewportY = 0;
   }
+
+  this->Timer = r->GetRenderWindow()->GetRenderTimer();
+
+  // The above code shouldn't touch the OpenGL command stream, so it's okay to
+  // start the event here:
+  TIME_FUNCTION(vtkDualDepthPeelingPass::Initialize);
 
   // See if we can reuse existing textures:
   if (this->Textures[Back] &&
@@ -1001,6 +1033,8 @@ void vtkDualDepthPeelingPass::InitFramebuffer(const vtkRenderState *s)
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::Prepare()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::Prepare);
+
   // Since we're rendering into a temporary non-default framebuffer, we need to
   // remove the translation from the viewport and disable the scissor test;
   // otherwise we'll capture the wrong area of the rendered geometry.
@@ -1078,6 +1112,8 @@ void vtkDualDepthPeelingPass::InitializeOcclusionQuery()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer);
+
   // Initialize the peeling depth buffer using the existing opaque depth buffer.
   // Note that the min component is stored as -depth, allowing
   // glBlendEquation = GL_MAX to be used during peeling.
@@ -1168,6 +1204,8 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::InitializeDepth()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::InitializeDepth);
+
   // Add the translucent geometry to our depth peeling buffer:
 
   // We bind the back temporary buffer as render target 0 -- the data we
@@ -1196,6 +1234,8 @@ void vtkDualDepthPeelingPass::InitializeDepth()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::PeelVolumesOutsideTranslucentRange()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::PeelVolumesOutsideTranslucentRange);
+
   // Enable the destination targets. Note that we're rendering directly into
   // the Back accumulation buffer and the FrontSource buffer, since we know
   // this is the first time these buffers will be drawn into.
@@ -1240,6 +1280,8 @@ bool vtkDualDepthPeelingPass::PeelingDone()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::Peel()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::Peel);
+
   this->InitializeTargetsForTranslucentPass();
   this->PeelTranslucentGeometry();
   this->StartTranslucentOcclusionQuery();
@@ -1294,6 +1336,7 @@ void vtkDualDepthPeelingPass::PrepareFrontDestination()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::ClearFrontDestination()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::ClearFrontDestination);
   annotate("ClearFrontDestination()");
   this->Framebuffer->ActivateDrawBuffer(this->FrontDestination);
   glClearColor(0.f, 0.f, 0.f, 0.f);
@@ -1303,6 +1346,8 @@ void vtkDualDepthPeelingPass::ClearFrontDestination()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::CopyFrontSourceToFrontDestination()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::CopyFrontSourceToFrontDestination);
+
   this->Framebuffer->ActivateDrawBuffer(this->FrontDestination);
 
   glDisable(GL_BLEND);
@@ -1361,6 +1406,8 @@ void vtkDualDepthPeelingPass::CopyFrontSourceToFrontDestination()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::InitializeTargetsForTranslucentPass()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::InitializeTargetsForTranslucentPass);
+
   // Initialize destination buffers to their minima, since we're MAX blending,
   // this ensures that valid outputs are captured.
   this->Framebuffer->ActivateDrawBuffer(BackTemp);
@@ -1377,6 +1424,8 @@ void vtkDualDepthPeelingPass::InitializeTargetsForTranslucentPass()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::InitializeTargetsForVolumetricPass()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::InitializeTargetsForVolumetricPass);
+
   // Clear the back buffer to ensure that current fragments are captured for
   // later blending into the back accumulation buffer:
   this->Framebuffer->ActivateDrawBuffer(BackTemp);
@@ -1389,6 +1438,8 @@ void vtkDualDepthPeelingPass::InitializeTargetsForVolumetricPass()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::PeelTranslucentGeometry()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::PeelTranslucentGeometry);
+
   // Enable the destination targets:
   unsigned int targets[3] = { static_cast<unsigned int>(BackTemp),
                               static_cast<unsigned int>(this->FrontDestination),
@@ -1416,6 +1467,8 @@ void vtkDualDepthPeelingPass::PeelTranslucentGeometry()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::PeelVolumeGeometry);
+
   // Enable the destination targets:
   unsigned int targets[2] = { static_cast<unsigned int>(BackTemp),
                               static_cast<unsigned int>(this->FrontDestination)
@@ -1455,6 +1508,8 @@ void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::BlendBackBuffer()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::BlendBackBuffer);
+
   this->Framebuffer->ActivateDrawBuffer(Back);
   this->Textures[BackTemp]->Activate();
 
@@ -1553,6 +1608,10 @@ void vtkDualDepthPeelingPass::StartTranslucentOcclusionQuery()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::EndTranslucentOcclusionQuery()
 {
+  // We time the end, but not the start, since this is where we stall to
+  // sync the stream.
+  TIME_FUNCTION(vtkDualDepthPeelingPass::EndTranslucentOcclusionQuery);
+
 #if GL_ES_VERSION_3_0 == 1
   glEndQuery(GL_ANY_SAMPLES_PASSED);
   GLuint anySamplesPassed;
@@ -1583,6 +1642,10 @@ void vtkDualDepthPeelingPass::StartVolumetricOcclusionQuery()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::EndVolumetricOcclusionQuery()
 {
+  // We time the end, but not the start, since this is where we stall to
+  // sync the stream.
+  TIME_FUNCTION(vtkDualDepthPeelingPass::EndVolumetricOcclusionQuery);
+
 #if GL_ES_VERSION_3_0 == 1
   glEndQuery(GL_ANY_SAMPLES_PASSED);
   GLuint anySamplesPassed;
@@ -1613,6 +1676,8 @@ void vtkDualDepthPeelingPass::SwapDepthBufferSourceDest()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::Finalize()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::Finalize);
+
   // Mop up any unrendered fragments using simple alpha blending into the back
   // buffer.
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
@@ -1652,6 +1717,7 @@ void vtkDualDepthPeelingPass::Finalize()
     }
   }
 
+  this->Timer = NULL;
   this->RenderState = NULL;
   this->DeleteOcclusionQueryIds();
   this->SetCurrentStage(Inactive);
@@ -1684,6 +1750,8 @@ void vtkDualDepthPeelingPass::Finalize()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::AlphaBlendRender()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::AlphaBlendRender);
+
   /* This pass is mopping up the remaining fragments when we exceed the max
    * number of peels or hit the occlusion limit. We'll simply render all of the
    * remaining fragments into the back destination buffer using the
@@ -1725,6 +1793,8 @@ void vtkDualDepthPeelingPass::AlphaBlendRender()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::BlendFinalImage()
 {
+  TIME_FUNCTION(vtkDualDepthPeelingPass::BlendFinalImage);
+
   this->Textures[this->FrontSource]->Activate();
   this->Textures[Back]->Activate();
 

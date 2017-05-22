@@ -16,6 +16,7 @@
  *  Tests depth peeling pass with volume rendering.
  */
 
+#include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
@@ -31,6 +32,7 @@
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkRenderTimerLog.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
@@ -43,6 +45,25 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <cassert>
+
+namespace {
+
+void RenderComplete(vtkObject *obj, unsigned long, void*, void*)
+{
+  vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(obj);
+  assert(renWin);
+
+  vtkRenderTimerLog *timer = renWin->GetRenderTimer();
+  while (timer->FrameReady())
+  {
+    std::cout << "-- Frame Timing:------------------------------------------\n";
+    timer->PopFirstReadyFrame().Print(std::cout);
+    std::cout << "\n";
+  }
+}
+
+} // end anon namespace
 
 int TestGPURayCastDepthPeeling(int argc, char *argv[])
 {
@@ -67,6 +88,13 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
     return VTK_SKIP_RETURN_CODE;
   }
 
+  // Setup the rendertimer observer:
+  vtkNew<vtkCallbackCommand> renderCompleteCB;
+  renderCompleteCB->SetCallback(RenderComplete);
+  renWin->GetRenderTimer()->LoggingEnabledOn();
+  renWin->AddObserver(vtkCommand::EndEvent, renderCompleteCB.Get());
+
+
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
@@ -77,6 +105,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
+  delete [] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter
