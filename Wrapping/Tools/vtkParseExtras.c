@@ -306,6 +306,7 @@ void vtkParse_ExpandTypedef(
   unsigned int pointers;
   unsigned int refbit;
   unsigned int qualifiers;
+  unsigned int attributes;
   unsigned int tmp1, tmp2;
   int i;
 
@@ -314,6 +315,7 @@ void vtkParse_ExpandTypedef(
   pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
   refbit = (valinfo->Type & VTK_PARSE_REF);
   qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
+  attributes = (valinfo->Type & VTK_PARSE_ATTRIBUTES);
 
   /* handle const */
   if ((valinfo->Type & VTK_PARSE_CONST) != 0)
@@ -377,7 +379,7 @@ void vtkParse_ExpandTypedef(
   }
 
   /* put everything together */
-  valinfo->Type = (baseType | pointers | refbit | qualifiers);
+  valinfo->Type = (baseType | pointers | refbit | qualifiers | attributes);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
   valinfo->Count *= typedefinfo->Count;
