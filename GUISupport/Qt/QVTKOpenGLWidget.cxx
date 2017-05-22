@@ -32,8 +32,6 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 
 // #define DEBUG_QVTKOPENGL_WIDGET
 #ifdef DEBUG_QVTKOPENGL_WIDGET
@@ -47,20 +45,6 @@
 #else
 #define vtkQVTKOpenGLWidgetDebugMacro(x)
 #endif
-
-namespace
-{
-void vtkSetBackgroundAlpha(vtkRenderWindow* renWin, double value)
-{
-  vtkRendererCollection* renCollection = renWin->GetRenderers();
-  vtkCollectionSimpleIterator cookie;
-  renCollection->InitTraversal(cookie);
-  while (vtkRenderer* ren = renCollection->GetNextRenderer(cookie))
-  {
-    ren->SetBackgroundAlpha(value);
-  }
-}
-}
 
 class QVTKOpenGLWidgetObserver : public vtkCommand
 {
@@ -360,11 +344,6 @@ void QVTKOpenGLWidget::recreateFBO()
 
   this->setEnableHiDPI(this->EnableHiDPI);
 
-  // On OsX (if QSurfaceFormat::alphaBufferSize() > 0) or when using Mesa, we
-  // end up rendering fully transparent windows (see through background)
-  // unless we fill it with alpha=1.0 (See paraview/paraview#17159).
-  vtkSetBackgroundAlpha(this->RenderWindow, 1.0);
-
   // Since the context or frame buffer was recreated, if a paintGL call ensues,
   // we need to ensure we're requesting VTK to render.
   this->DoVTKRenderInPaintGL = true;
@@ -470,6 +449,22 @@ void QVTKOpenGLWidget::paintGL()
     f->glBlitFramebuffer(0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1],
       0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1], GL_COLOR_BUFFER_BIT,
       GL_NEAREST);
+
+    // now clear alpha otherwise we end up blending the rendering with
+    // background windows in certain cases. It happens on OsX
+    // (if QSurfaceFormat::alphaBufferSize() > 0) or when using Mesa on Linux
+    // (see paraview/paraview#17159).
+    GLboolean colorMask[4];
+    f->glGetBooleanv(GL_COLOR_WRITEMASK, colorMask);
+    f->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+
+    GLfloat clearColor[4];
+    f->glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
+    f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+
+    f->glColorMask(colorMask[0], colorMask[1], colorMask[2], colorMask[3]);
+    f->glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
   }
 }
 
