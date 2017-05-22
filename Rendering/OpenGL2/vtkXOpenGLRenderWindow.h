@@ -39,22 +39,22 @@ class VTKRENDERINGOPENGL2_EXPORT vtkXOpenGLRenderWindow : public vtkOpenGLRender
 public:
   static vtkXOpenGLRenderWindow *New();
   vtkTypeMacro(vtkXOpenGLRenderWindow, vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Begin the rendering process.
    */
-  virtual void Start(void);
+  void Start() VTK_OVERRIDE;
 
   /**
    * End the rendering process and display the image.
    */
-  virtual void Frame(void);
+  void Frame() VTK_OVERRIDE;
 
   /**
    * Initialize the window for rendering.
    */
-  virtual void WindowInitialize(void);
+  virtual void WindowInitialize();
 
   /**
    * Initialize the rendering window.  This will setup all system-specific
@@ -62,35 +62,35 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void);
+  void Initialize() VTK_OVERRIDE;
 
   /**
    * "Deinitialize" the rendering window.  This will shutdown all system-specific
    * resources.  After having called this, it should be possible to destroy
    * a window that was used for a SetWindowId() call without any ill effects.
    */
-  virtual void Finalize(void);
+  void Finalize() VTK_OVERRIDE;
 
   /**
    * Change the window to fill the entire screen.
    */
-  virtual void SetFullScreen(int);
+  virtual void SetFullScreen(int) VTK_OVERRIDE;
 
   /**
    * Resize the window.
    */
-  virtual void WindowRemap(void);
+  void WindowRemap() VTK_OVERRIDE;
 
   /**
    * Set the preferred window size to full screen.
    */
-  virtual void PrefFullScreen(void);
+  virtual void PrefFullScreen();
 
   /**
    * Specify the size of the rendering window in pixels.
    */
-  virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);}
+  void SetSize(int,int) VTK_OVERRIDE;
+  void SetSize(int a[2]) VTK_OVERRIDE { this->SetSize(a[0], a[1]); }
 
   //@{
   /**
@@ -99,7 +99,7 @@ public:
   virtual Colormap GetDesiredColormap();
   virtual Visual  *GetDesiredVisual();
   virtual XVisualInfo     *GetDesiredVisualInfo();
-  virtual int      GetDesiredDepth();
+  virtual int GetDesiredDepth();
   //@}
 
   /**
@@ -108,51 +108,51 @@ public:
    * overrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  virtual void SetStereoCapableWindow(int capable);
+  void SetStereoCapableWindow(int capable) VTK_OVERRIDE;
 
   /**
    * Make this window the current OpenGL context.
    */
-  void MakeCurrent();
+  void MakeCurrent() VTK_OVERRIDE;
 
   /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
-  virtual bool IsCurrent();
+  bool IsCurrent() VTK_OVERRIDE;
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.
    * MakeCurrent() reverts to original behavior of cache-checking
    * on the next render.
    */
-  void SetForceMakeCurrent();
+  void SetForceMakeCurrent() VTK_OVERRIDE;
 
   /**
    * Get report of capabilities for the render window
    */
-  const char *ReportCapabilities();
+  const char *ReportCapabilities() VTK_OVERRIDE;
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect();
+  int IsDirect() VTK_OVERRIDE;
 
   /**
    * Xwindow get set functions
    */
-  virtual void *GetGenericDisplayId()
+  void *GetGenericDisplayId() VTK_OVERRIDE
   {
       return this->GetDisplayId();
   }
 
-  virtual void *GetGenericWindowId();
-  virtual void *GetGenericParentId()
+  void *GetGenericWindowId() VTK_OVERRIDE;
+  void *GetGenericParentId() VTK_OVERRIDE
   {
       return reinterpret_cast<void *>(this->ParentId);
   }
 
-  virtual void *GetGenericContext();
-  virtual void *GetGenericDrawable()
+  void *GetGenericContext() VTK_OVERRIDE;
+  void *GetGenericDrawable() VTK_OVERRIDE
   {
       return reinterpret_cast<void *>(this->WindowId);
   }
@@ -160,12 +160,12 @@ public:
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int     *GetScreenSize();
+  int *GetScreenSize() VTK_OVERRIDE;
 
   /**
    * Get the position in screen coordinates (pixels) of the window.
    */
-  virtual int     *GetPosition();
+  int *GetPosition() VTK_OVERRIDE;
 
   /**
    * Get this RenderWindow's X display id.
@@ -177,62 +177,65 @@ public:
    * Set the X display id for this RenderWindow to use to a pre-existing
    * X display id.
    */
-  void     SetDisplayId(Display *);
-  void     SetDisplayId(void *);
+  void SetDisplayId(Display *);
+  void SetDisplayId(void *) VTK_OVERRIDE;
   //@}
 
   /**
    * Get this RenderWindow's parent X window id.
    */
-  Window   GetParentId();
+  Window GetParentId();
 
   //@{
   /**
    * Sets the parent of the window that WILL BE created.
    */
-  void     SetParentId(Window);
-  void     SetParentId(void *);
+  void SetParentId(Window);
+  void SetParentId(void *) VTK_OVERRIDE;
   //@}
 
   /**
    * Get this RenderWindow's X window id.
    */
-  Window   GetWindowId();
+  Window GetWindowId();
 
   //@{
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
    */
-  void     SetWindowId(Window);
-  void     SetWindowId(void *);
+  void SetWindowId(Window);
+  void SetWindowId(void *) VTK_OVERRIDE;
   //@}
 
   /**
    * Specify the X window id to use if a WindowRemap is done.
    */
-  void     SetNextWindowId(Window);
+  void SetNextWindowId(Window);
 
   /**
    * Set the window id of the new window once a WindowRemap is done.
    * This is the generic prototype as required by the vtkRenderWindow
    * parent.
    */
-  void     SetNextWindowId(void *);
+  void SetNextWindowId(void *) VTK_OVERRIDE;
 
-  void     SetWindowName(const char *);
+  /**
+   * Set name of rendering window.
+   */
+  void SetWindowName(const char *) VTK_OVERRIDE;
 
   /**
    * Initialize the render window from the information associated
    * with the currently activated OpenGL context.
    */
-  virtual bool InitializeFromCurrentContext();
+  bool InitializeFromCurrentContext() VTK_OVERRIDE;
 
   //@{
   /**
    * Move the window to a new position on the display.
    */
-  void     SetPosition(int,int);
-  void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);};
+  void SetPosition(int,int) VTK_OVERRIDE;
+  void SetPosition(int a[2]) VTK_OVERRIDE { this->SetPosition(a[0], a[1]); }
   //@}
 
   //@{
@@ -240,47 +243,47 @@ public:
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
    */
-  void HideCursor();
-  void ShowCursor();
+  void HideCursor() VTK_OVERRIDE;
+  void ShowCursor() VTK_OVERRIDE;
   //@}
 
   /**
    * Change the shape of the cursor
    */
-  virtual void SetCurrentCursor(int);
+  void SetCurrentCursor(int) VTK_OVERRIDE;
 
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
    * All other events are ignored by this method.
    * This is a useful check to abort a long render.
    */
-  virtual  int GetEventPending();
+  int GetEventPending() VTK_OVERRIDE;
 
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
    */
-  void     SetWindowInfo(char *info);
+  void SetWindowInfo(char *info) VTK_OVERRIDE;
 
   /**
    * Set the window info that will be used after WindowRemap()
    */
-  void     SetNextWindowInfo(char *info);
+  void SetNextWindowInfo(char *info) VTK_OVERRIDE;
 
   /**
    * Sets the X window id of the window that WILL BE created.
    */
-  void     SetParentInfo(char *info);
+  void SetParentInfo(char *info) VTK_OVERRIDE;
 
   /**
    * This computes the size of the render window
    * before calling the supper classes render
    */
-  void Render();
+  void Render() VTK_OVERRIDE;
 
   /**
    * Render without displaying the window.
    */
-  void SetOffScreenRendering(int i);
+  void SetOffScreenRendering(int i) VTK_OVERRIDE;
 
   //@{
   /**
@@ -290,13 +293,13 @@ public:
    * and when done releasing resources restore
    * the prior context
    */
-  virtual void PushContext();
-  virtual void PopContext();
+  void PushContext() VTK_OVERRIDE;
+  void PopContext() VTK_OVERRIDE;
   //@}
 
 protected:
   vtkXOpenGLRenderWindow();
-  ~vtkXOpenGLRenderWindow();
+  ~vtkXOpenGLRenderWindow() VTK_OVERRIDE;
 
   vtkXOpenGLRenderWindowInternal *Internal;
 
@@ -329,8 +332,8 @@ protected:
   Cursor XCHand;
 
 
-  void CreateAWindow();
-  void DestroyWindow();
+  void CreateAWindow() VTK_OVERRIDE;
+  void DestroyWindow() VTK_OVERRIDE;
   void CreateOffScreenWindow(int width, int height);
   void DestroyOffScreenWindow();
   void ResizeOffScreenWindow(int width, int height);

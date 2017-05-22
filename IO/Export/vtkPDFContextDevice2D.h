@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkPDFContextDevice2D();
-  ~vtkPDFContextDevice2D();
+  ~vtkPDFContextDevice2D() VTK_OVERRIDE;
 
   void PushGraphicsState();
   void PopGraphicsState();
