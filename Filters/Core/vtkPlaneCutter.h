@@ -122,6 +122,17 @@ public:
   vtkBooleanMacro(InterpolateAttributes, bool);
   //@}
 
+  //@{
+  /**
+   * Indicate whether to generate polygons instead of triangles when cutting
+   * structured and rectilinear grid. No effect with other kinds of inputs, enabled
+   * by default.
+   */
+  vtkSetMacro(GeneratePolygons, bool);
+  vtkGetMacro(GeneratePolygons, bool);
+  vtkBooleanMacro(GeneratePolygons, bool);
+  //@}
+
   /**
    * See vtkAlgorithm for details.
    */
@@ -142,6 +153,7 @@ protected:
   vtkPlane *Plane;
   bool ComputeNormals;
   bool InterpolateAttributes;
+  bool GeneratePolygons;
 
   // Helpers
   vtkSphereTree *SphereTree;
