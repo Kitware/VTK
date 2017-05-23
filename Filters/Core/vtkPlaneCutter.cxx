@@ -21,6 +21,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkElevationFilter.h"
 #include "vtkFloatArray.h"
 #include "vtkFlyingEdgesPlaneCutter.h"
 #include "vtkGenericCell.h"
@@ -30,6 +31,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkNonMergingPointLocator.h"
@@ -1217,36 +1219,20 @@ vtkMTimeType vtkPlaneCutter::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-// If threading is enabled, then a different type of output is created.
+// Always create multiblock, although it is necessary only with Threading enabled
 int vtkPlaneCutter::
 RequestDataObject( vtkInformation* vtkNotUsed(request),
                    vtkInformationVector **inputVector,
                    vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  vtkImageData *imageData = vtkImageData::GetData(inputVector[0]);
-  if ( imageData != nullptr )
+  vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outInfo);
+  if (!output)
   {
-    vtkPolyData *output = vtkPolyData::GetData(outInfo);
-    if (!output)
-    {
-      vtkPolyData* newOutput = vtkPolyData::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
-      newOutput->Delete();
-    }
+    vtkMultiBlockDataSet* newOutput = vtkMultiBlockDataSet::New();
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+    newOutput->Delete();
   }
-  else
-  {
-    vtkMultiPieceDataSet *output = vtkMultiPieceDataSet::GetData(outInfo);
-    if (!output)
-    {
-      vtkMultiPieceDataSet* newOutput = vtkMultiPieceDataSet::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), newOutput);
-      newOutput->Delete();
-    }
-  }
-
   return 1;
 }
 
@@ -1300,7 +1286,9 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
 
   // get the input and output
   vtkDataSet *input = vtkDataSet::GetData(inputVector[0]);
-  vtkDataObject *output = vtkDataObject::GetData(outputVector);
+  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(vtkDataObject::GetData(outputVector));
+  vtkNew<vtkMultiPieceDataSet> output;
+  mb->SetBlock(0, output.Get());
 
   vtkPlane *plane = this->Plane;
   if ( this->Plane == nullptr )
@@ -1332,7 +1320,23 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
 
   // Delegate the processing to the matching algorithm
   if ( input->GetDataObjectType() == VTK_IMAGE_DATA )
-  {//let flying edges do the work
+  {
+    vtkDataSet* tmpInput = input;
+    bool elevationFlag = false;
+
+    // Check to see if there is a scalar associated with the image
+    if (!input->GetPointData()->GetScalars())
+    {
+      // Add an elevation scalar
+      vtkNew<vtkElevationFilter> elevation;
+      elevation->SetInputData(tmpInput);
+      elevation->Update();
+      tmpInput = elevation->GetOutput();
+      tmpInput->Register(this);
+      elevationFlag = true;
+    }
+
+    //let flying edges do the work
     vtkNew<vtkFlyingEdgesPlaneCutter> flyingEdges;
     flyingEdges->SetPlane(this->Plane);
     vtkNew<vtkPlane> xPlane;
@@ -1341,8 +1345,27 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
     flyingEdges->SetPlane(xPlane.GetPointer());
     flyingEdges->SetComputeNormals(this->ComputeNormals);
     flyingEdges->SetInterpolateAttributes(this->InterpolateAttributes);
-    return flyingEdges->
-      ProcessRequest(request,inputVector,outputVector);
+    flyingEdges->SetInputData(tmpInput);
+    flyingEdges->Update();
+    vtkDataSet* slice = flyingEdges->GetOutput();
+    output->SetNumberOfPieces(1);
+    output->SetPiece(0, slice);
+
+    // Remove elevation data
+    if (elevationFlag)
+    {
+      slice->GetPointData()->RemoveArray("Elevation");
+      tmpInput->Delete();
+    }
+    else if (!this->InterpolateAttributes)
+    {
+      // Remove unwanted point data
+      // In this case, Flying edges outputs only a single array in point data
+      // scalars cannot be null
+      vtkDataArray* scalars = slice->GetPointData()->GetScalars();
+      slice->GetPointData()->RemoveArray(scalars->GetName());
+    }
+    return 1;
   }
 
   // Okay we'll be using a sphere tree. The tree's mtime will handle
@@ -1352,21 +1375,21 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
 
   if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
   {
-    StructuredFunctor functor(input, output, plane, this->SphereTree,
+    StructuredFunctor functor(input, output.Get(), plane, this->SphereTree,
                               planeOrigin, planeNormal, this->InterpolateAttributes, this->GeneratePolygons);
     vtkSMPTools::For(0, numCells, functor);
   }
 
   else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
   {
-    RectilinearFunctor functor(input, output, plane, this->SphereTree,
+    RectilinearFunctor functor(input, output.Get(), plane, this->SphereTree,
       planeOrigin, planeNormal, this->InterpolateAttributes, this->GeneratePolygons);
     vtkSMPTools::For(0, numCells, functor);
   }
 
   else //use generic explicit algorithm
   {
-    PointSetFunctor functor(input, output, plane, this->SphereTree,
+    PointSetFunctor functor(input, output.Get(), plane, this->SphereTree,
       planeOrigin, planeNormal, this->InterpolateAttributes);
     vtkSMPTools::For(0, numCells, functor);
   }
@@ -1374,21 +1397,12 @@ RequestData(vtkInformation *request, vtkInformationVector **inputVector,
   // Generate normals across all points if requested
   if (this->ComputeNormals)
   {
-    vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
-    vtkCompositeDataSet* hdOutput = vtkCompositeDataSet::SafeDownCast(output);
-    if (hdOutput)
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(output->NewIterator());
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
-      vtkSmartPointer<vtkCompositeDataIterator> iter;
-      iter.TakeReference(hdOutput->NewIterator());
-      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
-        vtkDataSet* hdLeafOutput = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-        this->AddNormalArray(planeNormal, hdLeafOutput);
-      }
-    }
-    else if (dsOutput)
-    {
-      this->AddNormalArray(planeNormal, dsOutput);
+      vtkDataSet* hdLeafOutput = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      this->AddNormalArray(planeNormal, hdLeafOutput);
     }
   }
   return 1;
