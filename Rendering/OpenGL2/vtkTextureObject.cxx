@@ -556,11 +556,6 @@ void vtkTextureObject::Bind()
 //----------------------------------------------------------------------------
 void vtkTextureObject::UnBind()
 {
-  if (this->Target)
-  {
-    glBindTexture(this->Target, 0);
-    vtkOpenGLCheckErrorMacro("failed at glBindTexture(0)");
-  }
 }
 
 //----------------------------------------------------------------------------

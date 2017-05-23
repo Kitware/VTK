@@ -81,6 +81,7 @@ set(Module_SRCS
   vtkRenderWindowInteractor3D.cxx
   vtkSelectVisiblePoints.cxx
   vtkShaderDeviceAdapter2.cxx
+  vtkSkybox.cxx
   vtkTextActor.cxx
   vtkTextActor3D.cxx
   vtkTexture.cxx

@@ -30,6 +30,9 @@ uniform int PrimitiveIDOffset;
 // extra lighting parameters
 //VTK::Light::Dec
 
+// Texture maps
+//VTK::TMap::Dec
+
 // Texture coordinates
 //VTK::TCoord::Dec
 

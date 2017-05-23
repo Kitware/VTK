@@ -58,6 +58,7 @@ set(Module_SRCS
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
+  vtkOpenGLSkybox.cxx
   vtkOpenGLSphereMapper.cxx
   vtkOpenGLStickMapper.cxx
   vtkOpenGLTextActor.cxx
@@ -210,6 +211,7 @@ set(opengl_overrides
   Property
   Renderer
   RenderTimerLog
+  Skybox
   TextActor
   TextActor3D
   TextMapper
