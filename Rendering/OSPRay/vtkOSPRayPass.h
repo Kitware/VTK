@@ -59,7 +59,7 @@ public:
   /**
    * Perform rendering according to a render state s.
    */
-  virtual void Render(const vtkRenderState *s);
+  virtual void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
   //@{
   /**

@@ -31,7 +31,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkCameraNode :
 public:
   static vtkCameraNode* New();
   vtkTypeMacro(vtkCameraNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkCameraNode();

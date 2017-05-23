@@ -47,7 +47,7 @@ public:
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass);
+  virtual void Invalidate(bool prepass) VTK_OVERRIDE;
 
 protected:
   vtkOSPRayCompositePolyDataMapper2Node();
