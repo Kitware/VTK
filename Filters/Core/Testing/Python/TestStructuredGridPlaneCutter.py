@@ -6,8 +6,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Control debugging parameters
 res = 50
 
-# Create the RenderWindow, Renderer
-#
+# Create the RenderWindow, Renderers
 ren0 = vtk.vtkRenderer()
 ren1 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
@@ -107,7 +106,6 @@ SC = sCutter_timer.GetElapsedWallClockTime()
 print ("vtkPlaneCutter:", SC)
 
 # Add the actors to the renderer, set the background and size
-#
 ren0.AddActor(outlineActor)
 ren0.AddActor(cutterActor)
 ren1.AddActor(outlineActorT)
@@ -123,5 +121,5 @@ ren1.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
-#iren.Start()
+iren.Start()
 # --- end of script --

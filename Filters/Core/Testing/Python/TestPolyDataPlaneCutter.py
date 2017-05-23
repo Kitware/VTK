@@ -6,8 +6,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 res = 50
 
-# Create the RenderWindow, Renderer and both Actors
-#
+# Create the RenderWindow, Renderers and both Actors
 ren0 = vtk.vtkRenderer()
 ren1 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
@@ -19,14 +18,14 @@ iren.SetRenderWindow(renWin)
 
 # Create a synthetic sphere
 sphere = vtk.vtkSphereSource()
-sphere.SetCenter( 0.0,0.0,0.0)
+sphere.SetCenter(0.0, 0.0, 0.0)
 sphere.SetRadius(0.25)
 sphere.Update()
 
 # The cut plane
 plane = vtk.vtkPlane()
-plane.SetOrigin(0,0,0)
-plane.SetNormal(1,1,1)
+plane.SetOrigin(0, 0, 0)
+plane.SetNormal(1, 1, 1)
 
 # Now create the usual cutter
 cutter = vtk.vtkCutter()
@@ -39,7 +38,7 @@ cutterMapper.ScalarVisibilityOff()
 
 cutterActor = vtk.vtkActor()
 cutterActor.SetMapper(cutterMapper)
-cutterActor.GetProperty().SetColor(1,1,1)
+cutterActor.GetProperty().SetColor(1, 1, 1)
 
 # Throw in an outline
 outline = vtk.vtkOutlineFilter()
@@ -62,7 +61,7 @@ sCutterMapper.ScalarVisibilityOff()
 
 sCutterActor = vtk.vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
-sCutterActor.GetProperty().SetColor(1,1,1)
+sCutterActor.GetProperty().SetColor(1, 1, 1)
 
 outlineT = vtk.vtkOutlineFilter()
 outlineT.SetInputConnection(sphere.GetOutputPort())
@@ -95,21 +94,20 @@ SC = sCutter_timer.GetElapsedWallClockTime()
 print ("vtkPlaneCutter:", SC)
 
 # Add the actors to the renderer, set the background and size
-#
 ren0.AddActor(outlineActor)
 ren0.AddActor(cutterActor)
 ren1.AddActor(outlineActorT)
 ren1.AddActor(sCutterActor)
 
-ren0.SetBackground(0,0,0)
-ren1.SetBackground(0,0,0)
-ren0.SetViewport(0,0,0.5,1);
-ren1.SetViewport(0.5,0,1,1);
-renWin.SetSize(600,300)
+ren0.SetBackground(0, 0, 0)
+ren1.SetBackground(0, 0, 0)
+ren0.SetViewport(0, 0, 0.5, 1);
+ren1.SetViewport(0.5, 0, 1, 1);
+renWin.SetSize(600, 300)
 ren0.ResetCamera()
 ren1.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
-#iren.Start()
+iren.Start()
 # --- end of script --

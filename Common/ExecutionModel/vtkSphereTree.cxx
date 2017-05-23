@@ -1264,7 +1264,7 @@ BuildStructuredHierarchy(vtkStructuredGrid *input, double *tree)
   sH->Resolution = resolution;
   sH->GridSize = size[curLevel-1];
   sH->GridDims[0] = lDims[curLevel-1][0];
-  sH->GridDims[1] = lDims[curLevel-1][1];
+  sH->GridDims[1] = lDims[curLevel - 1][1];
   sH->GridDims[2] = lDims[curLevel-1][2];
   sH->GridSpheres = spheres[curLevel-1];
 

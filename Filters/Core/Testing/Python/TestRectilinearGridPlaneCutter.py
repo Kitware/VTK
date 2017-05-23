@@ -7,8 +7,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Control debugging parameters
 res = 50
 
-# Create the RenderWindow, Renderer
-#
+# Create the RenderWindow, Renderers
 ren0 = vtk.vtkRenderer()
 ren1 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
@@ -20,20 +19,19 @@ iren.SetRenderWindow(renWin)
 
 # Create a synthetic source: sample a sphere across a volume
 sphere = vtk.vtkSphere()
-sphere.SetCenter(0.0,0.0,0.0)
+sphere.SetCenter(0.0, 0.0, 0.0)
 sphere.SetRadius(0.25)
 
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
-sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(res,res,res)
+sample.SetModelBounds(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5)
+sample.SetSampleDimensions(res, res, res)
 sample.Update()
 
-# Handy dandy filter converts image data to structured grid
+# Converts image data to structured grid
 convert = vtk.vtkImageDataToPointSet()
 convert.SetInputConnection(sample.GetOutputPort())
 convert.Update()
-#input = convert.GetOutput()
 
 cthvtr = vtk.vtkXMLRectilinearGridReader()
 cthvtr.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cth.vtr")
@@ -44,7 +42,7 @@ input = cthvtr.GetOutput()
 # Create a cutting plane
 plane = vtk.vtkPlane()
 plane.SetOrigin(input.GetCenter())
-plane.SetNormal(1,1,1)
+plane.SetNormal(1, 1, 1)
 
 # First create the usual cutter
 cutter = vtk.vtkCutter()
@@ -57,7 +55,7 @@ cutterMapper.ScalarVisibilityOff()
 
 cutterActor = vtk.vtkActor()
 cutterActor.SetMapper(cutterMapper)
-cutterActor.GetProperty().SetColor(1,1,1)
+cutterActor.GetProperty().SetColor(1, 1, 1)
 
 # Throw in an outline
 outline = vtk.vtkOutlineFilter()
@@ -80,7 +78,7 @@ sCutterMapper.ScalarVisibilityOff()
 
 sCutterActor = vtk.vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
-sCutterActor.GetProperty().SetColor(1,1,1)
+sCutterActor.GetProperty().SetColor(1, 1, 1)
 
 outlineT = vtk.vtkOutlineFilter()
 outlineT.SetInputData(input)
@@ -113,21 +111,20 @@ SC = sCutter_timer.GetElapsedWallClockTime()
 print ("vtkPlaneCutter:", SC)
 
 # Add the actors to the renderer, set the background and size
-#
 ren0.AddActor(outlineActor)
 ren0.AddActor(cutterActor)
 ren1.AddActor(outlineActorT)
 ren1.AddActor(sCutterActor)
 
-ren0.SetBackground(0,0,0)
-ren1.SetBackground(0,0,0)
-ren0.SetViewport(0,0,0.5,1);
-ren1.SetViewport(0.5,0,1,1);
-renWin.SetSize(600,300)
+ren0.SetBackground(0, 0, 0)
+ren1.SetBackground(0, 0, 0)
+ren0.SetViewport(0, 0, 0.5, 1);
+ren1.SetViewport(0.5, 0, 1, 1);
+renWin.SetSize(600, 300)
 ren0.ResetCamera()
 ren1.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
-#iren.Start()
+iren.Start()
 # --- end of script --
