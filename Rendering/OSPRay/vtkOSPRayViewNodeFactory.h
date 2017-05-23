@@ -33,7 +33,7 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayViewNodeFactory :
 public:
   static vtkOSPRayViewNodeFactory* New();
   vtkTypeMacro(vtkOSPRayViewNodeFactory, vtkViewNodeFactory);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkOSPRayViewNodeFactory();

@@ -36,7 +36,7 @@ public:
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass);
+  virtual void Render(bool prepass) VTK_OVERRIDE;
 
 protected:
   vtkOSPRayCameraNode();

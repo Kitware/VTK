@@ -33,12 +33,12 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkVolumeNode :
 public:
   static vtkVolumeNode* New();
   vtkTypeMacro(vtkVolumeNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass);
+  virtual void Build(bool prepass) VTK_OVERRIDE;
 
 protected:
   vtkVolumeNode();
