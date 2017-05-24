@@ -336,31 +336,23 @@ struct SetTuplesRangeWorker
 };
 
 template<typename InfoType, typename KeyType>
-bool hasValidKey(InfoType info, KeyType key,
-                   vtkMTimeType mtime, double range[2] )
+bool hasValidKey(InfoType info, KeyType key, double range[2])
 {
-  if ( info->Has( key ) )
+  if (info->Has(key))
   {
-    if ( mtime <= info->GetMTime() )
-    {
-      info->Get( key, range );
-      return true;
-    }
+    info->Get(key, range);
+    return true;
   }
   return false;
 }
 
 template<typename InfoType, typename KeyType, typename ComponentKeyType>
-bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey,
-                   vtkMTimeType mtime, double range[2], int comp )
+bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey, double range[2], int comp)
 {
-  if ( info->Has( key ) )
+  if (info->Has(key))
   {
-    if ( mtime <= info->GetMTime() )
-    {
-      info->Get( key )->GetInformationObject(comp)->Get( ckey, range );
-      return true;
-    }
+    info->Get(key)->GetInformationObject(comp)->Get(ckey, range);
+    return true;
   }
   return false;
 }
@@ -369,6 +361,7 @@ bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey,
 
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
+vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_FINITE_RANGE, DoubleVector, 2);
 vtkInformationKeyMacro(vtkDataArray, UNITS_LABEL, String);
 
 //----------------------------------------------------------------------------
@@ -376,7 +369,6 @@ vtkInformationKeyMacro(vtkDataArray, UNITS_LABEL, String);
 vtkDataArray::vtkDataArray()
 {
   this->LookupTable = NULL;
-  this->FiniteInformation = NULL;
   this->Range[0] = 0;
   this->Range[1] = 0;
   this->FiniteRange[0] = 0;
@@ -391,7 +383,6 @@ vtkDataArray::~vtkDataArray()
     this->LookupTable->Delete();
   }
   this->SetName(0);
-  this->SetFiniteInformation(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -1294,35 +1285,6 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1,
 }
 
 //----------------------------------------------------------------------------
-vtkInformation* vtkDataArray::GetFiniteInformation()
-{
-  if ( ! this->FiniteInformation )
-  {
-    vtkInformation* info = vtkInformation::New();
-    this->SetFiniteInformation( info );
-    info->FastDelete();
-  }
-  return this->FiniteInformation;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataArray::SetFiniteInformation(vtkInformation *args)
-{
-  // Same as in vtkCxxSetObjectMacro, but no Modified() so that
-  // this doesn't cause extra pipeline updates.
-  if (this->FiniteInformation != args)
-  {
-    vtkInformation* tempSGMacroVar = this->FiniteInformation;
-    this->FiniteInformation = args;
-    if (this->FiniteInformation != NULL) { this->FiniteInformation->Register(this); }
-    if (tempSGMacroVar != NULL)
-    {
-      tempSGMacroVar->UnRegister(this);
-    }
-  }
-}
-
-//----------------------------------------------------------------------------
 unsigned long vtkDataArray::GetActualMemorySize()
 {
   vtkIdType numPrims;
@@ -1522,13 +1484,13 @@ void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
   range[0] = vtkTypeTraits<double>::Max();
   range[1] = vtkTypeTraits<double>::Min();
 
-  vtkInformation* info = this->GetFiniteInformation();
+  vtkInformation* info = this->GetInformation();
   vtkInformationDoubleVectorKey* rkey;
   if ( comp < 0 )
   {
-    rkey = L2_NORM_RANGE();
+    rkey = L2_NORM_FINITE_RANGE();
     //hasValidKey will update range to the cached value if it exists.
-    if( !hasValidKey(info,rkey,this->GetMTime(),range) )
+    if( !hasValidKey(info,rkey,range) )
     {
 
       this->ComputeFiniteVectorRange(range);
@@ -1541,8 +1503,7 @@ void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
     rkey = COMPONENT_RANGE();
 
     //hasValidKey will update range to the cached value if it exists.
-    if( !hasValidKey(info, PER_COMPONENT(), rkey,
-                       this->GetMTime(), range, comp))
+    if( !hasValidKey(info, PER_COMPONENT(), rkey, range, comp))
     {
       double* allCompRanges = new double[this->NumberOfComponents*2];
       const bool computed = this->ComputeFiniteScalarRange(allCompRanges);
@@ -1594,7 +1555,7 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
   {
     rkey = L2_NORM_RANGE();
     // hasValidKey will update range to the cached value if it exists.
-    if (!hasValidKey(info, rkey, this->GetMTime(), range))
+    if (!hasValidKey(info, rkey, range))
     {
       this->ComputeVectorRange(range);
       info->Set(rkey, range, 2);
@@ -1606,8 +1567,7 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
     rkey = COMPONENT_RANGE();
 
     // hasValidKey will update range to the cached value if it exists.
-    if (!hasValidKey(info, PER_COMPONENT(), rkey,
-                     this->GetMTime(), range, comp))
+    if (!hasValidKey(info, PER_COMPONENT(), rkey, range, comp))
     {
       double* allCompRanges = new double[this->NumberOfComponents*2];
       const bool computed = this->ComputeScalarRange(allCompRanges);
@@ -1633,6 +1593,17 @@ void vtkDataArray::ComputeRange(double range[2], int comp)
       delete[] allCompRanges;
     }
   }
+}
+
+//----------------------------------------------------------------------------
+// call modified on superclass
+void vtkDataArray::Modified()
+{
+    vtkInformation *info = this->GetInformation();
+    // Clear key-value pairs that are now out of date.
+    info->Remove(L2_NORM_RANGE());
+    info->Remove(L2_NORM_FINITE_RANGE());
+    this->Superclass::Modified();
 }
 
 namespace

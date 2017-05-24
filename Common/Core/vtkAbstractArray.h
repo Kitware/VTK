@@ -568,11 +568,28 @@ public:
    * {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN} or (2) call ComputeUniqueValues(component)
    * and ComputeRange(component) <b>before</b> modifying the information object.
    * Otherwise it is possible for modifications to the array to take place
-   * without the bounds on the component being updated since the modification
-   * time of the vtkInformation object is used to determine when the
-   * COMPONENT_RANGE values are out of date.
+   * without the bounds on the component being updated.
    */
   static vtkInformationInformationVectorKey* PER_COMPONENT();
+
+  /**
+   * This key is used to hold a vector of COMPONENT_VALUES (and, for
+   * vtkDataArray subclasses, COMPONENT_RANGE) keys -- one
+   * for each component of the array.  You may add additional per-component
+   * key-value pairs to information objects in this vector. However if you
+   * do so, you must be sure to either (1) set COMPONENT_VALUES to
+   * an invalid variant and set COMPONENT_RANGE to
+   * {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN} or (2) call ComputeUniqueValues(component)
+   * and ComputeFiniteRange(component) <b>before</b> modifying the information object.
+   * Otherwise it is possible for modifications to the array to take place
+   * without the bounds on the component being updated.
+   */
+  static vtkInformationInformationVectorKey* PER_FINITE_COMPONENT();
+
+  /**
+   * Removes out-of-date PER_COMPONENT() and PER_FINITE_COMPONENT() values.
+   */
+  void Modified() VTK_OVERRIDE;
 
   /**
    * A key used to hold discrete values taken on either by the tuples of the
