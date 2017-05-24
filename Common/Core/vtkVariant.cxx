@@ -1089,7 +1089,7 @@ ostream& operator << ( ostream& os, const vtkVariant& val )
   case VTK_OBJECT:
     if ( val.Data.VTKObject )
     {
-      os << "(" << val.Data.VTKObject->GetClassName() << ")" << hex << val.Data.VTKObject;
+      os << "(" << val.Data.VTKObject->GetClassName() << ")" << hex << val.Data.VTKObject << dec;
     }
     else
     {
