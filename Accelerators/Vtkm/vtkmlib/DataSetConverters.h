@@ -33,10 +33,6 @@ namespace tovtkm {
 VTKACCELERATORSVTKM_EXPORT
 vtkm::cont::CoordinateSystem Convert(vtkPoints* points);
 
-// convert an image data type
-VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DataSet Convert(vtkImageData* input);
-
 // convert an structured grid type
 VTKACCELERATORSVTKM_EXPORT
 vtkm::cont::DataSet Convert(vtkStructuredGrid* input);
