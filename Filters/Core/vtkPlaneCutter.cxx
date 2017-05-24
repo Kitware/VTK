@@ -1329,7 +1329,7 @@ int vtkPlaneCutter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 int vtkPlaneCutter::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
 
@@ -1349,12 +1349,45 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Executing plane cutter");
 
   // get the input and output
-  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
+  vtkDataObject* input = vtkDataObject::GetData(inputVector[0]);
+  vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input);
+  vtkCompositeDataSet* hdInput = vtkCompositeDataSet::SafeDownCast(input);
   vtkMultiBlockDataSet* mb =
     vtkMultiBlockDataSet::SafeDownCast(vtkDataObject::GetData(outputVector));
-  vtkNew<vtkMultiPieceDataSet> output;
-  mb->SetBlock(0, output.Get());
 
+  if (dsInput)
+  {
+    vtkNew<vtkMultiPieceDataSet> output;
+    mb->SetBlock(0, output.Get());
+    return this->ExecuteDataSet(dsInput, output.Get());
+  }
+  else if(hdInput)
+  {
+    mb->CopyStructure(hdInput);
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(hdInput->NewIterator());
+    iter->SkipEmptyNodesOn();
+    int ret = 0;
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      vtkDataSet* hdLeafInput = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      vtkNew<vtkMultiPieceDataSet> output;
+      ret += this->ExecuteDataSet(hdLeafInput, output.Get());
+      mb->SetDataSet(iter, output.Get());
+    }
+    return ret;
+  }
+  else
+  {
+    vtkErrorMacro("Unrecognized input type :" << input->GetClassName());
+    return 0;
+  }
+}
+
+//----------------------------------------------------------------------------
+// This method delegates to the appropriate algorithm
+int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* output)
+{
   vtkPlane* plane = this->Plane;
   if (this->Plane == nullptr)
   {
@@ -1440,7 +1473,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
   {
     StructuredFunctor functor(input,
-      output.Get(),
+      output,
       plane,
       this->SphereTree,
       planeOrigin,
@@ -1453,7 +1486,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
   {
     RectilinearFunctor functor(input,
-      output.Get(),
+      output,
       plane,
       this->SphereTree,
       planeOrigin,
@@ -1466,7 +1499,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   else // use generic explicit algorithm
   {
     PointSetFunctor functor(input,
-      output.Get(),
+      output,
       plane,
       this->SphereTree,
       planeOrigin,
