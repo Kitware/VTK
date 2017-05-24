@@ -17,31 +17,32 @@
 #include "vtkMultiBlockPLOT3DReader.h"
 
 #include "vtkByteSwap.h"
+#include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDoubleArray.h"
+#include "vtkDummyController.h"
 #include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkIdList.h"
-#include "vtkCellData.h"
-#include "vtkMultiProcessController.h"
-#include "vtkDummyController.h"
-#include "vtkNew.h"
 
 #include "vtkMultiBlockPLOT3DReaderInternals.h"
 
 vtkObjectFactoryNewMacro(vtkMultiBlockPLOT3DReader);
-
+vtkInformationKeyMacro(vtkMultiBlockPLOT3DReader, INTERMEDIATE_RESULT, Integer);
 vtkCxxSetObjectMacro(vtkMultiBlockPLOT3DReader,
                      Controller,
                      vtkMultiProcessController);
@@ -201,6 +202,8 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
   this->R = 1.0;
   this->Gamma = 1.4;
   this->GammaInf = this->Gamma;
+
+  this->PreserveIntermediateFunctions = true;
 
   this->FunctionList = vtkIntArray::New();
 
@@ -1877,6 +1880,12 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           }
         }
       }
+      // Remove intermediate results, if requested.
+      if (this->PreserveIntermediateFunctions == false)
+      {
+        this->RemoveIntermediateFunctions(nthOutput->GetPointData());
+        this->RemoveIntermediateFunctions(nthOutput->GetCellData());
+      }
       this->AssignAttribute(this->ScalarFunctionNumber, nthOutput,
                             vtkDataSetAttributes::SCALARS);
       this->AssignAttribute(this->VectorFunctionNumber, nthOutput,
@@ -2018,72 +2027,117 @@ void vtkMultiBlockPLOT3DReader::MapFunction(int fNumber, vtkStructuredGrid* outp
       break;
 
     case 110: //Pressure
-      this->ComputePressure(output);
+      if (vtkDataArray* dataArray = this->ComputePressure(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 111: // Pressure Coefficient
-      this->ComputePressureCoefficient(output);
+      if (vtkDataArray* dataArray = this->ComputePressureCoefficient(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 112: // Mach Number
-      this->ComputeMachNumber(output);
+      if (vtkDataArray* dataArray = this->ComputeMachNumber(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 113: // Sound Speed
-      this->ComputeSoundSpeed(output);
+      if (vtkDataArray* dataArray = this->ComputeSoundSpeed(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 120: //Temperature
-      this->ComputeTemperature(output);
+      if (vtkDataArray* dataArray = this->ComputeTemperature(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 130: //Enthalpy
-      this->ComputeEnthalpy(output);
+      if (vtkDataArray* dataArray = this->ComputeEnthalpy(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 140: //Internal Energy
       break;
 
     case 144: //Kinetic Energy
-      this->ComputeKineticEnergy(output);
+      if (vtkDataArray* dataArray = this->ComputeKineticEnergy(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 153: //Velocity Magnitude
-      this->ComputeVelocityMagnitude(output);
+      if (vtkDataArray* dataArray = this->ComputeVelocityMagnitude(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 163: //Stagnation energy
       break;
 
     case 170: //Entropy
-      this->ComputeEntropy(output);
+      if (vtkDataArray* dataArray = this->ComputeEntropy(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 184: //Swirl
-      this->ComputeSwirl(output);
+      if (vtkDataArray* dataArray = this->ComputeSwirl(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 200: //Velocity
-      this->ComputeVelocity(output);
+      if (vtkDataArray* dataArray = this->ComputeVelocity(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 201: //Vorticity
-      this->ComputeVorticity(output);
+      if (vtkDataArray* dataArray = this->ComputeVorticity(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 202: //Momentum
       break;
 
     case 210: //PressureGradient
-      this->ComputePressureGradient(output);
+      if (vtkDataArray* dataArray = this->ComputePressureGradient(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 211: // Vorticity Magnitude
-      this->ComputeVorticityMagnitude(output);
+      if (vtkDataArray* dataArray = this->ComputeVorticityMagnitude(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 212: // Strain Rate
-      this->ComputeStrainRate(output);
+      if (vtkDataArray* dataArray = this->ComputeStrainRate(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     default:
@@ -2176,7 +2230,7 @@ void vtkMultiBlockPLOT3DReader::AssignAttribute(int fNumber, vtkStructuredGrid* 
   }
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
 {
   double *m, e, rr, u, v, w, v2, p, d, rrgas;
   vtkIdType i;
@@ -2185,10 +2239,10 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("Temperature"))
+  if ((temperature = outputPD->GetArray("Temperature")))
   {
     // already computed.
-    return;
+    return temperature;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
@@ -2199,7 +2253,7 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
        energy == NULL )
   {
     vtkErrorMacro(<<"Cannot compute temperature");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -2225,13 +2279,14 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
   }
 
   temperature->SetName("Temperature");
+  temperature->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(temperature);
-
   temperature->Delete();
   vtkDebugMacro(<<"Created temperature scalar");
+  return temperature;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, p, d, rr;
   vtkIdType i;
@@ -2248,13 +2303,13 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
        energy == NULL )
   {
     vtkErrorMacro(<<"Cannot compute pressure");
-    return;
+    return nullptr;
   }
 
-  if (outputPD->GetArray("Pressure"))
+  if ((pressure = outputPD->GetArray("Pressure")))
   {
     // already computed.
-    return;
+    return pressure;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -2279,12 +2334,14 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
   }
 
   pressure->SetName("Pressure");
+  pressure->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(pressure);
   pressure->Delete();
   vtkDebugMacro(<<"Created pressure scalar");
+  return pressure;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, d, rr;
   vtkIdType i;
@@ -2293,10 +2350,10 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("Enthalpy"))
+  if ((enthalpy = outputPD->GetArray("Enthalpy")))
   {
     // already computed
-    return;
+    return enthalpy;
   }
 
   vtkDataArray* density = outputPD->GetArray("Density");
@@ -2307,7 +2364,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
        energy == NULL )
   {
     vtkErrorMacro(<<"Cannot compute enthalpy");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -2330,12 +2387,14 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
     enthalpy->SetTuple1(i, this->GetGamma(i, gamma)*(e*rr - 0.5*v2));
   }
   enthalpy->SetName("Enthalpy");
+  enthalpy->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(enthalpy);
   enthalpy->Delete();
   vtkDebugMacro(<<"Created enthalpy scalar");
+  return enthalpy;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr;
   vtkIdType i;
@@ -2344,17 +2403,17 @@ void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("KineticEnergy"))
+  if ((kineticEnergy = outputPD->GetArray("KineticEnergy")))
   {
     // already computed
-    return;
+    return kineticEnergy;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   if ( density == NULL || momentum == NULL )
   {
     vtkErrorMacro(<<"Cannot compute kinetic energy");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -2376,12 +2435,14 @@ void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
     kineticEnergy->SetTuple1(i, 0.5*v2);
   }
   kineticEnergy->SetName("KineticEnergy");
+  kineticEnergy->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(kineticEnergy);
   kineticEnergy->Delete();
   vtkDebugMacro(<<"Created kinetic energy scalar");
+  return kineticEnergy;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr;
   vtkIdType i;
@@ -2390,10 +2451,10 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* outp
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("VelocityMagnitude"))
+  if ((velocityMag = outputPD->GetArray("VelocityMagnitude")))
   {
     // already computed.
-    return;
+    return velocityMag;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
@@ -2402,7 +2463,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* outp
        energy == NULL )
   {
     vtkErrorMacro(<<"Cannot compute velocity magnitude");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -2424,12 +2485,14 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* outp
     velocityMag->SetTuple1(i, sqrt((double)v2));
   }
   velocityMag->SetName("VelocityMagnitude");
+  velocityMag->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(velocityMag);
   velocityMag->Delete();
   vtkDebugMacro(<<"Created velocity magnitude scalar");
+  return velocityMag;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
 {
   double *m, u, v, w, v2, d, rr, s, p, e;
   vtkIdType i;
@@ -2438,10 +2501,10 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("Entropy"))
+  if ((entropy = outputPD->GetArray("Entropy")))
   {
     // already computed.
-    return;
+    return entropy;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
@@ -2451,7 +2514,7 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
        energy == NULL )
   {
     vtkErrorMacro(<<"Cannot compute entropy");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -2480,14 +2543,15 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
     entropy->SetTuple1(i,s);
   }
   entropy->SetName("Entropy");
+  entropy->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(entropy);
   entropy->Delete();
   vtkDebugMacro(<<"Created entropy scalar");
+  return entropy;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
 {
-  vtkDataArray *vorticity;
   double d, rr, *m, u, v, w, v2, *vort, s;
   vtkIdType i;
   vtkDataArray *swirl;
@@ -2495,27 +2559,25 @@ void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("Swirl"))
+  if ((swirl = outputPD->GetArray("Swirl")))
   {
     // already computed.
-    return;
+    return swirl;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
+  vtkDataArray* vorticity = this->ComputeVorticity(output);
+  if (density == NULL || momentum == NULL || energy == NULL || vorticity == NULL)
   {
     vtkErrorMacro(<<"Cannot compute swirl");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
   swirl = this->NewFloatArray();
   swirl->SetNumberOfTuples(numPts);
 
-  this->ComputeVorticity(output);
-  vorticity = outputPD->GetArray("Vorticity");
 //
 //  Compute the swirl
 //
@@ -2542,14 +2604,15 @@ void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
     swirl->SetTuple1(i,s);
   }
   swirl->SetName("Swirl");
+  swirl->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(swirl);
   swirl->Delete();
   vtkDebugMacro(<<"Created swirl scalar");
-
+  return swirl;
 }
 
 // Vector functions
-void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
 {
   double *m, v[3], d, rr;
   vtkIdType i;
@@ -2558,10 +2621,10 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("Velocity"))
+  if ((velocity = outputPD->GetArray("Velocity")))
   {
     // already computed.
-    return;
+    return velocity;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
@@ -2570,7 +2633,7 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
        energy == NULL )
   {
     vtkErrorMacro(<<"Cannot compute velocity");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -2592,14 +2655,15 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
     velocity->SetTuple(i, v);
   }
   velocity->SetName("Velocity");
+  velocity->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(velocity);
   velocity->Delete();
   vtkDebugMacro(<<"Created velocity vector");
+  return velocity;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
 {
-  vtkDataArray *velocity;
   vtkDataArray *vorticity;
   int dims[3], ijsize;
   vtkPoints *points;
@@ -2613,29 +2677,26 @@ void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("Vorticity"))
+  if ((vorticity = outputPD->GetArray("Vorticity")))
   {
     // already computed.
-    return;
+    return vorticity;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( (points=output->GetPoints()) == NULL ||
-       density == NULL || momentum == NULL ||
-       energy == NULL )
+  vtkDataArray* velocity = this->ComputeVelocity(output);
+  if ((points = output->GetPoints()) == NULL || density == NULL || momentum == NULL ||
+    energy == NULL || velocity == NULL)
   {
     vtkErrorMacro(<<"Cannot compute vorticity");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
   vorticity = this->NewFloatArray();
   vorticity->SetNumberOfComponents(3);
   vorticity->SetNumberOfTuples(numPts);
-
-  this->ComputeVelocity(output);
-  velocity = outputPD->GetArray("Velocity");
 
   output->GetDimensions(dims);
   ijsize = dims[0]*dims[1];
@@ -2829,14 +2890,15 @@ void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
     }
   }
   vorticity->SetName("Vorticity");
+  vorticity->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(vorticity);
   vorticity->Delete();
   vtkDebugMacro(<<"Created vorticity vector");
+  return vorticity;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
 {
-  vtkDataArray *pressure;
   vtkDataArray *gradient;
   int dims[3], ijsize;
   vtkPoints *points;
@@ -2850,29 +2912,26 @@ void vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* outpu
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("PressureGradient"))
+  if ((gradient = outputPD->GetArray("PressureGradient")))
   {
     // already computed.
-    return;
+    return gradient;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( (points=output->GetPoints()) == NULL ||
-       density == NULL || momentum == NULL ||
-       energy == NULL )
+  vtkDataArray* pressure = this->ComputePressure(output);
+  if ((points = output->GetPoints()) == NULL || density == NULL || momentum == NULL ||
+    energy == NULL || pressure == NULL)
   {
     vtkErrorMacro(<<"Cannot compute pressure gradient");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
   gradient = this->NewFloatArray();
   gradient->SetNumberOfComponents(3);
   gradient->SetNumberOfTuples(numPts);
-
-  this->ComputePressure(output);
-  pressure = outputPD->GetArray("Pressure");
 
   output->GetDimensions(dims);
   ijsize = dims[0]*dims[1];
@@ -3059,12 +3118,14 @@ void vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* outpu
     }
   }
   gradient->SetName("PressureGradient");
+  gradient->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(gradient);
   gradient->Delete();
   vtkDebugMacro(<<"Created pressure gradient vector");
+  return gradient;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, p, d, g, rr, pc, gi, pi, fsm, den;
   vtkIdType i;
@@ -3074,9 +3135,9 @@ void vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* ou
   vtkPointData* outputPD = output->GetPointData();
   vtkFieldData* outputFD = output->GetFieldData();
   // It's already computed
-  if (outputPD->GetArray("PressureCoefficient"))
+  if (vtkDataArray* pressure_coeff = outputPD->GetArray("PressureCoefficient"))
   {
-    return;
+    return pressure_coeff;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
@@ -3087,7 +3148,7 @@ void vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* ou
        energy == NULL || props == NULL)
   {
     vtkErrorMacro(<<"Cannot compute pressure coefficient");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -3117,12 +3178,14 @@ void vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* ou
   }
 
   pressure_coeff->SetName("PressureCoefficient");
+  pressure_coeff->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(pressure_coeff);
   pressure_coeff->Delete();
   vtkDebugMacro(<<"Created pressure coefficient scalar");
+  return pressure_coeff;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, a2, d, g, rr;
   vtkIdType i;
@@ -3131,9 +3194,9 @@ void vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
   //
   vtkPointData* outputPD = output->GetPointData();
   // It's already computed
-  if (outputPD->GetArray("MachNumber"))
+  if (vtkDataArray* machnumber = outputPD->GetArray("MachNumber"))
   {
-    return;
+    return machnumber;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
@@ -3143,7 +3206,7 @@ void vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
        energy == NULL)
   {
     vtkErrorMacro(<<"Cannot compute mach number");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -3169,12 +3232,14 @@ void vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
   }
 
   machnumber->SetName("MachNumber");
+  machnumber->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(machnumber);
   machnumber->Delete();
   vtkDebugMacro(<<"Created mach number scalar");
+  return machnumber;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
 {
   double *m, e, u, v, w, v2, p, d, g, rr;
   vtkIdType i;
@@ -3183,9 +3248,9 @@ void vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
   //
   vtkPointData* outputPD = output->GetPointData();
   // It's already computed
-  if (outputPD->GetArray("SoundSpeed"))
+  if (vtkDataArray* soundspeed = outputPD->GetArray("SoundSpeed"))
   {
-    return;
+    return soundspeed;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
@@ -3195,7 +3260,7 @@ void vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
        energy == NULL)
   {
     vtkErrorMacro(<<"Cannot compute sound speed");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -3221,21 +3286,27 @@ void vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
   }
 
   soundspeed->SetName("SoundSpeed");
+  soundspeed->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(soundspeed);
   soundspeed->Delete();
   vtkDebugMacro(<<"Created sound speed scalar");
+  return soundspeed;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeVorticityMagnitude(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVorticityMagnitude(vtkStructuredGrid* output)
 {
   vtkPointData* outputPD = output->GetPointData();
   // It's already computed
-  if (outputPD->GetArray("VorticityMagnitude"))
+  if (vtkDataArray* vm = outputPD->GetArray("VorticityMagnitude"))
   {
-    return;
+    return vm;
   }
-  this->ComputeVorticity(output);
-  vtkDataArray* vorticity = outputPD->GetArray("Vorticity");
+  vtkDataArray* vorticity = this->ComputeVorticity(output);
+  if (vorticity == nullptr)
+  {
+    vtkErrorMacro("Cannot compute vorticity magnitude.");
+    return nullptr;
+  }
   vtkDataArray* vm = this->NewFloatArray();
   vtkIdType numPts = vorticity->GetNumberOfTuples();
   vm->SetNumberOfTuples(numPts);
@@ -3247,13 +3318,14 @@ void vtkMultiBlockPLOT3DReader::ComputeVorticityMagnitude(vtkStructuredGrid* out
     vm->SetTuple1(idx, magnitude);
   }
   vm->SetName("VorticityMagnitude");
+  vm->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
   outputPD->AddArray(vm);
   vm->Delete();
+  return vm;
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeStrainRate(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeStrainRate(vtkStructuredGrid* output)
 {
-  vtkDataArray *velocity;
   int dims[3], ijsize;
   int i, j, k, idx, idx2, ii;
   double stRate[3], xp[3], xm[3], vp[3], vm[3], factor;
@@ -3265,16 +3337,17 @@ void vtkMultiBlockPLOT3DReader::ComputeStrainRate(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("StrainRate"))
+  if (vtkDataArray* strainRate = outputPD->GetArray("StrainRate"))
   {
-    return;
+    return strainRate;
   }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  if ( density == NULL || momentum == NULL )
+  vtkDataArray* velocity = this->ComputeVelocity(output);
+  if (density == NULL || momentum == NULL || velocity == NULL)
   {
     vtkErrorMacro("Cannot compute strain rate.");
-    return;
+    return nullptr;
   }
 
   vtkIdType numPts = density->GetNumberOfTuples();
@@ -3282,14 +3355,7 @@ void vtkMultiBlockPLOT3DReader::ComputeStrainRate(vtkStructuredGrid* output)
   strainRate->SetNumberOfComponents(3);
   strainRate->SetNumberOfTuples(numPts);
   strainRate->SetName("StrainRate");
-
-  this->ComputeVelocity(output);
-  velocity = outputPD->GetArray("Velocity");
-  if(!velocity)
-  {
-    vtkErrorMacro("Could not compute strain rate.");
-    return;
-  }
+  strainRate->GetInformation()->Set(INTERMEDIATE_RESULT(), 1);
 
   output->GetDimensions(dims);
   ijsize = dims[0]*dims[1];
@@ -3484,6 +3550,25 @@ void vtkMultiBlockPLOT3DReader::ComputeStrainRate(vtkStructuredGrid* output)
   }
   outputPD->AddArray(strainRate);
   strainRate->Delete();
+  return strainRate;
+}
+
+void vtkMultiBlockPLOT3DReader::RemoveIntermediateFunctions(vtkDataSetAttributes* dsa)
+{
+  assert(dsa != nullptr);
+  int max = dsa->GetNumberOfArrays();
+  for (int index = 0; index < max; ++index)
+  {
+    if (vtkAbstractArray* array = dsa->GetAbstractArray(index))
+    {
+      if (array->GetInformation()->Has(INTERMEDIATE_RESULT()))
+      {
+        dsa->RemoveArray(index);
+        index--;
+        max--;
+      }
+    }
+  }
 }
 
 void vtkMultiBlockPLOT3DReader::SetByteOrderToBigEndian()
@@ -3551,4 +3636,7 @@ void vtkMultiBlockPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "Double Precision:" << this->DoublePrecision << endl;
   os << indent << "Auto Detect Format: " << this->AutoDetectFormat << endl;
+  os << indent
+     << "PreserveIntermediateFunctions: " << (this->PreserveIntermediateFunctions ? "on" : "off")
+     << endl;
 }
