@@ -868,9 +868,12 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
     // Interpolate all point attributes on first point
     func->GetLastWeights(weights);
     InterpolatePoint(outputPD, inputPD, nextPoint, cell->PointIds, weights, this->HasMatchingPointAttributes);
+    // handle both point and cell velocity attributes.
+    vtkDataArray* outputVelocityVectors = outputPD->GetArray(vecName);
     if(vecType != vtkDataObject::POINT)
     {
       velocityVectors->InsertNextTuple(velocity);
+      outputVelocityVectors = velocityVectors;
     }
 
     // Compute vorticity if required
@@ -918,6 +921,16 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
       {
         retVal = OUT_OF_STEPS;
         break;
+      }
+
+      for (int i = 0; i < this->CustomTerminationCallback.size(); ++i)
+      {
+        if(this->CustomTerminationCallback[i](this->CustomTerminationClientData[i],
+                                              outputPoints, outputVelocityVectors, direction))
+        {
+          retVal = this->CustomReasonForTermination[i];
+          goto end_integration;
+        }
       }
 
       if ( numSteps++ % 1000 == 1 )
@@ -1110,9 +1123,8 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
       {
         stepSize.Interval = step;
       }
-
-      // End Integration
     }
+  end_integration:
 
     if (shouldAbort)
     {
@@ -1365,6 +1377,15 @@ int vtkStreamTracer::FillInputPortInformation(int port, vtkInformation *info)
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   }
   return 1;
+}
+
+void vtkStreamTracer::AddCustomTerminationCallback(
+  CustomTerminationCallbackType callback, void* clientdata, int reasonForTermination)
+{
+  this->CustomTerminationCallback.push_back(callback);
+  this->CustomTerminationClientData.push_back(clientdata);
+  this->CustomReasonForTermination.push_back(reasonForTermination);
+  this->Modified();
 }
 
 void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
