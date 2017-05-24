@@ -8,6 +8,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVTKMClipWithImplicitFunction.cxx
   # TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMExternalFaces.cxx
+  TestVTKMExtractVOI.cxx
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx

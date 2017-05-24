@@ -6,6 +6,7 @@ vtk_module(vtkAcceleratorsVTKm
     vtkCommonExecutionModel
     vtkFiltersGeneral
     vtkFiltersGeometry
+    vtkImagingCore
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
