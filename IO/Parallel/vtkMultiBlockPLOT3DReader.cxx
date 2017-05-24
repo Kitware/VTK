@@ -1252,6 +1252,34 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     }
   }
 
+  // Before we start reading, if we are using cached datasets, we
+  // need to make sure we release all field arrays otherwise we may end up
+  // with obsolete arrays (paraview/paraview#17467).
+  for (auto biter = this->Internal->Blocks.begin(); biter != this->Internal->Blocks.end(); ++biter)
+  {
+    if (vtkStructuredGrid* grid = biter->GetPointer())
+    {
+      // preserve ghost and blanking arrays since those are read from geometry
+      // file and not reread if using cache.
+      vtkSmartPointer<vtkDataArray> pIBlank = grid->GetPointData()->GetArray("IBlank");
+      vtkSmartPointer<vtkDataArray> cGhostArray = grid->GetCellData()->GetArray(
+          vtkDataSetAttributes::GhostArrayName());
+      // initialize
+      grid->GetCellData()->Initialize();
+      grid->GetPointData()->Initialize();
+      grid->GetFieldData()->Initialize();
+      // restore
+      if (pIBlank)
+      {
+        grid->GetPointData()->AddArray(pIBlank);
+      }
+      if (cGhostArray)
+      {
+        grid->GetCellData()->AddArray(cGhostArray);
+      }
+    }
+  }
+
   vtkNew<vtkExtentTranslator> et;
   et->SetPiece(rank);
   et->SetNumberOfPieces(size);
