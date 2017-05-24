@@ -2185,6 +2185,11 @@ void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("Temperature"))
+  {
+    // already computed.
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
@@ -2246,6 +2251,12 @@ void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
     return;
   }
 
+  if (outputPD->GetArray("Pressure"))
+  {
+    // already computed.
+    return;
+  }
+
   vtkIdType numPts = density->GetNumberOfTuples();
   pressure = this->NewFloatArray();
   pressure->SetNumberOfTuples(numPts);
@@ -2282,6 +2293,12 @@ void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("Enthalpy"))
+  {
+    // already computed
+    return;
+  }
+
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
@@ -2327,6 +2344,11 @@ void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("KineticEnergy"))
+  {
+    // already computed
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   if ( density == NULL || momentum == NULL )
@@ -2368,6 +2390,11 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* outp
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("VelocityMagnitude"))
+  {
+    // already computed.
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
@@ -2411,6 +2438,11 @@ void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("Entropy"))
+  {
+    // already computed.
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
@@ -2463,6 +2495,11 @@ void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("Swirl"))
+  {
+    // already computed.
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
@@ -2521,6 +2558,11 @@ void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("Velocity"))
+  {
+    // already computed.
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
@@ -2571,6 +2613,11 @@ void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("Vorticity"))
+  {
+    // already computed.
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
@@ -2803,6 +2850,11 @@ void vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* outpu
   //  Check that the required data is available
   //
   vtkPointData* outputPD = output->GetPointData();
+  if (outputPD->GetArray("PressureGradient"))
+  {
+    // already computed.
+    return;
+  }
   vtkDataArray* density = outputPD->GetArray("Density");
   vtkDataArray* momentum = outputPD->GetArray("Momentum");
   vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
