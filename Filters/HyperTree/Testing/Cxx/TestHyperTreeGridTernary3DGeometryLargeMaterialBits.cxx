@@ -14,7 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay and Joachim Pouderoux, Kitware 2013
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -25,6 +25,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -43,7 +44,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
     static KeyPressInteractorStyle* New();
     vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
 
-    void OnKeyPress() VTK_OVERRIDE
+    virtual void OnKeyPress() VTK_OVERRIDE
     {
       // Get the keypress
       vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -100,14 +101,14 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits( int argc, char* argv[] 
   htGrid->Update();
   timer->StopTimer();
   cout << "Tree created in " << timer->GetElapsedTime() << "s" << endl;
-  htGrid->GetOutput()->GetNumberOfCells();
+  htGrid->GetHyperTreeGridOutput()->GetNumberOfCells();
 
   timer->StartTimer();
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  vtkPolyData* pd = geometry->GetPolyDataOutput();
   timer->StopTimer();
   cout << "Geometry computed in " << timer->GetElapsedTime() << "s" <<  endl;
 

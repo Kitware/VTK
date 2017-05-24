@@ -207,6 +207,8 @@ int vtkCellTypeSource::RequestData(
   }
   output->SetPoints(points.GetPointer());
 
+  this->ComputeFields(output);
+
   switch(this->CellType)
   {
   case VTK_LINE:

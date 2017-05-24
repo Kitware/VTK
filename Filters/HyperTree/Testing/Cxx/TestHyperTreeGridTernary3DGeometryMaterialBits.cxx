@@ -14,7 +14,8 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay and Joachim Pouderoux, Kitware 2012
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test was revised by Philippe Pebay, 2016
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -25,6 +26,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -63,7 +65,7 @@ int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  vtkPolyData* pd = geometry->GetPolyDataOutput();
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
