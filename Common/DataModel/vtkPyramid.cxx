@@ -452,7 +452,10 @@ void vtkPyramid::Contour(double value, vtkDataArray *cellScalars,
     if ( pts[0] != pts[1] && pts[0] != pts[2] && pts[1] != pts[2] )
     {
       newCellId = offset + polys->InsertNextCell(3,pts);
-      outCd->CopyData(inCd,cellId,newCellId);
+      if (outCd)
+      {
+        outCd->CopyData(inCd, cellId, newCellId);
+      }
     }
   }
 }

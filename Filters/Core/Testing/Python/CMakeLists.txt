@@ -25,7 +25,9 @@ vtk_add_test_python(
   TestFlyingEdgesPlaneCutterInterpolation.py
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
+  TestPolyDataPlaneCutter.py
   TestProbeFilterImageInput.py
+  TestRectilinearGridPlaneCutter.py
   TestRectilinearSynchronizedTemplates.py
   TestScalarTrees.py
   TestSphereTreeFilter.py

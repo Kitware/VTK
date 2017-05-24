@@ -39,13 +39,11 @@
  * filter works well.
  *
  * @warning
- * If the data is image data(i.e., the VTK_SMP_IMPLEMENTATION_TYPE is
- * Sequential) then a vtkPolyData is produced as output. Otherwise a
- * vtkMultiBlockDataSet is created.
+ * This filter outputs a vtkMultiPieceDataSet.
  *
  * @warning
  * This filter delegates to vtkFlyingEdgesPlaneCutter to process image
- * data. Thus when processing a vtkImageData a single vtkPolyData is output.
+ * data, but output and input have been standardized when possible.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -59,8 +57,8 @@
 #ifndef vtkPlaneCutter_h
 #define vtkPlaneCutter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkPlane;
 class vtkImageData;
@@ -79,8 +77,8 @@ public:
   /**
    * Standard construction and print methods.
    */
-  static vtkPlaneCutter *New();
-  vtkTypeMacro(vtkPlaneCutter,vtkDataSetAlgorithm);
+  static vtkPlaneCutter* New();
+  vtkTypeMacro(vtkPlaneCutter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
@@ -96,7 +94,7 @@ public:
    * instance of vtkPlane.
    */
   virtual void SetPlane(vtkPlane*);
-  vtkGetObjectMacro(Plane,vtkPlane);
+  vtkGetObjectMacro(Plane, vtkPlane);
   //@}
 
   //@{
@@ -106,55 +104,69 @@ public:
    * associated with the output polygons. By default computing of normals is
    * disabled.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals, bool);
+  vtkGetMacro(ComputeNormals, bool);
+  vtkBooleanMacro(ComputeNormals, bool);
   //@}
 
   //@{
   /**
    * Indicate whether to interpolate attribute data. By default this is
    * enabled. Note that both cell data and point data is interpolated and
-   * output.
+   * outputted, except for image data input where only point data are outputted.
    */
-  vtkSetMacro(InterpolateAttributes,int);
-  vtkGetMacro(InterpolateAttributes,int);
-  vtkBooleanMacro(InterpolateAttributes,int);
+  vtkSetMacro(InterpolateAttributes, bool);
+  vtkGetMacro(InterpolateAttributes, bool);
+  vtkBooleanMacro(InterpolateAttributes, bool);
+  //@}
+
+  //@{
+  /**
+   * Indicate whether to generate polygons instead of triangles when cutting
+   * structured and rectilinear grid.
+   * No effect with other kinds of inputs, enabled by default.
+   */
+  vtkSetMacro(GeneratePolygons, bool);
+  vtkGetMacro(GeneratePolygons, bool);
+  vtkBooleanMacro(GeneratePolygons, bool);
   //@}
 
   /**
    * See vtkAlgorithm for details.
    */
-  int ProcessRequest(vtkInformation*, vtkInformationVector**,
-                     vtkInformationVector*) VTK_OVERRIDE;
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
   /**
    * Retrieve the sphere tree used to accelerate cutting. This API may
    * be changed in the future (i.e., use a general locator as compared
    * to a sphere tree).
    */
-  vtkGetObjectMacro(SphereTree,vtkSphereTree);
+  vtkGetObjectMacro(SphereTree, vtkSphereTree);
 
 protected:
   vtkPlaneCutter();
   ~vtkPlaneCutter() VTK_OVERRIDE;
 
-  vtkPlane *Plane;
-  int ComputeNormals;
-  int InterpolateAttributes;
+  vtkPlane* Plane;
+  bool ComputeNormals;
+  bool InterpolateAttributes;
+  bool GeneratePolygons;
 
   // Helpers
-  vtkSphereTree *SphereTree;
+  vtkSphereTree* SphereTree;
 
   // Pipeline-related methods
-  int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                        vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestDataObject(vtkInformation*,
+    vtkInformationVector**,
+    vtkInformationVector*) VTK_OVERRIDE;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*,
+    vtkInformationVector**,
+    vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
   int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+
+  static void AddNormalArray(double* planeNormal, vtkDataSet* ds);
 
 private:
   vtkPlaneCutter(const vtkPlaneCutter&) VTK_DELETE_FUNCTION;

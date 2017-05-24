@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import vtk
+from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
@@ -18,31 +19,35 @@ iren.SetRenderWindow(renWin)
 
 # Create a synthetic source: sample a sphere across a volume
 sphere = vtk.vtkSphere()
-sphere.SetCenter(0.0,0.0,0.0)
+sphere.SetCenter(0.0, 0.0, 0.0)
 sphere.SetRadius(0.25)
 
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
-sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(res,res,res)
+sample.SetModelBounds(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5)
+sample.SetSampleDimensions(res, res, res)
 sample.Update()
 
-# Handy dandy filter converts image data to structured grid
+# Converts image data to structured grid
 convert = vtk.vtkImageDataToPointSet()
 convert.SetInputConnection(sample.GetOutputPort())
 convert.Update()
-input = convert.GetOutput()
+
+cthvtr = vtk.vtkXMLRectilinearGridReader()
+cthvtr.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/cth.vtr")
+cthvtr.CellArrayStatus = ['Pressure', 'Void Volume Fraction', 'X Velocity', 'Y Velocity', 'Z Velocity', 'Volume Fraction for Armor Plate', 'Mass for Armor Plate', 'Volume Fraction for Body, Nose', 'Mass for Body, Nose']
+cthvtr.Update()
+input = cthvtr.GetOutput()
 
 # Create a cutting plane
 plane = vtk.vtkPlane()
 plane.SetOrigin(input.GetCenter())
-plane.SetNormal(1,1,1)
+plane.SetNormal(1, 1, 1)
 
 # First create the usual cutter
 cutter = vtk.vtkCutter()
 cutter.SetInputData(input)
 cutter.SetCutFunction(plane)
-cutter.GeneratePolygons = 0
 
 cutterMapper = vtk.vtkPolyDataMapper()
 cutterMapper.SetInputConnection(cutter.GetOutputPort())
@@ -50,7 +55,7 @@ cutterMapper.ScalarVisibilityOff()
 
 cutterActor = vtk.vtkActor()
 cutterActor.SetMapper(cutterMapper)
-cutterActor.GetProperty().SetColor(1,1,1)
+cutterActor.GetProperty().SetColor(1, 1, 1)
 
 # Throw in an outline
 outline = vtk.vtkOutlineFilter()
@@ -73,7 +78,7 @@ sCutterMapper.ScalarVisibilityOff()
 
 sCutterActor = vtk.vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
-sCutterActor.GetProperty().SetColor(1,1,1)
+sCutterActor.GetProperty().SetColor(1, 1, 1)
 
 outlineT = vtk.vtkOutlineFilter()
 outlineT.SetInputData(input)
@@ -111,11 +116,11 @@ ren0.AddActor(cutterActor)
 ren1.AddActor(outlineActorT)
 ren1.AddActor(sCutterActor)
 
-ren0.SetBackground(0,0,0)
-ren1.SetBackground(0,0,0)
-ren0.SetViewport(0,0,0.5,1);
-ren1.SetViewport(0.5,0,1,1);
-renWin.SetSize(600,300)
+ren0.SetBackground(0, 0, 0)
+ren1.SetBackground(0, 0, 0)
+ren0.SetViewport(0, 0, 0.5, 1);
+ren1.SetViewport(0.5, 0, 1, 1);
+renWin.SetSize(600, 300)
 ren0.ResetCamera()
 ren1.ResetCamera()
 iren.Initialize()
