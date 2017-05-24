@@ -122,7 +122,7 @@ int vtkInformationKey::Has(vtkInformation* info)
 //----------------------------------------------------------------------------
 void vtkInformationKey::Remove(vtkInformation* info)
 {
-  this->SetAsObjectBase(info, 0);
+  this->SetAsObjectBase(info, nullptr);
 }
 
 //----------------------------------------------------------------------------
