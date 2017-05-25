@@ -276,6 +276,14 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     }
   }
 
+  /* special case for the way vtkGenericDataArray template is used */
+  if (data && strcmp(data->Name, "vtkGenericDataArray") == 0)
+  {
+    fprintf(fp,
+      "#include \"vtkSOADataArrayTemplate.h\"\n"
+      "#include \"vtkAOSDataArrayTemplate.h\"\n");
+  }
+
   free((char **)types);
 }
 
