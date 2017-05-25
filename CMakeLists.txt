@@ -14,10 +14,10 @@ endif()
 project(VTK)
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: GCC >= 4.6
+# Minimum compiler version check: GCC >= 4.7
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.6)
-  message(FATAL_ERROR "GCC 4.6 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
+  message(FATAL_ERROR "GCC 4.7 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
