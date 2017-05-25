@@ -112,44 +112,53 @@ HierarchyEntry *vtkParseHierarchy_FindEntry(
 {
   HierarchyEntry key;
   HierarchyEntry *entry;
-  size_t i, n;
+  size_t i, n, m, l;
   char name[32];
-  char *cp;
+  char *cp = NULL;
 
   /* use classname as-is for the search if possible */
-  cp = (char *)classname;
+  key.Name = classname;
 
   /* get portion of name before final template parameters */
   n = vtkParse_UnscopedNameLength(classname);
-  i = 0;
-  while (classname[i+n] == ':' && classname[i+n+1] == ':')
+  m = vtkParse_IdentifierLength(classname);
+  while (classname[n] == ':' && classname[n+1] == ':')
   {
-    i += n + 2;
-    n = vtkParse_UnscopedNameLength(&classname[i]);
+    i = n + 2;
+    n += 2 + vtkParse_UnscopedNameLength(&classname[i]);
+    m += 2 + vtkParse_IdentifierLength(&classname[i]);
   }
-  i += vtkParse_IdentifierLength(&classname[i]);
 
-  /* create a new (shorter) search string if necessary */
-  if (classname[i] != '\0')
+  /* if n == m, no template args were found */
+  if (n != m)
   {
-    /* use stack space if possible */
+    /* need to remove template args: use stack space if possible */
     cp = name;
     /* otherwise, use malloc */
-    if (i > 31)
+    if (m > 31)
     {
-      cp = (char *)malloc(i+1);
+      cp = (char *)malloc(m+1);
     }
-    strncpy(cp, classname, i);
-    cp[i] = '\0';
+    n = vtkParse_UnscopedNameLength(classname);
+    m = vtkParse_IdentifierLength(classname);
+    strncpy(cp, classname, m);
+    while (classname[n] == ':' && classname[n+1] == ':')
+    {
+      i = n + 2;
+      n += 2 + vtkParse_UnscopedNameLength(&classname[i]);
+      l = 2 + vtkParse_IdentifierLength(&classname[i]);
+      strncpy(&cp[m], &classname[i-2], l);
+      m += l;
+    }
+    cp[m] = '\0';
+    key.Name = cp;
   }
-
-  key.Name = cp;
 
   entry = (HierarchyEntry *)bsearch(&key, info->Entries,
     info->NumberOfEntries, sizeof(HierarchyEntry),
     &compare_hierarchy_entries);
 
-  if (cp != classname && cp != name)
+  if (cp && cp != name)
   {
     free(cp);
   }
