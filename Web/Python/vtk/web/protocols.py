@@ -10,7 +10,9 @@ import os, sys, logging, types, inspect, traceback, logging, re
 
 from vtk.vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
 
-from autobahn.wamp import register as exportRpc
+# from autobahn.wamp import register as exportRpc
+from wslink import register as exportRpc
+from wslink.websocket import LinkProtocol
 
 # =============================================================================
 #
@@ -18,13 +20,14 @@ from autobahn.wamp import register as exportRpc
 #
 # =============================================================================
 
-class vtkWebProtocol(object):
-
-    def setApplication(self, app):
-        self.Application = app
+class vtkWebProtocol(LinkProtocol):
 
     def getApplication(self):
-        return self.Application
+        return self.getSharedObject("app")
+
+    # no need for a setApplication anymore, but keep for compatibility
+    def setApplication(self, app):
+        pass
 
     def mapIdToObject(self, id):
         """
@@ -34,13 +37,13 @@ class vtkWebProtocol(object):
         id = int(id)
         if id <= 0:
             return None
-        return self.Application.GetObjectIdMap().GetVTKObject(id)
+        return self.getApplication().GetObjectIdMap().GetVTKObject(id)
 
     def getGlobalId(self, obj):
         """
         Return the id for a given vtkObject
         """
-        return self.Application.GetObjectIdMap().GetGlobalId(obj)
+        return self.getApplication().GetObjectIdMap().GetGlobalId(obj)
 
     def getView(self, vid):
         """
@@ -53,7 +56,7 @@ class vtkWebProtocol(object):
 
         if not view:
             # Use active view is none provided.
-            view = self.Application.GetObjectIdMap().GetActiveObject("VIEW")
+            view = self.getApplication().GetObjectIdMap().GetActiveObject("VIEW")
         if not view:
             raise Exception("no view provided: " + vid)
 
@@ -63,7 +66,7 @@ class vtkWebProtocol(object):
         """
         Set a vtkRenderWindow to be the active one
         """
-        self.Application.GetObjectIdMap().SetActiveObject("VIEW", view)
+        self.getApplication().GetObjectIdMap().SetActiveObject("VIEW", view)
 
 # =============================================================================
 #
