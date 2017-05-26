@@ -60,15 +60,16 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
-class vtkPlane;
+class vtkCellArray;
+class vtkCellData;
 class vtkImageData;
+class vtkMultiPieceDataSet;
+class vtkPlane;
+class vtkPointData;
+class vtkPoints;
+class vtkSphereTree;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
-class vtkSphereTree;
-class vtkPoints;
-class vtkCellArray;
-class vtkPointData;
-class vtkCellData;
 
 class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataSetAlgorithm
 {
@@ -165,6 +166,8 @@ protected:
     vtkInformationVector*) VTK_OVERRIDE;
   int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
   int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+
+  virtual int ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* output);
 
   static void AddNormalArray(double* planeNormal, vtkDataSet* ds);
 
