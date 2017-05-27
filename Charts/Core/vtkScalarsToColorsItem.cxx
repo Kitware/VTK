@@ -173,7 +173,8 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     trapezoids->Delete();
   }
 
-  if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
+  if (this->PolyLinePen->GetLineType() != vtkPen::NO_PEN
+    && size >= 2)
   {
     const vtkRectd& ss = this->ShiftScale;
 

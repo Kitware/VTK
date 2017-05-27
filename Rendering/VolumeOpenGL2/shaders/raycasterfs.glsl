@@ -66,9 +66,13 @@ uniform vec4 in_volume_bias;
 
 //VTK::CompositeMask::Dec
 
+//VTK::GradientCache::Dec
+
 //VTK::ComputeOpacity::Dec
 
 //VTK::ComputeGradient::Dec
+
+//VTK::ComputeGradientOpacity1D::Dec
 
 //VTK::ComputeLighting::Dec
 
@@ -189,6 +193,8 @@ vec4 castRay(const float zStart, const float zEnd)
     //VTK::BinaryMask::Impl
 
     //VTK::CompositeMask::Impl
+
+    //VTK::PreComputeGradients::Impl
 
     //VTK::Shading::Impl
 
