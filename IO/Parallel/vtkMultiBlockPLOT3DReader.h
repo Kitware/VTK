@@ -91,11 +91,12 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkDataArray;
-class vtkUnsignedCharArray;
+class vtkDataSetAttributes;
 class vtkIntArray;
-class vtkStructuredGrid;
-class vtkMultiProcessController;
 class vtkMultiBlockPLOT3DReaderRecord;
+class vtkMultiProcessController;
+class vtkStructuredGrid;
+class vtkUnsignedCharArray;
 struct vtkMultiBlockPLOT3DReaderInternals;
 
 class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm
@@ -256,6 +257,19 @@ public:
 
   //@{
   /**
+   * When set to true (default), the reader will preserve intermediate computed
+   * quantities that were not explicitly requested e.g. if `VelocityMagnitude` is
+   * enabled, but not `Velocity`, the reader still needs to compute `Velocity`.
+   * If `PreserveIntermediateFunctions` if false, then the output will not have
+   * `Velocity` array, only the requested `VelocityMagnitude`. This is useful to
+   * avoid using up memory for arrays that are not relevant for the analysis.
+   */
+  vtkSetMacro(PreserveIntermediateFunctions, bool);
+  vtkGetMacro(PreserveIntermediateFunctions, bool);
+  vtkBooleanMacro(PreserveIntermediateFunctions, bool);
+
+  //@{
+  /**
    * Specify the scalar function to extract. If ==(-1), then no scalar
    * function is extracted.
    */
@@ -356,21 +370,28 @@ protected:
   void AssignAttribute(int fNumber, vtkStructuredGrid* output,
                        int attributeType);
   void MapFunction(int fNumber, vtkStructuredGrid* output);
-  void ComputeTemperature(vtkStructuredGrid* output);
-  void ComputePressure(vtkStructuredGrid* output);
-  void ComputeEnthalpy(vtkStructuredGrid* output);
-  void ComputeKineticEnergy(vtkStructuredGrid* output);
-  void ComputeVelocityMagnitude(vtkStructuredGrid* output);
-  void ComputeEntropy(vtkStructuredGrid* output);
-  void ComputeSwirl(vtkStructuredGrid* output);
-  void ComputeVelocity(vtkStructuredGrid* output);
-  void ComputeVorticity(vtkStructuredGrid* output);
-  void ComputePressureGradient(vtkStructuredGrid* output);
-  void ComputePressureCoefficient(vtkStructuredGrid* output);
-  void ComputeMachNumber(vtkStructuredGrid* output);
-  void ComputeSoundSpeed(vtkStructuredGrid* output);
-  void ComputeVorticityMagnitude(vtkStructuredGrid* output);
-  void ComputeStrainRate(vtkStructuredGrid* output);
+
+  //@{
+  /**
+   * Each of these methods compute a derived quantity. On success, the array is
+   * added to the output and a pointer to the same is returned.
+   */
+  vtkDataArray* ComputeTemperature(vtkStructuredGrid* output);
+  vtkDataArray* ComputePressure(vtkStructuredGrid* output);
+  vtkDataArray* ComputeEnthalpy(vtkStructuredGrid* output);
+  vtkDataArray* ComputeKineticEnergy(vtkStructuredGrid* output);
+  vtkDataArray* ComputeVelocityMagnitude(vtkStructuredGrid* output);
+  vtkDataArray* ComputeEntropy(vtkStructuredGrid* output);
+  vtkDataArray* ComputeSwirl(vtkStructuredGrid* output);
+  vtkDataArray* ComputeVelocity(vtkStructuredGrid* output);
+  vtkDataArray* ComputeVorticity(vtkStructuredGrid* output);
+  vtkDataArray* ComputePressureGradient(vtkStructuredGrid* output);
+  vtkDataArray* ComputePressureCoefficient(vtkStructuredGrid* output);
+  vtkDataArray* ComputeMachNumber(vtkStructuredGrid* output);
+  vtkDataArray* ComputeSoundSpeed(vtkStructuredGrid* output);
+  vtkDataArray* ComputeVorticityMagnitude(vtkStructuredGrid* output);
+  vtkDataArray* ComputeStrainRate(vtkStructuredGrid* output);
+  //@}
 
   // Returns a vtkFloatArray or a vtkDoubleArray depending
   // on DoublePrecision setting
@@ -406,9 +427,8 @@ protected:
   double R;
   double Gamma;
   double GammaInf;
-  double Uvinf;
-  double Vvinf;
-  double Wvinf;
+
+  bool PreserveIntermediateFunctions;
 
   //named functions from meta data
   std::vector<std::string> FunctionNames;
@@ -435,6 +455,14 @@ protected:
 private:
   vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
+
+  // Key used to flag intermediate results.
+  static vtkInformationIntegerKey* INTERMEDIATE_RESULT();
+
+  /**
+   * Remove intermediate results
+   */
+  void RemoveIntermediateFunctions(vtkDataSetAttributes* dsa);
 };
 
 #endif
