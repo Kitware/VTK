@@ -1079,21 +1079,13 @@ vtkSphereTree::vtkSphereTree()
 vtkSphereTree::~vtkSphereTree()
 {
   this->SetDataSet(nullptr);
-  if ( this->Selected )
-  {
-    delete [] this->Selected;
-    this->Selected = nullptr;
-  }
+  delete[] this->Selected;
+  delete this->Hierarchy;
   if ( this->Tree )
-    {
+  {
     this->Tree->Delete();
     this->Tree = nullptr;
-    }
-  if ( this->Hierarchy )
-    {
-    delete this->Hierarchy;
-    this->Hierarchy = nullptr;
-    }
+  }
 }
 
 //================General tree methods========================================
@@ -1134,13 +1126,18 @@ void vtkSphereTree::Build(vtkDataSet *input)
 
 //----------------------------------------------------------------------------
 // Compute the sphere tree leafs (i.e., spheres around each cell)
-vtkDoubleArray *vtkSphereTree::BuildTreeSpheres(vtkDataSet *input)
+void vtkSphereTree::BuildTreeSpheres(vtkDataSet *input)
 {
   // See if anything has to be done
   if ( this->Tree != nullptr && this->BuildTime > this->MTime )
     {
-    return this->Tree;
+    return;
     }
+  else if(this->Tree != nullptr)
+  {
+    this->Tree->Delete();
+    delete[] this->Selected;
+  }
 
   // Allocate
   //
@@ -1171,8 +1168,6 @@ vtkDoubleArray *vtkSphereTree::BuildTreeSpheres(vtkDataSet *input)
   }
 
   this->BuildTime.Modified();
-
-  return newScalars;
 }
 
 //----------------------------------------------------------------------------
@@ -1368,6 +1363,7 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
 
   // We are ready to create the hierarchy
   vtkUnstructuredHierarchy *h;
+  delete this->Hierarchy; //cleanup if necessary
   this->Hierarchy = h =
     new vtkUnstructuredHierarchy(dims,bds,spacing,numCells);
   vtkIdType *cellLoc=h->CellLoc, *cellMap=h->CellMap;

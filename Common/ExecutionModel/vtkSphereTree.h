@@ -217,7 +217,7 @@ protected:
   vtkTimeStamp BuildTime; //time at which tree was built
 
   // Supporting methods
-  vtkDoubleArray *BuildTreeSpheres(vtkDataSet *input);
+  void BuildTreeSpheres(vtkDataSet *input);
   void ExtractCellIds(const unsigned char *selected, vtkIdList *cellIds,
                       vtkIdType numSelected);
 
