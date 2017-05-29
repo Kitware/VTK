@@ -18,7 +18,6 @@
 ----------------------------------------------------------------------------*/
 
 #include "LSDynaFamily.h"
-//#include "vtksys/SystemTools.hxx"
 
 #include <errno.h>
 #include <ctype.h>

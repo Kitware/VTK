@@ -18,7 +18,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-//#include "vtkDiskSource.h"
 #include "vtkLineSource.h"
 #include "vtkRotationalExtrusionFilter.h"
 #include "vtkMath.h"

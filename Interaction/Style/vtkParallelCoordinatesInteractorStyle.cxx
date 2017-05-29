@@ -27,8 +27,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkViewport.h"
 
-//#include <wx/wx.h>
-
 vtkStandardNewMacro(vtkParallelCoordinatesInteractorStyle);
 
 //----------------------------------------------------------------------------

@@ -42,7 +42,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkSmartPointer.h"
-//#include "vtkBoostSplitTableField.h"
 #include "vtkStringArray.h"
 #include "vtkStringToCategory.h"
 #include "vtkTable.h"
@@ -175,10 +174,6 @@ int TestTableToGraph(int argc, char* argv[])
   reader->SetFileName(file);
   delete[] file;
   reader->SetHaveHeaders(true);
-
-  //VTK_CREATE(vtkBoostSplitTableField, split);
-  //split->SetInputConnection(reader->GetOutputPort());
-  //split->AddField("Categories", ";");
 
   // Create a simple person table.
   VTK_CREATE(vtkTable, personTable);
