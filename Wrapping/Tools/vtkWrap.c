@@ -78,6 +78,7 @@ int vtkWrap_IsVTKObject(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
   return (t == VTK_PARSE_OBJECT_PTR &&
+          !val->IsEnum &&
           val->Class[0] == 'v' && strncmp(val->Class, "vtk", 3) == 0);
 }
 
@@ -86,6 +87,7 @@ int vtkWrap_IsSpecialObject(ValueInfo *val)
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
   return ((t == VTK_PARSE_OBJECT ||
            t == VTK_PARSE_OBJECT_REF) &&
+          !val->IsEnum &&
           val->Class[0] == 'v' && strncmp(val->Class, "vtk", 3) == 0);
 }
 
@@ -1024,10 +1026,11 @@ void vtkWrap_DeclareVariable(
      * other refs are passed by value */
     if (aType == VTK_PARSE_CHAR_PTR ||
         aType == VTK_PARSE_VOID_PTR ||
-        aType == VTK_PARSE_OBJECT_PTR ||
-        aType == VTK_PARSE_OBJECT_REF ||
-        aType == VTK_PARSE_OBJECT ||
-        vtkWrap_IsQtObject(val))
+        (!val->IsEnum &&
+         (aType == VTK_PARSE_OBJECT_PTR ||
+          aType == VTK_PARSE_OBJECT_REF ||
+          aType == VTK_PARSE_OBJECT ||
+          vtkWrap_IsQtObject(val))))
     {
       fprintf(fp, "*");
     }
@@ -1081,10 +1084,11 @@ void vtkWrap_DeclareVariable(
     }
     else if (aType == VTK_PARSE_CHAR_PTR ||
              aType == VTK_PARSE_VOID_PTR ||
-             aType == VTK_PARSE_OBJECT_PTR ||
-             aType == VTK_PARSE_OBJECT_REF ||
-             aType == VTK_PARSE_OBJECT ||
-             vtkWrap_IsQtObject(val))
+             (!val->IsEnum &&
+              (aType == VTK_PARSE_OBJECT_PTR ||
+               aType == VTK_PARSE_OBJECT_REF ||
+               aType == VTK_PARSE_OBJECT ||
+               vtkWrap_IsQtObject(val))))
     {
       fprintf(fp, " = NULL");
     }
