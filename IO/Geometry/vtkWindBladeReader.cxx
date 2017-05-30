@@ -1556,7 +1556,7 @@ bool vtkWindBladeReader::SetUpGlobalData(const std::string &fileName,
     vtkWarningMacro("Could not open the global .wind file " << fileName);
   }
 
-  std::string::size_type dirPos = std::string(fileName).rfind("/");
+  std::string::size_type dirPos = std::string(fileName).rfind('/');
   if (dirPos == std::string::npos)
   {
     vtkWarningMacro("Bad input file name " << fileName);

@@ -461,7 +461,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   // construct the names for the error images
   string validName = this->ValidImageFileName;
-  string::size_type slashPos = validName.rfind("/");
+  string::size_type slashPos = validName.rfind('/');
   if (slashPos != string::npos)
   {
     validName = validName.substr(slashPos + 1);
@@ -738,7 +738,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   if (hasDiff)
   {
     string diffFilename = tmpDir + "/" + validName;
-    string::size_type dotPos = diffFilename.rfind(".");
+    string::size_type dotPos = diffFilename.rfind('.');
     if (dotPos != string::npos)
     {
       diffFilename = diffFilename.substr(0, dotPos);

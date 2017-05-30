@@ -466,8 +466,8 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
       }
       else if (field == "labels")
       {
-        std::string dataname = description.substr(description.find("\"")+1);
-        dataname = dataname.substr(0, dataname.find("\""));
+        std::string dataname = description.substr(description.find('\"')+1);
+        dataname = dataname.substr(0, dataname.find('\"'));
         delete[] this->ScalarArrayName;
         this->ScalarArrayName = new char[dataname.size()+1];
         strcpy(this->ScalarArrayName, dataname.c_str());

@@ -2414,7 +2414,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid *dataset)
         if (var->get(&time[0], 1, strLen))
         {
           // Trim off trailing whitespace:
-          size_t realLength = time.find_last_not_of(" ");
+          size_t realLength = time.find_last_not_of(' ');
           if (realLength != vtkStdString::npos)
           {
             time.resize(realLength + 1);
