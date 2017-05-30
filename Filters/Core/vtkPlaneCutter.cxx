@@ -1400,8 +1400,11 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
   if (input == nullptr || (numCells = input->GetNumberOfCells()) < 1 ||
     (numPts = input->GetNumberOfPoints()) < 1)
   {
-    vtkDebugMacro(<< "No input");
-    return 0;
+    vtkDebugMacro("No input");
+    vtkDataSet* filler = input->NewInstance();
+    output->SetPiece(0, filler);
+    filler->Delete();
+    return 1;
   }
 
   // Set up the cut operation
