@@ -305,7 +305,7 @@ void vtkBiomTableReader::InitializeData()
     case VTK_STRING:
     default:
     {
-      std::string s = "";
+      std::string s;
       vtkVariant v(s);
       this->FillData(v);
       break;

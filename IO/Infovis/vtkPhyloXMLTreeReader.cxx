@@ -275,7 +275,7 @@ vtkIdType vtkPhyloXMLTreeReader::ReadCladeElement(vtkXMLDataElement *element,
 void vtkPhyloXMLTreeReader::ReadNameElement(vtkXMLDataElement *element,
   vtkMutableDirectedGraph *g, vtkIdType vertex)
 {
-  std::string name = "";
+  std::string name;
   if (element->GetCharacterData() != NULL)
   {
     name = this->GetTrimmedString(element->GetCharacterData());
@@ -301,7 +301,7 @@ void vtkPhyloXMLTreeReader::ReadNameElement(vtkXMLDataElement *element,
 void vtkPhyloXMLTreeReader::ReadDescriptionElement(vtkXMLDataElement *element,
   vtkMutableDirectedGraph *g)
 {
-  std::string description = "";
+  std::string description;
   if (element->GetCharacterData() != NULL)
   {
     description = this->GetTrimmedString(element->GetCharacterData());
@@ -739,7 +739,7 @@ void vtkPhyloXMLTreeReader::PropagateBranchColor(vtkTree *tree)
 //----------------------------------------------------------------------------
 std::string vtkPhyloXMLTreeReader::GetTrimmedString(const char *input)
 {
-  std::string trimmedString = "";
+  std::string trimmedString;
   std::string whitespace = " \t\r\n";
   std::string untrimmed = input;
   size_t strBegin = untrimmed.find_first_not_of(whitespace);
