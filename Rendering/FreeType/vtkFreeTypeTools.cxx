@@ -32,7 +32,7 @@
 #include "fonts/vtkEmbeddedFonts.h"
 
 #ifndef _MSC_VER
-# include <stdint.h>
+# include <cstdint>
 #endif
 
 #include <limits>

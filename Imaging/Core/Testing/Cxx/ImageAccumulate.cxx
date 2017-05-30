@@ -20,7 +20,7 @@
 
 #include "vtkTestUtilities.h"
 
-#include <math.h>
+#include <cmath>
 
 int ImageAccumulate(int , char *[])
 {

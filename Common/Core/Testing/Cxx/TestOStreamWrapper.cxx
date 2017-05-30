@@ -15,7 +15,7 @@
 #define VTK_STREAMS_FWD_ONLY // like wrapper-generated sources
 #include "vtkSystemIncludes.h"
 
-#include <stdio.h> // test covers NOT including <iostream>
+#include <cstdio> // test covers NOT including <iostream>
 #include <string>
 
 int TestOStreamWrapper(int, char *[])

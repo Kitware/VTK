@@ -21,7 +21,7 @@
 
 #include "vtkCriticalSection.h"
 
-#include "stdlib.h"
+#include <cstdlib>
 
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 static vtkSimpleCriticalSection vtkOffScreenOnlyModeCriticalSection;

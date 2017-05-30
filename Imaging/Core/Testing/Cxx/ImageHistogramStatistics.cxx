@@ -24,7 +24,7 @@
 
 #include "vtkTestUtilities.h"
 
-#include <math.h>
+#include <cmath>
 
 int ImageHistogramStatistics(int argc, char *argv[])
 {

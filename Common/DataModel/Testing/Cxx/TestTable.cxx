@@ -24,7 +24,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <time.h>
+#include <ctime>
 #include <vector>
 using namespace std;
 

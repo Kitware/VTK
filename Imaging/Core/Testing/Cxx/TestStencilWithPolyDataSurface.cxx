@@ -39,8 +39,8 @@
 #include "vtkImageProperty.h"
 #include "vtkSmartPointer.h"
 
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
 
 int TestStencilWithPolyDataSurface(int, char *[])
 {

@@ -2,7 +2,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include <errno.h>
+#include <cerrno>
 
 vtkStandardNewMacro(vtkConditionVariable);
 

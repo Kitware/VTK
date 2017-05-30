@@ -24,7 +24,7 @@
 
 extern "C" {
 #include "vtk_jpeg.h"
-#include <setjmp.h>
+#include <csetjmp>
 }
 
 vtkStandardNewMacro(vtkJPEGWriter);
