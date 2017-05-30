@@ -14,24 +14,24 @@
 =========================================================================*/
 #include "vtkSphereTree.h"
 
-#include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDataSet.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
-#include "vtkPlane.h"
-#include "vtkSphere.h"
+#include "vtkDataSet.h"
 #include "vtkDebugLeaks.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkSMPTools.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkSMPThreadLocal.h"
-
+#include "vtkSMPTools.h"
+#include "vtkSphere.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkSphereTree);
 vtkCxxSetObjectMacro(vtkSphereTree,DataSet,vtkDataSet);
@@ -316,10 +316,17 @@ namespace {
     static void Execute(vtkIdType numCells, vtkDataSet *ds,
                         double *s, double& aveRadius, double sphereBounds[6])
     {
-      DataSetSpheres spheres(ds, s);
-      vtkSMPTools::For(0, numCells, spheres);
-      aveRadius = spheres.AverageRadius;
-      spheres.GetBounds(sphereBounds);
+      if (ds->GetNumberOfCells() > 0 && numCells <= ds->GetNumberOfCells())
+      {
+        // Dummy call to GetCellBounds to enable its uses in the threaded code
+        double dummy[6];
+        ds->GetCellBounds(0, dummy);
+
+        DataSetSpheres spheres(ds, s);
+        vtkSMPTools::For(0, numCells, spheres);
+        aveRadius = spheres.AverageRadius;
+        spheres.GetBounds(sphereBounds);
+      }
     }
 
   };
@@ -387,10 +394,17 @@ namespace {
     static void Execute(vtkIdType numCells, vtkUnstructuredGrid *grid,
                         double *s, double& aveRadius, double sphereBounds[6])
     {
-      UnstructuredSpheres spheres(grid, s);
-      vtkSMPTools::For(0, numCells, spheres);
-      aveRadius = spheres.AverageRadius;
-      spheres.GetBounds(sphereBounds);
+      if (grid->GetNumberOfCells() > 0 && numCells <= grid->GetNumberOfCells())
+      {
+        // Dummy call to GetCellPoints to enable its uses in the threaded code
+        vtkNew<vtkIdList> dummy;
+        grid->GetCellPoints(0, dummy.Get());
+
+        UnstructuredSpheres spheres(grid, s);
+        vtkSMPTools::For(0, numCells, spheres);
+        aveRadius = spheres.AverageRadius;
+        spheres.GetBounds(sphereBounds);
+      }
     }
 
   };
