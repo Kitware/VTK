@@ -90,7 +90,7 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   }
 
   vtkInternal::vtkInfo info;
-  info.AttributeName = attributeName.str().c_str();
+  info.AttributeName = attributeName.str();
   info.ArrayName = arrayName;
   info.FieldAssociation = fieldAssociation;
   info.Component = component;

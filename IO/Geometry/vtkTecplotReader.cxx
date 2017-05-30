@@ -1748,7 +1748,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
               if ( var_format_type.find("-") != std::string::npos )
               {
                 std::vector<std::string> var_range;
-                vtksys::SystemTools::Split(var_format_type.c_str(), var_range, '-');
+                vtksys::SystemTools::Split(var_format_type, var_range, '-');
 
                 int cell_start = atoi(var_range[0].c_str()) - 1;
                 int cell_end = atoi(var_range[1].c_str());

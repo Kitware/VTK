@@ -632,7 +632,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
     {
       std::string relativePath = this->DataFiles->GetValue(i);
       std::string fullPath
-        = vtksys::SystemTools::CollapseFullPath(relativePath.c_str(),
+        = vtksys::SystemTools::CollapseFullPath(relativePath,
                                                 parentDir.c_str());
       this->DataFiles->SetValue(i, fullPath);
     }
