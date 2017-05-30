@@ -78,7 +78,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
     }
   }
 
-  if( this->Internals->Requests.size() == 0 )
+  if( this->Internals->Requests.empty() )
   {
     vtkErrorMacro( "No requests were made." );
     return 0;
@@ -193,7 +193,7 @@ void vtkKMeansStatistics::CreateInitialClusterCenters( vtkIdType numToAllocate,
     }
   }
 
-  if( this->Internals->Requests.size() == 0 )
+  if( this->Internals->Requests.empty() )
   {
     vtkErrorMacro( "No requests were made." );
     return;

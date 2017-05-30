@@ -82,7 +82,7 @@ void vtkEdgeTablePoints::LoadFactor()
   for(int i=0; i<size; i++)
   {
     numEntries += static_cast<vtkIdType>(PointVector[i].size());
-    if( PointVector[i].size() ) numBins++;
+    if( !PointVector[i].empty() ) numBins++;
     cerr << PointVector[i].size() << ",";
   }
   cerr << "\n";
@@ -151,7 +151,7 @@ void vtkEdgeTableEdge::LoadFactor()
   {
     VectorEdgeTableType v = Vector[i];
     numEntry += static_cast<vtkIdType>(v.size());
-    if(v.size()) numBins++;
+    if(!v.empty()) numBins++;
   }
   cerr << "\n";
   cerr << size << "," << numEntry << "," << numBins << "," << Modulo

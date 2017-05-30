@@ -113,7 +113,7 @@ void vtkStructuredAMRGridConnectivity::PrintSelf(
     this->GetGridExtent(gridId,gridExtent);
     this->PrintExtent(os,gridExtent);
     os << std::endl;
-    if( this->GhostedExtents.size() != 0 )
+    if( !this->GhostedExtents.empty() )
     {
       assert("pre: ghosted extents vector is not properly allocated" &&
              (this->GhostedExtents.size()/6 == this->NumberOfGrids) );
@@ -807,7 +807,7 @@ vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
               } // END for all jj
             } // END for all ii
 
-            if( sourceIds.size() > 0 )
+            if( !sourceIds.empty() )
             {
               this->AverageFieldData(
                   this->GridCellData[nei.NeighborID],&sourceIds[0],

@@ -435,7 +435,7 @@ int vtkEnSightReader::RequestInformation(
       }
     }
   }
-  if (timeValues.size() > 0)
+  if (!timeValues.empty())
   {
     std::sort(timeValues.begin(), timeValues.end());
     std::vector<double> uniqueTimeValues(

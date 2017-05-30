@@ -486,7 +486,7 @@ void vtkChartXY::CalculateBarPlots()
       bars.push_back(bar);
     }
   }
-  if (bars.size())
+  if (!bars.empty())
   {
     // We have some bar plots - work out offsets etc.
     float barWidth = 0.1;

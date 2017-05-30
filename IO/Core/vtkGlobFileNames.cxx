@@ -102,7 +102,7 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
     std::vector<std::string> components;
     vtksys::SystemTools::SplitPath(fullPattern.c_str(), components);
     // If Pattern is a relative path, prepend with Directory
-    if (components[0] == "")
+    if (components[0].empty())
     {
       components.insert(components.begin(), this->Directory);
       fullPattern = vtksys::SystemTools::JoinPath(components);

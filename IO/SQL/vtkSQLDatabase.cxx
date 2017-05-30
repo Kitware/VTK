@@ -178,7 +178,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
       break;
   }
 
-  if ( colTypeStr.size() )
+  if ( !colTypeStr.empty() )
   {
     queryStr << " " << colTypeStr;
   }
@@ -251,7 +251,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
   }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
-  if ( attStr.size() )
+  if ( !attStr.empty() )
   {
     queryStr << " " << attStr;
   }
@@ -499,7 +499,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
 
       // Get column creation syntax (backend-dependent)
       vtkStdString colStr = this->GetColumnSpecification( schema, tblHandle, colHandle );
-      if ( colStr.size() )
+      if ( !colStr.empty() )
       {
         queryStr += colStr;
       }
@@ -529,7 +529,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
     {
       // Get index creation syntax (backend-dependent)
       vtkStdString idxStr = this->GetIndexSpecification( schema, tblHandle, idxHandle, skipped );
-      if ( idxStr.size() )
+      if ( !idxStr.empty() )
       {
         if ( skipped )
         {
@@ -622,7 +622,7 @@ bool vtkSQLDatabase::EffectSchema( vtkSQLDatabaseSchema* schema, bool dropIfExis
         vtkStdString trgStr = this->GetTriggerSpecification( schema, tblHandle, trgHandle );
 
         // If not empty, execute query
-        if ( trgStr.size() )
+        if ( !trgStr.empty() )
         {
           query->SetQuery( vtkStdString( trgStr ) );
           if ( ! query->Execute() )

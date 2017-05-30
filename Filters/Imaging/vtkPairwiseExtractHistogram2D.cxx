@@ -292,7 +292,7 @@ void vtkPairwiseExtractHistogram2D::SetCustomColumnRange(int column, double rmin
     if (a)
     {
       this->Implementation->ColumnUsesCustomExtents[a->GetName()] = true;
-      if (this->Implementation->ColumnExtents[a->GetName()].size() == 0)
+      if (this->Implementation->ColumnExtents[a->GetName()].empty())
       {
         this->Implementation->ColumnExtents[a->GetName()].push_back(rmin);
         this->Implementation->ColumnExtents[a->GetName()].push_back(rmax);

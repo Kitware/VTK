@@ -189,7 +189,7 @@ int vtkSeedRepresentation::CreateHandle(double e[2])
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::RemoveLastHandle()
 {
-  if ( this->Handles->size() < 1 )
+  if ( this->Handles->empty() )
   {
     return;
   }
@@ -225,7 +225,7 @@ void vtkSeedRepresentation::RemoveHandle( int n )
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::RemoveActiveHandle()
 {
-  if ( this->Handles->size() < 1 )
+  if ( this->Handles->empty() )
   {
     return;
   }

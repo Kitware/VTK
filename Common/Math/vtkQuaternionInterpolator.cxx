@@ -71,7 +71,7 @@ int vtkQuaternionInterpolator::GetNumberOfQuaternions()
 //----------------------------------------------------------------------------
 double vtkQuaternionInterpolator::GetMinimumT()
 {
-  if (this->QuaternionList->size() > 0)
+  if (!this->QuaternionList->empty())
   {
     return this->QuaternionList->front().Time;
   }
@@ -85,7 +85,7 @@ double vtkQuaternionInterpolator::GetMinimumT()
 //----------------------------------------------------------------------------
 double vtkQuaternionInterpolator::GetMaximumT()
 {
-  if (this->QuaternionList->size() > 0)
+  if (!this->QuaternionList->empty())
   {
     return this->QuaternionList->back().Time;
   }

@@ -95,7 +95,7 @@ public:
       separators = record.GetSubRecordSeparators(vtk_ftell(fp), sizeof(DataType) * n);
 
       vtkIdType retVal;
-      if (separators.size() == 0)
+      if (separators.empty())
       {
         // no record separators will be encountered, yay! Just read the block.
         retVal = static_cast<vtkIdType>(fread(scalar, sizeof(DataType), n, fp));
@@ -1083,7 +1083,7 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
       if (this->XYZFileName &&
           this->XYZFileName[0] != '\0' &&
           (this->Internal->NeedToCheckXYZFile ||
-           this->Internal->Blocks.size() == 0))
+           this->Internal->Blocks.empty()))
       {
         vtkPlot3DCFile xyzFp;
         if ( this->CheckGeometryFile(xyzFp) != VTK_OK)

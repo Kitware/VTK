@@ -464,7 +464,7 @@ int vtkTableToGraph::RequestData(
   double createVertexTime = 0.25;
   double createEdgeTime = 0.75;
   double hiddenTime = 0.0;
-  if (hiddenTypes.size() > 0)
+  if (!hiddenTypes.empty())
   {
     createVertexTime = 0.1;
     createEdgeTime = 0.3;

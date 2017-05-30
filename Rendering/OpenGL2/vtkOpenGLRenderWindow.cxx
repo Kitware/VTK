@@ -339,7 +339,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   this->ShaderCache->ReleaseGraphicsResources(renWin);
   //this->VBOCache->ReleaseGraphicsResources(renWin);
 
-  if (this->TextureResourceIds.size())
+  if (!this->TextureResourceIds.empty())
   {
     vtkErrorMacro("There are still active textures when there should not be.");
     typedef std::map<const vtkTextureObject *, int>::const_iterator TRIter;

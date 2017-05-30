@@ -269,7 +269,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
       }
 
       std::string target = this->Table->GetColumnName(col);
-      if (target == "")
+      if (target.empty())
       {
         continue;
       }

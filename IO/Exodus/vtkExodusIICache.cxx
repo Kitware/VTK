@@ -123,7 +123,7 @@ int vtkExodusIICache::ReduceToSize( double newSize )
 #endif // VTK_EXO_DBG_CACHE
       if ( this->Size <= 0 )
       {
-        if ( this->Cache.size() == 0 )
+        if ( this->Cache.empty() )
           this->Size = 0.;
         else
           this->RecomputeSize(); // oops, FP roundoff
@@ -141,7 +141,7 @@ int vtkExodusIICache::ReduceToSize( double newSize )
     this->LRU.pop_back();
   }
 
-  if ( this->Cache.size() == 0 )
+  if ( this->Cache.empty() )
   {
     this->Size = 0;
   }
@@ -224,7 +224,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
 
     if ( this->Size <= 0 )
     {
-      if ( this->Cache.size() == 0 )
+      if ( this->Cache.empty() )
         this->Size = 0.;
       else
         this->RecomputeSize(); // oops, FP roundoff
@@ -262,7 +262,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey p
 
     if ( this->Size <= 0 )
     {
-      if ( this->Cache.size() == 0 )
+      if ( this->Cache.empty() )
         this->Size = 0.;
       else
         this->RecomputeSize(); // oops, FP roundoff

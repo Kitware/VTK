@@ -1319,7 +1319,7 @@ void vtkTecplotReader::GetDataArraysList()
   {
     tokenReady = false;
 
-    if ( theTpToken == "" )
+    if ( theTpToken.empty() )
     {
       // whitespace: do nothing
     }
@@ -1480,7 +1480,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
   while ( !this->Internal->NextCharEOF )
   {
     tokenReady = false;
-    if ( tok == "" )
+    if ( tok.empty() )
     {
       // whitespace: do nothing
     }
@@ -1822,7 +1822,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         this->GetStructuredGridFromPointPackingZone
               ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
       }
-      else if ( format == "" )
+      else if ( format.empty() )
       {
         // No format given; we will assume we got a POINT format
         this->GetStructuredGridFromPointPackingZone

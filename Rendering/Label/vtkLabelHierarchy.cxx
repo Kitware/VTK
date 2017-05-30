@@ -948,7 +948,7 @@ void vtkLabelHierarchyQuadtreeIterator::Next()
   if ( this->LabelIterator == this->Node->value().end() )
   {
     this->BoxNode();
-    while ( this->Queue.size() )
+    while ( !this->Queue.empty() )
     {
       this->Node = this->Queue.front();
       this->Queue.pop_front();
@@ -1322,7 +1322,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Next()
   if ( this->LabelIterator == this->Node->value().end() )
   {
     this->BoxNode();
-    while ( this->Queue.size() )
+    while ( !this->Queue.empty() )
     {
       this->Node = this->Queue.front();
       this->Queue.pop_front();

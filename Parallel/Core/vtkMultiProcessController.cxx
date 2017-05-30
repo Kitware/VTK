@@ -756,7 +756,7 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
     }
   }
 
-  if (callbacks.size()==0)
+  if (callbacks.empty())
   {
     vtkErrorMacro("Process " << this->GetLocalProcessId() <<
                   " Could not find RMI with tag " << rmiTag);

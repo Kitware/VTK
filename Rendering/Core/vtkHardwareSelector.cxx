@@ -617,7 +617,7 @@ std::string vtkHardwareSelector::PassTypeToString(PassTypes type)
 //----------------------------------------------------------------------------
 bool vtkHardwareSelector::IsPropHit(int id)
 {
-  return (this->Internals->HitProps.size() == 0 ||
+  return (this->Internals->HitProps.empty() ||
     this->Internals->HitProps.find(id) != this->Internals->HitProps.end());
 }
 

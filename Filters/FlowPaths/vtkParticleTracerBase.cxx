@@ -80,7 +80,7 @@ namespace
   //return the interval i, such that a belongs to the interval (A[i],A[i+1]]
   inline int FindInterval(double a, const std::vector<double>& A)
   {
-    if(A.size() == 0 || a < A[0])
+    if(A.empty() || a < A[0])
     {
       return -1;
     }
@@ -816,7 +816,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   {
     Assert(!this->HasCache); //shouldn't have cache if restarting
     int seedPointId=0;
-    if (!(this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.size()==0))
+    if (!(this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.empty()))
     {
       // wipe the list and reclassify for each injection
       this->LocalSeeds.clear();
@@ -880,7 +880,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       // Particles might have been deleted during the first pass as they move
       // out of domain or age. Before adding any new particles that are sent
       // to us, we must know the starting point ready for the next pass
-      bool list_valid = (this->ParticleHistories.size()>0);
+      bool list_valid = (!this->ParticleHistories.empty());
       if (list_valid)
       {
         // point to one before the end

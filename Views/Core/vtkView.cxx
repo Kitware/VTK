@@ -260,7 +260,7 @@ void vtkView::RemoveRepresentation(vtkAlgorithmOutput* conn)
 //----------------------------------------------------------------------------
 void vtkView::RemoveAllRepresentations()
 {
-  while (this->Implementation->Representations.size())
+  while (!this->Implementation->Representations.empty())
   {
     vtkDataRepresentation* rep = this->Implementation->Representations.back();
     this->RemoveRepresentation(rep);

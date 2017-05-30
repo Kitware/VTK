@@ -1478,7 +1478,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
   // are we handling the apple bug?
-  if (this->AppleBugPrimIDs.size())
+  if (!this->AppleBugPrimIDs.empty())
   {
     vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
       "attribute vec4 appleBugPrimID;\n"
@@ -1839,7 +1839,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
 
     this->VBOs->AddAllAttributesToVAO(cellBO.Program, cellBO.VAO);
 
-    if (this->AppleBugPrimIDs.size() &&
+    if (!this->AppleBugPrimIDs.empty() &&
         cellBO.Program->IsAttributeUsed("appleBugPrimID"))
     {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program,

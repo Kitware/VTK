@@ -996,7 +996,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
         modeFDVector.push_back(modeFD);
       }
     }
-    if (modeFDVector.size() < 1)
+    if (modeFDVector.empty())
     {
       // Warning should already have been emitted.
       return 0;

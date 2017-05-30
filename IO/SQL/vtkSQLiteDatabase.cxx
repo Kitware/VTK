@@ -135,7 +135,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
       colTypeStr = "TIMESTAMP";
   }
 
-  if ( colTypeStr.size() )
+  if ( !colTypeStr.empty() )
   {
     queryStr << " " << colTypeStr;
   }
@@ -208,7 +208,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
   }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
-  if ( attStr.size() )
+  if ( !attStr.empty() )
   {
     queryStr << " " << attStr;
   }

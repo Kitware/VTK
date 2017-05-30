@@ -3778,7 +3778,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
   os << indent << "AnimateModeShapes: " << this->AnimateModeShapes << "\n";
 
   // Print nodal variables
-  if ( this->ArrayInfo[ vtkExodusIIReader::NODAL ].size() > 0 )
+  if ( !this->ArrayInfo[ vtkExodusIIReader::NODAL ].empty() )
   {
     os << indent << "Nodal Arrays:\n";
     std::vector<ArrayInfoType>::iterator ai;
@@ -3798,7 +3798,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
     {
       printBlock( os, indent.GetNextIndent(), bti->first, *bi );
     }
-    if ( this->ArrayInfo[ bti->first ].size() > 0 )
+    if ( !this->ArrayInfo[ bti->first ].empty() )
     {
       os << indent << "    Results variables:\n";
       std::vector<ArrayInfoType>::iterator ai;
@@ -3819,7 +3819,7 @@ void vtkExodusIIReaderPrivate::PrintData( ostream& os, vtkIndent indent )
     {
       printSet( os, indent.GetNextIndent(), sti->first, *si );
     }
-    if ( this->ArrayInfo[ sti->first ].size() > 0 )
+    if ( !this->ArrayInfo[ sti->first ].empty() )
     {
       os << indent << "    Results variables:\n";
       std::vector<ArrayInfoType>::iterator ai;
@@ -4872,7 +4872,7 @@ void vtkExodusIIReaderPrivate::GetInitialObjectStatus( int otyp, ObjectInfoType 
 {
   for(unsigned int oidx=0; oidx<this->InitialObjectInfo[otyp].size(); oidx++)
   {
-    if( (this->InitialObjectInfo[otyp][oidx].Name != "" &&
+    if( (!this->InitialObjectInfo[otyp][oidx].Name.empty() &&
          objType->Name == this->InitialObjectInfo[otyp][oidx].Name) ||
         (this->InitialObjectInfo[otyp][oidx].Id != -1 &&
         objType->Id == this->InitialObjectInfo[otyp][oidx].Id) )

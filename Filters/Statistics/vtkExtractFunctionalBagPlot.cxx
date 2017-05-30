@@ -210,11 +210,11 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   }
 
   // Then add the 2 "bag" columns into the output table
-  if (q3Lines.size() > 0)
+  if (!q3Lines.empty())
   {
     outTable->AddColumn(q3Points.GetPointer());
   }
-  if (medianLines.size() > 0)
+  if (!medianLines.empty())
   {
     outTable->AddColumn(q2Points.GetPointer());
   }

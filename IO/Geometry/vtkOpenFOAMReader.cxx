@@ -379,7 +379,7 @@ private:
   void ClearMeshes();
 
   vtkStdString RegionPath() const
-    {return (this->RegionName == "" ? "" : "/") + this->RegionName;}
+    {return (this->RegionName.empty() ? "" : "/") + this->RegionName;}
   vtkStdString TimePath(const int timeI) const
     {return this->CasePath + this->TimeNames->GetValue(timeI);}
   vtkStdString TimeRegionPath(const int timeI) const
@@ -392,7 +392,7 @@ private:
     {return this->CasePath + dir->GetValue(this->TimeStep) + this->RegionPath()
     + "/polyMesh/";}
   vtkStdString RegionPrefix() const
-    {return this->RegionName + (this->RegionName == "" ? "" : "/");}
+    {return this->RegionName + (this->RegionName.empty() ? "" : "/");}
 
   // search time directories for mesh
   void AppendMeshDirToArray(vtkStringArray *, const vtkStdString &, const int);
@@ -1331,7 +1331,7 @@ public:
             {
               userName += pathIn[charI];
             }
-            if (userName == "")
+            if (userName.empty())
             {
               const char *homePtr = getenv("HOME");
               if (homePtr == NULL)
@@ -3258,19 +3258,19 @@ public:
 
   vtkStdString ToString() const
   {
-    return this->Superclass::size() > 0 ? this->FirstValue().ToString() : vtkStdString();
+    return !this->empty() ? this->FirstValue().ToString() : vtkStdString();
   }
   float ToFloat() const
   {
-    return this->Superclass::size() > 0 ? this->FirstValue().ToFloat() : 0.0F;
+    return !this->empty() ? this->FirstValue().ToFloat() : 0.0F;
   }
   double ToDouble() const
   {
-    return this->Superclass::size() > 0 ? this->FirstValue().ToDouble() : 0.0;
+    return !this->empty() ? this->FirstValue().ToDouble() : 0.0;
   }
   vtkTypeInt64 ToInt() const
   {
-    return this->Superclass::size() > 0 ? this->FirstValue().ToInt() : 0;
+    return !this->empty() ? this->FirstValue().ToInt() : 0;
   }
 
   void ReadDictionary(vtkFoamIOobject& io)
@@ -3895,7 +3895,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     // dictionary with the already read stringToken as the first keyword
     else if (nextToken == '{')
     {
-      if (currToken.ToString() == "")
+      if (currToken.ToString().empty())
       {
         throw "Empty string is invalid as a keyword for dictionary entry";
       }
@@ -4765,7 +4765,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(
     this->BoundaryDict.TimeDir
         = this->PolyMeshFacesDir->GetValue(this->TimeStep);
 
-    const bool isSubRegion = this->RegionName != "";
+    const bool isSubRegion = !this->RegionName.empty();
     vtkFoamDict *boundaryDict = this->GatherBlocks("boundary", isSubRegion);
     if (boundaryDict == NULL)
     {
@@ -4845,7 +4845,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(
 
         // always hide processor patches for decomposed cases to keep
         // vtkAppendCompositeDataLeaves happy
-        if (this->ProcessorName != "" && BoundaryEntryI.BoundaryType
+        if (!this->ProcessorName.empty() && BoundaryEntryI.BoundaryType
             == vtkFoamBoundaryEntry::PROCESSOR)
         {
           continue;
@@ -5262,7 +5262,7 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(
     // from paraFoam)
     // valid switching words cf. src/OpenFOAM/db/Switch/Switch.C
     if ((((adjustTimeStep == "off" || adjustTimeStep == "no" || adjustTimeStep
-        == "n" || adjustTimeStep == "false" || adjustTimeStep == "")
+        == "n" || adjustTimeStep == "false" || adjustTimeStep.empty())
         && writeControl == "timeStep") || ((adjustTimeStep == "on"
         || adjustTimeStep == "yes" || adjustTimeStep == "y" || adjustTimeStep
         == "true") && writeControl == "adjustableRunTime")))
@@ -6881,7 +6881,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   if (this->Parent->GetCreateCellToPoint())
   {
     vtkIdType boundaryStartFace =
-        (this->BoundaryDict.size() > 0 ? this->BoundaryDict[0].StartFace : 0);
+        (!this->BoundaryDict.empty() ? this->BoundaryDict[0].StartFace : 0);
     this->AllBoundaries = vtkPolyData::New();
     this->AllBoundaries->Allocate(facesPoints->GetNumberOfElements()
         - boundaryStartFace);
@@ -6972,7 +6972,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       }
     }
 
-    if (this->ProcessorName != "")
+    if (!this->ProcessorName.empty())
     {
       // initialize physical-processor boundary shared point list
       procCellList.resize(static_cast<size_t>(nAllBoundaryPoints));
@@ -7000,7 +7000,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       this->InsertFacesToGrid(this->AllBoundaries, facesPoints, startFace,
           endFace, this->InternalPoints, facePointsVtkId, NULL, false);
 
-      if (this->ProcessorName != "")
+      if (!this->ProcessorName.empty())
       {
         // mark belonging boundary types and, if PROCESSOR, cell numbers
         vtkIdType abStartFace = beI.AllBoundariesStartFace;
@@ -7170,7 +7170,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     this->AllBoundaries->SetPoints(allBoundaryPoints);
     allBoundaryPoints->Delete();
 
-    if (this->ProcessorName != "")
+    if (!this->ProcessorName.empty())
     {
       // remove links to processor boundary faces from point-to-cell
       // links of physical-processor shared points to avoid cracky seams
@@ -7203,7 +7203,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 void vtkOpenFOAMReaderPrivate::TruncateFaceOwner()
 {
   vtkIdType boundaryStartFace =
-      this->BoundaryDict.size() > 0 ? this->BoundaryDict[0].StartFace
+      !this->BoundaryDict.empty() ? this->BoundaryDict[0].StartFace
           : this->FaceOwner->GetNumberOfTuples();
   // all the boundary faces
   vtkIdType nBoundaryFaces = this->FaceOwner->GetNumberOfTuples()
@@ -7988,7 +7988,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       // if reading a processor sub-case of a decomposed case as is,
       // use the patch values of the processor patch as is
       if (beI.BoundaryType == vtkFoamBoundaryEntry::PHYSICAL
-          || (this->ProcessorName == "" && beI.BoundaryType
+          || (this->ProcessorName.empty() && beI.BoundaryType
               == vtkFoamBoundaryEntry::PROCESSOR))
       {
         // set the same value to AllBoundaries
@@ -8734,7 +8734,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet *output,
 
   // RegionName check is added since subregions have region name prefixes
   const bool createEulerians = this->Parent->PatchDataArraySelection
-  ->ArrayExists("internalMesh") || this->RegionName != "";
+  ->ArrayExists("internalMesh") || !this->RegionName.empty();
 
   // determine if we need to reconstruct meshes
   if (recreateInternalMesh)
@@ -9344,7 +9344,7 @@ int vtkOpenFOAMReader::RequestInformation(vtkInformation *vtkNotUsed(request), v
      )
   {
     // retain selection status when just refreshing a case
-    if (*this->FileNameOld != "" && *this->FileNameOld != this->FileName)
+    if (!this->FileNameOld->empty() && *this->FileNameOld != this->FileName)
     {
       // clear selections
       this->CellDataArraySelection->RemoveAllArrays();
@@ -9440,7 +9440,7 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
   // if the only region is not a subregion, omit being wrapped by a
   // multiblock dataset
   if (this->Readers->GetNumberOfItems() == 1 && (reader = vtkOpenFOAMReaderPrivate::SafeDownCast(
-          this->Readers->GetItemAsObject(0)))->GetRegionName() == "")
+          this->Readers->GetItemAsObject(0)))->GetRegionName().empty())
   {
     ret = reader->RequestData(output, recreateInternalMesh,
         recreateBoundaryMesh, updateVariables);
@@ -9458,7 +9458,7 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
           recreateBoundaryMesh, updateVariables))
       {
         vtkStdString regionName(reader->GetRegionName());
-        if (regionName == "")
+        if (regionName.empty())
         {
           regionName = "defaultRegion";
         }
@@ -9517,7 +9517,7 @@ int vtkOpenFOAMReader::MakeInformationVector(
   // recreate case information
   vtkStdString casePath, controlDictPath;
   this->CreateCasePath(casePath, controlDictPath);
-  casePath += procName + (procName == "" ? "" : "/");
+  casePath += procName + (procName.empty() ? "" : "/");
   vtkOpenFOAMReaderPrivate *masterReader = vtkOpenFOAMReaderPrivate::New();
   if (!masterReader->MakeInformationVector(casePath, controlDictPath, procName,
       this->Parent))

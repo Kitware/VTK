@@ -432,7 +432,7 @@ void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
 
-  if (Weights.size()>0)
+  if (!Weights.empty())
   {
     os << indent << "Weights: " << &this->Weights[0] << endl;
   }

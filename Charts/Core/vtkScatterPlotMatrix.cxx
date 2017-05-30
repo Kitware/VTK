@@ -1180,11 +1180,11 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
     }
     if ((this->Private->AnimationPath.size() == 1 &&
          this->Private->AnimationPath.back() != pos) ||
-        (this->Private->AnimationPath.size() == 0 && this->ActivePlot != pos))
+        (this->Private->AnimationPath.empty() && this->ActivePlot != pos))
     {
       this->Private->AnimationPath.push_back(pos);
     }
-    if (this->Private->AnimationPath.size() > 0)
+    if (!this->Private->AnimationPath.empty())
     {
       this->InvokeEvent(vtkCommand::CreateTimerEvent);
       this->StartAnimation(mouse.GetInteractor());
@@ -1198,7 +1198,7 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
       return true;
     }
     this->UpdateAnimationPath(pos);
-    if (this->Private->AnimationPath.size() > 0)
+    if (!this->Private->AnimationPath.empty())
     {
       this->InvokeEvent(vtkCommand::CreateTimerEvent);
       this->StartAnimation(mouse.GetInteractor());
@@ -1240,7 +1240,7 @@ vtkVector2i vtkScatterPlotMatrix::GetAnimationPathElement(vtkIdType i)
 bool vtkScatterPlotMatrix::AddAnimationPath(const vtkVector2i &move)
 {
   vtkVector2i pos = this->ActivePlot;
-  if (this->Private->AnimationPath.size())
+  if (!this->Private->AnimationPath.empty())
   {
     pos = this->Private->AnimationPath.back();
   }
@@ -1258,7 +1258,7 @@ bool vtkScatterPlotMatrix::AddAnimationPath(const vtkVector2i &move)
 
 bool vtkScatterPlotMatrix::BeginAnimationPath(vtkRenderWindowInteractor* interactor)
 {
-  if (interactor && this->Private->AnimationPath.size())
+  if (interactor && !this->Private->AnimationPath.empty())
   {
     this->StartAnimation(interactor);
     return true;

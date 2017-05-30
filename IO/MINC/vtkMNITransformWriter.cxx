@@ -347,7 +347,7 @@ int vtkMNITransformWriter::WriteGridTransform(
   // Split FileName into directory and filename
   std::vector<std::string> xfmpath;
   vtksys::SystemTools::SplitPath(this->FileName, xfmpath);
-  if (xfmpath.size() < 1)
+  if (xfmpath.empty())
   {
     vtkErrorMacro("Can't split filename " << this->FileName);
     return 0;

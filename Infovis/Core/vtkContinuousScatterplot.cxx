@@ -758,7 +758,7 @@ int vtkContinuousScatterplot::RequestData(
           else
           {
             // Remove any partial fragments.
-            while (fragment->size() > 0)
+            while (!fragment->empty())
             {
               fragment->pop_back();
             }
@@ -766,7 +766,7 @@ int vtkContinuousScatterplot::RequestData(
           // Faces defining the next working polyhedron are in the residual array.
           std::swap(working, residual);
           // Clear out anything left in residual
-          while (residual->size() > 0)
+          while (!residual->empty())
           {
             residual->pop_back();
           }
@@ -798,7 +798,7 @@ int vtkContinuousScatterplot::RequestData(
         }
         else
         {
-          while (working->size() > 0)
+          while (!working->empty())
           {
             working->pop_back();
           }
@@ -883,14 +883,14 @@ int vtkContinuousScatterplot::RequestData(
       }
 
       // Clear faces from current polytope in output queue.
-      while (outputQ[co]->size() > 0)
+      while (!outputQ[co]->empty())
       {
         outputQ[co]->pop_back();
       }
     } // end for loop in outputQ
 
     // Release the memory for the local structure.
-    while (outputQ.size() > 0)
+    while (!outputQ.empty())
     {
       Polytope plocal;
       plocal = outputQ.back();

@@ -250,7 +250,7 @@ int vtkExtractHistogram2D::GetInputArrays(vtkDataArray*& col1, vtkDataArray*& co
     return 0;
   }
 
-  if (this->Internals->Requests.size() > 0)
+  if (!this->Internals->Requests.empty())
   {
     vtkStdString colName;
 

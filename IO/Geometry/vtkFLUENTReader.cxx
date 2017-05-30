@@ -663,7 +663,7 @@ void vtkFLUENTReader::GetNumberOfCellZones()
 
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
   {
-    if (this->CellZones->value.size() == 0)
+    if (this->CellZones->value.empty())
     {
       this->CellZones->value.push_back(this->Cells->value[i].zone);
     }

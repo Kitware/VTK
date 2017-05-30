@@ -348,7 +348,7 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
   {
     case -1: //top holder it should hold a single data set, use it
     {
-    if (!structure->children.size())
+    if (structure->children.empty())
     {
       return NULL;
     }
@@ -414,7 +414,7 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     return VTK_OK;
   }
 
-  if (!this->Structure->children.size())
+  if (this->Structure->children.empty())
   {
     vtkErrorMacro("Program was invalid.");
     return VTK_ERROR;
@@ -615,7 +615,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
   {
     case -1: //top level is a holder, use the single data set inside instead
     {
-    if (!structure->children.size())
+    if (structure->children.empty())
     {
       return NULL;
     }

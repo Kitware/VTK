@@ -109,7 +109,7 @@ struct ProbePoints
           }
         }
       }
-      this->ComputeDerivArrays = (this->DerivArrays.Arrays.size() > 0 ? true : false);
+      this->ComputeDerivArrays = (!this->DerivArrays.Arrays.empty() ? true : false);
   }
 
   // Just allocate a little bit of memory to get started.

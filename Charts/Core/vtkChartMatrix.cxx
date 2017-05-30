@@ -208,7 +208,7 @@ void vtkChartMatrix::SetSpecificResize(const vtkVector2i& index, const vtkVector
 
 void vtkChartMatrix::ClearSpecificResizes()
 {
-  if (this->SpecificResize.size() != 0)
+  if (!this->SpecificResize.empty())
     {
     this->SpecificResize.clear();
     this->LayoutIsDirty = true;

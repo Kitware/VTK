@@ -235,7 +235,7 @@ splitString(const vtkStdString& input,
             std::vector<vtkStdString>& results,
             bool includeEmpties)
 {
-  if (input.size() == 0)
+  if (input.empty())
   {
     return 0;
   }
@@ -278,7 +278,7 @@ splitString(const vtkStdString& input,
       parsedField = thisFieldText;
     }
     ++ thisField;
-    if (parsedField.size() > 0 || includeEmpties)
+    if (!parsedField.empty() || includeEmpties)
     {
       results.push_back(parsedField);
     }

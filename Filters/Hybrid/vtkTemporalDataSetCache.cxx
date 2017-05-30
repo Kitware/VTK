@@ -238,7 +238,7 @@ int vtkTemporalDataSetCache
     }
 
     // if we need any data
-    if (reqTimeSteps.size())
+    if (!reqTimeSteps.empty())
     {
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),reqTimeSteps[0]);
     }

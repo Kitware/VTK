@@ -198,7 +198,7 @@ const char *vtkPiecewiseFunction::GetType()
 
   function_type = 0;
 
-  if( this->Internal->Nodes.size() )
+  if( !this->Internal->Nodes.empty() )
   {
     prev_value = this->Internal->Nodes[0]->Y;
   }
@@ -290,7 +290,7 @@ double *vtkPiecewiseFunction::GetDataPointer()
 double vtkPiecewiseFunction::GetFirstNonZeroValue()
 {
   // Check if no points specified
-  if( this->Internal->Nodes.size() == 0 )
+  if( this->Internal->Nodes.empty() )
   {
     return 0;
   }

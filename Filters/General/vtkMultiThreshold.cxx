@@ -443,7 +443,7 @@ int vtkMultiThreshold::RequestData(
   vtkInformationVector* output )
 {
   int i;
-  if ( this->Sets.size() == 0 )
+  if ( this->Sets.empty() )
   {
     // No rules to apply. Produce empty output.
     return 1;
@@ -751,7 +751,7 @@ void vtkMultiThreshold::UpdateDependents(
         }
         unresolvedOutputs.erase( bset->OutputId );
       }
-      if ( unresolvedOutputs.size() )
+      if ( !unresolvedOutputs.empty() )
       { // ignore parts of the graph that will not influence output
         this->UpdateDependents( *dit, unresolvedOutputs, setStates, inCellData, inCell, cell, outv );
       }

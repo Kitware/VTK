@@ -2197,7 +2197,7 @@ std::string vtkPolarAxesActor::FindExponentAndAdjustValues(std::list<double>& va
 void vtkPolarAxesActor::GetSignificantPartFromValues(
   vtkStringArray* valuesStr, std::list<double>& valuesList)
 {
-  if (!valuesStr || valuesList.size() == 0)
+  if (!valuesStr || valuesList.empty())
   {
     return;
   }

@@ -132,7 +132,7 @@ int vtkExtractBlock::RequestData(
   iter->VisitOnlyLeavesOff();
 
   for (iter->InitTraversal();
-    !iter->IsDoneWithTraversal() && this->ActiveIndices->size()>0;
+    !iter->IsDoneWithTraversal() && !this->ActiveIndices->empty();
     iter->GoToNextItem())
   {
     if (this->ActiveIndices->find(iter->GetCurrentFlatIndex()) !=

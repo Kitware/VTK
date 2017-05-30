@@ -425,7 +425,7 @@ int vtkShaderProgram::CompileShader()
     return 0;
   }
 #ifdef GL_GEOMETRY_SHADER
-  if (this->GetGeometryShader()->GetSource().size() > 0 &&
+  if (!this->GetGeometryShader()->GetSource().empty() &&
       !this->GetGeometryShader()->Compile())
   {
     int lineNum = 1;
@@ -441,7 +441,7 @@ int vtkShaderProgram::CompileShader()
     vtkErrorMacro(<< this->GetGeometryShader()->GetError());
     return 0;
   }
-  if (this->GetGeometryShader()->GetSource().size() > 0 &&
+  if (!this->GetGeometryShader()->GetSource().empty() &&
       !this->AttachShader(this->GetGeometryShader()))
   {
     vtkErrorMacro(<< this->GetError());

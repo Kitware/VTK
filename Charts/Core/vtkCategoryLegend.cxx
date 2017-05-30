@@ -69,7 +69,7 @@ bool vtkCategoryLegend::Paint(vtkContext2D* painter)
   // Draw the title (if any)
   vtkVector2f stringBounds[2];
   float titleHeight = 0.0;
-  if (this->Title != "")
+  if (!this->Title.empty())
   {
     painter->ApplyTextProp(this->TitleProperties.GetPointer());
     painter->ComputeStringBounds(this->Title, stringBounds->GetData());
@@ -100,7 +100,7 @@ bool vtkCategoryLegend::Paint(vtkContext2D* painter)
   for (vtkIdType l = 0; l < this->Values->GetNumberOfTuples(); ++l)
   {
     vtkStdString currentString = this->Values->GetValue(l).ToString();
-    if (currentString == "")
+    if (currentString.empty())
     {
       continue;
     }
@@ -180,7 +180,7 @@ vtkRectf vtkCategoryLegend::GetBoundingRect(vtkContext2D *painter)
   // Calculate size of title (if any)
   float titleHeight = 0.0f;
   float titleWidth = 0.0f;
-  if (this->Title != "")
+  if (!this->Title.empty())
   {
     painter->ApplyTextProp(this->TitleProperties.GetPointer());
 
@@ -199,7 +199,7 @@ vtkRectf vtkCategoryLegend::GetBoundingRect(vtkContext2D *painter)
 
   for (vtkIdType l = 0; l < this->Values->GetNumberOfTuples(); ++l)
   {
-    if (this->Values->GetValue(l).ToString() == "")
+    if (this->Values->GetValue(l).ToString().empty())
     {
       ++numSkippedValues;
       continue;
