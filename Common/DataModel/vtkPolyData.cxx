@@ -2369,3 +2369,26 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId, int fieldId)
 
   return this->GetScalarFieldCriticalIndex(pointId, scalarField);
 }
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkPolyData::GetMeshMTime()
+{
+  vtkMTimeType time = this->Points ? this->Points->GetMTime() : 0;
+  if (this->Verts)
+  {
+    time = vtkMath::Max(this->Verts->GetMTime(), time);
+  }
+  if (this->Lines)
+  {
+    time = vtkMath::Max(this->Lines->GetMTime(), time);
+  }
+  if (this->Polys)
+  {
+    time = vtkMath::Max(this->Polys->GetMTime(), time);
+  }
+  if (this->Strips)
+  {
+    time = vtkMath::Max(this->Strips->GetMTime(), time);
+  }
+  return time;
+}

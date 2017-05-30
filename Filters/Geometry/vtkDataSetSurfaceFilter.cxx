@@ -100,7 +100,7 @@ protected:
   MapType Map;
 };
 
-vtkStandardNewMacro(vtkDataSetSurfaceFilter);
+vtkObjectFactoryNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
 vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()

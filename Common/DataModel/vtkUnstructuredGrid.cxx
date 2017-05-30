@@ -1059,6 +1059,13 @@ int vtkUnstructuredGrid::InitializeFacesRepresentation(vtkIdType numPrevCells)
 }
 
 //----------------------------------------------------------------------------
+vtkMTimeType vtkUnstructuredGrid::GetMeshMTime()
+{
+  return vtkMath::Max(this->Points ? this->Points->GetMTime() : 0,
+    this->Connectivity ? this->Connectivity->GetMTime() : 0);
+}
+
+//----------------------------------------------------------------------------
 // Return faces for a polyhedral cell (or face-explicit cell).
 vtkIdType *vtkUnstructuredGrid::GetFaces(vtkIdType cellId)
 {
