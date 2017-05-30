@@ -911,5 +911,5 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
 //-----------------------------------------------------------------------------
 std::string vtkNetCDFReader::QueryArrayUnits(const char* name)
 {
-  return this->Private->ArrayUnits[name].c_str();
+  return this->Private->ArrayUnits[name];
 }

@@ -200,7 +200,7 @@ const char *vtkTesting::GetDataRoot()
                 "-D",this->Args, "VTK_DATA_ROOT","../../../../VTKData");
 #endif
   this->SetDataRoot(
-     vtksys::SystemTools::CollapseFullPath(dr.c_str()).c_str());
+     vtksys::SystemTools::CollapseFullPath(dr).c_str());
 
   return this->DataRoot;
 }
@@ -210,7 +210,7 @@ const char *vtkTesting::GetTempDirectory()
   string td=vtkTestingGetArgOrEnvOrDefault(
                 "-T",this->Args, "VTK_TEMP_DIR","../../../Testing/Temporary");
   this->SetTempDirectory(
-    vtksys::SystemTools::CollapseFullPath(td.c_str()).c_str());
+    vtksys::SystemTools::CollapseFullPath(td).c_str());
 
   return this->TempDirectory;
 }

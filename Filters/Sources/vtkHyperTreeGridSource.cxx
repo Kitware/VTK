@@ -563,8 +563,8 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
         }
 
         // Store descriptor and material mask for current level
-        this->LevelDescriptors.push_back( descriptor.str().c_str() );
-        this->LevelMaterialMasks.push_back( mask.str().c_str() );
+        this->LevelDescriptors.push_back( descriptor.str() );
+        this->LevelMaterialMasks.push_back( mask.str() );
 
         // Check whether cursor is still at rool level
         if ( rootLevel )
@@ -665,10 +665,10 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   }
 
   // Push per-level descriptor and material mask if used
-  this->LevelDescriptors.push_back( descriptor.str().c_str() );
+  this->LevelDescriptors.push_back( descriptor.str() );
   if ( this->UseMaterialMask )
   {
-    this->LevelMaterialMasks.push_back( mask.str().c_str() );
+    this->LevelMaterialMasks.push_back( mask.str() );
   }
 
   // Reset maximum depth if fewer levels are described

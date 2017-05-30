@@ -1575,7 +1575,7 @@ bool vtkWindBladeReader::SetUpGlobalData(const std::string &fileName,
       std::string::size_type keyPos = line.find(' ');
       keyword = line.substr(0, keyPos);
       rest = line.substr(keyPos + 1);
-      std::istringstream lineStr(rest.c_str());
+      std::istringstream lineStr(rest);
 
       // Header information
       if (keyword == "WIND_HEADER_VERSION")
