@@ -67,10 +67,7 @@ void vtkPTSReader::SetFileName(const char *filename)
   {
     return;
   }
-  if (this->FileName)
-  {
-    delete [] this->FileName;
-  }
+  delete [] this->FileName;
   if (filename)
   {
     size_t n = strlen(filename) + 1;

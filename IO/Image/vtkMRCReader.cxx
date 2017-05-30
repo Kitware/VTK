@@ -139,10 +139,7 @@ public:
 
   void openFile(const char* file)
   {
-    if (stream != NULL)
-    {
-      delete stream;
-    }
+    delete stream;
     stream = new std::ifstream(file, std::ifstream::binary);
   }
 };

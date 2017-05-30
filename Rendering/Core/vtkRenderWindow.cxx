@@ -384,10 +384,7 @@ void vtkRenderWindow::Render()
           *p1 += *p2; p1++; p2++;
         }
       }
-      if (p3)
-      {
-        delete [] p3;
-      }
+      delete [] p3;
     }
 
     // if this is the last sub frame then convert back into unsigned char

@@ -488,14 +488,8 @@ int vtkContinuousScatterplot::RequestData(
         for (double threshold = initThreshold; threshold < maxCell; threshold += fragWidth[fieldNr])
         {
           // Initialise framgent face structure for the current cutting plane.
-          if (fragment)
-          {
-            delete fragment;
-          }
-          if (residual)
-          {
-            delete residual;
-          }
+          delete fragment;
+          delete residual;
           fragment = new std::vector<vtkSmartPointer<vtkIdList> >();
           residual = new std::vector<vtkSmartPointer<vtkIdList> >();
 
