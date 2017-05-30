@@ -576,10 +576,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityTable()
   vtkPiecewiseFunction *pwf = this->Owner->GetScalarOpacityFunction();
   int tableSize = this->Owner->GetOpacityTableSize();
 
-  if (this->OpacityTable)
-  {
-    delete [] this->OpacityTable;
-  }
+  delete [] this->OpacityTable;
   this->OpacityTable = new float [tableSize+1];
   if (pwf)
   {
@@ -603,10 +600,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildScaleTable()
   vtkPiecewiseFunction *pwf = this->Owner->GetScaleFunction();
   int tableSize = this->Owner->GetScaleTableSize();
 
-  if (this->ScaleTable)
-  {
-    delete [] this->ScaleTable;
-  }
+  delete [] this->ScaleTable;
   this->ScaleTable = new float [tableSize+1];
   if (pwf)
   {

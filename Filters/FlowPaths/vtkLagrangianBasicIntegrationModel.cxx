@@ -555,11 +555,7 @@ vtkLagrangianBasicIntegrationModel::~vtkLagrangianBasicIntegrationModel()
   delete this->DataSets;
   delete this->Surfaces;
   delete this->SurfaceLocators;
-
-  if (this->TmpParticle != NULL)
-  {
-    delete this->TmpParticle;
-  }
+  delete this->TmpParticle;
 
   if (this->TmpArray != NULL)
   {

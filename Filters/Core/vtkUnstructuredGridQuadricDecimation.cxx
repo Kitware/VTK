@@ -1627,10 +1627,7 @@ vtkUnstructuredGridQuadricDecimation::vtkUnstructuredGridQuadricDecimation()
 
 vtkUnstructuredGridQuadricDecimation::~vtkUnstructuredGridQuadricDecimation()
 {
-  if (this->ScalarsName)
-  {
-    delete [] this->ScalarsName;
-  }
+  delete [] this->ScalarsName;
 }
 
 void vtkUnstructuredGridQuadricDecimation::ReportError(int err)

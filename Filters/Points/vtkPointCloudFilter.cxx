@@ -151,10 +151,7 @@ vtkPointCloudFilter::vtkPointCloudFilter()
 //----------------------------------------------------------------------------
 vtkPointCloudFilter::~vtkPointCloudFilter()
 {
-  if ( this->PointMap )
-  {
-    delete [] this->PointMap;
-  }
+  delete [] this->PointMap;
 }
 
 //----------------------------------------------------------------------------
@@ -193,10 +190,8 @@ int vtkPointCloudFilter::RequestData(
 
   // Reset the filter
   this->NumberOfPointsRemoved = 0;
-  if ( this->PointMap )
-  {
-    delete [] this->PointMap; //might have executed previously
-  }
+
+  delete [] this->PointMap; //might have executed previously
 
   // Check input
   if ( !input || !output )

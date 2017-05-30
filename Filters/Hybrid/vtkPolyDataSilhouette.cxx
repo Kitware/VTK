@@ -242,7 +242,7 @@ int vtkPolyDataSilhouette::RequestData(
       polys += np;
     }
 
-    if( this->PreComp->edgeFlag != 0 ) delete [] this->PreComp->edgeFlag;
+    delete [] this->PreComp->edgeFlag;
     this->PreComp->edgeFlag = new bool[ this->PreComp->edges.size() ];
   }
 
