@@ -128,6 +128,15 @@ public:
 
   //@{
   /**
+   * Turn on/off use of mipmaps when rendering.
+   */
+  vtkGetMacro(Mipmap, bool);
+  vtkSetMacro(Mipmap, bool);
+  vtkBooleanMacro(Mipmap, bool);
+  //@}
+
+  //@{
+  /**
    * Force texture quality to 16-bit or 32-bit.
    * This might not be supported on all machines.
    */
@@ -250,6 +259,18 @@ public:
    */
   virtual int GetTextureUnit() { return 0; }
 
+  //@{
+  /**
+   * Is this texture a cube map, if so it needs 6 inputs
+   * one for each side of the cube. You must set this before
+   * connecting the inputs. The inputs must all have the same
+   * size, data type, and depth
+   */
+  vtkGetMacro(CubeMap, bool);
+  vtkBooleanMacro(CubeMap, bool);
+  void SetCubeMap(bool val);
+  //@}
+
 protected:
   vtkTexture();
   ~vtkTexture() VTK_OVERRIDE;
@@ -260,6 +281,7 @@ protected:
   {
   }
 
+  bool Mipmap;
   int Repeat;
   int EdgeClamp;
   int Interpolate;
@@ -274,6 +296,7 @@ protected:
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable
   int SelfAdjustingTableRange;
   bool PremultipliedAlpha;
+  bool CubeMap;
 
   // the result of HasTranslucentPolygonalGeometry is cached
   vtkTimeStamp TranslucentComputationTime;

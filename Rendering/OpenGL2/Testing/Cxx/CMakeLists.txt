@@ -36,4 +36,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestValuePass2.cxx
   )
 
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestCubeMap2.cxx
+    "DATA{${VTK_TEST_INPUT_DIR}/skybox/,REGEX:.*}")
+
 vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY)

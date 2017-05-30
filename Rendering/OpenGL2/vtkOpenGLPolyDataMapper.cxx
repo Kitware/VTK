@@ -682,7 +682,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       {
         vtkShaderProgram::Substitute(FSSource,
           "//VTK::Color::Impl", colorImpl +
-          "  vec4 texColor = texture2D(texture_0, tcoordVCVSOutput.st);\n"
+          "  vec4 texColor = texture(texture_0, tcoordVCVSOutput.st);\n"
           "  ambientColor = texColor.rgb;\n"
           "  opacity = opacity*texColor.a;");
       }
@@ -692,7 +692,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       {
         vtkShaderProgram::Substitute(FSSource,
           "//VTK::Color::Impl", colorImpl +
-          "  vec4 texColor = texture2D(texture_0, tcoordVCVSOutput.st);\n"
+          "  vec4 texColor = texture(texture_0, tcoordVCVSOutput.st);\n"
           "  diffuseColor = texColor.rgb;\n"
           "  opacity = opacity*texColor.a;");
       }
@@ -700,7 +700,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       {
         vtkShaderProgram::Substitute(FSSource,
           "//VTK::Color::Impl", colorImpl +
-          "vec4 texColor = texture2D(texture_0, tcoordVCVSOutput.st);\n"
+          "vec4 texColor = texture(texture_0, tcoordVCVSOutput.st);\n"
           "  ambientColor = texColor.rgb;\n"
           "  diffuseColor = texColor.rgb;\n"
           "  opacity = opacity*texColor.a;");
@@ -949,16 +949,39 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     return;
   }
 
-  // do not have 1 or 2 text coordinates?
-  int tcoordComps = this->VBOs->GetNumberOfComponents("tcoordMC");
-  if(tcoordComps != 1 && tcoordComps != 2)
-  {
-    return;
-  }
-
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  // define texture maps if we have them
+  std::string tMapDecFS;
+  std::vector<vtkTexture *> textures = this->GetTextures(actor);
+  for (size_t i = 0; i < textures.size(); ++i)
+  {
+    vtkTexture *texture = textures[i];
+
+    std::stringstream ss;
+    if (texture->GetCubeMap())
+    {
+      ss << "uniform samplerCube texture_" << i << ";\n";
+    }
+    else
+    {
+      ss << "uniform sampler2D texture_" << i << ";\n";
+    }
+    tMapDecFS += ss.str();
+  }
+  vtkShaderProgram::Substitute(FSSource, "//VTK::TMap::Dec", tMapDecFS);
+
+  // if no texture coordinates then we are done
+  int tcoordComps = this->VBOs->GetNumberOfComponents("tcoordMC");
+  if (tcoordComps != 1 && tcoordComps != 2)
+  {
+    shaders[vtkShader::Vertex]->SetSource(VSSource);
+    shaders[vtkShader::Geometry]->SetSource(GSSource);
+    shaders[vtkShader::Fragment]->SetSource(FSSource);
+    return;
+  }
 
   // handle texture transformation matrix
   vtkInformation *info = actor->GetPropertyKeys();
@@ -987,7 +1010,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
       "tcoordVCVSOutput = tcoordMC;");
   }
 
-  // If 1 or 2 components per coordinates
+  // handle texture maps if we have them (coords may be computed)
   std::string tCoordType;
   std::string tCoordImpFSPre;
   std::string tCoordImpFSPost;
@@ -1006,19 +1029,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
 
   std::string tCoordDecFS;
   std::string tCoordImpFS;
-  std::vector<vtkTexture *> textures = this->GetTextures(actor);
   for (size_t i = 0; i < textures.size(); ++i)
   {
     vtkTexture *texture = textures[i];
-
-    // Define texture
     std::stringstream ss;
-    ss << "uniform sampler2D texture_" << i << ";\n";
-    tCoordDecFS += ss.str();
 
     // Read texture color
-    ss.str("");
-    ss << "vec4 tcolor_" << i << " = texture2D(texture_" << i << ", "
+    ss << "vec4 tcolor_" << i << " = texture(texture_" << i << ", "
        << tCoordImpFSPre << "tcoordVCVSOutput" << tCoordImpFSPost << "); // Read texture color\n";
 
     // Update color based on texture number of components

@@ -14,6 +14,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkImageData.h"
 #include "vtkImageFlip.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkJPEGReader.h"
@@ -28,12 +29,14 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShaderProgram.h"
+#include "vtkSkybox.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkTexture.h"
+
+#include "vtkLight.h"
 
 //----------------------------------------------------------------------------
-int TestCubeMap(int argc, char *argv[])
+int TestCubeMap2(int argc, char *argv[])
 {
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0, 0.0, 0.0);
@@ -42,8 +45,11 @@ int TestCubeMap(int argc, char *argv[])
   renderWindow->AddRenderer(renderer.Get());
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.Get());
-  vtkNew<vtkTexture> texture;
-  texture->CubeMapOn();
+
+  vtkNew<vtkLight> light;
+  light->SetLightTypeToSceneLight();
+  light->SetPosition(1.0,7.0,1.0);
+  renderer->AddLight(light.Get());
 
   const char* fileName =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
@@ -55,13 +61,25 @@ int TestCubeMap(int argc, char *argv[])
 
   const char* fpath[] =
     {
-    "Data/skybox-px.jpg",
-    "Data/skybox-nx.jpg",
-    "Data/skybox-py.jpg",
-    "Data/skybox-ny.jpg",
-    "Data/skybox-pz.jpg",
-    "Data/skybox-nz.jpg"
+    "Data/skybox/posx.jpg",
+    "Data/skybox/negx.jpg",
+    "Data/skybox/posy.jpg",
+    "Data/skybox/negy.jpg",
+    "Data/skybox/posz.jpg",
+    "Data/skybox/negz.jpg"
     };
+
+  vtkNew<vtkTexture> texture;
+  texture->CubeMapOn();
+  texture->InterpolateOn();
+  texture->RepeatOff();
+  texture->EdgeClampOn();
+
+  // mipmapping works on many systems but is not
+  // core 3.2 for cube maps. VTK will silently
+  // ignore it if it is not supported. We commented it
+  // out here to make valid images easier
+  // texture->MipmapOn();
 
   for (int i = 0; i < 6; i++)
   {
@@ -78,14 +96,21 @@ int TestCubeMap(int argc, char *argv[])
   mapper->SetInputConnection(norms->GetOutputPort());
 
   vtkNew<vtkActor> actor;
+  actor->SetPosition(0, 0, 0);
+  actor->SetScale(6.0, 6.0, 6.0);
+  actor->GetProperty()->SetSpecular(0.8);
+  actor->GetProperty()->SetSpecularPower(20);
+  actor->GetProperty()->SetDiffuse(0.1);
+  actor->GetProperty()->SetAmbient(0.1);
+  actor->GetProperty()->SetDiffuseColor(1.0,0.0,0.4);
+  actor->GetProperty()->SetAmbientColor(0.4,0.0,1.0);
   renderer->AddActor(actor.Get());
   actor->SetTexture(texture.Get());
   actor->SetMapper(mapper.Get());
 
-   // Add new code in default VTK vertex shader
   mapper->AddShaderReplacement(
     vtkShader::Vertex,
-    "//VTK::PositionVC::Dec", // replace the normal block
+    "//VTK::PositionVC::Dec", // replace
     true, // before the standard replacements
     "//VTK::PositionVC::Dec\n" // we still want the default
     "varying vec3 TexCoords;\n",
@@ -93,27 +118,45 @@ int TestCubeMap(int argc, char *argv[])
     );
   mapper->AddShaderReplacement(
     vtkShader::Vertex,
-    "//VTK::PositionVC::Impl", // replace the normal block
+    "//VTK::PositionVC::Impl", // replace
     true, // before the standard replacements
     "//VTK::PositionVC::Impl\n" // we still want the default
     "vec3 camPos = -MCVCMatrix[3].xyz * mat3(MCVCMatrix);\n"
     "TexCoords.xyz = reflect(vertexMC.xyz - camPos, normalize(normalMC));\n",
     false // only do it once
     );
-
-  // Replace VTK fragment shader
-  mapper->SetFragmentShaderCode(
-    "//VTK::System::Dec\n"  // always start with this line
-    "//VTK::Output::Dec\n"  // always have this line in your FS
-    "varying vec3 TexCoords;\n"
-    "uniform samplerCube texture_0;\n"
-    "void main () {\n"
-    "  gl_FragData[0] = texture(texture_0, TexCoords);\n"
-    "}\n"
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,
+    "//VTK::Light::Dec", // replace
+    true, // before the standard replacements
+    "//VTK::Light::Dec\n" // we still want the default
+    "varying vec3 TexCoords;\n",
+    false // only do it once
+    );
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,
+    "//VTK::Light::Impl", // replace
+    true, // before the standard replacements
+    "  vec3 cubeColor = texture(texture_0, normalize(TexCoords)).xyz;\n"
+    "//VTK::Light::Impl\n"
+    "  gl_FragData[0] = vec4(ambientColor + diffuse + specular + specularColor*cubeColor, opacity);\n"
+    , // we still want the default
+    false // only do it once
     );
 
-  renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom(1.4);
+  vtkNew<vtkSkybox> world;
+  world->SetTexture(texture.Get());
+  renderer->AddActor(world.Get());
+
+  renderer->GetActiveCamera()->SetPosition(0.0, 0.55, 2.0);
+  renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.55, 0.0);
+  renderer->GetActiveCamera()->SetViewAngle(60.0);
+  renderer->GetActiveCamera()->Zoom(1.1);
+  renderer->GetActiveCamera()->Azimuth(0);
+  renderer->GetActiveCamera()->Elevation(5);
+  renderer->GetActiveCamera()->Roll(-10);
+  renderer->ResetCameraClippingRange();
+
   renderWindow->Render();
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
