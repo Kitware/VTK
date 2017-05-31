@@ -146,5 +146,4 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
     }
   }
   delete[] values;
-  return;
 }

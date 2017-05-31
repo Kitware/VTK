@@ -5350,7 +5350,6 @@ void vtkOpenFOAMReaderPrivate::PopulatePolyMeshDirArrays()
     AppendMeshDirToArray(this->PolyMeshPointsDir, polyMeshPath + "points", i);
     AppendMeshDirToArray(this->PolyMeshFacesDir, polyMeshPath + "faces", i);
   }
-  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -9263,8 +9262,6 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Reader instance " << static_cast<void *>(reader) << ": \n";
     reader->PrintSelf(os, indent.GetNextIndent());
   }
-
-  return;
 }
 
 //-----------------------------------------------------------------------------

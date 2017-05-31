@@ -284,7 +284,6 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
 
 
   this->Modified();
-  return;
 }
 
 //-----------------------------------------------------------------------------

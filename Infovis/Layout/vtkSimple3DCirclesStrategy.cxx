@@ -468,8 +468,6 @@ void vtkSimple3DCirclesStrategy::Layout( void )
 
   this->Graph->SetPoints( points );
   vtkDebugMacro( << "vtkPoints is added to the graph. Vertex layout is ready." );
-
-  return;
 }
 
 void vtkSimple3DCirclesStrategy::SetGraph( vtkGraph * graph )

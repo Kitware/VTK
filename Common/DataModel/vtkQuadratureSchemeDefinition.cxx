@@ -219,7 +219,6 @@ void vtkQuadratureSchemeDefinition::PrintSelf(ostream &sout, vtkIndent indent)
     }
     sout << ")" << endl;
   }
-  return;
 }
 
 

@@ -413,7 +413,6 @@ void vtkChartParallelCoordinates::CalculatePlotTransform()
 //-----------------------------------------------------------------------------
 void vtkChartParallelCoordinates::RecalculateBounds()
 {
-  return;
 }
 
 //-----------------------------------------------------------------------------

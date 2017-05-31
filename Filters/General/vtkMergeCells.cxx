@@ -562,8 +562,6 @@ void vtkMergeCells::StartUGrid(vtkDataSet *set)
     ugrid->GetCellData()->CopyGlobalIdsOn();
   }
   ugrid->GetCellData()->CopyAllocate(*cellList, this->TotalNumberOfCells);
-
-  return;
 }
 
 void vtkMergeCells::Finish()
@@ -581,8 +579,6 @@ void vtkMergeCells::Finish()
   }
 
   ugrid->Squeeze();
-
-  return;
 }
 
 //  Use an array of global node ids to map all points to

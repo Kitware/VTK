@@ -505,8 +505,6 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
     this->Wave2.clear();
     this->Wave2.reserve(numCells);
   } //while wave is not empty
-
-  return;
 }
 
 // --------------------------------------------------------------------------

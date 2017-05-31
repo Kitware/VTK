@@ -91,8 +91,6 @@ void vtkProgrammableElectronicData::SetNumberOfMOs(vtkIdType size)
   this->MOs->resize(size);
 
   this->Modified();
-
-  return;
 }
 
 //----------------------------------------------------------------------------

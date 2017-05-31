@@ -283,8 +283,6 @@ void vtkOpenGLSphereMapper::CreateVBO(
   this->VBOs->CacheDataArray("scalarColor", ucolors, ren, VTK_UNSIGNED_CHAR);
   ucolors->Delete();
   VBOs->BuildAllVBOs(ren);
-
-  return;
 }
 
 //-------------------------------------------------------------------------

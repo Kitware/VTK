@@ -4293,7 +4293,6 @@ void vtkEnSightGoldBinaryReader::AddTimeStepToCache(const char* fileName,
     this->FileOffsets->Map[fileName] = tsMap;
   }
   this->FileOffsets->Map[fileName][realTimeStep] = address;
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -4335,5 +4334,4 @@ void vtkEnSightGoldBinaryReader::AddFileIndexToCache(const char* fileName)
     }
   }
   this->IFile->seekg(0l, ios::beg);
-  return;
 }

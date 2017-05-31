@@ -369,7 +369,6 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
   }
 
   this->Modified();
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -382,8 +381,6 @@ void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, const char* string,
     this->SetEntryString(i,string);
     this->SetEntryColor(i,color);
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -395,8 +392,6 @@ void vtkLegendBoxActor::SetEntry(int i, vtkImageData *icon, const char* string, 
     this->SetEntryString(i,string);
     this->SetEntryColor(i,color);
   }
-
-  return;
 }
 
 
@@ -409,8 +404,6 @@ void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, vtkImageData *icon,
     this->SetEntry(i, symbol, string, color);
     this->SetEntryIcon(i, icon);
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

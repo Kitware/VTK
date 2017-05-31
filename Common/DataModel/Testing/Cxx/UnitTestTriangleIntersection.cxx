@@ -125,7 +125,6 @@ void DrawTriangles(double* p1, double* q1, double* r1,
   // Render and interact
   renderWindow->Render();
   renderWindowInteractor->Start();
-  return;
 }
 }
 

@@ -819,7 +819,6 @@ void vtkQuadricDecimation::UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id)
   }
 
   changedEdges->Delete();
-  return;
 }
 
 //----------------------------------------------------------------------------

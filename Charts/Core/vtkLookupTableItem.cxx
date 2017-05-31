@@ -129,5 +129,4 @@ void vtkLookupTableItem::ComputeTexture()
       ptr+=4;
     }
   }
-  return;
 }

@@ -278,8 +278,6 @@ void  vtkHull::SetPlanes( vtkPlanes *planes )
       }//for all planes
     }//if points and normals
   }//if planes defined
-
-  return;
 }
 
 // Add the six planes that represent the faces on a cube

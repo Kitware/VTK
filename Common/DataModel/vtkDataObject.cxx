@@ -324,7 +324,6 @@ void vtkDataObject::RemoveNamedFieldInformation(vtkInformation *info,
       return;
     }
   }
-  return;
 }
 
 //----------------------------------------------------------------------------

@@ -520,8 +520,6 @@ void vtkConnectivityFilter::TraverseAndMark (vtkDataSet *input)
     this->Wave2 = tmpWave;
     tmpWave->Reset();
   } //while wave is not empty
-
-  return;
 }
 
 // Obtain the number of connected regions.

@@ -547,8 +547,6 @@ void vtkPlanesIntersection::ComputeNormal(double *p1, double *p2, double *p3,
   v2[0] = p3[0] - p2[0]; v2[1] = p3[1] - p2[1]; v2[2] = p3[2] - p2[2];
 
   vtkMath::Cross(v1, v2, normal);
-
-  return;
 }
 int vtkPlanesIntersection::GoodNormal(double *n)
 {

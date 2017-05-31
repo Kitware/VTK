@@ -1185,7 +1185,6 @@ void vtkGenericStreamTracer::Integrate(
   delete[] values;
 
   output->Squeeze();
-  return;
 }
 
 //-----------------------------------------------------------------------------

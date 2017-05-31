@@ -262,7 +262,6 @@ void vtkImageWriter::RecursiveWrite(int axis,
     file->close();
     delete file;
   }
-  return;
 }
 
 

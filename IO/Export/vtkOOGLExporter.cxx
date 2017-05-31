@@ -254,8 +254,6 @@ void vtkOOGLExporter::WriteALight(vtkLight *aLight, FILE *fp)
    VTK_INDENT_LESS;
 
    fprintf(fp, "%s}\n", indent);
-
-   return;
 }
 
 void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)

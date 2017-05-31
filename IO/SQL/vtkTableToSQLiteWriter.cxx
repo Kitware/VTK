@@ -141,7 +141,6 @@ void vtkTableToSQLiteWriter::WriteData()
 
   //cleanup and return
   query->Delete();
-  return;
 }
 
 //----------------------------------------------------------------------------

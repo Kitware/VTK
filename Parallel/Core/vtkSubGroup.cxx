@@ -113,8 +113,6 @@ void vtkSubGroup::moveRoot(int root)
   int tmproot = this->members[root];
   this->members[root] = this->members[0];
   this->members[0] = tmproot;
-
-  return;
 }
 void vtkSubGroup::restoreRoot(int root)
 {
@@ -135,8 +133,6 @@ void vtkSubGroup::restoreRoot(int root)
     this->myLocalRank = root;
     this->computeFanInTargets();
   }
-
-  return;
 }
 void vtkSubGroup::setUpRoot(int root)
 {
@@ -157,8 +153,6 @@ void vtkSubGroup::setUpRoot(int root)
     this->myLocalRank = root;
     this->computeFanInTargets();
   }
-
-  return;
 }
 
 vtkSubGroup::~vtkSubGroup()
@@ -249,7 +243,6 @@ void vtkSubGroup::setGatherPattern(int root, int length)
     }
     if (left == right) break;
   }
-  return;
 }
 
 int vtkSubGroup::getLocalRank(int processId)
