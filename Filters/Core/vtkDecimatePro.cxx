@@ -1097,8 +1097,6 @@ void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
     cellIds->Delete();
     group->Delete();
   }
-
-  return;
 }
 
 

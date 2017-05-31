@@ -1698,8 +1698,6 @@ ExtractCellIds(const unsigned char *selected, vtkIdList *cellIds,
       }
     }
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

@@ -253,8 +253,6 @@ void vtkXMLUtilities::CollateAttributes(vtkXMLDataElement *elem,
       }
     }
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

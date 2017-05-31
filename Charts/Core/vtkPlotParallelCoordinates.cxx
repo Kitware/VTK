@@ -479,7 +479,6 @@ void vtkPlotParallelCoordinates::SelectColorArray(const vtkStdString &arrayName)
   vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
   this->ColorArrayName = "";
   this->Modified();
-  return;
 }
 
 //-----------------------------------------------------------------------------

@@ -680,8 +680,6 @@ void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
   {
     x[i] = origin[i] + (loc[i]+extent[i*2]) * spacing[i];
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

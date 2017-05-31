@@ -423,8 +423,6 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
   {
     // Do nothing.
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------

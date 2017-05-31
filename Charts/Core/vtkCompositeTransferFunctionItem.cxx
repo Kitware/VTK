@@ -144,5 +144,4 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     }
   }
   delete [] values;
-  return;
 }

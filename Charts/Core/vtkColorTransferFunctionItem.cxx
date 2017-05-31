@@ -146,7 +146,6 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     }
   }
   delete [] values;
-  return;
 }
 
 //-----------------------------------------------------------------------------

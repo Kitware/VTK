@@ -373,8 +373,6 @@ void vtkEuclideanClusterExtraction::TraverseAndMark (vtkPoints *inPts)
     this->Wave2 = tmpWave;
     tmpWave->Reset();
   } //while wave is not empty
-
-  return;
 }
 
 //----------------------------------------------------------------------------

@@ -87,8 +87,6 @@ void vtkOrderStatistics::SetQuantileDefinition( int qd )
 
   this->QuantileDefinition =  static_cast<vtkOrderStatistics::QuantileDefinitionType>( qd );
   this->Modified();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
@@ -306,8 +304,6 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     histogramTab->Delete();
     row->Delete();
   } // rit
-
-  return;
 }
 
 // ----------------------------------------------------------------------

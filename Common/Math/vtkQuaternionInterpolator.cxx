@@ -283,8 +283,6 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t,
     q = qc.Slerp(2.0*T*(1.0-T),qd);
     q.NormalizeWithAngleInDegrees();
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

@@ -3226,7 +3226,6 @@ void vtkHyperOctreeLightWeightCursor::ToChild(int child)
     this->IsLeaf=node->IsChildLeaf(child);
     this->Level += 1;
   }
-  return;
 }
 
 

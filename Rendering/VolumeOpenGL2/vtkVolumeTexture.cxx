@@ -638,8 +638,6 @@ void vtkVolumeTexture::UpdateInterpolationType(int const interpolation)
   {
     std::cerr << "Interpolation type not supported in this mapper." << std::endl;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

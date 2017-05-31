@@ -414,8 +414,6 @@ void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
   }
   ucolors->Delete();
   VBOs->BuildAllVBOs(ren);
-
-  return;
 }
 }
 

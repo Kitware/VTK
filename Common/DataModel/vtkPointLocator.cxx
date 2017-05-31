@@ -1008,8 +1008,6 @@ void vtkPointLocator::GetBucketNeighbors(vtkNeighborPoints* buckets,
       }
     }
   }
-
-  return;
 }
 
 

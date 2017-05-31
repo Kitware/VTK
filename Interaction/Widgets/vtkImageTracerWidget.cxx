@@ -1528,5 +1528,4 @@ void vtkImageTracerWidget::PlaceWidget(double bds[6])
 void vtkImageTracerWidget::SizeHandles()
 {
   // TODO...
-  return;
 }

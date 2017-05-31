@@ -1020,8 +1020,6 @@ void vtkCellLocator::GetBucketNeighbors(int ijk[3], int ndivs, int level)
       }
     }
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

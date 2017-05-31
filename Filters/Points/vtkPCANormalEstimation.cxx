@@ -333,8 +333,6 @@ TraverseAndFlip (vtkPoints *inPts, float *normals, char *pointMap,
   } //while wave is not empty
 
   neighborPointIds->Delete();
-
-  return;
 }
 
 //----------------------------------------------------------------------------

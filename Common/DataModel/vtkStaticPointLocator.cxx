@@ -250,8 +250,6 @@ GetBucketNeighbors(NeighborBuckets* buckets, const int ijk[3],
       }
     }
   }
-
-  return;
 }
 
 //-----------------------------------------------------------------------------

@@ -113,7 +113,6 @@ void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
       }
     }
   }
-  return;
 }
 
 void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)

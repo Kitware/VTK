@@ -91,8 +91,6 @@ void vtkExtractCells::AddCellList(vtkIdList *l)
   }
 
   this->Modified();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -106,8 +104,6 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
   }
 
   this->Modified();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -267,8 +263,6 @@ void vtkExtractCells::Copy(vtkDataSet *input, vtkUnstructuredGrid *output)
   cellPoints->Delete();
 
   output->Squeeze();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -468,8 +462,6 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
   }
 
   cellPoints->Delete();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -562,8 +554,6 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   locationArray->Delete();
   newcells->Delete();
   cellArray->Delete();
-
-  return;
 }
 
 //----------------------------------------------------------------------------

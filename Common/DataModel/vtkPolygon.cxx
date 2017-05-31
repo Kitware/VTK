@@ -560,8 +560,6 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(double x[3], double *weights)
   {
     weights[i] /= sum;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

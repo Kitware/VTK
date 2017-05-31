@@ -453,8 +453,6 @@ void vtkProp3DAxisFollower::ComputerAutoCenterTranslation(
   {
     // Do nothing.
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------

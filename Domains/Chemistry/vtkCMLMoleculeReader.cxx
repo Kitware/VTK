@@ -179,8 +179,6 @@ void vtkCMLParser::StartElement(const char *name, const char **attr)
     }
     vtkDebugMacro(<<desc);
   }
-
-  return;
 }
 
 void vtkCMLParser::EndElement(const char *)

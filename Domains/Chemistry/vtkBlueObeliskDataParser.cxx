@@ -145,8 +145,6 @@ void vtkBlueObeliskDataParser::StartElement(const char *name,
   {
     vtkDebugMacro(<<"Unhandled BODR element: " << name);
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -453,7 +451,6 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char *data)
     default:
       vtkDebugMacro(<<"Called with no CurrentValueType. data: "<<data);
   }
-  return;
 }
 
 //----------------------------------------------------------------------------

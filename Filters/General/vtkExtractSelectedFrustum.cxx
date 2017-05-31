@@ -1159,8 +1159,6 @@ void vtkExtractSelectedFrustum::PlaneClipEdge(double *V0, double *V1, int pid,
     overts[noverts*3+2] = V1[2];
     noverts++;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

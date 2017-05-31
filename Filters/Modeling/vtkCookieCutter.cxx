@@ -378,8 +378,6 @@ namespace {
 
     // Update the sorted points array, now clean!
     sortedPoints = newSortedPoints;
-
-    return;
   }
 
   // Classify polyline segments----------------------------------------------

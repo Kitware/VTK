@@ -294,8 +294,6 @@ void vtkKdTree::DeleteCellLists()
   }
 
   this->InitializeCellLists();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -552,8 +550,6 @@ void vtkKdTree::GetRegionsAtLevel(int level, vtkKdNode **nodes)
   }
 
   vtkKdTree::_GetRegionsAtLevel(level, nodes, this->Top);
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -570,7 +566,6 @@ void vtkKdTree::GetLeafNodeIds(vtkKdNode *node, vtkIntArray *ids)
   {
     ids->InsertNextValue(id);
   }
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -730,8 +725,6 @@ void vtkKdTree::ComputeCellCenter(vtkDataSet *set, int cellId, double *center)
   this->ComputeCellCenter(set->GetCell(cellId), center, weights);
 
   delete [] weights;
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -743,8 +736,6 @@ void vtkKdTree::ComputeCellCenter(vtkCell *cell, double *center,
   int subId = cell->GetParametricCenter(pcoords);
 
   cell->EvaluateLocation(subId, pcoords, center, weights);
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -917,7 +908,6 @@ void vtkKdTree::BuildLocator()
   this->SetCalculator(this->Top);
 
   this->UpdateProgress(1.0);
-  return;
 }
 
 int vtkKdTree::ProcessUserDefinedCuts(double *minBounds)
@@ -1610,8 +1600,6 @@ void vtkKdTree::SelfRegister(vtkKdNode *kd)
     this->SelfRegister(kd->GetLeft());
     this->SelfRegister(kd->GetRight());
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -3553,14 +3541,12 @@ int vtkKdTree::findRegion(vtkKdNode *node, double x, double y, double z)
 void vtkKdTree::CreateCellLists()
 {
   this->CreateCellLists(static_cast<int *>(NULL), 0);
-  return;
 }
 
 //----------------------------------------------------------------------------
 void vtkKdTree::CreateCellLists(int *regionList, int listSize)
 {
   this->CreateCellLists(this->GetDataSet(), regionList, listSize);
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -3574,7 +3560,6 @@ void vtkKdTree::CreateCellLists(int dataSetIndex, int *regionList, int listSize)
   }
 
   this->CreateCellLists(dataSet, regionList, listSize);
-  return;
 }
 
 //----------------------------------------------------------------------------

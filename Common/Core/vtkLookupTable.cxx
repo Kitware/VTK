@@ -697,8 +697,6 @@ void vtkLookupTable::GetColorAsUnsignedChars(const double colorIn[4],
     else if (v > 1.0) { v = 1.0; }
     colorOut[c] = static_cast<unsigned char>( v * 255.0 + 0.5 );
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

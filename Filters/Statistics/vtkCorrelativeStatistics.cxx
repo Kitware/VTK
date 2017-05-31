@@ -201,8 +201,6 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 
   // Clean up
   aggregatedTab->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------

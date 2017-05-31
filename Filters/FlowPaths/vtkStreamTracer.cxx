@@ -1199,7 +1199,6 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
   delete[] weights;
 
   output->Squeeze();
-  return;
 }
 
 void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,

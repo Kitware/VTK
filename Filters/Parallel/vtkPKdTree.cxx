@@ -260,7 +260,6 @@ void vtkPKdTree::AllCheckParameters()
     this->SetNumberOfRegionsOrMore(param0[3]);
     this->RegionAssignment       = param0[4];
   }
-  return;
 }
 
 #define BoundsToMinMax(bounds,min,max) \
@@ -460,7 +459,6 @@ done:
 
   this->UpdateBuildTime();
   this->UpdateProgress(1.0);
-  return;
 }
 int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
 {
@@ -584,8 +582,6 @@ void vtkPKdTree::SingleProcessBuildLocator()
   {
     this->UpdateRegionAssignment();
   }
-
-  return;
 }
 typedef struct _vtkNodeInfo{
   vtkKdNode *kd;
@@ -887,7 +883,6 @@ void vtkPKdTree::ExchangeVals(int pos1, int pos2)
 
     this->SetLocalVal(pos2, otherval);
   }
-  return;
 }
 
 // Given an array X with element indices ranging from L to R, and
@@ -1101,8 +1096,6 @@ void vtkPKdTree::SetLocalVal(int pos, float *val)
   this->CurrentPtArray[localOffset]   = val[0];
   this->CurrentPtArray[localOffset+1] = val[1];
   this->CurrentPtArray[localOffset+2] = val[2];
-
-  return;
 }
 void vtkPKdTree::ExchangeLocalVals(int pos1, int pos2)
 {
@@ -1128,8 +1121,6 @@ void vtkPKdTree::ExchangeLocalVals(int pos1, int pos2)
   pt2[0] = temp[0];
   pt2[1] = temp[1];
   pt2[2] = temp[2];
-
-  return;
 }
 
 void vtkPKdTree::DoTransfer(int from, int to, int fromIndex, int toIndex, int count)
@@ -2101,8 +2092,6 @@ void vtkPKdTree::ReduceData(vtkKdNode *kd, int *sources)
   this->ReduceData(kd->GetLeft(), sources);
 
   this->ReduceData(kd->GetRight(), sources);
-
-  return;
 }
 void vtkPKdTree::BroadcastData(vtkKdNode *kd)
 {
@@ -2125,8 +2114,6 @@ void vtkPKdTree::BroadcastData(vtkKdNode *kd)
   this->BroadcastData(kd->GetLeft());
 
   this->BroadcastData(kd->GetRight());
-
-  return;
 }
 void vtkPKdTree::CheckFixRegionBoundaries(vtkKdNode *tree)
 {

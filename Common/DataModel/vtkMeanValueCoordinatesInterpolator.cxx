@@ -353,8 +353,6 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
   {
     weights[pid] /= sumWeight;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -534,8 +532,6 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
   {
     weights[pid] /= sumWeight;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -609,8 +605,6 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
     vtkMeanValueCoordinatesInterpolator::
       ComputeInterpolationWeightsForPolygonMesh(x,pts,iter,weights);
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

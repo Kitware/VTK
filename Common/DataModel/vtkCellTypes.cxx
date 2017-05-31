@@ -205,7 +205,6 @@ void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
   {
     this->MaxId = cellId;
   }
-  return;
 }
 
 //----------------------------------------------------------------------------

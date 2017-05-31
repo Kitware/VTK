@@ -593,8 +593,6 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
     this->Wave2 = tmpWave;
     this->Wave2->Reset();
   } //while wave still propagating
-
-  return;
 }
 
 //
@@ -754,8 +752,6 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
       }//replace ptId with split point
     }//if not in first regions and requiring splitting
   }//for all cells connected to ptId
-
-  return;
 }
 
 void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)

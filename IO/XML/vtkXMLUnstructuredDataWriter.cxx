@@ -971,8 +971,6 @@ void vtkXMLUnstructuredDataWriter::ConvertFaces(vtkIdTypeArray* faces,
     this->Faces->SetNumberOfTuples(0);
     this->FaceOffsets->SetNumberOfTuples(0);
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
