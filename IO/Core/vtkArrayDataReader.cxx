@@ -100,7 +100,7 @@ int vtkArrayDataReader::RequestData(
   return 0;
 }
 
-vtkArrayData* vtkArrayDataReader::Read(vtkStdString str)
+vtkArrayData* vtkArrayDataReader::Read(const vtkStdString& str)
 {
   std::istringstream iss(str);
   return vtkArrayDataReader::Read(iss);

@@ -70,7 +70,7 @@ public:
   {
     this->ArrayUnits.clear();
   }
-  void AddUnit(std::string arrayName, const std::string& unit)
+  void AddUnit(const std::string& arrayName, const std::string& unit)
   {
      this->ArrayUnits[arrayName] = unit;
   }

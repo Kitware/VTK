@@ -141,7 +141,7 @@ public:
    * Mark a row as blank, meaning that no cells will be drawn for it.
    * Used by vtkTreeHeatmapItem to represent missing data.
    */
-  void MarkRowAsBlank(std::string rowName);
+  void MarkRowAsBlank(const std::string& rowName);
 
   /**
    * Paints the table as a heatmap.

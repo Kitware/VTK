@@ -68,7 +68,7 @@ protected:
   void FillData(vtkVariant v);
   void ParseSparseData();
   void ParseDenseData();
-  void InsertValue(int row, int col, std::string value);
+  void InsertValue(int row, int col, const std::string& value);
   void ParseId();
   void ParseColumns();
   void ParseRows();

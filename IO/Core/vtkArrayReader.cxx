@@ -554,7 +554,7 @@ int vtkArrayReader::RequestData(
   return 0;
 }
 
-vtkArray* vtkArrayReader::Read(vtkStdString str)
+vtkArray* vtkArrayReader::Read(const vtkStdString& str)
 {
   std::istringstream iss(str);
   return vtkArrayReader::Read(iss);

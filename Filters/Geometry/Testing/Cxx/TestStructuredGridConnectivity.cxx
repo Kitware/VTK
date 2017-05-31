@@ -59,7 +59,7 @@ namespace
 // the points by color -- 0(off) or 1(on) -- to indicate whether or not a
 // particular flag is "ON"
 void AttachPointFlagsArray(
-    vtkUniformGrid *grid, const int flag, std::string label )
+    vtkUniformGrid *grid, const int flag, const std::string& label )
 {
   assert( "pre: grid should not be NULL!" && (grid != NULL) );
 
@@ -93,7 +93,7 @@ void AttachPointFlagsArray(
 // the points by color -- 0(off) or 1(on) -- to indicate whether or not a
 // particular flag is "ON"
 void AttachCellFlagsArray(
-    vtkUniformGrid *grid, const int flag, std::string label )
+    vtkUniformGrid *grid, const int flag, const std::string& label )
 {
   assert( "pre: grid should not be NULL" && (grid != NULL) );
 

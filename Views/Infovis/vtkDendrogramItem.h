@@ -191,7 +191,7 @@ public:
    * this information in the passed array.  Returns true if the vertex
    * was found, false otherwise.
    */
-  bool GetPositionOfVertex(std::string vertexName, double position[2]);
+  bool GetPositionOfVertex(const std::string& vertexName, double position[2]);
 
   /**
    * Paints the input tree as a dendrogram.

@@ -1492,7 +1492,7 @@ void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkDendrogramItem::GetPositionOfVertex(std::string vertexName,
+bool vtkDendrogramItem::GetPositionOfVertex(const std::string& vertexName,
                                             double position[2])
 {
   vtkStringArray *vertexNames = vtkArrayDownCast<vtkStringArray>(

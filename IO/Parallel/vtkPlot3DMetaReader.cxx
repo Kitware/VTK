@@ -49,7 +49,7 @@ struct vtkPlot3DMetaReaderInternals
   std::map<std::string, Plot3DFunction> FunctionMap;
   std::vector<Plot3DTimeStep> TimeSteps;
 
-  std::string ResolveFileName(std::string metaFileName,
+  std::string ResolveFileName(const std::string& metaFileName,
                               std::string fileName)
   {
       if (vtksys::SystemTools::FileIsFullPath(fileName.c_str()))

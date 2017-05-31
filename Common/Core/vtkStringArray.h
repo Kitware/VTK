@@ -289,8 +289,8 @@ public:
   void LookupValue(vtkVariant value, vtkIdList* ids) VTK_OVERRIDE;
   //@}
 
-  vtkIdType LookupValue(vtkStdString value);
-  void LookupValue(vtkStdString value, vtkIdList* ids);
+  vtkIdType LookupValue(const vtkStdString& value);
+  void LookupValue(const vtkStdString& value, vtkIdList* ids);
 
   vtkIdType LookupValue(const char* value);
   void LookupValue(const char* value, vtkIdList* ids);

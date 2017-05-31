@@ -3545,7 +3545,7 @@ int vtkExodusIIReaderPrivate::GetPartStatus(int idx)
 }
 
 //-----------------------------------------------------------------------------
-int vtkExodusIIReaderPrivate::GetPartStatus(vtkStdString name)
+int vtkExodusIIReaderPrivate::GetPartStatus(const vtkStdString& name)
 {
   for (unsigned int i=0;i<this->PartInfo.size();i++)
   {
@@ -3569,7 +3569,7 @@ void vtkExodusIIReaderPrivate::SetPartStatus(int idx, int on)
 }
 
 //-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::SetPartStatus(vtkStdString name, int flag)
+void vtkExodusIIReaderPrivate::SetPartStatus(const vtkStdString& name, int flag)
 {
   for(unsigned int idx=0; idx<this->PartInfo.size(); ++idx)
   {
@@ -3609,7 +3609,7 @@ int vtkExodusIIReaderPrivate::GetMaterialStatus(int idx)
 }
 
 //-----------------------------------------------------------------------------
-int vtkExodusIIReaderPrivate::GetMaterialStatus(vtkStdString name)
+int vtkExodusIIReaderPrivate::GetMaterialStatus(const vtkStdString& name)
 {
   for (unsigned int i=0;i<this->MaterialInfo.size();i++)
   {
@@ -3634,7 +3634,7 @@ void vtkExodusIIReaderPrivate::SetMaterialStatus(int idx, int on)
 }
 
 //-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::SetMaterialStatus(vtkStdString name, int flag)
+void vtkExodusIIReaderPrivate::SetMaterialStatus(const vtkStdString& name, int flag)
 {
   for(unsigned int idx=0; idx<this->MaterialInfo.size(); ++idx)
   {
@@ -3674,7 +3674,7 @@ int vtkExodusIIReaderPrivate::GetAssemblyStatus(int idx)
 }
 
 //-----------------------------------------------------------------------------
-int vtkExodusIIReaderPrivate::GetAssemblyStatus(vtkStdString name)
+int vtkExodusIIReaderPrivate::GetAssemblyStatus(const vtkStdString& name)
 {
   for (unsigned int i=0;i<this->AssemblyInfo.size();i++)
   {
@@ -3699,7 +3699,7 @@ void vtkExodusIIReaderPrivate::SetAssemblyStatus(int idx, int on)
 }
 
 //-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::SetAssemblyStatus(vtkStdString name, int flag)
+void vtkExodusIIReaderPrivate::SetAssemblyStatus(const vtkStdString& name, int flag)
 {
   for(unsigned int idx=0; idx<this->AssemblyInfo.size(); ++idx)
   {
