@@ -151,7 +151,7 @@ static const char* UGGCG_GLOBAL_CELL_IDS = "GlobalNodeIds";
 
 //----------------------------------------------------------------------------
 
-vtkStandardNewMacro(vtkPUnstructuredGridGhostCellsGenerator)
+vtkObjectFactoryNewMacro(vtkPUnstructuredGridGhostCellsGenerator)
 vtkSetObjectImplementationMacro(
   vtkPUnstructuredGridGhostCellsGenerator, Controller, vtkMultiProcessController);
 

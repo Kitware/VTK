@@ -521,6 +521,15 @@ public:
   int GetScalarFieldCriticalIndex (vtkIdType pointId, int fieldId);
   int GetScalarFieldCriticalIndex (vtkIdType pointId, const char* fieldName);
 
+  /**
+   * Return the mesh (geometry/topology) modification time.
+   * This time is different from the usual MTime which also takes into
+   * account the modification of data arrays. This function can be used to
+   * track the changes on the mesh separately from the data arrays
+   * (eg. static mesh over time with transient data).
+   */
+  virtual vtkMTimeType GetMeshMTime();
+
 protected:
   vtkPolyData();
   ~vtkPolyData() VTK_OVERRIDE;

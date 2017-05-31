@@ -291,6 +291,15 @@ public:
   int InitializeFacesRepresentation(vtkIdType numPrevCells);
 
   /**
+   * Return the mesh (geometry/topology) modification time.
+   * This time is different from the usual MTime which also takes into
+   * account the modification of data arrays. This function can be used to
+   * track the changes on the mesh separately from the data arrays
+   * (eg. static mesh over time with transient data).
+   */
+  virtual vtkMTimeType GetMeshMTime();
+
+  /**
    * A static method for converting a polyhedron vtkCellArray of format
    * [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
    * into three components: (1) an integer indicating the number of faces

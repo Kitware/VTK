@@ -52,7 +52,7 @@
 #include <cmath>
 #include <unordered_map>
 
-vtkStandardNewMacro(vtkPlaneCutter);
+vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
 
 //----------------------------------------------------------------------------
