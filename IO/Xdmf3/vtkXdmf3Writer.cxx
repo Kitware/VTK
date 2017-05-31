@@ -214,7 +214,6 @@ public:
           this->WriteDataObject(next, hasTime, time, blockName);
           this->Domain->accept(this->Writer);
           this->gridCounter++;
-          delete [] blockName;
         }
         this->DestinationGroups.pop();
         this->Destination = this->DestinationGroups.top();
