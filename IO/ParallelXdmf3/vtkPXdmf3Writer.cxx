@@ -13,31 +13,13 @@
 
 =========================================================================*/
 
-#include "XdmfDomain.hpp"
-#include "XdmfGridCollection.hpp"
-#include "XdmfGridCollectionType.hpp"
-#include "XdmfHeavyDataWriter.hpp"
-#include "XdmfWriter.hpp"
-
 #include "vtkPXdmf3Writer.h"
 
-#include "vtkDataObject.h"
-#include "vtkDirectedGraph.h"
-#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointSet.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStructuredGrid.h"
-#include "vtkXdmf3DataSet.h"
-
 #include "vtkMultiProcessController.h"
-
-
-#include <stack>
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro (vtkPXdmf3Writer);
 

@@ -43,17 +43,7 @@
 #define vtkPXdmf3Writer_h
 
 #include "vtkIOParallelXdmf3Module.h" // For export macro
-
 #include "vtkXdmf3Writer.h"
-
-#include <vector> // STL Header
-#include <map>    // STL Header
-#include <string> // STL Header
-
-class vtkModelMetadata;
-class vtkDoubleArray;
-class vtkIntArray;
-class vtkUnstructuredGrid;
 
 class VTKIOPARALLELXDMF3_EXPORT vtkPXdmf3Writer : public vtkXdmf3Writer
 {
