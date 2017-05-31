@@ -38,7 +38,6 @@ vtkAOSDataArrayTemplate<ValueTypeT>::vtkAOSDataArrayTemplate()
 template <class ValueTypeT>
 vtkAOSDataArrayTemplate<ValueTypeT>::~vtkAOSDataArrayTemplate()
 {
-  this->SetArray(NULL, 0, 0);
   this->Buffer->Delete();
 }
 
