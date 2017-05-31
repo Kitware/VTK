@@ -95,8 +95,8 @@ int vtkWin32ProcessOutputWindow::Initialize()
 
   // Construct the executable name from the process id, pointer to
   // this output window instance, and a count.  This should be unique.
-  sprintf(exeName, "vtkWin32OWP_%" PRIdword "_%p_%u.exe",
-          GetCurrentProcessId(), this, this->Count++);
+  snprintf(exeName, sizeof(exeName), "vtkWin32OWP_%" PRIdword "_%p_%u.exe",
+           GetCurrentProcessId(), this, this->Count++);
 
   // Allocate a buffer to hold the executable path.
   size_t tdlen = strlen(tempDir);
@@ -107,7 +107,7 @@ int vtkWin32ProcessOutputWindow::Initialize()
   }
 
   // Construct the full path to the executable.
-  sprintf(exeFullPath, "%s%s", tempDir, exeName);
+  snprintf(exeFullPath, sizeof(exeFullPath), "%s%s", tempDir, exeName);
 
   // Try to write the executable to disk.
   if(!vtkEncodedArrayWin32OutputWindowProcessWrite(exeFullPath))

@@ -193,30 +193,31 @@ int vtkExtractVectorComponents::RequestData(
     name = 0;
   }
 
-  char* newName;
+  size_t newNameSize;
   if (name)
   {
-    newName = new char[strlen(name)+10];
+    newNameSize = strlen(name)+10;
   }
   else
   {
-    newName = new char[10];
+    newNameSize = 10;
     name = "";
   }
+  char* newName = new char[newNameSize];
 
   if (vectors)
   {
     vx = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vx->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-x", name);
+    snprintf(newName, newNameSize, "%s-x", name);
     vx->SetName(newName);
     vy = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vy->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-y", name);
+    snprintf(newName, newNameSize, "%s-y", name);
     vy->SetName(newName);
     vz = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vz->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-z", name);
+    snprintf(newName, newNameSize, "%s-z", name);
     vz->SetName(newName);
 
     switch (vectors->GetDataType())
@@ -257,15 +258,15 @@ int vtkExtractVectorComponents::RequestData(
   {
     vxc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vxc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-x", name);
+    snprintf(newName, newNameSize, "%s-x", name);
     vxc->SetName(newName);
     vyc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vyc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-y", name);
+    snprintf(newName, newNameSize, "%s-y", name);
     vyc->SetName(newName);
     vzc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vzc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-z", name);
+    snprintf(newName, newNameSize, "%s-z", name);
     vzc->SetName(newName);
 
     switch (vectorsc->GetDataType())

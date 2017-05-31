@@ -926,16 +926,12 @@ void vtkEnSightWriter::WriteTerminatedStringToFile(const char* cstring, FILE* fi
 //----------------------------------------------------------------------------
 void vtkEnSightWriter::WriteIntToFile(const int i,FILE* file)
 {
-  //char cbuffer[80];
-  //sprintf(cbuffer,"%d",i);
   fwrite(&i, sizeof(int),1,file);
 }
 
 //----------------------------------------------------------------------------
 void vtkEnSightWriter::WriteFloatToFile(const float f,FILE* file)
 {
-  //char cbuffer[80];
-  //sprintf(cbuffer,"%d",i);
   fwrite(&f, sizeof(float),1,file);
 }
 

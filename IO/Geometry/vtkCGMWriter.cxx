@@ -1213,7 +1213,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   head=headerp;
 
   /*** Attribute: BegPic; Elem Class 0; Elem ID 3 */
-  sprintf(tb, "picture %d", im->picnum);
+  snprintf(tb, 4*4, "picture %d", im->picnum);
   buf = reinterpret_cast<unsigned char*>(tb);
   /* buf = (unsigned char *) "picture 1"; */
   blen = static_cast<int>(strlen(reinterpret_cast<char *>(buf)));
@@ -4290,11 +4290,11 @@ static int cgmImageAddFont(cgmImagePtr im, const char *fontname)
   }
   if (oldfonts)
   {
-    sprintf((char *)im->fontlist, "%s%s%s", (char *)oldfonts, ",", fontname);
+    snprintf((char *)im->fontlist, listsize, "%s%s%s", (char *)oldfonts, ",", fontname);
   }
   else
   {
-    sprintf((char *)im->fontlist, "%s", fontname);
+    snprintf((char *)im->fontlist, listsize, "%s", fontname);
   }
   im->numfonts++;
   if (oldfonts)

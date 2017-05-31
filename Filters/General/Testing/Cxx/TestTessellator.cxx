@@ -3296,7 +3296,7 @@ int TestTessellator( int argc, char* argv[] )
     vertMarkers->SetScaleFactor(0.125);
     r->AddActor( vertMarkerActor );
 
-    sprintf( screenshotfile, "somethingIsWrong.png" );
+    snprintf( screenshotfile, sizeof(screenshotfile), "somethingIsWrong.png" );
     ss = vtkTessellatorScreenShot::New();
     ss->RenderWindow = rw;
     ss->FileName = screenshotfile;
@@ -3355,7 +3355,7 @@ int TestTessellator( int argc, char* argv[] )
       {
         lastTestId = tt->GetCurrentTestId();
         edgeCode = tt->GetCurrentTest();
-        sprintf( screenshotfile, "Tessellator-%03du-%02d.png", lastTestId, edgeCode );
+        snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03du-%02d.png", lastTestId, edgeCode );
 
         if ( vtkTessellatorIsInteractive )
         {
@@ -3387,7 +3387,7 @@ int TestTessellator( int argc, char* argv[] )
           }
           k++;
         }
-        sprintf( annotation, "Edge code %d = %d%d%d%d%d%d, Test ID %d",
+        snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d",
           edgeCode,
           (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
           ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),
@@ -3463,7 +3463,7 @@ int TestTessellator( int argc, char* argv[] )
     if ( tet < 0 )
       continue;
 
-    sprintf( screenshotfile, "Tessellator-%03da-%02d.png", tt->GetCurrentTestId(), tt->GetCurrentTest() );
+    snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03da-%02d.png", tt->GetCurrentTestId(), tt->GetCurrentTest() );
 
     tetPoints = vtkTestTessellatorSubdivision::TestPointsCanAmbig + 24*tet;
 #ifdef VTK_GENERATE_BASELINE
@@ -3538,7 +3538,7 @@ int TestTessellator( int argc, char* argv[] )
         }
       }
     }
-    sprintf( annotation, "Edge code %d = %d%d%d%d%d%d, Test ID %d*",
+    snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d*",
       edgeCode,
       (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
       ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),

@@ -271,9 +271,9 @@ int vtkPExodusIIReader::RequestInformation(
 
     if ( newPattern && ! rebuildPattern )
     {
-      char* nm =
-        new char[strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20];
-      sprintf( nm, this->FilePattern, this->FilePrefix, this->FileRange[0] );
+      size_t nmSize = strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20;
+      char* nm = new char[nmSize];
+      snprintf( nm, nmSize, this->FilePattern, this->FilePrefix, this->FileRange[0] );
       delete [] this->FileName;
       this->FileName = nm;
     }
@@ -884,7 +884,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   std::string extension = numberRegEx.match(3);
 
   // Determine the pattern
-  sprintf(pattern, "%%s%%0%ii%s", scount, extension.c_str());
+  snprintf(pattern, sizeof(pattern), "%%s%%0%ii%s", scount, extension.c_str());
 
   // Count up the files
   char buffer[1024];
@@ -893,7 +893,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // First go up every 100
   for ( cc = min + 100; true; cc += 100 )
   {
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -903,7 +903,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   cc = cc - 100;
   for ( cc = cc + 1; true; ++cc )
   {
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -919,7 +919,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     if ( cc < 0 )
       break;
 
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -933,7 +933,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     if ( cc < 0 )
       break;
 
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;

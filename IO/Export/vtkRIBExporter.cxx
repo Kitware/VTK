@@ -103,8 +103,9 @@ void vtkRIBExporter::WriteData()
     return;
   }
 
-  char *ribFileName = new char [strlen (this->FilePrefix) + strlen (".rib") + 1];
-  sprintf (ribFileName, "%s%s", this->FilePrefix, ".rib");
+  size_t ribFileNameSize = strlen (this->FilePrefix) + strlen (".rib") + 1;
+  char *ribFileName = new char [ribFileNameSize];
+  snprintf (ribFileName, ribFileNameSize, "%s%s", this->FilePrefix, ".rib");
 
   this->FilePtr = fopen (ribFileName, "w");
   if (this->FilePtr == NULL)
