@@ -170,6 +170,7 @@ protected:
   virtual int ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* output);
 
   static void AddNormalArray(double* planeNormal, vtkDataSet* ds);
+  static void InitializeOutput(vtkMultiPieceDataSet* output);
 
 private:
   vtkPlaneCutter(const vtkPlaneCutter&) VTK_DELETE_FUNCTION;

@@ -1401,9 +1401,8 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
     (numPts = input->GetNumberOfPoints()) < 1)
   {
     vtkDebugMacro("No input");
-    vtkDataSet* filler = input->NewInstance();
-    output->SetPiece(0, filler);
-    filler->Delete();
+    // Empty/no input, we need to initialize output anyway
+    this->InitializeOutput(output);
     return 1;
   }
 
@@ -1468,6 +1467,8 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
     return 1;
   }
 
+  this->InitializeOutput(output);
+
   // Okay we'll be using a sphere tree. The tree's mtime will handle
   // changes to the input. Delegation occurs to the appropriate
   // algorithm.
@@ -1525,6 +1526,7 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkPlaneCutter::AddNormalArray(double* planeNormal, vtkDataSet* ds)
 {
   vtkNew<vtkFloatArray> newNormals;
@@ -1536,6 +1538,20 @@ void vtkPlaneCutter::AddNormalArray(double* planeNormal, vtkDataSet* ds)
     newNormals->SetTuple(i, planeNormal);
   }
   ds->GetPointData()->AddArray(newNormals.Get());
+}
+
+//----------------------------------------------------------------------------
+void vtkPlaneCutter::InitializeOutput(vtkMultiPieceDataSet* output)
+{
+  // Initialize the multipiece output with as many filler as needed,
+  // to have a coherent multipiece output, even in parallel.
+  int nThreads = vtkSMPTools::GetEstimatedNumberOfThreads();
+  output->SetNumberOfPieces(nThreads);
+  for(int i = 0; i < nThreads; i++)
+  {
+    vtkNew<vtkPolyData> filler;
+    output->SetPiece(i, filler.Get());
+  }
 }
 
 //----------------------------------------------------------------------------
