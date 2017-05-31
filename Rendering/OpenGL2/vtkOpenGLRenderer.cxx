@@ -877,12 +877,14 @@ bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
   // We'll always fallback to regular depth peeling until this is fixed.
   // Only disable for mesa + llvmpipe/SWR, since those are the drivers that
   // seem to be affected by this.
-  std::string glVersion =
+  const char *glVersionC =
       reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  std::string glVersion = std::string(glVersionC ? glVersionC : "");
   if (glVersion.find("Mesa") != std::string::npos)
   {
-    std::string glRenderer =
+    const char *glRendererC =
         reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+    std::string glRenderer = std::string(glRendererC ? glRendererC : "");
     if (glRenderer.find("llvmpipe") != std::string::npos ||
         glRenderer.find("SWR") != std::string::npos)
     {
