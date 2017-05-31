@@ -346,9 +346,9 @@ void vtkPhyloXMLTreeWriter::WritePropertyElement(vtkAbstractArray *array,
                                                  vtkXMLDataElement *element)
 {
   // Search for attribute on this array.
-  std::string authority = "";
-  std::string appliesTo = "";
-  std::string unit = "";
+  std::string authority;
+  std::string appliesTo;
+  std::string unit;
 
   vtkInformation *info = array->GetInformation();
   vtkNew<vtkInformationIterator> infoItr;

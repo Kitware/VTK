@@ -469,7 +469,7 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
     currentlyCollapsingRows = false;
 
     // get the name of this row
-    std::string name = "";
+    std::string name;
     if (this->RowNames)
     {
       name = this->RowNames->GetValue(row);

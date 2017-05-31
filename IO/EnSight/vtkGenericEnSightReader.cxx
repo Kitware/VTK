@@ -317,7 +317,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
     if (!quiet) vtkErrorMacro("A case file name must be specified.");
     return -1;
   }
-  std::string sfilename = "";
+  std::string sfilename;
   if (this->FilePath)
   {
     sfilename = this->FilePath;

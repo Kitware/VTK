@@ -101,7 +101,7 @@ vtkStructuredAMRNeighbor& vtkStructuredAMRNeighbor::operator=(
 //-----------------------------------------------------------------------------
 std::string vtkStructuredAMRNeighbor::GetRelationShipString()
 {
-  std::string str = "";
+  std::string str;
   switch( this->RelationShip )
   {
     case PARENT:

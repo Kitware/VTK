@@ -249,7 +249,7 @@ public:
     this->NextCharEOL   = false;
     this->TokenIsString = false;
 
-    std::string  retval = "";
+    std::string  retval;
     if ( !this->NextCharValid )
     {
       this->TheNextChar   = this->ASCIIStream.get();
@@ -1306,7 +1306,7 @@ void vtkTecplotReader::GetDataArraysList()
   int             guessedYid = -1;
   int             guessedZid = -1;
   bool            tokenReady = false;
-  std::string  noSpaceTok = "";
+  std::string  noSpaceTok;
 
   this->Variables.clear();
   this->NumberOfVariables = 0;
@@ -1643,8 +1643,8 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       char     untitledZoneName[40];
       snprintf( untitledZoneName, sizeof(untitledZoneName), "zone%05d", zoneIndex );
 
-      std::string format    = "";
-      std::string elemType  = "";
+      std::string format;
+      std::string elemType;
       std::string ZoneName = untitledZoneName;
 
       tok = this->Internal->GetNextToken();

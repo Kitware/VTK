@@ -676,7 +676,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
 
   int     levlId = 0;
   int     parent = 0;
-  std::string   theStr = "";
+  std::string   theStr;
 
   while ( stream )
   {
@@ -904,7 +904,7 @@ void vtkEnzoReaderInternal::ReadGeneralParameters()
     return;
   }
 
-  std::string tmpStr( "" );
+  std::string tmpStr;
   while ( stream )
   {
     stream >> tmpStr;
