@@ -24,15 +24,16 @@
 vtkStandardNewMacro (vtkPXdmf3Writer);
 
 //----------------------------------------------------------------------------
-
 vtkPXdmf3Writer::vtkPXdmf3Writer ()
 {
 }
 
+//----------------------------------------------------------------------------
 vtkPXdmf3Writer::~vtkPXdmf3Writer ()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkPXdmf3Writer::PrintSelf (ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -51,7 +52,6 @@ int vtkPXdmf3Writer::CheckParameters ()
   }
 
   return this->Superclass::CheckParametersInternal(numberOfProcesses, myRank);
-  //return 0;
 }
 
 //----------------------------------------------------------------------------

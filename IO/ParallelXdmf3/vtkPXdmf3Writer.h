@@ -12,32 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPXdmf3Writer - write eXtensible Data Model and Format files
-// .SECTION Description
-// vtkPXdmf3Writer converts vtkDataObjects to XDMF format. This is intended to
-// replace vtkXdmfWriter, which is not up to date with the capabilities of the
-// newer XDMF3 library. This writer understands VTK's composite data types and
-// produces full trees in the output XDMF files.
-//
-//
-//     In the absence of the information provided by vtkModelMetadata,
-//     if this writer is not part of a parallel application, we will use
-//     reasonable defaults for all the values in the output XDMF file.
-//     If you don't provide a block ID element array, we'll create a
-//     block for each cell type that appears in the unstructured grid.
-//
-//     However if this writer is part of a parallel application (hence
-//     writing out a distributed XDMF file), then we need at the very
-//     least a list of all the block IDs that appear in the file.  And
-//     we need the element array of block IDs for the input unstructured grid.
-//
-//     In the absence of a vtkModelMetadata object, you can also provide
-//     time step information which we will include in the output XDMF
-//     file.
-//
-//  .SECTION Caveats
-//     We use the terms "point" and "node" interchangeably.
-//     Also, we use the terms "element" and "cell" interchangeably.
+
+/**
+ * @class   vtkPXdmf3Writer
+ * @brief   mpi parallel writer for XDMF/HDF5 files
+ *
+ * vtkPXdmf3Writer converts vtkDataObjects to XDMF format and and when
+ * run in parallel under MPI each rank writes only the data it is
+ * responsible for.
+ *
+ * In the absence of the information provided by vtkModelMetadata,
+ * if this writer is not part of a parallel application, we will use
+ * reasonable defaults for all the values in the output XDMF file.
+ * If you don't provide a block ID element array, we'll create a
+ * block for each cell type that appears in the unstructured grid.
+ *
+ * However if this writer is part of a parallel application (hence
+ * writing out a distributed XDMF file), then we need at the very
+ * least a list of all the block IDs that appear in the file.  And
+ * we need the element array of block IDs for the input unstructured grid.
+ *
+ * In the absence of a vtkModelMetadata object, you can also provide
+ * time step information which we will include in the output XDMF
+ * file.
+ */
 
 #ifndef vtkPXdmf3Writer_h
 #define vtkPXdmf3Writer_h
@@ -50,17 +48,17 @@ class VTKIOPARALLELXDMF3_EXPORT vtkPXdmf3Writer : public vtkXdmf3Writer
 public:
   static vtkPXdmf3Writer *New ();
   vtkTypeMacro(vtkPXdmf3Writer,vtkXdmf3Writer);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  void PrintSelf (ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPXdmf3Writer ();
   ~vtkPXdmf3Writer ();
-  virtual int CheckParameters ();
+  int CheckParameters () VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent (vtkInformation* request,
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector);
-  virtual int GlobalContinueExecuting(int localContinue);
+  int RequestUpdateExtent (vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int GlobalContinueExecuting(int localContinue) VTK_OVERRIDE;
 
 private:
   vtkPXdmf3Writer (const vtkPXdmf3Writer&) VTK_DELETE_FUNCTION;

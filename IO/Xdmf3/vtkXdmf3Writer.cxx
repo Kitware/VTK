@@ -179,9 +179,9 @@ public:
   }
   void InitWriterName(const char *filename, unsigned int lightDataLimit)
   {
-      this->Writer = XdmfWriter::New(filename);
-      this->Writer->setLightDataLimit(lightDataLimit);
-      this->Writer->getHeavyDataWriter()->setReleaseData(true);
+    this->Writer = XdmfWriter::New(filename);
+    this->Writer->setLightDataLimit(lightDataLimit);
+    this->Writer->getHeavyDataWriter()->setReleaseData(true);
   }
   void SwitchToTemporal()
   {
@@ -299,10 +299,13 @@ vtkXdmf3Writer::vtkXdmf3Writer()
   this->TimeValues = 0;
   this->initWriters = true;
 
-  if (this->useParallel){
+  if (this->useParallel)
+  {
     this->Internal = NULL;
     this->ParallelInternal = new ParallelInternals();
-  } else {
+  }
+  else
+  {
     this->Internal = new Internals();
     this->ParallelInternal = NULL;
   }
@@ -314,7 +317,8 @@ vtkXdmf3Writer::~vtkXdmf3Writer()
 {
   this->SetFileName(NULL);
 
-  if (this->TimeValues){
+  if (this->TimeValues)
+  {
     this->TimeValues->Delete ();
   }
 }
@@ -403,7 +407,8 @@ int vtkXdmf3Writer::RequestInformation(
   }
   else
   {
-    if(this->useParallel){
+    if(this->useParallel)
+    {
       this->ParallelInternal->NumberOfTimeSteps = 1;
     }
     else
@@ -470,15 +475,20 @@ int vtkXdmf3Writer::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if(this->useParallel){
-    if (!this->ParallelInternal->Domain){
+  if(this->useParallel)
+  {
+    if (!this->ParallelInternal->Domain)
+    {
       this->ParallelInternal->gridCounter++;
 
       //call Write() instead of RD() directly. Write() does setup first before it calls RD().
       return 1;
     }
-  } else {
-    if (!this->Internal->Domain){
+  }
+  else
+  {
+    if (!this->Internal->Domain)
+    {
       this->Internal->gridCounter++;
 
       //call Write() instead of RD() directly. Write() does setup first before it calls RD().
@@ -489,9 +499,12 @@ int vtkXdmf3Writer::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject (0);
   this->OriginalInput = vtkDataObject::SafeDownCast (inInfo->Get(vtkDataObject::DATA_OBJECT ()));
 
-  if(this->useParallel){
+  if(this->useParallel)
+  {
      this->WriteDataParallel (request);
-  } else {
+  }
+  else
+  {
     this->WriteDataInternal (request);
   }
   return 1;
@@ -544,8 +557,7 @@ void vtkXdmf3Writer::WriteDataInternal (vtkInformation* request)
 //----------------------------------------------------------------------------
 void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
 {
-
- if (this->ParallelInternal->CurrentTimeIndex == 0 && this->WriteAllTimeSteps &&
+  if (this->ParallelInternal->CurrentTimeIndex == 0 && this->WriteAllTimeSteps &&
       this->ParallelInternal->NumberOfTimeSteps > 1)
   {
     // Tell the pipeline to start looping.
@@ -634,7 +646,8 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
   } // if (this->NumberOfProcesses > 1)
 
   this->ParallelInternal->CurrentTimeIndex++;
-  if (this->ParallelInternal->CurrentTimeIndex >= this->ParallelInternal->NumberOfTimeSteps && this->WriteAllTimeSteps)
+  if (this->ParallelInternal->CurrentTimeIndex >= this->ParallelInternal->NumberOfTimeSteps &&
+      this->WriteAllTimeSteps)
   {
     // Tell the pipeline to stop looping.
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);

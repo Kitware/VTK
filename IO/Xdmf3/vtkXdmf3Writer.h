@@ -37,7 +37,7 @@ class VTKIOXDMF3_EXPORT vtkXdmf3Writer : public vtkDataObjectAlgorithm
 public:
   static vtkXdmf3Writer *New();
   vtkTypeMacro(vtkXdmf3Writer,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Set the input data set.
@@ -93,17 +93,17 @@ protected:
   ~vtkXdmf3Writer();
 
   //Overridden to set up automatic loop over time steps.
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*);
+  int RequestInformation(vtkInformation*,
+                         vtkInformationVector**,
+                         vtkInformationVector*) VTK_OVERRIDE;
   //Overridden to continue automatic loop over time steps.
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
-  //Write out the input data objects as XDMF and HDF output files.
-  virtual int RequestData(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) VTK_OVERRIDE;
+  //Write out the input data objects as XDMF and HDF output files.
+  int RequestData(vtkInformation*,
+                  vtkInformationVector**,
+                  vtkInformationVector*) VTK_OVERRIDE;
 
   char *FileName;
   unsigned int LightDataLimit;

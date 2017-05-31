@@ -307,106 +307,106 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(shared_ptr<XdmfGrid> item,
 {
   assert(toFill);
 
-    shared_ptr<XdmfUnstructuredGrid> unsGrid = shared_dynamic_cast<XdmfUnstructuredGrid>(item);
-    if (unsGrid)
+  shared_ptr<XdmfUnstructuredGrid> unsGrid = shared_dynamic_cast<XdmfUnstructuredGrid>(item);
+  if (unsGrid)
+  {
+    unsigned int nSets = unsGrid->getNumberSets();
+    if (nSets > 0)
     {
-      unsigned int nSets = unsGrid->getNumberSets();
-      if (nSets > 0)
+      vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+      vtkUnstructuredGrid *child = vtkUnstructuredGrid::New();
+      mbds->SetBlock(0, this->MakeUnsGrid(unsGrid, child, this->Keeper));
+      mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+        unsGrid->getName().c_str());
+      for (unsigned int i = 0; i < nSets; i++)
       {
-        vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
-        vtkUnstructuredGrid *child = vtkUnstructuredGrid::New();
-        mbds->SetBlock(0, this->MakeUnsGrid(unsGrid, child, this->Keeper));
-        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
-          unsGrid->getName().c_str());
-        for (unsigned int i = 0; i < nSets; i++)
-        {
-          vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
-          mbds->SetBlock(i+1, this->ExtractSet(i, unsGrid, child, sub, this->Keeper));
-          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
-            unsGrid->getSet(i)->getName().c_str());
-          sub->Delete();
-        }
-        child->Delete();
-        return mbds;
+        vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+        mbds->SetBlock(i+1, this->ExtractSet(i, unsGrid, child, sub, this->Keeper));
+        mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+          unsGrid->getSet(i)->getName().c_str());
+        sub->Delete();
       }
-      return this->MakeUnsGrid(unsGrid, vtkUnstructuredGrid::SafeDownCast(toFill), this->Keeper);
+      child->Delete();
+      return mbds;
     }
+    return this->MakeUnsGrid(unsGrid, vtkUnstructuredGrid::SafeDownCast(toFill), this->Keeper);
+  }
 
-    shared_ptr<XdmfRectilinearGrid> recGrid = shared_dynamic_cast<XdmfRectilinearGrid>(item);
-    if (recGrid)
+  shared_ptr<XdmfRectilinearGrid> recGrid = shared_dynamic_cast<XdmfRectilinearGrid>(item);
+  if (recGrid)
+  {
+    unsigned int nSets = recGrid->getNumberSets();
+    if (nSets > 0)
     {
-      unsigned int nSets = recGrid->getNumberSets();
-      if (nSets > 0)
+      vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+      vtkRectilinearGrid *child = vtkRectilinearGrid::New();
+      mbds->SetBlock(0, this->MakeRecGrid(recGrid, child, this->Keeper));
+      mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+        recGrid->getName().c_str());
+      for (unsigned int i = 0; i < nSets; i++)
       {
-        vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
-        vtkRectilinearGrid *child = vtkRectilinearGrid::New();
-        mbds->SetBlock(0, this->MakeRecGrid(recGrid, child, this->Keeper));
-        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
-          recGrid->getName().c_str());
-        for (unsigned int i = 0; i < nSets; i++)
-        {
-          vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
-          mbds->SetBlock(i+1, this->ExtractSet(i, recGrid, child, sub, this->Keeper));
-          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
-            recGrid->getSet(i)->getName().c_str());
-          sub->Delete();
-        }
-        child->Delete();
-        return mbds;
+        vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+        mbds->SetBlock(i+1, this->ExtractSet(i, recGrid, child, sub, this->Keeper));
+        mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+          recGrid->getSet(i)->getName().c_str());
+        sub->Delete();
       }
-      return this->MakeRecGrid(recGrid, vtkRectilinearGrid::SafeDownCast(toFill), this->Keeper);
+      child->Delete();
+      return mbds;
     }
+    return this->MakeRecGrid(recGrid, vtkRectilinearGrid::SafeDownCast(toFill), this->Keeper);
+  }
 
-    shared_ptr<XdmfCurvilinearGrid> crvGrid = shared_dynamic_cast<XdmfCurvilinearGrid>(item);
-    if (crvGrid)
+  shared_ptr<XdmfCurvilinearGrid> crvGrid = shared_dynamic_cast<XdmfCurvilinearGrid>(item);
+  if (crvGrid)
+  {
+    unsigned int nSets = crvGrid->getNumberSets();
+    if (nSets > 0)
     {
-      unsigned int nSets = crvGrid->getNumberSets();
-      if (nSets > 0)
+      vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+      vtkStructuredGrid *child = vtkStructuredGrid::New();
+      mbds->SetBlock(0, this->MakeCrvGrid(crvGrid, child, this->Keeper));
+      mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+        crvGrid->getName().c_str());
+      for (unsigned int i = 0; i < nSets; i++)
       {
-        vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
-        vtkStructuredGrid *child = vtkStructuredGrid::New();
-        mbds->SetBlock(0, this->MakeCrvGrid(crvGrid, child, this->Keeper));
-        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
-          crvGrid->getName().c_str());
-        for (unsigned int i = 0; i < nSets; i++)
-        {
-          vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
-          mbds->SetBlock(i+1, this->ExtractSet(i, crvGrid, child, sub, this->Keeper));
-          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
-            crvGrid->getSet(i)->getName().c_str());
-          sub->Delete();
-        }
-        child->Delete();
-        return mbds;
+        vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+        mbds->SetBlock(i+1, this->ExtractSet(i, crvGrid, child, sub, this->Keeper));
+        mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+          crvGrid->getSet(i)->getName().c_str());
+        sub->Delete();
+      }
+      child->Delete();
+      return mbds;
     }
     return this->MakeCrvGrid(crvGrid, vtkStructuredGrid::SafeDownCast(toFill), this->Keeper);
-    }
+  }
 
-    shared_ptr<XdmfRegularGrid> regGrid = shared_dynamic_cast<XdmfRegularGrid>(item);
-    if (regGrid)
+  shared_ptr<XdmfRegularGrid> regGrid = shared_dynamic_cast<XdmfRegularGrid>(item);
+  if (regGrid)
+  {
+    unsigned int nSets = regGrid->getNumberSets();
+    if (nSets > 0)
     {
-      unsigned int nSets = regGrid->getNumberSets();
-      if (nSets > 0)
+      vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
+      vtkImageData *child = vtkImageData::New();
+      mbds->SetBlock(0, this->MakeRegGrid(regGrid, child, this->Keeper));
+      mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
+          regGrid->getName().c_str());
+      for (unsigned int i = 0; i < nSets; i++)
       {
-        vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(toFill);
-        vtkImageData *child = vtkImageData::New();
-        mbds->SetBlock(0, this->MakeRegGrid(regGrid, child, this->Keeper));
-        mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
-            regGrid->getName().c_str());
-        for (unsigned int i = 0; i < nSets; i++)
-        {
-          vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
-          mbds->SetBlock(i+1, this->ExtractSet(i, regGrid, child, sub, this->Keeper));
-          mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
-            crvGrid->getSet(i)->getName().c_str());
-          sub->Delete();
-        }
-        child->Delete();
-        return mbds;
+        vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
+        mbds->SetBlock(i+1, this->ExtractSet(i, regGrid, child, sub, this->Keeper));
+        mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
+          crvGrid->getSet(i)->getName().c_str());
+        sub->Delete();
       }
-      return this->MakeRegGrid(regGrid, vtkImageData::SafeDownCast(toFill), this->Keeper);
+      child->Delete();
+      return mbds;
     }
-    return NULL; //already spit a warning out before this
+    return this->MakeRegGrid(regGrid, vtkImageData::SafeDownCast(toFill), this->Keeper);
+  }
+  return NULL; //already spit a warning out before this
 }
 
 //------------------------------------------------------------------------------
@@ -415,12 +415,12 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
 {
   assert(toFill);
 
-    shared_ptr<XdmfGraph> graph = shared_dynamic_cast<XdmfGraph>(item);
-    if (graph)
-    {
-      return this->MakeGraph(graph, vtkMutableDirectedGraph::SafeDownCast(toFill), this->Keeper);
-    }
-    return NULL; //already spit a warning out before this
+  shared_ptr<XdmfGraph> graph = shared_dynamic_cast<XdmfGraph>(item);
+  if (graph)
+  {
+    return this->MakeGraph(graph, vtkMutableDirectedGraph::SafeDownCast(toFill), this->Keeper);
+  }
+  return NULL; //already spit a warning out before this
 }
 
 //------------------------------------------------------------------------------
