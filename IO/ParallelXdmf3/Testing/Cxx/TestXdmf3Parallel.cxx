@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test exercises xdmf3 reading in parallel.
+// This test exercises xdmf3 reading and writing in parallel.
 //
 
 #include <mpi.h>
@@ -25,6 +25,9 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkXdmf3Reader.h"
+#include "vtkXdmf3Writer.h"
+
+#include <vtksys/SystemTools.hxx>
 
 class MyProcess : public vtkProcess
 {
@@ -34,11 +37,14 @@ public:
 
   virtual void Execute();
 
-  void SetArgs(int argc, char *argv[], const std::string& fname)
+  void SetArgs(int argc, char *argv[],
+               const std::string& ifname,
+               const std::string& ofname)
   {
       this->Argc = argc;
       this->Argv = argv;
-      this->FileName = fname;
+      this->InFileName = ifname;
+      this->OutFileName = ofname;
   }
 
   void CreatePipeline()
@@ -47,8 +53,17 @@ public:
     int my_id = this->Controller->GetLocalProcessId();
 
     this->Reader = vtkXdmf3Reader::New();
-    this->Reader->SetFileName(this->FileName.c_str());
-    cerr << my_id << "/" << num_procs << " " << this->FileName << endl;
+    this->Reader->SetFileName(this->InFileName.c_str());
+    if (my_id == 0)
+    {
+      cerr << my_id << "/" << num_procs << endl;
+      cerr << "IFILE " << this->InFileName << endl;
+      cerr << "OFILE " << this->OutFileName << endl;
+    }
+
+    this->Writer = vtkXdmf3Writer::New();
+    this->Writer->SetFileName(this->OutFileName.c_str());
+    this->Writer->SetInputConnection(this->Reader->GetOutputPort());
   }
 
 protected:
@@ -56,8 +71,10 @@ protected:
 
   int Argc;
   char **Argv;
-  std::string FileName;
+  std::string InFileName;
+  std::string OutFileName;
   vtkXdmf3Reader *Reader;
+  vtkXdmf3Writer *Writer;
 };
 
 vtkStandardNewMacro(MyProcess);
@@ -71,7 +88,9 @@ void MyProcess::Execute()
   this->CreatePipeline();
   this->Controller->Barrier();
   this->Reader->UpdatePiece(proc, numprocs, 0);
+  this->Writer->Write();
   this->Reader->Delete();
+  this->Writer->Delete();
   this->ReturnValue = 1;
 }
 
@@ -106,8 +125,11 @@ int main(int argc, char *argv[])
   vtkTesting *testHelper = vtkTesting::New();
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   std::string datadir = testHelper->GetDataRoot();
-  std::string file = datadir + "/Data/XDMF/Iron/Iron_Protein.ImageData.xmf";
-  cerr << file << endl;
+  std::string ifile = datadir + "/Data/XDMF/Iron/Iron_Protein.ImageData.xmf";
+  std::string tempdir = testHelper->GetTempDirectory();
+  tempdir = tempdir + "/XDMF";
+  vtksys::SystemTools::MakeDirectory(tempdir.c_str());
+  std::string ofile = tempdir + "/Iron_Protein.ImageData.xmf";
   testHelper->Delete();
 
   //allow caller to use something else
@@ -115,11 +137,11 @@ int main(int argc, char *argv[])
   {
     if (!strncmp(argv[i], "--file=", 11))
     {
-      file=argv[i]+11;
+      ifile=argv[i]+11;
     }
   }
   MyProcess *p = MyProcess::New();
-  p->SetArgs(argc, argv, file.c_str());
+  p->SetArgs(argc, argv, ifile.c_str(), ofile.c_str());
 
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
@@ -130,5 +152,11 @@ int main(int argc, char *argv[])
   contr->Finalize();
   contr->Delete();
   vtkMultiProcessController::SetGlobalController(0);
+
+  if (retVal)
+  {
+    //test passed, remove the files we wrote
+    vtksys::SystemTools::RemoveADirectory(tempdir.c_str());
+  }
   return !retVal;
 }
