@@ -515,7 +515,7 @@ void vtkXMLCompositeDataWriter::SplitFileName()
   }
 
   // Split the extension from the file name.
-  pos = name.find_last_of(".");
+  pos = name.find_last_of('.');
   if (pos != name.npos)
   {
     this->Internal->FilePrefix = name.substr(0, pos);

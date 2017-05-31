@@ -1734,18 +1734,18 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
             do
             {
               //remove left square bracket, if it exists
-              size_t brack_pos = var_format_type.find("[");
+              size_t brack_pos = var_format_type.find('[');
               if ( brack_pos != std::string::npos )
                 var_format_type.erase(brack_pos, brack_pos+1);
 
               //remove right square bracket, if it exists
-              brack_pos = var_format_type.find("]");
+              brack_pos = var_format_type.find(']');
               if ( brack_pos != std::string::npos )
                 var_format_type.erase(brack_pos,brack_pos+1);
 
               //if a range is defined, then split again, convert to int and set to cell data
               //else if a single value is defined, then just set the flag directly
-              if ( var_format_type.find("-") != std::string::npos )
+              if ( var_format_type.find('-') != std::string::npos )
               {
                 std::vector<std::string> var_range;
                 vtksys::SystemTools::Split(var_format_type, var_range, '-');
@@ -1855,15 +1855,15 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
           if( haveVectorExpr )
           {
             // Remove spaces
-            std::string::size_type pos = tok.find( " " );
+            std::string::size_type pos = tok.find( ' ' );
             while( pos != std::string::npos )
             {
               tok.replace( pos, 1, "" );
-              pos = tok.find( " " );
+              pos = tok.find( ' ' );
             }
 
             // Look for '('
-            pos = tok.find( "(" );
+            pos = tok.find( '(' );
             if( pos != std::string::npos )
             {
               std::string  exprName(  tok.substr( 0, pos )  );
@@ -1872,7 +1872,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
               exprDef.replace( 0, 1, "{" );
 
               // Replace ')' with '}'
-              pos = exprDef.find( ")" );
+              pos = exprDef.find( ')' );
               if( pos != std::string::npos )
               {
                 exprDef.replace( pos, 1, "}" );

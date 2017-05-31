@@ -4254,7 +4254,7 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
   {
     variables.erase( 0, startPos);
 
-    size_t endPos = variables.find(")");
+    size_t endPos = variables.find(')');
     variables.erase(endPos);
 
     std::stringstream tokenizer(variables);

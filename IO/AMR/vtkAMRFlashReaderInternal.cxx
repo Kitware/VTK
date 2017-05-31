@@ -31,7 +31,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
  // remove the prefix ("mesh_blockandlevel/" or "mesh_blockandproc/") to get
  // the actual attribute name
  std::string  tempName = atribute;
- size_t          slashPos = tempName.find( "/" );
+ size_t          slashPos = tempName.find( '/' );
  std::string  attrName = tempName.substr ( slashPos + 1 );
  hid_t           dataIndx = H5Dopen
                             ( this->FileIndex, attrName.c_str() );

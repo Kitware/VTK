@@ -195,7 +195,7 @@ void vtkBiomTableReader::ParseShape()
   }
 
   // find [
-  size_t pos2 = this->FileContents.find("[", pos1+1);
+  size_t pos2 = this->FileContents.find('[', pos1+1);
   if (pos2 == std::string::npos )
   {
     vtkErrorMacro(<<"shape field not formatted properly");
@@ -203,7 +203,7 @@ void vtkBiomTableReader::ParseShape()
   }
 
   // find ,
-  size_t pos3 = this->FileContents.find(",", pos2+1);
+  size_t pos3 = this->FileContents.find(',', pos2+1);
   if (pos3 == std::string::npos )
   {
     vtkErrorMacro(<<"shape field not formatted properly");
@@ -211,7 +211,7 @@ void vtkBiomTableReader::ParseShape()
   }
 
   // find ]
-  size_t pos4 = this->FileContents.find("]", pos3+1);
+  size_t pos4 = this->FileContents.find(']', pos3+1);
   if (pos4 == std::string::npos )
   {
     vtkErrorMacro(<<"shape field not formatted properly");
@@ -239,7 +239,7 @@ void vtkBiomTableReader::ParseDataType()
   }
 
   // find :
-  size_t pos2 = this->FileContents.find(":", pos1+1);
+  size_t pos2 = this->FileContents.find(':', pos1+1);
   if (pos2 == std::string::npos )
   {
     vtkErrorMacro(<<"matrix_element_type field not formatted properly");
@@ -247,7 +247,7 @@ void vtkBiomTableReader::ParseDataType()
   }
 
   // find first double quote
-  size_t pos3 = this->FileContents.find("\"", pos2+1);
+  size_t pos3 = this->FileContents.find('\"', pos2+1);
   if (pos3 == std::string::npos )
   {
     vtkErrorMacro(<<"matrix_element_type field not formatted properly");
@@ -255,7 +255,7 @@ void vtkBiomTableReader::ParseDataType()
   }
 
   // find second double quote
-  size_t pos4 = this->FileContents.find("\"", pos3+1);
+  size_t pos4 = this->FileContents.find('\"', pos3+1);
   if (pos4 == std::string::npos )
   {
     vtkErrorMacro(<<"matrix_element_type field not formatted properly");
@@ -337,7 +337,7 @@ void vtkBiomTableReader::ParseSparseness()
   }
 
   // find first double quote
-  size_t pos2 = this->FileContents.find("\"", pos1+13);
+  size_t pos2 = this->FileContents.find('\"', pos1+13);
   if (pos2 == std::string::npos )
   {
     vtkErrorMacro(<<"matrix_type field not formatted properly");
@@ -345,7 +345,7 @@ void vtkBiomTableReader::ParseSparseness()
   }
 
   // find second double quote
-  size_t pos3 = this->FileContents.find("\"", pos2+1);
+  size_t pos3 = this->FileContents.find('\"', pos2+1);
   if (pos2 == std::string::npos )
   {
     vtkErrorMacro(<<"matrix_type field not formatted properly");
@@ -381,7 +381,7 @@ void vtkBiomTableReader::ParseSparseData()
   }
 
   // find first [ (beginning of matrix)
-  size_t pos_start = this->FileContents.find("[", pos1) + 1;
+  size_t pos_start = this->FileContents.find('[', pos1) + 1;
   if (pos_start == std::string::npos)
   {
     vtkErrorMacro(<<"data field not formatted properly");
@@ -391,28 +391,28 @@ void vtkBiomTableReader::ParseSparseData()
   while(1)
   {
     // find [ (beginning of triplet)
-    pos1 = this->FileContents.find("[", pos_start);
+    pos1 = this->FileContents.find('[', pos_start);
     if (pos1 == std::string::npos)
     {
       vtkErrorMacro(<<"data field not formatted properly");
       return;
     }
     // find first comma
-    size_t pos2 = this->FileContents.find(",", pos1 + 1);
+    size_t pos2 = this->FileContents.find(',', pos1 + 1);
     if (pos2 == std::string::npos)
     {
       vtkErrorMacro(<<"data field not formatted properly");
       return;
     }
     // find second comma
-    size_t pos3 = this->FileContents.find(",", pos2 + 1);
+    size_t pos3 = this->FileContents.find(',', pos2 + 1);
     if (pos3 == std::string::npos)
     {
       vtkErrorMacro(<<"data field not formatted properly");
       return;
     }
     // find ] (end of triplet)
-    size_t pos4 = this->FileContents.find("]", pos3 + 1);
+    size_t pos4 = this->FileContents.find(']', pos3 + 1);
     if (pos4 == std::string::npos)
     {
       vtkErrorMacro(<<"data field not formatted properly");
@@ -449,7 +449,7 @@ void vtkBiomTableReader::ParseDenseData()
   }
 
   // find first [ (beginning of matrix)
-  size_t pos_start = this->FileContents.find("[", pos1) + 1;
+  size_t pos_start = this->FileContents.find('[', pos1) + 1;
   if (pos_start == std::string::npos)
   {
     vtkErrorMacro(<<"data field not formatted properly");
@@ -459,7 +459,7 @@ void vtkBiomTableReader::ParseDenseData()
   for (int currentRow = 0; currentRow < this->NumberOfRows; ++currentRow)
   {
     // find [ (beginning of row)
-    size_t pos_row_1 = this->FileContents.find("[", pos_start);
+    size_t pos_row_1 = this->FileContents.find('[', pos_start);
     if (pos_row_1 == std::string::npos)
     {
       vtkErrorMacro(<<"data field not formatted properly");
@@ -469,7 +469,7 @@ void vtkBiomTableReader::ParseDenseData()
     for (currentCol = 1; currentCol < this->NumberOfColumns; ++currentCol)
     {
       // find next comma
-      size_t pos_row_2 = this->FileContents.find(",", pos_row_1 + 1);
+      size_t pos_row_2 = this->FileContents.find(',', pos_row_1 + 1);
       if (pos_row_2 == std::string::npos)
       {
         vtkErrorMacro(<<"data field not formatted properly");
@@ -485,7 +485,7 @@ void vtkBiomTableReader::ParseDenseData()
     }
 
     //the last value of the row ends with a ] instead of a comma
-    size_t pos_row_2 = this->FileContents.find("]", pos_row_1 + 1);
+    size_t pos_row_2 = this->FileContents.find(']', pos_row_1 + 1);
     if (pos_row_2 == std::string::npos)
     {
       vtkErrorMacro(<<"data field not formatted properly");
@@ -643,7 +643,7 @@ void vtkBiomTableReader::ParseId()
 
     if (numOpenBrackets == numClosedBrackets)
     {
-      size_t pos_comma = this->FileContents.find(",", pos_id + 1);
+      size_t pos_comma = this->FileContents.find(',', pos_id + 1);
       if (pos_comma == std::string::npos )
       {
         vtkErrorMacro(<<"top-level id field not formatted properly");

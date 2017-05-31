@@ -284,7 +284,7 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
           // look for the number of images
           std::string desc = description[0];
           std::string::size_type pos = desc.find("images=");
-          std::string::size_type pos2 = desc.find("\n");
+          std::string::size_type pos2 = desc.find('\n');
           if ( (pos != std::string::npos) && (pos2 != std::string::npos) )
           {
             this->NumberOfPages = atoi(desc.substr(pos+7,pos2-pos-7).c_str());
