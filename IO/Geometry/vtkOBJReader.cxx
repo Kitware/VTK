@@ -154,6 +154,8 @@ int vtkOBJReader::RequestData(
   char tcoordsName[100];
   float xyz[3];
   int numPoints = 0;
+  int numTCoords = 0;
+  int numNormals = 0;
 
   // First loop to initialize the data arrays for the different set of texture coordinates
   int lineNr = 0;
@@ -300,6 +302,7 @@ int vtkOBJReader::RequestData(
             tcoords->InsertNextTuple2(-1.0, -1.0);
           }
         }
+        numTCoords++;
       }
       else
       {
@@ -314,6 +317,7 @@ int vtkOBJReader::RequestData(
       {
         normals->InsertNextTuple(xyz);
         hasNormals = true;
+        numNormals++;
       }
       else
       {
@@ -497,9 +501,27 @@ int vtkOBJReader::RequestData(
               polys->InsertCellPoint(iVert-1);
             }
             nVerts++;
-            tcoord_polys->InsertCellPoint(iTCoord-1);
+
+            // Current index is relative to last texture index
+            if (iTCoord < 0)
+            {
+              tcoord_polys->InsertCellPoint(numTCoords + iTCoord);
+            }
+            else
+            {
+              tcoord_polys->InsertCellPoint(iTCoord - 1);
+            }
             nTCoords++;
-            normal_polys->InsertCellPoint(iNormal-1);
+
+            // Current index is relative to last normal index
+            if (iNormal < 0)
+            {
+              normal_polys->InsertCellPoint(numNormals + iNormal);
+            }
+            else
+            {
+              normal_polys->InsertCellPoint(iNormal - 1);
+            }
             nNormals++;
             if (iTCoord != iVert)
               tcoords_same_as_verts = false;
@@ -517,7 +539,16 @@ int vtkOBJReader::RequestData(
               polys->InsertCellPoint(iVert-1);
             }
             nVerts++;
-            normal_polys->InsertCellPoint(iNormal-1);
+
+            // Current index is relative to last normal index
+            if (iNormal < 0)
+            {
+              normal_polys->InsertCellPoint(numNormals + iNormal);
+            }
+            else
+            {
+              normal_polys->InsertCellPoint(iNormal - 1);
+            }
             nNormals++;
             if (iNormal != iVert)
               normals_same_as_verts = false;
@@ -533,7 +564,16 @@ int vtkOBJReader::RequestData(
               polys->InsertCellPoint(iVert-1);
             }
             nVerts++;
-            tcoord_polys->InsertCellPoint(iTCoord-1);
+
+            // Current index is relative to last texture index
+            if (iTCoord < 0)
+            {
+              tcoord_polys->InsertCellPoint(numTCoords + iTCoord);
+            }
+            else
+            {
+              tcoord_polys->InsertCellPoint(iTCoord - 1);
+            }
             nTCoords++;
             if (iTCoord != iVert)
               tcoords_same_as_verts = false;
