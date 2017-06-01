@@ -24,7 +24,22 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
+//-----------------------------------------------------------------------------
+int CheckArrayPointData(vtkDataArray* firstArray, vtkDataArray* secondArray, int idx)
+{
+  // Check that each component at a given index are the same in each array
+  for (int compIdx = 0; compIdx < secondArray->GetNumberOfComponents(); ++compIdx)
+  {
+    if (firstArray->GetComponent(idx, compIdx) != secondArray->GetComponent(idx, compIdx))
+    {
+      cerr << "Error: different values for " "[" << (idx) << "]_"<< compIdx << endl;
+      return 1;
+    }
+  }
+  return 0;
+}
 
+//-----------------------------------------------------------------------------
 int TestOBJReaderRelative( int argc, char *argv[] )
 {
   int retVal = 0;
@@ -67,6 +82,13 @@ int TestOBJReaderRelative( int argc, char *argv[] )
     retVal = 1;                                          \
   }
 
+#define CHECK_ARRAY_EXISTS(array)          \
+  if (!array)                              \
+  {                                        \
+  cerr << "Array does not exist." << endl; \
+  retVal = 1;                              \
+  }
+
   CHECK(data, GetNumberOfVerts())
   CHECK(data, GetNumberOfLines())
   CHECK(data, GetNumberOfCells())
@@ -84,17 +106,47 @@ int TestOBJReaderRelative( int argc, char *argv[] )
 
   polys_rel->InitTraversal();
   polys_abs->InitTraversal();
-  while (!polys_rel->GetNextCell(npts_rel, pts_rel) &&
-         !polys_abs->GetNextCell(npts_abs, pts_abs))
+
+  // Get the texture and normal arrays to check
+  vtkDataArray* tcoords_rel = data_rel->GetPointData()->GetTCoords();
+  vtkDataArray* tcoords_abs = data_abs->GetPointData()->GetTCoords();
+
+  CHECK_ARRAY_EXISTS(tcoords_rel)
+  CHECK_ARRAY_EXISTS(tcoords_abs)
+
+  int tcoordsNbComp_rel = tcoords_rel->GetNumberOfComponents();
+  int tcoordsNbComp_abs = tcoords_abs->GetNumberOfComponents();
+
+  vtkDataArray* normals_rel = data_rel->GetPointData()->GetNormals();
+  vtkDataArray* normals_abs = data_abs->GetPointData()->GetNormals();
+
+  CHECK_ARRAY_EXISTS(normals_rel)
+  CHECK_ARRAY_EXISTS(normals_abs)
+
+  int normalsNbComp_rel = normals_rel->GetNumberOfComponents();
+  int normalsNbComp_abs = normals_abs->GetNumberOfComponents();
+
+  CHECK_SCALAR(tcoordsNbComp)
+  CHECK_SCALAR(normalsNbComp)
+
+  while (polys_rel->GetNextCell(npts_rel, pts_rel) &&
+         polys_abs->GetNextCell(npts_abs, pts_abs))
   {
     CHECK_SCALAR(npts)
 
     for (vtkIdType i = 0; i < npts_rel && i < npts_abs; ++i)
     {
       CHECK_ARRAY(pts, i)
+
+      // For each points, check if the point data associated with the points
+      // from the OBJ using relative coordinates matches the ones from the
+      // OBJ using absolute coordinates
+      retVal = CheckArrayPointData(tcoords_rel, tcoords_abs, i)
+      || CheckArrayPointData(normals_rel, normals_abs, i);
     }
   }
 
+#undef CHECK_ARRAY_EXISTS
 #undef CHECK_SCALAR
 #undef CHECK_ARRAY
 #undef CHECK
