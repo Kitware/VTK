@@ -586,6 +586,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       ospSet1f(oRenderer, "aoDistance", diam*0.3);
     }
 
+    vtkVolumeCollection *vc = ren->GetVolumes();
+    if (vc->GetNumberOfItems())
+    {
+      ospSet1i(oRenderer, "aoTransparencyEnabled", 1);
+    }
+
     ospSet1i(oRenderer,"aoSamples",
              this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)));
     ospSet1i(oRenderer,"spp",
