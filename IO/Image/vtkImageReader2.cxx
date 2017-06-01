@@ -123,13 +123,15 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
   if (this->FileNames)
   {
     const char *filename = this->FileNames->GetValue(slice);
-    this->InternalFileName = new char [strlen(filename) + 10];
-    sprintf(this->InternalFileName,"%s",filename);
+    size_t size = strlen(filename) + 10;
+    this->InternalFileName = new char [size];
+    snprintf(this->InternalFileName,size,"%s",filename);
   }
   else if (this->FileName)
   {
-    this->InternalFileName = new char [strlen(this->FileName) + 10];
-    sprintf(this->InternalFileName,"%s",this->FileName);
+    size_t size = strlen(this->FileName) + 10;
+    this->InternalFileName = new char [size];
+    snprintf(this->InternalFileName,size,"%s",this->FileName);
   }
   else
   {
@@ -138,14 +140,15 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
       + this->FileNameSliceOffset;
     if (this->FilePrefix && this->FilePattern)
     {
-      this->InternalFileName = new char [strlen(this->FilePrefix) +
-                                        strlen(this->FilePattern) + 10];
-      sprintf (this->InternalFileName, this->FilePattern,
-               this->FilePrefix, slicenum);
+      size_t size = strlen(this->FilePrefix) + strlen(this->FilePattern) + 10;
+      this->InternalFileName = new char [size];
+      snprintf (this->InternalFileName, size, this->FilePattern,
+                this->FilePrefix, slicenum);
     }
     else if (this->FilePattern)
     {
-      this->InternalFileName = new char [strlen(this->FilePattern) + 10];
+      size_t size = strlen(this->FilePattern) + 10;
+      this->InternalFileName = new char [size];
       int len = static_cast<int>(strlen(this->FilePattern));
       int hasPercentS = 0;
       for(int i =0; i < len-1; ++i)
@@ -158,11 +161,11 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
       }
       if(hasPercentS)
       {
-        sprintf (this->InternalFileName, this->FilePattern, "", slicenum);
+        snprintf (this->InternalFileName, size, this->FilePattern, "", slicenum);
       }
       else
       {
-        sprintf (this->InternalFileName, this->FilePattern, slicenum);
+        snprintf (this->InternalFileName, size, this->FilePattern, slicenum);
       }
     }
     else

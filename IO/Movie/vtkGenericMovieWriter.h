@@ -22,7 +22,7 @@
  * the file (i.e. the contents of the vtkImageData), End() will finalize
  * and close the file.
  * @sa
- * vtkAVIWriter vtkMPEG2Writer
+ * vtkAVIWriter
 */
 
 #ifndef vtkGenericMovieWriter_h

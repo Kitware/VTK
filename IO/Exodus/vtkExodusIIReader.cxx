@@ -3438,7 +3438,7 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
 
     if (cend < cbegin)
     {
-      sprintf(names[i], "null_%d", i);
+      snprintf(names[i], MAX_STR_LENGTH + 1, "null_%d", i);
       continue;
     }
 

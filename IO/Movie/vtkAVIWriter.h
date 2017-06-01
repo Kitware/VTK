@@ -20,7 +20,7 @@
  * on the Microsoft Windows platform. The data type of the file is
  * unsigned char regardless of the input type.
  * @sa
- * vtkGenericMovieWriter vtkMPEG2Writer
+ * vtkGenericMovieWriter
 */
 
 #ifndef vtkAVIWriter_h

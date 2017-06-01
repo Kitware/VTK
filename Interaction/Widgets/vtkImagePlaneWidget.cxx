@@ -1300,21 +1300,29 @@ void vtkImagePlaneWidget::ManageTextDisplay()
 
   if ( this->State == vtkImagePlaneWidget::WindowLevelling )
   {
-    sprintf(this->TextBuff,"Window, Level: ( %g, %g )",
-            this->CurrentWindow, this->CurrentLevel );
+    snprintf(this->TextBuff,
+             VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+             "Window, Level: ( %g, %g )",
+             this->CurrentWindow,
+             this->CurrentLevel );
   }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
   {
     if( this->CurrentImageValue == VTK_DOUBLE_MAX )
     {
-      sprintf(this->TextBuff,"Off Image");
+      snprintf(this->TextBuff,
+               VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+               "Off Image");
     }
     else
     {
-      sprintf(this->TextBuff,"( %g, %g, %g ): %g",
-                   this->CurrentCursorPosition[0],
-                   this->CurrentCursorPosition[1],
-                   this->CurrentCursorPosition[2],this->CurrentImageValue);
+      snprintf(this->TextBuff,
+               VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+               "( %g, %g, %g ): %g",
+               this->CurrentCursorPosition[0],
+               this->CurrentCursorPosition[1],
+               this->CurrentCursorPosition[2],
+               this->CurrentImageValue);
     }
   }
 
@@ -2831,7 +2839,7 @@ void vtkImagePlaneWidget::GenerateCursor()
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::GenerateText()
 {
-  sprintf(this->TextBuff,"NA");
+  snprintf(this->TextBuff, VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF, "NA");
   this->TextActor->SetInput(this->TextBuff);
   this->TextActor->SetTextScaleModeToNone();
 

@@ -91,7 +91,7 @@ public:
 
   //@{
   /**
-   * The sprintf-style format string used to build filename from
+   * The snprintf-style format string used to build filename from
    * FilePrefix and slice number.
    */
   virtual void SetFilePattern(const char *);

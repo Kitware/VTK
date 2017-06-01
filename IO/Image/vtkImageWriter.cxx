@@ -35,6 +35,7 @@ vtkImageWriter::vtkImageWriter()
   this->FilePattern = NULL;
   this->FileName = NULL;
   this->InternalFileName = NULL;
+  this->InternalFileNameSize = 0;
   this->FileNumber = 0;
   this->FileDimensionality = 2;
 
@@ -119,10 +120,10 @@ int vtkImageWriter::RequestData(
   }
 
   // Make sure the file name is allocated
-  this->InternalFileName =
-    new char[(this->FileName ? strlen(this->FileName) : 1) +
-            (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
-            (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
+  this->InternalFileNameSize = (this->FileName ? strlen(this->FileName) : 1) +
+                               (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
+                               (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
+  this->InternalFileName = new char[this->InternalFileNameSize];
 
   // Fill in image information.
   int *wExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
@@ -148,6 +149,7 @@ int vtkImageWriter::RequestData(
 
   delete [] this->InternalFileName;
   this->InternalFileName = NULL;
+  this->InternalFileNameSize = 0;
 
   return 1;
 }
@@ -177,18 +179,27 @@ void vtkImageWriter::RecursiveWrite(int axis,
     // determine the name
     if (this->FileName)
     {
-      sprintf(this->InternalFileName,"%s",this->FileName);
+      snprintf(this->InternalFileName,
+               this->InternalFileNameSize,
+               "%s",
+               this->FileName);
     }
     else
     {
       if (this->FilePrefix)
       {
-        sprintf(this->InternalFileName, this->FilePattern,
-                this->FilePrefix, this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FilePrefix,
+                 this->FileNumber);
       }
       else
       {
-        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FileNumber);
       }
       if (this->FileNumber < this->MinimumFileNumber)
       {
@@ -298,18 +309,27 @@ void vtkImageWriter::RecursiveWrite(int axis,
     // determine the name
     if (this->FileName)
     {
-      sprintf(this->InternalFileName,"%s",this->FileName);
+      snprintf(this->InternalFileName,
+               this->InternalFileNameSize,
+               "%s",
+               this->FileName);
     }
     else
     {
       if (this->FilePrefix)
       {
-        sprintf(this->InternalFileName, this->FilePattern,
-                this->FilePrefix, this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FilePrefix,
+                 this->FileNumber);
       }
       else
       {
-        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FileNumber);
       }
       if (this->FileNumber < this->MinimumFileNumber)
       {
