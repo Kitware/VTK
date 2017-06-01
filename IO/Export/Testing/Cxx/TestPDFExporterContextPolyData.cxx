@@ -41,6 +41,7 @@
 #include "vtkTestingInteractor.h"
 #include "vtkXMLPolyDataReader.h"
 
+namespace {
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkXMLPolyDataReader> ReadUVCDATPolyData(int argc, char* argv[])
@@ -153,6 +154,8 @@ vtkSmartPointer<vtkPolyDataItem> CreateContourItem(int argc, char* argv[])
 
   return polyItem;
 }
+
+} // end anon namespace
 
 /**
  * Tests vtkPolyDataItem and shows its usage with an example. vtkPolyDataItem
