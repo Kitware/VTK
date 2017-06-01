@@ -238,6 +238,124 @@ FT_Library* vtkFreeTypeTools::GetLibrary()
 }
 
 //----------------------------------------------------------------------------
+vtkFreeTypeTools::FaceMetrics
+vtkFreeTypeTools::GetFaceMetrics(vtkTextProperty *tprop)
+{
+  FT_Face face;
+  this->GetFace(tprop, &face);
+
+  FaceMetrics metrics;
+  metrics.UnitsPerEM = face->units_per_EM;
+  metrics.Ascender = face->ascender;
+  metrics.Descender = face->descender;
+  metrics.HorizAdvance = face->max_advance_width;
+  metrics.BoundingBox = { { static_cast<int>(face->bbox.xMin),
+                            static_cast<int>(face->bbox.xMax),
+                            static_cast<int>(face->bbox.yMin),
+                            static_cast<int>(face->bbox.yMax) } };
+  metrics.FamilyName = face->family_name;
+  metrics.Scalable = (face->face_flags & FT_FACE_FLAG_SCALABLE) != 0;
+  metrics.Bold = (face->style_flags & FT_STYLE_FLAG_BOLD) != 0;
+  metrics.Italic = (face->style_flags & FT_STYLE_FLAG_ITALIC) != 0;
+
+  return metrics;
+}
+
+//----------------------------------------------------------------------------
+vtkFreeTypeTools::GlyphOutline
+vtkFreeTypeTools::GetUnscaledGlyphOutline(vtkTextProperty *tprop,
+                                          vtkUnicodeStringValueType charId)
+{
+  size_t tpropCacheId;
+  this->MapTextPropertyToId(tprop, &tpropCacheId);
+  FTC_FaceID faceId = reinterpret_cast<FTC_FaceID>(tpropCacheId);
+  GlyphOutline result;
+  result.HorizAdvance = 0;
+
+  FTC_CMapCache *cmapCache = this->GetCMapCache();
+  if (!cmapCache)
+  {
+    vtkErrorMacro("CMapCache not found!");
+    return result;
+  }
+
+  FT_UInt glyphId = FTC_CMapCache_Lookup(*cmapCache, faceId, 0, charId);
+
+  FTC_ImageCache *imgCache = this->GetImageCache();
+  if (!imgCache)
+  {
+    vtkErrorMacro("ImageCache not found!");
+    return result;
+  }
+
+  FTC_ImageTypeRec type;
+  type.face_id = faceId;
+  type.width = 0;
+  type.height = 0;
+  type.flags = FT_LOAD_NO_SCALE | FT_LOAD_IGNORE_TRANSFORM;
+
+  FT_Glyph glyph;
+  FT_Error error = FTC_ImageCache_Lookup(*imgCache, &type, glyphId, &glyph, 0);
+  if (!error && glyph && glyph->format == ft_glyph_format_outline)
+  {
+    FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
+    result.HorizAdvance = (glyph->advance.x + 0x8000) >> 16;
+    result.Path = vtkSmartPointer<vtkPath>::New();
+    this->OutlineToPath(0, 0, &outlineGlyph->outline, result.Path.Get());
+  }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
+std::array<int, 2>
+vtkFreeTypeTools::GetUnscaledKerning(vtkTextProperty *tprop,
+                                     vtkUnicodeStringValueType leftChar,
+                                     vtkUnicodeStringValueType rightChar)
+{
+  std::array<int, 2> result{ {0, 0} };
+  if (leftChar == 0 || rightChar == 0)
+  {
+    return result;
+  }
+
+  size_t tpropCacheId;
+  this->MapTextPropertyToId(tprop, &tpropCacheId);
+  FT_Face face = NULL;
+
+  if (!this->GetFace(tpropCacheId, &face) || !face)
+  {
+    vtkErrorMacro("Error loading font face.");
+    return result;
+  }
+
+
+  if (FT_HAS_KERNING(face) != 0)
+  {
+    FTC_FaceID faceId = reinterpret_cast<FTC_FaceID>(tpropCacheId);
+    FTC_CMapCache *cmapCache = this->GetCMapCache();
+    if (!cmapCache)
+    {
+      vtkErrorMacro("CMapCache not found!");
+      return result;
+    }
+
+    FT_UInt leftGIdx = FTC_CMapCache_Lookup(*cmapCache, faceId, 0, leftChar);
+    FT_UInt rightGIdx = FTC_CMapCache_Lookup(*cmapCache, faceId, 0, rightChar);
+    FT_Vector kerning;
+    FT_Error error =  FT_Get_Kerning(face, leftGIdx, rightGIdx,
+                                     FT_KERNING_UNSCALED, &kerning);
+    if (!error)
+    {
+      result[0] = kerning.x >> 6;
+      result[1] = kerning.y >> 6;
+    }
+  }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
 FTC_Manager* vtkFreeTypeTools::GetCacheManager()
 {
   if (!this->CacheManager)
@@ -2081,17 +2199,6 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
                                        FT_UInt &previousGlyphIndex,
                                        vtkPath *path, MetaData &metaData)
 {
-  // The FT_CURVE defines don't really work in a switch...only the first two
-  // bits are meaningful, and the rest appear to be garbage. We'll convert them
-  // into values in the enum below:
-  enum controlType
-  {
-    FIRST_POINT,
-    ON_POINT,
-    CUBIC_POINT,
-    CONIC_POINT
-  };
-
   FT_UInt glyphIndex;
   FT_OutlineGlyph outlineGlyph = NULL;
   FT_Outline *outline = this->GetOutline(character, &metaData.scaler,
@@ -2118,11 +2225,32 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
     return false;
   }
 
+  this->OutlineToPath(x, y, outline, path);
+
+  // Advance to next char
+  x += (outlineGlyph->root.advance.x + 0x8000) >> 16;
+  y += (outlineGlyph->root.advance.y + 0x8000) >> 16;
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkFreeTypeTools::OutlineToPath(int x, int y, FT_Outline *outline,
+                                     vtkPath *path)
+{
+  // The FT_CURVE defines don't really work in a switch...only the first two
+  // bits are meaningful, and the rest appear to be garbage. We'll convert them
+  // into values in the enum below:
+  enum controlType
+  {
+    FIRST_POINT,
+    ON_POINT,
+    CUBIC_POINT,
+    CONIC_POINT
+  };
+
   if (outline->n_points > 0)
   {
-    int pen_x = x;
-    int pen_y = y;
-
     short point = 0;
     for (short contour = 0; contour < outline->n_contours; ++contour)
     {
@@ -2156,12 +2284,12 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
             vtkWarningMacro("Invalid control code returned from FreeType: "
                             << static_cast<int>(fttag) << " (masked: "
                             << static_cast<int>(fttag & 0x3));
-            return false;
+            return;
         }
 
         double vec[2];
-        vec[0] = ftvec.x / 64.0 + pen_x;
-        vec[1] = ftvec.y / 64.0 + pen_y;
+        vec[0] = ftvec.x / 64.0 + x;
+        vec[1] = ftvec.y / 64.0 + y;
 
         // Handle the first point here, unless it is a CONIC point, in which
         // case the switches below handle it.
@@ -2293,11 +2421,6 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
       } // end switch (lastTag)
     } // end contour points iteration
   } // end contour iteration
-
-  // Advance to next char
-  x += (outlineGlyph->root.advance.x + 0x8000) >> 16;
-  y += (outlineGlyph->root.advance.y + 0x8000) >> 16;
-  return true;
 }
 
 //----------------------------------------------------------------------------
