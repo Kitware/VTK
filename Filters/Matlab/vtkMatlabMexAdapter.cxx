@@ -296,6 +296,7 @@ vtkDataArray* vtkMatlabMexAdapter::GetVTKDataType(mxClassID cid)
 vtkMatlabMexAdapter::vtkMatlabMexAdapter()
 {
 
+  VTK_LEGACY_BODY(vtkMatlabMexAdapter::vtkMatlabMexAdapter, "VTK 8.0");
   this->vad =  vtkArrayData::New();
   this->vdoc = vtkDataObjectCollection::New();
   this->vdac = vtkDataArrayCollection::New();
