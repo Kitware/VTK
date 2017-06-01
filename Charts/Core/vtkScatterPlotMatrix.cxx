@@ -353,7 +353,7 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
 }
 } // End of anonymous namespace
 
-vtkStandardNewMacro(vtkScatterPlotMatrix)
+vtkObjectFactoryNewMacro(vtkScatterPlotMatrix)
 
 vtkScatterPlotMatrix::vtkScatterPlotMatrix()
   : NumberOfBins(10), NumberOfFrames(25),
@@ -363,7 +363,9 @@ vtkScatterPlotMatrix::vtkScatterPlotMatrix()
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleProperties->SetFontSize(12);
   this->SelectionMode = vtkContextScene::SELECTION_NONE;
+  this->ActivePlot = vtkVector2i(0, -2);
   this->ActivePlotValid = false;
+  this->Animating = false;
 }
 
 vtkScatterPlotMatrix::~vtkScatterPlotMatrix()
@@ -528,6 +530,10 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
                                 ->MarkerSize);
       plotPoints->SetMarkerStyle(this->Private->ChartSettings[ACTIVEPLOT]
                                  ->MarkerStyle);
+
+      // Add supplementary plot if any
+      this->AddSupplementaryPlot(this->Private->BigChart, ACTIVEPLOT, row, column, 2);
+
       // Set background color.
       this->Private->BigChart->SetBackgroundBrush(
             this->Private->ChartSettings[ACTIVEPLOT]
@@ -616,6 +622,7 @@ void vtkScatterPlotMatrix::StartAnimation(vtkRenderWindowInteractor* interactor)
   // Start a simple repeating timer to advance along the path until completion.
   if (!this->Private->TimerCallbackInitialized && interactor)
   {
+    this->Animating = true;
     if (!this->Private->AnimationCallbackInitialized)
     {
       this->Private->AnimationCallback->SetClientData(this);
@@ -768,6 +775,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       this->Private->TimerId = 0;
       this->Private->TimerCallbackInitialized = false;
     }
+    this->Animating = false;
   }
 }
 
@@ -1413,6 +1421,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
                                   ->MarkerSize);
         plotPoints->SetMarkerStyle(this->Private->ChartSettings[SCATTERPLOT]
                                    ->MarkerStyle);
+        this->AddSupplementaryPlot(chart, SCATTERPLOT, row, column);
         }
       else if (this->GetPlotType(pos) == HISTOGRAM)
         {
@@ -1471,7 +1480,11 @@ void vtkScatterPlotMatrix::UpdateLayout()
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
         if (!this->ActivePlotValid)
         {
-          this->SetActivePlot(vtkVector2i(0, n - 2));
+          if (this->ActivePlot.GetY() < 0)
+          {
+            this->ActivePlot = vtkVector2i(0, n - 2);
+          }
+          this->SetActivePlot(this->ActivePlot);
         }
         }
       // Only show bottom axis label for bottom plots
@@ -1849,6 +1862,7 @@ void vtkScatterPlotMatrix::SetSize(const vtkVector2i &size)
   if (this->Size.GetX() != size.GetX() || this->Size.GetY() != size.GetY())
   {
     this->ActivePlotValid = false;
+    this->ActivePlot = vtkVector2i(0, this->Size.GetX() - 2);
   }
   this->Superclass::SetSize(size);
 }

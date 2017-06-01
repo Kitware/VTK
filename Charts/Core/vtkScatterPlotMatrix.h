@@ -453,6 +453,13 @@ protected:
   static void ProcessEvents(vtkObject *caller, unsigned long event,
                             void *clientData, void *callerData);
 
+  /**
+   * Called when drawing a chart, does nothing at this level.
+   */
+  virtual void AddSupplementaryPlot(vtkChart* vtkNotUsed(chart), int vtkNotUsed(plotType),
+                                    vtkStdString vtkNotUsed(row), vtkStdString vtkNotUsed(column),
+                                    int vtkNotUsed(plotCorner) = 0){}
+
   // The position of the active plot (defaults to 0, 1).
   vtkVector2i ActivePlot;
 
@@ -477,6 +484,9 @@ protected:
 
   // How many frames should animations consist of, 0 means no transitions.
   int NumberOfFrames;
+
+  // A flag to know if we are animating the scatter plot along an animation path
+  bool Animating;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
