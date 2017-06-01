@@ -20,6 +20,7 @@
 #include "vtkPNGWriter.h"
 #include "vtkImageShiftScale.h"
 #include "vtkImageDifference.h"
+#include "vtkImageExtractComponents.h"
 #include "vtkRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkTimerLog.h"
@@ -448,7 +449,22 @@ int vtkTesting::RegressionTest(const string &pngFileName, double thresh,
   vtkNew<vtkPNGReader> inputReader;
   inputReader->SetFileName(pngFileName.c_str());
   inputReader->Update();
-  return this->RegressionTest(inputReader.GetPointer(), thresh, os);
+
+  vtkAlgorithm *src = inputReader.Get();
+
+  vtkSmartPointer<vtkImageExtractComponents> extract;
+  // Convert rgba to rgb if needed
+  if (inputReader->GetOutput() &&
+      inputReader->GetOutput()->GetNumberOfScalarComponents() == 4)
+  {
+    extract = vtkSmartPointer<vtkImageExtractComponents>::New();
+    extract->SetInputConnection(src->GetOutputPort());
+    extract->SetComponents(0, 1, 2);
+    extract->Update();
+    src = extract.Get();
+  }
+
+  return this->RegressionTest(src, thresh, os);
 }
 //-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
@@ -502,10 +518,16 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     return FAILED;
   }
 
+  imageSource->Update();
+
   vtkNew<vtkPNGReader> rtPng;
   rtPng->SetFileName(this->ValidImageFileName);
   rtPng->Update();
-  imageSource->Update();
+
+  vtkNew<vtkImageExtractComponents> rtExtract;
+  rtExtract->SetInputConnection(rtPng->GetOutputPort());
+  rtExtract->SetComponents(0, 1, 2);
+  rtExtract->Update();
 
   vtkNew<vtkImageDifference> rtId;
 
@@ -515,7 +537,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   vtkNew<vtkImageClip> ic2;
   ic2->SetClipData(1);
-  ic2->SetInputConnection(rtPng->GetOutputPort());
+  ic2->SetInputConnection(rtExtract->GetOutputPort());
 
   int* wExt1 = ic1->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
