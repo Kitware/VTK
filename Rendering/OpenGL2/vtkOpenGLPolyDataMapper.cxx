@@ -82,7 +82,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 
   this->PrimitiveIDOffset = 0;
   this->ShiftScaleMethod =
-    vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE;
+    vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE;
 
   this->CellScalarTexture = NULL;
   this->CellScalarBuffer = NULL;
@@ -3264,23 +3264,25 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     {
       posVBO->SetCoordShiftAndScaleMethod(
         static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
-      // If the VBO coordinates were shifted and scaled, prepare the inverse transform
-      // for application to the model->view matrix:
-      if (posVBO->GetCoordShiftAndScaleEnabled())
-      {
-        std::vector<double> shift = posVBO->GetShift();
-        std::vector<double> scale = posVBO->GetScale();
-        this->VBOInverseTransform->Identity();
-        this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
-        this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
-        this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
-      }
     }
 
     this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
     this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
     this->VBOs->CacheDataArray("tcoordMC", tcoords, cache, VTK_FLOAT);
     this->VBOs->BuildAllVBOs(cache);
+
+    // get it again as it may have been freed
+    posVBO = this->VBOs->GetVBO("vertexMC");
+    if (posVBO && posVBO->GetCoordShiftAndScaleEnabled())
+    {
+      std::vector<double> shift = posVBO->GetShift();
+      std::vector<double> scale = posVBO->GetScale();
+      this->VBOInverseTransform->Identity();
+      this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+      this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
+    }
+
     this->VBOBuildTime.Modified(); // need to call all the time or GetNeedToRebuild will always return true;
     this->VBOBuildString = toString.str();
   }
