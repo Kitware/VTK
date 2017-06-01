@@ -34,6 +34,7 @@ vtkStandardNewMacro(vtkCorrelativeStatisticsGnuR);
 // ----------------------------------------------------------------------
 vtkCorrelativeStatisticsGnuR::vtkCorrelativeStatisticsGnuR()
 {
+  VTK_LEGACY_BODY(vtkCorrelativeStatisticsGnuR::vtkCorrelativeStatisticsGnuR, "VTK 8.0");
 }
 
 // ----------------------------------------------------------------------

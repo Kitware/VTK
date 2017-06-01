@@ -140,6 +140,7 @@ public:
 vtkRCalculatorFilter::vtkRCalculatorFilter()
 {
 
+  VTK_LEGACY_BODY(vtkRCalculatorFilter::vtkRCalculatorFilter, "VTK 8.0");
   this->ri = 0;
   this->Rscript = 0;
   this->RfileScript = 0;

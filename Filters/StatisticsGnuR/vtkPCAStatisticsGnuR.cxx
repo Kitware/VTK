@@ -27,6 +27,7 @@ vtkStandardNewMacro(vtkPCAStatisticsGnuR);
 // ----------------------------------------------------------------------
 vtkPCAStatisticsGnuR::vtkPCAStatisticsGnuR()
 {
+  VTK_LEGACY_BODY(vtkPCAStatisticsGnuR::vtkPCAStatisticsGnuR, "VTK 8.0");
 }
 
 // ----------------------------------------------------------------------

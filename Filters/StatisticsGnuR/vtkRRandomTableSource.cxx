@@ -268,6 +268,7 @@ vtkAbstractArray* CreateRandomArray(const char* name,
 vtkRRandomTableSource::vtkRRandomTableSource()
 {
 
+  VTK_LEGACY_BODY(vtkRRandomTableSource::vtkRRandomTableSource, "VTK 8.0");
   this->impl = new vtkRrtsimplementation;
   this->impl->ri = vtkRInterface::New();
   this->impl->col_list.clear();
