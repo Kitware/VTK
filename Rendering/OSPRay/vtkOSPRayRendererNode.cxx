@@ -576,12 +576,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     if (bbox.IsValid())
     {
       float diam = static_cast<float>(bbox.GetDiagonalLength());
-      diam = log(bbox.GetMaxLength());
-      if (diam < 0.f)
+      float logDiam = log(diam);
+      if (logDiam < 0.f)
         {
-        diam = 1.f/(fabs(diam));
+        logDiam = 1.f/(fabs(logDiam));
         }
-      float epsilon = 1e-5*diam;
+      float epsilon = 1e-5*logDiam;
       ospSet1f(oRenderer, "epsilon", epsilon);
       ospSet1f(oRenderer, "aoDistance", diam*0.3);
     }
