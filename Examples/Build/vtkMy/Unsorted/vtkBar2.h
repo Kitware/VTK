@@ -33,7 +33,7 @@ public:
 
 protected:
   vtkBar2() {}
-  ~vtkBar2() {}
+  ~vtkBar2() override {}
 private:
   vtkBar2(const vtkBar2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBar2&) VTK_DELETE_FUNCTION;

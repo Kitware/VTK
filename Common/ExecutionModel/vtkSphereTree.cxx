@@ -91,7 +91,7 @@ struct vtkStructuredHierarchy : public vtkSphereTreeHierarchy
     this->H->SetNumberOfTuples(size);
   }
 
-  virtual ~vtkStructuredHierarchy()
+  ~vtkStructuredHierarchy() override
   {
     this->H->Delete();
     this->H = nullptr;
@@ -135,7 +135,7 @@ struct vtkUnstructuredHierarchy : public vtkSphereTreeHierarchy
     this->CellLoc = new vtkIdType [numCells];
     this->CellMap = new vtkIdType [numCells];
   }
-  virtual ~vtkUnstructuredHierarchy()
+  ~vtkUnstructuredHierarchy() override
   {
     delete [] this->NumSpheres;
     this->NumSpheres = nullptr;

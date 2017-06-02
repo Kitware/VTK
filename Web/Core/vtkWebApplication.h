@@ -127,7 +127,7 @@ public:
 
 protected:
   vtkWebApplication();
-  ~vtkWebApplication();
+  ~vtkWebApplication() override;
 
   int ImageEncoding;
   int ImageCompression;

@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkWebUtilities();
-  ~vtkWebUtilities();
+  ~vtkWebUtilities() override;
 
 private:
   vtkWebUtilities(const vtkWebUtilities&) VTK_DELETE_FUNCTION;

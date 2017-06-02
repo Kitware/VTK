@@ -79,7 +79,7 @@ public:
 
 protected:
     vtkWebGLObject();
-    ~vtkWebGLObject();
+    ~vtkWebGLObject() override;
 
     float Matrix[16];
     size_t rendererId;

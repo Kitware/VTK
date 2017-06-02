@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkWebInteractionEvent();
-  ~vtkWebInteractionEvent();
+  ~vtkWebInteractionEvent() override;
 
   unsigned int Buttons;
   unsigned int Modifiers;

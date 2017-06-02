@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkMaskPointsFilter();
-  ~vtkMaskPointsFilter();
+  ~vtkMaskPointsFilter() override;
 
   unsigned char EmptyValue; // what value indicates a voxel is empty
 

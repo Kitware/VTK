@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkWebGLPolyData();
-  ~vtkWebGLPolyData();
+  ~vtkWebGLPolyData() override;
 
 private:
   vtkWebGLPolyData(const vtkWebGLPolyData&) VTK_DELETE_FUNCTION;

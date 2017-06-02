@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkOpenGLVertexBufferObjectCache();
-  ~vtkOpenGLVertexBufferObjectCache();
+  ~vtkOpenGLVertexBufferObjectCache() override;
 
   VBOMap MappedVBOs;
 

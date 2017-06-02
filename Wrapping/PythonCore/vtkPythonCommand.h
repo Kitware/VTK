@@ -36,7 +36,7 @@ public:
   PyThreadState *ThreadState;
 protected:
   vtkPythonCommand();
-  ~vtkPythonCommand();
+  ~vtkPythonCommand() override;
 };
 
 #endif

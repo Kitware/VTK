@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkDataArrayTemplate() {}
-  ~vtkDataArrayTemplate() {}
+  ~vtkDataArrayTemplate() override {}
 
 private:
   vtkDataArrayTemplate(const vtkDataArrayTemplate&) VTK_DELETE_FUNCTION;

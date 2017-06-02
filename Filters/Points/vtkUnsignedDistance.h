@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkUnsignedDistance();
-  ~vtkUnsignedDistance();
+  ~vtkUnsignedDistance() override;
 
   int Dimensions[3];
   double Bounds[6];

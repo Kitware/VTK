@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkType@VTK_TYPE_NAME@Array();
-  ~vtkType@VTK_TYPE_NAME@Array();
+  ~vtkType@VTK_TYPE_NAME@Array() override;
 
 private:
   vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&) VTK_DELETE_FUNCTION;

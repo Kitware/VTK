@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkPythonAlgorithm();
-  ~vtkPythonAlgorithm();
+  ~vtkPythonAlgorithm() override;
 
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inInfo,

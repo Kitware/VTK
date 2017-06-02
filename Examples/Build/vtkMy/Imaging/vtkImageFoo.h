@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkImageFoo();
-  ~vtkImageFoo();
+  ~vtkImageFoo() override;
 
   float Foo;
   int OutputScalarType;

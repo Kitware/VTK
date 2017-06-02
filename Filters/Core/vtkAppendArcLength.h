@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkAppendArcLength();
-  ~vtkAppendArcLength();
+  ~vtkAppendArcLength() override;
 
   //@{
   /**

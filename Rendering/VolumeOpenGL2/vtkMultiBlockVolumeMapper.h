@@ -134,7 +134,7 @@ public:
 
 protected:
   vtkMultiBlockVolumeMapper();
-  ~vtkMultiBlockVolumeMapper();
+  ~vtkMultiBlockVolumeMapper() override;
 
   /**
    * Specify the type of data this mapper can handle. This mapper requires
