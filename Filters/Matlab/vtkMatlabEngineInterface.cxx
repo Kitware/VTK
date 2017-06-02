@@ -187,6 +187,7 @@ vtkMatlabEngineSingleton::vtkMatlabEngineSingleton()
 vtkMatlabEngineInterface::vtkMatlabEngineInterface()
 {
 
+  VTK_LEGACY_BODY(vtkMatlabEngineInterface::vtkMatlabEngineInterface, "VTK 8.0");
   this->meng = vtkMatlabEngineSingleton::Instance();
   this->vmma = vtkMatlabMexAdapter::New();
 

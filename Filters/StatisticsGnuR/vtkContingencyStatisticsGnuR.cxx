@@ -43,6 +43,7 @@ vtkStandardNewMacro(vtkContingencyStatisticsGnuR);
 
 vtkContingencyStatisticsGnuR::vtkContingencyStatisticsGnuR()
 {
+  VTK_LEGACY_BODY(vtkContingencyStatisticsGnuR::vtkContingencyStatisticsGnuR, "VTK 8.0");
 
 }
 

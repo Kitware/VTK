@@ -70,7 +70,7 @@ public:
 
 vtkMatlabEngineFilter::vtkMatlabEngineFilter()
 {
-
+  VTK_LEGACY_BODY(vtkMatlabEngineFilter::vtkMatlabEngineFilter, "VTK 8.0");
   this->mengi = 0;
   this->MatlabScript = 0;
   this->MatlabFileScript = 0;

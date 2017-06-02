@@ -1,3 +1,14 @@
+if (VTK_LEGACY_REMOVE)
+  message(STATUS
+    "vtkFiltersStatisticsGnuR can not be enabled as it has been "
+    "marked for deprecation and legacy code has been disabled in this "
+    "build.")
+  return()
+else()
+  message(WARNING
+    "vtkFiltersStatisticsGnuR is deprecated and will be removed in a future VTK version")
+endif()
+
 set(Module_SRCS
   vtkRRandomTableSource.cxx
   vtkRCalculatorFilter.cxx

@@ -85,6 +85,7 @@ int R_FindArrayIndex(vtkArrayCoordinates& coordinates, const vtkArrayExtents& ex
 vtkRAdapter::vtkRAdapter()
 {
 
+  VTK_LEGACY_BODY(vtkRAdapter::vtkRAdapter, "VTK 8.0");
   this->vad =  vtkArrayData::New();
   this->vdoc = vtkDataObjectCollection::New();
   this->vdac = vtkDataArrayCollection::New();
