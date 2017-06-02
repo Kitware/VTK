@@ -164,7 +164,7 @@ protected:
    * Set the display extent.  Internal method, for when this mapper
    * is used as a helper class.
    */
-  void SetDisplayExtent(int extent[6]) {
+  void SetDisplayExtent(const int extent[6]) {
     this->DisplayExtent[0] = extent[0];
     this->DisplayExtent[1] = extent[1];
     this->DisplayExtent[2] = extent[2];

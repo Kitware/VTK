@@ -89,7 +89,7 @@ public:
   /**
    * Set/Get the stippling pattern of a Line, as a 16-bit binary pattern
    * (1 = pixel on, 0 = pixel off).
-   * This is only implemented for OpenGL. The default is 0xFFFF.
+   * This is only implemented for OpenGL, not OpenGL2. The default is 0xFFFF.
    */
   vtkSetMacro(LineStipplePattern,int);
   vtkGetMacro(LineStipplePattern,int);
@@ -99,7 +99,7 @@ public:
   /**
    * Set/Get the stippling repeat factor of a Line, which specifies how
    * many times each bit in the pattern is to be repeated.
-   * This is only implemented for OpenGL. The default is 1.
+   * This is only implemented for OpenGL, not OpenGL2. The default is 1.
    */
   vtkSetClampMacro(LineStippleRepeatFactor,int,1,VTK_INT_MAX);
   vtkGetMacro(LineStippleRepeatFactor,int);

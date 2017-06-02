@@ -87,7 +87,7 @@ public:
    * The image extent is generally set explicitly, but if not set
    * it will be determined from the input image data.
    */
-  void SetDisplayExtent(int extent[6]);
+  void SetDisplayExtent(const int extent[6]);
   void SetDisplayExtent(int minX, int maxX, int minY, int maxY,
                         int minZ, int maxZ);
   void GetDisplayExtent(int extent[6]);
