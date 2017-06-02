@@ -29,8 +29,8 @@
  * vector, are combined internally for convenience.  To be combined, the array
  * names have to be identical except for a trailing X,Y and Z (or x,y,z).  By
  * default cell and point arrays are not loaded.  However, the user can flag
- * arrays to load with the methods "SetPointArrayStatus" and
- * "SetCellArrayStatus".  The reader DOES NOT respond to piece requests
+ * arrays to load with the methods "SetPointResultArrayStatus" and
+ * "SetElementResultArrayStatus".  The reader DOES NOT respond to piece requests
  *
 */
 
