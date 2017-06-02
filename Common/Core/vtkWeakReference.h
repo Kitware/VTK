@@ -34,7 +34,7 @@ public:
   vtkTypeMacro(vtkWeakReference, vtkObject);
   static vtkWeakReference *New();
   vtkWeakReference();
-  ~vtkWeakReference();
+  ~vtkWeakReference() override;
 
   /**
    * Set the vtkObject to maintain a weak reference to.

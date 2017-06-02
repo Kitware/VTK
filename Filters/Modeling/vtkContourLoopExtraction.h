@@ -127,7 +127,7 @@ public:
 
 protected:
   vtkContourLoopExtraction();
-  ~vtkContourLoopExtraction();
+  ~vtkContourLoopExtraction() override;
 
   int LoopClosure;
   bool ScalarThresholding;

@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkObjectIdMap();
-  ~vtkObjectIdMap();
+  ~vtkObjectIdMap() override;
 
 private:
   vtkObjectIdMap(const vtkObjectIdMap&) VTK_DELETE_FUNCTION;

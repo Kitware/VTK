@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkOpenGLVertexBufferObjectGroup();
-  ~vtkOpenGLVertexBufferObjectGroup();
+  ~vtkOpenGLVertexBufferObjectGroup() override;
 
   std::map<std::string, vtkOpenGLVertexBufferObject*> UsedVBOs;
   std::map<std::string, std::vector<vtkDataArray*> > UsedDataArrays;

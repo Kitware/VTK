@@ -92,7 +92,7 @@ public:
 
 protected:
   vtkDataEncoder();
-  ~vtkDataEncoder();
+  ~vtkDataEncoder() override;
 
 private:
   vtkDataEncoder(const vtkDataEncoder&) VTK_DELETE_FUNCTION;

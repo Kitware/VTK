@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkCookieCutter();
-  ~vtkCookieCutter();
+  ~vtkCookieCutter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *) VTK_OVERRIDE;

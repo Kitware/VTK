@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkTestDataArray() { this->Array = ArrayType::New(); }
-  ~vtkTestDataArray() { this->Array->Delete(); }
+  ~vtkTestDataArray() override { this->Array->Delete(); }
 
   bool AllocateTuples(vtkIdType numTuples)
   { return this->Array->Allocate(numTuples) != 0; }

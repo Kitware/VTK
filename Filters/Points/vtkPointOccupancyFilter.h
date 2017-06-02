@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkPointOccupancyFilter();
-  ~vtkPointOccupancyFilter();
+  ~vtkPointOccupancyFilter() override;
 
   int SampleDimensions[3]; // dimensions of volume over which to compute occupancy
   double ModelBounds[6]; // bounding box defining image

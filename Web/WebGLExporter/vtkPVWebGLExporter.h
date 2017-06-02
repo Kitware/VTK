@@ -32,7 +32,7 @@ public:
 
 protected:
   vtkPVWebGLExporter();
-  ~vtkPVWebGLExporter();
+  ~vtkPVWebGLExporter() override;
 
   void WriteData() VTK_OVERRIDE;
 

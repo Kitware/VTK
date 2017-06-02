@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkInteractiveArea();
-  ~vtkInteractiveArea();
+  ~vtkInteractiveArea() override;
 
   ///@{
   /**

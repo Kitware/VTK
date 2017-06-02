@@ -217,7 +217,7 @@ public:
 
 protected:
   vtkRenderTimerLog();
-  ~vtkRenderTimerLog();
+  ~vtkRenderTimerLog() override;
 
   bool LoggingEnabled;
   unsigned int FrameLimit;

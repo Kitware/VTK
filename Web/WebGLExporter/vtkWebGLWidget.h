@@ -44,7 +44,7 @@ public:
 
 protected:
     vtkWebGLWidget();
-    ~vtkWebGLWidget();
+    ~vtkWebGLWidget() override;
 
     unsigned char* binaryData;
     int binarySize;

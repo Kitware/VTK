@@ -1144,7 +1144,7 @@ struct RectilinearFunctor : public CuttingFunctor
     this->PointsType = this->InPoints->GetDataType();
   }
 
-  ~RectilinearFunctor() { this->InPoints->Delete(); }
+  ~RectilinearFunctor() override { this->InPoints->Delete(); }
 
   void Initialize() { CuttingFunctor::Initialize(); }
 

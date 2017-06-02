@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkWebGLDataSet();
-  ~vtkWebGLDataSet();
+  ~vtkWebGLDataSet() override;
 
   int NumberOfVertices;
   int NumberOfPoints;

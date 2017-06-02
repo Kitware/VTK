@@ -25,7 +25,7 @@ public:
 
 protected:
   vtkLocalExample();
-  ~vtkLocalExample();
+  ~vtkLocalExample() override;
 
 private:
   vtkLocalExample(const vtkLocalExample&) VTK_DELETE_FUNCTION;

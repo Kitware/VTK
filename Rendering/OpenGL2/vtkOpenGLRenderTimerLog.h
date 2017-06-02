@@ -92,7 +92,7 @@ protected:
   size_t MinTimerPoolSize;
 
   vtkOpenGLRenderTimerLog();
-  ~vtkOpenGLRenderTimerLog();
+  ~vtkOpenGLRenderTimerLog() override;
 
   bool DoLogging();
 

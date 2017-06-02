@@ -219,7 +219,7 @@ protected: \
     this->SetImplementation(i); \
     i->Delete(); \
   } \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
@@ -240,7 +240,7 @@ protected: \
     this->SetImplementation(i); \
     i->Delete(); \
   } \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
@@ -257,7 +257,7 @@ public: \
   static _className* New(); \
 protected: \
   _className() {} \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
@@ -272,7 +272,7 @@ public: \
   static _className* New(); \
 protected: \
   _className() {} \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \

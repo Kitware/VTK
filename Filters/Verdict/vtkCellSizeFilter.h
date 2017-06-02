@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkCellSizeFilter();
-  ~vtkCellSizeFilter();
+  ~vtkCellSizeFilter() override;
 
   virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) VTK_OVERRIDE;

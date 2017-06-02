@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkTestNewVar();
-  ~vtkTestNewVar();
+  ~vtkTestNewVar() override;
 
   vtkNew<vtkPoints2D> Points;
 
