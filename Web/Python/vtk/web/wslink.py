@@ -5,13 +5,14 @@ wslink related class for the purpose of vtkWeb.
 
 from __future__ import absolute_import, division, print_function
 
-# import inspect, types, string, random, logging, six, json, re, base64, time
+# import inspect, types, string, random, logging, six, json, re, base64
+import json, base64, time
 
 # from threading import Timer
 
 # from twisted.web            import resource
-# from twisted.python         import log
-# from twisted.internet       import reactor
+from twisted.python         import log
+from twisted.internet       import reactor
 # from twisted.internet       import defer
 # from twisted.internet.defer import Deferred, returnValue
 
@@ -54,13 +55,15 @@ class ServerProtocol(websocket.ServerProtocol):
     """
 
     def __init__(self):
+        log.msg('Creating SP')
         self.setSharedObject("app", self.initApplication())
         websocket.ServerProtocol.__init__(self)
 
         # Init Binary WebSocket image renderer
         global imageCapture
         imageCapture = protocols.vtkWebViewPortImageDelivery()
-        imageCapture.setApplication(self.getApplication())
+        self.registerLinkProtocol(imageCapture)
+        # imageCapture.setApplication(self.getApplication())
 
     def initApplication(self):
         """
@@ -75,9 +78,9 @@ class ServerProtocol(websocket.ServerProtocol):
     def setApplication(self, application):
         self.setSharedObject("app", application)
 
-        # Init Binary WebSocket image renderer
-        global imageCapture
-        imageCapture.setApplication(self.getApplication())
+        # Init Binary WebSocket image renderer - already shares with us through self.coreServer
+        # global imageCapture
+        # imageCapture.setApplication(self.getApplication())
 
     def getApplication(self):
         return self.getSharedObject("app")
@@ -96,6 +99,7 @@ class ServerProtocol(websocket.ServerProtocol):
 class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
 
     def onOpen(self):
+        log.msg('Opening binary ws push')
         global imageCapture
         self.helper = imageCapture
         self.app = imageCapture.getApplication()
