@@ -14,31 +14,31 @@ endif()
 project(VTK)
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: GCC >= 4.7
+# Minimum compiler version check: GCC >= 4.8
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
-  message(FATAL_ERROR "GCC 4.7 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
+  message(FATAL_ERROR "GCC 4.8 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: LLVM Clang >= 3.0
+# Minimum compiler version check: LLVM Clang >= 3.3
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
-  message(FATAL_ERROR "LLVM Clang 3.0 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
+  message(FATAL_ERROR "LLVM Clang 3.3 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: Apple Clang >= 3.0 (Xcode 4.2)
+# Minimum compiler version check: Apple Clang >= 5.0 (Xcode 5.0)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
-  message(FATAL_ERROR "Apple Clang 3.0 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+  message(FATAL_ERROR "Apple Clang 5.0 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: Microsoft C/C++ >= 17.0 (aka VS 2012 aka VS 11.0)
+# Minimum compiler version check: Microsoft C/C++ >= 18.0 (aka VS 2013 aka VS 12.0)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17.0)
-  message(FATAL_ERROR "Microsoft Visual Studio 2012 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 18.0)
+  message(FATAL_ERROR "Microsoft Visual Studio 2013 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------

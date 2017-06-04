@@ -56,12 +56,7 @@ class vtkStdString;
 class vtkUnicodeString;
 class vtkObjectBase;
 class vtkAbstractArray;
-// workaround clang bug, needs export on forward declaration
-#ifdef __clang__
-class VTKCOMMONCORE_EXPORT vtkVariant;
-#else
 class vtkVariant;
-#endif
 struct vtkVariantLessThan;
 
 VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );

@@ -176,44 +176,12 @@ int TestArrayCasting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
   {
-    /* this "if" is a temporary workaround for the clang compiler,
-     * everything inside "#ifdef __clang__" should be removed when
-     * clang no longer needs these templates to be instantiated. */
-#ifdef __clang__
-    VTK_CREATE(vtkDenseArray<vtkUnicodeString>, dense_unicode);
-    VTK_CREATE(vtkDenseArray<vtkStdString>, dense_string);
-    VTK_CREATE(vtkDenseArray<vtkTypeFloat32>, dense_float);
-    VTK_CREATE(vtkDenseArray<vtkTypeFloat64>, dense_double);
-    VTK_CREATE(vtkDenseArray<vtkTypeUInt8>, dense_uchar);
-    VTK_CREATE(vtkDenseArray<vtkTypeInt8>, dense_schar);
-    VTK_CREATE(vtkDenseArray<vtkTypeUInt16>, dense_ushort);
-    VTK_CREATE(vtkDenseArray<vtkTypeInt16>, dense_short);
-    VTK_CREATE(vtkDenseArray<vtkTypeUInt32>, dense_uint);
-    VTK_CREATE(vtkDenseArray<vtkTypeInt32>, dense_int);
-    VTK_CREATE(vtkDenseArray<vtkTypeUInt64>, dense_ulonglong);
-    VTK_CREATE(vtkDenseArray<vtkTypeInt64>, dense_longlong);
-    VTK_CREATE(vtkDenseArray<vtkIdType>, dense_idtype);
-    VTK_CREATE(vtkSparseArray<vtkUnicodeString>, sparse_unicode);
-    VTK_CREATE(vtkSparseArray<vtkStdString>, sparse_string);
-    VTK_CREATE(vtkSparseArray<vtkTypeFloat32>, sparse_float);
-    VTK_CREATE(vtkSparseArray<vtkTypeFloat64>, sparse_double);
-    VTK_CREATE(vtkSparseArray<vtkTypeUInt8>, sparse_uchar);
-    VTK_CREATE(vtkSparseArray<vtkTypeInt8>, sparse_schar);
-    VTK_CREATE(vtkSparseArray<vtkTypeUInt16>, sparse_ushort);
-    VTK_CREATE(vtkSparseArray<vtkTypeInt16>, sparse_short);
-    VTK_CREATE(vtkSparseArray<vtkTypeUInt32>, sparse_uint);
-    VTK_CREATE(vtkSparseArray<vtkTypeInt32>, sparse_int);
-    VTK_CREATE(vtkSparseArray<vtkTypeUInt64>, sparse_ulonglong);
-    VTK_CREATE(vtkSparseArray<vtkTypeInt64>, sparse_longlong);
-    VTK_CREATE(vtkSparseArray<vtkIdType>, sparse_idtype);
-#else
     VTK_CREATE(vtkDenseArray<int>, dense_int);
     VTK_CREATE(vtkDenseArray<double>, dense_double);
     VTK_CREATE(vtkDenseArray<vtkStdString>, dense_string);
     VTK_CREATE(vtkSparseArray<int>, sparse_int);
     VTK_CREATE(vtkSparseArray<double>, sparse_double);
     VTK_CREATE(vtkSparseArray<vtkStdString>, sparse_string);
-#endif
 
     SuccessTest<vtkTypedArray, vtkIntegerTypes>(dense_int, __LINE__);
     FailTest<vtkTypedArray, vtkIntegerTypes>(dense_double, __LINE__);
