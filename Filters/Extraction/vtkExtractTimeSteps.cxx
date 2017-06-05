@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkExtractTimeSteps);
 
 vtkExtractTimeSteps::vtkExtractTimeSteps() :
-  UseRange(false), TimeStepInterval(1)
+  UseRange(false), Range{0, 0}, TimeStepInterval(1)
 {
 }
 
@@ -56,6 +56,12 @@ void vtkExtractTimeSteps::PrintSelf(ostream& os, vtkIndent indent)
     }
     os << std::endl;
   }
+
+  os << indent << "UseRange: " << (this->UseRange ? "true" : "false")
+     << std::endl;
+  os << indent << "Range: " << this->Range[0] << ", " << this->Range[1]
+     << std::endl;
+  os << indent << "TimeStepInterval: " << this->TimeStepInterval << std::endl;
 }
 
 //----------------------------------------------------------------------------
