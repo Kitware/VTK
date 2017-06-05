@@ -20,7 +20,6 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
-//#include "vtkDynamic2DLabelMapper.h"
 #include "vtkGlyph3D.h"
 #include "vtkGraphLayout.h"
 #include "vtkGraphToPolyData.h"
@@ -162,21 +161,6 @@ int TestGroupLeafVertices(int argc, char* argv[])
   VTK_CREATE(vtkActor, polyActor);
   polyActor->SetMapper(polyMapper);
   polyActor->GetProperty()->SetColor(0.3, 0.3, 1.0);
-
-  //
-  // Make some labels
-  //
-
-#if 0
-  VTK_CREATE(vtkDynamic2DLabelMapper, labelMapper);
-  labelMapper->SetInputConnection(graphToPoly->GetOutputPort());
-  labelMapper->SetLabelFormat("%s");
-  labelMapper->SetLabelModeToLabelFieldData();
-  labelMapper->SetFieldDataName("name");
-
-  VTK_CREATE(vtkActor2D, labelActor);
-  labelActor->SetMapper(labelMapper);
-#endif
 
   //
   // Make some glyphs

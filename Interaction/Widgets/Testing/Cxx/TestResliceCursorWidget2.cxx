@@ -45,7 +45,6 @@
 #include "vtkResliceCursorWidget.h"
 #include "vtkResliceCursorLineRepresentation.h"
 #include "vtkBiDimensionalWidget.h"
-//#include "vtkResliceCursorThickLineRepresentation.h"
 
 #include "vtkTestUtilities.h"
 

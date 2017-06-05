@@ -15,7 +15,6 @@
 
 #include "vtkTreeIterator.h"
 
-//#include "vtkObjectFactory.h"
 #include "vtkTree.h"
 
 vtkTreeIterator::vtkTreeIterator()

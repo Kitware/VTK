@@ -45,7 +45,6 @@
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 #include "vtkVariant.h"
-//#include "vtkXMLTreeReader.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -198,16 +197,6 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
     }
     graph = g;
   }
-#if 0
-  else
-  {
-    VTK_CREATE(vtkXMLTreeReader, reader);
-    reader->SetFileName(file);
-    reader->Update();
-    graph = reader->GetOutput();
-    graph->Register(0);
-  }
-#endif
 
   //for (vtkIdType a = 0; a < graph->GetNumberOfEdges(); a++)
   //  {
