@@ -29,14 +29,21 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
+#include "vtkOTConfig.h"
 #include "vtkOTUtilities.h"
 
 #include "openturns/DistributionFactoryImplementation.hxx"
 #include "openturns/DistributionImplementation.hxx"
 #include "openturns/KernelSmoothing.hxx"
+#include "openturns/ResourceMap.hxx"
+
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 #include "openturns/NumericalPoint.hxx"
 #include "openturns/NumericalSample.hxx"
-#include "openturns/ResourceMap.hxx"
+#else
+#include "openturns/Point.hxx"
+#include "openturns/Sample.hxx"
+#endif
 
 #include <iostream>
 #include <sstream>
@@ -47,15 +54,19 @@ vtkStandardNewMacro(vtkOTDensityMap);
 
 using namespace OT;
 
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
+typedef NumericalPoint Point;
+#endif
+
 class vtkOTDensityMap::OTDensityCache
 {
 public:
-  OTDensityCache(NumericalSample* cache)
+  OTDensityCache(Sample* cache)
     :Cache(cache)
   {
   }
 
-  NumericalSample* Cache;
+  Sample* Cache;
 };
 
 //-----------------------------------------------------------------------------
@@ -127,7 +138,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* inputObject = vtkDataObject::GetData(inputVector[0], 0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
-  // Create NumericalSample from input data array
+  // Create Sample from input data array
   vtkTable* inputTable = vtkTable::SafeDownCast(inputObject);
   vtkDataArray* xArray = this->GetInputArrayToProcess(0, inputVector);
   vtkDataArray* yArray = this->GetInputArrayToProcess(1, inputVector);
@@ -141,12 +152,12 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkDataArrayCollection> arrays;
   arrays->AddItem(xArray);
   arrays->AddItem(yArray);
-  NumericalSample* input = vtkOTUtilities::SingleDimArraysToNumericalSample(arrays.Get());
+  Sample* input = vtkOTUtilities::SingleDimArraysToSample(arrays.Get());
 
   // Create the PDF Grid
   OT::Indices pointNumber(2, this->GridSubdivisions);
-  NumericalPoint pointMin;
-  NumericalPoint pointMax;
+  Point pointMin;
+  Point pointMax;
   pointMin = input->getMin();
   pointMax = input->getMax();
 
@@ -161,9 +172,9 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
     // Compute OpenTURNS PDF
     KernelSmoothing* ks = new KernelSmoothing();
     this->DensityDistribution = new vtkOTDistributionImplementationWrapper(ks->build(*input));
-    NumericalSample gridX(this->GridSubdivisions * this->GridSubdivisions, 2);
+    Sample gridX(this->GridSubdivisions * this->GridSubdivisions, 2);
     this->DensityPDFCache->Cache =
-      new NumericalSample(this->DensityDistribution->Implementation->computePDF(
+      new Sample(this->DensityDistribution->Implementation->computePDF(
         pointMin, pointMax, pointNumber, gridX));
     delete ks;
     // this->DensityPDFCache->Cache is now a this->GridSubdivisions*this->GridSubdivisions serialized grid,
@@ -175,10 +186,10 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (this->DensityLogPDFSampleCache->Cache == NULL)
     {
-      const NumericalSample xSample(this->DensityDistribution->Implementation->getSample(
+      const Sample xSample(this->DensityDistribution->Implementation->getSample(
         this->ContourApproximationNumberOfPoints));
       this->DensityLogPDFSampleCache->Cache =
-        new NumericalSample(this->DensityDistribution->Implementation->computeLogPDF(xSample));
+        new Sample(this->DensityDistribution->Implementation->computeLogPDF(xSample));
     }
     else
     {
@@ -188,10 +199,10 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
       // Test if we are asking for more points
       if (newSize > oldSize)
       {
-        const NumericalSample xSample(
+        const Sample xSample(
           this->DensityDistribution->Implementation->getSample(newSize - oldSize));
         this->DensityLogPDFSampleCache->Cache->add(
-          NumericalSample(this->DensityDistribution->Implementation->computeLogPDF(xSample)));
+          Sample(this->DensityDistribution->Implementation->computeLogPDF(xSample)));
       }
       else if (newSize < oldSize)
       {
@@ -210,7 +221,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
     (pointMax[1] - pointMin[1]) / this->GridSubdivisions,
     0);
 
-  vtkDataArray* density = vtkOTUtilities::NumericalSampleToArray(this->DensityPDFCache->Cache);
+  vtkDataArray* density = vtkOTUtilities::SampleToArray(this->DensityPDFCache->Cache);
   image->GetPointData()->SetScalars(density);
   density->Delete();
 

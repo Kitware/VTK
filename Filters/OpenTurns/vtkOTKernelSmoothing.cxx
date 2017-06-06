@@ -20,9 +20,15 @@
 #include "openturns/DistributionImplementation.hxx"
 #include "openturns/Epanechnikov.hxx"
 #include "openturns/KernelSmoothing.hxx"
+#include "openturns/Triangular.hxx"
+
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 #include "openturns/NumericalPoint.hxx"
 #include "openturns/NumericalSample.hxx"
-#include "openturns/Triangular.hxx"
+#else
+#include "openturns/Point.hxx"
+#include "openturns/Sample.hxx"
+#endif
 
 vtkStandardNewMacro(vtkOTKernelSmoothing);
 
@@ -55,7 +61,7 @@ void vtkOTKernelSmoothing::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-int vtkOTKernelSmoothing::Process(NumericalSample* input)
+int vtkOTKernelSmoothing::Process(Sample* input)
 {
   double range[2] = { input->getMin()[0], input->getMax()[0] };
   double enlarger = 0.05 * (range[1] - range[0]);
@@ -86,7 +92,7 @@ int vtkOTKernelSmoothing::Process(NumericalSample* input)
 }
 
 //-----------------------------------------------------------------------------
-void vtkOTKernelSmoothing::ComputePDF(NumericalSample* input,
+void vtkOTKernelSmoothing::ComputePDF(Sample* input,
   KernelSmoothing* ks,
   double* range,
   const char* pdfName)
@@ -94,7 +100,7 @@ void vtkOTKernelSmoothing::ComputePDF(NumericalSample* input,
   ks->setBoundaryCorrection(this->BoundaryCorrection);
 
   DistributionFactoryImplementation::Implementation dist = ks->build(*input);
-  NumericalSample gridX;
-  NumericalSample gridY = dist->computePDF(range[0], range[1], this->PointNumber, gridX);
+  Sample gridX;
+  Sample gridY = dist->computePDF(range[0], range[1], this->PointNumber, gridX);
   this->AddToOutput(&gridY, pdfName);
 }

@@ -19,13 +19,20 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-#include "openturns/NumericalPoint.hxx"
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 #include "openturns/NumericalSample.hxx"
+#else
+#include "openturns/Sample.hxx"
+#endif
 
 using namespace OT;
 
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
+typedef NumericalPoint Point;
+#endif
+
 //-----------------------------------------------------------------------------
-NumericalSample* vtkOTUtilities::SingleDimArraysToNumericalSample(vtkDataArrayCollection* arrays)
+Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
 {
   if (arrays == NULL)
   {
@@ -39,7 +46,7 @@ NumericalSample* vtkOTUtilities::SingleDimArraysToNumericalSample(vtkDataArrayCo
     return NULL;
   }
   int numTuples = arrays->GetItem(0)->GetNumberOfTuples();
-  NumericalSample* ns = new NumericalSample(numTuples, numComp);
+  Sample* ns = new Sample(numTuples, numComp);
 
   int j = 0;
   arrays->InitTraversal();
@@ -66,7 +73,7 @@ NumericalSample* vtkOTUtilities::SingleDimArraysToNumericalSample(vtkDataArrayCo
 }
 
 //-----------------------------------------------------------------------------
-NumericalSample* vtkOTUtilities::ArrayToNumericalSample(vtkDataArray* arr)
+Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
 {
   if (arr == NULL)
   {
@@ -75,7 +82,7 @@ NumericalSample* vtkOTUtilities::ArrayToNumericalSample(vtkDataArray* arr)
 
   int numTuples = arr->GetNumberOfTuples();
   int numComp = arr->GetNumberOfComponents();
-  NumericalSample* ns = new NumericalSample(numTuples, numComp);
+  Sample* ns = new Sample(numTuples, numComp);
 
   for (int i = 0; i < numTuples; ++i)
   {
@@ -88,7 +95,7 @@ NumericalSample* vtkOTUtilities::ArrayToNumericalSample(vtkDataArray* arr)
 }
 
 //-----------------------------------------------------------------------------
-vtkDataArray* vtkOTUtilities::NumericalSampleToArray(NumericalSample* ns)
+vtkDataArray* vtkOTUtilities::SampleToArray(Sample* ns)
 {
   if (ns == NULL)
   {
