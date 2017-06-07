@@ -1,6 +1,6 @@
 import sys, re, hashlib, base64
 
-py3 = sys.version_info.major > 2
+py3 = sys.version_info >= (3,0)
 
 arrayTypesMapping = [
   ' ', # VTK_VOID            0
@@ -39,7 +39,11 @@ if py3:
 else:
     def iteritems(d, **kwargs):
         return d.iteritems(**kwargs)
-    buffer = buffer
+
+    if sys.version_info >= (2,7):
+      buffer = memoryview
+    else:
+      buffer = buffer
     base64Encode = lambda x: x.encode('base64')
 
 def hashDataArray(dataArray):
