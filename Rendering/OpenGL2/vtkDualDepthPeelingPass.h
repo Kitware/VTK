@@ -54,6 +54,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthPeelingPass.h"
 
+#include <array> // For std::array!
+
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexArrayObject;
@@ -188,6 +190,18 @@ protected:
   void InitOpaqueDepthTexture(vtkTextureObject *tex, const vtkRenderState *s);
   void InitFramebuffer(const vtkRenderState *s);
   //@}
+
+  /**
+   * Bind and activate draw buffers.
+   * @{
+   */
+  void ActivateDrawBuffer(TextureName id)
+    { this->ActivateDrawBuffers(&id, 1); }
+  template <size_t NumTextures>
+  void ActivateDrawBuffers(const std::array<TextureName, NumTextures> &a)
+    { this->ActivateDrawBuffers(a.data(), a.size()); }
+  void ActivateDrawBuffers(const TextureName *ids, size_t numTextures);
+  /**@}*/
 
   /**
    * Fill textures with initial values, bind the framebuffer.

@@ -1008,26 +1008,20 @@ void vtkDualDepthPeelingPass::InitFramebuffer(const vtkRenderState *s)
 
   // Save the current FBO bindings to restore them later.
   this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
-  this->Framebuffer->Bind(GL_DRAW_FRAMEBUFFER);
+}
 
-  this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, BackTemp,
-                                        this->Textures[BackTemp]);
-  this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, Back,
-                                        this->Textures[Back]);
-
-  this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, FrontA,
-                                        this->Textures[FrontA]);
-  this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, FrontB,
-                                        this->Textures[FrontB]);
-
-  // The depth has to be treated like a color attachment, since it's a 2
-  // component min-max texture.
-  this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, DepthA,
-                                        this->Textures[DepthA]);
-  this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER, DepthB,
-                                        this->Textures[DepthB]);
-
-  this->Framebuffer->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+//------------------------------------------------------------------------------
+void vtkDualDepthPeelingPass::ActivateDrawBuffers(const TextureName *ids,
+                                                  size_t numTex)
+{
+  this->Framebuffer->DeactivateDrawBuffers();
+  for (size_t i = 0; i < numTex; ++i)
+  {
+    this->Framebuffer->AddColorAttachment(GL_DRAW_FRAMEBUFFER,
+                                          static_cast<unsigned int>(i),
+                                          this->Textures[ids[i]]);
+  }
+  this->Framebuffer->ActivateDrawBuffers(static_cast<unsigned int>(numTex));
 }
 
 //------------------------------------------------------------------------------
@@ -1076,17 +1070,16 @@ void vtkDualDepthPeelingPass::Prepare()
   // blending.
   // The back-blending may discard fragments, so the back peel accumulator needs
   // initialization as well.
-  unsigned int targets[2] = { static_cast<unsigned int>(Back),
-                              static_cast<unsigned int>(this->FrontSource) };
-  this->Framebuffer->ActivateDrawBuffers(targets, 2);
+  std::array<TextureName, 2> targets = { { Back, this->FrontSource } };
+  this->ActivateDrawBuffers(targets);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Fill both depth buffers with -1, -1. This lets us discard fragments in
   // CopyOpaqueDepthBuffers, which gives a moderate performance boost.
-  targets[0] = static_cast<unsigned int>(this->DepthSource);
-  targets[1] = static_cast<unsigned int>(this->DepthDestination);
-  this->Framebuffer->ActivateDrawBuffers(targets, 2);
+  targets[0] = this->DepthSource;
+  targets[1] = this->DepthDestination;
+  this->ActivateDrawBuffers(targets);
   glClearColor(-1, -1, 0, 0);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -1131,10 +1124,9 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
   // and write to DepthSource using MAX blending, so we need both to have opaque
   // fragments (src/dst seem reversed because they're named for their usage in
   // PeelRender).
-  unsigned int targets[2] = { static_cast<unsigned int>(this->DepthSource),
-                              static_cast<unsigned int>(this->DepthDestination)
-                            };
-  this->Framebuffer->ActivateDrawBuffers(targets, 2);
+  std::array<TextureName, 2> targets = { { this->DepthSource,
+                                           this->DepthDestination } };
+  this->ActivateDrawBuffers(targets);
   this->Textures[OpaqueDepth]->Activate();
 
   glDisable(GL_BLEND);
@@ -1213,10 +1205,8 @@ void vtkDualDepthPeelingPass::InitializeDepth()
   // polydata shaders as they expect gl_FragData[0] to be RGBA. The front
   // destination buffer is cleared prior to peeling, so it's just a dummy
   // buffer at this point.
-  unsigned int targets[2] = { static_cast<unsigned int>(BackTemp),
-                              static_cast<unsigned int>(this->DepthSource)
-                            };
-  this->Framebuffer->ActivateDrawBuffers(targets, 2);
+  std::array<TextureName, 2> targets = { { BackTemp, this->DepthSource } };
+  this->ActivateDrawBuffers(targets);
 
   this->SetCurrentStage(InitializingDepth);
   this->SetCurrentPeelType(TranslucentPeel);
@@ -1239,10 +1229,8 @@ void vtkDualDepthPeelingPass::PeelVolumesOutsideTranslucentRange()
   // Enable the destination targets. Note that we're rendering directly into
   // the Back accumulation buffer and the FrontSource buffer, since we know
   // this is the first time these buffers will be drawn into.
-  unsigned int targets[2] = { static_cast<unsigned int>(Back),
-                              static_cast<unsigned int>(this->FrontSource)
-                            };
-  this->Framebuffer->ActivateDrawBuffers(targets, 2);
+  std::array<TextureName, 2> targets = { { Back, this->FrontSource } };
+  this->ActivateDrawBuffers(targets);
 
   // Cull back fragments of the volume's proxy geometry since they are
   // not necessary anyway.
@@ -1338,7 +1326,7 @@ void vtkDualDepthPeelingPass::ClearFrontDestination()
 {
   TIME_FUNCTION(vtkDualDepthPeelingPass::ClearFrontDestination);
   annotate("ClearFrontDestination()");
-  this->Framebuffer->ActivateDrawBuffer(this->FrontDestination);
+  this->ActivateDrawBuffer(this->FrontDestination);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -1348,7 +1336,7 @@ void vtkDualDepthPeelingPass::CopyFrontSourceToFrontDestination()
 {
   TIME_FUNCTION(vtkDualDepthPeelingPass::CopyFrontSourceToFrontDestination);
 
-  this->Framebuffer->ActivateDrawBuffer(this->FrontDestination);
+  this->ActivateDrawBuffer(this->FrontDestination);
 
   glDisable(GL_BLEND);
 
@@ -1410,11 +1398,11 @@ void vtkDualDepthPeelingPass::InitializeTargetsForTranslucentPass()
 
   // Initialize destination buffers to their minima, since we're MAX blending,
   // this ensures that valid outputs are captured.
-  this->Framebuffer->ActivateDrawBuffer(BackTemp);
+  this->ActivateDrawBuffer(BackTemp);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  this->Framebuffer->ActivateDrawBuffer(this->DepthDestination);
+  this->ActivateDrawBuffer(this->DepthDestination);
   glClearColor(-1.f, -1.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -1428,7 +1416,7 @@ void vtkDualDepthPeelingPass::InitializeTargetsForVolumetricPass()
 
   // Clear the back buffer to ensure that current fragments are captured for
   // later blending into the back accumulation buffer:
-  this->Framebuffer->ActivateDrawBuffer(BackTemp);
+  this->ActivateDrawBuffer(BackTemp);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -1441,11 +1429,10 @@ void vtkDualDepthPeelingPass::PeelTranslucentGeometry()
   TIME_FUNCTION(vtkDualDepthPeelingPass::PeelTranslucentGeometry);
 
   // Enable the destination targets:
-  unsigned int targets[3] = { static_cast<unsigned int>(BackTemp),
-                              static_cast<unsigned int>(this->FrontDestination),
-                              static_cast<unsigned int>(this->DepthDestination)
-                            };
-  this->Framebuffer->ActivateDrawBuffers(targets, 3);
+  std::array<TextureName, 3> targets = { { BackTemp,
+                                           this->FrontDestination,
+                                           this->DepthDestination } };
+  this->ActivateDrawBuffers(targets);
 
   // Use MAX blending to capture peels:
   glEnable(GL_BLEND);
@@ -1470,10 +1457,8 @@ void vtkDualDepthPeelingPass::PeelVolumetricGeometry()
   TIME_FUNCTION(vtkDualDepthPeelingPass::PeelVolumeGeometry);
 
   // Enable the destination targets:
-  unsigned int targets[2] = { static_cast<unsigned int>(BackTemp),
-                              static_cast<unsigned int>(this->FrontDestination)
-                            };
-  this->Framebuffer->ActivateDrawBuffers(targets, 2);
+  std::array<TextureName, 2> targets = { { BackTemp, this->FrontDestination } };
+  this->ActivateDrawBuffers(targets);
 
   // Cull back fragments of the volume's proxy geometry since they are
   // not necessary anyway.
@@ -1510,7 +1495,7 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
 {
   TIME_FUNCTION(vtkDualDepthPeelingPass::BlendBackBuffer);
 
-  this->Framebuffer->ActivateDrawBuffer(Back);
+  this->ActivateDrawBuffer(Back);
   this->Textures[BackTemp]->Activate();
 
   /* For this step, we blend the last peel's back fragments into a back-
@@ -1765,7 +1750,7 @@ void vtkDualDepthPeelingPass::AlphaBlendRender()
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   this->SetCurrentStage(AlphaBlending);
-  this->Framebuffer->ActivateDrawBuffer(Back);
+  this->ActivateDrawBuffer(Back);
   this->Textures[this->DepthSource]->Activate();
 
   if (this->TranslucentWrittenPixels > 0)
