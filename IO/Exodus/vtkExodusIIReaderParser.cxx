@@ -122,7 +122,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
   }
   else if (tName == "mesh")
   {
-    assert(this->CurrentVertex.size() == 0);
+    assert(this->CurrentVertex.empty());
     this->CurrentVertex.push_back(this->BlocksVertex);
   }
   else if (tName == "blocks")
@@ -151,7 +151,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
 
     if (id >= 0)
     {
-      if (this->InBlocks && this->BlockPartNumberString != "")
+      if (this->InBlocks && !this->BlockPartNumberString.empty())
       {
         // the name for the block is re-generated at the end.
         vtkIdType blockVertex = this->AddVertexToSIL(blockString);
@@ -254,7 +254,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
 
   // * Is assembly was parsed, add cross links between assembly parts and blocks
   //   belonging to that part.
-  if (this->Part_To_VertexID.size() > 0)
+  if (!this->Part_To_VertexID.empty())
   {
     std::map<int, std::string>::iterator iterIS;
     for (iterIS = this->BlockID_To_Part.begin();
@@ -296,7 +296,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
 
   //// * If <material-assignments /> are not present use
   //// <material-specification /> to construct material assignemnts.
-  if (this->BlockID_To_MaterialName.size() == 0)
+  if (this->BlockID_To_MaterialName.empty())
   {
     std::map<int, vtkIdType>::iterator iterII;
     for (iterII = blockID_to_partVertexID.begin();

@@ -116,7 +116,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
 
   painter->ApplyPen(this->Pen);
 
-  if (this->Storage->size() == 0)
+  if (this->Storage->empty())
   {
     return false;
   }

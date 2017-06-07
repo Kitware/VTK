@@ -494,7 +494,7 @@ public:
       return -1;
     }
 
-    if (this->SortedPoints.size() == 0)
+    if (this->SortedPoints.empty())
     {
       float* data = reinterpret_cast<float*>(this->Points->GetVoidPointer(0));
       this->SortedPoints.Initialize(reinterpret_cast<vtkVector2f*>(data),

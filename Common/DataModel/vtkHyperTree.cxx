@@ -715,7 +715,7 @@ public:
   // NB: Public only for the vtkCompactHyperTreeCursor.
   vtkIdType GetNumberOfNodes() VTK_OVERRIDE
   {
-    assert( "post: not_empty" && this->Nodes.size() > 0 );
+    assert( "post: not_empty" && !this->Nodes.empty() );
     return static_cast<vtkIdType>( this->Nodes.size() );
   }
 

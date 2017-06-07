@@ -236,7 +236,7 @@ void vtkMultiCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCo
         muFactor = static_cast<double>( inN ) / totN;
         covFactor = static_cast<double>( inN ) * outN / totN;
       }
-      else if ( inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ).ToString() == "" )
+      else if ( inCov->GetValueByName( r, VTK_MULTICORRELATIVE_KEYCOLUMN2 ).ToString().empty() )
       {
         // Mean
         inMu.push_back( inCov->GetValueByName( r, VTK_MULTICORRELATIVE_ENTRIESCOL ).ToDouble() );

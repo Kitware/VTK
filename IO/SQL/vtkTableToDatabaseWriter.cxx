@@ -54,7 +54,7 @@ bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase *db)
     return false;
   }
 
-  if(this->TableName != "")
+  if(!this->TableName.empty())
   {
     return this->TableNameIsNew();
   }
@@ -82,7 +82,7 @@ bool vtkTableToDatabaseWriter::TableNameIsNew()
     return false;
   }
 
-  if(this->TableName == "")
+  if(this->TableName.empty())
   {
     vtkErrorMacro(<<"TableNameIsNew() called but no table name specified.");
     return false;

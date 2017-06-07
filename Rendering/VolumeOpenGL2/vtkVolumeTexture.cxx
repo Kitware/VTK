@@ -376,7 +376,7 @@ void vtkVolumeTexture::ReleaseGraphicsResources(vtkWindow* win)
 //-----------------------------------------------------------------------------
 void vtkVolumeTexture::ClearBlocks()
 {
-  if (this->ImageDataBlocks.size() == 0)
+  if (this->ImageDataBlocks.empty())
   {
     return;
   }

@@ -48,7 +48,7 @@ void vtkPlotPoints3D::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
 {
-  if (!this->Visible || this->Points.size() == 0)
+  if (!this->Visible || this->Points.empty())
   {
     return false;
   }
@@ -63,7 +63,7 @@ bool vtkPlotPoints3D::Paint(vtkContext2D *painter)
 
   this->Update();
 
-  if (this->Points.size() > 0)
+  if (!this->Points.empty())
   {
 
     // Draw the points in 3d.

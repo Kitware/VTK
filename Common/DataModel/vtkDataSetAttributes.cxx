@@ -2028,7 +2028,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
     }
   }
 
-  if (dsaPendingIndices.size() != 0)
+  if (!dsaPendingIndices.empty())
   {
     size_t old_size = dsaIndices.size();
     size_t new_size = old_size + dsaPendingIndices.size();

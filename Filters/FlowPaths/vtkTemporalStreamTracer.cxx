@@ -779,7 +779,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   if (this->ReinjectionFlag)
   {
     int seedPointId=0;
-    if (this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.size()==0)
+    if (this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.empty())
     {
       for (unsigned int i=0; i<SeedSources.size(); i++)
       {
@@ -906,7 +906,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   // Particles might have been deleted during the first pass as they move
   // out of domain or age. Before adding any new particles that are sent
   // to us, we must know the starting point ready for the second pass
-  bool list_valid = (this->ParticleHistories.size()>0);
+  bool list_valid = (!this->ParticleHistories.empty());
   if (list_valid) {
   // point to one before the end
   it_first = --this->ParticleHistories.end();
@@ -923,7 +923,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->MPISendList.clear();
   int assigned;
   // classify all the ones we received
-  if (received.size()>0) {
+  if (!received.empty()) {
   this->TestParticles(received, candidates, assigned);
   vtkDebugMacro(<<"received " << received.size() << " : assigned locally " << assigned);
   received.clear();
@@ -945,7 +945,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   it_first = this->ParticleHistories.begin();
   }
   }
-  if (this->MPISendList.size()>0) {
+  if (!this->MPISendList.empty()) {
   // If a particle went out of domain on the second pass, it should be sent
   // can it really pass right through a domain in one step?
   // what about grazing the edge of rotating zone?

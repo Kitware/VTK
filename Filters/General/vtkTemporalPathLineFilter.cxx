@@ -375,7 +375,7 @@ int vtkTemporalPathLineFilter::RequestData(
   }
   else
   {
-    if (this->Internals->LastIdArrayName != "")
+    if (!this->Internals->LastIdArrayName.empty())
     {
       this->FirstTime = 1;
       this->Internals->LastIdArrayName = "";

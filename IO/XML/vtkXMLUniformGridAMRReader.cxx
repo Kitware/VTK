@@ -243,7 +243,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   std::vector<std::vector<vtkAMRBox> > amr_boxes;
   vtkReadMetaData(ePrimary, blocks_per_level, level_spacing, amr_boxes);
 
-  if (blocks_per_level.size() > 0)
+  if (!blocks_per_level.empty())
   {
     // initialize vtkAMRInformation.
     this->Metadata->Initialize(

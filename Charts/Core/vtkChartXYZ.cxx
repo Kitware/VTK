@@ -654,7 +654,7 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D *painter)
     }
 
     // re-apply the Box matrix and draw the tick marks as points
-    if (tickPoints.size() != 0)
+    if (!tickPoints.empty())
     {
       context->PushMatrix();
       context->AppendTransform(this->Box.GetPointer());

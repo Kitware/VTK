@@ -1675,7 +1675,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     }
 
     // Eliminating the case where one or both marginal counts are not provided in the model
-    if ( ! ek[0].size() )
+    if ( ek[0].empty() )
     {
       vtkErrorMacro( "Incomplete input: missing marginal count for "
                      << varNameX
@@ -1683,7 +1683,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
       return;
     }
 
-    if ( ! ek[1].size() )
+    if ( ek[1].empty() )
     {
       vtkErrorMacro( "Incomplete input: missing marginal count for "
                      << varNameY

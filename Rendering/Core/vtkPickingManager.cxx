@@ -414,7 +414,7 @@ void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker,
   it->second.erase(itObj);
 
   // Delete the picker when it is not associated with any object anymore.
-  if(it->second.size() == 0)
+  if(it->second.empty())
   {
     this->Internal->Pickers.erase(it);
   }
@@ -437,7 +437,7 @@ void vtkPickingManager::RemoveObject(vtkObject* object)
     {
       it->second.erase(itObj);
 
-      if (it->second.size() == 0)
+      if (it->second.empty())
       {
         vtkPickingManager::vtkInternal::PickerObjectsType::iterator
           toRemove = it;

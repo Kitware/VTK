@@ -210,7 +210,7 @@ void vtkDICOMImageReader::ExecuteInformation()
 
     //this->AppHelper->OutputSeries();
 
-    if (sortedFiles.size() > 0)
+    if (!sortedFiles.empty())
     {
       this->DICOMFileNames->clear();
       std::vector<std::pair<float, std::string> >::iterator siter;
@@ -238,7 +238,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
-  if (!this->FileName && this->DICOMFileNames->size() == 0)
+  if (!this->FileName && this->DICOMFileNames->empty())
   {
     vtkErrorMacro( << "Either a filename was not specified or the specified directory does not contain any DICOM images.");
     this->SetErrorCode( vtkErrorCode::NoFileNameError );
@@ -293,7 +293,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
       iData -= rowLength;
     }
   }
-  else if (this->DICOMFileNames->size() > 0)
+  else if (!this->DICOMFileNames->empty())
   {
     vtkDebugMacro( << "Multiple files (" << static_cast<int>(this->DICOMFileNames->size()) << ")");
     this->Parser->ClearAllDICOMTagCallbacks();

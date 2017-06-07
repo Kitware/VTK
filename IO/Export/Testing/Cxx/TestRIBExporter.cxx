@@ -56,7 +56,7 @@ int TestRIBExporter (int argc, char *argv[])
   std::string prefix = _prefix;
   delete []_prefix;
 
-  if (prefix == "")
+  if (prefix.empty())
   {
     std::cout << argv[0] << " Could not determine temporary directory.\n";
     return EXIT_FAILURE;

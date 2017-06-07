@@ -761,7 +761,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
       if ( j == 0 )
       {
         p3 = this->Internal->Nodes[i]->WorldPosition;
-        if ( this->Internal->Nodes[i]->Points.size() )
+        if ( !this->Internal->Nodes[i]->Points.empty() )
         {
           p4 = this->Internal->Nodes[i]->Points[j]->WorldPosition;
         }

@@ -69,7 +69,7 @@ void vtkTreeBFSIterator::Initialize()
   {
     this->StartVertex = this->Tree->GetRoot();
   }
-  while (this->Internals->Queue.size())
+  while (!this->Internals->Queue.empty())
   {
     this->Internals->Queue.pop();
   }
@@ -93,7 +93,7 @@ vtkIdType vtkTreeBFSIterator::NextInternal()
     this->Internals->Queue.push(this->StartVertex);
   }
 
-  while (this->Internals->Queue.size() > 0)
+  while (!this->Internals->Queue.empty())
   {
     vtkIdType currentId = this->Internals->Queue.front();
     this->Internals->Queue.pop();

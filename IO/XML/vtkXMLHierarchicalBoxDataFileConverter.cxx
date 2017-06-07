@@ -283,7 +283,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   for (std::map<int, std::set<std::string> >::iterator iter =
     filenames.begin(); iter != filenames.end(); ++iter)
   {
-    if (iter->second.size() == 0)
+    if (iter->second.empty())
     {
       continue;
     }

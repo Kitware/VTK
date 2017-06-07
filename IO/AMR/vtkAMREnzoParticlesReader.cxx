@@ -419,7 +419,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
   }
 
   std::string pfile = this->Internal->Blocks[iBlockIdx].ParticleFileName;
-  if( pfile == "" )
+  if( pfile.empty() )
   {
     vtkErrorMacro( "No particles file found, string is empty!" );
     return NULL;

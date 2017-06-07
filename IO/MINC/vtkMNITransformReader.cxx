@@ -736,7 +736,7 @@ int vtkMNITransformReader::ReadGridTransform(
   vtksys::SystemTools::SplitPath(filename, mincpath);
 
   // Join minc filename to this->FileName if filename is relative
-  if (mincpath[0] == "")
+  if (mincpath[0].empty())
   {
     xfmpath.pop_back();
     xfmpath.insert(xfmpath.end(), mincpath.begin()+1, mincpath.end());

@@ -757,7 +757,7 @@ int vtkXMLDataReaderReadArrayValues(
     {
       vtkStdString temp_string = ptr; // will read in string until 0x0;
       ptr += temp_string.size() + 1;
-      if (prev_string.size() > 0)
+      if (!prev_string.empty())
       {
         temp_string = prev_string + temp_string;
         prev_string = "";

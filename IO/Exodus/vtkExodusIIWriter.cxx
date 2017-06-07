@@ -291,7 +291,7 @@ void vtkExodusIIWriter::WriteData ()
 
   // For now, we don't support changing topology even if the writer supports it.
   // The reader needs to be updated to support changing topology.
-  if (newHierarchy && this->FlattenedInput.size () != 0)
+  if (newHierarchy && !this->FlattenedInput.empty())
   {
     this->TopologyChanged = true;
     vtkErrorMacro (

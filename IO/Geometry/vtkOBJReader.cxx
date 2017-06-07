@@ -225,7 +225,7 @@ int vtkOBJReader::RequestData(
   } // (end of first while loop)
 
   // If no material texture coordinates are found, add default TCoords
-  if(tcoords_vector.size() == 0)
+  if(tcoords_vector.empty())
   {
     vtkFloatArray *tcoords = vtkFloatArray::New();
     tcoords->SetNumberOfComponents(2);

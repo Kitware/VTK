@@ -217,7 +217,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(std::
                                                                            vtkTree* tree)
 {
 
-  if(!packedNodes.size())
+  if(packedNodes.empty())
   {
     return;
   }

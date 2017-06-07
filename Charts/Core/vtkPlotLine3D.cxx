@@ -40,7 +40,7 @@ bool vtkPlotLine3D::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkPlotLine3D.");
 
-  if (!this->Visible || this->Points.size() == 0)
+  if (!this->Visible || this->Points.empty())
   {
     return false;
   }

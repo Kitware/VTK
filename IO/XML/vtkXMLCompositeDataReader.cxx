@@ -367,7 +367,7 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
 
   // Get the file extension.
   std::string ext = vtksys::SystemTools::GetFilenameLastExtension(fileName);
-  if (ext.size() > 0)
+  if (!ext.empty())
   {
     // remote "." from the extension.
     ext = &(ext.c_str()[1]);

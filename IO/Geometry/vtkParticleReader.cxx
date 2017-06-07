@@ -396,7 +396,7 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   while ( this->File->getline(buffer,256,'\n') )
   {
     s = buffer;
-    if ( s.size() != 0 )
+    if ( !s.empty() )
     {
       bytesRead += s.size();
       this->DoProgressUpdate( bytesRead, fileLength );
@@ -473,7 +473,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   while ( this->File->getline(buffer,256,'\n') )
   {
     s = buffer;
-    if ( s.size() != 0 )
+    if ( !s.empty() )
     {
       bytesRead += s.size();
       this->DoProgressUpdate( bytesRead, fileLength );

@@ -680,7 +680,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   // connect to the cell in the -i topological direction.  Tuple entries 0 and 3
   // connect to the cell in the -j topological direction.
   std::vector<double> boundsData(dimSizes[0]*dimSizes[1]*4);
-  if (boundsData.size() > 0)
+  if (!boundsData.empty())
   {
     CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, &boundsData.at(0)));
   }

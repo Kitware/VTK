@@ -87,7 +87,7 @@ void vtkTreeDFSIterator::Initialize()
     this->StartVertex = this->Tree->GetRoot();
   }
   this->CurRoot = this->StartVertex;
-  while (this->Internals->Stack.size())
+  while (!this->Internals->Stack.empty())
   {
     this->Internals->Stack.pop();
   }
@@ -117,7 +117,7 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
 {
   while (this->Color->GetValue(this->StartVertex) != this->BLACK)
   {
-    while (this->Internals->Stack.size() > 0)
+    while (!this->Internals->Stack.empty())
     {
       // Pop the current position off the stack
       vtkTreeDFSIteratorPosition pos = this->Internals->Stack.top();

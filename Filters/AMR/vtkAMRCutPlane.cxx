@@ -343,7 +343,7 @@ void vtkAMRCutPlane::ExtractPointDataFromGrid(
   assert("pre: target point data is NULL!" && (PD != NULL) );
 
   if( (grid->GetPointData()->GetNumberOfArrays()==0) ||
-      (gridPntMapping.size() == 0))
+      (gridPntMapping.empty()))
   {
     // Nothing to extract short-circuit here
     return;
@@ -389,7 +389,7 @@ void vtkAMRCutPlane::ExtractCellDataFromGrid(
   assert("pre: target cell data is NULL!" && (CD != NULL) );
 
   if( (grid->GetCellData()->GetNumberOfArrays()==0) ||
-      (cellIdxList.size()==0) )
+      (cellIdxList.empty()) )
   {
     // Nothing to extract short-circuit here
     return;

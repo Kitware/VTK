@@ -1153,7 +1153,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( double xStart,
     return this->Table;
   }
 
-  if ( this->Internal->Nodes.size() == 0 )
+  if ( this->Internal->Nodes.empty() )
   {
     vtkErrorMacro(
       "Attempting to lookup a value with no points in the function");

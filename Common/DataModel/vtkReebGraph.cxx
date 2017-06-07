@@ -1955,7 +1955,7 @@ void vtkReebGraph::CloseStream()
     if(!((aIt->second.first.size() == 1)&&(aIt->second.second.size() == 1)))
     {
       // not a deg-2 node
-      if(aIt->second.second.size())
+      if(!aIt->second.second.empty())
       {
         // start the sweep up
         for(unsigned int i = 0; i < aIt->second.second.size(); i++)

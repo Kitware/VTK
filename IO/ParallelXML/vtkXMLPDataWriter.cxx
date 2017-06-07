@@ -390,7 +390,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
 
   char* fileName = this->CreatePieceFileName(index, this->PathName);
   std::string path = vtksys::SystemTools::GetParentDirectory(fileName);
-  if (path.size() > 0 && !vtksys::SystemTools::PathExists(path))
+  if (!path.empty() && !vtksys::SystemTools::PathExists(path))
   {
     vtksys::SystemTools::MakeDirectory(path);
   }

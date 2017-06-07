@@ -478,7 +478,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     delete part;
     return EXIT_FAILURE;
   }
-  if (particles.size() != 0 || passThroughParticles.size() != 0)
+  if (!particles.empty() || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected new particles created with SurfaceTypeModel"
       << std::endl;
@@ -516,7 +516,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     delete part;
     return EXIT_FAILURE;
   }
-  if (particles.size() != 0 || passThroughParticles.size() != 0)
+  if (!particles.empty() || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected number particles created with SurfaceTypeTerm"
       << std::endl;
@@ -554,7 +554,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     delete part;
     return EXIT_FAILURE;
   }
-  if (particles.size() != 0 || passThroughParticles.size() != 0)
+  if (!particles.empty() || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected number particles created with SurfaceTypeBounce:"
       << particles.size() << " " << passThroughParticles.size() << std::endl;
@@ -593,7 +593,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     delete part;
     return EXIT_FAILURE;
   }
-  if (particles.size() != 0 || passThroughParticles.size() != 0)
+  if (!particles.empty() || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected number particles created with SurfaceTypeBounce perforation:"
       << particles.size() << " " << passThroughParticles.size() << std::endl;
@@ -634,7 +634,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     delete part;
     return EXIT_FAILURE;
   }
-  if (particles.size() != 2 || passThroughParticles.size() != 0)
+  if (particles.size() != 2 || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected number particles created with SurfaceTypeBreak:"
       << particles.size() << " " << passThroughParticles.size() << std::endl;
@@ -677,7 +677,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     delete part;
     return EXIT_FAILURE;
   }
-  if (particles.size() != 0 || passThroughParticles.size() != 1)
+  if (!particles.empty() || passThroughParticles.size() != 1)
   {
     std::cerr << "Unexpected number particles created with SurfaceTypePass: "
       << particles.size() << " " << passThroughParticles.size() << std::endl;
@@ -719,7 +719,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     delete part;
     return EXIT_FAILURE;
   }
-  if (particles.size() != 0 || passThroughParticles.size() != 0)
+  if (!particles.empty() || !passThroughParticles.empty())
   {
     std::cerr << "Unexpected new particles created with SurfaceTypeModel Cleared"
       << particles.size() << " " << passThroughParticles.size() << std::endl;

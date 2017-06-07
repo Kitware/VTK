@@ -99,7 +99,7 @@ public:
         nodes[1] = opposingNeighborPtIds[j];
         const CliqueType cells =
           FindCellsContainingNodes( m_Topology[node+1], nodes );
-        if (cells.size())
+        if (!cells.empty())
         {
           PopulateTopology( cells, neighborCells );
           lines.push_back( LineType(opposite, nodes[1]) );

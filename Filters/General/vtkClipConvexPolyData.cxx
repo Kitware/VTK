@@ -138,7 +138,7 @@ void vtkClipConvexPolyData::RemoveEmptyPolygons()
     done = true;
     for(unsigned int i=0; i<this->Internal->Polygons.size(); i++)
     {
-      if ( this->Internal->Polygons[i]->Vertices.size() == 0 )
+      if ( this->Internal->Polygons[i]->Vertices.empty() )
       {
         std::vector<vtkCCPDPolygon*>::iterator where =
           std::find(this->Internal->Polygons.begin(),
@@ -431,7 +431,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
     // Check that all new arrays contain exactly 0 or 2 points
     for ( i = 0; i < this->Internal->Polygons.size(); i++ )
     {
-      if ( this->Internal->Polygons[i]->NewVertices.size() != 0 &&
+      if ( !this->Internal->Polygons[i]->NewVertices.empty() &&
            this->Internal->Polygons[i]->NewVertices.size() != 2 )
       {
         vtkErrorMacro( << "Horrible error - we have " <<
@@ -447,7 +447,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
 
     for ( i = 0; !idxFound && i < this->Internal->Polygons.size(); i++ )
     {
-      idxFound=this->Internal->Polygons[i]->NewVertices.size() > 0;
+      idxFound=!this->Internal->Polygons[i]->NewVertices.empty();
       if(idxFound)
       {
         idx=i;
@@ -492,7 +492,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
       for ( i = 0; i < this->Internal->Polygons.size(); i++ )
       {
           if ( i != lastPointIdx &&
-               this->Internal->Polygons[i]->NewVertices.size() > 0 )
+               !this->Internal->Polygons[i]->NewVertices.empty() )
           {
           for ( j = 0; j < 2; j++ )
           {

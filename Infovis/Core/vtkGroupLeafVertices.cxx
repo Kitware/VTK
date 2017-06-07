@@ -391,7 +391,7 @@ static int
 splitString(const vtkStdString& input,
             std::vector<vtkStdString>& results)
 {
-  if (input.size() == 0)
+  if (input.empty())
   {
     return 0;
   }
@@ -442,7 +442,7 @@ splitString(const vtkStdString& input,
       {
         // A delimiter starts a new field unless we're in a string, in
         // which case it's normal text and we won't even get here.
-        if (currentField.size() > 0)
+        if (!currentField.empty())
         {
           results.push_back(currentField);
         }

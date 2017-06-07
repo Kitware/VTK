@@ -757,7 +757,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   prims[3] =  poly->GetStrips();
 
   // vert cell offset starts at the end of the last block
-  hdata->PrimOffsets[0] = (newColors.size() ? newColors.size()/4 : newNorms.size()/4);
+  hdata->PrimOffsets[0] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
   hdata->PrimOffsets[1] = hdata->PrimOffsets[0] +
     prims[0]->GetNumberOfConnectivityEntries() -
     prims[0]->GetNumberOfCells();
@@ -768,7 +768,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   this->AppendCellTextures(ren, act, prims, representation,
     newColors, newNorms, poly);
 
-  hdata->PrimOffsets[4] = (newColors.size() ? newColors.size()/4 : newNorms.size()/4);
+  hdata->PrimOffsets[4] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
 
   // we back compute the strip number
   size_t triCount = prims[3]->GetNumberOfConnectivityEntries()

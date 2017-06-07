@@ -97,7 +97,7 @@ void vtkGeoSource::Initialize(int numThreads)
 
 void vtkGeoSource::ShutDown()
 {
-  if (this->Implementation->ThreadIds.size() > 0)
+  if (!this->Implementation->ThreadIds.empty())
   {
     this->Lock->Lock();
     this->StopThread = true;

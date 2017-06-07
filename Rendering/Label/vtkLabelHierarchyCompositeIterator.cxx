@@ -69,7 +69,7 @@ void vtkLabelHierarchyCompositeIterator::Begin(vtkIdTypeArray* list)
   this->Implementation->InitialTraversal = 0;
 
   // Take care of the no-iterator case
-  if (this->Implementation->Iterators.size() == 0)
+  if (this->Implementation->Iterators.empty())
   {
     return;
   }

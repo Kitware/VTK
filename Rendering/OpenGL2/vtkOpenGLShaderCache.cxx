@@ -118,7 +118,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   // assume their inputs come from a Vertex Shader. When we
   // have a Geometry shader we rename the frament shader inputs
   // to come from the geometry shader
-  if (GSSource.size() > 0)
+  if (!GSSource.empty())
   {
     vtkShaderProgram::Substitute(FSSource,"VSOut","GSOut");
   }

@@ -120,7 +120,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
-    if(this->UpdateTimeSteps.size()==0)
+    if(this->UpdateTimeSteps.empty())
     {
       vtkErrorMacro("No temporal data has been requested. ");
       return 0;

@@ -435,7 +435,7 @@ template<int wordSize,int cellLength>
     //This is a read RIGID_BODY and SHELL template specialization since it
     //has a weird weaving of cell types
     bool haveRigidMaterials = (p->Dict["MATTYP"] != 0) &&
-                              p->RigidMaterials.size();
+                              !p->RigidMaterials.empty();
 
     vtkIdType nc=0, j=0,matlId=0;
     vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
@@ -2261,7 +2261,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   }
 
   // Only try reading the keyword file if we don't have part names.
-  if ( curAdapt == 0 && p->PartNames.size() == 0 )
+  if ( curAdapt == 0 && p->PartNames.empty() )
   {
     this->ResetPartInfo();
 
@@ -2394,7 +2394,7 @@ int vtkLSDynaReader::RequestInformation( vtkInformation* vtkNotUsed(request),
     this->ScanDatabaseTimeSteps();
   }
 
-  if ( p->TimeValues.size() == 0 )
+  if ( p->TimeValues.empty() )
   {
     vtkErrorMacro( "No valid time steps in the LS-Dyna database" );
     return 0;
@@ -3165,7 +3165,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
 
     p->Fam.BufferChunk( LSDynaFamily::Char, nameWordSize);
     std::string name(p->Fam.GetNextWordAsChars(),72);
-    if(name.size() > 0 && name[0]!=' ')
+    if(!name.empty() && name[0]!=' ')
     {
       //strip the name to the subset that
       size_t found = name.find_last_not_of(' ');
@@ -3317,11 +3317,11 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
           if ( line[0] == '&' )
           {
             // found a reference. look it up.
-            partId = splits.size() ? parameters[splits[0]] : -1;
+            partId = !splits.empty() ? parameters[splits[0]] : -1;
           }
           else
           {
-            if ( splits.size() < 1 || sscanf( splits[0].c_str(), "%d", &partId ) <= 0 )
+            if ( splits.empty() || sscanf( splits[0].c_str(), "%d", &partId ) <= 0 )
             {
               partId = -1;
             }

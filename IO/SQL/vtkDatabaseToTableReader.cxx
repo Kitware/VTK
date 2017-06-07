@@ -55,7 +55,7 @@ bool vtkDatabaseToTableReader::SetDatabase(vtkSQLDatabase *db)
     return false;
   }
 
-  if(this->TableName != "")
+  if(!this->TableName.empty())
   {
     return this->CheckIfTableExists();
   }
@@ -82,7 +82,7 @@ bool vtkDatabaseToTableReader::CheckIfTableExists()
     vtkErrorMacro(<<"CheckIfTableExists() called with no open database!");
     return false;
   }
-  if(this->TableName == "")
+  if(this->TableName.empty())
   {
     vtkErrorMacro(<<"CheckIfTableExists() called but no table name specified.");
     return false;

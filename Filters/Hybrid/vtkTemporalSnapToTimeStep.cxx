@@ -142,7 +142,7 @@ int vtkTemporalSnapToTimeStep::RequestUpdateExtent (
 
     double *inTimes = new double [1];
 
-    if (!this->HasDiscrete || this->InputTimeValues.size()==0)
+    if (!this->HasDiscrete || this->InputTimeValues.empty())
     {
       inTimes[0] = upTime;
     }

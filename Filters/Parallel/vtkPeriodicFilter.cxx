@@ -119,7 +119,7 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
   iter->VisitOnlyLeavesOn();
   iter->SkipEmptyNodesOff();
   iter->InitTraversal();
-  while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
+  while (!iter->IsDoneWithTraversal() && !this->Indices.empty())
   {
     const unsigned int index = iter->GetCurrentFlatIndex();
     if (this->Indices.find(index) != this->Indices.end())
@@ -151,7 +151,7 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
         static_cast<vtkIdType>(this->PeriodNumbers.size()), vtkCommunicator::MAX_OP);
       int i = 0;
       iter->InitTraversal();
-      while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
+      while (!iter->IsDoneWithTraversal() && !this->Indices.empty())
       {
         if (reducedPeriodNumbers[i] > this->PeriodNumbers[i])
         {

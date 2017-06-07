@@ -608,7 +608,7 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D *painter)
         break;
     }
 
-    if (name != "" &&
+    if (!name.empty() &&
         this->SceneBottomLeft[0] < labelStartX &&
         this->SceneTopRight[0] > labelStartX   &&
         this->SceneBottomLeft[1] < labelStartY &&

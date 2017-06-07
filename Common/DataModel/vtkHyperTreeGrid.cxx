@@ -195,7 +195,7 @@ int vtkHyperTreeGrid::GetDataObjectType()
 
 void vtkHyperTreeGrid::DeleteTrees()
 {
-  if ( this->HyperTrees.size() )
+  if ( !this->HyperTrees.empty() )
   {
     vtkHyperTreeIterator it;
     this->InitializeTreeIterator( it );
@@ -232,7 +232,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   // Shallow copy and register new trees
   this->HyperTrees = htg->HyperTrees;
 
-  if ( this->HyperTrees.size() )
+  if ( !this->HyperTrees.empty() )
   {
     vtkHyperTreeIterator it;
     this->InitializeTreeIterator( it );
@@ -481,7 +481,7 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType id )
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::Initialize()
 {
-  if ( this->HyperTrees.size() )
+  if ( !this->HyperTrees.empty() )
   {
     vtkHyperTreeIterator it;
     this->InitializeTreeIterator( it );

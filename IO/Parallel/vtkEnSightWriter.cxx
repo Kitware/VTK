@@ -566,7 +566,7 @@ void vtkEnSightWriter::WriteData()
 
       for (unsigned int k=0;k<elementTypes.size();k++)
       {
-        if (CellsByElement[elementTypes[k]].size()>0)
+        if (!CellsByElement[elementTypes[k]].empty())
         {
           this->WriteElementTypeToFile(elementTypes[k],
             cellArrayFiles[j]);

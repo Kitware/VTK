@@ -749,7 +749,7 @@ public:
   // Public only for the vtkCompactHyperOctreeCursor.
   int GetNumberOfNodes() VTK_OVERRIDE
   {
-      assert("post: not_empty" && this->Nodes.size()>0);
+      assert("post: not_empty" && !this->Nodes.empty());
       return static_cast<int>(this->Nodes.size());
   }
 

@@ -320,7 +320,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
                PNG_FILTER_TYPE_DEFAULT);
 
   // add latin1, uncompressed text chunks to the PNG file
-  if (impl->TextKeyValue.size() > 0)
+  if (!impl->TextKeyValue.empty())
   {
     std::vector<png_text> pngText(impl->TextKeyValue.size());
     for (size_t i = 0; i < pngText.size(); ++i)

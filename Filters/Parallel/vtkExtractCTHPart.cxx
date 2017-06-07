@@ -414,7 +414,7 @@ bool vtkExtractCTHPart::ExtractContour(
     }
   }
 
-  if (fragments.size() == 0)
+  if (fragments.empty())
   {
     // empty contour. Not an error though, hence we don't return false.
     return true;

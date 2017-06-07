@@ -255,7 +255,7 @@ int LSDynaFamily::ScanDatabaseDirectory()
       adapted = true;
     }
   }
-    return this->Files.size() == 0;
+    return this->Files.empty();
 }
 
 //-----------------------------------------------------------------------------
@@ -570,7 +570,7 @@ int LSDynaFamily::AdvanceFile()
 {
   if ( this->FNum < 0 && VTK_LSDYNA_ISBADFILE(this->FD) )
   {
-    if ( this->Files.size() > 0 )
+    if ( !this->Files.empty() )
     {
       this->FNum = 0;
       this->FAdapt = 0;

@@ -83,7 +83,7 @@ void vtkNewickTreeWriter::WriteVertex(ostream *fp, vtkTree* const input,
   if (this->NodeNameArray)
   {
     vtkStdString name = this->NodeNameArray->GetVariantValue(vertex).ToString();
-    if (name != "")
+    if (!name.empty())
     {
       *fp << name;
     }
