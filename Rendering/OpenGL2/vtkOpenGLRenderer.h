@@ -81,6 +81,12 @@ public:
   bool HaveApplePrimitiveIdBug();
 
   /**
+   * Indicate if this system is subject to the apple/NVIDIA bug that causes
+   * crashes in the driver when too many query objects are allocated.
+   */
+  static bool HaveAppleQueryAllocationBug();
+
+  /**
    * Dual depth peeling may be disabled for certain runtime configurations.
    * This method returns true if vtkDualDepthPeelingPass will be used in place
    * of vtkDepthPeelingPass.

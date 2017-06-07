@@ -847,6 +847,29 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 }
 
 //------------------------------------------------------------------------------
+bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
+{
+#ifndef __APPLE__ // Bug only applies to apple
+  return false;
+#else
+  enum class QueryAllocStatus { NotChecked, Yes, No };
+  static QueryAllocStatus hasBug = QueryAllocStatus::NotChecked;
+
+  if (hasBug == QueryAllocStatus::NotChecked)
+  {
+    // We can restrict this to a specific version, etc, as we get more
+    // information about the bug, but for now just disable query allocations on
+    // all apple NVIDIA cards.
+    std::string v = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+    hasBug = (v.find("NVIDIA") != std::string::npos) ? QueryAllocStatus::Yes
+                                                     : QueryAllocStatus::No;
+  }
+
+  return hasBug == QueryAllocStatus::Yes;
+#endif
+}
+
+//------------------------------------------------------------------------------
 bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
 {
   vtkOpenGLRenderWindow *context
