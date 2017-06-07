@@ -1,19 +1,21 @@
-vtk_module(vtkFiltersStatisticsGnuR
-  IMPLEMENTS
-    vtkFiltersStatistics
-  TEST_DEPENDS
-    vtkTestingCore
-    vtkFiltersSources
-    vtkInfovisCore
-  EXCLUDE_FROM_ALL
-  KIT
-    vtkFilters
-  DEPENDS
-    vtkCommonCore
-    vtkCommonExecutionModel
-    vtkFiltersStatistics
-  PRIVATE_DEPENDS
-    vtkCommonDataModel
-    vtkCommonMisc
-    vtksys
-  )
+if (NOT VTK_LEGACY_REMOVE)
+  vtk_module(vtkFiltersStatisticsGnuR
+    IMPLEMENTS
+      vtkFiltersStatistics
+    TEST_DEPENDS
+      vtkTestingCore
+      vtkFiltersSources
+      vtkInfovisCore
+    EXCLUDE_FROM_ALL
+    KIT
+      vtkFilters
+    DEPENDS
+      vtkCommonCore
+      vtkCommonExecutionModel
+      vtkFiltersStatistics
+    PRIVATE_DEPENDS
+      vtkCommonDataModel
+      vtkCommonMisc
+      vtksys
+    )
+endif()

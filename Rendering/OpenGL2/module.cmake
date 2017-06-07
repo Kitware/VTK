@@ -29,8 +29,6 @@ vtk_module(vtkRenderingOpenGL2
     vtkCommonMath
     vtkCommonSystem
     vtkCommonTransforms
-    vtkIOImage
-    vtkImagingCore
     vtkglew
     vtksys
   )

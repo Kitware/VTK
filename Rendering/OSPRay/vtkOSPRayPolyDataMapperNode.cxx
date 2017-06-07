@@ -310,7 +310,6 @@ namespace vtkosp {
 
     ospAddGeometry(oModel, ospMesh);
     ospCommit(ospMesh);
-    //ospCommit(oModel); //TODO: crashes without yet others don't, why?
     ospRelease(_PointColors);
     ospRelease(_mdata);
     delete[] mdata;
@@ -462,7 +461,6 @@ namespace vtkosp {
 
     ospAddGeometry(oModel, ospMesh);
     ospCommit(ospMesh);
-    //ospCommit(oModel); //TODO: crashes without yet others don't, why?
     ospRelease(_PointColors);
     ospRelease(_mdata);
     delete[] mdata;
@@ -582,7 +580,6 @@ namespace vtkosp {
 
     ospAddGeometry(oModel, ospMesh);
     ospCommit(ospMesh);
-    ospCommit(oModel); //TODO: crashes without yet others don't, why?
     ospRelease(index);
     ospRelease(_normals);
     ospRelease(_PointColors);

@@ -60,7 +60,7 @@ int vtkHyperOctreeDepth::RequestData(vtkInformation *vtkNotUsed(request),
   this->Output->ShallowCopy(this->Input);
 
   int MaximumLevel = inInfo->Get(vtkHyperOctree::LEVELS());
-  vtkIdType fact=(1<<(MaximumLevel-1));
+  vtkIdType fact=static_cast<vtkIdType>(1)<<(MaximumLevel-1);
   vtkIdType maxNumberOfCells=fact*fact;
 
   if (this->GeneratedDepths)

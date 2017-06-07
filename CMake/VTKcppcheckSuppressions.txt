@@ -13,11 +13,11 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.78.
+// at least on macOS with cppcheck 1.79.
 
 // To run:
 // cd /path/to/VTK/
-// cppcheck --platform=unix64 --enable=style -q --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 .
+// cppcheck --platform=unspecified --enable=style -q --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 .
 
 // Suppress everything from ThirdParty.
 *:ThirdParty/*
@@ -84,20 +84,9 @@ unusedLabelSwitch:IO/Exodus/vtkCPExodusIINodalCoordinatesTemplate.txx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
-// false positive: <http://trac.cppcheck.net/ticket/7878>
-bufferAccessOutOfBounds:IO/Xdmf3/Testing/Cxx/TestXdmf3Parallel.cxx
-
-// false positive: <http://trac.cppcheck.net/ticket/7888>
-knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
-
 // false positive: <http://trac.cppcheck.net/ticket/7889>
 knownConditionTrueFalse:IO/Parallel/vtkMultiBlockPLOT3DReader.cxx
 knownConditionTrueFalse:Parallel/MPI/Testing/Cxx/ExerciseMultiProcessController.cxx
-
-// false positive: <http://trac.cppcheck.net/ticket/7890>
-knownConditionTrueFalse:IO/LSDyna/vtkLSDynaReader.cxx
-knownConditionTrueFalse:Rendering/Annotation/vtkScalarBarActor.cxx
-knownConditionTrueFalse:Rendering/Volume/vtkFixedPointVolumeRayCastMIPHelper.cxx
 
 // false positive: <http://trac.cppcheck.net/ticket/7896>
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx

@@ -1,3 +1,14 @@
+if (VTK_LEGACY_REMOVE)
+  message(STATUS
+    "vtkFiltersMatlab can not be enabled as it has been "
+    "marked for deprecation and legacy code has been disabled in this "
+    "build.")
+  return()
+else()
+  message(WARNING
+    "vtkFiltersMatlab is deprecated and will be removed in a future VTK version")
+endif()
+
 find_package(MatlabMex REQUIRED)
 include(UseMatlabMex)
 

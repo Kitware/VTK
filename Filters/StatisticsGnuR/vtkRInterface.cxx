@@ -207,6 +207,7 @@ vtkImplementationRSingleton* vtkImplementationRSingleton::ins = 0;
 vtkRInterface::vtkRInterface()
 {
 
+  VTK_LEGACY_BODY(vtkRInterface::vtkRInterface, "VTK 8.0");
   this->rs = vtkImplementationRSingleton::Instance();
   this->buffer = 0;
   this->buffer_size = 0;

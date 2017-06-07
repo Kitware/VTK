@@ -17,8 +17,17 @@
  * @brief   extract specific time-steps from dataset
  *
  * vtkExtractTimeSteps extracts the specified time steps from the input dataset.
- * The timesteps to be extracted are specified by their indices. If no
- * time step is specified, all of the input time steps are extracted.
+ * It has two modes, one to specify timesteps explicitly by their indices and one
+ * to specify a range of timesteps to extract.
+ *
+ * When specifying timesteps explicitly the timesteps to be extracted are
+ * specified by their indices. If no time step is specified, all of the input
+ * time steps are extracted.
+ *
+ * When specifying a range, the beginning and end times are specified and the
+ * timesteps in between are extracted.  This can be modified by the TimeStepInterval
+ * property that sets the filter to extract every Nth timestep.
+ *
  * This filter is useful when one wants to work with only a sub-set of the input
  * time steps.
 */
@@ -78,8 +87,35 @@ public:
   }
   //@}
 
+  //@{
+  /**
+   * Get/Set whether to extract a range of timesteps.  When false, extracts
+   * the time steps explicitly set with SetTimeStepIndices.  Defaults to false.
+   */
+  vtkGetMacro(UseRange, bool);
+  vtkSetMacro(UseRange, bool);
+  vtkBooleanMacro(UseRange, bool);
+  //@}
+
+  //@{
+  /**
+   * Get/Set the range of time steps to extract.
+   */
+  vtkGetVector2Macro(Range, int);
+  vtkSetVector2Macro(Range, int);
+  //@}
+
+  //@{
+  /**
+   * Get/Set the time step interval to extract.  This is the N in 'extract every
+   * Nth timestep in this range'.  Default to 1 or 'extract all timesteps in this range.
+   */
+  vtkGetMacro(TimeStepInterval, int);
+  vtkSetClampMacro(TimeStepInterval, int, 1, VTK_INT_MAX);
+  //@}
+
 protected:
-  vtkExtractTimeSteps() {};
+  vtkExtractTimeSteps();
   ~vtkExtractTimeSteps()VTK_OVERRIDE {};
 
   int RequestData(vtkInformation *, vtkInformationVector **,
@@ -88,6 +124,10 @@ protected:
                                  vtkInformationVector *) VTK_OVERRIDE;
 
   std::set<int> TimeStepIndices;
+  bool UseRange;
+  int Range[2];
+  int TimeStepInterval;
+
 
 private:
   vtkExtractTimeSteps(const vtkExtractTimeSteps&) VTK_DELETE_FUNCTION;

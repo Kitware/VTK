@@ -29,6 +29,7 @@ vtkCocoaRenderWindow                  GetPosition                       304  2
 vtkCocoaRenderWindow                  GetScreenSize                     304  2
 vtkCocoaRenderWindow                  GetSize                           304  2
 vtkColorTransferFunction              GetColor                          307  3
+vtkColorTransferFunction              GetRange                          307  2
 vtkCompositePolyDataMapper2           GetBounds                         307  6
 vtkCompositePolyDataMapper            GetBounds                         307  6
 vtkCoordinate                         GetComputedDisplayValue           304  2
@@ -159,6 +160,9 @@ vtkLongArray                          GetValueRange                     306  2
 vtkLongLongArray                      GetValueRange                     30B  2
 vtkLookupTable                        GetColor                          307  3
 vtkLookupTable                        GetRange                          307  2
+vtkLookupTable                        GetAlphaRange                     307  2
+vtkLookupTable                        GetHueRange                       307  2
+vtkLookupTable                        GetSaturationRange                307  2
 vtkLookupTable                        GetTableValue                     307  4
 vtkMapper                             GetBounds                         307  6
 vtkMath                               HSVToRGB                          307  3

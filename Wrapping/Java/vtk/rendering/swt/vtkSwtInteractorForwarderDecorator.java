@@ -55,6 +55,10 @@ implements MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListe
     return new java.awt.event.MouseEvent(dummyComponent, 0, (long)e.time, convertModifiers(e.stateMask), e.x, e.y, e.count, false, button);
   }
 
+  public java.awt.event.MouseWheelEvent convertMouseWheelEvent(org.eclipse.swt.events.MouseEvent e) {
+    return new java.awt.event.MouseWheelEvent(dummyComponent, 0, e.time, convertModifiers(e.stateMask), e.x, e.y, 0, false, java.awt.event.MouseWheelEvent.WHEEL_UNIT_SCROLL, 1, e.count);
+  }
+
   public void keyPressed(KeyEvent e) {
     super.keyPressed(convertKeyEvent(e));
   }
@@ -90,6 +94,7 @@ implements MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListe
   }
 
   public void mouseScrolled(MouseEvent e) {
+    super.mouseWheelMoved(convertMouseWheelEvent(e));
   }
 
   public void mouseHover(MouseEvent e) {

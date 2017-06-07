@@ -32,8 +32,6 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 
 // #define DEBUG_QVTKOPENGL_WIDGET
 #ifdef DEBUG_QVTKOPENGL_WIDGET
@@ -47,20 +45,6 @@
 #else
 #define vtkQVTKOpenGLWidgetDebugMacro(x)
 #endif
-
-namespace
-{
-void vtkSetBackgroundAlpha(vtkRenderWindow* renWin, double value)
-{
-  vtkRendererCollection* renCollection = renWin->GetRenderers();
-  vtkCollectionSimpleIterator cookie;
-  renCollection->InitTraversal(cookie);
-  while (vtkRenderer* ren = renCollection->GetNextRenderer(cookie))
-  {
-    ren->SetBackgroundAlpha(value);
-  }
-}
-}
 
 class QVTKOpenGLWidgetObserver : public vtkCommand
 {
@@ -185,21 +169,12 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   {
     this->RenderWindow->RemoveObserver(this->Observer.Get());
   }
-
-  this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
-
   this->RenderWindow = win;
   this->requireRenderWindowInitialization();
   if (this->RenderWindow)
   {
     // set this to 0 to reinitialize it before setting the RenderWindow DPI
     this->OriginalDPI = 0;
-
-    // tell the vtk window what the size of this window is
-    this->RenderWindow->SetSize(this->width() * this->devicePixelRatio(),
-                                this->height() * this->devicePixelRatio());
-    this->RenderWindow->SetPosition(this->x() * this->devicePixelRatio(),
-                                    this->y() * this->devicePixelRatio());
 
     // if an interactor wasn't provided, we'll make one by default
     if (!this->RenderWindow->GetInteractor())
@@ -214,11 +189,6 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
       vtkNew<vtkInteractorStyleTrackballCamera> style;
       iren->SetInteractorStyle(style.Get());
     }
-
-    // tell the interactor the size of this window
-    this->RenderWindow->GetInteractor()
-        ->SetSize(this->width() * this->devicePixelRatio(),
-                  this->height() * this->devicePixelRatio());
 
     this->RenderWindow->AddObserver(vtkCommand::WindowMakeCurrentEvent, this->Observer.Get());
     this->RenderWindow->AddObserver(vtkCommand::WindowIsCurrentEvent, this->Observer.Get());
@@ -344,13 +314,20 @@ void QVTKOpenGLWidget::recreateFBO()
   format.setAttachment(QOpenGLFramebufferObject::Depth);
   format.setSamples(samples);
 
-  qreal devicePixelRatioF;
- #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-  devicePixelRatioF = static_cast<qreal>(this->devicePixelRatio());
- #else
-  devicePixelRatioF = this->devicePixelRatioF();
- #endif
-  const QSize deviceSize = this->size() * devicePixelRatioF;
+  const int devicePixelRatio_ = this->devicePixelRatio();
+  const QSize widgetSize = this->size();
+  const QSize deviceSize = widgetSize * devicePixelRatio_;
+
+  // This is as good an opportunity as any to communicate size to the render
+  // window.
+  this->InteractorAdaptor->SetDevicePixelRatio(devicePixelRatio_);
+  if (vtkRenderWindowInteractor* iren = this->RenderWindow->GetInteractor())
+  {
+    iren->SetSize(deviceSize.width(), deviceSize.height());
+  }
+  this->RenderWindow->SetSize(deviceSize.width(), deviceSize.height());
+  this->RenderWindow->SetPosition(this->x() * devicePixelRatio_, this->y() * devicePixelRatio_);
+
   this->FBO = new QOpenGLFramebufferObject(deviceSize, format);
   this->FBO->bind();
   this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
@@ -358,11 +335,6 @@ void QVTKOpenGLWidget::recreateFBO()
   this->RenderWindow->InitializeFromCurrentContext();
 
   this->setEnableHiDPI(this->EnableHiDPI);
-
-  // On OsX (if QSurfaceFormat::alphaBufferSize() > 0) or when using Mesa, we
-  // end up rendering fully transparent windows (see through background)
-  // unless we fill it with alpha=1.0 (See paraview/paraview#17159).
-  vtkSetBackgroundAlpha(this->RenderWindow, 1.0);
 
   // Since the context or frame buffer was recreated, if a paintGL call ensues,
   // we need to ensure we're requesting VTK to render.
@@ -411,13 +383,6 @@ void QVTKOpenGLWidget::requireRenderWindowInitialization()
 void QVTKOpenGLWidget::resizeGL(int w, int h)
 {
   vtkQVTKOpenGLWidgetDebugMacro("resizeGL");
-  vtkRenderWindowInteractor* iren = this->RenderWindow ? this->RenderWindow->GetInteractor() : nullptr;
-  this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio(), iren);
-  if (this->RenderWindow)
-  {
-    this->RenderWindow->SetSize(w * this->devicePixelRatio(),
-                                h * this->devicePixelRatio());
-  }
   this->Superclass::resizeGL(w, h);
 }
 
@@ -469,6 +434,22 @@ void QVTKOpenGLWidget::paintGL()
     f->glBlitFramebuffer(0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1],
       0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1], GL_COLOR_BUFFER_BIT,
       GL_NEAREST);
+
+    // now clear alpha otherwise we end up blending the rendering with
+    // background windows in certain cases. It happens on OsX
+    // (if QSurfaceFormat::alphaBufferSize() > 0) or when using Mesa on Linux
+    // (see paraview/paraview#17159).
+    GLboolean colorMask[4];
+    f->glGetBooleanv(GL_COLOR_WRITEMASK, colorMask);
+    f->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+
+    GLfloat clearColor[4];
+    f->glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
+    f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+
+    f->glColorMask(colorMask[0], colorMask[1], colorMask[2], colorMask[3]);
+    f->glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
   }
 }
 
@@ -584,6 +565,11 @@ bool QVTKOpenGLWidget::event(QEvent* evt)
       // calls to InteractorAdaptor->ProcessEvent().
       break;
 
+    case QEvent::Resize:
+      // we don't let QVTKInteractorAdapter process resize since we handle it
+      // in this->recreateFBO().
+      break;
+
     default:
       if (this->RenderWindow && this->RenderWindow->GetInteractor())
       {
@@ -591,16 +577,6 @@ bool QVTKOpenGLWidget::event(QEvent* evt)
       }
   }
   return this->Superclass::event(evt);
-}
-
-//-----------------------------------------------------------------------------
-void QVTKOpenGLWidget::moveEvent(QMoveEvent* evt)
-{
-  this->Superclass::moveEvent(evt);
-  if (this->RenderWindow)
-  {
-    this->RenderWindow->SetPosition(this->x(), this->y());
-  }
 }
 
 //-----------------------------------------------------------------------------
