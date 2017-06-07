@@ -86,7 +86,7 @@ public:
   /**
    * Read an arbitrary array from a string.
    */
-  static vtkArray* Read(vtkStdString str);
+  static vtkArray* Read(const vtkStdString& str);
 
 protected:
   vtkArrayReader();

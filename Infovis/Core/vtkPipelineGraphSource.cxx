@@ -200,7 +200,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkAlgorithm* sink, ostream& output, 
 
 namespace {
 
-void replace_all(std::string& str, std::string oldStr, std::string newStr)
+void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr)
 {
   size_t pos = 0;
   while((pos = str.find(oldStr, pos)) != std::string::npos)

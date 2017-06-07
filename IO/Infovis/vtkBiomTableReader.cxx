@@ -499,7 +499,7 @@ void vtkBiomTableReader::ParseDenseData()
 }
 
 //----------------------------------------------------------------------------
-void vtkBiomTableReader::InsertValue(int row, int col, std::string value)
+void vtkBiomTableReader::InsertValue(int row, int col, const std::string& value)
 {
   std::stringstream stream;
   stream << value;

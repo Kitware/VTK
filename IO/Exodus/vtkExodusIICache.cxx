@@ -190,7 +190,7 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
   //printCache( this->Cache, this->LRU );
 }
 
-vtkDataArray*& vtkExodusIICache::Find( vtkExodusIICacheKey key )
+vtkDataArray*& vtkExodusIICache::Find( const vtkExodusIICacheKey& key )
 {
   static vtkDataArray* dummy = 0;
 
@@ -206,7 +206,7 @@ vtkDataArray*& vtkExodusIICache::Find( vtkExodusIICacheKey key )
   return dummy;
 }
 
-int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
+int vtkExodusIICache::Invalidate( const vtkExodusIICacheKey& key )
 {
   vtkExodusIICacheRef it = this->Cache.find( key );
   if ( it != this->Cache.end() )
@@ -235,7 +235,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
   return 0;
 }
 
-int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey pattern )
+int vtkExodusIICache::Invalidate( const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern )
 {
   vtkExodusIICacheRef it;
   int nDropped = 0;

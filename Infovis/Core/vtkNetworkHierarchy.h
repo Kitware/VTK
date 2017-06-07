@@ -71,7 +71,7 @@ private:
   void operator=(const vtkNetworkHierarchy&) VTK_DELETE_FUNCTION;
 
   // Internal helper functions
-  unsigned int ITON(vtkStdString ip);
+  unsigned int ITON(const vtkStdString& ip);
   void GetSubnets(unsigned int packedIP, int *subnets);
 
   char *IPArrayName;

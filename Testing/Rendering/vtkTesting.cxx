@@ -51,10 +51,10 @@ using std::string;
 // failing that return a default.
 // Up to caller to delete the string returned.
 static string vtkTestingGetArgOrEnvOrDefault(
-          string argName,       // argument idnetifier flag. eg "-D"
+          const string& argName,       // argument idnetifier flag. eg "-D"
           vector<string> &argv, // command tail
-          string env,           // environment variable name to find
-          string def)           // default to use if "env" is not found.
+          const string& env,           // environment variable name to find
+          const string& def)           // default to use if "env" is not found.
 {
   string argValue;
 

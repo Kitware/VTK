@@ -40,9 +40,9 @@ class LSDynaMetaData
 public:
   LSDynaMetaData();
 
-  bool AddPointArray( std::string name, int numComponents, int status );
+  bool AddPointArray( const std::string& name, int numComponents, int status );
 
-  bool AddCellArray( int cellType, std::string name, int numComponents, int status );
+  bool AddCellArray( int cellType, const std::string& name, int numComponents, int status );
 
   int GetTotalMaterialCount();
 

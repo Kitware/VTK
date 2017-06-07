@@ -756,7 +756,7 @@ void vtkStringArray::LookupValue(vtkVariant var, vtkIdList* ids)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkStringArray::LookupValue(vtkStdString value)
+vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
 {
   this->UpdateLookup();
 
@@ -826,7 +826,7 @@ vtkIdType vtkStringArray::LookupValue(vtkStdString value)
 }
 
 //-----------------------------------------------------------------------------
-void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
+void vtkStringArray::LookupValue(const vtkStdString& value, vtkIdList* ids)
 {
   this->UpdateLookup();
   ids->Reset();

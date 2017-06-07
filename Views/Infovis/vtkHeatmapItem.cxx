@@ -1118,7 +1118,7 @@ void vtkHeatmapItem::GetBounds(double bounds[4])
 }
 
 //-----------------------------------------------------------------------------
-void vtkHeatmapItem::MarkRowAsBlank(std::string rowName)
+void vtkHeatmapItem::MarkRowAsBlank(const std::string& rowName)
 {
   this->BlankRows.insert(rowName);
 }

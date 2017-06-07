@@ -180,7 +180,7 @@ void vtkPixelExtent::Split(
 //-----------------------------------------------------------------------------
 void vtkPixelExtent::Subtract(
       const vtkPixelExtent &A,
-      vtkPixelExtent B,
+      const vtkPixelExtent& B,
       deque<vtkPixelExtent> &C)
 {
   // split method requires split point inside the extent

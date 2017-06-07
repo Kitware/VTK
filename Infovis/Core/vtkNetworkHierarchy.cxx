@@ -92,7 +92,7 @@ void vtkNetworkHierarchy::GetSubnets(unsigned int packedIP, int *subnets)
  subnets[0] = num;
 }
 
-unsigned int vtkNetworkHierarchy::ITON(vtkStdString ip)
+unsigned int vtkNetworkHierarchy::ITON(const vtkStdString& ip)
 {
   unsigned int subnets[4];
   sscanf(ip.c_str(),"%u.%u.%u.%u",
