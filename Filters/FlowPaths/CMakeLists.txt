@@ -31,17 +31,4 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-if(NOT VTK_LEGACY_REMOVE)
-  list(APPEND Module_SRCS
-    vtkDashedStreamLine.cxx
-    vtkStreamLine.cxx
-    vtkStreamPoints.cxx
-    vtkStreamer.cxx)
-
-  set_source_files_properties(
-    vtkStreamer
-    ABSTRACT
-    )
-endif ()
-
 vtk_module_library(vtkFiltersFlowPaths ${Module_SRCS})
