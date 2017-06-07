@@ -21,12 +21,22 @@
 #ifndef vtkOTUtilities_h
 #define vtkOTUtilities_h
 
+#include "vtkOTConfig.h" // For OpenTURNS version
+
 #include "openturns/DistributionFactoryImplementation.hxx" // For vtkOTDistributionImplementationWrapper
 
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 namespace OT
 {
 class NumericalSample;
+typedef NumericalSample Sample;
 }
+#else
+namespace OT
+{
+class Sample;
+}
+#endif
 
 class vtkDataArray;
 class vtkDataArrayCollection;
@@ -37,31 +47,31 @@ class vtkOTUtilities
 public:
   /**
    * Methods to convert a collection of uni-dimensional data array
-   * into a single NumericalSample
+   * into a single Sample
    * The number of arrays will determine the number of components of
-   * the NumericalSample.
+   * the Sample.
    * Arrays are suposed to have the same number of tuples, and the
-   * NumericalSample will also have the same number of tuples.
-   * This method allocate a new OT::NumericalSample and returns it,
-   * so it will need to be freed.
+   * Sample will also have the same number of tuples.
+   * This method allocate a new Sample and returns it,
+   * so it is caller's responsibility to delete it with the delete operator.
    */
-  static OT::NumericalSample* SingleDimArraysToNumericalSample(vtkDataArrayCollection* arrays);
+  static OT::Sample* SingleDimArraysToSample(vtkDataArrayCollection* arrays);
 
   /**
-   * Methods to convert a multi-component array into a NumericalSample.
-   * The numerical sample will have the same dimension as the data array.
-   * This method allocate a new OT::NumericalSample and returns it,
-   * so it will need to be freed.
+   * Methods to convert a multi-component array into a Sample.
+   * The sample will have the same dimension as the data array.
+   * This method allocate a new Sample and returns it,
+   * so it is caller's responsibility to delete it with the delete operator.
    */
-  static OT::NumericalSample* ArrayToNumericalSample(vtkDataArray* arr);
+  static OT::Sample* ArrayToSample(vtkDataArray* arr);
 
   /**
-   * Methods to convert a NumericalSample into a multi-component array.
-   * The data array will have the same dimension as the numerical sample.
+   * Methods to convert a Sample into a multi-component array.
+   * The data array will have the same dimension as the sample.
    * This method allocates a new vtkDataArray and returns it,
-   * so it will need to be deleted.
+   * so it is caller's responsibility to delete it with the delete operator.
    */
-  static vtkDataArray* NumericalSampleToArray(OT::NumericalSample* ns);
+  static vtkDataArray* SampleToArray(OT::Sample* ns);
 };
 
 /**

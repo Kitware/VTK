@@ -88,8 +88,20 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
     this->DensityMapsSettings[plotType]->ShowDensityMap && !this->Animating)
   {
+    DensityMapCacheMap::iterator it = this->DensityMapCache.find(std::make_pair(row, column));
+    vtkOTDensityMap* density;
+    if (it != this->DensityMapCache.end())
+    {
+      density = it->second.GetPointer();
+    }
+    else
+    {
+      vtkSmartPointer<vtkOTDensityMap> densityPt = vtkSmartPointer<vtkOTDensityMap>::New();
+      this->DensityMapCache[std::make_pair(row, column)] = densityPt;
+      density = densityPt.GetPointer();
+    }
+
     // Compute density map
-    vtkNew<vtkOTDensityMap> density;
     density->SetInputData(this->Input.GetPointer());
     density->SetNumberOfContours(3);
     density->SetValue(0, 0.1);

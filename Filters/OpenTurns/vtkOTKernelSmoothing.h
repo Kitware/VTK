@@ -87,9 +87,9 @@ protected:
   /**
    * Do the actual computation and store it in output
    */
-  virtual int Process(OT::NumericalSample* input) VTK_OVERRIDE;
+  virtual int Process(OT::Sample* input) VTK_OVERRIDE;
 
-  void ComputePDF(OT::NumericalSample* input,
+  void ComputePDF(OT::Sample* input,
     OT::KernelSmoothing* ks,
     double* range,
     const char* pdfName);

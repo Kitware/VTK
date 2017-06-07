@@ -27,12 +27,21 @@
 #define vtkOTFilter_h
 
 #include "vtkFiltersOpenTurnsModule.h" // For export macro
+#include "vtkOTConfig.h" // For OpenTURNS version
 #include "vtkTableAlgorithm.h"
 
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 namespace OT
 {
 class NumericalSample;
+typedef NumericalSample Sample;
 }
+#else
+namespace OT
+{
+class Sample;
+}
+#endif
 
 class VTKFILTERSOPENTURNS_EXPORT vtkOTFilter : public vtkTableAlgorithm
 {
@@ -55,12 +64,12 @@ protected:
   /**
    * Abstract method to process openturns data
    */
-  virtual int Process(OT::NumericalSample* input) = 0;
+  virtual int Process(OT::Sample* input) = 0;
 
   /**
    * Method to add a openturns data to a table as a named column
    */
-  virtual void AddToOutput(OT::NumericalSample* ns, const std::string& name);
+  virtual void AddToOutput(OT::Sample* ns, const std::string& name);
 
   vtkTable* Output;
 

@@ -22,7 +22,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
+#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 #include "openturns/NumericalSample.hxx"
+#else
+#include "openturns/Sample.hxx"
+#endif
 
 using namespace OT;
 
@@ -48,10 +52,10 @@ int vtkOTFilter::FillInputPortInformation(int port, vtkInformation* info)
 }
 
 //-----------------------------------------------------------------------------
-void vtkOTFilter::AddToOutput(NumericalSample* ns, const std::string& name)
+void vtkOTFilter::AddToOutput(Sample* ns, const std::string& name)
 {
   vtkSmartPointer<vtkDataArray> outArray =
-    vtkSmartPointer<vtkDataArray>::Take(vtkOTUtilities::NumericalSampleToArray(ns));
+    vtkSmartPointer<vtkDataArray>::Take(vtkOTUtilities::SampleToArray(ns));
   outArray->SetName(name.c_str());
   this->Output->AddColumn(outArray);
 }
@@ -66,7 +70,7 @@ int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
   this->Output->Initialize();
 
   vtkDataArray* dataArray = this->GetInputArrayToProcess(0, inputVector);
-  NumericalSample* ns = vtkOTUtilities::ArrayToNumericalSample(dataArray);
+  Sample* ns = vtkOTUtilities::ArrayToSample(dataArray);
 
   int ret = 1;
   if(ns)

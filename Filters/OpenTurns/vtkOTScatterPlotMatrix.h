@@ -29,6 +29,9 @@
 #define vtkOTScatterPlotMatrix_h
 
 #include "vtkScatterPlotMatrix.h"
+#include "vtkSmartPointer.h" // For SmartPointer
+
+class vtkOTDensityMap;
 
 class VTKCHARTSCORE_EXPORT vtkOTScatterPlotMatrix : public vtkScatterPlotMatrix
 {
@@ -77,6 +80,9 @@ private:
 
   class DensityMapSettings;
   std::map<int, DensityMapSettings*> DensityMapsSettings;
+  typedef std::map<std::pair<vtkStdString, vtkStdString>, vtkSmartPointer<vtkOTDensityMap> >
+    DensityMapCacheMap;
+  DensityMapCacheMap DensityMapCache;
 };
 
 #endif // vtkOTScatterPlotMatrix_h
