@@ -96,18 +96,6 @@ void vtkAbstractMapper3D::GetClippingPlaneInDataCoords(
   vtkErrorMacro("Clipping plane index " << i << " is out of range.");
 }
 
-int vtkAbstractMapper3D::GetNumberOfClippingPlanes()
-{
-  int n = 0;
-
-  if ( this->ClippingPlanes )
-  {
-    n = this->ClippingPlanes->GetNumberOfItems();
-  }
-
-  return n;
-}
-
 void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

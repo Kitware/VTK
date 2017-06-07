@@ -95,11 +95,6 @@ public:
   void GetClippingPlaneInDataCoords(
     vtkMatrix4x4 *propMatrix, int i, double planeEquation[4]);
 
-  /**
-   * Get the number of clipping planes.
-   */
-  int GetNumberOfClippingPlanes();
-
 protected:
    vtkAbstractMapper3D();
    ~vtkAbstractMapper3D() VTK_OVERRIDE {}

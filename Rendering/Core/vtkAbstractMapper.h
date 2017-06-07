@@ -129,6 +129,11 @@ public:
                                               int arrayAccessMode, int arrayId,
                                               const char *arrayName, int& cellFlag);
 
+  /**
+   * Get the number of clipping planes.
+   */
+  int GetNumberOfClippingPlanes();
+
 protected:
   vtkAbstractMapper();
   ~vtkAbstractMapper() VTK_OVERRIDE;
