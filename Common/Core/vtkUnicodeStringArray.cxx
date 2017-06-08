@@ -291,7 +291,7 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i,
 
 void vtkUnicodeStringArray::Squeeze()
 {
-  Implementation::StorageT(this->Internal->Storage).swap(this->Internal->Storage);
+  this->Internal->Storage.shrink_to_fit();
   this->DataChanged();
 }
 
