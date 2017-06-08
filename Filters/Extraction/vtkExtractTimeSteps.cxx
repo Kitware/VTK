@@ -27,8 +27,10 @@
 vtkStandardNewMacro(vtkExtractTimeSteps);
 
 vtkExtractTimeSteps::vtkExtractTimeSteps() :
-  UseRange(false), Range{0, 0}, TimeStepInterval(1)
+  UseRange(false), TimeStepInterval(1)
 {
+  this->Range[0] = 0;
+  this->Range[1] = 0;
 }
 
 //----------------------------------------------------------------------------
