@@ -42,7 +42,8 @@ void vtkPXdmf3Writer::PrintSelf (ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkPXdmf3Writer::CheckParameters ()
 {
-  vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
+  vtkMultiProcessController *c =
+    vtkMultiProcessController::GetGlobalController();
   int numberOfProcesses = c ? c->GetNumberOfProcesses() : 1;
   int myRank = c ? c->GetLocalProcessId() : 0;
 
@@ -61,7 +62,8 @@ int vtkPXdmf3Writer::RequestUpdateExtent (
   vtkInformationVector* outputVector)
 {
   this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
-  vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
+  vtkMultiProcessController *c =
+    vtkMultiProcessController::GetGlobalController();
   if (c)
   {
     int numberOfProcesses = c->GetNumberOfProcesses();
@@ -69,7 +71,8 @@ int vtkPXdmf3Writer::RequestUpdateExtent (
 
     vtkInformation *info = inputVector[0]->GetInformationObject(0);
     info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), myRank);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numberOfProcesses);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              numberOfProcesses);
   }
 
   return 1;

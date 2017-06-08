@@ -123,8 +123,8 @@ protected:
   // parameter and return the global continueExecution.
   virtual int GlobalContinueExecuting(int localContinueExecution);
 
-  bool initWriters;
-  bool useParallel;
+  bool InitWriters;
+  bool UseParallel;
 
 private:
   vtkXdmf3Writer(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;

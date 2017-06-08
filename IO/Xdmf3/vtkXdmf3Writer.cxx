@@ -294,12 +294,12 @@ vtkXdmf3Writer::vtkXdmf3Writer()
   this->LightDataLimit = 100;
   this->WriteAllTimeSteps = false;
   this->GhostLevel = 0;
-  this->useParallel = true;
+  this->UseParallel = true;
   this->TimeValues = NULL;
   this->TimeValues = 0;
-  this->initWriters = true;
+  this->InitWriters = true;
 
-  if (this->useParallel)
+  if (this->UseParallel)
   {
     this->Internal = NULL;
     this->ParallelInternal = new ParallelInternals();
@@ -354,7 +354,7 @@ int vtkXdmf3Writer::Write()
   // always write even if the data hasn't changed
   this->Modified();
 
-  if(this->useParallel)
+  if(this->UseParallel)
   {
     if (!this->ParallelInternal)
     {
@@ -396,18 +396,20 @@ int vtkXdmf3Writer::RequestInformation(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   if ( inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
   {
-    if(this->useParallel)
+    if(this->UseParallel)
     {
-      this->ParallelInternal->NumberOfTimeSteps = inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+      this->ParallelInternal->NumberOfTimeSteps =
+        inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     }
     else
     {
-      this->Internal->NumberOfTimeSteps = inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
+      this->Internal->NumberOfTimeSteps =
+        inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     }
   }
   else
   {
-    if(this->useParallel)
+    if(this->UseParallel)
     {
       this->ParallelInternal->NumberOfTimeSteps = 1;
     }
@@ -453,13 +455,15 @@ int vtkXdmf3Writer::RequestUpdateExtent(
     if(this->TimeValues->GetPointer(0))
     {
       double timeReq;
-      if(this->useParallel)
+      if(this->UseParallel)
       {
-        timeReq = this->TimeValues->GetValue(this->ParallelInternal->CurrentTimeIndex);
+        timeReq =
+          this->TimeValues->GetValue(this->ParallelInternal->CurrentTimeIndex);
       }
       else
       {
-        timeReq = this->TimeValues->GetValue(this->Internal->CurrentTimeIndex);
+        timeReq =
+          this->TimeValues->GetValue(this->Internal->CurrentTimeIndex);
       }
       inputVector[0]->GetInformationObject(0)->Set(
           vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
@@ -475,13 +479,13 @@ int vtkXdmf3Writer::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if(this->useParallel)
+  //Note: call Write() instead of RD() directly.
+  //Write() does setup first before it calls RD().
+  if(this->UseParallel)
   {
     if (!this->ParallelInternal->Domain)
     {
       this->ParallelInternal->gridCounter++;
-
-      //call Write() instead of RD() directly. Write() does setup first before it calls RD().
       return 1;
     }
   }
@@ -490,16 +494,15 @@ int vtkXdmf3Writer::RequestData(
     if (!this->Internal->Domain)
     {
       this->Internal->gridCounter++;
-
-      //call Write() instead of RD() directly. Write() does setup first before it calls RD().
       return 1;
     }
   }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject (0);
-  this->OriginalInput = vtkDataObject::SafeDownCast (inInfo->Get(vtkDataObject::DATA_OBJECT ()));
+  this->OriginalInput =
+    vtkDataObject::SafeDownCast (inInfo->Get(vtkDataObject::DATA_OBJECT ()));
 
-  if(this->useParallel)
+  if(this->UseParallel)
   {
      this->WriteDataParallel (request);
   }
@@ -538,7 +541,8 @@ void vtkXdmf3Writer::WriteDataInternal (vtkInformation* request)
   bool hasTime = false;
   if (inDataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
   {
-    dataT = this->OriginalInput->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    dataT = this->OriginalInput->GetInformation()
+      ->Get(vtkDataObject::DATA_TIME_STEP());
     hasTime = true;
   }
   this->Internal->WriteDataObject(this->OriginalInput, hasTime, dataT);
@@ -557,7 +561,8 @@ void vtkXdmf3Writer::WriteDataInternal (vtkInformation* request)
 //----------------------------------------------------------------------------
 void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
 {
-  if (this->ParallelInternal->CurrentTimeIndex == 0 && this->WriteAllTimeSteps &&
+  if (this->ParallelInternal->CurrentTimeIndex == 0 &&
+      this->WriteAllTimeSteps &&
       this->ParallelInternal->NumberOfTimeSteps > 1)
   {
     // Tell the pipeline to start looping.
@@ -570,7 +575,8 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
   bool hasTime = false;
   if (inDataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
   {
-    dataT = this->OriginalInput->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    dataT = this->OriginalInput->GetInformation()
+      ->Get(vtkDataObject::DATA_TIME_STEP());
     hasTime = true;
   }
   this->CheckParameters();
@@ -579,11 +585,12 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
   testString = testString.substr(0, (tempLength - 4));
   const char *choppedFileName = new char[VTK_MAXPATH];
   choppedFileName = testString.c_str();
-  if (initWriters == true)
+  if (this->InitWriters == true)
   {
     if (this->NumberOfProcesses == 1)
     {
-      this->ParallelInternal->InitWriterName(this->FileName, this->LightDataLimit);
+      this->ParallelInternal
+        ->InitWriterName(this->FileName, this->LightDataLimit);
     }
     else
     {
@@ -591,18 +598,23 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
       if(this->MyRank == 0)
       {
         this->ParallelInternal->AggregateDomain = XdmfDomain::New();
-        this->ParallelInternal->AggregateWriter = XdmfWriter::New(this->FileName);
-        this->ParallelInternal->AggregateWriter->setLightDataLimit(this->LightDataLimit);
-        this->ParallelInternal->AggregateWriter->getHeavyDataWriter()->setReleaseData(true);
+        this->ParallelInternal->AggregateWriter =
+          XdmfWriter::New(this->FileName);
+        this->ParallelInternal->AggregateWriter
+          ->setLightDataLimit(this->LightDataLimit);
+        this->ParallelInternal->AggregateWriter->getHeavyDataWriter()
+          ->setReleaseData(true);
       } // end if(this->MyRank == 0)
       char *rankFileName = new char [VTK_MAXPATH];
-      sprintf(rankFileName, "%s.%d.%d.xmf", choppedFileName, this->NumberOfProcesses, this->MyRank);
-      //printf("%s\n", rankFileName);
-      this->ParallelInternal->InitWriterName(rankFileName, this->LightDataLimit);
+      sprintf(rankFileName, "%s.%d.%d.xmf", choppedFileName,
+              this->NumberOfProcesses, this->MyRank);
+      this->ParallelInternal->InitWriterName(rankFileName,
+                                             this->LightDataLimit);
+      delete[] rankFileName;
 
     } // end if (this->NumberOfProcesses == 1)
-    initWriters = false;
-  } // end if (initWriters == true)
+    this->InitWriters = false;
+  } // end if (this->InitWriters == true)
   int prev = this->ParallelInternal->gridCounter;
   this->ParallelInternal->WriteDataObject(this->OriginalInput, hasTime, dataT);
   this->ParallelInternal->Domain->accept(this->ParallelInternal->Writer);
@@ -617,36 +629,45 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
       aggregategroup->setType(XdmfGridCollectionType::Spatial());
       for (; prev<next; prev++)
       {
-        char *rankGridName = new char[VTK_MAXPATH];
-        sprintf(rankGridName, "/Xdmf/Domain/Grid[%d]", (prev + 1));//handle xml indexing differences
+        char *rankGridName = new char[VTK_MAXPATH]; //todo use c++str
+        //handle xml indexing differences
+        sprintf(rankGridName, "/Xdmf/Domain/Grid[%d]", (prev + 1));
         for (rankCount = 0; rankCount<this->NumberOfProcesses; rankCount++)
         {
           //printf("%d < %d\n", rankCount, this->NumberOfProcesses);
-          char *rankFileName = new char [VTK_MAXPATH];
-          sprintf(rankFileName, "%s.%d.%d.xmf", choppedFileName, this->NumberOfProcesses, rankCount);
+          char *rankFileName = new char [VTK_MAXPATH]; //should use c++str
+          sprintf(rankFileName, "%s.%d.%d.xmf", choppedFileName,
+                  this->NumberOfProcesses, rankCount);
           if (this->ParallelInternal->gridType == VTK_RECTILINEAR_GRID)
           {
-            shared_ptr<XdmfRegularGrid> grid = XdmfRegularGrid::New(1, 1, 1,  1, 1, 1, 0, 0, 0);
-            shared_ptr<XdmfGridController> partController = XdmfGridController::New(rankFileName, rankGridName);
+            shared_ptr<XdmfRegularGrid> grid =
+              XdmfRegularGrid::New(1, 1, 1,  1, 1, 1, 0, 0, 0);
+            shared_ptr<XdmfGridController> partController =
+              XdmfGridController::New(rankFileName, rankGridName);
             grid->setGridController(partController);
             aggregategroup->insert(grid);
           }
           else
           {
             shared_ptr<XdmfUnstructuredGrid> grid = XdmfUnstructuredGrid::New();
-            shared_ptr<XdmfGridController> partController = XdmfGridController::New(rankFileName, rankGridName);
+            shared_ptr<XdmfGridController> partController =
+              XdmfGridController::New(rankFileName, rankGridName);
             grid->setGridController(partController);
             aggregategroup->insert(grid);
           }
+          delete[] rankFileName;
         } // end for (; prev<next;prev++)
+        delete[] rankGridName;
       } // end for (rankCount=0;rankCount<this->NumberOfProcesses;rankCount++)
       this->ParallelInternal->AggregateDomain->insert(aggregategroup);
-      this->ParallelInternal->AggregateDomain->accept(this->ParallelInternal->AggregateWriter);
+      this->ParallelInternal->AggregateDomain
+        ->accept(this->ParallelInternal->AggregateWriter);
     } // end if(this->MyRank == 0)
   } // if (this->NumberOfProcesses > 1)
 
   this->ParallelInternal->CurrentTimeIndex++;
-  if (this->ParallelInternal->CurrentTimeIndex >= this->ParallelInternal->NumberOfTimeSteps &&
+  if (this->ParallelInternal->CurrentTimeIndex >=
+      this->ParallelInternal->NumberOfTimeSteps &&
       this->WriteAllTimeSteps)
   {
     // Tell the pipeline to stop looping.
@@ -665,7 +686,8 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmf3Writer::CheckParametersInternal (int _NumberOfProcesses, int _MyRank)
+int vtkXdmf3Writer::CheckParametersInternal (int _NumberOfProcesses,
+                                             int _MyRank)
 {
    if (!this->FileName)
    {
