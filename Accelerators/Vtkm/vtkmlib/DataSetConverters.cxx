@@ -19,6 +19,7 @@
 #include "ArrayConverters.h"
 #include "CellSetConverters.h"
 #include "PolyDataConverter.h"
+#include "ImageDataConverter.h"
 #include "Storage.h"
 #include "UnstructuredGridConverter.h"
 
@@ -38,7 +39,6 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/DataSetBuilderUniform.h>
 #include <vtkm/cont/Field.h>
 
 namespace tovtkm {
@@ -96,33 +96,6 @@ vtkm::cont::CoordinateSystem Convert(vtkPoints *points)
     Vec3 *xyz = NULL;
     return vtkm::cont::CoordinateSystem("coords", xyz, 0);
   }
-}
-
-//------------------------------------------------------------------------------
-// convert an image data type
-vtkm::cont::DataSet Convert(vtkImageData *input)
-{
-  int extent[6];
-  input->GetExtent(extent);
-  double vorigin[3];
-  input->GetOrigin(vorigin);
-  double vspacing[3];
-  input->GetSpacing(vspacing);
-  int vdims[3];
-  input->GetDimensions(vdims);
-
-  vtkm::Vec<vtkm::FloatDefault, 3> origin(extent[0]*vspacing[0] + vorigin[0],
-                                          extent[2]*vspacing[1] + vorigin[1],
-                                          extent[4]*vspacing[2] + vorigin[2]);
-  vtkm::Vec<vtkm::FloatDefault, 3> spacing(vspacing[0],
-                                           vspacing[1],
-                                           vspacing[2]);
-  vtkm::Id3 dims(vdims[0], vdims[1], vdims[2]);
-
-  vtkm::cont::DataSet dataset =
-      vtkm::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
-
-  return dataset;
 }
 
 //------------------------------------------------------------------------------

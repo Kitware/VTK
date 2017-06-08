@@ -27,6 +27,7 @@ set(lib_srcs
   vtkmlib/ArrayConverters.cxx
   vtkmlib/CellSetConverters.cxx
   vtkmlib/DataSetConverters.cxx
+  vtkmlib/ImageDataConverter.cxx
   vtkmlib/Storage.cxx
   )
 
@@ -37,6 +38,7 @@ set(headers
   vtkmClip.h
   vtkmContour.h
   vtkmExternalFaces.h
+  vtkmExtractVOI.h
   vtkmThreshold.h
   vtkmLevelOfDetail.h
   vtkmAverageToCells.h
@@ -50,6 +52,7 @@ set(cpu_accelerator_srcs
   vtkmClip.cxx
   vtkmContour.cxx
   vtkmExternalFaces.cxx
+  vtkmExtractVOI.cxx
   vtkmThreshold.cxx
   vtkmLevelOfDetail.cxx
   vtkmAverageToCells.cxx
@@ -68,6 +71,7 @@ set(cuda_accelerator_srcs
   vtkmClip.cu
   vtkmContour.cu
   vtkmExternalFaces.cu
+  vtkmExtractVOI.cu
   vtkmThreshold.cu
   vtkmLevelOfDetail.cu
   vtkmAverageToCells.cu
@@ -91,6 +95,7 @@ set_source_files_properties(
   vtkmlib/ArrayConverters
   vtkmlib/CellSetConverters
   vtkmlib/DataSetConverters
+  vtkmlib/ImageDataConverter
   vtkmlib/Storage
   vtkmlib/Portals
   vtkmlib/ImplicitFunctionConverter
@@ -150,7 +155,7 @@ if(VTKm_CUDA_FOUND)
   if(PRIVATE IN_LIST CUDA_LIBRARIES)
     set(cache_cuda_libs ${CUDA_LIBRARIES})
     set(cache_devrt_libs ${CUDA_cudadevrt_LIBRARY})
-    set(CUDA_LIBRARIES ${CUDA_LIBRARIES} vtkFiltersGeneral)
+    set(CUDA_LIBRARIES ${CUDA_LIBRARIES} ${vtkAcceleratorsVTKm_DEPENDS})
     set(CUDA_cudadevrt_LIBRARY PRIVATE ${CUDA_cudadevrt_LIBRARY})
   endif()
 
