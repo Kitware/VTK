@@ -54,6 +54,11 @@ public:
 
   bool IsSupported() VTK_OVERRIDE;
 
+  /**
+   * Overridden to do support check before returning.
+   */
+  bool GetLoggingEnabled() VTK_OVERRIDE { return this->DoLogging(); }
+
   void MarkFrame() VTK_OVERRIDE;
 
   void MarkStartEvent(const std::string &name) VTK_OVERRIDE;

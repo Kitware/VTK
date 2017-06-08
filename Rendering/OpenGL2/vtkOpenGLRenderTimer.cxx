@@ -16,6 +16,7 @@
 #include "vtkOpenGLRenderTimer.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderer.h" // For query allocation bug check
 
 #include "vtk_glew.h"
 
@@ -40,7 +41,10 @@ vtkOpenGLRenderTimer::vtkOpenGLRenderTimer()
 //------------------------------------------------------------------------------
 vtkOpenGLRenderTimer::~vtkOpenGLRenderTimer()
 {
-  this->Reset();
+  if (this->StartQuery != 0 || this->EndQuery != 0)
+  {
+    this->Reset();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -49,7 +53,8 @@ bool vtkOpenGLRenderTimer::IsSupported()
 #ifdef NO_TIMESTAMP_QUERIES
   return false;
 #else
-  return true;
+  static const bool s = !vtkOpenGLRenderer::HaveAppleQueryAllocationBug();
+  return s;
 #endif
 }
 
@@ -57,6 +62,11 @@ bool vtkOpenGLRenderTimer::IsSupported()
 void vtkOpenGLRenderTimer::Reset()
 {
 #ifndef NO_TIMESTAMP_QUERIES
+  if (!this->IsSupported())
+  {
+    return;
+  }
+
   if (this->StartQuery != 0)
   {
     glDeleteQueries(1, static_cast<GLuint*>(&this->StartQuery));
@@ -79,6 +89,11 @@ void vtkOpenGLRenderTimer::Reset()
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::Start()
 {
+  if (!this->IsSupported())
+  {
+    return;
+  }
+
   this->Reset();
 
 #ifndef NO_TIMESTAMP_QUERIES
@@ -91,6 +106,11 @@ void vtkOpenGLRenderTimer::Start()
 void vtkOpenGLRenderTimer::Stop()
 {
 #ifndef NO_TIMESTAMP_QUERIES
+  if (!this->IsSupported())
+  {
+    return;
+  }
+
   if (this->EndQuery != 0)
   {
     vtkGenericWarningMacro("vtkOpenGLRenderTimer::Stop called before "
@@ -134,6 +154,11 @@ bool vtkOpenGLRenderTimer::Stopped()
 bool vtkOpenGLRenderTimer::Ready()
 {
 #ifndef NO_TIMESTAMP_QUERIES
+  if (!this->IsSupported())
+  {
+    return false;
+  }
+
   if (!this->StartReady)
   {
     GLint ready;
@@ -255,8 +280,12 @@ void vtkOpenGLRenderTimer::ReleaseGraphicsResources()
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::ReusableStart()
 {
-
 #ifndef NO_TIMESTAMP_QUERIES
+  if (!this->IsSupported())
+  {
+    return;
+  }
+
   if (this->StartQuery == 0)
   {
     glGenQueries(1, static_cast<GLuint*>(&this->StartQuery));
@@ -276,8 +305,12 @@ void vtkOpenGLRenderTimer::ReusableStart()
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::ReusableStop()
 {
-
 #ifndef NO_TIMESTAMP_QUERIES
+  if (!this->IsSupported())
+  {
+    return;
+  }
+
   if (!this->ReusableStarted)
   {
     vtkGenericWarningMacro("vtkOpenGLRenderTimer::ReusableStop called before "
