@@ -31,12 +31,13 @@
 #include "vtkIOXdmf3Module.h" // For export macro
 #include <set>
 #include "XdmfItem.hpp"
-#include "XdmfGraph.hpp"
-#include "XdmfGrid.hpp"
 #include "vtkType.h"
 
 class vtkXdmf3SILBuilder;
 class vtkXdmf3ArraySelection;
+class XdmfItem;
+class XdmfGraph;
+class XdmfGrid;
 
 class VTKIOXDMF3_EXPORT vtkXdmf3LightDataHandler
 {
