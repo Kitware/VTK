@@ -539,6 +539,11 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   glDepthFunc( GL_LEQUAL );
   glEnable( GL_DEPTH_TEST );
 
+  if (this->UseSRGBColorSpace && this->GetUsingSRGBColorSpace())
+  {
+    glEnable(GL_FRAMEBUFFER_SRGB);
+  }
+
   // initialize blending for transparency
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
                       GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
@@ -591,7 +596,7 @@ if (this->LineSmoothing)
 
 int vtkOpenGLRenderWindow::GetDefaultTextureInternalFormat(
   int vtktype, int numComponents,
-  bool needInt, bool needFloat)
+  bool needInt, bool needFloat, bool needSRGB)
 {
   // 0 = none
   // 1 = float
@@ -608,7 +613,19 @@ int vtkOpenGLRenderWindow::GetDefaultTextureInternalFormat(
   {
     return this->TextureInternalFormats[vtktype][1][numComponents];
   }
-  return this->TextureInternalFormats[vtktype][0][numComponents];
+  int result = this->TextureInternalFormats[vtktype][0][numComponents];
+  if (needSRGB)
+  {
+    switch (result)
+    {
+      case GL_RGB: result = GL_SRGB; break;
+      case GL_RGBA: result = GL_SRGB_ALPHA; break;
+      case GL_RGB8: result = GL_SRGB8; break;
+      case GL_RGBA8: result = GL_SRGB8_ALPHA8; break;
+      default: break;
+    }
+  }
+  return result;
 }
 
 void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
@@ -921,6 +938,52 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
   }
 }
 
+bool vtkOpenGLRenderWindow::GetUsingSRGBColorSpace()
+{
+  if ( this->Initialized )
+  {
+    this->MakeCurrent();
+
+    GLint attachment = GL_BACK_LEFT;
+#ifdef GL_DRAW_BUFFER
+    glGetIntegerv(GL_DRAW_BUFFER, &attachment);
+#endif
+    // GL seems odd with its handling of left/right.
+    // if it says we are using GL_FRONT or GL_BACK
+    // then convert those to GL_FRONT_LEFT and
+    // GL_BACK_LEFT.
+    if (attachment == GL_FRONT)
+    {
+      attachment = GL_FRONT_LEFT;
+      // for hardware windows this query seems to not work
+      // and they seem to almost always honor SRGB values so return
+      // the setting the user requested
+      return this->UseSRGBColorSpace;
+    }
+    if (attachment == GL_BACK)
+    {
+      attachment = GL_BACK_LEFT;
+      // for hardware windows this query seems to not work
+      // and they seem to almost always honor SRGB values so return
+      // the setting the user requested
+      return this->UseSRGBColorSpace;
+    }
+    GLint enc = GL_LINEAR;
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+      attachment,
+      GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, &enc);
+    if (glGetError() == GL_NO_ERROR)
+    {
+      return (enc == GL_SRGB);
+    }
+    vtkDebugMacro(<< "Error getting color encoding!" );
+    return false;
+  }
+
+  vtkDebugMacro(<< "OpenGL is not initialized yet!" );
+  return false;
+}
+
 int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
 {
   GLint size;
@@ -939,8 +1002,6 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
     this->MakeCurrent();
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
-      GLint fboBind = 0;
-      glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
       GLint attachment = GL_BACK_LEFT;
 #ifdef GL_DRAW_BUFFER
       glGetIntegerv(GL_DRAW_BUFFER, &attachment);

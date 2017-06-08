@@ -724,6 +724,16 @@ public:
   virtual int SetUseOffScreenBuffers(bool) { return 0; }
   virtual bool GetUseOffScreenBuffers() { return false; }
 
+  //@{
+  /**
+   * Set/Get if we want this window to use the sRGB color space.
+   * Some hardware/drivers do not fully support this.
+   */
+  vtkGetMacro(UseSRGBColorSpace, bool);
+  vtkSetMacro(UseSRGBColorSpace, bool);
+  vtkBooleanMacro(UseSRGBColorSpace, bool);
+  //@}
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow() VTK_OVERRIDE;
@@ -772,6 +782,8 @@ protected:
   int StencilCapable;
   int CapturingGL2PSSpecialProps;
   int DeviceIndex;
+
+  bool UseSRGBColorSpace;
 
   /**
    * The universal time since the last abort check occurred.

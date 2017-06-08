@@ -253,6 +253,7 @@ vtkTextureObject::vtkTextureObject()
   this->BorderColor[2] = 0.0f;
   this->BorderColor[3] = 0.0f;
   this->BufferObject = 0;
+  this->UseSRGBColorSpace = false;
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkTextureObject>(this,
     &vtkTextureObject::ReleaseGraphicsResources);
@@ -721,7 +722,7 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
   if (shaderSupportsTextureInt)
   {
     result = this->Context->GetDefaultTextureInternalFormat(
-      vtktype,numComps,true,false);
+      vtktype,numComps, true, false, this->UseSRGBColorSpace);
     if (!result)
     {
       vtkDebugMacro("Unsupported internal texture type!");
@@ -731,7 +732,7 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
 
   // try default next
   result = this->Context->GetDefaultTextureInternalFormat(
-    vtktype,numComps,false,false);
+    vtktype,numComps,false,false,this->UseSRGBColorSpace);
   if (result)
   {
     return result;
@@ -739,7 +740,7 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
 
   // try floating point
   result = this->Context->GetDefaultTextureInternalFormat(
-    vtktype,numComps,false,true);
+    vtktype,numComps,false,true,this->UseSRGBColorSpace);
 
   if (!result)
   {
@@ -800,7 +801,7 @@ void vtkTextureObject::GetShiftAndScale(float &shift, float &scale)
 
   // check to see if this is an int format
   GLenum iresult = this->Context->GetDefaultTextureInternalFormat(
-    vtkGetVTKType(this->Type), this->Components, true, false);
+    vtkGetVTKType(this->Type), this->Components, true, false, this->UseSRGBColorSpace);
 
   // using an int texture format, no shift scale
   if (iresult == this->InternalFormat)

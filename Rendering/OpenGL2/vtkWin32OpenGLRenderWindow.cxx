@@ -597,6 +597,17 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       multiSampleAttributeIndex = n+3;
       n += 4;
     }
+    if (this->UseSRGBColorSpace && WGLEW_EXT_framebuffer_sRGB)
+    {
+      attrib[n++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT;
+      attrib[n++] = TRUE;
+    }
+    else if (this->UseSRGBColorSpace && WGLEW_ARB_framebuffer_sRGB)
+    {
+      attrib[n++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB;
+      attrib[n++] = TRUE;
+    }
+
     unsigned int numFormats;
     if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats)
       || numFormats == 0)

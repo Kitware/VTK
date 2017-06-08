@@ -42,6 +42,7 @@ vtkTexture::vtkTexture()
   this->Quality = VTK_TEXTURE_QUALITY_DEFAULT;
   this->PremultipliedAlpha = false;
   this->CubeMap = false;
+  this->UseSRGBColorSpace = false;
 
   this->LookupTable = NULL;
   this->MappedScalars = NULL;
@@ -148,6 +149,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
   os << indent << "EdgeClamp:   " << (this->EdgeClamp ? "On\n" : "Off\n");
   os << indent << "CubeMap:   " << (this->CubeMap ? "On\n" : "Off\n");
+  os << indent << "UseSRGBColorSpace:   " << (this->UseSRGBColorSpace ? "On\n" : "Off\n");
   os << indent << "Quality:     ";
   switch (this->Quality)
   {

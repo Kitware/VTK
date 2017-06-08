@@ -136,7 +136,8 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
                                                   int doublebuff,
                                                   int stereo,
                                                   int multisamples,
-                                                  int stencil)
+                                                  int stencil,
+                                                  bool srgb)
 {
   int           index;
   static int    attributes[50];
@@ -183,6 +184,12 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
 #endif
   }
 
+  if ( srgb )
+  {
+    attributes[index++] = 0x20B2;
+    attributes[index++] = True;
+  }
+
   attributes[index++] = None;
 
   // cout << "Trying config: " << endl
@@ -210,13 +217,13 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                 int doublebuff, int stereo,
                                                 int multisamples,
-                                                int stencil)
+                                                int stencil, bool srgb)
 {
   GLXFBConfig fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
        GLX_WINDOW_BIT,
        doublebuff,
        stereo, multisamples,
-       stencil);
+       stencil, srgb);
 
   XVisualInfo *v = glXGetVisualFromFBConfig( DisplayId, fbc);
 
@@ -229,7 +236,8 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
   int &win_multisamples,
   int &win_doublebuffer,
   int drawable_type,
-  int &stencil)
+  int &stencil,
+  bool srgb)
 {
   GLXFBConfig   fbc = None;
   int           multi;
@@ -245,7 +253,7 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  drawable_type,
                                                  win_doublebuffer,
                                                  stereo, multi,
-                                                 stencil);
+                                                 stencil, srgb);
       if (fbc)
       {
         // found a valid config
@@ -266,7 +274,7 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  drawable_type,
                                                  !win_doublebuffer,
                                                  stereo, multi,
-                                                 stencil);
+                                                 stencil, srgb);
       // we found a valid result
       if (fbc)
       {
@@ -307,7 +315,8 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
       this->MultiSamples,
       this->DoubleBuffer,
       GLX_WINDOW_BIT,
-      this->StencilCapable);
+      this->StencilCapable,
+      this->UseSRGBColorSpace);
 
   if (!this->Internal->FBConfig)
   {

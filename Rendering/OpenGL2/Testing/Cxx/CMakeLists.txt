@@ -22,6 +22,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPointGaussianMapperOpacity.cxx
   TestRemoveActorNonCurrentContext.cxx
   TestRenderToImage.cxx
+  TestSRGB.cxx
   TestSSAAPass.cxx
   TestSetZBuffer.cxx
   TestShadowMapBakerPass.cxx

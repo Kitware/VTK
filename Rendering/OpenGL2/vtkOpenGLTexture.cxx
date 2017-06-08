@@ -182,6 +182,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       {
         this->TextureObject = vtkTextureObject::New();
       }
+      this->TextureObject->SetUseSRGBColorSpace(this->GetUseSRGBColorSpace());
       this->TextureObject->ResetFormatAndType();
       this->TextureObject->SetContext(renWin);
 

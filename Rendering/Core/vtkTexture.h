@@ -271,6 +271,18 @@ public:
   void SetCubeMap(bool val);
   //@}
 
+  //@{
+  /**
+   * Is this texture using the sRGB color space. If you are using a
+   * sRGB framebuffer or window then you probably also want to be
+   * using sRGB color textures for proper handling of gamma and
+   * associated color mixing.
+   */
+  vtkGetMacro(UseSRGBColorSpace, bool);
+  vtkSetMacro(UseSRGBColorSpace, bool);
+  vtkBooleanMacro(UseSRGBColorSpace, bool);
+  //@}
+
 protected:
   vtkTexture();
   ~vtkTexture() VTK_OVERRIDE;
@@ -297,6 +309,7 @@ protected:
   int SelfAdjustingTableRange;
   bool PremultipliedAlpha;
   bool CubeMap;
+  bool UseSRGBColorSpace;
 
   // the result of HasTranslucentPolygonalGeometry is cached
   vtkTimeStamp TranslucentComputationTime;

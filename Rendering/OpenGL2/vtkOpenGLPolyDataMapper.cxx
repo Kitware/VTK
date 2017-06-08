@@ -1709,7 +1709,6 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
           && (light->GetPositional()))
       {
         lightComplexity = 3;
-        break;
       }
     }
   }
@@ -2977,7 +2976,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
     // do we have float texture support ?
     int ftex =
       static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())->
-        GetDefaultTextureInternalFormat(VTK_FLOAT, 4, false, true);
+        GetDefaultTextureInternalFormat(VTK_FLOAT, 4, false, true, false);
 
     if (ftex)
     {
