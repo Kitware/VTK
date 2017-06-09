@@ -163,7 +163,7 @@ public:
   {
   }
   ~ParallelInternals() {};
-  void Init(const char *filename)
+  void Init()
   {
     this->NumberOfTimeSteps = 1;
     this->CurrentTimeIndex = 0;
@@ -360,7 +360,7 @@ int vtkXdmf3Writer::Write()
     {
       this->ParallelInternal = new ParallelInternals();
     }
-    this->ParallelInternal->Init(this->FileName);
+    this->ParallelInternal->Init();
 
     this->Update();
 
@@ -580,11 +580,10 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
     hasTime = true;
   }
   this->CheckParameters();
-  std::string testString = reinterpret_cast<const char*>(this->FileName);
+  std::string testString(this->FileName);
   int tempLength = testString.length();
   testString = testString.substr(0, (tempLength - 4));
-  const char *choppedFileName = new char[VTK_MAXPATH];
-  choppedFileName = testString.c_str();
+  std::string choppedFileName = testString;
   if (this->InitWriters == true)
   {
     if (this->NumberOfProcesses == 1)
@@ -605,12 +604,14 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
         this->ParallelInternal->AggregateWriter->getHeavyDataWriter()
           ->setReleaseData(true);
       } // end if(this->MyRank == 0)
-      char *rankFileName = new char [VTK_MAXPATH];
-      sprintf(rankFileName, "%s.%d.%d.xmf", choppedFileName,
-              this->NumberOfProcesses, this->MyRank);
-      this->ParallelInternal->InitWriterName(rankFileName,
+      std::string rankFileName = choppedFileName;
+      rankFileName.append(".");
+      rankFileName.append(std::to_string(this->NumberOfProcesses));
+      rankFileName.append(".");
+      rankFileName.append(std::to_string(this->MyRank));
+      rankFileName.append(".xmf");
+      this->ParallelInternal->InitWriterName(rankFileName.c_str(),
                                              this->LightDataLimit);
-      delete[] rankFileName;
 
     } // end if (this->NumberOfProcesses == 1)
     this->InitWriters = false;
@@ -629,21 +630,26 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
       aggregategroup->setType(XdmfGridCollectionType::Spatial());
       for (; prev<next; prev++)
       {
-        char *rankGridName = new char[VTK_MAXPATH]; //todo use c++str
         //handle xml indexing differences
-        sprintf(rankGridName, "/Xdmf/Domain/Grid[%d]", (prev + 1));
+        std::string rankGridName = "/Xdmf/Domain/Grid[";
+        rankGridName.append(std::to_string(prev+1));
+        rankGridName.append("]");
         for (rankCount = 0; rankCount<this->NumberOfProcesses; rankCount++)
         {
           //printf("%d < %d\n", rankCount, this->NumberOfProcesses);
-          char *rankFileName = new char [VTK_MAXPATH]; //should use c++str
-          sprintf(rankFileName, "%s.%d.%d.xmf", choppedFileName,
-                  this->NumberOfProcesses, rankCount);
+          std::string rankFileName = choppedFileName;
+          rankFileName.append(".");
+          rankFileName.append(std::to_string(this->NumberOfProcesses));
+          rankFileName.append(".");
+          rankFileName.append(std::to_string(rankCount));
+          rankFileName.append(".xmf");
           if (this->ParallelInternal->gridType == VTK_RECTILINEAR_GRID)
           {
             shared_ptr<XdmfRegularGrid> grid =
               XdmfRegularGrid::New(1, 1, 1,  1, 1, 1, 0, 0, 0);
             shared_ptr<XdmfGridController> partController =
-              XdmfGridController::New(rankFileName, rankGridName);
+              XdmfGridController::New(rankFileName.c_str(),
+                                      rankGridName.c_str());
             grid->setGridController(partController);
             aggregategroup->insert(grid);
           }
@@ -655,9 +661,7 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
             grid->setGridController(partController);
             aggregategroup->insert(grid);
           }
-          delete[] rankFileName;
         } // end for (; prev<next;prev++)
-        delete[] rankGridName;
       } // end for (rankCount=0;rankCount<this->NumberOfProcesses;rankCount++)
       this->ParallelInternal->AggregateDomain->insert(aggregategroup);
       this->ParallelInternal->AggregateDomain
