@@ -257,15 +257,22 @@ struct PointSetFunctor : public CuttingFunctor
     vtkPointData* outPD = NULL;
     vtkCellData* outCD = NULL;
 
+    vtkCellArray* newVerts = this->NewVerts.Local();
+    vtkCellArray* newLines = this->NewLines.Local();
+    vtkCellArray* newPolys = this->NewPolys.Local();
+    vtkNew<vtkCellData> newVertsData;
+    vtkNew<vtkCellData> newLinesData;
+    vtkNew<vtkCellData> newPolysData;
+    vtkCellData* tmpOutCD = NULL;
+
     if (this->Interpolate)
     {
       outPD = output->GetPointData();
       outCD = output->GetCellData();
+      newVertsData->CopyAllocate(outCD);
+      newLinesData->CopyAllocate(outCD);
+      newPolysData->CopyAllocate(outCD);
     }
-
-    vtkCellArray* newVerts = this->NewVerts.Local();
-    vtkCellArray* newLines = this->NewLines.Local();
-    vtkCellArray* newPolys = this->NewPolys.Local();
 
     double* s;
     int i, numPts;
@@ -287,10 +294,36 @@ struct PointSetFunctor : public CuttingFunctor
         {
           *s++ = this->Plane->FunctionValue(cellPoints->GetPoint(i));
         }
+        // Select correct cell data
+        switch(cell->GetCellDimension())
+        {
+          case(1):
+            tmpOutCD = newVertsData.Get();
+            break;
+          case(2):
+            tmpOutCD = newLinesData.Get();
+            break;
+          case(3):
+            tmpOutCD = newPolysData.Get();
+            break;
+          default:
+            tmpOutCD = NULL;
+            break;
+        }
         cell->Contour(
-          0.0, cellScalars, loc, newVerts, newLines, newPolys, inPD, outPD, inCD, cellId, outCD);
+          0.0, cellScalars, loc, newVerts, newLines, newPolys, inPD, outPD, inCD, cellId, tmpOutCD);
       }
     } // for all cells which intersect plane in this task
+
+    if (this->Interpolate)
+    {
+      // Reconstruct cell data
+      outCD->CopyData(newVertsData.Get(), 0, newVerts->GetNumberOfCells(), 0);
+      vtkIdType offset = newVerts->GetNumberOfCells();
+      outCD->CopyData(newLinesData.Get(), offset, newLines->GetNumberOfCells(), 0);
+      offset += newLines->GetNumberOfCells();
+      outCD->CopyData(newPolysData.Get(), offset, newPolys->GetNumberOfCells(), 0);
+    }
   }
 
   void Reduce() { CuttingFunctor::Reduce(); }
