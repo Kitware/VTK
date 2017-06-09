@@ -15,6 +15,7 @@
 //=============================================================================
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkCountVertices.h"
 #include "vtkmContour.h"
 #include "vtkElevationFilter.h"
 #include "vtkImageData.h"
@@ -70,9 +71,26 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
     }
 
-  if (!cubes->GetOutput()->GetPointData()->GetNormals())
+  vtkDataSet *output = cubes->GetOutput();
+
+  if (!output->GetPointData()->GetNormals())
   {
     std::cerr << "Output normals not set.\n";
+    return EXIT_FAILURE;
+  }
+
+  vtkDataArray *cellvar = output->GetCellData()->GetArray("Vertex Count");
+  if (!cellvar)
+  {
+    std::cerr << "Cell data missing.\n";
+    return EXIT_FAILURE;
+  }
+
+  if (cellvar->GetNumberOfTuples() != output->GetNumberOfCells())
+  {
+    std::cerr << "Mapped cell field does not match number of output cells.\n"
+              << "Expected: " << output->GetNumberOfCells() << " Actual: "
+              << cellvar->GetNumberOfTuples() << "\n";
     return EXIT_FAILURE;
   }
 
@@ -96,6 +114,9 @@ int TestVTKMMarchingCubes(int argc, char* argv[])
   elevation->SetLowPoint(-1.75, 0.0, 1.0);
   elevation->SetHighPoint(0.75, 0.0, 1.0);
 
+  vtkNew<vtkCountVertices> countVerts;
+  countVerts->SetInputConnection(elevation->GetOutputPort());
+
   //run the pipeline
-  return RunVTKPipeline(elevation.GetPointer(),argc,argv);
+  return RunVTKPipeline(countVerts.GetPointer(),argc,argv);
 }

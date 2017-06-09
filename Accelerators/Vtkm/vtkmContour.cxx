@@ -15,6 +15,7 @@
 //=============================================================================
 #include "vtkmContour.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -83,9 +84,9 @@ int vtkmContour::RequestData(vtkInformation* request,
     filter.SetIsoValue(i, this->GetValue(i));
   }
 
-
   // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
+  vtkm::cont::DataSet in = tovtkm::Convert(input,
+                                           tovtkm::FieldsFlag::PointsAndCells);
 
   // we need to map the given property to the data set
   int association = this->GetInputArrayAssociation(0, inputVector);
@@ -108,7 +109,6 @@ int vtkmContour::RequestData(vtkInformation* request,
     vtkWarningMacro(<< "Will not be able to use VTKm field type is unknown");
   }
 
-
   vtkm::filter::ResultDataSet result;
   bool convertedDataSet = false;
   if (dataSetValid && fieldValid)
@@ -123,30 +123,19 @@ int vtkmContour::RequestData(vtkInformation* request,
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
-    // convert other scalar arrays
-    if (this->GetComputeScalars())
+    vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
+    for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
     {
-      vtkPointData* pd = input->GetPointData();
-      for (vtkIdType i = 0; i < pd->GetNumberOfArrays(); i++)
+      const vtkm::cont::Field &field = in.GetField(fieldIdx);
+      try
       {
-        vtkDataArray* array = pd->GetArray(i);
-        if (array == NULL)
-        {
-          continue;
-        }
-
-        vtkm::cont::Field pfield =
-            tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
-        try
-        {
-          filter.MapFieldOntoOutput(result, pfield, policy);
-        }
-        catch (vtkm::cont::Error&)
-        { // nothing to do for now
-          vtkWarningMacro(<< "Unable to use VTKm to convert field( "
-                          << array->GetName() << " ) to the MarchingCubes"
-                          << "output.");
-        }
+        filter.MapFieldOntoOutput(result, field, policy);
+      }
+      catch (vtkm::cont::Error &e)
+      {
+        vtkWarningMacro(<< "Unable to use VTKm to convert point field( "
+                        << field.GetName() << " ) to the MarchingCubes"
+                        << " output: " << e.what());
       }
     }
 
@@ -160,6 +149,11 @@ int vtkmContour::RequestData(vtkInformation* request,
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
+  }
+
+  if (this->ComputeScalars)
+  {
+    output->GetPointData()->SetActiveScalars(inputArray->GetName());
   }
 
   if (this->ComputeNormals)
