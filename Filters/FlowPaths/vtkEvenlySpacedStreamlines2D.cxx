@@ -569,7 +569,7 @@ template<typename T>
 void vtkEvenlySpacedStreamlines2D::InitializePoints(T& points)
 {
   points.resize(this->SuperposedGrid->GetNumberOfCells());
-  for (int i = 0; i < points.size(); ++i)
+  for (std::size_t i = 0; i < points.size(); ++i)
   {
     points[i].clear();
   }

@@ -667,7 +667,6 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
                                 vtkIdType& inNumSteps,
                                 double &inIntegrationTime)
 {
-  int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
   double propagation = inPropagation;
   vtkIdType numSteps = inNumSteps;
@@ -924,7 +923,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
       }
 
       bool endIntegration = false;
-      for (int i = 0; i < this->CustomTerminationCallback.size(); ++i)
+      for (std::size_t i = 0; i < this->CustomTerminationCallback.size(); ++i)
       {
         if(this->CustomTerminationCallback[i](this->CustomTerminationClientData[i],
                                               outputPoints, outputVelocityVectors, direction))
@@ -1004,7 +1003,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
       }
       else
       {
-        for (i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
           point1[i] = point2[i];
         }
@@ -1043,7 +1042,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
 
       // Check if conversion to float will produce a point in same place
       float convertedPoint[3];
-      for (i = 0; i < 3; i++)
+      for (int i = 0; i < 3; i++)
       {
         convertedPoint[i] = point1[i];
       }
@@ -1139,7 +1138,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
     if (numPts > 1)
     {
       outputLines->InsertNextCell(numPts);
-      for (i=numPtsTotal-numPts; i<numPtsTotal; i++)
+      for (int i=numPtsTotal-numPts; i<numPtsTotal; i++)
       {
         outputLines->InsertCellPoint(i);
       }
