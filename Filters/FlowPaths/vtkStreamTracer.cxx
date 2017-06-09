@@ -923,14 +923,20 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         break;
       }
 
+      bool endIntegration = false;
       for (int i = 0; i < this->CustomTerminationCallback.size(); ++i)
       {
         if(this->CustomTerminationCallback[i](this->CustomTerminationClientData[i],
                                               outputPoints, outputVelocityVectors, direction))
         {
           retVal = this->CustomReasonForTermination[i];
-          goto end_integration;
+          endIntegration = true;
+          break;
         }
+      }
+      if (endIntegration)
+      {
+        break;
       }
 
       if ( numSteps++ % 1000 == 1 )
@@ -1124,7 +1130,6 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         stepSize.Interval = step;
       }
     }
-  end_integration:
 
     if (shouldAbort)
     {

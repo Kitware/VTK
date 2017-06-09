@@ -128,8 +128,8 @@ int vtkEvenlySpacedStreamlines2D::RequestData(
       "vtkEvenlySpacedStreamlines2D does not support planes not alligned with XY.");
     return 0;
   }
-  std::array<double, 3> v = {bounds[1] - bounds[0], bounds[3] - bounds[2],
-                             bounds[5] - bounds[4]};
+  std::array<double, 3> v = {{bounds[1] - bounds[0], bounds[3] - bounds[2],
+                              bounds[5] - bounds[4]}};
   double length = vtkMath::Norm(&v[0]);
   this->InitializeSuperposedGrid(bounds);
 
@@ -309,14 +309,14 @@ bool vtkEvenlySpacedStreamlines2D::ForEachCell(
   // and check cells around the current cell
   std::array<std::array<int, 3>, 8> around =
   {{
-    {ijk[0] - 1, ijk[1] + 1, ijk[2]},
-    {ijk[0],     ijk[1] + 1, ijk[2]},
-    {ijk[0] + 1, ijk[1] + 1, ijk[2]},
-    {ijk[0] - 1, ijk[1],     ijk[2]},
-    {ijk[0] + 1, ijk[1],     ijk[2]},
-    {ijk[0] - 1, ijk[1] - 1, ijk[2]},
-    {ijk[0],     ijk[1] - 1, ijk[2]},
-    {ijk[0] + 1, ijk[1] - 1, ijk[2]}
+      {{ijk[0] - 1, ijk[1] + 1, ijk[2]}},
+      {{ijk[0],     ijk[1] + 1, ijk[2]}},
+      {{ijk[0] + 1, ijk[1] + 1, ijk[2]}},
+      {{ijk[0] - 1, ijk[1],     ijk[2]}},
+      {{ijk[0] + 1, ijk[1],     ijk[2]}},
+      {{ijk[0] - 1, ijk[1] - 1, ijk[2]}},
+      {{ijk[0],     ijk[1] - 1, ijk[2]}},
+      {{ijk[0] + 1, ijk[1] - 1, ijk[2]}}
   }};
   int extent[6];
   this->SuperposedGrid->GetExtent(extent);
@@ -338,6 +338,7 @@ bool vtkEvenlySpacedStreamlines2D::IsLooping(
   double* point, vtkIdType cellId,
   vtkPoints* points, vtkDataArray* velocity, int direction)
 {
+  (void)point;
   // do we have enough points to form a loop
   vtkIdType p0 = points->GetNumberOfPoints() - 1;
   vtkIdType minLoopPoints = std::max(vtkIdType(3), this->MinimumNumberOfLoopPoints);
@@ -577,7 +578,7 @@ void vtkEvenlySpacedStreamlines2D::InitializePoints(T& points)
 void vtkEvenlySpacedStreamlines2D::InitializeMinPointIds()
 {
   this->MinPointIds.resize(this->SuperposedGrid->GetNumberOfCells());
-  for (int i = 0; i < this->MinPointIds.size(); ++i)
+  for (std::size_t i = 0; i < this->MinPointIds.size(); ++i)
   {
     this->MinPointIds[i] = std::numeric_limits<vtkIdType>::max();
   }
@@ -597,7 +598,7 @@ void vtkEvenlySpacedStreamlines2D::AddToAllPoints(vtkPolyData* streamline)
       ijk[0] = floor(point[0] / this->SeparatingDistance);
       ijk[1] = floor(point[1] / this->SeparatingDistance);
       vtkIdType cellId = this->SuperposedGrid->ComputeCellId(ijk);
-      this->AllPoints[cellId].push_back({point[0], point[1], point[2]});
+      this->AllPoints[cellId].push_back({{point[0], point[1], point[2]}});
     }
   }
 }

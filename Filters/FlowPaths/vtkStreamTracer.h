@@ -485,3 +485,4 @@ private:
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkStreamTracer.h

@@ -381,3 +381,5 @@ private:
 
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkEvenlySpacedStreamlines2D.h
