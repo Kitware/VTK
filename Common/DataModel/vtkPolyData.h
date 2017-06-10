@@ -193,7 +193,7 @@ public:
 
   //@{
   /**
-   * Return the number of primitives of a particular type held..
+   * Return the number of primitives of a particular type held.
    */
   vtkIdType GetNumberOfVerts();
   vtkIdType GetNumberOfLines();

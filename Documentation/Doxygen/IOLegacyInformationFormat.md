@@ -12,7 +12,7 @@ vector-valued. Only the information objects attached to arrays are encoded.
 
 A block of metadata may immediately follow the specification of an array.
 Whitespace is permitted between the array data and the opening `METADATA` tag.
-The metadata block is terminated by an empty line..
+The metadata block is terminated by an empty line.
 
 ```
 # vtk DataFile Version 4.1

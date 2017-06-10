@@ -29,7 +29,7 @@ vtkPriorityQueue::vtkPriorityQueue()
 
 // Allocate priority queue with specified size and amount to extend
 // queue (if reallocation required).
-void vtkPriorityQueue::Allocate(const vtkIdType sz, const vtkIdType ext)
+void vtkPriorityQueue::Allocate(vtkIdType sz, vtkIdType ext)
 {
   this->ItemLocation->Allocate(sz,ext);
   for (vtkIdType i=0; i < sz; i++)

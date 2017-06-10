@@ -636,7 +636,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
           inPtrX += xInc;
           isect2Ptr += 3;
           isect1Ptr += 3;
-          // To keep track of ids for copying cell attributes..
+          // To keep track of ids for copying cell attributes.
           ++inCellId;
         }
         inPtrY += yInc;

@@ -20,7 +20,7 @@
  *
  * vtkGenericDataArray specialization that stores data array in the traditional
  * VTK memory layout where a 3 component is stored in contiguous memory as
- * \c A1A2A2B1B2B3C1C2C3 ... where A,B,C,... are tuples.
+ * \c A1A2A3B1B2B3C1C2C3 ... where A,B,C,... are tuples.
  *
  * This replaces vtkDataArrayTemplate.
  *

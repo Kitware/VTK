@@ -240,7 +240,7 @@ void vtkFieldData::Initialize()
 
 //----------------------------------------------------------------------------
 // Allocate data for each array.
-int vtkFieldData::Allocate(const vtkIdType sz, const vtkIdType ext)
+int vtkFieldData::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int i;
   int status = 0;
