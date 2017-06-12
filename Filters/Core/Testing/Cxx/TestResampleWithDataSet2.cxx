@@ -82,7 +82,7 @@ int TestResampleWithDataSet2(int argc, char *argv[])
 
 
   double range[2];
-  calculator->GetOutput()->GetPointData()->GetArray("VEL_MAG")->GetRange(range);
+  vtkDataSet::SafeDownCast(calculator->GetOutput())->GetPointData()->GetArray("VEL_MAG")->GetRange(range);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(calculator->GetOutputPort());

@@ -168,6 +168,13 @@ vtkArrayCalculator::~vtkArrayCalculator()
   }
 }
 
+int vtkArrayCalculator::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  return 1;
+}
+
 void vtkArrayCalculator::SetResultArrayName(const char* name)
 {
   if (name == NULL || *name == '\0')
@@ -1196,6 +1203,11 @@ int* vtkArrayCalculator::GetSelectedVectorComponents(int i)
     return this->SelectedVectorComponents[i];
   }
   return NULL;
+}
+
+vtkDataSet* vtkArrayCalculator::GetDataSetOutput()
+{
+  return vtkDataSet::SafeDownCast(this->GetOutput());
 }
 
 void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)

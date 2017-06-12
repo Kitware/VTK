@@ -62,8 +62,9 @@
 #define vtkArrayCalculator_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkDataSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
+class vtkDataSet;
 class vtkFunctionParser;
 
 #define VTK_ATTRIBUTE_MODE_DEFAULT 0
@@ -72,10 +73,10 @@ class vtkFunctionParser;
 #define VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA 3
 #define VTK_ATTRIBUTE_MODE_USE_EDGE_DATA 4
 
-class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeMacro(vtkArrayCalculator,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkArrayCalculator,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkArrayCalculator *New();
@@ -261,9 +262,17 @@ public:
   vtkGetMacro(ReplacementValue,double);
   //@}
 
+  /**
+   * Returns the output of the filter downcast to a vtkDataSet or nullptr if the
+   * cast fails.
+   */
+  vtkDataSet* GetDataSetOutput();
+
 protected:
   vtkArrayCalculator();
   ~vtkArrayCalculator() VTK_OVERRIDE;
+
+  int FillInputPortInformation(int, vtkInformation*);
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 

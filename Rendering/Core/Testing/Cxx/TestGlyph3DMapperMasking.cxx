@@ -62,8 +62,8 @@ int TestGlyph3DMapperMasking(int argc, char *argv[])
   calc->SetFunction("Elevation>0.2 & Elevation<0.4");
   calc->Update();
 
-  calc->GetOutput()->GetPointData()->GetArray("mask");
-  calc->GetOutput()->GetPointData()->SetActiveScalars("Elevation");
+  vtkDataSet::SafeDownCast(calc->GetOutput())->GetPointData()->GetArray("mask");
+  vtkDataSet::SafeDownCast(calc->GetOutput())->GetPointData()->SetActiveScalars("Elevation");
 
   vtkActor *planeActor=vtkActor::New();
   planeActor->SetMapper(planeMapper);
