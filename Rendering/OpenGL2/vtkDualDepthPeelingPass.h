@@ -275,7 +275,6 @@ protected:
   vtkOpenGLVertexArrayObject *BlendVAO;
   vtkOpenGLBufferObject *BlendVBO;
 
-  vtkOpenGLFramebufferObject *Framebuffer;
   vtkTextureObject *Textures[NumberOfTextures];
 
   TextureName FrontSource; // The current front source buffer

@@ -14,11 +14,9 @@
 =========================================================================*/
 /**
  * @class   vtkDepthPeelingPass
- * @brief   Implement an Order Independent Transparency
- * render pass.
+ * @brief   Implement Depth Peeling for use within a frambuffer pass
  *
- *
- * Note that this implementation is only used as a fallback for drivers that
+ * Note that this implementation is used as a fallback for drivers that
  * don't support floating point textures. Most renderings will use the subclass
  * vtkDualDepthPeelingPass instead.
  *
@@ -37,8 +35,16 @@
  *
  * Its delegate is usually set to a vtkTranslucentPass.
  *
+ * This implementation makes use of textures and is suitable for ES3
+ * For ES3 it must be embedded within a pass that makes use of framebuffers
+ * so that the required OpaqueZTexture and OpaqueRGBATexture can be
+ * passed from the outer frambuffer pass. For OpenGL ES3 be aware the
+ * occlusion ratio test is not supported. The maximum number of peels
+ * is used instead so set it to a reasonable value. For many scenes
+ * a value of 4 or 5 will work well.
+ *
  * @sa
- * vtkRenderPass, vtkTranslucentPass
+ * vtkRenderPass, vtkTranslucentPass, vtkFramebufferPass
 */
 
 #ifndef vtkDepthPeelingPass_h
@@ -48,6 +54,7 @@
 #include "vtkOpenGLRenderPass.h"
 #include <vector>  // STL Header
 
+class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
 class vtkOpenGLHelper;
@@ -108,14 +115,6 @@ public:
   vtkGetMacro(MaximumNumberOfPeels,int);
   //@}
 
-  /**
-   * Is rendering at translucent geometry stage using depth peeling and
-   * rendering a layer other than the first one? (Boolean value)
-   * If so, the uniform variables UseTexture and Texture can be set.
-   * (Used by vtkOpenGLProperty or vtkOpenGLTexture)
-   * int GetDepthPeelingHigherLayer();
-   */
-
   // vtkOpenGLRenderPass virtuals:
   bool PostReplaceShaderValues(std::string &vertexShader,
                                    std::string &geometryShader,
@@ -125,6 +124,18 @@ public:
   bool SetShaderParameters(vtkShaderProgram *program,
                            vtkAbstractMapper *mapper, vtkProp *prop,
                            vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
+
+  // Set Opaque Z texture, this must be set from the outer FO
+  void SetOpaqueZTexture(vtkTextureObject *);
+
+  // Set Opaque RGBA texture, this must be set from the outer FO
+  void SetOpaqueRGBATexture(vtkTextureObject *);
+
+  /**
+   *  Set the format to use for the depth texture
+   * e.g. vtkTextureObject::Float32
+   */
+  vtkSetMacro(DepthFormat, int);
 
  protected:
   /**
@@ -168,21 +179,25 @@ public:
    */
   int MaximumNumberOfPeels;
 
-  // Is rendering at translucent geometry stage using depth peeling and
-  // rendering a layer other than the first one? (Boolean value)
-  // If so, the uniform variables UseTexture and Texture can be set.
-  // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
-  int DepthPeelingHigherLayer;
+  vtkOpenGLFramebufferObject *Framebuffer;
 
   vtkOpenGLHelper *FinalBlendProgram;
   vtkOpenGLHelper *IntermediateBlendProgram;
 
+  // obtained from the outer FO, we read from them
   vtkTextureObject *OpaqueZTexture;
   vtkTextureObject *OpaqueRGBATexture;
-  vtkTextureObject *TranslucentRGBATexture;
-  vtkTextureObject *TranslucentZTexture;
-  vtkTextureObject *CurrentRGBATexture;
-  std::vector<float> *DepthZData;
+  bool OwnOpaqueZTexture;
+  bool OwnOpaqueRGBATexture;
+
+  // each peel merges two color buffers into one result
+  vtkTextureObject *TranslucentRGBATexture[3];
+  int ColorDrawCount;
+  int PeelCount;
+
+  // each peel compares a prior Z and writes to next
+  vtkTextureObject *TranslucentZTexture[2];
+  int DepthFormat;
 
   void BlendIntermediatePeels(vtkOpenGLRenderWindow *renWin, bool);
   void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);

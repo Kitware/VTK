@@ -18,7 +18,7 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
-#include "vtkFramebufferDepthPeelingPass.h"
+#include "vtkDepthPeelingPass.h"
 #include "vtkFramebufferPass.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderer.h"
@@ -101,7 +101,7 @@ int TestFramebufferPass(int argc, char *argv[])
 
   // replace the default translucent pass with
   // a more advanced depth peeling pass
-  vtkNew<vtkFramebufferDepthPeelingPass> peeling;
+  vtkNew<vtkDepthPeelingPass> peeling;
   peeling->SetMaximumNumberOfPeels(5); // 4 + alpha blend
   peeling->SetOcclusionRatio(0.0);
   peeling->SetTranslucentPass(basicPasses->GetTranslucentPass());
@@ -117,6 +117,8 @@ int TestFramebufferPass(int argc, char *argv[])
   vtkOpenGLRenderer *glrenderer =
     vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
   glrenderer->SetPass(fop.Get());
+
+//  renderer->SetViewport(0.1,0.1,0.3,0.3);
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -139,6 +141,11 @@ int TestFramebufferPass(int argc, char *argv[])
   unsigned int numTris = reader->GetOutput()->GetPolys()->GetNumberOfCells();
   cerr << "number of triangles: " <<  numTris << endl;
   cerr << "triangles per second: " <<  numTris*(numRenders/elapsed) << endl;
+
+//  renderWindow->RemoveRenderer(renderer.Get());
+//  renderWindow->AddRenderer(renderer.Get());
+
+//  renderer->SetViewport(0.0,0.0,0.9,0.9);
 
   renderer->GetActiveCamera()->SetPosition(0,0,1);
   renderer->GetActiveCamera()->SetFocalPoint(0,0,0);

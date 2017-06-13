@@ -179,6 +179,11 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
+
+  // The internal actor needs to share property keys. This allows depth peeling
+  // etc to work.
+  this->Device->SetPropertyKeys(this->GetPropertyKeys());
+
   this->Device->Render(ren, bestMapper);
   this->EstimatedRenderTime = bestMapper->GetTimeToDraw();
 }

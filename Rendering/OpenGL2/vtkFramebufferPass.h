@@ -81,6 +81,16 @@ public:
   vtkTextureObject *ColorTexture; // render target for the scene
   vtkTextureObject *DepthTexture; // render target for the depth
 
+  //@{
+  /**
+   * Cache viewport values for depth peeling.
+   */
+  int ViewportX;
+  int ViewportY;
+  int ViewportWidth;
+  int ViewportHeight;
+  //@}
+
   int DepthFormat;
 
  private:

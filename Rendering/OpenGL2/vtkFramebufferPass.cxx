@@ -89,27 +89,39 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
   }
 
   // 1. Create a new render state with an FO.
-
-  int size[2];
-  s->GetWindowSize(size);
+  if(s->GetFrameBuffer()==0)
+  {
+    // get the viewport dimensions
+    r->GetTiledSizeAndOrigin(&this->ViewportWidth,&this->ViewportHeight,
+                             &this->ViewportX,&this->ViewportY);
+  }
+  else
+  {
+    int size[2];
+    s->GetWindowSize(size);
+    this->ViewportWidth=size[0];
+    this->ViewportHeight=size[1];
+    this->ViewportX=0;
+    this->ViewportY=0;
+  }
 
   this->ColorTexture->SetContext(renWin);
-  if(this->ColorTexture->GetWidth() != static_cast<unsigned int>(size[0]) ||
-     this->ColorTexture->GetHeight() != static_cast<unsigned int>(size[1]))
+  if (!this->ColorTexture->GetHandle())
   {
-    this->ColorTexture->Create2D(static_cast<unsigned int>(size[0]),
-                          static_cast<unsigned int>(size[1]),4,
-                          VTK_UNSIGNED_CHAR, false);
+    this->ColorTexture->Create2D(
+      this->ViewportWidth, this->ViewportHeight, 4,
+      VTK_UNSIGNED_CHAR, false);
   }
+  this->ColorTexture->Resize(this->ViewportWidth, this->ViewportHeight);
 
   // Depth texture
   this->DepthTexture->SetContext(renWin);
-  if (this->DepthTexture->GetWidth() != static_cast<unsigned int> (size[0])
-      || this->DepthTexture->GetHeight() != static_cast<unsigned int> (size[1]))
+  if (!this->DepthTexture->GetHandle())
   {
     this->DepthTexture->AllocateDepth(
-      size[0], size[1], this->DepthFormat);
+      this->ViewportWidth, this->ViewportHeight, this->DepthFormat);
   }
+  this->DepthTexture->Resize(this->ViewportWidth, this->ViewportHeight);
 
   if(this->FrameBufferObject==0)
   {
@@ -118,7 +130,9 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
   }
 
   this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
-  this->RenderDelegate(s, size[0], size[1], size[0], size[1],
+  this->RenderDelegate(s,
+    this->ViewportWidth, this->ViewportHeight,
+    this->ViewportWidth, this->ViewportHeight,
     this->FrameBufferObject,
     this->ColorTexture, this->DepthTexture);
 
@@ -131,9 +145,16 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
   this->FrameBufferObject->Bind(
     this->FrameBufferObject->GetReadMode());
 
+  glViewport(this->ViewportX, this->ViewportY,
+    this->ViewportWidth, this->ViewportHeight);
+  glScissor(this->ViewportX, this->ViewportY,
+    this->ViewportWidth, this->ViewportHeight);
+
   glBlitFramebuffer(
-    0, 0, size[0], size[1],
-    0, 0, size[0], size[1],
+    0, 0, this->ViewportWidth, this->ViewportHeight,
+    this->ViewportX, this->ViewportY,
+    this->ViewportX + this->ViewportWidth,
+    this->ViewportY + this->ViewportHeight,
     GL_COLOR_BUFFER_BIT,
     GL_LINEAR);
 
