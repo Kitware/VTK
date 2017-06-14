@@ -68,9 +68,8 @@ public:
   // Description:
   // Specify file name of Wavefront .obj file.
   void SetFileName(const char* arg)
-  { // by default assume prefix.obj => prefix.obj.mtl
+  {
     FileName    = std::string(arg);
-    MTLFileName = FileName + ".mtl";
   }
   void SetMTLfileName( const char* arg )
   {
