@@ -203,6 +203,7 @@ struct CellListUnstructuredInVTK
 struct CellListUnstructuredOutVTK
     : vtkm::ListTagBase<
           vtkm::cont::CellSetExplicit<>, vtkm::cont::CellSetSingleType<>,
+          vtkm::cont::vtkmCellSetExplicitAOS, vtkm::cont::vtkmCellSetSingleType,
           vtkm::cont::CellSetPermutation<vtkm::cont::vtkmCellSetExplicitAOS>,
           vtkm::cont::CellSetPermutation<vtkm::cont::vtkmCellSetSingleType>>
 {

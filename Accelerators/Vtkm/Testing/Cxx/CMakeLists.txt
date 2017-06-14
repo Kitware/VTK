@@ -12,6 +12,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx
+  TestVTKMPolyDataNormals.cxx
   TestVTKMThreshold.cxx
   TestVTKMThreshold2.cxx
   )

@@ -43,6 +43,7 @@ set(headers
   vtkmLevelOfDetail.h
   vtkmAverageToCells.h
   vtkmGradient.h
+  vtkmPolyDataNormals.h
   )
 
 #implementation of the algorithms for cpu accelerators
@@ -60,6 +61,7 @@ set(cpu_accelerator_srcs
   vtkmCellSetSingleType.cxx
   vtkmConnectivityExec.cxx
   vtkmGradient.cxx
+  vtkmPolyDataNormals.cxx
   vtkmlib/Portals.cxx
   vtkmlib/ImplicitFunctionConverter.cxx
   )
@@ -79,6 +81,7 @@ set(cuda_accelerator_srcs
   vtkmCellSetSingleType.cu
   vtkmConnectivityExec.cu
   vtkmGradient.cu
+  vtkmPolyDataNormals.cu
   vtkmlib/Portals.cu
   vtkmlib/ImplicitFunctionConverter.cu
   )
