@@ -10,7 +10,7 @@
 set(VTK_BUILD_FORWARDING_EXECUTABLES FALSE)
 vtk_module_export_info()
 
-IF(NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
+IF(NOT VTK_COMPILE_TOOLS_IMPORTED)
   VTK_ADD_EXECUTABLE(vtkEncodeString vtkEncodeString.cxx)
   vtk_compile_tools_target(vtkEncodeString)
 ENDIF()
