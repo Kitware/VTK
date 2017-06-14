@@ -485,6 +485,20 @@ public:
   static vtkInformationDoubleVectorKey* L2_NORM_RANGE();
 
   /**
+   * This key is used to hold tight bounds on the $L_2$ norm
+   * of tuples in the array.
+   * Two values (a minimum and maximum) are stored for each component.
+   * When GetFiniteRange() is called when no tuples are present in the array
+   * this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
+   */
+  static vtkInformationDoubleVectorKey* L2_NORM_FINITE_RANGE();
+
+  /**
+   * Removes out-of-date L2_NORM_RANGE() and L2_NORM_FINITE_RANGE() values.
+   */
+  void Modified() VTK_OVERRIDE;
+
+  /**
    * A human-readable string indicating the units for the array data.
    */
   static vtkInformationStringKey *UNITS_LABEL();
@@ -506,22 +520,6 @@ public:
 protected:
 
   friend class vtkPoints;
-
-  /**
-   * Get an information object that can be used to annotate the array.
-   * Information stored here should ignore NaN and infinity.
-   * This will always return an instance of vtkInformation, if one is
-   * not currently associated with the array it will be created.
-   */
-  vtkInformation* GetFiniteInformation();
-
-  /**
-   * Set an information object that can be used to annotate the array.
-   * Information stored here should ignore NaN and infinity.
-   * Use this with caution as array instances depend on persistence of
-   * information keys.
-   */
-  void SetFiniteInformation(vtkInformation *args);
 
   /**
    * Compute the range for a specific component. If comp is set -1
@@ -572,7 +570,6 @@ protected:
   vtkLookupTable *LookupTable;
   double Range[2];
   double FiniteRange[2];
-  vtkInformation *FiniteInformation;
 
 private:
   double* GetTupleN(vtkIdType i, int n);

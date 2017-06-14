@@ -51,6 +51,7 @@
 
 vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
 vtkInformationKeyMacro(vtkAbstractArray, PER_COMPONENT, InformationVector);
+vtkInformationKeyMacro(vtkAbstractArray, PER_FINITE_COMPONENT, InformationVector);
 vtkInformationKeyMacro(vtkAbstractArray, DISCRETE_VALUES, VariantVector);
 vtkInformationKeyRestrictedMacro(vtkAbstractArray, DISCRETE_VALUE_SAMPLE_PARAMETERS, DoubleVector, 2);
 
@@ -298,16 +299,22 @@ int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, int deep)
 
   // Remove any keys we own that are not to be copied here.
   // For now, remove per-component metadata.
-  if (myInfo->Has(PER_COMPONENT()))
-  {
-    myInfo->Remove(PER_COMPONENT());
-  }
-  if (myInfo->Has(DISCRETE_VALUES()))
-  {
-    myInfo->Remove(DISCRETE_VALUES());
-  }
+  myInfo->Remove(PER_COMPONENT());
+  myInfo->Remove(PER_FINITE_COMPONENT());
+  myInfo->Remove(DISCRETE_VALUES());
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+// call modified on superclass
+void vtkAbstractArray::Modified()
+{
+    vtkInformation *info = this->GetInformation();
+    // Clear key-value pairs that are now out of date.
+    info->Remove(PER_COMPONENT());
+    info->Remove(PER_FINITE_COMPONENT());
+    this->Superclass::Modified();
 }
 
 //----------------------------------------------------------------------------
