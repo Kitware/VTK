@@ -341,6 +341,12 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
   }
   else   // depth peeling.
   {
+#if GL_ES_VERSION_3_0 == 1
+    vtkErrorMacro("Built in Dual Depth Peeling is not supported on ES3. "
+      "Please see TestFramebufferPass.cxx for an example that should work "
+      "on OpenGL ES 3.");
+    this->UpdateTranslucentPolygonalGeometry();
+#else
     if (!this->DepthPeelingPass)
     {
       if (this->IsDualDepthPeelingSupported())
@@ -395,6 +401,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     this->LastRenderingUsedDepthPeeling=1;
     this->DepthPeelingPass->Render(&s);
     this->NumberOfPropsRendered += this->DepthPeelingPass->GetNumberOfRenderedProps();
+#endif
   }
 
   vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
@@ -884,10 +891,11 @@ bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
   // Dual depth peeling requires:
   // - float textures (ARB_texture_float)
   // - RG textures (ARB_texture_rg)
-  // - MAX blending (not available in ES2, but added in ES3).
+  // - MAX blending (added in ES3).
+  // requires that RG textures be color renderable (they are not in ES3)
 #if GL_ES_VERSION_3_0 == 1
-  // ES3 is supported:
-  bool dualDepthPeelingSupported = true;
+  // ES3 is not supported, see TestFramebufferPass.cxx for how to do it
+  bool dualDepthPeelingSupported = false;
 #else
   bool dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
       (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);

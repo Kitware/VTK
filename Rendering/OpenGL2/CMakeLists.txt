@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkDepthPeelingPass.cxx
   vtkDualDepthPeelingPass.cxx
   vtkEDLShading.cxx
+  vtkFramebufferPass.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
   vtkHiddenLineRemovalPass.cxx

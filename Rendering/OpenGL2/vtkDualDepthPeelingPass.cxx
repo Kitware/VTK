@@ -792,7 +792,6 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
     BlendProgram(NULL),
     BlendVAO(NULL),
     BlendVBO(NULL),
-    Framebuffer(NULL),
     FrontSource(FrontA),
     FrontDestination(FrontB),
     DepthSource(DepthA),
@@ -853,12 +852,9 @@ template <typename T> void DeleteHelper(T *& ptr)
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::FreeGLObjects()
 {
-  if (this->Framebuffer)
+  for (int i = 0; i < static_cast<int>(NumberOfTextures); ++i)
   {
-    this->Framebuffer->Delete();
-    this->Framebuffer = NULL;
-
-    for (int i = 0; i < static_cast<int>(NumberOfTextures); ++i)
+    if (this->Textures[i])
     {
       this->Textures[i]->Delete();
       this->Textures[i] = NULL;
