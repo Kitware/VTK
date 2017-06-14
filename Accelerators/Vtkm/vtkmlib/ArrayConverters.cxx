@@ -32,6 +32,44 @@
 
 namespace tovtkm {
 
+void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
+                   tovtkm::FieldsFlag fields)
+{
+  if ((fields & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::None)
+  {
+    vtkPointData* pd = input->GetPointData();
+    for (vtkIdType i = 0; i < pd->GetNumberOfArrays(); i++)
+    {
+      vtkDataArray* array = pd->GetArray(i);
+      if (array == nullptr)
+      {
+        continue;
+      }
+
+      vtkm::cont::Field pfield =
+          tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      dataset.AddField(pfield);
+    }
+  }
+
+  if ((fields & tovtkm::FieldsFlag::Cells) != tovtkm::FieldsFlag::None)
+  {
+    vtkCellData* cd = input->GetCellData();
+    for (vtkIdType i = 0; i < cd->GetNumberOfArrays(); i++)
+    {
+      vtkDataArray* array = cd->GetArray(i);
+      if (array == nullptr)
+      {
+        continue;
+      }
+
+      vtkm::cont::Field cfield =
+          tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      dataset.AddField(cfield);
+    }
+  }
+}
+
 template <typename DataArrayType>
 vtkm::cont::Field ConvertPointField(DataArrayType* input)
 {

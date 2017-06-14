@@ -16,6 +16,9 @@
 #define vtkmlib_ImageDataConverter_h
 
 #include "vtkAcceleratorsVTKmModule.h"
+
+#include "ArrayConverters.h" // for FieldsFlag
+
 #include "vtkmConfig.h" //required for general vtkm setup
 
 #include <vtkm/cont/DataSet.h>
@@ -26,7 +29,8 @@ class vtkDataSet;
 namespace tovtkm {
 
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DataSet Convert(vtkImageData* input);
+vtkm::cont::DataSet Convert(vtkImageData* input,
+                            FieldsFlag fields = FieldsFlag::None);
 
 }
 

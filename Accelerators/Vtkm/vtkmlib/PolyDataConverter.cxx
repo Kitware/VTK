@@ -41,7 +41,7 @@ namespace tovtkm {
 
 //------------------------------------------------------------------------------
 // convert an polydata type
-vtkm::cont::DataSet Convert(vtkPolyData* input)
+vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
 {
   // the poly data is an interesting issue with the fact that the
   // vtk datastructure can contain multiple types.
@@ -123,6 +123,9 @@ vtkm::cont::DataSet Convert(vtkPolyData* input)
   {
     //todo: we need to convert a mixed type which
   }
+
+  ProcessFields(input, dataset, fields);
+
   return dataset;
 }
 

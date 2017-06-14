@@ -33,7 +33,6 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
@@ -100,7 +99,7 @@ vtkm::cont::CoordinateSystem Convert(vtkPoints *points)
 
 //------------------------------------------------------------------------------
 // convert an structured grid type
-vtkm::cont::DataSet Convert(vtkStructuredGrid *input)
+vtkm::cont::DataSet Convert(vtkStructuredGrid *input, FieldsFlag fields)
 {
   const int dimensionality = input->GetDataDimension();
   int dims[3]; input->GetDimensions(dims);
@@ -129,26 +128,28 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid *input)
     vtkm::cont::CellSetStructured<3> cells("cells");
     cells.SetPointDimensions(vtkm::make_Vec(dims[0],dims[1],dims[2]));
     dataset.AddCellSet(cells);
-
   }
+
+  ProcessFields(input, dataset, fields);
+
   return dataset;
 }
 
 //------------------------------------------------------------------------------
 // determine the type and call the proper Convert routine
-vtkm::cont::DataSet Convert(vtkDataSet *input)
+vtkm::cont::DataSet Convert(vtkDataSet *input, FieldsFlag fields)
 {
   switch (input->GetDataObjectType())
   {
   case VTK_UNSTRUCTURED_GRID:
-    return Convert(vtkUnstructuredGrid::SafeDownCast(input));
+    return Convert(vtkUnstructuredGrid::SafeDownCast(input), fields);
   case VTK_STRUCTURED_GRID:
-    return Convert(vtkStructuredGrid::SafeDownCast(input));
+    return Convert(vtkStructuredGrid::SafeDownCast(input), fields);
   case VTK_UNIFORM_GRID:
   case VTK_IMAGE_DATA:
-    return Convert(vtkImageData::SafeDownCast(input));
+    return Convert(vtkImageData::SafeDownCast(input), fields);
   case VTK_POLY_DATA:
-    return Convert(vtkPolyData::SafeDownCast(input));
+    return Convert(vtkPolyData::SafeDownCast(input), fields);
 
   case VTK_UNSTRUCTURED_GRID_BASE:
   case VTK_RECTILINEAR_GRID:
