@@ -529,6 +529,7 @@ static int vtkWrapPython_IsValueWrappable(
   {
     if (vtkWrap_IsCharPointer(val) ||
         vtkWrap_IsVoidPointer(val) ||
+        vtkWrap_IsZeroCopyPointer(val) ||
         vtkWrap_IsPODPointer(val))
     {
       return 1;

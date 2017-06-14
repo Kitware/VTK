@@ -162,13 +162,15 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 //--------------------------------------------------------------------
 // Overloaded methods, mostly based on the above templates
 
+// Get a void pointer to the contents of a buffer of type "btype", where
+// btype one of the type characters defined in the python "struct" module.
 static bool vtkPythonGetValue(
-  PyObject *o, const void *&a, Py_buffer *view)
+  PyObject *o, const void *&a, Py_buffer *view, char btype)
 {
   void *p = 0;
   Py_ssize_t sz = 0;
-#ifndef VTK_PY3K
   const char *format = 0;
+#ifndef VTK_PY3K
   PyBufferProcs *b = Py_TYPE(o)->tp_as_buffer;
 #endif
 
@@ -186,16 +188,37 @@ static bool vtkPythonGetValue(
 #endif
   if (PyObject_CheckBuffer(o))
   {
-    // use the new buffer interface
-    if (PyObject_GetBuffer(o, view, PyBUF_SIMPLE) == -1)
+    int flags = (PyBUF_ANY_CONTIGUOUS | PyBUF_FORMAT);
+    if (btype == '\0')
+    {
+      // if btype indicates "void *", use simple buffer
+      flags = PyBUF_SIMPLE;
+    }
+    // use the modern python buffer interface
+    if (PyObject_GetBuffer(o, view, flags) == -1)
     {
       return false;
     }
     p = view->buf;
     sz = view->len;
-#ifndef VTK_PY3K
     format = view->format;
-#endif
+    // check to see if the type is compatible
+    if (btype != '\0')
+    {
+      // if "btype" is set, then check type compatibility
+      char vtype = (format ? format[0] : 'B');
+      if (vtype == '@')
+      {
+        vtype = format[1];
+      }
+      if (btype != vtype)
+      {
+        PyErr_Format(PyExc_TypeError,
+          "incorrect buffer type, expected %c but received %s",
+          btype, (format ? format : "B"));
+        return false;
+      }
+    }
   }
 #ifndef VTK_PY3K
   else
@@ -218,9 +241,9 @@ static bool vtkPythonGetValue(
 #endif
 
 #ifdef VTK_PY3K
-  if (bytes)
+  if (bytes && btype == '\0')
 #else
-  if (p && sz >= 0 && sz <= VTK_INT_MAX &&
+  if (p && sz >= 0 && sz <= VTK_INT_MAX && btype == '\0' &&
       (format == 0 || format[0] == 'c' || format[0] == 'B'))
 #endif
   {
@@ -258,12 +281,13 @@ static bool vtkPythonGetValue(
 }
 
 inline
-bool vtkPythonGetValue(PyObject *o, void *&a, Py_buffer *buf)
+bool vtkPythonGetValue(
+  PyObject *o, void *&a, Py_buffer *buf, char btype)
 {
   // should have an alternate form for non-const "void *" that uses
   // writebuffer instead of readbuffer, but that would break existing code
   const void *b = NULL;
-  bool r = vtkPythonGetValue(o, b, buf);
+  bool r = vtkPythonGetValue(o, b, buf, btype);
   a = const_cast<void *>(b);
   return r;
 }
@@ -1105,25 +1129,70 @@ bool vtkPythonArgs::GetFunction(PyObject *&o)
 //--------------------------------------------------------------------
 // Define the void pointer GetValue method
 
-#define VTK_PYTHON_GET_BUFFER(T) \
-bool vtkPythonArgs::GetBuffer(T &a, Py_buffer *buf) \
+#define VTK_PYTHON_GET_BUFFER(T, btype) \
+bool vtkPythonArgs::GetBuffer(T* &a, Py_buffer *buf) \
 { \
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
-  if (vtkPythonGetValue(o, a, buf)) \
+  void *v; \
+  if (vtkPythonGetValue(o, v, buf, btype)) \
   { \
+    a = static_cast<T *>(v); \
     return true; \
   } \
   this->RefineArgTypeError(this->I - this->M - 1); \
   return false; \
 } \
  \
-bool vtkPythonArgs::GetBuffer(PyObject *o, T &a, Py_buffer *buf) \
+bool vtkPythonArgs::GetBuffer(const T* &a, Py_buffer *buf) \
 { \
-  return vtkPythonGetValue(o, a, buf); \
+  PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
+  const void *v; \
+  if (vtkPythonGetValue(o, v, buf, btype)) \
+  { \
+    a = static_cast<const T *>(v); \
+    return true; \
+  } \
+  this->RefineArgTypeError(this->I - this->M - 1); \
+  return false; \
+} \
+ \
+bool vtkPythonArgs::GetBuffer(PyObject *o, T* &a, Py_buffer *buf) \
+{ \
+  void *v; \
+  if (vtkPythonGetValue(o, v, buf, btype)) \
+  { \
+    a = static_cast<T *>(v); \
+    return true; \
+  } \
+  return false; \
+} \
+ \
+bool vtkPythonArgs::GetBuffer(PyObject *o, const T* &a, Py_buffer *buf) \
+{ \
+  const void *v; \
+  if (vtkPythonGetValue(o, v, buf, btype)) \
+  { \
+    a = static_cast<const T *>(v); \
+    return true; \
+  } \
+  return false; \
 }
 
-VTK_PYTHON_GET_BUFFER(void *)
-VTK_PYTHON_GET_BUFFER(const void *)
+VTK_PYTHON_GET_BUFFER(void, '\0')
+VTK_PYTHON_GET_BUFFER(float, 'f')
+VTK_PYTHON_GET_BUFFER(double, 'd')
+VTK_PYTHON_GET_BUFFER(bool, '\?')
+VTK_PYTHON_GET_BUFFER(char, 'c')
+VTK_PYTHON_GET_BUFFER(signed char, 'b')
+VTK_PYTHON_GET_BUFFER(unsigned char, 'B')
+VTK_PYTHON_GET_BUFFER(short, 'h')
+VTK_PYTHON_GET_BUFFER(unsigned short, 'H')
+VTK_PYTHON_GET_BUFFER(int, 'i')
+VTK_PYTHON_GET_BUFFER(unsigned int, 'I')
+VTK_PYTHON_GET_BUFFER(long, 'l')
+VTK_PYTHON_GET_BUFFER(unsigned long, 'L')
+VTK_PYTHON_GET_BUFFER(long long, 'q')
+VTK_PYTHON_GET_BUFFER(unsigned long long, 'Q')
 
 //--------------------------------------------------------------------
 // Define all the SetArgValue methods for setting reference args

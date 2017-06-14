@@ -76,8 +76,9 @@
 /**
  * Attributes (used for hints)
  */
-#define VTK_PARSE_ATTRIBUTES  0x01000000
+#define VTK_PARSE_ATTRIBUTES  0x03000000
 #define VTK_PARSE_NEWINSTANCE 0x01000000
+#define VTK_PARSE_ZEROCOPY    0x02000000
 
 /**
  * Special
@@ -90,7 +91,7 @@
 /**
  * Mask for removing qualifiers
  */
-#define VTK_PARSE_QUALIFIED_TYPE   0x01FFFFFF
+#define VTK_PARSE_QUALIFIED_TYPE   0x03FFFFFF
 #define VTK_PARSE_UNQUALIFIED_TYPE 0x0000FFFF
 
 /**

@@ -136,7 +136,7 @@ public:
    * that size is the number of tuples in the array.
    * \c size is specified in number of elements of ScalarType.
    */
-  void SetArray(int comp, ValueType* array, vtkIdType size,
+  void SetArray(int comp, VTK_ZEROCOPY ValueType* array, vtkIdType size,
                 bool updateMaxId = false, bool save=false,
                 int deleteMethod=VTK_DATA_ARRAY_FREE);
 

@@ -71,7 +71,12 @@ int vtkWrap_IsPODPointer(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
   return (t != VTK_PARSE_CHAR && vtkWrap_IsNumeric(val) &&
-          vtkWrap_IsPointer(val));
+          vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) == 0);
+}
+
+int vtkWrap_IsZeroCopyPointer(ValueInfo *val)
+{
+  return (vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) != 0);
 }
 
 int vtkWrap_IsVTKObject(ValueInfo *val)
@@ -1033,6 +1038,7 @@ void vtkWrap_DeclareVariable(
     }
     /* arrays of unknown size are handled via pointers */
     else if (val->CountHint || vtkWrap_IsPODPointer(val) ||
+             vtkWrap_IsZeroCopyPointer(val) ||
              (vtkWrap_IsArray(val) && val->Value))
     {
       fprintf(fp, "*");
