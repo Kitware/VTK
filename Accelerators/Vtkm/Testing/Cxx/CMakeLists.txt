@@ -12,8 +12,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx
+  TestVTKMPolyDataNormals.cxx
   TestVTKMThreshold.cxx
   TestVTKMThreshold2.cxx
+  TestVTKMTriangleMeshPointNormals.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests
   RENDERING_FACTORY
