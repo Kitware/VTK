@@ -42,7 +42,7 @@ namespace tovtkm {
 
 //------------------------------------------------------------------------------
 // convert an unstructured grid type
-vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input)
+vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
 {
   // This will need to use the custom storage and portals so that
   // we can efficiently map between VTK and VTKm
@@ -71,6 +71,8 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input)
                 numPoints);
     dataset.AddCellSet(cells);
   }
+
+  ProcessFields(input, dataset, fields);
 
   return dataset;
 }

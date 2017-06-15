@@ -29,7 +29,7 @@ namespace tovtkm {
 
 //------------------------------------------------------------------------------
 // convert an image data type
-vtkm::cont::DataSet Convert(vtkImageData *input)
+vtkm::cont::DataSet Convert(vtkImageData *input, FieldsFlag fields)
 {
   int extent[6];
   input->GetExtent(extent);
@@ -51,6 +51,8 @@ vtkm::cont::DataSet Convert(vtkImageData *input)
 
   vtkm::cont::DataSet dataset =
       vtkm::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
+
+  ProcessFields(input, dataset, fields);
 
   return dataset;
 }
