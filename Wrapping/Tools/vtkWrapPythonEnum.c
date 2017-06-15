@@ -16,6 +16,7 @@
 #include "vtkWrapPythonEnum.h"
 
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -225,14 +226,23 @@ void vtkWrapPython_AddPublicEnumTypes(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   NamespaceInfo *data)
 {
+  char text[1024];
+  const char *pythonname = data->Name;
   int i;
+
+  if (data->Name)
+  {
+    /* convert C++ class names to a python-friendly format */
+    vtkWrapText_PythonName(data->Name, text);
+    pythonname = text;
+  }
 
   for (i = 0; i < data->NumberOfEnums; i++)
   {
     if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
     {
       vtkWrapPython_AddEnumType(
-        fp, indent, dictvar, objvar, data->Name, data->Enums[i]);
+        fp, indent, dictvar, objvar, pythonname, data->Enums[i]);
       fprintf(fp, "\n");
     }
   }

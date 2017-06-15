@@ -192,6 +192,7 @@ SET(Module_SRCS
   vtkGarbageCollector.cxx
   vtkGarbageCollectorManager.cxx
   vtkGaussianRandomSequence.cxx
+  vtkGenericDataArray.txx
   vtkIdListCollection.cxx
   vtkIdList.cxx
   vtkIdTypeArray.cxx
@@ -309,9 +310,7 @@ set(${vtk-module}_HDRS
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplate.h
-  vtkGenericDataArray.h
   vtkGenericDataArrayLookupHelper.h
-  vtkGenericDataArray.txx
   vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
@@ -322,7 +321,6 @@ set(${vtk-module}_HDRS
   vtkPeriodicDataArray.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSOADataArrayTemplate.h
   vtkSOADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
   vtkTestDataArray.h
@@ -612,7 +610,6 @@ set_source_files_properties(
   vtkOldStyleCallbackCommand.cxx
   vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
-  vtkSOADataArrayTemplate.h
   vtkSOADataArrayTemplate.txx
   vtkSOADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
@@ -635,6 +632,7 @@ set_source_files_properties(
   vtkAtomicTypes.h
   vtkAutoInit.h
   vtkDenseArray.txx
+  vtkGenericDataArray.txx
   vtkGenericDataArrayHelpers.h
   vtkInformationInternals.h
   vtkIOStream.h
@@ -690,7 +688,6 @@ set_source_files_properties(
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSmartPointerBase.h
-  vtkSOADataArrayTemplate.txx
   vtkSOADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
   vtkUnicodeString.cxx

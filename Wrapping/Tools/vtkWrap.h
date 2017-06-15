@@ -39,6 +39,7 @@ extern "C" {
 /**
  * Check for common types.
  * IsPODPointer is for unsized arrays of POD types.
+ * IsZeroCopyPointer is for buffers that shouldn't be copied.
  */
 /*@{*/
 int vtkWrap_IsVoid(ValueInfo *val);
@@ -46,6 +47,7 @@ int vtkWrap_IsVoidFunction(ValueInfo *val);
 int vtkWrap_IsVoidPointer(ValueInfo *val);
 int vtkWrap_IsCharPointer(ValueInfo *val);
 int vtkWrap_IsPODPointer(ValueInfo *val);
+int vtkWrap_IsZeroCopyPointer(ValueInfo *val);
 int vtkWrap_IsVTKObject(ValueInfo *val);
 int vtkWrap_IsSpecialObject(ValueInfo *val);
 int vtkWrap_IsPythonObject(ValueInfo *val);

@@ -11361,6 +11361,8 @@ const char *add_const_scope(const char *name)
 {
   static char text[256];
   NamespaceInfo *scope = currentNamespace;
+  TemplateInfo *tparams;
+  const char *classname;
   int i, j;
   int addscope = 0;
 
@@ -11372,8 +11374,24 @@ const char *add_const_scope(const char *name)
     {
       if (strcmp(currentClass->Constants[j]->Name, text) == 0)
       {
-        prepend_scope(text, currentClass->Name);
+        classname = currentClass->Name;
+        tparams = currentClass->Template;
+        if (tparams)
+        {
+          classname = vtkstrcat(classname, "<");
+          for (i = 0; i < tparams->NumberOfParameters; i++)
+          {
+            if (i != 0)
+            {
+              classname = vtkstrcat(classname, ",");
+            }
+            classname = vtkstrcat(classname, tparams->Parameters[i]->Name);
+          }
+          classname = vtkstrcat(classname, ">");
+        }
+        prepend_scope(text, classname);
         addscope = 1;
+        break;
       }
     }
   }
@@ -11392,6 +11410,7 @@ const char *add_const_scope(const char *name)
         {
           prepend_scope(text, scope->Name);
           addscope = 1;
+          break;
         }
       }
     }
@@ -11688,6 +11707,11 @@ void handle_attribute(const char *att, int pack)
              role == VTK_PARSE_ATTRIB_DECL)
     {
       setTypeMod(VTK_PARSE_NEWINSTANCE);
+    }
+    else if (strcmp(att, "vtk::zerocopy") == 0 &&
+             role == VTK_PARSE_ATTRIB_DECL)
+    {
+      setTypeMod(VTK_PARSE_ZEROCOPY);
     }
     else
     {

@@ -173,7 +173,8 @@ void vtkWrapPython_DeclareVariables(
     }
 
     /* temps for buffer objects */
-    if (vtkWrap_IsVoidPointer(arg))
+    if (vtkWrap_IsVoidPointer(arg) ||
+        vtkWrap_IsZeroCopyPointer(arg))
     {
       fprintf(fp,
               "  Py_buffer pbuf%d = VTK_PYBUFFER_INITIALIZER;\n",
@@ -299,7 +300,8 @@ void vtkWrapPython_GetSingleArgument(
     fprintf(fp, "%sGetFunction(%stemp%d)",
             prefix, argname, i);
   }
-  else if (vtkWrap_IsVoidPointer(arg))
+  else if (vtkWrap_IsVoidPointer(arg) ||
+           vtkWrap_IsZeroCopyPointer(arg))
   {
     fprintf(fp, "%sGetBuffer(%stemp%d, &pbuf%d)",
             prefix, argname, i, i);
@@ -441,9 +443,10 @@ void vtkWrapPython_ReturnValue(
   }
   else if (vtkWrap_IsEnumMember(data, val))
   {
+    vtkWrapText_PythonName(data->Name, pythonname);
     fprintf(fp,
             "      result = Py%s_%s_FromEnum(tempr);\n",
-            data->Name, val->Class);
+            pythonname, val->Class);
   }
   else if (vtkWrap_IsPythonObject(val))
   {
@@ -936,7 +939,8 @@ static void vtkWrapPython_FreeTemporaries(
   {
     arg = currentFunction->Parameters[i];
 
-    if (vtkWrap_IsVoidPointer(arg))
+    if (vtkWrap_IsVoidPointer(arg) ||
+        vtkWrap_IsZeroCopyPointer(arg))
     {
       /* release Py_buffer objects */
       fprintf(fp,

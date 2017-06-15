@@ -168,8 +168,9 @@ public:
    * VTK_DATA_ARRAY_ALIGNED_FREE _aligned_free() will be used on windows, while
    * free() will be used everywhere else. The default is FREE.
    */
-  void SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod);
-  void SetArray(ValueType* array, vtkIdType size, int save);
+  void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save,
+                int deleteMethod);
+  void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save);
   void SetVoidArray(void* array, vtkIdType size, int save) VTK_OVERRIDE;
   void SetVoidArray(void* array, vtkIdType size, int save,
                     int deleteMethod) VTK_OVERRIDE;
@@ -322,17 +323,9 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
   T *GetValueRange(int comp); \
   T *GetValueRange(); \
   T* WritePointer(vtkIdType id, vtkIdType number); \
-  T* GetPointer(vtkIdType id)/*; \
-
-  * These methods are not wrapped to avoid wrappers exposing these
-  * easy-to-get-wrong methods because passing in the wrong value for 'save' is
-  * guaranteed to cause a memory issue down the line. Either the wrappers
-  * didn't use malloc to allocate the memory or the memory isn't actually
-  * persisted because a temporary array is used that doesn't persist like this
-  * method expects.
-
-  void SetArray(T* array, vtkIdType size, int save); \
-  void SetArray(T* array, vtkIdType size, int save, int deleteMethod) */
+  T* GetPointer(vtkIdType id); \
+  void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save); \
+  void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save, int deleteMethod)
 
 #endif // header guard
 

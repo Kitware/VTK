@@ -260,11 +260,69 @@ public:
   static bool GetFunction(PyObject *arg, PyObject *&o);
   //@}
 
-  // Get the next arg as a void pointer (to a buffer object).
+  // Get the next arg as a pointer to a buffer.
   bool GetBuffer(void *&v, Py_buffer *buf);
   static bool GetBuffer(PyObject *o, void *&v, Py_buffer *buf);
   bool GetBuffer(const void *&v, Py_buffer *buf);
   static bool GetBuffer(PyObject *o, const void *&v, Py_buffer *buf);
+  bool GetBuffer(float *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, float *&v, Py_buffer *buf);
+  bool GetBuffer(const float *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const float *&v, Py_buffer *buf);
+  bool GetBuffer(double *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, double *&v, Py_buffer *buf);
+  bool GetBuffer(const double *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const double *&v, Py_buffer *buf);
+  bool GetBuffer(bool *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, bool *&v, Py_buffer *buf);
+  bool GetBuffer(const bool *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const bool *&v, Py_buffer *buf);
+  bool GetBuffer(char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, char *&v, Py_buffer *buf);
+  bool GetBuffer(const char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const char *&v, Py_buffer *buf);
+  bool GetBuffer(signed char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, signed char *&v, Py_buffer *buf);
+  bool GetBuffer(const signed char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const signed char *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned char *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned char *&v, Py_buffer *buf);
+  bool GetBuffer(short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, short *&v, Py_buffer *buf);
+  bool GetBuffer(const short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const short *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned short *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned short *&v, Py_buffer *buf);
+  bool GetBuffer(int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, int *&v, Py_buffer *buf);
+  bool GetBuffer(const int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const int *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned int *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned int *&v, Py_buffer *buf);
+  bool GetBuffer(long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, long *&v, Py_buffer *buf);
+  bool GetBuffer(const long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const long *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned long *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned long *&v, Py_buffer *buf);
+  bool GetBuffer(long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, long long *&v, Py_buffer *buf);
+  bool GetBuffer(const long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const long long *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned long long *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned long long *&v,
+                        Py_buffer *buf);
+
 
   //@{
   /**

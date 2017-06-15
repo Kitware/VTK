@@ -266,6 +266,10 @@ int vtkWrapPython_WrapTemplatedClass(
       {
         types = vtkParse_GetArrayTypes();
       }
+      else if (strcmp(entry->Name, "vtkSOADataArrayTemplate") == 0)
+      {
+        types = vtkParse_GetTemplateMacroTypes();
+      }
       else if (strcmp(entry->Name, "vtkTuple") == 0)
       {
         static const char *tuple_types[13] = {

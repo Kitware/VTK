@@ -136,7 +136,7 @@ public:
    * that size is the number of tuples in the array.
    * \c size is specified in number of elements of ScalarType.
    */
-  void SetArray(int comp, ValueType* array, vtkIdType size,
+  void SetArray(int comp, VTK_ZEROCOPY ValueType* array, vtkIdType size,
                 bool updateMaxId = false, bool save=false,
                 int deleteMethod=VTK_DATA_ARRAY_FREE);
 
@@ -158,6 +158,7 @@ public:
    */
   void ExportToVoidPointer(void *ptr) VTK_OVERRIDE;
 
+#ifndef __VTK_WRAP__
   //@{
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
@@ -184,6 +185,7 @@ public:
     return NULL;
   }
   //@}
+#endif
 
   int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::SoADataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator *NewIterator() VTK_OVERRIDE;
