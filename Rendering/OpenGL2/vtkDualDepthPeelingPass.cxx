@@ -809,7 +809,8 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
     VolumetricRenderCount(0),
     SaveScissorTestState(false),
     CullFaceMode(0),
-    CullFaceEnabled(false)
+    CullFaceEnabled(false),
+    DepthTestEnabled(true)
 {
   std::fill(this->Textures, this->Textures + static_cast<int>(NumberOfTextures),
             static_cast<vtkTextureObject*>(NULL));
@@ -1035,6 +1036,8 @@ void vtkDualDepthPeelingPass::Prepare()
 
   glGetIntegerv(GL_CULL_FACE_MODE, &this->CullFaceMode);
   this->CullFaceEnabled = glIsEnabled(GL_CULL_FACE) == GL_TRUE;
+
+  this->DepthTestEnabled = glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
 
   // Prevent vtkOpenGLActor from messing with the depth mask:
   size_t numProps = this->RenderState->GetPropArrayCount();
@@ -1710,6 +1713,10 @@ void vtkDualDepthPeelingPass::Finalize()
   else
   {
     glDisable(GL_CULL_FACE);
+  }
+  if (this->DepthTestEnabled)
+  {
+    glEnable(GL_DEPTH_TEST);
   }
 #ifdef DEBUG_FRAME
   std::cout << "Depth peel done:\n"

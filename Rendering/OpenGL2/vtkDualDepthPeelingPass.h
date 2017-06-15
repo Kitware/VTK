@@ -301,6 +301,7 @@ protected:
   bool SaveScissorTestState;
   int CullFaceMode;
   bool CullFaceEnabled;
+  bool DepthTestEnabled;
 
 private:
   vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
