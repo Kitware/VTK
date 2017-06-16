@@ -265,8 +265,8 @@ if(NOT DEFINED VTK_COMPILE_TOOLS_IMPORTED)
 endif()
 if(CMAKE_CROSSCOMPILING
     AND NOT VTK_COMPILE_TOOLS_IMPORTED
-    AND NOT DEFINED CMAKE_CROSSCOMPILING_EMULATOR
-    AND NOT _crosscompiling_emulator_support_custom_target
+    AND (NOT DEFINED CMAKE_CROSSCOMPILING_EMULATOR
+         OR NOT _crosscompiling_emulator_support_custom_target)
   )
   # if CMAKE_CROSSCOMPILING is true and crosscompiling emulator is not available, we need
   # to import build-tools targets.
