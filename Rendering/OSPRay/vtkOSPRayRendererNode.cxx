@@ -645,6 +645,14 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       //TODO: these all need some work as checks are not necessarily fast
       //nor sufficient for all cases that matter
 
+      //check for stereo and disable so don't get left in right
+      vtkRenderWindow *rwin =
+      vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
+      if (rwin && rwin->GetStereoType() != 0)
+        {
+        canReuse = false;
+        }
+
       //check actors (and time)
       vtkMTimeType m = 0;
       vtkActorCollection *ac = ren->GetActors();
