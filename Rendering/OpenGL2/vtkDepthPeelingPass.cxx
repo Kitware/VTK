@@ -291,7 +291,7 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(
 
   this->TranslucentRGBATexture[0]->CopyToFrameBuffer(0, 0,
          this->ViewportWidth-1, this->ViewportHeight-1,
-         this->ViewportX, this->ViewportY,
+         0, 0,
          this->ViewportWidth, this->ViewportHeight,
          this->IntermediateBlendProgram->Program,
          this->IntermediateBlendProgram->VAO);
@@ -341,14 +341,13 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
     glDepthFunc( GL_ALWAYS );
     this->OpaqueRGBATexture->CopyToFrameBuffer(0, 0,
            this->ViewportWidth-1, this->ViewportHeight-1,
-           this->ViewportX, this->ViewportY,
+           0, 0,
            this->ViewportWidth, this->ViewportHeight,
            this->FinalBlendProgram->Program,
            this->FinalBlendProgram->VAO);
   }
   glDepthFunc( GL_LEQUAL );
 }
-
 
 
 // ----------------------------------------------------------------------------
@@ -490,6 +489,11 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   this->Framebuffer->AddColorAttachment(
     this->Framebuffer->GetBothMode(), 0,
     this->TranslucentRGBATexture[0]);
+
+  glViewport(0, 0,
+             this->ViewportWidth, this->ViewportHeight);
+  bool saveScissorTestState = (glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE);
+  glDisable(GL_SCISSOR_TEST);
 
 #if GL_ES_VERSION_3_0 == 1
   glClearDepthf(static_cast<GLclampf>(0.0));
@@ -633,26 +637,49 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 
 //  std::cout << "Number of peels: " << peelCount << "\n";
 
-  // do the final blend
-  this->BlendFinalPeel(renWin);
+  // do the final blend if anything was drawn
+  // something is drawn only when ColorDrawCount
+  // is not zero or PeelCount is > 1
+  if (this->PeelCount > 1 || this->ColorDrawCount != 0)
+  {
+    this->BlendFinalPeel(renWin);
+  }
 
   this->Framebuffer->RestorePreviousBindingsAndBuffers();
 
-  this->Framebuffer->SaveCurrentBindingsAndBuffers(
-    this->Framebuffer->GetReadMode());
-  this->Framebuffer->Bind(
-    this->Framebuffer->GetReadMode());
 
-  glBlitFramebuffer(
-    0, 0,
-    this->ViewportWidth, this->ViewportHeight,
-    this->ViewportX, this->ViewportY,
-    this->ViewportWidth, this->ViewportHeight,
-    GL_COLOR_BUFFER_BIT,
-    GL_LINEAR);
+  // Restore the original viewport and scissor test settings
+  glViewport(this->ViewportX, this->ViewportY,
+             this->ViewportWidth, this->ViewportHeight);
+  if (saveScissorTestState)
+  {
+    glEnable(GL_SCISSOR_TEST);
+  }
+  else
+  {
+    glDisable(GL_SCISSOR_TEST);
+  }
 
-  this->Framebuffer->RestorePreviousBindingsAndBuffers(
-    this->Framebuffer->GetReadMode());
+  //blit if we drew something
+  if (this->PeelCount > 1 || this->ColorDrawCount != 0)
+  {
+    this->Framebuffer->SaveCurrentBindingsAndBuffers(
+      this->Framebuffer->GetReadMode());
+    this->Framebuffer->Bind(
+      this->Framebuffer->GetReadMode());
+
+    glBlitFramebuffer(
+      0, 0,
+      this->ViewportWidth, this->ViewportHeight,
+      this->ViewportX, this->ViewportY,
+      this->ViewportX + this->ViewportWidth,
+      this->ViewportY + this->ViewportHeight,
+      GL_COLOR_BUFFER_BIT,
+      GL_LINEAR);
+
+    this->Framebuffer->RestorePreviousBindingsAndBuffers(
+      this->Framebuffer->GetReadMode());
+  }
 
 #ifdef GL_MULTISAMPLE
    if(multiSampleStatus)
@@ -696,7 +723,6 @@ bool vtkDepthPeelingPass::PostReplaceShaderValues(std::string &,
 {
   vtkShaderProgram::Substitute(
         fragmentShader, "//VTK::DepthPeeling::Dec",
-        "uniform vec2 vpOrigin;\n"
         "uniform vec2 vpSize;\n"
         "uniform sampler2D opaqueZTexture;\n"
         "uniform sampler2D translucentZTexture;\n"
@@ -722,7 +748,7 @@ bool vtkDepthPeelingPass::PostReplaceShaderValues(std::string &,
   // minimal z separation between pixels
   vtkShaderProgram::Substitute(
         fragmentShader, "//VTK::DepthPeeling::Impl",
-        "vec2 dpTexCoord = (gl_FragCoord.xy - vpOrigin) / vpSize;\n"
+        "vec2 dpTexCoord = gl_FragCoord.xy / vpSize;\n"
         "  float odepth = texture2D(opaqueZTexture, dpTexCoord).r;\n"
         "  if (gl_FragDepth >= odepth) { discard; }\n"
         "  float tdepth = texture2D(translucentZTexture, dpTexCoord).r;\n"
@@ -741,10 +767,6 @@ bool vtkDepthPeelingPass::SetShaderParameters(vtkShaderProgram *program,
                        this->OpaqueZTexture->GetTextureUnit());
   program->SetUniformi("translucentZTexture",
                        this->TranslucentZTexture[(this->PeelCount + 1) % 2]->GetTextureUnit());
-
-  float vpOrigin[2] = { static_cast<float>(this->ViewportX),
-                        static_cast<float>(this->ViewportY) };
-  program->SetUniform2f("vpOrigin", vpOrigin);
 
   float vpSize[2] = { static_cast<float>(this->ViewportWidth),
                       static_cast<float>(this->ViewportHeight) };
