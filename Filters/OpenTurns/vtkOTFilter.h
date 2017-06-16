@@ -47,6 +47,7 @@ class VTKFILTERSOPENTURNS_EXPORT vtkOTFilter : public vtkTableAlgorithm
 {
 public:
   vtkTypeMacro(vtkOTFilter, vtkTableAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkOTFilter();

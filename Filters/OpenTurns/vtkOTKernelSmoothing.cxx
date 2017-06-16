@@ -16,19 +16,9 @@
 
 #include "vtkObjectFactory.h"
 
-#include "openturns/DistributionFactoryImplementation.hxx"
-#include "openturns/DistributionImplementation.hxx"
-#include "openturns/Epanechnikov.hxx"
-#include "openturns/KernelSmoothing.hxx"
-#include "openturns/Triangular.hxx"
-
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-#include "openturns/NumericalPoint.hxx"
-#include "openturns/NumericalSample.hxx"
-#else
-#include "openturns/Point.hxx"
-#include "openturns/Sample.hxx"
-#endif
+#include "vtkOTConfig.h"
+#include "vtkOTIncludes.h"
+#include "vtkOTUtilities.h"
 
 vtkStandardNewMacro(vtkOTKernelSmoothing);
 

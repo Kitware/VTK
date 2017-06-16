@@ -18,15 +18,12 @@
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
-#include "vtkOTUtilities.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-#include "openturns/NumericalSample.hxx"
-#else
-#include "openturns/Sample.hxx"
-#endif
+#include "vtkOTConfig.h"
+#include "vtkOTIncludes.h"
+#include "vtkOTUtilities.h"
 
 using namespace OT;
 
@@ -65,7 +62,6 @@ int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
   this->Output = vtkTable::GetData(outputVector, 0);
   this->Output->Initialize();
 
@@ -79,4 +75,10 @@ int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
     delete ns;
   }
   return ret;
+}
+
+//-----------------------------------------------------------------------------
+void vtkOTFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }

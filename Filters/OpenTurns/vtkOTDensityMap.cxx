@@ -30,20 +30,8 @@
 #include "vtkTable.h"
 
 #include "vtkOTConfig.h"
+#include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
-
-#include "openturns/DistributionFactoryImplementation.hxx"
-#include "openturns/DistributionImplementation.hxx"
-#include "openturns/KernelSmoothing.hxx"
-#include "openturns/ResourceMap.hxx"
-
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-#include "openturns/NumericalPoint.hxx"
-#include "openturns/NumericalSample.hxx"
-#else
-#include "openturns/Point.hxx"
-#include "openturns/Sample.hxx"
-#endif
 
 #include <iostream>
 #include <sstream>
@@ -122,7 +110,7 @@ void vtkOTDensityMap::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-int vtkOTDensityMap::FillInputPortInformation(int port, vtkInformation* info)
+int vtkOTDensityMap::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // Input is a table
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
@@ -134,12 +122,10 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  // Recover I/O
-  vtkDataObject* inputObject = vtkDataObject::GetData(inputVector[0], 0);
+  // Recover output
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
   // Create Sample from input data array
-  vtkTable* inputTable = vtkTable::SafeDownCast(inputObject);
   vtkDataArray* xArray = this->GetInputArrayToProcess(0, inputVector);
   vtkDataArray* yArray = this->GetInputArrayToProcess(1, inputVector);
   if (xArray == NULL || yArray == NULL)
@@ -345,7 +331,7 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
 
     // Using this cell, go along the line to fill up the X and Y arrays
     vtkIdType alongCellId = previousCellId;
-    vtkIdType pointId;
+    vtkIdType pointId = -1;
     previousCellId = -1;
     do
     {
