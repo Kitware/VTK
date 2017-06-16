@@ -366,7 +366,7 @@ protected:
 
   // IOS seems to have issues with getting RGB data
   int ReadPixels(
-    const vtkRecti& rect, int front, int glFormat, int glType, void* data) VTK_OVERRIDE;
+    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0) VTK_OVERRIDE;
 
 private:
   vtkIOSRenderWindow(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
