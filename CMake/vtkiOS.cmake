@@ -92,6 +92,7 @@ mark_as_advanced(
 
 # expose some module options
 option(Module_vtkRenderingOpenGL2 "Include Polygonal Rendering Support" ON)
+option(Module_vtkInteractionStyle "Include InteractionStyle module" ON)
 option(Module_vtkInteractionWidgets "Include InteractionWidgets module" OFF)
 option(Module_vtkIOXML "Include IO/XML Module" OFF)
 option(Module_vtkFiltersModeling "Turn on or off this module" OFF)
@@ -123,6 +124,7 @@ set(ios_cmake_flags
   -DVTK_Group_Tk:BOOL=OFF
   -DVTK_Group_Web:BOOL=OFF
   -DModule_vtkRenderingOpenGL2:BOOL=${Module_vtkRenderingOpenGL2}
+  -DModule_vtkInteractionStyle:BOOL=${Module_vtkInteractionStyle}
   -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
   -DModule_vtkIOXML:BOOL=${Module_vtkIOXML}
   -DModule_vtkFiltersModeling:BOOL=${Module_vtkFiltersModeling}
