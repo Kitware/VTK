@@ -56,17 +56,12 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     vtkRenderWindow *rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
     bool stereo = false;
-    bool crystal_eyes = false;
     bool right = false;
     if (rwin)
     {
       if (rwin->GetStereoRender() == 1)
       {
         stereo = true;
-        if (rwin->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
-        {
-          crystal_eyes = true;
-        }
       }
     }
     int tiledSize[2];
@@ -110,8 +105,10 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     double *pos = cam->GetPosition();
 
     double shiftedCamPos[3];
-    if (stereo && crystal_eyes)
+    if (stereo)
     {
+      //todo this is good for starters, but we should reuse the code
+      //or results from vtk proper to ensure 1:1 match with GL
       if (!right)
       {
         shiftedCamPos[0] = pos[0] - shiftDistance;
