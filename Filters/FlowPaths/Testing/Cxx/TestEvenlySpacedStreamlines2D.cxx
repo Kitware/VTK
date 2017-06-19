@@ -30,6 +30,7 @@ int TestEvenlySpacedStreamlines2D(int argc, char* argv[])
     vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/clt.vtm");
   auto reader = vtkSmartPointer<vtkXMLMultiBlockDataReader>::New();
   reader->SetFileName(fname);
+  delete[] fname;
   reader->Update();
 
   auto stream = vtkSmartPointer<vtkEvenlySpacedStreamlines2D>::New();
@@ -37,9 +38,9 @@ int TestEvenlySpacedStreamlines2D(int argc, char* argv[])
   stream->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "result");
   stream->SetInitialIntegrationStep(0.2);
-  stream->SetClosedLoopMaximumDistance(0.2);
+  stream->SetClosedLoopMaximumDistance(0.045808232964031639); // 0.2 in arc length
   stream->SetMaximumNumberOfSteps(2000);
-  stream->SetSeparatingDistance(20);
+  stream->SetSeparatingDistance(4.5808232964031639); // 20 in arc length
   stream->SetSeparatingDistanceRatio(0.3);
   stream->SetStartPosition(0, 0, 200);
 

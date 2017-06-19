@@ -74,6 +74,7 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
   this->IntegrationStepUnit    = vtkStreamTracer::CELL_LENGTH_UNIT;
   this->InitialIntegrationStep = 0.5;
   this->ClosedLoopMaximumDistance = 1.0e-6;
+  this->ClosedLoopMaximumDistanceArcLength = 1.0e-6;
   this->LoopAngle = 0.349066; // 20 degrees in radians
   this->MaximumNumberOfSteps = 2000;
   this->MinimumNumberOfLoopPoints = 4;
@@ -91,6 +92,7 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::VECTORS);
   this->SeparatingDistance = 1;
+  this->SeparatingDistanceArcLength = 1;
   this->SeparatingDistanceRatio = 0.5;
   this->SuperposedGrid = vtkImageData::New();
   this->Streamlines = vtkPolyDataCollection::New();
@@ -131,11 +133,22 @@ int vtkEvenlySpacedStreamlines2D::RequestData(
   std::array<double, 3> v = {{bounds[1] - bounds[0], bounds[3] - bounds[2],
                               bounds[5] - bounds[4]}};
   double length = vtkMath::Norm(&v[0]);
-  this->InitializeSuperposedGrid(bounds);
 
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  // first streamline
+
+  // compute the separating distance arc length
+  double cellLength = 0;
+  if (! this->ComputeCellLength(&cellLength))
+  {
+    this->InputData->UnRegister(this);
+    return 0;
+  }
+  this->SeparatingDistanceArcLength = this->ConvertToLength(
+    this->SeparatingDistance, this->IntegrationStepUnit, cellLength);
+  this->ClosedLoopMaximumDistanceArcLength = this->ConvertToLength(
+    this->ClosedLoopMaximumDistance, this->IntegrationStepUnit, cellLength);
+  this->InitializeSuperposedGrid(bounds);
   auto streamTracer = vtkSmartPointer<vtkStreamTracer>::New();
   streamTracer->SetInputDataObject(this->InputData);
   streamTracer->SetMaximumPropagation(length);
@@ -174,7 +187,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(
     vtkStreamTracer::FIXED_REASONS_FOR_TERMINATION_COUNT + 1);
 
   const char* velocityName = this->GetInputArrayToProcessName();
-  double deltaOne = this->SeparatingDistance / 1000;
+  double deltaOne = this->SeparatingDistanceArcLength / 1000;
   double delta[3] = {deltaOne, deltaOne, deltaOne};
   while (this->Streamlines->GetNumberOfItems())
   {
@@ -190,7 +203,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(
       // floating point errors move newSeedVector out of XY plane.
       newSeedVector[2] = 0;
       vtkMath::Normalize(newSeedVector);
-      vtkMath::MultiplyScalar(newSeedVector, this->SeparatingDistance);
+      vtkMath::MultiplyScalar(newSeedVector, this->SeparatingDistanceArcLength);
       double point[3];
       streamline->GetPoint(pointId, point);
       std::array<std::array<double, 3>, 2> newSeeds;
@@ -228,6 +241,36 @@ int vtkEvenlySpacedStreamlines2D::RequestData(
     ++processedSeedId;
   }
   this->InputData->UnRegister(this);
+  return 1;
+}
+
+int vtkEvenlySpacedStreamlines2D::ComputeCellLength(
+  double* cellLength)
+{
+  vtkAbstractInterpolatedVelocityField* func;
+  int maxCellSize = 0;
+  if (this->CheckInputs(func, &maxCellSize) != VTK_OK)
+  {
+      if(func)
+      {
+        func->Delete();
+      }
+      return 0;
+  }
+  vtkDataSet* input;
+  auto cell = vtkSmartPointer<vtkGenericCell>::New();
+  double velocity[3];
+  // access the start postion
+  if (!func->FunctionValues(this->StartPosition, velocity))
+  {
+    func->Delete();
+    return 0;
+  }
+  // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
+  input = func->GetLastDataSet();
+  input->GetCell(func->GetLastCellId(), cell);
+  *cellLength = sqrt(static_cast<double>(cell->GetLength2()));
+  func->Delete();
   return 1;
 }
 
@@ -276,8 +319,8 @@ bool vtkEvenlySpacedStreamlines2D::IsStreamlineLooping(
   double p0Point[3];
   points->GetPoint(p0, p0Point);
   int ijk[3] = {0, 0, 0};
-  ijk[0] = floor(p0Point[0] / This->SeparatingDistance);
-  ijk[1] = floor(p0Point[1] / This->SeparatingDistance);
+  ijk[0] = floor(p0Point[0] / This->SeparatingDistanceArcLength);
+  ijk[1] = floor(p0Point[1] / This->SeparatingDistanceArcLength);
   vtkIdType cellId = This->SuperposedGrid->ComputeCellId(&ijk[0]);
 
   bool retVal = This->ForEachCell(
@@ -299,8 +342,8 @@ bool vtkEvenlySpacedStreamlines2D::ForEachCell(
 {
   // point current cell
   int ijk[3] = {0, 0, 0};
-  ijk[0] = floor(point[0] / this->SeparatingDistance);
-  ijk[1] = floor(point[1] / this->SeparatingDistance);
+  ijk[0] = floor(point[0] / this->SeparatingDistanceArcLength);
+  ijk[1] = floor(point[1] / this->SeparatingDistanceArcLength);
   vtkIdType cellId = this->SuperposedGrid->ComputeCellId(&ijk[0]);
   if ((this->*checker)(point, cellId, points, velocity, direction))
   {
@@ -346,10 +389,10 @@ bool vtkEvenlySpacedStreamlines2D::IsLooping(
       p0 - this->MinPointIds[cellId] + 1 >= minLoopPoints)
   {
     vtkIdType p1 = p0 - 1;
-    double testDistance2 = this->SeparatingDistance * this->SeparatingDistance *
+    double testDistance2 = this->SeparatingDistanceArcLength * this->SeparatingDistanceArcLength *
       this->SeparatingDistanceRatio * this->SeparatingDistanceRatio;
     double maxDistance2 =
-      this->ClosedLoopMaximumDistance * this->ClosedLoopMaximumDistance;
+      this->ClosedLoopMaximumDistanceArcLength * this->ClosedLoopMaximumDistanceArcLength;
     for (vtkIdType q: this->CurrentPoints[cellId])
     {
       // do we have enough points to form a loop
@@ -409,7 +452,7 @@ bool vtkEvenlySpacedStreamlines2D::IsTooClose(
   (void) points;
   (void) velocity;
   (void) direction;
-  double testDistance2 = this->SeparatingDistance * this->SeparatingDistance;
+  double testDistance2 = this->SeparatingDistanceArcLength * this->SeparatingDistanceArcLength;
   if (distanceType == DISTANCE_RATIO)
   {
     testDistance2 *= (this->SeparatingDistanceRatio * this->SeparatingDistanceRatio);
@@ -517,6 +560,21 @@ void vtkEvenlySpacedStreamlines2D::SetIntegrationStepUnit( int unit )
   this->Modified();
 }
 
+double vtkEvenlySpacedStreamlines2D::ConvertToLength(
+  double interval, int unit, double cellLength )
+{
+  double retVal = 0.0;
+  if ( unit == vtkStreamTracer::LENGTH_UNIT )
+  {
+    retVal = interval;
+  }
+  else if ( unit == vtkStreamTracer::CELL_LENGTH_UNIT )
+  {
+    retVal = interval * cellLength;
+  }
+  return retVal;
+}
+
 int vtkEvenlySpacedStreamlines2D::SetupOutput(vtkInformation* inInfo,
                                               vtkInformation* outInfo)
 {
@@ -552,15 +610,115 @@ int vtkEvenlySpacedStreamlines2D::SetupOutput(vtkInformation* inInfo,
   }
 }
 
+
+int vtkEvenlySpacedStreamlines2D::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
+                                              int* maxCellSize)
+{
+  if (!this->InputData)
+  {
+    return VTK_ERROR;
+  }
+
+  vtkOverlappingAMR* amrData = vtkOverlappingAMR::SafeDownCast(this->InputData);
+
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(this->InputData->NewIterator());
+
+  vtkDataSet* input0 =NULL;
+  iter->GoToFirstItem();
+  while (!iter->IsDoneWithTraversal() && input0==NULL)
+  {
+    input0 = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    iter->GoToNextItem();
+  }
+  if(!input0)
+  {
+    return VTK_ERROR;
+  }
+
+  int vecType(0);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0,input0,vecType);
+  if (!vectors)
+  {
+    return VTK_ERROR;
+  }
+
+  // Set the function set to be integrated
+  if ( !this->InterpolatorPrototype )
+  {
+    if(amrData)
+    {
+      func = vtkAMRInterpolatedVelocityField::New();
+    }
+    else
+    {
+      func = vtkInterpolatedVelocityField::New();
+    }
+    // turn on the following segment, in place of the above line, if an
+    // interpolator equipped with a cell locator is dedired as the default
+    //
+    // func = vtkCellLocatorInterpolatedVelocityField::New();
+    // vtkSmartPointer< vtkModifiedBSPTree > locator =
+    // vtkSmartPointer< vtkModifiedBSPTree >::New();
+    // vtkCellLocatorInterpolatedVelocityField::SafeDownCast( func )
+    //   ->SetCellLocatorPrototype( locator.GetPointer() );
+  }
+  else
+  {
+    if(amrData && vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype)==NULL)
+    {
+      this->InterpolatorPrototype = vtkAMRInterpolatedVelocityField::New();
+    }
+    func = this->InterpolatorPrototype->NewInstance();
+    func->CopyParameters(this->InterpolatorPrototype);
+  }
+
+  if(vtkAMRInterpolatedVelocityField::SafeDownCast(func))
+  {
+    assert(amrData);
+    vtkAMRInterpolatedVelocityField::SafeDownCast(func)->SetAMRData(amrData);
+    if(maxCellSize)
+    {
+      *maxCellSize = 8;
+    }
+  }
+  else if(vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
+  {
+    iter->GoToFirstItem();
+    while (!iter->IsDoneWithTraversal())
+    {
+      vtkDataSet* inp = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (inp)
+      {
+        int cellSize = inp->GetMaxCellSize();
+        if ( cellSize > *maxCellSize )
+        {
+          *maxCellSize = cellSize;
+        }
+        vtkCompositeInterpolatedVelocityField::SafeDownCast(func)->AddDataSet(inp);
+      }
+      iter->GoToNextItem();
+    }
+  }
+  else
+  {
+    assert(false);
+  }
+
+  const char *vecName = vectors->GetName();
+  func->SelectVectors(vecType,vecName);
+  return VTK_OK;
+}
+
 void vtkEvenlySpacedStreamlines2D::InitializeSuperposedGrid(double* bounds)
 {
   this->SuperposedGrid->SetExtent(
-    floor(bounds[0]/this->SeparatingDistance),
-    ceil(bounds[1]/this->SeparatingDistance),
-    floor(bounds[2]/this->SeparatingDistance),
-    ceil(bounds[3]/this->SeparatingDistance), 0, 0);
+    floor(bounds[0]/this->SeparatingDistanceArcLength),
+    ceil(bounds[1]/this->SeparatingDistanceArcLength),
+    floor(bounds[2]/this->SeparatingDistanceArcLength),
+    ceil(bounds[3]/this->SeparatingDistanceArcLength), 0, 0);
   this->SuperposedGrid->SetSpacing(
-    this->SeparatingDistance, this->SeparatingDistance, this->SeparatingDistance);
+    this->SeparatingDistanceArcLength, this->SeparatingDistanceArcLength, this->SeparatingDistanceArcLength);
   this->InitializePoints(this->AllPoints);
   this->InitializePoints(this->CurrentPoints);
 }
@@ -595,8 +753,8 @@ void vtkEvenlySpacedStreamlines2D::AddToAllPoints(vtkPolyData* streamline)
       double point[3];
       points->GetPoint(i, point);
       int ijk[3] = {0, 0, 0};
-      ijk[0] = floor(point[0] / this->SeparatingDistance);
-      ijk[1] = floor(point[1] / this->SeparatingDistance);
+      ijk[0] = floor(point[0] / this->SeparatingDistanceArcLength);
+      ijk[1] = floor(point[1] / this->SeparatingDistanceArcLength);
       vtkIdType cellId = this->SuperposedGrid->ComputeCellId(ijk);
       this->AllPoints[cellId].push_back({{point[0], point[1], point[2]}});
     }

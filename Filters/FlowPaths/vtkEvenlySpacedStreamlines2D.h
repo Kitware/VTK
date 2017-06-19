@@ -108,6 +108,7 @@ class vtkImageData;
 class vtkIntArray;
 class vtkPolyDataCollection;
 class vtkPoints;
+class vtkStreamTracer;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkEvenlySpacedStreamlines2D : public vtkPolyDataAlgorithm
 {
@@ -225,6 +226,7 @@ public:
   //@{
   /**
    * Loops are considered closed if the have two points at distance less than this.
+   * This is expressed in IntegrationStepUnit.
    */
   vtkSetMacro(ClosedLoopMaximumDistance, double);
   vtkGetMacro(ClosedLoopMaximumDistance, double);
@@ -299,6 +301,10 @@ protected:
   int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
 
   int SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo);
+  int CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
+                  int* maxCellSize);
+  double ConvertToLength(double interval, int unit, double cellLength );
+
   static void GetBounds(vtkCompositeDataSet* cds, double bounds[6]);
   void InitializeSuperposedGrid(double* bounds);
   void AddToAllPoints(vtkPolyData* streamline);
@@ -324,7 +330,7 @@ protected:
   bool IsLooping(double* point, vtkIdType cellId,
                  vtkPoints* points, vtkDataArray* velocity, int direction);
   const char* GetInputArrayToProcessName();
-
+  int ComputeCellLength(double* cellLength);
 
   // starting from global x-y-z position
   double StartPosition[3];
@@ -333,8 +339,16 @@ protected:
 
   double InitialIntegrationStep;
   double SeparatingDistance;
+  // SeparatingDistance can be in cell length or arc length. This member
+  // stores SeparatingDistance in arc length. It is computed when
+  // the filter executes.
+  double SeparatingDistanceArcLength;
   double SeparatingDistanceRatio;
   double ClosedLoopMaximumDistance;
+  // ClosedLoopMaximumDistance can be in cell length or arc length.
+  // This member stores ClosedLoopMaximumDistance in arc length. It is
+  // computed when the filter executes.
+  double ClosedLoopMaximumDistanceArcLength;
   double LoopAngle;
   int IntegrationStepUnit;
 
