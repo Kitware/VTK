@@ -77,7 +77,8 @@ public:
     DRAW = 2
   };
 
-  FrameBufferHelper(EType type, vtkOpenGLRenderWindow* ren, int front)
+  FrameBufferHelper(EType type, vtkOpenGLRenderWindow* ren,
+                    int front, int right)
     : Type(type)
     , LastFrameBuffer(0)
     , LastColorBuffer(0)
@@ -88,7 +89,9 @@ public:
     const unsigned int fb = ren->GetDefaultFrameBufferId()
       ? ren->GetDefaultFrameBufferId()
       : (ren->GetUseOffScreenBuffers() ? ren->GetFrameBufferObject() : 0);
-    const GLint buf = front ? ren->GetFrontLeftBuffer() : ren->GetBackLeftBuffer();
+    const GLint buf = front ?
+      (right ? ren->GetFrontRightBuffer() : ren->GetFrontLeftBuffer()) :
+      (right ? ren->GetBackRightBuffer() : ren->GetBackLeftBuffer());
     switch (type)
     {
       case READ:
@@ -1009,7 +1012,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
 
 unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
                                                    int x2, int y2,
-                                                   int front)
+                                                   int front, int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1041,14 +1044,14 @@ unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 
   unsigned char* ucdata = new unsigned char[width * height * 3];
   vtkRecti rect(x_low, y_low, width, height);
-  this->ReadPixels(rect, front, GL_RGB, GL_UNSIGNED_BYTE, ucdata);
+  this->ReadPixels(rect, front, GL_RGB, GL_UNSIGNED_BYTE, ucdata, right);
   return ucdata;
 }
 
 int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
                                         int x2, int y2,
                                         int front,
-                                        vtkUnsignedCharArray* data)
+                                        vtkUnsignedCharArray* data, int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1087,11 +1090,11 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   }
 
   vtkRecti rect(x_low, y_low, width, height);
-  return this->ReadPixels(rect, front, GL_RGB, GL_UNSIGNED_BYTE, data->GetPointer(0));
+  return this->ReadPixels(rect, front, GL_RGB, GL_UNSIGNED_BYTE, data->GetPointer(0), right);
 }
 
 int vtkOpenGLRenderWindow::ReadPixels(
-  const vtkRecti& rect, int front, int glformat, int gltype, void* data)
+  const vtkRecti& rect, int front, int glformat, int gltype, void* data, int right)
 {
   // set the current window
   this->MakeCurrent();
@@ -1108,7 +1111,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
     ;
   }
 
-  FrameBufferHelper helper(FrameBufferHelper::READ, this, front);
+  FrameBufferHelper helper(FrameBufferHelper::READ, this, front, right);
 
   // Let's determine if we're reading from an FBO.
   bool resolveMSAA = false;
@@ -1182,7 +1185,8 @@ int vtkOpenGLRenderWindow::ReadPixels(
 }
 
 int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-                                        vtkUnsignedCharArray *data, int front)
+                                        vtkUnsignedCharArray *data, int front,
+                                        int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1219,7 +1223,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     vtkErrorMacro("Buffer is of wrong size.");
     return VTK_ERROR;
   }
-  return this->SetPixelData(x1, y1, x2, y2, data->GetPointer(0), front);
+  return this->SetPixelData(x1, y1, x2, y2, data->GetPointer(0), front, right);
 
 }
 
@@ -1307,7 +1311,7 @@ void vtkOpenGLRenderWindow::DrawPixels(int x1, int y1, int x2, int y2, int numCo
 }
 
 int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-                                        unsigned char *data, int front)
+                                        unsigned char *data, int front, int right)
 {
   // set the current window
   this->MakeCurrent();
@@ -1319,7 +1323,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     ;
   }
 
-  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front);
+  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front, right);
 
   this->DrawPixels(x1, y1, x2, y2, 3, VTK_UNSIGNED_CHAR, data);
 
@@ -1340,7 +1344,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 }
 
 float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
-                                               int front)
+                                               int front, int right)
 {
 
   int     y_low, y_hi;
@@ -1374,12 +1378,12 @@ float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   float* fdata = new float[(width * height * 4)];
   vtkRecti rect(x_low, y_low, width, height);
-  this->ReadPixels(rect, front, GL_RGBA, GL_FLOAT, fdata);
+  this->ReadPixels(rect, front, GL_RGBA, GL_FLOAT, fdata, right);
   return fdata;
 }
 
 int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
-                                            int front, vtkFloatArray* data)
+                                            int front, vtkFloatArray* data, int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1418,7 +1422,7 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
   }
 
   vtkRecti rect(x_low, y_low, width, height);
-  return this->ReadPixels(rect, front, GL_RGBA, GL_FLOAT, data->GetPointer(0));
+  return this->ReadPixels(rect, front, GL_RGBA, GL_FLOAT, data->GetPointer(0), right);
 }
 
 void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
@@ -1428,7 +1432,7 @@ void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
 
 int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
                                             vtkFloatArray *data, int front,
-                                            int blend)
+                                            int blend, int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1467,11 +1471,11 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   }
 
   return this->SetRGBAPixelData(x1, y1, x2, y2, data->GetPointer(0), front,
-                                blend);
+                                blend, right);
 }
 
 int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-                                            float *data, int front, int blend)
+                                            float *data, int front, int blend, int right)
 {
   // set the current window
   this->MakeCurrent();
@@ -1483,7 +1487,8 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     ;
   }
 
-  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front);
+
+  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front, right);
   if (!blend)
   {
     glDisable(GL_BLEND);
@@ -1513,7 +1518,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
 unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
                                                            int x2, int y2,
-                                                           int front)
+                                                           int front, int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1547,14 +1552,14 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 
   unsigned char* ucdata = new unsigned char[(width * height) * 4];
   vtkRecti rect(x_low, y_low, width, height);
-  this->ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, ucdata);
+  this->ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, ucdata, right);
   return ucdata;
 }
 
 int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
                                                 int x2, int y2,
                                                 int front,
-                                                vtkUnsignedCharArray* data)
+                                                vtkUnsignedCharArray* data, int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1593,12 +1598,12 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   }
 
   vtkRecti rect(x_low, y_low, width, height);
-  return this->ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, data->GetPointer(0));
+  return this->ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, data->GetPointer(0), right);
 }
 
 int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
                                                 vtkUnsignedCharArray *data,
-                                                int front, int blend)
+                                                int front, int blend, int right)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1638,13 +1643,13 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
   }
 
   return this->SetRGBACharPixelData(x1, y1, x2, y2, data->GetPointer(0),
-                                    front, blend);
+                                    front, blend, right);
 
 }
 
 int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
                                                 int y2, unsigned char *data,
-                                                int front, int blend)
+                                                int front, int blend, int right)
 {
   // set the current window
   this->MakeCurrent();
@@ -1657,7 +1662,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     ;
   }
 
-  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front);
+  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front, right);
 
   // Disable writing on the z-buffer.
   glDepthMask(GL_FALSE);

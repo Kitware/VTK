@@ -142,9 +142,9 @@ public:
    * the diagonal.
    */
   virtual unsigned char *GetPixelData(int x, int y, int x2, int y2,
-                                      int front) = 0;
+                                      int front, int right=0) = 0;
   virtual int GetPixelData(int x, int y, int x2, int y2, int front,
-                           vtkUnsignedCharArray *data) = 0;
+                           vtkUnsignedCharArray *data, int right=0) = 0;
   //@}
 
   //@{

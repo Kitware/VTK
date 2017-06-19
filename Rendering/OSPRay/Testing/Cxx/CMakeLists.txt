@@ -14,7 +14,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOSPRayRendererType.cxx,
   TestOSPRayScalarBar.cxx
   TestOSPRayTime.cxx,
-  TestOSPRayWindow.cxx
+  TestOSPRayWindow.cxx,
+  TestOSPRayStereo.cxx,
   # Volume rendering tests
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCellData.cxx

@@ -73,37 +73,41 @@ public:
   /**
    * Set/Get the pixel data of an image, transmitted as RGBRGB...
    */
-  unsigned char *GetPixelData(int x,int y,int x2,int y2,int front) VTK_OVERRIDE;
+  unsigned char *GetPixelData(int x,int y,int x2,int y2,int front,int right)
+                             VTK_OVERRIDE;
   int GetPixelData(int x,int y,int x2,int y2, int front,
-                           vtkUnsignedCharArray *data) VTK_OVERRIDE;
+                   vtkUnsignedCharArray *data, int right) VTK_OVERRIDE;
   int SetPixelData(int x,int y,int x2,int y2,unsigned char *data,
-                           int front) VTK_OVERRIDE;
+                   int front, int right) VTK_OVERRIDE;
   int SetPixelData(int x,int y,int x2,int y2,
-                           vtkUnsignedCharArray *data, int front) VTK_OVERRIDE;
+                   vtkUnsignedCharArray *data, int front, int right)
+                   VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBARGBA...
    */
-  float *GetRGBAPixelData(int x,int y,int x2,int y2,int front) VTK_OVERRIDE;
+  float *GetRGBAPixelData(int x,int y,int x2,int y2,int front,int right=0)
+                         VTK_OVERRIDE;
   int GetRGBAPixelData(int x,int y,int x2,int y2, int front,
-                               vtkFloatArray* data) VTK_OVERRIDE;
+                       vtkFloatArray* data, int right=0) VTK_OVERRIDE;
   int SetRGBAPixelData(int x,int y,int x2,int y2, float *data,
-                               int front, int blend=0) VTK_OVERRIDE;
+                       int front, int blend=0, int right=0) VTK_OVERRIDE;
   int SetRGBAPixelData(int x,int y,int x2,int y2, vtkFloatArray *data,
-                               int front, int blend=0) VTK_OVERRIDE;
+                       int front, int blend=0, int right=0) VTK_OVERRIDE;
   void ReleaseRGBAPixelData(float *data) VTK_OVERRIDE;
   unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,
-                                              int front) VTK_OVERRIDE;
+                                      int front, int right=0) VTK_OVERRIDE;
   int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
-                                   vtkUnsignedCharArray *data) VTK_OVERRIDE;
+                           vtkUnsignedCharArray *data, int right=0)
+                          VTK_OVERRIDE;
   int SetRGBACharPixelData(int x, int y, int x2, int y2,
-                                   unsigned char *data, int front,
-                                   int blend=0) VTK_OVERRIDE;
+                           unsigned char *data, int front,
+                           int blend=0, int right=0) VTK_OVERRIDE;
   int SetRGBACharPixelData(int x,int y,int x2,int y2,
-                                   vtkUnsignedCharArray *data, int front,
-                                   int blend=0) VTK_OVERRIDE;
+                           vtkUnsignedCharArray *data, int front,
+                           int blend=0,int right=0) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -422,7 +426,7 @@ protected:
 
   std::map<const vtkTextureObject *, int> TextureResourceIds;
 
-  virtual int ReadPixels(const vtkRecti& rect, int front, int glFormat, int glType, void* data);
+  virtual int ReadPixels(const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0);
 
   /**
    * Create an offScreen window based on OpenGL framebuffer extension.

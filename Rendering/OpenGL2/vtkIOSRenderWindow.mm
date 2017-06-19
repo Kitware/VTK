@@ -104,16 +104,18 @@ void vtkIOSRenderWindow::DestroyWindow()
 }
 
 int vtkIOSRenderWindow::ReadPixels(
-  const vtkRecti& rect, int front, int glFormat, int glType, void* data)
+  const vtkRecti& rect, int front, int glFormat, int glType, void* data,
+  int right)
 {
   if (glFormat != GL_RGB || glType != GL_UNSIGNED_BYTE)
   {
-    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data);
+    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data,
+                                        right);
   }
 
   // iOS has issues with getting RGB so we get RGBA
   unsigned char* uc4data = new unsigned char[rect.GetWidth() * rect.GetHeight() * 4];
-  int retVal = this->Superclass::ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, uc4data);
+  int retVal = this->Superclass::ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, uc4data, right);
 
   unsigned char* dPtr = reinterpret_cast<unsigned char*>(data);
   const unsigned char* lPtr = uc4data;

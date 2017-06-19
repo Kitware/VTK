@@ -406,9 +406,9 @@ public:
    * the diagonal.
    */
   virtual int SetPixelData(int x, int y, int x2, int y2, unsigned char *data,
-                           int front) = 0;
+                           int front, int right=0) = 0;
   virtual int SetPixelData(int x, int y, int x2, int y2,
-                           vtkUnsignedCharArray *data, int front) = 0;
+                           vtkUnsignedCharArray *data, int front, int right=0) = 0;
   //@}
 
   //@{
@@ -419,24 +419,24 @@ public:
    * method blends the data with the previous contents of the frame buffer
    * or completely replaces the frame buffer data.
    */
-  virtual float *GetRGBAPixelData(int x, int y, int x2, int y2, int front) = 0;
+  virtual float *GetRGBAPixelData(int x, int y, int x2, int y2, int front, int right=0) = 0;
   virtual int GetRGBAPixelData(int x, int y, int x2, int y2, int front,
-                               vtkFloatArray *data) = 0;
+                               vtkFloatArray *data, int right=0) = 0;
   virtual int SetRGBAPixelData(int x, int y, int x2, int y2, float *,
-                               int front, int blend=0) = 0;
+                               int front, int blend=0, int right=0) = 0;
   virtual int SetRGBAPixelData(int, int, int, int, vtkFloatArray*,
-                               int, int blend=0) = 0;
-  virtual void ReleaseRGBAPixelData(float *data)=0;
+                               int, int blend=0, int right=0) = 0;
+  virtual void ReleaseRGBAPixelData(float *data) = 0;
   virtual unsigned char *GetRGBACharPixelData(int x, int y, int x2, int y2,
-                                              int front) = 0;
+                                              int front, int right=0) = 0;
   virtual int GetRGBACharPixelData(int x, int y, int x2, int y2, int front,
-                                   vtkUnsignedCharArray *data) = 0;
+                                   vtkUnsignedCharArray *data, int right=0) = 0;
   virtual int SetRGBACharPixelData(int x,int y, int x2, int y2,
                                    unsigned char *data, int front,
-                                   int blend=0) = 0;
+                                   int blend=0, int right=0) = 0;
   virtual int SetRGBACharPixelData(int x, int y, int x2, int y2,
                                    vtkUnsignedCharArray *data, int front,
-                                   int blend=0) = 0;
+                                   int blend=0, int right=0) = 0;
   //@}
 
   //@{
