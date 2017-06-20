@@ -141,10 +141,10 @@ namespace
 //-----------------------------------------------------------------------------
 vtkGradientFilter::vtkGradientFilter()
 {
-  this->ResultArrayName = NULL;
-  this->DivergenceArrayName = NULL;
-  this->VorticityArrayName = NULL;
-  this->QCriterionArrayName = NULL;
+  this->ResultArrayName = nullptr;
+  this->DivergenceArrayName = nullptr;
+  this->VorticityArrayName = nullptr;
+  this->QCriterionArrayName = nullptr;
   this->FasterApproximation = 0;
   this->ComputeGradient = 1;
   this->ComputeDivergence = 0;
@@ -157,10 +157,10 @@ vtkGradientFilter::vtkGradientFilter()
 //-----------------------------------------------------------------------------
 vtkGradientFilter::~vtkGradientFilter()
 {
-  this->SetResultArrayName(NULL);
-  this->SetDivergenceArrayName(NULL);
-  this->SetVorticityArrayName(NULL);
-  this->SetQCriterionArrayName(NULL);
+  this->SetResultArrayName(nullptr);
+  this->SetDivergenceArrayName(nullptr);
+  this->SetVorticityArrayName(nullptr);
+  this->SetQCriterionArrayName(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -264,7 +264,7 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
   vtkDataArray *array = this->GetInputArrayToProcess(0, inputVector);
 
-  if (array == NULL)
+  if (array == nullptr)
   {
     vtkErrorMacro("No input array.");
     return 0;
@@ -336,7 +336,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
   vtkDataSet* output)
 {
   int numberOfInputComponents = array->GetNumberOfComponents();
-  vtkSmartPointer<vtkDataArray> gradients = NULL;
+  vtkSmartPointer<vtkDataArray> gradients = nullptr;
   if(this->ComputeGradient)
   {
     gradients.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
@@ -351,7 +351,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       gradients->SetName("Gradients");
     }
   }
-  vtkSmartPointer<vtkDataArray> divergence = NULL;
+  vtkSmartPointer<vtkDataArray> divergence = nullptr;
   if(computeDivergence)
   {
     divergence.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
@@ -404,14 +404,14 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
         vtkTemplateMacro(ComputePointGradientsUG(
                            input,
                            static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                           (gradients == NULL ? NULL :
+                           (gradients == nullptr ? nullptr :
                             static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                            numberOfInputComponents,
-                           (vorticity == NULL ? NULL :
+                           (vorticity == nullptr ? nullptr :
                             static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                           (qCriterion == NULL ? NULL :
+                           (qCriterion == nullptr ? nullptr :
                             static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                           (divergence == NULL ? NULL :
+                           (divergence == nullptr ? nullptr :
                             static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
       }
       if(gradients)
@@ -436,7 +436,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       // The cell computation is faster and works off of point data anyway.  The
       // faster approximation is to use the cell algorithm and then convert the
       // result to point data.
-      vtkSmartPointer<vtkDataArray> cellGradients = NULL;
+      vtkSmartPointer<vtkDataArray> cellGradients = nullptr;
       if(gradients)
       {
         cellGradients.TakeReference(vtkDataArray::CreateDataArray(gradients->GetDataType()));
@@ -444,14 +444,14 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
         cellGradients->SetNumberOfComponents(3*array->GetNumberOfComponents());
         cellGradients->SetNumberOfTuples(input->GetNumberOfCells());
       }
-      vtkSmartPointer<vtkDataArray> cellDivergence = NULL;
+      vtkSmartPointer<vtkDataArray> cellDivergence = nullptr;
       if(divergence)
       {
         cellDivergence.TakeReference(vtkDataArray::CreateDataArray(divergence->GetDataType()));
         cellDivergence->SetName(divergence->GetName());
         cellDivergence->SetNumberOfTuples(input->GetNumberOfCells());
       }
-      vtkSmartPointer<vtkDataArray> cellVorticity = NULL;
+      vtkSmartPointer<vtkDataArray> cellVorticity = nullptr;
       if(vorticity)
       {
         cellVorticity.TakeReference(vtkDataArray::CreateDataArray(vorticity->GetDataType()));
@@ -459,7 +459,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
         cellVorticity->SetNumberOfComponents(3);
         cellVorticity->SetNumberOfTuples(input->GetNumberOfCells());
       }
-      vtkSmartPointer<vtkDataArray> cellQCriterion = NULL;
+      vtkSmartPointer<vtkDataArray> cellQCriterion = nullptr;
       if(qCriterion)
       {
         cellQCriterion.TakeReference(vtkDataArray::CreateDataArray(qCriterion->GetDataType()));
@@ -472,14 +472,14 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
         vtkTemplateMacro(
           ComputeCellGradientsUG(
             input, static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-            (cellGradients == NULL ? NULL :
+            (cellGradients == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellGradients->GetVoidPointer(0))),
             numberOfInputComponents,
-            (vorticity == NULL ? NULL :
+            (vorticity == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellVorticity->GetVoidPointer(0))),
-            (qCriterion == NULL ? NULL :
+            (qCriterion == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellQCriterion->GetVoidPointer(0))),
-            (divergence == NULL ? NULL :
+            (divergence == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellDivergence->GetVoidPointer(0)))));
       }
 
@@ -553,14 +553,14 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       vtkTemplateMacro(ComputeCellGradientsUG(
                          input,
                          static_cast<VTK_TT *>(pointScalars->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
     }
 
@@ -592,7 +592,7 @@ int vtkGradientFilter::ComputeRegularGridGradient(
   bool computeQCriterion, bool computeDivergence, vtkDataSet* output)
 {
   int numberOfInputComponents = array->GetNumberOfComponents();
-  vtkSmartPointer<vtkDataArray> gradients = NULL;
+  vtkSmartPointer<vtkDataArray> gradients = nullptr;
   if(this->ComputeGradient)
   {
     gradients.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
@@ -607,7 +607,7 @@ int vtkGradientFilter::ComputeRegularGridGradient(
       gradients->SetName("Gradients");
     }
   }
-  vtkSmartPointer<vtkDataArray> divergence = NULL;
+  vtkSmartPointer<vtkDataArray> divergence = nullptr;
   if(computeDivergence)
   {
     divergence.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
@@ -658,14 +658,14 @@ int vtkGradientFilter::ComputeRegularGridGradient(
       vtkTemplateMacro(ComputeGradientsSG(
                          structuredGrid,
                          static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents, fieldAssociation,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
 
     }
@@ -677,14 +677,14 @@ int vtkGradientFilter::ComputeRegularGridGradient(
       vtkTemplateMacro(ComputeGradientsSG(
                          imageData,
                          static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents, fieldAssociation,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
     }
   }
@@ -695,14 +695,14 @@ int vtkGradientFilter::ComputeRegularGridGradient(
       vtkTemplateMacro(ComputeGradientsSG(
                          rectilinearGrid,
                          static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents, fieldAssociation,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
 
     }
@@ -797,24 +797,24 @@ namespace {
                                  subId, parametricCoord))
         {
           numValidCellNeighbors++;
-          for(int InputComponent=0;InputComponent<numberOfInputComponents;InputComponent++)
+          for(int inputComponent=0;inputComponent<numberOfInputComponents;inputComponent++)
           {
-            int NumberOfCellPoints = cell->GetNumberOfPoints();
-            std::vector<double> values(NumberOfCellPoints);
+            int numberOfCellPoints = cell->GetNumberOfPoints();
+            std::vector<double> values(numberOfCellPoints);
             // Get values of Array at cell points.
-            for (int i = 0; i < NumberOfCellPoints; i++)
+            for (int i = 0; i < numberOfCellPoints; i++)
             {
               values[i] = static_cast<double>(
-                array[cell->GetPointId(i)*numberOfInputComponents+InputComponent]);
+                array[cell->GetPointId(i)*numberOfInputComponents+inputComponent]);
             }
 
             double derivative[3];
             // Get derivative of cell at point.
             cell->Derivatives(subId, parametricCoord, &values[0], 1, derivative);
 
-            g[InputComponent*3] += static_cast<data_type>(derivative[0]);
-            g[InputComponent*3+1] += static_cast<data_type>(derivative[1]);
-            g[InputComponent*3+2] += static_cast<data_type>(derivative[2]);
+            g[inputComponent*3] += static_cast<data_type>(derivative[0]);
+            g[inputComponent*3+1] += static_cast<data_type>(derivative[1]);
+            g[inputComponent*3+2] += static_cast<data_type>(derivative[2]);
           } // iterating over Components
         } // if(GetCellParametricData())
       } // iterating over neighbors
@@ -874,7 +874,7 @@ namespace {
     int numpoints = cell->GetNumberOfPoints();
     std::vector<double> values(numpoints);
     // Get parametric position of point.
-    cell->EvaluatePosition(pointCoord, NULL, subId, parametricCoord,
+    cell->EvaluatePosition(pointCoord, nullptr, subId, parametricCoord,
                            dummy, &values[0]/*Really another dummy.*/);
 
     return 1;
