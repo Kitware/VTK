@@ -38,9 +38,9 @@ int TestEvenlySpacedStreamlines2D(int argc, char* argv[])
   stream->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "result");
   stream->SetInitialIntegrationStep(0.2);
-  stream->SetClosedLoopMaximumDistance(0.045808232964031639); // 0.2 in arc length
+  stream->SetClosedLoopMaximumDistance(0.2);
   stream->SetMaximumNumberOfSteps(2000);
-  stream->SetSeparatingDistance(4.5808232964031639); // 20 in arc length
+  stream->SetSeparatingDistance(2);
   stream->SetSeparatingDistanceRatio(0.3);
   stream->SetStartPosition(0, 0, 200);
 

@@ -654,14 +654,6 @@ int vtkEvenlySpacedStreamlines2D::CheckInputs(vtkAbstractInterpolatedVelocityFie
     {
       func = vtkInterpolatedVelocityField::New();
     }
-    // turn on the following segment, in place of the above line, if an
-    // interpolator equipped with a cell locator is dedired as the default
-    //
-    // func = vtkCellLocatorInterpolatedVelocityField::New();
-    // vtkSmartPointer< vtkModifiedBSPTree > locator =
-    // vtkSmartPointer< vtkModifiedBSPTree >::New();
-    // vtkCellLocatorInterpolatedVelocityField::SafeDownCast( func )
-    //   ->SetCellLocatorPrototype( locator.GetPointer() );
   }
   else
   {
