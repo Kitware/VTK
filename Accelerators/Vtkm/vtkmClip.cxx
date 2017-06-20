@@ -131,7 +131,8 @@ int vtkmClip::RequestData(vtkInformation *,
   }
 
   // Convert inputs to vtkm objects:
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
+  vtkm::cont::DataSet in = tovtkm::Convert(input,
+                                           tovtkm::FieldsFlag::PointsAndCells);
   vtkm::cont::Field field = tovtkm::Convert(scalars, assoc);
 
   if (field.GetAssociation() != vtkm::cont::Field::ASSOC_POINTS ||
@@ -178,40 +179,25 @@ int vtkmClip::RequestData(vtkInformation *,
     return 1;
   }
 
-  // ComputeScalars:
-  vtkPointData *pd = input->GetPointData();
-  if (this->ComputeScalars && pd)
+  vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
+  for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
   {
-    for (vtkIdType i = 0; i < pd->GetNumberOfArrays(); ++i)
+    const vtkm::cont::Field &field = in.GetField(fieldIdx);
+    try
     {
-      vtkDataArray *array = pd->GetArray(i);
-      if (!array)
+      bool success = this->ClipFunction ?
+                     functionFilter.MapFieldOntoOutput(result, field, policy) :
+                     fieldFilter.MapFieldOntoOutput(result, field, policy);
+      if (!success)
       {
-        continue;
+        throw vtkm::cont::ErrorBadValue("MapFieldOntoOutput returned false.");
       }
-
-      vtkm::cont::Field pField =
-          tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
-
-      try
-      {
-        bool success = this->ClipFunction ?
-                       functionFilter.MapFieldOntoOutput(result, pField, policy) :
-                       fieldFilter.MapFieldOntoOutput(result, pField, policy);
-        if (!success)
-        {
-          throw vtkm::cont::ErrorBadValue("MapFieldOntoOutput returned false.");
-        }
-      }
-      catch (vtkm::cont::Error &e)
-      {
-        vtkWarningMacro("Failed to map input point array '"
-                        << array->GetName() << "' (ValueType: "
-                        << array->GetDataTypeAsString() << ", "
-                        << array->GetNumberOfComponents() << " components) "
-                        << "onto output dataset: "
-                        << e.what());
-      }
+    }
+    catch (vtkm::cont::Error &e)
+    {
+      vtkWarningMacro(<< "Unable to use VTKm to convert field( "
+                      << field.GetName() << " ) to the Clip"
+                      << " output: " << e.what());
     }
   }
 
@@ -222,6 +208,11 @@ int vtkmClip::RequestData(vtkInformation *,
     vtkErrorMacro("Error generating vtkUnstructuredGrid from vtkm's result.");
     output->Initialize();
     return 1;
+  }
+
+  if (this->ComputeScalars)
+  {
+    output->GetPointData()->SetActiveScalars(scalars->GetName());
   }
 
   return 1;

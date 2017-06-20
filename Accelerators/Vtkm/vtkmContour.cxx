@@ -133,7 +133,7 @@ int vtkmContour::RequestData(vtkInformation* request,
       }
       catch (vtkm::cont::Error &e)
       {
-        vtkWarningMacro(<< "Unable to use VTKm to convert point field( "
+        vtkWarningMacro(<< "Unable to use VTKm to convert field( "
                         << field.GetName() << " ) to the MarchingCubes"
                         << " output: " << e.what());
       }

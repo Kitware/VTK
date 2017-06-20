@@ -37,35 +37,6 @@
 
 vtkStandardNewMacro(vtkmThreshold)
 
-namespace
-{
-
-  template <typename FilterType, typename PolicyType>
-  bool convert_fields(FilterType & filter, vtkm::filter::ResultDataSet & result,
-                      const PolicyType& policy, vtkFieldData* fields,
-                      int association)
-  {
-    for (vtkIdType i = 0; i < fields->GetNumberOfArrays(); i++)
-    {
-      vtkDataArray* array = fields->GetArray(i);
-      if (array == NULL)
-      {
-        continue;
-      }
-
-      vtkm::cont::Field f = tovtkm::Convert(array, association);
-      try
-      {
-        filter.MapFieldOntoOutput(result, f, policy);
-      }
-      catch (vtkm::cont::Error&)
-      { // todo: should signal we had an issue converting
-      }
-    }
-    return true;
-  }
-}
-
 //------------------------------------------------------------------------------
 vtkmThreshold::vtkmThreshold()
 {
@@ -96,7 +67,8 @@ int vtkmThreshold::RequestData(vtkInformation* request,
   filter.SetUpperThreshold(this->GetUpperThreshold());
 
   // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
+  vtkm::cont::DataSet in = tovtkm::Convert(input,
+                                           tovtkm::FieldsFlag::PointsAndCells);
 
   // we need to map the given property to the data set
   int association = this->GetInputArrayAssociation(0, inputVector);
@@ -118,14 +90,21 @@ int vtkmThreshold::RequestData(vtkInformation* request,
     // convert other scalar arrays
     if (result.IsValid())
     {
-      // now convert point & cell data
-      vtkPointData* pd = input->GetPointData();
-      vtkCellData* cd = input->GetCellData();
-
-      convert_fields(filter, result, policy, pd,
-                     vtkDataObject::FIELD_ASSOCIATION_POINTS);
-      convert_fields(filter, result, policy, cd,
-                     vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
+      for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
+      {
+        const vtkm::cont::Field &field = in.GetField(fieldIdx);
+        try
+        {
+          filter.MapFieldOntoOutput(result, field, policy);
+        }
+        catch (vtkm::cont::Error &e)
+        {
+          vtkWarningMacro(<< "Unable to use VTKm to convert field( "
+                          << field.GetName() << " ) to the Threshold"
+                          << " output: " << e.what());
+        }
+      }
 
       // now we are done the algorithm and conversion of arrays so
       // convert back the dataset to VTK

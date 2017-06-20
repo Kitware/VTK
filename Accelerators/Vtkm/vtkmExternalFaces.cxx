@@ -115,7 +115,8 @@ int vtkmExternalFaces::RequestData(vtkInformation* request,
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
+  vtkm::cont::DataSet in = tovtkm::Convert(input,
+                                           tovtkm::FieldsFlag::PointsAndCells);
   if (in.GetNumberOfCoordinateSystems() <= 0 || in.GetNumberOfCellSets() <= 0)
   {
     vtkErrorMacro(<< "Could not convert vtk dataset to vtkm dataset");
@@ -136,26 +137,20 @@ int vtkmExternalFaces::RequestData(vtkInformation* request,
 
   if (this->CompactPoints)
   {
-    // map each point array
-    vtkPointData* pd = input->GetPointData();
-    for (vtkIdType i = 0; i < pd->GetNumberOfArrays(); i++)
+    // map fields
+    vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
+    for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
     {
-      vtkDataArray* array = pd->GetArray(i);
-      if (array == NULL)
-      {
-        continue;
-      }
-
-      vtkm::cont::Field pfield =
-        tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      const vtkm::cont::Field &field = in.GetField(fieldIdx);
       try
       {
-        filter.MapFieldOntoOutput(result, pfield, policy);
+        filter.MapFieldOntoOutput(result, field, policy);
       }
-      catch (vtkm::cont::Error&)
+      catch (vtkm::cont::Error &e)
       {
-        vtkWarningMacro(<< "Unable to use VTKm to convert field ("
-          << array->GetName() << ") to the output");
+        vtkWarningMacro(<< "Unable to use VTKm to convert field( "
+                        << field.GetName() << " ) to the ExternalFaces"
+                        << " output: " << e.what());
       }
     }
 
