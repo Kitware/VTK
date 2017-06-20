@@ -28,12 +28,13 @@
 #ifndef vtkOTScatterPlotMatrix_h
 #define vtkOTScatterPlotMatrix_h
 
+#include "vtkFiltersOpenTurnsModule.h" // For export macro
 #include "vtkScatterPlotMatrix.h"
 #include "vtkSmartPointer.h" // For SmartPointer
 
 class vtkOTDensityMap;
 
-class VTKCHARTSCORE_EXPORT vtkOTScatterPlotMatrix : public vtkScatterPlotMatrix
+class VTKFILTERSOPENTURNS_EXPORT vtkOTScatterPlotMatrix : public vtkScatterPlotMatrix
 {
 public:
   vtkTypeMacro(vtkOTScatterPlotMatrix, vtkScatterPlotMatrix);

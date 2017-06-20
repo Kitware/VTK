@@ -80,13 +80,13 @@ Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
     return NULL;
   }
 
-  int numTuples = arr->GetNumberOfTuples();
+  vtkIdType numTuples = arr->GetNumberOfTuples();
   int numComp = arr->GetNumberOfComponents();
   Sample* ns = new Sample(numTuples, numComp);
 
-  for (int i = 0; i < numTuples; ++i)
+  for (vtkIdType i = 0; i < numTuples; ++i)
   {
-    for (int j = 0; j < ns->getDimension(); j++)
+    for (unsigned int j = 0; j < ns->getDimension(); j++)
     {
       ns->at(i, j) = arr->GetComponent(i, j);
     }

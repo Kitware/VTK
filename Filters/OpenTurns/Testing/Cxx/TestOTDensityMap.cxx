@@ -103,7 +103,7 @@ int TestOTDensityMap(int, char* [])
       cout << "Unexpected Child Block format" << std::endl;
       return EXIT_FAILURE;
     }
-    for (int j = 0; j < childsNBlock[i]; j++)
+    for (unsigned int j = 0; j < childsNBlock[i]; j++)
     {
       vtkTable* childTable = vtkTable::SafeDownCast(childBlock->GetBlock(j));
       if (!childTable || childTable->GetNumberOfColumns() != 2)

@@ -22,8 +22,7 @@
 #define vtkOTUtilities_h
 
 #include "vtkOTConfig.h" // For OpenTURNS version
-
-#include "openturns/DistributionFactoryImplementation.hxx" // For vtkOTDistributionImplementationWrapper
+#include "vtkOTIncludes.h" // For OpenTURNS includes
 
 #if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 namespace OT

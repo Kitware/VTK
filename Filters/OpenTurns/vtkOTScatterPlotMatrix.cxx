@@ -124,14 +124,14 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
         if (xy)
         {
           xy->AutoAxesOff();
-          xy->SetPlotCorner(densityPlot, 2);
+          xy->SetPlotCorner(densityPlot, plotCorner);
           xy->RaisePlot(densityPlot);
         }
         densityPlot->SetInputData(densityLineTable, densityLineTable->GetColumnName(1), row);
-        double density = iter->GetCurrentMetaData()->Get(vtkOTDensityMap::DENSITY());
+        double densityVal = iter->GetCurrentMetaData()->Get(vtkOTDensityMap::DENSITY());
         vtkPen* plotPen = vtkPen::New();
         plotPen->DeepCopy(this->DensityMapsSettings[plotType]->PlotPen.GetPointer());
-        plotPen->SetColor(this->DensityMapsSettings[plotType]->DensityMapColorMap[density]);
+        plotPen->SetColor(this->DensityMapsSettings[plotType]->DensityMapColorMap[densityVal]);
         densityPlot->SetPen(plotPen);
         plotPen->Delete();
         vtkPlotPoints* plotPoints = vtkPlotPoints::SafeDownCast(densityPlot);
