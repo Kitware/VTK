@@ -1930,7 +1930,7 @@ vtkStructuredAMRGridConnectivity::GetAMRNeighbor(
   // STEP 1: Get orientation vector and ndim for the domain which is used to
   // determine which dimensions of the overlap extent to refine/coarsen as
   // necessary.
-  int ndim;
+  int ndim=0;
   int orient[3];
   this->GetOrientationVector(this->DataDescription,orient,ndim);
 

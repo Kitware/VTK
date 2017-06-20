@@ -135,10 +135,10 @@ int vtkLine::Intersection (double a1[3], double a2[3],
     double* l2[4] = {b2,b2,a2,a2};
     double* uv1[4] = {&v,&v,&u,&u};
     double* uv2[4] = {&u,&u,&v,&v};
-    double dist,t;
+    double t=0;
     for (unsigned i=0;i<4;i++)
     {
-      dist = vtkLine::DistanceToLine(p[i],l1[i],l2[i],t);
+      double dist = vtkLine::DistanceToLine(p[i],l1[i],l2[i],t);
       if (dist < minDist)
       {
         minDist = dist;
