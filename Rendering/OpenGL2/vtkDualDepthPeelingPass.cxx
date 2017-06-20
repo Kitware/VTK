@@ -945,7 +945,10 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
   if (!this->Framebuffer)
   {
     this->Framebuffer = vtkOpenGLFramebufferObject::New();
+  }
 
+  if (!this->Textures[BackTemp])
+  {
     std::generate(this->Textures,
                   this->Textures + static_cast<int>(NumberOfTextures),
                   &vtkTextureObject::New);
@@ -957,9 +960,9 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
     this->InitDepthTexture(this->Textures[DepthA], s);
     this->InitDepthTexture(this->Textures[DepthB], s);
     this->InitOpaqueDepthTexture(this->Textures[OpaqueDepth], s);
-
-    this->InitFramebuffer(s);
   }
+
+  this->InitFramebuffer(s);
 }
 
 //------------------------------------------------------------------------------
