@@ -560,7 +560,7 @@ void vtkImageReader2::ComputeDataIncrements()
 //----------------------------------------------------------------------------
 int vtkImageReader2::OpenFile()
 {
-  if (!this->FileName && !this->FilePattern)
+  if (!this->FileName && !this->FilePattern && !this->FileNames)
   {
     vtkErrorMacro(<<"Either a FileName, FileNames, or FilePattern"
                   << " must be specified.");
