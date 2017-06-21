@@ -19,17 +19,19 @@
 #include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
 
+#include <chrono>
+
 vtkStandardNewMacro(vtkSegy2DReader);
 
 vtkSegy2DReader::vtkSegy2DReader()
 {
-    this->SetFileName(0);
+    this->FileName = nullptr;
     this->SetNumberOfInputPorts( 0 );
 }
 
 vtkSegy2DReader::~vtkSegy2DReader()
 {
-    this->SetFileName(0);
+    this->SetFileName(nullptr);
 }
 
 int vtkSegy2DReader::RequestData(vtkInformation* vtkNotUsed(request),
@@ -37,7 +39,7 @@ int vtkSegy2DReader::RequestData(vtkInformation* vtkNotUsed(request),
                                   vtkInformationVector* outputVector)
 {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     if (!this->FileName)
     {
@@ -46,8 +48,13 @@ int vtkSegy2DReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     reader.LoadFromFile(FileName);
-    if(!reader.ExportData2D(output))
-        cout << "Failed to request data for vtkSegy2DReader" << endl;
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+    std::cout << "Exporting to poly data ..." << std::endl;
+    reader.ExportData2D(output);
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::cout << "Elapsed time: " << elapsed_seconds.count() << std::endl;
 }
 
 void vtkSegy2DReader::PrintSelf(ostream &os, vtkIndent indent)

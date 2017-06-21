@@ -18,14 +18,14 @@
 
 #include "vtkSegy2DReader.h"
 
-#include <vtkPolyDataAlgorithm.h>
+#include <vtkStructuredGridAlgorithm.h>
 #include "SegyReader.h"
 
-class vtkSegy2DReader : public vtkPolyDataAlgorithm
+class vtkSegy2DReader : public vtkStructuredGridAlgorithm
 {
 public:
     static vtkSegy2DReader* New();
-    vtkTypeMacro(vtkSegy2DReader,vtkPolyDataAlgorithm);
+    vtkTypeMacro(vtkSegy2DReader,vtkStructuredGridAlgorithm);
     void PrintSelf(ostream& os, vtkIndent indent);
 
     vtkSetStringMacro(FileName);

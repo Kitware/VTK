@@ -28,9 +28,11 @@ public:
     int NumSamplesPerTrace;
     int NumSamplesPerTraceOriginal;
     int FormatCode;
-    int NumberExtendedHeaders;
     int EnsembleType;
-    int Version;
+    int MeasurementSystem;
+    int ByteOrderingDetection;
+    int MajorVersion;
+    int MinorVersion;
     int FixedLengthFlag;
 public:
     BinaryHeaderBytesPositions()
@@ -51,9 +53,11 @@ private:
         NumSamplesPerTrace = 3220;
         NumSamplesPerTraceOriginal = 3222;
         FormatCode = 3224;
-        NumberExtendedHeaders = 3502;
         EnsembleType = 3228;
-        Version = 3500;
+        MeasurementSystem = 3254;
+        ByteOrderingDetection = 3296;
+        MajorVersion = 3500;
+        MinorVersion = 3501;
         FixedLengthFlag = 3502;
     }
 };

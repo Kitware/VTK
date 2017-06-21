@@ -23,9 +23,11 @@ class Trace {
 public:
     float xCoordinate;
     float yCoordinate;
+    short CoordinateMultiplier;
     vector<float> data;
     int inlineNumber;
     int crosslineNumber;
+    short SampleInterval;
 };
 
 

@@ -21,12 +21,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkPolygon.h>
 #include <vtkStructuredPointsReader.h>
-#include <vtkVolumeTextureMapper3D.h>
-#include <vtkColorTransferFunction.h>
 #include <vtkRenderWindow.h>
-#include <vtkAxesActor.h>
-#include <vtkImageShiftScale.h>
-#include <vtkPolyDataMapper.h>
+#include <vtkStructuredGrid.h>
 #include <vtkFloatArray.h>
 #include <vtkPointData.h>
 #include <vtkArrayData.h>
@@ -36,12 +32,11 @@
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkCellData.h>
-//#include <vtkXMLPolyDataWriter.h>
 
 
 SegyReader::~SegyReader()
 {
-    for(auto trace : data)
+    for(auto trace : traces)
         delete trace;
 }
 
@@ -61,8 +56,11 @@ bool SegyReader::LoadFromFile(string path) {
     {
         Trace* pTrace = new Trace();
         if (!traceReader.readTrace(traceStartPos, in, formatCode, pTrace))
+        {
+            delete pTrace;
             break;
-        data.push_back(pTrace);
+        }
+        traces.push_back(pTrace);
     }
 
     in.close();
@@ -71,8 +69,25 @@ bool SegyReader::LoadFromFile(string path) {
 
 
 bool SegyReader::readHeader(ifstream &in) {
+    short sampleInterval = IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.SampleInterval, in);
     formatCode = IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.FormatCode, in);
+    in.seekg(binaryHeaderBytesPos.MajorVersion, in.beg);
+    unsigned char majorVersion = IOUtil::Instance()->readUChar(in);
+    unsigned char minorVersion = IOUtil::Instance()->readUChar(in);
     sampleCountPerTrace =  IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.NumSamplesPerTrace, in);
+    short tracesPerEnsemble = IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.NumberTracesPerEnsemble, in);
+    short ensembleType = IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.EnsembleType, in);
+    short measurementSystem = IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.MeasurementSystem, in);
+    int byteOrderingDetection = IOUtil::Instance()->readLongInteger(binaryHeaderBytesPos.ByteOrderingDetection, in);
+
+    std::cout << "Segy version = " << int(majorVersion) << "." << int(minorVersion) << std::endl;
+    std::cout << "FormatCode = " << formatCode << std::endl;
+    std::cout << "ByteOrderingDetection = " << byteOrderingDetection << std::endl;
+    std::cout << "SampleCountPerTrace=" << sampleCountPerTrace << std::endl;
+    std::cout << "ensembleType=" << ensembleType << std::endl;
+    std::cout << "measurementSystem=" << measurementSystem << std::endl;
+    std::cout << "sampleInterval=" << sampleInterval << std::endl;
+    std::cout << "tracesPerEnsemble=" << tracesPerEnsemble << std::endl << std::endl;
     return true;
 }
 
@@ -81,7 +96,7 @@ bool SegyReader::readHeader(ifstream &in) {
 bool SegyReader::ExportData3D(vtkImageData *imageData)
 {
   set<int> crosslineNumbers, inlineNumbers;
-  for(auto trace : data)
+  for(auto trace : traces)
   {
       crosslineNumbers.insert(trace->crosslineNumber);
       inlineNumbers.insert(trace->inlineNumber);
@@ -97,7 +112,7 @@ bool SegyReader::ExportData3D(vtkImageData *imageData)
   float min_data = INT_MAX;
   float max_data = INT_MIN;
 
-  for(auto trace : data)
+  for(auto trace : traces)
   {
       int cross = trace->crosslineNumber;
       auto pair = cross_inline_map.find(cross);
@@ -163,7 +178,7 @@ bool SegyReader::GetImageData(vtkImageData *imageData)
   int minCrossLineNumber = INT_MAX;
   int maxCrossLineNumber = INT_MIN;
 
-  for(auto trace : data)
+  for(auto trace : traces)
   {
       crosslineNum = trace->crosslineNumber;
       if (crosslineNum == 0)
@@ -184,7 +199,7 @@ bool SegyReader::GetImageData(vtkImageData *imageData)
   float min_data = INT_MAX;
   float max_data = INT_MIN;
 
-  for(auto trace : data)
+  for(auto trace : traces)
   {
       for(auto m : trace->data)
       {
@@ -211,7 +226,7 @@ bool SegyReader::GetImageData(vtkImageData *imageData)
         index = 0;
         remainder = 0;
 
-        for(auto trace : data)
+        for(auto trace : traces)
         {
           dataSize = trace->data.size();
           diff = aggIndex - dataSize;
@@ -228,7 +243,7 @@ bool SegyReader::GetImageData(vtkImageData *imageData)
           }
         }
 
-        *(ptr + i * sampleCountPerTrace + k) = 256.0 * (data[index]->data[remainder] - min_data)/(max_data - min_data);
+        *(ptr + i * sampleCountPerTrace + k) = 256.0 * (traces[index]->data[remainder] - min_data)/(max_data - min_data);
       }
   }
 
@@ -236,116 +251,55 @@ bool SegyReader::GetImageData(vtkImageData *imageData)
 }
 
 
-bool SegyReader::AddScalars(vtkPolyData* polyData)
+void SegyReader::AddScalars(vtkStructuredGrid* grid)
 {
 
-  vtkSmartPointer<vtkFloatArray> cellData =
+  vtkSmartPointer<vtkFloatArray> pointData =
     vtkSmartPointer<vtkFloatArray>::New();
-  cellData->SetName("trace");
-  cellData->SetNumberOfComponents(1);
+  pointData->SetName("trace");
+  pointData->SetNumberOfComponents(1);
 
-  int crossLineCount = data.size();
+  int crossLineCount = traces.size();
 
-  cellData->Allocate(crossLineCount * sampleCountPerTrace);
+  pointData->Allocate(crossLineCount * sampleCountPerTrace);
 
-  float min_data = INT_MAX;
-  float max_data = INT_MIN;
-
-  for(auto trace : data)
+  for (int k = 0; k < sampleCountPerTrace; k++)
   {
-      for(auto m : trace->data)
-      {
-          if(m < min_data)
-              min_data = m;
-          if(m > max_data )
-              max_data = m;
-      }
+    for (int i = 0; i < traces.size(); i++)
+    {
+      pointData->InsertValue( i * sampleCountPerTrace + k, traces[i]->data[k]);
+    }
   }
 
-      for (int k = 0; k < sampleCountPerTrace; k++)
-      {
-        for (int i = 0; i < data.size(); i++)
-        {
-        cellData->InsertValue( i * sampleCountPerTrace + k, 256.0 * (data[i]->data[k] - min_data)/(max_data-min_data) );
-        }
-      }
-
-    polyData->GetCellData()->SetScalars(cellData);
-    polyData->GetCellData()->SetActiveScalars("trace");
-
-
-    return true;
+  grid->GetPointData()->SetScalars(pointData);
+  grid->GetPointData()->SetActiveScalars("trace");
 }
 
 
-bool SegyReader::ExportData2D(vtkPolyData * polyData)
+void SegyReader::ExportData2D(vtkStructuredGrid * grid)
 {
+    grid->SetDimensions(traces.size(), sampleCountPerTrace, 1);
     vtkSmartPointer<vtkPoints> points =
             vtkSmartPointer<vtkPoints>::New();
 
-    vtkSmartPointer<vtkFloatArray> textureCoordinates =
-            vtkSmartPointer<vtkFloatArray>::New();
-    textureCoordinates->SetNumberOfComponents(2);
-    textureCoordinates->SetName("TextureCoordinates");
-
     for(int k=0; k<sampleCountPerTrace; k++)
     {
-        for(int i=0;i < data.size(); i++)
+      for(int i=0;i < traces.size(); i++)
         {
-            auto trace = data[i];
-            float x = trace->xCoordinate / 100000.0;
-            float y = trace->yCoordinate / 100000.0;
+            auto trace = traces[i];
+            float coordinateMultiplier = (trace->CoordinateMultiplier < 0) ?
+              1.0 / (- trace->CoordinateMultiplier) :
+              trace->CoordinateMultiplier;
+            float x = trace->xCoordinate * coordinateMultiplier;
+            float y = trace->yCoordinate * coordinateMultiplier;
 
-            float z = k * 100.0 / sampleCountPerTrace;
+            float z = k * trace->SampleInterval / (sampleCountPerTrace - 1);
             points->InsertNextPoint(x, y, z);
-            textureCoordinates->InsertNextTuple2(k * 1.0 / sampleCountPerTrace, i * 1.0 / data.size());
         }
     }
 
-// Create a cell array to store the quad in
-    vtkSmartPointer<vtkCellArray> quads =
-            vtkSmartPointer<vtkCellArray>::New();
-
-    for (int k = 1; k < sampleCountPerTrace; k++)
-    {
-        for(int i=1;i < data.size(); i++)
-        {
-            auto trace = data[i];
-
-            vtkSmartPointer<vtkPolygon> polygon =
-                    vtkSmartPointer<vtkPolygon>::New();
-            polygon->GetPointIds()->SetNumberOfIds(4); //make a quad
-
-            int id1 = k * data.size() + i;
-            int id2 = (k - 1) * data.size() + i;
-            int id3 = (k - 1) * data.size() + i - 1;
-            int id4 = k * data.size() + i - 1;
-            polygon->GetPointIds()->SetId(0, id1);
-            polygon->GetPointIds()->SetId(1, id2);
-            polygon->GetPointIds()->SetId(2, id3);
-            polygon->GetPointIds()->SetId(3, id4);
-            quads->InsertNextCell(polygon);
-        }
-    }
-
-    // vtkSmartPointer<vtkTexture> texture =
-    //        vtkSmartPointer<vtkTexture>::New();
-
-    // vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
-    // ExportData3D(imageData);
-    // std::cerr << "imageData " << imageData << std::endl;
-    // texture->SetInputDataObject(imageData);
-
-    polyData->SetPoints(points);
-    polyData->SetPolys(quads);
-    this->AddScalars(polyData);
-     polyData->GetPointData()->SetTCoords(textureCoordinates);
-
-//    vtkNew<vtkXMLPolyDataWriter> writer;
-//    writer->SetInputData(polyData);
-//    writer->SetFileName("test.vtp");
-//    writer->Write();
-    return polyData;
+    grid->SetPoints(points);
+    this->AddScalars(grid);
 }
 
 

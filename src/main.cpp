@@ -33,6 +33,8 @@ using namespace std;
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkPolyData.h>
+#include <vtkXMLStructuredGridWriter.h>
+#include "vtksys/SystemTools.hxx"
 
 #include <vtkPlane.h>
 #include <vtkCellArray.h>
@@ -205,66 +207,29 @@ void render(vtkImageData* id)
 
 void demo2D()
 {
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
-      vtkSmartPointer<vtkColorTransferFunction>::New();
-    colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-    colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
-    colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
-    colorTransferFunction->AddRGBPoint(192.0, 0.0, 1.0, 0.0);
-    colorTransferFunction->AddRGBPoint(255.0, 0.0, 0.2, 0.0);
-
-    vtkSmartPointer<vtkRenderer> renderer =
-            vtkSmartPointer<vtkRenderer>::New();
-    vtkSmartPointer<vtkRenderWindow> renderWindow =
-            vtkSmartPointer<vtkRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-            vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    renderWindowInteractor->SetRenderWindow(renderWindow);
-
     vector<string> files;
     files.push_back("data/lineA.sgy");
-//    files.push_back("data/lineB.sgy");
-//    files.push_back("data/lineC.sgy");
-//    files.push_back("data/lineD.sgy");
-//    files.push_back("data/lineE.sgy");
+    files.push_back("data/lineB.sgy");
+    files.push_back("data/lineC.sgy");
+    files.push_back("data/lineD.sgy");
+    files.push_back("data/lineE.sgy");
 
-    auto file = files[0];
-    //for(auto file : files)
+    for (auto file: files)
     {
-        vtkSmartPointer<vtkSegy2DReader> reader =
-          vtkSmartPointer<vtkSegy2DReader>::New();
-        reader->SetFileName(file.c_str());
-        reader->Update();
+      std::cout << "Writing to file ..." << std::endl;
+      std::string name = vtksys::SystemTools::GetFilenameName(file);
+      std::string nameNoExt = vtksys::SystemTools::GetFilenameWithoutExtension(name);
 
-        vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+      vtkSmartPointer<vtkSegy2DReader> reader =
+        vtkSmartPointer<vtkSegy2DReader>::New();
+      reader->SetFileName(file.c_str());
+      reader->Update();
 
-        vtkSmartPointer<vtkPolyDataMapper> mapper =
-                vtkSmartPointer<vtkPolyDataMapper>::New();
-
-
-        mapper->SetInputConnection(reader->GetOutputPort());
-        mapper->ScalarVisibilityOff();
-        actor->SetMapper(mapper);
-
-        vtkNew<vtkImageData> imageData;
-        reader->GetImageData(imageData.GetPointer());
-        vtkNew<vtkTexture> texture;
-        texture->SetInputData(imageData.GetPointer());
-        actor->SetTexture(texture.GetPointer());
-
-        renderer->AddActor(actor);
-
-        vtkCamera* camera = renderer->GetActiveCamera();
-        camera->SetViewUp(0, 0, 1.);
-        camera->SetPosition(1, 0, 0);
-        camera->SetFocalPoint(-1, 0, 0);
-        renderer->ResetCamera();
+      vtkNew<vtkXMLStructuredGridWriter> writer;
+      writer->SetInputData(reader->GetOutput());
+      writer->SetFileName((nameNoExt + ".vts").c_str());
+      writer->Write();
     }
-
-
-    renderWindow->Render();
-    renderWindowInteractor->Start();
 }
 
 void demo3D()

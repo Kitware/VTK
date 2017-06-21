@@ -23,21 +23,18 @@ class IOUtil {
 public:
     int readShortInteger(int pos, ifstream &in);
     int readLongInteger(int pos, ifstream &in);
+    int readLongInteger(ifstream &in);
     float readFloat(ifstream &in);
+    float readIBMFloat(ifstream &in);
     char readChar(ifstream &in);
+    unsigned char readUChar(ifstream &in);
     void swap(char* a, char* b);
     bool isBigEndian;
-    static IOUtil* Instance()
-    {
-        if(instance == NULL)
-            instance = new IOUtil();
-        return instance;
-    }
+    static IOUtil* Instance();
     int getFileSize(ifstream& in);
 
 private:
     IOUtil();
-    static IOUtil* instance;
     bool checkIfBigEndian() {
         ushort a = 0x1234;
         if (*((unsigned char *) &a) == 0x12)

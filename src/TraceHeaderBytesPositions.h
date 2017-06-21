@@ -20,10 +20,14 @@ class TraceHeaderBytesPositions
 public:
     int TraceNumber;
     int InlineNumber;
-    int NumberSamples;
     int CrosslineNumber;
+    int TraceNumberWithinEnsemble;
+    int CoordinateMultiplier;
     int XCoordinate;
     int YCoordinate;
+    int CoordinateUnits;
+    int NumberSamples;
+    int SampleInterval;
 public:
     TraceHeaderBytesPositions()
     {
@@ -34,10 +38,14 @@ private:
     {
         TraceNumber = 0;
         InlineNumber = 8;
-        NumberSamples = 114;
         CrosslineNumber = 20;
+        TraceNumberWithinEnsemble = 24;
+        CoordinateMultiplier = 70;
         XCoordinate = 72;
         YCoordinate = 76;
+        CoordinateUnits = 88;
+        NumberSamples = 114;
+        SampleInterval = 116;
     }
 };
 #endif //SEGYVISUALIZER_TRACEHEADERBYTESPOSITIONS_H
