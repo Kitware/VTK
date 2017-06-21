@@ -52,8 +52,6 @@ protected:
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  int ProcessPolyData(vtkPolyData* input, vtkPolyData* output, vtkUnsignedCharArray* ghostCells);
-
 private:
   vtkRemoveGhosts(const vtkRemoveGhosts &) VTK_DELETE_FUNCTION;
   void operator=(const vtkRemoveGhosts &) VTK_DELETE_FUNCTION;

@@ -18,13 +18,10 @@
 #include "vtkCellData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkThreshold.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vector>
@@ -93,80 +90,17 @@ int vtkRemoveGhosts::RequestData(vtkInformation *vtkNotUsed(request),
     return 1;
   }
 
-  if (vtkUnstructuredGrid* ugInput = vtkUnstructuredGrid::SafeDownCast(input))
+  output->DeepCopy(input);
+  if (vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::SafeDownCast(output))
   {
-    vtkNew<vtkThreshold> threshold;
-    threshold->SetInputData(ugInput);
-    threshold->ThresholdByLower(0);
-    threshold->SetInputArrayToProcess(
-      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::GhostArrayName());
-    threshold->Update();
-    output->ShallowCopy(threshold->GetOutput());
-    output->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-    output->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-    return 1;
+    ugOutput->RemoveGhostCells();
   }
-
-  return this->ProcessPolyData(
-    vtkPolyData::SafeDownCast(input), vtkPolyData::SafeDownCast(output), ghostArray);
-}
-
-//----------------------------------------------------------------------------
-int vtkRemoveGhosts::ProcessPolyData(
-  vtkPolyData* input, vtkPolyData* output, vtkUnsignedCharArray* ghostCells)
-{
-  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
-  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-
-  outPD->CopyGlobalIdsOn();
-  outPD->CopyAllocate(pd);
-  outCD->CopyGlobalIdsOn();
-  outCD->CopyAllocate(cd);
-
-  vtkIdType numPts = input->GetNumberOfPoints();
-  output->Allocate(input->GetNumberOfCells());
-
-  vtkNew<vtkPoints> newPoints;
-  newPoints->SetDataType(input->GetPoints()->GetDataType());
-
-  newPoints->Allocate(numPts);
-
-  std::vector<vtkIdType> pointMap(numPts, -1);
-
-  vtkNew<vtkIdList> newCellPts;
-
-  // Check that the scalars of each cell satisfy the threshold criterion
-  for (vtkIdType cellId=0; cellId < input->GetNumberOfCells(); cellId++)
+  else if (vtkPolyData* pdOutput = vtkPolyData::SafeDownCast(output))
   {
-    vtkCell* cell = input->GetCell(cellId);
-    vtkIdList* cellPts = cell->GetPointIds();
-    int numCellPts = cell->GetNumberOfPoints();
-    if (numCellPts > 0 && ghostCells->GetValue(cellId) == 0)
-    {
-      for (int i=0; i < numCellPts; i++)
-      {
-        int ptId = cellPts->GetId(i);
-        vtkIdType newId = pointMap[ptId];
-        if ( newId < 0 )
-        {
-          double x[3];
-          input->GetPoint(ptId, x);
-          newId = newPoints->InsertNextPoint(x);
-          pointMap[ptId] = newId;
-          outPD->CopyData(pd,ptId,newId);
-        }
-        newCellPts->InsertId(i,newId);
-      }
-      vtkIdType newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts.GetPointer());
-      outCD->CopyData(cd,cellId,newCellId);
-      newCellPts->Reset();
-    }
+    pdOutput->RemoveGhostCells();
   }
-  output->SetPoints(newPoints.GetPointer());
-  output->Squeeze();
-  outPD->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-  outCD->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-
+  output->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  output->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
   return 1;
 }
 
