@@ -1500,7 +1500,7 @@ void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
     rkey = COMPONENT_RANGE();
 
     //hasValidKey will update range to the cached value if it exists.
-    if( !hasValidKey(info, PER_COMPONENT(), rkey, range, comp))
+    if(!hasValidKey(info, PER_FINITE_COMPONENT(), rkey, range, comp))
     {
       double* allCompRanges = new double[this->NumberOfComponents*2];
       const bool computed = this->ComputeFiniteScalarRange(allCompRanges);
@@ -1508,7 +1508,7 @@ void vtkDataArray::ComputeFiniteRange(double range[2], int comp)
       {
         //construct the keys and add them to the info object
         vtkInformationVector* infoVec = vtkInformationVector::New();
-        info->Set( PER_COMPONENT(), infoVec );
+        info->Set(PER_FINITE_COMPONENT(), infoVec);
 
         infoVec->SetNumberOfInformationObjects( this->NumberOfComponents );
         for ( int i = 0; i < this->NumberOfComponents; ++i )
