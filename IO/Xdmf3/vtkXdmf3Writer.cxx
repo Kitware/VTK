@@ -207,13 +207,13 @@ public:
         this->DestinationGroups.push(group);
         this->Destination = this->DestinationGroups.top();
         vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dataSet);
+        //cerr << "WDO(("<< this << ")" << mbds->GetNumberOfBlocks() <<")"<<endl;
         for (unsigned int i = 0; i< mbds->GetNumberOfBlocks(); i++)
         {
           vtkDataObject *next = mbds->GetBlock(i);
           const char* blockName = mbds->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
           this->WriteDataObject(next, hasTime, time, blockName);
           this->Domain->accept(this->Writer);
-          this->gridCounter++;
         }
         this->DestinationGroups.pop();
         this->Destination = this->DestinationGroups.top();
@@ -227,6 +227,7 @@ public:
           vtkImageData::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
+        this->gridCounter++;
         break;
       }
       case VTK_RECTILINEAR_GRID:
@@ -235,6 +236,7 @@ public:
           vtkRectilinearGrid::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
+        this->gridCounter++;
         break;
       }
       case VTK_STRUCTURED_GRID:
@@ -243,6 +245,7 @@ public:
           vtkStructuredGrid::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
+        this->gridCounter++;
         break;
       }
       case VTK_POLY_DATA:
@@ -252,6 +255,7 @@ public:
           vtkPointSet::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
+        this->gridCounter++;
         break;
       }
       //case VTK_GRAPH:
@@ -262,6 +266,7 @@ public:
           vtkDirectedGraph::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
+        this->gridCounter++;
         break;
       }
       default:
@@ -485,6 +490,7 @@ int vtkXdmf3Writer::RequestData(
   {
     if (!this->ParallelInternal->Domain)
     {
+      //cerr << "RDP("<<this->MyRank << "++" << this->ParallelInternal->gridCounter <<")"<<endl;
       this->ParallelInternal->gridCounter++;
       return 1;
     }
@@ -493,6 +499,7 @@ int vtkXdmf3Writer::RequestData(
   {
     if (!this->Internal->Domain)
     {
+      //cerr << "RDS("<<this->MyRank << "++" << this->ParallelInternal->gridCounter  << ")"<<endl;
       this->Internal->gridCounter++;
       return 1;
     }
@@ -619,8 +626,8 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
   int prev = this->ParallelInternal->gridCounter;
   this->ParallelInternal->WriteDataObject(this->OriginalInput, hasTime, dataT);
   this->ParallelInternal->Domain->accept(this->ParallelInternal->Writer);
-  this->ParallelInternal->gridCounter++;
   int next = this->ParallelInternal->gridCounter;
+  //cerr << "NG("<<this->MyRank <<"(" << this->ParallelInternal << "):" << prev << "_" << next << ")"<<endl;
   int rankCount;
   if (this->NumberOfProcesses > 1)
   {
