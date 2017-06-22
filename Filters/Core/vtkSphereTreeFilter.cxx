@@ -35,7 +35,7 @@ vtkCxxSetObjectMacro(vtkSphereTreeFilter,SphereTree,vtkSphereTree);
 vtkSphereTreeFilter::vtkSphereTreeFilter()
 {
   this->SphereTree = nullptr;
-  this->TreeHierarchy = 1;
+  this->TreeHierarchy = true;
 
   this->ExtractionMode = VTK_SPHERE_TREE_LEVELS;
   this->Level = (-1);

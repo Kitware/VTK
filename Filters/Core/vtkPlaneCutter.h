@@ -132,6 +132,18 @@ public:
   vtkBooleanMacro(GeneratePolygons, bool);
   //@}
 
+  //@{
+  /**
+   * Indicate whether to build tree hierarchy. Computing the tree
+   * hierarchy can take some time on the first computation but if
+   * the input does not change, the computation of all further
+   * slice will be faster. Default is on.
+   */
+  vtkSetMacro(BuildHierarchy, bool);
+  vtkGetMacro(BuildHierarchy, bool);
+  vtkBooleanMacro(BuildHierarchy, bool);
+  //@}
+
   /**
    * See vtkAlgorithm for details.
    */
@@ -152,6 +164,7 @@ protected:
   bool ComputeNormals;
   bool InterpolateAttributes;
   bool GeneratePolygons;
+  bool BuildHierarchy;
 
   // Helpers
   vtkSphereTree* SphereTree;

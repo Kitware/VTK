@@ -1285,8 +1285,8 @@ vtkPlaneCutter::vtkPlaneCutter()
   this->ComputeNormals = false;
   this->InterpolateAttributes = true;
   this->GeneratePolygons = true;
+  this->BuildHierarchy = true;
   this->SphereTree = vtkSphereTree::New();
-  this->SphereTree->BuildHierarchyOn();
   this->SphereTree->SetResolution(3);
 }
 
@@ -1505,6 +1505,7 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
   // Okay we'll be using a sphere tree. The tree's mtime will handle
   // changes to the input. Delegation occurs to the appropriate
   // algorithm.
+  this->SphereTree->SetBuildHierarchy(this->BuildHierarchy);
   this->SphereTree->Build(input);
 
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
