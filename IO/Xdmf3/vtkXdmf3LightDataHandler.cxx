@@ -36,6 +36,7 @@
 #include "XdmfVisitor.hpp"
 
 #include <iostream>
+#include <cassert>
 
 //------------------------------------------------------------------------------
 shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(

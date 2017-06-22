@@ -42,6 +42,8 @@
 #include "XdmfSet.hpp"
 #include "XdmfUnstructuredGrid.hpp"
 
+#include <cassert>
+
 //------------------------------------------------------------------------------
 shared_ptr<vtkXdmf3HeavyDataHandler> vtkXdmf3HeavyDataHandler::New (
    vtkXdmf3ArraySelection *fs,
