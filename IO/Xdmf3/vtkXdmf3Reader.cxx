@@ -47,6 +47,7 @@
 #include "XdmfRegularGrid.hpp"
 #include "XdmfUnstructuredGrid.hpp"
 
+#include <algorithm>
 
 //TODO: implement fast and approximate CanReadFile
 //TODO: read from buffer, allowing for xincludes
@@ -705,7 +706,7 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
     time =
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     //find the nearest match (floor), so we have something exact to search for
-    std::vector<double>::iterator it = upper_bound(
+    std::vector<double>::iterator it = std::upper_bound(
       this->Internal->TimeSteps.begin(), this->Internal->TimeSteps.end(), time);
     if (it != this->Internal->TimeSteps.begin())
     {

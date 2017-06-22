@@ -1102,8 +1102,12 @@ void vtkXdmf3DataSet::VTKToXdmf(
 {
   int whole_extent[6];
   dataSet->GetExtent(whole_extent);
+  double bounds[6];
+  dataSet->GetBounds(bounds);
   double origin[3];
-  dataSet->GetOrigin(origin);
+  origin[0] = bounds[0];
+  origin[1] = bounds[2];
+  origin[2] = bounds[4];
   double spacing[3];
   dataSet->GetSpacing(spacing);
   unsigned int dims[3];
