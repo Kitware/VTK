@@ -61,17 +61,20 @@
 #ifndef vtkArrayCalculator_h
 #define vtkArrayCalculator_h
 
+#include "vtkDataObject.h" // For attribute types
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkDataSet;
 class vtkFunctionParser;
 
+#ifndef VTK_LEGACY_REMOVE
 #define VTK_ATTRIBUTE_MODE_DEFAULT 0
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 #define VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA 3
 #define VTK_ATTRIBUTE_MODE_USE_EDGE_DATA 4
+#endif
 
 class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkPassInputTypeAlgorithm
 {
@@ -187,20 +190,51 @@ public:
    * (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
    * For graphs you can set the filter to use vertex data
    * (AttributeModeToUseVertexData) or edge data (AttributeModeToUseEdgeData).
+   *
+   * @deprecated Replaced By GetAttributeType and SetAttributeType as of VTK 8.1.
    */
-  vtkSetMacro(AttributeMode,int);
-  vtkGetMacro(AttributeMode,int);
-  void SetAttributeModeToDefault()
+  VTK_LEGACY(void SetAttributeMode(int newMode);)
+  VTK_LEGACY(int GetAttributeMode();)
+  VTK_LEGACY(void SetAttributeModeToDefault())
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
-  void SetAttributeModeToUsePointData()
+  VTK_LEGACY(void SetAttributeModeToUsePointData())
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
-  void SetAttributeModeToUseCellData()
+  VTK_LEGACY(void SetAttributeModeToUseCellData())
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
-  void SetAttributeModeToUseVertexData()
+  VTK_LEGACY(void SetAttributeModeToUseVertexData())
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA);};
-  void SetAttributeModeToUseEdgeData()
+  VTK_LEGACY(void SetAttributeModeToUseEdgeData())
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_EDGE_DATA);};
-  const char *GetAttributeModeAsString();
+  VTK_LEGACY(const char *GetAttributeModeAsString());
+  //@}
+
+  /**
+   * Returns a string representation of the calculator's AttributeType
+   */
+  const char *GetAttributeTypeAsString();
+
+  static const int DEFAULT_ATTRIBUTE_TYPE = -1;
+  //@{
+  /**
+   * Control which AttributeType the filter operates on (point data or cell data
+   * for vtkDataSets).  By default the filter uses Point/Vertex/Row data depending
+   * on the input data type.  The input value for this function should be one of the
+   * constants in vtkDataObject::AttributeTypes or DEFAULT_ATTRIBUTE_TYPE for 'default behavior'.
+   */
+  vtkSetMacro(AttributeType, int);
+  vtkGetMacro(AttributeType, int);
+  void SetAttributeTypeToDefault()
+  {this->SetAttributeType(DEFAULT_ATTRIBUTE_TYPE);}
+  void SetAttributeTypeToPointData()
+  {this->SetAttributeType(vtkDataObject::POINT);}
+  void SetAttributeTypeToCellData()
+  {this->SetAttributeType(vtkDataObject::CELL);}
+  void SetAttributeTypeToEdgeData()
+  {this->SetAttributeType(vtkDataObject::EDGE);}
+  void SetAttributeTypeToVertexData()
+  {this->SetAttributeType(vtkDataObject::VERTEX);}
+  void SetAttributeTypeToRowData()
+  {this->SetAttributeType(vtkDataObject::ROW);}
   //@}
 
   /**
@@ -284,7 +318,7 @@ protected:
   char ** VectorVariableNames;
   int     NumberOfScalarArrays;
   int     NumberOfVectorArrays;
-  int     AttributeMode;
+  int     AttributeType;
   int   * SelectedScalarComponents;
   int  ** SelectedVectorComponents;
   vtkFunctionParser* FunctionParser;
