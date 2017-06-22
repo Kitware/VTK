@@ -650,23 +650,62 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
           rankFileName.append(".");
           rankFileName.append(std::to_string(rankCount));
           rankFileName.append(".xmf");
-          if (this->ParallelInternal->gridType == VTK_RECTILINEAR_GRID)
+          shared_ptr<XdmfGridController> partController =
+            XdmfGridController::New(rankFileName.c_str(),
+                                    rankGridName.c_str());
+          switch (this->ParallelInternal->gridType)
+          {
+          case VTK_STRUCTURED_POINTS:
+          case VTK_IMAGE_DATA:
+          case VTK_UNIFORM_GRID:
           {
             shared_ptr<XdmfRegularGrid> grid =
-              XdmfRegularGrid::New(1, 1, 1,  1, 1, 1, 0, 0, 0);
-            shared_ptr<XdmfGridController> partController =
-              XdmfGridController::New(rankFileName.c_str(),
-                                      rankGridName.c_str());
+              XdmfRegularGrid::New(1,1,1,
+                                   0,0,0,
+                                   0.0,0.0,0.0);
             grid->setGridController(partController);
             aggregategroup->insert(grid);
+            break;
           }
-          else
+          case VTK_RECTILINEAR_GRID:
           {
-            shared_ptr<XdmfUnstructuredGrid> grid = XdmfUnstructuredGrid::New();
-            shared_ptr<XdmfGridController> partController =
-              XdmfGridController::New(rankFileName, rankGridName);
+            shared_ptr<XdmfArray> xXCoords = XdmfArray::New();
+            shared_ptr<XdmfArray> xYCoords = XdmfArray::New();
+            shared_ptr<XdmfArray> xZCoords = XdmfArray::New();
+            shared_ptr<XdmfRectilinearGrid> grid =
+              XdmfRectilinearGrid::New(xXCoords, xYCoords, xZCoords);
             grid->setGridController(partController);
             aggregategroup->insert(grid);
+            break;
+          }
+          case VTK_STRUCTURED_GRID:
+          {
+            shared_ptr<XdmfArray> xdims = XdmfArray::New();
+            shared_ptr<XdmfCurvilinearGrid> grid =
+              XdmfCurvilinearGrid::New(xdims);
+            grid->setGridController(partController);
+            aggregategroup->insert(grid);
+            break;
+          }
+          case VTK_POLY_DATA:
+          case VTK_UNSTRUCTURED_GRID:
+          {
+            shared_ptr<XdmfUnstructuredGrid> grid =
+              XdmfUnstructuredGrid::New();
+            grid->setGridController(partController);
+            aggregategroup->insert(grid);
+            break;
+          }
+          //case VTK_GRAPH:
+          case VTK_DIRECTED_GRAPH:
+          //case VTK_UNDIRECTED_GRAPH:
+          {
+            //todo: graph can't have a grid controller
+            //  shared_ptr<XdmfGraph> grid = XdmfGraph::New(0);
+            //  //grid->setGridController(partController);
+            //  aggregategroup->insert(grid);
+            break;
+          }
           }
         } // end for (; prev<next;prev++)
       } // end for (rankCount=0;rankCount<this->NumberOfProcesses;rankCount++)
