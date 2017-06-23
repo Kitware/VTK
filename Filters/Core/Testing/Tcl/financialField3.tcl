@@ -115,7 +115,7 @@ vtkRearrangeFields rf
 
 vtkArrayCalculator calc
     calc SetInputConnection [rf GetOutputPort]
-    calc SetAttributeModeToUsePointData
+    calc SetAttributeTypeToPointData
     calc SetFunction "s / $max"
     calc AddScalarVariable s $scalar 0
     calc SetResultArrayName resArray

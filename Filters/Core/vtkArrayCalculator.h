@@ -193,6 +193,7 @@ public:
    *
    * @deprecated Replaced By GetAttributeType and SetAttributeType as of VTK 8.1.
    */
+#ifndef VTK_LEGACY_REMOVE
   VTK_LEGACY(void SetAttributeMode(int newMode);)
   VTK_LEGACY(int GetAttributeMode();)
   VTK_LEGACY(void SetAttributeModeToDefault())
@@ -206,6 +207,7 @@ public:
   VTK_LEGACY(void SetAttributeModeToUseEdgeData())
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_EDGE_DATA);};
   VTK_LEGACY(const char *GetAttributeModeAsString());
+#endif
   //@}
 
   /**

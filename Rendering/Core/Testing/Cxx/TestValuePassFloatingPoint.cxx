@@ -108,7 +108,7 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
   vtkSmartPointer<vtkArrayCalculator> calc =
     vtkSmartPointer<vtkArrayCalculator>::New();
   calc->SetInputConnection(source->GetOutputPort());
-  calc->SetAttributeModeToUsePointData();
+  calc->SetAttributeTypeToPointData();
   calc->AddScalarArrayName("delta_x");
   calc->AddScalarArrayName("delta_y");
   calc->AddScalarArrayName("delta_z");

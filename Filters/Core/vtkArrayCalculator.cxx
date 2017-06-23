@@ -576,9 +576,11 @@ int vtkArrayCalculator::RequestData(
   return 1;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 void vtkArrayCalculator::SetAttributeMode(int mode)
 {
-  VTK_LEGACY_BODY(vtkArrayCalculator::SetAttributeMode, "VTK 8.1");
+  VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::SetAttributeMode, "VTK 8.1",
+    vtkArrayCalculator::SetAttributeType);
   switch (mode)
   {
     default:
@@ -602,7 +604,8 @@ void vtkArrayCalculator::SetAttributeMode(int mode)
 
 int vtkArrayCalculator::GetAttributeMode()
 {
-  VTK_LEGACY_BODY(vtkArrayCalculator::GetAttributeMode, "VTK 8.1");
+  VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::GetAttributeMode, "VTK 8.1",
+    vtkArrayCalculator::GetAttributeType);
   switch (this->AttributeType)
   {
     default:
@@ -619,6 +622,7 @@ int vtkArrayCalculator::GetAttributeMode()
       return VTK_ATTRIBUTE_MODE_USE_EDGE_DATA;
   }
 }
+#endif
 
 void vtkArrayCalculator::SetFunction(const char* function)
 {
@@ -1031,9 +1035,11 @@ void vtkArrayCalculator::AddCoordinateVectorVariable(const char* variableName,
   this->NumberOfCoordinateVectorArrays++;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 const char* vtkArrayCalculator::GetAttributeModeAsString()
 {
-  VTK_LEGACY_BODY(vtkArrayCalculator::GetAttributeModeAsString, "VTK 8.1");
+  VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::GetAttributeModeAsString, "VTK 8.1",
+    vtkArrayCalculator::GetAttributeTypeAsString);
   int attributeMode = this->GetAttributeMode();
   if ( attributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
   {
@@ -1056,6 +1062,7 @@ const char* vtkArrayCalculator::GetAttributeModeAsString()
     return "UseEdgeData";
   }
 }
+#endif
 
 const char* vtkArrayCalculator::GetAttributeTypeAsString()
 {
