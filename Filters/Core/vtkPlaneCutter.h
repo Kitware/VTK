@@ -59,6 +59,8 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkSmartPointer.h" // For SmartPointer
+#include <vector> // For vector
 
 class vtkCellArray;
 class vtkCellData;
@@ -149,13 +151,6 @@ public:
    */
   int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
-  /**
-   * Retrieve the sphere tree used to accelerate cutting. This API may
-   * be changed in the future (i.e., use a general locator as compared
-   * to a sphere tree).
-   */
-  vtkGetObjectMacro(SphereTree, vtkSphereTree);
-
 protected:
   vtkPlaneCutter();
   ~vtkPlaneCutter() VTK_OVERRIDE;
@@ -167,7 +162,7 @@ protected:
   bool BuildHierarchy;
 
   // Helpers
-  vtkSphereTree* SphereTree;
+  std::vector<vtkSmartPointer<vtkSphereTree>> SphereTrees;
 
   // Pipeline-related methods
   int RequestDataObject(vtkInformation*,
@@ -180,7 +175,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
   int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  virtual int ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* output);
+  virtual int ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output);
 
   static void AddNormalArray(double* planeNormal, vtkDataSet* ds);
   static void InitializeOutput(vtkMultiPieceDataSet* output);

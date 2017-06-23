@@ -1286,19 +1286,12 @@ vtkPlaneCutter::vtkPlaneCutter()
   this->InterpolateAttributes = true;
   this->GeneratePolygons = true;
   this->BuildHierarchy = true;
-  this->SphereTree = vtkSphereTree::New();
-  this->SphereTree->SetResolution(3);
 }
 
 //----------------------------------------------------------------------------
 vtkPlaneCutter::~vtkPlaneCutter()
 {
   this->SetPlane(nullptr);
-  if (this->SphereTree)
-  {
-    this->SphereTree->Delete();
-    this->SphereTree = nullptr;
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -1392,7 +1385,11 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkNew<vtkMultiPieceDataSet> output;
     mb->SetBlock(0, output.Get());
-    return this->ExecuteDataSet(dsInput, output.Get());
+    if (this->SphereTrees.size() < 1)
+    {
+      this->SphereTrees.push_back(vtkSmartPointer<vtkSphereTree>::New());
+    }
+    return this->ExecuteDataSet(dsInput, this->SphereTrees[0].GetPointer(), output.Get());
   }
   else if(hdInput)
   {
@@ -1401,12 +1398,18 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
     iter.TakeReference(hdInput->NewIterator());
     iter->SkipEmptyNodesOn();
     int ret = 0;
+    unsigned int treeIndex = 0;
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
+      if (this->SphereTrees.size() <= treeIndex)
+      {
+        this->SphereTrees.push_back(vtkSmartPointer<vtkSphereTree>::New());
+      }
       vtkDataSet* hdLeafInput = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       vtkNew<vtkMultiPieceDataSet> output;
-      ret += this->ExecuteDataSet(hdLeafInput, output.Get());
+      ret += this->ExecuteDataSet(hdLeafInput, this->SphereTrees[treeIndex].GetPointer(), output.Get());
       mb->SetDataSet(iter, output.Get());
+      treeIndex++;
     }
     return ret;
   }
@@ -1419,7 +1422,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 
 //----------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
-int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* output)
+int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output)
 {
   vtkPlane* plane = this->Plane;
   if (this->Plane == nullptr)
@@ -1505,15 +1508,15 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
   // Okay we'll be using a sphere tree. The tree's mtime will handle
   // changes to the input. Delegation occurs to the appropriate
   // algorithm.
-  this->SphereTree->SetBuildHierarchy(this->BuildHierarchy);
-  this->SphereTree->Build(input);
+  tree->SetBuildHierarchy(this->BuildHierarchy);
+  tree->Build(input);
 
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
   {
     StructuredFunctor functor(input,
       output,
       plane,
-      this->SphereTree,
+      tree,
       planeOrigin,
       planeNormal,
       this->InterpolateAttributes,
@@ -1526,7 +1529,7 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
     RectilinearFunctor functor(input,
       output,
       plane,
-      this->SphereTree,
+      tree,
       planeOrigin,
       planeNormal,
       this->InterpolateAttributes,
@@ -1539,7 +1542,7 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* outp
     PointSetFunctor functor(input,
       output,
       plane,
-      this->SphereTree,
+      tree,
       planeOrigin,
       planeNormal,
       this->InterpolateAttributes);
