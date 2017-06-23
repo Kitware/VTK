@@ -578,3 +578,7 @@ if(VTK_DATA_EXCLUDE_FROM_ALL)
       "without manually building the 'VTKData' target.")
   endif()
 endif()
+
+#-----------------------------------------------------------------------------
+# Install the license file
+install(FILES ${VTK_SOURCE_DIR}/Copyright.txt DESTINATION ${VTK_INSTALL_DOC_DIR})
