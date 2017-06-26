@@ -1,20 +1,25 @@
-/*=========================================================================
-
-  Program:   Visualization Toolkit
-  Module:    vtkmClip.h
-
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
+//=============================================================================
+//
+//  Copyright (c) Kitware, Inc.
+//  All rights reserved.
+//  See LICENSE.txt for details.
+//
+//  This software is distributed WITHOUT ANY WARRANTY; without even
+//  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//  PURPOSE.  See the above copyright notice for more information.
+//
+//  Copyright 2012 Sandia Corporation.
+//  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+//  the U.S. Government retains certain rights in this software.
+//
+//=============================================================================
 /**
  * @class vtkmClip
  * @brief Clip a dataset using the accelerated vtk-m Clip filter.
+ *
+ * Clip a dataset using either a given value or by using an vtkImplicitFunction
+ * Currently the supported implicit functions are Box, Plane, and Sphere.
+ *
  */
 
 #ifndef vtkmClip_h
