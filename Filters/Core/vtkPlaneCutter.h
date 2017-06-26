@@ -136,6 +136,18 @@ public:
 
   //@{
   /**
+   * Indicate whether to build the sphere tree. Computing the sphere
+   * will take some time on the first computation
+   * but if the input does not change, the computation of all further
+   * slice will be much faster. Default is on.
+   */
+  vtkSetMacro(BuildTree, bool);
+  vtkGetMacro(BuildTree, bool);
+  vtkBooleanMacro(BuildTree, bool);
+  //@}
+
+  //@{
+  /**
    * Indicate whether to build tree hierarchy. Computing the tree
    * hierarchy can take some time on the first computation but if
    * the input does not change, the computation of all further
@@ -159,6 +171,7 @@ protected:
   bool ComputeNormals;
   bool InterpolateAttributes;
   bool GeneratePolygons;
+  bool BuildTree;
   bool BuildHierarchy;
 
   // Helpers
