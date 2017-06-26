@@ -80,6 +80,10 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
 
   std::vector<vtkOBJImportedMaterial*>  listOfMaterials;
   result_code    = 0;
+  if (Filename.empty())
+  {
+    return listOfMaterials;
+  }
   const char* filename = Filename.c_str();
 
   int line_number = 0;
