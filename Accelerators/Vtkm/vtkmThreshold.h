@@ -13,7 +13,21 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-
+/**
+ * @class   vtkmThreshold
+ * @brief   extracts cells where scalar value in cell satisfies threshold criterion
+ *
+ * vtkmThreshold is a filter that extracts cells from any dataset type that
+ * satisfy a threshold criterion. A cell satisfies the criterion if the
+ * scalar value of every point or cell satisfies the criterion. The
+ * criterion takes the form of between two values. The output of this
+ * filter is an unstructured grid.
+ *
+ * Note that scalar values are available from the point and cell attribute
+ * data. By default, point data is used to obtain scalars, but you can
+ * control this behavior. See the AttributeMode ivar below.
+ *
+*/
 #ifndef vtkmThreshold_h
 #define vtkmThreshold_h
 
