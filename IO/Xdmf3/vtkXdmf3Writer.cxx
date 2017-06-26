@@ -298,7 +298,6 @@ vtkXdmf3Writer::vtkXdmf3Writer()
   this->FileName = NULL;
   this->LightDataLimit = 100;
   this->WriteAllTimeSteps = false;
-  this->GhostLevel = 0;
   this->UseParallel = true;
   this->TimeValues = NULL;
   this->TimeValues = 0;

@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -47,11 +48,6 @@ int vtkPXdmf3Writer::CheckParameters ()
   int numberOfProcesses = c ? c->GetNumberOfProcesses() : 1;
   int myRank = c ? c->GetLocalProcessId() : 0;
 
-  if (this->GhostLevel > 0)
-  {
-    vtkWarningMacro(<< "Xdmf3Writer ignores ghost level request");
-  }
-
   return this->Superclass::CheckParametersInternal(numberOfProcesses, myRank);
 }
 
@@ -62,9 +58,8 @@ int vtkPXdmf3Writer::RequestUpdateExtent (
   vtkInformationVector* outputVector)
 {
   this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
-  vtkMultiProcessController *c =
-    vtkMultiProcessController::GetGlobalController();
-  if (c)
+  if (vtkMultiProcessController *c =
+      vtkMultiProcessController::GetGlobalController())
   {
     int numberOfProcesses = c->GetNumberOfProcesses();
     int myRank = c->GetLocalProcessId();

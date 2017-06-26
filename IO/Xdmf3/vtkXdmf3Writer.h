@@ -57,8 +57,8 @@ public:
    * We never write out ghost cells.  This variable is here to satisfy
    * the behavior of ParaView on invoking a parallel writer.
    */
-  vtkSetMacro(GhostLevel, int);
-  vtkGetMacro(GhostLevel, int);
+  void SetGhostLevel(int) {}
+  int GetGhostLevel() {return 0;}
   //@}
 
   /**
@@ -108,7 +108,6 @@ protected:
   char *FileName;
   unsigned int LightDataLimit;
   bool WriteAllTimeSteps;
-  int GhostLevel;
   int NumberOfProcesses;
   int MyRank;
 
