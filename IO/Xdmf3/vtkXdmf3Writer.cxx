@@ -167,6 +167,7 @@ public:
   {
     this->NumberOfTimeSteps = 1;
     this->CurrentTimeIndex = 0;
+    this->isMultiBlock = false;
     this->gridType = 0;
     this->gridCounter = 0;
 
@@ -202,6 +203,7 @@ public:
     {
       case VTK_MULTIBLOCK_DATA_SET:
       {
+        this->isMultiBlock = true;
         shared_ptr<XdmfGridCollection> group = XdmfGridCollection::New();
         this->Destination->insert(group);
         this->DestinationGroups.push(group);
@@ -288,6 +290,7 @@ public:
   int CurrentTimeIndex;
   int gridType;
   int gridCounter;
+  bool isMultiBlock;
 };
 
 //==============================================================================
@@ -634,8 +637,35 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
     {
       shared_ptr<XdmfGridCollection> aggregategroup = XdmfGridCollection::New();
       aggregategroup->setType(XdmfGridCollectionType::Spatial());
-      for (; prev<next; prev++)
+      if (this->ParallelInternal->isMultiBlock)
       {
+        cerr << "IS MB" << endl;
+        for (rankCount = 0; rankCount<this->NumberOfProcesses; rankCount++)
+          {
+          std::string rankFileName = choppedFileName;
+          rankFileName.append(".");
+          rankFileName.append(std::to_string(this->NumberOfProcesses));
+          rankFileName.append(".");
+          rankFileName.append(std::to_string(rankCount));
+          rankFileName.append(".xmf");
+          std::string rankGridName = "/Xdmf/Domain/Grid[";
+          rankGridName.append(std::to_string(1));
+          rankGridName.append("]");
+
+          shared_ptr<XdmfGridController> partController =
+            XdmfGridController::New(rankFileName.c_str(),
+                                    rankGridName.c_str());
+          shared_ptr<XdmfGridCollection> grid = XdmfGridCollection::New();
+          grid->setType(XdmfGridCollectionType::Spatial());
+          grid->setGridController(partController);
+          aggregategroup->insert(grid);
+          }
+      }
+      else
+      {
+      cerr << "IS NOT" << endl;
+        for (; prev<next; prev++)
+        {
         //handle xml indexing differences
         std::string rankGridName = "/Xdmf/Domain/Grid[";
         rankGridName.append(std::to_string(prev+1));
@@ -706,8 +736,9 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
             break;
           }
           }
-        } // end for (; prev<next;prev++)
-      } // end for (rankCount=0;rankCount<this->NumberOfProcesses;rankCount++)
+        }
+      }
+      }
       this->ParallelInternal->AggregateDomain->insert(aggregategroup);
       this->ParallelInternal->AggregateDomain
         ->accept(this->ParallelInternal->AggregateWriter);

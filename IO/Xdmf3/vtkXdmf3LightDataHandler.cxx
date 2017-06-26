@@ -151,6 +151,14 @@ void vtkXdmf3LightDataHandler::InspectXDMF
       shared_dynamic_cast<XdmfGridCollection>(item);
     bool isDomain = asGC?false:true;
 
+    if (asGC)
+    {
+      shared_ptr<XdmfGridController> gcont = asGC->getGridController();
+      if (gcont)
+      {
+        asGC->read();
+      }
+    }
     bool isTemporal = false;
     if (asGC && asGC->getType() == XdmfGridCollectionType::Temporal())
     {
