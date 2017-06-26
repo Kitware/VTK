@@ -61,6 +61,16 @@ Here are some places to look for patches:
   - openSUSE
     * https://build.opensuse.org/package/show/openSUSE:Factory/vtk
 
+### Increment the Version Number
+
+If the version number in CMake/vtkVersion.cmake is not already set accordingly,
+submit a merge request to update VTK's version number in the master branch to
+what the new release is to be called by. Any point beyond that in the master
+branch could serve as the start of the new release branch.
+
+After creating the release branch, submit another merge request to update the
+master branch's minor version number.
+
 ### Creating the Branch
 
 Pick a viable first-parent commit from master and run:
