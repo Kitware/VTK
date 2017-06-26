@@ -69,11 +69,28 @@ public:
   // Specify file name of Wavefront .obj file.
   void SetFileName(const char* arg)
   {
+    if (arg == NULL)
+    {
+      return;
+    }
+    if (!strcmp(this->FileName.c_str(), arg))
+    {
+      return;
+    }
     FileName    = std::string(arg);
   }
   void SetMTLfileName( const char* arg )
   {
+    if (arg == NULL)
+    {
+      return;
+    }
+    if (!strcmp(this->MTLFileName.c_str(), arg))
+    {
+      return;
+    }
     MTLFileName = std::string(arg);
+    this->DefaultMTLFileName = false;
   }
   void SetTexturePath( const char* arg )
   {
@@ -140,6 +157,7 @@ protected:
 
   std::string FileName;     // filename (.obj) being read
   std::string MTLFileName;  // associated .mtl to *.obj, typically it is *.obj.mtl
+  bool DefaultMTLFileName;  // tells whether default of *.obj.mtl to be used
   std::string TexturePath;
   int         SuccessParsingFiles;
 

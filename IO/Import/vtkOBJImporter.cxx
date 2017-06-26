@@ -216,6 +216,7 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
   // Instantiate object with NULL filename, and no materials yet loaded.
   this->FileName    = "";
   this->MTLFileName = "";
+  this->DefaultMTLFileName = true;
   this->TexturePath = ".";
   this->VertexScale = 1.0;
   this->SuccessParsingFiles = 1;
@@ -364,6 +365,29 @@ int vtkOBJPolyDataProcessor::RequestData(
   for( size_t k = 0; k < this->parsedMTLs.size(); ++k )
   {
     delete this->parsedMTLs[k];
+  }
+
+  // If the MTLFileName is not set explicitly, we assume *.obj.mtl as the MTL
+  // filename
+  std::string mtlname = this->MTLFileName;
+  if (this->DefaultMTLFileName)
+  {
+    mtlname = this->FileName + ".mtl";
+  }
+  FILE *defMTL = fopen(mtlname.c_str(), "r");
+  if (defMTL == NULL)
+  {
+    if (!this->DefaultMTLFileName)
+    {
+      vtkErrorMacro(<< "The MTL file " << mtlname <<
+                    " could not be found");
+      return 0;
+    }
+  }
+  else
+  {
+    this->MTLFileName = mtlname;
+    fclose(defMTL);
   }
 
   int mtlParseResult;
