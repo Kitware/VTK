@@ -263,11 +263,12 @@ void SegyReader::AddScalars(vtkStructuredGrid* grid)
 
   pointData->Allocate(crossLineCount * sampleCountPerTrace);
 
+  int j = 0;
   for (int k = 0; k < sampleCountPerTrace; k++)
   {
     for (int i = 0; i < traces.size(); i++)
     {
-      pointData->InsertValue( i * sampleCountPerTrace + k, traces[i]->data[k]);
+      pointData->InsertValue(j++, traces[i]->data[k]);
     }
   }
 
@@ -284,7 +285,7 @@ void SegyReader::ExportData2D(vtkStructuredGrid * grid)
 
     for(int k=0; k<sampleCountPerTrace; k++)
     {
-      for(int i=0;i < traces.size(); i++)
+        for(int i=0;i < traces.size(); i++)
         {
             auto trace = traces[i];
             float coordinateMultiplier = (trace->CoordinateMultiplier < 0) ?
