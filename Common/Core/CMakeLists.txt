@@ -180,6 +180,7 @@ SET(Module_SRCS
   vtkDataArrayCollection.cxx
   vtkDataArrayCollectionIterator.cxx
   vtkDataArray.cxx
+  vtkDataArrayPrivate.txx
   vtkDataArraySelection.cxx
   vtkDebugLeaks.cxx
   vtkDebugLeaksManager.cxx
@@ -713,6 +714,13 @@ set_source_files_properties(
   vtkSOADataArrayTemplateInstantiate.cxx # Has no header
   PROPERTIES SKIP_HEADER_INSTALL 1
 )
+
+if(MSVC)
+  set_source_files_properties(
+    vtkDataArray.cxx
+    PROPERTIES COMPILE_FLAGS /bigobj
+    )
+endif()
 
 # Need nsl to resolve gethostbyname on SunOS-5.8
 # and socket also
