@@ -48,10 +48,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnsignedCharArray.h"
 #include "vtkVolumetricPass.h"
 
+#include <vtksys/RegularExpression.hxx>
+
 #include <cmath>
 #include <cassert>
 #include <cstdlib>
 #include <list>
+#include <sstream>
 #include <string>
 
 class vtkGLPickInfo
@@ -908,10 +911,12 @@ bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
   // We'll always fallback to regular depth peeling until this is fixed.
   // Only disable for mesa + llvmpipe/SWR, since those are the drivers that
   // seem to be affected by this.
+  // This has been fixed in Mesa 17.2.
   const char *glVersionC =
       reinterpret_cast<const char *>(glGetString(GL_VERSION));
   std::string glVersion = std::string(glVersionC ? glVersionC : "");
-  if (glVersion.find("Mesa") != std::string::npos)
+  if (dualDepthPeelingSupported &&
+      glVersion.find("Mesa") != std::string::npos)
   {
     const char *glRendererC =
         reinterpret_cast<const char *>(glGetString(GL_RENDERER));
@@ -919,10 +924,40 @@ bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
     if (glRenderer.find("llvmpipe") != std::string::npos ||
         glRenderer.find("SWR") != std::string::npos)
     {
-      vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
-                    "GL_VERSION = '" << glVersion << "'; "
-                    "GL_RENDERER = '" << glRenderer << "'.");
-      dualDepthPeelingSupported = false;
+      bool mesaCompat = false;
+      // The bug has been fixed with mesa 17.2.0. The version string is approx:
+      // 3.3 (Core Profile) Mesa 17.2.0-devel (git-08cb8cf256)
+      vtksys::RegularExpression re("Mesa ([0-9]+)\\.([0-9]+)\\.");
+      if (re.find(glVersion))
+      {
+        int majorVersion;
+        std::string majorStr = re.match(1);
+        std::istringstream majorParse(majorStr);
+        majorParse >> majorVersion;
+        if (majorVersion > 17)
+        {
+          mesaCompat = true;
+        }
+        else if (majorVersion == 17)
+        {
+          int minorVersion;
+          std::string minorStr = re.match(2);
+          std::istringstream minorParse(minorStr);
+          minorParse >> minorVersion;
+          if (minorVersion >= 2)
+          {
+            mesaCompat = true;
+          }
+        }
+      }
+
+      if (!mesaCompat)
+      {
+        vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
+                      "GL_VERSION = '" << glVersion << "'; "
+                      "GL_RENDERER = '" << glRenderer << "'.");
+        dualDepthPeelingSupported = false;
+      }
     }
   }
 
