@@ -1593,7 +1593,12 @@ void vtkXdmf3DataSet::VTKToXdmf(
   bool hasTime, double time,
   const char* name)
 {
-  vtkDataArray *vCoords = dataSet->GetPoints()->GetData();
+  vtkPoints *pts = dataSet->GetPoints();
+  if (!pts)
+  {
+    return;
+  }
+  vtkDataArray *vCoords = pts->GetData();
   shared_ptr<XdmfGeometry> xCoords = XdmfGeometry::New();
   bool OK = vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xCoords.get());
   if (!OK)
