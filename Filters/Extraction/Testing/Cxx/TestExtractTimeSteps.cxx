@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkExtractTimeSteps.h"
 
+#include "vtkDataObject.h"
 #include "vtkExodusIIReader.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
@@ -83,7 +84,7 @@ int TestExtractTimeSteps(int argc, char *argv[])
   {
     for (int i = 0; i < 10; ++i)
     {
-      if (std::abs(expected[i] - result[i]) > e)
+      if (std::fabs(expected[i] - result[i]) > e)
       {
         std::cout << "extracted time steps values do not match" << std::endl;
         return TEST_FAILED_RETVAL;
@@ -119,13 +120,24 @@ int TestExtractTimeSteps(int argc, char *argv[])
   {
     for (int i = 0; i < 8; ++i)
     {
-      if (std::abs(expected2[i] - result[i]) > e)
+      if (std::fabs(expected2[i] - result[i]) > e)
       {
         std::cout << expected2[i] << " " << result[i] << std::endl;
         std::cout << "extracted time steps values do not match for use range test" << std::endl;
         return TEST_FAILED_RETVAL;
       }
     }
+  }
+
+  extracter->UpdateTimeStep(0.0020);
+  std::cout << extracter->GetExecutive()->GetClassName() << std::endl;
+  info = extracter->GetOutput()->GetInformation();
+  double t = info->Get(vtkDataObject::DATA_TIME_STEP());
+  if (std::fabs(0.0019 - t) > e)
+  {
+    std::cout << "vtkExtractTimeSteps returned wrong time step when intermediate time given" << std::endl;
+    std::cout << "When asked for timestep " << 0.0020 << " it resulted in time: " << t << std::endl;
+    return TEST_FAILED_RETVAL;
   }
 
   return TEST_PASSED_RETVAL;
