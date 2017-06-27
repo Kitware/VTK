@@ -46,130 +46,10 @@ public:
   {
   }
   ~Internals() {};
-  void Init(const char *filename)
-  {
-    this->gridCounter = 0;
-    this->Domain = XdmfDomain::New();
-    this->Writer = XdmfWriter::New(filename);
-    this->Writer->setLightDataLimit(0);
-    this->Writer->getHeavyDataWriter()->setReleaseData(true);
-    this->NumberOfTimeSteps = 1;
-    this->CurrentTimeIndex = 0;
-    this->DestinationGroups.push(this->Domain);
-    this->Destination = this->DestinationGroups.top();
-
-  }
-  void SwitchToTemporal()
-  {
-    shared_ptr<XdmfGridCollection> dest = XdmfGridCollection::New();
-    dest->setType(XdmfGridCollectionType::Temporal());
-    this->DestinationGroups.push(dest);
-    this->Destination = this->DestinationGroups.top();
-    this->Domain->insert(dest);
-  }
-  void WriteDataObject(vtkDataObject *dataSet, bool hasTime, double time,
-    const char* name = 0)
-  {
-    if (!dataSet)
-    {
-      return;
-    }
-    switch (dataSet->GetDataObjectType())
-    {
-      case VTK_MULTIBLOCK_DATA_SET:
-      {
-        shared_ptr<XdmfGridCollection> group = XdmfGridCollection::New();
-        this->Destination->insert(group);
-        this->DestinationGroups.push(group);
-        this->Destination = this->DestinationGroups.top();
-        vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dataSet);
-        for (unsigned int i = 0; i< mbds->GetNumberOfBlocks(); i++)
-        {
-          vtkDataObject *next = mbds->GetBlock(i);
-          const char* blockName = mbds->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
-          this->WriteDataObject(next, hasTime, time, blockName);
-        }
-        this->DestinationGroups.pop();
-        this->Destination = this->DestinationGroups.top();
-        break;
-      }
-      case VTK_STRUCTURED_POINTS:
-      case VTK_IMAGE_DATA:
-      case VTK_UNIFORM_GRID:
-      {
-        vtkXdmf3DataSet::VTKToXdmf(
-          vtkImageData::SafeDownCast(dataSet),
-          this->Destination.get(),
-          hasTime, time, name);
-        break;
-      }
-      case VTK_RECTILINEAR_GRID:
-      {
-        vtkXdmf3DataSet::VTKToXdmf(
-          vtkRectilinearGrid::SafeDownCast(dataSet),
-          this->Destination.get(),
-          hasTime, time, name);
-        break;
-      }
-      case VTK_STRUCTURED_GRID:
-      {
-        vtkXdmf3DataSet::VTKToXdmf(
-          vtkStructuredGrid::SafeDownCast(dataSet),
-          this->Destination.get(),
-          hasTime, time, name);
-        break;
-      }
-      case VTK_POLY_DATA:
-      case VTK_UNSTRUCTURED_GRID:
-      {
-        vtkXdmf3DataSet::VTKToXdmf(
-          vtkPointSet::SafeDownCast(dataSet),
-          this->Destination.get(),
-          hasTime, time, name);
-        break;
-      }
-      //case VTK_GRAPH:
-      case VTK_DIRECTED_GRAPH:
-      //case VTK_UNDIRECTED_GRAPH:
-      {
-        vtkXdmf3DataSet::VTKToXdmf(
-          vtkDirectedGraph::SafeDownCast(dataSet),
-          this->Destination.get(),
-          hasTime, time, name);
-        break;
-      }
-      default:
-      {
-      }
-    }
-
-    this->Domain->accept(this->Writer);
-  }
-  boost::shared_ptr<XdmfDomain> Domain;
-  boost::shared_ptr<XdmfDomain> Destination;
-  boost::shared_ptr<XdmfWriter> Writer;
-
-  std::stack<boost::shared_ptr<XdmfDomain> > DestinationGroups;
-
-  int NumberOfTimeSteps;
-  int CurrentTimeIndex;
-  int gridCounter;
-};
-
-//=============================================================================
-class vtkXdmf3Writer::ParallelInternals {
-public:
-  ParallelInternals()
-  {
-  }
-  ~ParallelInternals() {};
   void Init()
   {
     this->NumberOfTimeSteps = 1;
     this->CurrentTimeIndex = 0;
-    this->isMultiBlock = false;
-    this->gridType = 0;
-    this->gridCounter = 0;
 
     this->Domain = XdmfDomain::New();
     this->Writer = boost::shared_ptr<XdmfWriter>();
@@ -198,18 +78,15 @@ public:
     {
       return;
     }
-    this->gridType = dataSet->GetDataObjectType();
-    switch (this->gridType)
+    switch (dataSet->GetDataObjectType())
     {
       case VTK_MULTIBLOCK_DATA_SET:
       {
-        this->isMultiBlock = true;
         shared_ptr<XdmfGridCollection> group = XdmfGridCollection::New();
         this->Destination->insert(group);
         this->DestinationGroups.push(group);
         this->Destination = this->DestinationGroups.top();
         vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dataSet);
-        //cerr << "WDO(("<< this << ")" << mbds->GetNumberOfBlocks() <<")"<<endl;
         for (unsigned int i = 0; i< mbds->GetNumberOfBlocks(); i++)
         {
           vtkDataObject *next = mbds->GetBlock(i);
@@ -229,7 +106,6 @@ public:
           vtkImageData::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
-        this->gridCounter++;
         break;
       }
       case VTK_RECTILINEAR_GRID:
@@ -238,7 +114,6 @@ public:
           vtkRectilinearGrid::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
-        this->gridCounter++;
         break;
       }
       case VTK_STRUCTURED_GRID:
@@ -247,7 +122,6 @@ public:
           vtkStructuredGrid::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
-        this->gridCounter++;
         break;
       }
       case VTK_POLY_DATA:
@@ -257,7 +131,6 @@ public:
           vtkPointSet::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
-        this->gridCounter++;
         break;
       }
       //case VTK_GRAPH:
@@ -268,7 +141,6 @@ public:
           vtkDirectedGraph::SafeDownCast(dataSet),
           this->Destination.get(),
           hasTime, time, name);
-        this->gridCounter++;
         break;
       }
       default:
@@ -288,9 +160,6 @@ public:
 
   int NumberOfTimeSteps;
   int CurrentTimeIndex;
-  int gridType;
-  int gridCounter;
-  bool isMultiBlock;
 };
 
 //==============================================================================
@@ -301,21 +170,11 @@ vtkXdmf3Writer::vtkXdmf3Writer()
   this->FileName = NULL;
   this->LightDataLimit = 100;
   this->WriteAllTimeSteps = false;
-  this->UseParallel = true;
   this->TimeValues = NULL;
   this->TimeValues = 0;
   this->InitWriters = true;
 
-  if (this->UseParallel)
-  {
-    this->Internal = NULL;
-    this->ParallelInternal = new ParallelInternals();
-  }
-  else
-  {
-    this->Internal = new Internals();
-    this->ParallelInternal = NULL;
-  }
+  this->Internal = new Internals();
   this->SetNumberOfOutputPorts(0);
 }
 
@@ -361,34 +220,17 @@ int vtkXdmf3Writer::Write()
   // always write even if the data hasn't changed
   this->Modified();
 
-  if(this->UseParallel)
+  if (!this->Internal)
   {
-    if (!this->ParallelInternal)
-    {
-      this->ParallelInternal = new ParallelInternals();
-    }
-    this->ParallelInternal->Init();
-
-    this->Update();
-
-    delete this->ParallelInternal;
-    this->ParallelInternal = NULL;
+    this->Internal = new Internals();
   }
-  else
-  {
-    if (!this->Internal)
-    {
-      this->Internal = new Internals();
-    }
-    this->Internal->Init(this->FileName);
+  this->Internal->Init();
 
-    this->Update();
+  this->Update();
 
-    //this->Internal->Domain->accept(this->Internal->Writer);
+  delete this->Internal;
+  this->Internal = NULL;
 
-    delete this->Internal;
-    this->Internal = NULL;
-  }
   return 1;
 }
 
@@ -403,29 +245,13 @@ int vtkXdmf3Writer::RequestInformation(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   if ( inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
   {
-    if(this->UseParallel)
-    {
-      this->ParallelInternal->NumberOfTimeSteps =
-        inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
-    }
-    else
-    {
-      this->Internal->NumberOfTimeSteps =
-        inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
-    }
+    this->Internal->NumberOfTimeSteps =
+      inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
   }
   else
   {
-    if(this->UseParallel)
-    {
-      this->ParallelInternal->NumberOfTimeSteps = 1;
-    }
-    else
-    {
-      this->Internal->NumberOfTimeSteps = 1;
-    }
+    this->Internal->NumberOfTimeSteps = 1;
   }
-  //cerr << "WRITER NUM TS = " << this->NumberOfTimeSteps << endl;
 
   return 1;
 }
@@ -462,16 +288,8 @@ int vtkXdmf3Writer::RequestUpdateExtent(
     if(this->TimeValues->GetPointer(0))
     {
       double timeReq;
-      if(this->UseParallel)
-      {
-        timeReq =
-          this->TimeValues->GetValue(this->ParallelInternal->CurrentTimeIndex);
-      }
-      else
-      {
-        timeReq =
-          this->TimeValues->GetValue(this->Internal->CurrentTimeIndex);
-      }
+      timeReq =
+        this->TimeValues->GetValue(this->Internal->CurrentTimeIndex);
       inputVector[0]->GetInformationObject(0)->Set(
           vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
           timeReq);
@@ -488,37 +306,16 @@ int vtkXdmf3Writer::RequestData(
 {
   //Note: call Write() instead of RD() directly.
   //Write() does setup first before it calls RD().
-  if(this->UseParallel)
+  if (!this->Internal->Domain)
   {
-    if (!this->ParallelInternal->Domain)
-    {
-      //cerr << "RDP("<<this->MyRank << "++" << this->ParallelInternal->gridCounter <<")"<<endl;
-      this->ParallelInternal->gridCounter++;
-      return 1;
-    }
-  }
-  else
-  {
-    if (!this->Internal->Domain)
-    {
-      //cerr << "RDS("<<this->MyRank << "++" << this->ParallelInternal->gridCounter  << ")"<<endl;
-      this->Internal->gridCounter++;
-      return 1;
-    }
+    return 1;
   }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject (0);
   this->OriginalInput =
     vtkDataObject::SafeDownCast (inInfo->Get(vtkDataObject::DATA_OBJECT ()));
 
-  if(this->UseParallel)
-  {
-     this->WriteDataParallel (request);
-  }
-  else
-  {
-    this->WriteDataInternal (request);
-  }
+  this->WriteDataInternal (request);
   return 1;
 }
 
@@ -531,51 +328,18 @@ int vtkXdmf3Writer::GlobalContinueExecuting(int localContinueExecution)
 //----------------------------------------------------------------------------
 void vtkXdmf3Writer::WriteDataInternal (vtkInformation* request)
 {
-
-  this->Internal->Writer->setLightDataLimit(this->LightDataLimit);
-
-  if (this->Internal->CurrentTimeIndex == 0 &&
-      this->WriteAllTimeSteps &&
+  bool isTemporal = false;
+  bool firstTimeStep = false;
+  if (this->WriteAllTimeSteps &&
       this->Internal->NumberOfTimeSteps > 1)
   {
+    isTemporal = true;
+  }
+  if (isTemporal && this->Internal->CurrentTimeIndex == 0)
+  {
+    firstTimeStep = true;
     // Tell the pipeline to start looping.
     this->Internal->SwitchToTemporal();
-    request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-  }
-
-  //vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  //vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkInformation *inDataInfo = this->OriginalInput->GetInformation();
-  double dataT = 0;
-  bool hasTime = false;
-  if (inDataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
-  {
-    dataT = this->OriginalInput->GetInformation()
-      ->Get(vtkDataObject::DATA_TIME_STEP());
-    hasTime = true;
-  }
-  this->Internal->WriteDataObject(this->OriginalInput, hasTime, dataT);
-
-  this->Internal->CurrentTimeIndex++;
-  if (this->Internal->CurrentTimeIndex >= this->Internal->NumberOfTimeSteps &&
-      this->WriteAllTimeSteps)
-  {
-    // Tell the pipeline to stop looping.
-    request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-    this->Internal->CurrentTimeIndex = 0;
-  }
-
-}
-
-//----------------------------------------------------------------------------
-void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
-{
-  if (this->ParallelInternal->CurrentTimeIndex == 0 &&
-      this->WriteAllTimeSteps &&
-      this->ParallelInternal->NumberOfTimeSteps > 1)
-  {
-    // Tell the pipeline to start looping.
-    this->ParallelInternal->SwitchToTemporal();
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
   }
 
@@ -597,20 +361,18 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
   {
     if (this->NumberOfProcesses == 1)
     {
-      this->ParallelInternal
+      this->Internal
         ->InitWriterName(this->FileName, this->LightDataLimit);
     }
     else
     {
-      //this->Domain = XdmfDomain::New();
       if(this->MyRank == 0)
       {
-        this->ParallelInternal->AggregateDomain = XdmfDomain::New();
-        this->ParallelInternal->AggregateWriter =
-          XdmfWriter::New(this->FileName);
-        this->ParallelInternal->AggregateWriter
+        this->Internal->AggregateDomain = XdmfDomain::New();
+        this->Internal->AggregateWriter = XdmfWriter::New(this->FileName);
+        this->Internal->AggregateWriter
           ->setLightDataLimit(this->LightDataLimit);
-        this->ParallelInternal->AggregateWriter->getHeavyDataWriter()
+        this->Internal->AggregateWriter->getHeavyDataWriter()
           ->setReleaseData(true);
       } // end if(this->MyRank == 0)
       std::string rankFileName = choppedFileName;
@@ -619,140 +381,138 @@ void vtkXdmf3Writer::WriteDataParallel (vtkInformation* request)
       rankFileName.append(".");
       rankFileName.append(std::to_string(this->MyRank));
       rankFileName.append(".xmf");
-      this->ParallelInternal->InitWriterName(rankFileName.c_str(),
-                                             this->LightDataLimit);
+      this->Internal->InitWriterName(rankFileName.c_str(),
+                                     this->LightDataLimit);
 
-    } // end if (this->NumberOfProcesses == 1)
+    }
     this->InitWriters = false;
-  } // end if (this->InitWriters == true)
-  int prev = this->ParallelInternal->gridCounter;
-  this->ParallelInternal->WriteDataObject(this->OriginalInput, hasTime, dataT);
-  this->ParallelInternal->Domain->accept(this->ParallelInternal->Writer);
-  int next = this->ParallelInternal->gridCounter;
-  //cerr << "NG("<<this->MyRank <<"(" << this->ParallelInternal << "):" << prev << "_" << next << ")"<<endl;
+  }
+  this->Internal->WriteDataObject(this->OriginalInput, hasTime, dataT);
+  this->Internal->Domain->accept(this->Internal->Writer);
   int rankCount;
-  if (this->NumberOfProcesses > 1)
+  if (this->NumberOfProcesses > 1 &&
+      this->MyRank == 0 &&
+      (!isTemporal || (isTemporal && firstTimeStep)))
   {
-    if(this->MyRank == 0)
-    {
-      shared_ptr<XdmfGridCollection> aggregategroup = XdmfGridCollection::New();
-      aggregategroup->setType(XdmfGridCollectionType::Spatial());
-      if (this->ParallelInternal->isMultiBlock)
-      {
-        cerr << "IS MB" << endl;
-        for (rankCount = 0; rankCount<this->NumberOfProcesses; rankCount++)
-          {
-          std::string rankFileName = choppedFileName;
-          rankFileName.append(".");
-          rankFileName.append(std::to_string(this->NumberOfProcesses));
-          rankFileName.append(".");
-          rankFileName.append(std::to_string(rankCount));
-          rankFileName.append(".xmf");
-          std::string rankGridName = "/Xdmf/Domain/Grid[";
-          rankGridName.append(std::to_string(1));
-          rankGridName.append("]");
+    //write the root's top level meta file that refers to the satellites'
+    //todo would be fancier to write out whole tree but xgrid to each
+    //satellites contents. That would require gather calls to
+    //determine how many leafs on each satellite and a rewrite.
 
-          shared_ptr<XdmfGridController> partController =
-            XdmfGridController::New(rankFileName.c_str(),
-                                    rankGridName.c_str());
-          shared_ptr<XdmfGridCollection> grid = XdmfGridCollection::New();
-          grid->setType(XdmfGridCollectionType::Spatial());
+    //XdmfGridCollections (aka XGrid) are xdmf3's way to cross reference
+    shared_ptr<XdmfGridCollection> aggregategroup = XdmfGridCollection::New();
+    aggregategroup->setType(XdmfGridCollectionType::Spatial());
+
+    //the structure is simple, one cross reference per top in each satelite
+    for (rankCount = 0; rankCount<this->NumberOfProcesses; rankCount++)
+    {
+      std::string rankFileName = choppedFileName;
+      rankFileName.append(".");
+      rankFileName.append(std::to_string(this->NumberOfProcesses));
+      rankFileName.append(".");
+      rankFileName.append(std::to_string(rankCount));
+      rankFileName.append(".xmf");
+      std::string rankGridName = "/Xdmf/Domain/Grid[1]";
+
+      shared_ptr<XdmfGridController> partController =
+        XdmfGridController::New(rankFileName.c_str(),
+                                rankGridName.c_str());
+
+      //tricky part is we have to state what type we are referencing to.
+      //otherwise readback fails.
+
+      if (isTemporal)
+      {
+        shared_ptr<XdmfGridCollection> grid =
+          XdmfGridCollection::New();
+        grid->setType(XdmfGridCollectionType::Temporal());
+        grid->setGridController(partController);
+        aggregategroup->insert(grid);
+        continue;
+      }
+
+      switch (this->OriginalInput->GetDataObjectType())
+      {
+        case VTK_STRUCTURED_POINTS:
+        case VTK_IMAGE_DATA:
+        case VTK_UNIFORM_GRID:
+        {
+          //todo: the content below is a don't care placeholder.
+          //the specifics don't matter, only the grid type,
+          //but libxdmf won't let you not specify with structured
+          shared_ptr<XdmfRegularGrid> grid =
+            XdmfRegularGrid::New(1,1,1,
+                                 0,0,0,
+                                 0.0,0.0,0.0);
           grid->setGridController(partController);
           aggregategroup->insert(grid);
-          }
-      }
-      else
-      {
-      cerr << "IS NOT" << endl;
-        for (; prev<next; prev++)
-        {
-        //handle xml indexing differences
-        std::string rankGridName = "/Xdmf/Domain/Grid[";
-        rankGridName.append(std::to_string(prev+1));
-        rankGridName.append("]");
-        for (rankCount = 0; rankCount<this->NumberOfProcesses; rankCount++)
-        {
-          //printf("%d < %d\n", rankCount, this->NumberOfProcesses);
-          std::string rankFileName = choppedFileName;
-          rankFileName.append(".");
-          rankFileName.append(std::to_string(this->NumberOfProcesses));
-          rankFileName.append(".");
-          rankFileName.append(std::to_string(rankCount));
-          rankFileName.append(".xmf");
-          shared_ptr<XdmfGridController> partController =
-            XdmfGridController::New(rankFileName.c_str(),
-                                    rankGridName.c_str());
-          switch (this->ParallelInternal->gridType)
-          {
-          case VTK_STRUCTURED_POINTS:
-          case VTK_IMAGE_DATA:
-          case VTK_UNIFORM_GRID:
-          {
-            shared_ptr<XdmfRegularGrid> grid =
-              XdmfRegularGrid::New(1,1,1,
-                                   0,0,0,
-                                   0.0,0.0,0.0);
-            grid->setGridController(partController);
-            aggregategroup->insert(grid);
-            break;
-          }
-          case VTK_RECTILINEAR_GRID:
-          {
-            shared_ptr<XdmfArray> xXCoords = XdmfArray::New();
-            shared_ptr<XdmfArray> xYCoords = XdmfArray::New();
-            shared_ptr<XdmfArray> xZCoords = XdmfArray::New();
-            shared_ptr<XdmfRectilinearGrid> grid =
-              XdmfRectilinearGrid::New(xXCoords, xYCoords, xZCoords);
-            grid->setGridController(partController);
-            aggregategroup->insert(grid);
-            break;
-          }
-          case VTK_STRUCTURED_GRID:
-          {
-            shared_ptr<XdmfArray> xdims = XdmfArray::New();
-            shared_ptr<XdmfCurvilinearGrid> grid =
-              XdmfCurvilinearGrid::New(xdims);
-            grid->setGridController(partController);
-            aggregategroup->insert(grid);
-            break;
-          }
-          case VTK_POLY_DATA:
-          case VTK_UNSTRUCTURED_GRID:
-          {
-            shared_ptr<XdmfUnstructuredGrid> grid =
-              XdmfUnstructuredGrid::New();
-            grid->setGridController(partController);
-            aggregategroup->insert(grid);
-            break;
-          }
-          //case VTK_GRAPH:
-          case VTK_DIRECTED_GRAPH:
-          //case VTK_UNDIRECTED_GRAPH:
-          {
-            //todo: graph can't have a grid controller
-            //  shared_ptr<XdmfGraph> grid = XdmfGraph::New(0);
-            //  //grid->setGridController(partController);
-            //  aggregategroup->insert(grid);
-            break;
-          }
-          }
+          break;
         }
-      }
-      }
-      this->ParallelInternal->AggregateDomain->insert(aggregategroup);
-      this->ParallelInternal->AggregateDomain
-        ->accept(this->ParallelInternal->AggregateWriter);
-    } // end if(this->MyRank == 0)
-  } // if (this->NumberOfProcesses > 1)
+        case VTK_RECTILINEAR_GRID:
+        {
+          //todo: same as above
+          shared_ptr<XdmfArray> xXCoords = XdmfArray::New();
+          shared_ptr<XdmfArray> xYCoords = XdmfArray::New();
+          shared_ptr<XdmfArray> xZCoords = XdmfArray::New();
+          shared_ptr<XdmfRectilinearGrid> grid =
+            XdmfRectilinearGrid::New(xXCoords, xYCoords, xZCoords);
+          grid->setGridController(partController);
+          aggregategroup->insert(grid);
+          break;
+        }
+        case VTK_STRUCTURED_GRID:
+        {
+          //todo: same as above
+          shared_ptr<XdmfArray> xdims = XdmfArray::New();
+          shared_ptr<XdmfCurvilinearGrid> grid =
+            XdmfCurvilinearGrid::New(xdims);
+          grid->setGridController(partController);
+          aggregategroup->insert(grid);
+          break;
+        }
+        case VTK_POLY_DATA:
+        case VTK_UNSTRUCTURED_GRID:
+        {
+          shared_ptr<XdmfUnstructuredGrid> grid =
+            XdmfUnstructuredGrid::New();
+          grid->setGridController(partController);
+          aggregategroup->insert(grid);
+          break;
+        }
+        //case VTK_GRAPH:
+        case VTK_DIRECTED_GRAPH:
+        //case VTK_UNDIRECTED_GRAPH:
+        {
+          //todo: graph can't have a grid controller
+          //  shared_ptr<XdmfGraph> grid = XdmfGraph::New(0);
+          //  //grid->setGridController(partController);
+          //  aggregategroup->insert(grid);
+          break;
+        }
+        default:
+        {
+         shared_ptr<XdmfGridCollection> grid =
+           XdmfGridCollection::New();
+         grid->setType(XdmfGridCollectionType::Spatial());
+         grid->setGridController(partController);
+         aggregategroup->insert(grid);
+         break;
+        }
+      } //switch data object type
+    } // foreach rank
+    this->Internal->AggregateDomain->insert(aggregategroup);
+    this->Internal->AggregateDomain
+      ->accept(this->Internal->AggregateWriter);
+  } //if need to write top level file
 
-  this->ParallelInternal->CurrentTimeIndex++;
-  if (this->ParallelInternal->CurrentTimeIndex >=
-      this->ParallelInternal->NumberOfTimeSteps &&
+  this->Internal->CurrentTimeIndex++;
+  if (this->Internal->CurrentTimeIndex >=
+      this->Internal->NumberOfTimeSteps &&
       this->WriteAllTimeSteps)
   {
     // Tell the pipeline to stop looping.
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
-    this->ParallelInternal->CurrentTimeIndex = 0;
+    this->Internal->CurrentTimeIndex = 0;
   }
 
   int localContinue = request->Get(

@@ -113,7 +113,6 @@ protected:
 
   vtkDoubleArray* TimeValues;
   vtkDataObject *OriginalInput;
-  void WriteDataParallel (vtkInformation* request);
   void WriteDataInternal (vtkInformation* request);
   int CheckParametersInternal (int NumberOfProcesses, int MyRank);
   virtual int CheckParameters ();
@@ -123,7 +122,6 @@ protected:
   virtual int GlobalContinueExecuting(int localContinueExecution);
 
   bool InitWriters;
-  bool UseParallel;
 
 private:
   vtkXdmf3Writer(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
@@ -131,9 +129,6 @@ private:
 
   class Internals;
   Internals *Internal;
-
-  class ParallelInternals;
-  ParallelInternals *ParallelInternal;
 };
 
 #endif /* vtkXdmf3Writer_h */
