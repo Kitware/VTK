@@ -384,8 +384,8 @@ bool QVTKWidget::event(QEvent* e)
       {
         this->mRenWin->Start();
       }
-    }
 #endif
+    }
   }
   else if(e->type() == QEvent::TouchBegin ||
           e->type() == QEvent::TouchUpdate ||
