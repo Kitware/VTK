@@ -46,6 +46,14 @@ public:
    */
   vtkObject * GetPoints();
 
+  /**
+   * This is just for testing - return the points as a vtkObject so that it can
+   * be assigned to a vtkSmartPointer without including the vtkPoints2D header
+   * and defeating part of the point of the test.
+   * Using implicit conversion to raw pointer.
+   */
+  vtkObject * GetPoints2();
+
 protected:
   vtkTestNewVar();
   ~vtkTestNewVar() override;

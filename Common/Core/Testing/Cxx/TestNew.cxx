@@ -51,6 +51,18 @@ int TestNew(int,char *[])
     cerr << "Error, vtkNew failed to delete the object it contained."
          << endl;
   }
+  // Test implicit conversion vtkNew::operator T* () const
+  if (wf == 0)
+  {
+    vtkNew<vtkFloatArray> f;
+    wf = f;
+  }
+  if (wf != 0)
+  {
+    error = true;
+    cerr << "Error, vtkNew failed to delete the object it contained (implicit cast to raw pointer)."
+         << endl;
+  }
 
   // Now test interaction with the smart pointer.
   vtkSmartPointer<vtkIntArray> si;
@@ -67,16 +79,35 @@ int TestNew(int,char *[])
          << si->GetReferenceCount() << endl;
   }
 
+  // Test raw object reference
+  vtkObject &p = *si;
+  if (p.GetReferenceCount() != 1)
+  {
+    error = true;
+    cerr << "Error, vtkNew failed to keep the object it contained, "
+      << "or setting a raw reference incremented it. Reference count: "
+      << p.GetReferenceCount() << endl;
+  }
+
+
   vtkNew<vtkTestNewVar> newVarObj;
   if (newVarObj->GetPointsRefCount() != 1)
   {
     error = true;
-    cerr << "The mmeber pointer failed to set the correct reference count: "
+    cerr << "The member pointer failed to set the correct reference count: "
          << newVarObj->GetPointsRefCount() << endl;
   }
 
   vtkSmartPointer<vtkObject> points = newVarObj->GetPoints();
   if (points->GetReferenceCount() != 2)
+  {
+    error = true;
+    cerr << "Error, vtkNew failed to keep the object it contained, "
+         << "or the smart pointer failed to increment it. Reference count: "
+         << points->GetReferenceCount() << endl;
+  }
+  vtkSmartPointer<vtkObject> points2 = newVarObj->GetPoints2();
+  if (points2->GetReferenceCount() != 3)
   {
     error = true;
     cerr << "Error, vtkNew failed to keep the object it contained, "
