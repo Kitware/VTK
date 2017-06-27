@@ -13,7 +13,6 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
-
 /**
  * @class   vtkmAverageToPoints
  * @brief   Accelerated cell to point interpolation filter.
@@ -25,7 +24,6 @@
  * pass through any existing point and cell arrays.
  *
 */
-
 #ifndef vtkmAverageToPoints_h
 #define vtkmAverageToPoints_h
 
