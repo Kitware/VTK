@@ -111,9 +111,9 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
         //don't return MB that doesn't match the requested time
         return NULL;
       }
+      //inside a match, make sure we get everything underneath
+      this->doTime = false;
     }
-    //inside a match, make sure we get everything underneath
-    this->doTime = false;
   }
 
   vtkMultiBlockDataSet *topB = vtkMultiBlockDataSet::SafeDownCast(toFill);
