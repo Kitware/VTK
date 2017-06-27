@@ -21,19 +21,15 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkImageData.h"
+#include "vtkmCleanGrid.h"
 #include "vtkmGradient.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkSmartPointer.h"
-#include "vtkStdString.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredGridReader.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkUnstructuredGridReader.h"
 
 #include <vector>
-
-#define VTK_CREATE(type, var)                                   \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 namespace
 {
@@ -63,55 +59,6 @@ namespace
     std::cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
          << Tolerance << std::endl;
     return false;
-  }
-
-//-----------------------------------------------------------------------------
-  void CreateCellData(vtkDataSet* grid, int numberOfComponents, int offset,
-                      const char* arrayName)
-  {
-    vtkIdType numberOfCells = grid->GetNumberOfCells();
-    VTK_CREATE(vtkDoubleArray, array);
-    array->SetNumberOfComponents(numberOfComponents);
-    array->SetNumberOfTuples(numberOfCells);
-    std::vector<double> tupleValues(numberOfComponents);
-    double point[3], parametricCenter[3], weights[100];
-    for(vtkIdType i=0;i<numberOfCells;i++)
-    {
-      vtkCell* cell = grid->GetCell(i);
-      cell->GetParametricCenter(parametricCenter);
-      int subId = 0;
-      cell->EvaluateLocation(subId, parametricCenter, point, weights);
-      for(int j=0;j<numberOfComponents;j++)
-      {// +offset makes the curl/vorticity nonzero
-        tupleValues[j] = point[(j+offset)%3];
-      }
-      array->SetTypedTuple(i, &tupleValues[0]);
-    }
-    array->SetName(arrayName);
-    grid->GetCellData()->AddArray(array);
-  }
-
-//-----------------------------------------------------------------------------
-  void CreatePointData(vtkDataSet* grid, int numberOfComponents, int offset,
-                       const char* arrayName)
-  {
-    vtkIdType numberOfPoints = grid->GetNumberOfPoints();
-    VTK_CREATE(vtkDoubleArray, array);
-    array->SetNumberOfComponents(numberOfComponents);
-    array->SetNumberOfTuples(numberOfPoints);
-    std::vector<double> tupleValues(numberOfComponents);
-    double point[3];
-    for(vtkIdType i=0;i<numberOfPoints;i++)
-    {
-      grid->GetPoint(i, point);
-      for(int j=0;j<numberOfComponents;j++)
-      {// +offset makes the curl/vorticity nonzero
-        tupleValues[j] = point[(j+offset)%3];
-      }
-      array->SetTypedTuple(i, &tupleValues[0]);
-    }
-    array->SetName(arrayName);
-    grid->GetPointData()->AddArray(array);
   }
 
 //-----------------------------------------------------------------------------
@@ -276,63 +223,33 @@ namespace
     // Cleaning out the existing field data so that I can replace it with
     // an analytic function that I know the gradient of
     grid->GetPointData()->Initialize();
-    grid->GetCellData()->Initialize();
     const char fieldName[] = "LinearField";
-    int offset = 1;
-    const int numberOfComponents = 3;
-    CreateCellData(grid, numberOfComponents, offset, fieldName);
-    CreatePointData(grid, numberOfComponents, offset, fieldName);
+
+    vtkNew<vtkArrayCalculator> calculator;
+    calculator->SetInputData(grid);
+    calculator->SetResultArrayName(fieldName);
+    calculator->SetFunction("coordsY*iHat+coordsX*jHat+coordsZ*kHat");
+    calculator->SetAttributeModeToUsePointData();
+    calculator->AddCoordinateScalarVariable("coordsX", 0);
+    calculator->AddCoordinateScalarVariable("coordsY", 1);
+    calculator->AddCoordinateScalarVariable("coordsZ", 2);
 
     const char resultName[] = "Result";
 
-    VTK_CREATE(vtkmGradient, cellGradients);
-    cellGradients->SetInputData(grid);
-    cellGradients->SetInputScalars(
-      vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-    cellGradients->SetResultArrayName(resultName);
-
-    VTK_CREATE(vtkGradientFilter, correctCellGradients);
-    correctCellGradients->SetInputData(grid);
-    correctCellGradients->SetInputScalars(
-      vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-    correctCellGradients->SetResultArrayName(resultName);
-
-    VTK_CREATE(vtkmGradient, pointGradients);
-    pointGradients->SetInputData(grid);
+    vtkNew<vtkmGradient> pointGradients;
+    pointGradients->SetInputConnection(calculator->GetOutputPort());
     pointGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
     pointGradients->SetResultArrayName(resultName);
 
-    VTK_CREATE(vtkGradientFilter, correctPointGradients);
-    correctPointGradients->SetInputData(grid);
+    vtkNew<vtkGradientFilter> correctPointGradients;
+    correctPointGradients->SetInputConnection(calculator->GetOutputPort());
     correctPointGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
     correctPointGradients->SetResultArrayName(resultName);
 
-    cellGradients->Update();
     pointGradients->Update();
-
-    correctCellGradients->Update();
     correctPointGradients->Update();
-
-    vtkDoubleArray* gradCellArray = vtkArrayDownCast<vtkDoubleArray>(
-      vtkDataSet::SafeDownCast(
-        cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
-
-    vtkDoubleArray* correctCellArray = vtkArrayDownCast<vtkDoubleArray>(
-      vtkDataSet::SafeDownCast(
-        correctCellGradients->GetOutput())->GetCellData()->GetArray(resultName));
-
-    if(!grid->IsA("vtkUnstructuredGrid"))
-    {
-      // ignore cell gradients if this is an unstructured grid
-      // because the accuracy is so lousy
-      std::cout << "testing cell gradients" << std::endl;
-      if(!IsGradientCorrect(gradCellArray, correctCellArray))
-      {
-        return EXIT_FAILURE;
-      }
-    }
 
     vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
@@ -347,17 +264,8 @@ namespace
       return EXIT_FAILURE;
     }
 
-    // now check on the vorticity calculations
-    VTK_CREATE(vtkmGradient, cellVorticity);
-    cellVorticity->SetInputData(grid);
-    cellVorticity->SetInputScalars(
-      vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-    cellVorticity->SetResultArrayName(resultName);
-    cellVorticity->SetComputeVorticity(1);
-    cellVorticity->Update();
-
-    VTK_CREATE(vtkmGradient, pointVorticity);
-    pointVorticity->SetInputData(grid);
+    vtkNew<vtkmGradient> pointVorticity;
+    pointVorticity->SetInputConnection(calculator->GetOutputPort());
     pointVorticity->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
     pointVorticity->SetResultArrayName(resultName);
@@ -365,16 +273,6 @@ namespace
     pointVorticity->SetComputeQCriterion(1);
     pointVorticity->SetComputeDivergence(1);
     pointVorticity->Update();
-
-    std::cout << "testing cell vorticity" << std::endl;
-    // cell stuff
-    vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
-      vtkDataSet::SafeDownCast(
-        cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
-    if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
-    {
-      return EXIT_FAILURE;
-    }
 
     std::cout << "testing point vorticity" << std::endl;
     // point stuff
@@ -409,32 +307,16 @@ namespace
 } // end local namespace
 
 //-----------------------------------------------------------------------------
-int TestVTKMGradientAndVorticity(int argc, char *argv[])
+int TestVTKMGradient(int argc, char *argv[])
 {
-  int i;
-  // Need to get the data root.
-  const char *data_root = NULL;
-  for (i = 0; i < argc-1; i++)
-  {
-    if (strcmp("-D", argv[i]) == 0)
-    {
-      data_root = argv[i+1];
-      break;
-    }
-  }
-  if (!data_root)
-  {
-    vtkGenericWarningMacro(
-      "Need to specify the directory to VTK_DATA_ROOT with -D <dir>.");
-    return EXIT_FAILURE;
-  }
 
-  vtkStdString filename(std::string(data_root)+"/Data/SampleStructGrid.vtk");
-  VTK_CREATE(vtkStructuredGridReader, structuredGridReader);
-  structuredGridReader->SetFileName(filename.c_str());
-  structuredGridReader->Update();
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
+  wavelet->SetCenter(0, 0, 0);
+  wavelet->Update();
+
   vtkDataSet* grid = vtkDataSet::SafeDownCast(
-    structuredGridReader->GetOutput());
+    wavelet->GetOutput());
 
   if(PerformTest(grid))
   {
@@ -442,14 +324,10 @@ int TestVTKMGradientAndVorticity(int argc, char *argv[])
   }
 
   // convert the structured grid to an unstructured grid
-  VTK_CREATE(vtkUnstructuredGrid, ug);
-  ug->SetPoints(vtkStructuredGrid::SafeDownCast(grid)->GetPoints());
-  ug->Allocate(grid->GetNumberOfCells());
-  for(vtkIdType id=0;id<grid->GetNumberOfCells();id++)
-  {
-    vtkCell* cell = grid->GetCell(id);
-    ug->InsertNextCell(cell->GetCellType(), cell->GetPointIds());
-  }
+  vtkNew<vtkmCleanGrid> ug;
+  ug->SetInputConnection(wavelet->GetOutputPort());
+  ug->Update();
 
-  return PerformTest(ug);
+  grid = vtkDataSet::SafeDownCast(ug->GetOutput());
+  return PerformTest(grid);
 }

@@ -15,6 +15,7 @@
 //=============================================================================
 #include "vtkmGradient.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -38,8 +39,10 @@ vtkStandardNewMacro(vtkmGradient)
 
 namespace
 {
-struct GradientOutTypes
+struct GradientTypes
     : vtkm::ListTagBase<
+                        vtkm::Float32,
+                        vtkm::Float64,
                         vtkm::Vec<vtkm::Float32,3>,
                         vtkm::Vec<vtkm::Float64,3>,
                         vtkm::Vec< vtkm::Vec<vtkm::Float32,3>, 3>,
@@ -49,19 +52,19 @@ struct GradientOutTypes
 };
 
 //------------------------------------------------------------------------------
-class vtkmGradientOutputFilterPolicy
-      : public vtkm::filter::PolicyBase<vtkmGradientOutputFilterPolicy>
+class vtkmGradientFilterPolicy
+      : public vtkm::filter::PolicyBase<vtkmGradientFilterPolicy>
   {
   public:
-    typedef GradientOutTypes FieldTypeList;
+    typedef GradientTypes FieldTypeList;
     typedef tovtkm::TypeListTagVTMOut FieldStorageList;
 
-    typedef tovtkm::CellListStructuredOutVTK StructuredCellSetList;
-    typedef tovtkm::CellListUnstructuredOutVTK UnstructuredCellSetList;
-    typedef tovtkm::CellListAllOutVTK AllCellSetList;
+    typedef tovtkm::CellListStructuredInVTK StructuredCellSetList;
+    typedef tovtkm::CellListUnstructuredInVTK UnstructuredCellSetList;
+    typedef tovtkm::CellListAllInVTK AllCellSetList;
 
     typedef vtkm::TypeListTagFieldVec3 CoordinateTypeList;
-    typedef tovtkm::PointListOutVTK CoordinateStorageList;
+    typedef tovtkm::PointListInVTK CoordinateStorageList;
 
     typedef vtkm::filter::PolicyDefault::DeviceAdapterList DeviceAdapterList;
   };
@@ -101,31 +104,30 @@ int vtkmGradient::RequestData(vtkInformation* request,
   // grab the input array to process to determine the field want to compute
   // the gradient for
   int association = this->GetInputArrayAssociation(0, inputVector);
-  if(association != vtkDataObject::FIELD_ASSOCIATION_POINTS)
-  {
-    vtkWarningMacro(<< "VTK-m Gradient currently only support point based fields.\n"
-                    << "Falling back to vtkGradientFilter."
-                    );
-    return this->Superclass::RequestData(request, inputVector, outputVector);
-  }
 
-  // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
+  // convert the input dataset to a vtkm::cont::DataSet. We explicitly drop
+  // all arrays from the conversion as this algorithm doesn't change topology
+  // and therefore doesn't need input fields converted through the VTK-m filter
+  vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+
+
   // convert the array over to vtkm
   vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
   vtkm::cont::Field field = tovtkm::Convert(inputArray, association);
 
   const bool dataSetValid =
       in.GetNumberOfCoordinateSystems() > 0 && in.GetNumberOfCellSets() > 0;
-  const bool fieldValid =
-      (field.GetAssociation() == vtkm::cont::Field::ASSOC_POINTS) &&
-      (field.GetName() != std::string());
 
+  const bool fieldIsPoint = field.GetAssociation() == vtkm::cont::Field::ASSOC_POINTS;
+  const bool fieldIsCell = field.GetAssociation() == vtkm::cont::Field::ASSOC_CELL_SET;
   const bool fieldIsVec = (inputArray->GetNumberOfComponents() == 3);
   const bool fieldIsScalar = inputArray->GetDataType() == VTK_FLOAT ||
                              inputArray->GetDataType() == VTK_DOUBLE;
+  const bool fieldValid = (fieldIsPoint || fieldIsCell) &&
+                          fieldIsScalar &&
+                          (field.GetName() != std::string());
 
-  if(!(dataSetValid && fieldValid) || !fieldIsScalar)
+  if(!(dataSetValid && fieldValid))
   {
     vtkWarningMacro(<< "Unable convert dataset over to VTK-m.\n"
                     << "Falling back to vtkGradientFilter."
@@ -133,21 +135,20 @@ int vtkmGradient::RequestData(vtkInformation* request,
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
-  vtkmInputFilterPolicy policy;
+  vtkmGradientFilterPolicy policy;
   vtkm::filter::Gradient filter;
-  filter.SetComputePointGradient( !this->FasterApproximation );
-
+  filter.SetColumnMajorOrdering();
 
   if( fieldIsVec )
-    { //this properties are only valid when processing a vec<3> field
+  { //this properties are only valid when processing a vec<3> field
     filter.SetComputeDivergence( this->ComputeDivergence != 0 );
     filter.SetComputeVorticity( this->ComputeVorticity != 0 );
     filter.SetComputeQCriterion( this->ComputeQCriterion != 0 );
-    }
+  }
 
   if(this->ResultArrayName)
   {
-    filter.SetOutputFieldName( this->ResultArrayName );
+    filter.SetOutputFieldName(this->ResultArrayName);
   }
 
   if(this->DivergenceArrayName)
@@ -169,7 +170,27 @@ int vtkmGradient::RequestData(vtkInformation* request,
     filter.SetQCriterionName( "Q-criterion" );
   }
 
-  vtkm::filter::ResultField result = filter.Execute(in, field, policy);
+  // Run the VTK-m Gradient Filter
+  // ----------------------------- //
+  vtkm::filter::ResultField result;
+  if(fieldIsPoint)
+  {
+    filter.SetComputePointGradient( !this->FasterApproximation );
+    result = filter.Execute(in, field, policy);
+  }
+  else
+  {
+    //we need to convert the field to be a point field
+    vtkm::filter::PointAverage cellToPoint;
+    cellToPoint.SetOutputFieldName(field.GetName());
+    vtkm::filter::ResultField toPoint = cellToPoint.Execute(in, field, policy);
+
+    filter.SetComputePointGradient( false );
+    result = filter.Execute(in, toPoint.GetField(), policy);
+  }
+
+  // Verify that the filter ran correctly
+  // ----------------------------- //
   if(!result.IsValid())
   {
     vtkWarningMacro(<< "VTK-m gradient computation failed for an unknown reason.\n"
@@ -178,90 +199,57 @@ int vtkmGradient::RequestData(vtkInformation* request,
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
-  vtkm::cont::DataSet const& resultData = result.GetDataSet();
-  vtkDataArray* gradientArray = nullptr;
-  vtkDataArray* divergenceArray = nullptr;
-  vtkDataArray* vorticityArray = nullptr;
-  vtkDataArray* qcriterionArray = nullptr;
-
-  if(this->FasterApproximation)
+  //When we have faster approximation enabled the VTK-m gradient will output
+  //a cell field not a point field. So at that point we will need to convert
+  //back to a point field
+  if((fieldIsPoint && this->FasterApproximation) ||)
   {
+    vtkm::cont::DataSet const& resultData = result.GetDataSet();
+
     //We need to convert this field back to a point field
-    //Which means converting cell data back to point data
-    vtkmGradientOutputFilterPolicy averagepolicy;
     vtkm::filter::PointAverage cellToPoint;
     cellToPoint.SetOutputFieldName(filter.GetOutputFieldName());
     vtkm::filter::ResultField toPointResult = cellToPoint.Execute(in,
                                                                   result.GetField(),
-                                                                  averagepolicy);
-    gradientArray = fromvtkm::Convert(toPointResult.GetField());
+                                                                  policy);
+    if(this->ComputeGradient)
+      {
+      vtkDataArray* gradientArray = fromvtkm::Convert(toPointResult.GetField());
+      output->GetCellData()->AddArray(gradientArray);
+      }
 
     if(this->ComputeDivergence && fieldIsVec)
       {
       vtkm::filter::ResultField dresult =
         cellToPoint.Execute(in, resultData.GetField(filter.GetDivergenceName()));
-      divergenceArray = fromvtkm::Convert(dresult.GetField());
+      vtkDataArray* divergenceArray = fromvtkm::Convert(dresult.GetField());
+      output->GetCellData()->AddArray(divergenceArray);
       }
 
     if(this->ComputeVorticity  && fieldIsVec)
       {
       vtkm::filter::ResultField vresult =
         cellToPoint.Execute(in, resultData.GetField(filter.GetVorticityName()));
-      vorticityArray = fromvtkm::Convert(vresult.GetField());
+      vtkDataArray* vorticityArray = fromvtkm::Convert(vresult.GetField());
+      output->GetCellData()->AddArray(vorticityArray);
       }
 
     if(this->ComputeQCriterion && fieldIsVec)
       {
       vtkm::filter::ResultField qresult =
         cellToPoint.Execute(in,resultData.GetField(filter.GetQCriterionName()));
-      qcriterionArray = fromvtkm::Convert(qresult.GetField());
+      vtkDataArray* qcriterionArray = fromvtkm::Convert(qresult.GetField());
+      output->GetCellData()->AddArray(qcriterionArray);
       }
   }
   else
   {
-    gradientArray = fromvtkm::Convert(result.GetField());
-
-    if(this->ComputeDivergence && fieldIsVec)
-      {
-      divergenceArray = fromvtkm::Convert(resultData.GetField(filter.GetDivergenceName()));
-      }
-    if(this->ComputeVorticity && fieldIsVec)
-      {
-      vorticityArray = fromvtkm::Convert(resultData.GetField(filter.GetVorticityName()));
-      }
-    if(this->ComputeQCriterion && fieldIsVec)
-      {
-      qcriterionArray = fromvtkm::Convert(resultData.GetField(filter.GetQCriterionName()));
-      }
-  }
-
-  if(this->GetComputeGradient() && gradientArray)
-  {
-    output->GetPointData()->AddArray(gradientArray);
-    gradientArray->FastDelete();
-  }
-  else if(gradientArray)
-  { //gradient is the only array we unconditional convert so we have to handle
-    //the use case the user doesn't want it on the output data
-    gradientArray->Delete();
-  }
-
-  if(this->ComputeDivergence && divergenceArray)
-  {
-    output->GetPointData()->AddArray(divergenceArray);
-    divergenceArray->FastDelete();
-  }
-
-  if(this->ComputeVorticity && vorticityArray)
-  {
-    output->GetPointData()->AddArray(vorticityArray);
-    vorticityArray->FastDelete();
-  }
-
-  if(this->ComputeQCriterion && qcriterionArray)
-  {
-    output->GetPointData()->AddArray(qcriterionArray);
-    qcriterionArray->FastDelete();
+    // convert arrays back to VTK
+    if (!fromvtkm::ConvertArrays(result.GetDataSet(), output))
+    {
+      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      return 0;
+    }
   }
 
   return 1;
