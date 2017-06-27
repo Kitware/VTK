@@ -99,8 +99,45 @@ class vtkStructuredGrid;
 class vtkUnsignedCharArray;
 struct vtkMultiBlockPLOT3DReaderInternals;
 
+namespace Functors
+{
+  class ComputeFunctor;
+  class ComputeTemperatureFunctor;
+  class ComputePressureFunctor;
+  class ComputePressureCoefficientFunctor;
+  class ComputeMachNumberFunctor;
+  class ComputeSoundSpeedFunctor;
+  class ComputeEnthalpyFunctor;
+  class ComputeKinecticEnergyFunctor;
+  class ComputeVelocityMagnitudeFunctor;
+  class ComputeEntropyFunctor;
+  class ComputeSwirlFunctor;
+  class ComputeVelocityFunctor;
+  class ComputeVorticityMagnitudeFunctor;
+  class ComputePressureGradientFunctor;
+  class ComputeVorticityFunctor;
+  class ComputeStrainRateFunctor;
+}
+
+
 class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm
 {
+friend class Functors::ComputeFunctor;
+friend class Functors::ComputeTemperatureFunctor;
+friend class Functors::ComputePressureFunctor;
+friend class Functors::ComputePressureCoefficientFunctor;
+friend class Functors::ComputeMachNumberFunctor;
+friend class Functors::ComputeSoundSpeedFunctor;
+friend class Functors::ComputeEnthalpyFunctor;
+friend class Functors::ComputeKinecticEnergyFunctor;
+friend class Functors::ComputeVelocityMagnitudeFunctor;
+friend class Functors::ComputeEntropyFunctor;
+friend class Functors::ComputeSwirlFunctor;
+friend class Functors::ComputeVelocityFunctor;
+friend class Functors::ComputeVorticityMagnitudeFunctor;
+friend class Functors::ComputePressureGradientFunctor;
+friend class Functors::ComputeVorticityFunctor;
+friend class Functors::ComputeStrainRateFunctor;
 public:
   static vtkMultiBlockPLOT3DReader *New();
   vtkTypeMacro(vtkMultiBlockPLOT3DReader,vtkMultiBlockDataSetAlgorithm);
