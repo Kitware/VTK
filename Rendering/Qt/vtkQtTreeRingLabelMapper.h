@@ -135,7 +135,7 @@ protected:
                       vtkStringArray *stringData,
                       vtkUnicodeStringArray *uStringData,
                       int activeComp, int numComps,
-                      char *string);
+                      char *string, size_t stringSize);
 
   //Returns true if the center of the sector is in the window
   // along with the pixel dimensions (width, height)  of the sector

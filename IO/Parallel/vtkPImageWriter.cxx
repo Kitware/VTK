@@ -87,18 +87,27 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     // determine the name
     if (this->FileName)
     {
-      sprintf(this->InternalFileName,"%s",this->FileName);
+      snprintf(this->InternalFileName,
+               this->InternalFileNameSize,
+               "%s",
+               this->FileName);
     }
     else
     {
       if (this->FilePrefix)
       {
-        sprintf(this->InternalFileName, this->FilePattern,
-                this->FilePrefix, this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FilePrefix,
+                 this->FileNumber);
       }
       else
       {
-        sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FileNumber);
       }
     }
     // Open the file

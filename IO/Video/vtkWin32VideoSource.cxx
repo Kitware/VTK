@@ -230,7 +230,7 @@ void vtkWin32VideoSource::Initialize()
       break;
     }
     // try again with a slightly different name
-    sprintf(this->WndClassName,"VTKVideo %d",i);
+    snprintf(this->WndClassName,16,"VTKVideo %d",i);
   }
 
   if (i > 10)

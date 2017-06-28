@@ -71,9 +71,9 @@ void vtkJPEGWriter::Write()
   }
 
   // Make sure the file name is allocated
-  size_t InternalFileNameSize = (this->FileName ? strlen(this->FileName) : 1) +
-    (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
-    (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
+  this->InternalFileNameSize = (this->FileName ? strlen(this->FileName) : 1) +
+                               (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
+                               (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
   this->InternalFileName = new char[InternalFileNameSize];
 
   // Fill in image information.
@@ -97,19 +97,27 @@ void vtkJPEGWriter::Write()
     // determine the name
     if (this->FileName)
     {
-      sprintf(this->InternalFileName,"%s",this->FileName);
+      snprintf(this->InternalFileName,
+               this->InternalFileNameSize,
+               "%s",
+               this->FileName);
     }
     else
     {
       if (this->FilePrefix)
       {
-        sprintf(this->InternalFileName, this->FilePattern,
-                this->FilePrefix, this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FilePrefix,
+                 this->FileNumber);
       }
       else
       {
-        snprintf(this->InternalFileName, InternalFileNameSize,
-          this->FilePattern, this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FileNumber);
       }
     }
     this->GetInputAlgorithm()->UpdateExtent(uExtent);

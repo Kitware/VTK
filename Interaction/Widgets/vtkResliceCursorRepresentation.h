@@ -48,6 +48,9 @@ class vtkTexture;
 class vtkTextActor;
 class vtkImageAlgorithm;
 
+// Private.
+#define VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF 128
+
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -325,7 +328,7 @@ protected:
   double                    InitialLevel;
   double                    LastEventPosition[2];
   int                       UseImageActor;
-  char                      TextBuff[128];
+  char                      TextBuff[VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF];
   int                       DisplayText;
 
   vtkScalarsToColors      * CreateDefaultLookupTable();

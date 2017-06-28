@@ -58,7 +58,7 @@ public:
 
   //@{
   /**
-   * The sprintf format used to build filename from FilePrefix and number.
+   * The snprintf format used to build filename from FilePrefix and number.
    */
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
@@ -97,6 +97,8 @@ protected:
   int FileNumber;
   int FileLowerLeft;
   char *InternalFileName;
+  size_t InternalFileNameSize;
+
   // Required for subclasses that need to prevent the writer
   // from touching the file system. The getter/setter are only
   // available in these subclasses.

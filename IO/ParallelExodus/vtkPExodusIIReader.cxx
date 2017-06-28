@@ -311,7 +311,7 @@ int vtkPExodusIIReader::RequestInformation(
       }
       else if ( this->FilePattern )
       {
-        sprintf( this->MultiFileName, this->FilePattern, this->FilePrefix, fileIndex );
+        snprintf( this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, fileIndex );
       }
       char* nm = new char[strlen( this->MultiFileName )+1];
       strcpy(nm, this->MultiFileName);
@@ -536,7 +536,7 @@ int vtkPExodusIIReader::RequestData(
     }
     else if ( this->FilePattern )
     {
-      sprintf( this->MultiFileName, this->FilePattern, this->FilePrefix, fileIndex );
+      snprintf( this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, fileIndex );
       if ( this->GetGenerateFileIdArray() )
       {
         fileId = fileIndex;

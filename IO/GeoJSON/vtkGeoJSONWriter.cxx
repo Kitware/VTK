@@ -67,7 +67,7 @@ public:
     {
       this->Grow();
     }
-    int nchars = sprintf(this->Top, "%s", newcontent);
+    int nchars = snprintf(this->Top, this->MaxBufferSize, "%s", newcontent);
     this->Top+=nchars;
   }
   inline void append(const double newcontent)
@@ -77,7 +77,7 @@ public:
     {
       this->Grow();
     }
-     int nchars = sprintf(this->Top, "%s", this->NumBuffer);
+     int nchars = snprintf(this->Top, this->MaxBufferSize, "%s", this->NumBuffer);
      this->Top+=nchars;
   }
   char *Buffer;

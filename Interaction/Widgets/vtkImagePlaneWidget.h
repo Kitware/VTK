@@ -124,6 +124,9 @@ class vtkTransform;
 #define VTK_LINEAR_RESLICE  1
 #define VTK_CUBIC_RESLICE   2
 
+// Private.
+#define VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF   128
+
 class VTKINTERACTIONWIDGETS_EXPORT vtkImagePlaneWidget : public vtkPolyDataSourceWidget
 {
 public:
@@ -694,7 +697,7 @@ protected:
 
   // The text to display W/L, image data
   vtkTextActor *TextActor;
-  char          TextBuff[128];
+  char          TextBuff[VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF];
   void          GenerateText();
   void          ManageTextDisplay();
   void          ActivateText(int);

@@ -774,14 +774,21 @@ static PyObject *PyVTKMutableObject_Repr(PyObject *ob)
 #ifdef VTK_PY3K
     r = PyUnicode_FromFormat("%s(%U)", name, s);
 #else
-    char textspace[128];
     const char *text = PyString_AsString(s);
-    size_t n = strlen(name) + strlen(text) + 3;
-    char *cp = textspace;
-    if (n > 128) { cp = (char *)malloc(n); }
-    sprintf(cp, "%s(%s)", name, text);
-    r = PyString_FromString(cp);
-    if (n > 128) { free(cp); }
+    size_t n = strlen(name) + strlen(text) + 3; // for '(', ')', null
+    if (n > 128)
+    {
+      char *cp = (char *)malloc(n);
+      snprintf(cp, n, "%s(%s)", name, text);
+      r = PyString_FromString(cp);
+      free(cp);
+    }
+    else
+    {
+      char textspace[128];
+      snprintf(textspace, sizeof(textspace), "%s(%s)", name, text);
+      r = PyString_FromString(textspace);
+    }
 #endif
     Py_DECREF(s);
   }

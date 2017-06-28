@@ -113,13 +113,17 @@ protected:
 
   ostream *OpenFile();
   int WriteUnstructuredMetaData(vtkDataSet *input,
-                                char *root, char *str, ostream *fptr);
+                                char *root, char *str,
+                                size_t strSize, ostream *fptr);
   int WriteImageMetaData(vtkImageData *input,
-                         char *root, char *str, ostream *fptr);
+                         char *root, char *str,
+                         size_t strSize, ostream *fptr);
   int WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
-                                   char *root, char *str, ostream *fptr);
+                                   char *root, char *str,
+                                   size_t strSize, ostream *fptr);
   int WriteStructuredGridMetaData(vtkStructuredGrid *input,
-                                  char *root, char *str, ostream *fptr);
+                                  char *root, char *str,
+                                  size_t strSize, ostream *fptr);
 
   int StartPiece;
   int EndPiece;

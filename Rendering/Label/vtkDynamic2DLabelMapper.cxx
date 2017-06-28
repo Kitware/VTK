@@ -314,11 +314,11 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       }
       else if (stringData)
       {
-        FormatString = ""; // we'll use vtkStdString::operator+ instead of sprintf
+        FormatString = "";
       }
       else if (uStringData)
       {
-        FormatString = "unicode"; // we'll use vtkStdString::operator+ instead of sprintf
+        FormatString = "unicode";
       }
       else
       {
@@ -408,7 +408,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         else // rendering string data
         {
           // If the user hasn't given us a custom format string then
-          // we'll sidestep a lot of sprintf nonsense.
+          // we'll sidestep a lot of snprintf nonsense.
           if (this->LabelFormat == NULL)
           {
             if( uStringData )

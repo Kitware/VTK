@@ -502,12 +502,12 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     }
     else if (stringData)
     {
-      FormatString = ""; // we'll use vtkStdString::operator+ instead of sprintf
+      FormatString = "";
     }
     else if (uStringData)
     {
       vtkWarningMacro( "Unicode string arrays are not adequately supported by the vtkLabeledDataMapper.  Unicode strings will be converted to vtkStdStrings for rendering.");
-      FormatString = "unicode"; // we'll use vtkStdString::operator+ instead of sprintf
+      FormatString = "unicode";
     }
     else
     {
@@ -593,7 +593,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       else // rendering string data
       {
         // If the user hasn't given us a custom format string then
-        // we'll sidestep a lot of sprintf nonsense.
+        // we'll sidestep a lot of snprintf nonsense.
         if (this->LabelFormat == NULL)
         {
           if( uStringData )
