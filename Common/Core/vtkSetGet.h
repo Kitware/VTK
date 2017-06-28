@@ -483,71 +483,92 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 //
 // This macro is used to print out errors
 // vtkErrorWithObjectMacro(self, << "Error message" << variable);
+// self can be null
 //
-#define vtkErrorWithObjectMacro(self, x)                        \
-   {                                                            \
-   if (vtkObject::GetGlobalWarningDisplay())                    \
-   {                                                          \
-     vtkOStreamWrapper::EndlType endl;                          \
-     vtkOStreamWrapper::UseEndl(endl);                          \
-     vtkOStrStreamWrapper vtkmsg;                               \
-     vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__      \
-            << "\n" << self->GetClassName() << " (" << self     \
-            << "): " x << "\n\n";                               \
-     if ( self->HasObserver("ErrorEvent") )                     \
-     {                                                        \
-       self->InvokeEvent("ErrorEvent", vtkmsg.str());           \
-     }                                                        \
-     else                                                       \
-     {                                                        \
-       vtkOutputWindowDisplayErrorText(vtkmsg.str());           \
-     }                                                        \
-     vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();      \
-   }                                                          \
-   }
+#define vtkErrorWithObjectMacro(self, x)                             \
+{                                                                    \
+  vtkObject* _object = self;                                         \
+  if (vtkObject::GetGlobalWarningDisplay())                          \
+  {                                                                  \
+    vtkOStreamWrapper::EndlType endl;                                \
+    vtkOStreamWrapper::UseEndl(endl);                                \
+    vtkOStrStreamWrapper vtkmsg;                                     \
+    vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n";   \
+    if (_object)                                                     \
+    {                                                                \
+      vtkmsg << _object->GetClassName() << " (" << _object << "): "; \
+    }                                                                \
+    vtkmsg << "" x << "\n\n";                                        \
+    if (_object && _object->HasObserver("ErrorEvent") )              \
+    {                                                                \
+      _object->InvokeEvent("ErrorEvent", vtkmsg.str());              \
+    }                                                                \
+    else                                                             \
+    {                                                                \
+      vtkOutputWindowDisplayErrorText(vtkmsg.str());                 \
+    }                                                                \
+    vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();            \
+  }                                                                  \
+}
 
 //
 // This macro is used to print out warnings
 // vtkWarningWithObjectMacro(self, "Warning message" << variable);
+// self can be null
 //
-#define vtkWarningWithObjectMacro(self, x)                      \
-   {                                                            \
-   if (vtkObject::GetGlobalWarningDisplay())                    \
-   {                                                          \
-     vtkOStreamWrapper::EndlType endl;                          \
-     vtkOStreamWrapper::UseEndl(endl);                          \
-     vtkOStrStreamWrapper vtkmsg;                               \
-     vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__    \
-            << "\n" << self->GetClassName() << " (" << self     \
-            << "): " x << "\n\n";                               \
-     if ( self->HasObserver("WarningEvent") )                   \
-     {                                                        \
-       self->InvokeEvent("WarningEvent", vtkmsg.str());         \
-     }                                                        \
-     else                                                       \
-     {                                                        \
-       vtkOutputWindowDisplayWarningText(vtkmsg.str());         \
-     }                                                        \
-     vtkmsg.rdbuf()->freeze(0);                                 \
-   }                                                          \
-   }
+#define vtkWarningWithObjectMacro(self, x)                           \
+{                                                                    \
+  vtkObject* _object = self;                                         \
+  if (vtkObject::GetGlobalWarningDisplay())                          \
+  {                                                                  \
+    vtkOStreamWrapper::EndlType endl;                                \
+    vtkOStreamWrapper::UseEndl(endl);                                \
+    vtkOStrStreamWrapper vtkmsg;                                     \
+    vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n"; \
+    if (_object)                                                     \
+    {                                                                \
+      vtkmsg << _object->GetClassName() << " (" << _object << "): "; \
+    }                                                                \
+    vtkmsg << "" x << "\n\n";                                        \
+                                                                     \
+    if (_object && _object->HasObserver("WarningEvent"))             \
+    {                                                                \
+      _object->InvokeEvent("WarningEvent", vtkmsg.str());            \
+    }                                                                \
+    else                                                             \
+    {                                                                \
+      vtkOutputWindowDisplayWarningText(vtkmsg.str());               \
+    }                                                                \
+    vtkmsg.rdbuf()->freeze(0);                                       \
+  }                                                                  \
+}
 
+/**
+ * This macro is used to print out debug message
+ * vtkDebugWithObjectMacro(self, "Warning message" << variable);
+ * self can be null
+ */
 #ifdef NDEBUG
 # define vtkDebugWithObjectMacro(self, x)
 #else
-# define vtkDebugWithObjectMacro(self, x)                                     \
-  {                                                                           \
-  if (self->GetDebug() && vtkObject::GetGlobalWarningDisplay())               \
-  {                                                                         \
-    vtkOStreamWrapper::EndlType endl;                                         \
-    vtkOStreamWrapper::UseEndl(endl);                                         \
-    vtkOStrStreamWrapper vtkmsg;                                              \
-    vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n"             \
-           << self->GetClassName() << " (" << self << "): " x  << "\n\n";     \
-    vtkOutputWindowDisplayDebugText(vtkmsg.str());                            \
-    vtkmsg.rdbuf()->freeze(0);                                                \
-  }                                                                         \
-  }
+# define vtkDebugWithObjectMacro(self, x)                                        \
+{                                                                                \
+   vtkObject* _object = self;                                                    \
+  if ((!_object || _object->GetDebug()) && vtkObject::GetGlobalWarningDisplay()) \
+  {                                                                              \
+    vtkOStreamWrapper::EndlType endl;                                            \
+    vtkOStreamWrapper::UseEndl(endl);                                            \
+    vtkOStrStreamWrapper vtkmsg;                                                 \
+    vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n";               \
+    if (_object)                                                                 \
+    {                                                                            \
+      vtkmsg << _object->GetClassName() << " (" << _object << "): ";             \
+    }                                                                            \
+    vtkmsg << "" x << "\n\n";                                                    \
+    vtkOutputWindowDisplayDebugText(vtkmsg.str());                               \
+    vtkmsg.rdbuf()->freeze(0);                                                   \
+  }                                                                              \
+}
 #endif
 
 //
