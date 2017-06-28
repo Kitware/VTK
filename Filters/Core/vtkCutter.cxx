@@ -230,7 +230,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   }
 
   vtkDataArray* dataArrayInput = input->GetPoints()->GetData();
-  this->CutFunction->EvaluateFunction(dataArrayInput, cutScalars);
+  this->CutFunction->FunctionValue(dataArrayInput, cutScalars);
   int numContours = this->GetNumberOfContours();
 
   this->GridSynchronizedTemplates->SetDebug(this->GetDebug());
@@ -797,7 +797,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   if(inputPointSet)
   {
     vtkDataArray *dataArrayInput = inputPointSet->GetPoints()->GetData();
-    this->CutFunction->EvaluateFunction(dataArrayInput, cutScalars);
+    this->CutFunction->FunctionValue(dataArrayInput, cutScalars);
   }
   vtkSmartPointer<vtkCellIterator> cellIter =
       vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
