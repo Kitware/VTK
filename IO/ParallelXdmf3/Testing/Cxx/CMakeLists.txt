@@ -15,7 +15,7 @@ if(VTK_MPI_MAX_NUMPROCS GREATER 1 AND VTK_USE_LARGE_DATA)
       COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
       $<TARGET_FILE:${vtk-module}Cxx-${test}>
       -D ${VTK_TEST_DATA_DIR}
-      -T ${VTK_TEST_OUTPUT_DIR},:}
+      -T ${VTK_TEST_OUTPUT_DIR}
 #      -V DATA{../Data/Baseline/${test}.png,:}
       ${VTK_MPI_POSTFLAGS})
     vtk_mpi_link(${vtk-module}Cxx-${test})

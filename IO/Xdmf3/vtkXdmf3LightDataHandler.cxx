@@ -27,6 +27,7 @@
 #include "XdmfGraph.hpp"
 #include "XdmfGridCollection.hpp"
 #include "XdmfGridCollectionType.hpp"
+#include "XdmfGridController.hpp"
 #include "XdmfReader.hpp"
 #include "XdmfRectilinearGrid.hpp"
 #include "XdmfRegularGrid.hpp"
@@ -98,6 +99,11 @@ void vtkXdmf3LightDataHandler::InspectXDMF
     shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(item);
     if (grid)
     {
+      shared_ptr<XdmfGridController> gcont =  grid->getGridController();
+      if (gcont)
+      {
+        grid->read();
+      }
       //atomic dataset
       vtkIdType parent = parentVertex;
       if (parentVertex == -1)
@@ -146,6 +152,14 @@ void vtkXdmf3LightDataHandler::InspectXDMF
       shared_dynamic_cast<XdmfGridCollection>(item);
     bool isDomain = asGC?false:true;
 
+    if (asGC)
+    {
+      shared_ptr<XdmfGridController> gcont = asGC->getGridController();
+      if (gcont)
+      {
+        asGC->read();
+      }
+    }
     bool isTemporal = false;
     if (asGC && asGC->getType() == XdmfGridCollectionType::Temporal())
     {
@@ -233,6 +247,11 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
   shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(item);
   if (grid)
   {
+    shared_ptr<XdmfGridController> gcont =  grid->getGridController();
+    if (gcont)
+    {
+      grid->read();
+    }
     for (unsigned int cc=0; cc < grid->getNumberAttributes(); cc++)
     {
       shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
