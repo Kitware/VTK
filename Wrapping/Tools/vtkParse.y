@@ -3934,6 +3934,7 @@ void add_using(const char *name, int is_namespace)
     item->Name = vtkstrdup(&name[i]);
     while (i > 0 && name[i-1] == ':') { i--; }
     item->Scope = vtkstrndup(name, i);
+    item->Access = access_level;
   }
 
   if (currentClass)
