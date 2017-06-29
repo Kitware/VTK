@@ -30,14 +30,15 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
-class vtkLight;
 class vtkActor;
 class vtkActor2D;
-class vtkPoints;
 class vtkDataArray;
+class vtkLight;
+class vtkPoints;
+class vtkPolyData;
+class vtkRenderer;
 class vtkUnsignedCharArray;
 class vtkX3DExporterWriter;
-class vtkRenderer;
 
 class VTKIOEXPORT_EXPORT vtkX3DExporter : public vtkExporter
 {
@@ -127,6 +128,7 @@ protected:
   void WriteALight(vtkLight *aLight, vtkX3DExporterWriter* writer);
   void WriteAnActor(vtkActor *anActor, vtkX3DExporterWriter* writer,
     int index);
+  void WriteAPiece(vtkPolyData* piece, vtkActor *anActor, vtkX3DExporterWriter* writer, int index);
   void WritePointData(vtkPoints *points, vtkDataArray *normals,
     vtkDataArray *tcoords, vtkUnsignedCharArray *colors,
     vtkX3DExporterWriter* writer, int index);

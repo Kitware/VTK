@@ -20,13 +20,15 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkGeometryFilter.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -386,8 +388,69 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
 void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkX3DExporterWriter* writer, int index)
 {
-  vtkSmartPointer<vtkDataSet> ds;
-  vtkPolyData *pd;
+  // see if the actor has a mapper. it could be an assembly
+  vtkMapper* mapper = anActor->GetMapper();
+  if (mapper == nullptr)
+  {
+    return;
+  }
+
+  // validate mapper input dataset.
+  vtkDataObject* dObj = mapper->GetInputDataObject(0, 0);
+  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
+  vtkPolyData* pd = vtkPolyData::SafeDownCast(dObj);
+  if (cd == nullptr && pd == nullptr)
+  {
+    // we don't support the input dataset or is empty.
+    return;
+  }
+
+  // first stuff out the transform
+  vtkSmartPointer<vtkTransform> trans = vtkSmartPointer<vtkTransform>::New();
+  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
+
+  writer->StartNode(Transform);
+  writer->SetField(translation, SFVEC3F, trans->GetPosition());
+  writer->SetField(rotation, SFROTATION, trans->GetOrientationWXYZ());
+  writer->SetField(scale, SFVEC3F, trans->GetScale());
+
+  if (cd)
+  {
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(cd->NewIterator());
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      if (vtkPolyData* currentPD = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject()))
+      {
+        writer->StartNode(Group);
+        if (iter->HasCurrentMetaData() && iter->GetCurrentMetaData()->Has(vtkCompositeDataSet::NAME()))
+        {
+          if (const char* aname = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME()))
+          {
+            std::string mfname = "\"" + std::string(aname) + "\"";
+            writer->StartNode(MetadataString);
+            writer->SetField(name, "name", false);
+            writer->SetField(value, mfname.c_str(), true);
+            writer->EndNode();
+          }
+        }
+        this->WriteAPiece(currentPD, anActor, writer, index);
+        writer->EndNode(); // close the Group.
+      }
+    }
+  }
+  else
+  {
+    assert(pd != nullptr);
+    this->WriteAPiece(pd, anActor, writer, index);
+  }
+  writer->EndNode();
+}
+
+//----------------------------------------------------------------------------
+void vtkX3DExporter::WriteAPiece(
+  vtkPolyData* pd, vtkActor *anActor, vtkX3DExporterWriter* writer, int index)
+{
   vtkPointData *pntData;
   vtkCellData *cellData;
   vtkPoints *points;
@@ -398,45 +461,14 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkSmartPointer<vtkTransform> trans;
 
   // see if the actor has a mapper. it could be an assembly
-  if (anActor->GetMapper() == NULL)
+  if (anActor->GetMapper() == nullptr)
   {
     return;
   }
 
-  vtkDataObject* dObj = anActor->GetMapper()->GetInputDataObject(0, 0);
-
-  // get the mappers input and matrix
-  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
-  if (cd)
-  {
-    vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
-    gf->SetInputConnection(anActor->GetMapper()->GetInputConnection(0, 0));
-    gf->Update();
-    ds = gf->GetOutput();
-    gf->Delete();
-  }
-  else
-  {
-    anActor->GetMapper()->Update();
-    ds = anActor->GetMapper()->GetInput();
-  }
-
-  if (!ds)
+  if (pd == nullptr)
   {
     return;
-  }
-
-  // we really want polydata
-  if ( ds->GetDataObjectType() != VTK_POLY_DATA )
-  {
-    vtkSmartPointer<vtkGeometryFilter> gf = vtkSmartPointer<vtkGeometryFilter>::New();
-    gf->SetInputData(ds);
-    gf->Update();
-    pd = gf->GetOutput();
-  }
-  else
-  {
-    pd = static_cast<vtkPolyData *>(ds.GetPointer());
   }
 
   // Create a temporary poly-data mapper that we use.
@@ -466,15 +498,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
         anActor->GetMapper()->GetArrayComponent());
     }
   }
-
-  // first stuff out the transform
-  trans = vtkSmartPointer<vtkTransform>::New();
-  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
-
-  writer->StartNode(Transform);
-  writer->SetField(translation, SFVEC3F, trans->GetPosition());
-  writer->SetField(rotation, SFROTATION, trans->GetOrientationWXYZ());
-  writer->SetField(scale, SFVEC3F, trans->GetScale());
 
   prop = anActor->GetProperty();
   points = pd->GetPoints();
@@ -590,9 +613,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
         colors, cell_normals, writer);
       writer->EndNode();  // close the  Shape
     }
-
   }
-  writer->EndNode(); // close the original transform
 }
 
 //----------------------------------------------------------------------------
