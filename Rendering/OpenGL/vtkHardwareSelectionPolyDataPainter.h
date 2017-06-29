@@ -99,7 +99,6 @@ protected:
     vtkIdType startCellId, vtkRenderer *renderer);
 
   int EnableSelection;
-  vtkIdType TotalCells;
   char* PointIdArrayName;
   char* CellIdArrayName;
   char* ProcessIdArrayName;

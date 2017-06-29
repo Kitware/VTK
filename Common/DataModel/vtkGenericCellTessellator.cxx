@@ -39,6 +39,7 @@ vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetrics, vtkCollection);
 // Create the tessellator helper with a default of 0.25 for threshold
 vtkGenericCellTessellator::vtkGenericCellTessellator()
 {
+  this->DataSet = nullptr;
   this->ErrorMetrics = vtkCollection::New();
   this->MaxErrorsCapacity = 0;
   this->MaxErrors = 0;

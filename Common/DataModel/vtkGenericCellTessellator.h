@@ -208,6 +208,9 @@ protected:
    */
   void SetGenericCell(vtkGenericAdaptorCell *cell);
 
+  /**
+  * Dataset to be tessellated.
+  */
   vtkGenericDataSet *DataSet;
 
   int Measurement; // if true, measure the quality of the fixed subdivision.

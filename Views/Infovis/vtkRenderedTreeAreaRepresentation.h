@@ -322,9 +322,6 @@ protected:
 
   vtkUnicodeString GetHoverTextInternal(vtkSelection* sel) VTK_OVERRIDE;
 
-  class Internals;
-  Internals* Implementation;
-
   vtkSmartPointer<vtkWorldPointPicker>             Picker;
   vtkSmartPointer<vtkApplyColors>                  ApplyColors;
   vtkSmartPointer<vtkTreeLevelsFilter>             TreeLevels;
@@ -368,6 +365,9 @@ protected:
 private:
   vtkRenderedTreeAreaRepresentation(const vtkRenderedTreeAreaRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderedTreeAreaRepresentation&) VTK_DELETE_FUNCTION;
+
+  class Internals;
+  Internals* Implementation;
 };
 
 #endif

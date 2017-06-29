@@ -1300,8 +1300,6 @@ vtkSimpleCellTessellator::vtkSimpleCellTessellator()
   this->ScalarsCapacity = 0;
   this->PointOffset     = 0;
 
-  this->DataSet         = 0;
-
   this->FixedSubdivisions       = 0; // 0 means no fixed subdivision
   this->MaxSubdivisionLevel     = 0; // 0 means no subdivision at all
   this->CurrentSubdivisionLevel = 0;
