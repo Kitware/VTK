@@ -480,6 +480,8 @@ struct UnstructuredGridFunctor : public PointSetFunctor
           // Select correct cell data
           switch(cell->GetCellDimension())
           {
+            case(0):
+              VTK_FALLTHROUGH;
             case(1):
               tmpOutCD = newVertsData;
               break;
@@ -524,6 +526,10 @@ struct PolyDataFunctor : public PointSetFunctor
     : PointSetFunctor(input, output, plane, tree, origin, normal, interpolate)
   {
     this->PolyData = vtkPolyData::SafeDownCast(input);
+    if(this->PolyData->NeedToBuildCells())
+    {
+      this->PolyData->BuildCells();
+    }
     this->InPoints = this->PolyData->GetPoints();
     if(!this->SphereTree)
     {
@@ -607,6 +613,8 @@ struct PolyDataFunctor : public PointSetFunctor
           // Select correct cell data
           switch(cell->GetCellDimension())
           {
+            case(0):
+              VTK_FALLTHROUGH;
             case(1):
               tmpOutCD = newVertsData;
               break;

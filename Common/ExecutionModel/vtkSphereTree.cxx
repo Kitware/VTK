@@ -1353,6 +1353,11 @@ BuildUnstructuredHierarchy(vtkDataSet *input, double *tree)
   // a grid cell should be this->Resolution times bigger than the average
   // radius (in each direction).
   double spacing[3], r=this->AverageRadius, *bds=this->SphereBounds;
+  if (bds[1] <= bds[0] || bds[3] <= bds[2] || bds[5] <= bds[4])
+  {
+    vtkWarningMacro("Invalid bounds, cannot compute tree hierarchy");
+    return;
+  }
   int dims[3], res=this->Resolution;
   for (int i=0; i<3; ++i)
   {
