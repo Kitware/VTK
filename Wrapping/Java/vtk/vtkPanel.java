@@ -397,7 +397,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     vtkWindowToImageFilter w2if = new vtkWindowToImageFilter();
     w2if.SetInput(rw);
 
-    w2if.SetMagnification(mag);
+    w2if.SetScale(mag);
     w2if.Update();
 
     vtkTIFFWriter writer = new vtkTIFFWriter();
