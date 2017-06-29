@@ -93,6 +93,7 @@ int vtkmTriangleMeshPointNormals::RequestData(
 
   vtkm::filter::SurfaceNormals filter;
   filter.SetGenerateCellNormals(false);
+  filter.SetNormalizeCellNormals(false);
   filter.SetGeneratePointNormals(true);
   filter.SetPointNormalsName("Normals");
   auto result = filter.Execute(in, policy);
