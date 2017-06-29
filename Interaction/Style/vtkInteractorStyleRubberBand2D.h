@@ -115,10 +115,10 @@ protected:
   // Draws the selection rubber band
   void RedrawRubberBand();
 
-  // The end position of the selection
+  // The start position of the selection
   int StartPosition[2];
 
-  // The start position of the selection
+  // The end position of the selection
   int EndPosition[2];
 
   // The pixel array for the rubber band
