@@ -15,7 +15,7 @@ encode_codes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 class CaptureRenderWindow(object):
     def __init__(self, magnification=1):
         self.windowToImage = vtkWindowToImageFilter()
-        self.windowToImage.SetMagnification(magnification)
+        self.windowToImage.SetScale(magnification)
         self.windowToImage.SetInputBufferTypeToRGB()
         self.windowToImage.ReadFrontBufferOn()
         self.writer = None

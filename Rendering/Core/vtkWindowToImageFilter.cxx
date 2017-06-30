@@ -66,7 +66,7 @@ public:
 vtkWindowToImageFilter::vtkWindowToImageFilter()
 {
   this->Input = NULL;
-  this->Magnification = 1;
+  this->Scale[0] = this->Scale[1] = 1;
   this->ReadFrontBuffer = 1;
   this->ShouldRerender = 1;
   this->Viewport[0] = 0;
@@ -125,7 +125,7 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input: (none)\n";
   }
   os << indent << "ReadFrontBuffer: " << this->ReadFrontBuffer << "\n";
-  os << indent << "Magnification: " << this->Magnification << "\n";
+  os << indent << "Scale: " << this->Scale[0] << ", " << this->Scale[1] << "\n";
   os << indent << "ShouldRerender: " << this->ShouldRerender << "\n";
   os << indent << "Viewport: " << this->Viewport[0] << "," << this->Viewport[1]
      << "," << this->Viewport[2] << "," << this->Viewport[3] << "\n";
@@ -171,16 +171,28 @@ void vtkWindowToImageFilter::RequestInformation (
     return;
   }
 
+  if (this->Scale[0] < 1)
+  {
+    vtkWarningMacro("Scale[0] cannot be less than 1. Clamping to 1.");
+    this->Scale[0] = 1;
+  }
+
+  if (this->Scale[1] < 1)
+  {
+    vtkWarningMacro("Scale[1] cannot be less than 1. Clamping to 1.");
+    this->Scale[1] = 1;
+  }
+
   int tileScale[2];
   this->Input->GetTileScale(tileScale);
-  int magTileScale[2] = {tileScale[0] * this->Magnification,
-                         tileScale[1] * this->Magnification};
+  int magTileScale[2] = {tileScale[0] * this->Scale[0],
+                         tileScale[1] * this->Scale[1]};
 
   if((magTileScale[0] > 1 || magTileScale[1] > 1) &&
      (this->Viewport[0] != 0 || this->Viewport[1] != 0 ||
       this->Viewport[2] != 1 || this->Viewport[3] != 1))
   {
-    vtkWarningMacro(<<"Viewport extents are not used when Magnification > 1 "
+    vtkWarningMacro(<<"Viewport extents are not used when scale factors > 1 "
                     "or tiled displays are used.");
     this->Viewport[0] = 0;
     this->Viewport[1] = 0;
@@ -194,10 +206,10 @@ void vtkWindowToImageFilter::RequestInformation (
   int wExtent[6];
   wExtent[0]= 0;
   wExtent[1] = (int(this->Viewport[2] * size[0] + 0.5)-
-    int(this->Viewport[0] * size[0])) * this->Magnification - 1;
+    int(this->Viewport[0] * size[0])) * this->Scale[0] - 1;
   wExtent[2] = 0;
   wExtent[3] = (int(this->Viewport[3] * size[1] + 0.5)-
-    int(this->Viewport[1] * size[1])) * this->Magnification - 1;
+    int(this->Viewport[1] * size[1])) * this->Scale[1] - 1;
   wExtent[4] = 0;
   wExtent[5] = 0;
 
@@ -266,6 +278,18 @@ void vtkWindowToImageFilter::RequestData(
     return;
   }
 
+  if (this->Scale[0] < 1)
+  {
+    vtkWarningMacro("Scale[0] cannot be less than 1. Clamping to 1.");
+    this->Scale[0] = 1;
+  }
+
+  if (this->Scale[1] < 1)
+  {
+    vtkWarningMacro("Scale[1] cannot be less than 1. Clamping to 1.");
+    this->Scale[1] = 1;
+  }
+
   vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(this->Input);
   if (!renWin)
   {
@@ -284,8 +308,8 @@ void vtkWindowToImageFilter::RequestData(
 
   int tileScale[2];
   this->Input->GetTileScale(tileScale);
-  int magTileScale[2] = {this->Magnification * tileScale[0],
-                         this->Magnification * tileScale[1]};
+  int magTileScale[2] = {this->Scale[0] * tileScale[0],
+                         this->Scale[1] * tileScale[1]};
 
   int tileSize[2] = {this->Input->GetActualSize()[0],
                      this->Input->GetActualSize()[1]};
@@ -362,7 +386,7 @@ void vtkWindowToImageFilter::RequestData(
   {
     for (int x = 0; x < num_iterations[0]; x++)
     {
-      double* cur_viewport = &viewports[(num_iterations[1] * y + x) * 4];
+      double* cur_viewport = &viewports[(num_iterations[0] * y + x) * 4];
       cur_viewport[0] = static_cast<double>(x) / magTileScale[0];
       cur_viewport[1] = static_cast<double>(y) / magTileScale[1];
       cur_viewport[2] = (x + 1.0) / magTileScale[0];
@@ -400,7 +424,7 @@ void vtkWindowToImageFilter::RequestData(
     for (int x = 0; x < num_iterations[0]; x++)
     {
       // setup the Window ivars
-      double* cur_viewport = &viewports[(num_iterations[1] * y + x) * 4];
+      double* cur_viewport = &viewports[(num_iterations[0] * y + x) * 4];
       this->Input->SetTileViewport(cur_viewport);
       double *tvp = this->Input->GetTileViewport();
 
@@ -644,11 +668,11 @@ void vtkWindowToImageFilter::Rescale2DActors()
           // work out the position in new magnified pixels
           p1 = n1->GetComputedDisplayValue(aren);
           p2 = n2->GetComputedDisplayValue(aren);
-          d1[0] = p1[0]*this->Magnification;
-          d1[1] = p1[1]*this->Magnification;
+          d1[0] = p1[0]*this->Scale[0];
+          d1[1] = p1[1]*this->Scale[1];
           d1[2] = 0.0;
-          d2[0] = p2[0]*this->Magnification;
-          d2[1] = p2[1]*this->Magnification;
+          d2[0] = p2[0]*this->Scale[0];
+          d2[1] = p2[1]*this->Scale[1];
           d2[2] = 0.0;
           this->StoredData->Coords1.push_back(
             std::pair<int, int>(static_cast<int>(d1[0]), static_cast<int>(d1[1])) );
@@ -719,3 +743,19 @@ void vtkWindowToImageFilter::Render()
     }
   }
 }
+
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkWindowToImageFilter::SetMagnification(int mag)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkWindowToImageFilter::SetMagnification, "VTK 8.1",
+      vtkWindowToImageFilter::SetScale);
+  this->SetScale(mag, mag);
+}
+
+int vtkWindowToImageFilter::GetMagnification()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkWindowToImageFilter::GetMagnification, "VTK 8.1",
+      vtkWindowToImageFilter::GetScale);
+  return std::max(this->Scale[0], this->Scale[1]);
+}
+#endif // VTK_LEGACY_REMOVE
