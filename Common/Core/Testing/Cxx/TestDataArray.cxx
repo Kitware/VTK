@@ -169,12 +169,21 @@ int TestDataArray(int,char *[])
   farray->InsertNextTuple1(vtkMath::Inf());
   farray->InsertNextTuple1(vtkMath::NegInf());
   farray->InsertNextTuple1(vtkMath::Nan());
+  farray->GetRange( range, 0 );
+  if (range[0] != vtkMath::NegInf() || range[1] != vtkMath::Inf())
+  {
+    cerr
+      << "Getting range (" << range[0] << "-" << range[1]
+      << ") of array containing infinity and NaN" << std::endl;
+    farray->Delete();
+    return 1;
+  }
   farray->GetFiniteRange( range, 0 ); // Range is now 0-9. Used to check MTimes.
   if ( !vtkMathUtilities::FuzzyCompare( range[0], 0.0 ) || !vtkMathUtilities::FuzzyCompare( range[1], 9.0 ) )
   {
     cerr
-      << "Getting range (" << range[0] << "-" << range[1]
-      << ") of array containing infinity and NaN";
+      << "Getting finite range (" << range[0] << "-" << range[1]
+      << ") of array containing infinity and NaN" << std::endl;
     farray->Delete();
     return 1;
   }
