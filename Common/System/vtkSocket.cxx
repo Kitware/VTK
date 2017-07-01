@@ -41,7 +41,7 @@
   #include <netdb.h>
   #include <unistd.h>
   #include <sys/time.h>
-  #include <errno.h>
+  #include <cerrno>
   #include <cstring>
   #include <cstdio>
 #endif

@@ -30,7 +30,7 @@
 #include <cassert>
 #include <iomanip>
 #include <iterator>
-#include <stdarg.h>
+#include <cstdarg>
 #include <string>
 #include <vector>
 

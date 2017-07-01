@@ -60,7 +60,7 @@
 
 #include "vtkUnstructuredGrid.h"
 
-#include <errno.h>
+#include <cerrno>
 #include <cmath>
 #include <cctype>
 

@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransformPolyDataFilter.h"
 
-#include <locale.h>
+#include <clocale>
 
 vtkStandardNewMacro(vtkVectorText);
 

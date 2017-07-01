@@ -19,8 +19,8 @@
 
 #include "LSDynaFamily.h"
 
-#include <errno.h>
-#include <ctype.h>
+#include <cerrno>
+#include <cctype>
 #include <cassert>
 
 #include <string>

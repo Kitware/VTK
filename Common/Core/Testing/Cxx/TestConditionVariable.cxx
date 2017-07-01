@@ -3,7 +3,7 @@
 #include "vtkMultiThreader.h"
 #include "vtksys/SystemTools.hxx"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 
 typedef struct {

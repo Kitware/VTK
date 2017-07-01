@@ -26,7 +26,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-#include <math.h>
+#include <cmath>
 
 int TestMapVectorsToColors(int argc, char *argv[])
 {

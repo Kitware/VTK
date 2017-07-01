@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkImageMapToColors.h"
-#include "math.h"
+#include <cmath>
 #include <algorithm>
 
 #include <sstream>

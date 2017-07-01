@@ -42,7 +42,7 @@
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-#include <time.h>
+#include <ctime>
 
 #include <vector>
 

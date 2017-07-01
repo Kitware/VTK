@@ -21,7 +21,7 @@
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkTestErrorObserver.h"
 

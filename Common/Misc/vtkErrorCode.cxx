@@ -16,7 +16,7 @@
 
 #include <cstring>
 #include <cctype>
-#include <errno.h>
+#include <cerrno>
 
 // this list should only contain the initial, contiguous
 // set of error codes and should not include UserError

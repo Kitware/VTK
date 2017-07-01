@@ -22,7 +22,7 @@
 #include "vtkTable.h"
 
 #include <sstream>
-#include "math.h"
+#include <cmath>
 
 vtkStandardNewMacro(vtkSplitColumnComponents);
 //---------------------------------------------------------------------------

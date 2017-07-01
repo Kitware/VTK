@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
-#include <stdarg.h> // va_list
+#include <cstdarg> // va_list
 
 #include <vector>
 

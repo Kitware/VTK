@@ -31,8 +31,8 @@
 #include "vtkVariant.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 
 // Make a dummy image filter that does nothing but call CopyAttributeData.
 class vtkDummyImageFilter : public vtkImageAlgorithm
