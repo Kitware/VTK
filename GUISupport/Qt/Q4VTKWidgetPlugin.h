@@ -26,10 +26,8 @@
 #define QVTK_WIDGET_PLUGIN
 
 // Disable warnings that Qt headers give.
-#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=6)
-#pragma GCC diagnostic push
-#endif
 #if defined(__GNUC__)
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
@@ -86,7 +84,7 @@ public:
 };
 
 // Undo disabling of warning.
-#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=6)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 

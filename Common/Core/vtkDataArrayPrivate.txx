@@ -70,18 +70,6 @@ using std::max;
 namespace detail {
 template <typename T, bool> struct has_infinity;
 
-//Visual Studio 2012 and earlier don't have std::isinf.
-#if defined(_MSC_VER) && ( _MSC_VER < 1800 )
-template <typename T>
-struct has_infinity<T, true>
-{
-  static bool isinf(T x)
-  {
-    return x == std::numeric_limits<T>::infinity() ||
-           x == -std::numeric_limits<T>::infinity();
-  }
-};
-#else
 template <typename T>
 struct has_infinity<T, true> {
   static bool isinf(T x)
@@ -89,7 +77,6 @@ struct has_infinity<T, true> {
     return std::isinf(x);
   }
 };
-#endif
 
 template <typename T>
 struct has_infinity<T, false> { static bool isinf(T) { return false; } };

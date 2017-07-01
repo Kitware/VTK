@@ -18,10 +18,8 @@
 #define _WIN32_WINNT 0x0501    // 0x0501 means target Windows XP or later
 #endif
 
-#if _MSC_VER >= 1300
 #ifndef _WIN32_WINDOWS    // Allow use of features specific to Windows 98 or later.
 #define _WIN32_WINDOWS 0x0410 // Change this to the appropriate value to target Windows Me or later.
-#endif
 #endif
 
 #ifndef _WIN32_IE      // Allow use of features specific to IE 4.0 or later.
