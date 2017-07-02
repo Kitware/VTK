@@ -392,7 +392,7 @@ void vtkXdmf3Writer::WriteDataInternal (vtkInformation* request)
   int rankCount;
   if (this->NumberOfProcesses > 1 &&
       this->MyRank == 0 &&
-      (!isTemporal || (isTemporal && firstTimeStep)))
+      (!isTemporal || firstTimeStep))
   {
     //write the root's top level meta file that refers to the satellites'
     //todo would be fancier to write out whole tree but xgrid to each

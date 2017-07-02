@@ -381,6 +381,7 @@ int vtkOBJPolyDataProcessor::RequestData(
     {
       vtkErrorMacro(<< "The MTL file " << mtlname <<
                     " could not be found");
+      fclose(in);
       return 0;
     }
   }

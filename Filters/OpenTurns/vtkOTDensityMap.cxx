@@ -263,7 +263,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
     // Put table for the same density in the some block
     for (std::multimap<double, vtkSmartPointer<vtkTable> >::iterator it2 = range.first;
          it2 != range.second;
-         it2++)
+         ++it2)
     {
       block->SetBlock(nChildBlock, it2->second.GetPointer());
       block->GetMetaData(nChildBlock)->Set(vtkOTDensityMap::DENSITY(), it2->first);
