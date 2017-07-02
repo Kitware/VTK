@@ -27,6 +27,8 @@
 #include "vtkCoordinate.h"
 #include "vtkActor2D.h"
 #include "vtkActor2DCollection.h"
+
+#include <algorithm>
 #include <vector>
 
 #define BORDER_PIXELS 2
