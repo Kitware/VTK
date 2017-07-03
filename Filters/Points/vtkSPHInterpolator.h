@@ -429,12 +429,6 @@ protected:
   virtual void PassAttributeData(
     vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
 
-  /**
-   * Internal method to extract image metadata
-   */
-  void ExtractImageDescription(vtkImageData *input, int dims[3],
-                               double origin[3], double spacing[3]);
-
 private:
   vtkSPHInterpolator(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
