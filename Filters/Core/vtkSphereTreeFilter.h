@@ -104,9 +104,9 @@ public:
    * hierarchy. The hierarchy represents different levels in the tree
    * and enables rapid traversal of the tree.
    */
-  vtkSetMacro(TreeHierarchy,int);
-  vtkGetMacro(TreeHierarchy,int);
-  vtkBooleanMacro(TreeHierarchy,int);
+  vtkSetMacro(TreeHierarchy, bool);
+  vtkGetMacro(TreeHierarchy, bool);
+  vtkBooleanMacro(TreeHierarchy, bool);
   //@}
 
   //@{
@@ -159,7 +159,7 @@ protected:
   ~vtkSphereTreeFilter() VTK_OVERRIDE;
 
   vtkSphereTree *SphereTree;
-  int TreeHierarchy;
+  bool TreeHierarchy;
   int ExtractionMode;
   int Level;
   double Point[3];

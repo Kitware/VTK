@@ -8,10 +8,12 @@ res = 50
 # Create the RenderWindow, Renderers and both Actors
 ren0 = vtk.vtkRenderer()
 ren1 = vtk.vtkRenderer()
+ren2 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
+renWin.AddRenderer(ren2)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
@@ -26,13 +28,18 @@ sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
 sample.SetSampleDimensions(res,res,res)
 sample.Update()
 
+# Adds random attributes
+random = vtk.vtkRandomAttributeGenerator()
+random.SetGenerateCellScalars(True)
+random.SetInputConnection(sample.GetOutputPort())
+
 # Convert the image data to unstructured grid
 extractionSphere = vtk.vtkSphere()
 extractionSphere.SetRadius(100)
 extractionSphere.SetCenter(0,0,0)
 extract = vtk.vtkExtractGeometry()
 extract.SetImplicitFunction(extractionSphere)
-extract.SetInputConnection(sample.GetOutputPort())
+extract.SetInputConnection(random.GetOutputPort())
 extract.Update()
 
 # The cut plane
@@ -77,6 +84,21 @@ sCutterActor = vtk.vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
 sCutterActor.GetProperty().SetColor(1,1,1)
 
+# Accelerated cutter without tree
+ncut = vtk.vtkPlaneCutter()
+ncut.SetInputConnection(extract.GetOutputPort())
+ncut.SetPlane(plane)
+ncut.ComputeNormalsOff()
+ncut.BuildTreeOff()
+
+snCutterMapper = vtk.vtkCompositePolyDataMapper()
+snCutterMapper.SetInputConnection(ncut.GetOutputPort())
+snCutterMapper.ScalarVisibilityOff()
+
+snCutterActor = vtk.vtkActor()
+snCutterActor.SetMapper(snCutterMapper)
+snCutterActor.GetProperty().SetColor(1,1,1)
+
 outlineT = vtk.vtkOutlineFilter()
 outlineT.SetInputConnection(sample.GetOutputPort())
 
@@ -112,14 +134,19 @@ ren0.AddActor(outlineActor)
 ren0.AddActor(cutterActor)
 ren1.AddActor(outlineActorT)
 ren1.AddActor(sCutterActor)
+ren2.AddActor(outlineActorT)
+ren2.AddActor(snCutterActor)
 
 ren0.SetBackground(0,0,0)
 ren1.SetBackground(0,0,0)
-ren0.SetViewport(0,0,0.5,1);
-ren1.SetViewport(0.5,0,1,1);
-renWin.SetSize(600,300)
+ren2.SetBackground(0,0,0)
+ren0.SetViewport(0,0,0.33,1);
+ren1.SetViewport(0.33,0,0.66,1);
+ren2.SetViewport(0.66,0,1,1);
+renWin.SetSize(900,300)
 ren0.ResetCamera()
 ren1.ResetCamera()
+ren2.ResetCamera()
 iren.Initialize()
 
 renWin.Render()

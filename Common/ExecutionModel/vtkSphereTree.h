@@ -107,9 +107,9 @@ public:
    * Control whether the tree hierarchy is built. If not, then just
    * cell spheres are created (one for each cell).
    */
-  vtkSetMacro(BuildHierarchy,int);
-  vtkGetMacro(BuildHierarchy,int);
-  vtkBooleanMacro(BuildHierarchy,int);
+  vtkSetMacro(BuildHierarchy, bool);
+  vtkGetMacro(BuildHierarchy, bool);
+  vtkBooleanMacro(BuildHierarchy, bool);
   //@}
 
   //@{
@@ -204,7 +204,7 @@ protected:
   int Resolution;
   int MaxLevel;
   int NumberOfLevels;
-  int BuildHierarchy;
+  bool BuildHierarchy;
 
   // The tree and its hierarchy
   vtkDoubleArray *Tree;
