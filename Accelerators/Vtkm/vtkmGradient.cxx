@@ -202,7 +202,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
   //When we have faster approximation enabled the VTK-m gradient will output
   //a cell field not a point field. So at that point we will need to convert
   //back to a point field
-  if((fieldIsPoint && this->FasterApproximation) ||)
+  if((fieldIsPoint && this->FasterApproximation))
   {
     vtkm::cont::DataSet const& resultData = result.GetDataSet();
 
@@ -215,7 +215,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
     if(this->ComputeGradient)
       {
       vtkDataArray* gradientArray = fromvtkm::Convert(toPointResult.GetField());
-      output->GetCellData()->AddArray(gradientArray);
+      output->GetPointData()->AddArray(gradientArray);
       }
 
     if(this->ComputeDivergence && fieldIsVec)
@@ -223,7 +223,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
       vtkm::filter::ResultField dresult =
         cellToPoint.Execute(in, resultData.GetField(filter.GetDivergenceName()));
       vtkDataArray* divergenceArray = fromvtkm::Convert(dresult.GetField());
-      output->GetCellData()->AddArray(divergenceArray);
+      output->GetPointData()->AddArray(divergenceArray);
       }
 
     if(this->ComputeVorticity  && fieldIsVec)
@@ -231,7 +231,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
       vtkm::filter::ResultField vresult =
         cellToPoint.Execute(in, resultData.GetField(filter.GetVorticityName()));
       vtkDataArray* vorticityArray = fromvtkm::Convert(vresult.GetField());
-      output->GetCellData()->AddArray(vorticityArray);
+      output->GetPointData()->AddArray(vorticityArray);
       }
 
     if(this->ComputeQCriterion && fieldIsVec)
@@ -239,7 +239,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
       vtkm::filter::ResultField qresult =
         cellToPoint.Execute(in,resultData.GetField(filter.GetQCriterionName()));
       vtkDataArray* qcriterionArray = fromvtkm::Convert(qresult.GetField());
-      output->GetCellData()->AddArray(qcriterionArray);
+      output->GetPointData()->AddArray(qcriterionArray);
       }
   }
   else
