@@ -92,14 +92,15 @@ protected:
   virtual void PrepareForRendering(vtkRenderView* view);
 
   friend class vtkRenderView;
-  class Internals;
-  Internals* Implementation;
 
   int LabelRenderMode;
 
 private:
   vtkRenderedRepresentation(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
+
+  class Internals;
+  Internals* Implementation;
 };
 
 #endif
