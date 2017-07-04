@@ -1469,7 +1469,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->Dict[  "NCFDV1"] = p->Fam.GetNextWordAsInt();
   p->Dict[  "NCFDV2"] = p->Fam.GetNextWordAsInt();
   p->Dict[  "NADAPT"] = p->Fam.GetNextWordAsInt();
-  p->Fam.GetNextWordAsInt(); // BLANK
+  p->Dict[   "NMMAT"] = p->Fam.GetNextWordAsInt();
 
   // NUMFLUID: Total number of ALE fluid groups. Fluid density and
   // volume fractions output as history variables, and a flag
@@ -1842,8 +1842,12 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::UserIdData );
   if ( p->Dict["NARBS"] != 0 )
   {
+    // For sequential material numbering
+    // NARBS = 10+NUMNP+NEL8+NEL2+NEL4+NELT+3*NMMAT   (even though the 3*NMMAT numbers are unused)
+    // For arbitrary material numbering (NSORT<0)
+    // NARBS = 16+NUMNP+NEL8+NEL2+NEL4+NELT+3*NMMAT   (Note 6 extra params)
+
     p->Fam.BufferChunk( LSDynaFamily::Int, 10 );
-    p->PreStateSize += 10*p->Fam.GetWordSize();
     p->Dict["NSORT"] = p->Fam.GetNextWordAsInt();
     p->Dict["NSRH"] = p->Fam.GetNextWordAsInt();
     p->Dict["NSRB"] = p->Fam.GetNextWordAsInt();
@@ -1854,25 +1858,20 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     p->Dict["NSRBD"] = p->Fam.GetNextWordAsInt();
     p->Dict["NSRSD"] = p->Fam.GetNextWordAsInt();
     p->Dict["NSRTD"] = p->Fam.GetNextWordAsInt();
-    //iddtmp = (this->GetNumberOfNodes() + this->GetNumberOfContinuumCells())*p->Fam.GetWordSize();
+
     if ( p->Dict["NSORT"] < 0 )
     {
       p->Fam.BufferChunk( LSDynaFamily::Int, 6 );
-      p->PreStateSize += 6*p->Fam.GetWordSize();
       p->Dict["NSRMA"] = p->Fam.GetNextWordAsInt();
       p->Dict["NSRMU"] = p->Fam.GetNextWordAsInt();
       p->Dict["NSRMP"] = p->Fam.GetNextWordAsInt();
       p->Dict["NSRTM"] = p->Fam.GetNextWordAsInt();
       p->Dict["NUMRBS"] = p->Fam.GetNextWordAsInt();
       p->Dict["NMMAT"] = p->Fam.GetNextWordAsInt();
-      iddtmp += 3*p->Dict["NMMAT"]*p->Fam.GetWordSize();
     }
-    // FIXME!!! Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT?
-    // Obviously, NARBS is definitive, but what are the extra numbers at the end?
-    //iddtmp += (p->Dict["NARBS"]*p->Fam.GetWordSize() - iddtmp - 10*p->Fam.GetWordSize() - (p->Dict["NSORT"]<0 ? 6*p->Fam.GetWordSize() : 0));
-    //p->PreStateSize += iddtmp;
-    p->PreStateSize += p->Dict["NARBS"] * p->Fam.GetWordSize();
-    // should just skip forward iddtmp bytes here, but no easy way to do that with the fam
+
+    iddtmp = p->Dict["NARBS"] * p->Fam.GetWordSize();
+    p->PreStateSize += iddtmp;
     p->Fam.SkipToWord( LSDynaFamily::UserIdData, curAdapt, p->Dict["NARBS"] );
   }
   else
@@ -2958,7 +2957,7 @@ int vtkLSDynaReader::ReadUserMaterialIds()
     vtkIdType skipIds = p->Dict["NUMNP"] + p->Dict["NEL8"] + p->Dict["NEL2"] + p->Dict["NEL4"] + p->Dict["NELT"];
     p->Fam.SkipToWord( LSDynaFamily::UserIdData, p->Fam.GetCurrentAdaptLevel(), 16 + skipIds );
 
-    //in some cases the number of materials in NMAT is incorrect since we are loading
+    //in some cases the number of materials in NMMAT is incorrect since we are loading
     //SPH materials.
     numMats = p->Dict["NMMAT"];
 
@@ -3087,7 +3086,7 @@ void vtkLSDynaReader::ResetPartInfo()
   int i;
   int N;
   char partLabel[64];
-  int arbitraryMaterials = p->Dict["NMMAT"];
+  int arbitraryMaterials = p->Dict["NSORT"] < 0 ? 1 : 0;
 
 #define VTK_LSDYNA_PARTLABEL(dict,fmt) \
   N = p->Dict[dict]; \
