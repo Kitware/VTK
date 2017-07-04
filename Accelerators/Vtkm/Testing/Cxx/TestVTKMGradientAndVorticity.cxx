@@ -323,11 +323,11 @@ namespace
       vtkDataSet::SafeDownCast(
         correctCellGradients->GetOutput())->GetCellData()->GetArray(resultName));
 
-    if(!grid->IsA("vtkUnstructuredGrid"))
+    if(!grid->IsA("vtkStructuredGrid"))
     {
-      // ignore cell gradients if this is an unstructured grid
-      // because the accuracy is so lousy
-      std::cout << "testing cell gradients" << std::endl;
+      // ignore cell gradients on structured grids as the version for
+      // VTK-m differs from VTK. Once VTK-m is able to do stencil based
+      // gradients for point and cells, we can enable this check.
       if(!IsGradientCorrect(gradCellArray, correctCellArray))
       {
         return EXIT_FAILURE;
@@ -341,7 +341,7 @@ namespace
     vtkDoubleArray* correctPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         correctPointGradients->GetOutput())->GetPointData()->GetArray(resultName));
-    std::cout << "testing point gradients" << std::endl;
+
     if(!IsGradientCorrect(gradPointArray, correctPointArray))
     {
       return EXIT_FAILURE;
@@ -366,7 +366,6 @@ namespace
     pointVorticity->SetComputeDivergence(1);
     pointVorticity->Update();
 
-    std::cout << "testing cell vorticity" << std::endl;
     // cell stuff
     vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
@@ -376,7 +375,6 @@ namespace
       return EXIT_FAILURE;
     }
 
-    std::cout << "testing point vorticity" << std::endl;
     // point stuff
     vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
@@ -386,7 +384,6 @@ namespace
       return EXIT_FAILURE;
     }
 
-    std::cout << "testing point divergence" << std::endl;
     vtkDoubleArray* divergencePointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Divergence"));
@@ -395,7 +392,6 @@ namespace
       return EXIT_FAILURE;
     }
 
-    std::cout << "testing point QCriterion" << std::endl;
     vtkDoubleArray* qCriterionPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));

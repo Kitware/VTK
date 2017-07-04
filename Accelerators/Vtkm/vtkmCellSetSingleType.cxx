@@ -29,11 +29,11 @@
 
 
 namespace {
-class ComputeReverseMapping : public vtkm::worklet::WorkletMapField
+class ComputeSingleTypeReverseMapping : public vtkm::worklet::WorkletMapField
 {
   vtkm::Id NumberOfPointsPerCell;
 public:
-  ComputeReverseMapping(vtkm::Id numberOfPointsPerCell):
+  ComputeSingleTypeReverseMapping(vtkm::Id numberOfPointsPerCell):
     NumberOfPointsPerCell(numberOfPointsPerCell)
   {
 
@@ -140,7 +140,7 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
     pointIdKey.Allocate(rconnSize);
     this->RConn.Allocate(rconnSize);
 
-    vtkm::worklet::DispatcherMapField<ComputeReverseMapping, Device> dispatcher( ComputeReverseMapping(this->DetermineNumberOfPoints()));
+    vtkm::worklet::DispatcherMapField<ComputeSingleTypeReverseMapping, Device> dispatcher( ComputeSingleTypeReverseMapping(this->DetermineNumberOfPoints()));
     dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting(0, 1, numberOfCells),
                       this->Connectivity, pointIdKey, this->RConn);
     Algorithm::SortByKey(pointIdKey, this->RConn);

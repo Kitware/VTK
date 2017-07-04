@@ -258,7 +258,7 @@ namespace
     vtkDoubleArray* correctPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         correctPointGradients->GetOutput())->GetPointData()->GetArray(resultName));
-    std::cout << "testing point gradients" << std::endl;
+
     if(!IsGradientCorrect(gradPointArray, correctPointArray))
     {
       return EXIT_FAILURE;
@@ -274,7 +274,6 @@ namespace
     pointVorticity->SetComputeDivergence(1);
     pointVorticity->Update();
 
-    std::cout << "testing point vorticity" << std::endl;
     // point stuff
     vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
@@ -284,7 +283,6 @@ namespace
       return EXIT_FAILURE;
     }
 
-    std::cout << "testing point divergence" << std::endl;
     vtkDoubleArray* divergencePointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Divergence"));
@@ -293,7 +291,6 @@ namespace
       return EXIT_FAILURE;
     }
 
-    std::cout << "testing point QCriterion" << std::endl;
     vtkDoubleArray* qCriterionPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
