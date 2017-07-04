@@ -1963,6 +1963,19 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // FIXME: Is this true? Rigid bodies may be an exception, in which
   // case we need to check that the number of cells in the other 5 meshes sum to >0
 
+  // Total number of ALE fluid groups. Fluid density and
+  // volume fractions output as history variables, and a flag
+  // for the dominant group. If negative multi-material
+  // species mass for each group is also output. Order is: rho,
+  // vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
+  // after the location for plastic strain. Any element material
+  // history variables are written before the Ale variables, and
+  // the six element strains components after these if
+  // ISTRN=1.
+  vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
+  bool hasMass = (p->Dict["NUMFLUID"] < 0);
+  int ALEvalues = (numGroups > 0) ? 1 + numGroups + 1 + (hasMass? numGroups : 0) : 0;
+
   if ( p->Dict["NARBS"] )
   {
     p->AddPointArray( LS_ARRAYNAME_USERID, 1, 1 );
@@ -2194,55 +2207,44 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
 
     int extraValues = p->Dict["NEIPH"];
-    if ( p->Dict["ISTRN"] )
+    if (extraValues>0)
     {
-      extraValues -= 6; // last six values are strain.
-    }
-    assert(extraValues >= 0);
-    if ( std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0 )
-    {
-      // Total number of ALE fluid groups. Fluid density and
-      // volume fractions output as history variables, and a flag
-      // for the dominant group. If negative multi-material
-      // species mass for each group is also output. Order is: rho,
-      // vf1, ... vfn, dvf flag, m1, ... mn. Density is at position 8
-      // after the location for plastic strain. Any element material
-      // history variables are written before the Ale variables, and
-      // the six element strains components after these if
-      // ISTRN=1.
-      vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
-      bool hasMass = (p->Dict["NUMFLUID"] < 0);
-      assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1, 1 );
-      extraValues--;
+      int strainValues = ( p->Dict["ISTRN"]==1 ) ? 6 : 0; // last six values are strain.
 
-      for (vtkIdType g=0; g < numGroups; ++g)
+      // Any element material history variables are written before the Ale variables, and the six element strains components after these if ISTRN=1
+      int materialValues = extraValues - (ALEvalues+strainValues);
+      if (materialValues > 0)
       {
-        snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
-        p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
-        extraValues--;
+          p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, materialValues, 1 );
+          extraValues -= materialValues;
       }
 
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1 );
-      extraValues--;
-
-      for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
+      if ( (ALEvalues > 0) && (extraValues>=ALEvalues) )
       {
-        snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
-        p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
-        extraValues--;
+          p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1, 1 );
+          extraValues--;
+
+          for (vtkIdType g=0; g < numGroups; ++g)
+          {
+              snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
+              p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
+              extraValues--;
+          }
+
+          p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1 );
+          extraValues--;
+
+          for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
+          {
+              snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
+              p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
+              extraValues--;
+          }
       }
-    }
-    assert(extraValues >= 0);
-    if (extraValues > 0)
-    {
-      // I am not sure if this is correct, but let's assume so, so that what
-      // every we were doing before we added support for ALE continues to work.
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues, 1 );
-    }
-    if ( p->Dict["ISTRN"] )
-    {
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6, 1 );
+      if ( (strainValues > 0) && (extraValues>=strainValues))
+      {
+          p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, strainValues, 1 );
+      }
     }
   }
 
@@ -2782,53 +2784,76 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
   } \
-  startPos+=(numComps);
+  if (cond) startPos+=(numComps);
+
+  // ENN (Total element data for state) = Sum of
+  //      NEL8  (# 8 node solid elems)           * NV3D
+  //      NELT  (# 8 node thick shell elems)     * NV3DT
+  //      NEL2  (# 2 node one-dimensional elems) * NV1D
+  //      NEL4  (# 4 node shells elems)          * NV2D
+  //      NMSPH (#of SPH Nodes)                  * NUM_SPH_VARS
+  // where:
+  //      NV3D = 7 + NEIPH  ( NEIPH = # ALE Data + # Strain Data)
+  //      NV2D = MAXINT* (6*IOSHL(1) + 1*IOSHL(2) + NEIPS) +8*IOSHL(3) + 4*IOSHL(4) + 12*ISTRN
+  //
+
+  vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
+  bool hasMass = (p->Dict["NUMFLUID"] < 0);
+  int ALEvalues = (numGroups > 0) ? 1 + numGroups + 1 + (hasMass? numGroups : 0) : 0;
 
   // Solid element data========================================================
   int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
 
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRESS,6);
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_EPSTRAIN,1);
-  int extraValues = p->Dict["NEIPH"];
-  if ( p->Dict["ISTRN"] )
-  {
-    extraValues -= 6; // last six values are strain.
-  }
-  assert(extraValues >= 0);
-  if ( std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0 )
-  {
-    vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
-    bool hasMass = (p->Dict["NUMFLUID"] < 0);
-    assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
-    VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1);
-    extraValues--;
 
-    for (vtkIdType g=0; g < numGroups; ++g)
-    {
-      snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
-      VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
-      extraValues--;
-    }
-
-    VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1);
-    extraValues--;
-
-    for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
-    {
-      snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
-      VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
-      extraValues--;
-    }
-  }
-  assert(extraValues >= 0);
-  if (extraValues > 0)
+  int extraValues  = p->Dict["NEIPH"];
+  if (extraValues>0)
   {
-    VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues);
+      int strainValues = ( p->Dict["ISTRN"]==1 ) ? 6 : 0; // last six values are strain.
+
+      // Any element material history variables are written before the Ale variables, and the six element strains components after these if ISTRN=1
+      int materialValues = extraValues - (ALEvalues+strainValues);
+      if (materialValues > 0)
+      {
+        VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, materialValues);
+        extraValues -= materialValues;
+      }
+
+      if ( (ALEvalues > 0) && (extraValues>=ALEvalues) )
+      {
+        VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1);
+        extraValues--;
+
+        for (vtkIdType g=0; g < numGroups; ++g)
+        {
+          snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
+          VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
+          extraValues--;
+        }
+
+        VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1);
+        extraValues--;
+
+        for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
+        {
+          snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
+          VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
+          extraValues--;
+        }
+      }
+      if ( (strainValues > 0) && (extraValues>=strainValues))
+      {
+        VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, strainValues);
+      }
   }
-  if (p->Dict["ISTRN"] == 1 && p->Dict["NEIPH"] >= 6)
-  {
-    VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6);
-  }
+
+  //std::cout << "% NEL8  " << setw(6) << p->Dict["NEL8"]  << " * NV3D  " << setw(6) << p->Dict["NV3D"] << "  " << startPos << std::endl;
+  //std::cout << "%       " << setw(6) << ""
+  //  << "( NEIPH " << setw(6) << p->Dict["NEIPH"]
+  //  << ", ISTRN " << setw(6) << p->Dict["ISTRN"]
+  //  << " )" << std::endl;
+  //assert(p->Dict["NV3D"] == startPos);
   this->ReadCellProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"]);
 
   // Thick Shell element data==================================================
