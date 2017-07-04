@@ -129,6 +129,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_VOLUME_FRACTION_FMT "VolumeFraction%02d"
 #define LS_ARRAYNAME_DOMINANT_GROUP     "DominantGroup"
 #define LS_ARRAYNAME_SPECIES_MASS_FMT   "SpeciesMass%02d"
+#define LS_ARRAYNAME_MATERIAL           "Material"
 
 // Possible material options
 #define LS_MDLOPT_NONE 0
@@ -1969,8 +1970,10 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
 
   if ( p->NumberOfCells[ LSDynaMetaData::PARTICLE ] )
   {
-    //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL, 1, 1 );
-    //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DEATH, 1, 1 );
+    // One value is always output which is the material number as a floating point number for each particle.
+    // If this value is negative then the particle has been deleted from the model.
+    p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MATERIAL, 1, 1 );
+    //p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_DEATH, 1, 1 );  // There is no mention of this in manual... Was this the -ve Material case?
     if ( p->Dict["isphfg(2)"] == 1 )
     {
       p->AddCellArray( LSDynaMetaData::PARTICLE, LS_ARRAYNAME_RADIUSOFINFLUENCE, 1, 1 );
@@ -3000,13 +3003,13 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
   { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
   } \
-  startPos+=(numComps);
+  if (cond) startPos+=(numComps);
 
   // Smooth Particle ========================================================
 
   // currently have a bug when reading SPH properties disabling for now
   int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
-  VTK_LS_SPHARRAY(               false,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_DEATH,1); //always keep death off
+  VTK_LS_SPHARRAY(               true ,LSDynaMetaData::PARTICLE,LS_ARRAYNAME_MATERIAL,1); //always keep material id / death
   VTK_LS_SPHARRAY(p->Dict["isphfg(2)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_RADIUSOFINFLUENCE,1);
   VTK_LS_SPHARRAY(p->Dict["isphfg(3)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_PRESSURE,1);
   VTK_LS_SPHARRAY(p->Dict["isphfg(4)"],LSDynaMetaData::PARTICLE,LS_ARRAYNAME_STRESS,6);
