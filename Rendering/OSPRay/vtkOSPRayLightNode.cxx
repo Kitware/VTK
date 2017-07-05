@@ -16,6 +16,7 @@
 
 #include "vtkCollectionIterator.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
@@ -26,6 +27,7 @@
 #include <vector>
 
 vtkInformationKeyMacro(vtkOSPRayLightNode, IS_AMBIENT, Integer);
+vtkInformationKeyMacro(vtkOSPRayLightNode, RADIUS, Double);
 
 //============================================================================
 double vtkOSPRayLightNode::LightScale = 1.0;
@@ -82,6 +84,32 @@ int vtkOSPRayLightNode::GetIsAmbient(vtkLight *light)
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayLightNode::SetRadius(double value, vtkLight *light)
+{
+  if (!light)
+  {
+    return;
+  }
+  vtkInformation *info = light->GetInformation();
+  info->Set(vtkOSPRayLightNode::RADIUS(), value);
+}
+
+//----------------------------------------------------------------------------
+double vtkOSPRayLightNode::GetRadius(vtkLight *light)
+{
+  if (!light)
+  {
+    return 0.0;
+  }
+  vtkInformation *info = light->GetInformation();
+  if (info && info->Has(vtkOSPRayLightNode::RADIUS()))
+  {
+    return (info->Get(vtkOSPRayLightNode::RADIUS()));
+  }
+  return 0.0;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayLightNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -133,8 +161,11 @@ void vtkOSPRayLightNode::Render(bool prepass)
          light->GetIntensity()*
          vtkMath::Pi() //since OSP 0.10.0
          );
+      ospSet1i(ospLight, "isVisible", 0);
       ospSet1f(ospLight, "intensity", fI);
       ospSet3f(ospLight, "position", px, py, pz);
+      float r = static_cast<float>(vtkOSPRayLightNode::GetRadius(light));
+      ospSet1f(ospLight, "radius", r);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
     }
@@ -158,6 +189,8 @@ void vtkOSPRayLightNode::Render(bool prepass)
       vtkMath::Normalize(direction);
       ospSet3f(ospLight, "direction",
                direction[0], direction[1], direction[2]);
+      float r = static_cast<float>(vtkOSPRayLightNode::GetRadius(light));
+      ospSet1f(ospLight, "radius", r);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
     }

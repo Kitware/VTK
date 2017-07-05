@@ -25,6 +25,7 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkLightNode.h"
 
+class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkLight;
 
@@ -65,6 +66,20 @@ public:
    */
   static void SetIsAmbient(int, vtkLight *);
   static int GetIsAmbient(vtkLight *);
+  //@}
+
+  /**
+   * The radius setting, when > 0.0, produces soft shadows in the
+   * path tracer.
+   */
+  static vtkInformationDoubleKey* RADIUS();
+
+  //@{
+  /**
+   * Convenience method to set/get RADIUS on a vtkLight.
+   */
+  static void SetRadius(double, vtkLight *);
+  static double GetRadius(vtkLight *);
   //@}
 
 protected:

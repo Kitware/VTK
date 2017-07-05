@@ -34,6 +34,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   # Path tracer tests
   TestOSPRayRendererType.cxx
   TestPathTracerBackground.cxx
+  TestPathTracerShadows.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx
