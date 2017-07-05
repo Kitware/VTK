@@ -114,6 +114,26 @@ public:
   vtkSetClampMacro(TimeStepInterval, int, 1, VTK_INT_MAX);
   //@}
 
+  // What timestep to provide when the requested time is between the timesteps
+  // the filter is set to extract
+  enum {
+    PREVIOUS_TIMESTEP, // floor the time to the previous timestep
+    NEXT_TIMESTEP, // ceiling the time to the next timestep
+    NEAREST_TIMESTEP // take the timestep whose absolute difference from the requested time is smallest
+  } EstimationMode;
+  //@{
+  /**
+   * Get/Set what to do when the requested time is not one of the timesteps this filter
+   * is set to extract.  Should be one of the values of the enum vtkExtractTimeSteps::EstimationMode.
+   * The default is PREVIOUS_TIMESTEP.
+   */
+  vtkGetMacro(TimeEstimationMode, int);
+  vtkSetMacro(TimeEstimationMode, int);
+  void SetTimeEstimationModeToPrevious() { this->SetTimeEstimationMode(PREVIOUS_TIMESTEP); }
+  void SetTimeEstimationModeToNext() { this->SetTimeEstimationMode(NEXT_TIMESTEP); }
+  void SetTimeEstimationModeToNearest() { this->SetTimeEstimationMode(NEAREST_TIMESTEP); }
+  //@}
+
 protected:
   vtkExtractTimeSteps();
   ~vtkExtractTimeSteps()VTK_OVERRIDE {};
@@ -122,12 +142,14 @@ protected:
                           vtkInformationVector *) VTK_OVERRIDE;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
                                  vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *) VTK_OVERRIDE;
 
   std::set<int> TimeStepIndices;
   bool UseRange;
   int Range[2];
   int TimeStepInterval;
-
+  int TimeEstimationMode;
 
 private:
   vtkExtractTimeSteps(const vtkExtractTimeSteps&) VTK_DELETE_FUNCTION;

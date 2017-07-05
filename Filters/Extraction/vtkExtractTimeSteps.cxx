@@ -22,12 +22,13 @@
 
 #include <algorithm>
 #include <vector>
+#include <cmath>
 
 
 vtkStandardNewMacro(vtkExtractTimeSteps);
 
 vtkExtractTimeSteps::vtkExtractTimeSteps() :
-  UseRange(false), TimeStepInterval(1)
+  UseRange(false), TimeStepInterval(1), TimeEstimationMode(PREVIOUS_TIMESTEP)
 {
   this->Range[0] = 0;
   this->Range[1] = 0;
@@ -64,6 +65,19 @@ void vtkExtractTimeSteps::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Range: " << this->Range[0] << ", " << this->Range[1]
      << std::endl;
   os << indent << "TimeStepInterval: " << this->TimeStepInterval << std::endl;
+  os << indent << "TimeEstimationMode: ";
+  switch (this->TimeEstimationMode)
+  {
+  case PREVIOUS_TIMESTEP:
+    os << "Previous Timestep" << std::endl;
+    break;
+  case NEXT_TIMESTEP:
+    os << "Next Timestep" << std::endl;
+    break;
+  case NEAREST_TIMESTEP:
+    os << "Nearest Timestep" << std::endl;
+    break;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -100,6 +114,45 @@ void vtkExtractTimeSteps::GenerateTimeStepIndices(int begin, int end, int step)
   }
 }
 
+namespace
+{
+
+void getTimeSteps(vtkInformation* inInfo, const std::set<int>& timeStepIndices,
+    bool useRange, int* range, int timeStepInterval, std::vector<double>& outTimes)
+{
+  double *inTimes =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  int numTimes =
+    inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+  if (!useRange)
+  {
+    for (std::set<int>::iterator it = timeStepIndices.begin();
+         it != timeStepIndices.end(); ++it)
+    {
+      if (*it >= 0 && *it < numTimes)
+      {
+        outTimes.push_back(inTimes[*it]);
+      }
+    }
+  }
+  else
+  {
+    for (int i = 0; i < numTimes; ++i)
+    {
+      if (i >= range[0] && i <= range[1])
+      {
+        if ((i - range[0]) % timeStepInterval == 0)
+        {
+          outTimes.push_back(inTimes[i]);
+        }
+      }
+    }
+  }
+}
+
+}
+
 //----------------------------------------------------------------------------
 int vtkExtractTimeSteps::RequestInformation(vtkInformation*,
                                             vtkInformationVector **inputVector,
@@ -112,36 +165,9 @@ int vtkExtractTimeSteps::RequestInformation(vtkInformation*,
   if (!this->TimeStepIndices.empty() &&
       inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
-    double *inTimes =
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    int numTimes =
-      inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
     std::vector<double> outTimes;
-    if (!this->UseRange)
-    {
-      for (std::set<int>::iterator it = this->TimeStepIndices.begin();
-           it != this->TimeStepIndices.end(); ++it)
-      {
-        if (*it >= 0 && *it < numTimes)
-        {
-          outTimes.push_back(inTimes[*it]);
-        }
-      }
-    }
-    else
-    {
-      for (int i = 0; i < numTimes; ++i)
-      {
-        if (i >= this->Range[0] && i <= this->Range[1])
-        {
-          if ((i - this->Range[0]) % this->TimeStepInterval == 0)
-          {
-            outTimes.push_back(inTimes[i]);
-          }
-        }
-      }
-    }
+    getTimeSteps(inInfo, this->TimeStepIndices, this->UseRange, this->Range, this->TimeStepInterval, outTimes);
 
     if (!outTimes.empty())
     {
@@ -153,6 +179,69 @@ int vtkExtractTimeSteps::RequestInformation(vtkInformation*,
     }
   }
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExtractTimeSteps::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+                                           vtkInformationVector **inputVector,
+                                           vtkInformationVector *outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  {
+    double updateTime =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+
+    std::vector<double> outTimes;
+    getTimeSteps(inInfo, this->TimeStepIndices, this->UseRange, this->Range, this->TimeStepInterval, outTimes);
+
+    double inputTime;
+    if (updateTime >= outTimes.back())
+    {
+      inputTime = outTimes.back();
+    }
+    else if (updateTime <= outTimes.front())
+    {
+      inputTime = outTimes.front();
+    }
+    else
+    {
+      auto gtindex = std::upper_bound(outTimes.begin(), outTimes.end(), updateTime);
+      auto leindex = gtindex - 1;
+      if (updateTime == *leindex)
+      {
+        inputTime = updateTime;
+      }
+      else
+      {
+        switch (this->TimeEstimationMode)
+        {
+        default:
+        case PREVIOUS_TIMESTEP:
+          inputTime = *leindex;
+          break;
+        case NEXT_TIMESTEP:
+          inputTime = *gtindex;
+          break;
+        case NEAREST_TIMESTEP:
+          if (std::abs(updateTime - *leindex) <= std::abs(*gtindex - updateTime))
+          {
+            inputTime = *leindex;
+          }
+          else
+          {
+            inputTime = *gtindex;
+          }
+          break;
+        }
+      }
+    }
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), inputTime);
+  }
   return 1;
 }
 
