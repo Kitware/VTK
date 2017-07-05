@@ -254,8 +254,13 @@ def divergence (narray, dataset=None):
     g = gradient(narray, dataset)
     g = g.reshape(g.shape[0], 3, 3)
 
-    return dsa.VTKArray\
+    a = dsa.VTKArray\
            (numpy.add.reduce(g.diagonal(axis1=1, axis2=2), 1), dataset=g.DataSet)
+    try:
+        a.Association = g.Association
+    except AttributeError: pass
+    return a
+
 
 def det (narray) :
     "Returns the determinant of an array of 2D square matrices."
@@ -279,6 +284,8 @@ def dot (a1, a2):
                          ' Input shapes ' + str(a1.shape) + ' and ' + str(a2.shape))
     m = a1*a2
     va = dsa.VTKArray(numpy.add.reduce(m, 1))
+    if hasattr(m, "Association"):
+      va.Association = m.Association
     if a1.DataSet == a2.DataSet : va.DataSet = a1.DataSet
     return va
 
