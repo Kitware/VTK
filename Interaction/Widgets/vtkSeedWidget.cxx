@@ -168,7 +168,10 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     // Invoke an event on ourself for the handles
     self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     self->Superclass::StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    vtkSeedRepresentation *rep = static_cast<
+      vtkSeedRepresentation * >(self->WidgetRep);
+    int seedIdx = rep->GetActiveHandle();
+    self->InvokeEvent(vtkCommand::StartInteractionEvent, &seedIdx);
 
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();

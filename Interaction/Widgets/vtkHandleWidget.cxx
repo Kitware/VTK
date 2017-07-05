@@ -57,6 +57,7 @@ vtkHandleWidget::vtkHandleWidget()
                                           vtkWidgetEvent::Move,
                                           this, vtkHandleWidget::MoveAction);
   this->EnableAxisConstraint = 1;
+  this->EnableTranslation = 1;
   this->AllowHandleResize    = 1;
 }
 
@@ -247,6 +248,11 @@ void vtkHandleWidget::MoveAction(vtkAbstractWidget *w)
     {
       self->Render();
     }
+    return;
+  }
+
+  if (!self->EnableTranslation)
+  {
     return;
   }
 

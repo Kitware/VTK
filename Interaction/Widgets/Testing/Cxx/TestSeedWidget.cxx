@@ -419,6 +419,14 @@ public:
       std::cout << "Point placed, total of: "
                 << this->SeedRepresentation->GetNumberOfSeeds() << std::endl;
     }
+    if (event == vtkCommand::StartInteractionEvent)
+    {
+      if (calldata)
+      {
+        std::cout << "Start interacting with seed : "
+                  << *(static_cast< int * >(calldata)) << std::endl;
+      }
+    }
     if (event == vtkCommand::InteractionEvent)
     {
       if (calldata)
@@ -480,6 +488,7 @@ int TestSeedWidget(int argc, char *argv[])
     vtkSmartPointer<vtkSeedCallback>::New();
   scbk->SeedRepresentation = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,scbk);
+  widget->AddObserver(vtkCommand::StartInteractionEvent,scbk);
   widget->AddObserver(vtkCommand::InteractionEvent,scbk);
 
   // Add the actors to the renderer, set the background and size
