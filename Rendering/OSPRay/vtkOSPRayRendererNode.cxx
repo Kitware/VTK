@@ -23,7 +23,9 @@
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkMapper.h"
@@ -36,10 +38,12 @@
 #include "vtkOSPRayVolumeNode.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkViewNodeCollection.h"
 #include "vtkVolume.h"
 #include "vtkVolumeCollection.h"
+#include "vtkWeakPointer.h"
 
 #include "ospray/ospray.h"
 #include "ospray/version.h"
@@ -178,17 +182,213 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_FRAMES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, AMBIENT_SAMPLES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, COMPOSITE_ON_GL, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, RENDERER_TYPE, String);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, NORTH_POLE, DoubleVector);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, EAST_POLE, DoubleVector);
 
 
 class vtkOSPRayRendererNodeInternals
 {
   //todo: move the rest of the internal data here too
 public:
-  vtkOSPRayRendererNodeInternals() {};
+  vtkOSPRayRendererNodeInternals(vtkOSPRayRendererNode *_owner)
+    : Owner(_owner)
+  {
+  };
 
   ~vtkOSPRayRendererNodeInternals() {};
 
+  bool CanReuseBG()
+  {
+    bool retval = true;
+
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
+    double *up = vtkOSPRayRendererNode::GetNorthPole(ren);
+    if (up)
+    {
+      if (this->lup[0] != up[0] ||
+          this->lup[1] != up[1] ||
+          this->lup[2] != up[2])
+      {
+        this->lup[0] = up[0];
+        this->lup[1] = up[1];
+        this->lup[2] = up[2];
+        retval = false;
+      }
+    }
+    double *east = vtkOSPRayRendererNode::GetEastPole(ren);
+    if (east)
+    {
+      if (this->least[0] != east[0] ||
+          this->least[1] != east[1] ||
+          this->least[2] != east[2])
+      {
+        this->least[0] = east[0];
+        this->least[1] = east[1];
+        this->least[2] = east[2];
+        retval = false;
+      }
+    }
+    bool usebgtexture = ren->GetTexturedBackground();
+    if (lusebgtexture != usebgtexture)
+    {
+      lusebgtexture = usebgtexture;
+      retval = false;
+    }
+    vtkTexture *bgtexture = ren->GetBackgroundTexture();
+    vtkMTimeType bgttime = 0;
+    if (bgtexture)
+    {
+      bgttime = bgtexture->GetMTime();
+    }
+    if (this->lbgtexture != bgtexture || bgttime > this->lbgttime)
+    {
+      this->lbgtexture = bgtexture;
+      this->lbgttime = bgttime;
+      retval = false;
+    }
+    bool usegradient = ren->GetGradientBackground();
+    if (this->lusegradient != usegradient)
+    {
+      this->lusegradient = usegradient;
+      retval = false;
+    }
+    double *nbgcolor1 = ren->GetBackground();
+    double *nbgcolor2 = ren->GetBackground2();
+    if (lbgcolor1[0] != nbgcolor1[0] ||
+        lbgcolor1[1] != nbgcolor1[1] ||
+        lbgcolor1[2] != nbgcolor1[2] ||
+        lbgcolor2[0] != nbgcolor2[0] ||
+        lbgcolor2[1] != nbgcolor2[1] ||
+        lbgcolor2[2] != nbgcolor2[2])
+    {
+      lbgcolor1[0] = nbgcolor1[0];
+      lbgcolor1[1] = nbgcolor1[1];
+      lbgcolor1[2] = nbgcolor1[2];
+      lbgcolor2[0] = nbgcolor2[0];
+      lbgcolor2[1] = nbgcolor2[1];
+      lbgcolor2[2] = nbgcolor2[2];
+      retval = false;
+    }
+    return retval;
+  }
+
+  void SetupPathTraceBackground(OSPRenderer oRenderer)
+  {
+    vtkRenderer *ren = vtkRenderer::SafeDownCast
+      (this->Owner->GetRenderable());
+    if (this->Owner->GetRendererType(ren) != "pathtracer")
+    {
+      return;
+    }
+    if (!this->CanReuseBG())
+    {
+      double *bg1 = ren->GetBackground();
+      unsigned char *ochars;
+      int isize = 1;
+      int jsize = 1;
+      vtkTexture *text = ren->GetBackgroundTexture();
+      if (ren->GetTexturedBackground() && text)
+      {
+        vtkImageData *vColorTextureMap = text->GetInput();
+        //todo, fallback to gradient when either of above return NULL
+        //otherwise can't load texture in PV when in OSP::PT mode
+        //todo: this code is duplicated from vtkOSPRayPolyDataMapperNode
+        jsize = vColorTextureMap->GetExtent()[1];
+        isize = vColorTextureMap->GetExtent()[3];
+        unsigned char *ichars =
+          (unsigned char *)vColorTextureMap->GetScalarPointer();
+        ochars = new unsigned char[(isize+1)*(jsize+1)*3];
+        unsigned char *oc = ochars;
+        int comps = vColorTextureMap->GetNumberOfScalarComponents();
+        for (int i = 0; i < isize+1; i++)
+        {
+          for (int j = 0; j < jsize+1; j++)
+          {
+            oc[0] = ichars[0];
+            oc[1] = ichars[1];
+            oc[2] = ichars[2];
+            oc+=3;
+            ichars+=comps;
+          }
+        }
+        isize++;
+        jsize++;
+      }
+      else if (ren->GetGradientBackground())
+      {
+        double *bg2 = ren->GetBackground2();
+        isize=256; //todo: configurable
+        jsize=2;
+        ochars = new unsigned char[isize*jsize*3];
+        unsigned char *oc = ochars;
+        for (int i = 0; i < isize; i++)
+        {
+          double frac = (double)i/(double)isize;
+          *(oc+0) = (bg1[0]*(1.0-frac) + bg2[0]*frac)*255;
+          *(oc+1) = (bg1[1]*(1.0-frac) + bg2[1]*frac)*255;
+          *(oc+2) = (bg1[2]*(1.0-frac) + bg2[2]*frac)*255;
+          *(oc+3) = (bg1[0]*(1.0-frac) + bg2[0]*frac)*255;
+          *(oc+4) = (bg1[1]*(1.0-frac) + bg2[1]*frac)*255;
+          *(oc+5) = (bg1[2]*(1.0-frac) + bg2[2]*frac)*255;
+          oc+=6;
+        }
+      }
+      else
+      {
+        ochars = new unsigned char[3];
+        ochars[0] = bg1[0]*255;
+        ochars[1] = bg1[1]*255;
+        ochars[2] = bg1[2]*255;
+      }
+      osp::Texture2D *t2d;
+      t2d = (osp::Texture2D*)ospNewTexture2D
+        (
+         osp::vec2i{jsize,isize},
+         OSP_TEXTURE_RGB8,
+         ochars,
+         0);//OSP_TEXTURE_FILTER_NEAREST);
+
+      OSPLight ospLight = ospNewLight(oRenderer, "hdri");
+      ospSetObject(ospLight, "map", ((OSPTexture2D)(t2d)));
+      double *up = vtkOSPRayRendererNode::GetNorthPole(ren);
+      if (up)
+        {
+        ospSet3f(ospLight, "up", (float)up[0],(float)up[1],(float)up[2]);
+        }
+      else
+        {
+        ospSet3f(ospLight, "up",1.0f, 0.0f, 0.0f); //todo: configurable
+        }
+      double *east = vtkOSPRayRendererNode::GetEastPole(ren);
+      if (east)
+        {
+        ospSet3f(ospLight, "dir", (float)east[0],(float)east[1],(float)east[2]);
+        }
+      else
+        {
+        ospSet3f(ospLight, "dir", 0.0f, 1.0f, 0.0f); //todo: configurable
+        }
+      ospCommit(t2d);
+      ospCommit(ospLight); //todo: make sure osp frees its side
+      delete[] ochars;
+      this->BGLight = ospLight;
+    }
+    this->Owner->AddLight(this->BGLight);
+  }
+
   std::map<vtkProp3D *, vtkAbstractMapper3D *> LastMapperFor;
+  vtkOSPRayRendererNode *Owner;
+
+  bool lusebgtexture = false;
+  vtkWeakPointer<vtkTexture> lbgtexture = nullptr;
+  vtkMTimeType lbgttime = 0;
+  bool lusegradient = false;
+  double lbgcolor1[3] = {0.,0.,0.};
+  double lbgcolor2[3] = {0.,0.,0.};
+  double lup[3] = {1.,0.,0.};
+  double least[3] = {0.,1.,0.};
+
+  OSPLight BGLight;
 };
 
 //============================================================================
@@ -210,7 +410,7 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->AccumulateCount = 0;
   this->AccumulateTime = 0;
   this->AccumulateMatrix = vtkMatrix4x4::New();
-  this->Internal = new vtkOSPRayRendererNodeInternals();
+  this->Internal = new vtkOSPRayRendererNodeInternals(this);
 }
 
 //----------------------------------------------------------------------------
@@ -365,11 +565,64 @@ int vtkOSPRayRendererNode::GetCompositeOnGL(vtkRenderer *renderer)
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetNorthPole(double *value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::NORTH_POLE(), value, 3);
+}
+
+//----------------------------------------------------------------------------
+double * vtkOSPRayRendererNode::GetNorthPole(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return nullptr;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::NORTH_POLE()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::NORTH_POLE()));
+  }
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetEastPole(double *value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::EAST_POLE(), value, 3);
+}
+
+//----------------------------------------------------------------------------
+double * vtkOSPRayRendererNode::GetEastPole(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return nullptr;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::EAST_POLE()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::EAST_POLE()));
+  }
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::Traverse(int operation)
 {
   // do not override other passes
@@ -414,6 +667,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     }
     it->GoToNextItem();
   }
+
 #if OSPRAY_VERSION_MAJOR > 1 || \
     (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 2)
   if (this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)) > 0)
@@ -429,6 +683,9 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     this->Lights.push_back(ospAmbient);
   }
 #endif
+
+  this->Internal->SetupPathTraceBackground(oRenderer);
+
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
     (this->Lights.size()?&this->Lights[0]:NULL), 0);
   ospSetData(oRenderer, "lights", lightArray);
