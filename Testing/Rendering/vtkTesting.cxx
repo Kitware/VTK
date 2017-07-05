@@ -725,10 +725,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   {
     os << "Image differencing failed to produce an image because images are "
       "different size:" << endl;
-    os << "Valid image: " << (ext2[1] - ext2[0]) << ", " << (ext2[3] - ext2[2])
-      << ", " << (ext2[5] - ext2[4]) << endl;
-    os << "Test image: " << (ext1[1] - ext1[0]) << ", " << (ext1[3] - ext1[2])
-      << ", " << (ext1[5] - ext1[4]) << endl;
+    os << "Valid image: " << (ext2[1] - ext2[0] + 1) << ", " << (ext2[3] - ext2[2] + 1)
+      << ", " << (ext2[5] - ext2[4] + 1) << endl;
+    os << "Test image: " << (ext1[1] - ext1[0] + 1) << ", " << (ext1[3] - ext1[2] + 1)
+      << ", " << (ext1[5] - ext1[4] + 1) << endl;
     return FAILED;
   }
 
