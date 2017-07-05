@@ -19,6 +19,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
@@ -26,10 +27,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyData.h"
+#include "vtkProperty.h"
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
 
+vtkInformationKeyMacro(vtkOSPRayActorNode, LUMINOSITY, Double);
 vtkInformationKeyMacro(vtkOSPRayActorNode, ENABLE_SCALING, Integer);
 vtkInformationKeyMacro(vtkOSPRayActorNode, SCALE_ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkOSPRayActorNode, SCALE_FUNCTION, ObjectBase);
@@ -121,6 +124,33 @@ void vtkOSPRayActorNode::SetScaleFunction(vtkPiecewiseFunction *scaleFunction,
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayActorNode::SetLuminosity(double value, vtkProperty *property)
+{
+  if (!property)
+  {
+    return;
+  }
+  vtkInformation *info = property->GetInformation();
+  info->Set(vtkOSPRayActorNode::LUMINOSITY(), value);
+}
+
+//----------------------------------------------------------------------------
+double vtkOSPRayActorNode::GetLuminosity(vtkProperty *property)
+{
+  if (!property)
+  {
+    return 0.0;
+  }
+  vtkInformation *info = property->GetInformation();
+  if (info && info->Has(vtkOSPRayActorNode::LUMINOSITY()))
+  {
+    double retval = info->Get(vtkOSPRayActorNode::LUMINOSITY());
+    return retval;
+  }
+  return 0.0;
+}
+
+//----------------------------------------------------------------------------
 vtkMTimeType vtkOSPRayActorNode::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
@@ -128,6 +158,18 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
   if (act->GetMTime() > mtime)
   {
     mtime = act->GetMTime();
+  }
+  if (act->GetProperty())
+  {
+    vtkProperty *prop = act->GetProperty();
+    if (act->GetProperty()->GetMTime() > mtime)
+    {
+      mtime = act->GetProperty()->GetMTime();
+    }
+    if (act->GetProperty()->GetInformation()->GetMTime() > mtime)
+    {
+      mtime = act->GetProperty()->GetInformation()->GetMTime();
+    }
   }
   vtkDataObject * dobj = NULL;
   vtkPolyData *poly = NULL;

@@ -15,6 +15,7 @@
 #include "vtkProperty.h"
 
 #include "vtkActor.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -39,6 +40,8 @@ public:
   typedef std::map<vtkStdString, int> MapOfTextureNames;
   MapOfTextureNames TextureNames;
 };
+
+vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -97,6 +100,10 @@ vtkProperty::vtkProperty()
   this->Shading = 0;
   this->MaterialName = 0;
   this->Internals = new vtkPropertyInternals;
+
+  this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -104,6 +111,8 @@ vtkProperty::~vtkProperty()
 {
   this->SetMaterialName(0);
   delete this->Internals;
+
+  this->SetInformation(0);
 }
 
 //----------------------------------------------------------------------------
