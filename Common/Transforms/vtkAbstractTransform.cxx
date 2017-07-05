@@ -337,6 +337,7 @@ void vtkAbstractTransform::UnRegister(vtkObjectBase *o)
   // check to see if the only reason our reference count is not 1
   // is the circular reference from MyInverse
   if (this->MyInverse && this->ReferenceCount == 2 &&
+      this->MyInverse->MyInverse == this &&
       this->MyInverse->ReferenceCount == 1)
   { // break the cycle
     vtkDebugMacro(<<"UnRegister: eliminating circular reference");
