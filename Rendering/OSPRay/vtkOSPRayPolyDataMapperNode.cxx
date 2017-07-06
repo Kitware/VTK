@@ -596,6 +596,7 @@ namespace vtkosp {
                                 double opacity)
   {
     OSPMaterial oMaterial = ospNewMaterial(oRenderer, "OBJMaterial");
+    float lum = static_cast<float>(vtkOSPRayActorNode::GetLuminosity(property));
     float ambientf[] =
     {
       static_cast<float>(ambientColor[0]*property->GetAmbient()),
@@ -608,6 +609,12 @@ namespace vtkosp {
       static_cast<float>(diffuseColor[1]*property->GetDiffuse()),
       static_cast<float>(diffuseColor[2]*property->GetDiffuse())
     };
+    if (lum>0.0)
+    {
+      oMaterial = ospNewMaterial(oRenderer, "Luminous");
+      ospSet3fv(oMaterial, "color", diffusef);
+      ospSetf(oMaterial, "intensity", lum);
+    }
     float specPower =
       static_cast<float>(property->GetSpecularPower());
     float specAdjust = 2.0f/(2.0f+specPower); //since OSP 0.10.0

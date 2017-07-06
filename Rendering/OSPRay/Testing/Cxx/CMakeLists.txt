@@ -1,5 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   # Surface rendering tests
+  TestOSPRayAmbient.cxx
   TestOSPRayCompositePolyDataMapper2.cxx
   TestOSPRayDynamicObject.cxx
   TestOSPRayDynamicScene.cxx
@@ -33,6 +34,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   # Path tracer tests
   TestOSPRayRendererType.cxx
   TestPathTracerBackground.cxx
+  TestPathTracerLuminous.cxx
+  TestPathTracerShadows.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx

@@ -45,6 +45,7 @@
 #define VTK_SURFACE   2
 
 class vtkActor;
+class vtkInformation;
 class vtkRenderer;
 class vtkShaderProgram;
 class vtkShaderDeviceAdapter2;
@@ -482,6 +483,14 @@ public:
     VTK_TEXTURE_UNIT_7
   };
 
+  //@{
+  /**
+   * Set/Get the information object associated with the Property.
+   */
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+  //@}
+
 protected:
   vtkProperty();
   ~vtkProperty() VTK_OVERRIDE;
@@ -530,6 +539,9 @@ protected:
   vtkTexture* GetTextureAtIndex(int index);
   int GetTextureUnitAtIndex(int index);
   int GetTextureUnit(const char* name);
+
+  // Arbitrary extra information associated with this Property.
+  vtkInformation* Information;
 
 private:
   vtkProperty(const vtkProperty&) VTK_DELETE_FUNCTION;

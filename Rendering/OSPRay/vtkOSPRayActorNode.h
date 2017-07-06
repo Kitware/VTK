@@ -30,12 +30,14 @@
 class vtkActor;
 class vtkCompositeDataDisplayAttributes;
 class vtkDataArray;
+class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkMapper;
 class vtkPiecewiseFunction;
 class vtkPolyData;
+class vtkProperty;
 class vtkTimeStamp;
 
 
@@ -90,6 +92,19 @@ public:
    * Convenience method to set a scale function on my renderable.
    */
   static void SetScaleFunction(vtkPiecewiseFunction *scaleFunction, vtkActor *);
+
+  /**
+   * Indicates that the actor acts as a light emitting object.
+   */
+  static vtkInformationDoubleKey* LUMINOSITY();
+
+  //@{
+  /**
+   * Convenience method to set luminosity on my renderable.
+   */
+  static void SetLuminosity(double value, vtkProperty *);
+  static double GetLuminosity(vtkProperty *);
+  //@}
 
 protected:
   vtkOSPRayActorNode();
