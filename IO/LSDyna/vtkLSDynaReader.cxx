@@ -152,25 +152,6 @@ static const char* vtkLSDynaCellTypes[] =
   "Road Surface"
 };
 
-static void vtkLSGetLine( ifstream& deck, std::string& line )
-{
-#if !defined(_WIN32) && !defined(_MSC_VER) && !defined(__BORLANDC__)
-  // One line implementation for everyone but Windows (MSVC6 and BCC32 are the troublemakers):
-  std::getline( deck, line, '\n' );
-#else
-  // Feed Windows its food cut up into little pieces
-  int linechar;
-  line = "";
-  while ( deck.good() )
-  {
-    linechar = deck.get();
-    if ( linechar == '\r' || linechar == '\n' )
-      return;
-    line += linechar;
-  }
-#endif
-}
-
 // Read in lines until one that's
 // - not empty, and
 // - not a comment
@@ -180,7 +161,7 @@ static int vtkLSNextSignificantLine( ifstream& deck, std::string& line )
 {
   while ( deck.good() )
   {
-    vtkLSGetLine( deck, line );
+    std::getline( deck, line, '\n' );
     if ( ! line.empty() && line[0] != '$' )
     {
       return 1;
@@ -3245,7 +3226,7 @@ int vtkLSDynaReader::ReadInputDeck()
   }
 
   std::string header;
-  vtkLSGetLine( deck, header );
+  std::getline( deck, header, '\n' );
   deck.seekg( 0, ios::beg );
   int retval;
   if ( vtksys::SystemTools::StringStartsWith( header.c_str(), "<?xml" ) )

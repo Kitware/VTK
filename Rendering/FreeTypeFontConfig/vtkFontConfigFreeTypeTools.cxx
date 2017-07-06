@@ -20,9 +20,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
-#ifndef _MSC_VER
-# include <stdint.h>
-#endif
+#include <cstdint>
 
 #include <fontconfig/fontconfig.h>
 

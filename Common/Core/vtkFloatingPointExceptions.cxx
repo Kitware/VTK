@@ -22,6 +22,7 @@
 #include <fenv.h>
 #endif
 
+// for _controlfp
 #ifdef _MSC_VER
 #include <float.h>
 #endif

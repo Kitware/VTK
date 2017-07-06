@@ -356,7 +356,7 @@ vtkExternTemplateMacro(
 #endif
 #endif // VTK_AOS_DATA_ARRAY_TEMPLATE_EXTERN
 
-// The following clause is only for MSVC 2008 and 2010
+// The following clause is only for MSVC
 #elif defined(_MSC_VER) && !defined(VTK_BUILD_SHARED_LIBS)
 #pragma warning (push)
 
@@ -372,10 +372,10 @@ vtkExternTemplateMacro(
 // instantiation of the base class.  From outside the vtkCommon
 // library we block this using an extern dllimport instantiation.
 // For classes inside vtkCommon we should be able to just do an
-// extern instantiation, but VS 2008 complains about missing
+// extern instantiation, but VS complains about missing
 // definitions.  We cannot do an extern dllimport inside vtkCommon
 // since the symbols are local to the dll.  An extern dllexport
-// seems to be the only way to convince VS 2008 to do the right
+// seems to be the only way to convince VS to do the right
 // thing, so we just disable the warning.
 #pragma warning (disable: 4910) // extern and dllexport incompatible
 

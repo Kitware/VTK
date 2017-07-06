@@ -73,11 +73,6 @@ vtkStandardNewMacro(vtkDataWriter);
 #undef write
 #endif
 
-// Standard trick to use snprintf on MSVC.
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-# define snprintf _snprintf
-#endif
-
 // Created object with default header, ASCII format, and default names for
 // scalars, vectors, tensors, normals, and texture coordinates.
 vtkDataWriter::vtkDataWriter()
