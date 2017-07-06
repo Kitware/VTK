@@ -65,7 +65,7 @@ public:
   /**
    * Allocate initial space for priority queue.
    */
-  void Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  void Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   /**
    * Insert id with priority specified. The id is generally an

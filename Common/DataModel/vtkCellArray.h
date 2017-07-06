@@ -55,7 +55,7 @@ public:
   /**
    * Allocate memory and set the size to extend by.
    */
-  int Allocate(const vtkIdType sz, const int ext=1000)
+  int Allocate(vtkIdType sz, vtkIdType ext=1000)
     {return this->Ia->Allocate(sz,ext);}
 
   /**

@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkThreadedImageAlgorithm
- * @brief   Generic filter that has one input..
+ * @brief   Generic filter that has one input.
  *
  * vtkThreadedImageAlgorithm is a filter superclass that hides much of the
  * pipeline  complexity. It handles breaking the pipeline execution
