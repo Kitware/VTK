@@ -71,7 +71,8 @@ int vtkmExtractVOI::RequestData(
     vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
+  vtkm::cont::DataSet in = tovtkm::Convert(input,
+                                           tovtkm::FieldsFlag::PointsAndCells);
   if (in.GetNumberOfCoordinateSystems() <= 0 || in.GetNumberOfCellSets() <= 0)
   {
     vtkErrorMacro(<< "Could not convert vtk dataset to vtkm dataset");
@@ -103,29 +104,20 @@ int vtkmExtractVOI::RequestData(
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
-  vtkDataSetAttributes *attr[2] = { input->GetPointData(), input->GetCellData() };
-  int assoc[2] = { vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                   vtkDataObject::FIELD_ASSOCIATION_CELLS };
-  for (int i = 0; i < 2; ++i)
+  // Map fields:
+  vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
+  for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
   {
-    for (vtkIdType j = 0; j < attr[i]->GetNumberOfArrays(); ++j)
+    const vtkm::cont::Field &field = in.GetField(fieldIdx);
+    try
     {
-      vtkDataArray* array = attr[i]->GetArray(j);
-      if (array == NULL)
-      {
-        continue;
-      }
-
-      vtkm::cont::Field pfield = tovtkm::Convert(array, assoc[i]);
-      try
-      {
-        filter.MapFieldOntoOutput(result, pfield, policy);
-      }
-      catch (vtkm::cont::Error&)
-      {
-        vtkWarningMacro(<< "Unable to use VTKm to convert field ("
-                        << array->GetName() << ") to the output");
-      }
+      filter.MapFieldOntoOutput(result, field, policy);
+    }
+    catch (vtkm::cont::Error &e)
+    {
+      vtkWarningMacro(<< "Unable to use VTKm to convert field( "
+                      << field.GetName() << " ) to the ExtractVOI"
+                      << " output: " << e.what());
     }
   }
 
