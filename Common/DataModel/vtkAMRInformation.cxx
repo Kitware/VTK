@@ -546,13 +546,13 @@ void vtkAMRInformation::GenerateParentChildInformation()
   {
     this->GenerateRefinementRatio();
   }
-  AllChildren.resize(this->GetNumberOfLevels());
-  AllParents.resize(this->GetNumberOfLevels());
+  this->AllChildren.resize(this->GetNumberOfLevels());
+  this->AllParents.resize(this->GetNumberOfLevels());
 
   unsigned int numLevels = this->GetNumberOfLevels();
   for(unsigned int i=1; i<numLevels; i++)
   {
-    this->CalculateParentChildRelationShip(i, AllChildren[i-1], AllParents[i]);
+    this->CalculateParentChildRelationShip(i, this->AllChildren[i-1], this->AllParents[i]);
   }
 }
 
