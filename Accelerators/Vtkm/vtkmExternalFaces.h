@@ -15,7 +15,7 @@
 //=============================================================================
 /**
  * @class   vtkmExternalFaces
- * @brief   generate isosurface(s) from volume
+ * @brief   generate External Faces of a DataSet
  *
  * vtkmExternalFaces is a filter that extracts all external faces from a
  * data set. An external face is defined is defined as a face/side of a cell
