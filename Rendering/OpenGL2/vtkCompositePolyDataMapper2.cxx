@@ -607,7 +607,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     // do we have float texture support ?
     int ftex =
       static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())->
-        GetDefaultTextureInternalFormat(VTK_FLOAT, 4, false, true);
+        GetDefaultTextureInternalFormat(VTK_FLOAT, 4, false, true, false);
 
     if (ftex)
     {

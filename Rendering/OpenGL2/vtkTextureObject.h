@@ -757,6 +757,19 @@ public:
   // data values are lost
   void Resize(unsigned int width, unsigned int height);
 
+  //@{
+  /**
+   * Is this texture using the sRGB color space. If you are using a
+   * sRGB framebuffer or window then you probably also want to be
+   * using sRGB color textures for proper handling of gamma and
+   * associated color mixing.
+   */
+  vtkGetMacro(UseSRGBColorSpace, bool);
+  vtkSetMacro(UseSRGBColorSpace, bool);
+  vtkBooleanMacro(UseSRGBColorSpace, bool);
+  //@}
+
+
 protected:
   vtkTextureObject();
   ~vtkTextureObject() VTK_OVERRIDE;
@@ -783,6 +796,7 @@ protected:
   unsigned int Height;
   unsigned int Depth;
   unsigned int Samples;
+  bool UseSRGBColorSpace;
 
   unsigned int Target; // GLenum
   unsigned int Format; // GLenum

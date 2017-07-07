@@ -145,6 +145,11 @@ public:
   int GetDepthBufferSize() VTK_OVERRIDE;
 
   /**
+   * Is this window/fo in sRGB colorspace
+   */
+  bool GetUsingSRGBColorSpace();
+
+  /**
    * Get the size of the color buffer.
    * Returns 0 if not able to determine otherwise sets R G B and A into buffer.
    */
@@ -322,7 +327,7 @@ public:
    */
   int GetDefaultTextureInternalFormat(
     int vtktype, int numComponents,
-    bool needInteger, bool needFloat);
+    bool needInteger, bool needFloat, bool needSRGB);
 
   /**
    * Return a message profiding additional details about the

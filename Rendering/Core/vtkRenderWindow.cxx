@@ -89,6 +89,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
   this->MultiSamples = 0;
+  this->UseSRGBColorSpace = false;
 
 #ifdef VTK_USE_OFFSCREEN
   this->OffScreenRendering = 1;
@@ -901,6 +902,8 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Layers: " << this->NumberOfLayers << "\n";
   os << indent << "AccumulationBuffer Size " << this->AccumulationBufferSize << "\n";
   os << indent << "AlphaBitPlanes: " << (this->AlphaBitPlanes ? "On" : "Off")
+     << endl;
+  os << indent << "UseSRGBColorSpace: " << (this->UseSRGBColorSpace ? "On" : "Off")
      << endl;
 
   os << indent << "AnaglyphColorSaturation: "
