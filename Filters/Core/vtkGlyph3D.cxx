@@ -161,9 +161,8 @@ bool vtkGlyph3D::Execute(
   vtkPointData* outputPD = output->GetPointData();
   vtkCellData* outputCD = output->GetCellData();
   int numberOfSources = this->GetNumberOfInputConnections(1);
-  vtkPolyData *defaultSource = NULL;
   vtkIdTypeArray *pointIds=0;
-  vtkPolyData *source = this->GetSource(0, sourceVector);
+  vtkSmartPointer<vtkPolyData> source = this->GetSource(0, sourceVector);
   vtkNew<vtkIdList> srcPointIdList;
   vtkNew<vtkIdList> dstPointIdList;
   vtkNew<vtkIdList> srcCellIdList;
@@ -229,7 +228,7 @@ bool vtkGlyph3D::Execute(
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
   {
-    if ( !source )
+    if ( source.Get() == NULL )
     {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -249,24 +248,20 @@ bool vtkGlyph3D::Execute(
   outputPD->CopyNormalsOff();
   outputPD->CopyTCoordsOff();
 
-  if (!source)
+  if ( source.Get() == NULL )
   {
-    defaultSource = vtkPolyData::New();
+    vtkNew<vtkPolyData> defaultSource;
     defaultSource->Allocate();
-    vtkPoints *defaultPoints = vtkPoints::New();
+    vtkNew<vtkPoints> defaultPoints;
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0, 0, 0);
     defaultPoints->InsertNextPoint(1, 0, 0);
     vtkIdType defaultPointIds[2];
     defaultPointIds[0] = 0;
     defaultPointIds[1] = 1;
-    defaultSource->SetPoints(defaultPoints);
+    defaultSource->SetPoints(defaultPoints.Get());
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    defaultSource->Delete();
-    defaultSource = NULL;
-    defaultPoints->Delete();
-    defaultPoints = NULL;
-    source = defaultSource;
+    source = defaultSource.Get();
   }
 
   if ( this->IndexMode != VTK_INDEXING_OFF )
@@ -498,7 +493,7 @@ bool vtkGlyph3D::Execute(
               (index >= numberOfSources ? (numberOfSources-1) : index));
 
       source = this->GetSource(index, sourceVector);
-      if ( source != NULL )
+      if ( source.Get() != NULL )
       {
         sourcePts = source->GetPoints();
         sourceNormals = source->GetPointData()->GetNormals();
@@ -508,7 +503,7 @@ bool vtkGlyph3D::Execute(
     }
 
     // Make sure we're not indexing into empty glyph
-    if ( !source )
+    if ( source.Get() == NULL )
     {
       continue;
     }

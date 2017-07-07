@@ -13,22 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
-#include "vtkTestErrorObserver.h"
-#include "vtkExecutive.h"
-#include "vtkGlyph3D.h"
-#include "vtkSmartPointer.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointData.h"
-#include "vtkConeSource.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkDoubleArray.h"
+#include "vtkExecutive.h"
+#include "vtkGlyph3D.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestErrorObserver.h"
+#include "vtkTestUtilities.h"
 
 static bool TestGlyph3D_WithBadArray()
 {
@@ -71,9 +72,28 @@ static bool TestGlyph3D_WithBadArray()
   return true;
 }
 
+static bool TestGlyph3D_WithoutSource()
+{
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0, 0, 0);
+  vtkNew<vtkPolyData> polydata;
+  polydata->SetPoints(points.Get());
+
+  vtkNew<vtkGlyph3D> glyph3D;
+  glyph3D->SetInputData(polydata.Get());
+  glyph3D->Update();
+
+  return true;
+}
+
 int TestGlyph3D(int argc, char* argv[])
 {
   if(!TestGlyph3D_WithBadArray())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestGlyph3D_WithoutSource())
   {
     return EXIT_FAILURE;
   }
