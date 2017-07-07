@@ -309,7 +309,6 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
 
         return reply
 
-    # RpcName: addRenderObserver => viewport.image.push.observer.add
     @exportRpc("viewport.image.push.observer.add")
     def addRenderObserver(self, viewId):
         sView = self.getView(viewId)
@@ -320,6 +319,9 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
 
         # Use default arg to capture value of realViewId
         def pushRender(vId = realViewId):
+            if not self.trackingViews[vId]["enabled"]:
+                return
+
             reply = self.stillRender({ "view": realViewId, "mtime": self.trackingViews[vId]["mtime"] })
             stale = reply["stale"]
             # TODO inefficient encode and immediate decode. Maybe we can get a binary buffer directly?
@@ -350,12 +352,11 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
                     self.staleHandlerCount += 1
                     reactor.callLater(self.deltaStaleTimeBeforeRender - delta + 0.001, lambda: renderStaleImage())
 
-
         if not realViewId in self.trackingViews:
             observerCallback = lambda *args, **kwargs: pushRender()
             tag = self.getApplication().AddObserver('PushRender', observerCallback)
             # TODO do we need self.getApplication().AddObserver('ResetActiveView', resetActiveView())
-            self.trackingViews[realViewId] = { 'tag': tag, 'observerCount': 1, 'mtime': 0, 'quality': 100 }
+            self.trackingViews[realViewId] = { 'tag': tag, 'observerCount': 1, 'mtime': 0, 'enabled': True, 'quality': 100 }
         else:
             # There is an observer on this view already
             self.trackingViews[realViewId]['observerCount'] += 1
@@ -363,7 +364,6 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         self.publish('viewport.image.push.subscription', pushRender())
         return { 'success': True, 'viewId': realViewId }
 
-    # RpcName: removeRenderObserver => viewport.image.push.observer.remove
     @exportRpc("viewport.image.push.observer.remove")
     def removeRenderObserver(self, viewId):
         sView = self.getView(viewId)
@@ -389,7 +389,38 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
 
     @exportRpc("viewport.image.push.quality")
     def setViewQuality(self, viewId, quality):
-        # TODO add to self.trackingViews
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+
+        realViewId = sView.GetGlobalIDAsString()
+        observerInfo = None
+        if realViewId in self.trackingViews:
+            observerInfo = self.trackingViews[realViewId]
+
+        if not observerInfo:
+            return { 'error': 'Unable to find subscription for view %s' % realViewId }
+
+        observerInfo['quality'] = quality
+
+        return { 'result': 'success' }
+
+    @exportRpc("viewport.image.push.enabled")
+    def enableView(self, viewId, enabled):
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+
+        realViewId = sView.GetGlobalIDAsString()
+        observerInfo = None
+        if realViewId in self.trackingViews:
+            observerInfo = self.trackingViews[realViewId]
+
+        if not observerInfo:
+            return { 'error': 'Unable to find subscription for view %s' % realViewId }
+
+        observerInfo['enabled'] = enabled
+
         return { 'result': 'success' }
 
     @exportRpc("viewport.image.push.invalidate.cache")
