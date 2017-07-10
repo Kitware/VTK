@@ -52,7 +52,7 @@ ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.3
 ren1 ResetCameraClippingRange
 
-renWin SetSize 301 91
+renWin SetSize 300 90
 cone0Actor SetPosition -1.5 0 0
 cone1Actor SetPosition -.5 0 0
 cone2Actor SetPosition .5 0 0

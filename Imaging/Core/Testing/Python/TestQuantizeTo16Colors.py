@@ -23,5 +23,6 @@ viewer.SetInputConnection(map.GetOutputPort())
 viewer.SetColorWindow(256)
 viewer.SetColorLevel(127)
 viewer.GetActor2D().SetDisplayPosition(110,110)
+viewer.SetSize(440,440)
 viewer.Render()
 # --- end of script --

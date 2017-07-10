@@ -36,7 +36,7 @@ class TestFreetypeTextMapper(vtk.test.Testing.vtkTest):
             bgColor[i] /= 255.0
 
         renWin = vtk.vtkRenderWindow()
-        renWin.SetSize(790, 351)
+        renWin.SetSize(790, 350)
 
         ren = vtk.vtkRenderer()
         ren.SetBackground(bgColor)

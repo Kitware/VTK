@@ -89,7 +89,7 @@ ren1 AddActor isoVyActor
 ren1 AddActor isoVzActor
 isoVzActor AddPosition 0 -12 0
 ren1 SetBackground .8 .8 .8
-renWin SetSize 321 321
+renWin SetSize 320 320
 
 [ren1 GetActiveCamera] SetPosition -63.3093 -1.55444 64.3922
 [ren1 GetActiveCamera] SetFocalPoint 8.255 0.0499763 29.7631

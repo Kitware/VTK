@@ -189,6 +189,6 @@ vtkRenderWindow imgWin
   imgWin AddRenderer imager4
   imgWin AddRenderer imager5
   imgWin AddRenderer imager6
-  imgWin SetSize 225 150
+  imgWin SetSize 230 150
 
 imgWin Render

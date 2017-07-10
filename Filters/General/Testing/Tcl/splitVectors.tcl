@@ -127,7 +127,7 @@ slActor AddPosition 0 24 0
 ren1 AddActor outlineActor
 outlineActor AddPosition 0 24 0
 ren1 SetBackground .8 .8 .8
-renWin SetSize 321 321
+renWin SetSize 320 320
 
 [ren1 GetActiveCamera] SetPosition -20.3093 20.55444 64.3922
 [ren1 GetActiveCamera] SetFocalPoint 8.255 0.0499763 29.7631
