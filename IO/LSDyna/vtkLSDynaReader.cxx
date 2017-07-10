@@ -57,18 +57,20 @@
 #include "vtkCellType.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
-#include "vtkPoints.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-
+#include "vtkVectorOperators.h"
 
 vtkStandardNewMacro(vtkLSDynaReader);
 
@@ -2487,17 +2489,13 @@ int vtkLSDynaReader::ReadNodes()
 {
   LSDynaMetaData* p = this->P;
 
-  // Skip reading coordinates if we are deflecting the mesh... they would be replaced anyway.
-  // The only exception is if the deflected coordinates are not included in the LS-Dyna output
-  // (i.e., when IU is 0).
+  // Always read geometry, even if the mesh will be deformed using deflected coordinates
+  // (LS_ARRAYNAME_DEFLECTION). That way, we can compute deflection array later on.
+  p->Fam.SkipToWord(LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), 0);
+  this->Parts->ReadPointProperty(p->NumberOfNodes, p->Dimensionality, NULL, false, true, false);
+
   // Note that in any event we still have to read the rigid road coordinates.
   // If the mesh is deformed each state will have the points so see ReadState
-  if ( ! this->DeformedMesh || ! p->Dict["IU"] )
-  {
-    p->Fam.SkipToWord( LSDynaFamily::GeometryData, p->Fam.GetCurrentAdaptLevel(), 0 );
-    this->Parts->ReadPointProperty(p->NumberOfNodes,p->Dimensionality,NULL,false,true,false);
-  }
-
   if ( p->ReadRigidRoadMvmt )
   {
     vtkIdType nnode = p->Dict["NNODE"];
@@ -2774,14 +2772,13 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
   {
     for(size_t i=0; i < cmps.size(); i++)
     {
-      //special case if the user has said they want a deformed mesh
-      //we have to read in the deflection array
+      // Note, we don't do anything special when reading deflected coordinates here.
+      // See `ComputeDeflectionAndUpdateGeometry` for computing of deflection and
+      // updating for geometry if requested to be deformed.
       bool valid = this->GetPointArrayStatus( names[i].c_str() ) != 0;
-      bool isDeflectionArray = this->DeformedMesh &&
-                               strcmp(names[i].c_str(), LS_ARRAYNAME_DEFLECTION)==0;
-      this->Parts->ReadPointProperty(p->NumberOfNodes,cmps[i],names[i].c_str(),
-                                     valid,isDeflectionArray);
+      this->Parts->ReadPointProperty(p->NumberOfNodes, cmps[i], names[i].c_str(), valid);
     }
+
     //clear the buffer as it will be very large and not needed
     p->Fam.ClearBuffer();
   }
@@ -3590,6 +3587,8 @@ int vtkLSDynaReader::RequestData(
     if (this->Parts->IsActivePart(i))
     {
       vtkUnstructuredGrid *ug = this->Parts->GetGridForPart(i);
+      this->ComputeDeflectionAndUpdateGeometry(ug);
+
       mbds->SetBlock(i,ug);
       mbds->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(),
         this->P->PartNames[i].c_str());
@@ -3801,4 +3800,75 @@ void vtkLSDynaReader::SetDeformedMesh(int deformed)
     this->ResetPartsCache();
     this->Modified();
   }
+}
+
+namespace
+{
+template <class T, int NumberOfComponents>
+vtkSmartPointer<T> vtkComputeDifference(T* aArray, T* bArray)
+{
+  if (aArray == nullptr || bArray == nullptr)
+  {
+    return nullptr;
+  }
+
+  const vtkIdType numTuples = aArray->GetNumberOfTuples();
+  const int numComps = aArray->GetNumberOfComponents();
+  if (bArray->GetNumberOfTuples() != numTuples || bArray->GetNumberOfComponents() != numComps ||
+    numComps != NumberOfComponents)
+  {
+    return nullptr;
+  }
+
+  vtkVector<typename T::ValueType, NumberOfComponents> tupleA, tupleB;
+  vtkSmartPointer<T> result = vtkSmartPointer<T>::New();
+  result->SetNumberOfComponents(NumberOfComponents);
+  result->SetNumberOfTuples(numTuples);
+  for (vtkIdType cc = 0, max = numTuples; cc < max; ++cc)
+  {
+    aArray->GetTypedTuple(cc, tupleA.GetData());
+    bArray->GetTypedTuple(cc, tupleB.GetData());
+    result->SetTypedTuple(cc, (tupleA - tupleB).GetData());
+  }
+  return result;
+}
+}
+
+//-----------------------------------------------------------------------------
+int vtkLSDynaReader::ComputeDeflectionAndUpdateGeometry(vtkUnstructuredGrid* ug)
+{
+  // If LS_ARRAYNAME_DEFLECTION is preset then this computes the deflection.
+  // If this->DeformedMesh is true, this additionally swaps the output geometry points
+  // to be the LS_ARRAYNAME_DEFLECTION (which is the deflected coordinates).
+  LSDynaMetaData* p = this->P;
+  vtkDataArray* deflectedCoords =
+    ug ? ug->GetPointData()->GetArray(LS_ARRAYNAME_DEFLECTION) : nullptr;
+  if (deflectedCoords)
+  {
+    vtkSmartPointer<vtkDataArray> deflection;
+    if (p->Fam.GetWordSize() == 8)
+    {
+      deflection =
+        vtkComputeDifference<vtkDoubleArray, 3>(vtkDoubleArray::SafeDownCast(deflectedCoords),
+          vtkDoubleArray::SafeDownCast(ug->GetPoints()->GetData()));
+    }
+    else
+    {
+      deflection =
+        vtkComputeDifference<vtkFloatArray, 3>(vtkFloatArray::SafeDownCast(deflectedCoords),
+          vtkFloatArray::SafeDownCast(ug->GetPoints()->GetData()));
+    }
+
+    if (deflection)
+    {
+      deflection->SetName("Deflection");
+      ug->GetPointData()->AddArray(deflection);
+    }
+
+    if (this->DeformedMesh)
+    {
+      ug->GetPoints()->SetData(deflectedCoords);
+    }
+  }
+  return EXIT_SUCCESS;
 }

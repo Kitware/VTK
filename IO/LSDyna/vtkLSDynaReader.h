@@ -604,6 +604,7 @@ protected:
   virtual int ReadCellStateInfo( vtkIdType );
   virtual int ReadDeletion();
   virtual int ReadSPHState( vtkIdType );
+  virtual int ComputeDeflectionAndUpdateGeometry(vtkUnstructuredGrid* grid);
   //@}
 
   /**
