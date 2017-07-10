@@ -539,10 +539,12 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   glDepthFunc( GL_LEQUAL );
   glEnable( GL_DEPTH_TEST );
 
+#ifdef GL_FRAMEBUFFER_SRGB
   if (this->UseSRGBColorSpace && this->GetUsingSRGBColorSpace())
   {
     glEnable(GL_FRAMEBUFFER_SRGB);
   }
+#endif
 
   // initialize blending for transparency
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
@@ -618,8 +620,13 @@ int vtkOpenGLRenderWindow::GetDefaultTextureInternalFormat(
   {
     switch (result)
     {
+#if GL_ES_VERSION_3_0 == 1
+      case GL_RGB: result = GL_SRGB8; break;
+      case GL_RGBA: result = GL_SRGB8_ALPHA8; break;
+#else
       case GL_RGB: result = GL_SRGB; break;
       case GL_RGBA: result = GL_SRGB_ALPHA; break;
+#endif
       case GL_RGB8: result = GL_SRGB8; break;
       case GL_RGBA8: result = GL_SRGB8_ALPHA8; break;
       default: break;
