@@ -235,4 +235,14 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
+int vtkAbstractMapper::GetNumberOfClippingPlanes()
+{
+  int n = 0;
 
+  if ( this->ClippingPlanes )
+  {
+    n = this->ClippingPlanes->GetNumberOfItems();
+  }
+
+  return n;
+}

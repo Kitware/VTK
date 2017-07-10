@@ -23,6 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
@@ -216,7 +217,21 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
       actor->GetPositionCoordinate()->SetValue(pos);
     }
 
-    this->TextMappers[i]->RenderOverlay(viewport, actor);
+    bool show = true;
+    if (this->ClippingPlanes)
+    {
+      for (int p = 0; p < this->GetNumberOfClippingPlanes(); ++p)
+      {
+        if (this->ClippingPlanes->GetItem(p)->FunctionValue(pos) < 0.0)
+        {
+          show = false;
+        }
+      }
+    }
+    if (show)
+    {
+      this->TextMappers[i]->RenderOverlay(viewport, actor);
+    }
   }
 }
 
@@ -282,8 +297,21 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
       actor->GetPositionCoordinate()->SetValue(pos);
     }
-
-    this->TextMappers[i]->RenderOpaqueGeometry(viewport, actor);
+    bool show = true;
+    if (this->ClippingPlanes)
+    {
+      for (int p = 0; p < this->GetNumberOfClippingPlanes(); ++p)
+      {
+        if (this->ClippingPlanes->GetItem(p)->FunctionValue(pos) < 0.0)
+        {
+          show = false;
+        }
+      }
+    }
+    if (show)
+    {
+      this->TextMappers[i]->RenderOpaqueGeometry(viewport, actor);
+    }
   }
 }
 
