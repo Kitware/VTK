@@ -459,7 +459,7 @@ public:
   /**
    * Should deflected coordinates be used, or should the mesh remain
    * undeflected?  By default, this is true but its value is ignored if the
-   * nodal "Deflection" array is not set to be loaded.
+   * nodal "Deflected Coordinates" array is not set to be loaded.
    */
   void SetDeformedMesh(int);
   vtkGetMacro(DeformedMesh,int);

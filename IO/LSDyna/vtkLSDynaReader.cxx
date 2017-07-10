@@ -88,7 +88,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_SPECIES_09         "Species09"
 #define LS_ARRAYNAME_SPECIES_10         "Species10"
 #define LS_ARRAYNAME_TEMPERATURE        "Temperature"
-#define LS_ARRAYNAME_DEFLECTION         "Deflection"
+#define LS_ARRAYNAME_DEFLECTION         "Deflected Coordinates"
 #define LS_ARRAYNAME_VELOCITY           "Velocity"
 #define LS_ARRAYNAME_ACCELERATION       "Acceleration"
 #define LS_ARRAYNAME_PRESSURE           "Pressure"
