@@ -265,7 +265,7 @@ bool vtkDualDepthPeelingPass::PostReplaceTranslucentShaderValues(
             "  // through trial-and-error -- it may need to be increased at\n"
             "  // some point. See also the comment in vtkDepthPeelingPass's\n"
             "  // shader.\n"
-            "  float epsilon = 0.000001;\n"
+            "  float epsilon = 0.0000001;\n"
             "\n"
             "  // Default outputs (no data/change):\n"
             "  gl_FragData[0] = vec4(0.);\n"
