@@ -161,6 +161,7 @@ set(Module_SRCS
   vtkSpline.cxx
   vtkStaticCellLinks.cxx
   vtkStaticCellLinksTemplate.txx
+  vtkStaticCellLocator.cxx
   vtkStaticPointLocator.cxx
   vtkStructuredData.cxx
   vtkStructuredExtent.cxx
