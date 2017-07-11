@@ -23,11 +23,6 @@
 
 #include "vtksys/SystemTools.hxx"
 
-//=============================================================================
-// When changing this file, change the corresponding file in
-// StatisticsGnuR/Testing/Cxx as well.
-//=============================================================================
-
 // Perform a fuzzy compare of floats/doubles
 template<class A>
 bool fuzzyCompare(A a, A b) {

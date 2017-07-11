@@ -72,7 +72,6 @@ memleak:Examples/Infovis/Cxx/MultiView.cxx
 memleak:IO/Image/vtkJPEGReader.cxx
 memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
 memleak:Rendering/OpenGL2/vtkOpenGLRenderTimerLog.cxx
-multiCondition:Filters/Matlab/vtkMatlabMexAdapter.cxx
 operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
 redundantAssignment:Wrapping/Tcl/vtkTclUtil.cxx
 redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
