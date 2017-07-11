@@ -22,6 +22,7 @@
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayPass.h"
+#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
@@ -33,6 +34,45 @@ namespace {
 }
 
 //----------------------------------------------------------------------------
+class vtkOSPRayTestLooper : public vtkCommand
+{
+  //for progressive rendering
+  public:
+    vtkTypeMacro(vtkOSPRayTestLooper, vtkCommand);
+
+    static vtkOSPRayTestLooper *New()
+    {
+      vtkOSPRayTestLooper *self = new vtkOSPRayTestLooper;
+      self->RenderWindow = nullptr;
+      self->ProgressiveCount = 0;
+      return self;
+    }
+
+    void Execute(vtkObject *vtkNotUsed(caller),
+                 unsigned long eventId,
+                 void *vtkNotUsed(callData)) override
+    {
+      if (eventId == vtkCommand::TimerEvent)
+      {
+        if (this->RenderWindow)
+        {
+          vtkRenderer *renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+          int maxframes = vtkOSPRayRendererNode::GetMaxFrames(renderer);
+          if (this->ProgressiveCount < maxframes)
+          {
+            this->ProgressiveCount++;
+            this->RenderWindow->Render();
+          }
+        }
+      } else {
+        this->ProgressiveCount = 0;
+      }
+    }
+    vtkRenderWindow *RenderWindow;
+    int ProgressiveCount;
+};
+
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOSPRayTestInteractor);
 
 //----------------------------------------------------------------------------
@@ -41,6 +81,13 @@ vtkOSPRayTestInteractor::vtkOSPRayTestInteractor()
   this->SetPipelineControlPoints(NULL,NULL,NULL);
   this->VisibleActor = -1;
   this->VisibleLight = -1;
+  this->Looper = vtkOSPRayTestLooper::New();
+}
+
+//----------------------------------------------------------------------------
+vtkOSPRayTestInteractor::~vtkOSPRayTestInteractor()
+{
+  this->Looper->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -143,10 +190,10 @@ void vtkOSPRayTestInteractor::OnKeyPress()
 
   if(key == "P")
   {
-    int maxframes = vtkOSPRayRendererNode::GetMaxFrames(this->GLRenderer) + 4;
-    if (maxframes>64)
+    int maxframes = vtkOSPRayRendererNode::GetMaxFrames(this->GLRenderer) + 16;
+    if (maxframes>256)
     {
-      maxframes=64;
+      maxframes=256;
     }
     vtkOSPRayRendererNode::SetMaxFrames(maxframes, this->GLRenderer);
     cerr << "frames " << maxframes << endl;
@@ -246,4 +293,13 @@ void vtkOSPRayTestInteractor::OnKeyPress()
 void vtkOSPRayTestInteractor::AddName(const char *name)
 {
   ActorNames.push_back(std::string(name));
+}
+
+//------------------------------------------------------------------------------
+vtkCommand * vtkOSPRayTestInteractor::GetLooper(vtkRenderWindow *rw)
+{
+  rw->Render();
+  vtkOSPRayRendererNode::SetMaxFrames(128, this->GLRenderer);
+  vtkOSPRayTestLooper::SafeDownCast(this->Looper)->RenderWindow = rw;
+  return this->Looper;
 }

@@ -15,35 +15,15 @@
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 
 #include "vtkActor.h"
-#include "vtkOSPRayActorNode.h"
-#include "vtkOSPRayRendererNode.h"
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
-#include "vtkDataArray.h"
-#include "vtkFloatArray.h"
-#include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationDoubleKey.h"
-#include "vtkInformationObjectBaseKey.h"
-#include "vtkMapper.h"
-#include "vtkObjectFactory.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkProperty.h"
-#include "vtkTexture.h"
-#include "vtkSmartPointer.h"
-
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-
-#include "ospray/ospray.h"
-#include "ospray/version.h"
-
-#include <map>
-
+#include "vtkOSPRayActorNode.h"
+#include "vtkOSPRayRendererNode.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkSmartPointer.h"
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapper2Node);
@@ -112,6 +92,13 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
     this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
     this->BlockState.SpecularColor.push(vtkColor3d(prop->GetSpecularColor()));
+    const char *mname = prop->GetMaterialName();
+    if (mname != nullptr)
+    {
+      this->BlockState.Material.push(std::string(mname));
+    } else {
+      this->BlockState.Material.push(std::string(""));
+    }
 
     // render using the composite data attributes
     unsigned int flat_index = 0;
@@ -132,6 +119,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     this->BlockState.AmbientColor.pop();
     this->BlockState.DiffuseColor.pop();
     this->BlockState.SpecularColor.pop();
+    this->BlockState.Material.pop();
   }
 }
 
@@ -173,6 +161,13 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
     this->BlockState.SpecularColor.push(color);
   }
 
+  bool overrides_material = (cda && cda->HasBlockMaterial(flat_index));
+  if (overrides_material)
+  {
+    std::string material = cda->GetBlockMaterial(flat_index);
+    this->BlockState.Material.push(material);
+  }
+
   // Advance flat-index. After this point, flat_index no longer points to this
   // block.
   flat_index++;
@@ -206,13 +201,15 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
       vtkOSPRayActorNode *aNode = vtkOSPRayActorNode::SafeDownCast(this->Parent);
       vtkColor3d &aColor = this->BlockState.AmbientColor.top();
       vtkColor3d &dColor = this->BlockState.DiffuseColor.top();
+      std::string &material = this->BlockState.Material.top();
       cpdm->ClearColorArrays(); //prevents reuse of stale color arrays
       this->ORenderPoly(
         orn->GetORenderer(), orn->GetOModel(),
         aNode, ds,
         aColor.GetData(),
         dColor.GetData(),
-        this->BlockState.Opacity.top());
+        this->BlockState.Opacity.top(),
+        material);
     }
   }
 
@@ -229,5 +226,9 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
   if (overrides_visibility)
   {
     this->BlockState.Visibility.pop();
+  }
+  if (overrides_material)
+  {
+    this->BlockState.Material.pop();
   }
 }

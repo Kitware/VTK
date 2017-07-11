@@ -165,6 +165,43 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
   this->BlockOpacities.clear();
 }
 
+void vtkCompositeDataDisplayAttributes::SetBlockMaterial(unsigned int flat_index, std::string material)
+{
+  this->BlockMaterials[flat_index] = material;
+}
+
+std::string vtkCompositeDataDisplayAttributes::GetBlockMaterial(unsigned int flat_index) const
+{
+  std::map<unsigned int, std::string>::const_iterator iter = this->BlockMaterials.find(flat_index);
+
+  if(iter != this->BlockMaterials.end())
+  {
+    return iter->second;
+  }
+
+  return "";
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockMaterials() const
+{
+  return !this->BlockMaterials.empty();
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockMaterial(unsigned int flat_index) const
+{
+  return this->BlockMaterials.find(flat_index) != this->BlockMaterials.end();
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockMaterial(unsigned int flat_index)
+{
+  this->BlockMaterials.erase(flat_index);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
+{
+  this->BlockMaterials.clear();
+}
+
 void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
   vtkCompositeDataDisplayAttributes* cda,
   vtkDataObject *dobj,
