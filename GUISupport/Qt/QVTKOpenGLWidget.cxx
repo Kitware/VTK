@@ -330,6 +330,10 @@ void QVTKOpenGLWidget::recreateFBO()
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   GLint samples;
   f->glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_SAMPLES, &samples);
+
+  // Some graphics drivers report the number of samples as 1 when
+  // multisampling is off. Set the number of samples to 0 in this case.
+  samples = samples > 1 ? samples : 0;
   this->RenderWindow->SetMultiSamples(static_cast<int>(samples));
 
   QOpenGLFramebufferObjectFormat format;
