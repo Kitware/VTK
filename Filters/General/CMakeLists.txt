@@ -106,6 +106,7 @@ set(Module_SRCS
   vtkImageDataToPointSet.cxx
   vtkIntersectionPolyDataFilter.cxx
   vtkBooleanOperationPolyDataFilter.cxx
+  vtkLoopBooleanPolyDataFilter.cxx
   vtkDistancePolyDataFilter.cxx
 
   vtkOverlappingAMRLevelIdScalars.cxx
