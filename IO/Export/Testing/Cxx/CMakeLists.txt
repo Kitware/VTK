@@ -1,4 +1,15 @@
 include(vtkGhostscript)
+include(vtkWkHtmlToImage)
+
+if (VTK_WKHTMLTOIMAGE_EXECUTABLE AND VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(SVGTests
+    TestSVGContextExport.cxx,NO_DATA,NO_VALID
+    TestSVGContextShading.cxx,NO_DATA,NO_VALID
+    TestSVGExporterContextPolyData.cxx,NO_VALID
+    )
+else()
+  set(SVGTests)
+endif()
 
 # Only run GL2PS tests if GhostScript is available
 if(VTK_GHOSTSCRIPT_EXECUTABLE)
@@ -43,7 +54,7 @@ endif()
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
   TestOBJExporter.cxx,NO_DATA,NO_VALID
-  ${GL2PSTests} ${GL2PSTestsPDF} ${PDFTests}
+  ${GL2PSTests} ${GL2PSTestsPDF} ${PDFTests} ${SVGTests}
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
@@ -115,3 +126,6 @@ else()
   # test postscript and pdf
   vtk_add_gl2ps_test_cxx(pdf ${GL2PSTestsPDF})
 endif()
+
+include(vtkTestingSVG)
+vtk_add_svg_test(${SVGTests})

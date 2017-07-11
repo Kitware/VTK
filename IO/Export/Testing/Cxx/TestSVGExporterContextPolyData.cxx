@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestPDFExporterContextPolyData.cxx
+  Module:    TestSVGExporterContextPolyData.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -26,7 +26,7 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
-#include "vtkPDFExporter.h"
+#include "vtkSVGExporter.h"
 #include "vtkPen.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataConnectivityFilter.h"
@@ -41,9 +41,9 @@
 #include "vtkTestingInteractor.h"
 #include "vtkXMLPolyDataReader.h"
 
-namespace {
 
 //------------------------------------------------------------------------------
+namespace {
 vtkSmartPointer<vtkXMLPolyDataReader> ReadUVCDATPolyData(int argc, char* argv[])
 {
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
@@ -164,7 +164,7 @@ vtkSmartPointer<vtkPolyDataItem> CreateContourItem(int argc, char* argv[])
  */
 
 ///////////////////////////////////////////////////////////////////////////////
-int TestPDFExporterContextPolyData( int argc, char * argv [] )
+int TestSVGExporterContextPolyData( int argc, char * argv [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -208,18 +208,23 @@ int TestPDFExporterContextPolyData( int argc, char * argv [] )
 
   std::string filename =
       vtkTestingInteractor::TempDirectory +
-      std::string("/TestPDFExporterContextPolyData.pdf");
+      std::string("/TestSVGExporterContextPolyData.svg");
 
-  vtkNew<vtkPDFExporter> exp;
+  vtkNew<vtkSVGExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());
   exp->SetFileName(filename.c_str());
+  // This polydata is quite large -- limit the number of triangles emitted
+  // during gradient subdivision.
+  exp->SetSubdivisionThreshold(10.f);
   exp->Write();
 
+#if 0
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(view->GetRenderWindow());
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->GetInteractor()->Initialize();
   view->GetRenderWindow()->GetInteractor()->Start();
+#endif
 
   return EXIT_SUCCESS;
 }

@@ -10,6 +10,8 @@ set(Module_SRCS
   vtkRIBExporter.cxx
   vtkRIBLight.cxx
   vtkRIBProperty.cxx
+  vtkSVGContextDevice2D.cxx
+  vtkSVGExporter.cxx
   vtkVRMLExporter.cxx
   vtkX3D.cxx
   vtkX3DExporter.cxx
@@ -21,6 +23,7 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkPDFContextDevice2D
+  vtkSVGContextDevice2D
   vtkX3D
   vtkX3DExporterWriter
   vtkX3DExporterFIWriter

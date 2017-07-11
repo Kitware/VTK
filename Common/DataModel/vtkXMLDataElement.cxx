@@ -458,7 +458,7 @@ void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
   // Long format tag is needed if either or both
   // nested elements or inline data are present.
   if (this->NumberOfNestedElements>0
-      || this->CharacterData!=NULL)
+      || (this->CharacterData != NULL && this->CharacterData[0] != 0))
   {
     os << ">\n";
     // nested elements

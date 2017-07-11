@@ -160,7 +160,18 @@ static void PolyLineToShading(const float *points, int numPoints,
 // namespace to work.
 static bool operator<(const vtkColor3f &a, const vtkColor3f &b)
 {
-  return a[0] < b[0] || a[1] < b[1] || a[2] < b[2];
+  for (int i = 0; i < 3; ++i)
+  {
+    if (a[i] < b[i])
+    {
+      return true;
+    }
+    else if (a[i] > b[i])
+    {
+      return false;
+    }
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
