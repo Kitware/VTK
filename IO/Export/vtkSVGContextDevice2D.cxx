@@ -2508,7 +2508,7 @@ void vtkSVGContextDevice2D::WriteFonts()
           ftt->GetUnscaledKerning(key.TextProperty.Get(),
                                   charPair.first, charPair.second);
 
-      if (std::fabs(kerning[0]) == 0)
+      if (std::abs(kerning[0]) == 0)
       {
         continue;
       }
