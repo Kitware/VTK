@@ -23,14 +23,22 @@
  *
  *
  * Estimates the gradient of a field in a data set.  The gradient calculation
- * is dependent on the input dataset type.  The created gradient array
- * is of the same type as the array it is calculated from (e.g. point data
- * or cell data) as well as data type (e.g. float, double).  At the boundary
- * the gradient is not central differencing.  The output array has
+ * is dependent on the input dataset type.  The created gradient array is
+ * of the same type as the array it is calculated from (e.g. point data or cell
+ * data) but the data type will be either float or double.  At the boundary
+ * the gradient is not central differencing.  The output gradient array has
  * 3*number of components of the input data array.  The ordering for the
- * output tuple will be {du/dx, du/dy, du/dz, dv/dx, dv/dy, dv/dz, dw/dx,
+ * output gradient tuple will be {du/dx, du/dy, du/dz, dv/dx, dv/dy, dv/dz, dw/dx,
  * dw/dy, dw/dz} for an input array {u, v, w}. There are also the options
  * to additionally compute the vorticity and Q criterion of a vector field.
+ * Unstructured grids and polydata can have cells of different dimensions.
+ * To handle different use cases in this situation, the user can specify
+ * which cells contribute to the computation. The options for this are
+ * All (default), Patch and DataSetMax. Patch uses only the highest dimension
+ * cells attached to a point. DataSetMax uses the highest cell dimension in
+ * the entire data set. For Patch or DataSetMax it is possible that some values
+ * will not be computed. The ReplacementValueOption specifies what to use
+ * for these values.
 */
 
 #ifndef vtkGradientFilter_h
@@ -44,6 +52,22 @@ class VTKFILTERSGENERAL_EXPORT vtkGradientFilter : public vtkDataSetAlgorithm
 public:
   vtkTypeMacro(vtkGradientFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+
+  /// Options to choose what cells contribute to the gradient calculation
+  enum ContributingCellEnum {
+    All=0,        //!< All cells
+    Patch=1,      //!< Highest dimension cells in the patch of cells contributing to the calculation
+    DataSetMax=2  //!< Highest dimension cells in the data set
+  };
+
+  /// The replacement value or entities that don't have any gradient computed over them based on
+  /// the ContributingCellOption
+  enum ReplacementValueEnum {
+    Zero=0,        //!< 0
+    NaN=1,         //!< NaN
+    DataTypeMin=2, //!< The minimum possible value of the input array data type
+    DataTypeMax=3  //!< The maximum possible value of the input array data type
+  };
 
   static vtkGradientFilter *New();
 
@@ -161,6 +185,25 @@ public:
   vtkBooleanMacro(ComputeQCriterion, int);
   //@}
 
+  //@{
+  /**
+   * Option to specify what cells to include in the gradient computation.
+   * Options are all cells (All, Patch and DataSetMax). The default is All.
+   */
+  vtkSetClampMacro(ContributingCellOption, int, 0, 2);
+  vtkGetMacro(ContributingCellOption, int);
+  //@}
+
+  //@{
+  /**
+   * Option to specify what replacement value or entities that don't have any gradient computed
+   * over them based on the ContributingCellOption. Options are (Zero, NaN, DataTypeMin,
+   * DataTypeMax). The default is Zero.
+   */
+  vtkSetClampMacro(ReplacementValueOption, int, 0, 3);
+  vtkGetMacro(ReplacementValueOption, int);
+  //@}
+
 protected:
   vtkGradientFilter();
   ~vtkGradientFilter() VTK_OVERRIDE;
@@ -189,6 +232,14 @@ protected:
   virtual int ComputeRegularGridGradient(
     vtkDataArray* Array, int fieldAssociation, bool computeVorticity,
     bool computeQCriterion, bool computeDivergence, vtkDataSet* output);
+
+  /**
+   * Get the proper array type to compute requested derivative quantities for.
+   * If the input array is an unsigned type then we switch to a float array
+   * for the output but otherwise the output array type is the same as the
+   * input array type.
+   **/
+  int GetOutputArrayType(vtkDataArray* inputArray);
 
   /**
    * If non-null then it contains the name of the outputted gradient array.
@@ -251,6 +302,19 @@ protected:
    * 3 components.  By default ComputeVorticity is off.
    */
   int ComputeVorticity;
+
+  /**
+   * Option to specify what cells to include in the gradient computation.
+   * Options are all cells (All, Patch and DataSet). The default is all.
+   */
+  int ContributingCellOption;
+
+  /**
+   * Option to specify what replacement value or entities that don't have any gradient computed
+   * over them based on the ContributingCellOption. Options are (Zero, NaN, DataTypeMin,
+   * DataTypeMax). The default is Zero.
+   */
+  int ReplacementValueOption;
 
 private:
   vtkGradientFilter(const vtkGradientFilter &) VTK_DELETE_FUNCTION;
