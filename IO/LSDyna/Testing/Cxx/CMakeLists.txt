@@ -4,10 +4,12 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/foam/,REGEX:.*}"
     "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/hemi.draw/,REGEX:.*}"
     "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/bug_14713/,REGEX:.*}"
+    "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/impact/,REGEX:.*}"
     )
 
   vtk_add_test_cxx(${vtk-module}CxxTests tests
     TestLSDynaReader.cxx
+    TestLSDynaReaderDeflection.cxx
     #TestLSDynaReaderNoDefl.cxx
     TestLSDynaReaderSPH.cxx
     )
