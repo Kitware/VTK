@@ -159,16 +159,15 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
   {
     mtime = act->GetMTime();
   }
-  if (act->GetProperty())
+  if (vtkProperty *prop = act->GetProperty())
   {
-    vtkProperty *prop = act->GetProperty();
-    if (act->GetProperty()->GetMTime() > mtime)
+    if (prop->GetMTime() > mtime)
     {
-      mtime = act->GetProperty()->GetMTime();
+      mtime = prop->GetMTime();
     }
-    if (act->GetProperty()->GetInformation()->GetMTime() > mtime)
+    if (prop->GetInformation()->GetMTime() > mtime)
     {
-      mtime = act->GetProperty()->GetInformation()->GetMTime();
+      mtime = prop->GetInformation()->GetMTime();
     }
   }
   vtkDataObject * dobj = NULL;
