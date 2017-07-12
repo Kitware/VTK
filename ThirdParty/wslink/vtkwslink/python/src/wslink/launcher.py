@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-
 import json
 import logging
+import io
 import os
 import string
 import subprocess
@@ -20,7 +19,7 @@ from twisted.web.resource import Resource
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
 
-from vtk.web import upload
+from wslink import upload
 
 try:
     import argparse
@@ -46,7 +45,8 @@ Here is a sample of what a configuration file could look like:
             "timeout" : 25,                           # Wait time in second after process start
             "log_dir" : "/.../viz-logs",              # Directory for log files
             "upload_dir" : "/.../data",               # If launcher should act as upload server, where to put files
-            "fields" : ["file", "host", "port", "updir"]       # List of fields that should be send back to client
+            "fields" : ["file", "host", "port", "updir"]     # List of fields that should be send back to client
+                                                             # include "secret" if you provide it as an --authKey to the app
         },
 
         ## ===============================
@@ -113,7 +113,7 @@ Here is a sample of what a configuration file could look like:
                     "${pvpython}", "-dr", "${pv_python_path}/pv_web_visualizer.py",
                     "--plugins", "${plugins_path}/libPointSprite_Plugin.so", "--port", "${port}",
                     "--data-dir", "${dataDir}", "--load-file", "${dataDir}/${fileToLoad}",
-                    "--authKey", "${secret}", "-f" ],
+                    "--authKey", "${secret}", "-f" ],  # Use of ${secret} means it needs to be provided to the client, in "fields", above.
                 "ready_line" : "Starting factory"
             },
             "loader": {
@@ -144,7 +144,7 @@ Here is a sample of what a configuration file could look like:
 # =============================================================================
 
 def generatePassword():
-    return ''.join(choice(string.letters + string.digits) for _ in range(16))
+    return ''.join(choice(string.ascii_letters + string.digits) for _ in range(16))
 
 # -----------------------------------------------------------------------------
 
@@ -194,6 +194,8 @@ def extractSessionId(request):
        return None
     return str(path[2])
 
+def jsonResponse(payload):
+    return json.dumps(payload, ensure_ascii = False).encode('utf8')
 # =============================================================================
 # Session manager
 # =============================================================================
@@ -261,7 +263,7 @@ class ProxyMappingManagerTXT(ProxyMappingManager):
         self.pattern = pattern
 
     def update(self, sessions):
-        with open(self.file_path, "w") as map_file:
+        with io.open(self.file_path, "w", encoding="utf-8") as map_file:
             for id in sessions:
                 map_file.write(self.pattern % (id, sessions[id]['host'], sessions[id]['port']))
 
@@ -277,7 +279,7 @@ class ResourceManager(object):
         self.resources = {}
         for resource in resourceList:
             host = resource['host']
-            portList = range(resource['port_range'][0],resource['port_range'][1]+1)
+            portList = list(range(resource['port_range'][0],resource['port_range'][1]+1))
             if host in self.resources:
                 self.resources[host]['available'].extend(portList)
             else:
@@ -333,7 +335,7 @@ class ProcessManager(object):
 
         # Create output log file
         logFilePath = self._getLogFilePath(session['id'])
-        with open(logFilePath, "a+", 0) as log_file:
+        with io.open(logFilePath, mode="a+", buffering=1, encoding="utf-8") as log_file:
             try:
                 proc = subprocess.Popen(session['cmd'], stdout=log_file, stderr=log_file)
                 self.processes[session['id']] = proc
@@ -391,7 +393,7 @@ class ProcessManager(object):
 
       # Check the output for ready_line
       logFilePath = self._getLogFilePath(session['id'])
-      with open(logFilePath, "r", 0) as log_file:
+      with io.open(logFilePath, "r", 1, encoding="utf-8") as log_file:
           for line in log_file.readlines():
               if ready_line in line:
                   ready = True
@@ -417,19 +419,24 @@ class LauncherResource(resource.Resource, object):
         return self
 
     def __del__(self):
-        logging.warning("Server factory shutting down. Stopping all processes")
+        try:
+            # causes an exception when server is killed with Ctrl-C
+            logging.warning("Server factory shutting down. Stopping all processes")
+        except:
+            pass
 
     # ========================================================================
     # Handle POST request
     # ========================================================================
 
     def render_POST(self, request):
+        # import pdb; pdb.set_trace()
         payload = json.loads(request.content.getvalue())
 
         # Make sure the request has all the expected keys
         if not validateKeySet(payload, ["application"], "Launch request"):
             request.setResponseCode(http.BAD_REQUEST)
-            return json.dumps({"error": "The request is not complete"})
+            return jsonResponse({"error": "The request is not complete"})
 
         # Try to free any available resource
         id_to_free = self.process_manager.listEndedProcess()
@@ -443,14 +450,14 @@ class LauncherResource(resource.Resource, object):
         # No resource available
         if not session:
             request.setResponseCode(http.SERVICE_UNAVAILABLE)
-            return json.dumps({"error": "All the resources are currently taken"})
+            return jsonResponse({"error": "All the resources are currently taken"})
 
         # Start process
         proc = self.process_manager.startProcess(session)
 
         if not proc:
             request.setResponseCode(http.SERVICE_UNAVAILABLE)
-            return json.dumps({"error": "The process did not properly start. %s" % str(session['cmd'])})
+            return jsonResponse({"error": "The process did not properly start. %s" % str(session['cmd'])})
 
         # local function to act as errback for Deferred objects.
         def errback(error):
@@ -504,10 +511,10 @@ class LauncherResource(resource.Resource, object):
         ready = self.process_manager.isReady(session, 0)
 
         if ready:
-            request.write(json.dumps(filterResponse(session, self.field_filter)))
+            request.write(jsonResponse(filterResponse(session, self.field_filter)))
             request.setResponseCode(http.OK)
         else:
-            request.write(json.dumps({"error": "Session did not start before timeout expired. Check session logs."}))
+            request.write(jsonResponse({"error": "Session did not start before timeout expired. Check session logs."}))
             # Mark the session as timed out and clean up the process
             session['startTimedOut'] = True
             self.session_manager.deleteSession(session['id'])
@@ -525,7 +532,7 @@ class LauncherResource(resource.Resource, object):
         filterkeys = self.field_filter
         if session['secret'] in session['cmd']:
             filterkeys = self.field_filter + [ 'secret' ]
-        request.write(json.dumps(filterResponse(session, filterkeys)))
+        request.write(jsonResponse(filterResponse(session, filterkeys)))
         request.setResponseCode(http.OK)
 
         request.finish()
@@ -541,7 +548,7 @@ class LauncherResource(resource.Resource, object):
            message = "id not provided in GET request"
            logging.error(message)
            request.setResponseCode(http.BAD_REQUEST)
-           return json.dumps({"error":message})
+           return jsonResponse({"error":message})
 
         logging.info("GET request received for id: %s" % id)
 
@@ -550,11 +557,11 @@ class LauncherResource(resource.Resource, object):
            message = "No session with id: %s" % id
            logging.error(message)
            request.setResponseCode(http.NOT_FOUND)
-           return json.dumps({"error":message})
+           return jsonResponse({"error":message})
 
         # Return session meta-data
         request.setResponseCode(http.OK)
-        return json.dumps(filterResponse(session, self.field_filter))
+        return jsonResponse(filterResponse(session, self.field_filter))
 
     # =========================================================================
     # Handle DELETE request
@@ -567,7 +574,7 @@ class LauncherResource(resource.Resource, object):
            message = "id not provided in DELETE request"
            logging.error(message)
            request.setResponseCode(http.BAD_REQUEST)
-           return json.dumps({"error":message})
+           return jsonResponse({"error":message})
 
         logging.info("DELETE request received for id: %s" % id)
 
@@ -576,7 +583,7 @@ class LauncherResource(resource.Resource, object):
            message = "No session with id: %s" % id
            logging.error(message)
            request.setResponseCode(http.NOT_FOUND)
-           return json.dumps({"error":message})
+           return jsonResponse({"error":message})
 
         # Remove session
         self.session_manager.deleteSession(id)
@@ -593,10 +600,12 @@ class LauncherResource(resource.Resource, object):
 # =============================================================================
 
 def startWebServer(options, config):
+    # import pdb; pdb.set_trace()
     # Extract properties from config
     log_dir  = str(config["configuration"]["log_dir"])
     content  = str(config["configuration"]["content"])
-    endpoint = str(config["configuration"]["endpoint"])
+    # twisted expects byte for uris.
+    endpoint = str(config["configuration"]["endpoint"]).encode('utf-8')
     host     = str(config["configuration"]["host"])
     port     = int(config["configuration"]["port"])
 
@@ -637,7 +646,7 @@ def startWebServer(options, config):
 def parseConfig(options):
     # Read values from the configuration file
     try:
-        config = json.loads(open(options.config[0]).read())
+        config = json.loads(io.open(options.config[0], encoding="utf-8").read())
     except:
         message = "ERROR: Unable to read config file.\n"
         message += str(sys.exc_info()[1]) + "\n" + str(sys.exc_info()[2])
@@ -680,7 +689,7 @@ def add_arguments(parser):
 # =============================================================================
 
 def start(argv=None,
-         description="VTKWeb Launcher"):
+         description="wslink Web Launcher"):
     parser = argparse.ArgumentParser(description=description)
     add_arguments(parser)
     args = parser.parse_args(argv)

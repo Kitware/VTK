@@ -1,10 +1,7 @@
-r"""server is a module that enables using VTK through a web-server. This
-module implments a Wamp v2 Server Protocol that provides the core RPC-API needed to
-place interactive visualization in web-pages. Developers can extent
-ServerProtocol to provide additional RPC callbacks for their web-applications.
+r"""server is a module that enables using python through a web-server.
 
 This module can be used as the entry point to the application. In that case, it
-sets up a Twisted web-server that can generate visualizations as well as serve
+sets up a Twisted web-server.
 web-pages are determines by the command line arguments passed in.
 Use "--help" to list the supported arguments.
 
@@ -12,17 +9,14 @@ Use "--help" to list the supported arguments.
 
 from __future__ import absolute_import, division, print_function
 
-import sys, logging
+import logging
 
-from vtk.web import testing
-from vtk.web import upload
-from vtk.web import wamp as vtk_wamp
-
-from autobahn.wamp              import types
+# from vtk.web import testing
+from wslink import upload
+from wslink import websocket as wsl
 
 from autobahn.twisted.resource  import WebSocketResource
 from autobahn.twisted.websocket import listenWS, WebSocketServerFactory
-from autobahn.twisted.longpoll  import WampLongPollResource
 
 from twisted.web                import resource
 from twisted.web.resource       import Resource
@@ -43,7 +37,7 @@ from twisted.python             import log
 
 def add_arguments(parser):
     """
-    Add arguments processed know to this module. parser must be
+    Add arguments known to this module. parser must be
     argparse.ArgumentParser instance.
     """
     import os
@@ -61,7 +55,7 @@ def add_arguments(parser):
         help="timeout for reaping process on idle in seconds (default: 300s)")
     parser.add_argument("-c", "--content", default='',
         help="root for web-pages to serve (default: none)")
-    parser.add_argument("-a", "--authKey", default='vtkweb-secret',
+    parser.add_argument("-a", "--authKey", default='wslink-secret',
         help="Authentication key for clients to connect to the WebSocket.")
     parser.add_argument("-f", "--force-flush", default=False, help="If provided, this option will force additional padding content to the output.  Useful when application is triggered by a session manager.", dest="forceFlush", action='store_true')
     parser.add_argument("-k", "--sslKey", type=str, default="",
@@ -70,21 +64,13 @@ def add_arguments(parser):
         help="SSL certificate.  Use this and --sslKey to start the server on https.")
     parser.add_argument("-ws", "--ws-endpoint", type=str, default="ws", dest='ws',
         help="Specify WebSocket endpoint. (e.g. foo/bar/ws, Default: ws)")
-    parser.add_argument("-lp", "--lp-endpoint", type=str, default="lp", dest='lp',
-        help="Specify LongPoll endpoint. (e.g. foo/bar/lp, Default: lp)")
-    parser.add_argument("-hp", "--http-endpoint", default='hp', dest='hp',
-        help="Specify an HTTP endpoint.  (e.g. foo/bar/hp, Default: hp)")
     parser.add_argument("--no-ws-endpoint", action="store_true", dest='nows',
         help="If provided, disables the websocket endpoint")
-    parser.add_argument("--no-bws-endpoint", action="store_true", dest='nobws',
-        help="If provided, disables the binary websocket endpoint for pushing images")
-    parser.add_argument("--no-lp-endpoint", action="store_true", dest='nolp',
-        help="If provided, disables the longpoll endpoint")
     parser.add_argument("--fs-endpoints", default='', dest='fsEndpoints',
         help="add another fs location to a specific endpoint (i.e: data=/Users/seb/Download|images=/Users/seb/Pictures)")
 
     # Hook to extract any testing arguments we need
-    testing.add_arguments(parser)
+    # testing.add_arguments(parser)
 
     # Extract any necessary upload server arguments
     upload.add_arguments(parser)
@@ -96,11 +82,11 @@ def add_arguments(parser):
 # =============================================================================
 
 def start(argv=None,
-        protocol=vtk_wamp.ServerProtocol,
-        description="VTK/Web web-server based on Twisted."):
+        protocol=wsl.ServerProtocol,
+        description="wslink web-server based on Twisted."):
     """
     Sets up the web-server using with __name__ == '__main__'. This can also be
-    called directly. Pass the opational protocol to override the protocol used.
+    called directly. Pass the optional protocol to override the protocol used.
     Default is ServerProtocol.
     """
     try:
@@ -113,6 +99,12 @@ def start(argv=None,
     parser = argparse.ArgumentParser(description=description)
     add_arguments(parser)
     args = parser.parse_args(argv)
+    # configure protocol, if available
+    try:
+        protocol.configure(args)
+    except AttributeError:
+        pass
+
     start_webserver(options=args, protocol=protocol)
 
 
@@ -142,7 +134,7 @@ def handle_complex_resource_path(path, root, resource):
 # Start webserver
 # =============================================================================
 
-def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=False):
+def start_webserver(options, protocol=wsl.ServerProtocol, disableLogging=False):
     """
     Starts the web-server with the given protocol. Options must be an object
     with the following members:
@@ -157,7 +149,12 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
     import sys
 
     if not disableLogging:
-        log.startLogging(sys.stdout)
+        # redirect twisted logs to python standard logging.
+        observer = log.PythonLoggingObserver()
+        observer.start()
+        # log.startLogging(sys.stdout)
+        # Set logging level.
+        if (options.debug): logging.basicConfig(level=logging.DEBUG)
 
     contextFactory = None
 
@@ -170,30 +167,15 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
     else:
       wsProtocol = "ws"
 
-    # Create WAMP router factory
-    from autobahn.twisted.wamp import RouterFactory
-    router_factory = RouterFactory()
+    # Create default or custom ServerProtocol
+    wslinkServer = protocol()
 
-    # create a user DB
-    authdb = vtk_wamp.AuthDb()
-
-    # create a WAMP router session factory
-    from autobahn.twisted.wamp import RouterSessionFactory
-    session_factory = RouterSessionFactory(router_factory)
-    session_factory.session = vtk_wamp.CustomWampCraRouterSession
-    session_factory.authdb = authdb
-
-    # Create ApplicationSession and register protocols
-    appSession = protocol(types.ComponentConfig(realm = "vtkweb"))
-    appSession.setAuthDB(authdb)
-    session_factory.add(appSession)
-
-    # create a WAMP-over-WebSocket transport server factory
-    transport_factory = vtk_wamp.TimeoutWampWebSocketServerFactory(session_factory, \
+    # create a wslink-over-WebSocket transport server factory
+    transport_factory = wsl.TimeoutWebSocketServerFactory(\
            url        = "%s://%s:%d" % (wsProtocol, options.host, options.port),    \
-           debug      = options.debug,                                              \
-           debug_wamp = options.debug,                                              \
            timeout    = options.timeout )
+    transport_factory.protocol = wsl.WslinkWebSocketServerProtocol
+    transport_factory.setServerProtocol(wslinkServer)
 
     root = Resource()
 
@@ -207,29 +189,8 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
         wsResource = WebSocketResource(transport_factory)
         handle_complex_resource_path(options.ws, root, wsResource)
 
-    # Handle binary push WebSocket for images
-    if not options.nobws:
-        wsbFactory = WebSocketServerFactory( \
-            url   = "%s://%s:%d" % (wsProtocol, options.host, options.port), \
-            debug = options.debug)
-        wsbFactory.protocol = vtk_wamp.ImagePushBinaryWebSocketServerProtocol
-        wsbResource = WebSocketResource(wsbFactory)
-        handle_complex_resource_path('wsb', root, wsbResource)
-
-    # Handle possibly complex lp endpoint
-    if not options.nolp:
-        lpResource = WampLongPollResource(session_factory,
-                                          timeout=options.timeout,
-                                          debug=options.debug)
-                                          #killAfter = 30000,
-                                          #queueLimitBytes = 1024 * 1024,
-                                          #queueLimitMessages = 1000,
-                                          #debug=True,
-                                          #reactor=reactor)
-        handle_complex_resource_path(options.lp, root, lpResource)
-
     if options.uploadPath != None :
-        from vtk.web.upload import UploadPage
+        from wslink.upload import UploadPage
         uploadResource = UploadPage(options.uploadPath)
         root.putChild("upload", uploadResource)
 
@@ -257,7 +218,7 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
             log.msg("+"*80, logLevel=logging.CRITICAL)
 
     # Initialize testing: checks if we're doing a test and sets it up
-    testing.initialize(options, reactor, stop_webserver)
+    # testing.initialize(options, reactor, stop_webserver)
 
     # Start the reactor
     if options.nosignalhandlers:
@@ -266,37 +227,8 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
         reactor.run()
 
     # Give the testing module a chance to finalize, if necessary
-    testing.finalize()
+    # testing.finalize()
 
-
-# =============================================================================
-# Start httpserver
-# =============================================================================
-
-def start_httpserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=False):
-    """
-    Starts an http-only server with the given protocol.  The options argument should
-    contain 'host', 'port', 'urlRegex', and optionally 'content'.
-    """
-    from twisted.web import server, http
-    from twisted.internet import reactor
-    from twisted.web.static import File
-
-    host = options.host
-    port = options.port
-    contentDir = options.content
-    rootPath = options.hp
-
-    # Initialize web resource
-    web_resource = File(contentDir) if contentDir else resource.Resource()
-
-    # Add the rpc method server
-    handle_complex_resource_path(rootPath, web_resource, vtk_wamp.HttpRpcResource(protocol(None), rootPath))
-
-    site = server.Site(web_resource)
-    reactor.listenTCP(port, site, interface=host)
-
-    reactor.run()
 
 if __name__ == "__main__":
     start()

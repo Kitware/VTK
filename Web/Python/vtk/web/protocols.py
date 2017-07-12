@@ -5,12 +5,16 @@ very specific web application.
 
 from __future__ import absolute_import, division, print_function
 
-from time import time
-import os, sys, logging, types, inspect, traceback, logging, re
+import os, sys, logging, types, inspect, traceback, re, base64, time
 
 from vtk.vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
 
-from autobahn.wamp import register as exportRpc
+# import Twisted reactor for later callback
+from twisted.internet import reactor
+
+# from autobahn.wamp import register as exportRpc
+from wslink import register as exportRpc
+from wslink.websocket import LinkProtocol
 
 # =============================================================================
 #
@@ -18,13 +22,14 @@ from autobahn.wamp import register as exportRpc
 #
 # =============================================================================
 
-class vtkWebProtocol(object):
-
-    def setApplication(self, app):
-        self.Application = app
+class vtkWebProtocol(LinkProtocol):
 
     def getApplication(self):
-        return self.Application
+        return self.getSharedObject("app")
+
+    # no need for a setApplication anymore, but keep for compatibility
+    def setApplication(self, app):
+        pass
 
     def mapIdToObject(self, id):
         """
@@ -34,13 +39,13 @@ class vtkWebProtocol(object):
         id = int(id)
         if id <= 0:
             return None
-        return self.Application.GetObjectIdMap().GetVTKObject(id)
+        return self.getApplication().GetObjectIdMap().GetVTKObject(id)
 
     def getGlobalId(self, obj):
         """
         Return the id for a given vtkObject
         """
-        return self.Application.GetObjectIdMap().GetGlobalId(obj)
+        return self.getApplication().GetObjectIdMap().GetGlobalId(obj)
 
     def getView(self, vid):
         """
@@ -53,7 +58,7 @@ class vtkWebProtocol(object):
 
         if not view:
             # Use active view is none provided.
-            view = self.Application.GetObjectIdMap().GetActiveObject("VIEW")
+            view = self.getApplication().GetObjectIdMap().GetActiveObject("VIEW")
         if not view:
             raise Exception("no view provided: " + vid)
 
@@ -63,7 +68,7 @@ class vtkWebProtocol(object):
         """
         Set a vtkRenderWindow to be the active one
         """
-        self.Application.GetObjectIdMap().SetActiveObject("VIEW", view)
+        self.getApplication().GetObjectIdMap().SetActiveObject("VIEW", view)
 
 # =============================================================================
 #
@@ -196,9 +201,10 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
         """
         RPC Callback to render a view and obtain the rendered image.
         """
-        beginTime = int(round(time() * 1000))
+        beginTime = int(round(time.time() * 1000))
         view = self.getView(options["view"])
         size = [view.GetSize()[0], view.GetSize()[1]]
+        # use existing size, overridden only if options["size"] is set.
         resize = size != options.get("size", size)
         if resize:
             size = options["size"]
@@ -218,7 +224,7 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
         if t == 0:
             app.InvalidateCache(view)
         reply["image"] = app.StillRenderToString(view, t, quality)
-        # Check that we are getting image size we have set if not wait until we
+        # Check that we are getting image size we have set. If not, wait until we
         # do. The render call will set the actual window size.
         tries = 10;
         while resize and list(view.GetSize()) != size \
@@ -234,11 +240,200 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
         reply["global_id"] = str(self.getGlobalId(view))
         reply["localTime"] = localTime
 
-        endTime = int(round(time() * 1000))
+        endTime = int(round(time.time() * 1000))
         reply["workTime"] = (endTime - beginTime)
 
         return reply
 
+# =============================================================================
+#
+# Provide publish-based Image delivery mechanism
+#
+# =============================================================================
+
+class vtkWebPublishImageDelivery(vtkWebProtocol):
+    def __init__(self):
+        super(vtkWebPublishImageDelivery, self).__init__()
+        # self.context = SynchronizationContext()
+        self.trackingViews = {}
+        self.lastStaleTime = 0
+        self.staleHandlerCount = 0
+        self.deltaStaleTimeBeforeRender = 0.5 # 0.5s
+
+    @exportRpc("viewport.image.push")
+    def stillRender(self, options):
+        """
+        RPC Callback to render a view and obtain the rendered image.
+        """
+        beginTime = int(round(time.time() * 1000))
+        view = self.getView(options["view"])
+        size = [view.GetSize()[0], view.GetSize()[1]]
+        # use existing size, overridden only if options["size"] is set.
+        resize = size != options.get("size", size)
+        if resize:
+            size = options["size"]
+            if size[0] > 0 and size[1] > 0:
+              view.SetSize(size)
+        t = 0
+        if options and "mtime" in options:
+            t = options["mtime"]
+        quality = 100
+        if options and "quality" in options:
+            quality = options["quality"]
+        localTime = 0
+        if options and "localTime" in options:
+            localTime = options["localTime"]
+        reply = {}
+        app = self.getApplication()
+        if t == 0:
+            app.InvalidateCache(view)
+        reply["image"] = app.StillRenderToString(view, t, quality)
+        # Check that we are getting image size we have set. If not, wait until we
+        # do. The render call will set the actual window size.
+        tries = 10;
+        while resize and list(view.GetSize()) != size \
+              and size != [0, 0] and tries > 0:
+            app.InvalidateCache(view)
+            reply["image"] = app.StillRenderToString(view, t, quality)
+            tries -= 1
+
+        reply["stale"] = app.GetHasImagesBeingProcessed(view)
+        reply["mtime"] = app.GetLastStillRenderToStringMTime()
+        reply["size"] = [view.GetSize()[0], view.GetSize()[1]]
+        reply["format"] = "jpeg;base64"
+        reply["global_id"] = str(self.getGlobalId(view))
+        reply["localTime"] = localTime
+
+        endTime = int(round(time.time() * 1000))
+        reply["workTime"] = (endTime - beginTime)
+
+        return reply
+
+    @exportRpc("viewport.image.push.observer.add")
+    def addRenderObserver(self, viewId):
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+
+        realViewId = sView.GetGlobalIDAsString()
+
+        # Use default arg to capture value of realViewId
+        def pushRender(vId = realViewId):
+            if not self.trackingViews[vId]["enabled"]:
+                return
+
+            reply = self.stillRender({ "view": realViewId, "mtime": self.trackingViews[vId]["mtime"] })
+            stale = reply["stale"]
+            # TODO inefficient encode and immediate decode. Maybe we can get a binary buffer directly?
+            if reply["image"]:
+                reply["image"] = self.addAttachment(base64.standard_b64decode(reply["image"]));
+                reply["format"] = "jpeg"
+                # save mtime for next call.
+                self.trackingViews[vId]["mtime"] = reply["mtime"]
+                # echo back real ID, instead of -1 for 'active'
+                reply["id"] = vId
+                self.publish('viewport.image.push.subscription', reply)
+            if stale:
+                self.lastStaleTime = time.time()
+                if self.staleHandlerCount == 0:
+                    self.staleHandlerCount += 1
+                    reactor.callLater(self.deltaStaleTimeBeforeRender, lambda: renderStaleImage())
+            else:
+                self.lastStaleTime = 0
+
+        def renderStaleImage():
+            self.staleHandlerCount -= 1
+
+            if self.lastStaleTime != 0:
+                delta = (time.time() - self.lastStaleTime)
+                if delta >= self.deltaStaleTimeBeforeRender:
+                    pushRender()
+                else:
+                    self.staleHandlerCount += 1
+                    reactor.callLater(self.deltaStaleTimeBeforeRender - delta + 0.001, lambda: renderStaleImage())
+
+        if not realViewId in self.trackingViews:
+            observerCallback = lambda *args, **kwargs: pushRender()
+            tag = self.getApplication().AddObserver('PushRender', observerCallback)
+            # TODO do we need self.getApplication().AddObserver('ResetActiveView', resetActiveView())
+            self.trackingViews[realViewId] = { 'tag': tag, 'observerCount': 1, 'mtime': 0, 'enabled': True, 'quality': 100 }
+        else:
+            # There is an observer on this view already
+            self.trackingViews[realViewId]['observerCount'] += 1
+
+        self.publish('viewport.image.push.subscription', pushRender())
+        return { 'success': True, 'viewId': realViewId }
+
+    @exportRpc("viewport.image.push.observer.remove")
+    def removeRenderObserver(self, viewId):
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+
+        realViewId = sView.GetGlobalIDAsString()
+
+        observerInfo = None
+        if realViewId in self.trackingViews:
+            observerInfo = self.trackingViews[realViewId]
+
+        if not observerInfo:
+            return { 'error': 'Unable to find subscription for view %s' % realViewId }
+
+        observerInfo['observerCount'] -= 1
+
+        if observerInfo['observerCount'] <= 0:
+            self.getApplication().RemoveObserver(observerInfo['tag'])
+            del self.trackingViews[realViewId]
+
+        return { 'result': 'success' }
+
+    @exportRpc("viewport.image.push.quality")
+    def setViewQuality(self, viewId, quality):
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+
+        realViewId = sView.GetGlobalIDAsString()
+        observerInfo = None
+        if realViewId in self.trackingViews:
+            observerInfo = self.trackingViews[realViewId]
+
+        if not observerInfo:
+            return { 'error': 'Unable to find subscription for view %s' % realViewId }
+
+        observerInfo['quality'] = quality
+
+        return { 'result': 'success' }
+
+    @exportRpc("viewport.image.push.enabled")
+    def enableView(self, viewId, enabled):
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+
+        realViewId = sView.GetGlobalIDAsString()
+        observerInfo = None
+        if realViewId in self.trackingViews:
+            observerInfo = self.trackingViews[realViewId]
+
+        if not observerInfo:
+            return { 'error': 'Unable to find subscription for view %s' % realViewId }
+
+        observerInfo['enabled'] = enabled
+
+        return { 'result': 'success' }
+
+    @exportRpc("viewport.image.push.invalidate.cache")
+    def invalidateCache(self, viewId):
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+        if hasattr(sView,'SMProxy'):
+            sView = sView.SMProxy
+
+        self.getApplication().InvalidateCache(sView)
+        self.getApplication().InvokeEvent('PushRender')
+        return { 'result': 'success' }
 
 # =============================================================================
 #
