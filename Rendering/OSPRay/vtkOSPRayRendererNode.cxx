@@ -194,6 +194,20 @@ public:
   vtkOSPRayRendererNodeInternals(vtkOSPRayRendererNode *_owner)
     : Owner(_owner)
   {
+    //grumble!
+    //vs2013 error C2536:...: cannot specify explicit initializer for arrays
+    this->lbgcolor1[0] = 0.;
+    this->lbgcolor1[1] = 0.;
+    this->lbgcolor1[2] = 0.;
+    this->lbgcolor2[0] = 0.;
+    this->lbgcolor2[1] = 0.;
+    this->lbgcolor2[2] = 0.;
+    this->lup[0] = 1.;
+    this->lup[1] = 0.;
+    this->lup[2] = 0.;
+    this->least[0] = 0.;
+    this->least[1] = 1.;
+    this->least[2] = 0.;
   };
 
   ~vtkOSPRayRendererNodeInternals() {};
@@ -230,9 +244,9 @@ public:
       }
     }
     bool usebgtexture = ren->GetTexturedBackground();
-    if (lusebgtexture != usebgtexture)
+    if (this->lusebgtexture != usebgtexture)
     {
-      lusebgtexture = usebgtexture;
+      this->lusebgtexture = usebgtexture;
       retval = false;
     }
     vtkTexture *bgtexture = ren->GetBackgroundTexture();
@@ -255,19 +269,19 @@ public:
     }
     double *nbgcolor1 = ren->GetBackground();
     double *nbgcolor2 = ren->GetBackground2();
-    if (lbgcolor1[0] != nbgcolor1[0] ||
-        lbgcolor1[1] != nbgcolor1[1] ||
-        lbgcolor1[2] != nbgcolor1[2] ||
-        lbgcolor2[0] != nbgcolor2[0] ||
-        lbgcolor2[1] != nbgcolor2[1] ||
-        lbgcolor2[2] != nbgcolor2[2])
+    if (this->lbgcolor1[0] != nbgcolor1[0] ||
+        this->lbgcolor1[1] != nbgcolor1[1] ||
+        this->lbgcolor1[2] != nbgcolor1[2] ||
+        this->lbgcolor2[0] != nbgcolor2[0] ||
+        this->lbgcolor2[1] != nbgcolor2[1] ||
+        this->lbgcolor2[2] != nbgcolor2[2])
     {
-      lbgcolor1[0] = nbgcolor1[0];
-      lbgcolor1[1] = nbgcolor1[1];
-      lbgcolor1[2] = nbgcolor1[2];
-      lbgcolor2[0] = nbgcolor2[0];
-      lbgcolor2[1] = nbgcolor2[1];
-      lbgcolor2[2] = nbgcolor2[2];
+      this->lbgcolor1[0] = nbgcolor1[0];
+      this->lbgcolor1[1] = nbgcolor1[1];
+      this->lbgcolor1[2] = nbgcolor1[2];
+      this->lbgcolor2[0] = nbgcolor2[0];
+      this->lbgcolor2[1] = nbgcolor2[1];
+      this->lbgcolor2[2] = nbgcolor2[2];
       retval = false;
     }
     return retval;
@@ -384,10 +398,10 @@ public:
   vtkWeakPointer<vtkTexture> lbgtexture = nullptr;
   vtkMTimeType lbgttime = 0;
   bool lusegradient = false;
-  double lbgcolor1[3] = {0.,0.,0.};
-  double lbgcolor2[3] = {0.,0.,0.};
-  double lup[3] = {1.,0.,0.};
-  double least[3] = {0.,1.,0.};
+  double lbgcolor1[3]; //not initializing here bc visstudio2013
+  double lbgcolor2[3];
+  double lup[3];
+  double least[3];
 
   OSPLight BGLight;
 };

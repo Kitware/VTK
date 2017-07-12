@@ -41,7 +41,7 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
-int TestPathTracerLuminous(int argc, char* argv[])
+int TestPathTracerLuminous(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();

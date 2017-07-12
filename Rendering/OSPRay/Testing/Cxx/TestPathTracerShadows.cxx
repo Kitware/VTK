@@ -38,7 +38,7 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
-int TestPathTracerShadows(int argc, char* argv[])
+int TestPathTracerShadows(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -92,7 +92,6 @@ int TestPathTracerShadows(int argc, char* argv[])
   renderer->SetPass(ospray);
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
 
-  double radius;
   for (double i = 0.; i < 2.0; i+=0.25)
   {
     vtkOSPRayLightNode::SetRadius(i, l);
