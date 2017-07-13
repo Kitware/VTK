@@ -49,7 +49,8 @@ mark_as_advanced (NETCDF_INCLUDE_DIR)
 set (NETCDF_C_INCLUDE_DIRS ${NETCDF_INCLUDE_DIR})
 
 find_library (NETCDF_LIBRARY NAMES netcdf
-  PATHS "${NETCDF_DIR}/lib")
+  PATHS "${NETCDF_DIR}/lib"
+  HINTS "${NETCDF_INCLUDE_DIR}/../lib")
 mark_as_advanced (NETCDF_LIBRARY)
 
 set (NETCDF_C_LIBRARIES ${NETCDF_LIBRARY})
