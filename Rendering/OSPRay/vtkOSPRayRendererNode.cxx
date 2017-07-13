@@ -926,7 +926,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       //check for stereo and disable so don't get left in right
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
-      if (rwin && rwin->GetStereoType() != 0)
+      if (rwin && rwin->GetStereoRender())
         {
         canReuse = false;
         }
