@@ -149,7 +149,7 @@ max = rf.GetOutput().GetPointData().GetArray(scalar).GetRange()[1]
 calc = vtk.vtkArrayCalculator()
 calc.SetInputConnection(rf.GetOutputPort())
 # Working on point data
-calc.SetAttributeModeToUsePointData()
+calc.SetAttributeTypeToPointData()
 # Map scalar to s. When setting function, we can use s to
 # represent the array scalar (TIME_LATE)
 calc.AddScalarVariable("s", scalar, 0)

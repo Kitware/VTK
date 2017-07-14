@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkArrayCalculator);
@@ -42,7 +43,7 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->VectorVariableNames = NULL;
   this->NumberOfScalarArrays = 0;
   this->NumberOfVectorArrays = 0;
-  this->AttributeMode = VTK_ATTRIBUTE_MODE_DEFAULT;
+  this->AttributeType = DEFAULT_ATTRIBUTE_TYPE;
   this->SelectedScalarComponents = NULL;
   this->SelectedVectorComponents = NULL;
   this->CoordinateScalarVariableNames = NULL;
@@ -168,6 +169,14 @@ vtkArrayCalculator::~vtkArrayCalculator()
   }
 }
 
+int vtkArrayCalculator::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
+  return 1;
+}
+
 void vtkArrayCalculator::SetResultArrayName(const char* name)
 {
   if (name == NULL || *name == '\0')
@@ -184,20 +193,6 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
   delete [] this->ResultArrayName;
   this->ResultArrayName = new char [strlen(name)+1];
   strcpy(this->ResultArrayName, name);
-}
-
-void CopyDataSetOrGraph(vtkDataSet* dsInput, vtkDataSet* dsOutput,
-                        vtkGraph* graphInput, vtkGraph* graphOutput)
-{
-  if (dsInput)
-  {
-    dsOutput->CopyStructure(dsInput);
-    dsOutput->CopyAttributes(dsInput);
-  }
-  else
-  {
-    graphOutput->ShallowCopy(graphInput);
-  }
 }
 
 int vtkArrayCalculator::RequestData(
@@ -217,11 +212,6 @@ int vtkArrayCalculator::RequestData(
     SCALAR_RESULT,
     VECTOR_RESULT
   } resultType = SCALAR_RESULT;
-  enum DataType
-  {
-    POINT_DATA,
-    CELL_DATA
-  } attributeDataType = POINT_DATA;
   vtkIdType i;
   int j;
 
@@ -237,47 +227,28 @@ int vtkArrayCalculator::RequestData(
   this->FunctionParser->SetReplacementValue(this->ReplacementValue);
 
   vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);
-  vtkDataSet *dsOutput = vtkDataSet::SafeDownCast(output);
   vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
-  vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
-  vtkPointSet* psInput = vtkPointSet::SafeDownCast(input);
   vtkPointSet* psOutput = vtkPointSet::SafeDownCast(output);
-  if (dsInput)
+  int attribute = this->AttributeType;
+  if (attribute == DEFAULT_ATTRIBUTE_TYPE)
   {
-    if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT ||
-        this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA)
+    if (dsInput)
     {
-      inFD = dsInput->GetPointData();
-      outFD = dsOutput->GetPointData();
-      attributeDataType = POINT_DATA;
-      numTuples = dsInput->GetNumberOfPoints();
+      attribute = vtkDataObject::POINT;
+    }
+    else if (graphInput)
+    {
+      attribute = vtkDataObject::VERTEX;
     }
     else
     {
-      inFD = dsInput->GetCellData();
-      outFD = dsOutput->GetCellData();
-      attributeDataType = CELL_DATA;
-      numTuples = dsInput->GetNumberOfCells();
+      attribute = vtkDataObject::ROW;
     }
   }
-  else if (graphInput)
-  {
-    if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT ||
-        this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA)
-    {
-      inFD = graphInput->GetVertexData();
-      outFD = graphOutput->GetVertexData();
-      attributeDataType = POINT_DATA;
-      numTuples = graphInput->GetNumberOfVertices();
-    }
-    else
-    {
-      inFD = graphInput->GetEdgeData();
-      outFD = graphOutput->GetEdgeData();
-      attributeDataType = CELL_DATA;
-      numTuples = graphInput->GetNumberOfEdges();
-    }
-  }
+
+  inFD = input->GetAttributes(attribute);
+  outFD = output->GetAttributes(attribute);
+  numTuples = input->GetNumberOfElements(attribute);
 
   if (numTuples < 1)
   {
@@ -346,7 +317,7 @@ int vtkArrayCalculator::RequestData(
     }
   }
 
-  if(attributeDataType == POINT_DATA)
+  if(attribute == vtkDataObject::POINT || attribute == vtkDataObject::VERTEX)
   {
     for (i = 0; i < this->NumberOfCoordinateScalarArrays; i++)
     {
@@ -387,7 +358,7 @@ int vtkArrayCalculator::RequestData(
 
   if ( !this->Function || strlen(this->Function) == 0)
   {
-    CopyDataSetOrGraph(dsInput, dsOutput, graphInput, graphOutput);
+    output->ShallowCopy(input);
     return 1;
   }
   else if (this->FunctionParser->IsScalarResult())
@@ -400,7 +371,7 @@ int vtkArrayCalculator::RequestData(
   }
   else
   {
-    CopyDataSetOrGraph(dsInput, dsOutput, graphInput, graphOutput);
+    output->ShallowCopy(input);
     // Error occurred in vtkFunctionParser.
     vtkWarningMacro("An error occurred when parsing the calculator's function.  See previous errors.");
     return 1;
@@ -412,7 +383,7 @@ int vtkArrayCalculator::RequestData(
   }
 
   if(resultType == VECTOR_RESULT &&
-     CoordinateResults != 0 && (psOutput || graphOutput))
+     CoordinateResults != 0 && (psOutput || vtkGraph::SafeDownCast(output)))
   {
     resultPoints = vtkPoints::New();
     resultPoints->SetNumberOfPoints(numTuples);
@@ -493,7 +464,7 @@ int vtkArrayCalculator::RequestData(
             currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
       }
     }
-    if(attributeDataType == POINT_DATA)
+    if(attribute == vtkDataObject::POINT || attribute == vtkDataObject::VERTEX)
     {
       double* pt = 0;
       if (dsInput)
@@ -531,12 +502,12 @@ int vtkArrayCalculator::RequestData(
     }
   }
 
-  CopyDataSetOrGraph (dsInput, dsOutput, graphInput, graphOutput);
+  output->ShallowCopy(input);
   if(resultPoints)
   {
-    if(psInput)
+    if(psOutput)
     {
-      if(attributeDataType == CELL_DATA)
+      if(attribute == vtkDataObject::CELL)
       {
         vtkPolyData* pd = vtkPolyData::SafeDownCast(psOutput);
         vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(psOutput);
@@ -604,6 +575,54 @@ int vtkArrayCalculator::RequestData(
   }
   return 1;
 }
+
+#ifndef VTK_LEGACY_REMOVE
+void vtkArrayCalculator::SetAttributeMode(int mode)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::SetAttributeMode, "VTK 8.1",
+    vtkArrayCalculator::SetAttributeType);
+  switch (mode)
+  {
+    default:
+    case VTK_ATTRIBUTE_MODE_DEFAULT:
+      this->SetAttributeType(DEFAULT_ATTRIBUTE_TYPE);
+      break;
+    case VTK_ATTRIBUTE_MODE_USE_POINT_DATA:
+      this->SetAttributeType(vtkDataObject::POINT);
+      break;
+    case VTK_ATTRIBUTE_MODE_USE_CELL_DATA:
+      this->SetAttributeType(vtkDataObject::CELL);
+      break;
+    case VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA:
+      this->SetAttributeType(vtkDataObject::VERTEX);
+      break;
+    case VTK_ATTRIBUTE_MODE_USE_EDGE_DATA:
+      this->SetAttributeType(vtkDataObject::EDGE);
+      break;
+  }
+}
+
+int vtkArrayCalculator::GetAttributeMode()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::GetAttributeMode, "VTK 8.1",
+    vtkArrayCalculator::GetAttributeType);
+  switch (this->AttributeType)
+  {
+    default:
+    case vtkDataObject::ROW: // old version didn't handle row data, just return default
+    case DEFAULT_ATTRIBUTE_TYPE:
+      return VTK_ATTRIBUTE_MODE_DEFAULT;
+    case vtkDataObject::POINT:
+      return VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
+    case vtkDataObject::CELL:
+      return VTK_ATTRIBUTE_MODE_USE_CELL_DATA;
+    case vtkDataObject::VERTEX:
+      return VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA;
+    case vtkDataObject::EDGE:
+      return VTK_ATTRIBUTE_MODE_USE_EDGE_DATA;
+  }
+}
+#endif
 
 void vtkArrayCalculator::SetFunction(const char* function)
 {
@@ -1016,27 +1035,52 @@ void vtkArrayCalculator::AddCoordinateVectorVariable(const char* variableName,
   this->NumberOfCoordinateVectorArrays++;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 const char* vtkArrayCalculator::GetAttributeModeAsString()
 {
-  if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
+  VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::GetAttributeModeAsString, "VTK 8.1",
+    vtkArrayCalculator::GetAttributeTypeAsString);
+  int attributeMode = this->GetAttributeMode();
+  if ( attributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
   {
     return "Default";
   }
-  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
+  else if ( attributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
   {
     return "UsePointData";
   }
-  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_CELL_DATA )
+  else if ( attributeMode == VTK_ATTRIBUTE_MODE_USE_CELL_DATA )
   {
     return "UseCellData";
   }
-  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA )
+  else if ( attributeMode == VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA )
   {
     return "UseVertexData";
   }
   else
   {
     return "UseEdgeData";
+  }
+}
+#endif
+
+const char* vtkArrayCalculator::GetAttributeTypeAsString()
+{
+  switch (this->AttributeType)
+  {
+    default:
+    case DEFAULT_ATTRIBUTE_TYPE:
+      return "Default";
+    case vtkDataObject::POINT:
+      return "UsePointData";
+    case vtkDataObject::CELL:
+      return "UseCellData";
+    case vtkDataObject::VERTEX:
+      return "UseVertexData";
+    case vtkDataObject::EDGE:
+      return "UseEdgeData";
+    case vtkDataObject::ROW:
+      return "UseRowData";
   }
 }
 
@@ -1198,6 +1242,11 @@ int* vtkArrayCalculator::GetSelectedVectorComponents(int i)
   return NULL;
 }
 
+vtkDataSet* vtkArrayCalculator::GetDataSetOutput()
+{
+  return vtkDataSet::SafeDownCast(this->GetOutput());
+}
+
 void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1210,7 +1259,7 @@ void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Result Array Type: " << vtkImageScalarTypeNameMacro(this->ResultArrayType) << endl;
 
   os << indent << "Coordinate Results: " << this->CoordinateResults << endl;
-  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
+  os << indent << "Attribute Type: " << this->GetAttributeTypeAsString() << endl;
   os << indent << "Number Of Scalar Arrays: " << this->NumberOfScalarArrays
      << endl;
   os << indent << "Number Of Vector Arrays: " << this->NumberOfVectorArrays

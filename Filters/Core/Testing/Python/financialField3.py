@@ -154,7 +154,7 @@ class financialField3(vtk.test.Testing.vtkTest):
 
         calc = vtk.vtkArrayCalculator()
         calc.SetInputConnection(rf.GetOutputPort())
-        calc.SetAttributeModeToUsePointData()
+        calc.SetAttributeTypeToPointData()
         calc.SetFunction("s / %f" % max)
         calc.AddScalarVariable("s", scalar, 0)
         calc.SetResultArrayName("resArray")

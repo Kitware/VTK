@@ -45,7 +45,7 @@ int TestStreamTracerSurface(int argc, char* argv[])
   calc->Update();
 
   vtkNew<vtkPoints> points;
-  vtkDataSet* calcData = calc->GetOutput();
+  vtkDataSet* calcData = vtkDataSet::SafeDownCast(calc->GetOutput());
   vtkIdType nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
   for (vtkIdType i = 0; i < nLine; i += 10)
   {

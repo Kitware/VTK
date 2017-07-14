@@ -49,7 +49,7 @@ int TestBlockOpacity(int argc, char* argv[])
 
   double range[2];
 
-  calc->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
+  vtkDataSet::SafeDownCast(calc->GetOutput())->GetPointData()->GetScalars()->GetRange(range);
 
   vtkSmartPointer< vtkMultiBlockDataGroupFilter > groupDatasets =
       vtkSmartPointer< vtkMultiBlockDataGroupFilter >::New();

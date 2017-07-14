@@ -108,7 +108,7 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
   vtkSmartPointer<vtkArrayCalculator> calc =
     vtkSmartPointer<vtkArrayCalculator>::New();
   calc->SetInputConnection(source->GetOutputPort());
-  calc->SetAttributeModeToUsePointData();
+  calc->SetAttributeTypeToPointData();
   calc->AddScalarArrayName("delta_x");
   calc->AddScalarArrayName("delta_y");
   calc->AddScalarArrayName("delta_z");
@@ -125,7 +125,7 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
 
   /// Include the elevation vector (point and cell data) in the original data
   vtkPolyData* outputP2c = vtkPolyData::SafeDownCast(p2c->GetOutput());
-  data->GetPointData()->AddArray(calc->GetOutput()->GetPointData()->GetArray(
+  data->GetPointData()->AddArray(vtkDataSet::SafeDownCast(calc->GetOutput())->GetPointData()->GetArray(
     "elevationVector"));
   data->GetCellData()->AddArray(outputP2c->GetCellData()->GetArray("elevationVector"));
 };
