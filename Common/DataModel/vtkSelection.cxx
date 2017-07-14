@@ -327,6 +327,9 @@ void vtkSelection::Dump(ostream& os)
       case vtkSelectionNode::BLOCKS:
         os << "BLOCKS";
         break;
+      case vtkSelectionNode::USER:
+        os << "USER";
+        break;
       default:
         os << "UNKNOWN";
         break;

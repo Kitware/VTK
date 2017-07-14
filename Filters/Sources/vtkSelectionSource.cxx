@@ -516,6 +516,12 @@ int vtkSelectionSource::RequestData(
     output->SetQueryString(this->QueryString);
   }
 
+  if (this->ContentType == vtkSelectionNode::USER)
+  {
+    vtkErrorMacro("User-supplied, application-specific selections are not supported.");
+    return 0;
+  }
+
   oProperties->Set(vtkSelectionNode::CONTAINING_CELLS(),
                                this->ContainingCells);
 
