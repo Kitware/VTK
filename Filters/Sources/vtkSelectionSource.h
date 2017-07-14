@@ -18,7 +18,10 @@
  * vtkSelectionSource generates a vtkSelection from a set of
  * (piece id, cell id) pairs. It will only generate the selection values
  * that match UPDATE_PIECE_NUMBER (i.e. piece == UPDATE_PIECE_NUMBER).
-*/
+ *
+ * User-supplied, application-specific selections (with a ContentType of
+ * vtkSelectionNode::USER) are not supported.
+ */
 
 #ifndef vtkSelectionSource_h
 #define vtkSelectionSource_h

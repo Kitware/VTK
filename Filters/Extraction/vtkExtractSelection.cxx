@@ -361,6 +361,10 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
     subFilter = this->BlockFilter;
     break;
 
+  case vtkSelectionNode::USER:
+      vtkErrorMacro("User-supplied, application-specific selections are not supported.");
+      return NULL;
+
   default:
       vtkErrorMacro("Unrecognized CONTENT_TYPE: " << seltype);
       return NULL;

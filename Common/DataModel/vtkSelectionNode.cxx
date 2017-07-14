@@ -135,6 +135,9 @@ void vtkSelectionNode::PrintSelf(ostream& os, vtkIndent indent)
     case BLOCKS:
       os << "BLOCKS";
       break;
+    case USER:
+      os << "USER";
+      break;
     default:
       os << "UNKNOWN";
       break;
@@ -388,6 +391,7 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
       break;
   }
   case FRUSTUM:
+  case USER:
   default:
   {
       vtkErrorMacro(<< "Do not know how to take the union of content type "
@@ -455,6 +459,7 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
     case LOCATIONS:
     case THRESHOLDS:
     case VALUES:
+    case USER:
     default:
     {
       vtkErrorMacro(<< "Do not know how to subtract the given content type " << type << ".");
