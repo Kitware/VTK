@@ -419,9 +419,11 @@ if(PYTHON_EXECUTABLE)
   # this should also depend on the vtkpython executable.
   add_custom_target(vtkpython_pyc ALL
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/vtk_compile_complete")
-  add_dependencies(vtkpython_pyc
-    vtkpython
-    )
+  if(TARGET vtkpython)
+    add_dependencies(vtkpython_pyc
+      vtkpython
+      )
+  endif()
 
   # If no runtime is to be installed then do not install python modules.
   if(NOT VTK_INSTALL_NO_RUNTIME)
