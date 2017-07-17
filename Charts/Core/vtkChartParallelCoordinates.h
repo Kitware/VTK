@@ -25,6 +25,7 @@
 #define vtkChartParallelCoordinates_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkNew.h" // For vtkNew
 #include "vtkChart.h"
 
 class vtkIdTypeArray;
@@ -71,12 +72,15 @@ public:
    */
   bool GetColumnVisibility(const vtkStdString& name);
 
-  //@{
   /**
    * Get a list of the columns, and the order in which they are displayed.
    */
-  vtkGetObjectMacro(VisibleColumns, vtkStringArray);
-  //@}
+  virtual vtkStringArray* GetVisibleColumns();
+
+  /**
+   * Set the list of visible columns, and the order in which they will be displayed.
+   */
+  virtual void SetVisibleColumns(vtkStringArray* visColumns);
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
@@ -165,9 +169,9 @@ protected:
   vtkIdTypeArray *Selection;
 
   /**
-   * A list of the visible columns in the chart.
+   * Strongly owned internal data for the column visibility.
    */
-  vtkStringArray *VisibleColumns;
+  vtkNew<vtkStringArray> VisibleColumns;
 
   /**
    * The point cache is marked dirty until it has been initialized.
