@@ -91,7 +91,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->MultiSamples = 0;
   this->UseSRGBColorSpace = false;
 
-#ifdef VTK_USE_OFFSCREEN
+#ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
   this->OffScreenRendering = 1;
 #endif
   this->DeviceIndex = 0;

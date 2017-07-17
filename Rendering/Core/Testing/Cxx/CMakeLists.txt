@@ -27,7 +27,7 @@ else()
     )
 endif()
 
-if (VTK_USE_OFFSCREEN)
+if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
 endif()
 

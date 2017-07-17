@@ -143,14 +143,15 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   this->ScreenSize[1] = 1080;
   // this is initialized in vtkRenderWindow
   // so we don't need to initialize on else
-#ifdef VTK_USE_OFFSCREEN_EGL
-  this->DeviceIndex = VTK_EGL_DEVICE_INDEX;
-#endif
+  this->DeviceIndex = VTK_DEFAULT_EGL_DEVICE_INDEX;
+
 #if ANDROID
   this->OffScreenRendering = false;
 #else
+  // this is an offscreen-only window otherwise.
   this->OffScreenRendering = true;
 #endif
+
   this->IsPointSpriteBugTested = false;
   this->IsPointSpriteBugPresent_ = false;
 }
@@ -438,9 +439,10 @@ void vtkEGLRenderWindow::WindowInitialize (void)
   this->OpenGLInit();
 
   // for offscreen EGL always turn on point sprites
-#ifdef VTK_USE_OFFSCREEN_EGL
-  glEnable(GL_POINT_SPRITE);
-#endif
+  if (this->OffScreenRendering)
+  {
+    glEnable(GL_POINT_SPRITE);
+  }
 }
 
 // Initialize the rendering window.
@@ -635,7 +637,7 @@ void* vtkEGLRenderWindow::GetGenericContext()
 //----------------------------------------------------------------------------
 void vtkEGLRenderWindow::SetOffScreenRendering (int)
 {
-  // this is determined at compile time: ANDROID -> 0, VTK_USE_OFFSCREEN_EGL -> 1
+  // this is determined at compile time: ANDROID -> 0, otherwise -> 1
 }
 
 //----------------------------------------------------------------------------

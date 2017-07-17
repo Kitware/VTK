@@ -99,7 +99,7 @@ foreach(exe
   vtk_opengl_link(${exe})
   target_link_libraries(${exe} LINK_PRIVATE
     ${${vtk-module-test}-Cxx_LIBRARIES})
-  if(APPLE AND NOT VTK_USE_OSMESA)
+  if(APPLE AND NOT VTK_OPENGL_HAS_OSMESA)
     target_link_libraries(${exe} LINK_PRIVATE "-framework GLUT")
   endif()
 endforeach()

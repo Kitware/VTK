@@ -216,6 +216,6 @@ endif()
 
 vtk_module_library(vtkRenderingCore ${Module_SRCS})
 
-if (VTK_USE_OFFSCREEN)
-  target_compile_definitions(vtkRenderingCore PRIVATE -DVTK_USE_OFFSCREEN)
+if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
+  target_compile_definitions(vtkRenderingCore PRIVATE -DVTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 endif()
