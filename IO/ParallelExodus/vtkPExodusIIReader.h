@@ -54,6 +54,11 @@ public:
   vtkTypeMacro(vtkPExodusIIReader,vtkExodusIIReader);
   void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
+  /**
+   * Determine if the file can be readed with this reader.
+   */
+  virtual int CanReadFile(const char* fname);
+
   //@{
   /**
    * Set/get the communication object used to relay a list of files

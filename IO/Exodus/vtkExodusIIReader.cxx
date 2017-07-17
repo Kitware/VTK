@@ -237,7 +237,7 @@ vtkExodusIIReaderPrivate::BlockSetInfoType& vtkExodusIIReaderPrivate::BlockSetIn
     if (this->CachedConnectivity)
     {
       this->CachedConnectivity->Delete();
-      this->CachedConnectivity = NULL;
+      this->CachedConnectivity = nullptr;
     }
 
     this->FileOffset = block.FileOffset;
@@ -1746,6 +1746,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
   }
 
   int exoid = this->Exoid;
+  int maxNameLength = this->Parent->GetMaxNameLength();
 
   // If array is NULL, try reading it from file.
   if ( key.ObjectType == vtkExodusIIReader::GLOBAL )
@@ -2975,7 +2976,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
 
     vtkCharArray* carr = vtkCharArray::New();
     carr->SetName( "QA_Records" );
-    carr->SetNumberOfComponents( MAX_STR_LENGTH + 1 );
+    carr->SetNumberOfComponents( maxNameLength + 1 );
 
     if ( ex_inquire( exoid, EX_INQ_QA, &num_qa_rec, &fdum, cdum ) < 0 )
     {
@@ -2994,7 +2995,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           for ( j = 0; j < 4 ; ++j )
           {
-            qa_record[i][j] = (char *) calloc( ( MAX_STR_LENGTH + 1 ), sizeof(char) );
+            qa_record[i][j] = (char *) calloc( ( maxNameLength + 1 ), sizeof(char) );
           }
         }
 
@@ -3410,11 +3411,10 @@ int vtkExodusIIReaderPrivate::GetBlockConnTypeFromBlockType( int btyp )
 }
 
 //-----------------------------------------------------------------------------
-void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char **names )
+void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces(
+  int len, char **names, int maxNameLength )
 {
-  int i, j;
-
-  for (i=0; i<len; i++)
+  for (int i=0; i<len; i++)
   {
     char *c = names[i];
     int nmlen = (int)strlen(c);
@@ -3424,13 +3424,13 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
 
     // remove spaces or non-printing character from start and end
 
-    for (j=0; j<nmlen; j++)
+    for (int j=0; j<nmlen; j++)
     {
       if (!isgraph(*cbegin)) cbegin++;
       else break;
     }
 
-    for (j=0; j<nmlen; j++)
+    for (int j=0; j<nmlen; j++)
     {
       if (!isgraph(*cend)) cend--;
       else break;
@@ -3438,7 +3438,7 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
 
     if (cend < cbegin)
     {
-      snprintf(names[i], MAX_STR_LENGTH + 1, "null_%d", i);
+      snprintf(names[i], maxNameLength + 1, "null_%d", i);
       continue;
     }
 
@@ -3446,7 +3446,7 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces( int len, char *
 
     if (newlen < nmlen)
     {
-      for (j=0; j<newlen; j++)
+      for (int j=0; j<newlen; j++)
       {
         *c++ = *cbegin++;
       }
@@ -3868,6 +3868,12 @@ int vtkExodusIIReaderPrivate::OpenFile( const char* filename )
 
   this->Exoid = ex_open( filename, EX_READ,
     &this->AppWordSize, &this->DiskWordSize, &this->ExodusVersion );
+  // figure out the longest string name we have and then set that to be the
+  // maximum length for the variable names. This is called everytime that the reader
+  // is updated so we don't have to worry about setting the global max_name_length variable.
+  // this is because in our current version of the ExodusII libraries the exo Id isn't used
+  // in the ex_set_max_name_length() function.
+  ex_set_max_name_length(this->Exoid, this->Parent->GetMaxNameLength());
 
   if ( this->Exoid <= 0 )
   {
@@ -3892,8 +3898,6 @@ int vtkExodusIIReaderPrivate::CloseFile()
   }
   return 0;
 }
-
-
 
 int vtkExodusIIReaderPrivate::UpdateTimeInformation()
 {
@@ -4023,6 +4027,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   int num_vars = 0; /* number of variables per object */
   char tmpName[256];
   tmpName[255] = '\0';
+  int maxNameLength = this->Parent->GetMaxNameLength();
 
   this->InformationTimeStamp.Modified(); // Update MTime so that it will be newer than parent's FileNameMTime
 
@@ -4065,13 +4070,15 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       ids = (int*) malloc( nids * sizeof(int) );
       obj_names = (char**) malloc( nids * sizeof(char*) );
       for ( obj = 0; obj < nids; ++obj )
-        obj_names[obj] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
+      {
+        obj_names[obj] = (char*) malloc( (maxNameLength + 1) * sizeof(char) );
+      }
       if ( OBJTYPE_IS_BLOCK(i) )
       {
         obj_typenames = (char**) malloc( nids * sizeof(char*) );
         for ( obj = 0; obj < nids; ++obj )
         {
-          obj_typenames[obj] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
+          obj_typenames[obj] = (char*) malloc( (maxNameLength + 1) * sizeof(char) );
           obj_typenames[obj][0] = '\0';
         }
       }
@@ -4125,10 +4132,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
         var_names = (char**) malloc(num_vars * sizeof(char*));
         for (j = 0; j < num_vars; ++j)
-          var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char));
+          var_names[j] = (char*) malloc( (maxNameLength + 1) * sizeof(char));
 
         VTK_EXO_FUNC( ex_get_var_names( exoid, obj_typestr[i], num_vars, var_names ), "Could not read variable names." );
-        this->RemoveBeginningAndTrailingSpaces(num_vars, var_names);
+        this->RemoveBeginningAndTrailingSpaces(num_vars, var_names, maxNameLength);
         have_var_names = 1;
       }
     }
@@ -4183,7 +4190,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
               = (char**) malloc(binfo.AttributesPerEntry * sizeof(char*));
           for (j = 0; j < binfo.AttributesPerEntry; ++j)
             attr_names[j]
-                = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char));
+                = (char*) malloc( (maxNameLength + 1) * sizeof(char));
 
           VTK_EXO_FUNC( ex_get_attr_names( exoid, static_cast<ex_entity_type>( obj_types[i] ), ids[obj], attr_names ),
             "Could not read attributes names." );
@@ -4391,10 +4398,12 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   {
     var_names = (char**) malloc( num_vars * sizeof(char*) );
     for ( j = 0; j < num_vars; ++j )
-      var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
+    {
+      var_names[j] = (char*) malloc( (maxNameLength + 1) * sizeof(char) );
+    }
 
     VTK_EXO_FUNC( ex_get_var_names( exoid, "n", num_vars, var_names ), "Could not read nodal variable names." );
-    this->RemoveBeginningAndTrailingSpaces( num_vars, var_names );
+    this->RemoveBeginningAndTrailingSpaces( num_vars, var_names, maxNameLength );
 
     nids = 1;
     std::vector<int> dummy_truth;
@@ -4420,10 +4429,12 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   {
     var_names = (char**) malloc( num_vars * sizeof(char*) );
     for ( j = 0; j < num_vars; ++j )
-      var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
+    {
+      var_names[j] = (char*) malloc( (maxNameLength + 1) * sizeof(char) );
+    }
 
     VTK_EXO_FUNC( ex_get_var_names( exoid, "g", num_vars, var_names ), "Could not read global variable names." );
-    this->RemoveBeginningAndTrailingSpaces( num_vars, var_names );
+    this->RemoveBeginningAndTrailingSpaces( num_vars, var_names, maxNameLength );
 
     nids = 1;
     std::vector<int> dummy_truth;
@@ -4625,7 +4636,7 @@ int vtkExodusIIReaderPrivate::SetUpEmptyGrid( vtkMultiBlockDataSet* output )
   newPoints->SetNumberOfPoints( 0 );
   leaf->SetPoints( newPoints );
   newPoints->Delete();
-  newPoints = NULL;
+  newPoints = nullptr;
 
   // Create point and cell arrays
   int typ;
@@ -5536,6 +5547,11 @@ int vtkExodusIIReader::RequestData(
   this->Metadata->RequestData( this->TimeStep, output );
 
   return 1;
+}
+
+int vtkExodusIIReader::GetMaxNameLength()
+{
+  return ex_inquire_int(this->Metadata->Exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
 }
 
 void vtkExodusIIReader::SetGenerateObjectIdCellArray( int x ) { this->Metadata->SetGenerateObjectIdArray( x ); }

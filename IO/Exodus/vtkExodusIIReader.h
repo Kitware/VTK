@@ -60,7 +60,7 @@ public:
   /**
    * Determine if the file can be readed with this reader.
    */
-  int CanReadFile(const char* fname);
+  virtual int CanReadFile(const char* fname);
 
   //virtual void Modified();
 
@@ -767,6 +767,14 @@ public:
    * Every time the SIL is updated a this will return a different value.
    */
   vtkGetMacro(SILUpdateStamp, int);
+  //@}
+
+  //@{
+  /**
+   * Get the max_name_length in the file. This is the amount of space allocated
+   * int the file for storing names of arrays, blocks, etc.
+   */
+  int GetMaxNameLength();
   //@}
 
 protected:
