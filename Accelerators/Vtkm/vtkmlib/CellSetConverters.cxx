@@ -26,6 +26,7 @@
 
 #include <vtkm/cont/serial/DeviceAdapterSerial.h>
 #include <vtkm/cont/tbb/DeviceAdapterTBB.h>
+#include <vtkm/cont/TryExecute.h>
 #include <vtkm/worklet/DispatcherMapTopology.h>
 
 #include "vtkIdTypeArray.h"
@@ -53,6 +54,24 @@ struct ReorderHex : public vtkm::exec::FunctorBase
   }
 
   vtkIdType* Data;
+};
+
+struct RunReorder
+{
+  RunReorder(): Reorder(), Size(0) {}
+  RunReorder(vtkCellArray* fc, vtkm::Id size): Reorder(fc), Size(size) {}
+
+  template<typename DeviceAdapter>
+  bool operator()(DeviceAdapter ) const
+  {
+    using Algorithms =
+        typename vtkm::cont::DeviceAdapterAlgorithm<DeviceAdapter>;
+    Algorithms::Schedule(this->Reorder, this->Size);
+    return true;
+  }
+
+  ReorderHex Reorder;
+  vtkm::Id Size;
 };
 
 }
@@ -96,16 +115,18 @@ vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
 
     //We need to construct a new array that has the correct ordering
     //divide the array by 4, gets the number of times we need to flip values
-    using Algorithms = typename vtkm::cont::DeviceAdapterAlgorithm<vtkm::cont::DeviceAdapterTagTBB> ;
 
-    //construct through vtkm so that the memory is properly
-    //de-allocated when the DynamicCellSet is destroyed
-    vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag> fixedCells;
+    using SMPTypes = vtkm::ListTagBase<vtkm::cont::DeviceAdapterTagTBB,
+                                       vtkm::cont::DeviceAdapterTagSerial>;
+    // construct through vtkm so that the memory is properly
+    // de-allocated when the DynamicCellSet is destroyed
+    vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>
+        fixedCells;
     fixedCells.Allocate(cells->GetSize());
     fixedCells.GetStorage().VTKArray()->DeepCopy(cells);
 
-    ReorderHex reorder_hex(fixedCells.GetStorage().VTKArray());
-    Algorithms::Schedule(reorder_hex, cells->GetNumberOfCells());
+    RunReorder run(fixedCells.GetStorage().VTKArray(), cells->GetNumberOfCells());
+    vtkm::cont::TryExecute(run, SMPTypes());
 
     CellSetType c(vtkm::CellShapeTagHexahedron(), "cells");
     c.Fill(numberOfPoints, fixedCells);
