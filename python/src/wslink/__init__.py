@@ -5,7 +5,7 @@ javascript client over a websocket.
 wslink.server creates the python server
 wslink.websocket handles the communication
 """
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 __license__ = 'BSD-3-Clause'
 
 from .uri import checkURI
