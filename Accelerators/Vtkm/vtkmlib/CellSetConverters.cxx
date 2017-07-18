@@ -25,12 +25,56 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/serial/DeviceAdapterSerial.h>
+#include <vtkm/cont/tbb/DeviceAdapterTBB.h>
+#include <vtkm/cont/TryExecute.h>
 #include <vtkm/worklet/DispatcherMapTopology.h>
 
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
 namespace tovtkm {
+
+namespace {
+
+struct ReorderHex : public vtkm::exec::FunctorBase
+{
+  ReorderHex(): Data(nullptr) {}
+  ReorderHex(vtkCellArray* fc): Data(fc->GetPointer()) {}
+
+  void operator()(vtkm::Id index) const
+  {
+    const std::size_t offset = (index * 9) + 1;
+    vtkIdType t = this->Data[offset+3];
+    this->Data[offset+3] = this->Data[offset+2];
+    this->Data[offset+2] = t;
+
+    t = this->Data[offset+7];
+    this->Data[offset+7] = this->Data[offset+6];
+    this->Data[offset+6] = t;
+  }
+
+  vtkIdType* Data;
+};
+
+struct RunReorder
+{
+  RunReorder(): Reorder(), Size(0) {}
+  RunReorder(vtkCellArray* fc, vtkm::Id size): Reorder(fc), Size(size) {}
+
+  template<typename DeviceAdapter>
+  bool operator()(DeviceAdapter ) const
+  {
+    using Algorithms =
+        typename vtkm::cont::DeviceAdapterAlgorithm<DeviceAdapter>;
+    Algorithms::Schedule(this->Reorder, this->Size);
+    return true;
+  }
+
+  ReorderHex Reorder;
+  vtkm::Id Size;
+};
+
+}
 
 // convert a cell array of a single type to a vtkm CellSetSingleType
 vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
@@ -60,6 +104,32 @@ vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
   {
     CellSetType c(vtkm::CellShapeTagHexahedron(), "cells");
     c.Fill(numberOfPoints, handle);
+    return vtkm::cont::DynamicCellSet(c);
+  }
+  case VTK_VOXEL:
+  {
+    //This is encountered when you have an unstructured grid that was
+    //cleaned / thresholded from an image data. At that point VTK should
+    //have converted to hex's as downstream the point coordinates can be
+    //transformed and invalidate the voxel requirements
+
+    //We need to construct a new array that has the correct ordering
+    //divide the array by 4, gets the number of times we need to flip values
+
+    using SMPTypes = vtkm::ListTagBase<vtkm::cont::DeviceAdapterTagTBB,
+                                       vtkm::cont::DeviceAdapterTagSerial>;
+    // construct through vtkm so that the memory is properly
+    // de-allocated when the DynamicCellSet is destroyed
+    vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkCellArrayContainerTag>
+        fixedCells;
+    fixedCells.Allocate(cells->GetSize());
+    fixedCells.GetStorage().VTKArray()->DeepCopy(cells);
+
+    RunReorder run(fixedCells.GetStorage().VTKArray(), cells->GetNumberOfCells());
+    vtkm::cont::TryExecute(run, SMPTypes());
+
+    CellSetType c(vtkm::CellShapeTagHexahedron(), "cells");
+    c.Fill(numberOfPoints, fixedCells);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_QUAD:
