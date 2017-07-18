@@ -34,16 +34,15 @@ javascriptMapping = {
 if py3:
     def iteritems(d, **kwargs):
         return iter(d.items(**kwargs))
-    buffer = memoryview
-    base64Encode = lambda x: base64.b64encode(x).decode('utf-8')
 else:
     def iteritems(d, **kwargs):
         return d.iteritems(**kwargs)
 
-    if sys.version_info >= (2,7):
-      buffer = memoryview
-    else:
-      buffer = buffer
+if sys.version_info >= (2,7):
+    buffer = memoryview
+    base64Encode = lambda x: base64.b64encode(x).decode('utf-8')
+else:
+    buffer = buffer
     base64Encode = lambda x: x.encode('base64')
 
 def hashDataArray(dataArray):
