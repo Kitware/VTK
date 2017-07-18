@@ -82,12 +82,30 @@ mark_as_advanced(VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 #-----------------------------------------------------------------------------
 set(VTK_CAN_DO_OFFSCREEN FALSE)
 set(VTK_CAN_DO_ONSCREEN FALSE)
+set(VTK_CAN_DO_HEADLESS FALSE)
 
 if(WIN32 OR VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
   set(VTK_CAN_DO_OFFSCREEN TRUE)
 endif()
 if(WIN32 OR VTK_USE_COCOA OR VTK_USE_X)
   set(VTK_CAN_DO_ONSCREEN TRUE)
+endif()
+
+if(VTK_OPENGL_HAS_OSMESA OR VTK_OPENGL_HAS_EGL)
+  set(VTK_CAN_DO_HEADLESS TRUE)
+endif()
+
+#-----------------------------------------------------------------------------
+if(NOT APPLE_IOS AND NOT ANDROID)
+  # For builds where we can support both on-screen and headless rendering, the default
+  # is to create an on-screen render window. Setting this option to ON will change the default
+  # to create an headless render window by default instead.
+  cmake_dependent_option(
+    VTK_DEFAULT_RENDER_WINDOW_HEADLESS
+    "Enable to create the headless render window when `vtkRenderWindow` is instantiated."
+    OFF "VTK_CAN_DO_ONSCREEN;VTK_CAN_DO_HEADLESS" OFF)
+else()
+  set(VTK_DEFAULT_RENDER_WINDOW_HEADLESS OFF)
 endif()
 
 #-----------------------------------------------------------------------------

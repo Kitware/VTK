@@ -244,23 +244,29 @@ endif()
 # Setup factory overrides and add window system specific render windows.
 if(VTK_USE_X)
   # Add some custom overrides
-  vtk_add_override("vtkRenderWindowInteractor" "vtkXRenderWindowInteractor")
-  vtk_add_override("vtkRenderWindow" "vtkXOpenGLRenderWindow")
+  if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_add_override("vtkRenderWindowInteractor" "vtkXRenderWindowInteractor")
+    vtk_add_override("vtkRenderWindow" "vtkXOpenGLRenderWindow")
+  endif()
   list(APPEND Module_SRCS
     vtkXRenderWindowInteractor.cxx
     vtkXOpenGLRenderWindow.cxx)
 elseif(WIN32)
   # Add some custom overrides
-  vtk_add_override("vtkRenderWindowInteractor" "vtkWin32RenderWindowInteractor")
-  vtk_add_override("vtkRenderWindow" "vtkWin32OpenGLRenderWindow")
+  if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_add_override("vtkRenderWindowInteractor" "vtkWin32RenderWindowInteractor")
+    vtk_add_override("vtkRenderWindow" "vtkWin32OpenGLRenderWindow")
+  endif()
   list(APPEND Module_SRCS
     vtkWin32RenderWindowInteractor.cxx
     vtkWin32OpenGLRenderWindow.cxx
     )
 elseif(VTK_USE_COCOA)
   # Add some custom overrides
-  vtk_add_override("vtkRenderWindowInteractor" "vtkCocoaRenderWindowInteractor")
-  vtk_add_override("vtkRenderWindow" "vtkCocoaRenderWindow")
+  if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_add_override("vtkRenderWindowInteractor" "vtkCocoaRenderWindowInteractor")
+    vtk_add_override("vtkRenderWindow" "vtkCocoaRenderWindow")
+  endif()
   list(APPEND Module_SRCS
     vtkCocoaRenderWindowInteractor.mm
     vtkCocoaRenderWindow.mm
@@ -311,7 +317,7 @@ endif()
 
 # If no overrides were defined for vtkRenderWindow and any of the offscreen
 # features were available, make the approriate render window the default.
-if(NOT DEFINED vtk_module_vtkRenderWindow_override)
+if(VTK_DEFAULT_RENDER_WINDOW_HEADLESS OR NOT DEFINED vtk_module_vtkRenderWindow_override)
   if(VTK_OPENGL_HAS_EGL)
     vtk_add_override("vtkRenderWindow" "vtkEGLRenderWindow")
   elseif(VTK_OPENGL_HAS_OSMESA)
