@@ -7,6 +7,7 @@ public:
   unsigned int FlatIndex;
   double Opacity;
   bool Visibility;
+  bool Pickability;
   bool OverridesColor;
   vtkColor3d AmbientColor;
   vtkColor3d DiffuseColor;
@@ -34,6 +35,7 @@ public:
             vtkHardwareSelector::COMPOSITE_INDEX_PASS) ||
       this->Opacity != next->Opacity ||
       this->Visibility != next->Visibility ||
+      this->Pickability != next->Pickability ||
       this->OverridesColor != next->OverridesColor ||
       this->AmbientColor != next->AmbientColor ||
       this->DiffuseColor != next->DiffuseColor ||

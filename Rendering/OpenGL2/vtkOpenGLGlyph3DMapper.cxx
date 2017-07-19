@@ -16,6 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkBitArray.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTree.h"
@@ -300,6 +301,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   }
 
   // Render the input dataset or every dataset in the input composite dataset.
+  this->BlockMTime = this->BlockAttributes ? this->BlockAttributes->GetMTime() : 0;
   vtkDataSet* ds = vtkDataSet::SafeDownCast(inputDO);
   vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(inputDO);
   if (ds)
@@ -308,18 +310,47 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   }
   else if (cd)
   {
+    vtkNew<vtkActor> blockAct;
+    vtkNew<vtkProperty> blockProp;
+    blockAct->ShallowCopy(actor);
+    blockProp->DeepCopy(blockAct->GetProperty());
+    blockAct->SetProperty(blockProp.GetPointer());
+    double origColor[4];
+    blockProp->GetColor(origColor);
     vtkCompositeDataIterator* iter = cd->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
       iter->GoToNextItem())
     {
+      auto curIndex = iter->GetCurrentFlatIndex();
+      // Skip invisible blocks and unpickable ones when performing selection:
+      bool blockVis =
+        (this->BlockAttributes && this->BlockAttributes->HasBlockVisibility(curIndex)) ?
+        this->BlockAttributes->GetBlockVisibility(curIndex) : true;
+      bool blockPick =
+        (this->BlockAttributes && this->BlockAttributes->HasBlockPickability(curIndex)) ?
+        this->BlockAttributes->GetBlockPickability(curIndex) : true;
+      if (!blockVis || (selector && !blockPick))
+      {
+        continue;
+      }
       ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (ds)
       {
         if (selector)
         {
-          selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
+          selector->RenderCompositeIndex(curIndex);
         }
-        this->Render(ren, actor, ds);
+        else if (this->BlockAttributes && this->BlockAttributes->HasBlockColor(curIndex))
+        {
+          double color[3];
+          this->BlockAttributes->GetBlockColor(curIndex, color);
+          blockProp->SetColor(color);
+        }
+        else
+        {
+          blockProp->SetColor(origColor);
+        }
+        this->Render(ren, blockAct.GetPointer(), ds);
       }
     }
     iter->Delete();
@@ -470,7 +501,8 @@ void vtkOpenGLGlyph3DMapper::Render(
   // rebuild all entries for this DataSet if it
   // has been modified
   if (subarray->BuildTime < dataset->GetMTime() ||
-      subarray->BuildTime < this->GetMTime())
+      subarray->BuildTime < this->GetMTime() ||
+      subarray->BuildTime < this->BlockMTime)
   {
     rebuild = true;
   }

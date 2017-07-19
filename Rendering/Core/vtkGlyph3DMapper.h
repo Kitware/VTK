@@ -33,6 +33,7 @@
 #include "vtkGlyph3D.h" // for the constants (VTK_SCALE_BY_SCALAR, ...).
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
+class vtkCompositeDataDisplayAttributes;
 class vtkDataObjectTree;
 
 class VTKRENDERINGCORE_EXPORT vtkGlyph3DMapper : public vtkMapper
@@ -394,6 +395,20 @@ public:
   vtkGetMacro(SelectionColorId, unsigned int);
   //@}
 
+  //@{
+  /**
+   * When the input data object (not the source) is composite data,
+   * it is possible to control visibility and pickability on a per-block
+   * basis by passing the mapper a vtkCompositeDataDisplayAttributes instance.
+   * The color and opacity in the display-attributes instance are ignored
+   * for now. By default, the mapper does not own a display-attributes
+   * instance. The value of BlockAttributes has no effect when the input
+   * is a poly-data object.
+   */
+  virtual void SetBlockAttributes(vtkCompositeDataDisplayAttributes* attr);
+  vtkGetObjectMacro(BlockAttributes, vtkCompositeDataDisplayAttributes);
+  //@}
+
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -428,6 +443,7 @@ protected:
   vtkUnsignedCharArray* GetColors(vtkDataSet* input);
   //@}
 
+  vtkCompositeDataDisplayAttributes* BlockAttributes;
   bool Scaling; // Determine whether scaling of geometry is performed
   double ScaleFactor; // Scale factor to use to scale geometry
   int ScaleMode; // Scale by scalar value or vector magnitude

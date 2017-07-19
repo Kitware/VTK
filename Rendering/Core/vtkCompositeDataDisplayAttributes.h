@@ -24,9 +24,9 @@
 #ifndef vtkCompositeDataDisplayAttributes_h
 #define vtkCompositeDataDisplayAttributes_h
 
-#include "vtkRenderingCoreModule.h" // for export macro
-#include "vtkObject.h"
 #include "vtkColor.h" // for vtkColor3d
+#include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // for export macro
 
 #include <map> // for std::map
 
@@ -68,7 +68,39 @@ public:
    * Removes all block visibility flags. The effectively sets the visibility
    * for all blocks to true.
    */
-  void RemoveBlockVisibilites();
+  void RemoveBlockVisibilities();
+  // This method is deprecated and will be removed in VTK 8.2. It is misspelled.
+  VTK_LEGACY(void RemoveBlockVisibilites());
+
+  /**
+   * Returns true if any block has any block visibility is set.
+   */
+  bool HasBlockPickabilities() const;
+
+  //@{
+  /**
+   * Set/get the visibility for the block with \p flat_index.
+   */
+  void SetBlockPickability(unsigned int flat_index, bool visible);
+  bool GetBlockPickability(unsigned int flat_index) const;
+  //@}
+
+  /**
+   * Returns true if the block with the given flat_index has a visiblity
+   * set.
+   */
+  bool HasBlockPickability(unsigned int flat_index) const;
+
+  /**
+   * Removes the block visibility flag for the block with flat_index.
+   */
+  void RemoveBlockPickability(unsigned int flat_index);
+
+  /**
+   * Removes all block visibility flags. The effectively sets the visibility
+   * for all blocks to true.
+   */
+  void RemoveBlockPickabilities();
 
   //@{
   /**
@@ -193,6 +225,7 @@ private:
   std::map<unsigned int, vtkColor3d> BlockColors;
   std::map<unsigned int, double> BlockOpacities;
   std::map<unsigned int, std::string> BlockMaterials;
+  std::map<unsigned int, bool> BlockPickabilities;
 
 };
 

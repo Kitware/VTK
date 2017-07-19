@@ -87,6 +87,8 @@ protected:
     vtkIdType numPts, vtkActor* actor, vtkDataSet* dataset,
     vtkBitArray *maskArray);
 
+  vtkMTimeType BlockMTime; // Last time BlockAttributes was modified.
+
 private:
   vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;

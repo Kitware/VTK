@@ -337,6 +337,7 @@ void vtkCompositeMapperHelper2::DrawIBO(
     // }
 
     this->RenderedList.clear();
+    bool selecting = (this->CurrentSelector ? true : false);
     for (dataIter it = this->Data.begin(); it != this->Data.end(); )
     {
       vtkCompositeMapperHelperData *starthdata = it->second;
@@ -352,6 +353,7 @@ void vtkCompositeMapperHelper2::DrawIBO(
         !endhdata->Different(it->second, this->CurrentSelector,
           haveCellTexture ? primType : -1));
       if (endhdata->Visibility &&
+          ((selecting && endhdata->Pickability) || !selecting) &&
           endhdata->NextIndex[primType] > starthdata->StartIndex[primType])
       {
         //compilers think this can exceed the bounds so we also
@@ -1115,14 +1117,21 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
+void vtkCompositePolyDataMapper2::RemoveBlockVisibilities()
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->RemoveBlockVisibilites();
+    this->CompositeAttributes->RemoveBlockVisibilities();
     this->Modified();
   }
 }
+
+#ifndef VTK_LEGACY_REMOVE
+void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
+{
+  this->RemoveBlockVisibilities();
+}
+#endif
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color[3])
@@ -1420,6 +1429,7 @@ void vtkCompositePolyDataMapper2::Render(
 
     // Push base-values on the state stack.
     this->BlockState.Visibility.push(true);
+    this->BlockState.Pickability.push(true);
     this->BlockState.Opacity.push(prop->GetOpacity());
     this->BlockState.AmbientColor.push(vtkColor3d(prop->GetAmbientColor()));
     this->BlockState.DiffuseColor.push(vtkColor3d(prop->GetDiffuseColor()));
@@ -1430,6 +1440,7 @@ void vtkCompositePolyDataMapper2::Render(
       this->GetInputDataObject(0, 0), flat_index);
 
     this->BlockState.Visibility.pop();
+    this->BlockState.Pickability.pop();
     this->BlockState.Opacity.pop();
     this->BlockState.AmbientColor.pop();
     this->BlockState.DiffuseColor.pop();
@@ -1469,6 +1480,11 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   if (overrides_visibility)
   {
     this->BlockState.Visibility.push(cda->GetBlockVisibility(flat_index));
+  }
+  bool overrides_pickability = (cda && cda->HasBlockPickability(flat_index));
+  if (overrides_pickability)
+  {
+    this->BlockState.Pickability.push(cda->GetBlockPickability(flat_index));
   }
 
   bool overrides_opacity = (cda && cda->HasBlockOpacity(flat_index));
@@ -1518,6 +1534,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       vtkCompositeMapperHelperData *helperData = dit->second;
       helperData->Opacity = this->BlockState.Opacity.top();
       helperData->Visibility = this->BlockState.Visibility.top();
+      helperData->Pickability = this->BlockState.Pickability.top();
       helperData->AmbientColor = this->BlockState.AmbientColor.top();
       helperData->DiffuseColor = this->BlockState.DiffuseColor.top();
       helperData->OverridesColor = (this->BlockState.AmbientColor.size() > 1);
@@ -1532,6 +1549,10 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   if (overrides_opacity)
   {
     this->BlockState.Opacity.pop();
+  }
+  if (overrides_pickability)
+  {
+    this->BlockState.Pickability.pop();
   }
   if (overrides_visibility)
   {

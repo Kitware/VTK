@@ -65,7 +65,8 @@ public:
   void SetBlockVisibility(unsigned int index, bool visible);
   bool GetBlockVisibility(unsigned int index) const;
   void RemoveBlockVisibility(unsigned int index);
-  void RemoveBlockVisibilites();
+  void RemoveBlockVisibilities();
+  VTK_LEGACY(void RemoveBlockVisibilites());
   //@}
 
   //@{

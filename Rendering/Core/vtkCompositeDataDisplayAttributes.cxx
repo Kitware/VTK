@@ -67,9 +67,56 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockVisibility(unsigned int flat_
   this->BlockVisibilities.erase(flat_index);
 }
 
-void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites()
+void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities()
 {
   this->BlockVisibilities.clear();
+}
+
+#ifndef VTK_LEGACY_REMOVE
+void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites()
+{
+  this->RemoveBlockVisibilities();
+}
+#endif
+
+void vtkCompositeDataDisplayAttributes::SetBlockPickability(unsigned int flat_index, bool visible)
+{
+  this->BlockPickabilities[flat_index] = visible;
+}
+
+bool vtkCompositeDataDisplayAttributes::GetBlockPickability(unsigned int flat_index) const
+{
+  std::map<unsigned int, bool>::const_iterator iter =
+    this->BlockPickabilities.find(flat_index);
+  if(iter != this->BlockPickabilities.end())
+  {
+    return iter->second;
+  }
+  else
+  {
+    // default to true
+    return true;
+  }
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockPickabilities() const
+{
+  return !this->BlockPickabilities.empty();
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockPickability(unsigned int flat_index) const
+{
+  return this->BlockPickabilities.count(flat_index) == size_t(1);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockPickability(unsigned int flat_index)
+{
+  this->BlockPickabilities.erase(flat_index);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockPickabilities()
+{
+  this->BlockPickabilities.clear();
 }
 
 void vtkCompositeDataDisplayAttributes::SetBlockColor(
