@@ -36,7 +36,7 @@ class vtkWidgetEvent;
 class vtkAbstractWidget;
 class vtkWidgetEventTranslator;
 class vtkCallbackMap; // PIMPL encapsulation of STL map
-
+class vtkEventData;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetCallbackMapper : public vtkObject
 {
@@ -82,6 +82,9 @@ public:
                          vtkAbstractWidget *w, CallbackType f);
   void SetCallbackMethod(unsigned long VTKEvent, int modifiers, char keyCode,
                          int repeatCount, const char* keySym,
+                         unsigned long widgetEvent,
+                         vtkAbstractWidget *w, CallbackType f);
+  void SetCallbackMethod(unsigned long VTKEvent, vtkEventData *ed,
                          unsigned long widgetEvent,
                          vtkAbstractWidget *w, CallbackType f);
   //void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,

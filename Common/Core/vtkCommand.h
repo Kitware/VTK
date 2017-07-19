@@ -340,7 +340,9 @@
     _vtk_add_event(FourthButtonPressEvent)\
     _vtk_add_event(FourthButtonReleaseEvent)\
     _vtk_add_event(FifthButtonPressEvent)\
-    _vtk_add_event(FifthButtonReleaseEvent)
+    _vtk_add_event(FifthButtonReleaseEvent)\
+    _vtk_add_event(Move3DEvent)\
+    _vtk_add_event(Button3DEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\
@@ -388,6 +390,11 @@ public:
   static const char *GetStringFromEventId(unsigned long event);
   static unsigned long GetEventIdFromString(const char *event);
   //@}
+
+  /**
+   * Does this event type contain vtkEventData
+   */
+  static bool EventHasData(unsigned long event);
 
   /**
    * Set/Get the abort flag. If this is set to true no further
