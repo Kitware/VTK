@@ -732,7 +732,7 @@ protected:
    * "DISPX ", "DISPY ", "DISPZ " (note trailing spaces),
    * which prevented glomming and use of the vector field for displacements.
    */
-  void RemoveBeginningAndTrailingSpaces( int len, char **names );
+  void RemoveBeginningAndTrailingSpaces( int len, char **names, int maxNameLength );
 
   /// Delete any cached connectivity information (for all blocks and sets)
   void ClearConnectivityCaches();

@@ -99,6 +99,12 @@ protected:
                                    vtkInformationVector* outputVector) VTK_OVERRIDE;
   virtual int GlobalContinueExecuting(int localContinue) VTK_OVERRIDE;
 
+  /**
+   * Get the maximum length name in the input data set. If it is smaller
+   * than 32 characters long we just return the ExodusII default of 32.
+   */
+  virtual unsigned int GetMaxNameLength();
+
 private:
   vtkPExodusIIWriter (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
   void operator= (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;

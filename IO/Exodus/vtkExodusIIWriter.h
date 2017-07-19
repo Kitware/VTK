@@ -367,6 +367,12 @@ protected:
   void ExtractPointData (const char *name, int comp, vtkDataArray *buffer);
   int WritePointData (int timestep, vtkDataArray *buffer);
 
+  /**
+   * Get the maximum length name in the input data set. If it is smaller
+   * than 32 characters long we just return the ExodusII default of 32.
+   */
+  virtual unsigned int GetMaxNameLength();
+
 private:
   vtkExodusIIWriter (const vtkExodusIIWriter&) VTK_DELETE_FUNCTION;
   void operator= (const vtkExodusIIWriter&) VTK_DELETE_FUNCTION;

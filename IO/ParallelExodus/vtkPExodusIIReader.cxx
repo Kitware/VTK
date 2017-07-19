@@ -111,7 +111,7 @@ protected:
 
   vtkPExodusIIReaderUpdateProgress()
   {
-    Reader = NULL;
+    Reader = nullptr;
     Index = 0;
   }
   ~vtkPExodusIIReaderUpdateProgress(){}
@@ -155,10 +155,10 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->CurrentFileRange[0] = 0;
   this->CurrentFileRange[1] = 0;
   this->NumberOfFiles = 1;
-  this->FileNames = NULL;
+  this->FileNames = nullptr;
   this->NumberOfFileNames = 0;
   this->MultiFileName = new char[vtkPExodusIIReaderMAXPATHLEN];
-  this->XMLFileName=NULL;
+  this->XMLFileName=nullptr;
   this->LastCommonTimeStep = -1;
   this->VariableCacheSize = 100;
 }
@@ -194,6 +194,18 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
   }
 
   delete [] this->MultiFileName;
+}
+
+//----------------------------------------------------------------------------
+int vtkPExodusIIReader::CanReadFile( const char* fname )
+{
+  int canRead = 0;
+  if ( this->ProcRank == 0 )
+  {
+    canRead = this->Superclass::CanReadFile(fname);
+  }
+  this->Controller->Broadcast(&canRead, 1, 0);
+  return canRead;
 }
 
 //----------------------------------------------------------------------------
@@ -317,7 +329,7 @@ int vtkPExodusIIReader::RequestInformation(
       strcpy(nm, this->MultiFileName);
       delete [] this->FileName;
       this->FileName = nm;
-      nm = NULL;
+      nm = nullptr;
 
       // Read in info based on this->FileName
       requestInformationRetVal = this->Superclass::RequestInformation( request, inputVector, outputVector );
@@ -368,9 +380,9 @@ int vtkPExodusIIReader::RequestInformation(
   if ( this->CurrentFilePrefix )
   {
     delete [] this->CurrentFilePrefix;
-    this->CurrentFilePrefix = NULL;
+    this->CurrentFilePrefix = nullptr;
     delete [] this->CurrentFilePattern;
-    this->CurrentFilePattern = NULL;
+    this->CurrentFilePattern = nullptr;
     this->CurrentFileRange[0] = 0;
     this->CurrentFileRange[1] = 0;
   }
@@ -725,7 +737,7 @@ int vtkPExodusIIReader::RequestData(
   }
 
   // I've copied append's output to the 'output' so delete append
-  append = NULL;
+  append = nullptr;
 
 #if 0 // FIXME: Need multiblock version... or not?
   if ( this->PackExodusModelOntoOutput )
@@ -771,7 +783,7 @@ void vtkPExodusIIReader::SetFileNames( int nfiles, const char** names )
       delete [] this->FileNames[i];
     }
     delete [] this->FileNames;
-    this->FileNames = NULL;
+    this->FileNames = nullptr;
   }
 
   // Set the number of files
