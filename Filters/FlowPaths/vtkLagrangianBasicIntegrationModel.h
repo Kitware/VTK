@@ -124,6 +124,14 @@ public:
   vtkGetObjectMacro(Locator, vtkAbstractCellLocator);
   //@}
 
+  //@{
+  /**
+   * Get the state of the current locators
+   */
+  vtkGetMacro(LocatorsBuilt, bool);
+  vtkSetMacro(LocatorsBuilt, bool);
+  //@}
+
   /**
    * Set the parent tracker.
    */
@@ -467,6 +475,7 @@ protected:
                                              int nComponent, double* defaultValues);
 
   vtkAbstractCellLocator* Locator;
+  bool LocatorsBuilt;
   vtkAbstractCellLocator* LastLocator;
   vtkLocatorsType* Locators;
 

@@ -598,11 +598,9 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           stream >> name[l];
         }
         array->SetName(&name[0]);
-        std::cout<<"nComponents:"<<nComponents<<std::endl;
         for (int idComp = 0; idComp < nComponents; idComp++)
         {
           stream >> compNameLen;
-          std::cout<<compNameLen<<std::endl;
           std::vector<char> compName(compNameLen + 1, 0);
           name[compNameLen] = '\0';
           for (int compLength = 0; compLength < compNameLen; compLength++)
@@ -1038,11 +1036,30 @@ bool vtkPLagrangianParticleTracker::CheckParticlePathsRenderingThreshold(
 }
 
 //---------------------------------------------------------------------------
-void vtkPLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
+bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces)
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    // In Parallel, reduce surface on rank 0, which then broadcast them to all ranks.
+    // Update local cache and reduce cache status
+    int localCacheUpdated = this->Superclass::UpdateSurfaceCacheIfNeeded(surfaces);
+    int maxLocalCacheUpdated;
+    this->Controller->AllReduce(&localCacheUpdate, &maxLocalCacheUpdated, 1, vtkCommunicator::MAX_OP);
+
+    if(!maxLocalCacheUpdated)
+    {
+      // Cache is still valid, use already reduced surface
+      if (vtkDataSet::SafeDownCast(surfaces))
+      {
+        surfaces = this->TmpSurfaceInput;
+      }
+      else // if (vtkCompositeDataSet::SafeDownCast(surfaces))
+      {
+        surfaces = this->TmpSurfaceInputMB;
+      }
+    }
+
+    // Local cache has been updated, update temporary reduced surface
+    // In Parallel, reduce surfaces on rank 0, which then broadcast them to all ranks.
 
     // Recover all surfaces on rank 0
     std::vector<vtkSmartPointer<vtkDataObject> > allSurfaces;
@@ -1109,7 +1126,10 @@ void vtkPLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
       vtkErrorMacro("Unrecognized surface.");
     }
   }
-  this->Superclass::InitializeSurface(surfaces);
+  else
+  {
+    return this->Superclass::UpdateSurfaceCacheIfNeeded(surfaces);
+  }
 }
 
 //---------------------------------------------------------------------------

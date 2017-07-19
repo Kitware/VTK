@@ -89,6 +89,7 @@
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkBoundingBox.h" // For cached bounds
 
 #include <queue> // for particle queue
 
@@ -317,6 +318,7 @@ protected:
   virtual void GenerateParticles(const vtkBoundingBox* bounds, vtkDataSet* seeds,
     vtkDataArray* initialVelocities, vtkDataArray* initialIntegrationTimes,
     vtkPointData* seedData, int nVar, std::queue<vtkLagrangianParticle*>& particles);
+  virtual bool UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces);
   virtual void InitializeSurface(vtkDataObject*& surfaces);
   virtual bool InitializeOutputs(vtkInformationVector *outputVector, vtkPointData* seedData,
     vtkIdType numberOfSeeds, vtkDataObject* surfaces,
@@ -383,6 +385,14 @@ protected:
   // internal parameters use for step computation
   double MinimumVelocityMagnitude;
   double MinimumReductionFactor;
+
+  // Cache related parameters
+  vtkDataObject* FlowCache;
+  vtkMTimeType FlowTime;
+  vtkBoundingBox FlowBoundsCache;
+  vtkDataObject* SurfacesCache;
+  vtkMTimeType SurfacesTime;
+
 private:
   vtkLagrangianParticleTracker(const vtkLagrangianParticleTracker&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLagrangianParticleTracker&) VTK_DELETE_FUNCTION;
