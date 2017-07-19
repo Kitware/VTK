@@ -197,15 +197,15 @@ public:
   VTK_LEGACY(void SetAttributeMode(int newMode);)
   VTK_LEGACY(int GetAttributeMode();)
   VTK_LEGACY(void SetAttributeModeToDefault())
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
+    {this->SetAttributeType(DEFAULT_ATTRIBUTE_TYPE);};
   VTK_LEGACY(void SetAttributeModeToUsePointData())
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
+    {this->SetAttributeType(vtkDataObject::POINT);};
   VTK_LEGACY(void SetAttributeModeToUseCellData())
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
+    {this->SetAttributeType(vtkDataObject::CELL);};
   VTK_LEGACY(void SetAttributeModeToUseVertexData())
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA);};
+    {this->SetAttributeType(vtkDataObject::VERTEX);};
   VTK_LEGACY(void SetAttributeModeToUseEdgeData())
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_EDGE_DATA);};
+    {this->SetAttributeType(vtkDataObject::EDGE);};
   VTK_LEGACY(const char *GetAttributeModeAsString());
 #endif
   //@}

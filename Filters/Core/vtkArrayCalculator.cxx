@@ -1040,26 +1040,26 @@ const char* vtkArrayCalculator::GetAttributeModeAsString()
 {
   VTK_LEGACY_REPLACED_BODY(vtkArrayCalculator::GetAttributeModeAsString, "VTK 8.1",
     vtkArrayCalculator::GetAttributeTypeAsString);
-  int attributeMode = this->GetAttributeMode();
-  if ( attributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
-  {
-    return "Default";
-  }
-  else if ( attributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
+  int attributeType = this->GetAttributeType();
+  if ( attributeType == vtkDataObject::POINT )
   {
     return "UsePointData";
   }
-  else if ( attributeMode == VTK_ATTRIBUTE_MODE_USE_CELL_DATA )
+  else if ( attributeType == vtkDataObject::CELL )
   {
     return "UseCellData";
   }
-  else if ( attributeMode == VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA )
+  else if ( attributeType == vtkDataObject::VERTEX )
   {
     return "UseVertexData";
   }
-  else
+  else if ( attributeType == vtkDataObject::EDGE)
   {
     return "UseEdgeData";
+  }
+  else
+  {
+    return "Default";
   }
 }
 #endif
