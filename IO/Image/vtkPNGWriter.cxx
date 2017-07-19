@@ -21,6 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtk_png.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <vector>
 
@@ -270,7 +271,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
   }
   else
   {
-      this->TempFP = fopen(this->InternalFileName, "wb");
+      this->TempFP = vtksys::SystemTools::Fopen(this->InternalFileName, "wb");
       if (!this->TempFP)
       {
         vtkErrorMacro("Unable to open file " << this->InternalFileName);

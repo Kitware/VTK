@@ -50,6 +50,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "vtkHeap.h"
 #include "vtkByteSwap.h"
 #include "vtkMath.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cstddef>
 #include <cstring>
@@ -200,7 +201,7 @@ PlyFile *vtkPLY::ply_open_for_writing(
 
   /* open the file for writing */
 
-  fp = fopen (name, "wb");
+  fp = vtksys::SystemTools::Fopen (name, "wb");
   free (name); //wjs remove memory leak//
   if (fp == nullptr) {
     return (nullptr);
@@ -826,7 +827,7 @@ PlyFile *vtkPLY::ply_open_for_reading(
 
   /* open the file for reading */
 
-  fp = fopen (filename, "rb");
+  fp = vtksys::SystemTools::Fopen(filename, "rb");
   if (fp == nullptr)
     return (nullptr);
 

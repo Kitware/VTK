@@ -14,4 +14,5 @@ vtk_module(vtkIOPLY
   PRIVATE_DEPENDS
     vtkCommonDataModel
     vtkCommonMisc
+    vtksys
   )

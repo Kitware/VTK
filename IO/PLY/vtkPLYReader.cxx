@@ -24,6 +24,7 @@
 #include "vtkPLY.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cctype>
 #include <cstddef>
@@ -403,7 +404,7 @@ int vtkPLYReader::RequestData(
 
 int vtkPLYReader::CanReadFile(const char *filename)
 {
-  FILE *fd = fopen(filename, "rb");
+  FILE *fd = vtksys::SystemTools::Fopen(filename, "rb");
   if (!fd) return 0;
 
   char line[4] = {};

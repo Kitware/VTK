@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cctype>
 
@@ -100,7 +101,7 @@ int vtkSLCReader::RequestInformation (
   }
 
   // Initialize
-  if ((fp = fopen(this->FileName, "rb")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
@@ -250,7 +251,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
   }
 
   // Initialize
-  if ((fp = fopen(this->FileName, "rb")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
@@ -493,7 +494,7 @@ int vtkSLCReader::CanReadFile(const char* fname)
 {
   FILE* fp;
   int   magic_num = 0;
-  if ((fp = fopen(fname, "rb")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(fname, "rb")) == nullptr)
   {
     return 0;
   }

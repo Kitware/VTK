@@ -99,7 +99,7 @@ void vtkSTLWriter::WriteAsciiSTL(
   vtkIdType npts = 0;
   vtkIdType *indx = nullptr;
 
-  if ((fp = fopen(this->FileName, "w")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(this->FileName, "w")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName << " Reason: "
                   << vtksys::SystemTools::GetLastSystemError());
@@ -221,7 +221,7 @@ void vtkSTLWriter::WriteBinarySTL(
   unsigned long ulint;
   unsigned short ibuff2=0;
 
-  if ((fp = fopen(this->FileName, "wb")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(this->FileName, "wb")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName << " Reason: "
                   << vtksys::SystemTools::GetLastSystemError());

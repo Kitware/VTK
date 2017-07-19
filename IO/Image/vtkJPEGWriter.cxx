@@ -21,6 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtksys/SystemTools.hxx>
 
 extern "C" {
 #include "vtk_jpeg.h"
@@ -257,7 +258,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
   this->TempFP = nullptr;
   if (!this->WriteToMemory)
   {
-    this->TempFP = fopen(this->InternalFileName, "wb");
+    this->TempFP = vtksys::SystemTools::Fopen(this->InternalFileName, "wb");
     if (!this->TempFP)
     {
       vtkErrorMacro("Unable to open file " << this->InternalFileName);

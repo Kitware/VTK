@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkToolkits.h"
+#include <vtksys/SystemTools.hxx>
 
 extern "C" {
 #include "vtk_jpeg.h"
@@ -129,7 +130,7 @@ void vtkJPEGReader::ExecuteInformation()
 
   if (!this->MemoryBuffer)
   {
-    jerr.fp = fopen(this->InternalFileName, "rb");
+    jerr.fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
     if (!jerr.fp)
     {
       vtkErrorWithObjectMacro(this,
@@ -230,7 +231,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
 
   if (!self->GetMemoryBuffer())
   {
-    jerr.fp = fopen(self->GetInternalFileName(), "rb");
+    jerr.fp = vtksys::SystemTools::Fopen(self->GetInternalFileName(), "rb");
     if (!jerr.fp)
     {
       return 1;
@@ -400,7 +401,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   jerr.fp = nullptr;
 
   // open the file
-  jerr.fp = fopen(fname, "rb");
+  jerr.fp = vtksys::SystemTools::Fopen(fname, "rb");
   if (!jerr.fp)
   {
     return 0;

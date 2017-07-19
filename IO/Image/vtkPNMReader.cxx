@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkPNMReader);
 
@@ -96,7 +97,7 @@ void vtkPNMReader::ExecuteInformation()
   this->ComputeInternalFileName(this->DataExtent[4]);
 
   // get the magic number by reading in a file
-  fp = fopen(this->InternalFileName,"rb");
+  fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
   if (!fp)
   {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
@@ -206,7 +207,7 @@ inline int iseol(int c)
 
 int vtkPNMReader::CanReadFile(const char* fname)
 {
-  FILE *fp = fopen(fname, "rb");
+  FILE *fp = vtksys::SystemTools::Fopen(fname, "rb");
   if(!fp)
   {
     return 0;
