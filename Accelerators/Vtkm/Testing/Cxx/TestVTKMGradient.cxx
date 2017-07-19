@@ -229,7 +229,7 @@ namespace
     calculator->SetInputData(grid);
     calculator->SetResultArrayName(fieldName);
     calculator->SetFunction("coordsY*iHat+coordsX*jHat+coordsZ*kHat");
-    calculator->SetAttributeModeToUsePointData();
+    calculator->SetAttributeTypeToPointData();
     calculator->AddCoordinateScalarVariable("coordsX", 0);
     calculator->AddCoordinateScalarVariable("coordsY", 1);
     calculator->AddCoordinateScalarVariable("coordsZ", 2);
