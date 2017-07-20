@@ -79,7 +79,6 @@ vtkChartParallelCoordinates::vtkChartParallelCoordinates()
   this->GeometryValid = false;
   this->Selection = vtkIdTypeArray::New();
   this->Storage->Plot->SetSelection(this->Selection);
-  this->VisibleColumns = vtkStringArray::New();
 
   // Set up default mouse button assignments for parallel coordinates.
   this->SetActionToButton(vtkChart::PAN, vtkContextMouseEvent::RIGHT_BUTTON);
@@ -92,7 +91,6 @@ vtkChartParallelCoordinates::~vtkChartParallelCoordinates()
   this->Storage->Plot->SetSelection(NULL);
   delete this->Storage;
   this->Selection->Delete();
-  this->VisibleColumns->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -307,6 +305,33 @@ bool vtkChartParallelCoordinates::GetColumnVisibility(const vtkStdString& name)
     }
   }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+vtkStringArray* vtkChartParallelCoordinates::GetVisibleColumns()
+{
+  return this->VisibleColumns.GetPointer();
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::SetVisibleColumns(vtkStringArray* visColumns)
+{
+  if(!visColumns || visColumns->GetNumberOfTuples() == 0)
+  {
+    this->VisibleColumns->SetNumberOfTuples(0);
+  }
+  else
+  {
+    this->VisibleColumns->SetNumberOfTuples(
+      visColumns->GetNumberOfTuples());
+    this->VisibleColumns->DeepCopy(visColumns);
+  }
+  if (this->Storage->CurrentAxis >= this->VisibleColumns->GetNumberOfTuples())
+  {
+    this->Storage->CurrentAxis = -1;
+  }
+  this->Modified();
+  this->Update();
 }
 
 //-----------------------------------------------------------------------------
