@@ -60,7 +60,7 @@ class vtkWebProtocol(LinkProtocol):
             # Use active view is none provided.
             view = self.getApplication().GetObjectIdMap().GetActiveObject("VIEW")
         if not view:
-            raise Exception("no view provided: " + vid)
+            raise Exception("no view provided: %s" % vid)
 
         return view
 
