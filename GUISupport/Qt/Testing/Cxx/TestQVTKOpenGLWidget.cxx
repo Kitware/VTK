@@ -62,6 +62,16 @@ int TestQVTKOpenGLWidget(int argc, char* argv[])
   actor->SetMapper(mapper.Get());
   ren->AddActor(actor.Get());
 
+  int* windowSize = window->GetSize();
+  int* screenSize = window->GetScreenSize();
+  if (screenSize[0] < windowSize[0] || screenSize[1] < windowSize[1])
+  {
+    std::cout << "Expected vtkGenericOpenGLRenderWindow::GetScreenSize() "
+      "dimensions to be larger than the render window size"
+      << std::endl;
+    return EXIT_FAILURE;
+  }
+
   vtktesting->SetRenderWindow(window.Get());
   widget.update();
   app.processEvents();

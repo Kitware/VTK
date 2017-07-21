@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "QVTKOpenGLWidget.h"
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QOpenGLContext>
 #include <QOpenGLDebugLogger>
@@ -338,6 +340,10 @@ void QVTKOpenGLWidget::recreateFBO()
   }
   this->RenderWindow->SetSize(deviceSize.width(), deviceSize.height());
   this->RenderWindow->SetPosition(this->x() * devicePixelRatio_, this->y() * devicePixelRatio_);
+
+  // Set screen size on render window.
+  const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
+  this->RenderWindow->SetScreenSize(screenGeometry.width(), screenGeometry.height());
 
   this->FBO = new QOpenGLFramebufferObject(deviceSize, format);
   this->FBO->bind();
