@@ -72,6 +72,11 @@ vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
 
   this->CreateOutOfDomainParticle = false;
   this->ParticleCounter = 0;
+
+  this->FlowCache = NULL;
+  this->FlowTime = 0;
+  this->SurfacesCache = NULL;
+  this->SurfacesTime = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -388,7 +393,10 @@ bool vtkLagrangianParticleTracker::InitializeInputs(vtkInformationVector **input
   if (surfacesInInfo != NULL)
   {
     surfaces = surfacesInInfo->Get(vtkDataObject::DATA_OBJECT());
-    this->InitializeSurface(surfaces);
+    if (this->UpdateSurfaceCacheIfNeeded(surfaces))
+    {
+      this->InitializeSurface(surfaces);
+    }
   }
   return true;
 }
@@ -665,6 +673,17 @@ void vtkLagrangianParticleTracker::InsertPolyVertexCell(vtkPolyData* polydata)
 //---------------------------------------------------------------------------
 bool vtkLagrangianParticleTracker::InitializeFlow(vtkDataObject* input, vtkBoundingBox* bounds)
 {
+  // Check for updated cache
+  if (input == this->FlowCache &&
+     input->GetMTime() <= this->FlowTime &&
+     this->IntegrationModel->GetLocatorsBuilt())
+  {
+    bounds->Reset();
+    bounds->AddBox(this->FlowBoundsCache);
+    return true;
+  }
+
+  // No Cache, do the initialization
   // Clear previously setup flow
   this->IntegrationModel->ClearDataSets();
 
@@ -687,7 +706,6 @@ bool vtkLagrangianParticleTracker::InitializeFlow(vtkDataObject* input, vtkBound
         bounds->AddBounds(ds->GetBounds());
       }
     }
-    return true;
   }
   else if (dsInput)
   {
@@ -695,21 +713,38 @@ bool vtkLagrangianParticleTracker::InitializeFlow(vtkDataObject* input, vtkBound
     this->IntegrationModel->AddDataSet(dsInput);
     dsInput->ComputeBounds();
     bounds->AddBounds(dsInput->GetBounds());
-    return true;
   }
   else
   {
     vtkErrorMacro(<< "This filter cannot handle input of type: " <<
-      (input ? input->GetClassName() : "(none)"));
+                  (input ? input->GetClassName() : "(none)"));
     return false;
   }
+  this->IntegrationModel->SetLocatorsBuilt(true);
+  this->FlowCache = input;
+  this->FlowTime = input->GetMTime();
+  this->FlowBoundsCache.Reset();
+  this->FlowBoundsCache.AddBox(*bounds);
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces)
+{
+  if (surfaces != this->SurfacesCache || surfaces->GetMTime() > this->SurfacesTime)
+  {
+    this->SurfacesCache = surfaces;
+    this->SurfacesTime = surfaces->GetMTime();
+    return true;
+  }
+  return false;
 }
 
 //---------------------------------------------------------------------------
 void vtkLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
 {
   // Clear previously setup surfaces
-  this->IntegrationModel->ClearDataSets(true);
+  this->IntegrationModel->ClearDataSets(/*surface*/ true);
 
   // Check surfaces dataset type
   vtkCompositeDataSet *hdInput = vtkCompositeDataSet::SafeDownCast(surfaces);
@@ -747,7 +782,7 @@ void vtkLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
         }
         if (pd->GetNumberOfCells() > 0)
         {
-          this->IntegrationModel->AddDataSet(pd, true, iter->GetCurrentFlatIndex());
+          this->IntegrationModel->AddDataSet(pd, /*surface*/ true, iter->GetCurrentFlatIndex());
         }
       }
     }
@@ -776,7 +811,7 @@ void vtkLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
     }
     if (pd->GetNumberOfCells() > 0)
     {
-      this->IntegrationModel->AddDataSet(pd, true);
+      this->IntegrationModel->AddDataSet(pd, /*surface*/ true);
     }
   }
 }

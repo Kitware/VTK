@@ -497,9 +497,6 @@ typedef std::pair<unsigned int, double> PassThroughItem;
 typedef std::set<PassThroughItem> PassThroughSetType;
 
 //----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkLagrangianBasicIntegrationModel, Locator, vtkAbstractCellLocator);
-
-//----------------------------------------------------------------------------
 vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel():
   Locator(NULL),
   LastLocator(NULL),
@@ -540,6 +537,7 @@ vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel():
   // Using a vtkCellLocator by default
   vtkAbstractCellLocator* locator = vtkCellLocator::New();
   this->SetLocator(locator);
+  this->LocatorsBuilt = false;
   locator->Delete();
 }
 
@@ -716,6 +714,26 @@ int vtkLagrangianBasicIntegrationModel::FunctionValues(double* x, double* f)
 
   // Can't evaluate
   return 0;
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::SetLocator(vtkAbstractCellLocator* locator)
+{
+  if (this->Locator != locator)
+  {
+    vtkAbstractCellLocator* temp = this->Locator;
+    this->Locator = locator;
+    if (this->Locator != NULL)
+    {
+      this->Locator->Register(this);
+    }
+    if (temp != NULL)
+    {
+      temp->UnRegister(this);
+    }
+    this->Modified();
+    this->LocatorsBuilt = false;
+  }
 }
 
 //---------------------------------------------------------------------------

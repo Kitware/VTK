@@ -94,7 +94,7 @@ protected:
 
   bool CheckParticlePathsRenderingThreshold(vtkPolyData* particlePathsOutput) VTK_OVERRIDE;
 
-  void InitializeSurface(vtkDataObject*& surfaces) VTK_OVERRIDE;
+  bool UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces) VTK_OVERRIDE;
 
   /**
    * Get an unique id for a particle
