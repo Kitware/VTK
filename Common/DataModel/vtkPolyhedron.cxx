@@ -630,8 +630,8 @@ int  ExtractContourConnectivities(
       fvMapIt = faceToPointsMap.find(fVector[i]);
       if (fvMapIt == faceToPointsMap.end())
       {
-        cout << "Cannot find point ids of a face. We should never get "
-          "here. Contouring aborted." << endl;
+        vtkErrorWithObjectMacro(NULL,"Cannot find point ids of a face. We should never get "
+          "here. Contouring aborted.");
         return 0;
       }
 
@@ -1057,8 +1057,8 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   edgesSize = edges.size();
   if (extremePointAngles.size() != edgesSize)
   {
-    cout << "The size of the edge array does not match the size of the "
-      "angle array. We should never get here." << endl;
+    vtkErrorWithObjectMacro(NULL,"The size of the edge array does not match the size of the "
+      "angle array. We should never get here.");
     return;
   }
   vtkIdType outBoundary = -1;
@@ -1098,7 +1098,19 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   // traverse the contour graph to remove all incoming boundary edges.
   while (currPid != maxPid)
   {
-    edges = cpMap.find(currPid)->second;
+    mapIt = cpMap.find(currPid);
+    if (mapIt == cpMap.end())
+    {
+      double point[3];
+      points->GetPoint(cpMap.find(prevPid)->first, point);
+      vtkErrorWithObjectMacro(NULL,"Found an unexpected case with multiple connected points. "
+        "The input polyhedron cell may not be "
+        "watertight or the polygonal faces may not be planar. Contouring "
+        "will continue, but this cell may not be processed correctly." << endl
+        << "Previous point used was : " << point[0] << " " << point[1] << " " << point[2])
+      break;
+    }
+    edges = mapIt->second;
     edgesSize = edges.size();
     size_t i;
     bool foundPrevPid = false;
@@ -1154,9 +1166,9 @@ void OrderTwoConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
     mapIt = cpMap.find(currPid);
     if (mapIt == cpMap.end())
     {
-      cout << "Find an unexpected case. The input polyhedron cell may not be a "
-        << "water tight or the polygonal faces may not be planar. Contouring "
-        << "will continue, but this cell may not be processed correctly." << endl;
+      vtkErrorWithObjectMacro(NULL,"Find an unexpected case. The input polyhedron cell may not be a "
+        << "watertight or the polygonal faces may not be planar. Contouring "
+        << "will continue, but this cell may not be processed correctly.");
       break;
     }
     edges = mapIt->second;
