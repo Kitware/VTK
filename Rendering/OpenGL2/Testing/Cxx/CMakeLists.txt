@@ -17,6 +17,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGlyph3DMapperCellPicking.cxx
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
+  TestOffscreenRenderingResize.cxx
   TestPointFillPass.cxx
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperOpacity.cxx

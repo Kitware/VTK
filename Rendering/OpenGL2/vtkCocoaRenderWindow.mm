@@ -561,6 +561,20 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         resizing = false;
       }
     }
+
+    if (this->OffScreenInitialized)
+    {
+      if (!resizing)
+      {
+      resizing = true;
+      // we don't call DestroyOffScreenWindow/CreateOffScreenWindow here since
+      // those method destroy/release all graphics resources too which is not
+      // needed for a resize. All we want is to resize the FBO.
+      this->DestroyHardwareOffScreenWindow();
+      this->CreateHardwareOffScreenWindow(x, y);
+      resizing = false;
+      }
+    }
   }
 }
 
