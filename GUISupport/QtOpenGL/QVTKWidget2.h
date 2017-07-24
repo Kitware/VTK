@@ -35,7 +35,16 @@ class vtkObject;
 class vtkTDxDevice;
 #endif
 
-//! QVTKWidget2 displays a VTK window in a Qt window.
+/**
+ * @class QVTKWidget2
+ * @brief display a vtkRenderWindow in Qt's QGLWidget.
+ *
+ * QVTKWidget2 provides a way to display VTK data in a Qt QGLWidget. Since
+ * QGLWidget is flagged as obsolete by Qt, it is recommended to use
+ * QVTKOpenGLWidget instead.
+ *
+ * @deprecated Please use QVTKOpenGLWidget instead.
+ */
 class VTKGUISUPPORTQTOPENGL_EXPORT QVTKWidget2 : public QGLWidget
 {
   Q_OBJECT

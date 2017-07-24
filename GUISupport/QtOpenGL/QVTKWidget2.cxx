@@ -31,7 +31,7 @@
 #include "QVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
 # include "vtkTDxUnixDevice.h"
 #endif
 
@@ -93,9 +93,9 @@ void QVTKWidget2::SetUseTDx(bool useTDx)
     this->UseTDx=useTDx;
     if(this->UseTDx)
     {
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
-       QByteArray theSignal=
-         QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
+#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
+      QByteArray theSignal =
+          QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
       if(QApplication::instance()->metaObject()->indexOfSignal(theSignal)!=-1)
       {
         QObject::connect(QApplication::instance(),
@@ -439,7 +439,7 @@ bool QVTKWidget2::focusNextPrevChild(bool)
 // Receive notification of the creation of the TDxDevice
 void QVTKWidget2::setDevice(vtkTDxDevice *device)
 {
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
   if(this->GetInteractor()->GetDevice()!=device)
   {
     this->GetInteractor()->SetDevice(device);

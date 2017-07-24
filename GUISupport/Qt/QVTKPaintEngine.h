@@ -9,23 +9,6 @@
 
 =========================================================================*/
 
-/*========================================================================
- For general information about using VTK and Qt, see:
- http://www.trolltech.com/products/3rdparty/vtksupport.html
-=========================================================================*/
-
-/*========================================================================
- !!! WARNING for those who want to contribute code to this file.
- !!! If you use a commercial edition of Qt, you can modify this code.
- !!! If you use an open source version of Qt, you are free to modify
- !!! and use this code within the guidelines of the GPL license.
- !!! Unfortunately, you cannot contribute the changes back into this
- !!! file.  Doing so creates a conflict between the GPL and BSD-like VTK
- !!! license.
-=========================================================================*/
-
-// .NAME QVTKPaintEngine - directs QPainter calls to a VTK window
-
 #ifndef QVTK_PAINT_ENGINE_HPP
 #define QVTK_PAINT_ENGINE_HPP
 
@@ -34,7 +17,14 @@
 class QVTKWidget;
 class QVTKPaintEngineInternal;
 
-//!  A paint engine class to direct QPainter calls into a VTK window
+/**
+ * @class QVTKPaintEngine
+ * @brief directs QPainter calls to a VTK window
+ *
+ * A paint engine class to direct QPainter calls into a VTK window.
+ * @deprecated Only used in conjunction with QVTKWidget which has also been
+ * deprecated.
+ */
 class QVTKPaintEngine : public QPaintEngine
 {
 public:
