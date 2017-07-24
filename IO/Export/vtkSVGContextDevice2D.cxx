@@ -1282,12 +1282,13 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy,
       path->SetAttribute("d", d.str().c_str());
 
       // Inner ellipse
+      const int innerSweepFlag = 1;
       helper = EllipseHelper(cx, cy, inRx, inRy);
       helper.UpdateDegrees(stopAngle);
       d << "L" << helper.X << "," << y(helper.Y) << "\n";
       helper.UpdateDegrees(startAngle);
       d << "A" << inRx << "," << inRy << " 0 "
-        << largeArcFlag << " " << (sweepFlag == 0 ? 1 : 0) << " "
+        << largeArcFlag << " " << innerSweepFlag << " "
         << helper.X << "," << y(helper.Y) << "\nz\n";
       path->SetAttribute("d", d.str().c_str());
     }

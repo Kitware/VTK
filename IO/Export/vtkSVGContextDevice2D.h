@@ -177,7 +177,7 @@ public:
 
 protected:
   vtkSVGContextDevice2D();
-  ~vtkSVGContextDevice2D();
+  ~vtkSVGContextDevice2D() VTK_OVERRIDE;
 
   void SetViewport(vtkViewport*);
 

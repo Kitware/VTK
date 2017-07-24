@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkSVGExporter();
-  ~vtkSVGExporter();
+  ~vtkSVGExporter() VTK_OVERRIDE;
 
   void WriteData() VTK_OVERRIDE;
 
