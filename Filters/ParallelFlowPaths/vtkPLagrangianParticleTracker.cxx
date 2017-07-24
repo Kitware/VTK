@@ -1043,7 +1043,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
     // Update local cache and reduce cache status
     int localCacheUpdated = this->Superclass::UpdateSurfaceCacheIfNeeded(surfaces);
     int maxLocalCacheUpdated;
-    this->Controller->AllReduce(&localCacheUpdate, &maxLocalCacheUpdated, 1, vtkCommunicator::MAX_OP);
+    this->Controller->AllReduce(&localCacheUpdated, &maxLocalCacheUpdated, 1, vtkCommunicator::MAX_OP);
 
     if(!maxLocalCacheUpdated)
     {
