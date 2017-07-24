@@ -35,7 +35,7 @@ mark_as_advanced(VTK_OPENGL_HAS_OSMESA)
 #-----------------------------------------------------------------------------
 # OpenGL implementation supports EGL for creating offscreen context.
 set(default_has_egl OFF)
-if(DEFINED VTK_USE_OFFSCREEN_EGL)
+if(DEFINED VTK_USE_OFFSCREEN_EGL AND VTK_USE_OFFSCREEN_EGL)
   message(DEPRECATION "`VTK_USE_OFFSCREEN_EGL` cache variable is replaced by "
     "`VTK_OPENGL_HAS_EGL`. Plase use it instead. The new name "
     "better reflects the variable's purpose.")
@@ -46,7 +46,7 @@ option(VTK_OPENGL_HAS_EGL "The OpenGL library being used supports EGL" ${default
 mark_as_advanced(VTK_OPENGL_HAS_EGL)
 
 set(default_egl_device_index 0)
-if(DEFINED VTK_EGL_DEVICE_INDEX)
+if(DEFINED VTK_EGL_DEVICE_INDEX AND NOT VTK_EGL_DEVICE_INDEX EQUAL 0)
   message(DEPRECATION "`VTK_EGL_DEVICE_INDEX` cache variable is replaced by "
     "`VTK_DEFAULT_EGL_DEVICE_INDEX`. Please use it instead. The new name "
     "better reflects the variable's purpose.")
@@ -70,7 +70,7 @@ endif()
 # lets the user select the default state for the  `Offscreen` flag on the
 # vtkRenderWindow when it is instantiated (formerly VTK_USE_OFFSCREEN).
 set(default_use_offscreen OFF)
-if(DEFINED VTK_USE_OFFSCREEN)
+if(DEFINED VTK_USE_OFFSCREEN AND VTK_USE_OFFSCREEN)
   message(DEPRECATION "`VTK_USE_OFFSCREEN` cache variable is replaced by "
     "`VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN`. Please use it instead. The new name "
     "better reflects the variable's purpose.")
