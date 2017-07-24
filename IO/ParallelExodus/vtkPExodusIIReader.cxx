@@ -197,18 +197,6 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
 }
 
 //----------------------------------------------------------------------------
-int vtkPExodusIIReader::CanReadFile( const char* fname )
-{
-  int canRead = 0;
-  if ( this->ProcRank == 0 )
-  {
-    canRead = this->Superclass::CanReadFile(fname);
-  }
-  this->Controller->Broadcast(&canRead, 1, 0);
-  return canRead;
-}
-
-//----------------------------------------------------------------------------
 void vtkPExodusIIReader::SetController( vtkMultiProcessController* c )
 {
   if ( this->Controller == c )
