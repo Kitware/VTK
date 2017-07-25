@@ -72,7 +72,6 @@ else()
    if (NOT VTK_RENDERING_BACKEND STREQUAL "None")
      add_subdirectory(Infovis/Cxx)
    endif ()
-#  add_subdirectory(GUI/Motif)
 #
 #  IF(VTK_USE_INFOVIS)
 #    IF(VTK_USE_CHARTS)
