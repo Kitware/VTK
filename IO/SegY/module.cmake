@@ -1,0 +1,13 @@
+vtk_module(vtkIOSegY
+  TEST_DEPENDS
+    vtkTestingCore
+  KIT
+    vtkIO
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkIOCore
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkFiltersCore
+  )
