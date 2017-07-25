@@ -96,15 +96,15 @@ protected:
   vtkCamera *Camera;
   vtkActor  *Device;
 
+  //Internal matrices to avoid New/Delete for performance reasons
+  vtkMatrix4x4 *InternalMatrix;
+
 private:
   vtkFollower(const vtkFollower&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFollower&) VTK_DELETE_FUNCTION;
 
   // hide the two parameter Render() method from the user and the compiler.
   void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE {}
-
-  //Internal matrices to avoid New/Delete for performance reasons
-  vtkMatrix4x4 *InternalMatrix;
 };
 
 #endif
