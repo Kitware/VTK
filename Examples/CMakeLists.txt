@@ -51,9 +51,11 @@ else()
     if(VTK_RENDERING_BACKEND STREQUAL "OpenGL" AND vtkTestingCore_LOADED)
       add_subdirectory(LIC/Cxx)
     endif()
- if(vtkParallelMPI_LOADED AND vtkRenderingParallel_LOADED)
-  add_subdirectory(ParallelProcessing/Generic)
- endif()
+
+    if(vtkParallelMPI_LOADED AND vtkRenderingParallel_LOADED)
+      add_subdirectory(ParallelProcessing/Generic)
+    endif()
+
     # This may have been already built as part of the VTK build.
     # If so we cannot create the target "vtkLocalExample" because
     # an imported target of the same name already exists in the
@@ -72,11 +74,12 @@ else()
    if (NOT VTK_RENDERING_BACKEND STREQUAL "None")
      add_subdirectory(Infovis/Cxx)
    endif ()
+
+   if (vtkChartsCore_LOADED)
+    add_subdirectory(Charts/Cxx)
+   endif()
 #
 #  IF(VTK_USE_INFOVIS)
-#    IF(VTK_USE_CHARTS)
-#      add_subdirectory(Charts/Cxx)
-#    ENDIF()
 #    IF(VTK_USE_N_WAY_ARRAYS)
 #      add_subdirectory(Array/Cxx)
 #    ENDIF()
