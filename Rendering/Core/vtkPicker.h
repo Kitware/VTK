@@ -148,9 +148,26 @@ public:
   int Pick(double selectionPt[3], vtkRenderer *ren)
     { return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], ren); }
 
+  /**
+   * Perform pick operation with selection point provided. The
+   * selectionPt is in world coordinates.
+   * Return non-zero if something was successfully picked.
+   */
+  int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) VTK_OVERRIDE;
+
+  /**
+   * Perform pick operation with selection point and orientaion provided.
+   * The selectionPt is in world coordinates.
+   * Return non-zero if something was successfully picked.
+   */
+  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) VTK_OVERRIDE;
+
 protected:
   vtkPicker();
   ~vtkPicker() VTK_OVERRIDE;
+
+  // shared code for picking
+  virtual int Pick3DInternal(vtkRenderer *ren, double p1World[4], double p2World[4]);
 
   void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m,
                   double tMin, double mapperPos[3]);

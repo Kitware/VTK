@@ -236,6 +236,45 @@ int vtkCellPicker::Pick(double selectionX, double selectionY,
 }
 
 //----------------------------------------------------------------------------
+int vtkCellPicker::Pick3DRay(
+  double pos[3],
+  double orient[4],
+  vtkRenderer *renderer)
+{
+  int pickResult = 0;
+
+  if ( (pickResult =
+      this->Superclass::Pick3DRay(pos, orient, renderer)) == 0)
+  {
+    // If no pick, set the PickNormal so that it points at the camera
+    vtkCamera *camera = renderer->GetActiveCamera();
+    double cameraPos[3];
+    camera->GetPosition(cameraPos);
+
+    if (camera->GetParallelProjection())
+    {
+      // For parallel projection, use -ve direction of projection
+      double cameraFocus[3];
+      camera->GetFocalPoint(cameraFocus);
+      this->PickNormal[0] = cameraPos[0] - cameraFocus[0];
+      this->PickNormal[1] = cameraPos[1] - cameraFocus[1];
+      this->PickNormal[2] = cameraPos[2] - cameraFocus[2];
+    }
+    else
+    {
+      // Get the vector from pick position to the camera
+      this->PickNormal[0] = cameraPos[0] - this->PickPosition[0];
+      this->PickNormal[1] = cameraPos[1] - this->PickPosition[1];
+      this->PickNormal[2] = cameraPos[2] - this->PickPosition[2];
+    }
+
+    vtkMath::Normalize(this->PickNormal);
+  }
+
+  return pickResult;
+}
+
+//----------------------------------------------------------------------------
 // Tolerance for parametric coordinate matching an intersection with a plane
 #define VTKCELLPICKER_PLANE_TOL 1e-14
 
