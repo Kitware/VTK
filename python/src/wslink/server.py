@@ -160,7 +160,10 @@ def start_webserver(options, protocol=wsl.ServerProtocol, disableLogging=False):
         observer.start()
         # log.startLogging(sys.stdout)
         # Set logging level.
-        if (options.debug): logging.basicConfig(level=logging.DEBUG)
+        if (options.debug):
+            logging.basicConfig(level=logging.DEBUG)
+        else:
+            logging.basicConfig(level=logging.ERROR)
 
     contextFactory = None
 
