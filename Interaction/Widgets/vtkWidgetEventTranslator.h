@@ -42,7 +42,7 @@ class vtkRenderWindowInteractor;
 class vtkCallbackCommand;
 class vtkEvent;
 class vtkAbstractWidget;
-
+class vtkEventData;
 
 // This is a lightweight class that should be used internally by the widgets
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetEventTranslator : public vtkObject
@@ -72,6 +72,7 @@ public:
   void SetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
                       int repeatCount, const char* keySym, unsigned long widgetEvent);
   void SetTranslation(vtkEvent *VTKevent, unsigned long widgetEvent);
+  void SetTranslation(unsigned long VTKEvent, vtkEventData *edata, unsigned long widgetEvent);
   //@}
 
   //@{
@@ -83,6 +84,7 @@ public:
   const char *GetTranslation(const char *VTKEvent);
   unsigned long GetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
                                int repeatCount, char* keySym);
+  unsigned long GetTranslation(unsigned long VTKEvent, vtkEventData *edata);
   unsigned long GetTranslation(vtkEvent *VTKEvent);
   //@}
 
@@ -95,6 +97,7 @@ public:
                          int modifier,    char keyCode,
                          int repeatCount, char* keySym);
   int RemoveTranslation( vtkEvent *e );
+  int RemoveTranslation( vtkEventData *e );
   int RemoveTranslation(unsigned long VTKEvent);
   int RemoveTranslation(const char *VTKEvent);
   //@}

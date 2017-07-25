@@ -23,8 +23,6 @@
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
-
-
 //----------------------------------------------------------------------
 vtkAbstractWidget::vtkAbstractWidget()
 {
@@ -215,27 +213,37 @@ void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
     return;
   }
 
-  int modifier = vtkEvent::GetModifier(self->Interactor);
+  // if the event has data then get the translation using the
+  // event data
   unsigned long widgetEvent = vtkWidgetEvent::NoEvent;
-
-  // If neither the ctrl nor the shift keys are pressed, give
-  // NoModifier a preference over AnyModifer.
-  if (modifier == vtkEvent::AnyModifier)
+  if (calldata && vtkCommand::EventHasData(vtkEvent))
   {
     widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
-                                          vtkEvent::NoModifier,
+      static_cast<vtkEventData *>(calldata));
+  }
+  else
+  {
+    int modifier = vtkEvent::GetModifier(self->Interactor);
+
+    // If neither the ctrl nor the shift keys are pressed, give
+    // NoModifier a preference over AnyModifer.
+    if (modifier == vtkEvent::AnyModifier)
+    {
+      widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
+                                            vtkEvent::NoModifier,
+                                            self->Interactor->GetKeyCode(),
+                                            self->Interactor->GetRepeatCount(),
+                                            self->Interactor->GetKeySym());
+    }
+
+    if ( widgetEvent == vtkWidgetEvent::NoEvent)
+    {
+      widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
+                                          modifier,
                                           self->Interactor->GetKeyCode(),
                                           self->Interactor->GetRepeatCount(),
                                           self->Interactor->GetKeySym());
-  }
-
-  if ( widgetEvent == vtkWidgetEvent::NoEvent)
-  {
-    widgetEvent = self->EventTranslator->GetTranslation(vtkEvent,
-                                        modifier,
-                                        self->Interactor->GetKeyCode(),
-                                        self->Interactor->GetRepeatCount(),
-                                        self->Interactor->GetKeySym());
+    }
   }
 
   // Save the call data for widgets if needed

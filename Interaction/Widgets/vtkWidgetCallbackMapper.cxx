@@ -103,6 +103,15 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
   this->SetCallbackMethod(widgetEvent,w,f);
 }
 
+//----------------------------------------------------------------------------
+void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
+  vtkEventData *edata,
+  unsigned long widgetEvent,
+  vtkAbstractWidget *w, CallbackType f)
+{
+  this->EventTranslator->SetTranslation(VTKEvent, edata, widgetEvent);
+  this->SetCallbackMethod(widgetEvent,w,f);
+}
 
 //----------------------------------------------------------------------------
 void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long widgetEvent,
