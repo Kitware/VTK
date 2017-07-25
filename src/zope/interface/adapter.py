@@ -22,6 +22,7 @@ from zope.interface import ro
 from zope.interface.interfaces import IAdapterRegistry
 
 from zope.interface._compat import _normalize_name
+from zope.interface._compat import STRING_TYPES
 
 _BLANK = u''
 
@@ -102,6 +103,8 @@ class BaseAdapterRegistry(object):
         self._v_lookup.changed(originally_changed)
 
     def register(self, required, provided, name, value):
+        if not isinstance(name, STRING_TYPES):
+            raise ValueError('name is not a string')
         if value is None:
             self.unregister(required, provided, name, value)
             return
@@ -249,7 +252,7 @@ class BaseAdapterRegistry(object):
         old = components.get(_BLANK)
         if not old:
             # this is belt-and-suspenders against the failure of cleanup below
-            return  #pragma NO COVERAGE 
+            return  # pragma: no cover
 
         if value is None:
             new = ()
@@ -288,7 +291,7 @@ class BaseAdapterRegistry(object):
 
     # XXX hack to fake out twisted's use of a private api.  We need to get them
     # to use the new registed method.
-    def get(self, _): #pragma NO COVER
+    def get(self, _): # pragma: no cover
         class XXXTwistedFakeOut:
             selfImplied = {}
         return XXXTwistedFakeOut
@@ -321,6 +324,8 @@ class LookupBaseFallback(object):
         return cache
 
     def lookup(self, required, provided, name=_BLANK, default=None):
+        if not isinstance(name, STRING_TYPES):
+            raise ValueError('name is not a string')
         cache = self._getcache(provided, name)
         required = tuple(required)
         if len(required) == 1:
@@ -341,6 +346,8 @@ class LookupBaseFallback(object):
         return result
 
     def lookup1(self, required, provided, name=_BLANK, default=None):
+        if not isinstance(name, STRING_TYPES):
+            raise ValueError('name is not a string')
         cache = self._getcache(provided, name)
         result = cache.get(required, _not_in_mapping)
         if result is _not_in_mapping:
@@ -355,6 +362,8 @@ class LookupBaseFallback(object):
         return self.adapter_hook(provided, object, name, default)
 
     def adapter_hook(self, provided, object, name=_BLANK, default=None):
+        if not isinstance(name, STRING_TYPES):
+            raise ValueError('name is not a string')
         required = providedBy(object)
         cache = self._getcache(provided, name)
         factory = cache.get(required, _not_in_mapping)
@@ -401,14 +410,14 @@ LookupBasePy = LookupBaseFallback # BBB
 
 try:
     from zope.interface._zope_interface_coptimizations import LookupBase
-except ImportError: #pragma NO COVER
+except ImportError:
     LookupBase = LookupBaseFallback
 
 
 class VerifyingBaseFallback(LookupBaseFallback):
     # Mixin for lookups against registries which "chain" upwards, and
     # whose lookups invalidate their own caches whenever a parent registry
-    # bumps its own '_generation' counter.  E.g., used by 
+    # bumps its own '_generation' counter.  E.g., used by
     # zope.component.persistentregistry
 
     def changed(self, originally_changed):
@@ -437,7 +446,7 @@ VerifyingBasePy = VerifyingBaseFallback #BBB
 
 try:
     from zope.interface._zope_interface_coptimizations import VerifyingBase
-except ImportError: #pragma NO COVER
+except ImportError:
     VerifyingBase = VerifyingBaseFallback
 
 
