@@ -1056,6 +1056,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
       {
         surfaces = this->TmpSurfaceInputMB;
       }
+      return false;
     }
 
     // Local cache has been updated, update temporary reduced surface
@@ -1125,6 +1126,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
     {
       vtkErrorMacro("Unrecognized surface.");
     }
+    return true;
   }
   else
   {
