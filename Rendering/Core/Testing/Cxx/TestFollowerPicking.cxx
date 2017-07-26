@@ -54,7 +54,7 @@ public:
   {
 //      vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
       vtkCellPicker *picker = reinterpret_cast<vtkCellPicker*>(caller);
-      if ( picker->GetViewProp() != NULL )
+      if ( picker->GetViewProp() != nullptr )
       {
         cout << "Picked\n";
       }

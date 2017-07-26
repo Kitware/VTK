@@ -61,12 +61,12 @@ int TestSmartPointer(int,char *[])
   testbits = (testbits << 1) | ((da2 <= ia) ? 1 : 0);
   testbits = (testbits << 1) | ((da2 > ia) ? 1 : 0);
   testbits = (testbits << 1) | ((da2 >= ia) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 == 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 != 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 < 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 <= 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 > 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 >= 0) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 == nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 != nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 < nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 <= nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 > nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 >= nullptr) ? 1 : 0);
   if (testbits != correctbits)
   {
     unsigned int diffbits = (testbits ^ correctbits);

@@ -154,7 +154,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
   vtkCuller *culler=ren1->GetCullers()->GetNextItem();
 
   vtkFrustumCoverageCuller *fc=vtkFrustumCoverageCuller::SafeDownCast(culler);
-  if(fc!=0)
+  if(fc!=nullptr)
   {
     fc->SetSortingStyleToBackToFront();
   }

@@ -52,7 +52,7 @@ public:
     txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
     this->Text->SetInput( txt.str().c_str() );
   }
-vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
+vtkBLWCallback():Poly(nullptr),Selector(nullptr),Extractor(nullptr),Mapper(nullptr),Text(nullptr) {};
   vtkPolyData* Poly;
   vtkLinearSelector* Selector;
   vtkExtractSelection* Extractor;

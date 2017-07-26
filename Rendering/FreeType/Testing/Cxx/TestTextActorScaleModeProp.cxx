@@ -36,9 +36,9 @@ int TestTextActorScaleModeProp(int, char *[])
 
   vtkNew<vtkTextActor> textActor;
   textActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  textActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
+  textActor->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   textActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  textActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  textActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   textActor->SetTextScaleModeToProp();
   textActor->SetTextProperty(textProperty.GetPointer());
   textActor->SetInput("15412");

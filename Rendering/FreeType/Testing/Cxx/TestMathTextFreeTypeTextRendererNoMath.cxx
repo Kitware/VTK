@@ -38,7 +38,7 @@ int TestMathTextFreeTypeTextRendererNoMath(int argc, char *argv[])
   std::string uncodeFontFile(argv[1]);
 
   vtkNew<vtkTextRenderer> tren;
-  if (tren.GetPointer() == NULL)
+  if (tren.GetPointer() == nullptr)
   {
     std::cerr << "Object factory cannot find vtkTextRenderer override.\n";
     return EXIT_FAILURE;

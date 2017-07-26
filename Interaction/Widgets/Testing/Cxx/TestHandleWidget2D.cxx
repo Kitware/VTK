@@ -46,7 +46,7 @@ public:
     static_cast<vtkHandleRepresentation *>(handleWidget->GetRepresentation())->GetDisplayPosition(pos);
     this->Actor->SetPosition(pos[0],pos[1]);
   }
-  vtkHandle2Callback():Actor(0) {}
+  vtkHandle2Callback():Actor(nullptr) {}
   vtkActor2D *Actor;
 };
 

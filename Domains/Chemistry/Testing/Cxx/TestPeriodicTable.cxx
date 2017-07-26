@@ -45,12 +45,12 @@ int TestPeriodicTable(int , char * [])
   // Check that invalid strings return zero
   const char *nullString = "";
   if (pTab->GetAtomicNumber("I'm not an element.") != 0 ||
-      pTab->GetAtomicNumber(0) != 0 ||
+      pTab->GetAtomicNumber(nullptr) != 0 ||
       pTab->GetAtomicNumber(nullString) != 0)
   {
     cout << "vtkPeriodicTable did not return 0 for an invalid string: "
          << pTab->GetAtomicNumber("I'm not an element.") << ", "
-         << pTab->GetAtomicNumber(0) << ", "
+         << pTab->GetAtomicNumber(nullptr) << ", "
          << pTab->GetAtomicNumber(nullString) << endl;
     ++errors;
   }

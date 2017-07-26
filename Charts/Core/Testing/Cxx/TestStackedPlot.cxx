@@ -108,7 +108,7 @@ int TestStackedPlot(int , char * [])
   chart->SetShowLegend(true);
 
   // Add multiple line plots, setting the colors etc
-  vtkPlotStacked *stack = 0;
+  vtkPlotStacked *stack = nullptr;
 
   // Books
   stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));

@@ -87,7 +87,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -109,7 +109,7 @@ void MyProcess::Execute()
 //  vtkParallelRenderManager *prm = vtkParallelRenderManager::New();
   vtkImageRenderManager *prm = vtkImageRenderManager::New();
 
-  vtkRenderWindowInteractor *iren=0;
+  vtkRenderWindowInteractor *iren=nullptr;
 
   if(me==0)
   {

@@ -436,7 +436,7 @@ public:
       }
     }
   }
-  vtkSeedCallback() : SeedRepresentation(0) {}
+  vtkSeedCallback() : SeedRepresentation(nullptr) {}
   vtkSeedRepresentation *SeedRepresentation;
 };
 
@@ -520,7 +520,7 @@ int TestSeedWidget(int argc, char *argv[])
               << endNumSeeds << std::endl;
     retVal = EXIT_FAILURE;
 
-    if (widget->GetSeed(0) != NULL)
+    if (widget->GetSeed(0) != nullptr)
     {
       vtkSeedRepresentation *seedRep =  vtkSeedRepresentation::SafeDownCast(
         widget->GetRepresentation());

@@ -59,7 +59,7 @@ bool ThreadedImageAlgorithmTester::TestSplitExtent(
     extent[5] - extent[4] + 1
   };
 
-  vtkIdType n = this->SplitExtent(0, extent, 0, pieces);
+  vtkIdType n = this->SplitExtent(nullptr, extent, 0, pieces);
 
   int divs[3] = { 1, 1, 1 };
   vtkIdType inc = 1;

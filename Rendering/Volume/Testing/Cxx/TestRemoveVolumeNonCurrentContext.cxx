@@ -615,7 +615,7 @@ public:
 
     vtkRenderWindowInteractor* interactor =
       static_cast<vtkRenderWindowInteractor*>(caller);
-    if (interactor == NULL)
+    if (interactor == nullptr)
     {
       return;
     }
@@ -676,7 +676,7 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   vtkNew<vtkInteractorStyleTrackballCamera> interactorStyle;
   interactor1->SetInteractorStyle(interactorStyle.GetPointer());
 
-  renderWindow1->SetParentId(0);
+  renderWindow1->SetParentId(nullptr);
   renderWindow1->AddRenderer(renderer1.GetPointer());
   renderWindow1->SetWindowName("Victim");
   renderWindow1->SetSize(500, 300);
@@ -700,7 +700,7 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renderWindow2;
   vtkNew<vtkRenderWindowInteractor> interactor2;
 
-  renderWindow2->SetParentId(0);
+  renderWindow2->SetParentId(nullptr);
   renderWindow2->AddRenderer(renderer2.GetPointer());
   renderWindow2->SetWindowName("Villain");
   renderWindow2->SetSize(300, 300);

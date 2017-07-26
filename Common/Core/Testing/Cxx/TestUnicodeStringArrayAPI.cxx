@@ -215,7 +215,7 @@ int TestErrorsAndWarnings()
   array->AddObserver(vtkCommand::WarningEvent, errorObserver);
 
   // ERROR: Not implmented
-  array->SetVoidArray(0, 1, 1);
+  array->SetVoidArray(nullptr, 1, 1);
   if (errorObserver->GetError())
   {
     std::cout << "Caught expected error: "

@@ -363,7 +363,7 @@ public:
     }
   }
 
-  vtkWidgetWindowLevelCallback():WidgetX( 0 ), WidgetY( 0 ), WidgetZ ( 0 ) {}
+  vtkWidgetWindowLevelCallback():WidgetX( nullptr ), WidgetY( nullptr ), WidgetZ ( nullptr ) {}
 
   vtkImagePlaneWidget* WidgetX;
   vtkImagePlaneWidget* WidgetY;
@@ -517,10 +517,10 @@ int ImagePlaneWidget( int argc, char *argv[] )
   renWin->Render();
   iren->SetEventPosition( 175,175);
   iren->SetKeyCode('r');
-  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
   iren->SetEventPosition( 475,175);
   iren->SetKeyCode('r');
-  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
   renWin->Render();
 
   ren1->GetActiveCamera()->Elevation(110);
@@ -540,9 +540,9 @@ int ImagePlaneWidget( int argc, char *argv[] )
   // Test SetKeyPressActivationValue for one of the widgets
   //
   iren->SetKeyCode('z');
-  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
   iren->SetKeyCode('z');
-  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
 
   recorder->Play();
 

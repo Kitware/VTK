@@ -68,7 +68,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -104,7 +104,7 @@ void MyProcess::Execute()
     rgr->SetFileName(fname);
 
     rg = rgr->GetOutput();
-    rg->Register(0);
+    rg->Register(nullptr);
 
     rgr->Update();
 

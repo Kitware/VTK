@@ -512,7 +512,7 @@ public:
       reinterpret_cast<vtkSliderWidget*>(caller);
     this->Glyph->SetScaleFactor(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
   }
-  vtkSliderCallback():Glyph(0) {}
+  vtkSliderCallback():Glyph(nullptr) {}
   vtkGlyph3D *Glyph;
 };
 

@@ -49,7 +49,7 @@ public:
 
     vtkRenderWindowInteractor* interactor =
       static_cast<vtkRenderWindowInteractor*>(caller);
-    if (interactor == NULL)
+    if (interactor == nullptr)
     {
       return;
     }
@@ -89,7 +89,7 @@ int TestRemoveActorNonCurrentContext(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renderWindow1;
   vtkNew<vtkRenderWindowInteractor> interactor1;
 
-  renderWindow1->SetParentId(0);
+  renderWindow1->SetParentId(nullptr);
   renderWindow1->AddRenderer(renderer1.GetPointer());
   renderWindow1->SetWindowName("Victim");
   renderWindow1->SetSize(500, 300);
@@ -106,7 +106,7 @@ int TestRemoveActorNonCurrentContext(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renderWindow2;
   vtkNew<vtkRenderWindowInteractor> interactor2;
 
-  renderWindow2->SetParentId(0);
+  renderWindow2->SetParentId(nullptr);
   renderWindow2->AddRenderer(renderer2.GetPointer());
   renderWindow2->SetWindowName("Villain");
   renderWindow2->SetSize(300, 300);
@@ -130,7 +130,7 @@ int TestRemoveActorNonCurrentContext(int argc, char* argv[])
   renderWindow2->Render();
   renderWindow1->MakeCurrent();
   interactor1->SetKeyEventInformation(0, 0, 0, 0, "9");
-  interactor1->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+  interactor1->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
   int retval = vtkTesting::Test(argc, argv,
                                 renderWindow1.GetPointer(), 10);
   if (retval == vtkRegressionTester::DO_INTERACTOR)

@@ -150,7 +150,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
   ebp->Update();
 
   vtkTable* outBPTable = ebp->GetOutput();
-  vtkDoubleArray* q3Points = 0;
+  vtkDoubleArray* q3Points = nullptr;
   for (vtkIdType i = 0; i < outBPTable->GetNumberOfColumns(); i++)
   {
     const char* colName = outBPTable->GetColumnName(i);

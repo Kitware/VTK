@@ -128,7 +128,7 @@ int TestCompositePolyDataMapper2MixedGeometryEdges(int argc, char* argv[])
           p2c->Update();
           child->DeepCopy(p2c->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not seting it on some

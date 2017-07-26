@@ -61,12 +61,12 @@ int TestWeakPointer(int,char *[])
   testbits = (testbits << 1) | ((da2 <= ia) ? 1 : 0);
   testbits = (testbits << 1) | ((da2 > ia) ? 1 : 0);
   testbits = (testbits << 1) | ((da2 >= ia) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 == 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 != 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 < 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 <= 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 > 0) ? 1 : 0);
-  testbits = (testbits << 1) | ((da1 >= 0) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 == nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 != nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 < nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 <= nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 > nullptr) ? 1 : 0);
+  testbits = (testbits << 1) | ((da1 >= nullptr) ? 1 : 0);
   if (testbits != correctbits)
   {
     unsigned int diffbits = (testbits ^ correctbits);
@@ -97,23 +97,23 @@ int TestWeakPointer(int,char *[])
   }
   cout << "IntArray: " << da2 << "\n";
 
-  if (da1.GetPointer() == 0)
+  if (da1.GetPointer() == nullptr)
   {
     cerr << "da1.GetPointer() is nullptr\n";
     rval = 1;
   }
-  if (da2.GetPointer() == 0)
+  if (da2.GetPointer() == nullptr)
   {
     cerr << "da2.GetPointer() is nullptr\n";
     rval = 1;
   }
-  if (da3.Get() != 0)
+  if (da3.Get() != nullptr)
   {
     cerr << "da3.GetPointer() is not nullptr\n";
     rval = 1;
   }
 
-  da2 = 0;
+  da2 = nullptr;
   ia->Delete();
 
   if (da1.GetPointer() != nullptr)

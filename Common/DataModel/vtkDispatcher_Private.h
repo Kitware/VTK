@@ -101,7 +101,7 @@ class FunctorImpl{
     template <class U>
     static U* Clone(U* pObj)
     {
-        if (!pObj) return 0;
+        if (!pObj) return nullptr;
         U* pClone = static_cast<U*>(pObj->DoClone());
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;
@@ -256,7 +256,7 @@ class FunctorImpl{
     template <class U>
     static U* Clone(U* pObj)
     {
-        if (!pObj) return 0;
+        if (!pObj) return nullptr;
         U* pClone = static_cast<U*>(pObj->DoClone());
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;

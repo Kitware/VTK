@@ -60,8 +60,8 @@ void InitializeData(vtkUndirectedGraph* Data)
 
 bool CompareData(vtkGraph* Output, vtkGraph* Input)
 {
-  bool inputDirected = (vtkDirectedGraph::SafeDownCast(Input) != 0);
-  bool outputDirected = (vtkDirectedGraph::SafeDownCast(Output) != 0);
+  bool inputDirected = (vtkDirectedGraph::SafeDownCast(Input) != nullptr);
+  bool outputDirected = (vtkDirectedGraph::SafeDownCast(Output) != nullptr);
   if(inputDirected != outputDirected)
     return false;
 

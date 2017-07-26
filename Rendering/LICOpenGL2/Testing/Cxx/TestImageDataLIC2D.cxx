@@ -275,7 +275,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   probe->SetSourceConnection(reader->GetOutputPort());
   probe->SetInputData(probeData);
   probe->Update();
-  probeData = NULL;
+  probeData = nullptr;
 
   // create and initialize a rendering context
   vtkSmartPointer<vtkRenderWindow> renWin
@@ -300,7 +300,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     filter->SetInputData(1, noise);
   }
   filter->UpdateInformation();
-  noise = NULL;
+  noise = nullptr;
 
   // array to hold the results
   vtkPixelExtent licDataExt(outWidth, outHeight);
@@ -343,9 +343,9 @@ int ImageDataLIC2D(int argc, char* argv[])
             licData->GetDataType(),
             licData->GetVoidPointer(0));
   }
-  probe = NULL;
-  filter = NULL;
-  renWin = NULL;
+  probe = nullptr;
+  filter = nullptr;
+  renWin = nullptr;
 
   // convert from float to u char for png
   vtkSmartPointer<vtkUnsignedCharArray> licPng
@@ -360,7 +360,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   {
     pPng[i] = static_cast<unsigned char>(pData[i]*255.0f);
   }
-  licData = NULL;
+  licData = nullptr;
 
   // wrap the result into an image data for the png writer
   vtkSmartPointer<vtkImageData> pngDataSet
@@ -370,7 +370,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   pngDataSet->SetSpacing(outSpacing);
   pngDataSet->SetOrigin(origin);
   pngDataSet->GetPointData()->SetScalars(licPng);
-  licPng = NULL;
+  licPng = nullptr;
 
   // save a png
   if (outputpath != "")
@@ -381,7 +381,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     writer->SetFileName(outputpath.c_str());
     writer->SetInputData(pngDataSet);
     writer->Write();
-    writer = NULL;
+    writer = nullptr;
   }
 
   // run the test
@@ -396,8 +396,8 @@ int ImageDataLIC2D(int argc, char* argv[])
     cerr << "ERROR: test failed." << endl;
   }
 
-  tp = NULL;
-  pngDataSet = NULL;
+  tp = nullptr;
+  pngDataSet = nullptr;
 
   return retVal;
 }

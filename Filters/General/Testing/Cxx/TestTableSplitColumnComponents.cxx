@@ -62,7 +62,7 @@ int TestTableSplitColumnComponents(int, char*[])
   arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
   arrays[2] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(2));
   arrays[3] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(3));
-  if (arrays[0] == 0 || arrays[1] == 0 || arrays[2] == 0 || arrays[3] == 0)
+  if (arrays[0] == nullptr || arrays[1] == nullptr || arrays[2] == nullptr || arrays[3] == nullptr)
   {
     vtkGenericWarningMacro(<< "One of the output arrays was zero - type change?");
     return EXIT_FAILURE;

@@ -392,7 +392,7 @@ public:
     }
   }
   vtkAngleRepresentation2D *Rep;
-  vtkAngleCallback():Rep(0) {}
+  vtkAngleCallback():Rep(nullptr) {}
 };
 
 

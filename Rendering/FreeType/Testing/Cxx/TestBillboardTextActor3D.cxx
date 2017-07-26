@@ -167,7 +167,7 @@ int TestBillboardTextActor3D(int, char *[])
 
   // Add some various 'empty' actors to make sure there are no surprises:
   vtkNew<vtkBillboardTextActor3D> nullInputActor;
-  nullInputActor->SetInput(NULL);
+  nullInputActor->SetInput(nullptr);
   ren->AddActor(nullInputActor.GetPointer());
 
   vtkNew<vtkBillboardTextActor3D> emptyInputActor;

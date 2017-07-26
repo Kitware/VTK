@@ -40,24 +40,24 @@ int TestNew(int,char *[])
 
   vtkWeakPointer<vtkFloatArray> wf;
   // Test scoping, and deletion.
-  if (wf == 0)
+  if (wf == nullptr)
   {
     vtkNew<vtkFloatArray> f;
     wf = f.GetPointer();
   }
-  if (wf != 0)
+  if (wf != nullptr)
   {
     error = true;
     cerr << "Error, vtkNew failed to delete the object it contained."
          << endl;
   }
   // Test implicit conversion vtkNew::operator T* () const
-  if (wf == 0)
+  if (wf == nullptr)
   {
     vtkNew<vtkFloatArray> f;
     wf = f;
   }
-  if (wf != 0)
+  if (wf != nullptr)
   {
     error = true;
     cerr << "Error, vtkNew failed to delete the object it contained (implicit cast to raw pointer)."
@@ -66,7 +66,7 @@ int TestNew(int,char *[])
 
   // Now test interaction with the smart pointer.
   vtkSmartPointer<vtkIntArray> si;
-  if (si == 0)
+  if (si == nullptr)
   {
     vtkNew<vtkIntArray> i;
     si = i.Get();

@@ -427,7 +427,7 @@ public:
     planeWidget->GetPlane(this->Plane);
     this->Actor->VisibilityOn();
   }
-  vtkTIPWCallback():Plane(0),Actor(0) {}
+  vtkTIPWCallback():Plane(nullptr),Actor(nullptr) {}
   vtkPlane *Plane;
   vtkActor *Actor;
 

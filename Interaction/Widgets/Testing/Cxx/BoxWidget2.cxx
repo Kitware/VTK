@@ -44,7 +44,7 @@ public:
     boxRep->GetTransform(this->Transform);
     this->Actor->SetUserTransform(this->Transform);
   }
-  vtkBWCallback2():Transform(0),Actor(0) {}
+  vtkBWCallback2():Transform(nullptr),Actor(nullptr) {}
   vtkTransform *Transform;
   vtkActor     *Actor;
 };

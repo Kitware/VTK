@@ -65,7 +65,7 @@ public:
       this->Actor->VisibilityOn();
   }
 
-  vtkTIPW3Callback() : Actor(0) { this->Plane = vtkPlane::New(); }
+  vtkTIPW3Callback() : Actor(nullptr) { this->Plane = vtkPlane::New(); }
   ~vtkTIPW3Callback() VTK_OVERRIDE { this->Plane->Delete(); }
 
   vtkPlane *Plane;

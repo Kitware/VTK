@@ -576,7 +576,7 @@ public:
     }
   }
   vtkFixedSizeHandleRepresentation3D *Rep;
-  vtkHandleCallback():Rep(0) {}
+  vtkHandleCallback():Rep(nullptr) {}
 };
 
 

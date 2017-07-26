@@ -232,7 +232,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
             child->DeepCopy(extract->GetOutput(0));
           }
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not seting it on some

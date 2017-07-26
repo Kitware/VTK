@@ -156,7 +156,7 @@ public:
     }
     Spline->GetPolyData(Poly);
   }
-  vtkIPWCallback():Spline(0),Poly(0){};
+  vtkIPWCallback():Spline(nullptr),Poly(nullptr){};
   vtkSplineWidget* Spline;
   vtkPolyData* Poly;
 };
@@ -172,7 +172,7 @@ public:
     vtkSplineWidget *spline = reinterpret_cast<vtkSplineWidget*>(caller);
     spline->GetPolyData(Poly);
   }
-  vtkSWCallback():Poly(0){};
+  vtkSWCallback():Poly(nullptr){};
   vtkPolyData* Poly;
 };
 

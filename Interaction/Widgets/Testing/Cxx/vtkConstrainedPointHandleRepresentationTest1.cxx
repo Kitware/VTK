@@ -88,10 +88,10 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
 
   // test Set/GetPosition, in display coords, so only x,y are used
   double pos[3] = {10.0, 11.0, -12.0};
-  double *pos2 = NULL;
+  double *pos2 = nullptr;
   node1->SetPosition(pos);
   pos2 = node1->GetPosition();
-  if (pos2 == NULL)
+  if (pos2 == nullptr)
   {
     std::cerr << "Failure in Get/Set Position pos,  null pointer." << std::endl;
     return EXIT_FAILURE;
@@ -109,7 +109,7 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
   pos[0] = 12.0;
   node1->SetPosition(pos[0], pos[1], pos[2]);
   pos2 = node1->GetPosition();
-   if (pos2 == NULL)
+   if (pos2 == nullptr)
    {
     std::cerr << "Failure in Get/Set Position pos,  null pointer." << std::endl;
     return EXIT_FAILURE;

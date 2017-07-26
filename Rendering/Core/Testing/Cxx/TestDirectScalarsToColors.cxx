@@ -114,7 +114,7 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
     image->SetDimensions(80, 80, 1);
     vtkUnsignedCharArray *colors =
       map->MapScalars(arr, VTK_COLOR_MODE_DIRECT_SCALARS, -1);
-    if (colors == NULL)
+    if (colors == nullptr)
     {
     continue;
     }

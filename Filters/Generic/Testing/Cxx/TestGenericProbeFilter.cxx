@@ -164,7 +164,7 @@ int TestGenericProbeFilter(int argc, char* argv[])
 
   probe->Update(); //So that we can call GetRange() on the scalars
 
-  assert(probe->GetOutput()!=0);
+  assert(probe->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -176,9 +176,9 @@ int TestGenericProbeFilter(int argc, char* argv[])
   mapper->SetInputConnection(0, probe->GetOutputPort(0) );
   probe->Delete();
 
-  if(probe->GetOutput()->GetPointData()!=0)
+  if(probe->GetOutput()->GetPointData()!=nullptr)
   {
-    if(probe->GetOutput()->GetPointData()->GetScalars()!=0)
+    if(probe->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( probe->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());

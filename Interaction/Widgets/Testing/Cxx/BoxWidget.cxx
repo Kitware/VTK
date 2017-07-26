@@ -40,7 +40,7 @@ public:
     boxWidget->GetTransform(this->Transform);
     this->Actor->SetUserTransform(this->Transform);
   }
-  vtkBWCallback():Transform(0),Actor(0) {}
+  vtkBWCallback():Transform(nullptr),Actor(nullptr) {}
   vtkTransform *Transform;
   vtkActor     *Actor;
 };

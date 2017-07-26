@@ -38,7 +38,7 @@ vtkImageData* createTexture2D(int width, int height, int comp)
   void* data = malloc(width*height*comp*sizeof(unsigned char));
   if (!data)
   {
-    return 0;
+    return nullptr;
   }
   free(data);
   vtkImageData* image = vtkImageData::New();
@@ -116,7 +116,7 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       vtkSmartPointer<vtkImageData> image =
         vtkSmartPointer<vtkImageData>::Take(
           createTexture2D(size[0], size[1], componentSizes[c]));
-      if (image.GetPointer() == 0)
+      if (image.GetPointer() == nullptr)
       {
         return EXIT_SUCCESS;
       }

@@ -139,7 +139,7 @@ int TestConvertSelectionType(
   vtkDataObject* data,
   int inputType,
   int outputType,
-  vtkStringArray* arr = 0,
+  vtkStringArray* arr = nullptr,
   bool allowMissingArray = false)
 {
   cerr << "Testing conversion from type " << SelectionTypeToString(inputType) << " to " << SelectionTypeToString(outputType) << "..." << endl;
@@ -538,10 +538,10 @@ void PolyDataConvertSelections(int & errors, int size)
 
   // Test Quiet Error
   thresholdsArr->SetName("DoubleTmp");
-  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::GLOBALIDS, 0, true);
-  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::PEDIGREEIDS, 0, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::GLOBALIDS, nullptr, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::PEDIGREEIDS, nullptr, true);
   errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::VALUES, arrNames, true);
-  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::INDICES, 0, true);
+  errors += TestConvertSelectionType(selMap, g, vtkSelectionNode::THRESHOLDS, vtkSelectionNode::INDICES, nullptr, true);
   thresholdsArr->SetName("Double");
 
   //

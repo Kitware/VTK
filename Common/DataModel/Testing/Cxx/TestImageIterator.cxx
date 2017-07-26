@@ -32,7 +32,7 @@ inline int DoTest(T*)
   id->AllocateScalars(VTK_DOUBLE, 1);
   vtkImageIterator<T> *it = new vtkImageIterator<T>(id,ext);
   vtkImageProgressIterator<T> *ipt
-    = new vtkImageProgressIterator<T>(id,ext,0,0);
+    = new vtkImageProgressIterator<T>(id,ext,nullptr,0);
   delete it;
   delete ipt;
   id->Delete();
@@ -42,16 +42,16 @@ inline int DoTest(T*)
 
 int TestImageIterator(int,char *[])
 {
-  DoTest( static_cast<char*>( 0 ) );
-  DoTest( static_cast<int*>( 0 ) );
-  DoTest( static_cast<long*>( 0 ) );
-  DoTest( static_cast<short*>( 0 ) );
-  DoTest( static_cast<float*>( 0 ) );
-  DoTest( static_cast<double*>( 0 ) );
-  DoTest( static_cast<unsigned long*>( 0 ) );
-  DoTest( static_cast<unsigned short*>( 0 ) );
-  DoTest( static_cast<unsigned char*>( 0 ) );
-  DoTest( static_cast<unsigned int*>( 0 ) );
+  DoTest( static_cast<char*>( nullptr ) );
+  DoTest( static_cast<int*>( nullptr ) );
+  DoTest( static_cast<long*>( nullptr ) );
+  DoTest( static_cast<short*>( nullptr ) );
+  DoTest( static_cast<float*>( nullptr ) );
+  DoTest( static_cast<double*>( nullptr ) );
+  DoTest( static_cast<unsigned long*>( nullptr ) );
+  DoTest( static_cast<unsigned short*>( nullptr ) );
+  DoTest( static_cast<unsigned char*>( nullptr ) );
+  DoTest( static_cast<unsigned int*>( nullptr ) );
 
   return 0;
 }

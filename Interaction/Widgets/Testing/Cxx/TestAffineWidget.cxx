@@ -44,7 +44,7 @@ public:
   static vtkAffineCallback *New()
   { return new vtkAffineCallback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE;
-  vtkAffineCallback():ImageActor(0),AffineRep(0)
+  vtkAffineCallback():ImageActor(nullptr),AffineRep(nullptr)
   {
     this->Transform = vtkTransform::New();
   }

@@ -52,7 +52,7 @@ public:
     double widgetValue = sliderWidget->GetValue();
     this->Glyph->SetScaleFactor(this->Glyph->GetScaleFactor()*widgetValue);
   }
-  vtkCenteredSlider2DCallback():Glyph(0) {}
+  vtkCenteredSlider2DCallback():Glyph(nullptr) {}
   vtkGlyph3D *Glyph;
 };
 

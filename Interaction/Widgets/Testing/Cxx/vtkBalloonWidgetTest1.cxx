@@ -27,7 +27,7 @@ int vtkBalloonWidgetTest1(int , char * [] )
   vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
   vtkStdString stdString = "something with a space";
   const char *cstr = "string1";
-  const char *retstr = NULL;
+  const char *retstr = nullptr;
 
   node1->AddBalloon(prop1, stdString, imageData);
   retstr = node1->GetBalloonString(prop1);

@@ -81,7 +81,7 @@ protected:
                     int numberOfPickers, int numberOfObjectsLinked1);
 
   bool CheckState(int numberOfPickers,
-                  vtkPicker* picker = 0,
+                  vtkPicker* picker = nullptr,
                   int NumberOfObjectsLinked = 0);
 
 private:
@@ -184,11 +184,11 @@ bool PickingManagerTest::TestProperties()
   res = VTK_VERIFY(this->PickingManager->GetOptimizeOnInteractorEvents() == 1,
                    "Error optimizationOnInteractor not enabled by default:")
         && res;
-  res = VTK_VERIFY(this->PickingManager->GetInteractor() == 0,
+  res = VTK_VERIFY(this->PickingManager->GetInteractor() == nullptr,
                    "Error interactor not null by default:") && res;
   res = VTK_VERIFY(this->PickingManager->GetNumberOfPickers() == 0,
                    "Error numberOfPickers not nul by default:") && res;
-  res = VTK_VERIFY(this->PickingManager->GetNumberOfObjectsLinked(0) == 0,
+  res = VTK_VERIFY(this->PickingManager->GetNumberOfObjectsLinked(nullptr) == 0,
                    "Error NumberOfObjectsLinked not nul with null picker:")
         && res;
 
@@ -336,9 +336,9 @@ bool PickingManagerTest::TestObjectOwnership()
   res = VTK_VERIFY(this->CheckState(1, client->GetPicker(), 1),
                    "Error after client registers picker:") && res;
 
-  client = NULL;
+  client = nullptr;
 
-  res = VTK_VERIFY(this->CheckState(0, NULL, 0),
+  res = VTK_VERIFY(this->CheckState(0, nullptr, 0),
                    "Error after setting client object to NULL:") && res;
 
   return res;
@@ -348,8 +348,8 @@ bool PickingManagerTest::TestObjectOwnership()
 std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> > PickingManagerTest::
 AddPickerObject(int pickerType, int objectType)
 {
-  vtkSmartPointer<vtkPicker> picker = (pickerType == 0) ? 0 : vtkSmartPointer<vtkPicker>::New();
-  vtkSmartPointer<vtkObject> object = (objectType == 0) ? 0 : vtkSmartPointer<vtkObject>::New();
+  vtkSmartPointer<vtkPicker> picker = (pickerType == 0) ? nullptr : vtkSmartPointer<vtkPicker>::New();
+  vtkSmartPointer<vtkObject> object = (objectType == 0) ? nullptr : vtkSmartPointer<vtkObject>::New();
 
   this->PickingManager->AddPicker(picker, object);
 
@@ -405,7 +405,7 @@ bool PickingManagerTest::RemovePicker(int pickerType, int numberOfPickers)
 
   this->PickingManager->RemovePicker(picker.GetPointer());
 
-  return this->CheckState(numberOfPickers, 0, 0);
+  return this->CheckState(numberOfPickers, nullptr, 0);
 }
 
 //------------------------------------------------------------------------------
