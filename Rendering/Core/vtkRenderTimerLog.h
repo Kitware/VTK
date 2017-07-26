@@ -102,7 +102,7 @@ public:
     vtkTypeUInt64 ElapsedTimeNanoseconds() const
       { return this->EndTime - this->StartTime; }
 
-    /** Child events that occured while this event was running. */
+    /** Child events that occurred while this event was running. */
     std::vector<Event> Events;
 
     /** Print details of the event to a stream.

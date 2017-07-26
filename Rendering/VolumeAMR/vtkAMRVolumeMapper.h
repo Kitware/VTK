@@ -332,7 +332,7 @@ protected:
   // focal point
   double LastFocalPointPosition[3];
   double LastPostionFPDistance;
-  // This is used when determing if
+  // This is used when determining if
   // either the camera or focal point has
   // move enough to cause the resampler to update
   double ResamplerUpdateTolerance;

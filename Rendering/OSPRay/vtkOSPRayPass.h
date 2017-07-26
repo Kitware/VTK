@@ -27,7 +27,7 @@
  *    called VTKOSPRAY_ARGS where commandline flags can be inserted for
  *    OSPRay's init call.  As an example of this, below is a commandline
  *    for running paraview on localhost, but having OSPRay's rendering
- *    occur on 2 remote nodes.  ospray_mpi_worker is a seperate application
+ *    occur on 2 remote nodes.  ospray_mpi_worker is a separate application
  *    supplied with OSPRay binary packages or when built with MPI support
  *    from source.
  *    'mpirun -ppn 1 -hosts localhost VTKOSPRAY_ARGS="-osp:mpi"

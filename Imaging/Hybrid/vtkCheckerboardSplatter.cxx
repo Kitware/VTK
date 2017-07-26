@@ -496,7 +496,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   // total colors / groups). Because the checkerboard dimensions are a
   // multiple of two, the total number of all colors of squares is divisible
   // by 8. Also set up offsets for each color / group which is used in
-  // determing addresses and later processing.
+  // determining addresses and later processing.
   algo.NSquares = algo.BDims[0]*algo.BDims[1]*algo.BDims[2];
   for (i=0; i<9; ++i)
   {

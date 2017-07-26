@@ -549,7 +549,7 @@ public:
 
   //@{
   /**
-   * Provide a custom AxisOrigin. This point must be inside the bouding box and
+   * Provide a custom AxisOrigin. This point must be inside the bounding box and
    * will represent the point where the 3 axes will interesect
    */
   vtkSetVector3Macro(AxisOrigin,double);
