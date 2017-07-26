@@ -932,13 +932,13 @@ void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
     {
       numberOfColors = 8192;
     }
-    double k = (range[1]-range[0]) / (numberOfColors-1-2);
+    double k = (range[1]-range[0]) / (numberOfColors-2);
     vtkDoubleArray* tmp = vtkDoubleArray::New();
     tmp->SetNumberOfTuples(numberOfColors*2);
     double* ptr = tmp->GetPointer(0);
     for (int i = 0; i < numberOfColors; ++i)
     {
-      *ptr = range[0] + i * k - k; // minus k to start at below range color
+      *ptr = range[0] + i * k - k / 2.0; // minus k / 2 to start at below range color
       if (use_log_scale)
       {
         *ptr = pow(10.0, *ptr);
