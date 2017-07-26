@@ -77,6 +77,13 @@ public:
                    vtkRenderer *renderer) VTK_OVERRIDE;
 
   /**
+   * Perform pick operation with selection point provided. The
+   * selectionPt is in world coordinates.
+   * Return non-zero if something was successfully picked.
+   */
+  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) VTK_OVERRIDE;
+
+  /**
    * Add a locator for one of the data sets that will be included in the
    * scene.  You must set up the locator with exactly the same data set
    * that was input to the mapper of one or more of the actors in the
