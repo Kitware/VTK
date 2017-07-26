@@ -353,13 +353,19 @@ macro(_vtk_build_module _module)
   add_subdirectory("${${_module}_SOURCE_DIR}" "${${_module}_BINARY_DIR}")
 endmacro()
 
+include(vtkTargetLinkLibrariesWithDynamicLookup)
+
 # Build all modules.
 foreach(kit IN LISTS vtk_modules_and_kits)
   if(_${kit}_is_kit)
     set(_vtk_build_as_kit ${kit})
     set(kit_srcs)
+    set(_optional_python_link)
     foreach(kit_module IN LISTS _${kit}_modules)
       list(APPEND kit_srcs $<TARGET_OBJECTS:${kit_module}Objects>)
+      if(${kit_module}_OPTIONAL_PYTHON_LINK)
+        set(_optional_python_link 1)
+      endif()
     endforeach()
 
     configure_file("${_VTKModuleMacros_DIR}/vtkKit.cxx.in"
@@ -398,6 +404,10 @@ foreach(kit IN LISTS vtk_modules_and_kits)
     target_link_libraries(${kit}
       LINK_PRIVATE ${kit_priv}
       LINK_PUBLIC  ${kit_pub})
+    if(_optional_python_link)
+      vtk_module_load(vtkPython)
+      vtk_target_link_libraries_with_dynamic_lookup(${kit} LINK_PUBLIC ${vtkPython_LIBRARIES})
+    endif()
     vtk_target(${kit})
   else()
     if(VTK_ENABLE_KITS)
