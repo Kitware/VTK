@@ -544,7 +544,7 @@ void *vtkIOSRenderWindow::GetPixelFormat()
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetWindowInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
@@ -558,7 +558,7 @@ void vtkIOSRenderWindow::SetWindowInfo(char *info)
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetParentInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)

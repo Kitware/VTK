@@ -49,7 +49,7 @@ public:
    * into a single Sample
    * The number of arrays will determine the number of components of
    * the Sample.
-   * Arrays are suposed to have the same number of tuples, and the
+   * Arrays are supposed to have the same number of tuples, and the
    * Sample will also have the same number of tuples.
    * This method allocate a new Sample and returns it,
    * so it is caller's responsibility to delete it with the delete operator.

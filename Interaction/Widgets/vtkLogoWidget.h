@@ -45,7 +45,7 @@ public:
 
   //@{
   /**
-   * Standar VTK class methods.
+   * Standard VTK class methods.
    */
   vtkTypeMacro(vtkLogoWidget,vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;

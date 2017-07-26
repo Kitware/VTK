@@ -413,7 +413,7 @@ bool vtkAMRVolumeMapper::ComputeResamplerBoundsFrustumMethod(
 {
   vtkMath::UninitializeBounds(out_bounds);
 
-  // First we need to create a bouding box that represents the visible region
+  // First we need to create a bounding box that represents the visible region
   // of the camera in World Coordinates
 
   // In order to produce as tight of bounding box as possible we need to determine

@@ -19,9 +19,9 @@
  *
  *
  * This class is used to represent a contour drawn on the focal plane (usually
- * overlayed on top of an image or volume widget).
+ * overlaid on top of an image or volume widget).
  * The class was written in order to be able to draw contours on a volume widget
- * and have the contours overlayed on the focal plane in order to do contour
+ * and have the contours overlaid on the focal plane in order to do contour
  * segmentation.
  *
  * @sa

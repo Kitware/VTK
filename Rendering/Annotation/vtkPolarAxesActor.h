@@ -331,7 +331,7 @@ public:
 
   //@{
   /**
-   * Get/Set the alignement of the radial axes title related to the axis.
+   * Get/Set the alignment of the radial axes title related to the axis.
    * Possible Alignment: VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN
    */
   vtkSetClampMacro(RadialAxisTitleLocation, int, VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN);
@@ -340,7 +340,7 @@ public:
 
   //@{
   /**
-   * Get/Set the alignement of the polar axes title related to the axis.
+   * Get/Set the alignment of the polar axes title related to the axis.
    * Possible Alignment: VTKTITLE_BOTTOM, VTK_TITLE_EXTERN
    */
   vtkSetClampMacro(PolarAxisTitleLocation, int, VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN);
@@ -1061,12 +1061,12 @@ protected:
   //@}
 
   /**
-   * Define the alignement of the title related to the radial axis. (BOTTOM or EXTERN)
+   * Define the alignment of the title related to the radial axis. (BOTTOM or EXTERN)
    */
   int RadialAxisTitleLocation;
 
   /**
-   * Define the alignement of the title related to the polar axis. (BOTTOM or EXTERN)
+   * Define the alignment of the title related to the polar axis. (BOTTOM or EXTERN)
    */
   int PolarAxisTitleLocation;
 

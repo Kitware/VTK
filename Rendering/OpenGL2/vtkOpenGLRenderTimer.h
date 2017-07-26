@@ -25,7 +25,7 @@
  * This uses GL_TIMESTAMP rather than GL_ELAPSED_TIME, since only one
  * GL_ELAPSED_TIME query may be active at a time. Since GL_TIMESTAMP is not
  * available on OpenGL ES, timings will not be available on those platforms.
- * Use the static IsSupported() method to determine if the timer is availble.
+ * Use the static IsSupported() method to determine if the timer is available.
  */
 
 #ifndef vtkOpenGLRenderTimer_h

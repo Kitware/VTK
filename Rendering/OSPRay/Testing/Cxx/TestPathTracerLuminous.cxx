@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test verifies that light emmitting objects work in ospray's path tracer.
+// This test verifies that light emitting objects work in ospray's path tracer.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will

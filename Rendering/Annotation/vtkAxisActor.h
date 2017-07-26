@@ -264,7 +264,7 @@ public:
 
   //@{
   /**
-   * Get/Set the alignement of the title related to the axis.
+   * Get/Set the alignment of the title related to the axis.
    * Possible Alignment: VTK_ALIGN_TOP, VTK_ALIGN_BOTTOM, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2
    */
   virtual void SetTitleAlignLocation(int location);
@@ -700,13 +700,13 @@ protected:
   int TickLocation;
 
   /**
-   * Hold the alignement property of the title related to the axis.
+   * Hold the alignment property of the title related to the axis.
    * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
    */
   int TitleAlignLocation;
 
   /**
-   * Hold the alignement property of the exponent coming from the label values.
+   * Hold the alignment property of the exponent coming from the label values.
    * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
    */
   int ExponentLocation;

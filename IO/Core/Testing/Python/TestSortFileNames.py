@@ -33,7 +33,7 @@ class TestSortFileNames(vtk.test.Testing.vtkTest):
 
         globFileNames = vtk.vtkGlobFileNames()
 
-        # globs do not include Kleene star support for patern repetitions thus
+        # globs do not include Kleene star support for pattern repetitions thus
         # we insert a pattern for both single and double digit file extensions.
         globFileNames.AddFileNames(VTK_DATA_ROOT + "/Data/headsq/quarter.[1-9]")
         globFileNames.AddFileNames(VTK_DATA_ROOT + "/Data/headsq/quarter.[1-9][0-9]")

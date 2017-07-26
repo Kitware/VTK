@@ -404,7 +404,7 @@ void vtkSliceCubes::Execute()
   double xmin[3], xmax[3];
   double origin[3], Spacing[3];
 
-  // check input/initalize
+  // check input/initialize
   vtkDebugMacro(<< "Executing slice cubes");
   if ( this->Reader == nullptr )
   {

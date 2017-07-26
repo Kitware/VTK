@@ -564,7 +564,7 @@ int vtkTextActor::GetAlignmentPoint()
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetAlignmentPoint(int val)
 {
-  vtkWarningMacro(<< "Alignment point is being depricated.  You should use "
+  vtkWarningMacro(<< "Alignment point is being deprecated.  You should use "
                   << "SetJustification and SetVerticalJustification in the text property.");
 
   switch (val)

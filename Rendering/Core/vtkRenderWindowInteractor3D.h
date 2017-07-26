@@ -246,7 +246,7 @@ public:
 
   //@{
   /**
-   * Set/get the tranlation for pan/swipe gestures, update LastTranslation
+   * Set/get the translation for pan/swipe gestures, update LastTranslation
    */
   void SetTranslation3D(double val[3]);
   vtkGetVector3Macro(Translation3D, double);

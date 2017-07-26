@@ -125,7 +125,7 @@ int vtkOpenVRPropPicker::PickProp3DRay(
   //If we pick inside a prop, it will be returned only if no other vtkProps are
   //intersected by the ray. WARNING: Intersection checking uses bounds. This is
   //confusing when the prop isn't fully filling its bounds. Improve this by :
-  //-returning the prop wich bounds center is the closest to the ray, or
+  //-returning the prop which bounds center is the closest to the ray, or
   //-computing intersection with the geometry itself (see vtkCellPicker).
   for (propCollection->InitTraversal(pit);
     (prop = propCollection->GetNextProp(pit));)

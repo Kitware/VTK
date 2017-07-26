@@ -2461,7 +2461,7 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(vtkIdType numberOfCells
   // This should be plenty (unless we have triangle strips) ...
   this->NumberOfFastGeomQuadArrays = 100;
   this->FastGeomQuadArrays = new unsigned char*[this->NumberOfFastGeomQuadArrays];
-  // Initalize all to nullptr;
+  // Initialize all to nullptr;
   for (idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
   {
     this->FastGeomQuadArrays[idx] = nullptr;

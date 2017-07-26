@@ -560,7 +560,7 @@ public:
 
   //@{
   /**
-   * Set/get the tranlation for pan/swipe gestures, update LastTranslation
+   * Set/get the translation for pan/swipe gestures, update LastTranslation
    */
   void SetTranslation(double val[2]);
   vtkGetVector2Macro(Translation, double);

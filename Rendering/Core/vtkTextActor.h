@@ -137,7 +137,7 @@ public:
 
   //@{
   /**
-   * This method is being depricated.  Use SetJustification and
+   * This method is being deprecated.  Use SetJustification and
    * SetVerticalJustification in text property instead.
    * Set/Get the Alignment point
    * if zero (default), the text aligns itself to the bottom left corner

@@ -315,7 +315,7 @@ public:
   /**
    * Helper method to go from a enum subtype to a string subtype
    * The difference from GetStringFromSubType is that it returns
-   * a shorter strings (useful for GUI with minimun space)
+   * a shorter strings (useful for GUI with minimum space)
    */
   static const char *GetShortStringFromSubType(int subtype);
 

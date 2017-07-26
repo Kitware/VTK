@@ -202,7 +202,7 @@ public:
   //@}
 
   /**
-   * State is either outside, or inside (on the text portion ot the image).
+   * State is either outside, or inside (on the text portion of the image).
    */
   enum _InteractionState {Outside=0, OnText, OnImage};
 

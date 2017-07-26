@@ -1491,7 +1491,7 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetWindowInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
@@ -1505,7 +1505,7 @@ void vtkCocoaRenderWindow::SetWindowInfo(char *info)
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetParentInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)

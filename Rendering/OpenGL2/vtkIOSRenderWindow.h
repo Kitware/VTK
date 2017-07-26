@@ -154,7 +154,7 @@ public:
 
   /**
    * Set this RenderWindow's window id to a pre-existing window.
-   * The paramater is an ASCII string of a decimal number representing
+   * The parameter is an ASCII string of a decimal number representing
    * a pointer to the window.
    */
   void SetWindowInfo(char*) VTK_OVERRIDE;
