@@ -258,12 +258,12 @@ public:
   virtual void GetSelectedAtoms(vtkSelection *selection,
                                 vtkIdTypeArray *atomIds)
   {
-    this->GetSelectedAtomsAndBonds(selection, atomIds, NULL);
+    this->GetSelectedAtomsAndBonds(selection, atomIds, nullptr);
   }
   virtual void GetSelectedBonds(vtkSelection *selection,
                                 vtkIdTypeArray *bondIds)
   {
-    this->GetSelectedAtomsAndBonds(selection, NULL, bondIds);
+    this->GetSelectedAtomsAndBonds(selection, nullptr, bondIds);
   }
   //@}
 

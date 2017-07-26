@@ -142,7 +142,7 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
   int whichInput = 0;
 
   // Make sure the inputs/output are valid
-  if (inData[0][0] == NULL)
+  if (inData[0][0] == nullptr)
   {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
@@ -158,7 +158,7 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     return;
   }
 
-  if (inData[1][0] == NULL)
+  if (inData[1][0] == nullptr)
   {
     vtkErrorMacro(<< "Input " << 1 << " must be specified.");
     return;

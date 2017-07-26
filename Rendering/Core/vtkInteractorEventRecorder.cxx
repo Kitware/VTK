@@ -44,20 +44,20 @@ vtkInteractorEventRecorder::vtkInteractorEventRecorder()
     vtkInteractorEventRecorder::ProcessEvents);
   this->EventCallbackCommand->SetPassiveObserver(1); // get events first
 
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   this->State = vtkInteractorEventRecorder::Start;
-  this->InputStream = NULL;
-  this->OutputStream = NULL;
+  this->InputStream = nullptr;
+  this->OutputStream = nullptr;
 
   this->ReadFromInputString = 0;
-  this->InputString = NULL;
+  this->InputString = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 {
-  this->SetInteractor(0);
+  this->SetInteractor(nullptr);
 
   delete [] this->FileName;
 
@@ -65,14 +65,14 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
   {
     this->InputStream->clear();
     delete this->InputStream;
-    this->InputStream = NULL;
+    this->InputStream = nullptr;
   }
 
   delete this->OutputStream;
-  this->OutputStream = NULL;
+  this->OutputStream = nullptr;
 
   delete [] this->InputString;
-  this->InputString = NULL;
+  this->InputString = nullptr;
   this->DeleteEventCallbackCommand->Delete();
 }
 
@@ -106,7 +106,7 @@ void vtkInteractorEventRecorder::SetEnabled(int enabling)
     // the event look of they want to
     i->HandleEventLoop = 1;
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling-----------------------------------------------------------
@@ -124,7 +124,7 @@ void vtkInteractorEventRecorder::SetEnabled(int enabling)
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
     this->Interactor->HandleEventLoop = 0;
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
   }
 }
 
@@ -165,7 +165,7 @@ void vtkInteractorEventRecorder::Play()
     {
       vtkDebugMacro(<< "Reading from InputString");
       size_t len = 0;
-      if ( this->InputString != NULL )
+      if ( this->InputString != nullptr )
       {
         len = strlen(this->InputString);
       }
@@ -258,7 +258,7 @@ void vtkInteractorEventRecorder::Play()
           this->Interactor->SetRepeatCount(repeatCount);
           this->Interactor->SetKeySym(keySym);
 
-          this->Interactor->InvokeEvent(ievent, NULL);
+          this->Interactor->InvokeEvent(ievent, nullptr);
         }
       }
     }
@@ -327,7 +327,7 @@ void vtkInteractorEventRecorder::ProcessDeleteEvent(vtkObject* vtkNotUsed(object
   vtkInteractorEventRecorder* self =
     reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
   // if the interactor is being deleted then remove the event handlers
-  self->SetInteractor(0);
+  self->SetInteractor(nullptr);
 }
 
 //----------------------------------------------------------------------------

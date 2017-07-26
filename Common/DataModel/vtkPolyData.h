@@ -115,7 +115,7 @@ public:
    * won't be duplicated in the output.
    */
   void CopyCells(vtkPolyData *pd, vtkIdList *idList,
-                 vtkPointLocator *locator = NULL);
+                 vtkPointLocator *locator = nullptr);
 
   /**
    * Copy a cells point ids into list provided. (Less efficient.)
@@ -259,7 +259,7 @@ public:
   /**
    * Check if BuildCells is needed.
    */
-  bool NeedToBuildCells() { return this->Cells == 0; }
+  bool NeedToBuildCells() { return this->Cells == nullptr; }
 
   /**
    * Create upward links from points to cells that use each point. Enables
@@ -707,9 +707,9 @@ inline unsigned char vtkPolyData::GetCellPoints(
       break;
 
     default:
-      cells = NULL;
+      cells = nullptr;
       npts = 0;
-      pts = NULL;
+      pts = nullptr;
       return 0;
   }
   int loc = this->Cells->GetCellLocation(cellId);
@@ -741,8 +741,8 @@ inline unsigned char vtkPolyData::GetCell(
       break;
 
     default:
-      cells = NULL;
-      cell = NULL;
+      cells = nullptr;
+      cell = nullptr;
       return 0;
   }
   int loc = this->Cells->GetCellLocation(cellId);

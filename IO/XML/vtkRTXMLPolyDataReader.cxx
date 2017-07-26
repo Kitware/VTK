@@ -31,14 +31,14 @@ public:
 vtkRTXMLPolyDataReader::vtkRTXMLPolyDataReader():vtkXMLPolyDataReader()
 {
   this->Internal = new vtkRTXMLPolyDataReaderInternals;
-  this->DataLocation = NULL;
+  this->DataLocation = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkRTXMLPolyDataReader::~vtkRTXMLPolyDataReader()
 {
   delete this->Internal;
-  this->SetDataLocation(0);
+  this->SetDataLocation(nullptr);
 }
 
 
@@ -79,7 +79,7 @@ const char* vtkRTXMLPolyDataReader::GetNextFileName()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 

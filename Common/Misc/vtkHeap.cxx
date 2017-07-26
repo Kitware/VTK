@@ -38,7 +38,7 @@ public:
   size_t        Size; //Variable size guards against block size changing from SetBlockSize()
                       //or large requests greater than the standard block size.
 
-  vtkHeapBlock(size_t size):Next(0),Size(size)
+  vtkHeapBlock(size_t size):Next(nullptr),Size(size)
     {this->Data = new char [size];}
   ~vtkHeapBlock()
     {delete [] this->Data;}
@@ -50,9 +50,9 @@ vtkHeap::vtkHeap()
   this->NumberOfBlocks = 0;
   this->NumberOfAllocations = 0;
   this->Alignment = vtkGetLongAlignment();
-  this->First = 0;
-  this->Last = 0;
-  this->Current = 0;
+  this->First = nullptr;
+  this->Last = nullptr;
+  this->Current = nullptr;
   this->Position = 0;
 }
 
@@ -135,7 +135,7 @@ void vtkHeap::CleanAll()
   {
     ;
   }
-  this->First = this->Current = this->Last = 0;
+  this->First = this->Current = this->Last = nullptr;
   this->Position = 0;
 }
 
@@ -150,7 +150,7 @@ vtkHeapBlock* vtkHeap::DeleteAndNext()
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 

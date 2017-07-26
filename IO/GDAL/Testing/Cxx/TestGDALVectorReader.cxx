@@ -74,7 +74,7 @@ int TestGDALVectorReader(int argc, char* argv[])
   if (mbds && mbds->GetNumberOfBlocks() > 0)
   {
     vtkPolyData* pd = vtkPolyData::SafeDownCast(mbds->GetBlock(0));
-    vtkCellData* cd = pd ? pd->GetCellData() : NULL;
+    vtkCellData* cd = pd ? pd->GetCellData() : nullptr;
     if (cd)
     {
       if (!cd->GetPedigreeIds())

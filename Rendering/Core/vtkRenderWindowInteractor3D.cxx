@@ -259,7 +259,7 @@ void vtkRenderWindowInteractor3D::MiddleButtonPressEvent()
       // did we just transition to multitouch?
       if (this->PointersDownCount == 2)
       {
-        this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
+        this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, nullptr);
       }
       // handle the gesture
       this->RecognizeGesture(vtkCommand::MiddleButtonPressEvent);
@@ -267,7 +267,7 @@ void vtkRenderWindowInteractor3D::MiddleButtonPressEvent()
     }
   }
 
-  this->InvokeEvent(vtkCommand::MiddleButtonPressEvent, NULL);
+  this->InvokeEvent(vtkCommand::MiddleButtonPressEvent, nullptr);
 }
 
 //------------------------------------------------------------------
@@ -293,7 +293,7 @@ void vtkRenderWindowInteractor3D::MiddleButtonReleaseEvent()
       return;
     }
   }
-  this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
+  this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, nullptr);
 }
 
 //------------------------------------------------------------------
@@ -318,7 +318,7 @@ void vtkRenderWindowInteractor3D::RightButtonPressEvent()
       // did we just transition to multitouch?
       if (this->PointersDownCount == 2)
       {
-        this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
+        this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, nullptr);
       }
       // handle the gesture
       this->RecognizeGesture(vtkCommand::RightButtonPressEvent);
@@ -326,7 +326,7 @@ void vtkRenderWindowInteractor3D::RightButtonPressEvent()
     }
   }
 
-  this->InvokeEvent(vtkCommand::RightButtonPressEvent, NULL);
+  this->InvokeEvent(vtkCommand::RightButtonPressEvent, nullptr);
 }
 
 //------------------------------------------------------------------
@@ -352,5 +352,5 @@ void vtkRenderWindowInteractor3D::RightButtonReleaseEvent()
       return;
     }
   }
-  this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
+  this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, nullptr);
 }

@@ -81,7 +81,7 @@ vtkOpenGLVertexBufferObject *vtkOpenGLVertexBufferObjectGroup::GetVBO(
   {
     return i->second;
   }
-  return NULL;
+  return nullptr;
 }
 
 void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(

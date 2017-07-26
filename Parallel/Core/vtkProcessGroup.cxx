@@ -33,15 +33,15 @@ vtkStandardNewMacro(vtkProcessGroup);
 //-----------------------------------------------------------------------------
 vtkProcessGroup::vtkProcessGroup()
 {
-  this->Communicator = NULL;
+  this->Communicator = nullptr;
 
-  this->ProcessIds = NULL;
+  this->ProcessIds = nullptr;
   this->NumberOfProcessIds = 0;
 }
 
 vtkProcessGroup::~vtkProcessGroup()
 {
-  this->SetCommunicator(NULL);
+  this->SetCommunicator(nullptr);
 }
 
 void vtkProcessGroup::PrintSelf(ostream &os, vtkIndent indent)
@@ -78,7 +78,7 @@ void vtkProcessGroup::Initialize(vtkCommunicator *communicator)
 void vtkProcessGroup::SetCommunicator(vtkCommunicator *communicator)
 {
   // Adjust ProcessIds array.
-  int *newProcessIds = NULL;
+  int *newProcessIds = nullptr;
   int newNumberOfProcessIds = 0;
   if (communicator)
   {

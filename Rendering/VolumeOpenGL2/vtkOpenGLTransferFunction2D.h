@@ -162,7 +162,7 @@ public:
     {
       this->TextureObject->ReleaseGraphicsResources(window);
       this->TextureObject->Delete();
-      this->TextureObject = NULL;
+      this->TextureObject = nullptr;
     }
   }
 
@@ -171,7 +171,7 @@ protected:
   //--------------------------------------------------------------------------
   vtkOpenGLTransferFunction2D()
   : vtkObject()
-  , TextureObject(NULL)
+  , TextureObject(nullptr)
   , LastInterpolation(-1)
   {
   }
@@ -182,7 +182,7 @@ protected:
     if (this->TextureObject)
     {
       this->TextureObject->Delete();
-      this->TextureObject = NULL;
+      this->TextureObject = nullptr;
     }
   }
 
@@ -242,7 +242,7 @@ public:
   {
     if (i >= this->Tables.size())
     {
-      return NULL;
+      return nullptr;
     }
     return this->Tables[i];
   }

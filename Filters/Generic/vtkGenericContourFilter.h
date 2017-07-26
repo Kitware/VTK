@@ -140,7 +140,7 @@ public:
   /**
    * If you want to contour by an arbitrary scalar attribute, then set its
    * name here.
-   * By default this in NULL and the filter will use the active scalar array.
+   * By default this in nullptr and the filter will use the active scalar array.
    */
   vtkGetStringMacro(InputScalarsSelection);
   virtual void SelectInputScalars(const char *fieldName);

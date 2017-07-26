@@ -61,11 +61,11 @@ vtkLagrangianParticle::vtkLagrangianParticle(int numberOfVariables,
 
   // Initialize cell cache
   this->LastCellId = -1;
-  this->LastDataSet = NULL;
+  this->LastDataSet = nullptr;
 
   // Initialize surface cell cache
   this->LastSurfaceCellId = -1;
-  this->LastSurfaceDataSet = NULL;
+  this->LastSurfaceDataSet = nullptr;
 }
 
 //---------------------------------------------------------------------------

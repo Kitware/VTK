@@ -19,7 +19,7 @@
  * The vtkImageMapToColors filter will take an input image of any valid
  * scalar type, and map the first component of the image through a
  * lookup table.  The result is an image of type VTK_UNSIGNED_CHAR.
- * If the lookup table is not set, or is set to NULL, then the input
+ * If the lookup table is not set, or is set to nullptr, then the input
  * data will be passed through if it is already of type VTK_UNSIGNED_CHAR.
  *
  * @sa

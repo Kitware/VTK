@@ -58,7 +58,7 @@ int vtkInformationRequestKey::Has(vtkInformation* info)
 //----------------------------------------------------------------------------
 void vtkInformationRequestKey::Remove(vtkInformation* info)
 {
-  info->SetRequest(0);
+  info->SetRequest(nullptr);
 }
 
 //----------------------------------------------------------------------------

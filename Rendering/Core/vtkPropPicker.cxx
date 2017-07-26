@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkPropPicker);
 
 vtkPropPicker::vtkPropPicker()
 {
-  this->PickFromProps = NULL;
+  this->PickFromProps = nullptr;
   this->WorldPointPicker = vtkWorldPointPicker::New();
 }
 
@@ -61,7 +61,7 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
 {
   this->PickFromProps = pickfrom;
   int ret = this->PickProp(selectionX, selectionY, renderer);
-  this->PickFromProps = NULL;
+  this->PickFromProps = nullptr;
   return ret;
 }
 
@@ -80,7 +80,7 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
   this->SelectionPoint[2] = 0;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartPickEvent,nullptr);
 
   // Have the renderer do the hardware pick
   this->SetPath(
@@ -93,10 +93,10 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
     this->WorldPointPicker->Pick(selectionX, selectionY, 0, renderer);
     this->WorldPointPicker->GetPickPosition(this->PickPosition);
     this->Path->GetLastNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,NULL);
+    this->InvokeEvent(vtkCommand::PickEvent,nullptr);
   }
 
-  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
 
   // Call Pick on the Prop that was picked, and return 1 for success
   if ( this->Path )

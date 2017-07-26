@@ -198,7 +198,7 @@ int vtkPointHandleRepresentation3D
   double d[3];
   this->GetDisplayPosition(d);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->InteractionState = vtkHandleRepresentation::Nearby;
   }
@@ -277,7 +277,7 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   vtkAssemblyPath* path = this->GetAssemblyPath(
     startEventPos[0], startEventPos[1], 0., this->CursorPicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->InteractionState = vtkHandleRepresentation::Nearby;
     this->ConstraintAxis = -1;

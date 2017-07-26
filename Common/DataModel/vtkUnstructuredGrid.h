@@ -269,7 +269,7 @@ public:
   //@}
 
   /**
-   * Special support for polyhedron. Return NULL for all other cell types.
+   * Special support for polyhedron. Return nullptr for all other cell types.
    */
   vtkIdType      *GetFaces(vtkIdType cellId);
 
@@ -285,7 +285,7 @@ public:
    * Special function used by vtkUnstructuredGridReader.
    * By default vtkUnstructuredGrid does not contain face information, which is
    * only used by polyhedron cells. If so far no polyhedron cells have been
-   * added, Faces and FaceLocations pointers will be NULL. In this case, need to
+   * added, Faces and FaceLocations pointers will be nullptr. In this case, need to
    * initialize the arrays and assign values to the previous non-polyhedron cells.
    */
   int InitializeFacesRepresentation(vtkIdType numPrevCells);

@@ -113,7 +113,7 @@ public:
   const char* GetComplexDescription(int n);
 
   /**
-   * Get the nth description of a particular variable type.  Returns NULL if no
+   * Get the nth description of a particular variable type.  Returns nullptr if no
    * variable of this type exists in this data set.
    * SCALAR_PER_NODE = 0; VECTOR_PER_NODE = 1;
    * TENSOR_SYMM_PER_NODE = 2; SCALAR_PER_ELEMENT = 3;

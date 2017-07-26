@@ -374,7 +374,7 @@ protected:
   void Interaction();
   void EndInteraction();
   int GetInteractionsCount()const;
-  virtual void emitEvent(unsigned long event, void* params = 0) = 0;
+  virtual void emitEvent(unsigned long event, void* params = nullptr) = 0;
 
   static void CallComputePoints(vtkObject* sender, unsigned long event, void* receiver, void* params);
 

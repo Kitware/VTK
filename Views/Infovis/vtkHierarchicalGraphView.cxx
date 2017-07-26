@@ -41,7 +41,7 @@ vtkHierarchicalGraphView::~vtkHierarchicalGraphView()
 //----------------------------------------------------------------------------
 vtkRenderedGraphRepresentation* vtkHierarchicalGraphView::GetGraphRepresentation()
 {
-  vtkRenderedHierarchyRepresentation* graphRep = 0;
+  vtkRenderedHierarchyRepresentation* graphRep = nullptr;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
   {
     vtkDataRepresentation* rep = this->GetRepresentation(i);

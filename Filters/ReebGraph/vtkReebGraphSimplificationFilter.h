@@ -48,7 +48,7 @@ public:
 
   /**
    * Set the persistence metric evaluation code
-   * Default value: NULL (standard topological persistence).
+   * Default value: nullptr (standard topological persistence).
    */
   void SetSimplificationMetric(vtkReebGraphSimplificationMetric *metric);
 

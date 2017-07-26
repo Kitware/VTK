@@ -229,7 +229,7 @@ public:
   //@}
 
 protected:
-  vtkTableBasedClipDataSet( vtkImplicitFunction * cf = NULL );
+  vtkTableBasedClipDataSet( vtkImplicitFunction * cf = nullptr );
   ~vtkTableBasedClipDataSet() VTK_OVERRIDE;
 
   int RequestData( vtkInformation *,

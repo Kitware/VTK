@@ -64,21 +64,21 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   // Symbols and text strings
   this->NumberOfEntries = 0;
   this->Size = 0;
-  this->Colors = NULL;
-  this->Symbol = NULL;
-  this->Transform = NULL;
-  this->SymbolTransform = NULL;
-  this->SymbolMapper = NULL;
-  this->SymbolActor = NULL;
-  this->TextMapper = NULL;
-  this->TextActor = NULL;
+  this->Colors = nullptr;
+  this->Symbol = nullptr;
+  this->Transform = nullptr;
+  this->SymbolTransform = nullptr;
+  this->SymbolMapper = nullptr;
+  this->SymbolActor = nullptr;
+  this->TextMapper = nullptr;
+  this->TextActor = nullptr;
 
-  this->Icon = NULL;
-  this->IconActor = NULL;
-  this->IconMapper = NULL;
-  this->IconTransformFilter = NULL;
-  this->IconTransform = NULL;
-  this->IconImage = NULL;
+  this->Icon = nullptr;
+  this->IconActor = nullptr;
+  this->IconMapper = nullptr;
+  this->IconTransformFilter = nullptr;
+  this->IconTransform = nullptr;
+  this->IconImage = nullptr;
 
   // Construct the border
   this->BorderPolyData = vtkPolyData::New();
@@ -156,7 +156,7 @@ vtkLegendBoxActor::~vtkLegendBoxActor()
     this->Background->Delete();
   }
 
-  this->SetEntryTextProperty(NULL);
+  this->SetEntryTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -194,20 +194,20 @@ void vtkLegendBoxActor::InitializeEntries()
       this->IconMapper[i]->Delete();
       this->IconActor[i]->Delete();
     }//for all entries
-    delete [] this->Symbol; this->Symbol = NULL;
-    delete [] this->Transform; this->Transform = NULL;
-    delete [] this->SymbolTransform; this->SymbolTransform = NULL;
-    delete [] this->SymbolMapper; this->SymbolMapper = NULL;
-    delete [] this->SymbolActor; this->SymbolActor = NULL;
-    delete [] this->TextMapper; this->TextMapper = NULL;
-    delete [] this->TextActor; this->TextActor = NULL;
+    delete [] this->Symbol; this->Symbol = nullptr;
+    delete [] this->Transform; this->Transform = nullptr;
+    delete [] this->SymbolTransform; this->SymbolTransform = nullptr;
+    delete [] this->SymbolMapper; this->SymbolMapper = nullptr;
+    delete [] this->SymbolActor; this->SymbolActor = nullptr;
+    delete [] this->TextMapper; this->TextMapper = nullptr;
+    delete [] this->TextActor; this->TextActor = nullptr;
 
-    delete [] this->IconImage; this->IconImage = NULL;
-    delete [] this->Icon; this->Icon = NULL;
-    delete [] this->IconActor; this->IconActor = NULL;
-    delete [] this->IconMapper; this->IconMapper = NULL;
-    delete [] this->IconTransform; this->IconTransform = NULL;
-    delete [] this->IconTransformFilter; this->IconTransformFilter = NULL;
+    delete [] this->IconImage; this->IconImage = nullptr;
+    delete [] this->Icon; this->Icon = nullptr;
+    delete [] this->IconActor; this->IconActor = nullptr;
+    delete [] this->IconMapper; this->IconMapper = nullptr;
+    delete [] this->IconTransform; this->IconTransform = nullptr;
+    delete [] this->IconTransformFilter; this->IconTransformFilter = nullptr;
   }//if entries have been defined
 }
 
@@ -313,7 +313,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       textActor[i]->SetMapper(textMapper[i]);
 
       // Symbol.
-      symbol[i] = NULL;
+      symbol[i] = nullptr;
       transform[i] = vtkTransform::New();
       symbolTransform[i] = vtkTransformPolyDataFilter::New();
       symbolTransform[i]->SetTransform(transform[i]);
@@ -324,7 +324,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       symbolActor[i]->SetMapper(symbolMapper[i]);
 
       // Icon.
-      iconImage[i] = NULL;
+      iconImage[i] = nullptr;
 
       icon[i] = vtkPlaneSource::New();
       icon[i]->SetPoint1(1.0, 0.0, 0.0);
@@ -495,7 +495,7 @@ vtkPolyData *vtkLegendBoxActor::GetEntrySymbol(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -508,7 +508,7 @@ vtkImageData* vtkLegendBoxActor::GetEntryIcon(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -521,7 +521,7 @@ const char* vtkLegendBoxActor::GetEntryString(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -534,7 +534,7 @@ double* vtkLegendBoxActor::GetEntryColor(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -1029,7 +1029,7 @@ void vtkLegendBoxActor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkLegendBoxActor::ShallowCopy(vtkProp *prop)
 {
   vtkLegendBoxActor *a = vtkLegendBoxActor::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetPosition2(a->GetPosition2());
     this->SetEntryTextProperty(a->GetEntryTextProperty());

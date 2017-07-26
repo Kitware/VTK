@@ -74,7 +74,7 @@ class vtkPostgreSQLQueryPrivate
 public:
   vtkPostgreSQLQueryPrivate()
   {
-      this->QueryResults = NULL;
+      this->QueryResults = nullptr;
       this->CurrentRow = -1;
   }
   ~vtkPostgreSQLQueryPrivate()
@@ -197,15 +197,15 @@ vtkVariant vtkPostgreSQLQuery::DataValue( vtkIdType column )
 vtkPostgreSQLQuery::vtkPostgreSQLQuery()
 {
   this->TransactionInProgress = false;
-  this->LastErrorText = NULL;
-  this->QueryInternals = NULL;
+  this->LastErrorText = nullptr;
+  this->QueryInternals = nullptr;
 }
 
 // ----------------------------------------------------------------------
 vtkPostgreSQLQuery::~vtkPostgreSQLQuery()
 {
-  this->SetDatabase(NULL);
-  this->SetLastErrorText(NULL);
+  this->SetDatabase(nullptr);
+  this->SetLastErrorText(nullptr);
   delete this->QueryInternals;
 }
 
@@ -603,7 +603,7 @@ vtkPostgreSQLQuery::DeleteQueryResults()
 {
   this->Active = false;
   delete this->QueryInternals;
-  this->QueryInternals = NULL;
+  this->QueryInternals = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -1022,12 +1022,12 @@ vtkPostgreSQLQuery::GetColumnRawData(int whichColumn)
       (!this->QueryInternals->QueryResults))
   {
     vtkWarningMacro(<<"No active query!");
-    return NULL;
+    return nullptr;
   }
   else if (whichColumn < 0 || whichColumn >= this->GetNumberOfFields())
   {
     vtkWarningMacro(<<"Illegal column index " << whichColumn);
-    return NULL;
+    return nullptr;
   }
   else
   {

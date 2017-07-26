@@ -136,7 +136,7 @@ void vtkXMLUnstructuredGridWriter::DeletePositionArrays()
   this->Superclass::DeletePositionArrays();
 
   delete [] this->NumberOfCellsPositions;
-  this->NumberOfCellsPositions = NULL;
+  this->NumberOfCellsPositions = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -255,7 +255,7 @@ void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   vtkIdType connectSize = 0;
   if (vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
-    if (grid->GetCells() == 0)
+    if (grid->GetCells() == nullptr)
     {
       connectSize = 0;
     }

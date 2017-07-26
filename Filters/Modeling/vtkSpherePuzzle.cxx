@@ -47,7 +47,7 @@ vtkSpherePuzzle::vtkSpherePuzzle()
 vtkSpherePuzzle::~vtkSpherePuzzle()
 {
   this->Transform->Delete();
-  this->Transform = NULL;
+  this->Transform = nullptr;
 }
 
 //----------------------------------------------------------------------------

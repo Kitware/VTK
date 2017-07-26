@@ -33,12 +33,12 @@ vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, InputData, vtkImageData );
 // when magnitude of gradient opacities are included
 vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 {
-  this->InputData                      = NULL;
-  this->EncodedNormals             = NULL;
+  this->InputData                      = nullptr;
+  this->EncodedNormals             = nullptr;
   this->EncodedNormalsSize[0]      = 0;
   this->EncodedNormalsSize[1]      = 0;
   this->EncodedNormalsSize[2]      = 0;
-  this->GradientMagnitudes         = NULL;
+  this->GradientMagnitudes         = nullptr;
   this->GradientMagnitudeScale     = 1.0;
   this->GradientMagnitudeBias      = 0.0;
   this->Threader                   = vtkMultiThreader::New();
@@ -46,7 +46,7 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->DirectionEncoder           = vtkRecursiveSphereDirectionEncoder::New();
   this->ComputeGradientMagnitudes  = 1;
   this->CylinderClip               = 0;
-  this->CircleLimits               = NULL;
+  this->CircleLimits               = nullptr;
   this->CircleLimitsSize           = -1;
   this->UseCylinderClip            = 0;
   this->LastUpdateTimeInSeconds    = -1.0;
@@ -66,9 +66,9 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
 vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 {
-  this->SetInputData(NULL);
+  this->SetInputData(nullptr);
   this->Threader->Delete();
-  this->Threader = NULL;
+  this->Threader = nullptr;
 
   delete [] this->EncodedNormals;
 
@@ -110,7 +110,7 @@ vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
   if ( this->DirectionEncoder )
   {
     this->DirectionEncoder->UnRegister(this);
-    this->DirectionEncoder = NULL;
+    this->DirectionEncoder = nullptr;
   }
 
   // If we are passing in a non-NULL encoder, register it
@@ -192,10 +192,10 @@ void vtkEncodedGradientEstimator::Update( )
          this->EncodedNormalsSize[2] != scalarInputSize[2] )
     {
       delete [] this->EncodedNormals;
-      this->EncodedNormals = NULL;
+      this->EncodedNormals = nullptr;
 
       delete [] this->GradientMagnitudes;
-      this->GradientMagnitudes = NULL;
+      this->GradientMagnitudes = nullptr;
     }
 
     // Compute the number of encoded voxels

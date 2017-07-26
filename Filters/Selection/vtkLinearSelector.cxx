@@ -31,13 +31,13 @@ vtkLinearSelector::vtkLinearSelector()
   this->Tolerance = 0.;
   this->IncludeVertices = true;
   this->VertexEliminationTolerance = 1.e-6;
-  this->Points = 0;
+  this->Points = nullptr;
 }
 
 // ----------------------------------------------------------------------
 vtkLinearSelector::~vtkLinearSelector()
 {
-  this->SetPoints( 0 );
+  this->SetPoints( nullptr );
 }
 
 // ----------------------------------------------------------------------

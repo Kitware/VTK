@@ -266,7 +266,7 @@ public:
    * Set a list of discrete values, either
    * as a categorical set of values (when IndexedLookup is true) or
    * as a set of annotations to add to a scalar array (when IndexedLookup is false).
-   * The two arrays must both either be NULL or of the same length or
+   * The two arrays must both either be nullptr or of the same length or
    * the call will be ignored.
 
    * Note that these arrays are deep copied rather than being used directly

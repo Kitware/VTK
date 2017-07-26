@@ -79,7 +79,7 @@ void vtkPath::Reset()
 //----------------------------------------------------------------------------
 vtkPath* vtkPath::GetData(vtkInformation* info)
 {
-  return info ? vtkPath::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info ? vtkPath::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

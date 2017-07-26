@@ -152,7 +152,7 @@ vtkOpenGLGL2PSHelper* PrepProgramForGL2PS(vtkOpenGLHelper &helper)
     if (helper.Program)
     {
       helper.Program->Delete();
-      helper.Program = NULL;
+      helper.Program = nullptr;
     }
   }
   else
@@ -162,7 +162,7 @@ vtkOpenGLGL2PSHelper* PrepProgramForGL2PS(vtkOpenGLHelper &helper)
     if (helper.Program && helper.Program->GetTransformFeedback())
     {
       helper.Program->Delete();
-      helper.Program = NULL;
+      helper.Program = nullptr;
     }
   }
 
@@ -224,11 +224,11 @@ vtkStandardNewMacro(vtkOpenGLContextDevice2D)
 //-----------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 {
-  this->Renderer = 0;
+  this->Renderer = nullptr;
   this->InRender = false;
   this->Storage = new vtkOpenGLContextDevice2D::Private;
   this->PolyDataImpl = new vtkOpenGLContextDevice2D::CellArrayHelper(this);
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->MaximumMarkerCacheSize = 20;
   this->ProjectionMatrix = vtkTransform::New();
   this->ModelMatrix = vtkTransform::New();
@@ -246,19 +246,19 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 {
   delete this->VBO;
-  this->VBO = 0;
+  this->VBO = nullptr;
   delete this->VCBO;
-  this->VCBO = 0;
+  this->VCBO = nullptr;
   delete this->LinesBO;
-  this->LinesBO = 0;
+  this->LinesBO = nullptr;
   delete this->LinesCBO;
-  this->LinesCBO = 0;
+  this->LinesCBO = nullptr;
   delete this->SBO;
-  this->SBO = 0;
+  this->SBO = nullptr;
   delete this->SCBO;
-  this->SCBO = 0;
+  this->SCBO = nullptr;
   delete this->VTBO;
-  this->VTBO = 0;
+  this->VTBO = nullptr;
 
   while (!this->MarkerCache.empty())
   {
@@ -364,7 +364,7 @@ void vtkOpenGLContextDevice2D::End()
     glDisable(GL_LINE_SMOOTH);
   }
 
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->InRender = false;
 
   vtkOpenGLCheckErrorMacro("failed after End");
@@ -375,7 +375,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(
   vtkAbstractContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
-  assert("pre: bufferId_exists" && bufferId!=0);
+  assert("pre: bufferId_exists" && bufferId!=nullptr);
 
   vtkOpenGLClearErrorMacro();
 
@@ -445,7 +445,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
 
   this->Storage->RestoreGLState(true);
 
-  this->BufferId=0;
+  this->BufferId=nullptr;
 
   vtkOpenGLCheckErrorMacro("failed after BufferIdModeEnd");
 
@@ -553,7 +553,7 @@ void vtkOpenGLContextDevice2D::ReadyVBOProgram()
 
   if (!this->VBO->Program)
   {
-    vtkTransformFeedback *tf = NULL;
+    vtkTransformFeedback *tf = nullptr;
     if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
     {
       tf = vtkTransformFeedback::New();
@@ -570,7 +570,7 @@ void vtkOpenGLContextDevice2D::ReadyVBOProgram()
     if (tf)
     {
       tf->Delete();
-      tf = NULL;
+      tf = nullptr;
     }
   }
   else
@@ -585,7 +585,7 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
 
   if (!this->VCBO->Program)
   {
-    vtkTransformFeedback *tf = NULL;
+    vtkTransformFeedback *tf = nullptr;
     if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
     {
       tf = vtkTransformFeedback::New();
@@ -604,7 +604,7 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
     if (tf)
     {
       tf->Delete();
-      tf = NULL;
+      tf = nullptr;
     }
   }
   else
@@ -619,7 +619,7 @@ void vtkOpenGLContextDevice2D::ReadyLinesBOProgram()
 
   if (!this->LinesBO->Program)
   {
-    vtkTransformFeedback *tf = NULL;
+    vtkTransformFeedback *tf = nullptr;
     if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
     {
       tf = vtkTransformFeedback::New();
@@ -636,7 +636,7 @@ void vtkOpenGLContextDevice2D::ReadyLinesBOProgram()
     if (tf)
     {
       tf->Delete();
-      tf = NULL;
+      tf = nullptr;
     }
   }
   else
@@ -652,7 +652,7 @@ void vtkOpenGLContextDevice2D::ReadyLinesCBOProgram()
 
   if (!this->LinesCBO->Program)
   {
-    vtkTransformFeedback *tf = NULL;
+    vtkTransformFeedback *tf = nullptr;
     if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
     {
       tf = vtkTransformFeedback::New();
@@ -673,7 +673,7 @@ void vtkOpenGLContextDevice2D::ReadyLinesCBOProgram()
     if (tf)
     {
       tf->Delete();
-      tf = NULL;
+      tf = nullptr;
     }
   }
   else
@@ -765,7 +765,7 @@ void vtkOpenGLContextDevice2D::ReadySCBOProgram()
 void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
                                         int nc)
 {
-  assert("f must be non-null" && f != NULL);
+  assert("f must be non-null" && f != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   if (SkipDraw())
@@ -787,7 +787,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   vtkOpenGLClearErrorMacro();
   this->SetLineType(this->Pen->GetLineType());
 
-  vtkOpenGLHelper *cbo = 0;
+  vtkOpenGLHelper *cbo = nullptr;
   if (colors)
   {
     this->ReadyLinesCBOProgram();
@@ -885,7 +885,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
     }
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
-      colors ? &(newColors[0]) : NULL, nc, &(newDistances[0]));
+      colors ? &(newColors[0]) : nullptr, nc, &(newDistances[0]));
 
     PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
@@ -911,7 +911,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
 void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
                                          int nc)
 {
-  assert("f must be non-null" && f != NULL);
+  assert("f must be non-null" && f != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   if (SkipDraw())
@@ -934,7 +934,7 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
 
   this->SetLineType(this->Pen->GetLineType());
 
-  vtkOpenGLHelper *cbo = 0;
+  vtkOpenGLHelper *cbo = nullptr;
   if (colors)
   {
     this->ReadyLinesCBOProgram();
@@ -1028,7 +1028,7 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
     }
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
-      colors ? &(newColors[0]) : NULL, nc, &(newDistances[0]));
+      colors ? &(newColors[0]) : nullptr, nc, &(newDistances[0]));
     PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
     PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
@@ -1066,7 +1066,7 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
 
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGLHelper *cbo = 0;
+  vtkOpenGLHelper *cbo = nullptr;
   if (c)
   {
     this->ReadyVCBOProgram();
@@ -1090,7 +1090,7 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
 
   this->SetPointSize(this->Pen->GetWidth());
 
-  this->BuildVBO(cbo, f, n, c, nc, NULL);
+  this->BuildVBO(cbo, f, n, c, nc, nullptr);
   this->SetMatrices(cbo->Program);
 
   PreDraw(*cbo, GL_POINTS, n);
@@ -1120,7 +1120,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
   {
     this->SetPointSize(this->Pen->GetWidth());
 
-    vtkOpenGLHelper *cbo = 0;
+    vtkOpenGLHelper *cbo = nullptr;
     if (colors)
     {
       this->ReadySCBOProgram();
@@ -1142,7 +1142,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
         this->Pen->GetColor());
     }
 
-    this->BuildVBO(cbo, points, n, colors, nc_comps, NULL);
+    this->BuildVBO(cbo, points, n, colors, nc_comps, nullptr);
     this->SetMatrices(cbo->Program);
 
     if (sprite)
@@ -1258,8 +1258,8 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(std::vector<float> &tverts,
 
   vtkOpenGLClearErrorMacro();
 
-  float* texCoord = 0;
-  vtkOpenGLHelper *cbo = 0;
+  float* texCoord = nullptr;
+  vtkOpenGLHelper *cbo = nullptr;
   if (this->Brush->GetTexture())
   {
     this->ReadyVTBOProgram();
@@ -1735,7 +1735,7 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGLHelper *cbo = 0;
+  vtkOpenGLHelper *cbo = nullptr;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
   if (!cbo->Program)
@@ -1745,7 +1745,7 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
   cbo->Program->SetUniformi("texture1", tunit);
 
-  this->BuildVBO(cbo, points, 6, NULL, 0, texCoord);
+  this->BuildVBO(cbo, points, 6, nullptr, 0, texCoord);
   this->SetMatrices(cbo->Program);
 
   glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1816,7 +1816,7 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGLHelper *cbo = 0;
+  vtkOpenGLHelper *cbo = nullptr;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
   if (!cbo->Program)
@@ -1827,7 +1827,7 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
     this->Storage->Texture)->GetTextureUnit();
   cbo->Program->SetUniformi("texture1", tunit);
 
-  this->BuildVBO(cbo, points, 6, NULL, 0, texCoord);
+  this->BuildVBO(cbo, points, 6, nullptr, 0, texCoord);
   this->SetMatrices(cbo->Program);
 
   glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1928,7 +1928,7 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                        0.0f,   tex[1]};
 
 
-  vtkOpenGLHelper *cbo = 0;
+  vtkOpenGLHelper *cbo = nullptr;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
   if (!cbo->Program)
@@ -1937,7 +1937,7 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
   }
   cbo->Program->SetUniformi("texture1", tunit);
 
-  this->BuildVBO(cbo, points, 6, NULL, 0, texCoord);
+  this->BuildVBO(cbo, points, 6, nullptr, 0, texCoord);
   this->SetMatrices(cbo->Program);
 
   glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1968,16 +1968,16 @@ void vtkOpenGLContextDevice2D::SetColor(unsigned char *)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
 {
-  if (image == NULL)
+  if (image == nullptr)
   {
     if (this->Storage->Texture)
     {
       this->Storage->Texture->Delete();
-      this->Storage->Texture = 0;
+      this->Storage->Texture = nullptr;
     }
     return;
   }
-  if (this->Storage->Texture == NULL)
+  if (this->Storage->Texture == nullptr)
   {
     this->Storage->Texture = vtkTexture::New();
   }
@@ -2099,7 +2099,7 @@ void vtkOpenGLContextDevice2D::SetMatrix(vtkMatrix3x3 *m)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::GetMatrix(vtkMatrix3x3 *m)
 {
-  assert("pre: non_null" && m != NULL);
+  assert("pre: non_null" && m != nullptr);
   // We must construct a 4x4 matrix from the 3x3 matrix for OpenGL
   double *M = m->GetData();
   double *matrix = this->ModelMatrix->GetMatrix()->Element[0];
@@ -2252,7 +2252,7 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
   {
     vtkErrorMacro(<<"Error generating marker: shape,size: "
                   << shape << "," << size)
-    return NULL;
+    return nullptr;
   }
 
   // Check the current cache size.
@@ -2880,7 +2880,7 @@ void vtkOpenGLContextDevice2D::DrawCircleGL2PS(float x, float y,
   label << "vtkOpenGLContextDevice2D::DrawCircleGL2PS("
         << x << ", " << y << ", " << rX << ", " << rY << ") fill:";
 
-  gl2ps->DrawPath(path.GetPointer(), origin, origin, fillColor, NULL, 0.0, -1.f,
+  gl2ps->DrawPath(path.GetPointer(), origin, origin, fillColor, nullptr, 0.0, -1.f,
                   label.str().c_str());
 
   // and stroke
@@ -2892,7 +2892,7 @@ void vtkOpenGLContextDevice2D::DrawCircleGL2PS(float x, float y,
   label.clear();
   label << "vtkOpenGLContextDevice2D::DrawCircleGL2PS("
         << x << ", " << y << ", " << rX << ", " << rY << ") stroke:";
-  gl2ps->DrawPath(path.GetPointer(), origin, origin, strokeColor, NULL, 0.0,
+  gl2ps->DrawPath(path.GetPointer(), origin, origin, strokeColor, nullptr, 0.0,
                   strokeWidth, label.str().c_str());
 }
 
@@ -2925,7 +2925,7 @@ void vtkOpenGLContextDevice2D::DrawWedgeGL2PS(
   // We know the helper exists and that we are capturing if this function has
   // been called.
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  gl2ps->DrawPath(path.GetPointer(), rasterPos, windowPos, color, NULL, 0.0,
+  gl2ps->DrawPath(path.GetPointer(), rasterPos, windowPos, color, nullptr, 0.0,
                   -1.f, label.str().c_str());
 }
 

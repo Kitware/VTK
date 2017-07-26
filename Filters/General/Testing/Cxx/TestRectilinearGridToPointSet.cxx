@@ -72,7 +72,7 @@ static vtkSmartPointer<vtkRectilinearGrid> MakeRectilinearGrid()
 
 int TestRectilinearGridToPointSet(int, char*[])
 {
-  int seed = time(NULL);
+  int seed = time(nullptr);
   std::cout << "Seed: " << seed << std::endl;
   vtkMath::RandomSeed(seed);
 

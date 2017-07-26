@@ -23,7 +23,7 @@ class vtkInstantiatorHashNode
 public:
   typedef vtkInstantiator::CreateFunction CreateFunction;
 
-  vtkInstantiatorHashNode() { this->ClassName = 0; this->Function = 0; }
+  vtkInstantiatorHashNode() { this->ClassName = nullptr; this->Function = nullptr; }
 
   void SetClassName(const char* className) { this->ClassName = className; }
   const char* GetClassName() { return this->ClassName; }
@@ -188,7 +188,7 @@ vtkInstantiatorHashTable::Find(const char* className)
     if(strcmp(this->Buckets[bucket][i].GetClassName(), className) == 0)
       { return this->Buckets[bucket][i].GetFunction(); }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -264,7 +264,7 @@ vtkObject* vtkInstantiator::CreateInstance(const char* className)
 {
   CreateFunction function = vtkInstantiator::CreatorTable->Find(className);
   if(function) { return function(); }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

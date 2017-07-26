@@ -64,10 +64,10 @@ vtkWin32VideoSource::vtkWin32VideoSource()
   this->FlipFrames = 0;
   this->FrameBufferRowAlignment = 4;
 
-  this->Internal->CapWnd = NULL;
-  this->Internal->ParentWnd = NULL;
+  this->Internal->CapWnd = nullptr;
+  this->Internal->ParentWnd = nullptr;
   this->BitMapSize = 0;
-  this->Internal->BitMapPtr = NULL;
+  this->Internal->BitMapPtr = nullptr;
   this->WndClassName[0] = '\0';
 
   this->Preview = 0;
@@ -79,7 +79,7 @@ vtkWin32VideoSource::~vtkWin32VideoSource()
   this->vtkWin32VideoSource::ReleaseSystemResources();
 
   delete [] (char *)(this->Internal->BitMapPtr);
-  this->Internal->BitMapPtr = NULL;
+  this->Internal->BitMapPtr = nullptr;
   this->BitMapSize = 0;
   delete this->Internal;
 }
@@ -206,7 +206,7 @@ void vtkWin32VideoSource::Initialize()
   // do frame grabbing under VFW.  Why do we need any?
 
   // get necessary process info
-  HINSTANCE hinstance = GetModuleHandle(NULL);
+  HINSTANCE hinstance = GetModuleHandle(nullptr);
 
   strcpy(this->WndClassName,"VTKVideo");
 
@@ -215,10 +215,10 @@ void vtkWin32VideoSource::Initialize()
   wc.lpszClassName = this->WndClassName;
   wc.hInstance = hinstance;
   wc.lpfnWndProc = reinterpret_cast<WNDPROC>(&vtkWin32VideoSourceWinProc);
-  wc.hCursor = LoadCursor(NULL,IDC_ARROW);
-  wc.hIcon = NULL;
-  wc.lpszMenuName = NULL;
-  wc.hbrBackground = NULL;
+  wc.hCursor = LoadCursor(nullptr,IDC_ARROW);
+  wc.hIcon = nullptr;
+  wc.lpszMenuName = nullptr;
+  wc.hbrBackground = nullptr;
   wc.style = CS_HREDRAW|CS_VREDRAW;
   wc.cbClsExtra = sizeof(void *);
   wc.cbWndExtra = 0;
@@ -268,10 +268,10 @@ void vtkWin32VideoSource::Initialize()
                 0, 0,
                 r.right - r.left,
                 r.bottom - r.top,
-                NULL,
-                NULL,
+                nullptr,
+                nullptr,
                 hinstance,
-                NULL);
+                nullptr);
 
   if (!this->Internal->ParentWnd)
   {
@@ -421,7 +421,7 @@ void vtkWin32VideoSource::SetPreview(int p)
   this->Preview = p;
   this->Modified();
 
-  if (this->Internal->CapWnd == NULL || this->Internal->ParentWnd == NULL)
+  if (this->Internal->CapWnd == nullptr || this->Internal->ParentWnd == nullptr)
   {
     return;
   }
@@ -460,15 +460,15 @@ void vtkWin32VideoSource::OnParentWndDestroy()
     capDriverDisconnect(this->Internal->CapWnd);
     //MessageBox(this->Internal->ParentWnd, "DestroyWindow(this->Internal->CapWnd)", "", MB_OK | MB_ICONEXCLAMATION);
     DestroyWindow(this->Internal->CapWnd);
-    this->Internal->CapWnd = NULL;
+    this->Internal->CapWnd = nullptr;
   }
   if (this->WndClassName[0] != '\0')
   {
-    UnregisterClass(this->WndClassName,GetModuleHandle(NULL));
+    UnregisterClass(this->WndClassName,GetModuleHandle(nullptr));
     this->WndClassName[0] = '\0';
   }
 
-  this->Internal->ParentWnd = NULL;
+  this->Internal->ParentWnd = nullptr;
   this->Initialized = 0;
 }
 

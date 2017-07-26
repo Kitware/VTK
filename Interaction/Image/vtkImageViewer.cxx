@@ -41,8 +41,8 @@ vtkImageViewer::vtkImageViewer()
 
   this->FirstRender = 1;
 
-  this->Interactor = 0;
-  this->InteractorStyle = 0;
+  this->Interactor = nullptr;
+  this->InteractorStyle = nullptr;
 }
 
 
@@ -101,7 +101,7 @@ public:
                unsigned long event,
                void *vtkNotUsed(callData)) VTK_OVERRIDE
   {
-      if (this->IV->GetInput() == NULL)
+      if (this->IV->GetInput() == nullptr)
       {
         return;
       }

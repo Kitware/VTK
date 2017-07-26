@@ -78,9 +78,9 @@ int vtkSmoothErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
                                                   double vtkNotUsed(alpha)
   )
 {
-  assert( "pre: leftPoint_exists" && leftPoint != 0 );
-  assert( "pre: midPoint_exists" && midPoint != 0 );
-  assert( "pre: rightPoint_exists" && rightPoint != 0 );
+  assert( "pre: leftPoint_exists" && leftPoint != nullptr );
+  assert( "pre: midPoint_exists" && midPoint != nullptr );
+  assert( "pre: rightPoint_exists" && rightPoint != nullptr );
 //  assert( "pre: clamped_alpha" && alpha>0 && alpha < 1. ); // or else true
   if( this->GenericCell->IsGeometryLinear() )
   {
@@ -130,9 +130,9 @@ double vtkSmoothErrorMetric::GetError(double *leftPoint,
                                       double vtkNotUsed(alpha)
   )
 {
-  assert( "pre: leftPoint_exists" && leftPoint != 0 );
-  assert( "pre: midPoint_exists" && midPoint != 0 );
-  assert( "pre: rightPoint_exists" && rightPoint != 0 );
+  assert( "pre: leftPoint_exists" && leftPoint != nullptr );
+  assert( "pre: midPoint_exists" && midPoint != nullptr );
+  assert( "pre: rightPoint_exists" && rightPoint != nullptr );
 //  assert( "pre: clamped_alpha" && alpha > 0. && alpha < 1. );
   if( this->GenericCell->IsGeometryLinear() )
   {

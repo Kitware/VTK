@@ -359,7 +359,7 @@ inline int vtkCellArray::GetNextCell(vtkIdType& npts, vtkIdType* &pts)
     return 1;
   }
   npts=0;
-  pts=0;
+  pts=nullptr;
   return 0;
 }
 

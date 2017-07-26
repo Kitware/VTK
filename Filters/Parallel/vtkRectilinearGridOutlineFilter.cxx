@@ -68,7 +68,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(
   int*          wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
-  if (xCoords == NULL || yCoords == NULL || zCoords == NULL ||
+  if (xCoords == nullptr || yCoords == nullptr || zCoords == nullptr ||
       input->GetNumberOfCells() == 0)
   {
     return 1;

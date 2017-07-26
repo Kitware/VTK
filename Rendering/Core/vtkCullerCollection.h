@@ -87,9 +87,9 @@ private:
 
 inline vtkCuller *vtkCullerCollection::GetLastItem()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

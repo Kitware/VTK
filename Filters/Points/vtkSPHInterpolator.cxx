@@ -85,7 +85,7 @@ struct ProbePoints
       {
         const char *arrayName = sphInt->GetExcludedArray(i);
         vtkDataArray *array = this->InPD->GetArray(arrayName);
-        if ( array != NULL )
+        if ( array != nullptr )
         {
           outPD->RemoveArray(array->GetName());
           this->Arrays.ExcludeArray(array);
@@ -99,7 +99,7 @@ struct ProbePoints
       {
         const char *arrayName = sphInt->GetDerivativeArray(i);
         vtkDataArray *array = this->InPD->GetArray(arrayName);
-        if ( array != NULL )
+        if ( array != nullptr )
         {
           vtkStdString outName = arrayName; outName += "_deriv";
           if (vtkDataArray* outArray = this->DerivArrays.AddArrayPair(
@@ -195,10 +195,10 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->DensityArrayName = "Rho";
   this->MassArrayName = "";
 
-  this->NullPointsStrategy = vtkSPHInterpolator::NULL_VALUE;
+  this->NullPointsStrategy = vtkSPHInterpolator::nullptr_VALUE;
   this->NullValue = 0.0;
 
-  this->ValidPointsMask = NULL;
+  this->ValidPointsMask = nullptr;
   this->ValidPointsMaskArrayName = "vtkValidPointMask";
 
   this->ComputeShepardSum = true;
@@ -214,8 +214,8 @@ vtkSPHInterpolator::vtkSPHInterpolator()
 //----------------------------------------------------------------------------
 vtkSPHInterpolator::~vtkSPHInterpolator()
 {
-  this->SetLocator(NULL);
-  this->SetKernel(NULL);
+  this->SetLocator(nullptr);
+  this->SetKernel(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -235,7 +235,7 @@ vtkDataObject *vtkSPHInterpolator::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GetExecutive()->GetInputData(1, 0);
@@ -269,7 +269,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   outPD->InterpolateAllocate(sourcePD,numPts);
 
   // Masking if requested
-  char *mask=NULL;
+  char *mask=nullptr;
   if ( this->NullPointsStrategy == vtkSPHInterpolator::MASK_POINTS )
   {
     this->ValidPointsMask = vtkCharArray::New();
@@ -279,7 +279,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   }
 
   // Shepard summation if requested
-  float *shepardArray=NULL;
+  float *shepardArray=nullptr;
   if ( this->ComputeShepardSum )
   {
     this->ShepardSumArray = vtkFloatArray::New();
@@ -306,7 +306,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     this->ShepardSumArray->SetName(this->ShepardSumArrayName);
     outPD->AddArray(this->ShepardSumArray);
     this->ShepardSumArray->Delete();
-    this->ShepardSumArray = NULL;
+    this->ShepardSumArray = nullptr;
   }
 
   if ( mask )
@@ -314,7 +314,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
-    this->ValidPointsMask = NULL;
+    this->ValidPointsMask = nullptr;
   }
 }
 
@@ -465,12 +465,12 @@ vtkMTimeType vtkSPHInterpolator::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType mTime2;
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     mTime2 = this->Locator->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );
   }
-  if ( this->Kernel != NULL )
+  if ( this->Kernel != nullptr )
   {
     mTime2 = this->Kernel->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );

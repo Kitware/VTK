@@ -81,10 +81,10 @@ vtkStandardNewMacro(vtkMNITransformWriter);
 //-------------------------------------------------------------------------
 vtkMNITransformWriter::vtkMNITransformWriter()
 {
-  this->FileName = 0;
-  this->Transform = 0;
+  this->FileName = nullptr;
+  this->Transform = nullptr;
   this->Transforms = vtkCollection::New();
-  this->Comments = 0;
+  this->Comments = nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -554,7 +554,7 @@ void vtkMNITransformWriter::Write()
 //-------------------------------------------------------------------------
 int vtkMNITransformWriter::GetNumberOfTransforms()
 {
-  if (this->Transform == 0)
+  if (this->Transform == nullptr)
   {
     return 0;
   }
@@ -570,12 +570,12 @@ void vtkMNITransformWriter::SetTransform(vtkAbstractTransform *transform)
     return;
   }
 
-  if (this->Transform != 0)
+  if (this->Transform != nullptr)
   {
     this->Transform->Delete();
   }
 
-  if (transform != 0)
+  if (transform != nullptr)
   {
     transform->Register(this);
   }
@@ -588,12 +588,12 @@ void vtkMNITransformWriter::SetTransform(vtkAbstractTransform *transform)
 //-------------------------------------------------------------------------
 void vtkMNITransformWriter::AddTransform(vtkAbstractTransform *transform)
 {
-  if (transform == 0)
+  if (transform == nullptr)
   {
     return;
   }
 
-  if (this->Transform == 0)
+  if (this->Transform == nullptr)
   {
     this->SetTransform(transform);
   }

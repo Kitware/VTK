@@ -914,7 +914,7 @@ int TestErrors()
 
   // Parse: no function has been set
   parser->SetFunction("cos(a)");
-  parser->SetFunction(NULL);
+  parser->SetFunction(nullptr);
   parser->IsScalarResult();
   status += errorObserver->CheckErrorMessage("Parse: no function has been set");
 

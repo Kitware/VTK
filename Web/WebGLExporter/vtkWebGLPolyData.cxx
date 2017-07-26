@@ -112,7 +112,7 @@ void vtkWebGLPolyData::SetMesh(float* _vertices, int _numberOfVertices, int* _in
       float* normals = new float[size*3];
       unsigned char* colors = new unsigned char[size*4];
       short* indexes = new short[size];
-      float* tcoord = NULL;
+      float* tcoord = nullptr;
       if (_tcoords) tcoord = new float[size*2];
 
       this->Internal->IndexMap.clear();
@@ -297,7 +297,7 @@ void vtkWebGLPolyData::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWebGLPolyData::GetLinesFromPolygon(vtkMapper *mapper, vtkActor *actor, int lineMaxSize, double* edgeColor)
 {
   vtkWebGLPolyData *object = this;
-  vtkDataSet* dataset = NULL;
+  vtkDataSet* dataset = nullptr;
   vtkSmartPointer<vtkDataSet> tempDS;
   vtkDataObject* dObj = mapper->GetInputDataObject(0, 0);
   vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
@@ -346,7 +346,7 @@ void vtkWebGLPolyData::GetLinesFromPolygon(vtkMapper *mapper, vtkActor *actor, i
 
   int colorComponent = table->GetVectorComponent();
   int numberOfComponents = 0;
-  if (array != NULL) numberOfComponents = array->GetNumberOfComponents();
+  if (array != nullptr) numberOfComponents = array->GetNumberOfComponents();
   int mode = table->GetVectorMode();
   double mag=0, rgb[3];
   int curr=0;
@@ -389,7 +389,7 @@ void vtkWebGLPolyData::GetLinesFromPolygon(vtkMapper *mapper, vtkActor *actor, i
             break;
         }
       }
-      if (edgeColor != NULL) memcpy(rgb, edgeColor, sizeof(double)*3);
+      if (edgeColor != nullptr) memcpy(rgb, edgeColor, sizeof(double)*3);
       color[curr*4 + j*4 + 0] = (unsigned char)((int)(rgb[0]*255));
       color[curr*4 + j*4 + 1] = (unsigned char)((int)(rgb[1]*255));
       color[curr*4 + j*4 + 2] = (unsigned char)((int)(rgb[2]*255));
@@ -496,7 +496,7 @@ void vtkWebGLPolyData::GetColorsFromPolyData(unsigned char* color, vtkPolyData* 
   vtkDataArray* array = vtkAbstractMapper::GetScalars(polydata, actor->GetMapper()->GetScalarMode(),
                                                       actor->GetMapper()->GetArrayAccessMode(), actor->GetMapper()->GetArrayId(),
                                                       actor->GetMapper()->GetArrayName(), celldata);
-  if (actor->GetMapper()->GetScalarVisibility() && array != NULL)
+  if (actor->GetMapper()->GetScalarVisibility() && array != nullptr)
   {
     vtkScalarsToColors* table = actor->GetMapper()->GetLookupTable();
 
@@ -547,7 +547,7 @@ void vtkWebGLPolyData::GetPolygonsFromPointData(vtkTriangleFilter* polydata, vtk
   unsigned char* color = new unsigned char[data->GetNumberOfPoints()*4];
   this->GetColorsFromPointData(color, point, data, actor);
   //TCoord
-  float* tcoord = NULL;
+  float* tcoord = nullptr;
   if (attr->GetTCoords())
   {
     tcoord = new float[attr->GetTCoords()->GetSize()];
@@ -638,7 +638,7 @@ void vtkWebGLPolyData::GetPolygonsFromCellData(vtkTriangleFilter* polydata, vtkA
       indexes[aux+0] = aux+0; indexes[aux+1] = aux+1; indexes[aux+2] = aux+2;
     }
   }
-  object->SetMesh(vertices, data->GetNumberOfCells()*3, indexes, data->GetNumberOfCells()*3, normals, colors, NULL, maxSize);
+  object->SetMesh(vertices, data->GetNumberOfCells()*3, indexes, data->GetNumberOfCells()*3, normals, colors, nullptr, maxSize);
   cell->Delete();
   polynormals->Delete();
 }
@@ -655,7 +655,7 @@ void vtkWebGLPolyData::GetColorsFromPointData(unsigned char* color, vtkPointData
   else
     array = pointdata->GetArray(actor->GetMapper()->GetArrayName());
 
-  if (array && actor->GetMapper()->GetScalarVisibility() && actor->GetMapper()->GetArrayName() != NULL && actor->GetMapper()->GetArrayName()[0] != '\0')
+  if (array && actor->GetMapper()->GetScalarVisibility() && actor->GetMapper()->GetArrayName() != nullptr && actor->GetMapper()->GetArrayName()[0] != '\0')
   {
     vtkScalarsToColors* table = actor->GetMapper()->GetLookupTable();
     int colorComponent = table->GetVectorComponent(), numberOfComponents = array->GetNumberOfComponents();

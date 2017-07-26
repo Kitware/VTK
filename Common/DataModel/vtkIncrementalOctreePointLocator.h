@@ -362,7 +362,7 @@ private:
    * FindClosestPointInSphereWithTolerance() for point insertion and
    * FindClosestPointInSphereWithoutTolerance() for point location. Arguments
    * refDist2 and the initialization of minDist2 determine which version is used.
-   * Given a point (under check) and an already-checked node (possibly NULL),
+   * Given a point (under check) and an already-checked node (possibly nullptr),
    * find the closest point across a set of neighboring nodes within a specified
    * squared radius to the given point --- to perform an extended within-radius
    * inter-node search. The leaf (mask) node itself is excluded from the search
@@ -381,7 +381,7 @@ private:
   /**
    * This function is intended for point location, excluding point insertion.
    * Given a point (under check, covered or uncovered by the octree) and an
-   * already-checked leaf node (maskNode, possibly NULL), find the closest point
+   * already-checked leaf node (maskNode, possibly nullptr), find the closest point
    * across a set of neighboring nodes within a specified squared radius to the
    * given point --- to perform an extended within-radius inter-node search. The
    * leaf (mask) node itself is excluded from the search scope. Returned are the
@@ -407,7 +407,7 @@ private:
    * This function is intended for point insertion, excluding point location.
    * Given a point (under check for insertion, must be covered by the octree)
    * and an already-checked node (maskNode, the container leaf node, possibly
-   * NULL if no any node has been checked), find the closest point across a set
+   * nullptr if no any node has been checked), find the closest point across a set
    * of neighbor nodes within a specified squared radius radius2 to the given
    * point --- to perform an extended within-radius inter-node search. The leaf
    * (mask) node itself is excluded from the search scope. Returned are the point

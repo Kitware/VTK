@@ -662,7 +662,7 @@ void vtkImageCanvasSource2DDrawPoint(vtkImageData *image,
 // Draw a circle
 void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 {
-  void *ptr = NULL;
+  void *ptr = nullptr;
   int z = this->DefaultZ;
 
   vtkDebugMacro(<< "Drawing a point: (" << p0 << ", " << p1 << ")");
@@ -754,7 +754,7 @@ void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
 // Draw a circle
 void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
 {
-  void *ptr = NULL;
+  void *ptr = nullptr;
   int z = this->DefaultZ;
 
   vtkDebugMacro(<< "Drawing a circle: center = (" << c0 << ", " << c1
@@ -1186,7 +1186,7 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
 {
   vtkImageCanvasSource2DPixel *pixel;
   vtkImageCanvasSource2DPixel *first, *last;
-  vtkImageCanvasSource2DPixel *heap = NULL;
+  vtkImageCanvasSource2DPixel *heap = nullptr;
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
   vtkIdType inc0, inc1, inc2;
@@ -1225,7 +1225,7 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
   pixel->X = x;
   pixel->Y = y;
   pixel->Pointer = static_cast<void *>(ptr);
-  pixel->Next = NULL;
+  pixel->Next = nullptr;
   first = last = pixel;
   // change the seeds color
   ptrV = static_cast<T *>(last->Pointer);
@@ -1271,7 +1271,7 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         pixel->X = first->X-1;
         pixel->Y = first->Y;
         pixel->Pointer = static_cast<void *>(ptr - inc0);
-        pixel->Next = NULL;
+        pixel->Next = nullptr;
         last->Next = pixel;
         last = pixel;
         // change the seeds color
@@ -1316,7 +1316,7 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         pixel->X = first->X+1;
         pixel->Y = first->Y;
         pixel->Pointer = static_cast<void *>(ptr + inc0);
-        pixel->Next = NULL;
+        pixel->Next = nullptr;
         last->Next = pixel;
         last = pixel;
         // change the seeds color
@@ -1361,7 +1361,7 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         pixel->X = first->X;
         pixel->Y = first->Y-1;
         pixel->Pointer = static_cast<void *>(ptr - inc1);
-        pixel->Next = NULL;
+        pixel->Next = nullptr;
         last->Next = pixel;
         last = pixel;
         // change the seeds color
@@ -1406,7 +1406,7 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
         pixel->X = first->X;
         pixel->Y = first->Y+1;
         pixel->Pointer = static_cast<void *>(ptr + inc1);
-        pixel->Next = NULL;
+        pixel->Next = nullptr;
         last->Next = pixel;
         last = pixel;
         // change the seeds color

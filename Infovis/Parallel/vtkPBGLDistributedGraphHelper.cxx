@@ -49,8 +49,8 @@ public:
   class EdgeIIMessageBundle
   {
   public:
-    EdgeIIMessageBundle() { uDistributedId=0; vDistributedId=0; propertyArr=NULL; }
-    EdgeIIMessageBundle(vtkIdType u, vtkIdType v, vtkVariantArray* prop=NULL)
+    EdgeIIMessageBundle() { uDistributedId=0; vDistributedId=0; propertyArr=nullptr; }
+    EdgeIIMessageBundle(vtkIdType u, vtkIdType v, vtkVariantArray* prop=nullptr)
          : uDistributedId(u), vDistributedId(v), propertyArr(prop)
     { };
     ~EdgeIIMessageBundle() {};
@@ -74,8 +74,8 @@ public:
   class EdgeINMessageBundle
   {
   public:
-    EdgeINMessageBundle() { uDistributedId=0; propertyArr=NULL; }
-    EdgeINMessageBundle(vtkIdType u, const vtkVariant& v, vtkVariantArray* prop=NULL)
+    EdgeINMessageBundle() { uDistributedId=0; propertyArr=nullptr; }
+    EdgeINMessageBundle(vtkIdType u, const vtkVariant& v, vtkVariantArray* prop=nullptr)
          : uDistributedId(u), vPedigreeId(v), propertyArr(prop)
     { };
     ~EdgeINMessageBundle() {};
@@ -99,8 +99,8 @@ public:
   class EdgeNIMessageBundle
   {
   public:
-    EdgeNIMessageBundle() { vDistributedId=0; propertyArr=NULL; }
-    EdgeNIMessageBundle(const vtkVariant& u, vtkIdType v, vtkVariantArray* prop=NULL)
+    EdgeNIMessageBundle() { vDistributedId=0; propertyArr=nullptr; }
+    EdgeNIMessageBundle(const vtkVariant& u, vtkIdType v, vtkVariantArray* prop=nullptr)
        : uPedigreeId(u), vDistributedId(v), propertyArr(prop)
     { };
     ~EdgeNIMessageBundle() {};
@@ -124,8 +124,8 @@ public:
   class EdgeNNMessageBundle
   {
   public:
-    EdgeNNMessageBundle() { propertyArr=NULL; }
-    EdgeNNMessageBundle(const vtkVariant& u, const vtkVariant& v, vtkVariantArray* prop=NULL)
+    EdgeNNMessageBundle() { propertyArr=nullptr; }
+    EdgeNNMessageBundle(const vtkVariant& u, const vtkVariant& v, vtkVariantArray* prop=nullptr)
          : uPedigreeId(u), vPedigreeId(v), propertyArr(prop)
     { };
     ~EdgeNNMessageBundle() {};
@@ -296,14 +296,14 @@ vtkPBGLDistributedGraphHelper::AddVertexInternal(vtkVariantArray *propertyArr,
   vtkAbstractArray *peds = this->Graph->GetVertexData()->GetPedigreeIds();
   vtkIdType owner = -1;
 
-  if (peds != NULL)
+  if (peds != nullptr)
   {
     vtkIdType pedIdx = this->Graph->GetVertexData()->SetPedigreeIds(peds);
     vtkVariant pedigreeId = propertyArr->GetValue(pedIdx);
     owner = this->GetVertexOwnerByPedigreeId(pedigreeId);
   }
 
-  if ((peds != NULL) && (owner == rank))
+  if ((peds != nullptr) && (owner == rank))
   {
     // This little dance keeps us from having to make
     // vtkPBGLDistributedGraphHelper a friend of vtkGraph. It also

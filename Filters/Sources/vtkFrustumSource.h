@@ -45,9 +45,9 @@ public:
 
   //@{
   /**
-   * Return the 6 planes defining the frustum. Initial value is NULL.
+   * Return the 6 planes defining the frustum. Initial value is nullptr.
    * The 6 planes are defined in this order: left,right,bottom,top,far,near.
-   * If Planes==NULL or if Planes->GetNumberOfPlanes()!=6 when RequestData()
+   * If Planes==nullptr or if Planes->GetNumberOfPlanes()!=6 when RequestData()
    * is called, an error message will be emitted and RequestData() will
    * return right away.
    */
@@ -94,7 +94,7 @@ public:
 
 protected:
   /**
-   * Default constructor. Planes=NULL. ShowLines=true. LinesLength=1.0.
+   * Default constructor. Planes=nullptr. ShowLines=true. LinesLength=1.0.
    */
   vtkFrustumSource();
 

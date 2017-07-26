@@ -28,10 +28,10 @@ vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkPropCollection)
 
 vtkGL2PSExporter::vtkGL2PSExporter()
 {
-  this->RasterExclusions = NULL;
-  this->FilePrefix = NULL;
+  this->RasterExclusions = nullptr;
+  this->FilePrefix = nullptr;
   this->BufferSize = 4194304; // 4MB
-  this->Title = NULL;
+  this->Title = nullptr;
   this->FileFormat = EPS_FILE;
   this->Sort = SIMPLE_SORT;
   this->Compress = 1;
@@ -51,7 +51,7 @@ vtkGL2PSExporter::vtkGL2PSExporter()
 
 vtkGL2PSExporter::~vtkGL2PSExporter()
 {
-  this->SetRasterExclusions(NULL);
+  this->SetRasterExclusions(nullptr);
   delete [] this->FilePrefix;
   delete [] this->Title;
 }

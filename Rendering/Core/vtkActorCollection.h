@@ -104,9 +104,9 @@ inline vtkActor *vtkActorCollection::GetNextActor()
 
 inline vtkActor *vtkActorCollection::GetLastActor()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

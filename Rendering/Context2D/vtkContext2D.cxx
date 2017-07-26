@@ -60,7 +60,7 @@ bool vtkContext2D::End()
   {
     this->Device->End();
     this->Device->Delete();
-    this->Device = NULL;
+    this->Device = nullptr;
     this->Modified();
     return true;
   }
@@ -70,14 +70,14 @@ bool vtkContext2D::End()
 // ----------------------------------------------------------------------------
 bool vtkContext2D::GetBufferIdMode() const
 {
-  return this->BufferId!=0;
+  return this->BufferId!=nullptr;
 }
 
 // ----------------------------------------------------------------------------
 void vtkContext2D::BufferIdModeBegin(vtkAbstractContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
-  assert("pre: bufferId_exists" && bufferId!=0);
+  assert("pre: bufferId_exists" && bufferId!=nullptr);
 
   this->BufferId=bufferId;
   this->Device->BufferIdModeBegin(bufferId);
@@ -91,7 +91,7 @@ void vtkContext2D::BufferIdModeEnd()
   assert("pre: started" && this->GetBufferIdMode());
 
   this->Device->BufferIdModeEnd();
-  this->BufferId=0;
+  this->BufferId=nullptr;
 
   assert("post: done" && !this->GetBufferIdMode());
 }
@@ -332,7 +332,7 @@ void vtkContext2D::DrawMarkers(int shape, bool highlight, float *points, int n,
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawMarkers(int shape, bool highlight, float *points, int n)
 {
-  this->DrawMarkers(shape, highlight, points, n, NULL, 0);
+  this->DrawMarkers(shape, highlight, points, n, nullptr, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -912,7 +912,7 @@ vtkPen* vtkContext2D::GetPen()
   {
     return this->Device->GetPen();
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -928,7 +928,7 @@ vtkBrush* vtkContext2D::GetBrush()
   {
     return this->Device->GetBrush();
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -944,7 +944,7 @@ vtkTextProperty* vtkContext2D::GetTextProp()
   {
     return this->Device->GetTextProp();
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -964,7 +964,7 @@ vtkTransform2D* vtkContext2D::GetTransform()
     this->Device->GetMatrix(this->Transform->GetMatrix());
     return this->Transform;
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -1069,11 +1069,11 @@ vtkVector2f vtkContext2D::CalculateTextPosition(float rect[4])
 }
 
 //-----------------------------------------------------------------------------
-vtkContext2D::vtkContext2D() : Context3D(NULL)
+vtkContext2D::vtkContext2D() : Context3D(nullptr)
 {
-  this->Device = NULL;
+  this->Device = nullptr;
   this->Transform = vtkTransform2D::New();
-  this->BufferId = 0;
+  this->BufferId = nullptr;
 }
 
 //-----------------------------------------------------------------------------

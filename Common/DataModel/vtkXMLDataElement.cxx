@@ -30,9 +30,9 @@ vtkStandardNewMacro(vtkXMLDataElement);
 //----------------------------------------------------------------------------
 vtkXMLDataElement::vtkXMLDataElement()
 {
-  this->Name = 0;
-  this->Id = 0;
-  this->Parent = 0;
+  this->Name = nullptr;
+  this->Id = nullptr;
+  this->Parent = nullptr;
 
   this->NumberOfAttributes = 0;
   this->AttributesSize = 5;
@@ -62,8 +62,8 @@ vtkXMLDataElement::vtkXMLDataElement()
 //----------------------------------------------------------------------------
 vtkXMLDataElement::~vtkXMLDataElement()
 {
-  this->SetName(0);
-  this->SetId(0);
+  this->SetName(nullptr);
+  this->SetId(nullptr);
 
   this->RemoveAllAttributes();
   delete [] this->AttributeNames;
@@ -93,7 +93,7 @@ void vtkXMLDataElement::RemoveAttribute(const char *name)
       // delete the contents for the attribute being removed.
       delete [] this->AttributeNames[i];
       delete [] this->AttributeValues[i];
-      this->AttributeValues[i] = this->AttributeNames[i] = NULL;
+      this->AttributeValues[i] = this->AttributeNames[i] = nullptr;
 
       // Shift the other attributes
       for (j = i; j < this->NumberOfAttributes - 1; ++j)
@@ -102,9 +102,9 @@ void vtkXMLDataElement::RemoveAttribute(const char *name)
         this->AttributeValues[j] = this->AttributeValues[j + 1];
       }
 
-      // set the last ones as NULL, since the pointers have been moved.
-      this->AttributeNames[this->NumberOfAttributes - 1] = NULL;
-      this->AttributeValues[this->NumberOfAttributes - 1] = NULL;
+      // set the last ones as nullptr, since the pointers have been moved.
+      this->AttributeNames[this->NumberOfAttributes - 1] = nullptr;
+      this->AttributeValues[this->NumberOfAttributes - 1] = nullptr;
 
       --this->NumberOfAttributes;
       // this->AttributesSize is unchanged
@@ -142,7 +142,7 @@ void vtkXMLDataElement::SetName(const char* _arg)
       << this << "): setting Name to "
       << (_arg?_arg:"(null)") );
 
-  if ( this->Name == NULL && _arg == NULL) { return;}
+  if ( this->Name == nullptr && _arg == nullptr) { return;}
   if ( this->Name && _arg && (!strcmp(this->Name,_arg))) { return;}
   delete [] this->Name;
   this->IgnoreCharacterData=0;
@@ -162,7 +162,7 @@ void vtkXMLDataElement::SetName(const char* _arg)
   }
    else
    {
-    this->Name = NULL;
+    this->Name = nullptr;
    }
   this->Modified();
 }
@@ -306,7 +306,7 @@ const char* vtkXMLDataElement::GetAttribute(const char* name)
 {
   if (!name)
   {
-    return 0;
+    return nullptr;
   }
 
   int i;
@@ -317,7 +317,7 @@ const char* vtkXMLDataElement::GetAttribute(const char* name)
       return this->AttributeValues[i];
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -325,7 +325,7 @@ const char* vtkXMLDataElement::GetAttributeName(int idx)
 {
   if (idx < 0 || idx >= this->NumberOfAttributes)
   {
-    return 0;
+    return nullptr;
   }
 
   return this->AttributeNames[idx];
@@ -336,7 +336,7 @@ const char* vtkXMLDataElement::GetAttributeValue(int idx)
 {
   if (idx < 0 || idx >= this->NumberOfAttributes)
   {
-    return 0;
+    return nullptr;
   }
 
   return this->AttributeValues[idx];
@@ -349,7 +349,7 @@ const char* vtkXMLDataElement::GetAttributeValue(int idx)
 void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 {
   // anything to do?
-  if (this->CharacterData==NULL || strcmp(this->CharacterData, "") == 0)
+  if (this->CharacterData==nullptr || strcmp(this->CharacterData, "") == 0)
   {
     return;
   }
@@ -458,7 +458,7 @@ void vtkXMLDataElement::PrintXML(ostream& os, vtkIndent indent)
   // Long format tag is needed if either or both
   // nested elements or inline data are present.
   if (this->NumberOfNestedElements>0
-      || (this->CharacterData != NULL && this->CharacterData[0] != 0))
+      || (this->CharacterData != nullptr && this->CharacterData[0] != 0))
   {
     os << ">\n";
     // nested elements
@@ -513,7 +513,7 @@ vtkXMLDataElement* vtkXMLDataElement::GetNestedElement(int index)
   {
     return this->NestedElements[index];
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -521,7 +521,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithName(const char* name
 {
   if (!name)
   {
-    return 0;
+    return nullptr;
   }
 
   int i;
@@ -533,7 +533,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithName(const char* name
       return this->NestedElements[i];
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -542,7 +542,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndId(
 {
   if (!name || !id)
   {
-    return 0;
+    return nullptr;
   }
 
   int i;
@@ -555,7 +555,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndId(
       return this->NestedElements[i];
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -564,7 +564,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndAttribute(
 {
   if (!name || !att_name || !att_value)
   {
-    return 0;
+    return nullptr;
   }
 
   int i;
@@ -580,7 +580,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndAttribute(
       }
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -594,7 +594,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElement(const char* id)
 {
   if (!id)
   {
-    return 0;
+    return nullptr;
   }
 
   int i;
@@ -606,7 +606,7 @@ vtkXMLDataElement* vtkXMLDataElement::FindNestedElement(const char* id)
       return this->NestedElements[i];
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -614,7 +614,7 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementInScope(const char* id)
 {
   if (!id)
   {
-    return 0;
+    return nullptr;
   }
 
   // Pull off the first qualifier.
@@ -642,7 +642,7 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementUpScope(const char* id)
 {
   if (!id)
   {
-    return 0;
+    return nullptr;
   }
 
   // Pull off the first qualifier.
@@ -655,7 +655,7 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementUpScope(const char* id)
 
   // Find most closely nested occurrence of first qualifier.
   vtkXMLDataElement* curScope = this;
-  vtkXMLDataElement* start = 0;
+  vtkXMLDataElement* start = nullptr;
   while(curScope && !start)
   {
     start = curScope->FindNestedElement(name);
@@ -675,7 +675,7 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementWithName(const char* name)
 {
   if (!name)
   {
-    return NULL;
+    return nullptr;
   }
 
   int i;
@@ -693,7 +693,7 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementWithName(const char* name)
       return found;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

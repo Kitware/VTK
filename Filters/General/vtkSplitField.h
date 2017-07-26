@@ -110,7 +110,7 @@ public:
     void SetName(const char* name)
     {
         delete[] this->FieldName;
-        this->FieldName = 0;
+        this->FieldName = nullptr;
         if (name)
         {
           size_t len = strlen(name)+1;
@@ -118,7 +118,7 @@ public:
           strncpy(this->FieldName, name, len);
         }
     }
-    Component() { FieldName = 0; }
+    Component() { FieldName = nullptr; }
     ~Component() { delete[] FieldName; }
   };
 

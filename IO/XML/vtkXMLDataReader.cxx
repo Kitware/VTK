@@ -36,8 +36,8 @@
 vtkXMLDataReader::vtkXMLDataReader()
 {
   this->NumberOfPieces = 0;
-  this->PointDataElements = 0;
-  this->CellDataElements = 0;
+  this->PointDataElements = nullptr;
+  this->CellDataElements = nullptr;
   this->Piece = 0;
   this->NumberOfPointArrays = 0;
   this->NumberOfCellArrays = 0;
@@ -48,10 +48,10 @@ vtkXMLDataReader::vtkXMLDataReader()
   this->DataProgressObserver->SetCallback(&vtkXMLDataReader::DataProgressCallbackFunction);
   this->DataProgressObserver->SetClientData(this);
 
-  this->PointDataTimeStep = NULL;
-  this->PointDataOffset = NULL;
-  this->CellDataTimeStep = NULL;
-  this->CellDataOffset = NULL;
+  this->PointDataTimeStep = nullptr;
+  this->PointDataOffset = nullptr;
+  this->CellDataTimeStep = nullptr;
+  this->CellDataOffset = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
   // Setup the Field Information for PointData.  We only need the
   // information from one piece because all pieces have the same set of arrays.
-  vtkInformationVector *infoVector = NULL;
+  vtkInformationVector *infoVector = nullptr;
   if (!this->SetFieldDataInfo(this->PointDataElements[0],
                               vtkDataObject::FIELD_ASSOCIATION_POINTS,
                               this->GetNumberOfPoints(), infoVector))
@@ -140,7 +140,7 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
   }
 
   // now the Cell data
-  infoVector = NULL;
+  infoVector = nullptr;
   if (!this->SetFieldDataInfo(this->CellDataElements[0],
                               vtkDataObject::FIELD_ASSOCIATION_CELLS,
                               this->GetNumberOfCells(), infoVector))
@@ -237,8 +237,8 @@ void vtkXMLDataReader::SetupPieces(int numPieces)
   }
   for (int i = 0;i < this->NumberOfPieces; ++i)
   {
-    this->PointDataElements[i] = 0;
-    this->CellDataElements[i] = 0;
+    this->PointDataElements[i] = nullptr;
+    this->CellDataElements[i] = nullptr;
   }
 }
 
@@ -247,8 +247,8 @@ void vtkXMLDataReader::DestroyPieces()
 {
   delete [] this->PointDataElements;
   delete [] this->CellDataElements;
-  this->PointDataElements = 0;
-  this->CellDataElements = 0;
+  this->PointDataElements = nullptr;
+  this->CellDataElements = nullptr;
   this->NumberOfPieces = 0;
 }
 

@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationObjectBaseKey(const char* name, const char* location,
-                              const char* requiredClass=0);
+                              const char* requiredClass=nullptr);
   ~vtkInformationObjectBaseKey() VTK_OVERRIDE;
 
   /**
@@ -47,7 +47,7 @@ public:
    * for wrappers. Use the constructor directly from C++ instead.
    */
   static vtkInformationObjectBaseKey* MakeKey(const char* name, const char* location,
-                                             const char* requiredClass=0)
+                                             const char* requiredClass=nullptr)
   {
     return new vtkInformationObjectBaseKey(name, location, requiredClass);
   }

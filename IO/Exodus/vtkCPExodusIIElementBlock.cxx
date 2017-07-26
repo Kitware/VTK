@@ -206,7 +206,7 @@ void vtkCPExodusIIElementBlockImpl::ReplaceCell(vtkIdType, int, vtkIdType*)
 
 //------------------------------------------------------------------------------
 vtkCPExodusIIElementBlockImpl::vtkCPExodusIIElementBlockImpl()
-  : Elements(NULL),
+  : Elements(nullptr),
     CellType(VTK_EMPTY_CELL),
     CellSize(0),
     NumberOfCells(0)

@@ -26,14 +26,14 @@ vtkCxxSetObjectMacro(vtkTDxInteractorStyle,Settings,
 // ----------------------------------------------------------------------------
 vtkTDxInteractorStyle::vtkTDxInteractorStyle()
 {
-  this->Renderer=0;
+  this->Renderer=nullptr;
   this->Settings=vtkTDxInteractorStyleSettings::New();
 }
 
 // ----------------------------------------------------------------------------
 vtkTDxInteractorStyle::~vtkTDxInteractorStyle()
 {
-  if(this->Settings!=0)
+  if(this->Settings!=nullptr)
   {
     this->Settings->Delete();
   }
@@ -95,7 +95,7 @@ void vtkTDxInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Settings: ";
-  if(this->Settings==0)
+  if(this->Settings==nullptr)
   {
     os << "(none)" << endl;
   }

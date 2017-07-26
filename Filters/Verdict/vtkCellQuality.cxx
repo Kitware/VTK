@@ -134,7 +134,7 @@ int vtkCellQuality::RequestData
   }
   else
   {
-    v_set_tri_normal_func(0);
+    v_set_tri_normal_func(nullptr);
   }
 
   // Support progress and abort.

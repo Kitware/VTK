@@ -167,7 +167,7 @@ void vtkImageHSIToRGB::ThreadedExecute (vtkImageData *inData,
   {
     vtkTemplateMacro(
       vtkImageHSIToRGBExecute(this, inData,
-                              outData, outExt, id, static_cast<VTK_TT *>(0)));
+                              outData, outExt, id, static_cast<VTK_TT *>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

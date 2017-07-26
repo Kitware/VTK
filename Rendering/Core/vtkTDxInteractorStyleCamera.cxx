@@ -44,11 +44,11 @@ vtkTDxInteractorStyleCamera::~vtkTDxInteractorStyleCamera()
 void vtkTDxInteractorStyleCamera::OnMotionEvent(
   vtkTDxMotionEventInfo *motionInfo)
 {
-  assert("pre: motionInfo_exist" && motionInfo!=0);
+  assert("pre: motionInfo_exist" && motionInfo!=nullptr);
 
   vtkDebugMacro(<<"vtkTDxInteractorStyleCamera::OnMotionEvent()");
 
-  if(this->Renderer==0 || this->Settings==0)
+  if(this->Renderer==nullptr || this->Settings==nullptr)
   {
     vtkDebugMacro(<<"vtkTDxInteractorStyleCamera::OnMotionEvent() no renderer or no settings");
     return;

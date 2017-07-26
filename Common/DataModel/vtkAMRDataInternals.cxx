@@ -28,13 +28,13 @@ vtkAMRDataInternals::Block::Block(unsigned int i, vtkUniformGrid* g)
 //-----------------------------------------------------------------------------
 
 vtkAMRDataInternals::vtkAMRDataInternals()
-  : InternalIndex(NULL)
+  : InternalIndex(nullptr)
 {
 }
 
 void vtkAMRDataInternals::Initialize()
 {
-  delete this->InternalIndex; this->InternalIndex=NULL;
+  delete this->InternalIndex; this->InternalIndex=nullptr;
   this->Blocks.clear();
 }
 
@@ -66,7 +66,7 @@ vtkUniformGrid* vtkAMRDataInternals::GetDataSet(unsigned int compositeIndex)
   unsigned int internalIndex(0);
   if(!this->GetInternalIndex(compositeIndex,internalIndex))
   {
-    return NULL;
+    return nullptr;
   }
   return this->Blocks[internalIndex].Grid;
 }

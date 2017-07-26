@@ -69,14 +69,14 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
   }
 
   // use str() if available
-  PyObject *s = NULL;
+  PyObject *s = nullptr;
   if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
   {
     PyObject *t = type->tp_str(self);
-    if (t == NULL)
+    if (t == nullptr)
     {
       Py_XDECREF(s);
-      s = NULL;
+      s = nullptr;
     }
     else
     {
@@ -100,13 +100,13 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
 PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 {
   Py_ssize_t n, i;
-  PyObject *s = NULL;
+  PyObject *s = nullptr;
   PyObject *t, *o, *comma;
   const char *bracket = "[...]";
 
   if (Py_TYPE(self)->tp_as_sequence &&
-      Py_TYPE(self)->tp_as_sequence->sq_item != NULL &&
-      Py_TYPE(self)->tp_as_sequence->sq_ass_item == NULL)
+      Py_TYPE(self)->tp_as_sequence->sq_item != nullptr &&
+      Py_TYPE(self)->tp_as_sequence->sq_ass_item == nullptr)
   {
     bracket = "(...)";
   }
@@ -114,7 +114,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
   i = Py_ReprEnter(self);
   if (i < 0)
   {
-    return NULL;
+    return nullptr;
   }
   else if (i > 0)
   {
@@ -127,7 +127,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
     comma = PyString_FromString(", ");
     s = PyString_FromStringAndSize(bracket, 1);
 
-    for (i = 0; i < n && s != NULL; i++)
+    for (i = 0; i < n && s != nullptr; i++)
     {
       if (i > 0)
       {
@@ -140,7 +140,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 #endif
       }
       o = PySequence_GetItem(self, i);
-      t = NULL;
+      t = nullptr;
       if (o)
       {
         t = PyObject_Repr(o);
@@ -160,7 +160,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
       else
       {
         Py_DECREF(s);
-        s = NULL;
+        s = nullptr;
       }
       n = PySequence_Size(self);
     }
@@ -213,13 +213,13 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 {
   PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
 
-  if (info == 0)
+  if (info == nullptr)
   {
     return PyErr_Format(PyExc_ValueError,
                         "cannot create object of unknown type \"%s\"",
                         classname);
   }
-  else if (info->vtk_copy == 0)
+  else if (info->vtk_copy == nullptr)
   {
     return PyErr_Format(PyExc_ValueError,
                         "no copy constructor for object of type \"%s\"",
@@ -247,14 +247,14 @@ PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
     vtkPythonUtil::AddSpecialTypeToMap(
       pytype, methods, constructors, copyfunc);
 
-  if (info == 0)
+  if (info == nullptr)
   {
     // The type was already in the map, so do nothing
     return info;
   }
 
   // Create the dict
-  if (pytype->tp_dict == 0)
+  if (pytype->tp_dict == nullptr)
   {
     pytype->tp_dict = PyDict_New();
   }

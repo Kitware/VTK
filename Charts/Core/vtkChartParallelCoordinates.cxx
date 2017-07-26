@@ -88,7 +88,7 @@ vtkChartParallelCoordinates::vtkChartParallelCoordinates()
 //-----------------------------------------------------------------------------
 vtkChartParallelCoordinates::~vtkChartParallelCoordinates()
 {
-  this->Storage->Plot->SetSelection(NULL);
+  this->Storage->Plot->SetSelection(nullptr);
   delete this->Storage;
   this->Selection->Delete();
 }
@@ -172,16 +172,16 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
   this->UpdateGeometry();
 
   // Handle selections
-  vtkIdTypeArray *idArray = 0;
+  vtkIdTypeArray *idArray = nullptr;
   if (this->AnnotationLink)
   {
     vtkSelection *selection = this->AnnotationLink->GetCurrentSelection();
     if (this->AnnotationLink->GetMTime() > this->Storage->Plot->GetMTime())
     {
       vtkSelectionNode *node = selection->GetNumberOfNodes() > 0?
-        selection->GetNode(0) : NULL;
+        selection->GetNode(0) : nullptr;
       idArray = node? vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList())
-                    : NULL;
+                    : nullptr;
       this->Storage->Plot->SetSelection(idArray);
     }
   }
@@ -362,7 +362,7 @@ vtkAxis* vtkChartParallelCoordinates::GetAxis(int index)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -507,11 +507,11 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
 
       vtkAxis* leftAxis = this->Storage->CurrentAxis > 0 ?
         this->Storage->Axes[this->Storage->CurrentAxis-1] :
-        NULL;
+        nullptr;
 
       vtkAxis* rightAxis =
           this->Storage->CurrentAxis < static_cast<int>(this->Storage->Axes.size())-1 ?
-          this->Storage->Axes[this->Storage->CurrentAxis+1] : NULL;
+          this->Storage->Axes[this->Storage->CurrentAxis+1] : nullptr;
 
       if (leftAxis && axis->GetPoint1()[0] < leftAxis->GetPoint1()[0])
       {

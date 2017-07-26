@@ -18,9 +18,9 @@
 //----------------------------------------------------------------
 vtkCallbackCommand::vtkCallbackCommand()
 {
-  this->ClientData = NULL;
-  this->Callback = NULL;
-  this->ClientDataDeleteCallback = NULL;
+  this->ClientData = nullptr;
+  this->Callback = nullptr;
+  this->ClientDataDeleteCallback = nullptr;
   this->AbortFlagOnExecute = 0;
 }
 

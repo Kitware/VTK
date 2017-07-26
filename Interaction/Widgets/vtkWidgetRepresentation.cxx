@@ -23,7 +23,7 @@
 //----------------------------------------------------------------------
 vtkWidgetRepresentation::vtkWidgetRepresentation()
 {
-  this->Renderer = NULL;
+  this->Renderer = nullptr;
 
   this->InteractionState = 0;
   this->StartEventPosition[0] = 0.0;
@@ -110,7 +110,7 @@ vtkPickingManager* vtkWidgetRepresentation::GetPickingManager()
       !this->Renderer->GetRenderWindow()->GetInteractor() ||
       !this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager())
   {
-    return 0;
+    return nullptr;
   }
 
   return

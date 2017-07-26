@@ -76,14 +76,14 @@ public:
    * \brief Sets the whole extent for the distributed structured domain.
    * \param wholeExt the extent of the entire domain (in).
    * \note All ranks must call this method with the same whole extent.
-   * \post this->DomainInfo != NULL
+   * \post this->DomainInfo != nullptr
    */
   void SetWholeExtent(int wholeExt[6]);
 
   // \brief Registers the structured grid dataset belonging to this process.
   // \param gridID the ID of the grid in this rank.
   // \param extent the [imin,imax,jmin,jmax,kmin,kmax] of the grid.
-  // \param gridPnts pointer to the points of the grid (NULL for uniform grid).
+  // \param gridPnts pointer to the points of the grid (nullptr for uniform grid).
   // \param pointData pointer to the node-centered fields of the grid.
   // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
   // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
@@ -117,8 +117,8 @@ public:
   /**
    * \brief Finds implicit connectivity for a distributed structured dataset.
    * \note This is a collective operation, all ranks must call this method.
-   * \pre this->Controller != NULL
-   * \pre this->DomainInfo != NULL
+   * \pre this->Controller != nullptr
+   * \pre this->DomainInfo != nullptr
    */
   void EstablishConnectivity();
 
@@ -132,8 +132,8 @@ public:
    * \brief Exchanges one layer (row or column) of data between neighboring
    * grids to fix the implicit connectivity.
    * \note This is a collective operation, all ranks must call this method.
-   * \pre this->Controller != NULL
-   * \pre this->DomainInfo != NULL
+   * \pre this->Controller != nullptr
+   * \pre this->DomainInfo != nullptr
    */
   void ExchangeData();
 
@@ -219,7 +219,7 @@ protected:
 
   /**
    * \brief Exchanges extents among processes.
-   * \pre this->Controller != NULL.
+   * \pre this->Controller != nullptr.
    * \note This method is collective operation. All ranks must call it.
    */
   void ExchangeExtents();

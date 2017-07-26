@@ -41,8 +41,8 @@ public:
   int GetCellDimension() VTK_OVERRIDE {return 1;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
   int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
-  vtkCell *GetEdge(int) VTK_OVERRIDE  {return 0;};
-  vtkCell *GetFace(int) VTK_OVERRIDE  {return 0;};
+  vtkCell *GetEdge(int) VTK_OVERRIDE  {return nullptr;};
+  vtkCell *GetFace(int) VTK_OVERRIDE  {return nullptr;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
@@ -121,7 +121,7 @@ public:
    * the line (p1,p2).
    */
   static double DistanceToLine(double x[3], double p1[3], double p2[3],
-                              double &t, double* closestPoint=NULL);
+                              double &t, double* closestPoint=nullptr);
 
 
   /**

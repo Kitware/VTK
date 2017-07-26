@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkRenderbuffer);
 //----------------------------------------------------------------------------
 vtkRenderbuffer::vtkRenderbuffer()
 {
-  this->Context = NULL;
+  this->Context = nullptr;
   this->Handle = 0U;
   this->DepthBufferFloat = 0;
   this->Samples = 0;
@@ -73,7 +73,7 @@ void vtkRenderbuffer::ReleaseGraphicsResources(vtkWindow *)
 //----------------------------------------------------------------------------
 void vtkRenderbuffer::Free()
 {
-  this->ReleaseGraphicsResources(NULL);
+  this->ReleaseGraphicsResources(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ void vtkRenderbuffer::SetContext(vtkRenderWindow *renWin)
 
   // free previous resources
   this->Free();
-  this->Context = NULL;
+  this->Context = nullptr;
   this->DepthBufferFloat = 0;
   this->Modified();
 

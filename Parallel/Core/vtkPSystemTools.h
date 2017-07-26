@@ -91,9 +91,9 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
   static bool FindProgramPath(const char* argv0,
                               std::string& pathOut,
                               std::string& errorMsg,
-                              const char* exeName = 0,
-                              const char* buildDir = 0,
-                              const char* installPrefix = 0);
+                              const char* exeName = nullptr,
+                              const char* buildDir = nullptr,
+                              const char* installPrefix = nullptr);
 
   /**
    * Get current working directory CWD

@@ -41,8 +41,8 @@ vtkStandardNewMacro(vtkVRMLExporter);
 vtkVRMLExporter::vtkVRMLExporter()
 {
   this->Speed = 4.0;
-  this->FileName = NULL;
-  this->FilePointer = NULL;
+  this->FileName = nullptr;
+  this->FilePointer = nullptr;
 }
 
 vtkVRMLExporter::~vtkVRMLExporter()
@@ -72,7 +72,7 @@ void vtkVRMLExporter::WriteData()
   FILE *fp;
 
   // make sure the user specified a FileName or FilePointer
-  if (!this->FilePointer && (this->FileName == NULL))
+  if (!this->FilePointer && (this->FileName == nullptr))
   {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -237,13 +237,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkSmartPointer<vtkPolyData> pd;
   vtkPointData *pntData;
   vtkPoints *points;
-  vtkDataArray *normals = NULL;
-  vtkDataArray *tcoords = NULL;
+  vtkDataArray *normals = nullptr;
+  vtkDataArray *tcoords = nullptr;
   int i, i1, i2;
   double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
   int pointDataWritten = 0;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
@@ -252,7 +252,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkTransform *trans;
 
   // see if the actor has a mapper. it could be an assembly
-  if (anActor->GetMapper() == NULL)
+  if (anActor->GetMapper() == nullptr)
   {
     return;
   }
@@ -264,7 +264,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   // Before putting out anything in the file, ensure that we have an exportable
   // dataset being rendered by the actor.
   vtkDataObject* inputDO = anActor->GetMapper()->GetInputDataObject(0, 0);
-  if (inputDO == NULL)
+  if (inputDO == nullptr)
   {
     return;
   }
@@ -294,7 +294,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     pd = static_cast<vtkPolyData *>(inputDO);
   }
 
-  if (pd == NULL || pd->GetNumberOfPoints() == 0)
+  if (pd == nullptr || pd->GetNumberOfPoints() == 0)
   {
     return;
   }
@@ -449,7 +449,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     fprintf(fp,"          geometry IndexedLineSet {\n");
     if (!pointDataWritten)
     {
-      this->WritePointData(points, NULL, NULL, colors, fp);
+      this->WritePointData(points, nullptr, nullptr, colors, fp);
       pointDataWritten = 1;
     }
     else
@@ -534,7 +534,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
   double tempf2;
 
   fprintf(fileP,"        Shape {\n");
-  vtkProperty* props = 0;
+  vtkProperty* props = nullptr;
   // write out the material properties to the mat file
   fprintf(fileP,"          appearance Appearance {\n");
   fprintf(fileP,"            material Material {\n");
@@ -572,7 +572,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
     unsigned char *txtrData;
 
     // make sure it is updated and then get some info
-    if (aTexture->GetInput() == NULL)
+    if (aTexture->GetInput() == nullptr)
     {
       vtkErrorMacro(<< "texture has no input!\n");
       return;

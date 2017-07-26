@@ -90,7 +90,7 @@ const char* computeNormalsDirection(vtkPolyData* mesh, float *n)
              "Use vtkTriangulate to correct this.";
     }
   }
-  return NULL;
+  return nullptr;
 }
 }
 

@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkKdTreePointLocator);
 
 vtkKdTreePointLocator::vtkKdTreePointLocator()
 {
-  this->KdTree = 0;
+  this->KdTree = nullptr;
 }
 
 vtkKdTreePointLocator::~vtkKdTreePointLocator()
@@ -67,7 +67,7 @@ void vtkKdTreePointLocator::FreeSearchStructure()
   if(this->KdTree)
   {
     this->KdTree->Delete();
-    this->KdTree = 0;
+    this->KdTree = nullptr;
   }
 }
 

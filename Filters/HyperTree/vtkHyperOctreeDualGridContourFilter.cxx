@@ -82,7 +82,7 @@ vtkHyperOctreeDualGridContourFilter::vtkHyperOctreeDualGridContourFilter()
 {
   this->ContourValues = vtkContourValues::New();
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->SetNumberOfOutputPorts(1);
 
@@ -90,15 +90,15 @@ vtkHyperOctreeDualGridContourFilter::vtkHyperOctreeDualGridContourFilter()
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
 
-  this->Input=0;
-  this->Output=0;
+  this->Input=nullptr;
+  this->Output=nullptr;
 
-  this->NewPolys=0;
+  this->NewPolys=nullptr;
 
-  this->InPD=0;
-  this->OutPD=0;
+  this->InPD=nullptr;
+  this->OutPD=nullptr;
 
-  this->InScalars=0;
+  this->InScalars=nullptr;
 
   // Create the table necessary to move the neighborhhood through the tree.
   this->GenerateTraversalTable();
@@ -111,7 +111,7 @@ vtkHyperOctreeDualGridContourFilter::~vtkHyperOctreeDualGridContourFilter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -126,7 +126,7 @@ vtkMTimeType vtkHyperOctreeDualGridContourFilter::GetMTime()
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -319,9 +319,9 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
   vtkHyperOctreeLightWeightCursor* neighborhood,
   unsigned short* xyzIds)
 {
-  // If any neighbor is NULL, then we are on the border.
+  // If any neighbor is nullptr, then we are on the border.
   // Do nothing if we are on a border.
-  // We know that neighbor 0 is never NULL.
+  // We know that neighbor 0 is never nullptr.
   if (!neighborhood[1].GetTree() ||
       !neighborhood[2].GetTree() || !neighborhood[3].GetTree() ||
       !neighborhood[4].GetTree() || !neighborhood[5].GetTree() ||
@@ -502,7 +502,7 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
   {
     // just the root. There is absolutely no chance
     // to get an isosurface here.
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
@@ -513,10 +513,10 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
   }
 
   this->InScalars=this->GetInputArrayToProcess(0,inputVector);
-  if(this->InScalars==0)
+  if(this->InScalars==nullptr)
   {
     vtkDebugMacro(<<"No data to contour");
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
@@ -524,7 +524,7 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
   if(numContours==0)
   {
     vtkDebugMacro(<<"No contour");
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
@@ -545,7 +545,7 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
   if(allOut)
   {
     // empty output
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
@@ -567,7 +567,7 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
   this->NewPolys->Allocate(estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -591,11 +591,11 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
 
   this->Output->SetPolys(this->NewPolys);
   this->NewPolys->Delete();
-  this->NewPolys = 0;
+  this->NewPolys = nullptr;
   // Points were added by the locator.
   this->Output->SetPoints(newPoints);
   newPoints->Delete();
-  newPoints = 0;
+  newPoints = nullptr;
 
   return 1;
 }
@@ -615,7 +615,7 @@ void vtkHyperOctreeDualGridContourFilter::SetLocator(vtkIncrementalPointLocator 
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( locator )
@@ -630,7 +630,7 @@ void vtkHyperOctreeDualGridContourFilter::SetLocator(vtkIncrementalPointLocator 
 //----------------------------------------------------------------------------
 void vtkHyperOctreeDualGridContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

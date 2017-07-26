@@ -426,9 +426,9 @@ VertOffsets[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
 // marching cubes case table. Some of this code is borrowed shamelessly from
 // vtkVoxel::Contour() method.
 template <class T> vtkFlyingEdges3DAlgorithm<T>::
-vtkFlyingEdges3DAlgorithm():XCases(NULL),EdgeMetaData(NULL),NewScalars(NULL),
-                            NewTris(NULL),NewPoints(NULL),NewGradients(NULL),
-                            NewNormals(NULL)
+vtkFlyingEdges3DAlgorithm():XCases(nullptr),EdgeMetaData(nullptr),NewScalars(nullptr),
+                            NewTris(nullptr),NewPoints(nullptr),NewGradients(nullptr),
+                            NewNormals(nullptr)
 {
   int i, j, k, l, ii, eCase, index, numTris;
   static int vertMap[8] = {0,1,3,2,4,5,7,6};
@@ -1385,7 +1385,7 @@ int vtkFlyingEdges3D::RequestData(
 
   // Check data type and execute appropriate function
   //
-  if (inScalars == NULL)
+  if (inScalars == nullptr)
   {
     vtkDebugMacro("No scalars for contouring.");
     return 0;
@@ -1404,9 +1404,9 @@ int vtkFlyingEdges3D::RequestData(
   vtkCellArray *newTris = vtkCellArray::New();
   vtkPoints *newPts = vtkPoints::New();
   newPts->SetDataTypeToFloat();
-  vtkDataArray *newScalars = NULL;
-  vtkFloatArray *newNormals = NULL;
-  vtkFloatArray *newGradients = NULL;
+  vtkDataArray *newScalars = nullptr;
+  vtkFloatArray *newNormals = nullptr;
+  vtkFloatArray *newGradients = nullptr;
 
   if (this->ComputeScalars)
   {

@@ -87,33 +87,33 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->EndPointsYMovable = true;
   this->EndPointsRemovable = true;
   this->ShowLabels = false;
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
   this->SetLabelFormat("%.3f, %.3f");
 }
 
 //-----------------------------------------------------------------------------
 vtkControlPointsItem::~vtkControlPointsItem()
 {
-  this->SetLabelFormat(NULL);
+  this->SetLabelFormat(nullptr);
   if (this->Callback)
   {
     this->Callback->Delete();
-    this->Callback = 0;
+    this->Callback = nullptr;
   }
   if (this->SelectedPointPen)
   {
     this->SelectedPointPen->Delete();
-    this->SelectedPointPen = 0;
+    this->SelectedPointPen = nullptr;
   }
   if (this->SelectedPointBrush)
   {
     this->SelectedPointBrush->Delete();
-    this->SelectedPointBrush = 0;
+    this->SelectedPointBrush = nullptr;
   }
   if (this->Transform)
   {
     this->Transform->Delete();
-    this->Transform = 0;
+    this->Transform = nullptr;
   }
 }
 
@@ -907,7 +907,7 @@ vtkIdType vtkControlPointsItem::GetControlPointId(double* point)
 void vtkControlPointsItem
 ::GetControlPointsIds(vtkIdTypeArray* points, bool excludeFirstAndLast)const
 {
-  assert(points != 0);
+  assert(points != nullptr);
   int numberOfPoints = this->GetNumberOfPoints();
   if (excludeFirstAndLast)
   {

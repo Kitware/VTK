@@ -88,7 +88,7 @@ public:
 //----------------------------------------------------------------------------
 // Initialized mainly to eliminate compiler warnings.
 template <class TP> vtkElevationAlgorithm<TP>::
-vtkElevationAlgorithm():Points(NULL),Scalars(NULL)
+vtkElevationAlgorithm():Points(nullptr),Scalars(nullptr)
 {
   this->LowPoint[0] = this->LowPoint[1] = this->LowPoint[2] = 0.0;
   this->HighPoint[0] = this->HighPoint[1] = 0.0;

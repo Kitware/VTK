@@ -196,12 +196,12 @@ protected:
 
 //----------------------------------------------------------------------------
 vtkIntersectionPolyDataFilter::Impl::Impl() :
-  OBBTree1(0), IntersectionLines(0), SurfaceId(0), PointMerger(0)
+  OBBTree1(nullptr), IntersectionLines(nullptr), SurfaceId(nullptr), PointMerger(nullptr)
 {
   for (int i = 0; i < 2; i++)
   {
-    this->Mesh[i]                 = NULL;
-    this->CellIds[i]              = NULL;
+    this->Mesh[i]                 = nullptr;
+    this->CellIds[i]              = nullptr;
     this->IntersectionMap[i]      = new IntersectionMapType();
     this->IntersectionPtsMap[i]   = new IntersectionMapType();
     this->PointEdgeMap[i]         = new PointEdgeMapType();
@@ -569,7 +569,7 @@ int vtkIntersectionPolyDataFilter::Impl
     vtkSmartPointer< vtkIdList > edgeNeighbors =
       vtkSmartPointer< vtkIdList >::New();
     vtkIdType nptsX = 0;
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     vtkSmartPointer< vtkIdList > cellsToCheck =
       vtkSmartPointer< vtkIdList >::New();
     for (cells->InitTraversal(); cells->GetNextCell(nptsX, pts); cellIdX++)
@@ -625,7 +625,7 @@ int vtkIntersectionPolyDataFilter::Impl
         vtkCellArray *splitCells = this->SplitCell
           (input, cellIdX, pts, intersectionMap, splitLines,
            inputIndex,numCurrCells);
-        if (splitCells == NULL)
+        if (splitCells == nullptr)
         {
           vtkDebugWithObjectMacro(this->ParentFilter, <<"Error in splitting cell!");
           return 0;
@@ -1060,7 +1060,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
     if (this->GetLoops(transformedpd, &loops) != 1)
     {
       splitCells->Delete();
-      splitCells = NULL;
+      splitCells = nullptr;
       delete [] interPtBool;
       return splitCells;
     }
@@ -1152,7 +1152,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
           polys = triangulator->GetOutput()->GetPolys();
 
           splitCells->Delete();
-          splitCells = NULL;
+          splitCells = nullptr;
           delete [] pointMapper;
           delete [] interPtBool;
           return splitCells;
@@ -2241,7 +2241,7 @@ void vtkIntersectionPolyDataFilter::CleanAndCheckSurface(vtkPolyData *pd,
   //indicates a bad cell with possible intersecting facets!
   for (int i = 0; i < pd->GetNumberOfCells(); i++)
   {
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     vtkIdType npts = 0;
     pd->GetCellPoints(i, npts, pts);
     int badcell = 0;
@@ -2458,7 +2458,7 @@ int vtkIntersectionPolyDataFilter::RequestData(
 
   // This performs the triangle intersection search
   obbTree0->IntersectWithOBBTree
-    (obbTree1, 0, vtkIntersectionPolyDataFilter::
+    (obbTree1, nullptr, vtkIntersectionPolyDataFilter::
      Impl::FindTriangleIntersections, impl);
 
   int rawLines = outputIntersection->GetNumberOfLines();

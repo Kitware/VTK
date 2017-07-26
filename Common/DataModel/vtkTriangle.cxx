@@ -639,7 +639,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[
   v2[1] = vtkMath::Dot(v,v20);
 
   // Compute interpolation function derivatives
-  vtkTriangle::InterpolationDerivs(NULL,functionDerivs);
+  vtkTriangle::InterpolationDerivs(nullptr,functionDerivs);
 
   // Compute Jacobian: Jacobian is constant for a triangle.
   J[0] = J0; J[1] = J1;

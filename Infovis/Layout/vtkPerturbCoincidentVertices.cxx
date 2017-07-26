@@ -93,7 +93,7 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
 
   // Compute shortest edge coming to/from the coincident points.
   vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
-  while(coincidentPointsList != NULL)
+  while(coincidentPointsList != nullptr)
   {
     numCoincidentPoints = coincidentPointsList->GetNumberOfIds();
     for(i = 0; i < numCoincidentPoints; ++i)
@@ -161,7 +161,7 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
   coincidentPoints->InitTraversal();
   coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
   // Iterate over each coordinate that may have a set of coincident point ids.
-  while(coincidentPointsList != NULL)
+  while(coincidentPointsList != nullptr)
   {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPointsList->GetNumberOfIds();
@@ -246,7 +246,7 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
 
   std::vector<Coord> coincidentFoci;
   vtkIdList * coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
-  while(coincidentPointsList != NULL)
+  while(coincidentPointsList != nullptr)
   {
     // Just grabbing the first vertex of each coincident foci
     vtkIdType vertexIndex = coincidentPointsList->GetId(0);
@@ -288,7 +288,7 @@ void vtkPerturbCoincidentVertices::SimpleSpiralPerturbation(vtkGraph *input,
   coincidentPointsList = coincidentPoints->GetNextCoincidentPointIds();
 
   // Iterate over each coordinate that may have a set of coincident point ids.
-  while(coincidentPointsList != NULL)
+  while(coincidentPointsList != nullptr)
   {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPointsList->GetNumberOfIds();

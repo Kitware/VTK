@@ -55,7 +55,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
    * Get the last mapper in the list.
    */
   vtkMapper *GetLastItem()
-    { return this->Bottom ? static_cast<vtkMapper*>(this->Bottom->Item) : 0; }
+    { return this->Bottom ? static_cast<vtkMapper*>(this->Bottom->Item) : nullptr; }
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the

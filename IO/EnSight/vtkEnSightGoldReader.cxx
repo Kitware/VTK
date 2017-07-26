@@ -118,7 +118,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -269,7 +269,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
       {
         free(name);
         delete this->IS;
-        this->IS = NULL;
+        this->IS = nullptr;
         return 0;
       }
     }
@@ -277,7 +277,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(const char* fileName, int timeStep,
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -321,7 +321,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -385,7 +385,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
 
   vtkDataSet* ds = this->GetDataSetFromBlock(
     output, this->NumberOfGeometryParts);
-  if (ds == NULL || !ds->IsA("vtkPolyData"))
+  if (ds == nullptr || !ds->IsA("vtkPolyData"))
   {
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
@@ -442,7 +442,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerNode variable file name");
+    vtkErrorMacro("nullptr ScalarPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -466,7 +466,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -559,7 +559,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
       scalars->Delete();
     }
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 1;
   }
 
@@ -636,7 +636,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -655,7 +655,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerNode variable file name");
+    vtkErrorMacro("nullptr VectorPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -679,7 +679,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -768,7 +768,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
       vectors->Delete();
     }
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 1;
   }
 
@@ -806,7 +806,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -824,7 +824,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorPerNode variable file name");
+    vtkErrorMacro("nullptr TensorPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -848,7 +848,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -924,7 +924,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -947,7 +947,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerElement variable file name");
+    vtkErrorMacro("nullptr ScalarPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -971,7 +971,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1064,7 +1064,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
             delete this->IS;
-            this->IS = NULL;
+            this->IS = nullptr;
             if (component == 0)
             {
               scalars->Delete();
@@ -1130,7 +1130,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -1151,7 +1151,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerElement variable file name");
+    vtkErrorMacro("nullptr VectorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1175,7 +1175,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1262,7 +1262,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
             delete this->IS;
-            this->IS = NULL;
+            this->IS = nullptr;
             vectors->Delete();
             return 0;
           }
@@ -1297,7 +1297,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -1319,7 +1319,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorPerElement variable file name");
+    vtkErrorMacro("nullptr TensorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1343,7 +1343,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1430,7 +1430,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
             delete [] this->IS;
-            this->IS = NULL;
+            this->IS = nullptr;
             tensors->Delete();
             return 0;
           }
@@ -1461,7 +1461,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -1483,7 +1483,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
   this->NumberOfNewOutputs++;
 
   vtkDataSet* ds = this->GetDataSetFromBlock(compositeOutput, partId);
-  if (ds == NULL || !ds->IsA("vtkUnstructuredGrid"))
+  if (ds == nullptr || !ds->IsA("vtkUnstructuredGrid"))
   {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
@@ -2168,7 +2168,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
                                          nodeIds, numFacesPerElement[i],
                                          theFaces );
         delete [] theFaces;
-        theFaces = NULL;
+        theFaces = nullptr;
         // yyy end
 
         this->GetCellIds(idx, vtkEnSightReader::NFACED)->InsertNextId(cellId);
@@ -2676,7 +2676,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
   this->NumberOfNewOutputs++;
 
   vtkDataSet* ds = this->GetDataSetFromBlock(compositeOutput, partId);
-  if (ds == NULL || !ds->IsA("vtkStructuredGrid"))
+  if (ds == nullptr || !ds->IsA("vtkStructuredGrid"))
   {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
@@ -2758,7 +2758,7 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
   this->NumberOfNewOutputs++;
 
   vtkDataSet* ds = this->GetDataSetFromBlock(compositeOutput, partId);
-  if (ds == NULL || !ds->IsA("vtkRectilinearGrid"))
+  if (ds == nullptr || !ds->IsA("vtkRectilinearGrid"))
   {
     vtkDebugMacro("creating new structured grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
@@ -2847,7 +2847,7 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
   this->NumberOfNewOutputs++;
 
   vtkDataSet* ds = this->GetDataSetFromBlock(compositeOutput, partId);
-  if (ds == NULL || !ds->IsA("vtkImageData"))
+  if (ds == nullptr || !ds->IsA("vtkImageData"))
   {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();

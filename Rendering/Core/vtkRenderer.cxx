@@ -60,8 +60,8 @@ vtkAbstractObjectFactoryNewMacro(vtkRenderer)
 // turned off.
 vtkRenderer::vtkRenderer()
 {
-  this->PickedProp   = NULL;
-  this->ActiveCamera = NULL;
+  this->PickedProp   = nullptr;
+  this->ActiveCamera = nullptr;
 
   this->Ambient[0] = 1;
   this->Ambient[1] = 1;
@@ -70,17 +70,17 @@ vtkRenderer::vtkRenderer()
   this->AllocatedRenderTime = 100;
   this->TimeFactor = 1.0;
 
-  this->CreatedLight = NULL;
+  this->CreatedLight = nullptr;
   this->AutomaticLightCreation = 1;
 
   this->TwoSidedLighting        = 1;
   this->BackingStore            = 0;
-  this->BackingImage            = NULL;
+  this->BackingImage            = nullptr;
   this->BackingStoreSize[0]     = -1;
   this->BackingStoreSize[1]     = -1;
   this->LastRenderTimeInSeconds = -1.0;
 
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->Lights  =  vtkLightCollection::New();
   this->Actors  =  vtkActorCollection::New();
   this->Volumes = vtkVolumeCollection::New();
@@ -89,10 +89,10 @@ vtkRenderer::vtkRenderer()
 
   this->NumberOfPropsRendered = 0;
 
-  this->PropArray                = NULL;
+  this->PropArray                = nullptr;
   this->PropArrayCount = 0;
 
-  this->PathArray = NULL;
+  this->PathArray = nullptr;
   this->PathArrayCount = 0;
 
   this->Layer                    = 0;
@@ -120,7 +120,7 @@ vtkRenderer::vtkRenderer()
   this->Erase = 1;
   this->Draw = 1;
 
-  this->GL2PSSpecialPropCollection = NULL;
+  this->GL2PSSpecialPropCollection = nullptr;
 
   this->UseFXAA = false;
   this->FXAAOptions = vtkFXAAOptions::New();
@@ -135,13 +135,13 @@ vtkRenderer::vtkRenderer()
   this->MaximumNumberOfPeels=4;
   this->LastRenderingUsedDepthPeeling=0;
 
-  this->Selector = 0;
-  this->Delegate=0;
+  this->Selector = nullptr;
+  this->Delegate=nullptr;
 
   this->TexturedBackground = false;
-  this->BackgroundTexture = NULL;
+  this->BackgroundTexture = nullptr;
 
-  this->Pass = 0;
+  this->Pass = nullptr;
 
   this->Information = vtkInformation::New();
   this->Information->Register(this);
@@ -150,53 +150,53 @@ vtkRenderer::vtkRenderer()
 
 vtkRenderer::~vtkRenderer()
 {
-  this->SetRenderWindow( NULL );
+  this->SetRenderWindow( nullptr );
 
   if (this->ActiveCamera)
   {
     this->ActiveCamera->UnRegister(this);
-    this->ActiveCamera = NULL;
+    this->ActiveCamera = nullptr;
   }
 
   if (this->CreatedLight)
   {
     this->CreatedLight->UnRegister(this);
-    this->CreatedLight = NULL;
+    this->CreatedLight = nullptr;
   }
 
   delete [] this->BackingImage;
 
   this->Actors->Delete();
-  this->Actors = NULL;
+  this->Actors = nullptr;
   this->Volumes->Delete();
-  this->Volumes = NULL;
+  this->Volumes = nullptr;
   this->Lights->Delete();
-  this->Lights = NULL;
+  this->Lights = nullptr;
   this->Cullers->Delete();
-  this->Cullers = NULL;
+  this->Cullers = nullptr;
 
-  if (this->FXAAOptions != NULL)
+  if (this->FXAAOptions != nullptr)
   {
     this->FXAAOptions->Delete();
-    this->FXAAOptions = NULL;
+    this->FXAAOptions = nullptr;
   }
 
-  if(this->Delegate!=0)
+  if(this->Delegate!=nullptr)
   {
     this->Delegate->UnRegister(this);
   }
 
-  if(this->BackgroundTexture != NULL)
+  if(this->BackgroundTexture != nullptr)
   {
     this->BackgroundTexture->Delete();
   }
 
-  this->SetInformation(0);
+  this->SetInformation(nullptr);
 }
 
 void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
 {
-  if(this->BackgroundTexture != 0)
+  if(this->BackgroundTexture != nullptr)
   {
     this->BackgroundTexture->ReleaseGraphicsResources(renWin);
   }
@@ -204,7 +204,7 @@ void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
   vtkCollectionSimpleIterator pit;
   this->Props->InitTraversal(pit);
   for ( aProp = this->Props->GetNextProp(pit);
-        aProp != NULL;
+        aProp != nullptr;
         aProp = this->Props->GetNextProp(pit) )
   {
     aProp->ReleaseGraphicsResources(renWin);
@@ -218,7 +218,7 @@ void vtkRenderer::Render(void)
   VTK_SCOPED_RENDER_EVENT("vtkRenderer::Render this=@" << std::hex << this
                           << " Layer=" << std::dec << this->Layer, timer);
 
-  if(this->Delegate!=0 && this->Delegate->GetUsed())
+  if(this->Delegate!=nullptr && this->Delegate->GetUsed())
   {
       this->Delegate->Render(this);
       return;
@@ -238,7 +238,7 @@ void vtkRenderer::Render(void)
 
   t1 = vtkTimerLog::GetUniversalTime();
 
-  this->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartEvent,nullptr);
 
   size = this->RenderWindow->GetSize();
 
@@ -297,7 +297,7 @@ void vtkRenderer::Render(void)
       ry2 = static_cast<int>(this->Viewport[3]*
                              (this->RenderWindow->GetSize()[1] - 1));
       this->RenderWindow->SetPixelData(rx1,ry1,rx2,ry2,this->BackingImage,0);
-      this->InvokeEvent(vtkCommand::EndEvent,NULL);
+      this->InvokeEvent(vtkCommand::EndEvent,nullptr);
       return;
     }
   }
@@ -318,7 +318,7 @@ void vtkRenderer::Render(void)
   }
   else
   {
-    this->PropArray = NULL;
+    this->PropArray = nullptr;
   }
 
   this->PropArrayCount = 0;
@@ -366,7 +366,7 @@ void vtkRenderer::Render(void)
   // Clean up the space we allocated before. If the PropArray exists,
   // they all should exist
   delete [] this->PropArray;
-  this->PropArray = NULL;
+  this->PropArray = nullptr;
 
   if (this->BackingStore)
   {
@@ -402,7 +402,7 @@ void vtkRenderer::Render(void)
     }
     this->TimeFactor = this->AllocatedRenderTime/this->LastRenderTimeInSeconds;
   }
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndEvent,nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -726,7 +726,7 @@ void vtkRenderer::SetActiveCamera(vtkCamera *cam)
   if (this->ActiveCamera)
   {
     this->ActiveCamera->UnRegister(this);
-    this->ActiveCamera = NULL;
+    this->ActiveCamera = nullptr;
   }
   if (cam)
   {
@@ -749,7 +749,7 @@ vtkCamera* vtkRenderer::MakeCamera()
 //----------------------------------------------------------------------------
 vtkCamera *vtkRenderer::GetActiveCamera()
 {
-  if ( this->ActiveCamera == NULL )
+  if ( this->ActiveCamera == nullptr )
   {
     vtkCamera *cam = this->MakeCamera();
     this->SetActiveCamera(cam);
@@ -769,7 +769,7 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 //----------------------------------------------------------------------------
 vtkCamera *vtkRenderer::GetActiveCameraAndResetIfCreated()
 {
-  if (this->ActiveCamera == NULL)
+  if (this->ActiveCamera == nullptr)
   {
     this->GetActiveCamera();
     this->ResetCamera();
@@ -870,7 +870,7 @@ void vtkRenderer::RemoveCuller(vtkCuller *culler)
 // ----------------------------------------------------------------------------
 void vtkRenderer::SetLightCollection(vtkLightCollection *lights)
 {
-  assert("pre lights_exist" && lights!=0);
+  assert("pre lights_exist" && lights!=nullptr);
 
   this->Lights->Delete(); // this->Lights is always not NULL.
   this->Lights=lights;
@@ -897,7 +897,7 @@ void vtkRenderer::CreateLight(void)
   {
     this->RemoveLight(this->CreatedLight);
     this->CreatedLight->UnRegister(this);
-    this->CreatedLight = NULL;
+    this->CreatedLight = nullptr;
   }
 
   // I do not see why UnRegister is used on CreatedLight, but lets be
@@ -939,7 +939,7 @@ void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
     {
       bounds = prop->GetBounds();
       // make sure we haven't got bogus bounds
-      if ( bounds != NULL && vtkMath::AreBoundsInitialized(bounds))
+      if ( bounds != nullptr && vtkMath::AreBoundsInitialized(bounds))
       {
         nothingVisible = 0;
 
@@ -1046,7 +1046,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   double vn[3], *vup;
 
   this->GetActiveCamera();
-  if ( this->ActiveCamera != NULL )
+  if ( this->ActiveCamera != nullptr )
   {
     this->ActiveCamera->GetViewPlaneNormal(vn);
   }
@@ -1170,7 +1170,7 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
   }
 
   this->GetActiveCameraAndResetIfCreated();
-  if ( this->ActiveCamera == NULL )
+  if ( this->ActiveCamera == nullptr )
   {
     vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
     return;
@@ -1339,7 +1339,7 @@ void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
   double mat[16];
   double result[4];
 
-  if (this->ActiveCamera == NULL)
+  if (this->ActiveCamera == nullptr)
   {
     vtkErrorMacro("ViewToWorld: no active camera, cannot compute view to world, returning 0,0,0");
     x = y = z = 0.0;
@@ -1481,7 +1481,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   // os << indent << this->NumberOfPropsRendered;
 
   os << indent << "Delegate:";
-  if(this->Delegate!=0)
+  if(this->Delegate!=nullptr)
   {
       os << "exists" << endl;
   }
@@ -1495,7 +1495,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
     << (this->TexturedBackground ? "On" : "Off") << "\n";
 
   os << indent << "BackgroundTexture:";
-  if(this->BackgroundTexture != 0)
+  if(this->BackgroundTexture != nullptr)
   {
     os << "exists" << endl;
   }
@@ -1505,7 +1505,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Pass:";
-  if(this->Pass!=0)
+  if(this->Pass!=nullptr)
   {
       os << "exists" << endl;
   }
@@ -1557,12 +1557,12 @@ vtkMTimeType vtkRenderer::GetMTime()
   vtkMTimeType mTime=this-> vtkViewport::GetMTime();
   vtkMTimeType time;
 
-  if ( this->ActiveCamera != NULL )
+  if ( this->ActiveCamera != nullptr )
   {
     time = this->ActiveCamera ->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
-  if ( this->CreatedLight != NULL )
+  if ( this->CreatedLight != nullptr )
   {
     time = this->CreatedLight ->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -1611,10 +1611,10 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   vtkDebugMacro(<< "pick time " <<  this->LastRenderTimeInSeconds << "\n");
 
   // Get the pick id of the object that was picked
-  if ( this->PickedProp != NULL )
+  if ( this->PickedProp != nullptr )
   {
     this->PickedProp->UnRegister(this);
-    this->PickedProp = NULL;
+    this->PickedProp = nullptr;
   }
   unsigned int pickedId = this->GetPickedId();
   if ( pickedId != 0 )
@@ -1631,10 +1631,10 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   }
 
   //convert the list of picked props from integers to prop pointers
-  if (this->PickResultProps != NULL)
+  if (this->PickResultProps != nullptr)
   {
     this->PickResultProps->Delete();
-    this->PickResultProps = NULL;
+    this->PickResultProps = nullptr;
   }
   this->PickResultProps = vtkPropCollection::New();
   unsigned int numPicked = this->GetNumPickedIds();
@@ -1652,7 +1652,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
   // Clean up stuff from picking after we use it
   delete [] idBuff;
   delete [] this->PathArray;
-  this->PathArray = NULL;
+  this->PathArray = nullptr;
 
   // Return the pick!
   return this->PickedProp; //returns an assembly path
@@ -1666,7 +1666,7 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   vtkProp  *aProp;
   vtkAssemblyPath *path;
 
-  this->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartEvent,nullptr);
   if( props->GetNumberOfItems() <= 0)
   {
     return;
@@ -1704,8 +1704,8 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   // speeds things up substantially.
   //
 
-  vtkPicker* pCullPicker = NULL;
-  vtkAreaPicker *aCullPicker = NULL;
+  vtkPicker* pCullPicker = nullptr;
+  vtkAreaPicker *aCullPicker = nullptr;
   vtkProp3DCollection* cullPicked;
   if (this->GetPickWidth()==1 && this->GetPickHeight()==1)
   {
@@ -1753,7 +1753,7 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   for (cullPicked->InitTraversal(p3dit);
        (aProp = cullPicked->GetNextProp3D(p3dit));)
   {
-    if ( aProp != NULL )
+    if ( aProp != nullptr )
     {
       for ( aProp->InitPathTraversal(); (path=aProp->GetNextPath()); )
       {
@@ -1811,7 +1811,7 @@ void vtkRenderer::PickGeometry()
       matrix = this->PathArray[i]->GetLastNode()->GetMatrix();
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered += prop->RenderOpaqueGeometry(this);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 
@@ -1827,7 +1827,7 @@ void vtkRenderer::PickGeometry()
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered +=
         prop->RenderTranslucentPolygonalGeometry(this);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 
@@ -1843,7 +1843,7 @@ void vtkRenderer::PickGeometry()
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered +=
         prop->RenderVolumetricGeometry(this);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 
@@ -1857,7 +1857,7 @@ void vtkRenderer::PickGeometry()
       prop->PokeMatrix(matrix);
       this->NumberOfPropsRendered +=
         prop->RenderOverlay(this);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 

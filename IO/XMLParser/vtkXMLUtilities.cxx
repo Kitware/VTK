@@ -390,7 +390,7 @@ int vtkXMLUtilities::WriteElementToFile(vtkXMLDataElement *elem,
 vtkXMLDataElement*
 vtkXMLUtilities::ReadElementFromStream(istream &is, int encoding)
 {
-  vtkXMLDataElement *res = NULL;
+  vtkXMLDataElement *res = nullptr;
   vtkXMLDataParser* xml_parser = vtkXMLDataParser::New();
   xml_parser->SetAttributesEncoding(encoding);
 
@@ -414,7 +414,7 @@ vtkXMLUtilities::ReadElementFromString(const char *str, int encoding)
 {
   if (!str)
   {
-    return 0;
+    return nullptr;
   }
 
   std::stringstream strstr;
@@ -431,7 +431,7 @@ vtkXMLUtilities::ReadElementFromFile(const char *filename, int encoding)
 {
   if (!filename)
   {
-    return NULL;
+    return nullptr;
   }
 
   ifstream is(filename);
@@ -640,14 +640,14 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
   {
     similar_trees[i]->RemoveAllAttributes();
     similar_trees[i]->RemoveAllNestedElements();
-    similar_trees[i]->SetCharacterData(NULL, 0);
+    similar_trees[i]->SetCharacterData(nullptr, 0);
     similar_trees[i]->SetName(VTK_XML_UTILITIES_FACTORED_REF_NAME);
     similar_trees[i]->SetAttribute("Id", id.str().c_str());
   }
 
   tree->RemoveAllAttributes();
   tree->RemoveAllNestedElements();
-  tree->SetCharacterData(NULL, 0);
+  tree->SetCharacterData(nullptr, 0);
   tree->SetName(VTK_XML_UTILITIES_FACTORED_REF_NAME);
   tree->SetAttribute("Id", id.str().c_str());
 

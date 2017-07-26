@@ -51,7 +51,7 @@ public:
       }
       return iter->first.c_str();
     }
-    return NULL;
+    return nullptr;
   }
 
   const char* GetValueAt(int index)
@@ -68,7 +68,7 @@ public:
       }
       return iter->second.c_str();
     }
-    return NULL;
+    return nullptr;
   }
 
   std::map< std::string, std::string > OptionalParameters;
@@ -89,7 +89,7 @@ int vtkGeoProjection::GetNumberOfProjections()
 const char* vtkGeoProjection::GetProjectionName( int projection )
 {
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
-    return 0;
+    return nullptr;
 
   return pj_get_list_ref()[projection].id;
 }
@@ -97,30 +97,30 @@ const char* vtkGeoProjection::GetProjectionName( int projection )
 const char* vtkGeoProjection::GetProjectionDescription( int projection )
 {
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
-    return 0;
+    return nullptr;
 
   return pj_get_list_ref()[projection].descr[0];
 }
 //-----------------------------------------------------------------------------
 vtkGeoProjection::vtkGeoProjection()
 {
-  this->Name = NULL;
+  this->Name = nullptr;
   this->SetName( "latlong" );
   this->CentralMeridian = 0.;
-  this->Projection = NULL;
+  this->Projection = nullptr;
   this->ProjectionMTime = 0;
   this->Internals = new vtkInternals();
 }
 //-----------------------------------------------------------------------------
 vtkGeoProjection::~vtkGeoProjection()
 {
-  this->SetName( 0 );
+  this->SetName( nullptr );
   if ( this->Projection )
   {
     pj_free( this->Projection );
   }
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 //-----------------------------------------------------------------------------
 void vtkGeoProjection::PrintSelf( ostream& os, vtkIndent indent )
@@ -155,7 +155,7 @@ const char* vtkGeoProjection::GetDescription()
   this->UpdateProjection();
   if ( ! this->Projection )
   {
-    return 0;
+    return nullptr;
   }
   return this->Projection->descr;
 }
@@ -177,7 +177,7 @@ int vtkGeoProjection::UpdateProjection()
   if ( this->Projection )
   {
     pj_free( this->Projection );
-    this->Projection = 0;
+    this->Projection = nullptr;
   }
 
   if ( ! this->Name || ! strlen( this->Name ) )
@@ -229,14 +229,14 @@ int vtkGeoProjection::UpdateProjection()
 //-----------------------------------------------------------------------------
 void vtkGeoProjection::SetOptionalParameter(const char* key, const char* value)
 {
-  if(key != NULL && value != NULL)
+  if(key != nullptr && value != nullptr)
   {
     this->Internals->OptionalParameters[key] = value;
     this->Modified();
   }
   else
   {
-    vtkErrorMacro("Invalid Optional Parameter Key/Value pair. None can be NULL");
+    vtkErrorMacro("Invalid Optional Parameter Key/Value pair. None can be null");
   }
 }
 

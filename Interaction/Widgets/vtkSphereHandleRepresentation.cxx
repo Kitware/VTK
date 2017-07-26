@@ -177,7 +177,7 @@ int vtkSphereHandleRepresentation::ComputeInteractionState(int X, int Y, int vtk
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
 //    this->InteractionState = vtkHandleRepresentation::Nearby;
       this->InteractionState = vtkHandleRepresentation::Selecting;
@@ -256,11 +256,11 @@ void vtkSphereHandleRepresentation::StartWidgetInteraction(double startEventPos[
   vtkAssemblyPath* path = this->GetAssemblyPath(
         startEventPos[0], startEventPos[1], 0., this->CursorPicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
 //    this->InteractionState = vtkHandleRepresentation::Nearby;
       this->InteractionState = vtkHandleRepresentation::Selecting;
-    this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
+    this->ConstraintAxis = this->DetermineConstraintAxis(-1,nullptr);
     this->CursorPicker->GetPickPosition(this->LastPickPosition);
   }
   else

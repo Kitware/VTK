@@ -37,10 +37,10 @@ vtkImageData::vtkImageData()
 {
   int idx;
 
-  this->Vertex = 0;
-  this->Line = 0;
-  this->Pixel = 0;
-  this->Voxel = 0;
+  this->Vertex = nullptr;
+  this->Line = nullptr;
+  this->Pixel = nullptr;
+  this->Voxel = nullptr;
 
   this->DataDescription = VTK_EMPTY;
 
@@ -161,7 +161,7 @@ unsigned long vtkImageDataGetTypeSize(T*)
 
 vtkCell *vtkImageData::GetCell(vtkIdType cellId)
 {
-  vtkCell *cell = NULL;
+  vtkCell *cell = nullptr;
   int loc[3];
   vtkIdType idx, npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
@@ -183,14 +183,14 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
   {
     vtkErrorMacro("Requesting a cell from an empty image.");
-    return NULL;
+    return nullptr;
   }
 
   switch (this->DataDescription)
   {
     case VTK_EMPTY:
       //cell = this->EmptyCell;
-      return NULL;
+      return nullptr;
 
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell = this->Vertex;
@@ -250,7 +250,7 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
 
     default:
       vtkErrorMacro("Invalid DataDescription.");
-      return NULL;
+      return nullptr;
   }
 
   // Extract point coordinates and point ids
@@ -277,7 +277,7 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
 }
 
 vtkCell *vtkImageData::GetCell(int iMin, int jMin, int kMin) {
-  vtkCell *cell = NULL;
+  vtkCell *cell = nullptr;
   int loc[3];
   vtkIdType idx, npts;
   int iMax = 0, jMax = 0, kMax = 0;
@@ -300,13 +300,13 @@ vtkCell *vtkImageData::GetCell(int iMin, int jMin, int kMin) {
 
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0) {
     vtkErrorMacro("Requesting a cell from an empty image.");
-    return NULL;
+    return nullptr;
   }
 
   switch (this->DataDescription) {
   case VTK_EMPTY:
     // cell = this->EmptyCell;
-    return NULL;
+    return nullptr;
 
   case VTK_SINGLE_POINT: // cellId can only be = 0
     cell = this->Vertex;
@@ -363,7 +363,7 @@ vtkCell *vtkImageData::GetCell(int iMin, int jMin, int kMin) {
 
   default:
     vtkErrorMacro("Invalid DataDescription.");
-    return NULL;
+    return nullptr;
   }
 
   // Extract point coordinates and point ids
@@ -726,7 +726,7 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
                                  double *weights)
 {
   return
-    this->FindCell( x, NULL, 0, tol2, subId, pcoords, weights );
+    this->FindCell( x, nullptr, 0, tol2, subId, pcoords, weights );
 }
 
 //----------------------------------------------------------------------------
@@ -823,11 +823,11 @@ vtkCell *vtkImageData::FindAndGetCell(double x[3],
                                       double tol2, int& subId,
                                       double pcoords[3], double *weights)
 {
-  vtkIdType cellId = this->FindCell(x, 0, 0, tol2, subId, pcoords, 0);
+  vtkIdType cellId = this->FindCell(x, nullptr, 0, tol2, subId, pcoords, nullptr);
 
   if (cellId < 0)
   {
-    return NULL;
+    return nullptr;
   }
 
   vtkCell *cell = this->GetCell(cellId);
@@ -1477,13 +1477,13 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
   vtkDataArray *scalars = this->GetPointData()->GetScalars();
 
   // Make sure the array has been allocated.
-  if (scalars == NULL)
+  if (scalars == nullptr)
   {
     //vtkDebugMacro("Allocating scalars in ImageData");
     //abort();
     //this->AllocateScalars();
     //scalars = this->PointData->GetScalars();
-    return NULL;
+    return nullptr;
   }
 
   const int* extent = this->Extent;
@@ -1500,7 +1500,7 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
         << extent[0] << ", " << extent[1] << ", "
         << extent[2] << ", " << extent[3] << ", "
         << extent[4] << ", " << extent[5] << ")");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -1511,7 +1511,7 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
 // This method returns a pointer to the origin of the vtkImageData.
 void *vtkImageData::GetScalarPointer()
 {
-  if (this->PointData->GetScalars() == NULL)
+  if (this->PointData->GetScalars() == nullptr)
   {
     vtkDebugMacro("Allocating scalars in ImageData");
     abort();
@@ -1703,7 +1703,7 @@ void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
 
-  if (outPtr == NULL)
+  if (outPtr == nullptr)
   {
     vtkGenericWarningMacro("Scalars not allocated.");
     return;
@@ -1736,7 +1736,7 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 {
   void *inPtr = inData->GetScalarPointerForExtent(extent);
 
-  if (inPtr == NULL)
+  if (inPtr == nullptr)
   {
     vtkErrorMacro("Scalars not allocated.");
     return;
@@ -1959,22 +1959,22 @@ void vtkImageData::SetDataDescription(int desc)
   if (this->Vertex)
   {
     this->Vertex->Delete();
-    this->Vertex = 0;
+    this->Vertex = nullptr;
   }
   if (this->Line)
   {
     this->Line->Delete();
-    this->Line = 0;
+    this->Line = nullptr;
   }
   if (this->Pixel)
   {
     this->Pixel->Delete();
-    this->Pixel = 0;
+    this->Pixel = nullptr;
   }
   if (this->Voxel)
   {
     this->Voxel->Delete();
-    this->Voxel = 0;
+    this->Voxel = nullptr;
   }
   switch (this->DataDescription)
   {
@@ -2088,7 +2088,7 @@ void vtkImageData::ShallowCopy(vtkDataObject *dataObject)
 {
   vtkImageData *imageData = vtkImageData::SafeDownCast(dataObject);
 
-  if ( imageData != NULL )
+  if ( imageData != nullptr )
   {
     this->InternalImageDataCopy(imageData);
   }
@@ -2102,7 +2102,7 @@ void vtkImageData::DeepCopy(vtkDataObject *dataObject)
 {
   vtkImageData *imageData = vtkImageData::SafeDownCast(dataObject);
 
-  if ( imageData != NULL )
+  if ( imageData != nullptr )
   {
     this->InternalImageDataCopy(imageData);
   }
@@ -2198,9 +2198,9 @@ void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
   vtkIdType incs[3];
   vtkIdType idx;
 
-  if (array == NULL)
+  if (array == nullptr)
   {
-    return NULL;
+    return nullptr;
   }
 
   const int* extent = this->Extent;
@@ -2217,7 +2217,7 @@ void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
         << extent[0] << ", " << extent[1] << ", "
         << extent[2] << ", " << extent[3] << ", "
         << extent[4] << ", " << extent[5] << ")");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -2233,7 +2233,7 @@ void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
     vtkErrorMacro("Coordinate (" << coordinate[0] << ", " << coordinate[1]
                   << ", " << coordinate[2] << ") out side of array (max = "
                   << array->GetMaxId());
-    return NULL;
+    return nullptr;
   }
 
   return array->GetVoidPointer(idx);
@@ -2263,7 +2263,7 @@ void vtkImageData::ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds)
 //----------------------------------------------------------------------------
 vtkImageData* vtkImageData::GetData(vtkInformation* info)
 {
-  return info? vtkImageData::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkImageData::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

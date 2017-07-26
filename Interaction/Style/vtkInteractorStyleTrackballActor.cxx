@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 vtkInteractorStyleTrackballActor::vtkInteractorStyleTrackballActor()
 {
   this->MotionFactor    = 10.0;
-  this->InteractionProp = NULL;
+  this->InteractionProp = nullptr;
   this->InteractionPicker = vtkCellPicker::New();
   this->InteractionPicker->SetTolerance(0.001);
 }
@@ -53,31 +53,31 @@ void vtkInteractorStyleTrackballActor::OnMouseMove()
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_PAN:
       this->FindPokedRenderer(x, y);
       this->Pan();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_DOLLY:
       this->FindPokedRenderer(x, y);
       this->Dolly();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_SPIN:
       this->FindPokedRenderer(x, y);
       this->Spin();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_USCALE:
       this->FindPokedRenderer(x, y);
       this->UniformScale();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
   }
 }
@@ -90,7 +90,7 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonDown()
 
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -142,7 +142,7 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonDown()
 
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -186,7 +186,7 @@ void vtkInteractorStyleTrackballActor::OnRightButtonDown()
 
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -214,7 +214,7 @@ void vtkInteractorStyleTrackballActor::OnRightButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Rotate()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -314,7 +314,7 @@ void vtkInteractorStyleTrackballActor::Rotate()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Spin()
 {
-  if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
+  if ( this->CurrentRenderer == nullptr || this->InteractionProp == nullptr )
   {
     return;
   }
@@ -389,7 +389,7 @@ void vtkInteractorStyleTrackballActor::Spin()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Pan()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -420,7 +420,7 @@ void vtkInteractorStyleTrackballActor::Pan()
   motion_vector[1] = new_pick_point[1] - old_pick_point[1];
   motion_vector[2] = new_pick_point[2] - old_pick_point[2];
 
-  if (this->InteractionProp->GetUserMatrix() != NULL)
+  if (this->InteractionProp->GetUserMatrix() != nullptr)
   {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
@@ -447,7 +447,7 @@ void vtkInteractorStyleTrackballActor::Pan()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Dolly()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -472,7 +472,7 @@ void vtkInteractorStyleTrackballActor::Dolly()
   motion_vector[1] = (view_point[1] - view_focus[1]) * dollyFactor;
   motion_vector[2] = (view_point[2] - view_focus[2]) * dollyFactor;
 
-  if (this->InteractionProp->GetUserMatrix() != NULL)
+  if (this->InteractionProp->GetUserMatrix() != nullptr)
   {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
@@ -498,7 +498,7 @@ void vtkInteractorStyleTrackballActor::Dolly()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::UniformScale()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -513,7 +513,7 @@ void vtkInteractorStyleTrackballActor::UniformScale()
   double yf = dy / center[1] * this->MotionFactor;
   double scaleFactor = pow(1.1, yf);
 
-  double **rotate = NULL;
+  double **rotate = nullptr;
 
   double scale[3];
   scale[0] = scale[1] = scale[2] = scaleFactor;
@@ -543,13 +543,13 @@ void vtkInteractorStyleTrackballActor::FindPickedActor(int x, int y)
 {
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
   vtkProp *prop = this->InteractionPicker->GetViewProp();
-  if (prop != NULL)
+  if (prop != nullptr)
   {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);
   }
   else
   {
-    this->InteractionProp = NULL;
+    this->InteractionProp = nullptr;
   }
 }
 
@@ -568,7 +568,7 @@ void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
 
   vtkTransform *newTransform = vtkTransform::New();
   newTransform->PostMultiply();
-  if (prop3D->GetUserMatrix() != NULL)
+  if (prop3D->GetUserMatrix() != nullptr)
   {
     newTransform->SetMatrix(prop3D->GetUserMatrix());
   }
@@ -597,7 +597,7 @@ void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
   newTransform->PreMultiply();
   newTransform->Translate(orig[0], orig[1], orig[2]);
 
-  if (prop3D->GetUserMatrix() != NULL)
+  if (prop3D->GetUserMatrix() != nullptr)
   {
     newTransform->GetMatrix(prop3D->GetUserMatrix());
   }

@@ -31,10 +31,10 @@ vtkAbstractWidget::vtkAbstractWidget()
     vtkAbstractWidget::ProcessEventsHandler);
 
   // There is no parent to this widget currently
-  this->Parent = NULL;
+  this->Parent = nullptr;
 
   // Set up the geometry
-  this->WidgetRep = NULL;
+  this->WidgetRep = nullptr;
 
   // Set priority higher than interactor styles
   this->Priority = 0.5;
@@ -124,7 +124,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
 
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -156,7 +156,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     this->WidgetRep->BuildRepresentation();
     this->CurrentRenderer->AddViewProp(this->WidgetRep);
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling------------------
@@ -185,8 +185,8 @@ void vtkAbstractWidget::SetEnabled(int enabling)
       this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
     }
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   // We no longer call render when enabled state changes. It's the applications

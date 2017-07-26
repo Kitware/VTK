@@ -254,9 +254,9 @@ vtkColorTransferFunction::vtkColorTransferFunction()
 
   this->UseAboveRangeColor = 0;
 
-  this->Function = NULL;
+  this->Function = nullptr;
 
-  this->Table = NULL;
+  this->Table = nullptr;
   this->TableSize = 0;
 
   this->AllowDuplicateScalars = 0;
@@ -271,7 +271,7 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   delete [] this->Table;
 
   delete [] this->Function;
-  this->Function = NULL;
+  this->Function = nullptr;
 
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
   {
@@ -295,7 +295,7 @@ double *vtkColorTransferFunction::GetDataPointer()
   int size = static_cast<int>(this->Internal->Nodes.size());
 
   delete [] this->Function;
-  this->Function = NULL;
+  this->Function = nullptr;
 
   if ( size > 0 )
   {
@@ -715,7 +715,7 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
     lastB = this->Internal->Nodes[numNodes-1]->B;
   }
 
-  double *tptr     = NULL;
+  double *tptr     = nullptr;
   double x         = 0.0;
   double x1        = 0.0;
   double x2        = 0.0;
@@ -1283,14 +1283,14 @@ int vtkColorTransferFunction::SetNodeValue( int index, double val[6] )
 //----------------------------------------------------------------------------
 void vtkColorTransferFunction::DeepCopy( vtkScalarsToColors *o )
 {
-  vtkColorTransferFunction *f = NULL;
+  vtkColorTransferFunction *f = nullptr;
   if (o)
   {
     this->Superclass::DeepCopy(o);
     f = vtkColorTransferFunction::SafeDownCast(o);
   }
 
-  if (f != NULL)
+  if (f != nullptr)
   {
     this->Clamping     = f->Clamping;
     this->ColorSpace   = f->ColorSpace;
@@ -1312,7 +1312,7 @@ void vtkColorTransferFunction::DeepCopy( vtkScalarsToColors *o )
 //----------------------------------------------------------------------------
 void vtkColorTransferFunction::ShallowCopy( vtkColorTransferFunction *f )
 {
-  if (f != NULL)
+  if (f != nullptr)
   {
     this->Superclass::DeepCopy(f);
 

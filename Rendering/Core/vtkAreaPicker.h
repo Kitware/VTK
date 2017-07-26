@@ -83,14 +83,14 @@ public:
    * Props intersecting the selection frustum will be accessible via GetProp3D.
    * GetPlanes returns a vtkImplicitFunction suitable for vtkExtractGeometry.
    */
-  virtual int AreaPick(double x0, double y0, double x1, double y1, vtkRenderer *renderer = NULL);
+  virtual int AreaPick(double x0, double y0, double x1, double y1, vtkRenderer *renderer = nullptr);
 
   /**
    * Perform pick operation in volume behind the given screen coordinate.
    * This makes a thin frustum around the selected pixel.
    * Note: this ignores Z in order to pick everying in a volume from z=0 to z=1.
    */
-  int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer = NULL) VTK_OVERRIDE
+  int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer = nullptr) VTK_OVERRIDE
     { return this->AreaPick(x0, y0, x0+1.0, y0+1.0, renderer); }
 
   //@{

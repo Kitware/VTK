@@ -131,7 +131,7 @@
  * an instance of a vtkDistributedGraphHelper via the
  * SetDistributedGraphHelper() method. To determine whether a graph is
  * distributed or not, call GetDistributedGraphHelper() and check
- * whether the result is non-NULL. For a distributed graph, the number
+ * whether the result is non-nullptr. For a distributed graph, the number
  * of processors across which the graph is distributed can be
  * retrieved by extracting the value for the DATA_NUMBER_OF_PIECES key
  * in the vtkInformation object (retrieved by GetInformation())
@@ -654,8 +654,8 @@ protected:
    * non-null and the vertex data contains pedigree IDs, a vertex will
    * only be added if there is no vertex with that pedigree ID.
    */
-  void AddVertexInternal(vtkVariantArray *propertyArr = 0,
-                         vtkIdType *vertex = 0);
+  void AddVertexInternal(vtkVariantArray *propertyArr = nullptr,
+                         vtkIdType *vertex = nullptr);
 
   /**
    * Adds a vertex with the given pedigree ID to the graph. If a vertex with
@@ -722,7 +722,7 @@ protected:
   vtkGraphInternals *Internals;
 
   /**
-   * The distributed graph helper. Only non-NULL for distributed graphs.
+   * The distributed graph helper. Only non-nullptr for distributed graphs.
    */
   vtkDistributedGraphHelper *DistributedHelper;
 

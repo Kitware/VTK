@@ -48,7 +48,7 @@ public:
 
   /**
    * Returns the socket selected during the last SelectSockets(), if any.
-   * NULL otherwise.
+   * nullptr otherwise.
    */
   vtkSocket* GetLastSelectedSocket()
     {return this->SelectedSocket; }

@@ -40,7 +40,7 @@ vtkInformationKey *vtkInformationKeyLookup::Find(const std::string &name,
 {
   KeyMap &keys = Keys();
   KeyMap::iterator it = keys.find(std::make_pair(location, name));
-  return it != keys.end() ? it->second : NULL;
+  return it != keys.end() ? it->second : nullptr;
 }
 
 //------------------------------------------------------------------------------

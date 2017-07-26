@@ -87,7 +87,7 @@ public:
   // This specifies the order of the arrays in the trails fields.  These are
   // valid in between calls to RequestData.
   std::vector<vtkStdString>    TrailFieldNames;
-  // Input arrays corresponding to the entries in TrailFieldNames.  NULL arrays
+  // Input arrays corresponding to the entries in TrailFieldNames.  nullptr arrays
   // indicate missing arrays.  This field is only valid during a call to
   // RequestData.
   std::vector<vtkAbstractArray*> InputFieldArrays;
@@ -103,7 +103,7 @@ vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
   this->MaxTrackLength       = 10;
   this->LastTrackLength      = 10;
   this->FirstTime            = 1;
-  this->IdChannelArray       = NULL;
+  this->IdChannelArray       = nullptr;
   this->LatestTime           = 01E10;
   this->MaxStepDistance[0]   = 0.0001;
   this->MaxStepDistance[1]   = 0.0001;
@@ -125,7 +125,7 @@ vtkTemporalPathLineFilter::vtkTemporalPathLineFilter()
 vtkTemporalPathLineFilter::~vtkTemporalPathLineFilter()
 {
   delete [] this->IdChannelArray;
-  this->IdChannelArray = NULL;
+  this->IdChannelArray = nullptr;
 }
 //----------------------------------------------------------------------------
 int vtkTemporalPathLineFilter::FillInputPortInformation(int port, vtkInformation* info)
@@ -203,7 +203,7 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
     trail->updated    = 0;
     trail->TrailId    = i;
 
-    trail->Fields.assign(this->Internals->InputFieldArrays.size(), 0);
+    trail->Fields.assign(this->Internals->InputFieldArrays.size(), nullptr);
     for (size_t j = 0; j < this->Internals->InputFieldArrays.size(); j++)
     {
       vtkAbstractArray *inputArray = this->Internals->InputFieldArrays[j];
@@ -321,7 +321,7 @@ int vtkTemporalPathLineFilter::RequestData(
   vtkInformation *outInfo1 = outputVector->GetInformationObject(1);
   //
   vtkDataSet      *input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet  *selection = selInfo ? vtkDataSet::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT())) : NULL;
+  vtkDataSet  *selection = selInfo ? vtkDataSet::SafeDownCast(selInfo->Get(vtkDataObject::DATA_OBJECT())) : nullptr;
   vtkPolyData   *output0 = vtkPolyData::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData   *output1 = vtkPolyData::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData  *inputPointData = input->GetPointData();
@@ -343,7 +343,7 @@ int vtkTemporalPathLineFilter::RequestData(
   //
   // Ids
   //
-  vtkDataArray *Ids = NULL;
+  vtkDataArray *Ids = nullptr;
   if (this->IdChannelArray)
   {
     Ids = input->GetPointData()->GetArray(this->IdChannelArray);

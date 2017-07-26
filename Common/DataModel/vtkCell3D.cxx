@@ -25,10 +25,10 @@
 
 vtkCell3D::vtkCell3D()
 {
-  this->Triangulator = NULL;
+  this->Triangulator = nullptr;
   this->MergeTolerance = 0.01;
-  this->ClipTetra = NULL;
-  this->ClipScalars = NULL;
+  this->ClipTetra = nullptr;
+  this->ClipScalars = nullptr;
 }
 
 vtkCell3D::~vtkCell3D()
@@ -36,14 +36,14 @@ vtkCell3D::~vtkCell3D()
   if ( this->Triangulator )
   {
     this->Triangulator->Delete();
-    this->Triangulator = NULL;
+    this->Triangulator = nullptr;
   }
   if ( this->ClipTetra )
   {
     this->ClipTetra->Delete();
-    this->ClipTetra = NULL;
+    this->ClipTetra = nullptr;
     this->ClipScalars->Delete();
-    this->ClipScalars = NULL;
+    this->ClipScalars = nullptr;
   }
 }
 

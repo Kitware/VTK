@@ -67,7 +67,7 @@ public:
 
   //@{
   /**
-   * When writing to memory this is the result, it will be NULL until the
+   * When writing to memory this is the result, it will be nullptr until the
    * data is written the first time
    */
   virtual void SetResult(vtkUnsignedCharArray*);

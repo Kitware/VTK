@@ -29,7 +29,7 @@ vtkKMeansStatistics::vtkKMeansStatistics()
   this->AssessNames->SetValue( 1, "ClosestId" );
   this->DefaultNumberOfClusters = 3;
   this->Tolerance = 0.01;
-  this->KValuesArrayName = 0;
+  this->KValuesArrayName = nullptr;
   this->SetKValuesArrayName( "K" );
   this->MaxNumIterations = 50;
   this->DistanceFunctor = vtkKMeansDistanceFunctor::New();
@@ -38,8 +38,8 @@ vtkKMeansStatistics::vtkKMeansStatistics()
 // ----------------------------------------------------------------------
 vtkKMeansStatistics::~vtkKMeansStatistics()
 {
-  this->SetKValuesArrayName( 0 );
-  this->SetDistanceFunctor( 0 );
+  this->SetKValuesArrayName( nullptr );
+  this->SetDistanceFunctor( nullptr );
 }
 
 // ----------------------------------------------------------------------
@@ -49,7 +49,7 @@ void vtkKMeansStatistics::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "DefaultNumberofClusters: "
                << this->DefaultNumberOfClusters << endl;
   os << indent << "KValuesArrayName: \""
-               << ( this->KValuesArrayName ? this->KValuesArrayName : "NULL" )
+               << ( this->KValuesArrayName ? this->KValuesArrayName : "nullptr" )
                << "\"\n";
   os << indent << "MaxNumIterations: " << this->MaxNumIterations << endl;
   os << indent << "Tolerance: " << this->Tolerance << endl;
@@ -314,7 +314,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
 
   if ( ! this->DistanceFunctor )
   {
-    vtkErrorMacro( "Distance functor is NULL" );
+    vtkErrorMacro( "Distance functor is nullptr" );
     return;
   }
 
@@ -640,7 +640,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
   // Column names of the metadata and input data are assumed to match.
   // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)" where
   // "A", "B", and "C" are the column names specified in the per-request metadata tables.
-  AssessFunctor* dfunc = 0;
+  AssessFunctor* dfunc = nullptr;
   // only one request allowed in when learning, so there will only be one
   vtkTable* reqModel = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
   if ( ! reqModel )
@@ -651,7 +651,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
 
   this->SelectAssessFunctor( inData,
                              reqModel,
-                             0,
+                             nullptr,
                              dfunc );
   if ( ! dfunc )
   {
@@ -716,7 +716,7 @@ void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
 {
   (void)inData;
 
-  dfunc = 0;
+  dfunc = nullptr;
   vtkTable* reqModel = vtkTable::SafeDownCast( inMetaDO );
   if ( ! reqModel )
   {
@@ -725,7 +725,7 @@ void vtkKMeansStatistics::SelectAssessFunctor( vtkTable* inData,
 
   if ( ! this->DistanceFunctor )
   {
-    vtkErrorMacro( "Distance functor is NULL" );
+    vtkErrorMacro( "Distance functor is nullptr" );
     return;
   }
 

@@ -159,7 +159,7 @@ public:
    * use.
    */
   virtual void SetContext(vtkOpenGLRenderWindow *){}
-  virtual vtkOpenGLRenderWindow *GetContext(){ return NULL; }
+  virtual vtkOpenGLRenderWindow *GetContext(){ return nullptr; }
 
   /**
    * Set the communicator for parallel communication. A duplicate

@@ -238,9 +238,9 @@ public:
    * set to manipulate.
    * State: Define = 0, Manipulate = 1.
    */
-  virtual void Initialize( vtkPolyData * poly, int state = 1, vtkIdList *idList = NULL );
+  virtual void Initialize( vtkPolyData * poly, int state = 1, vtkIdList *idList = nullptr );
   virtual void Initialize()
-    {this->Initialize(NULL);}
+    {this->Initialize(nullptr);}
 
   // The state of the widget
 

@@ -23,7 +23,7 @@
 #define RETURNONFALSE(b)\
   if(!(b)) \
   {\
-    vtkAlgorithm::SetDefaultExecutivePrototype(NULL);\
+    vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);\
     return EXIT_FAILURE;\
   }
 
@@ -86,6 +86,6 @@ int TestAMRInterpolatedVelocityField(int, char*[])
   func->GetLastDataSetLocation(level,id);
   RETURNONFALSE(level==1)
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return EXIT_SUCCESS;
 }

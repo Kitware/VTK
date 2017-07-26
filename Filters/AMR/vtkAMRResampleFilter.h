@@ -234,7 +234,7 @@ protected:
   /**
    * Given a query point q and a target level, this method finds a suitable
    * grid at the given level that contains the point if one exists. If a grid
-   * is not found, donorGrid is set to NULL.
+   * is not found, donorGrid is set to nullptr.
    */
   bool SearchForDonorGridAtLevel(
       double q[3], vtkOverlappingAMR *amrds,

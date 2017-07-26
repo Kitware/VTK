@@ -246,7 +246,7 @@ int* vtkMath::BeginCombination( int m, int n )
 {
   if ( m < n )
   {
-    return 0;
+    return nullptr;
   }
 
   int* r = new int[ n ];
@@ -1027,7 +1027,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 
   int someHomogeneous = 0;
   int allHomogeneous = 1;
-  double **hmt = NULL;
+  double **hmt = nullptr;
   int homogRC = 0;
   int *homogenFlags = new int[yOrder];
   int successFlag;

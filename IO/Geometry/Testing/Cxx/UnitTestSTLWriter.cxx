@@ -103,7 +103,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
     ++status;
   }
 
-  writer2->SetFileName(NULL);
+  writer2->SetFileName(nullptr);
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToASCII();
   writer2->Update();
@@ -113,7 +113,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
     ++status;
   }
 
-  writer2->SetFileName(NULL);
+  writer2->SetFileName(nullptr);
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToBinary();
   writer2->Update();

@@ -82,7 +82,7 @@ void vtkAxesTransformWidget::SetEnabled(int enabling)
 
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
 
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -133,9 +133,9 @@ void vtkAxesTransformWidget::SelectAction(vtkAbstractWidget *w)
   e[1] = static_cast<double>(Y);
   reinterpret_cast<vtkAxesTransformRepresentation*>(self->WidgetRep)->
     StartWidgetInteraction(e);
-  self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL); //for the handles
+  self->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr); //for the handles
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
 }
 
@@ -187,10 +187,10 @@ void vtkAxesTransformWidget::MoveAction(vtkAbstractWidget *w)
     double e[2];
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
-    self->InvokeEvent(vtkCommand::MouseMoveEvent,NULL); //handles observe this
+    self->InvokeEvent(vtkCommand::MouseMoveEvent,nullptr); //handles observe this
     reinterpret_cast<vtkAxesTransformRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
   }
@@ -208,9 +208,9 @@ void vtkAxesTransformWidget::EndSelectAction(vtkAbstractWidget *w)
   // Return state to not active
   self->WidgetState = vtkAxesTransformWidget::Start;
   self->ReleaseFocus();
-  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL); //handles observe this
+  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr); //handles observe this
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Superclass::EndInteraction();
   self->Render();
 }

@@ -34,7 +34,7 @@ vtkMultiBlockDataSet::~vtkMultiBlockDataSet()
 vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformation* info)
 {
   return
-    info? vtkMultiBlockDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+    info? vtkMultiBlockDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

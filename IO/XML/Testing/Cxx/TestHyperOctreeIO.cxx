@@ -206,7 +206,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   }
   if (!compressed)
   {
-    writerX->SetCompressor(NULL);
+    writerX->SetCompressor(nullptr);
   }
 
   cout<<"update writerX..."<<endl;
@@ -246,7 +246,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
     }
     if (!compressed)
     {
-      writerX->SetCompressor(NULL);
+      writerX->SetCompressor(nullptr);
     }
     writerX->Write();
     writerX->Delete();

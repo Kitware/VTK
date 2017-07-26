@@ -45,27 +45,27 @@ vtkTreeLayoutStrategy::vtkTreeLayoutStrategy()
   this->Radial = false;
   this->LogSpacingValue = 1.0;
   this->LeafSpacing = 0.9;
-  this->DistanceArrayName = NULL;
+  this->DistanceArrayName = nullptr;
   this->Rotation = 0.0;
   this->ReverseEdges = false;
 }
 
 vtkTreeLayoutStrategy::~vtkTreeLayoutStrategy()
 {
-  this->SetDistanceArrayName(NULL);
+  this->SetDistanceArrayName(nullptr);
 }
 
 // Tree layout method
 void vtkTreeLayoutStrategy::Layout()
 {
   // Do I have a graph to lay out?  Does it have any vertices?
-  if (this->Graph == NULL || this->Graph->GetNumberOfVertices() <= 0)
+  if (this->Graph == nullptr || this->Graph->GetNumberOfVertices() <= 0)
   {
     return;
   }
 
   vtkTree* tree = vtkTree::SafeDownCast(this->Graph);
-  if (tree == NULL)
+  if (tree == nullptr)
   {
 #ifdef VTK_USE_BOOST
     // Use the BFS search tree to perform the layout
@@ -103,8 +103,8 @@ void vtkTreeLayoutStrategy::Layout()
   }
 
   // Check if the distance array is defined.
-  vtkDataArray* distanceArr = NULL;
-  if (this->DistanceArrayName != NULL)
+  vtkDataArray* distanceArr = nullptr;
+  if (this->DistanceArrayName != nullptr)
   {
     vtkAbstractArray* aa = tree->GetVertexData()->
       GetAbstractArray(this->DistanceArrayName);
@@ -206,7 +206,7 @@ void vtkTreeLayoutStrategy::Layout()
     vtkIdType vertex = iter->Next();
 
     double height;
-    if (distanceArr != NULL)
+    if (distanceArr != nullptr)
     {
       height = spacing * distanceArr->GetTuple1(vertex) / maxDistance;
     }

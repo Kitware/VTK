@@ -103,7 +103,7 @@ void vtkImageInterpolator::ComputeSupportSize(
   size[1] = s;
   size[2] = s;
 
-  if (matrix == NULL)
+  if (matrix == nullptr)
   {
     return;
   }
@@ -482,7 +482,7 @@ void vtkImageInterpolatorGetInterpolationFunc(
             &(vtkImageNLCInterpolate<F, VTK_TT>::Nearest)
           );
         default:
-          *interpolate = 0;
+          *interpolate = nullptr;
       }
       break;
     case VTK_LINEAR_INTERPOLATION:
@@ -493,7 +493,7 @@ void vtkImageInterpolatorGetInterpolationFunc(
             &(vtkImageNLCInterpolate<F, VTK_TT>::Trilinear)
           );
         default:
-          *interpolate = 0;
+          *interpolate = nullptr;
       }
       break;
     case VTK_CUBIC_INTERPOLATION:
@@ -504,7 +504,7 @@ void vtkImageInterpolatorGetInterpolationFunc(
             &(vtkImageNLCInterpolate<F, VTK_TT>::Tricubic)
           );
         default:
-          *interpolate = 0;
+          *interpolate = nullptr;
       }
       break;
   }
@@ -829,7 +829,7 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
           *summation = &(vtkImageNLCRowInterpolate<F,VTK_TT>::Nearest)
           );
         default:
-          *summation = 0;
+          *summation = nullptr;
       }
       break;
     case VTK_LINEAR_INTERPOLATION:
@@ -839,7 +839,7 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
           *summation = &(vtkImageNLCRowInterpolate<F,VTK_TT>::Trilinear)
           );
         default:
-          *summation = 0;
+          *summation = nullptr;
       }
       break;
     case VTK_CUBIC_INTERPOLATION:
@@ -849,7 +849,7 @@ void vtkImageInterpolatorGetRowInterpolationFunc(
           *summation = &(vtkImageNLCRowInterpolate<F,VTK_TT>::Tricubic)
           );
         default:
-          *summation = 0;
+          *summation = nullptr;
       }
       break;
   }
@@ -906,7 +906,7 @@ void vtkImageInterpolatorPrecomputeWeights(
     vtkIdType size = step*(outExt[2*j+1] - outExt[2*j] + 1);
     vtkIdType *positions = new vtkIdType[size];
     positions -= step*outExt[2*j];
-    F *constants = 0;
+    F *constants = nullptr;
     if (interpMode != VTK_NEAREST_INTERPOLATION)
     {
       constants = new F[size];

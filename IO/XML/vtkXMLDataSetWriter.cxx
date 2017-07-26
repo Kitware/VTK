@@ -83,7 +83,7 @@ vtkXMLWriter* vtkXMLDataSetWriter::NewWriter(int dataset_type)
     case VTK_HYPER_OCTREE:
       return vtkXMLHyperOctreeWriter::New();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

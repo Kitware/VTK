@@ -56,20 +56,20 @@ static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n
 
 vtkFixedWidthTextReader::vtkFixedWidthTextReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->StripWhiteSpace = false;
   this->HaveHeaders = false;
   this->FieldWidth = 10;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->TableErrorObserver = NULL;
+  this->TableErrorObserver = nullptr;
 }
 
 // ----------------------------------------------------------------------
 
 vtkFixedWidthTextReader::~vtkFixedWidthTextReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
   if (this->TableErrorObserver)
   {
     this->TableErrorObserver->Delete();

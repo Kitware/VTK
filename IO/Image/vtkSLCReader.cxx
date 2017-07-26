@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkSLCReader);
 // Constructor for a vtkSLCReader.
 vtkSLCReader::vtkSLCReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->Error = 0;
 }
 
@@ -100,7 +100,7 @@ int vtkSLCReader::RequestInformation (
   }
 
   // Initialize
-  if ((fp = fopen(this->FileName, "rb")) == NULL)
+  if ((fp = fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
@@ -239,7 +239,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
 
   unsigned char *icon_ptr;
   unsigned char *compressed_ptr;
-  unsigned char *scan_ptr = NULL;
+  unsigned char *scan_ptr = nullptr;
 
   this->Error = 1;
 
@@ -250,7 +250,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
   }
 
   // Initialize
-  if ((fp = fopen(this->FileName, "rb")) == NULL)
+  if ((fp = fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
@@ -493,7 +493,7 @@ int vtkSLCReader::CanReadFile(const char* fname)
 {
   FILE* fp;
   int   magic_num = 0;
-  if ((fp = fopen(fname, "rb")) == NULL)
+  if ((fp = fopen(fname, "rb")) == nullptr)
   {
     return 0;
   }

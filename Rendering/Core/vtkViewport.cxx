@@ -27,7 +27,7 @@
 // turned off.
 vtkViewport::vtkViewport()
 {
-  this->VTKWindow = NULL;
+  this->VTKWindow = nullptr;
 
   this->Background[0] = 0;
   this->Background[1] = 0;
@@ -70,9 +70,9 @@ vtkViewport::vtkViewport()
   this->Origin[0] = 0;
   this->Origin[1] = 0;
 
-  this->PickedProp = NULL;
-  this->PickFromProps = NULL;
-  this->PickResultProps = NULL;
+  this->PickedProp = nullptr;
+  this->PickFromProps = nullptr;
+  this->PickResultProps = nullptr;
   this->IsPicking = 0;
   this->CurrentPickId = 0;
   this->PickX1 = -1;
@@ -88,25 +88,25 @@ vtkViewport::vtkViewport()
 vtkViewport::~vtkViewport()
 {
   this->Actors2D->Delete();
-  this->Actors2D = NULL;
+  this->Actors2D = nullptr;
 
   this->RemoveAllViewProps();
   this->Props->Delete();
-  this->Props = NULL;
+  this->Props = nullptr;
 
-  if (this->VTKWindow != NULL)
+  if (this->VTKWindow != nullptr)
   {
     // renderer never reference counted the window.
     // loop is too hard to detect.
     // this->VTKWindow->UnRegister(this);
-    this->VTKWindow = NULL;
+    this->VTKWindow = nullptr;
   }
 
-  if ( this->PickedProp != NULL )
+  if ( this->PickedProp != nullptr )
   {
     this->PickedProp->UnRegister(this);
   }
-  if ( this->PickResultProps != NULL )
+  if ( this->PickResultProps != nullptr )
   {
     this->PickResultProps->Delete();
   }
@@ -198,7 +198,7 @@ void vtkViewport::DisplayToView()
 
     /* get physical window dimensions */
     const int *size = this->VTKWindow->GetSize();
-    if (size == NULL)
+    if (size == nullptr)
     {
       return;
     }
@@ -405,7 +405,7 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Props:\n";
   this->Props->PrintSelf(os,indent.GetNextIndent());
   os << indent << "PickResultProps:\n";
-  if ( this->PickResultProps != NULL )
+  if ( this->PickResultProps != nullptr )
   {
     this->PickResultProps->PrintSelf(os,indent.GetNextIndent());
   }

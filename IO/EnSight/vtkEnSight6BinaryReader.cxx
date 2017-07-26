@@ -54,9 +54,9 @@ vtkEnSight6BinaryReader::vtkEnSight6BinaryReader()
 {
   this->NumberOfUnstructuredPoints = 0;
   this->UnstructuredPoints = vtkPoints::New();
-  this->UnstructuredNodeIds = NULL;
+  this->UnstructuredNodeIds = nullptr;
 
-  this->IFile = NULL;
+  this->IFile = nullptr;
 
   this->FileSize = 0;
 
@@ -69,16 +69,16 @@ vtkEnSight6BinaryReader::~vtkEnSight6BinaryReader()
   if (this->UnstructuredNodeIds)
   {
     this->UnstructuredNodeIds->Delete();
-    this->UnstructuredNodeIds = NULL;
+    this->UnstructuredNodeIds = nullptr;
   }
   this->UnstructuredPoints->Delete();
-  this->UnstructuredPoints = NULL;
+  this->UnstructuredPoints = nullptr;
 
   if (this->IFile)
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
 }
 
@@ -96,7 +96,7 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
 
   // Open the new file
@@ -295,14 +295,14 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(const char* fileName,
   if (this->UnstructuredNodeIds)
   {
       this->UnstructuredNodeIds->Delete();
-      this->UnstructuredNodeIds = NULL;
+      this->UnstructuredNodeIds = nullptr;
   }
   // Close file from any previous image
   if (this->IFile)
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   if (lineRead < 0)
   {
@@ -887,7 +887,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -910,7 +910,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerNode variable file name");
+    vtkErrorMacro("nullptr ScalarPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1092,7 +1092,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(
     partId--;
     realId = this->InsertNewPartId(partId);
     output = this->GetDataSetFromBlock(compositeOutput, realId);
-    if (output == NULL)
+    if (output == nullptr)
     {
       vtkErrorMacro("Could not get output for part " << partId);
       vtkErrorMacro("Got part from line: " << line);
@@ -1145,7 +1145,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -1168,7 +1168,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerNode variable file name");
+    vtkErrorMacro("nullptr VectorPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1349,7 +1349,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
 
   return 1;
@@ -1373,7 +1373,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorSymmPerNode variable file name");
+    vtkErrorMacro("nullptr TensorSymmPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1520,7 +1520,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -1543,7 +1543,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerElement variable file name");
+    vtkErrorMacro("nullptr ScalarPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1603,7 +1603,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(
               vtkErrorMacro("invalid element type");
               this->IFile->close();
               delete this->IFile;
-              this->IFile = NULL;
+              this->IFile = nullptr;
               return 0;
             }
             idx = this->UnstructuredPartIds->IsId(realId);
@@ -1671,7 +1671,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(
           vtkErrorMacro("invalid element type");
           this->IFile->close();
           delete this->IFile;
-          this->IFile = NULL;
+          this->IFile = nullptr;
           return 0;
         }
         idx = this->UnstructuredPartIds->IsId(realId);
@@ -1722,7 +1722,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -1745,7 +1745,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerElement variable file name");
+    vtkErrorMacro("nullptr VectorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1804,7 +1804,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(
             {
               vtkErrorMacro("invalid element type");
               delete this->IS;
-              this->IS = NULL;
+              this->IS = nullptr;
               return 0;
             }
             idx = this->UnstructuredPartIds->IsId(realId);
@@ -1862,7 +1862,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(
         {
           vtkErrorMacro("invalid element type");
           delete this->IS;
-          this->IS = NULL;
+          this->IS = nullptr;
           return 0;
         }
         idx = this->UnstructuredPartIds->IsId(realId);
@@ -1909,7 +1909,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -1932,7 +1932,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorPerElement variable file name");
+    vtkErrorMacro("nullptr TensorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1992,7 +1992,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
               vtkErrorMacro("invalid element type");
               this->IFile->close();
               delete this->IFile;
-              this->IFile = NULL;
+              this->IFile = nullptr;
               return 0;
             }
             idx = this->UnstructuredPartIds->IsId(realId);
@@ -2051,7 +2051,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
           vtkErrorMacro("invalid element type");
           this->IFile->close();
           delete this->IFile;
-          this->IFile = NULL;
+          this->IFile = nullptr;
           return 0;
         }
         idx = this->UnstructuredPartIds->IsId(realId);
@@ -2102,7 +2102,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -2122,7 +2122,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
 
   this->NumberOfNewOutputs++;
 
-  if (this->GetDataSetFromBlock(compositeOutput, partId) == NULL ||
+  if (this->GetDataSetFromBlock(compositeOutput, partId) == nullptr ||
     !this->GetDataSetFromBlock(compositeOutput, partId)->IsA("vtkUnstructuredGrid"))
   {
     vtkDebugMacro("creating new unstructured output");
@@ -2705,7 +2705,7 @@ int vtkEnSight6BinaryReader::CreateStructuredGridOutput(
 
   this->NumberOfNewOutputs++;
 
-  if (this->GetDataSetFromBlock(compositeOutput, partId) == NULL ||
+  if (this->GetDataSetFromBlock(compositeOutput, partId) == nullptr ||
     !this->GetDataSetFromBlock(compositeOutput, partId)->IsA("vtkStructuredGrid"))
   {
     vtkDebugMacro("creating new structured grid output");

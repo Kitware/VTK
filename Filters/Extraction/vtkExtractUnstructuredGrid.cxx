@@ -48,7 +48,7 @@ vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
   this->ExtentClipping = 0;
 
   this->Merging = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 }
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
@@ -122,7 +122,7 @@ int vtkExtractUnstructuredGrid::RequestData(
   int allVisible, numIds;
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  vtkIdType *pointMap = NULL;
+  vtkIdType *pointMap = nullptr;
 
   vtkDebugMacro(<<"Executing extraction filter");
 
@@ -137,7 +137,7 @@ int vtkExtractUnstructuredGrid::RequestData(
        (!this->ExtentClipping) )
   {
     allVisible = 1;
-    cellVis = NULL;
+    cellVis = nullptr;
   }
   else
   {
@@ -193,7 +193,7 @@ int vtkExtractUnstructuredGrid::RequestData(
 
   if ( this->Merging )
   {
-    if ( this->Locator == NULL )
+    if ( this->Locator == nullptr )
     {
       this->CreateDefaultLocator();
     }
@@ -278,7 +278,7 @@ vtkMTimeType vtkExtractUnstructuredGrid::GetMTime()
   vtkMTimeType mTime= this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -288,7 +288,7 @@ vtkMTimeType vtkExtractUnstructuredGrid::GetMTime()
 
 void vtkExtractUnstructuredGrid::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }
@@ -305,7 +305,7 @@ void vtkExtractUnstructuredGrid::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {

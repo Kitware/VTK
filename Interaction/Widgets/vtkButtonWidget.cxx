@@ -174,7 +174,7 @@ void vtkButtonWidget::EndSelectAction(vtkAbstractWidget *w)
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   reinterpret_cast<vtkButtonRepresentation*>(self->WidgetRep)->NextState();
-  self->InvokeEvent(vtkCommand::StateChangedEvent,NULL);
+  self->InvokeEvent(vtkCommand::StateChangedEvent,nullptr);
   self->Render();
 }
 

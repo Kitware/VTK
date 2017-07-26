@@ -119,7 +119,7 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
 void vtkTreeOrbitLayoutStrategy::Layout()
 {
   vtkTree* tree = vtkTree::SafeDownCast(this->Graph);
-  if (tree == NULL)
+  if (tree == nullptr)
   {
 #ifdef VTK_USE_BOOST
     // Use the BFS search tree to perform the layout

@@ -330,9 +330,9 @@ static void vtkExtractArraysAssignUniqueCoordNames(
   vtkAbstractArray* arrZ;
   int counter = 0;
   while (
-    (arrX = statInDSA->GetArray(actualNames[0].c_str())) != NULL &&
-    (arrY = statInDSA->GetArray(actualNames[1].c_str())) != NULL &&
-    (arrZ = statInDSA->GetArray(actualNames[2].c_str())) != NULL)
+    (arrX = statInDSA->GetArray(actualNames[0].c_str())) != nullptr &&
+    (arrY = statInDSA->GetArray(actualNames[1].c_str())) != nullptr &&
+    (arrZ = statInDSA->GetArray(actualNames[2].c_str())) != nullptr)
   {
     for (int i = 0; i < 3; ++i)
     {
@@ -359,7 +359,7 @@ static void vtkExtractArraysAddColumnValue(
   // We need to find a unique column name as close to colName that isn't taken.
   vtkAbstractArray* arr;
   int counter = 0;
-  while ((arr = statSummary->GetColumnByName(actualColumnName.c_str())) != NULL)
+  while ((arr = statSummary->GetColumnByName(actualColumnName.c_str())) != nullptr)
   {
     std::ostringstream os;
     os << colName << "_" << ++counter;
@@ -377,7 +377,7 @@ static void vtkExtractArraysAddColumnValue(
 void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
   unsigned int composite_index, double vtkNotUsed(time), vtkDataObject* input)
 {
-  vtkFieldData* inFD = 0;
+  vtkFieldData* inFD = nullptr;
   if (this->FieldType == vtkSelectionNode::CELL)
   {
     inFD = vtkDataSet::SafeDownCast(input)->GetCellData();
@@ -577,8 +577,8 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
     return;
   }
 
-  vtkDataSetAttributes* inDSA = 0;
-  const char* idarrayname = 0;
+  vtkDataSetAttributes* inDSA = nullptr;
+  const char* idarrayname = nullptr;
   if (this->FieldType == vtkSelectionNode::CELL)
   {
     inDSA = vtkDataSet::SafeDownCast(input)->GetCellData();
@@ -775,7 +775,7 @@ vtkExtractArraysOverTime::vtkExtractArraysOverTime()
 
   this->Error = vtkExtractArraysOverTime::NoError;
 
-  this->SelectionExtractor = NULL;
+  this->SelectionExtractor = nullptr;
 
   this->Internal = new vtkInternal;
 
@@ -786,7 +786,7 @@ vtkExtractArraysOverTime::vtkExtractArraysOverTime()
 vtkExtractArraysOverTime::~vtkExtractArraysOverTime()
 {
   delete this->Internal;
-  this->SetSelectionExtractor(NULL);
+  this->SetSelectionExtractor(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -977,7 +977,7 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
   //pass all required information to the helper filter
   int piece = 0;
   int npieces = 1;
-  int *uExtent=0;
+  int *uExtent=nullptr;
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {

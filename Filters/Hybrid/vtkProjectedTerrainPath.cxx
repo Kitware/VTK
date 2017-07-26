@@ -57,8 +57,8 @@ vtkProjectedTerrainPath::vtkProjectedTerrainPath()
   this->HeightOffset = 10.0;
   this->HeightTolerance = 10.0;
   this->MaximumNumberOfLines = VTK_ID_MAX;
-  this->PositiveLineError = NULL;
-  this->NegativeLineError = NULL;
+  this->PositiveLineError = nullptr;
+  this->NegativeLineError = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ vtkImageData *vtkProjectedTerrainPath::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
@@ -194,7 +194,7 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   // in the list (i,i+1) form an edge; the next two (i+1,i+2) form the
   // next edge, and so on. The list contains point ids referring to
   // the this->Points array.
-  vtkIdType j, npts=0, *pts=NULL;
+  vtkIdType j, npts=0, *pts=nullptr;
   this->EdgeList = new EdgeListType;
   this->PositiveLineError = vtkPriorityQueue::New();
   this->NegativeLineError = vtkPriorityQueue::New();

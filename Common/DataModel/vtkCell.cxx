@@ -236,5 +236,5 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 // Usually overridden. Only composite cells do not override this.
 double *vtkCell::GetParametricCoords()
 {
-  return NULL;
+  return nullptr;
 }

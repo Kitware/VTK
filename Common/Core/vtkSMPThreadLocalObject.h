@@ -91,7 +91,7 @@ public:
   /**
    * Default constructor.
    */
-  vtkSMPThreadLocalObject() : Internal(0), Exemplar(0)
+  vtkSMPThreadLocalObject() : Internal(nullptr), Exemplar(nullptr)
   {
   }
 

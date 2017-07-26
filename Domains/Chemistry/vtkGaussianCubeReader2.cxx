@@ -39,7 +39,7 @@ vtkStandardNewMacro(vtkGaussianCubeReader2);
 
 //----------------------------------------------------------------------------
 vtkGaussianCubeReader2::vtkGaussianCubeReader2()
-  : FileName(NULL)
+  : FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
@@ -56,7 +56,7 @@ vtkGaussianCubeReader2::vtkGaussianCubeReader2()
 //----------------------------------------------------------------------------
 vtkGaussianCubeReader2::~vtkGaussianCubeReader2()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ vtkImageData *vtkGaussianCubeReader2::GetGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(this->GetOutputDataObject(1));
 }

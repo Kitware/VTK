@@ -503,7 +503,7 @@ public:
                  int j)
   {
       assert("pre: primary_i" && i>=0 && i<=2);
-      assert("pre: source_exists" && source!=0);
+      assert("pre: source_exists" && source!=nullptr);
       assert("pre: valid_j" && j>=0 && j<=5);
 
       this->PointId[i] = source->PointId[j];
@@ -738,7 +738,7 @@ public:
                  int j)
   {
       assert("pre: primary_i" && i>=0 && i<=3);
-      assert("pre: source_exists" && source!=0);
+      assert("pre: source_exists" && source!=nullptr);
       assert("pre: valid_j" && j>=0 && j<=9);
 
       this->PointId[i] = source->PointId[j];
@@ -757,7 +757,7 @@ public:
   // top-level sub-tetrahedron.
   void CopyEdgeAndFaceIds(vtkTetraTile *source)
   {
-      assert("pre: source_exists" && source!=0);
+      assert("pre: source_exists" && source!=nullptr);
       this->EdgeIds= source->EdgeIds;
       this->FaceIds= source->FaceIds;
   }
@@ -1285,18 +1285,18 @@ int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
 //
 vtkSimpleCellTessellator::vtkSimpleCellTessellator()
 {
-  this->GenericCell = NULL;
+  this->GenericCell = nullptr;
 
-  this->TessellatePoints    = NULL;
-  this->TessellateCellArray = NULL;
-  this->TessellatePointData = NULL;
+  this->TessellatePoints    = nullptr;
+  this->TessellateCellArray = nullptr;
+  this->TessellatePointData = nullptr;
 
   this->EdgeTable = vtkGenericEdgeTable::New();
 
-  this->AttributeCollection = NULL;
+  this->AttributeCollection = nullptr;
 
-  this->CellIterator    = 0;
-  this->Scalars         = 0;
+  this->CellIterator    = nullptr;
+  this->Scalars         = nullptr;
   this->ScalarsCapacity = 0;
   this->PointOffset     = 0;
 
@@ -1308,7 +1308,7 @@ vtkSimpleCellTessellator::vtkSimpleCellTessellator()
   this->Triangulator=vtkOrderedTriangulator::New();
   this->Triangulator->UseTemplatesOn();
 
-  this->PointIds=0;
+  this->PointIds=nullptr;
   this->PointIdsCapacity=0;
 
   this->Connectivity=vtkCellArray::New();
@@ -1366,7 +1366,7 @@ void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTriangleTile &tri)
 //
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 {
-  double *local = 0;
+  double *local = nullptr;
   vtkIdType tmp;
   vtkIdType l, r;
   vtkIdType cellId = this->GenericCell->GetId();
@@ -1582,7 +1582,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 //
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 {
-  double *local = 0;
+  double *local = nullptr;
 
   vtkIdType tmp;
   vtkIdType l, r;
@@ -1890,12 +1890,12 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
                                           vtkCellArray *cellArray,
                                           vtkPointData *internalPd )
 {
-  assert("pre: cell_exists" && cell!=0);
+  assert("pre: cell_exists" && cell!=nullptr);
   assert("pre: valid_dimension" && cell->GetDimension()==3);
-  assert("pre: att_exists" && att!=0);
-  assert("pre: points_exists" && points!=0);
-  assert("pre: cellArray_exists" && cellArray!=0);
-  assert("pre: internalPd_exists" && internalPd!=0);
+  assert("pre: att_exists" && att!=nullptr);
+  assert("pre: points_exists" && points!=nullptr);
+  assert("pre: cellArray_exists" && cellArray!=nullptr);
+  assert("pre: internalPd_exists" && internalPd!=nullptr);
 
   int j;
   int numVertices;
@@ -1906,7 +1906,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   this->TessellateCellArray = cellArray;
   this->TessellatePointData = internalPd;
   this->AttributeCollection = att;
-  if(this->CellIterator==0)
+  if(this->CellIterator==nullptr)
   {
     this->CellIterator = cell->NewCellIterator();
   }
@@ -1987,7 +1987,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     this->Triangulator->AddTetras(0,this->Connectivity); // 1
     this->Connectivity->InitTraversal();
     vtkIdType npts=0;
-    vtkIdType *pts=0;
+    vtkIdType *pts=nullptr;
     vtkIdType ids[4];
 
     int numEdges=cell->GetNumberOfBoundaries(1);
@@ -2152,11 +2152,11 @@ void vtkSimpleCellTessellator::InitTetraTile(vtkTetraTile &root,
                                              int *edgeIds,
                                              int *faceIds)
 {
-  assert("pre: cell_exists" && this->GenericCell!=0);
-  assert("pre: localIds_exists" && localIds!=0);
-  assert("pre: ids_exists" && ids!=0);
-  assert("pre: edgeIds_exists" && edgeIds!=0);
-  assert("pre: faceIds_exists" && faceIds!=0);
+  assert("pre: cell_exists" && this->GenericCell!=nullptr);
+  assert("pre: localIds_exists" && localIds!=nullptr);
+  assert("pre: ids_exists" && ids!=nullptr);
+  assert("pre: edgeIds_exists" && edgeIds!=nullptr);
+  assert("pre: faceIds_exists" && faceIds!=nullptr);
 
 #ifndef NDEBUG
   vtkIdType order[4] = {-1,-1,-1,-1};
@@ -2201,13 +2201,13 @@ vtkSimpleCellTessellator::TessellateFace(vtkGenericAdaptorCell *cell,
                                          vtkCellArray *cellArray,
                                          vtkPointData *internalPd)
 {
-  assert("pre: cell_exists" && cell!=0);
+  assert("pre: cell_exists" && cell!=nullptr);
   assert("pre: valid_dimension" && cell->GetDimension()==3);
   assert("pre: valid_index_range" && (index>=0) && (index<cell->GetNumberOfBoundaries(2)));
-  assert("pre: att_exists" && att!=0);
-  assert("pre: points_exists" && points!=0);
-  assert("pre: cellArray_exists" && cellArray!=0);
-  assert("pre: internalPd_exists" && internalPd!=0);
+  assert("pre: att_exists" && att!=nullptr);
+  assert("pre: points_exists" && points!=nullptr);
+  assert("pre: cellArray_exists" && cellArray!=nullptr);
+  assert("pre: internalPd_exists" && internalPd!=nullptr);
 
   int j;
   if(cell->GetType()!=VTK_HIGHER_ORDER_TETRAHEDRON)
@@ -2343,12 +2343,12 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
                                            vtkCellArray *cellArray,
                                            vtkPointData *internalPd)
 {
-  assert("pre: cell_exists" && cell!=0);
+  assert("pre: cell_exists" && cell!=nullptr);
   assert("pre: valid_dimension" && cell->GetDimension()==2);
-  assert("pre: att_exists" && att!=0);
-  assert("pre: points_exists" && points!=0);
-  assert("pre: cellArray_exists" && cellArray!=0);
-  assert("pre: internalPd_exists" && internalPd!=0);
+  assert("pre: att_exists" && att!=nullptr);
+  assert("pre: points_exists" && points!=nullptr);
+  assert("pre: cellArray_exists" && cellArray!=nullptr);
+  assert("pre: internalPd_exists" && internalPd!=nullptr);
 
   int j;
 
@@ -2449,10 +2449,10 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
                                                    vtkCellArray *cellArray,
                                                    vtkPointData *internalPd)
 {
-  assert("pre: cell_exixts" && cell!=0);
-  assert("pre: localIds_exists" && localIds!=0);
-  assert("pre: ids_exists" && ids!=0);
-  assert("pre: edgeIds_exists" && edgeIds!=0);
+  assert("pre: cell_exixts" && cell!=nullptr);
+  assert("pre: localIds_exists" && localIds!=nullptr);
+  assert("pre: ids_exists" && ids!=nullptr);
+  assert("pre: edgeIds_exists" && edgeIds!=nullptr);
 
   // Save parameter for later use
   this->GenericCell = cell;
@@ -2463,7 +2463,7 @@ void vtkSimpleCellTessellator::TriangulateTriangle(vtkGenericAdaptorCell *cell,
 
   this->AttributeCollection = att;
 
-  if(this->CellIterator==0)
+  if(this->CellIterator==nullptr)
   {
     this->CellIterator = cell->NewCellIterator();
   }
@@ -2596,7 +2596,7 @@ void vtkSimpleCellTessellator::AllocateScalars(int size)
 {
   assert("pre: positive_size" && size > 0);
 
-  if(this->Scalars == 0)
+  if(this->Scalars == nullptr)
   {
     this->Scalars = new double[size];
     this->ScalarsCapacity = size;
@@ -2721,7 +2721,7 @@ void vtkSimpleCellTessellator::AllocatePointIds(int size)
 int vtkSimpleCellTessellator::FacesAreEqual(int *originalFace,
                                             int face[3])
 {
-  assert("pre: originalFace_exists" && originalFace!=0);
+  assert("pre: originalFace_exists" && originalFace!=nullptr);
 
   int result=0;
   int i=0;

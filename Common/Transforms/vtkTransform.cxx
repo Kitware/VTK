@@ -23,13 +23,13 @@ vtkStandardNewMacro(vtkTransform);
 //----------------------------------------------------------------------------
 vtkTransform::vtkTransform()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
 
   // most of the functionality is provided by the concatenation
   this->Concatenation = vtkTransformConcatenation::New();
 
   // the stack will be allocated the first time Push is called
-  this->Stack = NULL;
+  this->Stack = nullptr;
 
   // initialize the legacy 'Point' info
   this->Point[0] = this->Point[1] = this->Point[2] = this->Point[3] = 0.0;
@@ -43,7 +43,7 @@ vtkTransform::vtkTransform()
 //----------------------------------------------------------------------------
 vtkTransform::~vtkTransform()
 {
-  this->SetInput(NULL);
+  this->SetInput(nullptr);
 
   if (this->Concatenation)
   {
@@ -125,7 +125,7 @@ void vtkTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
   // copy the stack
   if (transform->Stack)
   {
-    if (this->Stack == NULL)
+    if (this->Stack == nullptr)
     {
       this->Stack = vtkTransformConcatenationStack::New();
     }
@@ -136,7 +136,7 @@ void vtkTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
     if (this->Stack)
     {
       this->Stack->Delete();
-      this->Stack = NULL;
+      this->Stack = nullptr;
     }
   }
 
@@ -166,7 +166,7 @@ void vtkTransform::InternalUpdate()
     vtkDebugMacro(<<"InternalUpdate: this->Matrix was modified by something other than 'this'");
 
     // check to see if we have any inputs or concatenated transforms
-    int isPipelined = (this->Input != 0);
+    int isPipelined = (this->Input != nullptr);
     for (i = 0; i < nTransforms && !isPipelined; i++)
     { // the vtkSimpleTransform is just a matrix placeholder,
         // it is not a real transform

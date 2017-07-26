@@ -326,7 +326,7 @@ guidance on attribution and permissions:
       }
     }
   }
-  this->Colors = 0;
+  this->Colors = nullptr;
   this->Palette = vtkColorSeries::SPECTRUM;
   this->Colors = &(this->Palettes[this->Palette].Colors);
 }
@@ -378,7 +378,7 @@ vtkColorSeries::vtkColorSeries()
 vtkColorSeries::~vtkColorSeries()
 {
   delete this->Storage;
-  this->Storage = NULL;
+  this->Storage = nullptr;
 }
 
 //-----------------------------------------------------------------------------

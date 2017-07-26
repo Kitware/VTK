@@ -448,7 +448,7 @@ public:
    * v1 cross v2 = v3 (i.e. the vectors are perpendicular to each other).
    * There is an infinite number of such vectors, specify an angle theta
    * to choose one set.  If you want only one perpendicular vector,
-   * specify NULL for v3.
+   * specify nullptr for v3.
    */
   static void Perpendiculars(const double v1[3], double v2[3], double v3[3],
                              double theta);

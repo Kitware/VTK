@@ -120,7 +120,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   ghostGenerator->BuildIfRequiredOff();
   ghostGenerator->UpdatePiece(rankId, nbRanks, 0);
 
-  if (ghostGenerator->GetOutput()->GetCellGhostArray() == NULL)
+  if (ghostGenerator->GetOutput()->GetCellGhostArray() == nullptr)
   {
     vtkMPIUtilities::Printf(controller.Get(),
       "Ghost were not generated but were explicitely requested!\n");

@@ -31,7 +31,7 @@
 //----------------------------------------------------------------------------
 vtkDatabaseToTableReader::vtkDatabaseToTableReader()
 {
-  this->Database = 0;
+  this->Database = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 
@@ -51,7 +51,7 @@ bool vtkDatabaseToTableReader::SetDatabase(vtkSQLDatabase *db)
   if(this->Database->IsOpen() == false)
   {
     vtkErrorMacro(<<"SetDatabase must be passed an open database connection");
-    this->Database = 0;
+    this->Database = nullptr;
     return false;
   }
 

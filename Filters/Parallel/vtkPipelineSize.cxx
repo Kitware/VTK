@@ -132,7 +132,7 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
   vtkLargeInteger mySize = 0;
   unsigned long maxSize = 0;
   vtkLargeInteger goingDownstreamSize = 0;
-  unsigned long *inputSize = NULL;
+  unsigned long *inputSize = nullptr;
   int idx;
 
   // We need some space to store the input sizes if there are any inputs

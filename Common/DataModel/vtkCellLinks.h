@@ -162,7 +162,7 @@ public:
   void DeepCopy(vtkCellLinks *src);
 
 protected:
-  vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {}
+  vtkCellLinks():Array(nullptr),Size(0),MaxId(-1),Extend(1000) {}
   ~vtkCellLinks() VTK_OVERRIDE;
 
   /**
@@ -202,7 +202,7 @@ inline void vtkCellLinks::DeletePoint(vtkIdType ptId)
 {
   this->Array[ptId].ncells = 0;
   delete [] this->Array[ptId].cells;
-  this->Array[ptId].cells = NULL;
+  this->Array[ptId].cells = nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -51,13 +51,13 @@ vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter()
 {
   delete this->InfoStack;
   delete this->OutputStream;
-  this->OutputStream = NULL;
+  this->OutputStream = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::vtkX3DExporterXMLWriter()
 {
-  this->OutputStream = NULL;
+  this->OutputStream = nullptr;
   this->InfoStack = new vtkX3DExporterXMLNodeInfoStack();
   this->Depth = 0;
   this->ActTab = "";
@@ -101,7 +101,7 @@ int vtkX3DExporterXMLWriter::OpenStream()
 //----------------------------------------------------------------------------
 void vtkX3DExporterXMLWriter::CloseFile()
 {
-  if(this->OutputStream != NULL)
+  if(this->OutputStream != nullptr)
   {
     if(this->WriteToOutputString)
     {
@@ -116,7 +116,7 @@ void vtkX3DExporterXMLWriter::CloseFile()
     }
 
     delete this->OutputStream;
-    this->OutputStream = NULL;
+    this->OutputStream = nullptr;
   }
 }
 

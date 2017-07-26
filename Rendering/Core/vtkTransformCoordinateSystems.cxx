@@ -30,7 +30,7 @@ vtkTransformCoordinateSystems::vtkTransformCoordinateSystems()
   this->TransformCoordinate->SetCoordinateSystemToWorld();
   this->InputCoordinateSystem = VTK_WORLD;
   this->OutputCoordinateSystem = VTK_DISPLAY;
-  this->Viewport = NULL;
+  this->Viewport = nullptr;
 }
 
 //------------------------------------------------------------------------

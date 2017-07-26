@@ -178,7 +178,7 @@ public:
    * (i.e., not implementing the Render() methods properly) or leaking graphics resources
    * (i.e., not implementing ReleaseGraphicsResources() properly).
    */
-  double *GetBounds() VTK_OVERRIDE {return NULL;}
+  double *GetBounds() VTK_OVERRIDE {return nullptr;}
   void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
   void GetActors(vtkPropCollection *) VTK_OVERRIDE {}
   void GetActors2D(vtkPropCollection *) VTK_OVERRIDE {}

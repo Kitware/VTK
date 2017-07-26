@@ -18,7 +18,7 @@
 
 //----------------------------------------------------------------------------
 vtkSmartPointerBase::vtkSmartPointerBase():
-  Object(0)
+  Object(nullptr)
 {
   // Add a reference to the object.
   this->Register();
@@ -51,15 +51,15 @@ vtkSmartPointerBase::vtkSmartPointerBase(const vtkSmartPointerBase& r):
 //----------------------------------------------------------------------------
 vtkSmartPointerBase::~vtkSmartPointerBase()
 {
-  // The main pointer must be set to NULL before calling UnRegister,
+  // The main pointer must be set to nullptr before calling UnRegister,
   // so use a local variable to save the pointer.  This is because the
   // garbage collection reference graph traversal may make it back to
   // this smart pointer, and we do not want to include this reference.
   vtkObjectBase* object = this->Object;
   if(object)
   {
-    this->Object = 0;
-    object->UnRegister(0);
+    this->Object = nullptr;
+    object->UnRegister(nullptr);
   }
 }
 
@@ -109,10 +109,10 @@ void vtkSmartPointerBase::Swap(vtkSmartPointerBase& r)
 //----------------------------------------------------------------------------
 void vtkSmartPointerBase::Register()
 {
-  // Add a reference only if the object is not NULL.
+  // Add a reference only if the object is not nullptr.
   if(this->Object)
   {
-    this->Object->Register(0);
+    this->Object->Register(nullptr);
   }
 }
 

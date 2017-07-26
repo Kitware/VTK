@@ -92,8 +92,8 @@ void MyProcess::Execute()
 
   // READER
 
-  vtkStructuredPointsReader *spr = NULL;
-  vtkStructuredPoints *sp = NULL;
+  vtkStructuredPointsReader *spr = nullptr;
+  vtkStructuredPoints *sp = nullptr;
 
   if (me == 0)
   {
@@ -114,7 +114,7 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((sp == NULL) || (sp->GetNumberOfCells() == 0))
+    if ((sp == nullptr) || (sp->GetNumberOfCells() == 0))
     {
       if (sp)
       {

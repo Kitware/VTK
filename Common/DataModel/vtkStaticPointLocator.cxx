@@ -1337,7 +1337,7 @@ vtkStaticPointLocator::vtkStaticPointLocator()
   this->NumberOfPointsPerBucket = 5;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
-  this->Buckets = NULL;
+  this->Buckets = nullptr;
   this->LargeIds = false;
 }
 
@@ -1359,7 +1359,7 @@ void vtkStaticPointLocator::FreeSearchStructure()
   if ( this->Buckets )
   {
     delete this->Buckets;
-    this->Buckets = NULL;
+    this->Buckets = nullptr;
   }
 }
 
@@ -1376,7 +1376,7 @@ void vtkStaticPointLocator::BuildLocator()
   int i;
   vtkIdType numPts;
 
-  if ( (this->Buckets != NULL) && (this->BuildTime > this->MTime)
+  if ( (this->Buckets != nullptr) && (this->BuildTime > this->MTime)
        && (this->BuildTime > this->DataSet->GetMTime()) )
   {
     return;

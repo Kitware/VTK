@@ -134,7 +134,7 @@ void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -168,7 +168,7 @@ void vtkImplicitPlaneWidget2::TranslateAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -202,7 +202,7 @@ void vtkImplicitPlaneWidget2::ScaleAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -251,7 +251,7 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget *w)
 
   // moving something
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   self->Render();
 }
 
@@ -278,7 +278,7 @@ void vtkImplicitPlaneWidget2::EndSelectAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -300,7 +300,7 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
   }
 
   // Invoke all of the events associated with moving the plane
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 
   // Move the plane
   double factor = ( self->Interactor->GetControlKey() ? 0.5 : 1.0);
@@ -313,10 +313,10 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
   {
     self->GetImplicitPlaneRepresentation()->BumpPlane(1,factor);
   }
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -398,7 +398,7 @@ void vtkImplicitPlaneWidget2::SetLockNormalToCamera(int lock)
       vtkCommand::ModifiedEvent, this->InteractionCallback, this->Priority);
 
     this->GetImplicitPlaneRepresentation()->SetNormalToCamera();
-    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
   else
   {
@@ -421,7 +421,7 @@ void vtkImplicitPlaneWidget2::InvokeInteractionCallback()
 
     if(widgetRep->GetMTime() > previousMtime)
     {
-      this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     }
   }
 }

@@ -65,7 +65,7 @@ void vtkDIMACSGraphWriter::WriteData()
   *fp << "p graph "<< vertex_count << " " << edge_count << "\n";
 
   // See if the input has a "weight" array
-  vtkDataArray* weight = 0;
+  vtkDataArray* weight = nullptr;
   weight = input->GetEdgeData()->GetArray("weight");
 
   // Output either the weight array or just 1 if

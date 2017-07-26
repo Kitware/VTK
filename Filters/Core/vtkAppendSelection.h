@@ -62,7 +62,7 @@ public:
 
   /**
    * Remove a dataset from the list of data to append. Should not be
-   * used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
+   * used when UserManagedInputs is true, use SetInputByNumber (nullptr) instead.
    */
   void RemoveInputData(vtkSelection *);
 

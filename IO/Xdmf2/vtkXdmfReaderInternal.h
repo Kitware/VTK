@@ -182,7 +182,7 @@ public:
       }
       cc++;
     }
-    return NULL;
+    return nullptr;
   }
 
   int GetNumberOfArrays()

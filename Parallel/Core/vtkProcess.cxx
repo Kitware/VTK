@@ -19,7 +19,7 @@
 // ----------------------------------------------------------------------------
 vtkProcess::vtkProcess()
 {
-  this->Controller=0;
+  this->Controller=nullptr;
   this->ReturnValue=0;
 }
 

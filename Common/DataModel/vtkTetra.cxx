@@ -737,7 +737,7 @@ int vtkTetra::JacobianInverse(double **inverse, double derivs[12])
   double x[3];
 
   // compute interpolation function derivatives
-  this->InterpolationDerivs(NULL, derivs);
+  this->InterpolationDerivs(nullptr, derivs);
 
   // create Jacobian matrix
   m[0] = m0; m[1] = m1; m[2] = m2;

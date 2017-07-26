@@ -22,7 +22,7 @@ vtkIdList::vtkIdList()
 {
   this->NumberOfIds = 0;
   this->Size = 0;
-  this->Ids = NULL;
+  this->Ids = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ vtkIdList::~vtkIdList()
 void vtkIdList::Initialize()
 {
   delete [] this->Ids;
-  this->Ids = NULL;
+  this->Ids = nullptr;
   this->NumberOfIds = 0;
   this->Size = 0;
 }
@@ -47,7 +47,7 @@ int vtkIdList::Allocate(const vtkIdType sz, const int vtkNotUsed(strategy))
   {
     this->Initialize();
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Ids = new vtkIdType[this->Size]) == NULL )
+    if ( (this->Ids = new vtkIdType[this->Size]) == nullptr )
     {
       return 0;
     }
@@ -159,13 +159,13 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
   if (newSize <= 0)
   {
     this->Initialize();
-    return 0;
+    return nullptr;
   }
 
-  if ( (newIds = new vtkIdType[newSize]) == NULL )
+  if ( (newIds = new vtkIdType[newSize]) == nullptr )
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
-    return 0;
+    return nullptr;
   }
 
   if (this->Ids)

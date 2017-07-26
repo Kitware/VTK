@@ -51,11 +51,11 @@ vtkRandomGraphSource::vtkRandomGraphSource()
   this->AllowSelfLoops = false;
   this->AllowParallelEdges = false;
   this->GeneratePedigreeIds = true;
-  this->VertexPedigreeIdArrayName = 0;
+  this->VertexPedigreeIdArrayName = nullptr;
   this->SetVertexPedigreeIdArrayName("vertex id");
-  this->EdgePedigreeIdArrayName = 0;
+  this->EdgePedigreeIdArrayName = nullptr;
   this->SetEdgePedigreeIdArrayName("edge id");
-  this->EdgeWeightArrayName = 0;
+  this->EdgeWeightArrayName = nullptr;
   this->SetEdgeWeightArrayName("edge weight");
   this->Seed = 1177;
   this->SetNumberOfInputPorts(0);
@@ -66,9 +66,9 @@ vtkRandomGraphSource::vtkRandomGraphSource()
 
 vtkRandomGraphSource::~vtkRandomGraphSource()
 {
-  this->SetVertexPedigreeIdArrayName(0);
-  this->SetEdgePedigreeIdArrayName(0);
-  this->SetEdgeWeightArrayName(0);
+  this->SetVertexPedigreeIdArrayName(nullptr);
+  this->SetEdgePedigreeIdArrayName(nullptr);
+  this->SetEdgeWeightArrayName(nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -314,7 +314,7 @@ int vtkRandomGraphSource::RequestDataObject(
     || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
     || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
   {
-    vtkGraph *output = 0;
+    vtkGraph *output = nullptr;
     if (this->Directed)
     {
       output = vtkDirectedGraph::New();

@@ -52,7 +52,7 @@
 //------------------------------------------------------------------------------
 bool CheckNodeFieldsForGrid( vtkUniformGrid *grid )
 {
-  assert("pre: grid should not be NULL" && (grid != NULL) );
+  assert("pre: grid should not be nullptr" && (grid != nullptr) );
   assert("pre: grid should have a NODE-XYZ array" &&
           grid->GetPointData()->HasArray("NODE-XYZ") );
 
@@ -82,7 +82,7 @@ bool CheckNodeFieldsForGrid( vtkUniformGrid *grid )
 //------------------------------------------------------------------------------
 bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
 {
-  assert("pre: grid should not be NULL" && (grid != NULL) );
+  assert("pre: grid should not be nullptr" && (grid != nullptr) );
   assert("pre: grid should have a NODE-XYZ array" &&
           grid->GetCellData()->HasArray("CELL-XYZ") );
 
@@ -98,7 +98,7 @@ bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
   for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
   {
     vtkCell *c = grid->GetCell( cellIdx );
-    assert( "pre: cell is not NULL" && (c != NULL) );
+    assert( "pre: cell is not nullptr" && (c != nullptr) );
 
     double xsum = 0.0;
     double ysum = 0.0;
@@ -131,7 +131,7 @@ bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
 //------------------------------------------------------------------------------
 int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
 {
-  assert("pre: input multi-block is NULL" && (mbds != NULL) );
+  assert("pre: input multi-block is nullptr" && (mbds != nullptr) );
 
   if( !hasNodeData && !hasCellData )
   {
@@ -141,7 +141,7 @@ int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
   for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
   {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert("pre: grid is not NULL" && (grid != NULL) );
+    assert("pre: grid is not nullptr" && (grid != nullptr) );
 
     if( hasNodeData )
     {
@@ -169,10 +169,10 @@ int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
 // Write the uniform grid multi-block dataset into an XML file.
 void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
 
   vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
-  assert( "pre: Cannot allocate writer" && (writer != NULL) );
+  assert( "pre: Cannot allocate writer" && (writer != nullptr) );
 
   std::ostringstream oss;
   oss.str("");
@@ -190,12 +190,12 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 // Adds and XYZ vector field in the nodes of the data-set
 void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
 {
-  assert("pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert("pre: Multi-block is nullptr!" && (mbds != nullptr) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
   {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert("pre: grid is NULL for the given block" && (grid != NULL) );
+    assert("pre: grid is nullptr for the given block" && (grid != nullptr) );
 
     vtkDoubleArray *nodeXYZArray = vtkDoubleArray::New();
     nodeXYZArray->SetName( "NODE-XYZ" );
@@ -222,12 +222,12 @@ void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
 // Adds and XYZ vector field in the nodes of the dataset
 void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
 {
-  assert("pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert("pre: Multi-block is nullptr!" && (mbds != nullptr) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
   {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert("pre: grid is NULL for the given block" && (grid != NULL) );
+    assert("pre: grid is nullptr for the given block" && (grid != nullptr) );
 
     vtkDoubleArray *cellXYZArray = vtkDoubleArray::New();
     cellXYZArray->SetName( "CELL-XYZ" );
@@ -239,7 +239,7 @@ void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
     for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
     {
       vtkCell *c = grid->GetCell( cellIdx );
-      assert( "pre: cell is not NULL" && (c != NULL) );
+      assert( "pre: cell is not nullptr" && (c != nullptr) );
 
       double xsum = 0.0;
       double ysum = 0.0;

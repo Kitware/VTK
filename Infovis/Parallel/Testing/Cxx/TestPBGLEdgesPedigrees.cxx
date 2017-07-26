@@ -88,7 +88,7 @@ void UseCase3()
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
   if (myRank == 0)
   {
-    if (peds == NULL) cout << "  No peds here!!\n";
+    if (peds == nullptr) cout << "  No peds here!!\n";
     else cout << "  We have peds!\n";
   }
 

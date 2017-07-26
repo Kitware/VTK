@@ -103,7 +103,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   bool ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
   bool ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*,
-                    vtkFloatArray* scalars=0);
+                    vtkFloatArray* scalars=nullptr);
   int GetSTLFileType(const char *filename);
 private:
   vtkSTLReader(const vtkSTLReader&) VTK_DELETE_FUNCTION;

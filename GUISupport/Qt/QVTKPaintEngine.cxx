@@ -40,7 +40,7 @@ bool QVTKPaintEngine::begin(QPaintDevice* dev)
 bool QVTKPaintEngine::end()
 {
   //Widget->GetRenderWindow()->Frame();
-  Widget = NULL;
+  Widget = nullptr;
   return true;
 }
 

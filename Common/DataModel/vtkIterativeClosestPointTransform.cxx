@@ -29,9 +29,9 @@ vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 vtkIterativeClosestPointTransform::vtkIterativeClosestPointTransform()
   : vtkLinearTransform()
 {
-  this->Source = NULL;
-  this->Target = NULL;
-  this->Locator = NULL;
+  this->Source = nullptr;
+  this->Target = nullptr;
+  this->Locator = nullptr;
   this->LandmarkTransform = vtkLandmarkTransform::New();
   this->MaximumNumberOfIterations = 50;
   this->CheckMeanDistance = 0;
@@ -97,7 +97,7 @@ void vtkIterativeClosestPointTransform::ReleaseSource(void) {
   if (this->Source)
   {
     this->Source->UnRegister(this);
-    this->Source = NULL;
+    this->Source = nullptr;
   }
 }
 
@@ -130,7 +130,7 @@ void vtkIterativeClosestPointTransform::ReleaseTarget(void) {
   if (this->Target)
   {
     this->Target->UnRegister(this);
-    this->Target = NULL;
+    this->Target = nullptr;
   }
 }
 
@@ -163,7 +163,7 @@ void vtkIterativeClosestPointTransform::ReleaseLocator(void) {
   if (this->Locator)
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -265,15 +265,15 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 {
   // Check source, target
 
-  if (this->Source == NULL || !this->Source->GetNumberOfPoints())
+  if (this->Source == nullptr || !this->Source->GetNumberOfPoints())
   {
-    vtkErrorMacro(<<"Can't execute with NULL or empty input");
+    vtkErrorMacro(<<"Can't execute with nullptr or empty input");
     return;
   }
 
-  if (this->Target == NULL || !this->Target->GetNumberOfPoints())
+  if (this->Target == nullptr || !this->Target->GetNumberOfPoints())
   {
-    vtkErrorMacro(<<"Can't execute with NULL or empty target");
+    vtkErrorMacro(<<"Can't execute with nullptr or empty target");
     return;
   }
 

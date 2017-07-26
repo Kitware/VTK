@@ -54,7 +54,7 @@ vtkTexturedButtonRepresentation2D::vtkTexturedButtonRepresentation2D()
 
   // Anchor point assuming that the button is anchored in 3D
   // If NULL, then the placement occurs in display space
-  this->Anchor = NULL;
+  this->Anchor = nullptr;
 
 }
 
@@ -66,19 +66,19 @@ vtkTexturedButtonRepresentation2D::~vtkTexturedButtonRepresentation2D()
   if ( this->Property )
   {
     this->Property->Delete();
-    this->Property = NULL;
+    this->Property = nullptr;
   }
 
   if ( this->HoveringProperty )
   {
     this->HoveringProperty->Delete();
-    this->HoveringProperty = NULL;
+    this->HoveringProperty = nullptr;
   }
 
   if ( this->SelectingProperty )
   {
     this->SelectingProperty->Delete();
-    this->SelectingProperty = NULL;
+    this->SelectingProperty = nullptr;
   }
 
   delete this->TextureArray;
@@ -127,7 +127,7 @@ GetButtonTexture(int i)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -149,7 +149,7 @@ void vtkTexturedButtonRepresentation2D::PlaceWidget(double bds[6])
   if ( this->Anchor )
   {//no longer in world space
     this->Anchor->Delete();
-    this->Anchor = NULL;
+    this->Anchor = nullptr;
   }
 
   double e[2];
@@ -279,7 +279,7 @@ void vtkTexturedButtonRepresentation2D::BuildRepresentation()
     }
     else
     {
-      this->Balloon->SetBalloonImage(NULL);
+      this->Balloon->SetBalloonImage(nullptr);
     }
 
     // Update the position if anchored in world coordinates
@@ -345,7 +345,7 @@ HasTranslucentPolygonalGeometry()
 //----------------------------------------------------------------------
 double *vtkTexturedButtonRepresentation2D::GetBounds()
 {
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------

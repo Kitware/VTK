@@ -63,20 +63,20 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
 {
   this->Implementation = new Internals;
 
-  this->Input = NULL;
+  this->Input = nullptr;
   this->LabelMode = VTK_LABEL_IDS;
 
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 
   this->LabeledComponent = (-1);
   this->FieldDataArray = 0;
-  this->FieldDataName = NULL;
+  this->FieldDataName = nullptr;
 
   this->NumberOfLabels = 0;
   this->NumberOfLabelsAllocated = 0;
 
-  this->LabelPositions = 0;
-  this->TextMappers = 0;
+  this->LabelPositions = nullptr;
+  this->TextMappers = nullptr;
   this->AllocateLabels(50);
 
   vtkSmartPointer<vtkTextProperty> prop =
@@ -90,7 +90,7 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
 
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "type");
 
-  this->Transform = 0;
+  this->Transform = nullptr;
   this->CoordinateSystem = vtkLabeledDataMapper::WORLD;
 }
 
@@ -100,7 +100,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
   delete [] this->LabelFormat;
 
   delete [] this->LabelPositions;
-  if (this->TextMappers != NULL )
+  if (this->TextMappers != nullptr )
   {
     for (int i=0; i < this->NumberOfLabelsAllocated; i++)
     {
@@ -109,8 +109,8 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
     delete [] this->TextMappers;
   }
 
-  this->SetFieldDataName(NULL);
-  this->SetTransform(NULL);
+  this->SetFieldDataName(nullptr);
+  this->SetTransform(nullptr);
   delete this->Implementation;
 }
 
@@ -122,13 +122,13 @@ void vtkLabeledDataMapper::AllocateLabels(int numLabels)
     int i;
     // delete old stuff
     delete [] this->LabelPositions;
-    this->LabelPositions = 0;
+    this->LabelPositions = nullptr;
     for (i=0; i < this->NumberOfLabelsAllocated; i++)
     {
       this->TextMappers[i]->Delete();
     }
     delete [] this->TextMappers;
-    this->TextMappers = 0;
+    this->TextMappers = nullptr;
 
     this->NumberOfLabelsAllocated = numLabels;
 
@@ -160,7 +160,7 @@ vtkTextProperty* vtkLabeledDataMapper::GetLabelTextProperty(int type)
   {
     return this->Implementation->TextProperties[type];
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ vtkDataSet *vtkLabeledDataMapper::GetInput()
 // Release any graphics resources that are being consumed by this mapper.
 void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->TextMappers != NULL )
+  if (this->TextMappers != nullptr )
   {
     for (int i=0; i < this->NumberOfLabelsAllocated; i++)
     {
@@ -356,10 +356,10 @@ void vtkLabeledDataMapper::BuildLabels()
 void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 {
   int i, j, numComp = 0, pointIdLabels = 0, activeComp = 0;
-  vtkAbstractArray *abstractData = NULL;
-  vtkDataArray *numericData = NULL;
-  vtkStringArray *stringData = NULL;
-  vtkUnicodeStringArray *uStringData = NULL;
+  vtkAbstractArray *abstractData = nullptr;
+  vtkDataArray *numericData = nullptr;
+  vtkStringArray *stringData = nullptr;
+  vtkUnicodeStringArray *uStringData = nullptr;
 
   if (input->GetNumberOfPoints() == 0)
   {
@@ -409,7 +409,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     case VTK_LABEL_FIELD_DATA:
     {
     int arrayNum;
-    if (this->FieldDataName != NULL)
+    if (this->FieldDataName != nullptr)
     {
       vtkDebugMacro(<<"Labeling field data array " << this->FieldDataName);
       abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
@@ -622,7 +622,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       {
         // If the user hasn't given us a custom format string then
         // we'll sidestep a lot of snprintf nonsense.
-        if (this->LabelFormat == NULL)
+        if (this->LabelFormat == nullptr)
         {
           if( uStringData )
           {
@@ -766,7 +766,7 @@ void
 vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
 {
   delete [] this->FieldDataName;
-  this->FieldDataName = NULL;
+  this->FieldDataName = nullptr;
 
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FieldDataArray to " << arrayIndex );
 
@@ -813,7 +813,7 @@ vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
                 << " (" << this << "): setting " << "FieldDataName"
                 << " to " << (arrayName?arrayName:"(null)") );
 
-  if ( this->FieldDataName == NULL && arrayName == NULL) { return; }
+  if ( this->FieldDataName == nullptr && arrayName == nullptr) { return; }
   if ( this->FieldDataName && arrayName && (!strcmp(this->FieldDataName,arrayName))) { return;}
   delete [] this->FieldDataName;
   if (arrayName)
@@ -823,7 +823,7 @@ vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
   }
    else
    {
-    this->FieldDataName = NULL;
+    this->FieldDataName = nullptr;
    }
   this->Modified();
 }

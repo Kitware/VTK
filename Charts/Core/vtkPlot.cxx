@@ -43,13 +43,13 @@ vtkPlot::vtkPlot() : ShiftScale(0.0, 0.0, 1.0, 1.0)
   this->SelectionBrush = vtkSmartPointer<vtkBrush>::New();
   this->SelectionBrush->SetColor(255, 50, 0, 150);
 
-  this->Labels = NULL;
+  this->Labels = nullptr;
   this->UseIndexForXSeries = false;
   this->Data = vtkSmartPointer<vtkContextMapper2D>::New();
   this->Selectable = true;
-  this->Selection = NULL;
-  this->XAxis = NULL;
-  this->YAxis = NULL;
+  this->Selection = nullptr;
+  this->XAxis = nullptr;
+  this->YAxis = nullptr;
 
   this->TooltipDefaultLabelFormat = "%l: %x,  %y";
   this->TooltipNotation = vtkAxis::STANDARD_NOTATION;
@@ -64,11 +64,11 @@ vtkPlot::~vtkPlot()
   if (this->Selection)
   {
     this->Selection->Delete();
-    this->Selection = NULL;
+    this->Selection = nullptr;
   }
-  this->SetLabels(NULL);
-  this->SetXAxis(NULL);
-  this->SetYAxis(NULL);
+  this->SetLabels(nullptr);
+  this->SetXAxis(nullptr);
+  this->SetYAxis(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -342,7 +342,7 @@ vtkStringArray * vtkPlot::GetLabels()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 //-----------------------------------------------------------------------------
@@ -453,7 +453,7 @@ vtkStdString vtkPlot::GetLabel(vtkIdType index)
 void vtkPlot::SetInputData(vtkTable *table)
 {
   this->Data->SetInputData(table);
-  this->AutoLabels = 0;  // No longer valid
+  this->AutoLabels = nullptr;  // No longer valid
 }
 
 //-----------------------------------------------------------------------------
@@ -470,7 +470,7 @@ void vtkPlot::SetInputData(vtkTable *table, const vtkStdString &xColumn,
   this->Data->SetInputArrayToProcess(1, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      yColumn.c_str());
-  this->AutoLabels = 0;  // No longer valid
+  this->AutoLabels = nullptr;  // No longer valid
 }
 
 //-----------------------------------------------------------------------------
@@ -494,7 +494,7 @@ void vtkPlot::SetInputArray(int index, const vtkStdString &name)
   this->Data->SetInputArrayToProcess(index, 0, 0,
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      name.c_str());
-  this->AutoLabels = 0; // No longer valid
+  this->AutoLabels = nullptr; // No longer valid
 }
 
 //-----------------------------------------------------------------------------

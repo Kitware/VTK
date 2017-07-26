@@ -156,12 +156,12 @@ public:
   /**
    * Create default locator. Used to create one when none is specified.
    */
-  void CreateDefaultLocator(vtkPolyData *input = 0);
+  void CreateDefaultLocator(vtkPolyData *input = nullptr);
 
   /**
    * Release locator
    */
-  void ReleaseLocator() { this->SetLocator(NULL); }
+  void ReleaseLocator() { this->SetLocator(nullptr); }
 
   /**
    * Get the MTime of this object also considering the locator.

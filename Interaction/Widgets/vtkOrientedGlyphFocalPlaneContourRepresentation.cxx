@@ -49,8 +49,8 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   // Initialize state
   this->InteractionState = vtkContourRepresentation::Outside;
 
-  this->CursorShape = NULL;
-  this->ActiveCursorShape = NULL;
+  this->CursorShape = nullptr;
+  this->ActiveCursorShape = nullptr;
 
   this->HandleSize = 0.01;
 
@@ -192,8 +192,8 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneCont
   this->ActiveFocalPoint->Delete();
   this->ActiveFocalData->Delete();
 
-  this->SetCursorShape( NULL );
-  this->SetActiveCursorShape( NULL );
+  this->SetCursorShape( nullptr );
+  this->SetActiveCursorShape( nullptr );
 
   this->Glypher->Delete();
   this->Mapper->Delete();

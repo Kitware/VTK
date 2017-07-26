@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkDistanceToCamera);
 
 vtkDistanceToCamera::vtkDistanceToCamera()
 {
-  this->Renderer = 0;
+  this->Renderer = nullptr;
   this->ScreenSize = 5.0;
   this->Scaling = false;
   this->SetInputArrayToProcess(0, 0, 0,
@@ -53,7 +53,7 @@ vtkDistanceToCamera::vtkDistanceToCamera()
   this->LastCameraViewUp[1] = 0.0;
   this->LastCameraViewUp[2] = 0.0;
   this->LastCameraParallelScale = 0.0;
-  this->DistanceArrayName = 0;
+  this->DistanceArrayName = nullptr;
   this->SetDistanceArrayName("DistanceToCamera");
 }
 
@@ -163,7 +163,7 @@ int vtkDistanceToCamera::RequestData(
   vtkCamera* camera = this->Renderer->GetActiveCamera();
   double* pos = camera->GetPosition();
 
-  vtkDataArray* scaleArr = 0;
+  vtkDataArray* scaleArr = nullptr;
   if (this->Scaling)
   {
     scaleArr = this->GetInputArrayToProcess(0, inputVector);

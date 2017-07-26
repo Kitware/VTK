@@ -36,7 +36,7 @@ void LoadScalarsFromStats(void* &ptr, ADIOS_VARINFO *v)
 
 //----------------------------------------------------------------------------
 Scalar::Scalar(ADIOS_FILE *f, ADIOS_VARINFO *v)
-: VarInfo(f, v), Values(NULL)
+: VarInfo(f, v), Values(nullptr)
 {
   switch(this->Type)
   {

@@ -63,9 +63,9 @@ vtkOTDensityMap::vtkOTDensityMap()
   this->ContourValues = vtkContourValues::New();
   this->GridSubdivisions = 50;
   this->ContourApproximationNumberOfPoints = 600;
-  this->DensityLogPDFSampleCache = new vtkOTDensityMap::OTDensityCache(NULL);
-  this->DensityPDFCache = new vtkOTDensityMap::OTDensityCache(NULL);
-  this->DensityDistribution = NULL;
+  this->DensityLogPDFSampleCache = new vtkOTDensityMap::OTDensityCache(nullptr);
+  this->DensityPDFCache = new vtkOTDensityMap::OTDensityCache(nullptr);
+  this->DensityDistribution = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,20 +80,20 @@ vtkOTDensityMap::~vtkOTDensityMap()
 //-----------------------------------------------------------------------------
 void vtkOTDensityMap::ClearCache()
 {
-  if (this->DensityLogPDFSampleCache->Cache != NULL)
+  if (this->DensityLogPDFSampleCache->Cache != nullptr)
   {
     delete this->DensityLogPDFSampleCache->Cache;
-    this->DensityLogPDFSampleCache->Cache = NULL;
+    this->DensityLogPDFSampleCache->Cache = nullptr;
   }
-  if (this->DensityPDFCache->Cache != NULL)
+  if (this->DensityPDFCache->Cache != nullptr)
   {
     delete this->DensityPDFCache->Cache;
-    this->DensityPDFCache->Cache = NULL;
+    this->DensityPDFCache->Cache = nullptr;
   }
-  if (this->DensityDistribution != NULL)
+  if (this->DensityDistribution != nullptr)
   {
     delete this->DensityDistribution;
-    this->DensityDistribution = NULL;
+    this->DensityDistribution = nullptr;
   }
   this->DensityLogPDFSampleMTime.Modified();
   this->DensityPDFMTime.Modified();
@@ -128,7 +128,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   // Create Sample from input data array
   vtkDataArray* xArray = this->GetInputArrayToProcess(0, inputVector);
   vtkDataArray* yArray = this->GetInputArrayToProcess(1, inputVector);
-  if (xArray == NULL || yArray == NULL)
+  if (xArray == nullptr || yArray == nullptr)
   {
     vtkErrorMacro("Please define numeric arrays to process");
     return 0;
@@ -170,7 +170,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   // Check Density Log PDF sample cache time
   if (this->DensityLogPDFSampleMTime.GetMTime() > lastBuildTime)
   {
-    if (this->DensityLogPDFSampleCache->Cache == NULL)
+    if (this->DensityLogPDFSampleCache->Cache == nullptr)
     {
       const Sample xSample(this->DensityDistribution->Implementation->getSample(
         this->ContourApproximationNumberOfPoints));
@@ -414,7 +414,7 @@ vtkIdType vtkOTDensityMap::FindNextCellId(vtkPolyData* pd,
   // Initialize
   invertedPoints = false;
   vtkIdList* localCellPoints = currentCellPoints;
-  if (localCellPoints == NULL)
+  if (localCellPoints == nullptr)
   {
     localCellPoints = vtkIdList::New();
   }
@@ -465,7 +465,7 @@ vtkIdType vtkOTDensityMap::FindNextCellId(vtkPolyData* pd,
       }
     }
   }
-  if (currentCellPoints == NULL)
+  if (currentCellPoints == nullptr)
   {
     localCellPoints->Delete();
   }

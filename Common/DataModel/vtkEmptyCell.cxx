@@ -31,7 +31,7 @@ int vtkEmptyCell::EvaluatePosition(double  vtkNotUsed(x)[3],
 {
   pcoords[0] = pcoords[1] = pcoords[2] = -1.0;
   subId = 0;
-  if (closestPoint != NULL)
+  if (closestPoint != nullptr)
   {
     closestPoint[0] = closestPoint[1] = closestPoint[2] = 0.0;
     dist2 = -1.0;

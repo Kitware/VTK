@@ -52,7 +52,7 @@ vtkTreeAreaView::~vtkTreeAreaView()
 //----------------------------------------------------------------------------
 vtkRenderedTreeAreaRepresentation* vtkTreeAreaView::GetTreeAreaRepresentation()
 {
-  vtkRenderedTreeAreaRepresentation* treeAreaRep = 0;
+  vtkRenderedTreeAreaRepresentation* treeAreaRep = nullptr;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
   {
     vtkDataRepresentation* rep = this->GetRepresentation(i);

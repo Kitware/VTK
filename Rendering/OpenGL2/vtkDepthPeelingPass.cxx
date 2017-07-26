@@ -46,16 +46,16 @@ vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
 vtkDepthPeelingPass::vtkDepthPeelingPass() :
   Framebuffer(nullptr)
 {
-  this->TranslucentPass=0;
+  this->TranslucentPass=nullptr;
 
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
 
-  this->IntermediateBlendProgram = 0;
-  this->FinalBlendProgram = 0;
+  this->IntermediateBlendProgram = nullptr;
+  this->FinalBlendProgram = nullptr;
 
-  this->OpaqueRGBATexture = NULL;
-  this->OpaqueZTexture = NULL;
+  this->OpaqueRGBATexture = nullptr;
+  this->OpaqueZTexture = nullptr;
   this->OwnOpaqueZTexture = false;
   this->OwnOpaqueRGBATexture = false;
 
@@ -77,29 +77,29 @@ vtkDepthPeelingPass::vtkDepthPeelingPass() :
 // ----------------------------------------------------------------------------
 vtkDepthPeelingPass::~vtkDepthPeelingPass()
 {
-  if(this->TranslucentPass!=0)
+  if(this->TranslucentPass!=nullptr)
   {
     this->TranslucentPass->Delete();
   }
   if (this->OpaqueZTexture)
   {
     this->OpaqueZTexture->UnRegister(this);
-    this->OpaqueZTexture = NULL;
+    this->OpaqueZTexture = nullptr;
   }
   if (this->TranslucentZTexture[0])
   {
     this->TranslucentZTexture[0]->UnRegister(this);
-    this->TranslucentZTexture[0] = NULL;
+    this->TranslucentZTexture[0] = nullptr;
   }
   if (this->TranslucentZTexture[1])
   {
     this->TranslucentZTexture[1]->UnRegister(this);
-    this->TranslucentZTexture[1] = NULL;
+    this->TranslucentZTexture[1] = nullptr;
   }
   if (this->OpaqueRGBATexture)
   {
     this->OpaqueRGBATexture->UnRegister(this);
-    this->OpaqueRGBATexture = NULL;
+    this->OpaqueRGBATexture = nullptr;
   }
   for (int i = 0; i < 3; i++)
   {
@@ -121,19 +121,19 @@ vtkDepthPeelingPass::~vtkDepthPeelingPass()
 // Destructor. Delete SourceCode if any.
 void vtkDepthPeelingPass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
+  assert("pre: w_exists" && w!=nullptr);
 
-  if (this->FinalBlendProgram !=0)
+  if (this->FinalBlendProgram !=nullptr)
   {
     this->FinalBlendProgram->ReleaseGraphicsResources(w);
     delete this->FinalBlendProgram;
-    this->FinalBlendProgram = 0;
+    this->FinalBlendProgram = nullptr;
   }
-  if (this->IntermediateBlendProgram !=0)
+  if (this->IntermediateBlendProgram !=nullptr)
   {
     this->IntermediateBlendProgram->ReleaseGraphicsResources(w);
     delete this->IntermediateBlendProgram;
-    this->IntermediateBlendProgram = 0;
+    this->IntermediateBlendProgram = nullptr;
   }
   if(this->TranslucentPass)
   {
@@ -220,7 +220,7 @@ void vtkDepthPeelingPass::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 
   os << indent << "TranslucentPass:";
-  if(this->TranslucentPass!=0)
+  if(this->TranslucentPass!=nullptr)
   {
     this->TranslucentPass->PrintSelf(os,indent);
   }
@@ -356,11 +356,11 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
 // \pre s_exists: s!=0
 void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   this->NumberOfRenderedProps=0;
 
-  if(this->TranslucentPass==0)
+  if(this->TranslucentPass==nullptr)
   {
     vtkWarningMacro(<<"No TranslucentPass delegate set. Nothing can be rendered.");
     return;
@@ -398,7 +398,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   // Depth peeling.
   vtkRenderer *r=s->GetRenderer();
 
-  if(s->GetFrameBuffer()==0)
+  if(s->GetFrameBuffer()==nullptr)
   {
     // get the viewport dimensions
     r->GetTiledSizeAndOrigin(&this->ViewportWidth,&this->ViewportHeight,

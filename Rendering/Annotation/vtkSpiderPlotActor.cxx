@@ -77,17 +77,17 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
   this->PositionCoordinate->SetValue(0.1,0.1);
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.9, 0.8);
-  this->Position2Coordinate->SetReferenceCoordinate(NULL);
+  this->Position2Coordinate->SetReferenceCoordinate(nullptr);
 
   this->ConnectionHolder = vtkSpiderPlotActorConnection::New();
 
   this->IndependentVariables = VTK_IV_COLUMN;
   this->TitleVisibility = 1;
-  this->Title = NULL;
+  this->Title = nullptr;
   this->Labels = new vtkAxisLabelArray;
   this->Ranges = new vtkAxisRanges;
-  this->LabelMappers = NULL;
-  this->LabelActors = NULL;
+  this->LabelMappers = nullptr;
+  this->LabelActors = nullptr;
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetFontSize(12);
   this->LabelTextProperty->SetBold(1);
@@ -109,7 +109,7 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
   this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
-  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   this->LegendActor->BorderOff();
   this->LegendActor->SetNumberOfEntries(100); //initial allocation
   this->LegendActor->SetPadding(2);
@@ -132,8 +132,8 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
 
   this->N = 0;
-  this->Mins = NULL;
-  this->Maxs = NULL;
+  this->Mins = nullptr;
+  this->Maxs = nullptr;
 
   this->WebData = vtkPolyData::New();
   this->WebMapper = vtkPolyDataMapper2D::New();
@@ -153,15 +153,15 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
 vtkSpiderPlotActor::~vtkSpiderPlotActor()
 {
   this->ConnectionHolder->Delete();
-  this->ConnectionHolder = 0;
+  this->ConnectionHolder = nullptr;
 
   delete [] this->Title;
-  this->Title = NULL;
+  this->Title = nullptr;
 
   delete this->Labels;
   delete this->Ranges;
-  this->SetLabelTextProperty(NULL);
-  this->SetTitleTextProperty(NULL);
+  this->SetLabelTextProperty(nullptr);
+  this->SetTitleTextProperty(nullptr);
 
   this->LegendActor->Delete();
   this->GlyphSource->Delete();
@@ -169,9 +169,9 @@ vtkSpiderPlotActor::~vtkSpiderPlotActor()
   this->Initialize();
 
   this->TitleMapper->Delete();
-  this->TitleMapper = NULL;
+  this->TitleMapper = nullptr;
   this->TitleActor->Delete();
-  this->TitleActor = NULL;
+  this->TitleActor = nullptr;
 
   this->WebData->Delete();
   this->WebMapper->Delete();
@@ -215,17 +215,17 @@ void vtkSpiderPlotActor::Initialize()
       this->LabelActors[i]->Delete();
     }
     delete [] this->LabelMappers;
-    this->LabelMappers = NULL;
+    this->LabelMappers = nullptr;
     delete [] this->LabelActors;
-    this->LabelActors = NULL;
+    this->LabelActors = nullptr;
   }
 
   if ( this->Mins )
   {
     delete [] this->Mins;
-    this->Mins = NULL;
+    this->Mins = nullptr;
     delete [] this->Maxs;
-    this->Maxs = NULL;
+    this->Maxs = nullptr;
   }
 
   this->N = 0;
@@ -243,7 +243,7 @@ int vtkSpiderPlotActor::RenderOverlay(vtkViewport *viewport)
   }
 
   // Done rebuilding, render as appropriate.
-  if ( this->GetInput() == NULL || this->N <= 0 )
+  if ( this->GetInput() == nullptr || this->N <= 0 )
   {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -286,7 +286,7 @@ int vtkSpiderPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   }
 
   // Done rebuilding, render as appropriate.
-  if ( this->GetInput() == NULL || this->N <= 0 )
+  if ( this->GetInput() == nullptr || this->N <= 0 )
   {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -637,7 +637,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       x[0] = this->Center[0] + (this->Radius+5)*cos(i*this->Theta);
       x[1] = this->Center[1] + (this->Radius+5)*sin(i*this->Theta);
       this->LabelMappers[i] = vtkTextMapper::New();
-      if ( (str=this->GetAxisLabel(i)) != NULL )
+      if ( (str=this->GetAxisLabel(i)) != nullptr )
       {
         this->LabelMappers[i]->SetInput(str);
       }
@@ -856,7 +856,7 @@ const char* vtkSpiderPlotActor::GetAxisLabel(int i)
 {
   if ( i < 0 )
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->Labels->at(i).c_str();

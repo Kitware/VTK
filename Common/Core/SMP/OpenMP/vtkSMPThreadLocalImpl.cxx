@@ -107,7 +107,7 @@ Slot::~Slot()
 
 
 HashTableArray::HashTableArray(size_t sizeLg)
-  : Size(1u << sizeLg), SizeLg(sizeLg), NumberOfEntries(0), Prev(NULL)
+  : Size(1u << sizeLg), SizeLg(sizeLg), NumberOfEntries(0), Prev(nullptr)
 {
   this->Slots = new Slot[this->Size];
 }
@@ -124,11 +124,11 @@ static Slot* LookupSlot(HashTableArray *array, ThreadIdType threadId,
 {
   if (!array)
   {
-    return NULL;
+    return nullptr;
   }
 
   size_t mask = array->Size - 1u;
-  Slot *slot = NULL;
+  Slot *slot = nullptr;
 
   // since load factor is maintained bellow 0.5, this loop should hit an
   // empty slot if the queried slot does not exist in this array
@@ -151,13 +151,13 @@ static Slot* LookupSlot(HashTableArray *array, ThreadIdType threadId,
 }
 
 // Lookup threadId. Try to acquire a slot if it doesn't already exist.
-// Does not block. Returns NULL if acquire fails due to high load factor.
+// Does not block. Returns nullptr if acquire fails due to high load factor.
 // Returns true in 'firstAccess' if threadID did not exist previously.
 static Slot* AcquireSlot(HashTableArray *array, ThreadIdType threadId,
                          size_t hash, bool &firstAccess)
 {
   size_t mask = array->Size - 1u;
-  Slot *slot = NULL;
+  Slot *slot = nullptr;
   firstAccess = false;
 
   for (size_t idx = hash & mask; ; idx = (idx + 1) & mask)
@@ -174,7 +174,7 @@ static Slot* AcquireSlot(HashTableArray *array, ThreadIdType threadId,
         if ((size * 2) > array->Size) // load factor is above threshold
         {
           --array->NumberOfEntries; // atomic revert
-          return NULL; // indicate need for resizing
+          return nullptr; // indicate need for resizing
         }
 
         if (!slot->ThreadId.load()) // not acquired in the meantime?
@@ -191,11 +191,11 @@ static Slot* AcquireSlot(HashTableArray *array, ThreadIdType threadId,
             // ThreadSpecificStorageIterator relies on this information to
             // ensure that it doesn't iterate over the same thread's storage
             // more than once.
-            prevSlot->Storage = NULL;
+            prevSlot->Storage = nullptr;
           }
           else // first time access
           {
-            slot->Storage = NULL;
+            slot->Storage = nullptr;
             firstAccess = true;
           }
           break;
@@ -247,7 +247,7 @@ StoragePointerType& ThreadSpecific::GetStorage()
   ThreadIdType threadId = GetThreadId();
   size_t hash = GetHash(threadId);
 
-  Slot *slot = NULL;
+  Slot *slot = nullptr;
   while (!slot)
   {
     bool firstAccess = false;

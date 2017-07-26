@@ -43,13 +43,13 @@ vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
 vtkUnstructuredGridHomogeneousRayIntegrator::vtkUnstructuredGridHomogeneousRayIntegrator()
 {
-  this->Property = NULL;
+  this->Property = nullptr;
 
   this->NumComponents = 0;
-  this->ColorTable = NULL;
-  this->AttenuationTable = NULL;
-  this->TableShift = NULL;
-  this->TableScale = NULL;
+  this->ColorTable = nullptr;
+  this->AttenuationTable = nullptr;
+  this->TableShift = nullptr;
+  this->TableScale = nullptr;
 
   this->UseAverageColor = 0;
   this->TransferFunctionTableSize = 1024;

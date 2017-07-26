@@ -41,21 +41,21 @@ class vtkEnSightReaderCellIdsType: public vtkEnSightReaderCellIdsTypeBase {};
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
 {
-  this->MeasuredFileName = NULL;
-  this->MatchFileName = NULL;
+  this->MeasuredFileName = nullptr;
+  this->MatchFileName = nullptr;
 
-  this->IS = NULL;
+  this->IS = nullptr;
 
   this->VariableMode = -1;
 
   this->UnstructuredPartIds = vtkIdList::New();
-  this->CellIds = NULL;
+  this->CellIds = nullptr;
 
-  this->VariableFileNames = NULL;
-  this->ComplexVariableFileNames = NULL;
+  this->VariableFileNames = nullptr;
+  this->ComplexVariableFileNames = nullptr;
 
-  this->VariableDescriptions = NULL;
-  this->ComplexVariableDescriptions = NULL;
+  this->VariableDescriptions = nullptr;
+  this->ComplexVariableDescriptions = nullptr;
 
   this->VariableTimeSetIds = vtkIdList::New();
   this->ComplexVariableTimeSetIds = vtkIdList::New();
@@ -97,13 +97,13 @@ vtkEnSightReader::~vtkEnSightReader()
   int i;
 
   delete this->CellIds;
-  this->CellIds = NULL;
+  this->CellIds = nullptr;
 
   delete [] this->MeasuredFileName;
-  this->MeasuredFileName = NULL;
+  this->MeasuredFileName = nullptr;
 
   delete [] this->MatchFileName;
-  this->MatchFileName = NULL;
+  this->MatchFileName = nullptr;
 
   if (this->NumberOfVariables > 0)
   {
@@ -112,7 +112,7 @@ vtkEnSightReader::~vtkEnSightReader()
       delete [] this->VariableFileNames[i];
     }
     delete [] this->VariableFileNames;
-    this->VariableFileNames = NULL;
+    this->VariableFileNames = nullptr;
   }
 
   if (this->NumberOfComplexVariables > 0)
@@ -122,38 +122,38 @@ vtkEnSightReader::~vtkEnSightReader()
       delete [] this->ComplexVariableFileNames[i];
     }
     delete [] this->ComplexVariableFileNames;
-    this->ComplexVariableFileNames = NULL;
+    this->ComplexVariableFileNames = nullptr;
   }
 
   this->UnstructuredPartIds->Delete();
-  this->UnstructuredPartIds = NULL;
+  this->UnstructuredPartIds = nullptr;
 
   this->VariableTimeSetIds->Delete();
-  this->VariableTimeSetIds = NULL;
+  this->VariableTimeSetIds = nullptr;
   this->ComplexVariableTimeSetIds->Delete();
-  this->ComplexVariableTimeSetIds = NULL;
+  this->ComplexVariableTimeSetIds = nullptr;
   this->VariableFileSetIds->Delete();
-  this->VariableFileSetIds = NULL;
+  this->VariableFileSetIds = nullptr;
   this->ComplexVariableFileSetIds->Delete();
-  this->ComplexVariableFileSetIds = NULL;
+  this->ComplexVariableFileSetIds = nullptr;
 
   this->TimeSetFileNameNumbers->Delete();
-  this->TimeSetFileNameNumbers = NULL;
+  this->TimeSetFileNameNumbers = nullptr;
   this->TimeSetsWithFilenameNumbers->Delete();
-  this->TimeSetsWithFilenameNumbers = NULL;
+  this->TimeSetsWithFilenameNumbers = nullptr;
   this->TimeSets->Delete();
-  this->TimeSets = NULL;
+  this->TimeSets = nullptr;
   this->FileSetFileNameNumbers->Delete();
-  this->FileSetFileNameNumbers = NULL;
+  this->FileSetFileNameNumbers = nullptr;
   this->FileSetsWithFilenameNumbers->Delete();
-  this->FileSetsWithFilenameNumbers = NULL;
+  this->FileSetsWithFilenameNumbers = nullptr;
   this->FileSetNumberOfSteps->Delete();
-  this->FileSetNumberOfSteps = NULL;
+  this->FileSetNumberOfSteps = nullptr;
 
   this->TimeSetIds->Delete();
-  this->TimeSets = NULL;
+  this->TimeSets = nullptr;
   this->FileSets->Delete();
-  this->FileSets = NULL;
+  this->FileSets = nullptr;
 
   this->ActualTimeValue = 0.0;
 }
@@ -964,7 +964,7 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
     {
       vtkErrorMacro("invalid VARIABLE line: " << line);
       delete this->IS;
-      this->IS = NULL;
+      this->IS = nullptr;
       return 0;
     }
     lineRead = this->ReadNextDataLine(line);
@@ -1347,7 +1347,7 @@ int vtkEnSightReader::ReadCaseFile()
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1356,32 +1356,32 @@ int vtkEnSightReader::ReadCaseFile()
   for (i = 0; i < this->NumberOfVariables; i++)
   {
     delete [] this->VariableFileNames[i];
-    this->VariableFileNames[i] = NULL;
+    this->VariableFileNames[i] = nullptr;
     delete [] this->VariableDescriptions[i];
-    this->VariableDescriptions[i] = NULL;
+    this->VariableDescriptions[i] = nullptr;
   }
   delete [] this->VariableFileNames;
-  this->VariableFileNames = NULL;
+  this->VariableFileNames = nullptr;
   delete [] this->VariableDescriptions;
-  this->VariableDescriptions = NULL;
+  this->VariableDescriptions = nullptr;
   delete [] this->VariableTypes;
-  this->VariableTypes = NULL;
+  this->VariableTypes = nullptr;
 
   for (i = 0; i < this->NumberOfComplexVariables; i++)
   {
     delete [] this->ComplexVariableFileNames[2*i];
-    this->ComplexVariableFileNames[2*i] = NULL;
+    this->ComplexVariableFileNames[2*i] = nullptr;
     delete [] this->ComplexVariableFileNames[2*i+1];
-    this->ComplexVariableFileNames[2*i+1] = NULL;
+    this->ComplexVariableFileNames[2*i+1] = nullptr;
     delete [] this->ComplexVariableDescriptions[i];
-    this->ComplexVariableDescriptions[i] = NULL;
+    this->ComplexVariableDescriptions[i] = nullptr;
   }
   delete [] this->ComplexVariableFileNames;
-  this->ComplexVariableFileNames = NULL;
+  this->ComplexVariableFileNames = nullptr;
   delete [] this->ComplexVariableDescriptions;
-  this->ComplexVariableDescriptions = NULL;
+  this->ComplexVariableDescriptions = nullptr;
   delete [] this->ComplexVariableTypes;
-  this->ComplexVariableTypes = NULL;
+  this->ComplexVariableTypes = nullptr;
 
   this->NumberOfVariables = 0;
   this->NumberOfComplexVariables = 0;
@@ -1403,7 +1403,7 @@ int vtkEnSightReader::ReadCaseFile()
         // The class is vtkEnSight6Reader, but the case file says "gold".
         vtkErrorMacro("This is not an EnSight6 file.");
         delete this->IS;
-        this->IS = NULL;
+        this->IS = nullptr;
         return 0;
       }
     }
@@ -1415,7 +1415,7 @@ int vtkEnSightReader::ReadCaseFile()
         // not say "gold".
         vtkErrorMacro("This is not an EnSight Gold file.");
         delete this->IS;
-        this->IS = NULL;
+        this->IS = nullptr;
         return 0;
       }
     }
@@ -1460,7 +1460,7 @@ int vtkEnSightReader::ReadCaseFile()
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
 
   // Fill data array selection objects with these arrays.
   // TODO: Segfault or not segfault ? That is the question...
@@ -1564,7 +1564,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet *output)
         numStepsList = static_cast<vtkIdList*>(this->FileSetNumberOfSteps->
                                GetItemAsObject(this->FileSets->IsId(fileSet)));
 
-        if (numStepsList!=0 && timeStep > numStepsList->GetId(0))
+        if (numStepsList!=nullptr && timeStep > numStepsList->GetId(0))
         {
           numSteps = numStepsList->GetId(0);
           timeStepInFile -= numSteps;
@@ -1953,7 +1953,7 @@ void vtkEnSightReader::AddVariableType()
 {
   int size;
   int i;
-  int *types = NULL;
+  int *types = nullptr;
 
   // Figure out what the size of the variable type array is.
   if (this->VariableMode < 8)
@@ -2165,14 +2165,14 @@ vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
     vtkErrorMacro("Cell type " << cellType
                   << " out of range.  Only "
                   << NUMBER_OF_ELEMENT_TYPES-1 << " types exist.");
-    return 0;
+    return nullptr;
   }
   if(index < 0 || index > this->UnstructuredPartIds->GetNumberOfIds())
   {
     vtkErrorMacro("Index " << index << " out of range.  Only "
                   << this->UnstructuredPartIds->GetNumberOfIds()
                   << " IDs exist.");
-    return 0;
+    return nullptr;
   }
 
   // Create the container if necessary.

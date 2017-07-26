@@ -66,7 +66,7 @@ private:
 //----------------------------------------------------------------------------
 vtkSortFileNames::vtkSortFileNames()
 {
-  this->InputFileNames = 0;
+  this->InputFileNames = nullptr;
   this->NumericSort = 0;
   this->IgnoreCase = 0;
   this->Grouping = 0;
@@ -80,17 +80,17 @@ vtkSortFileNames::~vtkSortFileNames()
   if (this->InputFileNames)
   {
     this->InputFileNames->Delete();
-    this->InputFileNames = 0;
+    this->InputFileNames = nullptr;
   }
   if (this->FileNames)
   {
     this->FileNames->Delete();
-    this->FileNames = 0;
+    this->FileNames = nullptr;
   }
   if (this->Groups)
   {
     this->Groups->Delete();
-    this->Groups = 0;
+    this->Groups = nullptr;
   }
 }
 
@@ -143,7 +143,7 @@ vtkStringArray *vtkSortFileNames::GetNthGroup(int i)
   if (!this->GetGrouping())
   {
     vtkErrorMacro(<< "GetNthGroup(): Grouping not on.");
-    return 0;
+    return nullptr;
   }
 
   int n = this->Groups->GetNumberOfStringArrays();
@@ -155,7 +155,7 @@ vtkStringArray *vtkSortFileNames::GetNthGroup(int i)
   else
   {
     vtkErrorMacro(<< "GetNthGroup(i): index " << i << " is out of range");
-    return 0;
+    return nullptr;
   }
 }
 
@@ -580,7 +580,7 @@ void vtkSortFileNames::Execute()
 
 void vtkSortFileNames::Update()
 {
-  if (this->InputFileNames != 0)
+  if (this->InputFileNames != nullptr)
   {
     if (this->GetMTime() > this->UpdateTime.GetMTime() ||
         this->InputFileNames->GetMTime() > this->UpdateTime.GetMTime())

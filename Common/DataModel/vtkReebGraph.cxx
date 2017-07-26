@@ -177,7 +177,7 @@ public:
     this->NodeNumber = 0;
     this->LoopNumber = 0;
     this->RemovedLoopNumber = 0;
-    this->ArcLoopTable = 0;
+    this->ArcLoopTable = nullptr;
 
     this->currentNodeId = 0;
     this->currentArcId = 0;
@@ -191,13 +191,13 @@ public:
   ~Implementation()
   {
     free(this->MainNodeTable.Buffer);
-    this->MainNodeTable.Buffer = NULL;
+    this->MainNodeTable.Buffer = nullptr;
 
     free(this->MainArcTable.Buffer);
-    this->MainArcTable.Buffer = NULL;
+    this->MainArcTable.Buffer = nullptr;
 
     free(this->MainLabelTable.Buffer);
-    this->MainLabelTable.Buffer = NULL;
+    this->MainLabelTable.Buffer = nullptr;
 
     this->MainNodeTable.Size = this->MainNodeTable.Number = 0;
     this->MainArcTable.Size = this->MainArcTable.Number = 0;
@@ -727,7 +727,7 @@ vtkStandardNewMacro(vtkReebGraph);
 void vtkReebGraph::Implementation::SetLabel(vtkIdType arcId,
                                             vtkReebLabelTag Label)
 {
-  inputMesh = NULL;
+  inputMesh = nullptr;
 
   ResizeMainLabelTable(1);
 
@@ -765,7 +765,7 @@ void vtkReebGraph::Implementation::FastArcSimplify(vtkIdType arcId,
   vtkIdType nodeId1 = this->GetArc(arcId)->NodeId1;
 
   vtkReebArc *A = this->GetArc(arcId);
-  vtkReebArc *B = NULL;
+  vtkReebArc *B = nullptr;
   int down, middle, up;
 
   if(historyOn)
@@ -990,8 +990,8 @@ vtkReebGraph::Implementation::vtkReebPath vtkReebGraph::Implementation::FindPath
   vtkIdType N0 = this->GetArc(arcId)->NodeId0;
   vtkIdType N1 = this->GetArc(arcId)->NodeId1;
 
-  char* Ntouch = 0;
-  char* Atouch = 0;
+  char* Ntouch = nullptr;
+  char* Atouch = nullptr;
 
 //  double simplificationValue = 0;
   if((!inputMesh)||(!metric))
@@ -1032,7 +1032,7 @@ vtkReebGraph::Implementation::vtkReebPath vtkReebGraph::Implementation::FindPath
   entry.NodeTable = new vtkIdType[1];
   entry.NodeTable[0]=N0;
   entry.ArcNumber=0;
-  entry.ArcTable =0;
+  entry.ArcTable =nullptr;
   pq.push(entry);
 
   while ((size=static_cast<int>(pq.size())))
@@ -1270,7 +1270,7 @@ int vtkReebGraph::Implementation::SimplifyBranches(double simplificationThreshol
   static const vtkReebLabelTag RouteOld=100;
   static const vtkReebLabelTag RouteNew=200;
   int  nstack,mstack=0;
-  int* stack=0;
+  int* stack=nullptr;
 
   if (!simplificationThreshold)
     return 0;
@@ -2199,14 +2199,14 @@ void vtkReebGraph::Implementation::FindLoops()
   if (this->ArcLoopTable)
   {
     free(this->ArcLoopTable);
-    this->ArcLoopTable=0;
+    this->ArcLoopTable=nullptr;
     this->LoopNumber=0;
   }
 
   this->ConnectedComponentNumber=0;
 
   int  nstack=0,mstack=0;
-  int* stack=0;
+  int* stack=nullptr;
 
   char* Ntouch=(char*)malloc(sizeof(char)*this->MainNodeTable.Size);
   char* Atouch=(char*)malloc(sizeof(char)*this->MainArcTable.Size);

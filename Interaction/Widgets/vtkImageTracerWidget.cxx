@@ -55,15 +55,15 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->EventCallbackCommand->SetCallback(vtkImageTracerWidget::ProcessEvents);
 
   this->Interaction = 1;
-  this->ViewProp = NULL;
+  this->ViewProp = nullptr;
   this->PickCount = 0;
   this->SnapToImage = 0;
   this->AutoClose = 0;
   this->CaptureRadius = 1.0;
   this->IsSnapping = 0;
   this->ImageSnapType = VTK_ITW_SNAP_CELLS;
-  this->CurrentPicker = NULL;
-  this->CurrentHandle = NULL;
+  this->CurrentPicker = nullptr;
+  this->CurrentHandle = nullptr;
   this->CurrentHandleIndex = -1;
   this->ProjectionNormal = VTK_ITW_PROJECTION_XY;
   this->ProjectionPosition = 0.0;
@@ -118,15 +118,15 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->LinePicker->PickFromListOn();
 
   // Set up the initial properties
-  this->HandleProperty = NULL;
-  this->SelectedHandleProperty = NULL;
-  this->LineProperty = NULL;
-  this->SelectedLineProperty = NULL;
+  this->HandleProperty = nullptr;
+  this->SelectedHandleProperty = nullptr;
+  this->LineProperty = nullptr;
+  this->SelectedLineProperty = nullptr;
   this->CreateDefaultProperties();
 
   // Initialize ivars
-  this->Handle = NULL;
-  this->HandleGeometry = NULL;
+  this->Handle = nullptr;
+  this->HandleGeometry = nullptr;
 
   // Create one handle
   this->AllocateHandles(1);
@@ -149,10 +149,10 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
     this->Handle[i]->Delete();
   }
   delete [] this->Handle;
-  this->Handle = NULL;
+  this->Handle = nullptr;
 
   delete [] this->HandleGeometry;
-  this->HandleGeometry = NULL;
+  this->HandleGeometry = nullptr;
 
   if ( this->HandleProperty )
   {
@@ -182,8 +182,8 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
 
   this->LinePicker->Delete();
   this->HandlePicker->Delete();
-  this->CurrentPicker = NULL;
-  this->CurrentHandle = NULL;
+  this->CurrentPicker = nullptr;
+  this->CurrentHandle = nullptr;
 
   this->PropPicker->Delete();
   this->TransformFilter->Delete();
@@ -273,7 +273,7 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
     this->LineActor->SetProperty(this->LineProperty);
     this->LineActor->PickableOff();
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else // disabling
@@ -309,9 +309,9 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
 
     this->CurrentRenderer->RemoveViewProp(this->LineActor);
 
-    this->CurrentHandle = NULL;
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->CurrentHandle = nullptr;
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -588,7 +588,7 @@ void vtkImageTracerWidget::GetHandlePosition(int handle, double xyz[3])
 
 double* vtkImageTracerWidget::GetHandlePosition(int handle)
 {
-  if ( handle < 0 || handle >= this->NumberOfHandles ){ return NULL; }
+  if ( handle < 0 || handle >= this->NumberOfHandles ){ return nullptr; }
   return this->HandleGeometry[handle]->GetCenter();
 }
 
@@ -650,7 +650,7 @@ void vtkImageTracerWidget::OnLeftButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -664,7 +664,7 @@ void vtkImageTracerWidget::OnLeftButtonUp()
   }
 
   this->State = vtkImageTracerWidget::Start;
-  this->CurrentHandleIndex = this->HighlightHandle(NULL);
+  this->CurrentHandleIndex = this->HighlightHandle(nullptr);
 
   if ( this->AutoClose )  // attempt to close by tolerance
   {
@@ -679,9 +679,9 @@ void vtkImageTracerWidget::OnLeftButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
-  this->CurrentPicker = NULL;
+  this->CurrentPicker = nullptr;
 }
 
 void vtkImageTracerWidget::OnMiddleButtonDown()
@@ -739,7 +739,7 @@ void vtkImageTracerWidget::OnMiddleButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -761,7 +761,7 @@ void vtkImageTracerWidget::OnMiddleButtonUp()
   }
 
   this->State = vtkImageTracerWidget::Start;
-  this->CurrentHandleIndex = this->HighlightHandle(NULL);
+  this->CurrentHandleIndex = this->HighlightHandle(nullptr);
 
   if ( this->AutoClose )
   {
@@ -776,9 +776,9 @@ void vtkImageTracerWidget::OnMiddleButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
-  this->CurrentPicker = NULL;
+  this->CurrentPicker = nullptr;
 }
 
 void vtkImageTracerWidget::OnRightButtonDown()
@@ -873,13 +873,13 @@ void vtkImageTracerWidget::OnRightButtonDown()
     {
       this->ViewProp->PickableOn();
     }
-    this->CurrentPicker = NULL;
+    this->CurrentPicker = nullptr;
     return;
   }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -895,7 +895,7 @@ void vtkImageTracerWidget::OnRightButtonUp()
   if ( this->State == vtkImageTracerWidget::Erasing )
   {
     int index = this->CurrentHandleIndex;
-    this->CurrentHandleIndex = this->HighlightHandle(NULL);
+    this->CurrentHandleIndex = this->HighlightHandle(nullptr);
     int closed = this->IsClosed();
     this->EraseHandle(index);
     this->BuildLinesFromHandles();
@@ -917,7 +917,7 @@ void vtkImageTracerWidget::OnRightButtonUp()
   }
   else if ( this->State == vtkImageTracerWidget::Moving )
   {
-    this->CurrentHandleIndex = this->HighlightHandle(NULL);
+    this->CurrentHandleIndex = this->HighlightHandle(nullptr);
     if ( this->AutoClose && !this->IsClosed() )
     {
       this->ClosePath();
@@ -929,7 +929,7 @@ void vtkImageTracerWidget::OnRightButtonUp()
   }
   else if ( this->State == vtkImageTracerWidget::Translating )
   {
-    this->CurrentHandleIndex = this->HighlightHandle(NULL);
+    this->CurrentHandleIndex = this->HighlightHandle(nullptr);
   }
 
   this->State = vtkImageTracerWidget::Start;
@@ -943,9 +943,9 @@ void vtkImageTracerWidget::OnRightButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
-  this->CurrentPicker = NULL;
+  this->CurrentPicker = nullptr;
 }
 
 void vtkImageTracerWidget::OnMouseMove()
@@ -1001,7 +1001,7 @@ void vtkImageTracerWidget::OnMouseMove()
 
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -1136,7 +1136,7 @@ void vtkImageTracerWidget::ResetHandles(void)
 
   if ( this->CurrentHandle )
   {
-    this->CurrentHandle = NULL;
+    this->CurrentHandle = nullptr;
   }
 
   this->HandlePicker->InitializePickList();
@@ -1159,10 +1159,10 @@ void vtkImageTracerWidget::ResetHandles(void)
   this->NumberOfHandles = 0;
 
   delete [] this->Handle;
-  this->Handle = NULL;
+  this->Handle = nullptr;
 
   delete [] this->HandleGeometry;
-  this->HandleGeometry = NULL;
+  this->HandleGeometry = nullptr;
 }
 
 void vtkImageTracerWidget::AllocateHandles(const int& nhandles)
@@ -1431,7 +1431,7 @@ void vtkImageTracerWidget::Snap(double* pos) // overwrites pos
     double weights[8];
     double pcoords[3];
     int subId;
-    vtkIdType cellId = ptr->FindCell(pos,NULL,-1,0.0,subId,pcoords,weights);
+    vtkIdType cellId = ptr->FindCell(pos,nullptr,-1,0.0,subId,pcoords,weights);
     if ( cellId != -1 )
     {
       ptr->GetCellBounds(cellId,bounds);

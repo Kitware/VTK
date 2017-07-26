@@ -113,7 +113,7 @@ public:
    * Get the output in different forms. The particular method invoked
    * should be consistent with the SetDataSetType() method. (Note:
    * GetOutput() will always return a type consistent with
-   * SetDataSetType(). Also, GetOutput() will return NULL if the filter
+   * SetDataSetType(). Also, GetOutput() will return nullptr if the filter
    * aborted due to inconsistent data.)
    */
   vtkDataSet *GetOutput();

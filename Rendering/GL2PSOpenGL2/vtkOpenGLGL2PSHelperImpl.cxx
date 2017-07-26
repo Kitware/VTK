@@ -313,7 +313,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
   }
 
   vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
-  if (tren == NULL)
+  if (tren == nullptr)
   {
     vtkErrorMacro("vtkTextRenderer unavailable.");
     return;
@@ -444,7 +444,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
     double devicePos[3] = {pos[0], pos[1], pos[2]};
     this->ProjectPoint(devicePos, ren);
 
-    this->DrawPath(path.GetPointer(), pos, devicePos, rgba, NULL, 0.0, -1.f,
+    this->DrawPath(path.GetPointer(), pos, devicePos, rgba, nullptr, 0.0, -1.f,
                    (std::string("Pathified string: ") + str).c_str());
   }
 }
@@ -494,7 +494,7 @@ void vtkOpenGLGL2PSHelperImpl::Draw3DPath(
   projPath->DeepCopy(path);
   this->ProjectPoints(projPath->GetPoints(), ren, actorMatrix);
   this->DrawPath(projPath.GetPointer(), rasterPos, translation,
-                 actorColor, NULL, 0.0, -1.f, label);
+                 actorColor, nullptr, 0.0, -1.f, label);
 }
 
 //------------------------------------------------------------------------------
@@ -983,7 +983,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -1140,7 +1140,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -1300,5 +1300,5 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), nullptr);
 }

@@ -74,7 +74,7 @@ struct QVTKWidgetInsideQWidgets
     //delete widget2;
   }
 
-  QVTKWidget* spawnSubwidget( QTabWidget* tabWidget,QVTKWidget* qvtk=NULL)
+  QVTKWidget* spawnSubwidget( QTabWidget* tabWidget,QVTKWidget* qvtk=nullptr)
   {
     if(!mainWindow)
       mainWindow = new QMainWindow();
@@ -88,7 +88,7 @@ struct QVTKWidgetInsideQWidgets
     return qvtk;
   }
 
-  QVTKWidget* spawnSubwidget(QMainWindow* mainWin,QVTKWidget* qvtk = NULL)
+  QVTKWidget* spawnSubwidget(QMainWindow* mainWin,QVTKWidget* qvtk = nullptr)
   {
     mainWindow       = mainWin;
     if (!qvtk)
@@ -99,7 +99,7 @@ struct QVTKWidgetInsideQWidgets
     return qvtk;
   }
 
-  QVTKWidget* spawnSubwidget(QDockWidget* dock,QVTKWidget* qvtk = NULL)
+  QVTKWidget* spawnSubwidget(QDockWidget* dock,QVTKWidget* qvtk = nullptr)
   {
     if (!mainWindow)
       mainWindow = new QMainWindow();

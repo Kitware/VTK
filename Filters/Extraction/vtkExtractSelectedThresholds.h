@@ -57,7 +57,7 @@ public:
    * Function for determining whether a value in a data array passes
    * the threshold test(s) provided in lims.  Returns 1 if the value
    * passes at least one of the threshold tests.
-   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
   static int EvaluateValue(vtkDataArray *scalars,
     vtkIdType id, vtkDataArray *lims)
@@ -68,7 +68,7 @@ public:
   /**
    * Same as the other EvaluateValue except that the component to be compared
    * can be picked using array_component_no (use -1 for magnitude).
-   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
   static int EvaluateValue(vtkDataArray *array,
     int array_component_no,
@@ -80,7 +80,7 @@ public:
    * passes at least one of the threshold tests.  Also returns in
    * AboveCount, BelowCount and InsideCount the number of tests where
    * the value was above, below or inside the interval.
-   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
   static int EvaluateValue(vtkDataArray *scalars, vtkIdType id,
     vtkDataArray *lims, int *AboveCount, int *BelowCount, int *InsideCount)
@@ -92,7 +92,7 @@ public:
   /**
    * Same as the other EvaluateValue except that the component to be compared
    * can be picked using array_component_no (use -1 for magnitude).
-   * If \c scalars is NULL, then the id itself is used as the scalar value.
+   * If \c scalars is nullptr, then the id itself is used as the scalar value.
    */
   static int EvaluateValue(vtkDataArray *scalars,
     int array_component_no,

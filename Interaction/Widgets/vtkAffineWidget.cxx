@@ -143,7 +143,7 @@ void vtkAffineWidget::SelectAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -180,7 +180,7 @@ void vtkAffineWidget::MoveAction(vtkAbstractWidget *w)
 
   // Got this event, we are finished
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   self->Render();
 }
 
@@ -233,7 +233,7 @@ void vtkAffineWidget::EndSelectAction(vtkAbstractWidget *w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->ReleaseFocus();
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->WidgetState = vtkAffineWidget::Start;
   self->Render();
 }

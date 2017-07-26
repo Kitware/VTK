@@ -83,14 +83,14 @@ int TestQuadraturePoints(int argc,char *argv[])
   {
     input=xusgr->GetOutput();
     xusgr->Update();
-    lusgr=NULL;
+    lusgr=nullptr;
   }
   else if (lusgr->IsFileValid("unstructured_grid"))
   {
     lusgr->SetFileName(inputFileName.c_str());
     input=lusgr->GetOutput();
     lusgr->Update();
-    xusgr=NULL;
+    xusgr=nullptr;
   }
   if (input==0)
   {
@@ -125,11 +125,11 @@ int TestQuadraturePoints(int argc,char *argv[])
   xusgw->SetFileName(tempFile.c_str());
   xusgw->SetInputConnection(fieldInterp->GetOutputPort());
   xusgw->Write();
-  xusgw=NULL;
-  fieldInterp=NULL;
+  xusgw=nullptr;
+  fieldInterp=nullptr;
 
   // Read the data back in form disk. This exercises the information reader.
-  xusgr=NULL;
+  xusgr=nullptr;
   xusgr.TakeReference(vtkXMLUnstructuredGridReader::New());
   xusgr->SetFileName(tempFile.c_str());
   xusgr->Update();
@@ -139,7 +139,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   input->GetPointData()->SetActiveVectors(warpName.c_str());
   input->GetPointData()->SetActiveScalars(threshName.c_str());
 
-  xusgr=NULL;
+  xusgr=nullptr;
 
  // Demonstrate warp by vector.
   vtkSmartPointer<vtkWarpVector> warper = vtkSmartPointer<vtkWarpVector>::New();
@@ -182,7 +182,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   pdmQPts->SetInputConnection(glyphs->GetOutputPort());
   pdmQPts->SetColorModeToMapScalars();
   pdmQPts->SetScalarModeToUsePointData();
-  if(output->GetPointData()->GetArray(0) == NULL)
+  if(output->GetPointData()->GetArray(0) == nullptr)
   {
     vtkGenericWarningMacro( << "no point data in output of vtkQuadraturePointsGenerator" );
     return EXIT_FAILURE;

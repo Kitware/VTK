@@ -76,7 +76,7 @@ vtkPlot3DMetaReader::vtkPlot3DMetaReader()
   this->Reader = vtkMultiBlockPLOT3DReader::New();
   this->Reader->AutoDetectFormatOn();
 
-  this->FileName = 0;
+  this->FileName = nullptr;
 
   this->Internal = new vtkPlot3DMetaReaderInternals;
 
@@ -483,7 +483,7 @@ int vtkPlot3DMetaReader::RequestData(
     }
     else
     {
-      this->Reader->SetQFileName(0);
+      this->Reader->SetQFileName(nullptr);
     }
     const char* fname =
       this->Internal->TimeSteps[updateTime].FunctionFile.c_str();
@@ -493,7 +493,7 @@ int vtkPlot3DMetaReader::RequestData(
     }
     else
     {
-      this->Reader->SetFunctionFileName(0);
+      this->Reader->SetFunctionFileName(nullptr);
     }
     this->Reader->UpdatePiece(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),

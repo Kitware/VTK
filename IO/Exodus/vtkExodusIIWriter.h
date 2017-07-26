@@ -222,7 +222,7 @@ protected:
   {
     Block ()
     {
-      this->Name = 0;
+      this->Name = nullptr;
       this->Type = 0;
       this->NumElements = 0;
       this->ElementStartIndex = -1;
@@ -232,7 +232,7 @@ protected:
       this->GridIndex = 0;
       this->OutputIndex = -1;
       this->NumAttributes = 0;
-      this->BlockAttributes = 0;
+      this->BlockAttributes = nullptr;
     };
     const char *Name;
     int Type;

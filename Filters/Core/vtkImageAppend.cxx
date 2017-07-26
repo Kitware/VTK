@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkImageAppend);
 vtkImageAppend::vtkImageAppend()
 {
   this->AppendAxis = 0;
-  this->Shifts = NULL;
+  this->Shifts = nullptr;
   this->PreserveExtents = 0;
 }
 
@@ -79,7 +79,7 @@ vtkDataObject *vtkImageAppend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
@@ -482,7 +482,7 @@ void vtkImageAppend::ThreadedRequestData (
   {
     //cerr << "INPUT " << idx1 << endl;
 
-    if (inData[0][idx1] != NULL)
+    if (inData[0][idx1] != nullptr)
     {
       nArrays = inData[0][idx1]->GetPointData()->GetNumberOfArrays() +
         inData[0][idx1]->GetCellData()->GetNumberOfArrays();

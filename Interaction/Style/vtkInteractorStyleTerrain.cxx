@@ -34,10 +34,10 @@ vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
 {
   this->LatLongLines = 0;
 
-  this->LatLongSphere = NULL;
-  this->LatLongExtractEdges = NULL;
-  this->LatLongMapper = NULL;
-  this->LatLongActor = NULL;
+  this->LatLongSphere = nullptr;
+  this->LatLongExtractEdges = nullptr;
+  this->LatLongMapper = nullptr;
+  this->LatLongActor = nullptr;
 
   this->MotionFactor   = 10.0;
 }
@@ -45,22 +45,22 @@ vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
 //----------------------------------------------------------------------------
 vtkInteractorStyleTerrain::~vtkInteractorStyleTerrain()
 {
-  if (this->LatLongSphere != NULL)
+  if (this->LatLongSphere != nullptr)
   {
     this->LatLongSphere->Delete();
   }
 
-  if (this->LatLongMapper != NULL)
+  if (this->LatLongMapper != nullptr)
   {
     this->LatLongMapper->Delete();
   }
 
-  if (this->LatLongActor != NULL)
+  if (this->LatLongActor != nullptr)
   {
     this->LatLongActor->Delete();
   }
 
-  if (this->LatLongExtractEdges != NULL)
+  if (this->LatLongExtractEdges != nullptr)
   {
     this->LatLongExtractEdges->Delete();
   }
@@ -77,19 +77,19 @@ void vtkInteractorStyleTerrain::OnMouseMove()
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_PAN:
       this->FindPokedRenderer(x, y);
       this->Pan();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_DOLLY:
       this->FindPokedRenderer(x, y);
       this->Dolly();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
   }
 }
@@ -99,7 +99,7 @@ void vtkInteractorStyleTerrain::OnLeftButtonDown ()
 {
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -128,7 +128,7 @@ void vtkInteractorStyleTerrain::OnMiddleButtonDown ()
 {
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -157,7 +157,7 @@ void vtkInteractorStyleTerrain::OnRightButtonDown ()
 {
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -184,7 +184,7 @@ void vtkInteractorStyleTerrain::OnRightButtonUp ()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::Rotate()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -244,7 +244,7 @@ void vtkInteractorStyleTerrain::Rotate()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::Pan()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -293,7 +293,7 @@ void vtkInteractorStyleTerrain::Pan()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::Dolly()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -368,7 +368,7 @@ void vtkInteractorStyleTerrain::OnChar()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::CreateLatLong()
 {
-  if (this->LatLongSphere == NULL)
+  if (this->LatLongSphere == nullptr)
   {
     this->LatLongSphere = vtkSphereSource::New();
     this->LatLongSphere->SetPhiResolution( 13 );
@@ -376,21 +376,21 @@ void vtkInteractorStyleTerrain::CreateLatLong()
     this->LatLongSphere->LatLongTessellationOn();
   }
 
-  if (this->LatLongExtractEdges == NULL)
+  if (this->LatLongExtractEdges == nullptr)
   {
     this->LatLongExtractEdges = vtkExtractEdges::New();
     this->LatLongExtractEdges->SetInputConnection(
       this->LatLongSphere->GetOutputPort());
   }
 
-  if (this->LatLongMapper == NULL)
+  if (this->LatLongMapper == nullptr)
   {
     this->LatLongMapper = vtkPolyDataMapper::New();
     this->LatLongMapper->SetInputConnection(
       this->LatLongExtractEdges->GetOutputPort());
   }
 
-  if (this->LatLongActor == NULL)
+  if (this->LatLongActor == nullptr)
   {
     this->LatLongActor = vtkActor::New();
     this->LatLongActor->SetMapper(this->LatLongMapper);
@@ -401,7 +401,7 @@ void vtkInteractorStyleTerrain::CreateLatLong()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTerrain::SelectRepresentation()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }

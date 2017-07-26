@@ -142,7 +142,7 @@ class vtkCellPointTraversal
           {
             if( this->m_sp == this->m_stack ) //This means the point is not within the domain
             {
-              return 0;
+              return nullptr;
             }
 
             const vtkCellTreeLocator::vtkCellTreeNode* n = &this->m_ct.Nodes.front() + *(--this->m_sp);
@@ -528,7 +528,7 @@ vtkCellTreeLocator::vtkCellTreeLocator( )
 {
   this->NumberOfCellsPerNode = 8;
   this->NumberOfBuckets      = 5;
-  this->Tree                 = NULL;
+  this->Tree                 = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -612,7 +612,7 @@ void vtkCellTreeLocator::BuildLocator()
 vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *cell, double pcoords[3],
                                         double* weights )
 {
-  if( this->Tree == 0 )
+  if( this->Tree == nullptr )
   {
     return -1;
   }
@@ -634,7 +634,7 @@ vtkIdType vtkCellTreeLocator::FindCell( double pos[3], double , vtkGenericCell *
     for( ; begin!=end; ++begin )
     {
       this->DataSet->GetCell(*begin, cell);
-      if( cell->EvaluatePosition(pos, NULL, subId, pcoords, dist2, weights)==1 )
+      if( cell->EvaluatePosition(pos, nullptr, subId, pcoords, dist2, weights)==1 )
       {
         return *begin;
       }
@@ -1233,7 +1233,7 @@ int vtkCellTreeLocator::IntersectCellInternal(
 void vtkCellTreeLocator::FreeSearchStructure(void)
 {
   delete this->Tree;
-  this->Tree = NULL;
+  this->Tree = nullptr;
   this->Superclass::FreeCellBounds();
 }
 //---------------------------------------------------------------------------

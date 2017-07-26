@@ -41,7 +41,7 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
 }
 
@@ -96,12 +96,12 @@ void vtkGenericOpenGLRenderWindow::Finalize()
 
 void vtkGenericOpenGLRenderWindow::Frame()
 {
-  this->InvokeEvent(vtkCommand::WindowFrameEvent, NULL);
+  this->InvokeEvent(vtkCommand::WindowFrameEvent, nullptr);
 }
 
 void vtkGenericOpenGLRenderWindow::MakeCurrent()
 {
-  this->InvokeEvent(vtkCommand::WindowMakeCurrentEvent, NULL);
+  this->InvokeEvent(vtkCommand::WindowMakeCurrentEvent, nullptr);
 }
 
 bool vtkGenericOpenGLRenderWindow::IsCurrent()
@@ -128,7 +128,7 @@ void vtkGenericOpenGLRenderWindow::SetWindowId(void*)
 
 void* vtkGenericOpenGLRenderWindow::GetGenericWindowId()
 {
-  return NULL;
+  return nullptr;
 }
 
 
@@ -142,22 +142,22 @@ void vtkGenericOpenGLRenderWindow::SetParentId(void*)
 
 void* vtkGenericOpenGLRenderWindow::GetGenericDisplayId()
 {
-  return NULL;
+  return nullptr;
 }
 
 void* vtkGenericOpenGLRenderWindow::GetGenericParentId()
 {
-  return NULL;
+  return nullptr;
 }
 
 void* vtkGenericOpenGLRenderWindow::GetGenericContext()
 {
-  return NULL;
+  return nullptr;
 }
 
 void* vtkGenericOpenGLRenderWindow::GetGenericDrawable()
 {
-  return NULL;
+  return nullptr;
 }
 
 void vtkGenericOpenGLRenderWindow::SetWindowInfo(char*)
@@ -170,7 +170,7 @@ void vtkGenericOpenGLRenderWindow::SetParentInfo(char*)
 
 int* vtkGenericOpenGLRenderWindow::GetScreenSize()
 {
-  return NULL;
+  return nullptr;
 }
 
 void vtkGenericOpenGLRenderWindow::Start()

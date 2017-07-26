@@ -19,12 +19,12 @@ vtkStandardNewMacro(vtkRIBProperty);
 
 vtkRIBProperty::vtkRIBProperty ()
 {
-  this->Declarations = NULL;
-  this->SurfaceShaderParameters = NULL;
-  this->DisplacementShaderParameters = NULL;
+  this->Declarations = nullptr;
+  this->SurfaceShaderParameters = nullptr;
+  this->DisplacementShaderParameters = nullptr;
   this->SurfaceShader = new char[strlen("plastic") + 1];
   strcpy (this->SurfaceShader, "plastic");
-  this->DisplacementShader = NULL;
+  this->DisplacementShader = nullptr;
   this->SurfaceShaderUsesDefaultParameters = true;
 
   // create a vtkProperty that can be rendered
@@ -76,7 +76,7 @@ void vtkRIBProperty::SetVariable (const char *variable, const char *value)
 
 void vtkRIBProperty::AddVariable (const char *variable, const char *value)
 {
-  if (this->Declarations == NULL)
+  if (this->Declarations == nullptr)
   {
     this->SetVariable (variable, value);
   }
@@ -142,7 +142,7 @@ void vtkRIBProperty::AddParameter (const char *parameter, const char *value)
 
 void vtkRIBProperty::AddSurfaceShaderParameter (const char *SurfaceShaderParameter, const char *value)
 {
-  if (this->SurfaceShaderParameters == NULL)
+  if (this->SurfaceShaderParameters == nullptr)
   {
     this->SetSurfaceShaderParameter (SurfaceShaderParameter, value);
   }
@@ -167,7 +167,7 @@ void vtkRIBProperty::AddSurfaceShaderParameter (const char *SurfaceShaderParamet
 
 void vtkRIBProperty::AddDisplacementShaderParameter (const char *DisplacementShaderParameter, const char *value)
 {
-  if (this->DisplacementShaderParameters == NULL)
+  if (this->DisplacementShaderParameters == nullptr)
   {
     this->SetDisplacementShaderParameter (DisplacementShaderParameter, value);
   }

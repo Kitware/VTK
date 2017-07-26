@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 vtkIVExporter::~vtkIVExporter()
@@ -73,7 +73,7 @@ void vtkIVExporter::WriteData()
   indent[indent_now] = 0;
 
   // make sure the user specified a filename
-  if ( this->FileName == NULL)
+  if ( this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -238,17 +238,17 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 {
   vtkDataSet *ds;
   vtkPolyData *pd;
-  vtkGeometryFilter *gf = NULL;
+  vtkGeometryFilter *gf = nullptr;
   vtkPointData *pntData;
   vtkPoints *points;
-  vtkDataArray *normals = NULL;
-  vtkDataArray *tcoords = NULL;
+  vtkDataArray *normals = nullptr;
+  vtkDataArray *tcoords = nullptr;
   int i;
   vtkProperty *prop;
   double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
   float tempf2;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
@@ -257,7 +257,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkTransform *trans;
 
   // see if the actor has a mapper. it could be an assembly
-  if (anActor->GetMapper() == NULL)
+  if (anActor->GetMapper() == nullptr)
   {
     return;
   }
@@ -285,7 +285,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   // get the mappers input and matrix
   ds = anActor->GetMapper()->GetInput();
 
-  vtkAlgorithmOutput* pdProducer = 0;
+  vtkAlgorithmOutput* pdProducer = nullptr;
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
   {
@@ -350,7 +350,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     int totalValues;
 
     // make sure it is updated and then get some info
-    if (aTexture->GetInput() == NULL)
+    if (aTexture->GetInput() == nullptr)
     {
       vtkErrorMacro(<< "texture has no input!\n");
       return;

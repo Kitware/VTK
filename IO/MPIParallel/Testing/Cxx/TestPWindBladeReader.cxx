@@ -176,7 +176,7 @@ int TestPWindBladeReader( int argc, char *argv[] )
   iren->Delete();
 
   controller->Finalize(0);
-  controller->SetGlobalController(NULL);
+  controller->SetGlobalController(nullptr);
   controller->Delete();
 
   return !retVal;

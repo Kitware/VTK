@@ -276,7 +276,7 @@ void vtkPhyloXMLTreeReader::ReadNameElement(vtkXMLDataElement *element,
   vtkMutableDirectedGraph *g, vtkIdType vertex)
 {
   std::string name;
-  if (element->GetCharacterData() != NULL)
+  if (element->GetCharacterData() != nullptr)
   {
     name = this->GetTrimmedString(element->GetCharacterData());
   }
@@ -302,7 +302,7 @@ void vtkPhyloXMLTreeReader::ReadDescriptionElement(vtkXMLDataElement *element,
   vtkMutableDirectedGraph *g)
 {
   std::string description;
-  if (element->GetCharacterData() != NULL)
+  if (element->GetCharacterData() != nullptr)
   {
     description = this->GetTrimmedString(element->GetCharacterData());
   }
@@ -422,7 +422,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    double prop = strtod(propertyValue.c_str(), NULL);
+    double prop = strtod(propertyValue.c_str(), nullptr);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -440,7 +440,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    int prop = strtol(propertyValue.c_str(), NULL, 0);
+    int prop = strtol(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -455,7 +455,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    long prop = strtol(propertyValue.c_str(), NULL, 0);
+    long prop = strtol(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -470,7 +470,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    short prop = strtol(propertyValue.c_str(), NULL, 0);
+    short prop = strtol(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -485,7 +485,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    char prop = strtol(propertyValue.c_str(), NULL, 0);
+    char prop = strtol(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -502,7 +502,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    unsigned int prop = strtoul(propertyValue.c_str(), NULL, 0);
+    unsigned int prop = strtoul(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -516,7 +516,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    unsigned long prop = strtoul(propertyValue.c_str(), NULL, 0);
+    unsigned long prop = strtoul(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -530,7 +530,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    unsigned short prop = strtoul(propertyValue.c_str(), NULL, 0);
+    unsigned short prop = strtoul(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -544,7 +544,7 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(vtkXMLDataElement *element,
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray.GetPointer());
     }
-    unsigned char prop = strtoul(propertyValue.c_str(), NULL, 0);
+    unsigned char prop = strtoul(propertyValue.c_str(), nullptr, 0);
     g->GetVertexData()->GetAbstractArray(propertyName.c_str())->SetVariantValue(
       vertex, vtkVariant(prop));
   }
@@ -581,7 +581,7 @@ void vtkPhyloXMLTreeReader::ReadBranchLengthElement(vtkXMLDataElement *element,
   vtkMutableDirectedGraph *g, vtkIdType vertex)
 {
   std::string weightStr = this->GetTrimmedString(element->GetCharacterData());
-  double weight = strtod(weightStr.c_str(), NULL);
+  double weight = strtod(weightStr.c_str(), nullptr);
 
   // This assumes that the vertex only has one incoming edge.
   // We have to use GetInEdge because g does not have a GetParent()
@@ -596,11 +596,11 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(vtkXMLDataElement *element,
 {
   // get the confidence value
   double confidence = 0.0;
-  if (element->GetCharacterData() != NULL)
+  if (element->GetCharacterData() != nullptr)
   {
     std::string confidenceStr =
       this->GetTrimmedString(element->GetCharacterData());
-    confidence = strtod(confidenceStr.c_str(), NULL);
+    confidence = strtod(confidenceStr.c_str(), nullptr);
   }
 
   // get the confidence type
@@ -655,13 +655,13 @@ void vtkPhyloXMLTreeReader::ReadColorElement(vtkXMLDataElement *element,
   for(int i = 0; i < numNested; ++i)
   {
     vtkXMLDataElement *childElement = element->GetNestedElement(i);
-    if (childElement->GetCharacterData() == NULL)
+    if (childElement->GetCharacterData() == nullptr)
     {
       continue;
     }
     std::string childVal =
       this->GetTrimmedString(childElement->GetCharacterData());
-    unsigned char val = static_cast<unsigned char>(strtod(childVal.c_str(), NULL));
+    unsigned char val = static_cast<unsigned char>(strtod(childVal.c_str(), nullptr));
     if (strcmp(childElement->GetName(), "red") == 0)
     {
       red = val;

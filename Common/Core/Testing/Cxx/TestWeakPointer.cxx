@@ -36,7 +36,7 @@ int TestWeakPointer(int,char *[])
     "da2 == ia", "da2 != ia", "da2 < ia", "da2 <= ia", "da2 > ia", "da2 <= ia",
       "da2 > ia", "da2 >= ia",
     "da1 == 0", "da1 != 0", "da1 < 0", "da1 <= 0", "da1 > 0", "da1 >= 0",
-    NULL };
+    nullptr };
 
   vtkWeakPointer<vtkIntArray>  da2(ia);
   vtkWeakPointer<vtkFloatArray> da3;
@@ -71,7 +71,7 @@ int TestWeakPointer(int,char *[])
   {
     unsigned int diffbits = (testbits ^ correctbits);
     int bitcount = 0;
-    while (tests[bitcount] != NULL)
+    while (tests[bitcount] != nullptr)
     {
       bitcount++;
     }
@@ -92,33 +92,33 @@ int TestWeakPointer(int,char *[])
   }
   if(!da2)
   {
-    cerr << "da2 is NULL!" << "\n";
+    cerr << "da2 is nullptr!" << "\n";
     rval = 1;
   }
   cout << "IntArray: " << da2 << "\n";
 
   if (da1.GetPointer() == 0)
   {
-    cerr << "da1.GetPointer() is NULL\n";
+    cerr << "da1.GetPointer() is nullptr\n";
     rval = 1;
   }
   if (da2.GetPointer() == 0)
   {
-    cerr << "da2.GetPointer() is NULL\n";
+    cerr << "da2.GetPointer() is nullptr\n";
     rval = 1;
   }
   if (da3.Get() != 0)
   {
-    cerr << "da3.GetPointer() is not NULL\n";
+    cerr << "da3.GetPointer() is not nullptr\n";
     rval = 1;
   }
 
   da2 = 0;
   ia->Delete();
 
-  if (da1.GetPointer() != NULL)
+  if (da1.GetPointer() != nullptr)
   {
-    cerr << "da1.GetPointer() is not NULL\n";
+    cerr << "da1.GetPointer() is not nullptr\n";
     rval = 1;
   }
 

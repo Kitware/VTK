@@ -33,7 +33,7 @@ public:
    * Creates a new vtkSmartPyObject managing the existing reference
    * to the object given
    */
-  vtkSmartPyObject(PyObject *obj = NULL);
+  vtkSmartPyObject(PyObject *obj = nullptr);
   /**
    * Creates a new vtkSmartPyObject to the object in the other smart
    * pointer and increments the reference count to the object

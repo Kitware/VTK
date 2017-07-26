@@ -25,14 +25,14 @@ vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
 {
-  this->Transform = NULL;
+  this->Transform = nullptr;
 }
 
 vtkImplicitFunction::~vtkImplicitFunction()
 {
   //static_cast needed since otherwise the
   //call to SetTransform becomes ambiguous
-  this->SetTransform(static_cast<vtkAbstractTransform*>(NULL));
+  this->SetTransform(static_cast<vtkAbstractTransform*>(nullptr));
 }
 
 namespace {
@@ -219,7 +219,7 @@ vtkMTimeType vtkImplicitFunction::GetMTime()
   vtkMTimeType mTime=this->vtkObject::GetMTime();
   vtkMTimeType TransformMTime;
 
-  if ( this->Transform != NULL )
+  if ( this->Transform != nullptr )
   {
     TransformMTime = this->Transform->GetMTime();
     mTime = ( TransformMTime > mTime ? TransformMTime : mTime );

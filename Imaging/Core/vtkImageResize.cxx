@@ -72,8 +72,8 @@ vtkImageResize::vtkImageResize()
   this->IndexTranslate[1] = 0.0;
   this->IndexTranslate[2] = 0.0;
 
-  this->Interpolator = NULL;
-  this->NNInterpolator = NULL;
+  this->Interpolator = nullptr;
+  this->NNInterpolator = nullptr;
   this->Interpolate = 1;
 
   // This filter works best when the number of pieces is equal to
@@ -84,7 +84,7 @@ vtkImageResize::vtkImageResize()
 //----------------------------------------------------------------------------
 vtkImageResize::~vtkImageResize()
 {
-  this->SetInterpolator(NULL);
+  this->SetInterpolator(nullptr);
   if (this->NNInterpolator)
   {
     this->NNInterpolator->Delete();
@@ -488,7 +488,7 @@ void vtkImageResizeFilter2D(
     // filter only in the X direction
     for (int idY = idYMin; idY <= idYMax; idY++)
     {
-      if (progress != NULL && (progressCount % progressStep) == 0)
+      if (progress != nullptr && (progressCount % progressStep) == 0)
       {
         progress->UpdateProgress(progressCount*1.0/progressGoal);
       }
@@ -511,7 +511,7 @@ void vtkImageResizeFilter2D(
     int j = kernelSize;
     for (int idY = idYMin; idY <= idYMax; idY++)
     {
-      if (progress != NULL && (progressCount % progressStep) == 0)
+      if (progress != nullptr && (progressCount % progressStep) == 0)
       {
         progress->UpdateProgress(progressCount*1.0/progressGoal);
       }
@@ -618,7 +618,7 @@ void vtkImageResizeFilter3D(
           const T *tmpPtrY = tmpPtrZ + (*aYtmp++);
           const vtkIdType *aXtmp = aX;
 
-          if (progress != NULL && (progressCount % progressStep) == 0)
+          if (progress != nullptr && (progressCount % progressStep) == 0)
           {
             progress->UpdateProgress(progressCount*1.0/progressGoal);
           }
@@ -678,17 +678,17 @@ void vtkImageResizeFilter3D(
     int progressGoal = sliceMax - sliceMin + 1;
     int progressStep = (progressGoal + 49)/50;
     int progressCount = 0;
-    vtkAlgorithm *rowProgress = NULL;
+    vtkAlgorithm *rowProgress = nullptr;
     if (progressGoal == 1)
     {
       // if one slice, report progress by rows instead
       rowProgress = progress;
-      progress = NULL;
+      progress = nullptr;
     }
 
     for (int slice = sliceMin; slice <= sliceMax; slice++)
     {
-      if (progress != NULL && (progressCount % progressStep) == 0)
+      if (progress != nullptr && (progressCount % progressStep) == 0)
       {
         progress->UpdateProgress(progressCount*1.0/progressGoal);
       }
@@ -748,7 +748,7 @@ void vtkImageResizeFilter3D(
     int j = kernelSizeY;
     for (int idY = extent[2]; idY <= extent[3]; idY++)
     {
-      if (progress != NULL && (progressCount % progressStep) == 0)
+      if (progress != nullptr && (progressCount % progressStep) == 0)
       {
         progress->UpdateProgress(progressCount*1.0/progressGoal);
       }
@@ -768,7 +768,7 @@ void vtkImageResizeFilter3D(
         vtkImageResizeFilter2D(
           &inPtr[*aY], slicePtr[kernelSizeY-j], sliceInc, extent,
           aX, fX, kernelSizeX, aZ, fZ, kernelSizeZ,
-          workPtr, 2, NULL);
+          workPtr, 2, nullptr);
 
         aY++;
       }
@@ -892,7 +892,7 @@ void vtkImageResize::ThreadedRequestData(vtkInformation *,
   int inScalarType = weights->ScalarType;
 
   // progress object if main thread
-  vtkAlgorithm *progress = ((threadId == 0) ? this : NULL);
+  vtkAlgorithm *progress = ((threadId == 0) ? this : nullptr);
 
   // call the execute method
   if (outScalarType == inScalarType)
@@ -958,7 +958,7 @@ void vtkImageResize::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkAbstractImageInterpolator *vtkImageResize::GetInterpolator()
 {
-  if (this->Interpolator == NULL)
+  if (this->Interpolator == nullptr)
   {
     vtkImageSincInterpolator *i = vtkImageSincInterpolator::New();
     i->SetWindowFunctionToLanczos();
@@ -994,7 +994,7 @@ vtkMTimeType vtkImageResize::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if (this->Interpolate != 0 && this->Interpolator != NULL)
+  if (this->Interpolate != 0 && this->Interpolator != nullptr)
   {
     time = this->Interpolator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

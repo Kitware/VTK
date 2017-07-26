@@ -58,7 +58,7 @@ public:
    else
    {
      //...otherwise, add a key/value pair for this sequence id
-     mt_parameter parameter(key, static_cast<mt_struct*>(0));
+     mt_parameter parameter(key, static_cast<mt_struct*>(nullptr));
      it = this->Parameters.insert(parameter).first;
    }
    // Instantiate the sequence.

@@ -38,10 +38,10 @@ vtkStandardNewMacro(vtkGeoAssignCoordinates);
 
 vtkGeoAssignCoordinates::vtkGeoAssignCoordinates()
 {
-  this->LongitudeArrayName = 0;
-  this->LatitudeArrayName = 0;
+  this->LongitudeArrayName = nullptr;
+  this->LatitudeArrayName = nullptr;
   this->CoordinatesInArrays = true;
-  this->Transform = 0;
+  this->Transform = nullptr;
 
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
 }
@@ -78,8 +78,8 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   // and then create new points on the output
   output->ShallowCopy(input);
   vtkPoints *newPoints = vtkPoints::New();
-  vtkPoints *oldPoints = 0;
-  vtkDataSetAttributes *pd = 0;
+  vtkPoints *oldPoints = nullptr;
+  vtkDataSetAttributes *pd = nullptr;
   vtkIdType numPoints = 0;
   if (graphInput)
   {
@@ -105,8 +105,8 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     return 1;
   }
 
-  vtkDataArray* latitudeArray = 0;
-  vtkDataArray* longitudeArray = 0;
+  vtkDataArray* latitudeArray = nullptr;
+  vtkDataArray* longitudeArray = nullptr;
   if (this->CoordinatesInArrays)
   {
     // I need a latitude array
@@ -131,7 +131,7 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     latitudeArray = pd->GetArray(this->LatitudeArrayName);
 
     // Does the latitude array exist at all?
-    if (this->CoordinatesInArrays && latitudeArray == NULL)
+    if (this->CoordinatesInArrays && latitudeArray == nullptr)
     {
       vtkErrorMacro("Could not find array named " << this->LatitudeArrayName);
       return 0;
@@ -141,7 +141,7 @@ int vtkGeoAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     longitudeArray = pd->GetArray(this->LongitudeArrayName);
 
     // Does the array exist at all?
-    if (this->CoordinatesInArrays && longitudeArray == NULL)
+    if (this->CoordinatesInArrays && longitudeArray == nullptr)
     {
       vtkErrorMacro("Could not find array named " << this->LongitudeArrayName);
       return 0;

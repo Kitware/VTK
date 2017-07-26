@@ -25,12 +25,12 @@
 // \post valid_state: IsValid()
 vtkRenderState::vtkRenderState(vtkRenderer *renderer)
 {
-  assert("pre: renderer_exists" && renderer!=0);
+  assert("pre: renderer_exists" && renderer!=nullptr);
   this->Renderer = renderer;
-  this->FrameBuffer = 0;
-  this->PropArray = 0;
+  this->FrameBuffer = nullptr;
+  this->PropArray = nullptr;
   this->PropArrayCount = 0;
-  this->RequiredKeys = 0;
+  this->RequiredKeys = nullptr;
 
   assert("post: renderer_is_set" && this->GetRenderer() == renderer);
   assert("post: is_valid" && this->IsValid());
@@ -49,7 +49,7 @@ vtkRenderState::~vtkRenderState()
 // Tells if the RenderState is a valid one (Renderer is not null).
 bool vtkRenderState::IsValid() const
 {
-  return this->Renderer != 0;
+  return this->Renderer != nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ bool vtkRenderState::IsValid() const
 // \post result_exists: result!=0
 vtkRenderer *vtkRenderState::GetRenderer() const
 {
-  assert("post: valid_result" && this->Renderer != 0);
+  assert("post: valid_result" && this->Renderer != nullptr);
   return this->Renderer;
 }
 
@@ -85,7 +85,7 @@ void vtkRenderState::SetFrameBuffer(vtkFrameBufferObjectBase *fbo)
 // Get the window size of the state.
 void vtkRenderState::GetWindowSize(int size[2]) const
 {
-  if (this->FrameBuffer==0)
+  if (this->FrameBuffer==nullptr)
   {
     this->Renderer->GetTiledSize(&size[0], &size[1]);
   }
@@ -123,7 +123,7 @@ void vtkRenderState::SetPropArrayAndCount(vtkProp **propArray,
                                           int propArrayCount)
 {
   assert("pre: positive_size" && propArrayCount >= 0);
-  assert("pre: valid_null_array" && (propArray != 0 || propArrayCount == 0));
+  assert("pre: valid_null_array" && (propArray != nullptr || propArrayCount == 0));
 
   this->PropArray = propArray;
   this->PropArrayCount = propArrayCount;

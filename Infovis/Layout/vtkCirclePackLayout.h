@@ -93,7 +93,7 @@ public:
      * If cinfo[3] is provided, then (Xcenter, Ycenter, Radius) of the circle
      * containing pnt[2] will be returned.
      */
-    vtkIdType FindVertex(double pnt[2], double *cinfo=0);
+    vtkIdType FindVertex(double pnt[2], double *cinfo=nullptr);
 
     /**
      * Return the Xcenter, Ycenter, and Radius of the

@@ -37,7 +37,7 @@
 class vtkCollectionElement //;prevents pick-up by man page generator
 {
  public:
-  vtkCollectionElement():Item(NULL),Next(NULL) {}
+  vtkCollectionElement():Item(nullptr),Next(nullptr) {}
   vtkObject *Item;
   vtkCollectionElement *Next;
 };
@@ -119,13 +119,13 @@ public:
     cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);};
 
   /**
-   * Get the next item in the collection. NULL is returned if the collection
+   * Get the next item in the collection. nullptr is returned if the collection
    * is exhausted.
    */
   vtkObject *GetNextItemAsObject();
 
   /**
-   * Get the i'th item in the collection. NULL is returned if i is out
+   * Get the i'th item in the collection. nullptr is returned if i is out
    * of range
    */
   vtkObject *GetItemAsObject(int i);
@@ -175,14 +175,14 @@ inline vtkObject *vtkCollection::GetNextItemAsObject()
 {
   vtkCollectionElement *elem=this->Current;
 
-  if ( elem != NULL )
+  if ( elem != nullptr )
   {
     this->Current = elem->Next;
     return elem->Item;
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -190,14 +190,14 @@ inline vtkObject *vtkCollection::GetNextItemAsObject(void *&cookie)
 {
   vtkCollectionElement *elem=static_cast<vtkCollectionElement *>(cookie);
 
-  if ( elem != NULL )
+  if ( elem != nullptr )
   {
     cookie = static_cast<void *>(elem->Next);
     return elem->Item;
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 

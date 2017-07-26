@@ -49,7 +49,7 @@ void vtkDataArrayCollectionIterator::SetCollection(vtkCollection* c)
   }
   else
   {
-    this->Superclass::SetCollection(0);
+    this->Superclass::SetCollection(nullptr);
   }
 }
 

@@ -26,10 +26,10 @@
 vtkStandardNewMacro(vtkOBJReader);
 
 // Description:
-// Instantiate object with NULL filename.
+// Instantiate object with nullptr filename.
 vtkOBJReader::vtkOBJReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -37,7 +37,7 @@ vtkOBJReader::vtkOBJReader()
 vtkOBJReader::~vtkOBJReader()
 {
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 /*---------------------------------------------------------------------------*\
@@ -118,7 +118,7 @@ int vtkOBJReader::RequestData(
 
   FILE *in = fopen(this->FileName,"r");
 
-  if (in == NULL)
+  if (in == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
@@ -159,7 +159,7 @@ int vtkOBJReader::RequestData(
 
   // First loop to initialize the data arrays for the different set of texture coordinates
   int lineNr = 0;
-  while (everything_ok && fgets(rawLine, MAX_LINE, in) != NULL)
+  while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
     lineNr++;
     char *pLine = rawLine;
@@ -188,7 +188,7 @@ int vtkOBJReader::RequestData(
       if (sscanf(pLine, "%s", tcoordsName) == 1)
       {
         // Go to next line to see if any texture coordinates exist
-        if (fgets(rawLine, MAX_LINE, in) != NULL)
+        if (fgets(rawLine, MAX_LINE, in) != nullptr)
         {
           lineNr++;
           pLine = rawLine;
@@ -237,7 +237,7 @@ int vtkOBJReader::RequestData(
   // Second loop to parse points, faces, texture coordinates, normals...
   lineNr = 0;
   fseek(in, 0, SEEK_SET);
-  while (everything_ok && fgets(rawLine, MAX_LINE, in) != NULL)
+  while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
     lineNr++;
     char *pLine = rawLine;
@@ -355,7 +355,7 @@ int vtkOBJReader::RequestData(
           else if (strcmp(pLine, "\\\n") == 0)
           {
             // handle backslash-newline continuation
-            if (fgets(rawLine, MAX_LINE, in) != NULL)
+            if (fgets(rawLine, MAX_LINE, in) != nullptr)
             {
               lineNr++;
               pLine = rawLine;
@@ -435,7 +435,7 @@ int vtkOBJReader::RequestData(
           else if (strcmp(pLine, "\\\n") == 0)
           {
             // handle backslash-newline continuation
-            if (fgets(rawLine, MAX_LINE, in) != NULL)
+            if (fgets(rawLine, MAX_LINE, in) != nullptr)
             {
               lineNr++;
               pLine = rawLine;
@@ -593,7 +593,7 @@ int vtkOBJReader::RequestData(
           else if (strcmp(pLine, "\\\n") == 0)
           {
             // handle backslash-newline continuation
-            if (fgets(rawLine, MAX_LINE, in) != NULL)
+            if (fgets(rawLine, MAX_LINE, in) != nullptr)
             {
               lineNr++;
               pLine = rawLine;

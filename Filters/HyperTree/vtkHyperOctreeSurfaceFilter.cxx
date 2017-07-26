@@ -35,29 +35,29 @@ vtkStandardNewMacro(vtkHyperOctreeSurfaceFilter);
 vtkHyperOctreeSurfaceFilter::vtkHyperOctreeSurfaceFilter()
 {
   this->Merging=0;
-  this->Locator=0;
+  this->Locator=nullptr;
 
-  this->OutPts=0;
-  this->InputCD=0;
-  this->OutputCD=0;
-  this->Cursor=0;
+  this->OutPts=nullptr;
+  this->InputCD=nullptr;
+  this->OutputCD=nullptr;
+  this->Cursor=nullptr;
 
   this->PassThroughCellIds = 0;
-  this->OriginalCellIds = NULL;
+  this->OriginalCellIds = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkHyperOctreeSurfaceFilter::~vtkHyperOctreeSurfaceFilter()
 {
-  if(this->Locator!=0)
+  if(this->Locator!=nullptr)
   {
     this->Locator->UnRegister(this);
-    this->Locator=0;
+    this->Locator=nullptr;
   }
-  if (this->OriginalCellIds != NULL)
+  if (this->OriginalCellIds != nullptr)
   {
     this->OriginalCellIds->Delete();
-    this->OriginalCellIds = NULL;
+    this->OriginalCellIds = nullptr;
   }
 }
 
@@ -81,7 +81,7 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
 
   if(this->Merging)
   {
-    if(this->Locator==0)
+    if(this->Locator==nullptr)
     {
       this->CreateDefaultLocator();
     }
@@ -155,7 +155,7 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
 
       output->SetPolys(this->OutCells);
       this->OutCells->UnRegister(this);
-      this->OutCells=0;
+      this->OutCells=nullptr;
       break;
     case 2:
       pt[2]=0;
@@ -179,7 +179,7 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
       this->GenerateQuads(bounds,ptIds);
       output->SetPolys(this->OutCells);
       this->OutCells->UnRegister(this);
-      this->OutCells=0;
+      this->OutCells=nullptr;
       break;
     case 1:
       // left point
@@ -196,23 +196,23 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
       this->GenerateLines(bounds,ptIds);
       output->SetLines(this->OutCells);
       this->OutCells->UnRegister(this);
-      this->OutCells=0;
+      this->OutCells=nullptr;
       break;
     default:
       assert("check: impossible case" && 0);
   }
   output->SetPoints(this->OutPts);
   this->OutPts->Delete();
-  this->OutPts=0;
+  this->OutPts=nullptr;
 
-  this->InputCD=0;
-  this->OutputCD=0;
+  this->InputCD=nullptr;
+  this->OutputCD=nullptr;
   this->Cursor->UnRegister(this);
 
-  if (this->OriginalCellIds != NULL)
+  if (this->OriginalCellIds != nullptr)
   {
     this->OriginalCellIds->Delete();
-    this->OriginalCellIds = NULL;
+    this->OriginalCellIds = nullptr;
   }
 
   output->Squeeze();
@@ -698,13 +698,13 @@ void vtkHyperOctreeSurfaceFilter::SetLocator(vtkIncrementalPointLocator *locator
 {
   if(this->Locator!=locator)
   {
-    if(this->Locator!=0)
+    if(this->Locator!=nullptr)
     {
       this->Locator->UnRegister(this);
     }
     this->Locator=locator;
 
-    if(this->Locator!=0)
+    if(this->Locator!=nullptr)
     {
       this->Locator->Register(this);
     }
@@ -715,7 +715,7 @@ void vtkHyperOctreeSurfaceFilter::SetLocator(vtkIncrementalPointLocator *locator
 //-----------------------------------------------------------------------------
 void vtkHyperOctreeSurfaceFilter::CreateDefaultLocator()
 {
-  if(this->Locator==0)
+  if(this->Locator==nullptr)
   {
     this->Locator=vtkMergePoints::New();
   }
@@ -752,7 +752,7 @@ vtkMTimeType vtkHyperOctreeSurfaceFilter::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if(this->Locator!=0)
+  if(this->Locator!=nullptr)
   {
     time=this->Locator->GetMTime();
     if(time>mTime)
@@ -767,7 +767,7 @@ vtkMTimeType vtkHyperOctreeSurfaceFilter::GetMTime()
 void vtkHyperOctreeSurfaceFilter::RecordOrigCellId(vtkIdType destIndex,
                                                    vtkIdType originalId)
 {
-  if (this->OriginalCellIds != NULL)
+  if (this->OriginalCellIds != nullptr)
   {
     this->OriginalCellIds->InsertValue(destIndex, originalId);
   }

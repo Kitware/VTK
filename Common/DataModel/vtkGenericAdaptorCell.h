@@ -322,9 +322,9 @@ public:
    * - `lines' is an array of generated lines
    * - `polys' is an array of generated polygons
    * - `outPd' is an array of interpolated point data along the edge (if
-   * not-NULL)
+   * not-nullptr)
    * - `outCd' is an array of copied cell data of the current cell (if
-   * not-NULL)
+   * not-nullptr)
    * `internalPd', `secondaryPd' and `secondaryCd' are initialized by the
    * filter that call it from `attributes'.
    * - `internalPd' stores the result of the tessellation pass: the
@@ -379,9 +379,9 @@ public:
    * (i.e., prevents duplicates).
    * - `connectivity' is an array of generated cells
    * - `outPd' is an array of interpolated point data along the edge (if
-   * not-NULL)
+   * not-nullptr)
    * - `outCd' is an array of copied cell data of the current cell (if
-   * not-NULL)
+   * not-nullptr)
    * `internalPd', `secondaryPd' and `secondaryCd' are initialized by the
    * filter that call it from `attributes'.
    * - `internalPd' stores the result of the tessellation pass: the

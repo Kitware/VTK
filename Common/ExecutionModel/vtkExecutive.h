@@ -70,7 +70,7 @@ public:
    * containing the common information, specifically the output port
    * through which the request was made and the resulting modified
    * time.  Note that unlike ProcessRequest the request information
-   * object may be NULL for this method.  It also does not contain a
+   * object may be nullptr for this method.  It also does not contain a
    * request identifcation key because the request is known from the
    * method name.
    */

@@ -28,8 +28,8 @@ vtkPlanes::vtkPlanes()
 {
   int i;
 
-  this->Points = NULL;
-  this->Normals = NULL;
+  this->Points = nullptr;
+  this->Normals = nullptr;
   this->Plane = vtkPlane::New();
 
   for (i=0; i<24; i++)
@@ -68,9 +68,9 @@ void vtkPlanes::SetNormals(vtkDataArray* normals)
 
   if (this->Normals != normals)
   {
-    if (this->Normals != NULL) { this->Normals->UnRegister(this); }
+    if (this->Normals != nullptr) { this->Normals->UnRegister(this); }
     this->Normals = normals;
-    if (this->Normals != NULL) { this->Normals->Register(this); }
+    if (this->Normals != nullptr) { this->Normals->Register(this); }
     this->Modified();
   }
 }
@@ -320,7 +320,7 @@ vtkPlane *vtkPlanes::GetPlane(int i)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 

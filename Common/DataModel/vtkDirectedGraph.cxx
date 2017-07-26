@@ -46,7 +46,7 @@ vtkDirectedGraph::~vtkDirectedGraph()
 //----------------------------------------------------------------------------
 vtkDirectedGraph *vtkDirectedGraph::GetData(vtkInformation *info)
 {
-  return info? vtkDirectedGraph::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkDirectedGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

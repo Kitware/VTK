@@ -212,7 +212,7 @@ public:
   {
       if ( i < 0 || i >= static_cast<int>(this->ExcludedArrays.size()) )
       {
-        return NULL;
+        return nullptr;
       }
       return this->ExcludedArrays[i].c_str();
   }
@@ -256,17 +256,17 @@ public:
   {
       if ( i < 0 || i >= static_cast<int>(this->DerivArrays.size()) )
       {
-        return NULL;
+        return nullptr;
       }
       return this->DerivArrays[i].c_str();
   }
   //@}
 
-  // How to handle NULL points
+  // How to handle nullptr points
   enum NullStrategy
   {
     MASK_POINTS=0,
-    NULL_VALUE=1
+    nullptr_VALUE=1
   };
 
   //@{
@@ -284,7 +284,7 @@ public:
   void SetNullPointsStrategyToMaskPoints()
     { this->SetNullPointsStrategy(MASK_POINTS); }
   void SetNullPointsStrategyToNullValue()
-    { this->SetNullPointsStrategy(NULL_VALUE); }
+    { this->SetNullPointsStrategy(nullptr_VALUE); }
   //@}
 
   //@{

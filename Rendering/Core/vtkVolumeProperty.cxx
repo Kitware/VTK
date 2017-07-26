@@ -36,13 +36,13 @@ vtkVolumeProperty::vtkVolumeProperty()
   {
     this->ColorChannels[i]                   = 1;
 
-    this->GrayTransferFunction[i]            = NULL;
-    this->RGBTransferFunction[i]             = NULL;
-    this->ScalarOpacity[i]                   = NULL;
+    this->GrayTransferFunction[i]            = nullptr;
+    this->RGBTransferFunction[i]             = nullptr;
+    this->ScalarOpacity[i]                   = nullptr;
     this->ScalarOpacityUnitDistance[i]       = 1.0;
-    this->GradientOpacity[i]                 = NULL;
-    this->TransferFunction2D[i]              = NULL;
-    this->DefaultGradientOpacity[i]          = NULL;
+    this->GradientOpacity[i]                 = nullptr;
+    this->TransferFunction2D[i]              = nullptr;
+    this->DefaultGradientOpacity[i]          = nullptr;
     this->DisableGradientOpacity[i]          = 0;
     this->TransferFunctionMode               = vtkVolumeProperty::TF_1D;
 
@@ -61,32 +61,32 @@ vtkVolumeProperty::~vtkVolumeProperty()
 {
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
   {
-    if (this->GrayTransferFunction[i] != NULL)
+    if (this->GrayTransferFunction[i] != nullptr)
     {
       this->GrayTransferFunction[i]->UnRegister(this);
     }
 
-    if (this->RGBTransferFunction[i] != NULL)
+    if (this->RGBTransferFunction[i] != nullptr)
     {
       this->RGBTransferFunction[i]->UnRegister(this);
     }
 
-    if (this->ScalarOpacity[i] != NULL)
+    if (this->ScalarOpacity[i] != nullptr)
     {
       this->ScalarOpacity[i]->UnRegister(this);
     }
 
-    if (this->GradientOpacity[i] != NULL)
+    if (this->GradientOpacity[i] != nullptr)
     {
       this->GradientOpacity[i]->UnRegister(this);
     }
 
-    if (this->TransferFunction2D[i] != NULL)
+    if (this->TransferFunction2D[i] != nullptr)
     {
       this->TransferFunction2D[i]->UnRegister(this);
     }
 
-    if (this->DefaultGradientOpacity[i] != NULL)
+    if (this->DefaultGradientOpacity[i] != nullptr)
     {
       this->DefaultGradientOpacity[i]->UnRegister(this);
     }
@@ -250,12 +250,12 @@ void vtkVolumeProperty::SetColor( int index, vtkPiecewiseFunction *function )
 {
   if (this->GrayTransferFunction[index] != function )
   {
-    if (this->GrayTransferFunction[index] != NULL)
+    if (this->GrayTransferFunction[index] != nullptr)
     {
       this->GrayTransferFunction[index]->UnRegister(this);
     }
     this->GrayTransferFunction[index]  = function;
-    if (this->GrayTransferFunction[index] != NULL)
+    if (this->GrayTransferFunction[index] != nullptr)
     {
       this->GrayTransferFunction[index]->Register(this);
     }
@@ -275,7 +275,7 @@ void vtkVolumeProperty::SetColor( int index, vtkPiecewiseFunction *function )
 // Get the currently set gray transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction( int index )
 {
-  if (this->GrayTransferFunction[index] == NULL )
+  if (this->GrayTransferFunction[index] == nullptr )
   {
     this->GrayTransferFunction[index] = vtkPiecewiseFunction::New();
     this->GrayTransferFunction[index]->Register(this);
@@ -297,12 +297,12 @@ void vtkVolumeProperty::SetColor( int index, vtkColorTransferFunction *function 
 {
   if (this->RGBTransferFunction[index] != function )
   {
-    if (this->RGBTransferFunction[index] != NULL)
+    if (this->RGBTransferFunction[index] != nullptr)
     {
       this->RGBTransferFunction[index]->UnRegister(this);
     }
     this->RGBTransferFunction[index]   = function;
-    if (this->RGBTransferFunction[index] != NULL)
+    if (this->RGBTransferFunction[index] != nullptr)
     {
       this->RGBTransferFunction[index]->Register(this);
     }
@@ -321,7 +321,7 @@ void vtkVolumeProperty::SetColor( int index, vtkColorTransferFunction *function 
 // Get the currently set RGB transfer function. Create one if none set.
 vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction( int index )
 {
-  if (this->RGBTransferFunction[index] == NULL )
+  if (this->RGBTransferFunction[index] == nullptr )
   {
     this->RGBTransferFunction[index] = vtkColorTransferFunction::New();
     this->RGBTransferFunction[index]->Register(this);
@@ -343,12 +343,12 @@ void vtkVolumeProperty::SetScalarOpacity( int index, vtkPiecewiseFunction *funct
 {
   if ( this->ScalarOpacity[index] != function )
   {
-    if (this->ScalarOpacity[index] != NULL)
+    if (this->ScalarOpacity[index] != nullptr)
     {
       this->ScalarOpacity[index]->UnRegister(this);
     }
     this->ScalarOpacity[index] = function;
-    if (this->ScalarOpacity[index] != NULL)
+    if (this->ScalarOpacity[index] != nullptr)
     {
       this->ScalarOpacity[index]->Register(this);
     }
@@ -362,7 +362,7 @@ void vtkVolumeProperty::SetScalarOpacity( int index, vtkPiecewiseFunction *funct
 // Get the scalar opacity transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity( int index )
 {
-  if( this->ScalarOpacity[index] == NULL )
+  if( this->ScalarOpacity[index] == nullptr )
   {
     this->ScalarOpacity[index] = vtkPiecewiseFunction::New();
     this->ScalarOpacity[index]->Register(this);
@@ -406,12 +406,12 @@ void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *fun
 {
   if ( this->GradientOpacity[index] != function )
   {
-    if (this->GradientOpacity[index] != NULL)
+    if (this->GradientOpacity[index] != nullptr)
     {
       this->GradientOpacity[index]->UnRegister(this);
     }
     this->GradientOpacity[index]       = function;
-    if (this->GradientOpacity[index] != NULL)
+    if (this->GradientOpacity[index] != nullptr)
     {
       this->GradientOpacity[index]->Register(this);
     }
@@ -424,7 +424,7 @@ void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *fun
 
 void vtkVolumeProperty::CreateDefaultGradientOpacity( int index )
 {
-  if ( this->DefaultGradientOpacity[index] == NULL )
+  if ( this->DefaultGradientOpacity[index] == nullptr )
   {
     this->DefaultGradientOpacity[index] = vtkPiecewiseFunction::New();
     this->DefaultGradientOpacity[index]->Register(this);
@@ -440,7 +440,7 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity( int index )
 {
   if (this->DisableGradientOpacity[index])
   {
-    if ( this->DefaultGradientOpacity[index] == NULL )
+    if ( this->DefaultGradientOpacity[index] == nullptr )
     {
       this->CreateDefaultGradientOpacity(index);
     }
@@ -467,13 +467,13 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
       return;
     }
 
-    if (this->TransferFunction2D[index] != NULL)
+    if (this->TransferFunction2D[index] != nullptr)
     {
       this->TransferFunction2D[index]->UnRegister(this);
     }
 
     this->TransferFunction2D[index] = function;
-    if (this->TransferFunction2D[index] != NULL)
+    if (this->TransferFunction2D[index] != nullptr)
     {
       this->TransferFunction2D[index]->Register(this);
     }
@@ -492,7 +492,7 @@ vtkImageData* vtkVolumeProperty::GetTransferFunction2D(int index)
 // Get the gradient opacity transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetStoredGradientOpacity( int index )
 {
-  if ( this->GradientOpacity[index] == NULL )
+  if ( this->GradientOpacity[index] == nullptr )
   {
     this->GradientOpacity[index] = vtkPiecewiseFunction::New();
     this->GradientOpacity[index]->Register(this);

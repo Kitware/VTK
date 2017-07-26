@@ -77,7 +77,7 @@ const char* vtkXdmf3ArraySelection::GetArrayName(int index)
     }
     cc++;
   }
-  return NULL;
+  return nullptr;
 }
 
 //--------------------------------------------------------------------------

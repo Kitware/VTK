@@ -81,10 +81,10 @@ vtkBinCellDataFilter::vtkBinCellDataFilter()
   this->BinValues = vtkBinValues::New();
   this->BinValues->GenerateValues(2, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX);
 
-  this->CellLocator = NULL;
+  this->CellLocator = nullptr;
 
   this->StoreNumberOfNonzeroBins = true;
-  this->NumberOfNonzeroBinsArrayName = 0;
+  this->NumberOfNonzeroBinsArrayName = nullptr;
   this->SetNumberOfNonzeroBinsArrayName("NumberOfNonzeroBins");
 
   this->SpatialMatch = 0;
@@ -104,8 +104,8 @@ vtkBinCellDataFilter::vtkBinCellDataFilter()
 vtkBinCellDataFilter::~vtkBinCellDataFilter()
 {
   this->BinValues->Delete();
-  this->SetCellLocator(NULL);
-  this->SetNumberOfNonzeroBinsArrayName(0);
+  this->SetCellLocator(nullptr);
+  this->SetNumberOfNonzeroBinsArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ vtkDataObject *vtkBinCellDataFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GetExecutive()->GetInputData(1, 0);
@@ -438,7 +438,7 @@ int vtkBinCellDataFilter::RequestUpdateExtent(
 // Method manages creation of locators.
 void vtkBinCellDataFilter::CreateDefaultLocator()
 {
-  this->SetCellLocator(NULL);
+  this->SetCellLocator(nullptr);
   this->CellLocator = vtkCellLocator::New();
   this->CellLocator->Register(this);
   this->CellLocator->Delete();

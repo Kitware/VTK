@@ -75,12 +75,12 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->PickInfo->NumPicked = 0;
   this->PickedZ = 0;
 
-  this->FXAAFilter = 0;
-  this->DepthPeelingPass = 0;
-  this->ShadowMapPass = 0;
+  this->FXAAFilter = nullptr;
+  this->DepthPeelingPass = nullptr;
+  this->ShadowMapPass = nullptr;
   this->DepthPeelingHigherLayer=0;
 
-  this->BackgroundTexture = 0;
+  this->BackgroundTexture = nullptr;
   this->HaveApplePrimitiveIdBugValue = false;
   this->HaveApplePrimitiveIdBugChecked = false;
 }
@@ -148,11 +148,11 @@ void vtkOpenGLRenderer::DeviceRender(void)
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
-  if(this->Pass!=0)
+  if(this->Pass!=nullptr)
   {
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(0);
+    s.SetFrameBuffer(nullptr);
     this->Pass->Render(&s);
   }
   else
@@ -308,7 +308,7 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
     vtkNew<vtkHiddenLineRemovalPass> hlrPass;
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(0);
+    s.SetFrameBuffer(nullptr);
     hlrPass->Render(&s);
     this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
   }
@@ -392,7 +392,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
             this->DepthPeelingPass);
       if (ddpp)
       {
-        ddpp->SetVolumetricPass(NULL);
+        ddpp->SetVolumetricPass(nullptr);
       }
     }
 
@@ -400,7 +400,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     this->DepthPeelingPass->SetOcclusionRatio(this->OcclusionRatio);
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(0);
+    s.SetFrameBuffer(nullptr);
     this->LastRenderingUsedDepthPeeling=1;
     this->DepthPeelingPass->Render(&s);
     this->NumberOfPropsRendered += this->DepthPeelingPass->GetNumberOfRenderedProps();
@@ -756,28 +756,28 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
 {
   delete this->PickInfo;
 
-  if(this->Pass != NULL)
+  if(this->Pass != nullptr)
   {
     this->Pass->UnRegister(this);
-    this->Pass = NULL;
+    this->Pass = nullptr;
   }
 
   if (this->FXAAFilter)
   {
     this->FXAAFilter->Delete();
-    this->FXAAFilter = 0;
+    this->FXAAFilter = nullptr;
   }
 
   if (this->ShadowMapPass)
   {
     this->ShadowMapPass->Delete();
-    this->ShadowMapPass = 0;
+    this->ShadowMapPass = nullptr;
   }
 
   if (this->DepthPeelingPass)
   {
     this->DepthPeelingPass->Delete();
-    this->DepthPeelingPass = 0;
+    this->DepthPeelingPass = nullptr;
   }
 }
 

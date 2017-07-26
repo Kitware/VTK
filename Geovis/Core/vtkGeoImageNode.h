@@ -79,7 +79,7 @@ public:
    * If prefix is specified, writes the tile to that location.
    */
   void CropImageForTile(vtkImageData* image,double* imageLonLatExt,
-    const char* prefix = 0);
+    const char* prefix = nullptr);
 
   /**
    * This loads the image from a tile database at the specified location.

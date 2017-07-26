@@ -34,7 +34,7 @@ vtkContextDevice2D::vtkContextDevice2D()
 {
   this->Geometry[0] = 0;
   this->Geometry[1] = 0;
-  this->BufferId = 0;
+  this->BufferId = nullptr;
   this->Pen = vtkPen::New();
   this->Brush = vtkBrush::New();
   this->TextProp = vtkTextProperty::New();
@@ -51,7 +51,7 @@ vtkContextDevice2D::~vtkContextDevice2D()
 //-----------------------------------------------------------------------------
 bool vtkContextDevice2D::MathTextIsSupported()
 {
-  return vtkMathTextUtilities::GetInstance() != NULL;
+  return vtkMathTextUtilities::GetInstance() != nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void vtkContextDevice2D::ApplyTextProp(vtkTextProperty *prop)
 // ----------------------------------------------------------------------------
 bool vtkContextDevice2D::GetBufferIdMode() const
 {
-  return this->BufferId != 0;
+  return this->BufferId != nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -156,7 +156,7 @@ void vtkContextDevice2D::BufferIdModeBegin(
   vtkAbstractContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
-  assert("pre: bufferId_exists" && bufferId!=0);
+  assert("pre: bufferId_exists" && bufferId!=nullptr);
 
   this->BufferId = bufferId;
 
@@ -168,7 +168,7 @@ void vtkContextDevice2D::BufferIdModeEnd()
 {
   assert("pre: started" && this->GetBufferIdMode());
 
-  this->BufferId = 0;
+  this->BufferId = nullptr;
 
   assert("post: done" && !this->GetBufferIdMode());
 }

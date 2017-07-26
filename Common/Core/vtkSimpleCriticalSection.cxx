@@ -21,7 +21,7 @@ void vtkSimpleCriticalSection::Init()
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
-  //this->MutexLock = CreateMutex( NULL, FALSE, NULL );
+  //this->MutexLock = CreateMutex( nullptr, FALSE, nullptr );
   InitializeCriticalSection(&this->CritSec);
 #endif
 
@@ -29,7 +29,7 @@ void vtkSimpleCriticalSection::Init()
 #ifdef VTK_HP_PTHREADS
   pthread_mutex_init(&(this->CritSec), pthread_mutexattr_default);
 #else
-  pthread_mutex_init(&(this->CritSec), NULL);
+  pthread_mutex_init(&(this->CritSec), nullptr);
 #endif
 #endif
 }

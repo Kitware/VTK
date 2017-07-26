@@ -31,7 +31,7 @@ void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array)
 {
   if(!array)
   {
-    vtkGenericWarningMacro(<< "vtkPrintCoordinateFormat() requires a non-NULL array as input.");
+    vtkGenericWarningMacro(<< "vtkPrintCoordinateFormat() requires a non-nullptr array as input.");
     return;
   }
 
@@ -58,7 +58,7 @@ void vtkPrintMatrixFormat(ostream& stream, vtkTypedArray<T>* matrix)
 {
   if(!matrix)
   {
-    vtkGenericWarningMacro(<< "vtkPrintMatrixFormat() requires a non-NULL array as input.");
+    vtkGenericWarningMacro(<< "vtkPrintMatrixFormat() requires a non-nullptr array as input.");
     return;
   }
 
@@ -86,7 +86,7 @@ void vtkPrintVectorFormat(ostream& stream, vtkTypedArray<T>* vector)
 {
   if(!vector)
   {
-    vtkGenericWarningMacro(<< "vtkPrintVectorFormat() requires a non-NULL array as input.");
+    vtkGenericWarningMacro(<< "vtkPrintVectorFormat() requires a non-nullptr array as input.");
     return;
   }
 

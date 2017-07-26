@@ -614,7 +614,7 @@ void vtkPDFContextDevice2D::DrawColoredPolygon(float *points, int numPoints,
 
   // Just use the standard draw method if there is a texture or colors are not
   // specified:
-  if (this->Brush->GetTexture() != NULL ||
+  if (this->Brush->GetTexture() != nullptr ||
       nc_comps == 0)
   {
     this->DrawPolygon(points, numPoints);
@@ -839,7 +839,7 @@ void vtkPDFContextDevice2D::DrawString(float *point, const vtkStdString &string)
     HPDF_Page_TextRect(this->Impl->Page,
                        anchor[0], anchor[1],
                        anchor[0] + width, anchor[1] - height,
-                       string.c_str(), align, NULL);
+                       string.c_str(), align, nullptr);
 
     this->EndText();
   }

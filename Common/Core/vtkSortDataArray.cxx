@@ -52,7 +52,7 @@ vtkSortDataArray::~vtkSortDataArray()
 //---------------------------------------------------------------------------
 void vtkSortDataArray::Sort(vtkIdList *keys, int dir)
 {
-  if ( keys == NULL )
+  if ( keys == nullptr )
   {
     return;
   }
@@ -72,7 +72,7 @@ void vtkSortDataArray::Sort(vtkIdList *keys, int dir)
 //---------------------------------------------------------------------------
 void vtkSortDataArray::Sort(vtkAbstractArray *keys, int dir)
 {
-  if ( keys == NULL )
+  if ( keys == nullptr )
   {
     return;
   }
@@ -357,7 +357,7 @@ void vtkSortDataArray::
 Sort(vtkAbstractArray *keys, vtkAbstractArray *values, int dir)
 {
   // Check input
-  if ( keys == NULL || values == NULL )
+  if ( keys == nullptr || values == nullptr )
   {
     return;
   }
@@ -404,7 +404,7 @@ void vtkSortDataArray::
 Sort(vtkAbstractArray *keys, vtkIdList *values, int  dir)
 {
   // Check input
-  if ( keys == NULL || values == NULL )
+  if ( keys == nullptr || values == nullptr )
   {
     return;
   }
@@ -448,7 +448,7 @@ void vtkSortDataArray::
 SortArrayByComponent( vtkAbstractArray* arr, int k, int dir)
 {
   // Check input
-  if ( arr == NULL )
+  if ( arr == nullptr )
   {
     return;
   }

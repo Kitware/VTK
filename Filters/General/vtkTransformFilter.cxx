@@ -36,13 +36,13 @@ vtkCxxSetObjectMacro(vtkTransformFilter,Transform,vtkAbstractTransform);
 
 vtkTransformFilter::vtkTransformFilter()
 {
-  this->Transform = NULL;
+  this->Transform = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 vtkTransformFilter::~vtkTransformFilter()
 {
-  this->SetTransform(NULL);
+  this->SetTransform(nullptr);
 }
 
 int vtkTransformFilter::FillInputPortInformation(int vtkNotUsed(port),
@@ -124,9 +124,9 @@ int vtkTransformFilter::RequestData(
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkDataArray *inVectors, *inCellVectors;;
-  vtkFloatArray *newVectors=NULL, *newCellVectors=NULL;
+  vtkFloatArray *newVectors=nullptr, *newCellVectors=nullptr;
   vtkDataArray *inNormals, *inCellNormals;
-  vtkFloatArray *newNormals=NULL, *newCellNormals=NULL;
+  vtkFloatArray *newNormals=nullptr, *newCellNormals=nullptr;
   vtkIdType numPts, numCells;
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
@@ -138,7 +138,7 @@ int vtkTransformFilter::RequestData(
 
   // Check input
   //
-  if ( this->Transform == NULL )
+  if ( this->Transform == nullptr )
   {
     vtkErrorMacro(<<"No transform defined!");
     return 1;

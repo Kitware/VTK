@@ -87,14 +87,14 @@ vtkSmartPyObject::operator PyObject*() const
 //--------------------------------------------------------------------
 vtkSmartPyObject::operator bool() const
 {
-  return this->Object != NULL;
+  return this->Object != nullptr;
 }
 
 //--------------------------------------------------------------------
 PyObject *vtkSmartPyObject::ReleaseReference()
 {
   PyObject *tmp = this->Object;
-  this->Object = NULL;
+  this->Object = nullptr;
   return tmp;
 }
 

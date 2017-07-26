@@ -45,7 +45,7 @@ void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
     vtkOverlappingAMR *amr)
 {
-  assert("pre: input AMR data is NULL" && (amr != NULL) );
+  assert("pre: input AMR data is nullptr" && (amr != nullptr) );
   int numLevels = static_cast<int>( amr->GetNumberOfLevels() );
   int levelIdx  = numLevels-1;
   for(; levelIdx > 0; --levelIdx )
@@ -102,8 +102,8 @@ void vtkAMRUtilities::CopyFieldData(
     vtkFieldData *target, vtkIdType targetIdx,
     vtkFieldData *source, vtkIdType srcIdx )
 {
-  assert("pre: target should not be NULL" && (target != NULL) );
-  assert("pre: source should not be NULL" && (source != NULL) );
+  assert("pre: target should not be nullptr" && (target != nullptr) );
+  assert("pre: source should not be nullptr" && (source != nullptr) );
   assert("pre: number of arrays between source and target does not match!" &&
          (source->GetNumberOfArrays()==target->GetNumberOfArrays() ) );
 
@@ -111,8 +111,8 @@ void vtkAMRUtilities::CopyFieldData(
   {
     vtkDataArray *targetArray = target->GetArray( arrayIdx );
     vtkDataArray *srcArray    = source->GetArray( arrayIdx );
-    assert( "pre: target array is NULL!" && (targetArray != NULL) );
-    assert( "pre: source array is NULL!" && (srcArray != NULL) );
+    assert( "pre: target array is nullptr!" && (targetArray != nullptr) );
+    assert( "pre: source array is nullptr!" && (srcArray != nullptr) );
     assert( "pre: targer/source array number of components mismatch!" &&
             (targetArray->GetNumberOfComponents()==
              srcArray->GetNumberOfComponents() ) );
@@ -137,8 +137,8 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
     vtkUniformGrid *ghostedGrid,
     vtkUniformGrid *strippedGrid)
 {
-  assert("pre: input ghost grid is NULL" && (ghostedGrid != NULL) );
-  assert("pre: input stripped grid is NULL" && (strippedGrid != NULL) );
+  assert("pre: input ghost grid is nullptr" && (ghostedGrid != nullptr) );
+  assert("pre: input stripped grid is nullptr" && (strippedGrid != nullptr) );
 
   // STEP 0: Initialize the unghosted grid fields (point/cell data)
   strippedGrid->GetPointData()->CopyAllOn();
@@ -243,7 +243,7 @@ void vtkAMRUtilities::CopyFieldsWithinRealExtent(
 vtkUniformGrid* vtkAMRUtilities::StripGhostLayersFromGrid(
       vtkUniformGrid* grid, int ghost[6] )
 {
-  assert("pre: input grid is NULL" && (grid != NULL) );
+  assert("pre: input grid is nullptr" && (grid != nullptr) );
 
   // STEP 0: Get the grid properties, i.e., origin, dims, extent, etc.
   double origin[3];
@@ -293,8 +293,8 @@ void vtkAMRUtilities::StripGhostLayers(
         vtkOverlappingAMR *ghostedAMRData,
         vtkOverlappingAMR *strippedAMRData)
 {
-  assert("pre: input AMR data is NULL" && (ghostedAMRData != NULL) );
-  assert("pre: outputAMR data is NULL" && (strippedAMRData != NULL) );
+  assert("pre: input AMR data is nullptr" && (ghostedAMRData != nullptr) );
+  assert("pre: outputAMR data is nullptr" && (strippedAMRData != nullptr) );
   double spacing[3];
 
   if( !vtkAMRUtilities::HasPartiallyOverlappingGhostCells( ghostedAMRData ) )
@@ -342,7 +342,7 @@ void vtkAMRUtilities::StripGhostLayers(
       strippedBox.RemoveGhosts(r);
 
       strippedAMRData->SetAMRBox(levelIdx,dataIdx, strippedBox);
-      if( grid !=NULL )
+      if( grid !=nullptr )
       {
         myBox.GetGhostVector(r, ghost);
 
@@ -402,7 +402,7 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
   {
     const vtkAMRBox& box = amr->GetAMRBox(levelIdx, dataSetIdx);
     vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataSetIdx);
-    if (grid == NULL )
+    if (grid == nullptr )
     {
       continue;
     }

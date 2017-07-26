@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkArrayDataWriter);
 
 vtkArrayDataWriter::vtkArrayDataWriter() :
-  FileName(0),
+  FileName(nullptr),
   Binary(false),
   WriteToOutputString(false)
 {
@@ -35,7 +35,7 @@ vtkArrayDataWriter::vtkArrayDataWriter() :
 
 vtkArrayDataWriter::~vtkArrayDataWriter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 void vtkArrayDataWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -112,7 +112,7 @@ bool vtkArrayDataWriter::Write(vtkArrayData* array_data, ostream& stream, bool W
     {
       vtkArray* const array = array_data->GetArray(i);
       if(!array)
-        throw std::runtime_error("Cannot serialize NULL vtkArray.");
+        throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
       vtkArrayWriter::Write(array, stream, WriteBinary);
     }

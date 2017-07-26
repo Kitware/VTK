@@ -110,7 +110,7 @@ public:
 //----------------------------------------------------------------------------
 // Initialized mainly to eliminate compiler warnings.
 template <class TN,class TV> vtkVectorDotAlgorithm<TN,TV>::
-vtkVectorDotAlgorithm():Normals(NULL),Vectors(NULL),Scalars(NULL)
+vtkVectorDotAlgorithm():Normals(nullptr),Vectors(nullptr),Scalars(nullptr)
 {
   this->NumPts = 0;
   this->Min = this->Max = 0.0;
@@ -219,12 +219,12 @@ int vtkVectorDot::RequestData(
     vtkErrorMacro(<< "No points!");
     return 1;
   }
-  if ( (inNormals=pd->GetNormals()) == NULL )
+  if ( (inNormals=pd->GetNormals()) == nullptr )
   {
     vtkErrorMacro(<< "No normals defined!");
     return 1;
   }
-  if ( (inVectors=pd->GetVectors()) == NULL )
+  if ( (inVectors=pd->GetVectors()) == nullptr )
   {
     vtkErrorMacro(<< "No vectors defined!");
     return 1;

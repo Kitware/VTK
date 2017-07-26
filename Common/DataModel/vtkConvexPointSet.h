@@ -81,7 +81,7 @@ public:
    * rarely used method and hard to implement. It can be changed in the future.
    */
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;}
-  vtkCell *GetEdge(int) VTK_OVERRIDE {return NULL;}
+  vtkCell *GetEdge(int) VTK_OVERRIDE {return nullptr;}
   int GetNumberOfFaces() VTK_OVERRIDE;
   vtkCell *GetFace(int faceId) VTK_OVERRIDE;
   //@}

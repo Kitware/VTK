@@ -106,8 +106,8 @@ public:
 
 protected:
   ProcessBlockData():
-    In(NULL),
-    Out(NULL)
+    In(nullptr),
+    Out(nullptr)
   {
 
   }
@@ -264,7 +264,7 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
 
   // instantiate outObjs, the output objects that will be created from inObjs
   std::vector<vtkDataObject*> outObjs;
-  outObjs.resize(indices.size(),NULL);
+  outObjs.resize(indices.size(),nullptr);
 
   // create the parallel task processBlock
   ProcessBlock processBlock(this,

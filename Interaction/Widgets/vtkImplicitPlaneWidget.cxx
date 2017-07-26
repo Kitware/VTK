@@ -246,7 +246,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -303,7 +303,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
 
     this->UpdateRepresentation();
     this->SizeHandles();
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling----------------------------------------------------------
@@ -330,8 +330,8 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->SphereActor);
     this->CurrentRenderer->RemoveActor(this->CutActor);
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -530,7 +530,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
-  if ( path == NULL ) //not picking this widget
+  if ( path == nullptr ) //not picking this widget
   {
     this->HighlightPlane(0);
     this->HighlightNormal(0);
@@ -581,7 +581,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -601,7 +601,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -622,7 +622,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
   // Okay, we can process this.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
-  if ( path == NULL ) //nothing picked
+  if ( path == nullptr ) //nothing picked
   {
     this->State = vtkImplicitPlaneWidget::Outside;
     return;
@@ -636,7 +636,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -656,7 +656,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -682,7 +682,7 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
     // if no handles picked, then pick the bounding box.
     vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
-    if ( path == NULL ) //nothing picked
+    if ( path == nullptr ) //nothing picked
     {
       this->State = vtkImplicitPlaneWidget::Outside;
       return;
@@ -696,7 +696,7 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
 
     this->EventCallbackCommand->SetAbortFlag(1);
     this->StartInteraction();
-    this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     this->Interactor->Render();
   }
 }
@@ -717,7 +717,7 @@ void vtkImplicitPlaneWidget::OnRightButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -783,7 +783,7 @@ void vtkImplicitPlaneWidget::OnMouseMove()
 
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 
   this->Interactor->Render();
 }
@@ -1216,7 +1216,7 @@ vtkPolyDataAlgorithm *vtkImplicitPlaneWidget::GetPolyDataAlgorithm()
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::GetPlane(vtkPlane *plane)
 {
-  if ( plane == NULL )
+  if ( plane == nullptr )
   {
     return;
   }

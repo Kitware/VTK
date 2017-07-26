@@ -48,8 +48,8 @@ char vtkRearrangeFields::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10
 
 vtkRearrangeFields::vtkRearrangeFields()
 {
-  this->Head = 0;
-  this->Tail = 0;
+  this->Head = nullptr;
+  this->Tail = nullptr;
   this->LastId = 0;
   //convert the attribute names to uppercase for local use
   if (vtkRearrangeFields::AttributeNames[0][0] == 0)
@@ -120,7 +120,7 @@ int vtkRearrangeFields::RequestData(
 vtkFieldData* vtkRearrangeFields::GetFieldDataFromLocation(vtkDataSet* ds,
                                                            int fieldLoc)
 {
-  vtkFieldData* fd=0;
+  vtkFieldData* fd=nullptr;
 
   switch (fieldLoc)
   {
@@ -522,7 +522,7 @@ int vtkRearrangeFields::RemoveOperation(int operationType, int attributeType,
 
 void vtkRearrangeFields::AddOperation(Operation* op)
 {
-  op->Next = 0;
+  op->Next = nullptr;
 
   if (!this->Head)
   {
@@ -555,9 +555,9 @@ void vtkRearrangeFields::DeleteOperation(Operation* op, Operation* before)
 Operation* vtkRearrangeFields::FindOperation(int id, Operation*& before)
 {
   Operation* cur = this->GetFirst();
-  if (!cur) { return 0; }
+  if (!cur) { return nullptr; }
 
-  before = 0;
+  before = nullptr;
   if (cur->Id == id) { return cur; }
   while (cur->Next)
   {
@@ -568,7 +568,7 @@ Operation* vtkRearrangeFields::FindOperation(int id, Operation*& before)
     }
     cur = cur->Next;
   }
-  return 0;
+  return nullptr;
 }
 
 Operation* vtkRearrangeFields::FindOperation(int operationType,
@@ -577,7 +577,7 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
                                              int toFieldLoc,
                                              Operation*& before)
 {
-  if (!name) {return 0;}
+  if (!name) {return nullptr;}
 
   Operation op;
   op.OperationType = operationType;
@@ -587,7 +587,7 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
   op.ToFieldLoc = toFieldLoc;
 
   Operation* cur = this->GetFirst();
-  before = 0;
+  before = nullptr;
   if ( (cur->FieldType == vtkRearrangeFields::NAME) &&
        this->CompareOperationsByName(cur, &op)) { return cur; }
   while (cur->Next)
@@ -600,7 +600,7 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
     }
     cur = cur->Next;
   }
-  return 0;
+  return nullptr;
 }
 
 Operation* vtkRearrangeFields::FindOperation(int operationType,
@@ -616,7 +616,7 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
   op.ToFieldLoc = toFieldLoc;
 
   Operation* cur = this->GetFirst();
-  before = 0;
+  before = nullptr;
   if ( (cur->FieldType == vtkRearrangeFields::ATTRIBUTE) &&
        this->CompareOperationsByType(cur, &op)) { return cur; }
   while (cur->Next)
@@ -629,7 +629,7 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
     }
     cur = cur->Next;
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkRearrangeFields::DeleteAllOperations()
@@ -644,8 +644,8 @@ void vtkRearrangeFields::DeleteAllOperations()
     delete before;
   }
   while (cur);
-  this->Head = 0;
-  this->Tail = 0;
+  this->Head = nullptr;
+  this->Tail = nullptr;
 }
 
 int vtkRearrangeFields::CompareOperationsByName(const Operation* op1,

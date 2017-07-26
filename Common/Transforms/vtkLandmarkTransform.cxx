@@ -25,8 +25,8 @@ vtkStandardNewMacro(vtkLandmarkTransform);
 vtkLandmarkTransform::vtkLandmarkTransform()
 {
   this->Mode = VTK_LANDMARK_SIMILARITY;
-  this->SourceLandmarks=NULL;
-  this->TargetLandmarks=NULL;
+  this->SourceLandmarks=nullptr;
+  this->TargetLandmarks=nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ void vtkLandmarkTransform::InternalUpdate()
   vtkIdType i;
   int j;
 
-  if (this->SourceLandmarks == NULL || this->TargetLandmarks == NULL)
+  if (this->SourceLandmarks == nullptr || this->TargetLandmarks == nullptr)
   {
     this->Matrix->Identity();
     return;
@@ -290,7 +290,7 @@ void vtkLandmarkTransform::InternalUpdate()
       else // rotation by 180 degrees: special case
       {
         // rotate around a vector perpendicular to ds
-        vtkMath::Perpendiculars(ds,dt,0,0);
+        vtkMath::Perpendiculars(ds,dt,nullptr,0);
         r = sin(theta/2);
         x = dt[0]*r;
         y = dt[1]*r;

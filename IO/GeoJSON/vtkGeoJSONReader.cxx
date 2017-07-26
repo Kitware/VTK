@@ -116,7 +116,7 @@ GeoJSONReaderInternal::ParseRoot(
     this->PropertySpecs.begin();
   for (; iter != this->PropertySpecs.end(); ++iter)
   {
-    array = NULL;
+    array = nullptr;
     switch (iter->Value.GetType())
     {
       case VTK_BIT:
@@ -374,12 +374,12 @@ GeoJSONReaderInternal::InsertFeatureProperties(vtkPolyData *polyData,
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::vtkGeoJSONReader()
 {
-  this->FileName = NULL;
-  this->StringInput = NULL;
+  this->FileName = nullptr;
+  this->StringInput = nullptr;
   this->StringInputMode = false;
   this->TriangulatePolygons = false;
   this->OutlinePolygons = false;
-  this->SerializedPropertiesArrayName = NULL;
+  this->SerializedPropertiesArrayName = nullptr;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->Internal = new GeoJSONReaderInternal;

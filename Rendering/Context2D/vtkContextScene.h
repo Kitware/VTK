@@ -226,7 +226,7 @@ public:
   /**
    * Check whether the scene has a transform.
    */
-  bool HasTransform() { return this->Transform != 0; }
+  bool HasTransform() { return this->Transform != nullptr; }
 
   /**
    * Enum of valid selection modes for charts in the scene

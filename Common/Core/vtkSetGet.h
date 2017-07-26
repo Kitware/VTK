@@ -107,7 +107,7 @@ virtual type Get##name () { \
 virtual void Set##name (const char* _arg) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
-  if ( this->name == NULL && _arg == NULL) { return;} \
+  if ( this->name == nullptr && _arg == nullptr) { return;} \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
   delete [] this->name; \
   if (_arg) \
@@ -120,7 +120,7 @@ virtual void Set##name (const char* _arg) \
   } \
    else \
    { \
-    this->name = NULL; \
+    this->name = nullptr; \
    } \
   this->Modified(); \
 }
@@ -176,8 +176,8 @@ virtual type Get##name##MaxValue () \
   {                                                           \
     type* tempSGMacroVar = this->name;                          \
     this->name = args;                                          \
-    if (this->name != NULL) { this->name->Register(this); }     \
-    if (tempSGMacroVar != NULL)                                 \
+    if (this->name != nullptr) { this->name->Register(this); }     \
+    if (tempSGMacroVar != nullptr)                                 \
     {                                                         \
       tempSGMacroVar->UnRegister(this);                         \
     }                                                         \
@@ -652,7 +652,7 @@ virtual double *Get##name() \
     { \
       return static_cast<thisClass *>(o); \
     } \
-    return NULL;\
+    return nullptr;\
   } \
   VTK_NEWINSTANCE instanceType *NewInstance() const \
   { \

@@ -20,8 +20,8 @@
 
 vtkPythonCommand::vtkPythonCommand()
 {
-  this->obj = NULL;
-  this->ThreadState = NULL;
+  this->obj = nullptr;
+  this->ThreadState = nullptr;
   vtkPythonUtil::RegisterPythonCommand(this);
 }
 
@@ -33,7 +33,7 @@ vtkPythonCommand::~vtkPythonCommand()
     vtkPythonScopeGilEnsurer gilEnsurer;
     Py_DECREF(this->obj);
   }
-  this->obj = NULL;
+  this->obj = nullptr;
 }
 
 void vtkPythonCommand::SetObject(PyObject *o)
@@ -103,7 +103,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
 #endif
 
 
-  PyObject * obj2 = NULL;
+  PyObject * obj2 = nullptr;
   if (eventtype != vtkCommand::DeleteEvent &&
       ptr && ptr->GetReferenceCount() > 0)
   {
@@ -136,7 +136,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   PyObject *callDataTypeObj = PyObject_GetAttrString(this->obj,
                                                      callDataTypeLiteral);
 
-  PyObject *arglist = NULL;
+  PyObject *arglist = nullptr;
   if (callData && callDataTypeObj)
   {
     if (PyInt_Check(callDataTypeObj))

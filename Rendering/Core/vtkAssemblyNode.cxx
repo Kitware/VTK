@@ -22,8 +22,8 @@ vtkStandardNewMacro(vtkAssemblyNode);
 //----------------------------------------------------------------------------
 vtkAssemblyNode::vtkAssemblyNode()
 {
-  this->ViewProp = 0;
-  this->Matrix = 0;
+  this->ViewProp = nullptr;
+  this->Matrix = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ vtkAssemblyNode::~vtkAssemblyNode()
   if (this->Matrix)
   {
     this->Matrix->Delete();
-    this->Matrix = 0;
+    this->Matrix = nullptr;
   }
 }
 
@@ -50,7 +50,7 @@ void vtkAssemblyNode::SetMatrix(vtkMatrix4x4 *matrix)
   if (this->Matrix)
   {
     this->Matrix->Delete();
-    this->Matrix = 0;
+    this->Matrix = nullptr;
   }
   // return if NULL matrix specified
   if (!matrix)

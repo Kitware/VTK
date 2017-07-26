@@ -133,7 +133,7 @@ public:
   enum Strategy
   {
     MASK_POINTS=0,
-    NULL_VALUE=1,
+    nullptr_VALUE=1,
     CLOSEST_POINT=2
   };
 
@@ -154,7 +154,7 @@ public:
   void SetNullPointsStrategyToMaskPoints()
     { this->SetNullPointsStrategy(MASK_POINTS); }
   void SetNullPointsStrategyToNullValue()
-    { this->SetNullPointsStrategy(NULL_VALUE); }
+    { this->SetNullPointsStrategy(nullptr_VALUE); }
   void SetNullPointsStrategyToClosestPoint()
     { this->SetNullPointsStrategy(CLOSEST_POINT); }
   //@}
@@ -217,7 +217,7 @@ public:
   {
       if ( i < 0 || i >= static_cast<int>(this->ExcludedArrays.size()) )
       {
-        return NULL;
+        return nullptr;
       }
       return this->ExcludedArrays[i].c_str();
   }

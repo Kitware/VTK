@@ -87,7 +87,7 @@ int vtkRemoveHiddenData::RequestData(
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  vtkAnnotationLayers* annotations = 0;
+  vtkAnnotationLayers* annotations = nullptr;
   if (annotationsInfo)
   {
     annotations = vtkAnnotationLayers::SafeDownCast(

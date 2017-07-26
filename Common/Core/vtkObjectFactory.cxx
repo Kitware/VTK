@@ -26,7 +26,7 @@
 #include <cctype>
 
 
-vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
+vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = nullptr;
 static unsigned int vtkObjectFactoryRegistryCleanupCounter = 0;
 
 vtkObjectFactoryRegistryCleanup::vtkObjectFactoryRegistryCleanup()
@@ -66,7 +66,7 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname,
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 #ifndef VTK_LEGACY_REMOVE
@@ -120,12 +120,12 @@ void vtkObjectFactory::LoadDynamicFactories()
   char PathSeparator = ':';
 #endif
 
-  char* LoadPath = 0;
+  char* LoadPath = nullptr;
 
 #ifndef _WIN32_WCE
   LoadPath = getenv("VTK_AUTOLOAD_PATH");
 #endif
-  if(LoadPath == 0 || strlen(LoadPath) == 0)
+  if(LoadPath == nullptr || strlen(LoadPath) == 0)
   {
     return;
   }
@@ -137,7 +137,7 @@ void vtkObjectFactory::LoadDynamicFactories()
     // find PathSeparator in LoadPath
     SeparatorPosition = strchr(LoadPath, PathSeparator);
     // if not found then use the whole string
-    if(SeparatorPosition == 0)
+    if(SeparatorPosition == nullptr)
     {
       PathLength = strlen(LoadPath);
     }
@@ -204,7 +204,7 @@ inline int vtkNameIsSharedLibrary(const char* name)
   copy[len] = 0;
   char* ret = strstr(copy, vtkDynamicLoader::LibExtension());
   delete [] copy;
-  return (ret != NULL);
+  return (ret != nullptr);
 }
 
 void vtkObjectFactory::LoadLibrariesInPath(const char* path)
@@ -296,14 +296,14 @@ void vtkObjectFactory::ReHash()
 // initialize class members
 vtkObjectFactory::vtkObjectFactory()
 {
-  this->LibraryHandle = 0;
-  this->LibraryPath = 0;
-  this->OverrideArray = 0;
-  this->OverrideClassNames = 0;
+  this->LibraryHandle = nullptr;
+  this->LibraryPath = nullptr;
+  this->OverrideArray = nullptr;
+  this->OverrideClassNames = nullptr;
   this->SizeOverrideArray = 0;
   this->OverrideArrayLength = 0;
-  this->LibraryVTKVersion = 0;
-  this->LibraryCompilerUsed = 0;
+  this->LibraryVTKVersion = nullptr;
+  this->LibraryCompilerUsed = nullptr;
 }
 
 
@@ -313,7 +313,7 @@ vtkObjectFactory::~vtkObjectFactory()
   delete [] this->LibraryVTKVersion;
   delete [] this->LibraryCompilerUsed;
   delete [] this->LibraryPath;
-  this->LibraryPath = 0;
+  this->LibraryPath = nullptr;
 
   for(int i =0; i < this->OverrideArrayLength; i++)
   {
@@ -323,14 +323,14 @@ vtkObjectFactory::~vtkObjectFactory()
   }
   delete [] this->OverrideArray;
   delete [] this->OverrideClassNames;
-  this->OverrideArray = NULL;
-  this->OverrideClassNames = NULL;
+  this->OverrideArray = nullptr;
+  this->OverrideClassNames = nullptr;
 }
 
 // Add a factory to the registered list
 void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
 {
-  if(factory->LibraryHandle == 0)
+  if(factory->LibraryHandle == nullptr)
   {
     const char* nonDynamicName = "Non-Dynamicly loaded factory";
     factory->LibraryPath = strcpy(new char[strlen(nonDynamicName)+1],
@@ -441,7 +441,7 @@ void vtkObjectFactory::UnRegisterAllFactories()
   }
   // delete the factory list and its factories
   vtkObjectFactory::RegisteredFactories->Delete();
-  vtkObjectFactory::RegisteredFactories = 0;
+  vtkObjectFactory::RegisteredFactories = nullptr;
   // now close the libraries
   for(int i = 0; i < num; i++)
   {
@@ -487,7 +487,7 @@ vtkObject* vtkObjectFactory::CreateObject(const char* vtkclassname)
       return (*this->OverrideArray[i].CreateCallback)();
     }
   }
-  return 0;
+  return nullptr;
 }
 
 // grow the array if the length is greater than the size.
@@ -694,7 +694,7 @@ void vtkObjectFactory::SetAllEnableFlags(vtkTypeBool flag,
       (factory =
        vtkObjectFactory::RegisteredFactories->GetNextObjectFactory(osit));)
   {
-    factory->SetEnableFlag(flag, className, 0);
+    factory->SetEnableFlag(flag, className, nullptr);
   }
 
 }

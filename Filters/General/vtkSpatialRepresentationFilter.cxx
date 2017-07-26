@@ -37,7 +37,7 @@ vtkCxxSetObjectMacro(vtkSpatialRepresentationFilter,
 vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
 {
   this->SetNumberOfInputPorts(1);
-  this->SpatialRepresentation = NULL;
+  this->SpatialRepresentation = nullptr;
   this->MaximumLevel = 0;
   this->GenerateLeaves = false;
   this->Internal = new vtkSpatialRepresentationFilterInternal;
@@ -48,7 +48,7 @@ vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
   if ( this->SpatialRepresentation )
   {
     this->SpatialRepresentation->UnRegister(this);
-    this->SpatialRepresentation = NULL;
+    this->SpatialRepresentation = nullptr;
   }
   delete this->Internal;
 }
@@ -71,9 +71,9 @@ int vtkSpatialRepresentationFilter::RequestData(
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
 
-  if (this->SpatialRepresentation == NULL)
+  if (this->SpatialRepresentation == nullptr)
   {
-    vtkErrorMacro(<< "SpatialRepresentation is NULL.");
+    vtkErrorMacro(<< "SpatialRepresentation is nullptr.");
     return 0;
   }
 

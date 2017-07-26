@@ -34,16 +34,16 @@ typedef NumericalPoint Point;
 //-----------------------------------------------------------------------------
 Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
 {
-  if (arrays == NULL)
+  if (arrays == nullptr)
   {
-    return NULL;
+    return nullptr;
   }
 
   int numComp = arrays->GetNumberOfItems();
   if (numComp == 0)
   {
     vtkWarningWithObjectMacro(arrays, "Collection is empty");
-    return NULL;
+    return nullptr;
   }
   int numTuples = arrays->GetItem(0)->GetNumberOfTuples();
   Sample* ns = new Sample(numTuples, numComp);
@@ -51,11 +51,11 @@ Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
   int j = 0;
   arrays->InitTraversal();
   vtkDataArray* array = arrays->GetNextItem();
-  while (array != NULL)
+  while (array != nullptr)
   {
     if (numTuples != array->GetNumberOfTuples())
     {
-      // TODO NULL Object
+      // TODO nullptr Object
       vtkErrorWithObjectMacro(arrays,
         "An array has not the expected number of tuples. Expecting: " << numTuples << " , got: "
                                                                       << array->GetNumberOfTuples()
@@ -75,9 +75,9 @@ Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
 //-----------------------------------------------------------------------------
 Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
 {
-  if (arr == NULL)
+  if (arr == nullptr)
   {
-    return NULL;
+    return nullptr;
   }
 
   vtkIdType numTuples = arr->GetNumberOfTuples();
@@ -97,9 +97,9 @@ Sample* vtkOTUtilities::ArrayToSample(vtkDataArray* arr)
 //-----------------------------------------------------------------------------
 vtkDataArray* vtkOTUtilities::SampleToArray(Sample* ns)
 {
-  if (ns == NULL)
+  if (ns == nullptr)
   {
-    return NULL;
+    return nullptr;
   }
 
   int numTuples = ns->getSize();

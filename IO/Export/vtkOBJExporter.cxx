@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
 {
-  this->FilePrefix = NULL;
+  this->FilePrefix = nullptr;
 }
 
 vtkOBJExporter::~vtkOBJExporter()
@@ -54,7 +54,7 @@ void vtkOBJExporter::WriteData()
   int idStart = 1;
 
   // make sure the user specified a filename
-  if ( this->FilePrefix == NULL)
+  if ( this->FilePrefix == nullptr)
   {
     vtkErrorMacro(<< "Please specify file prefix to use");
     return;
@@ -135,10 +135,10 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   vtkCellArray *cells;
   vtkNew<vtkTransform> trans;
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
 
   // see if the actor has a mapper. it could be an assembly
-  if (anActor->GetMapper() == NULL)
+  if (anActor->GetMapper() == nullptr)
   {
     return;
   }
@@ -162,7 +162,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   // get the mappers input and matrix
   ds = anActor->GetMapper()->GetInput();
   // see if the mapper has an input.
-  if (ds == NULL)
+  if (ds == nullptr)
   {
     return;
   }

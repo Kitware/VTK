@@ -123,7 +123,7 @@ public:
                                    vtkProp *prop) VTK_OVERRIDE;
   bool SetShaderParameters(vtkShaderProgram *program,
                            vtkAbstractMapper *mapper, vtkProp *prop,
-                           vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
+                           vtkOpenGLVertexArrayObject* VAO = nullptr) VTK_OVERRIDE;
 
   // Set Opaque Z texture, this must be set from the outer FO
   void SetOpaqueZTexture(vtkTextureObject *);

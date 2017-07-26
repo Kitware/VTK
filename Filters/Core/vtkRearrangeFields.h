@@ -161,7 +161,7 @@ public:
     int ToFieldLoc;   // fd, pd or do
     int Id;            // assigned during creation
     Operation* Next;   // linked list
-    Operation() { FieldName = 0; }
+    Operation() { FieldName = nullptr; }
     ~Operation() { delete[] FieldName; }
   };
 

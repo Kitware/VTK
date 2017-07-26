@@ -601,7 +601,7 @@ vtkDataObject* vtkCompositeDataReader::ReadChild()
         if (this->IS->eof())
         {
           vtkErrorMacro("Premature EOF.");
-          return NULL;
+          return nullptr;
         }
         else
         {

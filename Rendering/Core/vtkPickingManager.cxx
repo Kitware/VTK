@@ -228,7 +228,7 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
 {
   if (!this->External->Interactor)
   {
-    return 0;
+    return nullptr;
   }
   else if (this->External->GetOptimizeOnInteractorEvents() &&
            this->CurrentInteractionTime.GetMTime() == this->LastPickingTime)
@@ -256,7 +256,7 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
 vtkAbstractPicker* vtkPickingManager::vtkInternal::
 ComputePickerSelection(double X, double Y, double Z, vtkRenderer* renderer)
 {
-  vtkAbstractPicker* closestPicker = 0;
+  vtkAbstractPicker* closestPicker = nullptr;
   if (!renderer)
   {
     return closestPicker;
@@ -307,10 +307,10 @@ void vtkPickingManager::vtkInternal::UpdateTime(vtkObject *vtkNotUsed(caller),
 
 //------------------------------------------------------------------------------
 vtkPickingManager::vtkPickingManager()
-  : Interactor(0)
+  : Interactor(nullptr)
   , Enabled(false)
   , OptimizeOnInteractorEvents(true)
-  , Internal(0)
+  , Internal(nullptr)
 {
   this->Internal = new vtkInternal(this);
 }
@@ -318,7 +318,7 @@ vtkPickingManager::vtkPickingManager()
 //------------------------------------------------------------------------------
 vtkPickingManager::~vtkPickingManager()
 {
-  this->SetInteractor(0);
+  this->SetInteractor(nullptr);
   delete this->Internal;
 }
 
@@ -493,7 +493,7 @@ GetAssemblyPath(double X, double Y, double Z,
     // Return 0 when the Picker is not selected
     if (!this->Pick(picker, obj))
     {
-      return 0;
+      return nullptr;
     }
   }
   else

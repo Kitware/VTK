@@ -70,7 +70,7 @@ struct vtkLocalDataType
   vtkIdList* LineOffsets;
   vtkIdList* PolyOffsets;
 
-  vtkLocalDataType() : Output(0)
+  vtkLocalDataType() : Output(nullptr)
   {
   }
 };
@@ -431,17 +431,17 @@ public:
 
       if (output->GetVerts()->GetNumberOfCells() == 0)
       {
-        output->SetVerts(0);
+        output->SetVerts(nullptr);
       }
 
       if (output->GetLines()->GetNumberOfCells() == 0)
       {
-        output->SetLines(0);
+        output->SetLines(nullptr);
       }
 
       if (output->GetPolys()->GetNumberOfCells() == 0)
       {
-        output->SetPolys(0);
+        output->SetPolys(nullptr);
       }
 
       output->Squeeze();
@@ -591,7 +591,7 @@ int vtkSMPContourGrid::RequestData(
   int useScalarTree = this->GetUseScalarTree();
   if ( useScalarTree )
   {
-    if ( this->ScalarTree == NULL )
+    if ( this->ScalarTree == nullptr )
     {
       this->ScalarTree = vtkSpanSpace::New();
     }

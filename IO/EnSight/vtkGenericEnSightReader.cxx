@@ -48,19 +48,19 @@ public:
 //----------------------------------------------------------------------------
 vtkGenericEnSightReader::vtkGenericEnSightReader()
 {
-  this->Reader = NULL;
-  this->IS = NULL;
-  this->IFile = NULL;
+  this->Reader = nullptr;
+  this->IS = nullptr;
+  this->IFile = nullptr;
 
-  this->CaseFileName = NULL;
-  this->GeometryFileName = NULL;
-  this->FilePath = NULL;
+  this->CaseFileName = nullptr;
+  this->GeometryFileName = nullptr;
+  this->FilePath = nullptr;
 
-  this->VariableTypes = NULL;
-  this->ComplexVariableTypes = NULL;
+  this->VariableTypes = nullptr;
+  this->ComplexVariableTypes = nullptr;
 
-  this->VariableDescriptions = NULL;
-  this->ComplexVariableDescriptions = NULL;
+  this->VariableDescriptions = nullptr;
+  this->ComplexVariableDescriptions = nullptr;
 
   this->NumberOfVariables = 0;
   this->NumberOfComplexVariables = 0;
@@ -85,7 +85,7 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
 
   this->TimeValueInitialized = 0;
 
-  this->TimeSets = NULL;
+  this->TimeSets = nullptr;
 
   this->ReadAllVariables = 1;
 
@@ -122,19 +122,19 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
   if (this->Reader)
   {
     this->Reader->Delete();
-    this->Reader = NULL;
+    this->Reader = nullptr;
   }
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
 
   delete [] this->CaseFileName;
-  this->CaseFileName = NULL;
+  this->CaseFileName = nullptr;
 
   delete [] this->GeometryFileName;
-  this->GeometryFileName = NULL;
+  this->GeometryFileName = nullptr;
 
   delete [] this->FilePath;
-  this->FilePath = NULL;
+  this->FilePath = nullptr;
 
   if (this->NumberOfVariables > 0)
   {
@@ -144,8 +144,8 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
     }
     delete [] this->VariableDescriptions;
     delete [] this->VariableTypes;
-    this->VariableDescriptions = NULL;
-    this->VariableTypes = NULL;
+    this->VariableDescriptions = nullptr;
+    this->VariableTypes = nullptr;
   }
   if (this->NumberOfComplexVariables > 0)
   {
@@ -155,11 +155,11 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
     }
     delete [] this->ComplexVariableDescriptions;
     delete [] this->ComplexVariableTypes;
-    this->ComplexVariableDescriptions = NULL;
-    this->ComplexVariableTypes = NULL;
+    this->ComplexVariableDescriptions = nullptr;
+    this->ComplexVariableTypes = nullptr;
   }
 
-  this->SetTimeSets(0);
+  this->SetTimeSets(nullptr);
   this->CellDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->PointDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
@@ -256,8 +256,8 @@ int vtkGenericEnSightReader::RequestData(
     }
     delete [] this->VariableDescriptions;
     delete [] this->VariableTypes;
-    this->VariableDescriptions = NULL;
-    this->VariableTypes = NULL;
+    this->VariableDescriptions = nullptr;
+    this->VariableTypes = nullptr;
     this->NumberOfVariables = 0;
   }
   if (this->NumberOfComplexVariables > 0)
@@ -268,8 +268,8 @@ int vtkGenericEnSightReader::RequestData(
     }
     delete [] this->ComplexVariableDescriptions;
     delete [] this->ComplexVariableTypes;
-    this->ComplexVariableDescriptions = NULL;
-    this->ComplexVariableTypes = NULL;
+    this->ComplexVariableDescriptions = nullptr;
+    this->ComplexVariableTypes = nullptr;
     this->NumberOfComplexVariables = 0;
   }
 
@@ -310,7 +310,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
   int stringRead;
   int timeSet = 1, fileSet = 1;
   int xtimeSet= 1, xfileSet= 1;
-  char *fileName = NULL;
+  char *fileName = nullptr;
   int lineRead;
   if (!this->CaseFileName)
   {
@@ -339,7 +339,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
   {
     if (!quiet) vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return -1;
   }
 
@@ -393,7 +393,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
               }
             } // geometry file name set
             delete this->IS;
-            this->IS = NULL;
+            this->IS = nullptr;
 
             if (!this->GeometryFileName || this->GeometryFileName[0] == '\0')
             {
@@ -408,7 +408,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             fileName = new char[strlen(this->GeometryFileName) + 1];
             strcpy(fileName, this->GeometryFileName);
 
-            if (strrchr(fileName, '*') != NULL)
+            if (strrchr(fileName, '*') != nullptr)
             {
               // RE-open case file; find right time set and fill in
               // wildcards from there if possible; if not, then find right
@@ -443,17 +443,17 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             // got full path to geometry file
 
             this->IFile = fopen(sfilename.c_str(), "rb");
-            if (this->IFile == NULL)
+            if (this->IFile == nullptr)
             {
               if (!quiet)
               {
                 vtkErrorMacro("Unable to open file: " << sfilename.c_str());
                 vtkWarningMacro("Assuming binary file.");
               }
-              this->IFile = NULL;
+              this->IFile = nullptr;
               delete [] fileName;
               return vtkGenericEnSightReader::ENSIGHT_GOLD_BINARY;
-            } // end if IFile == NULL
+            } // end if IFile == nullptr
 
             this->ReadBinaryLine(binaryLine);
             binaryLine[80] = '\0';
@@ -472,13 +472,13 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
                 strncmp(subLine,"binary",6) == 0)
             {
               fclose(this->IFile);
-              this->IFile = NULL;
+              this->IFile = nullptr;
               delete [] fileName;
               return vtkGenericEnSightReader::ENSIGHT_GOLD_BINARY;
             } //end if binary
 
             fclose(this->IFile);
-            this->IFile = NULL;
+            this->IFile = nullptr;
             delete [] fileName;
             return vtkGenericEnSightReader::ENSIGHT_GOLD;
           } // if we found the geometry section in the case file
@@ -518,7 +518,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         } // geometry file name set
 
         delete this->IS;
-        this->IS = NULL;
+        this->IS = nullptr;
 
         if (!this->GeometryFileName || this->GeometryFileName[0] == '\0')
         {
@@ -533,7 +533,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         fileName = new char[strlen(this->GeometryFileName) + 1];
         strcpy(fileName, this->GeometryFileName);
 
-        if (strrchr(fileName, '*') != NULL)
+        if (strrchr(fileName, '*') != nullptr)
         {
           // reopen case file; find right time set and fill in wildcards from
           // there if possible; if not, then find right file set and fill in
@@ -560,17 +560,17 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         // got full path to geometry file
 
         this->IFile = fopen(sfilename.c_str(), "rb");
-        if (this->IFile == NULL)
+        if (this->IFile == nullptr)
         {
           if (!quiet)
           {
             vtkErrorMacro("Unable to open file: " << sfilename.c_str());
             vtkWarningMacro("Assuming binary file.");
           }
-          this->IFile = NULL;
+          this->IFile = nullptr;
           delete [] fileName;
           return vtkGenericEnSightReader::ENSIGHT_6_BINARY;
-        } // end if IFile == NULL
+        } // end if IFile == nullptr
 
         this->ReadBinaryLine(binaryLine);
         // If the file is ascii, there might not be a null
@@ -580,13 +580,13 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         if (strncmp(subLine,"Binary",6) == 0)
         {
           fclose(this->IFile);
-          this->IFile = NULL;
+          this->IFile = nullptr;
           delete [] fileName;
           return vtkGenericEnSightReader::ENSIGHT_6_BINARY;
         } //end if binary
 
         fclose(this->IFile);
-        this->IFile = NULL;
+        this->IFile = nullptr;
         delete [] fileName;
         return vtkGenericEnSightReader::ENSIGHT_6;
       } // if we found the geometry section in the case file
@@ -624,7 +624,7 @@ void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
   }
   else
   {
-    this->CaseFileName = NULL;
+    this->CaseFileName = nullptr;
   }
 
   this->ClearForNewCaseFileName();
@@ -637,7 +637,7 @@ void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
   // strip off the path and save it as FilePath if it was included in the
   // filename
   endingSlash = strrchr(this->CaseFileName, '/');
-  if(endingSlash == NULL)
+  if(endingSlash == nullptr)
   {
     // check Windows directory separator
     endingSlash = strrchr(this->CaseFileName, '\\');
@@ -977,7 +977,7 @@ const char* vtkGenericEnSightReader::GetDescription(int n)
   {
     return this->VariableDescriptions[n];
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -987,7 +987,7 @@ const char* vtkGenericEnSightReader::GetComplexDescription(int n)
   {
     return this->ComplexVariableDescriptions[n];
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1030,7 +1030,7 @@ const char* vtkGenericEnSightReader::GetDescription(int n, int type)
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ void vtkGenericEnSightReader::AddVariableType(int variableType)
 void vtkGenericEnSightReader::AddComplexVariableType(int variableType)
 {
   int i;
-  int* types = NULL;
+  int* types = nullptr;
   int size = this->NumberOfComplexVariables;
 
   if (size > 0)
@@ -1151,7 +1151,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
       vtkErrorMacro(
         "ReplaceWildCards() failed to find the 'TIME' section!" );
       delete this->IS;
-      this->IS = NULL;
+      this->IS = nullptr;
       return 0;
     }
   } while ( strncmp(line, "TIME", 4) != 0 );
@@ -1166,7 +1166,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
       vtkErrorMacro(
         "ReplaceWildCards() failed to find the target 'time set' entry!" );
       delete this->IS;
-      this->IS = NULL;
+      this->IS = nullptr;
       return 0;
     }
 
@@ -1192,7 +1192,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
       vtkErrorMacro(
         "ReplaceWildCards() failed to find the target 'filename ...: ...' entry!" );
       delete this->IS;
-      this->IS = NULL;
+      this->IS = nullptr;
       return 0;
     }
   }
@@ -1219,7 +1219,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
         vtkErrorMacro(
           "ReplaceWildCards() failed to obtain any non-inline file name number!" );
         delete this->IS;
-        this->IS = NULL;
+        this->IS = nullptr;
         return 0;
       }
 
@@ -1241,7 +1241,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
       vtkErrorMacro(
         "ReplaceWildCards() failed to find 'filename start number: <int>'!" );
       delete this->IS;
-      this->IS = NULL;
+      this->IS = nullptr;
       return 0;
     }
   }
@@ -1257,7 +1257,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
         vtkErrorMacro(
           "ReplaceWildCards() failed to find the optional 'FILE' section!" );
         delete this->IS;
-        this->IS = NULL;
+        this->IS = nullptr;
         return 0;
       }
     } while ( strncmp(line, "FILE", 4) != 0 );
@@ -1271,7 +1271,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
         vtkErrorMacro(
           "ReplaceWildCards() failed to find the target 'file set' entry!" );
         delete this->IS;
-        this->IS = NULL;
+        this->IS = nullptr;
         return 0;
       }
 
@@ -1296,7 +1296,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
       vtkErrorMacro(
         "ReplaceWildCards() failed to find 'filename index: <int>'!" );
       delete this->IS;
-      this->IS = NULL;
+      this->IS = nullptr;
       return 0;
     }
   }
@@ -1304,7 +1304,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
   // So far we have got a file name index
   this->ReplaceWildcardsHelper(fileName, fileNameNum);
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
 
   return  1;
 }
@@ -1467,7 +1467,7 @@ char** vtkGenericEnSightReader::CreateStringArray(int numStrings)
   int i;
   for(i=0; i < numStrings; ++i)
   {
-    strings[i] = 0;
+    strings[i] = nullptr;
   }
   return strings;
 }

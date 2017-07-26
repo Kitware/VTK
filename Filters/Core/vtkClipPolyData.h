@@ -181,7 +181,7 @@ public:
   //@}
 
 protected:
-  vtkClipPolyData(vtkImplicitFunction *cf=NULL);
+  vtkClipPolyData(vtkImplicitFunction *cf=nullptr);
   ~vtkClipPolyData() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

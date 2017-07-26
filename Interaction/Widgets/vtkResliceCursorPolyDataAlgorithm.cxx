@@ -40,7 +40,7 @@ vtkCxxSetObjectMacro(vtkResliceCursorPolyDataAlgorithm, ResliceCursor,
 //---------------------------------------------------------------------------
 vtkResliceCursorPolyDataAlgorithm::vtkResliceCursorPolyDataAlgorithm()
 {
-  this->ResliceCursor = NULL;
+  this->ResliceCursor = nullptr;
   this->ReslicePlaneNormal = vtkResliceCursorPolyDataAlgorithm::XAxis;
   this->Cutter        = vtkCutter::New();
   this->Box           = vtkBox::New();
@@ -75,7 +75,7 @@ vtkResliceCursorPolyDataAlgorithm::vtkResliceCursorPolyDataAlgorithm()
 //---------------------------------------------------------------------------
 vtkResliceCursorPolyDataAlgorithm::~vtkResliceCursorPolyDataAlgorithm()
 {
-  this->SetResliceCursor(NULL);
+  this->SetResliceCursor(nullptr);
   this->Cutter->Delete();
   this->Box->Delete();
   this->ClipWithBox->Delete();

@@ -103,7 +103,7 @@ vtkNetCDFReader::vtkNetCDFReader()
 {
   this->SetNumberOfInputPorts(0);
 
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->ReplaceFillValueWithNan = 0;
 
   this->LoadingDimensions = vtkSmartPointer<vtkIntArray>::New();
@@ -123,14 +123,14 @@ vtkNetCDFReader::vtkNetCDFReader()
     = this->WholeExtent[2] = this->WholeExtent[3]
     = this->WholeExtent[4] = this->WholeExtent[5] = 0;
 
-  this->TimeUnits = NULL;
-  this->Calendar = NULL;
+  this->TimeUnits = nullptr;
+  this->Calendar = nullptr;
   this->Private = new vtkNetCDFReaderPrivate();
 }
 
 vtkNetCDFReader::~vtkNetCDFReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   this->VariableDimensions->Delete();
   this->AllDimensions->Delete();
   delete[] this->TimeUnits;
@@ -143,7 +143,7 @@ void vtkNetCDFReader::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(NULL)") << endl;
+     << (this->FileName ? this->FileName : "(nullptr)") << endl;
   os << indent << "ReplaceFillValueWithNan: "
      << this->ReplaceFillValueWithNan << endl;
 
@@ -211,7 +211,7 @@ int vtkNetCDFReader::RequestInformation(
     //get units
     int status;
     size_t len = 0;
-    char *buffer = NULL;
+    char *buffer = nullptr;
     status = nc_inq_attlen(ncFD, varId, "units", &len);
     if (status == NC_NOERR)
     {
@@ -323,9 +323,9 @@ int vtkNetCDFReader::RequestInformation(
 
   //Free old time units.
   delete[] this->TimeUnits;
-  this->TimeUnits = NULL;
+  this->TimeUnits = nullptr;
   delete[] this->Calendar;
-  this->Calendar = NULL;
+  this->Calendar = nullptr;
 
   // If we have time, report that.
   if (timeValues && (timeValues->GetNumberOfTuples() > 0))
@@ -341,7 +341,7 @@ int vtkNetCDFReader::RequestInformation(
     //Get time units
     int status, varId;
     size_t len = 0;
-    char *buffer = NULL;
+    char *buffer = nullptr;
     status = nc_inq_varid(ncFD, "time", &varId);
     if (status == NC_NOERR)
     {
@@ -468,7 +468,7 @@ void vtkNetCDFReader::SetFileName(const char *filename)
   }
 
   delete[] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   if (filename)
   {
@@ -831,7 +831,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char *varName, double time,
   dataArray->SetNumberOfTuples(arraySize);
 
   // Read the array from the file.
-  CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, NULL,
+  CALL_NETCDF(nc_get_vars(ncFD, varId, start, count, nullptr,
                           dataArray->GetVoidPointer(0)));
 
   // Check for a fill value.

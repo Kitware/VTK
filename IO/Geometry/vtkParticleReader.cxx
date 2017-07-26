@@ -113,8 +113,8 @@ namespace {
 }
 //----------------------------------------------------------------------------
 vtkParticleReader::vtkParticleReader() :
-  FileName(NULL)
-  , File(NULL)
+  FileName(nullptr)
+  , File(nullptr)
   , HasScalar(1)
   , FileType(FILE_TYPE_IS_UNKNOWN)
   , DataType(VTK_FLOAT)
@@ -133,11 +133,11 @@ vtkParticleReader::~vtkParticleReader()
   {
     this->File->close();
     delete this->File;
-    this->File = NULL;
+    this->File = nullptr;
   }
 
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ void vtkParticleReader::OpenFile()
   {
     this->File->close();
     delete this->File;
-    this->File = NULL;
+    this->File = nullptr;
   }
 
   // Open the new file.
@@ -201,7 +201,7 @@ int vtkParticleReader::RequestInformation(
   }
   this->File->close();
   delete this->File;
-  this->File = NULL;
+  this->File = nullptr;
 
 
   if (ft == FILE_TYPE_IS_BINARY)
@@ -350,7 +350,7 @@ int vtkParticleReader::DetermineFileType()
     otherASCII++;
   }
 
-  // NULL shouldn't ever appear in a text file.
+  // nullptr shouldn't ever appear in a text file.
   if ( zero != 0 || otherASCII > 0 || conventionalASCII == 0 )
   {
     return FILE_TYPE_IS_BINARY;

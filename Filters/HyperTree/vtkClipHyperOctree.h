@@ -173,7 +173,7 @@ public:
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
-  vtkClipHyperOctree(vtkImplicitFunction *cf=NULL);
+  vtkClipHyperOctree(vtkImplicitFunction *cf=nullptr);
   ~vtkClipHyperOctree() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

@@ -56,7 +56,7 @@ vtkUnstructuredGridBase *vtkUnstructuredGridVolumeMapper::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkUnstructuredGridBase::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));

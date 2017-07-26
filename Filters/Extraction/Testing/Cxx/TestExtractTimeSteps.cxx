@@ -62,7 +62,7 @@ int TestExtractTimeSteps(int argc, char *argv[])
 
   double expected[10] = { 0.0000, 0.0005, 0.0010, 0.0015, 0.0020, 0.0025,
                           0.0030, 0.0035, 0.0040, 0.0043 };
-  double *result = NULL;
+  double *result = nullptr;
 
   vtkInformation *info = extracter->GetOutputInformation(0);
   if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))

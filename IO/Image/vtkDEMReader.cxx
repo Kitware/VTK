@@ -42,7 +42,7 @@ vtkDEMReader::vtkDEMReader()
   {
     this->WholeExtent[i] = 0;
   }
-  this->FileName = NULL;
+  this->FileName = nullptr;
   for (i = 0; i < 145; i++)
   {
     this->MapLabel[i] = '\0';
@@ -183,7 +183,7 @@ int vtkDEMReader::ReadTypeARecord ()
     return -1;
   }
 
-  if ((fp = fopen(this->FileName, "rb")) == NULL)
+  if ((fp = fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return -1;
@@ -402,7 +402,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     return -1;
   }
 
-  if ((fp = fopen(this->FileName, "rb")) == NULL)
+  if ((fp = fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return -1;

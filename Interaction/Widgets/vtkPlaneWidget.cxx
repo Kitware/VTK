@@ -159,7 +159,7 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   this->PlanePicker->AddPickList(this->LineActor2);
   this->PlanePicker->PickFromListOn();
 
-  this->CurrentHandle = NULL;
+  this->CurrentHandle = nullptr;
 
   this->LastPickValid = 0;
   this->HandleSizeFactor = 1.25;
@@ -215,25 +215,25 @@ vtkPlaneWidget::~vtkPlaneWidget()
   if (this->HandleProperty)
   {
     this->HandleProperty->Delete();
-    this->HandleProperty = 0;
+    this->HandleProperty = nullptr;
   }
 
   if (this->SelectedHandleProperty)
   {
     this->SelectedHandleProperty->Delete();
-    this->SelectedHandleProperty = 0;
+    this->SelectedHandleProperty = nullptr;
   }
 
   if (this->PlaneProperty)
   {
     this->PlaneProperty->Delete();
-    this->PlaneProperty = 0;
+    this->PlaneProperty = nullptr;
   }
 
   if (this->SelectedPlaneProperty)
   {
     this->SelectedPlaneProperty->Delete();
-    this->SelectedPlaneProperty = 0;
+    this->SelectedPlaneProperty = nullptr;
   }
 
   this->Transform->Delete();
@@ -261,7 +261,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -314,7 +314,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     this->ConeActor2->SetProperty(this->HandleProperty);
 
     this->SelectRepresentation();
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling----------------------------------------------------------
@@ -346,9 +346,9 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->LineActor2);
     this->CurrentRenderer->RemoveActor(this->ConeActor2);
 
-    this->CurrentHandle = NULL;
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->CurrentHandle = nullptr;
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -612,12 +612,12 @@ void vtkPlaneWidget::OnStartPinch()
   // Okay, we can process this. try to pick the plane.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->State = vtkPlaneWidget::Pinching;
     this->HighlightPlane(1);
     this->StartInteraction();
-    this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   }
 }
 
@@ -655,7 +655,7 @@ void vtkPlaneWidget::OnPinch()
   this->PositionHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -667,14 +667,14 @@ void vtkPlaneWidget::OnEndPinch()
   }
 
   this->State = vtkPlaneWidget::Start;
-  this->HighlightHandle(NULL);
+  this->HighlightHandle(nullptr);
   this->HighlightPlane(0);
   this->HighlightNormal(0);
   this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -694,7 +694,7 @@ void vtkPlaneWidget::OnLeftButtonDown()
   // if no handles picked, then try to pick the plane.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->State = vtkPlaneWidget::Moving;
     this->HighlightHandle(path->GetFirstNode()->GetViewProp());
@@ -703,7 +703,7 @@ void vtkPlaneWidget::OnLeftButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
-    if ( path != NULL )
+    if ( path != nullptr )
     {
       vtkProp *prop = path->GetFirstNode()->GetViewProp();
       if ( prop == this->ConeActor || prop == this->LineActor ||
@@ -726,14 +726,14 @@ void vtkPlaneWidget::OnLeftButtonDown()
     else
     {
       this->State = vtkPlaneWidget::Outside;
-      this->HighlightHandle(NULL);
+      this->HighlightHandle(nullptr);
       return;
     }
   }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -746,14 +746,14 @@ void vtkPlaneWidget::OnLeftButtonUp()
   }
 
   this->State = vtkPlaneWidget::Start;
-  this->HighlightHandle(NULL);
+  this->HighlightHandle(nullptr);
   this->HighlightPlane(0);
   this->HighlightNormal(0);
   this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -773,7 +773,7 @@ void vtkPlaneWidget::OnMiddleButtonDown()
   // can start pushing the plane.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->State = vtkPlaneWidget::Pushing;
     this->HighlightPlane(1);
@@ -784,7 +784,7 @@ void vtkPlaneWidget::OnMiddleButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
-    if ( path == NULL ) //nothing picked
+    if ( path == nullptr ) //nothing picked
     {
       this->State = vtkPlaneWidget::Outside;
       return;
@@ -799,7 +799,7 @@ void vtkPlaneWidget::OnMiddleButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -814,12 +814,12 @@ void vtkPlaneWidget::OnMiddleButtonUp()
   this->State = vtkPlaneWidget::Start;
   this->HighlightPlane(0);
   this->HighlightNormal(0);
-  this->HighlightHandle(NULL);
+  this->HighlightHandle(nullptr);
   this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -839,7 +839,7 @@ void vtkPlaneWidget::OnRightButtonDown()
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->State = vtkPlaneWidget::Scaling;
     this->HighlightPlane(1);
@@ -849,7 +849,7 @@ void vtkPlaneWidget::OnRightButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
 
-    if ( path == NULL )
+    if ( path == nullptr )
     {
       this->State = vtkPlaneWidget::Outside;
       return;
@@ -863,7 +863,7 @@ void vtkPlaneWidget::OnRightButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -881,7 +881,7 @@ void vtkPlaneWidget::OnRightButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -968,7 +968,7 @@ void vtkPlaneWidget::OnMouseMove()
 
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 
   this->Interactor->Render();
 }
@@ -1686,7 +1686,7 @@ vtkPolyDataAlgorithm *vtkPlaneWidget::GetPolyDataAlgorithm()
 
 void vtkPlaneWidget::GetPlane(vtkPlane *plane)
 {
-  if ( plane == NULL )
+  if ( plane == nullptr )
   {
     return;
   }

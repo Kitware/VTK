@@ -68,7 +68,7 @@ vtkEnSightGoldBinaryReader::vtkEnSightGoldBinaryReader()
 {
   this->FileOffsets = new vtkEnSightGoldBinaryReader::FileOffsetMapInternal;
 
-  this->IFile = NULL;
+  this->IFile = nullptr;
   this->FileSize = 0;
   this->SizeOfInt = sizeof(int);
   this->Fortran = 0;
@@ -85,7 +85,7 @@ vtkEnSightGoldBinaryReader::~vtkEnSightGoldBinaryReader()
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
 }
 
@@ -103,7 +103,7 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
 
   // Open the new file
@@ -367,7 +367,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
     this->ReadLine(line); // part description line
 
     strncpy(nameline, line, 80); // 80 characters in line are allowed
-    nameline[79] = '\0'; // Ensure NULL character at end of part name
+    nameline[79] = '\0'; // Ensure nullptr character at end of part name
     char *name = strdup(nameline);
 
     // fix to bug #0008237
@@ -417,7 +417,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
         {
           this->IFile->close();
           delete this->IFile;
-          this->IFile = NULL;
+          this->IFile = nullptr;
         }
         return 0;
       }
@@ -429,7 +429,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   if (lineRead < 0)
   {
@@ -563,7 +563,7 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
     {
       this->IFile->close();
       delete this->IFile;
-      this->IFile = NULL;
+      this->IFile = nullptr;
     }
     return 0;
   }
@@ -1292,7 +1292,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -1313,7 +1313,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerNode variable file name");
+    vtkErrorMacro("nullptr ScalarPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1433,7 +1433,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
     {
       this->IFile->close();
       delete this->IFile;
-      this->IFile = NULL;
+      this->IFile = nullptr;
     }
     return 1;
   }
@@ -1500,7 +1500,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -1522,7 +1522,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerNode variable file name");
+    vtkErrorMacro("nullptr VectorPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1632,7 +1632,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
     {
       this->IFile->close();
       delete this->IFile;
-      this->IFile = NULL;
+      this->IFile = nullptr;
     }
     return 1;
   }
@@ -1689,7 +1689,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
 
   return 1;
@@ -1711,7 +1711,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorPerNode variable file name");
+    vtkErrorMacro("nullptr TensorPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1840,7 +1840,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
 
   return 1;
@@ -1863,7 +1863,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerElement variable file name");
+    vtkErrorMacro("nullptr ScalarPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1942,7 +1942,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(
                 {
                   this->IFile->close();
                   delete this->IFile;
-                  this->IFile = NULL;
+                  this->IFile = nullptr;
                 }
                 return 0;
               }
@@ -2024,7 +2024,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(
             {
               this->IFile->close();
               delete this->IFile;
-              this->IFile = NULL;
+              this->IFile = nullptr;
             }
             if (component == 0)
             {
@@ -2087,7 +2087,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -2109,7 +2109,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerElement variable file name");
+    vtkErrorMacro("nullptr VectorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -2185,7 +2185,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(
               {
                 vtkErrorMacro("Unknown element type \"" << line << "\"");
                 delete this->IS;
-                this->IS = NULL;
+                this->IS = nullptr;
                 return 0;
               }
               idx = this->UnstructuredPartIds->IsId(realId);
@@ -2266,7 +2266,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
             delete this->IS;
-            this->IS = NULL;
+            this->IS = nullptr;
             vectors->Delete();
             return 0;
           }
@@ -2327,7 +2327,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -2349,7 +2349,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorPerElement variable file name");
+    vtkErrorMacro("nullptr TensorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -2425,7 +2425,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(
               {
                 vtkErrorMacro("Unknown element type \"" << line << "\"");
                 delete this->IS;
-                this->IS = NULL;
+                this->IS = nullptr;
                 return 0;
               }
               idx = this->UnstructuredPartIds->IsId(realId);
@@ -2519,7 +2519,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(
           {
             vtkErrorMacro("Unknown element type \"" << line << "\"");
             delete this->IS;
-            this->IS = NULL;
+            this->IS = nullptr;
             tensors->Delete();
             return 0;
           }
@@ -2588,7 +2588,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(
   {
     this->IFile->close();
     delete this->IFile;
-    this->IFile = NULL;
+    this->IFile = nullptr;
   }
   return 1;
 }
@@ -2608,7 +2608,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
 
   this->NumberOfNewOutputs++;
 
-  if (this->GetDataSetFromBlock(compositeOutput, partId) == NULL ||
+  if (this->GetDataSetFromBlock(compositeOutput, partId) == nullptr ||
     !this->GetDataSetFromBlock(compositeOutput, partId)->IsA("vtkUnstructuredGrid"))
   {
     vtkDebugMacro("creating new unstructured output");
@@ -3203,7 +3203,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       int         faceIdx = 0;    // indexing faces throughout all polyhedra
       int         nodeIdx = 0;    // indexing nodes throughout all polyhedra
       int         arayIdx = 0;    // indexing the array of Ids (info of faces)
-      vtkIdType * faceAry = NULL; // array of Ids describing a vtkPolyhedron
+      vtkIdType * faceAry = nullptr; // array of Ids describing a vtkPolyhedron
       // yyy end
 
       for (i = 0; i < numElements; i++)
@@ -3247,7 +3247,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
                                          nodeIds, numFacesPerElement[i],
                                          faceAry );
         delete [] faceAry;
-        faceAry = NULL;
+        faceAry = nullptr;
         //yyy end
 
         this->GetCellIds(idx, cellType)->InsertNextId(cellId);
@@ -3258,8 +3258,8 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       // yyy begin
       delete [] numNodesPerFace;
       delete [] numFacesPerElement;
-      numNodesPerFace    = NULL;
-      numFacesPerElement = NULL;
+      numNodesPerFace    = nullptr;
+      numFacesPerElement = nullptr;
       // yyy end
 
       delete [] nodeMarker;
@@ -3720,7 +3720,7 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
   this->NumberOfNewOutputs++;
 
   vtkDataSet* ds = this->GetDataSetFromBlock(compositeOutput, partId);
-  if (ds == NULL || ! ds->IsA("vtkStructuredGrid"))
+  if (ds == nullptr || ! ds->IsA("vtkStructuredGrid"))
   {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
@@ -3838,7 +3838,7 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
   this->NumberOfNewOutputs++;
 
   vtkDataSet* ds = this->GetDataSetFromBlock(compositeOutput, partId);
-  if (ds == NULL || !ds->IsA("vtkRectilinearGrid"))
+  if (ds == nullptr || !ds->IsA("vtkRectilinearGrid"))
   {
     vtkDebugMacro("creating new rectilinear grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
@@ -3940,7 +3940,7 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
   this->NumberOfNewOutputs++;
 
   vtkDataSet* ds = this->GetDataSetFromBlock(compositeOutput, partId);
-  if (ds == NULL || !ds->IsA("vtkImageData"))
+  if (ds == nullptr || !ds->IsA("vtkImageData"))
   {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();

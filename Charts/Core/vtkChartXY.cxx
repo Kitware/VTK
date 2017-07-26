@@ -95,7 +95,7 @@ public:
         return plot;
       }
     }
-    return 0;
+    return nullptr;
   }
 
   std::vector<vtkPlot*> plots;                   // Charts can contain multiple plots of data
@@ -194,7 +194,7 @@ vtkChartXY::~vtkChartXY()
     this->ChartPrivate->axes[i]->Delete();
   }
   delete this->ChartPrivate;
-  this->ChartPrivate = 0;
+  this->ChartPrivate = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -217,9 +217,9 @@ void vtkChartXY::Update()
     // Two major selection methods - row based or plot based.
     if (this->SelectionMethod == vtkChart::SELECTION_ROWS)
     {
-      vtkSelectionNode* node = selection->GetNumberOfNodes() > 0 ? selection->GetNode(0) : NULL;
+      vtkSelectionNode* node = selection->GetNumberOfNodes() > 0 ? selection->GetNode(0) : nullptr;
       vtkIdTypeArray* idArray =
-        node ? vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList()) : NULL;
+        node ? vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList()) : nullptr;
       std::vector<vtkPlot*>::iterator it = this->ChartPrivate->plots.begin();
       for (; it != this->ChartPrivate->plots.end(); ++it)
       {
@@ -270,7 +270,7 @@ void vtkChartXY::Update()
       for (; it != this->ChartPrivate->plots.end(); ++it)
       {
         vtkPlot* plot = *it;
-        vtkIdTypeArray* plotSelection = 0;
+        vtkIdTypeArray* plotSelection = nullptr;
         bool ownPlotSelection = false;
         bool isSelected =
           std::find(selectedPlots.begin(), selectedPlots.end(), plot) != selectedPlots.end();
@@ -537,8 +537,8 @@ void vtkChartXY::RecalculatePlotTransforms()
   {
     if (this->ChartPrivate->PlotCorners[i]->GetNumberOfItems())
     {
-      vtkAxis* xAxis = 0;
-      vtkAxis* yAxis = 0;
+      vtkAxis* xAxis = nullptr;
+      vtkAxis* yAxis = nullptr;
       // Get the appropriate axes, and recalculate the transform.
       switch (i)
       {
@@ -772,7 +772,7 @@ void vtkChartXY::RecalculatePlotBounds()
   for (int i = 0; i < 4; ++i)
   {
     vtkAxis* axis = this->ChartPrivate->axes[i];
-    double* range = 0;
+    double* range = nullptr;
     switch (i)
     {
       case 0:
@@ -1090,11 +1090,11 @@ void vtkChartXY::SetLegendPosition(const vtkRectf& rect)
 //-----------------------------------------------------------------------------
 vtkPlot* vtkChartXY::AddPlot(int type)
 {
-  // Use a variable to return the object created (or NULL), this is necessary
+  // Use a variable to return the object created (or nullptr), this is necessary
   // as the HP compiler is broken (thinks this function does not return) and
   // the MS compiler generates a warning about unreachable code if a redundant
   // return is added at the end.
-  vtkPlot* plot = NULL;
+  vtkPlot* plot = nullptr;
   vtkColor3ub color = this->ChartPrivate->Colors->GetColorRepeating(
     static_cast<int>(this->ChartPrivate->plots.size()));
   switch (type)
@@ -1154,7 +1154,7 @@ vtkPlot* vtkChartXY::AddPlot(int type)
     }
 
     default:
-      plot = NULL;
+      plot = nullptr;
   }
   if (plot)
   {
@@ -1167,7 +1167,7 @@ vtkPlot* vtkChartXY::AddPlot(int type)
 //-----------------------------------------------------------------------------
 vtkIdType vtkChartXY::AddPlot(vtkPlot* plot)
 {
-  if (plot == NULL)
+  if (plot == nullptr)
   {
     return -1;
   }
@@ -1246,7 +1246,7 @@ vtkPlot* vtkChartXY::GetPlot(vtkIdType index)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -1366,7 +1366,7 @@ vtkAxis* vtkChartXY::GetAxis(int axisIndex)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -1402,7 +1402,7 @@ void vtkChartXY::SetSelectionMethod(int method)
     std::vector<vtkPlot*>::iterator it = this->ChartPrivate->plots.begin();
     for (; it != this->ChartPrivate->plots.end(); ++it)
     {
-      (*it)->SetSelection(NULL);
+      (*it)->SetSelection(nullptr);
     }
   }
   Superclass::SetSelectionMethod(method);
@@ -1909,15 +1909,15 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
               }
 
               // Accumulate the selection in each plot.
-              vtkChartSelectionHelper::BuildSelection(0, vtkContextScene::SELECTION_ADDITION,
-                accumulateSelection.GetPointer(), plot->GetSelection(), 0);
+              vtkChartSelectionHelper::BuildSelection(nullptr, vtkContextScene::SELECTION_ADDITION,
+                accumulateSelection.GetPointer(), plot->GetSelection(), nullptr);
             }
           }
         }
       }
       // Now add the accumulated selection to the old selection.
       vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
-        accumulateSelection.GetPointer(), oldSelection.GetPointer(), 0);
+        accumulateSelection.GetPointer(), oldSelection.GetPointer(), nullptr);
     }
     else if (this->SelectionMethod == vtkChart::SELECTION_PLOTS)
     {
@@ -1964,7 +1964,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
         this->AnnotationLink->Update();
         vtkSelection* selection =
           vtkSelection::SafeDownCast(this->AnnotationLink->GetOutputDataObject(2));
-        vtkSelectionNode* node = selection->GetNumberOfNodes() > 0 ? selection->GetNode(0) : NULL;
+        vtkSelectionNode* node = selection->GetNumberOfNodes() > 0 ? selection->GetNode(0) : nullptr;
         if (node)
         {
           oldSelection->DeepCopy(vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList()));
@@ -2026,7 +2026,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
       std::sort(ptrSelection, ptrSelection + accumulateSelection->GetNumberOfTuples());
       // Now add the accumulated selection to the old selection
       vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
-        accumulateSelection.GetPointer(), oldSelection.GetPointer(), 0);
+        accumulateSelection.GetPointer(), oldSelection.GetPointer(), nullptr);
     }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     this->MouseBox.SetWidth(0.0);

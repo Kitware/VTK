@@ -59,7 +59,7 @@ public:
    * Default constructor. BuildLinks() does most of the work.
    */
   vtkStaticCellLinksTemplate() :
-    LinksSize(0), NumPts(0), NumCells(0), Links(NULL), Offsets(NULL)
+    LinksSize(0), NumPts(0), NumCells(0), Links(nullptr), Offsets(nullptr)
   {
   }
 

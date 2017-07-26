@@ -85,7 +85,7 @@ public:
   //@{
   /**
    * Get/Set the name of the gradient array to create.  This is only
-   * used if ComputeGradient is non-zero. If NULL (the
+   * used if ComputeGradient is non-zero. If nullptr (the
    * default) then the output array will be named "Gradients".
    */
   vtkGetStringMacro(ResultArrayName);
@@ -95,7 +95,7 @@ public:
   //@{
   /**
    * Get/Set the name of the divergence array to create. This is only
-   * used if ComputeDivergence is non-zero. If NULL (the
+   * used if ComputeDivergence is non-zero. If nullptr (the
    * default) then the output array will be named "Divergence".
    */
   vtkGetStringMacro(DivergenceArrayName);
@@ -105,7 +105,7 @@ public:
   //@{
   /**
    * Get/Set the name of the vorticity array to create. This is only
-   * used if ComputeVorticity is non-zero. If NULL (the
+   * used if ComputeVorticity is non-zero. If nullptr (the
    * default) then the output array will be named "Vorticity".
    */
   vtkGetStringMacro(VorticityArrayName);
@@ -115,7 +115,7 @@ public:
   //@{
   /**
    * Get/Set the name of the Q criterion array to create. This is only
-   * used if ComputeQCriterion is non-zero. If NULL (the
+   * used if ComputeQCriterion is non-zero. If nullptr (the
    * default) then the output array will be named "Q-criterion".
    */
   vtkGetStringMacro(QCriterionArrayName);

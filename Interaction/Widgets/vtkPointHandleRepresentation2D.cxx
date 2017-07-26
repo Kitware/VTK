@@ -135,7 +135,7 @@ vtkPolyData *vtkPointHandleRepresentation2D::GetCursorShape()
 //-------------------------------------------------------------------------
 double* vtkPointHandleRepresentation2D::GetBounds()
 {
-  return NULL;
+  return nullptr;
 }
 
 //-------------------------------------------------------------------------

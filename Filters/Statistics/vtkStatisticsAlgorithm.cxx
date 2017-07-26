@@ -58,7 +58,7 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
 // ----------------------------------------------------------------------
 vtkStatisticsAlgorithm::~vtkStatisticsAlgorithm()
 {
-  this->SetAssessNames( 0 );
+  this->SetAssessNames( nullptr );
   delete this->Internals;
 }
 
@@ -169,7 +169,7 @@ const char* vtkStatisticsAlgorithm::GetColumnForRequest( vtkIdType r, vtkIdType 
   {
     return columnName.c_str();
   }
-  return 0;
+  return nullptr;
 }
 
 //---------------------------------------------------------------------------

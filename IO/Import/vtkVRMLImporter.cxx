@@ -69,7 +69,7 @@ public:
 
 //----------------------------------------------------------------------------
 // Heap to manage memory leaks
-vtkHeap *vtkVRMLAllocator::Heap = NULL;
+vtkHeap *vtkVRMLAllocator::Heap = nullptr;
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkVRMLImporter);
@@ -78,21 +78,21 @@ vtkStandardNewMacro(vtkVRMLImporter);
 vtkVRMLImporter::vtkVRMLImporter()
 {
   this->Internal = new vtkVRMLImporterInternal;
-  this->CurrentActor = NULL;
-  this->CurrentLight = NULL;
-  this->CurrentProperty = NULL;
-  this->CurrentSource = NULL;
-  this->CurrentPoints = NULL;
-  this->CurrentScalars = NULL;
-  this->CurrentNormals = NULL;
-  this->CurrentNormalCells = NULL;
-  this->CurrentTCoords = NULL;
-  this->CurrentTCoordCells = NULL;
-  this->CurrentMapper = NULL;
-  this->CurrentLut = NULL;
-  this->CurrentTransform = NULL;
-  this->FileName = NULL;
-  this->FileFD = NULL;
+  this->CurrentActor = nullptr;
+  this->CurrentLight = nullptr;
+  this->CurrentProperty = nullptr;
+  this->CurrentSource = nullptr;
+  this->CurrentPoints = nullptr;
+  this->CurrentScalars = nullptr;
+  this->CurrentNormals = nullptr;
+  this->CurrentNormalCells = nullptr;
+  this->CurrentTCoords = nullptr;
+  this->CurrentTCoordCells = nullptr;
+  this->CurrentMapper = nullptr;
+  this->CurrentLut = nullptr;
+  this->CurrentTransform = nullptr;
+  this->FileName = nullptr;
+  this->FileFD = nullptr;
   this->Parser = new vtkVRMLYaccData;
   this->ShapeResolution = 12;
 }
@@ -103,11 +103,11 @@ vtkVRMLImporter::~vtkVRMLImporter()
   if (this->CurrentTransform)
   {
     this->CurrentTransform->Delete();
-    this->CurrentTransform = NULL;
+    this->CurrentTransform = nullptr;
   }
 
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   while (this->Internal->Heap.Count() > 0)
   {
@@ -118,7 +118,7 @@ vtkVRMLImporter::~vtkVRMLImporter()
     }
   }
   delete this->Internal;
-  this->Internal = NULL;
+  this->Internal = nullptr;
 
   // According to Tom Citriniti the useList must not be deleted until the
   // instance is destroyed. The importer was crashing when users asked for a
@@ -128,11 +128,11 @@ vtkVRMLImporter::~vtkVRMLImporter()
   // these is created in the importer and has to live until the class is
   // deleted.
   delete this->Parser->useList;
-  this->Parser->useList = NULL;
+  this->Parser->useList = nullptr;
   vtkVRMLAllocator::CleanUp();
 
   delete this->Parser;
-  this->Parser = NULL;
+  this->Parser = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ int vtkVRMLImporter::OpenImportFile()
     return 0;
   }
   this->FileFD = fopen(this->FileName, "r");
-  if (this->FileFD == NULL)
+  if (this->FileFD == nullptr)
   {
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     return 0;
@@ -205,7 +205,7 @@ void vtkVRMLImporter::DeleteObject(vtkObject* obj)
   {
     if (obj == this->Internal->Heap[i])
     {
-      this->Internal->Heap[i] = 0;
+      this->Internal->Heap[i] = nullptr;
     }
   }
   obj->Delete();
@@ -223,7 +223,7 @@ int vtkVRMLImporter::ImportBegin()
     }
     this->CurrentTransform = vtkTransform::New();
 
-    this->Parser->CurrentProtoStack = 0;
+    this->Parser->CurrentProtoStack = nullptr;
     this->Parser->memyyInput_i = 0;
     this->Parser->memyyInput_j = 0;
 
@@ -253,7 +253,7 @@ int vtkVRMLImporter::ImportBegin()
     this->Parser->yydebug = 0;
     this->Parser->yy_flex_debug = 0;
     this->Parser->yyparse(this);
-    this->Parser->yyin = NULL;
+    this->Parser->yyin = nullptr;
     this->Parser->yyResetLineNumber();
 
     // Not sure why I have to do this but its not working when
@@ -293,11 +293,11 @@ int vtkVRMLImporter::ImportBegin()
   if (this->Parser->yyin)
   {
     fclose(this->Parser->yyin);
-    this->Parser->yyin = NULL;
+    this->Parser->yyin = nullptr;
   }
 
   delete this->Parser->CurrentProtoStack;
-  this->Parser->CurrentProtoStack = NULL;
+  this->Parser->CurrentProtoStack = nullptr;
 
   return ret;
 }
@@ -306,82 +306,82 @@ int vtkVRMLImporter::ImportBegin()
 void vtkVRMLImporter::ImportEnd()
 {
   delete this->Parser->typeList;
-  this->Parser->typeList = NULL;
+  this->Parser->typeList = nullptr;
 
   delete this->Parser->currentField;
-  this->Parser->currentField = NULL;
+  this->Parser->currentField = nullptr;
 
   vtkDebugMacro(<<"Closing import file");
-  if (this->FileFD != NULL)
+  if (this->FileFD != nullptr)
   {
     fclose(this->FileFD);
-    this->FileFD = NULL;
+    this->FileFD = nullptr;
   }
 
   if (this->CurrentActor)
   {
     this->CurrentActor->Delete();
-    this->CurrentActor = NULL;
+    this->CurrentActor = nullptr;
   }
   if (this->CurrentLight)
   {
     this->CurrentLight->Delete();
-    this->CurrentLight = NULL;
+    this->CurrentLight = nullptr;
   }
   if (this->CurrentProperty)
   {
     this->CurrentProperty->Delete();
-    this->CurrentProperty = NULL;
+    this->CurrentProperty = nullptr;
   }
   if (this->CurrentSource)
   {
     this->CurrentSource->Delete();
-    this->CurrentSource = NULL;
+    this->CurrentSource = nullptr;
   }
   if (this->CurrentPoints)
   {
     this->CurrentPoints->Delete();
-    this->CurrentPoints = NULL;
+    this->CurrentPoints = nullptr;
   }
   if (this->CurrentNormals)
   {
     this->CurrentNormals->Delete();
-    this->CurrentNormals = NULL;
+    this->CurrentNormals = nullptr;
   }
   if (this->CurrentTCoords)
   {
     this->CurrentTCoords->Delete();
-    this->CurrentTCoords = NULL;
+    this->CurrentTCoords = nullptr;
   }
   if (this->CurrentTCoordCells)
   {
     this->CurrentTCoordCells->Delete();
-    this->CurrentTCoordCells = NULL;
+    this->CurrentTCoordCells = nullptr;
   }
   if (this->CurrentNormalCells)
   {
     this->CurrentNormalCells->Delete();
-    this->CurrentNormalCells = NULL;
+    this->CurrentNormalCells = nullptr;
   }
   if (this->CurrentScalars)
   {
     this->CurrentScalars->Delete();
-    this->CurrentScalars = NULL;
+    this->CurrentScalars = nullptr;
   }
   if (this->CurrentMapper)
   {
     this->CurrentMapper->Delete();
-    this->CurrentMapper = NULL;
+    this->CurrentMapper = nullptr;
   }
   if (this->CurrentLut)
   {
     this->CurrentLut->Delete();
-    this->CurrentLut = NULL;
+    this->CurrentLut = nullptr;
   }
   if (this->CurrentTransform)
   {
     this->CurrentTransform->Delete();
-    this->CurrentTransform = NULL;
+    this->CurrentTransform = nullptr;
   }
 }
 
@@ -390,7 +390,7 @@ void vtkVRMLImporter::ImportEnd()
 void vtkVRMLImporter::enterNode(const char *nodeType)
 {
   const VrmlNodeType *t = this->Parser->find(nodeType);
-  if (t == NULL)
+  if (t == nullptr)
   {
     std::stringstream str;
     str << "Unknown node type " << nodeType;
@@ -399,7 +399,7 @@ void vtkVRMLImporter::enterNode(const char *nodeType)
   }
   VrmlNodeType::FieldRec *fr = new VrmlNodeType::FieldRec;
   fr->nodeType = t;
-  fr->fieldName = NULL;
+  fr->fieldName = nullptr;
   *this->Parser->currentField += fr;
   std::string nodeTypeName(fr->nodeType->getName());
   if (nodeTypeName == "Appearance")
@@ -539,7 +539,7 @@ void vtkVRMLImporter::enterNode(const char *nodeType)
 void vtkVRMLImporter::exitNode()
 {
   VrmlNodeType::FieldRec *fr = this->Parser->currentField->Top();
-  assert(fr != NULL);
+  assert(fr != nullptr);
   this->Parser->currentField->Pop();
 
   std::string nodeTypeName = fr->nodeType->getName();
@@ -657,7 +657,7 @@ void vtkVRMLImporter::exitNode()
     if (tcoordsCorrespond) // no rejigging necessary
     {
       vtkPolyData *pd = this->CurrentMapper->GetInput();
-      if (pd == NULL)
+      if (pd == nullptr)
       {
         pd = vtkPolyData::New();
         this->CurrentMapper->SetInputData(pd);
@@ -670,13 +670,13 @@ void vtkVRMLImporter::exitNode()
       {
         pd->GetPointData()->SetNormals(CurrentNormals);
         this->CurrentNormals->Delete();
-        this->CurrentNormals = NULL;
+        this->CurrentNormals = nullptr;
       }
       if (this->CurrentTCoords)
       {
         pd->GetPointData()->SetTCoords(CurrentTCoords);
         this->CurrentTCoords->Delete();
-        this->CurrentTCoords = NULL;
+        this->CurrentTCoords = nullptr;
       }
     }
     else  // must rejig
@@ -715,12 +715,12 @@ void vtkVRMLImporter::exitNode()
       vtkIdType npts, *pts;
       for (vtkIdType i = 0; polys->GetNextCell(npts, pts); i++)
       {
-        vtkIdType n_tcoord_pts = 0, *tcoord_pts = 0;
+        vtkIdType n_tcoord_pts = 0, *tcoord_pts = nullptr;
         if (this->CurrentTCoordCells)
         {
           this->CurrentTCoordCells->GetNextCell(n_tcoord_pts, tcoord_pts);
         }
-        vtkIdType n_normal_pts = 0, *normal_pts = 0;
+        vtkIdType n_normal_pts = 0, *normal_pts = nullptr;
         if (this->CurrentNormalCells)
         {
           this->CurrentNormalCells->GetNextCell(n_normal_pts, normal_pts);
@@ -803,7 +803,7 @@ void vtkVRMLImporter::exitNode()
       this->CurrentLut->SetTableRange(0.0,
         float(this->CurrentLut->GetNumberOfColors() - 1));
       this->CurrentLut->Delete();
-      this->CurrentLut = NULL;
+      this->CurrentLut = nullptr;
     }
   }
   else if (nodeTypeName == "Shape")
@@ -812,7 +812,7 @@ void vtkVRMLImporter::exitNode()
     {
       this->CurrentActor->SetProperty(this->CurrentProperty);
       this->CurrentProperty->Delete();
-      this->CurrentProperty = 0;
+      this->CurrentProperty = nullptr;
     }
   }
   // simply pop the current transform
@@ -828,10 +828,10 @@ void vtkVRMLImporter::exitNode()
 void vtkVRMLImporter::enterField(const char *fieldName)
 {
   VrmlNodeType::FieldRec *fr = this->Parser->currentField->Top();
-  assert(fr != NULL);
+  assert(fr != nullptr);
   fr->fieldName = fieldName;
 
-  if (fr->nodeType != NULL)
+  if (fr->nodeType != nullptr)
   {
     // enterField is called when parsing eventIn and eventOut IS
     // declarations, in which case we don't need to do anything special--
@@ -863,7 +863,7 @@ void vtkVRMLImporter::enterField(const char *fieldName)
 void vtkVRMLImporter::exitField()
 {
   VrmlNodeType::FieldRec *fr = this->Parser->currentField->Top();
-  assert(fr != NULL);
+  assert(fr != nullptr);
   std::string fieldName(fr->fieldName);
   std::string nodeTypeName(fr->nodeType->getName());
 
@@ -904,7 +904,7 @@ void vtkVRMLImporter::exitField()
       this->Parser->yylval.vec3f->GetPoint(0));
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   // For emissiveColor field, only in material node
   else if (fieldName == "emissiveColor")
@@ -913,7 +913,7 @@ void vtkVRMLImporter::exitField()
       this->Parser->yylval.vec3f->GetPoint(0));
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   // For shininess field, only in material node
   else if (fieldName == "shininess")
@@ -927,7 +927,7 @@ void vtkVRMLImporter::exitField()
       this->Parser->yylval.vec3f->GetPoint(0));
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   // For transparency field, only in material node
   else if (fieldName == "transparency")
@@ -940,7 +940,7 @@ void vtkVRMLImporter::exitField()
     this->CurrentTransform->Translate(this->Parser->yylval.vec3f->GetPoint(0));
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   // For the scale field of the transform node
   else if (fieldName == "scale" && nodeTypeName == "Transform")
@@ -948,7 +948,7 @@ void vtkVRMLImporter::exitField()
     this->CurrentTransform->Scale(this->Parser->yylval.vec3f->GetPoint(0));
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   // For the size field of the current cube source
   else if (fieldName == "size" && nodeTypeName == "Box")
@@ -960,7 +960,7 @@ void vtkVRMLImporter::exitField()
     cube->SetZLength(len[2]);
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   // For the height field
   else if (fieldName == "height")
@@ -1098,7 +1098,7 @@ void vtkVRMLImporter::exitField()
         this->Parser->yylval.vec3f->GetPoint(0));
       this->Parser->yylval.vec3f->Reset();
       this->DeleteObject(this->Parser->yylval.vec3f);
-      this->Parser->yylval.vec3f = NULL;
+      this->Parser->yylval.vec3f = nullptr;
     }
     // For the Color node, Insert colors into lookup table
     // These are associated with the points in the coord field
@@ -1133,7 +1133,7 @@ void vtkVRMLImporter::exitField()
   else if (fieldName == "colorIndex")
   {
     vtkPolyData *pd = this->CurrentMapper->GetInput();
-    if (pd == NULL)
+    if (pd == nullptr)
     {
       pd = vtkPolyData::New();
       this->CurrentMapper->SetInputData(pd);
@@ -1196,7 +1196,7 @@ void vtkVRMLImporter::exitField()
     this->CurrentLight->SetFocalPoint(this->Parser->yylval.vec3f->GetPoint(0));
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   // Handle intensity field of Directional light.
   else if (fieldName == "intensity" && nodeTypeName == "DirectionalLight")
@@ -1233,25 +1233,25 @@ void vtkVRMLImporter::exitField()
     }
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   else if (fieldName == "location")
   {
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   else if (fieldName == "position")
   {
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   else if (fieldName == "center")
   {
     this->Parser->yylval.vec3f->Reset();
     this->DeleteObject(this->Parser->yylval.vec3f);
-    this->Parser->yylval.vec3f = NULL;
+    this->Parser->yylval.vec3f = nullptr;
   }
   else if (fieldName == "texCoordIndex")
   {
@@ -1319,7 +1319,7 @@ void vtkVRMLImporter::exitField()
     this->Parser->yylval.mfint32->Reset();
     this->DeleteObject(this->Parser->yylval.mfint32);
   }
-  fr->fieldName = NULL;
+  fr->fieldName = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1406,10 +1406,10 @@ vtkObject* vtkVRMLImporter::GetVRMLDEFObject(const char *name)
   for (int i = this->Parser->useList->Count() - 1; i >= 0; i--)
   {
     const vtkVRMLUseStruct *nt = (*this->Parser->useList)[i];
-    if (nt != NULL && strcmp(nt->defName, name) == 0)
+    if (nt != nullptr && strcmp(nt->defName, name) == 0)
     {
       return nt->defObject;
     }
   }
-  return NULL;
+  return nullptr;
 }

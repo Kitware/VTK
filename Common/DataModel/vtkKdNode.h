@@ -229,7 +229,7 @@ public:
    * if useDataBounds is non-zero.
    */
   int IntersectsCell(vtkCell *cell, int useDataBounds,
-                     int cellRegion=-1, double *cellBounds=NULL);
+                     int cellRegion=-1, double *cellBounds=nullptr);
 
   /**
    * Return 1 if this spatial region entirely contains a box specified

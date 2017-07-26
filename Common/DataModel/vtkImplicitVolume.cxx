@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
 // set to a large negative number; and the OutGradient set to (0,0,1).
 vtkImplicitVolume::vtkImplicitVolume()
 {
-  this->Volume = NULL;
+  this->Volume = nullptr;
   this->OutValue = VTK_DOUBLE_MIN;
 
   this->OutGradient[0] = 0.0;
@@ -45,7 +45,7 @@ vtkImplicitVolume::~vtkImplicitVolume()
   if (this->Volume)
   {
     this->Volume->Delete();
-    this->Volume = NULL;
+    this->Volume = nullptr;
   }
   this->PointIds->Delete();
 }
@@ -93,7 +93,7 @@ vtkMTimeType vtkImplicitVolume::GetMTime()
   vtkMTimeType mTime = this->vtkImplicitFunction::GetMTime();
   vtkMTimeType volumeMTime;
 
-  if ( this->Volume != NULL )
+  if ( this->Volume != nullptr )
   {
     volumeMTime = this->Volume->GetMTime();
     mTime = ( volumeMTime > mTime ? volumeMTime : mTime );

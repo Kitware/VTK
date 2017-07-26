@@ -35,7 +35,7 @@ vtkExodusIIReaderParser::vtkExodusIIReaderParser()
 vtkExodusIIReaderParser::~vtkExodusIIReaderParser()
 {
   this->SIL->Delete();
-  this->SIL = 0;
+  this->SIL = nullptr;
 }
 
 //-----------------------------------------------------------------------------

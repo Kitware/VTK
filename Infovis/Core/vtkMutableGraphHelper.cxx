@@ -29,9 +29,9 @@ vtkStandardNewMacro(vtkMutableGraphHelper);
 //----------------------------------------------------------------------------
 vtkMutableGraphHelper::vtkMutableGraphHelper()
 {
-  this->InternalGraph = 0;
-  this->DirectedGraph = 0;
-  this->UndirectedGraph = 0;
+  this->InternalGraph = nullptr;
+  this->DirectedGraph = nullptr;
+  this->UndirectedGraph = nullptr;
   this->GraphEdge = vtkGraphEdge::New();
   this->GraphEdge->SetId(-1);
   this->GraphEdge->SetSource(-1);

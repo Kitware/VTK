@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkOpenGLSphereMapper)
 //-----------------------------------------------------------------------------
 vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()
 {
-  this->ScaleArray = 0;
+  this->ScaleArray = nullptr;
   this->Invert = false;
   this->Radius = 0.3;
 }
@@ -145,7 +145,7 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
 //-----------------------------------------------------------------------------
 vtkOpenGLSphereMapper::~vtkOpenGLSphereMapper()
 {
-  this->SetScaleArray(0);
+  this->SetScaleArray(nullptr);
 }
 
 
@@ -307,7 +307,7 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
 {
   vtkPolyData *poly = this->CurrentInput;
 
-  if (poly == NULL)// || !poly->GetPointData()->GetNormals())
+  if (poly == nullptr)// || !poly->GetPointData()->GetNormals())
   {
     return;
   }
@@ -343,7 +343,7 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
 
   float *scales;
   vtkIdType ns = poly->GetPoints()->GetNumberOfPoints();
-  if (this->ScaleArray != NULL &&
+  if (this->ScaleArray != nullptr &&
       poly->GetPointData()->HasArray(this->ScaleArray))
   {
     scales = static_cast<float*>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0));

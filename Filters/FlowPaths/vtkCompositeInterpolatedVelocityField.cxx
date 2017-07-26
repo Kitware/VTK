@@ -32,7 +32,7 @@ vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()
 vtkCompositeInterpolatedVelocityField::~vtkCompositeInterpolatedVelocityField()
 {
   delete this->DataSets;
-  this->DataSets = NULL;
+  this->DataSets = nullptr;
 }
 
 void vtkCompositeInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent indent )

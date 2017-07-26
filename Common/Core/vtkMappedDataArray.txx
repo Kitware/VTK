@@ -24,7 +24,7 @@
 template<class Scalar>
 vtkMappedDataArray<Scalar>::vtkMappedDataArray()
 {
-  this->TemporaryScalarPointer = NULL;
+  this->TemporaryScalarPointer = nullptr;
   this->TemporaryScalarPointerSize = 0;
 }
 
@@ -33,7 +33,7 @@ template<class Scalar>
 vtkMappedDataArray<Scalar>::~vtkMappedDataArray()
 {
   delete [] this->TemporaryScalarPointer;
-  this->TemporaryScalarPointer = NULL;
+  this->TemporaryScalarPointer = nullptr;
   this->TemporaryScalarPointerSize = 0;
 }
 
@@ -51,7 +51,7 @@ void * vtkMappedDataArray<Scalar>::GetVoidPointer(vtkIdType id)
       this->TemporaryScalarPointerSize != numValues)
   {
     delete [] this->TemporaryScalarPointer;
-    this->TemporaryScalarPointer = NULL;
+    this->TemporaryScalarPointer = nullptr;
     this->TemporaryScalarPointerSize = 0;
   }
 
@@ -146,7 +146,7 @@ vtkMappedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
         break;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -167,13 +167,13 @@ void vtkMappedDataArray<Scalar>::Modified()
 {
   this->vtkTypedDataArray<Scalar>::Modified();
 
-  if (this->TemporaryScalarPointer == NULL)
+  if (this->TemporaryScalarPointer == nullptr)
   {
     return;
   }
 
   delete [] this->TemporaryScalarPointer;
-  this->TemporaryScalarPointer = NULL;
+  this->TemporaryScalarPointer = nullptr;
   this->TemporaryScalarPointerSize = 0;
 }
 

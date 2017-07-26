@@ -253,7 +253,7 @@ int ConnectToDb(int argc, char* argv[], vtkSQLiteDatabase * db)
 {
   boost::mpi::communicator world;
 
-  char * filename = NULL;
+  char * filename = nullptr;
 
   filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
       "Data/Infovis/SQLite/SmallTestGraphs.db");

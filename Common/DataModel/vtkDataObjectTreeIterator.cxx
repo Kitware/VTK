@@ -44,7 +44,7 @@ public:
       {
         this->ChildIterator = new vtkIterator(this->Parent);
       }
-      this->ChildIterator->Initialize(this->Reverse, 0);
+      this->ChildIterator->Initialize(this->Reverse, nullptr);
 
       if (this->Reverse &&
         this->ReverseIter != this->GetInternals(this->CompositeDataSet)->Children.rend())
@@ -67,14 +67,14 @@ public:
   public:
     vtkIterator(vtkInternals* parent)
     {
-      this->ChildIterator = 0;
+      this->ChildIterator = nullptr;
       this->Parent = parent;
     }
 
     ~vtkIterator()
     {
       delete this->ChildIterator;
-      this->ChildIterator = 0;
+      this->ChildIterator = nullptr;
     }
 
 
@@ -89,7 +89,7 @@ public:
       this->PassSelf = true;
 
       delete this->ChildIterator;
-      this->ChildIterator = NULL;
+      this->ChildIterator = nullptr;
 
       if (compositeData)
       {
@@ -159,14 +159,14 @@ public:
         return this->DataObject;
       }
       return this->ChildIterator?
-        this->ChildIterator->GetCurrentDataObject() : 0;
+        this->ChildIterator->GetCurrentDataObject() : nullptr;
     }
 
     vtkInformation* GetCurrentMetaData()
     {
       if (this->PassSelf || !this->ChildIterator)
       {
-        return NULL;
+        return nullptr;
       }
 
       if (this->ChildIterator->PassSelf)
@@ -201,8 +201,8 @@ public:
       if (this->ChildIterator->PassSelf)
       {
         return this->Reverse?
-          (this->ReverseIter->MetaData.GetPointer() != 0):
-          (this->Iter->MetaData.GetPointer() != 0);
+          (this->ReverseIter->MetaData.GetPointer() != nullptr):
+          (this->Iter->MetaData.GetPointer() != nullptr);
       }
 
       return this->ChildIterator->HasCurrentMetaData();
@@ -265,7 +265,7 @@ public:
   ~vtkInternals()
   {
     delete this->Iterator;
-    this->Iterator = 0;
+    this->Iterator = nullptr;
   }
 
   vtkIterator *Iterator;
@@ -359,7 +359,7 @@ vtkDataObject* vtkDataObjectTreeIterator::GetCurrentDataObject()
     return this->Internals->Iterator->GetCurrentDataObject();
   }
 
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -370,7 +370,7 @@ vtkInformation* vtkDataObjectTreeIterator::GetCurrentMetaData()
     return this->Internals->Iterator->GetCurrentMetaData();
   }
 
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -411,7 +411,7 @@ vtkDataObjectTreeInternals* vtkDataObjectTreeIterator::GetInternals(
     return cd->Internals;
   }
 
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

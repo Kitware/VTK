@@ -46,7 +46,7 @@ public:
    * normals, they are "orientation" normals used by classes like vtkTubeFilter
    * that control the rotation around the line. The normals try to stay pointing
    * in the same direction as much as possible (i.e., minimal rotation) w.r.t the
-   * firstNormal (computed if NULL). Always returns 1 (success).
+   * firstNormal (computed if nullptr). Always returns 1 (success).
    */
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *,
@@ -61,8 +61,8 @@ public:
   int GetCellDimension() VTK_OVERRIDE {return 1;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
   int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
-  vtkCell *GetEdge(int vtkNotUsed(edgeId)) VTK_OVERRIDE {return 0;};
-  vtkCell *GetFace(int vtkNotUsed(faceId)) VTK_OVERRIDE {return 0;};
+  vtkCell *GetEdge(int vtkNotUsed(edgeId)) VTK_OVERRIDE {return nullptr;};
+  vtkCell *GetFace(int vtkNotUsed(faceId)) VTK_OVERRIDE {return nullptr;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,

@@ -41,7 +41,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
                vtkDoubleArray *weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
-  double *p = (prob ? prob->GetPointer(0) : NULL);
+  double *p = (prob ? prob->GetPointer(0) : nullptr);
   double highestProbability=VTK_FLOAT_MIN;
   vtkIdType id, mostProbableId=0;
 

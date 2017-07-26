@@ -195,7 +195,7 @@ bool vtkXdmfDocument::SetActiveDomain(int index)
 vtkXdmfDomain::vtkXdmfDomain(XdmfDOM* xmlDom, int domain_index)
 {
   this->XMLDOM = 0;
-  this->XMFGrids = NULL;
+  this->XMFGrids = nullptr;
   this->NumberOfGrids = 0;
   this->SIL = vtkMutableDirectedGraph::New();
   this->SILBuilder = vtkSILBuilder::New();
@@ -245,7 +245,7 @@ vtkXdmfDomain::~vtkXdmfDomain()
 {
   // free the XdmfGrid allocated.
   delete [] this->XMFGrids;
-  this->XMFGrids = NULL;
+  this->XMFGrids = nullptr;
   this->SIL->Delete();
   this->SIL = 0;
   this->SILBuilder->Delete();
@@ -263,7 +263,7 @@ XdmfGrid* vtkXdmfDomain::GetGrid(XdmfInt64 cc)
   {
     return &this->XMFGrids[cc];
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -382,7 +382,7 @@ XdmfGrid* vtkXdmfDomain::GetGrid(XdmfGrid* xmfGrid, double time)
     }
 
     // not sure what to do if no sub-grid matches the requested time.
-    return NULL;
+    return nullptr;
   }
 
   return xmfGrid;
@@ -595,7 +595,7 @@ void vtkXdmfDomain::CollectMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 
   // All grids need to be named. If a grid doesn't have a name, we make one
   // up.
-  if (xmfGrid->GetName() == NULL)
+  if (xmfGrid->GetName() == nullptr)
   {
     xmfGrid->SetName(this->XMLDOM->GetUniqueName("Grid"));
   }

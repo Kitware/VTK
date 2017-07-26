@@ -634,7 +634,7 @@ void vtkXdmfReader::ClearDataSetCache()
   XdmfReaderCachedData::iterator it = this->DataSetCache.begin();
   while (it != this->DataSetCache.end())
   {
-    if (it->second.dataset != NULL)
+    if (it->second.dataset != nullptr)
     {
       it->second.dataset->Delete();
     }

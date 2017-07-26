@@ -23,7 +23,7 @@ void vtkActorCollection::ApplyProperties(vtkProperty *p)
 {
   vtkActor *actor;
 
-  if ( p == NULL )
+  if ( p == nullptr )
   {
     return;
   }

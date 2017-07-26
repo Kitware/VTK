@@ -46,7 +46,7 @@ public:
   }
 
   /**
-   * Get the next ObjectFactory in the list. Return NULL when the end of the
+   * Get the next ObjectFactory in the list. Return nullptr when the end of the
    * list is reached.
    */
   vtkObjectFactory *GetNextItem()

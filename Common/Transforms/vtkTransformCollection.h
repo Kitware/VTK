@@ -44,7 +44,7 @@ public:
   void AddItem(vtkTransform *);
 
   /**
-   * Get the next Transform in the list. Return NULL when the end of the
+   * Get the next Transform in the list. Return nullptr when the end of the
    * list is reached.
    */
   vtkTransform *GetNextItem();

@@ -54,8 +54,8 @@ void vtkDistributedGraphHelper::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkDistributedGraphHelper::vtkDistributedGraphHelper()
 {
-  this->Graph = 0;
-  this->VertexDistribution = 0;
+  this->Graph = nullptr;
+  this->VertexDistribution = nullptr;
 }
 
 //----------------------------------------------------------------------------

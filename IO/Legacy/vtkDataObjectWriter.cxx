@@ -51,7 +51,7 @@ void vtkDataObjectWriter::WriteData()
 
   this->Writer->CloseVTKFile(fp);
 
-  this->Writer->SetInputData(NULL);
+  this->Writer->SetInputData(nullptr);
 }
 
 void vtkDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)

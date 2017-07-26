@@ -191,9 +191,9 @@ public:
    * options.
    */
   bool RenderString(vtkTextProperty *tprop, const vtkStdString& str, int dpi,
-                    vtkImageData *data, int textDims[2] = NULL);
+                    vtkImageData *data, int textDims[2] = nullptr);
   bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString& str,
-                    int dpi, vtkImageData *data, int textDims[2] = NULL);
+                    int dpi, vtkImageData *data, int textDims[2] = nullptr);
   //@}
 
   //@{

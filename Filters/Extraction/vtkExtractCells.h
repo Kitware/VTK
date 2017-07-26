@@ -48,7 +48,7 @@ public:
   /**
    * Set the list of cell IDs that the output vtkUnstructuredGrid
    * will be composed of.  Replaces any other cell ID list supplied
-   * so far.  (Set to NULL to free memory used by cell list.)
+   * so far.  (Set to nullptr to free memory used by cell list.)
    */
 
   void SetCellList(vtkIdList *l);

@@ -30,10 +30,10 @@ vtkStandardNewMacro(vtkInEdgeIterator);
 vtkInEdgeIterator::vtkInEdgeIterator()
 {
   this->Vertex = 0;
-  this->Current = 0;
-  this->End = 0;
-  this->Graph = 0;
-  this->GraphEdge = 0;
+  this->Current = nullptr;
+  this->End = nullptr;
+  this->Graph = nullptr;
+  this->GraphEdge = nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -120,7 +120,7 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   }
 
   this->FragmentShaderIndex = 0;
-  this->RenderWindow = 0;
+  this->RenderWindow = nullptr;
   this->TextureSize[0] = 0;
   this->TextureSize[1] = 0;
   this->TextureBytesPerPixel = 1;
@@ -143,7 +143,7 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
 //----------------------------------------------------------------------------
 vtkOpenGLImageSliceMapper::~vtkOpenGLImageSliceMapper()
 {
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->BackgroundPolyDataActor->UnRegister(this);
   this->BackingPolyDataActor->UnRegister(this);
   this->PolyDataActor->UnRegister(this);
@@ -158,7 +158,7 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
   this->PolyDataActor->ReleaseGraphicsResources(renWin);
 
   this->FragmentShaderIndex = 0;
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->Modified();
 }
 
@@ -305,7 +305,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
 
     // generate the data to be used as a texture
     unsigned char *data = this->MakeTextureData(
-      (this->PassColorData ? 0 : property), input, extent, xsize, ysize,
+      (this->PassColorData ? nullptr : property), input, extent, xsize, ysize,
       bytesPerPixel, reuseTexture, reuseData);
 
     this->TextureSize[0] = xsize;
@@ -350,7 +350,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   vtkPoints *points = this->Points;
   if (this->ExactPixelMatch && this->SliceFacesCamera)
   {
-    points = 0;
+    points = nullptr;
   }
 
   this->RenderPolygon(this->PolyDataActor, points, extent, ren);
@@ -379,7 +379,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
 {
   vtkOpenGLClearErrorMacro();
 
-  bool textured = (actor->GetTexture() != NULL);
+  bool textured = (actor->GetTexture() != nullptr);
   vtkPolyData *poly = vtkPolyDataMapper::SafeDownCast(actor->GetMapper())->GetInput();
   vtkPoints *polyPoints = poly->GetPoints();
   vtkCellArray *tris = poly->GetPolys();

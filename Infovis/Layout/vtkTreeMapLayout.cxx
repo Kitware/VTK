@@ -37,15 +37,15 @@ vtkStandardNewMacro(vtkTreeMapLayout);
 
 vtkTreeMapLayout::vtkTreeMapLayout()
 {
-  this->RectanglesFieldName = 0;
-  this->LayoutStrategy = 0;
+  this->RectanglesFieldName = nullptr;
+  this->LayoutStrategy = nullptr;
   this->SetRectanglesFieldName("area");
   this->SetSizeArrayName("size");
 }
 
 vtkTreeMapLayout::~vtkTreeMapLayout()
 {
-  this->SetRectanglesFieldName(0);
+  this->SetRectanglesFieldName(nullptr);
   if (this->LayoutStrategy)
   {
     this->LayoutStrategy->Delete();
@@ -59,12 +59,12 @@ int vtkTreeMapLayout::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (this->LayoutStrategy == NULL)
+  if (this->LayoutStrategy == nullptr)
   {
     vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
   }
-  if (this->RectanglesFieldName == NULL)
+  if (this->RectanglesFieldName == nullptr)
   {
     vtkErrorMacro(<< "Rectangles field name must be non-null.");
     return 0;
@@ -209,7 +209,7 @@ vtkMTimeType vtkTreeMapLayout::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if (this->LayoutStrategy != NULL)
+  if (this->LayoutStrategy != nullptr)
   {
     time = this->LayoutStrategy->GetMTime();
     mTime = (time > mTime ? time : mTime);

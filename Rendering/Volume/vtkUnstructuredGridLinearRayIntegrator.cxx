@@ -84,8 +84,8 @@ private:
 
 vtkLinearRayIntegratorTransferFunction::vtkLinearRayIntegratorTransferFunction()
 {
-  this->ControlPoints = NULL;
-  this->Colors = NULL;
+  this->ControlPoints = nullptr;
+  this->Colors = nullptr;
 
   this->NumControlPoints = 0;
 }
@@ -315,8 +315,8 @@ vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
 {
-  this->Property = NULL;
-  this->TransferFunctions = NULL;
+  this->Property = nullptr;
+  this->TransferFunctions = nullptr;
   this->NumIndependentComponents = 0;
 }
 

@@ -124,18 +124,18 @@ int vtkAppendCompositeDataLeaves::RequestData(
   {
     // Loop over all inputs at this "spot" in the composite data tree. locate
     // the first input that has a non-null data-object at this location, if any.
-    vtkDataObject* obj = 0;
+    vtkDataObject* obj = nullptr;
     int inputIndex;
     for (inputIndex = 0; inputIndex < numInputs && !obj; ++inputIndex)
     {
       vtkCompositeDataSet* inputX = vtkCompositeDataSet::GetData(inputVector[0],
         inputIndex);
-      obj = inputX? inputX->GetDataSet(iter) : NULL;
+      obj = inputX? inputX->GetDataSet(iter) : nullptr;
     }
 
-    if (obj == NULL)
+    if (obj == nullptr)
     {
-      continue; // no input had a non-NULL dataset
+      continue; // no input had a non-nullptr dataset
     }
 
     if (vtkUnstructuredGrid::SafeDownCast(obj))

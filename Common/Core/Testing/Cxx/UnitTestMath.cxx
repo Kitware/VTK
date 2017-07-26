@@ -650,7 +650,7 @@ int TestBinomial()
   int *comb;
   // First, m < n should produce 0
   comb = vtkMath::BeginCombination(n, m);
-  if (comb != NULL)
+  if (comb != nullptr)
   {
     ++status;
     std::cout << " Combinations("
@@ -3209,8 +3209,8 @@ int TestClampValues()
     }
   }
 
-  vtkMath::ClampValues( NULL, 1000, NULL);
-  vtkMath::ClampValues( NULL, 1000, NULL, NULL);;
+  vtkMath::ClampValues( nullptr, 1000, nullptr);
+  vtkMath::ClampValues( nullptr, 1000, nullptr, nullptr);;
 
   if (status)
   {
@@ -3538,10 +3538,10 @@ int TestGetAdjustedScalarRange()
     ++status;
   }
 
-  // Test NULL array
-  if (vtkMath::GetAdjustedScalarRange(NULL, 1000, NULL))
+  // Test nullptr array
+  if (vtkMath::GetAdjustedScalarRange(nullptr, 1000, nullptr))
   {
-    std::cout << " GetAjustedScalarRange with a NULL array expected "
+    std::cout << " GetAjustedScalarRange with a nullptr array expected "
               << 0
               << " but got " << 1
               << std::endl;
@@ -3564,7 +3564,7 @@ int TestExtentIsWithinOtherExtent()
   int status = 0;
   std::cout << "ExtentIsWithinOtherExtent..";
 
-  if (vtkMath::ExtentIsWithinOtherExtent(NULL, NULL))
+  if (vtkMath::ExtentIsWithinOtherExtent(nullptr, nullptr))
   {
     std::cout << " ExtentIsWithinOtherExtent expected 0 but got 1"
               << std::endl;
@@ -3621,7 +3621,7 @@ int TestBoundsIsWithinOtherBounds()
   int status = 0;
   std::cout << "BoundsIsWithinOtherBounds..";
 
-  if (vtkMath::BoundsIsWithinOtherBounds(NULL, NULL, NULL))
+  if (vtkMath::BoundsIsWithinOtherBounds(nullptr, nullptr, nullptr))
   {
     std::cout << " BoundsIsWithinOtherBounds expected 0 but got 1"
               << std::endl;
@@ -3681,7 +3681,7 @@ int TestPointIsWithinBounds()
   int status = 0;
   std::cout << "PointIsWithinBounds..";
 
-  if (vtkMath::PointIsWithinBounds(NULL, NULL, NULL))
+  if (vtkMath::PointIsWithinBounds(nullptr, nullptr, nullptr))
   {
     std::cout << " PointIsWithinBounds expected 0 but got 1"
               << std::endl;

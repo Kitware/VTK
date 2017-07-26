@@ -56,9 +56,9 @@ vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapper()
 {
-  this->LabelWidth = NULL;
-  this->LabelHeight = NULL;
-  this->Cutoff = NULL;
+  this->LabelWidth = nullptr;
+  this->LabelHeight = nullptr;
+  this->Cutoff = nullptr;
 
   this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "priority");
   this->ReversePriority = false;
@@ -159,10 +159,10 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
     // figure out what to label, and if we can label it
     pointIdLabels = 0;
-    abstractData = NULL;
-    numericData = NULL;
-    stringData = NULL;
-    uStringData = NULL;
+    abstractData = nullptr;
+    numericData = nullptr;
+    stringData = nullptr;
+    uStringData = nullptr;
     switch (this->LabelMode)
     {
       case VTK_LABEL_IDS:
@@ -201,7 +201,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       case VTK_LABEL_FIELD_DATA:
       {
       int arrayNum;
-      if (this->FieldDataName != NULL)
+      if (this->FieldDataName != nullptr)
       {
         abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
       }
@@ -409,7 +409,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         {
           // If the user hasn't given us a custom format string then
           // we'll sidestep a lot of snprintf nonsense.
-          if (this->LabelFormat == NULL)
+          if (this->LabelFormat == nullptr)
           {
             if( uStringData )
             {
@@ -501,7 +501,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         gInput->GetPoint(i, pti);
       }
       coord->SetValue(pti);
-      dc = coord->GetComputedDoubleDisplayValue(0);
+      dc = coord->GetComputedDoubleDisplayValue(nullptr);
       pts->InsertNextPoint(dc[0], dc[1], 0);
     }
     coord->Delete();

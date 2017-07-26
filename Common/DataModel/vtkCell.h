@@ -124,7 +124,7 @@ public:
    */
   virtual int RequiresExplicitFaceRepresentation() {return 0;}
   virtual void SetFaces(vtkIdType *vtkNotUsed(faces)) {}
-  virtual vtkIdType *GetFaces() {return NULL;}
+  virtual vtkIdType *GetFaces() {return nullptr;}
 
   /**
    * Get the point coordinates for the cell.
@@ -210,9 +210,9 @@ public:
    * points list that merges points as they are inserted (i.e., prevents
    * duplicates). Contouring primitives can be vertices, lines, or
    * polygons. It is possible to interpolate point data along the edge
-   * by providing input and output point data - if outPd is NULL, then
+   * by providing input and output point data - if outPd is nullptr, then
    * no interpolation is performed. Also, if the output cell data is
-   * non-NULL, the cell data from the contoured cell is passed to the
+   * non-nullptr, the cell data from the contoured cell is passed to the
    * generated contouring primitives. (Note: the CopyAllocate() method
    * must be invoked on both the output cell and point data. The
    * cellId refers to the cell from which the cell data is copied.)
@@ -231,7 +231,7 @@ public:
    * The flag insideOut controls what part of the cell is considered inside -
    * normally cell points whose scalar value is greater than "value" are
    * considered inside. If insideOut is on, this is reversed. Also, if the
-   * output cell data is non-NULL, the cell data from the clipped cell is
+   * output cell data is non-nullptr, the cell data from the clipped cell is
    * passed to the generated contouring primitives. (Note: the CopyAllocate()
    * method must be invoked on both the output cell and point data. The
    * cellId refers to the cell from which the cell data is copied.)
@@ -337,7 +337,7 @@ public:
    * Return a contiguous array of parametric coordinates of the points
    * defining this cell. In other words, (px,py,pz, px,py,pz, etc..)  The
    * coordinates are ordered consistent with the definition of the point
-   * ordering for the cell. This method returns a non-NULL pointer when
+   * ordering for the cell. This method returns a non-nullptr pointer when
    * the cell is a primary type (i.e., IsPrimaryCell() is true). Note that
    * 3D parametric coordinates are returned no matter what the topological
    * dimension of the cell.

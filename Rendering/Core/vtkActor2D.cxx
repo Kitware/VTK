@@ -32,9 +32,9 @@ vtkCxxSetObjectMacro(vtkActor2D,Mapper, vtkMapper2D);
 // orientation 0, scale (1,1), layer 0, visibility on
 vtkActor2D::vtkActor2D()
 {
-  this->Mapper = NULL;
+  this->Mapper = nullptr;
   this->LayerNumber = 0;
-  this->Property = NULL;
+  this->Property = nullptr;
   //
   this->PositionCoordinate = vtkCoordinate::New();
   this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
@@ -52,22 +52,22 @@ vtkActor2D::~vtkActor2D()
   if (this->Property)
   {
     this->Property->UnRegister(this);
-    this->Property = NULL;
+    this->Property = nullptr;
   }
   if (this->PositionCoordinate)
   {
     this->PositionCoordinate->Delete();
-    this->PositionCoordinate = NULL;
+    this->PositionCoordinate = nullptr;
   }
   if (this->Position2Coordinate)
   {
     this->Position2Coordinate->Delete();
-    this->Position2Coordinate = NULL;
+    this->Position2Coordinate = nullptr;
   }
-  if (this->Mapper != NULL)
+  if (this->Mapper != nullptr)
   {
     this->Mapper->UnRegister(this);
-    this->Mapper = NULL;
+    this->Mapper = nullptr;
   }
 }
 
@@ -204,7 +204,7 @@ vtkMTimeType vtkActor2D::GetMTime()
   time  = this->Position2Coordinate->GetMTime();
   mTime = ( time > mTime ? time : mTime );
 
-  if ( this->Property != NULL )
+  if ( this->Property != nullptr )
   {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -259,7 +259,7 @@ double vtkActor2D::GetHeight()
 // doesn't already exist.
 vtkProperty2D *vtkActor2D::GetProperty()
 {
-  if (this->Property == NULL)
+  if (this->Property == nullptr)
   {
     this->Property = vtkProperty2D::New();
     this->Property->Register(this);
@@ -279,7 +279,7 @@ void vtkActor2D::GetActors2D(vtkPropCollection *ac)
 void vtkActor2D::ShallowCopy(vtkProp *prop)
 {
   vtkActor2D *a = vtkActor2D::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetMapper(a->GetMapper());
     this->SetLayerNumber(a->GetLayerNumber());

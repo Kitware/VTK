@@ -63,7 +63,7 @@ void vtkInformationIntegerPointerKey::Set(vtkInformation* info, int* value,
         << " with key " << this->Location << "::" << this->Name
         << " which requires a vector of length "
         << this->RequiredLength << ".  Removing the key instead.");
-      this->SetAsObjectBase(info, 0);
+      this->SetAsObjectBase(info, nullptr);
       return;
     }
 
@@ -78,7 +78,7 @@ void vtkInformationIntegerPointerKey::Set(vtkInformation* info, int* value,
   }
   else
   {
-    this->SetAsObjectBase(info, 0);
+    this->SetAsObjectBase(info, nullptr);
   }
 }
 
@@ -146,5 +146,5 @@ int* vtkInformationIntegerPointerKey::GetWatchAddress(vtkInformation* info)
   {
     return v->Value;
   }
-  return 0;
+  return nullptr;
 }

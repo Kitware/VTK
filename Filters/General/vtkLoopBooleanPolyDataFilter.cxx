@@ -126,8 +126,8 @@ public:
 };
 
 vtkLoopBooleanPolyDataFilter::Impl::Impl() :
-  CheckCells(0), CheckCells2(0), CheckCellsCareful(0),
-  CheckCellsCareful2(0)
+  CheckCells(nullptr), CheckCells2(nullptr), CheckCellsCareful(nullptr),
+  CheckCellsCareful2(nullptr)
 {
   for (int i = 0;i<2;i++)
   {
@@ -138,10 +138,10 @@ vtkLoopBooleanPolyDataFilter::Impl::Impl() :
     this->BoundaryCellArray[i] = vtkIntArray::New();
     this->NewCellIds[i] = vtkIntArray::New();
 
-    this->Checked[i] = NULL;
-    this->CheckedCarefully[i] = NULL;
-    this->PointMapper[i] = NULL;
-    this->ReversePointMapper[i] = NULL;
+    this->Checked[i] = nullptr;
+    this->CheckedCarefully[i] = nullptr;
+    this->PointMapper[i] = nullptr;
+    this->ReversePointMapper[i] = nullptr;
   }
   this->IntersectionLines = vtkPolyData::New();
   this->CheckCells = vtkIdList::New();
@@ -198,7 +198,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::FindRegion(int inputIndex,
     {
       vtkIdType cellId = this->CheckCells->GetId(c);
       //Get the three points of the cell
-      vtkIdType *pts = 0;
+      vtkIdType *pts = nullptr;
       vtkIdType npts = 0;
       this->Mesh[inputIndex]->GetCellPoints(cellId, npts, pts);
       if (this->Checked[inputIndex][cellId] == 0)
@@ -296,7 +296,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::FindRegionTipToe(
       neighborIds->Reset();
       vtkIdType cellId = this->CheckCellsCareful->GetId(c);
       //Get the three points of the cell
-      vtkIdType *pts = 0;
+      vtkIdType *pts = nullptr;
       vtkIdType npts = 0;
       this->Mesh[inputIndex]->GetCellPoints(cellId, npts, pts);
       //Update this cell to have been checked carefully and assign it

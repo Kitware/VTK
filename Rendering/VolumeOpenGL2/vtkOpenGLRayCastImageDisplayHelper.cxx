@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
 {
   this->TextureObject = vtkTextureObject::New();
-  this->ShaderProgram = NULL;
+  this->ShaderProgram = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -53,12 +53,12 @@ vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
   if (this->TextureObject)
   {
     this->TextureObject->Delete();
-    this->TextureObject = 0;
+    this->TextureObject = nullptr;
   }
   if (this->ShaderProgram)
   {
     delete this->ShaderProgram;
-    this->ShaderProgram = 0;
+    this->ShaderProgram = nullptr;
   }
 }
 
@@ -287,6 +287,6 @@ void vtkOpenGLRayCastImageDisplayHelper::ReleaseGraphicsResources(vtkWindow *win
   {
     this->ShaderProgram->ReleaseGraphicsResources(win);
     delete this->ShaderProgram;
-    this->ShaderProgram = NULL;
+    this->ShaderProgram = nullptr;
   }
 }

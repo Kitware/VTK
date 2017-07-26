@@ -51,7 +51,7 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
     if ( !fgets(line, maxlen, fp) )
     {
       //cout << "Problem when reading. EOF?" << endl;
-      return 0;
+      return nullptr;
     }
     len = static_cast<int>(strlen(line));
     for ( cc = 0; cc < len; cc ++ )
@@ -96,7 +96,7 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
   }
   if ( strlen(ptr) == 0 )
   {
-    return 0;
+    return nullptr;
   }
   return ptr;
 }

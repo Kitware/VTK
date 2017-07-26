@@ -188,17 +188,17 @@ vtkODBCDatabase::vtkODBCDatabase()
   this->Tables = vtkStringArray::New();
   this->Tables->Register(this);
   this->Tables->Delete();
-  this->LastErrorText = NULL;
+  this->LastErrorText = nullptr;
 
   this->Record = vtkStringArray::New();
   this->Record->Register(this);
   this->Record->Delete();
 
-  this->UserName = NULL;
-  this->HostName = NULL;
-  this->DataSourceName = NULL;
-  this->DatabaseName = NULL;
-  this->Password = NULL;
+  this->UserName = nullptr;
+  this->HostName = nullptr;
+  this->DataSourceName = nullptr;
+  this->DatabaseName = nullptr;
+  this->Password = nullptr;
 
   this->ServerPort = -1; // use whatever the driver defaults to
 
@@ -218,12 +218,12 @@ vtkODBCDatabase::~vtkODBCDatabase()
   {
     this->SetDatabaseType(0);
   }
-  this->SetLastErrorText(NULL);
-  this->SetUserName(NULL);
-  this->SetHostName(NULL);
-  this->SetPassword(NULL);
-  this->SetDataSourceName(NULL);
-  this->SetDatabaseName(NULL);
+  this->SetLastErrorText(nullptr);
+  this->SetUserName(nullptr);
+  this->SetHostName(nullptr);
+  this->SetPassword(nullptr);
+  this->SetDataSourceName(nullptr);
+  this->SetDatabaseName(nullptr);
   delete this->Internals;
 
   this->Tables->UnRegister(this);
@@ -313,13 +313,13 @@ bool vtkODBCDatabase::Open(const char *password)
 
   // Create the connection string itself
   vtkStdString connectionString;
-  if (strstr(this->DataSourceName, ".dsn") != NULL)
+  if (strstr(this->DataSourceName, ".dsn") != nullptr)
   {
     // the data source is a file of some sort
     connectionString = "FILEDSN=";
     connectionString += this->DataSourceName;
   }
-  else if (strstr(this->DataSourceName, "DRIVER") != NULL ||
+  else if (strstr(this->DataSourceName, "DRIVER") != nullptr ||
            strstr(this->DataSourceName, "SERVER"))
   {
     connectionString = this->DataSourceName;
@@ -330,17 +330,17 @@ bool vtkODBCDatabase::Open(const char *password)
     connectionString += this->DataSourceName;
   }
 
-  if (this->UserName != NULL && strlen(this->UserName) > 0)
+  if (this->UserName != nullptr && strlen(this->UserName) > 0)
   {
     connectionString += ";UID=";
     connectionString += this->UserName;
   }
-  if (password != NULL)
+  if (password != nullptr)
   {
     connectionString += ";PWD=";
     connectionString += password;
   }
-  if (this->DatabaseName != NULL && strlen(this->DatabaseName) > 0)
+  if (this->DatabaseName != nullptr && strlen(this->DatabaseName) > 0)
   {
     connectionString += ";DATABASE=";
     connectionString += this->DatabaseName;
@@ -387,7 +387,7 @@ bool vtkODBCDatabase::Open(const char *password)
   SQLSMALLINT cb;
   SQLTCHAR connectionOut[1024];
   status = SQLDriverConnect(this->Internals->Connection,
-                            NULL,
+                            nullptr,
                             (SQLCHAR *)(connectionString.c_str()),
                             connectionString.size(),
                             connectionOut,
@@ -432,7 +432,7 @@ void vtkODBCDatabase::Close()
       {
         vtkWarningMacro(<< "ODBC Close: Unable to free connection handle");
       }
-      this->Internals->Connection = NULL;
+      this->Internals->Connection = nullptr;
     }
 
     if (this->Internals->Environment != SQL_NULL_HENV)
@@ -442,7 +442,7 @@ void vtkODBCDatabase::Close()
       {
         vtkWarningMacro(<< "ODBC Close: Unable to free environment handle");
       }
-      this->Internals->Environment = NULL;
+      this->Internals->Environment = nullptr;
     }
   }
 }
@@ -497,7 +497,7 @@ vtkStringArray *vtkODBCDatabase::GetTables()
 
     vtkStdString tableType("TABLE,");
 
-    status = SQLTables(statement, NULL, 0, NULL, 0, NULL, 0,
+    status = SQLTables(statement, nullptr, 0, nullptr, 0, nullptr, 0,
                        (SQLCHAR *)(tableType.c_str()),
                        tableType.size());
 
@@ -556,7 +556,7 @@ vtkStringArray *vtkODBCDatabase::GetRecord(const char *table)
   if (status != SQL_SUCCESS)
   {
     vtkErrorMacro(<<"vtkODBCDatabase::GetRecord: Unable to set SQL_ATTR_METADATA_ID attribute on query.  Return code: " << status);
-    return NULL;
+    return nullptr;
   }
 
   status = SQLSetStmtAttr(statement,
@@ -565,13 +565,13 @@ vtkStringArray *vtkODBCDatabase::GetRecord(const char *table)
                           SQL_IS_UINTEGER);
 
   status = SQLColumns(statement,
-                      NULL, // catalog
+                      nullptr, // catalog
                       0,
-                      NULL, // schema
+                      nullptr, // schema
                       0,
                       (SQLCHAR *)(table),
                       strlen(table),
-                      NULL, // column
+                      nullptr, // column
                       0);
 
   if (status != SQL_SUCCESS && status != 0)
@@ -666,13 +666,13 @@ void vtkODBCDatabase::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "ServerPort: " << this->ServerPort << endl;
 
   os << indent << "DatabaseType: "
-     << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
+     << (this->DatabaseType ? this->DatabaseType : "nullptr") << endl;
 }
 
 // ----------------------------------------------------------------------------
 bool vtkODBCDatabase::HasError()
 {
-  return this->LastErrorText != NULL;
+  return this->LastErrorText != nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -728,7 +728,7 @@ vtkStdString vtkODBCDatabase::GetColumnSpecification(
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
   {
     case vtkSQLDatabaseSchema::SERIAL:
-      colTypeStr = "INTEGER NOT NULL";
+      colTypeStr = "INTEGER NOT nullptr";
       break;
     case vtkSQLDatabaseSchema::SMALLINT:
       colTypeStr = "SMALLINT";

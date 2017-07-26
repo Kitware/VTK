@@ -125,7 +125,7 @@ public:
    * to the empty string "", then the label text is not displayed.
    */
   virtual void SetTitleText(const char*) {}
-  virtual const char* GetTitleText() {return NULL;}
+  virtual const char* GetTitleText() {return nullptr;}
 
   //@{
   /**

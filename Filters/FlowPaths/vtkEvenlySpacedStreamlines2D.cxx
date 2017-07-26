@@ -86,7 +86,7 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
 
   this->ComputeVorticity = true;
 
-  this->InterpolatorPrototype = 0;
+  this->InterpolatorPrototype = nullptr;
 
   // by default process active point vectors
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -103,8 +103,8 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
 
 vtkEvenlySpacedStreamlines2D::~vtkEvenlySpacedStreamlines2D()
 {
-  this->SetIntegrator(0);
-  this->SetInterpolatorPrototype(0);
+  this->SetIntegrator(nullptr);
+  this->SetInterpolatorPrototype(nullptr);
   this->SuperposedGrid->Delete();
   this->Streamlines->Delete();
 }
@@ -523,7 +523,7 @@ void vtkEvenlySpacedStreamlines2D::SetInterpolatorType( int interpType )
 
 void vtkEvenlySpacedStreamlines2D::SetIntegratorType(int type)
 {
-  vtkInitialValueProblemSolver* ivp=0;
+  vtkInitialValueProblemSolver* ivp=nullptr;
   switch (type)
   {
     case vtkStreamTracer::RUNGE_KUTTA2:
@@ -624,9 +624,9 @@ int vtkEvenlySpacedStreamlines2D::CheckInputs(vtkAbstractInterpolatedVelocityFie
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(this->InputData->NewIterator());
 
-  vtkDataSet* input0 =NULL;
+  vtkDataSet* input0 =nullptr;
   iter->GoToFirstItem();
-  while (!iter->IsDoneWithTraversal() && input0==NULL)
+  while (!iter->IsDoneWithTraversal() && input0==nullptr)
   {
     input0 = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     iter->GoToNextItem();
@@ -657,7 +657,7 @@ int vtkEvenlySpacedStreamlines2D::CheckInputs(vtkAbstractInterpolatedVelocityFie
   }
   else
   {
-    if(amrData && vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype)==NULL)
+    if(amrData && vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype)==nullptr)
     {
       this->InterpolatorPrototype = vtkAMRInterpolatedVelocityField::New();
     }
@@ -810,9 +810,9 @@ const char* vtkEvenlySpacedStreamlines2D::GetInputArrayToProcessName()
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(this->InputData->NewIterator());
 
-  vtkDataSet* input0 =NULL;
+  vtkDataSet* input0 =nullptr;
   iter->GoToFirstItem();
-  while (!iter->IsDoneWithTraversal() && input0==NULL)
+  while (!iter->IsDoneWithTraversal() && input0==nullptr)
   {
     input0 = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     iter->GoToNextItem();

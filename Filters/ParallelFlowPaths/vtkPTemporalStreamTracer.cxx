@@ -57,14 +57,14 @@ vtkCxxSetObjectMacro(vtkPTemporalStreamTracer, Controller, vtkMultiProcessContro
 //---------------------------------------------------------------------------
 vtkPTemporalStreamTracer::vtkPTemporalStreamTracer()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 //---------------------------------------------------------------------------
 vtkPTemporalStreamTracer::~vtkPTemporalStreamTracer()
 {
-  this->SetController(NULL);
-  this->SetParticleWriter(NULL);
+  this->SetController(nullptr);
+  this->SetParticleWriter(nullptr);
 }
 //---------------------------------------------------------------------------
 void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
@@ -221,7 +221,7 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   received.resize(TotalParticles);
   if (TotalParticles==0) return;
   // Gather the data from all procs.
-  char *sendbuf = (char*) ((sending.size()>0) ? &(sending[0]) : NULL);
+  char *sendbuf = (char*) ((sending.size()>0) ? &(sending[0]) : nullptr);
   char *recvbuf = (char*) (&(received[0]));
   com->AllGatherV(sendbuf, recvbuf,
     OurParticles*TypeSize, &recvLengths[0], &recvOffsets[0]);

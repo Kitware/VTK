@@ -61,7 +61,7 @@ public:
   {
     const size_t len = strlen(message);
     jcharArray array = env->NewCharArray(len);
-    jchar *jarray = env->GetCharArrayElements(array,NULL);
+    jchar *jarray = env->GetCharArrayElements(array,nullptr);
     size_t cc;
     for ( cc = 0; cc < len; ++ cc )
     {
@@ -189,7 +189,7 @@ int vtkX3DExporterJavaHelper::Write(const char* data, vtkIdType length)
     return 0;
   }
   jbyteArray array = this->Internal->JavaEnvironment->NewByteArray(length);
-  jbyte *jarray = this->Internal->JavaEnvironment->GetByteArrayElements(array,NULL);
+  jbyte *jarray = this->Internal->JavaEnvironment->GetByteArrayElements(array,nullptr);
   vtkIdType cc;
   for ( cc = 0; cc < length; ++ cc )
   {

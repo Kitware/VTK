@@ -41,8 +41,8 @@ vtkCxxSetObjectMacro(vtkApplyColors, CellLookupTable, vtkScalarsToColors);
 
 vtkApplyColors::vtkApplyColors()
 {
-  this->PointLookupTable = 0;
-  this->CellLookupTable = 0;
+  this->PointLookupTable = nullptr;
+  this->CellLookupTable = nullptr;
   this->DefaultPointColor[0] = 0.0;
   this->DefaultPointColor[1] = 0.0;
   this->DefaultPointColor[2] = 0.0;
@@ -70,8 +70,8 @@ vtkApplyColors::vtkApplyColors()
   this->ScaleCellLookupTable = true;
   this->UsePointLookupTable = false;
   this->UseCellLookupTable = false;
-  this->PointColorOutputArrayName = 0;
-  this->CellColorOutputArrayName = 0;
+  this->PointColorOutputArrayName = nullptr;
+  this->CellColorOutputArrayName = nullptr;
   this->SetPointColorOutputArrayName("vtkApplyColors color");
   this->SetCellColorOutputArrayName("vtkApplyColors color");
   this->UseCurrentAnnotationColor = false;
@@ -79,10 +79,10 @@ vtkApplyColors::vtkApplyColors()
 
 vtkApplyColors::~vtkApplyColors()
 {
-  this->SetPointLookupTable(0);
-  this->SetCellLookupTable(0);
-  this->SetPointColorOutputArrayName(0);
-  this->SetCellColorOutputArrayName(0);
+  this->SetPointLookupTable(nullptr);
+  this->SetCellLookupTable(nullptr);
+  this->SetPointColorOutputArrayName(nullptr);
+  this->SetCellColorOutputArrayName(nullptr);
 }
 
 int vtkApplyColors::FillInputPortInformation(int port, vtkInformation* info)
@@ -120,7 +120,7 @@ int vtkApplyColors::RequestData(
 
   // get the input and output
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkAnnotationLayers* layers = 0;
+  vtkAnnotationLayers* layers = nullptr;
   if (layersInfo)
   {
     layers = vtkAnnotationLayers::SafeDownCast(
@@ -174,7 +174,7 @@ int vtkApplyColors::RequestData(
   pointColor[1] = static_cast<unsigned char>(255*this->DefaultPointColor[1]);
   pointColor[2] = static_cast<unsigned char>(255*this->DefaultPointColor[2]);
   pointColor[3] = static_cast<unsigned char>(255*this->DefaultPointOpacity);
-  vtkAbstractArray* arr1 = 0;
+  vtkAbstractArray* arr1 = nullptr;
   if (this->PointLookupTable && this->UsePointLookupTable)
   {
     arr1 = this->GetInputAbstractArrayToProcess(0, inputVector);
@@ -187,7 +187,7 @@ int vtkApplyColors::RequestData(
   cellColor[1] = static_cast<unsigned char>(255*this->DefaultCellColor[1]);
   cellColor[2] = static_cast<unsigned char>(255*this->DefaultCellColor[2]);
   cellColor[3] = static_cast<unsigned char>(255*this->DefaultCellOpacity);
-  vtkAbstractArray* arr2 = 0;
+  vtkAbstractArray* arr2 = nullptr;
   if (this->CellLookupTable && this->UseCellLookupTable)
   {
     arr2 = this->GetInputAbstractArrayToProcess(1, inputVector);

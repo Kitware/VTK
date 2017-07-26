@@ -42,7 +42,7 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
 {
   this->ClipFunction = cf;
   this->InsideOut = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
   this->GenerateClippedOutput = 0;
@@ -61,9 +61,9 @@ vtkClipPolyData::~vtkClipPolyData()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
-  this->SetClipFunction(NULL);
+  this->SetClipFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -74,12 +74,12 @@ vtkMTimeType vtkClipPolyData::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->ClipFunction != NULL )
+  if ( this->ClipFunction != nullptr )
   {
     time = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -119,9 +119,9 @@ int vtkClipPolyData::RequestData(
   vtkDataArray *clipScalars;
   vtkFloatArray *cellScalars;
   vtkGenericCell *cell;
-  vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
-  vtkCellArray *clippedVerts=NULL, *clippedLines=NULL;
-  vtkCellArray *clippedPolys=NULL, *clippedList=NULL;
+  vtkCellArray *newVerts, *newLines, *newPolys, *connList=nullptr;
+  vtkCellArray *clippedVerts=nullptr, *clippedLines=nullptr;
+  vtkCellArray *clippedPolys=nullptr, *clippedList=nullptr;
   vtkPoints *newPoints;
   vtkIdList *cellIds;
   double s;
@@ -131,13 +131,13 @@ int vtkClipPolyData::RequestData(
   int numberOfPoints;
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *inCD=input->GetCellData(), *outCD = output->GetCellData();
-  vtkCellData *outClippedCD = NULL;
+  vtkCellData *outClippedCD = nullptr;
 
   vtkDebugMacro(<< "Clipping polygonal data");
 
   // Initialize self; create output objects
   //
-  if ( numPts < 1 || inPts == NULL )
+  if ( numPts < 1 || inPts == nullptr )
   {
     vtkDebugMacro(<<"No data to clip");
     return 1;
@@ -212,7 +212,7 @@ int vtkClipPolyData::RequestData(
   newPolys->Allocate(estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -391,7 +391,7 @@ void vtkClipPolyData::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( locator )
@@ -406,7 +406,7 @@ void vtkClipPolyData::SetLocator(vtkIncrementalPointLocator *locator)
 //----------------------------------------------------------------------------
 void vtkClipPolyData::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }

@@ -92,9 +92,9 @@ int vtkRibbonFilter::RequestData(
   vtkIdType i;
   double range[2];
   vtkCellArray *newStrips;
-  vtkIdType npts=0, *pts=NULL;
+  vtkIdType npts=0, *pts=nullptr;
   vtkIdType offset=0;
-  vtkFloatArray *newTCoords=NULL;
+  vtkFloatArray *newTCoords=nullptr;
   int abort=0;
   vtkIdType inCellId;
 

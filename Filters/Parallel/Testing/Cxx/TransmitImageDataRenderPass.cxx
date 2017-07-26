@@ -111,7 +111,7 @@ void MyProcess::Execute()
     delete [] fname;
 
     go = 1;
-    if ((sp == NULL) || (sp->GetNumberOfCells() == 0))
+    if ((sp == nullptr) || (sp->GetNumberOfCells() == 0))
     {
       if (sp)
       {

@@ -34,7 +34,7 @@ vtkCxxSetObjectMacro(vtkKdNode, Up, vtkKdNode);
 // ----------------------------------------------------------------------------
 vtkKdNode::vtkKdNode()
 {
-  this->Up = this->Left = this->Right = NULL;
+  this->Up = this->Left = this->Right = nullptr;
   this->Dim = 3;
   this->ID = -1;
   this->MinID = -1;
@@ -58,9 +58,9 @@ vtkKdNode::vtkKdNode()
 // ----------------------------------------------------------------------------
 vtkKdNode::~vtkKdNode()
 {
-  this->SetLeft(0);
-  this->SetRight(0);
-  this->SetUp(0);
+  this->SetLeft(nullptr);
+  this->SetRight(nullptr);
+  this->SetUp(nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -243,7 +243,7 @@ double vtkKdNode::GetDivisionPosition()
 double vtkKdNode::GetDistance2ToBoundary(double x, double y, double z,
                                          int useDataBounds=0)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, NULL, 0, useDataBounds);
+  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 0, useDataBounds);
 }
 
 //----------------------------------------------------------------------------
@@ -265,7 +265,7 @@ double vtkKdNode::GetDistance2ToBoundary(double x, double y, double z,
 
 double vtkKdNode::GetDistance2ToInnerBoundary(double x, double y, double z)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, NULL, 1, 0);
+  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 1, 0);
 }
 
 double vtkKdNode::_GetDistance2ToBoundary(
@@ -290,8 +290,8 @@ double vtkKdNode::_GetDistance2ToBoundary(
     min = this->Min; max = this->Max;   // region itself
   }
 
-  double *outerBoundaryMin=NULL;
-  double *outerBoundaryMax=NULL;
+  double *outerBoundaryMin=nullptr;
+  double *outerBoundaryMax=nullptr;
 
   if (innerBoundaryOnly)
   {
@@ -539,14 +539,14 @@ void vtkKdNode::DeleteChildNodes()
 {
   if (this->GetLeft())
   {
-    this->GetLeft()->SetUp(NULL);
-    this->SetLeft(NULL);
+    this->GetLeft()->SetUp(nullptr);
+    this->SetLeft(nullptr);
   }
 
   if (this->GetRight())
   {
-    this->GetRight()->SetUp(NULL);
-    this->SetRight(NULL);
+    this->GetRight()->SetUp(nullptr);
+    this->SetRight(nullptr);
   }
 }
 
@@ -721,8 +721,8 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
     }
   }
 
-  double *cellBounds = NULL;
-  int deleteCellBounds = (bounds == NULL);
+  double *cellBounds = nullptr;
+  int deleteCellBounds = (bounds == nullptr);
 
   if (deleteCellBounds)
   {

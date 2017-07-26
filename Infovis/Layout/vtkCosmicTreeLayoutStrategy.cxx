@@ -253,12 +253,12 @@ vtkCosmicTreeLayoutStrategy::vtkCosmicTreeLayoutStrategy()
   this->SizeLeafNodesOnly = 1;
   this->LayoutDepth = 0;
   this->LayoutRoot = -1;
-  this->NodeSizeArrayName = 0;
+  this->NodeSizeArrayName = nullptr;
 }
 
 vtkCosmicTreeLayoutStrategy::~vtkCosmicTreeLayoutStrategy()
 {
-  this->SetNodeSizeArrayName( 0 );
+  this->SetNodeSizeArrayName( nullptr );
 }
 
 void vtkCosmicTreeLayoutStrategy::PrintSelf( ostream& os, vtkIndent indent )
@@ -278,7 +278,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
   }
 
   vtkTree* tree = vtkTree::SafeDownCast( this->Graph );
-  bool input_is_tree = ( tree != NULL );
+  bool input_is_tree = ( tree != nullptr );
   if ( ! input_is_tree )
   { // Extract a tree from the graph.
 #ifdef VTK_USE_BOOST
@@ -308,7 +308,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
   RadiusMode mode = NONE;
   vtkDoubleArray* radii; // radius of each node. May be read-only, read-write, or write-only.
   vtkDoubleArray* scale; // scale factor associated with each non-leaf node when SizeLeafNodesOnly is false.
-  vtkDataArray* inputRadii = 0;
+  vtkDataArray* inputRadii = nullptr;
   if ( this->NodeSizeArrayName && strlen( this->NodeSizeArrayName ) )
   {
     inputRadii = this->Graph->GetVertexData()->GetArray( this->NodeSizeArrayName );
@@ -317,7 +317,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
   {
     mode = LEAVES;
     radii = this->CreateRadii( numVertices, -1., inputRadii );
-    scale = 0; // No scale factor is necessary
+    scale = nullptr; // No scale factor is necessary
     this->Graph->GetVertexData()->AddArray( radii );
     this->Graph->GetVertexData()->SetActiveScalars( radii->GetName() );
     radii->Delete();
@@ -339,7 +339,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
     else
     {
       mode = NONE; // write-only, all nodes fixed size.
-      radii = this->CreateRadii( numVertices, 1., 0  );
+      radii = this->CreateRadii( numVertices, 1., nullptr  );
       this->Graph->GetVertexData()->AddArray( radii );
       this->Graph->GetVertexData()->SetActiveScalars( radii->GetName() );
       radii->Delete();

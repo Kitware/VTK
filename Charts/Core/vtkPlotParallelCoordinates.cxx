@@ -66,8 +66,8 @@ vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()
   this->Storage = new vtkPlotParallelCoordinates::Private;
   this->Pen->SetColor(0, 0, 0, 25);
 
-  this->LookupTable = 0;
-  this->Colors = 0;
+  this->LookupTable = nullptr;
+  this->Colors = nullptr;
   this->ScalarVisibility = 0;
 }
 
@@ -79,7 +79,7 @@ vtkPlotParallelCoordinates::~vtkPlotParallelCoordinates()
   {
     this->LookupTable->UnRegister(this);
   }
-  if ( this->Colors != 0 )
+  if ( this->Colors != nullptr )
   {
     this->Colors->UnRegister(this);
   }
@@ -394,7 +394,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
     if (this->Colors)
     {
       this->Colors->UnRegister(this);
-      this->Colors = 0;
+      this->Colors = nullptr;
     }
     if (c)
     {
@@ -434,7 +434,7 @@ void vtkPlotParallelCoordinates::SetLookupTable(vtkScalarsToColors *lut)
 //-----------------------------------------------------------------------------
 vtkScalarsToColors *vtkPlotParallelCoordinates::GetLookupTable()
 {
-  if ( this->LookupTable == 0 )
+  if ( this->LookupTable == nullptr )
   {
     this->CreateDefaultLookupTable();
   }

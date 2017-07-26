@@ -152,7 +152,7 @@ public:
   /// Insert an entry into the cache (this can remove other cache entries to make space).
   void Insert( vtkExodusIICacheKey& key, vtkDataArray* value );
 
-  /** Determine whether a cache entry exists. If it does, return it -- otherwise return NULL.
+  /** Determine whether a cache entry exists. If it does, return it -- otherwise return nullptr.
     * If a cache entry exists, it is marked as most recently used.
     */
   vtkDataArray*& Find( const vtkExodusIICacheKey& );

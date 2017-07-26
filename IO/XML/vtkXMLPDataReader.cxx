@@ -37,11 +37,11 @@ vtkXMLPDataReader::vtkXMLPDataReader()
 
   this->NumberOfPieces = 0;
 
-  this->PieceElements = 0;
-  this->PieceReaders = 0;
-  this->CanReadPieceFlag = 0;
+  this->PieceElements = nullptr;
+  this->PieceReaders = nullptr;
+  this->CanReadPieceFlag = nullptr;
 
-  this->PathName = 0;
+  this->PathName = nullptr;
 
   // Setup a callback for the internal serial readers to report
   // progress.
@@ -74,11 +74,11 @@ vtkDataSet* vtkXMLPDataReader::GetPieceInputAsDataSet(int piece)
   vtkXMLDataReader* reader = this->PieceReaders[piece];
   if(!reader)
   {
-    return 0;
+    return nullptr;
   }
   if(reader->GetNumberOfOutputPorts() < 1)
   {
-    return 0;
+    return nullptr;
   }
   return static_cast<vtkDataSet*>(reader->GetOutputDataObject(0));
 }
@@ -180,7 +180,7 @@ void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
   // Setup the Field Information for PointData.  We only need the
   // information from one piece because all pieces have the same set of arrays.
-  vtkInformationVector *infoVector = NULL;
+  vtkInformationVector *infoVector = nullptr;
   if (!this->SetFieldDataInfo(this->PPointDataElement,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, this->GetNumberOfPoints(), infoVector))
   {
@@ -193,7 +193,7 @@ void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
   }
 
   // now the Cell data
-  infoVector = NULL;
+  infoVector = nullptr;
   if (!this->SetFieldDataInfo(this->PCellDataElement,
     vtkDataObject::FIELD_ASSOCIATION_CELLS, this->GetNumberOfCells(), infoVector))
   {
@@ -239,8 +239,8 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   }
 
   // Read information about the pieces.
-  this->PPointDataElement = 0;
-  this->PCellDataElement = 0;
+  this->PPointDataElement = nullptr;
+  this->PCellDataElement = nullptr;
   int i;
   int numNested = ePrimary->GetNumberOfNestedElements();
   int numPieces = 0;
@@ -291,8 +291,8 @@ void vtkXMLPDataReader::SetupPieces(int numPieces)
   int i;
   for(i=0;i < this->NumberOfPieces;++i)
   {
-    this->PieceElements[i] = 0;
-    this->PieceReaders[i] = 0;
+    this->PieceElements[i] = nullptr;
+    this->PieceReaders[i] = nullptr;
     this->CanReadPieceFlag[i] = 0;
   }
 }
@@ -312,8 +312,8 @@ void vtkXMLPDataReader::DestroyPieces()
   delete [] this->PieceElements;
   delete [] this->CanReadPieceFlag;
   delete [] this->PieceReaders;
-  this->PieceElements = 0;
-  this->PieceReaders = 0;
+  this->PieceElements = nullptr;
+  this->PieceReaders = nullptr;
   this->NumberOfPieces = 0;
 }
 
@@ -423,7 +423,7 @@ int vtkXMLPDataReader::CanReadPiece(int index)
     {
       // We cannot read the piece.  Destroy the reader to avoid later
       // repeat of test.
-      this->PieceReaders[index] = 0;
+      this->PieceReaders[index] = nullptr;
       reader->Delete();
     }
   }
@@ -478,7 +478,7 @@ void vtkXMLPDataReader::SplitFileName()
 
   // Extract the path name up to the last '/'.
   delete [] this->PathName;
-  this->PathName = 0;
+  this->PathName = nullptr;
   char* rbegin = end-1;
   char* rend = begin-1;
   for(s=rbegin;s != rend;--s)

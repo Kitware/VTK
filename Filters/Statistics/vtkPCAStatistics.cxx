@@ -53,7 +53,7 @@ void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
 
   if(!outputMetaDS)
   {
-    vtkErrorMacro(<<"NULL dataset pointer!");
+    vtkErrorMacro(<<"nullptr dataset pointer!");
   }
 
   vtkSmartPointer<vtkTable> outputMeta =
@@ -61,7 +61,7 @@ void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
 
   if(!outputMetaDS)
   {
-    vtkErrorMacro(<<"NULL table pointer!");
+    vtkErrorMacro(<<"nullptr table pointer!");
   }
 
   vtkDoubleArray* meanCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumnByName("Mean"));
@@ -122,7 +122,7 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
 
   if(!outputMetaDS)
   {
-    vtkErrorMacro(<<"NULL dataset pointer!");
+    vtkErrorMacro(<<"nullptr dataset pointer!");
   }
 
   vtkSmartPointer<vtkTable> outputMeta =
@@ -130,7 +130,7 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
 
   if(!outputMeta)
   {
-    vtkErrorMacro(<<"NULL table pointer!");
+    vtkErrorMacro(<<"nullptr table pointer!");
   }
 
   vtkDoubleArray* meanCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumnByName("Mean"));
@@ -996,7 +996,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
   // per-request metadata tables.
   vtkIdType nRow = inData->GetNumberOfRows();
   int nb = static_cast<int>( inMeta->GetNumberOfBlocks() );
-  AssessFunctor* dfunc = 0;
+  AssessFunctor* dfunc = nullptr;
   for ( int req = 1; req < nb; ++ req )
   {
     vtkTable* reqModel = vtkTable::SafeDownCast( inMeta->GetBlock( req ) );
@@ -1007,7 +1007,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
 
     this->SelectAssessFunctor( inData,
                                reqModel,
-                               0,
+                               nullptr,
                                dfunc );
 
     vtkPCAAssessFunctor* pcafunc = static_cast<vtkPCAAssessFunctor*>( dfunc );
@@ -1064,7 +1064,7 @@ void vtkPCAStatistics::SelectAssessFunctor( vtkTable* inData,
                                             vtkStringArray* vtkNotUsed(rowNames),
                                             AssessFunctor*& dfunc )
 {
-  dfunc = 0;
+  dfunc = nullptr;
   vtkTable* reqModel = vtkTable::SafeDownCast( inMetaDO );
   if ( ! reqModel )
   {

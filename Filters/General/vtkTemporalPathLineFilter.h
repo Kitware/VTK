@@ -90,7 +90,7 @@ public:
    * the index of each point. This is necessary only if the particles
    * change position (Id order) on each time step. The Id can be used
    * to identify particles at each step and hence track them properly.
-   * If this array is NULL, the global point ids are used.  If an Id
+   * If this array is nullptr, the global point ids are used.  If an Id
    * array cannot otherwise be found, the point index is used as the ID.
    */
   vtkSetStringMacro(IdChannelArray);

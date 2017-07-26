@@ -181,7 +181,7 @@ vtkInternalSpanSpace(vtkIdType dim, double sMin, double sMax, vtkIdType numCells
   this->NumCells = numCells;
   this->Space = new vtkSpanTuple [numCells];
   this->CellIds = new vtkIdType [numCells];
-  this->CandidateCells = NULL;
+  this->CandidateCells = nullptr;
   this->NumCandidates = 0;
 }
 
@@ -242,13 +242,13 @@ Build()
   // We don't need the span space tuple array any more, we have
   // offsets and cell ids computed.
   delete [] this->Space;
-  this->Space = NULL;
+  this->Space = nullptr;
 
   // The candidate cell list can be allocated
   if ( this->CandidateCells )
   {
     delete [] this->CandidateCells;
-    this->CandidateCells = NULL;
+    this->CandidateCells = nullptr;
   }
   this->CandidateCells = new vtkIdType [this->NumCells];
 }
@@ -261,7 +261,7 @@ vtkStandardNewMacro(vtkSpanSpace);
 // Instantiate empty span space object.
 vtkSpanSpace::vtkSpanSpace()
 {
-  this->SpanSpace = NULL;
+  this->SpanSpace = nullptr;
   this->RMin[0] = this->RMin[1] = 0;
   this->RMax[0] = this->RMax[1] = 0;
   this->BatchSize = 10;
@@ -281,7 +281,7 @@ void vtkSpanSpace::Initialize()
   if (this->SpanSpace)
   {
     delete this->SpanSpace;
-    this->SpanSpace = NULL;
+    this->SpanSpace = nullptr;
   }
 }
 
@@ -373,7 +373,7 @@ void vtkSpanSpace::InitTraversal(double scalarValue)
 
 //-----------------------------------------------------------------------------
 // Return the next cell that may contain scalar value specified to
-// initialize traversal. The value NULL is returned if the list is
+// initialize traversal. The value nullptr is returned if the list is
 // exhausted. Make sure that InitTraversal() has been invoked first or
 // you'll get erratic behavior. This is serial traversal.
 vtkCell *vtkSpanSpace::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
@@ -386,7 +386,7 @@ vtkCell *vtkSpanSpace::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
     this->CurrentRow++;
     if (this->CurrentRow >= this->RMax[1])
     {
-      return NULL;
+      return nullptr;
     }
     else
     {
@@ -454,7 +454,7 @@ GetCellBatch(vtkIdType batchNum, vtkIdType& numCells)
        pos > this->SpanSpace->NumCandidates )
   {
     numCells = 0;
-    return NULL;
+    return nullptr;
   }
 
   if ( (this->SpanSpace->NumCandidates - pos) >= this->BatchSize )

@@ -50,7 +50,7 @@ void vtkFieldDataSerializer::PrintSelf(ostream& os, vtkIndent indent)
 void vtkFieldDataSerializer::SerializeMetaData(
     vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
 {
-  if( fieldData == NULL )
+  if( fieldData == nullptr )
   {
     vtkGenericWarningMacro("Field data is NULL!");
     return;
@@ -63,7 +63,7 @@ void vtkFieldDataSerializer::SerializeMetaData(
   for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
   {
     vtkDataArray *dataArray = fieldData->GetArray( array );
-    assert("pre: data array should not be NULL!" && (dataArray != NULL));
+    assert("pre: data array should not be NULL!" && (dataArray != nullptr));
 
     int dataType  = dataArray->GetDataType();
     int numComp   = dataArray->GetNumberOfComponents();
@@ -88,7 +88,7 @@ void vtkFieldDataSerializer::DeserializeMetaData(
     return;
   }
 
-  if( (names == NULL) || (datatypes == NULL) || (dimensions == NULL) )
+  if( (names == nullptr) || (datatypes == nullptr) || (dimensions == nullptr) )
   {
     vtkGenericWarningMacro(
         "ERROR: caller must pre-allocation names/datatypes/dimensions!");
@@ -125,7 +125,7 @@ void vtkFieldDataSerializer::DeserializeMetaData(
 void vtkFieldDataSerializer::Serialize(
     vtkFieldData *fieldData, vtkMultiProcessStream& bytestream)
 {
-  if( fieldData == NULL )
+  if( fieldData == nullptr )
   {
     vtkGenericWarningMacro("Field data is NULL!");
     return;
@@ -152,7 +152,7 @@ void vtkFieldDataSerializer::SerializeTuples(
     vtkIdList *tupleIds, vtkFieldData *fieldData,
     vtkMultiProcessStream& bytestream )
 {
-  if( fieldData == NULL )
+  if( fieldData == nullptr )
   {
    vtkGenericWarningMacro("Field data is NULL!");
    return;
@@ -174,7 +174,7 @@ void vtkFieldDataSerializer::SerializeTuples(
 
    // STEP 2: For each array extract only the selected tuples, i.e., a subset
    vtkDataArray *subSet = vtkFieldDataSerializer::ExtractSelectedTuples(tupleIds,dataArray);
-   assert("pre: subset array is NULL!" && (subSet != NULL) );
+   assert("pre: subset array is NULL!" && (subSet != nullptr) );
 
    // STEP 3: Serialize only a subset of the data
    vtkFieldDataSerializer::SerializeDataArray( subSet, bytestream );
@@ -188,7 +188,7 @@ void vtkFieldDataSerializer::SerializeSubExtent(
     int subext[6], int gridExtent[6], vtkFieldData *fieldData,
     vtkMultiProcessStream& bytestream)
 {
-  if( fieldData == NULL )
+  if( fieldData == nullptr )
   {
    vtkGenericWarningMacro("Field data is NULL!");
    return;
@@ -211,7 +211,7 @@ void vtkFieldDataSerializer::SerializeSubExtent(
     // STEP 2: Extract the data within the requested sub-extent
     vtkDataArray *subSet = vtkFieldDataSerializer::ExtractSubExtentData(
         subext,gridExtent,dataArray);
-    assert("pre: subset array is NULL!" && (subSet != NULL) );
+    assert("pre: subset array is NULL!" && (subSet != nullptr) );
 
     // STEP 3: Serialize only a subset of the data
     vtkFieldDataSerializer::SerializeDataArray( subSet, bytestream );
@@ -228,7 +228,7 @@ void vtkFieldDataSerializer::DeSerializeToSubExtent(
   assert("pre: sub-extent outside grid-extent" &&
           vtkStructuredExtent::Smaller(subext,gridExtent));
 
-  if( fieldData == NULL )
+  if( fieldData == nullptr )
   {
     vtkGenericWarningMacro("Field data is NULL!");
     return;
@@ -242,9 +242,9 @@ void vtkFieldDataSerializer::DeSerializeToSubExtent(
   int ijk[3];
   for( int array=0; array < numArrays; ++array )
   {
-    vtkDataArray* dataArray = NULL;
+    vtkDataArray* dataArray = nullptr;
     vtkFieldDataSerializer::DeserializeDataArray(bytestream,dataArray);
-    assert("post: dataArray is NULL!" && (dataArray != NULL) );
+    assert("post: dataArray is NULL!" && (dataArray != nullptr) );
     assert("post: fieldData does not have array!" &&
             fieldData->HasArray(dataArray->GetName()));
 
@@ -281,10 +281,10 @@ void vtkFieldDataSerializer::DeSerializeToSubExtent(
 vtkDataArray* vtkFieldDataSerializer::ExtractSubExtentData(
     int subext[6], int gridExtent[6], vtkDataArray *inputDataArray )
 {
-  if( inputDataArray == NULL )
+  if( inputDataArray == nullptr )
   {
     vtkGenericWarningMacro("input data array is NULL!");
-    return NULL;
+    return nullptr;
   }
 
   // STEP 0: Acquire structured data description, i.e, XY_PLANE, XYZ_GRID etc.
@@ -358,7 +358,7 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSelectedTuples(
 void vtkFieldDataSerializer::SerializeDataArray(
     vtkDataArray *dataArray, vtkMultiProcessStream& bytestream)
 {
-  if( dataArray == NULL )
+  if( dataArray == nullptr )
   {
     vtkGenericWarningMacro("data array is NULL!");
     return;
@@ -403,7 +403,7 @@ void vtkFieldDataSerializer::SerializeDataArray(
 void vtkFieldDataSerializer::Deserialize(
     vtkMultiProcessStream& bytestream, vtkFieldData *fieldData)
 {
-  if( fieldData == NULL )
+  if( fieldData == nullptr )
   {
     vtkGenericWarningMacro("FieldData is NULL!");
     return;
@@ -427,10 +427,10 @@ void vtkFieldDataSerializer::Deserialize(
   // STEP 1: Loop and deserialize each array
   for( int array=0; array < numberOfArrays; ++array )
   {
-    vtkDataArray *dataArray = NULL;
+    vtkDataArray *dataArray = nullptr;
     vtkFieldDataSerializer::DeserializeDataArray( bytestream,dataArray );
     assert("post: deserialized data array should not be NULL!" &&
-            (dataArray != NULL));
+            (dataArray != nullptr));
     fieldData->AddArray( dataArray );
     dataArray->Delete();
   } // END for all arrays
@@ -464,7 +464,7 @@ void vtkFieldDataSerializer::DeserializeDataArray(
   // TODO: Add more cases for more datatypes here (?)
   unsigned int size = numTuples*numComp;
   void* rawPtr = dataArray->GetVoidPointer(0);
-  assert("pre: raw pointer is NULL!" && (rawPtr != NULL) );
+  assert("pre: raw pointer is NULL!" && (rawPtr != nullptr) );
   switch( dataType )
   {
     case VTK_FLOAT:

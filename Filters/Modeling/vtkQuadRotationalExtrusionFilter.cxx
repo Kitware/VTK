@@ -178,7 +178,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
   vtkMultiBlockDataSet * compositeOutput = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get( vtkDataObject::DATA_OBJECT() ));
 
-  if( compositeInput==0 || compositeOutput==0 )
+  if( compositeInput==nullptr || compositeOutput==nullptr )
   {
     vtkErrorMacro(<<"Invalid algorithm connection\n");
     return 0;
@@ -240,10 +240,10 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       vtkPoints *inPts;
       vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
       int numEdges;
-      vtkIdType *pts = 0;
+      vtkIdType *pts = nullptr;
       vtkIdType ptId, ncells;
       vtkPoints *newPts;
-      vtkCellArray *newLines=NULL, *newPolys, *newStrips=NULL;
+      vtkCellArray *newLines=nullptr, *newPolys, *newStrips=nullptr;
       vtkCell *edge;
       vtkIdList *cellIds;
       vtkIdType p1, p2;

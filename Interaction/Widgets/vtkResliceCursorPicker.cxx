@@ -46,8 +46,8 @@ vtkResliceCursorPicker::vtkResliceCursorPicker()
 
   this->PickedAxis1 = this->PickedAxis2 = 0;
 
-  this->ResliceCursorAlgorithm = NULL;
-  this->TransformMatrix = NULL;
+  this->ResliceCursorAlgorithm = nullptr;
+  this->TransformMatrix = nullptr;
 
   // Plane on which the cursor lies. This is the picked plane.
   this->Plane = vtkPlane::New();
@@ -57,8 +57,8 @@ vtkResliceCursorPicker::vtkResliceCursorPicker()
 vtkResliceCursorPicker::~vtkResliceCursorPicker()
 {
   this->Cell->Delete();
-  this->SetResliceCursorAlgorithm(NULL);
-  this->SetTransformMatrix(NULL);
+  this->SetResliceCursorAlgorithm(nullptr);
+  this->SetTransformMatrix(nullptr);
   this->Plane->Delete();
 }
 
@@ -88,9 +88,9 @@ int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
   this->SelectionPoint[2] = selectionZ;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartPickEvent,nullptr);
 
-  if ( renderer == NULL )
+  if ( renderer == nullptr )
   {
     vtkErrorMacro(<<"Must specify renderer!");
     return 0;

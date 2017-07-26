@@ -165,7 +165,7 @@ int vtkTableToSparseArray::RequestData(
 #ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
   std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0),n);
 #else
-  n=std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(0));
+  n=std::count(coordinates.begin(), coordinates.end(), static_cast<vtkAbstractArray*>(nullptr));
 #endif
   if(n!=0)
   {

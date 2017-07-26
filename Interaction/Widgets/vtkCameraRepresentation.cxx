@@ -38,7 +38,7 @@ vtkCxxSetObjectMacro(vtkCameraRepresentation, Interpolator, vtkCameraInterpolato
 //-------------------------------------------------------------------------
 vtkCameraRepresentation::vtkCameraRepresentation()
 {
-  this->Camera = NULL;
+  this->Camera = nullptr;
   this->Interpolator = vtkCameraInterpolator::New();
   this->NumberOfFrames = 24;
 
@@ -128,8 +128,8 @@ vtkCameraRepresentation::vtkCameraRepresentation()
 //-------------------------------------------------------------------------
 vtkCameraRepresentation::~vtkCameraRepresentation()
 {
-  this->SetCamera(0);
-  this->SetInterpolator(0);
+  this->SetCamera(nullptr);
+  this->SetInterpolator(nullptr);
 
   this->Points->Delete();
   this->TransformFilter->Delete();

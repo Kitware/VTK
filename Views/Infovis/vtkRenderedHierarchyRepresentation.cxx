@@ -84,7 +84,7 @@ const char* vtkRenderedHierarchyRepresentation::GetGraphEdgeLabelArrayName(int i
   {
     return this->Implementation->Graphs[idx]->GetLabelArrayName();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkRenderedHierarchyRepresentation::SetGraphEdgeLabelVisibility(bool vis, int idx)
@@ -118,7 +118,7 @@ const char* vtkRenderedHierarchyRepresentation::GetGraphEdgeColorArrayName(int i
   {
     return this->Implementation->Graphs[idx]->GetColorArrayName();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkRenderedHierarchyRepresentation::SetColorGraphEdgesByArray(bool vis, int idx)

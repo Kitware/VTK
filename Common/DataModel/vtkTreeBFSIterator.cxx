@@ -39,12 +39,12 @@ vtkTreeBFSIterator::vtkTreeBFSIterator()
 vtkTreeBFSIterator::~vtkTreeBFSIterator()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 
   if (this->Color)
   {
     this->Color->Delete();
-    this->Color = NULL;
+    this->Color = nullptr;
   }
 }
 
@@ -55,7 +55,7 @@ void vtkTreeBFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkTreeBFSIterator::Initialize()
 {
-  if (this->Tree == NULL)
+  if (this->Tree == nullptr)
   {
     return;
   }

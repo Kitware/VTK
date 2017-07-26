@@ -54,7 +54,7 @@ typedef std::map<int,vtkScaledProp>::iterator vtkPropArrayIterator;
 vtkProp3DButtonRepresentation::vtkProp3DButtonRepresentation()
 {
   // Current button representation
-  this->CurrentProp = NULL;
+  this->CurrentProp = nullptr;
 
   // Following
   this->FollowCamera = 0;
@@ -132,7 +132,7 @@ GetButtonProp(int i)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -212,7 +212,7 @@ int vtkProp3DButtonRepresentation
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->InteractionState = vtkButtonRepresentation::Inside;
   }
@@ -230,7 +230,7 @@ void vtkProp3DButtonRepresentation::BuildRepresentation()
   {
     this->SetState(this->State); //side effect sets CurrentProp
     vtkPropArrayIterator iter = this->PropArray->find(this->State);
-    if ( this->CurrentProp == NULL || iter == this->PropArray->end() )
+    if ( this->CurrentProp == nullptr || iter == this->PropArray->end() )
     {
       return;
     }
@@ -366,7 +366,7 @@ double *vtkProp3DButtonRepresentation::GetBounds()
 {
   if ( !this->CurrentProp )
   {
-    return NULL;
+    return nullptr;
   }
 
   if ( this->FollowCamera )

@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;;
 
 protected:
-  vtkCompositeCutter(vtkImplicitFunction *cf=NULL);
+  vtkCompositeCutter(vtkImplicitFunction *cf=nullptr);
   ~vtkCompositeCutter() VTK_OVERRIDE;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

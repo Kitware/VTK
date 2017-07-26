@@ -33,7 +33,7 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
 {
   this->NumFuncs     = 3; // u, v, w
   this->NumIndepVars = 4; // x, y, z, t
-  this->Weights      = 0;
+  this->Weights      = nullptr;
   this->WeightsSize  = 0;
 
   this->Caching    = true; // Caching on by default
@@ -41,13 +41,13 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
   this->CacheMiss  = 0;
 
   this->LastCellId = -1;
-  this->LastDataSet= 0;
+  this->LastDataSet= nullptr;
   this->LastPCoords[0] = 0.0;
   this->LastPCoords[1] = 0.0;
   this->LastPCoords[2] = 0.0;
 
   this->VectorsType = 0;
-  this->VectorsSelection = 0;
+  this->VectorsSelection = nullptr;
   this->NormalizeVector  = false;
   this->ForceSurfaceTangentVector  = false;
   this->SurfaceDataset = false;
@@ -62,22 +62,22 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
   this->NumFuncs     = 0;
   this->NumIndepVars = 0;
 
-  this->LastDataSet  = 0;
-  this->SetVectorsSelection(0);
+  this->LastDataSet  = nullptr;
+  this->SetVectorsSelection(nullptr);
 
   delete[] this->Weights;
-  this->Weights = 0;
+  this->Weights = nullptr;
 
   if ( this->Cell )
   {
     this->Cell->Delete();
-    this->Cell = NULL;
+    this->Cell = nullptr;
   }
 
   if ( this->GenCell )
   {
     this->GenCell->Delete();
-    this->GenCell = NULL;
+    this->GenCell = nullptr;
   }
 }
 
@@ -86,7 +86,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   ( vtkDataSet * dataset, double * x, double * f )
 {
   int i, j, numPts, id;
-  vtkDataArray * vectors = NULL;
+  vtkDataArray * vectors = nullptr;
   double vec[3];
 
   f[0] = f[1] = f[2] = 0.0;
@@ -95,13 +95,13 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   if ( !dataset)
   {
     vtkErrorMacro( << "Can't evaluate dataset!" );
-    vectors = NULL;
+    vectors = nullptr;
     return 0;
   }
   if(!this->VectorsSelection) //if a selection is not speicifed,
   {
     //use the first one in the point set (this is a behavior for backward compatibility)
-    vectors =  dataset->GetPointData()->GetVectors(0);
+    vectors =  dataset->GetPointData()->GetVectors(nullptr);
   }
   else
   {
@@ -117,7 +117,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
 
   if (!this->FindAndUpdateCell(dataset, x))
   {
-      vectors = NULL;
+      vectors = nullptr;
       return  0;
   }
 
@@ -192,11 +192,11 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   // if not, return false
   else
   {
-    vectors = NULL;
+    vectors = nullptr;
     return  0;
   }
 
-  vectors = NULL;
+  vectors = nullptr;
   return  1;
 }
 
@@ -277,7 +277,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
     // if the cell is not found in cache, do a global search (ignore initial
     // cell if there is one)
     this->LastCellId =
-      dataset->FindCell(x, 0, this->GenCell, -1, tol2,
+      dataset->FindCell(x, nullptr, this->GenCell, -1, tol2,
                         this->LastSubId, this->LastPCoords, this->Weights);
 
     if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords(this->LastPCoords)))

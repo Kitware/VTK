@@ -95,7 +95,7 @@ vtkChartBox::vtkChartBox()
 //-----------------------------------------------------------------------------
 vtkChartBox::~vtkChartBox()
 {
-  this->Storage->Plot->SetSelection(NULL);
+  this->Storage->Plot->SetSelection(nullptr);
   delete this->Storage;
   this->Selection->Delete();
   this->VisibleColumns->Delete();
@@ -165,7 +165,7 @@ bool vtkChartBox::Paint(vtkContext2D *painter)
   this->UpdateGeometry(painter);
 
   // Handle selections
-  vtkIdTypeArray *idArray = 0;
+  vtkIdTypeArray *idArray = nullptr;
   if (this->AnnotationLink)
   {
     vtkSelection *selection = this->AnnotationLink->GetCurrentSelection();

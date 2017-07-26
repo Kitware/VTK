@@ -20,7 +20,7 @@
 vtkX3DExporterWriter::vtkX3DExporterWriter()
 {
   this->WriteToOutputString = 0;
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
   this->OutputStringLength = 0;
 }
 
@@ -28,7 +28,7 @@ vtkX3DExporterWriter::vtkX3DExporterWriter()
 vtkX3DExporterWriter::~vtkX3DExporterWriter()
 {
   delete[] this->OutputString;
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ char *vtkX3DExporterWriter::RegisterAndGetOutputString()
 {
   char *tmp = this->OutputString;
 
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
   this->OutputStringLength = 0;
 
   return tmp;

@@ -43,14 +43,14 @@ vtkStringToCategory::vtkStringToCategory()
 {
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                "label");
-  this->CategoryArrayName = 0;
+  this->CategoryArrayName = nullptr;
   this->SetCategoryArrayName("category");
   this->SetNumberOfOutputPorts(2);
 }
 
 vtkStringToCategory::~vtkStringToCategory()
 {
-  this->SetCategoryArrayName(0);
+  this->SetCategoryArrayName(nullptr);
 }
 
 int vtkStringToCategory::RequestData(

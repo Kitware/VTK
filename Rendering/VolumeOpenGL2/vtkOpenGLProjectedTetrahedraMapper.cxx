@@ -105,7 +105,7 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
 {
   this->TransformedPoints = vtkFloatArray::New();
   this->Colors = vtkUnsignedCharArray::New();
-  this->LastProperty = NULL;
+  this->LastProperty = nullptr;
   this->MaxCellSize = 0;
   this->GaveError = 0;
   this->SqrtTable = new float[SqrtTableSize];
@@ -124,7 +124,7 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
 //-----------------------------------------------------------------------------
 vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
 {
-  this->ReleaseGraphicsResources(NULL);
+  this->ReleaseGraphicsResources(nullptr);
   this->TransformedPoints->Delete();
   this->Colors->Delete();
   delete[] this->SqrtTable;
@@ -191,7 +191,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Initialize(vtkRenderer *renderer)
 
   vtkOpenGLRenderWindow *renwin
     = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
-  this->HasHardwareSupport = renwin != NULL && this->IsSupported(renwin);
+  this->HasHardwareSupport = renwin != nullptr && this->IsSupported(renwin);
   if (!this->HasHardwareSupport)
   {
     // this is an error since there's no fallback.
@@ -321,7 +321,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
   vtkOpenGLRenderWindow *renWin =
     vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
 
-  if (renWin == NULL)
+  if (renWin == nullptr)
   {
     vtkErrorMacro("Invalid vtkOpenGLRenderWindow");
   }
@@ -526,7 +526,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   // we're saving the default fbo attributes/blend function
   this->AllocateFOResources(renderer);
 
-  vtkOpenGLFramebufferObject *fo = NULL;
+  vtkOpenGLFramebufferObject *fo = nullptr;
 
   // Copy existing Depth/Color  buffers to FO
   if (this->UseFloatingPointFrameBuffer
@@ -719,7 +719,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
   // Let's do it!
   for (vtkIdTypeArray *sorted_cell_ids = this->VisibilitySort->GetNextCells();
-       sorted_cell_ids != NULL;
+       sorted_cell_ids != nullptr;
        sorted_cell_ids = this->VisibilitySort->GetNextCells())
   {
     const double progress = static_cast<double>(numcellsrendered) / totalnumcells;

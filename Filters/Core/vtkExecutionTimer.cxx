@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkExecutionTimer);
 
 vtkExecutionTimer::vtkExecutionTimer()
 {
-  this->Filter = 0;
+  this->Filter = nullptr;
   this->Callback = vtkCallbackCommand::New();
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(vtkExecutionTimer::EventRelay);
@@ -44,7 +44,7 @@ vtkExecutionTimer::vtkExecutionTimer()
 
 vtkExecutionTimer::~vtkExecutionTimer()
 {
-  this->SetFilter(0);
+  this->SetFilter(nullptr);
   this->Callback->Delete();
 }
 
@@ -83,7 +83,7 @@ vtkExecutionTimer::SetFilter(vtkAlgorithm* filter)
     this->Filter->RemoveObserver(this->Callback);
     this->Filter->RemoveObserver(this->Callback);
     this->Filter->UnRegister(this);
-    this->Filter = 0;
+    this->Filter = nullptr;
   }
 
   if (filter)

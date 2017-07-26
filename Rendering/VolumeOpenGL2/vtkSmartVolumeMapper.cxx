@@ -81,7 +81,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->GPUResampleFilter = vtkImageResample::New();
 
   // Compute the magnitude of a 3-component image for the SingleComponentMode
-  this->ImageMagnitude = NULL;
+  this->ImageMagnitude = nullptr;
   this->InputDataMagnitude = vtkImageData::New();
 
   // Turn this on by default - this means that the sample spacing will be
@@ -131,7 +131,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   cb->Delete();
 
-  this->OSPRayMapper = NULL;
+  this->OSPRayMapper = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -142,37 +142,37 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
   if (this->RayCastMapper)
   {
     this->RayCastMapper->Delete();
-    this->RayCastMapper = NULL;
+    this->RayCastMapper = nullptr;
   }
   if (this->GPUMapper)
   {
     this->GPUMapper->Delete();
-    this->GPUMapper = NULL;
+    this->GPUMapper = nullptr;
   }
   if (this->GPULowResMapper)
   {
     this->GPULowResMapper->Delete();
-    this->GPULowResMapper = NULL;
+    this->GPULowResMapper = nullptr;
   }
   if (this->GPUResampleFilter)
   {
     this->GPUResampleFilter->Delete();
-    this->GPUResampleFilter = NULL;
+    this->GPUResampleFilter = nullptr;
   }
   if (this->ImageMagnitude)
   {
     this->ImageMagnitude->Delete();
-    this->ImageMagnitude = NULL;
+    this->ImageMagnitude = nullptr;
   }
   if (this->InputDataMagnitude)
   {
     this->InputDataMagnitude->Delete();
-    this->InputDataMagnitude = NULL;
+    this->InputDataMagnitude = nullptr;
   }
   if (this->OSPRayMapper)
   {
     this->OSPRayMapper->Delete();
-    this->OSPRayMapper = NULL;
+    this->OSPRayMapper = nullptr;
   }
 }
 
@@ -189,7 +189,7 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // desired update rate
   this->ComputeRenderMode(ren,vol);
 
-  vtkGPUVolumeRayCastMapper *usedMapper=0;
+  vtkGPUVolumeRayCastMapper *usedMapper=nullptr;
 
   switch ( this->CurrentRenderMode )
   {
@@ -636,12 +636,12 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m)
 {
-  assert("pre: m_exists" && m != NULL);
+  assert("pre: m_exists" && m != nullptr);
 
   bool needShallowCopy = false;
   vtkImageData* imData = m->GetInput();
 
-  if (imData == NULL || imData == this->InputDataMagnitude)
+  if (imData == nullptr || imData == this->InputDataMagnitude)
   {
     imData = vtkImageData::New();
     m->SetInputDataObject(imData);
@@ -665,11 +665,11 @@ void vtkSmartVolumeMapper::ConnectMapperInput(vtkVolumeMapper *m)
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ConnectFilterInput(vtkImageResample *f)
 {
-  assert("pre: f_exists" && f!=0);
+  assert("pre: f_exists" && f!=nullptr);
 
   vtkImageData *input2=static_cast<vtkImageData *>(f->GetInput());
   bool needShallowCopy=false;
-  if(input2==0)
+  if(input2==nullptr)
   {
     // make sure we not create a shallow copy each time to avoid
     // performance penalty.

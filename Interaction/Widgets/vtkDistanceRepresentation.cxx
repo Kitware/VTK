@@ -28,9 +28,9 @@ vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRep
 //----------------------------------------------------------------------
 vtkDistanceRepresentation::vtkDistanceRepresentation()
 {
-  this->HandleRepresentation  = NULL;
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
+  this->HandleRepresentation  = nullptr;
+  this->Point1Representation = nullptr;
+  this->Point2Representation = nullptr;
 
   this->Tolerance = 5;
   this->Placed = 0;
@@ -61,7 +61,7 @@ vtkDistanceRepresentation::~vtkDistanceRepresentation()
   }
 
   delete [] this->LabelFormat;
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 }
 
 
@@ -98,7 +98,7 @@ void vtkDistanceRepresentation::GetPoint2WorldPosition(double pos[3])
 int vtkDistanceRepresentation::
 ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(modify))
 {
-  if (this->Point1Representation == NULL || this->Point2Representation == NULL)
+  if (this->Point1Representation == nullptr || this->Point2Representation == nullptr)
   {
     this->InteractionState = vtkDistanceRepresentation::Outside;
     return this->InteractionState;

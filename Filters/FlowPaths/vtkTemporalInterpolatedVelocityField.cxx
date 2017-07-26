@@ -50,9 +50,9 @@ vtkTemporalInterpolatedVelocityField::~vtkTemporalInterpolatedVelocityField()
 {
   this->NumFuncs = 0;
   this->NumIndepVars = 0;
-  this->SetVectorsSelection(0);
-  this->IVF[0] = NULL;
-  this->IVF[1] = NULL;
+  this->SetVectorsSelection(nullptr);
+  this->IVF[0] = nullptr;
+  this->IVF[1] = nullptr;
 }
 //---------------------------------------------------------------------------
 void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(int I, int N, double T, vtkDataSet* dataset, bool staticdataset)
@@ -64,7 +64,7 @@ void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(int I, int N, double
   }
   if (N==0)
   {
-    this->IVF[N]->SetDataSet(I, dataset, staticdataset, NULL);
+    this->IVF[N]->SetDataSet(I, dataset, staticdataset, nullptr);
   }
   // when the datasets for the second time set are added, set the static flag
   if (N==1)
@@ -80,7 +80,7 @@ void vtkTemporalInterpolatedVelocityField::SetDataSetAtTime(int I, int N, double
     }
     else
     {
-      this->IVF[N]->SetDataSet(I, dataset, staticdataset, NULL);
+      this->IVF[N]->SetDataSet(I, dataset, staticdataset, nullptr);
     }
   }
 }

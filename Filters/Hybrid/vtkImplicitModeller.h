@@ -114,7 +114,7 @@ public:
    * Compute ModelBounds from input geometry. If input is not specified, the
    * input of the filter will be used.
    */
-  double ComputeModelBounds(vtkDataSet *input = NULL);
+  double ComputeModelBounds(vtkDataSet *input = nullptr);
 
   //@{
   /**

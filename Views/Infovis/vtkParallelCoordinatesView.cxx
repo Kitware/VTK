@@ -528,7 +528,7 @@ int vtkParallelCoordinatesView::SetBrushLine(int line, double *p1, double *p2)
   }
 
   vtkIdType npts=0;
-  vtkIdType *ptids=NULL;
+  vtkIdType *ptids=nullptr;
 
   this->GetBrushLine(line,npts,ptids);
 
@@ -730,7 +730,7 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
     }
     else if (eventId == vtkCommand::EndInteractionEvent)
     {
-      vtkIdType* ptids = NULL;
+      vtkIdType* ptids = nullptr;
       vtkIdType npts = 0;
       this->GetBrushLine(1,npts,ptids);
 
@@ -786,7 +786,7 @@ void vtkParallelCoordinatesView::SelectData(unsigned long eventId)
       // the first line is finished, so do the selection
       else
       {
-        vtkIdType* ptids = NULL;
+        vtkIdType* ptids = nullptr;
         vtkIdType npts = 0;
 
         double p1[3] = {0,0,0};

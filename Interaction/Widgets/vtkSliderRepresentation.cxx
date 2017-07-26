@@ -48,7 +48,7 @@ vtkSliderRepresentation::vtkSliderRepresentation()
 vtkSliderRepresentation::~vtkSliderRepresentation()
 {
   delete [] this->LabelFormat;
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -77,7 +77,7 @@ void vtkSliderRepresentation::SetMinimumValue(double minValue)
     this->CurrentT = 1.0;
   }
 
-  this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
+  this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,nullptr);
   if ( this->Renderer )
   {
     this->BuildRepresentation();
@@ -111,7 +111,7 @@ void vtkSliderRepresentation::SetMaximumValue(double maxValue)
     this->CurrentT = 1.0;
   }
 
-  this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
+  this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,nullptr);
   if ( this->Renderer )
   {
     this->BuildRepresentation();
@@ -140,7 +140,7 @@ void vtkSliderRepresentation::SetValue(double value)
   this->Value = value;
   this->CurrentT = (value - this->MinimumValue) / (this->MaximumValue - this->MinimumValue);
 
-  this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,NULL);
+  this->InvokeEvent(vtkCommand::WidgetValueChangedEvent,nullptr);
   if ( this->Renderer )
   {
     this->BuildRepresentation();

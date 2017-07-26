@@ -194,7 +194,7 @@ public:
   //@}
 
 protected:
-  vtkClipDataSet(vtkImplicitFunction *cf=NULL);
+  vtkClipDataSet(vtkImplicitFunction *cf=nullptr);
   ~vtkClipDataSet() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

@@ -56,12 +56,12 @@ void vtkPointsProjectedHull::InitFlags()
 {
   int i;
 
-  this->Pts = NULL;
+  this->Pts = nullptr;
   this->Npts = 0;
 
   for (i=0; i<3; i++)
   {
-    this->CCWHull[i] = NULL;
+    this->CCWHull[i] = nullptr;
     this->HullSize[i]     = 0;
     for (int j=0; j<4; j++)
     {
@@ -76,10 +76,10 @@ void vtkPointsProjectedHull::ClearAllocations()
   for (i=0; i<3; i++)
   {
     delete [] this->CCWHull[i];
-    this->CCWHull[i] = NULL;
+    this->CCWHull[i] = nullptr;
   }
   delete [] this->Pts;
-  this->Pts = NULL;
+  this->Pts = nullptr;
 }
 #define VTK_GETCCWHULL(which, dim) \
 int vtkPointsProjectedHull::GetCCWHull##which(float *pts, int len)\

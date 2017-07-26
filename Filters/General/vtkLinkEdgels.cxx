@@ -67,7 +67,7 @@ int vtkLinkEdgels::RequestData(
   dimensions = input->GetDimensions();
   inScalars = vtkArrayDownCast<vtkDoubleArray>(pd->GetScalars());
   inVectors = pd->GetVectors();
-  if ((input->GetNumberOfPoints()) < 2 || inScalars == NULL)
+  if ((input->GetNumberOfPoints()) < 2 || inScalars == nullptr)
   {
     vtkErrorMacro(<<"No data to transform (or wrong data type)!");
     return 1;

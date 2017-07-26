@@ -56,12 +56,12 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 //-----------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
 {
-  this->TransformedPoints = NULL;
-  this->CellScalarTexture = NULL;
-  this->CellScalarBuffer = NULL;
-  this->AppleBugPrimIDBuffer = NULL;
+  this->TransformedPoints = nullptr;
+  this->CellScalarTexture = nullptr;
+  this->CellScalarBuffer = nullptr;
+  this->AppleBugPrimIDBuffer = nullptr;
   this->HaveAppleBug = false;
-  this->LastBoundBO = NULL;
+  this->LastBoundBO = nullptr;
   this->HaveCellScalars = false;
   this->PrimitiveIDOffset = 0;
   this->LastPickState = 0;
@@ -78,7 +78,7 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
   {
     this->ResourceCallback->Release();
     delete this->ResourceCallback;
-    this->ResourceCallback = NULL;
+    this->ResourceCallback = nullptr;
   }
   if (this->TransformedPoints)
   {
@@ -87,12 +87,12 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
   if (this->CellScalarTexture)
   { // Resources released previously.
     this->CellScalarTexture->Delete();
-    this->CellScalarTexture = NULL;
+    this->CellScalarTexture = nullptr;
   }
   if (this->CellScalarBuffer)
   { // Resources released previously.
     this->CellScalarBuffer->Delete();
-    this->CellScalarBuffer = NULL;
+    this->CellScalarBuffer = nullptr;
   }
   this->HaveCellScalars = false;
   if (this->AppleBugPrimIDBuffer)
@@ -100,7 +100,7 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
     this->AppleBugPrimIDBuffer->Delete();
   }
   this->VBOs->Delete();
-  this->VBOs = NULL;
+  this->VBOs = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShaders(
   // property modified (representation interpolation and lighting)
   // input modified
   // light complexity changed
-  if (cellBO.Program == NULL ||
+  if (cellBO.Program == nullptr ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
@@ -551,7 +551,7 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
 void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport)
 {
   vtkPolyData *poly = this->GetInput();
-  if (poly == NULL)
+  if (poly == nullptr)
   {
     return;
   }
@@ -656,7 +656,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
       numComp,
       VTK_UNSIGNED_CHAR,
       this->CellScalarBuffer);
-    c = NULL;
+    c = nullptr;
   }
 
   // do we have texture maps?
@@ -699,7 +699,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
 
   this->VBOs->CacheDataArray("vertexWC", p->GetData(), cache, VTK_FLOAT);
   this->VBOs->CacheDataArray("tcoordMC",
-    (haveTextures ? poly->GetPointData()->GetTCoords() : NULL), cache, VTK_FLOAT);
+    (haveTextures ? poly->GetPointData()->GetTCoords() : nullptr), cache, VTK_FLOAT);
   this->VBOs->CacheDataArray("diffuseColor", c, cache, VTK_UNSIGNED_CHAR);
 
   this->VBOs->BuildAllVBOs(cache);
@@ -748,7 +748,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
-  if ( input == NULL )
+  if ( input == nullptr )
   {
     vtkErrorMacro(<< "No input!");
     return;
@@ -762,7 +762,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     return;
   }
 
-  if ( this->LookupTable == NULL )
+  if ( this->LookupTable == nullptr )
   {
     this->CreateDefaultLookupTable();
   }
@@ -797,7 +797,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   }
 
   // this->VBOs->Bind();
-  this->LastBoundBO = NULL;
+  this->LastBoundBO = nullptr;
 
   if (this->HaveCellScalars)
   {

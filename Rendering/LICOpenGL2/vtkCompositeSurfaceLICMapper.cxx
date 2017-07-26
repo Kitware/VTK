@@ -288,7 +288,7 @@ void vtkCompositeSurfaceLICMapper::Render(
       vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
       if (pd && pd->GetPoints())
       {
-        haveVectors = haveVectors && (this->GetInputArrayToProcess(0, pd) != NULL);
+        haveVectors = haveVectors && (this->GetInputArrayToProcess(0, pd) != nullptr);
       }
     }
   }
@@ -298,7 +298,7 @@ void vtkCompositeSurfaceLICMapper::Render(
       this->GetInputDataObject(0, 0));
     if (pd && pd->GetPoints())
     {
-      haveVectors = (this->GetInputArrayToProcess(0, pd) != NULL);
+      haveVectors = (this->GetInputArrayToProcess(0, pd) != nullptr);
     }
   }
 

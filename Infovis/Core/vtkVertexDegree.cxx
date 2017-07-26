@@ -32,13 +32,13 @@ vtkStandardNewMacro(vtkVertexDegree);
 
 vtkVertexDegree::vtkVertexDegree()
 {
-  this->OutputArrayName = 0;
+  this->OutputArrayName = nullptr;
 }
 
 vtkVertexDegree::~vtkVertexDegree()
 {
   // release mem
-  this->SetOutputArrayName(0);
+  this->SetOutputArrayName(nullptr);
 }
 
 

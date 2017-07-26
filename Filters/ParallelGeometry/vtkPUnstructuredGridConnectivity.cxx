@@ -96,7 +96,7 @@ struct CommunicationLinks {
       if( this->RcvBuffers.find(rank) != this->RcvBuffers.end() )
       {
         delete [] this->RcvBuffers[rank];
-        this->RcvBuffers[rank] = NULL;
+        this->RcvBuffers[rank] = nullptr;
       } // END if buffer entry for rank exists
     } // END for all neighboring ranks
 
@@ -507,7 +507,7 @@ struct GridInfo
 
   // Description:
   // Constructor.
-  GridInfo() { this->BoundaryGrid = NULL; }
+  GridInfo() { this->BoundaryGrid = nullptr; }
 
   // Description:
   // Destructor
@@ -517,18 +517,18 @@ struct GridInfo
   // Clears all data from this GridInfo instance.
   void Clear()
   {
-    if( this->BoundaryGrid != NULL)
+    if( this->BoundaryGrid != nullptr)
     {
       this->BoundaryGrid->Delete();
-      this->BoundaryGrid = NULL;
+      this->BoundaryGrid = nullptr;
     }
 
     for(unsigned int i=0; i < this->RmtBGrids.size(); ++i)
     {
-      if( this->RmtBGrids[ i ] != NULL )
+      if( this->RmtBGrids[ i ] != nullptr )
       {
         this->RmtBGrids[ i ]->Delete();
-        this->RmtBGrids[ i ] = NULL;
+        this->RmtBGrids[ i ] = nullptr;
       }
     }
     this->RmtBGrids.clear();
@@ -589,10 +589,10 @@ vtkPUnstructuredGridConnectivity::vtkPUnstructuredGridConnectivity()
     vtkPUnstructuredGridConnectivity::vtkPUnstructuredGridConnectivity,
     "VTK 7.0");
 
- this->InputGrid         = NULL;
- this->GhostedGrid       = NULL;
- this->Controller        = NULL;
- this->GlobalIDFieldName = NULL;
+ this->InputGrid         = nullptr;
+ this->GhostedGrid       = nullptr;
+ this->Controller        = nullptr;
+ this->GlobalIDFieldName = nullptr;
  this->AuxiliaryData     = new vtk::details::GridInfo();
  this->CommLists         = new vtk::details::CommunicationLinks();
 }
@@ -600,10 +600,10 @@ vtkPUnstructuredGridConnectivity::vtkPUnstructuredGridConnectivity()
 //------------------------------------------------------------------------------
 vtkPUnstructuredGridConnectivity::~vtkPUnstructuredGridConnectivity()
 {
-  this->InputGrid  = NULL;
-  this->Controller = NULL;
+  this->InputGrid  = nullptr;
+  this->Controller = nullptr;
 
-  if( this->GhostedGrid != NULL )
+  if( this->GhostedGrid != nullptr )
   {
     this->GhostedGrid->Delete();
   }
@@ -611,7 +611,7 @@ vtkPUnstructuredGridConnectivity::~vtkPUnstructuredGridConnectivity()
   delete this->AuxiliaryData;
   delete this->CommLists;
   delete [] this->GlobalIDFieldName;
-  this->GlobalIDFieldName = NULL;
+  this->GlobalIDFieldName = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -625,8 +625,8 @@ void vtkPUnstructuredGridConnectivity::PrintSelf(
 void vtkPUnstructuredGridConnectivity::RegisterGrid(
       vtkUnstructuredGrid* gridPtr)
 {
-  assert("pre: gridPtr != NULL" && (gridPtr != NULL) );
-  if( this->InputGrid != NULL )
+  assert("pre: gridPtr != nullptr" && (gridPtr != nullptr) );
+  if( this->InputGrid != nullptr )
   {
     vtkErrorMacro("Only one grid per process is currently supported!");
   }
@@ -637,9 +637,9 @@ void vtkPUnstructuredGridConnectivity::RegisterGrid(
 void vtkPUnstructuredGridConnectivity::BuildGhostZoneConnectivity()
 {
   // Sanity check
-  assert("pre: controller is NULL!" && (this->Controller != NULL) );
-  assert("pre: input grid is NULL!" && (this->InputGrid != NULL) );
-  assert("pre: auxiliary data is NULL!" && (this->AuxiliaryData != NULL) );
+  assert("pre: controller is nullptr!" && (this->Controller != nullptr) );
+  assert("pre: input grid is nullptr!" && (this->InputGrid != nullptr) );
+  assert("pre: auxiliary data is nullptr!" && (this->AuxiliaryData != nullptr) );
 
   if(this->Controller->GetNumberOfProcesses() <= 1 )
   {
@@ -647,7 +647,7 @@ void vtkPUnstructuredGridConnectivity::BuildGhostZoneConnectivity()
     return;
   }
 
-  if(this->GlobalIDFieldName == NULL)
+  if(this->GlobalIDFieldName == nullptr)
   {
     // We assume "GlobalID" as the default
     this->GlobalIDFieldName = new char[9];
@@ -662,8 +662,8 @@ void vtkPUnstructuredGridConnectivity::BuildGhostZoneConnectivity()
 
   // STEP 1: Build auxiliary data-structures and extract boundary grid
   this->ExtractBoundaryGrid();
-  assert("post: boundary grid is NULL!" &&
-          (this->AuxiliaryData->BoundaryGrid != NULL) );
+  assert("post: boundary grid is nullptr!" &&
+          (this->AuxiliaryData->BoundaryGrid != nullptr) );
 
   // STEP 2: Exchange grid bounds
   this->AuxiliaryData->BoundaryGrid->GetBounds(this->AuxiliaryData->GridBounds);
@@ -688,7 +688,7 @@ void vtkPUnstructuredGridConnectivity::BuildGhostZoneConnectivity()
 //------------------------------------------------------------------------------
 void vtkPUnstructuredGridConnectivity::UpdateGhosts()
 {
-  assert("pre: controller is NULL!" && (this->Controller != NULL) );
+  assert("pre: controller is nullptr!" && (this->Controller != nullptr) );
 
   if(this->Controller->GetNumberOfProcesses() <= 1)
   {
@@ -722,8 +722,8 @@ void vtkPUnstructuredGridConnectivity::UpdateGhosts()
     assert("pre: cannot find buffer for rank!" &&
             (this->CommLists->RcvBuffers.find(rank)!=
                 this->CommLists->RcvBuffers.end()));
-    assert("pre: rcv buffer for rank is NULL" &&
-           (this->CommLists->RcvBuffers[rank] != NULL));
+    assert("pre: rcv buffer for rank is nullptr" &&
+           (this->CommLists->RcvBuffers[rank] != nullptr));
 
     this->Controller->NoBlockReceive(
         this->CommLists->RcvBuffers[rank],
@@ -781,10 +781,10 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneCells(
 #endif
 
   // Sanity checks
-  assert("pre: ghostData should not be NULL!" && (ghostData != NULL) );
-  assert("pre: cellIdx should not be NULL!" && (cellIdx != NULL) );
-  assert("pre: CommLists object is NULL!" && (this->CommLists != NULL) );
-  assert("pre: GhostedGrid is NULL!" && (this->GhostedGrid != NULL) );
+  assert("pre: ghostData should not be nullptr!" && (ghostData != nullptr) );
+  assert("pre: cellIdx should not be nullptr!" && (cellIdx != nullptr) );
+  assert("pre: CommLists object is nullptr!" && (this->CommLists != nullptr) );
+  assert("pre: GhostedGrid is nullptr!" && (this->GhostedGrid != nullptr) );
 
   vtkCellData* CD = this->GhostedGrid->GetCellData();
 
@@ -830,10 +830,10 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneNodes(
 #endif
 
   // Sanity checks
-  assert("pre: ghostData should not be NULL!" && (ghostData != NULL) );
-  assert("pre: globalIdx should not be NULL!" && (globalIdx != NULL) );
-  assert("pre: CommLists object is NULL!" && (this->CommLists != NULL) );
-  assert("pre: GhostedGrid is NULL!" && (this->GhostedGrid != NULL) );
+  assert("pre: ghostData should not be nullptr!" && (ghostData != nullptr) );
+  assert("pre: globalIdx should not be nullptr!" && (globalIdx != nullptr) );
+  assert("pre: CommLists object is nullptr!" && (this->CommLists != nullptr) );
+  assert("pre: GhostedGrid is nullptr!" && (this->GhostedGrid != nullptr) );
 
   vtkPointData* PD = this->GhostedGrid->GetPointData();
 
@@ -875,7 +875,7 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneNodes(
 void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
 {
   // Sanity Checks
-  assert("pre: CommLists object is NULL!" && (this->CommLists != NULL));
+  assert("pre: CommLists object is nullptr!" && (this->CommLists != nullptr));
   assert("pre: numranks != numstreams" &&
     (this->CommLists->NeighboringRanks.size()==
      this->CommLists->SndBufferSizes.size()));
@@ -946,9 +946,9 @@ void vtkPUnstructuredGridConnectivity::CreatePersistentRcvBuffers()
 //------------------------------------------------------------------------------
 void vtkPUnstructuredGridConnectivity::DeSerializeGhostZones()
 {
-  assert("pre: ghosted grid is NULL!" && (this->GhostedGrid != NULL) );
-  assert("pre: Persistent CommLists object is NULL!" &&
-          (this->CommLists != NULL));
+  assert("pre: ghosted grid is nullptr!" && (this->GhostedGrid != nullptr) );
+  assert("pre: Persistent CommLists object is nullptr!" &&
+          (this->CommLists != nullptr));
 
   vtkMultiProcessStream bytestream;
   std::set<int>::iterator rankIter = this->CommLists->NeighboringRanks.begin();
@@ -961,8 +961,8 @@ void vtkPUnstructuredGridConnectivity::DeSerializeGhostZones()
     assert("pre: no rcv buffer size for rank!" &&
             (this->CommLists->RcvBufferSizes.find(rank)!=
               this->CommLists->RcvBufferSizes.end()));
-    assert("pre: rcvbuffer is NULL!" &&
-            this->CommLists->RcvBuffers[rank] != NULL);
+    assert("pre: rcvbuffer is nullptr!" &&
+            this->CommLists->RcvBuffers[rank] != nullptr);
 
     bytestream.Reset();
     bytestream.SetRawData(
@@ -1008,9 +1008,9 @@ void vtkPUnstructuredGridConnectivity::DeSerializeGhostZones()
 //------------------------------------------------------------------------------
 void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
 {
-  assert("pre: ghosted grid is NULL!" && (this->GhostedGrid != NULL) );
-  assert("pre: Persistent CommLists object is NULL!" &&
-          (this->CommLists != NULL));
+  assert("pre: ghosted grid is nullptr!" && (this->GhostedGrid != nullptr) );
+  assert("pre: Persistent CommLists object is nullptr!" &&
+          (this->CommLists != nullptr));
 
   vtkPointData* PD = this->GhostedGrid->GetPointData();
   vtkCellData*  CD = this->GhostedGrid->GetCellData();
@@ -1095,20 +1095,20 @@ void vtkPUnstructuredGridConnectivity::SerializeGhostZones()
 void vtkPUnstructuredGridConnectivity::SynchLocalData()
 {
   // Sanity checks
-  assert("pre: input grid is NULL!" && (this->InputGrid != NULL) );
-  assert("pre: ghosted grid is NULL!" && (this->GhostedGrid != NULL) );
+  assert("pre: input grid is nullptr!" && (this->InputGrid != nullptr) );
+  assert("pre: ghosted grid is nullptr!" && (this->GhostedGrid != nullptr) );
 
   // STEP 0: Get pointers to input point-data and cell-data
   vtkPointData* sourcePD = this->InputGrid->GetPointData();
-  assert("pre: source point-data is NULL!" && (sourcePD != NULL) );
+  assert("pre: source point-data is nullptr!" && (sourcePD != nullptr) );
   vtkCellData*  sourceCD = this->InputGrid->GetCellData();
-  assert("pre: source cell-data is NULL!" && (sourceCD != NULL) );
+  assert("pre: source cell-data is nullptr!" && (sourceCD != nullptr) );
 
   // STEP 1: Get pointers to ghosted grid point-data and cell-data
   vtkPointData* targetPD  = this->GhostedGrid->GetPointData();
-  assert("pre: target point-data is NULL!" && (targetPD != NULL) );
+  assert("pre: target point-data is nullptr!" && (targetPD != nullptr) );
   vtkCellData* targetCD = this->GhostedGrid->GetCellData();
-  assert("pre: target cell-data is NULL!" && (targetCD != NULL) );
+  assert("pre: target cell-data is nullptr!" && (targetCD != nullptr) );
 
   // STEP 2: Copy point-data
   for(int arrayIdx=0; arrayIdx < sourcePD->GetNumberOfArrays(); ++arrayIdx)
@@ -1128,7 +1128,7 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
       // only safely copy the number of input point values
       vtkIdType intuples = this->InputGrid->GetNumberOfPoints();
 
-      vtkDataArray* ghostedField = NULL;
+      vtkDataArray* ghostedField = nullptr;
       if( !targetPD->HasArray(field->GetName()))
       {
         ghostedField = vtkDataArray::CreateDataArray(field->GetDataType());
@@ -1139,7 +1139,7 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
         ghostedField->Delete();
       } // END if array does not exist
       ghostedField = targetPD->GetArray(field->GetName());
-      assert("pre: ghosted field is NULL!" && (ghostedField != NULL) );
+      assert("pre: ghosted field is nullptr!" && (ghostedField != nullptr) );
       memcpy(ghostedField->GetVoidPointer(0),field->GetVoidPointer(0),
              intuples*ncomp*field->GetDataTypeSize());
     } // END if the array is not a global ID field
@@ -1156,7 +1156,7 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
     // only safely copy the number of input point values
     vtkIdType intuples = this->InputGrid->GetNumberOfCells();
 
-    vtkDataArray* ghostedField = NULL;
+    vtkDataArray* ghostedField = nullptr;
     if(!targetCD->HasArray(field->GetName()))
     {
       ghostedField = vtkDataArray::CreateDataArray(field->GetDataType());
@@ -1168,7 +1168,7 @@ void vtkPUnstructuredGridConnectivity::SynchLocalData()
     } // END if array does not exists
 
     ghostedField = targetCD->GetArray(field->GetName());
-    assert("pre: ghosted field is NULL!" && (ghostedField != NULL) );
+    assert("pre: ghosted field is nullptr!" && (ghostedField != nullptr) );
     memcpy(ghostedField->GetVoidPointer(0),field->GetVoidPointer(0),
            intuples*ncomp*field->GetDataTypeSize());
   } // END for all cell data arrays
@@ -1209,7 +1209,7 @@ void vtkPUnstructuredGridConnectivity::EnqueueNodeLinks(
       vtkIdList* shared)
 {
   // Sanity Checks
-  assert("pre: ghosted grid is NULL!" && (this->GhostedGrid != NULL) );
+  assert("pre: ghosted grid is nullptr!" && (this->GhostedGrid != nullptr) );
   assert("pre: ghostCell out-of-bounds!" &&
      (ghostCell >= 0) && (ghostCell < this->GhostedGrid->GetNumberOfCells()));
   assert("pre: adjCell out-of-bounds!" &&
@@ -1236,11 +1236,11 @@ void vtkPUnstructuredGridConnectivity::EnqueueNodeLinks(
   // STEP 2: local variables used to traverse the nodes of the adjCell and
   // ghostCell
   vtkIdType npts = 0;
-  vtkIdType* pts = NULL;
+  vtkIdType* pts = nullptr;
 
   // STEP 3: Get pointer to the connectivity list of the adjacent cell
   this->GhostedGrid->GetCellPoints(adjCell,npts,pts);
-  assert("post: adjCell pts is NULL!" && (pts != NULL) );
+  assert("post: adjCell pts is nullptr!" && (pts != nullptr) );
   assert("post: npts >= 1" && (npts >= 1) );
 
   // STEP 4: Loop through all adjacent cell nodes. The nodes of the adjacent
@@ -1258,9 +1258,9 @@ void vtkPUnstructuredGridConnectivity::EnqueueNodeLinks(
 
   // STEP 5: Get pointer to the connectivity list of the ghost cell
   npts = 0;
-  pts  = NULL;
+  pts  = nullptr;
   this->GhostedGrid->GetCellPoints(ghostCell,npts,pts);
-  assert("post: adjCell pts is NULL!" && (pts != NULL) );
+  assert("post: adjCell pts is nullptr!" && (pts != nullptr) );
   assert("post: npts >= 1" && (npts >= 1) );
 
   // STEP 6: Loop through all ghost cell nodes. The nodes of the ghost cell
@@ -1339,10 +1339,10 @@ void vtkPUnstructuredGridConnectivity::InsertGhostCellNodes(
       vtkUnstructuredGrid* bGrid,
       vtkIdType* cellPts)
 {
-  assert("pre: ghost cell is NULL!" && (ghostCell != NULL) );
-  assert("pre: null global ID array!" && (globalIdArray != NULL) );
-  assert("pre: remote boundary grid is NULL!" && (bGrid != NULL) );
-  assert("pre: cellPts buffer is NULL!" && (cellPts != NULL) );
+  assert("pre: ghost cell is nullptr!" && (ghostCell != nullptr) );
+  assert("pre: null global ID array!" && (globalIdArray != nullptr) );
+  assert("pre: remote boundary grid is nullptr!" && (bGrid != nullptr) );
+  assert("pre: cellPts buffer is nullptr!" && (cellPts != nullptr) );
 
   double pnt[3];
   for(vtkIdType node=0; node < ghostCell->GetNumberOfPoints(); ++node)
@@ -1395,9 +1395,9 @@ void vtkPUnstructuredGridConnectivity::ProcessRemoteGrid(
       const int rmtRank, vtkUnstructuredGrid* bGrid)
 {
   // Sanity Checks
-  assert("pre: remote bgrid is NULL!" && (bGrid != NULL) );
-  assert("pre: ghosted grid instance is NULL!" && (this->GhostedGrid != NULL));
-  assert("pre: controller is NULL!" && (this->Controller != NULL) );
+  assert("pre: remote bgrid is nullptr!" && (bGrid != nullptr) );
+  assert("pre: ghosted grid instance is nullptr!" && (this->GhostedGrid != nullptr));
+  assert("pre: controller is nullptr!" && (this->Controller != nullptr) );
   assert("pre: remote rank is out-of-bounds!" &&
           (rmtRank >= 0) &&
           (rmtRank < this->Controller->GetNumberOfProcesses()) );
@@ -1412,7 +1412,7 @@ void vtkPUnstructuredGridConnectivity::ProcessRemoteGrid(
       vtkArrayDownCast<vtkIdTypeArray>(
          this->GhostedGrid->GetPointData()->GetArray(this->GlobalIDFieldName));
   assert("pre: cannot get global ID field from GhostedGrid" &&
-         (ghostGridGlobalIdArray != NULL) );
+         (ghostGridGlobalIdArray != nullptr) );
 
   // Get pointer to the GlobalID array on the boundary grid.
   vtkIdType* globalIdx =
@@ -1489,7 +1489,7 @@ void vtkPUnstructuredGridConnectivity::ProcessRemoteGrid(
 //------------------------------------------------------------------------------
 void vtkPUnstructuredGridConnectivity::BuildGhostedGridAndCommLists()
 {
-  assert("pre: ghosted grid should be NULL!" && (this->GhostedGrid==NULL));
+  assert("pre: ghosted grid should be nullptr!" && (this->GhostedGrid==nullptr));
 
   // STEP 0: Deep-Copy the topology of the input grid to the ghosted grid.
   this->GhostedGrid = vtkUnstructuredGrid::New();
@@ -1564,8 +1564,8 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGridSizes(int size)
 //------------------------------------------------------------------------------
 void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
 {
-  assert("pre: Boundary Grid should not be NULL!" &&
-          (this->AuxiliaryData->BoundaryGrid != NULL));
+  assert("pre: Boundary Grid should not be nullptr!" &&
+          (this->AuxiliaryData->BoundaryGrid != nullptr));
 
   // STEP 0: Serialize the local grid
   vtkMultiProcessStream bytestream;
@@ -1596,7 +1596,7 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
   } // END for all candidates
 
   // STEP 3: Post sends
-  unsigned char* data = NULL;
+  unsigned char* data = nullptr;
   unsigned int size   = 0;
   bytestream.GetRawData(data,size);
 
@@ -1614,7 +1614,7 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
   delete [] data;
 
   // STEP 5: De-serialize remote boundary grids
-  this->AuxiliaryData->RmtBGrids.resize(numCandidates,NULL);
+  this->AuxiliaryData->RmtBGrids.resize(numCandidates,nullptr);
   vtkMultiProcessStream tmpStream;
   for(int i=0; i < numCandidates; ++i)
   {
@@ -1635,7 +1635,7 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
 #endif
 
     delete [] RawData[i];
-    RawData[i] = NULL;
+    RawData[i] = nullptr;
   } // END for all candidates
 
   this->Controller->Barrier();
@@ -1645,10 +1645,10 @@ void vtkPUnstructuredGridConnectivity::ExchangeBoundaryGrids()
 void vtkPUnstructuredGridConnectivity::BoundingBoxCollision()
 {
   // Sanity checks
-  assert("pre: controller is NULL!" && (this->Controller != NULL) );
+  assert("pre: controller is nullptr!" && (this->Controller != nullptr) );
   int N = this->Controller->GetNumberOfProcesses();
 
-  assert("pre: auxiliary data is NULL!" && (this->AuxiliaryData != NULL) );
+  assert("pre: auxiliary data is nullptr!" && (this->AuxiliaryData != nullptr) );
   assert("pre: bounding box list size mismarch!" &&
     (static_cast<int>(this->AuxiliaryData->GlobalGridBounds.size())==6*N) );
 
@@ -1683,7 +1683,7 @@ void vtkPUnstructuredGridConnectivity::BoundingBoxCollision()
 void vtkPUnstructuredGridConnectivity::ExchangeGridBounds()
 {
   // Sanityc checks
-  assert("pre: controller is NULL!" && (this->Controller != NULL) );
+  assert("pre: controller is nullptr!" && (this->Controller != nullptr) );
 
   // STEP 0: Allocate buffers. Each process sends 6 doubles and receives 6
   // doubles from each remote process. Hence, the rcv buffer is allocated
@@ -1704,7 +1704,7 @@ void vtkPUnstructuredGridConnectivity::ExchangeGridBounds()
 bool vtkPUnstructuredGridConnectivity::IsCellOnBoundary(
       vtkIdType* cellNodes, vtkIdType N)
 {
-  assert("pre: null cell nodes array!" && (cellNodes != NULL) );
+  assert("pre: null cell nodes array!" && (cellNodes != nullptr) );
 
   for(int i=0; i < N; ++i)
   {
@@ -1725,7 +1725,7 @@ void vtkPUnstructuredGridConnectivity::MarkFaces()
   for(vtkIdType cellIdx=0; cellIdx < numCells; ++cellIdx)
   {
     vtkCell* cell = this->InputGrid->GetCell( cellIdx );
-    assert("pre: cell is NULL!" && (cell != NULL) );
+    assert("pre: cell is nullptr!" && (cell != nullptr) );
 
     /// @todo: optimize this using lookup tables, at least for linear cells,
     /// since we only need the IDs of the faces
@@ -1775,19 +1775,19 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryCell(
     vtkIdTypeArray* globalIdx)
 {
   // Sanity checks
-  assert("pre: input grid is NULL!" && (this->InputGrid != NULL) );
-  assert("pre: auxiliary data is NULL!" && (this->AuxiliaryData != NULL) );
-  assert("pre: nodes is NULL!" && (nodes != NULL) );
-  assert("pre: localIdx is NULL!" && (localIdx != NULL) );
-  assert("pre: globalIdx is NULL!" && (globalIdx != NULL) );
+  assert("pre: input grid is nullptr!" && (this->InputGrid != nullptr) );
+  assert("pre: auxiliary data is nullptr!" && (this->AuxiliaryData != nullptr) );
+  assert("pre: nodes is nullptr!" && (nodes != nullptr) );
+  assert("pre: localIdx is nullptr!" && (localIdx != nullptr) );
+  assert("pre: globalIdx is nullptr!" && (globalIdx != nullptr) );
   assert("pre: cellIdx is out-of-bounds!" &&
       (cellIdx >= 0) && (cellIdx < this->InputGrid->GetNumberOfCells()));
 
   // STEP 0: Get the global ID information from the input grid
   vtkPointData* PD = this->InputGrid->GetPointData();
-  assert("pre: PD is NULL!" && (PD != NULL) );
+  assert("pre: PD is nullptr!" && (PD != nullptr) );
   vtkDataArray* G  = PD->GetArray(this->GlobalIDFieldName);
-  assert("pre: Global array, G, is NULL!" && (G != NULL) );
+  assert("pre: Global array, G, is nullptr!" && (G != nullptr) );
   vtkIdType* globalInfo = static_cast<vtkIdType*>(G->GetVoidPointer(0));
 
   // STEP 1: Get the cell type from the input grid
@@ -1842,8 +1842,8 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryCell(
 void vtkPUnstructuredGridConnectivity::ExtractBoundaryGrid()
 {
   // Sanity checks
-  assert("pre: input grid is NULL!" && (this->InputGrid != NULL) );
-  assert("pre: auxiliary data is NULL!" && (this->AuxiliaryData != NULL) );
+  assert("pre: input grid is nullptr!" && (this->InputGrid != nullptr) );
+  assert("pre: auxiliary data is nullptr!" && (this->AuxiliaryData != nullptr) );
 
   vtkIdType numCells = this->InputGrid->GetNumberOfCells();
 
@@ -1886,14 +1886,14 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryGrid()
 
   // STEP 2: Loop through all cells and extract cells on the boundary -- O(N)
   vtkIdType numNodes = 0;    // numNodes in cell
-  vtkIdType* nodes   = NULL; // pointer to the cell Ids
+  vtkIdType* nodes   = nullptr; // pointer to the cell Ids
   for(vtkIdType cellIdx=0; cellIdx < numCells; ++cellIdx)
   {
     // Get point IDs of the cell. Note, this method returns a "read-only"
     // pointer to the underlying connectivity array for the cell in query.
     // No memory is allocated.
     this->InputGrid->GetCellPoints(cellIdx,numNodes,nodes);
-    assert("pre: nodes ptr should not be NULL!" && (nodes != NULL) );
+    assert("pre: nodes ptr should not be nullptr!" && (nodes != nullptr) );
 
     if( this->IsCellOnBoundary(nodes,numNodes) )
     {
@@ -1949,7 +1949,7 @@ void vtkPUnstructuredGridConnectivity::ExtractBoundaryGrid()
 void vtkPUnstructuredGridConnectivity::SerializeUnstructuredGrid(
       vtkUnstructuredGrid* g, vtkMultiProcessStream& bytestream)
 {
-  assert("pre: cannot serialize a null grid!" && (g != NULL) );
+  assert("pre: cannot serialize a null grid!" && (g != nullptr) );
   assert("pre: byte-stream should be empty" && bytestream.Empty() );
 
   // serialize the number of points and cells in the grid
@@ -1962,7 +1962,7 @@ void vtkPUnstructuredGridConnectivity::SerializeUnstructuredGrid(
 
   // serialize the cell connectivity information of the grid
   vtkIdType n       = 0;    // number of nodes of each cell
-  vtkIdType* cnodes = NULL; // pointer to the cell connectivity array
+  vtkIdType* cnodes = nullptr; // pointer to the cell connectivity array
   for(vtkIdType cellIdx=0; cellIdx < g->GetNumberOfCells(); ++cellIdx)
   {
     // push the cell type
@@ -1989,7 +1989,7 @@ void vtkPUnstructuredGridConnectivity::SerializeUnstructuredGrid(
 void vtkPUnstructuredGridConnectivity::DeSerializeUnstructuredGrid(
     vtkUnstructuredGrid* g, vtkMultiProcessStream& bytestream)
 {
-  assert("pre: input grid is NULL!" && (g != NULL) );
+  assert("pre: input grid is nullptr!" && (g != nullptr) );
   assert("pre: byte-stream should not be empty!" && !bytestream.Empty() );
 
   unsigned int N; // auxiliary local variable used to satisfy bytestream API.
@@ -2044,8 +2044,8 @@ void vtkPUnstructuredGridConnectivity::DeSerializeUnstructuredGrid(
 void vtkPUnstructuredGridConnectivity::WriteUnstructuredGrid(
       vtkUnstructuredGrid* g, const char* fileName)
 {
-  assert("pre: input grid is NULL!" && (g != NULL) );
-  assert("pre: fileName is NULL!" && (fileName != NULL) );
+  assert("pre: input grid is nullptr!" && (g != nullptr) );
+  assert("pre: fileName is nullptr!" && (fileName != nullptr) );
 
   std::ostringstream oss;
   oss << fileName << "-" << this->Controller->GetLocalProcessId() << ".vtk";

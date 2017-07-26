@@ -203,7 +203,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->ShaderCache = vtkOpenGLShaderCache::New();
   this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
 
-  this->TextureUnitManager = 0;
+  this->TextureUnitManager = nullptr;
 
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   delete [] this->WindowName;
@@ -228,7 +228,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->LastGraphicError = static_cast<unsigned int>(GL_NO_ERROR);
   #endif
 
-  this->DrawPixelsTextureObject = NULL;
+  this->DrawPixelsTextureObject = nullptr;
 
   this->OwnContext = 1;
   this->MaximumHardwareLineWidth = 1.0;
@@ -240,32 +240,32 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->NumberOfFrameBuffers = 0;
   this->DepthRenderBufferObject = 0;
   this->AlphaBitPlanes = 8;
-  this->Capabilities = 0;
+  this->Capabilities = nullptr;
 }
 
 // free up memory & close the window
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
-  if(this->DrawPixelsTextureObject != 0)
+  if(this->DrawPixelsTextureObject != nullptr)
   {
     this->DrawPixelsTextureObject->UnRegister(this);
-    this->DrawPixelsTextureObject = NULL;
+    this->DrawPixelsTextureObject = nullptr;
   }
   this->TextureResourceIds.clear();
-  if(this->TextureUnitManager!=0)
+  if(this->TextureUnitManager!=nullptr)
   {
-    this->TextureUnitManager->SetContext(0);
+    this->TextureUnitManager->SetContext(nullptr);
   }
 
-  this->SetTextureUnitManager(0);
+  this->SetTextureUnitManager(nullptr);
 
   this->GLStateIntegers.clear();
 
   this->ShaderCache->UnRegister(this);
 
   delete [] this->Capabilities;
-  this->Capabilities = 0;
+  this->Capabilities = nullptr;
 
   this->VBOCache->UnRegister(this);
 }
@@ -334,7 +334,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
     }
   }
 
-  if(this->DrawPixelsTextureObject != 0)
+  if(this->DrawPixelsTextureObject != nullptr)
   {
      this->DrawPixelsTextureObject->ReleaseGraphicsResources(renWin);
   }
@@ -746,7 +746,7 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
   {
     const char *glVersion =
       reinterpret_cast<const char *>(glGetString(GL_VERSION));
-    if (glVersion && strstr(glVersion,"Mesa") != NULL &&
+    if (glVersion && strstr(glVersion,"Mesa") != nullptr &&
         !GLEW_ARB_texture_float)
     {
       haveFloatTextures = false;
@@ -995,7 +995,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
 {
   GLint size;
 
-  if (rgba==NULL)
+  if (rgba==nullptr)
   {
     return 0;
   }
@@ -1313,7 +1313,7 @@ void vtkOpenGLRenderWindow::DrawPixels(
   this->DrawPixelsTextureObject->SetContext(this);
   this->DrawPixelsTextureObject->Create2DFromRaw(srcWidth, srcHeight,
         numComponents, dataType, data);
-  this->DrawPixelsTextureObject->CopyToFrameBuffer(NULL, NULL);
+  this->DrawPixelsTextureObject->CopyToFrameBuffer(nullptr, nullptr);
 }
 
 // very generic call to draw pixel data to a region of the window
@@ -1339,7 +1339,7 @@ void vtkOpenGLRenderWindow::DrawPixels(
       srcXmin, srcYmin, srcXmax, srcYmax,
       dstXmin, dstYmin, dstXmax, dstYmax,
       this->GetSize()[0], this->GetSize()[1],
-      NULL, NULL);
+      nullptr, nullptr);
 }
 
 // less generic version, old API
@@ -2091,7 +2091,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 #ifdef GL_RGBA8
     glTexImage2D(target,0,GL_RGBA8,width,height,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #else
     glTexImage2D(target,0,GL_RGBA,width,height,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -2313,7 +2313,7 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
 // hasn't already been set up.
 vtkTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
 {
-  if(this->TextureUnitManager==0)
+  if(this->TextureUnitManager==nullptr)
   {
     vtkTextureUnitManager *manager=vtkTextureUnitManager::New();
 
@@ -2465,7 +2465,7 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
         "}\n",
         // no geom shader
         "");
-    if (newShader == NULL)
+    if (newShader == nullptr)
     {
       this->OpenGLSupportResult = 0;
       this->OpenGLSupportMessage =

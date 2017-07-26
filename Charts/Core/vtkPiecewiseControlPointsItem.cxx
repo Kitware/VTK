@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkPiecewiseControlPointsItem);
 //-----------------------------------------------------------------------------
 vtkPiecewiseControlPointsItem::vtkPiecewiseControlPointsItem()
 {
-  this->PiecewiseFunction = 0;
+  this->PiecewiseFunction = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkPiecewiseControlPointsItem::~vtkPiecewiseControlPointsItem()
   {
     this->PiecewiseFunction->RemoveObserver(this->Callback);
     this->PiecewiseFunction->Delete();
-    this->PiecewiseFunction = 0;
+    this->PiecewiseFunction = nullptr;
   }
 }
 

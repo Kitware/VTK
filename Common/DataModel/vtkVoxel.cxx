@@ -44,8 +44,8 @@ vtkVoxel::vtkVoxel()
   {
     this->PointIds->SetId(i,0);
   }
-  this->Line = 0;
-  this->Pixel = 0;
+  this->Line = nullptr;
+  this->Pixel = nullptr;
 }
 
 //----------------------------------------------------------------------------

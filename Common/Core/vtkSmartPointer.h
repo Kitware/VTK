@@ -31,7 +31,7 @@ class vtkSmartPointer: public vtkSmartPointerBase
   static T* CheckType(T* t) { return t; }
 public:
   /**
-   * Initialize smart pointer to NULL.
+   * Initialize smart pointer to nullptr.
    */
   vtkSmartPointer() {}
 

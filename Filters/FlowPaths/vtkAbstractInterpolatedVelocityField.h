@@ -125,7 +125,7 @@ public:
 
   //@{
   /**
-   * Get/Set the name of a spcified vector array. By default it is NULL, with
+   * Get/Set the name of a spcified vector array. By default it is nullptr, with
    * the active vector array for use.
    */
   vtkGetStringMacro( VectorsSelection );
@@ -274,7 +274,7 @@ protected:
   void FastCompute( vtkDataArray * vectors, double f[3] );
   bool InterpolatePoint( vtkPointData * outPD, vtkIdType outIndex );
   vtkGenericCell * GetLastCell()
-    { return ( this->LastCellId != -1 ) ? this->GenCell : NULL; }
+    { return ( this->LastCellId != -1 ) ? this->GenCell : nullptr; }
   //@}
 
 private:

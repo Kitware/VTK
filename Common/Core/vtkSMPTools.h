@@ -50,7 +50,7 @@ class vtkSMPTools_Has_Initialize
   template <typename U> static yes_type check(V<U, &U::Initialize>*);
   template <typename U> static no_type check(...);
 public:
-  static bool const value = sizeof(check<T>(0)) == sizeof(yes_type);
+  static bool const value = sizeof(check<T>(nullptr)) == sizeof(yes_type);
 };
 
 template <typename T>

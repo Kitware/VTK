@@ -148,8 +148,8 @@ vtkVoxelGrid::vtkVoxelGrid()
 vtkVoxelGrid::~vtkVoxelGrid()
 {
   this->Locator->UnRegister(this);
-  this->Locator = NULL;
-  this->SetKernel(NULL);
+  this->Locator = nullptr;
+  this->SetKernel(nullptr);
 }
 
 //----------------------------------------------------------------------------

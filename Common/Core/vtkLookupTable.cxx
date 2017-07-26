@@ -87,7 +87,7 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
 vtkLookupTable::~vtkLookupTable()
 {
   this->Table->UnRegister( this );
-  this->Table = NULL;
+  this->Table = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -655,7 +655,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
 // Given a table, set the internal table and set the number of colors.
 void vtkLookupTable::SetTable(vtkUnsignedCharArray *table)
 {
-  if (table != this->Table && table != NULL)
+  if (table != this->Table && table != nullptr)
   {
     // Check for incorrect arrays.
     if (table->GetNumberOfComponents() != this->Table->GetNumberOfComponents())

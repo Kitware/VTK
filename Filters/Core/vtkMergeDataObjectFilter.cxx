@@ -53,7 +53,7 @@ vtkDataObject *vtkMergeDataObjectFilter::GetDataObject()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return this->GetExecutive()->GetInputData(1, 0);
 }
@@ -69,7 +69,7 @@ int vtkMergeDataObjectFilter::RequestData(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *dataObjectInfo = 0;
+  vtkInformation *dataObjectInfo = nullptr;
   if (this->GetNumberOfInputConnections(1) > 0)
   {
     dataObjectInfo = inputVector[1]->GetInformationObject(0);
@@ -80,7 +80,7 @@ int vtkMergeDataObjectFilter::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataObject *dataObject=0;
+  vtkDataObject *dataObject=nullptr;
   if (dataObjectInfo)
   {
     dataObject = dataObjectInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -92,7 +92,7 @@ int vtkMergeDataObjectFilter::RequestData(
 
   if (!dataObject)
   {
-    vtkErrorMacro(<< "Data Object's Field Data is NULL.");
+    vtkErrorMacro(<< "Data Object's Field Data is nullptr.");
     return 1;
   }
 

@@ -224,7 +224,7 @@ public:
   //@}
 
 protected:
-  vtkCutter(vtkImplicitFunction *cf=NULL);
+  vtkCutter(vtkImplicitFunction *cf=nullptr);
   ~vtkCutter() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

@@ -194,7 +194,7 @@ vtkPCANormalEstimation::vtkPCANormalEstimation()
 //----------------------------------------------------------------------------
 vtkPCANormalEstimation::~vtkPCANormalEstimation()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 //----------------------------------------------------------------------------

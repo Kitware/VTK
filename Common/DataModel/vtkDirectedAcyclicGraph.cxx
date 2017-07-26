@@ -42,7 +42,7 @@ vtkDirectedAcyclicGraph::~vtkDirectedAcyclicGraph()
 //----------------------------------------------------------------------------
 vtkDirectedAcyclicGraph *vtkDirectedAcyclicGraph::GetData(vtkInformation *info)
 {
-  return info? vtkDirectedAcyclicGraph::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkDirectedAcyclicGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

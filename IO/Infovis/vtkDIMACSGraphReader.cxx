@@ -48,10 +48,10 @@ vtkStandardNewMacro(vtkDIMACSGraphReader);
 vtkDIMACSGraphReader::vtkDIMACSGraphReader()
 {
   // Default values for the origin vertex
-  this->FileName = 0;
+  this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
-  this->VertexAttributeArrayName = NULL;
-  this->EdgeAttributeArrayName   = NULL;
+  this->VertexAttributeArrayName = nullptr;
+  this->EdgeAttributeArrayName   = nullptr;
   this->Directed = false;
   this->fileOk   = false;
   this->numVerts = 0;
@@ -61,9 +61,9 @@ vtkDIMACSGraphReader::vtkDIMACSGraphReader()
 
 vtkDIMACSGraphReader::~vtkDIMACSGraphReader()
 {
-  this->SetFileName(0);
-  this->SetVertexAttributeArrayName(0);
-  this->SetEdgeAttributeArrayName(0);
+  this->SetFileName(nullptr);
+  this->SetVertexAttributeArrayName(nullptr);
+  this->SetEdgeAttributeArrayName(nullptr);
 }
 
 
@@ -434,7 +434,7 @@ int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph * output)
 // definition is (i.e, max-flow problems are directed, but coloring is not).
 int vtkDIMACSGraphReader::ReadGraphMetaData()
 {
-  if (this->FileName == NULL)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro("File name undefined");
     return 0;
@@ -547,7 +547,7 @@ int vtkDIMACSGraphReader::RequestDataObject(vtkInformation*,
   if (!current || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
                || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
   {
-    vtkGraph *output = 0;
+    vtkGraph *output = nullptr;
     if (this->Directed)
     {
       output = vtkDirectedGraph::New();

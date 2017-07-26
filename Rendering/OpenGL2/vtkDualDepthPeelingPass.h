@@ -98,7 +98,7 @@ public:
   bool SetShaderParameters(vtkShaderProgram *program,
                            vtkAbstractMapper *mapper,
                            vtkProp *prop,
-                           vtkOpenGLVertexArrayObject *VAO = NULL) VTK_OVERRIDE;
+                           vtkOpenGLVertexArrayObject *VAO = nullptr) VTK_OVERRIDE;
   virtual vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
 
 protected:

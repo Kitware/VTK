@@ -153,9 +153,9 @@ public:
    * a pipeline connection whereas AddInputConnection() does.
    */
   void AddDataSetInput(vtkDataSet *ds, const char* arrayName, int component);
-  void AddDataSetInput(vtkDataSet *ds) {this->AddDataSetInput(ds, NULL, 0);}
+  void AddDataSetInput(vtkDataSet *ds) {this->AddDataSetInput(ds, nullptr, 0);}
   void AddDataSetInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
-  void AddDataSetInputConnection(vtkAlgorithmOutput *in) {this->AddDataSetInputConnection(in, NULL, 0);}
+  void AddDataSetInputConnection(vtkAlgorithmOutput *in) {this->AddDataSetInputConnection(in, nullptr, 0);}
   //@}
 
   //@{
@@ -163,11 +163,11 @@ public:
    * Remove a dataset from the list of data to append.
    */
   void RemoveDataSetInput(vtkDataSet *ds, const char* arrayName, int component);
-  void RemoveDataSetInput(vtkDataSet *ds) {this->RemoveDataSetInput(ds, NULL, 0);}
+  void RemoveDataSetInput(vtkDataSet *ds) {this->RemoveDataSetInput(ds, nullptr, 0);}
   void RemoveDataSetInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
   void RemoveDataSetInputConnection(vtkAlgorithmOutput *in)
   {
-    this->RemoveDataSetInputConnection(in, NULL, 0);
+    this->RemoveDataSetInputConnection(in, nullptr, 0);
   }
   //@}
 

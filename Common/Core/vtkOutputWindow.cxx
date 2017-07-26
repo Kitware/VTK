@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkOutputWindow* vtkOutputWindow::Instance = 0;
+vtkOutputWindow* vtkOutputWindow::Instance = nullptr;
 static unsigned int vtkOutputWindowCleanupCounter = 0;
 
 void vtkOutputWindowDisplayText(const char* message)
@@ -62,7 +62,7 @@ vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
   if (--vtkOutputWindowCleanupCounter == 0)
   {
     // Destroy any remaining output window.
-    vtkOutputWindow::SetInstance(0);
+    vtkOutputWindow::SetInstance(nullptr);
   }
 }
 
@@ -134,7 +134,7 @@ void vtkOutputWindow::DisplayDebugText(const char* txt)
 vtkOutputWindow* vtkOutputWindow::New()
 {
   vtkOutputWindow* ret = vtkOutputWindow::GetInstance();
-  ret->Register(NULL);
+  ret->Register(nullptr);
   return ret;
 }
 
@@ -172,7 +172,7 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
   {
     return;
   }
-  // preferably this will be NULL
+  // preferably this will be nullptr
   if (vtkOutputWindow::Instance)
   {
     vtkOutputWindow::Instance->Delete();
@@ -183,7 +183,7 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
     return;
   }
   // user will call ->Delete() after setting instance
-  instance->Register(NULL);
+  instance->Register(nullptr);
 }
 
 

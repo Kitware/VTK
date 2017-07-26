@@ -83,7 +83,7 @@ class vtkODBCBoundParameter
 {
 public:
   vtkODBCBoundParameter() :
-    Data(NULL), DataLength(0), BufferSize(0), DataTypeC(0), DataTypeSQL(0)
+    Data(nullptr), DataLength(0), BufferSize(0), DataTypeC(0), DataTypeSQL(0)
   {
   }
 
@@ -116,18 +116,18 @@ class vtkODBCQueryInternals
 public:
   vtkODBCQueryInternals()
   {
-      this->Statement = NULL;
+      this->Statement = nullptr;
       this->CurrentRow = vtkVariantArray::New();
       this->ColumnNames = vtkStringArray::New();
       this->ColumnIsSigned = vtkBitArray::New();
-      this->ColumnTypes = NULL;
+      this->ColumnTypes = nullptr;
       this->NullPermitted = vtkBitArray::New();
   }
 
   ~vtkODBCQueryInternals()
   {
       this->FreeUserParameterList();
-      if (this->Statement != NULL)
+      if (this->Statement != nullptr)
       {
         SQLFreeHandle(SQL_HANDLE_STMT, this->Statement);
       }
@@ -257,7 +257,7 @@ vtkODBCBoundParameter *vtkBuildODBCBoundParameter(T data_value)
 }
 
 // Description:
-// Specialization of vtkBuildBoundParameter for NULL-terminated
+// Specialization of vtkBuildBoundParameter for nullptr-terminated
 // strings (i.e. CHAR and VARCHAR fields)
 
 template<>
@@ -368,7 +368,7 @@ bool vtkODBCQueryInternals::PrepareQuery(const char *queryString,
     }
     else
     {
-      this->UserParameterList.resize(paramCount, NULL);
+      this->UserParameterList.resize(paramCount, nullptr);
       return true;
     }
   }
@@ -381,7 +381,7 @@ void vtkODBCQueryInternals::FreeUserParameterList()
   for (unsigned int i = 0; i < this->UserParameterList.size(); ++i)
   {
     delete this->UserParameterList[i];
-    this->UserParameterList[i] = NULL;
+    this->UserParameterList[i] = nullptr;
   }
   this->UserParameterList.clear();
 }
@@ -418,7 +418,7 @@ void vtkODBCQueryInternals::ClearBoundParameters()
 
 bool vtkODBCQueryInternals::BindParametersToStatement()
 {
-  if (this->Statement == NULL)
+  if (this->Statement == nullptr)
   {
     vtkGenericWarningMacro(<<"BindParametersToStatement: No prepared statement available");
     return false;
@@ -509,16 +509,16 @@ vtkODBCQuery::vtkODBCQuery()
 {
   this->Internals = new vtkODBCQueryInternals;
   this->InitialFetch = true;
-  this->LastErrorText = NULL;
-  this->QueryText = NULL;
+  this->LastErrorText = nullptr;
+  this->QueryText = nullptr;
 }
 
 // ----------------------------------------------------------------------
 
 vtkODBCQuery::~vtkODBCQuery()
 {
-  this->SetLastErrorText(NULL);
-  this->SetQueryText(NULL);
+  this->SetLastErrorText(nullptr);
+  this->SetQueryText(nullptr);
   delete this->Internals;
 }
 
@@ -539,7 +539,7 @@ vtkODBCQuery::SetQuery(const char *newQuery)
   this->SetQueryText(newQuery);
 
   vtkODBCDatabase *db = vtkODBCDatabase::SafeDownCast(this->Database);
-  if (db == NULL)
+  if (db == nullptr)
   {
     vtkErrorMacro(<<"SHOULDN'T HAPPEN: SetQuery called with null database.  This can only happen when you instantiate vtkODBCQuery directly.  You should always call vtkODBCDatabase::GetQueryInstance to make a query object.");
     return false;
@@ -549,7 +549,7 @@ vtkODBCQuery::SetQuery(const char *newQuery)
   bool prepareStatus = this->Internals->PrepareQuery(newQuery, db->Internals->Connection, error);
   if (prepareStatus)
   {
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else
@@ -605,7 +605,7 @@ vtkODBCQuery::Execute()
     this->Internals->ColumnIsSigned->Reset();
     this->Internals->NullPermitted->Reset();
     delete [] this->Internals->ColumnTypes;
-    this->Internals->ColumnTypes = NULL;
+    this->Internals->ColumnTypes = nullptr;
 
     // Populate the result information now, all at once, rather than
     // making a whole bunch of calls later and duplicating
@@ -674,7 +674,7 @@ vtkODBCQuery::Execute()
         this->Internals->NullPermitted->SetValue(i, nullable);
       } // done populating column information
     }
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
 }
@@ -703,7 +703,7 @@ vtkODBCQuery::GetNumberOfFields()
     return 0;
   }
 
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
   return count;
 }
 
@@ -716,13 +716,13 @@ vtkODBCQuery::GetFieldName(int column)
   if (! this->Active)
   {
     vtkErrorMacro(<<"GetFieldName(): Query is not active!");
-    return NULL;
+    return nullptr;
   }
   else if (column < 0 || column >= this->GetNumberOfFields())
   {
     vtkErrorMacro(<<"GetFieldName(): Illegal field index "
                   << column);
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -856,12 +856,12 @@ vtkODBCQuery::NextRow()
   SQLRETURN status = SQLFetch(this->Internals->Statement);
   if (status == SQL_SUCCESS)
   {
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return this->CacheCurrentRow();
   }
   else if (status == SQL_NO_DATA)
   {
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return false;
   }
   else
@@ -1013,7 +1013,7 @@ vtkODBCQuery::GetLastErrorText()
 bool
 vtkODBCQuery::HasError()
 {
-  return (this->LastErrorText != NULL);
+  return (this->LastErrorText != nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -1028,7 +1028,7 @@ vtkODBCQuery::BeginTransaction()
   }
 
   vtkODBCDatabase *db = vtkODBCDatabase::SafeDownCast(this->Database);
-  assert(db != NULL);
+  assert(db != nullptr);
 
   SQLUINTEGER ac = SQL_AUTOCOMMIT_OFF;
   SQLRETURN status = SQLSetConnectAttr(db->Internals->Connection,
@@ -1057,7 +1057,7 @@ vtkODBCQuery::CommitTransaction()
   }
 
   vtkODBCDatabase *db = vtkODBCDatabase::SafeDownCast(this->Database);
-  assert(db != NULL);
+  assert(db != nullptr);
 
   SQLRETURN status;
   status = SQLEndTran(SQL_HANDLE_DBC,
@@ -1100,7 +1100,7 @@ vtkODBCQuery::RollbackTransaction()
   }
 
   vtkODBCDatabase *db = vtkODBCDatabase::SafeDownCast(this->Database);
-  assert(db != NULL);
+  assert(db != nullptr);
 
   SQLRETURN status;
   status = SQLEndTran(SQL_HANDLE_DBC,
@@ -1176,13 +1176,13 @@ vtkODBCQuery::CacheIntColumn(int column)
       result = vtkVariant(foo);
     }
     this->Internals->CurrentRow->SetValue(column, result);
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else if (status == SQL_NULL_DATA)
   {
     this->Internals->CurrentRow->SetValue(column, vtkVariant());
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else
@@ -1239,13 +1239,13 @@ vtkODBCQuery::CacheLongLongColumn(int column)
   if (status == SQL_SUCCESS)
   {
     this->Internals->CurrentRow->SetValue(column, result);
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else if (status == SQL_NULL_DATA)
   {
     this->Internals->CurrentRow->SetValue(column, vtkVariant());
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else
@@ -1291,13 +1291,13 @@ vtkODBCQuery::CacheCharColumn(int column)
       result = vtkVariant(foo);
     }
     this->Internals->CurrentRow->SetValue(column, result);
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else if (status == SQL_NULL_DATA)
   {
     this->Internals->CurrentRow->SetValue(column, vtkVariant());
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else
@@ -1334,13 +1334,13 @@ vtkODBCQuery::CacheBooleanColumn(int column)
   {
     vtkVariant result(buffer != 0);
     this->Internals->CurrentRow->SetValue(column, result);
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else if (status == SQL_NULL_DATA)
   {
     this->Internals->CurrentRow->SetValue(column, vtkVariant());
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else
@@ -1379,13 +1379,13 @@ vtkODBCQuery::CacheFloatColumn(int column)
   {
     vtkVariant result(buffer);
     this->Internals->CurrentRow->SetValue(column, result);
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else if (status == SQL_NULL_DATA)
   {
     this->Internals->CurrentRow->SetValue(column, vtkVariant());
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else
@@ -1421,13 +1421,13 @@ vtkODBCQuery::CacheDoubleColumn(int column)
   {
     vtkVariant result(buffer);
     this->Internals->CurrentRow->SetValue(column, result);
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else if (status == SQL_NULL_DATA)
   {
     this->Internals->CurrentRow->SetValue(column, vtkVariant());
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
   else
@@ -1591,7 +1591,7 @@ vtkODBCQuery::CacheBinaryColumn(int column)
   }
   buffer = new char[columnSize];
 
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
 
   std::ostringstream outbuf;
 
@@ -1681,7 +1681,7 @@ bool
 vtkODBCQuery::CacheDecimalColumn(int column)
 {
   this->Internals->CurrentRow->SetValue(column, vtkVariant());
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
   return true;
 }
 
@@ -1691,7 +1691,7 @@ bool
 vtkODBCQuery::CacheNumericColumn(int column)
 {
   this->Internals->CurrentRow->SetValue(column, vtkVariant());
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
   return true;
 }
 
@@ -1702,7 +1702,7 @@ bool
 vtkODBCQuery::CacheTimeColumn(int column)
 {
   this->Internals->CurrentRow->SetValue(column, vtkVariant());
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
   return true;
 }
 
@@ -1713,7 +1713,7 @@ bool
 vtkODBCQuery::CacheIntervalColumn(int column)
 {
   this->Internals->CurrentRow->SetValue(column, vtkVariant());
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
   return true;
 }
 

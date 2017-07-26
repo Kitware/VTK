@@ -32,17 +32,17 @@ vtkSPHKernel::vtkSPHKernel()
   this->RequiresInitialization = true;
   this->SpatialStep = 0.001;
   this->Dimension = 3;
-  this->CutoffArray = NULL;
-  this->DensityArray = NULL;
-  this->MassArray = NULL;
+  this->CutoffArray = nullptr;
+  this->DensityArray = nullptr;
+  this->MassArray = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkSPHKernel::~vtkSPHKernel()
 {
-  this->SetCutoffArray(NULL);
-  this->SetDensityArray(NULL);
-  this->SetMassArray(NULL);
+  this->SetCutoffArray(nullptr);
+  this->SetDensityArray(nullptr);
+  this->SetMassArray(nullptr);
 }
 
 //----------------------------------------------------------------------------

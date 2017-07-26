@@ -20,14 +20,14 @@ vtkAbstractParticleWriter::vtkAbstractParticleWriter()
 {
   this->TimeStep     = 0;
   this->TimeValue    = 0.0;
-  this->FileName     = NULL;
+  this->FileName     = nullptr;
   this->CollectiveIO = 0;
 }
 //----------------------------------------------------------------------------
 vtkAbstractParticleWriter::~vtkAbstractParticleWriter()
 {
   delete []this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 //----------------------------------------------------------------------------
 void vtkAbstractParticleWriter::SetWriteModeToCollective()

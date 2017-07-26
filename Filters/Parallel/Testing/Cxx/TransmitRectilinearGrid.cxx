@@ -90,8 +90,8 @@ void MyProcess::Execute()
 
   // READER
 
-  vtkRectilinearGridReader *rgr = NULL;
-  vtkRectilinearGrid *rg = NULL;
+  vtkRectilinearGridReader *rgr = nullptr;
+  vtkRectilinearGrid *rg = nullptr;
 
   if (me == 0)
   {
@@ -112,7 +112,7 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((rg == NULL) || (rg->GetNumberOfCells() == 0))
+    if ((rg == nullptr) || (rg->GetNumberOfCells() == 0))
     {
       if (rg) cout << "Failure: input file has no cells" << endl;
       go = 0;

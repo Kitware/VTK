@@ -46,7 +46,7 @@ vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction *f)
 //----------------------------------------------------------------------------
 vtkExtractPolyDataGeometry::~vtkExtractPolyDataGeometry()
 {
-  this->SetImplicitFunction(NULL);
+  this->SetImplicitFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ vtkMTimeType vtkExtractPolyDataGeometry::GetMTime()
   vtkMTimeType mTime=this->MTime.GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->ImplicitFunction != NULL )
+  if ( this->ImplicitFunction != nullptr )
   {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
@@ -87,11 +87,11 @@ int vtkExtractPolyDataGeometry::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *inPts=input->GetPoints();
-  vtkIdType numPts, i, cellId = 0, newId, ptId, *pointMap=NULL;
+  vtkIdType numPts, i, cellId = 0, newId, ptId, *pointMap=nullptr;
   float multiplier;
-  vtkCellArray *inVerts=NULL, *inLines=NULL, *inPolys=NULL, *inStrips=NULL;
-  vtkCellArray *newVerts=NULL, *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
-  vtkPoints *newPts=NULL;
+  vtkCellArray *inVerts=nullptr, *inLines=nullptr, *inPolys=nullptr, *inStrips=nullptr;
+  vtkCellArray *newVerts=nullptr, *newLines=nullptr, *newPolys=nullptr, *newStrips=nullptr;
+  vtkPoints *newPts=nullptr;
 
   vtkDebugMacro(<< "Extracting poly data geometry");
 
@@ -155,7 +155,7 @@ int vtkExtractPolyDataGeometry::RequestData(
   //
   int numIn;
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   if ( input->GetNumberOfVerts() )
   {
     inVerts = input->GetVerts();

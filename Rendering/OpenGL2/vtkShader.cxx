@@ -75,7 +75,7 @@ bool vtkShader::Compile()
 
   GLuint handle = glCreateShader(type);
   const GLchar *source = static_cast<const GLchar *>(this->Source.c_str());
-  glShaderSource(handle, 1, &source, NULL);
+  glShaderSource(handle, 1, &source, nullptr);
   glCompileShader(handle);
   GLint isCompiled;
   glGetShaderiv(handle, GL_COMPILE_STATUS, &isCompiled);
@@ -88,7 +88,7 @@ bool vtkShader::Compile()
     if (length > 1)
     {
       char *logMessage = new char[length];
-      glGetShaderInfoLog(handle, length, NULL, logMessage);
+      glGetShaderInfoLog(handle, length, nullptr, logMessage);
       this->Error = logMessage;
       delete[] logMessage;
     }

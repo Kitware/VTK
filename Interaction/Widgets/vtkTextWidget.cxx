@@ -53,7 +53,7 @@ vtkTextActor *vtkTextWidget::GetTextActor()
   vtkTextRepresentation *textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
   if ( ! textRep )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

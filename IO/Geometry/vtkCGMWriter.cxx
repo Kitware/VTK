@@ -30,7 +30,7 @@ vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
 
 vtkCGMWriter::vtkCGMWriter()
 {
-  this->Viewport = NULL;
+  this->Viewport = nullptr;
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
 
   this->SpecifiedColor[0] = 1.0;
@@ -43,10 +43,10 @@ vtkCGMWriter::vtkCGMWriter()
 
 vtkCGMWriter::~vtkCGMWriter()
 {
-  if ( this->Viewport != NULL )
+  if ( this->Viewport != nullptr )
   {
     this->Viewport->Delete();
-    this->Viewport = NULL;
+    this->Viewport = nullptr;
   }
 }
 
@@ -345,7 +345,7 @@ vtkColorHash::vtkColorHash()
   this->Table = new vtkIdList * [VTK_HASH_INDEX];
   for (i=0; i<VTK_HASH_INDEX; i++)
   {
-    this->Table[i] = NULL;
+    this->Table[i] = nullptr;
   }
 }
 
@@ -354,7 +354,7 @@ vtkColorHash::~vtkColorHash()
   int i;
   for (i=0; i<VTK_HASH_INDEX; i++)
   {
-    if ( this->Table[i] != NULL )
+    if ( this->Table[i] != nullptr )
     {
       this->Table[i]->Delete();
     }
@@ -368,7 +368,7 @@ int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
   int cgmIndex=0; //remove warning
 
   // If no list, just insert the color
-  if ( this->Table[index] == NULL )
+  if ( this->Table[index] == nullptr )
   {
     this->Table[index] = vtkIdList::New();
     this->Table[index]->Allocate(3,3);
@@ -540,7 +540,7 @@ void vtkCGMWriter::WriteData()
   }
 
   // Try opening the file
-  if ( (outf = fopen(this->FileName, "wb")) == NULL )
+  if ( (outf = fopen(this->FileName, "wb")) == nullptr )
   {
     vtkErrorMacro(<<"Cannot open CGM file");
     return;
@@ -554,15 +554,15 @@ void vtkCGMWriter::WriteData()
   vtkIdType *p;
   double bounds[6], xRange, yRange, x[3], factor[2];
   int color, bpp=1, colorMode;
-  unsigned char *ptr, *colors=NULL;
+  unsigned char *ptr, *colors=nullptr;
   int rgbColor[3], maxCellSize;
   cgmPoint *points;
-  vtkSortValues *depth=NULL; //warnings
+  vtkSortValues *depth=nullptr; //warnings
 
   // Figure out the coordinate range of the data.
   // Generate the points that will be used for output.
   //
-  if ( this->Viewport == NULL ) //zero-out z values
+  if ( this->Viewport == nullptr ) //zero-out z values
   {
     input->GetBounds(bounds);
     pts = inPts;
@@ -620,7 +620,7 @@ void vtkCGMWriter::WriteData()
   //
   int CGMColors[256];
   im = cgmImageCreate(size[0], size[1]);
-  vtkColorHash *colorHash=NULL;
+  vtkColorHash *colorHash=nullptr;
 
   if ( this->ColorMode == VTK_COLOR_MODE_DEFAULT )
   {
@@ -4301,7 +4301,7 @@ static int cgmImageAddFont(cgmImagePtr im, const char *fontname)
   {
     free(oldfonts);
   }
-  oldfonts = NULL;
+  oldfonts = nullptr;
   return im->numfonts;
 }
 
@@ -4311,7 +4311,7 @@ static int cgmImageClearFonts(cgmImagePtr im)
  */
 {
   free(im->fontlist);
-  im->fontlist = NULL;
+  im->fontlist = nullptr;
   im->numfonts = 0;
   return 1;
 }
@@ -4380,7 +4380,7 @@ static cgmImagePtr cgmImageStartCgm()
   /* you can have multiple pictures in a file,  keep track of
    * which one you are on */
   im->picnum = 0;
-  im->outfile = NULL;
+  im->outfile = nullptr;
   /* the next three are used for maintaining the element list
    * don't change these ever */
   im->bytestoend = CGMSTARTLISTSIZE;
@@ -4404,7 +4404,7 @@ static cgmImagePtr cgmImageStartCgm()
   im->fontlist = static_cast<unsigned char *>( calloc(tmpsl+1,
                                                       SIZEOF(unsigned char)));
   strcpy(reinterpret_cast<char*>(im->fontlist), tmps);
-  im->outfile = NULL;
+  im->outfile = nullptr;
 
   if (!cgmImageSetDefaults(im))
   {

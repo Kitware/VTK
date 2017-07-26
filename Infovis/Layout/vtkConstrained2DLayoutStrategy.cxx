@@ -66,11 +66,11 @@ vtkConstrained2DLayoutStrategy::vtkConstrained2DLayoutStrategy()
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
-  this->EdgeWeightField = 0;
+  this->EdgeWeightField = nullptr;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
-  this->EdgeArray = NULL;
-  this->InputArrayName = 0;
+  this->EdgeArray = nullptr;
+  this->InputArrayName = nullptr;
   this->SetInputArrayName("constraint");
 }
 
@@ -79,8 +79,8 @@ vtkConstrained2DLayoutStrategy::vtkConstrained2DLayoutStrategy()
 vtkConstrained2DLayoutStrategy::~vtkConstrained2DLayoutStrategy()
 {
   // release mem
-  this->SetEdgeWeightField(0);
-  this->SetInputArrayName(0);
+  this->SetEdgeWeightField(nullptr);
+  this->SetInputArrayName(nullptr);
 }
 
 
@@ -212,12 +212,12 @@ void vtkConstrained2DLayoutStrategy::Initialize()
   }
 
   // Get the weight array
-  vtkDataArray* weightArray = NULL;
+  vtkDataArray* weightArray = nullptr;
   double weight, maxWeight = 1;
-  if (this->WeightEdges && this->EdgeWeightField != NULL)
+  if (this->WeightEdges && this->EdgeWeightField != nullptr)
   {
     weightArray = vtkArrayDownCast<vtkDataArray>(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
-    if (weightArray != NULL)
+    if (weightArray != nullptr)
     {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
       {
@@ -240,7 +240,7 @@ void vtkConstrained2DLayoutStrategy::Initialize()
     this->EdgeArray[e.Id].from = e.Source;
     this->EdgeArray[e.Id].to = e.Target;
 
-    if (weightArray != NULL)
+    if (weightArray != nullptr)
     {
       weight = weightArray->GetTuple1(e.Id);
       this->EdgeArray[e.Id].weight = weight / maxWeight;
@@ -269,7 +269,7 @@ void vtkConstrained2DLayoutStrategy::Initialize()
 void vtkConstrained2DLayoutStrategy::Layout()
 {
   // Do I have a graph to layout
-  if (this->Graph == NULL)
+  if (this->Graph == nullptr)
   {
     vtkErrorMacro("Graph Layout called with Graph==NULL, call SetGraph(g) first");
     this->LayoutComplete = 1;
@@ -287,7 +287,7 @@ void vtkConstrained2DLayoutStrategy::Layout()
   // Get a quick pointer to the constraint array
   vtkDoubleArray *constraint = vtkArrayDownCast<vtkDoubleArray>(
     this->Graph->GetVertexData()->GetArray(this->GetInputArrayName()));
-  if (constraint == NULL)
+  if (constraint == nullptr)
   {
     vtkErrorMacro("vtkConstrained2DLayoutStrategy did not find a \"constraint\" array." <<
                   "\n so the layout will not put any constraints on the vertices");

@@ -202,7 +202,7 @@ public:
     vtkSelection* input,
     vtkDataObject* data,
     int type,
-    vtkStringArray* arrayNames = 0,
+    vtkStringArray* arrayNames = nullptr,
     int inputFieldType = -1,
     bool allowMissingArray = false);
 

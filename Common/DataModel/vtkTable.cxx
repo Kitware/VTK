@@ -625,7 +625,7 @@ vtkVariant vtkTable::GetValueByName(vtkIdType row, const char* col)
 //----------------------------------------------------------------------------
 vtkTable* vtkTable::GetData(vtkInformation* info)
 {
-  return info? vtkTable::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkTable::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

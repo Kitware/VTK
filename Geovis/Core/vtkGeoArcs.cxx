@@ -66,7 +66,7 @@ int vtkGeoArcs::RequestData(
   for (vtkIdType i = 0; i < lines->GetNumberOfCells(); i++)
   {
       vtkIdType npts=0; // to remove warning
-    vtkIdType* pts=0; // to remove warning
+    vtkIdType* pts=nullptr; // to remove warning
     lines->GetNextCell(npts, pts);
 
     double lastPoint[3];

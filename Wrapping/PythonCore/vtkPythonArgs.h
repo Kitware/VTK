@@ -194,12 +194,12 @@ public:
    */
   template<class T>
   bool GetSpecialObject(T *&v, const char *classname) {
-    v = static_cast<T *>(this->GetArgAsSpecialObject(classname, NULL));
+    v = static_cast<T *>(this->GetArgAsSpecialObject(classname, nullptr));
     return (v != NULL); }
   template<class T>
   static bool GetSpecialObject(PyObject *o, T *&v, const char *classname) {
     v = static_cast<T *>(
-      vtkPythonArgs::GetArgAsSpecialObject(o, classname, NULL));
+      vtkPythonArgs::GetArgAsSpecialObject(o, classname, nullptr));
     return (v != NULL); }
   //@}
 
@@ -723,7 +723,7 @@ vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
   {
     self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
   }
-  return (self ? ((PyVTKObject *)self)->vtk_ptr : NULL);
+  return (self ? ((PyVTKObject *)self)->vtk_ptr : nullptr);
 }
 
 // Get "self" from a PyVTKSpecialObject.
@@ -734,7 +734,7 @@ void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self, PyObject *args)
   {
     self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
   }
-  return (self ? ((PyVTKSpecialObject *)self)->vtk_ptr : NULL);
+  return (self ? ((PyVTKSpecialObject *)self)->vtk_ptr : nullptr);
 }
 
 // Get "self" from a PyVTKSpecialObject (for methods with no args).
@@ -793,7 +793,7 @@ bool vtkPythonArgs::IsPureVirtual()
 inline
 bool vtkPythonArgs::ErrorOccurred()
 {
-  return (PyErr_Occurred() != NULL);
+  return (PyErr_Occurred() != nullptr);
 }
 
 //--------------------------------------------------------------------
@@ -824,7 +824,7 @@ inline
 PyObject *vtkPythonArgs::BuildEnumValue(int, const char *)
 {
   /* not implemented */
-  return NULL;
+  return nullptr;
 }
 
 inline
@@ -838,7 +838,7 @@ inline
 PyObject *vtkPythonArgs::BuildSIPEnumValue(int, const char *)
 {
   /* not implemented */
-  return NULL;
+  return nullptr;
 }
 
 inline
@@ -896,7 +896,7 @@ PyObject *vtkPythonArgs::BuildValue(const vtkUnicodeString &a)
   std::string s;
   a.utf8_str(s);
 #ifdef Py_USING_UNICODE
-  return PyUnicode_DecodeUTF8(s.c_str(), static_cast<Py_ssize_t>(s.size()), NULL);
+  return PyUnicode_DecodeUTF8(s.c_str(), static_cast<Py_ssize_t>(s.size()), nullptr);
 #else
   return PyString_FromStringAndSize(s.c_str(), static_cast<Py_ssize_t>(s.size()));
 #endif

@@ -135,7 +135,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
   {
     vtkTree* tempSGMacroVar = this->Tree;
     this->Tree = t;
-    if (this->Tree != NULL)
+    if (this->Tree != nullptr)
     {
       this->Tree->Register(0);
       vtkIdType root = this->Tree->GetRoot();
@@ -148,7 +148,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
       }
       this->TreeMTime = this->Tree->GetMTime();
     }
-    if (tempSGMacroVar != NULL)
+    if (tempSGMacroVar != nullptr)
     {
       tempSGMacroVar->UnRegister(0);
     }

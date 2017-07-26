@@ -52,7 +52,7 @@ public:
       vtkProp *po = vtkProp::SafeDownCast(caller);
       if (event == vtkCommand::PickEvent && po)
       {
-        this->Self->InvokeEvent(vtkCommand::PickEvent,NULL);
+        this->Self->InvokeEvent(vtkCommand::PickEvent,nullptr);
       }
   }
 
@@ -67,7 +67,7 @@ vtkLODProp3D::vtkLODProp3D()
 {
   this->NumberOfEntries = 0;
   this->NumberOfLODs = 0;
-  this->LODs = NULL;
+  this->LODs = nullptr;
   this->CurrentIndex = 1000;
   this->AutomaticLODSelection = 1;
   this->SelectedLODID = 1000;
@@ -158,7 +158,7 @@ int vtkLODProp3D::GetNextEntryIndex()
     // Initialize the new entries to default values
     for (; i < amount; i++)
     {
-      newLODs[i].Prop3D = NULL;
+      newLODs[i].Prop3D = nullptr;
       newLODs[i].ID     = VTK_INDEX_NOT_IN_USE;
     }
 
@@ -279,7 +279,7 @@ double vtkLODProp3D::GetLODIndexEstimatedRenderTime(int index)
 // are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p, double time)
 {
-  return this->AddLOD(m, p, NULL, NULL, time);
+  return this->AddLOD(m, p, nullptr, nullptr, time);
 }
 
 // Convenience method to set an actor LOD without a texture.
@@ -287,7 +287,7 @@ int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p, double time)
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
                          vtkProperty *back, double time)
 {
-  return this->AddLOD(m, p, back, NULL, time);
+  return this->AddLOD(m, p, back, nullptr, time);
 }
 
 // Convenience method to set an actor LOD without a backface property.
@@ -295,21 +295,21 @@ int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
                          vtkTexture *t, double time)
 {
-  return this->AddLOD(m, p, NULL, t, time);
+  return this->AddLOD(m, p, nullptr, t, time);
 }
 
 // Convenience method to set an actor LOD without a property.
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkTexture *t, double time)
 {
-  return this->AddLOD(m, NULL, NULL, t, time);
+  return this->AddLOD(m, nullptr, nullptr, t, time);
 }
 
 // Convenience method to set an actor LOD without a texture or a property.
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, double time)
 {
-  return this->AddLOD(m, NULL, NULL, NULL, time);
+  return this->AddLOD(m, nullptr, nullptr, nullptr, time);
 }
 
 // The real method for adding an actor LOD.
@@ -359,7 +359,7 @@ int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkAbstractVolumeMapper *m, double time)
 {
-  return this->AddLOD(m, NULL, time);
+  return this->AddLOD(m, nullptr, time);
 }
 
 // The real method for adding a volume LOD.
@@ -399,7 +399,7 @@ int vtkLODProp3D::AddLOD(vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkImageMapper3D *m, double time)
 {
-  return this->AddLOD(m, NULL, time);
+  return this->AddLOD(m, nullptr, time);
 }
 
 // The real method for adding a volume LOD.
@@ -458,7 +458,7 @@ void vtkLODProp3D::SetLODMapper(int id, vtkMapper *m)
 // Get the mapper for an LOD that is an actor
 void vtkLODProp3D::GetLODMapper(int id, vtkMapper **m)
 {
-  *m = NULL;
+  *m = nullptr;
 
   int index = this->ConvertIDToIndex(id);
 
@@ -499,7 +499,7 @@ void vtkLODProp3D::SetLODMapper(int id, vtkAbstractVolumeMapper *m)
 // Get the mapper for an LOD that is an actor
 void vtkLODProp3D::GetLODMapper(int id, vtkAbstractVolumeMapper **m)
 {
-  *m = NULL;
+  *m = nullptr;
 
   int index = this->ConvertIDToIndex(id);
 
@@ -539,7 +539,7 @@ void vtkLODProp3D::SetLODMapper(int id, vtkImageMapper3D *m)
 // Get the mapper for an LOD that is an image
 void vtkLODProp3D::GetLODMapper(int id, vtkImageMapper3D **m)
 {
-  *m = NULL;
+  *m = nullptr;
 
   int index = this->ConvertIDToIndex(id);
 
@@ -560,7 +560,7 @@ void vtkLODProp3D::GetLODMapper(int id, vtkImageMapper3D **m)
 // Get the mapper for an LOD that is an AbstractMapper3D
 vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper(int id)
 {
-  vtkAbstractMapper3D *m = NULL;
+  vtkAbstractMapper3D *m = nullptr;
 
   int index = this->ConvertIDToIndex(id);
 

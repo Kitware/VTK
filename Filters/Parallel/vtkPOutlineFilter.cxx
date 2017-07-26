@@ -31,7 +31,7 @@ vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 
 vtkPOutlineFilter::vtkPOutlineFilter ()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->OutlineSource = vtkOutlineSource::New();
@@ -39,11 +39,11 @@ vtkPOutlineFilter::vtkPOutlineFilter ()
 
 vtkPOutlineFilter::~vtkPOutlineFilter ()
 {
-  this->SetController(0);
-  if (this->OutlineSource != NULL)
+  this->SetController(nullptr);
+  if (this->OutlineSource != nullptr)
   {
     this->OutlineSource->Delete ();
-    this->OutlineSource = NULL;
+    this->OutlineSource = nullptr;
   }
 }
 

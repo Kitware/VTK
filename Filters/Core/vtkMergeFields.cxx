@@ -34,18 +34,18 @@ typedef vtkMergeFields::Component Component;
 
 vtkMergeFields::vtkMergeFields()
 {
-  this->FieldName = 0;
+  this->FieldName = nullptr;
   this->FieldLocation = -1;
   this->NumberOfComponents = 0;
 
-  this->Head = 0;
-  this->Tail = 0;
+  this->Head = nullptr;
+  this->Tail = nullptr;
 }
 
 vtkMergeFields::~vtkMergeFields()
 {
   delete[] this->FieldName;
-  this->FieldName = 0;
+  this->FieldName = nullptr;
   this->DeleteAllComponents();
 }
 
@@ -153,8 +153,8 @@ int vtkMergeFields::RequestData(
   output->GetPointData()->PassData( input->GetPointData() );
   output->GetCellData()->PassData( input->GetCellData() );
 
-  vtkFieldData* fd = 0;
-  vtkFieldData* outputFD = 0;
+  vtkFieldData* fd = nullptr;
+  vtkFieldData* outputFD = nullptr;
   Component* cur = this->GetFirst();
   Component* before;
 
@@ -364,7 +364,7 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
 // linked list methods
 void vtkMergeFields::AddComponent(Component* op)
 {
-  op->Next = 0;
+  op->Next = nullptr;
 
   if (!this->Head)
   {
@@ -379,7 +379,7 @@ void vtkMergeFields::AddComponent(Component* op)
 Component* vtkMergeFields::FindComponent(int index)
 {
   Component* cur = this->GetFirst();
-  if (!cur) { return 0; }
+  if (!cur) { return nullptr; }
 
   if (cur->Index == index) { return cur; }
   while (cur->Next)
@@ -390,7 +390,7 @@ Component* vtkMergeFields::FindComponent(int index)
     }
     cur = cur->Next;
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkMergeFields::DeleteAllComponents()
@@ -405,8 +405,8 @@ void vtkMergeFields::DeleteAllComponents()
     delete before;
   }
   while (cur);
-  this->Head = 0;
-  this->Tail = 0;
+  this->Head = nullptr;
+  this->Tail = nullptr;
 }
 
 void vtkMergeFields::PrintSelf(ostream& os, vtkIndent indent)

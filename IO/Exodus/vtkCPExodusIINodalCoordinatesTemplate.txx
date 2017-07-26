@@ -45,13 +45,13 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::Initialize()
 {
   delete [] this->XArray;
-  this->XArray = NULL;
+  this->XArray = nullptr;
   delete [] this->YArray;
-  this->YArray = NULL;
+  this->YArray = nullptr;
   delete [] this->ZArray;
-  this->ZArray = NULL;
+  this->ZArray = nullptr;
   delete [] this->TempDoubleArray;
-  this->TempDoubleArray = NULL;
+  this->TempDoubleArray = nullptr;
   this->MaxId = -1;
   this->Size = 0;
   this->NumberOfComponents = 1;
@@ -115,7 +115,7 @@ template <class Scalar> vtkArrayIterator*
 vtkCPExodusIINodalCoordinatesTemplate<Scalar>::NewIterator()
 {
   vtkErrorMacro(<<"Not implemented.");
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 {
   tuple[0] = static_cast<double>(this->XArray[i]);
   tuple[1] = static_cast<double>(this->YArray[i]);
-  if (this->ZArray != NULL)
+  if (this->ZArray != nullptr)
   {
     tuple[2] = static_cast<double>(this->ZArray[i]);
   }
@@ -238,7 +238,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 {
   tuple[0] = this->XArray[tupleId];
   tuple[1] = this->YArray[tupleId];
-  if (this->ZArray != NULL)
+  if (this->ZArray != nullptr)
   {
     tuple[2] = this->ZArray[tupleId];
   }
@@ -481,10 +481,10 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 //------------------------------------------------------------------------------
 template <class Scalar> vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::vtkCPExodusIINodalCoordinatesTemplate()
-  : XArray(NULL),
-    YArray(NULL),
-    ZArray(NULL),
-    TempDoubleArray(NULL)
+  : XArray(nullptr),
+    YArray(nullptr),
+    ZArray(nullptr),
+    TempDoubleArray(nullptr)
 {
 }
 
@@ -506,7 +506,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
   this->XArray = x;
   this->YArray = y;
   this->ZArray = z;
-  this->NumberOfComponents = (z != NULL) ? 3 : 2;
+  this->NumberOfComponents = (z != nullptr) ? 3 : 2;
   this->Size = this->NumberOfComponents * numPoints;
   this->MaxId = this->Size - 1;
   this->TempDoubleArray = new double [this->NumberOfComponents];

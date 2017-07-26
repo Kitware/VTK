@@ -51,7 +51,7 @@ vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSet::GetData(
   vtkInformation* info)
 {
   return
-    info?vtkHierarchicalBoxDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+    info?vtkHierarchicalBoxDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

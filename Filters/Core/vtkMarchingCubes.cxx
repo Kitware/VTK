@@ -48,7 +48,7 @@ vtkMarchingCubes::vtkMarchingCubes()
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 }
 
 vtkMarchingCubes::~vtkMarchingCubes()
@@ -57,7 +57,7 @@ vtkMarchingCubes::~vtkMarchingCubes()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -170,9 +170,9 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
   int contNum, jOffset, ii, index, *vert;
   vtkIdType kOffset, idx;
   vtkIdType ptIds[3];
-  int ComputeNormals = newNormals != NULL;
-  int ComputeGradients = newGradients != NULL;
-  int ComputeScalars = newScalars != NULL;
+  int ComputeNormals = newNormals != nullptr;
+  int ComputeGradients = newGradients != nullptr;
+  int ComputeScalars = newScalars != nullptr;
   int NeedGradients;
   int extent[6];
   double t, *x1, *x2, x[3], *n1, *n2, n[3], min, max;
@@ -400,13 +400,13 @@ int vtkMarchingCubes::RequestData(
 // Initialize and check input
 //
   pd=input->GetPointData();
-  if (pd ==NULL)
+  if (pd ==nullptr)
   {
-    vtkErrorMacro(<<"PointData is NULL");
+    vtkErrorMacro(<<"PointData is nullptr");
     return 1;
   }
   inScalars=pd->GetScalars();
-  if ( inScalars == NULL )
+  if ( inScalars == nullptr )
   {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return 1;
@@ -439,7 +439,7 @@ int vtkMarchingCubes::RequestData(
     bounds[2*i] = origin[i] + extent[2*i] * spacing[i];
     bounds[2*i+1] = origin[i] + extent[2*i+1] * spacing[i];
   }
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -453,7 +453,7 @@ int vtkMarchingCubes::RequestData(
   }
   else
   {
-    newNormals = NULL;
+    newNormals = nullptr;
   }
 
   if (this->ComputeGradients)
@@ -464,7 +464,7 @@ int vtkMarchingCubes::RequestData(
   }
   else
   {
-    newGradients = NULL;
+    newGradients = nullptr;
   }
 
   newPolys = vtkCellArray::New();
@@ -477,7 +477,7 @@ int vtkMarchingCubes::RequestData(
   }
   else
   {
-    newScalars = NULL;
+    newScalars = nullptr;
   }
 
   if (inScalars->GetNumberOfComponents() == 1 )
@@ -561,7 +561,7 @@ void vtkMarchingCubes::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if (locator)
@@ -575,7 +575,7 @@ void vtkMarchingCubes::SetLocator(vtkIncrementalPointLocator *locator)
 
 void vtkMarchingCubes::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL)
+  if ( this->Locator == nullptr)
   {
     this->Locator = vtkMergePoints::New();
   }

@@ -45,7 +45,7 @@
  *     location to the corresponding location in the output.
  *
  * Other types of leaf datasets will be ignored and their positions in the
- * output dataset will be NULL pointers.
+ * output dataset will be nullptr pointers.
  *
  * @sa
  * vtkAppendPolyData vtkAppendFilter

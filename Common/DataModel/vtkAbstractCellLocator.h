@@ -143,7 +143,7 @@ public:
    * The return value of the function is 0 if no intersections were found,
    * -1 if point 'a0' lies inside the closed surface, or +1 if point 'a0'
    * lies outside the closed surface.
-   * Either 'points' or 'cellIds' can be set to NULL if you don't want
+   * Either 'points' or 'cellIds' can be set to nullptr if you don't want
    * to receive that information. This method is currently only implemented
    * in vtkOBBTree
    */

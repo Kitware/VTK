@@ -172,7 +172,7 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
                                                         double min,
                                                         double max)
 {
-  vtkDataArray *dataArray=NULL;
+  vtkDataArray *dataArray=nullptr;
 
   switch(dataType)
   {
@@ -335,7 +335,7 @@ int vtkRandomAttributeGenerator::RequestData(
   vtkCompositeDataSet *input,
   vtkCompositeDataSet *output)
 {
-  if (input == 0 || output == 0)
+  if (input == nullptr || output == nullptr)
   {
     return 0;
   }

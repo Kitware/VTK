@@ -282,9 +282,9 @@ T* vtkDenseArray<T>::GetStorage()
 
 template<typename T>
 vtkDenseArray<T>::vtkDenseArray() :
-  Storage(0),
-  Begin(0),
-  End(0)
+  Storage(nullptr),
+  Begin(nullptr),
+  End(nullptr)
 {
 }
 
@@ -293,9 +293,9 @@ vtkDenseArray<T>::~vtkDenseArray()
 {
   delete this->Storage;
 
-  this->Storage = 0;
-  this->Begin = 0;
-  this->End = 0;
+  this->Storage = nullptr;
+  this->Begin = nullptr;
+  this->End = nullptr;
 }
 
 template<typename T>

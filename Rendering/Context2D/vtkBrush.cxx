@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkBrush);
 vtkBrush::vtkBrush() : BrushColor(0, 0, 0, 255)
 {
   this->Color = this->BrushColor.GetData();
-  this->Texture = 0;
+  this->Texture = nullptr;
   this->TextureProperties = vtkBrush::Nearest | vtkBrush::Stretch;
 }
 
@@ -37,7 +37,7 @@ vtkBrush::~vtkBrush()
   if (this->Texture)
   {
     this->Texture->Delete();
-    this->Texture = 0;
+    this->Texture = nullptr;
   }
 }
 

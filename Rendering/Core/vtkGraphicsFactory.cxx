@@ -57,7 +57,7 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
              strcmp("Win32OpenGL",temp))
     {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
-      temp = NULL;
+      temp = nullptr;
     }
   }
 
@@ -86,7 +86,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
   {
     return ret;
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

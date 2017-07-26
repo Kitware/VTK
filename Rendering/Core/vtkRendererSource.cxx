@@ -34,7 +34,7 @@ vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
 //----------------------------------------------------------------------------
 vtkRendererSource::vtkRendererSource()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
   this->WholeWindow = 0;
   this->RenderFlag = 0;
   this->DepthValues = 0;
@@ -51,7 +51,7 @@ vtkRendererSource::~vtkRendererSource()
   if (this->Input)
   {
     this->Input->UnRegister(this);
-    this->Input = NULL;
+    this->Input = nullptr;
   }
 }
 
@@ -74,14 +74,14 @@ void vtkRendererSource::RequestData(vtkInformation*,
   vtkDebugMacro(<<"Extracting image");
 
   // Make sure there is proper input
-  if (this->Input == NULL)
+  if (this->Input == nullptr)
   {
     vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
   }
 
   vtkRenderWindow *renWin = this->Input->GetRenderWindow();
-  if (renWin == NULL)
+  if (renWin == nullptr)
   {
     vtkErrorMacro(<<"Renderer needs to be associated with renderin window!");
     return;
@@ -311,7 +311,7 @@ void vtkRendererSource::RequestInformation (
   vtkInformationVector *outputVector)
 {
     vtkRenderer *ren = this->GetInput();
-    if (ren == NULL || ren->GetRenderWindow() == NULL)
+    if (ren == nullptr || ren->GetRenderWindow() == nullptr)
     {
       vtkErrorMacro("The input renderer has not been set yet!!!");
       return;

@@ -287,7 +287,7 @@ void vtkBooleanOperationPolyDataFilter
   vtkPointData* outPD = out->GetPointData();
   vtkCellData*  outCD = out->GetCellData();
 
-  vtkFloatArray *outNormals = NULL;
+  vtkFloatArray *outNormals = nullptr;
   if ( reverseCells )
   {
     outNormals = vtkArrayDownCast<vtkFloatArray>( outPD->GetArray("Normals") );
@@ -295,7 +295,7 @@ void vtkBooleanOperationPolyDataFilter
 
   vtkIdType numPts = in->GetNumberOfPoints();
 
-  if ( out->GetPoints() == NULL)
+  if ( out->GetPoints() == nullptr)
   {
     vtkSmartPointer< vtkPoints > points = vtkSmartPointer< vtkPoints >::New();
     out->SetPoints( points );

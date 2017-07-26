@@ -272,7 +272,7 @@ public:
    * The x array must be specified. The y and z arrays are optional.
    */
   virtual void SetLayoutStrategyToAssignCoordinates(
-    const char* xarr, const char* yarr = 0, const char* zarr = 0);
+    const char* xarr, const char* yarr = nullptr, const char* zarr = nullptr);
 
   /**
    * Set the layout strategy to a tree layout. Radial indicates whether to

@@ -175,18 +175,18 @@ vtkStandardNewMacro(vtkXdmfWriter);
 //----------------------------------------------------------------------------
 vtkXdmfWriter::vtkXdmfWriter()
 {
-  this->FileName = NULL;
-  this->HeavyDataFileName = NULL;
-  this->HeavyDataGroupName = NULL;
-  this->DOM = NULL;
+  this->FileName = nullptr;
+  this->HeavyDataFileName = nullptr;
+  this->HeavyDataGroupName = nullptr;
+  this->DOM = nullptr;
   this->Piece = 0;  //for parallel
   this->NumberOfPieces = 1;
   this->LightDataLimit = 100;
   this->WriteAllTimeSteps = 0;
   this->NumberOfTimeSteps = 1;
   this->CurrentTimeIndex = 0;
-  this->TopTemporalGrid = NULL;
-  this->DomainMemoryHandler = NULL;
+  this->TopTemporalGrid = nullptr;
+  this->DomainMemoryHandler = nullptr;
   this->SetNumberOfOutputPorts(0);
   this->MeshStaticOverTime = false;
 }
@@ -194,15 +194,15 @@ vtkXdmfWriter::vtkXdmfWriter()
 //----------------------------------------------------------------------------
 vtkXdmfWriter::~vtkXdmfWriter()
 {
-  this->SetFileName(NULL);
-  this->SetHeavyDataFileName(NULL);
-  this->SetHeavyDataGroupName(NULL);
+  this->SetFileName(nullptr);
+  this->SetHeavyDataFileName(nullptr);
+  this->SetHeavyDataGroupName(nullptr);
   delete this->DOM;
-  this->DOM = NULL;
+  this->DOM = nullptr;
   delete this->DomainMemoryHandler;
-  this->DomainMemoryHandler = NULL;
+  this->DomainMemoryHandler = nullptr;
   delete this->TopTemporalGrid;
-  this->TopTemporalGrid = NULL;
+  this->TopTemporalGrid = nullptr;
 
   //TODO: Verify memory isn't leaking
 }
@@ -277,7 +277,7 @@ int vtkXdmfWriter::Write()
   this->DOM->Write();
 
   delete this->DomainMemoryHandler;
-  this->DomainMemoryHandler = NULL;
+  this->DomainMemoryHandler = nullptr;
 
   return 1;
 }
@@ -356,7 +356,7 @@ int vtkXdmfWriter::RequestData(
 
     // make a top level temporal grid just under domain
     delete this->TopTemporalGrid;
-    this->TopTemporalGrid = NULL;
+    this->TopTemporalGrid = nullptr;
 
     xdmf2::XdmfGrid *tgrid = new xdmf2::XdmfGrid();
     tgrid->SetDeleteOnGridDelete(true);
@@ -412,7 +412,7 @@ int vtkXdmfWriter::RequestData(
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
     this->CurrentTimeIndex = 0;
     //delete this->TopTemporalGrid; //domain takes care of it?
-    this->TopTemporalGrid = NULL;
+    this->TopTemporalGrid = nullptr;
   }
 
   this->LightDataLimit = lightDataLimit;
@@ -521,7 +521,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
 
   grid->SetGridType(XDMF_GRID_UNIFORM);
 
-  const char *heavyName = NULL;
+  const char *heavyName = nullptr;
   std::string heavyDataSetName;
   if (this->HeavyDataFileName)
   {
@@ -937,7 +937,7 @@ int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *s
   XdmfGeometry *geo = grid->GetGeometry();
   geo->SetLightDataLimit(this->LightDataLimit);
 
-  const char *heavyName = NULL;
+  const char *heavyName = nullptr;
   std::string heavyDataSetName;
   if (this->HeavyDataFileName)
   {
@@ -1117,8 +1117,8 @@ int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid
   hdf5group << ends;
   this->SetHeavyDataGroupName(hdf5group.str().c_str());
 
-  this->CreateTopology(ds, grid, PDims, CDims, PRank, CRank, NULL);
-  if (!this->CreateGeometry(ds, grid, NULL))
+  this->CreateTopology(ds, grid, PDims, CDims, PRank, CRank, nullptr);
+  if (!this->CreateGeometry(ds, grid, nullptr))
   {
     return 0;
   }
@@ -1143,7 +1143,7 @@ int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid *grid, int asso
   }
   vtkDataSetAttributes *dsa = vtkDataSetAttributes::SafeDownCast(fd);
 
-  const char *heavyName = NULL;
+  const char *heavyName = nullptr;
   std::string heavyDataSetName;
   if (this->HeavyDataFileName)
   {

@@ -57,7 +57,7 @@ class vtkPlot3DCFile
   FILE* Handle;
   bool CloseOnDelete;
 public:
-  vtkPlot3DCFile(FILE* handle=NULL) : Handle(handle), CloseOnDelete(true) {}
+  vtkPlot3DCFile(FILE* handle=nullptr) : Handle(handle), CloseOnDelete(true) {}
   ~vtkPlot3DCFile() { if (this->Handle && this->CloseOnDelete) { fclose(this->Handle); } }
   operator FILE*&() { return this->Handle; }
   // This may be needed to tell vtkPlot3DCFile not to close on delete, instead
@@ -1288,9 +1288,9 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 {
   this->Internal = new vtkMultiBlockPLOT3DReaderInternals;
 
-  this->XYZFileName = NULL;
-  this->QFileName = NULL;
-  this->FunctionFileName = NULL;
+  this->XYZFileName = nullptr;
+  this->QFileName = nullptr;
+  this->FunctionFileName = nullptr;
   this->BinaryFile = 1;
   this->HasByteCount = 0;
   this->FileSize = 0;
@@ -1317,7 +1317,7 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 
   this->SetNumberOfInputPorts(0);
 
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->ExecutedGhostLevels = 0;
@@ -1333,7 +1333,7 @@ vtkMultiBlockPLOT3DReader::~vtkMultiBlockPLOT3DReader()
 
   delete this->Internal;
 
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 double vtkMultiBlockPLOT3DReader::GetGamma(vtkIdType idx, vtkDataArray* gamma)
@@ -1453,7 +1453,7 @@ int vtkMultiBlockPLOT3DReader::OpenFileForDataRead(void*& fp, const char* fname)
   {
     fp = fopen(fname, "r");
   }
-  if ( fp == NULL)
+  if ( fp == nullptr)
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro(<< "File: " << fname << " not found.");
@@ -1477,7 +1477,7 @@ int vtkMultiBlockPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
   {
     fp = fopen(fname, "r");
   }
-  if ( fp == NULL)
+  if ( fp == nullptr)
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro(<< "File: " << fname << " not found.");
@@ -1488,7 +1488,7 @@ int vtkMultiBlockPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
 
 int vtkMultiBlockPLOT3DReader::CheckGeometryFile(FILE*& xyzFp)
 {
-  if ( this->XYZFileName == NULL || this->XYZFileName[0] == '\0'  )
+  if ( this->XYZFileName == nullptr || this->XYZFileName[0] == '\0'  )
   {
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     vtkErrorMacro(<< "Must specify geometry file");
@@ -1499,7 +1499,7 @@ int vtkMultiBlockPLOT3DReader::CheckGeometryFile(FILE*& xyzFp)
 
 int vtkMultiBlockPLOT3DReader::CheckSolutionFile(FILE*& qFp)
 {
-  if ( this->QFileName == NULL || this->QFileName[0] == '\0' )
+  if ( this->QFileName == nullptr || this->QFileName[0] == '\0' )
   {
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     vtkErrorMacro(<< "Must specify geometry file");
@@ -1510,7 +1510,7 @@ int vtkMultiBlockPLOT3DReader::CheckSolutionFile(FILE*& qFp)
 
 int vtkMultiBlockPLOT3DReader::CheckFunctionFile(FILE*& fFp)
 {
-  if ( this->FunctionFileName == NULL || this->FunctionFileName[0] == '\0' )
+  if ( this->FunctionFileName == nullptr || this->FunctionFileName[0] == '\0' )
   {
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     vtkErrorMacro(<< "Must specify geometry file");
@@ -2091,7 +2091,7 @@ void vtkMultiBlockPLOT3DReader::SetXYZFileName( const char* name )
   }
   else
   {
-    this->XYZFileName = 0;
+    this->XYZFileName = nullptr;
   }
 
   this->Internal->NeedToCheckXYZFile = true;
@@ -2391,7 +2391,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   et->SetNumberOfPieces(size);
   et->SetSplitModeToZSlab();
 
-  vtkPlot3DCFile xyzFp(0);
+  vtkPlot3DCFile xyzFp(nullptr);
 
   // Don't read the geometry if we already have it!
   if ( numBlocks == 0 )
@@ -2621,7 +2621,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   // Now read the solution.
   if (this->QFileName && this->QFileName[0] != '\0')
   {
-    vtkPlot3DCFile qFp(NULL);
+    vtkPlot3DCFile qFp(nullptr);
     int nq=0, nqc=0, isOverflow=0;
 
     int error = 0;
@@ -3002,7 +3002,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   {
     vtkTypeUInt64 offset = 0;
 
-    vtkPlot3DCFile fFp(NULL);
+    vtkPlot3DCFile fFp(nullptr);
 
     std::vector<int> nFunctions(numBlocks);
     int error = 0;

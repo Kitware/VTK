@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkInteractorStyle3D);
 //----------------------------------------------------------------------------
 vtkInteractorStyle3D::vtkInteractorStyle3D()
 {
-  this->InteractionProp = NULL;
+  this->InteractionProp = nullptr;
   this->InteractionPicker = vtkPropPicker3D::New();
   this->TempMatrix3 = vtkMatrix3x3::New();
   this->TempMatrix4 = vtkMatrix4x4::New();
@@ -66,17 +66,17 @@ void vtkInteractorStyle3D::OnMouseMove()
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
     case VTKIS_DOLLY:
       this->FindPokedRenderer(x, y);
       this->Dolly();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
     case VTKIS_CLIP:
       this->FindPokedRenderer(x, y);
       this->Clip();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
   }
 }
@@ -95,7 +95,7 @@ void vtkInteractorStyle3D::OnLeftButtonDown()
 
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(wpos[0], wpos[1], wpos[2]);
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -129,7 +129,7 @@ void vtkInteractorStyle3D::OnLeftButtonUp()
 // We handle all adjustments here
 void vtkInteractorStyle3D::Rotate()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -149,7 +149,7 @@ void vtkInteractorStyle3D::Rotate()
     trans[i] = wpos[i] - lwpos[i];
   }
 
-  if (this->InteractionProp->GetUserMatrix() != NULL)
+  if (this->InteractionProp->GetUserMatrix() != nullptr)
   {
     vtkTransform *t = this->TempTransform;
     t->PostMultiply();
@@ -207,13 +207,13 @@ void vtkInteractorStyle3D::FindPickedActor(double x, double y, double z)
 {
   this->InteractionPicker->Pick(x, y, z, this->CurrentRenderer);
   vtkProp *prop = this->InteractionPicker->GetViewProp();
-  if (prop != NULL)
+  if (prop != nullptr)
   {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);
   }
   else
   {
-    this->InteractionProp = NULL;
+    this->InteractionProp = nullptr;
   }
 }
 
@@ -232,7 +232,7 @@ void vtkInteractorStyle3D::Prop3DTransform(vtkProp3D *prop3D,
 
   vtkTransform *newTransform = this->TempTransform;
   newTransform->PostMultiply();
-  if (prop3D->GetUserMatrix() != NULL)
+  if (prop3D->GetUserMatrix() != nullptr)
   {
     newTransform->SetMatrix(prop3D->GetUserMatrix());
   }
@@ -261,7 +261,7 @@ void vtkInteractorStyle3D::Prop3DTransform(vtkProp3D *prop3D,
   newTransform->PreMultiply();
   newTransform->Translate(orig[0], orig[1], orig[2]);
 
-  if (prop3D->GetUserMatrix() != NULL)
+  if (prop3D->GetUserMatrix() != nullptr)
   {
     prop3D->SetUserMatrix(newTransform->GetMatrix());
   }
@@ -280,7 +280,7 @@ void vtkInteractorStyle3D::OnRightButtonDown()
   int y = this->Interactor->GetEventPosition()[1];
 
   this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -308,7 +308,7 @@ void vtkInteractorStyle3D::OnRightButtonUp()
 
 void vtkInteractorStyle3D::Dolly()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -364,7 +364,7 @@ void vtkInteractorStyle3D::OnPinch()
   this->FindPokedRenderer(this->Interactor->GetEventPositions(pointer)[0],
                           this->Interactor->GetEventPositions(pointer)[1]);
 
-  if ( this->CurrentRenderer == NULL )
+  if ( this->CurrentRenderer == nullptr )
   {
     return;
   }
@@ -423,7 +423,7 @@ void vtkInteractorStyle3D::OnPan()
   this->FindPokedRenderer(this->Interactor->GetEventPositions(pointer)[0],
                           this->Interactor->GetEventPositions(pointer)[1]);
 
-  if ( this->CurrentRenderer == NULL )
+  if ( this->CurrentRenderer == nullptr )
   {
     return;
   }
@@ -459,7 +459,7 @@ void vtkInteractorStyle3D::OnMiddleButtonDown()
   int y = this->Interactor->GetEventPosition()[1];
 
   this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -511,7 +511,7 @@ void vtkInteractorStyle3D::EndClip()
   vtkActorCollection *ac;
   vtkActor *anActor, *aPart;
   vtkAssemblyPath *path;
-  if(this->CurrentRenderer!=0)
+  if(this->CurrentRenderer!=nullptr)
   {
     ac = this->CurrentRenderer->GetActors();
     vtkCollectionSimpleIterator ait;
@@ -543,7 +543,7 @@ void vtkInteractorStyle3D::Clip()
   vtkRenderWindowInteractor3D *rwi =
     static_cast<vtkRenderWindowInteractor3D *>(this->Interactor);
 
-  if (this->CurrentRenderer == NULL
+  if (this->CurrentRenderer == nullptr
     || rwi->GetPointerIndex() != 0)
   {
     return;
@@ -572,7 +572,7 @@ void vtkInteractorStyle3D::Clip()
   vtkActorCollection *ac;
   vtkActor *anActor, *aPart;
   vtkAssemblyPath *path;
-  if(this->CurrentRenderer!=0)
+  if(this->CurrentRenderer!=nullptr)
   {
     ac = this->CurrentRenderer->GetActors();
     vtkCollectionSimpleIterator ait;

@@ -71,12 +71,12 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->Position2Coordinate->SetValue( .5, .5 );
 
   this->InputConnectionHolder = vtkXYPlotActorConnections::New();
-  this->SelectedInputScalars = NULL;
+  this->SelectedInputScalars = nullptr;
   this->SelectedInputScalarsComponent = vtkIntArray::New();
 
   this->DataObjectInputConnectionHolder = vtkXYPlotActorConnections::New();
 
-  this->Title = NULL;
+  this->Title = nullptr;
   this->XTitle = new char[7];
   snprintf( this->XTitle,7,"%s","X Axis");
 
@@ -149,11 +149,11 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->YAxis->SetProperty( this->GetProperty() );
 
   this->NumberOfInputs = 0;
-  this->PlotData = NULL;
-  this->PlotGlyph = NULL;
-  this->PlotAppend = NULL;
-  this->PlotMapper = NULL;
-  this->PlotActor = NULL;
+  this->PlotData = nullptr;
+  this->PlotGlyph = nullptr;
+  this->PlotAppend = nullptr;
+  this->PlotMapper = nullptr;
+  this->PlotActor = nullptr;
 
   this->ViewportCoordinate[0] = 0.;
   this->ViewportCoordinate[1] = 0.;
@@ -186,7 +186,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
-  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate( NULL );
+  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate( nullptr );
   this->LegendActor->BorderOff();
   this->LegendActor->SetNumberOfEntries( VTK_MAX_PLOTS ); //initial allocation
   this->GlyphSource = vtkGlyphSource2D::New();
@@ -294,29 +294,29 @@ vtkXYPlotActor::~vtkXYPlotActor()
     for ( int i = 0; i < num; ++i )
     {
       delete [] this->SelectedInputScalars[i];
-      this->SelectedInputScalars[i] = NULL;
+      this->SelectedInputScalars[i] = nullptr;
     }
     delete [] this->SelectedInputScalars;
-    this->SelectedInputScalars = NULL;
+    this->SelectedInputScalars = nullptr;
   }
   this->SelectedInputScalarsComponent->Delete();
-  this->SelectedInputScalarsComponent = NULL;
+  this->SelectedInputScalarsComponent = nullptr;
 
   //  Now we can get rid of the inputs.
   this->InputConnectionHolder->Delete();
-  this->InputConnectionHolder = NULL;
+  this->InputConnectionHolder = nullptr;
 
   this->DataObjectInputConnectionHolder->Delete();
 
   this->TitleMapper->Delete();
-  this->TitleMapper = NULL;
+  this->TitleMapper = nullptr;
   this->TitleActor->Delete();
-  this->TitleActor = NULL;
+  this->TitleActor = nullptr;
 
-  this->SetTitle( 0 );
-  this->SetXTitle( 0 );
-  this->SetXLabelFormat( 0 );
-  this->SetYLabelFormat( 0 );
+  this->SetTitle( nullptr );
+  this->SetXTitle( nullptr );
+  this->SetXLabelFormat( nullptr );
+  this->SetYLabelFormat( nullptr );
 
   this->XAxis->Delete();
   this->YAxis->Delete();
@@ -346,14 +346,14 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->PointsOn->Delete();
 
   this->TitleTextProperty->Delete();
-  this->TitleTextProperty = NULL;
+  this->TitleTextProperty = nullptr;
   this->AxisLabelTextProperty->Delete();
-  this->AxisLabelTextProperty = NULL;
+  this->AxisLabelTextProperty = nullptr;
   this->AxisTitleTextProperty->Delete();
-  this->AxisTitleTextProperty = NULL;
+  this->AxisTitleTextProperty = nullptr;
 
   this->YTitleActor->Delete();
-  this->YTitleActor = NULL;
+  this->YTitleActor = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -371,18 +371,18 @@ void vtkXYPlotActor::InitializeEntries()
     }//for all entries
 
     delete [] this->PlotData;
-    this->PlotData = NULL;
+    this->PlotData = nullptr;
 
     delete [] this->PlotGlyph;
-    this->PlotGlyph = NULL;
+    this->PlotGlyph = nullptr;
 
     delete [] this->PlotAppend;
-    this->PlotAppend = NULL;
+    this->PlotAppend = nullptr;
 
     delete [] this->PlotMapper;
-    this->PlotMapper = NULL;
+    this->PlotMapper = nullptr;
 
-    delete [] this->PlotActor; this->PlotActor = NULL;
+    delete [] this->PlotActor; this->PlotActor = nullptr;
     this->NumberOfInputs = 0;
   }//if entries have been defined
 }
@@ -410,12 +410,12 @@ int vtkXYPlotActor::IsInputPresent( vtkAlgorithmOutput* in,
   {
     if ( this->DoesConnectionMatch( idx, in ) )
     {
-      if ( arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
+      if ( arrayName == nullptr && this->SelectedInputScalars[idx] == nullptr &&
            component == this->SelectedInputScalarsComponent->GetValue( idx ) )
       {
         return idx + 1;
       }
-      if ( arrayName != NULL && this->SelectedInputScalars[idx] != NULL &&
+      if ( arrayName != nullptr && this->SelectedInputScalars[idx] != nullptr &&
            strcmp( arrayName, this->SelectedInputScalars[idx] ) == 0 &&
            component == this->SelectedInputScalarsComponent->GetValue( idx ) )
       {
@@ -467,9 +467,9 @@ void vtkXYPlotActor::AddDataSetInputConnection( vtkAlgorithmOutput *in,
   {
     newNames[idx] = this->SelectedInputScalars[idx];
   }
-  if ( arrayName == NULL )
+  if ( arrayName == nullptr )
   {
-    newNames[num] = NULL;
+    newNames[num] = nullptr;
   }
   else
   {
@@ -504,7 +504,7 @@ void vtkXYPlotActor::RemoveAllDataSetInputConnections()
   for ( idx = 0; idx < num; ++idx )
   {
     delete [] this->SelectedInputScalars[idx];
-    this->SelectedInputScalars[idx] = NULL;
+    this->SelectedInputScalars[idx] = nullptr;
   }
   this->SelectedInputScalarsComponent->Reset();
 
@@ -521,7 +521,7 @@ void vtkXYPlotActor::RemoveDataSetInput( vtkDataSet *ds,
   {
     vtkAlgorithmOutput* aout =
       this->InputConnectionHolder->GetInputConnection( 0, idx );
-    vtkAlgorithm* alg =  aout ? aout->GetProducer() : 0;
+    vtkAlgorithm* alg =  aout ? aout->GetProducer() : nullptr;
     if ( alg )
     {
       if ( ds == alg->GetOutputDataObject( aout->GetIndex() ) )
@@ -556,7 +556,7 @@ void vtkXYPlotActor::RemoveDataSetInputConnection( vtkAlgorithmOutput *in,
   // Do not bother reallocating the SelectedInputScalars
   // string array to make it smaller.
   delete [] this->SelectedInputScalars[found];
-  this->SelectedInputScalars[found] = NULL;
+  this->SelectedInputScalars[found] = nullptr;
   for ( int idx = found+1; idx < num; ++idx )
   {
     this->SelectedInputScalars[idx-1] = this->SelectedInputScalars[idx];
@@ -566,7 +566,7 @@ void vtkXYPlotActor::RemoveDataSetInputConnection( vtkAlgorithmOutput *in,
   // Reseting the last item is not really necessary,
   // but to be clean we do it anyway.
   this->SelectedInputScalarsComponent->SetValue( num-1, -1 );
-  this->SelectedInputScalars[num-1] = NULL;
+  this->SelectedInputScalars[num-1] = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -762,7 +762,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
        ( this->AxisTitleTextProperty &&
          this->AxisTitleTextProperty->GetMTime() > this->BuildTime ) )
   {
-    double range[2], yrange[2], xRange[2], yRange[2], interval, *lengths=NULL;
+    double range[2], yrange[2], xRange[2], yRange[2], interval, *lengths=nullptr;
     int pos[2], pos2[2], numTicks;
     int stringSize[2];
     int num = ( numDS > 0 ? numDS : numDO );
@@ -1018,7 +1018,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
     }
 
     // manage title
-    if ( this->Title != NULL && this->Title[0] )
+    if ( this->Title != nullptr && this->Title[0] )
     {
       this->TitleMapper->SetInput( this->Title );
       if ( this->TitleTextProperty->GetMTime() > this->BuildTime )
@@ -1320,7 +1320,7 @@ void vtkXYPlotActor::PrintSelf( ostream& os, vtkIndent indent )
     input = this->InputConnectionHolder->GetInputConnection( 0, idx );
     array = this->SelectedInputScalars[idx];
     component = this->SelectedInputScalarsComponent->GetValue( ( vtkIdType )idx );
-    if ( array == NULL )
+    if ( array == nullptr )
     {
       os << i2 << "(" << input << ") Default Scalars,  Component = " << component << endl;
     }
@@ -1861,7 +1861,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
     this->PlotGlyph[i]->SetScaleModeToDataScalingOff();
     this->PlotAppend[i] = vtkAppendPolyData::New();
     this->PlotAppend[i]->AddInputData( this->PlotData[i] );
-    if ( this->LegendActor->GetEntrySymbol( i ) != NULL &&
+    if ( this->LegendActor->GetEntrySymbol( i ) != nullptr &&
          this->LegendActor->GetEntrySymbol( i ) != this->GlyphSource->GetOutput() )
     {
       this->PlotGlyph[i]->SetSourceData( this->LegendActor->GetEntrySymbol( i ) );
@@ -2173,14 +2173,14 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
     {
       if ( !this->PlotLines )
       {
-        this->PlotData[i]->SetLines( NULL );
+        this->PlotData[i]->SetLines( nullptr );
       }
     }
     else
     {
       if ( this->GetPlotLines( i ) == 0 )
       {
-        this->PlotData[i]->SetLines( NULL );
+        this->PlotData[i]->SetLines( nullptr );
       }
     }
 
@@ -2190,7 +2190,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
                                   this->LegendActor->GetEntrySymbol( i ) !=
                                   this->GlyphSource->GetOutput() ) )
       {
-        this->PlotData[i]->SetVerts( NULL );
+        this->PlotData[i]->SetVerts( nullptr );
       }
     }
     else
@@ -2200,7 +2200,7 @@ void vtkXYPlotActor::CreatePlotData( int *pos, int *pos2, double xRange[2],
              this->LegendActor->GetEntrySymbol( i ) !=
              this->GlyphSource->GetOutput() ) )
       {
-        this->PlotData[i]->SetVerts( NULL );
+        this->PlotData[i]->SetVerts( nullptr );
       }
     }
   }
@@ -2548,7 +2548,7 @@ void vtkXYPlotActor::ClipPlotData( int *pos, int *pos2, vtkPolyData *pd )
   vtkIdType numPts=pd->GetNumberOfPoints();
   vtkIdType npts = 0;
   vtkIdType newPts[2];
-  vtkIdType *pts=0;
+  vtkIdType *pts=nullptr;
   vtkIdType i, id;
   int j;
   double x1[3], x2[3], px[3], n[3], xint[3], t;
@@ -2796,7 +2796,7 @@ void vtkXYPlotActor::SetLabelFormat( const char* _arg )
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetXLabelFormat( const char* _arg )
 {
-  if ( this->XLabelFormat == NULL && _arg == NULL )
+  if ( this->XLabelFormat == nullptr && _arg == nullptr )
   {
     return;
   }
@@ -2815,7 +2815,7 @@ void vtkXYPlotActor::SetXLabelFormat( const char* _arg )
   }
   else
   {
-    this->XLabelFormat = NULL;
+    this->XLabelFormat = nullptr;
   }
 
   this->XAxis->SetLabelFormat( this->XLabelFormat );
@@ -2826,7 +2826,7 @@ void vtkXYPlotActor::SetXLabelFormat( const char* _arg )
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::SetYLabelFormat( const char* _arg )
 {
-  if ( this->YLabelFormat == NULL && _arg == NULL )
+  if ( this->YLabelFormat == nullptr && _arg == nullptr )
   {
     return;
   }
@@ -2845,7 +2845,7 @@ void vtkXYPlotActor::SetYLabelFormat( const char* _arg )
   }
   else
   {
-    this->YLabelFormat = NULL;
+    this->YLabelFormat = nullptr;
   }
 
   this->YAxis->SetLabelFormat( this->YLabelFormat );

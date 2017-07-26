@@ -34,14 +34,14 @@ static void printCache( vtkExodusIICacheSet& cache, vtkExodusIICacheLRU& lru )
 // ============================================================================
 vtkExodusIICacheEntry::vtkExodusIICacheEntry()
 {
-  this->Value = 0;
+  this->Value = nullptr;
 }
 
 vtkExodusIICacheEntry::vtkExodusIICacheEntry( vtkDataArray* arr )
 {
   this->Value = arr;
   if ( arr )
-    this->Value->Register( 0 );
+    this->Value->Register( nullptr );
 }
 vtkExodusIICacheEntry::~vtkExodusIICacheEntry()
 {
@@ -53,7 +53,7 @@ vtkExodusIICacheEntry::vtkExodusIICacheEntry( const vtkExodusIICacheEntry& other
 {
   this->Value = other.Value;
   if ( this->Value )
-    this->Value->Register( 0 );
+    this->Value->Register( nullptr );
 }
 
 #if 0
@@ -168,7 +168,7 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
     this->ReduceToSize( this->Capacity - vsize );
     it->second->Value->Delete();
     it->second->Value = value;
-    it->second->Value->Register( 0 ); // Since we re-use the cache entry, the constructor's Register won't get called.
+    it->second->Value->Register( nullptr ); // Since we re-use the cache entry, the constructor's Register won't get called.
     this->Size += vsize;
 #ifdef VTK_EXO_DBG_CACHE
     cout << "Replacing " << VTK_EXO_PRT_KEY( it->first ) << VTK_EXO_PRT_ARR( value ) << "\n";
@@ -192,7 +192,7 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
 
 vtkDataArray*& vtkExodusIICache::Find( const vtkExodusIICacheKey& key )
 {
-  static vtkDataArray* dummy = 0;
+  static vtkDataArray* dummy = nullptr;
 
   vtkExodusIICacheRef it = this->Cache.find( key );
   if ( it != this->Cache.end() )
@@ -202,7 +202,7 @@ vtkDataArray*& vtkExodusIICache::Find( const vtkExodusIICacheKey& key )
     return it->second->Value;
   }
 
-  dummy = 0;
+  dummy = nullptr;
   return dummy;
 }
 

@@ -38,13 +38,13 @@ typedef vtkSplitField::Component Component;
 
 vtkSplitField::vtkSplitField()
 {
-  this->FieldName = 0;
+  this->FieldName = nullptr;
   this->FieldLocation = -1;
   this->AttributeType = -1;
   this->FieldType = -1;
 
-  this->Head = 0;
-  this->Tail = 0;
+  this->Head = nullptr;
+  this->Tail = nullptr;
 
   //convert the attribute names to uppercase for local use
   if (vtkSplitField::AttributeNames[0][0] == 0)
@@ -65,7 +65,7 @@ vtkSplitField::vtkSplitField()
 vtkSplitField::~vtkSplitField()
 {
   delete[] this->FieldName;
-  this->FieldName = 0;
+  this->FieldName = nullptr;
   this->DeleteAllComponents();
 }
 
@@ -206,9 +206,9 @@ int vtkSplitField::RequestData(
   output->GetCellData()->PassData( input->GetCellData() );
 
   vtkDataArray* outputArray;
-  vtkDataArray* inputArray = 0;
-  vtkFieldData* fd = 0;
-  vtkFieldData* outputFD = 0;
+  vtkDataArray* inputArray = nullptr;
+  vtkFieldData* fd = nullptr;
+  vtkFieldData* outputFD = nullptr;
   Component* cur = this->GetFirst();
   Component* before;
 
@@ -297,7 +297,7 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
   if ( (component < 0) || (component > da->GetNumberOfComponents()) )
   {
     vtkErrorMacro("Invalid component. Can not split");
-    return 0;
+    return nullptr;
   }
 
   vtkDataArray* output = da->NewInstance();
@@ -326,7 +326,7 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
       break;
       default:
         vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
-        return 0;
+        return nullptr;
     }
   }
 
@@ -338,7 +338,7 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
 // Linked list methods
 void vtkSplitField::AddComponent(Component* op)
 {
-  op->Next = 0;
+  op->Next = nullptr;
 
   if (!this->Head)
   {
@@ -353,7 +353,7 @@ void vtkSplitField::AddComponent(Component* op)
 Component* vtkSplitField::FindComponent(int index)
 {
   Component* cur = this->GetFirst();
-  if (!cur) { return 0; }
+  if (!cur) { return nullptr; }
 
   if (cur->Index == index) { return cur; }
   while (cur->Next)
@@ -364,7 +364,7 @@ Component* vtkSplitField::FindComponent(int index)
     }
     cur = cur->Next;
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkSplitField::DeleteAllComponents()
@@ -379,8 +379,8 @@ void vtkSplitField::DeleteAllComponents()
     delete before;
   }
   while (cur);
-  this->Head = 0;
-  this->Tail = 0;
+  this->Head = nullptr;
+  this->Tail = nullptr;
 }
 
 void vtkSplitField::PrintSelf(ostream& os, vtkIndent indent)

@@ -101,7 +101,7 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly. The probably weighting prob are numbers 0<=prob<=1 which are
    * multiplied against the interpolation weights before normalization. They
-   * are estimates of local confidence of weights. The prob may be NULL in
+   * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
@@ -118,7 +118,7 @@ public:
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights) VTK_OVERRIDE
   {
-    return this->ComputeWeights(x,pIds,NULL,weights);
+    return this->ComputeWeights(x,pIds,nullptr,weights);
   }
 
   /**

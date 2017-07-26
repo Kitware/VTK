@@ -123,7 +123,7 @@ int TestVariantArray(int, char*[])
 {
   cerr << "CTEST_FULL_OUTPUT" << endl;
 
-  long seed = time(NULL);
+  long seed = time(nullptr);
   cerr << "Seed: " << seed << endl;
   vtkMath::RandomSeed(seed);
 

@@ -133,7 +133,7 @@ public:
 
   /**
    * Get a matrix that gives the "qform" orientation and offset for the data.
-   * If no qform matrix was stored in the file, the return value is NULL.
+   * If no qform matrix was stored in the file, the return value is nullptr.
    * This matrix will transform VTK data coordinates into the NIFTI oriented
    * data coordinates, where +X points right, +Y points anterior (toward the
    * front), and +Z points superior (toward the head). The qform matrix will
@@ -147,7 +147,7 @@ public:
 
   /**
    * Get a matrix that gives the "sform" orientation and offset for the data.
-   * If no sform matrix was stored in the file, the return value is NULL.
+   * If no sform matrix was stored in the file, the return value is nullptr.
    * Like the qform matrix, this matrix will transform VTK data coordinates
    * into a NIFTI coordinate system.  Unlike the qform matrix, the sform
    * matrix can contain scaling information and can even (rarely) have
@@ -197,7 +197,7 @@ protected:
    * long, and must be lower case.  This method also verifies that
    * the file exists, and adds or subtracts a ".gz" as necessary
    * If the file exists, a new string is returned that must be
-   * deleted by the caller.  Otherwise, the return value is NULL.
+   * deleted by the caller.  Otherwise, the return value is nullptr.
    */
   static char *ReplaceExtension(
     const char *fname, const char *ext1, const char *ext2);

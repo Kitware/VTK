@@ -28,7 +28,7 @@ vtkForceTime::vtkForceTime()
 {
   this->ForcedTime = 0.0;
   this->IgnorePipelineTime = true;
-  this->Cache = NULL;
+  this->Cache = nullptr;
   this->PipelineTime = -1;
   this->PipelineTimeFlag = false;
 }
@@ -36,10 +36,10 @@ vtkForceTime::vtkForceTime()
 //----------------------------------------------------------------------------
 vtkForceTime::~vtkForceTime()
 {
-  if (this->Cache != NULL)
+  if (this->Cache != nullptr)
   {
     this->Cache->Delete();
-    this->Cache = NULL;
+    this->Cache = nullptr;
   }
 }
 
@@ -106,7 +106,7 @@ int vtkForceTime::RequestInformation(vtkInformation * vtkNotUsed(request),
   if (this->IgnorePipelineTime && this->Cache)
   {
     this->Cache->Delete();
-    this->Cache = NULL;
+    this->Cache = nullptr;
   }
   return 1;
 }

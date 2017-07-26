@@ -59,14 +59,14 @@ vtkStandardNewMacro(vtkTulipReader);
 vtkTulipReader::vtkTulipReader()
 {
   // Default values for the origin vertex
-  this->FileName = 0;
+  this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
 }
 
 vtkTulipReader::~vtkTulipReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 void vtkTulipReader::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -199,7 +199,7 @@ int vtkTulipReader::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
-  if (this->FileName == NULL)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro("File name undefined");
     return 0;

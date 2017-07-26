@@ -63,7 +63,7 @@ protected:
     vtkIdType numCells; //number of cells in this continuous block
     vtkIdType startId; //the global index to start of this block
     vtkIdType cellStructureSize; //stores the size of the cell array for this section
-    vtkIdType partId; //id of the part this block represents, because the part can be NULL
+    vtkIdType partId; //id of the part this block represents, because the part can be nullptr
     vtkLSDynaPart *part;
   };
 
@@ -103,7 +103,7 @@ public:
     this->Parts = new vtkLSDynaPart*[numMaterials];
     for(vtkIdType i=0; i<numMaterials; ++i)
     {
-      this->Parts[i]=NULL;
+      this->Parts[i]=nullptr;
     }
   }
   ~LSDynaPartStorage()
@@ -113,7 +113,7 @@ public:
       if(this->Parts[i])
       {
         this->Parts[i]->Delete();
-        this->Parts[i]=NULL;
+        this->Parts[i]=nullptr;
       }
     }
     delete[] this->Parts;
@@ -204,7 +204,7 @@ public:
     {
       return false;
     }
-    return (this->Parts[index]!=NULL && this->Parts[index]->HasCells());
+    return (this->Parts[index]!=nullptr && this->Parts[index]->HasCells());
   }
 
   //---------------------------------------------------------------------------
@@ -233,7 +233,7 @@ public:
     }
     //failed to find a part that matches the type
     PartIteratorLoc = -1;
-    this->PartIterator = NULL;
+    this->PartIterator = nullptr;
   }
 
   //---------------------------------------------------------------------------
@@ -241,14 +241,14 @@ public:
   {
     if(!this->PartIterator)
     {
-      part = NULL;
+      part = nullptr;
       return false;
     }
     part=this->PartIterator;
 
     //clear iterator before we search for the next part
     vtkIdType pos = this->PartIteratorLoc + 1;
-    this->PartIterator = NULL;
+    this->PartIterator = nullptr;
     this->PartIteratorLoc = -1;
 
     //find the next part
@@ -283,7 +283,7 @@ public:
         {
           //this part has no cells allocated to it, so remove it now.
           part->Delete();
-          this->Parts[i] = NULL;
+          this->Parts[i] = nullptr;
         }
       }
     }
@@ -340,7 +340,7 @@ public:
       it != this->Info[i].end(); ++it)
     {
       const PartInfo *info = &(*it);
-      if(info->part != NULL)
+      if(info->part != nullptr)
       {
         std::cout << "The material id is: " << info->partId << std::endl;
         std::cout << "The numCells is:    " << info->numCells << std::endl;
@@ -407,7 +407,7 @@ public:
       else if(part)
       {
         part->Delete();
-        this->Parts[i]=NULL;
+        this->Parts[i]=nullptr;
       }
     }
   }
@@ -466,10 +466,10 @@ vtkStandardNewMacro(vtkLSDynaPartCollection);
 //-----------------------------------------------------------------------------
 vtkLSDynaPartCollection::vtkLSDynaPartCollection()
 {
-  this->MetaData = NULL;
-  this->Storage = NULL;
-  this->MinIds = NULL;
-  this->MaxIds = NULL;
+  this->MetaData = nullptr;
+  this->Storage = nullptr;
+  this->MinIds = nullptr;
+  this->MaxIds = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -478,7 +478,7 @@ vtkLSDynaPartCollection::~vtkLSDynaPartCollection()
   delete this->Storage;
   delete[] this->MinIds;
   delete[] this->MaxIds;
-  this->MetaData = NULL;
+  this->MetaData = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -514,8 +514,8 @@ void vtkLSDynaPartCollection::InitCollection(LSDynaMetaData *metaData,
   //skip into the proper place
   for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)
   {
-    this->MinIds[i]= (mins!=NULL) ? mins[i] : 0;
-    this->MaxIds[i]= (maxs!=NULL) ? maxs[i] : metaData->NumberOfCells[i];
+    this->MinIds[i]= (mins!=nullptr) ? mins[i] : 0;
+    this->MaxIds[i]= (maxs!=nullptr) ? maxs[i] : metaData->NumberOfCells[i];
   }
 
   if(metaData)
@@ -605,7 +605,7 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(const int& partType,
   unsigned char* dead = static_cast<unsigned char*>(death->GetVoidPointer(0));
   while(this->Storage->GetNextCellPart(startId,numCells,part))
   {
-    //perfectly valid to have a NULL part being returned
+    //perfectly valid to have a nullptr part being returned
     //just skip it as the user doesn't want it loaded.
     if(part)
     {
@@ -622,7 +622,7 @@ void vtkLSDynaPartCollection::AddProperty(
                     const int& offset, const int& numComps)
 {
 
-  vtkLSDynaPart* part = NULL;
+  vtkLSDynaPart* part = nullptr;
   this->Storage->InitPartIteration(type);
   while(this->Storage->GetNextPart(part))
   {
@@ -752,7 +752,7 @@ void vtkLSDynaPartCollection::FillCellUserIdArray(T *buffer,
         part->SetNextCellUserIds((vtkIdType)loc[i]);
       }
     }
-    //perfectly valid to have a NULL part being returned
+    //perfectly valid to have a nullptr part being returned
     //just skip it as the user doesn't want it loaded.
     loc+=is;
   }
@@ -851,7 +851,7 @@ void vtkLSDynaPartCollection::SetupPointPropertyForReading(
   //to the following
   //BEAM,SHELL,THICK_SHELL,SOLID,Particles
   //if it is road surface it only applies to RigidSurfaceData part types
-  vtkLSDynaPart* part=NULL;
+  vtkLSDynaPart* part=nullptr;
   vtkLSDynaPart **validParts = new vtkLSDynaPart*[this->Storage->GetNumParts()];
   vtkIdType idx=0;
   if(!isRoadPoints)
@@ -952,7 +952,7 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
   const vtkIdType leftOver(realNumberOfTuples%numPointsToRead);
   const vtkIdType bufferChunkSize(numPointsToRead*numComps);
 
-  T* buf = NULL;
+  T* buf = nullptr;
   p->Fam.SkipWords(numPointsToSkipStart * numComps);
   for(vtkIdType j=0;j<loopTimes;++j,offset+=numPointsToRead)
   {

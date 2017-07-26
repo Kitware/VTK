@@ -55,7 +55,7 @@ int vtkGESignaReader::CanReadFile(const char* fname)
 void vtkGESignaReader::ExecuteInformation()
 {
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     return;
   }
@@ -622,8 +622,8 @@ static void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outP
   }
   vtkByteSwap::Swap4BE(&compression);
 
-  short *leftMap = 0;
-  short *widthMap = 0;
+  short *leftMap = nullptr;
+  short *widthMap = nullptr;
 
   if (compression == 2 || compression == 4)
   { // packed/compacked
@@ -728,7 +728,7 @@ void vtkGESignaReader::ExecuteDataWithInformation(vtkDataObject *output,
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;

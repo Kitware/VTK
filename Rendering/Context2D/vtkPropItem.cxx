@@ -26,14 +26,14 @@ vtkCxxSetObjectMacro(vtkPropItem, PropObject, vtkProp)
 
 //------------------------------------------------------------------------------
 vtkPropItem::vtkPropItem()
-  : PropObject(NULL)
+  : PropObject(nullptr)
 {
 }
 
 //------------------------------------------------------------------------------
 vtkPropItem::~vtkPropItem()
 {
-  this->SetPropObject(NULL);
+  this->SetPropObject(nullptr);
 }
 
 //------------------------------------------------------------------------------

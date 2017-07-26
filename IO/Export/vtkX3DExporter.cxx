@@ -86,18 +86,18 @@ vtkStandardNewMacro(vtkX3DExporter);
 vtkX3DExporter::vtkX3DExporter()
 {
   this->Speed = 4.0;
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->Binary = 0;
   this->Fastest = 0;
   this->WriteToOutputString = 0;
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
   this->OutputStringLength = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkX3DExporter::~vtkX3DExporter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
   delete [] this->OutputString;
 }
 
@@ -115,7 +115,7 @@ void vtkX3DExporter::WriteData()
   vtkCamera *cam;
 
   // make sure the user specified a FileName or FilePointer
-  if (this->FileName == NULL && (!this->WriteToOutputString))
+  if (this->FileName == nullptr && (!this->WriteToOutputString))
   {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -454,8 +454,8 @@ void vtkX3DExporter::WriteAPiece(
   vtkPointData *pntData;
   vtkCellData *cellData;
   vtkPoints *points;
-  vtkDataArray *normals = NULL;
-  vtkDataArray *tcoords = NULL;
+  vtkDataArray *normals = nullptr;
+  vtkDataArray *tcoords = nullptr;
   vtkProperty *prop;
   vtkUnsignedCharArray *colors;
   vtkSmartPointer<vtkTransform> trans;
@@ -482,7 +482,7 @@ void vtkX3DExporter::WriteAPiece(
   mapper->SetScalarMode(anActor->GetMapper()->GetScalarMode());
 
   // Essential to turn of interpolate scalars otherwise GetScalars() may return
-  // NULL. We restore value before returning.
+  // nullptr. We restore value before returning.
   mapper->SetInterpolateScalarsBeforeMapping(0);
   if ( mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
     mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
@@ -662,7 +662,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
   tp = ta->GetTextProperty();
   ds = ta->GetInput();
 
-  if (ds==NULL)
+  if (ds==nullptr)
   {
     return;
   }
@@ -801,7 +801,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
 
 
   // make sure it is updated and then get some info
-  if (aTexture->GetInput() == NULL)
+  if (aTexture->GetInput() == nullptr)
   {
     vtkErrorMacro(<< "texture has no input!\n");
     return;
@@ -892,7 +892,7 @@ int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
   // if we don't then use a headlight
   vtkLightCollection* lc = ren->GetLights();
   vtkCollectionSimpleIterator lsit;
-  vtkLight* aLight=0;
+  vtkLight* aLight=nullptr;
   for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
   {
     if (aLight->LightTypeIsHeadlight())
@@ -933,7 +933,7 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   std::vector<int> cellIndexVector;
 
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
 
   if (cellType == VTK_POLYGON || cellType == VTK_POLY_LINE)
   {
@@ -1001,8 +1001,8 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   else
   {
     // don't save normals/tcoords when saving wireframes.
-    normals = 0;
-    tcoords = 0;
+    normals = nullptr;
+    tcoords = nullptr;
 
     writer->StartNode(IndexedLineSet);
     writer->SetField(colorPerVertex, !cell_colors);
@@ -1027,7 +1027,7 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   }
   else
   {
-    vtkX3DExporterUseData((normals != NULL), (tcoords != NULL), (colors!= NULL), index, writer);
+    vtkX3DExporterUseData((normals != nullptr), (tcoords != nullptr), (colors!= nullptr), index, writer);
   }
 
   writer->EndNode(); // end IndexedFaceSet or IndexedLineSet
@@ -1140,7 +1140,7 @@ static bool vtkX3DExporterWriterRenderVerts(
   {
     vtkIdType cellId = 0;
     vtkIdType npts = 0;
-    vtkIdType *indx = 0;
+    vtkIdType *indx = nullptr;
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); cellId++)
     {
       for (vtkIdType cc=0; cc < npts; cc++)
@@ -1194,7 +1194,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   // We render as cells so that even when coloring with cell data, the points
   // are assigned colors correctly.
 
-  if ( (colors !=0) && cell_colors)
+  if ( (colors !=nullptr) && cell_colors)
   {
     // Cell colors are used, however PointSet element can only have point
     // colors, hence we use this method. Although here we end up with duplicate
@@ -1270,7 +1270,7 @@ char *vtkX3DExporter::RegisterAndGetOutputString()
 {
   char *tmp = this->OutputString;
 
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
   this->OutputStringLength = 0;
 
   return tmp;

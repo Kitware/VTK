@@ -34,7 +34,7 @@ vtkMultiPieceDataSet::~vtkMultiPieceDataSet()
 vtkMultiPieceDataSet* vtkMultiPieceDataSet::GetData(vtkInformation* info)
 {
   return
-    info? vtkMultiPieceDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+    info? vtkMultiPieceDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

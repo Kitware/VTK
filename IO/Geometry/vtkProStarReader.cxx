@@ -42,7 +42,7 @@ struct vtkProStarReader::idMapping : public std::map<vtkIdType, vtkIdType>
 //----------------------------------------------------------------------------
 vtkProStarReader::vtkProStarReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->ScaleFactor = 1;
 
   this->SetNumberOfInputPorts(0);
@@ -120,7 +120,7 @@ FILE* vtkProStarReader::OpenFile(const char *ext)
 
   if
     (
-        dot != NULL
+        dot != nullptr
      && (
             strcmp(dot, ".cel") == 0
          || strcmp(dot, ".vrt") == 0
@@ -133,7 +133,7 @@ FILE* vtkProStarReader::OpenFile(const char *ext)
 
   fullName += ext;
   FILE *in = fopen(fullName.c_str(), "r");
-  if (in == NULL)
+  if (in == nullptr)
   {
     vtkErrorMacro(<<"Error opening file: " << fullName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
@@ -160,7 +160,7 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid *output,
 {
   mapPointId.clear();
   FILE *in = this->OpenFile(".vrt");
-  if (in == NULL)
+  if (in == nullptr)
   {
     return false;
   }
@@ -170,9 +170,9 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid *output,
 
   int lineLabel, errorCount = 0;
   if (
-         fgets(rawLine, MAX_LINE, in) != NULL
+         fgets(rawLine, MAX_LINE, in) != nullptr
       && strncmp(rawLine, "PROSTAR_VERTEX", 14) == 0
-      && fgets(rawLine, MAX_LINE, in) != NULL
+      && fgets(rawLine, MAX_LINE, in) != nullptr
       && sscanf(rawLine, "%d", &lineLabel) == 1
       && lineLabel >= 4000
      )
@@ -193,7 +193,7 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid *output,
   float xyz[3];
   vtkIdType nodeCount = 0;
 
-  while (!errorCount && fgets(rawLine, MAX_LINE, in) != NULL)
+  while (!errorCount && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
     ++lineNr;
     if (sscanf(rawLine, "%d %f %f %f", &lineLabel, xyz, xyz+1, xyz+2) == 4)
@@ -266,7 +266,7 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid *output,
                                    const idMapping& mapPointId)
 {
   FILE *in = this->OpenFile(".cel");
-  if (in == NULL)
+  if (in == nullptr)
   {
     return false;
   }
@@ -276,9 +276,9 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid *output,
 
   int lineLabel, errorCount = 0;
   if (
-         fgets(rawLine, MAX_LINE, in) != NULL
+         fgets(rawLine, MAX_LINE, in) != nullptr
       && strncmp(rawLine, "PROSTAR_CELL", 12) == 0
-      && fgets(rawLine, MAX_LINE, in) != NULL
+      && fgets(rawLine, MAX_LINE, in) != nullptr
       && sscanf(rawLine, "%d", &lineLabel) == 1
       && lineLabel >= 4000
      )
@@ -314,7 +314,7 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid *output,
   std::istringstream strbuf;
 
   int lineNr = 2;
-  while (!errorCount && fgets(rawLine, MAX_LINE, in) != NULL)
+  while (!errorCount && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
     ++lineNr;
     if (sscanf(rawLine, "%d %d %d %d %d", &lineLabel, &shapeId, &nLabels, &tableId, &typeId) == 5)
@@ -328,7 +328,7 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid *output,
         int vrtId;
         if ((index % 8) == 0)
         {
-          if (fgets(rawLine, MAX_LINE, in) != NULL)
+          if (fgets(rawLine, MAX_LINE, in) != nullptr)
           {
             ++lineNr;
             strbuf.clear();

@@ -71,7 +71,7 @@ void vtkWidgetSet::RemoveWidget( vtkAbstractWidget * w)
     if (*it == w)
     {
       this->Widget.erase(it);
-      static_cast<vtkParallelopipedWidget*>(w)->WidgetSet = NULL;
+      static_cast<vtkParallelopipedWidget*>(w)->WidgetSet = nullptr;
       w->UnRegister(this);
       break;
     }

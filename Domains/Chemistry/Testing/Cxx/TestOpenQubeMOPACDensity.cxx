@@ -75,7 +75,7 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
   vtkAbstractElectronicData *edata = oq->GetOutput()->GetElectronicData();
   if (!edata)
   {
-    cout << "NULL vtkAbstractElectronicData returned from "
+    cout << "null vtkAbstractElectronicData returned from "
             "vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
   }
@@ -86,7 +86,7 @@ int TestOpenQubeMOPACDensity(int argc, char *argv[])
   data = edata->GetElectronDensity();
   if (!data)
   {
-    cout << "NULL vtkImageData returned from vtkOpenQubeElectronicData.\n";
+    cout << "null vtkImageData returned from vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
   }
 

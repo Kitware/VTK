@@ -114,11 +114,11 @@ void vtkSplineRepresentation::SetParametricSpline(vtkParametricSpline* spline)
     // to avoid destructor recursion
     vtkParametricSpline *temp = this->ParametricSpline;
     this->ParametricSpline = spline;
-    if (temp != NULL)
+    if (temp != nullptr)
     {
       temp->UnRegister(this);
     }
-    if (this->ParametricSpline != NULL)
+    if (this->ParametricSpline != nullptr)
     {
       this->ParametricSpline->Register(this);
       this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
@@ -178,7 +178,7 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
   }
 
   // Ensure that no handle is current
-  this->HighlightHandle(NULL);
+  this->HighlightHandle(nullptr);
 
   double radius = this->HandleGeometry[0]->GetRadius();
   this->Initialize();
@@ -203,7 +203,7 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
     this->Handle[i]->SetProperty(this->HandleProperty);
     double u[3], pt[3];
     u[0] = i/(this->NumberOfHandles - 1.0);
-    this->ParametricSpline->Evaluate(u, pt, NULL);
+    this->ParametricSpline->Evaluate(u, pt, nullptr);
     this->HandleGeometry[i]->SetCenter(pt);
     this->HandleGeometry[i]->SetRadius(radius);
     this->HandlePicker->AddPickList(this->Handle[i]);
@@ -217,7 +217,7 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
   }
   else
   {
-    this->CurrentHandleIndex = this->HighlightHandle(NULL);
+    this->CurrentHandleIndex = this->HighlightHandle(nullptr);
   }
 
   this->BuildRepresentation();

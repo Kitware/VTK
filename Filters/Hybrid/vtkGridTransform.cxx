@@ -153,7 +153,7 @@ static void vtkNearestNeighborInterpolation(double point[3], double displacement
                                             int gridType, int gridExt[6],
                                             vtkIdType gridInc[3])
 {
-  if (derivatives == NULL)
+  if (derivatives == nullptr)
   {
     vtkNearestNeighborInterpolation(point,displacement,gridPtr,gridType,
                                     gridExt,gridInc);
@@ -515,7 +515,7 @@ static void vtkSetTricubicDerivCoeffs(double F[4], double G[4], int *l, int *m,
 }
 
 // tricubic interpolation of a warp grid with derivatives
-// (set derivatives to NULL to avoid computing them).
+// (set derivatives to nullptr to avoid computing them).
 
 template <class T>
 inline void vtkCubicHelper(double displacement[3], double derivatives[3][3],
@@ -711,7 +711,7 @@ vtkGridTransform::vtkGridTransform()
   this->InterpolationFunction = &vtkTrilinearInterpolation;
   this->DisplacementScale = 1.0;
   this->DisplacementShift = 0.0;
-  this->GridPointer = 0;
+  this->GridPointer = nullptr;
   // the grid warp has a fairly large tolerance
   this->InverseTolerance = 0.01;
 
@@ -722,7 +722,7 @@ vtkGridTransform::vtkGridTransform()
 vtkGridTransform::~vtkGridTransform()
 {
   this->ConnectionHolder->Delete();
-  this->ConnectionHolder = 0;
+  this->ConnectionHolder = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -815,7 +815,7 @@ void vtkGridTransform::ForwardTransformPoint(const double inPoint[3],
   point[1] = (inPoint[1] - origin[1])/spacing[1];
   point[2] = (inPoint[2] - origin[2])/spacing[2];
 
-  this->InterpolationFunction(point,displacement,NULL,
+  this->InterpolationFunction(point,displacement,nullptr,
                               gridPtr,gridType,extent,increments);
 
   outPoint[0] = inPoint[0] + (displacement[0]*scale + shift);
@@ -969,7 +969,7 @@ void vtkGridTransform::InverseTransformDerivative(const double inPoint[3],
 
   // first guess at inverse point, just subtract displacement
   // (the inverse point is given in i,j,k indices plus fractions)
-  this->InterpolationFunction(point, deltaP, NULL,
+  this->InterpolationFunction(point, deltaP, nullptr,
                               gridPtr, gridType, extent, increments);
 
   inverse[0] = point[0] - (deltaP[0]*scale + shift)*invSpacing[0];
@@ -1152,7 +1152,7 @@ void vtkGridTransform::InternalDeepCopy(vtkAbstractTransform *transform)
   this->SetDisplacementScale(gridTransform->DisplacementScale);
   this->ConnectionHolder->SetInputConnection(
     0, gridTransform->ConnectionHolder->GetNumberOfInputConnections(0) ?
-    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : 0);
+    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : nullptr);
   this->SetDisplacementShift(gridTransform->DisplacementShift);
   this->SetDisplacementScale(gridTransform->DisplacementScale);
 
@@ -1167,9 +1167,9 @@ void vtkGridTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 void vtkGridTransform::InternalUpdate()
 {
   vtkImageData *grid = this->GetDisplacementGrid();
-  this->GridPointer = 0;
+  this->GridPointer = nullptr;
 
-  if (grid == 0)
+  if (grid == nullptr)
   {
     return;
   }

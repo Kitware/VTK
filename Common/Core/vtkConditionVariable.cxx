@@ -85,16 +85,16 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
   cv->WaitingThreadCount = 0;
   cv->WasBroadcast = 0;
   cv->Semaphore = CreateSemaphore(
-    NULL,       // no security
+    nullptr,       // no security
     0,          // initially 0
     0x7fffffff, // max count
-    NULL );     // unnamed
+    nullptr );     // unnamed
   InitializeCriticalSection( &cv->WaitingThreadCountCritSec );
   cv->DoneWaiting = CreateEvent(
-    NULL,   // no security
+    nullptr,   // no security
     FALSE,  // auto-reset
     FALSE,  // non-signaled initially
-    NULL ); // unnamed
+    nullptr ); // unnamed
 
   return 0;
 }
@@ -214,10 +214,10 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
 
   // Create a manual-reset event.
   cv->Event = CreateEvent(
-    NULL,   // no security
+    nullptr,   // no security
     TRUE,   // manual-reset
     FALSE,  // non-signaled initially
-    NULL ); // unnamed
+    nullptr ); // unnamed
 
   InitializeCriticalSection( &cv->WaitingThreadCountCritSec );
 
@@ -313,7 +313,7 @@ int pthread_cond_destroy( pthread_cond_t* cv )
 
 vtkSimpleConditionVariable::vtkSimpleConditionVariable()
 {
-  int result = pthread_cond_init( &this->ConditionVariable, 0 );
+  int result = pthread_cond_init( &this->ConditionVariable, nullptr );
   switch ( result )
   {
   case EINVAL:

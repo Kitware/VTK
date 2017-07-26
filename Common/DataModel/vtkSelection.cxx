@@ -78,7 +78,7 @@ vtkSelectionNode* vtkSelection::GetNode(unsigned int idx)
 {
   if (idx >= this->GetNumberOfNodes())
   {
-    return 0;
+    return nullptr;
   }
   return this->Internal->Nodes[idx];
 }
@@ -276,7 +276,7 @@ vtkMTimeType vtkSelection::GetMTime()
 //----------------------------------------------------------------------------
 vtkSelection* vtkSelection::GetData(vtkInformation* info)
 {
-  return info? vtkSelection::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkSelection::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

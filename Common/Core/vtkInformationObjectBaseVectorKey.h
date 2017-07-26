@@ -47,7 +47,7 @@ public:
    */
   vtkInformationObjectBaseVectorKey(const char* name,
                                     const char* location,
-                                    const char* requiredClass=0);
+                                    const char* requiredClass=nullptr);
   //
   ~vtkInformationObjectBaseVectorKey() VTK_OVERRIDE;
   //@}
@@ -59,7 +59,7 @@ public:
    * for wrappers. Use the constructor directly from C++ instead.
    */
   static vtkInformationObjectBaseVectorKey* MakeKey(const char* name, const char* location,
-                                             const char* requiredClass=0)
+                                             const char* requiredClass=nullptr)
   {
     return new vtkInformationObjectBaseVectorKey(name, location, requiredClass);
   }

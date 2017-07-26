@@ -230,12 +230,12 @@ vtkStructuredNeighbor vtkStructuredGridConnectivity::GetGridNeighbor(
 vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(
     const int gridID,int *extents )
 {
-  assert( "pre: input extents array is NULL" && (extents != NULL) );
+  assert( "pre: input extents array is nullptr" && (extents != nullptr) );
 
   int N = this->GetNumberOfNeighbors( gridID );
   if( N < 1 )
   {
-    return NULL;
+    return nullptr;
   }
 
   vtkIdList *neiList = vtkIdList::New();
@@ -281,10 +281,10 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
   // STEP 2: Fill the ghost arrays
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
   {
-    // NOTE: typically remote grids have NULL ghost arrays, by this approach
+    // NOTE: typically remote grids have nullptr ghost arrays, by this approach
     // ComputeNeighbors() can be called transparently from
     // vtkPStructuredGridConnectivity without any modification.
-    if( this->GridPointGhostArrays[ i ] != NULL )
+    if( this->GridPointGhostArrays[ i ] != nullptr )
     {
       this->FillGhostArrays(
         i, this->GridPointGhostArrays[ i ], this->GridCellGhostArrays[ i ] );
@@ -297,7 +297,7 @@ void vtkStructuredGridConnectivity::SearchNeighbors(
     const int gridID, const int i, const int j, const int k,
     vtkIdList *neiList )
 {
-  assert( "pre: neiList should not be NULL" && (neiList != NULL) );
+  assert( "pre: neiList should not be nullptr" && (neiList != nullptr) );
   assert( "pre: gridID is out-of-bounds" &&
            ( (gridID >= 0) &&
              (gridID < static_cast<int>(this->NumberOfGrids))));
@@ -306,7 +306,7 @@ void vtkStructuredGridConnectivity::SearchNeighbors(
   for( unsigned int nei=0; nei < this->Neighbors[ gridID ].size(); ++nei )
   {
     vtkStructuredNeighbor *myNei = &this->Neighbors[ gridID ][ nei ];
-    assert( "pre: myNei != NULL" && (myNei != NULL) );
+    assert( "pre: myNei != nullptr" && (myNei != nullptr) );
 
     if( this->IsNodeWithinExtent( i, j, k, myNei->OverlapExtent) )
     {
@@ -320,8 +320,8 @@ void vtkStructuredGridConnectivity::MarkCellProperty(
     unsigned char &pfield, unsigned char *nodeGhostFields, const int numNodes )
 {
   // Sanity check
-  assert( "pre: node ghostfields should not be NULL" &&
-           (nodeGhostFields != NULL) );
+  assert( "pre: node ghostfields should not be nullptr" &&
+           (nodeGhostFields != nullptr) );
 
   pfield = 0;
 
@@ -429,9 +429,9 @@ void vtkStructuredGridConnectivity::FillCellsGhostArray(
     int dims[3], int CellExtent[6], vtkUnsignedCharArray *nodesArray,
     vtkUnsignedCharArray *cellsArray)
 {
-  assert( "pre: nodes array should not be NULL" && (nodesArray != NULL) );
+  assert( "pre: nodes array should not be nullptr" && (nodesArray != nullptr) );
 
-  if( cellsArray == NULL )
+  if( cellsArray == nullptr )
   {
     return;
   }
@@ -458,7 +458,7 @@ void vtkStructuredGridConnectivity::FillCellsGhostArray(
         vtkStructuredData::GetCellPoints(
               idx,cellNodeIds,dataDescription,dims );
         assert( cellNodeIds->GetNumberOfIds() == numNodesPerCell );
-        assert( cellNodeGhostFields != NULL );
+        assert( cellNodeGhostFields != nullptr );
 
         for( int ii=0; ii < numNodesPerCell; ++ii )
         {
@@ -482,7 +482,7 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
     vtkUnsignedCharArray *nodesArray,
     vtkUnsignedCharArray *cellsArray )
 {
-  if( nodesArray == NULL )
+  if( nodesArray == nullptr )
   {
     return;
   }
@@ -1118,7 +1118,7 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
           (this->NumberOfGrids == this->GhostedCellGhostArray.size()));
 
   // STEP 0: Initialize the ghosted node and cell arrays
-  if( this->GhostedPointGhostArray[gridID] == NULL )
+  if( this->GhostedPointGhostArray[gridID] == nullptr )
   {
     this->GhostedPointGhostArray[gridID] = vtkUnsignedCharArray::New();
   }
@@ -1127,7 +1127,7 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
     this->GhostedPointGhostArray[gridID]->Reset();
   }
 
-  if( this->GhostedCellGhostArray[gridID] == NULL )
+  if( this->GhostedCellGhostArray[gridID] == nullptr )
   {
     this->GhostedCellGhostArray[gridID] = vtkUnsignedCharArray::New();
   }
@@ -1230,15 +1230,15 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
 void vtkStructuredGridConnectivity::AllocatePointData(
     vtkPointData *RPD, const int N, vtkPointData *PD )
 {
-  assert( "pre: Reference point data is NULL" && (RPD != NULL) );
-  assert( "pre: point data is NULL" && (PD != NULL) );
+  assert( "pre: Reference point data is nullptr" && (RPD != nullptr) );
+  assert( "pre: point data is nullptr" && (PD != nullptr) );
   assert( "pre: N > 0" && (N > 0) );
 
   for( int array=0; array < RPD->GetNumberOfArrays(); ++array )
   {
     int dataType = RPD->GetArray( array )->GetDataType();
     vtkDataArray *dataArray = vtkDataArray::CreateDataArray( dataType );
-    assert( "Cannot create data array" && (dataArray != NULL) );
+    assert( "Cannot create data array" && (dataArray != nullptr) );
 
     dataArray->SetName(
         RPD->GetArray(array)->GetName() );
@@ -1255,15 +1255,15 @@ void vtkStructuredGridConnectivity::AllocatePointData(
 void vtkStructuredGridConnectivity::AllocateCellData(
     vtkCellData *RCD, const int N, vtkCellData *CD )
 {
-  assert( "pre: Reference cell data is NULL" && (RCD != NULL) );
-  assert( "pre: cell data is NULL" && (CD != NULL) );
+  assert( "pre: Reference cell data is nullptr" && (RCD != nullptr) );
+  assert( "pre: cell data is nullptr" && (CD != nullptr) );
   assert( "pre: N > 0" && (N > 0) );
 
   for( int array=0; array < RCD->GetNumberOfArrays(); ++array )
   {
     int dataType = RCD->GetArray( array )->GetDataType();
     vtkDataArray *dataArray = vtkDataArray::CreateDataArray( dataType );
-    assert( "Cannot create data array" && (dataArray != NULL) );
+    assert( "Cannot create data array" && (dataArray != nullptr) );
 
     dataArray->SetName(
         RCD->GetArray(array)->GetName() );
@@ -1287,9 +1287,9 @@ void vtkStructuredGridConnectivity::InitializeGhostData(const int gridID)
   assert( "pre: GhostedCellData vector has not been properly allocated!" &&
           (this->NumberOfGrids==this->GhostedGridCellData.size() ) );
   assert( "pre: Grid has no registered point data!" &&
-          (this->GridPointData[gridID] != NULL) );
+          (this->GridPointData[gridID] != nullptr) );
   assert( "pre: Grid has no registered cell data!" &&
-          (this->GridCellData[gridID] != NULL) );
+          (this->GridCellData[gridID] != nullptr) );
 
   // STEP 0: Get the ghosted grid extent
   int GhostedGridExtent[6];
@@ -1304,10 +1304,10 @@ void vtkStructuredGridConnectivity::InitializeGhostData(const int gridID)
           GhostedGridExtent, this->DataDescription );
 
   // STEP 2: Allocate coordinates if the grid
-  if( this->GridPoints[gridID] != NULL )
+  if( this->GridPoints[gridID] != nullptr )
   {
 
-    if( this->GhostedGridPoints[gridID] != NULL )
+    if( this->GhostedGridPoints[gridID] != nullptr )
     {
       this->GhostedGridPoints[gridID]->Delete();
     }
@@ -1332,8 +1332,8 @@ void vtkStructuredGridConnectivity::CopyCoordinates(
     vtkPoints *source, vtkIdType sourceIdx,
     vtkPoints *target, vtkIdType targetIdx )
 {
-  assert( "pre: source points is NULL" && (source != NULL) );
-  assert( "pre: target points is NULL" && (target != NULL) );
+  assert( "pre: source points is nullptr" && (source != nullptr) );
+  assert( "pre: target points is nullptr" && (target != nullptr) );
   assert( "pre: source index is out-of-bounds!" &&
           (sourceIdx >= 0) && (sourceIdx < source->GetNumberOfPoints()));
   assert( "pre: target index is out-of-bounds!" &&
@@ -1346,8 +1346,8 @@ void vtkStructuredGridConnectivity::CopyFieldData(
     vtkFieldData *source, vtkIdType sourceIdx,
     vtkFieldData *target, vtkIdType targetIdx )
 {
-  assert( "pre: source field data is NULL!" && (source != NULL) );
-  assert( "pre: target field data is NULL!" && (target != NULL) );
+  assert( "pre: source field data is nullptr!" && (source != nullptr) );
+  assert( "pre: target field data is nullptr!" && (target != nullptr) );
   assert( "pre: source number of arrays does not match target!" &&
           source->GetNumberOfArrays()==target->GetNumberOfArrays() );
 
@@ -1356,11 +1356,11 @@ void vtkStructuredGridConnectivity::CopyFieldData(
   {
     // Get source array
     vtkDataArray *sourceArray = source->GetArray( arrayIdx );
-    assert( "ERROR: encountered NULL source array" && (sourceArray != NULL) );
+    assert( "ERROR: encountered nullptr source array" && (sourceArray != nullptr) );
 
     // Get target array
     vtkDataArray *targetArray = target->GetArray( arrayIdx );
-    assert( "ERROR: encountered NULL target array" && (targetArray != NULL) );
+    assert( "ERROR: encountered nullptr target array" && (targetArray != nullptr) );
 
     // Sanity checks
     assert( "ERROR: target/source array name mismatch!" &&
@@ -1425,12 +1425,12 @@ void vtkStructuredGridConnectivity::TransferRegisteredDataToGhostedData(
             vtkStructuredData::ComputePointIdForExtent(
                 GhostedGridExtent, ijk, this->DataDescription );
 
-        if( this->GridPoints[gridID] != NULL )
+        if( this->GridPoints[gridID] != nullptr )
         {
           this->CopyCoordinates(
               this->GridPoints[gridID], sourceIdx,
               this->GhostedGridPoints[gridID], targetIdx );
-        } // END if grid points is not NULL
+        } // END if grid points is not nullptr
 
         // Transfer node data from the registered grid to the ghosted grid
         this->CopyFieldData(
@@ -1537,7 +1537,7 @@ void vtkStructuredGridConnectivity::TransferLocalNeighborData(
             vtkStructuredData::ComputePointIdForExtent(
                 GhostedGridExtent, ijk, this->DataDescription );
 
-        if( this->GridPoints[Neighbor.NeighborID] != NULL )
+        if( this->GridPoints[Neighbor.NeighborID] != nullptr )
         {
           this->CopyCoordinates(
               this->GridPoints[Neighbor.NeighborID], srcIdx,

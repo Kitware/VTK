@@ -48,10 +48,10 @@ public:
 vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 {
   // Save the name and location.
-  this->Name = 0;
+  this->Name = nullptr;
   this->SetName(name);
 
-  this->Location = 0;
+  this->Location = nullptr;
   this->SetLocation(location);
 
   vtkInformationKeyLookup::RegisterKey(this, name, location);
@@ -61,8 +61,8 @@ vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 vtkInformationKey::~vtkInformationKey()
 {
   this->SetReferenceCount(0);
-  this->SetName(0);
-  this->SetLocation(0);
+  this->SetName(nullptr);
+  this->SetLocation(nullptr);
 }
 
 //----------------------------------------------------------------------------

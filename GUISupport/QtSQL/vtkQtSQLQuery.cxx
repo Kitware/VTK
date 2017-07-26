@@ -53,19 +53,19 @@ vtkQtSQLQuery::vtkQtSQLQuery()
 {
   this->Internals = new vtkQtSQLQueryInternals();
   this->Internals->QtQuery.setForwardOnly(true);
-  this->LastErrorText = NULL;
+  this->LastErrorText = nullptr;
 }
 
 vtkQtSQLQuery::~vtkQtSQLQuery()
 {
   delete this->Internals;
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
 }
 
 void vtkQtSQLQuery::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "LastErrorText: " << (this->LastErrorText ? this->LastErrorText : "NULL") << endl;
+  os << indent << "LastErrorText: " << (this->LastErrorText ? this->LastErrorText : "nullptr") << endl;
 }
 
 bool vtkQtSQLQuery::HasError()
@@ -81,7 +81,7 @@ const char* vtkQtSQLQuery::GetLastErrorText()
 
 bool vtkQtSQLQuery::Execute()
 {
-  if (this->Query == NULL)
+  if (this->Query == nullptr)
   {
     vtkErrorMacro("Query string must be non-null.");
     return false;

@@ -35,7 +35,7 @@
  *
  * Despite the name of this class, vtkMPIImageReader will work even if MPI is
  * not available.  If MPI is not available or MPIIO is not available or the
- * given Controller is not a vtkMPIController (or NULL), then this class will
+ * given Controller is not a vtkMPIController (or nullptr), then this class will
  * silently work exactly like its superclass.  The point is that you can safely
  * use this class in applications that may or may not be compiled with MPI (or
  * may or may not actually be run with MPI).

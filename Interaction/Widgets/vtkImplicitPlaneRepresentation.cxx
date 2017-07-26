@@ -291,7 +291,7 @@ int vtkImplicitPlaneRepresentation::ComputeInteractionState(int X, int Y,
   // See if anything has been selected
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
-  if ( path == NULL ) // Not picking this widget
+  if ( path == nullptr ) // Not picking this widget
   {
     this->SetRepresentationState(vtkImplicitPlaneRepresentation::Outside);
     this->InteractionState = vtkImplicitPlaneRepresentation::Outside;
@@ -1180,7 +1180,7 @@ vtkPolyDataAlgorithm *vtkImplicitPlaneRepresentation::GetPolyDataAlgorithm()
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::GetPlane(vtkPlane *plane)
 {
-  if ( plane == NULL )
+  if ( plane == nullptr )
   {
     return;
   }
@@ -1192,7 +1192,7 @@ void vtkImplicitPlaneRepresentation::GetPlane(vtkPlane *plane)
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::SetPlane(vtkPlane *plane)
 {
-  if ( plane == NULL )
+  if ( plane == nullptr )
   {
     return;
   }

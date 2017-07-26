@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkBridgePointIterator);
 // Default constructor.
 vtkBridgePointIterator::vtkBridgePointIterator()
 {
-  this->CurrentIterator=0;
+  this->CurrentIterator=nullptr;
   this->IteratorOnDataSet=vtkBridgePointIteratorOnDataSet::New();
   this->IteratorOne=vtkBridgePointIteratorOne::New();
   this->IteratorOnCell=vtkBridgePointIteratorOnCell::New();
@@ -65,7 +65,7 @@ void vtkBridgePointIterator::PrintSelf(ostream& os, vtkIndent indent)
 // Move iterator to first position if any (loop initialization).
 void vtkBridgePointIterator::Begin()
 {
-  if(this->CurrentIterator!=0)
+  if(this->CurrentIterator!=nullptr)
   {
     this->CurrentIterator->Begin();
   }
@@ -78,7 +78,7 @@ int vtkBridgePointIterator::IsAtEnd()
 {
   int result=1;
 
-  if(this->CurrentIterator!=0)
+  if(this->CurrentIterator!=nullptr)
   {
     result=this->CurrentIterator->IsAtEnd();
   }
@@ -106,7 +106,7 @@ double *vtkBridgePointIterator::GetPosition()
 
   double *result=this->CurrentIterator->GetPosition();
 
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -118,7 +118,7 @@ double *vtkBridgePointIterator::GetPosition()
 void vtkBridgePointIterator::GetPosition(double x[3])
 {
   assert("pre: not_off" && !IsAtEnd());
-  assert("pre: x_exists" && x!=0);
+  assert("pre: x_exists" && x!=nullptr);
   this->CurrentIterator->GetPosition(x);
 }
 
@@ -140,7 +140,7 @@ vtkIdType vtkBridgePointIterator::GetId()
 // \pre ds_exists: ds!=0
 void vtkBridgePointIterator::InitWithDataSet(vtkBridgeDataSet *ds)
 {
-  assert("pre: ds_exists" && ds!=0);
+  assert("pre: ds_exists" && ds!=nullptr);
 
   this->IteratorOnDataSet->InitWithDataSet(ds);
   this->CurrentIterator=this->IteratorOnDataSet;
@@ -156,7 +156,7 @@ void vtkBridgePointIterator::InitWithOnePoint(vtkBridgeDataSet *ds,
                                               vtkIdType id)
 {
   assert("pre: valid_id" &&
-         ((ds==0) || ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
+         ((ds==nullptr) || ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
 
   this->IteratorOne->InitWithOnePoint(ds,id);
   this->CurrentIterator=this->IteratorOne;
@@ -168,7 +168,7 @@ void vtkBridgePointIterator::InitWithOnePoint(vtkBridgeDataSet *ds,
 // \pre cell_exists: cell!=0
 void vtkBridgePointIterator::InitWithCell(vtkBridgeCell *cell)
 {
-  assert("pre: cell_exists" && cell!=0);
+  assert("pre: cell_exists" && cell!=nullptr);
 
   this->IteratorOnCell->InitWithCell(cell);
   this->CurrentIterator=this->IteratorOnCell;

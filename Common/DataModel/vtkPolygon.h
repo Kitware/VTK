@@ -52,7 +52,7 @@ public:
   int GetNumberOfEdges() VTK_OVERRIDE {return this->GetNumberOfPoints();};
   int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
   vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
-  vtkCell *GetFace(int) VTK_OVERRIDE {return 0;};
+  vtkCell *GetFace(int) VTK_OVERRIDE {return nullptr;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator,vtkCellArray *verts,
@@ -98,7 +98,7 @@ public:
 
   //@{
   /**
-   * Computes the unit normal to the polygon. If pts=NULL, point indexing is
+   * Computes the unit normal to the polygon. If pts=nullptr, point indexing is
    * assummed to be {0, 1, ..., numPts-1}.
    */
   static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
@@ -123,7 +123,7 @@ public:
 
   //@{
   /**
-   * Determine whether or not a polygon is convex. If pts=NULL, point indexing
+   * Determine whether or not a polygon is convex. If pts=nullptr, point indexing
    * is assummed to be {0, 1, ..., numPts-1}.
    */
   static bool IsConvex(vtkPoints *p, int numPts, vtkIdType *pts);
@@ -146,7 +146,7 @@ public:
    * Compute the area of a polygon in 3D. The area is returned, as well as
    * the normal (a side effect of using this method). If you desire to
    * compute the area of a triangle, use vtkTriangleArea which is faster.
-   * If pts==NULL, point indexing is supposed to be {0, 1, ..., numPts-1}.
+   * If pts==nullptr, point indexing is supposed to be {0, 1, ..., numPts-1}.
    * If you already have a vtkPolygon instantiated, a convenience function,
    * ComputeArea() is provided.
    */

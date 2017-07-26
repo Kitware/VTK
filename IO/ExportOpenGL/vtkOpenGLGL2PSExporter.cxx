@@ -80,7 +80,7 @@ vtkOpenGLGL2PSExporter::~vtkOpenGLGL2PSExporter()
 void vtkOpenGLGL2PSExporter::WriteData()
 {
   // make sure the user specified a file prefix
-  if (this->FilePrefix == NULL)
+  if (this->FilePrefix == nullptr)
   {
     vtkErrorMacro(<< "Please specify a file prefix to use");
     return;
@@ -231,7 +231,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
   {
     gl2psBeginPage(this->Title ? this->Title : "VTK GL2PS Export", "VTK",
                    viewport, format, sort, options, GL_RGBA, 0,
-                   NULL, 0, 0, 0, buffsize, fpObj, fName);
+                   nullptr, 0, 0, 0, buffsize, fpObj, fName);
 
     // Render non-specialized geometry by either passing in the raster image or
     // rendering into the feedback buffer.
@@ -280,7 +280,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
   fclose(fpObj);
 
   // Clean up:
-  vtkGL2PSUtilities::SetRenderWindow(NULL);
+  vtkGL2PSUtilities::SetRenderWindow(nullptr);
   vtkGL2PSUtilities::SetTextAsPath(false);
   // Re-enable depth peeling if needed
   for (int i = 0; i < static_cast<int>(origDepthPeeling.size()); ++i)

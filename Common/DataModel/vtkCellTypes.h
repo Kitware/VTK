@@ -76,7 +76,7 @@ public:
   vtkIdType GetCellLocation(int cellId) { return this->LocationArray->GetValue(cellId);};
 
   /**
-   * Delete cell by setting to NULL cell type.
+   * Delete cell by setting to nullptr cell type.
    */
   void DeleteCell(vtkIdType cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);};
 

@@ -574,7 +574,7 @@ public:
    * Supports piece and extent (optional) requests.
    */
   virtual int UpdatePiece(
-    int piece, int numPieces, int ghostLevels, const int extents[6]=0);
+    int piece, int numPieces, int ghostLevels, const int extents[6]=nullptr);
 
   /**
    * Convenience method to update an algorithm after passing requests
@@ -590,7 +590,7 @@ public:
    * Supports time, piece (optional) and extent (optional) requests.
    */
   virtual int UpdateTimeStep(double time,
-    int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=0);
+    int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=nullptr);
 
   /**
    * Bring the algorithm's information up-to-date.
@@ -922,8 +922,8 @@ protected:
 
   /**
    * Replace the Nth connection on the given input port.  For use only
-   * by this class and subclasses.  If this is used to store a NULL
-   * input then the subclass must be able to handle NULL inputs in its
+   * by this class and subclasses.  If this is used to store a nullptr
+   * input then the subclass must be able to handle nullptr inputs in its
    * ProcessRequest method.
    */
   virtual void SetNthInputConnection(int port, int index,
@@ -932,7 +932,7 @@ protected:
   /**
    * Set the number of input connections on the given input port.  For
    * use only by this class and subclasses.  If this is used to store
-   * a NULL input then the subclass must be able to handle NULL inputs
+   * a nullptr input then the subclass must be able to handle nullptr inputs
    * in its ProcessRequest method.
    */
   virtual void SetNumberOfInputConnections(int port, int n);

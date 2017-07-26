@@ -38,8 +38,8 @@ static istream& my_getline(istream& input, std::string& output, char delimiter =
 // ----------------------------------------------------------------------
 
 vtkRISReader::vtkRISReader() :
-  FileName(0),
-  Delimiter(0),
+  FileName(nullptr),
+  Delimiter(nullptr),
   MaxRecords(0)
 {
   this->SetDelimiter(";");
@@ -52,8 +52,8 @@ vtkRISReader::vtkRISReader() :
 
 vtkRISReader::~vtkRISReader()
 {
-  this->SetDelimiter(0);
-  this->SetFileName(0);
+  this->SetDelimiter(nullptr);
+  this->SetFileName(nullptr);
 }
 
 // ----------------------------------------------------------------------

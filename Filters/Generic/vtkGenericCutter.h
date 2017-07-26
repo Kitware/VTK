@@ -157,7 +157,7 @@ public:
   void CreateDefaultLocator();
 
 protected:
-  vtkGenericCutter(vtkImplicitFunction *cf=NULL);
+  vtkGenericCutter(vtkImplicitFunction *cf=nullptr);
   ~vtkGenericCutter() VTK_OVERRIDE;
 
   //@{

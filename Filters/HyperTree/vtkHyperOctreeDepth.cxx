@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkHyperOctreeDepth);
 //----------------------------------------------------------------------------
 vtkHyperOctreeDepth::vtkHyperOctreeDepth()
 {
-  this->GeneratedDepths = 0;
+  this->GeneratedDepths = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ vtkHyperOctreeDepth::~vtkHyperOctreeDepth()
   if (this->GeneratedDepths)
   {
     this->GeneratedDepths->Delete();
-    this->GeneratedDepths = 0;
+    this->GeneratedDepths = nullptr;
   }
 }
 
@@ -66,7 +66,7 @@ int vtkHyperOctreeDepth::RequestData(vtkInformation *vtkNotUsed(request),
   if (this->GeneratedDepths)
   {
     this->GeneratedDepths->Delete();
-    this->GeneratedDepths = 0;
+    this->GeneratedDepths = nullptr;
   }
   this->GeneratedDepths = vtkIntArray::New();
   this->GeneratedDepths->SetNumberOfComponents(1);

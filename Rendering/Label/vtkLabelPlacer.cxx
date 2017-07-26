@@ -194,12 +194,12 @@ int vtkLabelPlacer::Internal::DumpPlaced = 0;
 
 vtkLabelPlacer::vtkLabelPlacer()
 {
-  this->Renderer = 0;
+  this->Renderer = nullptr;
   this->Gravity = CenterCenter;
   this->AnchorTransform = vtkCoordinate::New();
   this->AnchorTransform->SetCoordinateSystemToWorld();
   this->MaximumLabelFraction = 0.05; // Take up no more than 5% of screen real estate with labels.
-  this->Buckets = 0;
+  this->Buckets = nullptr;
   this->PositionsAsNormals = false;
   //this->IteratorType = vtkLabelHierarchy::DEPTH_FIRST;
   //this->IteratorType = vtkLabelHierarchy::FULL_SORT;
@@ -544,7 +544,7 @@ int vtkLabelPlacer::RequestData(
     this->Buckets->Reset( kdbounds, tileSize );
   }
 
-  float * zPtr = NULL;
+  float * zPtr = nullptr;
   int placed = 0;
   int occluded = 0;
 

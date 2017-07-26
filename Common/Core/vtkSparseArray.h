@@ -47,7 +47,7 @@
  * Reserve storage for a specific number of non-null values, for efficiency when the
  * number of non-null values is known in advance.
  *
- * Recompute the array extents so that they bound the largest set of non-NULL values
+ * Recompute the array extents so that they bound the largest set of non-nullptr values
  * along each dimension.
  *
  * Specify arbitrary array extents.
@@ -105,12 +105,12 @@ public:
   // vtkSparseArray API
 
   /**
-   * Set the value that will be returned by GetValue() for NULL areas of the array.
+   * Set the value that will be returned by GetValue() for nullptr areas of the array.
    */
   void SetNullValue(const T& value);
 
   /**
-   * Returns the value that will be returned by GetValue() for NULL areas of the array.
+   * Returns the value that will be returned by GetValue() for nullptr areas of the array.
    */
   const T& GetNullValue();
 
@@ -166,7 +166,7 @@ public:
   /**
    * Reserve storage for a specific number of values.  This is useful for reading external
    * data using GetCoordinateStorage() and GetValueStorage(), when the total
-   * number of non-NULL values in the array can be determined in advance.  Note that after
+   * number of non-nullptr values in the array can be determined in advance.  Note that after
    * calling ReserveStorage(), all coordinates and values will be undefined, so you must
    * ensure that every set of coordinates and values is overwritten.  It is the caller's
    * responsibility to ensure that duplicate coordinates are not inserted into the array.
@@ -247,7 +247,7 @@ private:
 
   //@{
   /**
-   * Stores the value that will be returned when accessing NULL areas
+   * Stores the value that will be returned when accessing nullptr areas
    * of the array.
    */
   T NullValue;

@@ -999,7 +999,7 @@ vtkDataObject *vtkCookieCutter::GetLoops()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GetExecutive()->GetInputData(1, 0);

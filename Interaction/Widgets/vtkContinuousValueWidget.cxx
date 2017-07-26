@@ -109,7 +109,7 @@ void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget *w)
     self->WidgetRep->Highlight(1);
     // start the interaction
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     self->Render();
     return;
   }
@@ -166,7 +166,7 @@ void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
   eventPos[0] = self->Interactor->GetEventPosition()[0];
   eventPos[1] = self->Interactor->GetEventPosition()[1];
   self->WidgetRep->WidgetInteraction(eventPos);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   self->Render();
 
   // Interact, if desired
@@ -204,7 +204,7 @@ void vtkContinuousValueWidget::EndSelectAction(vtkAbstractWidget *w)
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
 }
 

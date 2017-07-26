@@ -118,7 +118,7 @@ public:
     newinc[0] = increment;
     newinc[1] = 0;
     newinc[2] = 0;
-    return this->Upload3D(type, data, newdims, comps, newinc,0,0);
+    return this->Upload3D(type, data, newdims, comps, newinc,0,nullptr);
   }
   //@}
 
@@ -144,7 +144,7 @@ public:
     newinc[0] = increments[0];
     newinc[1] = increments[1];
     newinc[2] = 0;
-    return this->Upload3D(type, data, newdims, comps, newinc,0,0);
+    return this->Upload3D(type, data, newdims, comps, newinc,0,nullptr);
   }
   //@}
 

@@ -62,18 +62,18 @@ vtkConvertSelection::vtkConvertSelection()
 {
   this->SetNumberOfInputPorts(2);
   this->OutputType = vtkSelectionNode::INDICES;
-  this->ArrayNames = 0;
+  this->ArrayNames = nullptr;
   this->InputFieldType = -1;
   this->MatchAnyValues = false;
   this->AllowMissingArray = false;
-  this->SelectionExtractor = 0;
+  this->SelectionExtractor = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkConvertSelection::~vtkConvertSelection()
 {
-  this->SetArrayNames(0);
-  this->SetSelectionExtractor(0);
+  this->SetArrayNames(nullptr);
+  this->SetSelectionExtractor(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ const char* vtkConvertSelection::GetArrayName()
   {
     return this->ArrayNames->GetValue(0);
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -189,7 +189,7 @@ int vtkConvertSelection::ConvertToIndexSelection(
   output->SetContentType(vtkSelectionNode::INDICES);
   int type = input->GetFieldType();
   output->SetFieldType(type);
-  vtkSignedCharArray* insidedness = 0;
+  vtkSignedCharArray* insidedness = nullptr;
   if (type == vtkSelectionNode::CELL)
   {
     insidedness = vtkArrayDownCast<vtkSignedCharArray>(
@@ -427,7 +427,7 @@ int vtkConvertSelection::Convert(
 
     // If the output is a threshold selection, we need exactly one array name.
     if (this->OutputType == vtkSelectionNode::THRESHOLDS &&
-        (this->ArrayNames == 0 || this->ArrayNames->GetNumberOfValues() != 1))
+        (this->ArrayNames == nullptr || this->ArrayNames->GetNumberOfValues() != 1))
     {
       vtkErrorMacro("One array name must be specified for thresholds selection.");
       return 0;
@@ -435,7 +435,7 @@ int vtkConvertSelection::Convert(
 
     // If the output is a values selection, we need at lease one array name.
     if (this->OutputType == vtkSelectionNode::VALUES &&
-        (this->ArrayNames == 0 || this->ArrayNames->GetNumberOfValues() == 0))
+        (this->ArrayNames == nullptr || this->ArrayNames->GetNumberOfValues() == 0))
     {
       vtkErrorMacro("At least one array name must be specified for values selection.");
       return 0;
@@ -477,8 +477,8 @@ int vtkConvertSelection::Convert(
     }
 
     // Get the correct field data
-    vtkFieldData* fd = 0;
-    vtkDataSetAttributes* dsa = 0;
+    vtkFieldData* fd = nullptr;
+    vtkDataSetAttributes* dsa = nullptr;
     if (vtkDataSet::SafeDownCast(data))
     {
       if (!inputNode->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()) ||
@@ -578,7 +578,7 @@ int vtkConvertSelection::Convert(
         vtkErrorMacro("Thresholds selection requires vtkDoubleArray selection list.");
         return 0;
       }
-      vtkDataArray *dataArr = 0;
+      vtkDataArray *dataArr = nullptr;
       if (dsa)
       {
         dataArr = vtkArrayDownCast<vtkDataArray>(dsa->GetAbstractArray(lims->GetName()));
@@ -623,7 +623,7 @@ int vtkConvertSelection::Convert(
         vtkSmartPointer<vtkTable>::New();
       for (vtkIdType col = 0; col < selTable->GetNumberOfColumns(); col++)
       {
-        vtkAbstractArray* dataArr = 0;
+        vtkAbstractArray* dataArr = nullptr;
         if (dsa)
         {
           dataArr = dsa->GetAbstractArray(selTable->GetColumn(col)->GetName());
@@ -646,7 +646,7 @@ int vtkConvertSelection::Convert(
     {
       // Get the appropriate array
       vtkAbstractArray* selArr = inputNode->GetSelectionList();
-      vtkAbstractArray* dataArr = 0;
+      vtkAbstractArray* dataArr = nullptr;
       if (dsa && inputNode->GetContentType() == vtkSelectionNode::PEDIGREEIDS)
       {
         dataArr = dsa->GetPedigreeIds();
@@ -683,7 +683,7 @@ int vtkConvertSelection::Convert(
       }
 
       // Handle the special case where we have a domain array.
-      vtkStringArray* domainArr = dsa ? vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray("domain")) : 0;
+      vtkStringArray* domainArr = dsa ? vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray("domain")) : nullptr;
       if (inputNode->GetContentType() == vtkSelectionNode::PEDIGREEIDS &&
           domainArr && selArr->GetName())
       {
@@ -751,7 +751,7 @@ int vtkConvertSelection::Convert(
 
     // Handle the special case where we have a pedigree id selection with a domain array.
     vtkStringArray* outputDomainArr = dsa ? vtkArrayDownCast<vtkStringArray>(
-        dsa->GetAbstractArray("domain")) : 0;
+        dsa->GetAbstractArray("domain")) : nullptr;
     if (this->OutputType == vtkSelectionNode::PEDIGREEIDS && outputDomainArr)
     {
       vtkAbstractArray* outputDataArr = dsa->GetPedigreeIds();
@@ -813,7 +813,7 @@ int vtkConvertSelection::Convert(
     for (vtkIdType ind = 0; ind < numOutputArrays; ind++)
     {
       // Find the output array where to get the output selection values.
-      vtkAbstractArray* outputDataArr = 0;
+      vtkAbstractArray* outputDataArr = nullptr;
       if (dsa && this->OutputType == vtkSelectionNode::VALUES)
       {
         outputDataArr = dsa->GetAbstractArray(this->ArrayNames->GetValue(ind));
@@ -1099,7 +1099,7 @@ vtkSelection* vtkConvertSelection::ToSelectionType(
   convert->SetAllowMissingArray(allowMissingArray);
   convert->Update();
   vtkSelection* output = convert->GetOutput();
-  output->Register(0);
+  output->Register(nullptr);
   dataCopy->Delete();
   return output;
 }

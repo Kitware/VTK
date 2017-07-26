@@ -356,7 +356,7 @@ vtkImageData* vtkPairwiseExtractHistogram2D::GetOutputHistogramImage(int idx)
   {
     return vtkImageData::SafeDownCast(mbds->GetBlock(idx));
   }
-  return NULL;
+  return nullptr;
 }
 //------------------------------------------------------------------------------
 void vtkPairwiseExtractHistogram2D::GetBinWidth(int idx,double bw[2])
@@ -377,7 +377,7 @@ double* vtkPairwiseExtractHistogram2D::GetHistogramExtents(int idx)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 //------------------------------------------------------------------------------

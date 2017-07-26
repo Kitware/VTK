@@ -57,7 +57,7 @@ public:
 protected:
   vtkIVWriter()
   {
-    this->FileName = NULL;
+    this->FileName = nullptr;
   }
 
   ~vtkIVWriter() VTK_OVERRIDE

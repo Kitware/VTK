@@ -115,13 +115,13 @@ int @VTK_TESTDATAARRAYAPI_TESTNAME@(int, char *[])
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
   vtkAOSDataArrayTemplate<ScalarT> *name = \
   vtkAOSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
 
 #define DataArrayAPICreateReferenceArrayWithType(name, valueType) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<valueType>(); \
   vtkAOSDataArrayTemplate<valueType> *name = \
     vtkAOSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
 
 #define DataArrayAPINonFatalError(x) \
   { \
@@ -321,7 +321,7 @@ int Test_ComponentNames()
   for (vtkIdType c = 0; c < static_cast<vtkIdType>(comps); ++c)
   {
     DataArrayAPIUpdateSignature("const char* GetComponentName(vtkIdType comp)");
-    DataArrayAPIAssert(array->GetComponentName(c) == NULL,
+    DataArrayAPIAssert(array->GetComponentName(c) == nullptr,
                        "New array has a named component.");
     str.str("");
     str << "Component " << c;
@@ -927,7 +927,7 @@ int Test_voidPtr_GetVoidPointer()
       vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
     }
 
-    DataArrayAPIAssert(ptr != NULL, "GetVoidPointer returned NULL!");
+    DataArrayAPIAssert(ptr != nullptr, "GetVoidPointer returned nullptr!");
     for (int c = 0; c < comps; ++c)
     {
       ScalarT test = *ptr++;
@@ -1587,7 +1587,7 @@ int Test_int_IsNumeric()
 }
 
 // vtkArrayIterator* NewIterator()
-// Just test that the returned iterator is non-NULL and the data types match.
+// Just test that the returned iterator is non-nullptr and the data types match.
 template <typename ScalarT, typename ArrayT>
 int Test_vtkArrayIteratorPtr_NewIterator()
 {
@@ -1615,8 +1615,8 @@ int Test_vtkArrayIteratorPtr_NewIterator()
     vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
   }
 
-  DataArrayAPIAssert(iter != NULL,
-                     "NewIterator() returns NULL.");
+  DataArrayAPIAssert(iter != nullptr,
+                     "NewIterator() returns nullptr.");
 
   int iterDataType = iter->GetDataType();
   iter->Delete();
@@ -1740,7 +1740,7 @@ int Test_LookupValue_allSigs()
        ++it)
   {
     it->second->Delete();
-    it->second = NULL;
+    it->second = nullptr;
   }
 
   DataArrayAPIFinish();
@@ -2207,7 +2207,7 @@ int Test_voidptr_WriteVoidPointer_id_number()
 }
 
 // void CreateDefaultLookupTable()
-// GetLookupTable should be non-NULL after calling.
+// GetLookupTable should be non-nullptr after calling.
 template <typename ScalarT, typename ArrayT>
 int Test_void_CreateDefaultLookupTable()
 {
@@ -2216,7 +2216,7 @@ int Test_void_CreateDefaultLookupTable()
   DataArrayAPICreateTestArray(source);
 
   source->CreateDefaultLookupTable();
-  if (source->GetLookupTable() == NULL)
+  if (source->GetLookupTable() == nullptr)
   {
     DataArrayAPIError("Lookup table was not created.");
   }

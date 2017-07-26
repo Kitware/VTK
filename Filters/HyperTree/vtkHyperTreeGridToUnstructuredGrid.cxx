@@ -30,26 +30,26 @@ vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
 {
-  this->Input = 0;
-  this->Output = 0;
+  this->Input = nullptr;
+  this->Output = nullptr;
 
-  this->InData = 0;
-  this->OutData = 0;
+  this->InData = nullptr;
+  this->OutData = nullptr;
 
-  this->Points = 0;
-  this->Cells = 0;
+  this->Points = nullptr;
+  this->Cells = nullptr;
 
   this->Dimension = 0;
   this->CellSize = 0;
 
-  this->Coefficients = 0;
+  this->Coefficients = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
 {
   delete [] this->Coefficients;
-  this->Coefficients = 0;
+  this->Coefficients = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
     vtkUnstructuredGrid::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   delete [] this->Coefficients;
-  this->Coefficients = 0;
+  this->Coefficients = nullptr;
 
   // Set instance variables needed for this conversion
   this->Dimension = this->Input->GetDimension();
@@ -170,10 +170,10 @@ int vtkHyperTreeGridToUnstructuredGrid::RequestData( vtkInformation*,
   this->ProcessTrees();
 
   // Clean up
-  this->Input = 0;
-  this->Output = 0;
-  this->InData = 0;
-  this->OutData = 0;
+  this->Input = nullptr;
+  this->Output = nullptr;
+  this->InData = nullptr;
+  this->OutData = nullptr;
 
   this->UpdateProgress ( 1. );
 
@@ -224,9 +224,9 @@ void vtkHyperTreeGridToUnstructuredGrid::ProcessTrees()
   }
 
   this->Points->UnRegister( this );
-  this->Points = 0;
+  this->Points = nullptr;
   this->Cells->UnRegister( this );
-  this->Cells = 0;
+  this->Cells = nullptr;
 }
 
 //----------------------------------------------------------------------------

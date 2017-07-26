@@ -52,7 +52,7 @@ vtkPHardwareSelector::vtkPHardwareSelector()
 //----------------------------------------------------------------------------
 vtkPHardwareSelector::~vtkPHardwareSelector()
 {
-  this->Observer->Target = 0;
+  this->Observer->Target = nullptr;
   this->Observer->Delete();
 }
 

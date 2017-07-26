@@ -57,11 +57,11 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
 vtkOpenGLGlyph3DHelper::~vtkOpenGLGlyph3DHelper()
 {
   this->NormalMatrixBuffer->Delete();
-  this->NormalMatrixBuffer = 0;
+  this->NormalMatrixBuffer = nullptr;
   this->MatrixBuffer->Delete();
-  this->MatrixBuffer = 0;
+  this->MatrixBuffer = nullptr;
   this->ColorBuffer->Delete();
-  this->ColorBuffer = 0;
+  this->ColorBuffer = nullptr;
 }
 
 

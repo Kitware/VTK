@@ -52,7 +52,7 @@ vtkOpenGLLabeledContourMapper::vtkOpenGLLabeledContourMapper()
 vtkOpenGLLabeledContourMapper::~vtkOpenGLLabeledContourMapper()
 {
   delete this->StencilBO;
-  this->StencilBO = 0;
+  this->StencilBO = nullptr;
   this->TempMatrix4->Delete();
 }
 
@@ -159,7 +159,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
     this->StencilQuadsSize/3,
     this->StencilQuadIndices,
     this->StencilQuadIndicesSize,
-    NULL,
+    nullptr,
     this->StencilBO->Program,
     this->StencilBO->VAO);
 

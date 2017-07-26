@@ -43,7 +43,7 @@ static const char* TypeNames[] = {
   "SOLID",
   "RIGID_BODY",
   "ROAD_SURFACE",
-  NULL};
+  nullptr};
 
 typedef std::vector<bool> BitVector;
 
@@ -93,7 +93,7 @@ protected:
 
 public:
   InternalCellProperties():
-    DeadCells(NULL),DeadIndex(0),UserIds(NULL),UserIdIndex(0){}
+    DeadCells(nullptr),DeadIndex(0),UserIds(nullptr),UserIdIndex(0){}
 
   ~InternalCellProperties()
   {
@@ -101,7 +101,7 @@ public:
   for(it=Properties.begin();it!=Properties.end();++it)
   {
     delete (*it);
-    (*it)=NULL;
+    (*it)=nullptr;
   }
   this->Properties.clear();
 
@@ -109,8 +109,8 @@ public:
   delete[] this->UserIds;
   }
 
-  bool NoDeadCells() const { return DeadCells == NULL; }
-  bool NoUserIds() const { return UserIds == NULL; }
+  bool NoDeadCells() const { return DeadCells == nullptr; }
+  bool NoUserIds() const { return UserIds == nullptr; }
 
   template<typename T>
   void* AddProperty(const int& offset, const int& numTuples, const int& numComps)
@@ -296,7 +296,7 @@ protected:
 class vtkLSDynaPart::InternalCurrentPointInfo
 {
   public:
-  InternalCurrentPointInfo():ptr(NULL),index(0){}
+  InternalCurrentPointInfo():ptr(nullptr),index(0){}
   void *ptr;
   vtkIdType index;
 };
@@ -309,7 +309,7 @@ vtkLSDynaPart::vtkLSDynaPart()
   this->Cells = new vtkLSDynaPart::InternalCells();
   this->CellProperties = new vtkLSDynaPart::InternalCellProperties();
   this->CurrentPointPropInfo = new vtkLSDynaPart::InternalCurrentPointInfo();
-  this->GlobalPointsUsed = NULL;
+  this->GlobalPointsUsed = nullptr;
 
   this->Type = LSDynaMetaData::NUM_CELL_TYPES;
   this->Name = vtkStdString();
@@ -324,9 +324,9 @@ vtkLSDynaPart::vtkLSDynaPart()
   this->TopologyBuilt = false;
   this->DoubleBased = true;
 
-  this->Grid = NULL;
-  this->ThresholdGrid = NULL;
-  this->Points = NULL;
+  this->Grid = nullptr;
+  this->ThresholdGrid = nullptr;
+  this->Points = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -339,12 +339,12 @@ vtkLSDynaPart::~vtkLSDynaPart()
   if(Grid)
   {
     Grid->Delete();
-    Grid=NULL;
+    Grid=nullptr;
   }
   if(Points)
   {
     Points->Delete();
-    Points=NULL;
+    Points=nullptr;
   }
   delete this->GlobalPointsUsed;
   if(this->ThresholdGrid)
@@ -388,7 +388,7 @@ void vtkLSDynaPart::InitPart(vtkStdString name,
   this->DoubleBased = (sizeOfWord == 8);
   this->NumberOfGlobalPoints = numGlobalPoints;
 
-  this->GlobalPointsUsed = NULL;
+  this->GlobalPointsUsed = nullptr;
 
   this->Grid = vtkUnstructuredGrid::New();
   this->Points = vtkPoints::New();
@@ -566,7 +566,7 @@ vtkUnstructuredGrid* vtkLSDynaPart::RemoveDeletedCells()
   double pt[3];
   vtkIdType numCellPts=0, ptId=0, newId=0, newCellId=0;
   vtkIdList *newCellPts = vtkIdList::New();
-  vtkIdList *cellPts = NULL;
+  vtkIdList *cellPts = nullptr;
   for(vtkIdType cellId=0; cellId < this->NumberOfCells; ++cellId)
   {
     vtkCell *cell = this->Grid->GetCell(cellId);
@@ -757,8 +757,8 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
     const bool &isIdTypeProperty, const bool& isProperty,
     const bool& isGeometry)
 {
-  this->CurrentPointPropInfo->ptr = NULL;
-  vtkDataArray *data = NULL;
+  this->CurrentPointPropInfo->ptr = nullptr;
+  vtkDataArray *data = nullptr;
   if(isProperty)
   {
     data = this->Grid->GetPointData()->GetArray(name);
@@ -824,8 +824,8 @@ void vtkLSDynaPart::AddCellProperty(const char* name, const int& offset,
     return;
   }
 
-  vtkDataArray *data=NULL;
-  void *ptr = NULL;
+  vtkDataArray *data=nullptr;
+  void *ptr = nullptr;
   if(this->DoubleBased)
   {
     ptr = this->CellProperties->AddProperty<double>(offset,this->NumberOfCells,
@@ -920,7 +920,7 @@ void vtkLSDynaPart::BuildCells()
   cellLocations->SetVoidArray(&this->Cells->locations[0],this->NumberOfCells,1);
 
   //actually set up the grid
-  this->Grid->SetCells(cellTypes,cellLocations,cells,NULL,NULL);
+  this->Grid->SetCells(cellTypes,cellLocations,cells,nullptr,nullptr);
 
   //remove references
   cellTypes->FastDelete();

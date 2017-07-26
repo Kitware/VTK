@@ -101,7 +101,7 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -126,7 +126,7 @@ void vtkSliderWidget::MoveAction(vtkAbstractWidget *w)
 
   // Interact, if desired
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   self->Render();
 }
 
@@ -157,7 +157,7 @@ void vtkSliderWidget::EndSelectAction(vtkAbstractWidget *w)
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -199,7 +199,7 @@ void vtkSliderWidget::AnimateSlider(int selectionState)
       sliderRep->SetValue(maxValue);
     }
     sliderRep->BuildRepresentation();
-    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   else if ( this->AnimationMode == vtkSliderWidget::Animate )
@@ -228,7 +228,7 @@ void vtkSliderWidget::AnimateSlider(int selectionState)
         (static_cast<double>(i+1)/this->NumberOfAnimationSteps)*(targetValue-originalValue);
       sliderRep->SetValue(value);
       sliderRep->BuildRepresentation();
-      this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
       this->Render();
     }
   }

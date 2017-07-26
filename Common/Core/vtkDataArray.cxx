@@ -368,7 +368,7 @@ vtkInformationKeyMacro(vtkDataArray, UNITS_LABEL, String);
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray()
 {
-  this->LookupTable = NULL;
+  this->LookupTable = nullptr;
   this->Range[0] = 0;
   this->Range[1] = 0;
   this->FiniteRange[0] = 0;
@@ -382,19 +382,19 @@ vtkDataArray::~vtkDataArray()
   {
     this->LookupTable->Delete();
   }
-  this->SetName(0);
+  this->SetName(nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArray::DeepCopy(vtkAbstractArray* aa)
 {
-  if ( aa == NULL )
+  if ( aa == nullptr )
   {
     return;
   }
 
   vtkDataArray *da = vtkDataArray::FastDownCast(aa);
-  if (da == NULL)
+  if (da == nullptr)
   {
     vtkErrorMacro(<< "Input array is not a vtkDataArray ("
                   << aa->GetClassName() << ")");
@@ -411,7 +411,7 @@ void vtkDataArray::DeepCopy(vtkAbstractArray* aa)
 void vtkDataArray::DeepCopy(vtkDataArray *da)
 {
   // Match the behavior of the old AttributeData
-  if ( da == NULL )
+  if ( da == nullptr )
   {
     return;
   }
@@ -436,7 +436,7 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
       }
     }
 
-    this->SetLookupTable(0);
+    this->SetLookupTable(nullptr);
     if (da->LookupTable)
     {
       this->LookupTable = da->LookupTable->NewInstance();

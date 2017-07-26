@@ -394,15 +394,15 @@ vtkBSplineTransform::vtkBSplineTransform()
   this->BorderMode = VTK_BSPLINE_EDGE;
   this->InverseTolerance = 1e-6;
   this->DisplacementScale = 1.0;
-  this->CalculateSpline = 0;
-  this->GridPointer = 0;
+  this->CalculateSpline = nullptr;
+  this->GridPointer = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkBSplineTransform::~vtkBSplineTransform()
 {
   this->ConnectionHolder->Delete();
-  this->ConnectionHolder = 0;
+  this->ConnectionHolder = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -487,7 +487,7 @@ void vtkBSplineTransform::ForwardTransformPoint(const double inPoint[3],
   point[1] = (inPoint[1] - origin[1])/spacing[1];
   point[2] = (inPoint[2] - origin[2])/spacing[2];
 
-  this->CalculateSpline(point, displacement, 0,
+  this->CalculateSpline(point, displacement, nullptr,
                         gridPtr, extent, increments, this->BorderMode);
 
   outPoint[0] = inPoint[0] + displacement[0]*scale;
@@ -634,7 +634,7 @@ void vtkBSplineTransform::InverseTransformDerivative(const double inPoint[3],
 
   // first guess at inverse point, just subtract displacement
   // (the inverse point is given in i,j,k indices plus fractions)
-  this->CalculateSpline(point, deltaP, 0,
+  this->CalculateSpline(point, deltaP, nullptr,
                         gridPtr, extent, increments, this->BorderMode);
 
   inverse[0] = point[0] - deltaP[0]*scale*invSpacing[0];
@@ -811,7 +811,7 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform *transform)
   this->CalculateSpline = gridTransform->CalculateSpline;
   this->ConnectionHolder->SetInputConnection(
     0, gridTransform->ConnectionHolder->GetNumberOfInputConnections(0) ?
-    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : 0);
+    gridTransform->ConnectionHolder->GetInputConnection(0, 0) : nullptr);
   this->SetDisplacementScale(gridTransform->DisplacementScale);
   this->SetBorderMode(gridTransform->BorderMode);
 
@@ -826,9 +826,9 @@ void vtkBSplineTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 void vtkBSplineTransform::InternalUpdate()
 {
   vtkImageData *grid = this->GetCoefficientData();
-  this->GridPointer = 0;
+  this->GridPointer = nullptr;
 
-  if (grid == 0)
+  if (grid == nullptr)
   {
     return;
   }
@@ -856,7 +856,7 @@ void vtkBSplineTransform::InternalUpdate()
       this->CalculateSpline = &(vtkBSplineTransformFunction<double>::Cubic);
       break;
     default:
-      this->CalculateSpline = 0;
+      this->CalculateSpline = nullptr;
       vtkErrorMacro("InternalUpdate: grid type must be float or double");
       break;
   }

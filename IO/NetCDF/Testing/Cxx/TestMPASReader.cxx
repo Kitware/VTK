@@ -54,7 +54,7 @@ int TestMPASReader( int argc, char *argv[] )
     argc, argv,"Data/NetCDF/MPASReader.nc");
   std::string fileName(fName);
   delete []fName;
-  fName = NULL;
+  fName = nullptr;
 
   // make 2 loops for 2 actors since the reader can read in the file
   // as an sphere or as a plane

@@ -135,7 +135,7 @@ int vtkExtractLevel::RequestData(
   vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
   vtkUniformGridAMR *input =
    vtkUniformGridAMR::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if( input == NULL )
+  if( input == nullptr )
   {
     return( 0 );
   }
@@ -145,7 +145,7 @@ int vtkExtractLevel::RequestData(
   vtkMultiBlockDataSet *output =
       vtkMultiBlockDataSet::SafeDownCast(
           info->Get(vtkDataObject::DATA_OBJECT()));
-  if( output == NULL )
+  if( output == nullptr )
   {
     return( 0 );
   }
@@ -172,14 +172,14 @@ int vtkExtractLevel::RequestData(
       for(; dataIdx < input->GetNumberOfDataSets(level); ++dataIdx )
       {
         vtkUniformGrid* data = input->GetDataSet(level,dataIdx);
-        if( data != NULL )
+        if( data != nullptr )
         {
           vtkUniformGrid *copy = data->NewInstance();
           copy->ShallowCopy( data );
           output->SetBlock( blockIdx, copy );
           copy->Delete();
           ++blockIdx;
-        } // END if data is not NULL
+        } // END if data is not nullptr
       } // END for all data at level l
     } // END for all requested levels
   } // END if numBlocksToLoad is greater than 0

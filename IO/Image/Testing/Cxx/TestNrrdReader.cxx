@@ -36,7 +36,7 @@ int TestNrrdReader(int argc, char *argv[])
       vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.nrrd");
   char *filename2 =
       vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.ascii.nhdr");
-  if ((filename1 == NULL) || (filename2 == NULL))
+  if ((filename1 == nullptr) || (filename2 == nullptr))
   {
     cerr << "Could not get file names.";
     return 1;

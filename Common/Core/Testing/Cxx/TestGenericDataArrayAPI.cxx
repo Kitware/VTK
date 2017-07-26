@@ -150,13 +150,13 @@ int TestGenericDataArrayAPI(int, char *[])
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
   vtkAOSDataArrayTemplate<ScalarT> *name = \
   vtkAOSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
 
 #define DataArrayAPICreateReferenceArrayWithType(name, valueType) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<valueType>(); \
   vtkAOSDataArrayTemplate<valueType> *name = \
     vtkAOSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
 
 #define DataArrayAPINonFatalError(x) \
   { \
@@ -513,7 +513,7 @@ int Test_LookupTypedValue_allSigs()
        ++it)
   {
     it->second->Delete();
-    it->second = NULL;
+    it->second = nullptr;
   }
 
   DataArrayAPIFinish();

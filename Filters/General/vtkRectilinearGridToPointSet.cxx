@@ -112,14 +112,14 @@ int vtkRectilinearGridToPointSet::RequestData(
   vtkRectilinearGrid *inData = vtkRectilinearGrid::GetData(inputVector[0]);
   vtkStructuredGrid *outData = vtkStructuredGrid::GetData(outputVector);
 
-  if (inData == NULL)
+  if (inData == nullptr)
   {
-    vtkErrorMacro(<< "Input data is NULL.");
+    vtkErrorMacro(<< "Input data is nullptr.");
     return 0;
   }
-  if (outData == NULL)
+  if (outData == nullptr)
   {
-    vtkErrorMacro(<< "Output data is NULL.");
+    vtkErrorMacro(<< "Output data is nullptr.");
     return 0;
   }
 

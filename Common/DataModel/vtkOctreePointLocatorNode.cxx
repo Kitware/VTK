@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkOctreePointLocatorNode);
 
 //----------------------------------------------------------------------------
 vtkOctreePointLocatorNode::vtkOctreePointLocatorNode() :
-  NumberOfPoints(0), Children(NULL), ID(-1), MinID(-1)
+  NumberOfPoints(0), Children(nullptr), ID(-1), MinID(-1)
 {
   // set the min and max data value and bounds since we won't know it
   // for a while
@@ -94,7 +94,7 @@ void vtkOctreePointLocatorNode::DeleteChildNodes()
       this->Children[i]->Delete();
     }
     delete []this->Children;
-    this->Children = 0;
+    this->Children = nullptr;
   }
 }
 
@@ -105,7 +105,7 @@ vtkOctreePointLocatorNode* vtkOctreePointLocatorNode::GetChild(int i)
   {
     return this->Children[i];
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
   double x, double y, double z, vtkOctreePointLocatorNode* top,
   int useDataBounds=0)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, NULL, 0, top, useDataBounds);
+  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 0, top, useDataBounds);
 }
 
 //----------------------------------------------------------------------------
@@ -271,7 +271,7 @@ double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
 double vtkOctreePointLocatorNode::GetDistance2ToInnerBoundary(
   double x, double y, double z, vtkOctreePointLocatorNode* top)
 {
-  return this->_GetDistance2ToBoundary(x, y, z, NULL, 1, top, 0);
+  return this->_GetDistance2ToBoundary(x, y, z, nullptr, 1, top, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -298,8 +298,8 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
     min = this->MinBounds; max = this->MaxBounds;   // region itself
   }
 
-  double *outerBoundaryMin=NULL;
-  double *outerBoundaryMax=NULL;
+  double *outerBoundaryMin=nullptr;
+  double *outerBoundaryMax=nullptr;
 
   if (innerBoundaryOnly)
   {

@@ -41,7 +41,7 @@ public:
   //the range of the min and max
   //Note: min is included, and max is excluded from the valid range of cells.
   void InitCollection(LSDynaMetaData *metaData,
-    vtkIdType* mins=NULL, vtkIdType* maxs=NULL);
+    vtkIdType* mins=nullptr, vtkIdType* maxs=nullptr);
 
 
   //Description:

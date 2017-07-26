@@ -123,8 +123,8 @@ int vtkTensorGlyph::RequestData(
   vtkDataArray *sourceNormals;
   vtkCellArray *sourceCells, *cells;
   vtkPoints *newPts;
-  vtkFloatArray *newScalars=NULL;
-  vtkFloatArray *newNormals=NULL;
+  vtkFloatArray *newScalars=nullptr;
+  vtkFloatArray *newNormals=nullptr;
   double x[3], s;
   vtkTransform *trans;
   vtkCell *cell;
@@ -528,7 +528,7 @@ vtkPolyData *vtkTensorGlyph::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }

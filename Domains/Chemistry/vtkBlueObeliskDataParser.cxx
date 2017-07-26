@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkBlueObeliskDataParser);
 //----------------------------------------------------------------------------
 vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
   : vtkXMLParser(),
-    Target(NULL),
+    Target(nullptr),
     IsProcessingAtom(false),
     IsProcessingValue(false),
     CurrentValueType(None),
@@ -56,7 +56,7 @@ vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
 //----------------------------------------------------------------------------
 vtkBlueObeliskDataParser::~vtkBlueObeliskDataParser()
 {
-  this->SetTarget(NULL);
+  this->SetTarget(nullptr);
   delete CurrentSymbol;
   delete CurrentName;
   delete CurrentPeriodicTableBlock;
@@ -522,13 +522,13 @@ inline void vtkBlueObeliskDataParser::parseFloat3(const char *str,
 
   char *curTok = strtok(strcopy, " ");
 
-  while (curTok != NULL)
+  while (curTok != nullptr)
   {
     if (ind == 3)
       break;
 
     arr[ind++] = static_cast<float>(atof(curTok));
-    curTok = strtok(NULL, " ");
+    curTok = strtok(nullptr, " ");
   }
 
   if (ind != 3)

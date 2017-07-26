@@ -40,7 +40,7 @@ vtkEnSight6Reader::vtkEnSight6Reader()
 {
   this->NumberOfUnstructuredPoints = 0;
   this->UnstructuredPoints = vtkPoints::New();
-  this->UnstructuredNodeIds = NULL;
+  this->UnstructuredNodeIds = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -49,10 +49,10 @@ vtkEnSight6Reader::~vtkEnSight6Reader()
   if (this->UnstructuredNodeIds)
   {
     this->UnstructuredNodeIds->Delete();
-    this->UnstructuredNodeIds = NULL;
+    this->UnstructuredNodeIds = nullptr;
   }
   this->UnstructuredPoints->Delete();
-  this->UnstructuredPoints = NULL;
+  this->UnstructuredPoints = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -204,7 +204,7 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep,
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -338,11 +338,11 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep,
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   if (this->UnstructuredNodeIds)
   {
       this->UnstructuredNodeIds->Delete();
-      this->UnstructuredNodeIds = NULL;
+      this->UnstructuredNodeIds = nullptr;
   }
 
   return 1;
@@ -389,7 +389,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -434,7 +434,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
 
   this->NumberOfNewOutputs++;
 
-  if (this->GetDataSetFromBlock(output, this->NumberOfGeometryParts) == NULL ||
+  if (this->GetDataSetFromBlock(output, this->NumberOfGeometryParts) == nullptr ||
       !this->GetDataSetFromBlock(output, this->NumberOfGeometryParts)->IsA("vtkPolyData"))
   {
     vtkDebugMacro("creating new measured geometry output");
@@ -485,7 +485,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerNode variable file name");
+    vtkErrorMacro("nullptr ScalarPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -509,7 +509,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -703,7 +703,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -724,7 +724,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerNode variable file name");
+    vtkErrorMacro("nullptr VectorPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -748,7 +748,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -904,7 +904,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -926,7 +926,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorSymmPerNode variable file name");
+    vtkErrorMacro("nullptr TensorSymmPerNode variable file name");
     return 0;
   }
   std::string sfilename;
@@ -950,7 +950,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1058,7 +1058,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -1080,7 +1080,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL ScalarPerElement variable file name");
+    vtkErrorMacro("nullptr ScalarPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1104,7 +1104,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1188,7 +1188,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
         {
           vtkErrorMacro("invalid element type");
           delete this->IS;
-          this->IS = NULL;
+          this->IS = nullptr;
           return 0;
         }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -1240,7 +1240,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -1261,7 +1261,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL VectorPerElement variable file name");
+    vtkErrorMacro("nullptr VectorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1285,7 +1285,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1364,7 +1364,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
         {
           vtkErrorMacro("invalid element type");
           delete this->IS;
-          this->IS = NULL;
+          this->IS = nullptr;
           return 0;
         }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -1409,7 +1409,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -1430,7 +1430,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
   //
   if (!fileName)
   {
-    vtkErrorMacro("NULL TensorPerElement variable file name");
+    vtkErrorMacro("nullptr TensorPerElement variable file name");
     return 0;
   }
   std::string sfilename;
@@ -1454,7 +1454,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -1534,7 +1534,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
         {
           vtkErrorMacro("invalid element type");
           delete this->IS;
-          this->IS = NULL;
+          this->IS = nullptr;
           return 0;
         }
         idx = this->UnstructuredPartIds->IsId(partId);
@@ -1559,7 +1559,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
   }
 
   delete this->IS;
-  this->IS = NULL;
+  this->IS = nullptr;
   return 1;
 }
 
@@ -1578,7 +1578,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
 
   this->NumberOfNewOutputs++;
 
-  if (this->GetDataSetFromBlock(compositeOutput, partId) == NULL ||
+  if (this->GetDataSetFromBlock(compositeOutput, partId) == nullptr ||
       !this->GetDataSetFromBlock(compositeOutput, partId)->IsA("vtkUnstructuredGrid"))
   {
     vtkDebugMacro("creating new unstructured output");
@@ -2094,7 +2094,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
 
   this->NumberOfNewOutputs++;
 
-  if (this->GetDataSetFromBlock(compositeOutput, partId) == NULL ||
+  if (this->GetDataSetFromBlock(compositeOutput, partId) == nullptr ||
       !this->GetDataSetFromBlock(compositeOutput, partId)->IsA("vtkStructuredGrid"))
   {
     vtkDebugMacro("creating new structured grid output");

@@ -245,7 +245,7 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i &position)
   if (position.GetX() < this->Size.GetX() && position.GetY() < this->Size.GetY())
   {
     size_t index = position.GetY() * this->Size.GetX() + position.GetX();
-    if (this->Private->Charts[index] == NULL)
+    if (this->Private->Charts[index] == nullptr)
     {
       vtkNew<vtkChartXY> chart;
       this->Private->Charts[index] = chart.GetPointer();
@@ -256,7 +256,7 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i &position)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 

@@ -195,7 +195,7 @@ public:
    * as well as listening for DeleteEvents, without actually having to process
    * mouse events.)
    */
-  void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
+  void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=nullptr);
   void ReleaseFocus();
   //@}
 

@@ -19,8 +19,8 @@ vtkStandardNewMacro(vtkFileOutputWindow);
 
 vtkFileOutputWindow::vtkFileOutputWindow()
 {
-  this->OStream = NULL;
-  this->FileName = NULL;
+  this->OStream = nullptr;
+  this->FileName = nullptr;
   this->Append = 0;
   this->Flush = 0;
 }

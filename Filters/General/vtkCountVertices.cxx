@@ -32,12 +32,12 @@ void vtkCountVertices::PrintSelf(std::ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "OutputArrayName: "
-     << (this->OutputArrayName ? this->OutputArrayName : "(NULL)") << "\n";
+     << (this->OutputArrayName ? this->OutputArrayName : "(nullptr)") << "\n";
 }
 
 //------------------------------------------------------------------------------
 vtkCountVertices::vtkCountVertices()
-  : OutputArrayName(NULL)
+  : OutputArrayName(nullptr)
 {
   this->SetOutputArrayName("Vertex Count");
 }
@@ -45,7 +45,7 @@ vtkCountVertices::vtkCountVertices()
 //------------------------------------------------------------------------------
 vtkCountVertices::~vtkCountVertices()
 {
-  this->SetOutputArrayName(NULL);
+  this->SetOutputArrayName(nullptr);
 }
 
 //------------------------------------------------------------------------------

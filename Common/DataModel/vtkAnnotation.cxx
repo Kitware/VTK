@@ -45,7 +45,7 @@ vtkInformationKeyMacro(vtkAnnotation, DATA, DataObject);
 
 vtkAnnotation::vtkAnnotation()
 {
-  this->Selection = 0;
+  this->Selection = nullptr;
 }
 
 vtkAnnotation::~vtkAnnotation()
@@ -179,7 +179,7 @@ vtkMTimeType vtkAnnotation::GetMTime()
 
 vtkAnnotation* vtkAnnotation::GetData(vtkInformation* info)
 {
-  return info ? vtkAnnotation::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info ? vtkAnnotation::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 vtkAnnotation* vtkAnnotation::GetData(vtkInformationVector* v, int i)

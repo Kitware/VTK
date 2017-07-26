@@ -58,7 +58,7 @@ public:
 // Constructor
 vtkClipConvexPolyData::vtkClipConvexPolyData()
 {
-  this->Planes=NULL;
+  this->Planes=nullptr;
   this->Internal=new vtkClipConvexPolyDataInternals;
 
 }
@@ -67,7 +67,7 @@ vtkClipConvexPolyData::vtkClipConvexPolyData()
 // Destructor
 vtkClipConvexPolyData::~vtkClipConvexPolyData()
 {
-  this->SetPlanes(NULL);
+  this->SetPlanes(nullptr);
   this->ClearInternals();
   delete this->Internal;
 }
@@ -79,7 +79,7 @@ vtkClipConvexPolyData::~vtkClipConvexPolyData()
 vtkMTimeType vtkClipConvexPolyData::GetMTime()
 {
   vtkMTimeType result=Superclass::GetMTime();
-  if(this->Planes!=0)
+  if(this->Planes!=nullptr)
   {
     vtkMTimeType planesTime=this->Planes->GetMTime();
     if(planesTime>result)
@@ -164,7 +164,7 @@ int vtkClipConvexPolyData::RequestData(
   vtkInformationVector *outputVector)
 {
   // Pre-conditions
-  if(this->Planes==0)
+  if(this->Planes==nullptr)
   {
     vtkErrorMacro("plane collection is null");
     return 0;

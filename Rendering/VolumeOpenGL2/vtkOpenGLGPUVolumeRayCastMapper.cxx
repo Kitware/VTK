@@ -109,17 +109,17 @@ public:
     this->CubeVBOId = 0;
     this->CubeVAOId = 0;
     this->CubeIndicesId = 0;
-    this->NoiseTextureObject = NULL;
-    this->DepthTextureObject = 0;
+    this->NoiseTextureObject = nullptr;
+    this->DepthTextureObject = nullptr;
     this->TextureWidth = 1024;
     this->ActualSampleDistance = 1.0;
-    this->RGBTables = 0;
-    this->OpacityTables = 0;
-    this->Mask1RGBTable = 0;
-    this->Mask2RGBTable =  0;
-    this->GradientOpacityTables = 0;
-    this->TransferFunctions2D = NULL;
-    this->CurrentMask = 0;
+    this->RGBTables = nullptr;
+    this->OpacityTables = nullptr;
+    this->Mask1RGBTable = nullptr;
+    this->Mask2RGBTable =  nullptr;
+    this->GradientOpacityTables = nullptr;
+    this->TransferFunctions2D = nullptr;
+    this->CurrentMask = nullptr;
     this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = -1;
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->WindowLowerLeft[0] = this->WindowLowerLeft[1] = 0;
@@ -130,7 +130,7 @@ public:
     this->CurrentSelectionPass = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
 
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
-    this->NoiseTextureData = NULL;
+    this->NoiseTextureData = nullptr;
 
     this->NumberOfLights = 0;
     this->LightComplexity = 0;
@@ -154,25 +154,25 @@ public:
     this->Bias.clear();
 
     this->NeedToInitializeResources = false;
-    this->ShaderCache = 0;
+    this->ShaderCache = nullptr;
 
-    this->FBO = 0;
-    this->RTTDepthBufferTextureObject = 0;
-    this->RTTDepthTextureObject = 0;
-    this->RTTColorTextureObject = 0;
+    this->FBO = nullptr;
+    this->RTTDepthBufferTextureObject = nullptr;
+    this->RTTDepthTextureObject = nullptr;
+    this->RTTColorTextureObject = nullptr;
     this->RTTDepthTextureType = -1;
 
-    this->DPFBO = 0;
-    this->DPDepthBufferTextureObject = 0;
-    this->DPColorTextureObject = 0;
+    this->DPFBO = nullptr;
+    this->DPDepthBufferTextureObject = nullptr;
+    this->DPColorTextureObject = nullptr;
     this->PreserveViewport = false;
     this->PreserveGLState = false;
 
-    this->ImageSampleFBO = NULL;
-    this->ImageSampleTexture = NULL;
-    this->ImageSampleProg = NULL;
-    this->ImageSampleVAO = NULL;
-    this->ImageSampleVBO = NULL;
+    this->ImageSampleFBO = nullptr;
+    this->ImageSampleTexture = nullptr;
+    this->ImageSampleProg = nullptr;
+    this->ImageSampleVAO = nullptr;
+    this->ImageSampleVBO = nullptr;
   }
 
   // Destructor
@@ -184,61 +184,61 @@ public:
     if (this->NoiseTextureObject)
     {
       this->NoiseTextureObject->Delete();
-      this->NoiseTextureObject = NULL;
+      this->NoiseTextureObject = nullptr;
     }
 
     if (this->DepthTextureObject)
     {
       this->DepthTextureObject->Delete();
-      this->DepthTextureObject = NULL;
+      this->DepthTextureObject = nullptr;
     }
 
     if (this->FBO)
     {
       this->FBO->Delete();
-      this->FBO = NULL;
+      this->FBO = nullptr;
     }
 
     if (this->RTTDepthBufferTextureObject)
     {
       this->RTTDepthBufferTextureObject->Delete();
-      this->RTTDepthBufferTextureObject = NULL;
+      this->RTTDepthBufferTextureObject = nullptr;
     }
 
     if (this->RTTDepthTextureObject)
     {
       this->RTTDepthTextureObject->Delete();
-      this->RTTDepthTextureObject = NULL;
+      this->RTTDepthTextureObject = nullptr;
     }
 
     if (this->RTTColorTextureObject)
     {
       this->RTTColorTextureObject->Delete();
-      this->RTTColorTextureObject = NULL;
+      this->RTTColorTextureObject = nullptr;
     }
 
     if (this->ImageSampleFBO)
     {
       this->ImageSampleFBO->Delete();
-      this->ImageSampleFBO = NULL;
+      this->ImageSampleFBO = nullptr;
     }
 
     if (this->ImageSampleTexture)
     {
       this->ImageSampleTexture->Delete();
-      this->ImageSampleTexture = NULL;
+      this->ImageSampleTexture = nullptr;
     }
 
     if (this->ImageSampleVBO)
     {
       this->ImageSampleVBO->Delete();
-      this->ImageSampleVBO = NULL;
+      this->ImageSampleVBO = nullptr;
     }
 
     if (this->ImageSampleVAO)
     {
       this->ImageSampleVAO->Delete();
-      this->ImageSampleVAO = NULL;
+      this->ImageSampleVAO = nullptr;
     }
     this->DeleteTransfer1D();
     this->DeleteTransfer2D();
@@ -249,7 +249,7 @@ public:
     this->Bias.clear();
 
     // Do not delete the shader programs - Let the cache clean them up.
-    this->ImageSampleProg = NULL;
+    this->ImageSampleProg = nullptr;
   }
 
   // Helper methods
@@ -637,14 +637,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupTransferFunction1D(
   this->RGBTablesMap.clear();
   this->GradientOpacityTablesMap.clear();
 
-  if (this->Parent->MaskInput != 0 &&
+  if (this->Parent->MaskInput != nullptr &&
       this->Parent->MaskType == LabelMapMaskType)
   {
-    if(this->Mask1RGBTable == NULL)
+    if(this->Mask1RGBTable == nullptr)
     {
       this->Mask1RGBTable = vtkOpenGLVolumeRGBTable::New();
     }
-    if(this->Mask2RGBTable == NULL)
+    if(this->Mask2RGBTable == nullptr)
     {
       this->Mask2RGBTable = vtkOpenGLVolumeRGBTable::New();
     }
@@ -859,7 +859,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
     std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
       this->MaskTextures->Map.find(maskInput);
 
-    vtkVolumeMask* mask = 0;
+    vtkVolumeMask* mask = nullptr;
     if(it2 == this->MaskTextures->Map.end())
     {
       mask = new vtkVolumeMask();
@@ -943,25 +943,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ReleaseGraphicsTransfer1D(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransfer1D()
 {
   delete this->RGBTables;
-  this->RGBTables = NULL;
+  this->RGBTables = nullptr;
 
   if (this->Mask1RGBTable)
   {
     this->Mask1RGBTable->Delete();
-    this->Mask1RGBTable = NULL;
+    this->Mask1RGBTable = nullptr;
   }
 
   if (this->Mask2RGBTable)
   {
     this->Mask2RGBTable->Delete();
-    this->Mask2RGBTable = NULL;
+    this->Mask2RGBTable = nullptr;
   }
 
   delete this->OpacityTables;
-  this->OpacityTables = NULL;
+  this->OpacityTables = nullptr;
 
   delete this->GradientOpacityTables;
-  this->GradientOpacityTables = NULL;
+  this->GradientOpacityTables = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -978,7 +978,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ReleaseGraphicsTransfer2D(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransfer2D()
 {
   delete this->TransferFunctions2D;
-  this->TransferFunctions2D = NULL;
+  this->TransferFunctions2D = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1093,7 +1093,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 #endif
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
-  if (this->Parent->MaskInput != 0 &&
+  if (this->Parent->MaskInput != nullptr &&
       this->Parent->MaskType == LabelMapMaskType)
   {
     vtkColorTransferFunction* colorTransferFunc =
@@ -1284,7 +1284,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateNoiseTexture(
     if (sizeChanged || !this->NoiseTextureData)
     {
       delete[] this->NoiseTextureData;
-      this->NoiseTextureData = NULL;
+      this->NoiseTextureData = nullptr;
       this->NoiseTextureData = new float[sizeX * sizeY];
     }
 
@@ -1782,7 +1782,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
 
     glDrawElements(GL_TRIANGLES,
                    this->BBoxPolyData->GetNumberOfCells() * 3,
-                   GL_UNSIGNED_INT, 0);
+                   GL_UNSIGNED_INT, nullptr);
 
     vtkOpenGLStaticCheckErrorMacro("Error after glDrawElements in"
       " RenderVolumeGeometry!");
@@ -1938,7 +1938,7 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPropertyKeys(vtkVolume* vol)
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPickingState(vtkRenderer* ren)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool selectorPicking = selector != NULL;
+  bool selectorPicking = selector != nullptr;
   if (selector)
   {
     // this mapper currently only supports cell picking
@@ -2401,7 +2401,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
       if (this->RTTDepthTextureObject)
       {
         this->RTTDepthTextureObject->Delete();
-        this->RTTDepthTextureObject = 0;
+        this->RTTDepthTextureObject = nullptr;
       }
       this->RTTDepthTextureObject = vtkTextureObject::New();
       this->RTTDepthTextureObject->SetContext(
@@ -2599,28 +2599,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
     if (this->FBO)
     {
       this->FBO->Delete();
-      this->FBO = 0;
+      this->FBO = nullptr;
     }
 
     if (this->RTTDepthBufferTextureObject)
     {
       this->RTTDepthBufferTextureObject->ReleaseGraphicsResources(win);
       this->RTTDepthBufferTextureObject->Delete();
-      this->RTTDepthBufferTextureObject = 0;
+      this->RTTDepthBufferTextureObject = nullptr;
     }
 
     if (this->RTTDepthTextureObject)
     {
       this->RTTDepthTextureObject->ReleaseGraphicsResources(win);
       this->RTTDepthTextureObject->Delete();
-      this->RTTDepthTextureObject = 0;
+      this->RTTDepthTextureObject = nullptr;
     }
 
     if (this->RTTColorTextureObject)
     {
       this->RTTColorTextureObject->ReleaseGraphicsResources(win);
       this->RTTColorTextureObject->Delete();
-      this->RTTColorTextureObject = 0;
+      this->RTTColorTextureObject = nullptr;
     }
   }
 }
@@ -2637,21 +2637,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
     if (this->DPFBO)
     {
       this->DPFBO->Delete();
-      this->DPFBO = 0;
+      this->DPFBO = nullptr;
     }
 
     if (this->DPDepthBufferTextureObject)
     {
       this->DPDepthBufferTextureObject->ReleaseGraphicsResources(win);
       this->DPDepthBufferTextureObject->Delete();
-      this->DPDepthBufferTextureObject = 0;
+      this->DPDepthBufferTextureObject = nullptr;
     }
 
     if (this->DPColorTextureObject)
     {
       this->DPColorTextureObject->ReleaseGraphicsResources(win);
       this->DPColorTextureObject->Delete();
-      this->DPColorTextureObject = 0;
+      this->DPColorTextureObject = nullptr;
     }
 
     this->ContourMapper->ReleaseGraphicsResources(win);
@@ -2670,30 +2670,30 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
     if (this->ImageSampleFBO)
     {
       this->ImageSampleFBO->Delete();
-      this->ImageSampleFBO = NULL;
+      this->ImageSampleFBO = nullptr;
     }
 
     if (this->ImageSampleTexture)
     {
       this->ImageSampleTexture->ReleaseGraphicsResources(win);
       this->ImageSampleTexture->Delete();
-      this->ImageSampleTexture = NULL;
+      this->ImageSampleTexture = nullptr;
     }
 
     if (this->ImageSampleVBO)
     {
       this->ImageSampleVBO->Delete();
-      this->ImageSampleVBO = NULL;
+      this->ImageSampleVBO = nullptr;
     }
 
     if (this->ImageSampleVAO)
     {
       this->ImageSampleVAO->Delete();
-      this->ImageSampleVAO = NULL;
+      this->ImageSampleVAO = nullptr;
     }
 
     // Do not delete the shader program - Let the cache clean it up.
-    this->ImageSampleProg = NULL;
+    this->ImageSampleProg = nullptr;
   }
 }
 
@@ -2705,7 +2705,7 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   this->ReductionFactor = 1.0;
   this->CurrentPass = RenderPass;
   this->NoiseTextureSize[0] = this->NoiseTextureSize[1] = -1;
-  this->NoiseGenerator = NULL;
+  this->NoiseGenerator = nullptr;
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLGPUVolumeRayCastMapper>(this,
     &vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources);
@@ -2721,20 +2721,20 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
   {
     this->ResourceCallback->Release();
     delete this->ResourceCallback;
-    this->ResourceCallback = NULL;
+    this->ResourceCallback = nullptr;
   }
 
   if (this->NoiseGenerator)
   {
     this->NoiseGenerator->Delete();
-    this->NoiseGenerator = NULL;
+    this->NoiseGenerator = nullptr;
   }
 
   delete this->Impl;
-  this->Impl = NULL;
+  this->Impl = nullptr;
 
   this->VolumeTexture->Delete();
-  this->VolumeTexture = NULL;
+  this->VolumeTexture = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -2793,21 +2793,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   {
     this->Impl->NoiseTextureObject->ReleaseGraphicsResources(window);
     this->Impl->NoiseTextureObject->Delete();
-    this->Impl->NoiseTextureObject = NULL;
+    this->Impl->NoiseTextureObject = nullptr;
   }
 
   if (this->Impl->DepthTextureObject)
   {
     this->Impl->DepthTextureObject->ReleaseGraphicsResources(window);
     this->Impl->DepthTextureObject->Delete();
-    this->Impl->DepthTextureObject = NULL;
+    this->Impl->DepthTextureObject = nullptr;
   }
 
   this->Impl->ReleaseRenderToTextureGraphicsResources(window);
   this->Impl->ReleaseDepthPassGraphicsResources(window);
   this->Impl->ReleaseImageSampleGraphicsResources(window);
 
-  if(this->Impl->MaskTextures != NULL)
+  if(this->Impl->MaskTextures != nullptr)
   {
     if(!this->Impl->MaskTextures->Map.empty())
     {
@@ -3431,14 +3431,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   }
 
   // Mask
-  vtkVolumeMask* mask = 0;
-  if(this->MaskInput != 0)
+  vtkVolumeMask* mask = nullptr;
+  if(this->MaskInput != nullptr)
   {
     std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
       this->Impl->MaskTextures->Map.find(this->MaskInput);
     if(it2 == this->Impl->MaskTextures->Map.end())
     {
-      mask=0;
+      mask=nullptr;
     }
     else
     {
@@ -3648,7 +3648,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
 
   vtkVolumeTexture::VolumeBlock* block = this->VolumeTexture->GetNextBlock();
 
-  while(block != NULL)
+  while(block != nullptr)
   {
   this->Impl->ComputeBounds(block->ImageData);
 
@@ -3743,7 +3743,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   if(noOfComponents == 1 &&
      this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
   {
-    if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
+    if (this->MaskInput != nullptr && this->MaskType == LabelMapMaskType)
     {
       this->Impl->Mask1RGBTable->Activate();
       prog->SetUniformi("in_mask1",
@@ -3993,7 +3993,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   if(noOfComponents == 1 &&
      this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
   {
-    if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
+    if (this->MaskInput != nullptr && this->MaskType == LabelMapMaskType)
     {
       this->Impl->Mask1RGBTable->Deactivate();
       this->Impl->Mask2RGBTable->Deactivate();

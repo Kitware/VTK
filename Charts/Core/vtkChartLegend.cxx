@@ -82,8 +82,8 @@ vtkChartLegend::vtkChartLegend()
 vtkChartLegend::~vtkChartLegend()
 {
   delete this->Storage;
-  this->Storage = NULL;
-  this->Point = NULL;
+  this->Storage = nullptr;
+  this->Point = nullptr;
 }
 
 //-----------------------------------------------------------------------------

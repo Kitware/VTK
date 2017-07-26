@@ -94,7 +94,7 @@ void vtkSDDPSetUpdateExtentToWholeExtent(vtkInformation *info)
 vtkStreamingDemandDrivenPipeline::vtkStreamingDemandDrivenPipeline()
 {
   this->ContinueExecuting = 0;
-  this->UpdateExtentRequest = 0;
+  this->UpdateExtentRequest = nullptr;
   this->LastPropogateUpdateExtentShortCircuited = 0;
 }
 
@@ -203,7 +203,7 @@ int vtkStreamingDemandDrivenPipeline
     }
 
     // Get the output info
-    vtkInformation* outInfo = 0;
+    vtkInformation* outInfo = nullptr;
     if (outputPort > -1)
     {
       outInfo = outInfoVec->GetInformationObject(outputPort);
@@ -212,9 +212,9 @@ int vtkStreamingDemandDrivenPipeline
     // Combine the requested extent into COMBINED_UPDATE_EXTENT,
     // but only do so if the UPDATE_EXTENT key exists and if the
     // UPDATE_EXTENT is not an empty extent
-    int *updateExtent = 0;
+    int *updateExtent = nullptr;
     if (outInfo &&
-        (updateExtent = outInfo->Get(UPDATE_EXTENT())) != 0)
+        (updateExtent = outInfo->Get(UPDATE_EXTENT())) != nullptr)
     {
       // Downstream algorithms can set UPDATE_EXTENT_INITIALIZED to
       // REPLACE if they do not want to combine with previous extents
@@ -362,7 +362,7 @@ int vtkStreamingDemandDrivenPipeline::Update()
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::Update(int port)
 {
-  return this->Update(port, 0);
+  return this->Update(port, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -682,7 +682,7 @@ vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("PropagateUpdateExtent", 0))
+  if(!this->CheckAlgorithm("PropagateUpdateExtent", nullptr))
   {
     return 0;
   }
@@ -721,7 +721,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 int vtkStreamingDemandDrivenPipeline::PropagateTime(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("PropagateTime", 0))
+  if(!this->CheckAlgorithm("PropagateTime", nullptr))
   {
     return 0;
   }
@@ -761,7 +761,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateTime(int outputPort)
 int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation(int port)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdateMetaInformation", 0))
+  if(!this->CheckAlgorithm("UpdateMetaInformation", nullptr))
   {
     return 0;
   }
@@ -1075,7 +1075,7 @@ vtkStreamingDemandDrivenPipeline
   int piece = 0;
   int numPieces = 1;
   int ghostLevel = 0;
-  vtkInformation* fromInfo = 0;
+  vtkInformation* fromInfo = nullptr;
   if (outputPort < outInfoVec->GetNumberOfInformationObjects())
   {
     fromInfo = outInfoVec->GetInformationObject(outputPort);
@@ -1144,7 +1144,7 @@ vtkStreamingDemandDrivenPipeline
       {
         // It does not.
         // Does the input have it? If yes, copy it.
-        vtkDataObject* input = 0;
+        vtkDataObject* input = nullptr;
         if (this->GetNumberOfInputPorts() > 0)
         {
           input = this->GetInputData(0, 0);

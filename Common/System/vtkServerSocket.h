@@ -42,7 +42,7 @@ public:
   /**
    * Waits for a connection. When a connection is received
    * a new vtkClientSocket object is created and returned.
-   * Returns NULL on timeout.
+   * Returns nullptr on timeout.
    */
   vtkClientSocket* WaitForConnection(unsigned long msec=0);
 

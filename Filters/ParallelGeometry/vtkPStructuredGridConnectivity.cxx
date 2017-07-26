@@ -30,7 +30,7 @@ vtkPStructuredGridConnectivity::vtkPStructuredGridConnectivity()
 {
   this->Controller         = vtkMultiProcessController::GetGlobalController();
   this->Initialized        = false;
-  this->MPIRequests        = NULL;
+  this->MPIRequests        = nullptr;
   this->TotalNumberOfSends = 0;
   this->TotalNumberOfRcvs  = 0;
   this->TotalNumberOfMsgs  = 0;
@@ -109,7 +109,7 @@ void vtkPStructuredGridConnectivity::RegisterRemoteGrid(
   // NOTE: remote grids only have their extents since that information is
   // required to determine neighboring.
   this->Superclass::RegisterGrid(
-      gridID, extents, NULL, NULL, NULL, NULL, NULL );
+      gridID, extents, nullptr, nullptr, nullptr, nullptr, nullptr );
   this->GridRanks[ gridID ] = process;
 }
 
@@ -117,7 +117,7 @@ void vtkPStructuredGridConnectivity::RegisterRemoteGrid(
 void vtkPStructuredGridConnectivity::ComputeNeighbors()
 {
   assert( "pre: Instance has not been initialized!" && this->Initialized );
-  assert( "pre: Null multi-process controller" && (this->Controller != NULL) );
+  assert( "pre: Null multi-process controller" && (this->Controller != nullptr) );
 
   this->ExchangeGridExtents();
   this->Controller->Barrier();
@@ -330,8 +330,8 @@ void vtkPStructuredGridConnectivity::PackGhostData()
             (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
     int NumNeis = this->GetNumberOfNeighbors( gridIdx );
-    this->SendBuffers[gridIdx].resize( NumNeis, NULL );
-    this->RcvBuffers[gridIdx].resize( NumNeis, NULL);
+    this->SendBuffers[gridIdx].resize( NumNeis, nullptr );
+    this->RcvBuffers[gridIdx].resize( NumNeis, nullptr);
     this->RcvBufferSizes[gridIdx].resize( NumNeis, 0 );
     this->SendBufferSizes[gridIdx].resize( NumNeis, 0 );
 
@@ -366,7 +366,7 @@ void vtkPStructuredGridConnectivity::PackGhostData()
 void vtkPStructuredGridConnectivity::SerializeBufferSizes(
     int *&sizesbuf, vtkIdType &N)
 {
-  assert("pre: sizes buffer must be NULL" && (sizesbuf==NULL) );
+  assert("pre: sizes buffer must be nullptr" && (sizesbuf==nullptr) );
   assert("pre: Number of sends should be at least 1" &&
          (this->TotalNumberOfSends >= 1) );
 
@@ -377,7 +377,7 @@ void vtkPStructuredGridConnectivity::SerializeBufferSizes(
   }
   N        = 3*k;
   sizesbuf = new int[ N ];
-  assert("pre: Cannot allocate sizes buffer" && (sizesbuf != NULL) );
+  assert("pre: Cannot allocate sizes buffer" && (sizesbuf != nullptr) );
 
   int bidx = 0; // index to the buffer
   for( unsigned int idx=0; idx < this->GridIds.size(); ++idx )
@@ -408,8 +408,8 @@ void vtkPStructuredGridConnectivity::SerializeBufferSizes(
 void vtkPStructuredGridConnectivity::DeserializeBufferSizesForProcess(
     int *buffersizes, vtkIdType N, const int vtkNotUsed(processId) )
 {
-  assert("pre: Controller should not be NULL" && (this->Controller != NULL) );
-  assert("pre: Cannot deserialize empty buffer size" && (buffersizes != NULL) );
+  assert("pre: Controller should not be nullptr" && (this->Controller != nullptr) );
+  assert("pre: Cannot deserialize empty buffer size" && (buffersizes != nullptr) );
   assert("pre: Buffer size should not be empty!" && (N > 0) );
   assert("pre: Buffer size must be a multiple of 3" && ( (N%3)==0) );
   assert("pre: RcvBuffersizes is not properly allocated!" &&
@@ -442,9 +442,9 @@ void vtkPStructuredGridConnectivity::DeserializeBufferSizesForProcess(
 void vtkPStructuredGridConnectivity::ExchangeBufferSizes()
 {
   vtkIdType N      = 0;
-  int *sizesbuffer = NULL;
+  int *sizesbuffer = nullptr;
   this->SerializeBufferSizes( sizesbuffer, N );
-  assert("ERROR: sizesbuffer is NULL!" && (sizesbuffer != NULL));
+  assert("ERROR: sizesbuffer is nullptr!" && (sizesbuffer != nullptr));
   assert("ERROR: N > 0" && (N > 0));
 
   // STEP 1: Get the number of ints each process will send with an all gather
@@ -459,7 +459,7 @@ void vtkPStructuredGridConnectivity::ExchangeBufferSizes()
     rcvBufferSize += rcvcounts[i];
   }
   int *rcvbuffer = new int[ rcvBufferSize ];
-  assert( "pre: receive buffer should not be NULL" && (rcvbuffer != NULL) );
+  assert( "pre: receive buffer should not be nullptr" && (rcvbuffer != nullptr) );
 
   // STEP 3: Calculate offset to the rcvbuffer for each rank
   vtkIdType *offSet = new vtkIdType[ numRanks ];
@@ -551,7 +551,7 @@ void vtkPStructuredGridConnectivity::PostReceives()
   // STEP 0: Acquire MPI controller from supplied Multi-Process controller
   vtkMPIController *myMPIController =
         vtkMPIController::SafeDownCast(this->Controller);
-  assert("pre: Cannot acquire MPI controller" && (myMPIController != NULL) );
+  assert("pre: Cannot acquire MPI controller" && (myMPIController != nullptr) );
 
   // STEP 1: Loop through all local grids and post receives
   int rqstIdx = 0;
@@ -584,8 +584,8 @@ void vtkPStructuredGridConnectivity::PostReceives()
 
       int NeighborRank = this->GetGridRank( neiGridIdx );
 
-      assert("pre: RcvBuffer must be NULL!" &&
-             (this->RcvBuffers[gridIdx][nei] == NULL));
+      assert("pre: RcvBuffer must be nullptr!" &&
+             (this->RcvBuffers[gridIdx][nei] == nullptr));
 
       this->RcvBuffers[gridIdx][nei] =
            new unsigned char[ this->RcvBufferSizes[gridIdx][nei]  ];
@@ -611,7 +611,7 @@ void vtkPStructuredGridConnectivity::PostSends()
   // STEP 0: Acquire MPI controller from supplied Multi-Process controller
   vtkMPIController *myMPIController =
         vtkMPIController::SafeDownCast(this->Controller);
-  assert("pre: Cannot acquire MPI controller" && (myMPIController != NULL) );
+  assert("pre: Cannot acquire MPI controller" && (myMPIController != nullptr) );
 
   // STEP 1: Loop through all local grids and post receives
   int rqstIdx = this->TotalNumberOfRcvs;
@@ -644,8 +644,8 @@ void vtkPStructuredGridConnectivity::PostSends()
 
       int NeighborRank = this->GetGridRank( neiGridIdx );
 
-      assert("pre: RcvBuffer must be NULL!" &&
-             (this->SendBuffers[gridIdx][nei] != NULL));
+      assert("pre: RcvBuffer must be nullptr!" &&
+             (this->SendBuffers[gridIdx][nei] != nullptr));
       assert("pre: RequestIndex is out-of-bounds!" &&
              (rqstIdx >= 0) && (rqstIdx < this->TotalNumberOfMsgs) );
       unsigned char *bufferPtr = this->SendBuffers[gridIdx][nei];
@@ -670,12 +670,12 @@ void vtkPStructuredGridConnectivity::CommunicateGhostData()
          (this->RcvBufferSizes.size() == this->NumberOfGrids ) );
   assert("pre: Neighbors have not been computed!" &&
           this->Neighbors.size() == this->NumberOfGrids );
-  assert("pre: MPI requests array must be NULL!" &&
-         (this->MPIRequests==NULL));
+  assert("pre: MPI requests array must be nullptr!" &&
+         (this->MPIRequests==nullptr));
 
   // STEP 1: Allocate the MPI requests array
   this->MPIRequests = new vtkMPICommunicator::Request[this->TotalNumberOfMsgs];
-  assert("pre:Could not alloc MPI requests array" && (this->MPIRequests!=NULL));
+  assert("pre:Could not alloc MPI requests array" && (this->MPIRequests!=nullptr));
 
   // STEP 2: Allocate receive buffers and post receives
   this->PostReceives();
@@ -691,7 +691,7 @@ void vtkPStructuredGridConnectivity::ExchangeGhostDataPost()
 {
   vtkMPIController *myMPIController =
       vtkMPIController::SafeDownCast(this->Controller);
-  assert("pre: Cannot acquire MPI controller" && (myMPIController != NULL) );
+  assert("pre: Cannot acquire MPI controller" && (myMPIController != nullptr) );
 
   // STEP 0: Block until all communication is completed
   myMPIController->WaitAll(this->TotalNumberOfMsgs,this->MPIRequests);
@@ -717,9 +717,9 @@ void vtkPStructuredGridConnectivity::ExchangeGhostData()
   this->RemoteCellData.resize( this->NumberOfGrids);
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
   {
-    this->RemotePoints[ i ].resize( this->GetNumberOfNeighbors(i),    NULL );
-    this->RemotePointData[ i ].resize( this->GetNumberOfNeighbors(i), NULL );
-    this->RemoteCellData[ i ].resize( this->GetNumberOfNeighbors(i),  NULL );
+    this->RemotePoints[ i ].resize( this->GetNumberOfNeighbors(i),    nullptr );
+    this->RemotePointData[ i ].resize( this->GetNumberOfNeighbors(i), nullptr );
+    this->RemoteCellData[ i ].resize( this->GetNumberOfNeighbors(i),  nullptr );
   }
 
   this->SendBuffers.resize(this->NumberOfGrids);
@@ -751,7 +751,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostPoints(
           this->GridPoints.size() == this->NumberOfGrids);
 
   // STEP 0: Check if the user has registered points for this grid instance
-  if( this->GridPoints[ gridIdx ] == NULL )
+  if( this->GridPoints[ gridIdx ] == nullptr )
   {
     // If not points are registered put a 0 in the bytestream and return!
     bytestream << 0;
@@ -773,7 +773,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostPoints(
 
   // STEP 4: Allocate and store points in a temporary array
   double *pnts = new double[ 3*N ];
-  assert( "Cannot allocate temporary pnts array" && (pnts != NULL) );
+  assert( "Cannot allocate temporary pnts array" && (pnts != nullptr) );
 
   int ijk[3];
   double x[3];
@@ -849,11 +849,11 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
   int N = vtkStructuredData::GetNumberOfPoints(ext,dataDescription);
 
   // STEP 2: Pop the points from the bytestream
-  double *pnts      = NULL;
+  double *pnts      = nullptr;
   unsigned int size = 0;
   bytestream.Pop( pnts, size );
-  assert("pre: deserialize ghosts points array is NULL" &&
-         (pnts != NULL) );
+  assert("pre: deserialize ghosts points array is nullptr" &&
+         (pnts != nullptr) );
   assert("pre: points array is not of the expected size!" &&
          (static_cast<int>(size) == 3*N) );
 
@@ -873,7 +873,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
 void vtkPStructuredGridConnectivity::SerializeDataArray(
     vtkDataArray *dataArray, vtkMultiProcessStream& bytestream )
 {
-  assert("pre: Cannot serialize a NULL data array" && (dataArray != NULL) );
+  assert("pre: Cannot serialize a nullptr data array" && (dataArray != nullptr) );
 
   // STEP 0: Compute number of elements in flat array
   int k       = dataArray->GetNumberOfComponents();
@@ -920,7 +920,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
     {
       // STEP 0: Get the raw data
       unsigned int size = 0;
-      float *data       = NULL;
+      float *data       = nullptr;
       bytestream.Pop( data, size );
       assert( "pre: de-serialized data array is not of the expected size" &&
               (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
@@ -947,7 +947,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
     {
       // STEP 0: Get the raw data
       unsigned int size = 0;
-      double *data      = NULL;
+      double *data      = nullptr;
       bytestream.Pop(data,size);
       assert( "pre: de-serialized data array is not of the expected size" &&
               (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
@@ -974,7 +974,7 @@ void vtkPStructuredGridConnectivity::DeserializeDataArray(
     {
       // STEP 0: Get the raw data
       unsigned int size = 0;
-      int *data         = NULL;
+      int *data         = nullptr;
       bytestream.Pop(data,size);
       assert( "pre: de-serialized data array is not of the expected size" &&
               (size == static_cast<unsigned int>((numberOfTuples*numberOfComponents)) ) );
@@ -1008,7 +1008,7 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
     int GridExtent[6], int ext[6], vtkFieldData *fieldData,
     vtkMultiProcessStream& bytestream )
 {
-  assert("pre: FieldData is NULL" && (fieldData != NULL) );
+  assert("pre: FieldData is nullptr" && (fieldData != nullptr) );
 
   // STEP 0: Write the number of arrays
   bytestream << fieldData->GetNumberOfArrays();
@@ -1017,7 +1017,7 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
   for( int array=0; array < fieldData->GetNumberOfArrays(); ++array )
   {
     vtkDataArray *myArray = fieldData->GetArray( array );
-    assert( "pre: attempting to serialize a NULL array!" && (myArray!=NULL) );
+    assert( "pre: attempting to serialize a nullptr array!" && (myArray!=nullptr) );
 
     int dataType  = myArray->GetDataType();
     int numComp   = myArray->GetNumberOfComponents();
@@ -1079,7 +1079,7 @@ void vtkPStructuredGridConnectivity::DeserializeFieldData(
     int* vtkNotUsed(ext), vtkFieldData* fieldData, vtkMultiProcessStream& bytestream )
 {
   assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
-  assert("pre: field data should not be NULL!" && (fieldData != NULL) );
+  assert("pre: field data should not be nullptr!" && (fieldData != nullptr) );
 
   int NumberOfArrays;
   bytestream >> NumberOfArrays;
@@ -1094,13 +1094,13 @@ void vtkPStructuredGridConnectivity::DeserializeFieldData(
 
   for( int i=0; i < NumberOfArrays; ++i )
   {
-    dataArray = NULL;
+    dataArray = nullptr;
     bytestream >> dataType >> numTuples >> numComponents;
     bytestream >> arrayName;
 
     this->DeserializeDataArray(
         dataArray, dataType, numTuples, numComponents, bytestream );
-    assert("ERROR: data array should not be NULL!" && (dataArray != NULL));
+    assert("ERROR: data array should not be nullptr!" && (dataArray != nullptr));
 
     dataArray->SetName( arrayName.c_str() );
     fieldData->AddArray( dataArray );
@@ -1119,7 +1119,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostPointData(
   assert("pre: GridPointData is not properly allocated" &&
          (this->GridPointData.size()==this->NumberOfGrids));
 
-  if( (this->GridPointData[gridIdx] == NULL) ||
+  if( (this->GridPointData[gridIdx] == nullptr) ||
       (this->GridPointData[gridIdx]->GetNumberOfArrays() == 0) )
   {
     bytestream << 0;
@@ -1180,7 +1180,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostCellData(
   assert("pre: GridCellData is not properly allocated" &&
          (this->GridCellData.size()==this->NumberOfGrids));
 
-  if( this->GridCellData[gridIdx] == NULL ||
+  if( this->GridCellData[gridIdx] == nullptr ||
       this->GridCellData[gridIdx]->GetNumberOfArrays() == 0 )
   {
     bytestream << 0;
@@ -1289,7 +1289,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostData(
 // END DEBUG
 
   // Post-conditions
-  assert("post: buffer should not be NULL!" && (buffer != NULL) );
+  assert("post: buffer should not be nullptr!" && (buffer != nullptr) );
   assert("post: size > 0" && (size > 0) );
 }
 
@@ -1298,7 +1298,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(
     const int gridID, const int neiGridID, const int vtkNotUsed(neiGridIdx),
     int rcvext[6],unsigned char *buffer, unsigned int size )
 {
-  assert("pre: raw buffer is NULL!" && (buffer != NULL) );
+  assert("pre: raw buffer is nullptr!" && (buffer != nullptr) );
   assert("pre: raw buffer size > 0" && (size > 0) );
 
   // STEP 0: Constructs the byte-stream object with raw data
@@ -1315,7 +1315,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(
          (rcvGrid == gridID) );
 
   // STEP 2: Extract the rcv extent
-  int *ext = NULL;
+  int *ext = nullptr;
   unsigned int s = 0;
   bytestream.Pop(ext,s);
 
@@ -1378,13 +1378,13 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(
 void vtkPStructuredGridConnectivity::ExchangeGridExtents()
 {
   assert( "pre: Instance has not been initialized!" && this->Initialized );
-  assert( "pre: Controller is NULL!" && (this->Controller != NULL) );
+  assert( "pre: Controller is nullptr!" && (this->Controller != nullptr) );
 
   // STEP 0: Serialize the data buffer
-  int *buffer   = NULL;
+  int *buffer   = nullptr;
   vtkIdType  N  = 0;
   this->SerializeGridExtents( buffer, N );
-  assert( "pre: buffer != NULL" && (buffer != NULL) );
+  assert( "pre: buffer != nullptr" && (buffer != nullptr) );
   assert( "pre: N > 0" && (N > 0)  );
 
   // STEP 1: Get the number of ints each process will send with an all gather
@@ -1399,7 +1399,7 @@ void vtkPStructuredGridConnectivity::ExchangeGridExtents()
     rcvBufferSize += rcvcounts[i];
   }
   int *rcvbuffer = new int[ rcvBufferSize ];
-  assert( "pre: receive buffer should not be NULL" && (rcvbuffer != NULL) );
+  assert( "pre: receive buffer should not be nullptr" && (rcvbuffer != nullptr) );
 
   // STEP 3: Calculate offset to the rcvbuffer for each rank
   vtkIdType *offSet = new vtkIdType[ numRanks ];
@@ -1436,7 +1436,7 @@ void vtkPStructuredGridConnectivity::SerializeGridExtents(
     int *&sndbuffer, vtkIdType &N )
 {
   assert( "pre: Instance has not been initialized!" && this->Initialized );
-  assert( "pre: send buffer is expected ot be NULL" && sndbuffer == NULL );
+  assert( "pre: send buffer is expected ot be nullptr" && sndbuffer == nullptr );
 
   //Each local extent is serialized with 7 ints:ID imin imax jmin jmax kmin kmax
   N         = this->GetNumberOfLocalGrids()*7;
@@ -1462,9 +1462,9 @@ void vtkPStructuredGridConnectivity::DeserializeGridExtentForProcess(
 {
   // Sanity checks
   assert( "pre: Instance has not been initialized!" && this->Initialized );
-  assert( "pre: Process controller should not be NULL!" &&
-          (this->Controller != NULL) );
-  assert( "pre: rcvbuffer should not be NULL" && (rcvbuffer != NULL) );
+  assert( "pre: Process controller should not be nullptr!" &&
+          (this->Controller != nullptr) );
+  assert( "pre: rcvbuffer should not be nullptr" && (rcvbuffer != nullptr) );
   assert( "pre: must be called for a remote process" &&
           (processId != this->Rank) );
   assert( "pre: processId out-of-bounds!" && (processId >= 0) &&

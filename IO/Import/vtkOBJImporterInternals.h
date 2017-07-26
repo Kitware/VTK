@@ -69,7 +69,7 @@ public:
   // Specify file name of Wavefront .obj file.
   void SetFileName(const char* arg)
   {
-    if (arg == NULL)
+    if (arg == nullptr)
     {
       return;
     }
@@ -81,7 +81,7 @@ public:
   }
   void SetMTLfileName( const char* arg )
   {
-    if (arg == NULL)
+    if (arg == nullptr)
     {
       return;
     }

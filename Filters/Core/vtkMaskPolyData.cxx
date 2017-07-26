@@ -50,7 +50,7 @@ int vtkMaskPolyData::RequestData(
   vtkIdType id;
   vtkPointData *pd;
   vtkIdType numCells;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   int abortExecute=0;
 

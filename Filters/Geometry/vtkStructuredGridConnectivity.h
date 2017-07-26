@@ -659,7 +659,7 @@ inline void vtkStructuredGridConnectivity::GetGhostedExtent(
     const int minIdx, const int maxIdx, const int N )
 {
   assert( "pre: Number of ghost layers must be N >= 1" && (N >= 1) );
-  assert( "pre: ghosted extent pointer is NULL" && ghostedExtent != NULL);
+  assert( "pre: ghosted extent pointer is nullptr" && ghostedExtent != nullptr);
 
   ghostedExtent[minIdx] = GridExtent[minIdx]-N;
   ghostedExtent[maxIdx] = GridExtent[maxIdx]+N;

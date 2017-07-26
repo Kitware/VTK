@@ -99,10 +99,10 @@ void vtkCompositeMapperHelper2::SetShaderValues(
     vtkAbstractArray *scalars = vtkAbstractMapper::GetAbstractScalars(
           hdata->Data, this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
           this->ArrayName, cellFlag);
-    if (scalars == NULL)
+    if (scalars == nullptr)
     {
       vtkLookupTable *lut = vtkLookupTable::SafeDownCast(this->GetLookupTable());
-      vtkColorTransferFunction *ctf = lut ? NULL :
+      vtkColorTransferFunction *ctf = lut ? nullptr :
            vtkColorTransferFunction::SafeDownCast(this->GetLookupTable());
       if (lut)
       {
@@ -224,7 +224,7 @@ int vtkCompositeMapperHelper2::CanUseTextureMapForColoring(vtkDataObject*)
   }
 
   int cellFlag=0;
-  vtkScalarsToColors *scalarsLookupTable = 0;
+  vtkScalarsToColors *scalarsLookupTable = nullptr;
   for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
   {
     vtkPolyData *pd = it->second->Data;
@@ -682,13 +682,13 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   if ( this->ColorCoordinates )
   {
     this->ColorCoordinates->UnRegister(this);
-    this->ColorCoordinates = 0;
+    this->ColorCoordinates = nullptr;
   }
   // Get rid of old texture color coordinates if any
   if ( this->Colors )
   {
     this->Colors->UnRegister(this);
-    this->Colors = 0;
+    this->Colors = nullptr;
   }
 
   // For vertex coloring, this sets this->Colors as side effect.
@@ -702,7 +702,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   // If we are coloring by texture, then load the texture map.
   if (this->ColorTextureMap)
   {
-    if (this->InternalColorTexture == 0)
+    if (this->InternalColorTexture == nullptr)
     {
       this->InternalColorTexture = vtkOpenGLTexture::New();
       this->InternalColorTexture->RepeatOff();
@@ -723,18 +723,18 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
          && this->Colors)
     {
       this->HaveCellScalars = true;
-      c = NULL;
+      c = nullptr;
     }
   }
 
   this->HaveCellNormals = false;
   // Do we have cell normals?
   vtkDataArray *n =
-    (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL;
-  if (n == NULL && poly->GetCellData()->GetNormals())
+    (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : nullptr;
+  if (n == nullptr && poly->GetCellData()->GetNormals())
   {
     this->HaveCellNormals = true;
-    n = NULL;
+    n = nullptr;
   }
 
   int representation = act->GetProperty()->GetRepresentation();
@@ -801,12 +801,12 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     if (n)
     {
       n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
-            poly->GetPointData()->GetNormals() : NULL;
+            poly->GetPointData()->GetNormals() : nullptr;
     }
     if (c)
     {
       this->Colors->Delete();
-      this->Colors = 0;
+      this->Colors = nullptr;
       this->MapScalars(poly,1.0);
       c = this->Colors;
     }
@@ -819,7 +819,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   // Set the texture if we are going to use texture
   // for coloring with a point attribute.
   // fixme ... make the existence of the coordinate array the signal.
-  vtkDataArray *tcoords = NULL;
+  vtkDataArray *tcoords = nullptr;
   if (haveTextures)
   {
     if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
@@ -869,12 +869,12 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
         if (ef->GetNumberOfComponents() != 1)
         {
           vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-          ef = NULL;
+          ef = nullptr;
         }
         if (ef && !ef->IsA("vtkUnsignedCharArray"))
         {
           vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
-          ef = NULL;
+          ef = nullptr;
         }
       }
       if (ef)
@@ -913,12 +913,12 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
       if (ef->GetNumberOfComponents() != 1)
       {
         vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-        ef = NULL;
+        ef = nullptr;
       }
       if (!ef->IsA("vtkUnsignedCharArray"))
       {
         vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
-        ef = NULL;
+        ef = nullptr;
       }
     }
     if (ef)
@@ -1314,12 +1314,12 @@ void vtkCompositePolyDataMapper2::Render(
           (vtkAbstractMapper::GetAbstractScalars(
             pd, this->ScalarMode, this->ArrayAccessMode,
             this->ArrayId, this->ArrayName,
-            cellFlag) != NULL);
+            cellFlag) != nullptr);
 
         bool hasNormals =
           (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
 
-        bool hasTCoords = (pd->GetPointData()->GetTCoords() != NULL);
+        bool hasTCoords = (pd->GetPointData()->GetTCoords() != nullptr);
 
         std::ostringstream toString;
         toString.str("");
@@ -1329,7 +1329,7 @@ void vtkCompositePolyDataMapper2::Render(
           'B' << (hasNormals ? 1 : 0) <<
           'C' << (hasTCoords ? 1 : 0);
 
-        vtkCompositeMapperHelper2 *helper = NULL;
+        vtkCompositeMapperHelper2 *helper = nullptr;
         helpIter found = this->Helpers.find(toString.str());
         if (found == this->Helpers.end())
         {
@@ -1358,12 +1358,12 @@ void vtkCompositePolyDataMapper2::Render(
           (vtkAbstractMapper::GetAbstractScalars(
             pd, this->ScalarMode, this->ArrayAccessMode,
             this->ArrayId, this->ArrayName,
-            cellFlag) != NULL);
+            cellFlag) != nullptr);
 
         bool hasNormals =
           (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals());
 
-        bool hasTCoords = (pd->GetPointData()->GetTCoords() != NULL);
+        bool hasTCoords = (pd->GetPointData()->GetTCoords() != nullptr);
 
         std::ostringstream toString;
         toString.str("");
@@ -1373,7 +1373,7 @@ void vtkCompositePolyDataMapper2::Render(
           'B' << (hasNormals ? 1 : 0) <<
           'C' << (hasTCoords ? 1 : 0);
 
-        vtkCompositeMapperHelper2 *helper = NULL;
+        vtkCompositeMapperHelper2 *helper = nullptr;
         helpIter found = this->Helpers.find(toString.str());
         if (found == this->Helpers.end())
         {
@@ -1500,7 +1500,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
     for (unsigned int cc=0 ; cc < numChildren; cc++)
     {
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
-      if (child == NULL)
+      if (child == nullptr)
       {
         // speeds things up when dealing with NULL blocks (which is common with
         // AMRs).

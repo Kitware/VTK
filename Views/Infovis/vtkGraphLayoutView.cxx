@@ -55,7 +55,7 @@ vtkGraphLayoutView::~vtkGraphLayoutView()
 //----------------------------------------------------------------------------
 vtkRenderedGraphRepresentation* vtkGraphLayoutView::GetGraphRepresentation()
 {
-  vtkRenderedGraphRepresentation* graphRep = 0;
+  vtkRenderedGraphRepresentation* graphRep = nullptr;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
   {
     vtkDataRepresentation* rep = this->GetRepresentation(i);

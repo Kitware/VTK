@@ -74,7 +74,7 @@ int vtkExtractSelectedLocations::RequestData(
 
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkSelectionNode *node = 0;
+  vtkSelectionNode *node = nullptr;
   if (sel->GetNumberOfNodes() == 1)
   {
     node = sel->GetNode(0);
@@ -260,8 +260,8 @@ int vtkExtractSelectedLocations::ExtractCells(
   // Reverse the "in" flag
   flag = -flag;
 
-  vtkIdList *ptIds = NULL;
-  char* cellCounter = NULL;
+  vtkIdList *ptIds = nullptr;
+  char* cellCounter = nullptr;
   if (invert)
   {
     ptIds = vtkIdList::New();
@@ -283,7 +283,7 @@ int vtkExtractSelectedLocations::ExtractCells(
   vtkIdType ptId, cellId, locArrayIndex;
   for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
   {
-    cellId = input->FindCell(locArray->GetTuple(locArrayIndex), NULL, cell,
+    cellId = input->FindCell(locArray->GetTuple(locArrayIndex), nullptr, cell,
                              0, 0.0, subId, pcoords, weights);
     if ((cellId >= 0) && (cellInArray->GetValue(cellId) != flag))
     {
@@ -430,7 +430,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
   // Reverse the "in" flag
   flag = -flag;
 
-  vtkPointLocator* locator = NULL;
+  vtkPointLocator* locator = nullptr;
 
   if (input->IsA("vtkPointSet"))
   {
@@ -446,7 +446,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
   double epsSquared = epsilon*epsilon;
   for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
   {
-    if (locator != NULL)
+    if (locator != nullptr)
     {
       ptId = locator->FindClosestPointWithinRadius(epsilon, locArray->GetTuple(locArrayIndex), dist2);
     }
@@ -497,7 +497,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
   cellPts->Delete();
   if (locator)
   {
-    locator->SetDataSet(NULL);
+    locator->SetDataSet(nullptr);
     locator->Delete();
   }
 

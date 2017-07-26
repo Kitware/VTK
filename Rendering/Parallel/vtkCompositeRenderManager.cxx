@@ -46,7 +46,7 @@ vtkCompositeRenderManager::vtkCompositeRenderManager()
 //----------------------------------------------------------------------------
 vtkCompositeRenderManager::~vtkCompositeRenderManager()
 {
-  this->SetCompositer(NULL);
+  this->SetCompositer(nullptr);
   this->DepthData->Delete();
   this->TmpPixelData->Delete();
   this->TmpDepthData->Delete();

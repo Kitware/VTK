@@ -64,7 +64,7 @@ vtkPolyData *vtkDeformPointSet::GetControlMeshData()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkPolyData::SafeDownCast(

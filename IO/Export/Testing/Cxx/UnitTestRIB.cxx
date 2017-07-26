@@ -337,7 +337,7 @@ int TestRIBExporter()
   exporter->Update();
   status += errorObserver->CheckErrorMessage("Bad representation. Only Surface is supported.");
 
-  exporter->SetFilePrefix(NULL);
+  exporter->SetFilePrefix(nullptr);
   exporter->Update();
   status += errorObserver->CheckErrorMessage("Please specify file name for the rib file");
 

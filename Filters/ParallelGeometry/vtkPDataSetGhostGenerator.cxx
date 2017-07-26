@@ -40,7 +40,7 @@ void vtkPDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkPDataSetGhostGenerator::Initialize()
 {
-  assert("pre: Multi-process controller is NULL" && (this->Controller != NULL));
+  assert("pre: Multi-process controller is nullptr" && (this->Controller != nullptr));
   this->Rank = this->Controller->GetLocalProcessId();
   this->Initialized = true;
 }
@@ -48,7 +48,7 @@ void vtkPDataSetGhostGenerator::Initialize()
 //------------------------------------------------------------------------------
 void vtkPDataSetGhostGenerator::Barrier()
 {
-  assert("pre: Multi-process controller is NULL" && (this->Controller != NULL));
+  assert("pre: Multi-process controller is nullptr" && (this->Controller != nullptr));
   assert("pre: Instance has not been initialized!" && this->Initialized);
   this->Controller->Barrier();
 }

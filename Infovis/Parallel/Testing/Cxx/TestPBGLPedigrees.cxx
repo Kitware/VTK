@@ -116,7 +116,7 @@ void UseCase0()
   }
   else
   {
-    cout << "  after SetPedIds, GetPedigreeIds == NULL\n";
+    cout << "  after SetPedIds, GetPedigreeIds == nullptr\n";
   }
 
 
@@ -202,7 +202,7 @@ void UseCase1()
   }
   else
   {
-    cout << "  after SetPedIds, GetPedigreeIds == NULL\n";
+    cout << "  after SetPedIds, GetPedigreeIds == nullptr\n";
   }
 
   helper->Synchronize();
@@ -365,7 +365,7 @@ void UseCase2()
   int numProps = mdg->GetVertexData()->GetNumberOfArrays();   // # of properties = # of arrays
   cout << "numProps = "<<numProps<<endl;
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
-  if (peds == NULL)
+  if (peds == nullptr)
   {
     cout << "  No peds here!!\n";
   }
@@ -495,13 +495,22 @@ void UseCase3()
   vtkAbstractArray *peds = mdg->GetVertexData()->GetPedigreeIds();
   if (myRank == 0)
   {
-    if (peds == NULL) cout << "  No peds here!!\n";
-    else cout << "  We have peds!\n";
+    if (peds == nullptr)
+    {
+      cout << "  No peds here!!\n";
+    }
+    else
+    {
+      cout << "  We have peds!\n";
+    }
   }
 
 
   if (myRank == 0)
-    cout << "=============== dump vertices\n"; cout.flush();
+  {
+    cout << "=============== dump vertices\n";
+    cout.flush();
+  }
   VTK_CREATE(vtkVertexListIterator, vit);
   mdg->GetVertices(vit);
   while (vit->HasNext())
@@ -572,7 +581,7 @@ void UseCase4()
     mdg->GetVertexData()->SetPedigreeIds(pedigreeIds);
     if (mdg->GetVertexData()->GetPedigreeIds())
     {
-      cout << "  Yes, GetVertexData()->GetPedigreeIds()  is non-NULL\n";
+      cout << "  Yes, GetVertexData()->GetPedigreeIds()  is non-null\n";
       char *pedIdArrayName = mdg->GetVertexData()->GetPedigreeIds()->GetName();
       cout << "  name of pedigrees array= " << pedIdArrayName << endl;
     }
@@ -623,7 +632,10 @@ void UseCase4()
 
   if (myRank == 0)
   {
-    if (peds == NULL) cout << "  No peds here!!\n";
+    if (peds == nullptr)
+    {
+      cout << "  No peds here!!\n";
+    }
     else
     {
       cout << "  We have peds!\n";

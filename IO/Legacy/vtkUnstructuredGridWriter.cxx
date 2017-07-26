@@ -78,7 +78,7 @@ void vtkUnstructuredGridWriter::WriteData()
   }
 
   // Write cells. Check for faces so that we can handle them if present:
-  if (input->GetFaces() != NULL)
+  if (input->GetFaces() != nullptr)
   {
     // Handle face data:
     if (!this->WriteCellsAndFaces(fp, input, "CELLS"))

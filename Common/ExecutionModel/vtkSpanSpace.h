@@ -101,7 +101,7 @@ public:
 
   /**
    * Return the next cell that may contain scalar value specified to
-   * InitTraversal(). The value NULL is returned if the list is
+   * InitTraversal(). The value nullptr is returned if the list is
    * exhausted. Make sure that InitTraversal() has been invoked first or
    * you'll get erratic behavior. This is inherently a serial operation.
    */

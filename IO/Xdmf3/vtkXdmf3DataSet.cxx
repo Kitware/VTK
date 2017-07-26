@@ -97,7 +97,7 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
 {
   //TODO: verify the 32/64 choices are correct in all configurations
   shared_ptr<const XdmfArrayType> arrayType = xArray->getArrayType();
-  vtkDataArray* vArray = NULL;
+  vtkDataArray* vArray = nullptr;
   int vtk_type = -1;
   if (arrayType == XdmfArrayType::Int8())
   {
@@ -147,7 +147,7 @@ vtkDataArray *vtkXdmf3DataSet::XdmfToVTKArray(
   {
     cerr << "Skipping unrecognized array type ["
          << arrayType->getName() << "]" << endl;
-    return NULL;
+    return nullptr;
   }
   vArray = vtkDataArray::CreateDataArray(vtk_type);
   if (vArray)
@@ -1308,7 +1308,7 @@ void vtkXdmf3DataSet::CopyShape(
   }
   dataSet->SetExtent(whole_extent);
 
-  vtkDataArray *vPoints = NULL;
+  vtkDataArray *vPoints = nullptr;
   shared_ptr<XdmfGeometry> geom = grid->getGeometry();
   if (geom->getType() == XdmfGeometryType::XY())
   {
@@ -1555,7 +1555,7 @@ void vtkXdmf3DataSet::CopyShape(
   }
 
   //copy geometry
-  vtkDataArray *vPoints = NULL;
+  vtkDataArray *vPoints = nullptr;
   shared_ptr<XdmfGeometry> geom = grid->getGeometry();
   if (geom->getType() == XdmfGeometryType::XY())
   {

@@ -181,7 +181,7 @@ int vtkGaussianSplatter::RequestData(
   vtkIdType totalNumPts, numNewPts, ptId, i;
   int min[3], max[3];
   vtkPointData *pd;
-  vtkDataArray *inNormals=NULL;
+  vtkDataArray *inNormals=nullptr;
   double loc[3];
   vtkDoubleArray *newScalars =
     vtkArrayDownCast<vtkDoubleArray>(output->GetPointData()->GetScalars());
@@ -191,7 +191,7 @@ int vtkGaussianSplatter::RequestData(
   vtkDataSet *inputDS = vtkDataSet::GetData(inInfo);
   vtkCompositeDataSet *inputComposite = vtkCompositeDataSet::GetData(inInfo);
   vtkNew< vtkMultiBlockDataSet > tempComposite;
-  if (inputComposite == NULL)
+  if (inputComposite == nullptr)
   {
     tempComposite->SetNumberOfBlocks(1);
     tempComposite->SetBlock(0,inputDS);
@@ -216,12 +216,12 @@ int vtkGaussianSplatter::RequestData(
 
   //decide which array to splat, if any
   dataItr->InitTraversal();
-  vtkDataSet* ds = NULL;
-  while (ds == NULL && ! dataItr->IsDoneWithTraversal())
+  vtkDataSet* ds = nullptr;
+  while (ds == nullptr && ! dataItr->IsDoneWithTraversal())
   {
     ds = vtkDataSet::SafeDownCast(dataItr->GetCurrentDataObject());
   }
-  if (ds == NULL)
+  if (ds == nullptr)
   {
     vtkDebugMacro(<<"The input is an empty block structure");
     return 1;
@@ -255,7 +255,7 @@ int vtkGaussianSplatter::RequestData(
 
   //  Set up function pointers to sample functions
   //
-  if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
+  if ( this->NormalWarping && (inNormals=pd->GetNormals()) != nullptr )
   {
     this->Sample = &vtkGaussianSplatter::EccentricGaussian;
   }
@@ -264,7 +264,7 @@ int vtkGaussianSplatter::RequestData(
     this->Sample = &vtkGaussianSplatter::Gaussian;
   }
 
-  if ( this->ScalarWarping && inScalars != NULL )
+  if ( this->ScalarWarping && inScalars != nullptr )
   {
     this->SampleFactor = &vtkGaussianSplatter::ScalarSampling;
   }
@@ -297,8 +297,8 @@ int vtkGaussianSplatter::RequestData(
     {
       continue;
     }
-    vtkDataArray* myScalars = NULL;
-    if (inScalars != NULL)
+    vtkDataArray* myScalars = nullptr;
+    if (inScalars != nullptr)
     {
       if (useScalars)
       {
@@ -309,17 +309,17 @@ int vtkGaussianSplatter::RequestData(
         myScalars = this->GetInputArrayToProcess(0,input,association);
       }
     }
-    if (inScalars != NULL && myScalars == NULL)
+    if (inScalars != nullptr && myScalars == nullptr)
     {
       vtkWarningMacro(<<"Piece does not have selected scalars array");
       continue;
     }
-    vtkDataArray* myNormals = NULL;
-    if (inNormals != NULL)
+    vtkDataArray* myNormals = nullptr;
+    if (inNormals != nullptr)
     {
       myNormals = input->GetPointData()->GetNormals();
     }
-    if (this->NormalWarping && inNormals != NULL && myNormals == NULL)
+    if (this->NormalWarping && inNormals != nullptr && myNormals == nullptr)
     {
       vtkWarningMacro(<<"Piece does not have required normals array");
       continue;
@@ -342,11 +342,11 @@ int vtkGaussianSplatter::RequestData(
       }
 
       this->P = input->GetPoint(ptId);
-      if ( myNormals != NULL )
+      if ( myNormals != nullptr )
       {
         this->N = myNormals->GetTuple(ptId);
       }
-      if ( myScalars != NULL )
+      if ( myScalars != nullptr )
       {
         this->S = myScalars->GetComponent(ptId,0);
       }

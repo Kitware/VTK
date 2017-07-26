@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkImageExport);
 vtkImageExport::vtkImageExport()
 {
   this->ImageLowerLeft = 1;
-  this->ExportVoidPointer = 0;
+  this->ExportVoidPointer = nullptr;
   this->DataDimensions[0] = this->DataDimensions[1] =
     this->DataDimensions[2] = 0;
   this->LastPipelineMTime = 0;
@@ -48,7 +48,7 @@ vtkAlgorithm* vtkImageExport::GetInputAlgorithm()
 {
   return this->GetInputConnection(0, 0) ?
     this->GetInputConnection(0, 0)->GetProducer() :
-    NULL;
+    nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ vtkImageData *vtkImageExport::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
@@ -80,7 +80,7 @@ vtkImageData *vtkImageExport::GetInput()
 vtkIdType vtkImageExport::GetDataMemorySize()
 {
   vtkImageData* input = this->GetInput();
-  if (input == NULL)
+  if (input == nullptr)
   {
     return 0;
   }
@@ -102,7 +102,7 @@ vtkIdType vtkImageExport::GetDataMemorySize()
 void vtkImageExport::GetDataDimensions(int *dims)
 {
   vtkImageData *input = this->GetInput();
-  if (input == NULL)
+  if (input == nullptr)
   {
     dims[0] = dims[1] = dims[2] = 0;
     return;
@@ -187,10 +187,10 @@ void vtkImageExport::Export(void *output)
 void *vtkImageExport::GetPointerToData()
 {
   // Error checking
-  if ( this->GetInput() == NULL )
+  if ( this->GetInput() == nullptr )
   {
     vtkErrorMacro(<<"Export: Please specify an input!");
-    return 0;
+    return nullptr;
   }
 
   vtkImageData *input = this->GetInput();
@@ -368,7 +368,7 @@ int vtkImageExport::PipelineModifiedCallback()
     vtkExecutive* e = this->GetInputAlgorithm()->GetExecutive();
     if (e)
     {
-      e->ComputePipelineMTime(NULL,
+      e->ComputePipelineMTime(nullptr,
                              e->GetInputInformation(),
                              e->GetOutputInformation(),
                              -1, &mtime);
@@ -535,7 +535,7 @@ void* vtkImageExport::BufferPointerCallback()
 {
   if (!this->GetInput())
   {
-    return static_cast<void *>(NULL);
+    return static_cast<void *>(nullptr);
   }
   else
   {
@@ -545,7 +545,7 @@ void* vtkImageExport::BufferPointerCallback()
 
 int vtkImageExport::GetDataNumberOfScalarComponents()
 {
-  if (this->GetInputAlgorithm() == NULL)
+  if (this->GetInputAlgorithm() == nullptr)
   {
     return 1;
   }
@@ -556,7 +556,7 @@ int vtkImageExport::GetDataNumberOfScalarComponents()
 
 int vtkImageExport::GetDataScalarType()
 {
-  if (this->GetInputAlgorithm() == NULL)
+  if (this->GetInputAlgorithm() == nullptr)
   {
     return VTK_UNSIGNED_CHAR;
   }
@@ -568,7 +568,7 @@ int vtkImageExport::GetDataScalarType()
 int *vtkImageExport::GetDataExtent()
 {
   static int defaultextent[6] = {0, 0, 0, 0, 0, 0};
-  if (this->GetInputAlgorithm() == NULL) { return defaultextent; }
+  if (this->GetInputAlgorithm() == nullptr) { return defaultextent; }
   this->GetInputAlgorithm()->UpdateInformation();
   return this->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
@@ -576,7 +576,7 @@ int *vtkImageExport::GetDataExtent()
 
 void vtkImageExport::GetDataExtent(int *ptr)
 {
-  if (this->GetInputAlgorithm() == NULL) {
+  if (this->GetInputAlgorithm() == nullptr) {
   ptr[0] = ptr[1] = ptr[2] = ptr[3] = ptr[4] = ptr[5] = 0; return; }
   this->GetInputAlgorithm()->UpdateInformation();
   this->GetInputInformation()->Get(
@@ -586,14 +586,14 @@ void vtkImageExport::GetDataExtent(int *ptr)
 double *vtkImageExport::GetDataSpacing()
 {
   static double defaultspacing[3] = {1, 1, 1};
-  if (this->GetInput() == NULL) { return defaultspacing; }
+  if (this->GetInput() == nullptr) { return defaultspacing; }
   this->GetInputAlgorithm()->UpdateInformation();
   return this->GetInputInformation()->Get(vtkDataObject::SPACING());
 }
 
 void vtkImageExport::GetDataSpacing(double *ptr)
 {
-  if (this->GetInputAlgorithm() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
+  if (this->GetInputAlgorithm() == nullptr) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
   this->GetInputAlgorithm()->UpdateInformation();
   this->GetInputInformation()->Get(vtkDataObject::SPACING(), ptr);
 }
@@ -601,14 +601,14 @@ void vtkImageExport::GetDataSpacing(double *ptr)
 double *vtkImageExport::GetDataOrigin()
 {
   static double defaultorigin[3] = {0, 0, 0};
-  if (this->GetInputAlgorithm() == NULL) { return defaultorigin; }
+  if (this->GetInputAlgorithm() == nullptr) { return defaultorigin; }
   this->GetInputAlgorithm()->UpdateInformation();
   return this->GetInputInformation()->Get(vtkDataObject::ORIGIN());
 }
 
 void vtkImageExport::GetDataOrigin(double *ptr)
 {
-  if (this->GetInputAlgorithm() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
+  if (this->GetInputAlgorithm() == nullptr) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
   this->GetInputAlgorithm()->UpdateInformation();
   this->GetInputInformation()->Get(vtkDataObject::ORIGIN(), ptr);
 }

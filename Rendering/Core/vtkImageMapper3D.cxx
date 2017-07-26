@@ -52,8 +52,8 @@ vtkImageMapper3D::vtkImageMapper3D()
   this->SliceAtFocalPoint = 0;
 
   this->DataToWorldMatrix = vtkMatrix4x4::New();
-  this->CurrentProp = 0;
-  this->CurrentRenderer = 0;
+  this->CurrentProp = nullptr;
+  this->CurrentRenderer = nullptr;
 
   this->MatteEnable = true;
   this->ColorEnable = true;
@@ -107,7 +107,7 @@ vtkImageData *vtkImageMapper3D::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
@@ -165,7 +165,7 @@ vtkDataObject *vtkImageMapper3D::GetDataObjectInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return this->GetInputDataObject(0, 0);
 }
@@ -175,7 +175,7 @@ vtkDataSet *vtkImageMapper3D::GetDataSetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
 }
@@ -200,13 +200,13 @@ int vtkImageMapper3D::FillOutputPortInformation(
 static
 vtkRenderer *vtkImageMapper3DFindRenderer(vtkProp *prop, int &count)
 {
-  vtkRenderer *ren = 0;
+  vtkRenderer *ren = nullptr;
 
   int n = prop->GetNumberOfConsumers();
   for (int i = 0; i < n; i++)
   {
     vtkObjectBase *o = prop->GetConsumer(i);
-    vtkProp3D *a = 0;
+    vtkProp3D *a = nullptr;
     if ( (ren = vtkRenderer::SafeDownCast(o)) )
     {
       count++;
@@ -231,7 +231,7 @@ void vtkImageMapper3DComputeMatrix(vtkProp *prop, double mat[16])
   for (int i = 0; i < n; i++)
   {
     vtkObjectBase *o = prop->GetConsumer(i);
-    vtkProp3D *a = 0;
+    vtkProp3D *a = nullptr;
     if ( (a = vtkProp3D::SafeDownCast(o)) )
     {
       vtkImageMapper3DComputeMatrix(a, mat);
@@ -257,7 +257,7 @@ vtkRenderer *vtkImageMapper3D::GetCurrentRenderer()
 
   if (!prop)
   {
-    return 0;
+    return nullptr;
   }
 
   ren = vtkImageMapper3DFindRenderer(prop, count);
@@ -266,7 +266,7 @@ vtkRenderer *vtkImageMapper3D::GetCurrentRenderer()
   {
     vtkErrorMacro("Cannot follow camera, mapper is associated with "
                   "multiple renderers");
-    ren = 0;
+    ren = nullptr;
   }
 
   return ren;
@@ -650,7 +650,7 @@ static void vtkImageMapperApplyLookupTableToImageScalars(
   inIncY *= scalarSize;
 
   // if data not contiguous, make a temporary array
-  void *newPtr = 0;
+  void *newPtr = nullptr;
   if (inIncX > static_cast<vtkIdType>(numComp))
   {
     newPtr = malloc(scalarSize*numComp*ncols);
@@ -820,7 +820,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
   // lookup table and window/level
   double colorWindow = 255.0;
   double colorLevel = 127.5;
-  vtkScalarsToColors *lookupTable = 0;
+  vtkScalarsToColors *lookupTable = nullptr;
 
   if (property)
   {
@@ -831,7 +831,7 @@ unsigned char *vtkImageMapper3D::MakeTextureData(
 
   // check if the input is pre-formatted as colors
   int inputIsColors = false;
-  if (lookupTable == 0 && scalarType == VTK_UNSIGNED_CHAR &&
+  if (lookupTable == nullptr && scalarType == VTK_UNSIGNED_CHAR &&
       colorLevel == 127.5 && colorWindow == 255.0)
   {
     inputIsColors = true;

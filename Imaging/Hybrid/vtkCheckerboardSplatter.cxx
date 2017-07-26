@@ -446,7 +446,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   algo.ParallelSplatCrossover = self->GetParallelSplatCrossover();
 
   //  Set up function pointers to sample functions
-  if ( self->GetNormalWarping() && (algo.InNormals != NULL) )
+  if ( self->GetNormalWarping() && (algo.InNormals != nullptr) )
   {
     algo.Sample = &vtkCheckerboardSplatterAlgorithm::EccentricGaussian;
   }
@@ -455,7 +455,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
     algo.Sample = &vtkCheckerboardSplatterAlgorithm::Gaussian;
   }
 
-  if ( self->GetScalarWarping() && algo.InScalars != NULL )
+  if ( self->GetScalarWarping() && algo.InScalars != nullptr )
   {
     algo.SampleFactor = &vtkCheckerboardSplatterAlgorithm::ScalarSampling;
   }

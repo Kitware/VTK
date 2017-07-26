@@ -27,10 +27,10 @@ vtkTupleInterpolator::vtkTupleInterpolator()
   // Set up the interpolation
   this->NumberOfComponents = 0;
   this->InterpolationType = INTERPOLATION_TYPE_SPLINE;
-  this->InterpolatingSpline = NULL;
+  this->InterpolatingSpline = nullptr;
 
-  this->Spline = NULL;
-  this->Linear = NULL;
+  this->Spline = nullptr;
+  this->Linear = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ void vtkTupleInterpolator::Initialize()
       this->Spline[i]->Delete();
     }
     delete [] this->Spline;
-    this->Spline = NULL;
+    this->Spline = nullptr;
   }
   if ( this->Linear )
   {
@@ -137,7 +137,7 @@ void vtkTupleInterpolator::Initialize()
       this->Linear[i]->Delete();
     }
     delete [] this->Linear;
-    this->Linear = NULL;
+    this->Linear = nullptr;
   }
 
   this->NumberOfComponents = 0;
@@ -203,7 +203,7 @@ void vtkTupleInterpolator::SetInterpolatingSpline(vtkSpline *spline)
   if ( this->InterpolatingSpline )
   {
     this->InterpolatingSpline->UnRegister(this);
-    this->InterpolatingSpline = NULL;
+    this->InterpolatingSpline = nullptr;
   }
   if ( spline )
   {

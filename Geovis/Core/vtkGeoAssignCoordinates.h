@@ -76,7 +76,7 @@ public:
   //@{
   /**
    * The transform to use to convert coordinates of the form
-   * (lat, long, 0) to (x, y z). If this is NULL (the default),
+   * (lat, long, 0) to (x, y z). If this is nullptr (the default),
    * use GlobeRadius to perform a spherical embedding.
    */
   virtual void SetTransform(vtkAbstractTransform* trans);

@@ -111,9 +111,9 @@ vtkStandardNewMacro(vtkUniformGridAMRDataIterator);
 vtkUniformGridAMRDataIterator::vtkUniformGridAMRDataIterator()
 {
   this->Information = vtkSmartPointer<vtkInformation>::New();
-  this->AMR = NULL;
-  this->AMRData = NULL;
-  this->AMRInfo = NULL;
+  this->AMR = nullptr;
+  this->AMRData = nullptr;
+  this->AMRInfo = nullptr;
 }
 
 vtkUniformGridAMRDataIterator::~vtkUniformGridAMRDataIterator()

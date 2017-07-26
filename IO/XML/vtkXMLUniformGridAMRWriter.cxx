@@ -49,7 +49,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
     vtkXMLDataElement* parent, int &writerIdx)
 {
   vtkUniformGridAMR* amr = vtkUniformGridAMR::SafeDownCast(compositeData);
-  assert(amr != NULL);
+  assert(amr != nullptr);
 
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(amr);
 

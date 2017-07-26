@@ -118,7 +118,7 @@ void vtkExtractStructuredGridHelper::Invalidate()
 void vtkExtractStructuredGridHelper::Initialize(
       int inVoi[6], int wholeExtent[6], int sampleRate[3], bool includeBoundary)
 {
-  assert("pre: NULL index map" && (this->IndexMap != NULL) );
+  assert("pre: nullptr index map" && (this->IndexMap != nullptr) );
 
   // Copy the VOI because we'll clamp it later:
   int voi[6];
@@ -333,11 +333,11 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
           vtkPointData* pd, vtkPoints* inpnts,
           vtkPointData* outPD, vtkPoints* outpnts)
 {
-  assert("pre: NULL input point-data!" && (pd != NULL) );
-  assert("pre: NULL output point-data!" && (outPD != NULL) );
+  assert("pre: nullptr input point-data!" && (pd != nullptr) );
+  assert("pre: nullptr output point-data!" && (outPD != nullptr) );
 
   // short-circuit
-  if( (pd->GetNumberOfArrays()==0) && (inpnts==NULL) )
+  if( (pd->GetNumberOfArrays()==0) && (inpnts==nullptr) )
   {
     // nothing to copy
     return;
@@ -354,9 +354,9 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
                       J(this->SampleRate) == 1 &&
                       K(this->SampleRate) == 1);
 
-  if( inpnts != NULL )
+  if( inpnts != nullptr )
   {
-    assert("pre: output points data-structure is NULL!" && (outpnts != NULL) );
+    assert("pre: output points data-structure is nullptr!" && (outpnts != nullptr) );
     outpnts->SetDataType( inpnts->GetDataType() );
     outpnts->SetNumberOfPoints( outSize );
   }
@@ -400,7 +400,7 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
           assert( "pre: dstStart out of bounds" && (dstStart >= 0) &&
                   (dstStart < outSize) );
 
-        if (inpnts != NULL)
+        if (inpnts != nullptr)
         {
           outpnts->InsertPoints(dstStart, num, srcStart, inpnts);
         }
@@ -429,7 +429,7 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
 
         } // END for all i
 
-        if( inpnts != NULL )
+        if( inpnts != nullptr )
         {
           outpnts->InsertPoints(dstIds.GetPointer(), srcIds.GetPointer(), inpnts);
         } // END if
@@ -450,8 +450,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
                                                   vtkCellData* cd,
                                                   vtkCellData* outCD)
 {
-  assert("pre: NULL input cell-data!" && (cd != NULL) );
-  assert("pre: NULL output cell-data!" && (outCD != NULL) );
+  assert("pre: nullptr input cell-data!" && (cd != nullptr) );
+  assert("pre: nullptr output cell-data!" && (outCD != nullptr) );
 
   // short-circuit
   if( cd->GetNumberOfArrays()==0 )

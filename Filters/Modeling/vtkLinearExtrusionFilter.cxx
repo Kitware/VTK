@@ -86,19 +86,19 @@ int vtkLinearExtrusionFilter::RequestData(
 
   vtkIdType numPts, numCells;
   vtkPointData *pd=input->GetPointData();
-  vtkDataArray *inNormals=NULL;
+  vtkDataArray *inNormals=nullptr;
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkIdType inCellId, outCellId;
   int numEdges, dim;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   vtkIdType ptId, ncells, p1, p2;
   vtkIdType i, j;
   double x[3];
   vtkPoints *newPts;
-  vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips;
+  vtkCellArray *newLines=nullptr, *newPolys=nullptr, *newStrips;
   vtkCell *edge;
   vtkIdList *cellIds, *cellPts;
   vtkPointData *outputPD = output->GetPointData();
@@ -127,7 +127,7 @@ int vtkLinearExtrusionFilter::RequestData(
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaPoint;
   }
   else if ( this->ExtrusionType == VTK_NORMAL_EXTRUSION  &&
-            (inNormals = pd->GetNormals()) != NULL )
+            (inNormals = pd->GetNormals()) != nullptr )
   {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaNormal;
     inNormals = pd->GetNormals();
@@ -355,7 +355,7 @@ int vtkLinearExtrusionFilter::RequestData(
   lineIds->Delete();
   stripIds->Delete();
   polyIds->Delete();
-  polyIds = NULL;
+  polyIds = nullptr;
 
 
   // Send data to output and release memory

@@ -428,7 +428,7 @@ void vtkNIFTIImageHeader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkNIFTIImageHeader::SetStringValue(char *x, const char *y, size_t n)
 {
-  if (y == 0)
+  if (y == nullptr)
   {
     y = "";
   }

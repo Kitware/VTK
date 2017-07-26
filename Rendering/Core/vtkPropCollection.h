@@ -94,9 +94,9 @@ inline vtkProp *vtkPropCollection::GetNextProp()
 
 inline vtkProp *vtkPropCollection::GetLastProp()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

@@ -325,7 +325,7 @@ public:
 
    * 'simplificationMetric' is an object in charge of evaluating the importance
    * of a Reeb graph arc at each step of the simplification process.
-   * if 'simplificationMetric' is NULL, the default strategy (persitence of the
+   * if 'simplificationMetric' is nullptr, the default strategy (persitence of the
    * scalar field) is used.
    * Customized simplification metric evaluation algorithm can be designed (see
    * vtkReebGraphSimplificationMetric), enabling the user to control the

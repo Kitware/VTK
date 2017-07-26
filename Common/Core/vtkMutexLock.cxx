@@ -35,14 +35,14 @@ vtkSimpleMutexLock::vtkSimpleMutexLock()
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
-  this->MutexLock = CreateMutex( NULL, FALSE, NULL );
+  this->MutexLock = CreateMutex( nullptr, FALSE, nullptr );
 #endif
 
 #ifdef VTK_USE_PTHREADS
 #ifdef VTK_HP_PTHREADS
   pthread_mutex_init(&(this->MutexLock), pthread_mutexattr_default);
 #else
-  pthread_mutex_init(&(this->MutexLock), NULL);
+  pthread_mutex_init(&(this->MutexLock), nullptr);
 #endif
 #endif
 

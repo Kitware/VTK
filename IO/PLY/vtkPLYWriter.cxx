@@ -33,13 +33,13 @@ vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);
 
 vtkPLYWriter::vtkPLYWriter()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->FileType = VTK_BINARY;
   this->DataByteOrder = VTK_LITTLE_ENDIAN;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
   this->Component = 0;
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
-  this->LookupTable = NULL;
+  this->LookupTable = nullptr;
   this->Color[0] = this->Color[1] = this->Color[2] = 255;
   this->EnableAlpha = false;
   this->Alpha = 255;
@@ -114,13 +114,13 @@ void vtkPLYWriter::WriteData()
   // Get input and check data
   polys = input->GetPolys();
   inPts = input->GetPoints();
-  if (inPts == NULL || polys == NULL )
+  if (inPts == nullptr || polys == nullptr )
   {
     vtkErrorMacro(<<"No data to write!");
     return;
   }
 
-  if ( this->FileName == NULL)
+  if ( this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to write");
     return;
@@ -144,7 +144,7 @@ void vtkPLYWriter::WriteData()
                                PLY_ASCII, &version);
   }
 
-  if ( ply == NULL)
+  if ( ply == nullptr)
   {
     vtkErrorMacro(<< "Error opening PLY file");
     return;
@@ -242,7 +242,7 @@ void vtkPLYWriter::WriteData()
   face.verts = verts;
   vtkPLY::ply_put_element_setup (ply, "face");
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   for (polys->InitTraversal(), i = 0; i < numPolys; i++)
   {
     polys->GetNextCell(npts,pts);
@@ -285,11 +285,11 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPLYWriter::GetColors(
 
   if ( this->ColorMode == VTK_COLOR_MODE_OFF ||
        (this->ColorMode == VTK_COLOR_MODE_UNIFORM_CELL_COLOR &&
-        vtkPointData::SafeDownCast(dsa) != NULL) ||
+        vtkPointData::SafeDownCast(dsa) != nullptr) ||
        (this->ColorMode == VTK_COLOR_MODE_UNIFORM_POINT_COLOR &&
-        vtkCellData::SafeDownCast(dsa) != NULL) )
+        vtkCellData::SafeDownCast(dsa) != nullptr) )
   {
-    return NULL;
+    return nullptr;
   }
   else if ( this->ColorMode == VTK_COLOR_MODE_UNIFORM_COLOR ||
     this->ColorMode == VTK_COLOR_MODE_UNIFORM_POINT_COLOR ||
@@ -325,16 +325,16 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPLYWriter::GetColors(
       vtkDataArray* da;
       vtkUnsignedCharArray* rgbArray;
 
-      if (!this->ArrayName || (da = dsa->GetArray(this->ArrayName)) == NULL ||
+      if (!this->ArrayName || (da = dsa->GetArray(this->ArrayName)) == nullptr ||
         this->Component >= (numComp = da->GetNumberOfComponents()))
       {
-        return NULL;
+        return nullptr;
       }
-      else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != NULL && numComp == 3)
+      else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 3)
       { // have unsigned char array of three components, copy it
         return rgbArray;
       }
-      else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != NULL && numComp == 4)
+      else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 4)
       {
         if (this->EnableAlpha)
         {
@@ -356,7 +356,7 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPLYWriter::GetColors(
         }
         return colors;
       }
-      else if (this->LookupTable != NULL)
+      else if (this->LookupTable != nullptr)
       { // use the data array mapped through lookup table
         vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
         colors->SetNumberOfComponents(this->EnableAlpha ? 4 : 3);
@@ -389,7 +389,7 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPLYWriter::GetColors(
       }
       else // no lookup table
       {
-        return NULL;
+        return nullptr;
       }
     }
 }
@@ -399,10 +399,10 @@ const float *vtkPLYWriter::GetTextureCoordinates(vtkIdType num, vtkDataSetAttrib
   vtkDataArray *tCoords = dsa->GetTCoords();
   if ( !tCoords || (tCoords->GetNumberOfTuples() != num) ||
        (tCoords->GetNumberOfComponents() != 2) )
-    return NULL;
+    return nullptr;
 
   vtkFloatArray *textureArray;
-  if ( (textureArray = vtkArrayDownCast<vtkFloatArray>(tCoords)) == NULL )
+  if ( (textureArray = vtkArrayDownCast<vtkFloatArray>(tCoords)) == nullptr )
     vtkErrorMacro(<< "PLY writer only supports float texture coordinates");
 
   return textureArray->GetPointer(0);

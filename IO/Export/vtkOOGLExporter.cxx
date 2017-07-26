@@ -37,12 +37,12 @@ vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 vtkOOGLExporter::~vtkOOGLExporter()
 {
-  this->SetFileName( 0 );
+  this->SetFileName( nullptr );
 }
 
 static char indent[256];
@@ -75,7 +75,7 @@ void vtkOOGLExporter::WriteData()
   indent[indent_now] = 0;
 
   // make sure the user specified a filename
-  if ( this->FileName == NULL)
+  if ( this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -260,7 +260,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
 {
   vtkDataSet *ds;
   vtkPolyData *pd;
-  vtkGeometryFilter *gf = NULL;
+  vtkGeometryFilter *gf = nullptr;
   vtkPoints *points;
   int i;
   vtkProperty *prop;
@@ -268,7 +268,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   double *tempd = defcolor;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
   double tempf2=0;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
@@ -277,7 +277,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   unsigned char *c;
 
   // see if the actor has a mapper. it could be an assembly
-  if (anActor->GetMapper() == NULL)
+  if (anActor->GetMapper() == nullptr)
   {
     return;
   }
@@ -289,7 +289,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   // get the mappers input and matrix
   ds = anActor->GetMapper()->GetInput();
 
-  vtkAlgorithmOutput* pdProducer = 0;
+  vtkAlgorithmOutput* pdProducer = nullptr;
   // we really want polydata
   if ( ds->GetDataObjectType() != VTK_POLY_DATA )
   {

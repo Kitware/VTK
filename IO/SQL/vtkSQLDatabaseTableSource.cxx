@@ -36,9 +36,9 @@ class vtkSQLDatabaseTableSource::implementation
 {
 public:
   implementation() :
-    Database(0),
-    Query(0),
-    Table(0)
+    Database(nullptr),
+    Query(nullptr),
+    Table(nullptr)
   {
   }
 
@@ -71,7 +71,7 @@ vtkSQLDatabaseTableSource::vtkSQLDatabaseTableSource() :
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->PedigreeIdArrayName = 0;
+  this->PedigreeIdArrayName = nullptr;
   this->SetPedigreeIdArrayName("id");
   this->GeneratePedigreeIds = true;
 
@@ -84,7 +84,7 @@ vtkSQLDatabaseTableSource::vtkSQLDatabaseTableSource() :
 vtkSQLDatabaseTableSource::~vtkSQLDatabaseTableSource()
 {
   delete this->Implementation;
-  this->SetPedigreeIdArrayName(0);
+  this->SetPedigreeIdArrayName(nullptr);
   this->EventForwarder->Delete();
 }
 
@@ -111,13 +111,13 @@ void vtkSQLDatabaseTableSource::SetURL(const vtkStdString& url)
   if(this->Implementation->Query)
   {
     this->Implementation->Query->Delete();
-    this->Implementation->Query = 0;
+    this->Implementation->Query = nullptr;
   }
 
   if(this->Implementation->Database)
   {
     this->Implementation->Database->Delete();
-    this->Implementation->Database = 0;
+    this->Implementation->Database = nullptr;
   }
 
   this->Implementation->URL = url;
@@ -133,13 +133,13 @@ void vtkSQLDatabaseTableSource::SetPassword(const vtkStdString& password)
   if(this->Implementation->Query)
   {
     this->Implementation->Query->Delete();
-    this->Implementation->Query = 0;
+    this->Implementation->Query = nullptr;
   }
 
   if(this->Implementation->Database)
   {
     this->Implementation->Database->Delete();
-    this->Implementation->Database = 0;
+    this->Implementation->Database = nullptr;
   }
 
   this->Implementation->Password = password;
@@ -191,7 +191,7 @@ int vtkSQLDatabaseTableSource::RequestData(
     if(!this->Implementation->Database->Open(this->Implementation->Password))
     {
       this->Implementation->Database->Delete();
-      this->Implementation->Database = 0;
+      this->Implementation->Database = nullptr;
 
       vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL.c_str());
       return 0;

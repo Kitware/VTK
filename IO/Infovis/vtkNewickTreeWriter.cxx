@@ -29,8 +29,8 @@ vtkNewickTreeWriter::vtkNewickTreeWriter()
   this->EdgeWeightArrayName = "weight";
   this->NodeNameArrayName = "node name";
 
-  this->EdgeWeightArray = NULL;
-  this->NodeNameArray = NULL;
+  this->EdgeWeightArray = nullptr;
+  this->NodeNameArray = nullptr;
 }
 
 //----------------------------------------------------------------------------

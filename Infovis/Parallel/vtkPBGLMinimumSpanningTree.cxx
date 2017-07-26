@@ -125,7 +125,7 @@ int vtkPBGLMinimumSpanningTree::RequestData(
     = input->GetEdgeData()->GetAbstractArray(this->EdgeWeightArrayName);
 
   // Does the edge-weight array exist at all?
-  if (abstractEdgeWeightArray == NULL)
+  if (abstractEdgeWeightArray == nullptr)
   {
     vtkErrorMacro("Could not find edge-weight array named "
                   << this->EdgeWeightArrayName);

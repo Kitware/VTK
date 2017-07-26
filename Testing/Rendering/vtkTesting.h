@@ -147,7 +147,7 @@ public:
    */
   static int InteractorEventLoop(int argc, char *argv[],
                                  vtkRenderWindowInteractor *iren,
-                                 const char *stream = NULL);
+                                 const char *stream = nullptr);
 
   //@{
   /**

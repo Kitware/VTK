@@ -321,7 +321,7 @@ public:
 
   /**
    * Get the unit cell lattice vectors. The matrix is stored using a row-major
-   * layout, with the vectors encoded as columns. Will return NULL if no
+   * layout, with the vectors encoded as columns. Will return nullptr if no
    * unit cell information is available.
    * @sa GetLatticeOrigin
    */

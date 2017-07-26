@@ -81,7 +81,7 @@ void vtkInformationVariantVectorKey::Set(vtkInformation* info, const vtkVariant*
         << " with key " << this->Location << "::" << this->Name
         << " which requires a vector of length "
         << this->RequiredLength << ".  Removing the key instead.");
-      this->SetAsObjectBase(info, 0);
+      this->SetAsObjectBase(info, nullptr);
       return;
     }
     vtkInformationVariantVectorValue* v =
@@ -93,7 +93,7 @@ void vtkInformationVariantVectorKey::Set(vtkInformation* info, const vtkVariant*
   }
   else
   {
-    this->SetAsObjectBase(info, 0);
+    this->SetAsObjectBase(info, nullptr);
   }
 }
 
@@ -104,7 +104,7 @@ const vtkVariant* vtkInformationVariantVectorKey::Get(
   const vtkInformationVariantVectorValue* v =
     static_cast<const vtkInformationVariantVectorValue *>(
       this->GetAsObjectBase(info));
-  return (v && !v->Value.empty())?(&v->Value[0]):0;
+  return (v && !v->Value.empty())?(&v->Value[0]):nullptr;
 }
 
 //----------------------------------------------------------------------------

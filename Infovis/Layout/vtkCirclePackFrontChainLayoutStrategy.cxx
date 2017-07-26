@@ -793,7 +793,7 @@ vtkCirclePackFrontChainLayoutStrategy::vtkCirclePackFrontChainLayoutStrategy()
 vtkCirclePackFrontChainLayoutStrategy::~vtkCirclePackFrontChainLayoutStrategy()
 {
   delete this->pimpl;
-  this->pimpl=0;
+  this->pimpl=nullptr;
 }
 
 void vtkCirclePackFrontChainLayoutStrategy::Layout(vtkTree *inputTree,

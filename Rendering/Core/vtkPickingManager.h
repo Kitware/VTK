@@ -126,13 +126,13 @@ public:
    * Note that a picker can be registered multiple times with different objects.
    * \sa RemovePicker(), RemoveObject().
    */
-  void AddPicker(vtkAbstractPicker* picker, vtkObject* object = 0);
+  void AddPicker(vtkAbstractPicker* picker, vtkObject* object = nullptr);
 
   /**
    * Unregister the \a picker from the picking manager.
    * If \a object is non null, only the pair (\a picker, \a object) is removed.
    */
-  void RemovePicker(vtkAbstractPicker* picker, vtkObject* object = 0);
+  void RemovePicker(vtkAbstractPicker* picker, vtkObject* object = nullptr);
 
   /**
    * Remove all occurrence of the \a object from the registered list.

@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkLinearSubdivisionFilter);
 
 int vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   int edgeId;
   vtkIdType npts, cellId, newId;
   vtkIdType p1, p2;

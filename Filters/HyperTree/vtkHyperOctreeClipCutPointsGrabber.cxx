@@ -36,7 +36,7 @@ vtkHyperOctreeClipCutPointsGrabber::vtkHyperOctreeClipCutPointsGrabber()
 {
   this->Triangulator=vtkOrderedTriangulator::New();
   this->IdSet=new vtkHyperOctreeIdSet;
-  this->Polygon=0;
+  this->Polygon=nullptr;
   this->Dimension=3;
 }
 
@@ -45,12 +45,12 @@ vtkHyperOctreeClipCutPointsGrabber::vtkHyperOctreeClipCutPointsGrabber()
 // Destructor.
 vtkHyperOctreeClipCutPointsGrabber::~vtkHyperOctreeClipCutPointsGrabber()
 {
-  if(this->Triangulator!=0)
+  if(this->Triangulator!=nullptr)
   {
     this->Triangulator->UnRegister(this);
     delete this->IdSet;
   }
-  if(this->Polygon!=0)
+  if(this->Polygon!=nullptr)
   {
     this->Polygon->UnRegister(this);
   }
@@ -69,16 +69,16 @@ void vtkHyperOctreeClipCutPointsGrabber::SetDimension(int dim)
     if(dim==3)
     {
       this->Polygon->UnRegister(this);
-      this->Polygon=0;
+      this->Polygon=nullptr;
       this->Triangulator=vtkOrderedTriangulator::New();
       this->IdSet=new vtkHyperOctreeIdSet;
     }
     else
     {
        this->Triangulator->UnRegister(this);
-       this->Triangulator=0;
+       this->Triangulator=nullptr;
        delete this->IdSet;
-       this->IdSet=0;
+       this->IdSet=nullptr;
        this->Polygon=vtkPolygon::New();
     }
     this->Dimension=dim;

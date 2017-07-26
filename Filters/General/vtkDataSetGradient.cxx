@@ -49,7 +49,7 @@ vtkStandardNewMacro(vtkDataSetGradient);
   \sa ~vtkDataSetGradient()
 */
 vtkDataSetGradient::vtkDataSetGradient()
-  : ResultArrayName(0)
+  : ResultArrayName(nullptr)
 {
   this->SetResultArrayName("gradient");
 }
@@ -60,7 +60,7 @@ vtkDataSetGradient::vtkDataSetGradient()
 */
 vtkDataSetGradient::~vtkDataSetGradient()
 {
-  this->SetResultArrayName( 0 );
+  this->SetResultArrayName( nullptr );
 }
 
 void vtkDataSetGradient::PrintSelf(ostream& os, vtkIndent indent)
@@ -81,7 +81,7 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
   vtkDataSet *_output = vtkDataSet::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
   vtkDataSet* _input = vtkDataSet::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
 
-  if( _input==0 || _output==0 )
+  if( _input==nullptr || _output==nullptr )
   {
     vtkErrorMacro(<<"Missing input or output \n");
     return 0;
@@ -89,16 +89,16 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
 
   // get array to compute gradient from
   vtkDataArray* inArray = this->GetInputArrayToProcess( 0, _input );
-  if( inArray==0 )
+  if( inArray==nullptr )
   {
     inArray = _input->GetPointData()->GetScalars();
   }
-  if( inArray==0 )
+  if( inArray==nullptr )
   {
     inArray = _input->GetCellData()->GetScalars();
   }
 
-  if( inArray==0 )
+  if( inArray==nullptr )
   {
     vtkErrorMacro(<<"no  input array to process\n");
     return 0;
@@ -128,13 +128,13 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
 
   vtkDataArray* cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
   vtkDataArray* sizeArray = _output->GetCellData()->GetArray("CellSize");
-  if( cqsArray==0 || sizeArray==0 )
+  if( cqsArray==nullptr || sizeArray==nullptr )
   {
     vtkDebugMacro(<<"Couldn't find field array 'GradientPrecomputation', computing it right now.\n");
     vtkDataSetGradientPrecompute::GradientPrecompute(_output);
     cqsArray = _output->GetFieldData()->GetArray("GradientPrecomputation");
     sizeArray = _output->GetCellData()->GetArray("CellSize");
-    if( cqsArray==0 || sizeArray==0 )
+    if( cqsArray==nullptr || sizeArray==nullptr )
     {
       vtkErrorMacro(<<"Computation of field array 'GradientPrecomputation' or 'CellSize' failed.\n");
       return 0;

@@ -112,7 +112,7 @@ public:
 
   //@{
   /**
-   * Set and get the encoding the parser should expect (NULL defaults to
+   * Set and get the encoding the parser should expect (nullptr defaults to
    * Expat's own default encoder, i.e UTF-8).
    * This should be set before parsing (i.e. a call to Parse()) or
    * even initializing the parser (i.e. a call to InitializeParser())

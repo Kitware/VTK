@@ -341,7 +341,7 @@ public:
     /// Cached cell connectivity arrays for mesh
     vtkUnstructuredGrid* CachedConnectivity;
 
-    BlockSetInfoType(){this->CachedConnectivity=0;}
+    BlockSetInfoType(){this->CachedConnectivity=nullptr;}
     BlockSetInfoType(const BlockSetInfoType& block);
     ~BlockSetInfoType();
     BlockSetInfoType& operator=(const BlockSetInfoType& block);

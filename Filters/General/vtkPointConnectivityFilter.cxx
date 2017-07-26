@@ -95,7 +95,7 @@ int vtkPointConnectivityFilter::RequestData(
 
   // Check input
   vtkIdType numPts;
-  if ( input == NULL || (numPts=input->GetNumberOfPoints()) < 1 )
+  if ( input == nullptr || (numPts=input->GetNumberOfPoints()) < 1 )
   {
     return 1;
   }

@@ -22,13 +22,13 @@ vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
   this->Reverse = 0;
   this->SkipEmptyNodes = 1;
-  this->DataSet = NULL;
+  this->DataSet = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::~vtkCompositeDataIterator()
 {
-  this->SetDataSet(0);
+  this->SetDataSet(nullptr);
 }
 
 //----------------------------------------------------------------------------

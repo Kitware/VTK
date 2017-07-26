@@ -34,7 +34,7 @@ vtkDijkstraImageContourLineInterpolator
 ::vtkDijkstraImageContourLineInterpolator()
 {
   this->DijkstraImageGeodesicPath = vtkDijkstraImageGeodesicPath::New();
-  this->CostImage = NULL;
+  this->CostImage = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkDijkstraImageContourLineInterpolator
 ::~vtkDijkstraImageContourLineInterpolator()
 {
   this->DijkstraImageGeodesicPath->Delete();
-  this->CostImage = NULL;
+  this->CostImage = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
   }
   else
   {
-    this->DijkstraImageGeodesicPath->SetRepelVertices( NULL );
+    this->DijkstraImageGeodesicPath->SetRepelVertices( nullptr );
   }
 
   this->DijkstraImageGeodesicPath->SetStartVertex( endVertId );
@@ -128,7 +128,7 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
 
   vtkPolyData *pd = this->DijkstraImageGeodesicPath->GetOutput();
 
-  vtkIdType npts = 0, *pts = NULL;
+  vtkIdType npts = 0, *pts = nullptr;
   pd->GetLines()->InitTraversal();
   pd->GetLines()->GetNextCell( npts, pts );
 

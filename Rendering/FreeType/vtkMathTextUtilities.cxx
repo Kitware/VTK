@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
-vtkMathTextUtilities* vtkMathTextUtilities::Instance = NULL;
+vtkMathTextUtilities* vtkMathTextUtilities::Instance = nullptr;
 vtkMathTextUtilitiesCleanup vtkMathTextUtilities::Cleanup;
 
 //----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkMathTextUtilitiesCleanup::vtkMathTextUtilitiesCleanup()
 // Delete the singleton cleanup
 vtkMathTextUtilitiesCleanup::~vtkMathTextUtilitiesCleanup()
 {
-  vtkMathTextUtilities::SetInstance(NULL);
+  vtkMathTextUtilities::SetInstance(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void vtkMathTextUtilities::SetInstance(vtkMathTextUtilities* instance)
   // User will call ->Delete() after setting instance
   if (instance)
   {
-    instance->Register(NULL);
+    instance->Register(nullptr);
   }
 }
 
@@ -86,8 +86,8 @@ int vtkMathTextUtilities::GetConstrainedFontSize(const char *str,
                                                  int targetHeight,
                                                  int dpi)
 {
-  if (str == NULL || str[0] == '\0' || targetWidth == 0 || targetHeight == 0 ||
-      tprop == NULL)
+  if (str == nullptr || str[0] == '\0' || targetWidth == 0 || targetHeight == 0 ||
+      tprop == nullptr)
   {
     return 0;
   }
@@ -152,7 +152,7 @@ vtkMathTextUtilities* vtkMathTextUtilities::New()
   vtkMathTextUtilities* ret = vtkMathTextUtilities::GetInstance();
   if (ret)
   {
-    ret->Register(NULL);
+    ret->Register(nullptr);
   }
   return ret;
 }

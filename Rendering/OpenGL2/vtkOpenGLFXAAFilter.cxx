@@ -110,7 +110,7 @@ void vtkOpenGLFXAAFilter::Execute(vtkOpenGLRenderer *ren)
   this->Finalize();
   this->PrintBenchmark();
 
-  this->Renderer = NULL;
+  this->Renderer = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -171,11 +171,11 @@ vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
     UseHighQualityEndpoints(true),
     DebugOptionValue(vtkFXAAOptions::FXAA_NO_DEBUG),
     NeedToRebuildShader(true),
-    Renderer(NULL),
-    Input(NULL),
-    Program(NULL),
-    VAO(NULL),
-    VBO(NULL)
+    Renderer(nullptr),
+    Input(nullptr),
+    Program(nullptr),
+    VAO(nullptr),
+    VBO(nullptr)
 {
   std::fill(this->Viewport, this->Viewport + 4, 0);
 }
@@ -228,7 +228,7 @@ template <typename T> void DeleteHelper(T *& ptr)
   if (ptr)
   {
     ptr->Delete();
-    ptr = NULL;
+    ptr = nullptr;
   }
 }
 } // end anon namespace
@@ -293,7 +293,7 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
   {
     DeleteHelper(this->VAO);
     DeleteHelper(this->VBO);
-    this->Program = NULL; // Don't free, shader cache manages these.
+    this->Program = nullptr; // Don't free, shader cache manages these.
     this->NeedToRebuildShader = false;
   }
 

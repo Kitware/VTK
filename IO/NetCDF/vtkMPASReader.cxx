@@ -169,7 +169,7 @@ public:
   // variableIndex --> vtkDataArray
   typedef std::map<int, vtkSmartPointer<vtkDataArray> > ArrayMap;
   typedef std::map<std::string, DimMetaData> DimMetaDataMap;
-  Internal() : ncFile(NULL) {}
+  Internal() : ncFile(nullptr) {}
   ~Internal() { delete ncFile; }
 
   NcFile* ncFile;
@@ -199,7 +199,7 @@ bool vtkMPASReader::Internal::isExtraDim(const string &name)
 //----------------------------------------------------------------------------
 
 #define CHECK_MALLOC(ptr) \
-  if (ptr == NULL)                  \
+  if (ptr == nullptr)                  \
   {                               \
   vtkErrorMacro( << "malloc failed!" << endl);     \
   return(0);                      \
@@ -387,13 +387,13 @@ void vtkMPASReader::DestroyData()
   this->Internals->pointArrays.clear();
 
   free(this->CellMap);
-  this->CellMap = NULL;
+  this->CellMap = nullptr;
 
   free(this->PointMap);
-  this->PointMap = NULL;
+  this->PointMap = nullptr;
 
   free(this->MaximumLevelPoint);
-  this->MaximumLevelPoint = NULL;
+  this->MaximumLevelPoint = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -404,10 +404,10 @@ vtkMPASReader::~vtkMPASReader()
 {
   vtkDebugMacro(<< "Destructing vtkMPASReader..." << endl);
 
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 
   delete this->Internals->ncFile;
-  this->Internals->ncFile = NULL;
+  this->Internals->ncFile = nullptr;
 
   this->DestroyData();
 
@@ -415,17 +415,17 @@ vtkMPASReader::~vtkMPASReader()
   if (this->PointDataArraySelection)
   {
     this->PointDataArraySelection->Delete();
-    this->PointDataArraySelection = NULL;
+    this->PointDataArraySelection = nullptr;
   }
   if (this->CellDataArraySelection)
   {
     this->CellDataArraySelection->Delete();
-    this->CellDataArraySelection = NULL;
+    this->CellDataArraySelection = nullptr;
   }
   if (this->SelectionObserver)
   {
     this->SelectionObserver->Delete();
-    this->SelectionObserver = NULL;
+    this->SelectionObserver = nullptr;
   }
 
   delete this->Internals;
@@ -446,25 +446,25 @@ void vtkMPASReader::ReleaseNcData()
   this->UpdateDimensions(true); // Reset extra dimension list.
 
   free(this->PointX);
-  this->PointX = NULL;
+  this->PointX = nullptr;
   free(this->PointY);
-  this->PointY = NULL;
+  this->PointY = nullptr;
   free(this->PointZ);
-  this->PointZ = NULL;
+  this->PointZ = nullptr;
 
   free(this->OrigConnections);
-  this->OrigConnections = NULL;
+  this->OrigConnections = nullptr;
   free(this->ModConnections);
-  this->ModConnections = NULL;
+  this->ModConnections = nullptr;
   free(this->CellMap);
-  this->CellMap = NULL;
+  this->CellMap = nullptr;
   free(this->PointMap);
-  this->PointMap = NULL;
+  this->PointMap = nullptr;
   free(this->MaximumLevelPoint);
-  this->MaximumLevelPoint = NULL;
+  this->MaximumLevelPoint = nullptr;
 
   delete this->Internals->ncFile;
-  this->Internals->ncFile = NULL;
+  this->Internals->ncFile = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -664,16 +664,16 @@ void vtkMPASReader::SetDefaults() {
 
   this->UseDimensionedArrayNames = false;
 
-  this->PointX = NULL;
-  this->PointY = NULL;
-  this->PointZ = NULL;
-  this->OrigConnections = NULL;
-  this->ModConnections = NULL;
-  this->CellMap = NULL;
-  this->PointMap = NULL;
-  this->MaximumLevelPoint = NULL;
+  this->PointX = nullptr;
+  this->PointY = nullptr;
+  this->PointZ = nullptr;
+  this->OrigConnections = nullptr;
+  this->ModConnections = nullptr;
+  this->CellMap = nullptr;
+  this->PointMap = nullptr;
+  this->MaximumLevelPoint = nullptr;
 
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->DTime = 0;
 
   this->MaximumPoints = 0;
@@ -736,7 +736,7 @@ int vtkMPASReader::GetNcAtts()
     char *onASphereString = onASphere->as_string(0);
     this->OnASphere = (strcmp(onASphereString, "YES") == 0);
     delete [] onASphereString;
-    onASphereString = NULL;
+    onASphereString = nullptr;
   }
 
   return 1;
@@ -1650,17 +1650,17 @@ void vtkMPASReader::OutputPoints()
   if (this->PointX)
   {
     free(this->PointX);
-    this->PointX = NULL;
+    this->PointX = nullptr;
   }
   if (this->PointY)
   {
     free(this->PointY);
-    this->PointY = NULL;
+    this->PointY = nullptr;
   }
   if (this->PointZ)
   {
     free(this->PointZ);
-    this->PointZ = NULL;
+    this->PointZ = nullptr;
   }
 }
 
@@ -1941,8 +1941,8 @@ void vtkMPASReader::OutputCells()
     }
   }
 
-  free(this->ModConnections); this->ModConnections = NULL;
-  free(this->OrigConnections); this->OrigConnections = NULL;
+  free(this->ModConnections); this->ModConnections = nullptr;
+  free(this->OrigConnections); this->OrigConnections = nullptr;
 
   vtkDebugMacro(<< "Leaving OutputCells..." << endl);
 }
@@ -2030,7 +2030,7 @@ bool vtkMPASReader::LoadDataArray(NcVar *ncVar, vtkDataArray *array,
   ValueType *dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
   if (!dataBlock)
   {
-    vtkWarningMacro("GetVoidPointer returned NULL.");
+    vtkWarningMacro("GetVoidPointer returned nullptr.");
     return false;
   }
 
@@ -2229,10 +2229,10 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
 vtkDataArray *vtkMPASReader::LoadPointVarData(int variableIndex)
 {
   NcVar* ncVar = this->Internals->pointVars[variableIndex];
-  if (ncVar == NULL)
+  if (ncVar == nullptr)
   {
     vtkErrorMacro(<<"No NetCDF data for pointVar @ index " << variableIndex);
-    return 0;
+    return nullptr;
   }
 
   vtkDebugMacro(<<"Loading point data array named: " << ncVar->name());
@@ -2244,7 +2244,7 @@ vtkDataArray *vtkMPASReader::LoadPointVarData(int variableIndex)
   // Allocate data array pointer for this variable:
   vtkSmartPointer<vtkDataArray> array =
       this->LookupPointDataArray(variableIndex);
-  if (array == NULL)
+  if (array == nullptr)
   {
     vtkDebugMacro(<<"Allocating data array.");
     array = vtkSmartPointer<vtkDataArray>::Take(
@@ -2263,7 +2263,7 @@ vtkDataArray *vtkMPASReader::LoadPointVarData(int variableIndex)
     this->Internals->pointArrays[variableIndex] = array;
     return array;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -2317,10 +2317,10 @@ int vtkMPASReader::LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array)
 vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
 {
   NcVar* ncVar = this->Internals->cellVars[variableIndex];
-  if (ncVar == NULL)
+  if (ncVar == nullptr)
   {
     vtkErrorMacro(<<"No NetCDF data for cellVar @ index " << variableIndex);
-    return 0;
+    return nullptr;
   }
 
   vtkDebugMacro(<<"Loading cell data array named: " << ncVar->name());
@@ -2332,7 +2332,7 @@ vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
   // Allocate data array pointer for this variable:
   vtkSmartPointer<vtkDataArray> array =
       this->LookupCellDataArray(variableIndex);
-  if (array == NULL)
+  if (array == nullptr)
   {
     vtkDebugMacro(<<"Allocating data array.");
     array = vtkSmartPointer<vtkDataArray>::Take(
@@ -2350,27 +2350,27 @@ vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
     this->Internals->cellArrays[variableIndex] = array;
     return array;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkDataArray *vtkMPASReader::LookupPointDataArray(int varIdx)
 {
   Internal::ArrayMap::iterator it = this->Internals->pointArrays.find(varIdx);
-  return it != this->Internals->pointArrays.end() ? it->second : NULL;
+  return it != this->Internals->pointArrays.end() ? it->second : nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkDataArray *vtkMPASReader::LookupCellDataArray(int varIdx)
 {
   Internal::ArrayMap::iterator it = this->Internals->cellArrays.find(varIdx);
-  return it != this->Internals->cellArrays.end() ? it->second : NULL;
+  return it != this->Internals->cellArrays.end() ? it->second : nullptr;
 }
 
 //------------------------------------------------------------------------------
 void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid *dataset)
 {
-  vtkStringArray *array = NULL;
+  vtkStringArray *array = nullptr;
   vtkFieldData *fd = dataset->GetFieldData();
   if (!fd)
   {
@@ -2438,7 +2438,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid *dataset)
     time = timeStr.str();
   }
 
-  assert(array != NULL);
+  assert(array != nullptr);
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(1);
   array->SetValue(0, time);
@@ -2537,7 +2537,7 @@ vtkUnstructuredGrid* vtkMPASReader::GetOutput(int idx)
 {
   if (idx)
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -2813,7 +2813,7 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: "
-     << (this->FileName?this->FileName:"NULL") << "\n";
+     << (this->FileName?this->FileName:"nullptr") << "\n";
   os << indent << "VerticalLevelRange: "
      << this->VerticalLevelRange[0] << ","
      << this->VerticalLevelRange[1] << "\n";

@@ -38,15 +38,15 @@ vtkStandardNewMacro(vtkVolume);
 // orientation=(0,0,0).
 vtkVolume::vtkVolume()
 {
-  this->Mapper                      = NULL;
-  this->Property                    = NULL;
+  this->Mapper                      = nullptr;
+  this->Property                    = nullptr;
 
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
   {
-    this->ScalarOpacityArray[i]          = NULL;
-    this->RGBArray[i]                    = NULL;
-    this->GrayArray[i]                   = NULL;
-    this->CorrectedScalarOpacityArray[i] = NULL;
+    this->ScalarOpacityArray[i]          = nullptr;
+    this->RGBArray[i]                    = nullptr;
+    this->GrayArray[i]                   = nullptr;
+    this->CorrectedScalarOpacityArray[i] = nullptr;
     this->GradientOpacityConstant[i]     = 0;
   }
 
@@ -62,7 +62,7 @@ vtkVolume::~vtkVolume()
     this->Property->UnRegister(this);
   }
 
-  this->SetMapper(NULL);
+  this->SetMapper(nullptr);
 
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
   {
@@ -83,7 +83,7 @@ void vtkVolume::ShallowCopy(vtkProp *prop)
 {
   vtkVolume *v = vtkVolume::SafeDownCast(prop);
 
-  if ( v != NULL )
+  if ( v != nullptr )
   {
     this->SetMapper(v->GetMapper());
     this->SetProperty(v->GetProperty());
@@ -99,7 +99,7 @@ float *vtkVolume::GetScalarOpacityArray(int index)
   {
     vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP <<
                   "]: " << index );
-    return NULL;
+    return nullptr;
   }
   return this->ScalarOpacityArray[index];
 }
@@ -110,7 +110,7 @@ float *vtkVolume::GetCorrectedScalarOpacityArray(int index)
   {
     vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP <<
                   "]: " << index );
-    return NULL;
+    return nullptr;
   }
   return this->CorrectedScalarOpacityArray[index];
 }
@@ -121,7 +121,7 @@ float *vtkVolume::GetGradientOpacityArray(int index)
   {
     vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP <<
                   "]: " << index );
-    return NULL;
+    return nullptr;
   }
   return this->GradientOpacityArray[index];
 }
@@ -143,7 +143,7 @@ float *vtkVolume::GetGrayArray(int index)
   {
     vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP <<
                   "]: " << index );
-    return NULL;
+    return nullptr;
   }
   return this->GrayArray[index];
 }
@@ -154,7 +154,7 @@ float *vtkVolume::GetRGBArray(int index)
   {
     vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP <<
                   "]: " << index );
-    return NULL;
+    return nullptr;
   }
   return this->RGBArray[index];
 }
@@ -163,12 +163,12 @@ void vtkVolume::SetMapper(vtkAbstractVolumeMapper *mapper)
 {
   if (this->Mapper != mapper)
   {
-    if (this->Mapper != NULL)
+    if (this->Mapper != nullptr)
     {
       this->Mapper->UnRegister(this);
     }
     this->Mapper = mapper;
-    if (this->Mapper != NULL)
+    if (this->Mapper != nullptr)
     {
       this->Mapper->Register(this);
     }
@@ -246,7 +246,7 @@ double *vtkVolume::GetBounds()
   // Check for the special case when the mapper's bounds are unknown
   if (!bounds)
   {
-    return NULL;
+    return nullptr;
   }
 
   // fill out vertices of a bounding box
@@ -394,9 +394,9 @@ void vtkVolume::SetProperty(vtkVolumeProperty *property)
 {
   if( this->Property != property )
   {
-    if (this->Property != NULL) {this->Property->UnRegister(this);}
+    if (this->Property != nullptr) {this->Property->UnRegister(this);}
     this->Property = property;
-    if (this->Property != NULL)
+    if (this->Property != nullptr)
     {
       this->Property->Register(this);
       this->Property->UpdateMTimes();
@@ -407,7 +407,7 @@ void vtkVolume::SetProperty(vtkVolumeProperty *property)
 
 vtkVolumeProperty *vtkVolume::GetProperty()
 {
-  if( this->Property == NULL )
+  if( this->Property == nullptr )
   {
     this->Property = vtkVolumeProperty::New();
     this->Property->Register(this);
@@ -421,19 +421,19 @@ vtkMTimeType vtkVolume::GetMTime()
   vtkMTimeType mTime=this->vtkObject::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Property != NULL )
+  if ( this->Property != nullptr )
   {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->UserMatrix != NULL )
+  if ( this->UserMatrix != nullptr )
   {
     time = this->UserMatrix->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->UserTransform != NULL )
+  if ( this->UserTransform != nullptr )
   {
     time = this->UserTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -447,11 +447,11 @@ vtkMTimeType vtkVolume::GetRedrawMTime()
   vtkMTimeType mTime=this->GetMTime();
   vtkMTimeType time;
 
-  if ( this->Mapper != NULL )
+  if ( this->Mapper != nullptr )
   {
     time = this->Mapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->GetMapper()->GetDataSetInput() != NULL)
+    if (this->GetMapper()->GetDataSetInput() != nullptr)
     {
       this->GetMapper()->GetInputAlgorithm()->Update();
       time = this->Mapper->GetDataSetInput()->GetMTime();
@@ -459,7 +459,7 @@ vtkMTimeType vtkVolume::GetRedrawMTime()
     }
   }
 
-  if ( this->Property != NULL )
+  if ( this->Property != nullptr )
   {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -517,10 +517,10 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
   int                        arraySize;
 
   // Check that we have scalars
-  if ( this->Mapper == NULL ||
-       this->Mapper->GetDataSetInput() == NULL ||
-       this->Mapper->GetDataSetInput()->GetPointData() == NULL ||
-       this->Mapper->GetDataSetInput()->GetPointData()->GetScalars() == NULL )
+  if ( this->Mapper == nullptr ||
+       this->Mapper->GetDataSetInput() == nullptr ||
+       this->Mapper->GetDataSetInput()->GetPointData() == nullptr ||
+       this->Mapper->GetDataSetInput()->GetPointData()->GetScalars() == nullptr )
   {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;
@@ -556,16 +556,16 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     if ( arraySize != this->ArraySize )
     {
       delete [] this->ScalarOpacityArray[c];
-      this->ScalarOpacityArray[c] = NULL;
+      this->ScalarOpacityArray[c] = nullptr;
 
       delete [] this->CorrectedScalarOpacityArray[c];
-      this->CorrectedScalarOpacityArray[c] = NULL;
+      this->CorrectedScalarOpacityArray[c] = nullptr;
 
       delete [] this->GrayArray[c];
-      this->GrayArray[c] = NULL;
+      this->GrayArray[c] = nullptr;
 
       delete [] this->RGBArray[c];
-      this->RGBArray[c] = NULL;
+      this->RGBArray[c] = nullptr;
 
       // Allocate these two because we know we need them
       this->ScalarOpacityArray[c] = new float[arraySize];
@@ -580,7 +580,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     if ( colorChannels == 1 )
     {
       delete [] this->RGBArray[c];
-      this->RGBArray[c] = NULL;
+      this->RGBArray[c] = nullptr;
 
       if ( !this->GrayArray[c] )
       {
@@ -593,7 +593,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     if ( colorChannels == 3 )
     {
       delete [] this->GrayArray[c];
-      this->GrayArray[c] = NULL;
+      this->GrayArray[c] = nullptr;
 
       if ( !this->RGBArray[c] )
       {
@@ -609,13 +609,13 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
 
     if ( colorChannels == 1 )
     {
-      rgbtf         = NULL;
+      rgbtf         = nullptr;
       graytf        = this->Property->GetGrayTransferFunction(c);
     }
     else
     {
       rgbtf         = this->Property->GetRGBTransferFunction(c);
-      graytf        = NULL;
+      graytf        = nullptr;
     }
 
 
@@ -712,10 +712,10 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
       this->CorrectedStepSize-ray_scale < -0.0001;
 
   // Check that we have scalars
-  if ( this->Mapper == NULL ||
-       this->Mapper->GetDataSetInput() == NULL ||
-       this->Mapper->GetDataSetInput()->GetPointData() == NULL ||
-       this->Mapper->GetDataSetInput()->GetPointData()->GetScalars() == NULL )
+  if ( this->Mapper == nullptr ||
+       this->Mapper->GetDataSetInput() == nullptr ||
+       this->Mapper->GetDataSetInput()->GetPointData() == nullptr ||
+       this->Mapper->GetDataSetInput()->GetPointData()->GetScalars() == nullptr )
   {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;

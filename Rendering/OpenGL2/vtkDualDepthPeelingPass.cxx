@@ -778,20 +778,20 @@ bool vtkDualDepthPeelingPass::SetVolumetricShaderParameters(
 
 //------------------------------------------------------------------------------
 vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
-  : VolumetricPass(NULL),
-    RenderState(NULL),
-    CopyColorProgram(NULL),
-    CopyColorVAO(NULL),
-    CopyColorVBO(NULL),
-    CopyDepthProgram(NULL),
-    CopyDepthVAO(NULL),
-    CopyDepthVBO(NULL),
-    BackBlendProgram(NULL),
-    BackBlendVAO(NULL),
-    BackBlendVBO(NULL),
-    BlendProgram(NULL),
-    BlendVAO(NULL),
-    BlendVBO(NULL),
+  : VolumetricPass(nullptr),
+    RenderState(nullptr),
+    CopyColorProgram(nullptr),
+    CopyColorVAO(nullptr),
+    CopyColorVBO(nullptr),
+    CopyDepthProgram(nullptr),
+    CopyDepthVAO(nullptr),
+    CopyDepthVBO(nullptr),
+    BackBlendProgram(nullptr),
+    BackBlendVAO(nullptr),
+    BackBlendVBO(nullptr),
+    BlendProgram(nullptr),
+    BlendVAO(nullptr),
+    BlendVBO(nullptr),
     FrontSource(FrontA),
     FrontDestination(FrontB),
     DepthSource(DepthA),
@@ -813,7 +813,7 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
     DepthTestEnabled(true)
 {
   std::fill(this->Textures, this->Textures + static_cast<int>(NumberOfTextures),
-            static_cast<vtkTextureObject*>(NULL));
+            static_cast<vtkTextureObject*>(nullptr));
 }
 
 //------------------------------------------------------------------------------
@@ -823,7 +823,7 @@ vtkDualDepthPeelingPass::~vtkDualDepthPeelingPass()
 
   if (this->VolumetricPass)
   {
-    this->SetVolumetricPass(NULL);
+    this->SetVolumetricPass(nullptr);
   }
 }
 
@@ -845,7 +845,7 @@ template <typename T> void DeleteHelper(T *& ptr)
   if (ptr)
   {
     ptr->Delete();
-    ptr = NULL;
+    ptr = nullptr;
   }
 }
 } // end anon namespace
@@ -858,7 +858,7 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
     if (this->Textures[i])
     {
       this->Textures[i]->Delete();
-      this->Textures[i] = NULL;
+      this->Textures[i] = nullptr;
     }
   }
 
@@ -872,10 +872,10 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
   DeleteHelper(this->BlendVBO);
 
   // don't delete the shader programs -- let the cache clean them up.
-  this->CopyColorProgram = NULL;
-  this->CopyDepthProgram = NULL;
-  this->BackBlendProgram = NULL;
-  this->BlendProgram = NULL;
+  this->CopyColorProgram = nullptr;
+  this->CopyDepthProgram = nullptr;
+  this->BackBlendProgram = nullptr;
+  this->BlendProgram = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -910,7 +910,7 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
 
   // Get current viewport size:
   vtkRenderer *r = s->GetRenderer();
-  if(s->GetFrameBuffer()==0)
+  if(s->GetFrameBuffer()==nullptr)
   {
     // get the viewport dimensions
     r->GetTiledSizeAndOrigin(&this->ViewportWidth, &this->ViewportHeight,
@@ -1704,8 +1704,8 @@ void vtkDualDepthPeelingPass::Finalize()
     }
   }
 
-  this->Timer = NULL;
-  this->RenderState = NULL;
+  this->Timer = nullptr;
+  this->RenderState = nullptr;
   this->DeleteOcclusionQueryIds();
   this->SetCurrentStage(Inactive);
 

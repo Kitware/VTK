@@ -409,7 +409,7 @@ const typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateS
   if(dimension < 0 || dimension >= this->GetDimensions())
   {
     vtkErrorMacro(<< "Dimension out-of-bounds.");
-    return 0;
+    return nullptr;
   }
 
   return &this->Coordinates[dimension][0];
@@ -421,7 +421,7 @@ typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateStorage
   if(dimension < 0 || dimension >= this->GetDimensions())
   {
     vtkErrorMacro(<< "Dimension out-of-bounds.");
-    return 0;
+    return nullptr;
   }
 
   return &this->Coordinates[dimension][0];

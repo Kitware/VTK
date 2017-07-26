@@ -156,7 +156,7 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   this->SetProgressRange(progressRange, 1, fractions);
 
   // Write the Verts.
-  this->WriteCellsInline("Verts", input->GetVerts(), 0, indent);
+  this->WriteCellsInline("Verts", input->GetVerts(), nullptr, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
@@ -166,7 +166,7 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   this->SetProgressRange(progressRange, 2, fractions);
 
   // Write the Lines.
-  this->WriteCellsInline("Lines", input->GetLines(), 0, indent);
+  this->WriteCellsInline("Lines", input->GetLines(), nullptr, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
@@ -176,7 +176,7 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   this->SetProgressRange(progressRange, 3, fractions);
 
   // Write the Strips.
-  this->WriteCellsInline("Strips", input->GetStrips(), 0, indent);
+  this->WriteCellsInline("Strips", input->GetStrips(), nullptr, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
@@ -186,7 +186,7 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   this->SetProgressRange(progressRange, 4, fractions);
 
   // Write the Polys.
-  this->WriteCellsInline("Polys", input->GetPolys(), 0, indent);
+  this->WriteCellsInline("Polys", input->GetPolys(), nullptr, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -228,28 +228,28 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
     return;
   }
 
-  this->WriteCellsAppended("Verts", 0, indent,
+  this->WriteCellsAppended("Verts", nullptr, indent,
     &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
-  this->WriteCellsAppended("Lines", 0, indent ,
+  this->WriteCellsAppended("Lines", nullptr, indent ,
     &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
-  this->WriteCellsAppended("Strips", 0, indent,
+  this->WriteCellsAppended("Strips", nullptr, indent,
     &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
-  this->WriteCellsAppended("Polys", 0, indent,
+  this->WriteCellsAppended("Polys", nullptr, indent,
     &this->PolysOM->GetPiece(index));
 }
 
@@ -314,7 +314,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 1, fractions);
 
   // Write the Verts.
-  this->WriteCellsAppendedData(input->GetVerts(), 0,
+  this->WriteCellsAppendedData(input->GetVerts(), nullptr,
                                this->CurrentTimeIndex,
                                &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -326,7 +326,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 2, fractions);
 
   // Write the Lines.
-  this->WriteCellsAppendedData(input->GetLines(), 0,
+  this->WriteCellsAppendedData(input->GetLines(), nullptr,
                                this->CurrentTimeIndex,
                                &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -338,7 +338,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 3, fractions);
 
   // Write the Strips.
-  this->WriteCellsAppendedData(input->GetStrips(), 0,
+  this->WriteCellsAppendedData(input->GetStrips(), nullptr,
                                this->CurrentTimeIndex,
                                &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -350,7 +350,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 4, fractions);
 
   // Write the Polys.
-  this->WriteCellsAppendedData(input->GetPolys(), 0,
+  this->WriteCellsAppendedData(input->GetPolys(), nullptr,
                                this->CurrentTimeIndex,
                                &this->PolysOM->GetPiece(index));
 }

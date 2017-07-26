@@ -27,8 +27,8 @@ vtkCxxSetObjectMacro(vtkPolyDataItem, MappedColors, vtkUnsignedCharArray);
 
 //-----------------------------------------------------------------------------
 vtkPolyDataItem::vtkPolyDataItem()
-: PolyData(NULL)
-, MappedColors(NULL)
+: PolyData(nullptr)
+, MappedColors(nullptr)
 , ScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA)
 {
   this->Position[0] = this->Position[1] = 0;
@@ -37,8 +37,8 @@ vtkPolyDataItem::vtkPolyDataItem()
 //-----------------------------------------------------------------------------
 vtkPolyDataItem::~vtkPolyDataItem()
 {
-  this->SetPolyData(NULL);
-  this->SetMappedColors(NULL);
+  this->SetPolyData(nullptr);
+  this->SetMappedColors(nullptr);
 }
 
 //-----------------------------------------------------------------------------

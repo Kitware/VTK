@@ -78,7 +78,7 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   this->ThicknessTextActor->SetMapper(this->ThicknessTextMapper);
   this->ThicknessTextActor->VisibilityOff();
 
-  this->Reslice = NULL;
+  this->Reslice = nullptr;
   this->CreateDefaultResliceAlgorithm();
   this->PlaneSource = vtkPlaneSource::New();
 
@@ -87,7 +87,7 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
 
   this->ResliceAxes        = vtkMatrix4x4::New();
   this->NewResliceAxes     = vtkMatrix4x4::New();
-  this->LookupTable        = 0;
+  this->LookupTable        = nullptr;
   this->ColorMap           = vtkImageMapToColors::New();
   this->Texture            = vtkTexture::New();
   this->Texture->SetInputConnection(
@@ -135,7 +135,7 @@ vtkResliceCursorRepresentation::~vtkResliceCursorRepresentation()
   this->ThicknessTextProperty->Delete();
   this->ThicknessTextMapper->Delete();
   this->ThicknessTextActor->Delete();
-  this->SetThicknessLabelFormat(0);
+  this->SetThicknessLabelFormat(nullptr);
   this->ImageActor->Delete();
   if (this->Reslice)
   {

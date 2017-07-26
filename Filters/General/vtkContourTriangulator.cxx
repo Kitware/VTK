@@ -78,7 +78,7 @@ int vtkContourTriangulator::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkCellArray *lines = input->GetLines();
-  if (lines == 0 || lines->GetNumberOfCells() == 0)
+  if (lines == nullptr || lines->GetNumberOfCells() == 0)
   {
     return 1;
   }
@@ -91,7 +91,7 @@ int vtkContourTriangulator::RequestData(
   polys->Delete();
 
   this->TriangulationError = !vtkContourTriangulator::TriangulateContours(
-    input, input->GetNumberOfVerts(), lines->GetNumberOfCells(), polys, 0);
+    input, input->GetNumberOfVerts(), lines->GetNumberOfCells(), polys, nullptr);
 
   if (this->TriangulationError && this->TriangulationErrorDisplay)
   {
@@ -563,7 +563,7 @@ void vtkCCSMakePolysFromLines(
   std::vector<size_t> &incompletePolys)
 {
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
 
   // Bitfield for marking lines as used
   vtkCCSBitArray usedLines;
@@ -1593,7 +1593,7 @@ void vtkCCSMakeHoleyPolys(
   vtkCCSBitArray innerPolys;
 
   // GroupCount is an array only needed for unoriented polys
-  size_t *groupCount = 0;
+  size_t *groupCount = nullptr;
   if (!oriented)
   {
     groupCount = new size_t[numNewPolys];
@@ -2401,13 +2401,13 @@ int vtkContourTriangulator::TriangulateContours(
   // reallocating this would be expensive, so start it big
   newPolys.reserve(100);
 
-  bool oriented = (normal != 0);
+  bool oriented = (normal != nullptr);
   vtkCCSMakePolysFromLines(data, firstLine, firstLine+numLines, oriented,
                            newPolys, incompletePolys);
 
   // if no normal specified, then compute one from largest contour
   double computedNormal[3] = { 0.0, 0.0, 1.0 };
-  if (normal == 0)
+  if (normal == nullptr)
   {
     double maxnorm2 = 0;
     size_t numNewPolys = newPolys.size();

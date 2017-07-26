@@ -256,13 +256,13 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
         allocatedTimeList[index1] = allocatedTimeList[index2];
         distanceList[index1]      = distanceList[index2];
         propList[index1]          = propList[index2];
-        propList[index2]          = NULL;
+        propList[index2]          = nullptr;
         allocatedTimeList[index2] = 0.0;
         distanceList[index2]      = 0.0;
       }
       else
       {
-        propList[index1]          = propList[index2]           = NULL;
+        propList[index1]          = propList[index2]           = nullptr;
         allocatedTimeList[index1] = allocatedTimeList[index2]  = 0.0;
         distanceList[index1]      = distanceList[index2]       = 0.0;
       }

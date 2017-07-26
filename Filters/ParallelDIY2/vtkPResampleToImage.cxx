@@ -487,7 +487,7 @@ inline diy::mpi::communicator GetDiyCommunicator(vtkMPIController *controller)
 
 //---------------------------------------------------------------------------
 vtkPResampleToImage::vtkPResampleToImage()
-  : Controller(NULL)
+  : Controller(nullptr)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -495,7 +495,7 @@ vtkPResampleToImage::vtkPResampleToImage()
 //----------------------------------------------------------------------------
 vtkPResampleToImage::~vtkPResampleToImage()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------

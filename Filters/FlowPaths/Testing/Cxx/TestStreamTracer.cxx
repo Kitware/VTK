@@ -93,9 +93,9 @@ int TestFieldNames(int, char*[])
 
   //verify results
   vtkPolyData* trace = vtkPolyData::SafeDownCast(tracer->GetOutputDataObject(0));
-  if(   trace->GetPointData()->GetArray("array 0")!=NULL
-     || trace->GetPointData()->GetArray("array 1")!=NULL
-     || trace->GetPointData()->GetArray("RTData")==NULL
+  if(   trace->GetPointData()->GetArray("array 0")!=nullptr
+     || trace->GetPointData()->GetArray("array 1")!=nullptr
+     || trace->GetPointData()->GetArray("RTData")==nullptr
      || trace->GetNumberOfPoints()==0)
   {
     return EXIT_FAILURE;

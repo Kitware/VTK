@@ -163,7 +163,7 @@ protected:
 #define vtkInformationKeySetStringMacro(name) \
 virtual void Set##name (const char* _arg) \
 { \
-  if ( this->name == NULL && _arg == NULL) { return;} \
+  if ( this->name == nullptr && _arg == nullptr) { return;} \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
   delete [] this->name; \
   if (_arg) \
@@ -176,7 +176,7 @@ virtual void Set##name (const char* _arg) \
   } \
    else \
    { \
-    this->name = NULL; \
+    this->name = nullptr; \
    } \
 }
 

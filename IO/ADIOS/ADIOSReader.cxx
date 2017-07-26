@@ -74,7 +74,7 @@ int Reader::InitContext::RefCount = 0;
 struct Reader::ReaderImpl
 {
   ReaderImpl()
-  : File(NULL), StepBegin(0), StepEnd(0)
+  : File(nullptr), StepBegin(0), StepEnd(0)
   { }
 
   ~ReaderImpl()
@@ -150,7 +150,7 @@ Reader::~Reader()
 //----------------------------------------------------------------------------
 bool Reader::IsOpen() const
 {
-  return this->Impl->File != NULL;
+  return this->Impl->File != nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -174,13 +174,13 @@ const std::vector<const VarInfo*>& Reader::GetArrays() const
 //----------------------------------------------------------------------------
 void Reader::Open(const std::string &fileName)
 {
-  ReadError::TestEq<ADIOS_FILE*>(NULL, this->Impl->File,
+  ReadError::TestEq<ADIOS_FILE*>(nullptr, this->Impl->File,
     "Open: An existing file is already open");
 
   // Open the file
   this->Impl->File = adios_read_open_file(fileName.c_str(),
     this->Ctx->Method, this->Ctx->Comm);
-  ReadError::TestNe<ADIOS_FILE*>(NULL, this->Impl->File);
+  ReadError::TestNe<ADIOS_FILE*>(nullptr, this->Impl->File);
 
   // Poplulate step information
   this->Impl->StepBegin = this->Impl->File->current_step;
@@ -196,7 +196,7 @@ void Reader::Open(const std::string &fileName)
   for(int i = 0; i < this->Impl->File->nvars; ++i)
   {
       ADIOS_VARINFO *v = adios_inq_var_byid(this->Impl->File, i);
-      ReadError::TestNe<ADIOS_VARINFO*>(NULL, v);
+      ReadError::TestNe<ADIOS_VARINFO*>(nullptr, v);
 
       if(v->ndim == 0)
       {
@@ -216,14 +216,14 @@ void Reader::Close()
   if(this->Impl->File)
   {
     adios_read_close(this->Impl->File);
-    this->Impl->File = NULL;
+    this->Impl->File = nullptr;
   }
 }
 
 //----------------------------------------------------------------------------
 void Reader::GetStepRange(int &tStart, int &tEnd) const
 {
-  ReadError::TestNe<ADIOS_FILE*>(NULL, this->Impl->File,
+  ReadError::TestNe<ADIOS_FILE*>(nullptr, this->Impl->File,
     "GetStepRange: File not open");
 
   tStart = this->Impl->StepBegin;
@@ -234,7 +234,7 @@ void Reader::GetStepRange(int &tStart, int &tEnd) const
 void Reader::ScheduleReadArray(int id, void *data, int step, int block)
 {
   ADIOS_SELECTION *sel = adios_selection_writeblock(block);
-  ReadError::TestNe<ADIOS_SELECTION*>(NULL, sel);
+  ReadError::TestNe<ADIOS_SELECTION*>(nullptr, sel);
 
   int err = adios_schedule_read_byid(this->Impl->File, sel, id,
     step, 1, data);

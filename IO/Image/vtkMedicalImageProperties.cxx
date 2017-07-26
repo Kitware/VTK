@@ -31,7 +31,7 @@ static const char *vtkMedicalImagePropertiesOrientationString[] = {
   "AXIAL",
   "CORONAL",
   "SAGITTAL",
-  NULL
+  nullptr
 };
 
 
@@ -50,7 +50,7 @@ public:
   class UserDefinedValue
   {
   public:
-    UserDefinedValue(const char *name = 0, const char *value = 0):Name(name ? name : ""),Value(value ? value : "") {}
+    UserDefinedValue(const char *name = nullptr, const char *value = nullptr):Name(name ? name : ""),Value(value ? value : "") {}
     std::string Name;
     std::string Value;
     // order for the std::set
@@ -81,7 +81,7 @@ public:
         return it->Value.c_str();
       }
     }
-    return NULL;
+    return nullptr;
   }
   unsigned int GetNumberOfUserDefinedValues() const
   {
@@ -99,7 +99,7 @@ public:
       }
       return it->Name.c_str();
     }
-    return NULL;
+    return nullptr;
   }
   const char *GetUserDefinedValueByIndex(unsigned int idx)
   {
@@ -113,7 +113,7 @@ public:
       }
       return it->Value.c_str();
     }
-    return NULL;
+    return nullptr;
   }
   void RemoveAllUserDefinedValues()
   {
@@ -248,37 +248,37 @@ vtkMedicalImageProperties::vtkMedicalImageProperties()
 {
   this->Internals = new vtkMedicalImagePropertiesInternals;
 
-  this->StudyDate              = NULL;
-  this->AcquisitionDate        = NULL;
-  this->StudyTime              = NULL;
-  this->AcquisitionTime        = NULL;
-  this->ConvolutionKernel      = NULL;
-  this->EchoTime               = NULL;
-  this->EchoTrainLength        = NULL;
-  this->Exposure               = NULL;
-  this->ExposureTime           = NULL;
-  this->GantryTilt             = NULL;
-  this->ImageDate              = NULL;
-  this->ImageNumber            = NULL;
-  this->ImageTime              = NULL;
-  this->InstitutionName        = NULL;
-  this->KVP                    = NULL;
-  this->ManufacturerModelName  = NULL;
-  this->Manufacturer           = NULL;
-  this->Modality               = NULL;
-  this->PatientAge             = NULL;
-  this->PatientBirthDate       = NULL;
-  this->PatientID              = NULL;
-  this->PatientName            = NULL;
-  this->PatientSex             = NULL;
-  this->RepetitionTime         = NULL;
-  this->SeriesDescription      = NULL;
-  this->SeriesNumber           = NULL;
-  this->SliceThickness         = NULL;
-  this->StationName            = NULL;
-  this->StudyDescription       = NULL;
-  this->StudyID                = NULL;
-  this->XRayTubeCurrent        = NULL;
+  this->StudyDate              = nullptr;
+  this->AcquisitionDate        = nullptr;
+  this->StudyTime              = nullptr;
+  this->AcquisitionTime        = nullptr;
+  this->ConvolutionKernel      = nullptr;
+  this->EchoTime               = nullptr;
+  this->EchoTrainLength        = nullptr;
+  this->Exposure               = nullptr;
+  this->ExposureTime           = nullptr;
+  this->GantryTilt             = nullptr;
+  this->ImageDate              = nullptr;
+  this->ImageNumber            = nullptr;
+  this->ImageTime              = nullptr;
+  this->InstitutionName        = nullptr;
+  this->KVP                    = nullptr;
+  this->ManufacturerModelName  = nullptr;
+  this->Manufacturer           = nullptr;
+  this->Modality               = nullptr;
+  this->PatientAge             = nullptr;
+  this->PatientBirthDate       = nullptr;
+  this->PatientID              = nullptr;
+  this->PatientName            = nullptr;
+  this->PatientSex             = nullptr;
+  this->RepetitionTime         = nullptr;
+  this->SeriesDescription      = nullptr;
+  this->SeriesNumber           = nullptr;
+  this->SliceThickness         = nullptr;
+  this->StationName            = nullptr;
+  this->StudyDescription       = nullptr;
+  this->StudyID                = nullptr;
+  this->XRayTubeCurrent        = nullptr;
 
   this->DirectionCosine[0] = 1;
   this->DirectionCosine[1] = 0;
@@ -294,7 +294,7 @@ vtkMedicalImageProperties::~vtkMedicalImageProperties()
   this->Clear();
 
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -336,37 +336,37 @@ void vtkMedicalImageProperties::RemoveAllUserDefinedValues()
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::Clear()
 {
-  this->SetStudyDate(NULL);
-  this->SetAcquisitionDate(NULL);
-  this->SetStudyTime(NULL);
-  this->SetAcquisitionTime(NULL);
-  this->SetConvolutionKernel(NULL);
-  this->SetEchoTime(NULL);
-  this->SetEchoTrainLength(NULL);
-  this->SetExposure(NULL);
-  this->SetExposureTime(NULL);
-  this->SetGantryTilt(NULL);
-  this->SetImageDate(NULL);
-  this->SetImageNumber(NULL);
-  this->SetImageTime(NULL);
-  this->SetInstitutionName(NULL);
-  this->SetKVP(NULL);
-  this->SetManufacturerModelName(NULL);
-  this->SetManufacturer(NULL);
-  this->SetModality(NULL);
-  this->SetPatientAge(NULL);
-  this->SetPatientBirthDate(NULL);
-  this->SetPatientID(NULL);
-  this->SetPatientName(NULL);
-  this->SetPatientSex(NULL);
-  this->SetRepetitionTime(NULL);
-  this->SetSeriesDescription(NULL);
-  this->SetSeriesNumber(NULL);
-  this->SetSliceThickness(NULL);
-  this->SetStationName(NULL);
-  this->SetStudyDescription(NULL);
-  this->SetStudyID(NULL);
-  this->SetXRayTubeCurrent(NULL);
+  this->SetStudyDate(nullptr);
+  this->SetAcquisitionDate(nullptr);
+  this->SetStudyTime(nullptr);
+  this->SetAcquisitionTime(nullptr);
+  this->SetConvolutionKernel(nullptr);
+  this->SetEchoTime(nullptr);
+  this->SetEchoTrainLength(nullptr);
+  this->SetExposure(nullptr);
+  this->SetExposureTime(nullptr);
+  this->SetGantryTilt(nullptr);
+  this->SetImageDate(nullptr);
+  this->SetImageNumber(nullptr);
+  this->SetImageTime(nullptr);
+  this->SetInstitutionName(nullptr);
+  this->SetKVP(nullptr);
+  this->SetManufacturerModelName(nullptr);
+  this->SetManufacturer(nullptr);
+  this->SetModality(nullptr);
+  this->SetPatientAge(nullptr);
+  this->SetPatientBirthDate(nullptr);
+  this->SetPatientID(nullptr);
+  this->SetPatientName(nullptr);
+  this->SetPatientSex(nullptr);
+  this->SetRepetitionTime(nullptr);
+  this->SetSeriesDescription(nullptr);
+  this->SetSeriesNumber(nullptr);
+  this->SetSliceThickness(nullptr);
+  this->SetStationName(nullptr);
+  this->SetStudyDescription(nullptr);
+  this->SetStudyID(nullptr);
+  this->SetXRayTubeCurrent(nullptr);
 
   this->RemoveAllWindowLevelPresets();
   this->RemoveAllUserDefinedValues();
@@ -378,7 +378,7 @@ void vtkMedicalImageProperties::Clear()
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
 {
-  if (p == NULL)
+  if (p == nullptr)
   {
     return;
   }
@@ -523,7 +523,7 @@ double* vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx)
   {
     return wl;
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -535,7 +535,7 @@ const char* vtkMedicalImageProperties::GetNthWindowLevelPresetComment(
   {
     return this->Internals->WindowLevelPresetPool[idx].Comment.c_str();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -597,7 +597,7 @@ const char *vtkMedicalImageProperties::GetStringFromOrientationType(unsigned int
   // find length of table
   if (!numtypes)
   {
-    while (vtkMedicalImagePropertiesOrientationString[numtypes] != NULL)
+    while (vtkMedicalImagePropertiesOrientationString[numtypes] != nullptr)
     {
       numtypes++;
     }
@@ -608,7 +608,7 @@ const char *vtkMedicalImageProperties::GetStringFromOrientationType(unsigned int
     return vtkMedicalImagePropertiesOrientationString[type];
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

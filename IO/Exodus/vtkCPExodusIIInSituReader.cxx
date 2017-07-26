@@ -42,7 +42,7 @@ void vtkCPExodusIIInSituReader::PrintSelf(ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkCPExodusIIInSituReader::vtkCPExodusIIInSituReader()
-  : FileName(NULL),
+  : FileName(nullptr),
     FileId(-1),
     NumberOfDimensions(0),
     NumberOfNodes(0),
@@ -57,7 +57,7 @@ vtkCPExodusIIInSituReader::vtkCPExodusIIInSituReader()
 //------------------------------------------------------------------------------
 vtkCPExodusIIInSituReader::~vtkCPExodusIIInSituReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
   int numTimeSteps;
 
   error = ex_inquire(this->FileId, EX_INQ_TIME,
-                     &numTimeSteps, NULL, NULL);
+                     &numTimeSteps, nullptr, nullptr);
   if (error < 0)
   {
     vtkErrorMacro("Error retrieving the number of timesteps.");
@@ -305,7 +305,7 @@ bool vtkCPExodusIIInSituReader::ExGetCoords()
   double *y(new double[this->NumberOfNodes]);
   double *z(this->NumberOfDimensions >= 3
             ? new double[this->NumberOfNodes]
-            : NULL);
+            : nullptr);
 
   int error = ex_get_coord(this->FileId, x, y, z);
 

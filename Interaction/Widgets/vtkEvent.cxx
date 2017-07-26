@@ -25,7 +25,7 @@ vtkEvent::vtkEvent()
   this->Modifier = vtkEvent::AnyModifier;
   this->KeyCode = 0;
   this->RepeatCount = 0;
-  this->KeySym = 0;
+  this->KeySym = nullptr;
   this->EventId = vtkCommand::NoEvent;
 }
 
@@ -70,7 +70,7 @@ bool vtkEvent::operator==(vtkEvent *e)
   {
     return false;
   }
-  if ( this->KeySym != NULL && e->KeySym != NULL &&
+  if ( this->KeySym != nullptr && e->KeySym != nullptr &&
        strcmp(this->KeySym,e->KeySym) != 0 )
   {
     return false;
@@ -135,7 +135,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Key Sym: ";
-  if ( this->KeySym == 0 )
+  if ( this->KeySym == nullptr )
   {
     os << "Any\n";
   }

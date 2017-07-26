@@ -46,7 +46,7 @@ vtkPolyLine::~vtkPolyLine()
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                                         vtkDataArray *normals)
 {
-  return vtkPolyLine::GenerateSlidingNormals(pts, lines, normals, 0);
+  return vtkPolyLine::GenerateSlidingNormals(pts, lines, normals, nullptr);
 }
 
 
@@ -76,7 +76,7 @@ inline vtkIdType FindNextValidSegment(vtkPoints *points, vtkIdList *pointIds,
 // normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
 // in the same direction as much as possible (i.e., minimal rotation) w.r.t the
-// firstNormal (computed if NULL). Always returns 1 (success).
+// firstNormal (computed if nullptr). Always returns 1 (success).
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                                         vtkDataArray *normals,
                                         double* firstNormal)

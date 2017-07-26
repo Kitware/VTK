@@ -33,27 +33,27 @@ vtkGenericInterpolatedVelocityField::vtkGenericInterpolatedVelocityField()
 {
   this->NumFuncs = 3; // u, v, w
   this->NumIndepVars = 4; // x, y, z, t
-  this->GenCell = 0;
+  this->GenCell = nullptr;
   this->CacheHit = 0;
   this->CacheMiss = 0;
   this->Caching = 1; // Caching on by default
 
-  this->VectorsSelection = 0;
+  this->VectorsSelection = nullptr;
 
   this->DataSets = new vtkGenericInterpolatedVelocityFieldDataSetsType;
-  this->LastDataSet = 0;
+  this->LastDataSet = nullptr;
 }
 
 vtkGenericInterpolatedVelocityField::~vtkGenericInterpolatedVelocityField()
 {
   this->NumFuncs = 0;
   this->NumIndepVars = 0;
-  if(this->GenCell!=0)
+  if(this->GenCell!=nullptr)
   {
     this->GenCell->Delete();
   }
 
-  this->SetVectorsSelection(0);
+  this->SetVectorsSelection(nullptr);
 
   delete this->DataSets;
 }
@@ -107,7 +107,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   double* f)
 {
   int i, subId;
-  vtkGenericAttribute *vectors=0;
+  vtkGenericAttribute *vectors=nullptr;
   double dist2;
   int ret;
   int attrib;
@@ -118,10 +118,10 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   }
 
   // See if a dataset has been specified and if there are input vectors
-  int validState=dataset!=0;
+  int validState=dataset!=nullptr;
   if(validState)
   {
-    if(this->VectorsSelection!=0)
+    if(this->VectorsSelection!=nullptr)
     {
       attrib=dataset->GetAttributes()->FindAttribute(this->VectorsSelection);
       validState=attrib>=0;
@@ -163,14 +163,14 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   if (this->Caching)
   {
     // See if the point is in the cached cell
-    if (this->GenCell==0 || this->GenCell->IsAtEnd() ||
-        !(ret=this->GenCell->GetCell()->EvaluatePosition(x, 0, subId,
+    if (this->GenCell==nullptr || this->GenCell->IsAtEnd() ||
+        !(ret=this->GenCell->GetCell()->EvaluatePosition(x, nullptr, subId,
                                                          this->LastPCoords,
                                                          dist2))
         || ret == -1)
     {
       // if not, find and get it
-      if (this->GenCell!=0 && !this->GenCell->IsAtEnd())
+      if (this->GenCell!=nullptr && !this->GenCell->IsAtEnd())
       {
         this->CacheMiss++;
         found=dataset->FindCell(x,this->GenCell,tol2,subId,
@@ -188,7 +188,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   {
     // if the cell is not found, do a global search (ignore initial
     // cell if there is one)
-    if(this->GenCell==0)
+    if(this->GenCell==nullptr)
     {
       this->GenCell=dataset->NewCellIterator();
     }
@@ -221,7 +221,7 @@ void vtkGenericInterpolatedVelocityField::AddDataSet(vtkGenericDataSet* dataset)
 // start from the previous cell
 void vtkGenericInterpolatedVelocityField::ClearLastCell()
 {
-  if(this->GenCell!=0)
+  if(this->GenCell!=nullptr)
   {
     if(!this->GenCell->IsAtEnd())
     {
@@ -235,13 +235,13 @@ void vtkGenericInterpolatedVelocityField::ClearLastCell()
 vtkGenericAdaptorCell *vtkGenericInterpolatedVelocityField::GetLastCell()
 {
   vtkGenericAdaptorCell *result;
-  if(this->GenCell!=0 && !this->GenCell->IsAtEnd())
+  if(this->GenCell!=nullptr && !this->GenCell->IsAtEnd())
   {
     result=this->GenCell->GetCell();
   }
   else
   {
-    result=0;
+    result=nullptr;
   }
   return result;
 }
@@ -253,7 +253,7 @@ int vtkGenericInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[
 
   // If last cell is valid, fill p with the local coordinates
   // and return true
-  if (this->GenCell!=0 && !this->GenCell->IsAtEnd())
+  if (this->GenCell!=nullptr && !this->GenCell->IsAtEnd())
   {
     for (j=0; j < 3; j++)
     {

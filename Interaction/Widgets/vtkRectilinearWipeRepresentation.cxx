@@ -40,8 +40,8 @@ vtkCxxSetObjectMacro(vtkRectilinearWipeRepresentation,ImageActor,vtkImageActor);
 //----------------------------------------------------------------------
 vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
 {
-  this->RectilinearWipe = NULL;
-  this->ImageActor = NULL;
+  this->RectilinearWipe = nullptr;
+  this->ImageActor = nullptr;
 
   this->InteractionState = vtkRectilinearWipeRepresentation::Outside;
   this->Tolerance = 5; //pick tolerance in pixels

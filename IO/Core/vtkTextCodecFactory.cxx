@@ -37,7 +37,7 @@ class vtkTextCodecFactory::CallbackVector :
 {
 };
 
-vtkTextCodecFactory::CallbackVector* vtkTextCodecFactory::Callbacks = NULL;
+vtkTextCodecFactory::CallbackVector* vtkTextCodecFactory::Callbacks = nullptr;
 
 // Ensures that there are no leaks when the application exits.
 class vtkTextCodecCleanup
@@ -59,7 +59,7 @@ void vtkTextCodecFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "vtkTextCodecFactory (" << this << ") \n";
   indent = indent.GetNextIndent();
-  if(NULL != vtkTextCodecFactory::Callbacks)
+  if(nullptr != vtkTextCodecFactory::Callbacks)
   {
     os << vtkTextCodecFactory::Callbacks->size() << " Callbacks registered\n";
   }
@@ -91,7 +91,7 @@ void vtkTextCodecFactory::RegisterCreateCallback(
 void vtkTextCodecFactory::UnRegisterCreateCallback(
   vtkTextCodecFactory::CreateFunction callback)
 {
-// we don't know for sure what order we are called in so if the global ones goes first this is NULL
+// we don't know for sure what order we are called in so if the global ones goes first this is nullptr
   if (vtkTextCodecFactory::Callbacks)
   {
     for (std::vector <vtkTextCodecFactory::CreateFunction>::iterator i =
@@ -108,7 +108,7 @@ void vtkTextCodecFactory::UnRegisterCreateCallback(
     if (vtkTextCodecFactory::Callbacks->empty())
     {
       delete vtkTextCodecFactory::Callbacks;
-      vtkTextCodecFactory::Callbacks = NULL;
+      vtkTextCodecFactory::Callbacks = nullptr;
     }
   }
 }
@@ -117,7 +117,7 @@ void vtkTextCodecFactory::UnRegisterCreateCallback(
 void vtkTextCodecFactory::UnRegisterAllCreateCallbacks()
 {
   delete vtkTextCodecFactory::Callbacks;
-  vtkTextCodecFactory::Callbacks = NULL;
+  vtkTextCodecFactory::Callbacks = nullptr;
 }
 
 
@@ -144,7 +144,7 @@ vtkTextCodec* vtkTextCodecFactory::CodecForName(const char* codecName)
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
@@ -157,7 +157,7 @@ vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
   for (CF_i = Callbacks->begin(); CF_i != Callbacks->end(); ++CF_i)
   {
     vtkTextCodec* outCodec = (*CF_i)();
-    if (NULL != outCodec)
+    if (nullptr != outCodec)
     {
       if (outCodec->IsValid(SampleData))
       {
@@ -170,7 +170,7 @@ vtkTextCodec* vtkTextCodecFactory::CodecToHandle(istream& SampleData)
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 static vtkTextCodec* vtkASCIITextCodecFromCallback()

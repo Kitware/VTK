@@ -95,7 +95,7 @@ public:
 
   /**
    * For completeness, an unchecked method to get the name for particular
-   * parameter (the result will be NULL if no name was set).
+   * parameter (the result will be nullptr if no name was set).
    */
   const char *GetParameterName(int i) { return this->ParameterNames[i]; };
 

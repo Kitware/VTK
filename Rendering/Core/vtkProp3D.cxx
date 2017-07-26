@@ -49,12 +49,12 @@ vtkProp3D::vtkProp3D()
 
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
-  this->UserMatrix = NULL;
-  this->UserTransform = NULL;
+  this->UserMatrix = nullptr;
+  this->UserTransform = nullptr;
   this->Matrix = vtkMatrix4x4::New();
   this->Transform = vtkTransform::New();
 
-  this->CachedProp3D = NULL;
+  this->CachedProp3D = nullptr;
   this->IsIdentity = 1;
 }
 
@@ -66,17 +66,17 @@ vtkProp3D::~vtkProp3D()
   if (this->UserMatrix)
   {
     this->UserMatrix->UnRegister(this);
-    this->UserMatrix = NULL;
+    this->UserMatrix = nullptr;
   }
   if (this->CachedProp3D)
   {
     this->CachedProp3D->Delete();
-    this->CachedProp3D = NULL;
+    this->CachedProp3D = nullptr;
   }
   if (this->UserTransform)
   {
     this->UserTransform->UnRegister(this);
-    this->UserTransform = NULL;
+    this->UserTransform = nullptr;
   }
 }
 
@@ -102,12 +102,12 @@ vtkMTimeType vtkProp3D::GetUserTransformMatrixMTime()
   // just this information, without being influenced by other
   // changes that affect this class's or a subclass's mtime.
   // (E.g. see vtkLODProp3D)
-  if ( this->UserMatrix != NULL )
+  if ( this->UserMatrix != nullptr )
   {
     mTime = this->UserMatrix->GetMTime();
   }
 
-  if ( this->UserTransform != NULL )
+  if ( this->UserTransform != nullptr )
   {
     time = this->UserTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -300,12 +300,12 @@ void vtkProp3D::SetUserTransform(vtkLinearTransform *transform)
   if (this->UserTransform)
   {
     this->UserTransform->Delete();
-    this->UserTransform = NULL;
+    this->UserTransform = nullptr;
   }
   if (this->UserMatrix)
   {
     this->UserMatrix->Delete();
-    this->UserMatrix = NULL;
+    this->UserMatrix = nullptr;
   }
   if (transform)
   {
@@ -328,12 +328,12 @@ void vtkProp3D::SetUserMatrix(vtkMatrix4x4 *matrix)
   if (this->UserTransform)
   {
     this->UserTransform->Delete();
-    this->UserTransform = NULL;
+    this->UserTransform = nullptr;
   }
   if (this->UserMatrix)
   {
     this->UserMatrix->Delete();
-    this->UserMatrix = NULL;
+    this->UserMatrix = nullptr;
   }
   if (matrix)
   {
@@ -498,7 +498,7 @@ void vtkProp3D::ShallowCopy(vtkProp *prop)
   int i;
   vtkProp3D *p = vtkProp3D::SafeDownCast(prop);
 
-  if ( p != NULL )
+  if ( p != nullptr )
   {
     for (i=0; i < 3; i++)
     {
@@ -529,9 +529,9 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
   // If non-NULL matrix is provided, then we set ourselves up to
   // have a state consistent with the provided matrix. (The idea
   // is to make sure the GetMatrix() call works properly.)
-  if ( matrix != NULL ) //set a new transformation
+  if ( matrix != nullptr ) //set a new transformation
   {
-    if ( this->CachedProp3D == NULL )
+    if ( this->CachedProp3D == nullptr )
     {
       this->CachedProp3D = vtkActor::New();
     }
@@ -566,7 +566,7 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
   }
   else //we restore our original state
   {
-      if( this->CachedProp3D != NULL )
+      if( this->CachedProp3D != nullptr )
       {
           this->CachedProp3D->GetOrigin(this->Origin);
           this->CachedProp3D->GetPosition(this->Position);
@@ -581,7 +581,7 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
           {
             this->SetUserMatrix(this->CachedProp3D->UserMatrix);
           }
-          this->CachedProp3D->SetUserTransform(NULL);
+          this->CachedProp3D->SetUserTransform(nullptr);
           this->Transform->SetMatrix(this->CachedProp3D->Transform->GetMatrix());
           this->Modified();
       }
@@ -635,7 +635,7 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
 
   const double *bounds = this->GetBounds();
-  if ( bounds != NULL )
+  if ( bounds != nullptr )
   {
     os << indent << "Bounds: \n";
     os << indent << "  Xmin,Xmax: ("

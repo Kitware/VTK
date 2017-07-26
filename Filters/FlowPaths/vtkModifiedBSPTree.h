@@ -213,7 +213,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    * The return value of the function is 0 if no intersections were found.
    * For each intersection found, the vtkPoints and CellIds objects
    * have the relevant information added in order of intersection increasing
-   * from ray start to end. If either vtkPoints or CellIds are NULL
+   * from ray start to end. If either vtkPoints or CellIds are nullptr
    * pointers, then no information is generated for that list.
    */
   virtual int IntersectWithLine(
@@ -275,8 +275,8 @@ class BSPNode {
   public:
     // Constructor
     BSPNode(void) {
-      mChild[0] = mChild[1] = mChild[2] = NULL;
-      for (int i=0; i<6; i++) sorted_cell_lists[i] = NULL;
+      mChild[0] = mChild[1] = mChild[2] = nullptr;
+      for (int i=0; i<6; i++) sorted_cell_lists[i] = nullptr;
       for (int i=0; i<3; i++) { this->Bounds[i*2] = VTK_FLOAT_MAX; this->Bounds[i*2+1] = -VTK_FLOAT_MAX; }
     }
     // Destructor
@@ -297,7 +297,7 @@ class BSPNode {
     // BBox
     double       Bounds[6];
   protected:
-    // The child nodes of this one (if present - NULL otherwise)
+    // The child nodes of this one (if present - nullptr otherwise)
     BSPNode   *mChild[3];
     // The axis we subdivide this voxel along
     int        mAxis;

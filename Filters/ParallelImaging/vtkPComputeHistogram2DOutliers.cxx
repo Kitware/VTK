@@ -43,13 +43,13 @@ vtkCxxSetObjectMacro(vtkPComputeHistogram2DOutliers, Controller, vtkMultiProcess
 //------------------------------------------------------------------------------
 vtkPComputeHistogram2DOutliers::vtkPComputeHistogram2DOutliers()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 //------------------------------------------------------------------------------
 vtkPComputeHistogram2DOutliers::~vtkPComputeHistogram2DOutliers()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 //------------------------------------------------------------------------------
 void vtkPComputeHistogram2DOutliers::PrintSelf(ostream& os, vtkIndent indent)

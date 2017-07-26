@@ -21,7 +21,7 @@ typedef void *voidPtr;
 
 // Instantiate object.
 vtkVoidArray::vtkVoidArray()
-  : NumberOfPointers(0),Size(0),Array(NULL)
+  : NumberOfPointers(0),Size(0),Array(nullptr)
 {
 }
 
@@ -33,12 +33,12 @@ vtkVoidArray::~vtkVoidArray()
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
-  if ( sz > this->Size || this->Array != NULL )
+  if ( sz > this->Size || this->Array != nullptr )
   {
     delete [] this->Array;
 
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new voidPtr[this->Size]) == NULL )
+    if ( (this->Array = new voidPtr[this->Size]) == nullptr )
     {
       return 0;
     }
@@ -53,7 +53,7 @@ int vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 void vtkVoidArray::Initialize()
 {
   delete [] this->Array;
-  this->Array = NULL;
+  this->Array = nullptr;
   this->Size = 0;
   this->NumberOfPointers = 0;
 }
@@ -61,8 +61,8 @@ void vtkVoidArray::Initialize()
 // Deep copy of another void array.
 void vtkVoidArray::DeepCopy(vtkVoidArray *va)
 {
-  // Do nothing on a NULL input.
-  if (va == NULL)
+  // Do nothing on a nullptr input.
+  if (va == nullptr)
   {
     return;
   }
@@ -139,13 +139,13 @@ void** vtkVoidArray::ResizeAndExtend(vtkIdType sz)
   if (newSize <= 0)
   {
     this->Initialize();
-    return 0;
+    return nullptr;
   }
 
-  if ( (newArray = new voidPtr[newSize]) == NULL )
+  if ( (newArray = new voidPtr[newSize]) == nullptr )
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
-    return 0;
+    return nullptr;
   }
 
   memcpy(newArray, this->Array,

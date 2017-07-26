@@ -40,10 +40,10 @@ vtkStandardNewMacro(vtkImageReader2);
 //----------------------------------------------------------------------------
 vtkImageReader2::vtkImageReader2()
 {
-  this->FilePrefix = NULL;
+  this->FilePrefix = nullptr;
   this->FilePattern = new char[strlen("%s.%d") + 1];
   strcpy (this->FilePattern, "%s.%d");
-  this->File = NULL;
+  this->File = nullptr;
 
   this->DataScalarType = VTK_SHORT;
   this->NumberOfScalarComponents = 1;
@@ -58,12 +58,12 @@ vtkImageReader2::vtkImageReader2()
   this->DataIncrements[0] = this->DataIncrements[1] =
   this->DataIncrements[2] = this->DataIncrements[3] = 1;
 
-  this->FileNames = NULL;
+  this->FileNames = nullptr;
 
-  this->FileName = NULL;
-  this->InternalFileName = NULL;
+  this->FileName = nullptr;
+  this->InternalFileName = nullptr;
 
-  this->MemoryBuffer = NULL;
+  this->MemoryBuffer = nullptr;
   this->MemoryBufferLength = 0;
 
   this->HeaderSize = 0;
@@ -86,22 +86,22 @@ vtkImageReader2::~vtkImageReader2()
   {
     this->File->close();
     delete this->File;
-    this->File = NULL;
+    this->File = nullptr;
   }
 
   if (this->FileNames)
   {
     this->FileNames->Delete();
-    this->FileNames = NULL;
+    this->FileNames = nullptr;
   }
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
   delete [] this->FilePrefix;
-  this->FilePrefix = NULL;
+  this->FilePrefix = nullptr;
   delete [] this->FilePattern;
-  this->FilePattern = NULL;
+  this->FilePattern = nullptr;
   delete [] this->InternalFileName;
-  this->InternalFileName = NULL;
+  this->InternalFileName = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
 {
   // delete any old filename
   delete [] this->InternalFileName;
-  this->InternalFileName = NULL;
+  this->InternalFileName = nullptr;
 
   if (!this->FileName && !this->FilePattern && !this->FileNames)
   {
@@ -171,7 +171,7 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
     else
     {
       delete [] this->InternalFileName;
-      this->InternalFileName = 0;
+      this->InternalFileName = nullptr;
     }
   }
 }
@@ -190,18 +190,18 @@ void vtkImageReader2::SetFileName(const char *name)
     return;
   }
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
   if (name)
   {
     this->FileName = new char[strlen(name) + 1];
     strcpy(this->FileName, name);
 
     delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
+    this->FilePrefix = nullptr;
     if (this->FileNames)
     {
       this->FileNames->Delete();
-      this->FileNames = NULL;
+      this->FileNames = nullptr;
     }
   }
 
@@ -219,7 +219,7 @@ void vtkImageReader2::SetFileNames(vtkStringArray *filenames)
   if (this->FileNames)
   {
     this->FileNames->Delete();
-    this->FileNames = 0;
+    this->FileNames = nullptr;
   }
   if (filenames)
   {
@@ -231,9 +231,9 @@ void vtkImageReader2::SetFileNames(vtkStringArray *filenames)
       this->DataExtent[5] = this->FileNames->GetNumberOfValues() - 1;
     }
     delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
+    this->FilePrefix = nullptr;
     delete [] this->FileName;
-    this->FileName = NULL;
+    this->FileName = nullptr;
   }
 
   this->Modified();
@@ -253,18 +253,18 @@ void vtkImageReader2::SetFilePrefix(const char *prefix)
     return;
   }
   delete [] this->FilePrefix;
-  this->FilePrefix = NULL;
+  this->FilePrefix = nullptr;
   if (prefix)
   {
     this->FilePrefix = new char[strlen(prefix) + 1];
     strcpy(this->FilePrefix, prefix);
 
     delete [] this->FileName;
-    this->FileName = NULL;
+    this->FileName = nullptr;
     if (this->FileNames)
     {
       this->FileNames->Delete();
-      this->FileNames = NULL;
+      this->FileNames = nullptr;
     }
   }
 
@@ -287,18 +287,18 @@ void vtkImageReader2::SetFilePattern(const char *pattern)
     return;
   }
   delete [] this->FilePattern;
-  this->FilePattern = NULL;
+  this->FilePattern = nullptr;
   if (pattern)
   {
     this->FilePattern = new char[strlen(pattern) + 1];
     strcpy(this->FilePattern, pattern);
 
     delete [] this->FileName;
-    this->FileName = NULL;
+    this->FileName = nullptr;
     if (this->FileNames)
     {
       this->FileNames->Delete();
-      this->FileNames = NULL;
+      this->FileNames = nullptr;
     }
   }
 
@@ -540,7 +540,7 @@ void vtkImageReader2::ComputeDataIncrements()
   switch (this->DataScalarType)
   {
     vtkTemplateMacro(
-      fileDataLength = vtkImageReader2GetSize(static_cast<VTK_TT*>(0))
+      fileDataLength = vtkImageReader2GetSize(static_cast<VTK_TT*>(nullptr))
       );
     default:
       vtkErrorMacro(<< "Unknown DataScalarType");
@@ -575,7 +575,7 @@ int vtkImageReader2::OpenFile()
   {
     this->File->close();
     delete this->File;
-    this->File = NULL;
+    this->File = nullptr;
   }
 
   // Open the new file

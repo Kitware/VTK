@@ -106,10 +106,10 @@ vtkDelaunayTetra *vtkTetraArray::Resize(vtkIdType sz)
     newSize = sz;
   }
 
-  if ( (newArray = new vtkDelaunayTetra[newSize]) == NULL )
+  if ( (newArray = new vtkDelaunayTetra[newSize]) == nullptr )
   {
     vtkGenericWarningMacro(<< "Cannot allocate memory\n");
-    return 0;
+    return nullptr;
   }
 
   if (this->Array)
@@ -143,8 +143,8 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->BoundingTriangulation = 0;
   this->Offset = 2.5;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
-  this->Locator = NULL;
-  this->TetraArray = NULL;
+  this->Locator = nullptr;
+  this->TetraArray = nullptr;
 
   // added for performance
   this->Tetras = vtkIdList::New();
@@ -161,7 +161,7 @@ vtkDelaunay3D::~vtkDelaunay3D()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   delete this->TetraArray;
 
@@ -445,7 +445,7 @@ int vtkDelaunay3D::RequestData(
 
   // Initialize; check input
   //
-  if ( (inPoints=input->GetPoints()) == NULL )
+  if ( (inPoints=input->GetPoints()) == nullptr )
   {
     vtkErrorMacro("<<Cannot triangulate; no input points");
     return 1;
@@ -785,7 +785,7 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(double center[3],
   bounds[2] = center[1] - length; bounds[3] = center[1] + length;
   bounds[4] = center[2] - length; bounds[5] = center[2] + length;
 
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -958,7 +958,7 @@ void vtkDelaunay3D::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {
@@ -972,7 +972,7 @@ void vtkDelaunay3D::SetLocator(vtkIncrementalPointLocator *locator)
 //--------------------------------------------------------------------------
 void vtkDelaunay3D::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkPointLocator::New();
     vtkPointLocator::SafeDownCast( this->Locator )->SetDivisions(25,25,25);
@@ -1054,7 +1054,7 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDelaunay3D::EndPointInsertion()
 {
   delete [] this->References;
-  this->References = NULL;
+  this->References = nullptr;
 }
 
 //--------------------------------------------------------------------------
@@ -1063,7 +1063,7 @@ vtkMTimeType vtkDelaunay3D::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

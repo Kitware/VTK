@@ -229,7 +229,7 @@ void vtkXMLPPolyDataReader::CopyArrayForCells(vtkDataArray* inArray,
   {
     return;
   }
-  if (inArray == NULL || outArray == NULL)
+  if (inArray == nullptr || outArray == nullptr)
   {
     return;
   }

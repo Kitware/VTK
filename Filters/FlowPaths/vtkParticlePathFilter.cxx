@@ -136,8 +136,8 @@ void ParticlePathFilterInternal::Finalize()
 vtkParticlePathFilter::vtkParticlePathFilter()
 {
   this->It.Initialize(this);
-  this->SimulationTime = NULL;
-  this->SimulationTimeStep = NULL;
+  this->SimulationTime = nullptr;
+  this->SimulationTimeStep = nullptr;
 }
 
 vtkParticlePathFilter::~vtkParticlePathFilter()
@@ -145,12 +145,12 @@ vtkParticlePathFilter::~vtkParticlePathFilter()
   if(this->SimulationTime)
   {
     this->SimulationTime->Delete();
-    this->SimulationTime = NULL;
+    this->SimulationTime = nullptr;
   }
   if(this->SimulationTimeStep)
   {
     this->SimulationTimeStep->Delete();
-    this->SimulationTimeStep = NULL;
+    this->SimulationTimeStep = nullptr;
   }
 }
 
@@ -172,7 +172,7 @@ int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
 
 void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
 {
-  if(this->SimulationTime == NULL)
+  if(this->SimulationTime == nullptr)
   {
     this->SimulationTime = vtkDoubleArray::New();
     this->SimulationTime->SetName("SimulationTime");
@@ -184,7 +184,7 @@ void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputP
   this->SimulationTime->SetNumberOfTuples(0);
   outputPD->AddArray(this->SimulationTime);
 
-  if(this->SimulationTimeStep == NULL)
+  if(this->SimulationTimeStep == nullptr)
   {
     this->SimulationTimeStep = vtkIntArray::New();
     this->SimulationTimeStep->SetName("SimulationTimeStep");

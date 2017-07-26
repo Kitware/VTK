@@ -171,7 +171,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
 
       this->UpdateTimeSteps.clear();
       this->RequestUpdateIndex = 0;
-      this->MDataSet = NULL;
+      this->MDataSet = nullptr;
       if (!this->CacheData)
       {
         // No caching, remove all

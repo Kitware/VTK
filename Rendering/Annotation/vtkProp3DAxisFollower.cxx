@@ -73,8 +73,8 @@ vtkProp3DAxisFollower::vtkProp3DAxisFollower()
   this->ScreenOffsetVector[0]     = 0.0;
   this->ScreenOffsetVector[1]     = 10.0;
 
-  this->Axis                      = NULL;
-  this->Viewport                  = NULL;
+  this->Axis                      = nullptr;
+  this->Viewport                  = nullptr;
 
   this->TextUpsideDown            = -1;
   this->VisibleAtCurrentViewAngle = -1;
@@ -289,7 +289,7 @@ void vtkProp3DAxisFollower::ComputeMatrix()
     if(this->AutoCenter)
     {
       // Don't apply the user matrix when retrieving the center.
-      this->Device->SetUserMatrix(NULL);
+      this->Device->SetUserMatrix(nullptr);
 
       double* center = this->Device->GetCenter();
       pivotPoint[0] = center[0];
@@ -543,7 +543,7 @@ void vtkProp3DAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
 void vtkProp3DAxisFollower::ShallowCopy(vtkProp *prop)
 {
   vtkProp3DAxisFollower *f = vtkProp3DAxisFollower::SafeDownCast(prop);
-  if ( f != NULL )
+  if ( f != nullptr )
   {
     this->SetAutoCenter(f->GetAutoCenter());
     this->SetEnableDistanceLOD(f->GetEnableDistanceLOD());

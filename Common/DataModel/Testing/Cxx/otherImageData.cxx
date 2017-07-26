@@ -174,9 +174,9 @@ int TestOID(ostream& strm)
   i = 10; j = 15; k = 7;
   cellId = k * (19 * 19) + j * 19 + i;
   cell3D = id3D->GetCell(i,j,k);
-  if (cell3D == NULL)
+  if (cell3D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell3D->GetCellType() != VTK_VOXEL)
@@ -197,9 +197,9 @@ int TestOID(ostream& strm)
   i = 10; j = 15;
   cellId = j * 19 + i;
   cell2D = id2Dxy->GetCell(i,j,0);
-  if (cell2D == NULL)
+  if (cell2D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell2D->GetCellType() != VTK_PIXEL)
@@ -227,9 +227,9 @@ int TestOID(ostream& strm)
   i = 10; j = 15;
   cellId = j * 19 + i;
   cell2D = id2Dxz->GetCell(i,0,j);
-  if (cell2D == NULL)
+  if (cell2D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell2D->GetCellType() != VTK_PIXEL)
@@ -256,9 +256,9 @@ int TestOID(ostream& strm)
   i = 10; j = 15;
   cellId = j * 19 + i;
   cell2D = id2Dyz->GetCell(0,i,j);
-  if (cell2D == NULL)
+  if (cell2D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell2D->GetCellType() != VTK_PIXEL)
@@ -285,9 +285,9 @@ int TestOID(ostream& strm)
   i = 10;
   cellId = i;
   cell1D = id1Dx->GetCell(i,0,0);
-  if (cell1D == NULL)
+  if (cell1D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell1D->GetCellType() != VTK_LINE)
@@ -319,9 +319,9 @@ int TestOID(ostream& strm)
   i = 10;
   cellId = i;
   cell1D = id1Dy->GetCell(0,i,0);
-  if (cell1D == NULL)
+  if (cell1D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell1D->GetCellType() != VTK_LINE)
@@ -353,9 +353,9 @@ int TestOID(ostream& strm)
   i = 10;
   cellId = i;
   cell1D = id1Dz->GetCell(0,0,i);
-  if (cell1D == NULL)
+  if (cell1D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell1D->GetCellType() != VTK_LINE)
@@ -386,9 +386,9 @@ int TestOID(ostream& strm)
 
   cellId = 0;
   cell0D = id0D->GetCell(0,0,0);
-  if (cell0D == NULL)
+  if (cell0D == nullptr)
   {
-    std::cerr << "vtkImageData::GetCell returned NULL instead of a valid cell.\n";
+    std::cerr << "vtkImageData::GetCell returned nullptr instead of a valid cell.\n";
     return 1;
   }
   if (cell0D->GetCellType() != VTK_VERTEX)
@@ -580,7 +580,7 @@ int TestOID(ostream& strm)
 
   double pcoords[3], weights[8];
   int subId;
-  vtkCell *dummyCell = NULL;
+  vtkCell *dummyCell = nullptr;
 
   point3D[0] = 10.5;
   point3D[1] = 12.1;
@@ -599,7 +599,7 @@ int TestOID(ostream& strm)
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   dummyCell = 0;
   vtkCell *found = id2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
+  if (found == nullptr)
   {
     strm << "FindAndGetCell(id2Dxy) not found!" << endl;
     return 1;
@@ -616,7 +616,7 @@ int TestOID(ostream& strm)
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
   dummyCell = 0;
   found = id2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
+  if (found == nullptr)
   {
     strm << "FindAndGetCell(id2Dxz) not found!" << endl;
     return 1;
@@ -633,7 +633,7 @@ int TestOID(ostream& strm)
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
   dummyCell = 0;
   found = id2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
+  if (found == nullptr)
   {
     strm << "FindAndGetCell(id2Dyz) not found!" << endl;
     return 1;
@@ -648,7 +648,7 @@ int TestOID(ostream& strm)
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 0.0;
   dummyCell = 0;
   found = id1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
+  if (found == nullptr)
   {
     strm << "FindAndGetCell(id1Dx) not found!" << endl;
     return 1;
@@ -664,7 +664,7 @@ int TestOID(ostream& strm)
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 0.0;
   dummyCell = 0;
   found = id1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
+  if (found == nullptr)
   {
     strm << "FindAndGetCell(id1Dy) not found!" << endl;
     return 1;
@@ -680,7 +680,7 @@ int TestOID(ostream& strm)
   point3D[0] = 0.0; point3D[1] = 0.0; point3D[2] = 14.7;
   dummyCell = 0;
   found = id1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  if (found == NULL)
+  if (found == nullptr)
   {
     strm << "FindAndGetCell(id1Dz) not found!" << endl;
     return 1;

@@ -214,7 +214,7 @@ private:
 
   //@{
   /**
-   * The NetCDF file descriptors.  NULL indicates they haven't
+   * The NetCDF file descriptors.  nullptr indicates they haven't
    * been opened.
    */
   NcFile* PointsFile;

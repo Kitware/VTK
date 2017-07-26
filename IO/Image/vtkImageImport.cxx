@@ -50,7 +50,7 @@ vtkImageImport::vtkImageImport()
 {
   int idx;
 
-  this->ImportVoidPointer = 0;
+  this->ImportVoidPointer = nullptr;
 
   this->DataScalarType = VTK_SHORT;
   this->NumberOfScalarComponents = 1;
@@ -64,19 +64,19 @@ vtkImageImport::vtkImageImport()
   }
   this->SaveUserArray = 0;
 
-  this->CallbackUserData = 0;
+  this->CallbackUserData = nullptr;
 
-  this->UpdateInformationCallback = 0;
-  this->PipelineModifiedCallback = 0;
-  this->WholeExtentCallback = 0;
-  this->SpacingCallback = 0;
-  this->OriginCallback = 0;
-  this->ScalarTypeCallback = 0;
-  this->NumberOfComponentsCallback = 0;
-  this->PropagateUpdateExtentCallback = 0;
-  this->UpdateDataCallback = 0;
-  this->DataExtentCallback = 0;
-  this->BufferPointerCallback = 0;
+  this->UpdateInformationCallback = nullptr;
+  this->PipelineModifiedCallback = nullptr;
+  this->WholeExtentCallback = nullptr;
+  this->SpacingCallback = nullptr;
+  this->OriginCallback = nullptr;
+  this->ScalarTypeCallback = nullptr;
+  this->NumberOfComponentsCallback = nullptr;
+  this->PropagateUpdateExtentCallback = nullptr;
+  this->UpdateDataCallback = nullptr;
+  this->DataExtentCallback = nullptr;
+  this->BufferPointerCallback = nullptr;
 
   this->SetNumberOfInputPorts(0);
 
@@ -84,7 +84,7 @@ vtkImageImport::vtkImageImport()
   this->SetExecutive(exec);
   exec->Delete();
 
-  this->ScalarArrayName=0;
+  this->ScalarArrayName=nullptr;
   this->SetScalarArrayName("scalars");
 }
 
@@ -95,7 +95,7 @@ vtkImageImport::~vtkImageImport()
   {
     delete [] static_cast<char *>(this->ImportVoidPointer);
   }
-  this->SetScalarArrayName(NULL);
+  this->SetScalarArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -178,7 +178,7 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
      << (this->BufferPointerCallback? "Set" : "Not Set") << "\n";
 
   os << indent << "ScalarArrayName: ";
-  if(this->ScalarArrayName!=0)
+  if(this->ScalarArrayName!=nullptr)
   {
       os  << this->ScalarArrayName << endl;
   }

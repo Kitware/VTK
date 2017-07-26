@@ -38,7 +38,7 @@ vtkCompositer::vtkCompositer()
 //-------------------------------------------------------------------------
 vtkCompositer::~vtkCompositer()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 

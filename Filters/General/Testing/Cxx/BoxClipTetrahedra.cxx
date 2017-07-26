@@ -95,19 +95,19 @@ class BadWinding
 public:
   BadWinding(vtkUnstructuredGrid *data) {
     this->Data = data;
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
   ~BadWinding() {
-    this->Data->UnRegister(NULL);
+    this->Data->UnRegister(nullptr);
   }
   BadWinding(const BadWinding &bw) {
     this->Data = bw.Data;
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
   BadWinding& operator=(const BadWinding &bw) {
-    this->Data->UnRegister(NULL);
+    this->Data->UnRegister(nullptr);
     this->Data = bw.Data;
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
     return *this;
   }
 

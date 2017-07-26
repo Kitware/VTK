@@ -92,26 +92,26 @@ vtkStandardNewMacro(vtkEnSightWriter);
 vtkEnSightWriter::vtkEnSightWriter()
 {
 
-  this->BaseName = NULL;
-  this->FileName = NULL;
+  this->BaseName = nullptr;
+  this->FileName = nullptr;
   this->TimeStep = 0;
-  this->Path=NULL;
+  this->Path=nullptr;
   this->GhostLevelMultiplier=10000;
   this->GhostLevel = 0;
   this->TransientGeometry=false;
   this->ProcessNumber=0;
   this->NumberOfProcesses=1;
   this->NumberOfBlocks=0;
-  this->BlockIDs=0;
-  this->TmpInput = NULL;
+  this->BlockIDs=nullptr;
+  this->TmpInput = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkEnSightWriter::~vtkEnSightWriter()
 {
-  this->SetBaseName(NULL);
-  this->SetFileName(NULL);
-  this->SetPath(NULL);
+  this->SetBaseName(nullptr);
+  this->SetFileName(nullptr);
+  this->SetPath(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ vtkUnstructuredGrid *vtkEnSightWriter::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   else if (this->TmpInput)
   {
@@ -178,7 +178,7 @@ void vtkEnSightWriter::WriteData()
   if (this->TmpInput)
   {
     this->TmpInput->Delete();
-    this->TmpInput = NULL;
+    this->TmpInput = nullptr;
   }
 
   //figure out process ID
@@ -189,7 +189,7 @@ void vtkEnSightWriter::WriteData()
 #ifdef VTK_USE_PARALLEL
   vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
 
-  if (c != NULL)
+  if (c != nullptr)
   {
     this->ProcessNumber=c->GetLocalProcessId();
     this->NumberOfProcesses = c->GetNumberOfProcesses();
@@ -214,9 +214,9 @@ void vtkEnSightWriter::WriteData()
   //get the BlockID Cell Array
   vtkDataArray *BlockData=input->GetCellData()->GetScalars("BlockId");
 
-  if (BlockData==NULL || strcmp(BlockData->GetName(),"BlockId"))
+  if (BlockData==nullptr || strcmp(BlockData->GetName(),"BlockId"))
   {
-    BlockData=NULL;
+    BlockData=nullptr;
   }
 
   this->ComputeNames();
@@ -229,8 +229,8 @@ void vtkEnSightWriter::WriteData()
 
   this->SanitizeFileName(this->BaseName);
 
-  char** blockNames=NULL;
-  int * elementIDs=NULL;
+  char** blockNames=nullptr;
+  int * elementIDs=nullptr;
   char charBuffer[512];
   char fileBuffer[512];
   snprintf(charBuffer,sizeof(charBuffer),"%s/%s.%d.%05d.geo",
@@ -239,7 +239,7 @@ void vtkEnSightWriter::WriteData()
 
   //open the geometry file
   //only if timestep 0 and not transient geometry or transient geometry
-  FILE *fd=NULL;
+  FILE *fd=nullptr;
   if (this->ShouldWriteGeometry())
   {
     if (!(fd=OpenFile(charBuffer)))
@@ -306,9 +306,9 @@ void vtkEnSightWriter::WriteData()
   //get the Ghost Cell Array if it exists
   vtkDataArray *GhostData=input->GetCellData()->GetScalars(vtkDataSetAttributes::GhostArrayName());
   //if the strings are not the same then we did not get the ghostData array
-  if (GhostData==NULL || strcmp(GhostData->GetName(), vtkDataSetAttributes::GhostArrayName()))
+  if (GhostData==nullptr || strcmp(GhostData->GetName(), vtkDataSetAttributes::GhostArrayName()))
   {
-    GhostData=NULL;
+    GhostData=nullptr;
   }
 
 
@@ -650,7 +650,7 @@ void vtkEnSightWriter::WriteData()
   if (this->TmpInput)
   {
     this->TmpInput->Delete();
-    this->TmpInput = NULL;
+    this->TmpInput = nullptr;
   }
 
   //close all the files
@@ -689,7 +689,7 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
   snprintf(charBuffer,sizeof(charBuffer),"%s/%s.%d.case",this->Path,this->BaseName,this->ProcessNumber);
 
   //open the geometry file
-  FILE *fd=NULL;
+  FILE *fd=nullptr;
   if (!(fd=OpenFile(charBuffer)))
   {
     return;
@@ -873,7 +873,7 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
   char charBuffer[512];
   snprintf(charBuffer,sizeof(charBuffer),"%s/%s.case.sos",this->Path,this->BaseName);
 
-  FILE *fd=NULL;
+  FILE *fd=nullptr;
   if (!(fd=OpenFile(charBuffer)))
     return;
 
@@ -1091,11 +1091,11 @@ FILE* vtkEnSightWriter::OpenFile(char* name)
 {
   FILE * fd=fopen(name,"wb");
 
-  if (fd == NULL)
+  if (fd == nullptr)
   {
     vtkErrorMacro("Error opening " << name
       << ": " << strerror(errno));
-    return NULL;
+    return nullptr;
   }
   return fd;
 }
@@ -1140,8 +1140,8 @@ void vtkEnSightWriter::ComputeNames()
 
   // FileName = Path/BaseName.digits.digits
 
-  char *path = NULL;
-  char *base = NULL;
+  char *path = nullptr;
+  char *base = nullptr;
 
   char *f = this->FileName;
 

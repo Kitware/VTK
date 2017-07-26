@@ -48,7 +48,7 @@ vtkInteractorStyle::vtkInteractorStyle()
 
   this->AutoAdjustCameraClippingRange = 1;
 
-  this->Interactor          = NULL;
+  this->Interactor          = nullptr;
 
   this->EventCallbackCommand->SetCallback(vtkInteractorStyle::ProcessEvents);
 
@@ -57,7 +57,7 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->KeyPressActivation  = 0;
 
   this->Outline             = vtkOutlineSource::New();
-  this->OutlineActor        = NULL;
+  this->OutlineActor        = nullptr;
   this->OutlineMapper       = vtkPolyDataMapper::New();
 
   if(this->OutlineMapper && this->Outline)
@@ -66,14 +66,14 @@ vtkInteractorStyle::vtkInteractorStyle()
       this->Outline->GetOutputPort());
   }
 
-  this->PickedRenderer      = NULL;
-  this->CurrentProp         = NULL;
+  this->PickedRenderer      = nullptr;
+  this->CurrentProp         = nullptr;
   this->PropPicked          = 0;
 
   this->PickColor[0]        = 1.0;
   this->PickColor[1]        = 0.0;
   this->PickColor[2]        = 0.0;
-  this->PickedActor2D       = NULL;
+  this->PickedActor2D       = nullptr;
 
   this->MouseWheelMotionFactor = 1.0;
 
@@ -88,11 +88,11 @@ vtkInteractorStyle::~vtkInteractorStyle()
 {
   // Remove observers
 
-  this->SetInteractor(0);
+  this->SetInteractor(nullptr);
 
   // Remove any highlight
 
-  this->HighlightProp(NULL);
+  this->HighlightProp(nullptr);
 
   if ( this->OutlineActor )
   {
@@ -105,12 +105,12 @@ vtkInteractorStyle::~vtkInteractorStyle()
   }
 
   this->Outline->Delete();
-  this->Outline = NULL;
+  this->Outline = nullptr;
 
-  this->SetCurrentRenderer(NULL);
+  this->SetCurrentRenderer(nullptr);
   this->EventForwarder->Delete();
 
-  if(this->TDxStyle!=0)
+  if(this->TDxStyle!=nullptr)
   {
     this->TDxStyle->Delete();
   }
@@ -135,7 +135,7 @@ void vtkInteractorStyle::SetEnabled(int enabling)
     }
 
     this->Enabled = 1;
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling-------------------------------------------------------------
@@ -148,8 +148,8 @@ void vtkInteractorStyle::SetEnabled(int enabling)
     }
 
     this->Enabled = 0;
-    this->HighlightProp(NULL);
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->HighlightProp(nullptr);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
   }
 }
 
@@ -317,23 +317,23 @@ void vtkInteractorStyle::HighlightProp(vtkProp *prop)
 {
   this->CurrentProp = prop;
 
-  if ( prop != NULL )
+  if ( prop != nullptr )
   {
     vtkActor2D *actor2D;
     vtkProp3D *prop3D;
-    if ( (prop3D=vtkProp3D::SafeDownCast(prop)) != NULL )
+    if ( (prop3D=vtkProp3D::SafeDownCast(prop)) != nullptr )
     {
       this->HighlightProp3D(prop3D);
     }
-    else if ( (actor2D=vtkActor2D::SafeDownCast(prop)) != NULL )
+    else if ( (actor2D=vtkActor2D::SafeDownCast(prop)) != nullptr )
     {
       this->HighlightActor2D(actor2D);
     }
   }
   else
   {//unhighlight everything, both 2D & 3D
-    this->HighlightProp3D(NULL);
-    this->HighlightActor2D(NULL);
+    this->HighlightProp3D(nullptr);
+    this->HighlightActor2D(nullptr);
   }
 
   if (this->Interactor)
@@ -352,10 +352,10 @@ void vtkInteractorStyle::HighlightProp3D(vtkProp3D *prop3D)
   if ( ! prop3D)
   {
     //was there previously?
-    if (this->PickedRenderer != NULL && this->OutlineActor)
+    if (this->PickedRenderer != nullptr && this->OutlineActor)
     {
       this->PickedRenderer->RemoveActor(this->OutlineActor);
-      this->PickedRenderer = NULL;
+      this->PickedRenderer = nullptr;
     }
   }
   //prop picked now
@@ -376,11 +376,11 @@ void vtkInteractorStyle::HighlightProp3D(vtkProp3D *prop3D)
     //check if picked in different renderer to previous pick
     if (this->CurrentRenderer != this->PickedRenderer)
     {
-      if (this->PickedRenderer != NULL && this->OutlineActor)
+      if (this->PickedRenderer != nullptr && this->OutlineActor)
       {
         this->PickedRenderer->RemoveActor(this->OutlineActor);
       }
-      if(this->CurrentRenderer!=0)
+      if(this->CurrentRenderer!=nullptr)
       {
         this->CurrentRenderer->AddActor(this->OutlineActor);
       }
@@ -450,7 +450,7 @@ void vtkInteractorStyle::StartState(int newstate)
   {
     vtkRenderWindowInteractor *rwi = this->Interactor;
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
-    this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+    this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
     if ( this->UseTimers &&
          !(this->TimerId=rwi->CreateRepeatingTimer(this->TimerDuration)) )
     {
@@ -480,7 +480,7 @@ void vtkInteractorStyle::StopState()
     {
       vtkErrorMacro(<< "Timer stop failed");
     }
-    this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
+    this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
     rwi->Render();
   }
 }
@@ -766,10 +766,10 @@ void vtkInteractorStyle::OnChar()
     case 'f' :
     case 'F' :
     {
-      if(this->CurrentRenderer!=0)
+      if(this->CurrentRenderer!=nullptr)
       {
         this->AnimState = VTKIS_ANIM_ON;
-        vtkAssemblyPath *path = NULL;
+        vtkAssemblyPath *path = nullptr;
         this->FindPokedRenderer(rwi->GetEventPosition()[0],
                                 rwi->GetEventPosition()[1]);
         rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
@@ -781,7 +781,7 @@ void vtkInteractorStyle::OnChar()
         {
           path = picker->GetPath();
         }
-        if (path != NULL)
+        if (path != nullptr)
         {
           rwi->FlyTo(this->CurrentRenderer, picker->GetPickPosition());
         }
@@ -803,7 +803,7 @@ void vtkInteractorStyle::OnChar()
     case 'R' :
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
-      if(this->CurrentRenderer!=0)
+      if(this->CurrentRenderer!=nullptr)
       {
         this->CurrentRenderer->ResetCamera();
       }
@@ -822,7 +822,7 @@ void vtkInteractorStyle::OnChar()
       vtkAssemblyPath *path;
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
-      if(this->CurrentRenderer!=0)
+      if(this->CurrentRenderer!=nullptr)
       {
         ac = this->CurrentRenderer->GetActors();
         vtkCollectionSimpleIterator ait;
@@ -851,7 +851,7 @@ void vtkInteractorStyle::OnChar()
       vtkAssemblyPath *path;
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
-      if(this->CurrentRenderer!=0)
+      if(this->CurrentRenderer!=nullptr)
       {
         ac = this->CurrentRenderer->GetActors();
         vtkCollectionSimpleIterator ait;
@@ -886,25 +886,25 @@ void vtkInteractorStyle::OnChar()
 
     case 'p' :
     case 'P' :
-      if(this->CurrentRenderer!=0)
+      if(this->CurrentRenderer!=nullptr)
       {
         if (this->State == VTKIS_NONE)
         {
-          vtkAssemblyPath *path = NULL;
+          vtkAssemblyPath *path = nullptr;
           int *eventPos = rwi->GetEventPosition();
           this->FindPokedRenderer(eventPos[0], eventPos[1]);
           rwi->StartPickCallback();
           vtkAbstractPropPicker *picker =
             vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker());
-          if ( picker != NULL )
+          if ( picker != nullptr )
           {
             picker->Pick(eventPos[0], eventPos[1],
                          0.0, this->CurrentRenderer);
             path = picker->GetPath();
           }
-          if ( path == NULL )
+          if ( path == nullptr )
           {
-            this->HighlightProp(NULL);
+            this->HighlightProp(nullptr);
             this->PropPicked = 0;
           }
           else
@@ -965,7 +965,7 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Timer Duration: " << this->TimerDuration << endl;
 
   os << indent << "TDxStyle: ";
-  if(this->TDxStyle==0)
+  if(this->TDxStyle==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -979,7 +979,7 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInteractorStyle::DelegateTDxEvent(unsigned long event,
                                           void *calldata)
 {
-  if(this->TDxStyle!=0)
+  if(this->TDxStyle!=nullptr)
   {
     this->TDxStyle->ProcessEvent(this->CurrentRenderer,event,calldata);
   }
@@ -1000,7 +1000,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::ExposeEvent))
       {
-        self->InvokeEvent(vtkCommand::ExposeEvent,NULL);
+        self->InvokeEvent(vtkCommand::ExposeEvent,nullptr);
       }
       else
       {
@@ -1012,7 +1012,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::ConfigureEvent))
       {
-        self->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
+        self->InvokeEvent(vtkCommand::ConfigureEvent,nullptr);
       }
       else
       {
@@ -1024,7 +1024,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::EnterEvent))
       {
-        self->InvokeEvent(vtkCommand::EnterEvent, NULL);
+        self->InvokeEvent(vtkCommand::EnterEvent, nullptr);
       }
       else
       {
@@ -1036,7 +1036,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::LeaveEvent))
       {
-        self->InvokeEvent(vtkCommand::LeaveEvent,NULL);
+        self->InvokeEvent(vtkCommand::LeaveEvent,nullptr);
       }
       else
       {
@@ -1065,7 +1065,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::MouseMoveEvent))
       {
-        self->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
+        self->InvokeEvent(vtkCommand::MouseMoveEvent,nullptr);
       }
       else
       {
@@ -1077,7 +1077,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::LeftButtonPressEvent))
       {
-        self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
       }
       else
       {
@@ -1089,7 +1089,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::LeftButtonReleaseEvent))
       {
-        self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+        self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr);
       }
       else
       {
@@ -1101,7 +1101,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::MiddleButtonPressEvent))
       {
-        self->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::MiddleButtonPressEvent,nullptr);
       }
       else
       {
@@ -1113,7 +1113,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::MiddleButtonReleaseEvent))
       {
-        self->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
+        self->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,nullptr);
       }
       else
       {
@@ -1125,7 +1125,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::RightButtonPressEvent))
       {
-        self->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::RightButtonPressEvent,nullptr);
       }
       else
       {
@@ -1137,7 +1137,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::RightButtonReleaseEvent))
       {
-        self->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
+        self->InvokeEvent(vtkCommand::RightButtonReleaseEvent,nullptr);
       }
       else
       {
@@ -1149,7 +1149,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::MouseWheelForwardEvent))
       {
-        self->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
+        self->InvokeEvent(vtkCommand::MouseWheelForwardEvent,nullptr);
       }
       else
       {
@@ -1161,7 +1161,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::MouseWheelBackwardEvent))
       {
-        self->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,NULL);
+        self->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,nullptr);
       }
       else
       {
@@ -1173,7 +1173,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::KeyPressEvent))
       {
-        self->InvokeEvent(vtkCommand::KeyPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::KeyPressEvent,nullptr);
       }
       else
       {
@@ -1186,7 +1186,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::KeyReleaseEvent))
       {
-        self->InvokeEvent(vtkCommand::KeyReleaseEvent,NULL);
+        self->InvokeEvent(vtkCommand::KeyReleaseEvent,nullptr);
       }
       else
       {
@@ -1199,7 +1199,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::CharEvent))
       {
-        self->InvokeEvent(vtkCommand::CharEvent,NULL);
+        self->InvokeEvent(vtkCommand::CharEvent,nullptr);
       }
       else
       {
@@ -1208,7 +1208,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       break;
 
     case vtkCommand::DeleteEvent:
-      self->SetInteractor(0);
+      self->SetInteractor(nullptr);
       break;
 
     case vtkCommand::TDxMotionEvent:
@@ -1221,7 +1221,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::PinchEvent))
       {
-        self->InvokeEvent(vtkCommand::PinchEvent,NULL);
+        self->InvokeEvent(vtkCommand::PinchEvent,nullptr);
       }
       else
       {
@@ -1232,7 +1232,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::PanEvent))
       {
-        self->InvokeEvent(vtkCommand::PanEvent,NULL);
+        self->InvokeEvent(vtkCommand::PanEvent,nullptr);
       }
       else
       {
@@ -1244,7 +1244,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::RotateEvent))
       {
-        self->InvokeEvent(vtkCommand::RotateEvent,NULL);
+        self->InvokeEvent(vtkCommand::RotateEvent,nullptr);
       }
       else
       {
@@ -1256,7 +1256,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::TapEvent))
       {
-        self->InvokeEvent(vtkCommand::TapEvent,NULL);
+        self->InvokeEvent(vtkCommand::TapEvent,nullptr);
       }
       else
       {
@@ -1268,7 +1268,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::LongTapEvent))
       {
-        self->InvokeEvent(vtkCommand::LongTapEvent,NULL);
+        self->InvokeEvent(vtkCommand::LongTapEvent,nullptr);
       }
       else
       {
@@ -1280,7 +1280,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::SwipeEvent))
       {
-        self->InvokeEvent(vtkCommand::SwipeEvent,NULL);
+        self->InvokeEvent(vtkCommand::SwipeEvent,nullptr);
       }
       else
       {
@@ -1292,7 +1292,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::FourthButtonPressEvent))
       {
-        self->InvokeEvent(vtkCommand::FourthButtonPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::FourthButtonPressEvent,nullptr);
       }
       else
       {
@@ -1304,7 +1304,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::FourthButtonReleaseEvent))
       {
-        self->InvokeEvent(vtkCommand::FourthButtonReleaseEvent,NULL);
+        self->InvokeEvent(vtkCommand::FourthButtonReleaseEvent,nullptr);
       }
       else
       {
@@ -1316,7 +1316,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::FifthButtonPressEvent))
       {
-        self->InvokeEvent(vtkCommand::FifthButtonPressEvent,NULL);
+        self->InvokeEvent(vtkCommand::FifthButtonPressEvent,nullptr);
       }
       else
       {
@@ -1328,7 +1328,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::FifthButtonReleaseEvent))
       {
-        self->InvokeEvent(vtkCommand::FifthButtonReleaseEvent,NULL);
+        self->InvokeEvent(vtkCommand::FifthButtonReleaseEvent,nullptr);
       }
       else
       {

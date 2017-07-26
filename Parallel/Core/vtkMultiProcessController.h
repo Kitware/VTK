@@ -276,7 +276,7 @@ public:
    * Convenience method when there is no argument.
    */
   void TriggerRMI(int remoteProcessId, int tag)
-    { this->TriggerRMI(remoteProcessId, NULL, 0, tag); }
+    { this->TriggerRMI(remoteProcessId, nullptr, 0, tag); }
 
   //@{
   /**
@@ -295,7 +295,7 @@ public:
   }
   void TriggerRMIOnAllChildren(int tag)
   {
-    this->TriggerRMIOnAllChildren(NULL, 0, tag);
+    this->TriggerRMIOnAllChildren(nullptr, 0, tag);
   }
   void BroadcastTriggerRMIOnAllChildren(void* arg, int argLength, int tag);
   //@}
@@ -1719,7 +1719,7 @@ inline vtkDataObject* vtkMultiProcessController::ReceiveDataObject(
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 

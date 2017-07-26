@@ -105,7 +105,7 @@ CompareUnsignedLessThan(const vtkVariant &A,
 inline bool
 vtkVariant::operator==(const vtkVariant &other) const
 {
-  // First test: NULL values are always equal to one another and
+  // First test: nullptr values are always equal to one another and
   // unequal to anything else.
   if (! (this->Valid && other.Valid))
   {
@@ -185,8 +185,8 @@ vtkVariant::operator==(const vtkVariant &other) const
 inline bool
 vtkVariant::operator<(const vtkVariant &other) const
 {
-  // First test: a NULL value is less than anything except another
-  // NULL value.  unequal to anything else.
+  // First test: a nullptr value is less than anything except another
+  // nullptr value.  unequal to anything else.
   if (! (this->Valid && other.Valid))
   {
     return ((!this->Valid) && (other.Valid));

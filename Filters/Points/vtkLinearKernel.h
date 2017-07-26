@@ -61,7 +61,7 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly. The probably weighting prob are numbers 0<=prob<=1 which are
    * multiplied against the interpolation weights before normalization. They
-   * are estimates of local confidence of weights. The prob may be NULL in
+   * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,

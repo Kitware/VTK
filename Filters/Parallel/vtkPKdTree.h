@@ -255,7 +255,7 @@ public:
    * but whose cell centroid lies elsewhere.
 
    * The total number of cell IDs written to both lists is returned.
-   * Either list pointer passed in can be NULL, and it will be ignored.
+   * Either list pointer passed in can be nullptr, and it will be ignored.
    * If there are multiple data sets, you must specify which data set
    * you wish cell IDs for.
 

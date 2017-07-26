@@ -54,13 +54,13 @@ void vtkMathTextFreeTypeTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkMathTextFreeTypeTextRenderer::FreeTypeIsSupported()
 {
-  return this->FreeTypeTools != NULL;
+  return this->FreeTypeTools != nullptr;
 }
 
 //------------------------------------------------------------------------------
 bool vtkMathTextFreeTypeTextRenderer::MathTextIsSupported()
 {
-  return this->MathTextUtilities != NULL &&
+  return this->MathTextUtilities != nullptr &&
          this->MathTextUtilities->IsAvailable();
 }
 

@@ -51,18 +51,18 @@ vtkCxxSetObjectMacro(vtkAddMembershipArray,InputValues,vtkAbstractArray);
 vtkAddMembershipArray::vtkAddMembershipArray()
 {
   this->FieldType = -1;
-  this->OutputArrayName = 0;
+  this->OutputArrayName = nullptr;
   this->SetOutputArrayName("membership");
-  this->InputArrayName = 0;
-  this->InputValues = NULL;
+  this->InputArrayName = nullptr;
+  this->InputValues = nullptr;
   this->SetNumberOfInputPorts(3);
 }
 
 //---------------------------------------------------------------------------
 vtkAddMembershipArray::~vtkAddMembershipArray()
 {
-  this->SetOutputArrayName( 0 );
-  this->SetInputArrayName( 0 );
+  this->SetOutputArrayName( nullptr );
+  this->SetInputArrayName( nullptr );
 }
 
 //---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ int vtkAddMembershipArray::RequestData(
     if(!this->InputArrayName || !this->InputValues)
       return 1;
 
-    vtkDataSetAttributes* ds = 0;;
+    vtkDataSetAttributes* ds = nullptr;;
     switch(this->FieldType)
     {
       case vtkAddMembershipArray::VERTEX_DATA:

@@ -44,7 +44,7 @@ void vtkDefaultPass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre s_exists: s!=0
 void vtkDefaultPass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   this->NumberOfRenderedProps=0;
   this->RenderOpaqueGeometry(s);
@@ -59,7 +59,7 @@ void vtkDefaultPass::Render(const vtkRenderState *s)
 // \pre s_exists: s!=0
 void vtkDefaultPass::RenderOpaqueGeometry(const vtkRenderState *s)
 {
-  assert("pre s_exits" && s!=0);
+  assert("pre s_exits" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;
@@ -77,7 +77,7 @@ void vtkDefaultPass::RenderOpaqueGeometry(const vtkRenderState *s)
 // \pre s_exists: s!=0
 void vtkDefaultPass::RenderFilteredOpaqueGeometry(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;
@@ -101,7 +101,7 @@ void vtkDefaultPass::RenderFilteredOpaqueGeometry(const vtkRenderState *s)
 void vtkDefaultPass::RenderTranslucentPolygonalGeometry(
   const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;
@@ -121,7 +121,7 @@ void vtkDefaultPass::RenderTranslucentPolygonalGeometry(
 void vtkDefaultPass::RenderFilteredTranslucentPolygonalGeometry(
   const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;
@@ -143,7 +143,7 @@ void vtkDefaultPass::RenderFilteredTranslucentPolygonalGeometry(
 // \pre s_exists: s!=0
 void vtkDefaultPass::RenderVolumetricGeometry(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;
@@ -162,7 +162,7 @@ void vtkDefaultPass::RenderVolumetricGeometry(const vtkRenderState *s)
 // \pre s_exists: s!=0
 void vtkDefaultPass::RenderFilteredVolumetricGeometry(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;
@@ -186,7 +186,7 @@ void vtkDefaultPass::RenderFilteredVolumetricGeometry(const vtkRenderState *s)
 // \pre s_exists: s!=0
 void vtkDefaultPass::RenderOverlay(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;
@@ -204,7 +204,7 @@ void vtkDefaultPass::RenderOverlay(const vtkRenderState *s)
 // \pre s_exists: s!=0
 void vtkDefaultPass::RenderFilteredOverlay(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   int c=s->GetPropArrayCount();
   int i=0;

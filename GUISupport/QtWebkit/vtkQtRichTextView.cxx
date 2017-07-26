@@ -81,11 +81,11 @@ public:
 
 vtkQtRichTextView::vtkQtRichTextView()
 {
-  this->ContentColumnName=NULL;
-  this->PreviewColumnName=NULL;
-  this->TitleColumnName=NULL;
+  this->ContentColumnName=nullptr;
+  this->PreviewColumnName=nullptr;
+  this->TitleColumnName=nullptr;
   this->ProxyPort = 0;
-  this->ProxyURL = NULL;
+  this->ProxyURL = nullptr;
   this->SetContentColumnName("html");
   this->SetPreviewColumnName("preview");
   this->Internal = new Implementation();

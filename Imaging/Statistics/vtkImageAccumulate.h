@@ -99,7 +99,7 @@ public:
    * Use a stencil to specify which voxels to accumulate.
    * Backcompatible methods.
    * It set and get the stencil on input port 1.
-   * Initial value is NULL.
+   * Initial value is nullptr.
    */
   void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();

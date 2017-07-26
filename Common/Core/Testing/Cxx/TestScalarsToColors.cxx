@@ -83,7 +83,7 @@ static bool TestGetColorAndMapValue()
   vtkNew<vtkScalarsToColors> lut;
 
   double rgb[3] = {0.1, 0.2, 0.3};
-  const unsigned char * rgba = NULL;
+  const unsigned char * rgba = nullptr;
 
   // Sane range.
   lut->SetRange(0.0, 1.0);
@@ -136,7 +136,7 @@ static bool TestDeepCopy()
 
   // Test nop DeepCopy.
   vtkNew<vtkScalarsToColors> copy1;
-  copy1->DeepCopy(NULL);
+  copy1->DeepCopy(nullptr);
 
   // Test actual copy.
   vtkNew<vtkScalarsToColors> copy2;
@@ -171,12 +171,12 @@ static bool TestGeneral()
 
   vtkNew<vtkScalarsToColors> lut;
 
-  lut->SetAnnotations(NULL, NULL);
+  lut->SetAnnotations(nullptr, nullptr);
   vtkStringArray* ann2 = lut->GetAnnotations();
   vtkAbstractArray* val2 = lut->GetAnnotatedValues();
   if (ann2 || val2)
   {
-    cerr << "Annotations set to NULL but didn't return NULL\n";
+    cerr << "Annotations set to nullptr but didn't return nullptr\n";
     success = false;
   }
 
@@ -189,7 +189,7 @@ static bool TestGeneral()
   val2 = lut->GetAnnotatedValues();
   if (!ann2 || !val2)
   {
-    cerr << "Annotations set to non-NULL but returned NULL\n";
+    cerr << "Annotations set to non-nullptr but returned nullptr\n";
     success = false;
   }
 
@@ -220,12 +220,12 @@ static bool TestGeneral()
     success = false;
   }
 
-  lut->SetAnnotations(NULL, NULL);
+  lut->SetAnnotations(nullptr, nullptr);
   ann2 = lut->GetAnnotations();
   val2 = lut->GetAnnotatedValues();
   if (ann2 || val2)
   {
-    cerr << "Annotations again set to NULL but didn't return NULL\n";
+    cerr << "Annotations again set to nullptr but didn't return nullptr\n";
     success = false;
   }
 

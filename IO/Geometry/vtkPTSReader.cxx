@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkPTSReader);
 
 //----------------------------------------------------------------------------
 vtkPTSReader::vtkPTSReader() :
-  FileName(NULL),
+  FileName(nullptr),
   OutputDataTypeIsDouble(false),
   LimitReadToBounds(false),
   LimitToMaxNumberOfPoints(false),
@@ -50,7 +50,7 @@ vtkPTSReader::~vtkPTSReader()
   if (this->FileName)
   {
     delete [] this->FileName;
-    this->FileName = NULL;
+    this->FileName = nullptr;
   }
 }
 
@@ -59,7 +59,7 @@ vtkPTSReader::~vtkPTSReader()
 void vtkPTSReader::SetFileName(const char *filename)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FileName to " << filename );
-  if (this->FileName == NULL && filename == NULL)
+  if (this->FileName == nullptr && filename == nullptr)
   {
     return;
   }
@@ -81,7 +81,7 @@ void vtkPTSReader::SetFileName(const char *filename)
   }
    else
    {
-    this->FileName = NULL;
+    this->FileName = nullptr;
    }
   this->Modified();
 }
@@ -331,7 +331,7 @@ RequestData(vtkInformation *vtkNotUsed(request),
 
   // Lets Process the points!  Remember that we have already loaded in
   // the first line of points in the buffer
-  vtkIdType *pids = 0;
+  vtkIdType *pids = nullptr;
   vtkIdType pid;
   if (this->CreateCells)
   {

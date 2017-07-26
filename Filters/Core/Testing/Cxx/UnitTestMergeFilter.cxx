@@ -47,50 +47,50 @@ int UnitTestMergeFilter (int, char*[])
 
   // Check for null inputs
   int status0 = 0;
-  if (merge0->GetGeometry() != NULL)
+  if (merge0->GetGeometry() != nullptr)
   {
-    std::cout << std::endl << "  GetGeometry() expected NULL" << std::endl;
+    std::cout << std::endl << "  GetGeometry() expected nullptr" << std::endl;
     status0++;
   }
-  if (merge0->GetGeometry() != NULL)
+  if (merge0->GetGeometry() != nullptr)
   {
     status++;
-    std::cout << std::endl << "  GetGeometry() expected NULL" << std::endl;
+    std::cout << std::endl << "  GetGeometry() expected nullptr" << std::endl;
   }
   status0 = 0;
 
-  if (merge0->GetScalars() != NULL)
+  if (merge0->GetScalars() != nullptr)
   {
     status++;
-    std::cout << std::endl << "  GetScalars() expected NULL" << std::endl;
+    std::cout << std::endl << "  GetScalars() expected nullptr" << std::endl;
   }
   status0 = 0;
 
-  if (merge0->GetVectors() != NULL)
+  if (merge0->GetVectors() != nullptr)
   {
     status++;
-    std::cout << std::endl << "  GetVectors( ) expected NULL" << std::endl;
+    std::cout << std::endl << "  GetVectors( ) expected nullptr" << std::endl;
   }
   status0 = 0;
 
-  if (merge0->GetNormals() != NULL)
+  if (merge0->GetNormals() != nullptr)
   {
     status++;
-    std::cout << std::endl << "  GetNormals() expected NULL" << std::endl;
+    std::cout << std::endl << "  GetNormals() expected nullptr" << std::endl;
   }
   status0 = 0;
 
-  if (merge0->GetTCoords() != NULL)
+  if (merge0->GetTCoords() != nullptr)
   {
     status++;
-    std::cout << std::endl << "  GetTCoords() expected NULL" << std::endl;
+    std::cout << std::endl << "  GetTCoords() expected nullptr" << std::endl;
   }
   status0 = 0;
 
-  if (merge0->GetTensors() != NULL)
+  if (merge0->GetTensors() != nullptr)
   {
     status++;
-    std::cout << std::endl << "  GetTensorsd() expected NULL" << std::endl;
+    std::cout << std::endl << "  GetTensorsd() expected nullptr" << std::endl;
   }
   status0 = 0;
 

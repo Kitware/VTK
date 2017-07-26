@@ -68,8 +68,8 @@ struct vtkLocalDataType
   vtkCellData* NewPolysData;
 
   vtkLocalDataType()
-    : Output(0)
-    , Locator(0)
+    : Output(nullptr)
+    , Locator(nullptr)
   {
   }
 };
@@ -142,7 +142,7 @@ struct CuttingFunctor
     , Output(output)
     , Plane(plane)
     , SphereTree(tree)
-    , InOutPoints(NULL)
+    , InOutPoints(nullptr)
     , Origin(origin)
     , Normal(normal)
     , Interpolate(interpolate)
@@ -171,7 +171,7 @@ struct CuttingFunctor
       (*dataIter).Locator->Delete();
       ++dataIter;
     }
-    if (this->InOutPoints != NULL)
+    if (this->InOutPoints != nullptr)
     {
       delete this->InOutPoints;
     }
@@ -421,16 +421,16 @@ struct UnstructuredGridFunctor : public PointSetFunctor
     vtkCellData* inCD = this->Input->GetCellData();
 
     vtkPolyData* output = localData.Output;
-    vtkPointData* outPD = NULL;
+    vtkPointData* outPD = nullptr;
 
     vtkCellArray* newVerts = this->NewVerts.Local();
     vtkCellArray* newLines = this->NewLines.Local();
     vtkCellArray* newPolys = this->NewPolys.Local();
 
-    vtkCellData* newVertsData = NULL;
-    vtkCellData* newLinesData = NULL;
-    vtkCellData* newPolysData = NULL;
-    vtkCellData* tmpOutCD = NULL;
+    vtkCellData* newVertsData = nullptr;
+    vtkCellData* newLinesData = nullptr;
+    vtkCellData* newPolysData = nullptr;
+    vtkCellData* tmpOutCD = nullptr;
     if (this->Interpolate)
     {
       outPD = output->GetPointData();
@@ -474,7 +474,7 @@ struct UnstructuredGridFunctor : public PointSetFunctor
           *s++ = this->Plane->FunctionValue(cellPoints->GetPoint(i));
         }
 
-        tmpOutCD = NULL;
+        tmpOutCD = nullptr;
         if (this->Interpolate)
         {
           // Select correct cell data
@@ -554,16 +554,16 @@ struct PolyDataFunctor : public PointSetFunctor
     vtkCellData* inCD = this->Input->GetCellData();
 
     vtkPolyData* output = localData.Output;
-    vtkPointData* outPD = NULL;
+    vtkPointData* outPD = nullptr;
 
     vtkCellArray* newVerts = this->NewVerts.Local();
     vtkCellArray* newLines = this->NewLines.Local();
     vtkCellArray* newPolys = this->NewPolys.Local();
 
-    vtkCellData* newVertsData = NULL;
-    vtkCellData* newLinesData = NULL;
-    vtkCellData* newPolysData = NULL;
-    vtkCellData* tmpOutCD = NULL;
+    vtkCellData* newVertsData = nullptr;
+    vtkCellData* newLinesData = nullptr;
+    vtkCellData* newPolysData = nullptr;
+    vtkCellData* tmpOutCD = nullptr;
     if (this->Interpolate)
     {
       outPD = output->GetPointData();
@@ -607,7 +607,7 @@ struct PolyDataFunctor : public PointSetFunctor
           *s++ = this->Plane->FunctionValue(cellPoints->GetPoint(i));
         }
 
-        tmpOutCD = NULL;
+        tmpOutCD = nullptr;
         if (this->Interpolate)
         {
           // Select correct cell data
@@ -1396,8 +1396,8 @@ struct StructuredFunctor : public CuttingFunctor
     vtkCellData* inCD = this->Input->GetCellData();
 
     vtkPolyData* output = localData.Output;
-    vtkPointData* outPD = NULL;
-    vtkCellData* outCD = NULL;
+    vtkPointData* outPD = nullptr;
+    vtkCellData* outCD = nullptr;
 
     if (this->Interpolate)
     {
@@ -1531,8 +1531,8 @@ struct RectilinearFunctor : public CuttingFunctor
     vtkCellData* inCD = this->Input->GetCellData();
 
     vtkPolyData* output = localData.Output;
-    vtkPointData* outPD = NULL;
-    vtkCellData* outCD = NULL;
+    vtkPointData* outPD = nullptr;
+    vtkCellData* outCD = nullptr;
 
     if (this->Interpolate)
     {
@@ -1735,7 +1735,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkNew<vtkMultiPieceDataSet> output;
     mb->SetBlock(0, output.Get());
-    vtkSphereTree* tree = NULL;
+    vtkSphereTree* tree = nullptr;
     if (this->BuildTree)
     {
       if (this->SphereTrees.size() < 1)
@@ -1758,7 +1758,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDataSet* hdLeafInput = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       vtkNew<vtkMultiPieceDataSet> output;
-      vtkSphereTree* tree = NULL;
+      vtkSphereTree* tree = nullptr;
       if (this->BuildTree)
       {
         if (this->SphereTrees.size() <= treeIndex)

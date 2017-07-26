@@ -47,7 +47,7 @@ vtkWindow::vtkWindow()
 // Destructor for the vtkWindow object.
 vtkWindow::~vtkWindow()
 {
-  this->SetWindowName( NULL );
+  this->SetWindowName( nullptr );
 }
 
 //-----------------------------------------------------------------------------

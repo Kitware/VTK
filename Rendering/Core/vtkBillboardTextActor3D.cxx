@@ -234,7 +234,7 @@ void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
 void vtkBillboardTextActor3D::SetInput(const char *in)
 {
   // Adapted vtkSetStringMacro to also mark InputMTime as modified:
-  if ((this->Input == NULL && in == NULL) ||
+  if ((this->Input == nullptr && in == nullptr) ||
       (this->Input && in && strcmp(this->Input, in) == 0))
   {
     return;
@@ -249,7 +249,7 @@ void vtkBillboardTextActor3D::SetInput(const char *in)
   }
   else
   {
-    this->Input = NULL;
+    this->Input = nullptr;
   }
   this->Modified();
   this->InputMTime.Modified();
@@ -318,7 +318,7 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
   }
 
   vtkRenderer *ren = vtkRenderer::SafeDownCast(vp);
-  if (!ren || ren->GetActiveCamera() == NULL)
+  if (!ren || ren->GetActiveCamera() == nullptr)
   {
     vtkErrorMacro("Viewport is not a renderer, or missing a camera.");
     this->Invalidate();
@@ -389,7 +389,7 @@ double *vtkBillboardTextActor3D::GetBounds()
 
 //------------------------------------------------------------------------------
 vtkBillboardTextActor3D::vtkBillboardTextActor3D()
-  : Input(NULL),
+  : Input(nullptr),
     TextProperty(vtkTextProperty::New()),
     RenderedDPI(-1)
 {
@@ -425,17 +425,17 @@ vtkBillboardTextActor3D::vtkBillboardTextActor3D()
 //------------------------------------------------------------------------------
 vtkBillboardTextActor3D::~vtkBillboardTextActor3D()
 {
-  this->SetInput(NULL);
-  this->SetTextProperty(NULL);
+  this->SetInput(nullptr);
+  this->SetTextProperty(nullptr);
 }
 
 //------------------------------------------------------------------------------
 bool vtkBillboardTextActor3D::InputIsValid()
 {
-  return (this->Input != NULL &&
+  return (this->Input != nullptr &&
           this->Input[0] != '\0' &&
-          this->TextProperty != NULL &&
-          this->TextRenderer.Get() != NULL);
+          this->TextProperty != nullptr &&
+          this->TextRenderer.Get() != nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -456,7 +456,7 @@ void vtkBillboardTextActor3D::GenerateTexture(vtkRenderer *ren)
   int dpi = ren->GetRenderWindow()->GetDPI();
 
   if (!this->TextRenderer->RenderString(this->TextProperty, this->Input,
-                                        this->Image.Get(), NULL, dpi))
+                                        this->Image.Get(), nullptr, dpi))
   {
     vtkErrorMacro("Error rendering text string: " << this->Input);
     this->Invalidate();

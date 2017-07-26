@@ -88,7 +88,7 @@ int vtkEdgeCenters::RequestData(
     input->GetPoint(e.Source, p1);
     input->GetPoint(e.Target, p2);
     vtkIdType npts = 0;
-    double* pts = 0;
+    double* pts = nullptr;
     input->GetEdgePoints(e.Id, npts, pts);
     // Find the length of the edge
     if (npts == 0)
