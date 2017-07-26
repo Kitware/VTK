@@ -1,3 +1,5 @@
+include(CMakeDependentOption)
+
 # Logic to figure out what system libraries will be used by rendering, and
 # whether VTK can use OSMesa for rendering.
 set(default_use_x OFF)
