@@ -23,6 +23,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
+#include "vtkEventData.h"
 #include "vtkWidgetEvent.h"
 
 
@@ -56,6 +57,35 @@ vtkHandleWidget::vtkHandleWidget()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkHandleWidget::MoveAction);
+
+  {
+    vtkNew<vtkEventDataButton3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    ed->SetAction(vtkEventDataAction::Press);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
+      ed.Get(), vtkWidgetEvent::Select3D,
+      this, vtkHandleWidget::SelectAction3D);
+  }
+
+  {
+    vtkNew<vtkEventDataButton3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    ed->SetAction(vtkEventDataAction::Release);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
+      ed.Get(), vtkWidgetEvent::EndSelect3D,
+      this, vtkHandleWidget::EndSelectAction);
+  }
+
+  {
+    vtkNew<vtkEventDataMove3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
+      ed.Get(), vtkWidgetEvent::Move3D,
+      this, vtkHandleWidget::MoveAction3D);
+  }
+
   this->EnableAxisConstraint = 1;
   this->EnableTranslation = 1;
   this->AllowHandleResize    = 1;
@@ -123,6 +153,34 @@ void vtkHandleWidget::SelectAction(vtkAbstractWidget *w)
 }
 
 //-------------------------------------------------------------------------
+void vtkHandleWidget::SelectAction3D(vtkAbstractWidget *w)
+{
+  vtkHandleWidget *self = reinterpret_cast<vtkHandleWidget*>(w);
+
+  self->WidgetRep->ComputeComplexInteractionState(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  if ( self->WidgetRep->GetInteractionState() == vtkHandleRepresentation::Outside )
+  {
+    return;
+  }
+
+  // We are definitely selected
+  if ( ! self->Parent )
+  {
+    self->GrabFocus(self->EventCallbackCommand);
+  }
+  self->WidgetRep->StartComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  self->WidgetState = vtkHandleWidget::Active;
+  reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->
+    SetInteractionState(vtkHandleRepresentation::Selecting);
+
+  self->GenericAction(self);
+}
+
+//-------------------------------------------------------------------------
 void vtkHandleWidget::TranslateAction(vtkAbstractWidget *w)
 {
   vtkHandleWidget *self = reinterpret_cast<vtkHandleWidget*>(w);
@@ -130,8 +188,8 @@ void vtkHandleWidget::TranslateAction(vtkAbstractWidget *w)
   double eventPos[2];
   eventPos[0] = static_cast<double>(self->Interactor->GetEventPosition()[0]);
   eventPos[1] = static_cast<double>(self->Interactor->GetEventPosition()[1]);
-
   self->WidgetRep->StartWidgetInteraction(eventPos);
+
   if ( self->WidgetRep->GetInteractionState() == vtkHandleRepresentation::Outside )
   {
     return;
@@ -265,6 +323,39 @@ void vtkHandleWidget::MoveAction(vtkAbstractWidget *w)
   // Got this event, we are finished
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+  self->Render();
+}
+
+//-------------------------------------------------------------------------
+void vtkHandleWidget::MoveAction3D(vtkAbstractWidget *w)
+{
+  vtkHandleWidget *self = reinterpret_cast<vtkHandleWidget*>(w);
+
+  // Set the cursor appropriately
+  if ( self->WidgetState == vtkHandleWidget::Start )
+  {
+    int state = self->WidgetRep->GetInteractionState();
+    self->WidgetRep->ComputeComplexInteractionState(
+      self->Interactor, self, vtkWidgetEvent::Move3D, self->CallData);
+
+    self->SetCursor(self->WidgetRep->GetInteractionState());
+
+    // Must rerender if we change appearance
+    if ( reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)->GetActiveRepresentation() &&
+         state != self->WidgetRep->GetInteractionState() )
+    {
+      self->Render();
+    }
+    return;
+  }
+
+  // Okay, adjust the representation
+  self->WidgetRep->ComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Move3D, self->CallData);
+
+  // Got this event, we are finished
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   self->Render();
 }
 

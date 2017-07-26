@@ -47,7 +47,9 @@
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 
 class vtkAbstractPropPicker;
+class vtkAbstractWidget;
 class vtkPickingManager;
+class vtkRenderWindowInteractor;
 class vtkRenderer;
 
 
@@ -134,6 +136,34 @@ public:
   virtual int GetInteractionState()
     {return this->InteractionState;}
   virtual void Highlight(int vtkNotUsed(highlightOn)) {}
+
+  //@{
+  // Widgets were originally designed to be driven by 2D mouse events
+  // With Virtual Reality and multitouch we get mnore complex events
+  // that may involve multiple pointers as well as 3D pointers and
+  // orientations. As such we provide pointers to the interactor
+  // widget and an event type so that representations can access the
+  // values they need.
+  virtual void StartComplexInteraction(
+    vtkRenderWindowInteractor *,
+    vtkAbstractWidget *,
+    unsigned long /* event */,
+    void * /*callData*/) { }
+  virtual void ComplexInteraction(
+    vtkRenderWindowInteractor *,
+    vtkAbstractWidget *,
+    unsigned long /* event */,
+    void * /* callData */) { }
+  virtual void EndComplexInteraction(
+    vtkRenderWindowInteractor *,
+    vtkAbstractWidget *,
+    unsigned long /* event */,
+    void * /* callData */) { }
+  virtual int ComputeComplexInteractionState(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *callData, int modify = 0);
+  //@}
 
   //@{
   /**
@@ -253,7 +283,8 @@ protected:
    */
   vtkAssemblyPath* GetAssemblyPath(double X, double Y, double Z,
                                    vtkAbstractPropPicker* picker);
-
+  vtkAssemblyPath* GetAssemblyPath3DPoint(double pos[3],
+                                     vtkAbstractPropPicker* picker);
 
   // Members use to control handle size. The two methods return a "radius"
   // in world coordinates. Note that the HandleSize data member is used

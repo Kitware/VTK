@@ -186,6 +186,18 @@ public:
   void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
   int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
   void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void StartComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) VTK_OVERRIDE;
+  void ComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) VTK_OVERRIDE;
+  int ComputeComplexInteractionState(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata, int modify = 0) VTK_OVERRIDE;
   //@}
 
   //@{
@@ -233,7 +245,7 @@ protected:
   // Do the picking
   vtkCellPicker *CursorPicker;
   double LastPickPosition[3];
-  double LastEventPosition[2];
+  double LastEventPosition[3];
 
   // Register internal Pickers within PickingManager
   void RegisterPickers() VTK_OVERRIDE;

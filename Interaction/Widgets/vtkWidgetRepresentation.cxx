@@ -131,6 +131,13 @@ GetAssemblyPath(double X, double Y, double Z, vtkAbstractPropPicker* picker)
   return pm->GetAssemblyPath(X, Y, 0., picker, this->Renderer, this);
 }
 
+vtkAssemblyPath* vtkWidgetRepresentation::
+GetAssemblyPath3DPoint(double pos[3], vtkAbstractPropPicker* picker)
+{
+  picker->Pick3DPoint(pos, this->Renderer);
+  return picker->GetPath();
+}
+
 //----------------------------------------------------------------------
 void vtkWidgetRepresentation::AdjustBounds(double bounds[6], double newBounds[6],
                                            double center[3])
@@ -161,6 +168,14 @@ void vtkWidgetRepresentation::ShallowCopy(vtkProp *prop)
 
 //----------------------------------------------------------------------
 int vtkWidgetRepresentation::ComputeInteractionState(int, int, int)
+{
+  return 0;
+}
+
+int vtkWidgetRepresentation::ComputeComplexInteractionState(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *, int)
 {
   return 0;
 }

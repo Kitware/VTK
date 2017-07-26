@@ -169,6 +169,18 @@ public:
   int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
   void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
   void WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void StartComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) VTK_OVERRIDE;
+  void ComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) VTK_OVERRIDE;
+  int ComputeComplexInteractionState(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata, int modify = 0) VTK_OVERRIDE;
   //@}
 
 protected:

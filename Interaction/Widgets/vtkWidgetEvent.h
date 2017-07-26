@@ -69,7 +69,12 @@ public:
     Up,
     Down,
     Left,
-    Right
+    Right,
+    Select3D,
+    EndSelect3D,
+    Move3D,
+    AddPoint3D,
+    AddFinalPoint3D
   };
 
   //@{
