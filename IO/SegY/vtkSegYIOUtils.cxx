@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPlane.h
+  Module:    vtkSegYIOUtils.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkIOSegYUtils.h"
+#include "vtkSegYIOUtils.h"
 
 #include <cstring>
 
@@ -36,6 +36,7 @@ be TOO difficult). */
 #include <netinet/in.h>
 #include <sys/types.h>
 
+//----------------------------------------------------------------------------
 void ibm2ieee(void* to, const void* from, int len)
 {
   register unsigned fr; /* fraction */
@@ -93,18 +94,21 @@ void ibm2ieee(void* to, const void* from, int len)
   }
 }
 
-vtkIOSegYUtils::vtkIOSegYUtils()
+//----------------------------------------------------------------------------
+vtkSegYIOUtils::vtkSegYIOUtils()
 {
   isBigEndian = checkIfBigEndian();
 }
 
-vtkIOSegYUtils* vtkIOSegYUtils::Instance()
+//----------------------------------------------------------------------------
+vtkSegYIOUtils* vtkSegYIOUtils::Instance()
 {
-  static vtkIOSegYUtils vtkIOSegYUtils;
-  return &vtkIOSegYUtils;
+  static vtkSegYIOUtils vtkSegYIOUtils;
+  return &vtkSegYIOUtils;
 }
 
-int vtkIOSegYUtils::readShortInteger(int pos, std::ifstream& in)
+//----------------------------------------------------------------------------
+int vtkSegYIOUtils::readShortInteger(int pos, std::ifstream& in)
 {
   in.seekg(pos, in.beg);
   char buffer[2];
@@ -120,7 +124,8 @@ int vtkIOSegYUtils::readShortInteger(int pos, std::ifstream& in)
   return num;
 }
 
-int vtkIOSegYUtils::readLongInteger(int pos, std::ifstream& in)
+//----------------------------------------------------------------------------
+int vtkSegYIOUtils::readLongInteger(int pos, std::ifstream& in)
 {
   in.seekg(pos, in.beg);
   char buffer[4];
@@ -137,7 +142,8 @@ int vtkIOSegYUtils::readLongInteger(int pos, std::ifstream& in)
   return num;
 }
 
-int vtkIOSegYUtils::readLongInteger(std::ifstream& in)
+//----------------------------------------------------------------------------
+int vtkSegYIOUtils::readLongInteger(std::ifstream& in)
 {
   char buffer[4];
   in.read(buffer, sizeof(buffer));
@@ -153,7 +159,8 @@ int vtkIOSegYUtils::readLongInteger(std::ifstream& in)
   return num;
 }
 
-float vtkIOSegYUtils::readFloat(std::ifstream& in)
+//----------------------------------------------------------------------------
+float vtkSegYIOUtils::readFloat(std::ifstream& in)
 {
   char buffer[4];
   in.read(buffer, sizeof(buffer));
@@ -169,7 +176,8 @@ float vtkIOSegYUtils::readFloat(std::ifstream& in)
   return num;
 }
 
-float vtkIOSegYUtils::readIBMFloat(std::ifstream& in)
+//----------------------------------------------------------------------------
+float vtkSegYIOUtils::readIBMFloat(std::ifstream& in)
 {
   char buffer[4];
   in.read(buffer, sizeof(buffer));
@@ -185,28 +193,32 @@ float vtkIOSegYUtils::readIBMFloat(std::ifstream& in)
   return num;
 }
 
-char vtkIOSegYUtils::readChar(std::ifstream& in)
+//----------------------------------------------------------------------------
+char vtkSegYIOUtils::readChar(std::ifstream& in)
 {
   char buffer;
   in.read(&buffer, sizeof(buffer));
   return buffer;
 }
 
-unsigned char vtkIOSegYUtils::readUChar(std::ifstream& in)
+//----------------------------------------------------------------------------
+unsigned char vtkSegYIOUtils::readUChar(std::ifstream& in)
 {
   char buffer;
   in.read(&buffer, sizeof(buffer));
   return buffer;
 }
 
-void vtkIOSegYUtils::swap(char* a, char* b)
+//----------------------------------------------------------------------------
+void vtkSegYIOUtils::swap(char* a, char* b)
 {
   char temp = *a;
   *a = *b;
   *b = temp;
 }
 
-int vtkIOSegYUtils::getFileSize(std::ifstream& in)
+//----------------------------------------------------------------------------
+int vtkSegYIOUtils::getFileSize(std::ifstream& in)
 {
   in.seekg(0, in.end);
   return in.tellg();

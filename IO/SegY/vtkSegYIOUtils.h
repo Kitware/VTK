@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIOSegYUtils.h
+  Module:    vtkSegYIOUtils.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,36 +13,35 @@
 
 =========================================================================*/
 
-#ifndef _vtkIOSegYUtils_h_
-#define _vtkIOSegYUtils_h_
+#ifndef __vtkSegYIOUtils_h
+#define __vtkSegYIOUtils_h
 
 #include <fstream>
 
-class vtkIOSegYUtils
+class vtkSegYIOUtils
 {
 public:
-  int readShortInteger(int pos, std::ifstream &in);
-  int readLongInteger(int pos, std::ifstream &in);
-  int readLongInteger(std::ifstream &in);
-  float readFloat(std::ifstream &in);
-  float readIBMFloat(std::ifstream &in);
-  char readChar(std::ifstream &in);
-  unsigned char readUChar(std::ifstream &in);
+  int readShortInteger(int pos, std::ifstream& in);
+  int readLongInteger(int pos, std::ifstream& in);
+  int readLongInteger(std::ifstream& in);
+  float readFloat(std::ifstream& in);
+  float readIBMFloat(std::ifstream& in);
+  char readChar(std::ifstream& in);
+  unsigned char readUChar(std::ifstream& in);
   void swap(char* a, char* b);
   bool isBigEndian;
-  static IOUtil* Instance();
+  static vtkSegYIOUtils* Instance();
   int getFileSize(std::ifstream& in);
 
 private:
-  IOUtil();
-  bool checkIfBigEndian() {
-      ushort a = 0x1234;
-      if (*((unsigned char *) &a) == 0x12)
-          return true;
-      return false;
+  vtkSegYIOUtils();
+  bool checkIfBigEndian()
+  {
+    ushort a = 0x1234;
+    if (*((unsigned char*)&a) == 0x12)
+      return true;
+    return false;
   }
-
 };
 
-
-#endif //_vtkIOSegYUtils_h_
+#endif //__vtkSegYIOUtils_h

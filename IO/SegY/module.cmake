@@ -9,5 +9,4 @@ vtk_module(vtkIOSegY
     vtkIOCore
   PRIVATE_DEPENDS
     vtkCommonCore
-    vtkFiltersCore
   )
