@@ -1,6 +1,9 @@
 vtk_module(vtkIOSegY
   TEST_DEPENDS
+    vtkInteractionStyle
+    vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingCore
+    vtkTestingRendering
   KIT
     vtkIO
   DEPENDS
