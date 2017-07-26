@@ -59,7 +59,7 @@ namespace
   vtkIdType FindCell( vtkImageData* image, double point[3])
   {
     double pcoords[3]; int subid=0;
-    return image->vtkImageData::FindCell( point, NULL, -1, 0.1, subid, pcoords, NULL);
+    return image->vtkImageData::FindCell( point, nullptr, -1, 0.1, subid, pcoords, nullptr);
   }
 };
 

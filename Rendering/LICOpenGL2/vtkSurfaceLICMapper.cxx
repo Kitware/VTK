@@ -57,7 +57,7 @@ vtkSurfaceLICMapper::~vtkSurfaceLICMapper()
   #endif
 
   this->LICInterface->Delete();
-  this->LICInterface = 0;
+  this->LICInterface = nullptr;
 }
 
 void vtkSurfaceLICMapper::ShallowCopy(vtkAbstractMapper *mapper)
@@ -171,7 +171,7 @@ void vtkSurfaceLICMapper::RenderPiece(
 
   this->CurrentInput = this->GetInput();
   vtkDataArray *vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
-  this->LICInterface->SetHasVectors(vectors != NULL ? true : false);
+  this->LICInterface->SetHasVectors(vectors != nullptr ? true : false);
 
   if (!this->LICInterface->CanRenderSurfaceLIC(actor))
   {

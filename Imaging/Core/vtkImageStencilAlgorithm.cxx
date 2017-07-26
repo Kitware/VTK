@@ -59,7 +59,7 @@ vtkImageStencilData *vtkImageStencilAlgorithm::GetOutput()
 {
   if (this->GetNumberOfOutputPorts() < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkImageStencilData::SafeDownCast(
@@ -75,7 +75,7 @@ vtkImageStencilData *vtkImageStencilAlgorithm::AllocateOutputData(
   {
     vtkWarningMacro("Call to AllocateOutputData with non vtkImageStencilData"
                     " output");
-    return NULL;
+    return nullptr;
   }
   res->SetExtent(uExt);
   res->AllocateExtents();

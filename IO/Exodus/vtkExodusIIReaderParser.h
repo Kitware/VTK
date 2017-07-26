@@ -114,7 +114,7 @@ protected:
         return attrs[i+1];
       }
     }
-    return NULL;
+    return nullptr;
   }
 
   // Convenience methods to add vertices/edges to the SIL.

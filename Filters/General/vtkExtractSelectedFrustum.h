@@ -127,7 +127,7 @@ public:
   //@}
 
 protected:
-  vtkExtractSelectedFrustum(vtkPlanes *f=NULL);
+  vtkExtractSelectedFrustum(vtkPlanes *f=nullptr);
   ~vtkExtractSelectedFrustum() VTK_OVERRIDE;
 
   // sets up output dataset

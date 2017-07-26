@@ -43,18 +43,18 @@ public:
     const char *vertexCode,
     const char *fragmentCode,
     const char *geometryCode,
-    vtkTransformFeedback *cap = NULL);
+    vtkTransformFeedback *cap = nullptr);
 
   // make sure the specified shaders are compiled, linked, and bound
   // will increment the reference count on the shaders if it
   // needs to keep them around
   virtual vtkShaderProgram *ReadyShaderProgram(
     std::map<vtkShader::Type,vtkShader *> shaders,
-      vtkTransformFeedback *cap = NULL);
+      vtkTransformFeedback *cap = nullptr);
 
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram *ReadyShaderProgram(
-      vtkShaderProgram *shader, vtkTransformFeedback *cap = NULL);
+      vtkShaderProgram *shader, vtkTransformFeedback *cap = nullptr);
 
   /**
    * Release the current shader.  Basically go back to
@@ -72,7 +72,7 @@ public:
    * Get/Clear the last Shader bound, called by shaders as they release
    * their graphics resources
    */
-  virtual void ClearLastShaderBound() { this->LastShaderBound = NULL; }
+  virtual void ClearLastShaderBound() { this->LastShaderBound = nullptr; }
   vtkGetObjectMacro(LastShaderBound, vtkShaderProgram);
 
 protected:

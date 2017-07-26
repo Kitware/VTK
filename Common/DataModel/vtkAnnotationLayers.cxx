@@ -84,7 +84,7 @@ vtkSelection* vtkAnnotationLayers::GetCurrentSelection()
   {
     return this->CurrentAnnotation->GetSelection();
   }
-  return 0;
+  return nullptr;
 }
 
 unsigned int vtkAnnotationLayers::GetNumberOfAnnotations()
@@ -96,7 +96,7 @@ vtkAnnotation* vtkAnnotationLayers::GetAnnotation(unsigned int idx)
 {
   if (idx >= this->Implementation->Annotations.size())
   {
-    return 0;
+    return nullptr;
   }
   return this->Implementation->Annotations[idx];
 }
@@ -219,7 +219,7 @@ void vtkAnnotationLayers::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkAnnotationLayers* vtkAnnotationLayers::GetData(vtkInformation* info)
 {
-  return info ? vtkAnnotationLayers::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info ? vtkAnnotationLayers::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 vtkAnnotationLayers* vtkAnnotationLayers::GetData(vtkInformationVector* v, int i)

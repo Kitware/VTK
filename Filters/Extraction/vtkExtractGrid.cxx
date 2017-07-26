@@ -39,7 +39,7 @@ vtkExtractGrid::vtkExtractGrid()
 
 vtkExtractGrid::~vtkExtractGrid()
 {
-  if( this->Internal != NULL )
+  if( this->Internal != nullptr )
   {
     this->Internal->Delete();
   }

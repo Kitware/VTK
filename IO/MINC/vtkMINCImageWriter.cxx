@@ -99,7 +99,7 @@ vtkCxxSetObjectMacro(vtkMINCImageWriter,ImageAttributes,
 //-------------------------------------------------------------------------
 vtkMINCImageWriter::vtkMINCImageWriter()
 {
-  this->DirectionCosines = 0;
+  this->DirectionCosines = nullptr;
   this->RescaleIntercept = 0.0;
   this->RescaleSlope = 0.0;
   this->InternalRescaleIntercept = 0.0;
@@ -123,13 +123,13 @@ vtkMINCImageWriter::vtkMINCImageWriter()
 
   this->FileDimensionNames = vtkStringArray::New();
 
-  this->ImageAttributes = 0;
+  this->ImageAttributes = nullptr;
 
   this->StrictValidation = 1;
 
   this->MismatchedInputs = 0;
 
-  this->HistoryAddition = 0;
+  this->HistoryAddition = nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -138,19 +138,19 @@ vtkMINCImageWriter::~vtkMINCImageWriter()
   if (this->DirectionCosines)
   {
     this->DirectionCosines->Delete();
-    this->DirectionCosines = 0;
+    this->DirectionCosines = nullptr;
   }
   if (this->FileDimensionNames)
   {
     this->FileDimensionNames->Delete();
-    this->FileDimensionNames = 0;
+    this->FileDimensionNames = nullptr;
   }
   if (this->ImageAttributes)
   {
     this->ImageAttributes->Delete();
-    this->ImageAttributes = 0;
+    this->ImageAttributes = nullptr;
   }
-  this->SetHistoryAddition(0);
+  this->SetHistoryAddition(nullptr);
 }
 
 //-------------------------------------------------------------------------
@@ -182,7 +182,7 @@ int vtkMINCImageWriter::OpenNetCDFFile(const char *filename, int& ncid)
 {
   int status = 0;
 
-  if (filename == 0)
+  if (filename == nullptr)
   {
     vtkErrorMacro("No filename was set");
     return 0;
@@ -267,7 +267,7 @@ void vtkMINCImageWriter::ComputePermutationFromOrientation(
   int permutation[3], int flip[3])
 {
   vtkMatrix4x4 *matrix = this->DirectionCosines;
-  if (matrix == 0)
+  if (matrix == nullptr)
   {
     permutation[0] = 0;
     permutation[1] = 1;
@@ -391,8 +391,8 @@ std::string vtkMINCImageWriterCreateIdentString()
   static const char *itemsep = ":";
 
   // Get username and hostname
-  const char *username = 0;
-  const char *hostname = 0;
+  const char *username = nullptr;
+  const char *hostname = nullptr;
 #ifdef _WIN32
   char usernametext[100];
   DWORD numchars = sizeof(usernametext);
@@ -410,11 +410,11 @@ std::string vtkMINCImageWriterCreateIdentString()
   username = getenv("LOGNAME");
   hostname = getenv("HOSTNAME");
 #endif
-  if (username == 0)
+  if (username == nullptr)
   {
     username = "nobody";
   }
-  if (hostname == 0)
+  if (hostname == nullptr)
   {
     hostname = "unknown";
   }
@@ -516,7 +516,7 @@ nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(
 static const char *vtkMINCDimVarNames[] = {
   MIxspace, MIyspace, MIzspace, MItime,
   MIxfrequency, MIyfrequency, MIzfrequency, MItfrequency,
-  0
+  nullptr
 };
 
 //-------------------------------------------------------------------------
@@ -538,7 +538,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(
   int hasTimeDim = 0;
   std::vector<std::string> dimensions;
   int nuserdims = 0;
-  vtkStringArray *dimensionNames = 0;
+  vtkStringArray *dimensionNames = nullptr;
   if (this->ImageAttributes)
   {
     dimensionNames = this->ImageAttributes->GetDimensionNames();
@@ -558,15 +558,15 @@ int vtkMINCImageWriter::CreateMINCDimensions(
       hasTimeDim = 1;
     }
     // Ensure the dimension name is valid
-    const char **tryname = 0;
-    for (tryname = vtkMINCDimVarNames; *tryname !=0; tryname++)
+    const char **tryname = nullptr;
+    for (tryname = vtkMINCDimVarNames; *tryname !=nullptr; tryname++)
     {
       if (strcmp(dimname, *tryname) == 0)
       {
         break;
       }
     }
-    if (*tryname == 0)
+    if (*tryname == nullptr)
     {
       vtkErrorMacro("The dimension name " << dimname <<
                     " is not recognized.");
@@ -671,7 +671,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   static const char *stdVarNames[] = {
     MIrootvariable, MIimage, MIimagemin, MIimagemax,
     MIpatient, MIstudy, MIacquisition,
-    0
+    nullptr
   };
 
   std::vector<std::string> variables;
@@ -722,7 +722,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
 
   // Add user-defined variables
   int nuservars = 0;
-  vtkStringArray *variableNames = 0;
+  vtkStringArray *variableNames = nullptr;
   if (this->ImageAttributes)
   {
     variableNames = this->ImageAttributes->GetVariableNames();
@@ -744,7 +744,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     {
       // Check if the variable name is a dimension that isn't one
       // of the selected dimensions for this image
-      for (const char **tryname = vtkMINCDimVarNames; *tryname !=0; tryname++)
+      for (const char **tryname = vtkMINCDimVarNames; *tryname !=nullptr; tryname++)
       {
         if (strcmp(varname, *tryname) == 0)
         {
@@ -772,7 +772,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     {
       continue;
     }
-    for (const char **tryname = stdVarNames; *tryname !=0; tryname++)
+    for (const char **tryname = stdVarNames; *tryname !=nullptr; tryname++)
     {
       if (strcmp(varname, *tryname) == 0)
       {
@@ -803,7 +803,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
       nc_type cdftype = NC_INT;
       varname = variables[ivar].c_str();
       const char *parent = MIrootvariable;
-      const char *children = 0;
+      const char *children = nullptr;
       int vardims = 0;
 
       // The dimensions are the first variables (note that ndim
@@ -814,7 +814,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
       }
       else
       {
-        for (const char **tryname = stdVarNames; *tryname != 0; tryname++)
+        for (const char **tryname = stdVarNames; *tryname != nullptr; tryname++)
         {
           if (strcmp(varname, *tryname) == 0)
           {
@@ -871,7 +871,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
           "X increases from patient left to right",
           "Y increases from patient posterior to anterior",
           "Z increases from patient inferior to superior",
-          0
+          nullptr
         };
 
         dimIndex = this->IndexFromDimensionName(varname);
@@ -1002,7 +1002,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
 
       // For history, include any previous history
       std::string history = MI_EMPTY_STRING;
-      const char *previousHistory = 0;
+      const char *previousHistory = nullptr;
       if (this->ImageAttributes)
       {
         previousHistory = this->ImageAttributes->GetAttributeValueAsString(
@@ -1034,7 +1034,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     }
 
     // Write out user-defined attributes for this variable
-    vtkStringArray *attArray = 0;
+    vtkStringArray *attArray = nullptr;
     if (this->ImageAttributes)
     {
       attArray = this->ImageAttributes->GetAttributeNames(varname);
@@ -1232,7 +1232,7 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
   }
 
   // Look for the valid_range attribute of the data.
-  vtkDoubleArray *rangearray = 0;
+  vtkDoubleArray *rangearray = nullptr;
   if (this->ImageAttributes)
   {
     rangearray = vtkArrayDownCast<vtkDoubleArray>(
@@ -1712,15 +1712,15 @@ int vtkMINCImageWriter::WriteMINCData(
 
   // Create a buffer for intermediate results.
   int fileType = this->FileDataType;
-  void *buffer = 0;
+  void *buffer = nullptr;
   switch (fileType)
   {
     vtkMINCImageWriterTemplateMacro(buffer=(void *)(new VTK_TT[chunkSize]));
   }
 
   // Create arrays for image-min and image-max
-  double *minPtr = 0;
-  double *maxPtr = 0;
+  double *minPtr = nullptr;
+  double *maxPtr = nullptr;
   if (rescale)
   {
     minPtr = new double[nchunks];
@@ -1861,7 +1861,7 @@ int vtkMINCImageWriter::WriteMINCData(
 //--------------------------------------------------------------------------
 void vtkMINCImageWriter::Write()
 {
-  if (this->GetFileName() == 0)
+  if (this->GetFileName() == nullptr)
   {
     vtkErrorMacro("Write: You must supply a file name.");
     return;
@@ -1870,7 +1870,7 @@ void vtkMINCImageWriter::Write()
   // Get the first input and update its information.
   vtkImageData *input = this->GetImageDataInput(0);
 
-  if (input == 0)
+  if (input == nullptr)
   {
     vtkErrorMacro("Write: No input supplied.");
     return;
@@ -2135,7 +2135,7 @@ int vtkMINCImageWriter::RequestData(
       vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     // Error checking
-    if (input == NULL)
+    if (input == nullptr)
     {
       // Close file, set MINCFileID to zero
       this->CloseNetCDFFile(this->MINCFileId);

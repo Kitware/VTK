@@ -96,7 +96,7 @@ vtkStandardNewMacro(ContextSVGTest)
 bool ContextSVGTest::Paint(vtkContext2D *painter)
 {
   // Reset painter state that we care about:
-  painter->GetBrush()->SetTexture(NULL);
+  painter->GetBrush()->SetTexture(nullptr);
   painter->GetBrush()->SetColor(0, 0, 0, 255);
   painter->GetPen()->SetColor(0, 0, 0, 255);
   painter->GetPen()->SetWidth(1.f);

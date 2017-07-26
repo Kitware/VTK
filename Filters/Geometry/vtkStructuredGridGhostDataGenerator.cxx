@@ -47,9 +47,9 @@ void vtkStructuredGridGhostDataGenerator::PrintSelf(
 void vtkStructuredGridGhostDataGenerator::RegisterGrids(
     vtkMultiBlockDataSet *in)
 {
-  assert("pre: Input multi-block is NULL" && (in != NULL) );
-  assert("pre: Grid connectivity should not be NULL" &&
-         (this->GridConnectivity != NULL) );
+  assert("pre: Input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: Grid connectivity should not be nullptr" &&
+         (this->GridConnectivity != nullptr) );
 
   this->GridConnectivity->SetNumberOfGrids( in->GetNumberOfBlocks() );
   this->GridConnectivity->SetNumberOfGhostLayers( 0 );
@@ -59,10 +59,10 @@ void vtkStructuredGridGhostDataGenerator::RegisterGrids(
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
   {
     vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast( in->GetBlock(i));
-    assert("pre: grid block is NULL" && (grid != NULL) );
+    assert("pre: grid block is nullptr" && (grid != nullptr) );
 
     vtkInformation *info = in->GetMetaData( i );
-    assert("pre: NULL meta-data" && (info != NULL) );
+    assert("pre: nullptr meta-data" && (info != nullptr) );
     assert("pre: No piece meta-data" &&
             info->Has(vtkDataObject::PIECE_EXTENT()));
 
@@ -80,10 +80,10 @@ void vtkStructuredGridGhostDataGenerator::RegisterGrids(
 void vtkStructuredGridGhostDataGenerator::CreateGhostedDataSet(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out)
 {
-  assert("pre: Input multi-block is NULL" && (in != NULL) );
-  assert("pre: Output multi-block is NULL" && (out != NULL) );
-  assert("pre: Grid connectivity should not be NULL" &&
-         (this->GridConnectivity != NULL) );
+  assert("pre: Input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: Output multi-block is nullptr" && (out != nullptr) );
+  assert("pre: Grid connectivity should not be nullptr" &&
+         (this->GridConnectivity != nullptr) );
 
   out->SetNumberOfBlocks( in->GetNumberOfBlocks() );
   int wholeExt[6];
@@ -100,7 +100,7 @@ void vtkStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 
     // STEP 1: Construct the ghosted structured grid instance
     vtkStructuredGrid *ghostedGrid = vtkStructuredGrid::New();
-    assert("pre: Cannot create ghosted grid instance" && (ghostedGrid != NULL));
+    assert("pre: Cannot create ghosted grid instance" && (ghostedGrid != nullptr));
     ghostedGrid->SetExtent( ghostedExtent );
 
     vtkPoints *ghostedGridPoints = vtkPoints::New();
@@ -123,10 +123,10 @@ void vtkStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 void vtkStructuredGridGhostDataGenerator::GenerateGhostLayers(
     vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out )
 {
-  assert("pre: Input multi-block is NULL" && (in != NULL) );
-  assert("pre: Output multi-block is NULL" && (out != NULL) );
-  assert("pre: Grid connectivity should not be NULL" &&
-         (this->GridConnectivity != NULL) );
+  assert("pre: Input multi-block is nullptr" && (in != nullptr) );
+  assert("pre: Output multi-block is nullptr" && (out != nullptr) );
+  assert("pre: Grid connectivity should not be nullptr" &&
+         (this->GridConnectivity != nullptr) );
 
   // STEP 0: Register the input grids
   this->RegisterGrids( in );

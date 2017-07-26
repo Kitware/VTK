@@ -177,7 +177,7 @@ public:
    */
   virtual bool BindParameter(int index, const void *data, size_t length);
   /**
-   * Reset all parameter bindings to NULL.
+   * Reset all parameter bindings to nullptr.
    */
   virtual bool ClearParameterBindings();
 

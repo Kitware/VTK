@@ -116,7 +116,7 @@ public:
 
   //@{
   /**
-   * Set the title for the output, if supported. If NULL, "VTK GL2PS Export" is
+   * Set the title for the output, if supported. If nullptr, "VTK GL2PS Export" is
    * used.
    */
   vtkSetStringMacro(Title);

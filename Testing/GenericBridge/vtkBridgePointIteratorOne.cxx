@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkBridgePointIteratorOne);
 // Default constructor.
 vtkBridgePointIteratorOne::vtkBridgePointIteratorOne()
 {
-  this->DataSet=0;
+  this->DataSet=nullptr;
   this->cIsAtEnd=1;
 }
 
@@ -89,7 +89,7 @@ double *vtkBridgePointIteratorOne::GetPosition()
 
   double *result=this->DataSet->Implementation->GetPoint(this->Id);
 
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -101,7 +101,7 @@ double *vtkBridgePointIteratorOne::GetPosition()
 void vtkBridgePointIteratorOne::GetPosition(double x[3])
 {
   assert("pre: not_off" && !IsAtEnd());
-  assert("pre: x_exists" && x!=0);
+  assert("pre: x_exists" && x!=nullptr);
   this->DataSet->Implementation->GetPoint(this->Id,x);
 }
 
@@ -126,7 +126,7 @@ void vtkBridgePointIteratorOne::InitWithOnePoint(vtkBridgeDataSet *ds,
                                                  vtkIdType id)
 {
   assert("pre: valid_id" &&
-         ((ds==0) || ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
+         ((ds==nullptr) || ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
 
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
   this->Id=id;

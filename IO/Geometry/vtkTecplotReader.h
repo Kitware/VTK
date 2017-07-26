@@ -121,7 +121,7 @@ public:
   int   GetNumberOfBlocks();
 
   /**
-   * Get the name of a block specified by a zero-based index. NULL is returned
+   * Get the name of a block specified by a zero-based index. nullptr is returned
    * for an invalid block index.
    */
   const char * GetBlockName( int blockIdx );
@@ -133,7 +133,7 @@ public:
   int   GetNumberOfDataAttributes();
 
   /**
-   * Get the name of a zero-based data attribute (not 3D coordinates). NULL is
+   * Get the name of a zero-based data attribute (not 3D coordinates). nullptr is
    * returned for an invalid attribute index.
    */
   const char * GetDataAttributeName( int attrIndx );

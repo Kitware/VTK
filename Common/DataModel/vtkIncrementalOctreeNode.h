@@ -82,7 +82,7 @@ public:
 
   //@{
   /**
-   * Get the list of point indices, NULL for a non-leaf node.
+   * Get the list of point indices, nullptr for a non-leaf node.
    */
   vtkGetObjectMacro( PointIdSet, vtkIdList );
   //@}
@@ -136,7 +136,7 @@ public:
   /**
    * Determine whether or not this node is a leaf.
    */
-  int IsLeaf() { return ( this->Children == NULL ) ? 1 : 0; }
+  int IsLeaf() { return ( this->Children == nullptr ) ? 1 : 0; }
 
   /**
    * Determine which specific child / octant contains a given point. Note that
@@ -255,12 +255,12 @@ private:
 
   /**
    * The list of indices of the points maintained by this LEAF node. It is
-   * NULL if this is a non-leaf node.
+   * nullptr if this is a non-leaf node.
    */
   vtkIdList * PointIdSet;
 
   /**
-   * The parent of this node, NULL for the root node of an octree.
+   * The parent of this node, nullptr for the root node of an octree.
    */
   vtkIncrementalOctreeNode *  Parent;
 
@@ -270,12 +270,12 @@ private:
   vtkIncrementalOctreeNode ** Children;
 
   /**
-   * Set the parent of this node, NULL for the root node of an octree.
+   * Set the parent of this node, nullptr for the root node of an octree.
    */
   virtual void SetParent( vtkIncrementalOctreeNode * );
 
   /**
-   * Set the list of point indices, NULL for a non-leaf node.
+   * Set the list of point indices, nullptr for a non-leaf node.
    */
   virtual void SetPointIdSet( vtkIdList * );
 

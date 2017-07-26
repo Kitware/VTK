@@ -139,7 +139,7 @@ vtkFreeTypeToolsCleanup::~vtkFreeTypeToolsCleanup()
 {
   if (--vtkFreeTypeToolsCleanupCounter == 0)
   {
-    vtkFreeTypeTools::SetInstance(NULL);
+    vtkFreeTypeTools::SetInstance(nullptr);
   }
 }
 
@@ -178,7 +178,7 @@ void vtkFreeTypeTools::SetInstance(vtkFreeTypeTools* instance)
 
   if (instance)
   {
-    instance->Register(NULL);
+    instance->Register(nullptr);
   }
 }
 
@@ -195,9 +195,9 @@ vtkFreeTypeTools::vtkFreeTypeTools()
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
   this->TextPropertyLookup = new vtkTextPropertyLookup ();
-  this->CacheManager = NULL;
-  this->ImageCache   = NULL;
-  this->CMapCache    = NULL;
+  this->CacheManager = nullptr;
+  this->ImageCache   = nullptr;
+  this->CMapCache    = nullptr;
   this->ScaleToPowerTwo = true;
 
   // Ideally this should be thread-local to support SMP:
@@ -209,7 +209,7 @@ vtkFreeTypeTools::vtkFreeTypeTools()
     vtkErrorMacro("FreeType library initialization failed with error code: "
                   << err << ".");
     delete this->Library;
-    this->Library = NULL;
+    this->Library = nullptr;
   }
 }
 
@@ -224,7 +224,7 @@ vtkFreeTypeTools::~vtkFreeTypeTools()
 
   FT_Done_FreeType(*this->Library);
   delete this->Library;
-  this->Library = NULL;
+  this->Library = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -295,7 +295,7 @@ vtkFreeTypeTools::GetUnscaledGlyphOutline(vtkTextProperty *tprop,
   type.flags = FT_LOAD_NO_SCALE | FT_LOAD_IGNORE_TRANSFORM;
 
   FT_Glyph glyph;
-  FT_Error error = FTC_ImageCache_Lookup(*imgCache, &type, glyphId, &glyph, 0);
+  FT_Error error = FTC_ImageCache_Lookup(*imgCache, &type, glyphId, &glyph, nullptr);
   if (!error && glyph && glyph->format == ft_glyph_format_outline)
   {
     FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
@@ -321,7 +321,7 @@ vtkFreeTypeTools::GetUnscaledKerning(vtkTextProperty *tprop,
 
   size_t tpropCacheId;
   this->MapTextPropertyToId(tprop, &tpropCacheId);
-  FT_Face face = NULL;
+  FT_Face face = nullptr;
 
   if (!this->GetFace(tpropCacheId, &face) || !face)
   {
@@ -426,7 +426,7 @@ vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
     matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
     matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);
     matrix.yy = (FT_Fixed)( cos(angle) * 0x10000L);
-    FT_Set_Transform(*face, &matrix, NULL);
+    FT_Set_Transform(*face, &matrix, nullptr);
   }
 
   return static_cast<FT_Error>(0);
@@ -484,14 +484,14 @@ void vtkFreeTypeTools::ReleaseCacheManager()
     FTC_Manager_Done(*this->CacheManager);
 
     delete this->CacheManager;
-    this->CacheManager = NULL;
+    this->CacheManager = nullptr;
   }
 
   delete this->ImageCache;
-  this->ImageCache = NULL;
+  this->ImageCache = nullptr;
 
   delete this->CMapCache;
-  this->CMapCache = NULL;
+  this->CMapCache = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -691,7 +691,7 @@ int vtkFreeTypeTools::GetConstrainedFontSize(const vtkUnicodeString &str,
 //----------------------------------------------------------------------------
 vtkTypeUInt16 vtkFreeTypeTools::HashString(const char *str)
 {
-  if (str == NULL)
+  if (str == nullptr)
     return 0;
 
   vtkTypeUInt16 hash = 0;
@@ -709,7 +709,7 @@ vtkTypeUInt16 vtkFreeTypeTools::HashString(const char *str)
 //----------------------------------------------------------------------------
 vtkTypeUInt32 vtkFreeTypeTools::HashBuffer(const void *buffer, size_t n, vtkTypeUInt32 hash)
 {
-  if (buffer == NULL)
+  if (buffer == nullptr)
   {
     return 0;
   }
@@ -1031,7 +1031,7 @@ bool vtkFreeTypeTools::GetGlyph(size_t tprop_cache_id,
 
   // Lookup the glyph
   FT_Error error = FTC_ImageCache_Lookup(
-    *image_cache, &image_type_rec, gindex, glyph, NULL);
+    *image_cache, &image_type_rec, gindex, glyph, nullptr);
 
   return error ? false : true;
 }
@@ -1069,7 +1069,7 @@ bool vtkFreeTypeTools::GetGlyph(FTC_Scaler scaler, FT_UInt gindex,
 
   // Lookup the glyph
   FT_Error error = FTC_ImageCache_LookupScaler(
-        *image_cache, scaler, loadFlags, gindex, glyph, NULL);
+        *image_cache, scaler, loadFlags, gindex, glyph, nullptr);
 
   return error ? false : true;
 }
@@ -2086,7 +2086,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
                                        MetaData &metaData)
 {
   ImageMetaData *iMetaData = reinterpret_cast<ImageMetaData*>(&metaData);
-  FT_BitmapGlyph bitmapGlyph = NULL;
+  FT_BitmapGlyph bitmapGlyph = nullptr;
   FT_UInt glyphIndex;
   FT_Bitmap *bitmap = this->GetBitmap(character, &iMetaData->scaler,
                                       glyphIndex, bitmapGlyph);
@@ -2200,7 +2200,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
                                        vtkPath *path, MetaData &metaData)
 {
   FT_UInt glyphIndex;
-  FT_OutlineGlyph outlineGlyph = NULL;
+  FT_OutlineGlyph outlineGlyph = nullptr;
   FT_Outline *outline = this->GetOutline(character, &metaData.scaler,
                                          glyphIndex, outlineGlyph);
 
@@ -2430,7 +2430,7 @@ int vtkFreeTypeTools::FitStringToBBox(const T &str, MetaData &metaData,
                                       int targetWidth, int targetHeight)
 {
   if (str.empty() || targetWidth == 0 || targetHeight == 0 ||
-      metaData.textProperty == 0)
+      metaData.textProperty == nullptr)
   {
     return 0;
   }
@@ -2526,7 +2526,7 @@ inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
   // Get the glyph index
   if (!this->GetGlyphIndex(prop_cache_id, c, &gindex))
   {
-    return 0;
+    return nullptr;
   }
   FT_Glyph glyph;
   // Get the glyph as a bitmap
@@ -2537,7 +2537,7 @@ inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
                       vtkFreeTypeTools::GLYPH_REQUEST_BITMAP) ||
                         glyph->format != ft_glyph_format_bitmap)
   {
-    return 0;
+    return nullptr;
   }
 
   bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
@@ -2545,7 +2545,7 @@ inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
 
   if (bitmap->pixel_mode != ft_pixel_mode_grays)
   {
-    return 0;
+    return nullptr;
   }
 
   return bitmap;
@@ -2560,7 +2560,7 @@ FT_Bitmap *vtkFreeTypeTools::GetBitmap(FT_UInt32 c, FTC_Scaler scaler,
   if (!this->GetGlyphIndex(reinterpret_cast<size_t>(scaler->face_id), c,
                            &gindex))
   {
-    return 0;
+    return nullptr;
   }
 
   // Get the glyph as a bitmap
@@ -2569,7 +2569,7 @@ FT_Bitmap *vtkFreeTypeTools::GetBitmap(FT_UInt32 c, FTC_Scaler scaler,
                       vtkFreeTypeTools::GLYPH_REQUEST_BITMAP)
       || glyph->format != ft_glyph_format_bitmap)
   {
-    return 0;
+    return nullptr;
   }
 
   bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
@@ -2577,7 +2577,7 @@ FT_Bitmap *vtkFreeTypeTools::GetBitmap(FT_UInt32 c, FTC_Scaler scaler,
 
   if (bitmap->pixel_mode != ft_pixel_mode_grays)
   {
-    return 0;
+    return nullptr;
   }
 
   return bitmap;
@@ -2593,7 +2593,7 @@ inline FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c,
   // Get the glyph index
   if (!this->GetGlyphIndex(prop_cache_id, c, &gindex))
   {
-    return 0;
+    return nullptr;
   }
   FT_Glyph glyph;
   // Get the glyph as a outline
@@ -2604,7 +2604,7 @@ inline FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c,
                       vtkFreeTypeTools::GLYPH_REQUEST_OUTLINE) ||
                         glyph->format != ft_glyph_format_outline)
   {
-    return 0;
+    return nullptr;
   }
 
   outline_glyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
@@ -2622,7 +2622,7 @@ FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c, FTC_Scaler scaler,
   if (!this->GetGlyphIndex(reinterpret_cast<size_t>(scaler->face_id), c,
                            &gindex))
   {
-    return 0;
+    return nullptr;
   }
 
   // Get the glyph as a outline
@@ -2631,7 +2631,7 @@ FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c, FTC_Scaler scaler,
                       vtkFreeTypeTools::GLYPH_REQUEST_OUTLINE)
       || glyph->format != ft_glyph_format_outline)
   {
-    return 0;
+    return nullptr;
   }
 
   outline_glyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
@@ -2645,7 +2645,7 @@ template<typename T>
 void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
                                       int &width, int bbox[4])
 {
-  FT_BitmapGlyph bitmapGlyph = NULL;
+  FT_BitmapGlyph bitmapGlyph = nullptr;
   FT_UInt gindex = 0;
   FT_UInt gindexLast = 0;
   FT_Vector delta;

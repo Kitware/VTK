@@ -77,7 +77,7 @@ int vtkGraphToPolyData::RequestData(
   vtkDataArray* edgeGhostLevels = vtkArrayDownCast<vtkDataArray>(
     input->GetEdgeData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
 
-  if (edgeGhostLevels == NULL)
+  if (edgeGhostLevels == nullptr)
   {
     vtkSmartPointer<vtkIdTypeArray> cells =
       vtkSmartPointer<vtkIdTypeArray>::New();

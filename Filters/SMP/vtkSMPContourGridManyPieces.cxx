@@ -249,7 +249,7 @@ public:
 
     output->Squeeze();
 
-    output->Register(0);
+    output->Register(nullptr);
     this->Outputs.Local().push_back(output.GetPointer());
   }
 

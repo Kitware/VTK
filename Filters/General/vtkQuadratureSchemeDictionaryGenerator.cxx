@@ -186,7 +186,7 @@ int vtkQuadratureSchemeDictionaryGenerator::RequestData(vtkInformation *,
   vtkUnstructuredGrid *usgOut = vtkUnstructuredGrid::SafeDownCast(tmpDataObj);
 
   // Quick sanity check.
-  if (usgIn == NULL || usgOut == NULL || usgIn->GetNumberOfPoints() == 0
+  if (usgIn == nullptr || usgOut == nullptr || usgIn->GetNumberOfPoints() == 0
       || usgIn->GetPointData()->GetNumberOfArrays() == 0)
   {
     vtkWarningMacro("Filter data has not been configured correctly. Aborting.");
@@ -224,7 +224,7 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(
   vtkDataArray* data = usgOut->GetCellData()->GetArray(basename.c_str());
   ostringstream interpolatedName;
   int i = 0;
-  while (data != NULL)
+  while (data != nullptr)
   {
     interpolatedName << basename << i;
     data = usgOut->GetCellData()->GetArray(interpolatedName.str().c_str());

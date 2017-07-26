@@ -161,7 +161,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(
   this->GDALData = static_cast<GDALDataset*>(
                      GDALOpen(fileName.c_str(), GA_ReadOnly));
 
-  if (this->GDALData == NULL)
+  if (this->GDALData == nullptr)
   {
     std::cout << "NO GDALData loaded for file "
               << fileName << std::endl;
@@ -181,10 +181,10 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(
     this->Reader->DriverShortName = GDALGetDriverShortName(driver);
     this->Reader->DriverLongName = GDALGetDriverLongName(driver);
 
-    char** papszMetaData = GDALGetMetadata(this->GDALData, NULL);
+    char** papszMetaData = GDALGetMetadata(this->GDALData, nullptr);
     if (CSLCount(papszMetaData) > 0)
     {
-      for (int i = 0; papszMetaData[i] != NULL; ++i)
+      for (int i = 0; papszMetaData[i] != nullptr; ++i)
       {
         this->Reader->MetaData.push_back(papszMetaData[i]);
       }
@@ -578,7 +578,7 @@ bool vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoint(
   const char *gcpProj = this->GDALData->GetGCPProjection();
   const GDAL_GCP *gcps = this->GDALData->GetGCPs();
 
-  if (gcpProj == NULL || gcps == NULL)
+  if (gcpProj == nullptr || gcps == nullptr)
   {
     // Transform the point into georeferenced coordinates
     if (GDALGetGeoTransform(this->GDALData, adfGeoTransform) == CE_None)
@@ -795,7 +795,7 @@ std::vector<std::string> vtkGDALRasterReader::GetDomainMetaData(
 
   if (CSLCount(papszMetadata) > 0)
   {
-    for (int i = 0; papszMetadata[i] != NULL; ++i)
+    for (int i = 0; papszMetadata[i] != nullptr; ++i)
     {
       domainMetaData.push_back(papszMetadata[i]);
     }

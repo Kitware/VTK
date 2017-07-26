@@ -42,7 +42,7 @@ vtkSelectEnclosedPoints::vtkSelectEnclosedPoints()
   this->InsideOut = 0;
   this->Tolerance = 0.001;
 
-  this->InsideOutsideArray = NULL;
+  this->InsideOutsideArray = nullptr;
 
   this->CellLocator = vtkCellLocator::New();
   this->CellIds = vtkIdList::New();
@@ -60,7 +60,7 @@ vtkSelectEnclosedPoints::~vtkSelectEnclosedPoints()
   if ( this->CellLocator )
   {
     vtkCellLocator *loc = this->CellLocator;
-    this->CellLocator = NULL;
+    this->CellLocator = nullptr;
     loc->Delete();
   }
 
@@ -336,7 +336,7 @@ vtkPolyData* vtkSelectEnclosedPoints::GetSurface(vtkInformationVector *sourceInf
   vtkInformation *info = sourceInfo->GetInformationObject(1);
   if (!info)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }

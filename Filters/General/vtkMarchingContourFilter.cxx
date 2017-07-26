@@ -45,10 +45,10 @@ vtkMarchingContourFilter::vtkMarchingContourFilter()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->UseScalarTree = 0;
-  this->ScalarTree = NULL;
+  this->ScalarTree = nullptr;
 }
 
 vtkMarchingContourFilter::~vtkMarchingContourFilter()
@@ -57,7 +57,7 @@ vtkMarchingContourFilter::~vtkMarchingContourFilter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( this->ScalarTree )
   {
@@ -296,7 +296,7 @@ void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {
@@ -308,7 +308,7 @@ void vtkMarchingContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 
 void vtkMarchingContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }

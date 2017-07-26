@@ -271,10 +271,10 @@ class vtkOpenGLContextDevice2D::Private
 public:
   Private()
   {
-    this->Texture = NULL;
+    this->Texture = nullptr;
     this->TextureProperties = vtkContextDevice2D::Linear |
         vtkContextDevice2D::Stretch;
-    this->SpriteTexture = NULL;
+    this->SpriteTexture = nullptr;
     this->SavedDepthTest = GL_TRUE;
     this->SavedAlphaTest = GL_TRUE;
     this->SavedStencilTest = GL_TRUE;
@@ -294,12 +294,12 @@ public:
     if (this->Texture)
     {
       this->Texture->Delete();
-      this->Texture = NULL;
+      this->Texture = nullptr;
     }
     if (this->SpriteTexture)
     {
       this->SpriteTexture->Delete();
-      this->SpriteTexture = NULL;
+      this->SpriteTexture = nullptr;
     }
   }
 
@@ -573,9 +573,9 @@ public:
 
   CellArrayHelper (vtkOpenGLContextDevice2D* device)
   : Device(device)
-  , Points(NULL)
-  , PointIds(NULL)
-  , Colors(NULL)
+  , Points(nullptr)
+  , PointIds(nullptr)
+  , Colors(nullptr)
   , NumPointsCell(0)
   {
   };
@@ -584,7 +584,7 @@ public:
    *  Draw primitives as specified by cellType.
    */
   void Draw (int cellType, vtkCellArray* cellArray, vtkPoints* points, float x,
-    float y, float scale, int scalarMode, vtkUnsignedCharArray* colors = NULL)
+    float y, float scale, int scalarMode, vtkUnsignedCharArray* colors = nullptr)
   {
     this->Points = points;
     this->Colors = colors;

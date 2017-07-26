@@ -53,7 +53,7 @@ void vtkRandomLayoutStrategy::Layout() {};
 
 void vtkRandomLayoutStrategy::SetGraph(vtkGraph *graph)
 {
-  if (graph == NULL)
+  if (graph == nullptr)
   {
     return;
   }

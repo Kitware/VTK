@@ -53,16 +53,16 @@ vtkStandardNewMacro(vtkDataSetRegionSurfaceFilter);
 //----------------------------------------------------------------------------
 vtkDataSetRegionSurfaceFilter::vtkDataSetRegionSurfaceFilter()
 {
-  this->RegionArray = 0;
-  this->RegionArrayName = 0;
+  this->RegionArray = nullptr;
+  this->RegionArrayName = nullptr;
   this->SetRegionArrayName("material");
-  this->MaterialPropertiesName = 0;
+  this->MaterialPropertiesName = nullptr;
   this->SetMaterialPropertiesName("material_properties");
-  this->MaterialIDsName = 0;
+  this->MaterialIDsName = nullptr;
   this->SetMaterialIDsName("material_ids");
-  this->MaterialPIDsName = 0;
+  this->MaterialPIDsName = nullptr;
   this->SetMaterialPIDsName("material_ancestors");
-  this->InterfaceIDsName = 0;
+  this->InterfaceIDsName = nullptr;
   this->SetInterfaceIDsName("interface_ids");
   this->OrigCellIds = vtkIdTypeArray::New();
   this->OrigCellIds->SetName("OrigCellIds");
@@ -77,11 +77,11 @@ vtkDataSetRegionSurfaceFilter::vtkDataSetRegionSurfaceFilter()
 //----------------------------------------------------------------------------
 vtkDataSetRegionSurfaceFilter::~vtkDataSetRegionSurfaceFilter()
 {
-  this->SetRegionArrayName(0);
-  this->SetMaterialPropertiesName(0);
-  this->SetMaterialIDsName(0);
-  this->SetMaterialPIDsName(0);
-  this->SetInterfaceIDsName(0);
+  this->SetRegionArrayName(nullptr);
+  this->SetMaterialPropertiesName(nullptr);
+  this->SetMaterialIDsName(nullptr);
+  this->SetMaterialPIDsName(nullptr);
+  this->SetInterfaceIDsName(nullptr);
   this->OrigCellIds->Delete();
   this->CellFaceIds->Delete();
   delete this->Internal;
@@ -715,7 +715,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
 
   // Now transfer geometry from hash to output (only triangles and quads).
   this->InitQuadHashTraversal();
-  vtkIntArray *outRegionArray = NULL;
+  vtkIntArray *outRegionArray = nullptr;
   if (this->RegionArrayName)
   {
     outRegionArray = vtkIntArray::SafeDownCast(outputCD->GetArray(this->RegionArrayName));
@@ -760,7 +760,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
     outMatPIDs->Delete();
 
     //place to copy or construct material specifications
-    vtkStringArray * outMaterialSpecs = NULL;
+    vtkStringArray * outMaterialSpecs = nullptr;
     vtkStringArray * inMaterialSpecs = vtkStringArray::SafeDownCast
       (input->GetFieldData()->GetAbstractArray
        (this->GetMaterialPropertiesName()) );
@@ -876,7 +876,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
     output->SetVerts(newVerts);
   }
   newVerts->Delete();
-  newVerts = NULL;
+  newVerts = nullptr;
   if (newLines->GetNumberOfCells() > 0)
   {
     output->SetLines(newLines);
@@ -885,15 +885,15 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
 
   //free storage
   output->Squeeze();
-  if (this->OriginalCellIds != NULL)
+  if (this->OriginalCellIds != nullptr)
   {
     this->OriginalCellIds->Delete();
-    this->OriginalCellIds = NULL;
+    this->OriginalCellIds = nullptr;
   }
-  if (this->OriginalPointIds != NULL)
+  if (this->OriginalPointIds != nullptr)
   {
     this->OriginalPointIds->Delete();
-    this->OriginalPointIds = NULL;
+    this->OriginalPointIds = nullptr;
   }
   if (this->PieceInvariant)
   {
@@ -976,7 +976,7 @@ void vtkDataSetRegionSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
 
   // Create a new quad and add it to the hash.
   quad = this->NewFastGeomQuad(6);
-  quad->Next = NULL;
+  quad->Next = nullptr;
   quad->SourceId = sourceId;
   quad->ptArray[0] = a;
   quad->ptArray[1] = b;
@@ -1053,7 +1053,7 @@ void vtkDataSetRegionSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
 
   // Create a new quad and add it to the hash.
   quad = this->NewFastGeomQuad(5);
-  quad->Next = NULL;
+  quad->Next = nullptr;
   quad->SourceId = sourceId;
   quad->ptArray[0] = a;
   quad->ptArray[1] = b;
@@ -1098,7 +1098,7 @@ vtkFastGeomQuad *vtkDataSetRegionSurfaceFilter::GetNextVisibleQuadFromHash()
   quad = this->QuadHashTraversal;
   // Move till traversal until we have a quad to return.
   // Note: the current traversal has not been returned yet.
-  while (quad == NULL || quad->SourceId == -1)
+  while (quad == nullptr || quad->SourceId == -1)
   {
     if (quad)
     { // The quad must be hidden.  Move to the next.
@@ -1109,8 +1109,8 @@ vtkFastGeomQuad *vtkDataSetRegionSurfaceFilter::GetNextVisibleQuadFromHash()
       this->QuadHashTraversalIndex += 1;
       if ( this->QuadHashTraversalIndex >= this->QuadHashLength)
       { // There are no more bins.
-        this->QuadHashTraversal = NULL;
-        return NULL;
+        this->QuadHashTraversal = nullptr;
+        return nullptr;
       }
       quad = this->QuadHash[this->QuadHashTraversalIndex];
     }
@@ -1181,7 +1181,7 @@ vtkFastGeomQuad *vtkDataSetRegionSurfaceFilter::GetNextVisibleQuadFromHash()
         matidx = this->Internal->NewRegions[p];
 
         quad2->SourceId = -1; //don't visit the twin
-        quad2 = NULL;
+        quad2 = nullptr;
       }
       else
       { //not a match

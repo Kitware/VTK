@@ -30,8 +30,8 @@ vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
 {
-  this->members = NULL;
-  this->comm = NULL;
+  this->members = nullptr;
+  this->comm = nullptr;
 
   this->nmembers = 0;
   this->myLocalRank = -1;
@@ -41,7 +41,7 @@ vtkSubGroup::vtkSubGroup()
   this->gatherRoot = this->gatherLength = -1;
 }
 
-int vtkSubGroup::Initialize(int p0=0, int p1=0, int me=0, int itag=0, vtkCommunicator *c=NULL)
+int vtkSubGroup::Initialize(int p0=0, int p1=0, int me=0, int itag=0, vtkCommunicator *c=nullptr)
 {
   int i, ii;
   this->nmembers = p1 - p0 + 1;
@@ -66,7 +66,7 @@ int vtkSubGroup::Initialize(int p0=0, int p1=0, int me=0, int itag=0, vtkCommuni
   if (this->myLocalRank == -1)
   {
     delete [] this->members;
-    this->members = NULL;
+    this->members = nullptr;
     return 1;
   }
 
@@ -158,7 +158,7 @@ void vtkSubGroup::setUpRoot(int root)
 vtkSubGroup::~vtkSubGroup()
 {
   delete [] this->members;
-  this->members = NULL;
+  this->members = nullptr;
 }
 void vtkSubGroup::setGatherPattern(int root, int length)
 {
@@ -403,7 +403,7 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
 {
   int transferLen, myListLen, lastListLen, nextListLen;
 
-  int *myList = NULL;
+  int *myList = nullptr;
   myListLen = vtkSubGroup::MakeSortedUnique(list, len, &myList);
 
   if (this->nmembers == 1)
@@ -425,7 +425,7 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
     this->comm->Receive(buf, transferLen,
                       this->members[this->fanInFrom[i]], this->tag+1);
 
-    int *nextList = NULL;
+    int *nextList = nullptr;
     nextListLen = vtkSubGroup::MergeSortedUnique(lastList, lastListLen,
                                            buf, transferLen, &nextList);
 
@@ -468,7 +468,7 @@ int vtkSubGroup::MergeSortedUnique(int *list1, int len1, int *list2, int len2,
 
   int *newl = new int [len1 + len2];
 
-  if (newl == NULL)
+  if (newl == nullptr)
   {
     return 0;
   }
@@ -508,7 +508,7 @@ int vtkSubGroup::MakeSortedUnique(int *list, int len, int **newList)
   int *newl;
 
   newl = new int [len];
-  if (newl == NULL)
+  if (newl == nullptr)
   {
     return 0;
   }

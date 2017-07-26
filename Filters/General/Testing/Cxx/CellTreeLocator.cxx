@@ -93,7 +93,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
     std::cout << "Passed: a total of 9802 ray-sphere intersections detected." << std::endl;
   }
 
-  sphereNormals = NULL;
+  sphereNormals = nullptr;
 
   return EXIT_SUCCESS;
 }

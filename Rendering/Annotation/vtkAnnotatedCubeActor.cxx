@@ -37,12 +37,12 @@ vtkStandardNewMacro(vtkAnnotatedCubeActor);
 vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
 {
   this->FaceTextScale  = 0.5;
-  this->XPlusFaceText  = NULL;
-  this->XMinusFaceText = NULL;
-  this->YPlusFaceText  = NULL;
-  this->YMinusFaceText = NULL;
-  this->ZPlusFaceText  = NULL;
-  this->ZMinusFaceText = NULL;
+  this->XPlusFaceText  = nullptr;
+  this->XMinusFaceText = nullptr;
+  this->YPlusFaceText  = nullptr;
+  this->YMinusFaceText = nullptr;
+  this->ZPlusFaceText  = nullptr;
+  this->ZMinusFaceText = nullptr;
 
   this->Assembly = vtkAssembly::New();
 
@@ -179,12 +179,12 @@ vtkAnnotatedCubeActor::~vtkAnnotatedCubeActor()
   this->CubeSource->Delete();
   this->CubeActor->Delete();
 
-  this->SetXPlusFaceText ( NULL );
-  this->SetXMinusFaceText( NULL );
-  this->SetYPlusFaceText ( NULL );
-  this->SetYMinusFaceText( NULL );
-  this->SetZPlusFaceText ( NULL );
-  this->SetZMinusFaceText( NULL );
+  this->SetXPlusFaceText ( nullptr );
+  this->SetXMinusFaceText( nullptr );
+  this->SetYPlusFaceText ( nullptr );
+  this->SetYMinusFaceText( nullptr );
+  this->SetZPlusFaceText ( nullptr );
+  this->SetZMinusFaceText( nullptr );
 
   this->XPlusFaceVectorText->Delete();
   this->XMinusFaceVectorText->Delete();
@@ -260,7 +260,7 @@ int vtkAnnotatedCubeActor::GetFaceTextVisibility()
 void vtkAnnotatedCubeActor::ShallowCopy(vtkProp *prop)
 {
   vtkAnnotatedCubeActor *a = vtkAnnotatedCubeActor::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetXPlusFaceText( a->GetXPlusFaceText() );
     this->SetXMinusFaceText( a->GetXMinusFaceText() );

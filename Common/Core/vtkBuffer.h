@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkBuffer()
-    : Pointer(NULL),
+    : Pointer(nullptr),
       Size(0),
       Save(false),
       DeleteFunction(free)
@@ -80,7 +80,7 @@ protected:
 
   ~vtkBuffer() VTK_OVERRIDE
   {
-    this->SetBuffer(NULL, 0);
+    this->SetBuffer(nullptr, 0);
   }
 
   ScalarType *Pointer;
@@ -123,7 +123,7 @@ template <typename ScalarT>
 bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
 {
   // release old memory.
-  this->SetBuffer(NULL, 0);
+  this->SetBuffer(nullptr, 0);
   if (size > 0)
   {
     ScalarType* newArray =

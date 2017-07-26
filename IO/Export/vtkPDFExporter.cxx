@@ -72,8 +72,8 @@ void vtkPDFExporter::PrintSelf(std::ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkPDFExporter::vtkPDFExporter()
-  : Title(NULL),
-    FileName(NULL),
+  : Title(nullptr),
+    FileName(nullptr),
     Impl(new Details)
 {
   this->SetTitle("VTK Exported Scene");
@@ -82,8 +82,8 @@ vtkPDFExporter::vtkPDFExporter()
 //------------------------------------------------------------------------------
 vtkPDFExporter::~vtkPDFExporter()
 {
-  this->SetTitle(NULL);
-  this->SetFileName(NULL);
+  this->SetTitle(nullptr);
+  this->SetFileName(nullptr);
   delete this->Impl;
 }
 
@@ -96,7 +96,7 @@ void vtkPDFExporter::WriteData()
     return;
   }
 
-  this->Impl->Document = HPDF_New(handle_libharu_error, NULL);
+  this->Impl->Document = HPDF_New(handle_libharu_error, nullptr);
 
   if (!this->Impl->Document)
   {

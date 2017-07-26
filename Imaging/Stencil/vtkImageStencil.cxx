@@ -55,7 +55,7 @@ vtkImageStencilData *vtkImageStencil::GetStencil()
 {
   if (this->GetNumberOfInputConnections(2) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -75,7 +75,7 @@ vtkImageData *vtkImageStencil::GetBackgroundInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -141,7 +141,7 @@ template <class T>
 void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self), T *&background)
 {
   delete [] background;
-  background = NULL;
+  background = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -164,7 +164,7 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   bool reverseStencil = (self->GetReverseStencil() != 0);
 
   // if no background image is provided in inData2
-  if (inData2 == 0)
+  if (inData2 == nullptr)
   {
     // set color for area outside of input volume extent
     T *background;
@@ -272,7 +272,7 @@ void vtkImageStencil::ThreadedRequestData(
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  inPtr2 = NULL;
+  inPtr2 = nullptr;
   if (inData2)
   {
     inPtr2 = inData2->GetScalarPointer();

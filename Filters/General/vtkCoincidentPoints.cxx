@@ -145,7 +145,7 @@ vtkIdList * vtkCoincidentPoints::GetCoincidentPointIds(const double point[3])
   implementation::MapCoordIter mapIter = this->Implementation->CoordMap.find(coord);
   if(mapIter == this->Implementation->CoordMap.end())
   {
-    return NULL;
+    return nullptr;
   }
 
   if((*mapIter).second->GetNumberOfIds() > 1)
@@ -155,7 +155,7 @@ vtkIdList * vtkCoincidentPoints::GetCoincidentPointIds(const double point[3])
   else
   {
     // No Coincident Points
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -177,7 +177,7 @@ void vtkCoincidentPoints::RemoveNonCoincidentPoints()
 
 vtkIdList * vtkCoincidentPoints::GetNextCoincidentPointIds()
 {
-  vtkIdList * rvalue = NULL;
+  vtkIdList * rvalue = nullptr;
   if(this->Implementation->TraversalIterator !=
     this->Implementation->CoordMap.end())
   {

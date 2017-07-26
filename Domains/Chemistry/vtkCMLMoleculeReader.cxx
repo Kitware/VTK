@@ -63,7 +63,7 @@ vtkStandardNewMacro(vtkCMLMoleculeReader);
 
 //----------------------------------------------------------------------------
 vtkCMLMoleculeReader::vtkCMLMoleculeReader()
-  : FileName(NULL)
+  : FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
 }
@@ -71,7 +71,7 @@ vtkCMLMoleculeReader::vtkCMLMoleculeReader()
 //----------------------------------------------------------------------------
 vtkCMLMoleculeReader::~vtkCMLMoleculeReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -138,13 +138,13 @@ vtkStandardNewMacro(vtkCMLParser);
 
 vtkCMLParser::vtkCMLParser()
   : vtkXMLParser(),
-    Target(0)
+    Target(nullptr)
 {
 }
 
 vtkCMLParser::~vtkCMLParser()
 {
-  this->SetTarget(NULL);
+  this->SetTarget(nullptr);
 }
 
 void vtkCMLParser::StartElement(const char *name, const char **attr)
@@ -196,7 +196,7 @@ void vtkCMLParser::NewAtom(const char **attr)
   int attrInd = 0;
   unsigned short atomicNum = 0;
   float pos[3];
-  const char * id = NULL;
+  const char * id = nullptr;
   while (const char * cur = attr[attrInd])
   {
     // Get atomic number
@@ -258,7 +258,7 @@ void vtkCMLParser::NewBond(const char **attr)
       strncpy(atomRefs, attr[++attrInd], 128);
       // Parse out atom names:
       const char *nameChar = strtok(atomRefs, " ");
-      while (nameChar != NULL)
+      while (nameChar != nullptr)
       {
         vtkIdType currentAtomId;
         bool found = false;
@@ -285,7 +285,7 @@ void vtkCMLParser::NewBond(const char **attr)
                           << nameChar << "'. Known atoms:\n"
                           << allAtomNames.c_str());
 
-          nameChar = strtok(NULL, " ");
+          nameChar = strtok(nullptr, " ");
           continue;
         }
         else if (atomId1 == -1)
@@ -302,7 +302,7 @@ void vtkCMLParser::NewBond(const char **attr)
                           << atomRefs);
         }
 
-        nameChar = strtok(NULL, " ");
+        nameChar = strtok(nullptr, " ");
       }
     }
 

@@ -175,7 +175,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
         int nf = cell->GetNumberOfFaces();
         for(int f=0;f<nf;f++)
         {
-          int* faceIds = 0;
+          int* faceIds = nullptr;
           int nfp = cell->GetFace(f)->GetNumberOfPoints();
           cell3d->GetFacePoints(f,faceIds);
 #ifdef VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION
@@ -341,7 +341,7 @@ int vtkDataSetGradientPrecompute::RequestData(vtkInformation *vtkNotUsed(request
   vtkDataSet* _output = vtkDataSet::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
   vtkDataSet* _input = vtkDataSet::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
 
-  if( _input==0 || _output==0 )
+  if( _input==nullptr || _output==nullptr )
   {
     vtkErrorMacro(<<"missing input/output connection\n");
     return 0;

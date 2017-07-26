@@ -43,7 +43,7 @@ vtkGenericProbeFilter::vtkGenericProbeFilter()
 vtkGenericProbeFilter::~vtkGenericProbeFilter()
 {
   this->ValidPoints->Delete();
-  this->ValidPoints = NULL;
+  this->ValidPoints = nullptr;
 }
 
 
@@ -58,7 +58,7 @@ vtkGenericDataSet *vtkGenericProbeFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkGenericDataSet::SafeDownCast(
@@ -120,9 +120,9 @@ int vtkGenericProbeFilter::RequestData(
 
   vtkDebugMacro(<<"Probing data");
 
-  if (source == NULL)
+  if (source == nullptr)
   {
-    vtkErrorMacro (<< "Source is NULL.");
+    vtkErrorMacro (<< "Source is nullptr.");
     return 1;
   }
 
@@ -166,7 +166,7 @@ int vtkGenericProbeFilter::RequestData(
     dsAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(dsAttributes->GetAttribute(attributeType)==0)
+    if(dsAttributes->GetAttribute(attributeType)==nullptr)
     {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
     }

@@ -20,13 +20,13 @@ vtkStandardNewMacro(vtkOutputStream);
 //----------------------------------------------------------------------------
 vtkOutputStream::vtkOutputStream()
 {
-  this->Stream = 0;
+  this->Stream = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkOutputStream::~vtkOutputStream()
 {
-  this->SetStream(0);
+  this->SetStream(nullptr);
 }
 
 //----------------------------------------------------------------------------

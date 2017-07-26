@@ -124,7 +124,7 @@ void vtkVASPTessellationReader::PrintSelf(std::ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkVASPTessellationReader::vtkVASPTessellationReader()
-  : FileName(NULL),
+  : FileName(nullptr),
     TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$")), // time = (timeVal)
     LatticeParser(new RegEx("^ *Rx1 *= *([0-9EeDd.+-]+) *," // Rx1
                             " *Rx2 *= *([0-9EeDd.+-]+) *," // Rx2
@@ -151,7 +151,7 @@ vtkVASPTessellationReader::vtkVASPTessellationReader()
 //------------------------------------------------------------------------------
 vtkVASPTessellationReader::~vtkVASPTessellationReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   delete this->TimeParser;
   delete this->LatticeParser;
   delete this->AtomCountParser;
@@ -617,9 +617,9 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     // Add cell to tessellation dataset:
     voronoi->InsertNextCell(VTK_POLYHEDRON,
                             static_cast<vtkIdType>(pointIds.size()),
-                            pointIds.empty() ? NULL : &pointIds[0],
+                            pointIds.empty() ? nullptr : &pointIds[0],
                             static_cast<vtkIdType>(faceData.size()),
-                            faceStream.empty() ? NULL : &faceStream[0]);
+                            faceStream.empty() ? nullptr : &faceStream[0]);
     tessAtomicNumbers->InsertNextValue(atom.GetAtomicNumber());
     tessAtomIds->InsertNextValue(atom.GetId());
   }

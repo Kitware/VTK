@@ -107,9 +107,9 @@ protected:
   int XYPlane;
 
   double *(vtkWarpScalar::*PointNormal)(vtkIdType id, vtkDataArray *normals);
-  double *DataNormal(vtkIdType id, vtkDataArray *normals=NULL);
-  double *InstanceNormal(vtkIdType id, vtkDataArray *normals=NULL);
-  double *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
+  double *DataNormal(vtkIdType id, vtkDataArray *normals=nullptr);
+  double *InstanceNormal(vtkIdType id, vtkDataArray *normals=nullptr);
+  double *ZNormal(vtkIdType id, vtkDataArray *normals=nullptr);
 
 private:
   vtkWarpScalar(const vtkWarpScalar&) VTK_DELETE_FUNCTION;

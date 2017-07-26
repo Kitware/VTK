@@ -59,7 +59,7 @@ vtkSelectionSource::vtkSelectionSource()
   this->FieldType = vtkSelectionNode::CELL;
   this->ContainingCells = 1;
   this->Inverse = 0;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
   this->ArrayComponent = 0;
   for (int cc=0; cc < 32; cc++)
   {
@@ -68,7 +68,7 @@ vtkSelectionSource::vtkSelectionSource()
   this->CompositeIndex = -1;
   this->HierarchicalLevel = -1;
   this->HierarchicalIndex = -1;
-  this->QueryString = 0;
+  this->QueryString = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -247,12 +247,12 @@ void vtkSelectionSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ContainingCells: ";
   os << (this->ContainingCells?"CELLS":"POINTS") << endl;
   os << indent << "Inverse: " << this->Inverse << endl;
-  os << indent << "ArrayName: " << (this->ArrayName?this->ArrayName:"NULL") << endl;
+  os << indent << "ArrayName: " << (this->ArrayName?this->ArrayName:"nullptr") << endl;
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
   os << indent << "CompositeIndex: " << this->CompositeIndex << endl;
   os << indent << "HierarchicalLevel: " << this->HierarchicalLevel << endl;
   os << indent << "HierarchicalIndex: " << this->HierarchicalIndex << endl;
-  os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "NULL") << endl;
+  os << indent << "QueryString: " << (this->QueryString ? this->QueryString : "nullptr") << endl;
 }
 
 //----------------------------------------------------------------------------

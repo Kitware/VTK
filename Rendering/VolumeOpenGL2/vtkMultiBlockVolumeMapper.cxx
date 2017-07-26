@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkMultiBlockVolumeMapper)
 
 //------------------------------------------------------------------------------
 vtkMultiBlockVolumeMapper::vtkMultiBlockVolumeMapper()
-: FallBackMapper(NULL)
+: FallBackMapper(nullptr)
 , JitteringSizeX(-1)
 , JitteringSizeY(-1)
 , VectorMode(vtkSmartVolumeMapper::DISABLED)
@@ -171,7 +171,7 @@ vtkDataObjectTree* vtkMultiBlockVolumeMapper::GetDataObjectTreeInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkDataObjectTree::SafeDownCast(this->GetInputDataObject(0, 0));
 }
@@ -351,7 +351,7 @@ void vtkMultiBlockVolumeMapper::ClearMappers()
   if (this->FallBackMapper)
   {
     this->FallBackMapper->Delete();
-    this->FallBackMapper = NULL;
+    this->FallBackMapper = nullptr;
   }
 }
 
@@ -424,7 +424,7 @@ void vtkMultiBlockVolumeMapper::ApplyJitteringResolution(
   vtkOpenGLGPUVolumeRayCastMapper* glMapper =
     vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper->GetGPUMapper());
 
-  if (glMapper == NULL)
+  if (glMapper == nullptr)
   {
     vtkWarningMacro("Jittering is not supported by this mapper.");
     return;

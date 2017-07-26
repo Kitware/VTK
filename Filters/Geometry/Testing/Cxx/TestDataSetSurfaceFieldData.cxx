@@ -44,7 +44,7 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
 
   vtkFieldData* fieldData = surfacer->GetOutput()->GetFieldData();
   const char* className = ds->GetClassName();
-  if (fieldData == NULL || fieldData->GetNumberOfArrays() == 0)
+  if (fieldData == nullptr || fieldData->GetNumberOfArrays() == 0)
   {
     std::cerr << "No field data was associated with data set type " << className << "\n";
     return EXIT_FAILURE;

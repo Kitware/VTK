@@ -147,7 +147,7 @@ vtkLabelHierarchy* vtkLabelHierarchyCompositeIterator::GetHierarchy()
   {
     return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetHierarchy();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkLabelHierarchyCompositeIterator::GetNodeGeometry(double ctr[3], double& size)

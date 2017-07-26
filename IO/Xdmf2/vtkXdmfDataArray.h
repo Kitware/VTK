@@ -43,10 +43,10 @@ public:
 
   char *ToArray( void );
 
-  vtkDataArray *FromXdmfArray( char *ArrayName = NULL, int CopyShape = 1,
+  vtkDataArray *FromXdmfArray( char *ArrayName = nullptr, int CopyShape = 1,
    int rank = 1, int Components = 1 , int MakeCopy = 1);
 
-  char *ToXdmfArray( vtkDataArray *DataArray = NULL, int CopyShape = 1 );
+  char *ToXdmfArray( vtkDataArray *DataArray = nullptr, int CopyShape = 1 );
 
   void SetArray( char *TagName );
 

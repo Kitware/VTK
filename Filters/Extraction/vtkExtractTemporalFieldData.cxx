@@ -46,7 +46,7 @@ vtkExtractTemporalFieldData::vtkExtractTemporalFieldData()
 vtkExtractTemporalFieldData::~vtkExtractTemporalFieldData()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -81,14 +81,14 @@ int vtkExtractTemporalFieldData::RequestDataObject(
   if (vtkCompositeDataSet::SafeDownCast(input) &&
     this->HandleCompositeDataBlocksIndividually)
   {
-    if (vtkMultiBlockDataSet::GetData(outputVector, 0) == NULL)
+    if (vtkMultiBlockDataSet::GetData(outputVector, 0) == nullptr)
     {
       vtkNew<vtkMultiBlockDataSet> mb;
       outputVector->GetInformationObject(0)->Set(
         vtkDataObject::DATA_OBJECT(), mb.Get());
     }
   }
-  else if (vtkTable::GetData(outputVector, 0) == NULL)
+  else if (vtkTable::GetData(outputVector, 0) == nullptr)
   {
     vtkNew<vtkTable> table;
     outputVector->GetInformationObject(0)->Set(

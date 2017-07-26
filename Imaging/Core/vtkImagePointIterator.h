@@ -52,18 +52,18 @@ public:
    * provided by the algorithm if threadId is zero.
    */
   vtkImagePointIterator(vtkImageData *image,
-                        const int extent[6] = 0,
-                        vtkImageStencilData *stencil=0,
-                        vtkAlgorithm *algorithm=0,
+                        const int extent[6] = nullptr,
+                        vtkImageStencilData *stencil=nullptr,
+                        vtkAlgorithm *algorithm=nullptr,
                         int threadId=0);
 
   /**
    * Initialize an iterator.  See constructor for more details.
    */
   void Initialize(vtkImageData *image,
-                  const int extent[6] = 0,
-                  vtkImageStencilData *stencil=0,
-                  vtkAlgorithm *algorithm=0,
+                  const int extent[6] = nullptr,
+                  vtkImageStencilData *stencil=nullptr,
+                  vtkAlgorithm *algorithm=nullptr,
                   int threadId=0);
 
   //@{

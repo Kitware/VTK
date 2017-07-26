@@ -42,18 +42,18 @@ vtkLODActor::vtkLODActor()
   m->Delete();
 
   this->LODMappers = vtkMapperCollection::New();
-  this->MediumResFilter = NULL;
-  this->LowResFilter = NULL;
+  this->MediumResFilter = nullptr;
+  this->LowResFilter = nullptr;
   this->NumberOfCloudPoints = 150;
-  this->LowMapper = NULL;
-  this->MediumMapper = NULL;
+  this->LowMapper = nullptr;
+  this->MediumMapper = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkLODActor::~vtkLODActor()
 {
   this->Device->Delete();
-  this->Device = NULL;
+  this->Device = nullptr;
   this->DeleteOwnLODs();
   this->LODMappers->Delete();
 }
@@ -126,7 +126,7 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   {
     vtkCollectionSimpleIterator mit;
     this->LODMappers->InitTraversal(mit);
-    while ((mapper = this->LODMappers->GetNextMapper(mit)) != NULL &&
+    while ((mapper = this->LODMappers->GetNextMapper(mit)) != nullptr &&
            bestTime != 0.0)
     {
       tempTime = mapper->GetTimeToDraw();
@@ -367,20 +367,20 @@ void vtkLODActor::DeleteOwnLODs()
   {
     this->LODMappers->RemoveItem(this->LowMapper);
     this->LowMapper->Delete();
-    this->LowMapper = NULL;
+    this->LowMapper = nullptr;
   }
 
   if (this->MediumMapper)
   {
     this->LODMappers->RemoveItem(this->MediumMapper);
     this->MediumMapper->Delete();
-    this->MediumMapper = NULL;
+    this->MediumMapper = nullptr;
   }
 
   // delete the filters used to create the LODs ...
   // The NULL check should not be necessary, but for sanity ...
-  this->SetLowResFilter(NULL);
-  this->SetMediumResFilter(NULL);
+  this->SetLowResFilter(nullptr);
+  this->SetMediumResFilter(nullptr);
 }
 
 //----------------------------------------------------------------------------

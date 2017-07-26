@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkWidgetCallbackMapper);
 // Callbacks are stored as a pair of (Object,Method) in the map.
 struct vtkCallbackPair
 {
-  vtkCallbackPair():Widget(0),Callback(0) {} //map requires empty constructor
+  vtkCallbackPair():Widget(nullptr),Callback(nullptr) {} //map requires empty constructor
   vtkCallbackPair(vtkAbstractWidget *w, vtkWidgetCallbackMapper::CallbackType f) :
     Widget(w),Callback(f) {}
 
@@ -47,7 +47,7 @@ public:
 vtkWidgetCallbackMapper::vtkWidgetCallbackMapper()
 {
   this->CallbackMap = new vtkCallbackMap;
-  this->EventTranslator = NULL;
+  this->EventTranslator = nullptr;
 }
 
 //----------------------------------------------------------------------------

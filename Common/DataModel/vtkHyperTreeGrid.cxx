@@ -68,11 +68,11 @@ vtkCxxSetObjectMacro( vtkHyperTreeGrid, ZCoordinates, vtkDataArray );
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
   // Dual grid corners (primal grid leaf centers)
-  this->Points = 0;
-  this->Connectivity = 0;
+  this->Points = nullptr;
+  this->Connectivity = nullptr;
 
   // Internal links
-  this->Links = 0;
+  this->Links = nullptr;
 
   // Grid topology
   this->GridSize[0] = 0;
@@ -87,7 +87,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 
   // Masked primal leaves
   this->MaterialMask = vtkBitArray::New();
-  this->MaterialMaskIndex = 0;
+  this->MaterialMaskIndex = nullptr;
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -213,8 +213,8 @@ void vtkHyperTreeGrid::DeleteTrees()
 // object.
 void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 {
-  assert( "pre: ds_exists" && ds!=0 );
-  assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=0 );
+  assert( "pre: ds_exists" && ds!=nullptr );
+  assert( "pre: same_type" && vtkHyperTreeGrid::SafeDownCast(ds)!=nullptr );
 
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast( ds );
   assert(htg);
@@ -462,7 +462,7 @@ void vtkHyperTreeGrid::InitializeTreeIterator( vtkHyperTreeIterator& it )
 vtkHyperTreeCursor* vtkHyperTreeGrid::NewCursor( vtkIdType id )
 {
   vtkHyperTree* tree = GetHyperTreeAtIndexMacro( id );
-  return tree ? tree->NewCursor() : 0;
+  return tree ? tree->NewCursor() : nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -579,7 +579,7 @@ void vtkHyperTreeGrid::GetPoint( vtkIdType ptId, double x[3] )
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkCell* cell )
 {
-  assert( "Null cell ptr." && cell != 0 );
+  assert( "Null cell ptr." && cell != nullptr );
 
   int numPts = 1 << this->Dimension;
   double x[3];
@@ -601,7 +601,7 @@ void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkCell* cell )
 //-----------------------------------------------------------------------------
 vtkCell* vtkHyperTreeGrid::GetCell( vtkIdType cellId )
 {
-  vtkCell* cell = 0;
+  vtkCell* cell = nullptr;
   switch ( this->Dimension )
   {
     case 1:
@@ -615,7 +615,7 @@ vtkCell* vtkHyperTreeGrid::GetCell( vtkIdType cellId )
       break;
    default:
       assert( "post: bad grid dimension" && false );
-      return 0;          // impossible case
+      return nullptr;          // impossible case
   }
 
   GetCell( cellId, cell );
@@ -625,7 +625,7 @@ vtkCell* vtkHyperTreeGrid::GetCell( vtkIdType cellId )
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkGenericCell* cell )
 {
-  assert( "GetCell on null cell." && cell != 0 );
+  assert( "GetCell on null cell." && cell != nullptr );
   switch ( this->Dimension )
   {
     case 1:
@@ -740,7 +740,7 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
 
   int minNumCells = VTK_INT_MAX;
   vtkIdType* pts = ptIds->GetPointer( 0 );
-  vtkIdType* minCells = 0;
+  vtkIdType* minCells = nullptr;
   vtkIdType minPtId = 0;
   // Find the point used by the fewest number of cells
   for ( vtkIdType i = 0; i < numPts; i++ )
@@ -955,7 +955,7 @@ vtkIdType vtkHyperTreeGrid::FindCell( double x[3], vtkCell* cell,
                                       int& subId, double pcoords[3],
                                       double* weights )
 {
-  return this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
+  return this->FindCell( x, cell, nullptr, cellId, tol2, subId, pcoords, weights );
 }
 
 //----------------------------------------------------------------------------
@@ -1815,19 +1815,19 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
   if ( this->Points )
   {
     this->Points->UnRegister( this );
-    this->Points = 0;
+    this->Points = nullptr;
   }
 
   if ( this->Connectivity )
   {
     this->Connectivity->UnRegister( this );
-    this->Connectivity = 0;
+    this->Connectivity = nullptr;
   }
 
   if ( this->Links )
   {
     this->Links->UnRegister( this );
-    this->Links = 0;
+    this->Links = nullptr;
   }
 }
 
@@ -1847,7 +1847,7 @@ vtkHyperTree* vtkHyperTreeGrid::vtkHyperTreeIterator::GetNextTree( vtkIdType &in
 {
   if ( this->Iterator == this->Tree->HyperTrees.end() )
   {
-    return 0;
+    return nullptr;
   }
   vtkHyperTree* t = this->Iterator->second;
   index = this->Iterator->first;
@@ -1877,7 +1877,7 @@ vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::vtkHyperTreeSimpleCursor()
 // Set the state back to the initial constructed state
 void vtkHyperTreeGrid::vtkHyperTreeSimpleCursor::Clear()
 {
-  this->Tree = 0;
+  this->Tree = nullptr;
   this->Index = 0;
   this->Leaf = false;
   this->Level = 0;

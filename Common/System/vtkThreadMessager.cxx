@@ -27,8 +27,8 @@ vtkThreadMessager::vtkThreadMessager()
 #ifdef VTK_USE_WIN32_THREADS
   this->WSignal = CreateEvent(0, FALSE, FALSE, 0);
 #elif defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
-  pthread_cond_init(&this->PSignal, 0);
-  pthread_mutex_init(&this->Mutex, 0);
+  pthread_cond_init(&this->PSignal, nullptr);
+  pthread_mutex_init(&this->Mutex, nullptr);
   pthread_mutex_lock(&this->Mutex);
 #endif
 }

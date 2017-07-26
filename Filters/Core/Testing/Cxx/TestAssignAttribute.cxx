@@ -50,7 +50,7 @@ int TestAssignAttribute(int, char *[])
   scalars->SetNumberOfComponents(3);
 
   VTK_CREATE(vtkDoubleArray, tensors);
-  tensors->SetName(NULL); // no name.
+  tensors->SetName(nullptr); // no name.
   tensors->SetNumberOfComponents(9);
   for (vtkIdType i = 0; i < 10; ++i)
   {

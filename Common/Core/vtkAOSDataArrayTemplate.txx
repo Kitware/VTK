@@ -282,7 +282,7 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray *other)
     {
       this->Buffer->Delete();
       this->Buffer = o->Buffer;
-      this->Buffer->Register(NULL);
+      this->Buffer->Register(nullptr);
     }
     this->DataChanged();
   }
@@ -395,7 +395,7 @@ vtkAOSDataArrayTemplate<ValueTypeT>
   {
     if (!this->Resize(newSize / this->NumberOfComponents + 1))
     {
-      return NULL;
+      return nullptr;
     }
     this->MaxId = (newSize - 1);
   }

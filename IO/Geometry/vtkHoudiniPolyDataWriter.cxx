@@ -171,7 +171,7 @@ namespace
     Attribute(vtkAbstractArray* array) : AttributeBase()
     {
       this->Array = vtkArrayType::SafeDownCast(array);
-      assert(this->Array != NULL);
+      assert(this->Array != nullptr);
       this->Value.resize(this->Array->GetNumberOfComponents());
     }
 
@@ -262,7 +262,7 @@ namespace
       }
     };
 
-    Attributes() : Hdr(NULL) { this->Hdr.Atts = this; }
+    Attributes() : Hdr(nullptr) { this->Hdr.Atts = this; }
     virtual ~Attributes()
     {
       for (AttIt it=this->AttVec.begin(); it != this->AttVec.end(); ++it)
@@ -298,13 +298,13 @@ namespace
 //----------------------------------------------------------------------------
 vtkHoudiniPolyDataWriter::vtkHoudiniPolyDataWriter()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkHoudiniPolyDataWriter::~vtkHoudiniPolyDataWriter()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------

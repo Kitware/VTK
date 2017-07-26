@@ -34,7 +34,7 @@ vtkCxxSetObjectMacro(vtkProgrammableElectronicData, ElectronDensity, vtkImageDat
 //----------------------------------------------------------------------------
 vtkProgrammableElectronicData::vtkProgrammableElectronicData()
   : NumberOfElectrons(0), MOs(new StdVectorOfImageDataPointers),
-    ElectronDensity(NULL)
+    ElectronDensity(nullptr)
 {
 }
 
@@ -42,9 +42,9 @@ vtkProgrammableElectronicData::vtkProgrammableElectronicData()
 vtkProgrammableElectronicData::~vtkProgrammableElectronicData()
 {
   delete this->MOs;
-  this->MOs = NULL;
+  this->MOs = nullptr;
 
-  this->SetElectronDensity(NULL);
+  this->SetElectronDensity(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -99,14 +99,14 @@ vtkImageData * vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
   if (orbitalNumber <= 0)
   {
     vtkWarningMacro(<< "Request for invalid orbital number "<<orbitalNumber);
-    return NULL;
+    return nullptr;
   }
   if (orbitalNumber > static_cast<vtkIdType>(this->MOs->size()))
   {
     vtkWarningMacro(<< "Request for orbital number " << orbitalNumber
                     << ", which exceeds the number of MOs ("
                     << this->MOs->size() << ")");
-    return NULL;
+    return nullptr;
   }
 
   vtkImageData *result = this->MOs->at(orbitalNumber - 1).GetPointer();

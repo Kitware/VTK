@@ -58,8 +58,8 @@ vtkInteractorStyleAreaSelectHover::vtkInteractorStyleAreaSelectHover()
   this->Balloon = vtkBalloonRepresentation::New();
   this->Balloon->SetBalloonText("");
   this->Balloon->SetOffset(1, 1);
-  this->Layout = 0;
-  this->LabelField = 0;
+  this->Layout = nullptr;
+  this->LabelField = nullptr;
   this->UseRectangularCoordinates = false;
 
   this->HighlightData = vtkPolyData::New();
@@ -83,9 +83,9 @@ vtkInteractorStyleAreaSelectHover::~vtkInteractorStyleAreaSelectHover()
   if (this->Layout)
   {
     this->Layout->Delete();
-    this->Layout = NULL;
+    this->Layout = nullptr;
   }
-  this->SetLabelField(0);
+  this->SetLabelField(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ vtkIdType vtkInteractorStyleAreaSelectHover::GetIdAtPos(int x, int y)
   vtkIdType id=-1;
 
   vtkRenderer* r = this->CurrentRenderer;
-  if (r == NULL)
+  if (r == nullptr)
   {
     return id;
   }
@@ -181,7 +181,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
   vtkRenderer* r = this->CurrentRenderer;
-  if (r == NULL)
+  if (r == nullptr)
   {
     return;
   }
@@ -209,7 +209,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
     vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
     //find the information for the correct sector,
     //  unless there isn't a sector or it is the root node
-    if (absArray != NULL && id > -1 )
+    if (absArray != nullptr && id > -1 )
     {
       vtkStdString str;
       if (vtkArrayDownCast<vtkStringArray>(absArray))
@@ -316,7 +316,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
 
     this->Balloon->StartWidgetInteraction(loc);
 
-    this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+    this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
     this->GetInteractor()->Render();
   }
 

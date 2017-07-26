@@ -156,7 +156,7 @@ vtkHyperStreamline::vtkHyperStreamline()
   this->StartSubId = 0;
   this->StartPCoords[0] = this->StartPCoords[1] = this->StartPCoords[2] = 0.5;
 
-  this->Streamers = NULL;
+  this->Streamers = nullptr;
 
   this->MaximumPropagationDistance = 100.0;
   this->IntegrationStepLength = 0.2;
@@ -270,7 +270,7 @@ static void FixVectors(double **prev, double **current, int iv, int ix, int iy)
     v2[i] = current[i][iy];
   }
 
-  if ( prev == NULL ) //make sure coord system is right handed
+  if ( prev == nullptr ) //make sure coord system is right handed
   {
     vtkMath::Cross(v0,v1,temp);
     if ( vtkMath::Dot(v2,temp) < 0.0 )
@@ -330,23 +330,23 @@ int vtkHyperStreamline::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkPointData *pd = input->GetPointData();
-  vtkDataArray *inScalars = NULL;
-  vtkDataArray *inTensors = NULL;
+  vtkDataArray *inScalars = nullptr;
+  vtkDataArray *inTensors = nullptr;
   double tensor[9];
-  vtkHyperPoint *sNext = NULL;
-  vtkHyperPoint *sPtr  = NULL;
+  vtkHyperPoint *sNext = nullptr;
+  vtkHyperPoint *sPtr  = nullptr;
   int i, j, k, ptId, subId, iv, ix, iy;
-  vtkCell *cell = NULL;
+  vtkCell *cell = nullptr;
   double ev[3], xNext[3];
   double d, step, dir, tol2, p[3];
-  double *w = NULL;
+  double *w = nullptr;
   double dist2;
   double closestPoint[3];
   double *m[3], *v[3];
   double m0[3], m1[3], m2[3];
   double v0[3], v1[3], v2[3];
-  vtkDataArray *cellTensors = NULL;
-  vtkDataArray *cellScalars = NULL;
+  vtkDataArray *cellTensors = nullptr;
+  vtkDataArray *cellScalars = nullptr;
   // set up working matrices
   v[0] = v0; v[1] = v1; v[2] = v2;
   m[0] = m0; m[1] = m1; m[2] = m2;
@@ -403,7 +403,7 @@ int vtkHyperStreamline::RequestData(
     {
       sPtr->X[i] = this->StartPosition[i];
     }
-    sPtr->CellId = input->FindCell(this->StartPosition, NULL, (-1), 0.0,
+    sPtr->CellId = input->FindCell(this->StartPosition, nullptr, (-1), 0.0,
                                    sPtr->SubId, sPtr->P, w);
   }
 
@@ -451,7 +451,7 @@ int vtkHyperStreamline::RequestData(
     }
 
     vtkMath::Jacobi(m, sPtr->W, sPtr->V);
-    FixVectors(NULL, sPtr->V, iv, ix, iy);
+    FixVectors(nullptr, sPtr->V, iv, ix, iy);
 
     if ( inScalars )
     {
@@ -665,7 +665,7 @@ int vtkHyperStreamline::BuildTube(vtkDataSet *input, vtkPolyData *output)
   vtkPoints *newPts;
   vtkFloatArray *newVectors;
   vtkFloatArray *newNormals;
-  vtkFloatArray *newScalars=NULL;
+  vtkFloatArray *newScalars=nullptr;
   vtkCellArray *newStrips;
   vtkIdType i, npts, ptOffset=0;
   int ptId, j, id, k, i1, i2;

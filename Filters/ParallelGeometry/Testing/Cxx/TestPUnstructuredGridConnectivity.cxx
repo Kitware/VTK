@@ -122,7 +122,7 @@ int TestPUnstructuredGridConnectivity(int argc, char* argv[])
     ghostGrid->DeepCopy(ghostGen->GetGhostedGrid());
 
 #ifdef DEBUG
-    assert("pre: ghost grid should not be NULL!" && (ghostGrid != NULL) );
+    assert("pre: ghost grid should not be nullptr!" && (ghostGrid != nullptr) );
     WriteDataSet(ghostGrid,ghostfname.str());
 #endif
 

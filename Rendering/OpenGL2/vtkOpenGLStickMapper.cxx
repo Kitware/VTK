@@ -46,9 +46,9 @@ vtkStandardNewMacro(vtkOpenGLStickMapper)
 //-----------------------------------------------------------------------------
 vtkOpenGLStickMapper::vtkOpenGLStickMapper()
 {
-  this->ScaleArray = 0;
-  this->OrientationArray = 0;
-  this->SelectionIdArray = 0;
+  this->ScaleArray = nullptr;
+  this->OrientationArray = nullptr;
+  this->SelectionIdArray = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl", "");
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
+  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
   if (picking)
   {
     if (!selector ||
@@ -212,9 +212,9 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
 //-----------------------------------------------------------------------------
 vtkOpenGLStickMapper::~vtkOpenGLStickMapper()
 {
-  this->SetScaleArray(0);
-  this->SetOrientationArray(0);
-  this->SetSelectionIdArray(0);
+  this->SetScaleArray(nullptr);
+  this->SetOrientationArray(nullptr);
+  this->SetSelectionIdArray(nullptr);
 }
 
 
@@ -404,13 +404,13 @@ void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
 
   if (selectionIds)
   {
-    VBOs->CacheDataArray("scalarColor", NULL, ren, VTK_UNSIGNED_CHAR);
+    VBOs->CacheDataArray("scalarColor", nullptr, ren, VTK_UNSIGNED_CHAR);
     VBOs->CacheDataArray("selectionId", ucolors, ren, VTK_UNSIGNED_CHAR);
   }
   else
   {
     VBOs->CacheDataArray("scalarColor", ucolors, ren, VTK_UNSIGNED_CHAR);
-    VBOs->CacheDataArray("selectionId", NULL, ren, VTK_UNSIGNED_CHAR);
+    VBOs->CacheDataArray("selectionId", nullptr, ren, VTK_UNSIGNED_CHAR);
   }
   ucolors->Delete();
   VBOs->BuildAllVBOs(ren);
@@ -464,7 +464,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
 {
   vtkPolyData *poly = this->CurrentInput;
 
-  if (poly == NULL)// || !poly->GetPointData()->GetNormals())
+  if (poly == nullptr)// || !poly->GetPointData()->GetNormals())
   {
     return;
   }
@@ -478,20 +478,20 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
   this->MapScalars(1.0);
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
+  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
 
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
   vtkOpenGLStickMapperCreateVBO(
     static_cast<float *>(poly->GetPoints()->GetVoidPointer(0)),
     poly->GetPoints()->GetNumberOfPoints(),
-    this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
+    this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : nullptr,
     this->Colors ? this->Colors->GetNumberOfComponents() : 0,
     static_cast<float *>(poly->GetPointData()->GetArray(this->OrientationArray)->GetVoidPointer(0)),
     static_cast<float *>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0)),
     picking ?
       static_cast<vtkIdType *>(poly->GetPointData()->GetArray(this->SelectionIdArray)->GetVoidPointer(0))
-      : NULL,
+      : nullptr,
     this->VBOs, ren);
 
   // create the IBO

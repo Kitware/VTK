@@ -36,7 +36,7 @@ vtkCxxSetObjectMacro(vtkVolumeOutlineSource,VolumeMapper,vtkVolumeMapper);
 //----------------------------------------------------------------------------
 vtkVolumeOutlineSource::vtkVolumeOutlineSource ()
 {
-  this->VolumeMapper = 0;
+  this->VolumeMapper = nullptr;
   this->GenerateScalars = 0;
   this->GenerateOutline = 1;
   this->GenerateFaces = 0;
@@ -59,7 +59,7 @@ vtkVolumeOutlineSource::~vtkVolumeOutlineSource ()
   if (this->VolumeMapper)
   {
     this->VolumeMapper->Delete();
-    this->VolumeMapper = 0;
+    this->VolumeMapper = nullptr;
   }
 }
 
@@ -274,9 +274,9 @@ int vtkVolumeOutlineSource::RequestData(
       !this->ComputeCubePlanes(planes,this->CroppingRegionPlanes,this->Bounds))
   {
     // If the bounds or the cropping planes are invalid, clear the data
-    output->SetPoints(0);
-    output->SetLines(0);
-    output->GetCellData()->SetScalars(0);
+    output->SetPoints(nullptr);
+    output->SetLines(nullptr);
+    output->GetCellData()->SetScalars(nullptr);
 
     return 1;
   }
@@ -307,7 +307,7 @@ int vtkVolumeOutlineSource::RequestData(
   this->CreateColorValues(colors, this->Color, this->ActivePlaneColor);
 
   // Create the scalars used to color the lines
-  vtkUnsignedCharArray *scalars = 0;
+  vtkUnsignedCharArray *scalars = nullptr;
 
   if (this->GenerateScalars)
   {
@@ -316,7 +316,7 @@ int vtkVolumeOutlineSource::RequestData(
   }
 
   // Generate all the lines for the outline.
-  vtkCellArray *lines = 0;
+  vtkCellArray *lines = nullptr;
 
   if (this->GenerateOutline)
   {
@@ -325,7 +325,7 @@ int vtkVolumeOutlineSource::RequestData(
   }
 
   // Generate the polys for the outline
-  vtkCellArray *polys =  0;
+  vtkCellArray *polys =  nullptr;
 
   if (this->GenerateFaces)
   {

@@ -98,7 +98,7 @@ private:
 vtkX3DExporterFIByteWriter::~vtkX3DExporterFIByteWriter()
 {
   delete this->Stream;
-  this->Stream = NULL;
+  this->Stream = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ std::string vtkX3DExporterFIByteWriter::GetStringStream(int& size)
   }
 
   size = 0;
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -255,7 +255,7 @@ vtkX3DExporterFIWriter::vtkX3DExporterFIWriter()
   this->InfoStack = new vtkX3DExporterFINodeInfoStack();
   this->Compressor = vtkZLibDataCompressor::New();
   this->Compressor->SetCompressionLevel(5);
-  this->Writer = NULL;
+  this->Writer = nullptr;
   this->IsLineFeedEncodingOn = true;
   this->Fastest = 0;
 }
@@ -290,7 +290,7 @@ int vtkX3DExporterFIWriter::OpenStream()
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::CloseFile()
 {
-  if(this->Writer != NULL)
+  if(this->Writer != nullptr)
   {
     if(this->WriteToOutputString)
     {
@@ -301,7 +301,7 @@ void vtkX3DExporterFIWriter::CloseFile()
       memcpy(this->OutputString, tmp, this->OutputStringLength);
     }
     delete this->Writer;
-    this->Writer = NULL;
+    this->Writer = nullptr;
   }
 }
 
@@ -450,7 +450,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
   this->StartAttribute(attributeID, true, false);
 
 #ifdef ENCODEASSTRING
-  const double* loc = NULL;
+  const double* loc = nullptr;
   size_t size = 0;
   double temp[4];
   switch (type)
@@ -597,7 +597,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
 
   this->StartAttribute(attributeID, true, false);
 

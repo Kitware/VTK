@@ -254,7 +254,7 @@ public:
     {this->SetLightType(VTK_LIGHT_TYPE_HEADLIGHT);}
   void SetLightTypeToSceneLight()
   {
-    this->SetTransformMatrix(NULL);
+    this->SetTransformMatrix(nullptr);
     this->SetLightType(VTK_LIGHT_TYPE_SCENE_LIGHT);
   }
   void SetLightTypeToCameraLight()

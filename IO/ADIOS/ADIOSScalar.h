@@ -40,7 +40,7 @@ public:
     ReadError::TestEq(this->Type, Type::NativeToADIOS<T>(), "Invalid type");
 
     StepBlock* idx = this->GetNewestBlockIndex(step, block);
-    ReadError::TestNe<StepBlock*>(NULL, idx, "Variable not available");
+    ReadError::TestNe<StepBlock*>(nullptr, idx, "Variable not available");
 
     return reinterpret_cast<const T*>(this->Values)[idx->BlockId];
   }

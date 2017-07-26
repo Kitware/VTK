@@ -47,7 +47,7 @@ bool vtkPlotLine3D::Paint(vtkContext2D *painter)
 
   // Get the 3D context.
   vtkContext3D *context = painter->GetContext3D();
-  if(context == NULL)
+  if(context == nullptr)
   {
     return false;
   }

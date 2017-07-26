@@ -159,7 +159,7 @@ bool vtkOpenGLPropItem::Paint(vtkContext2D *painter)
 {
   this->Painter = painter;
   bool result = this->Superclass::Paint(painter);
-  this->Painter = NULL;
+  this->Painter = nullptr;
 
   return result;
 }

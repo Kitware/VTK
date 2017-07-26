@@ -55,27 +55,27 @@ class vtkScalarBarActorInternal
 public:
   vtkScalarBarActorInternal()
   {
-    this->Viewport = 0;
-    this->SwatchColors = 0;
-    this->SwatchPts = 0;
-    this->Polys = 0;
-    this->AnnotationBoxes = 0;
-    this->AnnotationBoxesMapper = 0;
-    this->AnnotationBoxesActor = 0;
-    this->AnnotationLeaders = 0;
-    this->AnnotationLeadersMapper = 0;
-    this->AnnotationLeadersActor = 0;
-    this->NanSwatch = 0;
-    this->NanSwatchMapper = 0;
-    this->NanSwatchActor = 0;
+    this->Viewport = nullptr;
+    this->SwatchColors = nullptr;
+    this->SwatchPts = nullptr;
+    this->Polys = nullptr;
+    this->AnnotationBoxes = nullptr;
+    this->AnnotationBoxesMapper = nullptr;
+    this->AnnotationBoxesActor = nullptr;
+    this->AnnotationLeaders = nullptr;
+    this->AnnotationLeadersMapper = nullptr;
+    this->AnnotationLeadersActor = nullptr;
+    this->NanSwatch = nullptr;
+    this->NanSwatchMapper = nullptr;
+    this->NanSwatchActor = nullptr;
 
-    this->BelowRangeSwatch = 0;
-    this->BelowRangeSwatchMapper = 0;
-    this->BelowRangeSwatchActor = 0;
+    this->BelowRangeSwatch = nullptr;
+    this->BelowRangeSwatchMapper = nullptr;
+    this->BelowRangeSwatchActor = nullptr;
 
-    this->AboveRangeSwatch = 0;
-    this->AboveRangeSwatchMapper = 0;
-    this->AboveRangeSwatchActor = 0;
+    this->AboveRangeSwatch = nullptr;
+    this->AboveRangeSwatchMapper = nullptr;
+    this->AboveRangeSwatchActor = nullptr;
   }
 
   // Define types for smart vectors containing various base classes.

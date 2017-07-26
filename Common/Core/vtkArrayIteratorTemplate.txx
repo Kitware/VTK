@@ -34,16 +34,16 @@ vtkCxxSetObjectMacro(vtkArrayIteratorTemplate<T>, Array, vtkAbstractArray);
 template <class T>
 vtkArrayIteratorTemplate<T>::vtkArrayIteratorTemplate()
 {
-  this->Array = 0;
-  this->Pointer = 0;
+  this->Array = nullptr;
+  this->Pointer = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 template <class T>
 vtkArrayIteratorTemplate<T>::~vtkArrayIteratorTemplate()
 {
-  this->SetArray(0);
-  this->Pointer = 0;
+  this->SetArray(nullptr);
+  this->Pointer = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ template <class T>
 void vtkArrayIteratorTemplate<T>::Initialize(vtkAbstractArray* a)
 {
   this->SetArray(a);
-  this->Pointer = 0;
+  this->Pointer = nullptr;
   if (this->Array)
   {
     this->Pointer = static_cast<T*>(this->Array->GetVoidPointer(0));

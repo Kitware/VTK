@@ -52,16 +52,16 @@ vtkBarChartActor::vtkBarChartActor()
   this->PositionCoordinate->SetValue(0.1,0.1);
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.9, 0.8);
-  this->Position2Coordinate->SetReferenceCoordinate(NULL);
+  this->Position2Coordinate->SetReferenceCoordinate(nullptr);
 
-  this->Input = NULL;
+  this->Input = nullptr;
   this->ArrayNumber = 0;
   this->ComponentNumber = 0;
   this->TitleVisibility = 1;
-  this->Title = NULL;
+  this->Title = nullptr;
   this->Labels = new vtkBarLabelArray;
-  this->BarMappers = NULL;
-  this->BarActors = NULL;
+  this->BarMappers = nullptr;
+  this->BarActors = nullptr;
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetFontSize(12);
   this->LabelTextProperty->SetBold(1);
@@ -82,7 +82,7 @@ vtkBarChartActor::vtkBarChartActor()
   this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
-  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   this->LegendActor->BorderOff();
   this->LegendActor->SetNumberOfEntries(100); //initial allocation
   this->LegendActor->SetPadding(2);
@@ -112,7 +112,7 @@ vtkBarChartActor::vtkBarChartActor()
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
 
   this->N = 0;
-  this->Heights = NULL;
+  this->Heights = nullptr;
   this->MinHeight =  VTK_FLOAT_MAX;
   this->MaxHeight = -VTK_FLOAT_MAX;
 
@@ -133,15 +133,15 @@ vtkBarChartActor::~vtkBarChartActor()
   if ( this->Input )
   {
     this->Input->Delete();
-    this->Input = NULL;
+    this->Input = nullptr;
   }
 
   delete [] this->Title;
-  this->Title = NULL;
+  this->Title = nullptr;
 
   delete this->Labels;
-  this->SetLabelTextProperty(NULL);
-  this->SetTitleTextProperty(NULL);
+  this->SetLabelTextProperty(nullptr);
+  this->SetTitleTextProperty(nullptr);
 
   this->LegendActor->Delete();
   this->GlyphSource->Delete();
@@ -149,9 +149,9 @@ vtkBarChartActor::~vtkBarChartActor()
   this->Initialize();
 
   this->TitleMapper->Delete();
-  this->TitleMapper = NULL;
+  this->TitleMapper = nullptr;
   this->TitleActor->Delete();
-  this->TitleActor = NULL;
+  this->TitleActor = nullptr;
 
   this->YAxis->Delete();
   delete [] this->YTitle;
@@ -173,14 +173,14 @@ void vtkBarChartActor::Initialize()
       this->BarActors[i]->Delete();
     }
     delete [] this->BarMappers;
-    this->BarMappers = NULL;
+    this->BarMappers = nullptr;
     delete [] this->BarActors;
-    this->BarActors = NULL;
+    this->BarActors = nullptr;
   }
 
   this->N = 0;
   delete [] this->Heights;
-  this->Heights = NULL;
+  this->Heights = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ int vtkBarChartActor::RenderOverlay(vtkViewport *viewport)
   }
 
   // Done rebuilding, render as appropriate.
-  if ( this->Input == NULL || this->N <= 0 )
+  if ( this->Input == nullptr || this->N <= 0 )
   {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -237,7 +237,7 @@ int vtkBarChartActor::RenderOpaqueGeometry(vtkViewport *viewport)
   }
 
   // Done rebuilding, render as appropriate.
-  if ( this->Input == NULL || this->N <= 0 )
+  if ( this->Input == nullptr || this->N <= 0 )
   {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -500,7 +500,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
     color = this->LegendActor->GetEntryColor(i);
     colors->InsertNextTuple3(255*color[0],255*color[1],255*color[2]);
     this->LegendActor->SetEntrySymbol(i,this->GlyphSource->GetOutput());
-    if ( (str=this->GetBarLabel(i)) != NULL )
+    if ( (str=this->GetBarLabel(i)) != nullptr )
     {
       this->LegendActor->SetEntryString(i,str);
     }
@@ -520,7 +520,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
     for (i=0; i<this->N; i++)
     {
       this->BarMappers[i] = vtkTextMapper::New();
-      if ( (str=this->GetBarLabel(i)) != NULL )
+      if ( (str=this->GetBarLabel(i)) != nullptr )
       {
         this->BarMappers[i]->SetInput(str);
       }
@@ -630,7 +630,7 @@ const char* vtkBarChartActor::GetBarLabel(int i)
 {
   if ( i < 0 || static_cast<unsigned int>(i) >= this->Labels->size())
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->Labels->at(i).c_str();

@@ -107,7 +107,7 @@ vtkHandleWidget * vtkSeedWidget::GetSeed(int i)
 {
  if( this->Seeds->size() <= static_cast< size_t >(i) )
  {
-   return NULL;
+   return nullptr;
  }
   vtkSeedListIterator iter = this->Seeds->begin();
   std::advance(iter,i);
@@ -166,7 +166,7 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     self->WidgetState = vtkSeedWidget::MovingSeed;
 
     // Invoke an event on ourself for the handles
-    self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    self->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
     self->Superclass::StartInteraction();
     vtkSeedRepresentation *rep = static_cast<
       vtkSeedRepresentation * >(self->WidgetRep);
@@ -249,7 +249,7 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
 
   // else we are moving a seed
 
-  self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  self->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
 
   // set the cursor shape to a hand if we are near a seed.
   int X = self->Interactor->GetEventPosition()[0];
@@ -293,9 +293,9 @@ void vtkSeedWidget::EndSelectAction(vtkAbstractWidget *w)
     vtkSeedWidget::PlacingSeeds : vtkSeedWidget::PlacedSeeds;
 
   // Invoke event for seed handle
-  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr);
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Superclass::EndInteraction();
   self->Render();
 }
@@ -379,7 +379,7 @@ vtkHandleWidget * vtkSeedWidget::CreateNewHandle()
   {
     vtkErrorMacro( << "Please set, or create a default seed representation "
         << "before adding requesting creation of a new handle." );
-    return NULL;
+    return nullptr;
   }
 
   // Create the handle widget or reuse an old one
@@ -393,7 +393,7 @@ vtkHandleWidget * vtkSeedWidget::CreateNewHandle()
   if (!handleRep)
   {
     widget->Delete();
-    return NULL;
+    return nullptr;
   }
   else
   {

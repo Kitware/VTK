@@ -53,7 +53,7 @@ vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
   this->Mapper                  = vtkPolyDataMapper::New();
   this->Actor                   = vtkActor::New();
 
-  this->CellColorArrayNameInternal = 0;
+  this->CellColorArrayNameInternal = nullptr;
 
   // Connect pipeline
   this->ApplyColors->SetInputConnection(this->TransformFilter->GetOutputPort());
@@ -82,7 +82,7 @@ vtkRenderedSurfaceRepresentation::~vtkRenderedSurfaceRepresentation()
   this->GeometryFilter->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
-  this->SetCellColorArrayNameInternal(0);
+  this->SetCellColorArrayNameInternal(nullptr);
 }
 
 //----------------------------------------------------------------------------

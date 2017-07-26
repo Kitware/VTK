@@ -224,7 +224,7 @@ protected:
   /**
    * Add another file name to the list for a particular variable type.
    */
-  void AddVariableFileName(const char* fileName1, const char* fileName2 = NULL);
+  void AddVariableFileName(const char* fileName1, const char* fileName2 = nullptr);
 
   /**
    * Add another description to the list for a particular variable type.

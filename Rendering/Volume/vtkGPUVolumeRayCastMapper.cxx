@@ -52,7 +52,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->ClampDepthToBackface       = 0;
   this->UseJittering               = 0;
   this->UseDepthPass               = 0;
-  this->DepthPassContourValues     = NULL;
+  this->DepthPassContourValues     = nullptr;
   this->SampleDistance             = 1.0;
   this->SmallVolumeRender          = 0;
   this->BigTimeToDraw              = 0.0;
@@ -60,9 +60,9 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->FinalColorWindow           = 1.0;
   this->FinalColorLevel            = 0.5;
   this->GeneratingCanonicalView    = 0;
-  this->CanonicalViewImageData     = NULL;
+  this->CanonicalViewImageData     = nullptr;
 
-  this->MaskInput                  = NULL;
+  this->MaskInput                  = nullptr;
   this->MaskBlendFactor            = 1.0f;
   this->MaskType
     = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
@@ -101,16 +101,16 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
 
   this->ReportProgress = true;
 
-  this->TransformedInput = NULL;
-  this->LastInput = NULL;
+  this->TransformedInput = nullptr;
+  this->LastInput = nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
 {
-  this->SetMaskInput(NULL);
-  this->SetTransformedInput(NULL);
-  this->LastInput = NULL;
+  this->SetMaskInput(nullptr);
+  this->SetTransformedInput(nullptr);
+  this->LastInput = nullptr;
 
   if (this->DepthPassContourValues)
   {
@@ -140,7 +140,7 @@ void vtkGPUVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   }
 
   // Invoke a VolumeMapperRenderStartEvent
-  this->InvokeEvent(vtkCommand::VolumeMapperRenderStartEvent,0);
+  this->InvokeEvent(vtkCommand::VolumeMapperRenderStartEvent,nullptr);
 
   // Start the timer to time the length of this render
   vtkTimerLog *timer = vtkTimerLog::New();
@@ -173,7 +173,7 @@ void vtkGPUVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   }
 
   // Invoke a VolumeMapperRenderEndEvent
-  this->InvokeEvent(vtkCommand::VolumeMapperRenderEndEvent,0);
+  this->InvokeEvent(vtkCommand::VolumeMapperRenderEndEvent,nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -255,7 +255,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   // Check that we have input data
   vtkImageData *input=this->GetInput();
 
-  if(goodSoFar && input==0)
+  if(goodSoFar && input==nullptr)
   {
     vtkErrorMacro("Input is NULL but is required");
     goodSoFar = 0;
@@ -316,7 +316,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   // Update the date then make sure we have scalars. Note
   // that we must have point or cell scalars because field
   // scalars are not supported.
-  vtkDataArray *scalars = NULL;
+  vtkDataArray *scalars = nullptr;
   if ( goodSoFar )
   {
     // Now make sure we can find scalars
@@ -602,7 +602,7 @@ void vtkGPUVolumeRayCastMapper::CreateCanonicalView(
   delete[] rendererVisibilities;
 
   ren->GetRenderWindow()->SetSwapBuffers(oldSwap);
-  this->CanonicalViewImageData = NULL;
+  this->CanonicalViewImageData = nullptr;
   this->GeneratingCanonicalView = 0;
 }
 
@@ -644,7 +644,7 @@ void vtkGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 //             this->CroppingRegionPlanes[4]<this->CroppingRegionPlanes[5])
 void vtkGPUVolumeRayCastMapper::ClipCroppingRegionPlanes()
 {
-  assert("pre: volume_exists" && this->GetInput()!=0);
+  assert("pre: volume_exists" && this->GetInput()!=nullptr);
   assert("pre: valid_cropping" && this->Cropping &&
          this->CroppingRegionPlanes[0]<this->CroppingRegionPlanes[1] &&
          this->CroppingRegionPlanes[2]<this->CroppingRegionPlanes[3] &&

@@ -200,7 +200,7 @@ void vtkImageWeightedSum::ThreadedRequestData (
   vtkImageData **outData,
   int outExt[6], int id)
 {
-  if (inData[0][0] == NULL)
+  if (inData[0][0] == nullptr)
   {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
@@ -242,7 +242,7 @@ void vtkImageWeightedSum::ThreadedRequestData (
   {
     vtkTemplateMacro(
       vtkImageWeightedSumExecute(this, inData[0], numInputs,
-        outData[0], outExt, id, static_cast<VTK_TT *>(0))
+        outData[0], outExt, id, static_cast<VTK_TT *>(nullptr))
       );
     default:
       if (id == 0)

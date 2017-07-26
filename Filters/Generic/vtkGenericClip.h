@@ -180,7 +180,7 @@ public:
   //@{
   /**
    * If you want to clip by an arbitrary array, then set its name here.
-   * By default this in NULL and the filter will use the active scalar array.
+   * By default this in nullptr and the filter will use the active scalar array.
    */
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName)
@@ -188,7 +188,7 @@ public:
   //@}
 
 protected:
-  vtkGenericClip(vtkImplicitFunction *cf=NULL);
+  vtkGenericClip(vtkImplicitFunction *cf=nullptr);
   ~vtkGenericClip() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

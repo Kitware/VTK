@@ -33,7 +33,7 @@ struct vtkDataObjectTreeItem
   vtkSmartPointer<vtkDataObject> DataObject;
   vtkSmartPointer<vtkInformation> MetaData;
 
-  vtkDataObjectTreeItem(vtkDataObject* dobj =0, vtkInformation* info=0)
+  vtkDataObjectTreeItem(vtkDataObject* dobj =nullptr, vtkInformation* info=nullptr)
   {
     this->DataObject = dobj;
     this->MetaData = info;

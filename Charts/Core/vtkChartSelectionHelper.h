@@ -51,7 +51,7 @@ namespace vtkChartSelectionHelper
 static void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
                           vtkPlot *plot)
 {
-  assert(link != NULL && selectionIds != NULL);
+  assert(link != nullptr && selectionIds != nullptr);
 
   if (plot)
   {
@@ -216,7 +216,7 @@ static void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelect
 
 /*
  * Build a selection based on the supplied selectionMode using the new
- * plotSelection and combining it with the oldSelection. If link is not NULL
+ * plotSelection and combining it with the oldSelection. If link is not nullptr
  * then the resulting selection will be set on the link.
  */
 static void BuildSelection(vtkAnnotationLink *link, int selectionMode,

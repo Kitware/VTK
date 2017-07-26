@@ -33,20 +33,20 @@ vtkStandardNewMacro(vtkPVWebGLExporter);
 // ---------------------------------------------------------------------------
 vtkPVWebGLExporter::vtkPVWebGLExporter()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 // ---------------------------------------------------------------------------
 vtkPVWebGLExporter::~vtkPVWebGLExporter()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 // ---------------------------------------------------------------------------
 void vtkPVWebGLExporter::WriteData()
 {
   // make sure the user specified a FileName or FilePointer
-  if (this->FileName == NULL)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;

@@ -107,7 +107,7 @@ int TestPUnstructuredGridGhostDataGenerator(int argc, char* argv[])
     vtkUnstructuredGrid* ghostGrid = vtkUnstructuredGrid::New();
     ghostGrid->DeepCopy(ghostGenerator->GetOutput());
 #ifdef DEBUG
-    assert("pre: ghost gird should not be NULL!" && (ghostGrid != NULL) );
+    assert("pre: ghost gird should not be nullptr!" && (ghostGrid != nullptr) );
     WriteDataSet(ghostGrid,ghostfname.str());
 #endif
 

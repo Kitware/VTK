@@ -44,7 +44,7 @@ class vtkMPICleanup {
 public:
   vtkMPICleanup()
   {
-      this->Controller = 0;
+      this->Controller = nullptr;
   }
   void Initialize(int* argc, char ***argv)
   {
@@ -59,8 +59,8 @@ public:
     {
       this->Controller->Finalize();
       this->Controller->Delete();
-      this->Controller = NULL;
-      vtkMultiProcessController::SetGlobalController(NULL);
+      this->Controller = nullptr;
+      vtkMultiProcessController::SetGlobalController(nullptr);
     }
   }
   ~vtkMPICleanup()
@@ -313,7 +313,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
   const char* build_dirs[] = {
     "/../Wrapping/Python",
     "/../VTK/Wrapping/Python",
-    0
+    nullptr
   };
 
   int found_vtk = 0;
@@ -354,7 +354,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
       "/lib/python/vtk", // UNIX --home
       "/Lib/site-packages/vtk", "/Lib/vtk", // Windows
       "/site-packages/vtk", "/vtk", // Windows
-      0
+      nullptr
     };
     std::string prefix = vtksys::SystemTools::GetFilenamePath(self_dir);
     for(const char** dir = inst_dirs; *dir; ++dir)
@@ -403,7 +403,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
   // Try to put the VTK python module location in sys.path.
   const char* site_build_dirs[] = {
     "/../lib/site-packages",
-    0
+    nullptr
   };
 
   int found_site = 0;

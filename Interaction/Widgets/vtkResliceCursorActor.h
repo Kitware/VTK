@@ -107,7 +107,7 @@ protected:
   vtkResliceCursorActor();
   ~vtkResliceCursorActor() VTK_OVERRIDE;
 
-  void UpdateViewProps( vtkViewport * v = NULL );
+  void UpdateViewProps( vtkViewport * v = nullptr );
   void UpdateHoleSize( vtkViewport * v );
 
   vtkResliceCursorPolyDataAlgorithm * CursorAlgorithm;

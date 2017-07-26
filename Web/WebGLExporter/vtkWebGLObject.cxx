@@ -191,7 +191,7 @@ void vtkWebGLObject::GetBinaryData(int part, vtkUnsignedCharArray* buffer)
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::GenerateBinaryData(){this->hasChanged = false;}
 //-----------------------------------------------------------------------------
-unsigned char* vtkWebGLObject::GetBinaryData(int vtkNotUsed(part)){return NULL;}
+unsigned char* vtkWebGLObject::GetBinaryData(int vtkNotUsed(part)){return nullptr;}
 //-----------------------------------------------------------------------------
 int vtkWebGLObject::GetBinarySize(int vtkNotUsed(part)){return 0;}
 //-----------------------------------------------------------------------------

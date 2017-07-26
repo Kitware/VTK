@@ -71,7 +71,7 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->MinimumImageSampleDistance =  1.0;
   this->MaximumImageSampleDistance = 10.0;
   this->AutoAdjustSampleDistances  =  1;
-  this->VolumeRayCastFunction      = NULL;
+  this->VolumeRayCastFunction      = nullptr;
 
   this->GradientEstimator  = vtkFiniteDifferenceGradientEstimator::New();
   this->GradientShader     = vtkEncodedGradientShader::New();
@@ -95,17 +95,17 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 
   this->Threader               = vtkMultiThreader::New();
 
-  this->Image                  = NULL;
-  this->RowBounds              = NULL;
-  this->OldRowBounds           = NULL;
+  this->Image                  = nullptr;
+  this->RowBounds              = nullptr;
+  this->OldRowBounds           = nullptr;
 
-  this->RenderTimeTable        = NULL;
-  this->RenderVolumeTable      = NULL;
-  this->RenderRendererTable    = NULL;
+  this->RenderTimeTable        = nullptr;
+  this->RenderVolumeTable      = nullptr;
+  this->RenderRendererTable    = nullptr;
   this->RenderTableSize        = 0;
   this->RenderTableEntries     = 0;
 
-  this->ZBuffer                = NULL;
+  this->ZBuffer                = nullptr;
   this->ZBufferSize[0]         = 0;
   this->ZBufferSize[1]         = 0;
   this->ZBufferOrigin[0]       = 0;
@@ -124,12 +124,12 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
   if ( this->GradientEstimator )
   {
     this->GradientEstimator->UnRegister(this);
-    this->GradientEstimator = NULL;
+    this->GradientEstimator = nullptr;
   }
 
   this->GradientShader->Delete();
 
-  this->SetVolumeRayCastFunction(NULL);
+  this->SetVolumeRayCastFunction(nullptr);
 
   this->PerspectiveMatrix->Delete();
   this->ViewToWorldMatrix->Delete();
@@ -264,7 +264,7 @@ void vtkVolumeRayCastMapper::SetGradientEstimator(
   if ( this->GradientEstimator )
   {
     this->GradientEstimator->UnRegister(this);
-    this->GradientEstimator = NULL;
+    this->GradientEstimator = nullptr;
   }
 
   // If we are passing in a non-NULL estimator, register it
@@ -307,7 +307,7 @@ void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *)
 void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
   // make sure that we have scalar input and update the scalar input
-  if ( this->GetInput() == NULL )
+  if ( this->GetInput() == nullptr )
   {
     vtkErrorMacro(<< "No Input!");
     return;
@@ -402,7 +402,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   if ( this->ComputeRowBounds( vol, ren ) )
   {
     vtkVolumeRayCastStaticInfo *staticInfo = new vtkVolumeRayCastStaticInfo;
-    staticInfo->ClippingPlane = NULL;
+    staticInfo->ClippingPlane = nullptr;
     staticInfo->Volume = vol;
     staticInfo->Renderer = ren;
     staticInfo->ScalarDataPointer =
@@ -559,7 +559,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     delete [] staticInfo->ClippingPlane;
     delete staticInfo;
     delete [] this->ZBuffer;
-    this->ZBuffer = NULL;
+    this->ZBuffer = nullptr;
   }
 }
 VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )

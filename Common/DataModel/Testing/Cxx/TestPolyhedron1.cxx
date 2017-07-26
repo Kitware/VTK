@@ -156,7 +156,7 @@ int TestPolyhedron1( int argc, char* argv[] )
   locator->InitPointInsertion(resultPoints, ugrid->GetBounds());
 
   polyhedron->Contour(0, ugrid->GetPointData()->GetScalars(), locator,
-                      NULL, NULL, resultPolys,
+                      nullptr, nullptr, resultPolys,
                       ugrid->GetPointData(), resultPd,
                       ugrid->GetCellData(), 0, resultCd);
 

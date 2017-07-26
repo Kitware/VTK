@@ -96,7 +96,7 @@ int vtkMultiBlockDataGroupFilter::RequestData(
     block->Delete();
     */
 
-    vtkDataObject* input = 0;
+    vtkDataObject* input = nullptr;
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     if (inInfo)
     {
@@ -111,7 +111,7 @@ int vtkMultiBlockDataGroupFilter::RequestData(
     }
     else
     {
-      output->SetBlock(idx, 0);
+      output->SetBlock(idx, nullptr);
     }
   }
 

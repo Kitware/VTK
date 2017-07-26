@@ -36,7 +36,7 @@ int TestSmartPointer(int,char *[])
     "da2 == ia", "da2 != ia", "da2 < ia", "da2 <= ia", "da2 > ia", "da2 <= ia",
       "da2 > ia", "da2 >= ia",
     "da1 == 0", "da1 != 0", "da1 < 0", "da1 <= 0", "da1 > 0", "da1 >= 0",
-    NULL };
+    nullptr };
 
   vtkSmartPointer<vtkIntArray>  da2(ia);
   vtkSmartPointer<vtkFloatArray> da3;
@@ -71,7 +71,7 @@ int TestSmartPointer(int,char *[])
   {
     unsigned int diffbits = (testbits ^ correctbits);
     int bitcount = 0;
-    while (tests[bitcount] != NULL)
+    while (tests[bitcount] != nullptr)
     {
       bitcount++;
     }
@@ -92,7 +92,7 @@ int TestSmartPointer(int,char *[])
   }
   if(!da2)
   {
-    cerr << "da2 is NULL!" << "\n";
+    cerr << "da2 is nullptr!" << "\n";
     rval = 1;
   }
   cout << "IntArray: " << da2 << "\n";

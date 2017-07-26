@@ -78,10 +78,10 @@ int vtkExtractTensorComponents::RequestData(
   vtkPointData *outPD = output->GetPointData();
   double s = 0.0;
   double v[3];
-  vtkFloatArray *newScalars=NULL;
-  vtkFloatArray *newVectors=NULL;
-  vtkFloatArray *newNormals=NULL;
-  vtkFloatArray *newTCoords=NULL;
+  vtkFloatArray *newScalars=nullptr;
+  vtkFloatArray *newVectors=nullptr;
+  vtkFloatArray *newNormals=nullptr;
+  vtkFloatArray *newTCoords=nullptr;
   vtkIdType ptId, numPts;
   double sx, sy, sz, txy, tyz, txz;
 

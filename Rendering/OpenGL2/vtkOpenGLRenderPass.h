@@ -69,7 +69,7 @@ public:
    */
   virtual bool SetShaderParameters(vtkShaderProgram *program,
                                    vtkAbstractMapper *mapper, vtkProp *prop,
-                                   vtkOpenGLVertexArrayObject *VAO = NULL);
+                                   vtkOpenGLVertexArrayObject *VAO = nullptr);
 
   /**
    * For multi-stage render passes that need to change shader code during a

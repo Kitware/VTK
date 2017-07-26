@@ -68,7 +68,7 @@ public:
     XdmfArray* xArray,
     std::string attrName,//TODO: needed because XdmfArray::getName() misbehaves
     unsigned int preferredComponents = 0,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates and Xdmf array corresponding to the VTK array it is given
@@ -76,7 +76,7 @@ public:
   static bool VTKToXdmfArray(
     vtkDataArray *vArray,
     XdmfArray* xArray,
-    unsigned int rank = 0, unsigned int *dims = NULL);
+    unsigned int rank = 0, unsigned int *dims = nullptr);
 
   /**
    * Populates the given VTK DataObject's attribute arrays with the selected
@@ -87,7 +87,7 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
     XdmfGrid *grid, vtkDataObject *dObject,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the given Xdmf Grid's attribute arrays with the selected
@@ -123,7 +123,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfRegularGrid *grid,
     vtkImageData *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -131,7 +131,7 @@ public:
   static void CopyShape(
     XdmfRegularGrid *grid,
     vtkImageData *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -152,7 +152,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfRectilinearGrid *grid,
     vtkRectilinearGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -160,7 +160,7 @@ public:
   static void CopyShape(
     XdmfRectilinearGrid *grid,
     vtkRectilinearGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -181,7 +181,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfCurvilinearGrid *grid,
     vtkStructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -189,7 +189,7 @@ public:
   static void CopyShape(
     XdmfCurvilinearGrid *grid,
     vtkStructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -210,7 +210,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfUnstructuredGrid *grid,
     vtkUnstructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -218,7 +218,7 @@ public:
   static void CopyShape(
     XdmfUnstructuredGrid *grid,
     vtkUnstructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -239,7 +239,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfGraph *grid,
     vtkMutableDirectedGraph *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -264,7 +264,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
 */
     XdmfSet *grid, vtkDataObject *dObject,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Extracts numbered subset out of grid (grid corresponds to dataSet),
@@ -275,7 +275,7 @@ public:
     unsigned int setnum,
     vtkDataSet *dataSet,
     vtkUnstructuredGrid *subSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
 };
 

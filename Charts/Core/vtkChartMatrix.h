@@ -122,7 +122,7 @@ public:
   virtual bool SetChart(const vtkVector2i& position, vtkChart* chart);
 
   /**
-   * Get the specified chart element, if the element does not exist NULL will be
+   * Get the specified chart element, if the element does not exist nullptr will be
    * returned. If the chart element has not yet been allocated it will be at
    * this point.
    */

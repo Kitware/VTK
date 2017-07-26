@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkSelectVisiblePoints);
 // tolerance set to 0.01; and select invisible off.
 vtkSelectVisiblePoints::vtkSelectVisiblePoints()
 {
-  this->Renderer = NULL;
+  this->Renderer = nullptr;
   this->SelectionWindow = 0;
   this->Selection[0] = this->Selection[2] = 0;
   this->Selection[1] = this->Selection[3] = 1600;
@@ -46,7 +46,7 @@ vtkSelectVisiblePoints::vtkSelectVisiblePoints()
 
 vtkSelectVisiblePoints::~vtkSelectVisiblePoints()
 {
-  this->SetRenderer(NULL);
+  this->SetRenderer(nullptr);
   this->CompositePerspectiveTransform->Delete();
 }
 
@@ -78,7 +78,7 @@ int vtkSelectVisiblePoints::RequestData(
     return 1;
   }
 
-  if ( this->Renderer == NULL )
+  if ( this->Renderer == nullptr )
   {
     vtkErrorMacro(<<"Renderer must be set");
     return 0;
@@ -161,7 +161,7 @@ vtkMTimeType vtkSelectVisiblePoints::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Renderer != NULL )
+  if ( this->Renderer != nullptr )
   {
     time = this->Renderer->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -235,7 +235,7 @@ float * vtkSelectVisiblePoints::Initialize(bool getZbuff)
       this->InternalSelection[1],
       this->InternalSelection[3]);
   }
-  return NULL;
+  return nullptr;
 }
 
 bool vtkSelectVisiblePoints::IsPointOccluded(
@@ -260,7 +260,7 @@ bool vtkSelectVisiblePoints::IsPointOccluded(
   if ( dx[0] >= this->InternalSelection[0] && dx[0] <= this->InternalSelection[1] &&
     dx[1] >= this->InternalSelection[2] && dx[1] <= this->InternalSelection[3] )
   {
-    if (zPtr != NULL)
+    if (zPtr != nullptr)
     {
       // Access the value from the captured zbuffer.  Note, we only
       // captured a portion of the zbuffer, so we need to offset dx by

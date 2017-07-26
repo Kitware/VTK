@@ -45,7 +45,7 @@ vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
   this->KeepCellIds = 1;
 
   this->Merging = 1;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ vtkGenericDataSetTessellator::~vtkGenericDataSetTessellator()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   this->InternalPD->Delete();
 }
@@ -126,7 +126,7 @@ int vtkGenericDataSetTessellator::RequestData(
       attributeArray->SetName(attribute->GetName());
       this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
-      if(this->InternalPD->GetAttribute(attributeType)==0)
+      if(this->InternalPD->GetAttribute(attributeType)==nullptr)
       {
         this->InternalPD->SetActiveAttribute(this->InternalPD->GetNumberOfArrays()-1,attributeType);
       }
@@ -141,14 +141,14 @@ int vtkGenericDataSetTessellator::RequestData(
     dsAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(dsAttributes->GetAttribute(attributeType)==0)
+    if(dsAttributes->GetAttribute(attributeType)==nullptr)
     {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
     }
     ++i;
   }
 
-  vtkIdTypeArray *cellIdArray=0;
+  vtkIdTypeArray *cellIdArray=nullptr;
 
   if(this->KeepCellIds)
   {
@@ -162,10 +162,10 @@ int vtkGenericDataSetTessellator::RequestData(
 
   input->GetTessellator()->InitErrorMetrics(input);
 
-  vtkIncrementalPointLocator *locator=0;
+  vtkIncrementalPointLocator *locator=nullptr;
   if ( this->Merging )
   {
-    if ( this->Locator == NULL )
+    if ( this->Locator == nullptr )
     {
       this->CreateDefaultLocator();
     }
@@ -251,7 +251,7 @@ int vtkGenericDataSetTessellator::FillInputPortInformation(
 // default an instance of vtkMergePoints is used.
 void vtkGenericDataSetTessellator::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }
@@ -288,7 +288,7 @@ vtkMTimeType vtkGenericDataSetTessellator::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

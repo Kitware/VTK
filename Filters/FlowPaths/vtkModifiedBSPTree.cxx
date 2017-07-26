@@ -42,7 +42,7 @@ const double Epsilon_=1E-8;
 vtkModifiedBSPTree::vtkModifiedBSPTree(void)
 {
   this->NumberOfCellsPerNode       = 32;
-  this->mRoot                      = NULL;
+  this->mRoot                      = nullptr;
   this->UseExistingSearchStructure = 0;
   this->LazyEvaluation             = 1;
   //
@@ -58,7 +58,7 @@ vtkModifiedBSPTree::~vtkModifiedBSPTree(void)
 void vtkModifiedBSPTree::FreeSearchStructure(void)
 {
   delete this->mRoot;
-  this->mRoot = NULL;
+  this->mRoot = nullptr;
   this->Level = 0;
   this->npn = this->nln = this->tot_depth = 0;
 }
@@ -276,7 +276,7 @@ void vtkModifiedBSPTree::Subdivide(BSPNode *node,
   }
   //
   // Make sure child nodes are clear to start with
-  node->mChild[2] = node->mChild[1] = node->mChild[0] = NULL;
+  node->mChild[2] = node->mChild[1] = node->mChild[0] = nullptr;
   //
   // Do we want to subdivide this node ?
   //
@@ -451,7 +451,7 @@ void vtkModifiedBSPTree::Subdivide(BSPNode *node,
                 for (int i=0; i<3; i++)
                 {
                   delete node->mChild[i];
-                  node->mChild[i] = NULL;
+                  node->mChild[i] = nullptr;
                 }
                 delete left;
                 delete mid;
@@ -481,7 +481,7 @@ void vtkModifiedBSPTree::Subdivide(BSPNode *node,
                 }
                 else
                 {
-                  delete node->mChild[1]; node->mChild[1] = NULL;
+                  delete node->mChild[1]; node->mChild[1] = nullptr;
                 }
                 delete mid;
 
@@ -1051,13 +1051,13 @@ vtkIdListCollection *vtkModifiedBSPTree::GetLeafNodeCellInformation()
 {
   if (!this->mRoot)
   {
-    return NULL;
+    return nullptr;
   }
   this->BuildLocatorIfNeeded();
   //
   vtkIdListCollection *LeafCellsList = vtkIdListCollection::New();
   nodestack ns;
-  BSPNode   *node = NULL;
+  BSPNode   *node = nullptr;
   ns.push(this->mRoot);
   //
   while (!ns.empty())

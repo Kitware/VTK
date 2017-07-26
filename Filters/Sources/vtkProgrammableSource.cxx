@@ -29,10 +29,10 @@ vtkStandardNewMacro(vtkProgrammableSource);
 // Construct programmable filter with empty execute method.
 vtkProgrammableSource::vtkProgrammableSource()
 {
-  this->ExecuteMethod = NULL;
-  this->ExecuteMethodArg = NULL;
-  this->ExecuteMethodArgDelete = NULL;
-  this->RequestInformationMethod = NULL;
+  this->ExecuteMethod = nullptr;
+  this->ExecuteMethodArg = nullptr;
+  this->ExecuteMethodArgDelete = nullptr;
+  this->RequestInformationMethod = nullptr;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(5);
@@ -118,7 +118,7 @@ vtkPolyData *vtkProgrammableSource::GetPolyDataOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
   {
-    return NULL;
+    return nullptr;
   }
 
   this->RequestedDataType = VTK_POLY_DATA;
@@ -131,7 +131,7 @@ vtkStructuredPoints *vtkProgrammableSource::GetStructuredPointsOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
   {
-    return NULL;
+    return nullptr;
   }
 
   this->RequestedDataType = VTK_STRUCTURED_POINTS;
@@ -144,7 +144,7 @@ vtkStructuredGrid *vtkProgrammableSource::GetStructuredGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
   {
-    return NULL;
+    return nullptr;
   }
 
   this->RequestedDataType = VTK_STRUCTURED_GRID;
@@ -157,7 +157,7 @@ vtkUnstructuredGrid *vtkProgrammableSource::GetUnstructuredGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
   {
-    return NULL;
+    return nullptr;
   }
 
   this->RequestedDataType = VTK_UNSTRUCTURED_GRID;
@@ -170,7 +170,7 @@ vtkRectilinearGrid *vtkProgrammableSource::GetRectilinearGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 5)
   {
-    return NULL;
+    return nullptr;
   }
 
   this->RequestedDataType = VTK_RECTILINEAR_GRID;
@@ -186,7 +186,7 @@ int vtkProgrammableSource::RequestData(
   vtkDebugMacro(<<"Executing programmable filter");
 
   // Now invoke the procedure, if specified.
-  if ( this->ExecuteMethod != NULL )
+  if ( this->ExecuteMethod != nullptr )
   {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
   }
@@ -200,7 +200,7 @@ int vtkProgrammableSource::RequestDataObject(
   vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo;
-  vtkDataSet *output = 0;
+  vtkDataSet *output = nullptr;
   switch (this->RequestedDataType)
   {
     case VTK_POLY_DATA:
@@ -326,9 +326,9 @@ int vtkProgrammableSource::RequestInformation(vtkInformation *,
   vtkDebugMacro(<<"requesting information");
 
   // Now invoke the procedure, if specified.
-  if ( this->RequestInformationMethod != NULL )
+  if ( this->RequestInformationMethod != nullptr )
   {
-    (*this->RequestInformationMethod)(NULL);
+    (*this->RequestInformationMethod)(nullptr);
   }
 
   return 1;

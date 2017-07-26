@@ -437,8 +437,8 @@ VertOffsets[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
 // marching cubes case table. Some of this code is borrowed shamelessly from
 // vtkVoxel::Contour() method.
 template <class T> vtkExtractSurfaceAlgorithm<T>::
-vtkExtractSurfaceAlgorithm():XCases(NULL),EdgeMetaData(NULL),NewTris(NULL),
-                             NewPoints(NULL),NewGradients(NULL),NewNormals(NULL)
+vtkExtractSurfaceAlgorithm():XCases(nullptr),EdgeMetaData(nullptr),NewTris(nullptr),
+                             NewPoints(nullptr),NewGradients(nullptr),NewNormals(nullptr)
 {
   int i, j, k, l, ii, eCase, index, numTris;
   static int vertMap[8] = {0,1,3,2,4,5,7,6};
@@ -1341,7 +1341,7 @@ int vtkExtractSurface::RequestData(
 
   // Check data type and execute appropriate function
   //
-  if (inScalars == NULL)
+  if (inScalars == nullptr)
   {
     vtkDebugMacro("No scalars for contouring.");
     return 0;
@@ -1352,8 +1352,8 @@ int vtkExtractSurface::RequestData(
   vtkCellArray *newTris = vtkCellArray::New();
   vtkPoints *newPts = vtkPoints::New();
   newPts->SetDataTypeToFloat();
-  vtkFloatArray *newNormals = NULL;
-  vtkFloatArray *newGradients = NULL;
+  vtkFloatArray *newNormals = nullptr;
+  vtkFloatArray *newGradients = nullptr;
 
   if (this->ComputeNormals)
   {

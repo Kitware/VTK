@@ -34,8 +34,8 @@ vtkGlobFileNames* vtkGlobFileNames::New()
 //----------------------------------------------------------------------------
 vtkGlobFileNames::vtkGlobFileNames()
 {
-  this->Directory = 0;
-  this->Pattern = 0;
+  this->Directory = nullptr;
+  this->Pattern = nullptr;
   this->Recurse = 0;
   this->FileNames = vtkStringArray::New();
 }
@@ -46,7 +46,7 @@ vtkGlobFileNames::~vtkGlobFileNames()
   delete [] this->Directory;
   delete [] this->Pattern;
   this->FileNames->Delete();
-  this->FileNames = 0;
+  this->FileNames = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ const char* vtkGlobFileNames::GetNthFileName(int index)
   if(index >= this->FileNames->GetNumberOfValues() || index < 0)
   {
     vtkErrorMacro( << "Bad index for GetFileName on vtkGlobFileNames\n");
-    return 0;
+    return nullptr;
   }
 
   return this->FileNames->GetValue(index).c_str();

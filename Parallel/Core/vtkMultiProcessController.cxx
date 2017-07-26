@@ -87,18 +87,18 @@ vtkMultiProcessController::vtkMultiProcessController()
 
   this->RMICount = 1;
 
-  this->SingleMethod = 0;
-  this->SingleData = 0;
+  this->SingleMethod = nullptr;
+  this->SingleData = nullptr;
 
-  this->Communicator = 0;
-  this->RMICommunicator = 0;
+  this->Communicator = nullptr;
+  this->RMICommunicator = nullptr;
 
   this->BreakFlag = 0;
   this->ForceDeepCopy = 1;
 
   this->BroadcastTriggerRMI = false;
 
-  this->OutputWindow = 0;
+  this->OutputWindow = nullptr;
 
   // Define an rmi internally to exit from the processing loop.
   this->AddRMI(vtkMultiProcessControllerBreakRMI, this, BREAK_RMI_TAG);
@@ -112,7 +112,7 @@ vtkMultiProcessController::~vtkMultiProcessController()
   if ( this->OutputWindow &&
        (this->OutputWindow == vtkOutputWindow::GetInstance()) )
   {
-    vtkOutputWindow::SetInstance(0);
+    vtkOutputWindow::SetInstance(nullptr);
   }
 
   if (this->OutputWindow)
@@ -257,8 +257,8 @@ void vtkMultiProcessController::GetMultipleMethod(int index,
   }
   else
   {
-    func = NULL;
-    data = NULL;
+    func = nullptr;
+    data = nullptr;
   }
 }
 
@@ -269,13 +269,13 @@ vtkMultiProcessController *vtkMultiProcessController::CreateSubController(
   if (group->GetCommunicator() != this->Communicator)
   {
     vtkErrorMacro(<< "Invalid group for creating a sub controller.");
-    return NULL;
+    return nullptr;
   }
 
   if (group->FindProcessId(this->GetLocalProcessId()) < 0)
   {
     // The group does not contain this process.  Just return NULL.
-    return NULL;
+    return nullptr;
   }
 
   vtkSubCommunicator *subcomm = vtkSubCommunicator::New();
@@ -299,7 +299,7 @@ vtkMultiProcessController *vtkMultiProcessController::PartitionController(
                                                                  int localColor,
                                                                  int localKey)
 {
-  vtkMultiProcessController *subController = NULL;
+  vtkMultiProcessController *subController = nullptr;
 
   int numProc = this->GetNumberOfProcesses();
 
@@ -511,7 +511,7 @@ int vtkMultiProcessController::BroadcastProcessRMIs(
   int triggerMessage[128];
   int rmiTag;
   int argLength;
-  unsigned char *arg = NULL;
+  unsigned char *arg = nullptr;
   int error = RMI_NO_ERROR;
 
   this->InvokeEvent(vtkCommand::StartEvent);
@@ -548,7 +548,7 @@ int vtkMultiProcessController::BroadcastProcessRMIs(
     this->ProcessRMI(0 /*we broadcast from rank 0*/, arg, argLength,rmiTag);
 
     delete [] arg;
-    arg = NULL;
+    arg = nullptr;
 
     // check for break
     if (this->BreakFlag)
@@ -617,7 +617,7 @@ void vtkMultiProcessController::TriggerBreakRMIs()
 
   if( this->BroadcastTriggerRMI == 1 )
   {
-    this->BroadcastTriggerRMIOnAllChildren(NULL,0,BREAK_RMI_TAG);
+    this->BroadcastTriggerRMIOnAllChildren(nullptr,0,BREAK_RMI_TAG);
     return;
   }
 
@@ -630,7 +630,7 @@ void vtkMultiProcessController::TriggerBreakRMIs()
   num = this->GetNumberOfProcesses();
   for (idx = 1; idx < num; ++idx)
   {
-    this->TriggerRMI(idx, NULL, 0, BREAK_RMI_TAG);
+    this->TriggerRMI(idx, nullptr, 0, BREAK_RMI_TAG);
   }
 }
 
@@ -651,7 +651,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 
   this->InvokeEvent(vtkCommand::StartEvent);
   int triggerMessage[128];
-  unsigned char *arg = NULL;
+  unsigned char *arg = nullptr;
   int error = RMI_NO_ERROR;
 
   do
@@ -716,7 +716,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
     this->ProcessRMI(triggerMessage[2], arg, triggerMessage[1],
       triggerMessage[0]);
     delete [] arg;
-    arg = NULL;
+    arg = nullptr;
 
     // check for break
     if (this->BreakFlag)
@@ -775,9 +775,9 @@ static vtkWeakPointer<vtkMultiProcessController> VTK_GLOBAL_MULTI_PROCESS_CONTRO
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
 {
-  if (VTK_GLOBAL_MULTI_PROCESS_CONTROLLER == NULL)
+  if (VTK_GLOBAL_MULTI_PROCESS_CONTROLLER == nullptr)
   {
-    return NULL;
+    return nullptr;
   }
 
   return VTK_GLOBAL_MULTI_PROCESS_CONTROLLER->GetLocalController();

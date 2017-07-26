@@ -1261,8 +1261,8 @@ public:
    */
   virtual int ComputeGlobalBounds(int processorId, int numProcesses,
                                   vtkBoundingBox *bounds,
-                                  int *rightHasBounds = 0,
-                                  int *leftHasBounds = 0,
+                                  int *rightHasBounds = nullptr,
+                                  int *leftHasBounds = nullptr,
                                   int hasBoundsTag = 288402,
                                   int localBoundsTag = 288403,
                                   int globalBoundsTag = 288404);

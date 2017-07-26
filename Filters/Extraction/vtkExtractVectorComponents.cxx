@@ -37,7 +37,7 @@ vtkExtractVectorComponents::~vtkExtractVectorComponents()
 {
 }
 
-// Get the output dataset representing velocity x-component. If output is NULL
+// Get the output dataset representing velocity x-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 0.)
@@ -46,7 +46,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
   return this->GetOutput(0);
 }
 
-// Get the output dataset representing velocity y-component. If output is NULL
+// Get the output dataset representing velocity y-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 1.)
@@ -55,7 +55,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
   return this->GetOutput(1);
 }
 
-// Get the output dataset representing velocity z-component. If output is NULL
+// Get the output dataset representing velocity z-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 2.)
@@ -74,7 +74,7 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
 
   this->Superclass::SetInputData(0, input);
 
-  if ( input == NULL )
+  if ( input == nullptr )
   {
     return;
   }
@@ -143,8 +143,8 @@ int vtkExtractVectorComponents::RequestData(
   vtkDataArray *vectors, *vectorsc;
   vtkDataArray *vx, *vy, *vz;
   vtkDataArray *vxc, *vyc, *vzc;
-  vtkPointData *pd, *outVx, *outVy=0, *outVz=0;
-  vtkCellData *cd, *outVxc, *outVyc=0, *outVzc=0;
+  vtkPointData *pd, *outVx, *outVy=nullptr, *outVz=nullptr;
+  vtkCellData *cd, *outVxc, *outVyc=nullptr, *outVzc=nullptr;
 
   vtkDebugMacro(<<"Extracting vector components...");
 
@@ -170,9 +170,9 @@ int vtkExtractVectorComponents::RequestData(
 
   vectors = pd->GetVectors();
   vectorsc = cd->GetVectors();
-  if ( (vectors == NULL ||
+  if ( (vectors == nullptr ||
         ((numVectors = vectors->GetNumberOfTuples()) < 1) ) &&
-       (vectorsc == NULL ||
+       (vectorsc == nullptr ||
         ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))
   {
     vtkErrorMacro(<<"No vector data to extract!");
@@ -190,7 +190,7 @@ int vtkExtractVectorComponents::RequestData(
   }
   else
   {
-    name = 0;
+    name = nullptr;
   }
 
   size_t newNameSize;

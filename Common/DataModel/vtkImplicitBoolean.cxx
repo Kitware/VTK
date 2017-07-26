@@ -125,7 +125,7 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
   {
     vtkImplicitFunction *firstF;
     this->FunctionList->InitTraversal(sit);
-    if ( (firstF = this->FunctionList->GetNextImplicitFunction(sit)) != NULL )
+    if ( (firstF = this->FunctionList->GetNextImplicitFunction(sit)) != nullptr )
     {
       value = firstF->FunctionValue(x);
     }
@@ -204,7 +204,7 @@ void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
     double gTemp[3];
     vtkImplicitFunction *firstF;
     this->FunctionList->InitTraversal(sit);
-    if ( (firstF = this->FunctionList->GetNextImplicitFunction(sit)) != NULL )
+    if ( (firstF = this->FunctionList->GetNextImplicitFunction(sit)) != nullptr )
     {
       value = firstF->FunctionValue(x);
       firstF->FunctionGradient(x,gTemp);

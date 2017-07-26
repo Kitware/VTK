@@ -40,7 +40,7 @@ vtkDataObjectTree::~vtkDataObjectTree()
 //----------------------------------------------------------------------------
 vtkDataObjectTree* vtkDataObjectTree::GetData(vtkInformation* info)
 {
-  return info? vtkDataObjectTree::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkDataObjectTree::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ void vtkDataObjectTree::RemoveChild(unsigned int index)
   }
 
   vtkDataObjectTreeItem& item = this->Internals->Children[index];
-  item.DataObject = NULL;
+  item.DataObject = nullptr;
   this->Internals->Children.erase(this->Internals->Children.begin()+index);
   this->Modified();
 }
@@ -102,7 +102,7 @@ vtkDataObject* vtkDataObjectTree::GetChild(unsigned int index)
     return this->Internals->Children[index].DataObject;
   }
 
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ vtkInformation* vtkDataObjectTree::GetChildMetaData(unsigned int index)
     }
     return item.MetaData;
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ int vtkDataObjectTree::HasChildMetaData(unsigned int index)
   if (index < this->Internals->Children.size())
   {
     vtkDataObjectTreeItem& item = this->Internals->Children[index];
-    return (item.MetaData.GetPointer() != NULL)? 1 : 0;
+    return (item.MetaData.GetPointer() != nullptr)? 1 : 0;
   }
 
   return 0;
@@ -316,7 +316,7 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
   if (!compositeIter || compositeIter->IsDoneWithTraversal())
   {
     vtkErrorMacro("Invalid iterator location.");
-    return 0;
+    return nullptr;
   }
 
   vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
@@ -330,13 +330,13 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
     if(this->GetNumberOfChildren()!=1)
     {
       vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-      return NULL;
+      return nullptr;
     }
     vtkMultiPieceDataSet* parent  = vtkMultiPieceDataSet::SafeDownCast(this->GetChild(0));
     if(!parent)
     {
       vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-      return NULL;
+      return nullptr;
     }
 
     if(currentFlatIndex < parent->GetNumberOfChildren())
@@ -345,7 +345,7 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
     }
     else
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -355,7 +355,7 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
   {
     // Sanity check.
     vtkErrorMacro("Invalid index returned by iterator.");
-    return 0;
+    return nullptr;
   }
 
   vtkDataObjectTree* parent = this;
@@ -366,7 +366,7 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
     {
       vtkErrorMacro("Structure does not match. "
         "You must use CopyStructure before calling this method.");
-      return 0;
+      return nullptr;
     }
     parent = vtkDataObjectTree::SafeDownCast(parent->GetChild(index[cc]));
   }
@@ -375,7 +375,7 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
   {
     vtkErrorMacro("Structure does not match. "
       "You must use CopyStructure before calling this method.");
-    return 0;
+    return nullptr;
   }
 
   return parent->GetChild(index.back());
@@ -388,7 +388,7 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
   if (!iter || iter->IsDoneWithTraversal())
   {
     vtkErrorMacro("Invalid iterator location.");
-    return 0;
+    return nullptr;
   }
 
   vtkDataObjectTreeIndex index = iter->GetCurrentIndex();
@@ -397,7 +397,7 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
   {
     // Sanity check.
     vtkErrorMacro("Invalid index returned by iterator.");
-    return 0;
+    return nullptr;
   }
 
   vtkDataObjectTree* parent = this;
@@ -408,7 +408,7 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
     {
       vtkErrorMacro("Structure does not match. "
         "You must use CopyStructure before calling this method.");
-      return 0;
+      return nullptr;
     }
     parent = vtkDataObjectTree::SafeDownCast(parent->GetChild(index[cc]));
   }
@@ -417,7 +417,7 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
   {
     vtkErrorMacro("Structure does not match. "
       "You must use CopyStructure before calling this method.");
-    return 0;
+    return nullptr;
   }
 
   return parent->GetChildMetaData(index.back());
@@ -598,7 +598,7 @@ void vtkDataObjectTree::PrintSelf(ostream& os, vtkIndent indent)
     }
     else
     {
-      os << indent << "Child " << cc << ": NULL" << endl;
+      os << indent << "Child " << cc << ": nullptr" << endl;
     }
   }
 }

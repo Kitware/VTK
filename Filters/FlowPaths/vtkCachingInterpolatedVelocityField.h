@@ -91,7 +91,7 @@ public:
   //@{
   /**
    * If you want to work with an arbitrary vector array, then set its name
-   * here. By default this in NULL and the filter will use the active vector
+   * here. By default this in nullptr and the filter will use the active vector
    * array.
    */
   vtkGetStringMacro(VectorsSelection);
@@ -107,7 +107,7 @@ public:
   void SetLastCellInfo(vtkIdType c, int datasetindex);
 
   /**
-   * Set LastCellId to -1 and Cache to NULL so that the next
+   * Set LastCellId to -1 and Cache to nullptr so that the next
    * search does not  start from the previous cell.
    */
   void ClearLastCellInfo();

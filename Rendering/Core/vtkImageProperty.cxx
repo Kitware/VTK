@@ -29,7 +29,7 @@ vtkImageProperty::vtkImageProperty()
   this->ColorWindow = 255.0;
   this->ColorLevel = 127.5;
 
-  this->LookupTable = NULL;
+  this->LookupTable = nullptr;
   this->UseLookupTableScalarRange = 0;
 
   this->Opacity = 1.0;
@@ -56,7 +56,7 @@ vtkImageProperty::vtkImageProperty()
 // Destruct a vtkImageProperty
 vtkImageProperty::~vtkImageProperty()
 {
-  if (this->LookupTable != NULL)
+  if (this->LookupTable != nullptr)
   {
     this->LookupTable->Delete();
   }
@@ -80,14 +80,14 @@ const char *vtkImageProperty::GetInterpolationTypeAsString()
 //----------------------------------------------------------------------------
 void vtkImageProperty::DeepCopy(vtkImageProperty *p)
 {
-  if (p != NULL)
+  if (p != nullptr)
   {
     this->SetColorWindow(p->GetColorWindow());
     this->SetColorLevel(p->GetColorLevel());
     vtkScalarsToColors *lut = p->GetLookupTable();
-    if (lut == NULL)
+    if (lut == nullptr)
     {
-      this->SetLookupTable(NULL);
+      this->SetLookupTable(nullptr);
     }
     else
     {

@@ -91,6 +91,6 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
     // delete.
     vtkFilteringInformationKeyManagerKeys->~vtkFilteringInformationKeyManagerKeysType();
     free(vtkFilteringInformationKeyManagerKeys);
-    vtkFilteringInformationKeyManagerKeys = 0;
+    vtkFilteringInformationKeyManagerKeys = nullptr;
   }
 }

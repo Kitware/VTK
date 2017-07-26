@@ -67,7 +67,7 @@ public:
   /**
    * The field name to use when generating the selection.
    * If set, creates a VALUES selection.
-   * If not set (or is set to NULL), creates a INDICES selection.
+   * If not set (or is set to nullptr), creates a INDICES selection.
    * By default this is not set.
    */
   vtkSetStringMacro(SelectionFieldName);

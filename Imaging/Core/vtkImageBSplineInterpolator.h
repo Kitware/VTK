@@ -69,7 +69,7 @@ public:
    * Get the support size for use in computing update extents.  If the data
    * will be sampled on a regular grid, then pass a matrix describing the
    * structured coordinate transformation between the output and the input.
-   * Otherwise, pass NULL as the matrix to retrieve the full kernel size.
+   * Otherwise, pass nullptr as the matrix to retrieve the full kernel size.
    */
   void ComputeSupportSize(const double matrix[16], int support[3]) VTK_OVERRIDE;
 

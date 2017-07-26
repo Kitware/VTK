@@ -48,10 +48,10 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
   this->HeatmapBuildTime = 0;
   this->Table = vtkSmartPointer<vtkTable>::New();
   this->NameColumn = "name";
-  this->RowNames = NULL;
+  this->RowNames = nullptr;
 
-  this->CollapsedRowsArray = NULL;
-  this->CollapsedColumnsArray = NULL;
+  this->CollapsedRowsArray = nullptr;
+  this->CollapsedColumnsArray = nullptr;
 
   /* initialize bounds so that the mouse cursor is never considered
    * "inside" the heatmap */
@@ -101,7 +101,7 @@ vtkVector2f vtkHeatmapItem::GetPositionVector()
 //-----------------------------------------------------------------------------
 void vtkHeatmapItem::SetTable(vtkTable *table)
 {
-  if (table == NULL || table->GetNumberOfRows() == 0)
+  if (table == nullptr || table->GetNumberOfRows() == 0)
   {
     this->Table = vtkSmartPointer<vtkTable>::New();
     return;
@@ -111,16 +111,16 @@ void vtkHeatmapItem::SetTable(vtkTable *table)
   // get the row names for this table
   vtkStringArray *rowNames = vtkArrayDownCast<vtkStringArray>(
     this->Table->GetColumnByName(this->NameColumn));
-  if (rowNames == NULL)
+  if (rowNames == nullptr)
   {
     rowNames = vtkArrayDownCast<vtkStringArray>(
       this->Table->GetColumn(0));
   }
-  if (rowNames == NULL)
+  if (rowNames == nullptr)
   {
     vtkWarningMacro("Could not determine row name column."
       "Try calling vtkHeatmapItem::SetNameColumn(vtkStdString)");
-    this->RowNames = NULL;
+    this->RowNames = nullptr;
   }
   else
   {

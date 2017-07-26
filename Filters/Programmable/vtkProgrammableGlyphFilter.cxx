@@ -36,13 +36,13 @@ vtkStandardNewMacro(vtkProgrammableGlyphFilter);
 // initial sources are defined.
 vtkProgrammableGlyphFilter::vtkProgrammableGlyphFilter()
 {
-  this->GlyphMethod = NULL;
-  this->GlyphMethodArgDelete = NULL;
-  this->GlyphMethodArg = NULL;
+  this->GlyphMethod = nullptr;
+  this->GlyphMethodArgDelete = nullptr;
+  this->GlyphMethodArg = nullptr;
 
   this->Point[0] = this->Point[1] = this->Point[2] = 0.0;
   this->PointId = -1;
-  this->PointData = NULL;
+  this->PointData = nullptr;
 
   this->ColorMode = VTK_COLOR_BY_INPUT;
 
@@ -72,7 +72,7 @@ vtkPolyData *vtkProgrammableGlyphFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkPolyData::SafeDownCast(
@@ -102,8 +102,8 @@ int vtkProgrammableGlyphFilter::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPoints *newPts, *sourcePts;
-  vtkFloatArray *ptScalars=NULL, *cellScalars=NULL;
-  vtkDataArray *inPtScalars = NULL, *inCellScalars = NULL;
+  vtkFloatArray *ptScalars=nullptr, *cellScalars=nullptr;
+  vtkDataArray *inPtScalars = nullptr, *inCellScalars = nullptr;
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkPointData *sourcePD;
   vtkCellData *sourceCD;
@@ -188,10 +188,10 @@ int vtkProgrammableGlyphFilter::RequestData(
     {
       (*this->GlyphMethod)(this->GlyphMethodArg);
 
-      // The GlyphMethod may have set the source connection to NULL
+      // The GlyphMethod may have set the source connection to nullptr
       if (this->GetNumberOfInputConnections(1) == 0)
       {
-        source = NULL;
+        source = nullptr;
       }
       else
       {

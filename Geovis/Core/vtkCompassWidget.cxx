@@ -150,14 +150,14 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
   if ( interactionState == vtkCompassRepresentation::TiltDown)
   {
     self->SetTilt(self->GetTilt() - 15);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
   }
   if (interactionState == vtkCompassRepresentation::TiltUp)
   {
     self->SetTilt(self->GetTilt() + 15);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
   }
@@ -174,7 +174,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->WidgetRep->Highlight(1);
     // start the interaction
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
     return;
@@ -183,14 +183,14 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
   if ( interactionState == vtkCompassRepresentation::DistanceIn)
   {
     self->SetDistance(self->GetDistance()*0.8);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
   }
   if (interactionState == vtkCompassRepresentation::DistanceOut)
   {
     self->SetDistance(self->GetDistance()*1.2);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     return;
   }
@@ -207,7 +207,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->WidgetRep->Highlight(1);
     // start the interaction
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
     return;
@@ -228,7 +228,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->WidgetRep->Highlight(1);
     // start the interaction
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
     self->Render();
     return;
@@ -301,7 +301,7 @@ void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
   {
     self->WidgetRep->WidgetInteraction(eventPos);
   }
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 
   // Interact, if desired
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -358,7 +358,7 @@ void vtkCompassWidget::EndSelectAction(vtkAbstractWidget *w)
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -384,7 +384,7 @@ void vtkCompassWidget::TimerAction(vtkAbstractWidget *w)
       rep->UpdateDistance(tElapsed);
     }
     self->StartTime = vtkTimerLog::GetUniversalTime();
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this timer
   }
 }

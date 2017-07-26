@@ -55,10 +55,10 @@ vtkAMRFlashReader::vtkAMRFlashReader()
 vtkAMRFlashReader::~vtkAMRFlashReader()
 {
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   delete this->Internal;
-  this->Internal = NULL;
+  this->Internal = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -70,16 +70,16 @@ void vtkAMRFlashReader::PrintSelf( std::ostream &os, vtkIndent indent )
 //-----------------------------------------------------------------------------
 void vtkAMRFlashReader::SetFileName( const char* fileName )
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
 
   if( fileName && strcmp(fileName,"") &&
-     ( ( this->FileName == NULL ) || strcmp( fileName, this->FileName ) ) )
+     ( ( this->FileName == nullptr ) || strcmp( fileName, this->FileName ) ) )
   {
     if( this->FileName )
     {
       delete [] this->FileName;
-      this->FileName = NULL;
-      this->Internal->SetFileName( NULL );
+      this->FileName = nullptr;
+      this->Internal->SetFileName( nullptr );
     }
 
     this->FileName = new char[ strlen(fileName)+1 ];
@@ -100,14 +100,14 @@ void vtkAMRFlashReader::SetFileName( const char* fileName )
 //-----------------------------------------------------------------------------
 void vtkAMRFlashReader::ReadMetaData()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   this->Internal->ReadMetaData();
 }
 
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::GetBlockLevel( const int blockIdx )
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
   {
     return(-1);
@@ -125,7 +125,7 @@ int vtkAMRFlashReader::GetBlockLevel( const int blockIdx )
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::GetNumberOfBlocks()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
   {
     return 0;
@@ -138,7 +138,7 @@ int vtkAMRFlashReader::GetNumberOfBlocks()
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::GetNumberOfLevels()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
   {
     return 0;
@@ -177,8 +177,8 @@ void vtkAMRFlashReader::ComputeStats(vtkFlashReaderInternal* internal, std::vect
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::FillMetaData( )
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
+  assert( "pre: metadata object is nullptr" && (this->Metadata != nullptr) );
 
   this->Internal->ReadMetaData();
 
@@ -228,7 +228,7 @@ vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid( const int blockIdx )
 {
   if( !this->IsReady )
   {
-    return NULL;
+    return nullptr;
   }
 
   double blockMin[3];
@@ -255,14 +255,14 @@ vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid( const int blockIdx )
 void  vtkAMRFlashReader::GetAMRGridData(
     const int blockIdx, vtkUniformGrid *block, const char *field)
 {
-  assert( "pre: AMR block is NULL" && (block != NULL) );
+  assert( "pre: AMR block is nullptr" && (block != nullptr) );
   this->Internal->GetBlockAttribute( field, blockIdx, block );
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMRFlashReader::SetUpDataArraySelections()
 {
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr) );
   this->Internal->ReadMetaData();
 
   int numAttrs = static_cast< int >( this->Internal->AttributeNames.size() );

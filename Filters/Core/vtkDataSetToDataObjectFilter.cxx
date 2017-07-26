@@ -119,19 +119,19 @@ int vtkDataSetToDataObjectFilter::RequestData(
     {
       vtkRectilinearGrid *rgrid=static_cast<vtkRectilinearGrid *>(input);
       da = rgrid->GetXCoordinates();
-      if (da != NULL)
+      if (da != nullptr)
       {
         da->SetName("XCoordinates");
         fd->AddArray( da );
       }
       da = rgrid->GetYCoordinates();
-      if (da != NULL)
+      if (da != nullptr)
       {
         da->SetName("YCoordinates");
         fd->AddArray( da );
       }
       da = rgrid->GetZCoordinates();
-      if (da != NULL)
+      if (da != nullptr)
       {
         da->SetName("ZCoordinates");
         fd->AddArray( da );
@@ -234,7 +234,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
     {
       vtkCellArray *ca=static_cast<vtkUnstructuredGrid *>(input)->GetCells();
-      if ( ca != NULL && ca->GetNumberOfCells() > 0 )
+      if ( ca != nullptr && ca->GetNumberOfCells() > 0 )
       {
         ca->GetData()->SetName("Cells");
         fd->AddArray( ca->GetData() );

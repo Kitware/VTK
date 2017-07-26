@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkTableToSQLiteWriter);
 //----------------------------------------------------------------------------
 vtkTableToSQLiteWriter::vtkTableToSQLiteWriter()
 {
-    this->Database = 0;
+    this->Database = nullptr;
 }
 
 //----------------------------------------------------------------------------

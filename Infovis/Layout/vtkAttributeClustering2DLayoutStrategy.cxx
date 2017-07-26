@@ -89,19 +89,19 @@ vtkAttributeClustering2DLayoutStrategy::vtkAttributeClustering2DLayoutStrategy()
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
-  this->EdgeWeightField = 0;
+  this->EdgeWeightField = nullptr;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
   this->CuttingThreshold=0;
-  this->VertexAttribute = NULL;
+  this->VertexAttribute = nullptr;
 }
 
 // ----------------------------------------------------------------------
 
 vtkAttributeClustering2DLayoutStrategy::~vtkAttributeClustering2DLayoutStrategy()
 {
-  this->SetEdgeWeightField(0);
-  this->SetVertexAttribute(0);
+  this->SetEdgeWeightField(nullptr);
+  this->SetVertexAttribute(nullptr);
   delete this->Implementation;
 }
 
@@ -109,7 +109,7 @@ void vtkAttributeClustering2DLayoutStrategy::SetVertexAttribute(const char* att)
 {
   // This method is a cut and paste of vtkSetStringMacro
   // except for the call to Initialize at the end :)
-  if ( this->VertexAttribute == NULL && att == NULL) { return;}
+  if ( this->VertexAttribute == nullptr && att == nullptr) { return;}
   if ( this->VertexAttribute && att && (!strcmp(this->VertexAttribute,att))) { return;}
   delete [] this->VertexAttribute;
   if (att)
@@ -122,7 +122,7 @@ void vtkAttributeClustering2DLayoutStrategy::SetVertexAttribute(const char* att)
   }
    else
    {
-    this->VertexAttribute = NULL;
+    this->VertexAttribute = nullptr;
    }
 
   this->Modified();
@@ -311,7 +311,7 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
 void vtkAttributeClustering2DLayoutStrategy::Layout()
 {
   // Do I have a graph to layout?
-  if (this->Graph == NULL)
+  if (this->Graph == nullptr)
   {
     vtkErrorMacro("Graph Layout called with Graph==NULL, call SetGraph(g) first");
     this->LayoutComplete = 1;

@@ -47,12 +47,12 @@ vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
 vtkUnstructuredGridPreIntegration::vtkUnstructuredGridPreIntegration()
 {
   this->Integrator = vtkUnstructuredGridPartialPreIntegration::New();
-  this->Property = NULL;
+  this->Property = nullptr;
 
   this->NumComponents = 0;
-  this->IntegrationTable = NULL;
-  this->IntegrationTableScalarShift = NULL;
-  this->IntegrationTableScalarScale = NULL;
+  this->IntegrationTable = nullptr;
+  this->IntegrationTableScalarShift = nullptr;
+  this->IntegrationTableScalarScale = nullptr;
 
   this->IntegrationTableScalarResolution = 128;
   this->IntegrationTableLengthResolution = 256;
@@ -63,7 +63,7 @@ vtkUnstructuredGridPreIntegration::vtkUnstructuredGridPreIntegration()
 
 vtkUnstructuredGridPreIntegration::~vtkUnstructuredGridPreIntegration()
 {
-  this->SetIntegrator(NULL);
+  this->SetIntegrator(nullptr);
 
   if (this->IntegrationTable)
   {
@@ -187,10 +187,10 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     }
     catch (...)
     {
-      this->IntegrationTable[component] = NULL;
+      this->IntegrationTable[component] = nullptr;
     }
 
-    if (this->IntegrationTable[component] == NULL)
+    if (this->IntegrationTable[component] == nullptr)
     {
       // Could not allocate memory for table.
       if (   (this->IntegrationTableScalarResolution > 32)
@@ -203,7 +203,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
           delete[] this->IntegrationTable[i];
         }
         delete[] this->IntegrationTable;
-        this->IntegrationTable = NULL;
+        this->IntegrationTable = nullptr;
 
         this->IntegrationTableScalarResolution = 32;
         this->IntegrationTableLengthResolution = 64;

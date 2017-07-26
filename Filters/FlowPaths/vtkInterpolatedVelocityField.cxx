@@ -104,7 +104,7 @@ int vtkInterpolatedVelocityField::FunctionValues( double * x, double * f )
 //----------------------------------------------------------------------------
 int vtkInterpolatedVelocityField::SnapPointOnCell(double* pOrigin, double* pSnap)
 {
-  if (this->LastDataSet == NULL)
+  if (this->LastDataSet == nullptr)
   {
     return 0;
   }

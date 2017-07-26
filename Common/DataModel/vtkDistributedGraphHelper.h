@@ -110,7 +110,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
    * Set the pedigreeId -> processor distribution function that determines
    * how vertices are distributed when they are associated with
    * pedigree ID, which must be a unique label such as a URL or IP
-   * address. If a NULL function pointer is provided, the default
+   * address. If a nullptr function pointer is provided, the default
    * hashed distribution will be used.
    */
   void SetVertexPedigreeIdDistribution(vtkVertexPedigreeIdDistribution Func,
@@ -156,9 +156,9 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
 
   /**
    * Add a vertex, optionally with properties, to the distributed graph.
-   * If vertex is non-NULL, it will be set
+   * If vertex is non-nullptr, it will be set
    * to the newly-added (or found) vertex. Note that if propertyArr is
-   * non-NULL and the vertex data contains pedigree IDs, a vertex will
+   * non-nullptr and the vertex data contains pedigree IDs, a vertex will
    * only be added if there is no vertex with that pedigree ID.
    */
   virtual void AddVertexInternal(vtkVariantArray *propertyArr,
@@ -166,7 +166,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
 
   /**
    * Add a vertex with the given pedigreeId to the distributed graph. If
-   * vertex is non-NULL, it will receive the newly-created vertex.
+   * vertex is non-nullptr, it will receive the newly-created vertex.
    */
   virtual void AddVertexInternal(const vtkVariant& pedigreeId, vtkIdType *vertex) = 0;
 

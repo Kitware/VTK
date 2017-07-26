@@ -36,7 +36,7 @@
 #endif
 
 QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : Superclass(p, shareWidget, f), mRenWin(NULL)
+  : Superclass(p, shareWidget, f), mRenWin(nullptr)
 {
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
@@ -46,7 +46,7 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
 }
 
 QVTKWidget2::QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : QGLWidget(QVTKWidget2::GetDefaultVTKFormat(w), p, shareWidget, f), mRenWin(NULL)
+  : QGLWidget(QVTKWidget2::GetDefaultVTKFormat(w), p, shareWidget, f), mRenWin(nullptr)
 {
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
@@ -58,7 +58,7 @@ QVTKWidget2::QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* p, const QGLW
 }
 
 QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : Superclass(ctx, p, shareWidget, f), mRenWin(NULL)
+  : Superclass(ctx, p, shareWidget, f), mRenWin(nullptr)
 {
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
@@ -68,7 +68,7 @@ QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidg
 }
 
 QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
-  : Superclass(fmt, p, shareWidget, f), mRenWin(NULL)
+  : Superclass(fmt, p, shareWidget, f), mRenWin(nullptr)
 {
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
@@ -82,7 +82,7 @@ QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shar
 QVTKWidget2::~QVTKWidget2()
 {
   // get rid of the VTK window
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void QVTKWidget2::moveEvent(QMoveEvent* e)
  */
 void QVTKWidget2::paintGL()
 {
-  vtkRenderWindowInteractor* iren = NULL;
+  vtkRenderWindowInteractor* iren = nullptr;
   if(this->mRenWin)
   {
     iren = this->mRenWin->GetInteractor();

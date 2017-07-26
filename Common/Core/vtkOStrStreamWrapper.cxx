@@ -25,7 +25,7 @@ using std::ostringstream;
 vtkOStrStreamWrapper::vtkOStrStreamWrapper()
   : vtkOStreamWrapper(*(new ostringstream))
 {
-  this->Result = 0;
+  this->Result = nullptr;
   this->Frozen = 0;
 }
 

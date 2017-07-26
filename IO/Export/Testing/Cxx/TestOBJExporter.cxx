@@ -80,7 +80,7 @@ int TestOBJExporter(int argc, char *argv[])
   }
 
   actor->VisibilityOn();
-  actor->SetMapper(NULL);
+  actor->SetMapper(nullptr);
   exporter->Write();
   size_t size = fileSize(filename);
   if (size == 0)

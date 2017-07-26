@@ -19,7 +19,7 @@
  * vtkWeakPointerBase holds a pointer to a vtkObjectBase or subclass
  * instance, but it never affects the reference count of the vtkObjectBase. However,
  * when the vtkObjectBase referred to is destroyed, the pointer gets initialized to
- * NULL, thus avoid dangling references.
+ * nullptr, thus avoid dangling references.
 */
 
 #ifndef vtkWeakPointerBase_h
@@ -34,9 +34,9 @@ class VTKCOMMONCORE_EXPORT vtkWeakPointerBase
 {
 public:
   /**
-   * Initialize smart pointer to NULL.
+   * Initialize smart pointer to nullptr.
    */
-  vtkWeakPointerBase() : Object(0) {}
+  vtkWeakPointerBase() : Object(nullptr) {}
 
   /**
    * Initialize smart pointer to given object.

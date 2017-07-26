@@ -155,7 +155,7 @@ public:
    */
   int GetNumberOfConcatenatedTransforms() {
     return this->Concatenation->GetNumberOfTransforms() +
-      (this->Input == NULL ? 0 : 1); };
+      (this->Input == nullptr ? 0 : 1); };
 
   /**
    * Get one of the concatenated transformations as a vtkAbstractTransform.
@@ -165,7 +165,7 @@ public:
    * constituents, for example to save a transformation to a file.
    */
   vtkAbstractTransform *GetConcatenatedTransform(int i) {
-    if (this->Input == NULL) {
+    if (this->Input == nullptr) {
       return this->Concatenation->GetTransform(i); }
     else if (i < this->Concatenation->GetNumberOfPreTransforms()) {
       return this->Concatenation->GetTransform(i); }
@@ -203,7 +203,7 @@ public:
   /**
    * Pushes the current transformation onto the transformation stack.
    */
-  void Push() { if (this->Stack == NULL) {
+  void Push() { if (this->Stack == nullptr) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
                 this->Stack->Push(&this->Concatenation);
                 this->Modified(); };
@@ -214,7 +214,7 @@ public:
    * Deletes the transformation on the top of the stack and sets the top
    * to the next transformation on the stack.
    */
-  void Pop() { if (this->Stack == NULL) { return; }
+  void Pop() { if (this->Stack == nullptr) { return; }
                this->Stack->Pop(&this->Concatenation);
                this->Modified(); };
   //@}

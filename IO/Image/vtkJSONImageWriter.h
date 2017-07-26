@@ -43,7 +43,7 @@ public:
 
   //@{
   /**
-   * Specify ArrayName to export. By default NULL which will dump ALL arrays.
+   * Specify ArrayName to export. By default nullptr which will dump ALL arrays.
    */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);

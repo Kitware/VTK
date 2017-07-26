@@ -91,7 +91,7 @@ void vtkInformationUnsignedLongKey::ShallowCopy(vtkInformation* from,
   }
   else
   {
-    this->SetAsObjectBase(to, 0); // doesn't exist in from, so remove the key
+    this->SetAsObjectBase(to, nullptr); // doesn't exist in from, so remove the key
   }
 }
 
@@ -115,5 +115,5 @@ vtkInformationUnsignedLongKey::GetWatchAddress(vtkInformation* info)
   {
     return &v->Value;
   }
-  return 0;
+  return nullptr;
 }

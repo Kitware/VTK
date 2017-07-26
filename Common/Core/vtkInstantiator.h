@@ -75,7 +75,7 @@ public:
 
   /**
    * Create an instance of the class whose name is given.  If creation
-   * fails, a NULL pointer is returned.
+   * fails, a nullptr pointer is returned.
    */
   VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* className);

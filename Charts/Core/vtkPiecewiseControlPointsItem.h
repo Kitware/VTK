@@ -82,7 +82,7 @@ protected:
   vtkPiecewiseControlPointsItem();
   ~vtkPiecewiseControlPointsItem() VTK_OVERRIDE;
 
-  void emitEvent(unsigned long event, void* params = 0) VTK_OVERRIDE;
+  void emitEvent(unsigned long event, void* params = nullptr) VTK_OVERRIDE;
 
   vtkMTimeType GetControlPointsMTime() VTK_OVERRIDE;
 

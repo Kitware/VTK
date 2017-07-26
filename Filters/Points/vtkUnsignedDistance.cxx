@@ -114,7 +114,7 @@ struct UnsignedDistance
     int i;
 
     // compute model bounds if not set previously
-    if ( input == NULL || (modelBounds[0] < modelBounds[1] &&
+    if ( input == nullptr || (modelBounds[0] < modelBounds[1] &&
          modelBounds[2] < modelBounds[3] &&
                            modelBounds[4] < modelBounds[5]) )
     {
@@ -247,7 +247,7 @@ vtkUnsignedDistance::vtkUnsignedDistance()
 //----------------------------------------------------------------------------
 vtkUnsignedDistance::~vtkUnsignedDistance()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 
@@ -400,7 +400,7 @@ int vtkUnsignedDistance::RequestInformation (
                0, this->Dimensions[1]-1,
                0, this->Dimensions[2]-1);
 
-  ComputeModelBounds(NULL, this->Dimensions, this->AdjustBounds,
+  ComputeModelBounds(nullptr, this->Dimensions, this->AdjustBounds,
                      this->AdjustDistance,this->Bounds, origin, spacing);
 
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
@@ -422,7 +422,7 @@ int vtkUnsignedDistance::RequestData(
 
   vtkDebugMacro(<< "Executing space carver");
 
-  if (input == NULL)
+  if (input == nullptr)
   {
     // we do not want to release the data because user might
     // have called Append ...

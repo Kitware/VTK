@@ -43,7 +43,7 @@ vtkAngularPeriodicFilter::vtkAngularPeriodicFilter()
   this->ComputeRotationsOnTheFly = true;
   this->RotationMode = VTK_ROTATION_MODE_DIRECT_ANGLE;
   this->RotationAngle = 180.;
-  this->RotationArrayName = 0;
+  this->RotationArrayName = nullptr;
   this->RotationAxis = static_cast<int>(VTK_PERIODIC_ARRAY_AXIS_X);
   this->Center[0] = 0;
   this->Center[1] = 0;
@@ -53,7 +53,7 @@ vtkAngularPeriodicFilter::vtkAngularPeriodicFilter()
 //----------------------------------------------------------------------------
 vtkAngularPeriodicFilter::~vtkAngularPeriodicFilter()
 {
-  this->SetRotationArrayName(0);
+  this->SetRotationArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
       break;
     case VTK_ROTATION_MODE_ARRAY_VALUE:
     {
-      if (inputNode != NULL)
+      if (inputNode != nullptr)
       {
         vtkDataArray* angleArray =
           inputNode->GetFieldData()->GetArray(this->GetRotationArrayName());
@@ -173,7 +173,7 @@ void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
   }
 
   multiPiece->SetNumberOfPieces(periodsNb);
-  if (periodsNb > 0 && inputNode != NULL)
+  if (periodsNb > 0 && inputNode != nullptr)
   {
     // Shallow copy the first piece, it is not transformed
     vtkDataObject* firstDataSet = inputNode->NewInstance();
@@ -213,7 +213,7 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(double angle,
   vtkIdType iPiece, vtkDataObject* inputNode, vtkMultiPieceDataSet* multiPiece)
 {
   vtkPointSet* dataset = vtkPointSet::SafeDownCast(inputNode);
-  vtkPointSet* transformedDataset = NULL;
+  vtkPointSet* transformedDataset = nullptr;
 
   int pieceAlterner =  ((iPiece % 2) * 2 - 1) * ((iPiece + 1) / 2);
   double pieceAngle = angle * pieceAlterner;
@@ -260,7 +260,7 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(double angle,
 vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
   vtkDataArray* inputArray, double angle, bool useCenter, bool normalize)
 {
-  vtkDataArray* periodicArray = 0;
+  vtkDataArray* periodicArray = nullptr;
   switch (inputArray->GetDataType())
   {
     case VTK_FLOAT:
@@ -345,7 +345,7 @@ void vtkAngularPeriodicFilter::ComputeAngularPeriodicData(
     else
     {
       transformedArray = array;
-      array->Register(0);
+      array->Register(nullptr);
     }
     transformedData->AddArray(transformedArray);
     if (attribute >= 0)
@@ -365,7 +365,7 @@ void vtkAngularPeriodicFilter::ComputePeriodicMesh(vtkPointSet* dataset,
 
   // Transform points coordinates array
   vtkPoints* points = dataset->GetPoints();
-  if (points != NULL)
+  if (points != nullptr)
   {
     vtkDataArray* pointArray = dataset->GetPoints()->GetData();
     vtkNew<vtkPoints> rotatedPoints;

@@ -72,7 +72,7 @@ vtkRenderView::vtkRenderView()
   this->LabelRenderer = vtkSmartPointer<vtkRenderer>::New();
   this->Transform = vtkTransform::New();
   this->DisplayHoverText = false;
-  this->IconTexture = 0;
+  this->IconTexture = nullptr;
   this->Interacting = false;
   this->LabelRenderMode = FREETYPE;
   this->SelectionMode = SURFACE;
@@ -209,7 +209,7 @@ vtkInteractorObserver* vtkRenderView::GetInteractorStyle()
   {
     return this->GetInteractor()->GetInteractorStyle();
   }
-  return NULL;
+  return nullptr;
 }
 
 void vtkRenderView::SetRenderOnMouseMove(bool b)
@@ -577,7 +577,7 @@ void vtkRenderView::UpdateHoverText()
   vtkHardwareSelector::PixelInformation info = this->Selector->GetPixelInformation(upos, hoverTol);
   vtkIdType cell = info.AttributeID;
   vtkProp* prop = info.Prop;
-  if (prop == 0 || cell == -1)
+  if (prop == nullptr || cell == -1)
   {
     this->Balloon->SetBalloonText("");
     return;

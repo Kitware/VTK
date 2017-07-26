@@ -62,7 +62,7 @@ struct vtkPLSDynaReader::vtkPLSDynaReaderInternal
 //-----------------------------------------------------------------------------
 vtkPLSDynaReader::vtkPLSDynaReader()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
 
   //need to construct the internal datastructure before call SetController
   this->Internal = new vtkPLSDynaReader::vtkPLSDynaReaderInternal();
@@ -74,7 +74,7 @@ vtkPLSDynaReader::vtkPLSDynaReader()
 //-----------------------------------------------------------------------------
 vtkPLSDynaReader::~vtkPLSDynaReader()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 
   delete this->Internal;
 }
@@ -88,7 +88,7 @@ void vtkPLSDynaReader::PrintSelf( ostream &os, vtkIndent indent )
 //----------------------------------------------------------------------------
 void vtkPLSDynaReader::SetController(vtkMultiProcessController *c)
 {
-  if ((c == NULL) || (c->GetNumberOfProcesses() == 0))
+  if ((c == nullptr) || (c->GetNumberOfProcesses() == 0))
   {
     this->Internal->NumProcesses = 1;
     this->Internal->ProcessRank = 0;
@@ -104,10 +104,10 @@ void vtkPLSDynaReader::SetController(vtkMultiProcessController *c)
   if (this->Controller)
   {
     this->Controller->UnRegister(this);
-    this->Controller = NULL;
+    this->Controller = nullptr;
   }
 
-  if (c == NULL)
+  if (c == nullptr)
   {
     return;
   }

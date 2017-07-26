@@ -41,5 +41,5 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorStrategy::NewCell()
 {
   assert("check: should not be called: see vtkBridgeCellIterator::NewCell()"
          &&0);
-  return 0;
+  return nullptr;
 }

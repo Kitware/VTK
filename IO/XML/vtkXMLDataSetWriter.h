@@ -47,7 +47,7 @@ public:
   vtkDataSet* GetInput();
 
   /**
-   * Creates a writer for the given dataset type. May return NULL for
+   * Creates a writer for the given dataset type. May return nullptr for
    * unsupported/unrecognized dataset types. Returns a new instance. The caller
    * is responsible of calling vtkObject::Delete() or vtkObject::UnRegister() on
    * it when done.

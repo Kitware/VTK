@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkMFIXReader);
 //----------------------------------------------------------------------------
 vtkMFIXReader::vtkMFIXReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->NumberOfCells = 0;
   this->NumberOfPoints = 0;
   this->NumberOfCellFields = 0;
@@ -52,7 +52,7 @@ vtkMFIXReader::vtkMFIXReader()
   this->Minimum = vtkFloatArray::New();
   this->Maximum = vtkFloatArray::New();
   this->VectorLength = vtkIntArray::New();
-  this->CellDataArray = NULL;
+  this->CellDataArray = nullptr;
   this->DimensionIc = 5;
   this->DimensionBc = 5;
   this->DimensionC = 5;
@@ -104,7 +104,7 @@ vtkMFIXReader::vtkMFIXReader()
   this->TimeStepRange[0] = 0;
   this->TimeStepRange[1] = 0;
   this->NumberOfTimeSteps = 1;
-  this->TimeSteps = 0;
+  this->TimeSteps = nullptr;
   this->CurrentTimeStep = 0;
   this->TimeStepWasReadOnce = 0;
 }

@@ -43,9 +43,9 @@ int TestNetCDFCAMReader( int argc, char *argv[] )
   reader->SetFileName(pointsFileName);
   reader->SetConnectivityFileName(connectivityFileName);
   delete []pointsFileName;
-  pointsFileName = NULL;
+  pointsFileName = nullptr;
   delete []connectivityFileName;
-  connectivityFileName = NULL;
+  connectivityFileName = nullptr;
   reader->Update();
 
   // Convert to PolyData.

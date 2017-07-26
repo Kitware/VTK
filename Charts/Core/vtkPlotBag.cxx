@@ -59,17 +59,17 @@ vtkPlotBag::~vtkPlotBag()
   if (this->MedianPoints)
   {
     this->MedianPoints->Delete();
-    this->MedianPoints = 0;
+    this->MedianPoints = nullptr;
   }
   if (this->Q3Points)
   {
     this->Q3Points->Delete();
-    this->Q3Points = 0;
+    this->Q3Points = nullptr;
   }
   if (this->LinePen)
   {
     this->LinePen->Delete();
-    this->LinePen = 0;
+    this->LinePen = nullptr;
   }
 }
 
@@ -319,7 +319,7 @@ vtkStringArray* vtkPlotBag::GetLabels()
     }
     return this->AutoLabels;
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -453,7 +453,7 @@ void vtkPlotBag::SetInputData(vtkTable *table, const vtkStdString &xColumn,
     vtkDataObject::FIELD_ASSOCIATION_ROWS, densityColumn.c_str());
   if (this->AutoLabels)
   {
-    this->AutoLabels = 0;
+    this->AutoLabels = nullptr;
   }
 }
 

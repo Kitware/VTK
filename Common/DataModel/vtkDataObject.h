@@ -192,7 +192,7 @@ public:
    * attributeType (in specified association, FIELD_ASSOCIATION_POINTS or
    * FIELD_ASSOCIATION_CELLS).  If there is not an active attribute of the
    * specified type, an entry in the information object is created.  If
-   * arrayType, numComponents, or numTuples equal to -1, or name=NULL the
+   * arrayType, numComponents, or numTuples equal to -1, or name=nullptr the
    * value is not changed.
    */
   static void SetActiveAttributeInfo(vtkInformation *info,
@@ -286,7 +286,7 @@ public:
    * <li>EDGE   - Defined in vtkGraph subclasses.
    * <li>ROW    - Defined in vtkTable.
    * </ul>
-   * The other attribute type, FIELD, will return NULL since
+   * The other attribute type, FIELD, will return nullptr since
    * field data is stored as a vtkFieldData instance, not a
    * vtkDataSetAttributes instance. To retrieve field data, use
    * GetAttributesAsFieldData.

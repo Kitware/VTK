@@ -265,8 +265,8 @@ void vtkImageThresholdExecute1(vtkImageThreshold *self,
     vtkTemplateMacro(
       vtkImageThresholdExecute(self, inData,
                                outData, outExt, id,
-                               static_cast<T *>(0),
-                               static_cast<VTK_TT *>(0)));
+                               static_cast<T *>(nullptr),
+                               static_cast<VTK_TT *>(nullptr)));
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");
       return;
@@ -294,7 +294,7 @@ void vtkImageThreshold::ThreadedRequestData(
                                 outData[0],
                                 outExt,
                                 id,
-                                static_cast<VTK_TT *>(0)));
+                                static_cast<VTK_TT *>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

@@ -110,12 +110,12 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
   this->AreaLabelHierarchy = vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
   this->EmptyPolyData      = vtkSmartPointer<vtkPolyData>::New();
 
-  this->AreaSizeArrayNameInternal = 0;
-  this->AreaColorArrayNameInternal = 0;
-  this->AreaLabelArrayNameInternal = 0;
-  this->AreaLabelPriorityArrayNameInternal = 0;
-  this->AreaHoverTextInternal = 0;
-  this->AreaHoverArrayName = 0;
+  this->AreaSizeArrayNameInternal = nullptr;
+  this->AreaColorArrayNameInternal = nullptr;
+  this->AreaLabelArrayNameInternal = nullptr;
+  this->AreaLabelPriorityArrayNameInternal = nullptr;
+  this->AreaHoverTextInternal = nullptr;
+  this->AreaHoverArrayName = nullptr;
   this->UseRectangularCoordinates = false;
 
   this->SetAreaColorArrayName("level");
@@ -194,12 +194,12 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
 
 vtkRenderedTreeAreaRepresentation::~vtkRenderedTreeAreaRepresentation()
 {
-  this->SetAreaSizeArrayNameInternal(0);
-  this->SetAreaColorArrayNameInternal(0);
-  this->SetAreaLabelArrayNameInternal(0);
-  this->SetAreaLabelPriorityArrayNameInternal(0);
-  this->SetAreaHoverTextInternal(0);
-  this->SetAreaHoverArrayName(0);
+  this->SetAreaSizeArrayNameInternal(nullptr);
+  this->SetAreaColorArrayNameInternal(nullptr);
+  this->SetAreaLabelArrayNameInternal(nullptr);
+  this->SetAreaLabelPriorityArrayNameInternal(nullptr);
+  this->SetAreaHoverTextInternal(nullptr);
+  this->SetAreaHoverArrayName(nullptr);
   delete this->Implementation;
   if (this->AreaLabelMapper)
   {
@@ -266,7 +266,7 @@ const char* vtkRenderedTreeAreaRepresentation::GetGraphEdgeColorArrayName(int id
   {
     return this->Implementation->Graphs[idx]->GetColorArrayName();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkRenderedTreeAreaRepresentation::SetGraphEdgeColorArrayName(const char* name, int idx)
@@ -351,7 +351,7 @@ const char* vtkRenderedTreeAreaRepresentation::GetGraphHoverArrayName(int idx)
   {
     return this->Implementation->Graphs[idx]->GetHoverArrayName();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkRenderedTreeAreaRepresentation::SetAreaLabelMapper(vtkLabeledDataMapper* mapper)
@@ -581,7 +581,7 @@ const char* vtkRenderedTreeAreaRepresentation::GetGraphEdgeLabelArrayName(int id
   {
     return this->Implementation->Graphs[idx]->GetLabelArrayName();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkRenderedTreeAreaRepresentation::SetGraphEdgeLabelArrayName(const char* name, int idx)
@@ -598,7 +598,7 @@ vtkTextProperty* vtkRenderedTreeAreaRepresentation::GetGraphEdgeLabelTextPropert
   {
     return this->Implementation->Graphs[idx]->GetLabelTextProperty();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkRenderedTreeAreaRepresentation::SetGraphEdgeLabelTextProperty(vtkTextProperty* prop, int idx)

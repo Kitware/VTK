@@ -160,14 +160,14 @@ public:
 
 vtkInternal()
 {
-  this->FacesBackup = NULL;
-  this->EdgeTableBackup = NULL;
+  this->FacesBackup = nullptr;
+  this->EdgeTableBackup = nullptr;
 }
 
 ~vtkInternal()
 {
-  this->FacesBackup = NULL;
-  this->EdgeTableBackup = NULL;
+  this->FacesBackup = nullptr;
+  this->EdgeTableBackup = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -289,8 +289,8 @@ void RemoveDuplicatedPointsFromFaceArrayAndEdgeTable(vtkPoints * points,
   }
   else
   {
-    this->FacesBackup = NULL;
-    this->EdgeTableBackup = NULL;
+    this->FacesBackup = nullptr;
+    this->EdgeTableBackup = nullptr;
   }
 }
 
@@ -1582,7 +1582,7 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 
   if ( edgeId < 0 || edgeId >= numEdges )
   {
-    return NULL;
+    return nullptr;
   }
 
   // Return the requested edge
@@ -1712,7 +1712,7 @@ vtkCell *vtkPolyhedron::GetFace(int faceId)
 {
   if ( faceId < 0 || faceId >= this->GlobalFaces->GetValue(0) )
   {
-    return NULL;
+    return nullptr;
   }
 
   this->GenerateFaces();
@@ -1777,7 +1777,7 @@ vtkIdType *vtkPolyhedron::GetFaces()
 {
   if (!this->GlobalFaces->GetNumberOfTuples())
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GlobalFaces->GetPointer(0);
@@ -2187,7 +2187,7 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   double x[3], n[3], o[3], v[3];
   double dist, minDist = VTK_DOUBLE_MAX;
   vtkIdType numFacePts = -1;
-  vtkIdType * facePts = 0;
+  vtkIdType * facePts = nullptr;
 
   // compute coordinates
   this->ComputePositionFromParametricCoordinate(pcoords, x);
@@ -2386,7 +2386,7 @@ void vtkPolyhedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 double *vtkPolyhedron::GetParametricCoords()
 {
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -2530,7 +2530,7 @@ int vtkPolyhedron::InternalContour(double value,
   double v0, v1, v, t;
 
   vtkIdType p0, p1, pid, fid, outPid, globalP0, globalP1;
-  void * ptr = NULL;
+  void * ptr = nullptr;
 
   pointToFacesMap.clear();
   faceToPointsMap.clear();
@@ -3023,7 +3023,7 @@ int vtkPolyhedron::InternalContour(double value,
 
     // check the dimensionality of the contour
     int ret = this->Internal->
-      CheckContourDimensions(points, npts, pts, NULL, NULL);
+      CheckContourDimensions(points, npts, pts, nullptr, nullptr);
 
     if (ret <= 1) // skip single point or co-linear points
     {
@@ -3083,7 +3083,7 @@ void vtkPolyhedron::Contour(double value,
     vtkSmartPointer<vtkCellArray>::New();
 
   int ret = this->InternalContour(value, 0, locator, pointScalars,
-                    NULL, inPd, outPd, contourPolys,
+                    nullptr, inPd, outPd, contourPolys,
                     faceToPointsMap, pointToFacesMap, pointIdMap);
   if (ret != 0)
   {
@@ -3092,7 +3092,7 @@ void vtkPolyhedron::Contour(double value,
   }
 
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   contourPolys->InitTraversal();
   while (contourPolys->GetNextCell(npts, pts))
   {
@@ -3129,7 +3129,7 @@ void vtkPolyhedron::Clip(double value,
   vtkIdType newPid, newCellId;
 
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
 
   // initialization
   this->GenerateEdges();

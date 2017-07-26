@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkContextInteractorStyle);
 //--------------------------------------------------------------------------
 vtkContextInteractorStyle::vtkContextInteractorStyle()
 {
-  this->Scene = NULL;
+  this->Scene = nullptr;
   this->ProcessingEvents = 0;
   this->SceneCallbackCommand->SetClientData(this);
   this->SceneCallbackCommand->SetCallback(
@@ -47,7 +47,7 @@ vtkContextInteractorStyle::vtkContextInteractorStyle()
 vtkContextInteractorStyle::~vtkContextInteractorStyle()
 {
   // to remove observers.
-  this->SetScene(0);
+  this->SetScene(nullptr);
   if (this->TimerCallbackInitialized && this->Interactor)
   {
     this->Interactor->RemoveObserver(this->InteractorCallbackCommand.Get());

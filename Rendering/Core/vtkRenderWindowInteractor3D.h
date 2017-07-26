@@ -84,7 +84,7 @@ public:
   {
     if (pointerIndex >= VTKI_MAX_POINTERS)
     {
-      return NULL;
+      return nullptr;
     }
     return this->WorldEventPositions[pointerIndex];
   }
@@ -92,7 +92,7 @@ public:
   {
     if (pointerIndex >= VTKI_MAX_POINTERS)
     {
-      return NULL;
+      return nullptr;
     }
     return this->LastWorldEventPositions[pointerIndex];
   }
@@ -100,7 +100,7 @@ public:
   {
     if (pointerIndex >= VTKI_MAX_POINTERS)
     {
-      return NULL;
+      return nullptr;
     }
     return this->WorldEventOrientations[pointerIndex];
   }
@@ -108,7 +108,7 @@ public:
   {
     if (pointerIndex >= VTKI_MAX_POINTERS)
     {
-      return NULL;
+      return nullptr;
     }
     return this->LastWorldEventOrientations[pointerIndex];
   }
@@ -245,7 +245,7 @@ public:
    * 3D physical space (meters, 0,0,0).
    */
   virtual void SetPhysicalTranslation(vtkCamera *, double, double, double) {};
-  virtual double *GetPhysicalTranslation(vtkCamera *) { return NULL; };
+  virtual double *GetPhysicalTranslation(vtkCamera *) { return nullptr; };
   //@}
 
   //@{

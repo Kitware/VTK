@@ -51,9 +51,9 @@ typedef float RtFloat;
 
 vtkRIBExporter::vtkRIBExporter()
 {
-  this->FilePrefix = NULL;
-  this->FilePtr = NULL;
-  this->TexturePrefix = NULL;
+  this->FilePrefix = nullptr;
+  this->FilePtr = nullptr;
+  this->TexturePrefix = nullptr;
   this->Size[0] = this->Size[1] = -1;
   this->PixelSamples[0] = this->PixelSamples[1] = 2;
   this->Background = 0;
@@ -69,7 +69,7 @@ vtkRIBExporter::~vtkRIBExporter()
 void vtkRIBExporter::WriteData()
 {
   // make sure the user specified a FilePrefix
-  if ( this->FilePrefix == NULL)
+  if ( this->FilePrefix == nullptr)
   {
     vtkErrorMacro(<< "Please specify file name for the rib file");
     delete [] this->FilePrefix;
@@ -108,7 +108,7 @@ void vtkRIBExporter::WriteData()
   snprintf (ribFileName, ribFileNameSize, "%s%s", this->FilePrefix, ".rib");
 
   this->FilePtr = fopen (ribFileName, "w");
-  if (this->FilePtr == NULL)
+  if (this->FilePtr == nullptr)
   {
     vtkErrorMacro (<< "Cannot open " << ribFileName);
     delete [] ribFileName;
@@ -131,7 +131,7 @@ void vtkRIBExporter::WriteData()
   for ( ac->InitTraversal (ait); (anActor = ac->GetNextActor(ait)); )
   {
     // see if the actor has a mapper. it could be an assembly
-    if (anActor->GetMapper() == NULL)
+    if (anActor->GetMapper() == nullptr)
     {
       continue;
     }
@@ -169,7 +169,7 @@ void vtkRIBExporter::WriteData()
   // If there is no light defined, create one
   //
   lc->InitTraversal(sit);
-  if (lc->GetNextLight(sit) == NULL)
+  if (lc->GetNextLight(sit) == nullptr)
   {
     vtkWarningMacro(<< "No light defined, creating one at camera position");
     ren->CreateLight();
@@ -284,7 +284,7 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty,
   //
   // if there is a texture map we need to declare it
   //
-  mapName = (char *) NULL;
+  mapName = (char *) nullptr;
   if (aTexture)
   {
     mapName = this->GetTextureName(aTexture);
@@ -572,11 +572,11 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 {
   vtkDataSet *aDataSet;
   vtkPolyData *polyData;
-  vtkGeometryFilter *geometryFilter = NULL;
+  vtkGeometryFilter *geometryFilter = nullptr;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   // see if the actor has a mapper. it could be an assembly
-  if (anActor->GetMapper() == NULL)
+  if (anActor->GetMapper() == nullptr)
   {
     return;
   }
@@ -693,14 +693,14 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   RtPoint vertexPoints[512];
   double poly_norm[3];
   double vertexTCoords[512][2];
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   int k, kk;
   int rep, j, interpolation;
   int tDim;
   unsigned char *colors;
   vtkCellArray *polys;
-  vtkDataArray *n = NULL;
+  vtkDataArray *n = nullptr;
   vtkPoints *p;
   vtkPolygon *polygon;
   vtkDataArray *t;
@@ -732,7 +732,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
     if (tDim != 2)
     {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
-      t = NULL;
+      t = nullptr;
     }
   }
 
@@ -744,7 +744,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) ||
        !(n=polyData->GetPointData()->GetNormals()) )
   {
-    n = 0;
+    n = nullptr;
   }
 
   for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
@@ -922,7 +922,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
   RtPoint vertexPoints[512];
   double poly_norm[3];
   double vertexTCoords[512][2];
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   int p1, p2, p3;
   int k, kk;
@@ -930,7 +930,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
   int tDim;
   unsigned char *colors;
   vtkCellArray *strips;
-  vtkDataArray *n = NULL;
+  vtkDataArray *n = nullptr;
   vtkPoints *p;
   vtkDataArray *t;
   vtkPolygon *polygon;
@@ -963,14 +963,14 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
     if (tDim != 2)
     {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
-      t = NULL;
+      t = nullptr;
     }
   }
 
   if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) ||
        !(n=polyData->GetPointData()->GetNormals()) )
   {
-    n = 0;
+    n = nullptr;
   }
 
 
@@ -1216,7 +1216,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
   fprintf (this->FilePtr, "\"%s\" 1 1\n", "box");
 
   // do an Update and get some info
-  if (aTexture->GetInput() == NULL)
+  if (aTexture->GetInput() == nullptr)
   {
     vtkErrorMacro(<< "texture has no input!\n");
     return;
@@ -1285,10 +1285,10 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
   }
 
   vtkTIFFWriter *aWriter = vtkTIFFWriter::New();
-  vtkImageConstantPad *icp = NULL;
-  vtkImageExtractComponents *iec = NULL;
-  vtkImageAppendComponents *iac1 = NULL;
-  vtkImageAppendComponents *iac2 = NULL;
+  vtkImageConstantPad *icp = nullptr;
+  vtkImageExtractComponents *iec = nullptr;
+  vtkImageAppendComponents *iac1 = nullptr;
+  vtkImageAppendComponents *iac2 = nullptr;
 
   vtkStructuredPoints *anImage = vtkStructuredPoints::New();
   anImage->SetDimensions (xsize, ysize, 1);

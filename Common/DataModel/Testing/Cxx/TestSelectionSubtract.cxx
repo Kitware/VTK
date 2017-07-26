@@ -34,7 +34,7 @@ using namespace std;
 
 #if DEBUG
 // ------------------------------------------------------------------------------------------------
-static void PrintSelectionNodes(vtkSmartPointer<vtkSelection>& sel, const char* tag = NULL)
+static void PrintSelectionNodes(vtkSmartPointer<vtkSelection>& sel, const char* tag = nullptr)
 {
   vtkIdType numNodes = sel->GetNumberOfNodes();
 

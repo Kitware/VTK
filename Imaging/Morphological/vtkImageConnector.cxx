@@ -22,8 +22,8 @@ vtkStandardNewMacro(vtkImageConnector);
 //----------------------------------------------------------------------------
 vtkImageConnector::vtkImageConnector()
 {
-  this->Seeds = NULL;
-  this->LastSeed = NULL;
+  this->Seeds = nullptr;
+  this->LastSeed = nullptr;
   this->ConnectedValue = 255;
   this->UnconnectedValue = 128;
 }
@@ -45,7 +45,7 @@ void vtkImageConnector::RemoveAllSeeds()
     this->Seeds = temp->Next;
     delete temp;
   }
-  this->LastSeed = NULL;
+  this->LastSeed = nullptr;
 }
 
 
@@ -60,7 +60,7 @@ vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
     seed->Index[idx] = index[idx];
   }
   seed->Pointer = ptr;
-  seed->Next = NULL;
+  seed->Next = nullptr;
 
   return seed;
 }
@@ -70,7 +70,7 @@ vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
 void vtkImageConnector::AddSeedToEnd(vtkImageConnectorSeed *seed)
 {
   // Add the seed to the end of the list
-  if (this->LastSeed == NULL)
+  if (this->LastSeed == nullptr)
   { // no seeds yet
     this->LastSeed = this->Seeds = seed;
   }
@@ -101,9 +101,9 @@ vtkImageConnectorSeed *vtkImageConnector::PopSeed()
 
   seed = this->Seeds;
   this->Seeds = seed->Next;
-  if (this->Seeds == NULL)
+  if (this->Seeds == nullptr)
   {
-    this->LastSeed = NULL;
+    this->LastSeed = nullptr;
   }
   return seed;
 }

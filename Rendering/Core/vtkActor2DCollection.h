@@ -119,9 +119,9 @@ inline vtkActor2D *vtkActor2DCollection::GetNextActor2D()
 
 inline vtkActor2D *vtkActor2DCollection::GetLastActor2D()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

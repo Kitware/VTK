@@ -36,12 +36,12 @@ Initialize()
   if ( this->Links )
   {
     delete [] this->Links;
-    this->Links = NULL;
+    this->Links = nullptr;
   }
   if ( this->Offsets )
   {
     delete [] this->Offsets;
-    this->Offsets = NULL;
+    this->Offsets = nullptr;
   }
 }
 
@@ -202,7 +202,7 @@ BuildLinks(vtkPolyData *pd)
 
   for (i=0; i<4; ++i)
   {
-    if ( cellArrays[i] != NULL )
+    if ( cellArrays[i] != nullptr )
     {
       numCells[i] = cellArrays[i]->GetNumberOfCells();
       sizes[i] = cellArrays[i]->GetNumberOfConnectivityEntries() - numCells[i];

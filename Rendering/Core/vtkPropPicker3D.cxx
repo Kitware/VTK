@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkPropPicker3D);
 
 vtkPropPicker3D::vtkPropPicker3D()
 {
-  this->PickFromProps = NULL;
+  this->PickFromProps = nullptr;
 }
 
 vtkPropPicker3D::~vtkPropPicker3D()
@@ -60,7 +60,7 @@ int vtkPropPicker3D::PickProp(
 {
   this->PickFromProps = pickfrom;
   int ret = this->PickProp(selectionX, selectionY, selectionZ, renderer);
-  this->PickFromProps = NULL;
+  this->PickFromProps = nullptr;
   return ret;
 }
 
@@ -79,7 +79,7 @@ int vtkPropPicker3D::PickProp(
   this->PickPosition[2] = selectionZ;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartPickEvent,nullptr);
 
 
   // for each prop, that is packable
@@ -89,10 +89,10 @@ int vtkPropPicker3D::PickProp(
   // TODO need to handle AssemblyPaths
   vtkPropCollection *props = renderer->GetViewProps();
 
-  vtkAssemblyPath *result = NULL;
+  vtkAssemblyPath *result = nullptr;
   vtkCollectionSimpleIterator pit;
   props->InitTraversal(pit);
-  vtkProp *prop = NULL;
+  vtkProp *prop = nullptr;
   while ( (prop = props->GetNextProp(pit)) )
   {
     if (prop->GetPickable())
@@ -114,11 +114,11 @@ int vtkPropPicker3D::PickProp(
   if (result)
   {
     result->GetFirstNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,NULL);
+    this->InvokeEvent(vtkCommand::PickEvent,nullptr);
   }
   this->SetPath(result);
 
-  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
 
   // Call Pick on the Prop that was picked, and return 1 for success
   if ( result )

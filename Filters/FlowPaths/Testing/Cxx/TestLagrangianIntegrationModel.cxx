@@ -206,8 +206,8 @@ int TestLagrangianIntegrationModel(int, char*[])
   }
 
   odeWavelet->ParallelManualShift(part);
-  vtkPolyData* tmpPd = NULL;
-  vtkDataObject* tmpDo = NULL;
+  vtkPolyData* tmpPd = nullptr;
+  vtkDataObject* tmpDo = nullptr;
   if (!odeWavelet->FinalizeOutputs(tmpPd, tmpDo))
   {
     std::cerr << "FinalizeOutputs should be doing nothing and return true with matida model" << std::endl;
@@ -259,7 +259,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
 
-  double* tmpPt = NULL;
+  double* tmpPt = nullptr;
   double tmpVald = 0;
   int tmpVali = 0;
   if (odeWavelet->ManualIntegration(tmpPt, tmpPt, 0, tmpVald, tmpVald, 0, 0, 0, tmpVald, tmpVali))
@@ -493,7 +493,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
 
-  part->SetLastSurfaceCell(NULL, -1);
+  part->SetLastSurfaceCell(nullptr, -1);
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
@@ -531,7 +531,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
 
-  part->SetLastSurfaceCell(NULL, -1);
+  part->SetLastSurfaceCell(nullptr, -1);
   nextPos[0] = 20;
   nextPos[1] = 0;
   nextPos[2] = 0;
@@ -608,7 +608,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
 
-  part->SetLastSurfaceCell(NULL, -1);
+  part->SetLastSurfaceCell(nullptr, -1);
   pos[0] = 0;
   pos[1] = 0;
   pos[2] = 0;
@@ -649,7 +649,7 @@ int TestLagrangianIntegrationModel(int, char*[])
     return EXIT_FAILURE;
   }
 
-  part->SetLastSurfaceCell(NULL, -1);
+  part->SetLastSurfaceCell(nullptr, -1);
   delete particles.front();
   particles.pop();
   delete particles.front();
@@ -693,7 +693,7 @@ int TestLagrangianIntegrationModel(int, char*[])
   }
 
   odeWavelet->ClearDataSets(true);
-  part->SetLastSurfaceCell(NULL, -1);
+  part->SetLastSurfaceCell(nullptr, -1);
   delete passThroughParticles.front().second;
   passThroughParticles.pop();
   nextPos[0] = 20;

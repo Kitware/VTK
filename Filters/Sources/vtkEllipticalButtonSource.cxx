@@ -295,7 +295,7 @@ int vtkEllipticalButtonSource::RequestData(
       tcoords->SetTuple(i+numPts, tcoords->GetTuple(i));
     }
     //do the polygons
-    vtkIdType *ipts = 0;
+    vtkIdType *ipts = nullptr;
     vtkIdType opts[4];
 
     vtkIdType npts = 0;

@@ -205,7 +205,7 @@ struct vtkBinTree
       this->BatchSize = 0;
 
       this->OffsetsType = offsetsType;
-      this->OffsetsArray = NULL;
+      this->OffsetsArray = nullptr;
   }
 
   // Virtual functions supporting convenience methods in templated subclass.
@@ -218,7 +218,7 @@ struct vtkBinTree
       if ( this->OffsetsArray )
       {
         this->OffsetsArray->Delete();
-        this->OffsetsArray = NULL;
+        this->OffsetsArray = nullptr;
       }
   }
   virtual void Execute(vtkPointSet *input, vtkPolyData *output) = 0;
@@ -703,7 +703,7 @@ vtkHierarchicalBinningFilter::vtkHierarchicalBinningFilter()
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 0.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 
-  this->Tree = NULL;
+  this->Tree = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -712,7 +712,7 @@ vtkHierarchicalBinningFilter::~vtkHierarchicalBinningFilter()
   if ( this->Tree )
   {
     delete this->Tree;
-    this->Tree = NULL;
+    this->Tree = nullptr;
   }
 }
 

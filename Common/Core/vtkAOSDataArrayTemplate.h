@@ -229,7 +229,7 @@ public:
    * vtkAOSDataArrayTemplate.
    * This method checks if source->GetArrayType() returns DataArray
    * or a more derived type, and performs a static_cast to return
-   * source as a vtkDataArray pointer. Otherwise, NULL is returned.
+   * source as a vtkDataArray pointer. Otherwise, nullptr is returned.
    */
   static vtkAOSDataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
@@ -247,7 +247,7 @@ public:
           break;
       }
     }
-    return NULL;
+    return nullptr;
   }
   //@}
 

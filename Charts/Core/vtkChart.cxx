@@ -60,7 +60,7 @@ vtkChart::vtkChart()
   this->TitleProperties->SetColor(0.0, 0.0, 0.0);
   this->TitleProperties->SetFontSize(12);
   this->TitleProperties->SetFontFamilyToArial();
-  this->AnnotationLink = NULL;
+  this->AnnotationLink = nullptr;
   this->LayoutStrategy = vtkChart::FILL_SCENE;
   this->RenderEmpty = false;
   this->BackgroundBrush = vtkSmartPointer<vtkBrush>::New();
@@ -89,7 +89,7 @@ vtkChart::~vtkChart()
 //-----------------------------------------------------------------------------
 vtkPlot * vtkChart::AddPlot(int)
 {
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void vtkChart::ClearPlots()
 //-----------------------------------------------------------------------------
 vtkPlot* vtkChart::GetPlot(vtkIdType)
 {
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ vtkIdType vtkChart::GetNumberOfPlots()
 //-----------------------------------------------------------------------------
 vtkAxis* vtkChart::GetAxis(int)
 {
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -190,7 +190,7 @@ bool vtkChart::GetShowLegend()
 
 vtkChartLegend * vtkChart::GetLegend()
 {
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -403,7 +403,7 @@ int vtkChart::GetClickActionToButton(int action)
 //-----------------------------------------------------------------------------
 void vtkChart::SetBackgroundBrush(vtkBrush *brush)
 {
-  if(brush == NULL)
+  if(brush == nullptr)
   {
     // set to transparent white if brush is null
     this->BackgroundBrush->SetColorF(1, 1, 1, 0);

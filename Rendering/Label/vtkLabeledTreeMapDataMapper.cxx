@@ -41,7 +41,7 @@
 vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
-  : CurrentViewPort(0), FontHeights(0), FontWidths(0), MaxFontLevel(0),
+  : CurrentViewPort(nullptr), FontHeights(nullptr), FontWidths(nullptr), MaxFontLevel(0),
     MaxTreeLevels(100), ClipTextMode(0), ChildMotion(0),
     StartLevel(0), EndLevel(-1), DynamicLevel(0)
 {
@@ -83,7 +83,7 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   for (int i = 0; i < this->NumberOfLabelsAllocated; i++)
   {
     this->TextMappers[i]->Delete();
-    this->TextMappers[i] = NULL;
+    this->TextMappers[i] = nullptr;
   }
 }
 
@@ -114,7 +114,7 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
       }
     }
     delete [] this->TextMappers;
-    this->TextMappers = NULL;
+    this->TextMappers = nullptr;
   }
 }
 
@@ -128,7 +128,7 @@ void vtkLabeledTreeMapDataMapper::SetRectanglesArrayName(const char* name)
 // Release any graphics resources that are being consumed by this mapper.
 void vtkLabeledTreeMapDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->TextMappers != NULL )
+  if (this->TextMappers != nullptr )
   {
     for (int i=0; i < this->NumberOfLabelsAllocated; i++)
     {
@@ -200,11 +200,11 @@ int vtkLabeledTreeMapDataMapper::UpdateWindowInfo(vtkViewport *viewport)
   this->VCoord->SetViewport(viewport);
   // Transform 0,0 and 1,1 into screen coordinates
   this->VCoord->SetValue(0.0, 0.0, 0.0);
-  dc = VCoord->GetComputedDisplayValue(0);
+  dc = VCoord->GetComputedDisplayValue(nullptr);
   p[0][0] = dc[0];
   p[0][1] = dc[1];
   this->VCoord->SetValue(1.0, 1.0, 0.0);
-  dc = this->VCoord->GetComputedDisplayValue(0);
+  dc = this->VCoord->GetComputedDisplayValue(nullptr);
   p[1][0] = dc[0];
   p[1][1] = dc[1];
 
@@ -226,7 +226,7 @@ int vtkLabeledTreeMapDataMapper::UpdateWindowInfo(vtkViewport *viewport)
   this->WindowLimits[1][1] = this->WindowLimits[1][0] + winSize[1];
 
   // We are done with the coordinate, so release the viewport
-  this->VCoord->SetViewport(NULL);
+  this->VCoord->SetViewport(nullptr);
 
   // Ideally we can compare the new scales with the original and
   // see if the change has exceeded some threshold - in that case
@@ -367,9 +367,9 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
     // figure out what to label, and if we can label it
     pointIdLabels = 0;
-    abstractData = NULL;
-    numericData = NULL;
-    stringData = NULL;
+    abstractData = nullptr;
+    numericData = nullptr;
+    stringData = nullptr;
     switch (this->LabelMode)
     {
       case VTK_LABEL_IDS:
@@ -408,7 +408,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       case VTK_LABEL_FIELD_DATA:
       {
       int arrayNum;
-      if (this->FieldDataName != NULL)
+      if (this->FieldDataName != nullptr)
       {
         abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
       }
@@ -468,7 +468,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       this->TextPoints->Allocate(numVertices);
       for (i = 0; i < numVertices; i++)
       {
-        this->TextMappers[i] = 0;
+        this->TextMappers[i] = nullptr;
       }
     }
 
@@ -497,7 +497,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
   float blimits[4], blimitsDC[4], textPosWC[3];
   char string[1024];
   int results;
-  vtkTextProperty *tprop = NULL;
+  vtkTextProperty *tprop = nullptr;
   vtkIdType vertex, level, root = tree->GetRoot();
   if (root < 0)
   {
@@ -703,7 +703,7 @@ void vtkLabeledTreeMapDataMapper::SetFontSizeRange(int maxSize, int minSize,
   }
   this->HLabelProperties[i]->SetFontSize(minSize);
 
-  this->CurrentViewPort = 0;
+  this->CurrentViewPort = nullptr;
 }
 
 void vtkLabeledTreeMapDataMapper::GetFontSizeRange(int range[3])

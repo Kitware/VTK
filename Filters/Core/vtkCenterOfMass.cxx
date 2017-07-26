@@ -98,13 +98,13 @@ int vtkCenterOfMass::RequestData(
 
   vtkPoints *points = input->GetPoints();
 
-  if(points == 0 || points->GetNumberOfPoints() == 0)
+  if(points == nullptr || points->GetNumberOfPoints() == 0)
   {
     vtkErrorMacro("Input must have at least 1 point!");
     return 1;
   }
 
-  vtkDataArray *scalars = 0;
+  vtkDataArray *scalars = nullptr;
   if (this->UseScalarsAsWeights)
   {
     scalars = input->GetPointData()->GetScalars();

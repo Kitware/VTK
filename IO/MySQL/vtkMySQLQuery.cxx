@@ -72,7 +72,7 @@ class vtkMySQLBoundParameter
 {
 public:
   vtkMySQLBoundParameter() :
-    IsNull(true), Data(NULL), BufferSize(0), DataLength(0), HasError(false)
+    IsNull(true), Data(nullptr), BufferSize(0), DataLength(0), HasError(false)
   {
   }
 
@@ -98,12 +98,12 @@ public:
       output.length = &(this->DataLength);
       output.is_null = &(this->IsNull);
       output.is_unsigned = this->IsUnsigned;
-      output.error = NULL;
+      output.error = nullptr;
       return output;
   }
 
 public:
-  my_bool           IsNull;      // Is this parameter NULL?
+  my_bool           IsNull;      // Is this parameter nullptr?
   my_bool           IsUnsigned;  // For integer types, is it unsigned?
   char             *Data;        // Buffer holding actual data
   unsigned long     BufferSize;  // Buffer size
@@ -204,7 +204,7 @@ vtkMySQLBoundParameter *vtkBuildBoundParameter(T data_value)
 }
 
 // Description:
-// Specialization of vtkBuildBoundParameter for NULL-terminated
+// Specialization of vtkBuildBoundParameter for nullptr-terminated
 // strings (i.e. CHAR and VARCHAR fields)
 
 template<>
@@ -289,10 +289,10 @@ public:
 // ----------------------------------------------------------------------
 
 vtkMySQLQueryInternals::vtkMySQLQueryInternals()
-  : Statement(NULL),
-    Result(NULL),
-    BoundParameters(NULL),
-    CurrentLengths(NULL)
+  : Statement(nullptr),
+    Result(nullptr),
+    BoundParameters(nullptr),
+    CurrentLengths(nullptr)
 {
 }
 
@@ -313,7 +313,7 @@ void vtkMySQLQueryInternals::FreeResult()
   if (this->Result)
   {
     mysql_free_result(this->Result);
-    this->Result = NULL;
+    this->Result = nullptr;
   }
 }
 
@@ -324,7 +324,7 @@ void vtkMySQLQueryInternals::FreeStatement()
   if (this->Statement)
   {
     mysql_stmt_close(this->Statement);
-    this->Statement = NULL;
+    this->Statement = nullptr;
   }
 }
 
@@ -344,7 +344,7 @@ bool vtkMySQLQueryInternals::SetQuery(const char *queryString,
   }
 
   this->Statement = mysql_stmt_init(db);
-  if (this->Statement == NULL)
+  if (this->Statement == nullptr)
   {
     error_message = vtkStdString("vtkMySQLQuery: mysql_stmt_init returned out of memory error");
     return false;
@@ -356,7 +356,7 @@ bool vtkMySQLQueryInternals::SetQuery(const char *queryString,
 
   if (status == 0)
   {
-    this->UserParameterList.resize(mysql_stmt_param_count(this->Statement), NULL);
+    this->UserParameterList.resize(mysql_stmt_param_count(this->Statement), nullptr);
     return true;
   }
   else
@@ -373,7 +373,7 @@ void vtkMySQLQueryInternals::FreeUserParameterList()
   for (unsigned int i = 0; i < this->UserParameterList.size(); ++i)
   {
     delete this->UserParameterList[i];
-    this->UserParameterList[i] = NULL;
+    this->UserParameterList[i] = nullptr;
   }
   this->UserParameterList.clear();
 }
@@ -407,7 +407,7 @@ bool vtkMySQLQueryInternals::SetBoundParameter(int index, vtkMySQLBoundParameter
 
 bool vtkMySQLQueryInternals::BindParametersToStatement()
 {
-  if (this->Statement == NULL)
+  if (this->Statement == nullptr)
   {
     vtkGenericWarningMacro(<<"BindParametersToStatement: No prepared statement available");
     return false;
@@ -487,14 +487,14 @@ vtkMySQLQuery::vtkMySQLQuery()
 {
   this->Internals = new vtkMySQLQueryInternals;
   this->InitialFetch = true;
-  this->LastErrorText = NULL;
+  this->LastErrorText = nullptr;
 }
 
 // ----------------------------------------------------------------------
 
 vtkMySQLQuery::~vtkMySQLQuery()
 {
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
   delete this->Internals;
 }
 
@@ -512,7 +512,7 @@ vtkMySQLQuery::Execute()
 {
   this->Active = false;
 
-  if (this->Query == NULL)
+  if (this->Query == nullptr)
   {
     vtkErrorMacro(<<"Cannot execute before a query has been set.");
     return false;
@@ -522,7 +522,7 @@ vtkMySQLQuery::Execute()
 
   vtkMySQLDatabase *dbContainer =
     static_cast<vtkMySQLDatabase *>(this->Database);
-  assert(dbContainer != NULL);
+  assert(dbContainer != nullptr);
 
   if (!dbContainer->IsOpen())
   {
@@ -532,10 +532,10 @@ vtkMySQLQuery::Execute()
 
   vtkDebugMacro(<<"Execute(): Query ready to execute.");
 
-  if (this->Query != NULL && this->Internals->Statement == NULL)
+  if (this->Query != nullptr && this->Internals->Statement == nullptr)
   {
     MYSQL *db = dbContainer->Private->Connection;
-    assert(db != NULL);
+    assert(db != nullptr);
 
     int result = mysql_query(db, this->Query);
     if (result == 0)
@@ -550,9 +550,9 @@ vtkMySQLQuery::Execute()
       if (this->Internals->Result || mysql_field_count(db) == 0)
       {
         // The query definitely succeeded.
-        this->SetLastErrorText(NULL);
+        this->SetLastErrorText(nullptr);
         // mysql_field_count will return 0 for statements like INSERT.
-        // set Active to false so that we don't call mysql_fetch_row on a NULL
+        // set Active to false so that we don't call mysql_fetch_row on a nullptr
         // argument and segfault
         if(mysql_field_count(db) == 0)
         {
@@ -599,7 +599,7 @@ vtkMySQLQuery::Execute()
     if (result == 0)
     {
       // The query succeeded.
-      this->SetLastErrorText(NULL);
+      this->SetLastErrorText(nullptr);
       this->Active = true;
       this->Internals->Result = mysql_stmt_result_metadata(this->Internals->Statement);
       return true;
@@ -658,22 +658,22 @@ vtkMySQLQuery::GetFieldName(int column)
   if (! this->Active)
   {
     vtkErrorMacro(<<"GetFieldName(): Query is not active!");
-    return NULL;
+    return nullptr;
   }
   else if (column < 0 || column >= this->GetNumberOfFields())
   {
     vtkErrorMacro(<<"GetFieldName(): Illegal field index "
                   << column);
-    return NULL;
+    return nullptr;
   }
   else
   {
     MYSQL_FIELD *field = mysql_fetch_field_direct(this->Internals->Result, column);
-    if (field == NULL)
+    if (field == nullptr)
     {
       vtkErrorMacro(<<"GetFieldName(): MySQL returned null field for column "
                     << column );
-      return NULL;
+      return nullptr;
     }
     else
     {
@@ -702,7 +702,7 @@ vtkMySQLQuery::GetFieldType(int column)
   {
     vtkMySQLDatabase *dbContainer =
       static_cast<vtkMySQLDatabase *>(this->Database);
-    assert(dbContainer != NULL);
+    assert(dbContainer != nullptr);
     if (!dbContainer->IsOpen())
     {
       vtkErrorMacro(<<"Cannot get field type.  Database is closed.");
@@ -711,7 +711,7 @@ vtkMySQLQuery::GetFieldType(int column)
 
     MYSQL_FIELD *field = mysql_fetch_field_direct(this->Internals->Result,
                                                   column);
-    if (field == NULL)
+    if (field == nullptr)
     {
       vtkErrorMacro(<<"GetFieldType(): MySQL returned null field for column "
                     << column );
@@ -811,7 +811,7 @@ vtkMySQLQuery::NextRow()
     this->Active = false;
     vtkMySQLDatabase *dbContainer =
       static_cast<vtkMySQLDatabase *>(this->Database);
-    assert(dbContainer != NULL);
+    assert(dbContainer != nullptr);
     if (!dbContainer->IsOpen())
     {
       vtkErrorMacro(<<"Cannot get field type.  Database is closed.");
@@ -819,7 +819,7 @@ vtkMySQLQuery::NextRow()
       return VTK_VOID;
     }
     MYSQL *db = dbContainer->Private->Connection;
-    assert(db != NULL);
+    assert(db != nullptr);
 
 
     if (mysql_errno(db) != 0)
@@ -831,14 +831,14 @@ vtkMySQLQuery::NextRow()
     else
     {
       // Nothing's wrong.  We're just out of results.
-      this->SetLastErrorText(NULL);
+      this->SetLastErrorText(nullptr);
     }
 
     return false;
   }
   else
   {
-    this->SetLastErrorText(NULL);
+    this->SetLastErrorText(nullptr);
     return true;
   }
 }
@@ -865,7 +865,7 @@ vtkMySQLQuery::DataValue(vtkIdType column)
     vtkVariant result;
 
     // Initialize base as a VTK_VOID value... only populate with
-    // data when a column value is non-NULL.
+    // data when a column value is non-nullptr.
     bool isNull = !this->Internals->CurrentRow[column];
     vtkVariant base;
     if ( !isNull )
@@ -927,7 +927,7 @@ vtkMySQLQuery::GetLastErrorText()
 bool
 vtkMySQLQuery::HasError()
 {
-  return (this->GetLastErrorText() != NULL);
+  return (this->GetLastErrorText() != nullptr);
 }
 
 vtkStdString vtkMySQLQuery::EscapeString( vtkStdString src, bool addSurroundingQuotes )
@@ -935,7 +935,7 @@ vtkStdString vtkMySQLQuery::EscapeString( vtkStdString src, bool addSurroundingQ
   vtkStdString dst;
   vtkMySQLDatabase* dbContainer =
     static_cast<vtkMySQLDatabase*>( this->Database );
-  assert( dbContainer != NULL );
+  assert( dbContainer != nullptr );
 
   MYSQL* db;
   if ( ( ! dbContainer->IsOpen() ) || ! ( db = dbContainer->Private->Connection ) )
@@ -971,7 +971,7 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
                 << " (" << this << "): setting Query to "
                 << (newQuery?newQuery:"(null)") );
 
-  if (this->Query == NULL && newQuery == NULL)
+  if (this->Query == nullptr && newQuery == nullptr)
   {
     return true;
   }
@@ -994,7 +994,7 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
   }
    else
    {
-    this->Query = NULL;
+    this->Query = nullptr;
    }
 
   // If we get to this point the query has changed.  We need to
@@ -1011,7 +1011,7 @@ vtkMySQLQuery::SetQuery(const char *newQuery)
   }
 
   MYSQL *db = dbContainer->Private->Connection;
-  assert(db != NULL);
+  assert(db != nullptr);
 
   vtkStdString errorMessage;
   bool success = this->Internals->SetQuery(this->Query, db, errorMessage);

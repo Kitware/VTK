@@ -22,7 +22,7 @@ vtkPriorityQueue::vtkPriorityQueue()
 {
   this->Size = 0;
   this->Extend = 1000;
-  this->Array = NULL;
+  this->Array = nullptr;
   this->MaxId = -1;
   this->ItemLocation = vtkIdTypeArray::New();
 }

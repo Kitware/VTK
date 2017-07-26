@@ -25,14 +25,14 @@ vtkStandardNewMacro(vtkSimplePointsReader);
 //----------------------------------------------------------------------------
 vtkSimplePointsReader::vtkSimplePointsReader()
 {
-  this->FileName = 0;
+  this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
 vtkSimplePointsReader::~vtkSimplePointsReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------

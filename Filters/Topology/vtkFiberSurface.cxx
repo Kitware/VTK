@@ -637,7 +637,7 @@ vtkFiberSurface::vtkFiberSurface()
 {
   // number of input ports is 2
   this->SetNumberOfInputPorts(2);
-  this->Fields[0] = this->Fields[1] = NULL;
+  this->Fields[0] = this->Fields[1] = nullptr;
 }
 
 //----------------------------------------------------------------------------

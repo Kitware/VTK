@@ -31,10 +31,10 @@ vtkStandardNewMacro(vtkImageWriter);
 //----------------------------------------------------------------------------
 vtkImageWriter::vtkImageWriter()
 {
-  this->FilePrefix = NULL;
-  this->FilePattern = NULL;
-  this->FileName = NULL;
-  this->InternalFileName = NULL;
+  this->FilePrefix = nullptr;
+  this->FilePattern = nullptr;
+  this->FileName = nullptr;
+  this->InternalFileName = nullptr;
   this->InternalFileNameSize = 0;
   this->FileNumber = 0;
   this->FileDimensionality = 2;
@@ -58,11 +58,11 @@ vtkImageWriter::~vtkImageWriter()
 {
   // get rid of memory allocated for file names
   delete [] this->FilePrefix;
-  this->FilePrefix = NULL;
+  this->FilePrefix = nullptr;
   delete [] this->FilePattern;
-  this->FilePattern = NULL;
+  this->FilePattern = nullptr;
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 
@@ -88,7 +88,7 @@ vtkImageData *vtkImageWriter::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
@@ -107,7 +107,7 @@ int vtkImageWriter::RequestData(
     vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Error checking
-  if (input == NULL )
+  if (input == nullptr )
   {
     vtkErrorMacro(<<"Write:Please specify an input!");
     return 0;
@@ -136,7 +136,7 @@ int vtkImageWriter::RequestData(
   this->UpdateProgress(0.0);
   if (!this->WriteToMemory)
   {
-    this->RecursiveWrite(2, input, inInfo, NULL);
+    this->RecursiveWrite(2, input, inInfo, nullptr);
   }
 
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -148,7 +148,7 @@ int vtkImageWriter::RequestData(
   this->InvokeEvent(vtkCommand::EndEvent);
 
   delete [] this->InternalFileName;
-  this->InternalFileName = NULL;
+  this->InternalFileName = nullptr;
   this->InternalFileNameSize = 0;
 
   return 1;
@@ -469,7 +469,7 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   switch (data->GetScalarType())
   {
     vtkTemplateMacro(
-      rowLength = vtkImageWriterGetSize(static_cast<VTK_TT*>(0))
+      rowLength = vtkImageWriterGetSize(static_cast<VTK_TT*>(nullptr))
       );
     default:
       vtkErrorMacro(<< "Execute: Unknown output ScalarType");

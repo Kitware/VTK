@@ -96,7 +96,7 @@ public:
   /**
    * Return the projection transformation used by this source.
    */
-  virtual vtkAbstractTransform* GetTransform() { return NULL; }
+  virtual vtkAbstractTransform* GetTransform() { return nullptr; }
 
 protected:
 

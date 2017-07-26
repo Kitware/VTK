@@ -121,7 +121,7 @@ void MyProcess::Execute()
   vtkDataSetReader *dsr = vtkDataSetReader::New();
   vtkUnstructuredGrid *ug = vtkUnstructuredGrid::New();
 
-  vtkDataSet *ds = NULL;
+  vtkDataSet *ds = nullptr;
 
   if (me == 0)
   {
@@ -139,7 +139,7 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((ds == NULL) || (ds->GetNumberOfCells() == 0))
+    if ((ds == nullptr) || (ds->GetNumberOfCells() == 0))
     {
       if (ds)
       {

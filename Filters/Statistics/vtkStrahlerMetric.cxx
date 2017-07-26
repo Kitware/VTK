@@ -37,13 +37,13 @@ vtkStrahlerMetric::vtkStrahlerMetric()
 {
   this->MaxStrahler = 0;
   this->Normalize = 0;
-  this->MetricArrayName = 0;
+  this->MetricArrayName = nullptr;
   this->SetMetricArrayName( "Strahler" );
 }
 
 vtkStrahlerMetric::~vtkStrahlerMetric()
 {
-  this->SetMetricArrayName(0);
+  this->SetMetricArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------

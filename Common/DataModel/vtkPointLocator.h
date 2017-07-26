@@ -218,7 +218,7 @@ public:
 
   /**
    * Given a position x, return the list of points in the bucket that
-   * contains the point. It is possible that NULL is returned. The user
+   * contains the point. It is possible that nullptr is returned. The user
    * provides an ijk array that is the indices into the locator.
    * This method is thread safe.
    */

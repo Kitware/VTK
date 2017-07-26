@@ -42,7 +42,7 @@ public:
   /**
    * Sets the output array name to fill with the input connection index
    * for each point. This provides a way to trace a point back to a
-   * particular input. If this is NULL (the default), the array is not generated.
+   * particular input. If this is nullptr (the default), the array is not generated.
    */
   vtkSetStringMacro(InputIdArrayName);
   vtkGetStringMacro(InputIdArrayName);

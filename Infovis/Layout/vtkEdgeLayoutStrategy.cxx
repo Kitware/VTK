@@ -29,12 +29,12 @@ void vtkEdgeLayoutStrategy::SetGraph(vtkGraph *graph)
   {
     vtkGraph *tmp = this->Graph;
     this->Graph = graph;
-    if (this->Graph != NULL)
+    if (this->Graph != nullptr)
     {
       this->Graph->Register(this);
       this->Initialize();
     }
-    if (tmp != NULL)
+    if (tmp != nullptr)
     {
       tmp->UnRegister(this);
     }
@@ -44,15 +44,15 @@ void vtkEdgeLayoutStrategy::SetGraph(vtkGraph *graph)
 
 vtkEdgeLayoutStrategy::vtkEdgeLayoutStrategy()
 {
-  this->Graph = NULL;
-  this->EdgeWeightArrayName = NULL;
+  this->Graph = nullptr;
+  this->EdgeWeightArrayName = nullptr;
 }
 
 vtkEdgeLayoutStrategy::~vtkEdgeLayoutStrategy()
 {
   // Unregister vtk objects that were passed in
-  this->SetGraph(NULL);
-  this->SetEdgeWeightArrayName(NULL);
+  this->SetGraph(nullptr);
+  this->SetEdgeWeightArrayName(nullptr);
 }
 
 void vtkEdgeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)

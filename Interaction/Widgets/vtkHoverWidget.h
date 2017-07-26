@@ -112,7 +112,7 @@ public:
    * method returns NULL.
    */
   void CreateDefaultRepresentation() VTK_OVERRIDE
-    {this->WidgetRep = NULL;}
+    {this->WidgetRep = nullptr;}
 
 protected:
   vtkHoverWidget();

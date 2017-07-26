@@ -80,8 +80,8 @@ int vtkQuadraturePointsGenerator::RequestData(
   vtkPolyData *pdOut = vtkPolyData::SafeDownCast(tmpDataObj);
 
   // Quick sanity check.
-  if (usgIn == NULL || pdOut == NULL || usgIn->GetNumberOfCells() == 0
-      || usgIn->GetNumberOfPoints() == 0 || usgIn->GetCellData() == NULL
+  if (usgIn == nullptr || pdOut == nullptr || usgIn->GetNumberOfCells() == 0
+      || usgIn->GetNumberOfPoints() == 0 || usgIn->GetCellData() == nullptr
       || usgIn->GetCellData()->GetNumberOfArrays() == 0)
   {
     vtkErrorMacro("Filter data has not been configured correctly. Aborting.");
@@ -143,7 +143,7 @@ int vtkQuadraturePointsGenerator::GenerateField(
         }
         cellType = usgIn->GetCellType(cellId);
 
-        if (dict[cellType] == NULL)
+        if (dict[cellType] == nullptr)
         {
           previous = offset;
         }
@@ -178,7 +178,7 @@ int vtkQuadraturePointsGenerator::GenerateField(
 
           // a simple check to see if a scheme really exists for this cell type.
           // should not happen if the cell type has not been modified.
-          if (dict[cellType] == NULL)
+          if (dict[cellType] == nullptr)
           {
             continue;
           }
@@ -205,7 +205,7 @@ int vtkQuadraturePointsGenerator::Generate(
         vtkDataArray* offsets,
         vtkPolyData *pdOut)
 {
-  if (usgIn == NULL || offsets == NULL || pdOut == NULL)
+  if (usgIn == nullptr || offsets == nullptr || pdOut == nullptr)
   {
     vtkErrorMacro("configuration error");
     return 0;
@@ -215,7 +215,7 @@ int vtkQuadraturePointsGenerator::Generate(
   // create the points then move the FieldData to PointData
 
   const char* offsetName = offsets->GetName();
-  if (offsetName == NULL)
+  if (offsetName == nullptr)
   {
     vtkErrorMacro("offset array has no name, Skipping");
     return 1;
@@ -260,7 +260,7 @@ int vtkQuadraturePointsGenerator::Generate(
               3,
               dict,
               qPts,
-              (int*)NULL))
+              (int*)nullptr))
       {
         vtkWarningMacro("Failed to interpolate cell vertices "
             "to quadrature points. Aborting.");
@@ -298,11 +298,11 @@ int vtkQuadraturePointsGenerator::Generate(
   for (int i = 0; i<nArrays; ++i)
   {
     vtkDataArray* array = usgIn->GetFieldData()->GetArray(i);
-    if (array == NULL) continue;
+    if (array == nullptr) continue;
 
     const char* arrayOffsetName = array->GetInformation()->Get(
         vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME());
-    if (arrayOffsetName == NULL)
+    if (arrayOffsetName == nullptr)
     {
       // not an error, since non-quadrature point field data may
       //  be present.

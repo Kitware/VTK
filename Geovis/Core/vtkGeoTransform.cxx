@@ -34,8 +34,8 @@ vtkCxxSetObjectMacro(vtkGeoTransform, DestinationProjection, vtkGeoProjection);
 
 vtkGeoTransform::vtkGeoTransform()
 {
-  this->SourceProjection = 0;
-  this->DestinationProjection = 0;
+  this->SourceProjection = nullptr;
+  this->DestinationProjection = nullptr;
 }
 
 vtkGeoTransform::~vtkGeoTransform()
@@ -73,8 +73,8 @@ void vtkGeoTransform::TransformPoints( vtkPoints* srcPts, vtkPoints* dstPts )
   }
   dstCoords->DeepCopy( srcCoords );
 
-  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
-  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
+  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : nullptr;
+  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : nullptr;
   if ( ! src && ! dst )
   {
     // we've already copied srcCoords to dstCoords and src=dst=0 implies no transform...
@@ -156,8 +156,8 @@ vtkAbstractTransform* vtkGeoTransform::MakeTransform()
 
 void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int stride )
 {
-  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
-  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
+  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : nullptr;
+  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : nullptr;
   int delta = stride - 2;
   projLP lp;
   projXY xy;

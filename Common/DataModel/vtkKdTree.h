@@ -353,7 +353,7 @@ public:
    * but whose centroid lies in a region not on the list.
 
    * The total number of cell IDs written to both lists is returned.
-   * Either list pointer passed in can be NULL, and it will be ignored.
+   * Either list pointer passed in can be nullptr, and it will be ignored.
    * If there are multiple data sets, you must specify which data set
    * you wish cell IDs for.
 
@@ -714,7 +714,7 @@ protected:
 
   /**
    * Get or compute the center of one cell.  If the DataSet is
-   * NULL, the first DataSet is used.  This is the point used in
+   * nullptr, the first DataSet is used.  This is the point used in
    * determining to which spatial region the cell is assigned.
    */
 
@@ -791,7 +791,7 @@ protected:
 
   struct _cellList{
     vtkDataSet *dataSet;        // cell lists for which data set
-    int *regionIds;            // NULL if listing all regions
+    int *regionIds;            // nullptr if listing all regions
     int nRegions;
     vtkIdList **cells;
     vtkIdList **boundaryCells;

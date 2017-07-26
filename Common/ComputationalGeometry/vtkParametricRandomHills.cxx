@@ -75,7 +75,7 @@ vtkParametricRandomHills::~vtkParametricRandomHills()
 void vtkParametricRandomHills::InitRNG(int randomSeed)
 {
   (randomSeed < 0) ?
-  this->randomSequenceGenerator->SetSeed(static_cast<int>(time(NULL))) :
+  this->randomSequenceGenerator->SetSeed(static_cast<int>(time(nullptr))) :
   this->randomSequenceGenerator->SetSeed(randomSeed);
 }
 

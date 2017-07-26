@@ -63,10 +63,10 @@ struct vtkGraphItem::Internals {
 
 vtkGraphItem::vtkGraphItem()
 {
-  this->Graph = 0;
+  this->Graph = nullptr;
   this->GraphBuildTime = 0;
   this->Internal = new Internals();
-  this->Internal->Interactor = NULL;
+  this->Internal->Interactor = nullptr;
   this->Internal->Animating = false;
   this->Internal->AnimationCallbackInitialized = false;
   this->Internal->TimerId = 0;

@@ -45,7 +45,7 @@ namespace
     public:
       vtkTypeUInt32 TimeStamp;
       vtkSmartPointer<vtkUnsignedCharArray> Data;
-      OutputValueType() : TimeStamp(0), Data(NULL)
+      OutputValueType() : TimeStamp(0), Data(nullptr)
       {
       }
     };
@@ -56,7 +56,7 @@ namespace
       vtkTypeUInt32 OutputStamp;
       vtkSmartPointer<vtkImageData> Image;
       int Quality;
-      InputValueType() : OutputStamp(0), Image(NULL), Quality(100)
+      InputValueType() : OutputStamp(0), Image(nullptr), Quality(100)
       {
       }
     };
@@ -165,7 +165,7 @@ namespace
         value.Image.TakeReference(data);
         value.OutputStamp = stamp;
         value.Quality = quality;
-        data = NULL;
+        data = nullptr;
       }
       this->InputsLock.Unlock();
       this->InputsAvailable.Signal();
@@ -200,23 +200,23 @@ namespace
         InputMapType::iterator iter;
         for (iter = this->Inputs.begin(); iter != this->Inputs.end(); ++iter)
         {
-          if (iter->second.Image.GetPointer() != NULL)
+          if (iter->second.Image.GetPointer() != nullptr)
           {
             key = iter->first;
             image = iter->second.Image;
-            iter->second.Image = NULL;
+            iter->second.Image = nullptr;
             stamp = iter->second.OutputStamp;
             quality = iter->second.Quality;
             break;
           }
         }
-        if (image.GetPointer() == NULL && !this->IsDone())
+        if (image.GetPointer() == nullptr && !this->IsDone())
         {
           // No data is available, let's wait till it becomes available.
           this->InputsAvailable.Wait(this->InputsLock);
         }
 
-      } while (image.GetPointer() == NULL && !this->IsDone());
+      } while (image.GetPointer() == nullptr && !this->IsDone());
 
       this->InputsLock.Unlock();
       return stamp;
@@ -230,7 +230,7 @@ namespace
       assert(dataRef->GetReferenceCount() == 1);
       OutputMapType::iterator iter = this->Outputs.find(key);
       if (iter == this->Outputs.end() ||
-        iter->second.Data.GetPointer() == NULL ||
+        iter->second.Data.GetPointer() == nullptr ||
         iter->second.TimeStamp < timestamp)
       {
         //cout << "Done: " <<
@@ -238,12 +238,12 @@ namespace
         //  << key << ", " << timestamp << endl;
         this->Outputs[key].TimeStamp = timestamp;
         this->Outputs[key].Data.TakeReference(dataRef);
-        dataRef = NULL;
+        dataRef = nullptr;
       }
       else
       {
         dataRef->Delete();
-        dataRef = NULL;
+        dataRef = nullptr;
       }
       this->OutputsLock.Unlock();
       this->OutputsAvailable.Broadcast();
@@ -257,7 +257,7 @@ namespace
       this->OutputsLock.Lock();
       {
         const vtkSharedData::OutputValueType &output = this->Outputs[key];
-        if (output.Data.GetPointer() != NULL &&
+        if (output.Data.GetPointer() != nullptr &&
           (output.Data->GetMTime() > data->GetMTime() ||
            output.Data->GetNumberOfTuples() != data->GetNumberOfTuples()))
         {
@@ -313,7 +313,7 @@ namespace
 
       timestamp = sharedData->GetNextInputToProcess(key, image, quality);
 
-      if (timestamp == 0 || image.GetPointer() == NULL)
+      if (timestamp == 0 || image.GetPointer() == nullptr)
       {
         // end thread.
         break;
@@ -341,7 +341,7 @@ namespace
 
       // Pass over the "result" reference.
       sharedData->SetOutputReference(key, timestamp, result);
-      assert(result == NULL);
+      assert(result == nullptr);
     }
 
     //cout << "Closing Thread: " << vtkMultiThreader::GetCurrentThreadID() << endl;
@@ -427,7 +427,7 @@ vtkDataEncoder::~vtkDataEncoder()
 {
   this->Internals->TerminateAllWorkers();
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -446,7 +446,7 @@ void vtkDataEncoder::PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data
 
   this->Internals->SharedData.PushAndTakeReference(
     key, data, ++this->Internals->Counter, quality);
-  assert(data == NULL);
+  assert(data == nullptr);
 }
 
 //----------------------------------------------------------------------------

@@ -47,10 +47,10 @@ vtkAbstractObjectFactoryNewMacro(vtkActor)
 // orientation=(0,0,0). No user defined matrix and no texture map.
 vtkActor::vtkActor()
 {
-  this->Mapper = NULL;
-  this->Property = NULL;
-  this->BackfaceProperty = NULL;
-  this->Texture = NULL;
+  this->Mapper = nullptr;
+  this->Property = nullptr;
+  this->BackfaceProperty = nullptr;
+  this->Texture = nullptr;
 
   this->ForceOpaque = false;
   this->ForceTranslucent = false;
@@ -63,24 +63,24 @@ vtkActor::vtkActor()
 //----------------------------------------------------------------------------
 vtkActor::~vtkActor()
 {
-  if ( this->Property != NULL)
+  if ( this->Property != nullptr)
   {
     this->Property->UnRegister(this);
-    this->Property = NULL;
+    this->Property = nullptr;
   }
 
-  if ( this->BackfaceProperty != NULL)
+  if ( this->BackfaceProperty != nullptr)
   {
     this->BackfaceProperty->UnRegister(this);
-    this->BackfaceProperty = NULL;
+    this->BackfaceProperty = nullptr;
   }
 
   if (this->Mapper)
   {
     this->Mapper->UnRegister(this);
-    this->Mapper = NULL;
+    this->Mapper = nullptr;
   }
-  this->SetTexture(NULL);
+  this->SetTexture(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ vtkActor::~vtkActor()
 void vtkActor::ShallowCopy(vtkProp *prop)
 {
   vtkActor *a = vtkActor::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetMapper(a->GetMapper());
     this->SetProperty(a->GetProperty());
@@ -130,11 +130,11 @@ int vtkActor::GetIsOpaque()
 
   // are we using an opaque texture, if any?
   is_opaque = is_opaque &&
-    (this->Texture ==NULL || this->Texture->IsTranslucent() == 0);
+    (this->Texture ==nullptr || this->Texture->IsTranslucent() == 0);
 
   // are we using an opaque scalar array, if any?
   is_opaque = is_opaque &&
-    (this->Mapper == NULL || this->Mapper->GetIsOpaque());
+    (this->Mapper == nullptr || this->Mapper->GetIsOpaque());
 
   return is_opaque? 1 : 0;
 }
@@ -333,7 +333,7 @@ vtkProperty* vtkActor::MakeProperty()
 //----------------------------------------------------------------------------
 vtkProperty *vtkActor::GetProperty()
 {
-  if ( this->Property == NULL )
+  if ( this->Property == nullptr )
   {
     vtkProperty *p = this->MakeProperty();
     this->SetProperty(p);
@@ -361,7 +361,7 @@ double *vtkActor::GetBounds()
   // Check for the special case when the mapper's bounds are unknown
   if (!bounds)
   {
-    return NULL;
+    return nullptr;
   }
 
   // Check for the special case when the actor is empty.
@@ -439,19 +439,19 @@ vtkMTimeType vtkActor::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Property != NULL )
+  if ( this->Property != nullptr )
   {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->BackfaceProperty != NULL )
+  if ( this->BackfaceProperty != nullptr )
   {
     time = this->BackfaceProperty->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->Texture != NULL )
+  if ( this->Texture != nullptr )
   {
     time = this->Texture->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -467,11 +467,11 @@ vtkMTimeType vtkActor::GetRedrawMTime()
   vtkMTimeType time;
 
   vtkMapper *myMapper = this->GetMapper();
-  if ( myMapper != NULL )
+  if ( myMapper != nullptr )
   {
     time = myMapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (myMapper->GetInput() != NULL)
+    if (myMapper->GetInput() != nullptr)
     {
       myMapper->GetInputAlgorithm()->Update();
       time = myMapper->GetInput()->GetMTime();

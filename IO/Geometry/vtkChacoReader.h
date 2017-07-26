@@ -98,7 +98,7 @@ public:
   /**
    * This method returns the name of the selected Vertex weight point
    * array.  If you did not turn on GenerateVertexWeightArrays, or
-   * if the weight you requested is invalid, it returns NULL.
+   * if the weight you requested is invalid, it returns nullptr.
    * Weights begin at one and go up to NumberOfVertexWeights.
    * This is a pointer to our copy of the name, so don't "delete" it.
    */
@@ -128,7 +128,7 @@ public:
   /**
    * This method returns the name of the selected Edge weight cell
    * array.  If you did not turn on GenerateEdgeWeightArrays, or
-   * if the weight you requested is invalid, it returns NULL.
+   * if the weight you requested is invalid, it returns nullptr.
    * Weights begin at one and go up to NumberOfEdgeWeights.
    * This is a pointer to our copy of the name, so don't "delete" it.
    */

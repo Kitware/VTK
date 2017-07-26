@@ -51,7 +51,7 @@ int TestLookupTableThreaded(int, char* [])
   lut->SetNumberOfTableValues( 1024 );
 
   vtkNew<vtkMultiThreader> threader;
-  threader->SetSingleMethod( ThreadedMethod, NULL );
+  threader->SetSingleMethod( ThreadedMethod, nullptr );
   threader->SetNumberOfThreads( 4 );
   threader->SingleMethodExecute();
 

@@ -51,7 +51,7 @@
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
-  PIMPL() : VisibleColumnsModified(true), BigChart(NULL), BigChartPos(0, 0),
+  PIMPL() : VisibleColumnsModified(true), BigChart(nullptr), BigChartPos(0, 0),
     ResizingBigChart(false), AnimationCallbackInitialized(false), TimerId(0),
     TimerCallbackInitialized(false)
   {
@@ -824,7 +824,7 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
     this->SetSize(vtkVector2i(0, 0));
     this->Modified();
 
-    if (table == NULL)
+    if (table == nullptr)
     {
       this->SetColumnVisibilityAll(true);
       return;
@@ -1669,7 +1669,7 @@ vtkTextProperty* vtkScatterPlotMatrix::GetAxisLabelProperties(int plotType)
   {
     return this->Private->ChartSettings[plotType]->LabelFont.GetPointer();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

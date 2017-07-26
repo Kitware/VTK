@@ -110,7 +110,7 @@ public:
    * plane2 where integers (0, 1, 2, 3, 4, 5) stand for the
    * (xmin, xmax, ymin, ymax, zmin, zmax) planes respectively, and a value
    * of -1 means that no intersection occurred.  The actual intersection
-   * coordinates are stored in x1 and x2, which can be set to NULL of you
+   * coordinates are stored in x1 and x2, which can be set to nullptr of you
    * do not need them to be returned.  The function return value will be
    * zero if the line is wholly outside of the box.
    */

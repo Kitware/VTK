@@ -21,10 +21,10 @@ vtkCxxSetObjectMacro(vtkOverrideInformation,ObjectFactory,vtkObjectFactory);
 
 vtkOverrideInformation::vtkOverrideInformation()
 {
-  this->ClassOverrideName = 0;
-  this->ClassOverrideWithName = 0;
-  this->Description = 0;
-  this->ObjectFactory = 0;
+  this->ClassOverrideName = nullptr;
+  this->ClassOverrideWithName = nullptr;
+  this->Description = nullptr;
+  this->ObjectFactory = nullptr;
 }
 
 vtkOverrideInformation::~vtkOverrideInformation()

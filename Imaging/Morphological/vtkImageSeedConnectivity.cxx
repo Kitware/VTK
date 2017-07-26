@@ -29,7 +29,7 @@ vtkImageSeedConnectivity::vtkImageSeedConnectivity()
   this->InputConnectValue = 255;
   this->OutputConnectedValue = 255;
   this->OutputUnconnectedValue = 0;
-  this->Seeds = NULL;
+  this->Seeds = nullptr;
   this->Connector = vtkImageConnector::New();
   this->Dimensionality = 3;
 }
@@ -71,7 +71,7 @@ void vtkImageSeedConnectivity::AddSeed(int num, int *index)
   {
     newIndex[idx] = 0;
   }
-  seed = this->Connector->NewSeed(newIndex, NULL);
+  seed = this->Connector->NewSeed(newIndex, nullptr);
   seed->Next = this->Seeds;
   this->Seeds = seed;
   this->Modified();

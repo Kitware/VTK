@@ -221,7 +221,7 @@ int TestColorSeries( int argc, char* argv[] )
     vtkGenericWarningMacro( "Failure: DeepCopy did not preserve current scheme" );
     valResult = vtkTesting::FAILED;
   }
-  other->DeepCopy(NULL);
+  other->DeepCopy(nullptr);
 
   // Test SetColor
   other->SetColorScheme( pid );

@@ -26,13 +26,13 @@ vtkCxxSetObjectMacro(vtkTexturedActor2D, Texture, vtkTexture);
 //-----------------------------------------------------------------------------
 vtkTexturedActor2D::vtkTexturedActor2D()
 {
-  this->Texture = 0;
+  this->Texture = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkTexturedActor2D::~vtkTexturedActor2D()
 {
-  this->SetTexture(0);
+  this->SetTexture(nullptr);
 }
 
 //-----------------------------------------------------------------------------

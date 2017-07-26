@@ -75,7 +75,7 @@ int vtkStructuredGridPartitioner::FillOutputPortInformation(
 vtkPoints* vtkStructuredGridPartitioner::ExtractSubGridPoints(
     vtkStructuredGrid *wholeGrid, int subext[6] )
 {
-  assert("pre: whole grid is NULL" && (wholeGrid != NULL) );
+  assert("pre: whole grid is nullptr" && (wholeGrid != nullptr) );
 
   int numNodes    = vtkStructuredData::GetNumberOfPoints( subext );
   vtkPoints *pnts = vtkPoints::New();
@@ -113,17 +113,17 @@ int vtkStructuredGridPartitioner::RequestData(
 {
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-  assert("pre: input information object is NULL" && (input != NULL) );
+  assert("pre: input information object is nullptr" && (input != nullptr) );
   vtkStructuredGrid *grd =
       vtkStructuredGrid::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
-  assert("pre: output information object is NULL" && (output != NULL) );
+  assert("pre: output information object is nullptr" && (output != nullptr) );
   vtkMultiBlockDataSet *multiblock =
       vtkMultiBlockDataSet::SafeDownCast(
           output->Get( vtkDataObject::DATA_OBJECT() ) );
-  assert("pre: multi-block grid is NULL" && (multiblock != NULL) );
+  assert("pre: multi-block grid is nullptr" && (multiblock != nullptr) );
 
   // STEP 2: Get the global extent
   int extent[6];
@@ -131,7 +131,7 @@ int vtkStructuredGridPartitioner::RequestData(
 
   // STEP 3: Setup extent partitioner
   vtkExtentRCBPartitioner *extentPartitioner = vtkExtentRCBPartitioner::New();
-  assert("pre: extent partitioner is NULL" && (extentPartitioner != NULL) );
+  assert("pre: extent partitioner is nullptr" && (extentPartitioner != nullptr) );
   extentPartitioner->SetGlobalExtent( extent );
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
@@ -165,12 +165,12 @@ int vtkStructuredGridPartitioner::RequestData(
     subgrid->SetExtent( subext );
 
     vtkPoints *points = this->ExtractSubGridPoints( grd, subext );
-    assert("pre: subgrid points are NULL" && (points != NULL) );
+    assert("pre: subgrid points are nullptr" && (points != nullptr) );
     subgrid->SetPoints( points );
     points->Delete();
 
     vtkInformation *metadata = multiblock->GetMetaData( blockIdx );
-    assert( "pre: metadata is NULL" && (metadata != NULL) );
+    assert( "pre: metadata is nullptr" && (metadata != nullptr) );
     metadata->Set( vtkDataObject::PIECE_EXTENT(), subext, 6);
 
     multiblock->SetBlock( blockIdx, subgrid );

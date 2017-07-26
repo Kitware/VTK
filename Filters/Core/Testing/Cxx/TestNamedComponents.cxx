@@ -134,7 +134,7 @@ int TestNamedComponents(int , char *[])
 
   vtkSmartPointer<vtkUnstructuredGrid> out = thresh->GetOutput();
 
-  if (out == NULL)
+  if (out == nullptr)
   {
     vtkGenericWarningMacro("threshold failed.");
     return 1;

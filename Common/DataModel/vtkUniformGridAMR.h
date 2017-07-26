@@ -66,7 +66,7 @@ public:
   unsigned int GetNumberOfLevels();
 
   // Description:
-  // Return the total number of blocks, including NULL blocks
+  // Return the total number of blocks, including nullptr blocks
   virtual unsigned int GetTotalNumberOfBlocks();
 
   // Description:

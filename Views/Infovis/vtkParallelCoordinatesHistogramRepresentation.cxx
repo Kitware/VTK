@@ -192,11 +192,11 @@ int vtkParallelCoordinatesHistogramRepresentation::RequestData(
 
     if (this->UseCurves)
     {
-      vtkParallelCoordinatesRepresentation::PlaceCurves(this->OutlierData,outlierTable,NULL);
+      vtkParallelCoordinatesRepresentation::PlaceCurves(this->OutlierData,outlierTable,nullptr);
     }
     else
     {
-      vtkParallelCoordinatesRepresentation::PlaceLines(this->OutlierData,outlierTable,NULL);
+      vtkParallelCoordinatesRepresentation::PlaceLines(this->OutlierData,outlierTable,nullptr);
     }
 
   }

@@ -126,7 +126,7 @@ protected:
   virtual void WritePData(vtkIndent indent);
   virtual void WritePPieceAttributes(int index);
 
-  char* CreatePieceFileName(int index, const char* path=0);
+  char* CreatePieceFileName(int index, const char* path=nullptr);
   void SplitFileName();
   virtual int WritePiece(int index);
 

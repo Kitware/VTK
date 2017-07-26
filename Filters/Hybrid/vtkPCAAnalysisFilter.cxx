@@ -155,8 +155,8 @@ static inline void DeleteVector(double *v)
 vtkPCAAnalysisFilter::vtkPCAAnalysisFilter()
 {
   this->Evals = vtkFloatArray::New();
-  this->evecMat2 = NULL;
-  this->meanshape = NULL;
+  this->evecMat2 = nullptr;
+  this->meanshape = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -168,11 +168,11 @@ vtkPCAAnalysisFilter::~vtkPCAAnalysisFilter()
   }
   if (this->evecMat2) {
     DeleteMatrix(this->evecMat2);
-    this->evecMat2 = NULL;
+    this->evecMat2 = nullptr;
   }
   if (this->meanshape) {
     DeleteVector(this->meanshape);
-    this->meanshape = NULL;
+    this->meanshape = nullptr;
   }
 }
 
@@ -198,17 +198,17 @@ int vtkPCAAnalysisFilter::RequestData(
   if (this->evecMat2)
   {
     DeleteMatrix(this->evecMat2);
-    this->evecMat2 = NULL;
+    this->evecMat2 = nullptr;
   }
   if (this->meanshape)
   {
     DeleteVector(this->meanshape);
-    this->meanshape = NULL;
+    this->meanshape = nullptr;
   }
 
   const int N_SETS = mbInput->GetNumberOfBlocks();
 
-  vtkPointSet* input = 0;
+  vtkPointSet* input = nullptr;
   for (i=0; i<N_SETS; i++)
   {
     input = vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
@@ -232,7 +232,7 @@ int vtkPCAAnalysisFilter::RequestData(
   {
     tmpInput =
       vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
-    vtkPointSet* outputBlock = 0;
+    vtkPointSet* outputBlock = nullptr;
     if (tmpInput)
     {
       outputBlock = tmpInput->NewInstance();
@@ -357,7 +357,7 @@ int vtkPCAAnalysisFilter::RequestData(
 // public
 void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray *b, vtkPointSet* shape)
 {
-  vtkPointSet* output = 0;
+  vtkPointSet* output = nullptr;
 
   vtkMultiBlockDataSet *mbOutput = this->GetOutput();
 
@@ -420,7 +420,7 @@ void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray *b, vtkPointSet* 
 // public
 void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray *b, int bsize)
 {
-  vtkPointSet* output = 0;
+  vtkPointSet* output = nullptr;
 
   vtkMultiBlockDataSet *mbOutput = this->GetOutput();
 

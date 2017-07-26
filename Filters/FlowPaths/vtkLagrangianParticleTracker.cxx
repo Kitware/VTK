@@ -73,17 +73,17 @@ vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
   this->CreateOutOfDomainParticle = false;
   this->ParticleCounter = 0;
 
-  this->FlowCache = NULL;
+  this->FlowCache = nullptr;
   this->FlowTime = 0;
-  this->SurfacesCache = NULL;
+  this->SurfacesCache = nullptr;
   this->SurfacesTime = 0;
 }
 
 //---------------------------------------------------------------------------
 vtkLagrangianParticleTracker::~vtkLagrangianParticleTracker()
 {
-  this->SetIntegrator(NULL);
-  this->SetIntegrationModel(NULL);
+  this->SetIntegrator(nullptr);
+  this->SetIntegrationModel(nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -141,7 +141,7 @@ vtkDataObject* vtkLagrangianParticleTracker::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkDataObject::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
@@ -163,7 +163,7 @@ vtkDataObject* vtkLagrangianParticleTracker::GetSurface()
 {
   if (this->GetNumberOfInputConnections(2) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return this->GetExecutive()->GetInputData(2, 0);
 }
@@ -234,14 +234,14 @@ int vtkLagrangianParticleTracker::RequestData(
   vtkInformationVector *outputVector)
 {
   // Initialize inputs
-  vtkDataObject* flow = 0;
-  vtkDataObject* seeds = 0;
-  vtkDataObject* surfaces = 0;
+  vtkDataObject* flow = nullptr;
+  vtkDataObject* seeds = nullptr;
+  vtkDataObject* surfaces = nullptr;
   std::queue<vtkLagrangianParticle*> particlesQueue;
 
   if (!this->IntegrationModel)
   {
-    vtkErrorMacro(<< "Integration Model is NULL, cannot integrate");
+    vtkErrorMacro(<< "Integration Model is nullptr, cannot integrate");
     return 0;
   }
   this->IntegrationModel->SetTracker(this);
@@ -390,7 +390,7 @@ bool vtkLagrangianParticleTracker::InitializeInputs(vtkInformationVector **input
 
   // Recover surfaces
   vtkInformation* surfacesInInfo = inputVector[2]->GetInformationObject(0);
-  if (surfacesInInfo != NULL)
+  if (surfacesInInfo != nullptr)
   {
     surfaces = surfacesInInfo->Get(vtkDataObject::DATA_OBJECT());
     if (this->UpdateSurfaceCacheIfNeeded(surfaces))
@@ -762,7 +762,7 @@ void vtkLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
       {
         vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
         vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
-        if (pd == NULL)
+        if (pd == nullptr)
         {
           surfaceFilter->SetInputData(ds);
           surfaceFilter->Update();
@@ -791,7 +791,7 @@ void vtkLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
   {
     vtkPolyData* pd = vtkPolyData::SafeDownCast(dsInput);
     vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
-    if (pd == NULL)
+    if (pd == nullptr)
     {
       surfaceFilter->SetInputData(dsInput);
       surfaceFilter->Update();
@@ -822,7 +822,7 @@ bool vtkLagrangianParticleTracker::InitializeParticles(
   std::queue<vtkLagrangianParticle*>& particles, vtkPointData* seedData)
 {
   // Sanity check
-  if (seeds == NULL)
+  if (seeds == nullptr)
   {
     vtkErrorMacro(<< "Cannot generate Particles without seeds");
     return false;
@@ -866,15 +866,15 @@ bool vtkLagrangianParticleTracker::InitializeParticles(
   int nVar = this->IntegrationModel->GetNumberOfIndependentVariables();
   seedData->DeepCopy(actualSeeds->GetPointData());
 
-  vtkDataArray* initialVelocities = NULL;
-  vtkDataArray* initialIntegrationTimes = NULL;
+  vtkDataArray* initialVelocities = nullptr;
+  vtkDataArray* initialIntegrationTimes = nullptr;
 
   if (actualSeeds->GetNumberOfPoints() > 0)
   {
     // Recover initial velocities, index 0
     initialVelocities = vtkDataArray::SafeDownCast(
       this->IntegrationModel->GetSeedArray(0, actualSeeds->GetPointData()));
-    if (initialVelocities == NULL)
+    if (initialVelocities == nullptr)
     {
       vtkErrorMacro(<< "initialVelocity is not set in particle data, "
         "unable to initialize particles!");
@@ -886,7 +886,7 @@ bool vtkLagrangianParticleTracker::InitializeParticles(
     {
       initialIntegrationTimes = vtkDataArray::SafeDownCast(
         this->IntegrationModel->GetSeedArray(1, actualSeeds->GetPointData()));
-      if (initialVelocities == NULL)
+      if (initialVelocities == nullptr)
       {
         vtkWarningMacro("initialIntegrationTimes is not set in particle data, "
           "initial integration time set to zero!");
@@ -943,9 +943,9 @@ int vtkLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
   vtkDataObject* interactionOutput)
 {
   // Sanity check
-  if (particle == NULL)
+  if (particle == nullptr)
   {
-    vtkErrorMacro(<< "Cannot integrate NULL particle");
+    vtkErrorMacro(<< "Cannot integrate nullptr particle");
     return -1;
   }
 
@@ -1036,12 +1036,12 @@ int vtkLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
       vtkLagrangianParticle* interactionParticle =
         this->IntegrationModel->ComputeSurfaceInteraction(
         particle, particlesQueue, interactedSurfaceFlaxIndex, passThroughParticles);
-      if (interactionParticle != NULL)
+      if (interactionParticle != nullptr)
       {
         this->InsertInteractionOutputPoint(interactionParticle,
           interactedSurfaceFlaxIndex, interactionOutput);
         delete interactionParticle;
-        interactionParticle = NULL;
+        interactionParticle = nullptr;
       }
 
       // Insert pass through interaction points
@@ -1100,7 +1100,7 @@ int vtkLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
     particle->SetTermination(
       vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_STEPS);
   }
-  this->IntegrationModel->SetCurrentParticle(NULL);
+  this->IntegrationModel->SetCurrentParticle(nullptr);
   return integrationRes;
 }
 
@@ -1139,7 +1139,7 @@ void vtkLagrangianParticleTracker::InsertInteractionOutputPoint(
   // Find the correct output
   vtkCompositeDataSet *hdOutput = vtkCompositeDataSet::SafeDownCast(interactionOutput);
   vtkPolyData* pdOutput = vtkPolyData::SafeDownCast(interactionOutput);
-  vtkPolyData* interactionPd = NULL;
+  vtkPolyData* interactionPd = nullptr;
   if (hdOutput)
   {
     vtkSmartPointer<vtkCompositeDataIterator> iter;
@@ -1269,8 +1269,8 @@ double vtkLagrangianParticleTracker::ComputeCellLength(
   vtkLagrangianParticle* particle)
 {
   double cellLength = 1.0;
-  vtkDataSet* dataset = NULL;
-  vtkCell* cell = NULL;
+  vtkDataSet* dataset = nullptr;
+  vtkCell* cell = nullptr;
   bool forceLastCell = false;
   if (this->CellLengthComputationMode == STEP_CUR_CELL_LENGTH ||
     this->CellLengthComputationMode == STEP_CUR_CELL_VEL_DIR ||
@@ -1302,7 +1302,7 @@ double vtkLagrangianParticleTracker::ComputeCellLength(
       return cellLength;
     }
   }
-  if (cell == NULL)
+  if (cell == nullptr)
   {
     vtkWarningMacro("Unsupported Cell Length Computation Mode"
       " or could not find a cell to compute cell length with");
@@ -1346,7 +1346,7 @@ double vtkLagrangianParticleTracker::ComputeCellLength(
       vtkCell* face = cell->GetFace(nf);
       vtkPoints* pts = face->GetPoints();
       vtkIdType nPoints = pts->GetNumberOfPoints();
-      const double area = vtkPolygon::ComputeArea(pts, nPoints, NULL, norm);
+      const double area = vtkPolygon::ComputeArea(pts, nPoints, nullptr, norm);
       const double fact = 1.0 / static_cast<double>(nPoints);
       for (int np = 0; np < nPoints; ++np)
       {

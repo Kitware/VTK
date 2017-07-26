@@ -1497,7 +1497,7 @@ public:
             int dy10,
             int onRight)
   {
-      this->Current=0;
+      this->Current=nullptr;
       if(dy10!=0)
       {
         this->Top.Init(v0,v1,dx10,dy10,onRight);
@@ -1510,7 +1510,7 @@ public:
       if(dy21!=0)
       {
         this->Bottom.Init(v1,v2,dx21,dy21,onRight);
-        if(this->Current==0)
+        if(this->Current==nullptr)
         {
           this->Current=&this->Bottom;
         }
@@ -1673,7 +1673,7 @@ public:
   {
       assert("pre: positive_size" && size>0);
       this->Size=size;
-      this->Next=0;
+      this->Next=nullptr;
       this->Array=new vtkPixelListEntry[size];
       this->Last=this->Array+size-1;
       // link each entry to the next one
@@ -1689,7 +1689,7 @@ public:
         p=q;
         ++q;
       }
-      p->SetNext(0);
+      p->SetNext(nullptr);
   }
   ~vtkPixelListEntryBlock()
   {
@@ -1723,7 +1723,7 @@ public:
   {
       vtkPixelListEntryBlock *p=this->FirstBlock;
       vtkPixelListEntryBlock *q;
-      while(p!=0)
+      while(p!=nullptr)
       {
         q=p->GetNext();
         delete p;
@@ -1732,19 +1732,19 @@ public:
   }
   vtkPixelListEntry *AllocateEntry()
   {
-      if(this->FirstFreeElement==0)
+      if(this->FirstFreeElement==nullptr)
       {
         this->AllocateBlock(this->Size<<1);
 //        this->AllocateBlock(BLOCK_SIZE);
       }
       vtkPixelListEntry *result=this->FirstFreeElement;
       this->FirstFreeElement=result->GetNext();
-      assert("post: result_exists" && result!=0);
+      assert("post: result_exists" && result!=nullptr);
       return result;
   }
   void FreeEntry(vtkPixelListEntry *e)
   {
-      assert("pre: e_exists" && e!=0);
+      assert("pre: e_exists" && e!=nullptr);
 
       // the following line works even if this->FirstFreeElement==0
       e->SetNext(this->FirstFreeElement);
@@ -1753,8 +1753,8 @@ public:
   void FreeSubList(vtkPixelListEntry *first,
                    vtkPixelListEntry *last)
   {
-      assert("pre: first_exists" && first!=0);
-      assert("pre: last_exists" && last!=0);
+      assert("pre: first_exists" && first!=nullptr);
+      assert("pre: last_exists" && last!=nullptr);
       // pre: first==last can be true
       // the following line works even if this->FirstFreeElement==0
       last->SetNext(this->FirstFreeElement);
@@ -1799,11 +1799,11 @@ public:
 
   void AddAndSort(vtkPixelListEntry *p)
   {
-      assert("pre: p_exists" && p!=0);
+      assert("pre: p_exists" && p!=nullptr);
       if(this->Size==0)
       {
-        p->SetPrevious(0);
-        p->SetNext(0);
+        p->SetPrevious(nullptr);
+        p->SetNext(nullptr);
         this->First=p;
         this->Last=p;
       }
@@ -1812,7 +1812,7 @@ public:
         vtkPixelListEntry *it=this->Last;
         int sorted=0;
         double z=p->GetZview();
-        while(!sorted && it!=0)
+        while(!sorted && it!=nullptr)
         {
           // It is not uncommon for an external face and internal face to meet.
           // On the edge where this happens, an exit fragment and non-exit
@@ -1844,9 +1844,9 @@ public:
             it=it->GetPrevious();
           }
         }
-        if(it==0) // first element
+        if(it==nullptr) // first element
         {
-          p->SetPrevious(0);
+          p->SetPrevious(nullptr);
           p->SetNext(this->First);
           // this->First==0 is handled by case size==0
           this->First->SetPrevious(p);
@@ -1854,11 +1854,11 @@ public:
         }
         else
         {
-          if(it->GetNext()==0) // last element
+          if(it->GetNext()==nullptr) // last element
           {
             it->SetNext(p);
             p->SetPrevious(it);
-            p->SetNext(0);
+            p->SetNext(nullptr);
             this->Last=p;
           }
           else // general case
@@ -1878,13 +1878,13 @@ public:
   void RemoveFirst(vtkPixelListEntryMemory *mm)
   {
       assert("pre: not_empty" && this->Size>0);
-      assert("pre: mm_exists" && mm!=0);
+      assert("pre: mm_exists" && mm!=nullptr);
 
       vtkPixelListEntry *p=this->First;
       if(this->Size>1)
       {
         this->First=p->GetNext();
-        this->First->SetPrevious(0);
+        this->First->SetPrevious(nullptr);
       }
       --this->Size;
       mm->FreeEntry(p);
@@ -1893,7 +1893,7 @@ public:
   // the return pointer on the first element is used by the memory manager.
   void Clear(vtkPixelListEntryMemory *mm)
   {
-      assert("pre: mm_exists" && mm!=0);
+      assert("pre: mm_exists" && mm!=nullptr);
       if(this->Size>0)
       {
         // it works even if first==last
@@ -1935,7 +1935,7 @@ public:
                   vtkPixelListEntry *pixelEntry)
   {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
-      assert("pre: pixelEntry_exists" &&  pixelEntry!=0);
+      assert("pre: pixelEntry_exists" &&  pixelEntry!=nullptr);
 
       this->Vector[i].AddAndSort(pixelEntry);
   }
@@ -1954,7 +1954,7 @@ public:
   {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       assert("pre: not_empty" && this->GetListSize(i)>0);
-      assert("pre: mm_exists" && mm!=0);
+      assert("pre: mm_exists" && mm!=nullptr);
       this->Vector[i].RemoveFirst(mm);
   }
 
@@ -1975,7 +1975,7 @@ public:
   // Clear the list of each pixel of the frame.
   void Clean(vtkPixelListEntryMemory *mm)
   {
-      assert("pre: mm_exists" && mm!=0);
+      assert("pre: mm_exists" && mm!=nullptr);
       vtkIdType i=0;
       vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
@@ -2122,7 +2122,7 @@ public:
       vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
       {
-        this->Vector[i]=0;
+        this->Vector[i]=nullptr;
         ++i;
       }
       this->CellScalars=0;
@@ -2136,7 +2136,7 @@ public:
       vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
       {
-        if(this->Vector[i]!=0)
+        if(this->Vector[i]!=nullptr)
         {
           while(!this->Vector[i]->empty())
           {
@@ -2172,7 +2172,7 @@ public:
       vtkIdType c = static_cast<vtkIdType>(this->Vector.size());
       while(i<c)
       {
-        if(this->Vector[i]!=0)
+        if(this->Vector[i]!=nullptr)
         {
           while(!this->Vector[i]->empty())
           {
@@ -2180,7 +2180,7 @@ public:
             this->Vector[i]->pop_front();
           }
           delete this->Vector[i];
-          this->Vector[i]=0;
+          this->Vector[i]=nullptr;
         }
         ++i;
       }
@@ -2205,7 +2205,7 @@ public:
              && faceIds[1]<faceIds[2]);
 
       vtkFace *f=this->GetFace(faceIds);
-      if(f==0)
+      if(f==nullptr)
       {
         int externalSide;
         if (external)
@@ -2231,7 +2231,7 @@ public:
         while(i<3)
         {
           std::list<vtkFace *> *p=this->Vector[faceIds[i]];
-          if(p==0)
+          if(p==nullptr)
           {
             p=new std::list<vtkFace *>;
             this->Vector[faceIds[i]]=p;
@@ -2326,9 +2326,9 @@ protected:
   vtkFace *GetFace(vtkIdType faceIds[3])
   {
       std::list<vtkFace *> *useSet=this->Vector[faceIds[0]];
-      vtkFace *result=0;
+      vtkFace *result=nullptr;
 
-      if(useSet!=0)
+      if(useSet!=nullptr)
       {
         this->It=(*useSet).begin();
         this->ItEnd=(*useSet).end();
@@ -2341,7 +2341,7 @@ protected:
         }
         if(!found)
         {
-          result=0;
+          result=nullptr;
         }
       }
       return result;
@@ -2398,16 +2398,16 @@ vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
   this->ImageMemorySize[0]     = 0;
   this->ImageMemorySize[1]     = 0;
 
-  this->Image                  = NULL;
-  this->RealRGBAImage=0;
+  this->Image                  = nullptr;
+  this->RealRGBAImage=nullptr;
 
-  this->RenderTimeTable        = NULL;
-  this->RenderVolumeTable      = NULL;
-  this->RenderRendererTable    = NULL;
+  this->RenderTimeTable        = nullptr;
+  this->RenderVolumeTable      = nullptr;
+  this->RenderRendererTable    = nullptr;
   this->RenderTableSize        = 0;
   this->RenderTableEntries     = 0;
 
-  this->ZBuffer                = NULL;
+  this->ZBuffer                = nullptr;
   this->ZBufferSize[0]         = 0;
   this->ZBufferSize[1]         = 0;
   this->ZBufferOrigin[0]       = 0;
@@ -2417,14 +2417,14 @@ vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
 
   this->ImageDisplayHelper     = vtkRayCastImageDisplayHelper::New();
 
-  this->PixelListFrame=0;
+  this->PixelListFrame=nullptr;
 
   this->Cell=vtkGenericCell::New();
 
   this->EventList=vtkPriorityQueue::New();
 
-  this->UseSet=0;
-  this->Vertices=0;
+  this->UseSet=nullptr;
+  this->Vertices=nullptr;
 
   this->PerspectiveTransform = vtkTransform::New();
   this->PerspectiveMatrix = vtkMatrix4x4::New();
@@ -2434,8 +2434,8 @@ vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
 
   this->Span=new vtkSpan;
 
-  this->RayIntegrator = NULL;
-  this->RealRayIntegrator = NULL;
+  this->RayIntegrator = nullptr;
+  this->RealRayIntegrator = nullptr;
 
   this->IntersectionLengths=vtkDoubleArray::New();
   this->IntersectionLengths->SetNumberOfValues(1);
@@ -2444,7 +2444,7 @@ vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
   this->FarIntersections=vtkDoubleArray::New();
   this->FarIntersections->SetNumberOfValues(1);
 
-  this->MemoryManager=0;
+  this->MemoryManager=nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -2480,7 +2480,7 @@ vtkUnstructuredGridVolumeZSweepMapper::~vtkUnstructuredGridVolumeZSweepMapper()
     delete [] this->RenderRendererTable;
   }
 
-  this->SetRayIntegrator(NULL);
+  this->SetRayIntegrator(nullptr);
   if (this->RealRayIntegrator)
   {
     this->RealRayIntegrator->UnRegister(this);
@@ -2644,7 +2644,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
   vtkDebugMacro(<<"Render");
 
   // Check for input
-  if(this->GetInput()==0)
+  if(this->GetInput()==nullptr)
   {
     vtkErrorMacro(<< "No Input!");
     return;
@@ -2659,7 +2659,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
                                    this->ArrayId, this->ArrayName,
                                    this->CellScalars);
 
-  if(this->Scalars==0)
+  if(this->Scalars==nullptr)
   {
     vtkErrorMacro("Can't use the ZSweep mapper without scalars!");
     return;
@@ -2926,7 +2926,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
   }
 
   delete [] this->ZBuffer;
-  this->ZBuffer = NULL;
+  this->ZBuffer = nullptr;
 
   this->UpdateProgress(1.0);
 }
@@ -2934,7 +2934,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
 //-----------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeZSweepMapper::AllocateUseSet(vtkIdType size)
 {
-  if(this->UseSet!=0)
+  if(this->UseSet!=nullptr)
   {
     if(size>static_cast<vtkIdType>(this->UseSet->Vector.size()))
     {
@@ -2955,7 +2955,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::AllocateUseSet(vtkIdType size)
 //-----------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeZSweepMapper::AllocateVertices(vtkIdType size)
 {
-  if(this->Vertices!=0)
+  if(this->Vertices!=nullptr)
   {
     if(size>static_cast<vtkIdType>(this->Vertices->Vector.size()))
     {
@@ -2975,7 +2975,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
   int needsUpdate = 0;
 
   // If we have never created the list, we need updating
-  if (this->UseSet==0 )
+  if (this->UseSet==nullptr )
   {
     needsUpdate = 1;
   }
@@ -3116,7 +3116,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
   vtkIdType numberOfPoints=input->GetNumberOfPoints();
 
   vtkIdType pointId=0;
-  vtkVertexEntry *vertex=0;
+  vtkVertexEntry *vertex=nullptr;
   // Pre-computation for the projection.
 
   ren->ComputeAspect();
@@ -3208,16 +3208,16 @@ void vtkUnstructuredGridVolumeZSweepMapper::CreateAndCleanPixelList()
 {
   // paper: a "pixel list" is a double linked list. We put that in a queue.
   vtkIdType size=this->ImageInUseSize[0]*this->ImageInUseSize[1];
-  if(this->PixelListFrame!=0)
+  if(this->PixelListFrame!=nullptr)
   {
     if(this->PixelListFrame->GetSize()<size)
     {
       delete this->PixelListFrame;
-      this->PixelListFrame=0;
+      this->PixelListFrame=nullptr;
     }
   }
 
-  if(this->PixelListFrame==0)
+  if(this->PixelListFrame==nullptr)
   {
     this->PixelListFrame=new vtkPixelListFrame(size);
   }
@@ -3263,7 +3263,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
   vtkIdType progressCount=0;
   vtkIdType sum=this->EventList->GetNumberOfItems();
 
-  if(this->MemoryManager==0)
+  if(this->MemoryManager==nullptr)
   {
     this->MemoryManager=new vtkPixelListEntryMemory;
   }
@@ -3285,7 +3285,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
     //  the z coordinate of the current vertex defines the "sweep plane".
     vertex=this->EventList->Pop(0,currentZ);
 
-    if(this->UseSet->Vector[vertex]!=0)
+    if(this->UseSet->Vector[vertex]!=nullptr)
     { // otherwise the vertex is not useful, basically this is the
       // end we reached the last ztarget
 
@@ -3478,7 +3478,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
     {
       i=y*this->ImageInUseSize[0]+x;
       current=this->PixelListFrame->GetFirst(i);
-      while(current!=0)
+      while(current!=nullptr)
       {
         double *values=current->GetValues();
 
@@ -3593,9 +3593,9 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
                                                             vtkVertexEntry *ve2,
                                                             bool externalFace)
 {
-  assert("pre: ve0_exists" && ve0!=0);
-  assert("pre: ve1_exists" && ve1!=0);
-  assert("pre: ve2_exists" && ve2!=0);
+  assert("pre: ve0_exists" && ve0!=nullptr);
+  assert("pre: ve1_exists" && ve1!=nullptr);
+  assert("pre: ve2_exists" && ve2!=nullptr);
 
   vtkVertexEntry *v0=ve0;
   vtkVertexEntry *v1=ve1;
@@ -3746,8 +3746,8 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
 
   int det=dy20*dx10-dx20*dy10;
 
-  vtkScreenEdge *leftEdge=0;
-  vtkScreenEdge *rightEdge=0;
+  vtkScreenEdge *leftEdge=nullptr;
+  vtkScreenEdge *rightEdge=nullptr;
 
   if(det==0) //v0v1v2 aligned or v0=v1=v2
   {
@@ -3892,8 +3892,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeSpan(int y,
                                                           vtkScreenEdge *right,
                                                           bool exitFace)
 {
-  assert("pre: left_exists" && left!=0);
-  assert("pre: right_exists" && right!=0);
+  assert("pre: left_exists" && left!=nullptr);
+  assert("pre: right_exists" && right!=nullptr);
 
   vtkIdType i=y*this->ImageInUseSize[0];
 
@@ -3950,8 +3950,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
                                                           vtkVertexEntry *v1,
                                                           bool exitFace)
 {
-  assert("pre: v0_exists" && v0!=0);
-  assert("pre: v1_exists" && v1!=0);
+  assert("pre: v0_exists" && v0!=nullptr);
+  assert("pre: v1_exists" && v1!=nullptr);
   assert("pre: y_ordered" && v0->GetScreenY()<=v1->GetScreenY());
 
   int lineCase;
@@ -4259,7 +4259,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
         done=current->GetZview()>=zTarget || next->GetZview()>=zTarget;
 #endif
 
-        if(!done && this->ZBuffer!=0)
+        if(!done && this->ZBuffer!=nullptr)
         {
           // value of the z buffer at the current pixel.
           zBuffer=this->GetZBufferValue(x,y);
@@ -4275,7 +4275,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
           }
           else
           {
-            if(this->ZBuffer!=0)
+            if(this->ZBuffer!=nullptr)
             {
               // check that current and next are in front of the z-buffer value
               doIntegration=current->GetZview()<zBuffer

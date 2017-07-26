@@ -203,14 +203,14 @@ public:
   // Default constructor.
   vtkPoolManager()
   {
-      this->Chunks=0;
+      this->Chunks=nullptr;
       this->ChunkSize=VTK_DEFAULT_CHUNK_SIZE;
   }
 
   // Initialize the pool with a set of empty chunks.
   void Init()
   {
-      if(this->Chunks==0)
+      if(this->Chunks==nullptr)
       {
         this->Chunks=new std::vector<std::vector<G> *>();
         this->Chunks->reserve(VTK_DEFAULT_NUMBER_OF_CHUNKS);
@@ -220,7 +220,7 @@ public:
   // Is the pool initialized?
   int IsInitialized()
   {
-      return this->Chunks!=0;
+      return this->Chunks!=nullptr;
   }
 
   // Return a new `G' object.
@@ -228,7 +228,7 @@ public:
   G *Allocate()
   {
       assert("pre: is_initialized" && this->IsInitialized());
-      G *result=0;
+      G *result=nullptr;
       size_t c=this->Chunks->size();
       if(c==0) // first Allocate()
       {
@@ -272,7 +272,7 @@ public:
   // Destructor.
   ~vtkPoolManager()
   {
-      if(this->Chunks!=0)
+      if(this->Chunks!=nullptr)
       {
         size_t c=this->Chunks->size();
         size_t i=0;
@@ -372,7 +372,7 @@ public:
     :HashTable(numberOfPoints)
   {
       assert("pre: positive_number" && numberOfPoints>0);
-      assert("pre: pool_exists" && pool!=0);
+      assert("pre: pool_exists" && pool!=nullptr);
       assert("pre: initialized_pool" && pool->IsInitialized());
 
       this->Pool=pool;
@@ -380,7 +380,7 @@ public:
       int c=numberOfPoints;
       while(i<c)
       {
-        this->HashTable[i]=0;
+        this->HashTable[i]=nullptr;
         ++i;
       }
   }
@@ -439,7 +439,7 @@ public:
       // same hashcode). This is the first element in the list.
       vtkSurfel *first=this->HashTable[key];
       vtkSurfel *surfel;
-      if(first==0)
+      if(first==nullptr)
       {
         // empty list.
         surfel=this->Pool->Allocate();
@@ -452,7 +452,7 @@ public:
         int found=0;
         vtkSurfel *current=first;
         vtkSurfel *previous=current;
-        while(!found && current!=0)
+        while(!found && current!=nullptr)
         {
           found=current->Type==faceType;
           if(found)
@@ -580,7 +580,7 @@ public:
         if(found)
         {
           previous->Cell3DId=-1;
-          surfel=0;
+          surfel=nullptr;
         }
         else
         {
@@ -588,9 +588,9 @@ public:
           previous->Next=surfel;
         }
       }
-      if(surfel!=0)
+      if(surfel!=nullptr)
       {
-        surfel->Next=0;
+        surfel->Next=nullptr;
         surfel->Type=faceType;
         surfel->NumberOfPoints=numberOfPoints;
         surfel->SmallestIdx=smallestIdx;
@@ -616,7 +616,7 @@ public:
   // \pre table_exists: table!=0
   void Init(vtkHashTableOfSurfels *table)
   {
-      assert("pre: table_exists" && table!=0);
+      assert("pre: table_exists" && table!=nullptr);
       this->Table=table;
       this->AtEnd=1;
   }
@@ -626,14 +626,14 @@ public:
   void Start()
   {
       this->CurrentKey=0;
-      this->CurrentSurfel=0;
+      this->CurrentSurfel=nullptr;
 
       size_t c=Table->HashTable.size();
       int done=this->CurrentKey>=c;
       if(!done)
       {
         this->CurrentSurfel=this->Table->HashTable[this->CurrentKey];
-        done=this->CurrentSurfel!=0;
+        done=this->CurrentSurfel!=nullptr;
       }
       while(!done)
       {
@@ -642,10 +642,10 @@ public:
         if(!done)
         {
           this->CurrentSurfel=this->Table->HashTable[this->CurrentKey];
-          done=this->CurrentSurfel!=0;
+          done=this->CurrentSurfel!=nullptr;
         }
       }
-      this->AtEnd=this->CurrentSurfel==0;
+      this->AtEnd=this->CurrentSurfel==nullptr;
   }
 
   // Is the cursor at the end of the table? (ie. no more surfel?)
@@ -668,14 +668,14 @@ public:
       assert("pre: not_at_end"&& !IsAtEnd());
       CurrentSurfel=CurrentSurfel->Next;
       size_t c=Table->HashTable.size();
-      if(this->CurrentSurfel==0)
+      if(this->CurrentSurfel==nullptr)
       {
         ++this->CurrentKey;
         int done=this->CurrentKey>=c;
         if(!done)
         {
           this->CurrentSurfel=this->Table->HashTable[this->CurrentKey];
-          done=this->CurrentSurfel!=0;
+          done=this->CurrentSurfel!=nullptr;
         }
         while(!done)
         {
@@ -684,10 +684,10 @@ public:
           if(!done)
           {
             this->CurrentSurfel=this->Table->HashTable[this->CurrentKey];
-            done=this->CurrentSurfel!=0;
+            done=this->CurrentSurfel!=nullptr;
           }
         }
-        this->AtEnd=this->CurrentSurfel==0;
+        this->AtEnd=this->CurrentSurfel==nullptr;
       }
   }
 
@@ -722,13 +722,13 @@ vtkUnstructuredGridGeometryFilter::vtkUnstructuredGridGeometryFilter()
 
   this->PassThroughCellIds = 0;
   this->PassThroughPointIds = 0;
-  this->OriginalCellIdsName = NULL;
-  this->OriginalPointIdsName = NULL;
+  this->OriginalCellIdsName = nullptr;
+  this->OriginalPointIdsName = nullptr;
 
   this->Merging = 1;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
-  this->HashTable=0;
+  this->HashTable=nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -737,11 +737,11 @@ vtkUnstructuredGridGeometryFilter::~vtkUnstructuredGridGeometryFilter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
-  this->SetOriginalCellIdsName(NULL);
-  this->SetOriginalPointIdsName(NULL);
+  this->SetOriginalCellIdsName(nullptr);
+  this->SetOriginalPointIdsName(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -831,13 +831,13 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
 //  vtkCellArray *conn=vtkCellArray::New();
 //  conn->Allocate(numCells);
 
-  unsigned char *cellGhostLevels = 0;
-  vtkDataArray *temp = 0;
-  if (cd != 0)
+  unsigned char *cellGhostLevels = nullptr;
+  vtkDataArray *temp = nullptr;
+  if (cd != nullptr)
   {
     temp = cd->GetArray(vtkDataSetAttributes::GhostArrayName());
   }
-  if (temp != 0 && temp->GetDataType() == VTK_UNSIGNED_CHAR &&
+  if (temp != nullptr && temp->GetDataType() == VTK_UNSIGNED_CHAR &&
       temp->GetNumberOfComponents() == 1)
   {
     cellGhostLevels = static_cast<vtkUnsignedCharArray*>(temp)->GetPointer(0);
@@ -850,10 +850,10 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   // Visibility of cells.
   char *cellVis;
   int allVisible=(!this->CellClipping) && (!this->PointClipping) &&
-    (!this->ExtentClipping) &&(cellGhostLevels==0);
+    (!this->ExtentClipping) &&(cellGhostLevels==nullptr);
   if(allVisible)
   {
-    cellVis=NULL;
+    cellVis=nullptr;
   }
   else
   {
@@ -862,7 +862,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
 
   vtkIdType cellId;
   vtkIdType npts=0;
-  vtkIdType *pts=0;
+  vtkIdType *pts=nullptr;
   int i;
   double x[3];
 
@@ -875,7 +875,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       cellId = cellIter->GetCellId();
       npts = cellIter->GetNumberOfPoints();
       pts = cellIter->GetPointIds()->GetPointer(0);
-      if((cellGhostLevels != 0 &&
+      if((cellGhostLevels != nullptr &&
          (cellGhostLevels[cellId] & vtkDataSetAttributes::DUPLICATECELL) &&
          this->DuplicateGhostCellClipping) ||
          (this->CellClipping && (cellId < this->CellMinimum ||
@@ -934,11 +934,11 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     originalCellIds->Allocate(numCells, numCells/2);
   }
 
-  vtkIdType *pointMap=0;
+  vtkIdType *pointMap=nullptr;
 
   if(this->Merging)
   {
-    if(this->Locator==0)
+    if(this->Locator==nullptr)
     {
       this->CreateDefaultLocator();
     }
@@ -1522,7 +1522,7 @@ void vtkUnstructuredGridGeometryFilter::SetLocator(vtkIncrementalPointLocator *l
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {
@@ -1535,7 +1535,7 @@ void vtkUnstructuredGridGeometryFilter::SetLocator(vtkIncrementalPointLocator *l
 //-----------------------------------------------------------------------------
 void vtkUnstructuredGridGeometryFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }
@@ -1595,7 +1595,7 @@ vtkMTimeType vtkUnstructuredGridGeometryFilter::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

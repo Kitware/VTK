@@ -32,9 +32,9 @@ vtkStandardNewMacro(vtkProgrammableFilter);
 // Construct programmable filter with empty execute method.
 vtkProgrammableFilter::vtkProgrammableFilter()
 {
-  this->ExecuteMethod = NULL;
-  this->ExecuteMethodArg = NULL;
-  this->ExecuteMethodArgDelete = NULL;
+  this->ExecuteMethod = nullptr;
+  this->ExecuteMethodArg = nullptr;
+  this->ExecuteMethodArgDelete = nullptr;
   this->CopyArrays = false;
 }
 
@@ -129,7 +129,7 @@ int vtkProgrammableFilter::RequestData(
   vtkInformationVector *outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = 0;
+  vtkInformation *inInfo = nullptr;
   if (inputVector[0]->GetNumberOfInformationObjects() > 0)
   {
     inInfo = inputVector[0]->GetInformationObject(0);
@@ -231,7 +231,7 @@ int vtkProgrammableFilter::RequestData(
   vtkDebugMacro(<<"Executing programmable filter");
 
   // Now invoke the procedure, if specified.
-  if ( this->ExecuteMethod != NULL )
+  if ( this->ExecuteMethod != nullptr )
   {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
   }

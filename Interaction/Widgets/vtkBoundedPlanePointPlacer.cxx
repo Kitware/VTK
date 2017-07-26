@@ -52,16 +52,16 @@ struct vtkBoundedPlanePointPlacerNode
   bool operator==(const Self &a) const { return a.Plane == this->Plane; }
   bool operator!=(const Self &a) const { return a.Plane != this->Plane; }
   vtkBoundedPlanePointPlacerNode()
-    { Plane = NULL; Distance = VTK_DOUBLE_MIN; }
+    { Plane = nullptr; Distance = VTK_DOUBLE_MIN; }
 };
 
 //----------------------------------------------------------------------
 vtkBoundedPlanePointPlacer::vtkBoundedPlanePointPlacer()
 {
   this->ProjectionPosition = 0;
-  this->ObliquePlane       = NULL;
+  this->ObliquePlane       = nullptr;
   this->ProjectionNormal   = vtkBoundedPlanePointPlacer::ZAxis;
-  this->BoundingPlanes     = NULL;
+  this->BoundingPlanes     = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -72,7 +72,7 @@ vtkBoundedPlanePointPlacer::~vtkBoundedPlanePointPlacer()
   if ( this->ObliquePlane )
   {
     this->ObliquePlane->UnRegister(this);
-    this->ObliquePlane = NULL;
+    this->ObliquePlane = nullptr;
   }
 
   if (this->BoundingPlanes)
@@ -94,7 +94,7 @@ void vtkBoundedPlanePointPlacer::SetProjectionPosition(double position)
 //----------------------------------------------------------------------
 void vtkBoundedPlanePointPlacer::AddBoundingPlane(vtkPlane *plane)
 {
-  if (this->BoundingPlanes == NULL)
+  if (this->BoundingPlanes == nullptr)
   {
     this->BoundingPlanes = vtkPlaneCollection::New();
     this->BoundingPlanes->Register(this);
@@ -120,7 +120,7 @@ void vtkBoundedPlanePointPlacer::RemoveAllBoundingPlanes()
   {
     this->BoundingPlanes->RemoveAllItems();
     this->BoundingPlanes->Delete();
-    this->BoundingPlanes = NULL;
+    this->BoundingPlanes = nullptr;
   }
 }
 //----------------------------------------------------------------------
@@ -363,7 +363,7 @@ double vtkBoundedPlanePointPlacer
                          vtkPlaneCollection * pc,
                          double               closestPt[3])
 {
-  vtkPlane *minPlane = NULL;
+  vtkPlane *minPlane = nullptr;
   double    minD     = VTK_DOUBLE_MAX;
 
   pc->InitTraversal();

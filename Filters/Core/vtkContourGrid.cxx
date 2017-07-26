@@ -53,10 +53,10 @@ vtkContourGrid::vtkContourGrid()
   this->ComputeScalars = 1;
   this->GenerateTriangles = 1;
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->UseScalarTree = 0;
-  this->ScalarTree = NULL;
+  this->ScalarTree = nullptr;
 
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
@@ -64,7 +64,7 @@ vtkContourGrid::vtkContourGrid()
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
 
-  this->EdgeTable = NULL;
+  this->EdgeTable = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ vtkContourGrid::~vtkContourGrid()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( this->ScalarTree )
   {
@@ -330,7 +330,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
     // loop over all cells.
     //
     vtkCell *tmpCell;
-    vtkIdList *dummyIdList = NULL;
+    vtkIdList *dummyIdList = nullptr;
     vtkIdType cellId = cellIter->GetCellId();
     for (i=0; i < numContours; i++)
     {
@@ -402,7 +402,7 @@ int vtkContourGrid::RequestData(
 
   vtkDebugMacro(<< "Executing contour filter");
 
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -420,7 +420,7 @@ int vtkContourGrid::RequestData(
   vtkScalarTree *scalarTree = this->ScalarTree;
   if ( useScalarTree )
   {
-    if ( scalarTree == NULL )
+    if ( scalarTree == nullptr )
     {
       this->ScalarTree = scalarTree = vtkSimpleScalarTree::New();
     }
@@ -470,7 +470,7 @@ void vtkContourGrid::SetScalarTree(vtkScalarTree *sTree)
   if ( this->ScalarTree )
   {
     this->ScalarTree->UnRegister(this);
-    this->ScalarTree = NULL;
+    this->ScalarTree = nullptr;
   }
   if ( sTree )
   {
@@ -493,7 +493,7 @@ void vtkContourGrid::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {
@@ -506,7 +506,7 @@ void vtkContourGrid::SetLocator(vtkIncrementalPointLocator *locator)
 //-----------------------------------------------------------------------------
 void vtkContourGrid::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

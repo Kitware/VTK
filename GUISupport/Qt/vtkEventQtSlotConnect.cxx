@@ -65,7 +65,7 @@ void vtkEventQtSlotConnect::Connect(
 {
   if (!vtk_obj || !qt_obj)
   {
-    vtkErrorMacro("Cannot connect NULL objects.");
+    vtkErrorMacro("Cannot connect null objects.");
     return;
   }
   vtkQtConnection* connection = new vtkQtConnection(this);
@@ -90,23 +90,29 @@ void vtkEventQtSlotConnect::Disconnect(vtkObject* vtk_obj, unsigned long event,
     return;
   }
   bool all_info = true;
-  if(slot == NULL || qt_obj == NULL || event == vtkCommand::NoEvent)
+  if(slot == nullptr || qt_obj == nullptr || event == vtkCommand::NoEvent)
+  {
     all_info = false;
+  }
 
   vtkQtConnections::iterator iter;
   for(iter=Connections->begin(); iter!=Connections->end();)
   {
-      // if information matches, remove the connection
-      if((*iter)->IsConnection(vtk_obj, event, qt_obj, slot, client_data))
+    // if information matches, remove the connection
+    if((*iter)->IsConnection(vtk_obj, event, qt_obj, slot, client_data))
+    {
+      delete (*iter);
+      iter = Connections->erase(iter);
+      // if user passed in all information, only remove one connection and quit
+      if(all_info)
       {
-        delete (*iter);
-        iter = Connections->erase(iter);
-        // if user passed in all information, only remove one connection and quit
-        if(all_info)
-          iter = Connections->end();
+        iter = Connections->end();
       }
-      else
-        ++iter;
+    }
+    else
+    {
+      ++iter;
+    }
   }
 }
 

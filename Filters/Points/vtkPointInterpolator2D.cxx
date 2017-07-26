@@ -140,7 +140,7 @@ struct ProbePoints
         this->Valid[ptId] = 0;
         this->Arrays.AssignNullValue(ptId);
       }
-      else if ( this->Strategy == vtkPointInterpolator2D::NULL_VALUE)
+      else if ( this->Strategy == vtkPointInterpolator2D::nullptr_VALUE)
       {
         this->Arrays.AssignNullValue(ptId);
       }
@@ -232,7 +232,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   projPoints->SetNumberOfPoints(numSourcePts);
   projSource->SetPoints(projPoints);
   projPoints->UnRegister(this);
-  vtkDoubleArray *zScalars=NULL;
+  vtkDoubleArray *zScalars=nullptr;
 
   // Create elevation scalars if necessary
   if ( this->InterpolateZ )
@@ -263,7 +263,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   outPD->InterpolateAllocate(inPD,numPts);
 
   // Masking if requested
-  char *mask=NULL;
+  char *mask=nullptr;
   if ( this->NullPointsStrategy == vtkPointInterpolator2D::MASK_POINTS )
   {
     this->ValidPointsMask = vtkCharArray::New();

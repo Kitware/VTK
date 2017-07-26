@@ -23,18 +23,18 @@ vtkCxxSetObjectMacro(vtkExporter,RenderWindow,vtkRenderWindow);
 // Construct with no start and end write methods or arguments.
 vtkExporter::vtkExporter()
 {
-  this->RenderWindow = NULL;
-  this->StartWrite = NULL;
-  this->StartWriteArgDelete = NULL;
-  this->StartWriteArg = NULL;
-  this->EndWrite = NULL;
-  this->EndWriteArgDelete = NULL;
-  this->EndWriteArg = NULL;
+  this->RenderWindow = nullptr;
+  this->StartWrite = nullptr;
+  this->StartWriteArgDelete = nullptr;
+  this->StartWriteArg = nullptr;
+  this->EndWrite = nullptr;
+  this->EndWriteArgDelete = nullptr;
+  this->EndWriteArg = nullptr;
 }
 
 vtkExporter::~vtkExporter()
 {
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
 
   if ((this->StartWriteArg)&&(this->StartWriteArgDelete))
   {
@@ -170,7 +170,7 @@ vtkMTimeType vtkExporter::GetMTime()
   vtkMTimeType mTime=this-> vtkObject::GetMTime();
   vtkMTimeType time;
 
-  if ( this->RenderWindow != NULL )
+  if ( this->RenderWindow != nullptr )
   {
     time = this->RenderWindow->GetMTime();
     mTime = ( time > mTime ? time : mTime );

@@ -131,7 +131,7 @@ public:
   void AddBalloon(vtkProp *prop, vtkStdString *str, vtkImageData *img);
   void AddBalloon(vtkProp *prop, const char *str, vtkImageData *img);
   void AddBalloon(vtkProp *prop, const char *str) //for wrapping
-    {this->AddBalloon(prop,str,NULL);}
+    {this->AddBalloon(prop,str,nullptr);}
   void RemoveBalloon(vtkProp *prop);
   //@}
 

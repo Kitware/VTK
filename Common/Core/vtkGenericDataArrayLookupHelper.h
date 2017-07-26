@@ -166,7 +166,7 @@ public:
   void ClearLookup()
   {
     free(this->SortedArray);
-    this->SortedArray = NULL;
+    this->SortedArray = nullptr;
     this->SortedArraySize = 0;
   }
   //@}

@@ -44,7 +44,7 @@ public:
   }
 
   /**
-   * Get the next item in the collection. NULL is returned if the collection
+   * Get the next item in the collection. nullptr is returned if the collection
    * is exhausted.
    */
   vtkStructuredPoints *GetNextItem() {

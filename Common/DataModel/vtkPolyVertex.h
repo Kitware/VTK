@@ -44,8 +44,8 @@ public:
   int GetCellDimension() VTK_OVERRIDE {return 0;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
   int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
-  vtkCell *GetEdge(int vtkNotUsed(edgeId)) VTK_OVERRIDE {return 0;};
-  vtkCell *GetFace(int vtkNotUsed(faceId)) VTK_OVERRIDE {return 0;};
+  vtkCell *GetEdge(int vtkNotUsed(edgeId)) VTK_OVERRIDE {return nullptr;};
+  vtkCell *GetFace(int vtkNotUsed(faceId)) VTK_OVERRIDE {return nullptr;};
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,

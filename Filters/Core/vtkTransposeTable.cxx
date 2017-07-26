@@ -282,7 +282,7 @@ vtkTransposeTable::vtkTransposeTable()
 {
   this->AddIdColumn = true;
   this->UseIdColumn = false;
-  this->IdColumnName = 0;
+  this->IdColumnName = nullptr;
   this->SetIdColumnName("ColName");
 }
 

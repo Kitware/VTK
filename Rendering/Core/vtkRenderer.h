@@ -569,7 +569,7 @@ public:
    * ActiveCamera does not yet exist.
    */
   int IsActiveCameraCreated()
-    { return (this->ActiveCamera != NULL); }
+    { return (this->ActiveCamera != nullptr); }
 
 
   //@{

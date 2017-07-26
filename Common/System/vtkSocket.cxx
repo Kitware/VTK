@@ -227,7 +227,7 @@ int vtkSocket::Accept(int socketdescriptor)
 
   int newDescriptor;
   vtkRestartInterruptedSystemCallMacro(
-    accept(socketdescriptor, 0, 0), newDescriptor);
+    accept(socketdescriptor, nullptr, nullptr), newDescriptor);
   if (newDescriptor == vtkSocketErrorReturnMacro)
   {
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to accept.");
@@ -281,7 +281,7 @@ int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
   do
   {
     struct timeval tval;
-    struct timeval* tvalptr = 0;
+    struct timeval* tvalptr = nullptr;
     if (msec>0)
     {
       tval.tv_sec = msec / 1000;
@@ -293,7 +293,7 @@ int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
     FD_SET(socketdescriptor, &rset);
 
     // block until socket is readable.
-    res = select(socketdescriptor+1, &rset, 0, 0, tvalptr);
+    res = select(socketdescriptor+1, &rset, nullptr, nullptr, tvalptr);
   }
   while ((res == vtkSocketErrorReturnMacro)
     && (vtkErrnoMacro == vtkSocketErrorIdMacro(EINTR)));
@@ -348,7 +348,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
   do
   {
     struct timeval tval;
-    struct timeval* tvalptr = 0;
+    struct timeval* tvalptr = nullptr;
     if (msec>0)
     {
       tval.tv_sec = msec / 1000;
@@ -365,7 +365,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
     }
 
     // block until one socket is ready to read.
-    res = select(max_fd + 1, &rset, 0, 0, tvalptr);
+    res = select(max_fd + 1, &rset, nullptr, nullptr, tvalptr);
   }
   while ((res == vtkSocketErrorReturnMacro)
     && (vtkErrnoMacro == vtkSocketErrorIdMacro(EINTR)));

@@ -31,8 +31,8 @@ vtkCategoryLegend::vtkCategoryLegend()
   this->SetHorizontalAlignment(vtkChartLegend::RIGHT);
   this->SetVerticalAlignment(vtkChartLegend::BOTTOM);
 
-  this->ScalarsToColors = NULL;
-  this->Values = NULL;
+  this->ScalarsToColors = nullptr;
+  this->Values = nullptr;
 
   this->TitleProperties->SetColor(this->LabelProperties->GetColor());
   this->TitleProperties->SetFontSize(this->LabelProperties->GetFontSize());
@@ -54,7 +54,7 @@ vtkCategoryLegend::~vtkCategoryLegend()
 //-----------------------------------------------------------------------------
 bool vtkCategoryLegend::Paint(vtkContext2D* painter)
 {
-  if (!this->Visible || this->ScalarsToColors == NULL || this->Values == NULL)
+  if (!this->Visible || this->ScalarsToColors == nullptr || this->Values == nullptr)
   {
     return true;
   }

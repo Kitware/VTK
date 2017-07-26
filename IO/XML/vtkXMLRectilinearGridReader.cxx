@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 //----------------------------------------------------------------------------
 vtkXMLRectilinearGridReader::vtkXMLRectilinearGridReader()
 {
-  this->CoordinateElements = 0;
+  this->CoordinateElements = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void vtkXMLRectilinearGridReader::SetupPieces(int numPieces)
   this->CoordinateElements = new vtkXMLDataElement*[numPieces];
   for (int i = 0; i < numPieces; ++i)
   {
-    this->CoordinateElements[i] = 0;
+    this->CoordinateElements[i] = nullptr;
   }
 }
 
@@ -85,7 +85,7 @@ void vtkXMLRectilinearGridReader::SetupPieces(int numPieces)
 void vtkXMLRectilinearGridReader::DestroyPieces()
 {
   delete [] this->CoordinateElements;
-  this->CoordinateElements = 0;
+  this->CoordinateElements = nullptr;
   this->Superclass::DestroyPieces();
 }
 
@@ -98,7 +98,7 @@ int vtkXMLRectilinearGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   }
 
   // Find the Coordinates element in the piece.
-  this->CoordinateElements[this->Piece] = 0;
+  this->CoordinateElements[this->Piece] = nullptr;
   for (int i = 0; i < ePiece->GetNumberOfNestedElements(); ++i)
   {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);

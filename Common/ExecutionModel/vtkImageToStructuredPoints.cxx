@@ -64,7 +64,7 @@ vtkImageData *vtkImageToStructuredPoints::GetVectorInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
@@ -94,7 +94,7 @@ int vtkImageToStructuredPoints::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *data = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *vData = 0;
+  vtkImageData *vData = nullptr;
   if (vectorInfo)
   {
     vData = vtkImageData::SafeDownCast(

@@ -42,7 +42,7 @@ double exponential_distribution(const int i, const double beta)
 //------------------------------------------------------------------------------
 void WriteGrid(vtkRectilinearGrid* grid, const std::string& file)
 {
-  assert( "pre: input grid instance is NULL!" && (grid != NULL) );
+  assert( "pre: input grid instance is nullptr!" && (grid != nullptr) );
 
   std::ostringstream oss;
   oss << file << ".vtk";
@@ -93,7 +93,7 @@ int CheckGrid( vtkRectilinearGrid* grid )
 //------------------------------------------------------------------------------
 void GenerateGrid( vtkRectilinearGrid* grid,  int ext[6] )
 {
-  assert( "pre: input grid instance is NULL!" && (grid != NULL) );
+  assert( "pre: input grid instance is nullptr!" && (grid != nullptr) );
   grid->Initialize();
   grid->SetExtent(ext);
 

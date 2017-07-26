@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkVolume16Reader);
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
 
 //----------------------------------------------------------------------------
-// Construct object with NULL file prefix; file pattern "%s.%d"; image range
+// Construct object with nullptr file prefix; file pattern "%s.%d"; image range
 // set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
 // header size 0; and byte swapping turned off.
 vtkVolume16Reader::vtkVolume16Reader()
@@ -37,13 +37,13 @@ vtkVolume16Reader::vtkVolume16Reader()
   this->HeaderSize = 0;
   this->SwapBytes = 0;
   this->DataDimensions[0] = this->DataDimensions[1] = 0;
-  this->Transform = NULL;
+  this->Transform = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkVolume16Reader::~vtkVolume16Reader()
 {
-  this->SetTransform(NULL);
+  this->SetTransform(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -170,9 +170,9 @@ int vtkVolume16Reader::RequestData(
     vtkArrayDownCast<vtkUnsignedShortArray>(output->GetPointData()->GetScalars());
 
   // Validate instance variables
-  if (this->FilePrefix == NULL)
+  if (this->FilePrefix == nullptr)
   {
-    vtkErrorMacro(<< "FilePrefix is NULL");
+    vtkErrorMacro(<< "FilePrefix is nullptr");
     return 1;
   }
 
@@ -230,16 +230,16 @@ vtkImageData *vtkVolume16Reader::GetImage(int ImageNumber)
   vtkImageData *result;
 
   // Validate instance variables
-  if (this->FilePrefix == NULL)
+  if (this->FilePrefix == nullptr)
   {
-    vtkErrorMacro(<< "FilePrefix is NULL");
-    return NULL;
+    vtkErrorMacro(<< "FilePrefix is nullptr");
+    return nullptr;
   }
 
   if (this->HeaderSize < 0)
   {
     vtkErrorMacro(<< "HeaderSize " << this->HeaderSize << " must be >= 0");
-    return NULL;
+    return nullptr;
   }
 
   dim = this->DataDimensions;
@@ -248,7 +248,7 @@ vtkImageData *vtkVolume16Reader::GetImage(int ImageNumber)
   {
     vtkErrorMacro(<< "x, y dimensions " << dim[0] << ", " << dim[1]
                   << "must be greater than 0.");
-    return NULL;
+    return nullptr;
   }
 
   result = vtkImageData::New();

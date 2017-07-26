@@ -65,8 +65,8 @@
 template< typename T_, typename R_, typename P_, typename O_, typename OP_, int d_ >
 octree_path<T_,R_,P_,O_,OP_,d_>::octree_path()
 {
-  this->_M_root = 0;
-  this->_M_current_node = 0;
+  this->_M_root = nullptr;
+  this->_M_current_node = nullptr;
 }
 
 /**\brief Simplest valid constructor.

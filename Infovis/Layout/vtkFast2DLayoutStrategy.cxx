@@ -67,17 +67,17 @@ vtkFast2DLayoutStrategy::vtkFast2DLayoutStrategy()
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
-  this->EdgeWeightField = 0;
+  this->EdgeWeightField = nullptr;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
-  this->EdgeArray = NULL;
+  this->EdgeArray = nullptr;
 }
 
 // ----------------------------------------------------------------------
 
 vtkFast2DLayoutStrategy::~vtkFast2DLayoutStrategy()
 {
-  this->SetEdgeWeightField(0);
+  this->SetEdgeWeightField(nullptr);
   delete[] this->EdgeArray;
 }
 
@@ -210,12 +210,12 @@ void vtkFast2DLayoutStrategy::Initialize()
   }
 
   // Get the weight array
-  vtkDataArray* weightArray = NULL;
+  vtkDataArray* weightArray = nullptr;
   double weight, maxWeight = 1;
-  if (this->WeightEdges && this->EdgeWeightField != NULL)
+  if (this->WeightEdges && this->EdgeWeightField != nullptr)
   {
     weightArray = vtkArrayDownCast<vtkDataArray>(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
-    if (weightArray != NULL)
+    if (weightArray != nullptr)
     {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
       {
@@ -237,7 +237,7 @@ void vtkFast2DLayoutStrategy::Initialize()
     vtkEdgeType e = it->Next();
     this->EdgeArray[e.Id].from = e.Source;
     this->EdgeArray[e.Id].to = e.Target;
-    if (weightArray != NULL)
+    if (weightArray != nullptr)
     {
       weight = weightArray->GetTuple1(e.Id);
       this->EdgeArray[e.Id].weight = weight / maxWeight;
@@ -266,7 +266,7 @@ void vtkFast2DLayoutStrategy::Initialize()
 void vtkFast2DLayoutStrategy::Layout()
 {
   // Do I have a graph to layout
-  if (this->Graph == NULL)
+  if (this->Graph == nullptr)
   {
     vtkErrorMacro("Graph Layout called with Graph==NULL, call SetGraph(g) first");
     this->LayoutComplete = 1;

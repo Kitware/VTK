@@ -46,8 +46,8 @@ public:
   int GetCellDimension() VTK_OVERRIDE {return 0;};
   int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
   int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
-  vtkCell *GetEdge(int)  VTK_OVERRIDE {return 0;};
-  vtkCell *GetFace(int)  VTK_OVERRIDE {return 0;};
+  vtkCell *GetEdge(int)  VTK_OVERRIDE {return nullptr;};
+  vtkCell *GetFace(int)  VTK_OVERRIDE {return nullptr;};
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *pts,
             vtkPointData *inPd, vtkPointData *outPd,

@@ -115,7 +115,7 @@ int vtkGraphReader::RequestData(
   vtkSmartPointer<vtkMutableUndirectedGraph> undir_builder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
-  vtkGraph *builder = 0;
+  vtkGraph *builder = nullptr;
   switch (graphType)
   {
     case vtkGraphReader::DirectedGraph:
@@ -447,7 +447,7 @@ int vtkGraphReader::RequestDataObject(vtkInformation *,
   }
   this->CloseVTKFile();
 
-  vtkGraph *output = 0;
+  vtkGraph *output = nullptr;
   switch (graphType)
   {
     case vtkGraphReader::DirectedGraph:

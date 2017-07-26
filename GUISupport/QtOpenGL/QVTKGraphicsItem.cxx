@@ -39,7 +39,7 @@
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
   : QGraphicsWidget(p), mContext(ctx)
 {
-  mFBO = NULL;
+  mFBO = nullptr;
   mIren = vtkSmartPointer<QVTKInteractor>::New();
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();

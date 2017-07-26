@@ -114,7 +114,7 @@ public:
     {
       TProps->InitTraversal();
       result = TProps->GetNextItem();
-      assert("Text property traversal error." && result != NULL);
+      assert("Text property traversal error." && result != nullptr);
     }
     return result;
   }
@@ -204,13 +204,13 @@ vtkLabeledContourMapper::vtkLabeledContourMapper()
 {
   this->SkipDistance = 0.;
   this->LabelVisibility = true;
-  this->TextActors = NULL;
+  this->TextActors = nullptr;
   this->NumberOfTextActors = 0;
   this->NumberOfUsedTextActors = 0;
 
-  this->StencilQuads = NULL;
+  this->StencilQuads = nullptr;
   this->StencilQuadsSize = 0;
-  this->StencilQuadIndices = NULL;
+  this->StencilQuadIndices = nullptr;
   this->StencilQuadIndicesSize = 0;
 
   this->TextProperties = vtkSmartPointer<vtkTextPropertyCollection>::New();
@@ -588,7 +588,7 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
   LabelPropertyMapType labelMap;
 
   // Initialize with the user-requested mapping, if it exists.
-  if (this->TextPropertyMapping.GetPointer() != NULL)
+  if (this->TextPropertyMapping.GetPointer() != nullptr)
   {
     vtkDoubleArray::Iterator valIt = this->TextPropertyMapping->Begin();
     vtkDoubleArray::Iterator valItEnd = this->TextPropertyMapping->End();
@@ -632,7 +632,7 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
 
     // The value will be replaced in the next loop:
     labelMap.insert(std::pair<double, vtkTextProperty*>(
-                      metric.Value, static_cast<vtkTextProperty*>(NULL)));
+                      metric.Value, static_cast<vtkTextProperty*>(nullptr)));
   }
 
   // Now that all present scalar values are known, assign text properties:
@@ -927,7 +927,7 @@ bool vtkLabeledContourMapper::FreeTextActors()
   }
 
   delete [] this->TextActors;
-  this->TextActors = NULL;
+  this->TextActors = nullptr;
   this->NumberOfTextActors = 0;
   this->NumberOfUsedTextActors = 0;
   return true;
@@ -939,11 +939,11 @@ void vtkLabeledContourMapper::FreeStencilQuads()
   if (this->StencilQuads)
   {
     delete [] this->StencilQuads;
-    this->StencilQuads = NULL;
+    this->StencilQuads = nullptr;
     this->StencilQuadsSize = 0;
 
     delete [] this->StencilQuadIndices;
-    this->StencilQuadIndices = NULL;
+    this->StencilQuadIndices = nullptr;
     this->StencilQuadIndicesSize = 0;
   }
 }

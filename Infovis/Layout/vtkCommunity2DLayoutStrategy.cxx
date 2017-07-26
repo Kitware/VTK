@@ -66,11 +66,11 @@ vtkCommunity2DLayoutStrategy::vtkCommunity2DLayoutStrategy()
   this->InitialTemperature = 5;
   this->CoolDownRate = 50.0;
   this->LayoutComplete = 0;
-  this->EdgeWeightField = 0;
+  this->EdgeWeightField = nullptr;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
-  this->EdgeArray = 0;
-  this->CommunityArrayName = 0;
+  this->EdgeArray = nullptr;
+  this->CommunityArrayName = nullptr;
   this->SetCommunityArrayName("community");
   this->CommunityStrength = 1.0;
 }
@@ -79,8 +79,8 @@ vtkCommunity2DLayoutStrategy::vtkCommunity2DLayoutStrategy()
 
 vtkCommunity2DLayoutStrategy::~vtkCommunity2DLayoutStrategy()
 {
-  this->SetEdgeWeightField(0);
-  this->SetCommunityArrayName(0);
+  this->SetEdgeWeightField(nullptr);
+  this->SetCommunityArrayName(nullptr);
   delete [] this->EdgeArray;
 }
 
@@ -213,12 +213,12 @@ void vtkCommunity2DLayoutStrategy::Initialize()
   }
 
   // Get the weight array
-  vtkDataArray* weightArray = NULL;
+  vtkDataArray* weightArray = nullptr;
   double weight, maxWeight = 1;
-  if (this->WeightEdges && this->EdgeWeightField != NULL)
+  if (this->WeightEdges && this->EdgeWeightField != nullptr)
   {
     weightArray = vtkArrayDownCast<vtkDataArray>(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
-    if (weightArray != NULL)
+    if (weightArray != nullptr)
     {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
       {
@@ -241,7 +241,7 @@ void vtkCommunity2DLayoutStrategy::Initialize()
     this->EdgeArray[e.Id].from = e.Source;
     this->EdgeArray[e.Id].to = e.Target;
 
-    if (weightArray != NULL)
+    if (weightArray != nullptr)
     {
       weight = weightArray->GetTuple1(e.Id);
       this->EdgeArray[e.Id].weight = weight / maxWeight;
@@ -270,7 +270,7 @@ void vtkCommunity2DLayoutStrategy::Initialize()
 void vtkCommunity2DLayoutStrategy::Layout()
 {
   // Do I have a graph to layout
-  if (this->Graph == NULL)
+  if (this->Graph == nullptr)
   {
     vtkErrorMacro("Graph Layout called with Graph==NULL, call SetGraph(g) first");
     this->LayoutComplete = 1;
@@ -288,7 +288,7 @@ void vtkCommunity2DLayoutStrategy::Layout()
   // Get a quick pointer to the community array
   vtkDataArray *community =
     this->Graph->GetVertexData()->GetArray(this->CommunityArrayName);
-  if (community == NULL)
+  if (community == nullptr)
   {
     vtkWarningMacro("vtkCommunity2DLayoutStrategy did not find a \"community\" array." <<
                     "\n so the layout will not pull communities together like it should");

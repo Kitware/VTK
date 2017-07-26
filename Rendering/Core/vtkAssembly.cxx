@@ -41,7 +41,7 @@ vtkAssembly::~vtkAssembly()
   }
 
   this->Parts->Delete();
-  this->Parts = 0;
+  this->Parts = nullptr;
 }
 
 // Add a part to the list of Parts.
@@ -119,7 +119,7 @@ int vtkAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
       prop3D->SetAllocatedRenderTime(fraction, ren);
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop3D->RenderTranslucentPolygonalGeometry(ren);
-      prop3D->PokeMatrix(NULL);
+      prop3D->PokeMatrix(nullptr);
     }
   }
 
@@ -178,7 +178,7 @@ int vtkAssembly::RenderVolumetricGeometry(vtkViewport *ren)
       prop3D->SetAllocatedRenderTime(fraction, ren);
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop3D->RenderVolumetricGeometry(ren);
-      prop3D->PokeMatrix(NULL);
+      prop3D->PokeMatrix(nullptr);
     }
   }
 
@@ -213,7 +213,7 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
       prop3D->SetAllocatedRenderTime(fraction, ren);
       renderedSomething += prop3D->RenderOpaqueGeometry(ren);
-      prop3D->PokeMatrix(NULL);
+      prop3D->PokeMatrix(nullptr);
     }
   }
 
@@ -278,7 +278,7 @@ void vtkAssembly::InitPathTraversal()
 // returns a properly transformed and updated actor.
 vtkAssemblyPath *vtkAssembly::GetNextPath()
 {
-  return this->Paths ? this->Paths->GetNextItem() : 0;
+  return this->Paths ? this->Paths->GetNextItem() : nullptr;
 }
 
 int vtkAssembly::GetNumberOfPaths()
@@ -293,12 +293,12 @@ int vtkAssembly::GetNumberOfPaths()
 void vtkAssembly::UpdatePaths()
 {
   if (this->GetMTime() > this->PathTime ||
-    (this->Paths != NULL && this->Paths->GetMTime() > this->PathTime))
+    (this->Paths != nullptr && this->Paths->GetMTime() > this->PathTime))
   {
     if (this->Paths)
     {
       this->Paths->Delete();
-      this->Paths = 0;
+      this->Paths = nullptr;
     }
 
     // Create the list to hold all the paths
@@ -372,10 +372,10 @@ double *vtkAssembly::GetBounds()
       propVisible = 1;
       prop3D->PokeMatrix(path->GetLastNode()->GetMatrix());
       const double* bounds = prop3D->GetBounds();
-      prop3D->PokeMatrix(NULL);
+      prop3D->PokeMatrix(nullptr);
 
       // Skip any props that have uninitialized bounds
-      if (bounds == NULL || !vtkMath::AreBoundsInitialized(bounds))
+      if (bounds == nullptr || !vtkMath::AreBoundsInitialized(bounds))
       {
         continue;
       }

@@ -90,7 +90,7 @@ public:
     PixelInformation():
       Valid(false),
       ProcessID(-1),
-      Prop(NULL),
+      Prop(nullptr),
       CompositeID(0),
       AttributeID(-1) {}
   };

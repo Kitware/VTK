@@ -71,11 +71,11 @@ public:
   virtual int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL) = 0;
+                           int textDims[2] = nullptr) = 0;
   virtual int RenderString(vtkTextProperty *property,
                            const vtkStdString& string, int dpi,
                            vtkImageData *data,
-                           int text_dims[2] = NULL) = 0;
+                           int text_dims[2] = nullptr) = 0;
   //@}
 
   /**

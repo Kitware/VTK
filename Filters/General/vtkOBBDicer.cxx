@@ -162,7 +162,7 @@ int vtkOBBDicer::RequestData(
   // Generate scalar values
   //
   this->PointsList->Delete();
-  this->PointsList = NULL;
+  this->PointsList = nullptr;
   groupIds = vtkShortArray::New();
   groupIds->SetNumberOfTuples(numPts);
   groupIds->SetName("vtkOBBDicer_GroupIds");
@@ -198,7 +198,7 @@ int vtkOBBDicer::RequestData(
 
 void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds)
 {
-  if ( OBBptr->Kids == NULL ) //leaf OBB
+  if ( OBBptr->Kids == nullptr ) //leaf OBB
   {
     vtkIdList *ptIds;
     vtkIdType i, ptId, numIds;
@@ -223,7 +223,7 @@ void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds)
 
 void vtkOBBDicer::DeleteTree(vtkOBBNode *OBBptr)
 {
-  if ( OBBptr->Kids != NULL )
+  if ( OBBptr->Kids != nullptr )
   {
     this->DeleteTree(OBBptr->Kids[0]);
     this->DeleteTree(OBBptr->Kids[1]);

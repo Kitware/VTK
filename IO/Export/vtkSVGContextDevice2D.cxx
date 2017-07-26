@@ -576,7 +576,7 @@ void vtkSVGContextDevice2D::Begin(vtkViewport *vp)
 //------------------------------------------------------------------------------
 void vtkSVGContextDevice2D::End()
 {
-  this->SetViewport(NULL);
+  this->SetViewport(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -1108,7 +1108,7 @@ void vtkSVGContextDevice2D::DrawColoredPolygon(float *points, int numPoints,
 
   // Just use the standard draw method if there is a texture or colors are not
   // specified:
-  if (this->Brush->GetTexture() != NULL ||
+  if (this->Brush->GetTexture() != nullptr ||
       nc_comps == 0)
   {
     this->DrawPolygon(points, numPoints);

@@ -32,11 +32,11 @@ vtkStandardNewMacro(vtkEdgeListIterator);
 vtkEdgeListIterator::vtkEdgeListIterator()
 {
   this->Vertex = 0;
-  this->Current = 0;
-  this->End = 0;
-  this->Graph = 0;
+  this->Current = nullptr;
+  this->End = nullptr;
+  this->Graph = nullptr;
   this->Directed = false;
-  this->GraphEdge = 0;
+  this->GraphEdge = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -56,11 +56,11 @@ vtkEdgeListIterator::~vtkEdgeListIterator()
 void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
 {
   vtkSetObjectBodyMacro(Graph, vtkGraph, graph);
-  this->Current = 0;
-  this->End = 0;
+  this->Current = nullptr;
+  this->End = nullptr;
   if (this->Graph && this->Graph->GetNumberOfEdges() > 0)
   {
-    this->Directed = (vtkDirectedGraph::SafeDownCast(this->Graph) != 0);
+    this->Directed = (vtkDirectedGraph::SafeDownCast(this->Graph) != nullptr);
     this->Vertex = 0;
     vtkIdType lastVertex = this->Graph->GetNumberOfVertices();
 
@@ -89,7 +89,7 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
       // entirely-local edges whose source is greater than the target.
       if (!this->Directed)
       {
-        while (this->Current != 0
+        while (this->Current != nullptr
                && (// Skip non-local edges.
                    (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                    // Skip entirely-local edges where Source > Target
@@ -126,7 +126,7 @@ vtkEdgeType vtkEdgeListIterator::Next()
       myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
     }
 
-    while (this->Current != 0
+    while (this->Current != nullptr
            && (// Skip non-local edges.
                (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                // Skip entirely-local edges where Source > Target
@@ -197,7 +197,7 @@ void vtkEdgeListIterator::Increment()
     }
     else
     {
-      this->Current = 0;
+      this->Current = nullptr;
     }
   }
 }
@@ -205,7 +205,7 @@ void vtkEdgeListIterator::Increment()
 //----------------------------------------------------------------------------
 bool vtkEdgeListIterator::HasNext()
 {
-  return (this->Current != 0);
+  return (this->Current != nullptr);
 }
 
 //----------------------------------------------------------------------------

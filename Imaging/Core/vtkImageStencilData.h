@@ -262,7 +262,7 @@ public:
    * extent. Pre-allocate the specified 1D allocateExtent, which must be
    * within the whole extent.
    */
-  void PrepareForNewData(const int allocateExtent[2] = 0);
+  void PrepareForNewData(const int allocateExtent[2] = nullptr);
 
   //@{
   /**

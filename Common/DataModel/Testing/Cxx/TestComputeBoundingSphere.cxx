@@ -29,12 +29,12 @@ int TestComputeBoundingSphere(int, char*[])
 
   {
   std::cout << "Testing 0 points...";
-  float *points = NULL;
+  float *points = nullptr;
   float sphere[4];
   vtkSphere::ComputeBoundingSphere(points,
                                    0,
                                    sphere,
-                                   NULL);
+                                   nullptr);
   if (sphere[0] == 0.0 &&
       sphere[1] == 0.0 &&
       sphere[2] == 0.0 &&
@@ -65,7 +65,7 @@ int TestComputeBoundingSphere(int, char*[])
   vtkSphere::ComputeBoundingSphere(&(*doublePoints.begin()),
                                    1,
                                    sphere,
-                                   NULL);
+                                   nullptr);
   if (sphere[0] == doublePoints[0] &&
       sphere[1] == doublePoints[1] &&
       sphere[2] == doublePoints[2] &&
@@ -96,7 +96,7 @@ int TestComputeBoundingSphere(int, char*[])
   vtkSphere::ComputeBoundingSphere(&(*doublePoints.begin()),
                                    numberOfPoints,
                                    sphere,
-                                   NULL);
+                                   nullptr);
   std::cout << "sphere: "
             << sphere[0] << ", "
             << sphere[1] << ", "
@@ -156,7 +156,7 @@ int TestComputeBoundingSphere(int, char*[])
   vtkSphere::ComputeBoundingSphere(&(*doublePoints.begin()),
                                    numberOfPoints,
                                    sphere,
-                                   NULL);
+                                   nullptr);
   std::cout << "sphere: "
             << sphere[0] << ", "
             << sphere[1] << ", "
@@ -167,12 +167,12 @@ int TestComputeBoundingSphere(int, char*[])
 
   {
   std::cout << "Testing 0 spheres...";
-  float **spheres = NULL;
+  float **spheres = nullptr;
   float sphere[4];
   vtkSphere::ComputeBoundingSphere(spheres,
                                    0,
                                    sphere,
-                                   NULL);
+                                   nullptr);
   if (sphere[0] == 0.0 &&
       sphere[1] == 0.0 &&
       sphere[2] == 0.0 &&
@@ -208,7 +208,7 @@ int TestComputeBoundingSphere(int, char*[])
   vtkSphere::ComputeBoundingSphere(&floatSpheres[0],
                                    1,
                                    sphere,
-                                   NULL);
+                                   nullptr);
   if (sphere[0] == floatPoints[0][0] &&
       sphere[1] == floatPoints[0][1] &&
       sphere[2] == floatPoints[0][2] &&
@@ -290,7 +290,7 @@ int TestComputeBoundingSphere(int, char*[])
   vtkSphere::ComputeBoundingSphere(&doubleSpheres[0],
                                    numberOfSpheres,
                                    sphere,
-                                   NULL);
+                                   nullptr);
   std::cout << "sphere: "
             << sphere[0] << ", "
             << sphere[1] << ", "

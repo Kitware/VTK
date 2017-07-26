@@ -212,7 +212,7 @@ protected:
   vtkDependentDimensionInfoVector *DependentDimensionInfo;
 
   // Finds the dependent dimension information for the given set of dimensions.
-  // Returns NULL if no information has been recorded.
+  // Returns nullptr if no information has been recorded.
   vtkDependentDimensionInfo *FindDependentDimensionInfo(vtkIntArray *dims);
 
   /**

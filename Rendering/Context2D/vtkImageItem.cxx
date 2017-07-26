@@ -29,13 +29,13 @@ vtkCxxSetObjectMacro(vtkImageItem, Image, vtkImageData);
 vtkImageItem::vtkImageItem()
 {
   this->Position[0] = this->Position[1] = 0;
-  this->Image = NULL;
+  this->Image = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkImageItem::~vtkImageItem()
 {
-  this->SetImage(NULL);
+  this->SetImage(nullptr);
 }
 
 //-----------------------------------------------------------------------------

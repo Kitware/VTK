@@ -368,7 +368,7 @@ void Writer::WriteScalar(const std::string& path, ADIOS_DATATYPES adiosType,
         *reinterpret_cast<const std::complex<double>*>(val));
       break;
     default:
-      v = NULL;
+      v = nullptr;
   }
 
   if(si->second->IsInt)

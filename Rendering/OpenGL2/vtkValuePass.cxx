@@ -55,7 +55,7 @@ struct vtkValuePass::Parameters
     ArrayComponent = 0;
     // (min > max) means it is not initialized
     ScalarRange[0] = 1.0; ScalarRange[1] = -1.0;
-    LookupTable = NULL;
+    LookupTable = nullptr;
   };
 
   int ArrayMode;
@@ -76,14 +76,14 @@ class vtkValuePass::vtkInternalsFloat
 public:
 
   vtkInternalsFloat()
-  : ValueFBO(NULL)
-  , ValueRBO(NULL)
-  , DepthRBO(NULL)
+  : ValueFBO(nullptr)
+  , ValueRBO(nullptr)
+  , DepthRBO(nullptr)
   , FBOAllocated(false)
-  , PointBuffer(NULL)
+  , PointBuffer(nullptr)
   , BuffersAllocated(false)
-  , CellFloatTexture(NULL)
-  , CellFloatBuffer(NULL)
+  , CellFloatTexture(nullptr)
+  , CellFloatBuffer(nullptr)
   , OutputFloatArray(vtkFloatArray::New())
   {
     this->FloatImageExt[0] = 0; this->FloatImageExt[1] = 0;
@@ -100,42 +100,42 @@ public:
     if (this->ValueFBO)
     {
       this->ValueFBO->Delete();
-      this->ValueFBO = NULL;
+      this->ValueFBO = nullptr;
     }
     if (this->ValueRBO)
     {
       this->ValueRBO->Delete();
-      this->ValueRBO = NULL;
+      this->ValueRBO = nullptr;
     }
     if (this->DepthRBO)
     {
       this->DepthRBO->Delete();
-      this->DepthRBO = NULL;
+      this->DepthRBO = nullptr;
     }
 
     // Graphics resources released previously by the pass's parent
     if (this->PointBuffer)
     {
       this->PointBuffer->Delete();
-      this->PointBuffer = NULL;
+      this->PointBuffer = nullptr;
     }
 
     if (this->CellFloatTexture)
     {
       this->CellFloatTexture->Delete();
-      this->CellFloatTexture = NULL;
+      this->CellFloatTexture = nullptr;
     }
 
     if (this->CellFloatBuffer)
     {
       this->CellFloatBuffer->Delete();
-      this->CellFloatBuffer = NULL;
+      this->CellFloatBuffer = nullptr;
     }
 
     if (this->OutputFloatArray)
     {
       this->OutputFloatArray->Delete();
-      this->OutputFloatArray = NULL;
+      this->OutputFloatArray = nullptr;
     }
   }
 
@@ -165,7 +165,7 @@ class vtkValuePass::vtkInternalsInvertible
 public:
   vtkInternalsInvertible(vtkValuePass* pass)
   : Pass(pass)
-  , InvertibleLookupTable(NULL)
+  , InvertibleLookupTable(nullptr)
   {
     this->CreateInvertibleLookupTable();
   };
@@ -184,7 +184,7 @@ public:
     this->SetStateInMapper(this->OriginalState, mapper);
     property->SetLighting(this->OriginalState.Lighting);
 
-    if (this->OriginalState.LookupTable != NULL)
+    if (this->OriginalState.LookupTable != nullptr)
       this->OriginalState.LookupTable->UnRegister(Pass);
 
     this->OriginalState = Parameters();
@@ -298,7 +298,7 @@ public:
 
     // Range and component should be set in the lut within the mapper, but
     // here are set anyway
-    if (state.LookupTable != NULL)
+    if (state.LookupTable != nullptr)
     {
       state.LookupTable->SetVectorComponent(state.ArrayComponent);
       state.LookupTable->SetRange(state.ScalarRange);
@@ -329,7 +329,7 @@ vtkValuePass::vtkValuePass()
 , PassState(new Parameters())
 , RenderingMode(INVERTIBLE_LUT)
 {
-  this->MultiBlocksArray = NULL;
+  this->MultiBlocksArray = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -480,7 +480,7 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
 // \pre s_exists: s!=0
 void vtkValuePass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s != NULL);
+  assert("pre: s_exists" && s != nullptr);
 
   // GLRenderPass
   this->PreRender(s);
@@ -505,7 +505,7 @@ void vtkValuePass::Render(const vtkRenderState *s)
 // \pre s_exists: s!=0
 void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s != NULL);
+  assert("pre: s_exists" && s != nullptr);
 
   int const count = s->GetPropArrayCount();
   for (int i = 0; i < count; i++)
@@ -690,13 +690,13 @@ void vtkValuePass::ReleaseFBO(vtkWindow* win)
 
   // Cleanup FBO (grahpics resources cleaned internally)
   this->ImplFloat->ValueFBO->Delete();
-  this->ImplFloat->ValueFBO = NULL;
+  this->ImplFloat->ValueFBO = nullptr;
 
   this->ImplFloat->ValueRBO->Delete();
-  this->ImplFloat->ValueRBO = NULL;
+  this->ImplFloat->ValueRBO = nullptr;
 
   this->ImplFloat->DepthRBO->Delete();
-  this->ImplFloat->DepthRBO = NULL;
+  this->ImplFloat->DepthRBO = nullptr;
 
   this->ImplFloat->FBOAllocated = false;
 }
@@ -832,21 +832,21 @@ void vtkValuePass::ReleaseGraphicsResources(vtkWindow* win)
   {
     this->ImplFloat->CellFloatTexture->ReleaseGraphicsResources(win);
     this->ImplFloat->CellFloatTexture->Delete();
-    this->ImplFloat->CellFloatTexture = NULL;
+    this->ImplFloat->CellFloatTexture = nullptr;
   }
 
   if (this->ImplFloat->CellFloatBuffer)
   {
     this->ImplFloat->CellFloatBuffer->ReleaseGraphicsResources();
     this->ImplFloat->CellFloatBuffer->Delete();
-    this->ImplFloat->CellFloatBuffer = NULL;
+    this->ImplFloat->CellFloatBuffer = nullptr;
   }
 
   if (this->ImplFloat->PointBuffer)
   {
     this->ImplFloat->PointBuffer->ReleaseGraphicsResources();
     this->ImplFloat->PointBuffer->Delete();
-    this->ImplFloat->PointBuffer = NULL;
+    this->ImplFloat->PointBuffer = nullptr;
   }
   this->ImplFloat->BuffersAllocated = false;
 
@@ -1072,7 +1072,7 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
   Parameters* arrayPar)
 {
   // Check for a regular data set
-  vtkAbstractArray* abstractArray = NULL;
+  vtkAbstractArray* abstractArray = nullptr;
   vtkDataObject* dataObject = mapper->GetExecutive()->GetInputData(0, 0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(dataObject);
   if (input)
@@ -1108,7 +1108,7 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
 vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(
    vtkMapper* mapper, Parameters* arrayPar)
 {
-  vtkAbstractArray* abstractArray = NULL;
+  vtkAbstractArray* abstractArray = nullptr;
   vtkCompositePolyDataMapper2 *cpdm =
     vtkCompositePolyDataMapper2::SafeDownCast(mapper);
   if (cpdm)

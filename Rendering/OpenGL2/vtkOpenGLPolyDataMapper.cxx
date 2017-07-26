@@ -71,10 +71,10 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : UsingScalarColoring(false),
     TimerQuery(new vtkOpenGLRenderTimer)
 {
-  this->InternalColorTexture = NULL;
+  this->InternalColorTexture = nullptr;
   this->PopulateSelectionSettings = 1;
   this->LastSelectionState = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
-  this->CurrentInput = 0;
+  this->CurrentInput = nullptr;
   this->TempMatrix4 = vtkMatrix4x4::New();
   this->TempMatrix3 = vtkMatrix3x3::New();
   this->DrawingEdgesOrVertices = false;
@@ -84,29 +84,29 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->ShiftScaleMethod =
     vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE;
 
-  this->CellScalarTexture = NULL;
-  this->CellScalarBuffer = NULL;
-  this->CellNormalTexture = NULL;
-  this->CellNormalBuffer = NULL;
+  this->CellScalarTexture = nullptr;
+  this->CellScalarBuffer = nullptr;
+  this->CellNormalTexture = nullptr;
+  this->CellNormalBuffer = nullptr;
 
   this->HavePickScalars = false;
   this->HaveCellScalars = false;
   this->HaveCellNormals = false;
 
-  this->PointIdArrayName = NULL;
-  this->CellIdArrayName = NULL;
-  this->ProcessIdArrayName = NULL;
-  this->CompositeIdArrayName = NULL;
+  this->PointIdArrayName = nullptr;
+  this->CellIdArrayName = nullptr;
+  this->ProcessIdArrayName = nullptr;
+  this->CompositeIdArrayName = nullptr;
   this->VBOs = vtkOpenGLVertexBufferObjectGroup::New();
 
-  this->AppleBugPrimIDBuffer = NULL;
+  this->AppleBugPrimIDBuffer = nullptr;
   this->HaveAppleBug = false;
   this->HaveAppleBugForce = 0;
-  this->LastBoundBO = NULL;
+  this->LastBoundBO = nullptr;
 
-  this->VertexShaderCode = NULL;
-  this->FragmentShaderCode = NULL;
-  this->GeometryShaderCode = NULL;
+  this->VertexShaderCode = nullptr;
+  this->FragmentShaderCode = nullptr;
+  this->GeometryShaderCode = nullptr;
 
   for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
   {
@@ -126,12 +126,12 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   {
     this->ResourceCallback->Release();
     delete this->ResourceCallback;
-    this->ResourceCallback = NULL;
+    this->ResourceCallback = nullptr;
   }
   if (this->InternalColorTexture)
   { // Resources released previously.
     this->InternalColorTexture->Delete();
-    this->InternalColorTexture = NULL;
+    this->InternalColorTexture = nullptr;
   }
   this->TempMatrix3->Delete();
   this->TempMatrix4->Delete();
@@ -139,40 +139,40 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   if (this->CellScalarTexture)
   { // Resources released previously.
     this->CellScalarTexture->Delete();
-    this->CellScalarTexture = NULL;
+    this->CellScalarTexture = nullptr;
   }
   if (this->CellScalarBuffer)
   { // Resources released previously.
     this->CellScalarBuffer->Delete();
-    this->CellScalarBuffer = NULL;
+    this->CellScalarBuffer = nullptr;
   }
 
   if (this->CellNormalTexture)
   { // Resources released previously.
     this->CellNormalTexture->Delete();
-    this->CellNormalTexture = NULL;
+    this->CellNormalTexture = nullptr;
   }
   if (this->CellNormalBuffer)
   { // Resources released previously.
     this->CellNormalBuffer->Delete();
-    this->CellNormalBuffer = NULL;
+    this->CellNormalBuffer = nullptr;
   }
 
-  this->SetPointIdArrayName(NULL);
-  this->SetCellIdArrayName(NULL);
-  this->SetProcessIdArrayName(NULL);
-  this->SetCompositeIdArrayName(NULL);
+  this->SetPointIdArrayName(nullptr);
+  this->SetCellIdArrayName(nullptr);
+  this->SetProcessIdArrayName(nullptr);
+  this->SetCompositeIdArrayName(nullptr);
   this->VBOs->Delete();
-  this->VBOs = NULL;
+  this->VBOs = nullptr;
 
   if (this->AppleBugPrimIDBuffer)
   {
     this->AppleBugPrimIDBuffer->Delete();
   }
 
-  this->SetVertexShaderCode(NULL);
-  this->SetFragmentShaderCode(NULL);
-  this->SetGeometryShaderCode(NULL);
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
+  this->SetGeometryShaderCode(nullptr);
   delete TimerQuery;
 }
 
@@ -1656,7 +1656,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   // three that mix in a complex way are representation POINT, Interpolation FLAT
   // and having normals or not.
   bool needLighting = false;
-  bool haveNormals = (this->CurrentInput->GetPointData()->GetNormals() != NULL);
+  bool haveNormals = (this->CurrentInput->GetPointData()->GetNormals() != nullptr);
   if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
   {
     needLighting = (actor->GetProperty()->GetInterpolation() != VTK_FLAT && haveNormals);
@@ -1746,7 +1746,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     + (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x40 : 0)
     + ((this->VBOs->GetNumberOfComponents("tcoordMC") % 4) << 7);
 
-  if (cellBO.Program == 0 ||
+  if (cellBO.Program == nullptr ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetProperty()->GetMTime() ||
       cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO] ||
@@ -1936,7 +1936,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
   }
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
+  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
   if (picking && cellBO.Program->IsUniformUsed("mapperIndex"))
   {
     if (selector)
@@ -2470,7 +2470,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   // Bind the OpenGL, this is shared between the different primitive/cell types.
   //this->VBOs->Bind();
 
-  this->LastBoundBO = NULL;
+  this->LastBoundBO = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -2610,18 +2610,18 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   this->CurrentInput = this->GetInput();
 
-  if (this->CurrentInput == NULL)
+  if (this->CurrentInput == nullptr)
   {
     vtkErrorMacro(<< "No input!");
     return;
   }
 
-  this->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartEvent,nullptr);
   if (!this->Static)
   {
     this->GetInputAlgorithm()->Update();
   }
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndEvent,nullptr);
 
   // if there are no points then we are done
   if (!this->CurrentInput->GetPoints())
@@ -2685,8 +2685,8 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
 {
   // deal with optional pick mapping arrays
   vtkHardwareSelector* selector = ren->GetSelector();
-  vtkUnsignedIntArray* mapArray = NULL;
-  vtkIdTypeArray* mapArrayId = NULL;
+  vtkUnsignedIntArray* mapArray = nullptr;
+  vtkIdTypeArray* mapArrayId = nullptr;
   vtkPointData *pd = poly->GetPointData();
   vtkCellData *cd = poly->GetCellData();
   vtkPoints *points = poly->GetPoints();
@@ -2700,13 +2700,13 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
        {
         mapArray = this->ProcessIdArrayName ?
           vtkArrayDownCast<vtkUnsignedIntArray>(
-            pd->GetArray(this->ProcessIdArrayName)) : NULL;
+            pd->GetArray(this->ProcessIdArrayName)) : nullptr;
        }
         break;
       case vtkHardwareSelector::COMPOSITE_INDEX_PASS:
         mapArray = this->CompositeIdArrayName ?
           vtkArrayDownCast<vtkUnsignedIntArray>(
-            cd->GetArray(this->CompositeIdArrayName)) : NULL;
+            cd->GetArray(this->CompositeIdArrayName)) : nullptr;
         break;
       case vtkHardwareSelector::ID_LOW24:
       case vtkHardwareSelector::ID_MID24:
@@ -2715,13 +2715,13 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
         {
           mapArrayId = this->PointIdArrayName ?
             vtkArrayDownCast<vtkIdTypeArray>(
-              pd->GetArray(this->PointIdArrayName)) : NULL;
+              pd->GetArray(this->PointIdArrayName)) : nullptr;
         }
         else
         {
           mapArrayId = this->CellIdArrayName ?
             vtkArrayDownCast<vtkIdTypeArray>(
-              cd->GetArray(this->CellIdArrayName)) : NULL;
+              cd->GetArray(this->CellIdArrayName)) : nullptr;
         }
         break;
     }
@@ -2745,7 +2745,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     // rendering each point of each cell is rendered. So we
     // put the provided value into the texture for each point
     // of each cell
-    vtkIdType* indices(NULL);
+    vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     // for each prim type
     vtkIdType cellNum = 0;
@@ -2772,7 +2772,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   if (this->HavePickScalars &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    vtkIdType* indices(NULL);
+    vtkIdType* indices(nullptr);
     vtkIdType npts(0);
 
     for (int j = 0; j < 4; j++)
@@ -2816,7 +2816,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     // find their first point id and then use the point id to
     // lookup a process values. Then we use the map of opengl cells
     // to vtk cells to map into the first array
-    vtkIdType* indices(NULL);
+    vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     // for each prim type
     for (int j = 0; j < 4; j++)
@@ -3015,7 +3015,7 @@ vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
   std::vector<float> &buffData
   )
 {
-  vtkIdType* indices = NULL;
+  vtkIdType* indices = nullptr;
   vtkIdType npts = 0;
 
   vtkPolyData *newPD = vtkPolyData::New();
@@ -3086,7 +3086,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
 {
   vtkPolyData *poly = this->CurrentInput;
 
-  if (poly == NULL)
+  if (poly == nullptr)
   {
     return;
   }
@@ -3102,7 +3102,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   // If we are coloring by texture, then load the texture map.
   if (this->ColorTextureMap)
   {
-    if (this->InternalColorTexture == 0)
+    if (this->InternalColorTexture == nullptr)
     {
       this->InternalColorTexture = vtkOpenGLTexture::New();
       this->InternalColorTexture->RepeatOff();
@@ -3123,15 +3123,15 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
          && this->Colors)
     {
       this->HaveCellScalars = true;
-      c = NULL;
+      c = nullptr;
     }
   }
 
   this->HaveCellNormals = false;
   // Do we have cell normals?
   vtkDataArray *n =
-    (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL;
-  if (n == NULL && poly->GetCellData()->GetNormals())
+    (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : nullptr;
+  if (n == nullptr && poly->GetCellData()->GetNormals())
   {
     this->HaveCellNormals = true;
   }
@@ -3215,12 +3215,12 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     if (n)
     {
       n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
-            poly->GetPointData()->GetNormals() : NULL;
+            poly->GetPointData()->GetNormals() : nullptr;
     }
     if (c)
     {
       this->Colors->Delete();
-      this->Colors = 0;
+      this->Colors = nullptr;
       this->MapScalars(poly,1.0);
       c = this->Colors;
     }
@@ -3228,7 +3228,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
 
   // Set the texture if we are going to use texture
   // for coloring with a point attribute.
-  vtkDataArray *tcoords = NULL;
+  vtkDataArray *tcoords = nullptr;
   if (this->HaveTCoords(poly))
   {
     if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
@@ -3363,12 +3363,12 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
           if (ef->GetNumberOfComponents() != 1)
           {
             vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-            ef = NULL;
+            ef = nullptr;
           }
           if (!ef->IsA("vtkUnsignedCharArray"))
           {
             vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
-            ef = NULL;
+            ef = nullptr;
           }
         }
         if (ef)
@@ -3396,12 +3396,12 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
         if (ef->GetNumberOfComponents() != 1)
         {
           vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-          ef = NULL;
+          ef = nullptr;
         }
         else if (!ef->IsA("vtkUnsignedCharArray"))
         {
           vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
-          ef = NULL;
+          ef = nullptr;
         }
       }
       if (ef)
@@ -3471,7 +3471,7 @@ bool vtkOpenGLPolyDataMapper::GetIsOpaque()
 void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 {
   vtkOpenGLPolyDataMapper *m = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
-  if (m != NULL)
+  if (m != nullptr)
   {
     this->SetPointIdArrayName(m->GetPointIdArrayName());
     this->SetCompositeIdArrayName(m->GetCompositeIdArrayName());

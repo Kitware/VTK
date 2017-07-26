@@ -467,12 +467,12 @@ inline int vtkMultiThreshold::AddNotchIntervalSet(
 
 inline vtkMultiThreshold::Interval* vtkMultiThreshold::Set::GetIntervalPointer()
 {
-  return 0;
+  return nullptr;
 }
 
 inline vtkMultiThreshold::BooleanSet* vtkMultiThreshold::Set::GetBooleanSetPointer()
 {
-  return 0;
+  return nullptr;
 }
 
 inline vtkMultiThreshold::Interval* vtkMultiThreshold::Interval::GetIntervalPointer()

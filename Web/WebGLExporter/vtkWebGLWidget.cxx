@@ -28,12 +28,12 @@ vtkStandardNewMacro(vtkWebGLWidget);
 
 vtkWebGLWidget::vtkWebGLWidget()
 {
-  this->binaryData = NULL;
+  this->binaryData = nullptr;
   this->iswidget = false;
   this->binarySize = 0;
   this->orientation = 1;
   this->interactAtServer = false;
-  this->title = NULL;
+  this->title = nullptr;
 }
 
 vtkWebGLWidget::~vtkWebGLWidget()

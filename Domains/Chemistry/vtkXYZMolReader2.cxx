@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkXYZMolReader2);
 
 //----------------------------------------------------------------------------
 vtkXYZMolReader2::vtkXYZMolReader2()
-  : FileName(NULL)
+  : FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
   this->NumberOfTimeSteps = 0;
@@ -43,7 +43,7 @@ vtkXYZMolReader2::vtkXYZMolReader2()
 //----------------------------------------------------------------------------
 vtkXYZMolReader2::~vtkXYZMolReader2()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------

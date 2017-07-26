@@ -133,8 +133,8 @@ public:
     this->SeedTexture0 = this->AllocateLICBuffer(context, bufSize);
     this->LICTexture1 = this->AllocateLICBuffer(context, bufSize);
     this->SeedTexture1 = this->AllocateLICBuffer(context, bufSize);
-    this->EETexture = doEEPass ? this->AllocateNoiseBuffer(context, bufSize) : NULL;
-    this->ImageVectorTexture = doVTPass ? this->AllocateVectorBuffer(context, bufSize) : NULL;
+    this->EETexture = doEEPass ? this->AllocateNoiseBuffer(context, bufSize) : nullptr;
+    this->ImageVectorTexture = doVTPass ? this->AllocateVectorBuffer(context, bufSize) : nullptr;
 
     // setup pairs for buffer ping-pong
     this->PingTextures[0] = this->LICTexture0;
@@ -148,8 +148,8 @@ public:
 
     this->DettachBuffers(fbo);
 
-    this->QuadVBO = NULL;
-    this->LastQuadProgram = NULL;
+    this->QuadVBO = nullptr;
+    this->LastQuadProgram = nullptr;
 
     #if vtkLineIntegralConvolution2DDEBUG >= 3
     this->Print(cerr);
@@ -961,7 +961,7 @@ void StreamingFindMinMax(
   fbo->ActivateDrawBuffer(0U);
   fbo->ActivateReadBuffer(0U);
   fbo->CheckFrameBufferStatus(GL_FRAMEBUFFER);
-  vector<vtkPixelBufferObject*> pbos(nExtents, NULL);
+  vector<vtkPixelBufferObject*> pbos(nExtents, nullptr);
   for (size_t q=0; q<nExtents; ++q)
   {
     pbos[q] = fbo->Download(
@@ -996,7 +996,7 @@ void StreamingFindMinMax(
 
     pbo->UnmapPackedBuffer();
     pbo->Delete();
-    pbo = NULL;
+    pbo = nullptr;
   }
   pbos.clear();
   #if  vtkLineIntegralConvolution2DDEBUG >= 1
@@ -1013,20 +1013,20 @@ vtkObjectFactoryNewMacro(vtkLineIntegralConvolution2D);
 // ----------------------------------------------------------------------------
 vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
 {
-  this->Comm = NULL;
+  this->Comm = nullptr;
 
-  this->Context = NULL;
+  this->Context = nullptr;
   this->FBO = vtkOpenGLFramebufferObject::New();
 
   this->ShadersNeedBuild = 1;
-  this->VTShader = NULL;
-  this->LIC0Shader = NULL;
-  this->LICIShader = NULL;
-  this->LICNShader = NULL;
-  this->EEShader = NULL;
-  this->CEShader = NULL;
-  this->AAHShader = NULL;
-  this->AAVShader = NULL;
+  this->VTShader = nullptr;
+  this->LIC0Shader = nullptr;
+  this->LICIShader = nullptr;
+  this->LICNShader = nullptr;
+  this->EEShader = nullptr;
+  this->CEShader = nullptr;
+  this->AAHShader = nullptr;
+  this->AAVShader = nullptr;
 
   this->StepSize = 0.01;
   this->NumberOfSteps = 1;
@@ -1049,15 +1049,15 @@ vtkLineIntegralConvolution2D::vtkLineIntegralConvolution2D()
 vtkLineIntegralConvolution2D::~vtkLineIntegralConvolution2D()
 {
   delete this->Comm;
-  this->SetContext(NULL);
-  this->SetVTShader(NULL);
-  this->SetLIC0Shader(NULL);
-  this->SetLICIShader(NULL);
-  this->SetLICNShader(NULL);
-  this->SetEEShader(NULL);
-  this->SetCEShader(NULL);
-  this->SetAAHShader(NULL);
-  this->SetAAVShader(NULL);
+  this->SetContext(nullptr);
+  this->SetVTShader(nullptr);
+  this->SetLIC0Shader(nullptr);
+  this->SetLICIShader(nullptr);
+  this->SetLICNShader(nullptr);
+  this->SetEEShader(nullptr);
+  this->SetCEShader(nullptr);
+  this->SetAAHShader(nullptr);
+  this->SetAAVShader(nullptr);
 
   if (this->VTShader)
   {
@@ -1282,7 +1282,7 @@ namespace {
   void BuildAShader(vtkOpenGLRenderWindow *renWin,
     vtkOpenGLHelper **cbor, const char *frag)
   {
-  if (*cbor == NULL)
+  if (*cbor == nullptr)
   {
     *cbor = new vtkOpenGLHelper;
     std::string VSSource = vtkTextureObjectVS;
@@ -1337,7 +1337,7 @@ void vtkLineIntegralConvolution2D::BuildShaders()
 // ----------------------------------------------------------------------------
 vtkPainterCommunicator *vtkLineIntegralConvolution2D::GetCommunicator()
 {
-  if (this->Comm == NULL)
+  if (this->Comm == nullptr)
   {
     this->Comm = new vtkPainterCommunicator;
   }
@@ -1394,7 +1394,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
         vectorExtents,
         licExtents,
         vectorTex,
-        NULL,
+        nullptr,
         noiseTex);
 }
 
@@ -1411,22 +1411,22 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   if (!this->Context)
   {
     vtkErrorMacro("invalid this->Context");
-    return NULL;
+    return nullptr;
   }
   if (this->NumberOfSteps < 0)
   {
     vtkErrorMacro("Number of integration steps should be positive.");
-    return NULL;
+    return nullptr;
   }
   if (this->StepSize < 0.0)
   {
     vtkErrorMacro("Streamline integration step size should be positive.");
-    return NULL;
+    return nullptr;
   }
   if (vectorTex->GetComponents() < 2)
   {
     vtkErrorMacro("VectorField must have at least 2 components.");
-    return NULL;
+    return nullptr;
   }
 
   #if defined(vtkLineIntegralConvolution2DTIME) && !defined(vtkSurfaceLICPainterTIME)
@@ -2089,7 +2089,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   this->FBO->UnBind(GL_FRAMEBUFFER);
 
   vtkTextureObject *outputTex = bufs.GetLastLICBuffer();
-  outputTex->Register(0);
+  outputTex->Register(nullptr);
 
   #if defined(vtkLineIntegralConvolution2DTIME) && !defined(vtkSurfaceLICPainterTIME)
   this->EndTimerEvent("vtkLineIntegralConvolution::Execute");

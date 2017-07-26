@@ -128,7 +128,7 @@ public:
 //----------------------------------------------------------------------------
 // Initialized mainly to eliminate compiler warnings.
 template <class T> vtkSampleFunctionAlgorithm<T>::
-vtkSampleFunctionAlgorithm():Scalars(NULL),Normals(NULL)
+vtkSampleFunctionAlgorithm():Scalars(nullptr),Normals(nullptr)
 {
   for (int i=0; i<3; ++i)
   {
@@ -266,15 +266,15 @@ vtkSampleFunction::vtkSampleFunction()
   this->Capping = 0;
   this->CapValue = VTK_DOUBLE_MAX;
 
-  this->ImplicitFunction = NULL;
+  this->ImplicitFunction = nullptr;
 
   this->ComputeNormals = 1;
   this->OutputScalarType = VTK_DOUBLE;
 
-  this->ScalarArrayName=0;
+  this->ScalarArrayName=nullptr;
   this->SetScalarArrayName("scalars");
 
-  this->NormalArrayName=0;
+  this->NormalArrayName=nullptr;
   this->SetNormalArrayName("normals");
 
   this->SetNumberOfInputPorts(0);
@@ -283,9 +283,9 @@ vtkSampleFunction::vtkSampleFunction()
 //----------------------------------------------------------------------------
 vtkSampleFunction::~vtkSampleFunction()
 {
-  this->SetImplicitFunction(NULL);
-  this->SetScalarArrayName(NULL);
-  this->SetNormalArrayName(NULL);
+  this->SetImplicitFunction(nullptr);
+  this->SetScalarArrayName(nullptr);
+  this->SetNormalArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -415,8 +415,8 @@ int vtkSampleFunction::RequestInformation (
 void vtkSampleFunction::
 ExecuteDataWithInformation(vtkDataObject *outp, vtkInformation *outInfo)
 {
-  vtkFloatArray *newNormals=NULL;
-  float *normals=NULL;
+  vtkFloatArray *newNormals=nullptr;
+  float *normals=nullptr;
 
   vtkImageData *output=this->GetOutput();
   int* extent =
@@ -475,7 +475,7 @@ vtkMTimeType vtkSampleFunction::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->ImplicitFunction != NULL )
+  if ( this->ImplicitFunction != nullptr )
   {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
@@ -517,7 +517,7 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
 
   os << indent << "ScalarArrayName: ";
-  if(this->ScalarArrayName!=0)
+  if(this->ScalarArrayName!=nullptr)
   {
     os  << this->ScalarArrayName << endl;
   }
@@ -527,7 +527,7 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "NormalArrayName: ";
-  if(this->NormalArrayName!=0)
+  if(this->NormalArrayName!=nullptr)
   {
     os  << this->NormalArrayName << endl;
   }

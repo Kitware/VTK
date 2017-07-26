@@ -33,14 +33,14 @@ vtkStandardNewMacro(vtkAppendPoints);
 //----------------------------------------------------------------------------
 vtkAppendPoints::vtkAppendPoints()
 {
-  this->InputIdArrayName = 0;
+  this->InputIdArrayName = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
 vtkAppendPoints::~vtkAppendPoints()
 {
-  this->SetInputIdArrayName(0);
+  this->SetInputIdArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -119,11 +119,11 @@ int vtkAppendPoints::RequestData(vtkInformation *vtkNotUsed(request),
     }
     else
     {
-      inputs.push_back(0);
+      inputs.push_back(nullptr);
     }
   }
 
-  vtkPointData* pd = 0;
+  vtkPointData* pd = nullptr;
   vtkIdType index = 0;
   vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
 

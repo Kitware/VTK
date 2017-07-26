@@ -26,11 +26,11 @@
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
 {
-  this->PieceExtents = 0;
-  this->PiecePointDimensions = 0;
-  this->PiecePointIncrements = 0;
-  this->PieceCellDimensions = 0;
-  this->PieceCellIncrements = 0;
+  this->PieceExtents = nullptr;
+  this->PiecePointDimensions = nullptr;
+  this->PiecePointIncrements = nullptr;
+  this->PieceCellDimensions = nullptr;
+  this->PieceCellIncrements = nullptr;
   this->WholeSlices = 1;
 
   // Initialize these in case someone calls GetNumberOfPoints or
@@ -155,11 +155,11 @@ void vtkXMLStructuredDataReader::DestroyPieces()
   delete [] this->PiecePointIncrements;
   delete [] this->PieceCellDimensions;
   delete [] this->PieceCellIncrements;
-  this->PieceExtents = 0;
-  this->PiecePointDimensions = 0;
-  this->PiecePointIncrements = 0;
-  this->PieceCellDimensions = 0;
-  this->PieceCellIncrements = 0;
+  this->PieceExtents = nullptr;
+  this->PiecePointDimensions = nullptr;
+  this->PiecePointIncrements = nullptr;
+  this->PieceCellDimensions = nullptr;
+  this->PieceCellIncrements = nullptr;
   this->Superclass::DestroyPieces();
 }
 

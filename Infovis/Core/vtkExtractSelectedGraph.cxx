@@ -209,7 +209,7 @@ int vtkExtractSelectedGraph::RequestData(
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
   {
     vtkSelectionNode* node = converted->GetNode(i);
-    vtkIdTypeArray* list = 0;
+    vtkIdTypeArray* list = nullptr;
     if (node->GetFieldType() == vtkSelectionNode::VERTEX)
     {
       list = vertexList;
@@ -268,7 +268,7 @@ int vtkExtractSelectedGraph::RequestData(
   vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
   bool directed;
-  vtkGraph* builder = 0;
+  vtkGraph* builder = nullptr;
   if (vtkDirectedGraph::SafeDownCast(input))
   {
     directed = true;

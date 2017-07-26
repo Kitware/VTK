@@ -65,7 +65,7 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value,
                                                             vtkGenericDataSet *ds)
 {
   assert("pre: valid_range_value" && value>0 && value<1);
-  assert("pre: ds_exists" && ds!=0);
+  assert("pre: ds_exists" && ds!=nullptr);
 
   double bounds[6];
   ds->GetBounds(bounds);
@@ -117,9 +117,9 @@ int vtkGeometricErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
 #endif
   )
 {
-  assert("pre: leftPoint_exists" && leftPoint!=0);
-  assert("pre: midPoint_exists" && midPoint!=0);
-  assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
+  assert("pre: midPoint_exists" && midPoint!=nullptr);
+  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
   {
@@ -159,9 +159,9 @@ double vtkGeometricErrorMetric::GetError(double *leftPoint,
 #endif
   )
 {
-  assert("pre: leftPoint_exists" && leftPoint!=0);
-  assert("pre: midPoint_exists" && midPoint!=0);
-  assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
+  assert("pre: midPoint_exists" && midPoint!=nullptr);
+  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
   {

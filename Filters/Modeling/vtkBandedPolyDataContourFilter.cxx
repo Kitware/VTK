@@ -262,7 +262,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   int i, j, idx = 0;
   vtkIdType npts = 0;
   vtkIdType cellId=0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   int numEdgePts, maxCellSize;
   vtkIdType v, vR, *intPts;
   int intsIdx;
@@ -515,10 +515,10 @@ int vtkBandedPolyDataContourFilter::RequestData(
     intList->Reset();
 
     vtkCellArray *polys = input->GetPolys();
-    vtkCellArray *tmpPolys = NULL;
+    vtkCellArray *tmpPolys = nullptr;
 
     // If contour edges requested, set things up.
-    vtkCellArray *contourEdges=0;
+    vtkCellArray *contourEdges=nullptr;
     if ( this->GenerateContourEdges )
     {
       contourEdges = vtkCellArray::New();
@@ -835,7 +835,7 @@ vtkPolyData *vtkBandedPolyDataContourFilter::GetContourEdgesOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkPolyData::SafeDownCast(

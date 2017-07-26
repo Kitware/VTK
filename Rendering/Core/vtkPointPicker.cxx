@@ -41,7 +41,7 @@ inline vtkCellArray* GET_CELLS( int cell_type, vtkPolyData* poly_input )
     case 3:
       return poly_input->GetStrips();
   }
-  return NULL;
+  return nullptr;
 }
 
 vtkStandardNewMacro(vtkPointPicker);
@@ -61,8 +61,8 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   double minXYZ[3];
   vtkDataSet *input;
   vtkMapper *mapper;
-  vtkAbstractVolumeMapper *volumeMapper = 0;
-  vtkImageMapper3D *imageMapper = 0;
+  vtkAbstractVolumeMapper *volumeMapper = nullptr;
+  vtkImageMapper3D *imageMapper = nullptr;
 
   double ray[3], rayFactor;
   if ( !vtkPicker::CalculateRay(p1, p2, ray, rayFactor) )
@@ -73,15 +73,15 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
 
   // Get the underlying dataset.
   //
-  if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
+  if ( (mapper=vtkMapper::SafeDownCast(m)) != nullptr )
   {
     input = mapper->GetInput();
   }
-  else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != NULL )
+  else if ( (volumeMapper=vtkAbstractVolumeMapper::SafeDownCast(m)) != nullptr )
   {
     input = volumeMapper->GetDataSetInput();
   }
-  else if ( (imageMapper=vtkImageMapper3D::SafeDownCast(m)) != NULL )
+  else if ( (imageMapper=vtkImageMapper3D::SafeDownCast(m)) != nullptr )
   {
     input = imageMapper->GetInput();
   }
@@ -92,7 +92,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
 
   //   For image, find the single intersection point
   //
-  if ( imageMapper != NULL )
+  if ( imageMapper != nullptr )
   {
     if ( input->GetNumberOfPoints() == 0 )
     {
@@ -151,7 +151,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
       vtkDebugMacro("Picked point id= " << minPtId);
     }
   }
-  else if (mapper != NULL)
+  else if (mapper != nullptr)
   {
     // a mapper mapping composite dataset input returns a NULL vtkDataSet.
     // Iterate over all leaf datasets and find the closest point in any of
@@ -227,18 +227,18 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(double p1[3],
   }
   vtkIdType minPtId = -1;
   vtkPolyData* poly_input = vtkPolyData::SafeDownCast( dataSet );
-  if ( this->UseCells && ( poly_input != NULL ) )
+  if ( this->UseCells && ( poly_input != nullptr ) )
   {
     double minPtDist=VTK_DOUBLE_MAX;
 
     for ( int iCellType = 0; iCellType<4; iCellType++ )
     {
       vtkCellArray* cells = GET_CELLS( iCellType, poly_input );
-      if (cells != NULL)
+      if (cells != nullptr)
       {
         cells->InitTraversal();
         vtkIdType  n_cell_pts = 0;
-        vtkIdType *pt_ids = NULL;
+        vtkIdType *pt_ids = nullptr;
         while( cells->GetNextCell( n_cell_pts, pt_ids ) )
         {
           for ( vtkIdType ptIndex=0; ptIndex<n_cell_pts; ptIndex++)

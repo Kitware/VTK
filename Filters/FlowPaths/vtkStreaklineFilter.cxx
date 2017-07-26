@@ -110,7 +110,7 @@ void StreaklineFilterInternal::Finalize()
     }
 
     this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
-    this->Filter->Output->SetVerts(0);
+    this->Filter->Output->SetVerts(nullptr);
     vtkCellArray* outLines = this->Filter->Output->GetLines();
     Assert(outLines->GetNumberOfCells()==0);
     Assert(outLines);

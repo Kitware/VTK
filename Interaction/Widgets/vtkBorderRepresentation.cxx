@@ -407,7 +407,7 @@ void vtkBorderRepresentation::UpdateShowBorder()
     case 2:
     {
       vtkIdType npts = 0;
-      vtkIdType* pts = 0;
+      vtkIdType* pts = nullptr;
       this->BWPolyData->GetLines()->GetCell(0, npts, pts);
       assert(npts == 2);
       currentBorder = (pts[0] == 0 ? HorizontalBorder : VerticalBorder);

@@ -67,11 +67,11 @@ public:
   int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL) VTK_OVERRIDE;
+                           int textDims[2] = nullptr) VTK_OVERRIDE;
   int RenderString(vtkTextProperty *property,
                            const vtkStdString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL) VTK_OVERRIDE;
+                           int textDims[2] = nullptr) VTK_OVERRIDE;
   //@}
 
   /**

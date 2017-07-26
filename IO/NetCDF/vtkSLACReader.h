@@ -324,7 +324,7 @@ protected:
     vtkIdType GetNumberOfMidpoints() const;
 
     /**
-     * Finds the coordinates for the given edge or returns NULL if it
+     * Finds the coordinates for the given edge or returns nullptr if it
      * does not exist.
      */
     MidpointCoordinates *FindMidpoint(const EdgeEndpoints &edge);
@@ -356,7 +356,7 @@ protected:
     vtkIdType GetNumberOfMidpoints() const;
 
     /**
-     * Finds the id for the given edge or returns NULL if it does not exist.
+     * Finds the id for the given edge or returns nullptr if it does not exist.
      */
     vtkIdType *FindMidpoint(const EdgeEndpoints &edge);
 

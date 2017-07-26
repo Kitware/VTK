@@ -88,7 +88,7 @@ public:
 
   /**
    * If you want to work with an arbitrary vector array, then set its name
-   * here. By default this is NULL and the filter will use the active vector
+   * here. By default this is nullptr and the filter will use the active vector
    * array.
    */
   void SelectVectors(const char *fieldName)

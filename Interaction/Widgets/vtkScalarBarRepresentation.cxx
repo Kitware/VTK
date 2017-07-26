@@ -42,7 +42,7 @@ vtkScalarBarRepresentation::vtkScalarBarRepresentation()
 
   this->AutoOrient = true;
 
-  this->ScalarBarActor = NULL;
+  this->ScalarBarActor = nullptr;
   vtkScalarBarActor *actor = vtkScalarBarActor::New();
   this->SetScalarBarActor(actor);
   actor->Delete();
@@ -53,7 +53,7 @@ vtkScalarBarRepresentation::vtkScalarBarRepresentation()
 //-----------------------------------------------------------------------------
 vtkScalarBarRepresentation::~vtkScalarBarRepresentation()
 {
-  this->SetScalarBarActor(NULL);
+  this->SetScalarBarActor(nullptr);
 }
 
 //-----------------------------------------------------------------------------

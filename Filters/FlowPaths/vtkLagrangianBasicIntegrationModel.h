@@ -177,7 +177,7 @@ public:
 
   /**
    * Interact the current particle with a surfaces
-   * Return a particle to record as interaction point if not NULL
+   * Return a particle to record as interaction point if not nullptr
    * Uses SurfaceType array from the intersected surface cell
    * to compute the interaction.
    * MODEL :

@@ -44,10 +44,10 @@ void vtkImageSliceCollection::AddItem(vtkImageSlice *a)
   elem->Item = a;
 
   // Find insertion location according to the layer number
-  vtkCollectionElement *prevElem = 0;
+  vtkCollectionElement *prevElem = nullptr;
   int layerNumber = a->GetProperty()->GetLayerNumber();
   for (vtkCollectionElement *indexElem = this->Top;
-       indexElem != 0;
+       indexElem != nullptr;
        indexElem = indexElem->Next)
   {
     vtkImageSlice* tempImage = static_cast<vtkImageSlice*>(indexElem->Item);
@@ -59,7 +59,7 @@ void vtkImageSliceCollection::AddItem(vtkImageSlice *a)
   }
 
   // Insert the new element into the linked list
-  if (prevElem == 0)
+  if (prevElem == nullptr)
   {
     elem->Next = this->Top;
     this->Top = elem;
@@ -71,7 +71,7 @@ void vtkImageSliceCollection::AddItem(vtkImageSlice *a)
   }
 
   // Check if this is the new bottom
-  if (elem->Next == 0)
+  if (elem->Next == nullptr)
   {
     this->Bottom = elem;
   }

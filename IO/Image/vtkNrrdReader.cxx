@@ -217,7 +217,7 @@ vtkNrrdReader::vtkNrrdReader()
 vtkNrrdReader::~vtkNrrdReader()
 {
   this->DataFiles->Delete();
-  this->DataFiles = NULL;
+  this->DataFiles = nullptr;
 }
 
 void vtkNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
@@ -285,7 +285,7 @@ int vtkNrrdReader::ReadHeaderInternal(vtkCharArray* headerBuffer)
   // the entire file is the header (happens with "detached headers").
   char *bufferStart = headerBuffer->GetPointer(0);
   char *s = bufferStart;
-  while ((s = strchr(s+1, '\n')) != NULL)
+  while ((s = strchr(s+1, '\n')) != nullptr)
   {
     // If you find a double line ending, terminate the string and shorten the
     // buffer.
@@ -650,10 +650,10 @@ int vtkNrrdReader::RequestData(vtkInformation *request,
 {
   // Get rid of superclasses FileNames.  We don't support that functionality,
   // but we exploit that of the superclass.
-  if (this->FileNames != NULL)
+  if (this->FileNames != nullptr)
   {
     this->FileNames->Delete();
-    this->FileNames = NULL;
+    this->FileNames = nullptr;
   }
 
   char *saveFileName = this->FileName;
@@ -679,7 +679,7 @@ int vtkNrrdReader::RequestData(vtkInformation *request,
   {
     vtkImageData *outputData = vtkImageData::GetData(outputVector);
     this->AllocateOutputData(outputData, outputVector->GetInformationObject(0));
-    if (outputData == NULL)
+    if (outputData == nullptr)
     {
       vtkErrorMacro(<< "Data not created correctly?");
       return 0;
@@ -694,7 +694,7 @@ int vtkNrrdReader::RequestData(vtkInformation *request,
   }
 
   this->FileName = saveFileName;
-  this->FileNames = NULL;
+  this->FileNames = nullptr;
 
   return result;
 }
@@ -723,7 +723,7 @@ int vtkNrrdReaderReadDataAsciiTemplate(vtkNrrdReader *self,
   std::ifstream file;
   if (self->GetFileDimensionality() == 3)
   {
-    if (filenames != NULL)
+    if (filenames != nullptr)
     {
       filename = filenames->GetValue(0);
     }
@@ -750,7 +750,7 @@ int vtkNrrdReaderReadDataAsciiTemplate(vtkNrrdReader *self,
     if (self->GetFileDimensionality() == 2)
     {
       if (file.is_open()) { file.close(); }
-      if (filenames != NULL)
+      if (filenames != nullptr)
       {
         filename = filenames->GetValue(fileDataIndex[2]);
       }

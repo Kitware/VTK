@@ -17,15 +17,15 @@ vtkCxxSetObjectMacro(vtkKMeansDistanceFunctorCalculator,FunctionParser,vtkFuncti
 vtkKMeansDistanceFunctorCalculator::vtkKMeansDistanceFunctorCalculator()
 {
   this->FunctionParser = vtkFunctionParser::New();
-  this->DistanceExpression = 0;
+  this->DistanceExpression = nullptr;
   this->TupleSize = -1;
 }
 
 // ----------------------------------------------------------------------
 vtkKMeansDistanceFunctorCalculator::~vtkKMeansDistanceFunctorCalculator()
 {
-  this->SetFunctionParser( 0 );
-  this->SetDistanceExpression( 0 );
+  this->SetFunctionParser( nullptr );
+  this->SetDistanceExpression( nullptr );
 }
 
 // ----------------------------------------------------------------------
@@ -34,7 +34,7 @@ void vtkKMeansDistanceFunctorCalculator::PrintSelf( ostream& os, vtkIndent inden
   this->Superclass::PrintSelf( os, indent );
   os << indent << "FunctionParser: " << this->FunctionParser << "\n";
   os << indent << "DistanceExpression: "
-    << ( this->DistanceExpression && this->DistanceExpression[0] ? this->DistanceExpression : "NULL" )
+    << ( this->DistanceExpression && this->DistanceExpression[0] ? this->DistanceExpression : "nullptr" )
     << "\n";
   os << indent << "TupleSize: " << this->TupleSize << "\n";
 }

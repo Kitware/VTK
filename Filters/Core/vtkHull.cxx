@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkHull);
 // Construct an the hull object with no planes
 vtkHull::vtkHull()
 {
-  this->Planes             = NULL;
+  this->Planes             = nullptr;
   this->PlanesStorageSize  = 0;
   this->NumberOfPlanes     = 0;
 }
@@ -36,14 +36,14 @@ vtkHull::vtkHull()
 vtkHull::~vtkHull()
 {
   delete [] this->Planes;
-  this->Planes = NULL;
+  this->Planes = nullptr;
 }
 
 // Remove all planes.
 void vtkHull::RemoveAllPlanes()
 {
   delete [] this->Planes;
-  this->Planes = NULL;
+  this->Planes = nullptr;
 
   this->PlanesStorageSize  = 0;
   this->NumberOfPlanes     = 0;

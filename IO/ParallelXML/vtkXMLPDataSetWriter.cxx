@@ -57,7 +57,7 @@ vtkDataSet* vtkXMLPDataSetWriter::GetInput()
 int vtkXMLPDataSetWriter::WriteInternal()
 {
   vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
-  vtkXMLPDataWriter* writer = 0;
+  vtkXMLPDataWriter* writer = nullptr;
 
   // Create a writer based on the data set type.
   switch (this->GetInput()->GetDataObjectType())
@@ -145,7 +145,7 @@ const char* vtkXMLPDataSetWriter::GetDefaultFileExtension()
 //----------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLPDataSetWriter::CreatePieceWriter(int)
 {
-  return 0;
+  return nullptr;
 }
 //----------------------------------------------------------------------------
 int vtkXMLPDataSetWriter::FillInputPortInformation(

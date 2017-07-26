@@ -48,7 +48,7 @@
 //   VTK_MAX_THREADS
 
 // If VTK_USE_PTHREADS is defined, then the multithreaded
-// function is of type void *, and returns NULL
+// function is of type void *, and returns nullptr
 // Otherwise the type is void which is correct for WIN32
 // and SPROC
 
@@ -64,7 +64,7 @@ typedef int vtkMultiThreaderIDType;
 #ifdef VTK_USE_PTHREADS
 typedef void *(*vtkThreadFunctionType)(void *);
 typedef pthread_t vtkThreadProcessIDType;
-// #define VTK_THREAD_RETURN_VALUE  NULL
+// #define VTK_THREAD_RETURN_VALUE  nullptr
 // #define VTK_THREAD_RETURN_TYPE   void *
 typedef pthread_t vtkMultiThreaderIDType;
 #endif

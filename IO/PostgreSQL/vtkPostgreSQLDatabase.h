@@ -266,7 +266,7 @@ private:
   inline void className::Set##name (const char* _arg) \
   { \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
-    if ( this->name == NULL && _arg == NULL) { return;} \
+    if ( this->name == nullptr && _arg == nullptr) { return;} \
     if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
     delete [] this->name; \
     if (_arg) \
@@ -279,7 +279,7 @@ private:
     } \
      else \
      { \
-          this->name = NULL; \
+          this->name = nullptr; \
      } \
     this->Modified(); \
     this->timeStamp.Modified(); \

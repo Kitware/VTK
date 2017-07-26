@@ -346,7 +346,7 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
     formatValid = false;
   }
 
-  if (ok != NULL)
+  if (ok != nullptr)
   {
     *ok = formatValid;
   }
@@ -425,7 +425,7 @@ const char* vtkTimePointUtility::TimePointToISO8601(vtkTypeUInt64 time, int form
   else
   {
     vtkGenericWarningMacro(<< "Format undefined.");
-    return 0;
+    return nullptr;
   }
   char* copy = new char[25];
   strcpy(copy, oss.str().c_str());

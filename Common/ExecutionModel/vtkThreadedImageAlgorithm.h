@@ -177,8 +177,8 @@ protected:
    */
   virtual void PrepareImageData(vtkInformationVector **inputVector,
                                 vtkInformationVector *outputVector,
-                                vtkImageData ***inDataObjects=0,
-                                vtkImageData **outDataObjects=0);
+                                vtkImageData ***inDataObjects=nullptr,
+                                vtkImageData **outDataObjects=nullptr);
 
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;

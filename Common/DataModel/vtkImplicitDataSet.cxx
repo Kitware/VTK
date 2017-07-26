@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(vtkImplicitDataSet,DataSet,vtkDataSet);
 // set to a large negative number; and the OutGradient set to (0,0,1).
 vtkImplicitDataSet::vtkImplicitDataSet()
 {
-  this->DataSet = NULL;
+  this->DataSet = nullptr;
 
   this->OutValue = -VTK_DOUBLE_MAX;
 
@@ -37,13 +37,13 @@ vtkImplicitDataSet::vtkImplicitDataSet()
   this->OutGradient[1] = 0.0;
   this->OutGradient[2] = 1.0;
 
-  this->Weights = NULL;
+  this->Weights = nullptr;
   this->Size = 0;
 }
 
 vtkImplicitDataSet::~vtkImplicitDataSet()
 {
-  this->SetDataSet(NULL);
+  this->SetDataSet(nullptr);
   delete [] this->Weights;
 }
 
@@ -73,7 +73,7 @@ double vtkImplicitDataSet::EvaluateFunction(double x[3])
   }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,NULL,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
+  cell = this->DataSet->FindAndGetCell(x,nullptr,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
 
   if (cell)
   { // Interpolate the point data
@@ -96,7 +96,7 @@ vtkMTimeType vtkImplicitDataSet::GetMTime()
   vtkMTimeType mTime=this->vtkImplicitFunction::GetMTime();
   vtkMTimeType DataSetMTime;
 
-  if ( this->DataSet != NULL )
+  if ( this->DataSet != nullptr )
   {
     DataSetMTime = this->DataSet->GetMTime();
     mTime = ( DataSetMTime > mTime ? DataSetMTime : mTime );
@@ -135,7 +135,7 @@ void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
   }
 
   // Find the cell that contains xyz and get it
-  cell = this->DataSet->FindAndGetCell(x,NULL,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
+  cell = this->DataSet->FindAndGetCell(x,nullptr,-1,VTK_DBL_EPSILON,subId,pcoords,this->Weights);
 
   if (cell)
   { // Interpolate the point data

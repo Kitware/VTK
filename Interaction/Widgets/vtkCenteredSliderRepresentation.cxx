@@ -69,8 +69,8 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->Points = vtkPoints::New();
   this->Points->SetNumberOfPoints(2*this->ArcCount + 12);
 
-  this->TubeCells = 0;
-  this->Tube = 0;
+  this->TubeCells = nullptr;
+  this->Tube = nullptr;
   this->BuildTube();
 
   this->TubeXForm = vtkTransformPolyDataFilter::New();
@@ -139,7 +139,7 @@ void vtkCenteredSliderRepresentation::BuildTube()
   if (this->TubeCells)
   {
     this->TubeCells->Delete();
-    this->TubeCells = 0;
+    this->TubeCells = nullptr;
   }
   this->TubeCells = vtkCellArray::New();
   this->TubeCells->InsertNextCell(5);
@@ -174,7 +174,7 @@ void vtkCenteredSliderRepresentation::BuildTube()
   if (this->Tube)
   {
     this->Tube->Delete();
-    this->Tube = 0;
+    this->Tube = nullptr;
   }
   this->Tube = vtkPolyData::New();
   this->Tube->SetPoints(this->Points);

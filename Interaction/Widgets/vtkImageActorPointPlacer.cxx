@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkImageActorPointPlacer, ImageActor, vtkImageActor);
 vtkImageActorPointPlacer::vtkImageActorPointPlacer()
 {
   this->Placer = vtkBoundedPlanePointPlacer::New();
-  this->ImageActor = NULL;
+  this->ImageActor = nullptr;
   this->SavedBounds[0] = 0.0;
   this->SavedBounds[1] = 0.0;
   this->SavedBounds[2] = 0.0;
@@ -43,7 +43,7 @@ vtkImageActorPointPlacer::vtkImageActorPointPlacer()
 vtkImageActorPointPlacer::~vtkImageActorPointPlacer()
 {
   this->Placer->Delete();
-  this->SetImageActor(NULL);
+  this->SetImageActor(nullptr);
 }
 
 
@@ -268,7 +268,7 @@ void vtkImageActorPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   const double *bounds = this->GetBounds();
-  if ( bounds != NULL )
+  if ( bounds != nullptr )
   {
     os << indent << "Bounds: \n";
     os << indent << "  Xmin,Xmax: ("

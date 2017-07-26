@@ -69,7 +69,7 @@ public:
   int GetNumberOfPointArrays();
 
   /**
-   * Returns the name of point array at the give index. Returns NULL if index is
+   * Returns the name of point array at the give index. Returns nullptr if index is
    * invalid.
    */
   const char* GetPointArrayName(int index);
@@ -90,7 +90,7 @@ public:
   int GetNumberOfCellArrays();
 
   /**
-   * Returns the name of cell array at the give index. Returns NULL if index is
+   * Returns the name of cell array at the give index. Returns nullptr if index is
    * invalid.
    */
   const char* GetCellArrayName(int index);

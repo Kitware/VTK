@@ -62,7 +62,7 @@ vtkMILVideoSource::vtkMILVideoSource()
   this->MILSystemNumber = M_DEFAULT;
 
   this->MILDigitizerNumber = M_DEFAULT;
-  this->MILDigitizerDCF = NULL;
+  this->MILDigitizerDCF = nullptr;
 
   this->MILErrorMessages = 1;
 
@@ -81,7 +81,7 @@ vtkMILVideoSource::~vtkMILVideoSource()
   this->vtkMILVideoSource::ReleaseSystemResources();
 
   delete [] this->MILDigitizerDCF;
-  this->MILDigitizerDCF = NULL;
+  this->MILDigitizerDCF = nullptr;
 
   this->SetMILSystemType(0);
 }
@@ -157,7 +157,7 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MILSystemNumber: " << this->MILSystemNumber << "\n";
 
   os << indent << "MILDigitizerDCF: " << (this->MILDigitizerDCF ?
-    this->MILDigitizerDCF : "NULL") << "\n";
+    this->MILDigitizerDCF : "nullptr") << "\n";
 
   os << indent << "MILDigitizerNumber: " << this->MILDigitizerNumber << "\n";
 
@@ -224,7 +224,7 @@ char *vtkMILVideoSource::MILInterpreterForSystem(const char *system)
   HINSTANCE mil_lib = LoadLibrary("mil");
   if (mil_lib == 0)
   {
-    return NULL;
+    return nullptr;
   }
   void *proc_address = (void *)GetProcAddress(mil_lib,func_name);
   if (proc_address)
@@ -238,7 +238,7 @@ char *vtkMILVideoSource::MILInterpreterForSystem(const char *system)
 
   if (mil_lib == 0)
   {
-    return NULL;
+    return nullptr;
   }
 
   return (char *)GetProcAddress(mil_lib,func_name);

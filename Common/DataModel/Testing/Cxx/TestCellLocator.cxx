@@ -208,7 +208,7 @@ int TestCellLocator( int argc, char *argv[] )
               << sphere1->GetOutput()->GetNumberOfPoints()
               << " ray-sphere intersections detected." << std::endl;
   }
-  sphereNormals = NULL;
+  sphereNormals = nullptr;
 
   // below: the initial tests
 

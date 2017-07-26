@@ -531,8 +531,8 @@ void vtkThreadedImageAlgorithm::PrepareImageData(
   vtkImageData*** inDataObjects,
   vtkImageData** outDataObjects)
 {
-  vtkImageData* firstInput = 0;
-  vtkImageData* firstOutput = 0;
+  vtkImageData* firstInput = nullptr;
+  vtkImageData* firstOutput = nullptr;
 
   // now we must create the output array
   int numOutputPorts = this->GetNumberOfOutputPorts();
@@ -604,8 +604,8 @@ int vtkThreadedImageAlgorithm::RequestData(
   str.Request = request;
   str.InputsInfo = inputVector;
   str.OutputsInfo = outputVector;
-  str.Inputs = 0;
-  str.Outputs = 0;
+  str.Inputs = nullptr;
+  str.Outputs = nullptr;
 
   // create an array for input data objects
   int numInputPorts = this->GetNumberOfInputPorts();

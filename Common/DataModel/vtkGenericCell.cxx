@@ -241,7 +241,7 @@ int vtkGenericCell::IsPrimaryCell()
 //----------------------------------------------------------------------------
 vtkCell *vtkGenericCell::InstantiateCell(int cellType)
 {
-  vtkCell *cell = NULL;
+  vtkCell *cell = nullptr;
   switch (cellType)
   {
   case VTK_EMPTY_CELL:
@@ -362,7 +362,7 @@ void vtkGenericCell::SetCellType(int cellType)
   {
     this->Points->UnRegister(this);
     this->PointIds->UnRegister(this);
-    this->PointIds = NULL;
+    this->PointIds = nullptr;
     this->Cell->Delete();
 
     vtkCell *cell = vtkGenericCell::InstantiateCell(cellType);

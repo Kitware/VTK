@@ -80,7 +80,7 @@ protected:
 
   vtkCompositeMapperHelper2()
   {
-    this->Parent = 0;
+    this->Parent = nullptr;
   };
   ~vtkCompositeMapperHelper2() VTK_OVERRIDE;
 

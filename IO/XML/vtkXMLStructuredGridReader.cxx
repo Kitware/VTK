@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkXMLStructuredGridReader);
 //----------------------------------------------------------------------------
 vtkXMLStructuredGridReader::vtkXMLStructuredGridReader()
 {
-  this->PointElements = 0;
+  this->PointElements = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ void vtkXMLStructuredGridReader::SetupPieces(int numPieces)
   int i;
   for(i=0;i < numPieces; ++i)
   {
-    this->PointElements[i] = 0;
+    this->PointElements[i] = nullptr;
   }
 }
 
@@ -92,7 +92,7 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 
   // Find the Points element in the piece.
   int i;
-  this->PointElements[this->Piece] = 0;
+  this->PointElements[this->Piece] = nullptr;
   for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
   {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);

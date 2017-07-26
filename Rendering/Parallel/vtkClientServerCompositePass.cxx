@@ -26,9 +26,9 @@ vtkCxxSetObjectMacro(vtkClientServerCompositePass, PostProcessingRenderPass, vtk
 //----------------------------------------------------------------------------
 vtkClientServerCompositePass::vtkClientServerCompositePass()
 {
-  this->Controller = 0;
-  this->RenderPass = 0;
-  this->PostProcessingRenderPass = 0;
+  this->Controller = nullptr;
+  this->RenderPass = nullptr;
+  this->PostProcessingRenderPass = nullptr;
   this->ServerSideRendering = true;
   this->ProcessIsServer = false;
 }
@@ -36,9 +36,9 @@ vtkClientServerCompositePass::vtkClientServerCompositePass()
 //----------------------------------------------------------------------------
 vtkClientServerCompositePass::~vtkClientServerCompositePass()
 {
-  this->SetController(0);
-  this->SetRenderPass(0);
-  this->SetPostProcessingRenderPass(0);
+  this->SetController(nullptr);
+  this->SetRenderPass(nullptr);
+  this->SetPostProcessingRenderPass(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ void vtkClientServerCompositePass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: ";
-  if(this->Controller==0)
+  if(this->Controller==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -134,7 +134,7 @@ void vtkClientServerCompositePass::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ProcessIsServer: " << this->ProcessIsServer << endl;
 
   os << indent << "RenderPass: ";
-  if(this->RenderPass==0)
+  if(this->RenderPass==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -143,7 +143,7 @@ void vtkClientServerCompositePass::PrintSelf(ostream& os, vtkIndent indent)
     os << this->RenderPass << endl;
   }
   os << indent << "PostProcessingRenderPass: ";
-  if(this->PostProcessingRenderPass==0)
+  if(this->PostProcessingRenderPass==nullptr)
   {
     os << "(none)" << endl;
   }

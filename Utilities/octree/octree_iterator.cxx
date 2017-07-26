@@ -106,7 +106,7 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
   // Oldtown. (We're at the end)
   if ( ! this->_M_current_node )
     {
-    return 0;
+    return nullptr;
     }
   int child = 0;
   // Uptown. (Climb upwards to the first non-traversed, non-leaf node)
@@ -114,7 +114,7 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
     {
     if ( this->_M_indices.empty() )
       {
-      return 0;
+      return nullptr;
       }
       this->_M_current_node = this->_M_parents.back();
       child = this->_M_indices.back() + 1;
@@ -122,8 +122,8 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
       this->_M_indices.pop_back();
       if ( child >= (1<<d_) )
         {
-        this->_M_current_node = 0; // move to the end, but don't clear out parents/indices
-        return 0;
+        this->_M_current_node = nullptr; // move to the end, but don't clear out parents/indices
+        return nullptr;
         }
     }
   else if ( this->_M_current_node->is_leaf_node() )
@@ -132,7 +132,7 @@ typename octree_iterator<T_,R_,P_,O_,OP_,d_>::octree_node_pointer octree_iterato
       {
       if ( this->_M_indices.empty() )
         {
-        return 0;
+        return nullptr;
         }
       this->_M_current_node = this->_M_parents.back();
       child = this->_M_indices.back() + 1;

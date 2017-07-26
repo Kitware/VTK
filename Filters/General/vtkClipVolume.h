@@ -195,7 +195,7 @@ public:
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
-  vtkClipVolume(vtkImplicitFunction *cf=NULL);
+  vtkClipVolume(vtkImplicitFunction *cf=nullptr);
   ~vtkClipVolume() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;

@@ -95,9 +95,9 @@ inline vtkProp3D *vtkProp3DCollection::GetNextProp3D()
 
 inline vtkProp3D *vtkProp3DCollection::GetLastProp3D()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

@@ -46,19 +46,19 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
   this->ComputeGradientOpacity = 0;
   this->UpdateGradientOpacityFlags = 0;
   this->IndependentComponents  = 1;
-  this->CurrentScalars = NULL;
-  this->MinNonZeroScalarIndex = NULL;
-  this->MinNonZeroGradientMagnitudeIndex = NULL;
-  this->GradientMagnitude = NULL;
+  this->CurrentScalars = nullptr;
+  this->MinNonZeroScalarIndex = nullptr;
+  this->MinNonZeroGradientMagnitudeIndex = nullptr;
+  this->GradientMagnitude = nullptr;
   for (int i = 0; i < 4; i++)
   {
     this->TableSize[i] = 0;
     this->TableShift[i] = 0;
     this->TableScale[i] = 1;
-    this->ScalarOpacityTable[i] = NULL;
-    this->GradientOpacityTable[i] = NULL;
+    this->ScalarOpacityTable[i] = nullptr;
+    this->GradientOpacityTable[i] = nullptr;
   }
-  this->Cache = NULL;
+  this->Cache = nullptr;
 
   // Ensure that no splits occur along X or Y axes when multithreading,
   // there seems to be a bug with the increments that requires this.
@@ -69,7 +69,7 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
 //----------------------------------------------------------------------------
 vtkVolumeRayCastSpaceLeapingImageFilter::~vtkVolumeRayCastSpaceLeapingImageFilter()
 {
-  this->SetCurrentScalars(NULL);
+  this->SetCurrentScalars(nullptr);
   delete [] this->MinNonZeroScalarIndex;
   delete [] this->MinNonZeroGradientMagnitudeIndex;
 }
@@ -1035,9 +1035,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 
   // Initialize these arrays.
   delete [] this->MinNonZeroScalarIndex;
-  this->MinNonZeroScalarIndex = NULL;
+  this->MinNonZeroScalarIndex = nullptr;
   delete [] this->MinNonZeroGradientMagnitudeIndex;
-  this->MinNonZeroGradientMagnitudeIndex = NULL;
+  this->MinNonZeroGradientMagnitudeIndex = nullptr;
 
   // Update the flags now
   int i;
@@ -1125,7 +1125,7 @@ unsigned short * vtkVolumeRayCastSpaceLeapingImageFilter
 
     return static_cast< unsigned short * >(output->GetScalarPointer());
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -75,14 +75,14 @@ vtkGraphMapper::vtkGraphMapper()
   this->IconActor         = vtkSmartPointer<vtkTexturedActor2D>::New();
   this->VertexLookupTable = vtkLookupTableWithEnabling::New();
   this->EdgeLookupTable   = vtkLookupTableWithEnabling::New();
-  this->VertexColorArrayNameInternal = 0;
-  this->EdgeColorArrayNameInternal = 0;
-  this->EnabledEdgesArrayName = 0;
-  this->EnabledVerticesArrayName = 0;
+  this->VertexColorArrayNameInternal = nullptr;
+  this->EdgeColorArrayNameInternal = nullptr;
+  this->EnabledEdgesArrayName = nullptr;
+  this->EnabledVerticesArrayName = nullptr;
   this->VertexPointSize = 5;
   this->EdgeLineWidth = 1;
   this->ScaledGlyphs = false;
-  this->ScalingArrayName = 0;
+  this->ScalingArrayName = nullptr;
 
   this->VertexMapper->SetScalarModeToUsePointData();
   this->VertexMapper->SetLookupTable(this->VertexLookupTable);
@@ -119,7 +119,7 @@ vtkGraphMapper::vtkGraphMapper()
   this->IconMapper->ScalarVisibilityOff();
 
   this->IconActor->SetMapper(this->IconMapper);
-  this->IconArrayNameInternal = 0;
+  this->IconArrayNameInternal = nullptr;
 
   this->VertexMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
   this->OutlineMapper->SetInputConnection(this->VertexGlyph->GetOutputPort());
@@ -148,15 +148,15 @@ vtkGraphMapper::~vtkGraphMapper()
   // Note: All of the smartpointer objects
   //       will be deleted for us
 
-  this->SetVertexColorArrayNameInternal(0);
-  this->SetEdgeColorArrayNameInternal(0);
-  this->SetEnabledEdgesArrayName(0);
-  this->SetEnabledVerticesArrayName(0);
-  this->SetIconArrayNameInternal(0);
+  this->SetVertexColorArrayNameInternal(nullptr);
+  this->SetEdgeColorArrayNameInternal(nullptr);
+  this->SetEnabledEdgesArrayName(nullptr);
+  this->SetEnabledVerticesArrayName(nullptr);
+  this->SetIconArrayNameInternal(nullptr);
   this->VertexLookupTable->Delete();
-  this->VertexLookupTable = 0;
+  this->VertexLookupTable = nullptr;
   this->EdgeLookupTable->Delete();
-  this->EdgeLookupTable = 0;
+  this->EdgeLookupTable = nullptr;
   delete[] this->ScalingArrayName;
 }
 
@@ -473,7 +473,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     vtkErrorMacro(<< "Input is not a graph!\n");
     return;
   }
-  vtkGraph *graph = 0;
+  vtkGraph *graph = nullptr;
   if (vtkDirectedGraph::SafeDownCast(input))
   {
     graph = vtkDirectedGraph::New();
@@ -495,7 +495,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
   // Try to find the range the user-specified color array.
   // If we cannot find that array, use the scalar range.
   double range[2];
-  vtkDataArray* arr = 0;
+  vtkDataArray* arr = nullptr;
   if (this->GetColorEdges())
   {
     if (this->GetEdgeColorArrayName())
@@ -513,7 +513,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     }
   }
 
-  arr = 0;
+  arr = nullptr;
   if (this->EnableEdgesByArray && this->EnabledEdgesArrayName)
   {
     vtkLookupTableWithEnabling::SafeDownCast(this->EdgeLookupTable)->SetEnabledArray(
@@ -521,11 +521,11 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
   }
   else
   {
-    vtkLookupTableWithEnabling::SafeDownCast(this->EdgeLookupTable)->SetEnabledArray(0);
+    vtkLookupTableWithEnabling::SafeDownCast(this->EdgeLookupTable)->SetEnabledArray(nullptr);
   }
 
   // Do the same thing for the vertex array.
-  arr = 0;
+  arr = nullptr;
   if (this->GetColorVertices())
   {
     if (this->GetVertexColorArrayName())
@@ -543,7 +543,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
     }
   }
 
-  arr = 0;
+  arr = nullptr;
   if (this->EnableVerticesByArray && this->EnabledVerticesArrayName)
   {
     vtkLookupTableWithEnabling::SafeDownCast(this->VertexLookupTable)->SetEnabledArray(
@@ -551,7 +551,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
   }
   else
   {
-    vtkLookupTableWithEnabling::SafeDownCast(this->VertexLookupTable)->SetEnabledArray(0);
+    vtkLookupTableWithEnabling::SafeDownCast(this->VertexLookupTable)->SetEnabledArray(nullptr);
   }
 
   if (this->IconActor->GetTexture() &&
@@ -723,7 +723,7 @@ vtkMTimeType vtkGraphMapper::GetMTime()
   vtkMTimeType mTime=this->vtkMapper::GetMTime();
   vtkMTimeType time;
 
-  if ( this->LookupTable != NULL )
+  if ( this->LookupTable != nullptr )
   {
     time = this->LookupTable->GetMTime();
     mTime = ( time > mTime ? time : mTime );

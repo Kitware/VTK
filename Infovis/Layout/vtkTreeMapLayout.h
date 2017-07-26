@@ -83,7 +83,7 @@ public:
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it)
    */
-  vtkIdType FindVertex(float pnt[2], float *binfo=0);
+  vtkIdType FindVertex(float pnt[2], float *binfo=nullptr);
 
   /**
    * Return the min and max 2D points of the

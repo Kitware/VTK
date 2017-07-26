@@ -63,7 +63,7 @@ public:
    * Get the computed magnification factor for a specific axis.
    * The input information is required to compute the value.
    */
-  double GetAxisMagnificationFactor(int axis, vtkInformation *inInfo=0);
+  double GetAxisMagnificationFactor(int axis, vtkInformation *inInfo=nullptr);
 
   //@{
   /**

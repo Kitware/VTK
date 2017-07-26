@@ -273,10 +273,10 @@ int TestRandomPKMeansStatisticsMPI( int argc, char* argv[] )
                 &ioPtr,
                 &flag );
 
-  if ( ( ! flag ) || ( *ioPtr == MPI_PROC_NULL ) )
+  if ( ( ! flag ) || ( *ioPtr == MPI_PROC_nullptr ) )
   {
     // Getting MPI attributes did not return any I/O node found.
-    ioRank = MPI_PROC_NULL;
+    ioRank = MPI_PROC_nullptr;
     vtkGenericWarningMacro("No MPI I/O nodes found.");
 
     // As no I/O node was found, we need an unambiguous way to report the problem.

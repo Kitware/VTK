@@ -85,7 +85,7 @@ public:
    * Add a vertex to the link graph.  Specify the column name, the domain name
    * for the column, and whether the column is hidden.
    */
-  void AddLinkVertex(const char* column, const char* domain = 0, int hidden = 0);
+  void AddLinkVertex(const char* column, const char* domain = nullptr, int hidden = 0);
 
   /**
    * Clear the link graph vertices.  This also clears all edges.
@@ -114,7 +114,7 @@ public:
    * Links the columns in a specific order.
    * This creates a simple path as the link graph.
    */
-  void LinkColumnPath(vtkStringArray* column, vtkStringArray* domain = 0, vtkBitArray* hidden = 0);
+  void LinkColumnPath(vtkStringArray* column, vtkStringArray* domain = nullptr, vtkBitArray* hidden = nullptr);
 
   //@{
   /**

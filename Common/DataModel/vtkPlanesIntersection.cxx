@@ -41,18 +41,18 @@ const int Zdim=2;
 
 vtkPlanesIntersection::vtkPlanesIntersection()
 {
-  this->Planes = NULL;
-  this->RegionPts = NULL;
+  this->Planes = nullptr;
+  this->RegionPts = nullptr;
 }
 vtkPlanesIntersection::~vtkPlanesIntersection()
 {
   if (this->RegionPts)
   {
     this->RegionPts->Delete();
-    this->RegionPts = NULL;
+    this->RegionPts = nullptr;
   }
   delete [] this->Planes;
-  this->Planes = NULL;
+  this->Planes = nullptr;
 }
 void vtkPlanesIntersection::SetRegionVertices(vtkPoints *v)
 {
@@ -102,7 +102,7 @@ void vtkPlanesIntersection::SetRegionVertices(double *v, int nvertices)
 int vtkPlanesIntersection::GetRegionVertices(double *v, int nvertices)
 {
   int i;
-  if (this->RegionPts == NULL)
+  if (this->RegionPts == nullptr)
   {
     this->ComputeRegionVertices();
   }
@@ -123,7 +123,7 @@ int vtkPlanesIntersection::GetRegionVertices(double *v, int nvertices)
 }
 int vtkPlanesIntersection::GetNumberOfRegionVertices()
 {
-  if (this->RegionPts == NULL)
+  if (this->RegionPts == nullptr)
   {
     this->ComputeRegionVertices();
   }
@@ -147,7 +147,7 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
     return 0;
   }
 
-  if (this->RegionPts == NULL)
+  if (this->RegionPts == nullptr)
   {
     this->ComputeRegionVertices();
     if (this->RegionPts->GetNumberOfPoints() < 4)
@@ -232,7 +232,7 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
 
   else
   {
-    if (this->Planes == NULL)
+    if (this->Planes == nullptr)
     {
       this->SetPlaneEquations();
     }
@@ -630,7 +630,7 @@ void vtkPlanesIntersection::ComputeRegionVertices()
     return;
   }
 
-  if (this->Planes == NULL)
+  if (this->Planes == nullptr)
   {
     this->SetPlaneEquations();
   }

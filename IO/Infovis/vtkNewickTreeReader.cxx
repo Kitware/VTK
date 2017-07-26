@@ -365,7 +365,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
 {
   char *current;
   char *start;
-  char *colon = NULL;
+  char *colon = nullptr;
   char temp;
   int childCount;
   vtkIdType node;
@@ -385,7 +385,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
       current++;
     }
     node = g->AddChild(parent);
-    if (colon == NULL)
+    if (colon == nullptr)
     {
       // Name only
       std::string name(start, strlen(start));

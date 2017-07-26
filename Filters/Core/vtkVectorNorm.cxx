@@ -92,7 +92,7 @@ public:
 //----------------------------------------------------------------------------
 // Initialized mainly to eliminate compiler warnings.
 template <class TV> vtkVectorNormAlgorithm<TV>::
-vtkVectorNormAlgorithm():Vectors(NULL),Scalars(NULL)
+vtkVectorNormAlgorithm():Vectors(nullptr),Scalars(nullptr)
 {
   this->Num = 0;
   this->Max = 0.0;

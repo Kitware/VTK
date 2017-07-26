@@ -32,7 +32,7 @@ vtkMedicalImageReader2::~vtkMedicalImageReader2()
   if (this->MedicalImageProperties)
   {
     this->MedicalImageProperties->Delete();
-    this->MedicalImageProperties = NULL;
+    this->MedicalImageProperties = nullptr;
   }
 }
 
@@ -52,7 +52,7 @@ const char* vtkMedicalImageReader2::GetPatientName()
   {
     return this->MedicalImageProperties->GetPatientName();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ const char* vtkMedicalImageReader2::GetPatientID()
   {
     return this->MedicalImageProperties->GetPatientID();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ const char* vtkMedicalImageReader2::GetDate()
   {
     return this->MedicalImageProperties->GetImageDate();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ const char* vtkMedicalImageReader2::GetSeries()
   {
     return this->MedicalImageProperties->GetSeriesNumber();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ const char* vtkMedicalImageReader2::GetStudy()
   {
     return this->MedicalImageProperties->GetStudyID();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ const char* vtkMedicalImageReader2::GetImageNumber()
   {
     return this->MedicalImageProperties->GetImageNumber();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ const char* vtkMedicalImageReader2::GetModality()
   {
     return this->MedicalImageProperties->GetModality();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

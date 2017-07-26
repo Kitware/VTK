@@ -297,7 +297,7 @@ public:
    */
   bool HasGradientOpacity(int index = 0) {
     switch(this->TransferFunctionMode) {
-      case TF_1D: return (this->GradientOpacity[index] != NULL);
+      case TF_1D: return (this->GradientOpacity[index] != nullptr);
       case TF_2D: return true;
     }
     return false;

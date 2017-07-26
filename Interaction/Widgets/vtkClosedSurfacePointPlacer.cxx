@@ -50,13 +50,13 @@ struct vtkClosedSurfacePointPlacerNode
   bool operator==(const Self &a) const { return a.Plane == this->Plane; }
   bool operator!=(const Self &a) const { return a.Plane != this->Plane; }
   vtkClosedSurfacePointPlacerNode()
-    { Plane = NULL; Distance = VTK_DOUBLE_MIN; }
+    { Plane = nullptr; Distance = VTK_DOUBLE_MIN; }
 };
 
 //----------------------------------------------------------------------
 vtkClosedSurfacePointPlacer::vtkClosedSurfacePointPlacer()
 {
-  this->BoundingPlanes      = NULL;
+  this->BoundingPlanes      = nullptr;
   this->MinimumDistance     = 0.0;
   this->InnerBoundingPlanes = vtkPlaneCollection::New();
 }
@@ -75,7 +75,7 @@ vtkClosedSurfacePointPlacer::~vtkClosedSurfacePointPlacer()
 //----------------------------------------------------------------------
 void vtkClosedSurfacePointPlacer::AddBoundingPlane(vtkPlane *plane)
 {
-  if (this->BoundingPlanes == NULL)
+  if (this->BoundingPlanes == nullptr)
   {
     this->BoundingPlanes = vtkPlaneCollection::New();
     this->BoundingPlanes->Register(this);
@@ -101,7 +101,7 @@ void vtkClosedSurfacePointPlacer::RemoveAllBoundingPlanes()
   {
     this->BoundingPlanes->RemoveAllItems();
     this->BoundingPlanes->Delete();
-    this->BoundingPlanes = NULL;
+    this->BoundingPlanes = nullptr;
   }
 }
 //----------------------------------------------------------------------
@@ -340,7 +340,7 @@ double vtkClosedSurfacePointPlacer
                          vtkPlaneCollection * pc,
                          double               closestPt[3])
 {
-  vtkPlane *minPlane = NULL;
+  vtkPlane *minPlane = nullptr;
   double    minD     = VTK_DOUBLE_MAX;
 
   pc->InitTraversal();

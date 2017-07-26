@@ -38,7 +38,7 @@ static char header[]="Visualization Toolkit generated SLA File                  
 vtkSTLWriter::vtkSTLWriter()
 {
   this->FileType = VTK_ASCII;
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->Header = new char[257];
   strcpy(this->Header, header);
 }
@@ -53,14 +53,14 @@ void vtkSTLWriter::WriteData()
   polys = input->GetPolys();
   strips = input->GetStrips();
   pts = input->GetPoints();
-  if (pts == NULL || polys == NULL)
+  if (pts == nullptr || polys == nullptr)
   {
     vtkErrorMacro(<<"No data to write!");
     this->SetErrorCode(vtkErrorCode::UnknownError);
     return;
   }
 
-  if (this->FileName == NULL)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to write");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
@@ -95,9 +95,9 @@ void vtkSTLWriter::WriteAsciiSTL(
   FILE *fp;
   double n[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
 
-  if ((fp = fopen(this->FileName, "w")) == NULL)
+  if ((fp = fopen(this->FileName, "w")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName << " Reason: "
                   << vtksys::SystemTools::GetLastSystemError());
@@ -117,7 +117,7 @@ void vtkSTLWriter::WriteAsciiSTL(
     vtkSmartPointer<vtkCellArray>::New();
   if (strips->GetNumberOfCells() > 0)
   {
-    vtkIdType *ptIds = 0;
+    vtkIdType *ptIds = nullptr;
     for (strips->InitTraversal(); strips->GetNextCell(npts,ptIds);)
     {
       vtkTriangleStrip::DecomposeStrip(npts,ptIds,polyStrips);
@@ -185,11 +185,11 @@ void vtkSTLWriter::WriteBinarySTL(
   FILE *fp;
   double dn[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
   unsigned long ulint;
   unsigned short ibuff2=0;
 
-  if ((fp = fopen(this->FileName, "wb")) == NULL)
+  if ((fp = fopen(this->FileName, "wb")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName << " Reason: "
                   << vtksys::SystemTools::GetLastSystemError());
@@ -230,7 +230,7 @@ void vtkSTLWriter::WriteBinarySTL(
     vtkSmartPointer<vtkCellArray>::New();
   if (strips->GetNumberOfCells() > 0)
   {
-    vtkIdType *ptIds = 0;
+    vtkIdType *ptIds = nullptr;
     for (strips->InitTraversal(); strips->GetNextCell(npts,ptIds);)
     {
       vtkTriangleStrip::DecomposeStrip(npts,ptIds,polyStrips);
@@ -337,7 +337,7 @@ void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "FileName: "
-     << ((this->GetFileName() == NULL) ?
+     << ((this->GetFileName() == nullptr) ?
          "(none)" : this->GetFileName()) << std::endl;
   os << indent << "FileType: "
      << ((this->GetFileType() == VTK_ASCII) ?

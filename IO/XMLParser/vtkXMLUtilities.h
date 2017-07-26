@@ -54,21 +54,21 @@ public:
    */
   static void CollateAttributes(vtkXMLDataElement*,
                                 ostream&,
-                                const char *sep = 0);
+                                const char *sep = nullptr);
 
   /**
    * Flatten a vtkXMLDataElement to a stream, i.e. output a textual stream
    * corresponding to that XML element, its attributes and its
    * nested elements.
-   * If 'indent' is not NULL, it is used to indent the whole tree.
-   * If 'indent' is not NULL and 'indent_attributes' is true, attributes will
+   * If 'indent' is not nullptr, it is used to indent the whole tree.
+   * If 'indent' is not nullptr and 'indent_attributes' is true, attributes will
    * be indented as well.
    * Note that the resulting character-encoding will be UTF-8 (we assume
    * that this function is used to create XML files/streams).
    */
   static void FlattenElement(vtkXMLDataElement*,
                              ostream&,
-                             vtkIndent *indent = 0,
+                             vtkIndent *indent = nullptr,
                              int indent_attributes = 1);
 
   /**
@@ -78,7 +78,7 @@ public:
    */
   static int WriteElementToFile(vtkXMLDataElement*,
                                 const char *filename,
-                                vtkIndent *indent = 0);
+                                vtkIndent *indent = nullptr);
 
   //@{
   /**
@@ -88,7 +88,7 @@ public:
    * from the XML stream encoding to that new encoding will be performed
    * automatically). If set to VTK_ENCODING_NONE, the encoding won't be
    * changed and will default to the default vtkXMLDataElement encoding.
-   * Return the root element on success, NULL otherwise.
+   * Return the root element on success, nullptr otherwise.
    * Note that you have to call Delete() on the element returned by that
    * function to ensure it is freed properly.
    */

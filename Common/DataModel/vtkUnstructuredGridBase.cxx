@@ -54,7 +54,7 @@ void vtkUnstructuredGridBase::DeepCopy(vtkDataObject *src)
 vtkUnstructuredGridBase* vtkUnstructuredGridBase::GetData(vtkInformation* info)
 {
   return vtkUnstructuredGridBase::SafeDownCast(info ? info->Get(DATA_OBJECT())
-                                                    : NULL);
+                                                    : nullptr);
 }
 
 //----------------------------------------------------------------------------

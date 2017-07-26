@@ -131,13 +131,13 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(
     }
 
     // Select the correct source and destination mapping arrays.
-    vtkAbstractArray* fromArr = 0;
-    vtkAbstractArray* toArr = 0;
+    vtkAbstractArray* fromArr = nullptr;
+    vtkAbstractArray* toArr = nullptr;
     unsigned int numMaps = maps->GetNumberOfBlocks();
     for (unsigned int i = 0; i < numMaps; ++i)
     {
-      fromArr = 0;
-      toArr = 0;
+      fromArr = nullptr;
+      toArr = nullptr;
       vtkTable* table = vtkTable::SafeDownCast(maps->GetBlock(i));
       if (table)
       {
@@ -265,9 +265,9 @@ int vtkConvertSelectionDomain::RequestData(
     mapInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataObject* data = dataInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  vtkDataSetAttributes* dsa1 = 0;
+  vtkDataSetAttributes* dsa1 = nullptr;
   int fieldType1 = 0;
-  vtkDataSetAttributes* dsa2 = 0;
+  vtkDataSetAttributes* dsa2 = nullptr;
   int fieldType2 = 0;
   if (vtkDataSet::SafeDownCast(data))
   {
@@ -321,7 +321,7 @@ int vtkConvertSelectionDomain::RequestData(
   }
   else
   {
-    outputAnn->SetCurrentAnnotation(0);
+    outputAnn->SetCurrentAnnotation(nullptr);
   }
 
   // Copy current selection to the second output

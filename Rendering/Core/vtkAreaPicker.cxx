@@ -49,8 +49,8 @@ vtkAreaPicker::vtkAreaPicker()
   this->ClipPoints->Register(this);
 
   this->Prop3Ds = vtkProp3DCollection::New();
-  this->Mapper = NULL;
-  this->DataSet = NULL;
+  this->Mapper = nullptr;
+  this->DataSet = nullptr;
 
   this->X0 = 0.0;
   this->Y0 = 0.0;
@@ -73,7 +73,7 @@ void vtkAreaPicker::Initialize()
 {
   this->vtkAbstractPropPicker::Initialize();
   this->Prop3Ds->RemoveAllItems();
-  this->Mapper = NULL;
+  this->Mapper = nullptr;
 }
 
 //--------------------------------------------------------------------------
@@ -115,7 +115,7 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   this->SelectionPoint[1] = (this->Y0+this->Y1)*0.5;
   this->SelectionPoint[2] = 0.0;
 
-  if ( this->Renderer == NULL )
+  if ( this->Renderer == nullptr )
   {
     vtkErrorMacro(<<"Must specify renderer!");
     return 0;
@@ -211,9 +211,9 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
   this->Renderer = renderer;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartPickEvent,nullptr);
 
-  if ( renderer == NULL )
+  if ( renderer == nullptr )
   {
     vtkErrorMacro(<<"Must specify renderer!");
     return 0;
@@ -232,7 +232,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
     props = renderer->GetViewProps();
   }
 
-  vtkAbstractMapper3D *mapper = NULL;
+  vtkAbstractMapper3D *mapper = nullptr;
   vtkAssemblyPath *path;
 
   double mindist = VTK_DOUBLE_MAX;
@@ -252,7 +252,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
         {
           propCandidate->PokeMatrix(path->GetLastNode()->GetMatrix());
           const double* bds = propCandidate->GetBounds();
-          propCandidate->PokeMatrix(NULL);
+          propCandidate->PokeMatrix(nullptr);
           for (int i = 0; i < 6; i++)
           {
             bounds[i] = bds[i];
@@ -272,24 +272,24 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
                 vtkMapper *map1;
                 vtkAbstractVolumeMapper *vmap;
                 vtkImageMapper3D *imap;
-                if ( (map1=vtkMapper::SafeDownCast(mapper)) != NULL )
+                if ( (map1=vtkMapper::SafeDownCast(mapper)) != nullptr )
                 {
                   this->DataSet = map1->GetInput();
                   this->Mapper = map1;
                 }
-                else if ( (vmap=vtkAbstractVolumeMapper::SafeDownCast(mapper)) != NULL )
+                else if ( (vmap=vtkAbstractVolumeMapper::SafeDownCast(mapper)) != nullptr )
                 {
                   this->DataSet = vmap->GetDataSetInput();
                   this->Mapper = vmap;
                 }
-                else if ( (imap=vtkImageMapper3D::SafeDownCast(mapper)) != NULL )
+                else if ( (imap=vtkImageMapper3D::SafeDownCast(mapper)) != nullptr )
                 {
                   this->DataSet = imap->GetDataSetInput();
                   this->Mapper = imap;
                 }
                 else
                 {
-                  this->DataSet = NULL;
+                  this->DataSet = nullptr;
                 }
               }
             }
@@ -306,12 +306,12 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
   {
     // Invoke pick method if one defined - prop goes first
     this->Path->GetFirstNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,NULL);
+    this->InvokeEvent(vtkCommand::PickEvent,nullptr);
     picked = 1;
   }
 
   // Invoke end pick method if defined
-  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
 
   return picked;
 }
@@ -323,7 +323,7 @@ int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate,
                                 vtkAbstractMapper3D **mapper)
 {
   int pickable = 0;
-  *mapper = NULL;
+  *mapper = nullptr;
 
   vtkActor *actor;
   vtkLODProp3D *prop3D;
@@ -334,7 +334,7 @@ int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate,
   if ( propCandidate->GetPickable() && propCandidate->GetVisibility() )
   {
     pickable = 1;
-    if ( (actor=vtkActor::SafeDownCast(propCandidate)) != NULL )
+    if ( (actor=vtkActor::SafeDownCast(propCandidate)) != nullptr )
     {
       *mapper = actor->GetMapper();
       if ( actor->GetProperty()->GetOpacity() <= 0.0 )
@@ -342,11 +342,11 @@ int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate,
         pickable = 0;
       }
     }
-    else if ( (prop3D=vtkLODProp3D::SafeDownCast(propCandidate)) != NULL )
+    else if ( (prop3D=vtkLODProp3D::SafeDownCast(propCandidate)) != nullptr )
     {
       int LODId = prop3D->GetPickLODID();
       *mapper = prop3D->GetLODMapper(LODId);
-      if ( vtkMapper::SafeDownCast(*mapper) != NULL)
+      if ( vtkMapper::SafeDownCast(*mapper) != nullptr)
       {
         prop3D->GetLODProperty(LODId, &tempProperty);
         if ( tempProperty->GetOpacity() <= 0.0 )
@@ -355,11 +355,11 @@ int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate,
         }
       }
     }
-    else if ( (volume=vtkVolume::SafeDownCast(propCandidate)) != NULL )
+    else if ( (volume=vtkVolume::SafeDownCast(propCandidate)) != nullptr )
     {
       *mapper = volume->GetMapper();
     }
-    else if ( (imageSlice=vtkImageSlice::SafeDownCast(propCandidate)) != NULL )
+    else if ( (imageSlice=vtkImageSlice::SafeDownCast(propCandidate)) != nullptr )
     {
       *mapper = imageSlice->GetMapper();
     }

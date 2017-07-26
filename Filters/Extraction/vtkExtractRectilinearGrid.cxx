@@ -42,7 +42,7 @@ vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
 //----------------------------------------------------------------------------
 vtkExtractRectilinearGrid::~vtkExtractRectilinearGrid()
 {
-  if( this->Internal != NULL )
+  if( this->Internal != nullptr )
   {
     this->Internal->Delete();
   }
@@ -205,7 +205,7 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
   vtkStructuredData::GetDimensionsFromExtent(outExt,outDims);
 
   vtkDebugMacro(<< "Extracting Grid");
-  this->Internal->CopyPointsAndPointData(inExt,outExt,pd,NULL,outPD,NULL);
+  this->Internal->CopyPointsAndPointData(inExt,outExt,pd,nullptr,outPD,nullptr);
   this->Internal->CopyCellData(inExt,outExt,cd,outCD);
 
   // copy coordinates

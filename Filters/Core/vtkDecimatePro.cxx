@@ -86,10 +86,10 @@ vtkDecimatePro::vtkDecimatePro()
   this->InflectionPointRatio = 10.0;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
-  this->Queue = NULL;
-  this->VertexError = NULL;
+  this->Queue = nullptr;
+  this->VertexError = nullptr;
 
-  this->Mesh = NULL;
+  this->Mesh = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -149,7 +149,7 @@ int vtkDecimatePro::RequestData(
   }
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
-  vtkPointData *meshPD=0;
+  vtkPointData *meshPD=nullptr;
   vtkIdType *map, numNewPts, totalPts;
   vtkIdType newCellPts[3];
   int abortExecute=0;
@@ -213,7 +213,7 @@ int vtkDecimatePro::RequestData(
     inPolys = input->GetPolys();
 
     // this static should be eliminated
-    if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
+    if (this->Mesh != nullptr) {this->Mesh->Delete(); this->Mesh = nullptr;}
     this->Mesh = vtkPolyData::New();
 
     newPts = vtkPoints::New();
@@ -433,7 +433,7 @@ int vtkDecimatePro::RequestData(
   delete [] map;
   output->SetPoints(newPts);
   output->SetPolys(newPolys);
-  if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
+  if (this->Mesh != nullptr) {this->Mesh->Delete(); this->Mesh = nullptr;}
   newPolys->Delete();
 
   return 1;
@@ -1702,7 +1702,7 @@ void vtkDecimatePro::DeleteQueue()
   {
     this->Queue->Delete();
   }
-  this->Queue=NULL;
+  this->Queue=nullptr;
 }
 
 //----------------------------------------------------------------------------

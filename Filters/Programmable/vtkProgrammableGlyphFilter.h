@@ -76,7 +76,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Construct object with NULL GlyphMethod() and no source object. The ColorMode
+   * Construct object with nullptr GlyphMethod() and no source object. The ColorMode
    * is set to color by the input.
    */
   static vtkProgrammableGlyphFilter *New();

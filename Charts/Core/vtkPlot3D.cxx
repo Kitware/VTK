@@ -48,7 +48,7 @@ vtkPlot3D::vtkPlot3D()
   this->SelectionPen->SetColor(255, 50, 0, 150);
   this->SelectionPen->SetWidth(4.0);
   this->NumberOfComponents = 0;
-  this->Chart = NULL;
+  this->Chart = nullptr;
 }
 
 //-----------------------------------------------------------------------------

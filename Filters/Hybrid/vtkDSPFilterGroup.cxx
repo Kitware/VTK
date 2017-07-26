@@ -258,7 +258,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetCachedInput( int a_whichFilter, int a_which
     }
       }
   }
-  return(NULL);
+  return(nullptr);
 }
 
 
@@ -282,7 +282,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetCachedOutput( int a_whichFilter, int a_whic
       }
   }
 
-  return(NULL);
+  return(nullptr);
 }
 
 
@@ -353,7 +353,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
   if(!l_numNumerators && !l_numForwardNumerators)
   {
       printf("vtkDSPFilterGroup::GetOutput there are no numerator filter weights?\n");
-      return(NULL);
+      return(nullptr);
   }
   int l_numDenominators = (int)FilterDefinitions->m_vector[a_whichFilter]->GetNumDenominatorWeights();
 
@@ -374,7 +374,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
   if(!l_firstInput)
   {
       printf("\n  vtkDSPFilterGroup::GetOutput error time %d has no input\n\n",a_whichTimestep);
-      return(NULL);
+      return(nullptr);
   }
 
   const int l_numEntries = l_firstInput->GetNumberOfTuples();
@@ -384,7 +384,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
   {
       printf("\n  vtkDSPFilterGroup::GetOutput error time %d, l_numEntries=%d, l_numComponents=%d\n\n",
        a_whichTimestep,l_numEntries,l_numComponents);
-      return(NULL);
+      return(nullptr);
   }
 
   //printf("vtkDSPFilterGroup::GetOutput first input entries=%d comps=%d\n",l_numEntries,l_numComponents);

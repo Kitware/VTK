@@ -30,8 +30,8 @@ vtkDummyController::vtkDummyController()
 
 vtkDummyController::~vtkDummyController()
 {
-  this->SetCommunicator(NULL);
-  this->SetRMICommunicator(NULL);
+  this->SetCommunicator(nullptr);
+  this->SetRMICommunicator(nullptr);
 }
 
 void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)

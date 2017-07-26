@@ -379,7 +379,7 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
     std::copy(this->SamplingBounds, this->SamplingBounds + 6, samplingBounds);
   }
 
-  this->PerformResampling(input, samplingBounds, false, NULL, output);
+  this->PerformResampling(input, samplingBounds, false, nullptr, output);
   this->SetBlankPointsAndCells(output);
 
   return 1;

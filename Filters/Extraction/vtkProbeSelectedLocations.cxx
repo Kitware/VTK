@@ -70,7 +70,7 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataSet* dataInput = vtkDataSet::GetData(inInfo);
   vtkDataSet* output = vtkDataSet::GetData(outInfo);
 
-  vtkSelectionNode* node = 0;
+  vtkSelectionNode* node = nullptr;
   if (selInput->GetNumberOfNodes() == 1)
   {
     node = selInput->GetNode(0);
@@ -135,13 +135,13 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   subFilter->SetInputConnection(0, tp->GetOutputPort());
   tempInput->Delete();
   tp->Delete();
-  tp = 0;
+  tp = nullptr;
 
   vtkDebugMacro(<< "Preparing subfilter to extract from dataset");
   //pass all required information to the helper filter
   int piece = 0;
   int npieces = 1;
-  int *uExtent=0;
+  int *uExtent=nullptr;
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {

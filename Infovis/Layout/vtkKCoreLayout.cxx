@@ -52,11 +52,11 @@ vtkStandardNewMacro(vtkKCoreLayout);
 vtkKCoreLayout::vtkKCoreLayout()
 {
   this->SetNumberOfInputPorts(1);
-  this->KCoreLabelArrayName        = NULL;
-  this->PolarCoordsRadiusArrayName = NULL;
-  this->PolarCoordsAngleArrayName  = NULL;
-  this->CartesianCoordsXArrayName  = NULL;
-  this->CartesianCoordsYArrayName  = NULL;
+  this->KCoreLabelArrayName        = nullptr;
+  this->PolarCoordsRadiusArrayName = nullptr;
+  this->PolarCoordsAngleArrayName  = nullptr;
+  this->CartesianCoordsXArrayName  = nullptr;
+  this->CartesianCoordsYArrayName  = nullptr;
   this->Cartesian  = true;
   this->Polar      = false;
   this->Epsilon    = 0.2f;
@@ -67,7 +67,7 @@ vtkKCoreLayout::vtkKCoreLayout()
 // Default Destructor
 vtkKCoreLayout::~vtkKCoreLayout()
 {
-  this->KCoreLabelArrayName = NULL;
+  this->KCoreLabelArrayName = nullptr;
 }
 
 

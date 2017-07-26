@@ -136,7 +136,7 @@ public:
 
     // Initialize Streams
     this->ReceiveStream = new MessageStream(this->StreamSize);
-    this->SendStream = NULL;
+    this->SendStream = nullptr;
   }
 
   ~ParticleStreamManager()
@@ -313,12 +313,12 @@ public:
 
     this->NRank = this->Controller->GetNumberOfProcesses() - 1;
     this->RankStates = new int[this->NRank];
-    this->SentFlag = NULL;
+    this->SentFlag = nullptr;
     this->SendRequests = new vtkMPICommunicator::Request*[this->NRank];
     for (int i = 0; i < this->NRank; i++)
     {
       this->RankStates[i] = VTK_PLAGRANGIAN_WORKING_FLAG;
-      this->SendRequests[i] = NULL;
+      this->SendRequests[i] = nullptr;
     }
   }
 
@@ -341,7 +341,7 @@ public:
     *this->SentFlag = flag;
     for (int i = 0; i < this->NRank; i++)
     {
-      if (this->SendRequests[i] != NULL)
+      if (this->SendRequests[i] != nullptr)
       {
         this->SendRequests[i]->Wait();
         delete this->SendRequests[i];
@@ -413,8 +413,8 @@ public:
 
     // Initialize flags
     this->LastFlag = VTK_PLAGRANGIAN_WORKING_FLAG;
-    this->SentFlag = NULL;
-    this->SendRequest = NULL;
+    this->SentFlag = nullptr;
+    this->SendRequest = nullptr;
   }
 
   ~RankFlagManager()
@@ -429,7 +429,7 @@ public:
     delete this->SentFlag;
     this->SentFlag = new int;
     *this->SentFlag = flag;
-    if (this->SendRequest != NULL)
+    if (this->SendRequest != nullptr)
     {
       this->SendRequest->Wait();
       delete this->SendRequest;
@@ -442,7 +442,7 @@ public:
   int UpdateAndGetFlag()
   {
     int probe;
-    while (this->Controller->Iprobe(0, LAGRANGIAN_RANG_FLAG_TAG, &probe, NULL) && probe)
+    while (this->Controller->Iprobe(0, LAGRANGIAN_RANG_FLAG_TAG, &probe, nullptr) && probe)
     {
       this->Controller->Receive(&this->LastFlag, 1, 0, LAGRANGIAN_RANG_FLAG_TAG);
     }
@@ -463,9 +463,9 @@ vtkPLagrangianParticleTracker::vtkPLagrangianParticleTracker()
 {
   this->Controller = vtkMPIController::SafeDownCast(
     vtkMultiProcessController::GetGlobalController());
-  this->StreamManager = NULL;
-  this->MFlagManager = NULL;
-  this->RFlagManager = NULL;
+  this->StreamManager = nullptr;
+  this->MFlagManager = nullptr;
+  this->RFlagManager = nullptr;
   this->TmpSurfaceInput = vtkSmartPointer<vtkUnstructuredGrid>::New();
   this->TmpSurfaceInputMB = vtkSmartPointer<vtkMultiBlockDataSet>::New();
 }
@@ -658,7 +658,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           {
             const char * compName = array->GetComponentName(idComp);
             int compNameLen = 0;
-            if (compName != NULL)
+            if (compName != nullptr)
             {
               compNameLen = static_cast<int>(strlen(compName));
               stream << compNameLen;

@@ -30,12 +30,12 @@ void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
   {
     vtkGraph *tmp = this->Graph;
     this->Graph = graph;
-    if (this->Graph != NULL)
+    if (this->Graph != nullptr)
     {
       this->Graph->Register(this);
       this->Initialize();
     }
-    if (tmp != NULL)
+    if (tmp != nullptr)
     {
       tmp->UnRegister(this);
     }
@@ -45,16 +45,16 @@ void vtkGraphLayoutStrategy::SetGraph(vtkGraph *graph)
 
 vtkGraphLayoutStrategy::vtkGraphLayoutStrategy()
 {
-  this->Graph = NULL;
-  this->EdgeWeightField = NULL;
+  this->Graph = nullptr;
+  this->EdgeWeightField = nullptr;
   this->WeightEdges = false;
 }
 
 vtkGraphLayoutStrategy::~vtkGraphLayoutStrategy()
 {
   // Unregister vtk objects that were passed in
-  this->SetGraph(NULL);
-  this->SetEdgeWeightField(NULL);
+  this->SetGraph(nullptr);
+  this->SetEdgeWeightField(nullptr);
 }
 
 void vtkGraphLayoutStrategy::SetWeightEdges(bool state)
@@ -76,7 +76,7 @@ void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
 {
   // This method is a cut and paste of vtkSetStringMacro
   // except for the call to Initialize at the end :)
-  if ( this->EdgeWeightField == NULL && weights == NULL) { return;}
+  if ( this->EdgeWeightField == nullptr && weights == nullptr) { return;}
   if ( this->EdgeWeightField && weights && (!strcmp(this->EdgeWeightField,weights))) { return;}
   delete [] this->EdgeWeightField;
   if (weights)
@@ -89,7 +89,7 @@ void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
   }
    else
    {
-    this->EdgeWeightField = NULL;
+    this->EdgeWeightField = nullptr;
    }
 
   this->Modified();

@@ -42,7 +42,7 @@ vtkStreamGraph::vtkStreamGraph()
   this->CurrentGraph = vtkMutableGraphHelper::New();
   this->MergeGraphs = vtkMergeGraphs::New();
   this->UseEdgeWindow = false;
-  this->EdgeWindowArrayName = 0;
+  this->EdgeWindowArrayName = nullptr;
   this->SetEdgeWindowArrayName("time");
   this->EdgeWindow = 10000.0;
 }
@@ -58,7 +58,7 @@ vtkStreamGraph::~vtkStreamGraph()
   {
     this->MergeGraphs->Delete();
   }
-  this->SetEdgeWindowArrayName(0);
+  this->SetEdgeWindowArrayName(nullptr);
 }
 
 //---------------------------------------------------------------------------

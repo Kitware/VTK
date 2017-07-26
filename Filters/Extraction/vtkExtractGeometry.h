@@ -92,7 +92,7 @@ public:
   //@}
 
 protected:
-  vtkExtractGeometry(vtkImplicitFunction *f=NULL);
+  vtkExtractGeometry(vtkImplicitFunction *f=nullptr);
   ~vtkExtractGeometry() VTK_OVERRIDE;
 
   // Usual data generation method

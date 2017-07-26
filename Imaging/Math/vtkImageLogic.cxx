@@ -220,7 +220,7 @@ void vtkImageLogic::ThreadedRequestData (
   vtkImageData **outData,
   int outExt[6], int id)
 {
-  if (inData[0][0] == NULL)
+  if (inData[0][0] == nullptr)
   {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
@@ -243,7 +243,7 @@ void vtkImageLogic::ThreadedRequestData (
       vtkTemplateMacro(
         vtkImageLogicExecute1(this, inData[0][0],
                               outData[0], outExt, id,
-                              static_cast<VTK_TT *>(0)));
+                              static_cast<VTK_TT *>(nullptr)));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -251,7 +251,7 @@ void vtkImageLogic::ThreadedRequestData (
   }
   else
   {
-    if (inData[1][0] == NULL)
+    if (inData[1][0] == nullptr)
     {
       vtkErrorMacro(<< "Input " << 1 << " must be specified.");
       return;
@@ -283,7 +283,7 @@ void vtkImageLogic::ThreadedRequestData (
       vtkTemplateMacro(
         vtkImageLogicExecute2( this, inData[0][0],
                                inData[1][0], outData[0], outExt, id,
-                               static_cast<VTK_TT *>(0)));
+                               static_cast<VTK_TT *>(nullptr)));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;

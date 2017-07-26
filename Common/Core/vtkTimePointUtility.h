@@ -141,7 +141,7 @@ public:
    * the second argument.  The value will be set to true if the
    * string was parsed successfully, false otherwise.
    */
-  static vtkTypeUInt64 ISO8601ToTimePoint(const char* str, bool* ok = NULL);
+  static vtkTypeUInt64 ISO8601ToTimePoint(const char* str, bool* ok = nullptr);
 
   /**
    * Converts a VTK timepoint into one of the following ISO8601

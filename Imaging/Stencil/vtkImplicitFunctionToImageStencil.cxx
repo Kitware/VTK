@@ -34,13 +34,13 @@ vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()
   this->SetNumberOfInputPorts(0);
   this->Threshold = 0;
 
-  this->Input = NULL;
+  this->Input = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkImplicitFunctionToImageStencil::~vtkImplicitFunctionToImageStencil()
 {
-  this->SetInput(NULL);
+  this->SetInput(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ vtkMTimeType vtkImplicitFunctionToImageStencil::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if ( this->Input != NULL )
+  if ( this->Input != nullptr )
   {
     vtkMTimeType nTime = this->Input->GetMTime();
     mTime = ( nTime > mTime ? nTime : mTime );

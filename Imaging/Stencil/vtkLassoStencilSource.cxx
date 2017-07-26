@@ -44,7 +44,7 @@ vtkLassoStencilSource::vtkLassoStencilSource()
 
   this->Shape = vtkLassoStencilSource::POLYGON;
   this->SliceOrientation = 2;
-  this->Points = NULL;
+  this->Points = nullptr;
   this->SplineX = vtkCardinalSpline::New();
   this->SplineY = vtkCardinalSpline::New();
 
@@ -54,19 +54,19 @@ vtkLassoStencilSource::vtkLassoStencilSource()
 //----------------------------------------------------------------------------
 vtkLassoStencilSource::~vtkLassoStencilSource()
 {
-  this->SetPoints(NULL);
+  this->SetPoints(nullptr);
   if (this->SplineX)
   {
     this->SplineX->Delete();
-    this->SplineX = NULL;
+    this->SplineX = nullptr;
   }
   if (this->SplineY)
   {
     this->SplineY->Delete();
-    this->SplineY = NULL;
+    this->SplineY = nullptr;
   }
   delete this->PointMap;
-  this->PointMap = NULL;
+  this->PointMap = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ vtkMTimeType vtkLassoStencilSource::GetMTime()
 {
   vtkMTimeType mTime = this->vtkImageStencilSource::GetMTime();
 
-  if ( this->Points != NULL )
+  if ( this->Points != nullptr )
   {
     vtkMTimeType t = this->Points->GetMTime();
     if (t > mTime)
@@ -134,7 +134,7 @@ void vtkLassoStencilSource::SetSlicePoints(int i, vtkPoints *points)
     {
       return;
     }
-    else if (points == 0)
+    else if (points == nullptr)
     {
       this->PointMap->erase(iter);
     }
@@ -145,7 +145,7 @@ void vtkLassoStencilSource::SetSlicePoints(int i, vtkPoints *points)
   }
   else
   {
-    if (points == NULL)
+    if (points == nullptr)
     {
       return;
     }
@@ -172,7 +172,7 @@ vtkPoints *vtkLassoStencilSource::GetSlicePoints(int i)
   {
     return iter->second;
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -451,7 +451,7 @@ static int vtkLassoStencilSourceExecute(
 {
   int result = 1;
 
-  if (points == 0 || points->GetNumberOfPoints() < 3)
+  if (points == nullptr || points->GetNumberOfPoints() < 3)
   {
     return 1;
   }

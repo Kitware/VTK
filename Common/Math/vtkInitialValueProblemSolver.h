@@ -72,7 +72,7 @@ public:
       double minStep = delT;
       double maxStep = delT;
       double delTActual;
-      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
   }
   virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
@@ -90,7 +90,7 @@ public:
                               double minStep, double maxStep,
                               double maxError, double& error)
   {
-      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
   }
   virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,

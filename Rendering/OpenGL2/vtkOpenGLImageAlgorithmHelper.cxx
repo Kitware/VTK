@@ -34,13 +34,13 @@ vtkStandardNewMacro(vtkOpenGLImageAlgorithmHelper);
 // ----------------------------------------------------------------------------
 vtkOpenGLImageAlgorithmHelper::vtkOpenGLImageAlgorithmHelper()
 {
-  this->RenderWindow = 0;
+  this->RenderWindow = nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkOpenGLImageAlgorithmHelper::~vtkOpenGLImageAlgorithmHelper()
 {
-  this->SetRenderWindow(0);
+  this->SetRenderWindow(nullptr);
 }
 
 void vtkOpenGLImageAlgorithmHelper::SetRenderWindow(vtkRenderWindow *renWin)
@@ -50,7 +50,7 @@ void vtkOpenGLImageAlgorithmHelper::SetRenderWindow(vtkRenderWindow *renWin)
     return;
   }
 
-  vtkOpenGLRenderWindow *orw  = NULL;
+  vtkOpenGLRenderWindow *orw  = nullptr;
   if (renWin)
   {
     orw = vtkOpenGLRenderWindow::SafeDownCast(renWin);
@@ -198,7 +198,7 @@ void vtkOpenGLImageAlgorithmHelper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "RenderWindow:";
-  if(this->RenderWindow != 0)
+  if(this->RenderWindow != nullptr)
   {
     this->RenderWindow->PrintSelf(os,indent);
   }

@@ -1594,7 +1594,7 @@ bool vtkChartXYZ::CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
 //-----------------------------------------------------------------------------
 vtkIdType vtkChartXYZ::AddPlot(vtkPlot3D * plot)
 {
-  if (plot == NULL)
+  if (plot == nullptr)
   {
     return -1;
   }

@@ -48,7 +48,7 @@ int vtkAppendArcLength::RequestData(
   output->ShallowCopy(input);
 
   // Now add "arc_length" array.
-  vtkDataArray* arc_length = 0;
+  vtkDataArray* arc_length = nullptr;
   vtkPoints* points = output->GetPoints();
   vtkIdType numPoints = points->GetNumberOfPoints();
   if (points->GetDataType() == VTK_DOUBLE)

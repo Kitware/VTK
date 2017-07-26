@@ -332,7 +332,7 @@ private:
 
 //-------------------------------------------------------------------------
 // A simple data structure to hold both a transform and its inverse.
-// One of ForwardTransform or InverseTransform might be NULL,
+// One of ForwardTransform or InverseTransform might be nullptr,
 // and must be acquired by calling GetInverse() on the other.
 class vtkTransformPair
 {

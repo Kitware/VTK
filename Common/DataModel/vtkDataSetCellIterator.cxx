@@ -147,7 +147,7 @@ void vtkDataSetCellIterator::SetDataSet(vtkDataSet *ds)
 //------------------------------------------------------------------------------
 bool vtkDataSetCellIterator::IsDoneWithTraversal()
 {
-  return this->DataSet.GetPointer() == NULL
+  return this->DataSet.GetPointer() == nullptr
       || this->CellId >= this->DataSet->GetNumberOfCells();
 }
 
@@ -166,7 +166,7 @@ void vtkDataSetCellIterator::IncrementToNextCell()
 //------------------------------------------------------------------------------
 vtkDataSetCellIterator::vtkDataSetCellIterator()
   : vtkCellIterator(),
-    DataSet(NULL),
+    DataSet(nullptr),
     CellId(0)
 {
 }

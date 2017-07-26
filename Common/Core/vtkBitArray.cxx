@@ -24,20 +24,20 @@ class vtkBitArrayLookup
 public:
   vtkBitArrayLookup() : Rebuild(true)
   {
-    this->ZeroArray = NULL;
-    this->OneArray = NULL;
+    this->ZeroArray = nullptr;
+    this->OneArray = nullptr;
   }
   ~vtkBitArrayLookup()
   {
     if (this->ZeroArray)
     {
       this->ZeroArray->Delete();
-      this->ZeroArray = NULL;
+      this->ZeroArray = nullptr;
     }
     if (this->OneArray)
     {
       this->OneArray->Delete();
-      this->OneArray = NULL;
+      this->OneArray = nullptr;
     }
   }
   vtkIdList* ZeroArray;
@@ -51,11 +51,11 @@ vtkStandardNewMacro(vtkBitArray);
 // Instantiate object.
 vtkBitArray::vtkBitArray()
 {
-  this->Array = NULL;
+  this->Array = nullptr;
   this->TupleSize = 3;
   this->Tuple = new double[this->TupleSize]; //used for conversion
   this->SaveUserArray = 0;
-  this->Lookup = NULL;
+  this->Lookup = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -136,7 +136,7 @@ int vtkBitArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
       delete [] this->Array;
     }
     this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new unsigned char[(this->Size+7)/8]) == NULL )
+    if ( (this->Array = new unsigned char[(this->Size+7)/8]) == nullptr )
     {
       return 0;
     }
@@ -157,7 +157,7 @@ void vtkBitArray::Initialize()
   {
     delete [] this->Array;
   }
-  this->Array = NULL;
+  this->Array = nullptr;
   this->Size = 0;
   this->MaxId = -1;
   this->SaveUserArray = 0;
@@ -168,8 +168,8 @@ void vtkBitArray::Initialize()
 // Deep copy of another bit array.
 void vtkBitArray::DeepCopy(vtkDataArray *ia)
 {
-  // Do nothing on a NULL input.
-  if (ia == NULL)
+  // Do nothing on a nullptr input.
+  if (ia == nullptr)
   {
     return;
   }
@@ -246,13 +246,13 @@ unsigned char *vtkBitArray::ResizeAndExtend(vtkIdType sz)
   if (newSize <= 0)
   {
     this->Initialize();
-    return 0;
+    return nullptr;
   }
 
-  if ( (newArray = new unsigned char[(newSize+7)/8]) == NULL )
+  if ( (newArray = new unsigned char[(newSize+7)/8]) == nullptr )
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
-    return 0;
+    return nullptr;
   }
 
   if (this->Array)
@@ -296,7 +296,7 @@ int vtkBitArray::Resize(vtkIdType sz)
     return 1;
   }
 
-  if ( (newArray = new unsigned char[(newSize+7)/8]) == NULL )
+  if ( (newArray = new unsigned char[(newSize+7)/8]) == nullptr )
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
@@ -740,5 +740,5 @@ void vtkBitArray::DataChanged()
 void vtkBitArray::ClearLookup()
 {
   delete this->Lookup;
-  this->Lookup = NULL;
+  this->Lookup = nullptr;
 }

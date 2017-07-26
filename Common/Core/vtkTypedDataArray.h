@@ -79,7 +79,7 @@ public:
    * - source->GetArrayType() is appropriate, and
    * - source->GetDataType() matches the Scalar template argument
    * if these conditions are met, the method performs a static_cast to return
-   * source as a vtkTypedDataArray pointer. Otherwise, NULL is returned.
+   * source as a vtkTypedDataArray pointer. Otherwise, nullptr is returned.
    */
   static vtkTypedDataArray<Scalar>* FastDownCast(vtkAbstractArray *source);
 

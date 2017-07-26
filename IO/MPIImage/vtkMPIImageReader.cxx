@@ -124,16 +124,16 @@ namespace {
 //=============================================================================
 vtkMPIImageReader::vtkMPIImageReader()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
-  this->GroupedController = NULL;
+  this->GroupedController = nullptr;
 }
 
 vtkMPIImageReader::~vtkMPIImageReader()
 {
-  this->SetController(NULL);
-  this->SetGroupedController(NULL);
+  this->SetController(nullptr);
+  this->SetGroupedController(nullptr);
 }
 
 void vtkMPIImageReader::PrintSelf(ostream &os, vtkIndent indent)
@@ -521,7 +521,7 @@ void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
   }
 
   // Done with this for now.
-  this->SetGroupedController(NULL);
+  this->SetGroupedController(nullptr);
 #else // VTK_USE_MPI_IO
   this->Superclass::ExecuteDataWithInformation(output, outInfo);
 #endif // VTK_USE_MPI_IO

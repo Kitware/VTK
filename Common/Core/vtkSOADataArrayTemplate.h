@@ -164,7 +164,7 @@ public:
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
    * This method checks if source->GetArrayType() returns DataArray
    * or a more derived type, and performs a static_cast to return
-   * source as a vtkDataArray pointer. Otherwise, NULL is returned.
+   * source as a vtkDataArray pointer. Otherwise, nullptr is returned.
    */
   static vtkSOADataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
@@ -182,7 +182,7 @@ public:
           break;
       }
     }
-    return NULL;
+    return nullptr;
   }
   //@}
 #endif

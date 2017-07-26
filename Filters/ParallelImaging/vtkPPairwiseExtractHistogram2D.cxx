@@ -46,14 +46,14 @@ vtkCxxSetObjectMacro(vtkPPairwiseExtractHistogram2D, Controller, vtkMultiProcess
 
 vtkPPairwiseExtractHistogram2D::vtkPPairwiseExtractHistogram2D()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 
 vtkPPairwiseExtractHistogram2D::~vtkPPairwiseExtractHistogram2D()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 void vtkPPairwiseExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)

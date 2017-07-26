@@ -69,8 +69,8 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   {
     delete [] this->DirectoryName;
     delete [] this->FileName;
-    this->DirectoryName = NULL;
-    this->FileName = NULL;
+    this->DirectoryName = nullptr;
+    this->FileName = nullptr;
     this->vtkImageReader2::SetFileName(fn);
   }
   //@}

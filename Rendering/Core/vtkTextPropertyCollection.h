@@ -93,9 +93,9 @@ inline vtkTextProperty *vtkTextPropertyCollection::GetItem(int idx)
 
 inline vtkTextProperty *vtkTextPropertyCollection::GetLastItem()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

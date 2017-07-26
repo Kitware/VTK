@@ -52,12 +52,12 @@ vtkExpandSelectedGraph::vtkExpandSelectedGraph()
   this->BFSDistance = 1;
   this->IncludeShortestPaths = false;
   this->UseDomain = false;
-  this->Domain = 0;
+  this->Domain = nullptr;
 }
 
 vtkExpandSelectedGraph::~vtkExpandSelectedGraph()
 {
-  this->SetDomain(0);
+  this->SetDomain(nullptr);
 }
 
 int vtkExpandSelectedGraph::FillInputPortInformation(int port, vtkInformation* info)

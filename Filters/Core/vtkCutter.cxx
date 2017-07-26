@@ -66,7 +66,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->SortBy = VTK_SORT_BY_VALUE;
   this->CutFunction = cf;
   this->GenerateCutScalars = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->GenerateTriangles = 1;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
@@ -80,8 +80,8 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 vtkCutter::~vtkCutter()
 {
   this->ContourValues->Delete();
-  this->SetCutFunction(NULL);
-  this->SetLocator(NULL);
+  this->SetCutFunction(nullptr);
+  this->SetLocator(nullptr);
 
   this->SynchronizedTemplates3D->Delete();
   this->SynchronizedTemplatesCutter3D->Delete();
@@ -100,7 +100,7 @@ vtkMTimeType vtkCutter::GetMTime()
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
-  if ( this->CutFunction != NULL )
+  if ( this->CutFunction != nullptr )
   {
     time = this->CutFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -531,7 +531,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -787,7 +787,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -1019,7 +1019,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 // an instance of vtkMergePoints is used.
 void vtkCutter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

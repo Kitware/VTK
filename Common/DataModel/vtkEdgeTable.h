@@ -112,7 +112,7 @@ public:
 
   /**
    * Similar to above, but returns a void* pointer is InitEdgeInsertion()
-   * has been called with storeAttributes==2. A NULL pointer value
+   * has been called with storeAttributes==2. A nullptr pointer value
    * is returned if the edge does not exist.
    */
   void IsEdge(vtkIdType p1, vtkIdType p2, void* &ptr);
@@ -153,7 +153,7 @@ public:
 
   /**
    * Similar to above, but fills a void* pointer if InitEdgeInsertion()
-   * has been called with storeAttributes==2. A NULL pointer value
+   * has been called with storeAttributes==2. A nullptr pointer value
    * is filled otherwise.  Returns 0 if list is exhausted.
    */
   int GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr);

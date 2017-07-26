@@ -26,7 +26,7 @@ class vtkGenericOpenGLResourceFreeCallback
 {
   public:
     vtkGenericOpenGLResourceFreeCallback() {
-        this->VTKWindow = NULL; this->Releasing = false; }
+        this->VTKWindow = nullptr; this->Releasing = false; }
     virtual ~vtkGenericOpenGLResourceFreeCallback() { }
 
     // Called when the event is invoked
@@ -82,7 +82,7 @@ public:
       (this->Handler->*this->Method)(this->VTKWindow);
       this->VTKWindow->UnregisterGraphicsResources(this);
       this->VTKWindow->PopContext();
-      this->VTKWindow = NULL;
+      this->VTKWindow = nullptr;
       this->Releasing = false;
     }
   }

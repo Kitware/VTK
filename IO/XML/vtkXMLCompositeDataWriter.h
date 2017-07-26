@@ -132,7 +132,7 @@ protected:
 
   /**
    * Returns the default extension to use for the given dataset type.
-   * Returns NULL if an extension cannot be determined.
+   * Returns nullptr if an extension cannot be determined.
    */
   const char* GetDefaultFileExtensionForDataSet(int dataset_type);
 

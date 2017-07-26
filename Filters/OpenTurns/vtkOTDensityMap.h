@@ -147,7 +147,7 @@ protected:
    * up is an input, allowing to specify the direction to follow. In any case, if the
    * next cell id cannot be found in this direction, the other direction will be tried, this is the
    * case where we consider the cell points are inverted.
-   * currentPointIndices is an optional output, if != NULL, the current cell points will be stored
+   * currentPointIndices is an optional output, if != nullptr, the current cell points will be stored
    * in.
    */
   virtual vtkIdType FindNextCellId(vtkPolyData* pd,
@@ -155,7 +155,7 @@ protected:
     vtkIdType previousCellId,
     bool& invertedPoints,
     bool up = true,
-    vtkIdList* currentPointIndices = NULL);
+    vtkIdList* currentPointIndices = nullptr);
 
   void ClearCache();
   void BuildContours(vtkPolyData* contourPd,

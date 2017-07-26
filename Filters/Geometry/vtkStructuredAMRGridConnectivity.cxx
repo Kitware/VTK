@@ -367,9 +367,9 @@ void vtkStructuredAMRGridConnectivity::InitializeGhostData(
   assert( "pre: gridID is out-of-bounds!" &&
           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: Grid has no registered point data!" &&
-          (this->GridPointData[gridID] != NULL) );
+          (this->GridPointData[gridID] != nullptr) );
   assert( "pre: Grid has no registered cell data!" &&
-          (this->GridCellData[gridID] != NULL) );
+          (this->GridCellData[gridID] != nullptr) );
 
   // STEP 0: Get the ghosted grid extent
   int ghostedExtent[6];
@@ -396,7 +396,7 @@ void vtkStructuredAMRGridConnectivity::InitializeGhostData(
     {
       int dataType = PD->GetArray( array )->GetDataType();
       vtkDataArray *dataArray = vtkDataArray::CreateDataArray( dataType );
-      assert( "Cannot create data array" && (dataArray != NULL) );
+      assert( "Cannot create data array" && (dataArray != nullptr) );
 
       dataArray->SetName(PD->GetArray(array)->GetName());
       dataArray->SetNumberOfComponents(
@@ -419,7 +419,7 @@ void vtkStructuredAMRGridConnectivity::InitializeGhostData(
     {
       int dataType = CD->GetArray( array )->GetDataType();
       vtkDataArray *dataArray = vtkDataArray::CreateDataArray( dataType );
-      assert( "Cannot create data array" && (dataArray != NULL) );
+      assert( "Cannot create data array" && (dataArray != nullptr) );
 
       dataArray->SetName(CD->GetArray(array)->GetName());
       dataArray->SetNumberOfComponents(
@@ -915,9 +915,9 @@ vtkStructuredAMRGridConnectivity::AverageFieldData(
     vtkFieldData *source, vtkIdType *sourceIds, const int N,
     vtkFieldData *target, vtkIdType targetIdx)
 {
-  assert( "pre: source field data is NULL!" && (source != NULL) );
-  assert( "pre: target field data is NULL!" && (target != NULL) );
-  assert( "pre: sourceIds is NULL!" && (sourceIds != NULL) );
+  assert( "pre: source field data is nullptr!" && (source != nullptr) );
+  assert( "pre: target field data is nullptr!" && (target != nullptr) );
+  assert( "pre: sourceIds is nullptr!" && (sourceIds != nullptr) );
   assert( "pre: N > 0" && (N > 0) );
   assert( "pre: source number of arrays does not match target!" &&
            source->GetNumberOfArrays()==target->GetNumberOfArrays() );
@@ -927,11 +927,11 @@ vtkStructuredAMRGridConnectivity::AverageFieldData(
   {
     // Get source array
     vtkDataArray *sourceArray = source->GetArray( arrayIdx );
-    assert( "ERROR: encountered NULL source array" && (sourceArray != NULL) );
+    assert( "ERROR: encountered nullptr source array" && (sourceArray != nullptr) );
 
     // Get target array
     vtkDataArray *targetArray = target->GetArray( arrayIdx );
-    assert( "ERROR: encountered NULL target array" && (targetArray != NULL) );
+    assert( "ERROR: encountered nullptr target array" && (targetArray != nullptr) );
 
     // Sanity checks
     assert( "ERROR: target/source array name mismatch!" &&
@@ -969,8 +969,8 @@ vtkStructuredAMRGridConnectivity::CopyFieldData(
     vtkFieldData *source, vtkIdType sourceIdx,
     vtkFieldData *target, vtkIdType targetIdx)
 {
-  assert( "pre: source field data is NULL!" && (source != NULL) );
-  assert( "pre: target field data is NULL!" && (target != NULL) );
+  assert( "pre: source field data is nullptr!" && (source != nullptr) );
+  assert( "pre: target field data is nullptr!" && (target != nullptr) );
   assert( "pre: source number of arrays does not match target!" &&
           source->GetNumberOfArrays()==target->GetNumberOfArrays() );
 
@@ -979,11 +979,11 @@ vtkStructuredAMRGridConnectivity::CopyFieldData(
   {
     // Get source array
     vtkDataArray *sourceArray = source->GetArray( arrayIdx );
-    assert( "ERROR: encountered NULL source array" && (sourceArray != NULL) );
+    assert( "ERROR: encountered nullptr source array" && (sourceArray != nullptr) );
 
     // Get target array
     vtkDataArray *targetArray = target->GetArray( arrayIdx );
-    assert( "ERROR: encountered NULL target array" && (targetArray != NULL) );
+    assert( "ERROR: encountered nullptr target array" && (targetArray != nullptr) );
 
     // Sanity checks
     assert( "ERROR: target/source array name mismatch!" &&
@@ -1043,7 +1043,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(
        (this->NumberOfGrids == this->GhostedCellGhostArray.size()));
 
   // STEP 0: Initialize ghosted node and cell arrays
-  if( this->GhostedPointGhostArray[gridID] == NULL )
+  if( this->GhostedPointGhostArray[gridID] == nullptr )
   {
     this->GhostedPointGhostArray[ gridID ] = vtkUnsignedCharArray::New();
   }
@@ -1052,7 +1052,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(
     this->GhostedPointGhostArray[ gridID ]->Reset();
   }
 
-  if( this->GhostedCellGhostArray[ gridID ] == NULL )
+  if( this->GhostedCellGhostArray[ gridID ] == nullptr )
   {
     this->GhostedCellGhostArray[ gridID ] = vtkUnsignedCharArray::New();
   }
@@ -1241,7 +1241,7 @@ void vtkStructuredAMRGridConnectivity::FillCellsGhostArray(
   assert("pre: grid index is out-of-bounds" &&
       (gridId >= 0) && (gridId < static_cast<int>(this->NumberOfGrids)));
 
-  if( cellsArray == NULL )
+  if( cellsArray == nullptr )
   {
     return;
   }
@@ -1264,7 +1264,7 @@ void vtkStructuredAMRGridConnectivity::FillCellsGhostArray(
 
   // STEP 2: Mark all cells as internal
   unsigned char *ghostArrayPtr = cellsArray->GetPointer(0);
-  assert("pre: ghost array ptr is NULL" && (ghostArrayPtr != NULL) );
+  assert("pre: ghost array ptr is nullptr" && (ghostArrayPtr != nullptr) );
 
   int ijk[3];
   for(int i=IMIN(cellext); i <= IMAX(cellext); ++i)
@@ -1353,8 +1353,8 @@ void vtkStructuredAMRGridConnectivity::FillNodesGhostArray(
   assert("pre: grid index is out-of-bounds" &&
       (gridId >= 0) && (gridId < static_cast<int>(this->NumberOfGrids)));
 
-  // STEP 0: If the nodes array is NULL, return immediately
-  if( nodesArray == NULL )
+  // STEP 0: If the nodes array is nullptr, return immediately
+  if( nodesArray == nullptr )
   {
     return;
   }
@@ -1825,8 +1825,8 @@ void vtkStructuredAMRGridConnectivity::EstablishNeighbors(
       vtkStructuredGridConnectivity::New();
   gridConnectivity->SetWholeExtent( myWholeExtent );
   gridConnectivity->SetNumberOfGrids(2);
-  gridConnectivity->RegisterGrid(0,ext1,NULL,NULL,NULL,NULL,NULL);
-  gridConnectivity->RegisterGrid(1,ext2,NULL,NULL,NULL,NULL,NULL);
+  gridConnectivity->RegisterGrid(0,ext1,nullptr,nullptr,nullptr,nullptr,nullptr);
+  gridConnectivity->RegisterGrid(1,ext2,nullptr,nullptr,nullptr,nullptr,nullptr);
   gridConnectivity->ComputeNeighbors();
 
   if( gridConnectivity->GetNumberOfNeighbors(0) != 0)

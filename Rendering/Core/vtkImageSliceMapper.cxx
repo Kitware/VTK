@@ -52,7 +52,7 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->CroppingRegion[4] = 0;
   this->CroppingRegion[5] = 0;
 
-  this->Points = NULL;
+  this->Points = nullptr;
   this->ExactPixelMatch = false;
   this->PassColorData = false;
 

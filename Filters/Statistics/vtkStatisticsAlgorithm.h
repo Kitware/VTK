@@ -237,7 +237,7 @@ public:
 
    * For the version of this routine that returns const char*,
    * if the request or column does not exist because \a r or \a c is out of bounds,
-   * the routine returns NULL. Otherwise it returns the column name.
+   * the routine returns nullptr. Otherwise it returns the column name.
    * This version is not thread-safe.
    */
   virtual const char* GetColumnForRequest( vtkIdType r, vtkIdType c );

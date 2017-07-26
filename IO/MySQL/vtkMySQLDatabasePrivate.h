@@ -12,7 +12,7 @@ class VTKIOMYSQL_EXPORT vtkMySQLDatabasePrivate
 {
 public:
   vtkMySQLDatabasePrivate() :
-    Connection( NULL )
+    Connection( nullptr )
   {
   mysql_init( &this->NullConnection );
   }

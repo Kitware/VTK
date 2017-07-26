@@ -60,7 +60,7 @@ vtkContinuousScatterplot::vtkContinuousScatterplot()
   vtkImageData* output = vtkImageData::New();
   this->GetExecutive()->SetOutputData(0, output);
   output->Delete();
-  this->Fields[0] = this->Fields[1] = NULL;
+  this->Fields[0] = this->Fields[1] = nullptr;
 }
 //----------------------------------------------------------------------------
 void vtkContinuousScatterplot::SetField1(char* nm, vtkIdType xRes)
@@ -225,18 +225,18 @@ int vtkContinuousScatterplot::RequestData(
   // fragment: list of faces forming the fragments in the current cell.
   // residual: list of faces forming the rest of the cell (except fragments).
   // working: collect the residual faces for the next iteration of subdivision.
-  Polytope fragment = NULL, residual = NULL, working = NULL;
+  Polytope fragment = nullptr, residual = nullptr, working = nullptr;
 
   // structure for storing the current framgent vertices in each cell face.
-  vtkSmartPointer<vtkIdList> fragmentFace = NULL;
+  vtkSmartPointer<vtkIdList> fragmentFace = nullptr;
   // structure for storing the vertices which are not belonging to the current
   // fragment in each cell face.
-  vtkSmartPointer<vtkIdList> residualFace = NULL;
+  vtkSmartPointer<vtkIdList> residualFace = nullptr;
 
   // reading/writing cells from input, output and cell arrays.
-  vtkSmartPointer<vtkIdList> cell = NULL;
+  vtkSmartPointer<vtkIdList> cell = nullptr;
   // reading/writing faces from input, output and cell arrays.
-  vtkSmartPointer<vtkIdList> face = NULL;
+  vtkSmartPointer<vtkIdList> face = nullptr;
 
   // Each fragment can be mapped to a 2-D bin based on its range values. The density
   // value in each bin equals to the total geometric volume of the fragments in this bin.
@@ -731,7 +731,7 @@ int vtkContinuousScatterplot::RequestData(
           {
             // add the current framgent to the outpuQ structure.
             outputQ.push_back(fragment);
-            fragment = NULL;
+            fragment = nullptr;
             // set threshold at which this fragment was created
             if (fieldNr)
             {

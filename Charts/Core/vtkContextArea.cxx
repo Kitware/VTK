@@ -318,7 +318,7 @@ void vtkContextArea::PrintSelf(std::ostream &os, vtkIndent indent)
 //------------------------------------------------------------------------------
 vtkAxis *vtkContextArea::GetAxis(vtkAxis::Location location)
 {
-  return location < 4 ? this->Axes[location] : NULL;
+  return location < 4 ? this->Axes[location] : nullptr;
 }
 
 //------------------------------------------------------------------------------

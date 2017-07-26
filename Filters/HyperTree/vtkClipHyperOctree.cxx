@@ -54,8 +54,8 @@ vtkClipHyperOctree::vtkClipHyperOctree(vtkImplicitFunction *cf)
 {
   this->ClipFunction = cf;
   this->InsideOut = 0;
-  this->Locator = NULL;
-  this->Locator2=0;
+  this->Locator = nullptr;
+  this->Locator2=nullptr;
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
 
@@ -70,29 +70,29 @@ vtkClipHyperOctree::vtkClipHyperOctree(vtkImplicitFunction *cf)
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
 
-  this->Input=0;
-  this->Output=0;
-  this->ClippedOutput=0;
-  this->Conn[0]=0;
-  this->Conn[1]=0;
-  this->Types[0]=0;
-  this->Types[1]=0;
-  this->Locs[0]=0;
-  this->Locs[1]=0;
-  this->InCD=0;
-  this->OutCD[0]=0;
-  this->OutCD[1]=0;
-  this->OutPD[0]=0;
-  this->OutPD[1]=0;
-  this->Triangulator=0;
-  this->Sibling=0;
+  this->Input=nullptr;
+  this->Output=nullptr;
+  this->ClippedOutput=nullptr;
+  this->Conn[0]=nullptr;
+  this->Conn[1]=nullptr;
+  this->Types[0]=nullptr;
+  this->Types[1]=nullptr;
+  this->Locs[0]=nullptr;
+  this->Locs[1]=nullptr;
+  this->InCD=nullptr;
+  this->OutCD[0]=nullptr;
+  this->OutCD[1]=nullptr;
+  this->OutPD[0]=nullptr;
+  this->OutPD[1]=nullptr;
+  this->Triangulator=nullptr;
+  this->Sibling=nullptr;
 
-  this->Tetra=0;
-  this->Polygon=0;
-  this->TetScalars=0;
-  this->CellScalars=0;
-  this->Pts=0;
-  this->Grabber=0;
+  this->Tetra=nullptr;
+  this->Polygon=nullptr;
+  this->TetScalars=nullptr;
+  this->CellScalars=nullptr;
+  this->Pts=nullptr;
+  this->Grabber=nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -101,9 +101,9 @@ vtkClipHyperOctree::~vtkClipHyperOctree()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
-  this->SetClipFunction(NULL);
+  this->SetClipFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -114,12 +114,12 @@ vtkMTimeType vtkClipHyperOctree::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->ClipFunction != NULL )
+  if ( this->ClipFunction != nullptr )
   {
     time = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -132,7 +132,7 @@ vtkUnstructuredGrid *vtkClipHyperOctree::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkUnstructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
@@ -202,10 +202,10 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
     this->Locs[1]->Allocate(estimatedSize,estimatedSize/2);
   }
 
-  vtkPoints *newPoints2=0;
+  vtkPoints *newPoints2=nullptr;
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -311,81 +311,81 @@ int vtkClipHyperOctree::RequestData(vtkInformation *vtkNotUsed(request),
   {
     case 3:
       this->Tetra->UnRegister(this);
-      this->Tetra=0;
+      this->Tetra=nullptr;
       this->TetScalars->UnRegister(this);
-      this->TetScalars=0;
-      this->Triangulator=0;
+      this->TetScalars=nullptr;
+      this->Triangulator=nullptr;
       this->Grabber->UnRegister(this);
-      this->Grabber=0;
+      this->Grabber=nullptr;
       break;
     case 2:
-      this->Polygon=0;
+      this->Polygon=nullptr;
       this->Grabber->UnRegister(this);
-      this->Grabber=0;
+      this->Grabber=nullptr;
       break;
     default:
       break;
   }
 
   this->CellScalars->UnRegister(this);
-  this->CellScalars=0;
+  this->CellScalars=nullptr;
   this->Pts->UnRegister(this);
-  this->Pts=0;
+  this->Pts=nullptr;
 
   cursor->UnRegister(this);
   this->Sibling->UnRegister(this);
-  this->Sibling=0;
+  this->Sibling=nullptr;
 
-  this->OutPD[0]=0;
-  this->Input=0;
-  this->InCD=0;
+  this->OutPD[0]=nullptr;
+  this->Input=nullptr;
+  this->InCD=nullptr;
   this->Output->SetPoints(newPoints);
   newPoints->Delete();
   this->Output->SetCells(this->Types[0], this->Locs[0], this->Conn[0]);
   this->Conn[0]->Delete();
-  this->Conn[0]=0;
+  this->Conn[0]=nullptr;
   this->Types[0]->Delete();
-  this->Types[0]=0;
+  this->Types[0]=nullptr;
   this->Locs[0]->Delete();
-  this->Locs[0]=0;
-  this->OutCD[0]=0;
+  this->Locs[0]=nullptr;
+  this->OutCD[0]=nullptr;
 
   if(this->GenerateClippedOutput)
   {
     this->ClippedOutput->SetPoints(newPoints2);
     this->ClippedOutput->SetCells(this->Types[1], this->Locs[1],this->Conn[1]);
     this->Conn[1]->Delete();
-    this->Conn[1]=0;
+    this->Conn[1]=nullptr;
     this->Types[1]->Delete();
-    this->Types[1]=0;
+    this->Types[1]=nullptr;
     this->Locs[1]->Delete();
-    this->Locs[1]=0;
+    this->Locs[1]=nullptr;
     newPoints2->Delete();
     this->Locator2->Delete();
-    this->Locator2=0;
-    this->OutCD[1]=0;
-    this->OutPD[1]=0;
+    this->Locator2=nullptr;
+    this->OutCD[1]=nullptr;
+    this->OutPD[1]=nullptr;
   }
 
   this->Locator->Initialize();//release any extra memory
   this->Output->Squeeze();
-  this->Output=0;
+  this->Output=nullptr;
   if(this->GenerateClippedOutput)
   {
     this->ClippedOutput->Squeeze();
-    this->ClippedOutput=0;
+    this->ClippedOutput=nullptr;
   }
 
-  assert("post: input_is_null" && this->Input==0);
-  assert("post: output_is_null" && this->Output==0);
-  assert("post: clipped_output_is_null" && this->ClippedOutput==0);
-  assert("post: locator2_is_null" && this->Locator2==0);
-  assert("post: types_are_null" && this->Types[0]==0 && this->Types[1]==0);
-  assert("post: conn_are_null" && this->Conn[0]==0 && this->Conn[1]==0);
-  assert("post: locs_are_null" && this->Locs[0]==0 && this->Locs[1]==0);
-  assert("post: incd_is_null" && this->InCD==0);
-  assert("post: outpd_are_null" && this->OutPD[0]==0 && this->OutPD[1]==0);
-  assert("post: outcd_are_null" && this->OutCD[0]==0 && this->OutCD[1]==0);
+  assert("post: input_is_null" && this->Input==nullptr);
+  assert("post: output_is_null" && this->Output==nullptr);
+  assert("post: clipped_output_is_null" && this->ClippedOutput==nullptr);
+  assert("post: locator2_is_null" && this->Locator2==nullptr);
+  assert("post: types_are_null" && this->Types[0]==nullptr && this->Types[1]==nullptr);
+  assert("post: conn_are_null" && this->Conn[0]==nullptr && this->Conn[1]==nullptr);
+  assert("post: locs_are_null" && this->Locs[0]==nullptr && this->Locs[1]==nullptr);
+  assert("post: incd_is_null" && this->InCD==nullptr);
+  assert("post: outpd_are_null" && this->OutPD[0]==nullptr && this->OutPD[1]==nullptr);
+  assert("post: outcd_are_null" && this->OutCD[0]==nullptr && this->OutCD[1]==nullptr);
 
   return 1;
 }
@@ -395,7 +395,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
                                   int level,
                                   double bounds[6])
 {
-  assert("pre: cursor_exists" && cursor!=0);
+  assert("pre: cursor_exists" && cursor!=nullptr);
   assert("pre: positive_level" && level>=0);
 
   if(cursor->CurrentIsLeaf())
@@ -405,7 +405,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
       // no parent=>no sibling=>no sibling which are not leaves=>easy
       // just create a voxel/pixel/line and clip it.
 
-      vtkCell *cell=0;
+      vtkCell *cell=nullptr;
       vtkIdType cellId=cursor->GetLeafId(); // only one cell.
 
       vtkDoubleArray *cellScalars;
@@ -485,11 +485,11 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
           break;
       }
 
-      vtkDataArray *clipScalars=0;
+      vtkDataArray *clipScalars=nullptr;
 
       vtkPointData *inPD=this->Input->GetPointData();
 
-      if(this->ClipFunction!=0)
+      if(this->ClipFunction!=nullptr)
       {
         vtkDoubleArray *tmpScalars = vtkDoubleArray::New();
         tmpScalars->SetNumberOfTuples(numPts);
@@ -1524,7 +1524,7 @@ void vtkClipHyperOctree::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( locator )
@@ -1539,7 +1539,7 @@ void vtkClipHyperOctree::SetLocator(vtkIncrementalPointLocator *locator)
 //----------------------------------------------------------------------------
 void vtkClipHyperOctree::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

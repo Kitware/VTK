@@ -70,25 +70,25 @@ vtkClientSocket* vtkServerSocket::WaitForConnection(unsigned long msec /*=0*/)
   if (this->SocketDescriptor < 0)
   {
     vtkErrorMacro("Server Socket not created yet!");
-    return NULL;
+    return nullptr;
   }
 
   int ret = this->SelectSocket(this->SocketDescriptor, msec);
   if (ret == 0)
   {
     // Timed out.
-    return NULL;
+    return nullptr;
   }
   if (ret == -1)
   {
     vtkErrorMacro("Error selecting socket.");
-    return NULL;
+    return nullptr;
   }
   int clientsock = this->Accept(this->SocketDescriptor);
   if (clientsock == -1)
   {
     vtkErrorMacro("Failed to accept the socket.");
-    return NULL;
+    return nullptr;
   }
   // Create a new vtkClientSocket and return it.
   vtkClientSocket* cs = vtkClientSocket::New();

@@ -50,7 +50,7 @@ vtkProcessIdScalars::~vtkProcessIdScalars()
   if (this->Controller)
   {
     this->Controller->Delete();
-    this->Controller = 0;
+    this->Controller = nullptr;
   }
 }
 

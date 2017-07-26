@@ -83,7 +83,7 @@ vtkGraph::vtkGraph()
 {
   this->VertexData = vtkDataSetAttributes::New();
   this->EdgeData = vtkDataSetAttributes::New();
-  this->Points = 0;
+  this->Points = nullptr;
   vtkMath::UninitializeBounds(this->Bounds);
 
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
@@ -92,9 +92,9 @@ vtkGraph::vtkGraph()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
   this->Internals = vtkGraphInternals::New();
-  this->DistributedHelper = 0;
-  this->EdgePoints = 0;
-  this->EdgeList = 0;
+  this->DistributedHelper = nullptr;
+  this->EdgePoints = nullptr;
+  this->EdgeList = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ void vtkGraph::GetOutEdges(vtkIdType v, const vtkOutEdgeType *& edges, vtkIdType
   }
   else
   {
-    edges = 0;
+    edges = nullptr;
   }
 }
 
@@ -448,7 +448,7 @@ void vtkGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType &
   }
   else
   {
-    edges = 0;
+    edges = nullptr;
   }
 }
 
@@ -527,7 +527,7 @@ vtkIdType vtkGraph::GetNumberOfVertices()
 void vtkGraph::SetDistributedGraphHelper(vtkDistributedGraphHelper *helper)
 {
   if (this->DistributedHelper)
-    this->DistributedHelper->AttachToGraph(0);
+    this->DistributedHelper->AttachToGraph(nullptr);
 
   this->DistributedHelper = helper;
   if (this->DistributedHelper)
@@ -547,7 +547,7 @@ vtkDistributedGraphHelper *vtkGraph::GetDistributedGraphHelper()
 vtkIdType vtkGraph::FindVertex(const vtkVariant& pedigreeId)
 {
   vtkAbstractArray *pedigrees = this->GetVertexData()->GetPedigreeIds();
-  if (pedigrees == NULL)
+  if (pedigrees == nullptr)
   {
     return -1;
   }
@@ -660,7 +660,7 @@ void vtkGraph::CopyStructure(vtkGraph *g)
   else if (this->Points)
   {
     this->Points->Delete();
-    this->Points = 0;
+    this->Points = nullptr;
   }
 
   // Propagate information used by distributed graphs
@@ -692,7 +692,7 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   }
   else if (this->DistributedHelper)
   {
-    this->SetDistributedGraphHelper(0);
+    this->SetDistributedGraphHelper(nullptr);
   }
 
   // Copy on write.
@@ -762,7 +762,7 @@ void vtkGraph::Squeeze()
 //----------------------------------------------------------------------------
 vtkGraph *vtkGraph::GetData(vtkInformation *info)
 {
-  return info? vtkGraph::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -923,7 +923,7 @@ void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
   if (!this->EdgePoints)
   {
     npts = 0;
-    pts = 0;
+    pts = nullptr;
     return;
   }
   std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
@@ -939,7 +939,7 @@ void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
   }
   else
   {
-    pts = 0;
+    pts = nullptr;
   }
 }
 
@@ -984,7 +984,7 @@ double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
     if (myRank != helper->GetEdgeOwner(e))
     {
       vtkErrorMacro("vtkGraph cannot receive edge points for a non-local vertex");
-      return 0;
+      return nullptr;
     }
 
     e = helper->GetEdgeIndex(e);
@@ -993,7 +993,7 @@ double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
   if (e < 0 || e > this->Internals->NumberOfEdges)
   {
     vtkErrorMacro("Invalid edge id.");
-    return 0;
+    return nullptr;
   }
   if (!this->EdgePoints)
   {
@@ -1009,7 +1009,7 @@ double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
   if (i >= npts)
   {
     vtkErrorMacro("Edge point index out of range.");
-    return 0;
+    return nullptr;
   }
   return &this->EdgePoints->Storage[e][3*i];
 }
@@ -1141,7 +1141,7 @@ void vtkGraph::DeepCopyEdgePoints(vtkGraph* g)
   }
   else
   {
-    this->SetEdgePoints(0);
+    this->SetEdgePoints(nullptr);
   }
 }
 
@@ -1310,7 +1310,7 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
   // Add the vertex locally
   this->ForceOwnership();
   vtkIdType v;
-  this->AddVertexInternal(0, &v);
+  this->AddVertexInternal(nullptr, &v);
   if (vertex)
   {
     *vertex = v;
@@ -1318,7 +1318,7 @@ void vtkGraph::AddVertexInternal(const vtkVariant& pedigreeId,
 
   // Add the pedigree ID of the vertex
   vtkAbstractArray *pedigrees = this->GetVertexData()->GetPedigreeIds();
-  if (pedigrees == NULL)
+  if (pedigrees == nullptr)
   {
     vtkErrorMacro("Added a vertex with a pedigree ID to a vtkGraph with no pedigree ID array");
     return;

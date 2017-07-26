@@ -64,15 +64,15 @@ vtkUnstructuredGridVolumeRayCastMapper::vtkUnstructuredGridVolumeRayCastMapper()
   this->Threader               = vtkMultiThreader::New();
   this->NumberOfThreads        = this->Threader->GetNumberOfThreads();
 
-  this->Image                  = NULL;
+  this->Image                  = nullptr;
 
-  this->RenderTimeTable        = NULL;
-  this->RenderVolumeTable      = NULL;
-  this->RenderRendererTable    = NULL;
+  this->RenderTimeTable        = nullptr;
+  this->RenderVolumeTable      = nullptr;
+  this->RenderRendererTable    = nullptr;
   this->RenderTableSize        = 0;
   this->RenderTableEntries     = 0;
 
-  this->ZBuffer                = NULL;
+  this->ZBuffer                = nullptr;
   this->ZBufferSize[0]         = 0;
   this->ZBufferSize[1]         = 0;
   this->ZBufferOrigin[0]       = 0;
@@ -83,8 +83,8 @@ vtkUnstructuredGridVolumeRayCastMapper::vtkUnstructuredGridVolumeRayCastMapper()
   this->ImageDisplayHelper     = vtkRayCastImageDisplayHelper::New();
 
   this->RayCastFunction = vtkUnstructuredGridBunykRayCastFunction::New();
-  this->RayIntegrator = NULL;
-  this->RealRayIntegrator = NULL;
+  this->RayIntegrator = nullptr;
+  this->RealRayIntegrator = nullptr;
 }
 
 // Destruct a vtkUnstructuredGridVolumeRayCastMapper - clean up any memory used
@@ -103,8 +103,8 @@ vtkUnstructuredGridVolumeRayCastMapper::~vtkUnstructuredGridVolumeRayCastMapper(
 
   this->ImageDisplayHelper->Delete();
 
-  this->SetRayCastFunction(NULL);
-  this->SetRayIntegrator(NULL);
+  this->SetRayCastFunction(nullptr);
+  this->SetRayIntegrator(nullptr);
   if (this->RealRayIntegrator)
   {
     this->RealRayIntegrator->UnRegister(this);
@@ -192,7 +192,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   int i;
 
   // Check for input
-  if ( this->GetInput() == NULL )
+  if ( this->GetInput() == nullptr )
   {
     vtkErrorMacro(<< "No Input!");
     return;
@@ -207,7 +207,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
                                    this->ArrayId, this->ArrayName,
                                    this->CellScalars);
 
-  if (this->Scalars == NULL)
+  if (this->Scalars == nullptr)
   {
     vtkErrorMacro("Can't use the ray cast mapper without scalars!");
     return;
@@ -425,7 +425,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     }
     else
     {
-      this->IntersectedCellsBuffer[i] = NULL;
+      this->IntersectedCellsBuffer[i] = nullptr;
       this->FarIntersectionsBuffer[i]
         = vtkDataArray::CreateDataArray(this->Scalars->GetDataType());
       this->FarIntersectionsBuffer[i]
@@ -441,8 +441,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   this->Threader->SingleMethodExecute();
 
   // We don't need these anymore
-  this->CurrentVolume   = NULL;
-  this->CurrentRenderer = NULL;
+  this->CurrentVolume   = nullptr;
+  this->CurrentRenderer = nullptr;
   for (i = 0; i < this->NumberOfThreads; i++)
   {
     this->RayCastIterators[i]->Delete();
@@ -495,7 +495,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
 
 
   delete [] this->ZBuffer;
-  this->ZBuffer = NULL;
+  this->ZBuffer = nullptr;
 
   this->UpdateProgress(1.0);
 }
@@ -593,8 +593,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
         {
           numIntersections = iterator->GetNextIntersections(intersectedCells,
                                                             intersectionLengths,
-                                                            NULL,
-                                                            NULL, NULL);
+                                                            nullptr,
+                                                            nullptr, nullptr);
           nearIntersections
             ->SetNumberOfComponents(this->Scalars->GetNumberOfComponents());
           nearIntersections->SetNumberOfTuples(numIntersections);
@@ -610,7 +610,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
         }
         else
         {
-          numIntersections = iterator->GetNextIntersections(NULL,
+          numIntersections = iterator->GetNextIntersections(nullptr,
                                                             intersectionLengths,
                                                             this->Scalars,
                                                             nearIntersections,

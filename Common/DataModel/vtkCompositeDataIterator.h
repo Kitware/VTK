@@ -95,7 +95,7 @@ public:
 
   //@{
   /**
-   * If SkipEmptyNodes is true, then NULL datasets will be skipped. Default is
+   * If SkipEmptyNodes is true, then nullptr datasets will be skipped. Default is
    * true.
    */
   vtkSetMacro(SkipEmptyNodes, int);

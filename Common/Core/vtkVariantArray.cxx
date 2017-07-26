@@ -49,20 +49,20 @@ class vtkVariantArrayLookup
 public:
   vtkVariantArrayLookup() : Rebuild(true)
   {
-    this->SortedArray = NULL;
-    this->IndexArray = NULL;
+    this->SortedArray = nullptr;
+    this->IndexArray = nullptr;
   }
   ~vtkVariantArrayLookup()
   {
     if (this->SortedArray)
     {
       this->SortedArray->Delete();
-      this->SortedArray = NULL;
+      this->SortedArray = nullptr;
     }
     if (this->IndexArray)
     {
       this->IndexArray->Delete();
-      this->IndexArray = NULL;
+      this->IndexArray = nullptr;
     }
   }
   vtkVariantArray* SortedArray;
@@ -93,9 +93,9 @@ void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkVariantArray::vtkVariantArray()
 {
-  this->Array = NULL;
+  this->Array = nullptr;
   this->SaveUserArray = 0;
-  this->Lookup = NULL;
+  this->Lookup = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -146,7 +146,7 @@ void vtkVariantArray::Initialize()
   {
     delete [] this->Array;
   }
-  this->Array = 0;
+  this->Array = nullptr;
   this->Size = 0;
   this->MaxId = -1;
   this->SaveUserArray = 0;
@@ -413,7 +413,7 @@ void* vtkVariantArray::GetVoidPointer(vtkIdType id)
 //----------------------------------------------------------------------------
 void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
 {
-  // Do nothing on a NULL input.
+  // Do nothing on a nullptr input.
   if(!aa)
   {
     return;
@@ -435,7 +435,7 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
   }
 
   vtkVariantArray *va = vtkArrayDownCast<vtkVariantArray>( aa );
-  if ( va == NULL )
+  if ( va == nullptr )
   {
     vtkErrorMacro(<< "Shouldn't Happen: Couldn't downcast array into a vtkVariantArray." );
     return;
@@ -743,14 +743,14 @@ vtkVariant* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
   if(newSize <= 0)
   {
     this->Initialize();
-    return 0;
+    return nullptr;
   }
 
   newArray = new vtkVariant[newSize];
   if(!newArray)
   {
     vtkErrorMacro("Cannot allocate memory\n");
-    return 0;
+    return nullptr;
   }
 
   if(this->Array)
@@ -967,5 +967,5 @@ void vtkVariantArray::DataElementChanged(vtkIdType id)
 void vtkVariantArray::ClearLookup()
 {
   delete this->Lookup;
-  this->Lookup = NULL;
+  this->Lookup = nullptr;
 }

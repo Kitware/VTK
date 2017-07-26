@@ -40,7 +40,7 @@
 #include <typeinfo> // for warnings
 
 template<typename T>
-T vtkVariantCast(const vtkVariant& value, bool* valid = 0)
+T vtkVariantCast(const vtkVariant& value, bool* valid = nullptr)
 {
   vtkGenericWarningMacro(
     << "Cannot convert vtkVariant containing [" << value.GetTypeAsString() << "] "

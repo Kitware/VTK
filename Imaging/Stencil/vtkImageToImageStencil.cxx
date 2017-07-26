@@ -60,7 +60,7 @@ vtkImageData *vtkImageToImageStencil::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkImageData::SafeDownCast(

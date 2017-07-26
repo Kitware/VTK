@@ -297,7 +297,7 @@ int vtkStructuredGridReader::RequestData(
         vtkUnsignedCharArray *data = vtkArrayDownCast<vtkUnsignedCharArray>(
                                         this->ReadArray(line, numPts, 1));
 
-        if ( data != NULL )
+        if ( data != nullptr )
         {
           vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
           ghosts->SetNumberOfValues(numPts);

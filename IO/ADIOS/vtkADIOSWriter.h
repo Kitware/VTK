@@ -72,9 +72,9 @@ public:
    */
   vtkGetMacro(TransportMethod, int);
   vtkSetClampMacro(TransportMethod, int,
-                   static_cast<int>(ADIOS::TransportMethod_NULL),
+                   static_cast<int>(ADIOS::TransportMethod_nullptr),
                    static_cast<int>(ADIOS::TransportMethod_NetCDF4));
-  void SetTransportMethodToNULL()         { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_NULL)); }
+  void SetTransportMethodTonullptr()         { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_nullptr)); }
   void SetTransportMethodToPOSIX()        { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_POSIX)); }
   void SetTransportMethodToMPI()          { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_MPI)); }
   void SetTransportMethodToMPILustre()    { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_MPI_LUSTRE)); }

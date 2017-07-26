@@ -139,10 +139,10 @@ static const char* obj_typestr[] = {
   "A",
   "S",
   "T",
-  0, /* maps have no result variables */
-  0,
-  0,
-  0,
+  nullptr, /* maps have no result variables */
+  nullptr,
+  nullptr,
+  nullptr,
   "N"
 };
 
@@ -208,7 +208,7 @@ vtkExodusIIReaderPrivate::BlockSetInfoType::BlockSetInfoType(
   FileOffset(block.FileOffset),
   PointMap(block.PointMap),
   ReversePointMap(block.ReversePointMap),
-  CachedConnectivity(0)
+  CachedConnectivity(nullptr)
 {
   //this is needed to properly manage memory.
   //when vectors are resized or reserved the container
@@ -399,7 +399,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
 
   this->SqueezePoints = 1;
 
-  this->Parser = 0;
+  this->Parser = nullptr;
 
   this->SIL = vtkMutableDirectedGraph::New();
   this->SkipUpdateTimeInformation = false;
@@ -417,10 +417,10 @@ vtkExodusIIReaderPrivate::~vtkExodusIIReaderPrivate()
   if(this->Parser)
   {
     this->Parser->Delete();
-    this->Parser = 0;
+    this->Parser = nullptr;
   }
   this->SIL->Delete();
-  this->SIL = 0;
+  this->SIL = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -799,7 +799,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
          otyp == vtkExodusIIReader::SIDE_SET ) )
   {
     vtkExodusIICacheKey ckey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
-    vtkIdTypeArray* src = 0;
+    vtkIdTypeArray* src = nullptr;
 
     if ( vtkDataArray* elems = this->GetCacheOrRead( ckey ) )
     {
@@ -823,7 +823,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
       {
         idarray->GetTypedTuple(i, values);
-        if (src == 0 || src->GetValue (values[0] - 1) <= 0)
+        if (src == nullptr || src->GetValue (values[0] - 1) <= 0)
         {
           elementid->SetValue(i, values[0] - 1);
         }
@@ -865,7 +865,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       status -= 2;
     }
 
-    if (src != 0)
+    if (src != nullptr)
     {
       src->Delete ();
     }
@@ -1320,7 +1320,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     return;
   }
 
-  vtkIntArray* ent = 0;
+  vtkIntArray* ent = nullptr;
   if ( binfo->PointsPerCell == 0 )
   {
     int arrId = (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN ? 0 : 1);
@@ -1427,7 +1427,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     for ( int i = 0; i < binfo->Size; ++i )
     {
       int entitiesPerCell = binfo->PointsPerCell;
-      if ( ent != 0)
+      if ( ent != nullptr)
       {
         entitiesPerCell = ent->GetValue (i);
         cellIds.resize( entitiesPerCell );
@@ -1590,8 +1590,8 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies(
   vtkIdType lastBlockEntry = -1;
   int* pref = refs->GetPointer( 0 );
   int stride = refs->GetNumberOfComponents();
-  BlockInfoType* binfop = 0; //&this->BlockInfo[otyp][bnum];
-  int* nodeconn = 0;
+  BlockInfoType* binfop = nullptr; //&this->BlockInfo[otyp][bnum];
+  int* nodeconn = nullptr;
   vtkIdType* cellConn;
   int nnpe = 0;
   vtkIntArray* nconn;
@@ -1732,7 +1732,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
   // Never cache points deflected for a mode shape animation... doubles don't make good keys.
   if ( this->HasModeShapes && key.ObjectType == vtkExodusIIReader::NODAL_COORDS )
   {
-    arr = 0;
+    arr = nullptr;
   }
   else
   {
@@ -1748,7 +1748,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
   int exoid = this->Exoid;
   int maxNameLength = this->Parent->GetMaxNameLength();
 
-  // If array is NULL, try reading it from file.
+  // If array is nullptr, try reading it from file.
   if ( key.ObjectType == vtkExodusIIReader::GLOBAL )
   {
     // need to assemble result array from smaller ones.
@@ -1768,7 +1768,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     {
       vtkErrorMacro( "Could not read global variable " << this->GetGlobalVariableValuesArrayName() << "." );
       arr->Delete();
-      arr = 0;
+      arr = nullptr;
     }
   }
   else if ( key.ObjectType == vtkExodusIIReader::NODAL )
@@ -1792,7 +1792,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       {
         vtkErrorMacro( "Could not read nodal result variable " << ainfop->Name.c_str() << "." );
         arr->Delete();
-        arr = 0;
+        arr = nullptr;
       }
     }
     else
@@ -1811,8 +1811,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read nodal result variable " << ainfop->OriginalNames[c].c_str() << "." );
           arr->Delete();
-          arr = 0;
-          return 0;
+          arr = nullptr;
+          return nullptr;
         }
       }
       int t;
@@ -1874,8 +1874,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
             "Could not read temporal global result variable "
             << ainfop->OriginalNames[c].c_str() << "." );
           arr->Delete();
-          arr = 0;
-          return 0;
+          arr = nullptr;
+          return nullptr;
         }
       }
       int t;
@@ -1898,7 +1898,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         "Could not read global result variable "
         << ainfop->Name.c_str() << "." );
       arr->Delete();
-      arr = 0;
+      arr = nullptr;
     }
   }
   else if ( key.ObjectType == vtkExodusIIReader::NODAL_TEMPORAL )
@@ -1918,7 +1918,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       {
         vtkErrorMacro( "Could not read nodal result variable " << ainfop->Name.c_str() << "." );
         arr->Delete();
-        arr = 0;
+        arr = nullptr;
       }
     }
     else
@@ -1937,8 +1937,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read temporal nodal result variable " << ainfop->OriginalNames[c].c_str() << "." );
           arr->Delete();
-          arr = 0;
-          return 0;
+          arr = nullptr;
+          return nullptr;
         }
       }
       int t;
@@ -1971,7 +1971,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       {
         vtkErrorMacro( "Could not read element result variable " << ainfop->Name.c_str() << "." );
         arr->Delete();
-        arr = 0;
+        arr = nullptr;
       }
     }
     else
@@ -1990,8 +1990,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read temporal element result variable " << ainfop->OriginalNames[c].c_str() << "." );
           arr->Delete();
-          arr = 0;
-          return 0;
+          arr = nullptr;
+          return nullptr;
         }
       }
       int t;
@@ -2043,7 +2043,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         vtkErrorMacro( "Could not read result variable " << ainfop->Name.c_str() <<
           " for " << objtype_names[otypidx] << " " << oinfop->Id << "." );
         arr->Delete();
-        arr = 0;
+        arr = nullptr;
       }
     }
     else
@@ -2064,7 +2064,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           vtkErrorMacro( "Could not read result variable " << ainfop->OriginalNames[c].c_str() <<
             " for " << objtype_names[otypidx] << " " << oinfop->Id << "." );
           arr->Delete();
-          arr = 0;
+          arr = nullptr;
         }
       }
       // Carefully use arr->GetNumberOfComponents() when sizing
@@ -2117,8 +2117,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       {
         vtkErrorMacro( "Could not read map \"" << minfop->Name.c_str() << "\" (" << minfop->Id << ") from disk." );
         arr->Delete();
-        arr = 0;
-        return 0;
+        arr = nullptr;
+        return nullptr;
       }
       //
       // Move the check of maxTuples out of the for(;;) loop.
@@ -2164,8 +2164,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     vtkIdTypeArray* src = vtkArrayDownCast<vtkIdTypeArray>( this->GetCacheOrRead( ckey ) );
     if ( ! src )
     {
-      arr = 0;
-      return 0;
+      arr = nullptr;
+      return nullptr;
     }
     vtkIdTypeArray* iarr = vtkIdTypeArray::New();
     iarr->SetName( vtkExodusIIReader::GetGlobalElementIdArrayName() );
@@ -2218,7 +2218,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read elem num map for global implicit id" );
           src->Delete();
-          return 0;
+          return nullptr;
         }
         else
         {
@@ -2302,7 +2302,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read node num map for global implicit id" );
           src->Delete();
-          return 0;
+          return nullptr;
         }
         else
         {
@@ -2397,7 +2397,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read old-style node or element map." );
           iarr->Delete();
-          iarr = 0;
+          iarr = nullptr;
         }
         else
         {
@@ -2450,7 +2450,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       vtkErrorMacro( "Unable to read " << binfop->Id << " (index " << key.ObjectId <<
         ") entity count per polyhedra" );
       iarr->Delete();
-      iarr = 0;
+      iarr = nullptr;
     }
     arr = iarr;
   }
@@ -2480,12 +2480,12 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       iarr->SetNumberOfTuples( binfop->Size );
     }
 
-    if ( ex_get_conn( exoid, static_cast<ex_entity_type>( otyp ), binfop->Id, iarr->GetPointer(0), 0, 0 ) < 0 )
+    if ( ex_get_conn( exoid, static_cast<ex_entity_type>( otyp ), binfop->Id, iarr->GetPointer(0), nullptr, nullptr ) < 0 )
     {
       vtkErrorMacro( "Unable to read " << objtype_names[otypidx] << " " << binfop->Id << " (index " << key.ObjectId <<
         ") nodal connectivity." );
       iarr->Delete();
-      iarr = 0;
+      iarr = nullptr;
     }
 
     vtkIdType c;
@@ -2563,7 +2563,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_FACE_CONN ||
     key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_EDGE_CONN )
   {
-    arr = 0;
+    arr = nullptr;
 
     // bdsEntry will determine whether we call ex_get_conn to read edge or face connectivity:
     int bdsEntry = key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_EDGE_CONN ? 1 : 2;
@@ -2585,16 +2585,16 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           exoid,
           static_cast<ex_entity_type>( otyp ),
           binfop->Id,
-          NULL,
-          bdsEntry == 1 ? iarr->GetPointer(0) : NULL,
-          bdsEntry == 2 ? iarr->GetPointer(0) : NULL ) < 0)
+          nullptr,
+          bdsEntry == 1 ? iarr->GetPointer(0) : nullptr,
+          bdsEntry == 2 ? iarr->GetPointer(0) : nullptr ) < 0)
       {
         vtkErrorMacro(
           "Unable to read " << objtype_names[otypidx] << " "
           << binfop->Id << " (index " << key.ObjectId <<
           ") " << (bdsEntry == 1 ? "edge" : "face") << " connectivity." );
         iarr->Delete();
-        iarr = 0;
+        iarr = nullptr;
       }
       else
       {
@@ -2621,12 +2621,12 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     iarr->SetNumberOfTuples( sinfop->Size );
     int* iptr = iarr->GetPointer( 0 );
 
-    if ( ex_get_set( exoid, static_cast<ex_entity_type>( otyp ), sinfop->Id, iptr, 0 ) < 0 )
+    if ( ex_get_set( exoid, static_cast<ex_entity_type>( otyp ), sinfop->Id, iptr, nullptr ) < 0 )
     {
       vtkErrorMacro( "Unable to read " << objtype_names[otypidx] << " " << sinfop->Id << " (index " << key.ObjectId <<
         ") nodal connectivity." );
       iarr->Delete();
-      iarr = 0;
+      iarr = nullptr;
     }
 
     vtkIdType id;
@@ -2653,8 +2653,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       vtkErrorMacro( "Unable to read " << objtype_names[otypidx] << " " << sinfop->Id << " (index " << key.ObjectId <<
         ") nodal connectivity." );
       iarr->Delete();
-      iarr = 0;
-      return 0;
+      iarr = nullptr;
+      return nullptr;
     }
 
     int* iap = iarr->GetPointer( 0 );
@@ -2678,8 +2678,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       if ( ex_get_side_set_node_list_len( exoid, sinfop->Id, &ssnllen ) < 0 )
       {
         vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list length" );
-        arr = 0;
-        return 0;
+        arr = nullptr;
+        return nullptr;
       }
       vtkIntArray* iarr = vtkIntArray::New();
       vtkIdType ilen = ssnllen + sinfop->Size;
@@ -2690,8 +2690,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       {
         vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list" );
         iarr->Delete();
-        arr = 0;
-        return 0;
+        arr = nullptr;
+        return nullptr;
       }
       while ( ilen > sinfop->Size )
       { // move to 0-based indexing on nodes, don't touch nodes/side counts at head of array
@@ -2710,8 +2710,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       if ( ex_get_side_set( exoid, sinfop->Id, &side_set_elem_list[0], &side_set_side_list[0]) < 0 )
       {
         vtkErrorMacro( "Unable to fetch side set \"" << sinfop->Name.c_str() << "\" (" << sinfop->Id << ") node list" );
-        arr = 0;
-        return 0;
+        arr = nullptr;
+        return nullptr;
       }
       vtkIdTypeArray* iarr = vtkIdTypeArray::New();
       iarr->SetNumberOfComponents( 2 );
@@ -2728,7 +2728,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
   else if ( key.ObjectType == vtkExodusIIReader::NODAL_COORDS )
   {
     // read node coords
-    vtkDataArray* displ = 0;
+    vtkDataArray* displ = nullptr;
     if ( this->ApplyDisplacements && key.Time >= 0 )
     {
       displ = this->FindDisplacementVectors( key.Time );
@@ -2742,9 +2742,9 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     int dim = this->ModelParameters.num_dim;
     int c;
     vtkIdType t;
-    double* xc = 0;
-    double* yc = 0;
-    double* zc = 0;
+    double* xc = nullptr;
+    double* yc = nullptr;
+    double* zc = nullptr;
     coordTmp.resize( this->ModelParameters.num_nodes );
     for ( c = 0; c < dim; ++c )
     {
@@ -2755,21 +2755,21 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         break;
       case 1:
         yc = xc;
-        xc = 0;
+        xc = nullptr;
         break;
       case 2:
         zc = yc;
-        yc = 0;
+        yc = nullptr;
         break;
       default:
         vtkErrorMacro( "Bad coordinate index " << c << " when reading point coordinates." );
-        xc = yc = zc = 0;
+        xc = yc = zc = nullptr;
       }
       if ( ex_get_coord( exoid, xc, yc, zc ) < 0 )
       {
         vtkErrorMacro( "Unable to read node coordinates for index " << c << "." );
         arr->Delete();
-        arr = 0;
+        arr = nullptr;
         break;
       }
       double* cptr = darr->GetPointer( c );
@@ -2907,7 +2907,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       vtkErrorMacro( "Unable to read attribute " << key.ArrayId
         << " for object " << key.ObjectId << " of type " << key.ObjectType  << " block type " << blkType << "." );
       arr->Delete();
-      arr = 0;
+      arr = nullptr;
     }
   }
   else if ( key.ObjectType == vtkExodusIIReader::INFO_RECORDS )
@@ -2915,7 +2915,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     // Get Exodus II INFO records.  Each INFO record is a single character string.
     int num_info = 0;
     float fdum;
-    char* cdum = 0;
+    char* cdum = nullptr;
     int i;
 
     vtkCharArray* carr = vtkCharArray::New();
@@ -2926,7 +2926,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     {
       vtkErrorMacro( "Unable to get number of INFO records from ex_inquire" );
       carr->Delete();
-      arr = 0;
+      arr = nullptr;
     }
     else
     {
@@ -2942,7 +2942,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Unable to read INFO records from ex_get_info");
           carr->Delete();
-          arr = 0;
+          arr = nullptr;
         }
         else
         {
@@ -2962,7 +2962,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       else
       {
         carr->Delete();
-        arr = 0;
+        arr = nullptr;
       }
     }
   }
@@ -2971,7 +2971,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     // Get Exodus II QA records.  Each QA record is made up of 4 character strings.
     int num_qa_rec = 0;
     float fdum;
-    char* cdum = 0;
+    char* cdum = nullptr;
     int i,j;
 
     vtkCharArray* carr = vtkCharArray::New();
@@ -2982,7 +2982,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     {
       vtkErrorMacro( "Unable to get number of QA records from ex_inquire" );
       carr->Delete();
-      arr = 0;
+      arr = nullptr;
     }
     else
     {
@@ -3003,7 +3003,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Unable to read QA records from ex_get_qa");
           carr->Delete();
-          arr = 0;
+          arr = nullptr;
         }
         else
         {
@@ -3029,7 +3029,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       else
       {
         carr->Delete();
-        arr = 0;
+        arr = nullptr;
       }
     }
   }
@@ -3037,7 +3037,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
   {
     vtkWarningMacro( "You requested an array for objects of type " << key.ObjectType <<
       " which I know nothing about" );
-    arr = 0;
+    arr = nullptr;
   }
 
   // Even if the array is larger than the allowable cache size, it will keep the most recent insertion.
@@ -3107,7 +3107,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetObjectInf
 {
   if ( typeIndex < 0 )
   {
-    return 0;
+    return nullptr;
   }
   else if ( typeIndex < 3 )
   {
@@ -3121,7 +3121,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetObjectInf
   {
     return &this->MapInfo[obj_types[typeIndex]][objectIndex];
   }
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -3131,7 +3131,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetSortedObj
   if ( i < 0 )
   {
     vtkDebugMacro( "Could not find collection of objects with type " << otyp << "." );
-    return 0;
+    return nullptr;
   }
   int N = this->GetNumberOfObjectsAtTypeIndex( i );
   if ( k < 0 || k >= N )
@@ -3139,7 +3139,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetSortedObj
     const char* otname = i >= 0 ? objtype_names[i] : "object";
     static_cast<void>(otname); // not referenced warning
     vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
-    return 0;
+    return nullptr;
   }
   return this->GetObjectInfo( i, this->SortedObjectIndices[otyp][k] );
 }
@@ -3151,7 +3151,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetUnsortedO
   if ( i < 0 )
   {
     vtkDebugMacro( "Could not find collection of objects with type " << otyp << "." );
-    return 0;
+    return nullptr;
   }
   int N = this->GetNumberOfObjectsAtTypeIndex( i );
   if ( k < 0 || k >= N )
@@ -3159,7 +3159,7 @@ vtkExodusIIReaderPrivate::ObjectInfoType* vtkExodusIIReaderPrivate::GetUnsortedO
     const char* otname = i >= 0 ? objtype_names[i] : "object";
     static_cast<void>(otname); // not referenced warning
     vtkDebugMacro( "You requested " << otname << " " << k << " in a collection of only " << N << " objects." );
-    return 0;
+    return nullptr;
   }
   return this->GetObjectInfo( i, k );
 }
@@ -3186,7 +3186,7 @@ vtkExodusIIReaderPrivate::BlockInfoType* vtkExodusIIReaderPrivate::GetBlockFromF
   {
     return &this->BlockInfo[otyp][blk];
   }
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -3302,7 +3302,7 @@ vtkExodusIIReaderPrivate::ArrayInfoType* vtkExodusIIReaderPrivate::FindArrayInfo
     if ( ai->Name == name )
       return &(*ai);
   }
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -3467,7 +3467,7 @@ void vtkExodusIIReaderPrivate::ClearConnectivityCaches()
       if ( blkit->CachedConnectivity )
       {
         blkit->CachedConnectivity->Delete();
-        blkit->CachedConnectivity = 0;
+        blkit->CachedConnectivity = nullptr;
       }
     }
   }
@@ -3480,7 +3480,7 @@ void vtkExodusIIReaderPrivate::ClearConnectivityCaches()
       if ( setit->CachedConnectivity )
       {
         setit->CachedConnectivity->Delete();
-        setit->CachedConnectivity = 0;
+        setit->CachedConnectivity = nullptr;
       }
     }
   }
@@ -3857,7 +3857,7 @@ int vtkExodusIIReaderPrivate::OpenFile( const char* filename )
 {
   if ( ! filename || ! strlen( filename ) )
   {
-    vtkErrorMacro( "Exodus filename pointer was NULL or pointed to an empty string." );
+    vtkErrorMacro( "Exodus filename pointer was nullptr or pointed to an empty string." );
     return 0;
   }
 
@@ -3916,7 +3916,7 @@ int vtkExodusIIReaderPrivate::UpdateTimeInformation()
   int num_timesteps;
   int i;
 
-  VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME, itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
+  VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME, itmp, nullptr, nullptr ), "Inquire for EX_INQ_TIME failed" );
   num_timesteps = itmp[0];
 
   this->Times.clear();
@@ -4021,8 +4021,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   int i, j;
   int num_timesteps;
   char** obj_names;
-  char** obj_typenames = 0;
-  char** var_names = 0;
+  char** obj_typenames = nullptr;
+  char** var_names = nullptr;
   int have_var_names;
   int num_vars = 0; /* number of variables per object */
   char tmpName[256];
@@ -4060,10 +4060,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
     std::map<int,int> sortedObjects;
 
-    int* truth_tab = 0;
+    int* truth_tab = nullptr;
     have_var_names = 0;
 
-    VTK_EXO_FUNC( ex_inquire( exoid, obj_sizes[i], &nids, 0, 0 ), "Object ID list size could not be determined." );
+    VTK_EXO_FUNC( ex_inquire( exoid, obj_sizes[i], &nids, nullptr, nullptr ), "Object ID list size could not be determined." );
 
     if ( nids )
     {
@@ -4085,9 +4085,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     }
     else
     {
-      ids = 0;
-      obj_names = 0;
-      obj_typenames = 0;
+      ids = nullptr;
+      obj_names = nullptr;
+      obj_typenames = nullptr;
     }
 
     if ( nids == 0 && ! OBJTYPE_IS_MAP(i) )
@@ -4141,7 +4141,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     }
 
     if ( !have_var_names)
-      var_names = 0;
+      var_names = nullptr;
 
     for (obj = 0; obj < nids; ++obj)
     {
@@ -4151,7 +4151,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
         binfo.Name = obj_names[obj];
         binfo.Id = ids[obj];
-        binfo.CachedConnectivity = 0;
+        binfo.CachedConnectivity = nullptr;
         binfo.NextSqueezePoint = 0;
         if (obj_types[i] == vtkExodusIIReader::ELEM_BLOCK)
         {
@@ -4177,7 +4177,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         if (binfo.Name.length() == 0)
         {
           snprintf( tmpName, sizeof(tmpName), "Unnamed block ID: %d Type: %s",
-              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL");
+              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "nullptr");
           binfo.Name = tmpName;
         }
         binfo.OriginalName = binfo.Name;
@@ -4295,7 +4295,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         sinfo.Name = obj_names[obj];
         sinfo.Status = 0;
         sinfo.Id = ids[obj];
-        sinfo.CachedConnectivity = 0;
+        sinfo.CachedConnectivity = nullptr;
         sinfo.NextSqueezePoint = 0;
 
         VTK_EXO_FUNC( ex_get_set_param( exoid, static_cast<ex_entity_type>( obj_types[i] ), ids[obj], &sinfo.Size, &sinfo.DistFact),
@@ -4420,7 +4420,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       free( var_names[j] );
     }
     free( var_names );
-    var_names = 0;
+    var_names = nullptr;
   }
 
   // Now read information for global variables
@@ -4451,7 +4451,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       free( var_names[j] );
     }
     free( var_names );
-    var_names = 0;
+    var_names = nullptr;
   }
 
   return 0;
@@ -4522,7 +4522,7 @@ int vtkExodusIIReaderPrivate::RequestData( vtkIdType timeStep, vtkMultiBlockData
       //cout << ( bsinfop->Status ? "++" : "--" ) << "   ObjectId: " << bsinfop->Id;
       if ( ! bsinfop->Status )
       {
-        mbds->SetBlock( sortIdx, 0 );
+        mbds->SetBlock( sortIdx, nullptr );
         if (object_name)
         {
           mbds->GetMetaData(sortIdx)->Set(vtkCompositeDataSet::NAME(), object_name);
@@ -4615,7 +4615,7 @@ int vtkExodusIIReaderPrivate::SetUpEmptyGrid( vtkMultiBlockDataSet* output )
       if ( ! bsinfop->Status )
       {
         //cout << "\n";
-        mbds->SetBlock( sortIdx, 0 );
+        mbds->SetBlock( sortIdx, nullptr );
         continue;
       }
       vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
@@ -4852,7 +4852,7 @@ int vtkExodusIIReaderPrivate::GetNumberOfObjectArraysOfType( int otyp )
 const char* vtkExodusIIReaderPrivate::GetObjectName( int otyp, int k )
 {
   ObjectInfoType* oinfop = this->GetSortedObjectInfo( otyp, k );
-  return oinfop ? oinfop->Name.c_str() : 0;
+  return oinfop ? oinfop->Name.c_str() : nullptr;
 }
 
 int vtkExodusIIReaderPrivate::GetObjectId( int otyp, int k )
@@ -4970,13 +4970,13 @@ const char* vtkExodusIIReaderPrivate::GetObjectArrayName( int otyp, int i )
     if ( i < 0 || i >= N )
     {
       vtkDebugMacro( "You requested array " << i << " in a collection of only " << N << " arrays." );
-      return 0;
+      return nullptr;
     }
     return it->second[i].Name.c_str();
   }
   vtkDebugMacro( "Could not find collection of arrays for objects of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
-  return 0;
+  return nullptr;
 }
 
 int vtkExodusIIReaderPrivate::GetNumberOfObjectArrayComponents( int otyp, int i )
@@ -5102,14 +5102,14 @@ const char* vtkExodusIIReaderPrivate::GetObjectAttributeName( int otyp, int oi, 
     if ( oi < 0 || oi >= N )
     {
       vtkDebugMacro( "You requested block " << oi << " in a collection of only " << N << " blocks." );
-      return 0;
+      return nullptr;
     }
     oi = this->SortedObjectIndices[otyp][oi]; // index into sorted list of objects (block order, not file order)
     N = (int) it->second[oi].AttributeNames.size();
     if ( ai < 0 || ai >= N )
     {
       vtkDebugMacro( "You requested attribute " << ai << " in a collection of only " << N << " attributes." );
-      return 0;
+      return nullptr;
     }
     else
     {
@@ -5118,7 +5118,7 @@ const char* vtkExodusIIReaderPrivate::GetObjectAttributeName( int otyp, int oi, 
   }
   vtkDebugMacro( "Could not find collection of blocks of type " << otyp <<
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
-  return 0;
+  return nullptr;
 }
 
 int vtkExodusIIReaderPrivate::GetObjectAttributeIndex( int otyp, int oi, const char* attribName )
@@ -5253,7 +5253,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::FindDisplacementVectors( int timeStep )
       }
     }
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -5264,8 +5264,8 @@ vtkCxxSetObjectMacro(vtkExodusIIReader,Metadata,vtkExodusIIReaderPrivate);
 
 vtkExodusIIReader::vtkExodusIIReader()
 {
-  this->FileName = 0;
-  this->XMLFileName = 0;
+  this->FileName = nullptr;
+  this->XMLFileName = nullptr;
   this->Metadata = vtkExodusIIReaderPrivate::New();
   this->Metadata->Parent = this;
   this->Metadata->SetCacheSize(0.0);
@@ -5283,10 +5283,10 @@ vtkExodusIIReader::vtkExodusIIReader()
 
 vtkExodusIIReader::~vtkExodusIIReader()
 {
-  this->SetXMLFileName( 0 );
-  this->SetFileName( 0 );
+  this->SetXMLFileName( nullptr );
+  this->SetFileName( nullptr );
 
-  this->SetMetadata( 0 );
+  this->SetMetadata( nullptr );
   //this->SetExodusModel( 0 );
 }
 
@@ -5442,7 +5442,7 @@ int vtkExodusIIReader::RequestInformation(
       if(this->Metadata->Parser && !this->Metadata->IsXMLMetadataValid())
       {
         this->Metadata->Parser->Delete();
-        this->Metadata->Parser = 0;
+        this->Metadata->Parser = nullptr;
 
         // Reset block names.
         int numBlocks = this->Metadata->GetNumberOfObjectsOfType(vtkExodusIIReader::ELEM_BLOCK);
@@ -5748,7 +5748,7 @@ const char* vtkExodusIIReader::GetObjectTypeName( int otyp )
   case NODE_ID: return "node id";
   case NODAL_SQUEEZEMAP: return "pointmap";
   }
-  return 0;
+  return nullptr;
 }
 
 int vtkExodusIIReader::GetNumberOfNodes() { return this->Metadata->GetNumberOfNodes(); }
@@ -5798,7 +5798,7 @@ int vtkExodusIIReader::GetObjectIndex( int objectType, const char* objectName )
 {
   if ( ! objectName )
   {
-    vtkErrorMacro( "You must specify a non-NULL name" );
+    vtkErrorMacro( "You must specify a non-nullptr name" );
     return -1;
   }
   int nObj = this->GetNumberOfObjects( objectType );
@@ -5914,7 +5914,7 @@ int vtkExodusIIReader::GetObjectArrayIndex( int objectType, const char* arrayNam
 {
   if ( ! arrayName )
   {
-    vtkErrorMacro( "You must specify a non-NULL name" );
+    vtkErrorMacro( "You must specify a non-nullptr name" );
     return -1;
   }
   int nObj = this->GetNumberOfObjectArrays( objectType );
@@ -6376,7 +6376,7 @@ bool vtkExodusIIReader::FindXMLFile()
     if ( Metadata->Parser )
     {
       Metadata->Parser->Delete();
-      Metadata->Parser = 0;
+      Metadata->Parser = nullptr;
     }
 
     if ( ! this->XMLFileName || ! vtksys::SystemTools::FileExists( this->XMLFileName ) )
@@ -6406,8 +6406,8 @@ bool vtkExodusIIReader::FindXMLFile()
           return true;
         }
 
-        // Catch the case where filename was non-NULL but didn't exist.
-        this->SetXMLFileName( 0 );
+        // Catch the case where filename was non-nullptr but didn't exist.
+        this->SetXMLFileName( nullptr );
       }
     }
     else

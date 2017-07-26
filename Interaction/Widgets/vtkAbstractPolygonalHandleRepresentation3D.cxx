@@ -69,7 +69,7 @@ vtkAbstractPolygonalHandleRepresentation3D
   // Set up the initial properties
   this->CreateDefaultProperties();
 
-  this->Actor = NULL; // Created by subclass.vtkFollower::New();
+  this->Actor = nullptr; // Created by subclass.vtkFollower::New();
 
   // Manage the picking stuff
   this->HandlePicker = vtkCellPicker::New();
@@ -181,7 +181,7 @@ int vtkAbstractPolygonalHandleRepresentation3D
   this->VisibilityOn(); //actor must be on to be picked
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->InteractionState = vtkHandleRepresentation::Nearby;
   }
@@ -739,7 +739,7 @@ int vtkAbstractPolygonalHandleRepresentation3D::HasTranslucentPolygonalGeometry(
 double* vtkAbstractPolygonalHandleRepresentation3D::GetBounds()
 {
   this->BuildRepresentation();
-  return this->Actor ? this->Actor->GetBounds() : NULL;
+  return this->Actor ? this->Actor->GetBounds() : nullptr;
 }
 
 //-----------------------------------------------------------------------------

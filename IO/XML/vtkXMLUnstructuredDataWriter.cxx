@@ -155,9 +155,9 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
         return 0;
       }
 
-      if (this->GetInputAsDataSet() != NULL &&
-          (this->GetInputAsDataSet()->GetPointGhostArray() != NULL &&
-           this->GetInputAsDataSet()->GetCellGhostArray() != NULL))
+      if (this->GetInputAsDataSet() != nullptr &&
+          (this->GetInputAsDataSet()->GetPointGhostArray() != nullptr &&
+           this->GetInputAsDataSet()->GetCellGhostArray() != nullptr))
       {
         // use the current version for the file.
         this->UsePreviousVersion = false;
@@ -253,7 +253,7 @@ void vtkXMLUnstructuredDataWriter::AllocatePositionArrays()
 void vtkXMLUnstructuredDataWriter::DeletePositionArrays()
 {
   delete [] this->NumberOfPointsPositions;
-  this->NumberOfPointsPositions = 0;
+  this->NumberOfPointsPositions = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -585,7 +585,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
                                                     vtkDataArray* types,
                                                     vtkIndent indent)
 {
-  this->WriteCellsInline(name, cells, types, NULL, NULL, indent);
+  this->WriteCellsInline(name, cells, types, nullptr, nullptr, indent);
 }
 
 
@@ -690,7 +690,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
                                                       vtkIndent indent,
                                                       OffsetsManagerGroup *cellsManager)
 {
-  this->WriteCellsAppended(name, types, 0, 0, indent, cellsManager);
+  this->WriteCellsAppended(name, types, nullptr, nullptr, indent, cellsManager);
 }
 
 //----------------------------------------------------------------------------
@@ -710,9 +710,9 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
-  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : 0;
-  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : 0;
-  const char *names[] = {NULL, NULL, "types", NULL, NULL};
+  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : nullptr;
+  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : nullptr;
+  const char *names[] = {nullptr, nullptr, "types", nullptr, nullptr};
 
   for(int t=0; t<this->NumberOfTimeSteps; t++)
   {
@@ -752,7 +752,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(
     types->InsertNextValue(static_cast<unsigned char>(cellIter->GetCellType()));
   }
 
-  this->WriteCellsAppended(name, types.GetPointer(), 0, 0, indent, cellsManager);
+  this->WriteCellsAppended(name, types.GetPointer(), nullptr, nullptr, indent, cellsManager);
 }
 
 //----------------------------------------------------------------------------
@@ -762,7 +762,7 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
                                                      int timestep,
                                                      OffsetsManagerGroup *cellsManager)
 {
-  this->WriteCellsAppendedData(cells, types, NULL, NULL, timestep, cellsManager);
+  this->WriteCellsAppendedData(cells, types, nullptr, nullptr, timestep, cellsManager);
 }
 
 //----------------------------------------------------------------------------
@@ -822,8 +822,8 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedDataWorker(
   allcells[0] = this->CellPoints;
   allcells[1] = this->CellOffsets;
   allcells[2] = types;
-  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : 0;
-  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : 0;
+  allcells[3] = this->Faces->GetNumberOfTuples() ? this->Faces : nullptr;
+  allcells[4] = this->FaceOffsets->GetNumberOfTuples() ? this->FaceOffsets : nullptr;
 
   for(int i=0; i<5; i++)
   {

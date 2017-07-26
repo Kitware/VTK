@@ -77,7 +77,7 @@ vtkStandardNewMacro(vtkPiecewisePointHandleItem);
 vtkPiecewisePointHandleItem::vtkPiecewisePointHandleItem()
 {
   this->MouseOverHandleIndex = -1;
-  this->PiecewiseFunction = NULL;
+  this->PiecewiseFunction = nullptr;
   this->Callback = vtkCallbackCommand::New();
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(
@@ -90,11 +90,11 @@ vtkPiecewisePointHandleItem::vtkPiecewisePointHandleItem()
 //-----------------------------------------------------------------------------
 vtkPiecewisePointHandleItem::~vtkPiecewisePointHandleItem()
 {
-  this->SetPiecewiseFunction(0);
+  this->SetPiecewiseFunction(nullptr);
   if (this->Callback)
   {
     this->Callback->Delete();
-    this->Callback = 0;
+    this->Callback = nullptr;
   }
   delete this->Internal;
 }

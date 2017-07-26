@@ -172,7 +172,7 @@ public:
     }
     ~ViewProgressEventCallData()
     {
-      this->Message = 0;
+      this->Message = nullptr;
     }
 
     /**
@@ -197,7 +197,7 @@ public:
    * the progress amount. If message is not provided, then the class name for
    * the algorithm is used.
    */
-  void RegisterProgress(vtkObject* algorithm, const char* message=NULL);
+  void RegisterProgress(vtkObject* algorithm, const char* message=nullptr);
 
   /**
    * Unregister objects previously registered with RegisterProgress.

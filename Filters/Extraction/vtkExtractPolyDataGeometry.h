@@ -104,7 +104,7 @@ public:
   //@}
 
 protected:
-  vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
+  vtkExtractPolyDataGeometry(vtkImplicitFunction *f=nullptr);
   ~vtkExtractPolyDataGeometry() VTK_OVERRIDE;
 
   // Usual data generation method

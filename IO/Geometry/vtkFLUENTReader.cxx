@@ -152,7 +152,7 @@ vtkFLUENTReader::vtkFLUENTReader()
 {
   this->SwapBytes = 0;
   this->SetNumberOfInputPorts(0);
-  this->FileName  = NULL;
+  this->FileName  = nullptr;
   this->Points = vtkPoints::New();
   this->Triangle = vtkTriangle::New();
   this->Tetra = vtkTetra::New();

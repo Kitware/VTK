@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkRowQueryToTable);
 vtkRowQueryToTable::vtkRowQueryToTable()
 {
   this->SetNumberOfInputPorts(0);
-  this->Query = NULL;
+  this->Query = nullptr;
 }
 
 vtkRowQueryToTable::~vtkRowQueryToTable()
@@ -44,14 +44,14 @@ vtkRowQueryToTable::~vtkRowQueryToTable()
   if (this->Query)
   {
     this->Query->Delete();
-    this->Query = NULL;
+    this->Query = nullptr;
   }
 }
 
 void vtkRowQueryToTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Query: " << (this->Query ? "" : "NULL") << endl;
+  os << indent << "Query: " << (this->Query ? "" : "nullptr") << endl;
   if (this->Query)
   {
     this->Query->PrintSelf(os, indent.GetNextIndent());
@@ -63,7 +63,7 @@ vtkCxxSetObjectMacro(vtkRowQueryToTable, Query, vtkRowQuery);
 vtkMTimeType vtkRowQueryToTable::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
-  if (this->Query != NULL)
+  if (this->Query != nullptr)
   {
     vtkMTimeType time = this->Query->GetMTime();
     mTime = (time > mTime ? time : mTime);
@@ -76,7 +76,7 @@ int vtkRowQueryToTable::RequestData(
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  if (this->Query == NULL)
+  if (this->Query == nullptr)
   {
     vtkErrorMacro("Query undefined.");
     return 0;

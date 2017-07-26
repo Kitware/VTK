@@ -92,8 +92,8 @@ void SwapForBigEndian( unsigned char * theArray, int tupleSiz, int numTuple )
     }
   }
 
-  tmpChar0 = NULL;
-  free( tmpChar1 );  tmpChar1 = NULL;
+  tmpChar0 = nullptr;
+  free( tmpChar1 );  tmpChar1 = nullptr;
 }
 
 
@@ -117,28 +117,28 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   int         nDuplics = 0;
   int         arrayIdx = 0;
   int         numExPts = 0;
-  char *      fileName = NULL;
-  FILE *      diskFile = NULL;
-  FILE *      pntsFile = NULL;
+  char *      fileName = nullptr;
+  FILE *      diskFile = nullptr;
+  FILE *      pntsFile = nullptr;
   double      pntCoord[3] = { 0.0, 0.0, 0.0 };
   double      tmpDist2 = 0.0;
   double      fTempRad = 0.0;
-  double *    pDataPts = NULL;
-  double *    xtentPts = NULL;
-  double *    pLocPnts = NULL;
-  double *    minDist2 = NULL;
-  double *    maxDist2 = NULL;
-  double *    clzNdst2 = NULL;
-  vtkPoints * dataPnts = NULL;
-  vtkPoints * insrtPts = NULL;
+  double *    pDataPts = nullptr;
+  double *    xtentPts = nullptr;
+  double *    pLocPnts = nullptr;
+  double *    minDist2 = nullptr;
+  double *    maxDist2 = nullptr;
+  double *    clzNdst2 = nullptr;
+  vtkPoints * dataPnts = nullptr;
+  vtkPoints * insrtPts = nullptr;
   vtkIdType   pointIdx;
-  vtkIdType * truthIds = NULL;
-  vtkIdType * resltIds = NULL;
-  vtkIdList * ptIdList = NULL;
-  vtkIdList * idxLists[3] = { NULL, NULL, NULL };
-  vtkUnstructuredGrid *              unstruct = NULL;
-  vtkUnstructuredGridReader *        ugReader = NULL;
-  vtkIncrementalOctreePointLocator * octLocat = NULL;
+  vtkIdType * truthIds = nullptr;
+  vtkIdType * resltIds = nullptr;
+  vtkIdList * ptIdList = nullptr;
+  vtkIdList * idxLists[3] = { nullptr, nullptr, nullptr };
+  vtkUnstructuredGrid *              unstruct = nullptr;
+  vtkUnstructuredGridReader *        ugReader = nullptr;
+  vtkIncrementalOctreePointLocator * octLocat = nullptr;
   size_t      n;
 
 
@@ -162,7 +162,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   truthIds = ( vtkIdType * )
              realloc(  truthIds,  sizeof( vtkIdType ) * numbPnts  );
   #endif
-  delete []  fileName;  fileName = NULL;
+  delete []  fileName;  fileName = nullptr;
 
 
   // obtain the 3D point coordinates
@@ -394,7 +394,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   if ( xtentPts )
   {
     free( xtentPts );
-    xtentPts = NULL;
+    xtentPts = nullptr;
   }
   // =======================================================================//
   // =======================================================================//
@@ -404,7 +404,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   if ( insrtPts )
   {
     insrtPts->Delete();
-    insrtPts = NULL;
+    insrtPts = nullptr;
   }
 
 
@@ -417,7 +417,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   fileName = vtkTestUtilities::ExpandDataFileName
                                ( argc, argv, "Data/IncOctPntLocData.dat" );
   pntsFile = fopen( fileName, "rb" );
-  delete []  fileName;  fileName = NULL;
+  delete []  fileName;  fileName = nullptr;
   n = fread(  &nLocPnts,  sizeof( int ),  1,  pntsFile  );
   if (n != 1)
   {
@@ -454,7 +454,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   //SwapForBigEndian
   //  (  ( unsigned char * ) maxDist2,  sizeof( double ),  nLocPnts      );
   #endif
-  fclose( pntsFile );                pntsFile = NULL;
+  fclose( pntsFile );                pntsFile = nullptr;
 
 
   // destroy the context of point insertion while attaching the dataset
@@ -852,7 +852,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
 
         // get the actual size of the vtkIdList for comparison
         int  listSize = ( m == 0 && idxLists[0]->GetId( 0 ) == -1 )
-                        ? 0       // for an actually NULL vtkIdList
+                        ? 0       // for an actually nullptr vtkIdList
                         : idxLists[m]->GetNumberOfIds();
         if ( numInsrt > listSize ) retValue = 1;
       }
@@ -892,7 +892,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     {
       retValue = ( tmpPtIds[i] == truthIds[i] ) ? 0 : 1;
     }
-    tmpPtIds = NULL;
+    tmpPtIds = nullptr;
     #endif
     // ---------------------------------------------------------------------//
 
@@ -900,63 +900,63 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
 
 
   // memory clearance
-  dataPnts = NULL;                     unstruct = NULL;
+  dataPnts = nullptr;                     unstruct = nullptr;
   if ( ptIdList )
   {
     ptIdList->Delete();
-    ptIdList = NULL;
+    ptIdList = nullptr;
   }
   if ( octLocat )
   {
     octLocat->Delete();
-    octLocat = NULL;
+    octLocat = nullptr;
   }
   if ( ugReader )
   {
     ugReader->Delete();
-    ugReader = NULL;
+    ugReader = nullptr;
   }
 
   if ( truthIds )
   {
     free( truthIds );
-    truthIds = NULL;
+    truthIds = nullptr;
   }
   if ( resltIds )
   {
     free( resltIds );
-    resltIds = NULL;
+    resltIds = nullptr;
   }
   if ( pDataPts )
   {
     free( pDataPts );
-    pDataPts = NULL;
+    pDataPts = nullptr;
   }
   if ( pLocPnts )
   {
     free( pLocPnts );
-    pLocPnts = NULL;
+    pLocPnts = nullptr;
   }
   if ( minDist2 )
   {
     free( minDist2 );
-    minDist2 = NULL;
+    minDist2 = nullptr;
   }
   if ( maxDist2 )
   {
     free( maxDist2 );
-    maxDist2 = NULL;
+    maxDist2 = nullptr;
   }
   if ( clzNdst2 )
   {
     free( clzNdst2 );
-    clzNdst2 = NULL;
+    clzNdst2 = nullptr;
   }
 
   if ( diskFile )
   {
     fclose( diskFile );
-    diskFile = NULL;
+    diskFile = nullptr;
   }
 
   for ( i = 0; i < 3; i ++ )
@@ -964,7 +964,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     if ( idxLists[i] )
     {
       idxLists[i]->Delete();
-      idxLists[i] = NULL;
+      idxLists[i] = nullptr;
     }
   }
 

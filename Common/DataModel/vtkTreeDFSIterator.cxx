@@ -54,12 +54,12 @@ vtkTreeDFSIterator::vtkTreeDFSIterator()
 vtkTreeDFSIterator::~vtkTreeDFSIterator()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 
   if (this->Color)
   {
     this->Color->Delete();
-    this->Color = NULL;
+    this->Color = nullptr;
   }
 }
 
@@ -72,7 +72,7 @@ void vtkTreeDFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkTreeDFSIterator::Initialize()
 {
-  if (this->Tree == NULL)
+  if (this->Tree == nullptr)
   {
     return;
   }

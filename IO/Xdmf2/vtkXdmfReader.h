@@ -70,7 +70,7 @@ public:
 
   //// Description:
   //// Returns the name for the active domain. Note that this may be different
-  //// from what GetDomainName() returns if DomainName is NULL or invalid.
+  //// from what GetDomainName() returns if DomainName is nullptr or invalid.
   // vtkGetStringMacro(ActiveDomainName);
 
   /**
@@ -81,7 +81,7 @@ public:
   int GetNumberOfPointArrays();
 
   /**
-   * Returns the name of point array at the give index. Returns NULL if index is
+   * Returns the name of point array at the give index. Returns nullptr if index is
    * invalid.
    */
   const char* GetPointArrayName(int index);

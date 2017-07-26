@@ -21,7 +21,7 @@
 #include <string>
 
 static const char *vtkDebugLeaksIgnoreClasses[] = {
-  0
+  nullptr
 };
 
 //----------------------------------------------------------------------------
@@ -61,8 +61,8 @@ public:
   vtkDebugLeaksHashNode()
   {
       this->Count = 1; // if it goes in, then there is one of them
-      this->Key = 0;
-      this->Next = 0;
+      this->Key = nullptr;
+      this->Next = nullptr;
   }
   void Print(std::string& os)
   {
@@ -116,7 +116,7 @@ vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
 {
   for (int i = 0; i < 64; i++)
   {
-    this->Nodes[i] = NULL;
+    this->Nodes[i] = nullptr;
   }
 }
 
@@ -157,7 +157,7 @@ vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
 
   if (!pos)
   {
-    return NULL;
+    return nullptr;
   }
   while ((pos) && (strcmp(pos->Key, key) != 0) )
   {
@@ -389,13 +389,13 @@ int vtkDebugLeaks::PrintCurrentLeaks()
 int vtkDebugLeaks::DisplayMessageBox(const char* msg)
 {
 #ifdef UNICODE
-  wchar_t *wmsg = new wchar_t [mbstowcs(NULL, msg, 32000)+1];
+  wchar_t *wmsg = new wchar_t [mbstowcs(nullptr, msg, 32000)+1];
   mbstowcs(wmsg, msg, 32000);
-  int result = (MessageBox(NULL, wmsg, L"Error",
+  int result = (MessageBox(nullptr, wmsg, L"Error",
                            MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
   delete [] wmsg;
 #else
-  int result = (MessageBox(NULL, msg, "Error",
+  int result = (MessageBox(nullptr, msg, "Error",
                            MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
 #endif
   return result;
@@ -431,7 +431,7 @@ void vtkDebugLeaks::ClassInitialize()
 
   // Default to error when leaks occur while running tests.
   vtkDebugLeaks::ExitError = 1;
-  vtkDebugLeaks::Observer = 0;
+  vtkDebugLeaks::Observer = nullptr;
 #else
   vtkDebugLeaks::MemoryTable = 0;
   vtkDebugLeaks::CriticalSection = 0;
@@ -449,11 +449,11 @@ void vtkDebugLeaks::ClassFinalize()
 
   // Destroy the hash table.
   delete vtkDebugLeaks::MemoryTable;
-  vtkDebugLeaks::MemoryTable = 0;
+  vtkDebugLeaks::MemoryTable = nullptr;
 
   // Destroy the lock for the critical sections.
   delete vtkDebugLeaks::CriticalSection;
-  vtkDebugLeaks::CriticalSection = 0;
+  vtkDebugLeaks::CriticalSection = nullptr;
 
   // Exit with error if leaks occurred and error mode is on.
   if(leaked && vtkDebugLeaks::ExitError)

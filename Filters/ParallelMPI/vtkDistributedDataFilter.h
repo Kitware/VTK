@@ -250,7 +250,7 @@ public:
    * that may not always work, sometimes the processes have be pre-assigned and
    * we want to preserve that partitioning. In that case, one sets the region
    * assignments explicitly. Look at vtkPKdTree::AssignRegions for details about
-   * the arguments. Calling SetUserRegionAssignments(NULL, 0) will revert to
+   * the arguments. Calling SetUserRegionAssignments(nullptr, 0) will revert to
    * default behavior i.e. letting the KdTree come up with the assignments.
    */
   void SetUserRegionAssignments(const int *map, int numRegions);

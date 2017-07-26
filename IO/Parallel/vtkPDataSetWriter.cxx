@@ -38,19 +38,19 @@ vtkPDataSetWriter::vtkPDataSetWriter()
   this->NumberOfPieces = 1;
   this->GhostLevel = 0;
 
-  this->FilePattern = NULL;
+  this->FilePattern = nullptr;
   this->SetFilePattern("%s.%d.vtk");
   this->UseRelativeFileNames = 1;
 
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPDataSetWriter::~vtkPDataSetWriter()
 {
-  this->SetFilePattern(NULL);
-  this->SetController(0);
+  this->SetFilePattern(nullptr);
+  this->SetController(nullptr);
 }
 
 
@@ -83,7 +83,7 @@ int vtkPDataSetWriter::Write()
   int inputAlgPort;
   vtkAlgorithm *inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
 
-  if (this->FileName == NULL)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro("No file name.");
     return 0;
@@ -126,7 +126,7 @@ int vtkPDataSetWriter::Write()
   {
     char *tmp, *slash;
     // Find the last / or \ in the file name.
-    slash = NULL;
+    slash = nullptr;
     tmp = fileRoot;
     while (*tmp != '\0')
     {
@@ -178,7 +178,7 @@ int vtkPDataSetWriter::Write()
     // Store the extent of this piece in Extents. This is later used
     // to write the extents in the pvtk file.
     vtkInformation* info = input->GetInformation();
-    int* ext = 0;
+    int* ext = nullptr;
     if (info->Has(vtkDataObject::DATA_EXTENT()))
     {
       ext = input->GetInformation()->Get(vtkDataObject::DATA_EXTENT());
@@ -198,7 +198,7 @@ int vtkPDataSetWriter::Write()
     writer->SetInputData(vtkDataSet::SafeDownCast(copy));
     writer->Write();
     copy->Delete();
-    copy = NULL;
+    copy = nullptr;
     if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
     {
       this->DeleteFiles();
@@ -207,14 +207,14 @@ int vtkPDataSetWriter::Write()
     }
   }
   writer->Delete();
-  writer = NULL;
+  writer = nullptr;
 
     // Lets write the toplevel file.
   if (this->StartPiece == 0 &&
       (!this->Controller || this->Controller->GetLocalProcessId() == 0))
   {
     fptr = this->OpenFile();
-    if (fptr == NULL)
+    if (fptr == nullptr)
     {
       delete [] fileRoot;
       delete [] fileName;
@@ -375,9 +375,9 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
     int nPiecesTotal = 0;
     vtkIdType nPieces = static_cast<vtkIdType>(this->Extents.size());
 
-    vtkIdType* offsets = 0;
-    vtkIdType* nPiecesAll = 0;
-    vtkIdType* recvLengths = 0;
+    vtkIdType* offsets = nullptr;
+    vtkIdType* nPiecesAll = nullptr;
+    vtkIdType* recvLengths = nullptr;
     if (rank == 0)
     {
       nPiecesAll = new vtkIdType[nRanks];
@@ -394,7 +394,7 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
         recvLengths[i] = nPiecesAll[i]*7;
       }
     }
-    int* sendBuffer = 0;
+    int* sendBuffer = nullptr;
     int sendSize = nPieces*7;
     if (nPieces > 0)
     {
@@ -406,7 +406,7 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData * input,
         memcpy(&sendBuffer[count*7+1], &iter->second[0], 6*sizeof(int));
       }
     }
-    int* recvBuffer = 0;
+    int* recvBuffer = nullptr;
     if (rank == 0)
     {
       recvBuffer = new int[nPiecesTotal*7];
@@ -531,7 +531,7 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
 
 
 //----------------------------------------------------------------------------
-// Open a vtk data file. Returns NULL if error.
+// Open a vtk data file. Returns nullptr if error.
 ostream *vtkPDataSetWriter::OpenFile()
 {
   ostream *fptr;
@@ -542,7 +542,7 @@ ostream *vtkPDataSetWriter::OpenFile()
   {
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     delete fptr;
-    return NULL;
+    return nullptr;
   }
 
   return fptr;
@@ -572,7 +572,7 @@ void vtkPDataSetWriter::DeleteFiles()
   {
     char *tmp, *slash;
     // Find the last / or \ in the file name.
-    slash = NULL;
+    slash = nullptr;
     tmp = fileRoot;
     while (*tmp != '\0')
     {

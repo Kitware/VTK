@@ -98,14 +98,14 @@ vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
 {
-  this->Socket = NULL;
+  this->Socket = nullptr;
   this->NumberOfProcesses = 2;
   this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapNotSet;
   this->RemoteHas64BitIds = -1; // Invalid until handshake.
   this->PerformHandshake = 1;
   this->IsServer = 0;
-  this->LogStream = 0;
-  this->LogFile = 0;
+  this->LogStream = nullptr;
+  this->LogFile = nullptr;
   this->TagMessageLength = 0;
   this->BufferMessage = false;
 
@@ -116,10 +116,10 @@ vtkSocketCommunicator::vtkSocketCommunicator()
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::~vtkSocketCommunicator()
 {
-  this->SetSocket(0);
-  this->SetLogStream(0);
+  this->SetSocket(nullptr);
+  this->SetLogStream(nullptr);
   delete this->ReceivedMessageBuffer;
-  this->ReceivedMessageBuffer = 0;
+  this->ReceivedMessageBuffer = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -172,7 +172,7 @@ void vtkSocketCommunicator::SetLogStream(ostream* stream)
     if(this->LogFile && this->LogFile == this->LogStream)
     {
       delete this->LogFile;
-      this->LogFile = 0;
+      this->LogFile = nullptr;
     }
 
     // Use the given log stream.
@@ -213,8 +213,8 @@ int vtkSocketCommunicator::LogToFile(const char* name, int append)
 {
   // Close old logging file.
   delete this->LogFile;
-  this->LogFile = 0;
-  this->LogStream = 0;
+  this->LogFile = nullptr;
+  this->LogStream = nullptr;
 
   // Log to given file, if any.
   if(name && name[0])
@@ -228,7 +228,7 @@ int vtkSocketCommunicator::LogToFile(const char* name, int append)
     if(!*this->LogFile)
     {
       delete this->LogFile;
-      this->LogFile = 0;
+      this->LogFile = nullptr;
       return 0;
     }
     this->LogStream = this->LogFile;
@@ -429,7 +429,7 @@ int vtkSocketCommunicator::ServerSideHandshake()
     // Handshake to determine if the client machine has the same endianness
     char clientIsBE;
     if(!this->ReceiveTagged(&clientIsBE, static_cast<int>(sizeof(char)),
-        1, vtkSocketController::ENDIAN_TAG, 0))
+        1, vtkSocketController::ENDIAN_TAG, nullptr))
     {
       vtkSocketCommunicatorErrorMacro("Endian handshake failed.");
       return 0;
@@ -444,7 +444,7 @@ int vtkSocketCommunicator::ServerSideHandshake()
 #endif
     vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
     if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
-        1, vtkSocketController::ENDIAN_TAG, 0))
+        1, vtkSocketController::ENDIAN_TAG, nullptr))
     {
       vtkSocketCommunicatorErrorMacro("Endian handshake failed.");
       return 0;
@@ -464,14 +464,14 @@ int vtkSocketCommunicator::ServerSideHandshake()
     int myVersion = vtkSocketCommunicator::GetVersion();
     int clientVersion;
     if (!this->ReceiveTagged(&clientVersion, static_cast<int>(sizeof(int)),
-                             1, vtkSocketController::VERSION_TAG, 0))
+                             1, vtkSocketController::VERSION_TAG, nullptr))
     {
       vtkSocketCommunicatorErrorMacro("Version handshake failed.  "
         "Perhaps there is a client/server version mismatch.");
       return 0;
     }
     if (!this->SendTagged(&myVersion, static_cast<int>(sizeof(int)),
-                          1, vtkSocketController::VERSION_TAG, 0))
+                          1, vtkSocketController::VERSION_TAG, nullptr))
     {
       vtkSocketCommunicatorErrorMacro("Version handshake failed.  "
         "Perhaps there is a client/server version mismatch.");
@@ -488,10 +488,10 @@ int vtkSocketCommunicator::ServerSideHandshake()
     char clientHash[sizeof(myHash)];
     if (!this->ReceiveTagged(&clientHash,
                              1, static_cast<int>(sizeof(clientHash)),
-                             vtkSocketController::HASH_TAG, 0) ||
+                             vtkSocketController::HASH_TAG, nullptr) ||
         !this->SendTagged(&myHash,
                           1, static_cast<int>(sizeof(myHash)),
-                          vtkSocketController::HASH_TAG, 0))
+                          vtkSocketController::HASH_TAG, nullptr))
     {
       vtkSocketCommunicatorErrorMacro("Version hash handshake failed.  "
                                       "Perhaps there is a client/server version mismatch.");
@@ -511,14 +511,14 @@ int vtkSocketCommunicator::ServerSideHandshake()
 #endif
     if (!this->ReceiveTagged(&(this->RemoteHas64BitIds),
                              static_cast<int>(sizeof(int)), 1,
-                             vtkSocketController::IDTYPESIZE_TAG, 0))
+                             vtkSocketController::IDTYPESIZE_TAG, nullptr))
     {
       vtkSocketCommunicatorErrorMacro("Id Type Size handshake failed.");
       return 0;
     }
     vtkDebugMacro(<< "Remote has 64 bit ids: " << this->RemoteHas64BitIds);
     if (!this->SendTagged(&IHave64BitIds, static_cast<int>(sizeof(int)), 1,
-                          vtkSocketController::IDTYPESIZE_TAG, 0))
+                          vtkSocketController::IDTYPESIZE_TAG, nullptr))
     {
       vtkSocketCommunicatorErrorMacro("Id Type Size handshake failed.");
       return 0;
@@ -544,7 +544,7 @@ int vtkSocketCommunicator::ClientSideHandshake()
 #endif
   vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
   if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
-      1, vtkSocketController::ENDIAN_TAG, 0))
+      1, vtkSocketController::ENDIAN_TAG, nullptr))
   {
     vtkSocketCommunicatorErrorMacro("Endian handshake failed.");
     return 0;
@@ -552,7 +552,7 @@ int vtkSocketCommunicator::ClientSideHandshake()
 
   char serverIsBE;
   if (!this->ReceiveTagged(&serverIsBE, static_cast<int>(sizeof(char)), 1,
-      vtkSocketController::ENDIAN_TAG, 0))
+      vtkSocketController::ENDIAN_TAG, nullptr))
   {
     vtkSocketCommunicatorErrorMacro("Endian handshake failed.");
     return 0;
@@ -573,14 +573,14 @@ int vtkSocketCommunicator::ClientSideHandshake()
   int myVersion = vtkSocketCommunicator::GetVersion();
   int serverVersion;
   if (!this->SendTagged(&myVersion, static_cast<int>(sizeof(int)),
-                        1, vtkSocketController::VERSION_TAG, 0))
+                        1, vtkSocketController::VERSION_TAG, nullptr))
   {
     vtkSocketCommunicatorErrorMacro("Version handshake failed.  "
       "Perhaps there is a client/server version mismatch.");
     return 0;
   }
   if (!this->ReceiveTagged(&serverVersion, static_cast<int>(sizeof(int)),
-                           1, vtkSocketController::VERSION_TAG, 0))
+                           1, vtkSocketController::VERSION_TAG, nullptr))
   {
     vtkSocketCommunicatorErrorMacro("Version handshake failed.  "
       "Perhaps there is a client/server version mismatch.");
@@ -597,10 +597,10 @@ int vtkSocketCommunicator::ClientSideHandshake()
   char serverHash[sizeof(myHash)];
   if (!this->SendTagged(&myHash,
                         1, static_cast<int>(sizeof(myHash)),
-                        vtkSocketController::HASH_TAG, 0) ||
+                        vtkSocketController::HASH_TAG, nullptr) ||
       !this->ReceiveTagged(&serverHash,
                            1, static_cast<int>(sizeof(serverHash)),
-                           vtkSocketController::HASH_TAG, 0))
+                           vtkSocketController::HASH_TAG, nullptr))
   {
     vtkSocketCommunicatorErrorMacro("Version hash handshake failed.  "
                     "Perhaps there is a client/server version mismatch.");
@@ -619,14 +619,14 @@ int vtkSocketCommunicator::ClientSideHandshake()
   int IHave64BitIds = 0;
 #endif
   if (!this->SendTagged(&IHave64BitIds, static_cast<int>(sizeof(int)), 1,
-                        vtkSocketController::IDTYPESIZE_TAG, 0))
+                        vtkSocketController::IDTYPESIZE_TAG, nullptr))
   {
     vtkSocketCommunicatorErrorMacro("Id Type Size handshake failed.");
     return 0;
   }
   if (!this->ReceiveTagged(&(this->RemoteHas64BitIds),
                            static_cast<int>(sizeof(int)), 1,
-                           vtkSocketController::IDTYPESIZE_TAG, 0))
+                           vtkSocketController::IDTYPESIZE_TAG, nullptr))
   {
     vtkSocketCommunicatorErrorMacro("Id Type Size handshake failed.");
     return 0;
@@ -692,7 +692,7 @@ void vtkSocketCommunicator::CloseConnection()
   {
     this->Socket->CloseSocket();
     this->Socket->Delete();
-    this->Socket = 0;
+    this->Socket = nullptr;
   }
 }
 
@@ -1007,68 +1007,68 @@ void vtkSocketCommunicator::LogTagged(const char* name, const void* data,
         // Not string data.  Display the characters as integer values.
         vtkSocketCommunicatorLogArray(*this->LogStream,
                                       reinterpret_cast<const char*>(data),
-                                      numWords, 6, static_cast<int*>(0));
+                                      numWords, 6, static_cast<int*>(nullptr));
       }
     }
     else if ((wordSize == 1) && logName && (strcmp(logName, "Int8") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                     reinterpret_cast<const vtkTypeInt8*>(data),
-                                    numWords, 6, static_cast<vtkTypeInt16*>(0));
+                                    numWords, 6, static_cast<vtkTypeInt16*>(nullptr));
     }
     else if ((wordSize == 1) && logName && (strcmp(logName, "UInt8") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                    reinterpret_cast<const vtkTypeUInt8*>(data),
-                                   numWords, 6, static_cast<vtkTypeUInt16*>(0));
+                                   numWords, 6, static_cast<vtkTypeUInt16*>(nullptr));
     }
     else if ((wordSize == 2) && logName && (strcmp(logName, "Int16") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                     reinterpret_cast<const vtkTypeInt16*>(data),
-                                    numWords, 6, static_cast<vtkTypeInt16*>(0));
+                                    numWords, 6, static_cast<vtkTypeInt16*>(nullptr));
     }
     else if ((wordSize == 2) && logName && (strcmp(logName, "UInt16") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                    reinterpret_cast<const vtkTypeUInt16*>(data),
-                                   numWords, 6, static_cast<vtkTypeUInt16*>(0));
+                                   numWords, 6, static_cast<vtkTypeUInt16*>(nullptr));
     }
     else if ((wordSize == 4) && logName && (strcmp(logName, "Int32") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                     reinterpret_cast<const vtkTypeInt32*>(data),
-                                    numWords, 6, static_cast<vtkTypeInt32*>(0));
+                                    numWords, 6, static_cast<vtkTypeInt32*>(nullptr));
     }
     else if ((wordSize == 4) && logName && (strcmp(logName, "UInt32") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                    reinterpret_cast<const vtkTypeUInt32*>(data),
-                                   numWords, 6, static_cast<vtkTypeUInt32*>(0));
+                                   numWords, 6, static_cast<vtkTypeUInt32*>(nullptr));
     }
     else if ((wordSize == 8) && logName && (strcmp(logName, "Int64") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                     reinterpret_cast<const vtkTypeInt64*>(data),
-                                    numWords, 6, static_cast<vtkTypeInt64*>(0));
+                                    numWords, 6, static_cast<vtkTypeInt64*>(nullptr));
     }
     else if ((wordSize == 8) && logName && (strcmp(logName, "UInt64") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                    reinterpret_cast<const vtkTypeUInt64*>(data),
-                                   numWords, 6, static_cast<vtkTypeUInt64*>(0));
+                                   numWords, 6, static_cast<vtkTypeUInt64*>(nullptr));
     }
     else if ((wordSize == 4) && logName && (strcmp(logName, "Float32") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                   reinterpret_cast<const vtkTypeFloat32*>(data),
-                                  numWords, 6, static_cast<vtkTypeFloat32*>(0));
+                                  numWords, 6, static_cast<vtkTypeFloat32*>(nullptr));
     }
     else if ((wordSize == 8) && logName && (strcmp(logName, "Float64") == 0))
     {
       vtkSocketCommunicatorLogArray(*this->LogStream,
                                   reinterpret_cast<const vtkTypeFloat64*>(data),
-                                  numWords, 6, static_cast<vtkTypeFloat64*>(0));
+                                  numWords, 6, static_cast<vtkTypeFloat64*>(nullptr));
     }
     *this->LogStream << endl;
   }

@@ -13,8 +13,8 @@ class vtkLabelHierarchy::Implementation
 public:
   Implementation()
   {
-    this->Hierarchy2 = 0;
-    this->Hierarchy3 = 0;
+    this->Hierarchy2 = nullptr;
+    this->Hierarchy3 = nullptr;
     this->ActualDepth = 5;
     this->Z2 = 0.;
   }
@@ -68,13 +68,13 @@ public:
 
     bool operator () ( const vtkIdType& a, const vtkIdType& b ) const
     {
-      if (0 == this->Hierarchy)
+      if (nullptr == this->Hierarchy)
       {
         vtkGenericWarningMacro( "error: NULL this->Hierarchy in PriorityComparator" );
         return a < b;
       }
 
-      if (0 == this->Hierarchy->GetImplementation())
+      if (nullptr == this->Hierarchy->GetImplementation())
       {
         vtkGenericWarningMacro( "error: NULL this->Hierarchy->GetImplementation() in PriorityComparator" );
         return a < b;

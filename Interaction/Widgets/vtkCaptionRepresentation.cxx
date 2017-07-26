@@ -40,9 +40,9 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
 
   this->CaptionActor2D = vtkCaptionActor2D::New();
   this->CaptionActor2D->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(0);
+  this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->CaptionActor2D->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(0);
+  this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   this->CaptionActor2D->GetPositionCoordinate()->SetValue(10,10);
   this->CaptionActor2D->GetPosition2Coordinate()->SetValue(20,20);
   this->CaptionActor2D->SetCaption("Caption Here");
@@ -64,9 +64,9 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
 //-------------------------------------------------------------------------
 vtkCaptionRepresentation::~vtkCaptionRepresentation()
 {
-  this->SetCaptionActor2D(0);
+  this->SetCaptionActor2D(nullptr);
   this->CaptionGlyph->Delete();
-  this->SetAnchorRepresentation(0);
+  this->SetAnchorRepresentation(nullptr);
 }
 
 //-------------------------------------------------------------------------
@@ -83,9 +83,9 @@ void vtkCaptionRepresentation::SetCaptionActor2D(vtkCaptionActor2D *capActor)
     {
       this->CaptionActor2D->Register(this);
       this->CaptionActor2D->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-      this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(0);
+      this->CaptionActor2D->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
       this->CaptionActor2D->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-      this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(0);
+      this->CaptionActor2D->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
       this->CaptionActor2D->GetPositionCoordinate()->SetValue(10,10);
       this->CaptionActor2D->GetPosition2Coordinate()->SetValue(20,20);
       this->CaptionActor2D->SetAttachmentPoint(0,0,0);

@@ -322,20 +322,20 @@ public:
                             const int fullImageSize[2],
                             vtkUnsignedCharArray *reducedImage,
                             const int reducedImageSize[2],
-                            const int fullImageViewport[4] = NULL,
-                            const int reducedImageViewport[4] = NULL);
+                            const int fullImageViewport[4] = nullptr,
+                            const int reducedImageViewport[4] = nullptr);
   static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
                                   const int fullImageSize[2],
                                   vtkUnsignedCharArray *reducedImage,
                                   const int reducedImageSize[2],
-                                  const int fullImageViewport[4] = NULL,
-                                  const int reducedImageViewport[4] = NULL);
+                                  const int fullImageViewport[4] = nullptr,
+                                  const int reducedImageViewport[4] = nullptr);
   static void MagnifyImageLinear(vtkUnsignedCharArray *fullImage,
                                  const int fullImageSize[2],
                                  vtkUnsignedCharArray *reducedImage,
                                  const int reducedImageSize[2],
-                                 const int fullImageViewport[4] = NULL,
-                                 const int reducedImageViewport[4] = NULL);
+                                 const int fullImageViewport[4] = nullptr,
+                                 const int reducedImageViewport[4] = nullptr);
   //@}
 
   //@{

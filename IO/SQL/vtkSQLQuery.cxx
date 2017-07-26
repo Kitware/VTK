@@ -28,18 +28,18 @@
 
 vtkSQLQuery::vtkSQLQuery()
 {
-  this->Query = 0;
-  this->Database = 0;
+  this->Query = nullptr;
+  this->Database = nullptr;
   this->Active = false;
 }
 
 vtkSQLQuery::~vtkSQLQuery()
 {
-  this->SetQuery(0);
+  this->SetQuery(nullptr);
   if (this->Database)
   {
     this->Database->Delete();
-    this->Database = NULL;
+    this->Database = nullptr;
   }
 }
 
@@ -48,8 +48,8 @@ vtkCxxSetObjectMacro(vtkSQLQuery, Database, vtkSQLDatabase);
 void vtkSQLQuery::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Query: " << (this->Query ? this->Query : "NULL") << endl;
-  os << indent << "Database: " << (this->Database ? "" : "NULL") << endl;
+  os << indent << "Query: " << (this->Query ? this->Query : "nullptr") << endl;
+  os << indent << "Database: " << (this->Database ? "" : "nullptr") << endl;
   if (this->Database)
   {
     this->Database->PrintSelf(os, indent.GetNextIndent());
@@ -235,7 +235,7 @@ bool vtkSQLQuery::SetQuery(const char *queryString)
                 << " (" << this << "): setting Query to "
                 << (queryString?queryString:"(null)") );
 
-  if ( this->Query == NULL && queryString == NULL)
+  if ( this->Query == nullptr && queryString == nullptr)
   {
     return true;
   }
@@ -254,7 +254,7 @@ bool vtkSQLQuery::SetQuery(const char *queryString)
   }
    else
    {
-    this->Query = NULL;
+    this->Query = nullptr;
    }
   this->Modified();
   return true;

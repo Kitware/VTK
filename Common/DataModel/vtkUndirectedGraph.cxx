@@ -67,7 +67,7 @@ vtkIdType vtkUndirectedGraph::GetInDegree(vtkIdType v)
 //----------------------------------------------------------------------------
 vtkUndirectedGraph *vtkUndirectedGraph::GetData(vtkInformation *info)
 {
-  return info? vtkUndirectedGraph::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkUndirectedGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

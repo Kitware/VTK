@@ -163,7 +163,7 @@ vtkPCACurvatureEstimation::vtkPCACurvatureEstimation()
 //----------------------------------------------------------------------------
 vtkPCACurvatureEstimation::~vtkPCACurvatureEstimation()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 //----------------------------------------------------------------------------

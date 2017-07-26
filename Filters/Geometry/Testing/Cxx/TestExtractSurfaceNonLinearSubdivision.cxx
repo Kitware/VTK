@@ -44,7 +44,7 @@ int TestExtractSurfaceNonLinearSubdivision(int argc, char* argv[])
     argc, argv, "Data/quadraticTetra01.vtu");
   reader->SetFileName(filename);
   delete [] filename;
-  filename = NULL;
+  filename = nullptr;
 
   vtkNew<vtkDataSetSurfaceFilter> extract_surface;
   extract_surface->SetInputConnection(reader->GetOutputPort());

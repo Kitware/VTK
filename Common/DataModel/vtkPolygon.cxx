@@ -93,7 +93,7 @@ bool vtkPolygon::IsConvex()
 //
 
 // Compute the polygon normal from a points list, and a list of point ids
-// that index into the points list. Parameter pts can be NULL, indicating that
+// that index into the points list. Parameter pts can be nullptr, indicating that
 // the polygon indexing is {0, 1, ..., numPts-1}. This version will handle
 // non-convex  polygons.
 void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
@@ -188,7 +188,7 @@ void vtkPolygon::ComputeNormal(vtkIdTypeArray *ids, vtkPoints *p, double n[3])
 // will handle non-convex polygons.
 void vtkPolygon::ComputeNormal(vtkPoints *p, double *n)
 {
-  return vtkPolygon::ComputeNormal(p,p->GetNumberOfPoints(),NULL,n);
+  return vtkPolygon::ComputeNormal(p,p->GetNumberOfPoints(),nullptr,n);
 }
 
 //----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
 
 //----------------------------------------------------------------------------
 // Determine whether or not a polygon is convex from a points list and a list
-// of point ids that index into the points list. Parameter pts can be NULL,
+// of point ids that index into the points list. Parameter pts can be nullptr,
 // indicating that the polygon indexing is {0, 1, ..., numPts-1}.
 bool vtkPolygon::IsConvex(vtkPoints *p, int numPts, vtkIdType *pts)
 {
@@ -319,7 +319,7 @@ bool vtkPolygon::IsConvex(vtkIdTypeArray *ids, vtkPoints *p)
 //----------------------------------------------------------------------------
 bool vtkPolygon::IsConvex(vtkPoints *p)
 {
-  return vtkPolygon::IsConvex(p, p->GetNumberOfPoints(), NULL);
+  return vtkPolygon::IsConvex(p, p->GetNumberOfPoints(), nullptr);
 }
 
 //----------------------------------------------------------------------------

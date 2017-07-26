@@ -107,7 +107,7 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkDenseArray<vtkVariant>::New();
       }
       vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
-      return 0;
+      return nullptr;
     }
     case SPARSE:
     {
@@ -149,12 +149,12 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkSparseArray<vtkVariant>::New();
       }
       vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
-      return 0;
+      return nullptr;
     }
   }
 
     vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown storage type: " << StorageType);
-    return 0;
+    return nullptr;
 }
 
 void vtkArray::Resize(const CoordinateT i)

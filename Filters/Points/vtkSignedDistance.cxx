@@ -162,7 +162,7 @@ vtkSignedDistance::vtkSignedDistance()
 //----------------------------------------------------------------------------
 vtkSignedDistance::~vtkSignedDistance()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 
@@ -346,7 +346,7 @@ int vtkSignedDistance::RequestData(
 
   vtkDebugMacro(<< "Executing space carver");
 
-  if (input == NULL)
+  if (input == nullptr)
   {
     // we do not want to release the data because user might
     // have called Append ...

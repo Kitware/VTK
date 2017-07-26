@@ -12,7 +12,7 @@ class QVTKWidget : QWidget
 
 public:
 
-  QVTKWidget(QWidget* parent = NULL, Qt::WindowFlags f = 0);
+  QVTKWidget(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
   ~QVTKWidget();
 
   vtkRenderWindow* GetRenderWindow();

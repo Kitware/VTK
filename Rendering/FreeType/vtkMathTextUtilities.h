@@ -102,7 +102,7 @@ public:
    */
  virtual bool RenderString(const char *str, vtkImageData *data,
                            vtkTextProperty *tprop, int dpi,
-                           int textDims[2] = NULL) = 0;
+                           int textDims[2] = nullptr) = 0;
 
   /**
    * Parse the MathText expression in str and fill path with a contour of the

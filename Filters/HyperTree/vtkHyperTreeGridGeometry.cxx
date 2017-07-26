@@ -32,14 +32,14 @@ vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 {
-  this->Input = 0;
-  this->Output = 0;
+  this->Input = nullptr;
+  this->Output = nullptr;
 
-  this->InData = 0;
-  this->OutData = 0;
+  this->InData = nullptr;
+  this->OutData = nullptr;
 
-  this->Points = 0;
-  this->Cells = 0;
+  this->Points = nullptr;
+  this->Cells = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -86,10 +86,10 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   this->ProcessTrees();
 
   // Clean up
-  this->Input = 0;
-  this->Output = 0;
-  this->InData = 0;
-  this->OutData = 0;
+  this->Input = nullptr;
+  this->Output = nullptr;
+  this->InData = nullptr;
+  this->OutData = nullptr;
 
   this->UpdateProgress( 1. );
 
@@ -134,9 +134,9 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
   }
 
   this->Points->UnRegister( this );
-  this->Points = 0;
+  this->Points = nullptr;
   this->Cells->UnRegister( this );
-  this->Cells = 0;
+  this->Cells = nullptr;
 }
 
 //----------------------------------------------------------------------------

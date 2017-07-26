@@ -362,8 +362,8 @@ private:
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
 vtkDelimitedTextReader::vtkDelimitedTextReader() :
-  FileName(0),
-  UnicodeCharacterSet(0),
+  FileName(nullptr),
+  UnicodeCharacterSet(nullptr),
   MaxRecords(0),
   UnicodeRecordDelimiters(vtkUnicodeString::from_utf8("\r\n")),
   UnicodeFieldDelimiters(vtkUnicodeString::from_utf8(",")),
@@ -377,15 +377,15 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   this->SetNumberOfOutputPorts(1);
 
   this->ReadFromInputString = 0;
-  this->InputString = NULL;
+  this->InputString = nullptr;
   this->InputStringLength = 0;
   this->MergeConsecutiveDelimiters = false;
-  this->PedigreeIdArrayName = NULL;
+  this->PedigreeIdArrayName = nullptr;
   this->SetPedigreeIdArrayName("id");
   this->GeneratePedigreeIds = true;
   this->OutputPedigreeIds = false;
   this->UnicodeOutputArrays = false;
-  this->FieldDelimiterCharacters = 0;
+  this->FieldDelimiterCharacters = nullptr;
   this->SetFieldDelimiterCharacters(",");
   this->StringDelimiter='"';
   this->UseStringDelimiter = true;
@@ -398,11 +398,11 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
 
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
 {
-  this->SetPedigreeIdArrayName(0);
-  this->SetUnicodeCharacterSet(0);
-  this->SetFileName(0);
-  this->SetInputString(NULL);
-  this->SetFieldDelimiterCharacters(0);
+  this->SetPedigreeIdArrayName(nullptr);
+  this->SetUnicodeCharacterSet(nullptr);
+  this->SetFileName(nullptr);
+  this->SetInputString(nullptr);
+  this->SetFieldDelimiterCharacters(nullptr);
 }
 
 void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -462,7 +462,7 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDelimitedTextReader::SetInputString(const char *in)
 {
   int len = 0;
-  if (in != NULL)
+  if (in != nullptr)
   {
     len = static_cast<int>(strlen(in));
   }
@@ -480,7 +480,7 @@ void vtkDelimitedTextReader::SetInputString(const char *in, int len)
 
   if (in && len>0)
   {
-    // Add a NULL terminator so that GetInputString
+    // Add a nullptr terminator so that GetInputString
     // callers (from wrapped languages) get a valid
     // C string in *ALL* cases...
     //
@@ -491,7 +491,7 @@ void vtkDelimitedTextReader::SetInputString(const char *in, int len)
   }
    else
    {
-    this->InputString = NULL;
+    this->InputString = nullptr;
     this->InputStringLength = 0;
    }
 
@@ -591,7 +591,7 @@ int vtkDelimitedTextReader::RequestData(
     if (!this->PedigreeIdArrayName)
       throw std::runtime_error("You must specify a pedigree id array name");
 
-    istream* input_stream_pt = NULL;
+    istream* input_stream_pt = nullptr;
     ifstream file_stream;
     std::istringstream string_stream;
 
@@ -623,7 +623,7 @@ int vtkDelimitedTextReader::RequestData(
     }
 
     vtkStdString character_set;
-    vtkTextCodec* transCodec = NULL;
+    vtkTextCodec* transCodec = nullptr;
 
     if(this->UnicodeCharacterSet)
     {
@@ -646,7 +646,7 @@ int vtkDelimitedTextReader::RequestData(
       transCodec = vtkTextCodecFactory::CodecToHandle(*input_stream_pt);
     }
 
-    if (NULL == transCodec)
+    if (nullptr == transCodec)
     {
       // should this use the locale instead??
       return 1;

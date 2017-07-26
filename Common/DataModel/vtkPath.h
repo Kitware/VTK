@@ -86,7 +86,7 @@ public:
    */
   vtkIdType GetNumberOfCells() VTK_OVERRIDE { return 0; }
   using vtkDataSet::GetCell;
-  vtkCell *GetCell(vtkIdType)  VTK_OVERRIDE { return NULL; }
+  vtkCell *GetCell(vtkIdType)  VTK_OVERRIDE { return nullptr; }
   void GetCell(vtkIdType, vtkGenericCell *) VTK_OVERRIDE;
   int GetCellType(vtkIdType)   VTK_OVERRIDE { return 0; }
 

@@ -27,9 +27,9 @@ vtkStandardNewMacro(vtkTableToStructuredGrid);
 //----------------------------------------------------------------------------
 vtkTableToStructuredGrid::vtkTableToStructuredGrid()
 {
-  this->XColumn = 0;
-  this->YColumn = 0;
-  this->ZColumn = 0;
+  this->XColumn = nullptr;
+  this->YColumn = nullptr;
+  this->ZColumn = nullptr;
   this->XComponent = 0;
   this->YComponent = 0;
   this->ZComponent = 0;
@@ -40,9 +40,9 @@ vtkTableToStructuredGrid::vtkTableToStructuredGrid()
 //----------------------------------------------------------------------------
 vtkTableToStructuredGrid::~vtkTableToStructuredGrid()
 {
-  this->SetXColumn(0);
-  this->SetYColumn(0);
-  this->SetZColumn(0);
+  this->SetXColumn(nullptr);
+  this->SetYColumn(nullptr);
+  this->SetZColumn(nullptr);
 }
 
 //----------------------------------------------------------------------------

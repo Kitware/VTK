@@ -42,8 +42,8 @@ vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 // Creates a new text mapper
 vtkTextMapper::vtkTextMapper()
 {
-  this->Input = NULL;
-  this->TextProperty = NULL;
+  this->Input = nullptr;
+  this->TextProperty = nullptr;
 
   this->RenderedDPI = 0;
 
@@ -93,7 +93,7 @@ void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
 vtkTextMapper::~vtkTextMapper()
 {
   delete [] this->Input;
-  this->SetTextProperty(NULL);
+  this->SetTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkTextMapper::GetSize(vtkViewport *vp, int size[2])
 {
-  vtkWindow *win = vp ? vp->GetVTKWindow() : NULL;
+  vtkWindow *win = vp ? vp->GetVTKWindow() : nullptr;
   if (!win)
   {
     size[0] = size[1] = 0;
@@ -366,7 +366,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
 
   vtkDebugMacro(<<"RenderOverlay called");
 
-  vtkRenderer *ren = NULL;
+  vtkRenderer *ren = nullptr;
   if (this->Input && this->Input[0])
   {
     vtkWindow *win = viewport->GetVTKWindow();

@@ -32,7 +32,7 @@ vtkIdFilter::vtkIdFilter()
   this->PointIds = 1;
   this->CellIds = 1;
   this->FieldData = 0;
-  this->IdsArrayName = NULL;
+  this->IdsArrayName = nullptr;
   this->SetIdsArrayName("vtkIdFilter_Ids");
 }
 

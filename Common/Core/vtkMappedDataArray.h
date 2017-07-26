@@ -50,7 +50,7 @@ public:
    * - source->GetArrayType() is appropriate, and
    * - source->GetDataType() matches the Scalar template argument
    * if these conditions are met, the method performs a static_cast to return
-   * source as a vtkMappedDataArray pointer. Otherwise, NULL is returned.
+   * source as a vtkMappedDataArray pointer. Otherwise, nullptr is returned.
    */
   static vtkMappedDataArray<Scalar>* FastDownCast(vtkAbstractArray *source);
 
@@ -105,12 +105,12 @@ public:
 
   //@{
   /**
-   * Not implemented. Print error and return NULL.
+   * Not implemented. Print error and return nullptr.
    */
   void * WriteVoidPointer(vtkIdType /*id*/, vtkIdType /*number*/) VTK_OVERRIDE
   {
     vtkErrorMacro(<<"WriteVoidPointer: Method not implemented.");
-    return NULL;
+    return nullptr;
   }
   //@}
 

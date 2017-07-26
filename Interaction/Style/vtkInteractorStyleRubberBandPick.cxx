@@ -278,14 +278,14 @@ void vtkInteractorStyleRubberBandPick::Pick()
     //tell the RenderWindowInteractor's picker to make it happen
     vtkRenderWindowInteractor *rwi = this->Interactor;
 
-    vtkAssemblyPath *path = NULL;
+    vtkAssemblyPath *path = nullptr;
     rwi->StartPickCallback();
     vtkAbstractPropPicker *picker =
       vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker());
-    if ( picker != NULL )
+    if ( picker != nullptr )
     {
       vtkAreaPicker *areaPicker = vtkAreaPicker::SafeDownCast(picker);
-      if (areaPicker != NULL)
+      if (areaPicker != nullptr)
       {
         areaPicker->AreaPick(min[0], min[1], max[0], max[1],
                              this->CurrentRenderer);
@@ -297,9 +297,9 @@ void vtkInteractorStyleRubberBandPick::Pick()
       }
       path = picker->GetPath();
     }
-    if ( path == NULL )
+    if ( path == nullptr )
     {
-      this->HighlightProp(NULL);
+      this->HighlightProp(nullptr);
       this->PropPicked = 0;
     }
     else

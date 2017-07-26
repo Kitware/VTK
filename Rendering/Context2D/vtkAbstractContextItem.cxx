@@ -24,8 +24,8 @@
 //-----------------------------------------------------------------------------
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
-  this->Scene = NULL;
-  this->Parent = NULL;
+  this->Scene = nullptr;
+  this->Parent = nullptr;
   this->Children = new vtkContextScenePrivate(this);
   this->Visible = true;
   this->Interactive = true;
@@ -83,7 +83,7 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetItem(unsigned int index)
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -245,7 +245,7 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
       return item;
     }
   }
-  return this->Hit(mouse) ? this : NULL;
+  return this->Hit(mouse) ? this : nullptr;
 }
 
 // ----------------------------------------------------------------------------

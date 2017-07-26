@@ -64,12 +64,12 @@ vtkImageActor::~vtkImageActor()
   if (this->Property)
   {
     this->Property->Delete();
-    this->Property = NULL;
+    this->Property = nullptr;
   }
   if (this->Mapper)
   {
     this->Mapper->Delete();
-    this->Mapper = NULL;
+    this->Mapper = nullptr;
   }
 }
 
@@ -88,7 +88,7 @@ vtkAlgorithm *vtkImageActor::GetInputAlgorithm()
 {
   if (!this->Mapper)
   {
-    return 0;
+    return nullptr;
   }
 
   return this->Mapper->GetInputAlgorithm();
@@ -99,7 +99,7 @@ vtkImageData *vtkImageActor::GetInput()
 {
   if (!this->Mapper)
   {
-    return 0;
+    return nullptr;
   }
 
   return this->Mapper->GetInput();
@@ -260,7 +260,7 @@ void vtkImageActor::GetDisplayExtent(int extent[6])
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkImageActor::GetDisplayBounds()
 {
-  vtkAlgorithm* inputAlg = NULL;
+  vtkAlgorithm* inputAlg = nullptr;
 
   if (this->Mapper && this->Mapper->GetNumberOfInputConnections(0) > 0)
   {
@@ -520,7 +520,7 @@ int vtkImageActor::HasTranslucentPolygonalGeometry()
   if (this->GetMTime() < this->TranslucentComputationTime)
   {
     vtkImageData *input = this->GetInput();
-    if (input == NULL ||
+    if (input == nullptr ||
         input->GetMTime() <= this->TranslucentComputationTime)
     {
       return this->TranslucentCachedResult;

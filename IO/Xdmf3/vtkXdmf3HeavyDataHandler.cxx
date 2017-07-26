@@ -111,7 +111,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
       if (asGC->getTime()->getValue() != this->time)
       {
         //don't return MB that doesn't match the requested time
-        return NULL;
+        return nullptr;
       }
       //inside a match, make sure we get everything underneath
       this->doTime = false;
@@ -129,7 +129,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
     {
       if (isDomain && !this->ShouldRead(i,nGridCollections))
       {
-        topB->SetBlock(cnt++, NULL);
+        topB->SetBlock(cnt++, nullptr);
         continue;
       }
       vtkMultiBlockDataSet *child = vtkMultiBlockDataSet::New();
@@ -157,7 +157,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nUnstructuredGrids))
     {
-      topB->SetBlock(cnt++, NULL);
+      topB->SetBlock(cnt++, nullptr);
       continue;
     }
     shared_ptr<XdmfUnstructuredGrid> cGrid = group->getUnstructuredGrid(i);
@@ -186,7 +186,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nRectilinearGrids))
     {
-      topB->SetBlock(cnt++, NULL);
+      topB->SetBlock(cnt++, nullptr);
       continue;
     }
     shared_ptr<XdmfRectilinearGrid> cGrid = group->getRectilinearGrid(i);
@@ -215,7 +215,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nCurvilinearGrids))
     {
-      topB->SetBlock(cnt++, NULL);
+      topB->SetBlock(cnt++, nullptr);
       continue;
     }
     shared_ptr<XdmfCurvilinearGrid> cGrid = group->getCurvilinearGrid(i);
@@ -244,7 +244,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nRegularGrids))
     {
-      topB->SetBlock(cnt++, NULL);
+      topB->SetBlock(cnt++, nullptr);
       continue;
     }
     shared_ptr<XdmfRegularGrid> cGrid = group->getRegularGrid(i);
@@ -273,7 +273,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nGraphs))
     {
-      topB->SetBlock(cnt++, NULL);
+      topB->SetBlock(cnt++, nullptr);
       continue;
     }
     vtkMutableDirectedGraph *child = vtkMutableDirectedGraph::New();
@@ -408,7 +408,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(shared_ptr<XdmfGrid> item,
     }
     return this->MakeRegGrid(regGrid, vtkImageData::SafeDownCast(toFill), this->Keeper);
   }
-  return NULL; //already spit a warning out before this
+  return nullptr; //already spit a warning out before this
 }
 
 //------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   {
     return this->MakeGraph(graph, vtkMutableDirectedGraph::SafeDownCast(toFill), this->Keeper);
   }
-  return NULL; //already spit a warning out before this
+  return nullptr; //already spit a warning out before this
 }
 
 //------------------------------------------------------------------------------
@@ -520,7 +520,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeUnsGrid
        grid.get(), dataSet, keeper);
     return dataSet;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -538,7 +538,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeRecGrid
        grid.get(), dataSet, keeper);
     return dataSet;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -556,7 +556,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeCrvGrid
        grid.get(), dataSet, keeper);
     return dataSet;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -574,7 +574,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeRegGrid
        grid.get(), dataSet, keeper);
     return dataSet;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -592,7 +592,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeGraph
        grid.get(), dataSet, keeper);
     return dataSet;
   }
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -610,5 +610,5 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::ExtractSet
        grid.get(), setnum, dataSet, subSet, keeper);
     return subSet;
   }
-  return NULL;
+  return nullptr;
 }

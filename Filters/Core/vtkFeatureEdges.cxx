@@ -42,7 +42,7 @@ vtkFeatureEdges::vtkFeatureEdges()
   this->NonManifoldEdges = 1;
   this->ManifoldEdges = 0;
   this->Coloring = 1;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
@@ -51,7 +51,7 @@ vtkFeatureEdges::~vtkFeatureEdges()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -73,7 +73,7 @@ int vtkFeatureEdges::RequestData(
 
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkFloatArray *newScalars = NULL;
+  vtkFloatArray *newScalars = nullptr;
   vtkCellArray *newLines;
   vtkPolyData *Mesh;
   int i;
@@ -83,18 +83,18 @@ int vtkFeatureEdges::RequestData(
   double cosAngle = 0;
   vtkIdType lineIds[2];
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkCellArray *inPolys, *inStrips, *newPolys;
-  vtkFloatArray *polyNormals = NULL;
+  vtkFloatArray *polyNormals = nullptr;
   vtkIdType numPts, numCells, numPolys, numStrips, nei;
   vtkIdList *neighbors;
   vtkIdType p1, p2, newId;
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  unsigned char* ghosts=0;
+  unsigned char* ghosts=nullptr;
   vtkDebugMacro(<<"Executing feature edges");
 
-  vtkDataArray* temp = 0;
+  vtkDataArray* temp = nullptr;
   if (cd)
   {
     temp = cd->GetArray(vtkDataSetAttributes::GhostArrayName());
@@ -191,7 +191,7 @@ int vtkFeatureEdges::RequestData(
 
   // Get our locator for merging points
   //
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -382,7 +382,7 @@ int vtkFeatureEdges::RequestData(
 
 void vtkFeatureEdges::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }
@@ -399,7 +399,7 @@ void vtkFeatureEdges::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {
@@ -414,7 +414,7 @@ vtkMTimeType vtkFeatureEdges::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

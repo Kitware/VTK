@@ -53,8 +53,8 @@ vtkConnectivityFilter::vtkConnectivityFilter()
   this->Seeds = vtkIdList::New();
   this->SpecifiedRegionIds = vtkIdList::New();
 
-  this->NewScalars = 0;
-  this->NewCellScalars = 0;
+  this->NewScalars = nullptr;
+  this->NewCellScalars = nullptr;
 
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
@@ -108,7 +108,7 @@ int vtkConnectivityFilter::RequestData(
   this->InScalars = input->GetPointData()->GetScalars();
   if ( !this->ScalarConnectivity )
   {
-    this->InScalars = NULL;
+    this->InScalars = nullptr;
   }
   else
   {
@@ -419,7 +419,7 @@ int vtkConnectivityFilter::RequestData(
   this->PointIds->Delete();
   this->CellIds->Delete();
   output->Squeeze();
-  vtkDataArray* outScalars = 0;
+  vtkDataArray* outScalars = nullptr;
   if (this->ColorRegions && (outScalars=output->GetPointData()->GetScalars()))
   {
     outScalars->Resize(output->GetNumberOfPoints());

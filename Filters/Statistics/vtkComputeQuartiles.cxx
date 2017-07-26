@@ -79,7 +79,7 @@ vtkFieldData* vtkComputeQuartiles::GetInputFieldData(vtkDataObject* input)
   if (!input)
   {
     vtkErrorMacro(<<"Cannot extract fields from null input");
-    return 0;
+    return nullptr;
   }
 
   if (vtkTable::SafeDownCast(input))
@@ -113,7 +113,7 @@ vtkFieldData* vtkComputeQuartiles::GetInputFieldData(vtkDataObject* input)
     case vtkDataObject::FIELD_ASSOCIATION_ROWS:
       return vtkTable::SafeDownCast(input)->GetRowData();
   }
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

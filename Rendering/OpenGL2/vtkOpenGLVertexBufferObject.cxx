@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkOpenGLVertexBufferObject)
 
 vtkOpenGLVertexBufferObject::vtkOpenGLVertexBufferObject()
 {
-  this->Cache = NULL;
+  this->Cache = nullptr;
   this->Stride = 0;
   this->NumberOfComponents = 0;
   this->NumberOfTuples = 0;
@@ -42,7 +42,7 @@ vtkOpenGLVertexBufferObject::~vtkOpenGLVertexBufferObject()
   {
     this->Cache->RemoveVBO(this);
     this->Cache->Delete();
-    this->Cache = 0;
+    this->Cache = nullptr;
   }
 }
 
@@ -289,7 +289,7 @@ void vtkAppendVBOWorker<destType>::operator() (DataArray *array)
 // ----------------------------------------------------------------------------
 bool vtkOpenGLVertexBufferObject::DoesArrayConformToVBO(vtkDataArray * array)
 {
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  if (array == nullptr || array->GetNumberOfTuples() == 0)
   {
     vtkErrorMacro( << "No array given.");
     return false;
@@ -309,7 +309,7 @@ void vtkOpenGLVertexBufferObject::InitVBO(
 {
   this->NumberOfTuples = 0;
 
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  if (array == nullptr || array->GetNumberOfTuples() == 0)
   {
     vtkErrorMacro( << "No array given.");
     this->NumberOfComponents = 0;
@@ -329,7 +329,7 @@ void vtkOpenGLVertexBufferObject::InitVBO(
 
 void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
 {
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  if (array == nullptr || array->GetNumberOfTuples() == 0)
   {
     return;
   }
@@ -356,7 +356,7 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
 void vtkOpenGLVertexBufferObject::AppendDataArray(
   vtkDataArray *array)
 {
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  if (array == nullptr || array->GetNumberOfTuples() == 0)
   {
     return;
   }

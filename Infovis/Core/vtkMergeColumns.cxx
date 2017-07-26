@@ -31,12 +31,12 @@ vtkStandardNewMacro(vtkMergeColumns);
 
 vtkMergeColumns::vtkMergeColumns()
 {
-  this->MergedColumnName = 0;
+  this->MergedColumnName = nullptr;
 }
 
 vtkMergeColumns::~vtkMergeColumns()
 {
-  this->SetMergedColumnName(0);
+  this->SetMergedColumnName(nullptr);
 }
 
 template <typename T>

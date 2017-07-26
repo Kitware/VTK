@@ -105,8 +105,8 @@ int vtkPlatonicSolidSource::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i;
-  double *pptr, *solidPoints=NULL, solidScale=1.0;
-  vtkIdType *cptr, numPts=0, numCells=0, cellSize=0, *solidVerts=NULL;
+  double *pptr, *solidPoints=nullptr, solidScale=1.0;
+  vtkIdType *cptr, numPts=0, numCells=0, cellSize=0, *solidVerts=nullptr;
 
   vtkDebugMacro(<<"Creating Platonic solid");
 

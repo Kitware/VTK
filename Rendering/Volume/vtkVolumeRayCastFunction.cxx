@@ -99,13 +99,13 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   }
   else
   {
-    staticInfo->EncodedNormals            = NULL;
-    staticInfo->RedDiffuseShadingTable    = NULL;
-    staticInfo->GreenDiffuseShadingTable  = NULL;
-    staticInfo->BlueDiffuseShadingTable   = NULL;
-    staticInfo->RedSpecularShadingTable   = NULL;
-    staticInfo->GreenSpecularShadingTable = NULL;
-    staticInfo->BlueSpecularShadingTable  = NULL;
+    staticInfo->EncodedNormals            = nullptr;
+    staticInfo->RedDiffuseShadingTable    = nullptr;
+    staticInfo->GreenDiffuseShadingTable  = nullptr;
+    staticInfo->BlueDiffuseShadingTable   = nullptr;
+    staticInfo->RedSpecularShadingTable   = nullptr;
+    staticInfo->GreenSpecularShadingTable = nullptr;
+    staticInfo->BlueSpecularShadingTable  = nullptr;
   }
 
   // We need the gradient magnitudes only if we are classifying opacity
@@ -118,7 +118,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   }
   else
   {
-    staticInfo->GradientMagnitudes = NULL;
+    staticInfo->GradientMagnitudes = nullptr;
   }
 
   // By default the blending is not MIP - the MIP function will turn this

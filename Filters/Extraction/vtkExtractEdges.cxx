@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkExtractEdges);
 // Construct object.
 vtkExtractEdges::vtkExtractEdges()
 {
-  this->Locator = NULL;
+  this->Locator = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkExtractEdges::~vtkExtractEdges()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -110,7 +110,7 @@ int vtkExtractEdges::RequestData(
 
   // Get our locator for merging points
   //
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -220,7 +220,7 @@ void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {
@@ -233,7 +233,7 @@ void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator *locator)
 //----------------------------------------------------------------------------
 void vtkExtractEdges::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     vtkMergePoints *locator = vtkMergePoints::New();
     this->SetLocator(locator);
@@ -269,7 +269,7 @@ vtkMTimeType vtkExtractEdges::GetMTime()
   vtkMTimeType mTime=this-> Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

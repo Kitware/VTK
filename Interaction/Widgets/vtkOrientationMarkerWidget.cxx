@@ -40,7 +40,7 @@ public:
 
   vtkOrientationMarkerWidgetObserver()
   {
-    this->OrientationMarkerWidget = 0;
+    this->OrientationMarkerWidget = nullptr;
   }
 
   void Execute(vtkObject* wdg, unsigned long event, void *calldata) VTK_OVERRIDE
@@ -76,7 +76,7 @@ vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
   this->Renderer->InteractiveOff();
 
   this->Priority = 0.55;
-  this->OrientationMarker = NULL;
+  this->OrientationMarker = nullptr;
   this->State = vtkOrientationMarkerWidget::Outside;
   this->Interactive = 1;
 
@@ -113,10 +113,10 @@ vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
 vtkOrientationMarkerWidget::~vtkOrientationMarkerWidget()
 {
   this->Observer->Delete();
-  this->Observer = NULL;
+  this->Observer = nullptr;
   this->Renderer->Delete();
-  this->Renderer = NULL;
-  this->SetOrientationMarker( NULL );
+  this->Renderer = nullptr;
+  this->SetOrientationMarker( nullptr );
   this->OutlineActor->Delete();
   this->Outline->Delete();
 }
@@ -148,7 +148,7 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
 
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -194,7 +194,7 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
     // Compositing temporarily changes the camera to display an image.
     this->StartEventObserverId = this->CurrentRenderer->AddObserver(
       vtkCommand::StartEvent, this->Observer, 1 );
-    this->InvokeEvent( vtkCommand::EnableEvent, NULL );
+    this->InvokeEvent( vtkCommand::EnableEvent, nullptr );
   }
   else
   {
@@ -222,8 +222,8 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
       this->CurrentRenderer->RemoveObserver( this->StartEventObserverId );
     }
 
-    this->InvokeEvent( vtkCommand::DisableEvent, NULL );
-    this->SetCurrentRenderer( NULL );
+    this->InvokeEvent( vtkCommand::DisableEvent, nullptr );
+    this->SetCurrentRenderer( nullptr );
   }
 }
 
@@ -406,7 +406,7 @@ void vtkOrientationMarkerWidget::OnLeftButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag( 1 );
   this->StartInteraction();
-  this->InvokeEvent( vtkCommand::StartInteractionEvent, NULL );
+  this->InvokeEvent( vtkCommand::StartInteractionEvent, nullptr );
 }
 
 //-------------------------------------------------------------------------
@@ -427,7 +427,7 @@ void vtkOrientationMarkerWidget::OnLeftButtonUp()
 
   this->RequestCursorShape( VTK_CURSOR_DEFAULT );
   this->EndInteraction();
-  this->InvokeEvent( vtkCommand::EndInteractionEvent, NULL );
+  this->InvokeEvent( vtkCommand::EndInteractionEvent, nullptr );
   this->Interactor->Render();
 }
 
@@ -592,7 +592,7 @@ void vtkOrientationMarkerWidget::OnMouseMove()
 
   this->UpdateOutline();
   this->EventCallbackCommand->SetAbortFlag( 1 );
-  this->InvokeEvent( vtkCommand::InteractionEvent, NULL );
+  this->InvokeEvent( vtkCommand::InteractionEvent, nullptr );
   this->Interactor->Render();
 }
 

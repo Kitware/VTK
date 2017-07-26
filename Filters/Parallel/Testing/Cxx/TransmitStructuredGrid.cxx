@@ -90,8 +90,8 @@ void MyProcess::Execute()
 
   // READER
 
-  vtkStructuredGridReader *sgr = NULL;
-  vtkStructuredGrid *sg = NULL;
+  vtkStructuredGridReader *sgr = nullptr;
+  vtkStructuredGrid *sg = nullptr;
 
   if (me == 0)
   {
@@ -111,7 +111,7 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((sg == NULL) || (sg->GetNumberOfCells() == 0))
+    if ((sg == nullptr) || (sg->GetNumberOfCells() == 0))
     {
       if (sg) cout << "Failure: input file has no cells" << endl;
       go = 0;

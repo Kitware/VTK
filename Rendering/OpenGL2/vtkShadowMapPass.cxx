@@ -71,7 +71,7 @@ vtkInformationKeyMacro(vtkShadowMapPass,ShadowMapPass,ObjectBase);
 // ----------------------------------------------------------------------------
 vtkShadowMapPass::vtkShadowMapPass()
 {
-  this->ShadowMapBakerPass=0;
+  this->ShadowMapBakerPass=nullptr;
 
   vtkNew<vtkSequencePass> seqP;
   vtkNew<vtkLightsPass> lightP;
@@ -81,22 +81,22 @@ vtkShadowMapPass::vtkShadowMapPass()
   rpc->AddItem(opaqueP.Get());
   seqP->SetPasses(rpc.Get());
 
-  this->OpaqueSequence=0;
+  this->OpaqueSequence=nullptr;
   this->SetOpaqueSequence(seqP.Get());
 
   vtkNew<vtkShadowMapBakerPass> bp;
-  this->ShadowMapBakerPass = 0;
+  this->ShadowMapBakerPass = nullptr;
   this->SetShadowMapBakerPass(bp.Get());
 }
 
 // ----------------------------------------------------------------------------
 vtkShadowMapPass::~vtkShadowMapPass()
 {
-  if(this->ShadowMapBakerPass!=0)
+  if(this->ShadowMapBakerPass!=nullptr)
   {
     this->ShadowMapBakerPass->Delete();
   }
-  if(this->OpaqueSequence!=0)
+  if(this->OpaqueSequence!=nullptr)
   {
     this->OpaqueSequence->Delete();
   }
@@ -108,7 +108,7 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ShadowMapBackerPass: ";
-  if(this->ShadowMapBakerPass!=0)
+  if(this->ShadowMapBakerPass!=nullptr)
   {
     this->ShadowMapBakerPass->PrintSelf(os,indent);
   }
@@ -117,7 +117,7 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" <<endl;
   }
   os << indent << "OpaqueSequence: ";
-  if(this->OpaqueSequence!=0)
+  if(this->OpaqueSequence!=nullptr)
   {
     this->OpaqueSequence->PrintSelf(os,indent);
   }
@@ -133,7 +133,7 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre s_exists: s!=0
 void vtkShadowMapPass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   vtkOpenGLClearErrorMacro();
 
@@ -144,8 +144,8 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderWindow *context = static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
 
-  if(this->ShadowMapBakerPass != 0 &&
-     this->OpaqueSequence != 0)
+  if(this->ShadowMapBakerPass != nullptr &&
+     this->OpaqueSequence != nullptr)
   {
      // Test for Hardware support. If not supported, just render the delegate.
     bool supported=vtkOpenGLFramebufferObject::IsSupported(context);
@@ -177,9 +177,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     // get the shadow maps and activate them
     int shadowingLightIndex = 0;
     int lightIndex = 0;
-    vtkLight *light = 0;
+    vtkLight *light = nullptr;
     for (lights->InitTraversal(), light = lights->GetNextItem();
-          light != 0; light = lights->GetNextItem(), lightIndex++)
+          light != nullptr; light = lights->GetNextItem(), lightIndex++)
     {
       this->ShadowTextureUnits[lightIndex] = -1;
       if(light->GetSwitch() &&
@@ -222,7 +222,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     this->ShadowTransforms.clear();
     shadowingLightIndex = 0;
     for (lights->InitTraversal(), light = lights->GetNextItem(), lightIndex = 0;
-          light != 0; light = lights->GetNextItem(), lightIndex++)
+          light != nullptr; light = lights->GetNextItem(), lightIndex++)
     {
       if (this->ShadowTextureUnits[lightIndex] >= 0)
       {
@@ -267,7 +267,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     // now deactivate the shadow maps
     shadowingLightIndex = 0;
     for (lights->InitTraversal(), light = lights->GetNextItem(), lightIndex = 0;
-          light != 0; light = lights->GetNextItem(), lightIndex++)
+          light != nullptr; light = lights->GetNextItem(), lightIndex++)
     {
       if(light->GetSwitch() &&
          this->ShadowMapBakerPass->LightCreatesShadow(light) )
@@ -478,8 +478,8 @@ void vtkShadowMapPass::BuildShaderCode()
 // \pre w_exists: w!=0
 void vtkShadowMapPass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
-  if(this->ShadowMapBakerPass!=0)
+  assert("pre: w_exists" && w!=nullptr);
+  if(this->ShadowMapBakerPass!=nullptr)
   {
     this->ShadowMapBakerPass->ReleaseGraphicsResources(w);
   }

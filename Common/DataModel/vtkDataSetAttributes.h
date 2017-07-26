@@ -61,7 +61,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
-   * Initialize all of the object's data to NULL
+   * Initialize all of the object's data to nullptr
    * Also, clear the copy flags.
    */
   void Initialize() VTK_OVERRIDE;
@@ -266,7 +266,7 @@ public:
 
    * Returns -1 in the following cases:
 
-   * - aa is NULL (used to unset an attribute; not an error indicator)
+   * - aa is nullptr (used to unset an attribute; not an error indicator)
    * - aa is not a subclass of vtkDataArray, unless the attributeType
    * is vtkDataSetAttributes::PEDIGREEIDS (error indicator)
    * - aa has a number of components incompatible with the attribute type
@@ -610,7 +610,7 @@ protected:
     vtkIdType sze, vtkIdType ext);
 
   /**
-   * Initialize all of the object's data to NULL
+   * Initialize all of the object's data to nullptr
    */
   void InitializeFields() VTK_OVERRIDE;
 

@@ -139,9 +139,9 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
 
   /**
    * Add a vertex, optionally with properties, to the distributed graph.
-   * If vertex is non-NULL, it will be set
+   * If vertex is non-null, it will be set
    * to the newly-added (or found) vertex. Note that if propertyArr is
-   * non-NULL and the vertex data contains pedigree IDs, a vertex will
+   * non-null and the vertex data contains pedigree IDs, a vertex will
    * only be added if there is no vertex with that pedigree ID.
    */
   void AddVertexInternal(vtkVariantArray *propertyArr,
@@ -149,7 +149,7 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
 
   /**
    * Add a vertex with the given pedigree ID to the distributed graph. If
-   * vertex is non-NULL, it will receive the newly-created vertex.
+   * vertex is non-null, it will receive the newly-created vertex.
    */
   void AddVertexInternal(const vtkVariant& pedigreeId, vtkIdType *vertex);
 

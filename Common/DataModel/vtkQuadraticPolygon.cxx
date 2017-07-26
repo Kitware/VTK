@@ -268,8 +268,8 @@ int vtkQuadraticPolygon::IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
                                                 double tol, double p0[3],
                                                 double p1[3])
 {
-  vtkPolygon *convertedCell1 = 0;
-  vtkPolygon *convertedCell2 = 0;
+  vtkPolygon *convertedCell1 = nullptr;
+  vtkPolygon *convertedCell2 = nullptr;
 
   vtkQuadraticPolygon *qp1 = dynamic_cast<vtkQuadraticPolygon*>(cell1);
   if (qp1)

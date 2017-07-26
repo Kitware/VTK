@@ -40,14 +40,14 @@
  * is passed along for further processing.
  *
  * When an instance of vtkObject invokes an event, it also passes an optional
- * void pointer to a callData. This callData is NULL most of the time.
+ * void pointer to a callData. This callData is nullptr most of the time.
  * The callData is not specific to a type of event but specific to a type
  * of vtkObject invoking a specific event. For instance, vtkCommand::PickEvent
- * is invoked by vtkProp with a NULL callData but is invoked by
+ * is invoked by vtkProp with a nullptr callData but is invoked by
  * vtkInteractorStyleImage with a pointer to the vtkInteractorStyleImage object
  * itself.
  *
- * Here is the list of events that may be invoked with a non-NULL callData.
+ * Here is the list of events that may be invoked with a non-nullptr callData.
  * - vtkCommand::ProgressEvent
  *  - most of the objects return a pointer to a double value ranged between
  * 0.0 and 1.0
@@ -64,18 +64,18 @@
  * - vtkCommand::AnimationCueTickEvent
  *  - a pointer to a vtkAnimationCue::AnimationCueInfo object
  * - vtkCommand::PickEvent
- *  - Common/vtkProp returns NULL
+ *  - Common/vtkProp returns nullptr
  *  - Rendering/vtkInteractorStyleImage returns a pointer to itself
  * - vtkCommand::StartPickEvent
- *  - Rendering/vtkPropPicker returns NULL
+ *  - Rendering/vtkPropPicker returns nullptr
  *  - Rendering/vtkInteractorStyleImage returns a pointer to itself
  * - vtkCommand::EndPickEvent
- *  - Rendering/vtkPropPicker returns NULL
+ *  - Rendering/vtkPropPicker returns nullptr
  *  - Rendering/vtkInteractorStyleImage returns a pointer to itself
  * - vtkCommand::WrongTagEvent
  *  - Parallel/vtkSocketCommunicator returns a received tag as a char *
  * - vtkCommand::SelectionChangedEvent
- *  - Views/vtkView returns NULL
+ *  - Views/vtkView returns nullptr
  *  - Views/vtkDataRepresentation returns a pointer to a vtkSelection
  *  - Rendering/vtkInteractorStyleRubberBand2D returns an array of 5 unsigned
  * integers (p1x, p1y, p2x, p2y, mode), where mode is
@@ -104,12 +104,12 @@
  * and level)
  *  - Rendering/vtkInteractorStyleImage returns a pointer to itself
  * - vtkCommand::CharEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QKeyEvent *
  * - vtkCommand::TimerEvent
  *  - most of the objects return a to an int representing a timer id
- *  - Rendering/vtkXRenderWindowTclInteractor returns NULL
- *  - Widgets/vtkHoverWidget returns NULL
+ *  - Rendering/vtkXRenderWindowTclInteractor returns nullptr
+ *  - Widgets/vtkHoverWidget returns nullptr
  * - vtkCommand::CreateTimerEvent
  *  - Rendering/vtkGenericRenderWindowInteractor returns a to an int
  * representing a timer id
@@ -117,45 +117,45 @@
  *  - Rendering/vtkGenericRenderWindowInteractor returns a to an int
  * representing a timer id
  * - vtkCommand::UserEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - Infovis/vtkInteractorStyleTreeMapHover returns a pointer to a vtkIdType
  * representing a pedigree id
  * - vtkCommand::KeyPressEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QKeyEvent*
  * - vtkCommand::KeyReleaseEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QKeyEvent*
  * - vtkCommand::LeftButtonPressEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
  * - vtkCommand::LeftButtonReleaseEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
  * - vtkCommand::MouseMoveEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
  * - vtkCommand::MouseWheelForwardEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QWheelEvent*
  * - vtkCommand::MouseWheelBackwardEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QWheelEvent*
  * - vtkCommand::RightButtonPressEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
  * - vtkCommand::RightButtonReleaseEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
  * - vtkCommand::MiddleButtonPressEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
  * - vtkCommand::MiddleButtonReleaseEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
  * - vtkCommand::CursorChangedEvent
  *  - most of the objects return a pointer to an int representing a shape
- *  - Rendering/vtkInteractorObserver returns NULL
+ *  - Rendering/vtkInteractorObserver returns nullptr
  * - vtkCommand::ResetCameraEvent
  *  - Rendering/vtkRenderer returns a pointer to itself
  * - vtkCommand::ResetCameraClippingRangeEvent
@@ -165,10 +165,10 @@
  * - vtkCommand::CreateCameraEvent
  *  - Rendering/vtkRenderer returns a pointer to the created camera
  * - vtkCommand::EnterEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QEvent*
  * - vtkCommand::LeaveEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *  - GUISupport/Qt/QVTKWidget returns a QEvent*
  * - vtkCommand::RenderWindowMessageEvent
  *  - Rendering/vtkWin32OpenGLRenderWindow return a pointer to a UINT message
@@ -199,13 +199,13 @@
  * - vtkCommand::UpdateShaderEvent
  *  - A vtkOpenGLHelper* currently being used
  * - vtkCommand::FourthButtonPressEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  * - vtkCommand::FourthButtonReleaseEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  * - vtkCommand::FifthButtonPressEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  * - vtkCommand::FifthButtonReleaseEvent
- *  - most of the objects return NULL
+ *  - most of the objects return nullptr
  *
  * @sa
  * vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
@@ -374,7 +374,7 @@ public:
    * the eventId parameter is the id of the event, and callData
    * parameter is data that can be passed into the execute
    * method. (Note: vtkObject::InvokeEvent() takes two parameters: the
-   * event id (or name) and call data. Typically call data is NULL,
+   * event id (or name) and call data. Typically call data is nullptr,
    * but the user can package data and pass it this
    * way. Alternatively, a derived class of vtkCommand can be used to
    * pass data.)

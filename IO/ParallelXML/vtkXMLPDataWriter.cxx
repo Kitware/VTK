@@ -39,10 +39,10 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
 
   this->UseSubdirectory = false;
 
-  this->PathName = 0;
-  this->FileNameBase = 0;
-  this->FileNameExtension = 0;
-  this->PieceFileNameExtension = 0;
+  this->PathName = nullptr;
+  this->FileNameBase = nullptr;
+  this->FileNameExtension = nullptr;
+  this->PieceFileNameExtension = nullptr;
 
   // Setup a callback for the internal writer to report progress.
   this->ProgressObserver = vtkCallbackCommand::New();
@@ -50,12 +50,12 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
     &vtkXMLPDataWriter::ProgressCallbackFunction);
   this->ProgressObserver->SetClientData(this);
 
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->ContinuingExecution = false;
   this->CurrentPiece = -1;
-  this->PieceWrittenFlags = NULL;
+  this->PieceWrittenFlags = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ vtkXMLPDataWriter::~vtkXMLPDataWriter()
   delete [] this->FileNameExtension;
   delete [] this->PieceFileNameExtension;
   delete [] this->PieceWrittenFlags;
-  this->SetController(0);
+  this->SetController(nullptr);
   this->ProgressObserver->Delete();
 }
 
@@ -194,7 +194,7 @@ int vtkXMLPDataWriter::WriteInternal()
   if (the_end && this->WriteSummaryFile)
   {
     // Decide whether to write the summary file.
-    bool writeSummaryLocally = (this->Controller == NULL || this->Controller->GetLocalProcessId() == 0);
+    bool writeSummaryLocally = (this->Controller == nullptr || this->Controller->GetLocalProcessId() == 0);
 
     // Let subclasses collect information, if any to write the summary file.
     this->PrepareSummaryFile();
@@ -235,10 +235,10 @@ void vtkXMLPDataWriter::PrepareSummaryFile()
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    assert(this->PieceWrittenFlags != NULL);
+    assert(this->PieceWrittenFlags != nullptr);
     // Reduce information about which pieces were written out to rank 0.
     int myId = this->Controller->GetLocalProcessId();
-    unsigned char* recvBuffer = (myId == 0)? new unsigned char[this->NumberOfPieces] : NULL;
+    unsigned char* recvBuffer = (myId == 0)? new unsigned char[this->NumberOfPieces] : nullptr;
     this->Controller->Reduce(
       this->PieceWrittenFlags, recvBuffer, this->NumberOfPieces,
       vtkCommunicator::MAX_OP, 0);

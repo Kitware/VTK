@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 vtkAtom::vtkAtom(vtkMolecule *parent, vtkIdType id)
   : Molecule(parent), Id(id)
 {
-  assert(parent != 0);
+  assert(parent != nullptr);
   assert(id < parent->GetNumberOfAtoms());
 }
 

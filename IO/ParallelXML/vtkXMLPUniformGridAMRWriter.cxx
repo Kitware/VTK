@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(vtkXMLPUniformGridAMRWriter,
 //----------------------------------------------------------------------------
 vtkXMLPUniformGridAMRWriter::vtkXMLPUniformGridAMRWriter()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   // this should be called after the controller is set.
@@ -39,7 +39,7 @@ vtkXMLPUniformGridAMRWriter::vtkXMLPUniformGridAMRWriter()
 //----------------------------------------------------------------------------
 vtkXMLPUniformGridAMRWriter::~vtkXMLPUniformGridAMRWriter()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void vtkXMLPUniformGridAMRWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkXMLPUniformGridAMRWriter::SetWriteMetaFile(int flag)
 {
   this->Modified();
-  if(this->Controller == NULL || this->Controller->GetLocalProcessId() == 0)
+  if(this->Controller == nullptr || this->Controller->GetLocalProcessId() == 0)
   {
     if(this->WriteMetaFile != flag)
     {
@@ -124,6 +124,6 @@ void vtkXMLPUniformGridAMRWriter::FillDataTypes(
   }
   else
   {
-    this->Controller->Gather(myDataTypes, NULL, numLeafNodes, 0);
+    this->Controller->Gather(myDataTypes, nullptr, numLeafNodes, 0);
   }
 }

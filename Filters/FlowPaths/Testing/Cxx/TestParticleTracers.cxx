@@ -411,7 +411,7 @@ int TestStreaklineFilter()
 
 int TestParticleTracers(int, char*[])
 {
-  vtkPoints* pts(NULL);
+  vtkPoints* pts(nullptr);
   double p[3];
 
   vtkNew<TestTimeSource> imageSource;

@@ -140,7 +140,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
 //----------------------------------------------------------------------------
 vtkMoleculeMapper::~vtkMoleculeMapper()
 {
-  this->SetLookupTable(NULL);
+  this->SetLookupTable(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -242,17 +242,17 @@ void vtkMoleculeMapper::GetSelectedAtomsAndBonds(vtkSelection *selection,
                                                  vtkIdTypeArray *bondIds)
 {
   // Sanity check
-  if (selection == NULL || (atomIds == NULL && bondIds == NULL) )
+  if (selection == nullptr || (atomIds == nullptr && bondIds == nullptr) )
   {
     return;
   }
 
   // Clear the inputs
-  if (atomIds != NULL)
+  if (atomIds != nullptr)
   {
     atomIds->Reset();
   }
-  if (bondIds != NULL)
+  if (bondIds != nullptr)
   {
     bondIds->Reset();
   }
@@ -281,11 +281,11 @@ void vtkMoleculeMapper::GetSelectedAtomsAndBonds(vtkSelection *selection,
         for (vtkIdType i = 0; i < numIds; ++i)
         {
           vtkIdType curId = selIds->GetValue(i);
-          if (atomIds != NULL && curId < numAtoms) // atoms
+          if (atomIds != nullptr && curId < numAtoms) // atoms
           {
             atomIds->InsertNextValue(curId);
           }
-          else if (bondIds != NULL && curId < numAtomsAndBonds)// bonds
+          else if (bondIds != nullptr && curId < numAtomsAndBonds)// bonds
           {
             // Remove offset
             curId -= numAtoms;
@@ -514,7 +514,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
         selectionIds.GetPointer());
 
   // Set up coloring mode
-  vtkDataArray *cylColors = 0;
+  vtkDataArray *cylColors = nullptr;
   switch(this->BondColorMode)
   {
     case SingleColor:

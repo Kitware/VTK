@@ -218,7 +218,7 @@ public:
   //@}
 
   /**
-   * Get the legend for the chart, if available. Can return NULL if there is no
+   * Get the legend for the chart, if available. Can return null if there is no
    * legend.
    */
   virtual vtkChartLegend * GetLegend();

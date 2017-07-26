@@ -214,7 +214,7 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
           {
             tooltipLabel +=
               this->GetNumber(this->Input->GetScalarComponentAsDouble(
-                pointX, pointY, 0, 0), NULL);
+                pointX, pointY, 0, 0), nullptr);
           }
           break;
         default: // If no match, insert the entire format tag

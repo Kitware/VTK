@@ -73,7 +73,7 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
     }
     return VTK_OK;
   }
-  if(vtkImageData::GetData(inInfo) != NULL)
+  if(vtkImageData::GetData(inInfo) != nullptr)
   {
     vtkUniformGrid* output = vtkUniformGrid::New();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
@@ -190,7 +190,7 @@ int vtkImageDataToUniformGrid::Process(
     output->ShallowCopy(input);
   }
 
-  vtkDataArray* inScalars = NULL;
+  vtkDataArray* inScalars = nullptr;
   if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     inScalars = input->GetPointData()->GetArray(arrayName);

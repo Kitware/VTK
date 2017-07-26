@@ -31,7 +31,7 @@ vtkCellLinks::~vtkCellLinks()
 //----------------------------------------------------------------------------
 void vtkCellLinks::Initialize()
 {
-  if ( this->Array != NULL )
+  if ( this->Array != nullptr )
   {
     for (vtkIdType i=0; i<=this->MaxId; i++)
     {
@@ -39,14 +39,14 @@ void vtkCellLinks::Initialize()
     }
 
     delete [] this->Array;
-    this->Array = NULL;
+    this->Array = nullptr;
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
-  static vtkCellLinks::Link linkInit = {0,NULL};
+  static vtkCellLinks::Link linkInit = {0,nullptr};
 
   this->Size = sz;
   delete [] this->Array;
@@ -93,7 +93,7 @@ vtkCellLinks::Link *vtkCellLinks::Resize(vtkIdType sz)
   vtkIdType i;
   vtkCellLinks::Link *newArray;
   vtkIdType newSize;
-  vtkCellLinks::Link linkInit = {0,NULL};
+  vtkCellLinks::Link linkInit = {0,nullptr};
 
   if ( sz >= this->Size )
   {
@@ -211,7 +211,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
   vtkIdType j, cellId;
   unsigned short *linkLoc;
   vtkIdType npts=0;
-  vtkIdType *pts=0;
+  vtkIdType *pts=nullptr;
   vtkIdType loc = Connectivity->GetTraversalLocation();
 
   // traverse data to determine number of uses of each point

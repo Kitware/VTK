@@ -50,9 +50,9 @@ vtkGenericContourFilter::vtkGenericContourFilter()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
-  this->InputScalarsSelection = NULL;
+  this->InputScalarsSelection = nullptr;
 
   this->InternalPD = vtkPointData::New();
   this->SecondaryPD = vtkPointData::New();
@@ -66,9 +66,9 @@ vtkGenericContourFilter::~vtkGenericContourFilter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
-  this->SetInputScalarsSelection(NULL);
+  this->SetInputScalarsSelection(nullptr);
   this->InternalPD->Delete();
   this->SecondaryPD->Delete();
   this->SecondaryCD->Delete();
@@ -148,7 +148,7 @@ int vtkGenericContourFilter::RequestData(
   output->Allocate(numCells);
 
   // locator used to merge potentially duplicate points
-  if(this->Locator==0)
+  if(this->Locator==nullptr)
   {
     this->CreateDefaultLocator();
   }
@@ -194,7 +194,7 @@ int vtkGenericContourFilter::RequestData(
     secondaryAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(secondaryAttributes->GetAttribute(attributeType)==0)
+    if(secondaryAttributes->GetAttribute(attributeType)==nullptr)
     {
       secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
                                               attributeType);
@@ -240,7 +240,7 @@ int vtkGenericContourFilter::RequestData(
     }
 
     cell = cellIt->GetCell();
-    cell->Contour(this->ContourValues, NULL, input->GetAttributes(),
+    cell->Contour(this->ContourValues, nullptr, input->GetAttributes(),
                   input->GetTessellator(),
                   this->Locator, newVerts, newLines, newPolys, outPd, outCd,
                   this->InternalPD,this->SecondaryPD,this->SecondaryCD);
@@ -291,7 +291,7 @@ int vtkGenericContourFilter::RequestData(
 // an instance of vtkMergePoints is used.
 void vtkGenericContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

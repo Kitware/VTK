@@ -288,7 +288,7 @@ public:
    */
   virtual const char* GetFileExtensions()
   {
-      return 0;
+      return nullptr;
   }
 
   //@{
@@ -297,7 +297,7 @@ public:
    */
   virtual const char* GetDescriptiveName()
   {
-      return 0;
+      return nullptr;
   }
 protected:
   vtkImageReader2();

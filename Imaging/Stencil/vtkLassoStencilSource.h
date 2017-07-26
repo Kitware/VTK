@@ -84,7 +84,7 @@ public:
   /**
    * The points for a particular slice.  This will override the
    * points that were set by calling SetPoints() for the slice.
-   * To clear the setting, call SetSlicePoints(slice, NULL).
+   * To clear the setting, call SetSlicePoints(slice, nullptr).
    */
   virtual void SetSlicePoints(int i, vtkPoints *points);
   virtual vtkPoints *GetSlicePoints(int i);

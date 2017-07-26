@@ -351,7 +351,7 @@ vtkPointDensityFilter::vtkPointDensityFilter()
 vtkPointDensityFilter::~vtkPointDensityFilter()
 {
   this->Locator->UnRegister(this);
-  this->Locator = NULL;
+  this->Locator = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -580,7 +580,7 @@ int vtkPointDensityFilter::RequestData(
 
   // If weighting points
   vtkDataArray *weights = this->GetInputArrayToProcess(0, inputVector);
-  void *w=NULL;
+  void *w=nullptr;
   if ( weights && this->ScalarWeighting )
   {
     w = weights->GetVoidPointer(0);

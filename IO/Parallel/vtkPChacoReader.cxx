@@ -43,19 +43,19 @@ vtkStandardNewMacro(vtkPChacoReader);
 //----------------------------------------------------------------------------
 vtkPChacoReader::vtkPChacoReader()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPChacoReader::~vtkPChacoReader()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 //----------------------------------------------------------------------------
 void vtkPChacoReader::SetController(vtkMultiProcessController *c)
 {
-  if ((c == NULL) || (c->GetNumberOfProcesses() == 0))
+  if ((c == nullptr) || (c->GetNumberOfProcesses() == 0))
   {
     this->NumProcesses = 1;
     this->MyId = 0;
@@ -68,13 +68,13 @@ void vtkPChacoReader::SetController(vtkMultiProcessController *c)
 
   this->Modified();
 
-  if (this->Controller != NULL)
+  if (this->Controller != nullptr)
   {
     this->Controller->UnRegister(this);
-    this->Controller = NULL;
+    this->Controller = nullptr;
   }
 
-  if (c == NULL)
+  if (c == nullptr)
   {
     return;
   }
@@ -243,7 +243,7 @@ int vtkPChacoReader::RequestData(
     }
     else
     {
-      contr = NULL;
+      contr = nullptr;
     }
   }
 
@@ -350,7 +350,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
   int nprocs = contr->GetNumberOfProcesses();
   int myrank = contr->GetLocalProcessId();
 
-  vtkUnstructuredGrid *mygrid = NULL;
+  vtkUnstructuredGrid *mygrid = nullptr;
 
   if (source == myrank)
   {
@@ -364,7 +364,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
     {
       if (!retVal && (i != myrank))
       {
-        this->SendGrid(contr, i, NULL);  // we failed
+        this->SendGrid(contr, i, nullptr);  // we failed
         continue;
       }
 
@@ -389,7 +389,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
   else
   {
     mygrid = this->GetGrid(contr, source);
-    if (mygrid == NULL)
+    if (mygrid == nullptr)
     {
       retVal = 0;
     }
@@ -453,7 +453,7 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
 vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
                                               int from)
 {
-  vtkUnstructuredGrid *grid = NULL;
+  vtkUnstructuredGrid *grid = nullptr;
 
   int bufsize=0, ack=1;
 
@@ -462,7 +462,7 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
   if (bufsize == 0)
   {
     // Node zero is reporting an error
-    return NULL;
+    return nullptr;
   }
 
   char *buf = new char [bufsize];

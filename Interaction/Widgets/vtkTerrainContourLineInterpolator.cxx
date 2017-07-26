@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkTerrainContourLineInterpolator);
 //----------------------------------------------------------------------
 vtkTerrainContourLineInterpolator::vtkTerrainContourLineInterpolator()
 {
-  this->ImageData       = NULL;
+  this->ImageData       = nullptr;
   this->Projector       = vtkProjectedTerrainPath::New();
   this->Projector->SetHeightOffset(0.0);
   this->Projector->SetHeightTolerance(5);
@@ -37,7 +37,7 @@ vtkTerrainContourLineInterpolator::vtkTerrainContourLineInterpolator()
 //----------------------------------------------------------------------
 vtkTerrainContourLineInterpolator::~vtkTerrainContourLineInterpolator()
 {
-  this->SetImageData(NULL);
+  this->SetImageData(nullptr);
   this->Projector->Delete();
 }
 
@@ -48,12 +48,12 @@ void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData *image)
   {
     vtkImageData *temp = this->ImageData;
     this->ImageData = image;
-    if (this->ImageData != NULL)
+    if (this->ImageData != nullptr)
     {
       this->ImageData->Register(this);
       this->Projector->SetSourceData(this->ImageData);
     }
-    if (temp != NULL)
+    if (temp != nullptr)
     {
       temp->UnRegister(this);
     }

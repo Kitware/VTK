@@ -292,7 +292,7 @@ int TestADIOSSphereWR(int argc, char *argv[])
       }
       std::cout << "End vtkADIOSReader test" << std::endl;
 
-    vtkMultiProcessController::SetGlobalController(NULL);
+    vtkMultiProcessController::SetGlobalController(nullptr);
     controller->Finalize();
   }
   return Success ? 0 : 1;

@@ -138,7 +138,7 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
     {
       vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
       vtkSelection *sel = vtkSelection::GetData(inInfo);
-      if (sel != NULL)
+      if (sel != nullptr)
       {
         for (unsigned int j = 0; j < sel->GetNumberOfNodes(); ++j)
         {
@@ -155,8 +155,8 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
 
   // The first non-null selection determines the required content type of all selections.
   int idx = 0;
-  vtkSelection *first = NULL;
-  while (first == NULL && idx < numInputs)
+  vtkSelection *first = nullptr;
+  while (first == nullptr && idx < numInputs)
   {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
     first = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -164,7 +164,7 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   // If they are all null, return.
-  if (first == NULL)
+  if (first == nullptr)
   {
     return 1;
   }
@@ -176,10 +176,10 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
   {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(idx);
     vtkSelection *s = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-    if (s != NULL)
+    if (s != nullptr)
     {
       output->Union(s);
-    } // for a non NULL input
+    } // for a non nullptr input
   } // for each input
 
   return 1;

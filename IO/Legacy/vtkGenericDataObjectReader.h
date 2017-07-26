@@ -68,7 +68,7 @@ public:
   /**
    * Get the output as various concrete types. This method is typically used
    * when you know exactly what type of data is being read.  Otherwise, use
-   * the general GetOutput() method. If the wrong type is used NULL is
+   * the general GetOutput() method. If the wrong type is used nullptr is
    * returned.  (You must also set the filename of the object prior to
    * getting the output.)
    */

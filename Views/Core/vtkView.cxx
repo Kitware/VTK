@@ -55,7 +55,7 @@ public:
     this->Target = t;
   }
 private:
-  Command() { this->Target = 0; }
+  Command() { this->Target = nullptr; }
   vtkView* Target;
 };
 
@@ -95,7 +95,7 @@ vtkView::~vtkView()
 {
   this->RemoveAllRepresentations();
 
-  this->Observer->SetTarget(0);
+  this->Observer->SetTarget(nullptr);
   this->Observer->Delete();
   delete this->Internal;
   delete this->Implementation;
@@ -152,7 +152,7 @@ vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(vtkAlgorith
   {
     vtkErrorMacro("Could not add representation from input connection because "
       "no default representation was created for the given input connection.");
-    return 0;
+    return nullptr;
   }
 
   this->AddRepresentation(rep);
@@ -173,7 +173,7 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorith
   {
     vtkErrorMacro("Could not add representation from input connection because "
       "no default representation was created for the given input connection.");
-    return 0;
+    return nullptr;
   }
 
   this->SetRepresentation(rep);
@@ -184,7 +184,7 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorith
 //----------------------------------------------------------------------------
 void vtkView::AddRepresentation(vtkDataRepresentation* rep)
 {
-  if (rep != NULL && !this->IsRepresentationPresent(rep))
+  if (rep != nullptr && !this->IsRepresentationPresent(rep))
   {
     // We add the representation to the internal data-structure before calling
     // AddToView(). This ensures that if the `rep` itself calls
@@ -280,7 +280,7 @@ vtkDataRepresentation* vtkView::GetRepresentation(int index)
   {
     return this->Implementation->Representations[index];
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

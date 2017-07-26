@@ -176,7 +176,7 @@ public:
    * \pre valid_components: (components==0 && componentList==0 && array->GetNumberOfComponents()<=4) || (components>=1 && components<=array->GetNumberOfComponents() && components<=4 && componentList!=0)
    */
   bool Upload(int components=0,
-              int *componentList=NULL);
+              int *componentList=nullptr);
 
   /**
    * old comment:

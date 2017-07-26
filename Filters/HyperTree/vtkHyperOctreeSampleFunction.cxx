@@ -44,7 +44,7 @@ vtkHyperOctreeSampleFunction::vtkHyperOctreeSampleFunction()
   }
   this->Levels=5;
   this->MinLevels=1;
-  this->ImplicitFunction=0;
+  this->ImplicitFunction=nullptr;
   this->OutputScalarType=VTK_DOUBLE;
   this->Threshold=0.1;
 }
@@ -52,7 +52,7 @@ vtkHyperOctreeSampleFunction::vtkHyperOctreeSampleFunction()
 //----------------------------------------------------------------------------
 vtkHyperOctreeSampleFunction::~vtkHyperOctreeSampleFunction()
 {
-  this->SetImplicitFunction(0);
+  this->SetImplicitFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -273,7 +273,7 @@ int vtkHyperOctreeSampleFunction::RequestData(
   vtkHyperOctree *output = vtkHyperOctree::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if(this->ImplicitFunction==0)
+  if(this->ImplicitFunction==nullptr)
   {
     vtkErrorMacro(<<"No implicit function specified");
     return 0;
@@ -436,7 +436,7 @@ vtkMTimeType vtkHyperOctreeSampleFunction::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->ImplicitFunction != NULL )
+  if ( this->ImplicitFunction != nullptr )
   {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
@@ -464,7 +464,7 @@ void vtkHyperOctreeSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os<<indent<<"Threshold: "<<this->Threshold<<endl;
   os<<indent<<"OutputScalarType: "<<this->OutputScalarType<<endl;
 
-  if(this->ImplicitFunction!=0)
+  if(this->ImplicitFunction!=nullptr)
   {
     os<<indent<<"Implicit Function: "<<this->ImplicitFunction<<endl;
   }

@@ -135,7 +135,7 @@ public:
    * at the spherical coordinates theta and phi.
    */
   static void ComputeGlobePoint(
-    double theta, double phi, double radius, double* point, double* normal = 0);
+    double theta, double phi, double radius, double* point, double* normal = nullptr);
 
   /**
    * Calculates the spherical coordinates theta and phi based on the

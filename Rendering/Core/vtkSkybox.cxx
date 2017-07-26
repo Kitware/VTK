@@ -30,7 +30,7 @@ void vtkSkybox::PrintSelf(std::ostream &os, vtkIndent indent)
 // Always return uninitialized
 double *vtkSkybox::GetBounds()
 {
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------

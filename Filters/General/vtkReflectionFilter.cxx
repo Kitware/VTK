@@ -749,7 +749,7 @@ int vtkReflectionFilter::RequestDataObject(
       (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
       (input->IsA("vtkDataSet") && !output->IsA("vtkUnstructuredGrid")))
     {
-      vtkDataObject* newOutput = 0;
+      vtkDataObject* newOutput = nullptr;
       if (input->IsA("vtkCompositeDataSet"))
       {
         newOutput = vtkMultiBlockDataSet::New();

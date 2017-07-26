@@ -451,7 +451,7 @@ vtkLabelPlacementMapper::vtkLabelPlacementMapper()
   this->AnchorTransform = vtkCoordinate::New();
   this->AnchorTransform->SetCoordinateSystemToWorld();
   this->MaximumLabelFraction = 0.05; // Take up no more than 5% of screen real estate with labels.
-  this->Buckets = 0;
+  this->Buckets = nullptr;
   this->PositionsAsNormals = false;
   this->IteratorType = vtkLabelHierarchy::QUEUE;
   this->VisiblePoints = vtkSelectVisiblePoints::New();
@@ -483,7 +483,7 @@ vtkLabelPlacementMapper::vtkLabelPlacementMapper()
 
   this->UseDepthBuffer = false;
 
-  this->RenderStrategy = 0;
+  this->RenderStrategy = nullptr;
   vtkSmartPointer<vtkFreeTypeLabelRenderStrategy> s =
     vtkSmartPointer<vtkFreeTypeLabelRenderStrategy>::New();
   this->SetRenderStrategy(s);
@@ -580,7 +580,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     this->Buckets->Reset( kdbounds, tileSize );
   }
 
-  float * zPtr = NULL;
+  float * zPtr = nullptr;
   int placed = 0;
   int occluded = 0;
 
@@ -859,7 +859,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 
   // Done rendering labels
   this->RenderStrategy->EndFrame();
-  this->RenderStrategy->SetRenderer(0);
+  this->RenderStrategy->SetRenderer(nullptr);
 
   if ( this->OutputTraversedBounds )
   {

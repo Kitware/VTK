@@ -31,18 +31,18 @@ vtkCxxSetObjectMacro(vtkImplicitTextureCoords,TFunction,vtkImplicitFunction);
 // defined and FlipTexture turned off.
 vtkImplicitTextureCoords::vtkImplicitTextureCoords()
 {
-  this->RFunction = NULL;
-  this->SFunction = NULL;
-  this->TFunction = NULL;
+  this->RFunction = nullptr;
+  this->SFunction = nullptr;
+  this->TFunction = nullptr;
 
   this->FlipTexture = 0;
 }
 
 vtkImplicitTextureCoords::~vtkImplicitTextureCoords()
 {
-  this->SetRFunction(NULL);
-  this->SetSFunction(NULL);
-  this->SetTFunction(NULL);
+  this->SetRFunction(nullptr);
+  this->SetSFunction(nullptr);
+  this->SetTFunction(nullptr);
 }
 
 
@@ -81,17 +81,17 @@ int vtkImplicitTextureCoords::RequestData(
     return 1;
   }
 
-  if ( this->RFunction == NULL )
+  if ( this->RFunction == nullptr )
   {
     vtkErrorMacro(<< "No implicit functions defined!");
     return 1;
   }
 
   tcoordDim = 1;
-  if ( this->SFunction != NULL )
+  if ( this->SFunction != nullptr )
   {
     tcoordDim++;
-    if ( this->TFunction != NULL )
+    if ( this->TFunction != nullptr )
     {
       tcoordDim++;
     }
@@ -209,11 +209,11 @@ void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Flip Texture: " << this->FlipTexture << "\n";
 
-  if ( this->RFunction != NULL )
+  if ( this->RFunction != nullptr )
   {
-    if ( this->SFunction != NULL )
+    if ( this->SFunction != nullptr )
     {
-      if ( this->TFunction != NULL )
+      if ( this->TFunction != nullptr )
       {
         os << indent << "R, S, and T Functions defined\n";
       }

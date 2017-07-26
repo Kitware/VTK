@@ -81,7 +81,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKWidget : public QWidget
 
 public:
   //! constructor
-  QVTKWidget(QWidget* parent = NULL, Qt::WindowFlags f = 0);
+  QVTKWidget(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
   //! destructor
   ~QVTKWidget() VTK_OVERRIDE;
 

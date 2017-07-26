@@ -166,7 +166,7 @@ void vtkTimerLog::MarkEventInternal(
     ::ftime( &(vtkTimerLog::FirstWallTime) );
 #endif
 #else
-    gettimeofday( &(vtkTimerLog::FirstWallTime), NULL );
+    gettimeofday( &(vtkTimerLog::FirstWallTime), nullptr );
     times(&FirstCpuTicks);
 #endif
 
@@ -217,7 +217,7 @@ void vtkTimerLog::MarkEventInternal(
     ticks_diff = 0;
 #else
     static double scale = 1.0/1000000.0;
-    gettimeofday( &(vtkTimerLog::CurrentWallTime), NULL );
+    gettimeofday( &(vtkTimerLog::CurrentWallTime), nullptr );
     time_diff  =  vtkTimerLog::CurrentWallTime.tv_sec
       - vtkTimerLog::FirstWallTime.tv_sec;
     time_diff +=
@@ -698,7 +698,7 @@ double vtkTimerLog::GetUniversalTime()
 #else
   timeval CurrentTime;
   static double scale = 1.0/1000000.0;
-  gettimeofday( &CurrentTime, NULL );
+  gettimeofday( &CurrentTime, nullptr );
   currentTimeInSeconds = CurrentTime.tv_sec + scale * CurrentTime.tv_usec;
 #endif
 

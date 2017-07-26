@@ -40,8 +40,8 @@ vtkNonOverlappingAMRLevelIdScalars::~vtkNonOverlappingAMRLevelIdScalars()
 void vtkNonOverlappingAMRLevelIdScalars::AddColorLevels(
     vtkUniformGridAMR *input, vtkUniformGridAMR *output)
 {
-  assert( "pre: input should not be NULL" && (input != NULL) );
-  assert( "pre: output should not be NULL" && (output != NULL)  );
+  assert( "pre: input should not be nullptr" && (input != nullptr) );
+  assert( "pre: output should not be nullptr" && (output != nullptr)  );
 
   unsigned int numLevels = input->GetNumberOfLevels();
   output->SetNumberOfLevels(numLevels);
@@ -61,7 +61,7 @@ void vtkNonOverlappingAMRLevelIdScalars::AddColorLevels(
     for (unsigned int cc=0; cc < numDS; cc++)
     {
       vtkUniformGrid* ds = input->GetDataSet(levelIdx,cc);
-      if(ds != NULL)
+      if(ds != nullptr)
       {
         vtkUniformGrid* copy = this->ColorLevel(ds, levelIdx);
         output->SetDataSet(levelIdx,cc,copy);

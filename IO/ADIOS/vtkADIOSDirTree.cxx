@@ -142,7 +142,7 @@ const vtkADIOSDirTree* vtkADIOSDirTree::GetDir(
     std::map<std::string, vtkADIOSDirTree*>::const_iterator i =
       this->SubDirs.find(path[pIdx]);
 
-    return i == this->SubDirs.end() ? NULL : i->second->GetDir(path, pIdx+1);
+    return i == this->SubDirs.end() ? nullptr : i->second->GetDir(path, pIdx+1);
   }
 }
 
@@ -153,7 +153,7 @@ const ADIOS::VarInfo* vtkADIOSDirTree::GetArray(
   std::map<std::string, const ADIOS::VarInfo*>::const_iterator i =
     this->Arrays.find(varName);
 
-  return i == this->Arrays.end() ? NULL : i->second;
+  return i == this->Arrays.end() ? nullptr : i->second;
 }
 
 //----------------------------------------------------------------------------
@@ -163,7 +163,7 @@ const ADIOS::Scalar* vtkADIOSDirTree::GetScalar(
   std::map<std::string, const ADIOS::Scalar*>::const_iterator i =
     this->Scalars.find(varName);
 
-  return i == this->Scalars.end() ? NULL : i->second;
+  return i == this->Scalars.end() ? nullptr : i->second;
 }
 
 //----------------------------------------------------------------------------

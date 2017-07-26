@@ -421,7 +421,7 @@ inline bool vtkPStructuredGridConnectivity::HasPointData(const int gridIdx)
   assert("pre: grid index is out-of-bounds!" &&
          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
-  if( (this->GridPointData[gridIdx] != NULL) &&
+  if( (this->GridPointData[gridIdx] != nullptr) &&
       (this->GridPointData[gridIdx]->GetNumberOfArrays() > 0) )
   {
     return true;
@@ -436,7 +436,7 @@ inline bool vtkPStructuredGridConnectivity::HasCellData(const int gridIdx)
   assert("pre: grid index is out-of-bounds!" &&
          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
-  if( (this->GridCellData[gridIdx] != NULL) &&
+  if( (this->GridCellData[gridIdx] != nullptr) &&
       (this->GridCellData[gridIdx]->GetNumberOfArrays( ) > 0) )
   {
     return true;
@@ -451,7 +451,7 @@ inline bool vtkPStructuredGridConnectivity::HasPoints(const int gridIdx)
   assert("pre: grid index is out-of-bounds!" &&
          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
-  if( this->GridPoints[gridIdx] != NULL )
+  if( this->GridPoints[gridIdx] != nullptr )
   {
     return true;
   }
@@ -501,7 +501,7 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
   {
     for( unsigned int j=0; j < this->RemotePoints[i].size(); ++j )
     {
-      if( this->RemotePoints[ i ][ j ] != NULL )
+      if( this->RemotePoints[ i ][ j ] != nullptr )
       {
         this->RemotePoints[ i ][ j ]->Delete();
       }
@@ -515,7 +515,7 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
   {
     for( unsigned int j=0; j < this->RemotePointData[i].size(); ++j )
     {
-      if( this->RemotePointData[ i ][ j ] != NULL )
+      if( this->RemotePointData[ i ][ j ] != nullptr )
       {
         this->RemotePointData[ i ][ j ]->Delete();
       }
@@ -529,7 +529,7 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
   {
     for( unsigned int j=0; j < this->RemoteCellData[i].size(); ++j )
     {
-      if( this->RemoteCellData[ i ][ j ] != NULL )
+      if( this->RemoteCellData[ i ][ j ] != nullptr )
       {
         this->RemoteCellData[ i ][ j ]->Delete();
       }

@@ -190,13 +190,13 @@ vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 vtkHardwareSelector::vtkHardwareSelector()
 {
   this->Internals = new vtkInternals();
-  this->Renderer = 0;
+  this->Renderer = nullptr;
   this->Area[0] = this->Area[1] = this->Area[2] = this->Area[3] = 0;
   this->FieldAssociation = vtkDataObject::FIELD_ASSOCIATION_CELLS;
   this->MaxAttributeId = 0;
   for (int cc=0; cc < 10; cc++)
   {
-    this->PixBuffer[cc] = 0;
+    this->PixBuffer[cc] = nullptr;
   }
   this->CurrentPass = -1;
   this->ProcessID = -1;
@@ -208,7 +208,7 @@ vtkHardwareSelector::vtkHardwareSelector()
 //----------------------------------------------------------------------------
 vtkHardwareSelector::~vtkHardwareSelector()
 {
-  this->SetRenderer(0);
+  this->SetRenderer(nullptr);
   this->ReleasePixBuffers();
   delete this->Internals;
 }
@@ -219,7 +219,7 @@ void vtkHardwareSelector::ReleasePixBuffers()
   for (int cc=0; cc < 10; cc++)
   {
     delete [] this->PixBuffer[cc];
-    this->PixBuffer[cc] = 0;
+    this->PixBuffer[cc] = nullptr;
   }
   //this->Internals->Props.clear();
 }
@@ -240,14 +240,14 @@ void vtkHardwareSelector::BeginSelection()
 void vtkHardwareSelector::EndSelection()
 {
   this->Internals->HitProps.clear();
-  this->Renderer->SetSelector(NULL);
+  this->Renderer->SetSelector(nullptr);
   this->Renderer->PreserveDepthBufferOff();
 }
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkHardwareSelector::Select()
 {
-  vtkSelection* sel = 0;
+  vtkSelection* sel = nullptr;
   if (this->CaptureBuffers())
   {
     sel = this->GenerateSelection();
@@ -589,7 +589,7 @@ vtkProp* vtkHardwareSelector::GetPropFromID(int id)
   {
     return iter->second;
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -777,7 +777,7 @@ vtkSelection* vtkHardwareSelector::GeneratePolygonSelection(
   // we need at least three points (x,y) for a polygon selection.
   if(!polygonPoints || count < 6)
   {
-    return NULL;
+    return nullptr;
   }
 
   int x1=VTK_INT_MAX, x2=VTK_INT_MIN, y1=VTK_INT_MAX, y2=VTK_INT_MIN;

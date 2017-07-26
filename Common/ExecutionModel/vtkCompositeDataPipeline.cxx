@@ -319,7 +319,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
 
   this->ExecuteDataStart(request,inInfoVec,outInfoVec);
 
-  vtkInformation* outInfo = 0;
+  vtkInformation* outInfo = nullptr;
 
   if (this->GetNumberOfOutputPorts() > 0)
   {
@@ -434,7 +434,7 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   {
     vtkErrorMacro("ExecuteSimpleAlgorithmForBlock cannot be called "
       "for a vtkCompositeDataSet");
-    return 0;
+    return nullptr;
   }
 
   // There must be a bug somehwere. If this Remove()
@@ -516,7 +516,7 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!output)
   {
-    return 0;
+    return nullptr;
   }
   vtkDataObject* outputCopy = output->NewInstance();
   outputCopy->ShallowCopy(output);
@@ -691,7 +691,7 @@ int vtkCompositeDataPipeline::ForwardUpstream(vtkInformation* request)
     {
       vtkInformation* info = inVector->GetInformationObject(j);
       // Get the executive producing this input.  If there is none, then
-      // it is a NULL input.
+      // it is a nullptr input.
       vtkExecutive* e;
       int producerPort;
       vtkExecutive::PRODUCER()->Get(info, e, producerPort);
@@ -934,12 +934,12 @@ vtkDataObject* vtkCompositeDataPipeline::GetCompositeInputData(
 {
   if (!inInfoVec[port])
   {
-    return 0;
+    return nullptr;
   }
   vtkInformation *info = inInfoVec[port]->GetInformationObject(index);
   if (!info)
   {
-    return 0;
+    return nullptr;
   }
   return info->Get(vtkDataObject::DATA_OBJECT());
 }
@@ -949,20 +949,20 @@ vtkDataObject* vtkCompositeDataPipeline::GetCompositeOutputData(int port)
 {
   if(!this->OutputPortIndexInRange(port, "get data for"))
   {
-    return 0;
+    return nullptr;
   }
 
   // Check that the given output port has a valid data object.
   vtkDebugMacro(<< "GetCompositeOutputData calling CheckCompositeData ");
 
-  this->CheckCompositeData(0, port, this->GetInputInformation(), this->GetOutputInformation());
+  this->CheckCompositeData(nullptr, port, this->GetInputInformation(), this->GetOutputInformation());
 
   // Return the data object.
   if(vtkInformation* info = this->GetOutputInformation(port))
   {
     return info->Get(vtkDataObject::DATA_OBJECT());
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

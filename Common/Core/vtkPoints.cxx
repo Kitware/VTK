@@ -151,7 +151,7 @@ void vtkPoints::SetDataType(int dataType)
 // the object.
 void vtkPoints::SetData(vtkDataArray *data)
 {
-  if (data != this->Data && data != NULL)
+  if (data != this->Data && data != nullptr)
   {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {
@@ -173,11 +173,11 @@ void vtkPoints::SetData(vtkDataArray *data)
 // makes sense.
 void vtkPoints::DeepCopy(vtkPoints *da)
 {
-  if (da == NULL)
+  if (da == nullptr)
   {
     return;
   }
-  if (da->Data != this->Data && da->Data != NULL)
+  if (da->Data != this->Data && da->Data != nullptr)
   {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {

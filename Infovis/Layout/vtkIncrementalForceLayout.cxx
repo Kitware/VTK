@@ -45,7 +45,7 @@ Quad::Quad()
   this->Point = vtkVector2f(0.0f, 0.0f);
   this->Vertex = 0;
   this->Charge = 0.0f;
-  this->Nodes[0] = this->Nodes[1] = this->Nodes[2] = this->Nodes[3] = 0;
+  this->Nodes[0] = this->Nodes[1] = this->Nodes[2] = this->Nodes[3] = nullptr;
 }
 
 Quad::Quad(float *points, int n, float x1, float y1, float x2, float y2)
@@ -54,7 +54,7 @@ Quad::Quad(float *points, int n, float x1, float y1, float x2, float y2)
   this->ValidPoint = false;
   this->Point = vtkVector2f(0.0f, 0.0f);
   this->Vertex = 0;
-  this->Nodes[0] = this->Nodes[1] = this->Nodes[2] = this->Nodes[3] = 0;
+  this->Nodes[0] = this->Nodes[1] = this->Nodes[2] = this->Nodes[3] = nullptr;
 
   // Insert points
   for (int i = 0; i < n; ++i)
@@ -69,7 +69,7 @@ Quad::~Quad()
   for (int i = 0; i < 4; ++i)
   {
     delete this->Nodes[i];
-    this->Nodes[i] = 0;
+    this->Nodes[i] = nullptr;
   }
 }
 
@@ -226,7 +226,7 @@ vtkCxxSetObjectMacro(vtkIncrementalForceLayout, Graph, vtkGraph);
 vtkIncrementalForceLayout::vtkIncrementalForceLayout()
 {
   this->Impl = new Implementation();
-  this->Graph = 0;
+  this->Graph = nullptr;
   this->Fixed = -1;
   this->GravityPoint = vtkVector2f(200.0f, 200.0f);
   this->Alpha = 0.1f;
@@ -241,7 +241,7 @@ vtkIncrementalForceLayout::vtkIncrementalForceLayout()
 vtkIncrementalForceLayout::~vtkIncrementalForceLayout()
 {
   delete this->Impl;
-  this->SetGraph(0);
+  this->SetGraph(nullptr);
 }
 
 void vtkIncrementalForceLayout::UpdatePositions()
@@ -269,7 +269,7 @@ void vtkIncrementalForceLayout::UpdatePositions()
   }
 
   // Gauss-Seidel relaxation for links
-  bool directed = (vtkDirectedGraph::SafeDownCast(this->Graph) != NULL);
+  bool directed = (vtkDirectedGraph::SafeDownCast(this->Graph) != nullptr);
   for (vtkIdType e = 0; e < numEdges; ++e)
   {
     vtkIdType s = this->Graph->GetSourceVertex(e);

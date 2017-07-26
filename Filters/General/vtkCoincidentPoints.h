@@ -60,7 +60,7 @@ public:
 
   /**
    * Used to iterate the sets of coincident points within the map.
-   * InitTraversal must be called first or NULL will always be returned.
+   * InitTraversal must be called first or nullptr will always be returned.
    */
   vtkIdList * GetNextCoincidentPointIds();
 

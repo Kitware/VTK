@@ -81,7 +81,7 @@ public:
   void SetShowLegend(bool visible) VTK_OVERRIDE;
 
   /**
-   * Get the legend for the chart, if available. Can return NULL if there is no
+   * Get the legend for the chart, if available. Can return nullptr if there is no
    * legend.
    */
   vtkChartLegend * GetLegend() VTK_OVERRIDE;

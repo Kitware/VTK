@@ -119,10 +119,10 @@ void vtkJPEGReader::ExecuteInformation()
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
   jerr.JPEGReader = this;
-  jerr.fp = NULL;
+  jerr.fp = nullptr;
 
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == NULL && this->MemoryBuffer == NULL)
+  if (this->InternalFileName == nullptr && this->MemoryBuffer == nullptr)
   {
     return;
   }
@@ -226,7 +226,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
   jerr.JPEGReader = self;
-  jerr.fp = NULL;
+  jerr.fp = nullptr;
 
   if (!self->GetMemoryBuffer())
   {
@@ -367,7 +367,7 @@ void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject *output,
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;
@@ -397,7 +397,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
   jerr.JPEGReader = this;
-  jerr.fp = NULL;
+  jerr.fp = nullptr;
 
   // open the file
   jerr.fp = fopen(fname, "rb");

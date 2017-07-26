@@ -106,7 +106,7 @@ public:
   vtkInternalStructureCache()
   {
     type = -1;
-    parent = NULL;
+    parent = nullptr;
   }
   ~vtkInternalStructureCache()
   {
@@ -288,9 +288,9 @@ vtkDataObjectGenerator::vtkDataObjectGenerator()
 {
   this->SetNumberOfInputPorts(0);
 
-  this->Program=NULL;
+  this->Program=nullptr;
   this->SetProgram("ID1");
-  this->Structure = NULL;
+  this->Structure = nullptr;
 
   this->CellIdCounter = 0;
   this->PointIdCounter = 0;
@@ -302,7 +302,7 @@ vtkDataObjectGenerator::vtkDataObjectGenerator()
 //----------------------------------------------------------------------------
 vtkDataObjectGenerator::~vtkDataObjectGenerator()
 {
-  this->SetProgram(NULL);
+  this->SetProgram(nullptr);
   delete this->Structure;
 }
 
@@ -320,7 +320,7 @@ int vtkDataObjectGenerator::RequestDataObject(vtkInformation *,
                                               vtkInformationVector *outV)
 {
   vtkInformation *outInfo = outV->GetInformationObject(0);
-  vtkDataObject *outData = NULL;
+  vtkDataObject *outData = nullptr;
 
   if (!this->Program)
   {
@@ -350,7 +350,7 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     {
     if (structure->children.empty())
     {
-      return NULL;
+      return nullptr;
     }
     return this->CreateOutputDataObjects(structure->children.front());
     }
@@ -399,7 +399,7 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     case GE: //should never be created
     default:
     //cerr << "UH OH" << endl;
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -575,7 +575,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
   int stripe
   )
 {
-  vtkDataObject *outData = NULL;
+  vtkDataObject *outData = nullptr;
   int t = structure->type;
   if (t != -1 &&
       t != HBE &&
@@ -597,7 +597,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
            << vtkDataObjectGeneratorTypeStrings[t]
            << endl;
       */
-      return NULL;
+      return nullptr;
     }
     else
     {
@@ -617,7 +617,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     {
     if (structure->children.empty())
     {
-      return NULL;
+      return nullptr;
     }
     return this->FillOutputDataObjects(structure->children.front(), level+1);
     }
@@ -748,7 +748,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
         cerr << "LO=" << lo[0] << "," << lo[1] << "," << lo[2] << " "
              << "HI=" << hi[0] << "," << hi[1] << "," << hi[2] << endl;
         */
-        vtkDataObject *dobj = NULL;
+        vtkDataObject *dobj = nullptr;
         double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
 
         //restrict HierarchicalBoxes's to contain only UniformGrids
@@ -840,7 +840,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     case GE: //should never be created
     default:
     //cerr << "UH OH" << endl;
-    return NULL;
+    return nullptr;
   }
 }
 

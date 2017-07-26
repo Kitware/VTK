@@ -43,7 +43,7 @@ public:
   //@{
   /**
    * Get the data type of the XML file tested.  If the file could not
-   * be read, returns NULL.
+   * be read, returns nullptr.
    */
   vtkGetStringMacro(FileDataType);
   //@}
@@ -51,7 +51,7 @@ public:
   //@{
   /**
    * Get the file version of the XML file tested.  If the file could not
-   * be read, returns NULL.
+   * be read, returns nullptr.
    */
   vtkGetStringMacro(FileVersion);
   //@}

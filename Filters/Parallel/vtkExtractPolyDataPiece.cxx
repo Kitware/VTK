@@ -132,11 +132,11 @@ int vtkExtractPolyDataPiece::RequestData(
   vtkIdList *pointOwnership;
   vtkCell *cell;
   vtkPoints *newPoints;
-  vtkUnsignedCharArray* cellGhostLevels = 0;
-  vtkUnsignedCharArray* pointGhostLevels = 0;
+  vtkUnsignedCharArray* cellGhostLevels = nullptr;
+  vtkUnsignedCharArray* pointGhostLevels = nullptr;
   vtkIdType ptId=0, newId, numPts, i;
   int numCellPts;
-  double *x=NULL;
+  double *x=nullptr;
 
   // Pipeline update piece will tell us what to generate.
   ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
@@ -269,14 +269,14 @@ int vtkExtractPolyDataPiece::RequestData(
     cellGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetCellData()->AddArray(cellGhostLevels);
     cellGhostLevels->Delete();
-    cellGhostLevels = 0;
+    cellGhostLevels = nullptr;
   }
   if (pointGhostLevels)
   {
     pointGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetPointData()->AddArray(pointGhostLevels);
     pointGhostLevels->Delete();
-    pointGhostLevels = 0;
+    pointGhostLevels = nullptr;
   }
   output->SetPoints(newPoints);
   newPoints->Delete();

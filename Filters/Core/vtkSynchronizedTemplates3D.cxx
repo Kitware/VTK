@@ -294,9 +294,9 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int* exExt,
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD = output->GetCellData();
   // Use to be arguments
-  vtkFloatArray *newScalars = NULL;
-  vtkFloatArray *newNormals = NULL;
-  vtkFloatArray *newGradients = NULL;
+  vtkFloatArray *newScalars = nullptr;
+  vtkFloatArray *newNormals = nullptr;
+  vtkFloatArray *newGradients = nullptr;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   ptr += self->GetArrayComponent();
@@ -647,20 +647,20 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int* exExt,
     idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    newScalars = NULL;
+    newScalars = nullptr;
   }
   if (newGradients)
   {
     idx = output->GetPointData()->AddArray(newGradients);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::VECTORS);
     newGradients->Delete();
-    newGradients = NULL;
+    newGradients = nullptr;
   }
   if (newNormals)
   {
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
-    newNormals = NULL;
+    newNormals = nullptr;
   }
 }
 
@@ -728,7 +728,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   //
   // Check data type and execute appropriate function
   //
-  if (inScalars == NULL)
+  if (inScalars == nullptr)
   {
     vtkDebugMacro("No scalars for contouring.");
     return;

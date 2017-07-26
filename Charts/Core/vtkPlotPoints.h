@@ -249,7 +249,7 @@ protected:
   vtkIdTypeArray* BadPoints;
 
   /**
-   * Array which marks valid points in the array. If NULL (the default), all
+   * Array which marks valid points in the array. If nullptr (the default), all
    * points in the input array are considered valid.
    */
   vtkCharArray* ValidPointMask;

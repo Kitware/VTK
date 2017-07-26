@@ -143,7 +143,7 @@ public:
    */
   bool SetShaderParameters(vtkShaderProgram* program,
                                    vtkAbstractMapper* mapper, vtkProp* prop,
-                                   vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
+                                   vtkOpenGLVertexArrayObject* VAO = nullptr) VTK_OVERRIDE;
   /**
    * For multi-stage render passes that need to change shader code during a
    * single pass, use this method to notify a mapper that the shader needs to be

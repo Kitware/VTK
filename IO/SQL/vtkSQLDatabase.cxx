@@ -50,10 +50,10 @@ public:
         return db;
       }
     }
-    return NULL;
+    return nullptr;
   }
 };
-vtkSQLDatabase::vtkCallbackVector* vtkSQLDatabase::Callbacks = 0;
+vtkSQLDatabase::vtkCallbackVector* vtkSQLDatabase::Callbacks = nullptr;
 
 // Ensures that there are no leaks when the application exits.
 class vtkSQLDatabaseCleanup
@@ -118,7 +118,7 @@ void vtkSQLDatabase::UnRegisterCreateFromURLCallback(
 void vtkSQLDatabase::UnRegisterAllCreateFromURLCallbacks()
 {
   delete vtkSQLDatabase::Callbacks;
-  vtkSQLDatabase::Callbacks = 0;
+  vtkSQLDatabase::Callbacks = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -382,7 +382,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   std::string dataport;
   std::string database;
   std::string dataglom;
-  vtkSQLDatabase* db = 0;
+  vtkSQLDatabase* db = nullptr;
 
   static vtkSimpleCriticalSection dbURLCritSec;
   dbURLCritSec.Lock();
@@ -392,7 +392,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   {
     vtkGenericWarningMacro( "Invalid URL (no protocol found): \"" << urlstr.c_str() << "\"" );
     dbURLCritSec.Unlock();
-    return 0;
+    return nullptr;
   }
   if ( protocol == "sqlite" )
   {
@@ -408,7 +408,7 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
   {
     vtkGenericWarningMacro( "Invalid URL (other components missing): \"" << urlstr.c_str() << "\"" );
     dbURLCritSec.Unlock();
-    return 0;
+    return nullptr;
   }
 
   // Now try to look at registered callback to try and find someone who can

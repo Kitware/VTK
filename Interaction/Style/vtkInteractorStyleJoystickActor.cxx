@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 vtkInteractorStyleJoystickActor::vtkInteractorStyleJoystickActor()
 {
   this->MotionFactor    = 10.0;
-  this->InteractionProp = NULL;
+  this->InteractionProp = nullptr;
   this->InteractionPicker = vtkCellPicker::New();
   this->InteractionPicker->SetTolerance(0.001);
 
@@ -59,7 +59,7 @@ void vtkInteractorStyleJoystickActor::OnMouseMove()
     case VTKIS_SPIN:
     case VTKIS_USCALE:
       this->FindPokedRenderer(x, y);
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
   }
 }
@@ -72,7 +72,7 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonDown()
 
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -124,7 +124,7 @@ void vtkInteractorStyleJoystickActor::OnMiddleButtonDown()
 
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -168,7 +168,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown()
 
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -195,7 +195,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Rotate()
 {
-  if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
+  if ( this->CurrentRenderer == nullptr || this->InteractionProp == nullptr )
   {
     return;
   }
@@ -308,7 +308,7 @@ void vtkInteractorStyleJoystickActor::Rotate()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Spin()
 {
-  if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
+  if ( this->CurrentRenderer == nullptr || this->InteractionProp == nullptr )
   {
     return;
   }
@@ -390,7 +390,7 @@ void vtkInteractorStyleJoystickActor::Spin()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Pan()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -416,7 +416,7 @@ void vtkInteractorStyleJoystickActor::Pan()
   motion_vector[1] = (new_pick_point[1] - obj_center[1]) / this->MotionFactor;
   motion_vector[2] = (new_pick_point[2] - obj_center[2]) / this->MotionFactor;
 
-  if (this->InteractionProp->GetUserMatrix() != NULL)
+  if (this->InteractionProp->GetUserMatrix() != nullptr)
   {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
@@ -438,7 +438,7 @@ void vtkInteractorStyleJoystickActor::Pan()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::Dolly()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -472,7 +472,7 @@ void vtkInteractorStyleJoystickActor::Dolly()
   motion_vector[1] = (view_point[1] - view_focus[1]) * dollyFactor;
   motion_vector[2] = (view_point[2] - view_focus[2]) * dollyFactor;
 
-  if (this->InteractionProp->GetUserMatrix() != NULL)
+  if (this->InteractionProp->GetUserMatrix() != nullptr)
   {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
@@ -499,7 +499,7 @@ void vtkInteractorStyleJoystickActor::Dolly()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::UniformScale()
 {
-  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
+  if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
@@ -521,7 +521,7 @@ void vtkInteractorStyleJoystickActor::UniformScale()
   double yf = (rwi->GetEventPosition()[1] - disp_obj_center[1]) / center[1];
   double scaleFactor = pow(1.1, yf);
 
-  double **rotate = NULL;
+  double **rotate = nullptr;
 
   double scale[3];
   scale[0] = scale[1] = scale[2] = scaleFactor;
@@ -551,13 +551,13 @@ void vtkInteractorStyleJoystickActor::FindPickedActor(int x, int y)
 {
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
   vtkProp *prop = this->InteractionPicker->GetViewProp();
-  if (prop != NULL)
+  if (prop != nullptr)
   {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);
   }
   else
   {
-    this->InteractionProp = NULL;
+    this->InteractionProp = nullptr;
   }
 }
 
@@ -576,7 +576,7 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
 
   vtkTransform *newTransform = vtkTransform::New();
   newTransform->PostMultiply();
-  if (prop3D->GetUserMatrix() != NULL)
+  if (prop3D->GetUserMatrix() != nullptr)
   {
     newTransform->SetMatrix(prop3D->GetUserMatrix());
   }
@@ -605,7 +605,7 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
   newTransform->PreMultiply();
   newTransform->Translate(orig[0], orig[1], orig[2]);
 
-  if (prop3D->GetUserMatrix() != NULL)
+  if (prop3D->GetUserMatrix() != nullptr)
   {
     newTransform->GetMatrix(prop3D->GetUserMatrix());
   }

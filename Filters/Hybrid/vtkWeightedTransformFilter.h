@@ -148,7 +148,7 @@ public:
   /**
    * Set or Get one of the filter's transforms. The transform number must
    * be less than the number of transforms allocated for the object.  Setting
-   * a transform slot to NULL is equivalent to assigning an overriding weight
+   * a transform slot to nullptr is equivalent to assigning an overriding weight
    * of zero to that filter slot.
    */
   virtual void SetTransform(vtkAbstractTransform *transform, int num);

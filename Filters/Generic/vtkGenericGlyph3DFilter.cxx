@@ -56,11 +56,11 @@ vtkGenericGlyph3DFilter::vtkGenericGlyph3DFilter()
   this->IndexMode = VTK_INDEXING_OFF;
 //  this->NumberOfRequiredInputs = 1;
   this->GeneratePointIds = 0;
-  this->PointIdsName = NULL;
+  this->PointIdsName = nullptr;
   this->SetPointIdsName("InputPointIds");
-  this->InputScalarsSelection = NULL;
-  this->InputVectorsSelection = NULL;
-  this->InputNormalsSelection = NULL;
+  this->InputScalarsSelection = nullptr;
+  this->InputVectorsSelection = nullptr;
+  this->InputNormalsSelection = nullptr;
   this->SetNumberOfInputPorts(2);
 }
 
@@ -68,9 +68,9 @@ vtkGenericGlyph3DFilter::vtkGenericGlyph3DFilter()
 vtkGenericGlyph3DFilter::~vtkGenericGlyph3DFilter()
 {
   delete[] this->PointIdsName;
-  this->SetInputScalarsSelection(NULL);
-  this->SetInputVectorsSelection(NULL);
-  this->SetInputNormalsSelection(NULL);
+  this->SetInputScalarsSelection(nullptr);
+  this->SetInputVectorsSelection(nullptr);
+  this->SetInputNormalsSelection(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -91,25 +91,25 @@ int vtkGenericGlyph3DFilter::RequestData(
 
 
 
-  vtkPointData *pd = NULL;
+  vtkPointData *pd = nullptr;
   //  vtkDataArray *inScalars;
   //  vtkDataArray *inVectors;
   //  vtkDataArray *inNormals;
-  vtkDataArray *sourceNormals = NULL;
-  vtkGenericAttribute *inScalars=0;
-  vtkGenericAttribute *inVectors=0;
-  vtkGenericAttribute *inNormals=0;
+  vtkDataArray *sourceNormals = nullptr;
+  vtkGenericAttribute *inScalars=nullptr;
+  vtkGenericAttribute *inVectors=nullptr;
+  vtkGenericAttribute *inNormals=nullptr;
   //  vtkGenericAttribute *sourceNormals=0;
 
-  unsigned char* inGhostLevels=0;
+  unsigned char* inGhostLevels=nullptr;
 
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
   int index;
-  vtkPoints *sourcePts = NULL;
+  vtkPoints *sourcePts = nullptr;
   vtkPoints *newPts;
-  vtkDataArray *newScalars=NULL;
-  vtkDataArray *newVectors=NULL;
-  vtkDataArray *newNormals=NULL;
+  vtkDataArray *newScalars=nullptr;
+  vtkDataArray *newVectors=nullptr;
+  vtkDataArray *newNormals=nullptr;
   double x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value;
   vtkTransform *trans;
   vtkCell *cell;
@@ -122,10 +122,10 @@ int vtkGenericGlyph3DFilter::RequestData(
   vtkPointData *outputPD = output->GetPointData();
 //  vtkGenericDataSet *input = this->GetInput();
   int numberOfSources = this->GetNumberOfInputConnections(1);
-  vtkPolyData *defaultSource = NULL;
-  vtkIdTypeArray *pointIds=0;
+  vtkPolyData *defaultSource = nullptr;
+  vtkIdTypeArray *pointIds=nullptr;
 
-  vtkGenericAttributeCollection *attributes=0;
+  vtkGenericAttributeCollection *attributes=nullptr;
   int attrib=-1;
 
   vtkDebugMacro(<<"Generating glyphs");
@@ -137,12 +137,12 @@ int vtkGenericGlyph3DFilter::RequestData(
   }
 
   attributes = input->GetAttributes();
-  if((attributes==0) || (attributes->IsEmpty()))
+  if((attributes==nullptr) || (attributes->IsEmpty()))
   {
     vtkDebugMacro("No attributes, nothing to do.");
     return 1;
   }
-  if (this->InputScalarsSelection!=0)
+  if (this->InputScalarsSelection!=nullptr)
   {
     attrib=attributes->FindAttribute(this->InputScalarsSelection);
     if(attrib!=-1)
@@ -150,7 +150,7 @@ int vtkGenericGlyph3DFilter::RequestData(
       inScalars = attributes->GetAttribute(attrib);
       if(inScalars->GetNumberOfComponents()!=1)
       {
-        inScalars=0;
+        inScalars=nullptr;
         vtkDebugMacro("The attribute is not a scalar.");
       }
     }
@@ -159,7 +159,7 @@ int vtkGenericGlyph3DFilter::RequestData(
       vtkDebugMacro("No scalar attribute.");
     }
   }
-  if (this->InputVectorsSelection!=0)
+  if (this->InputVectorsSelection!=nullptr)
   {
     vtkDebugMacro("this->InputVectorsSelection!=0");
     attrib=attributes->FindAttribute(this->InputVectorsSelection);
@@ -169,7 +169,7 @@ int vtkGenericGlyph3DFilter::RequestData(
       inVectors = attributes->GetAttribute(attrib);
       if(inVectors->GetNumberOfComponents()!=3)
       {
-        inVectors=0;
+        inVectors=nullptr;
         vtkDebugMacro("The attribute is not a vector.");
       }
       else
@@ -187,7 +187,7 @@ int vtkGenericGlyph3DFilter::RequestData(
     vtkDebugMacro("No input vector selection.");
   }
 
-  if (this->InputNormalsSelection!=0)
+  if (this->InputNormalsSelection!=nullptr)
   {
     attrib = attributes->FindAttribute(this->InputNormalsSelection);
     if(attrib!=-1)
@@ -195,7 +195,7 @@ int vtkGenericGlyph3DFilter::RequestData(
       inNormals = attributes->GetAttribute(attrib);
       if(inNormals->GetNumberOfComponents()!=3)
       {
-        inNormals=0;
+        inNormals=nullptr;
         vtkDebugMacro("The attribute is not a normal vector.");
       }
     }
@@ -248,8 +248,8 @@ int vtkGenericGlyph3DFilter::RequestData(
     den = 1.0;
   }
   if ( this->VectorMode != VTK_VECTOR_ROTATION_OFF &&
-       ((this->VectorMode == VTK_USE_VECTOR && inVectors != NULL) ||
-        (this->VectorMode == VTK_USE_NORMAL && inNormals != NULL)) )
+       ((this->VectorMode == VTK_USE_VECTOR && inVectors != nullptr) ||
+        (this->VectorMode == VTK_USE_NORMAL && inNormals != nullptr)) )
   {
     haveVectors = 1;
   }
@@ -263,7 +263,7 @@ int vtkGenericGlyph3DFilter::RequestData(
         ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
          (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
   {
-    if ( this->GetSource(0) == NULL )
+    if ( this->GetSource(0) == nullptr )
     {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -296,18 +296,18 @@ int vtkGenericGlyph3DFilter::RequestData(
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
     defaultSource->Delete();
-    defaultSource = NULL;
+    defaultSource = nullptr;
     defaultPoints->Delete();
-    defaultPoints = NULL;
+    defaultPoints = nullptr;
   }
 
   if ( this->IndexMode != VTK_INDEXING_OFF )
   {
-    pd = NULL;
+    pd = nullptr;
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
     {
-      if ( this->GetSource(i) != NULL )
+      if ( this->GetSource(i) != nullptr )
       {
         if (this->GetSource(i)->GetNumberOfPoints() > numSourcePts)
         {
@@ -498,7 +498,7 @@ int vtkGenericGlyph3DFilter::RequestData(
       index = (index < 0 ? 0 :
                (index >= numberOfSources ? (numberOfSources-1) : index));
 
-      if ( this->GetSource(index) != NULL )
+      if ( this->GetSource(index) != nullptr )
       {
         sourcePts = this->GetSource(index)->GetPoints();
         sourceNormals = this->GetSource(index)->GetPointData()->GetNormals();
@@ -508,7 +508,7 @@ int vtkGenericGlyph3DFilter::RequestData(
     }
 
     // Make sure we're not indexing into empty glyph
-    if ( this->GetSource(index) == NULL )
+    if ( this->GetSource(index) == nullptr )
     {
       continue;
     }
@@ -703,7 +703,7 @@ int vtkGenericGlyph3DFilter::RequestInformation(
 //  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 //  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (this->GetInput() == NULL)
+  if (this->GetInput() == nullptr)
   {
     vtkErrorMacro("Missing input");
     return 1;
@@ -723,7 +723,7 @@ void vtkGenericGlyph3DFilter::SetSourceData(int id, vtkPolyData *pd)
     return;
   }
 
-  vtkTrivialProducer* tp = 0;
+  vtkTrivialProducer* tp = nullptr;
   if (pd)
   {
     tp = vtkTrivialProducer::New();
@@ -738,7 +738,7 @@ void vtkGenericGlyph3DFilter::SetSourceData(int id, vtkPolyData *pd)
     }
     else
     {
-      this->SetNthInputConnection(1, id, 0);
+      this->SetNthInputConnection(1, id, nullptr);
     }
   }
   else if (id == numConnections && tp)
@@ -759,7 +759,7 @@ vtkPolyData *vtkGenericGlyph3DFilter::GetSource(int id)
 {
   if ( id < 0 || id >= this->GetNumberOfInputConnections(1) )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -783,7 +783,7 @@ void vtkGenericGlyph3DFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->GetNumberOfInputConnections(1) < 2 )
   {
-    if ( this->GetSource(0) != NULL )
+    if ( this->GetSource(0) != nullptr )
     {
       os << indent << "Source: (" << this->GetSource(0) << ")\n";
     }

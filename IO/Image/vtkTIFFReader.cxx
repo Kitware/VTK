@@ -217,7 +217,7 @@ void vtkTIFFReader::vtkTIFFReaderInternal::Clean()
   if (this->Image)
   {
     TIFFClose(this->Image);
-    this->Image = NULL;
+    this->Image = nullptr;
   }
   this->Width = 0;
   this->Height = 0;
@@ -246,7 +246,7 @@ void vtkTIFFReader::vtkTIFFReaderInternal::Clean()
 //-------------------------------------------------------------------------
 vtkTIFFReader::vtkTIFFReaderInternal::vtkTIFFReaderInternal()
 {
-  this->Image           = NULL;
+  this->Image           = nullptr;
   // Note that this suppresses all error/warning output from libtiff!
   TIFFSetErrorHandler(&vtkTIFFReaderInternalErrorHandler);
   TIFFSetWarningHandler(&vtkTIFFReaderInternalErrorHandler);
@@ -435,7 +435,7 @@ void vtkTIFFReader::ExecuteInformation()
 {
   this->Initialize();
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     vtkErrorMacro("Need to specify a filename");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
@@ -705,7 +705,7 @@ void vtkTIFFReader::Process(OT *outPtr, int outExtent[6], vtkIdType outIncr[3])
 void vtkTIFFReader::ExecuteDataWithInformation(vtkDataObject *output,
                                                 vtkInformation *outInfo)
 {
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     vtkErrorMacro("Either a FileName or FilePrefix must be specified.");
     return;
@@ -844,9 +844,9 @@ void vtkTIFFReader::GetColor(int index, unsigned short *red,
 //-------------------------------------------------------------------------
 void vtkTIFFReader::Initialize()
 {
-  this->ColorRed    = 0;
-  this->ColorGreen  = 0;
-  this->ColorBlue   = 0;
+  this->ColorRed    = nullptr;
+  this->ColorGreen  = nullptr;
+  this->ColorBlue   = nullptr;
   this->TotalColors = -1;
   this->ImageFormat = vtkTIFFReader::NOFORMAT;
 }
@@ -924,7 +924,7 @@ void vtkTIFFReader::ReadVolume(T* buffer)
         }
       }
       delete [] tempImage;
-      tempImage = 0;
+      tempImage = nullptr;
     }
     else
     {

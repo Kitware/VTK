@@ -49,13 +49,13 @@ vtkStandardNewMacro(vtkNetworkHierarchy);
 
 vtkNetworkHierarchy::vtkNetworkHierarchy()
 {
-  this->IPArrayName = 0;
+  this->IPArrayName = nullptr;
   this->SetIPArrayName("ip");
 }
 
 vtkNetworkHierarchy::~vtkNetworkHierarchy()
 {
-  this->SetIPArrayName(0);
+  this->SetIPArrayName(nullptr);
 }
 
 void vtkNetworkHierarchy::PrintSelf(ostream& os, vtkIndent indent)
@@ -126,7 +126,7 @@ int vtkNetworkHierarchy::RequestData(
   vtkAbstractArray* arr =
     inputGraph->GetVertexData()->GetAbstractArray(this->IPArrayName);
   vtkStringArray* ipArray = vtkArrayDownCast<vtkStringArray>(arr);
-  if (ipArray == NULL)
+  if (ipArray == nullptr)
   {
     vtkErrorMacro(<< "An string based ip array must be specified");
     return 0;

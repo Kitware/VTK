@@ -116,7 +116,7 @@ public:
   //@{
   /**
    * If you want to work with an arbitrary vector array, then set its name
-   * here. By default this in NULL and the filter will use the active vector
+   * here. By default this in nullptr and the filter will use the active vector
    * array.
    */
   vtkGetStringMacro(VectorsSelection);

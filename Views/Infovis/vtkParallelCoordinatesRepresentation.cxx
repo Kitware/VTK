@@ -215,7 +215,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->LinearThreshold = vtkSmartPointer<vtkBivariateLinearTableThreshold>::New();
   this->LinearThreshold->SetInputData(this->InputArrayTable);
 
-  this->Axes = NULL;
+  this->Axes = nullptr;
   this->NumberOfAxisLabels = 2;
 
 
@@ -248,11 +248,11 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->NumberOfSamples = 0;
   this->YMin = .1;
   this->YMax = .9;
-  this->Xs = NULL;
-  this->Mins = NULL;
-  this->Maxs = NULL;
-  this->MinOffsets = NULL;
-  this->MaxOffsets = NULL;
+  this->Xs = nullptr;
+  this->Mins = nullptr;
+  this->Maxs = nullptr;
+  this->MinOffsets = nullptr;
+  this->MaxOffsets = nullptr;
 
   this->CurveResolution = 20;
   this->UseCurves = 0;
@@ -276,7 +276,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->ApplyViewTheme(theme);
   theme->Delete();
 
-  this->InternalHoverText = 0;
+  this->InternalHoverText = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -290,7 +290,7 @@ vtkParallelCoordinatesRepresentation::~vtkParallelCoordinatesRepresentation()
   delete [] this->Axes;
   delete [] this->Xs;
 
-  this->SetInternalHoverText(0);
+  this->SetInternalHoverText(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -334,7 +334,7 @@ const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view,
       return this->GetInternalHoverText();
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view,
     vtkCellArray* lines = this->PlotData->GetLines();
 
     int lineNum = 0;
-    vtkIdType* pts = 0;
+    vtkIdType* pts = nullptr;
     vtkIdType  npts = 0;
     double p[3] = {static_cast<double>(x),static_cast<double>(y),0.0};
     p[0] /= size[0];
@@ -431,7 +431,7 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     return 0;
 
   // pull out the title string array
-  vtkStringArray* titles = NULL;
+  vtkStringArray* titles = nullptr;
   if (inTitleInfo)
   {
     vtkTable* inputTitles = vtkTable::SafeDownCast(inTitleInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -502,7 +502,7 @@ int vtkParallelCoordinatesRepresentation::RequestData(
 
   this->UpdateSelectionActors();
 
-  vtkIdTypeArray* unselectedRows = NULL;
+  vtkIdTypeArray* unselectedRows = nullptr;
   if (this->InverseSelection->GetNode(0))
     unselectedRows = vtkArrayDownCast<vtkIdTypeArray>(this->InverseSelection->GetNode(0)->GetSelectionList());
 
@@ -959,7 +959,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   }
   else
   {
-    polyData->SetLines(NULL);
+    polyData->SetLines(nullptr);
   }
 
   // if there are strips requested, make room and fill in some default cells
@@ -993,7 +993,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   }
   else
   {
-    polyData->SetStrips(NULL);
+    polyData->SetStrips(nullptr);
   }
 
   // if there are quads requested, make room and fill in some default cells
@@ -1027,7 +1027,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   }
   else
   {
-    polyData->SetPolys(NULL);
+    polyData->SetPolys(nullptr);
   }
 
   // if there are points requested, make room.  don't fill in defaults, as that's
@@ -1046,7 +1046,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   }
   else
   {
-    polyData->SetPoints(NULL);
+    polyData->SetPoints(nullptr);
   }
 
   // if there are scalars requested, make room. defaults everything to 0.
@@ -1071,7 +1071,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   }
   else
   {
-    polyData->GetCellData()->SetScalars(NULL);
+    polyData->GetCellData()->SetScalars(nullptr);
   }
 
   // if there are scalars requested, make room. defaults everything to 0.
@@ -1096,7 +1096,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   }
   else
   {
-    polyData->GetPointData()->SetScalars(NULL);
+    polyData->GetPointData()->SetScalars(nullptr);
   }
 
   polyData->BuildCells();
@@ -1488,7 +1488,7 @@ void vtkParallelCoordinatesRepresentation::LassoSelect(int brushClass,
 
   int position=-1, prevPosition=-1;
 
-  vtkSmartPointer<vtkBivariateLinearTableThreshold> threshold = NULL;//vtkSmartPointer<vtkBivariateLinearTableThreshold>::New();
+  vtkSmartPointer<vtkBivariateLinearTableThreshold> threshold = nullptr;//vtkSmartPointer<vtkBivariateLinearTableThreshold>::New();
   vtkSmartPointer<vtkIdTypeArray> allIds = vtkSmartPointer<vtkIdTypeArray>::New();
 
   // for every point in the brush, compute a line in XY space.  A point in XY space satifies
@@ -2070,7 +2070,7 @@ vtkPolyDataMapper2D* vtkParallelCoordinatesRepresentation::GetSelectionMapper(in
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 //------------------------------------------------------------------------------

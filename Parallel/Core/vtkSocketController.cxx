@@ -39,7 +39,7 @@ vtkSocketController::vtkSocketController()
 vtkSocketController::~vtkSocketController()
 {
   this->Communicator->Delete();
-  this->Communicator = this->RMICommunicator = 0;
+  this->Communicator = this->RMICommunicator = nullptr;
 }
 
 //----------------------------------------------------------------------------

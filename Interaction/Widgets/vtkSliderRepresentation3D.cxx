@@ -273,7 +273,7 @@ void vtkSliderRepresentation3D::StartWidgetInteraction(double eventPos[2])
   vtkAssemblyPath* path = this->GetAssemblyPath( eventPos[0], eventPos[1], 0.,
                                                  this->Picker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     vtkActor *prop = static_cast<vtkActor*>(path->GetLastNode()->GetViewProp());
 
@@ -512,7 +512,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     // Here we position the title and the slider label. Of course this is a
     // function of the text strings that ave been supplied.
     // Place the title
-    if ( this->TitleText->GetText() == NULL ||
+    if ( this->TitleText->GetText() == nullptr ||
          *(this->TitleText->GetText()) == '\0' )
     {
       this->TitleActor->VisibilityOff();

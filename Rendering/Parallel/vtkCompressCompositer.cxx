@@ -77,8 +77,8 @@ typedef struct {
 //-------------------------------------------------------------------------
 vtkCompressCompositer::vtkCompressCompositer()
 {
-  this->InternalPData = NULL;
-  this->InternalZData = NULL;
+  this->InternalPData = nullptr;
+  this->InternalZData = nullptr;
   this->Timer = vtkTimerLog::New();
 }
 
@@ -89,16 +89,16 @@ vtkCompressCompositer::~vtkCompressCompositer()
   if (this->InternalPData)
   {
     this->InternalPData->Delete();
-    this->InternalPData = NULL;
+    this->InternalPData = nullptr;
   }
   if (this->InternalZData)
   {
     this->InternalZData->Delete();
-    this->InternalZData = NULL;
+    this->InternalZData = nullptr;
   }
 
   this->Timer->Delete();
-  this->Timer = NULL;
+  this->Timer = nullptr;
 }
 
 
@@ -550,7 +550,7 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
   //this->Timer->StartTimer();
 
   // Make sure we have an internal buffer of the correct length.
-  if (this->InternalPData == NULL ||
+  if (this->InternalPData == nullptr ||
       this->InternalPData->GetDataType() != pBuf->GetDataType() ||
       this->InternalPData->GetNumberOfTuples() != pBuf->GetNumberOfTuples() ||
       this->InternalPData->GetSize() < pBuf->GetSize())
@@ -558,7 +558,7 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
     if (this->InternalPData)
     {
       vtkCompositer::DeleteArray(this->InternalPData);
-      this->InternalPData = NULL;
+      this->InternalPData = nullptr;
     }
     if (pBuf->GetDataType() == VTK_UNSIGNED_CHAR)
     {
@@ -576,13 +576,13 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
     }
   }
   // Now float array.
-  if (this->InternalZData == NULL ||
+  if (this->InternalZData == nullptr ||
       this->InternalZData->GetSize() < zBuf->GetSize())
   {
     if (this->InternalZData)
     {
       vtkCompositer::DeleteArray(this->InternalZData);
-      this->InternalZData = NULL;
+      this->InternalZData = nullptr;
     }
     this->InternalZData = vtkFloatArray::New();
     vtkCompositer::ResizeFloatArray(

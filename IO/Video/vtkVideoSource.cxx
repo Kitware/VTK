@@ -135,8 +135,8 @@ vtkVideoSource::vtkVideoSource()
   this->FrameBufferMutex = vtkCriticalSection::New();
 
   this->FrameBufferSize = 0;
-  this->FrameBuffer = NULL;
-  this->FrameBufferTimeStamps = NULL;
+  this->FrameBuffer = nullptr;
+  this->FrameBufferTimeStamps = nullptr;
   this->FrameBufferIndex = 0;
   this->SetFrameBufferSize(1);
 
@@ -518,7 +518,7 @@ static void *vtkVideoSourceRecordThread(vtkMultiThreader::ThreadInfo *data)
   }
   while (vtkThreadSleep(data, startTime + frame/rate));
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -562,7 +562,7 @@ static void *vtkVideoSourcePlayThread(vtkMultiThreader::ThreadInfo *data)
   }
   while (vtkThreadSleep(data, startTime + frame/rate));
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -797,7 +797,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
 
   this->FrameBufferMutex->Lock();
 
-  if (this->FrameBuffer == 0)
+  if (this->FrameBuffer == nullptr)
   {
     if (bufsize > 0)
     {
@@ -823,8 +823,8 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     }
     else
     {
-      framebuffer = NULL;
-      timestamps = NULL;
+      framebuffer = nullptr;
+      timestamps = nullptr;
     }
 
     // create new image buffers if necessary

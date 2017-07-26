@@ -171,7 +171,7 @@ public:
   /**
    * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
    * control the name given to the field in which the ids are written into.  If
-   * set to NULL, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
+   * set to nullptr, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
    * is used, respectively.
    */
   vtkSetStringMacro(OriginalCellIdsName);

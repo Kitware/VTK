@@ -32,14 +32,14 @@ vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkPProbeFilter::vtkPProbeFilter()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPProbeFilter::~vtkPProbeFilter()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
               {
                 vtkAbstractArray *oaa = pointData->GetArray(k);
                 vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
-                if (raa != NULL)
+                if (raa != nullptr)
                 {
                   oaa->SetTuple(pointId, pointId, raa);
                 }

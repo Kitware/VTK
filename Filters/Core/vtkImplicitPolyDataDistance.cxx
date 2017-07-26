@@ -39,8 +39,8 @@ vtkImplicitPolyDataDistance::vtkImplicitPolyDataDistance()
 
   this->NoValue = 0.0;
 
-  this->Input = NULL;
-  this->Locator = NULL;
+  this->Input = nullptr;
+  this->Locator = nullptr;
   this->Tolerance = 1e-12;
 }
 
@@ -81,7 +81,7 @@ vtkMTimeType vtkImplicitPolyDataDistance::GetMTime()
   vtkMTimeType mTime=this->vtkImplicitFunction::GetMTime();
   vtkMTimeType InputMTime;
 
-  if ( this->Input != NULL )
+  if ( this->Input != nullptr )
   {
     InputMTime = this->Input->GetMTime();
     mTime = (InputMTime > mTime ? InputMTime : mTime);
@@ -96,14 +96,14 @@ vtkImplicitPolyDataDistance::~vtkImplicitPolyDataDistance()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkImplicitPolyDataDistance::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL)
+  if ( this->Locator == nullptr)
   {
     this->Locator = vtkCellLocator::New();
   }
@@ -148,7 +148,7 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double g[3], dou
   }
 
   // See if data set with polygons has been specified
-  if (this->Input == NULL || Input->GetNumberOfCells() == 0)
+  if (this->Input == nullptr || Input->GetNumberOfCells() == 0)
   {
     vtkErrorMacro(<<"No polygons to evaluate function!");
     return ret;
@@ -159,7 +159,7 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double g[3], dou
   int subId;
   double vlen2;
 
-  vtkDataArray* cnorms = 0;
+  vtkDataArray* cnorms = nullptr;
   if ( this->Input->GetCellData() && this->Input->GetCellData()->GetNormals() )
   {
     cnorms = this->Input->GetCellData()->GetNormals();

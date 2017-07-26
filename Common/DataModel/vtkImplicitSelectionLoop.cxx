@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(vtkImplicitSelectionLoop, Loop,vtkPoints);
 // Instantiate object with no initial loop.
 vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()
 {
-  this->Loop = NULL;
+  this->Loop = nullptr;
   this->AutomaticNormalGeneration = 1;
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
@@ -45,7 +45,7 @@ vtkImplicitSelectionLoop::~vtkImplicitSelectionLoop()
     this->Loop->Delete();
   }
   this->Polygon->Delete();
-  this->Polygon = NULL;
+  this->Polygon = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ vtkMTimeType vtkImplicitSelectionLoop::GetMTime()
   vtkMTimeType mTime=this->vtkImplicitFunction::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Loop != NULL )
+  if ( this->Loop != nullptr )
   {
     time = this->Loop->GetMTime();
     mTime = ( time > mTime ? time : mTime );

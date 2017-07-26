@@ -183,7 +183,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->EdgesActor->SetMapper(this->EdgesMapper);
   this->Tubing = true; //control whether tubing is on
   this->DrawPlane = true; //control whether draw plane is on
-  this->CurrentHandle = NULL;
+  this->CurrentHandle = nullptr;
 
   // Initial creation of the widget, serves to initialize it
   double bounds[6] = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
@@ -484,12 +484,12 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
 
   this->SetHighlightNormal(0);
   this->SetHighlightPlane(0);
-  this->SetHighlightHandle(NULL);
+  this->SetHighlightHandle(nullptr);
 
   // See if anything has been selected
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if (path == NULL) // Not picking this widget
+  if (path == nullptr) // Not picking this widget
   {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::Outside);
     this->InteractionState = vtkFinitePlaneRepresentation::Outside;
@@ -506,7 +506,7 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
     this->InteractionState = vtkFinitePlaneRepresentation::Pushing;
     this->SetHighlightNormal(0);
     this->SetHighlightPlane(1);
-    this->SetHighlightHandle(NULL);
+    this->SetHighlightHandle(nullptr);
   }
   else if ((prop == this->ConeActor) || (prop == this->ConeActor2) ||
     (prop == this->LineActor) || (prop == this->LineActor2))
@@ -516,7 +516,7 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
 
     this->SetHighlightNormal(1);
     this->SetHighlightPlane(1);
-    this->SetHighlightHandle(NULL);
+    this->SetHighlightHandle(nullptr);
   }
   else if (prop == this->OriginActor)
   {

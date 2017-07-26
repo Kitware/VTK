@@ -463,7 +463,7 @@ void vtkSurfaceLICInterface::ApplyLIC()
 
     vtkPixelBufferObject *licPBO = this->Internals->LICImage->Download();
     void *pLicPBO = licPBO->MapPackedBuffer();
-    vtkTextureObject *newLicImage = NULL;
+    vtkTextureObject *newLicImage = nullptr;
     int iErr = this->Internals->Compositor->Scatter(pLicPBO, VTK_FLOAT, 4, newLicImage);
     if (iErr)
     {
@@ -471,7 +471,7 @@ void vtkSurfaceLICInterface::ApplyLIC()
     }
     licPBO->UnmapPackedBuffer();
     licPBO->Delete();
-    this->Internals->LICImage = NULL;
+    this->Internals->LICImage = nullptr;
     this->Internals->LICImage = newLicImage;
     newLicImage->Delete();
 
@@ -714,7 +714,7 @@ void vtkSurfaceLICInterface::CopyToScreen()
 void vtkSurfaceLICInterface::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Internals->ReleaseGraphicsResources(win);
-  this->Internals->Context = NULL;
+  this->Internals->Context = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -931,16 +931,16 @@ void vtkSurfaceLICInterface::SetNoiseDataSet(vtkImageData *data)
     return;
   }
   this->Internals->Noise = data;
-  this->Internals->NoiseImage = NULL;
+  this->Internals->NoiseImage = nullptr;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkSurfaceLICInterface::GetNoiseDataSet()
 {
-  if (this->Internals->Noise == NULL)
+  if (this->Internals->Noise == nullptr)
   {
-    vtkImageData *noise = NULL;
+    vtkImageData *noise = nullptr;
     if ( this->GenerateNoiseTexture )
     {
       // report potential issues
@@ -977,7 +977,7 @@ vtkImageData *vtkSurfaceLICInterface::GetNoiseDataSet()
             this->ImpulseNoiseProbability,
             static_cast<float>(this->ImpulseNoiseBackgroundValue),
             this->NoiseGeneratorSeed);
-      if ( noiseValues == NULL )
+      if ( noiseValues == nullptr )
       {
         vtkErrorMacro("Failed to generate noise.");
       }
@@ -1003,9 +1003,9 @@ vtkImageData *vtkSurfaceLICInterface::GetNoiseDataSet()
     }
 
     this->Internals->Noise = noise;
-    this->Internals->NoiseImage = NULL;
+    this->Internals->NoiseImage = nullptr;
     noise->Delete();
-    noise = NULL;
+    noise = nullptr;
   }
 
   return this->Internals->Noise;
@@ -1095,7 +1095,7 @@ namespace {
     vtkOpenGLHelper **cbor, const char * vert,
     const char *frag)
   {
-  if (*cbor == NULL)
+  if (*cbor == nullptr)
   {
     *cbor = new vtkOpenGLHelper;
   }

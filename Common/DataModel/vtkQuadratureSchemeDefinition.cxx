@@ -42,8 +42,8 @@ vtkInformationKeyMacro(
 //-----------------------------------------------------------------------------
 vtkQuadratureSchemeDefinition::vtkQuadratureSchemeDefinition()
 {
-  this->ShapeFunctionWeights=0;
-  this->QuadratureWeights=0;
+  this->ShapeFunctionWeights=nullptr;
+  this->QuadratureWeights=nullptr;
   this->Clear();
 }
 
@@ -56,8 +56,8 @@ vtkQuadratureSchemeDefinition::~vtkQuadratureSchemeDefinition()
 //-----------------------------------------------------------------------------
 int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition *other)
 {
-  this->ShapeFunctionWeights=0;
-  this->QuadratureWeights=0;
+  this->ShapeFunctionWeights=nullptr;
+  this->QuadratureWeights=nullptr;
   this->Clear();
   //
   this->CellType=other->CellType;
@@ -127,10 +127,10 @@ void vtkQuadratureSchemeDefinition::Initialize(
 void vtkQuadratureSchemeDefinition::ReleaseResources()
 {
   delete [] this->ShapeFunctionWeights;
-  this->ShapeFunctionWeights=0;
+  this->ShapeFunctionWeights=nullptr;
 
   delete [] this->QuadratureWeights;
-  this->QuadratureWeights=0;
+  this->QuadratureWeights=nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double *W)
 {
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0)
-      || (this->ShapeFunctionWeights==0)
+      || (this->ShapeFunctionWeights==nullptr)
       || !W)
   {
     return;
@@ -188,7 +188,7 @@ void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double *W)
 {
   if ((this->NumberOfQuadraturePoints<=0)
       || (this->NumberOfNodes<=0)
-      || (this->QuadratureWeights==0)
+      || (this->QuadratureWeights==nullptr)
       || !W)
   {
     return;
@@ -285,7 +285,7 @@ istream &operator>>(istream &sin, vtkQuadratureSchemeDefinition &def)
       >> nNodes
       >> nQuadPts;
 
-  double *SfWt=0,*QWt=0,*pWt=0;
+  double *SfWt=nullptr,*QWt=nullptr,*pWt=nullptr;
   if ((nNodes>0) && (nQuadPts>0))
   {
     // read shape function weights
@@ -328,7 +328,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement *root)
 {
   // Quick sanity check, we're not nesting rather treating
   // this as a root, to be nested by the caller as needed.
-  if (root->GetName()!=NULL
+  if (root->GetName()!=nullptr
       || root->GetNumberOfNestedElements()>0)
   {
     vtkWarningMacro("Can't save state to non-empty element.");
@@ -421,7 +421,7 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement *root)
   const char *value;
   // Transfer state from XML hierarchy.
   e=root->FindNestedElementWithName("CellType");
-  if (e==NULL)
+  if (e==nullptr)
   {
     vtkWarningMacro("Expected nested element \"CellType\" "
                     "is not present.");
@@ -431,7 +431,7 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement *root)
   this->CellType=atoi(value);
   //
   e=root->FindNestedElementWithName("NumberOfNodes");
-  if (e==NULL)
+  if (e==nullptr)
   {
     vtkWarningMacro("Expected nested element \"NumberOfNodes\" "
                     "is not present.");
@@ -441,7 +441,7 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement *root)
   this->NumberOfNodes=atoi(value);
   //
   e=root->FindNestedElementWithName("NumberOfQuadraturePoints");
-  if (e==NULL)
+  if (e==nullptr)
   {
     vtkWarningMacro("Expected nested element \"NumberOfQuadraturePoints\" "
                     "is not present.");
@@ -455,14 +455,14 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement *root)
     istringstream issWts;
     //
     e=root->FindNestedElementWithName("ShapeFunctionWeights");
-    if (e==NULL)
+    if (e==nullptr)
     {
       vtkWarningMacro("Expected nested element \"ShapeFunctionWeights\" "
                       "is not present.");
       return 0;
     }
     value=e->GetCharacterData();
-    if (value==NULL)
+    if (value==nullptr)
     {
       vtkWarningMacro("Character data in nested element"
                       " \"ShapeFunctionWeights\" is not present.");
@@ -482,14 +482,14 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement *root)
     }
     //
     e=root->FindNestedElementWithName("QuadratureWeights");
-    if (e==NULL)
+    if (e==nullptr)
     {
       vtkWarningMacro("Expected element \"QuadratureWeights\" "
                       "is not present.");
       return 0;
     }
     value=e->GetCharacterData();
-    if (value==NULL)
+    if (value==nullptr)
     {
       vtkWarningMacro("Character data in expected nested element"
                       " \"QuadratureWeights\" is not present.");

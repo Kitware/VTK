@@ -117,7 +117,7 @@ vtkPlot* vtkChartHistogram2D::GetPlot(vtkIdType index)
     return this->Histogram;
   }
 
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

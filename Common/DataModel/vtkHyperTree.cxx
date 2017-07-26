@@ -184,7 +184,7 @@ public:
   // \post equal: this->IsEqual( other )
   void ToSameNode( vtkHyperTreeCursor* other ) VTK_OVERRIDE
   {
-    assert( "pre: other_exists" && other != 0 );
+    assert( "pre: other_exists" && other != nullptr );
     assert( "pre: same_hyperTree" && this->SameTree( other ) );
 
     vtkCompactHyperTreeCursor<N> *o =
@@ -206,7 +206,7 @@ public:
   // \pre same_hyperTree: this->SameTree(other);
   bool IsEqual( vtkHyperTreeCursor* other ) VTK_OVERRIDE
   {
-    assert( "pre: other_exists" && other != 0 );
+    assert( "pre: other_exists" && other != nullptr );
     assert( "pre: same_hyperTree" && this->SameTree(other) );
 
     vtkCompactHyperTreeCursor<N>* o =
@@ -228,7 +228,7 @@ public:
   vtkHyperTreeCursor* Clone() VTK_OVERRIDE
   {
     vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
-    assert( "post: results_exists" && result != 0 );
+    assert( "post: results_exists" && result != nullptr );
     result->Tree = this->Tree;
     assert( "post: same_tree" && result->SameTree( this ) );
     return result;
@@ -237,10 +237,10 @@ public:
   //---------------------------------------------------------------------------
   int SameTree( vtkHyperTreeCursor* other ) VTK_OVERRIDE
   {
-    assert( "pre: other_exists" && other != 0 );
+    assert( "pre: other_exists" && other != nullptr );
     vtkCompactHyperTreeCursor<N> *o =
       vtkCompactHyperTreeCursor<N>::SafeDownCast( other );
-    return o != 0 && this->Tree == o->Tree;
+    return o != nullptr && this->Tree == o->Tree;
   }
 
   //---------------------------------------------------------------------------
@@ -288,7 +288,7 @@ public:
   void MoveToNode(int* indices,
                           int level) VTK_OVERRIDE
   {
-    assert( "pre: indices_exists" && indices != 0 );
+    assert( "pre: indices_exists" && indices != nullptr );
     assert( "pre: valid_level" && level >= 0 );
 
     this->ToRoot();
@@ -385,7 +385,7 @@ protected:
         this->Dimension = 0;
         assert( "Bad number of children" && this->Dimension == 0 );
     }
-    this->Tree = 0;
+    this->Tree = nullptr;
     this->Index = 0;
     this->Leaf = false;
     this->ChildIndex = 0;
@@ -722,7 +722,7 @@ public:
   //---------------------------------------------------------------------------
   void SubdivideLeaf( vtkHyperTreeCursor* leafCursor ) VTK_OVERRIDE
   {
-    assert( "pre: leaf_exists" && leafCursor != 0 );
+    assert( "pre: leaf_exists" && leafCursor != nullptr );
     assert( "pre: is_a_leaf" && leafCursor->IsLeaf() );
 
     // We are using a vtkCompactHyperTreeCursor.
@@ -942,7 +942,7 @@ vtkHyperTree* vtkHyperTree::CreateInstance( unsigned int factor,
       vtkGenericWarningMacro( "Bad branching factor " << factor );
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

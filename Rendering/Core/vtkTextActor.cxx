@@ -101,7 +101,7 @@ vtkTextActor::vtkTextActor()
 
   this->FontScaleExponent = 1;
 
-  this->Input = 0;
+  this->Input = nullptr;
   this->InputRendered = false;
 
   this->FormerOrientation = 0.0;
@@ -119,15 +119,15 @@ vtkTextActor::~vtkTextActor()
 {
   this->ImageData->Delete();
   this->Transform->Delete();
-  this->SetTextProperty(NULL);
+  this->SetTextProperty(nullptr);
   this->ScaledTextProperty->Delete();
-  this->ScaledTextProperty = NULL;
+  this->ScaledTextProperty = nullptr;
   delete [] this->Input;
   this->Rectangle->Delete();
-  this->Rectangle = 0;
+  this->Rectangle = nullptr;
   this->RectanglePoints->Delete();
-  this->RectanglePoints = 0;
-  this->SetTexture(0);
+  this->RectanglePoints = nullptr;
+  this->SetTexture(nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -355,7 +355,7 @@ bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *vp)
   }
 
   return this->TextRenderer->RenderString(tprop, text, this->ImageData,
-                                          NULL, win->GetDPI());
+                                          nullptr, win->GetDPI());
 }
 
 // ----------------------------------------------------------------------------
@@ -414,7 +414,7 @@ void vtkTextActor::SetTextProperty(vtkTextProperty *p)
   if ( this->TextProperty )
   {
     this->TextProperty->UnRegister( this );
-    this->TextProperty = NULL;
+    this->TextProperty = nullptr;
   }
   this->TextProperty = p;
   if (this->TextProperty)
@@ -429,7 +429,7 @@ void vtkTextActor::SetTextProperty(vtkTextProperty *p)
 void vtkTextActor::ShallowCopy(vtkProp *prop)
 {
   vtkTextActor *a = vtkTextActor::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetPosition2(a->GetPosition2());
     this->SetMinimumSize(a->GetMinimumSize());

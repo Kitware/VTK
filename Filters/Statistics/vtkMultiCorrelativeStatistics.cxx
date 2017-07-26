@@ -680,7 +680,7 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
   // where "A", "B", and "C" are the column names specified in the per-request metadata tables.
   vtkIdType nRow = inData->GetNumberOfRows();
   int nb = static_cast<int>( inMeta->GetNumberOfBlocks() );
-  AssessFunctor* dfunc = 0;
+  AssessFunctor* dfunc = nullptr;
   for ( int req = 1; req < nb; ++ req )
   {
     vtkTable* reqModel = vtkTable::SafeDownCast( inMeta->GetBlock( req ) );
@@ -693,7 +693,7 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
 
     this->SelectAssessFunctor( inData,
                                reqModel,
-                               0,
+                               nullptr,
                                dfunc );
     vtkMultiCorrelativeAssessFunctor* mcfunc = static_cast<vtkMultiCorrelativeAssessFunctor*>( dfunc );
     if ( ! mcfunc )
@@ -876,7 +876,7 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
                                                          vtkStringArray* vtkNotUsed(rowNames),
                                                          AssessFunctor*& dfunc )
 {
-  dfunc = 0;
+  dfunc = nullptr;
   vtkTable* reqModel = vtkTable::SafeDownCast( inMetaDO );
   if ( ! reqModel )
   {

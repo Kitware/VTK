@@ -71,12 +71,12 @@ public:
             // can get to the surface that was used to do that. We simply
             // reactivate on that surface.
             QOpenGLContext* ctxt = this->Target->context();
-            QSurface* surface = ctxt? ctxt->surface() : NULL;
+            QSurface* surface = ctxt? ctxt->surface() : nullptr;
             if (surface)
             {
               ctxt->makeCurrent(surface);
             }
-            Q_ASSERT(ctxt == NULL || surface != NULL);
+            Q_ASSERT(ctxt == nullptr || surface != nullptr);
           }
           break;
 
@@ -107,7 +107,7 @@ protected:
 //-----------------------------------------------------------------------------
 QVTKOpenGLWidget::QVTKOpenGLWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
-  , InteractorAdaptor(NULL)
+  , InteractorAdaptor(nullptr)
   , EnableHiDPI(false)
   , OriginalDPI(0)
   , FBO(nullptr)
@@ -139,8 +139,8 @@ QVTKOpenGLWidget::~QVTKOpenGLWidget()
   // essential to cleanup context so that the render window finalizes and
   // releases any graphics resources it may have allocated.
   this->cleanupContext();
-  this->SetRenderWindow(static_cast<vtkGenericOpenGLRenderWindow*>(NULL));
-  this->Observer->SetTarget(NULL);
+  this->SetRenderWindow(static_cast<vtkGenericOpenGLRenderWindow*>(nullptr));
+  this->Observer->SetTarget(nullptr);
   delete this->InteractorAdaptor;
   delete this->Logger;
 }
@@ -150,7 +150,7 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkRenderWindow* win)
 {
   vtkGenericOpenGLRenderWindow* gwin = vtkGenericOpenGLRenderWindow::SafeDownCast(win);
   this->SetRenderWindow(gwin);
-  if (gwin == NULL && win != NULL)
+  if (gwin == nullptr && win != nullptr)
   {
     qDebug() << "QVTKOpenGLWidget requires a `vtkGenericOpenGLRenderWindow`. `"
              << win->GetClassName() << "` is not supported.";
@@ -553,7 +553,7 @@ bool QVTKOpenGLWidget::renderVTK()
   // bind it anyways, but we'll be extra cautious.
   this->FBO->bind();
 
-  vtkRenderWindowInteractor* iren = this->RenderWindow ? this->RenderWindow->GetInteractor() : NULL;
+  vtkRenderWindowInteractor* iren = this->RenderWindow ? this->RenderWindow->GetInteractor() : nullptr;
   if (iren)
   {
     iren->Render();

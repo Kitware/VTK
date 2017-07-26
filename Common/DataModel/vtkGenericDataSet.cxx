@@ -30,7 +30,7 @@ vtkCxxSetObjectMacro(vtkGenericDataSet,Tessellator,vtkGenericCellTessellator);
 //----------------------------------------------------------------------------
 vtkGenericDataSet::vtkGenericDataSet()
 {
-  this->Tessellator = 0;
+  this->Tessellator = nullptr;
   this->Attributes = vtkGenericAttributeCollection::New();
   vtkMath::UninitializeBounds(this->Bounds);
 }
@@ -38,7 +38,7 @@ vtkGenericDataSet::vtkGenericDataSet()
 //----------------------------------------------------------------------------
 vtkGenericDataSet::~vtkGenericDataSet()
 {
-  if(this->Tessellator!=0)
+  if(this->Tessellator!=nullptr)
   {
     this->Tessellator->Delete();
   }
@@ -77,7 +77,7 @@ void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 // \pre types_exist: types!=0
 void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
 {
-  assert("pre: types_exist" && types!=0);
+  assert("pre: types_exist" && types!=nullptr);
 
   unsigned char type;
   vtkGenericCellIterator *it = this->NewCellIterator(-1);
@@ -209,7 +209,7 @@ int vtkGenericDataSet::GetDataObjectType()
 //----------------------------------------------------------------------------
 vtkGenericDataSet* vtkGenericDataSet::GetData(vtkInformation* info)
 {
-  return info ? vtkGenericDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info ? vtkGenericDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -60,7 +60,7 @@ public:
   /**
    * This function is called by RequestData. It exists so that
    * other classes may use this computation without constructing
-   * a vtkCenterOfMass object.  The scalars can be set to NULL
+   * a vtkCenterOfMass object.  The scalars can be set to nullptr
    * if all points are to be weighted equally.  If scalars are
    * used, it is the caller's responsibility to ensure that the
    * number of scalars matches the number of points, and that

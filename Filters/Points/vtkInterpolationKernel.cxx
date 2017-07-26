@@ -22,9 +22,9 @@ vtkInterpolationKernel::vtkInterpolationKernel()
 {
   this->RequiresInitialization = true;
 
-  this->Locator = NULL;
-  this->DataSet = NULL;
-  this->PointData = NULL;
+  this->Locator = nullptr;
+  this->DataSet = nullptr;
+  this->PointData = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -40,19 +40,19 @@ FreeStructures()
   if ( this->Locator )
   {
     this->Locator->Delete();
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( this->DataSet )
   {
     this->DataSet->Delete();
-    this->DataSet = NULL;
+    this->DataSet = nullptr;
   }
 
   if ( this->PointData )
   {
     this->PointData->Delete();
-    this->PointData = NULL;
+    this->PointData = nullptr;
   }
 }
 

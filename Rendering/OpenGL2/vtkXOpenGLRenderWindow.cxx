@@ -87,7 +87,7 @@ private:
 vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
   vtkRenderWindow *rw)
 {
-  this->ContextId = NULL;
+  this->ContextId = nullptr;
   this->FBConfig = None;
 
   this->ScreenMapped = rw->GetMapped();
@@ -259,14 +259,14 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
 
 XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 {
-  XVisualInfo   *v = NULL;
+  XVisualInfo   *v = nullptr;
 
   // get the default display connection
   if (!this->DisplayId)
   {
-    this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
+    this->DisplayId = XOpenDisplay(static_cast<char *>(nullptr));
 
-    if (this->DisplayId == NULL)
+    if (this->DisplayId == nullptr)
     {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
@@ -310,7 +310,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
   this->UsingHardware = 0;
-  this->DisplayId = static_cast<Display *>(NULL);
+  this->DisplayId = static_cast<Display *>(nullptr);
   this->WindowId = static_cast<Window>(NULL);
   this->NextWindowId = static_cast<Window>(NULL);
   this->ColorMap = static_cast<Colormap>(0);
@@ -341,7 +341,7 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
 
   delete this->Internal;
@@ -365,7 +365,7 @@ void vtkXOpenGLRenderWindow::Frame()
 bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()
 {
   GLXContext currentContext = glXGetCurrentContext();
-  if (currentContext != NULL)
+  if (currentContext != nullptr)
   {
     this->SetDisplayId((void*)glXGetCurrentDisplay());
     this->SetWindowId((void*)glXGetCurrentDrawable());
@@ -437,8 +437,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   // get the default display connection
   if (!this->DisplayId)
   {
-    this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
-    if (this->DisplayId == NULL)
+    this->DisplayId = XOpenDisplay(static_cast<char *>(nullptr));
+    if (this->DisplayId == nullptr)
     {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
@@ -536,12 +536,12 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   }
 
   // is GLX extension is supported?
-  if(!glXQueryExtension(this->DisplayId, NULL, NULL))
+  if(!glXQueryExtension(this->DisplayId, nullptr, nullptr))
   {
     vtkErrorMacro("GLX not found.  Aborting.");
     if (this->HasObserver(vtkCommand::ExitEvent))
     {
-      this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+      this->InvokeEvent(vtkCommand::ExitEvent, nullptr);
       return;
     }
     else
@@ -555,7 +555,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   {
     // NOTE: It is not necessary to create or make current to a context before
     // calling glXGetProcAddressARB
-    glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+    glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
     glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
       glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
 
@@ -570,7 +570,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     if (glXCreateContextAttribsARB)
     {
       XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLContextCreationErrorHandler);
-      this->Internal->ContextId = 0;
+      this->Internal->ContextId = nullptr;
       // we believe that these later versions are all compatible with
       // OpenGL 3.2 so get a more recent context if we can.
       int attemptedVersions[] = {4,5, 4,4, 4,3, 4,2, 4,1, 4,0, 3,3, 3,2};
@@ -580,7 +580,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
         context_attribs[3] = attemptedVersions[i*2+1];
         this->Internal->ContextId =
           glXCreateContextAttribsARB( this->DisplayId,
-            this->Internal->FBConfig, 0,
+            this->Internal->FBConfig, nullptr,
             GL_TRUE, context_attribs );
         // Sync to ensure any errors generated are processed.
         XSync( this->DisplayId, False );
@@ -594,10 +594,10 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   }
 
   // old failsafe
-  if (this->Internal->ContextId == NULL)
+  if (this->Internal->ContextId == nullptr)
   {
     this->Internal->ContextId =
-      glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+      glXCreateContext(this->DisplayId, v, nullptr, GL_TRUE);
   }
 
   if(!this->Internal->ContextId)
@@ -605,7 +605,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     vtkErrorMacro("Cannot create GLX context.  Aborting.");
     if (this->HasObserver(vtkCommand::ExitEvent))
     {
-      this->InvokeEvent(vtkCommand::ExitEvent, NULL);
+      this->InvokeEvent(vtkCommand::ExitEvent, nullptr);
       return;
     }
     else
@@ -717,10 +717,10 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     {
       glFinish();
       glXDestroyContext(this->DisplayId, this->Internal->ContextId);
-      glXMakeCurrent(this->DisplayId, None, NULL);
+      glXMakeCurrent(this->DisplayId, None, nullptr);
     }
   }
-    this->Internal->ContextId = NULL;
+    this->Internal->ContextId = nullptr;
 
   // then close the old window if we own it
   if (this->OwnWindow && this->DisplayId && this->WindowId)
@@ -753,7 +753,7 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
   for (this->Renderers->InitTraversal();
        (ren = this->Renderers->GetNextItem());)
   {
-    ren->SetRenderWindow(0);
+    ren->SetRenderWindow(nullptr);
     ren->SetRenderWindow(this);
   }
 
@@ -796,7 +796,7 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
   for (this->Renderers->InitTraversal();
        (ren = this->Renderers->GetNextItem());)
   {
-    ren->SetRenderWindow(0);
+    ren->SetRenderWindow(nullptr);
     ren->SetRenderWindow(this);
   }
 
@@ -1011,7 +1011,7 @@ int vtkXOpenGLRenderWindow::GetDesiredDepth()
 Visual *vtkXOpenGLRenderWindow::GetDesiredVisual ()
 {
   XVisualInfo *v;
-  Visual *vis=0;
+  Visual *vis=nullptr;
 
   // get the default visual to use
   v = this->GetDesiredVisualInfo();
@@ -1154,10 +1154,10 @@ extern "C"
 
 void *vtkXOpenGLRenderWindow::GetGenericContext()
 {
-  static GC gc = static_cast<GC>(NULL);
+  static GC gc = static_cast<GC>(nullptr);
   if (!gc)
   {
-    gc = XCreateGC(this->DisplayId, this->WindowId, 0, 0);
+    gc = XCreateGC(this->DisplayId, this->WindowId, 0, nullptr);
   }
   return static_cast<void *>(gc);
 }
@@ -1182,8 +1182,8 @@ int *vtkXOpenGLRenderWindow::GetScreenSize()
   // get the default display connection
   if (!this->DisplayId)
   {
-    this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
-    if (this->DisplayId == NULL)
+    this->DisplayId = XOpenDisplay(static_cast<char *>(nullptr));
+    if (this->DisplayId == nullptr)
     {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
@@ -1306,8 +1306,8 @@ void vtkXOpenGLRenderWindow::SetWindowInfo(char *info)
   // get the default display connection
   if (!this->DisplayId)
   {
-    this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
-    if (this->DisplayId == NULL)
+    this->DisplayId = XOpenDisplay(static_cast<char *>(nullptr));
+    if (this->DisplayId == nullptr)
     {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
@@ -1341,8 +1341,8 @@ void vtkXOpenGLRenderWindow::SetParentInfo(char *info)
   // get the default display connection
   if (!this->DisplayId)
   {
-    this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
-    if (this->DisplayId == NULL)
+    this->DisplayId = XOpenDisplay(static_cast<char *>(nullptr));
+    if (this->DisplayId == nullptr)
     {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
@@ -1442,7 +1442,7 @@ void vtkXOpenGLRenderWindow::CloseDisplay()
   if (this->OwnDisplay && this->DisplayId)
   {
     XCloseDisplay(this->DisplayId);
-    this->DisplayId = NULL;
+    this->DisplayId = nullptr;
     this->OwnDisplay = 0;
   }
 }

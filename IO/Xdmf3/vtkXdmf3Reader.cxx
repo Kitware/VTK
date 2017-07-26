@@ -285,7 +285,7 @@ private:
     unsigned int updateNumPieces = 1;
     vtkMultiProcessController* ctrl =
       vtkMultiProcessController::GetGlobalController();
-    if (ctrl != NULL)
+    if (ctrl != nullptr)
     {
       updatePiece = ctrl->GetLocalProcessId();
       updateNumPieces = ctrl->GetNumberOfProcesses();
@@ -364,7 +364,7 @@ private:
     unsigned int updateNumPieces = 1;
     vtkMultiProcessController* ctrl =
       vtkMultiProcessController::GetGlobalController();
-    if (ctrl != NULL)
+    if (ctrl != nullptr)
     {
       updatePiece = ctrl->GetLocalProcessId();
       updateNumPieces = ctrl->GetNumberOfProcesses();
@@ -413,7 +413,7 @@ vtkStandardNewMacro(vtkXdmf3Reader);
 //----------------------------------------------------------------------------
 vtkXdmf3Reader::vtkXdmf3Reader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   this->Internal = new vtkXdmf3Reader::Internals();
   this->FileSeriesAsTime = true;
@@ -429,7 +429,7 @@ vtkXdmf3Reader::vtkXdmf3Reader()
 vtkXdmf3Reader::~vtkXdmf3Reader()
 {
 
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   delete this->Internal;
   //XdmfHDF5Controller::closeFiles();
 }
@@ -791,7 +791,7 @@ vtkMultiPieceDataSet * vtkXdmf3Reader::Internals::Flatten
   unsigned int numProcs ;
   vtkMultiProcessController* ctrl =
     vtkMultiProcessController::GetGlobalController();
-  if (ctrl != NULL)
+  if (ctrl != nullptr)
   {
     procnum = ctrl->GetLocalProcessId();
     numProcs = ctrl->GetNumberOfProcesses();
@@ -822,7 +822,7 @@ vtkMultiPieceDataSet * vtkXdmf3Reader::Internals::Flatten
   vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::New();
   for (i = 0; i < total; i++)
   {
-    mpds->SetPiece(i++, NULL);
+    mpds->SetPiece(i++, nullptr);
   }
 
   //fill in my pieces

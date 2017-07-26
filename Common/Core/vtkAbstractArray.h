@@ -537,7 +537,7 @@ public:
    * Inquire if this array has an instance of vtkInformation
    * already associated with it.
    */
-  bool HasInformation(){ return this->Information!=0; }
+  bool HasInformation(){ return this->Information!=nullptr; }
 
   /**
    * Copy information instance. Arrays use information objects

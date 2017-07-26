@@ -68,7 +68,7 @@ vtkXMLDataHeader* vtkXMLDataHeader::New(int width, size_t count)
     case 32: return new vtkXMLDataHeaderImpl<vtkTypeUInt32>(count);
     case 64: return new vtkXMLDataHeaderImpl<vtkTypeUInt64>(count);
   }
-  return 0;
+  return nullptr;
 }
 
 #endif

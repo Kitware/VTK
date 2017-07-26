@@ -105,7 +105,7 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
     a = PyUnicode_AsUTF8(o);
     return true;
 #else
-    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
     if (s)
     {
       a = PyBytes_AS_STRING(s);
@@ -140,7 +140,7 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
     a = std::string(val, len);
     return true;
 #else
-    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
     if (s)
     {
       char* val;
@@ -167,9 +167,9 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 static bool vtkPythonGetValue(
   PyObject *o, const void *&a, Py_buffer *view, char btype)
 {
-  void *p = 0;
+  void *p = nullptr;
   Py_ssize_t sz = 0;
-  const char *format = 0;
+  const char *format = nullptr;
 #ifndef VTK_PY3K
   PyBufferProcs *b = Py_TYPE(o)->tp_as_buffer;
 #endif
@@ -228,7 +228,7 @@ static bool vtkPythonGetValue(
   // use the old buffer interface
   if (b && b->bf_getreadbuffer && b->bf_getsegcount)
   {
-    if (b->bf_getsegcount(o, NULL) == 1)
+    if (b->bf_getsegcount(o, nullptr) == 1)
     {
       sz = b->bf_getreadbuffer(o, 0, &p);
     }
@@ -244,7 +244,7 @@ static bool vtkPythonGetValue(
   if (bytes && btype == '\0')
 #else
   if (p && sz >= 0 && sz <= VTK_INT_MAX && btype == '\0' &&
-      (format == 0 || format[0] == 'c' || format[0] == 'B'))
+      (format == nullptr || format[0] == 'c' || format[0] == 'B'))
 #endif
   {
     // check for pointer mangled as string
@@ -286,7 +286,7 @@ bool vtkPythonGetValue(
 {
   // should have an alternate form for non-const "void *" that uses
   // writebuffer instead of readbuffer, but that would break existing code
-  const void *b = NULL;
+  const void *b = nullptr;
   bool r = vtkPythonGetValue(o, b, buf, btype);
   a = const_cast<void *>(b);
   return r;
@@ -296,7 +296,7 @@ bool vtkPythonGetValue(
 inline
 bool vtkPythonGetValue(PyObject *o, const char *&a)
 {
-  a = NULL;
+  a = nullptr;
 
   return (o == Py_None ||
           vtkPythonGetStringValue(o, a, "string or None required"));
@@ -305,7 +305,7 @@ bool vtkPythonGetValue(PyObject *o, const char *&a)
 inline
 bool vtkPythonGetValue(PyObject *o, char *&a)
 {
-  a = NULL;
+  a = nullptr;
 
   return (o == Py_None ||
           vtkPythonGetStringValue(o, a, "string or None required"));
@@ -863,11 +863,11 @@ PyObject *vtkPythonArgs::GetSelfFromFirstArg(
     snprintf(buf, sizeof(buf), "unbound method requires a %.200s as the first argument",
              pytype->tp_name);
     PyErr_SetString(PyExc_TypeError, buf);
-    return NULL;
+    return nullptr;
   }
 
   PyErr_SetString(PyExc_TypeError, "unbound method requires a vtkobject");
-  return NULL;
+  return nullptr;
 }
 
 //--------------------------------------------------------------------
@@ -913,7 +913,7 @@ void *vtkPythonArgs::GetArgAsSpecialObject(
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
   void *r = vtkPythonArgs::GetArgAsSpecialObject(o, classname, p);
-  if (r == NULL)
+  if (r == nullptr)
   {
     this->RefineArgTypeError(this->I - this->M - 1);
   }
@@ -980,7 +980,7 @@ void *vtkPythonArgs::GetArgAsSIPObject(
 {
   void *r = vtkPythonUtil::SIPGetPointerFromObject(o, classname);
   valid = (r || !PyErr_Occurred());
-  return (valid ? r : NULL);
+  return (valid ? r : nullptr);
 }
 
 int vtkPythonArgs::GetArgAsSIPEnum(const char *classname, bool &valid)
@@ -1436,7 +1436,7 @@ bool vtkPythonArgs::CheckSizeHint(int i, Py_ssize_t m, Py_ssize_t n)
 //--------------------------------------------------------------------
 // Use stack space for small arrays, heap for large arrays.
 template<class T>
-vtkPythonArgs::Array<T>::Array(Py_ssize_t n) : Pointer(0)
+vtkPythonArgs::Array<T>::Array(Py_ssize_t n) : Pointer(nullptr)
 {
   if (n > basicsize)
   {

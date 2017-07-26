@@ -66,7 +66,7 @@ public:
 
   // For each piece it keeps the processes that have that piece.
   // This is built and used only on the root node.
-  // PieceProcessList[piece+NumPieces*process] = dataset type (-1 for NULL)
+  // PieceProcessList[piece+NumPieces*process] = dataset type (-1 for nullptr)
   // This NumberOfPieces is based on the number of blocks in the multiblock
   // which is different than the vtkXMLPMultiBlockDataWriter::NumberOfPieces
   // which is usually the number of parallel processes.
@@ -81,7 +81,7 @@ vtkXMLPMultiBlockDataWriter::vtkXMLPMultiBlockDataWriter()
   this->StartPiece = 0;
   this->NumberOfPieces = 1;
   this->Internal = new vtkInternal();
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->SetWriteMetaFile(1);
 }
@@ -89,7 +89,7 @@ vtkXMLPMultiBlockDataWriter::vtkXMLPMultiBlockDataWriter()
 //----------------------------------------------------------------------------
 vtkXMLPMultiBlockDataWriter::~vtkXMLPMultiBlockDataWriter()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
   delete this->Internal;
 }
 
@@ -97,7 +97,7 @@ vtkXMLPMultiBlockDataWriter::~vtkXMLPMultiBlockDataWriter()
 void vtkXMLPMultiBlockDataWriter::SetWriteMetaFile(int flag)
 {
   this->Modified();
-  if(this->Controller == NULL || this->Controller->GetLocalProcessId() == 0)
+  if(this->Controller == nullptr || this->Controller->GetLocalProcessId() == 0)
   {
     if(this->WriteMetaFile != flag)
     {
@@ -206,7 +206,7 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
        iter->GoToNextItem(), indexCounter++)
   {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
-    const char *name = NULL;
+    const char *name = nullptr;
     if(iter->HasCurrentMetaData())
     {
       name = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
@@ -332,7 +332,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
     vtkStdString fName = this->CreatePieceFileName(
       currentFileIndex, myProcId, datatypes_ptr[currentFileIndex]);
     return this->Superclass::WriteNonCompositeData(
-      dObj, NULL, currentFileIndex, fName.c_str());
+      dObj, nullptr, currentFileIndex, fName.c_str());
   }
   return 1;
 }

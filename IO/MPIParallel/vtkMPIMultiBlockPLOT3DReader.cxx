@@ -189,7 +189,7 @@ bool vtkMPIMultiBlockPLOT3DReader::CanUseMPIIO()
 {
   return (this->UseMPIIO && this->BinaryFile &&
     this->Internal->Settings.NumberOfDimensions == 3 &&
-    vtkMPIController::SafeDownCast(this->Controller) != NULL);
+    vtkMPIController::SafeDownCast(this->Controller) != nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -219,7 +219,7 @@ int vtkMPIMultiBlockPLOT3DReader::OpenFileForDataRead(void*& vfp, const char* fn
   catch (MPIPlot3DException)
   {
     delete handle;
-    vfp = NULL;
+    vfp = nullptr;
     return VTK_ERROR;
   }
   vfp = handle;

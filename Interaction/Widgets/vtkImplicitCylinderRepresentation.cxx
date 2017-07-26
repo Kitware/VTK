@@ -283,13 +283,13 @@ int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y,
   // The second picker may need to be called. This is done because the cylinder
   // wraps around things that can be picked; thus the cylinder is the selection
   // of last resort.
-  if ( path == NULL )
+  if ( path == nullptr )
   {
     this->CylPicker->Pick(X, Y, 0., this->Renderer);
     path = this->CylPicker->GetPath();
   }
 
-  if ( path == NULL ) // Nothing picked
+  if ( path == nullptr ) // Nothing picked
   {
     this->SetRepresentationState(vtkImplicitCylinderRepresentation::Outside);
     this->InteractionState = vtkImplicitCylinderRepresentation::Outside;
@@ -1235,7 +1235,7 @@ void vtkImplicitCylinderRepresentation::GetPolyData(vtkPolyData *pd)
 //----------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetCylinder(vtkCylinder *cyl)
 {
-  if ( cyl == NULL )
+  if ( cyl == nullptr )
   {
     return;
   }

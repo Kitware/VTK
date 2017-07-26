@@ -132,7 +132,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
     fail("Incorrect reference count");
   }
 
-  newReference = NULL;
+  newReference = nullptr;
   QMetaObject::invokeMethod(referenceModel, "updateReferenceCounts", Qt::DirectConnection);
 
   if (referenceModel->data(referenceModel->index(0, 1)) != baseReferenceCount)
@@ -148,8 +148,8 @@ int TestQtDebugLeaksView(int argc, char* argv[])
     fail("Expected reference model to have exactly 2 rows");
   }
 
-  newReference = NULL;
-  cone = NULL;
+  newReference = nullptr;
+  cone = nullptr;
   app.processEvents();
   view.setFilterEnabled(true);
 

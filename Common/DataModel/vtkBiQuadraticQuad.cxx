@@ -136,7 +136,7 @@ int vtkBiQuadraticQuad::EvaluatePosition (double *x,
       pcoords[1] = 0.5 + (pcoords[1] / 2.0);
     }
     pcoords[2] = 0.0;
-    if(closestPoint!=0)
+    if(closestPoint!=nullptr)
     {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);

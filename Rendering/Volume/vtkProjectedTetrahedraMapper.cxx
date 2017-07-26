@@ -63,7 +63,7 @@ vtkProjectedTetrahedraMapper::vtkProjectedTetrahedraMapper()
 
 vtkProjectedTetrahedraMapper::~vtkProjectedTetrahedraMapper()
 {
-  this->SetVisibilitySort(NULL);
+  this->SetVisibilitySort(nullptr);
 }
 
 void vtkProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent)

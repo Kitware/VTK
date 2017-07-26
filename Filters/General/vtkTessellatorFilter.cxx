@@ -242,7 +242,7 @@ void vtkTessellatorFilter::OutputPoint( const double* a )
 
 // constructor/boilerplate members
 vtkTessellatorFilter::vtkTessellatorFilter()
-  : Tessellator( 0 ), Subdivider( 0 )
+  : Tessellator( nullptr ), Subdivider( nullptr )
 {
   this->OutputDimension = 3; // Tesselate elements directly, not boundaries
   this->SetTessellator( vtkStreamingTessellator::New() );
@@ -258,10 +258,10 @@ vtkTessellatorFilter::vtkTessellatorFilter()
 
 vtkTessellatorFilter::~vtkTessellatorFilter()
 {
-  this->SetSubdivider( 0 );
-  this->SetTessellator( 0 );
+  this->SetSubdivider( nullptr );
+  this->SetTessellator( nullptr );
   this->Locator->Delete();
-  this->Locator = 0;
+  this->Locator = nullptr;
 }
 
 void vtkTessellatorFilter::PrintSelf( ostream& os, vtkIndent indent )
@@ -497,12 +497,12 @@ void vtkTessellatorFilter::MergeOutputPoints( vtkUnstructuredGrid* input, vtkUns
 
 void vtkTessellatorFilter::Teardown()
 {
-  this->OutputMesh = 0;
-  this->OutputPoints = 0;
+  this->OutputMesh = nullptr;
+  this->OutputPoints = nullptr;
   delete [] this->OutputAttributes;
   delete [] this->OutputAttributeIndices;
   this->Subdivider->ResetFieldList();
-  this->Subdivider->SetMesh(0);
+  this->Subdivider->SetMesh(nullptr);
 }
 
 // ========================================
@@ -1128,7 +1128,7 @@ int vtkTessellatorFilter::RequestData(
 
   vtkIdType cell = 0;
   int nprim = 0;
-  vtkIdType* outconn = 0;
+  vtkIdType* outconn = nullptr;
   double pts[27][11 + vtkStreamingTessellator::MaxFieldSize];
   int c;
   vtkIdType numCells = mesh->GetNumberOfCells();
@@ -1194,7 +1194,7 @@ int vtkTessellatorFilter::RequestData(
       {
       case VTK_VERTEX:
         dim = 0;
-        outconn = 0;
+        outconn = nullptr;
         nprim = 1;
         break;
       case VTK_LINE:

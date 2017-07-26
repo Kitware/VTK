@@ -128,7 +128,7 @@ vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
 {
   this->Projector = vtkCoordinate::New();
   this->Projector->SetCoordinateSystemToWorld();
-  this->Camera = 0;
+  this->Camera = nullptr;
   this->Level = 0;
   this->QuadrupleId = 0;
   this->Permutation = 0;
@@ -731,7 +731,7 @@ void vtkLabelHierarchyFullSortIterator::GetNodeGeometry( double center[3], doubl
 
 vtkLabelHierarchyFullSortIterator::vtkLabelHierarchyFullSortIterator()
 {
-  this->Camera = 0;
+  this->Camera = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
 }
 
@@ -816,8 +816,8 @@ vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
 vtkLabelHierarchyQuadtreeIterator::vtkLabelHierarchyQuadtreeIterator()
 {
   this->AtEnd = true;
-  this->Camera = 0;
-  this->Renderer = 0;
+  this->Camera = nullptr;
+  this->Renderer = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
   this->SizeLimit = 0.;
   this->NodesQueued = 0;
@@ -1143,8 +1143,8 @@ vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Renderer,vtkRenderer);
 vtkLabelHierarchyOctreeQueueIterator::vtkLabelHierarchyOctreeQueueIterator()
 {
   this->AtEnd = true;
-  this->Camera = 0;
-  this->Renderer = 0;
+  this->Camera = nullptr;
+  this->Renderer = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
   this->SizeLimit = 0.;
   this->NodesQueued = 0;
@@ -1519,8 +1519,8 @@ vtkLabelHierarchy3DepthFirstIterator::vtkLabelHierarchy3DepthFirstIterator()
 {
   this->AtEnd = true;
   this->DidRoot = 0;
-  this->Camera = 0;
-  this->Renderer = 0;
+  this->Camera = nullptr;
+  this->Renderer = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
   this->SizeLimit = 0.;
 }
@@ -1822,12 +1822,12 @@ vtkLabelHierarchy::vtkLabelHierarchy()
 {
   this->Impl = new Implementation();
   this->Impl->Husk = this;
-  this->Priorities = 0;
-  this->Labels = 0;
-  this->IconIndices = 0;
-  this->Orientations = 0;
-  this->Sizes = 0;
-  this->BoundedSizes = 0;
+  this->Priorities = nullptr;
+  this->Labels = nullptr;
+  this->IconIndices = nullptr;
+  this->Orientations = nullptr;
+  this->Sizes = nullptr;
+  this->BoundedSizes = nullptr;
   this->TargetLabelCount = 16;
   this->MaximumDepth = 5;
   this->TextProperty = vtkTextProperty::New();
@@ -1985,12 +1985,12 @@ void vtkLabelHierarchy::ComputeHierarchy()
     this->Impl->Hierarchy2 =
       new Implementation::HierarchyType2( center, maxDim, allAnchors /* currently empty */ );
     this->Impl->Hierarchy2->root()->value().SetGeometry( center, maxDim );
-    this->Impl->Hierarchy3 = 0;
+    this->Impl->Hierarchy3 = nullptr;
     this->Impl->Z2 = center[2]; // remember z coordinate for later
   }
   else
   {
-    this->Impl->Hierarchy2 = 0;
+    this->Impl->Hierarchy2 = nullptr;
     this->Impl->Hierarchy3 =
       new Implementation::HierarchyType3( center, maxDim, allAnchors /* currently empty */ );
     this->Impl->Hierarchy3->root()->value().SetGeometry( center, maxDim );
@@ -2030,7 +2030,7 @@ void vtkLabelHierarchy::ComputeHierarchy()
   this->CoincidentPoints->InitTraversal();
   vtkIdList* coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
   vtkIdType Id = 0;
-  while ( coincidentPoints != NULL )
+  while ( coincidentPoints != nullptr )
   {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
@@ -2106,7 +2106,7 @@ vtkLabelHierarchyIterator* vtkLabelHierarchy::NewIterator(
   bool positionsAsNormals,
   float bucketSize[2] )
 {
-  vtkLabelHierarchyIterator* iter = 0;
+  vtkLabelHierarchyIterator* iter = nullptr;
   if ( this->Impl->Hierarchy3 )
   {
     if ( type == FULL_SORT )
@@ -2196,7 +2196,7 @@ vtkIdType vtkLabelHierarchy::GetNumberOfCells()
 
 vtkCell* vtkLabelHierarchy::GetCell( vtkIdType )
 {
-  return 0;
+  return nullptr;
 }
 
 void vtkLabelHierarchy::GetCell( vtkIdType, vtkGenericCell* )

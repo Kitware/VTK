@@ -80,10 +80,10 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
     }
   }
   this->Arrays.clear();
-  this->Arrays.push_back(NULL);
+  this->Arrays.push_back(nullptr);
 
   delete [] this->TempDoubleArray;
-  this->TempDoubleArray = NULL;
+  this->TempDoubleArray = nullptr;
 
   this->MaxId = -1;
   this->Size = 0;
@@ -151,7 +151,7 @@ template <class Scalar> vtkArrayIterator*
 vtkCPExodusIIResultsArrayTemplate<Scalar>::NewIterator()
 {
   vtkErrorMacro(<<"Not implemented.");
-  return NULL;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 //------------------------------------------------------------------------------
 template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::vtkCPExodusIIResultsArrayTemplate()
-  : TempDoubleArray(NULL), Save(false)
+  : TempDoubleArray(nullptr), Save(false)
 {
 }
 

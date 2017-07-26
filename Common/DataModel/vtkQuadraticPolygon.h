@@ -56,7 +56,7 @@ public:
   int GetNumberOfEdges() VTK_OVERRIDE { return this->GetNumberOfPoints() / 2; }
   int GetNumberOfFaces() VTK_OVERRIDE { return 0; }
   vtkCell *GetEdge(int)  VTK_OVERRIDE;
-  vtkCell *GetFace(int)  VTK_OVERRIDE { return 0; }
+  vtkCell *GetFace(int)  VTK_OVERRIDE { return nullptr; }
   int IsPrimaryCell()    VTK_OVERRIDE { return 0; }
 
   //@{

@@ -73,7 +73,7 @@ public:
     T* obj = this->Object;
     if (obj)
     {
-      this->Object = 0;
+      this->Object = nullptr;
       obj->Delete();
     }
   }

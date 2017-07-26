@@ -30,7 +30,7 @@ public:
   static vtkObserver* New()
   {
     vtkObserver* obs = new vtkObserver();
-    obs->Target = NULL;
+    obs->Target = nullptr;
     return obs;
   }
 
@@ -77,8 +77,8 @@ namespace
     GlobalSynRenderWindowsMapType::iterator iter =
       GlobalSynRenderWindowsMap.find(id);
     if (iter != GlobalSynRenderWindowsMap.end() &&
-      iter->second.GetPointer() != NULL &&
-      iter->second.GetPointer()->GetRenderWindow() != NULL)
+      iter->second.GetPointer() != nullptr &&
+      iter->second.GetPointer()->GetRenderWindow() != nullptr)
     {
       iter->second.GetPointer()->GetRenderWindow()->Render();
     }
@@ -94,8 +94,8 @@ vtkSynchronizedRenderWindows::vtkSynchronizedRenderWindows()
   this->Observer = vtkSynchronizedRenderWindows::vtkObserver::New();
   this->Observer->Target = this;
 
-  this->RenderWindow = 0;
-  this->ParallelController = 0;
+  this->RenderWindow = nullptr;
+  this->ParallelController = nullptr;
   this->Identifier = 0;
   this->ParallelRendering = true;
   this->RenderEventPropagation = true;
@@ -107,12 +107,12 @@ vtkSynchronizedRenderWindows::~vtkSynchronizedRenderWindows()
 {
   this->SetIdentifier(0);
 
-  this->Observer->Target = NULL;
+  this->Observer->Target = nullptr;
 
-  this->SetRenderWindow(0);
-  this->SetParallelController(0);
+  this->SetRenderWindow(nullptr);
+  this->SetParallelController(nullptr);
   this->Observer->Delete();
-  this->Observer = NULL;
+  this->Observer = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -178,7 +178,7 @@ void vtkSynchronizedRenderWindows::SetParallelController(
   if (controller)
   {
     // no harm in adding this mutliple times.
-    controller->AddRMI(::RenderRMI, NULL, SYNC_RENDER_TAG);
+    controller->AddRMI(::RenderRMI, nullptr, SYNC_RENDER_TAG);
   }
 }
 
@@ -258,7 +258,7 @@ void vtkSynchronizedRenderWindows::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 
   os << indent << "RenderWindow: ";
-  if(this->RenderWindow==0)
+  if(this->RenderWindow==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -266,7 +266,7 @@ void vtkSynchronizedRenderWindows::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << this->RenderWindow << endl;
   }
-  if(this->ParallelController==0)
+  if(this->ParallelController==nullptr)
   {
     os << "(none)" << endl;
   }

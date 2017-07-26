@@ -138,7 +138,7 @@ protected:
 
 //----------------------------------------------------------------------------
 // Description:
-// Instantiate object with NULL filename.
+// Instantiate object with nullptr filename.
 vtkPExodusIIReader::vtkPExodusIIReader()
 {
   this->ProcRank = 0;
@@ -973,7 +973,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   }
   else
   {
-    os << indent << "FilePattern: NULL\n";
+    os << indent << "FilePattern: nullptr\n";
   }
 
   if ( this->FilePattern )
@@ -982,7 +982,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   }
   else
   {
-    os << indent << "FilePrefix: NULL\n";
+    os << indent << "FilePrefix: nullptr\n";
   }
 
   os << indent << "FileRange: "

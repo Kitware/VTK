@@ -24,9 +24,9 @@ vtkStandardNewMacro(vtkProgrammableDataObjectSource);
 // Construct programmable filter with empty execute method.
 vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
 {
-  this->ExecuteMethod = NULL;
-  this->ExecuteMethodArg = NULL;
-  this->ExecuteMethodArgDelete = NULL;
+  this->ExecuteMethod = nullptr;
+  this->ExecuteMethodArg = nullptr;
+  this->ExecuteMethodArgDelete = nullptr;
 
   vtkDataObject *output = vtkDataObject::New();
   this->SetOutput(output);
@@ -84,7 +84,7 @@ int vtkProgrammableDataObjectSource::RequestData(
   vtkDebugMacro(<<"Executing programmable data object filter");
 
   // Now invoke the procedure, if specified.
-  if ( this->ExecuteMethod != NULL )
+  if ( this->ExecuteMethod != nullptr )
   {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
   }

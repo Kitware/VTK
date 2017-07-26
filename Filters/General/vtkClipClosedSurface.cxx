@@ -49,7 +49,7 @@ vtkCxxSetObjectMacro(vtkClipClosedSurface,ClippingPlanes,vtkPlaneCollection);
 //----------------------------------------------------------------------------
 vtkClipClosedSurface::vtkClipClosedSurface()
 {
-  this->ClippingPlanes = 0;
+  this->ClippingPlanes = nullptr;
   this->Tolerance = 1e-6;
   this->PassPointData = 0;
 
@@ -73,7 +73,7 @@ vtkClipClosedSurface::vtkClipClosedSurface()
   this->TriangulationErrorDisplay = 0;
 
   // A whole bunch of objects needed during execution
-  this->IdList = 0;
+  this->IdList = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ int vtkClipClosedSurface::ComputePipelineMTime(
   vtkMTimeType mTime = this->GetMTime();
 
   vtkPlaneCollection *planes = this->ClippingPlanes;
-  vtkPlane *plane = 0;
+  vtkPlane *plane = nullptr;
 
   if (planes)
   {
@@ -191,7 +191,7 @@ class vtkCCSEdgeLocatorNode
 {
 public:
   vtkCCSEdgeLocatorNode() :
-    ptId0(-1), ptId1(-1), edgeId(-1), next(0) {};
+    ptId0(-1), ptId1(-1), edgeId(-1), next(nullptr) {};
 
   void FreeList() {
     vtkCCSEdgeLocatorNode *ptr = this->next;
@@ -199,7 +199,7 @@ public:
     {
       vtkCCSEdgeLocatorNode *tmp = ptr;
       ptr = ptr->next;
-      tmp->next = 0;
+      tmp->next = nullptr;
       delete tmp;
     }
   };
@@ -280,11 +280,11 @@ vtkIdType *vtkCCSEdgeLocator::InsertUniqueEdge(
   if (node->ptId0 == i0 && node->ptId1 == i1)
   {
     edgeId = node->edgeId;
-    return 0;
+    return nullptr;
   }
 
   int i = 1;
-  while (node->next != 0)
+  while (node->next != nullptr)
   {
     i++;
     node = node->next;
@@ -292,7 +292,7 @@ vtkIdType *vtkCCSEdgeLocator::InsertUniqueEdge(
     if (node->ptId0 == i0 && node->ptId1 == i1)
     {
       edgeId = node->edgeId;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -322,7 +322,7 @@ int vtkClipClosedSurface::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Create objects needed for temporary storage
-  if (this->IdList == 0) { this->IdList = vtkIdList::New(); }
+  if (this->IdList == nullptr) { this->IdList = vtkIdList::New(); }
 
   // Get the input points
   vtkPoints *inputPoints = input->GetPoints();
@@ -340,7 +340,7 @@ int vtkClipClosedSurface::RequestData(
   points->SetNumberOfPoints(numPts);
 
   vtkPointData *pointData = vtkPointData::New();
-  vtkPointData *inPointData = 0;
+  vtkPointData *inPointData = nullptr;
 
   if (this->PassPointData)
   {
@@ -367,9 +367,9 @@ int vtkClipClosedSurface::RequestData(
   vtkPolyData *tmpContourData = vtkPolyData::New();
 
   // The cell scalars
-  vtkUnsignedCharArray *lineScalars = 0;
-  vtkUnsignedCharArray *polyScalars = 0;
-  vtkUnsignedCharArray *inputScalars = 0;
+  vtkUnsignedCharArray *lineScalars = nullptr;
+  vtkUnsignedCharArray *polyScalars = nullptr;
+  vtkUnsignedCharArray *inputScalars = nullptr;
 
   // For input scalars: the offsets to the various cell types
   vtkIdType firstLineScalar = 0;
@@ -414,7 +414,7 @@ int vtkClipClosedSurface::RequestData(
       vtkIdType numVerts = 0;
       vtkIdType numLines = 0;
       vtkIdType numPolys = 0;
-      vtkCellArray *tmpCellArray = 0;
+      vtkCellArray *tmpCellArray = nullptr;
       if ( (tmpCellArray = input->GetVerts()) )
       {
         numVerts = tmpCellArray->GetNumberOfCells();
@@ -434,7 +434,7 @@ int vtkClipClosedSurface::RequestData(
   }
 
   // Break the input lines into segments, generate scalars for lines
-  vtkCellArray *lines = 0;
+  vtkCellArray *lines = nullptr;
   lines = vtkCellArray::New();
   if (input->GetLines() && input->GetLines()->GetNumberOfCells() > 0)
   {
@@ -443,7 +443,7 @@ int vtkClipClosedSurface::RequestData(
   }
 
   // Copy the polygons, convert strips to triangles
-  vtkCellArray *polys = 0;
+  vtkCellArray *polys = nullptr;
   int polyMax = 3;
   if ((input->GetPolys() && input->GetPolys()->GetNumberOfCells() > 0) ||
       (input->GetStrips() && input->GetStrips()->GetNumberOfCells() > 0))
@@ -463,7 +463,7 @@ int vtkClipClosedSurface::RequestData(
 
     // Check if the input has polys and quads or just triangles
     vtkIdType npts = 0;
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     vtkCellArray *inPolys = input->GetPolys();
     inPolys->InitTraversal();
     while (inPolys->GetNextCell(npts, pts))
@@ -480,7 +480,7 @@ int vtkClipClosedSurface::RequestData(
 
   // Arrays for storing the clipped lines and polys.
   vtkCellArray *newLines = vtkCellArray::New();
-  vtkCellArray *newPolys = 0;
+  vtkCellArray *newPolys = nullptr;
   if (polys)
   {
     newPolys = vtkCellArray::New();
@@ -496,7 +496,7 @@ int vtkClipClosedSurface::RequestData(
   if (lineScalars)
   {
     lineScalars->Delete();
-    lineScalars = 0;
+    lineScalars = nullptr;
   }
 
   // The poly scalars, for coloring the faces
@@ -506,7 +506,7 @@ int vtkClipClosedSurface::RequestData(
   if (polyScalars)
   {
     polyScalars->Delete();
-    polyScalars = 0;
+    polyScalars = nullptr;
   }
 
   // Also create output attribute data
@@ -525,7 +525,7 @@ int vtkClipClosedSurface::RequestData(
     numPlanes = planes->GetNumberOfItems();
   }
 
-  vtkPlane *plane = 0;
+  vtkPlane *plane = nullptr;
   for (int planeId = 0;
        planes && (plane = planes->GetNextPlane(iter));
        planeId++)
@@ -764,7 +764,7 @@ int vtkClipClosedSurface::RequestData(
   }
   else
   {
-    output->GetCellData()->SetScalars(0);
+    output->GetCellData()->SetScalars(nullptr);
   }
 
   newLines->Delete();
@@ -928,7 +928,7 @@ int vtkClipClosedSurface::InterpolateEdge(
 
   // Check to see if this point has already been computed
   vtkIdType *iptr = locator->InsertUniqueEdge(i0, i1, i);
-  if (iptr == 0)
+  if (iptr == nullptr)
   {
     return 0;
   }
@@ -985,7 +985,7 @@ void vtkClipClosedSurface::ClipLines(
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
   {
     vtkIdType numPts = 0;
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     inputCells->GetNextCell(numPts, pts);
 
     vtkIdType i1 = pts[0];
@@ -1062,7 +1062,7 @@ void vtkClipClosedSurface::ClipAndContourPolys(
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
   {
     vtkIdType numPts = 0;
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     inputCells->GetNextCell(numPts, pts);
     idList->Reset();
 
@@ -1258,7 +1258,7 @@ void vtkClipClosedSurface::BreakTriangleStrips(
   }
 
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
 
   inputStrips->InitTraversal();
 

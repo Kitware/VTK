@@ -58,10 +58,10 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
 
 //wjs: added to manage memory leak
-static vtkHeap *plyHeap=NULL;
+static vtkHeap *plyHeap=nullptr;
 static void plyInitialize()
 {
-  if ( plyHeap == NULL )
+  if ( plyHeap == nullptr )
   {
     plyHeap = vtkHeap::New();
   }
@@ -71,7 +71,7 @@ static void plyCleanUp()
   if ( plyHeap )
   {
     plyHeap->Delete();
-    plyHeap = NULL;
+    plyHeap = nullptr;
   }
 }
 static void *plyAllocateMemory(size_t n)
@@ -115,7 +115,7 @@ Entry:
   file_type  - file type, either ascii or binary
 
 Exit:
-  returns a pointer to a PlyFile, used to refer to this file, or NULL if error
+  returns a pointer to a PlyFile, used to refer to this file, or nullptr if error
 ******************************************************************************/
 
 PlyFile *vtkPLY::ply_write(
@@ -129,9 +129,9 @@ PlyFile *vtkPLY::ply_write(
   PlyFile *plyfile;
   PlyElement *elem;
 
-  /* check for NULL file pointer */
-  if (fp == NULL)
-    return (NULL);
+  /* check for nullptr file pointer */
+  if (fp == nullptr)
+    return (nullptr);
 
   /* create a record for this object */
 
@@ -142,7 +142,7 @@ PlyFile *vtkPLY::ply_write(
   plyfile->nelems = nelems;
   plyfile->version = 1.0;
   plyfile->fp = fp;
-  plyfile->other_elems = NULL;
+  plyfile->other_elems = nullptr;
 
   /* tuck aside the names of the elements */
 
@@ -171,7 +171,7 @@ Entry:
 
 Exit:
   version - version number of PLY file
-  returns a file identifier, used to refer to this file, or NULL if error
+  returns a file identifier, used to refer to this file, or nullptr if error
 ******************************************************************************/
 
 PlyFile *vtkPLY::ply_open_for_writing(
@@ -201,15 +201,15 @@ PlyFile *vtkPLY::ply_open_for_writing(
 
   fp = fopen (name, "wb");
   free (name); //wjs remove memory leak//
-  if (fp == NULL) {
-    return (NULL);
+  if (fp == nullptr) {
+    return (nullptr);
   }
 
   /* create the actual PlyFile structure */
 
   plyfile = vtkPLY::ply_write (fp, nelems, elem_names, file_type);
-  if (plyfile == NULL)
-    return (NULL);
+  if (plyfile == nullptr)
+    return (nullptr);
 
   /* say what PLY file version number we're writing */
   *version = plyfile->version;
@@ -245,7 +245,7 @@ void vtkPLY::ply_describe_element(
 
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL) {
+  if (elem == nullptr) {
     vtkGenericWarningMacro("ply_describe_element: can't find element " << elem_name);
     return;
   }
@@ -287,7 +287,7 @@ void vtkPLY::ply_describe_property(
 
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL) {
+  if (elem == nullptr) {
     vtkGenericWarningMacro("ply_describe_property: can't find element " << elem_name);
     return;
   }
@@ -333,7 +333,7 @@ void vtkPLY::ply_describe_other_properties(
 
   /* look for appropriate element */
   elem = find_element (plyfile, other->name);
-  if (elem == NULL) {
+  if (elem == nullptr) {
     vtkGenericWarningMacro("ply_describe_other_properties: can't find element " << other->name);
     return;
   }
@@ -390,7 +390,7 @@ void vtkPLY::ply_element_count(
 
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL) {
+  if (elem == nullptr) {
     vtkGenericWarningMacro("ply_element_count: can't find element " << elem_name);
     return;
   }
@@ -485,7 +485,7 @@ void vtkPLY::ply_put_element_setup(PlyFile *plyfile, const char *elem_name)
   PlyElement *elem;
 
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL) {
+  if (elem == nullptr) {
     vtkGenericWarningMacro("ply_put_element_setup: can't find element " << elem_name);
     return;
   }
@@ -682,7 +682,7 @@ Entry:
 Exit:
   nelems     - number of elements in object
   elem_names - list of element names
-  returns a pointer to a PlyFile, used to refer to this file, or NULL if error
+  returns a pointer to a PlyFile, used to refer to this file, or nullptr if error
 ******************************************************************************/
 
 PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
@@ -695,26 +695,26 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   PlyElement *elem;
   char *orig_line;
 
-  /* check for NULL file pointer */
-  if (fp == NULL)
-    return (NULL);
+  /* check for nullptr file pointer */
+  if (fp == nullptr)
+    return (nullptr);
 
   /* create record for this object */
 
   plyfile = (PlyFile *) myalloc (sizeof (PlyFile));
   plyfile->nelems = 0;
-  plyfile->comments = NULL;
+  plyfile->comments = nullptr;
   plyfile->num_comments = 0;
-  plyfile->obj_info = NULL;
+  plyfile->obj_info = nullptr;
   plyfile->num_obj_info = 0;
   plyfile->fp = fp;
-  plyfile->other_elems = NULL;
+  plyfile->other_elems = nullptr;
 
   /* read and parse the file's header */
 
   words = get_words (plyfile->fp, &nwords, &orig_line);
   if (!words || !equal_strings (words[0], "ply"))
-    return (NULL);
+    return (nullptr);
 
   while (words) {
 
@@ -725,7 +725,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
       {
         free (plyfile);
         free (words);
-        return (NULL);
+        return (nullptr);
       }
       if (equal_strings (words[1], "ascii"))
         plyfile->file_type = PLY_ASCII;
@@ -737,7 +737,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
       {
         free (plyfile);
         free (words);
-        return (NULL);
+        return (nullptr);
       }
       plyfile->version = atof (words[2]);
     }
@@ -752,7 +752,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
     else if (equal_strings (words[0], "end_header"))
     {
       free (words);
-      words = NULL;
+      words = nullptr;
       break;
     }
 
@@ -766,7 +766,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   {
     free (plyfile);
     free (words);
-    return (NULL);
+    return (nullptr);
   }
 
   /* create tags for each property of each element, to be used */
@@ -806,7 +806,7 @@ Exit:
   elem_names - list of element names
   file_type  - file type, either ascii or binary
   version    - version number of PLY file
-  returns a file identifier, used to refer to this file, or NULL if error
+  returns a file identifier, used to refer to this file, or nullptr if error
 ******************************************************************************/
 
 PlyFile *vtkPLY::ply_open_for_reading(
@@ -826,14 +826,14 @@ PlyFile *vtkPLY::ply_open_for_reading(
   /* open the file for reading */
 
   fp = fopen (filename, "rb");
-  if (fp == NULL)
-    return (NULL);
+  if (fp == nullptr)
+    return (nullptr);
 
   /* create the PlyFile data structure */
 
   plyfile = vtkPLY::ply_read (fp, nelems, elem_names);
-  if (plyfile == NULL)
-    return (NULL);
+  if (plyfile == nullptr)
+    return (nullptr);
 
   /* determine the file type and version */
 
@@ -856,7 +856,7 @@ Entry:
 Exit:
   nelems   - number of elements of this type in the file
   nprops   - number of properties
-  returns a list of properties, or NULL if the file doesn't contain that elem
+  returns a list of properties, or nullptr if the file doesn't contain that elem
 ******************************************************************************/
 
 PlyElement *vtkPLY::ply_get_element_description(
@@ -873,8 +873,8 @@ PlyElement *vtkPLY::ply_get_element_description(
 
   /* find information about the element */
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL)
-    return (NULL);
+  if (elem == nullptr)
+    return (nullptr);
 
   *nelems = elem->num;
   *nprops = elem->nprops;
@@ -908,7 +908,7 @@ void vtkPLY::ply_get_element_setup(
 
   /* find information about the element */
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL)
+  if (elem == nullptr)
     return;
   plyfile->which_elem = elem;
 
@@ -917,7 +917,7 @@ void vtkPLY::ply_get_element_setup(
 
     /* look for actual property */
     prop = find_property (elem, prop_list[i].name, &index);
-    if (prop == NULL) {
+    if (prop == nullptr) {
       fprintf (stderr, "Warning:  Can't find property '%s' in element '%s'\n",
                prop_list[i].name, elem_name);
       continue;
@@ -964,7 +964,7 @@ void vtkPLY::ply_get_property(
   /* deposit the property information into the element's description */
 
   prop_ptr = find_property (elem, prop->name, &index);
-  if (prop_ptr == NULL) {
+  if (prop_ptr == nullptr) {
     fprintf (stderr, "Warning:  Can't find property '%s' in element '%s'\n",
              prop->name, elem_name);
     return;
@@ -1131,9 +1131,9 @@ PlyOtherProp *vtkPLY::ply_get_other_properties(
 
   /* find information about the element */
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL) {
+  if (elem == nullptr) {
     vtkGenericWarningMacro("ply_get_other_properties: can't find element " << elem_name);
-    return (NULL);
+    return (nullptr);
   }
 
   /* remember that this is the "current" element */
@@ -1151,7 +1151,7 @@ PlyOtherProp *vtkPLY::ply_get_other_properties(
 #if 0
   if (elem->other_offset == NO_OTHER_PROPS) {
     other->size = 0;
-    other->props = NULL;
+    other->props = nullptr;
     other->nprops = 0;
     return (other);
   }
@@ -1218,15 +1218,15 @@ PlyOtherElems *vtkPLY::ply_get_other_element (
 
   /* look for appropriate element */
   elem = find_element (plyfile, elem_name);
-  if (elem == NULL) {
+  if (elem == nullptr) {
     vtkGenericWarningMacro("ply_get_other_element: can't find element " << elem_name);
-    return (NULL);
+    return (nullptr);
   }
 
   /* create room for the new "other" element, initializing the */
   /* other data structure if necessary */
 
-  if (plyfile->other_elems == NULL) {
+  if (plyfile->other_elems == nullptr) {
     plyfile->other_elems = (PlyOtherElems *) myalloc (sizeof (PlyOtherElems));
     other_elems = plyfile->other_elems;
     other_elems->other_list = (OtherElem *) myalloc (sizeof (OtherElem));
@@ -1285,7 +1285,7 @@ void vtkPLY::ply_describe_other_elements (
   OtherElem *other;
 
   /* ignore this call if there is no other element */
-  if (other_elems == NULL)
+  if (other_elems == nullptr)
     return;
 
   /* save pointer to this information */
@@ -1315,7 +1315,7 @@ void vtkPLY::ply_put_other_elements (PlyFile *plyfile)
   OtherElem *other;
 
   /* make sure we have other elements to write */
-  if (plyfile->other_elems == NULL)
+  if (plyfile->other_elems == nullptr)
     return;
 
   /* write out the data for each "other" element */
@@ -1415,7 +1415,7 @@ Exit:
 
 void vtkPLY::ply_get_info(PlyFile *ply, float *version, int *file_type)
 {
-  if (ply == NULL)
+  if (ply == nullptr)
     return;
 
   *version = ply->version;
@@ -1448,7 +1448,7 @@ Entry:
   element - name of element we're looking for
 
 Exit:
-  returns the element, or NULL if not found
+  returns the element, or nullptr if not found
 ******************************************************************************/
 
 PlyElement *vtkPLY::find_element(PlyFile *plyfile, const char *element)
@@ -1459,7 +1459,7 @@ PlyElement *vtkPLY::find_element(PlyFile *plyfile, const char *element)
     if (equal_strings (element, plyfile->elems[i]->name))
       return (plyfile->elems[i]);
 
-  return (NULL);
+  return (nullptr);
 }
 
 
@@ -1472,7 +1472,7 @@ Entry:
 
 Exit:
   index - index to position in list
-  returns a pointer to the property, or NULL if not found
+  returns a pointer to the property, or nullptr if not found
 ******************************************************************************/
 
 PlyProperty *vtkPLY::find_property(PlyElement *elem, const char *prop_name, int *index)
@@ -1486,7 +1486,7 @@ PlyProperty *vtkPLY::find_property(PlyElement *elem, const char *prop_name, int 
     }
 
   *index = -1;
-  return (NULL);
+  return (nullptr);
 }
 
 
@@ -1506,7 +1506,7 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
   char **words;
   int nwords;
   int which_word;
-  char *elem_data,*item=0;
+  char *elem_data,*item=nullptr;
   char *item_ptr;
   int item_size;
   int int_val = 0;
@@ -1516,7 +1516,7 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
   int store_it;
   char **store_array;
   char *orig_line;
-  char *other_data=0;
+  char *other_data=nullptr;
   int other_flag;
 
   /* the kind of element we're reading currently */
@@ -1539,7 +1539,7 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
   /* read in the element */
 
   words = get_words (plyfile->fp, &nwords, &orig_line);
-  if (words == NULL) {
+  if (words == nullptr) {
     fprintf (stderr, "ply_get_element: unexpected end of file\n");
     assert (0);
   }
@@ -1574,7 +1574,7 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
 
       if (list_count == 0) {
         if (store_it)
-          *store_array = NULL;
+          *store_array = nullptr;
       }
       else {
         if (store_it) {
@@ -1625,7 +1625,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
   PlyElement *elem;
   PlyProperty *prop;
   //FILE *fp = plyfile->fp;
-  char *elem_data,*item=0;
+  char *elem_data,*item=nullptr;
   char *item_ptr;
   int item_size=0;
   int int_val;
@@ -1634,7 +1634,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
   int list_count;
   int store_it;
   char **store_array;
-  char *other_data=0;
+  char *other_data=nullptr;
   int other_flag;
 
   /* the kind of element we're reading currently */
@@ -1689,7 +1689,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
       store_array = (char **) (elem_data + prop->offset);
       if (list_count == 0) {
         if (store_it)
-          *store_array = NULL;
+          *store_array = nullptr;
       }
       else {
         if (store_it) {
@@ -1759,7 +1759,7 @@ Entry:
 Exit:
   nwords    - number of words returned
   orig_line - the original line of characters
-  returns a list of words from the line, or NULL if end-of-file
+  returns a list of words from the line, or nullptr if end-of-file
 ******************************************************************************/
 
 char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
@@ -1775,16 +1775,16 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
 
   /* read in a line */
   result = fgets (str, BIG_STRING, fp);
-  if (result == NULL) {
+  if (result == nullptr) {
     *nwords = 0;
-    *orig_line = NULL;
-    return (NULL);
+    *orig_line = nullptr;
+    return (nullptr);
   }
 
   words = (char **) myalloc (sizeof (char *) * max_words);
 
   char *pos = strstr(str, "vertex_index");
-  if (pos != NULL) {
+  if (pos != nullptr) {
     strcpy(pos, "vertex_indices");
   }
 
@@ -1836,9 +1836,9 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
       words = (char **) realloc (words, sizeof (char *) * max_words);
       if (!words) {
         *nwords = 0;
-        *orig_line = NULL;
+        *orig_line = nullptr;
         free(oldwords);
-        return NULL;
+        return nullptr;
       }
     }
     words[num_words++] = ptr;
@@ -2448,7 +2448,7 @@ void vtkPLY::get_ascii_item(
       break;
 
     case PLY_UINT:
-      *uint_val = strtoul (word, NULL, 10);
+      *uint_val = strtoul (word, nullptr, 10);
       *int_val = *uint_val;
       *double_val = *uint_val;
       break;
@@ -2722,7 +2722,7 @@ void *vtkPLY::my_alloc(size_t size, int lnum, const char *fname)
 {
   void *ptr = malloc (size);
 
-  if (ptr == 0)
+  if (ptr == nullptr)
   {
     fprintf(stderr, "Memory allocation bombed on line %d in %s\n", lnum, fname);
   }

@@ -78,7 +78,7 @@ vtkCxxSetObjectMacro(vtkPResampleWithDataSet, Controller, vtkMultiProcessControl
 
 //---------------------------------------------------------------------------
 vtkPResampleWithDataSet::vtkPResampleWithDataSet()
-  : Controller(NULL), UseBalancedPartitionForPointsLookup(false)
+  : Controller(nullptr), UseBalancedPartitionForPointsLookup(false)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -86,7 +86,7 @@ vtkPResampleWithDataSet::vtkPResampleWithDataSet()
 //----------------------------------------------------------------------------
 vtkPResampleWithDataSet::~vtkPResampleWithDataSet()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -763,7 +763,7 @@ class EnqueueDataArray
 {
 public:
   EnqueueDataArray(const diy::Master::ProxyWithLink& cp, const diy::BlockID &dest)
-    : Proxy(&cp), Dest(dest), Masks(NULL), RBegin(0), REnd(0)
+    : Proxy(&cp), Dest(dest), Masks(nullptr), RBegin(0), REnd(0)
   {
   }
 
@@ -971,7 +971,7 @@ class DequeueDataArray
 {
 public:
   DequeueDataArray(const diy::Master::ProxyWithLink &proxy, int sourceGID)
-    : Proxy(&proxy), SourceGID(sourceGID), PointIds(NULL)
+    : Proxy(&proxy), SourceGID(sourceGID), PointIds(nullptr)
   { }
 
   void SetPointIds(const std::vector<vtkIdType> &pointIds)
@@ -1151,7 +1151,7 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
     {
       if (vtkImageData::SafeDownCast(dsblocks[i]))
       {
-        dsblocks[i] = NULL;
+        dsblocks[i] = nullptr;
       }
     }
     block.PointsLookup->CreatePartition(dsblocks);
@@ -1178,7 +1178,7 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   master.foreach<DiyBlock>(&FindPointsToSend);
   // the lookup structures are no longer required
   delete block.PointsLookup;
-  block.PointsLookup = NULL;
+  block.PointsLookup = nullptr;
   master.exchange();
   // perform resampling on local and remote points
   master.foreach<DiyBlock>(&PerformResampling, this->Prober.GetPointer());

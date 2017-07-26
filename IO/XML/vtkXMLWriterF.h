@@ -295,7 +295,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setpointdata, VTKXMLWRITERF_SETPOINTDATA)(
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
   {
-    /* Prepare NULL-terminated strings.  */
+    /* Prepare nullptr-terminated strings.  */
     const char* name_ptr = VTK_FORTRAN_REF_STRING_POINTER(name);
     int name_length = VTK_FORTRAN_REF_STRING_LENGTH(name);
     char* name_buffer = malloc(name_length+1);
@@ -320,7 +320,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setpointdata, VTKXMLWRITERF_SETPOINTDATA)(
                                *dataType, data, *numTuples, *numComponents,
                                role_buffer);
 
-    /* Free the NULL-terminated strings.  */
+    /* Free the nullptr-terminated strings.  */
     free(name_buffer);
     free(role_buffer);
   }
@@ -344,7 +344,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcelldata, VTKXMLWRITERF_SETCELLDATA)(
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
   {
-    /* Prepare NULL-terminated strings.  */
+    /* Prepare nullptr-terminated strings.  */
     const char* name_ptr = VTK_FORTRAN_REF_STRING_POINTER(name);
     int name_length = VTK_FORTRAN_REF_STRING_LENGTH(name);
     char* name_buffer = malloc(name_length+1);
@@ -369,7 +369,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setcelldata, VTKXMLWRITERF_SETCELLDATA)(
                               *dataType, data, *numTuples, *numComponents,
                               role_buffer);
 
-    /* Free the NULL-terminated strings.  */
+    /* Free the nullptr-terminated strings.  */
     free(name_buffer);
     free(role_buffer);
   }
@@ -390,7 +390,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setfilename, VTKXMLWRITERF_SETFILENAME)(
 {
   if(*self > 0 && *self <= VTK_XMLWRITERF_MAX && vtkXMLWriterF_Table[*self])
   {
-    /* Prepare NULL-terminated string.  */
+    /* Prepare nullptr-terminated string.  */
     const char* name_ptr = VTK_FORTRAN_REF_STRING_POINTER(name);
     int name_length = VTK_FORTRAN_REF_STRING_LENGTH(name);
     char* name_buffer = malloc(name_length+1);
@@ -406,7 +406,7 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_setfilename, VTKXMLWRITERF_SETFILENAME)(
     /* Forward the call.  */
     vtkXMLWriterC_SetFileName(vtkXMLWriterF_Table[*self], name_buffer);
 
-    /* Free the NULL-terminated string.  */
+    /* Free the nullptr-terminated string.  */
     free(name_buffer);
   }
   else

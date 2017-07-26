@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkTableWriter);
 
 void vtkTableWriter::WriteData()
 {
-  ostream* fp = 0;
+  ostream* fp = nullptr;
   vtkDebugMacro(<<"Writing vtk table data...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )

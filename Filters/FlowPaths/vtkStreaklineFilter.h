@@ -33,7 +33,7 @@
 class VTKFILTERSFLOWPATHS_EXPORT StreaklineFilterInternal
 {
 public:
-  StreaklineFilterInternal():Filter(NULL){}
+  StreaklineFilterInternal():Filter(nullptr){}
   void Initialize(vtkParticleTracerBase* filter);
   virtual ~StreaklineFilterInternal(){}
   virtual int OutputParticles(vtkPolyData* poly);

@@ -43,7 +43,7 @@ vtkInteractorStyleImage::vtkInteractorStyleImage()
   this->WindowLevelInitial[0] = 1.0; // Window
   this->WindowLevelInitial[1] = 0.5; // Level
 
-  this->CurrentImageProperty = 0;
+  this->CurrentImageProperty = nullptr;
   this->CurrentImageNumber = -1;
 
   this->InteractionMode = VTKIS_IMAGE2D;
@@ -183,19 +183,19 @@ void vtkInteractorStyleImage::OnMouseMove()
     case VTKIS_WINDOW_LEVEL:
       this->FindPokedRenderer(x, y);
       this->WindowLevel();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_PICK:
       this->FindPokedRenderer(x, y);
       this->Pick();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_SLICE:
       this->FindPokedRenderer(x, y);
       this->Slice();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
   }
 
@@ -211,7 +211,7 @@ void vtkInteractorStyleImage::OnLeftButtonDown()
   int y = this->Interactor->GetEventPosition()[1];
 
   this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -280,7 +280,7 @@ void vtkInteractorStyleImage::OnMiddleButtonDown()
 {
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -327,7 +327,7 @@ void vtkInteractorStyleImage::OnRightButtonDown()
   int y = this->Interactor->GetEventPosition()[1];
 
   this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -404,7 +404,7 @@ void vtkInteractorStyleImage::OnChar()
     case 'F' :
     {
       this->AnimState = VTKIS_ANIM_ON;
-      vtkAssemblyPath *path=NULL;
+      vtkAssemblyPath *path=nullptr;
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
       rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
@@ -415,7 +415,7 @@ void vtkInteractorStyleImage::OnChar()
       {
         path = picker->GetPath();
       }
-      if ( path != NULL )
+      if ( path != nullptr )
       {
         rwi->FlyToImage(this->CurrentRenderer,picker->GetPickPosition());
       }
@@ -558,7 +558,7 @@ void vtkInteractorStyleImage::Pick()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::Slice()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -637,9 +637,9 @@ void vtkInteractorStyleImage::SetCurrentImageNumber(int i)
   }
 
   vtkPropCollection *props = this->CurrentRenderer->GetViewProps();
-  vtkProp *prop = 0;
+  vtkProp *prop = nullptr;
   vtkAssemblyPath *path;
-  vtkImageSlice *imageProp = 0;
+  vtkImageSlice *imageProp = nullptr;
   vtkCollectionSimpleIterator pit;
 
   for (int k = 0; k < 2; k++)
@@ -659,7 +659,7 @@ void vtkInteractorStyleImage::SetCurrentImageNumber(int i)
             foundImageProp = true;
             break;
           }
-          imageProp = 0;
+          imageProp = nullptr;
           j++;
         }
       }
@@ -674,7 +674,7 @@ void vtkInteractorStyleImage::SetCurrentImageNumber(int i)
     }
   }
 
-  vtkImageProperty *property = 0;
+  vtkImageProperty *property = nullptr;
   if (imageProp)
   {
     property = imageProp->GetProperty();

@@ -135,8 +135,8 @@ protected:
   void (vtkLinearExtrusionFilter::*ExtrudePoint)(double x[3], vtkIdType id,
                                                    vtkDataArray *normals);
   void ViaNormal(double x[3], vtkIdType id, vtkDataArray *normals);
-  void ViaVector(double x[3], vtkIdType id, vtkDataArray *normals=0);
-  void ViaPoint(double x[3], vtkIdType id, vtkDataArray *normals=0);
+  void ViaVector(double x[3], vtkIdType id, vtkDataArray *normals=nullptr);
+  void ViaPoint(double x[3], vtkIdType id, vtkDataArray *normals=nullptr);
 
 private:
   vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&) VTK_DELETE_FUNCTION;

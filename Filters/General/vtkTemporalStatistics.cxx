@@ -726,14 +726,14 @@ vtkDataArray *vtkTemporalStatistics::GetArray(vtkFieldData *fieldData,
   vtkStdString outArrayName
     = vtkTemporalStatisticsMangleName(inArray->GetName(), nameSuffix);
   vtkDataArray *outArray = fieldData->GetArray(outArrayName.c_str());
-  if (!outArray) return NULL;
+  if (!outArray) return nullptr;
 
   if (   (inArray->GetNumberOfComponents() != outArray->GetNumberOfComponents())
       || (inArray->GetNumberOfTuples() != outArray->GetNumberOfTuples()) )
   {
     if(!this->GeneratedChangingTopologyWarning)
     {
-      std::string fieldType = vtkCellData::SafeDownCast(fieldData) == NULL ?
+      std::string fieldType = vtkCellData::SafeDownCast(fieldData) == nullptr ?
         "points" : "cells";
       vtkWarningMacro("The number of " << fieldType << " has changed between time "
                       << "steps. No arrays of this type will be output since this "
@@ -741,7 +741,7 @@ vtkDataArray *vtkTemporalStatistics::GetArray(vtkFieldData *fieldData,
       this->GeneratedChangingTopologyWarning = true;
     }
     fieldData->RemoveArray(outArray->GetName());
-    return NULL;
+    return nullptr;
   }
 
   return outArray;

@@ -29,7 +29,7 @@ struct ObjectId
   ObjectId(vtkTypeUInt32 id)
   {
     this->GlobalId = id;
-    this->Object = NULL;
+    this->Object = nullptr;
   }
 
   ObjectId(vtkObject* obj, vtkTypeUInt32 id = 0)
@@ -71,7 +71,7 @@ struct ObjectId
        return (this->GlobalId < other.GlobalId);
      }
 
-     if( this->Object.GetPointer() != NULL && other.Object.GetPointer() != NULL
+     if( this->Object.GetPointer() != nullptr && other.Object.GetPointer() != nullptr
          && this->Object.GetPointer() != other.Object.GetPointer())
      {
        return (this->Object.GetPointer() < other.Object.GetPointer());
@@ -108,7 +108,7 @@ vtkObjectIdMap::vtkObjectIdMap() :
 vtkObjectIdMap::~vtkObjectIdMap()
 {
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void vtkObjectIdMap::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkTypeUInt32 vtkObjectIdMap::GetGlobalId(vtkObject* obj)
 {
-  if(obj == NULL)
+  if(obj == nullptr)
   {
     return 0;
   }
@@ -143,7 +143,7 @@ vtkObject* vtkObjectIdMap::GetVTKObject(vtkTypeUInt32 globalId)
   std::set<ObjectId>::iterator iter = this->Internals->RegisteredObjects.find(key);
   if(iter == this->Internals->RegisteredObjects.end())
   {
-    return NULL;
+    return nullptr;
   }
   return iter->Object.GetPointer();
 }
@@ -166,7 +166,7 @@ vtkObject* vtkObjectIdMap::GetActiveObject(const char* objectType)
   {
     return this->Internals->ActiveObjects[objectType].GetPointer();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

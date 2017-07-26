@@ -41,29 +41,29 @@ vtkIdType* vtkSortFieldData::
 Sort( vtkFieldData *fd, const char *arrayName, int k, int retIndices, int dir)
 {
   // Verify the input
-  if ( fd == NULL || arrayName == NULL )
+  if ( fd == nullptr || arrayName == nullptr )
   {
     vtkGenericWarningMacro("SortFieldData needs valid input");
-    return NULL;
+    return nullptr;
   }
   int pos;
   vtkAbstractArray *array = fd->GetAbstractArray(arrayName, pos);
   if ( pos < 0 )
   {
     vtkGenericWarningMacro("Sorting array not found.");
-    return NULL;
+    return nullptr;
   }
   int numComp = array->GetNumberOfComponents();
   if ( k < 0 || k >= numComp )
   {
     vtkGenericWarningMacro( "Cannot sort by column " << k <<
       " since the array only has columns 0 through " << (numComp-1) );
-    return NULL;
+    return nullptr;
   }
   vtkIdType numKeys = array->GetNumberOfTuples();
   if ( numKeys <= 0 )
   {
-    return NULL;
+    return nullptr;
   }
 
   // Create and initialize the sorting indices
@@ -82,7 +82,7 @@ Sort( vtkFieldData *fd, const char *arrayName, int k, int retIndices, int dir)
   for (int arrayNum=0; arrayNum < numArrays; ++arrayNum)
   {
     array = fd->GetAbstractArray(arrayNum);
-    if ( array != NULL && array->GetNumberOfTuples() == numKeys )
+    if ( array != nullptr && array->GetNumberOfTuples() == numKeys )
     {//process the array
       dataIn = array->GetVoidPointer(0);
       dataType = array->GetDataType();
@@ -100,7 +100,7 @@ Sort( vtkFieldData *fd, const char *arrayName, int k, int retIndices, int dir)
   else
   {
     delete [] idx;
-    return NULL;
+    return nullptr;
   }
 }
 

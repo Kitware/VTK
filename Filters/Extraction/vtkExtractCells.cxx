@@ -64,7 +64,7 @@ void vtkExtractCells::SetCellList(vtkIdList *l)
   delete this->CellList;
   this->CellList = new vtkExtractCellsSTLCloak;
 
-  if (l != NULL)
+  if (l != nullptr)
   {
     this->AddCellList(l);
   }
@@ -73,7 +73,7 @@ void vtkExtractCells::SetCellList(vtkIdList *l)
 //----------------------------------------------------------------------------
 void vtkExtractCells::AddCellList(vtkIdList *l)
 {
-  if (l == NULL)
+  if (l == nullptr)
   {
     return;
   }
@@ -123,7 +123,7 @@ int vtkExtractCells::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   this->InputIsUgrid =
-    ((vtkUnstructuredGrid::SafeDownCast(input)) != NULL);
+    ((vtkUnstructuredGrid::SafeDownCast(input)) != nullptr);
 
   vtkIdType numCellsInput = input->GetNumberOfCells();
   vtkIdType numCells = static_cast<vtkIdType>(this->CellList->IdTypeSet.size());
@@ -326,7 +326,7 @@ vtkIdList *vtkExtractCells::reMapPointIds(vtkDataSet *grid)
   if (!temp)
   {
     vtkErrorMacro(<< "vtkExtractCells::reMapPointIds memory allocation");
-    return NULL;
+    return nullptr;
   }
   memset(temp, 0, totalPoints);
 
@@ -422,8 +422,8 @@ void vtkExtractCells::CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
   // We only create vtkOriginalCellIds for the output data set if it does not
   // exist in the input data set.  If it is in the input data set then we
   // let CopyData() take care of copying it over.
-  vtkIdTypeArray *origMap = 0;
-  if(oldCD->GetArray("vtkOriginalCellIds") == 0)
+  vtkIdTypeArray *origMap = nullptr;
+  if(oldCD->GetArray("vtkOriginalCellIds") == nullptr)
   {
     origMap = vtkIdTypeArray::New();
     origMap->SetNumberOfComponents(1);
@@ -470,7 +470,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
                                                 vtkUnstructuredGrid *output)
 {
   vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(input);
-  if (ugrid == NULL)
+  if (ugrid == nullptr)
   {
     this->CopyCellsDataSet(ptMap, input, output);
     return;
@@ -482,8 +482,8 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkIdList *ptMap,
   // We only create vtkOriginalCellIds for the output data set if it does not
   // exist in the input data set.  If it is in the input data set then we
   // let CopyData() take care of copying it over.
-  vtkIdTypeArray *origMap = 0;
-  if(oldCD->GetArray("vtkOriginalCellIds") == 0)
+  vtkIdTypeArray *origMap = nullptr;
+  if(oldCD->GetArray("vtkOriginalCellIds") == nullptr)
   {
     origMap = vtkIdTypeArray::New();
     origMap->SetNumberOfComponents(1);

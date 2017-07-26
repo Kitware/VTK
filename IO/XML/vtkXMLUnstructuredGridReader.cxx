@@ -30,8 +30,8 @@ vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredGridReader::vtkXMLUnstructuredGridReader()
 {
-  this->CellElements = 0;
-  this->NumberOfCells = 0;
+  this->CellElements = nullptr;
+  this->NumberOfCells = nullptr;
   this->CellsTimeStep = -1;
   this->CellsOffset   = static_cast<unsigned long>(-1); // almost invalid state
 }
@@ -107,7 +107,7 @@ void vtkXMLUnstructuredGridReader::SetupPieces(int numPieces)
   this->CellElements = new vtkXMLDataElement*[numPieces];
   for(int i=0;i < numPieces; ++i)
   {
-    this->CellElements[i] = 0;
+    this->CellElements[i] = nullptr;
   }
 }
 
@@ -167,7 +167,7 @@ int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   }
 
   // Find the Cells element in the piece.
-  this->CellElements[this->Piece] = 0;
+  this->CellElements[this->Piece] = nullptr;
   for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
   {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);
@@ -375,7 +375,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
 
   // By default vtkUnstructuredGrid does not contain face information, which is
   // only used by polyhedron cells. If so far no polyhedron cells have been
-  // added, the pointers to the arrays will be NULL. In this case, we need to
+  // added, the pointers to the arrays will be nullptr. In this case, we need to
   // initialize the arrays and assign values to the previous non-polyhedron cells.
   if (!output->GetFaces() || !output->GetFaceLocations())
   {

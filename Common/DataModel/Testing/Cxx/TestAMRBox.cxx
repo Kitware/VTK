@@ -307,9 +307,9 @@ int TestAMRBoxSerialization()
   Construct3DAMRBox( A, lo, hi);
 
   vtkIdType bytesize    = 0;
-  unsigned char *buffer = NULL;
+  unsigned char *buffer = nullptr;
   A.Serialize( buffer, bytesize );
-  if( (buffer == NULL) || (bytesize == 0) )
+  if( (buffer == nullptr) || (bytesize == 0) )
   {
     std::cerr << "ERROR: Serializing AMR box failed!\n";
     ++rc;

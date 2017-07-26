@@ -22,7 +22,7 @@ vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 
 vtkLocator::vtkLocator()
 {
-  this->DataSet = NULL;
+  this->DataSet = nullptr;
   this->Tolerance = 0.001;
   this->Automatic = 1;
   this->MaxLevel = 8;
@@ -33,7 +33,7 @@ vtkLocator::~vtkLocator()
 {
   // commented out because of compiler problems in g++
   //  this->FreeSearchStructure();
-  this->SetDataSet(NULL);
+  this->SetDataSet(nullptr);
 }
 
 void vtkLocator::Initialize()

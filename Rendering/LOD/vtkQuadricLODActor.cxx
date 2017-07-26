@@ -50,7 +50,7 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   this->CollapseDimensionRatio = 0.05;
   this->DataConfiguration = UNKNOWN;
   this->PropType = ACTOR;
-  this->Camera = NULL;
+  this->Camera = nullptr;
 
   // Internal data members
   this->CachedInteractiveFrameRate = 0.0;
@@ -73,7 +73,7 @@ vtkQuadricLODActor::~vtkQuadricLODActor()
 {
   this->LODFilter->Delete();
   this->LODActor->Delete();
-  this->LODActor = NULL;
+  this->LODActor = nullptr;
   this->LODMapper->Delete();
 }
 

@@ -58,7 +58,7 @@ int TestSetInputDataObject(int, char*[])
   changed_mtime = filter->GetMTime();
 
   // this should change the filter's mtime.
-  filter->SetInputDataObject(NULL);
+  filter->SetInputDataObject(nullptr);
   if (filter->GetMTime() <= changed_mtime)
   {
     cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!" << endl;
@@ -68,7 +68,7 @@ int TestSetInputDataObject(int, char*[])
   changed_mtime = filter->GetMTime();
 
   // this should *not* change the filter's mtime.
-  filter->SetInputDataObject(NULL);
+  filter->SetInputDataObject(nullptr);
   if (filter->GetMTime() != changed_mtime)
   {
     cerr << __LINE__ << ": ERROR: SetInputDataObject() changed the Mtime!!!" << endl;

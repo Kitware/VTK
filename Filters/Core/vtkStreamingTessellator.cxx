@@ -93,9 +93,9 @@ void vtkStreamingTessellator::PrintSelf( ostream& os, vtkIndent indent )
 
 vtkStreamingTessellator::vtkStreamingTessellator()
 {
-  this->PrivateData = 0;
-  this->ConstPrivateData = 0;
-  this->Algorithm = 0;
+  this->PrivateData = nullptr;
+  this->ConstPrivateData = nullptr;
+  this->Algorithm = nullptr;
   this->Callback0 = DefaultFacet0Callback;
   this->Callback1 = DefaultFacet1Callback;
   this->Callback2 = DefaultFacet2Callback;

@@ -128,11 +128,11 @@ vtkIdType AccumulateScaledL2Norm(
 vtkTesting::vtkTesting()
 {
   this->FrontBuffer = 0;
-  this->RenderWindow = 0;
-  this->ValidImageFileName = 0;
+  this->RenderWindow = nullptr;
+  this->ValidImageFileName = nullptr;
   this->ImageDifference = 0;
-  this->DataRoot = 0;
-  this->TempDirectory = 0;
+  this->DataRoot = nullptr;
+  this->TempDirectory = nullptr;
   this->BorderOffset = 0;
   this->Verbose = 0;
 
@@ -144,10 +144,10 @@ vtkTesting::vtkTesting()
 //-----------------------------------------------------------------------------
 vtkTesting::~vtkTesting()
 {
-  this->SetRenderWindow(0);
-  this->SetValidImageFileName(0);
-  this->SetDataRoot(0);
-  this->SetTempDirectory(0);
+  this->SetRenderWindow(nullptr);
+  this->SetValidImageFileName(nullptr);
+  this->SetDataRoot(nullptr);
+  this->SetTempDirectory(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -218,7 +218,7 @@ const char *vtkTesting::GetTempDirectory()
 //-----------------------------------------------------------------------------
 const char *vtkTesting::GetValidImageFileName()
 {
-  this->SetValidImageFileName(0);
+  this->SetValidImageFileName(nullptr);
   if (!this->IsValidImageSpecified())
   {
     return this->ValidImageFileName;
@@ -299,7 +299,7 @@ char* vtkTesting::IncrementFileName(const char* fname, int count)
   int orgLen = static_cast<int>(strlen(fname));
   if (orgLen < 5)
   {
-    return 0;
+    return nullptr;
   }
   int extLen = static_cast<int>(strlen(counts));
   char* newFileName = new char[orgLen + extLen + 2];
@@ -914,15 +914,15 @@ int vtkTesting::CompareAverageOfL2Norm(vtkDataArray *daA,
 int vtkTesting::CompareAverageOfL2Norm(vtkDataSet *dsA, vtkDataSet *dsB,
                                        double tol)
 {
-  vtkDataArray *daA = 0;
-  vtkDataArray *daB = 0;
+  vtkDataArray *daA = nullptr;
+  vtkDataArray *daB = nullptr;
   int status = 0;
 
   // Compare points if the dataset derives from
   // vtkPointSet.
   vtkPointSet *ptSetA = vtkPointSet::SafeDownCast(dsA);
   vtkPointSet *ptSetB = vtkPointSet::SafeDownCast(dsB);
-  if (ptSetA != NULL && ptSetB != NULL)
+  if (ptSetA != nullptr && ptSetB != nullptr)
   {
     if (this->Verbose)
     {

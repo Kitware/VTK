@@ -58,7 +58,7 @@ public:
    * first factory returns the object no other factories are asked.
    * isAbstract is no longer used. This method calls
    * vtkObjectBase::InitializeObjectBase() on the instance when the
-   * return value is non-NULL.
+   * return value is non-nullptr.
    */
   VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname,
@@ -358,7 +358,7 @@ vtkObjectFactory* vtkLoad()                     \
     return static_cast<thisClass*>(ret); \
   } \
   vtkGenericWarningMacro("Error: no override found for '" #thisClass "'."); \
-  return NULL;
+  return nullptr;
 
 // Macro to implement the body of the standard form of the New() method.
 #if defined(VTK_ALL_NEW_OBJECT_FACTORY)

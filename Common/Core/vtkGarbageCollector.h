@@ -54,10 +54,10 @@
  * It is important that the reference be reported using the real
  * pointer or smart pointer instance that holds the reference.  When
  * collecting the garbage collector will actually set this pointer to
- * NULL.  The destructor of the class should be written to deal with
+ * nullptr.  The destructor of the class should be written to deal with
  * this.  It is also expected that an invariant is maintained for any
  * reference that is reported.  The variable holding the reference
- * must always either be NULL or refer to a fully constructed valid
+ * must always either be nullptr or refer to a fully constructed valid
  * object.  Therefore code like "this->Object->UnRegister(this)" must
  * be avoided if "this->Object" is a reported reference because it
  * is possible that the object is deleted before UnRegister returns

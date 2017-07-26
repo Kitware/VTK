@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkImageStencilSource, InformationInput, vtkImageData);
 //----------------------------------------------------------------------------
 vtkImageStencilSource::vtkImageStencilSource()
 {
-  this->InformationInput = NULL;
+  this->InformationInput = nullptr;
 
   this->OutputOrigin[0] = 0;
   this->OutputOrigin[1] = 0;
@@ -49,7 +49,7 @@ vtkImageStencilSource::vtkImageStencilSource()
 //----------------------------------------------------------------------------
 vtkImageStencilSource::~vtkImageStencilSource()
 {
-  this->SetInformationInput(NULL);
+  this->SetInformationInput(nullptr);
 }
 
 //----------------------------------------------------------------------------

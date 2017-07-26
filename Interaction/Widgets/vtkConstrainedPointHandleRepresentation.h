@@ -267,7 +267,7 @@ protected:
   int GetIntersectionPosition( double eventPos[2],
                                double worldPos[3],
                                double tolerance = 0.0,
-                               vtkRenderer *renderer=0);
+                               vtkRenderer *renderer=nullptr);
 
   // Internal method for getting the project normal as a vector
   void GetProjectionNormal( double normal[3] );

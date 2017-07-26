@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkBlockItem)
 vtkBlockItem::vtkBlockItem()
 {
   this->MouseOver = false;
-  this->scalarFunction = NULL;
+  this->scalarFunction = nullptr;
   this->Dimensions[0] = 0;
   this->Dimensions[1] = 0;
   this->Dimensions[2] = 0;

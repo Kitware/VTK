@@ -267,7 +267,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    */
   int GetNumberOfConcatenatedTransforms() {
     return this->Concatenation->GetNumberOfTransforms() +
-      (this->Input == NULL ? 0 : 1); };
+      (this->Input == nullptr ? 0 : 1); };
 
   //@{
   /**
@@ -280,7 +280,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   vtkHomogeneousTransform *GetConcatenatedTransform(int i)
   {
       vtkAbstractTransform *t;
-      if (this->Input == NULL)
+      if (this->Input == nullptr)
       {
         t=this->Concatenation->GetTransform(i);
       }
@@ -331,7 +331,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   /**
    * Pushes the current transformation onto the transformation stack.
    */
-  void Push() { if (this->Stack == NULL) {
+  void Push() { if (this->Stack == nullptr) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
                 this->Stack->Push(&this->Concatenation);
                 this->Modified(); };
@@ -342,7 +342,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * Deletes the transformation on the top of the stack and sets the top
    * to the next transformation on the stack.
    */
-  void Pop() { if (this->Stack == NULL) { return; }
+  void Pop() { if (this->Stack == nullptr) { return; }
                this->Stack->Pop(&this->Concatenation);
                this->Modified(); };
   //@}

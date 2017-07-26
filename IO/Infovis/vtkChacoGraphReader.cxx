@@ -69,13 +69,13 @@ vtkStandardNewMacro(vtkChacoGraphReader);
 vtkChacoGraphReader::vtkChacoGraphReader()
 {
   // Default values for the origin vertex
-  this->FileName = 0;
+  this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 
 vtkChacoGraphReader::~vtkChacoGraphReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 void vtkChacoGraphReader::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -91,7 +91,7 @@ int vtkChacoGraphReader::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
-  if (this->FileName == NULL)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro("File name undefined");
     return 0;

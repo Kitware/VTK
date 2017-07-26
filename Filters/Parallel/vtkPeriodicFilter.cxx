@@ -89,7 +89,7 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataObject* inputObject = vtkDataObject::GetData(inputVector[0], 0);
   vtkDataObjectTree *input = vtkDataObjectTree::SafeDownCast(inputObject);
   vtkDataSet* dsInput = vtkDataSet::SafeDownCast(inputObject);
-  vtkMultiBlockDataSet* mb = NULL;
+  vtkMultiBlockDataSet* mb = nullptr;
 
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
@@ -169,7 +169,7 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
   }
   iter->Delete();
 
-  if (mb != NULL)
+  if (mb != nullptr)
   {
     mb->Delete();
   }

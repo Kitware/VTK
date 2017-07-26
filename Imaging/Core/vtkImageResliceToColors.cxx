@@ -41,8 +41,8 @@ vtkCxxSetObjectMacro(vtkImageResliceToColors,LookupTable,vtkScalarsToColors);
 vtkImageResliceToColors::vtkImageResliceToColors()
 {
   this->HasConvertScalars = 1;
-  this->LookupTable = NULL;
-  this->DefaultLookupTable = NULL;
+  this->LookupTable = nullptr;
+  this->DefaultLookupTable = nullptr;
   this->OutputFormat = VTK_RGBA;
   this->Bypass = 0;
 }

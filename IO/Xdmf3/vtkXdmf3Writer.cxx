@@ -167,10 +167,10 @@ public:
 //----------------------------------------------------------------------------
 vtkXdmf3Writer::vtkXdmf3Writer()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->LightDataLimit = 100;
   this->WriteAllTimeSteps = false;
-  this->TimeValues = NULL;
+  this->TimeValues = nullptr;
   this->TimeValues = 0;
   this->InitWriters = true;
 
@@ -181,7 +181,7 @@ vtkXdmf3Writer::vtkXdmf3Writer()
 //----------------------------------------------------------------------------
 vtkXdmf3Writer::~vtkXdmf3Writer()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 
   if (this->TimeValues)
   {
@@ -229,7 +229,7 @@ int vtkXdmf3Writer::Write()
   this->Update();
 
   delete this->Internal;
-  this->Internal = NULL;
+  this->Internal = nullptr;
 
   return 1;
 }

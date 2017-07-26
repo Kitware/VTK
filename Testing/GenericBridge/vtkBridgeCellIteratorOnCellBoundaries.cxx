@@ -40,7 +40,7 @@ void vtkBridgeCellIteratorOnCellBoundaries::PrintSelf(ostream& os,
 //-----------------------------------------------------------------------------
 vtkBridgeCellIteratorOnCellBoundaries::vtkBridgeCellIteratorOnCellBoundaries()
 {
-  this->DataSetCell=0;
+  this->DataSetCell=nullptr;
   this->Cell=vtkBridgeCell::New();
   this->Id=0;
 //  this->DebugOn();
@@ -100,11 +100,11 @@ int vtkBridgeCellIteratorOnCellBoundaries::IsAtEnd()
 void vtkBridgeCellIteratorOnCellBoundaries::GetCell(vtkGenericAdaptorCell *c)
 {
   assert("pre: not_at_end" && !IsAtEnd());
-  assert("pre: c_exists" && c!=0);
+  assert("pre: c_exists" && c!=nullptr);
 
   vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
 
-  vtkCell *vc=0;
+  vtkCell *vc=nullptr;
 
   switch(this->Dim)
   {
@@ -141,7 +141,7 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOnCellBoundaries::GetCell()
 {
   assert("pre: not_at_end" && !IsAtEnd());
 
-  vtkCell *vc=0;
+  vtkCell *vc=nullptr;
 
   switch(this->Dim)
   {
@@ -168,7 +168,7 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOnCellBoundaries::GetCell()
   }
   vtkGenericAdaptorCell *result=this->Cell;
 
-  assert("post: result_exits" && result!=0);
+  assert("post: result_exits" && result!=nullptr);
   return result;
 }
 
@@ -238,7 +238,7 @@ void vtkBridgeCellIteratorOnCellBoundaries::Next()
 void vtkBridgeCellIteratorOnCellBoundaries::InitWithCellBoundaries(vtkBridgeCell *cell,
                                                                    int dim)
 {
-  assert("pre: cell_exists" && cell!=0);
+  assert("pre: cell_exists" && cell!=nullptr);
   assert("pre: valid_dim_range" && ((dim==-1) || ((dim>=0)&&(dim<cell->GetDimension()))));
 
   this->DataSetCell=cell;

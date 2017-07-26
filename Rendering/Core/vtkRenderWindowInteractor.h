@@ -430,7 +430,7 @@ public:
   {
     if (pointerIndex >= VTKI_MAX_POINTERS)
     {
-      return NULL;
+      return nullptr;
     }
     return this->EventPositions[pointerIndex];
   }
@@ -438,7 +438,7 @@ public:
   {
     if (pointerIndex >= VTKI_MAX_POINTERS)
     {
-      return NULL;
+      return nullptr;
     }
     return this->LastEventPositions[pointerIndex];
   }
@@ -596,7 +596,7 @@ public:
                            int ctrl=0, int shift=0,
                            char keycode=0,
                            int repeatcount=0,
-                           const char* keysym=0)
+                           const char* keysym=nullptr)
   {
       this->SetEventInformation(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
   }
@@ -627,7 +627,7 @@ public:
                            int ctrl=0, int shift=0,
                            char keycode=0,
                            int repeatcount=0,
-                           const char* keysym=0)
+                           const char* keysym=nullptr)
   {
       this->SetEventInformationFlipY(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
   }
@@ -641,7 +641,7 @@ public:
                               int shift=0,
                               char keycode=0,
                               int repeatcount=0,
-                              const char* keysym=0)
+                              const char* keysym=nullptr)
   {
       this->ControlKey = ctrl;
       this->ShiftKey = shift;
@@ -852,7 +852,7 @@ protected:
    * declaration is done here to avoid doing so in the superclass vtkObject.
    */
   friend class vtkInteractorObserver;
-  void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL)
+  void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=nullptr)
     {this->Superclass::InternalGrabFocus(mouseEvents,keypressEvents);}
   void ReleaseFocus()
     {this->Superclass::InternalReleaseFocus();}

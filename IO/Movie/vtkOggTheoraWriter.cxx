@@ -75,11 +75,11 @@ vtkOggTheoraWriterInternal::vtkOggTheoraWriterInternal(vtkOggTheoraWriter *creat
 
   this->Off[0] = 0;
   this->Off[1] = 0;
-  this->thEncContext = NULL;
-  this->outFile      = NULL;
-  this->thImage[0].data = NULL;
-  this->thImage[1].data = NULL;
-  this->thImage[2].data = NULL;
+  this->thEncContext = nullptr;
+  this->outFile      = nullptr;
+  this->thImage[0].data = nullptr;
+  this->thImage[1].data = nullptr;
+  this->thImage[2].data = nullptr;
 
   this->openedFile = 0;
   this->closedFile = 1;
@@ -103,7 +103,7 @@ int vtkOggTheoraWriterInternal::Start()
   this->closedFile = 0;
 
   // ogg information
-  srand(time(NULL));
+  srand(time(nullptr));
   if (ogg_stream_init(&this->oggState,rand())!=0)
   {
     vtkGenericWarningMacro("Could not initialize ogg stream state.");
@@ -330,13 +330,13 @@ void vtkOggTheoraWriterInternal::End()
   for (size_t i = 0; i < 3; ++i)
   {
     delete[] this->thImage[i].data;
-    this->thImage[i].data = NULL;
+    this->thImage[i].data = nullptr;
   }
 
   if (this->thEncContext)
   {
     th_encode_free(this->thEncContext);
-    this->thEncContext = NULL;
+    this->thEncContext = nullptr;
   }
 
   ogg_stream_clear(&this->oggState);
@@ -381,7 +381,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
   // the first pixel in the RGB image
   uchar *rgbStart = (uchar*)id->GetScalarPointer();
   // pointers to iterate through the RGB image an the Y, Cb and Cr planes
-  uchar *rgb, *Y, *Cb=0, *Cr=0;
+  uchar *rgb, *Y, *Cb=nullptr, *Cr=nullptr;
   // indicators whether we have to handle chroma planes.
   bool isXCPlane = false,
        isYCPlane = true; // y-flipping
@@ -477,7 +477,7 @@ vtkStandardNewMacro(vtkOggTheoraWriter);
 //---------------------------------------------------------------------------
 vtkOggTheoraWriter::vtkOggTheoraWriter()
 {
-  this->Internals = 0;
+  this->Internals = nullptr;
   this->Quality = 2;
   this->Rate = 25;
   this->Subsampling = 0;
@@ -500,7 +500,7 @@ void vtkOggTheoraWriter::Start()
     this->SetErrorCode(vtkGenericMovieWriter::InitError);
     return;
   }
-  if ( this->GetInput() == NULL )
+  if ( this->GetInput() == nullptr )
   {
     vtkErrorMacro("Please specify an input.");
     this->SetErrorCode(vtkGenericMovieWriter::NoInputError);
@@ -583,7 +583,7 @@ void vtkOggTheoraWriter::End()
   this->Internals->End();
 
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = nullptr;
 }
 
 //---------------------------------------------------------------------------

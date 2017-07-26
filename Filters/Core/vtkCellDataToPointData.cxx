@@ -206,7 +206,7 @@ int vtkCellDataToPointData::RequestData(
   // Special traversal algorithm for unstructured grid
   if (input->IsA("vtkUnstructuredGrid") || input->IsA("vtkPolyData"))
   {
-    return this->RequestDataForUnstructuredData(0, inputVector, outputVector);
+    return this->RequestDataForUnstructuredData(nullptr, inputVector, outputVector);
   }
 
   vtkDebugMacro(<<"Mapping cell data to point data");

@@ -72,7 +72,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
 
   vtkDebugMacro(<< "Extracting poly data geometry");
 
-  vtkSelectionNode* node = 0;
+  vtkSelectionNode* node = nullptr;
   if (sel->GetNumberOfNodes() == 1)
   {
     node = sel->GetNode(0);

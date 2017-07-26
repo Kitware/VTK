@@ -76,7 +76,7 @@ int TestArrayCalculator(int argc, char *argv[])
   //verify the output is correct
   vtkPolyData *result = vtkPolyData::SafeDownCast( calc3->GetOutput() );
   int retCode = result->GetPointData()->HasArray("Result");
-  vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return !retCode;
 }
 

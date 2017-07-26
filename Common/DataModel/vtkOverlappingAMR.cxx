@@ -172,7 +172,7 @@ void vtkOverlappingAMR::SetOrigin(const double* origin)
 //----------------------------------------------------------------------------
 double* vtkOverlappingAMR::GetOrigin()
 {
-  return this->AMRInfo? this->AMRInfo->GetOrigin() : NULL;
+  return this->AMRInfo? this->AMRInfo->GetOrigin() : nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -64,7 +64,7 @@ public:
    * layout of the coordinates. The line will be colored by colors array
    * which has nc_comps components
    */
-  void DrawPoly(float *f, int n, unsigned char *colors = 0,
+  void DrawPoly(float *f, int n, unsigned char *colors = nullptr,
                         int nc_comps = 0) VTK_OVERRIDE;
 
   /**
@@ -73,7 +73,7 @@ public:
    * which has nc_comps components.
    * \sa DrawPoly()
    */
-  void DrawLines(float *f, int n, unsigned char *colors = 0,
+  void DrawLines(float *f, int n, unsigned char *colors = nullptr,
                          int nc_comps = 0) VTK_OVERRIDE;
 
   /**
@@ -81,7 +81,7 @@ public:
    * layout of the coordinates. Points are colored by colors array
    * which has nc_comps components
    */
-  void DrawPoints(float *points, int n, unsigned char* colors = 0,
+  void DrawPoints(float *points, int n, unsigned char* colors = nullptr,
                           int nc_comps = 0) VTK_OVERRIDE;
 
   /**
@@ -91,7 +91,7 @@ public:
    * array which has nc_comps components - this part is optional.
    */
   void DrawPointSprites(vtkImageData *sprite, float *points, int n,
-                                unsigned char* colors = 0, int nc_comps = 0) VTK_OVERRIDE;
+                                unsigned char* colors = nullptr, int nc_comps = 0) VTK_OVERRIDE;
 
   /**
    * Draw a series of markers centered at the points supplied. The \a shape
@@ -105,7 +105,7 @@ public:
    * \param nc_comps is the number of components for the color.
    */
   void DrawMarkers(int shape, bool highlight, float *points, int n,
-                           unsigned char *colors = 0, int nc_comps = 0) VTK_OVERRIDE;
+                           unsigned char *colors = nullptr, int nc_comps = 0) VTK_OVERRIDE;
 
   //@{
   /**
@@ -426,7 +426,7 @@ protected:
     float *v, int nv,
     unsigned char *coolors, int nc,
     float *tcoords);
-  void CoreDrawTriangles(std::vector<float> &tverts, unsigned char* colors = NULL,
+  void CoreDrawTriangles(std::vector<float> &tverts, unsigned char* colors = nullptr,
     int numComp = 0);
   // used for stipples
   unsigned short LinePattern;

@@ -192,9 +192,9 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
    * bytesize -- number of bytes, i.e., the size of the buffer.
    * NOTE: buffer is allocated internally by this method.
    * Pre-conditions:
-   * buffer == NULL
+   * buffer == nullptr
    * Post-conditions:
-   * buffer   != NULL
+   * buffer   != nullptr
    * bytesize != 0
    */
   void Serialize( unsigned char*& buffer, vtkIdType &bytesize );
@@ -204,7 +204,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   /**
    * Deserializes this object instance from the given byte-stream.
    * Pre-conditions:
-   * buffer != NULL
+   * buffer != nullptr
    * bytesize != 0
    */
   void Deserialize( unsigned char* buffer, const vtkIdType &bytesize );

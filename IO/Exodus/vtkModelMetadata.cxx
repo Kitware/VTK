@@ -53,7 +53,7 @@ public:
 #define FREE(x) \
     {           \
     delete [] x;\
-    x = NULL;   \
+    x = nullptr;   \
     }
 
 #define FREELIST(x, len)       \
@@ -64,116 +64,116 @@ public:
       delete [] x[i];          \
     }                        \
     delete [] x;               \
-    x = NULL;                  \
+    x = nullptr;                  \
   }
 
 void vtkModelMetadata::InitializeAllMetadata()
 {
-  this->Title = NULL;
+  this->Title = nullptr;
 
   this->NumberOfInformationLines = 0;
-  this->InformationLine = NULL;
+  this->InformationLine = nullptr;
 
   this->Dimension = 0;
-  this->CoordinateNames = NULL;
+  this->CoordinateNames = nullptr;
 
   this->TimeStepIndex = -1;
   this->NumberOfTimeSteps = 0;
-  this->TimeStepValues = NULL;
+  this->TimeStepValues = nullptr;
 
   this->NumberOfBlocks = 0;
 
-  this->BlockIds = NULL;
-  this->BlockElementType = NULL;
-  this->BlockNumberOfElements = NULL;
-  this->BlockNodesPerElement = NULL;
-  this->BlockNumberOfAttributesPerElement = NULL;
-  this->BlockAttributes = NULL;
-  this->BlockElementIdList = NULL;
+  this->BlockIds = nullptr;
+  this->BlockElementType = nullptr;
+  this->BlockNumberOfElements = nullptr;
+  this->BlockNodesPerElement = nullptr;
+  this->BlockNumberOfAttributesPerElement = nullptr;
+  this->BlockAttributes = nullptr;
+  this->BlockElementIdList = nullptr;
 
   this->NumberOfNodeSets = 0;
 
-  this->NodeSetIds = NULL;
-  this->NodeSetSize = NULL;
-  this->NodeSetNumberOfDistributionFactors = NULL;
-  this->NodeSetNodeIdList = NULL;
-  this->NodeSetDistributionFactors = NULL;
+  this->NodeSetIds = nullptr;
+  this->NodeSetSize = nullptr;
+  this->NodeSetNumberOfDistributionFactors = nullptr;
+  this->NodeSetNodeIdList = nullptr;
+  this->NodeSetDistributionFactors = nullptr;
 
-  this->NodeSetNodeIdListIndex = NULL;
-  this->NodeSetDistributionFactorIndex = NULL;
+  this->NodeSetNodeIdListIndex = nullptr;
+  this->NodeSetDistributionFactorIndex = nullptr;
 
   this->NumberOfSideSets = 0;
 
-  this->SideSetIds = NULL;
-  this->SideSetSize = NULL;
-  this->SideSetNumberOfDistributionFactors = NULL;
-  this->SideSetElementList = NULL;
-  this->SideSetSideList = NULL;
-  this->SideSetNumDFPerSide = NULL;
-  this->SideSetDistributionFactors = NULL;
+  this->SideSetIds = nullptr;
+  this->SideSetSize = nullptr;
+  this->SideSetNumberOfDistributionFactors = nullptr;
+  this->SideSetElementList = nullptr;
+  this->SideSetSideList = nullptr;
+  this->SideSetNumDFPerSide = nullptr;
+  this->SideSetDistributionFactors = nullptr;
 
-  this->SideSetListIndex = NULL;
-  this->SideSetDistributionFactorIndex = NULL;
+  this->SideSetListIndex = nullptr;
+  this->SideSetDistributionFactorIndex = nullptr;
 
   this->NumberOfBlockProperties = 0;
-  this->BlockPropertyNames = NULL;
-  this->BlockPropertyValue = NULL;
+  this->BlockPropertyNames = nullptr;
+  this->BlockPropertyValue = nullptr;
 
   this->NumberOfNodeSetProperties = 0;
-  this->NodeSetPropertyNames = NULL;
-  this->NodeSetPropertyValue = NULL;
+  this->NodeSetPropertyNames = nullptr;
+  this->NodeSetPropertyValue = nullptr;
 
   this->NumberOfSideSetProperties = 0;
-  this->SideSetPropertyNames = NULL;
-  this->SideSetPropertyValue = NULL;
+  this->SideSetPropertyNames = nullptr;
+  this->SideSetPropertyValue = nullptr;
 
   this->NumberOfGlobalVariables = 0;
-  this->GlobalVariableNames = NULL;
-  this->GlobalVariableValue = NULL;
+  this->GlobalVariableNames = nullptr;
+  this->GlobalVariableValue = nullptr;
 
   this->OriginalNumberOfElementVariables = 0;
-  this->OriginalElementVariableNames = NULL;
+  this->OriginalElementVariableNames = nullptr;
   this->NumberOfElementVariables = 0;
   this->MaxNumberOfElementVariables = 0;
-  this->ElementVariableNames = NULL;
-  this->ElementVariableNumberOfComponents = NULL;
-  this->MapToOriginalElementVariableNames = NULL;
+  this->ElementVariableNames = nullptr;
+  this->ElementVariableNumberOfComponents = nullptr;
+  this->MapToOriginalElementVariableNames = nullptr;
 
-  this->ElementVariableTruthTable = NULL;
+  this->ElementVariableTruthTable = nullptr;
 
   this->OriginalNumberOfNodeVariables = 0;
-  this->OriginalNodeVariableNames = NULL;
+  this->OriginalNodeVariableNames = nullptr;
   this->NumberOfNodeVariables = 0;
   this->MaxNumberOfNodeVariables = 0;
-  this->NodeVariableNames = NULL;
-  this->NodeVariableNumberOfComponents = NULL;
-  this->MapToOriginalNodeVariableNames = NULL;
+  this->NodeVariableNames = nullptr;
+  this->NodeVariableNumberOfComponents = nullptr;
+  this->MapToOriginalNodeVariableNames = nullptr;
 }
 void vtkModelMetadata::InitializeAllIvars()
 {
   this->InitializeAllMetadata();
 
   this->SumElementsPerBlock = 0;
-  this->BlockElementIdListIndex = NULL;
+  this->BlockElementIdListIndex = nullptr;
 
   this->SizeBlockAttributeArray = 0;
-  this->BlockAttributesIndex = NULL;
+  this->BlockAttributesIndex = nullptr;
 
   this->SumNodesPerNodeSet = 0;
   this->SumDistFactPerNodeSet = 0;
 
-  this->NodeSetNodeIdListIndex = NULL;
-  this->NodeSetDistributionFactorIndex = NULL;
+  this->NodeSetNodeIdListIndex = nullptr;
+  this->NodeSetDistributionFactorIndex = nullptr;
 
   this->SumSidesPerSideSet = 0;
   this->SumDistFactPerSideSet = 0;
 
-  this->SideSetListIndex = NULL;
-  this->SideSetDistributionFactorIndex = NULL;
+  this->SideSetListIndex = nullptr;
+  this->SideSetDistributionFactorIndex = nullptr;
 
   this->AllVariablesDefinedInAllBlocks = 0;
 
-  this->BlockIdIndex = NULL;
+  this->BlockIdIndex = nullptr;
 }
 void vtkModelMetadata::FreeAllGlobalData()
 {
@@ -181,34 +181,34 @@ void vtkModelMetadata::FreeAllGlobalData()
   // don't differ depending on which time step, which blocks,
   // or which variables are read in.
 
-  this->SetTitle(NULL);
-  this->SetInformationLines(0, NULL);
+  this->SetTitle(nullptr);
+  this->SetInformationLines(0, nullptr);
 
-  this->SetCoordinateNames(0, NULL);
-  this->SetTimeSteps(0, NULL);
+  this->SetCoordinateNames(0, nullptr);
+  this->SetTimeSteps(0, nullptr);
 
-  this->SetBlockIds(NULL);
-  this->SetBlockElementType(NULL);
-  this->SetBlockNodesPerElement(NULL);
-  this->SetBlockNumberOfAttributesPerElement(NULL);
+  this->SetBlockIds(nullptr);
+  this->SetBlockElementType(nullptr);
+  this->SetBlockNodesPerElement(nullptr);
+  this->SetBlockNumberOfAttributesPerElement(nullptr);
 
   delete this->BlockIdIndex;
-  this->BlockIdIndex = NULL;
+  this->BlockIdIndex = nullptr;
 
-  this->SetNodeSetNames(NULL);
-  this->SetNodeSetIds(NULL);
-  this->SetSideSetNames(NULL);
-  this->SetSideSetIds(NULL);
+  this->SetNodeSetNames(nullptr);
+  this->SetNodeSetIds(nullptr);
+  this->SetSideSetNames(nullptr);
+  this->SetSideSetIds(nullptr);
 
-  this->SetBlockPropertyNames(0, NULL);
-  this->SetBlockPropertyValue(NULL);
-  this->SetNodeSetPropertyNames(0, NULL);
-  this->SetNodeSetPropertyValue(NULL);
-  this->SetSideSetPropertyNames(0, NULL);
-  this->SetSideSetPropertyValue(NULL);
-  this->SetGlobalVariableNames(0, NULL);
+  this->SetBlockPropertyNames(0, nullptr);
+  this->SetBlockPropertyValue(nullptr);
+  this->SetNodeSetPropertyNames(0, nullptr);
+  this->SetNodeSetPropertyValue(nullptr);
+  this->SetSideSetPropertyNames(0, nullptr);
+  this->SetSideSetPropertyValue(nullptr);
+  this->SetGlobalVariableNames(0, nullptr);
 
-  this->SetElementVariableTruthTable(NULL);
+  this->SetElementVariableTruthTable(nullptr);
 
   this->FreeOriginalElementVariableNames();
   this->FreeOriginalNodeVariableNames();
@@ -222,7 +222,7 @@ void vtkModelMetadata::FreeAllLocalData()
   this->FreeBlockDependentData();          // depends on blocks
   this->FreeUsedElementVariables();        // depends on variables
   this->FreeUsedNodeVariables();
-  this->SetGlobalVariableValue(NULL);      // depends on time step
+  this->SetGlobalVariableValue(nullptr);      // depends on time step
 }
 
 void vtkModelMetadata::FreeBlockDependentData()
@@ -230,19 +230,19 @@ void vtkModelMetadata::FreeBlockDependentData()
   // All the fields that depend on exactly which blocks
   // are in the vtkUnstructuredGrid
 
-  this->SetBlockNumberOfElements(NULL);
-  this->SetBlockElementIdList(NULL);
-  this->SetBlockAttributes(NULL);
+  this->SetBlockNumberOfElements(nullptr);
+  this->SetBlockElementIdList(nullptr);
+  this->SetBlockAttributes(nullptr);
 
-  this->SetNodeSetNodeIdList(NULL);
-  this->SetNodeSetDistributionFactors(NULL);
+  this->SetNodeSetNodeIdList(nullptr);
+  this->SetNodeSetDistributionFactors(nullptr);
 
-  this->SetSideSetSize(NULL);
-  this->SetSideSetNumberOfDistributionFactors(NULL);
-  this->SetSideSetElementList(NULL);
-  this->SetSideSetSideList(NULL);
-  this->SetSideSetNumDFPerSide(NULL);
-  this->SetSideSetDistributionFactors(NULL);
+  this->SetSideSetSize(nullptr);
+  this->SetSideSetNumberOfDistributionFactors(nullptr);
+  this->SetSideSetElementList(nullptr);
+  this->SetSideSetSideList(nullptr);
+  this->SetSideSetNumDFPerSide(nullptr);
+  this->SetSideSetDistributionFactors(nullptr);
 }
 
 void vtkModelMetadata::FreeOriginalElementVariableNames()
@@ -806,7 +806,7 @@ void vtkModelMetadata::ShowIntArray(const char *what, int numx, int numy, int *i
 {
   if (numx < 1) return;
   if (numy < 1) return;
-  if (id == NULL) return;
+  if (id == nullptr) return;
 
   cout << what << endl;
   for (int x=0; x<numx; x++)

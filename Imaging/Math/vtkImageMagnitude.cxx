@@ -115,7 +115,7 @@ void vtkImageMagnitude::ThreadedExecute (vtkImageData *inData,
   {
     vtkTemplateMacro(
       vtkImageMagnitudeExecute( this, inData, outData,
-                                outExt, id, static_cast<VTK_TT *>(0)));
+                                outExt, id, static_cast<VTK_TT *>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

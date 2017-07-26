@@ -77,7 +77,7 @@ int vtkOpenGLContextActor::RenderOverlay(vtkViewport* viewport)
 //----------------------------------------------------------------------------
 void vtkOpenGLContextActor::Initialize(vtkViewport* viewport)
 {
-  vtkContextDevice2D *dev2D = NULL;
+  vtkContextDevice2D *dev2D = nullptr;
   vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
   if (this->ForceDevice)
   {

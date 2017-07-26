@@ -377,8 +377,8 @@ vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
   this->HexFaceActor->SetProperty(this->FaceProperty);
 
   // Handle looks like a sphere.
-  this->HandleRepresentation  = NULL;
-  this->HandleRepresentations = NULL;
+  this->HandleRepresentation  = nullptr;
+  this->HandleRepresentations = nullptr;
   vtkSphereHandleRepresentation * hRep = vtkSphereHandleRepresentation::New();
   this->SetHandleRepresentation(hRep);
   hRep->Delete();
@@ -412,16 +412,16 @@ vtkParallelopipedRepresentation::~vtkParallelopipedRepresentation()
   this->HexFaceMapper->Delete();
   this->HexFacePolyData->Delete();
 
-  this->SetHandleRepresentation(NULL);
+  this->SetHandleRepresentation(nullptr);
 
   this->FaceProperty->Delete();
   this->SelectedFaceProperty->Delete();
   this->OutlineProperty->Delete();
   this->SelectedOutlineProperty->Delete();
 
-  this->SetHandleProperty         ( NULL );
-  this->SetSelectedHandleProperty ( NULL );
-  this->SetHoveredHandleProperty  ( NULL );
+  this->SetHandleProperty         ( nullptr );
+  this->SetSelectedHandleProperty ( nullptr );
+  this->SetHoveredHandleProperty  ( nullptr );
   this->ChairPointPlacer->Delete();
   delete this->Topology;
 }
@@ -430,7 +430,7 @@ vtkParallelopipedRepresentation::~vtkParallelopipedRepresentation()
 vtkHandleRepresentation* vtkParallelopipedRepresentation
 ::GetHandleRepresentation( int handleIndex )
 {
-  return (handleIndex > 7) ? NULL : this->HandleRepresentations[handleIndex];
+  return (handleIndex > 7) ? nullptr : this->HandleRepresentations[handleIndex];
 }
 
 //----------------------------------------------------------------------
@@ -452,7 +452,7 @@ void vtkParallelopipedRepresentation
     if (!this->HandleRepresentations)
     {
       this->HandleRepresentations = new vtkHandleRepresentation* [8];
-      for (int i=0; i<8; this->HandleRepresentations[i++] = NULL)
+      for (int i=0; i<8; this->HandleRepresentations[i++] = nullptr)
       {
         ;
       }
@@ -468,7 +468,7 @@ void vtkParallelopipedRepresentation
         ;
       }
       delete [] this->HandleRepresentations;
-      this->HandleRepresentations = NULL;
+      this->HandleRepresentations = nullptr;
     }
   }
 
@@ -480,7 +480,7 @@ void vtkParallelopipedRepresentation
     if (this->HandleRepresentations && this->HandleRepresentations[i])
     {
       this->HandleRepresentations[i]->Delete();
-      this->HandleRepresentations[i] = NULL;
+      this->HandleRepresentations[i] = nullptr;
     }
 
     // Copy the new user-provided handle.
@@ -512,7 +512,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
     // Bring the node that had the chair back to the 4th corner of the
     // parallelopiped. We will use vector addition by finding the 4th point of
     // a parallelogram from the other 3 points.
-    vtkIdType neighborPtIds[3], npts = 0, *cellPtIds = NULL;
+    vtkIdType neighborPtIds[3], npts = 0, *cellPtIds = nullptr;
     this->Topology->GetNeighbors( this->ChairHandleIdx, neighborPtIds );
 
     // First find 4 points that form a parallelogram and contain the chaired
@@ -559,7 +559,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
 // depth of the cavity.
 void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
 {
-  vtkIdType npts = 0, *cellPtIds = NULL;
+  vtkIdType npts = 0, *cellPtIds = nullptr;
 
   // If we have a chair somewhere else, remove it. We can have only one
   // chair at a time.
@@ -699,7 +699,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
       this->Topology->FindCellsContainingNodes(
           this->CurrentHandleIdx + 1, cells, nodes );
 
-      npts = 0; cellPtIds = NULL;
+      npts = 0; cellPtIds = nullptr;
       cells->InitTraversal();
       cells->GetNextCell(npts, cellPtIds);
 
@@ -1017,7 +1017,7 @@ int vtkParallelopipedRepresentation
         (this->ChairHandleIdx == -1) ? 0 :
           this->ChairHandleIdx + 1, cells, nodes );
 
-      vtkIdType npts = 0, *cellPtIds = NULL;
+      vtkIdType npts = 0, *cellPtIds = nullptr;
       cells->InitTraversal();
       cells->GetNextCell(npts, cellPtIds);
 
@@ -1244,7 +1244,7 @@ void vtkParallelopipedRepresentation::GetBoundingPlanes( vtkPlaneCollection *pc 
   vtkSmartPointer< vtkCellArray > cellArray = vtkSmartPointer<vtkCellArray>::New();
   this->Topology->PopulateTopology( this->ChairHandleIdx + 1, cellArray );
 
-  vtkIdType npts = 0, *ptIds = NULL;
+  vtkIdType npts = 0, *ptIds = nullptr;
 
   // For each planar cell in our object, we need to find the plane it lies on
   for (cellArray->InitTraversal(); cellArray->GetNextCell(npts, ptIds); )
@@ -1440,7 +1440,7 @@ void vtkParallelopipedRepresentation::HighlightAllFaces()
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::UnHighlightAllFaces()
 {
-  this->SetFaceHighlight( NULL, this->FaceProperty );
+  this->SetFaceHighlight( nullptr, this->FaceProperty );
 }
 
 //----------------------------------------------------------------------------

@@ -232,7 +232,7 @@ public:
    * <li>EDGE   - Defined in vtkGraph subclasses.
    * <li>ROW    - Defined in vtkTable.
    * </ul>
-   * The other attribute type, FIELD, will return NULL since
+   * The other attribute type, FIELD, will return nullptr since
    * field data is stored as a vtkFieldData instance, not a
    * vtkDataSetAttributes instance. To retrieve field data, use
    * GetAttributesAsFieldData.

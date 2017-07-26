@@ -191,7 +191,7 @@ int vtkDotProductSimilarity::RequestData(
       throw std::runtime_error("Array on input port 0 must be a matrix.");
 
     vtkArrayData* const input_b = vtkArrayData::GetData(inputVector[1]);
-    vtkDenseArray<double>* input_array_b = 0;
+    vtkDenseArray<double>* input_array_b = nullptr;
     if(input_b)
     {
       if(input_b->GetNumberOfArrays() != 1)

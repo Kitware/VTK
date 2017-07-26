@@ -44,7 +44,7 @@ vtkImageToPolyDataFilter::vtkImageToPolyDataFilter()
   this->SubImageSize = 250;
 
   this->Table = vtkUnsignedCharArray::New();
-  this->LookupTable = NULL;
+  this->LookupTable = nullptr;
 }
 
 vtkImageToPolyDataFilter::~vtkImageToPolyDataFilter()
@@ -91,7 +91,7 @@ int vtkImageToPolyDataFilter::RequestData(
   // Check input and initialize
   vtkDebugMacro(<<"Vectorizing image...");
 
-  if ( inScalars == NULL || numPixels < 1 )
+  if ( inScalars == nullptr || numPixels < 1 )
   {
     vtkDebugMacro(<<"Not enough input to create output");
     return 1;
@@ -475,7 +475,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
     if ( type != VTK_UNSIGNED_CHAR || numComp != 3 )
     {
       vtkErrorMacro(<<"Wrong input scalar type");
-      return 0;
+      return nullptr;
     }
     else
     {
@@ -507,10 +507,10 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
 
   else //using provided lookup table
   {
-    if ( numComp != 1 || this->LookupTable == NULL )
+    if ( numComp != 1 || this->LookupTable == nullptr )
     {
       vtkErrorMacro(<<"LUT mode requires single component scalar and LUT");
-      return 0;
+      return nullptr;
     }
 
     double s;
@@ -798,7 +798,7 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
 {
   vtkCellArray *newPolys, *inPolys;
   int i, numPts;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
 
   // Copy the points via reference counting

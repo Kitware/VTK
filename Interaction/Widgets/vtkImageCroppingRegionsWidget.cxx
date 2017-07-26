@@ -126,7 +126,7 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
 
   this->Moving = 0;
   this->CroppingRegionFlags = 0;
-  this->VolumeMapper = NULL;
+  this->VolumeMapper = nullptr;
 
   for (i = 0; i < 6; i += 2)
   {
@@ -143,20 +143,20 @@ vtkImageCroppingRegionsWidget::~vtkImageCroppingRegionsWidget()
   for (i = 0; i < 4; i++)
   {
     this->LineSources[i]->Delete();
-    this->LineSources[i] = NULL;
+    this->LineSources[i] = nullptr;
     this->LineActors[i]->Delete();
-    this->LineActors[i] = NULL;
+    this->LineActors[i] = nullptr;
   }
 
   for (i = 0; i < 9; i++)
   {
     this->RegionPolyData[i]->Delete();
-    this->RegionPolyData[i]= NULL;
+    this->RegionPolyData[i]= nullptr;
     this->RegionActors[i]->Delete();
-    this->RegionActors[i] = NULL;
+    this->RegionActors[i] = nullptr;
   }
 
-  this->SetVolumeMapper(NULL);
+  this->SetVolumeMapper(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -425,7 +425,7 @@ void vtkImageCroppingRegionsWidget::SetEnabled(int enabling)
       this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-    if (this->CurrentRenderer == NULL)
+    if (this->CurrentRenderer == nullptr)
     {
       return;
     }
@@ -461,7 +461,7 @@ void vtkImageCroppingRegionsWidget::SetEnabled(int enabling)
       this->CurrentRenderer->AddViewProp(this->RegionActors[count]);
     }
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
   else
   {
@@ -485,7 +485,7 @@ void vtkImageCroppingRegionsWidget::SetEnabled(int enabling)
       }
     }
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
   }
 
   this->Interactor->Render();
@@ -529,7 +529,7 @@ void vtkImageCroppingRegionsWidget::OnButtonPress()
   this->Moving = 1;
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
   this->Interactor->Render();
 }
 
@@ -544,7 +544,7 @@ void vtkImageCroppingRegionsWidget::OnButtonRelease()
   this->Moving = 0;
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent, NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
 
   this->MouseCursorState = vtkImageCroppingRegionsWidget::NoLine;
   this->SetMouseCursor(this->MouseCursorState);
@@ -576,7 +576,7 @@ void vtkImageCroppingRegionsWidget::OnMouseMove()
     }
     this->UpdateCursorIcon();
     this->EventCallbackCommand->SetAbortFlag(1);
-    this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+    this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   }
   else
   {

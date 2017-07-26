@@ -56,7 +56,7 @@ int TestAxes(int , char * [])
     axis->SetPoint1(vtkVector2f(i * 69 + 30, 10));
     axis->SetPoint2(vtkVector2f(i * 69 + 30, 290));
     axis->SetPosition((i % 2) ? vtkAxis::LEFT : vtkAxis::RIGHT);
-    axis->SetRange(NULL); // check that NULL pointers don't cause trouble
+    axis->SetRange(nullptr); // check that null pointers don't cause trouble
     axis->SetRange(-1, 50);
 
     view->GetScene()->AddItem(axis);
@@ -169,7 +169,7 @@ int TestAxes(int , char * [])
   logAxis->SetScene(view->GetScene());
   logAxis->SetUnscaledRange(plainRange);
   logAxis->LogScaleOn();
-  logAxis->GetUnscaledRange(NULL); // Insure NULL pointers are ignored.
+  logAxis->GetUnscaledRange(nullptr); // Insure null pointers are ignored.
   logAxis->GetUnscaledRange(logRange);
   if ((logRange[0] != plainRange[0]) || (logRange[1] != plainRange[1]))
   {

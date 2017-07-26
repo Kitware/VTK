@@ -466,7 +466,7 @@ static int TestDriverDebugReport(int type, char* message, int* retVal)
 #include <locale.h>
 int TestSetLocale()
 {
-  char *oldLocale = strdup(setlocale(LC_NUMERIC,NULL));
+  char *oldLocale = strdup(setlocale(LC_NUMERIC,nullptr));
   setlocale(LC_NUMERIC,"English");
 
   // restore the local

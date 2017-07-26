@@ -25,14 +25,14 @@ vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScalarOpacityFunction, vtkPiecewise
 //-----------------------------------------------------------------------------
 vtkPointGaussianMapper::vtkPointGaussianMapper()
 {
-  this->ScaleArray = 0;
-  this->OpacityArray = 0;
-  this->SplatShaderCode = 0;
+  this->ScaleArray = nullptr;
+  this->OpacityArray = nullptr;
+  this->SplatShaderCode = nullptr;
 
-  this->ScaleFunction = 0;
+  this->ScaleFunction = nullptr;
   this->ScaleTableSize = 1024;
 
-  this->ScalarOpacityFunction = 0;
+  this->ScalarOpacityFunction = nullptr;
   this->OpacityTableSize = 1024;
 
   this->ScaleFactor = 1.0;
@@ -43,11 +43,11 @@ vtkPointGaussianMapper::vtkPointGaussianMapper()
 //-----------------------------------------------------------------------------
 vtkPointGaussianMapper::~vtkPointGaussianMapper()
 {
-  this->SetScaleArray(0);
-  this->SetOpacityArray(0);
-  this->SetSplatShaderCode(0);
-  this->SetScalarOpacityFunction(0);
-  this->SetScaleFunction(0);
+  this->SetScaleArray(nullptr);
+  this->SetOpacityArray(nullptr);
+  this->SetSplatShaderCode(nullptr);
+  this->SetScalarOpacityFunction(nullptr);
+  this->SetScaleFunction(nullptr);
 }
 
 //-----------------------------------------------------------------------------

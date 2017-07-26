@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkPLYReader);
 // Construct object with merging set to true.
 vtkPLYReader::vtkPLYReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -130,10 +130,10 @@ int vtkPLYReader::RequestData(
   // Check to make sure that we can read geometry
   PlyElement *elem;
   int index;
-  if ( (elem = vtkPLY::find_element (ply, "vertex")) == NULL ||
-       vtkPLY::find_property (elem, "x", &index) == NULL ||
-       vtkPLY::find_property (elem, "y", &index) == NULL ||
-       vtkPLY::find_property (elem, "z", &index) == NULL)
+  if ( (elem = vtkPLY::find_element (ply, "vertex")) == nullptr ||
+       vtkPLY::find_property (elem, "x", &index) == nullptr ||
+       vtkPLY::find_property (elem, "y", &index) == nullptr ||
+       vtkPLY::find_property (elem, "z", &index) == nullptr)
   {
     vtkErrorMacro(<<"Cannot read geometry");
     vtkPLY::ply_close (ply);
@@ -142,9 +142,9 @@ int vtkPLYReader::RequestData(
   // Check for optional attribute data. We can handle intensity; and the
   // triplet red, green, blue.
   bool intensityAvailable = false;
-  vtkSmartPointer<vtkUnsignedCharArray> intensity = NULL;
-  if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
-       vtkPLY::find_property (elem, "intensity", &index) != NULL )
+  vtkSmartPointer<vtkUnsignedCharArray> intensity = nullptr;
+  if ( (elem = vtkPLY::find_element (ply, "face")) != nullptr &&
+       vtkPLY::find_property (elem, "intensity", &index) != nullptr )
   {
     intensity = vtkSmartPointer<vtkUnsignedCharArray>::New();
     intensity->SetName("intensity");
@@ -155,15 +155,15 @@ int vtkPLYReader::RequestData(
 
   bool RGBCellsAvailable = false;
   bool RGBCellsHaveAlpha = false;
-  vtkSmartPointer<vtkUnsignedCharArray> RGBCells = NULL;
-  if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
-       vtkPLY::find_property (elem, "red", &index) != NULL &&
-       vtkPLY::find_property (elem, "green", &index) != NULL &&
-       vtkPLY::find_property (elem, "blue", &index) != NULL )
+  vtkSmartPointer<vtkUnsignedCharArray> RGBCells = nullptr;
+  if ( (elem = vtkPLY::find_element (ply, "face")) != nullptr &&
+       vtkPLY::find_property (elem, "red", &index) != nullptr &&
+       vtkPLY::find_property (elem, "green", &index) != nullptr &&
+       vtkPLY::find_property (elem, "blue", &index) != nullptr )
   {
     RGBCellsAvailable = true;
     RGBCells = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    if (vtkPLY::find_property(elem, "alpha", &index) != NULL)
+    if (vtkPLY::find_property(elem, "alpha", &index) != nullptr)
     {
       RGBCells->SetName("RGBA");
       RGBCells->SetNumberOfComponents(4);
@@ -180,15 +180,15 @@ int vtkPLYReader::RequestData(
 
   bool RGBPointsAvailable = false;
   bool RGBPointsHaveAlpha = false;
-  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = NULL;
-  if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
-       vtkPLY::find_property (elem, "red", &index) != NULL &&
-       vtkPLY::find_property (elem, "green", &index) != NULL &&
-       vtkPLY::find_property (elem, "blue", &index) != NULL )
+  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = nullptr;
+  if ( (elem = vtkPLY::find_element (ply, "vertex")) != nullptr &&
+       vtkPLY::find_property (elem, "red", &index) != nullptr &&
+       vtkPLY::find_property (elem, "green", &index) != nullptr &&
+       vtkPLY::find_property (elem, "blue", &index) != nullptr )
   {
     RGBPointsAvailable = true;
     RGBPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    if (vtkPLY::find_property(elem, "alpha", &index) != NULL)
+    if (vtkPLY::find_property(elem, "alpha", &index) != nullptr)
     {
       RGBPoints->SetName("RGBA");
       RGBPoints->SetNumberOfComponents(4);
@@ -203,11 +203,11 @@ int vtkPLYReader::RequestData(
   }
 
   bool NormalPointsAvailable=false;
-  vtkSmartPointer<vtkFloatArray> Normals = NULL;
-  if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
-       vtkPLY::find_property (elem, "nx", &index) != NULL &&
-       vtkPLY::find_property (elem, "ny", &index) != NULL &&
-       vtkPLY::find_property (elem, "nz", &index) != NULL )
+  vtkSmartPointer<vtkFloatArray> Normals = nullptr;
+  if ( (elem = vtkPLY::find_element (ply, "vertex")) != nullptr &&
+       vtkPLY::find_property (elem, "nx", &index) != nullptr &&
+       vtkPLY::find_property (elem, "ny", &index) != nullptr &&
+       vtkPLY::find_property (elem, "nz", &index) != nullptr )
   {
     Normals = vtkSmartPointer<vtkFloatArray>::New();
     NormalPointsAvailable = true;
@@ -217,16 +217,16 @@ int vtkPLYReader::RequestData(
   }
 
   bool TexCoordsPointsAvailable = false;
-  vtkSmartPointer<vtkFloatArray> TexCoordsPoints = NULL;
-  if ( (elem = vtkPLY::find_element(ply, "vertex")) != NULL )
+  vtkSmartPointer<vtkFloatArray> TexCoordsPoints = nullptr;
+  if ( (elem = vtkPLY::find_element(ply, "vertex")) != nullptr )
   {
-    if ( vtkPLY::find_property(elem, "u", &index) != NULL &&
-         vtkPLY::find_property(elem, "v", &index) != NULL )
+    if ( vtkPLY::find_property(elem, "u", &index) != nullptr &&
+         vtkPLY::find_property(elem, "v", &index) != nullptr )
     {
       TexCoordsPointsAvailable = true;
     }
-    else if ( vtkPLY::find_property(elem, "texture_u", &index) != NULL &&
-              vtkPLY::find_property(elem, "texture_v", &index) != NULL )
+    else if ( vtkPLY::find_property(elem, "texture_u", &index) != nullptr &&
+              vtkPLY::find_property(elem, "texture_v", &index) != nullptr )
     {
       TexCoordsPointsAvailable = true;
       vertProps[3].name = "texture_u";
@@ -387,7 +387,7 @@ int vtkPLYReader::RequestData(
     }//if face
 
     free(elist[i]); //allocated by ply_open_for_reading
-    elist[i] = NULL;
+    elist[i] = nullptr;
 
   }//for all elements of the PLY file
   free(elist); //allocated by ply_open_for_reading

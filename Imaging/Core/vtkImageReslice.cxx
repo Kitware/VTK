@@ -66,8 +66,8 @@ typedef double vtkImageResliceFloatingPointType;
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
 {
-  // if NULL, the main Input is used
-  this->InformationInput = NULL;
+  // if nullptr, the main Input is used
+  this->InformationInput = nullptr;
   this->TransformInputSampling = 1;
   this->AutoCropOutput = 0;
   this->OutputDimensionality = 3;
@@ -134,14 +134,14 @@ vtkImageReslice::vtkImageReslice()
   this->ResliceAxesOrigin[1] = 0.0;
   this->ResliceAxesOrigin[2] = 0.0;
 
-  // axes and transform are identity if set to NULL
-  this->ResliceAxes = NULL;
-  this->ResliceTransform = NULL;
-  this->Interpolator = NULL;
+  // axes and transform are identity if set to nullptr
+  this->ResliceAxes = nullptr;
+  this->ResliceTransform = nullptr;
+  this->Interpolator = nullptr;
 
   // cache a matrix that converts output voxel indices -> input voxel indices
-  this->IndexMatrix = NULL;
-  this->OptimizedTransform = NULL;
+  this->IndexMatrix = nullptr;
+  this->OptimizedTransform = nullptr;
 
   // set to zero when we completely missed the input extent
   this->HitInputExtent = 1;
@@ -170,8 +170,8 @@ vtkImageReslice::vtkImageReslice()
 //----------------------------------------------------------------------------
 vtkImageReslice::~vtkImageReslice()
 {
-  this->SetResliceTransform(NULL);
-  this->SetResliceAxes(NULL);
+  this->SetResliceTransform(nullptr);
+  this->SetResliceAxes(nullptr);
   if (this->IndexMatrix)
   {
     this->IndexMatrix->Delete();
@@ -180,8 +180,8 @@ vtkImageReslice::~vtkImageReslice()
   {
     this->OptimizedTransform->Delete();
   }
-  this->SetInformationInput(NULL);
-  this->SetInterpolator(NULL);
+  this->SetInformationInput(nullptr);
+  this->SetInterpolator(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -408,7 +408,7 @@ vtkImageStencilData *vtkImageReslice::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkImageStencilData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -425,7 +425,7 @@ vtkImageStencilData *vtkImageReslice::GetStencilOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkImageStencilData::SafeDownCast(
@@ -517,7 +517,7 @@ void vtkImageReslice::GetResliceAxesOrigin(double origin[3])
 //----------------------------------------------------------------------------
 vtkAbstractImageInterpolator *vtkImageReslice::GetInterpolator()
 {
-  if (this->Interpolator == NULL)
+  if (this->Interpolator == nullptr)
   {
     this->Interpolator = vtkImageInterpolator::New();
   }
@@ -533,7 +533,7 @@ vtkMTimeType vtkImageReslice::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->ResliceTransform != NULL )
+  if ( this->ResliceTransform != nullptr )
   {
     time = this->ResliceTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -544,12 +544,12 @@ vtkMTimeType vtkImageReslice::GetMTime()
       mTime = ( time > mTime ? time : mTime );
     }
   }
-  if ( this->ResliceAxes != NULL)
+  if ( this->ResliceAxes != nullptr)
   {
     time = this->ResliceAxes->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
-  if ( this->Interpolator != NULL)
+  if ( this->Interpolator != nullptr)
   {
     time = this->Interpolator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -628,7 +628,7 @@ int vtkImageReslice::RequestUpdateExtent(
   // set the extent according to the interpolation kernel size
   vtkAbstractImageInterpolator *interpolator = this->GetInterpolator();
   double *elements = *matrix->Element;
-  elements = ((this->OptimizedTransform == NULL) ? elements : NULL);
+  elements = ((this->OptimizedTransform == nullptr) ? elements : nullptr);
   int supportSize[3];
   interpolator->ComputeSupportSize(elements, supportSize);
 
@@ -830,7 +830,7 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkInformation *inInfo,
   {
     vtkMatrix4x4::Invert(this->ResliceAxes, matrix);
   }
-  vtkAbstractTransform* transform = NULL;
+  vtkAbstractTransform* transform = nullptr;
   if (this->ResliceTransform)
   {
     transform = this->ResliceTransform->GetInverse();
@@ -1190,7 +1190,7 @@ int vtkImageReslice::RequestInformation(
   this->UsePermuteExecute = 0;
   if (this->Optimization)
   {
-    if (this->OptimizedTransform == NULL &&
+    if (this->OptimizedTransform == nullptr &&
         this->SlabSliceSpacingFraction == 1.0 &&
         interpolator->IsSeparable() &&
         vtkIsPermutationMatrix(this->IndexMatrix))
@@ -1475,7 +1475,7 @@ void vtkGetConversionFunc(
         *conversion = &(vtkImageResliceConversion<F, VTK_TT>::Clamp)
         );
       default:
-        *conversion = 0;
+        *conversion = nullptr;
     }
   }
   else
@@ -1487,7 +1487,7 @@ void vtkGetConversionFunc(
         *conversion = &(vtkImageResliceConversion<F, VTK_TT>::Convert)
         );
       default:
-        *conversion = 0;
+        *conversion = nullptr;
     }
   }
 }
@@ -1638,7 +1638,7 @@ void vtkGetCompositeFunc(
       else { *composite = &(vtkImageResliceComposite<F>::SumValues); }
       break;
     default:
-      *composite = 0;
+      *composite = nullptr;
   }
 }
 
@@ -1764,7 +1764,7 @@ void vtkGetSetPixelsFunc(
         *setpixels = &vtkImageResliceSetPixels<vtkTypeInt32>::Set4;
         break;
       default:
-        *setpixels = 0;
+        *setpixels = nullptr;
         break;
     }
     return;
@@ -1779,7 +1779,7 @@ void vtkGetSetPixelsFunc(
           *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set1
           );
         default:
-          *setpixels = 0;
+          *setpixels = nullptr;
       }
       break;
     case 2:
@@ -1789,7 +1789,7 @@ void vtkGetSetPixelsFunc(
           *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set2
           );
         default:
-          *setpixels = 0;
+          *setpixels = nullptr;
       }
       break;
     case 3:
@@ -1799,7 +1799,7 @@ void vtkGetSetPixelsFunc(
           *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set3
           );
         default:
-          *setpixels = 0;
+          *setpixels = nullptr;
       }
       break;
     case 4:
@@ -1809,7 +1809,7 @@ void vtkGetSetPixelsFunc(
           *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set4
           );
         default:
-          *setpixels = 0;
+          *setpixels = nullptr;
       }
       break;
     default:
@@ -1819,7 +1819,7 @@ void vtkGetSetPixelsFunc(
           *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set
           );
         default:
-          *setpixels = 0;
+          *setpixels = nullptr;
       }
   }
 }
@@ -1865,7 +1865,7 @@ void vtkFreeBackgroundPixel(void **rval)
   double *doublePtr = static_cast<double *>(*rval);
   delete [] doublePtr;
 
-  *rval = 0;
+  *rval = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1893,7 +1893,7 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
                                  vtkImageData *outData, void *outPtr,
                                  int outExt[6], int threadId)
 {
-  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
+  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = nullptr;
 
   // Get Increments to march through data
   vtkIdType outIncX, outIncY, outIncZ;
@@ -1910,7 +1910,7 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
   vtkGetSetPixelsFunc(&setpixels,
     scalarType, scalarSize, numscalars, outPtr);
 
-  vtkImagePointDataIterator iter(outData, outExt, NULL, self, threadId);
+  vtkImagePointDataIterator iter(outData, outExt, nullptr, self, threadId);
   for (; !iter.IsAtEnd(); iter.NextSpan())
   {
     // clear the pixels to background color and go to next row
@@ -1950,14 +1950,14 @@ void vtkImageResliceExecute(vtkImageReslice *self,
                             int outExt[6], int threadId, F newmat[4][4],
                             vtkAbstractTransform *newtrans)
 {
-  void (*convertpixels)(void *&out, const F *in, int numscalars, int n) = 0;
-  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
-  void (*composite)(F *in, int numscalars, int n) = 0;
+  void (*convertpixels)(void *&out, const F *in, int numscalars, int n) = nullptr;
+  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = nullptr;
+  void (*composite)(F *in, int numscalars, int n) = nullptr;
 
   // get the input stencil
   vtkImageStencilData *stencil = self->GetStencil();
   // get the output stencil
-  vtkImageStencilData *outputStencil = 0;
+  vtkImageStencilData *outputStencil = nullptr;
   if (self->GetGenerateStencilOutput())
   {
     outputStencil = self->GetStencilOutput();
@@ -2051,7 +2051,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   inInvSpacing[2] = F(1.0/temp[2]);
 
   // allocate an output row of type double
-  F *floatPtr = 0;
+  F *floatPtr = nullptr;
   if (!optimizeNearest)
   {
     floatPtr = new F [inComponents*(outExt[1] - outExt[0] + nsamples)];
@@ -2533,7 +2533,7 @@ void vtkGetSummationFunc(
                      int n, vtkInterpolationWeights *weights),
   int scalarType, int numScalars)
 {
-  *summation = 0;
+  *summation = nullptr;
 
   if (numScalars == 1)
   {
@@ -2543,7 +2543,7 @@ void vtkGetSummationFunc(
         *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest1)
         );
       default:
-        *summation = 0;
+        *summation = nullptr;
     }
   }
   else if (numScalars == 2)
@@ -2554,7 +2554,7 @@ void vtkGetSummationFunc(
         *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest2)
         );
       default:
-        *summation = 0;
+        *summation = nullptr;
     }
   }
   else if (numScalars == 3)
@@ -2565,7 +2565,7 @@ void vtkGetSummationFunc(
         *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest3)
         );
       default:
-        *summation = 0;
+        *summation = nullptr;
     }
   }
   else if (numScalars == 4)
@@ -2576,7 +2576,7 @@ void vtkGetSummationFunc(
         *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest4)
         );
       default:
-        *summation = 0;
+        *summation = nullptr;
     }
   }
   else
@@ -2587,7 +2587,7 @@ void vtkGetSummationFunc(
         *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest)
         );
       default:
-        *summation = 0;
+        *summation = nullptr;
     }
   }
 }
@@ -2760,7 +2760,7 @@ void vtkGetRowCompositeFunc(
       break;
     default:
       vtkGenericWarningMacro("Illegal slab mode!");
-      *composite = 0;
+      *composite = nullptr;
   }
 }
 
@@ -2816,7 +2816,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   // get the input stencil
   vtkImageStencilData *stencil = self->GetStencil();
   // get the output stencil
-  vtkImageStencilData *outputStencil = 0;
+  vtkImageStencilData *outputStencil = nullptr;
   if (self->GetGenerateStencilOutput())
   {
     outputStencil = self->GetStencilOutput();
@@ -2854,9 +2854,9 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
   // get type-specific functions
   void (*summation)(void *&out, int idX, int idY, int idZ, int numscalars,
-                    int n, vtkInterpolationWeights *weights) = 0;
-  void (*conversion)(void *&out, const F *in, int numscalars, int n) = 0;
-  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
+                    int n, vtkInterpolationWeights *weights) = nullptr;
+  void (*conversion)(void *&out, const F *in, int numscalars, int n) = nullptr;
+  void (*setpixels)(void *&out, const void *in, int numscalars, int n) = nullptr;
   vtkGetSummationFunc(&summation, scalarType, outComponents);
   bool forceClamping = (interpolationMode > VTK_RESLICE_LINEAR ||
     (nsamples > 1 && self->GetSlabMode() == VTK_IMAGE_SLAB_SUM));
@@ -2866,13 +2866,13 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     scalarType, scalarSize, outComponents, outPtr);
 
   // get the slab compositing function
-  void (*composite)(F *op, const F *ip, int nc, int count, int i, int n) = 0;
+  void (*composite)(F *op, const F *ip, int nc, int count, int i, int n) = nullptr;
   vtkGetRowCompositeFunc(&composite,
     self->GetSlabMode(), self->GetSlabTrapezoidIntegration());
 
   // get temp float space for type conversion
-  F *floatPtr = 0;
-  F *floatSumPtr = 0;
+  F *floatPtr = nullptr;
+  F *floatSumPtr = nullptr;
   if (doConversion)
   {
     floatPtr = new F [inComponents*(outExt[1] - outExt[0] + 1)];
@@ -3088,14 +3088,14 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 //
 // This will also concatenate the ResliceAxes and the ResliceTransform
 // if possible (if the ResliceTransform is a 4x4 matrix transform).
-// If it does, this->OptimizedTransform will be set to NULL, otherwise
+// If it does, this->OptimizedTransform will be set to nullptr, otherwise
 // this->OptimizedTransform will be equal to this->ResliceTransform.
 
 vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix(vtkInformation *inInfo,
                                               vtkInformation *outInfo)
 {
   // first verify that we have to update the matrix
-  if (this->IndexMatrix == NULL)
+  if (this->IndexMatrix == nullptr)
   {
     this->IndexMatrix = vtkMatrix4x4::New();
   }
@@ -3119,7 +3119,7 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix(vtkInformation *inInfo,
   {
     this->OptimizedTransform->Delete();
   }
-  this->OptimizedTransform = NULL;
+  this->OptimizedTransform = nullptr;
 
   if (this->ResliceAxes)
   {
@@ -3148,9 +3148,9 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix(vtkInformation *inInfo,
   // the inMatrix takes InputData coordinates to InputData indices
   for (int i = 0; i < 3; i++)
   {
-    if ((this->OptimizedTransform == NULL &&
+    if ((this->OptimizedTransform == nullptr &&
          (inSpacing[i] != outSpacing[i] || inOrigin[i] != outOrigin[i])) ||
-        (this->OptimizedTransform != NULL &&
+        (this->OptimizedTransform != nullptr &&
          (outSpacing[i] != 1.0 || outOrigin[i] != 0.0)))
     {
       isIdentity = 0;
@@ -3168,7 +3168,7 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix(vtkInformation *inInfo,
     transform->Concatenate(outMatrix);
     // the OptimizedTransform requires data coords, not
     // index coords, as its input
-    if (this->OptimizedTransform == NULL)
+    if (this->OptimizedTransform == nullptr)
     {
       transform->PostMultiply();
       transform->Concatenate(inMatrix);
@@ -3276,7 +3276,7 @@ void vtkImageReslice::ThreadedRequestData(
                              outData[0], outPtr,
                              this->ScalarShift, this->ScalarScale,
                              (this->HasConvertScalars ?
-                                &vtkImageReslice::ConvertScalarsBase : 0),
+                                &vtkImageReslice::ConvertScalarsBase : nullptr),
                              outExt, threadId, newmat);
   }
   else
@@ -3285,7 +3285,7 @@ void vtkImageReslice::ThreadedRequestData(
                            outData[0], outPtr,
                            this->ScalarShift, this->ScalarScale,
                            (this->HasConvertScalars ?
-                              &vtkImageReslice::ConvertScalarsBase : 0),
+                              &vtkImageReslice::ConvertScalarsBase : nullptr),
                            outExt, threadId, newmat, newtrans);
   }
 }

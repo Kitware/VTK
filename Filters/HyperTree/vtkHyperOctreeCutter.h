@@ -218,7 +218,7 @@ public:
   void CreateDefaultLocator();
 
 protected:
-  vtkHyperOctreeCutter(vtkImplicitFunction *cf=NULL);
+  vtkHyperOctreeCutter(vtkImplicitFunction *cf=nullptr);
   ~vtkHyperOctreeCutter() VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;

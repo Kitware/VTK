@@ -50,7 +50,7 @@ public:
 
   int *GetPoint(int i)
   {
-      return (this->Count > i ?  &(this->P[3*i]) : 0);
+      return (this->Count > i ?  &(this->P[3*i]) : nullptr);
   }
 
   int InsertNextPoint(const int x[3])
@@ -97,10 +97,10 @@ protected:
 // 3 points per bucket.
 vtkPointLocator::vtkPointLocator()
 {
-  this->Points = NULL;
+  this->Points = nullptr;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->NumberOfPointsPerBucket = 3;
-  this->HashTable = NULL;
+  this->HashTable = nullptr;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->InsertionPointId = 0;
   this->InsertionTol2 = 0.0001;
@@ -113,7 +113,7 @@ vtkPointLocator::~vtkPointLocator()
   if ( this->Points )
   {
     this->Points->UnRegister(this);
-    this->Points = NULL;
+    this->Points = nullptr;
   }
   this->FreeSearchStructure();
 }
@@ -124,7 +124,7 @@ void vtkPointLocator::Initialize()
   if ( this->Points )
   {
     this->Points->UnRegister(this);
-    this->Points = NULL;
+    this->Points = nullptr;
   }
   this->FreeSearchStructure();
 }
@@ -145,7 +145,7 @@ void vtkPointLocator::FreeSearchStructure()
       }
     }
     delete [] this->HashTable;
-    this->HashTable = NULL;
+    this->HashTable = nullptr;
   }
 }
 
@@ -210,7 +210,7 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
       nei = buckets.GetPoint(i);
       cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-      if ( (ptIds = this->HashTable[cno]) != NULL )
+      if ( (ptIds = this->HashTable[cno]) != nullptr )
       {
         nids = ptIds->GetNumberOfIds();
         for (j=0; j < nids; j++)
@@ -239,7 +239,7 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
       nei = buckets.GetPoint(i);
       cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-      if ( (ptIds = this->HashTable[cno]) != NULL )
+      if ( (ptIds = this->HashTable[cno]) != nullptr )
       {
         nids = ptIds->GetNumberOfIds();
         for (j=0; j < nids; j++)
@@ -305,7 +305,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
   // Start by searching the bucket that the point is in.
   //
   if ( (ptIds = this->HashTable[ijk[0] + ijk[1]*this->XD +
-                                ijk[2]*this->SliceSize]) != NULL )
+                                ijk[2]*this->SliceSize]) != nullptr )
   {
     nids = ptIds->GetNumberOfIds();
     for (j=0; j < nids; j++)
@@ -592,7 +592,7 @@ void vtkPointLocator::FindDistributedPoints(int N, const double x[3],
       nei = buckets.GetPoint(i);
       cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-      if ( (ptIds = this->HashTable[cno]) != NULL )
+      if ( (ptIds = this->HashTable[cno]) != nullptr )
       {
         nids = ptIds->GetNumberOfIds();
         for (j=0; j < nids; j++)
@@ -647,7 +647,7 @@ void vtkPointLocator::FindDistributedPoints(int N, const double x[3],
     nei = buckets.GetPoint(i);
     cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-    if ( (ptIds = this->HashTable[cno]) != NULL )
+    if ( (ptIds = this->HashTable[cno]) != nullptr )
     {
       nids = ptIds->GetNumberOfIds();
       for (j=0; j < nids; j++)
@@ -718,7 +718,7 @@ void vtkPointLocator::FindClosestNPoints(int N, const double x[3],
       nei = buckets.GetPoint(i);
       cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-      if ( (ptIds = this->HashTable[cno]) != NULL )
+      if ( (ptIds = this->HashTable[cno]) != nullptr )
       {
         nids = ptIds->GetNumberOfIds();
         for (j=0; j < nids; j++)
@@ -765,7 +765,7 @@ void vtkPointLocator::FindClosestNPoints(int N, const double x[3],
     nei = buckets.GetPoint(i);
     cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-    if ( (ptIds = this->HashTable[cno]) != NULL )
+    if ( (ptIds = this->HashTable[cno]) != nullptr )
     {
       nids = ptIds->GetNumberOfIds();
       for (j=0; j < nids; j++)
@@ -826,7 +826,7 @@ void vtkPointLocator::FindPointsWithinRadius(double R, const double x[3],
     nei = buckets.GetPoint(i);
     cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-    if ( (ptIds = this->HashTable[cno]) != NULL )
+    if ( (ptIds = this->HashTable[cno]) != nullptr )
     {
       nids = ptIds->GetNumberOfIds();
       for (j=0; j < nids; j++)
@@ -861,7 +861,7 @@ void vtkPointLocator::BuildLocator()
   double x[3];
   typedef vtkIdList *vtkIdListPtr;
 
-  if ( (this->HashTable != NULL) && (this->BuildTime > this->MTime)
+  if ( (this->HashTable != nullptr) && (this->BuildTime > this->MTime)
        && (this->BuildTime > this->DataSet->GetMTime()) )
   {
     return;
@@ -1169,12 +1169,12 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
   {
     this->FreeSearchStructure();
   }
-  if ( newPts == NULL )
+  if ( newPts == nullptr )
   {
     vtkErrorMacro(<<"Must define points for point insertion");
     return 0;
   }
-  if (this->Points != NULL)
+  if (this->Points != nullptr)
   {
     this->Points->UnRegister(this);
   }
@@ -1332,7 +1332,7 @@ vtkIdType vtkPointLocator::IsInsertedPoint(const double x[3])
       nei = buckets.GetPoint(i);
       cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-      if ( (ptIds = this->HashTable[cno]) != NULL )
+      if ( (ptIds = this->HashTable[cno]) != nullptr )
       {
         nids = ptIds->GetNumberOfIds();
         for (j=0; j < nids; j++)
@@ -1419,7 +1419,7 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const double x[3])
       nei = buckets.GetPoint(i);
       cno = nei[0] + nei[1]*this->XD + nei[2]*this->SliceSize;
 
-      if ( (ptIds = this->HashTable[cno]) != NULL )
+      if ( (ptIds = this->HashTable[cno]) != nullptr )
       {
         nids = ptIds->GetNumberOfIds();
         for (j=0; j < nids; j++)
@@ -1496,7 +1496,7 @@ vtkIdList *vtkPointLocator::GetPointsInBucket(const double x[3],
   {
     if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -1509,7 +1509,7 @@ vtkIdList *vtkPointLocator::GetPointsInBucket(const double x[3],
     return this->HashTable[idx];
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -1522,7 +1522,7 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level),
   vtkCellArray *polys;
   int ii, i, j, k, idx, offset[3], minusOffset[3], inside, sliceSize;
 
-  if ( this->HashTable == NULL )
+  if ( this->HashTable == nullptr )
   {
     vtkErrorMacro(<<"Can't build representation...no data!");
     return;
@@ -1548,7 +1548,7 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level),
         offset[0] = i;
         minusOffset[0] = i - 1;
         idx = offset[0] + offset[1] + offset[2];
-        if ( this->HashTable[idx] == NULL )
+        if ( this->HashTable[idx] == nullptr )
         {
           inside = 0;
         }
@@ -1582,8 +1582,8 @@ void vtkPointLocator::GenerateRepresentation(int vtkNotUsed(level),
               idx = offset[0] + offset[1] + minusOffset[2];
             }
 
-            if ( (this->HashTable[idx] == NULL && inside) ||
-            (this->HashTable[idx] != NULL && !inside) )
+            if ( (this->HashTable[idx] == nullptr && inside) ||
+            (this->HashTable[idx] != nullptr && !inside) )
             {
               this->GenerateFace(ii,i,j,k,pts,polys);
             }

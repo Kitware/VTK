@@ -29,8 +29,8 @@ vtkCellArray::vtkCellArray()
 //----------------------------------------------------------------------------
 void vtkCellArray::DeepCopy (vtkCellArray *ca)
 {
-  // Do nothing on a NULL input.
-  if (ca == NULL)
+  // Do nothing on a nullptr input.
+  if (ca == nullptr)
   {
     return;
   }

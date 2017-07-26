@@ -34,7 +34,7 @@ char vtkMaskFields::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10]  = 
 vtkMaskFields::vtkMaskFields()
 {
 
-  this->CopyFieldFlags = 0;
+  this->CopyFieldFlags = nullptr;
   this->NumberOfFieldFlags = 0;
   this->CopyAllOn();
 
@@ -122,7 +122,7 @@ void vtkMaskFields::CopyAttributeOnOff(int attributeLocation,
           newFlags[i].IsCopied = this->CopyFieldFlags[i].IsCopied;
       }
       // Copy new flag
-      newFlags[this->NumberOfFieldFlags].Name = 0;
+      newFlags[this->NumberOfFieldFlags].Name = nullptr;
       newFlags[this->NumberOfFieldFlags].Type = attributeType;
       newFlags[this->NumberOfFieldFlags].Location = attributeLocation;
       newFlags[this->NumberOfFieldFlags].IsCopied = onOff;
@@ -299,7 +299,7 @@ void vtkMaskFields::ClearFieldFlags()
       }
   }
   delete[] this->CopyFieldFlags;
-  this->CopyFieldFlags=0;
+  this->CopyFieldFlags=nullptr;
   this->NumberOfFieldFlags=0;
 }
 

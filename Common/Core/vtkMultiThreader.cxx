@@ -103,7 +103,7 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
     // hw.logicalcpu takes into account cores/CPUs that are
     // disabled because of power management.
     size_t dataLen = sizeof(int); // 'num' is an 'int'
-    int result = sysctlbyname ("hw.logicalcpu", &num, &dataLen, NULL, 0);
+    int result = sysctlbyname ("hw.logicalcpu", &num, &dataLen, nullptr, 0);
     if (result == -1)
     {
       num = 1;
@@ -141,7 +141,7 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
   return vtkMultiThreaderGlobalDefaultNumberOfThreads;
 }
 
-// Constructor. Default all the methods to NULL. Since the
+// Constructor. Default all the methods to nullptr. Since the
 // ThreadInfoArray is static, the ThreadIDs can be initialized here
 // and will not change.
 vtkMultiThreader::vtkMultiThreader()
@@ -149,15 +149,15 @@ vtkMultiThreader::vtkMultiThreader()
   for ( int i = 0; i < VTK_MAX_THREADS; i++ )
   {
     this->ThreadInfoArray[i].ThreadID           = i;
-    this->ThreadInfoArray[i].ActiveFlag         = NULL;
-    this->ThreadInfoArray[i].ActiveFlagLock     = NULL;
-    this->MultipleMethod[i]                     = NULL;
+    this->ThreadInfoArray[i].ActiveFlag         = nullptr;
+    this->ThreadInfoArray[i].ActiveFlagLock     = nullptr;
+    this->MultipleMethod[i]                     = nullptr;
     this->SpawnedThreadActiveFlag[i]            = 0;
-    this->SpawnedThreadActiveFlagLock[i]        = NULL;
+    this->SpawnedThreadActiveFlagLock[i]        = nullptr;
     this->SpawnedThreadInfoArray[i].ThreadID    = i;
   }
 
-  this->SingleMethod = NULL;
+  this->SingleMethod = nullptr;
   this->NumberOfThreads =
     vtkMultiThreader::GetGlobalDefaultNumberOfThreads();
 
@@ -272,9 +272,9 @@ void vtkMultiThreader::SingleMethodExecute()
     this->ThreadInfoArray[thread_loop].UserData        = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] =
-      CreateThread(NULL, 0, this->SingleMethod,
+      CreateThread(nullptr, 0, this->SingleMethod,
              ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
-    if (process_id[thread_loop] == NULL)
+    if (process_id[thread_loop] == nullptr)
     {
       vtkErrorMacro("Error in thread creation !!!");
     }
@@ -391,7 +391,7 @@ void vtkMultiThreader::SingleMethodExecute()
   // waits for each of the other processes to exit
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
   {
-    pthread_join( process_id[thread_loop], NULL );
+    pthread_join( process_id[thread_loop], nullptr );
   }
 #endif
 
@@ -435,7 +435,7 @@ void vtkMultiThreader::MultipleMethodExecute()
 
   for ( thread_loop = 0; thread_loop < this->NumberOfThreads; thread_loop++ )
   {
-    if ( this->MultipleMethod[thread_loop] == (vtkThreadFunctionType)NULL)
+    if ( this->MultipleMethod[thread_loop] == (vtkThreadFunctionType)nullptr)
     {
       vtkErrorMacro( << "No multiple method set for: " << thread_loop );
       return;
@@ -462,9 +462,9 @@ void vtkMultiThreader::MultipleMethodExecute()
       this->MultipleData[thread_loop];
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
     process_id[thread_loop] =
-      CreateThread(NULL, 0, this->MultipleMethod[thread_loop],
+      CreateThread(nullptr, 0, this->MultipleMethod[thread_loop],
              ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
-    if (process_id[thread_loop] == NULL)
+    if (process_id[thread_loop] == nullptr)
     {
       vtkErrorMacro("Error in thread creation !!!");
     }
@@ -576,7 +576,7 @@ void vtkMultiThreader::MultipleMethodExecute()
   // waits for each of the other processes to exit
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
   {
-    pthread_join( process_id[thread_loop], NULL );
+    pthread_join( process_id[thread_loop], nullptr );
   }
 #endif
 
@@ -602,7 +602,7 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *userdata )
 
   for ( id = 0; id < VTK_MAX_THREADS; id++ )
   {
-    if ( this->SpawnedThreadActiveFlagLock[id] == NULL )
+    if ( this->SpawnedThreadActiveFlagLock[id] == nullptr )
     {
       this->SpawnedThreadActiveFlagLock[id] = vtkMutexLock::New();
     }
@@ -637,9 +637,9 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *userdata )
   // Using CreateThread on a PC
   //
   this->SpawnedThreadProcessID[id] =
-      CreateThread(NULL, 0, f,
+      CreateThread(nullptr, 0, f,
              ((void *)(&this->SpawnedThreadInfoArray[id])), 0, &threadId);
-  if (this->SpawnedThreadProcessID[id] == NULL)
+  if (this->SpawnedThreadProcessID[id] == nullptr)
   {
     vtkErrorMacro("Error in thread creation !!!");
   }
@@ -740,7 +740,7 @@ void vtkMultiThreader::TerminateThread( int threadID )
 #endif
 
 #ifdef VTK_USE_PTHREADS
-  pthread_join( this->SpawnedThreadProcessID[threadID], NULL );
+  pthread_join( this->SpawnedThreadProcessID[threadID], nullptr );
 #endif
 
 #ifndef VTK_USE_WIN32_THREADS
@@ -754,7 +754,7 @@ void vtkMultiThreader::TerminateThread( int threadID )
 #endif
 
   this->SpawnedThreadActiveFlagLock[threadID]->Delete();
-  this->SpawnedThreadActiveFlagLock[threadID] = NULL;
+  this->SpawnedThreadActiveFlagLock[threadID] = nullptr;
 
 }
 
@@ -784,7 +784,7 @@ int vtkMultiThreader::IsThreadActive( int threadID )
   }
 
   // If we don't have a lock, then this thread is not active
-  if ( this->SpawnedThreadActiveFlagLock[threadID] == NULL )
+  if ( this->SpawnedThreadActiveFlagLock[threadID] == nullptr )
   {
     return 0;
   }

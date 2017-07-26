@@ -465,7 +465,7 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
     vtk_fseek(fp, pos, SEEK_SET);
   }
 
-  if (controller == NULL)
+  if (controller == nullptr)
   {
     if (error)
     {

@@ -45,17 +45,17 @@ public:
 
   void SetRenderer(vtkRenderer*);
 
-  void DrawPoly(float *points, int n, unsigned char *colors = 0,
+  void DrawPoly(float *points, int n, unsigned char *colors = nullptr,
                 int nc_comps = 0) VTK_OVERRIDE;
-  void DrawLines(float *f, int n, unsigned char *colors = 0,
+  void DrawLines(float *f, int n, unsigned char *colors = nullptr,
                  int nc_comps = 0) VTK_OVERRIDE;
-  void DrawPoints(float *points, int n, unsigned char* colors = 0,
+  void DrawPoints(float *points, int n, unsigned char* colors = nullptr,
                   int nc_comps = 0) VTK_OVERRIDE;
   void DrawPointSprites(vtkImageData *sprite, float *points, int n,
-                        unsigned char *colors = 0,
+                        unsigned char *colors = nullptr,
                         int nc_comps = 0) VTK_OVERRIDE;
   void DrawMarkers(int shape, bool highlight, float *points, int n,
-                   unsigned char *colors = 0, int nc_comps = 0) VTK_OVERRIDE;
+                   unsigned char *colors = nullptr, int nc_comps = 0) VTK_OVERRIDE;
   void DrawQuad(float *, int) VTK_OVERRIDE;
   void DrawQuadStrip(float *, int) VTK_OVERRIDE;
   void DrawPolygon(float *, int) VTK_OVERRIDE;

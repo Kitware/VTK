@@ -553,7 +553,7 @@ public:
    * must be of the same length. Returns true on success, false on failure.
    */
   virtual bool SetCustomTickPositions(vtkDoubleArray* positions,
-                                      vtkStringArray* labels = 0);
+                                      vtkStringArray* labels = nullptr);
 
   /**
    * Request the space the axes require to be drawn. This is returned as a

@@ -61,7 +61,7 @@ public:
     { this->Initialize(argc,argv); }
   void Initialize(int* argc, char*** argv) VTK_OVERRIDE;
   virtual void Initialize()
-    { this->Initialize(0,0); }
+    { this->Initialize(nullptr,nullptr); }
 
   /**
    * Does not apply to sockets. Does nothing.

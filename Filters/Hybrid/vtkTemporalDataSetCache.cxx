@@ -272,7 +272,7 @@ int vtkTemporalDataSetCache::RequestData(
 
   vtkInformation      *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation     *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject       *output = NULL;
+  vtkDataObject       *output = nullptr;
 
   vtkMTimeType outputUpdateTime = outInfo->Get(vtkDataObject::DATA_OBJECT())->GetUpdateTime();
 
