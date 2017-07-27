@@ -561,7 +561,7 @@ const VrmlNodeType* vtkVRMLYaccData::find(const char *_name)
 #define TO      263
 #define IS      264
 #define ROUTE   265
-#define SFN_nullptr        266
+#define SFN_NULL        266
 #define EVENTIN 267
 #define EVENTOUT        268
 #define FIELD   269
@@ -730,7 +730,7 @@ static const short yyrline[] = { 0,
 };
 
 static const char * const yytname[] = {   "$","error","$undefined.","IDENTIFIER",
-                                          "DEF","USE","PROTO","EXTERNPROTO","TO","IS","ROUTE","SFN_nullptr","EVENTIN","EVENTOUT",
+                                          "DEF","USE","PROTO","EXTERNPROTO","TO","IS","ROUTE","SFN_NULL","EVENTIN","EVENTOUT",
                                           "FIELD","EXPOSEDFIELD","SFBOOL","SFCOLOR","SFFLOAT","SFIMAGE","SFINT32","SFNODE",
                                           "SFROTATION","SFSTRING","SFTIME","SFVEC2F","SFVEC3F","MFCOLOR","MFFLOAT","MFINT32",
                                           "MFROTATION","MFSTRING","MFVEC2F","MFVEC3F","MFNODE","'['","']'","'{'","'}'",
@@ -1713,7 +1713,7 @@ void vtkVRMLYaccData::expect(int type)
 #define YY_PROTO(proto) proto
 
 /* Returned upon end-of-file. */
-#define YY_nullptr 0
+#define YY_NULL 0
 
 /* Promotes a possibly negative, possibly signed char to an unsigned
  * integer for use as an array index.  If the signed char is negative,
@@ -4131,7 +4131,7 @@ YY_MALLOC_DECL
 #define ECHO (void) fwrite( yytext, yyleng, 1, yyout )
 #endif
 
-/* Gets input and stuffs it into "buf".  number of characters read, or YY_nullptr,
+/* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
  * is returned in "result".
  */
 #ifndef YY_INPUT
@@ -4152,7 +4152,7 @@ YY_MALLOC_DECL
  * some compilers to complain about unreachable statements.
  */
 #ifndef yyterminate
-#define yyterminate() return YY_nullptr
+#define yyterminate() return YY_NULL
 #endif
 
 /* Number of entries by which start-condition stack grows. */
@@ -4363,7 +4363,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           { return ROUTE; }
       case 9:
         YY_USER_ACTION
-          { return SFN_nullptr; }
+          { return SFN_NULL; }
       case 10:
         YY_USER_ACTION
           { return EVENTIN; }
@@ -4749,8 +4749,8 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
            * yy_c_buf_p so that if some total
            * hoser (like flex itself) wants to
            * call the scanner after we return the
-           * YY_nullptr, it'll still work - another
-           * YY_nullptr will get returned.
+           * YY_NULL, it'll still work - another
+           * YY_NULL will get returned.
            */
           yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
 
