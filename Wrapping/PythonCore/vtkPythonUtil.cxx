@@ -901,6 +901,86 @@ PyTypeObject *vtkPythonUtil::FindEnum(const char *name)
 }
 
 //--------------------------------------------------------------------
+PyTypeObject *vtkPythonUtil::FindClassTypeObject(
+  const char *mod, const char *name)
+{
+  for (int i = 0; i < 2; i++)
+  {
+    // see if the class is already loaded
+    PyVTKClass *info = vtkPythonUtil::FindClass(name);
+    if (info)
+    {
+      return info->py_type;
+    }
+    if (i == 0 && !vtkPythonUtil::LoadExtensionModule(mod))
+    {
+      break;
+    }
+  }
+
+  return nullptr;
+}
+
+//--------------------------------------------------------------------
+PyTypeObject *vtkPythonUtil::FindSpecialTypeObject(
+  const char *mod, const char *name)
+{
+  for (int i = 0; i < 2; i++)
+  {
+    // see if the class is already loaded
+    PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(name);
+    if (info)
+    {
+      return info->py_type;
+    }
+    if (i == 0 && !vtkPythonUtil::LoadExtensionModule(mod))
+    {
+      break;
+    }
+  }
+
+  return nullptr;
+}
+
+//--------------------------------------------------------------------
+bool vtkPythonUtil::LoadExtensionModule(const char *name)
+{
+  for (int i = 0; i < 2; i++)
+  {
+    PyObject *m;
+    if (i == 0)
+    {
+      // try absolute import of "name"
+      m = PyImport_ImportModule(name);
+    }
+    else
+    {
+      // try import from "vtk" package
+      PyObject *l = PyList_New(1);
+      PyObject *s = PyString_FromString(name);
+      PyList_SET_ITEM(l, 0, s);
+      m = PyImport_ImportModuleLevel("vtk", nullptr, nullptr, l, 0);
+      Py_DECREF(l);
+    }
+    if (m)
+    {
+      Py_DECREF(m);
+      return true;
+    }
+    else if (i < 1)
+    {
+      PyErr_Clear();
+    }
+    else
+    {
+      PyErr_Print();
+    }
+  }
+
+  return false;
+}
+
+//--------------------------------------------------------------------
 // mangle a void pointer into a SWIG-style string
 char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
 {

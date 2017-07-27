@@ -91,14 +91,14 @@ const char *vtkWrapPython_GetSuperClass(
 
 /* -------------------------------------------------------------------- */
 /* check whether the superclass of the specified class is wrapped */
-int vtkWrapPython_HasWrappedSuperClass(
+const char *vtkWrapPython_HasWrappedSuperClass(
   HierarchyInfo *hinfo, const char *classname, int *is_external)
 {
   HierarchyEntry *entry;
   const char *module;
   const char *name;
   const char *supername;
-  int result = 0;
+  const char *result = NULL;
   int depth = 0;
 
   if (is_external)
@@ -108,14 +108,14 @@ int vtkWrapPython_HasWrappedSuperClass(
 
   if (!hinfo)
   {
-    return 0;
+    return result;
   }
 
   name = classname;
   entry = vtkParseHierarchy_FindEntry(hinfo, name);
   if (!entry)
   {
-    return 0;
+    return result;
   }
 
   module = entry->Module;
@@ -151,7 +151,7 @@ int vtkWrapPython_HasWrappedSuperClass(
     }
     else
     {
-      result = 1;
+      result = entry->Module;
       break;
     }
   }
@@ -403,7 +403,9 @@ static void vtkWrapPython_GenerateObjectNew(
   HierarchyInfo *hinfo, int class_has_new)
 {
   char superclassname[1024];
+  const char *supermodule;
   const char *name;
+  int is_external;
   int has_constants = 0;
   int i;
 
@@ -473,9 +475,21 @@ static void vtkWrapPython_GenerateObjectNew(
   if (name)
   {
     vtkWrapText_PythonName(name, superclassname);
-    fprintf(fp,
-            "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n",
-            superclassname);
+    supermodule = vtkWrapPython_HasWrappedSuperClass(
+      hinfo, data->Name, &is_external);
+    if (!is_external) /* superclass is in the same module */
+    {
+      fprintf(fp,
+        "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n",
+        superclassname);
+    }
+    else /* superclass is in a different module */
+    {
+      fprintf(fp,
+        "  pytype->tp_base = vtkPythonUtil::FindClassTypeObject(\n"
+        "    \"%sPython\", \"%s\");\n\n",
+        supermodule, superclassname);
+    }
   }
 
   /* check if any constants need to be added to the class dict */

@@ -30,8 +30,10 @@ int vtkWrapPython_WrapOneClass(
 const char *vtkWrapPython_GetSuperClass(
   ClassInfo *data, HierarchyInfo *hinfo);
 
-/* check whether the superclass of the specified class is wrapped */
-int vtkWrapPython_HasWrappedSuperClass(
+/* check whether the superclass of the specified class is wrapped,
+   the module for the superclass is returned and is_external is
+   set if the module is different from ours */
+const char *vtkWrapPython_HasWrappedSuperClass(
   HierarchyInfo *hinfo, const char *classname, int *is_external);
 
 /* generate the class docstring and write it to "fp" */

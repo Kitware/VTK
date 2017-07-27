@@ -665,6 +665,7 @@ void vtkWrapPython_GenerateSpecialType(
   ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
 {
   char supername[1024];
+  const char *supermodule;
   const char *name;
   SpecialTypeInfo info;
   const char *constructor = NULL;
@@ -683,10 +684,11 @@ void vtkWrapPython_GenerateSpecialType(
   }
 
   /* get the superclass */
-  has_superclass = vtkWrapPython_HasWrappedSuperClass(
+  supermodule = vtkWrapPython_HasWrappedSuperClass(
     hinfo, data->Name, &is_external);
-  if (has_superclass)
+  if (supermodule)
   {
+    has_superclass = 1;
     name = vtkWrapPython_GetSuperClass(data, hinfo);
     vtkWrapText_PythonName(name, supername);
   }
@@ -844,7 +846,7 @@ void vtkWrapPython_GenerateSpecialType(
     "VTK_ABI_EXPORT", classname);
 
   /* import New method of the superclass */
-  if (has_superclass)
+  if (has_superclass && !is_external)
   {
     fprintf(fp,
       "#ifndef DECLARED_Py%s_TypeNew\n"
@@ -912,9 +914,19 @@ void vtkWrapPython_GenerateSpecialType(
   /* call the superclass New (initialize in dependency order) */
   if (has_superclass)
   {
-    fprintf(fp,
-      "  pytype->tp_base = (PyTypeObject *)Py%s_TypeNew();\n\n",
-      supername);
+    if (!is_external) /* superclass is in the same module */
+    {
+      fprintf(fp,
+        "  pytype->tp_base = (PyTypeObject *)Py%s_TypeNew();\n\n",
+        supername);
+    }
+    else /* superclass is in a different module */
+    {
+      fprintf(fp,
+        "  pytype->tp_base = vtkPythonUtil::FindSpecialTypeObject(\n"
+        "    \"%sPython\", \"%s\");\n\n",
+        supermodule, supername);
+    }
   }
 
   /* check whether the class has any constants as members */
