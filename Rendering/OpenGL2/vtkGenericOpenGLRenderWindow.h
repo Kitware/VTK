@@ -151,12 +151,18 @@ public:
   vtkSetMacro(ReadyForRendering, bool);
   vtkGetMacro(ReadyForRendering, bool);
 
+  /**
+   * Set the size of the screen in pixels.
+   */
+  vtkSetVector2Macro(ScreenSize,int);
+
 protected:
   int DirectStatus;
   int SupportsOpenGLStatus;
   bool CurrentStatus;
   float ForceMaximumHardwareLineWidth;
   bool ReadyForRendering;
+  int ScreenSize[2];
 
 private:
   vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
