@@ -308,6 +308,16 @@ public:
    */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+  //@}
+
 protected:
   vtkGlyph3D();
   ~vtkGlyph3D() VTK_OVERRIDE;
@@ -348,6 +358,7 @@ protected:
   int FillCellData; // whether to fill output cell data
   char *PointIdsName;
   vtkTransform* SourceTransform;
+  int OutputPointsPrecision;
 
 private:
   vtkGlyph3D(const vtkGlyph3D&) VTK_DELETE_FUNCTION;

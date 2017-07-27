@@ -59,6 +59,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->SetNumberOfInputPorts(2);
   this->FillCellData = 0;
   this->SourceTransform = nullptr;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -329,6 +330,21 @@ bool vtkGlyph3D::Execute(
   dstCellIdList->SetNumberOfIds(numSourceCells);
 
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  {
+    newPts->SetDataType(VTK_FLOAT);
+  }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_FLOAT);
+  }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_DOUBLE);
+  }
+
   newPts->Allocate(numPts*numSourcePts);
   if ( this->GeneratePointIds )
   {
@@ -818,6 +834,9 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PointIdsName: " << (this->PointIdsName ? this->PointIdsName
        : "(none)") << "\n";
+
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
 
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
