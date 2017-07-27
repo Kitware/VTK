@@ -140,7 +140,7 @@ struct ProbePoints
         this->Valid[ptId] = 0;
         this->Arrays.AssignNullValue(ptId);
       }
-      else if ( this->Strategy == vtkPointInterpolator2D::nullptr_VALUE)
+      else if ( this->Strategy == vtkPointInterpolator2D::NULL_VALUE)
       {
         this->Arrays.AssignNullValue(ptId);
       }

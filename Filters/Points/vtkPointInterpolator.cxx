@@ -107,7 +107,7 @@ struct ProbePoints
         this->Valid[ptId] = 0;
         this->Arrays.AssignNullValue(ptId);
       }
-      else if ( this->Strategy == vtkPointInterpolator::nullptr_VALUE)
+      else if ( this->Strategy == vtkPointInterpolator::NULL_VALUE)
       {
         this->Arrays.AssignNullValue(ptId);
       }
@@ -230,7 +230,7 @@ vtkPointInterpolator::vtkPointInterpolator()
 
   this->Kernel = vtkLinearKernel::New();
 
-  this->NullPointsStrategy = vtkPointInterpolator::nullptr_VALUE;
+  this->NullPointsStrategy = vtkPointInterpolator::NULL_VALUE;
   this->NullValue = 0.0;
 
   this->ValidPointsMask = nullptr;
