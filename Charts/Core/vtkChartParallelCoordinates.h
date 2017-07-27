@@ -179,6 +179,8 @@ protected:
   vtkTimeStamp BuildTime;
 
   void ResetSelection();
+  bool ResetAxeSelection(int axe);
+  void ResetAxesSelection();
   void UpdateGeometry();
   void CalculatePlotTransform();
   void SwapAxes(int a1, int a2);
