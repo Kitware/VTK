@@ -78,7 +78,7 @@ vtkStandardNewMacro(vtkOpenQubeElectronicData);
 
 //----------------------------------------------------------------------------
 vtkOpenQubeElectronicData::vtkOpenQubeElectronicData()
-  : BasisSet(nulptr), Spacing(0.1)
+  : BasisSet(nullptr), Spacing(0.1)
 {
   this->Padding = 2.0;
 }
