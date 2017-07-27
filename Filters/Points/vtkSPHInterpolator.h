@@ -266,7 +266,7 @@ public:
   enum NullStrategy
   {
     MASK_POINTS=0,
-    nullptr_VALUE=1
+    NULL_VALUE=1
   };
 
   //@{
@@ -284,7 +284,7 @@ public:
   void SetNullPointsStrategyToMaskPoints()
     { this->SetNullPointsStrategy(MASK_POINTS); }
   void SetNullPointsStrategyToNullValue()
-    { this->SetNullPointsStrategy(nullptr_VALUE); }
+    { this->SetNullPointsStrategy(NULL_VALUE); }
   //@}
 
   //@{

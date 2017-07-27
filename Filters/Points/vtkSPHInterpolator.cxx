@@ -195,7 +195,7 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->DensityArrayName = "Rho";
   this->MassArrayName = "";
 
-  this->NullPointsStrategy = vtkSPHInterpolator::nullptr_VALUE;
+  this->NullPointsStrategy = vtkSPHInterpolator::NULL_VALUE;
   this->NullValue = 0.0;
 
   this->ValidPointsMask = nullptr;
