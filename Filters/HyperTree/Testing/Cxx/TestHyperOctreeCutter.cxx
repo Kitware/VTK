@@ -107,9 +107,9 @@ int TestHyperOctreeCutter(int argc, char* argv[])
 
   mapper3d->SetLookupTable(lut3d);
 
-  if(cutter3d->GetOutput()->GetCellData()!=0)
+  if(cutter3d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(cutter3d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(cutter3d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper3d->SetScalarRange( cutter3d->GetOutput()->GetCellData()->
                                 GetScalars()->GetRange());
@@ -180,9 +180,9 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   mapper2d->SetInputConnection(0,cutter2d->GetOutputPort(0));
   mapper2d->SetLookupTable(lut2d);
 
-  if(cutter2d->GetOutput()->GetCellData()!=0)
+  if(cutter2d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(cutter2d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(cutter2d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper2d->SetScalarRange( cutter2d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
@@ -254,9 +254,9 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   mapper1d->SetInputConnection(0,cutter1d->GetOutputPort(0));
   mapper1d->SetLookupTable(lut1d);
 
-  if(cutter1d->GetOutput()->GetCellData()!=0)
+  if(cutter1d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(cutter1d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(cutter1d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper1d->SetScalarRange( cutter1d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());

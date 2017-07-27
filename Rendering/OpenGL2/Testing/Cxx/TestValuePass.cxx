@@ -137,7 +137,7 @@ int TestValuePass(int argc, char *argv[])
   {
     if (i % 2 == 0)
     {
-      glRenderer->SetPass(NULL);
+      glRenderer->SetPass(nullptr);
     }
     else
     {

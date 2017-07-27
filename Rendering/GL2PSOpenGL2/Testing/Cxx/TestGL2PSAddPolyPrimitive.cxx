@@ -64,7 +64,7 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
   std::string filename = vtkTestingInteractor::TempDirectory +
       std::string("/TestGL2PSAddPolyPrimitive.ps");
   FILE *stream = fopen(filename.c_str(), "wb");
-  if (stream == NULL)
+  if (stream == nullptr)
   {
     std::cerr << "Error opening output file." << std::endl;
     return EXIT_FAILURE;
@@ -74,7 +74,7 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
   GLint result = gl2psBeginPage("AddPolyPrimitive Test", "VTK", viewport,
                                 GL2PS_PS, GL2PS_SIMPLE_SORT,
                                 GL2PS_NO_OPENGL_CONTEXT | GL2PS_NO_BLENDING,
-                                GL_RGBA, 0, NULL, 0, 0, 0, 0, stream, 0);
+                                GL_RGBA, 0, nullptr, 0, 0, 0, 0, stream, nullptr);
   if (result != GL2PS_SUCCESS)
   {
     std::cerr << "gl2psBeginPage failed." << std::endl;

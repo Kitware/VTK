@@ -57,8 +57,8 @@ class VolumePickingCommand : public vtkCommand
 public:
 
   VolumePickingCommand()
-  : Renderer(NULL)
-  , OutlineFilter(NULL)
+  : Renderer(nullptr)
+  , OutlineFilter(nullptr)
   {
   };
 
@@ -69,7 +69,7 @@ public:
   void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
     void* vtkNotUsed(callData)) VTK_OVERRIDE
   {
-    assert(this->Renderer != NULL);
+    assert(this->Renderer != nullptr);
 
     vtkNew<vtkHardwareSelector> selector;
     selector->SetRenderer(this->Renderer);
@@ -109,7 +109,7 @@ public:
         if (!keyObj)
           continue;
 
-        vtkAbstractMapper3D* mapper = NULL;
+        vtkAbstractMapper3D* mapper = nullptr;
         vtkActor* actor = vtkActor::SafeDownCast(keyObj);
         vtkVolume* vol = vtkVolume::SafeDownCast(keyObj);
         if (actor)
@@ -250,7 +250,7 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
 
   // run the actual test
   areaPicker->AreaPick(177, 125, 199, 206, ren.GetPointer());
-  vpc->Execute(NULL, 0, NULL);
+  vpc->Execute(nullptr, 0, nullptr);
   renWin->Render();
 
   // initialize render loop

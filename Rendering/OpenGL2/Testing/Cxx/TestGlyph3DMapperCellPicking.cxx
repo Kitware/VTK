@@ -45,16 +45,16 @@
 #include "vtkSelectionNode.h"
 #include <cassert>
 
-static vtkRenderer *renderer = NULL;
+static vtkRenderer *renderer = nullptr;
 
 class MyEndPickCommand : public vtkCommand
 {
 public:
   MyEndPickCommand()
   {
-    this->Renderer=0; // no reference counting
-    this->Mask=0; // no reference counting
-    this->DataSet=0;
+    this->Renderer=nullptr; // no reference counting
+    this->Mask=nullptr; // no reference counting
+    this->DataSet=nullptr;
   }
 
   ~MyEndPickCommand() VTK_OVERRIDE
@@ -66,7 +66,7 @@ public:
     unsigned long vtkNotUsed(eventId),
     void *vtkNotUsed(callData)) VTK_OVERRIDE
   {
-    assert("pre: renderer_exists" && this->Renderer!=0);
+    assert("pre: renderer_exists" && this->Renderer!=nullptr);
 
     vtkHardwareSelector *sel = vtkHardwareSelector::New();
     sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
@@ -97,15 +97,15 @@ public:
     }
 
     vtkSelectionNode *glyphids = res->GetNode(0);
-    if (glyphids!=0)
+    if (glyphids!=nullptr)
     {
       vtkAbstractArray *abs=glyphids->GetSelectionList();
-      if(abs==0)
+      if(abs==nullptr)
       {
         cout<<"abs is null"<<endl;
       }
       vtkIdTypeArray *ids=vtkArrayDownCast<vtkIdTypeArray>(abs);
-      if(ids==0)
+      if(ids==nullptr)
       {
         cout<<"ids is null"<<endl;
       }
@@ -266,7 +266,7 @@ int TestGlyph3DMapperCellPicking(int argc, char* argv[])
   renWin->Render();
   // areaPicker->AreaPick(0, 0, 241, 160, renderer);
   areaPicker->AreaPick(233, 120, 241, 160, renderer);
-  cbc->Execute(NULL, 0, NULL);
+  cbc->Execute(nullptr, 0, nullptr);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );

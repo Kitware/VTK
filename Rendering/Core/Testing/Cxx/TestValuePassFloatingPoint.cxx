@@ -299,7 +299,7 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
     renderer->ResetCamera();
 
     // Use the default pass to render the colored image.
-    glRenderer->SetPass(NULL);
+    glRenderer->SetPass(nullptr);
     window->Render();
   }
 

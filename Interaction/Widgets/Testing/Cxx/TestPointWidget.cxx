@@ -534,7 +534,7 @@ public:
     pointWidget->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkmyPWCallback():PolyData(0),Actor(0) {}
+  vtkmyPWCallback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };

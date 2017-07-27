@@ -106,7 +106,7 @@ int TestGenericCutter(int argc, char* argv[])
 
   cutter->Update(); //So that we can call GetRange() on the scalars
 
-  assert(cutter->GetOutput()!=0);
+  assert(cutter->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -116,9 +116,9 @@ int TestGenericCutter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection( cutter->GetOutputPort() );
 
-  if(cutter->GetOutput()->GetPointData()!=0)
+  if(cutter->GetOutput()->GetPointData()!=nullptr)
   {
-    if(cutter->GetOutput()->GetPointData()->GetScalars()!=0)
+    if(cutter->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( cutter->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());

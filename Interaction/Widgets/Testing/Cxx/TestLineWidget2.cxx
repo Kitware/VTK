@@ -54,7 +54,7 @@ public:
     rep->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkLW2Callback():PolyData(0),Actor(0) {}
+  vtkLW2Callback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };

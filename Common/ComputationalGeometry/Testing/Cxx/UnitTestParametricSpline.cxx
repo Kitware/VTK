@@ -196,7 +196,7 @@ int TestErrors()
   x[0] = 0.0; x[1] = 0.0; x[2] = 0.0;
   double result[3];
 
-  pspline->Evaluate(x, result, 0);
+  pspline->Evaluate(x, result, nullptr);
   // Check for model bounds error
   if (errorObserver->GetError())
   {
@@ -211,7 +211,7 @@ int TestErrors()
   errorObserver->Clear();
 
   pspline->SetNumberOfPoints(0);
-  pspline->EvaluateScalar(x, 0, 0);
+  pspline->EvaluateScalar(x, nullptr, nullptr);
   if (errorObserver->GetError())
   {
     std::cout << "Caught expected error: "
@@ -225,7 +225,7 @@ int TestErrors()
   errorObserver->Clear();
 
   pspline->SetXSpline(nullptr);
-  pspline->Evaluate(x, result, 0);
+  pspline->Evaluate(x, result, nullptr);
   if (errorObserver->GetError())
   {
     std::cout << "Caught expected error: "

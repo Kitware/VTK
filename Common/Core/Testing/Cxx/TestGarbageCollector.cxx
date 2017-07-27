@@ -51,7 +51,7 @@ protected:
     if(this->Other)
     {
       this->Other->UnRegister(this);
-      this->Other = 0;
+      this->Other = nullptr;
     }
   }
 

@@ -57,7 +57,7 @@ inline int DoTest(
       x[i] = bounds[2*i+j];
 
       cellId = image->FindCell(
-        x, 0, 0, 0.0, subId, pcoords, weights);
+        x, nullptr, 0, 0.0, subId, pcoords, weights);
 
       if (cellId < 0)
       {
@@ -73,7 +73,7 @@ inline int DoTest(
       x[i] = bounds[2*i+j] + offset;
 
       cellId = image->FindCell(
-        x, 0, 0, 0.0, subId, pcoords, weights);
+        x, nullptr, 0, 0.0, subId, pcoords, weights);
 
       if (cellId >= 0)
       {
@@ -88,7 +88,7 @@ inline int DoTest(
       x[i] = bounds[2*i+j] + ((j == 0) ? (-tol*0.5) : (tol*0.5));
 
       cellId = image->FindCell(
-        x, 0, 0, tol*tol, subId, pcoords, weights);
+        x, nullptr, 0, tol*tol, subId, pcoords, weights);
 
       if (cellId < 0)
       {

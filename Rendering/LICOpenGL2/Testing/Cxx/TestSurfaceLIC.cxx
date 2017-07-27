@@ -200,14 +200,14 @@ int TestSurfaceLIC(int argc, char* argv[])
   else
   {
     cerr << "Error: Unknown extension: '" << ext << "'"<< endl;
-    vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
+    vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
     return 1;
   }
 
   if (!dataObj) // || dataObj->GetNumberOfElements(vtkDataObject::POINT) == 0)
   {
     cerr << "Error reading file: '" << filename.c_str() << "'" << endl;
-    vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
+    vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
     return 1;
   }
 
@@ -246,7 +246,7 @@ int TestSurfaceLIC(int argc, char* argv[])
         mask_color_rgb,
         vectors);
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
 
   return status;
 }

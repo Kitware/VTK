@@ -818,7 +818,7 @@ public:
   static vtkDistanceWidget3DCallback *New()
     { return new vtkDistanceWidget3DCallback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE;
-  vtkDistanceWidget3DCallback():Renderer(0),RenderWindow(0),DistanceWidget(0),Distance(0) {}
+  vtkDistanceWidget3DCallback():Renderer(nullptr),RenderWindow(nullptr),DistanceWidget(nullptr),Distance(nullptr) {}
   vtkRenderer *Renderer;
   vtkRenderWindow *RenderWindow;
   vtkDistanceWidget *DistanceWidget;

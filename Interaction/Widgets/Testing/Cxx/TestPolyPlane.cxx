@@ -87,7 +87,7 @@ public:
   }
 
 
-  vtkTestPolyPlaneCallback() : PolyPlane(0),Cutter(0) {};
+  vtkTestPolyPlaneCallback() : PolyPlane(nullptr),Cutter(nullptr) {};
   vtkPolyPlane * PolyPlane;
   vtkCutter    * Cutter;
 };
@@ -280,7 +280,7 @@ int TestPolyPlane( int argc, char *argv[] )
   contourWidget->SetWidgetState(vtkContourWidget::Manipulate);
 
   // Execute the cut
-  cb->Execute(contourWidget,0,NULL);
+  cb->Execute(contourWidget,0,nullptr);
 
   vtkXMLPolyDataWriter *pWriter = vtkXMLPolyDataWriter::New();
   pWriter->SetInputConnection(cutter->GetOutputPort());

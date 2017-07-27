@@ -294,7 +294,7 @@ public:
     this->Actor->VisibilityOn();
   }
 
-  vtkTICWCallback() : Cylinder(0), Actor(0) {}
+  vtkTICWCallback() : Cylinder(nullptr), Actor(nullptr) {}
 
   vtkCylinder *Cylinder;
   vtkActor *Actor;

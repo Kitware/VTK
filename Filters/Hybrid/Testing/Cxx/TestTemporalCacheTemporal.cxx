@@ -141,7 +141,7 @@ int TestTemporalCacheTemporal(int , char *[])
     }
   }
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
 
   if (executecb->Count == 8)
   {

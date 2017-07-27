@@ -73,7 +73,7 @@ int TestBarGraph(int , char * [])
   }
 
   // Add multiple bar plots, setting the colors etc
-  vtkPlot *plot = 0;
+  vtkPlot *plot = nullptr;
 
   plot = chart->AddPlot(vtkChart::BAR);
   plot->SetInputData(table.GetPointer(), 0, 1);

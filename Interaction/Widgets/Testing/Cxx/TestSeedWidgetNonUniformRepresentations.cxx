@@ -61,7 +61,7 @@ public:
     }
   }
 
-  vtkSeedNonUniformRepresentationCallback() : SeedRepresentation(0) {}
+  vtkSeedNonUniformRepresentationCallback() : SeedRepresentation(nullptr) {}
   vtkSeedRepresentation *SeedRepresentation;
 };
 

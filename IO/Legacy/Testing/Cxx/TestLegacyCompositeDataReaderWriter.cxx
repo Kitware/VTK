@@ -81,7 +81,7 @@ int TestLegacyCompositeDataReaderWriter(int argc, char *argv[])
   writer->SetFileTypeToBinary();
   writer->Write();
 
-  reader->SetFileName(0);
+  reader->SetFileName(nullptr);
   reader->SetFileName(filename.c_str());
   reader->Update();
   return Validate(input,

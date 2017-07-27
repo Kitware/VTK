@@ -394,13 +394,13 @@ int TestPolynomialSolversUnivariate( int len, char * c[] )
 
   double toh06a[] = {1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
 
-  stat |= vtkTestPolynomials(toh06a, 20, rootInt, roots, tolSturm, divtol, 2, 0, 0, 1e-7,
+  stat |= vtkTestPolynomials(toh06a, 20, rootInt, roots, tolSturm, divtol, 2, nullptr, 0, 1e-7,
     "1+x+x^2+\\cdots+x^20", false);
 
-  stat |= vtkTestPolynomials(toh06a, 20, rootInt, roots, tolSturm, divtol+3, 2, 0, 0, 1e-7,
+  stat |= vtkTestPolynomials(toh06a, 20, rootInt, roots, tolSturm, divtol+3, 2, nullptr, 0, 1e-7,
     "1+x+x^2+\\cdots+x^20", false, 1);
 
-  stat |= vtkTestPolynomials(toh06a, 20, rootInt, roots, tolSturm, divtol+4, 1, 0, 0, 1e-7,
+  stat |= vtkTestPolynomials(toh06a, 20, rootInt, roots, tolSturm, divtol+4, 1, nullptr, 0, 1e-7,
     "1+x+x^2+\\cdots+x^20", false, 2);
 
   cout << "Test non-Sequence solvers" << endl;

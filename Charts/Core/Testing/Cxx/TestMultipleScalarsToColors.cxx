@@ -56,7 +56,7 @@ int TestMultipleScalarsToColors(int , char * [])
     0.5,0.5,1.0,1.0};
 
   // Save one of the context actors
-  vtkContextActor *actor = 0;
+  vtkContextActor *actor = nullptr;
 
   // Lookup Table
   vtkSmartPointer<vtkLookupTable> lookupTable =

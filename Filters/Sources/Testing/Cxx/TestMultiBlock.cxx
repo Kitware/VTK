@@ -156,6 +156,6 @@ int TestMultiBlock(int argc, char* argv[])
   reader->Delete();
   shrink->Delete();
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return !retVal;
 }

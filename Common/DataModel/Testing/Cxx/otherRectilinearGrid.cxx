@@ -686,7 +686,7 @@ int TestORG(ostream& strm)
 
   point3D[0] = 10.5; point3D[1] = 12.1; point3D[2] = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   vtkCell *found = rg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
@@ -703,7 +703,7 @@ int TestORG(ostream& strm)
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 14.7;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
@@ -720,7 +720,7 @@ int TestORG(ostream& strm)
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 14.7;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
@@ -735,7 +735,7 @@ int TestORG(ostream& strm)
        << weights[0] << ", " << weights[1] << ", " << weights[2] << ", " << weights[3] << endl;
 
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
@@ -751,7 +751,7 @@ int TestORG(ostream& strm)
 
 
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 0.0;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
@@ -767,7 +767,7 @@ int TestORG(ostream& strm)
 
 
   point3D[0] = 0.0; point3D[1] = 0.0; point3D[2] = 14.7;
-  dummyCell = 0;
+  dummyCell = nullptr;
   found = rg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {

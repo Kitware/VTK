@@ -137,7 +137,7 @@ int TestTextActor(int, char *[])
 
   // Add some various 'empty' actors to make sure there are no surprises:
   vtkNew<vtkTextActor> nullInputActor;
-  nullInputActor->SetInput(NULL);
+  nullInputActor->SetInput(nullptr);
   ren->AddActor2D(nullInputActor.GetPointer());
 
   vtkNew<vtkTextActor> emptyInputActor;

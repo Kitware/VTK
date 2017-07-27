@@ -129,7 +129,7 @@ static double TestReadWriteRead(
 {
   // read a NIFTI file
   vtkNew<vtkNIFTIImageReader> reader;
-  if (infile2 == 0)
+  if (infile2 == nullptr)
   {
     reader->SetFileName(infile);
   }
@@ -334,7 +334,7 @@ int TestNIFTIReaderWriter(int argc, char *argv[])
   // perform the read/write test
   for (int i = 0; i < 5; i++)
   {
-    char *infile2 = 0;
+    char *infile2 = nullptr;
     char *infile =
       vtkTestUtilities::ExpandDataFileName(argc, argv, testfiles[i][0]);
     bool planarRGB = (i == 2);

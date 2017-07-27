@@ -109,7 +109,7 @@ int TestManyActors(int argc, char* argv[])
   timer->StartTimer();
   iren->Initialize();
   iren->SetEventPosition(100, 100);
-  iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, 0);
+  iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, nullptr);
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
@@ -118,9 +118,9 @@ int TestManyActors(int argc, char* argv[])
   for (int i = 0; i < numRenders; ++i)
   {
     iren->SetEventPosition(100, 100 + i);
-    iren->InvokeEvent(vtkCommand::MouseMoveEvent, 0);
+    iren->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
   }
-  iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, 0);
+  iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, nullptr);
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;

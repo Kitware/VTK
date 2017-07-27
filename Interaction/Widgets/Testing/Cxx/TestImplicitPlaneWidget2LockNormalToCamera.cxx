@@ -426,7 +426,7 @@ public:
     rep->GetPlane(this->Plane);
     this->Actor->VisibilityOn();
   }
-  vtkTIPW2Callback():Plane(0),Actor(0) {}
+  vtkTIPW2Callback():Plane(nullptr),Actor(nullptr) {}
   vtkPlane *Plane;
   vtkActor *Actor;
 };
@@ -461,7 +461,7 @@ public:
   }
 
   // Ctors
-  vtkEnableSlaveCallback():lockMode(true), pWidget(0) {}
+  vtkEnableSlaveCallback():lockMode(true), pWidget(nullptr) {}
 
   // Attributes
   bool lockMode;

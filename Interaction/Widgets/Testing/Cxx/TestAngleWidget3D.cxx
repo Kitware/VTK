@@ -670,7 +670,7 @@ public:
       }
   }
   vtkAngleRepresentation3D *Rep;
-  vtkAngleCallback():Rep(0) {}
+  vtkAngleCallback():Rep(nullptr) {}
 };
 
 

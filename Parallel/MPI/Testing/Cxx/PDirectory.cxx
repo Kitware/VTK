@@ -66,7 +66,7 @@ int PDirectory(int argc, char* argv[])
     retVal++;
   }
 
-  controller->SetGlobalController(NULL);
+  controller->SetGlobalController(nullptr);
   controller->Finalize();
 
   return retVal;

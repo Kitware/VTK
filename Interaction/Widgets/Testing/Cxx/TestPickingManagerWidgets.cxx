@@ -80,7 +80,7 @@ public:
   {
     vtkPropPicker* picker = reinterpret_cast<vtkPropPicker*>(caller);
     vtkProp* prop = picker->GetViewProp();
-    if ( prop != NULL )
+    if ( prop != nullptr )
     {
       this->BalloonWidget->UpdateBalloonString(prop, "Picked");
     }
@@ -109,7 +109,7 @@ public:
     this->Actor->VisibilityOn();
   }
 
-  vtkTIPW2Callback():Plane(0),Actor(0) {}
+  vtkTIPW2Callback():Plane(nullptr),Actor(nullptr) {}
   vtkPlane *Plane;
   vtkActor *Actor;
 };
@@ -225,9 +225,9 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkBalloonWidget> widget;
   widget->SetInteractor(iren.GetPointer());
   widget->SetRepresentation(rep.GetPointer());
-  widget->AddBalloon(sph.GetPointer(),"This is a sphere",NULL);
-  widget->AddBalloon(cyl.GetPointer(),"This is a\ncylinder",NULL);
-  widget->AddBalloon(cone.GetPointer(),"This is a\ncone,\na really big.",NULL);
+  widget->AddBalloon(sph.GetPointer(),"This is a sphere",nullptr);
+  widget->AddBalloon(cyl.GetPointer(),"This is a\ncylinder",nullptr);
+  widget->AddBalloon(cone.GetPointer(),"This is a\ncone,\na really big.",nullptr);
   pcbk->BalloonWidget = widget.GetPointer();
 
   /*--------------------------------------------------------------------------*/

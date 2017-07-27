@@ -117,7 +117,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::Execute()
@@ -128,7 +128,7 @@ void MyProcess::Execute()
 
   vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
 
-  vtkRenderWindowInteractor *iren=0;
+  vtkRenderWindowInteractor *iren=nullptr;
 
   if(me==0)
   {
@@ -197,7 +197,7 @@ void MyProcess::Execute()
   boxNormals->SetComputePointNormals(0);
   boxNormals->SetComputeCellNormals(1);
   boxNormals->Update();
-  boxNormals->GetOutput()->GetPointData()->SetNormals(0);
+  boxNormals->GetOutput()->GetPointData()->SetNormals(nullptr);
 
   vtkPolyDataMapper *boxMapper=vtkPolyDataMapper::New();
   boxMapper->SetInputConnection(boxNormals->GetOutputPort());
@@ -425,13 +425,13 @@ void MyProcess::Execute()
 // wireframe representation, colored with the light color.
 void AddLightActors(vtkRenderer *r)
 {
-  assert("pre: r_exists" && r!=0);
+  assert("pre: r_exists" && r!=nullptr);
 
   vtkLightCollection *lights=r->GetLights();
 
   lights->InitTraversal();
   vtkLight *l=lights->GetNextItem();
-  while(l!=0)
+  while(l!=nullptr)
   {
     double angle=l->GetConeAngle();
     if(l->LightTypeIsSceneLight() && l->GetPositional()

@@ -239,7 +239,7 @@ public:
     lineWidget->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkLWCallback():PolyData(0),Actor(0) {}
+  vtkLWCallback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };

@@ -39,7 +39,7 @@
 void PerformAlgorithm(vtkRenderer* ren, vtkAlgorithm* alg,
   double xoffset, double yoffset,
   const char* vertColorArray, double vertMin, double vertMax,
-  const char* edgeColorArray = 0, double edgeMin = 0, double edgeMax = 0)
+  const char* edgeColorArray = nullptr, double edgeMin = 0, double edgeMax = 0)
 {
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);
   graphToPoly->SetInputConnection(alg->GetOutputPort());

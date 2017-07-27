@@ -164,12 +164,12 @@ int TestCellPickerImage(int argc, char* argv[])
     double p[3], n[3];
     picker->GetPickPosition(p);
     picker->GetPickNormal(n);
-    if (vtkImageSlice::SafeDownCast(picker->GetProp3D()) == 0)
+    if (vtkImageSlice::SafeDownCast(picker->GetProp3D()) == nullptr)
     {
       cerr << "Pick did not get an image.\n";
       pickSuccess = false;
     }
-    if (vtkImageSliceMapper::SafeDownCast(picker->GetMapper()) == 0)
+    if (vtkImageSliceMapper::SafeDownCast(picker->GetMapper()) == nullptr)
     {
       cerr << "Pick did not get a mapper.\n";
       pickSuccess = false;

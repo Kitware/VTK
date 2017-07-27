@@ -44,7 +44,7 @@ static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer
   {
     return false;
   }
-  vtkIntArray* dataArray = 0;
+  vtkIntArray* dataArray = nullptr;
   vtkCollectionSimpleIterator it;
   int i = 0;
   for (collection->InitTraversal(it);
@@ -69,14 +69,14 @@ bool TestRegister()
     std::cout << object->GetReferenceCount() << std::endl;
     return false;
   }
-  object->Register(0);
+  object->Register(nullptr);
   collection->RemoveItem(object);
   if (object->GetReferenceCount() != 1)
   {
     std::cout << object->GetReferenceCount() << std::endl;
     return false;
   }
-  object->UnRegister(0);
+  object->UnRegister(nullptr);
   return true;
 }
 

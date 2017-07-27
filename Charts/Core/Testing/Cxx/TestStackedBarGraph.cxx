@@ -111,7 +111,7 @@ int TestStackedBarGraph(int , char * [])
   colorSeries1->SetColorScheme(vtkColorSeries::WILD_FLOWER);
 
   // Add multiple line plots, setting the colors etc
-  vtkPlotBar *bar = 0;
+  vtkPlotBar *bar = nullptr;
 
   bar = vtkPlotBar::SafeDownCast(chart->AddPlot(vtkChart::BAR));
   bar->SetColorSeries(colorSeries1);

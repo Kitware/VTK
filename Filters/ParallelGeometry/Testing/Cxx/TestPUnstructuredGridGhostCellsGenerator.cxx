@@ -161,7 +161,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
       // Save the grid for further analysis
       outGrids[step] = ghostGenerator->GetOutput();
-      outGrids[step]->Register(0);
+      outGrids[step]->Register(nullptr);
 
       double elapsed = timer->GetElapsedTime();
 

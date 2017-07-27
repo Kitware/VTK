@@ -109,6 +109,6 @@ int TestTemporalFractal(int argc, char *argv[])
     iren->Start();
   }
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return !retVal;
 }

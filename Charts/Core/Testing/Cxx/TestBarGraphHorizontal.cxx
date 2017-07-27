@@ -72,8 +72,8 @@ int TestBarGraphHorizontal(int , char * [])
   }
 
   // Add multiple bar plots, setting the colors etc
-  vtkPlot *plot = 0;
-  vtkPlotBar* barPlot = 0;
+  vtkPlot *plot = nullptr;
+  vtkPlotBar* barPlot = nullptr;
 
   plot = chart->AddPlot(vtkChart::BAR);
   barPlot = vtkPlotBar::SafeDownCast(plot);

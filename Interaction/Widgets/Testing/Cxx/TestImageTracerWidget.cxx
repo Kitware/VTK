@@ -290,8 +290,8 @@ public:
     }
   }
 
-  vtkITWCallback():SplineWidget(0),Actor(0),Stencil(0),Extract(0),
-                   PathPoly(0),SplinePoly(0){}
+  vtkITWCallback():SplineWidget(nullptr),Actor(nullptr),Stencil(nullptr),Extract(nullptr),
+                   PathPoly(nullptr),SplinePoly(nullptr){}
 
   vtkSplineWidget *SplineWidget;
   vtkImageActor   *Actor;
@@ -338,7 +338,7 @@ public:
     TracerWidget->InitializeHandles(Points);
   }
 
-  vtkSW2Callback():Points(0),TracerWidget(0),Actor(0),Stencil(0),SplinePoly(0){}
+  vtkSW2Callback():Points(nullptr),TracerWidget(nullptr),Actor(nullptr),Stencil(nullptr),SplinePoly(nullptr){}
 
   vtkPoints            *Points;
   vtkImageTracerWidget *TracerWidget;

@@ -47,7 +47,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInputConnection(source->GetOutputPort());
-  vtkGraph *output = NULL;
+  vtkGraph *output = nullptr;
   double pt[3] = {0.0, 0.0, 0.0};
   double pt2[3] = {0.0, 0.0, 0.0};
   double eps = 1.0e-6;

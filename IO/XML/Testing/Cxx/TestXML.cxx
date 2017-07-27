@@ -56,7 +56,7 @@ int TestXML(int argc, char *argv[])
     cout << "Cannot parse the file: " << argv[1] << endl;
     res = 1;
   }
-  parser->SetFileName(0);
+  parser->SetFileName(nullptr);
 
   if( !parser->Parse("<xml>This is an XML file</xml>") )
   {

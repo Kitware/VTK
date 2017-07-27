@@ -422,7 +422,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   reader->SetFileName(filename);
   reader->Update();
   delete [] filename;
-  filename = NULL;
+  filename = nullptr;
 
 #ifdef GPU_MAPPER
   vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper =

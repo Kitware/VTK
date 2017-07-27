@@ -81,7 +81,7 @@ public:
 #endif
   }
 
-  vtkShaderCallback() { this->Renderer = 0; }
+  vtkShaderCallback() { this->Renderer = nullptr; }
 };
 
 //----------------------------------------------------------------------------

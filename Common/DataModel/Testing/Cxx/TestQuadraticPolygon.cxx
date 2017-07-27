@@ -147,7 +147,7 @@ int vtkQuadraticPolygonTest::TestGetSet()
     return EXIT_FAILURE;
   }
 
-  if (this->GetFace(0) != 0)
+  if (this->GetFace(0) != nullptr)
   {
     cerr << "ERROR:  quadratic polygon face is " << this->GetFace(0)
          << ", should be 0" << endl;

@@ -105,8 +105,8 @@ int TestTextOpaquePass(int, char *[])
 
   // Disable everything but opaque and overlay:
   vtkNew<vtkRenderStepsPass> pass;
-  pass->SetTranslucentPass(NULL);
-  pass->SetVolumetricPass(NULL);
+  pass->SetTranslucentPass(nullptr);
+  pass->SetVolumetricPass(nullptr);
 
   vtkNew<vtkRenderer> ren;
   ren->SetPass(pass.Get());

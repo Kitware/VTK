@@ -401,7 +401,7 @@ public:
     planeWidget->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkTPWCallback():PolyData(0),Actor(0) {}
+  vtkTPWCallback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };
