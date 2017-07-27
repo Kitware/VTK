@@ -22,7 +22,7 @@ namespace ADIOS
 
 enum TransportMethod
 {
-  TransportMethod_nullptr          = 0,
+  TransportMethod_NULL          = 0,
   TransportMethod_POSIX         = 1,
   TransportMethod_MPI           = 2,
   TransportMethod_MPI_LUSTRE    = 3,
