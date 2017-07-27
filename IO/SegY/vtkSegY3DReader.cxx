@@ -45,7 +45,7 @@ void vtkSegY3DReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-vtkImageData* vtkSegY3DReader::GetImage(int ImageNumber)
+vtkImageData* vtkSegY3DReader::GetImage()
 {
   this->reader.LoadFromFile(FileName);
 

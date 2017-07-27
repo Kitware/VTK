@@ -36,7 +36,7 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-  virtual vtkImageData* GetImage(int ImageNumber);
+  virtual vtkImageData* GetImage();
 
 protected:
   vtkSegY3DReader();

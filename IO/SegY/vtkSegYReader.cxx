@@ -291,7 +291,7 @@ void vtkSegYReader::AddScalars(vtkStructuredGrid* grid)
   int j = 0;
   for (int k = 0; k < SampleCountPerTrace; k++)
   {
-    for (int i = 0; i < Traces.size(); i++)
+    for (unsigned int i = 0; i < Traces.size(); i++)
     {
       pointData->InsertValue(j++, Traces[i]->data[k]);
     }
@@ -309,7 +309,7 @@ void vtkSegYReader::ExportData2D(vtkStructuredGrid* grid)
 
   for (int k = 0; k < SampleCountPerTrace; k++)
   {
-    for (int i = 0; i < Traces.size(); i++)
+    for (unsigned int i = 0; i < Traces.size(); i++)
     {
       auto trace = Traces[i];
       float coordinateMultiplier = (trace->CoordinateMultiplier < 0)

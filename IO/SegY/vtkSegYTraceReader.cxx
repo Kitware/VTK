@@ -144,4 +144,5 @@ int vtkSegYTraceReader::GetTraceSize(int numSamples, int formatCode)
     return numSamples;
   }
   std::cerr << "Unsupported data format code : " << formatCode << std::endl;
+  return -1;
 }

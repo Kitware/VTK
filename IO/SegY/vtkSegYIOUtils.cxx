@@ -39,9 +39,9 @@ be TOO difficult). */
 //----------------------------------------------------------------------------
 void ibm2ieee(void* to, const void* from, int len)
 {
-  register unsigned fr; /* fraction */
-  register int exp;     /* exponent */
-  register int sgn;     /* sign */
+  unsigned long fr; /* fraction */
+  int exp;          /* exponent */
+  int sgn;          /* sign */
 
   for (; len-- > 0; to = (char*)to + 4, from = (char*)from + 4)
   {
