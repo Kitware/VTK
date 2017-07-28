@@ -1967,15 +1967,34 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       numClipPlanes = 6;
     }
 
+    double shift[3] = {0.0, 0.0, 0.0};
+    double scale[3] = {1.0, 1.0, 1.0};
+    vtkOpenGLVertexBufferObject *vvbo = this->VBOs->GetVBO("vertexMC");
+    if (vvbo && vvbo->GetCoordShiftAndScaleEnabled())
+    {
+      const std::vector<double> &vh = vvbo->GetShift();
+      const std::vector<double> &vc = vvbo->GetScale();
+      for (int i = 0; i < 3; ++i)
+      {
+        shift[i] = vh[i];
+        scale[i] = vc[i];
+      }
+    }
+
     float planeEquations[6][4];
     for (int i = 0; i < numClipPlanes; i++)
     {
       double planeEquation[4];
       this->GetClippingPlaneInDataCoords(actor->GetMatrix(), i, planeEquation);
-      planeEquations[i][0] = planeEquation[0];
-      planeEquations[i][1] = planeEquation[1];
-      planeEquations[i][2] = planeEquation[2];
-      planeEquations[i][3] = planeEquation[3];
+
+      // multiply by shift scale if set
+      planeEquations[i][0] = planeEquation[0]/scale[0];
+      planeEquations[i][1] = planeEquation[1]/scale[1];
+      planeEquations[i][2] = planeEquation[2]/scale[2];
+      planeEquations[i][3] = planeEquation[3]
+        + planeEquation[0]*shift[0]
+        + planeEquation[1]*shift[1]
+        + planeEquation[2]*shift[2];
     }
     cellBO.Program->SetUniformi("numClipPlanes", numClipPlanes);
     cellBO.Program->SetUniform4fv("clipPlanes", 6, planeEquations);
@@ -2664,7 +2683,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(
   if (this->VBOBuildTime < this->GetMTime() ||
       this->VBOBuildTime < act->GetMTime() ||
       this->VBOBuildTime < this->CurrentInput->GetMTime() ||
-      this->VBOBuildTime < this->SelectionStateChanged)
+      this->VBOBuildTime < this->SelectionStateChanged
+      )
   {
     return true;
   }
