@@ -459,11 +459,17 @@ void vtkVolumeProperty::SetTransferFunction2D(int index, vtkImageData* function)
     if (!dataArr || dataArr->GetNumberOfComponents() != 4 ||
       dataArr->GetDataType() != VTK_FLOAT || dims[0] == 0)
     {
-      const int type = dataArr->GetDataType();
-      const int comp = dataArr->GetNumberOfComponents();
-      vtkErrorMacro(<< "Invalid type (" << type << ") or number of components ("
-        << comp << ") or dimensions (" << dims[0] << ", " << dims[1] << ")."
-        " Expected VTK_FLOAT, 4 Components, dimensions > 0!");
+      if (dataArr)
+      {
+        const int type = dataArr->GetDataType();
+        const int comp = dataArr->GetNumberOfComponents();
+        vtkErrorMacro(<< "Invalid type (" << type << ") or number of components ("
+          << comp << ") or dimensions (" << dims[0] << ", " << dims[1] << ")."
+          " Expected VTK_FLOAT, 4 Components, dimensions > 0!");
+        return;
+      }
+
+      vtkErrorMacro(<< "Invalid array!");
       return;
     }
 
