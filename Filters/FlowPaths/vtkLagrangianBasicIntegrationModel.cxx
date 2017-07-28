@@ -1279,9 +1279,8 @@ vtkAbstractArray* vtkLagrangianBasicIntegrationModel::GetSeedArray(int idx,
     }
     default:
       vtkErrorMacro(<< "Only FIELD_ASSOCIATION_POINTS are supported in particle data input");
-      return nullptr;
   }
-  return nullptr; // never reached
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
