@@ -27,7 +27,18 @@
 
 vtkStandardNewMacro(vtkWedge);
 
+namespace
+{
 static const double VTK_DIVERGED = 1.e6;
+//----------------------------------------------------------------------------
+// Marching (convex) wedge
+//
+static int edges[9][2] = { {0,1}, {1,2}, {2,0},
+                           {3,4}, {4,5}, {5,3},
+                           {0,3}, {1,4}, {2,5} };
+static int faces[5][5] = { {0,1,2,-1}, {3,5,4,-1},
+                           {0,3,4,1,-1}, {1,4,5,2,-1}, {2,5,3,0,-1} };
+}
 
 //----------------------------------------------------------------------------
 // Construct the wedge with six points.
@@ -64,35 +75,45 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
                                int& subId, double pcoords[3],
                                double& dist2, double *weights)
 {
-  int iteration, converged;
-  double  params[3];
-  double  fcol[3], rcol[3], scol[3], tcol[3];
-  int i, j;
-  double  d, pt[3];
+  double  params[3] = {0.5, 0.5, 0.5};
   double derivs[18];
+
+  // compute a bound on the volume to get a scale for an acceptable determinant
+  double longestEdge = 0;
+  for (int i=0; i<9; i++)
+  {
+    double pt0[3], pt1[3];
+    this->Points->GetPoint(edges[i][0], pt0);
+    this->Points->GetPoint(edges[i][1], pt1);
+    double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
+    if (longestEdge < d2)
+    {
+      longestEdge = d2;
+    }
+  }
+  // longestEdge value is already squared
+  double volumeBound = pow(longestEdge, 1.5);
+  double determinantTolerance = 1e-20 < .00001*volumeBound ? 1e-20 : .00001*volumeBound;
 
   //  set initial position for Newton's method
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
-  params[0] = params[1] = params[2] = 0.5;
 
   //  enter iteration loop
-  for (iteration=converged=0; !converged && (iteration < VTK_WEDGE_MAX_ITERATION);
-  iteration++)
+  int converged = 0;
+  for (int iteration=0; !converged && (iteration < VTK_WEDGE_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++)
+    double fcol[3] = {0, 0, 0}, rcol[3] = {0, 0, 0}, scol[3] = {0, 0, 0}, tcol[3] = {0, 0, 0};
+    for (int i=0; i<6; i++)
     {
-      fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
-    }
-    for (i=0; i<6; i++)
-    {
+      double pt[3];
       this->Points->GetPoint(i, pt);
-      for (j=0; j<3; j++)
+      for (int j=0; j<3; j++)
       {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
@@ -101,14 +122,14 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
       }
     }
 
-    for (i=0; i<3; i++)
+    for (int i=0; i<3; i++)
     {
       fcol[i] -= x[i];
     }
 
     //  compute determinants and generate improvements
-    d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20)
+    double d = vtkMath::Determinant3x3(rcol,scol,tcol);
+    if ( fabs(d) < determinantTolerance)
     {
       vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
@@ -166,7 +187,7 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
     double pc[3], w[6];
     if (closestPoint)
     {
-      for (i=0; i<3; i++) //only approximate, not really true for warped hexa
+      for (int i=0; i<3; i++) //only approximate, not really true for warped hexa
       {
         if (pcoords[i] < 0.0)
         {
@@ -290,15 +311,6 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     return 1;
   }
 }
-
-//----------------------------------------------------------------------------
-// Marching (convex) wedge
-//
-static int edges[9][2] = { {0,1}, {1,2}, {2,0},
-                           {3,4}, {4,5}, {5,3},
-                           {0,3}, {1,4}, {2,5} };
-static int faces[5][5] = { {0,1,2,-1}, {3,5,4,-1},
-                           {0,3,4,1,-1}, {1,4,5,2,-1}, {2,5,3,0,-1} };
 
 namespace { //required so we don't violate ODR
 typedef int EDGE_LIST;
