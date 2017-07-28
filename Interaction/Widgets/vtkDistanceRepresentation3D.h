@@ -113,6 +113,7 @@ public:
    * control the appearance of the label.
    */
   vtkGetObjectMacro(LabelActor, vtkFollower);
+  virtual void SetLabelActor(vtkFollower *);
   //@}
 
   //@{

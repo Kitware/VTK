@@ -15,12 +15,14 @@
 #include "vtkDistanceRepresentation.h"
 #include "vtkHandleRepresentation.h"
 #include "vtkCoordinate.h"
+#include "vtkEventData.h"
 #include "vtkRenderer.h"
 #include "vtkObjectFactory.h"
 #include "vtkBox.h"
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
 #include "vtkWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
 vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRepresentation);
 
@@ -122,6 +124,35 @@ ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(mod
   return this->InteractionState;
 }
 
+int vtkDistanceRepresentation::ComputeComplexInteractionState(
+    vtkRenderWindowInteractor *,
+    vtkAbstractWidget *,
+    unsigned long , void *, int )
+{
+  if (this->Point1Representation == nullptr || this->Point2Representation == nullptr)
+  {
+    this->InteractionState = vtkDistanceRepresentation::Outside;
+    return this->InteractionState;
+  }
+
+  int h1State = this->Point1Representation->GetInteractionState();
+  int h2State = this->Point2Representation->GetInteractionState();
+  if ( h1State == vtkHandleRepresentation::Nearby )
+  {
+    this->InteractionState = vtkDistanceRepresentation::NearP1;
+  }
+  else if ( h2State == vtkHandleRepresentation::Nearby )
+  {
+    this->InteractionState = vtkDistanceRepresentation::NearP2;
+  }
+  else
+  {
+    this->InteractionState = vtkDistanceRepresentation::Outside;
+  }
+
+  return this->InteractionState;
+}
+
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation::StartWidgetInteraction(double e[2])
 {
@@ -133,6 +164,22 @@ void vtkDistanceRepresentation::StartWidgetInteraction(double e[2])
   this->SetPoint2DisplayPosition(pos);
 }
 
+void vtkDistanceRepresentation::StartComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long , void *calldata)
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    double pos[3];
+    edd->GetWorldPosition(pos);
+    this->SetPoint1WorldPosition(pos);
+    this->SetPoint2WorldPosition(pos);
+  }
+}
+
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation::WidgetInteraction(double e[2])
 {
@@ -141,6 +188,20 @@ void vtkDistanceRepresentation::WidgetInteraction(double e[2])
   pos[1] = e[1];
   pos[2] = 0.0;
   this->SetPoint2DisplayPosition(pos);
+}
+void vtkDistanceRepresentation::ComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *calldata )
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    double pos[3];
+    edd->GetWorldPosition(pos);
+    this->SetPoint2WorldPosition(pos);
+  }
 }
 
 //----------------------------------------------------------------------

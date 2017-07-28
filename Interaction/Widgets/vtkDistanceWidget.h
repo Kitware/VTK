@@ -169,6 +169,9 @@ protected:
   static void AddPointAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
+  static void AddPointAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
+  static void EndSelectAction3D(vtkAbstractWidget*);
 
   // The positioning handle widgets
   vtkHandleWidget *Point1Widget;
