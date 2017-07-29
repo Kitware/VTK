@@ -378,9 +378,8 @@ static void vtkWrapPython_ExportVTKClass(
 
   /* for vtkObjectBase objects: export New method for use by subclasses */
   fprintf(fp,
-          "extern \"C\" { %s PyObject *Py%s_ClassNew(); }\n"
-          "\n",
-          "VTK_ABI_EXPORT", classname);
+          "extern \"C\" { PyObject *Py%s_ClassNew(); }\n\n",
+          classname);
 
   /* declare the New methods for all the superclasses */
   supername = vtkWrapPython_GetSuperClass(data, hinfo);

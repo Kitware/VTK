@@ -88,62 +88,26 @@ function(vtk_add_python_wrapping_library module srcs)
     ${VTK_SOURCE_DIR}/Utilities/Python
     ${VTK_BINARY_DIR}/Utilities/Python
     ${PYTHON_INCLUDE_DIRS})
-  set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
-
-  # Figure out the dependent PythonXYD libraries for the module
-  set(extra_links)
-  string(REPLACE "Kit" "" kit_basename "${module}")
-  if (_${kit_basename}_is_kit)
-    set(${module}_WRAP_DEPENDS)
-    foreach (kit_module IN LISTS _${kit_basename}_modules)
-      list(APPEND ${module}_WRAP_DEPENDS
-        ${${kit_module}_WRAP_DEPENDS})
-    endforeach ()
-  endif ()
-  foreach(dep IN LISTS ${module}_WRAP_DEPENDS)
-    if (module STREQUAL dep OR kit_basename STREQUAL dep)
-      continue ()
-    endif ()
-
-    if (VTK_ENABLE_KITS AND ${dep}_KIT)
-      if (NOT ${dep}_KIT STREQUAL kit_basename)
-        list(APPEND extra_links ${${dep}_KIT}KitPythonD)
-      endif ()
-    elseif (TARGET ${dep}PythonD)
-      list(APPEND extra_links ${dep}PythonD)
-    endif ()
-  endforeach()
-
-  vtk_add_library(${module}PythonD ${${srcs}})
-  get_property(output_name TARGET ${module}PythonD PROPERTY OUTPUT_NAME)
-  string(REPLACE "PythonD" "Python${XY}D" output_name "${output_name}")
-  set_property(TARGET ${module}PythonD PROPERTY OUTPUT_NAME ${output_name})
-  set_property(TARGET ${module}PythonD APPEND
-    PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
-  target_link_libraries(${module}PythonD LINK_PUBLIC
-    vtkWrappingPythonCore ${extra_links})
-  vtk_target_link_libraries_with_dynamic_lookup(
-    ${module}PythonD LINK_PUBLIC ${VTK_PYTHON_LIBRARIES})
-
-  if (MSVC)
-    set_target_properties(${module}PythonD
-      PROPERTIES STATIC_LIBRARY_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
-  endif()
-
-  foreach (submodule IN LISTS ARGN)
-    if(${submodule}_IMPLEMENTS)
-      set_property(TARGET ${module}PythonD APPEND PROPERTY COMPILE_DEFINITIONS
-        "${submodule}_AUTOINIT=1(${submodule})")
-    endif()
-    target_link_libraries(${module}PythonD LINK_PUBLIC ${submodule})
-  endforeach ()
 
   set(prefix ${module})
   if(_${module}_is_kit)
     set(prefix ${prefix}${VTK_KIT_SUFFIX})
   endif()
-  _vtk_add_python_module(${module}Python ${prefix}PythonInit.cxx)
-  target_link_libraries(${module}Python ${module}PythonD)
+  _vtk_add_python_module(${module}Python ${prefix}PythonInit.cxx ${${srcs}})
+  target_link_libraries(${module}Python LINK_PRIVATE
+    vtkWrappingPythonCore ${extra_links})
+
+  foreach (submodule IN LISTS ARGN)
+    if(${submodule}_IMPLEMENTS)
+      set_property(TARGET ${module}Python APPEND PROPERTY COMPILE_DEFINITIONS
+        "${submodule}_AUTOINIT=1(${submodule})")
+    endif()
+    target_link_libraries(${module}Python LINK_PRIVATE ${submodule})
+  endforeach ()
+
+  vtk_target_link_libraries_with_dynamic_lookup(
+    ${module}Python LINK_PRIVATE ${VTK_PYTHON_LIBRARIES})
+
   set_property(TARGET ${module}Python APPEND
     PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
 endfunction()
