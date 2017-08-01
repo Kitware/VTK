@@ -1,15 +1,21 @@
 #include "vtkCellData.h"
-#include "vtkCellSizeFilter.h"
 #include "vtkDoubleArray.h"
+#include "vtkMPIController.h"
 #include "vtkNew.h"
+#include "vtkPCellSizeFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-int CellSizeFilter( int argc, char* argv[] )
+int PCellSizeFilter( int argc, char* argv[] )
 {
+  vtkMPIController* contr = vtkMPIController::New();
+  contr->Initialize(&argc, &argv);
+  contr->SetGlobalController(contr);
+  contr->CreateOutputWindow();
+
   vtkNew<vtkUnstructuredGridReader> reader;
-  vtkNew<vtkCellSizeFilter> filter;
+  vtkNew<vtkPCellSizeFilter> filter;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uGridEx.vtk");
 
   reader->SetFileName( fname );
@@ -23,7 +29,7 @@ int CellSizeFilter( int argc, char* argv[] )
 
   if (!sizes)
   {
-    vtkGenericWarningMacro("Cannot find expected array output ('size') from vtkCellSizeFilter");
+    vtkGenericWarningMacro("Cannot find expected array output ('size') from vtkPCellSizeFilter");
     return EXIT_FAILURE;
   }
   // types are hex, hex, tet, tet, polygon, triangle-strip, quad, triangle,
@@ -41,6 +47,12 @@ int CellSizeFilter( int argc, char* argv[] )
     correctValues[11], correctValues[10]+correctValues[9],
     correctValues[8]+correctValues[7]+correctValues[6]+correctValues[5]+correctValues[4],
     correctValues[3]+correctValues[2]+correctValues[1]+correctValues[0] };
+  // each process is reading in so we multiply the serial values by the number of processes for the sum
+  int numProcs = contr->GetNumberOfProcesses();
+  for (int i=0;i<4;i++)
+  {
+    correctSumValues[i] *= numProcs;
+  }
 
   sizes = vtkDoubleArray::SafeDownCast(
     vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("size"));
@@ -105,6 +117,9 @@ int CellSizeFilter( int argc, char* argv[] )
       return EXIT_FAILURE;
     }
   }
+
+  contr->Finalize();
+  contr->Delete();
 
   return EXIT_SUCCESS;
 }

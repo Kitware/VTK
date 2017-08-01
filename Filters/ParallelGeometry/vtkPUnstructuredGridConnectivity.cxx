@@ -798,7 +798,7 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneCells(
 
 #ifndef NDEBUG
     assert("pre: numtuples mismatch!" &&
-           (numGhostCells==ghostArray->GetNumberOfTuples()));
+           (numGhostCells==static_cast<unsigned int>(ghostArray->GetNumberOfTuples())));
 #endif
 
     vtkDataArray* targetArray = CD->GetArray( ghostArray->GetName() );
@@ -849,7 +849,7 @@ void vtkPUnstructuredGridConnectivity::FillGhostZoneNodes(
 
 #ifndef NDEBUG
       assert("pre: numtuples mismatch!" &&
-             (numGhostNodes==ghostArray->GetNumberOfTuples()));
+             (numGhostNodes==static_cast<unsigned int>(ghostArray->GetNumberOfTuples())));
 #endif
 
       vtkDataArray* targetArray = PD->GetArray( ghostArray->GetName() );
@@ -2007,7 +2007,7 @@ void vtkPUnstructuredGridConnectivity::DeSerializeUnstructuredGrid(
 
   double* nodes = static_cast<double*>(pnts->GetVoidPointer(0));
   N = 3*numPoints;
-  assert( N==3*numPoints );
+  assert( N==static_cast<unsigned int>(3*numPoints) );
   bytestream.Pop(nodes,N);
 
   g->SetPoints( pnts );
