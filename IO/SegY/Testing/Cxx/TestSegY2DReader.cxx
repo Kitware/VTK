@@ -73,12 +73,12 @@ int TestSegY2DReader(int argc, char* argv[])
     ren->ResetCamera();
   }
 
-  // interact with data
-  renWin->Render();
-
   ren->GetActiveCamera()->Azimuth(50);
   ren->GetActiveCamera()->Roll(50);
   ren->GetActiveCamera()->Zoom(1.2);
+
+  // interact with data
+  renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
 
