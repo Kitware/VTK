@@ -4,5 +4,6 @@ ExternalData_Expand_Arguments(VTKData _
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSegY2DReader.cxx
+  TestSegY2DReaderZoom.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
