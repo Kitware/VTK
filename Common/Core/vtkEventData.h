@@ -193,8 +193,11 @@ class vtkEventDataButton3D : public vtkEventDataDevice3D
 {
 public:
   vtkTypeMacro(vtkEventDataButton3D, vtkEventDataDevice3D);
-  static vtkEventDataButton3D *New()
-    {return new vtkEventDataButton3D;};
+  static vtkEventDataButton3D *New() {
+    vtkEventDataButton3D *ret = new vtkEventDataButton3D;
+    ret->InitializeObjectBase();
+    return ret;
+  };
 
 protected:
   vtkEventDataButton3D() { this->Type = vtkCommand::Button3DEvent; }
@@ -210,8 +213,11 @@ class vtkEventDataMove3D : public vtkEventDataDevice3D
 {
 public:
   vtkTypeMacro(vtkEventDataMove3D, vtkEventDataDevice3D);
-  static vtkEventDataMove3D *New()
-    {return new vtkEventDataMove3D;};
+  static vtkEventDataMove3D *New() {
+    vtkEventDataMove3D *ret = new vtkEventDataMove3D;
+    ret->InitializeObjectBase();
+    return ret;
+  };
 
 protected:
   vtkEventDataMove3D() { this->Type = vtkCommand::Move3DEvent; }
