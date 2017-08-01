@@ -59,6 +59,7 @@ int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
   end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;
   vtkDebugMacro(<< "Elapsed time: " << elapsed_seconds.count());
+  output->Squeeze();
   return 1;
 }
 

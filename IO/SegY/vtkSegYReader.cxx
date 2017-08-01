@@ -43,7 +43,7 @@ vtkSegYReader::~vtkSegYReader()
 {
   delete this->BinaryHeaderBytesPos;
   delete this->TraceReader;
-  for (auto trace : Traces)
+  for (auto trace : this->Traces)
     delete trace;
 }
 
@@ -59,16 +59,17 @@ bool vtkSegYReader::LoadFromFile(std::string path)
 
   ReadHeader(in);
 
-  int traceStartPos = 3600; // Traces start after 3200 + 400 file header
+  int traceStartPos = 3600; // this->Traces start after 3200 + 400 file header
   while (true)
   {
     vtkSegYTrace* pTrace = new vtkSegYTrace();
-    if (!TraceReader->ReadTrace(traceStartPos, in, FormatCode, pTrace))
+    if (!this->TraceReader->ReadTrace(
+          traceStartPos, in, this->FormatCode, pTrace))
     {
       delete pTrace;
       break;
     }
-    Traces.push_back(pTrace);
+    this->Traces.push_back(pTrace);
   }
 
   in.close();
@@ -79,28 +80,29 @@ bool vtkSegYReader::LoadFromFile(std::string path)
 bool vtkSegYReader::ReadHeader(std::ifstream& in)
 {
   short sampleInterval = vtkSegYIOUtils::Instance()->readShortInteger(
-    BinaryHeaderBytesPos->SampleInterval, in);
-  FormatCode = vtkSegYIOUtils::Instance()->readShortInteger(
-    BinaryHeaderBytesPos->FormatCode, in);
-  in.seekg(BinaryHeaderBytesPos->MajorVersion, in.beg);
+    this->BinaryHeaderBytesPos->SampleInterval, in);
+  this->FormatCode = vtkSegYIOUtils::Instance()->readShortInteger(
+    this->BinaryHeaderBytesPos->FormatCode, in);
+  in.seekg(this->BinaryHeaderBytesPos->MajorVersion, in.beg);
   unsigned char majorVersion = vtkSegYIOUtils::Instance()->readUChar(in);
   unsigned char minorVersion = vtkSegYIOUtils::Instance()->readUChar(in);
-  SampleCountPerTrace = vtkSegYIOUtils::Instance()->readShortInteger(
-    BinaryHeaderBytesPos->NumSamplesPerTrace, in);
+  this->SampleCountPerTrace = vtkSegYIOUtils::Instance()->readShortInteger(
+    this->BinaryHeaderBytesPos->NumSamplesPerTrace, in);
   short tracesPerEnsemble = vtkSegYIOUtils::Instance()->readShortInteger(
-    BinaryHeaderBytesPos->NumberTracesPerEnsemble, in);
+    this->BinaryHeaderBytesPos->NumberTracesPerEnsemble, in);
   short ensembleType = vtkSegYIOUtils::Instance()->readShortInteger(
-    BinaryHeaderBytesPos->EnsembleType, in);
+    this->BinaryHeaderBytesPos->EnsembleType, in);
   short measurementSystem = vtkSegYIOUtils::Instance()->readShortInteger(
-    BinaryHeaderBytesPos->MeasurementSystem, in);
+    this->BinaryHeaderBytesPos->MeasurementSystem, in);
   int byteOrderingDetection = vtkSegYIOUtils::Instance()->readLongInteger(
-    BinaryHeaderBytesPos->ByteOrderingDetection, in);
+    this->BinaryHeaderBytesPos->ByteOrderingDetection, in);
 
   std::cout << "Segy version = " << int(majorVersion) << "."
             << int(minorVersion) << std::endl;
-  std::cout << "FormatCode = " << FormatCode << std::endl;
+  std::cout << "FormatCode = " << this->FormatCode << std::endl;
   std::cout << "ByteOrderingDetection = " << byteOrderingDetection << std::endl;
-  std::cout << "SampleCountPerTrace=" << SampleCountPerTrace << std::endl;
+  std::cout << "this->SampleCountPerTrace=" << this->SampleCountPerTrace
+            << std::endl;
   std::cout << "ensembleType=" << ensembleType << std::endl;
   std::cout << "measurementSystem=" << measurementSystem << std::endl;
   std::cout << "sampleInterval=" << sampleInterval << std::endl;
@@ -113,7 +115,7 @@ bool vtkSegYReader::ReadHeader(std::ifstream& in)
 bool vtkSegYReader::ExportData3D(vtkImageData* imageData)
 {
   std::set<int> crosslineNumbers, inlineNumbers;
-  for (auto trace : Traces)
+  for (auto trace : this->Traces)
   {
     crosslineNumbers.insert(trace->crosslineNumber);
     inlineNumbers.insert(trace->inlineNumber);
@@ -129,7 +131,7 @@ bool vtkSegYReader::ExportData3D(vtkImageData* imageData)
   float min_data = INT_MAX;
   float max_data = INT_MIN;
 
-  for (auto trace : Traces)
+  for (auto trace : this->Traces)
   {
     int cross = trace->crosslineNumber;
     auto pair = cross_inline_map.find(cross);
@@ -162,7 +164,8 @@ bool vtkSegYReader::ExportData3D(vtkImageData* imageData)
       inlineCount = count;
   }
 
-  imageData->SetDimensions(inlineCount, crossLineCount, SampleCountPerTrace);
+  imageData->SetDimensions(
+    inlineCount, crossLineCount, this->SampleCountPerTrace);
 
   int type = VTK_FLOAT;
   imageData->SetScalarType(type, imageData->GetInformation());
@@ -177,7 +180,7 @@ bool vtkSegYReader::ExportData3D(vtkImageData* imageData)
   {
     for (int j = 0; j < inlineCount; j++)
     {
-      for (int k = 0; k < SampleCountPerTrace; k++)
+      for (int k = 0; k < this->SampleCountPerTrace; k++)
       {
         float normalizedData = (crossIter->second[j]->data[k] - min_data) *
           255.0 / (max_data - min_data);
@@ -199,7 +202,7 @@ bool vtkSegYReader::GetImageData(vtkImageData* imageData)
   int minCrossLineNumber = INT_MAX;
   int maxCrossLineNumber = INT_MIN;
 
-  for (auto trace : Traces)
+  for (auto trace : this->Traces)
   {
     crosslineNum = trace->crosslineNumber;
     if (crosslineNum == 0)
@@ -215,7 +218,7 @@ bool vtkSegYReader::GetImageData(vtkImageData* imageData)
     (maxCrossLineNumber - minCrossLineNumber) / crossLineNumberStep + 1;
 
   int type = VTK_FLOAT;
-  imageData->SetDimensions(SampleCountPerTrace, crosslineNumberCount, 1);
+  imageData->SetDimensions(this->SampleCountPerTrace, crosslineNumberCount, 1);
   imageData->SetScalarType(type, imageData->GetInformation());
   imageData->SetNumberOfScalarComponents(1, imageData->GetInformation());
   imageData->AllocateScalars(type, 1);
@@ -223,7 +226,7 @@ bool vtkSegYReader::GetImageData(vtkImageData* imageData)
   float min_data = INT_MAX;
   float max_data = INT_MIN;
 
-  for (auto trace : Traces)
+  for (auto trace : this->Traces)
   {
     for (auto m : trace->data)
     {
@@ -241,16 +244,16 @@ bool vtkSegYReader::GetImageData(vtkImageData* imageData)
   int remainder = 0;
   int dataSize = 0;
 
-  for (int k = 0; k < SampleCountPerTrace; k++)
+  for (int k = 0; k < this->SampleCountPerTrace; k++)
   {
     for (int i = 0; i < crosslineNumberCount; i++)
     {
-      int aggIndex = i * SampleCountPerTrace + k;
+      int aggIndex = i * this->SampleCountPerTrace + k;
 
       index = 0;
       remainder = 0;
 
-      for (auto trace : Traces)
+      for (auto trace : this->Traces)
       {
         dataSize = trace->data.size();
         diff = aggIndex - dataSize;
@@ -267,8 +270,9 @@ bool vtkSegYReader::GetImageData(vtkImageData* imageData)
         }
       }
 
-      *(ptr + i * SampleCountPerTrace + k) = 256.0 *
-        (Traces[index]->data[remainder] - min_data) / (max_data - min_data);
+      *(ptr + i * this->SampleCountPerTrace + k) = 256.0 *
+        (this->Traces[index]->data[remainder] - min_data) /
+        (max_data - min_data);
     }
   }
 
@@ -278,47 +282,50 @@ bool vtkSegYReader::GetImageData(vtkImageData* imageData)
 //-----------------------------------------------------------------------------
 void vtkSegYReader::AddScalars(vtkStructuredGrid* grid)
 {
-
-  vtkSmartPointer<vtkFloatArray> pointData =
+  vtkSmartPointer<vtkFloatArray> outScalars =
     vtkSmartPointer<vtkFloatArray>::New();
-  pointData->SetName("trace");
-  pointData->SetNumberOfComponents(1);
+  outScalars->SetName("trace");
+  outScalars->SetNumberOfComponents(1);
 
-  int crossLineCount = Traces.size();
+  int crossLineCount = this->Traces.size();
 
-  pointData->Allocate(crossLineCount * SampleCountPerTrace);
+  outScalars->Allocate(crossLineCount * this->SampleCountPerTrace);
 
   int j = 0;
-  for (int k = 0; k < SampleCountPerTrace; k++)
+  for (int k = 0; k < this->SampleCountPerTrace; k++)
   {
-    for (unsigned int i = 0; i < Traces.size(); i++)
+    for (unsigned int i = 0; i < this->Traces.size(); i++)
     {
-      pointData->InsertValue(j++, Traces[i]->data[k]);
+      outScalars->InsertValue(j++, this->Traces[i]->data[k]);
     }
   }
 
-  grid->GetPointData()->SetScalars(pointData);
+  grid->GetPointData()->SetScalars(outScalars);
   grid->GetPointData()->SetActiveScalars("trace");
 }
 
 //-----------------------------------------------------------------------------
 void vtkSegYReader::ExportData2D(vtkStructuredGrid* grid)
 {
-  grid->SetDimensions(Traces.size(), SampleCountPerTrace, 1);
+  if (!grid)
+  {
+    return;
+  }
+  grid->SetDimensions(this->Traces.size(), this->SampleCountPerTrace, 1);
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
-  for (int k = 0; k < SampleCountPerTrace; k++)
+  for (int k = 0; k < this->SampleCountPerTrace; k++)
   {
-    for (unsigned int i = 0; i < Traces.size(); i++)
+    for (unsigned int i = 0; i < this->Traces.size(); i++)
     {
-      auto trace = Traces[i];
+      auto trace = this->Traces[i];
       float coordinateMultiplier = (trace->CoordinateMultiplier < 0)
         ? 1.0 / (-trace->CoordinateMultiplier)
         : trace->CoordinateMultiplier;
       float x = trace->xCoordinate * coordinateMultiplier;
       float y = trace->yCoordinate * coordinateMultiplier;
 
-      float z = k * trace->SampleInterval / (SampleCountPerTrace - 1);
+      float z = k * trace->SampleInterval / (this->SampleCountPerTrace - 1);
       points->InsertNextPoint(x, y, z);
     }
   }
