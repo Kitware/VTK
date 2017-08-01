@@ -613,7 +613,7 @@ int vtkGDALVectorReader::RequestData( vtkInformation* request,
       char *projStr;
       layer->GetSpatialRef()->exportToWkt(&projStr);
       this->LayersProjection[layerIdx] = std::string(projStr);
-      OGRFree(projStr);
+      CPLFree(projStr);
     }
 
     p->ReadLayer( layer, mbds );
