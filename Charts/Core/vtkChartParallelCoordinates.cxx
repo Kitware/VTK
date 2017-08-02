@@ -64,6 +64,7 @@ public:
   std::vector<vtkVector<float, 2> > AxesSelections;
   int CurrentAxis;
   int AxisResize;
+  bool InteractiveSelection;
 };
 
 //-----------------------------------------------------------------------------
@@ -79,6 +80,7 @@ vtkChartParallelCoordinates::vtkChartParallelCoordinates()
   this->GeometryValid = false;
   this->Selection = vtkIdTypeArray::New();
   this->Storage->Plot->SetSelection(this->Selection);
+  this->Storage->InteractiveSelection = false;
 
   // Set up default mouse button assignments for parallel coordinates.
   this->SetActionToButton(vtkChart::PAN, vtkContextMouseEvent::RIGHT_BUTTON);
@@ -183,6 +185,20 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
       idArray = node? vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList())
                     : nullptr;
       this->Storage->Plot->SetSelection(idArray);
+      this->Storage->Plot->Modified();
+      // Interactive Selection is true only if this call to
+      // vtkChartParallelCoordinates::Paint result to a manual
+      // interactive selection. see vtkChartParallelCoordinates::MouseButtonReleaseEvent
+      // where this flag is set. If it is NOT the case, then it means
+      // the selection that was just added was not the result of a manual selection
+      // then we need to reset the axes selection so they will not appear out
+      // of sync with the current selection
+      if (!this->Storage->InteractiveSelection)
+      {
+        this->ResetAxesSelection();
+      }
+      // Once this is done, we reset the flag
+      this->Storage->InteractiveSelection = false;
     }
   }
   else
@@ -532,11 +548,8 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
                     (axis->GetMaximum() - axis->GetMinimum());
       axis->SetMinimum(axis->GetMinimum() - deltaY/scale);
       // If there is an active selection on the axis, remove it
-      vtkVector<float, 2>& range =
-          this->Storage->AxesSelections[this->Storage->CurrentAxis];
-      if (range[0] != range[1])
+      if (this->ResetAxeSelection(this->Storage->CurrentAxis))
       {
-        range[0] = range[1] = 0.0f;
         this->ResetSelection();
       }
 
@@ -553,11 +566,8 @@ bool vtkChartParallelCoordinates::MouseMoveEvent(const vtkContextMouseEvent &mou
                     (axis->GetMaximum() - axis->GetMinimum());
       axis->SetMaximum(axis->GetMaximum() - deltaY/scale);
       // If there is an active selection on the axis, remove it
-      vtkVector<float, 2>& range =
-          this->Storage->AxesSelections[this->Storage->CurrentAxis];
-      if (range[0] != range[1])
+      if (this->ResetAxeSelection(this->Storage->CurrentAxis))
       {
-        range[0] = range[1] = 0.0f;
         this->ResetSelection();
       }
 
@@ -595,17 +605,17 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(
             axis->GetPoint1()[0]+10 > mouse.GetScenePos()[0])
         {
           this->Storage->CurrentAxis = static_cast<int>(i);
-          vtkVector<float, 2>& range = this->Storage->AxesSelections[i];
-          if (range[0] != range[1])
-          {
-            range[0] = range[1] = 0.0f;
-            this->ResetSelection();
-          }
+          this->ResetAxeSelection(this->Storage->CurrentAxis);
+          this->ResetSelection();
+          // This is a manual interactive selection
+          this->Storage->InteractiveSelection = true;
 
           // Transform into normalized coordinates
           float low = mouse.GetScenePos()[1];
           low -= this->Storage->Transform->GetMatrix()->GetElement(1, 2);
           low /= this->Storage->Transform->GetMatrix()->GetElement(1, 1);
+          vtkVector<float, 2> &range =
+            this->Storage->AxesSelections[this->Storage->CurrentAxis];
           range[0] = range[1] = low;
 
           this->Scene->SetDirty(true);
@@ -702,6 +712,8 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(
                                                  range[1], range[0]);
         }
       }
+      // This is a manual interactive selection
+      this->Storage->InteractiveSelection = true;
 
       if (this->AnnotationLink)
       {
@@ -762,6 +774,27 @@ void vtkChartParallelCoordinates::ResetSelection()
                                                range[1], range[0]);
       }
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkChartParallelCoordinates::ResetAxeSelection(int axe)
+{
+  vtkVector<float, 2> &range = this->Storage->AxesSelections[axe];
+  if (range[0] != range[1])
+  {
+    range[0] = range[1] = 0.0f;
+    return true;
+  }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartParallelCoordinates::ResetAxesSelection()
+{
+  for (size_t i = 0; i < this->Storage->AxesSelections.size(); ++i)
+  {
+    this->ResetAxeSelection(static_cast<int>(i));
   }
 }
 
