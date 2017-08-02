@@ -459,7 +459,7 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   // Finally set second block of output meta port to derived statistics table
   inMeta->SetNumberOfBlocks( 2 );
-  inMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Derived Statistics" );
+  inMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Derived Statistics" );
   inMeta->SetBlock( 1, derivedTab );
 
   // Clean up
