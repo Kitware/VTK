@@ -186,13 +186,11 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
                     : nullptr;
       this->Storage->Plot->SetSelection(idArray);
       this->Storage->Plot->Modified();
-      // Interactive Selection is true only if this call to
-      // vtkChartParallelCoordinates::Paint result to a manual
-      // interactive selection. see vtkChartParallelCoordinates::MouseButtonReleaseEvent
-      // where this flag is set. If it is NOT the case, then it means
-      // the selection that was just added was not the result of a manual selection
-      // then we need to reset the axes selection so they will not appear out
-      // of sync with the current selection
+
+      // InteractiveSelection is true only when the selection has been changed by the
+      // user interactively (see MouseButtonReleaseEvent). Otherwise, it means that
+      // the selection has been changed indirectly. In this case, we need to reset the
+      // axes selection so they will not appear out of sync with the current selection.
       if (!this->Storage->InteractiveSelection)
       {
         this->ResetAxesSelection();
