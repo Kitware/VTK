@@ -29,6 +29,7 @@
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
@@ -303,6 +304,9 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   std::vector<vtkIdType> &pickIds,
   vtkMTimeType pointMTime)
 {
+  this->ResourceCallback->RegisterGraphicsResources(
+    static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow()));
+
   // we always tell our triangle VAO to emulate unless we
   // have opengl 3.2 to be safe
   // this is because it seems that GLEW_ARB_vertex_array_object
