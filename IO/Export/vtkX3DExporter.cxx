@@ -325,6 +325,8 @@ void vtkX3DExporter::WriteData()
   }
   /////////////////////////////////////////////////
 
+  this->WriteAdditionalNodes(writer);
+
   writer->EndNode(); // Scene
   writer->EndNode(); // X3D
   writer->Flush();
@@ -885,6 +887,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
   }
   writer->EndNode();
 }
+
 //----------------------------------------------------------------------------
 int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
 {

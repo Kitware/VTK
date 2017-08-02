@@ -136,7 +136,13 @@ protected:
     vtkX3DExporterWriter* writer);
   void WriteATexture(vtkActor *anActor, vtkX3DExporterWriter* writer);
   void WriteAnAppearance(vtkActor *anActor, bool writeEmissiveColor, vtkX3DExporterWriter* writer);
+
+  // Called to give subclasses a chance to write additional nodes to the file.
+  // Default implementation does nothing.
+  virtual void WriteAdditionalNodes(vtkX3DExporterWriter* writer) {}
+
   int HasHeadLight(vtkRenderer* ren);
+
   char *FileName;
   double Speed;
   int Binary;
