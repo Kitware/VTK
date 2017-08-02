@@ -255,6 +255,29 @@ private:
   void operator=(const vtkTimerLog&) VTK_DELETE_FUNCTION;
 };
 
+/**
+ * Helper class to log time within scope
+ */
+class vtkTimerLogScope
+{
+public:
+  vtkTimerLogScope(const char* eventString)
+  {
+    if (eventString)
+    {
+      this->EventString = eventString;
+    }
+    vtkTimerLog::MarkStartEvent(eventString);
+  }
+
+  ~vtkTimerLogScope()
+  {
+    vtkTimerLog::MarkEndEvent(this->EventString.c_str());
+  };
+
+protected:
+  std::string EventString;
+};
 
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
