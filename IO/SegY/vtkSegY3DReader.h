@@ -13,12 +13,13 @@
 
 =========================================================================*/
 
-#ifndef __vtkSegY3DReader_h
-#define __vtkSegY3DReader_h
+#ifndef vtkSegY3DReader_h
+#define vtkSegY3DReader_h
 
 #include "vtkImageAlgorithm.h"
-#include "vtkSegYReader.h"
-#include "vtkSmartPointer.h"
+
+#include "vtkSegYReader.h"   // For reader implementation
+#include "vtkSmartPointer.h" // For smart pointer
 
 #include <vtkIOSegYModule.h> // For export macro
 
@@ -51,4 +52,4 @@ private:
   void operator=(const vtkSegY3DReader&) VTK_DELETE_FUNCTION;
 };
 
-#endif // __vtkSegY3DReader_h
+#endif // vtkSegY3DReader_h

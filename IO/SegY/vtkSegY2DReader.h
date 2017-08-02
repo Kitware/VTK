@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#ifndef __vtkSegY2DReader_h
-#define __vtkSegY2DReader_h
+#ifndef vtkSegY2DReader_h
+#define vtkSegY2DReader_h
 
-#include "vtkSegY2DReader.h"
-
-#include "vtkSegYReader.h"
 #include "vtkStructuredGridAlgorithm.h"
 
 #include <vtkIOSegYModule.h> // For export macro
+
+// Forward declarations
+class vtkSegYReader;
 
 class VTKIOSEGY_EXPORT vtkSegY2DReader : public vtkStructuredGridAlgorithm
 {
@@ -31,11 +31,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkSetStringMacro(FileName);
-
-  bool GetImageData(vtkImageData* imageData)
-  {
-    return reader.GetImageData(imageData);
-  }
 
   vtkSegY2DReader();
   ~vtkSegY2DReader();
@@ -47,11 +42,11 @@ protected:
 
 private:
   char* FileName;
-  vtkSegYReader reader;
+  vtkSegYReader* Reader;
 
 private:
   vtkSegY2DReader(const vtkSegY2DReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSegY2DReader&) VTK_DELETE_FUNCTION;
 };
 
-#endif // __vtkSegY2DReader_h
+#endif // vtkSegY2DReader_h

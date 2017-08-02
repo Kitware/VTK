@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkSegYIOUtils_h
-#define __vtkSegYIOUtils_h
+#ifndef vtkSegYIOUtils_h
+#define vtkSegYIOUtils_h
 
 #include <fstream>
 
@@ -44,4 +44,5 @@ private:
   }
 };
 
-#endif //__vtkSegYIOUtils_h
+#endif // vtkSegYIOUtils_h
+// VTK-HeaderTest-Exclude: vtkSegYIOUtils.h

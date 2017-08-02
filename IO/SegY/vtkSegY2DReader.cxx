@@ -15,9 +15,10 @@
 
 #include "vtkSegY2DReader.h"
 
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkObjectFactory.h>
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkSegYReader.h"
 
 #include <chrono>
 
@@ -28,12 +29,15 @@ vtkSegY2DReader::vtkSegY2DReader()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
+  this->Reader = new vtkSegYReader();
 }
 
 //-----------------------------------------------------------------------------
 vtkSegY2DReader::~vtkSegY2DReader()
 {
   this->SetFileName(nullptr);
+  delete this->Reader;
+  this->Reader = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -51,11 +55,11 @@ int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  reader.LoadFromFile(FileName);
+  this->Reader->LoadFromFile(FileName);
   std::chrono::time_point<std::chrono::system_clock> start, end;
   start = std::chrono::system_clock::now();
   vtkDebugMacro(<< "Exporting to poly data ...");
-  reader.ExportData2D(output);
+  this->Reader->ExportData2D(output);
   end = std::chrono::system_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;
   vtkDebugMacro(<< "Elapsed time: " << elapsed_seconds.count());

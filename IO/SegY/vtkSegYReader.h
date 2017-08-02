@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkSegYReader_h
-#define __vtkSegYReader_h
+#ifndef vtkSegYReader_h
+#define vtkSegYReader_h
 
 #include <fstream>
 #include <string>
@@ -49,4 +49,5 @@ private:
   int SampleCountPerTrace;
 };
 
-#endif // __vtkSegYReader_h
+#endif // vtkSegYReader_h
+// VTK-HeaderTest-Exclude: vtkSegYReader.h

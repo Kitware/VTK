@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkSegYTraceHeaderBytesPositions_h
-#define __vtkSegYTraceHeaderBytesPositions_h
+#ifndef vtkSegYTraceHeaderBytesPositions_h
+#define vtkSegYTraceHeaderBytesPositions_h
 
 class vtkSegYTraceHeaderBytesPositions
 {
@@ -49,4 +49,5 @@ private:
   }
 };
 
-#endif // __vtkSegYTraceHeaderBytesPositions_h
+#endif // vtkSegYTraceHeaderBytesPositions_h
+// VTK-HeaderTest-Exclude: vtkSegYTraceHeaderBytesPositions.h

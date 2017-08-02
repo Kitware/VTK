@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkSegYBinaryHeaderBytesPositions_h
-#define __vtkSegYBinaryHeaderBytesPositions_h
+#ifndef vtkSegYBinaryHeaderBytesPositions_h
+#define vtkSegYBinaryHeaderBytesPositions_h
 
 class vtkSegYBinaryHeaderBytesPositions
 {
@@ -62,4 +62,5 @@ private:
   }
 };
 
-#endif // __vtkSegYBinaryHeaderBytesPositions_h
+#endif // vtkSegYBinaryHeaderBytesPositions_h
+// VTK-HeaderTest-Exclude: vtkSegYBinaryHeaderBytesPositions.h
