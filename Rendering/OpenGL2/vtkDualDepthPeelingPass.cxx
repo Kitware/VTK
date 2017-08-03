@@ -475,9 +475,9 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             );
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::CallWorker::Impl",
-            "ivec2 pixelCoord = ivec2(gl_FragCoord.xy);\n"
-            "  vec2 inner = texelFetch(innerDepthTex, pixelCoord, 0).xy;\n"
-            "  vec2 outer = texelFetch(outerDepthTex, pixelCoord, 0).xy;\n"
+            "  vec2 pixelCoord = vec2(gl_FragCoord.x, gl_FragCoord.y);\n"
+            "  vec2 inner = texture2D(innerDepthTex, pixelCoord * in_inverseWindowSize).xy;\n"
+            "  vec2 outer = texture2D(outerDepthTex, pixelCoord * in_inverseWindowSize).xy;\n"
             "\n"
             "  initializeRayCast();\n"
             "  vec4 front = vec4(0.f);\n"
@@ -556,10 +556,10 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             );
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::CallWorker::Impl",
-            "  ivec2 pixelCoord = ivec2(gl_FragCoord.xy);\n"
-            "  vec2 innerDepths = texelFetch(innerDepthTex, pixelCoord, 0).xy;\n"
-            "  vec2 outerDepths = texelFetch(outerDepthTex, pixelCoord, 0).xy;\n"
-            "  vec4 lastFrontColor = texelFetch(lastFrontColorTex, pixelCoord, 0);\n"
+            "  vec2 pixelCoord = vec2(gl_FragCoord.x, gl_FragCoord.y);\n"
+            "  vec2 innerDepths = texture2D(innerDepthTex, pixelCoord * in_inverseWindowSize).xy;\n"
+            "  vec2 outerDepths = texture2D(outerDepthTex, pixelCoord * in_inverseWindowSize).xy;\n"
+            "  vec4 lastFrontColor = texture2D(lastFrontColorTex, pixelCoord * in_inverseWindowSize);\n"
             "\n"
             "  // Discard processed fragments\n"
             "  if (outerDepths.x == -1)\n"
@@ -595,7 +595,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  // with opaque goemetry. To do this, the end point of front is clamped\n"
             "  // to opaque-depth and back ray-cast is skipped altogether since it\n"
             "  // would be covered by opaque geometry anyway.\n"
-            "  float oDepth = texelFetch(opaqueDepthTex, pixelCoord, 0).x;\n"
+            "  float oDepth = texture2D(opaqueDepthTex, pixelCoord * in_inverseWindowSize).x;\n"
             "  bool endBehindOpaque = frontEndDepth >= oDepth;\n"
             "  float clampedFrontEnd = frontEndDepth;\n"
             "  if (endBehindOpaque)\n"
@@ -646,8 +646,8 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "uniform sampler2D depthRangeTex;\n");
       vtkShaderProgram::Substitute(
             fragmentShader, "//VTK::CallWorker::Impl",
-            "  ivec2 pixelCoord = ivec2(gl_FragCoord.xy);\n"
-            "  vec2 depthRange = texelFetch(depthRangeTex, pixelCoord, 0).xy;\n"
+            "  vec2 pixelCoord = vec2(gl_FragCoord.x, gl_FragCoord.y);\n"
+            "  vec2 depthRange = texture2D(depthRangeTex, pixelCoord * in_inverseWindowSize).xy;\n"
             "\n"
             "  // Discard processed fragments\n"
             "  if (depthRange.x == -1.0)\n"

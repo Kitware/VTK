@@ -16,6 +16,7 @@
  *  Tests depth peeling pass with volume rendering.
  */
 
+#include <vtkCallbackCommand.h>
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
@@ -42,6 +43,34 @@
 #include <vtkProperty.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
+
+
+class SamplingDistanceCallback : public vtkCommand
+{
+public:
+  static SamplingDistanceCallback *New()
+    { return new SamplingDistanceCallback; }
+
+  virtual void Execute(vtkObject *caller, unsigned long event,
+    void* data)
+  {
+    switch (event)
+    {
+      case vtkCommand::StartInteractionEvent:
+        {
+          this->Mapper->SetImageSampleDistance(6.5);
+        }
+        break;
+
+      case vtkCommand::EndInteractionEvent:
+        {
+          this->Mapper->SetImageSampleDistance(1.0);
+        }
+    }
+  }
+
+  vtkGPUVolumeRayCastMapper* Mapper = nullptr;
+};
 
 
 int TestGPURayCastDepthPeeling(int argc, char *argv[])
@@ -77,6 +106,7 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
+  delete [] volumeFile;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
   // Add outline filter
@@ -166,6 +196,11 @@ int TestGPURayCastDepthPeeling(int argc, char *argv[])
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   renWin->GetInteractor()->SetInteractorStyle(style.GetPointer());
+
+  vtkNew<SamplingDistanceCallback> callback;
+  callback->Mapper = volumeMapper.GetPointer();
+  style->AddObserver(vtkCommand::StartInteractionEvent, callback.GetPointer());
+  style->AddObserver(vtkCommand::EndInteractionEvent, callback.GetPointer());
 
   ren->ResetCamera();
   ren->GetActiveCamera()->Azimuth(-55);

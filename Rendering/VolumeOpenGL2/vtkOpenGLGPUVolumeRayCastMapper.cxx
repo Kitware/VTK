@@ -166,11 +166,10 @@ public:
     this->PreserveViewport = false;
     this->PreserveGLState = false;
 
-    this->ImageSampleFBO = NULL;
-    this->ImageSampleTexture = NULL;
-    this->ImageSampleProg = NULL;
-    this->ImageSampleVAO = NULL;
-    this->ImageSampleVBO = NULL;
+    this->ImageSampleFBO = nullptr;
+    this->ImageSampleProg = nullptr;
+    this->ImageSampleVAO = nullptr;
+    this->ImageSampleVBO = nullptr;
   }
 
   // Destructor
@@ -221,10 +220,9 @@ public:
       this->ImageSampleFBO = NULL;
     }
 
-    if (this->ImageSampleTexture)
+    for (int i = 0; i < 2; i++)
     {
-      this->ImageSampleTexture->Delete();
-      this->ImageSampleTexture = NULL;
+      this->ImageSampleTexture[i] = nullptr;
     }
 
     if (this->ImageSampleVBO)
@@ -503,7 +501,7 @@ public:
   vtkTextureObject* DPColorTextureObject;
 
   vtkOpenGLFramebufferObject* ImageSampleFBO;
-  vtkTextureObject* ImageSampleTexture;
+  vtkSmartPointer<vtkTextureObject> ImageSampleTexture[2];
   vtkShaderProgram* ImageSampleProg;
   vtkOpenGLVertexArrayObject* ImageSampleVAO;
   vtkOpenGLBufferObject* ImageSampleVBO;
@@ -1965,7 +1963,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginImageSample(
   {
     this->ImageSampleFBO->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
     this->ImageSampleFBO->Bind(GL_DRAW_FRAMEBUFFER);
-    this->ImageSampleFBO->ActivateDrawBuffer(0);
+    this->ImageSampleFBO->ActivateDrawBuffers(2);
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -1993,15 +1991,18 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
     vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(
       ren->GetRenderWindow());
 
-    this->ImageSampleTexture = vtkTextureObject::New();
-    this->ImageSampleTexture->SetContext(win);
-    this->ImageSampleTexture->Create2D(this->WindowSize[0], this->WindowSize[1],
-      4, VTK_UNSIGNED_CHAR, false);
-    this->ImageSampleTexture->Activate();
-    this->ImageSampleTexture->SetMinificationFilter(vtkTextureObject::Linear);
-    this->ImageSampleTexture->SetMagnificationFilter(vtkTextureObject::Linear);
-    this->ImageSampleTexture->SetWrapS(vtkTextureObject::ClampToEdge);
-    this->ImageSampleTexture->SetWrapT(vtkTextureObject::ClampToEdge);
+    for (int i = 0; i < 2; i++)
+    {
+      this->ImageSampleTexture[i] = vtkSmartPointer<vtkTextureObject>::New();
+      this->ImageSampleTexture[i]->SetContext(win);
+      this->ImageSampleTexture[i]->Create2D(this->WindowSize[0], this->WindowSize[1],
+        4, VTK_UNSIGNED_CHAR, false);
+      this->ImageSampleTexture[i]->Activate();
+      this->ImageSampleTexture[i]->SetMinificationFilter(vtkTextureObject::Linear);
+      this->ImageSampleTexture[i]->SetMagnificationFilter(vtkTextureObject::Linear);
+      this->ImageSampleTexture[i]->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->ImageSampleTexture[i]->SetWrapT(vtkTextureObject::ClampToEdge);
+    }
 
     this->ImageSampleFBO = vtkOpenGLFramebufferObject::New();
     this->ImageSampleFBO->SetContext(win);
@@ -2010,21 +2011,27 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
     this->ImageSampleFBO->InitializeViewport(this->WindowSize[0],
       this->WindowSize[1]);
 
-    this->ImageSampleFBO->AddColorAttachment(GL_FRAMEBUFFER, 0,
-      this->ImageSampleTexture);
+    for (int i = 0; i < 2; i++)
+    {
+      this->ImageSampleFBO->AddColorAttachment(GL_FRAMEBUFFER, i,
+        this->ImageSampleTexture[i]);
+    }
 
     // Verify completeness
-    if(!this->ImageSampleFBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
+    const bool complete = this->ImageSampleFBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
+    for (int i = 0; i < 2; i++)
+    {
+      this->ImageSampleTexture[i]->Deactivate();
+    }
+    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_FRAMEBUFFER);
+
+    if(!complete)
     {
       vtkGenericWarningMacro(<< "Failed to attach ImageSampleFBO!");
-      this->ImageSampleTexture->Deactivate();
-      this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_FRAMEBUFFER);
       this->ReleaseImageSampleGraphicsResources(win);
       return false;
     }
 
-    this->ImageSampleTexture->Deactivate();
-    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_FRAMEBUFFER);
     return true;
   }
 
@@ -2046,6 +2053,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
   if (this->Parent->ImageSampleDistance != 1.f)
   {
     this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+    this->ImageSampleFBO->ActivateDrawBuffers(2);
 
     // Render the contents of ImageSampleFBO as a quad to intermix with the
     // rest of the scene.
@@ -2057,15 +2065,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
       std::string frag = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
 
       vtkShaderProgram::Substitute(frag, "//VTK::FSQ::Decl",
-        "uniform sampler2D renderedImage;\n");
+        "uniform sampler2D renderedImage_0;\n"
+        "uniform sampler2D renderedImage_1;\n");
       vtkShaderProgram::Substitute(frag, "//VTK::FSQ::Impl",
-        "  vec4 pixelColor = texture2D(renderedImage, texCoord);\n"
-        "  if (pixelColor.a == 0.0)\n"
-        "  {\n"
-        "    discard;\n"
-        "  }\n"
+        "  gl_FragData[0] = texture2D(renderedImage_0, texCoord);\n"
+        "  gl_FragData[1] = texture2D(renderedImage_1, texCoord);\n"
         "  \n"
-        "  gl_FragData[0] = pixelColor;\n");
+        "  return;\n");
 
       this->ImageSampleProg = win->GetShaderCache()->ReadyShaderProgram(
         GLUtil::GetFullScreenQuadVertexShader().c_str(), frag.c_str(),
@@ -2101,16 +2107,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);
 
-    this->ImageSampleTexture->Activate();
-    this->ImageSampleProg->SetUniformi("renderedImage",
-      this->ImageSampleTexture->GetTextureUnit());
+    this->ImageSampleTexture[0]->Activate();
+    this->ImageSampleProg->SetUniformi("renderedImage_0",
+      this->ImageSampleTexture[0]->GetTextureUnit());
+
+    this->ImageSampleTexture[1]->Activate();
+    this->ImageSampleProg->SetUniformi("renderedImage_1",
+      this->ImageSampleTexture[1]->GetTextureUnit());
 
     this->ImageSampleVAO->Bind();
     GLUtil::DrawFullScreenQuad();
     this->ImageSampleVAO->Release();
     vtkOpenGLStaticCheckErrorMacro("Error after DrawFullScreenQuad()!");
 
-    this->ImageSampleTexture->Deactivate();
+    for (int i = 0; i < 2; i++)
+    {
+      this->ImageSampleTexture[i]->Deactivate();
+    }
   }
 }
 
@@ -2430,30 +2443,33 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
     if (this->ImageSampleFBO)
     {
       this->ImageSampleFBO->Delete();
-      this->ImageSampleFBO = NULL;
+      this->ImageSampleFBO = nullptr;
     }
 
-    if (this->ImageSampleTexture)
+    for (int i = 0; i < 2; i++)
     {
-      this->ImageSampleTexture->ReleaseGraphicsResources(win);
-      this->ImageSampleTexture->Delete();
-      this->ImageSampleTexture = NULL;
+      auto tex = this->ImageSampleTexture[i];
+      if (tex)
+      {
+        tex->ReleaseGraphicsResources(win);
+        tex = nullptr;
+      }
     }
 
     if (this->ImageSampleVBO)
     {
       this->ImageSampleVBO->Delete();
-      this->ImageSampleVBO = NULL;
+      this->ImageSampleVBO = nullptr;
     }
 
     if (this->ImageSampleVAO)
     {
       this->ImageSampleVAO->Delete();
-      this->ImageSampleVAO = NULL;
+      this->ImageSampleVAO = nullptr;
     }
 
     // Do not delete the shader program - Let the cache clean it up.
-    this->ImageSampleProg = NULL;
+    this->ImageSampleProg = nullptr;
   }
 }
 
