@@ -139,7 +139,7 @@ protected:
 
   // Called to give subclasses a chance to write additional nodes to the file.
   // Default implementation does nothing.
-  virtual void WriteAdditionalNodes(vtkX3DExporterWriter* writer) {}
+  virtual void WriteAdditionalNodes(vtkX3DExporterWriter* vtkNotUsed(writer)) {}
 
   int HasHeadLight(vtkRenderer* ren);
 
