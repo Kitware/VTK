@@ -363,3 +363,12 @@ endif()
 if (APPLE_IOS)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework UIKit")
 endif()
+
+if (WIN32 AND ( NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR) )
+  VTK_ADD_EXECUTABLE(vtkTestOpenGLVersion vtkTestOpenGLVersion.cxx)
+  set_target_properties(vtkTestOpenGLVersion
+    PROPERTIES
+      WIN32_EXECUTABLE TRUE
+      )
+  target_link_libraries(vtkTestOpenGLVersion opengl32)
+endif()
