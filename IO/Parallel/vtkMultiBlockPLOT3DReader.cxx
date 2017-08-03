@@ -1924,11 +1924,7 @@ int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int vtkNot
     numGrid=1;
   }
 
-
-  if ( numGrid > (int)this->Internal->Dimensions.size() )
-  {
-    this->Internal->Dimensions.resize(numGrid);
-  }
+  this->Internal->Dimensions.resize(numGrid);
 
   return numGrid;
 }
