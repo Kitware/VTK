@@ -97,20 +97,26 @@
 
 // Motion flags
 
-#define VTKIS_START        0
-#define VTKIS_NONE         0
+#define VTKIS_START             0
+#define VTKIS_NONE              0
 
-#define VTKIS_ROTATE       1
-#define VTKIS_PAN          2
-#define VTKIS_SPIN         3
-#define VTKIS_DOLLY        4
-#define VTKIS_ZOOM         5
-#define VTKIS_USCALE       6
-#define VTKIS_TIMER        7
-#define VTKIS_FORWARDFLY   8
-#define VTKIS_REVERSEFLY   9
-#define VTKIS_TWO_POINTER 10
-#define VTKIS_CLIP        11
+#define VTKIS_ROTATE            1
+#define VTKIS_PAN               2
+#define VTKIS_SPIN              3
+#define VTKIS_DOLLY             4
+#define VTKIS_ZOOM              5
+#define VTKIS_USCALE            6
+#define VTKIS_TIMER             7
+#define VTKIS_FORWARDFLY        8
+#define VTKIS_REVERSEFLY        9
+#define VTKIS_TWO_POINTER      10
+#define VTKIS_CLIP             11
+#define VTKIS_PICK                   12 // perform a pick at the last location
+#define VTKIS_LOAD_CAMERA_POSE       13 // iterate through saved camera poses
+#define VTKIS_POSITION_PROP          14 // adjust the position, orientation of a prop
+#define VTKIS_EXIT                   15 // call exit callback
+#define VTKIS_TOGGLE_DRAW_CONTROLS   16 // draw device controls helpers
+#define VTKIS_MENU                   17 // invoke an application menu
 
 #define VTKIS_ANIM_OFF 0
 #define VTKIS_ANIM_ON  1
@@ -118,6 +124,7 @@
 class vtkActor2D;
 class vtkActor;
 class vtkCallbackCommand;
+class vtkEventData;
 class vtkEventForwarderCommand;
 class vtkOutlineSource;
 class vtkPolyDataMapper;
@@ -226,6 +233,13 @@ public:
   virtual void OnFourthButtonUp() {}
   virtual void OnFifthButtonDown() {}
   virtual void OnFifthButtonUp() {}
+
+
+  /**
+   * Generic 3D event bindings can be overridden in subclasses
+   */
+  virtual void OnMove3D(vtkEventData *) {}
+  virtual void OnButton3D(vtkEventData *) {}
 
   /**
    * OnChar is triggered when an ASCII key is pressed. Some basic key presses

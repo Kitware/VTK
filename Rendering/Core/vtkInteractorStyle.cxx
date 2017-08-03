@@ -291,6 +291,13 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
     i->AddObserver(vtkCommand::FifthButtonReleaseEvent,
                    this->EventCallbackCommand,
                    this->Priority);
+
+    i->AddObserver(vtkCommand::Move3DEvent,
+                   this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::Button3DEvent,
+                   this->EventCallbackCommand,
+                   this->Priority);
   }
 
   this->EventForwarder->SetTarget(this->Interactor);
@@ -994,6 +1001,8 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
   vtkInteractorStyle* self
     = reinterpret_cast<vtkInteractorStyle *>( clientdata );
 
+  bool aborted = false;
+
   switch(event)
   {
     case vtkCommand::ExposeEvent:
@@ -1336,5 +1345,28 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
       }
       break;
 
+    case vtkCommand::Move3DEvent:
+      if (self->HandleObservers &&
+          self->HasObserver(vtkCommand::Move3DEvent))
+      {
+        aborted = (self->InvokeEvent(vtkCommand::Move3DEvent, calldata) == 1);
+      }
+      if (!aborted)
+      {
+        self->OnMove3D(static_cast<vtkEventData*>(calldata));
+      }
+      break;
+
+    case vtkCommand::Button3DEvent:
+      if (self->HandleObservers &&
+          self->HasObserver(vtkCommand::Button3DEvent))
+      {
+        aborted = (self->InvokeEvent(vtkCommand::Button3DEvent, calldata) == 1);
+      }
+      if (!aborted)
+      {
+        self->OnButton3D(static_cast<vtkEventData*>(calldata));
+      }
+      break;
   }
 }

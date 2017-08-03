@@ -65,8 +65,7 @@
 // Motion flags
 
 #define VTKIS_WINDOW_LEVEL 1024
-#define VTKIS_PICK         1025
-#define VTKIS_SLICE        1026
+#define VTKIS_SLICE        1025
 
 // Style flags
 
