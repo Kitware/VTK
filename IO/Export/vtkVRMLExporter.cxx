@@ -534,11 +534,10 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
   double tempf2;
 
   fprintf(fileP,"        Shape {\n");
-  vtkProperty* props = nullptr;
+  vtkProperty* props = actor->GetProperty();
   // write out the material properties to the mat file
   fprintf(fileP,"          appearance Appearance {\n");
   fprintf(fileP,"            material Material {\n");
-  props = actor->GetProperty();
   fprintf(fileP,"              ambientIntensity %g\n", props->GetAmbient());
   // if we don't have colors and we have only lines & points
   // use emissive to color them

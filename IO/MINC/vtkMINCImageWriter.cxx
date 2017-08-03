@@ -391,9 +391,9 @@ std::string vtkMINCImageWriterCreateIdentString()
   static const char *itemsep = ":";
 
   // Get username and hostname
+#ifdef _WIN32
   const char *username = nullptr;
   const char *hostname = nullptr;
-#ifdef _WIN32
   char usernametext[100];
   DWORD numchars = sizeof(usernametext);
   if (GetUserName(usernametext, &numchars))
@@ -407,8 +407,8 @@ std::string vtkMINCImageWriterCreateIdentString()
     hostname = hostnametext;
   }
 #else
-  username = getenv("LOGNAME");
-  hostname = getenv("HOSTNAME");
+  const char *username = getenv("LOGNAME");
+  const char *hostname = getenv("HOSTNAME");
 #endif
   if (username == nullptr)
   {
