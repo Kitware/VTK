@@ -86,7 +86,9 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetInterpolateScalarsBeforeMapping(0);
   mapper->SetScaleArray("RandomPointScalars");
+  mapper->SetScaleArrayComponent(1);
   mapper->SetOpacityArray("RandomPointArray");
+  mapper->SetOpacityArrayComponent(0);
   mapper->EmissiveOff();
 
   // show other shader examples

@@ -66,6 +66,14 @@ public:
 
   //@{
   /**
+   * Convenience method to set the component of the array to scale with.
+   */
+  vtkSetMacro(ScaleArrayComponent, int);
+  vtkGetMacro(ScaleArrayComponent, int);
+  //@}
+
+  //@{
+  /**
    * Set the default scale factor of the point gaussians.  This
    * defaults to 1.0. All radius computations will be scaled by the factor
    * including the ScaleArray. If a vtkPiecewideFunction is used the
@@ -115,6 +123,14 @@ public:
 
   //@{
   /**
+   * Convenience method to set the component of the array to opacify with.
+   */
+  vtkSetMacro(OpacityArrayComponent, int);
+  vtkGetMacro(OpacityArrayComponent, int);
+  //@}
+
+  //@{
+  /**
    * Method to override the fragment shader code for the splat.  You can
    * set this to draw other shapes. For the OPenGL2 backend some of
    * the variables you can use and/or modify include,
@@ -150,7 +166,9 @@ protected:
   ~vtkPointGaussianMapper() VTK_OVERRIDE;
 
   char *ScaleArray;
+  int ScaleArrayComponent;
   char *OpacityArray;
+  int OpacityArrayComponent;
   char *SplatShaderCode;
 
   vtkPiecewiseFunction *ScaleFunction;

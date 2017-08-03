@@ -119,7 +119,8 @@ int TestPointGaussianMapper(int argc, char *argv[])
   mapper->SetScalarModeToUsePointFieldData();
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetInterpolateScalarsBeforeMapping(0);
-  mapper->SetScaleArray("RandomPointScalars");
+  mapper->SetScaleArray("RandomPointVectors");
+  mapper->SetScaleArrayComponent(3);
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(0.0,0.1,1.0,0.8);
