@@ -51,7 +51,7 @@ void ExecuteFunctor(void *functor, vtkIdType from, vtkIdType grain,
 }
 
 template <typename FunctorInternal>
-static void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last,
+void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last,
                                  vtkIdType grain, FunctorInternal& fi)
 {
   vtkIdType n = last - first;
@@ -73,7 +73,7 @@ static void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last,
 
 //--------------------------------------------------------------------------------
 template<typename RandomAccessIterator>
-static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
                                   RandomAccessIterator end)
 {
   std::sort(begin, end);
@@ -81,7 +81,7 @@ static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
 
 //--------------------------------------------------------------------------------
 template<typename RandomAccessIterator, typename Compare>
-static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
                                   RandomAccessIterator end,
                                   Compare comp)
 {

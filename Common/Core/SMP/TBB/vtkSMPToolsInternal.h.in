@@ -47,7 +47,7 @@ public:
 
 //--------------------------------------------------------------------------------
 template <typename FunctorInternal>
-static void vtkSMPTools_Impl_For(
+void vtkSMPTools_Impl_For(
   vtkIdType first, vtkIdType last, vtkIdType grain,
   FunctorInternal& fi)
 {
@@ -68,7 +68,7 @@ static void vtkSMPTools_Impl_For(
 
 //--------------------------------------------------------------------------------
 template<typename RandomAccessIterator>
-static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
                                   RandomAccessIterator end)
 {
   tbb::parallel_sort(begin, end);
@@ -76,7 +76,7 @@ static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
 
 //--------------------------------------------------------------------------------
 template<typename RandomAccessIterator, typename Compare>
-static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
                                   RandomAccessIterator end,
                                   Compare comp)
 {
