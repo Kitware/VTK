@@ -285,12 +285,9 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
   }
 
   // allocate scalar storage for two slices
-  T *scalars = nullptr;
-  T *scalars1 = nullptr;
-  T *scalars2 = nullptr;
-  scalars = new T [xdim*ydim*2];
-  scalars1 = scalars;
-  scalars2 = scalars + xdim*ydim;
+  T *scalars = new T [xdim*ydim*2];
+  T *scalars1 = scalars;
+  T *scalars2 = scalars + xdim*ydim;
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)

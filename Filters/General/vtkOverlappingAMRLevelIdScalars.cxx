@@ -93,8 +93,7 @@ int vtkOverlappingAMRLevelIdScalars::RequestData(
 vtkUniformGrid* vtkOverlappingAMRLevelIdScalars::ColorLevel(
   vtkUniformGrid* input, int group)
 {
-  vtkUniformGrid* output = nullptr;
-  output = input->NewInstance();
+  vtkUniformGrid* output = input->NewInstance();
   output->ShallowCopy(input);
   vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
   vtkIdType numCells = dsOutput->GetNumberOfCells();

@@ -434,8 +434,7 @@ int vtkClipClosedSurface::RequestData(
   }
 
   // Break the input lines into segments, generate scalars for lines
-  vtkCellArray *lines = nullptr;
-  lines = vtkCellArray::New();
+  vtkCellArray *lines = vtkCellArray::New();
   if (input->GetLines() && input->GetLines()->GetNumberOfCells() > 0)
   {
     this->BreakPolylines(input->GetLines(), lines, inputScalars,

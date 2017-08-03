@@ -555,8 +555,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   {
     // NOTE: It is not necessary to create or make current to a context before
     // calling glXGetProcAddressARB
-    glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
-    glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
+    glXCreateContextAttribsARBProc glXCreateContextAttribsARB =
+     (glXCreateContextAttribsARBProc)
       glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
 
     int context_attribs[] =

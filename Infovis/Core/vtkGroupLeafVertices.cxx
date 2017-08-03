@@ -142,9 +142,8 @@ int vtkGroupLeafVertices::RequestData(
   }
 
   // Get the builder's group array.
-  vtkAbstractArray *outputGroupArr = nullptr;
   char *groupname = arr->GetName();
-  outputGroupArr = builderVertexData->GetAbstractArray(groupname);
+  vtkAbstractArray *outputGroupArr = builderVertexData->GetAbstractArray(groupname);
   if (outputGroupArr == nullptr)
   {
     vtkErrorMacro(<< "Could not find the group array in the builder.");

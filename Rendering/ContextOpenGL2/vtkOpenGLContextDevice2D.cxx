@@ -1735,9 +1735,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGLHelper *cbo = nullptr;
   this->ReadyVTBOProgram();
-  cbo = this->VTBO;
+  vtkOpenGLHelper *cbo = this->VTBO;
   if (!cbo->Program)
   {
     return;
@@ -1816,9 +1815,8 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGLHelper *cbo = nullptr;
   this->ReadyVTBOProgram();
-  cbo = this->VTBO;
+  vtkOpenGLHelper *cbo = this->VTBO;
   if (!cbo->Program)
   {
     return;
