@@ -66,12 +66,6 @@ public:
    */
   void TerminateApp(void) VTK_OVERRIDE;
 
-  /**
-   * Create default picker. Used to create one when none is specified.
-   * Default is an instance of vtkPropPicker.
-   */
-  vtkAbstractPropPicker *CreateDefaultPicker() VTK_OVERRIDE;
-
   //@{
   /**
    * With VR we know the world coordinate positions
@@ -241,11 +235,13 @@ public:
 
   //@{
   /**
-   * Set/Get the optional translation to map world coordinates into the
+   * Set/Get the optional scale translation to map world coordinates into the
    * 3D physical space (meters, 0,0,0).
    */
   virtual void SetPhysicalTranslation(vtkCamera *, double, double, double) {};
   virtual double *GetPhysicalTranslation(vtkCamera *) { return nullptr; };
+  virtual void SetPhysicalScale(double) {};
+  virtual double GetPhysicalScale() { return 1.0; };
   //@}
 
   //@{

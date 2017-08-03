@@ -64,7 +64,6 @@ set(Module_SRCS
   vtkProp3DFollower.cxx
   vtkPropAssembly.cxx
   vtkPropCollection.cxx
-  vtkPropPicker3D.cxx
   vtkProp.cxx
   vtkProperty2D.cxx
   vtkProperty.cxx
