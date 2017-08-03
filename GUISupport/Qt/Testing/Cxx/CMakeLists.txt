@@ -18,6 +18,10 @@ if(VTK_QT_VERSION VERSION_GREATER "4" AND
     TestQVTKOpenGLWidget.cxx
     TestQVTKOpenGLWidgetWithMSAA.cxx
     )
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
+    NO_VALID
+    TestQVTKOpenGLWidgetPicking.cxx
+    )
 endif()
 
 if(WIN32)

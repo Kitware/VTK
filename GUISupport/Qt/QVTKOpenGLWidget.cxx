@@ -94,6 +94,8 @@ public:
           break;
 
         case vtkCommand::StartEvent:
+          VTK_FALLTHROUGH;
+        case vtkCommand::StartPickEvent:
           this->Target->startEventCallback();
           break;
       }
@@ -197,6 +199,7 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     this->RenderWindow->AddObserver(vtkCommand::WindowIsCurrentEvent, this->Observer.Get());
     this->RenderWindow->AddObserver(vtkCommand::WindowFrameEvent, this->Observer.Get());
     this->RenderWindow->AddObserver(vtkCommand::StartEvent, this->Observer.Get());
+    this->RenderWindow->AddObserver(vtkCommand::StartPickEvent, this->Observer.Get());
 
     if (this->FBO)
     {
