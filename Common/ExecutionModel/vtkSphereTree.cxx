@@ -1129,12 +1129,7 @@ void vtkSphereTree::Build(vtkDataSet *input)
 // Compute the sphere tree leafs (i.e., spheres around each cell)
 void vtkSphereTree::BuildTreeSpheres(vtkDataSet *input)
 {
-  // See if anything has to be done
-  if ( this->Tree != nullptr && this->BuildTime > this->MTime )
-    {
-    return;
-    }
-  else if(this->Tree != nullptr)
+  if (this->Tree != nullptr)
   {
     this->Tree->Delete();
     delete[] this->Selected;
