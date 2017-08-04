@@ -509,6 +509,8 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
                                          vtkXMLDataElement *tree,
                                          vtkXMLDataElement ***results)
 {
+  *results = nullptr;
+
   if (!elem || ! tree)
   {
     return 0;
