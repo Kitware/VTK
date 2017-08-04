@@ -277,6 +277,9 @@ public:
 
 protected:
   std::string EventString;
+private:
+  vtkTimerLogScope(const vtkTimerLogScope&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTimerLogScope&) VTK_DELETE_FUNCTION;
 };
 
 //
