@@ -3175,6 +3175,7 @@ int ExerciseDataArray()
   errors += Test_void_RemoveFirstTuple<ScalarT, ArrayT>();
   errors += Test_void_RemoveLastTuple<ScalarT, ArrayT>();
   errors += Test_void_GetData_tupleMin_tupleMax_compMin_compMax_data<ScalarT, ArrayT>();
+  errors += Test_void_FillComponent_j_c<ScalarT, ArrayT>();
   errors += Test_void_CopyComponent_j_from_fromComponent<ScalarT, ArrayT>();
 
   return errors;
