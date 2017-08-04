@@ -2199,7 +2199,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
                                        FT_UInt &previousGlyphIndex,
                                        vtkPath *path, MetaData &metaData)
 {
-  FT_UInt glyphIndex;
+  FT_UInt glyphIndex = 0;
   FT_OutlineGlyph outlineGlyph = nullptr;
   FT_Outline *outline = this->GetOutline(character, &metaData.scaler,
                                          glyphIndex, outlineGlyph);

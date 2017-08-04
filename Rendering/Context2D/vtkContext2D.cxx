@@ -1025,7 +1025,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 {
   if (rect->GetNumberOfPoints() < 2)
   {
-    return vtkVector2f();
+    return vtkVector2f(0, 0);
   }
 
   float *f = vtkArrayDownCast<vtkFloatArray>(rect->GetData())->GetPointer(0);
