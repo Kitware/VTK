@@ -2092,7 +2092,7 @@ int Test_void_FillComponent_j_c()
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
-  for (vtkIdType j = 0; j < comps; ++j)
+  for (int j = 0; j < comps; ++j)
   {
     source->FillComponent(j, static_cast<double>(((j + 1) * j) % 17));
   }
