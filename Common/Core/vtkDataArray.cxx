@@ -74,10 +74,15 @@ struct DeepCopyWorker
     }
   }
 
-  // Generic implementation:
-  template <typename Array1T, typename Array2T>
-  void operator()(Array1T *src, Array2T *dst)
+  // Generic implementations:
+  template <typename Array1DerivedT, typename Array1ValueT,
+            typename Array2DerivedT, typename Array2ValueT>
+  void operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT> *src,
+                  vtkGenericDataArray<Array2DerivedT, Array2ValueT> *dst)
   {
+    using Array1T = vtkGenericDataArray<Array1DerivedT, Array1ValueT>;
+    using Array2T = vtkGenericDataArray<Array2DerivedT, Array2ValueT>;
+
     vtkDataArrayAccessor<Array1T> s(src);
     vtkDataArrayAccessor<Array2T> d(dst);
 
@@ -91,6 +96,20 @@ struct DeepCopyWorker
       for (int c = 0; c < comps; ++c)
       {
         d.Set(t, c, static_cast<DestType>(s.Get(t, c)));
+      }
+    }
+  }
+
+  void operator()(vtkDataArray *src, vtkDataArray *dst)
+  {
+    vtkIdType tuples = src->GetNumberOfTuples();
+    int comps = src->GetNumberOfComponents();
+
+    for (vtkIdType t = 0; t < tuples; ++t)
+    {
+      for (int c = 0; c < comps; ++c)
+      {
+        dst->SetComponent(t, c, src->GetComponent(t, c));;
       }
     }
   }

@@ -953,8 +953,13 @@ int Test_voidPtr_GetVoidPointer()
 struct CheckShallowCopy
 {
   // Mismatched arrays -- these will not shallow copy, always return true.
-  template <typename Array1T, typename Array2T>
-  bool operator()(Array1T *, Array2T *) { return true; }
+  template <typename Array1DerivedT, typename Array1ValueT,
+            typename Array2DerivedT, typename Array2ValueT>
+  bool operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT> *,
+                  vtkGenericDataArray<Array2DerivedT, Array2ValueT> *)
+  {
+    return true;
+  }
 
   // AOS same-ValueType case:
   template <typename ValueType>
