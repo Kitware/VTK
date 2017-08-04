@@ -135,7 +135,7 @@ CheckOpenGLVersion::CheckOpenGLVersion( HINSTANCE hInst ) :
         0 // End of attributes list
         };
       HGLRC contextId = nullptr;
-      for (int i = 0; i < 9 && !contextId; i++)
+      for (int i = 0; i < 8 && !contextId; i++)
       {
         iContextAttribs[1] = attemptedVersions[i*2];
         iContextAttribs[3] = attemptedVersions[i*2+1];
