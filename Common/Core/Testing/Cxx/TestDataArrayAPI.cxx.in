@@ -3039,10 +3039,6 @@ int Test_GetRange_all_overloads()
 //------------------------------------------------------------------------------
 //-----------Unit Test Function Caller------------------------------------------
 //------------------------------------------------------------------------------
-struct CanDispatch // Dummy for testing if we can dispatch an array type.
-{
-  template <typename ArrayT> void operator()(ArrayT *) {}
-};
 
 template <typename ScalarT, typename ArrayT>
 int ExerciseDataArray()
