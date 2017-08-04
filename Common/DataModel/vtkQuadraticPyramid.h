@@ -161,8 +161,25 @@ protected:
   vtkDoubleArray   *CellScalars;
   vtkDoubleArray   *Scalars; //used to avoid New/Delete in contouring/clipping
 
+  //@{
+  /**
+   * This method adds in a point at the center of the quadrilateral face
+   * and then interpolates values to that point. In order to do this it
+   * also resizes certain member variable arrays. For safety should call
+   * ResizeArrays() after the results of Subdivide() are not needed anymore.
+   **/
   void Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId,
     vtkDataArray *cellScalars);
+  //@}
+  //@{
+  /**
+   * Resize the superclasses' member arrays to newSize where newSize should either be
+   * 13 or 14. Call with 13 to reset the reallocation done in the Subdivide()
+   * method or call with 14 to add one extra tuple for the generated point in
+   * Subdivice. For efficiency it only resizes the superclasses' arrays.
+   **/
+  void ResizeArrays(vtkIdType newSize);
+  //@}
 
 private:
   vtkQuadraticPyramid(const vtkQuadraticPyramid&) VTK_DELETE_FUNCTION;

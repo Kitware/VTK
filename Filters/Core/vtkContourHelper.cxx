@@ -63,8 +63,8 @@ vtkContourHelper::~vtkContourHelper()
 void vtkContourHelper::Contour(vtkCell* cell, double value, vtkDataArray *cellScalars, vtkIdType cellId)
 {
   bool mergeTriangles = (!this->GenerateTriangles) && cell->GetCellDimension()==3;
-  vtkCellData* outCD;
-  vtkCellArray* outPoly;
+  vtkCellData* outCD = nullptr;
+  vtkCellArray* outPoly = nullptr;
   if(mergeTriangles)
   {
     outPoly = this->Tris;

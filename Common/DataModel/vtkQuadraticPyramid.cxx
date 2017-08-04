@@ -34,17 +34,13 @@ vtkStandardNewMacro(vtkQuadraticPyramid);
 //
 vtkQuadraticPyramid::vtkQuadraticPyramid()
 {
-  // At creation time the cell looks like it has 14 points (during interpolation)
-  // We initially allocate for 14.
-  this->Points->SetNumberOfPoints(14);
-  this->PointIds->SetNumberOfIds(14);
-  for (int i = 0; i < 14; i++)
+  this->PointIds->SetNumberOfIds(13);
+  this->Points->SetNumberOfPoints(13);
+  for (int i = 0; i < 13; i++)
   {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
   }
-  this->Points->SetNumberOfPoints(13);
-  this->PointIds->SetNumberOfIds(13);
 
   this->Edge = vtkQuadraticEdge::New();
   this->Face = vtkQuadraticQuad::New();
@@ -76,16 +72,19 @@ vtkQuadraticPyramid::~vtkQuadraticPyramid()
 }
 
 //----------------------------------------------------------------------------
+// point id 13 is created to make it easier to subdivide this cell and it is
+// located at the center of the quadrilateral face of the pyramid. LinearPyramid
+// is only used by the Subdivide(), Contour() and Clip() methods.
 static int LinearPyramids[10][5] = { {0,5,13,8,9},
                                      {5,1,6,13,10},
                                      {8,13,7,3,12},
                                      {13,6,2,7,11},
                                      {9,10,11,12,4},
-                                     {9,12,11,10,13},
-                                     {5,10,9,13,0},
-                                     {6,11,10,13,0},
-                                     {7,12,11,13,0},
-                                     {8,9,12,13,0} };
+                                     {9,12,11,10,13}, // 6 pyramids
+                                     {5,13,9,10,0},
+                                     {6,13,10,11,0},
+                                     {7,13,11,12,0},
+                                     {8,13,12,9,0} }; // 4 tets
 
 static int PyramidFaces[5][8] = { {0,3,2,1,8,7,6,5},
                                   {0,1,4,5,10,9,0,0},
@@ -97,7 +96,6 @@ static int PyramidEdges[8][3] = { {0,1,5}, {1,2,6}, {2,3,7},
                                   {3,0,8},{0,4,9},{1,4,10},
                                   {2,4,11}, {3,4,12} };
 
-static double MidPoints[1][3] = { {0.5,0.5,0.0} };
 //----------------------------------------------------------------------------
 int *vtkQuadraticPyramid::GetEdgeArray(int edgeId)
 {
@@ -370,14 +368,12 @@ int vtkQuadraticPyramid::CellBoundary(int subId, double pcoords[3],
 void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
                                     vtkIdType cellId, vtkDataArray *cellScalars)
 {
-  int numMidPts, i, j;
   double weights[13];
-  double x[3];
-  double s;
 
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
+  this->ResizeArrays(14);
   // Make sure to copy ALL arrays. These field data have to be
   // identical to the input field data. Otherwise, CopyData
   // that occurs later may not work because the output field
@@ -387,39 +383,50 @@ void vtkQuadraticPyramid::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   this->CellData->CopyAllOn();
   this->PointData->CopyAllocate(inPd,14);
   this->CellData->CopyAllocate(inCd,10);
-  for (i=0; i<13; i++)
+  for (int i=0; i<13; i++)
   {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
     this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
   }
-  for (i=0; i<10; i++)
+  for (int i=0; i<10; i++)
   {
     this->CellData->CopyData(inCd,cellId,i);
   }
 
-  //Interpolate new values
+  //Interpolate new value at midpoint
   double p[3];
-  this->Points->Resize(14);
-  this->CellScalars->Resize(14);
-  for ( numMidPts=0; numMidPts < 1; numMidPts++ )
-  {
-    this->InterpolationFunctions(MidPoints[numMidPts], weights);
 
-    x[0] = x[1] = x[2] = 0.0;
-    s = 0.0;
-    for (i=0; i<13; i++)
+  // New midpoint is at center of the quadrilateral face
+  double midPoint[3] = {0.5,0.5,0.0};
+  this->InterpolationFunctions(midPoint, weights);
+
+  double x[3] = {0., 0., 0.};
+  double s = 0.0;
+  for (int i=0; i<13; i++)
+  {
+    this->Points->GetPoint(i, p);
+    for (int j=0; j<3; j++)
     {
-      this->Points->GetPoint(i, p);
-      for (j=0; j<3; j++)
-      {
-        x[j] += p[j] * weights[i];
-      }
-      s += cellScalars->GetTuple1(i) * weights[i];
+      x[j] += p[j] * weights[i];
     }
-    this->Points->SetPoint(13+numMidPts,x);
-    this->CellScalars->SetValue(13+numMidPts,s);
-    this->PointData->InterpolatePoint(inPd, 13+numMidPts,
-                                      this->PointIds, weights);
+    s += cellScalars->GetTuple1(i) * weights[i];
+  }
+  this->Points->SetPoint(13,x);
+  this->CellScalars->SetValue(13,s);
+  this->PointData->InterpolatePoint(inPd, 13, this->PointIds, weights);
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadraticPyramid::ResizeArrays(vtkIdType newSize)
+{
+  if (newSize != 13 && newSize != 14)
+  {
+    vtkWarningMacro("Incorrect resize value for member arrays.");
+  }
+  else
+  {
+    this->Points->Resize(newSize);
+    this->PointIds->Resize(newSize);
   }
 }
 
@@ -437,7 +444,7 @@ void vtkQuadraticPyramid::Contour(double value,
                                   vtkCellData* outCd)
 {
   int i;
-  //subdivide into 6 linear pyramids
+  //subdivide into 6 linear pyramids + 4 tetras
   this->Subdivide(inPd,inCd,cellId,cellScalars);
 
   //contour each linear pyramid separately
@@ -467,6 +474,7 @@ void vtkQuadraticPyramid::Contour(double value,
     this->Tetra->Contour(value,this->Scalars,locator,verts,lines,polys,
                          this->PointData,outPd,this->CellData,i,outCd);
   }
+  this->ResizeArrays(13);
 }
 
 //----------------------------------------------------------------------------
@@ -699,6 +707,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
     this->Tetra->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
                     this->CellData,i,outCd,insideOut);
   }
+  this->ResizeArrays(13);
 }
 
 //----------------------------------------------------------------------------
