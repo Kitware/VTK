@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -1926,9 +1927,8 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                        0.0f,   tex[1]};
 
 
-  vtkOpenGLHelper *cbo = nullptr;
   this->ReadyVTBOProgram();
-  cbo = this->VTBO;
+  vtkOpenGLHelper *cbo = this->VTBO;
   if (!cbo->Program)
   {
     return;
