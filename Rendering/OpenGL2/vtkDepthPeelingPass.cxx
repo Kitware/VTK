@@ -694,6 +694,8 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   this->TranslucentRGBATexture[0]->Deactivate();
   this->TranslucentRGBATexture[1]->Deactivate();
   this->TranslucentRGBATexture[2]->Deactivate();
+  this->TranslucentZTexture[0]->Deactivate();
+  this->TranslucentZTexture[1]->Deactivate();
 
   // restore blending
   glEnable(GL_BLEND);
