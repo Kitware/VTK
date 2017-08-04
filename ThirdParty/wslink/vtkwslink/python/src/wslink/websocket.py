@@ -148,10 +148,6 @@ class TimeoutWebSocketServerFactory(WebSocketServerFactory):
         WebSocketServerFactory.__init__(self, *args, **kwargs)
         WebSocketServerFactory.protocol = TimeoutWebSocketServerProtocol
 
-    def startFactory(self):
-        # this is only called if the WsSite factory isn't created first.
-        log.msg("wslink: Starting factory", logLevel=logging.CRITICAL)
-
     def connectionMade(self):
         if self._reaper:
             log.msg("Client has reconnected, cancelling reaper", logLevel=logging.DEBUG)
@@ -175,12 +171,6 @@ class TimeoutWebSocketServerFactory(WebSocketServerFactory):
 
     def getServerProtocol(self):
         return self._protocolHandler
-
-    ### Does not seem to work to print a "ready line"
-    # def startFactory(self):
-    #     sys.stdout.write("wslink: Starting factory\n")
-    #     sys.stdout.flush()
-    #     WebSocketServerFactory.startFactory(self)
 
     def getClientCount(self):
         return self.clientCount
@@ -212,6 +202,7 @@ CLIENT_ERROR = -32099
 
 class WslinkWebSocketServerProtocol(TimeoutWebSocketServerProtocol):
     def __init__(self):
+        super(WslinkWebSocketServerProtocol, self).__init__()
         self.functionMap = {}
         self.attachmentMap = {}
         self.attachmentId = 0

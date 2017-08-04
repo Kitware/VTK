@@ -18,11 +18,32 @@ Once converted, a project should be updated by applying patches to the
 repository specified in its `update.sh` script. Once the changes are merged,
 pulling the changes involves running the `update.sh` script. This will update
 the local copy of the project to the version specified in `update.sh` (usually
-a `for/foo` branch, but may be `master` or any other Git reference) and merge
-it into the main tree.
+a `for/foo` branch, like `for/vtk` for example, but may be `master` or any
+other Git reference) and merge it into the main tree.
 
 This requires a Git 2.5 or higher due the `worktree` tool being used to
 simplify the availability of the commits to the main checkout.
+
+Here's an example of updating the `twisted` project from tag 17.1.0 to 17.5.0,
+starting with updating the third-party repo
+
+```sh
+$ cd twisted/
+$ git checkout for/vtk
+$ git fetch origin
+$ git rebase --onto twisted-17.5.0 twisted-17.1.0
+$ git push
+```
+
+Now import into VTK
+
+```sh
+$ cd vtk/ThirdParty/twisted
+$ git checkout -b update_twisted
+$ ./update.sh
+```
+
+Now you can review the change and make a merge request from the branch as normal.
 
 # Porting a Project
 

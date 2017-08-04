@@ -34,7 +34,7 @@ to the point-to-point communication we actually use.
 * `cd ../python`
 * `python examples/webserver.py`
   - starts a webserver at [localhost](http://localhost:8080/) with buttons to test RPC and pub/sub methods
-* `python examples/simple.py --content client/www`
+* `python examples/simple.py --content ../js/dist/examples`
   - starts the same example using the configurable server
 
 ## Testing
