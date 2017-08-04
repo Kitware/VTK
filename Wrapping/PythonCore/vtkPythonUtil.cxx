@@ -157,6 +157,12 @@ class vtkPythonEnumMap
 {
 };
 
+// Keep track of all the VTK-Python extension modules
+class vtkPythonModuleList
+  : public std::vector<std::string>
+{
+};
+
 // Keep track of all vtkPythonCommand instances.
 class vtkPythonCommandList
   : public std::vector<vtkWeakPointer<vtkPythonCommand> >
@@ -211,6 +217,7 @@ vtkPythonUtil::vtkPythonUtil()
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
   this->NamespaceMap = new vtkPythonNamespaceMap;
   this->EnumMap = new vtkPythonEnumMap;
+  this->ModuleList = new vtkPythonModuleList;
   this->PythonCommandList = new vtkPythonCommandList;
 }
 
@@ -223,6 +230,7 @@ vtkPythonUtil::~vtkPythonUtil()
   delete this->SpecialTypeMap;
   delete this->NamespaceMap;
   delete this->EnumMap;
+  delete this->ModuleList;
   delete this->PythonCommandList;
 }
 
@@ -927,6 +935,16 @@ PyTypeObject *vtkPythonUtil::FindSpecialTypeObject(const char *name)
 //--------------------------------------------------------------------
 bool vtkPythonUtil::ImportModule(const char *name, PyObject *globals)
 {
+  // check whether the module is already loaded
+  if (vtkPythonMap)
+  {
+    vtkPythonModuleList *ml = vtkPythonMap->ModuleList;
+    if (std::find(ml->begin(), ml->end(), name) != ml->end())
+    {
+      return true;
+    }
+  }
+
   // try relative import (const-cast is needed for Python 2.x only)
   PyObject *m = PyImport_ImportModuleLevel(const_cast<char *>(name), globals,
                                            nullptr, nullptr, 1);
@@ -946,6 +964,14 @@ bool vtkPythonUtil::ImportModule(const char *name, PyObject *globals)
 
   Py_DECREF(m);
   return true;
+}
+
+//--------------------------------------------------------------------
+void vtkPythonUtil::AddModule(const char *name)
+{
+  vtkPythonUtilCreateIfNeeded();
+
+  vtkPythonMap->ModuleList->push_back(name);
 }
 
 //--------------------------------------------------------------------

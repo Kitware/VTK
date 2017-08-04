@@ -40,6 +40,7 @@ class vtkPythonObjectMap;
 class vtkPythonSpecialTypeMap;
 class vtkPythonNamespaceMap;
 class vtkPythonEnumMap;
+class vtkPythonModuleList;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkVariant;
@@ -201,6 +202,14 @@ public:
   static bool ImportModule(const char *name, PyObject *globals);
 
   /**
+   * Modules call this to add themselves to the list of loaded modules.
+   * This is needed because we do not know how the modules are arranged
+   * within their package, so searching sys.modules is unreliable.  It is
+   * best for us to keep our own list.
+   */
+  static void AddModule(const char *name);
+
+  /**
    * Utility function to build a docstring by concatenating a series
    * of strings until a null string is found.
    */
@@ -244,6 +253,7 @@ private:
   vtkPythonSpecialTypeMap *SpecialTypeMap;
   vtkPythonNamespaceMap *NamespaceMap;
   vtkPythonEnumMap *EnumMap;
+  vtkPythonModuleList *ModuleList;
   vtkPythonCommandList *PythonCommandList;
 
   friend void vtkPythonUtilDelete();

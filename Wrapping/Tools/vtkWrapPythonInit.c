@@ -125,11 +125,12 @@ static void CreateImplFile(const char *libName,
 
   for (i = 0; i < numFiles; i++)
   {
-    fprintf(fout,"  PyVTKAddFile_%s(d);\n",
-      files[i]);
+    fprintf(fout,"  PyVTKAddFile_%s(d);\n", files[i]);
   }
 
   fprintf(fout,"\n");
+  fprintf(fout,"  vtkPythonUtil::AddModule(\"%s\");\n\n", libName);
+
   fprintf(fout,"  return m;\n");
   fprintf(fout,"}\n\n");
 }
