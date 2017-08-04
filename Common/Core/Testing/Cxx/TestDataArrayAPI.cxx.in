@@ -953,8 +953,13 @@ int Test_voidPtr_GetVoidPointer()
 struct CheckShallowCopy
 {
   // Mismatched arrays -- these will not shallow copy, always return true.
-  template <typename Array1T, typename Array2T>
-  bool operator()(Array1T *, Array2T *) { return true; }
+  template <typename Array1DerivedT, typename Array1ValueT,
+            typename Array2DerivedT, typename Array2ValueT>
+  bool operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT> *,
+                  vtkGenericDataArray<Array2DerivedT, Array2ValueT> *)
+  {
+    return true;
+  }
 
   // AOS same-ValueType case:
   template <typename ValueType>
@@ -2092,7 +2097,7 @@ int Test_void_FillComponent_j_c()
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
-  for (vtkIdType j = 0; j < comps; ++j)
+  for (int j = 0; j < comps; ++j)
   {
     source->FillComponent(j, static_cast<double>(((j + 1) * j) % 17));
   }
@@ -3039,10 +3044,6 @@ int Test_GetRange_all_overloads()
 //------------------------------------------------------------------------------
 //-----------Unit Test Function Caller------------------------------------------
 //------------------------------------------------------------------------------
-struct CanDispatch // Dummy for testing if we can dispatch an array type.
-{
-  template <typename ArrayT> void operator()(ArrayT *) {}
-};
 
 template <typename ScalarT, typename ArrayT>
 int ExerciseDataArray()
@@ -3179,6 +3180,7 @@ int ExerciseDataArray()
   errors += Test_void_RemoveFirstTuple<ScalarT, ArrayT>();
   errors += Test_void_RemoveLastTuple<ScalarT, ArrayT>();
   errors += Test_void_GetData_tupleMin_tupleMax_compMin_compMax_data<ScalarT, ArrayT>();
+  errors += Test_void_FillComponent_j_c<ScalarT, ArrayT>();
   errors += Test_void_CopyComponent_j_from_fromComponent<ScalarT, ArrayT>();
 
   return errors;
