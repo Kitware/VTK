@@ -35,6 +35,56 @@ namespace
 }
 
 //----------------------------------------------------------------------------
+// Marching pyramids (contouring)
+//
+namespace { //required so we don't violate ODR
+static int edges[8][2] = { {0,1}, {1,2}, {2,3},
+                           {3,0}, {0,4}, {1,4},
+                           {2,4}, {3,4} };
+static int faces[5][5] = { {0,3,2,1,-1}, {0,1,4,-1,-1},
+                           {1,2,4,-1,-1}, {2,3,4,-1,-1}, {3,0,4,-1,-1} };
+
+typedef int EDGE_LIST;
+typedef struct {
+       EDGE_LIST edges[13];
+} TRIANGLE_CASES;
+static TRIANGLE_CASES triCases[] = {
+  {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //0
+  {{ 3,  4,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //1
+  {{ 5,  1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //2
+  {{ 5,  1,  4,  1,  3,  4, -1, -1, -1, -1, -1, -1, -1}}, //3
+  {{ 6,  2,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //4
+  {{ 3,  4,  0,  6,  2,  1, -1, -1, -1, -1, -1, -1, -1}}, //5
+  {{ 5,  2,  0,  6,  2,  5, -1, -1, -1, -1, -1, -1, -1}}, //6
+  {{ 2,  3,  4,  2,  4,  6,  4,  5,  6, -1, -1, -1, -1}}, //7
+  {{ 2,  7,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //8
+  {{ 2,  7,  4,  4,  0,  2, -1, -1, -1, -1, -1, -1, -1}}, //9
+  {{ 5,  1,  0,  2,  7,  3, -1, -1, -1, -1, -1, -1, -1}}, //10
+  {{ 5,  7,  4,  1,  7,  5,  2,  7,  1, -1, -1, -1, -1}}, //11
+  {{ 6,  3,  1,  7,  3,  6, -1, -1, -1, -1, -1, -1, -1}}, //12
+  {{ 4,  6,  7,  0,  6,  4,  1,  6,  0, -1, -1, -1, -1}}, //13
+  {{ 7,  5,  6,  3,  5,  7,  0,  5,  3, -1, -1, -1, -1}}, //14
+  {{ 7,  4,  5,  7,  5,  6, -1, -1, -1, -1, -1, -1, -1}}, //15
+  {{ 7,  5,  4,  7,  6,  5, -1, -1, -1, -1, -1, -1, -1}}, //16
+  {{ 5,  0,  3,  6,  5,  3,  7,  6,  3, -1, -1, -1, -1}}, //17
+  {{ 1,  0,  4,  7,  1,  4,  6,  1,  7, -1, -1, -1, -1}}, //18
+  {{ 6,  1,  3,  7,  6,  3, -1, -1, -1, -1, -1, -1, -1}}, //19
+  {{ 7,  5,  4,  7,  1,  5,  7,  2,  1, -1, -1, -1, -1}}, //20
+  {{ 3,  7,  0,  7,  5,  0,  7,  2,  5,  2,  1,  5, -1}}, //21
+  {{ 4,  2,  0,  7,  2,  4, -1, -1, -1, -1, -1, -1, -1}}, //22
+  {{ 7,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //23
+  {{ 2,  4,  3,  5,  4,  2,  6,  5,  2, -1, -1, -1, -1}}, //24
+  {{ 2,  5,  0,  2,  6,  5, -1, -1, -1, -1, -1, -1, -1}}, //25
+  {{ 6,  1,  0,  4,  6,  0,  3,  6,  4,  3,  2,  6, -1}}, //26
+  {{ 2,  6,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //27
+  {{ 1,  4,  3,  1,  5,  4, -1, -1, -1, -1, -1, -1, -1}}, //28
+  {{ 1,  5,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //29
+  {{ 4,  3,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //30
+  {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}  //31
+};
+}
+
+//----------------------------------------------------------------------------
 //
 // Construct the pyramid with five points.
 //
@@ -65,7 +115,6 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
                                  int& subId, double pcoords[3],
                                  double& dist2, double *weights)
 {
-  int i, j;
   subId = 0;
   // There are problems searching for the apex point so we check if
   // we are there first before doing the full parametric inversion.
@@ -75,16 +124,16 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
   dist2 = vtkMath::Distance2BetweenPoints(apexPoint, x);
   double baseMidpoint[3];
   points->GetPoint(0, baseMidpoint);
-  for(i=1;i<4;i++)
+  for (int i=1; i<4; i++)
   {
     double tmp[3];
     points->GetPoint(i, tmp);
-    for(j=0;j<3;j++)
+    for (int j=0; j<3; j++)
     {
       baseMidpoint[j] += tmp[j];
     }
   }
-  for(i=0;i<3;i++)
+  for (int i=0; i<3; i++)
   {
     baseMidpoint[i] /= 4.;
   }
@@ -93,7 +142,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
   // we use .001 as the relative tolerance here since that is the same
   // that is used for the interior cell check below but we need to
   // square it here because we're looking at dist2^2.
-  if(dist2 == 0. || ( length2 != 0. && dist2/length2 < 1.e-6) )
+  if (dist2 == 0. || ( length2 != 0. && dist2/length2 < 1.e-6) )
   {
     pcoords[0] = pcoords[1] = 0;
     pcoords[2] = 1;
@@ -106,33 +155,44 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
     return 1;
   }
 
-  int iteration, converged;
-  double  params[3];
-  double  fcol[3], rcol[3], scol[3], tcol[3];
-  double  d, pt[3];
   double derivs[15];
+
+  // compute a bound on the volume to get a scale for an acceptable determinant
+  double longestEdge = 0;
+  for (int i=0; i<8; i++)
+  {
+    double pt0[3], pt1[3];
+    points->GetPoint(edges[i][0], pt0);
+    points->GetPoint(edges[i][1], pt1);
+    double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
+    if (longestEdge < d2)
+    {
+      longestEdge = d2;
+    }
+  }
+  // longestEdge value is already squared
+  double volumeBound = pow(longestEdge, 1.5);
+  double determinantTolerance = 1e-20 < .00001*volumeBound ? 1e-20 : .00001*volumeBound;
 
   //  set initial position for Newton's method
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
-  params[0] = params[1] = params[2] = 0.3333333;
+  double params[3] = {0.3333333, 0.3333333, 0.3333333};
 
   //  enter iteration loop
-  for (iteration=converged=0; !converged && (iteration < VTK_MAX_ITERATION);
-  iteration++)
+  int converged = 0;
+  for (int iteration=0; !converged && (iteration < VTK_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++)
+    double fcol[3] = {0, 0, 0}, rcol[3] = {0, 0, 0}, scol[3] = {0, 0, 0}, tcol[3] = {0, 0, 0};
+    for (int i=0; i<5; i++)
     {
-      fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
-    }
-    for (i=0; i<5; i++)
-    {
+      double pt[3];
       this->Points->GetPoint(i, pt);
-      for (j=0; j<3; j++)
+      for (int j=0; j<3; j++)
       {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
@@ -141,14 +201,14 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
       }
     }
 
-    for (i=0; i<3; i++)
+    for (int i=0; i<3; i++)
     {
       fcol[i] -= x[i];
     }
 
     //  compute determinants and generate improvements
-    d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20)
+    double d=vtkMath::Determinant3x3(rcol,scol,tcol);
+    if ( fabs(d) < determinantTolerance)
     {
       vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
@@ -206,7 +266,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
     double pc[3], w[5];
     if (closestPoint)
     {
-      for (i=0; i<3; i++) //only approximate, not really true for warped hexa
+      for (int i=0; i<3; i++) //only approximate, not really true for warped hexa
       {
         if (pcoords[i] < 0.0)
         {
@@ -324,57 +384,6 @@ int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   {
     return 1;
   }
-}
-
-//----------------------------------------------------------------------------
-// Marching pyramids (contouring)
-//
-namespace { //required so we don't violate ODR
-static int edges[8][2] = { {0,1}, {1,2}, {2,3},
-                           {3,0}, {0,4}, {1,4},
-                           {2,4}, {3,4} };
-static int faces[5][5] = { {0,3,2,1,-1}, {0,1,4,-1,-1},
-                           {1,2,4,-1,-1}, {2,3,4,-1,-1}, {3,0,4,-1,-1} };
-
-typedef int EDGE_LIST;
-typedef struct {
-       EDGE_LIST edges[13];
-} TRIANGLE_CASES;
-
-static TRIANGLE_CASES triCases[] = {
-  {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //0
-  {{ 3,  4,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //1
-  {{ 5,  1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //2
-  {{ 5,  1,  4,  1,  3,  4, -1, -1, -1, -1, -1, -1, -1}}, //3
-  {{ 6,  2,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //4
-  {{ 3,  4,  0,  6,  2,  1, -1, -1, -1, -1, -1, -1, -1}}, //5
-  {{ 5,  2,  0,  6,  2,  5, -1, -1, -1, -1, -1, -1, -1}}, //6
-  {{ 2,  3,  4,  2,  4,  6,  4,  5,  6, -1, -1, -1, -1}}, //7
-  {{ 2,  7,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //8
-  {{ 2,  7,  4,  4,  0,  2, -1, -1, -1, -1, -1, -1, -1}}, //9
-  {{ 5,  1,  0,  2,  7,  3, -1, -1, -1, -1, -1, -1, -1}}, //10
-  {{ 5,  7,  4,  1,  7,  5,  2,  7,  1, -1, -1, -1, -1}}, //11
-  {{ 6,  3,  1,  7,  3,  6, -1, -1, -1, -1, -1, -1, -1}}, //12
-  {{ 4,  6,  7,  0,  6,  4,  1,  6,  0, -1, -1, -1, -1}}, //13
-  {{ 7,  5,  6,  3,  5,  7,  0,  5,  3, -1, -1, -1, -1}}, //14
-  {{ 7,  4,  5,  7,  5,  6, -1, -1, -1, -1, -1, -1, -1}}, //15
-  {{ 7,  5,  4,  7,  6,  5, -1, -1, -1, -1, -1, -1, -1}}, //16
-  {{ 5,  0,  3,  6,  5,  3,  7,  6,  3, -1, -1, -1, -1}}, //17
-  {{ 1,  0,  4,  7,  1,  4,  6,  1,  7, -1, -1, -1, -1}}, //18
-  {{ 6,  1,  3,  7,  6,  3, -1, -1, -1, -1, -1, -1, -1}}, //19
-  {{ 7,  5,  4,  7,  1,  5,  7,  2,  1, -1, -1, -1, -1}}, //20
-  {{ 3,  7,  0,  7,  5,  0,  7,  2,  5,  2,  1,  5, -1}}, //21
-  {{ 4,  2,  0,  7,  2,  4, -1, -1, -1, -1, -1, -1, -1}}, //22
-  {{ 7,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //23
-  {{ 2,  4,  3,  5,  4,  2,  6,  5,  2, -1, -1, -1, -1}}, //24
-  {{ 2,  5,  0,  2,  6,  5, -1, -1, -1, -1, -1, -1, -1}}, //25
-  {{ 6,  1,  0,  4,  6,  0,  3,  6,  4,  3,  2,  6, -1}}, //26
-  {{ 2,  6,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //27
-  {{ 1,  4,  3,  1,  5,  4, -1, -1, -1, -1, -1, -1, -1}}, //28
-  {{ 1,  5,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //29
-  {{ 4,  3,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //30
-  {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}  //31
-};
 }
 
 //----------------------------------------------------------------------------
