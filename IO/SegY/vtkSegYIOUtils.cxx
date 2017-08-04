@@ -15,84 +15,8 @@
 
 #include "vtkSegYIOUtils.h"
 
-#include <cstring>
-
-/*
- * Downloaded from:
- * https://www.thecodingforums.com/threads/c-code-for-converting-ibm-370-floating-point-to-ieee-754.438469/
- */
-/* ibm2ieee - Converts a number from IBM 370 single precision floating
-point format to IEEE 754 single precision format. For normalized
-numbers, the IBM format has greater range but less precision than the
-IEEE format. Numbers within the overlapping range are converted
-exactly. Numbers which are too large are converted to IEEE Infinity
-with the correct sign. Numbers which are too small are converted to
-IEEE denormalized numbers with a potential loss of precision (including
-complete loss of precision which results in zero with the correct
-sign). When precision is lost, rounding is toward zero (because it's
-fast and easy -- if someone really wants round to nearest it shouldn't
-be TOO difficult). */
-
-#include <netinet/in.h>
+#include <cmath>
 #include <sys/types.h>
-
-//----------------------------------------------------------------------------
-void ibm2ieee(void* to, const void* from, int len)
-{
-  unsigned long fr; /* fraction */
-  int exp;          /* exponent */
-  int sgn;          /* sign */
-
-  for (; len-- > 0; to = (char*)to + 4, from = (char*)from + 4)
-  {
-    /* split into sign, exponent, and fraction */
-    fr = *(long*)from; /* pick up value */
-    sgn = fr >> 31;    /* save sign */
-    fr <<= 1;          /* shift sign out */
-    exp = fr >> 25;    /* save exponent */
-    fr <<= 7;          /* shift exponent out */
-
-    if (fr == 0)
-    { /* short-circuit for zero */
-      exp = 0;
-      goto done;
-    }
-
-    /* adjust exponent from base 16 offset 64 radix point before first digit
-       to base 2 offset 127 radix point after first digit */
-    /* (exp - 64) * 4 + 127 - 1 == exp * 4 - 256 + 126 == (exp << 2) - 130 */
-    exp = (exp << 2) - 130;
-
-    /* (re)normalize */
-    while (fr < 0x80000000)
-    { /* 3 times max for normalized input */
-      --exp;
-      fr <<= 1;
-    }
-
-    if (exp <= 0)
-    {                /* underflow */
-      if (exp < -24) /* complete underflow - return properly signed zero */
-        fr = 0;
-      else /* partial underflow - return denormalized number */
-        fr >>= -exp;
-      exp = 0;
-    }
-    else if (exp >= 255)
-    { /* overflow - return infinity */
-      fr = 0;
-      exp = 255;
-    }
-    else
-    { /* just a plain old number - remove the assumed high bit */
-      fr <<= 1;
-    }
-
-  done:
-    /* put the pieces back together and return it */
-    *(unsigned*)to = (fr >> 9) | (exp << 23) | (sgn << 31);
-  }
-}
 
 //----------------------------------------------------------------------------
 vtkSegYIOUtils::vtkSegYIOUtils()
@@ -188,8 +112,34 @@ float vtkSegYIOUtils::readIBMFloat(std::ifstream& in)
     swap(buffer + 1, buffer + 2);
   }
 
-  float num;
-  ibm2ieee(&num, buffer, 1);
+  // The IBM Hex single precision floating point representation:
+  //
+  //  1      7                           24                    (width in bits)
+  // +-+----------------+-----------------------------------------+
+  // |S|   Exponent     |                Fraction                 |
+  // +-+----------------+-----------------------------------------+
+  // 31 30           24 23                                        0 (bit index)
+  //
+  //     Value = (-1^S) (0.F) (16^(E - 64))
+  //
+  // Key points:
+  // - S = sign: 0 = Positive, 1 = Negative
+  // - Exponent = power of 16 with a bias of 64
+  // - Fraction = Normalized F portion of 24 bit fraction 0.F
+  // - Value = 0 if F = 0
+  // More details at
+  // https://en.m.wikipedia.org/wiki/IBM_Floating_Point_Architecture
+
+  long* longbuffer = reinterpret_cast<long*>(buffer);
+  int sign = longbuffer[0] >> 31 & 0x01;
+  int exponent = longbuffer[0] >> 24 & 0x7F;
+  float fraction = (longbuffer[0] & 0x00ffffff) / float(pow(2.0, 24));
+  if (fraction == 0.0f)
+  {
+    // Value is 0
+    return 0.0f;
+  }
+  float num = (1 - 2 * sign) * fraction * pow(16.0, double(exponent - 64.0));
   return num;
 }
 
