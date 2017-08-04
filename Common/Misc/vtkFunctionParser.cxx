@@ -1882,7 +1882,7 @@ unsigned char vtkFunctionParser::GetElementaryOperatorNumber(char op)
 }
 
 //-----------------------------------------------------------------------------
-unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
+unsigned int vtkFunctionParser::GetOperandNumber(int currentIndex)
 {
   int variableIndex = -1;
 
@@ -1967,7 +1967,7 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
   {
     //add the offset if vector
     variableIndex = scalarVar? variableIndex : (this->GetNumberOfScalarVariables() + variableIndex);
-    return static_cast<unsigned char>(
+    return static_cast<unsigned int>(
       VTK_PARSER_BEGIN_VARIABLES + variableIndex);
   }
 
