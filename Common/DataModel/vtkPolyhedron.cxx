@@ -630,7 +630,7 @@ int  ExtractContourConnectivities(
       fvMapIt = faceToPointsMap.find(fVector[i]);
       if (fvMapIt == faceToPointsMap.end())
       {
-        vtkErrorWithObjectMacro(NULL,"Cannot find point ids of a face. We should never get "
+        vtkErrorWithObjectMacro(nullptr,"Cannot find point ids of a face. We should never get "
           "here. Contouring aborted.");
         return 0;
       }
@@ -1057,7 +1057,7 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   edgesSize = edges.size();
   if (extremePointAngles.size() != edgesSize)
   {
-    vtkErrorWithObjectMacro(NULL,"The size of the edge array does not match the size of the "
+    vtkErrorWithObjectMacro(nullptr,"The size of the edge array does not match the size of the "
       "angle array. We should never get here.");
     return;
   }
@@ -1103,7 +1103,7 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
     {
       double point[3];
       points->GetPoint(cpMap.find(prevPid)->first, point);
-      vtkErrorWithObjectMacro(NULL,"Found an unexpected case with multiple connected points. "
+      vtkErrorWithObjectMacro(nullptr,"Found an unexpected case with multiple connected points. "
         "The input polyhedron cell may not be "
         "watertight or the polygonal faces may not be planar. Contouring "
         "will continue, but this cell may not be processed correctly." << endl
@@ -1166,7 +1166,7 @@ void OrderTwoConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
     mapIt = cpMap.find(currPid);
     if (mapIt == cpMap.end())
     {
-      vtkErrorWithObjectMacro(NULL,"Find an unexpected case. The input polyhedron cell may not be a "
+      vtkErrorWithObjectMacro(nullptr,"Find an unexpected case. The input polyhedron cell may not be a "
         << "watertight or the polygonal faces may not be planar. Contouring "
         << "will continue, but this cell may not be processed correctly.");
       break;
