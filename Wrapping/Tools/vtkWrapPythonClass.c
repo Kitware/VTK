@@ -402,7 +402,6 @@ static void vtkWrapPython_GenerateObjectNew(
   HierarchyInfo *hinfo, int class_has_new)
 {
   char superclassname[1024];
-  const char *supermodule;
   const char *name;
   int is_external;
   int has_constants = 0;
@@ -474,8 +473,7 @@ static void vtkWrapPython_GenerateObjectNew(
   if (name)
   {
     vtkWrapText_PythonName(name, superclassname);
-    supermodule = vtkWrapPython_HasWrappedSuperClass(
-      hinfo, data->Name, &is_external);
+    vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name, &is_external);
     if (!is_external) /* superclass is in the same module */
     {
       fprintf(fp,
@@ -485,9 +483,8 @@ static void vtkWrapPython_GenerateObjectNew(
     else /* superclass is in a different module */
     {
       fprintf(fp,
-        "  pytype->tp_base = vtkPythonUtil::FindClassTypeObject(\n"
-        "    \"%sPython\", \"%s\");\n\n",
-        supermodule, superclassname);
+        "  pytype->tp_base = vtkPythonUtil::FindClassTypeObject(\"%s\");\n\n",
+        superclassname);
     }
   }
 

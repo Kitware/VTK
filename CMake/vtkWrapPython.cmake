@@ -132,6 +132,38 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
     endif()
   endforeach()
 
+  # find the python modules needed by this python module
+  string(REGEX REPLACE "Python$" "" _basename "${TARGET}")
+  string(REGEX REPLACE "Kit$" "" kit_basename "${_basename}")
+  if(_${kit_basename}_is_kit)
+    set(${_basename}_WRAP_DEPENDS)
+    foreach(kit_module IN LISTS _${kit_basename}_modules)
+      list(APPEND ${_basename}_WRAP_DEPENDS
+        ${${kit_module}_WRAP_DEPENDS})
+    endforeach()
+  endif()
+  set(_python_module_depends)
+  foreach(dep IN LISTS ${_basename}_WRAP_DEPENDS)
+    if(dep STREQUAL "${_basename}" OR dep STREQUAL "${kit_basename}")
+      continue()
+    endif()
+    if(VTK_ENABLE_KITS AND ${dep}_KIT)
+      if(NOT ${dep}_KIT STREQUAL kit_basename)
+        list(APPEND _python_module_depends ${${dep}_KIT}KitPython)
+      endif()
+    elseif(TARGET ${dep}Python)
+      list(APPEND _python_module_depends ${dep}Python)
+    endif()
+  endforeach()
+  if(_python_module_depends)
+    # add a DEPENDS section to the Init.data file for this module
+    set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA}\nDEPENDS")
+    list(REMOVE_DUPLICATES _python_module_depends)
+    foreach(dep IN LISTS _python_module_depends)
+      set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA}\n${dep}")
+    endforeach()
+  endif()
+
   # finish the data file for the init file
   configure_file(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in

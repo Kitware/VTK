@@ -901,83 +901,51 @@ PyTypeObject *vtkPythonUtil::FindEnum(const char *name)
 }
 
 //--------------------------------------------------------------------
-PyTypeObject *vtkPythonUtil::FindClassTypeObject(
-  const char *mod, const char *name)
+PyTypeObject *vtkPythonUtil::FindClassTypeObject(const char *name)
 {
-  for (int i = 0; i < 2; i++)
+  PyVTKClass *info = vtkPythonUtil::FindClass(name);
+  if (info)
   {
-    // see if the class is already loaded
-    PyVTKClass *info = vtkPythonUtil::FindClass(name);
-    if (info)
-    {
-      return info->py_type;
-    }
-    if (i == 0 && !vtkPythonUtil::LoadExtensionModule(mod))
-    {
-      break;
-    }
+    return info->py_type;
   }
 
   return nullptr;
 }
 
 //--------------------------------------------------------------------
-PyTypeObject *vtkPythonUtil::FindSpecialTypeObject(
-  const char *mod, const char *name)
+PyTypeObject *vtkPythonUtil::FindSpecialTypeObject(const char *name)
 {
-  for (int i = 0; i < 2; i++)
+  PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(name);
+  if (info)
   {
-    // see if the class is already loaded
-    PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(name);
-    if (info)
-    {
-      return info->py_type;
-    }
-    if (i == 0 && !vtkPythonUtil::LoadExtensionModule(mod))
-    {
-      break;
-    }
+    return info->py_type;
   }
 
   return nullptr;
 }
 
 //--------------------------------------------------------------------
-bool vtkPythonUtil::LoadExtensionModule(const char *name)
+bool vtkPythonUtil::ImportModule(const char *name, PyObject *globals)
 {
-  for (int i = 0; i < 2; i++)
+  // try relative import (const-cast is needed for Python 2.x only)
+  PyObject *m = PyImport_ImportModuleLevel(const_cast<char *>(name), globals,
+                                           nullptr, nullptr, 1);
+
+  if (!m)
   {
-    PyObject *m;
-    if (i == 0)
-    {
-      // try absolute import of "name"
-      m = PyImport_ImportModule(name);
-    }
-    else
-    {
-      // try import from "vtk" package
-      PyObject *l = PyList_New(1);
-      PyObject *s = PyString_FromString(name);
-      PyList_SET_ITEM(l, 0, s);
-      m = PyImport_ImportModuleLevel("vtk", nullptr, nullptr, l, 0);
-      Py_DECREF(l);
-    }
-    if (m)
-    {
-      Py_DECREF(m);
-      return true;
-    }
-    else if (i < 1)
-    {
-      PyErr_Clear();
-    }
-    else
-    {
-      PyErr_Print();
-    }
+    // clear error and retry with absolute import
+    PyErr_Clear();
+    m = PyImport_ImportModule(name);
   }
 
-  return false;
+  if (!m)
+  {
+    PyErr_Clear();
+    return false;
+  }
+
+  Py_DECREF(m);
+  return true;
 }
 
 //--------------------------------------------------------------------

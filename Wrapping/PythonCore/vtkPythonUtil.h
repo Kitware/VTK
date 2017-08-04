@@ -183,27 +183,22 @@ public:
 
   /**
    * Find the PyTypeObject for a wrapped VTK class.
-   * This will call FindClass() first, and if the class is not found,
-   * it will try to load the module that the class is stored in.
-   * If it fails, then it will set an exception and return NULL.
    */
-  static PyTypeObject *FindClassTypeObject(
-    const char *mod, const char *name);
+  static PyTypeObject *FindClassTypeObject(const char *name);
 
   /**
    * Find the PyTypeObject for a wrapped VTK type (non-vtkObject class).
-   * This will call FindSpecialType() first, and if the type is not found,
-   * it will try to load the module that the type is stored in.
-   * If it fails, then it will set an exception and return NULL.
    */
-  static PyTypeObject *FindSpecialTypeObject(
-    const char *mod, const char *name);
+  static PyTypeObject *FindSpecialTypeObject(const char *name);
 
   /**
    * Try to load an extension module, by looking in all the usual places.
-   * On failure, this will raise an exception and return "false".
+   * The "globals" is the dict of the module that is doing the importing.
+   * First, a relative import is performed, and if that fails, then a
+   * global import is performed.  A return value of "false" indicates
+   * failure, no exception is set.
    */
-  static bool LoadExtensionModule(const char *name);
+  static bool ImportModule(const char *name, PyObject *globals);
 
   /**
    * Utility function to build a docstring by concatenating a series

@@ -923,9 +923,9 @@ void vtkWrapPython_GenerateSpecialType(
     else /* superclass is in a different module */
     {
       fprintf(fp,
-        "  pytype->tp_base = vtkPythonUtil::FindSpecialTypeObject(\n"
-        "    \"%sPython\", \"%s\");\n\n",
-        supermodule, supername);
+        "  pytype->tp_base = vtkPythonUtil::FindSpecialTypeObject("
+        "\"%s\");\n\n",
+        supername);
     }
   }
 
