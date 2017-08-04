@@ -1398,8 +1398,8 @@ void vtkStaticPointLocator::BuildLocator()
     this->FreeSearchStructure();
   }
 
-  //  Size the root bucket.  Initialize bucket data structure, compute
-  //  level and divisions. The GetBounds() method below can be very slow;
+  // Size the root bucket.  Initialize bucket data structure, compute
+  // level and divisions. The GetBounds() method below can be very slow;
   // hopefully it is cached or otherwise accelerated.
   //
   const double *bounds = this->DataSet->GetBounds();
@@ -1447,15 +1447,26 @@ void vtkStaticPointLocator::BuildLocator()
     }
   }
 
-  // Clamp the i-j-k coords within allowable range. We clamp the upper range
-  // because we want the total number of buckets to lie within an "int" value.
-  for (i=0; i<3; i++)
-  {
-    ndivs[i] = (ndivs[i] < 1 ? 1 : (ndivs[i] <= 1290 ? ndivs[i] : 1290));
-    this->Divisions[i] = ndivs[i];
-  }
+  // Manage the number of buckets in the locator
+  numBuckets = static_cast<vtkIdType>(ndivs[0]) * static_cast<vtkIdType>(ndivs[1]) *
+                           static_cast<vtkIdType>(ndivs[2]);
 
-  this->NumberOfBuckets = numBuckets = ndivs[0]*ndivs[1]*ndivs[2];
+  // If the number of buckets is too big, need to scale down. Make sure to clamp
+  // to allowable range.
+  if ( numBuckets > this->MaxNumberOfBuckets )
+  {
+    // At this point the bounding box is non-zero width in each of x-y-z. Get the relative scales
+    // of each side of the bounding box.
+    double xs = (this->Bounds[1]-this->Bounds[0]) / (this->Bounds[5]-this->Bounds[4]);
+    double ys = (this->Bounds[3]-this->Bounds[2]) / (this->Bounds[5]-this->Bounds[4]);
+    double d = pow( static_cast<double>(this->MaxNumberOfBuckets) / static_cast<double>(xs*ys),
+                    0.333333);
+    this->Divisions[0] = ndivs[0] = vtkMath::Floor(d * xs);
+    this->Divisions[1] = ndivs[1] = vtkMath::Floor(d * ys);
+    this->Divisions[2] = ndivs[2] = static_cast<int>(d);
+    this->NumberOfBuckets = numBuckets = static_cast<vtkIdType>(ndivs[0]) *
+      static_cast<vtkIdType>(ndivs[1]) * static_cast<vtkIdType>(ndivs[2]);
+  }
 
   //  Compute width of bucket in three directions
   //
