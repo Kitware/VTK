@@ -55,7 +55,7 @@
 #include "vtkInteractorStyle.h"
 
 class vtkCamera;
-class vtkPropPicker3D;
+class vtkPropPicker;
 class vtkProp3D;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
@@ -68,50 +68,15 @@ public:
   vtkTypeMacro(vtkInteractorStyle3D,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  //@{
-  /**
-   * Event bindings controlling the effects of pressing mouse buttons
-   * or moving the mouse.
-   */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnFourthButtonUp() VTK_OVERRIDE;
-  //@}
-
-  //@{
-  /**
-   * Event bindings for gestures
-   */
-  void OnPinch() VTK_OVERRIDE;
-  void OnPan() VTK_OVERRIDE;
-  //@}
-
   // This method handles updating the prop based on changes in the devices
   // pose. We use rotate as the state to mean adjusting-the-actor-pose
-  void Rotate() VTK_OVERRIDE;
+  virtual void PositionProp(vtkEventData *);
 
   // This method handles updating the camera based on changes in the devices
   // pose. We use Dolly as the state to mean moving the camera forward
-  void Dolly() VTK_OVERRIDE;
-
-  // This method handles updating the clip plane for all mappers
-  // in the renderer
-  virtual void Clip();
+  virtual void Dolly3D(vtkEventData *);
 
   //@{
-  /**
-   * Interaction mode for adjusting a hardware clipping plane
-   */
-  virtual void StartClip();
-  virtual void EndClip();
-  //@}
-
-    //@{
   /**
    * Set/Get the dolly motion factor used when flying in 3D.
    * Defaults to 2.0 to simulate 2 meters per second
@@ -130,13 +95,21 @@ public:
    * value we also adjust the HMD position to maintain
    * the same relative position.
    */
-  void SetDistance(vtkCamera *cam, double distance);
+  void SetScale(vtkCamera *cam, double distance);
+
+  /**
+  * Get the interaction picker
+  */
+  vtkPropPicker* GetInteractionPicker()
+  {
+    return this->InteractionPicker;
+  };
 
 protected:
   vtkInteractorStyle3D();
   ~vtkInteractorStyle3D() VTK_OVERRIDE;
 
-  void FindPickedActor(double x, double y, double z);
+  void FindPickedActor(double pos[3], double orient[4]);
 
   void Prop3DTransform(vtkProp3D *prop3D,
                        double *boxCenter,
@@ -144,7 +117,7 @@ protected:
                        double **rotate,
                        double *scale);
 
-  vtkPropPicker3D *InteractionPicker;
+  vtkPropPicker *InteractionPicker;
   vtkProp3D *InteractionProp;
   vtkMatrix3x3 *TempMatrix3;
   vtkMatrix4x4 *TempMatrix4;

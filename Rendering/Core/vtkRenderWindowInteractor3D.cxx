@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 #include "vtkNew.h"
-#include "vtkPropPicker3D.h"
+// #include "vtkPropPicker.h"
 #include "vtkMath.h"
 
 vtkStandardNewMacro(vtkRenderWindowInteractor3D);
@@ -45,13 +45,6 @@ vtkRenderWindowInteractor3D::vtkRenderWindowInteractor3D()
 //----------------------------------------------------------------------------
 vtkRenderWindowInteractor3D::~vtkRenderWindowInteractor3D()
 {
-}
-
-//----------------------------------------------------------------------
-// Creates an instance of vtkPropPicker by default
-vtkAbstractPropPicker *vtkRenderWindowInteractor3D::CreateDefaultPicker()
-{
-  return vtkPropPicker3D::New();
 }
 
 //----------------------------------------------------------------------------
