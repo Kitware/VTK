@@ -16,11 +16,11 @@
 // .SECTION Description
 //
 
-#include "vtkDebugLeaks.h"
 #include "vtkSegY2DReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkDataSetMapper.h"
 #include "vtkIdList.h"
 #include "vtkNew.h"
@@ -54,6 +54,11 @@ int TestSegY2DReader(int argc, char* argv[])
   fname[4] =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineE.sgy");
 
+  vtkNew<vtkColorTransferFunction> lut;
+  lut->AddRGBPoint(-6.4, 0.23, 0.30, 0.75);
+  lut->AddRGBPoint(0.0, 0.86, 0.86, 0.86);
+  lut->AddRGBPoint(6.6, 0.70, 0.02, 0.15);
+
   vtkNew<vtkSegY2DReader> reader[5];
   vtkNew<vtkDataSetMapper> mapper[5];
   vtkNew<vtkActor> actor[5];
@@ -65,7 +70,8 @@ int TestSegY2DReader(int argc, char* argv[])
     delete[] fname[i];
 
     mapper[i]->SetInputConnection(reader[i]->GetOutputPort());
-    mapper[i]->ScalarVisibilityOn();
+    mapper[i]->SetLookupTable(lut.GetPointer());
+    mapper[i]->SetColorModeToMapScalars();
 
     actor[i]->SetMapper(mapper[i].GetPointer());
 
