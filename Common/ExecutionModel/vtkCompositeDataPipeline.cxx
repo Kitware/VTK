@@ -57,7 +57,10 @@ vtkCompositeDataPipeline::vtkCompositeDataPipeline()
 
   this->GenericRequest = vtkInformation::New();
 
-  this->DataObjectRequest = vtkInformation::New();
+  if (!this->DataObjectRequest)
+  {
+    this->DataObjectRequest = vtkInformation::New();
+  }
   this->DataObjectRequest->Set(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT());
   // The request is forwarded upstream through the pipeline.
   this->DataObjectRequest->Set(
@@ -73,7 +76,10 @@ vtkCompositeDataPipeline::vtkCompositeDataPipeline()
   // Algorithms process this request after it is forwarded.
   this->InformationRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
 
-  this->DataRequest = vtkInformation::New();
+  if (!this->DataRequest)
+  {
+    this->DataRequest = vtkInformation::New();
+  }
   this->DataRequest->Set(REQUEST_DATA());
   // The request is forwarded upstream through the pipeline.
   this->DataRequest->Set(
@@ -88,9 +94,7 @@ vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
   this->InformationCache->Delete();
 
   this->GenericRequest->Delete();
-  this->DataObjectRequest->Delete();
   this->InformationRequest->Delete();
-  this->DataRequest->Delete();
 }
 
 //----------------------------------------------------------------------------
