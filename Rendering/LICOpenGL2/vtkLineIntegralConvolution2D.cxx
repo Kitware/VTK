@@ -1146,7 +1146,6 @@ void vtkLineIntegralConvolution2D::SetNoiseTexParameters(vtkTextureObject * tex)
   // note : as a side affect it sets the parameters
   // that is needed here.
   tex->Bind();
-  tex->UnBind();
 }
 
 // ----------------------------------------------------------------------------
@@ -1162,7 +1161,6 @@ void vtkLineIntegralConvolution2D::SetVectorTexParameters(vtkTextureObject *tex)
   // note : as a side affect it sets the parameters
   // that is needed here.
   tex->Bind();
-  tex->UnBind();
 }
 
 // ----------------------------------------------------------------------------
