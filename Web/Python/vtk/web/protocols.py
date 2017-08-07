@@ -234,7 +234,7 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
             tries -= 1
 
         reply["stale"] = app.GetHasImagesBeingProcessed(view)
-        reply["mtime"] = app.GetLastStillRenderToStringMTime()
+        reply["mtime"] = app.GetLastStillRenderToMTime()
         reply["size"] = [view.GetSize()[0], view.GetSize()[1]]
         reply["format"] = "jpeg;base64"
         reply["global_id"] = str(self.getGlobalId(view))
@@ -252,13 +252,14 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
 # =============================================================================
 
 class vtkWebPublishImageDelivery(vtkWebProtocol):
-    def __init__(self):
+    def __init__(self, decode=True):
         super(vtkWebPublishImageDelivery, self).__init__()
         # self.context = SynchronizationContext()
         self.trackingViews = {}
         self.lastStaleTime = 0
         self.staleHandlerCount = 0
         self.deltaStaleTimeBeforeRender = 0.5 # 0.5s
+        self.decode = decode
 
     @exportRpc("viewport.image.push")
     def stillRender(self, options):
@@ -287,22 +288,33 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         app = self.getApplication()
         if t == 0:
             app.InvalidateCache(view)
-        reply["image"] = app.StillRenderToString(view, t, quality)
+        if self.decode:
+            stillRender = app.StillRenderToString
+        else:
+            stillRender = app.StillRenderToBuffer
+        reply_image = stillRender(view, t, quality)
+
         # Check that we are getting image size we have set. If not, wait until we
         # do. The render call will set the actual window size.
         tries = 10;
         while resize and list(view.GetSize()) != size \
               and size != [0, 0] and tries > 0:
             app.InvalidateCache(view)
-            reply["image"] = app.StillRenderToString(view, t, quality)
+            reply_image = stillRender(view, t, quality)
             tries -= 1
 
         reply["stale"] = app.GetHasImagesBeingProcessed(view)
-        reply["mtime"] = app.GetLastStillRenderToStringMTime()
+        reply["mtime"] = app.GetLastStillRenderToMTime()
         reply["size"] = [view.GetSize()[0], view.GetSize()[1]]
-        reply["format"] = "jpeg;base64"
+        reply["memsize"] = reply_image.GetDataSize() if reply_image else 0
+        reply["format"] = "jpeg;base64" if self.decode else "jpeg"
         reply["global_id"] = str(self.getGlobalId(view))
         reply["localTime"] = localTime
+        if self.decode:
+            reply["image"] = reply_image
+        else:
+            # Convert the vtkUnsignedCharArray into a bytes object, required by Autobahn websockets
+            reply["image"] = memoryview(reply_image).tobytes() if reply_image else None
 
         endTime = int(round(time.time() * 1000))
         reply["workTime"] = (endTime - beginTime)
@@ -324,9 +336,12 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
 
             reply = self.stillRender({ "view": realViewId, "mtime": self.trackingViews[vId]["mtime"] })
             stale = reply["stale"]
-            # TODO inefficient encode and immediate decode. Maybe we can get a binary buffer directly?
             if reply["image"]:
-                reply["image"] = self.addAttachment(base64.standard_b64decode(reply["image"]));
+                # depending on whether the app has encoding enabled:
+                if self.decode:
+                    reply["image"] = base64.standard_b64decode(reply["image"]);
+
+                reply["image"] = self.addAttachment(reply["image"]);
                 reply["format"] = "jpeg"
                 # save mtime for next call.
                 self.trackingViews[vId]["mtime"] = reply["mtime"]
