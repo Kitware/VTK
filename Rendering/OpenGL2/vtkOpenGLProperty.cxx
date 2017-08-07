@@ -40,24 +40,6 @@ vtkOpenGLProperty::~vtkOpenGLProperty()
 // Implement base class method.
 void vtkOpenGLProperty::Render(vtkActor *anActor, vtkRenderer *ren)
 {
-  // Set the LineStipple
-  if (this->LineStipplePattern != 0xFFFF)
-  {
-    // glEnable(GL_LINE_STIPPLE);
-    // glLineStipple(this->LineStippleRepeatFactor,
-    //               static_cast<GLushort>(this->LineStipplePattern));
-    //vtkOpenGLGL2PSHelper::EnableStipple(); // must be called after glLineStipple
-  }
-  else
-  {
-    // still need to set this although we are disabling.  else the ATI X1600
-    // (for example) still manages to stipple under certain conditions.
-    // glLineStipple(this->LineStippleRepeatFactor,
-    //               static_cast<GLushort>(this->LineStipplePattern));
-    // glDisable(GL_LINE_STIPPLE);
-    //vtkOpenGLGL2PSHelper::DisableStipple();
-  }
-
   // turn on/off backface culling
   if (! this->BackfaceCulling && ! this->FrontfaceCulling)
   {
@@ -102,6 +84,14 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
   if (this->BackfaceCulling || this->FrontfaceCulling)
   {
     glDisable(GL_CULL_FACE);
+  }
+
+
+  // deactivate any textures.
+  int numTextures = this->GetNumberOfTextures();
+  for (int t = 0; t < numTextures; t++)
+  {
+    this->GetTextureAtIndex(t)->PostRender(renderer);
   }
 
   this->Superclass::PostRender(actor, renderer);

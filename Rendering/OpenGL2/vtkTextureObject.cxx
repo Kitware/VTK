@@ -495,8 +495,6 @@ void vtkTextureObject::Deactivate()
 {
   if (this->Context)
   {
-    this->Context->ActivateTexture(this);
-    this->UnBind();
     this->Context->DeactivateTexture(this);
   }
 }
@@ -510,15 +508,13 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
     return;
   }
 
-  vtkOpenGLRenderWindow *rwin =
-   vtkOpenGLRenderWindow::SafeDownCast(win);
-
   // Ensure that the context is current before releasing any graphics
   // resources tied to it.
   if (this->Handle)
   {
-    rwin->ActivateTexture(this);
-    this->UnBind();
+    vtkOpenGLRenderWindow *rwin =
+      vtkOpenGLRenderWindow::SafeDownCast(win);
+    // you can commewnt out the next line to look for textures left active
     rwin->DeactivateTexture(this);
     GLuint tex = this->Handle;
     glDeleteTextures(1, &tex);
@@ -552,11 +548,6 @@ void vtkTextureObject::Bind()
   {
     this->SendParameters();
   }
-}
-
-//----------------------------------------------------------------------------
-void vtkTextureObject::UnBind()
-{
 }
 
 //----------------------------------------------------------------------------
