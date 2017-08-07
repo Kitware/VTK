@@ -345,7 +345,7 @@ protected:
   int GetMathConstantNumber(int currentIndex);
   int GetMathConstantStringLength(int mathConstantNumber);
   unsigned char GetElementaryOperatorNumber(char op);
-  unsigned char GetOperandNumber(int currentIndex);
+  unsigned int GetOperandNumber(int currentIndex);
   int GetVariableNameLength(int variableNumber);
 
   int DisambiguateOperators();
