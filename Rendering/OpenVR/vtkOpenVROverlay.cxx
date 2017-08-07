@@ -41,12 +41,12 @@ vtkOpenVROverlay::vtkOpenVROverlay()
 {
   this->OverlayHandle = 0;
   this->OverlayThumbnailHandle = 0;
-  this->OriginalTextureData = NULL;
-  this->CurrentTextureData = NULL;
-  this->LastSpot = NULL;
+  this->OriginalTextureData = nullptr;
+  this->CurrentTextureData = nullptr;
+  this->LastSpot = nullptr;
   this->SessionName = "";
   this->SavedCameraPoses.resize(10);
-  this->VRSystem = NULL;
+  this->VRSystem = nullptr;
   this->DashboardImageFileName = "OpenVRDashboard.jpg";
   this->LastCameraPoseIndex = -1;
   this->LastSpotIntensity = 0.3;
@@ -73,10 +73,10 @@ vtkOpenVRCameraPose *vtkOpenVROverlay::GetSavedCameraPose(size_t i)
   {
     return &(this->SavedCameraPoses[i]);
   }
-  return NULL;
+  return nullptr;
 }
 
-void vtkOpenVROverlay::WriteCameraPoses()
+void vtkOpenVROverlay::WriteCameraPoses(ostream& os)
 {
   vtkNew<vtkXMLDataElement> topel;
   topel->SetName("CameraPoses");
@@ -92,16 +92,29 @@ void vtkOpenVROverlay::WriteCameraPoses()
       el->SetDoubleAttribute("Distance", pose.Distance);
       el->SetDoubleAttribute("MotionFactor", pose.MotionFactor);
       el->SetVectorAttribute("Translation", 3, pose.Translation);
-      el->SetVectorAttribute("InitialViewUp", 3, pose.InitialViewUp);
-      el->SetVectorAttribute("InitialViewDirection", 3, pose.InitialViewDirection);
+      el->SetVectorAttribute("InitialViewUp", 3, pose.PhysicalViewUp);
+      el->SetVectorAttribute("InitialViewDirection", 3, pose.PhysicalViewDirection);
       el->SetVectorAttribute("ViewDirection", 3, pose.ViewDirection);
       topel->AddNestedElement(el.Get());
     }
   }
 
+  vtkXMLUtilities::FlattenElement(topel.Get(), os);
+}
+
+void vtkOpenVROverlay::WriteCameraPoses()
+{
   std::string fname = this->GetSessionName();
   fname += "VTKOpenVRCameraPoses.vovrcp";
-  vtkXMLUtilities::WriteElementToFile(topel.Get(), fname.c_str(), 0);
+  ofstream os(fname, ios::out);
+  this->WriteCameraPoses(os);
+
+  os.flush();
+  if (os.fail())
+  {
+    os.close();
+    unlink(fname.c_str());
+  }
 }
 
 void vtkOpenVROverlay::ReadCameraPoses()
@@ -113,8 +126,15 @@ void vtkOpenVROverlay::ReadCameraPoses()
   {
     return;
   }
+
+  ifstream is(fname);
+  this->ReadCameraPoses(is);
+}
+
+void vtkOpenVROverlay::ReadCameraPoses(istream &is)
+{
   vtkXMLDataElement *topel =
-    vtkXMLUtilities::ReadElementFromFile(fname.c_str());
+    vtkXMLUtilities::ReadElementFromStream(is);
 
   if (topel)
   {
@@ -129,9 +149,9 @@ void vtkOpenVROverlay::ReadCameraPoses()
       el->GetVectorAttribute("Position", 3,
         this->SavedCameraPoses[poseNum].Position);
       el->GetVectorAttribute("InitialViewUp", 3,
-        this->SavedCameraPoses[poseNum].InitialViewUp);
+        this->SavedCameraPoses[poseNum].PhysicalViewUp);
       el->GetVectorAttribute("InitialViewDirection", 3,
-        this->SavedCameraPoses[poseNum].InitialViewDirection);
+        this->SavedCameraPoses[poseNum].PhysicalViewDirection);
       el->GetVectorAttribute("ViewDirection", 3,
         this->SavedCameraPoses[poseNum].ViewDirection);
       el->GetVectorAttribute("Translation", 3,
@@ -151,7 +171,7 @@ void vtkOpenVROverlay::SaveCameraPose(int slot)
   vtkRenderer *ren = static_cast<vtkRenderer *>(
     this->Window->GetRenderers()->GetItemAsObject(0));
   pose->Set(static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera()), this->Window);
-  this->WriteCameraPoses();
+  // this->WriteCameraPoses();
 }
 
 void vtkOpenVROverlay::LoadCameraPose(int slot)
@@ -325,7 +345,7 @@ void vtkOpenVROverlay::MouseMoved(int x, int y)
   {
     leftSpot = true;
     vtkOpenVROverlaySpot *spot = this->LastSpot;
-    this->LastSpot = NULL;
+    this->LastSpot = nullptr;
     this->UpdateSpot(spot);
   }
 

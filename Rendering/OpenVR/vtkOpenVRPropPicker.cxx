@@ -29,10 +29,12 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkOpenVRPropPicker);
 
 vtkOpenVRPropPicker::vtkOpenVRPropPicker()
-{}
+{
+}
 
 vtkOpenVRPropPicker::~vtkOpenVRPropPicker()
-{}
+{
+}
 
 // set up for a pick
 void vtkOpenVRPropPicker::Initialize()
@@ -41,10 +43,8 @@ void vtkOpenVRPropPicker::Initialize()
 }
 
 // Pick from the given collection
-int vtkOpenVRPropPicker::Pick(double selectionX, double selectionY,
-  double selectionZ, vtkRenderer *renderer)
+int vtkOpenVRPropPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer *renderer)
 {
-  double selectionPt[3] = {selectionX, selectionY, selectionZ};
   //Compute event orientation
   vtkRenderWindowInteractor3D* iren = vtkRenderWindowInteractor3D::SafeDownCast(
     renderer->GetRenderWindow()->GetInteractor());
@@ -53,23 +53,22 @@ int vtkOpenVRPropPicker::Pick(double selectionX, double selectionY,
     vtkErrorMacro(<< "Couldn't get 3D interactor");
     return 0;
   }
-  double* wori = iren->GetWorldEventOrientation(iren->GetPointerIndex());
 
   if (this->PickFromList)
   {
-    return this->PickProp(selectionPt, wori, renderer,
+    return this->PickProp3DRay(pos, wori, renderer,
       this->PickList);
   }
   else
   {
-    return this->PickProp(selectionPt, wori, renderer,
+    return this->PickProp3DRay(pos, wori, renderer,
       renderer->GetViewProps());
   }
 }
 
 
 // Pick from the given collection
-int vtkOpenVRPropPicker::PickProp(
+int vtkOpenVRPropPicker::PickProp3DRay(
   double selectionPt[3], double wori[4],
   vtkRenderer *renderer, vtkPropCollection* propCollection)
 {
@@ -78,7 +77,7 @@ int vtkOpenVRPropPicker::PickProp(
   this->Renderer = renderer;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent, NULL);
+  this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
   //Event position - Ray start position
   double p0[4];
@@ -113,10 +112,10 @@ int vtkOpenVRPropPicker::PickProp(
   ray[1] = p1[1] - p0[1];
   ray[2] = p1[2] - p0[2];
 
-  vtkAssemblyPath *result = NULL;
-  vtkAssemblyPath *insideResult = NULL;
+  vtkAssemblyPath *result = nullptr;
+  vtkAssemblyPath *insideResult = nullptr;
   vtkCollectionSimpleIterator pit;
-  vtkProp *prop = NULL;
+  vtkProp *prop = nullptr;
   vtkAssemblyPath *path;
   vtkProp *propCandidate;
   double t_min = VTK_DOUBLE_MAX;
@@ -179,7 +178,7 @@ int vtkOpenVRPropPicker::PickProp(
   if (result)
   {
     result->GetFirstNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent, NULL);
+    this->InvokeEvent(vtkCommand::PickEvent, nullptr);
 
     //Update the picked position
     this->PickPosition[0] = hitPos[0];
@@ -188,7 +187,7 @@ int vtkOpenVRPropPicker::PickProp(
   }
 
   this->SetPath(result);
-  this->InvokeEvent(vtkCommand::EndPickEvent, NULL);
+  this->InvokeEvent(vtkCommand::EndPickEvent, nullptr);
 
   // Call Pick on the Prop that was picked, and return 1 for success
   if (result)

@@ -28,6 +28,7 @@
 #include "vtkTransform.h" // ivars
 
 class vtkOpenVRRenderer;
+class vtkOpenVRRenderWindow;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
 
@@ -52,19 +53,10 @@ public:
    */
   virtual void GetTrackingToDCMatrix(vtkMatrix4x4 *&TCDCMatrix);
 
-  //@{
-  /**
-   * Set/Get the translation to map world coordinates into the
-   * OpenVR physical space (meters, 0,0,0).
-   */
-  vtkSetVector3Macro(Translation,double);
-  vtkGetVector3Macro(Translation,double);
-  //@}
-
   // apply the left or right eye pose to the camera
   // position and focal point.  Factor is typically
   // 1.0 to add or -1.0 to subtract
-  void ApplyEyePose(bool left, double factor);
+  void ApplyEyePose(vtkOpenVRRenderWindow *, bool left, double factor);
 
 protected:
   vtkOpenVRCamera();
@@ -85,7 +77,6 @@ protected:
 
   // used to translate the
   // View to the HMD space
-  double Translation[3];
   vtkNew<vtkTransform> PoseTransform;
 
 private:

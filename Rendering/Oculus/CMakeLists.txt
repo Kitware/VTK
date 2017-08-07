@@ -21,6 +21,9 @@ set_source_files_properties(
     WRAP_EXCLUDE_PYTHON 1
 )
 
+if (Module_vtkRenderingOculus)
+   message(SEND_ERROR "The oculus module is currently under construction due to changes in the Oculus SDK. Please disable this module.")
+endif()
 
 # This option determines if the VR rendering code will become
 # the default renderer
