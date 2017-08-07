@@ -244,3 +244,14 @@ void vtkGenericOpenGLRenderWindow::Render()
     this->RestoreGLState();
   }
 }
+
+void vtkGenericOpenGLRenderWindow::SetIsPicking(int isPicking)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting IsPicking to " << isPicking); \
+  if (this->IsPicking != isPicking)
+  {
+    this->IsPicking = isPicking;
+    this->Modified();
+    this->InvokeEvent(this->IsPicking ? vtkCommand::StartPickEvent : vtkCommand::EndPickEvent, nullptr);
+  }
+}
