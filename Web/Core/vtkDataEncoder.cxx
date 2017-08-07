@@ -50,13 +50,19 @@ namespace
       }
     };
 
+    enum
+    {
+      ENCODING_NONE = 0,
+      ENCODING_BASE64 = 1
+    };
     struct InputValueType
     {
     public:
       vtkTypeUInt32 OutputStamp;
       vtkSmartPointer<vtkImageData> Image;
       int Quality;
-      InputValueType() : OutputStamp(0), Image(nullptr), Quality(100)
+      int Encoding;
+      InputValueType() : OutputStamp(0), Image(nullptr), Quality(100), Encoding(ENCODING_BASE64)
       {
       }
     };
@@ -157,7 +163,7 @@ namespace
 
     //------------------------------------------------------------------------
     void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data,
-      vtkTypeUInt64 stamp, int quality)
+      vtkTypeUInt64 stamp, int quality, int encoding)
     {
       this->InputsLock.Lock();
       {
@@ -165,6 +171,7 @@ namespace
         value.Image.TakeReference(data);
         value.OutputStamp = stamp;
         value.Quality = quality;
+        value.Encoding = encoding;
         data = nullptr;
       }
       this->InputsLock.Unlock();
@@ -189,7 +196,7 @@ namespace
     // NOTE: This method may suspend the calling thread until inputs become
     // available.
     vtkTypeUInt64 GetNextInputToProcess(vtkTypeUInt32& key,
-      vtkSmartPointer<vtkImageData>& image, int& quality)
+      vtkSmartPointer<vtkImageData>& image, int& quality, int& encoding)
     {
       vtkTypeUInt32 stamp = 0;
 
@@ -207,6 +214,7 @@ namespace
             iter->second.Image = nullptr;
             stamp = iter->second.OutputStamp;
             quality = iter->second.Quality;
+            encoding = iter->second.Encoding;
             break;
           }
         }
@@ -309,9 +317,11 @@ namespace
       vtkTypeUInt32 key = 0;
       vtkSmartPointer<vtkImageData> image;
       vtkTypeUInt64 timestamp = 0;
+      // these are defaults, reset by GetNextInputToProcess
       int quality = 100;
+      int encoding = 1;
 
-      timestamp = sharedData->GetNextInputToProcess(key, image, quality);
+      timestamp = sharedData->GetNextInputToProcess(key, image, quality, encoding);
 
       if (timestamp == 0 || image.GetPointer() == nullptr)
       {
@@ -330,15 +340,20 @@ namespace
       vtkUnsignedCharArray* data = writer->GetResult();
 
       vtkUnsignedCharArray* result = vtkUnsignedCharArray::New();
-      result->SetNumberOfComponents(1);
-      result->SetNumberOfTuples(std::ceil(1.5 * data->GetNumberOfTuples()));
-      unsigned long size = vtkBase64Utilities::Encode(
-        data->GetPointer(0),
-        data->GetNumberOfTuples(),
-        result->GetPointer(0), /*mark_end=*/ 0);
-      result->SetNumberOfTuples(static_cast<vtkIdType>(size)+1);
-      result->SetValue(size, 0);
-
+      if (encoding) {
+        result->SetNumberOfComponents(1);
+        result->SetNumberOfTuples(std::ceil(1.5 * data->GetNumberOfTuples()));
+        unsigned long size = vtkBase64Utilities::Encode(
+          data->GetPointer(0),
+          data->GetNumberOfTuples(),
+          result->GetPointer(0), /*mark_end=*/ 0);
+        result->SetNumberOfTuples(static_cast<vtkIdType>(size)+1);
+        result->SetValue(size, 0);
+      }
+      else
+      {
+        result->ShallowCopy(data);
+      }
       // Pass over the "result" reference.
       sharedData->SetOutputReference(key, timestamp, result);
       assert(result == nullptr);
@@ -438,14 +453,14 @@ void vtkDataEncoder::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataEncoder::PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality)
+void vtkDataEncoder::PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality, int encoding)
 {
   // if data->ReferenceCount != 1, it means the caller thread is keep an extra
   // reference and that's bad.
   assert(data->GetReferenceCount() == 1);
 
   this->Internals->SharedData.PushAndTakeReference(
-    key, data, ++this->Internals->Counter, quality);
+    key, data, ++this->Internals->Counter, quality, encoding);
   assert(data == nullptr);
 }
 

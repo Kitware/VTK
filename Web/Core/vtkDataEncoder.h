@@ -60,8 +60,9 @@ public:
    * the caller code will simply release reference to the data and stop using
    * it. vtkDataEncoder takes over the reference for the image and will call
    * vtkObject::UnRegister() on it when it's done.
+   * encoding can be set to 0 to skip encoding.
    */
-  void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality);
+  void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality, int encoding = 1);
 
   /**
    * Get access to the most-recent fully encoded result corresponding to the
