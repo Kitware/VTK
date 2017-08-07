@@ -399,9 +399,10 @@ double vtkLine::DistanceBetweenLineSegments(
     double* uv2[4] = {&t1,&t1,&t2,&t2};
     double* pn1[4] = {closestPt2,closestPt2,closestPt1,closestPt1};
     double* pn2[4] = {closestPt1,closestPt1,closestPt2,closestPt2};
-    double dist,t,pn_[3];
+    double dist,pn_[3];
     for (unsigned i=0;i<4;i++)
     {
+      double t = 0;
       dist = vtkLine::DistanceToLine(p[i],a1[i],a2[i],t,pn_);
       if (dist < minDist)
       {
@@ -502,50 +503,63 @@ double vtkLine::DistanceBetweenLineSegments(
 double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3],
                               double &t, double* closestPoint)
 {
-  double p21[3], denom, num;
-  double *closest;
-  double tolerance;
+  double *closest = nullptr;
   //
   //   Determine appropriate vectors
   //
-  p21[0] = p2[0]- p1[0];
-  p21[1] = p2[1]- p1[1];
-  p21[2] = p2[2]- p1[2];
+  double p21[3] = { p2[0]- p1[0], p2[1]- p1[1], p2[2]- p1[2] };
 
   //
   //   Get parametric location
   //
-  num = p21[0]*(x[0]-p1[0]) + p21[1]*(x[1]-p1[1]) + p21[2]*(x[2]-p1[2]);
-  denom = vtkMath::Dot(p21,p21);
-
-  // trying to avoid an expensive fabs
-  tolerance = VTK_TOL*num;
-  if (tolerance < 0.0)
+  double num = p21[0]*(x[0]-p1[0]) + p21[1]*(x[1]-p1[1]) + p21[2]*(x[2]-p1[2]);
+  if (num == 0.0)
   {
-    tolerance = -tolerance;
-  }
-  if ( -tolerance < denom && denom < tolerance ) //numerically bad!
-  {
-    closest = p1; //arbitrary, point is (numerically) far away
-  }
-  //
-  // If parametric coordinate is within 0<=p<=1, then the point is closest to
-  // the line.  Otherwise, it's closest to a point at the end of the line.
-  //
-  else if ( denom <= 0.0 || (t=num/denom) < 0.0 )
-  {
+    t = 0;
     closest = p1;
-  }
-  else if ( t > 1.0 )
-  {
-    closest = p2;
   }
   else
   {
-    closest = p21;
-    p21[0] = p1[0] + t*p21[0];
-    p21[1] = p1[1] + t*p21[1];
-    p21[2] = p1[2] + t*p21[2];
+    double denom = vtkMath::Dot(p21,p21);
+
+    // trying to avoid an expensive fabs
+    double tolerance = VTK_TOL*num;
+    if (tolerance < 0.0)
+    {
+      tolerance = -tolerance;
+    }
+    if ( denom < tolerance ) //numerically bad!
+    {
+      if (num > 0)
+      {
+        closest = p2;
+        t = VTK_DOUBLE_MAX;
+      }
+      else
+      {
+        closest = p1;
+        t = VTK_DOUBLE_MIN;
+      }
+    }
+    //
+    // If parametric coordinate is within 0<=p<=1, then the point is closest to
+    // the line.  Otherwise, it's closest to a point at the end of the line.
+    //
+    else if ( (t=num/denom) < 0.0 )
+    {
+      closest = p1;
+    }
+    else if ( t > 1.0 )
+    {
+      closest = p2;
+    }
+    else
+    {
+      closest = p21;
+      p21[0] = p1[0] + t*p21[0];
+      p21[1] = p1[1] + t*p21[1];
+      p21[2] = p1[2] + t*p21[2];
+    }
   }
 
   if (closestPoint)
