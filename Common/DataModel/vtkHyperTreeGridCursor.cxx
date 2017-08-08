@@ -133,7 +133,7 @@ int vtkHyperTreeGridCursor::GetChildIndex()
     return 0;
   }
 
-  int child;
+  int child = 0;
   this->Tree->FindChildParameters( child, this->Index, this->Leaf );
 
   return child;

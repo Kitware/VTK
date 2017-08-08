@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridCellCenters.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkHyperTreeGridCellCenters.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGridCellCenters.h"
@@ -31,13 +31,13 @@ vtkStandardNewMacro(vtkHyperTreeGridCellCenters);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridCellCenters::vtkHyperTreeGridCellCenters()
 {
-  this->Input = 0;
-  this->Output = 0;
+  this->Input = nullptr;
+  this->Output = nullptr;
 
-  this->InData = 0;
-  this->OutData = 0;
+  this->InData = nullptr;
+  this->OutData = nullptr;
 
-  this->Points = 0;
+  this->Points = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -115,10 +115,10 @@ int vtkHyperTreeGridCellCenters::RequestData( vtkInformation*,
   this->OutData->Squeeze();
 
   // Clean up
-  this->Input = 0;
-  this->Output = 0;
-  this->InData = 0;
-  this->OutData = 0;
+  this->Input = nullptr;
+  this->Output = nullptr;
+  this->InData = nullptr;
+  this->OutData = nullptr;
 
   this->UpdateProgress ( 1. );
 
@@ -168,7 +168,7 @@ void vtkHyperTreeGridCellCenters::ProcessTrees()
 
   // Clean up
   this->Points->Delete();
-  this->Points = 0;
+  this->Points = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -215,7 +215,7 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree( vtkHyperTreeGridCursor
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // child
   } // else
 }

@@ -29,8 +29,6 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-static const double dimThreshold = 100. * VTK_DBL_MIN;
-
 static const unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
 static const unsigned int VonNeumannOrientations3D[]  = { 2, 1, 0, 0, 1, 2 };
 static const unsigned int VonNeumannOffsets3D[]  = { 0, 0, 0, 1, 1, 1 };
@@ -59,13 +57,13 @@ vtkHyperTreeGridGeometry::~vtkHyperTreeGridGeometry()
   if ( this->Points )
   {
     this->Points->Delete();
-    this->Points = 0;
+    this->Points = nullptr;
   }
 
   if ( this->Cells )
   {
     this->Cells->Delete();
-    this->Cells = 0;
+    this->Cells = nullptr;
   }
 }
 
@@ -216,7 +214,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree( vtkHyperTreeGridCursor* c
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // child
   } // else
 }
@@ -282,7 +280,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridCursor* superCurso
   int masked = mask ? mask->GetValue( id ) : 0;
 
   // Iterate over all cursors of Von Neumann neighborhood around center
-  int nc = superCursor->GetNumberOfCursors() - 1;
+  unsigned int nc = superCursor->GetNumberOfCursors() - 1;
   for ( unsigned int c = 0 ; c < nc; ++ c )
   {
     // Retrieve cursor to neighbor across face

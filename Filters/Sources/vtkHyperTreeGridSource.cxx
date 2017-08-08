@@ -831,7 +831,11 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   this->LevelBitsIndex.push_back( 0 );
   for ( unsigned int i = 1; i < nLevels; ++ i )
   {
-    this->LevelBitsIndex.push_back( LevelBitsIndex[i-1] + this->LevelDescriptors[i-1].length() );
+    this->LevelBitsIndex.push_back
+      (
+       this->LevelBitsIndex[i-1] +
+       static_cast<vtkIdType>(this->LevelDescriptors[i-1].length())
+       );
   }
   this->LevelBitsIndexCnt = this->LevelBitsIndex;
 
@@ -988,7 +992,7 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
 
   // Calculate total level 0 grid size
   vtkIdType nTotal = this->LevelZeroMaterialIndex ?
-    this->LevelZeroMaterialMap.size() :
+    static_cast<vtkIdType>(this->LevelZeroMaterialMap.size()) :
     this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
   // Parse descriptor and material mask if used
@@ -1470,7 +1474,7 @@ vtkMTimeType vtkHyperTreeGridSource::GetMTime()
 vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray( const std::string& str )
 {
   vtkBitArray* desc = vtkBitArray::New();
-  desc->Allocate( str.length() );
+  desc->Allocate( static_cast<vtkIdType>(str.length()) );
 
   for ( std::string::const_iterator dit = str.begin();
         dit != str.end();  ++ dit )
@@ -1513,4 +1517,14 @@ vtkBitArray* vtkHyperTreeGridSource::ConvertDescriptorStringToBitArray( const st
 vtkBitArray* vtkHyperTreeGridSource::ConvertMaterialMaskStringToBitArray( const std::string& str )
 {
   return ConvertDescriptorStringToBitArray( str );
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridSource::SetOrientation( unsigned int i )
+{
+  if (this->Orientation != (i>2?2:i))
+  {
+    this->Orientation = (i>2?2:i);
+    this->Modified();
+  }
 }

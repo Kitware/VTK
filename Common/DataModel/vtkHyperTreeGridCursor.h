@@ -44,7 +44,7 @@ class vtkIdList;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCursor
 {
-  public:
+public:
   vtkTypeMacro(vtkHyperTreeGridCursor, vtkHyperTreeCursor);
   void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
   static vtkHyperTreeGridCursor* New();
@@ -53,12 +53,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
    * Create a copy of `this'.
    * \post results_exists:result!=0
    */
-  virtual vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE;
+  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE;
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid*, vtkIdType );
+  virtual void Initialize( vtkHyperTreeGrid*, vtkIdType );
 
   //@{
   /**
@@ -72,15 +72,15 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
   /**
    * Set the hyper tree to which the cursor is pointing.
    */
-  virtual void SetTree( vtkHyperTree* ) VTK_OVERRIDE;
-  virtual vtkHyperTree* GetTree() VTK_OVERRIDE {return this->Tree;};
+  void SetTree( vtkHyperTree* ) VTK_OVERRIDE;
+  vtkHyperTree* GetTree() VTK_OVERRIDE {return this->Tree;};
   //vtkGetObjectMacro(Tree,vtkHyperTree);
   //@}
 
   /**
    * Return the index of the current vertex in the tree.
    */
-  virtual vtkIdType GetVertexId() VTK_OVERRIDE;
+  vtkIdType GetVertexId() VTK_OVERRIDE;
 
   /**
    * Return the global index (relative to the grid) of the
@@ -91,44 +91,44 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
   /**
    * Is the cursor pointing to a leaf?
    */
-  virtual bool IsLeaf() VTK_OVERRIDE;
+  bool IsLeaf() VTK_OVERRIDE;
 
   /**
    * Is the cursor at tree root?
    */
-  virtual bool IsRoot() VTK_OVERRIDE;
+  bool IsRoot() VTK_OVERRIDE;
 
   /**
    * Get the level of the tree vertex pointed by the cursor.
    */
-  virtual unsigned int GetLevel() VTK_OVERRIDE {return this->Level;};
+  unsigned int GetLevel() VTK_OVERRIDE {return this->Level;};
 
   /**
    * Return the child number of the current vertex relative to its parent.
    * \pre not_root: !IsRoot().
    * \post valid_range: result>=0 && result<GetNumberOfChildren()
    */
-  virtual int GetChildIndex() VTK_OVERRIDE;
+  int GetChildIndex() VTK_OVERRIDE;
 
   /**
    * Move the cursor to the root vertex.
    * \pre can be root
    * \post is_root: IsRoot()
    */
-  virtual void ToRoot() VTK_OVERRIDE;
+  void ToRoot() VTK_OVERRIDE;
 
   /**
    * Move the cursor to the parent of the current vertex.
    * \pre not_root: !IsRoot()
    */
-  virtual void ToParent() VTK_OVERRIDE;
+  void ToParent() VTK_OVERRIDE;
 
   /**
    * Move the cursor to child `child' of the current vertex.
    * \pre not_leaf: !IsLeaf()
    * \pre valid_child: child>=0 && child<this->GetNumberOfChildren()
    */
-  virtual void ToChild( int child ) VTK_OVERRIDE;
+  void ToChild( int child ) VTK_OVERRIDE;
 
   /**
    * Move the cursor to the same vertex pointed by `other'.
@@ -137,7 +137,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
    * \post equal: this->IsEqual(other)
    * NB: not implemented
    */
-  virtual void ToSameVertex( vtkHyperTreeCursor* other ) VTK_OVERRIDE { return; }
+  void ToSameVertex( vtkHyperTreeCursor* vtkNotUsed(other) ) VTK_OVERRIDE { return; }
 
   /**
    * Is `this' equal to `other'?
@@ -145,26 +145,26 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
    * \pre same_hypertree: this->SameTree(other);
    * NB: not implemented
    */
-  virtual bool IsEqual( vtkHyperTreeCursor* other ) VTK_OVERRIDE { return false; }
+  bool IsEqual( vtkHyperTreeCursor* vtkNotUsed(other) ) VTK_OVERRIDE { return false; }
 
   /**
    * Are `this' and `other' pointing on the same hypertree?
    * \pre other_exists: other!=0
    * NB: not implemented
    */
-  virtual int SameTree( vtkHyperTreeCursor* other ) VTK_OVERRIDE { return 0; }
+  int SameTree( vtkHyperTreeCursor* vtkNotUsed(other) ) VTK_OVERRIDE { return 0; }
 
   /**
    * Return the number of children for each node (non-vertex leaf) of the tree.
    * \post positive_number: result>0
    */
-  virtual int GetNumberOfChildren() VTK_OVERRIDE;
+  int GetNumberOfChildren() VTK_OVERRIDE;
 
   /**
    * Return the dimension of the tree.
    * \post positive_result: result>0
    */
-  virtual int GetDimension() VTK_OVERRIDE;
+  int GetDimension() VTK_OVERRIDE;
 
   /**
    * Compute the origin of the cursor.
@@ -215,7 +215,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
   virtual bool GetCornerCursors( unsigned int, unsigned int, vtkIdList* )
     { return false; }
 
-  protected:
+protected:
   /**
    * Constructor
    */
@@ -241,7 +241,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
   // Is center of cursor at a leaf?
   bool Leaf;
 
-  private:
+private:
   vtkHyperTreeGridCursor(const vtkHyperTreeGridCursor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridCursor&) VTK_DELETE_FUNCTION;
 };

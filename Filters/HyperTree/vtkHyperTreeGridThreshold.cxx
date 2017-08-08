@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridThreshold.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkHyperTreeGridThreshold.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGridThreshold.h"
@@ -48,7 +48,7 @@ vtkHyperTreeGridThreshold::vtkHyperTreeGridThreshold()
                                 vtkDataSetAttributes::SCALARS );
 
   // Input scalars point to null by default
-  this->InScalars = 0;
+  this->InScalars = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ vtkHyperTreeGridThreshold::~vtkHyperTreeGridThreshold()
   if( this->MaterialMask )
   {
     this->MaterialMask->Delete();
-    this->MaterialMask = 0;
+    this->MaterialMask = nullptr;
   }
 }
 
@@ -143,7 +143,7 @@ int vtkHyperTreeGridThreshold::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve material mask
   vtkBitArray* mask
-    = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+    = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
 
   // Initialize output trees
   output->GenerateTrees();
@@ -227,7 +227,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree( vtkHyperTreeGridCursor* 
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // child
   } // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
   else

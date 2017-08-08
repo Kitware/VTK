@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridDepthLimiter.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkHyperTreeGridDepthLimiter.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGridDepthLimiter.h"
@@ -35,7 +35,7 @@ vtkHyperTreeGridDepthLimiter::vtkHyperTreeGridDepthLimiter()
   this->Depth = 0;
 
   // Default mask is emplty
-  this->MaterialMask = 0;
+  this->MaterialMask = nullptr;
 
   // Output indices begin at 0
   this->CurrentId = 0;
@@ -47,7 +47,7 @@ vtkHyperTreeGridDepthLimiter::~vtkHyperTreeGridDepthLimiter()
   if( this->MaterialMask )
   {
     this->MaterialMask->Delete();
-    this->MaterialMask = 0;
+    this->MaterialMask = nullptr;
   }
 }
 
@@ -213,7 +213,7 @@ void vtkHyperTreeGridDepthLimiter::RecursivelyProcessTree( vtkHyperTreeGridCurso
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // child
   } // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
 }

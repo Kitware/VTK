@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkAdaptiveDataSetSurfaceFilter
- * @brief   Adaptively extract dataset seurface
+ * @brief   Adaptively extract dataset surface
  *
  * vtkAdaptiveDataSetSurfaceFilter uses view and dataset properties to
  * create the outside surface mesh with the minimum minimorum of facets
@@ -36,10 +36,10 @@
 #include "vtkDataSetSurfaceFilter.h"
 
 class vtkBitArray;
-class vtkRenderer;
 class vtkCamera;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridCursor;
+class vtkRenderer;
 
 class VTKFILTERSHYBRID_EXPORT vtkAdaptiveDataSetSurfaceFilter : public vtkDataSetSurfaceFilter
 {
@@ -178,7 +178,7 @@ protected:
    */
   double Scale;
 
-  private:
+private:
   vtkAdaptiveDataSetSurfaceFilter( const vtkAdaptiveDataSetSurfaceFilter& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkAdaptiveDataSetSurfaceFilter& ) VTK_DELETE_FUNCTION;
 };

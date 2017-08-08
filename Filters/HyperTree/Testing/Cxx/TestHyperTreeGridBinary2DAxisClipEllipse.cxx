@@ -87,7 +87,7 @@ int TestHyperTreeGridBinary2DAxisClipEllipse( int argc, char* argv[] )
   vtkNew<vtkPoints> points;
   double pt[3];
   pt[2] = 0.;
-  unsigned int np = 500;
+  vtkIdType np = 500;
   double sec = 2. * vtkMath::Pi() / np;
   double arg = 0.;
   vtkNew<vtkPolyLine> polyLine;

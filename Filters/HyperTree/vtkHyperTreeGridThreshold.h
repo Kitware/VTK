@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridThreshold.h
+  Program:   Visualization Toolkit
+  Module:    vtkHyperTreeGridThreshold.h
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
@@ -45,7 +45,7 @@ class vtkHyperTreeGridCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridThreshold : public vtkHyperTreeGridAlgorithm
 {
-  public:
+public:
   static vtkHyperTreeGridThreshold* New();
   vtkTypeMacro( vtkHyperTreeGridThreshold, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
@@ -71,14 +71,14 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridThreshold : public vtkHyperTree
    */
   void ThresholdBetween( double, double );
 
-  protected:
+protected:
   vtkHyperTreeGridThreshold();
   ~vtkHyperTreeGridThreshold();
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to extract cells based on thresholded value
@@ -115,9 +115,9 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridThreshold : public vtkHyperTree
   /**
    * Keep track of selected input scalars
    */
- vtkDataArray* InScalars;
+  vtkDataArray* InScalars;
 
-  private:
+private:
   vtkHyperTreeGridThreshold(const vtkHyperTreeGridThreshold&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridThreshold&) VTK_DELETE_FUNCTION;
 };

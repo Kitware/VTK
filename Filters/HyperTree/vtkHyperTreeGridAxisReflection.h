@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridThreshold.h
+  Program:   Visualization Toolkit
+  Module:    vtkHyperTreeGridAxisReflection.h
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
@@ -38,7 +38,7 @@ class vtkHyperTreeGrid;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisReflection : public vtkHyperTreeGridAlgorithm
 {
-  public:
+public:
   static vtkHyperTreeGridAxisReflection* New();
   vtkTypeMacro( vtkHyperTreeGridAxisReflection, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
@@ -85,14 +85,14 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisReflection : public vtkHype
   vtkGetMacro(Center, double);
   //@}
 
-  protected:
+protected:
   vtkHyperTreeGridAxisReflection();
   ~vtkHyperTreeGridAxisReflection();
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to extract cells based on reflectioned value
@@ -110,7 +110,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisReflection : public vtkHype
    */
   double Center;
 
-  private:
+private:
   vtkHyperTreeGridAxisReflection(const vtkHyperTreeGridAxisReflection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridAxisReflection&) VTK_DELETE_FUNCTION;
 };
