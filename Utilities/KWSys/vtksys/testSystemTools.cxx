@@ -35,7 +35,6 @@
 typedef unsigned short mode_t;
 #endif
 
-//----------------------------------------------------------------------------
 static const char* toUnixPaths[][2] = {
   { "/usr/local/bin/passwd", "/usr/local/bin/passwd" },
   { "/usr/lo cal/bin/pa sswd", "/usr/lo cal/bin/pa sswd" },
@@ -55,7 +54,8 @@ static const char* toUnixPaths[][2] = {
   { 0, 0 }
 };
 
-static bool CheckConvertToUnixSlashes(std::string input, std::string output)
+static bool CheckConvertToUnixSlashes(std::string const& input,
+                                      std::string const& output)
 {
   std::string result = input;
   kwsys::SystemTools::ConvertToUnixSlashes(result);
@@ -67,14 +67,14 @@ static bool CheckConvertToUnixSlashes(std::string input, std::string output)
   return true;
 }
 
-//----------------------------------------------------------------------------
 static const char* checkEscapeChars[][4] = { { "1 foo 2 bar 2", "12", "\\",
                                                "\\1 foo \\2 bar \\2" },
                                              { " {} ", "{}", "#", " #{#} " },
                                              { 0, 0, 0, 0 } };
 
-static bool CheckEscapeChars(std::string input, const char* chars_to_escape,
-                             char escape_char, std::string output)
+static bool CheckEscapeChars(std::string const& input,
+                             const char* chars_to_escape, char escape_char,
+                             std::string const& output)
 {
   std::string result = kwsys::SystemTools::EscapeChars(
     input.c_str(), chars_to_escape, escape_char);
@@ -86,7 +86,6 @@ static bool CheckEscapeChars(std::string input, const char* chars_to_escape,
   return true;
 }
 
-//----------------------------------------------------------------------------
 static bool CheckFileOperations()
 {
   bool res = true;
@@ -469,7 +468,6 @@ static bool CheckFileOperations()
   return res;
 }
 
-//----------------------------------------------------------------------------
 static bool CheckStringOperations()
 {
   bool res = true;
@@ -612,8 +610,6 @@ static bool CheckStringOperations()
 
   return res;
 }
-
-//----------------------------------------------------------------------------
 
 static bool CheckPutEnv(const std::string& env, const char* name,
                         const char* value)
@@ -762,6 +758,30 @@ static bool CheckGetPath()
   return res;
 }
 
+static bool CheckGetFilenameName()
+{
+  const char* windowsFilepath = "C:\\somewhere\\something";
+  const char* unixFilepath = "/somewhere/something";
+
+  std::string expectedFilename = "something";
+
+  bool res = true;
+  std::string filename = kwsys::SystemTools::GetFilenameName(windowsFilepath);
+  if (filename != expectedFilename) {
+    std::cerr << "GetFilenameName(" << windowsFilepath << ") yielded "
+              << filename << " instead of " << expectedFilename << std::endl;
+    res = false;
+  }
+
+  filename = kwsys::SystemTools::GetFilenameName(unixFilepath);
+  if (filename != expectedFilename) {
+    std::cerr << "GetFilenameName(" << unixFilepath << ") yielded " << filename
+              << " instead of " << expectedFilename << std::endl;
+    res = false;
+  }
+  return res;
+}
+
 static bool CheckFind()
 {
   bool res = true;
@@ -842,7 +862,6 @@ static bool CheckGetLineFromStream()
   return ret;
 }
 
-//----------------------------------------------------------------------------
 int testSystemTools(int, char* [])
 {
   bool res = true;
@@ -879,6 +898,8 @@ int testSystemTools(int, char* [])
   res &= CheckFind();
 
   res &= CheckGetLineFromStream();
+
+  res &= CheckGetFilenameName();
 
   return res ? 0 : 1;
 }
