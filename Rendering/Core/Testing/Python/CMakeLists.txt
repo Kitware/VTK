@@ -5,7 +5,6 @@ if(VTK_USE_GLSL_SHADERS)
 endif()
 
 vtk_add_test_python(
-  CamBlur.py
   ImageActor.py
   ImageActorStressed.py
   NoLightGeneration.py

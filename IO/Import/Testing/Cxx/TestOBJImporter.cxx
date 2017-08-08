@@ -81,7 +81,6 @@ int TestOBJImporter( int argc, char * argv [] )
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     renWin->SetSize(800,600);
-    renWin->SetAAFrames(3);
     iren->Start();
   }
 

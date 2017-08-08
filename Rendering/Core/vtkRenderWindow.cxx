@@ -176,8 +176,10 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
 }
 
 //----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
 void vtkRenderWindow::SetFDFrames(int fdFrames)
 {
+  VTK_LEGACY_BODY(SetFDFrames, "VTK 8.1");
   if (this->FDFrames != fdFrames)
   {
     this->FDFrames = fdFrames;
@@ -206,6 +208,7 @@ void vtkRenderWindow::SetFDFrames(int fdFrames)
 //----------------------------------------------------------------------------
 void vtkRenderWindow::SetSubFrames(int subFrames)
 {
+  VTK_LEGACY_BODY(SetSubFrames, "VTK 8.1");
   if (this->SubFrames != subFrames)
   {
     this->SubFrames = subFrames;
@@ -218,6 +221,7 @@ void vtkRenderWindow::SetSubFrames(int subFrames)
     this->Modified();
   }
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkRenderWindow::SetDesiredUpdateRate(double rate)
