@@ -109,7 +109,7 @@ void vtkWrapPython_AddConstantHelper(
 
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,
-              "%s%s = PyString_FromString((char *)(%s));\n",
+              "%s%s = PyString_FromString(%s);\n",
               indent, objvar, valstring);
       objcreated = 1;
       break;

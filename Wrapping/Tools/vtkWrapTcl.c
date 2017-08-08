@@ -364,7 +364,7 @@ void return_result(FILE *fp)
       break;
     case VTK_PARSE_BOOL:
       fprintf(fp,"    char tempResult[1024];\n");
-      fprintf(fp,"    sprintf(tempResult,\"%%i\",(int)temp%i);\n",
+      fprintf(fp,"    sprintf(tempResult,\"%%i\",static_cast<int>(temp%i));\n",
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;

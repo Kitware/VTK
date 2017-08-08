@@ -544,7 +544,12 @@ int main(int argc, char *argv[])
       fprintf(fp,
              "  if (o)\n"
              "  {\n"
-             "    PyObject *l = PyObject_CallMethod(o, (char *)\"values\", 0);\n"
+             "#if PY_VERSION_HEX >= 0x03040000\n"
+             "    const char *methodname = \"values\";\n"
+             "#else\n"
+             "    char methodname[] = \"values\";\n"
+             "#endif\n"
+             "    PyObject *l = PyObject_CallMethod(o, methodname, nullptr);\n"
              "    Py_ssize_t n = PyList_GET_SIZE(l);\n"
              "    for (Py_ssize_t i = 0; i < n; i++)\n"
              "    {\n"
