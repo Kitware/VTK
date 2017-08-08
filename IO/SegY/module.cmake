@@ -1,0 +1,15 @@
+vtk_module(vtkIOSegY
+  TEST_DEPENDS
+    vtkInteractionStyle
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkTestingCore
+    vtkTestingRendering
+  KIT
+    vtkIO
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkIOCore
+  PRIVATE_DEPENDS
+    vtkCommonCore
+  )
