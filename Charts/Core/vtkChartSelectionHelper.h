@@ -44,7 +44,7 @@
 namespace vtkChartSelectionHelper
 {
 
-/*
+/**
  * Populate the annotation link with the supplied selectionIds array, and set
  * the appropriate node properties for a standard row based chart selection.
  */
@@ -93,7 +93,7 @@ static void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
   }
 }
 
-/*
+/**
  * Subtract the supplied selection from the oldSelection.
  */
 static void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
@@ -138,7 +138,7 @@ static void MinusSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelecti
   }
 }
 
-/*
+/**
  * Add the supplied selection from the oldSelection.
  */
 static void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
@@ -166,7 +166,7 @@ static void AddSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection
   }
 }
 
-/*
+/**
  * Toggle the supplied selection from the oldSelection.
  */
 static void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
@@ -214,7 +214,7 @@ static void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelect
   }
 }
 
-/*
+/**
  * Build a selection based on the supplied selectionMode using the new
  * plotSelection and combining it with the oldSelection. If link is not nullptr
  * then the resulting selection will be set on the link.
@@ -252,7 +252,7 @@ static void BuildSelection(vtkAnnotationLink *link, int selectionMode,
   }
 }
 
-/*
+/**
  * Combine the SelectionMode with any mouse modifiers to get an effective
  * selection mode for this click event.
  */
