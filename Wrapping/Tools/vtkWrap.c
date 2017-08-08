@@ -1006,6 +1006,7 @@ void vtkWrap_DeclareVariable(
         aType == VTK_PARSE_CHAR_PTR &&
         val->Value &&
         strcmp(val->Value, "0") != 0 &&
+        strcmp(val->Value, "nullptr") != 0 &&
         strcmp(val->Value, "NULL") != 0)
     {
       fprintf(fp,"const ");
@@ -1096,11 +1097,11 @@ void vtkWrap_DeclareVariable(
                aType == VTK_PARSE_OBJECT ||
                vtkWrap_IsQtObject(val))))
     {
-      fprintf(fp, " = NULL");
+      fprintf(fp, " = nullptr");
     }
     else if (val->CountHint || vtkWrap_IsPODPointer(val))
     {
-      fprintf(fp, " = NULL");
+      fprintf(fp, " = nullptr");
     }
     else if (aType == VTK_PARSE_BOOL)
     {

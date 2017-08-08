@@ -68,7 +68,7 @@ static const char *raw_string(const char *begin);
 
 static void preprocessor_directive(const char *text, size_t l);
 static void print_preprocessor_error(int result, const char *cp, size_t n);
-static const char *get_macro_arguments(void);
+static char *get_macro_arguments(void);
 
 static void push_buffer(void);
 static int pop_buffer(void);
@@ -137,8 +137,8 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 {ID}"_EXPORT"  /* ignore EXPORT macros */
 
 "vtkNotUsed" { /* let the wrappers see the parameter */
-      const char *args = get_macro_arguments();
-      const char *cp;
+      char *args = get_macro_arguments();
+      char *cp;
       size_t l = 0;
       if (args)
       {
@@ -149,10 +149,10 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
         if (l)
         {
           yylval.str = vtkstrndup(cp, l);
-          free((char *)args);
+          free(args);
           return(ID);
         }
-        free((char *)args);
+        free(args);
       }
     }
 
@@ -371,7 +371,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 "__restrict" /* MSVC extension */
 
 "VTK_LEGACY" {
-      const char *args = get_macro_arguments();
+      char *args = get_macro_arguments();
       if (args && args[0] != '\0' && args[1] != '\0')
       {
         size_t l = strlen(args);
@@ -382,7 +382,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
         macroEnded = 0;
         yy_switch_to_buffer(yy_scan_bytes(&args[1], l-2));
       }
-      free((char *)args);
+      free(args);
     }
 
 "nullptr" {
@@ -396,7 +396,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       int expanded = 0;
       if (macro)
       {
-        const char *args = NULL;
+        char *args = NULL;
         const char *emacro = NULL;
 
         /* make sure that vtkNotUsed is never expanded */
@@ -418,7 +418,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
               print_preprocessor_error(VTK_PARSE_MACRO_NUMARGS, NULL, 0);
               exit(1);
             }
-            free((char *)args);
+            free(args);
           }
         }
         else if (macro->Definition && macro->Definition[0])
@@ -574,7 +574,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 /*
  * Return a parenthetical macro arg list as a new string.
  */
-const char *get_macro_arguments()
+char *get_macro_arguments()
 {
   char *cp = NULL;
   size_t i = 0;

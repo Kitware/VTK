@@ -217,17 +217,17 @@ static PyObject *PyVTKMutableObject_Trunc(PyObject *self, PyObject *args)
     PyObject *attr = PyUnicode_InternFromString("__trunc__");
     PyObject *ob = PyVTKMutableObject_GetValue(self);
     PyObject *meth = _PyType_Lookup(Py_TYPE(ob), attr);
-    if (meth == NULL)
+    if (meth == nullptr)
     {
       PyErr_Format(PyExc_TypeError,
                    "type %.100s doesn't define __trunc__ method",
                    Py_TYPE(ob)->tp_name);
-      return NULL;
+      return nullptr;
     }
     return PyObject_CallFunction(meth, (char *)"O", ob);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *PyVTKMutableObject_Round(PyObject *self, PyObject *args)
@@ -239,12 +239,12 @@ static PyObject *PyVTKMutableObject_Round(PyObject *self, PyObject *args)
     PyObject *attr = PyUnicode_InternFromString("__round__");
     PyObject *ob = PyVTKMutableObject_GetValue(self);
     PyObject *meth = _PyType_Lookup(Py_TYPE(ob), attr);
-    if (meth == NULL)
+    if (meth == nullptr)
     {
       PyErr_Format(PyExc_TypeError,
                    "type %.100s doesn't define __round__ method",
                    Py_TYPE(ob)->tp_name);
-      return NULL;
+      return nullptr;
     }
     if (opn)
     {
@@ -253,7 +253,7 @@ static PyObject *PyVTKMutableObject_Round(PyObject *self, PyObject *args)
     return PyObject_CallFunction(meth, (char *)"O", ob);
   }
 
-  return NULL;
+  return nullptr;
 }
 #endif
 
@@ -452,7 +452,7 @@ static PyObject *PyVTKMutableObject_Hex(PyObject *ob)
 
   PyErr_SetString(PyExc_TypeError,
                   "hex() argument can't be converted to hex");
-  return NULL;
+  return nullptr;
 #endif
 }
 
@@ -470,7 +470,7 @@ static PyObject *PyVTKMutableObject_Oct(PyObject *ob)
 
   PyErr_SetString(PyExc_TypeError,
                   "oct() argument can't be converted to oct");
-  return NULL;
+  return nullptr;
 #endif
 }
 #endif
@@ -550,7 +550,7 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
   PyVTKMutableObject_Long,                   // nb_long
 #else
   PyVTKMutableObject_Long,                   // nb_int
-  NULL,                                      // nb_reserved
+  nullptr,                                   // nb_reserved
 #endif
   PyVTKMutableObject_Float,                  // nb_float
 #ifndef VTK_PY3K
@@ -576,8 +576,8 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
   PyVTKMutableObject_InPlaceTrueDivide,      // nb_inplace_true_divide
   PyVTKMutableObject_Index,                  // nb_index
 #if PY_VERSION_HEX >= 0x03050000
-  0,                                         // nb_matrix_multiply
-  0,                                         // nb_inplace_matrix_multiply
+  nullptr,                                   // nb_matrix_multiply
+  nullptr,                                   // nb_inplace_matrix_multiply
 #endif
 };
 

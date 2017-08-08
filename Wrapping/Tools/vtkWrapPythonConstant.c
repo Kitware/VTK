@@ -61,7 +61,7 @@ void vtkWrapPython_AddConstantHelper(
   {
     valtype = VTK_PARSE_VOID;
   }
-  else if (strcmp(valstring, "NULL") == 0)
+  else if (strcmp(valstring, "nullptr") == 0)
   {
     valtype = VTK_PARSE_VOID;
   }
@@ -109,7 +109,7 @@ void vtkWrapPython_AddConstantHelper(
 
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,
-              "%s%s = PyString_FromString((char *)(%s));\n",
+              "%s%s = PyString_FromString(%s);\n",
               indent, objvar, valstring);
       objcreated = 1;
       break;

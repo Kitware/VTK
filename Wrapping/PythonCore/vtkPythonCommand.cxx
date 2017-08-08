@@ -95,7 +95,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
   // If a threadstate has been set using vtkPythonCommand::SetThreadState,
   // then swap it in here.  See the email to vtk-developers@vtk.org from
   // June 18, 2009 with subject "Py_NewInterpreter and vtkPythonCallback issue"
-  PyThreadState* prevThreadState = NULL;
+  PyThreadState* prevThreadState = nullptr;
   if (this->ThreadState)
   {
     prevThreadState = PyThreadState_Swap(this->ThreadState);
@@ -193,7 +193,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     {
 #ifdef VTK_PY3K
       PyObject *bytes = PyUnicode_AsEncodedString(
-        callDataTypeObj, 0, NULL);
+        callDataTypeObj, 0, nullptr);
       const char *callDataTypeString = 0;
       if (bytes)
       {

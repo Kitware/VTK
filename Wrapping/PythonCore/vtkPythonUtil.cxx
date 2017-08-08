@@ -253,7 +253,7 @@ void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
 //--------------------------------------------------------------------
 // Concatenate an array of strings into a single python string object.
 // The array of strings must be null-terminated,
-// e.g. static char *strings[] = {"string1", "string2", NULL};
+// e.g. static char *strings[] = {"string1", "string2", nullptr};
 PyObject *vtkPythonUtil::BuildDocString(const char *docstring[])
 {
   PyObject *result;
@@ -623,7 +623,7 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
 {
   vtkObjectBase *ptr;
 
-  // convert Py_None to NULL every time
+  // convert Py_None to nullptr every time
   if (obj == Py_None)
   {
     return nullptr;
@@ -1131,19 +1131,21 @@ void vtkPythonVoidFuncArgDelete(void *arg)
 // utilities to provide access to Python objects wrapped with SIP
 static const sipAPIDef *get_sip_api()
 {
-  static sipAPIDef *sip_api = NULL;
+  static sipAPIDef *sip_api = nullptr;
 
   if(!sip_api)
   {
-    PyObject *c_api = NULL;
+    PyObject *c_api = nullptr;
     PyObject *sip_module;
     PyObject *sip_module_dict;
 
     /* Import the SIP module. */
     sip_module = PyImport_ImportModule("sip");
 
-    if (sip_module == NULL)
-      return NULL;
+    if (sip_module == nullptr)
+    {
+      return nullptr;
+    }
 
     /* Get the module's dictionary. */
     sip_module_dict = PyModule_GetDict(sip_module);
@@ -1151,8 +1153,10 @@ static const sipAPIDef *get_sip_api()
     /* Get the "_C_API" attribute. */
     c_api = PyDict_GetItemString(sip_module_dict, "_C_API");
 
-    if (c_api == NULL)
-      return NULL;
+    if (c_api == nullptr)
+    {
+      return nullptr;
+    }
 
     /* Sanity check that it is the right type. */
     if (PyCObject_Check(c_api))
@@ -1161,7 +1165,9 @@ static const sipAPIDef *get_sip_api()
     /* some versions of SIP use PyCapsule instead of PyCObject */
 #if PY_VERSION_HEX >= 0x02070000
     if (PyCapsule_CheckExact(c_api))
+    {
       sip_api = (sipAPIDef *)PyCapsule_GetPointer(c_api, "sip._C_API");
+    }
 #endif
   }
 
@@ -1179,7 +1185,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   {
     snprintf(etext, sizeof(etext), "unable to convert to %.200s without SIP api", classname);
     PyErr_SetString(PyExc_TypeError, etext);
-    return NULL;
+    return nullptr;
   }
 
   const sipTypeDef * td = api->api_find_type(classname);
@@ -1187,7 +1193,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   {
     snprintf(etext, sizeof(etext), "unable to convert to %.200s without a typedef", classname);
     PyErr_SetString(PyExc_TypeError, etext);
-    return NULL;
+    return nullptr;
   }
 
   if(sipTypeIsEnum(td))
@@ -1196,7 +1202,7 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
     {
       snprintf(etext, sizeof(etext), "unable to convert to %.200s enum", classname);
       PyErr_SetString(PyExc_TypeError, etext);
-      return NULL;
+      return nullptr;
     }
     // Call PyInt_AsLong() to retrieve the value
     return obj;
@@ -1206,16 +1212,16 @@ void* vtkPythonUtil::SIPGetPointerFromObject(PyObject *obj, const char *classnam
   {
     snprintf(etext, sizeof(etext), "unable to convert to %.200s", classname);
     PyErr_SetString(PyExc_TypeError, etext);
-    return NULL;
+    return nullptr;
   }
 
   int iserr = 0;
-  void* ptr = api->api_convert_to_type(obj, td, NULL, 0, NULL, &iserr);
+  void* ptr = api->api_convert_to_type(obj, td, nullptr, 0, nullptr, &iserr);
   if(iserr)
   {
     snprintf(etext, sizeof(etext), "error while converting to %.200s", classname);
     PyErr_SetString(PyExc_TypeError, etext);
-    return NULL;
+    return nullptr;
   }
   return ptr;
 #else
@@ -1234,14 +1240,14 @@ PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* cl
   if(!api)
   {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without api");
-    return NULL;
+    return nullptr;
   }
 
   const sipTypeDef * td = api->api_find_type(classname);
   if(!td)
   {
     PyErr_SetString(PyExc_TypeError, "Unable to convert to SIP type without typedef");
-    return NULL;
+    return nullptr;
   }
 
   if(sipTypeIsEnum(td))
@@ -1252,10 +1258,10 @@ PyObject* vtkPythonUtil::SIPGetObjectFromPointer(const void *ptr, const char* cl
 
   if(is_new)
   {
-    return api->api_convert_from_new_type(const_cast<void*>(ptr), td, NULL);
+    return api->api_convert_from_new_type(const_cast<void*>(ptr), td, nullptr);
   }
 
-  return api->api_convert_from_type(const_cast<void*>(ptr), td, NULL);
+  return api->api_convert_from_type(const_cast<void*>(ptr), td, nullptr);
 
 #else
   (void)ptr;

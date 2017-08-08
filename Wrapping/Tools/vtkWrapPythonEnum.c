@@ -95,7 +95,7 @@ void vtkWrapPython_AddEnumType(
   /* Don't add anonymous enums */
   fprintf(fp,
           "%sPyType_Ready(&Py%s%s%s_Type);\n"
-          "%sPy%s%s%s_Type.tp_new = NULL;\n"
+          "%sPy%s%s%s_Type.tp_new = nullptr;\n"
           "%svtkPythonUtil::AddEnumToMap(&Py%s%s%s_Type);\n"
           "\n",
           indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
@@ -207,7 +207,7 @@ void vtkWrapPython_GenerateEnumType(
     "{\n"
     "#ifdef VTK_PY3K\n"
     "  PyObject *args = Py_BuildValue(\"(i)\", val);\n"
-    "  PyObject *obj = PyLong_Type.tp_new(&Py%s_Type, args, NULL);\n"
+    "  PyObject *obj = PyLong_Type.tp_new(&Py%s_Type, args, nullptr);\n"
     "  Py_DECREF(args);\n"
     "  return obj;\n"
     "#else\n"
