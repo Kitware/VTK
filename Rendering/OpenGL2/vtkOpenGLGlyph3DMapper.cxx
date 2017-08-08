@@ -170,7 +170,6 @@ vtkStandardNewMacro(vtkOpenGLGlyph3DMapper)
 vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 {
   this->GlyphValues = new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperArray();
-  this->LastWindow = nullptr;
   this->ColorMapper = vtkOpenGLGlyph3DMappervtkColorMapper::New();
 }
 
@@ -178,12 +177,6 @@ vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapper()
 vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 {
   this->ColorMapper->Delete();
-
-  if (this->LastWindow)
-  {
-    this->ReleaseGraphicsResources(this->LastWindow);
-    this->LastWindow = nullptr;
-  }
 
   delete this->GlyphValues;
   this->GlyphValues = nullptr;

@@ -87,8 +87,6 @@ protected:
     vtkIdType numPts, vtkActor* actor, vtkDataSet* dataset,
     vtkBitArray *maskArray);
 
-  vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
-
 private:
   vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
