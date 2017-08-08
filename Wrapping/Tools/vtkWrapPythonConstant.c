@@ -61,7 +61,7 @@ void vtkWrapPython_AddConstantHelper(
   {
     valtype = VTK_PARSE_VOID;
   }
-  else if (strcmp(valstring, "NULL") == 0)
+  else if (strcmp(valstring, "nullptr") == 0)
   {
     valtype = VTK_PARSE_VOID;
   }

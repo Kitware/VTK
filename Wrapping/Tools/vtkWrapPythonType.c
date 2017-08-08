@@ -111,10 +111,10 @@ static void vtkWrapPython_NewDeleteProtocol(
     "  {\n"
     "    PyErr_SetString(PyExc_TypeError,\n"
     "                    \"this function takes no keyword arguments\");\n"
-    "    return NULL;\n"
+    "    return nullptr;\n"
     "  }\n"
     "\n"
-    "  return Py%s_%*.*s(NULL, args);\n"
+    "  return Py%s_%*.*s(nullptr, args);\n"
     "}\n"
     "\n",
     classname, classname, (int)n, (int)n, constructor);
@@ -128,7 +128,7 @@ static void vtkWrapPython_NewDeleteProtocol(
     "  PyErr_SetString(PyExc_TypeError,\n"
     "                  \"this class cannot be instantiated\");\n"
     "\n"
-    "  return NULL;\n"
+    "  return nullptr;\n"
     "}\n"
     "\n",
     classname);
@@ -300,10 +300,10 @@ static void vtkWrapPython_RichCompareProtocol(
       "static PyObject *Py%s_RichCompare(\n"
       "  PyObject *o1, PyObject *o2, int opid)\n"
       "{\n"
-      "  PyObject *n1 = NULL;\n"
-      "  PyObject *n2 = NULL;\n"
-      "  const %s *so1 = NULL;\n"
-      "  const %s *so2 = NULL;\n"
+      "  PyObject *n1 = nullptr;\n"
+      "  PyObject *n2 = nullptr;\n"
+      "  const %s *so1 = nullptr;\n"
+      "  const %s *so2 = nullptr;\n"
       "  int result = -1;\n"
       "\n",
       classname, data->Name, data->Name);
@@ -323,7 +323,7 @@ static void vtkWrapPython_RichCompareProtocol(
         "    so%d = static_cast<const %s *>(\n"
         "      vtkPythonUtil::GetPointerFromSpecialObject(\n"
         "        o%d, \"%s\", &n%d));\n"
-        "    if (so%d == NULL)\n"
+        "    if (so%d == nullptr)\n"
         "    {\n"
         "      PyErr_Clear();\n"
         "      Py_INCREF(Py_NotImplemented);\n"
@@ -380,7 +380,7 @@ static void vtkWrapPython_RichCompareProtocol(
       "  if (result == -1)\n"
       "  {\n"
       "    PyErr_SetString(PyExc_TypeError, \"operation not available\");\n"
-      "    return NULL;\n"
+      "    return nullptr;\n"
       "  }\n"
       "\n"
       "  // avoids aliasing issues with Py_INCREF(Py_False)\n"
@@ -517,7 +517,7 @@ static void vtkWrapPython_SequenceProtocol(
                 vtkWrap_IsObject(getItemFunc->ReturnValue)) ? "*" : ""));
 
       fprintf(fp,
-              "    if (PyErr_Occurred() == NULL)\n"
+              "    if (PyErr_Occurred() == nullptr)\n"
               "    {\n"
               "      result = 0;\n"
               "    }\n"
@@ -880,7 +880,7 @@ void vtkWrapPython_GenerateSpecialType(
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
-    "    Py%s_Doc(), NULL);\n"
+    "    Py%s_Doc(), nullptr);\n"
     "\n",
     classname, classname,
     classname, (int)n, (int)n, constructor,
@@ -892,8 +892,8 @@ void vtkWrapPython_GenerateSpecialType(
     "  PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
-    "    NULL,\n"
-    "    Py%s_Doc(), NULL);\n"
+    "    nullptr,\n"
+    "    Py%s_Doc(), nullptr);\n"
     "\n",
     classname, classname, classname);
   }

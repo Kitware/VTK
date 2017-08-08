@@ -1252,8 +1252,8 @@ int main(int argc, char *argv[])
     free(safe_name);
   }
   /* now list our methods */
-  fprintf(fp,"    Tcl_AppendResult(interp,\"Methods from %s:\\n\",NULL);\n",data->Name);
-  fprintf(fp,"    Tcl_AppendResult(interp,\"  GetSuperClassName\\n\",NULL);\n");
+  fprintf(fp,"    Tcl_AppendResult(interp,\"Methods from %s:\\n\",nullptr);\n",data->Name);
+  fprintf(fp,"    Tcl_AppendResult(interp,\"  GetSuperClassName\\n\",nullptr);\n");
   for (i = 0; i < numberOfWrappedFunctions; i++)
   {
     int numArgs = 0;
@@ -1277,17 +1277,17 @@ int main(int argc, char *argv[])
 
     if (numArgs > 1)
     {
-      fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\t with %i args\\n\",NULL);\n",
+      fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\t with %i args\\n\",nullptr);\n",
               currentFunction->Name, numArgs);
     }
     if (numArgs == 1)
     {
-          fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\t with 1 arg\\n\",NULL);\n",
+          fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\t with 1 arg\\n\",nullptr);\n",
                   currentFunction->Name);
     }
     if (numArgs == 0)
     {
-      fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\n\",NULL);\n",
+      fprintf(fp,"    Tcl_AppendResult(interp,\"  %s\\n\",nullptr);\n",
               currentFunction->Name);
     }
 
@@ -1557,7 +1557,7 @@ int main(int argc, char *argv[])
   fprintf(fp,"  }\n");
   fprintf(fp,"  catch (std::exception &e)\n");
   fprintf(fp,"  {\n");
-  fprintf(fp,"    Tcl_AppendResult(interp, \"Uncaught exception: \",  e.what(), \"\\n\", NULL);\n");
+  fprintf(fp,"    Tcl_AppendResult(interp, \"Uncaught exception: \",  e.what(), \"\\n\", nullptr);\n");
   fprintf(fp,"    return TCL_ERROR;\n");
   fprintf(fp,"  }\n");
   fprintf(fp,"  return TCL_ERROR;\n}\n");

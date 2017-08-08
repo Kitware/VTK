@@ -24,7 +24,7 @@ static void CreateInitFile(const char *libName, FILE *fout)
 
   fprintf(fout,"PyObject *PyInit_%s()\n", libName);
   fprintf(fout,"{\n");
-  fprintf(fout,"  return real_init%s(NULL);\n", libName);
+  fprintf(fout,"  return real_init%s(nullptr);\n", libName);
   fprintf(fout,"}\n");
 
   fprintf(fout,"#else\n");
@@ -33,7 +33,7 @@ static void CreateInitFile(const char *libName, FILE *fout)
 
   fprintf(fout,"void init%s()\n", libName);
   fprintf(fout,"{\n");
-  fprintf(fout,"  real_init%s(NULL);\n", libName);
+  fprintf(fout,"  real_init%s(nullptr);\n", libName);
   fprintf(fout,"}\n");
 
   fprintf(fout,"#endif\n");
@@ -66,19 +66,19 @@ static void CreateImplFile(const char *libName,
   }
 
   fprintf(fout,"\nstatic PyMethodDef Py%s_Methods[] = {\n", libName);
-  fprintf(fout,"{NULL, NULL, 0, NULL}};\n\n");
+  fprintf(fout,"{nullptr, nullptr, 0, nullptr}};\n\n");
 
   fprintf(fout,"#ifdef VTK_PY3K\n");
   fprintf(fout,"static PyModuleDef Py%s_Module = {\n", libName);
   fprintf(fout,"  PyModuleDef_HEAD_INIT,\n");
   fprintf(fout,"  \"%s\", // m_name\n", libName);
-  fprintf(fout,"  NULL, // m_doc\n");
+  fprintf(fout,"  nullptr, // m_doc\n");
   fprintf(fout,"  0, // m_size\n");
   fprintf(fout,"  Py%s_Methods, //m_methods\n", libName);
-  fprintf(fout,"  NULL, // m_reload\n");
-  fprintf(fout,"  NULL, // m_traverse\n");
-  fprintf(fout,"  NULL, // m_clear\n");
-  fprintf(fout,"  NULL  // m_free\n");
+  fprintf(fout,"  nullptr, // m_reload\n");
+  fprintf(fout,"  nullptr, // m_traverse\n");
+  fprintf(fout,"  nullptr, // m_clear\n");
+  fprintf(fout,"  nullptr  // m_free\n");
   fprintf(fout,"};\n");
   fprintf(fout,"#endif\n\n");
 

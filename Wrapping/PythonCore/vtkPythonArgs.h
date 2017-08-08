@@ -178,13 +178,13 @@ public:
   template<class T>
   bool GetSpecialObject(T *&v, PyObject *&o, const char *classname) {
     v = static_cast<T *>(this->GetArgAsSpecialObject(classname, &o));
-    return (v != NULL); }
+    return (v != nullptr); }
   template<class T>
   static bool GetSpecialObject(
     PyObject *arg, T *&v, PyObject *&o, const char *classname) {
     v = static_cast<T *>(
       vtkPythonArgs::GetArgAsSpecialObject(arg, classname, &o));
-    return (v != NULL); }
+    return (v != nullptr); }
   //@}
 
   //@{
@@ -195,12 +195,12 @@ public:
   template<class T>
   bool GetSpecialObject(T *&v, const char *classname) {
     v = static_cast<T *>(this->GetArgAsSpecialObject(classname, nullptr));
-    return (v != NULL); }
+    return (v != nullptr); }
   template<class T>
   static bool GetSpecialObject(PyObject *o, T *&v, const char *classname) {
     v = static_cast<T *>(
       vtkPythonArgs::GetArgAsSpecialObject(o, classname, nullptr));
-    return (v != NULL); }
+    return (v != nullptr); }
   //@}
 
   //@{
@@ -862,9 +862,10 @@ PyObject *vtkPythonArgs::BuildValue(const char *a, size_t l)
 #if PY_VERSION_HEX >= 0x03030000
   PyObject *o = PyUnicode_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
 #else
-  PyObject *o = PyUnicode_Decode(a, static_cast<Py_ssize_t>(l), NULL, NULL);
+  PyObject *o = PyUnicode_Decode(a, static_cast<Py_ssize_t>(l),
+                                 nullptr, nullptr);
 #endif
-  if (o == NULL)
+  if (o == nullptr)
   {
     PyErr_Clear();
     o = PyBytes_FromStringAndSize(a, static_cast<Py_ssize_t>(l));

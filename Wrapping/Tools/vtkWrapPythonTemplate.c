@@ -382,7 +382,7 @@ int vtkWrapPython_WrapTemplatedClass(
     }
 
     fprintf(fp,
-            "    NULL\n"
+            "    nullptr\n"
             "};\n"
             "\n");
 

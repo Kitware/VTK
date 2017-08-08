@@ -452,7 +452,7 @@ static void vtkWrapPython_GenerateObjectNew(
   else
   {
     fprintf(fp,
-            " NULL);\n\n");
+            " nullptr);\n\n");
   }
 
   fprintf(fp,
@@ -689,7 +689,7 @@ int vtkWrapPython_WrapOneClass(
   vtkWrapPython_ClassDoc(fp, finfo, data, hinfo, is_vtkobject);
 
   fprintf(fp,
-          "    NULL\n"
+          "    nullptr\n"
           "  };\n"
           "\n"
           "  return docstring;\n"

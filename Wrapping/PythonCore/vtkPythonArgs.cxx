@@ -178,7 +178,7 @@ static bool vtkPythonGetValue(
   (void)view;
 #else
 #ifdef VTK_PY3K
-  PyObject *bytes = NULL;
+  PyObject *bytes = nullptr;
   if (PyUnicode_Check(o))
   {
     bytes = PyUnicode_AsUTF8String(o);

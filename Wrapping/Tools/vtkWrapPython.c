@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
              "    for (Py_ssize_t i = 0; i < n; i++)\n"
              "    {\n"
              "      PyObject *ot = PyList_GET_ITEM(l, i);\n"
-             "      const char *nt = NULL;\n"
+             "      const char *nt = nullptr;\n"
              "      if (PyType_Check(ot))\n"
              "      {\n"
              "        nt = ((PyTypeObject *)ot)->tp_name;\n"
