@@ -42,7 +42,7 @@
 #include "vtkOpenVRRenderer.h"
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenVRRenderWindowINteractor.h"
+#include "vtkOpenVRRenderWindowInteractor.h"
 
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkWin32OpenGLRenderWindow.h"

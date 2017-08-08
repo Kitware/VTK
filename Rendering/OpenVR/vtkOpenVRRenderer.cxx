@@ -93,18 +93,16 @@ void vtkOpenVRRenderer::DeviceRender()
 {
   if (this->ShowFloor)
   {
-    vtkOpenVRCamera *cam = static_cast<vtkOpenVRCamera *>(
-      this->GetActiveCamera());
     vtkOpenVRRenderWindow *win =
       static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
 
-    double distance = cam->GetDistance();
+    double distance = win->GetPhysicalScale();
 
     double trans[3];
-    cam->GetTranslation(trans);
+    win->GetPhysicalTranslation(trans);
 
-    double *vup = win->GetInitialViewUp();
-    double *dop = win->GetInitialViewDirection();
+    double *vup = win->GetPhysicalViewUp();
+    double *dop = win->GetPhysicalViewDirection();
     double vr[3];
     vtkMath::Cross(dop,vup,vr);
     double rot[16] = {
@@ -163,7 +161,7 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   double vn[3], *vup;
 
   this->GetActiveCamera();
-  if ( this->ActiveCamera != NULL )
+  if ( this->ActiveCamera != nullptr )
   {
     this->ActiveCamera->GetViewPlaneNormal(vn);
   }
@@ -256,8 +254,9 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   // matrix as that is broken.
   // The +distance in the Y translation is because we want
   // the center of the world to be 1 meter up
-  vtkOpenVRCamera *cam = vtkOpenVRCamera::SafeDownCast(this->ActiveCamera);
-  cam->SetTranslation(-center[0],-center[1]+distance,-center[2]);
+  vtkOpenVRRenderWindow *win =
+    static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
+  win->SetPhysicalTranslation(-center[0],-center[1]+distance,-center[2]);
 }
 
 // Alternative version of ResetCamera(bounds[6]);
@@ -290,7 +289,7 @@ void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
   }
 
   this->GetActiveCameraAndResetIfCreated();
-  if ( this->ActiveCamera == NULL )
+  if ( this->ActiveCamera == nullptr )
   {
     vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
     return;
@@ -300,7 +299,9 @@ void vtkOpenVRRenderer::ResetCameraClippingRange( double bounds[6] )
 
   double distance = this->ActiveCamera->GetDistance();
   double trans[3];
-  static_cast<vtkOpenVRCamera *>(this->ActiveCamera)->GetTranslation(trans);
+  vtkOpenVRRenderWindow *win =
+    static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
+  win->GetPhysicalTranslation(trans);
 
   range[0] = 0.2; // 20 cm in front of HMD
   range[1] = 0.0;

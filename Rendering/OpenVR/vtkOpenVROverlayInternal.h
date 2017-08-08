@@ -18,8 +18,8 @@ class vtkOpenVRCameraPose
 {
 public:
   double Position[3];
-  double InitialViewUp[3];
-  double InitialViewDirection[3];
+  double PhysicalViewUp[3];
+  double PhysicalViewDirection[3];
   double ViewDirection[3];
   double Translation[3];
   double Distance;
@@ -49,16 +49,16 @@ public:
   };
 
   void Set(vtkOpenVRCamera *cam, vtkOpenVRRenderWindow *win) {
-    cam->GetTranslation(this->Translation);
-    win->GetInitialViewUp(this->InitialViewUp);
-    this->Distance = cam->GetDistance();
+    win->GetPhysicalTranslation(this->Translation);
+    win->GetPhysicalViewUp(this->PhysicalViewUp);
+    this->Distance = win->GetPhysicalScale();
     vtkInteractorStyle3D *is =
       static_cast<vtkInteractorStyle3D *>(win->GetInteractor()->GetInteractorStyle());
     this->MotionFactor = is->GetDollyMotionFactor();
 
     cam->GetPosition(this->Position);
 
-    win->GetInitialViewDirection(this->InitialViewDirection);
+    win->GetPhysicalViewDirection(this->PhysicalViewDirection);
     cam->GetDirectionOfProjection(this->ViewDirection);
 
     this->Loaded = true;
@@ -67,7 +67,7 @@ public:
   void Apply(vtkOpenVRCamera *cam, vtkOpenVRRenderWindow *win) {
 
     // s = saved values
-    vtkVector3d svup(this->InitialViewUp);
+    vtkVector3d svup(this->PhysicalViewUp);
     vtkVector3d svdir(this->ViewDirection);
     vtkVector3d strans(this->Translation);
     vtkVector3d spos(this->Position);
@@ -75,20 +75,20 @@ public:
 
     // c = current values
     vtkVector3d cvup;
-    win->GetInitialViewUp(cvup.GetData());
+    win->GetPhysicalViewUp(cvup.GetData());
     vtkVector3d cpos;
     cam->GetPosition(cpos.GetData());
     vtkVector3d ctrans;
-    cam->GetTranslation(ctrans.GetData());
+    win->GetPhysicalTranslation(ctrans.GetData());
     vtkVector3d cvdir;
     cam->GetDirectionOfProjection(cvdir.GetData());
     vtkVector3d civdir;
-    win->GetInitialViewDirection(civdir.GetData());
-    double cdistance = cam->GetDistance();
+    win->GetPhysicalViewDirection(civdir.GetData());
+    double cdistance = win->GetPhysicalScale();
 
     // n = new values
     vtkVector3d nvup = svup;
-    win->SetInitialViewUp(nvup.GetData());
+    win->SetPhysicalViewUp(nvup.GetData());
 
     // sanitize the svdir, must be orthogonal to nvup
     svdir = this->SanitizeVector(svdir, nvup);
@@ -107,7 +107,7 @@ public:
     }
     // rotate civdir by theta
     nivdir = civdir*cos(theta) - civright*sin(theta);
-    win->SetInitialViewDirection(nivdir.GetData());
+    win->SetPhysicalViewDirection(nivdir.GetData());
     vtkVector3d nivright = nivdir.Cross(nvup);
 
     // adjust translation so that we are in the same spot
@@ -123,7 +123,7 @@ public:
       nivdir*(x*sdistance - spos.Dot(nivdir)) +
       nivright*(y*sdistance - spos.Dot(nivright));
 
-    cam->SetTranslation(ntrans.GetData());
+    win->SetPhysicalTranslation(ntrans.GetData());
     cam->SetPosition(cpos.GetData());
 
     // this really only sets the distance as the render loop
@@ -131,18 +131,19 @@ public:
     vtkVector3d nfp;
     nfp = cpos + nivdir*sdistance;
     cam->SetFocalPoint(nfp.GetData());
+    win->SetPhysicalScale(sdistance);
 
 #if 0
-    win->SetInitialViewDirection(this->InitialViewDirection);
+    win->SetPhysicalViewDirection(this->PhysicalViewDirection);
     cam->SetTranslation(this->Translation);
     cam->SetFocalPoint(this->FocalPoint);
     cam->SetPosition(
-      this->FocalPoint[0] - this->InitialViewDirection[0]*this->Distance,
-      this->FocalPoint[1] - this->InitialViewDirection[1]*this->Distance,
-      this->FocalPoint[2] - this->InitialViewDirection[2]*this->Distance);
+      this->FocalPoint[0] - this->PhysicalViewDirection[0]*this->Distance,
+      this->FocalPoint[1] - this->PhysicalViewDirection[1]*this->Distance,
+      this->FocalPoint[2] - this->PhysicalViewDirection[2]*this->Distance);
 #endif
 
-    win->SetInitialViewUp(this->InitialViewUp);
+    win->SetPhysicalViewUp(this->PhysicalViewUp);
     vtkInteractorStyle3D *is =
       static_cast<vtkInteractorStyle3D *>(win->GetInteractor()->GetInteractorStyle());
     is->SetDollyMotionFactor(this->MotionFactor);
@@ -158,14 +159,14 @@ public:
     this->ymin = y1;
     this->ymax = y2;
     this->Callback = cb;
-    cb->Register(NULL);
+    cb->Register(nullptr);
     this->Active = false;
   }
   ~vtkOpenVROverlaySpot() {
     if (this->Callback)
     {
       this->Callback->Delete();
-      this->Callback = NULL;
+      this->Callback = nullptr;
     }
   }
   bool Active;

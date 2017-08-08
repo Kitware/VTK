@@ -23,6 +23,7 @@
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkRendererCollection.h"
 
+#include "vtkEventData.h"
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
@@ -30,14 +31,13 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenVRCamera.h"
-#include "vtkPropPicker3D.h"
 #include "vtkTextureObject.h"
 
 vtkStandardNewMacro(vtkOpenVRRenderWindowInteractor);
 
-void (*vtkOpenVRRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
-void *vtkOpenVRRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
-void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
+void (*vtkOpenVRRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))nullptr;
+void *vtkOpenVRRenderWindowInteractor::ClassExitMethodArg = (void *)nullptr;
+void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))nullptr;
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
@@ -45,6 +45,14 @@ vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 {
     vtkNew<vtkOpenVRInteractorStyle> style;
     this->SetInteractorStyle(style.Get());
+
+    for (int i = 0; i < VTKI_MAX_POINTERS; i++)
+    {
+      this->DeviceInputDown[i][0] = 0;
+      this->DeviceInputDown[i][1] = 0;
+    }
+    this->DeviceInputDownCount[0] = 0;
+    this->DeviceInputDownCount[1] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -52,37 +60,49 @@ vtkOpenVRRenderWindowInteractor::~vtkOpenVRRenderWindowInteractor()
 {
 }
 
-void vtkOpenVRRenderWindowInteractor::SetPhysicalTranslation(vtkCamera *camin, double t1, double t2, double t3)
-{
-  vtkOpenVRCamera *cam =
-    static_cast<vtkOpenVRCamera *>(camin);
-  cam->SetTranslation(t1,t2,t3);
-}
-
-double *vtkOpenVRRenderWindowInteractor::GetPhysicalTranslation(vtkCamera *camin)
-{
-  vtkOpenVRCamera *cam =
-    static_cast<vtkOpenVRCamera *>(camin);
-  return cam->GetTranslation();
-}
-
-void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
-  vtkRenderer *ren,
-  vr::TrackedDevicePose_t &tdPose,
-  double pos[3],
-  double wxyz[4],
-  double ppos[3])
+void vtkOpenVRRenderWindowInteractor::SetPhysicalScale(double scale)
 {
   vtkOpenVRRenderWindow *win =
     vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
-  vtkOpenVRCamera *cam =
-    static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
-  double distance = cam->GetDistance();
-  double *trans = cam->GetTranslation();
+  win->SetPhysicalScale(scale);
+}
+
+double vtkOpenVRRenderWindowInteractor::GetPhysicalScale()
+{
+  vtkOpenVRRenderWindow *win =
+    vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  return win->GetPhysicalScale();
+}
+
+void vtkOpenVRRenderWindowInteractor::SetPhysicalTranslation(vtkCamera *, double t1, double t2, double t3)
+{
+  vtkOpenVRRenderWindow *win =
+    vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  win->SetPhysicalTranslation(t1,t2,t3);
+}
+
+double *vtkOpenVRRenderWindowInteractor::GetPhysicalTranslation(vtkCamera *)
+{
+  vtkOpenVRRenderWindow *win =
+    vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  return win->GetPhysicalTranslation();
+}
+
+void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
+  const vr::TrackedDevicePose_t &tdPose,
+  double pos[3],
+  double wxyz[4],
+  double ppos[3],
+  double wdir[3])
+{
+  vtkOpenVRRenderWindow *win =
+    vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+  double distance = win->GetPhysicalScale();
+  double *trans = win->GetPhysicalTranslation();
 
   // Vive to world axes
-  double *vup = win->GetInitialViewUp();
-  double *dop = win->GetInitialViewDirection();
+  double *vup = win->GetPhysicalViewUp();
+  double *dop = win->GetPhysicalViewDirection();
   double vright[3];
   vtkMath::Cross(dop, vup, vright);
 
@@ -121,15 +141,14 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
   fvup[0] = hvup[0]*vright[0] + hvup[1]*vup[0] - hvup[2]*dop[0];
   fvup[1] = hvup[0]*vright[1] + hvup[1]*vup[1] - hvup[2]*dop[1];
   fvup[2] = hvup[0]*vright[2] + hvup[1]*vup[2] - hvup[2]*dop[2];
-  double fdop[3];
-  vtkMath::Cross(fvup, fvright, fdop);
+  vtkMath::Cross(fvup, fvright, wdir);
 
   double ortho[3][3];
   for (int i = 0; i < 3; i++)
   {
     ortho[i][0] = fvright[i];
     ortho[i][1] = fvup[i];
-    ortho[i][2] = -fdop[i];
+    ortho[i][2] = -wdir[i];
   }
 
   vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
@@ -255,6 +274,9 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
         break;
       }
     }
+
+    // eat up any pending events
+    while(pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t))) { };
   }
   else
   {
@@ -283,7 +305,8 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
         double pos[3];
         double ppos[3];
         double wxyz[4];
-        this->ConvertPoseToWorldCoordinates(ren, tdPose, pos, wxyz, ppos);
+        double wdir[3];
+        this->ConvertPoseToWorldCoordinates(tdPose, pos, wxyz, ppos, wdir);
 
         // so even though we have world coordinates we have to convert them to
         // screen coordinates because all of VTKs picking code is currently
@@ -298,84 +321,306 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
         this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],pointerIndex);
         this->SetPointerIndex(pointerIndex);
 
-        if (event.eventType == vr::VREvent_ButtonPress)
-        {
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
-          {
-            this->LeftButtonPressEvent();
-          }
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
-          {
-            this->RightButtonPressEvent();
-          }
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Grip)
-          {
-            this->MiddleButtonPressEvent();
-          }
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
-          {
-            this->FourthButtonPressEvent();
-          }
-        }
-        if (event.eventType == vr::VREvent_ButtonUnpress)
-        {
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis1)
-          {
-            this->LeftButtonReleaseEvent();
-          }
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Axis0)
-          {
-            this->RightButtonReleaseEvent();
-          }
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_Grip)
-          {
-            this->MiddleButtonReleaseEvent();
-          }
-          if (event.data.controller.button == vr::EVRButtonId::k_EButton_ApplicationMenu)
-          {
-            this->FourthButtonReleaseEvent();
-          }
-        }
-      }
-    }
-    else
-    {
-      // if pointers are down track the movement
-      if (this->PointersDownCount)
-      {
-        for (int i = 0; i < VTKI_MAX_POINTERS; i++)
-        {
-          if (this->PointersDown[i])
-          {
-            this->UpdateTouchPadPosition(pHMD,
-             static_cast<vr::TrackedDeviceIndex_t>(this->PointerIndexLookup[i]));
-            vr::TrackedDevicePose_t &tdPose =
-              renWin->GetTrackedDevicePose(
-              static_cast<vr::TrackedDeviceIndex_t>(this->PointerIndexLookup[i]));
-            double pos[3];
-            double ppos[3];
-            double wxyz[4];
-            this->ConvertPoseToWorldCoordinates(ren, tdPose, pos, wxyz, ppos);
+        vtkNew<vtkEventDataButton3D> ed;
+        ed->SetDevice(pointerIndex ? vtkEventDataDevice::LeftController : vtkEventDataDevice::RightController);
+        ed->SetAction(event.eventType == vr::VREvent_ButtonPress
+          ? vtkEventDataAction::Press : vtkEventDataAction::Release);
+        ed->SetWorldPosition(pos);
+        ed->SetWorldOrientation(wxyz);
+        ed->SetWorldDirection(wdir);
 
-            // so even though we have world coordinates we have to convert them to
-            // screen coordinates because all of VTKs picking code is currently
-            // based on screen coordinates
-            ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
-            ren->WorldToDisplay();
-            double *displayCoords = ren->GetDisplayPoint();
-            this->SetEventPosition(displayCoords[0], displayCoords[1], i);
-            this->SetWorldEventPosition(pos[0],pos[1],pos[2],i);
-            this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],i);
-            this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], i);
-          }
+        switch (event.data.controller.button)
+        {
+          default:
+          case vr::EVRButtonId::k_EButton_Axis1:
+            ed->SetInput(vtkEventDataDeviceInput::Trigger);
+            break;
+          case vr::EVRButtonId::k_EButton_Axis0:
+            ed->SetInput(vtkEventDataDeviceInput::TrackPad);
+            break;
+          case vr::EVRButtonId::k_EButton_Grip:
+            ed->SetInput(vtkEventDataDeviceInput::Grip);
+            break;
+          case vr::EVRButtonId::k_EButton_ApplicationMenu:
+            ed->SetInput(vtkEventDataDeviceInput::ApplicationMenu);
+            break;
         }
-        this->MouseMoveEvent();
+
+        if (this->Enabled)
+        {
+          this->InvokeEvent(vtkCommand::Button3DEvent, ed.Get());
+          //----------------------------------------------------------------------------
+          //Handle Multitouch
+          if (this->RecognizeGestures)
+          {
+            int iInput = static_cast<int>(ed->GetInput());
+            if (ed->GetAction() == vtkEventDataAction::Press)
+            {
+              if (!this->DeviceInputDown[iInput][pointerIndex])
+              {
+                this->DeviceInputDown[iInput][pointerIndex] = 1;
+                this->DeviceInputDownCount[pointerIndex]++;
+              }
+            }
+            if (ed->GetAction() == vtkEventDataAction::Release)
+            {
+              if (this->DeviceInputDown[iInput][pointerIndex])
+              {
+                this->DeviceInputDown[iInput][pointerIndex] = 0;
+                this->DeviceInputDownCount[pointerIndex]--;
+              }
+            }
+            this->RecognizeComplexGesture(ed.Get());
+          }
+          //----------------------------------------------------------------------------
+        }
       }
     }
+
+    // for each controller create mouse move event
+    for (uint32_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1;
+         unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++ )
+    {
+      // is it not connected?
+      if (!pHMD->IsTrackedDeviceConnected( unTrackedDevice ) )
+      {
+        continue;
+      }
+      if (pHMD->GetTrackedDeviceClass( unTrackedDevice ) != vr::TrackedDeviceClass_Controller)
+      {
+        continue;
+      }
+
+      const vr::TrackedDevicePose_t &tdPose = renWin->GetTrackedDevicePose(unTrackedDevice);
+      // is the model's pose not valid?
+      if( !tdPose.bPoseIsValid )
+      {
+        continue;
+      }
+
+      vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(unTrackedDevice);
+
+      // 0 = right hand 1 = left
+      int pointerIndex =
+        (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
+      this->PointerIndexLookup[pointerIndex] = unTrackedDevice;
+      this->SetPointerIndex(pointerIndex);
+
+      if (this->PointersDown[pointerIndex])
+      {
+        this->UpdateTouchPadPosition(pHMD, unTrackedDevice);
+      }
+
+      double pos[3];
+      double ppos[3];
+      double wxyz[4];
+      double wdir[3];
+      this->ConvertPoseToWorldCoordinates(tdPose, pos, wxyz, ppos, wdir);
+
+      // so even though we have world coordinates we have to convert them to
+      // screen coordinates because all of VTKs picking code is currently
+      // based on screen coordinates
+      ren->SetWorldPoint(pos[0],pos[1],pos[2],1.0);
+      ren->WorldToDisplay();
+      double *displayCoords = ren->GetDisplayPoint();
+      this->SetEventPosition(displayCoords[0], displayCoords[1], pointerIndex);
+      this->SetWorldEventPosition(pos[0],pos[1],pos[2],pointerIndex);
+      this->SetWorldEventOrientation(wxyz[0],wxyz[1],wxyz[2],wxyz[3],pointerIndex);
+      this->SetPhysicalEventPosition(ppos[0], ppos[1], ppos[2], pointerIndex);
+      vtkNew<vtkEventDataMove3D> ed;
+      ed->SetDevice(pointerIndex ? vtkEventDataDevice::LeftController : vtkEventDataDevice::RightController);
+      ed->SetWorldPosition(pos);
+      ed->SetWorldOrientation(wxyz);
+      ed->SetWorldDirection(wdir);
+      if (this->Enabled)
+      {
+        this->InvokeEvent(vtkCommand::Move3DEvent, ed.Get());
+        if (this->RecognizeGestures)
+        {
+          this->RecognizeComplexGesture(ed.Get());
+        }
+      }
+    }
+
+    this->InvokeEvent(vtkCommand::RenderEvent);
     renWin->Render();
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkOpenVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D* edata)
+{
+  //Recognize gesture only if one button is pressed per controller
+  if (this->DeviceInputDownCount[this->PointerIndex] > 2 ||
+    this->DeviceInputDownCount[this->PointerIndex] == 0)
+  {
+    this->CurrentGesture = vtkCommand::NoEvent;
+    return;
+  }
+
+  // store the initial positions
+  if (edata->GetType() == vtkCommand::Button3DEvent)
+  {
+    if (edata->GetAction() == vtkEventDataAction::Press)
+    {
+        int iInput = static_cast<int>(vtkEventDataDeviceInput::Grip);
+
+        this->StartingPhysicalEventPositions[this->PointerIndex][0] =
+          this->PhysicalEventPositions[this->PointerIndex][0];
+        this->StartingPhysicalEventPositions[this->PointerIndex][1] =
+          this->PhysicalEventPositions[this->PointerIndex][1];
+        this->StartingPhysicalEventPositions[this->PointerIndex][2] =
+          this->PhysicalEventPositions[this->PointerIndex][2];
+
+        //Both controllers have the grip down, start multitouch
+        if (this->DeviceInputDown[iInput][0] && this->DeviceInputDown[iInput][1])
+        {
+          // we do not know what the gesture is yet
+          this->CurrentGesture = vtkCommand::StartEvent;
+        }
+      return;
+    }
+    // end the gesture if needed
+    if (edata->GetAction() == vtkEventDataAction::Release)
+    {
+      if (edata->GetInput() == vtkEventDataDeviceInput::Trigger)
+      {
+        if (this->CurrentGesture == vtkCommand::PinchEvent)
+        {
+          this->EndPinchEvent();
+        }
+        if (this->CurrentGesture == vtkCommand::PanEvent)
+        {
+          this->EndPanEvent();
+        }
+        if (this->CurrentGesture == vtkCommand::RotateEvent)
+        {
+          this->EndRotateEvent();
+        }
+        this->CurrentGesture = vtkCommand::NoEvent;
+        return;
+      }
+    }
+  }
+
+  double *posVals[2];
+  double *startVals[2];
+  posVals[0] = this->PhysicalEventPositions[0];
+  posVals[1] = this->PhysicalEventPositions[1];
+
+  startVals[0] = this->StartingPhysicalEventPositions[0];
+  startVals[1] = this->StartingPhysicalEventPositions[1];
+
+
+  // The meat of the algorithm
+  // on move events we analyze them to determine what type
+  // of movement it is and then deal with it.
+  if (edata->GetType() == vtkCommand::Move3DEvent &&
+    this->CurrentGesture != vtkCommand::NoEvent)
+  {
+    //Reduce computation
+    if (!this->PointerIndex)
+    {
+      return;
+    }
+
+    // calculate the distances
+    double originalDistance = sqrt(
+      vtkMath::Distance2BetweenPoints(startVals[0], startVals[1]));
+    double newDistance = sqrt(
+      vtkMath::Distance2BetweenPoints(posVals[0], posVals[1]));
+
+    // calculate the translations
+    double t0[3];
+    t0[0] = posVals[0][0] - startVals[0][0];
+    t0[1] = posVals[0][1] - startVals[0][1];
+    t0[2] = posVals[0][2] - startVals[0][2];
+
+    double t1[3];
+    t1[0] = posVals[1][0] - startVals[1][0];
+    t1[1] = posVals[1][1] - startVals[1][1];
+    t1[2] = posVals[1][2] - startVals[1][2];
+
+    double trans[3];
+    trans[0] = (t0[0] + t1[0]) / 2.0;
+    trans[1] = (t0[1] + t1[1]) / 2.0;
+    trans[2] = (t0[2] + t1[2]) / 2.0;
+
+    // calculate rotations
+    double originalAngle =
+      vtkMath::DegreesFromRadians(atan2((double)startVals[1][2] - startVals[0][2],
+      (double)startVals[1][0] - startVals[0][0]));
+    double newAngle =
+      vtkMath::DegreesFromRadians(atan2((double)posVals[1][2] - posVals[0][2],
+      (double)posVals[1][0] - posVals[0][0]));
+
+    // angles are cyclic so watch for that, 1 and 359 are only 2 apart :)
+    double angleDeviation = newAngle - originalAngle;
+    newAngle = (newAngle + 180.0 >= 360.0 ? newAngle - 180.0 : newAngle + 180.0);
+    originalAngle = (originalAngle + 180.0 >= 360.0 ? originalAngle - 180.0 : originalAngle + 180.0);
+    if (fabs(newAngle - originalAngle) < fabs(angleDeviation))
+    {
+      angleDeviation = newAngle - originalAngle;
+    }
+
+    // do we know what gesture we are doing yet? If not
+    // see if we can figure it out
+    if (this->CurrentGesture == vtkCommand::StartEvent)
+    {
+      // pinch is a move to/from the center point
+      // rotate is a move along the circumference
+      // pan is a move of the center point
+      // compute the distance along each of these axes in meters
+      // the first to break thresh wins
+      double thresh = 0.05; // in meters
+
+      double pinchDistance = fabs(newDistance - originalDistance);
+      double panDistance = sqrt(trans[0] * trans[0] + trans[1] * trans[1] + trans[2] * trans[2]);
+      double rotateDistance = originalDistance*3.1415926*fabs(angleDeviation) / 180.0;
+
+      if (pinchDistance > thresh
+        && pinchDistance > panDistance
+        && pinchDistance > rotateDistance)
+      {
+        this->CurrentGesture = vtkCommand::PinchEvent;
+        this->Scale = 1.0;
+        this->StartPinchEvent();
+      }
+      else if (rotateDistance > thresh
+        && rotateDistance > panDistance)
+      {
+        this->CurrentGesture = vtkCommand::RotateEvent;
+        this->Rotation = 0.0;
+        this->StartRotateEvent();
+      }
+      else if (panDistance > thresh)
+      {
+        this->CurrentGesture = vtkCommand::PanEvent;
+        this->Translation3D[0] = 0.0;
+        this->Translation3D[1] = 0.0;
+        this->Translation3D[2] = 0.0;
+        this->StartPanEvent();
+      }
+    }
+    // if we have found a specific type of movement then
+    // handle it
+    if (this->CurrentGesture == vtkCommand::RotateEvent)
+    {
+      this->SetRotation(angleDeviation);
+      this->RotateEvent();
+    }
+    if (this->CurrentGesture == vtkCommand::PinchEvent)
+    {
+      this->SetScale(newDistance / originalDistance);
+      this->PinchEvent();
+    }
+    if (this->CurrentGesture == vtkCommand::PanEvent)
+    {
+      this->SetTranslation3D(trans);
+      this->PanEvent();
+    }
+  }
+}
 
 //----------------------------------------------------------------------------
 void vtkOpenVRRenderWindowInteractor::Initialize()
@@ -478,7 +723,7 @@ void vtkOpenVRRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
   {
-    this->InvokeEvent(vtkCommand::ExitEvent,NULL);
+    this->InvokeEvent(vtkCommand::ExitEvent,nullptr);
   }
   else if (this->ClassExitMethod)
   {
@@ -486,4 +731,17 @@ void vtkOpenVRRenderWindowInteractor::ExitCallback()
   }
 
   this->TerminateApp();
+}
+
+vtkEventDataDevice vtkOpenVRRenderWindowInteractor::GetPointerDevice()
+{
+  if (this->PointerIndex == 0)
+  {
+    return vtkEventDataDevice::RightController;
+  }
+  if (this->PointerIndex == 1)
+  {
+    return vtkEventDataDevice::LeftController;
+  }
+  return vtkEventDataDevice::Unknown;
 }

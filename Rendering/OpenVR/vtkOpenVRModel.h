@@ -54,11 +54,11 @@ public:
   };
 
   // show the model
-  void SetShow(bool v) {
-    this->Show = v;
+  void SetVisibility(bool v) {
+    this->Visibility = v;
   };
-  bool GetShow() {
-    return this->Show;
+  bool GetVisibility() {
+    return this->Visibility;
   };
 
   //Set Ray parameters
@@ -66,6 +66,9 @@ public:
   void SetRayLength(double length);
 
   void ReleaseGraphicsResources(vtkRenderWindow *win);
+
+  // the tracked device this model represents if any
+  vr::TrackedDeviceIndex_t TrackedDevice;
 
   vr::RenderModel_t *RawModel;
 
@@ -75,7 +78,7 @@ protected:
 
   std::string ModelName;
 
-  bool Show;
+  bool Visibility;
   bool Loaded;
   bool FailedToLoad;
 

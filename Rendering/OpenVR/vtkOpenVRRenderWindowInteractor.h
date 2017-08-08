@@ -77,9 +77,25 @@ public:
    */
   virtual void SetPhysicalTranslation(vtkCamera *, double, double, double);
   virtual double *GetPhysicalTranslation(vtkCamera *);
+  virtual void SetPhysicalScale(double);
+  virtual double GetPhysicalScale();
   //@}
 
   virtual void DoOneEvent(vtkOpenVRRenderWindow *renWin, vtkRenderer *ren);
+
+  /*
+   * returns the pointer index as a device
+   */
+  vtkEventDataDevice GetPointerDevice();
+
+  // converts a device pose to a world coordinate
+  // position and orientation
+  void ConvertPoseToWorldCoordinates(
+    const vr::TrackedDevicePose_t &tdPose,
+    double pos[3],
+    double wxyz[4],
+    double ppos[3],
+    double wdir[3]);
 
 protected:
   vtkOpenVRRenderWindowInteractor();
@@ -118,14 +134,13 @@ protected:
 
   vtkNew<vtkTransform> PoseTransform;
 
-  // converts a device pose to a world coordinate
-  // position and orientation
-  void ConvertPoseToWorldCoordinates(
-    vtkRenderer *ren,
-    vr::TrackedDevicePose_t &tdPose,
-    double pos[3],
-    double wxyz[4],
-    double ppos[3]);
+  /**
+  * Handle multitouch events. Multitouch events recognition starts when
+  * both controllers the trigger pressed.
+  */
+  int DeviceInputDown[VTKI_MAX_POINTERS][2];
+  int DeviceInputDownCount[2];
+  void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
 
 private:
   vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&) VTK_DELETE_FUNCTION;

@@ -19,7 +19,7 @@
 #include "vtkRenderer.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenGLError.h"
-// #include "vtkTransform.h"
+#include "vtkPerspectiveTransform.h"
 
 #include <cmath>
 
@@ -33,10 +33,6 @@ vtkOpenVRCamera::vtkOpenVRCamera()
 
   this->LeftEyeTCDCMatrix = vtkMatrix4x4::New();
   this->RightEyeTCDCMatrix = vtkMatrix4x4::New();
-
-  this->Translation[0] = 0.0;
-  this->Translation[1] = 0.0;
-  this->Translation[2] = 0.0;
 
   // approximate for Vive
   // we use the projection matrix directly from the vive
@@ -123,9 +119,9 @@ void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
   this->RightEyeProjection->SetElement(3, 2, -2*znear*zfar/(zfar - znear));
 }
 
-void vtkOpenVRCamera::ApplyEyePose(bool left, double factor)
+void vtkOpenVRCamera::ApplyEyePose(vtkOpenVRRenderWindow *win, bool left, double factor)
 {
-  double distance = this->GetDistance();
+  double distance = win->GetPhysicalScale();
 
   double *dop = this->GetDirectionOfProjection();
   double *vup = this->GetViewUp();
@@ -172,7 +168,10 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     glBindFramebuffer( GL_FRAMEBUFFER, win->GetLeftRenderBufferId());
 
     // adjust for left eye position
-    this->ApplyEyePose(true, 1.0);
+    if (!ren->GetSelector())
+    {
+      this->ApplyEyePose(win, true, 1.0);
+    }
   }
   else
   {
@@ -183,13 +182,17 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     }
     glBindFramebuffer( GL_FRAMEBUFFER, win->GetRightRenderBufferId());
 
-    // adjust for left eye position
-    this->ApplyEyePose(true, -1.0);
-    // adjust for right eye position
-    this->ApplyEyePose(false, 1.0);
+    if (!ren->GetSelector())
+    {
+      // adjust for left eye position
+      this->ApplyEyePose(win, true, -1.0);
+      // adjust for right eye position
+      this->ApplyEyePose(win, false, 1.0);
+    }
   }
 
   glViewport(0, 0, renSize[0], renSize[1] );
+    ren->Clear();
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
   {
@@ -202,6 +205,11 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
 void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
         vtkMatrix3x3 *&normMat, vtkMatrix4x4 *&vcdc, vtkMatrix4x4 *&wcdc)
 {
+  if (ren->GetSelector())
+  {
+    return this->Superclass::GetKeyMatrices(ren, wcvc, normMat, vcdc, wcdc);
+  }
+
   // has the camera changed?
   if (ren != this->LastRenderer ||
       this->MTime > this->KeyMatrixTime ||
@@ -236,14 +244,15 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
 
       // build the tracking to device coordinate matrix
       this->PoseTransform->Identity();
-      double *trans = this->Translation;
+      double trans[3];
+      win->GetPhysicalTranslation(trans);
       this->PoseTransform->Translate(-trans[0],-trans[1],-trans[2]);
-      double scale = this->GetDistance();
+      double scale = win->GetPhysicalScale();
       this->PoseTransform->Scale(scale,scale,scale);
 
       // deal with Vive to World rotations
-      double *vup = win->GetInitialViewUp();
-      double *dop = win->GetInitialViewDirection();
+      double *vup = win->GetPhysicalViewUp();
+      double *dop = win->GetPhysicalViewDirection();
       double vr[3];
       vtkMath::Cross(dop,vup,vr);
       double rot[16] = {

@@ -6,10 +6,17 @@ find_package(SDL2 REQUIRED)
 
 set(Module_SRCS
   vtkOpenVRCamera.cxx
+  vtkOpenVRControlsHelper.cxx
   vtkOpenVRDefaultOverlay.cxx
+  vtkOpenVRFollower.cxx
+  vtkOpenVRHardwarePicker.cxx
   vtkOpenVRInteractorStyle.cxx
+  vtkOpenVRMenuRepresentation.cxx
+  vtkOpenVRmenuWidget.cxx
   vtkOpenVRModel.cxx
   vtkOpenVROverlay.cxx
+  vtkOpenVRPanelRepresentation.cxx
+  vtkOpenVRPanelWidget.cxx
   vtkOpenVRPropPicker.cxx
   vtkOpenVRRenderer.cxx
   vtkOpenVRRenderWindow.cxx
@@ -18,10 +25,17 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkOpenVRCamera
+  vtkOpenVRControlsHelper
   vtkOpenVRDefaultOverlay
+  vtkOpenVRFollower
+  vtkOpenVRHardwarePicker
   vtkOpenVRInteractorStyle
+  vtkOpenVRMenuRepresentation
+  vtkOpenVRMenuWidget
   vtkOpenVRModel
   vtkOpenVROverlay
+  vtkOpenVRPanelRepresentation
+  vtkOpenVRPanelWidget
   vtkOpenVRPropPicker
   vtkOpenVRRenderer
   vtkOpenVRRenderWindow

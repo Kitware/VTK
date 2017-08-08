@@ -88,7 +88,7 @@ void handleScaleFactor(vtkObject *caller, unsigned long eid,
     }
     vtkRenderer *ren = static_cast<vtkRenderer *>(
       win->GetRenderers()->GetItemAsObject(0));
-    is->SetDistance(ren->GetActiveCamera(), 1.0/mf);
+    is->SetScale(ren->GetActiveCamera(), 1.0/mf);
     ren->ResetCameraClippingRange();
     ovl->Render();
   }
@@ -104,7 +104,7 @@ void handleSaveCamera(vtkObject *caller, unsigned long eid,
 
     std::ostringstream s;
     s << "Really save the camera pose into slot " << option << " ?";
-    if ( vr::VROverlay()->ShowMessageOverlay(s.str().c_str(), "Confirmation", "Yes", "No", NULL, NULL)
+    if ( vr::VROverlay()->ShowMessageOverlay(s.str().c_str(), "Confirmation", "Yes", "No", nullptr, nullptr)
       == vr::VRMessageOverlayResponse_ButtonPress_0)
     {
       ovl->SaveCameraPose(option-1);
@@ -118,7 +118,7 @@ void handleLoadCamera(vtkObject *caller, unsigned long eid,
   if (eid == vtkCommand::LeftButtonReleaseEvent)
   {
     vtkOpenVRDefaultOverlay *ovl = static_cast<vtkOpenVRDefaultOverlay *>(caller);
-    ovl->ReadCameraPoses();
+//    ovl->ReadCameraPoses();
     int option = *(reinterpret_cast<int*>(&clientdata));
     ovl->LoadCameraPose(option-1);
   }
@@ -162,12 +162,12 @@ void handleSetViewUp(vtkObject * /* caller */, unsigned long eid,
     int option = *(reinterpret_cast<int*>(&clientdata));
     switch (option)
     {
-      case 0: win->SetInitialViewUp(-1,0,0); win->SetInitialViewDirection(0,1,0); break;
-      case 1: win->SetInitialViewUp(1,0,0); win->SetInitialViewDirection(0,1,0); break;
-      case 2: win->SetInitialViewUp(0,-1,0); win->SetInitialViewDirection(0,0,1); break;
-      case 3: win->SetInitialViewUp(0,1,0); win->SetInitialViewDirection(0,0,1); break;
-      case 4: win->SetInitialViewUp(0,0,-1); win->SetInitialViewDirection(0,1,0); break;
-      case 5: win->SetInitialViewUp(0,0,1); win->SetInitialViewDirection(0,1,0); break;
+      case 0: win->SetPhysicalViewUp(-1,0,0); win->SetPhysicalViewDirection(0,1,0); break;
+      case 1: win->SetPhysicalViewUp(1,0,0); win->SetPhysicalViewDirection(0,1,0); break;
+      case 2: win->SetPhysicalViewUp(0,-1,0); win->SetPhysicalViewDirection(0,0,1); break;
+      case 3: win->SetPhysicalViewUp(0,1,0); win->SetPhysicalViewDirection(0,0,1); break;
+      case 4: win->SetPhysicalViewUp(0,0,-1); win->SetPhysicalViewDirection(0,1,0); break;
+      case 5: win->SetPhysicalViewUp(0,0,1); win->SetPhysicalViewDirection(0,1,0); break;
     }
  }
 }

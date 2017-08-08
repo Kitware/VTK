@@ -13,8 +13,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
- * @class   vtkOpenVRInteractorStyle
- * @brief   extended from vtkInteractorStyle3D to override command methods
+* @class   vtkOpenVRInteractorStyle
+* @brief   extended from vtkInteractorStyle3D to override command methods
 */
 
 #ifndef vtkOpenVRInteractorStyle_h
@@ -23,6 +23,19 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenVRModule.h" // For export macro
 
 #include "vtkInteractorStyle3D.h"
+#include "vtkOpenVRRenderWindow.h" // for enums
+#include "vtkNew.h" // for ivars
+#include "vtkEventData.h" // for enums
+
+class vtkCell;
+class vtkPlane;
+class vtkOpenVRControlsHelper;
+class vtkOpenVRHardwarePicker;
+class vtkOpenVRMenuRepresentation;
+class vtkOpenVRMenuWidget;
+class vtkTextActor3D;
+class vtkSelection;
+class vtkSphereSource;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRInteractorStyle : public vtkInteractorStyle3D
 {
@@ -33,19 +46,146 @@ public:
 
   //@{
   /**
-  * Override Middle Button to load next camera position
+  * Override generic event bindings to call the corresponding action.
   */
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnButton3D(vtkEventData *edata) VTK_OVERRIDE;
+  void OnMove3D(vtkEventData *edata) VTK_OVERRIDE;
   //@}
+
+  //@{
+  /**
+  * Interaction mode entry points.
+  */
+  virtual void StartPick(vtkEventDataDevice3D *);
+  virtual void EndPick(vtkEventDataDevice3D *);
+  virtual void StartLoadCamPose(vtkEventDataDevice3D *);
+  virtual void EndLoadCamPose(vtkEventDataDevice3D *);
+  virtual void StartPositionProp(vtkEventDataDevice3D *);
+  virtual void EndPositionProp(vtkEventDataDevice3D *);
+  virtual void StartClip(vtkEventDataDevice3D *);
+  virtual void EndClip(vtkEventDataDevice3D *);
+  virtual void StartDolly3D(vtkEventDataDevice3D *);
+  virtual void EndDolly3D(vtkEventDataDevice3D *);
+  //@}
+
+  //@{
+  /**
+  * Multitouch events binding.
+  */
+  void OnPan() VTK_OVERRIDE;
+  void OnPinch() VTK_OVERRIDE;
+  void OnRotate() VTK_OVERRIDE;
+  //@}
+
+  //@{
+  /**
+  * Methods for intertaction.
+  */
+  void ProbeData(vtkEventDataDevice controller);
+  void LoadNextCameraPose();
+  virtual void PositionProp(vtkEventData *);
+  virtual void Clip(vtkEventDataDevice3D *);
+  //@}
+
+  //@{
+  /**
+  * Map controller inputs to actions.
+  * Actions are defined by a VTKIS_*STATE*, interaction entry points,
+  * and the corresponding method for interaction.
+  */
+  void MapInputToAction(vtkEventDataDevice device,
+    vtkEventDataDeviceInput input, int state);
+  //@}
+
+  //@{
+  /**
+  * Define the helper text that goes with an input
+  */
+  void AddTooltipForInput(vtkEventDataDevice device,
+    vtkEventDataDeviceInput input, const std::string &text);
+  //@}
+
+  vtkSetClampMacro(HoverPick, int, 0, 1);
+  vtkGetMacro(HoverPick, int);
+  vtkBooleanMacro(HoverPick, int);
+
+  int GetInteractionState(vtkEventDataDevice device) {
+    return this->InteractionState[static_cast<int>(device)]; }
+
+  void ShowRay(vtkEventDataDevice controller);
+  void HideRay(vtkEventDataDevice controller);
+
+  void ShowBillboard(const std::string &text);
+  void HideBillboard();
+
+  void ShowPickSphere(double *pos, double radius, vtkProp3D *);
+  void ShowPickCell(vtkCell *cell, vtkProp3D *);
+  void HidePickActor();
+
+  void ToggleDrawControls();
+
+  void SetInteractor(vtkRenderWindowInteractor* iren) VTK_OVERRIDE;
+
+  // allow the user to add options to the menu
+  vtkOpenVRMenuRepresentation *GetMenuRepresentation() {
+    return this->MenuRepresentation.Get(); }
 
 protected:
   vtkOpenVRInteractorStyle();
   ~vtkOpenVRInteractorStyle() VTK_OVERRIDE;
 
+  void EndPickCallback(vtkSelection *sel);
+
+  //Ray drawing
+  void UpdateRay(vtkEventDataDevice controller);
+
+  vtkNew<vtkOpenVRMenuWidget> Menu;
+  vtkNew<vtkOpenVRMenuRepresentation> MenuRepresentation;
+  vtkCallbackCommand* MenuCommand;
+  static void MenuCallback(vtkObject* object,
+                    unsigned long event,
+                    void* clientdata,
+                    void* calldata);
+
+  vtkNew<vtkTextActor3D> TextActor3D;
+  vtkNew<vtkActor> PickActor;
+  vtkNew<vtkSphereSource> Sphere;
+
+  //vtkPropPicker *InteractionPicker;
+  //vtkProp3D *InteractionProp;
+
+  //device input to interaction state mapping
+  int InputMap[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
+  vtkOpenVRControlsHelper* ControlsHelpers[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
+
+  //Utility routines
+  void StartAction(int VTKIS_STATE, vtkEventDataDevice3D *edata);
+  void EndAction(int VTKIS_STATE, vtkEventDataDevice3D *edata);
+
+  /**
+  * Indicates if picking should be updated every frame. If so, the interaction
+  * picker will try to pick a prop and rays will be updated accordingly.
+  * Default is set to off.
+  */
+  int HoverPick;
+
+  /**
+  * Store required controllers information when performing action
+  */
+  int InteractionState[vtkEventDataNumberOfDevices];
+  vtkProp3D* InteractionProps[vtkEventDataNumberOfDevices];
+  vtkPlane* ClippingPlanes[vtkEventDataNumberOfDevices];
+
+  vtkNew<vtkOpenVRHardwarePicker> HardwarePicker;
+
+  /**
+  * Controls helpers drawing
+  */
+  void AddTooltipForInput(vtkEventDataDevice device, vtkEventDataDeviceInput input);
+
 private:
   vtkOpenVRInteractorStyle(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
-  void operator=(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
+  void operator=(const vtkOpenVRInteractorStyle&)VTK_DELETE_FUNCTION;  // Not implemented.
 };
 
 #endif
