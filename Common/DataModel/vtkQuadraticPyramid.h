@@ -22,9 +22,9 @@
  * isoparametric shape function. The cell includes a mid-edge node. The
  * ordering of the thirteen points defining the cell is point ids (0-4,5-12)
  * where point ids 0-4 are the five corner vertices of the pyramid; followed
- * by eight midedge nodes (5-12). Note that these midedge nodes correspond lie
+ * by eight midedge nodes (5-12). Note that these midedge nodes lie
  * on the edges defined by (0,1), (1,2), (2,3), (3,0), (0,4), (1,4), (2,4),
- * (3,4).
+ * (3,4), respectively. The parametric location of vertex #4 is [0, 0, 1].
  *
  * @sa
  * vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra

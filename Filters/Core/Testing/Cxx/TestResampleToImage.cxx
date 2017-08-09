@@ -26,6 +26,9 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkUnsignedCharArray.h"
 
+#include "vtkCellType.h"
+#include "vtkCell.h"
+#include "vtkUnstructuredGrid.h"
 #include <iostream>
 
 
@@ -72,9 +75,9 @@ int TestResampleToImage(int , char *[])
     }
   }
 
-  if (numHiddenPoints != 1855)
+  if (numHiddenPoints != 2000)
   {
-    std::cout << "Number of Hidden points: expecting 1855 got "
+    std::cout << "Number of Hidden points: expecting 2000 got "
               << numHiddenPoints << std::endl;
     return 1;
   }
@@ -89,9 +92,9 @@ int TestResampleToImage(int , char *[])
     }
   }
 
-  if (numHiddenCells != 2054)
+  if (numHiddenCells != 2171)
   {
-    std::cout << "Number of Hidden cells: expecting 2054 got "
+    std::cout << "Number of Hidden cells: expecting 2171 got "
               << numHiddenCells << std::endl;
     return 1;
   }

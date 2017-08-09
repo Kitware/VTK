@@ -22,7 +22,7 @@
  * a linear pyramid. The pyramid is defined by the five points (0-4) where
  * (0,1,2,3) is the base of the pyramid which, using the right hand rule,
  * forms a quadrilaterial whose normal points in the direction of the
- * pyramid apex at vertex #4.
+ * pyramid apex at vertex #4. The parametric location of vertex #4 is [0, 0, 1].
  *
  * @sa
  * vtkConvexPointSet vtkHexahedron vtkTetra vtkVoxel vtkWedge
