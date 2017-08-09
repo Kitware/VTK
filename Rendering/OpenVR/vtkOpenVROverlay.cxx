@@ -330,7 +330,6 @@ void vtkOpenVROverlay::Render()
     vr::Texture_t texture = {(void*)(uintptr_t)unTexture, vr::TextureType_OpenGL, vr::ColorSpace_Auto };
     vr::VROverlay()->SetOverlayTexture( this->OverlayHandle, &texture );
   }
-  this->OverlayTexture->UnBind();
 }
 
 void vtkOpenVROverlay::MouseMoved(int x, int y)

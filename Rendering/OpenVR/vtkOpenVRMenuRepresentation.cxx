@@ -77,8 +77,8 @@ vtkOpenVRMenuRepresentation::~vtkOpenVRMenuRepresentation()
 }
 
 void vtkOpenVRMenuRepresentation::PushFrontMenuItem(
-  std::string name,
-  std::string text,
+  const char *name,
+  const char *text,
   vtkCommand *cmd)
 {
   // if (this->Menus.find(text) != this->Menus.end())
@@ -88,7 +88,7 @@ void vtkOpenVRMenuRepresentation::PushFrontMenuItem(
 
   vtkOpenVRMenuRepresentation::InternalElement *el =
     new vtkOpenVRMenuRepresentation::InternalElement();
-  el->TextActor->SetInput(text.c_str());
+  el->TextActor->SetInput(text);
   el->Command = cmd;
   el->Name = name;
   this->Menus.push_front(el);

@@ -76,6 +76,7 @@ public:
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
     unsigned long event, void *calldata) VTK_OVERRIDE;
+  //@}
 
   //@{
   /**
@@ -87,14 +88,10 @@ public:
   //@}
 
 
-//  void PushMenuItem(std::string text, std::function<bool (int)> foo);
-  void PushFrontMenuItem(std::string name, std::string text, vtkCommand *cmd);
-
-  //@{
   /**
-  * Set Tooltip text (used by TextActor)
-  */  void SetText(vtkStdString* str);
-  //@}
+  * Method to add items to the menu, called by the menu widget
+  */
+  void PushFrontMenuItem(const char *name, const char *text, vtkCommand *cmd);
 
 protected:
   vtkOpenVRMenuRepresentation();
