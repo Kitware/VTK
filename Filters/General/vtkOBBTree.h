@@ -154,7 +154,7 @@ public:
   /**
    * Returns true if line intersects node.
    */
-  int LineIntersectsNode( vtkOBBNode *pA, double b0[3], double b1[3] );
+  int LineIntersectsNode( vtkOBBNode *pA, const double b0[3], const double b1[3] );
 
   /**
    * Returns true if triangle (optionally transformed) intersects node.

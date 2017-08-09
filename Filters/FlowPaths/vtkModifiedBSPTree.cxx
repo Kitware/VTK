@@ -106,8 +106,8 @@ public:
 
 extern "C" int __compareMin(const void *pA, const void *B )
 {
-  cell_extents *tA  = (cell_extents *) pA;
-  cell_extents *tB  = (cell_extents *) B;
+  const cell_extents *tA = static_cast<const cell_extents *>(pA);
+  const cell_extents *tB = static_cast<const cell_extents *>(B);
   if ( tA->min == tB->min )
   {
     return 0;
@@ -120,8 +120,8 @@ extern "C" int __compareMin(const void *pA, const void *B )
 
 extern "C" int __compareMax(const void *pA, const void *B )
 {
-  cell_extents *tA  = (cell_extents *) pA;
-  cell_extents *tB  = (cell_extents *) B;
+  const cell_extents *tA = static_cast<const cell_extents *>(pA);
+  const cell_extents *tB = static_cast<const cell_extents *>(B);
   if ( tA->max == tB->max )
   {
     return 0;

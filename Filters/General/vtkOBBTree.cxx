@@ -710,7 +710,7 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
     vtkOBBNode *node = OBBstack[--depth];
 
     // check for intersection with node
-    if (this->LineIntersectsNode(node, (double *)p1, (double *)p2))
+    if (this->LineIntersectsNode(node, p1, p2))
     {
       if (node->Kids == nullptr)
       { // then this is a leaf node...get Cells
@@ -1735,7 +1735,7 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
 // pass all the way through the node, but at least some portion of the line
 // must lie within the node.
 int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
-                                    double b0[3], double b1[3] )
+                                    const double b0[3], const double b1[3] )
 {
   double rangeAmin, rangeAmax, rangeBmin, rangeBmax, dotB;
   double eps;
