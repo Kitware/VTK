@@ -199,7 +199,7 @@ void vtkWebGLDataSet::GenerateBinaryData()
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;
   }
-  vtkWebGLExporter::ComputeMD5((unsigned char*)this->binary, this->binarySize, this->MD5);
+  vtkWebGLExporter::ComputeMD5((const unsigned char*)this->binary, this->binarySize, this->MD5);
   this->hasChanged = true;
 }
 

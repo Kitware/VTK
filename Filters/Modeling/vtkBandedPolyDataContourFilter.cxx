@@ -152,17 +152,20 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 extern "C" {
 static int vtkCompareClipValues(const void *val1, const void *val2)
 {
-  if ( *((double*)val1) < *((double*)val2) )
+  double v1 = *static_cast<const double*>(val1);
+  double v2 = *static_cast<const double*>(val2);
+
+  if ( v1 < v2 )
   {
-    return (-1);
+    return -1;
   }
-  else if ( *((double*)val1) > *((double*)val2) )
+  else if ( v1 > v2 )
   {
-    return (1);
+    return 1;
   }
   else
   {
-    return (0);
+    return 0;
   }
 }
 }
