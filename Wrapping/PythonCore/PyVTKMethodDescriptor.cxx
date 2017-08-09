@@ -154,15 +154,28 @@ static PyObject *PyVTKMethodDescriptor_GetDoc(PyObject *ob, void *)
 }
 
 static PyGetSetDef PyVTKMethodDescriptor_GetSet[] = {
-  { (char *)"__doc__", PyVTKMethodDescriptor_GetDoc, nullptr, nullptr, nullptr },
+#if PY_VERSION_HEX >= 0x03070000
+  { "__doc__", PyVTKMethodDescriptor_GetDoc, nullptr, nullptr, nullptr },
+#else
+  { const_cast<char *>("__doc__"), PyVTKMethodDescriptor_GetDoc,
+    nullptr, nullptr, nullptr },
+#endif
   { nullptr, nullptr, nullptr, nullptr, nullptr }
 };
 
 static PyMemberDef PyVTKMethodDescriptor_Members[] = {
-  { (char *)"__objclass__", T_OBJECT, offsetof(PyDescrObject, d_type),
+#if PY_VERSION_HEX >= 0x03070000
+  { "__objclass__", T_OBJECT, offsetof(PyDescrObject, d_type),
     READONLY, nullptr },
-  { (char *)"__name__", T_OBJECT, offsetof(PyDescrObject, d_name),
+  { "__name__", T_OBJECT, offsetof(PyDescrObject, d_name),
     READONLY, nullptr },
+#else
+  { const_cast<char *>("__objclass__"), T_OBJECT,
+    offsetof(PyDescrObject, d_type), READONLY, nullptr },
+  { const_cast<char *>("__name__"), T_OBJECT,
+    offsetof(PyDescrObject, d_name),
+    READONLY, nullptr },
+#endif
   { nullptr, 0, 0, 0, nullptr }
 };
 

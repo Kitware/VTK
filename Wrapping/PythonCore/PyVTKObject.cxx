@@ -256,10 +256,17 @@ static PyObject *PyVTKObject_GetThis(PyObject *op, void *)
 }
 
 PyGetSetDef PyVTKObject_GetSet[] = {
-  { (char *)"__dict__", PyVTKObject_GetDict, nullptr,
-    (char *)"Dictionary of attributes set by user.", nullptr },
-  { (char *)"__this__", PyVTKObject_GetThis, nullptr,
-    (char *)"Pointer to the C++ object.", nullptr },
+#if PY_VERSION_HEX >= 0x03070000
+  { "__dict__", PyVTKObject_GetDict, nullptr,
+    "Dictionary of attributes set by user.", nullptr },
+  { "__this__", PyVTKObject_GetThis, nullptr,
+    "Pointer to the C++ object.", nullptr },
+#else
+  { const_cast<char *>("__dict__"), PyVTKObject_GetDict, nullptr,
+    const_cast<char *>("Dictionary of attributes set by user."), nullptr },
+  { const_cast<char *>("__this__"), PyVTKObject_GetThis, nullptr,
+    const_cast<char *>("Pointer to the C++ object."), nullptr },
+#endif
   { nullptr, nullptr, nullptr, nullptr, nullptr }
 };
 
@@ -397,7 +404,7 @@ PyVTKObject_AsBuffer_GetBuffer(PyObject *obj, Py_buffer *view, int flags)
       // first, build a simple 1D array
       view->itemsize = dsize;
       view->ndim = (ncomp > 1 ? 2 : 1);
-      view->format = (char *)format;
+      view->format = const_cast<char *>(format);
 
 #if PY_VERSION_HEX >= 0x02070000 && PY_VERSION_HEX < 0x03030000
       // use "smalltable" for 1D arrays, like memoryobject.c

@@ -224,7 +224,11 @@ static PyObject *PyVTKMutableObject_Trunc(PyObject *self, PyObject *args)
                    Py_TYPE(ob)->tp_name);
       return nullptr;
     }
-    return PyObject_CallFunction(meth, (char *)"O", ob);
+#if PY_VERSION_HEX >= 0x03040000
+    return PyObject_CallFunction(meth, "O", ob);
+#else
+    return PyObject_CallFunction(meth, const_cast<char *>("O"), ob);
+#endif
   }
 
   return nullptr;
@@ -246,11 +250,19 @@ static PyObject *PyVTKMutableObject_Round(PyObject *self, PyObject *args)
                    Py_TYPE(ob)->tp_name);
       return nullptr;
     }
+#if PY_VERSION_HEX >= 0x03040000
     if (opn)
     {
-      return PyObject_CallFunction(meth, (char *)"OO", ob, opn);
+      return PyObject_CallFunction(meth, "OO", ob, opn);
     }
-    return PyObject_CallFunction(meth, (char *)"O", ob);
+    return PyObject_CallFunction(meth, "O", ob);
+#else
+    if (opn)
+    {
+      return PyObject_CallFunction(meth, const_cast<char *>("OO"), ob, opn);
+    }
+    return PyObject_CallFunction(meth, const_cast<char *>("O"), ob);
+#endif
   }
 
   return nullptr;
