@@ -359,6 +359,11 @@ void QVTKOpenGLWidget::recreateFBO()
   // Since the context or frame buffer was recreated, if a paintGL call ensues,
   // we need to ensure we're requesting VTK to render.
   this->DoVTKRenderInPaintGL = true;
+
+  // Clear to ensure that an uninitialized framebuffer is never displayed.
+  f->glDisable(GL_SCISSOR_TEST);
+  f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  f->glClear(GL_COLOR_BUFFER_BIT);
 }
 
 //-----------------------------------------------------------------------------
