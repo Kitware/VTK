@@ -472,7 +472,7 @@ PyBufferProcs PyVTKObject_AsBuffer = {
   PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
   PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
   PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
-  nullptr,                                     // bf_getcharbuffer
+  nullptr,                               // bf_getcharbuffer
 #endif
 #if PY_VERSION_HEX >= 0x02060000
   PyVTKObject_AsBuffer_GetBuffer,        // bf_getbuffer

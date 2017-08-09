@@ -896,52 +896,52 @@ PyTypeObject PyVTKMutableObject_Type = {
   sizeof(PyVTKMutableObject),            // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKMutableObject_Delete,             // tp_dealloc
-  nullptr,                                     // tp_print
-  nullptr,                                     // tp_getattr
-  nullptr,                                     // tp_setattr
-  nullptr,                                     // tp_compare
+  nullptr,                               // tp_print
+  nullptr,                               // tp_getattr
+  nullptr,                               // tp_setattr
+  nullptr,                               // tp_compare
   PyVTKMutableObject_Repr,               // tp_repr
   &PyVTKMutableObject_AsNumber,          // tp_as_number
-  nullptr,                                     // tp_as_sequence
-  nullptr,                                     // tp_as_mapping
+  nullptr,                               // tp_as_sequence
+  nullptr,                               // tp_as_mapping
 #if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented,           // tp_hash
 #else
   0,                                     // tp_hash
 #endif
-  nullptr,                                     // tp_call
+  nullptr,                               // tp_call
   PyVTKMutableObject_Str,                // tp_string
   PyVTKMutableObject_GetAttr,            // tp_getattro
-  nullptr,                                     // tp_setattro
+  nullptr,                               // tp_setattro
   &PyVTKMutableObject_AsBuffer,          // tp_as_buffer
 #ifndef VTK_PY3K
   Py_TPFLAGS_CHECKTYPES |
 #endif
   Py_TPFLAGS_DEFAULT,                    // tp_flags
   PyVTKMutableObject_Doc,                // tp_doc
-  nullptr,                                     // tp_traverse
-  nullptr,                                     // tp_clear
+  nullptr,                               // tp_traverse
+  nullptr,                               // tp_clear
   PyVTKMutableObject_RichCompare,        // tp_richcompare
   0,                                     // tp_weaklistoffset
-  nullptr,                                     // tp_iter
-  nullptr,                                     // tp_iternext
+  nullptr,                               // tp_iter
+  nullptr,                               // tp_iternext
   PyVTKMutableObject_Methods,            // tp_methods
-  nullptr,                                     // tp_members
-  nullptr,                                     // tp_getset
-  nullptr,                                     // tp_base
-  nullptr,                                     // tp_dict
-  nullptr,                                     // tp_descr_get
-  nullptr,                                     // tp_descr_set
+  nullptr,                               // tp_members
+  nullptr,                               // tp_getset
+  nullptr,                               // tp_base
+  nullptr,                               // tp_dict
+  nullptr,                               // tp_descr_get
+  nullptr,                               // tp_descr_set
   0,                                     // tp_dictoffset
-  nullptr,                                     // tp_init
-  nullptr,                                     // tp_alloc
+  nullptr,                               // tp_init
+  nullptr,                               // tp_alloc
   PyVTKMutableObject_New,                // tp_new
   PyObject_Del,                          // tp_free
-  nullptr,                                     // tp_is_gc
-  nullptr,                                     // tp_bases
-  nullptr,                                     // tp_mro
-  nullptr,                                     // tp_cache
-  nullptr,                                     // tp_subclasses
-  nullptr,                                     // tp_weaklist
+  nullptr,                               // tp_is_gc
+  nullptr,                               // tp_bases
+  nullptr,                               // tp_mro
+  nullptr,                               // tp_cache
+  nullptr,                               // tp_subclasses
+  nullptr,                               // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };

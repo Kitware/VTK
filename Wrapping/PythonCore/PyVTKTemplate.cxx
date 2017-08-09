@@ -242,7 +242,7 @@ PyVTKTemplate_GetItem(PyObject *ob, PyObject *key)
 static PyMappingMethods PyVTKTemplate_AsMapping = {
   PyVTKTemplate_Size,                   // mp_length
   PyVTKTemplate_GetItem,                // mp_subscript
-  nullptr,                                    // mp_ass_subscript
+  nullptr,                              // mp_ass_subscript
 };
 
 //--------------------------------------------------------------------
@@ -267,47 +267,47 @@ PyTypeObject PyVTKTemplate_Type = {
   "vtkCommonCorePython.template",        // tp_name
   0,                                     // tp_basicsize
   0,                                     // tp_itemsize
-  nullptr,                                     // tp_dealloc
-  nullptr,                                     // tp_print
-  nullptr,                                     // tp_getattr
-  nullptr,                                     // tp_setattr
-  nullptr,                                     // tp_compare
+  nullptr,                               // tp_dealloc
+  nullptr,                               // tp_print
+  nullptr,                               // tp_getattr
+  nullptr,                               // tp_setattr
+  nullptr,                               // tp_compare
   PyVTKTemplate_Repr,                    // tp_repr
-  nullptr,                                     // tp_as_number
-  nullptr,                                     // tp_as_sequence
+  nullptr,                               // tp_as_number
+  nullptr,                               // tp_as_sequence
   &PyVTKTemplate_AsMapping,              // tp_as_mapping
-  nullptr,                                     // tp_hash
+  nullptr,                               // tp_hash
   PyVTKTemplate_Call,                    // tp_call
-  nullptr,                                     // tp_string
+  nullptr,                               // tp_string
   PyObject_GenericGetAttr,               // tp_getattro
-  nullptr,                                     // tp_setattro
-  nullptr,                                     // tp_as_buffer
+  nullptr,                               // tp_setattro
+  nullptr,                               // tp_as_buffer
   Py_TPFLAGS_DEFAULT,                    // tp_flags
   PyVTKTemplate_Doc,                     // tp_doc
-  nullptr,                                     // tp_traverse
-  nullptr,                                     // tp_clear
-  nullptr,                                     // tp_richcompare
+  nullptr,                               // tp_traverse
+  nullptr,                               // tp_clear
+  nullptr,                               // tp_richcompare
   0,                                     // tp_weaklistoffset
-  nullptr,                                     // tp_iter
-  nullptr,                                     // tp_iternext
+  nullptr,                               // tp_iter
+  nullptr,                               // tp_iternext
   PyVTKTemplate_Methods,                 // tp_methods
-  nullptr,                                     // tp_members
-  nullptr,                                     // tp_getset
+  nullptr,                               // tp_members
+  nullptr,                               // tp_getset
   &PyModule_Type,                        // tp_base
-  nullptr,                                     // tp_dict
-  nullptr,                                     // tp_descr_get
-  nullptr,                                     // tp_descr_set
+  nullptr,                               // tp_dict
+  nullptr,                               // tp_descr_get
+  nullptr,                               // tp_descr_set
   0,                                     // tp_dictoffset
-  nullptr,                                     // tp_init
-  nullptr,                                     // tp_alloc
-  nullptr,                                     // tp_new
-  nullptr,                                     // tp_free
-  nullptr,                                     // tp_is_gc
-  nullptr,                                     // tp_bases
-  nullptr,                                     // tp_mro
-  nullptr,                                     // tp_cache
-  nullptr,                                     // tp_subclasses
-  nullptr,                                     // tp_weaklist
+  nullptr,                               // tp_init
+  nullptr,                               // tp_alloc
+  nullptr,                               // tp_new
+  nullptr,                               // tp_free
+  nullptr,                               // tp_is_gc
+  nullptr,                               // tp_bases
+  nullptr,                               // tp_mro
+  nullptr,                               // tp_cache
+  nullptr,                               // tp_subclasses
+  nullptr,                               // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };
 
