@@ -907,7 +907,7 @@ PyTypeObject PyVTKMutableObject_Type = {
 #if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented,           // tp_hash
 #else
-  0,                                     // tp_hash
+  nullptr,                               // tp_hash
 #endif
   nullptr,                               // tp_call
   PyVTKMutableObject_Str,                // tp_string
