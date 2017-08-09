@@ -194,7 +194,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
 #ifdef VTK_PY3K
       PyObject *bytes = PyUnicode_AsEncodedString(
         callDataTypeObj, 0, nullptr);
-      const char *callDataTypeString = 0;
+      const char *callDataTypeString = nullptr;
       if (bytes)
       {
         callDataTypeString = PyBytes_AsString(bytes);
