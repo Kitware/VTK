@@ -2057,11 +2057,11 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
         caseIndx  <<= (  1 - ( !j )  );
       }
 
-      int             startIdx = 0;
-      int             nOutputs = 0;
-      typedef int     EDGEIDXS[2];
-      EDGEIDXS      * edgeVtxs = nullptr;
-      unsigned char * thisCase = nullptr;
+      int              startIdx = 0;
+      int              nOutputs = 0;
+      typedef int      EDGEIDXS[2];
+      const EDGEIDXS * edgeVtxs = nullptr;
+      unsigned char *  thisCase = nullptr;
 
       switch ( cellType )
       {
@@ -2069,56 +2069,49 @@ void vtkTableBasedClipDataSet::ClipPolyData( vtkDataSet * inputGrd,
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesTet[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesTet[ startIdx ];
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesTet[ caseIndx ];
-          edgeVtxs = ( EDGEIDXS * )
-                     vtkTableBasedClipperTriangulationTables::TetVerticesFromEdges;
+          edgeVtxs = vtkTableBasedClipperTriangulationTables::TetVerticesFromEdges;
           break;
 
         case VTK_PYRAMID:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesPyr[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesPyr[ startIdx ];
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesPyr[ caseIndx ];
-          edgeVtxs = ( EDGEIDXS * )
-                     vtkTableBasedClipperTriangulationTables::PyramidVerticesFromEdges;
+          edgeVtxs = vtkTableBasedClipperTriangulationTables::PyramidVerticesFromEdges;
           break;
 
         case VTK_WEDGE:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesWdg[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesWdg[ startIdx ];
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesWdg[ caseIndx ];
-          edgeVtxs = ( EDGEIDXS * )
-                     vtkTableBasedClipperTriangulationTables::WedgeVerticesFromEdges;
+          edgeVtxs = vtkTableBasedClipperTriangulationTables::WedgeVerticesFromEdges;
           break;
 
         case VTK_HEXAHEDRON:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesHex[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesHex[ startIdx ];
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesHex[ caseIndx ];
-          edgeVtxs = ( EDGEIDXS * )
-                     vtkTableBasedClipperTriangulationTables::HexVerticesFromEdges;
+          edgeVtxs = vtkTableBasedClipperTriangulationTables::HexVerticesFromEdges;
           break;
 
         case VTK_TRIANGLE:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesTri[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesTri[ startIdx ];
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesTri[ caseIndx ];
-          edgeVtxs = ( EDGEIDXS * )
-                     vtkTableBasedClipperTriangulationTables::TriVerticesFromEdges;
+          edgeVtxs = vtkTableBasedClipperTriangulationTables::TriVerticesFromEdges;
           break;
 
         case VTK_QUAD:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesQua[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesQua[ startIdx ];
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesQua[ caseIndx ];
-          edgeVtxs = ( EDGEIDXS * )
-                     vtkTableBasedClipperTriangulationTables::QuadVerticesFromEdges;
+          edgeVtxs = vtkTableBasedClipperTriangulationTables::QuadVerticesFromEdges;
           break;
 
         case VTK_LINE:
           startIdx = vtkTableBasedClipperClipTables::StartClipShapesLin[ caseIndx ];
           thisCase =&vtkTableBasedClipperClipTables::ClipShapesLin[ startIdx ];
           nOutputs = vtkTableBasedClipperClipTables::NumClipShapesLin[ caseIndx ];
-          edgeVtxs = ( EDGEIDXS * )
-                     vtkTableBasedClipperTriangulationTables::LineVerticesFromEdges;
+          edgeVtxs = vtkTableBasedClipperTriangulationTables::LineVerticesFromEdges;
           break;
 
         case VTK_VERTEX:

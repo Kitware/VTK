@@ -624,17 +624,20 @@ extern "C" {
   static int vtkSortOnIds(const void *val1, const void *val2)
 #endif
   {
-    if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
+    vtkIdType sortId1 = static_cast<const OTPoint *>(val1)->SortId;
+    vtkIdType sortId2 = static_cast<const OTPoint *>(val2)->SortId;
+
+    if (sortId1 < sortId2)
     {
-      return (-1);
+      return -1;
     }
-    else if (((OTPoint *)val1)->SortId > ((OTPoint *)val2)->SortId)
+    else if (sortId1 > sortId2)
     {
-      return (1);
+      return 1;
     }
     else
     {
-      return (0);
+      return 0;
     }
   }
 }
@@ -646,26 +649,32 @@ extern "C" {
   static int vtkSortOnTwoIds(const void *val1, const void *val2)
 #endif
   {
-    if (((OTPoint *)val1)->SortId2 < ((OTPoint *)val2)->SortId2)
+    vtkIdType sortId1 = static_cast<const OTPoint *>(val1)->SortId2;
+    vtkIdType sortId2 = static_cast<const OTPoint *>(val2)->SortId2;
+
+    if (sortId1 < sortId2)
     {
-      return (-1);
+      return -1;
     }
-    else if (((OTPoint *)val1)->SortId2 > ((OTPoint *)val2)->SortId2)
+    else if (sortId1 > sortId2)
     {
-      return (1);
+      return 1;
     }
 
-    if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
+    sortId1 = static_cast<const OTPoint *>(val1)->SortId;
+    sortId2 = static_cast<const OTPoint *>(val2)->SortId;
+
+    if (sortId1 < sortId2)
     {
-      return (-1);
+      return -1;
     }
-    else if (((OTPoint *)val1)->SortId > ((OTPoint *)val2)->SortId)
+    else if (sortId1 > sortId2)
     {
-      return (1);
+      return 1;
     }
     else
     {
-      return (0);
+      return 0;
     }
   }
 }

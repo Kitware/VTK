@@ -95,8 +95,8 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 // the plane perpendicular to the cross product of the two lines intersect.
 // The parameters (u,v) are the parametric coordinates of the lines at the
 // position of closest approach.
-int vtkLine::Intersection (double a1[3], double a2[3],
-                           double b1[3], double b2[3],
+int vtkLine::Intersection (const double a1[3], const double a2[3],
+                           const double b1[3], const double b2[3],
                            double& u, double& v)
 {
   double a21[3], b21[3], b1a1[3];
@@ -130,9 +130,9 @@ int vtkLine::Intersection (double a1[3], double a2[3],
     // The lines are colinear. Therefore, one of the four endpoints is the
     // point of closest approach
     double minDist = VTK_DOUBLE_MAX;
-    double* p[4] = {a1,a2,b1,b2};
-    double* l1[4] = {b1,b1,a1,a1};
-    double* l2[4] = {b2,b2,a2,a2};
+    const double* p[4] = {a1,a2,b1,b2};
+    const double* l1[4] = {b1,b1,a1,a1};
+    const double* l2[4] = {b2,b2,a2,a2};
     double* uv1[4] = {&v,&v,&u,&u};
     double* uv2[4] = {&u,&u,&v,&v};
     double t=0;
@@ -500,10 +500,10 @@ double vtkLine::DistanceBetweenLineSegments(
 //----------------------------------------------------------------------------
 // Compute distance to finite line. Returns parametric coordinate t
 // and point location on line.
-double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3],
+double vtkLine::DistanceToLine(const double x[3], const double p1[3], const double p2[3],
                               double &t, double* closestPoint)
 {
-  double *closest = nullptr;
+  const double *closest = nullptr;
   //
   //   Determine appropriate vectors
   //
@@ -577,7 +577,7 @@ double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3],
 // the vertices provided.  Returns distance squared. Note: line is assumed
 // infinite in extent.
 //
-double vtkLine::DistanceToLine (double x[3], double p1[3], double p2[3])
+double vtkLine::DistanceToLine (const double x[3], const double p1[3], const double p2[3])
 {
   int i;
   double np1[3], p1p2[3], proj, den;

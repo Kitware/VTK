@@ -3216,7 +3216,7 @@ void vtkPKdTree::BuildRegionListsForProcesses()
 // Queries
 //--------------------------------------------------------------------
 int vtkPKdTree::FindNextLocalArrayIndex(const char *n,
-                                        const char **names, int len, int start)
+                                        const char * const *names, int len, int start)
 {
   int index = -1;
   size_t nsize = strlen(n);
@@ -3245,7 +3245,7 @@ int vtkPKdTree::GetCellArrayGlobalRange(const char *n, double range[2])
     // were processed.
 
     int index = vtkPKdTree::FindNextLocalArrayIndex(n,
-                  (const char **)this->CellDataName, this->NumCellArrays, start);
+                  this->CellDataName, this->NumCellArrays, start);
 
     if (index >= 0)
     {
@@ -3298,7 +3298,7 @@ int vtkPKdTree::GetPointArrayGlobalRange(const char *n, double range[2])
     // were processed.
 
     int index = vtkPKdTree::FindNextLocalArrayIndex(n,
-                  (const char **)this->PointDataName, this->NumPointArrays, start);
+                  this->PointDataName, this->NumPointArrays, start);
 
     if (index >= 0)
     {
