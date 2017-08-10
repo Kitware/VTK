@@ -384,9 +384,6 @@ results when it schedules builds.
 
 The `Do: test` command accepts the following arguments:
 
-  * `--oneshot`
-        only build the *current* hash of the branch; updates will not be built
-        using this command
   * `--stop`
         clear the list of commands for the merge request
   * `--superbuild`
