@@ -1246,7 +1246,7 @@ void swapSig()
 }
 
 /* chop the last space from the signature */
-void chopSig(void)
+void chopSig()
 {
   if (signature)
   {
@@ -1257,6 +1257,39 @@ void chopSig(void)
       sigLength--;
     }
   }
+}
+
+/* chop the last space from the signature unless the preceding token
+   is an operator (used to remove spaces before argument lists) */
+void postSigLeftBracket(const char *s)
+{
+  if (signature)
+  {
+    size_t n = sigLength;
+    if (n > 1 && signature[n-1] == ' ')
+    {
+      const char *ops = "%*/-+!~&|^<>=.,:;{}";
+      char c = signature[n-2];
+      const char *cp;
+      for (cp = ops; *cp != '\0'; cp++)
+      {
+        if (*cp == c) { break; }
+      }
+      if (*cp == '\0')
+      {
+        signature[n-1] = '\0';
+        sigLength--;
+      }
+    }
+  }
+  postSig(s);
+}
+
+/* chop trailing space and add a right bracket */
+void postSigRightBracket(const char *s)
+{
+  chopSig();
+  postSig(s);
 }
 
 /*----------------------------------------------------------------
@@ -3577,9 +3610,9 @@ common_bracket_item_no_scope_operator:
   | braces_sig
   | operator_id_no_delim
     {
-      if ((($<str>1)[0] == '+' || ($<str>1)[0] == '-' ||
-           ($<str>1)[0] == '*' || ($<str>1)[0] == '&') &&
-          ($<str>1)[1] == '\0')
+      const char *op = $<str>1;
+      if ((op[0] == '+' || op[0] == '-' || op[0] == '*' || op[0] == '&') &&
+          op[1] == '\0')
       {
         int c1 = 0;
         size_t l;
@@ -3587,23 +3620,28 @@ common_bracket_item_no_scope_operator:
         chopSig();
         cp = getSig();
         l = getSigLength();
-        if (l != 0) { c1 = cp[l-1]; }
+        if (l > 0) { c1 = cp[l-1]; }
         if (c1 != 0 && c1 != '(' && c1 != '[' && c1 != '=')
         {
           postSig(" ");
         }
-        postSig($<str>1);
+        postSig(op);
         if (vtkParse_CharType(c1, (CPRE_XID|CPRE_QUOTE)) ||
             c1 == ')' || c1 == ']')
         {
           postSig(" ");
         }
       }
-       else
-       {
-        postSig($<str>1);
+      else if ((op[0] == '-' && op[1] == '>') || op[0] == '.')
+      {
+        chopSig();
+        postSig(op);
+      }
+      else
+      {
+        postSig(op);
         postSig(" ");
-       }
+      }
     }
   | ':' { postSig(":"); postSig(" "); } | '.' { postSig("."); }
   | keyword { postSig($<str>1); postSig(" "); }
@@ -3684,18 +3722,18 @@ right_angle_bracket:
   | OP_RSHIFT_A
 
 brackets_sig:
-    '[' { postSig("["); } any_bracket_contents ']'
-    { chopSig(); postSig("] "); }
+    '[' { postSigLeftBracket("["); } any_bracket_contents ']'
+    { postSigRightBracket("] "); }
   | BEGIN_ATTRIB { postSig("[["); } any_bracket_contents ']' ']'
     { chopSig(); postSig("]] "); }
 
 parentheses_sig:
-    '(' { postSig("("); } any_bracket_contents ')'
-    { chopSig(); postSig(") "); }
-  | LP { postSig("("); postSig($<str>1); postSig("*"); }
-    any_bracket_contents ')' { chopSig(); postSig(") "); }
-  | LA { postSig("("); postSig($<str>1); postSig("&"); }
-    any_bracket_contents ')' { chopSig(); postSig(") "); }
+    '(' { postSigLeftBracket("("); } any_bracket_contents ')'
+    { postSigRightBracket(") "); }
+  | LP { postSigLeftBracket("("); postSig($<str>1); postSig("*"); }
+    any_bracket_contents ')' { postSigRightBracket(") "); }
+  | LA { postSigLeftBracket("("); postSig($<str>1); postSig("&"); }
+    any_bracket_contents ')' { postSigRightBracket(") "); }
 
 braces_sig:
     '{' { postSig("{ "); } braces_contents '}' { postSig("} "); }
