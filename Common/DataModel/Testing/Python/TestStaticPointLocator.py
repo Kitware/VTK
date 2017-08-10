@@ -81,8 +81,9 @@ timer.StartTimer()
 del locator
 timer.StopTimer()
 time2 = timer.GetElapsedTime()
+totalTime = time + opTime + time2
 print("    Delete Point Locator: {0}".format(time2))
-print("    Point Locator (Total): {0}".format(time+time2))
+print("    Point Locator (Total): {0}".format(totalTime))
 print("\n")
 
 # StaticPointLocator
@@ -146,18 +147,30 @@ staticTimer.StartTimer()
 del staticLocator
 staticTimer.StopTimer()
 StaticTime2 = staticTimer.GetElapsedTime()
+totalStaticTime = StaticTime + staticOpTime + StaticTime2
+
 print("    Delete Point Locator: {0}".format(StaticTime2))
-print("    Static Point Locator (Total): {0}".format(StaticTime+StaticTime2))
+print("    Static Point Locator (Total): {0}".format(totalStaticTime))
 print("\n")
 
 # Print out the speedups
 print("Speed ups:")
-print("    Build: {0}".format(time/StaticTime))
+if StaticTime > 0.0:
+    print("    Build: {0}".format(time/StaticTime))
+else:
+    print("    Build: (really big)")
+if staticOpTime > 0.0:
+    print("    Probe: {0}".format(opTime/staticOpTime))
+else:
+    print("    Probe: (really big)")
 if StaticTime2 > 0.0:
     print("    Delete: {0}".format(time2/StaticTime2))
 else:
     print("    Delete: (really big)")
-print("    Total: {0}".format((time+time2)/(StaticTime+StaticTime2)) )
+if totalStaticTime > 0.0:
+    print("    Total: {0}".format(totalTime/totalStaticTime) )
+else:
+    print("    Total: (really big)")
 
 
 # Return test results. If the assert is not true, then different results were

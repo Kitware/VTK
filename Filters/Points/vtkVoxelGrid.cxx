@@ -218,6 +218,7 @@ int vtkVoxelGrid::RequestData(
   }
   this->Locator->SetDataSet(input);
   this->Locator->BuildLocator();
+  this->Locator->GetDivisions(this->Divisions);
 
   // Run through the locator and compute the number of output points,
   // and build a map of the bin number to output point. This is a prefix sum.

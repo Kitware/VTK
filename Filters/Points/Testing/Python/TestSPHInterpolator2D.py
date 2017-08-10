@@ -19,8 +19,11 @@ iren.SetRenderWindow(renWin)
 reader = vtk.vtkXMLUnstructuredGridReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/SPH_Points2D.vtu")
 reader.Update()
+import time
+time.sleep(50)
 output = reader.GetOutput()
 scalarRange = output.GetPointData().GetArray("Rho").GetRange()
+
 
 # Something to sample with
 center = output.GetCenter()
