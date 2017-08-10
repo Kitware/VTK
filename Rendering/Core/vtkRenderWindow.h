@@ -460,14 +460,15 @@ public:
   }
   //@}
 
+#if !defined(VTK_LEGACY_REMOVE)
   //@{
   /**
    * Set the number of frames for doing antialiasing. The default is
    * zero. Typically five or six will yield reasonable results without
    * taking too long.
    */
-  VTK_LEGACY(vtkGetMacro(AAFrames,int));
-  VTK_LEGACY(vtkSetMacro(AAFrames,int));
+  vtkGetMacro(AAFrames,int);
+  vtkSetMacro(AAFrames,int);
   //@}
 
   //@{
@@ -478,8 +479,8 @@ public:
    * One thing to note is that if you are using focal depth frames,
    * then you will not need many (if any) frames for antialiasing.
    */
-  VTK_LEGACY(vtkGetMacro(FDFrames,int));
-  VTK_LEGACY(virtual void SetFDFrames (int fdFrames));
+  vtkGetMacro(FDFrames,int);
+  virtual void SetFDFrames (int fdFrames);
   //@}
 
   //@{
@@ -490,8 +491,8 @@ public:
    * offsets are random numbers at each rendering that yields
    * slightly different images.
    */
-  VTK_LEGACY(vtkGetMacro(UseConstantFDOffsets,int));
-  VTK_LEGACY(vtkSetMacro(UseConstantFDOffsets,int));
+  vtkGetMacro(UseConstantFDOffsets,int);
+  vtkSetMacro(UseConstantFDOffsets,int);
   //@}
 
   //@{
@@ -503,9 +504,10 @@ public:
    * very impressive unless something is changing between the Renders.
    * Changing this value may reset the current subframe count.
    */
-  VTK_LEGACY(vtkGetMacro(SubFrames,int));
-  VTK_LEGACY(virtual void SetSubFrames(int subFrames));
+  vtkGetMacro(SubFrames,int);
+  virtual void SetSubFrames(int subFrames);
   //@}
+#endif
 
   //@{
   /**
