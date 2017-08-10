@@ -90,8 +90,8 @@ public:
    * The parameters (u,v) are the parametric coordinates of the lines at the
    * position of closest approach.
    */
-  static int Intersection(double p1[3], double p2[3],
-                          double x1[3], double x2[3],
+  static int Intersection(const double p1[3], const double p2[3],
+                          const double x1[3], const double x2[3],
                           double& u, double& v);
 
 
@@ -120,7 +120,7 @@ public:
    * it is defined. Also, the method returns the distance squared between x and
    * the line (p1,p2).
    */
-  static double DistanceToLine(double x[3], double p1[3], double p2[3],
+  static double DistanceToLine(const double x[3], const double p1[3], const double p2[3],
                               double &t, double* closestPoint=nullptr);
 
 
@@ -129,7 +129,7 @@ public:
    * the vertices provided.  Returns distance squared. Note: line is assumed
    * infinite in extent.
    */
-  static double DistanceToLine(double x[3], double p1[3], double p2[3]);
+  static double DistanceToLine(const double x[3], const double p1[3], const double p2[3]);
 
   /**
    * Computes the shortest distance squared between two infinite lines, each

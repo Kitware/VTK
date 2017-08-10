@@ -2128,7 +2128,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     }
 
     rc = ex_put_var_names(this->fid, "G", this->NumberOfScalarGlobalArrays,
-                          (char **)outputArrayNames);
+                          const_cast<char **>(outputArrayNames));
                           // This should be treating this read only... hopefully
     if (rc < 0)
     {
@@ -2168,7 +2168,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     }
 
     rc = ex_put_var_names(this->fid, "E", this->NumberOfScalarElementArrays,
-                          (char **)outputArrayNames);
+                          const_cast<char **>(outputArrayNames));
                           // This should be treating this read only... hopefully
     if (rc < 0)
     {
@@ -2222,7 +2222,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     }
 
     rc = ex_put_var_names(this->fid, "N", this->NumberOfScalarNodeArrays,
-                          (char **)outputArrayNames);
+                          const_cast<char **>(outputArrayNames));
                           // This should not save references... hopefully
     if (rc < 0)
     {

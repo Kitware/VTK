@@ -441,7 +441,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
 // The function return value is 1 if an intersection was found.
 
 static inline
-int vtkOBBTreeLineIntersectsTriangle(double p1[3], double p2[3],
+int vtkOBBTreeLineIntersectsTriangle(const double p1[3], const double p2[3],
                                      double pt1[3], double pt2[3], double pt3[3],
                                      double tolerance, double point[3],
                                      double &t, int &sense)
@@ -741,7 +741,7 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
             this->DataSet->GetPoint(pt2Id, pt2);
             this->DataSet->GetPoint(pt3Id, pt3);
 
-            if (vtkOBBTreeLineIntersectsTriangle((double *)p1, (double *)p2,
+            if (vtkOBBTreeLineIntersectsTriangle(p1, p2,
                                                  pt1, pt2, pt3,
                                                  this->Tolerance, point,
                                                  distance, sense) <= 0)

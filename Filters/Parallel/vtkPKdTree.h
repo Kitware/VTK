@@ -474,7 +474,7 @@ private:
 #endif
   static int BinarySearch(vtkIdType *list, int len, vtkIdType which);
 
-  static int FindNextLocalArrayIndex(const char *n, const char **names, int len, int start=0);
+  static int FindNextLocalArrayIndex(const char *n, const char * const *names, int len, int start=0);
 
   vtkPKdTree(const vtkPKdTree&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPKdTree&) VTK_DELETE_FUNCTION;
