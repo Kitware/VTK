@@ -1652,6 +1652,7 @@ FunctionInfo *getFunction()
  */
 
 int attributeRole = 0;
+const char *attributePrefix = NULL;
 
 /* Set kind of attributes to collect in attribute_specifier_seq */
 void setAttributeRole(int x)
@@ -1669,6 +1670,18 @@ int getAttributeRole()
 void clearAttributeRole()
 {
   attributeRole = 0;
+}
+
+/* Set the "using" prefix for attributes */
+void setAttributePrefix(const char *x)
+{
+  attributePrefix = x;
+}
+
+/* Get the "using" prefix for attributes */
+const char *getAttributePrefix()
+{
+  return attributePrefix;
 }
 
 /*----------------------------------------------------------------
@@ -3325,7 +3338,16 @@ attribute_specifier_seq:
   | attribute_specifier_seq attribute_specifier
 
 attribute_specifier:
-    BEGIN_ATTRIB attribute_list ']' ']'
+    BEGIN_ATTRIB attribute_specifier_contents ']' ']'
+    { setAttributePrefix(NULL); }
+
+attribute_specifier_contents:
+    attribute_using_prefix attribute_list
+  | attribute_list
+
+attribute_using_prefix:
+    USING using_id ':'
+    { setAttributePrefix(vtkstrcat($<str>2, "::")); }
 
 attribute_list:
   | attribute
@@ -4661,6 +4683,12 @@ void handle_attribute(const char *att, int pack)
   if (!att)
   {
     return;
+  }
+
+  /* append the prefix from the "using" statement */
+  if (getAttributePrefix())
+  {
+    att = vtkstrcat(getAttributePrefix(), att);
   }
 
   /* search for arguments */
