@@ -7,8 +7,8 @@ math = vtk.vtkMath()
 
 # Note: the bigger the data the better vtkStaticPointLocator performs
 #testSize = "large"
-testSize = "medium"
-#testSize = "small"
+#testSize = "medium"
+testSize = "small"
 
 if testSize == "large":
     numPts = 100000000
@@ -69,6 +69,7 @@ for i in range (0,numProbes):
 timer.StopTimer()
 opTime = timer.GetElapsedTime()
 print("    Closest point probing: {0}".format(opTime))
+print("    Divisions: {0}".format( locator.GetDivisions() ))
 
 # Poke other methods before deleting locator class
 closestN = vtk.vtkIdList()
@@ -106,6 +107,7 @@ for i in range (0,numProbes):
 staticTimer.StopTimer()
 staticOpTime = staticTimer.GetElapsedTime()
 print("    Static Closest point probing: {0}".format(staticOpTime))
+print("    Divisions: {0}".format( staticLocator.GetDivisions() ))
 
 # Check that closest point operation gives the same answer and the
 # incremental point locator. Note that it is possible to realize different
@@ -114,15 +116,29 @@ print("    Static Closest point probing: {0}".format(staticOpTime))
 # point is selected (from FindClosestPoint()). For small random datasets this
 # is unlikely to happen.
 error = 0
+x = [0,0,0]
+y = [0,0,0]
+p = [0,0,0]
+math = vtk.vtkMath()
 for i in range (0,numProbes):
-    if closest.GetId(i) != staticClosest.GetId(i):
-        error = 1
+    staticId = staticClosest.GetId(i)
+    closestId = closest.GetId(i)
+    if closestId != staticId:
+        probePoints.GetPoint(i,p)
+        points.GetPoint(staticId,x)
+        points.GetPoint(closestId,y)
+        dx2 = math.Distance2BetweenPoints(x,p)
+        dy2 = math.Distance2BetweenPoints(y,p)
+        if dx2 != dy2:
+            error = 1
 
 # Poke other methods before deleting static locator class
 staticClosestN = vtk.vtkIdList()
 staticLocator.FindClosestNPoints(10, probePoints.GetPoint(0), staticClosestN)
 for i in range (0,10):
-    if staticClosestN.GetId(i) != closestN.GetId(i):
+    staticId = staticClosestN.GetId(i)
+    closestId = closestN.GetId(i)
+    if staticId != closestId:
         error = 1
 
 # Okay now delete class

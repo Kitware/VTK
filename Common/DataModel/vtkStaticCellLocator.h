@@ -65,10 +65,10 @@ public:
 
   //@{
   /**
-   * Set the number of divisions in x-y-z directions. If the
-   * vtkLocator::Automatic data member is enabled, the Divisions are set
-   * according to the vtkAbstractCellLocator::NumberOfCellsPerNode data
-   * member.
+   * Set the number of divisions in x-y-z directions. If the Automatic data
+   * member is enabled, the Divisions are set according to the
+   * NumberOfCellsPerNode and MaxNumberOfBuckets data members. The number
+   * of divisions must be >= 1 in each direction.
    */
   vtkSetVector3Macro(Divisions,int);
   vtkGetVectorMacro(Divisions,int,3);
@@ -140,6 +140,33 @@ public:
   void BuildLocator() VTK_OVERRIDE;
   //@}
 
+  //@{
+  /**
+   * Set the maximum number of buckets in the locator. By default the value
+   * is set to VTK_INT_MAX. Note that there are significant performance
+   * implications at work here. If the number of buckets is set very large
+   * (meaning > VTK_INT_MAX) then internal sorting may be performed using
+   * 64-bit integers (which is much slower than using a 32-bit int). Of
+   * course, memory requirements may dramatically increase as well.  It is
+   * recommended that the default value be used; but for extremely large data
+   * it may be desired to create a locator with an exceptionally large number
+   * of buckets. Note also that during initialization of the locator if the
+   * MaxNumberOfBuckets threshold is exceeded, the Divisions are scaled down
+   * in such a way as not to exceed the MaxNumberOfBuckets proportionally to
+   * the size of the bounding box in the x-y-z directions.
+   */
+  vtkSetClampMacro(MaxNumberOfBuckets,vtkIdType,1000,VTK_ID_MAX);
+  vtkGetMacro(MaxNumberOfBuckets,vtkIdType);
+  //@}
+
+  /**
+   * Inform the user as to whether large ids are being used. This flag only
+   * has meaning after the locator has been built. Large ids are used when the
+   * number of binned points, or the number of bins, is >= the maximum number
+   * of buckets (specified by the user).
+   */
+  bool GetLargeIds() {return this->LargeIds;}
+
 protected:
   vtkStaticCellLocator();
   ~vtkStaticCellLocator() VTK_OVERRIDE;
@@ -147,6 +174,9 @@ protected:
   double Bounds[6]; // Bounding box of the whole dataset
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   double H[3]; // Width of each bin in x-y-z directions
+
+  vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
+  bool LargeIds; //indicate whether integer ids are small or large
 
   // Support PIMPLd implementation
   vtkCellBinner *Binner; // Does the binning

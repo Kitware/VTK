@@ -89,7 +89,8 @@ public:
   /**
    * Set the number of divisions in x-y-z directions. If the Automatic data
    * member is enabled, the Divisions are set according to the
-   * NumberOfPointsPerBucket data member.
+   * NumberOfPointsPerBucket and MaxNumberOfBuckets data members. The number
+   * of divisions must be >= 1 in each direction.
    */
   vtkSetVector3Macro(Divisions,int);
   vtkGetVectorMacro(Divisions,int,3);

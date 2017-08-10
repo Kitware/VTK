@@ -22,6 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
+#include "vtkBoundingBox.h"
 
 #include <vector>
 
@@ -1338,6 +1339,7 @@ vtkStaticPointLocator::vtkStaticPointLocator()
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->Buckets = nullptr;
+  this->MaxNumberOfBuckets = VTK_INT_MAX;
   this->LargeIds = false;
 }
 
@@ -1370,8 +1372,6 @@ void vtkStaticPointLocator::FreeSearchStructure()
 //
 void vtkStaticPointLocator::BuildLocator()
 {
-  vtkIdType numBuckets;
-  double level;
   int ndivs[3];
   int i;
   vtkIdType numPts;
@@ -1403,76 +1403,36 @@ void vtkStaticPointLocator::BuildLocator()
   // hopefully it is cached or otherwise accelerated.
   //
   const double *bounds = this->DataSet->GetBounds();
-  int numNonZeroWidths = 3;
-  for (i=0; i<3; i++)
-  {
-    this->Bounds[2*i] = bounds[2*i];
-    this->Bounds[2*i+1] = bounds[2*i+1];
-    if ( this->Bounds[2*i+1] <= this->Bounds[2*i] ) //prevent zero width
-    {
-      this->Bounds[2*i+1] = this->Bounds[2*i] + 1.0;
-      numNonZeroWidths--;
-    }
-  }
+  vtkIdType numBuckets = static_cast<vtkIdType>( static_cast<double>(numPts) /
+                                                 static_cast<double>(this->NumberOfPointsPerBucket) );
+  numBuckets = ( numBuckets > this->MaxNumberOfBuckets ? this->MaxNumberOfBuckets : numBuckets );
 
+  vtkBoundingBox bbox(bounds);
   if ( this->Automatic )
   {
-    if ( numNonZeroWidths > 0 )
-    {
-      level = static_cast<double>(numPts) / this->NumberOfPointsPerBucket;
-      level = ceil( pow(static_cast<double>(level),
-                        static_cast<double>(1.0/static_cast<double>(numNonZeroWidths))));
-    }
-    else
-    {
-      level = 1; //all points end up in thesame bucket and are concident!
-    }
-    for (i=0; i<3; i++)
-    {
-      if ( bounds[2*i+1] > bounds[2*i] )
-      {
-        ndivs[i] = static_cast<int>(level);
-      }
-      else
-      {
-        ndivs[i] = 1;
-      }
-    }
-  }//automatic
+    bbox.ComputeDivisions(numBuckets, this->Bounds, ndivs);
+  }
   else
   {
+    bbox.Inflate(); //make sure non-zero volume
+    bbox.GetBounds(this->Bounds);
     for (i=0; i<3; i++)
     {
-      ndivs[i] = static_cast<int>(this->Divisions[i]);
+      ndivs[i] = ( this->Divisions[i] < 1 ? 1 : this->Divisions[i] );
     }
   }
 
-  // Manage the number of buckets in the locator
-  numBuckets = static_cast<vtkIdType>(ndivs[0]) * static_cast<vtkIdType>(ndivs[1]) *
-                           static_cast<vtkIdType>(ndivs[2]);
-
-  // If the number of buckets is too big, need to scale down. Make sure to clamp
-  // to allowable range.
-  if ( numBuckets > this->MaxNumberOfBuckets )
-  {
-    // At this point the bounding box is non-zero width in each of x-y-z. Get the relative scales
-    // of each side of the bounding box.
-    double xs = (this->Bounds[1]-this->Bounds[0]) / (this->Bounds[5]-this->Bounds[4]);
-    double ys = (this->Bounds[3]-this->Bounds[2]) / (this->Bounds[5]-this->Bounds[4]);
-    double d = pow( static_cast<double>(this->MaxNumberOfBuckets) / static_cast<double>(xs*ys),
-                    0.333333);
-    this->Divisions[0] = ndivs[0] = vtkMath::Floor(d * xs);
-    this->Divisions[1] = ndivs[1] = vtkMath::Floor(d * ys);
-    this->Divisions[2] = ndivs[2] = static_cast<int>(d);
-    this->NumberOfBuckets = numBuckets = static_cast<vtkIdType>(ndivs[0]) *
-      static_cast<vtkIdType>(ndivs[1]) * static_cast<vtkIdType>(ndivs[2]);
-  }
+  this->Divisions[0] = ndivs[0];
+  this->Divisions[1] = ndivs[1];
+  this->Divisions[2] = ndivs[2];
+  this->NumberOfBuckets = numBuckets = static_cast<vtkIdType>(ndivs[0]) *
+    static_cast<vtkIdType>(ndivs[1]) * static_cast<vtkIdType>(ndivs[2]);
 
   //  Compute width of bucket in three directions
   //
   for (i=0; i<3; i++)
   {
-    this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / ndivs[i] ;
+    this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / static_cast<double>(ndivs[i]);
   }
 
   // Instantiate the locator. The type is related to the maximun point id.
@@ -1680,4 +1640,9 @@ void vtkStaticPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Divisions: (" << this->Divisions[0] << ", "
      << this->Divisions[1] << ", " << this->Divisions[2] << ")\n";
+
+  os << indent << "Max Number Of Buckets: "
+     << this->MaxNumberOfBuckets << "\n";
+
+  os << indent << "Large IDs: " << this->LargeIds << "\n";
 }

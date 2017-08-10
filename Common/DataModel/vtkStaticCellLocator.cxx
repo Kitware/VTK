@@ -25,6 +25,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkMergePoints.h"
 #include "vtkBox.h"
+#include "vtkBoundingBox.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
@@ -817,6 +818,8 @@ vtkStaticCellLocator::vtkStaticCellLocator()
     {
     this->Bounds[i] = 0;
     }
+  this->MaxNumberOfBuckets = VTK_INT_MAX;
+  this->LargeIds = false;
 
   this->CellHasBeenVisited = nullptr;
   this->QueryNumber = 0;
@@ -907,50 +910,44 @@ BuildLocator()
     }
 
   // Prepare
-  double *bounds, length;
-  int i;
   if ( this->Binner )
     {
     this->FreeSearchStructure();
     }
 
   // The bounding box can be slow
-  bounds = this->DataSet->GetBounds();
-  length = this->DataSet->GetLength();
-  for (i=0; i<3; i++)
-    {
-    this->Bounds[2*i] = bounds[2*i];
-    this->Bounds[2*i+1] = bounds[2*i+1];
-    if ( (this->Bounds[2*i+1] - this->Bounds[2*i]) <= (length/1000.0) )
-      {
-      // bump out the bounds a little of if min==max
-      this->Bounds[2*i] -= length/100.0;
-      this->Bounds[2*i+1] += length/100.0;
-      }
-    }
+  int i, ndivs[3];
+  const double *bounds = this->DataSet->GetBounds();
+  vtkIdType numBins = static_cast<vtkIdType>( static_cast<double>(numCells) /
+                                              static_cast<double>(this->NumberOfCellsPerNode) );
+  numBins = ( numBins > this->MaxNumberOfBuckets ? this->MaxNumberOfBuckets : numBins );
 
-  // Set the spacing of the locator. Try to make the bins roughly cubical.
+  vtkBoundingBox bbox(bounds);
   if ( this->Automatic )
-    {
-    double level = static_cast<double>(numCells) / this->NumberOfCellsPerNode;
-    level = ceil( pow(static_cast<double>(level),
-                      static_cast<double>(0.33333333)));
+  {
+    bbox.ComputeDivisions(numBins, this->Bounds, ndivs);
+  }
+  else
+  {
+    bbox.Inflate(); //make sure non-zero volume
+    bbox.GetBounds(this->Bounds);
     for (i=0; i<3; i++)
-      {
-      this->Divisions[i] = static_cast<int>(level);
-      }
+    {
+      ndivs[i] = ( this->Divisions[i] < 1 ? 1 : this->Divisions[i] );
     }
+  }
 
-  // Clamp divisions. Avoid excessive size.
+  this->Divisions[0] = ndivs[0];
+  this->Divisions[1] = ndivs[1];
+  this->Divisions[2] = ndivs[2];
+  numBins = static_cast<vtkIdType>(ndivs[0]) *
+    static_cast<vtkIdType>(ndivs[1]) * static_cast<vtkIdType>(ndivs[2]);
+
+  // Compute bin/bucket widths
   for (i=0; i<3; i++)
     {
-    this->Divisions[i] = (this->Divisions[i] < 1 ? 1 : (this->Divisions[i] <= 1290 ?
-                                                        this->Divisions[i] : 1290));
     this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / this->Divisions[i] ;
     }
-
-  // Now perform the binning.
-  int numBins = this->Divisions[0] * this->Divisions[1] * this->Divisions[2];
 
   // Actually do the hard work of creating the locator. Clear out old stuff.
   delete this->Binner;
@@ -963,6 +960,7 @@ BuildLocator()
   vtkIdType numFragments = this->Binner->NumFragments;
   if ( numFragments >= VTK_INT_MAX )
     {
+    this->LargeIds = true;
     CellProcessor<vtkIdType> *processor =
       new CellProcessor<vtkIdType>(this->Binner);
     vtkSMPTools::For(0, numCells, *processor);
@@ -973,6 +971,7 @@ BuildLocator()
     }
   else
     {
+    this->LargeIds = false;
     CellProcessor<int> *processor =
       new CellProcessor<int>(this->Binner);
     vtkSMPTools::For(0, numCells, *processor);
@@ -1135,7 +1134,10 @@ void vtkStaticCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   // Cell bounds are always cached
   this->CacheCellBounds = 1;
-
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Max Number Of Buckets: "
+     << this->MaxNumberOfBuckets << "\n";
+
+  os << indent << "Large IDs: " << this->LargeIds << "\n";
 }
