@@ -525,7 +525,7 @@ public:
   /**
    * Set/get the key symbol for the key that was pressed. This is the key
    * symbol as defined by the relevant X headers. On X based platforms this
-   * corresponds to the installed X sevrer, whereas on other platforms the
+   * corresponds to the installed X server, whereas on other platforms the
    * native key codes are translated into a string representation.
    */
   vtkSetStringMacro(KeySym);

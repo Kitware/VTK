@@ -33,7 +33,7 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->ShiftKey = 0;
   this->CtrlKey = 0;
   this->Char = '\0';
-  this->KeySym = (char *)("");
+  this->KeySym = nullptr;
   this->Button = 0;
 }
 
@@ -54,7 +54,7 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ShiftKey: " << this->ShiftKey << "\n";
   os << indent << "CtrlKey: " << this->CtrlKey << "\n";
   os << indent << "Char: " << this->Char << "\n";
-  os << indent << "KeySym: " << this->KeySym << "\n";
+  os << indent << "KeySym: " << (this->KeySym ? this->KeySym : "(null)") << "\n";
   os << indent << "Button: " << this->Button << "\n";
 }
 

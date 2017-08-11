@@ -118,10 +118,10 @@ virtual void Set##name (const char* _arg) \
     this->name = cp1; \
     do { *cp1++ = *cp2++; } while ( --n ); \
   } \
-   else \
-   { \
+  else \
+  { \
     this->name = nullptr; \
-   } \
+  } \
   this->Modified(); \
 }
 
