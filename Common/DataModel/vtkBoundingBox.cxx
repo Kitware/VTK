@@ -426,6 +426,9 @@ void vtkBoundingBox::Scale(double s[3])
 vtkIdType vtkBoundingBox::
 ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
 {
+  // This will always produce at least one bin
+  totalBins = (totalBins <= 0 ? 1 : totalBins);
+
   // First determine the maximum length of the side of the bounds. Keep track
   // of zero width sides of the bounding box.
   int numNonZero=0, nonZero[3], maxIdx=(-1);
@@ -464,7 +467,7 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
 
   // Okay we need to compute the divisions roughly in proportion to the
   // bounding box edge lengths.  The idea is to make the bins as close to a
-  // cube as possible.
+  // cube as possible. Ensure that the number of divisions is valid.
   double totLen = lengths[0] + lengths[1] + lengths[2];
   double f = static_cast<double>(totalBins);
   f /= (nonZero[0] ? (lengths[0]/totLen) : 1.0);
@@ -472,9 +475,11 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
   f /= (nonZero[2] ? (lengths[2]/totLen) : 1.0);
   f = pow (f,(1.0/static_cast<double>(numNonZero)));
 
-  divs[0] = (nonZero[0] ? vtkMath::Floor(f*lengths[0]/totLen) : 1);
-  divs[1] = (nonZero[1] ? vtkMath::Floor(f*lengths[1]/totLen) : 1);
-  divs[2] = (nonZero[2] ? vtkMath::Floor(f*lengths[2]/totLen) : 1);
+  for (int i=0; i < 3; ++i)
+  {
+    divs[i] = (nonZero[i] ? vtkMath::Floor(f*lengths[i]/totLen) : 1);
+    divs[i] = (divs[i] < 1 ? 1 : divs[i]);
+  }
 
   // Now compute the final bounds, making sure it is a non-zero volume.
   double delta = 0.5 * lengths[maxIdx] / static_cast<double>(divs[maxIdx]);
