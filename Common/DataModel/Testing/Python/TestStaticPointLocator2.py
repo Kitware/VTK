@@ -56,7 +56,7 @@ if numBuckets > maxNumBuckets:
     error = 1
 
 # Test the generation of the binning divisions when degenerate conditions occur
-print("\nTesting degenerate manual division specification")
+print("\nTesting degenerate points specification")
 locator.AutomaticOn()
 points.SetNumberOfPoints(10)
 points.SetPoint(0, 0,0,0)
@@ -73,11 +73,23 @@ locator.Modified()
 locator.BuildLocator()
 print("Divisions: {0}".format( locator.GetDivisions() ))
 ndivs = locator.GetDivisions()
-if ndivs[0] != 1 or ndivs[1] != 1 or ndivs[2] != 5:
+if ndivs[0] != 1 or ndivs[1] != 1 or ndivs[2] != 2:
+    error = 1
+
+# Test the generation of the binning divisions when degenerate conditions occur
+print("\nTesting manual divisions, degenerate points specification")
+locator.AutomaticOff()
+locator.SetDivisions(0,2,10)
+locator.Modified()
+locator.BuildLocator()
+print("Divisions: {0}".format( locator.GetDivisions() ))
+ndivs = locator.GetDivisions()
+if ndivs[0] != 1 or ndivs[1] != 2 or ndivs[2] != 10:
     error = 1
 
 # Test the vtkBoundingBox code
-print("\nTesting vtkBoundingBox")
+targetBins = 2500
+print("\nTesting vtkBoundingBox w/ {} target bins".format(targetBins))
 divs = [1,1,1]
 bounds = [0,0,0,0,0,0]
 bds = [0,0,0,0,0,0]
@@ -85,7 +97,7 @@ bbox = vtk.vtkBoundingBox()
 
 # Degenerate
 bbox.SetBounds(0,0,1,1,2,2)
-bbox.ComputeDivisions(2500,bounds,divs)
+bbox.ComputeDivisions(targetBins,bounds,divs)
 bbox.GetBounds(bds)
 print("BBox bounds: ({},{}, {},{}, {},{})".format(bds[0],bds[1],bds[2],bds[3],bds[4],bds[5]))
 print("   Adjusted bounds: ({},{}, {},{}, {},{})".format(bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5]))
@@ -95,27 +107,27 @@ if divs[0] != 1 or divs[1] != 1 or divs[2] != 1:
 
 # Line
 bbox.SetBounds(0,0,1,1,5,10)
-bbox.ComputeDivisions(2500,bounds,divs)
+bbox.ComputeDivisions(targetBins,bounds,divs)
 bbox.GetBounds(bds)
 print("BBox bounds: ({},{}, {},{}, {},{})".format(bds[0],bds[1],bds[2],bds[3],bds[4],bds[5]))
 print("   Adjusted bounds: ({},{}, {},{}, {},{})".format(bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5]))
 print("   Divisions: ({},{},{})".format(divs[0],divs[1],divs[2]))
-if divs[0] != 1 or divs[1] != 1 or divs[2] != 39:
+if divs[0] != 1 or divs[1] != 1 or divs[2] != targetBins:
     error = 1
 
 # Plane
 bbox.SetBounds(-1,4,1,1,5,10)
-bbox.ComputeDivisions(2500,bounds,divs)
+bbox.ComputeDivisions(targetBins,bounds,divs)
 bbox.GetBounds(bds)
 print("BBox bounds: ({},{}, {},{}, {},{})".format(bds[0],bds[1],bds[2],bds[3],bds[4],bds[5]))
 print("   Adjusted bounds: ({},{}, {},{}, {},{})".format(bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5]))
 print("   Divisions: ({},{},{})".format(divs[0],divs[1],divs[2]))
-if divs[0] != 23 or divs[1] != 1 or divs[2] != 23:
+if divs[0] != targetBins**(1/2.0) or divs[1] != 1 or divs[2] != targetBins**(1/2.0):
     error = 1
 
 # Volume
 bbox.SetBounds(-6,4,1,2,5,10)
-bbox.ComputeDivisions(2500,bounds,divs)
+bbox.ComputeDivisions(targetBins,bounds,divs)
 bbox.GetBounds(bds)
 print("BBox bounds: ({},{}, {},{}, {},{})".format(bds[0],bds[1],bds[2],bds[3],bds[4],bds[5]))
 print("   Adjusted bounds: ({},{}, {},{}, {},{})".format(bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5]))

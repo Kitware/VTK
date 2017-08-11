@@ -420,14 +420,15 @@ void vtkBoundingBox::Scale(double s[3])
 }
 
 // ---------------------------------------------------------------------------
-// Compute the number of divisions given the current bounding box and a target
-// number of divisions.
+// Compute the number of divisions given the current bounding box and a
+// target number of buckets/bins. Note that degenerate bounding boxes (i.e.,
+// one or more of the edges are zero length) are handled properly.
 vtkIdType vtkBoundingBox::
 ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
 {
   // First determine the maximum length of the side of the bounds. Keep track
   // of zero width sides of the bounding box.
-  int nonZero[3], maxIdx=(-1);
+  int numNonZero=0, nonZero[3], maxIdx=(-1);
   double max=0.0, lengths[3];
   this->GetLengths(lengths);
 
@@ -437,11 +438,19 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
     {
       maxIdx = i;
     }
-    nonZero[i] = (lengths[i] > 0.0 ? 1 : 0);
+    if ( lengths[i] > 0.0 )
+    {
+      nonZero[i] = 1;
+      numNonZero++;
+    }
+    else
+    {
+      nonZero[i] = 0;
+    }
   }
 
   // If the bounding box is degenerate, then one bin of arbitrary size
-  if ( maxIdx < 0 || totalBins <= 1 )
+  if ( numNonZero < 1 )
   {
     divs[0] = divs[1] = divs[2] = 1;
     bounds[0] = this->MinPnt[0] - 0.5;
@@ -456,15 +465,16 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
   // Okay we need to compute the divisions roughly in proportion to the
   // bounding box edge lengths.  The idea is to make the bins as close to a
   // cube as possible.
+  double totLen = lengths[0] + lengths[1] + lengths[2];
   double f = static_cast<double>(totalBins);
-  f /= (nonZero[0] ? lengths[0] : 1.0);
-  f /= (nonZero[1] ? lengths[1] : 1.0);
-  f /= (nonZero[2] ? lengths[2] : 1.0);
-  f = pow (f,0.333333);
+  f /= (nonZero[0] ? (lengths[0]/totLen) : 1.0);
+  f /= (nonZero[1] ? (lengths[1]/totLen) : 1.0);
+  f /= (nonZero[2] ? (lengths[2]/totLen) : 1.0);
+  f = pow (f,(1.0/static_cast<double>(numNonZero)));
 
-  divs[0] = (nonZero[0] ? vtkMath::Floor(f*lengths[0]) : 1);
-  divs[1] = (nonZero[1] ? vtkMath::Floor(f*lengths[1]) : 1);
-  divs[2] = (nonZero[2] ? vtkMath::Floor(f*lengths[2]) : 1);
+  divs[0] = (nonZero[0] ? vtkMath::Floor(f*lengths[0]/totLen) : 1);
+  divs[1] = (nonZero[1] ? vtkMath::Floor(f*lengths[1]/totLen) : 1);
+  divs[2] = (nonZero[2] ? vtkMath::Floor(f*lengths[2]/totLen) : 1);
 
   // Now compute the final bounds, making sure it is a non-zero volume.
   double delta = 0.5 * lengths[maxIdx] / static_cast<double>(divs[maxIdx]);
