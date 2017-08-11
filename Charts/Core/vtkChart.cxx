@@ -32,6 +32,7 @@ vtkChart::MouseActions::MouseActions()
   this->Select() = vtkContextMouseEvent::RIGHT_BUTTON;
   this->ZoomAxis() = -1;
   this->SelectPolygon() = -1;
+  this->ClickAndDrag() = -1;
 }
 
 //-----------------------------------------------------------------------------

@@ -68,6 +68,7 @@ public:
    * SELECT_RECTANGLE - selects points within a rectangle
    * SELECT_POLYGON - selects points within a polygon
    * SELECT - alias for SELECT_RECTANGLE
+   * CLICKANDDRAG - move one point selected by a click
    * NOTIFY - Post vtkCommand::InteractionEvent on selection of a point
    */
   enum {
@@ -77,6 +78,7 @@ public:
     SELECT,
     SELECT_RECTANGLE = SELECT,
     SELECT_POLYGON,
+    CLICKANDDRAG,
     NOTIFY
   };
 
@@ -449,12 +451,13 @@ protected:
   {
   public:
     MouseActions();
-    enum { MaxAction = 5 };
+    enum { MaxAction = 6 };
     short& Pan() { return Data[0]; }
     short& Zoom() { return Data[1]; }
     short& ZoomAxis() { return Data[2]; }
     short& Select() { return Data[3]; }
     short& SelectPolygon() { return Data[4]; }
+    short& ClickAndDrag() { return Data[5]; }
     short& operator[](int index) { return Data[index]; }
     short Data[MaxAction];
   };
