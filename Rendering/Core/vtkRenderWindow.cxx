@@ -58,7 +58,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->PolygonSmoothing = 0;
   this->StereoRender = 0;
   this->StereoType = VTK_STEREO_RED_BLUE;
-  this->StereoStatus = 0;
   this->StereoCapableWindow = 0;
   this->AlphaBitPlanes = 0;
   this->StencilCapable = 0;
@@ -937,55 +936,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 // methods, subclasses might need to switch some hardware settings here.
 void vtkRenderWindow::StereoUpdate(void)
 {
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 1;
-        break;
-    }
-  }
-  else if ((!this->StereoRender) && this->StereoStatus)
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 0;
-        break;
-    }
-  }
 }
 
 //----------------------------------------------------------------------------

@@ -64,11 +64,6 @@ public:
   static int  GetGlobalMaximumNumberOfMultiSamples();
   //@}
 
-  /**
-   * Update system if needed due to stereo rendering.
-   */
-  void StereoUpdate() VTK_OVERRIDE;
-
   //@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBRGB...

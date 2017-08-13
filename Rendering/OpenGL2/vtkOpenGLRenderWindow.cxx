@@ -435,67 +435,6 @@ unsigned int vtkOpenGLRenderWindow::GetFrontBuffer()
   return this->FrontBuffer;
 }
 
-// Update system if needed due to stereo rendering.
-void vtkOpenGLRenderWindow::StereoUpdate(void)
-{
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_CRYSTAL_EYES:
-        // not clear this is supposed to be empty,
-        // but it has been that way forever.
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 1;
-        break;
-    }
-  }
-  else if ((!this->StereoRender) && this->StereoStatus)
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_CRYSTAL_EYES:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 0;
-        break;
-    }
-  }
-}
-
 void vtkOpenGLRenderWindow::SetSize(int a[2])
 {
   this->SetSize(a[0], a[1]);
