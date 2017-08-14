@@ -93,16 +93,17 @@ vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
 
 # Tests with data
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+  TestButtonWidget.cxx
   TestDijkstraGraphGeodesicPath.cxx
-  TestLineWidget2.cxx
   TestLineWidget.cxx
+  TestLineWidget2.cxx
   TestOrientedGlyphContour.cxx
   TestPlaneWidget.cxx
   TestPointWidget.cxx
+  TestPolyPlane.cxx,NO_VALID
   TestPolygonalHandleRepresentations.cxx
   TestPolygonalRepresentationHandleWidget.cxx
   TestPolygonalSurfaceConstrainedDistanceWidget.cxx
-  TestPolyPlane.cxx,NO_VALID
   TestSphereHandleWidget.cxx
   TestSurfaceConstrainedHandleWidget.cxx
   TestTensorProbeWidget.cxx
@@ -119,12 +120,6 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
   vtk_add_test_cxx(${vtk-module}CxxTests tests
     TestImageCroppingRegionsWidget.cxx
     )
-
-  if(NOT VTK_LEGACY_REMOVE)
-    vtk_add_test_cxx(${vtk-module}CxxTests tests
-      TestButtonWidget.cxx
-      )
-  endif()
 endif()
 
 set(all_tests
