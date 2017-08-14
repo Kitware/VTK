@@ -21,6 +21,7 @@ reader.SetFileName(VTK_DATA_ROOT + "/Data/SPH_Points2D.vtu")
 reader.Update()
 output = reader.GetOutput()
 scalarRange = output.GetPointData().GetArray("Rho").GetRange()
+print("Scalar range: {}".format(scalarRange))
 
 # Something to sample with
 center = output.GetCenter()

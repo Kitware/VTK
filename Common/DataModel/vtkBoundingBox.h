@@ -35,7 +35,7 @@ public:
   //@{
   /**
    * Construct a bounding box with the min point set to
-   * VTK_DOUBLE_MAX and the max point set to VTK_DOUBLE_MIN
+   * VTK_DOUBLE_MAX and the max point set to VTK_DOUBLE_MIN.
    */
   vtkBoundingBox();
   vtkBoundingBox(const double bounds[6]);
@@ -65,7 +65,7 @@ public:
   //@{
   /**
    * Set the bounds explicitly of the box (vtk Style)
-   * Returns 1 if the box was changed else 0
+   * Returns 1 if the box was changed else 0.
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xMin, double xMax,
@@ -76,7 +76,7 @@ public:
   //@{
   /**
    * Set the minimum point of the bounding box - if the min point
-   * is greater than the max point then the max point will also be changed
+   * is greater than the max point then the max point will also be changed.
    */
   void SetMinPoint(double x, double y, double z);
   void SetMinPoint(double p[3]);
@@ -85,10 +85,19 @@ public:
   //@{
   /**
    * Set the maximum point of the bounding box - if the max point
-   * is less than the min point then the  min point will also be changed
+   * is less than the min point then the  min point will also be changed.
    */
   void SetMaxPoint(double x, double y, double z);
   void SetMaxPoint(double p[3]);
+  //@}
+
+  //@{
+  /**
+   * Returns 1 if the bounds have been set and 0 if the box is in its
+   * initialized state which is an inverted state.
+   */
+  int IsValid() const;
+  static int IsValid(const double bounds[6]);
   //@}
 
   //@{
@@ -102,12 +111,13 @@ public:
   //@}
 
   /**
-   * Change the bouding box to be the union of itself and bbox
+   * Change the bouding box to be the union of itself and bbox.
    */
   void AddBox(const vtkBoundingBox &bbox);
 
   /**
-   * Change the bounding box so it includes bounds (defined by vtk standard)
+   * Adjust the bounding box so it contains the specified bounds (defined by
+   * the vtk standard (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   void AddBounds(const double bounds[]);
 
@@ -119,14 +129,14 @@ public:
   int IntersectBox(const vtkBoundingBox &bbox);
 
   /**
-   * Returns 1 if the boxes intersect else returns 0
+   * Returns 1 if the boxes intersect else returns 0.
    */
   int Intersects(const vtkBoundingBox &bbox) const;
 
   /**
    * Intersect this box with the half space defined by plane.
    * Returns true if there is intersection---which implies that the box has been modified
-   * Returns false otherwise
+   * Returns false otherwise.
    */
   bool IntersectPlane(double origin[3],double normal[3]);
 
@@ -138,7 +148,7 @@ public:
 
   //@{
   /**
-   * Get the bounds of the box (defined by vtk style)
+   * Get the bounds of the box (defined by vtk style).
    */
   void GetBounds(double bounds[6]) const;
   void GetBounds(double &xMin, double &xMax,
@@ -147,13 +157,13 @@ public:
   //@}
 
   /**
-   * Return the ith bounds of the box (defined by vtk style)
+   * Return the ith bounds of the box (defined by vtk style).
    */
   double GetBound(int i) const;
 
   //@{
   /**
-   * Get the minimum point of the bounding box
+   * Get the minimum point of the bounding box.
    */
   const double *GetMinPoint() const;
   void GetMinPoint(double &x, double &y, double &z) const;
@@ -161,7 +171,7 @@ public:
 
   //@{
   /**
-   * Get the maximum point of the bounding box
+   * Get the maximum point of the bounding box.
    */
   const double *GetMaxPoint() const;
   void GetMaxPoint(double &x, double &y, double &z) const;
@@ -169,29 +179,29 @@ public:
 
   //@{
   /**
-   * Returns 1 if the point is contained in the box else 0;
+   * Returns 1 if the point is contained in the box else 0.
    */
   int ContainsPoint(double p[3]) const;
   int ContainsPoint(double px, double py, double pz) const;
   //@}
 
   /**
-   * Get the center of the bounding box
+   * Get the center of the bounding box.
    */
   void GetCenter(double center[3]) const;
 
   /**
-   * Get the lengths of the box
+   * Get the lengths of the box.
    */
   void GetLengths(double lengths[3]) const;
 
   /**
-   * Return the length in the ith direction
+   * Return the length in the ith direction.
    */
   double GetLength(int i) const;
 
   /**
-   * Return the Max Length of the box
+   * Return the Max Length of the box.
    */
   double GetMaxLength() const;
 
@@ -201,25 +211,17 @@ public:
    */
   double GetDiagonalLength() const;
 
-  /**
-   * Expand the Box by delta on each side, the box will grow by
-   * 2*delta in x,y and z
-   */
-  void Inflate(double delta);
-
   //@{
   /**
-   * Returns 1 if the bounds have been set and 0 if the box is in its
-   * initialized state which is an inverted state
+   * Expand the Box by delta on each side, the box will grow by 2*delta in
+   * x,y and z. Alternatively, inflate the bounds so that it has non-zero
+   * volume. Edges that are inflated are adjusted 1% of the longest edge. Or
+   * if all edges are zero length, the bounding box is inflated by 1 unit in
+   * each of the x-y-z directions.
    */
-  int IsValid() const;
-  static int IsValid(const double bounds[6]);
+  void Inflate(double delta);
+  void Inflate();
   //@}
-
-  /**
-   * Returns the box to its initialized state
-   */
-  void Reset();
 
   //@{
   /**
@@ -229,10 +231,25 @@ public:
    * if (xMin,xMax)=(-2,4) and sx=-3, (xMin,xMax) becomes (-12,6).
    */
   void Scale(double s[3]);
-  void Scale(double sx,
-             double sy,
-             double sz);
+  void Scale(double sx, double sy, double sz);
   //@}
+
+  /**
+   * Compute the number of divisions in the z-y-z directions given a target
+   * number of total bins (i.e., product of divisions in the x-y-z
+   * directions). The computation is done in such a way as to create near
+   * cuboid bins. Also note that the returned bounds may be different than
+   * the bounds defined in this class, as the bounds in the z-y-z directions
+   * can never be <= 0. Note that the total number of divisions
+   * (divs[0]*divs[1]*divs[2]) is guaranteed to be smaller than the target
+   * number of bins.
+   */
+  vtkIdType ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const;
+
+  /**
+   * Returns the box to its initialized state.
+   */
+  void Reset();
 
 protected:
   double MinPnt[3], MaxPnt[3];
