@@ -94,6 +94,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
 # Tests with data
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestButtonWidget.cxx
+  TestButtonWidgetMultipleViewports.cxx
   TestDijkstraGraphGeodesicPath.cxx
   TestLineWidget.cxx
   TestLineWidget2.cxx
