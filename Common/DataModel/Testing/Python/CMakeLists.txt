@@ -16,6 +16,7 @@ vtk_add_test_python(
   otherDataSetAttributes.py,NO_DATA,NO_VALID,NO_RT
   quadricCut.py,NO_RT
   quadraticQuadDeriv.py,NO_VALID,NO_RT
+  Test3DCellsEvaluatePosition.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestICPTransform.py,NO_RT
   TestMolecule.py,NO_VALID,NO_RT
   )

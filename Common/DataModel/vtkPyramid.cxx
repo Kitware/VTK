@@ -175,8 +175,8 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
   double determinantTolerance = 1e-20 < .00001*volumeBound ? 1e-20 : .00001*volumeBound;
 
   //  set initial position for Newton's method
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   double params[3] = {0.3333333, 0.3333333, 0.3333333};
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0];
 
   //  enter iteration loop
   int converged = 0;
@@ -250,9 +250,11 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
 
   this->InterpolationFunctions(pcoords, weights);
 
+  // This is correct in that the XY parametric coordinate plane "shrinks"
+  // while Z increases and X and Y always are between 0 and 1.
   if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
-  pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
-  pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
+       pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
+       pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
   {
     if (closestPoint)
     {

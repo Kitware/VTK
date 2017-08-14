@@ -115,9 +115,12 @@ vtkCell *vtkQuadraticTetra::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-static const double VTK_DIVERGED = 1.e6;
-static const int VTK_TETRA_MAX_ITERATION=20;
-static const double VTK_TETRA_CONVERGED=1.e-04;
+namespace
+{
+  static const double VTK_DIVERGED = 1.e6;
+  static const int VTK_TETRA_MAX_ITERATION=20;
+  static const double VTK_TETRA_CONVERGED=1.e-05;
+}
 
 int vtkQuadraticTetra::EvaluatePosition(double* x,
                                         double* closestPoint,
@@ -149,7 +152,7 @@ int vtkQuadraticTetra::EvaluatePosition(double* x,
   pcoords[0] = pcoords[1] = pcoords[2] = 0.25;
   //  enter iteration loop
   int converged = 0;
-  for (int iteration=0;!converged && (iteration < VTK_TETRA_MAX_ITERATION);  iteration++)
+  for (int iteration=0;!converged && (iteration < VTK_TETRA_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
@@ -222,7 +225,8 @@ int vtkQuadraticTetra::EvaluatePosition(double* x,
 
   if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
        pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
-       pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
+       pcoords[2] >= -0.001 && pcoords[2] <= 1.001 &&
+       pcoords[0]+pcoords[1]+pcoords[2] <= 1.001 )
   {
     if (closestPoint)
     {

@@ -150,9 +150,12 @@ vtkCell *vtkQuadraticPyramid::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-static const double VTK_DIVERGED = 1.e6;
-static const int VTK_PYRAMID_MAX_ITERATION=10;
-static const double VTK_PYRAMID_CONVERGED=1.e-03;
+namespace
+{
+  static const double VTK_DIVERGED = 1.e6;
+  static const int VTK_PYRAMID_MAX_ITERATION=20;
+  static const double VTK_PYRAMID_CONVERGED=1.e-03;
+}
 
 int vtkQuadraticPyramid::EvaluatePosition(double* x,
                                           double* closestPoint,
@@ -297,6 +300,8 @@ int vtkQuadraticPyramid::EvaluatePosition(double* x,
 
   this->InterpolationFunctions(pcoords, weights);
 
+  // This is correct in that the XY parametric coordinate plane "shrinks"
+  // while Z increases and X and Y always are between 0 and 1.
   if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
        pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
        pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
@@ -332,6 +337,7 @@ int vtkQuadraticPyramid::EvaluatePosition(double* x,
                              static_cast<double *>(w));
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
     }
+
     return 0;
   }
 }

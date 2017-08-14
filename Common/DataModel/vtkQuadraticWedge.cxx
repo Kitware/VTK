@@ -257,7 +257,8 @@ int vtkQuadraticWedge::EvaluatePosition(double* x,
 
   if ( pcoords[0] >= -0.001 && pcoords[0] <= 1.001 &&
        pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
-       pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
+       pcoords[2] >= -0.001 && pcoords[2] <= 1.001 &&
+       pcoords[0]+pcoords[1] <= 1.001 )
   {
     if (closestPoint)
     {
