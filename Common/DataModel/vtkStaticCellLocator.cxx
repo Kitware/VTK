@@ -83,36 +83,36 @@ struct vtkCellBinner
 
   // Construction
   vtkCellBinner(vtkStaticCellLocator *loc, vtkIdType numCells, int numBins)
-    {
-      this->Locator = loc;
-      this->NumCells = numCells;
-      this->NumBins = numBins;
-      this->NumFragments = 0;
-      this->DataSet = loc->GetDataSet();
-      loc->GetDivisions(this->Divisions);
+  {
+    this->Locator = loc;
+    this->NumCells = numCells;
+    this->NumBins = numBins;
+    this->NumFragments = 0;
+    this->DataSet = loc->GetDataSet();
+    loc->GetDivisions(this->Divisions);
 
-      // Allocate data. Note that these arrays are deleted elsewhere
-      this->CellBounds = new double [numCells*6];
-      this->Counts = new vtkIdType [numCells+1]; //one extra holds total count
+    // Allocate data. Note that these arrays are deleted elsewhere
+    this->CellBounds = new double [numCells*6];
+    this->Counts = new vtkIdType [numCells+1]; //one extra holds total count
 
-      // Setup internal data members for more efficient processing.
-      this->hX = this->H[0] = loc->H[0];
-      this->hY = this->H[1] = loc->H[1];
-      this->hZ = this->H[2] = loc->H[2];
-      this->fX = 1.0 / loc->H[0];
-      this->fY = 1.0 / loc->H[1];
-      this->fZ = 1.0 / loc->H[2];
-      this->bX = this->Bounds[0] = loc->Bounds[0];
-      this->Bounds[1] = loc->Bounds[1];
-      this->bY = this->Bounds[2] = loc->Bounds[2];
-      this->Bounds[3] = loc->Bounds[3];
-      this->bZ = this->Bounds[4] = loc->Bounds[4];
-      this->Bounds[5] = loc->Bounds[5];
-      this->xD = this->Divisions[0];
-      this->yD = this->Divisions[1];
-      this->zD = this->Divisions[2];
-      this->xyD = this->Divisions[0] * this->Divisions[1];
-    }
+    // Setup internal data members for more efficient processing.
+    this->hX = this->H[0] = loc->H[0];
+    this->hY = this->H[1] = loc->H[1];
+    this->hZ = this->H[2] = loc->H[2];
+    this->fX = 1.0 / loc->H[0];
+    this->fY = 1.0 / loc->H[1];
+    this->fZ = 1.0 / loc->H[2];
+    this->bX = this->Bounds[0] = loc->Bounds[0];
+    this->Bounds[1] = loc->Bounds[1];
+    this->bY = this->Bounds[2] = loc->Bounds[2];
+    this->Bounds[3] = loc->Bounds[3];
+    this->bZ = this->Bounds[4] = loc->Bounds[4];
+    this->Bounds[5] = loc->Bounds[5];
+    this->xD = this->Divisions[0];
+    this->yD = this->Divisions[1];
+    this->zD = this->Divisions[2];
+    this->xyD = this->Divisions[0] * this->Divisions[1];
+  }
 
   ~vtkCellBinner()
   {
@@ -121,7 +121,7 @@ struct vtkCellBinner
   }
 
   void GetBinIndices(const double *x, int ijk[3]) const
-    {
+  {
     // Compute point index. Make sure it lies within range of locator.
     ijk[0] = static_cast<int>(((x[0] - bX) * fX));
     ijk[1] = static_cast<int>(((x[1] - bY) * fY));
@@ -130,16 +130,16 @@ struct vtkCellBinner
     ijk[0] = (ijk[0] < 0 ? 0 : (ijk[0] >= xD ? xD-1 : ijk[0]));
     ijk[1] = (ijk[1] < 0 ? 0 : (ijk[1] >= yD ? yD-1 : ijk[1]));
     ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= zD ? zD-1 : ijk[2]));
-    }
+  }
 
   // Given a point x, determine which bin it is in. Note that points
   // are clamped to lie inside of the locator.
   vtkIdType GetBinIndex(const double *x) const
-    {
+  {
     int ijk[3];
     this->GetBinIndices(x, ijk);
     return ijk[0] + ijk[1]*xD + ijk[2]*xyD;
-    }
+  }
 
   // These are helper functions
   vtkIdType CountBins(const int ijkMin[3], const int ijkMax[3])
@@ -149,46 +149,46 @@ struct vtkCellBinner
   }
 
   void Initialize()
-    {
-    }
+  {
+  }
 
   void operator() (vtkIdType cellId, vtkIdType endCellId)
+  {
+    double *bds = this->CellBounds + cellId*6;
+    vtkIdType *counts = this->Counts + cellId;
+    double xmin[3], xmax[3];
+    int ijkMin[3], ijkMax[3];
+
+    for ( ; cellId < endCellId; ++cellId, bds+=6 )
     {
-      double *bds = this->CellBounds + cellId*6;
-      vtkIdType *counts = this->Counts + cellId;
-      double xmin[3], xmax[3];
-      int ijkMin[3], ijkMax[3];
+      this->DataSet->GetCellBounds(cellId,bds);
+      xmin[0] = bds[0];
+      xmin[1] = bds[2];
+      xmin[2] = bds[4];
+      xmax[0] = bds[1];
+      xmax[1] = bds[3];
+      xmax[2] = bds[5];
 
-      for ( ; cellId < endCellId; ++cellId, bds+=6 )
-        {
-        this->DataSet->GetCellBounds(cellId,bds);
-        xmin[0] = bds[0];
-        xmin[1] = bds[2];
-        xmin[2] = bds[4];
-        xmax[0] = bds[1];
-        xmax[1] = bds[3];
-        xmax[2] = bds[5];
+      this->GetBinIndices(xmin,ijkMin);
+      this->GetBinIndices(xmax,ijkMax);
 
-        this->GetBinIndices(xmin,ijkMin);
-        this->GetBinIndices(xmax,ijkMax);
-
-        *counts++ = this->CountBins(ijkMin,ijkMax);
-        }
+      *counts++ = this->CountBins(ijkMin,ijkMax);
     }
+  }
 
   void Reduce()
-    {
-      //Perform prefix sum
-      vtkIdType *counts = this->Counts;
-      vtkIdType numBins, total=0, numCells=this->NumCells;
-      for ( vtkIdType i=0; i < numCells; ++i )
-        {
-        numBins = *counts;
-        *counts++ = total;
-        total += numBins;
-        }
-      this->NumFragments = total;
-    }
+  {
+    //Perform prefix sum
+    vtkIdType *counts = this->Counts;
+    vtkIdType numBins, total=0, numCells=this->NumCells;
+    for ( vtkIdType i=0; i < numCells; ++i )
+      {
+      numBins = *counts;
+      *counts++ = total;
+      total += numBins;
+      }
+    this->NumFragments = total;
+  }
 
 }; //vtkCellBinner
 
@@ -228,37 +228,37 @@ struct vtkCellProcessor
   unsigned char QueryNumber;
 
   vtkCellProcessor(vtkCellBinner *cb) : Binner(cb)
-    {
-      this->DataSet = cb->DataSet;
-      this->CellBounds = cb->CellBounds;
-      this->Counts = cb->Counts;
-      this->NumCells = cb->NumCells;
-      this->NumFragments = cb->NumFragments;
-      this->NumBins = cb->NumBins;
-      this->BatchSize = 10000; //building the offset array
-      this->NumBatches = static_cast<int>(
-        ceil(static_cast<double>(this->NumFragments) / this->BatchSize));
+  {
+    this->DataSet = cb->DataSet;
+    this->CellBounds = cb->CellBounds;
+    this->Counts = cb->Counts;
+    this->NumCells = cb->NumCells;
+    this->NumFragments = cb->NumFragments;
+    this->NumBins = cb->NumBins;
+    this->BatchSize = 10000; //building the offset array
+    this->NumBatches = static_cast<int>(
+      ceil(static_cast<double>(this->NumFragments) / this->BatchSize));
 
-      xD = cb->xD; //for speeding up computation
-      xyD = cb->xyD;
+    xD = cb->xD; //for speeding up computation
+    xyD = cb->xyD;
 
-      this->CellHasBeenVisited = nullptr;
-      this->QueryNumber = 0;
-    }
+    this->CellHasBeenVisited = nullptr;
+    this->QueryNumber = 0;
+  }
 
   virtual ~vtkCellProcessor()
-    {
-      delete [] this->CellHasBeenVisited;
-      this->CellHasBeenVisited = nullptr;
-    }
+  {
+    delete [] this->CellHasBeenVisited;
+    this->CellHasBeenVisited = nullptr;
+  }
 
   void ClearCellHasBeenVisited()
+  {
+    if (this->CellHasBeenVisited && this->DataSet)
     {
-      if (this->CellHasBeenVisited && this->DataSet)
-      {
-        memset(this->CellHasBeenVisited, 0, this->DataSet->GetNumberOfCells());
-      }
+      memset(this->CellHasBeenVisited, 0, this->DataSet->GetNumberOfCells());
     }
+  }
 
   // Satisfy cell locator API
   virtual vtkIdType FindCell(double pos[3], vtkGenericCell *cell,
@@ -281,14 +281,14 @@ struct CellProcessor : public vtkCellProcessor
   T                *Offsets; //offsets for each bin into the map
 
   CellProcessor(vtkCellBinner *cb) : vtkCellProcessor(cb)
-    {
-      // Prepare to sort
-      // one extra to simplify traversal
-      this->Map = new CellFragments<T>[this->NumFragments+1];
-      this->Map[this->NumFragments].BinId = this->NumBins;
-      this->Offsets = new T[this->NumBins+1];
-      this->Offsets[this->NumBins] = this->NumFragments;
-    }
+  {
+    // Prepare to sort
+    // one extra to simplify traversal
+    this->Map = new CellFragments<T>[this->NumFragments+1];
+    this->Map[this->NumFragments].BinId = this->NumBins;
+    this->Offsets = new T[this->NumBins+1];
+    this->Offsets[this->NumBins] = this->NumFragments;
+  }
 
   virtual ~CellProcessor()
   {
@@ -299,27 +299,27 @@ struct CellProcessor : public vtkCellProcessor
   // The number of cell ids in a bin is determined by computing the
   // difference between the offsets into the sorted cell fragments array.
   T GetNumberOfIds(vtkIdType binNum)
-    {
-      return (this->Offsets[binNum+1] - this->Offsets[binNum]);
-    }
+  {
+    return (this->Offsets[binNum+1] - this->Offsets[binNum]);
+  }
 
   // Given a bin number, return the cells ids in that bin.
   const CellFragments<T> *GetIds(vtkIdType binNum)
-    {
-      return this->Map + this->Offsets[binNum];
-    }
+  {
+    return this->Map + this->Offsets[binNum];
+  }
 
   void ComputeBinBounds(int i, int j, int k, double binBounds[6])
-    {
-      double *bds = this->Binner->Bounds;
-      double *h = this->Binner->H;
-      binBounds[0] = bds[0] + i*h[0];
-      binBounds[1] = binBounds[0] + h[0];
-      binBounds[2] = bds[2] + j*h[1];
-      binBounds[3] = binBounds[2] + h[1];
-      binBounds[4] = bds[4] + k*h[2];
-      binBounds[5] = binBounds[4] + h[2];
-    }
+  {
+    double *bds = this->Binner->Bounds;
+    double *h = this->Binner->H;
+    binBounds[0] = bds[0] + i*h[0];
+    binBounds[1] = binBounds[0] + h[0];
+    binBounds[2] = bds[2] + j*h[1];
+    binBounds[3] = binBounds[2] + h[1];
+    binBounds[4] = bds[4] + k*h[2];
+    binBounds[5] = binBounds[4] + h[2];
+  }
 
   int IsInBinBounds(double binBounds[6], double x[3], double tol = 0.0)
   {
@@ -350,49 +350,49 @@ struct CellProcessor : public vtkCellProcessor
 
   // This functor is used to perform the final cell binning
   void Initialize()
-    {
-    }
+  {
+  }
 
   void operator() (vtkIdType cellId, vtkIdType endCellId)
+  {
+    const double *bds = this->CellBounds + cellId*6;
+    CellFragments<T> *t = this->Map + *(this->Counts + cellId);
+    double xmin[3], xmax[3];
+    int ijkMin[3], ijkMax[3];
+    int i, j, k;
+    vtkIdType binId;
+
+    for ( ; cellId < endCellId; ++cellId, bds+=6 )
     {
-      const double *bds = this->CellBounds + cellId*6;
-      CellFragments<T> *t = this->Map + *(this->Counts + cellId);
-      double xmin[3], xmax[3];
-      int ijkMin[3], ijkMax[3];
-      int i, j, k;
-      vtkIdType binId;
+      xmin[0] = bds[0];
+      xmin[1] = bds[2];
+      xmin[2] = bds[4];
+      xmax[0] = bds[1];
+      xmax[1] = bds[3];
+      xmax[2] = bds[5];
 
-      for ( ; cellId < endCellId; ++cellId, bds+=6 )
+      this->Binner->GetBinIndices(xmin,ijkMin);
+      this->Binner->GetBinIndices(xmax,ijkMax);
+
+      for (k=ijkMin[2]; k <= ijkMax[2]; ++k)
+       {
+        for (j=ijkMin[1]; j <= ijkMax[1]; ++j)
         {
-        xmin[0] = bds[0];
-        xmin[1] = bds[2];
-        xmin[2] = bds[4];
-        xmax[0] = bds[1];
-        xmax[1] = bds[3];
-        xmax[2] = bds[5];
-
-        this->Binner->GetBinIndices(xmin,ijkMin);
-        this->Binner->GetBinIndices(xmax,ijkMax);
-
-        for (k=ijkMin[2]; k <= ijkMax[2]; ++k)
+          for (i=ijkMin[0]; i <= ijkMax[0]; ++i)
           {
-          for (j=ijkMin[1]; j <= ijkMax[1]; ++j)
-            {
-            for (i=ijkMin[0]; i <= ijkMax[0]; ++i)
-              {
-              binId = i + j*xD + k*xyD;
-              t->CellId = cellId;
-              t->BinId = binId;
-              t++;
-              }
-            }
+            binId = i + j*xD + k*xyD;
+            t->CellId = cellId;
+            t->BinId = binId;
+            t++;
           }
         }
+      }
     }
+  }
 
   void Reduce()
-    {
-    }
+  {
+  }
 }; //CellProcessor
 
 // This functor class creates offsets for each cell into the sorted tuple
@@ -409,18 +409,18 @@ struct MapOffsets
   int BatchSize;
 
   MapOffsets(CellProcessor<TId> *p) : Processor(p)
-    {
-      this->Map = p->Map;
-      this->Offsets = p->Offsets;
-      this->NumCells = p->NumCells;
-      this->NumBins = p->NumBins;
-      this->NumFragments = p->NumFragments;
-      this->BatchSize = p->BatchSize;
-    }
+  {
+    this->Map = p->Map;
+    this->Offsets = p->Offsets;
+    this->NumCells = p->NumCells;
+    this->NumBins = p->NumBins;
+    this->NumFragments = p->NumFragments;
+    this->BatchSize = p->BatchSize;
+  }
 
   // Traverse sorted points (i.e., tuples) and update bin offsets.
   void  operator()(vtkIdType batch, vtkIdType batchEnd)
-    {
+  {
     TId *offsets = this->Offsets;
     const CellFragments<TId> *curPt =
       this->Map + batch*this->BatchSize;
@@ -435,37 +435,37 @@ struct MapOffsets
     // the first point is in bin# N, then all bins up and including
     // N must refer to the first point.
     if ( curPt == this->Map )
-      {
+    {
       prevPt = this->Map;
       std::fill_n(offsets, curPt->BinId+1, 0); //point to the first points
-      }//at the very beginning of the map (sorted points array)
+    }//at the very beginning of the map (sorted points array)
 
     // We are entering this functor somewhere in the interior of the
     // mapped points array. All we need to do is point to the entry
     // position because we are interested only in prevPt->BinId.
     else
-      {
+    {
       prevPt = curPt;
-      }//else in the middle of a batch
+    }//else in the middle of a batch
 
     // Okay we have a starting point for a bin run. Now we can begin
     // filling in the offsets in this batch. A previous thread should
     // have/will have completed the previous and subsequent runs outside
     // of the [batch,batchEnd) range
     for ( curPt=prevPt; curPt < endBatchPt; )
-      {
+    {
       for ( ; curPt->BinId == prevPt->BinId && curPt <= endBatchPt;
             ++curPt )
-        {
+      {
         ; //advance
-        }
+      }
       // Fill in any gaps in the offset array
       std::fill_n(offsets + prevPt->BinId + 1,
                   curPt->BinId - prevPt->BinId,
                   curPt - this->Map);
       prevPt = curPt;
-      }//for all batches in this range
-    }//operator()
+    }//for all batches in this range
+  }//operator()
 
 }; //MapOffsets
 
@@ -479,43 +479,43 @@ FindCell(double pos[3], vtkGenericCell *cell, double pcoords[3], double* weights
 
   // Only thread the evaluation if enough cells need to be processed
   if ( numIds < 1 )
-    {
+  {
     return -1;
-    }
+  }
   // Run through serially. A parallel implementation is possible but does
   // not seem to be much faster.
   else
-    {
+  {
     const CellFragments<T> *cellIds = this->GetIds(binId);
     double dist2, *bounds, bds[6], delta[3] = {0.0, 0.0, 0.0};
     int subId;
     vtkIdType cellId;
 
     for (int j=0; j < numIds; j++)
-      {
+    {
       cellId = cellIds[j].CellId;
       if (this->CellBounds)
-        {
+      {
         bounds = this->CellBounds + 6*cellId;
-        }
+      }
       else
-        {
+      {
         this->DataSet->GetCellBounds(cellId,bds);
         bounds = bds;
-        }
+      }
 
       if ( vtkMath::PointIsWithinBounds(pos, bounds, delta) )
-        {
+      {
         this->DataSet->GetCell(cellId, cell);
         if (cell->EvaluatePosition(pos, nullptr, subId, pcoords, dist2, weights) == 1)
-          {
+        {
           return cellId;
-          }
-        }//in bounding box
-      }//for cells in this bin
+        }
+      }//in bounding box
+    }//for cells in this bin
 
     return -1; //nothing found
-    }//serial
+  }//serial
 }
 
 //-----------------------------------------------------------------------------
@@ -542,28 +542,27 @@ FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 
   // Loop over the block of bins and add cells that have not yet been visited.
   for ( k=ijkMin[2]; k <= ijkMax[2]; ++k)
-    {
+  {
     kOffset = k*this->xyD;
     for ( j=ijkMin[1]; j <= ijkMax[1]; ++j)
-      {
+    {
       jOffset = j*this->xD;
       for ( i=ijkMin[0]; i <= ijkMax[0]; ++i)
-        {
+      {
         binNum = i + jOffset + kOffset;
 
         if ( (numIds = this->GetNumberOfIds(binNum)) > 0 )
-          {
+        {
           ids = this->GetIds(binNum);
           for (ii=0; ii < numIds; ii++)
-            {
+          {
             // Could use query mechanism to speed up at some point
             cells->InsertUniqueId( ids[ii].CellId );
-            }//for all points in bucket
-          }//if points in bucket
-        }//i-footprint
-      }//j-footprint
-    }//k-footprint
-
+          }//for all points in bucket
+        }//if points in bucket
+      }//i-footprint
+    }//j-footprint
+  }//k-footprint
 }
 
 //-----------------------------------------------------------------------------
@@ -815,9 +814,9 @@ vtkStaticCellLocator::vtkStaticCellLocator()
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 100;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   for(int i=0;i<6;i++)
-    {
+  {
     this->Bounds[i] = 0;
-    }
+  }
   this->MaxNumberOfBuckets = VTK_INT_MAX;
   this->LargeIds = false;
 
@@ -835,15 +834,15 @@ vtkStaticCellLocator::~vtkStaticCellLocator()
 void vtkStaticCellLocator::FreeSearchStructure()
 {
   if ( this->Binner )
-    {
+  {
     delete this->Binner;
     this->Binner = nullptr;
-    }
+  }
   if ( this->Processor )
-    {
+  {
     delete this->Processor;
     this->Processor = nullptr;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -853,9 +852,9 @@ FindCell(double pos[3], double, vtkGenericCell *cell,
 {
   this->BuildLocator();
   if ( ! this->Processor )
-    {
+  {
     return -1;
-    }
+  }
   return this->Processor->FindCell(pos,cell,pcoords,weights);
 }
 
@@ -866,9 +865,9 @@ FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 {
   this->BuildLocator();
   if ( ! this->Processor )
-    {
+  {
     return;
-    }
+  }
   return this->Processor->FindCellsWithinBounds(bbox, cells);
 }
 
@@ -881,9 +880,9 @@ IntersectWithLine(double p1[3], double p2[3], double tol,
 {
   this->BuildLocator();
   if ( ! this->Processor )
-    {
+  {
     return 0;
-    }
+  }
   return this->Processor->
     IntersectWithLine(p1,p2,tol,t,x,pcoords,subId,cellId,cell);
 }
@@ -898,22 +897,22 @@ BuildLocator()
   // Do we need to build?
   if ( (this->Binner != nullptr) && (this->BuildTime > this->MTime)
        && (this->BuildTime > this->DataSet->GetMTime()) )
-    {
+  {
     return;
-    }
+  }
 
   vtkIdType numCells;
   if ( !this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1 )
-    {
+  {
     vtkErrorMacro( << "No cells to build");
     return;
-    }
+  }
 
   // Prepare
   if ( this->Binner )
-    {
+  {
     this->FreeSearchStructure();
-    }
+  }
 
   // The bounding box can be slow
   int i, ndivs[3];
@@ -945,9 +944,9 @@ BuildLocator()
 
   // Compute bin/bucket widths
   for (i=0; i<3; i++)
-    {
+  {
     this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / this->Divisions[i] ;
-    }
+  }
 
   // Actually do the hard work of creating the locator. Clear out old stuff.
   delete this->Binner;
@@ -959,7 +958,7 @@ BuildLocator()
   // on problem size, different types are used.
   vtkIdType numFragments = this->Binner->NumFragments;
   if ( numFragments >= VTK_INT_MAX )
-    {
+  {
     this->LargeIds = true;
     CellProcessor<vtkIdType> *processor =
       new CellProcessor<vtkIdType>(this->Binner);
@@ -968,9 +967,9 @@ BuildLocator()
     MapOffsets<vtkIdType> mapOffsets(processor);
     vtkSMPTools::For(0, processor->NumBatches, mapOffsets);
     this->Processor = processor;
-    }
+  }
   else
-    {
+  {
     this->LargeIds = false;
     CellProcessor<int> *processor =
       new CellProcessor<int>(this->Binner);
@@ -979,7 +978,7 @@ BuildLocator()
     MapOffsets<int> mapOffsets(processor);
     vtkSMPTools::For(0, processor->NumBatches, mapOffsets);
     this->Processor = processor;
-    }
+  }
 
   this->BuildTime.Modified();
 }

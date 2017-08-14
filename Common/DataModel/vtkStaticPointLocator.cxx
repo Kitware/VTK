@@ -74,30 +74,30 @@ public:
   // Construction
   vtkBucketList(vtkStaticPointLocator *loc, vtkIdType numPts, int numBuckets)
   {
-      this->Locator = loc;
-      this->NumPts = numPts;
-      this->NumBuckets = numBuckets;
-      this->BatchSize = 10000; //building the offset array
-      this->DataSet = loc->GetDataSet();
-      loc->GetDivisions(this->Divisions);
+    this->Locator = loc;
+    this->NumPts = numPts;
+    this->NumBuckets = numBuckets;
+    this->BatchSize = 10000; //building the offset array
+    this->DataSet = loc->GetDataSet();
+    loc->GetDivisions(this->Divisions);
 
-      // Setup internal data members for more efficient processing.
-      this->hX = this->H[0] = loc->H[0];
-      this->hY = this->H[1] = loc->H[1];
-      this->hZ = this->H[2] = loc->H[2];
-      this->fX = 1.0 / loc->H[0];
-      this->fY = 1.0 / loc->H[1];
-      this->fZ = 1.0 / loc->H[2];
-      this->bX = this->Bounds[0] = loc->Bounds[0];
-      this->Bounds[1] = loc->Bounds[1];
-      this->bY = this->Bounds[2] = loc->Bounds[2];
-      this->Bounds[3] = loc->Bounds[3];
-      this->bZ = this->Bounds[4] = loc->Bounds[4];
-      this->Bounds[5] = loc->Bounds[5];
-      this->xD = this->Divisions[0];
-      this->yD = this->Divisions[1];
-      this->zD = this->Divisions[2];
-      this->xyD = this->Divisions[0] * this->Divisions[1];
+    // Setup internal data members for more efficient processing.
+    this->hX = this->H[0] = loc->H[0];
+    this->hY = this->H[1] = loc->H[1];
+    this->hZ = this->H[2] = loc->H[2];
+    this->fX = 1.0 / loc->H[0];
+    this->fY = 1.0 / loc->H[1];
+    this->fZ = 1.0 / loc->H[2];
+    this->bX = this->Bounds[0] = loc->Bounds[0];
+    this->Bounds[1] = loc->Bounds[1];
+    this->bY = this->Bounds[2] = loc->Bounds[2];
+    this->Bounds[3] = loc->Bounds[3];
+    this->bZ = this->Bounds[4] = loc->Bounds[4];
+    this->Bounds[5] = loc->Bounds[5];
+    this->xD = this->Divisions[0];
+    this->yD = this->Divisions[1];
+    this->zD = this->Divisions[2];
+    this->xyD = this->Divisions[0] * this->Divisions[1];
   }
 
   // Virtuals for templated subclasses
@@ -143,54 +143,53 @@ class NeighborBuckets
 public:
   NeighborBuckets()
   {
-      this->Count = 0;
-      this->P = &(this->InitialBuffer[0]);
-      this->MaxSize = VTK_INITIAL_BUCKET_SIZE;
+    this->Count = 0;
+    this->P = &(this->InitialBuffer[0]);
+    this->MaxSize = VTK_INITIAL_BUCKET_SIZE;
   }
   ~NeighborBuckets()
   {
-      this->Count = 0;
-      if ( this->P != &(this->InitialBuffer[0]) )
-      {
-        delete[] this->P;
-      }
+    this->Count = 0;
+    if ( this->P != &(this->InitialBuffer[0]) )
+    {
+      delete[] this->P;
+    }
   }
   int GetNumberOfNeighbors() { return this->Count; }
   void Reset() { this->Count = 0; }
 
   int *GetPoint(vtkIdType i)
   {
-      return this->P + 3*i;
-//      return (this->Count > i ?  this->P + 3*i : 0);
+    return this->P + 3*i;
   }
 
   vtkIdType InsertNextBucket(const int x[3])
   {
-      // Re-allocate if beyond the current max size.
-      // (Increase by VTK_INITIAL_BUCKET_SIZE)
-      int *tmp;
-      vtkIdType offset=this->Count*3;
+    // Re-allocate if beyond the current max size.
+    // (Increase by VTK_INITIAL_BUCKET_SIZE)
+    int *tmp;
+    vtkIdType offset=this->Count*3;
 
-      if (this->Count >= this->MaxSize)
+    if (this->Count >= this->MaxSize)
+    {
+      tmp = this->P;
+      this->MaxSize *= 2;
+      this->P = new int[this->MaxSize*3];
+
+      memcpy(this->P, tmp, offset*sizeof(int));
+
+      if ( tmp != this->InitialBuffer )
       {
-        tmp = this->P;
-        this->MaxSize *= 2;
-        this->P = new int[this->MaxSize*3];
-
-        memcpy(this->P, tmp, offset*sizeof(int));
-
-        if ( tmp != this->InitialBuffer )
-        {
-          delete [] tmp;
-        }
+        delete [] tmp;
       }
+    }
 
-      tmp = this->P + offset;
-      *tmp++ = *x++;
-      *tmp++ = *x++;
-      *tmp   = *x;
-      this->Count++;
-      return this->Count-1;
+    tmp = this->P + offset;
+    *tmp++ = *x++;
+    *tmp++ = *x++;
+    *tmp   = *x;
+    this->Count++;
+    return this->Count-1;
   }
 
 protected:
@@ -438,43 +437,43 @@ public:
   BucketList(vtkStaticPointLocator *loc, vtkIdType numPts, int numBuckets) :
     vtkBucketList(loc, numPts, numBuckets)
   {
-      //one extra to simplify traversal
-      this->Map = new LocatorTuple<TIds>[numPts+1];
-      this->Map[numPts].Bucket = numBuckets;
-      this->Offsets = new TIds[numBuckets+1];
-      this->Offsets[numBuckets] = numPts;
+    //one extra to simplify traversal
+    this->Map = new LocatorTuple<TIds>[numPts+1];
+    this->Map[numPts].Bucket = numBuckets;
+    this->Offsets = new TIds[numBuckets+1];
+    this->Offsets[numBuckets] = numPts;
   }
 
   // Release allocated memory
   ~BucketList() VTK_OVERRIDE
   {
-      delete [] this->Map;
-      delete [] this->Offsets;
+    delete [] this->Map;
+    delete [] this->Offsets;
   }
 
   // The number of point ids in a bucket is determined by computing the
   // difference between the offsets into the sorted points array.
   vtkIdType GetNumberOfIds(vtkIdType bucketNum)
   {
-      return (this->Offsets[bucketNum+1] - this->Offsets[bucketNum]);
+    return (this->Offsets[bucketNum+1] - this->Offsets[bucketNum]);
   }
 
   // Given a bucket number, return the point ids in that bucket.
   const LocatorTuple<TIds> *GetIds(vtkIdType bucketNum)
   {
-      return this->Map + this->Offsets[bucketNum];
+    return this->Map + this->Offsets[bucketNum];
   }
 
   // Given a bucket number, return the point ids in that bucket.
   void GetIds(vtkIdType bucketNum, vtkIdList *bList)
   {
-      const LocatorTuple<TIds> *ids = this->GetIds(bucketNum);
-      vtkIdType numIds = this->GetNumberOfIds(bucketNum);
-      bList->SetNumberOfIds(numIds);
-      for (int i=0; i < numIds; i++)
-      {
-        bList->SetId(i,ids[i].PtId);
-      }
+    const LocatorTuple<TIds> *ids = this->GetIds(bucketNum);
+    vtkIdType numIds = this->GetNumberOfIds(bucketNum);
+    bList->SetNumberOfIds(numIds);
+    for (int i=0; i < numIds; i++)
+    {
+      bList->SetId(i,ids[i].PtId);
+    }
   }
 
   // Templated implementations of the locator
@@ -617,47 +616,47 @@ public:
   // Build the map and other structures to support locator operations
   void BuildLocator() VTK_OVERRIDE
   {
-      // Place each point in a bucket
-      //
-      vtkPointSet *ps=static_cast<vtkPointSet *>(this->DataSet);
-      int mapped=0;
-      if ( ps )
-      {//map points array: explicit points representation
-        int dataType = ps->GetPoints()->GetDataType();
-        void *pts = ps->GetPoints()->GetVoidPointer(0);
-        if ( dataType == VTK_FLOAT )
-        {
-          MapPointsArray<TIds,float> mapper(this,static_cast<float*>(pts));
-          vtkSMPTools::For(0,this->NumPts, mapper);
-          mapped = 1;
-        }
-        else if ( dataType == VTK_DOUBLE )
-        {
-          MapPointsArray<TIds,double> mapper(this,static_cast<double*>(pts));
-          vtkSMPTools::For(0,this->NumPts, mapper);
-          mapped = 1;
-        }
-      }
-
-      if ( ! mapped )
-      {//map dataset points: non-float points or implicit points representation
-        MapDataSet<TIds> mapper(this,this->DataSet);
+    // Place each point in a bucket
+    //
+    vtkPointSet *ps=static_cast<vtkPointSet *>(this->DataSet);
+    int mapped=0;
+    if ( ps )
+    {//map points array: explicit points representation
+      int dataType = ps->GetPoints()->GetDataType();
+      void *pts = ps->GetPoints()->GetVoidPointer(0);
+      if ( dataType == VTK_FLOAT )
+      {
+        MapPointsArray<TIds,float> mapper(this,static_cast<float*>(pts));
         vtkSMPTools::For(0,this->NumPts, mapper);
+        mapped = 1;
       }
+      else if ( dataType == VTK_DOUBLE )
+      {
+        MapPointsArray<TIds,double> mapper(this,static_cast<double*>(pts));
+        vtkSMPTools::For(0,this->NumPts, mapper);
+        mapped = 1;
+      }
+    }
 
-      // Now gather the points into contiguous runs in buckets
-      //
-      vtkSMPTools::Sort(this->Map, this->Map + this->NumPts);
+    if ( ! mapped )
+    {//map dataset points: non-float points or implicit points representation
+      MapDataSet<TIds> mapper(this,this->DataSet);
+      vtkSMPTools::For(0,this->NumPts, mapper);
+    }
 
-      // Build the offsets into the Map. The offsets are the positions of
-      // each bucket into the sorted list. They mark the beginning of the
-      // list of points in each bucket. Amazingly, this can be done in
-      // parallel.
-      //
-      int numBatches = static_cast<int>(
-        ceil(static_cast<double>(this->NumPts) / this->BatchSize));
-      MapOffsets<TIds> offMapper(this);
-      vtkSMPTools::For(0,numBatches, offMapper);
+    // Now gather the points into contiguous runs in buckets
+    //
+    vtkSMPTools::Sort(this->Map, this->Map + this->NumPts);
+
+    // Build the offsets into the Map. The offsets are the positions of
+    // each bucket into the sorted list. They mark the beginning of the
+    // list of points in each bucket. Amazingly, this can be done in
+    // parallel.
+    //
+    int numBatches = static_cast<int>(
+      ceil(static_cast<double>(this->NumPts) / this->BatchSize));
+    MapOffsets<TIds> offMapper(this);
+    vtkSMPTools::For(0,numBatches, offMapper);
   }
 };
 

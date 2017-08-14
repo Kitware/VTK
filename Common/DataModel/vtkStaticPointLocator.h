@@ -198,7 +198,8 @@ public:
    * Inform the user as to whether large ids are being used. This flag only
    * has meaning after the locator has been built. Large ids are used when the
    * number of binned points, or the number of bins, is >= the maximum number
-   * of buckets (specified by the user).
+   * of buckets (specified by the user). Note that LargeIds are only available
+   * on 64-bit architectures.
    */
   bool GetLargeIds() {return this->LargeIds;}
 
