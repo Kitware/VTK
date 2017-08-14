@@ -1286,7 +1286,7 @@ void vtkImplicitCylinderRepresentation::PushCylinder(double d)
 //----------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::BuildRepresentation()
 {
-  if ( ! this->Renderer )
+  if ( !this->Renderer || !this->Renderer->GetRenderWindow() )
   {
     return;
   }
@@ -1302,7 +1302,8 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
   this->SphereActor->SetPropertyKeys(info);
 
   if ( this->GetMTime() > this->BuildTime ||
-       this->Cylinder->GetMTime() > this->BuildTime )
+       this->Cylinder->GetMTime() > this->BuildTime ||
+       this->Renderer->GetRenderWindow()->GetMTime() > this->BuildTime)
   {
     double *center = this->Cylinder->GetCenter();
     double *axis = this->Cylinder->GetAxis();
