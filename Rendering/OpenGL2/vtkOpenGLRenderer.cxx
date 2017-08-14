@@ -719,6 +719,9 @@ void vtkOpenGLRenderer::DonePick()
       }
     }
 
+    delete [] pixBuffer;
+    delete [] depthBuffer;
+
     this->PickInfo->NumPicked = (unsigned int)this->PickInfo->PickValues.size();
 
     this->PickInfo->PickedId = 0;
