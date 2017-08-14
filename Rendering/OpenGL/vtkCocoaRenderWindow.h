@@ -178,11 +178,6 @@ public:
   bool InitializeFromCurrentContext() VTK_OVERRIDE;
 
   /**
-   * Update system if needed due to stereo rendering.
-   */
-  void StereoUpdate() VTK_OVERRIDE;
-
-  /**
    * Prescribe that the window be created in a stereo-capable mode. This
    * method must be called before the window is realized. This method
    * overrrides the superclass method since this class can actually check

@@ -755,7 +755,6 @@ protected:
   int PolygonSmoothing;
   int StereoRender;
   int StereoType;
-  int StereoStatus; // used for keeping track of what's going on
   int StereoCapableWindow;
   int AlphaBitPlanes;
   vtkRenderWindowInteractor *Interactor;
