@@ -99,7 +99,7 @@ public:
   /**
    * Return the MTime of the last array exported by StillRenderToString.
    */
-  vtkGetMacro(LastStillRenderToStringMTime, vtkMTimeType);
+  vtkGetMacro(LastStillRenderToMTime, vtkMTimeType);
   //@}
 
   /**
@@ -131,7 +131,7 @@ protected:
 
   int ImageEncoding;
   int ImageCompression;
-  vtkMTimeType LastStillRenderToStringMTime;
+  vtkMTimeType LastStillRenderToMTime;
 
 private:
   vtkWebApplication(const vtkWebApplication&) VTK_DELETE_FUNCTION;
