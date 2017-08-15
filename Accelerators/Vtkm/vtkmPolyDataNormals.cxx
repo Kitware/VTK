@@ -94,7 +94,7 @@ int vtkmPolyDataNormals::RequestData(
     filter.SetPointNormalsName("Normals");
     auto result = filter.Execute(in, policy);
 
-    if (result.IsValid())
+    if (result.IsFieldValid())
     {
       out = result.GetDataSet();
       vtkmSuccess = true;

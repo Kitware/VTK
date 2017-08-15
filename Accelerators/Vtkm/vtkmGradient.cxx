@@ -172,7 +172,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
 
   // Run the VTK-m Gradient Filter
   // ----------------------------- //
-  vtkm::filter::ResultField result;
+  vtkm::filter::Result result;
   if(fieldIsPoint)
   {
     filter.SetComputePointGradient( !this->FasterApproximation );
@@ -183,7 +183,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
     //we need to convert the field to be a point field
     vtkm::filter::PointAverage cellToPoint;
     cellToPoint.SetOutputFieldName(field.GetName());
-    vtkm::filter::ResultField toPoint = cellToPoint.Execute(in, field, policy);
+    vtkm::filter::Result toPoint = cellToPoint.Execute(in, field, policy);
 
     filter.SetComputePointGradient( false );
     result = filter.Execute(in, toPoint.GetField(), policy);
@@ -191,7 +191,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
 
   // Verify that the filter ran correctly
   // ----------------------------- //
-  if(!result.IsValid())
+  if(!result.IsFieldValid())
   {
     vtkWarningMacro(<< "VTK-m gradient computation failed for an unknown reason.\n"
                     << "Falling back to vtkGradientFilter."
@@ -209,9 +209,9 @@ int vtkmGradient::RequestData(vtkInformation* request,
     //We need to convert this field back to a point field
     vtkm::filter::PointAverage cellToPoint;
     cellToPoint.SetOutputFieldName(filter.GetOutputFieldName());
-    vtkm::filter::ResultField toPointResult = cellToPoint.Execute(in,
-                                                                  result.GetField(),
-                                                                  policy);
+    vtkm::filter::Result toPointResult = cellToPoint.Execute(in,
+                                                             result.GetField(),
+                                                             policy);
     if(this->ComputeGradient)
       {
       vtkDataArray* gradientArray = fromvtkm::Convert(toPointResult.GetField());
@@ -220,7 +220,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
 
     if(this->ComputeDivergence && fieldIsVec)
       {
-      vtkm::filter::ResultField dresult =
+      vtkm::filter::Result dresult =
         cellToPoint.Execute(in, resultData.GetField(filter.GetDivergenceName()));
       vtkDataArray* divergenceArray = fromvtkm::Convert(dresult.GetField());
       output->GetPointData()->AddArray(divergenceArray);
@@ -228,7 +228,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
 
     if(this->ComputeVorticity  && fieldIsVec)
       {
-      vtkm::filter::ResultField vresult =
+      vtkm::filter::Result vresult =
         cellToPoint.Execute(in, resultData.GetField(filter.GetVorticityName()));
       vtkDataArray* vorticityArray = fromvtkm::Convert(vresult.GetField());
       output->GetPointData()->AddArray(vorticityArray);
@@ -236,7 +236,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
 
     if(this->ComputeQCriterion && fieldIsVec)
       {
-      vtkm::filter::ResultField qresult =
+      vtkm::filter::Result qresult =
         cellToPoint.Execute(in,resultData.GetField(filter.GetQCriterionName()));
       vtkDataArray* qcriterionArray = fromvtkm::Convert(qresult.GetField());
       output->GetPointData()->AddArray(qcriterionArray);

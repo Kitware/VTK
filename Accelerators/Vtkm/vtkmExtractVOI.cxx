@@ -96,8 +96,8 @@ int vtkmExtractVOI::RequestData(
   filter.SetSampleRate(this->SampleRate[0], this->SampleRate[1], this->SampleRate[2]);
   filter.SetIncludeBoundary(this->IncludeBoundary);
 
-  vtkm::filter::ResultDataSet result = filter.Execute(in, policy);
-  if (!result.IsValid())
+  vtkm::filter::Result result = filter.Execute(in, policy);
+  if (!result.IsDataSetValid())
   {
     vtkWarningMacro(<< "VTKm ExtractStructured algorithm failed to run."
                     << "Falling back to vtkExtractVOI.");

@@ -92,8 +92,8 @@ int vtkmCleanGrid::RequestData(vtkInformation* request,
 
   vtkm::filter::CleanGrid filter;
   filter.SetCompactPointFields(this->CompactPoints);
-  vtkm::filter::ResultDataSet result = filter.Execute(in, policy);
-  if (!result.IsValid())
+  vtkm::filter::Result result = filter.Execute(in, policy);
+  if (!result.IsDataSetValid())
   {
     vtkErrorMacro(<< "VTKm CleanGrid algorithm failed to run");
     return 0;
