@@ -14,6 +14,9 @@
 =========================================================================*/
 /**
  *  Tests depth peeling pass with volume rendering.
+ *
+ *  Adjusts the mapper's ImageSampleDistance during interaction.
+ *
  */
 
 #include <vtkCallbackCommand.h>
@@ -51,19 +54,22 @@ public:
   static SamplingDistanceCallback *New()
     { return new SamplingDistanceCallback; }
 
-  virtual void Execute(vtkObject *caller, unsigned long event,
-    void* data)
+  virtual void Execute(vtkObject* vtkNotUsed(caller), unsigned long event,
+    void* vtkNotUsed(data))
   {
     switch (event)
     {
       case vtkCommand::StartInteractionEvent:
         {
+          // Higher ImageSampleDistance to make the volume-rendered image's
+          // resolution visibly lower during interaction.
           this->Mapper->SetImageSampleDistance(6.5);
         }
         break;
 
       case vtkCommand::EndInteractionEvent:
         {
+          // Default ImageSampleDistance
           this->Mapper->SetImageSampleDistance(1.0);
         }
     }
