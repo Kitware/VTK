@@ -262,7 +262,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   maceActor->SetMapper(maceMapper.GetPointer());
 
   /*--------------------------------------------------------------------------*/
-  // Multiple ImplicitePlane Widgets
+  // Multiple ImplicitPlane Widgets
   /*--------------------------------------------------------------------------*/
   // Create a mace out of filters.
   //
@@ -334,7 +334,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   planeWidget->AddObserver(vtkCommand::UpdateEvent,
                            impPlaneCallback.GetPointer());
 
-  // First ImplicitPlaneWidget (Red)
+  // Second ImplicitPlaneWidget (Red)
   vtkNew<vtkImplicitPlaneRepresentation> impPlaneRep2;
   impPlaneRep2->SetOutlineTranslation(0);
   impPlaneRep2->SetScaleEnabled(0);
