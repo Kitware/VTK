@@ -85,6 +85,12 @@ public:
    */
   static vtkInformationObjectBaseVectorKey *RenderPasses();
 
+  /**
+   * Number of active draw buffers.
+   */
+  vtkSetMacro(ActiveDrawBuffers, unsigned int);
+  vtkGetMacro(ActiveDrawBuffers, unsigned int);
+
 protected:
   vtkOpenGLRenderPass();
   ~vtkOpenGLRenderPass() VTK_OVERRIDE;
@@ -98,6 +104,8 @@ protected:
    * Call after rendering to clean up the actors' information keys.
    */
   void PostRender(const vtkRenderState *s);
+
+  unsigned int ActiveDrawBuffers = 0;
 
 private:
   vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;

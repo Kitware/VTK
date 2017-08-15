@@ -1021,7 +1021,10 @@ void vtkDualDepthPeelingPass::ActivateDrawBuffers(const TextureName *ids,
                                           static_cast<unsigned int>(i),
                                           this->Textures[ids[i]]);
   }
-  this->Framebuffer->ActivateDrawBuffers(static_cast<unsigned int>(numTex));
+
+  const unsigned int numBuffers = static_cast<unsigned int>(numTex);
+  this->SetActiveDrawBuffers(numBuffers);
+  this->Framebuffer->ActivateDrawBuffers(numBuffers);
 }
 
 //------------------------------------------------------------------------------
