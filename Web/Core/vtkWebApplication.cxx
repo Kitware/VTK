@@ -220,7 +220,7 @@ const char* vtkWebApplication::StillRenderToString(vtkRenderWindow* view, vtkMTi
   vtkUnsignedCharArray* array = this->StillRender(view, quality);
   if (array && array->GetMTime() != time)
   {
-    this->LastStillRenderToStringMTime = array->GetMTime();
+    this->LastStillRenderToMTime = array->GetMTime();
     //cout << "Image size: " << array->GetNumberOfTuples() << endl;
     return reinterpret_cast<char*>(array->GetPointer(0));
   }
