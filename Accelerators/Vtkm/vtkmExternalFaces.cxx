@@ -128,8 +128,8 @@ int vtkmExternalFaces::RequestData(vtkInformation* request,
   // apply the filter
   vtkm::filter::ExternalFaces filter;
   filter.SetCompactPoints(this->CompactPoints);
-  vtkm::filter::ResultDataSet result = filter.Execute(in, policy);
-  if (!result.IsValid())
+  vtkm::filter::Result result = filter.Execute(in, policy);
+  if (!result.IsDataSetValid())
   {
     vtkErrorMacro(<< "VTKm ExternalFaces algorithm failed to run");
     return 0;

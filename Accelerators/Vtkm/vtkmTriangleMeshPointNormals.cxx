@@ -98,7 +98,7 @@ int vtkmTriangleMeshPointNormals::RequestData(
   filter.SetPointNormalsName("Normals");
   auto result = filter.Execute(in, policy);
 
-  if (!result.IsValid())
+  if (!result.IsFieldValid())
   {
     vtkWarningMacro(<< "VTKm SurfaceNormals algorithm failed to run."
                     << "Falling back to vtkTriangleMeshPointNormals.");

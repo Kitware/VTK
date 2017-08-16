@@ -109,14 +109,14 @@ int vtkmContour::RequestData(vtkInformation* request,
     vtkWarningMacro(<< "Will not be able to use VTKm field type is unknown");
   }
 
-  vtkm::filter::ResultDataSet result;
+  vtkm::filter::Result result;
   bool convertedDataSet = false;
   if (dataSetValid && fieldValid)
   {
     vtkmInputFilterPolicy policy;
     result = filter.Execute(in, field, policy);
 
-    if (!result.IsValid())
+    if (!result.IsDataSetValid())
     {
       vtkWarningMacro(<< "VTKm contour algorithm was failed to run. \n"
                       << "Falling back to serial implementation.");

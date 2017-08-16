@@ -86,9 +86,9 @@ int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
   vtkmInputFilterPolicy policy;
   vtkm::filter::CellAverage filter;
   filter.SetOutputFieldName(field.GetName()); // should we expose this control?
-  vtkm::filter::ResultField result = filter.Execute(in, field, policy);
+  vtkm::filter::Result result = filter.Execute(in, field, policy);
 
-  if (result.IsValid())
+  if (result.IsFieldValid())
   {
     // convert back the dataset to VTK, and add the field as a cell field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField());

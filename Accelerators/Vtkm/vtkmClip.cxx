@@ -147,7 +147,7 @@ int vtkmClip::RequestData(vtkInformation *,
   vtkm::filter::ClipWithImplicitFunction functionFilter;
 
   // Run filter:
-  vtkm::filter::ResultDataSet result;
+  vtkm::filter::Result result;
   vtkmInputFilterPolicy policy;
   if (this->ClipFunction)
   {
@@ -164,7 +164,7 @@ int vtkmClip::RequestData(vtkInformation *,
     result = fieldFilter.Execute(in, field, policy);
   }
 
-  if (!result.IsValid())
+  if (!result.IsDataSetValid())
   {
     vtkWarningMacro(<< "vtkm Clip filter failed to run.\n"
                     << "Falling back to serial implementation.");

@@ -80,7 +80,7 @@ int vtkmThreshold::RequestData(vtkInformation* request,
   const bool fieldValid =
       (field.GetAssociation() != vtkm::cont::Field::ASSOC_ANY);
 
-  vtkm::filter::ResultDataSet result;
+  vtkm::filter::Result result;
   bool convertedDataSet = false;
   if (dataSetValid && fieldValid)
   {
@@ -88,7 +88,7 @@ int vtkmThreshold::RequestData(vtkInformation* request,
     result = filter.Execute(in, field, policy);
 
     // convert other scalar arrays
-    if (result.IsValid())
+    if (result.IsDataSetValid())
     {
       vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
       for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
@@ -112,7 +112,7 @@ int vtkmThreshold::RequestData(vtkInformation* request,
     }
   }
 
-  if (!result.IsValid() || !convertedDataSet)
+  if (!result.IsDataSetValid() || !convertedDataSet)
   {
     vtkWarningMacro(<< "Could not use VTKm to generate threshold. "
                     << "Falling back to serial implementation.");

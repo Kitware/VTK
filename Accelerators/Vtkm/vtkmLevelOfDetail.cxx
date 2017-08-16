@@ -147,7 +147,7 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
                                              this->NumberOfDivisions[2]));
 
   vtkmInputFilterPolicy policy;
-  vtkm::filter::ResultDataSet result = filter.Execute(in, policy);
+  vtkm::filter::Result result = filter.Execute(in, policy);
 
   // currently we can't convert point based scalar arrays over to the new output
   // as the algorithm doesn't cache any of the interpolation data
@@ -157,7 +157,7 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
   // we just take a random value. See VTKM issue #161. The mapping below is a
   // no-op until this is resolved.
   bool convertedDataSet = false;
-  if (result.IsValid())
+  if (result.IsDataSetValid())
   {
     // Map fields:
     vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
