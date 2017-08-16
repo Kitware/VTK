@@ -1230,7 +1230,7 @@ void vtkImplicitPlaneRepresentation::PushPlane(double d)
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::BuildRepresentation()
 {
-  if ( ! this->Renderer )
+  if ( ! this->Renderer || ! this->Renderer->GetRenderWindow() )
   {
     return;
   }
@@ -1246,7 +1246,8 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
   this->SphereActor->SetPropertyKeys(info);
 
   if ( this->GetMTime() > this->BuildTime ||
-       this->Plane->GetMTime() > this->BuildTime )
+       this->Plane->GetMTime() > this->BuildTime ||
+       this->Renderer->GetRenderWindow()->GetMTime() > this->BuildTime )
   {
     double *origin = this->Plane->GetOrigin();
     double *normal = this->Plane->GetNormal();
