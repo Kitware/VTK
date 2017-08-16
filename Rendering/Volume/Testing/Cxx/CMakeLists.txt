@@ -86,6 +86,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastRenderDepthToImage2.cxx
   TestGPURayCastRenderToTexture.cxx
   TestGPURayCastTextureStreaming.cxx
+  TestGPURayCastTextureStreamingMask.cxx
   TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTransfer2D.cxx
