@@ -128,6 +128,7 @@ void vtkOpenVRMenuRepresentation::ComplexInteraction(
   {
     case vtkWidgetEvent::Select3D:
     {
+      this->VisibilityOff();
       int count = 0;
       for (auto &menu : this->Menus)
       {
@@ -138,7 +139,6 @@ void vtkOpenVRMenuRepresentation::ComplexInteraction(
         }
         count++;
       }
-      this->VisibilityOff();
     }
     break;
 
@@ -282,7 +282,7 @@ void vtkOpenVRMenuRepresentation::BuildRepresentation()
     menu->TextActor->SetScale(tscale, tscale, tscale);
     menu->TextActor->SetPosition(frameCenter);
     menu->TextActor->SetOrientation(this->PlacedOrientation);
-    menu->TextActor->RotateX(angle*180.0/3.1415926);
+    menu->TextActor->RotateX(-angle*180.0/3.1415926);
     count++;
   }
 }

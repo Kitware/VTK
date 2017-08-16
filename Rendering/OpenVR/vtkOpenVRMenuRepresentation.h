@@ -93,6 +93,8 @@ public:
   */
   void PushFrontMenuItem(const char *name, const char *text, vtkCommand *cmd);
 
+  vtkGetMacro(CurrentOption, double);
+
 protected:
   vtkOpenVRMenuRepresentation();
   ~vtkOpenVRMenuRepresentation() VTK_OVERRIDE;

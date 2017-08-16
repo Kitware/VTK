@@ -127,8 +127,8 @@ public:
   void SetInteractor(vtkRenderWindowInteractor* iren) VTK_OVERRIDE;
 
   // allow the user to add options to the menu
-  vtkOpenVRMenuRepresentation *GetMenuRepresentation() {
-    return this->MenuRepresentation.Get(); }
+  vtkOpenVRMenuWidget *GetMenu() {
+    return this->Menu.Get(); }
 
 protected:
   vtkOpenVRInteractorStyle();
