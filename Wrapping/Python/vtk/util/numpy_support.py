@@ -122,7 +122,6 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     """
 
     z = numpy.asarray(num_array)
-    
     if not z.flags.contiguous:
         z = numpy.ascontiguousarray(z)
 
