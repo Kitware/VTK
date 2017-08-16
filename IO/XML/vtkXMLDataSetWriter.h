@@ -68,15 +68,14 @@ protected:
   const char* GetDataSetName() VTK_OVERRIDE;
   const char* GetDefaultFileExtension() VTK_OVERRIDE;
 
-  // Callback registered with the ProgressObserver.
+  // Callback registered with the InternalProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
                                        void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
 
   // The observer to report progress from the internal writer.
-  vtkCallbackCommand* ProgressObserver;
-
+  vtkCallbackCommand* InternalProgressObserver;
 
 private:
   vtkXMLDataSetWriter(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;

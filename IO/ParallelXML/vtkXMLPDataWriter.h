@@ -130,7 +130,7 @@ protected:
   void SplitFileName();
   virtual int WritePiece(int index);
 
-  // Callback registered with the ProgressObserver.
+  // Callback registered with the InternalProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
                                        void*);
   // Progress callback from internal writer.
@@ -149,7 +149,7 @@ protected:
   char* PieceFileNameExtension;
 
   // The observer to report progress from the internal writer.
-  vtkCallbackCommand* ProgressObserver;
+  vtkCallbackCommand* InternalProgressObserver;
 
   vtkMultiProcessController* Controller;
 

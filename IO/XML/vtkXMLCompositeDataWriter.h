@@ -162,14 +162,14 @@ protected:
    */
   int WriteMetaFile;
 
-  // Callback registered with the ProgressObserver.
+  // Callback registered with the InternalProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
                                        void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
 
   // The observer to report progress from the internal writer.
-  vtkCallbackCommand* ProgressObserver;
+  vtkCallbackCommand* InternalProgressObserver;
 
   /**
    * Internal method called recursively to create the xml tree for

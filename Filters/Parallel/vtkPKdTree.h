@@ -354,7 +354,7 @@ private:
   int **ProcessList;                  // indexed by region ID
 
   int *NumRegionsInProcess;           // indexed by process ID
-  int **RegionList;                   // indexed by process ID
+  int **ParallelRegionList;                   // indexed by process ID
 
   vtkIdType **CellCountList;                // indexed by region ID
 

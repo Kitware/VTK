@@ -2445,7 +2445,7 @@ void vtkPKdTree::InitializeProcessDataLists()
   this->ProcessList = nullptr;
 
   this->NumRegionsInProcess = nullptr;
-  this->RegionList = nullptr;
+  this->ParallelRegionList = nullptr;
 
   this->CellCountList = nullptr;
 }
@@ -2473,9 +2473,9 @@ int vtkPKdTree::AllocateAndZeroProcessDataLists()
 
   if (this->NumRegionsInProcess == nullptr) goto doneError3;
 
-  MakeList(this->RegionList, int * ,nProcesses);
+  MakeList(this->ParallelRegionList, int * ,nProcesses);
 
-  if (this->RegionList == nullptr) goto doneError3;
+  if (this->ParallelRegionList == nullptr) goto doneError3;
 
   MakeList(this->CellCountList, vtkIdType * ,nRegions);
 
@@ -2494,7 +2494,7 @@ void vtkPKdTree::FreeProcessDataLists()
 
   FreeListOfLists(this->CellCountList, nRegions);
 
-  FreeListOfLists(this->RegionList, nProcesses);
+  FreeListOfLists(this->ParallelRegionList, nProcesses);
 
   FreeList(this->NumRegionsInProcess);
 
@@ -2686,8 +2686,8 @@ int vtkPKdTree::CreateProcessCellCountData()
 
     if (nregs > 0)
     {
-      this->RegionList[proc] = new int [nregs];
-      this->RegionList[proc][0] = -1;
+      this->ParallelRegionList[proc] = new int [nregs];
+      this->ParallelRegionList[proc][0] = -1;
     }
   }
 
@@ -2703,7 +2703,7 @@ int vtkPKdTree::CreateProcessCellCountData()
         this->AddEntry(this->ProcessList[reg],
                        this->NumProcessesInRegion[reg], proc);
 
-        this->AddEntry(this->RegionList[proc],
+        this->AddEntry(this->ParallelRegionList[proc],
                        this->NumRegionsInProcess[proc], reg);
       }
       procData++;
@@ -3642,7 +3642,7 @@ int vtkPKdTree::GetTotalRegionsForProcess(int processId)
 
 int vtkPKdTree::GetRegionListForProcess(int processId, vtkIntArray *regions)
 {
-  if (!this->RegionList ||
+  if (!this->ParallelRegionList ||
       (processId < 0) || (processId >= this->NumProcesses))
   {
     VTKERROR("GetRegionListForProcess - invalid request");
@@ -3653,7 +3653,7 @@ int vtkPKdTree::GetRegionListForProcess(int processId, vtkIntArray *regions)
 
   for (int i=0; i<nRegions; i++)
   {
-    regions->InsertNextValue(this->RegionList[processId][i]);
+    regions->InsertNextValue(this->ParallelRegionList[processId][i]);
   }
 
   return nRegions;
@@ -3673,7 +3673,7 @@ int vtkPKdTree::GetRegionsCellCountForProcess(int processId, int *count, int len
 
   for (int i=0; i<nRegions; i++)
   {
-    int regionId = this->RegionList[processId][i];
+    int regionId = this->ParallelRegionList[processId][i];
     int iam;
 
     for (iam = 0; iam < this->NumProcessesInRegion[regionId]; iam++)
@@ -3799,7 +3799,7 @@ void vtkPKdTree::PrintTables(ostream & os, vtkIndent indent)
       os << endl;
     }
   }
-  if (this->RegionList)
+  if (this->ParallelRegionList)
   {
     os << indent << "Regions held by each process:" << endl;
     for (p=0; p<nprocs; p++)
@@ -3811,7 +3811,7 @@ void vtkPKdTree::PrintTables(ostream & os, vtkIndent indent)
       for (r=0; r<n; r++)
       {
         if (r && (r%10==0)) os << endl << indent << "   ";
-        os << this->RegionList[p][r] << " " ;
+        os << this->ParallelRegionList[p][r] << " " ;
       }
       os << endl;
     }
@@ -3875,7 +3875,7 @@ void vtkPKdTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumProcessesInRegion: " << this->NumProcessesInRegion << endl;
   os << indent << "ProcessList: " << this->ProcessList << endl;
   os << indent << "NumRegionsInProcess: " << this->NumRegionsInProcess << endl;
-  os << indent << "RegionList: " << this->RegionList << endl;
+  os << indent << "ParallelRegionList: " << this->ParallelRegionList << endl;
   os << indent << "CellCountList: " << this->CellCountList << endl;
 
   os << indent << "StartVal: " << this->StartVal << endl;

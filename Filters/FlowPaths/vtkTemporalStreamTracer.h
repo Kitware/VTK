@@ -426,7 +426,7 @@ public:
     vtkSmartPointer<vtkCharArray>     ParticleSourceIds;
     vtkSmartPointer<vtkIntArray>      InjectedPointIds;
     vtkSmartPointer<vtkIntArray>      InjectedStepIds;
-    vtkSmartPointer<vtkIntArray>      ErrorCode;
+    vtkSmartPointer<vtkIntArray>      ErrorCodeArray;
     vtkSmartPointer<vtkFloatArray>    ParticleVorticity;
     vtkSmartPointer<vtkFloatArray>    ParticleRotation;
     vtkSmartPointer<vtkFloatArray>    ParticleAngularVel;
