@@ -31,6 +31,7 @@
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGridGeometryFilter.h"
@@ -423,6 +424,39 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
                                                vtkIdType *ext,
                                                vtkIdType *wholeExt)
 {
+  vtkRectilinearGrid *rgrid = vtkRectilinearGrid::SafeDownCast(input);
+  vtkStructuredGrid *sgrid = vtkStructuredGrid::SafeDownCast(input);
+  if (rgrid || sgrid)
+  {
+    // Fetch the grid dimension
+    int iext[6];
+    std::copy(ext, ext+6, iext);
+    int dimension = vtkStructuredData::GetDataDimension(iext);
+
+    if (dimension == 1)
+    {
+      // Use specialized filter in case of 1D grid
+      if (rgrid)
+      {
+        vtkNew<vtkRectilinearGridGeometryFilter> filter;
+        filter->SetInputData(input);
+        filter->SetExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
+        filter->Update();
+        output->ShallowCopy(filter->GetOutput());
+        return 1;
+      }
+      else if (sgrid)
+      {
+        vtkNew<vtkStructuredGridGeometryFilter> filter;
+        filter->SetInputData(input);
+        filter->SetExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
+        filter->Update();
+        output->ShallowCopy(filter->GetOutput());
+        return 1;
+      }
+    }
+  }
+
   vtkIdType numPoints, cellArraySize;
   vtkCellArray *outStrips;
   vtkCellArray *outPolys;
@@ -496,14 +530,12 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
   {
     case VTK_RECTILINEAR_GRID:
     {
-      vtkRectilinearGrid *grid = vtkRectilinearGrid::SafeDownCast(input);
-      dataType = grid->GetXCoordinates()->GetDataType();// ????
+      dataType = rgrid->GetXCoordinates()->GetDataType();
       break;
     }
     case VTK_STRUCTURED_GRID:
     {
-      vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(input);
-      dataType = grid->GetPoints()->GetDataType();
+      dataType = sgrid->GetPoints()->GetDataType();
       break;
     }
     case VTK_UNIFORM_GRID:
