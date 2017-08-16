@@ -813,7 +813,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->ParticleSourceIds   = vtkSmartPointer<vtkCharArray>::New();
   this->InjectedPointIds    = vtkSmartPointer<vtkIntArray>::New();
   this->InjectedStepIds     = vtkSmartPointer<vtkIntArray>::New();
-  this->ErrorCode           = vtkSmartPointer<vtkIntArray>::New();
+  this->ErrorCodeArray      = vtkSmartPointer<vtkIntArray>::New();
   this->ParticleVorticity   = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleRotation    = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleAngularVel  = vtkSmartPointer<vtkFloatArray>::New();
@@ -831,7 +831,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->ParticleSourceIds->SetName("ParticleSourceId");
   this->InjectedPointIds->SetName("InjectedPointId");
   this->InjectedStepIds->SetName("InjectionStepId");
-  this->ErrorCode->SetName("ErrorCode");
+  this->ErrorCodeArray->SetName("ErrorCode");
 
   if (this->ComputeVorticity)
   {
@@ -962,7 +962,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   this->OutputPointData->AddArray(this->ParticleSourceIds);
   this->OutputPointData->AddArray(this->InjectedPointIds);
   this->OutputPointData->AddArray(this->InjectedStepIds);
-  this->OutputPointData->AddArray(this->ErrorCode);
+  this->OutputPointData->AddArray(this->ErrorCodeArray);
   this->OutputPointData->AddArray(this->ParticleAge);
   if (this->ComputeVorticity)
   {
@@ -1191,7 +1191,7 @@ void vtkTemporalStreamTracer::IntegrateParticle(
     this->ParticleSourceIds->InsertNextValue(info.SourceID);
     this->InjectedPointIds->InsertNextValue(info.InjectedPointId);
     this->InjectedStepIds->InsertNextValue(info.InjectedStepId);
-    this->ErrorCode->InsertNextValue(info.ErrorCode);
+    this->ErrorCodeArray->InsertNextValue(info.ErrorCode);
     this->ParticleAge->InsertNextValue(info.age);
     //
     // Interpolate all existing point attributes

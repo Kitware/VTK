@@ -45,10 +45,10 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
   this->PieceFileNameExtension = nullptr;
 
   // Setup a callback for the internal writer to report progress.
-  this->ProgressObserver = vtkCallbackCommand::New();
-  this->ProgressObserver->SetCallback(
+  this->InternalProgressObserver = vtkCallbackCommand::New();
+  this->InternalProgressObserver->SetCallback(
     &vtkXMLPDataWriter::ProgressCallbackFunction);
-  this->ProgressObserver->SetClientData(this);
+  this->InternalProgressObserver->SetClientData(this);
 
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
@@ -67,7 +67,7 @@ vtkXMLPDataWriter::~vtkXMLPDataWriter()
   delete [] this->PieceFileNameExtension;
   delete [] this->PieceWrittenFlags;
   this->SetController(nullptr);
-  this->ProgressObserver->Delete();
+  this->InternalProgressObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -386,7 +386,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
   // Create the writer for the piece.  Its configuration should match
   // our own writer.
   vtkXMLWriter* pWriter = this->CreatePieceWriter(index);
-  pWriter->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
+  pWriter->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressObserver);
 
   char* fileName = this->CreatePieceFileName(index, this->PathName);
   std::string path = vtksys::SystemTools::GetParentDirectory(fileName);
@@ -411,7 +411,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
   this->SetErrorCode(pWriter->GetErrorCode());
 
   // Cleanup.
-  pWriter->RemoveObserver(this->ProgressObserver);
+  pWriter->RemoveObserver(this->InternalProgressObserver);
   pWriter->Delete();
 
   return result;

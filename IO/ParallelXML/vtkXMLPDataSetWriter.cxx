@@ -119,13 +119,13 @@ int vtkXMLPDataSetWriter::WriteInternal()
   writer->SetStartPiece(this->GetStartPiece());
   writer->SetEndPiece(this->GetEndPiece());
   writer->SetWriteSummaryFile(this->WriteSummaryFile);
-  writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
+  writer->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressObserver);
 
   // Try to write.
   int result = writer->Write();
 
   // Cleanup.
-  writer->RemoveObserver(this->ProgressObserver);
+  writer->RemoveObserver(this->InternalProgressObserver);
   writer->Delete();
   return result;
 }

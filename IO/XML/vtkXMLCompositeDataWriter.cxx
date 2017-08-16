@@ -90,9 +90,9 @@ vtkXMLCompositeDataWriter::vtkXMLCompositeDataWriter()
   this->WriteMetaFile = 1;
 
   // Setup a callback for the internal writers to report progress.
-  this->ProgressObserver = vtkCallbackCommand::New();
-  this->ProgressObserver->SetCallback(&vtkXMLCompositeDataWriter::ProgressCallbackFunction);
-  this->ProgressObserver->SetClientData(this);
+  this->InternalProgressObserver = vtkCallbackCommand::New();
+  this->InternalProgressObserver->SetCallback(&vtkXMLCompositeDataWriter::ProgressCallbackFunction);
+  this->InternalProgressObserver->SetClientData(this);
 
   this->InputInformation = nullptr;
 }
@@ -100,7 +100,7 @@ vtkXMLCompositeDataWriter::vtkXMLCompositeDataWriter()
 //----------------------------------------------------------------------------
 vtkXMLCompositeDataWriter::~vtkXMLCompositeDataWriter()
 {
-  this->ProgressObserver->Delete();
+  this->InternalProgressObserver->Delete();
   delete this->Internal;
 }
 
@@ -297,9 +297,9 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   writer->SetFileName(full.c_str());
 
   // Write the data.
-  writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
+  writer->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressObserver);
   writer->Write();
-  writer->RemoveObserver(this->ProgressObserver);
+  writer->RemoveObserver(this->InternalProgressObserver);
 
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
   {
