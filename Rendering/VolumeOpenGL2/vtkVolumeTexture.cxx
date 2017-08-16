@@ -133,6 +133,8 @@ void vtkVolumeTexture::SetInterpolation(int const interpolation)
 //-----------------------------------------------------------------------------
 vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetNextBlock()
 {
+  std::cout << "->>> blockidx / instance: " << this->CurrentBlockIdx << " / " << this << std::endl;
+
   // All blocks were already rendered
   if (this->SortedVolumeBlocks.size() <= this->CurrentBlockIdx)
   {
