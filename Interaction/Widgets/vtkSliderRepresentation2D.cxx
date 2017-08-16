@@ -249,8 +249,8 @@ void vtkSliderRepresentation2D::StartWidgetInteraction(double eventPos[2])
   // Compute which polygon the pick is in (if any).
   int subId;
   double event[3], pcoords[3], closest[3], weights[4], dist2;
-  event[0] = eventPos[0];
-  event[1] = eventPos[1];
+  event[0] = eventPos[0] - this->Renderer->GetOrigin()[0];
+  event[1] = eventPos[1] - this->Renderer->GetOrigin()[1];
   event[2] = 0.0;
 
   vtkCell *sliderCell = this->SliderXForm->GetOutput()->GetCell(0);
@@ -329,8 +329,8 @@ double vtkSliderRepresentation2D::ComputePickPosition(double eventPos[2])
   x2[2] = (p5[2] + p6[2])/2.0;
 
   double event[3], closestPoint[3];
-  event[0] = eventPos[0];
-  event[1] = eventPos[1];
+  event[0] = eventPos[0] - this->Renderer->GetOrigin()[0];
+  event[1] = eventPos[1] - this->Renderer->GetOrigin()[1];
   event[2] = 0.0;
 
   // Intersect geometry. Don't forget to scale the pick because the tube
