@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.79.
+// at least on macOS with cppcheck 1.80.
 
 // To run:
 // cd /path/to/VTK/
@@ -69,8 +69,8 @@ CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
 duplicateExpression:Rendering/Annotation/vtkScalarBarActor.cxx
 memleak:Examples/Infovis/Cxx/MultiView.cxx
-memleak:IO/Image/vtkJPEGReader.cxx
 memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
+memleak:IO/Image/vtkJPEGReader.cxx
 memleak:Rendering/OpenGL2/vtkOpenGLRenderTimerLog.cxx
 operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
 redundantAssignment:Wrapping/Tcl/vtkTclUtil.cxx
@@ -81,6 +81,8 @@ unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedLabelSwitch:IO/Exodus/vtkCPExodusIINodalCoordinatesTemplate.txx
+unusedStructMember:Common/Misc/vtkHeap.cxx
+unusedStructMember:IO/Infovis/vtkTulipReader.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
@@ -99,6 +101,7 @@ knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 knownConditionTrueFalse:IO/XML/Testing/Cxx/TestHyperOctreeIO.cxx
 knownConditionTrueFalse:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
+nullPointer:Wrapping/Tools/lex.yy.c
 
 // There are a fair number of these, but they are probably worth working through.
 // 16 warnings
@@ -108,6 +111,7 @@ invalidPointerCast:Rendering/OpenGL2/vtkOpenGLSphereMapper.cxx
 invalidPointerCast:Rendering/OpenGL2/vtkOpenGLStickMapper.cxx
 invalidPointerCast:Rendering/OpenGL2/vtkOpenGLVertexBufferObject.cxx
 invalidPointerCast:Rendering/ParallelLIC/vtkParallelTimer.cxx
+
 // 14 warnings
 copyCtorAndEqOperator
 
@@ -115,9 +119,10 @@ copyCtorAndEqOperator
 noConstructor:Common/Core/Testing/Cxx/TestCxxFeatures.cxx
 noConstructor:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
 noConstructor:Common/Core/vtkTypeList.txx
+noConstructor:Examples/GUI/Win32/vtkMFC/vtkSDI/vtkSDIView.h
+noConstructor:Filters/ParallelDIY2/vtkPResampleToImage.cxx
 noConstructor:Filters/ParallelDIY2/vtkPResampleWithDataSet.cxx
 noConstructor:Rendering/Core/Testing/Cxx/TestInteractorTimers.cxx
-noConstructor:Examples/GUI/Win32/vtkMFC/vtkSDI/vtkSDIView.h
 
 // Need someone that knows this code...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
