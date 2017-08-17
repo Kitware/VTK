@@ -17,10 +17,6 @@
 #ensure we link against our dependencies
 include(module.cmake)
 
-find_package(VTKm REQUIRED
-  OPTIONAL_COMPONENTS Serial CUDA TBB
-  )
-
 set(lib_srcs
   vtkmlib/PolyDataConverter.cxx
   vtkmlib/UnstructuredGridConverter.cxx
