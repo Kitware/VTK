@@ -426,10 +426,21 @@ ComputeInteractionState(int X, int Y, int)
 {
   // Is it in the text region or the image region?
   double x0[3], x2[3];
+  int origin[2] = {0, 0};
+  if (this->Renderer)
+  {
+    origin[0] = (this->Renderer->GetOrigin())[0];
+    origin[1] = (this->Renderer->GetOrigin())[1];
+  }
   if ( this->ImageVisible )
   {
     this->TexturePoints->GetPoint(0,x0);
     this->TexturePoints->GetPoint(2,x2);
+    for (int i = 0; i < 2; ++i)
+    {
+      x0[i] += origin[i];
+      x2[i] += origin[i];
+    }
     if ( (x0[0] <= X && X <= x2[0]) && (x0[1] <= Y && Y <= x2[1]) )
     {
       return vtkBalloonRepresentation::OnImage;
@@ -440,6 +451,11 @@ ComputeInteractionState(int X, int Y, int)
   {
     this->FramePoints->GetPoint(0,x0);
     this->FramePoints->GetPoint(2,x2);
+    for (int i = 0; i < 2; ++i)
+    {
+      x0[i] += origin[i];
+      x2[i] += origin[i];
+    }
     if ( (x0[0] <= X && X <= x2[0]) && (x0[1] <= Y && Y <= x2[1]) )
     {
       return vtkBalloonRepresentation::OnText;

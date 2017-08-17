@@ -55,6 +55,29 @@ void vtkButtonWidget::CreateDefaultRepresentation()
   }
 }
 
+//----------------------------------------------------------------------
+void vtkButtonWidget::SetEnabled(int enabling)
+{
+  if ( enabling ) //----------------
+  {
+    if (this->Interactor)
+    {
+      if (!this->CurrentRenderer)
+      {
+        int X=this->Interactor->GetEventPosition()[0];
+        int Y=this->Interactor->GetEventPosition()[1];
+        this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
+      }
+      this->CreateDefaultRepresentation();
+      this->WidgetRep->SetRenderer(this->CurrentRenderer);
+    }
+  }
+  else
+  {
+    this->SetCurrentRenderer(nullptr);
+  }
+  Superclass::SetEnabled(enabling);
+}
 
 //----------------------------------------------------------------------------------
 void vtkButtonWidget::MoveAction(vtkAbstractWidget *w)

@@ -96,6 +96,15 @@ public:
    */
   void CreateDefaultRepresentation() VTK_OVERRIDE;
 
+  /**
+   * The method for activating and deactivating this widget. This method
+   * must be overridden because it is a composite widget and does more than
+   * its superclasses' vtkAbstractWidget::SetEnabled() method. The
+   * method finds and sets the active viewport on the internal balloon
+   * representation.
+   */
+  void SetEnabled(int) VTK_OVERRIDE;
+
 protected:
   vtkButtonWidget();
   ~vtkButtonWidget() VTK_OVERRIDE {}
