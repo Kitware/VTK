@@ -164,11 +164,9 @@ struct WriteBinaryDataBlockWorker
 
   //----------------------------------------------------------------------------
   // Specialize for non-AoS generic arrays:
-  template <class ArrayT>
-  void operator()(ArrayT *array)
+  template <class DerivedType, typename ValueType>
+  void operator()(vtkGenericDataArray<DerivedType, ValueType> *array)
   {
-    typedef typename ArrayT::ValueType ValueType;
-
     // generic implementation for fixed component length arrays.
     size_t blockWords = this->Writer->GetBlockSize() / this->OutWordSize;
 
