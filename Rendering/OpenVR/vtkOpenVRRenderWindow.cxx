@@ -634,6 +634,8 @@ void vtkOpenVRRenderWindow::Initialize (void)
     return;
   }
 
+  this->MakeCurrent();
+
   this->OpenGLInit();
   glDepthRange(0., 1.);
 

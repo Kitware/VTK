@@ -30,16 +30,27 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 
-class vtkPropMap : public std::map<vtkProp*, vtkStdString> {};
-typedef std::map<vtkProp*, vtkStdString>::iterator vtkPropMapIterator;
-
 vtkStandardNewMacro(vtkOpenVRMenuWidget);
+
+class vtkOpenVRMenuWidget::InternalElement
+{
+  public:
+    vtkCommand *Command;
+    std::string Name;
+    std::string Text;
+  vtkOpenVRMenuRepresentation::InternalElement() {
+  }
+};
 
 //----------------------------------------------------------------------
 vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
 {
   // Set the initial state
   this->WidgetState = vtkOpenVRMenuWidget::Start;
+
+  this->EventCommand = vtkCallbackCommand::New();
+  this->EventCommand->SetClientData(this);
+  this->EventCommand->SetCallback(vtkOpenVRMenuWidget::EventCallback);
 
   {
     vtkNew<vtkEventDataButton3D> ed;
@@ -68,15 +79,73 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
       ed.Get(), vtkWidgetEvent::Move3D,
       this, vtkOpenVRMenuWidget::MoveAction);
   }
-
-  this->PropMap = new vtkPropMap;
 }
 
 //----------------------------------------------------------------------
 vtkOpenVRMenuWidget::~vtkOpenVRMenuWidget()
 {
-  this->PropMap->clear();
-  delete this->PropMap;
+  this->EventCommand->Delete();
+}
+
+void vtkOpenVRMenuWidget::PushFrontMenuItem(
+  std::string name,
+  std::string text,
+  vtkCommand *cmd)
+{
+  vtkOpenVRMenuWidget::InternalElement *el =
+    new vtkOpenVRMenuWidget::InternalElement();
+  el->Text = text;
+  el->Command = cmd;
+  el->Name = name;
+  this->Menus.push_front(el);
+
+  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->PushFrontMenuItem(
+        el->Name.c_str(), el->Text.c_str(), this->EventCommand);
+
+  this->Modified();
+}
+
+void vtkOpenVRMenuWidget::EventCallback(
+  vtkObject *,
+  unsigned long,
+  void *clientdata,
+  void *calldata)
+{
+  vtkOpenVRMenuWidget *self = static_cast<vtkOpenVRMenuWidget *>(clientdata);
+  std::string name = static_cast<const char *>(calldata);
+
+  for (auto &menu : self->Menus)
+  {
+    if (menu->Name == name)
+    {
+      menu->Command->Execute(self, vtkWidgetEvent::Select3D,
+        static_cast<void *>(const_cast<char *>(menu->Name.c_str())));
+    }
+  }
+}
+
+//-------------------------------------------------------------------------
+void vtkOpenVRMenuWidget::ShowSubMenu(vtkOpenVRMenuWidget *w)
+{
+  w->SetInteractor(this->Interactor);
+  w->Show(static_cast<vtkEventData *>(this->CallData));
+}
+
+void vtkOpenVRMenuWidget::Show(vtkEventData *ed)
+{
+  this->On();
+  if (this->WidgetState == vtkOpenVRMenuWidget::Start)
+  {
+    if ( ! this->Parent )
+    {
+      this->GrabFocus(this->EventCallbackCommand);
+    }
+    this->CallData = ed;
+    this->WidgetRep->StartComplexInteraction(
+      this->Interactor, this, vtkWidgetEvent::Select, ed);
+
+    this->WidgetState = vtkOpenVRMenuWidget::Active;
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -84,28 +153,18 @@ void vtkOpenVRMenuWidget::StartMenuAction(vtkAbstractWidget *w)
 {
   vtkOpenVRMenuWidget *self = reinterpret_cast<vtkOpenVRMenuWidget*>(w);
 
-  // basically toggle the display of the menu
-  if (self->WidgetState == vtkOpenVRMenuWidget::Start)
-  {
-    if ( ! self->Parent )
-    {
-      self->GrabFocus(self->EventCallbackCommand);
-    }
-    self->WidgetRep->StartComplexInteraction(
-      self->Interactor, self, vtkWidgetEvent::Select, self->CallData);
-
-    self->WidgetState = vtkOpenVRMenuWidget::Active;
-  }
-  else
+  if (self->WidgetState == vtkOpenVRMenuWidget::Active)
   {
     if ( ! self->Parent )
     {
       self->ReleaseFocus();
     }
+
+    self->Off();
+    self->WidgetState = vtkOpenVRMenuWidget::Start;
+
     self->WidgetRep->EndComplexInteraction(
       self->Interactor, self, vtkWidgetEvent::Select, self->CallData);
-
-    self->WidgetState = vtkOpenVRMenuWidget::Start;
   }
 }
 
@@ -119,13 +178,16 @@ void vtkOpenVRMenuWidget::SelectMenuAction(vtkAbstractWidget *w)
     return;
   }
 
-  self->WidgetRep->ComplexInteraction(
-    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
   if ( ! self->Parent )
   {
     self->ReleaseFocus();
   }
+
+  self->Off();
   self->WidgetState = vtkOpenVRMenuWidget::Start;
+
+  self->WidgetRep->ComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
 }
 
 //-------------------------------------------------------------------------

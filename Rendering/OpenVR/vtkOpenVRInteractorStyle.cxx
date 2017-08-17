@@ -87,6 +87,8 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
     vtkEventDataDeviceInput::TrackPad, VTKIS_DOLLY);
   this->MapInputToAction(vtkEventDataDevice::RightController,
     vtkEventDataDeviceInput::Grip, VTKIS_LOAD_CAMERA_POSE);
+  this->MapInputToAction(vtkEventDataDevice::RightController,
+    vtkEventDataDeviceInput::ApplicationMenu, VTKIS_MENU);
 
   this->MapInputToAction(vtkEventDataDevice::LeftController,
     vtkEventDataDeviceInput::ApplicationMenu, VTKIS_TOGGLE_DRAW_CONTROLS);
@@ -101,23 +103,23 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
   this->MenuCommand->SetCallback(vtkOpenVRInteractorStyle::MenuCallback);
 
   this->Menu->SetRepresentation(this->MenuRepresentation.Get());
-  this->MenuRepresentation->PushFrontMenuItem(
+  this->Menu->PushFrontMenuItem(
     "exit",
     "Exit",
     this->MenuCommand);
-  this->MenuRepresentation->PushFrontMenuItem(
+  this->Menu->PushFrontMenuItem(
     "togglelabel",
     "Toggle Controller Labels",
     this->MenuCommand);
-  this->MenuRepresentation->PushFrontMenuItem(
+  this->Menu->PushFrontMenuItem(
     "clipmode",
     "Clipping Mode",
     this->MenuCommand);
-  this->MenuRepresentation->PushFrontMenuItem(
+  this->Menu->PushFrontMenuItem(
     "probemode",
     "Probe Mode",
     this->MenuCommand);
-  this->MenuRepresentation->PushFrontMenuItem(
+  this->Menu->PushFrontMenuItem(
     "grabmode",
     "Grab Mode",
     this->MenuCommand);
@@ -198,12 +200,6 @@ void vtkOpenVRInteractorStyle::MenuCallback(vtkObject* vtkNotUsed(object),
 //----------------------------------------------------------------------------
 void vtkOpenVRInteractorStyle::OnMove3D(vtkEventData *edata)
 {
-  if (!this->Menu->GetEnabled())
-  {
-    this->Menu->SetInteractor(this->Interactor);
-    this->Menu->On();
-  }
-
   vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
   if (!edd)
   {
@@ -845,6 +841,10 @@ void vtkOpenVRInteractorStyle::EndAction(int state, vtkEventDataDevice3D *edata)
       break;
     case VTKIS_PICK:
       this->EndPick(edata);
+      break;
+    case VTKIS_MENU:
+      this->Menu->SetInteractor(this->Interactor);
+      this->Menu->Show(edata);
       break;
     case VTKIS_LOAD_CAMERA_POSE:
       this->EndLoadCamPose(edata);

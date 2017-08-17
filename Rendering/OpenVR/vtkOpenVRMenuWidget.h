@@ -24,9 +24,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAbstractWidget.h"
 
+class vtkEventData;
 class vtkOpenVRMenuRepresentation;
 class vtkPropMap;
 class vtkProp;
+
+#include <deque>
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRMenuWidget : public vtkAbstractWidget
 {
@@ -66,7 +69,6 @@ public:
   // Manage the state of the widget
   enum _WidgetState {Start=0,Active};
 
-
   /**
   * Create a tooltip associated to a prop.
   * Note that if the tooltip is already assigned to this prop,
@@ -75,23 +77,35 @@ public:
   void AddTooltip(vtkProp *prop, vtkStdString* str);
   void AddTooltip(vtkProp *prop, const char* str);
 
+  void PushFrontMenuItem(std::string name, std::string text, vtkCommand *cmd);
+
+  void Show(vtkEventData *ed);
+  void ShowSubMenu(vtkOpenVRMenuWidget *);
+
 protected:
   vtkOpenVRMenuWidget();
   ~vtkOpenVRMenuWidget() VTK_OVERRIDE;
 
   int WidgetState;
 
+  class InternalElement;
+  std::deque<InternalElement *> Menus;
+
   // These are the callbacks for this widget
   static void StartMenuAction(vtkAbstractWidget*);
   static void SelectMenuAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
 
+  vtkCallbackCommand* EventCommand;
+  static void EventCallback(vtkObject* object,
+                    unsigned long event,
+                    void* clientdata,
+                    void* calldata);
+
   /**
   * Update callback to check for the hovered prop
   */
   static void Update(vtkAbstractWidget*);
-
-  vtkPropMap *PropMap; //PIMPL'd map of (vtkProp,char*)
 
 private:
   vtkOpenVRMenuWidget(const vtkOpenVRMenuWidget&) VTK_DELETE_FUNCTION;
