@@ -119,10 +119,10 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     the numpy data is gc'd and VTK will point to garbage which will in
     the best case give you a segfault.
 
-    Parameters
-    ----------
+    Parameters:
 
-    - num_array :  a contiguous 1D or 2D, real numpy array.
+    num_array
+      a contiguous 1D or 2D, real numpy array.
 
     """
 
@@ -203,10 +203,8 @@ def vtk_to_numpy(vtk_array):
     WARNING: This does not work for bit arrays.
 
     Parameters
-    ----------
 
-    - vtk_array : `vtkDataArray`
-
+    vtk_array
       The VTK data array to be converted.
 
     """
