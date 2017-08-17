@@ -142,9 +142,10 @@ void vtkOSPRayLightNode::Render(bool prepass)
       color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
-        (vtkOSPRayLightNode::LightScale*
+        (0.13f*
+         vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
-         vtkMath::Pi() //since OSP 0.10.0
+         vtkMath::Pi()
          );
       ospSet1f(ospLight, "intensity", fI);
       ospCommit(ospLight);
@@ -157,9 +158,10 @@ void vtkOSPRayLightNode::Render(bool prepass)
       OSPLight ospLight = ospNewLight(oRenderer, "PointLight");
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
-        (vtkOSPRayLightNode::LightScale*
+        (20.0*
+         vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
-         vtkMath::Pi() //since OSP 0.10.0
+         vtkMath::Pi()
          );
       ospSet1i(ospLight, "isVisible", 0);
       ospSet1f(ospLight, "intensity", fI);
@@ -184,13 +186,13 @@ void vtkOSPRayLightNode::Render(bool prepass)
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
-         vtkMath::Pi()); //since OSP 0.10.0
+         vtkMath::Pi());
       ospSet1f(ospLight, "intensity", fI);
       vtkMath::Normalize(direction);
       ospSet3f(ospLight, "direction",
                direction[0], direction[1], direction[2]);
       float r = static_cast<float>(vtkOSPRayLightNode::GetRadius(light));
-      ospSet1f(ospLight, "radius", r);
+      ospSet1f(ospLight, "angularDiameter", r);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
     }
