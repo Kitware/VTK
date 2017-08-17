@@ -102,9 +102,8 @@ def create_vtk_array(vtk_arr_type):
 
 
 def numpy_to_vtk(num_array, deep=0, array_type=None):
-    """Converts a contiguous real numpy Array to a VTK array object.
+    """Converts a real numpy Array to a VTK array object.
 
-    This function only works for real arrays that are contiguous.
     Complex arrays are NOT handled.  It also works for multi-component
     arrays.  However, only 1, and 2 dimensional arrays are supported.
     This function is very efficient, so large arrays should not be a
@@ -115,10 +114,6 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     (shallow copy) and uses more memory but detaches the two arrays
     such that the numpy array can be released.
 
-    WARNING: You must maintain a reference to the passed numpy array, if
-    the numpy data is gc'd and VTK will point to garbage which will in
-    the best case give you a segfault.
-
     Parameters
     ----------
 
@@ -127,9 +122,11 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     """
 
     z = numpy.asarray(num_array)
+    if not z.flags.contiguous:
+        z = numpy.ascontiguousarray(z)
 
     shape = z.shape
-    assert z.flags.contiguous, 'Only contiguous arrays are supported.'
+    
     assert len(shape) < 3, \
            "Only arrays of dimensionality 2 or lower are allowed!"
     assert not numpy.issubdtype(z.dtype, complex), \
@@ -177,6 +174,8 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
         copy = result_array.NewInstance()
         copy.DeepCopy(result_array)
         result_array = copy
+    else:
+        result_array._numpy_reference = z
     return result_array
 
 def numpy_to_vtkIdTypeArray(num_array, deep=0):
