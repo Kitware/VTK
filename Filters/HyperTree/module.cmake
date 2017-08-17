@@ -5,6 +5,7 @@ vtk_module(vtkFiltersHyperTree
     vtkFiltersModeling
     vtkIOXML
     vtkIOLegacy
+    vtkImagingHybrid
     vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
