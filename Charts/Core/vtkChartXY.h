@@ -260,6 +260,28 @@ public:
   vtkBooleanMacro(AdjustLowerBoundForLogPlot, bool);
   //@}
 
+  //@{
+  /**
+  * Set if the point can be dragged along X
+  * by the ClickAndDrag Action
+  * True by default.
+  */
+  vtkSetMacro(DragPointAlongX, bool);
+  vtkGetMacro(DragPointAlongX, bool);
+  vtkBooleanMacro(DragPointAlongX, bool);
+  //@}
+
+  //@{
+  /**
+  * Set if the point can be dragged along Y
+  * by the ClickAndDrag Action
+  * True by default.
+  */
+  vtkSetMacro(DragPointAlongY, bool);
+  vtkGetMacro(DragPointAlongY, bool);
+  vtkBooleanMacro(DragPointAlongY, bool);
+  //@}
+
   /**
    * Set the information passed to the tooltip.
    */
@@ -320,6 +342,11 @@ protected:
    * will fit into the plot area.
    */
   void RecalculatePlotBounds();
+
+  /**
+  * Remove all the selection from Plots
+  */
+  void ReleasePlotSelections();
 
   /**
    * Update the layout of the chart, this may require the vtkContext2D in order
@@ -424,11 +451,23 @@ protected:
    */
   bool AdjustLowerBoundForLogPlot;
 
+  /**
+  * Properties to enable the drag of a point for the ClickAndDrag Action
+  */
+  bool DragPointAlongX;
+  bool DragPointAlongY;
+
 private:
   vtkChartXY(const vtkChartXY&) VTK_DELETE_FUNCTION;
   void operator=(const vtkChartXY&) VTK_DELETE_FUNCTION;
 
   vtkChartXYPrivate* ChartPrivate; // Private class where I hide my STL containers
+
+  /**
+   * Internal variable to handle update of drag:
+   * true if a point has been selected by the user click.
+   */
+  bool DragPoint;
 
   /**
    * Figure out the spacing between the bar chart plots, and their offsets.
