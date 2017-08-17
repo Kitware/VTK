@@ -149,8 +149,7 @@ private:
   void operator=(const vtkXMLPMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
-  vtkInternal* Internal;
-
+  vtkInternal* XMLPMultiBlockDataWriterInternal;
 };
 
 #endif

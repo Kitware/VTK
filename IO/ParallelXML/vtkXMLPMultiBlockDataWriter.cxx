@@ -80,7 +80,7 @@ vtkXMLPMultiBlockDataWriter::vtkXMLPMultiBlockDataWriter()
 {
   this->StartPiece = 0;
   this->NumberOfPieces = 1;
-  this->Internal = new vtkInternal();
+  this->XMLPMultiBlockDataWriterInternal = new vtkInternal();
   this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->SetWriteMetaFile(1);
@@ -90,7 +90,7 @@ vtkXMLPMultiBlockDataWriter::vtkXMLPMultiBlockDataWriter()
 vtkXMLPMultiBlockDataWriter::~vtkXMLPMultiBlockDataWriter()
 {
   this->SetController(nullptr);
-  delete this->Internal;
+  delete this->XMLPMultiBlockDataWriterInternal;
 }
 
 //----------------------------------------------------------------------------
@@ -169,13 +169,14 @@ void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   unsigned int numBlocks = this->GetNumberOfDataTypes();
   int* myDataTypes = this->GetDataTypesPointer();
 
-  this->Internal->Allocate(numBlocks, this->Controller->GetNumberOfProcesses());
+  this->XMLPMultiBlockDataWriterInternal->Allocate(
+    numBlocks, this->Controller->GetNumberOfProcesses());
 
   // gather on to root node.
   if(numBlocks)
   {
-    this->Controller->Gather(myDataTypes, &this->Internal->PieceProcessList[0],
-                             numBlocks, 0);
+    this->Controller->Gather(
+      myDataTypes, &this->XMLPMultiBlockDataWriterInternal->PieceProcessList[0], numBlocks, 0);
   }
 }
 
@@ -284,7 +285,8 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
     // the data-type for the current leaf on that process.
     int numberOfProcesses = this->Controller->GetNumberOfProcesses();
     std::vector<int> pieceProcessList(numberOfProcesses);
-    this->Internal->GetPieceProcessList(currentFileIndex, &pieceProcessList[0]);
+    this->XMLPMultiBlockDataWriterInternal->GetPieceProcessList(
+      currentFileIndex, &pieceProcessList[0]);
 
     int numPieces = 0;
     for (int procId=0; procId < numberOfProcesses; procId++)
