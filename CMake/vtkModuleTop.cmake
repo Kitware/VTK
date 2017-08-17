@@ -249,12 +249,12 @@ if(VTK_ENABLE_KITS)
 endif()
 
 
-# Report what will be built.
+# Record what will be built into a log file
 set(_modules_enabled_alpha "${VTK_MODULES_ENABLED}")
 list(SORT _modules_enabled_alpha)
 list(REMOVE_ITEM _modules_enabled_alpha vtkWrappingJava vtkWrappingPythonCore)
 list(LENGTH _modules_enabled_alpha _length)
-message(STATUS "Enabled ${_length} modules:")
+set(module_string "Enabled ${_length} modules:\n")
 foreach(vtk-module ${_modules_enabled_alpha})
   if(NOT ${vtk-module}_IS_TEST)
     if(Module_${vtk-module})
@@ -279,9 +279,12 @@ foreach(vtk-module ${_modules_enabled_alpha})
     else()
       set(_kit)
     endif()
-    message(STATUS " * ${vtk-module}${_kit}${_reason}")
+    string(CONCAT module_string "${module_string}" " * ${vtk-module}${_kit}${_reason}\n")
   endif()
 endforeach()
+
+set(vtk_module_log_filename "${VTK_BINARY_DIR}/CMakeFiles/VTKModules.log")
+file(WRITE ${vtk_module_log_filename} "${module_string}")
 
 # Hide options for modules that will build anyway.
 foreach(vtk-module ${VTK_MODULES_ALL})
