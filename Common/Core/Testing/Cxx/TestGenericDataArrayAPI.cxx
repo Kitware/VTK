@@ -146,18 +146,6 @@ int TestGenericDataArrayAPI(int, char *[])
 
 #define DataArrayAPICreateTestArray(name) vtkNew<ArrayT> name
 
-#define DataArrayAPICreateReferenceArray(name) \
-  vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
-  vtkAOSDataArrayTemplate<ScalarT> *name = \
-  vtkAOSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
-
-#define DataArrayAPICreateReferenceArrayWithType(name, valueType) \
-  vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<valueType>(); \
-  vtkAOSDataArrayTemplate<valueType> *name = \
-    vtkAOSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
-
 #define DataArrayAPINonFatalError(x) \
   { \
     ArrayT *errorTempArray = ArrayT::New(); \
@@ -174,17 +162,6 @@ int TestGenericDataArrayAPI(int, char *[])
   return errors;
 
 namespace {
-
-// Convenience function to create a concrete data array from a template type:
-template <typename ScalarT>
-vtkSmartPointer<vtkDataArray> CreateDataArray()
-{
-  vtkSmartPointer<vtkDataArray> array;
-  array.TakeReference(vtkDataArray::CreateDataArray(
-                        vtkTypeTraits<ScalarT>::VTK_TYPE_ID));
-  assert("CreateArray failed for scalar type." && array.GetPointer());
-  return array;
-}
 
 //------------------------------------------------------------------------------
 //------------------Unit Test Implementations-----------------------------------
@@ -859,7 +836,5 @@ int ExerciseGenericDataArray()
 #undef DataArrayAPIUpdateSignature
 #undef DataArrayAPIFinish
 #undef DataArrayAPICreateTestArray
-#undef DataArrayAPICreateReferenceArray
-#undef DataArrayAPICreateReferenceArrayWithType
 #undef DataArrayAPINonFatalError
 #undef DataArrayAPIError

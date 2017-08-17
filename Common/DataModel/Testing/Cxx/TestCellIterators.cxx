@@ -150,6 +150,9 @@ bool runValidation(vtkUnstructuredGrid *grid)
   return true;
 }
 
+// Benchmarking code follows:
+#ifdef BENCHMARK
+
 // Do-nothing function that ensures arguments passed in will not be compiled
 // out. Aggressive optimization will otherwise remove portions of the following
 // loops, throwing off the benchmark results:
@@ -162,8 +165,6 @@ void useData(const Type& data)
 }
 } // end anon namespace
 
-// Benchmarking code follows:
-#ifdef BENCHMARK
 // There are three signatures for each benchmark function:
 // - double ()(vtkUnstructuredGrid *)
 //   Iterate through cells in an unstructured grid, using raw memory when
