@@ -15,15 +15,13 @@
 
 #ifndef vtkVolumeShaderComposer_h
 #define vtkVolumeShaderComposer_h
-
-#include "vtkVolumeMask.h"
-
 #include <vtkCamera.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
 #include <vtkVolumeMapper.h>
 #include <vtkVolumeProperty.h>
+#include "vtkVolumeTexture.h"
 
 #include <map>
 #include <sstream>
@@ -1303,7 +1301,7 @@ namespace vtkvolume
                                     vtkVolumeMapper* mapper,
                                     vtkVolume* vtkNotUsed(vol),
                                     vtkImageData* maskInput,
-                                    vtkVolumeMask* mask, int maskType,
+                                    vtkVolumeTexture* mask, int maskType,
                                     int noOfComponents,
                                     int independentComponents = 0)
   {
@@ -2239,7 +2237,7 @@ namespace vtkvolume
                                             vtkVolumeMapper* vtkNotUsed(mapper),
                                             vtkVolume* vtkNotUsed(vol),
                                             vtkImageData* maskInput,
-                                            vtkVolumeMask* mask,
+                                            vtkVolumeTexture* mask,
                                             int vtkNotUsed(maskType))
   {
     if (!mask || !maskInput)
@@ -2257,7 +2255,7 @@ namespace vtkvolume
                                        vtkVolumeMapper* vtkNotUsed(mapper),
                                        vtkVolume* vtkNotUsed(vol),
                                        vtkImageData* maskInput,
-                                       vtkVolumeMask* mask,
+                                       vtkVolumeTexture* mask,
                                        int maskType)
   {
     if (!mask || !maskInput ||
@@ -2282,7 +2280,7 @@ namespace vtkvolume
                                                vtkVolumeMapper* vtkNotUsed(mapper),
                                                vtkVolume* vtkNotUsed(vol),
                                                vtkImageData* maskInput,
-                                               vtkVolumeMask* mask,
+                                               vtkVolumeTexture* mask,
                                                int maskType)
   {
     if (!mask || !maskInput ||
@@ -2305,7 +2303,7 @@ namespace vtkvolume
                                           vtkVolumeMapper* vtkNotUsed(mapper),
                                           vtkVolume* vtkNotUsed(vol),
                                           vtkImageData* maskInput,
-                                          vtkVolumeMask* mask,
+                                          vtkVolumeTexture* mask,
                                           int maskType,
                                           int noOfComponents)
   {

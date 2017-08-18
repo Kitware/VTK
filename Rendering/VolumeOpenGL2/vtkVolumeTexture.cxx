@@ -678,6 +678,14 @@ void vtkVolumeTexture::SetPartitions(int const x, int const y, int const z)
     this->StreamBlocks = false;
     this->Partitions[0] = this->Partitions[1] = this->Partitions[2] = 1;
   }
+
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+const vtkVolumeTexture::Size3& vtkVolumeTexture::GetPartitions()
+{
+  return this->Partitions;
 }
 
 //-----------------------------------------------------------------------------

@@ -148,8 +148,6 @@ public:
     this->AdjustedTexMax[0] = this->AdjustedTexMax[1] = this->AdjustedTexMax[2] = 1.0f;
     this->AdjustedTexMax[3] = 1.0f;
 
-    this->MaskTextures = new vtkMapMaskTextureId;
-
     this->Scale.clear();
     this->Bias.clear();
 
@@ -243,8 +241,6 @@ public:
     this->DeleteTransfer1D();
     this->DeleteTransfer2D();
 
-    delete this->MaskTextures;
-
     this->Scale.clear();
     this->Bias.clear();
 
@@ -297,8 +293,7 @@ public:
   void DeleteTransfer2D();
   ///@}
 
-  bool LoadMask(vtkRenderer* ren, vtkImageData* input,
-                vtkImageData* maskInput, int textureExtent[6],
+  bool LoadMask(vtkRenderer* ren, vtkImageData* input, vtkImageData* maskInput,
                 vtkVolume* volume);
 
   bool LoadData(vtkRenderer* ren, vtkVolume* vol, vtkVolumeProperty* volProp,
@@ -502,8 +497,7 @@ public:
 
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
 
-  vtkMapMaskTextureId* MaskTextures;
-  vtkVolumeMask* CurrentMask;
+  vtkSmartPointer<vtkVolumeTexture> CurrentMask;
 
   vtkTimeStamp InitializationTime;
   vtkTimeStamp InputUpdateTime;
@@ -849,41 +843,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeactivateTransferFunction(
 //-----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
   vtkImageData* vtkNotUsed(input), vtkImageData* maskInput,
-  int textureExtent[6], vtkVolume* vtkNotUsed(volume))
+  vtkVolume* vtkNotUsed(volume))
 {
   bool result = true;
   if (maskInput &&
     (maskInput->GetMTime() > this->MaskUpdateTime))
   {
-    // Find the texture.
-    std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
-      this->MaskTextures->Map.find(maskInput);
+    if (!this->CurrentMask)
+    {
+      this->CurrentMask = vtkSmartPointer<vtkVolumeTexture>::New();
+      this->CurrentMask->SetMapper(this->Parent);
 
-    vtkVolumeMask* mask = nullptr;
-    if(it2 == this->MaskTextures->Map.end())
-    {
-      mask = new vtkVolumeMask();
-      this->MaskTextures->Map[maskInput] = mask;
-    }
-    else
-    {
-      mask = (*it2).second;
+      const auto& part = this->Parent->VolumeTexture->GetPartitions();
+      this->CurrentMask->SetPartitions(part[0], part[1], part[2]);
     }
 
-    mask->Update(ren,
-                 maskInput,
-                 this->Parent->CellFlag,
-                 textureExtent,
-                 this->Parent->ScalarMode,
-                 this->Parent->ArrayAccessMode,
-                 this->Parent->ArrayId,
-                 this->Parent->ArrayName,
-                 static_cast<vtkIdType>(static_cast<float>(
-                   this->Parent->MaxMemoryInBytes) *
-                   this->Parent->MaxMemoryFraction));
+    vtkDataArray* arr = this->Parent->GetScalars(maskInput,
+      this->Parent->ScalarMode, this->Parent->ArrayAccessMode,
+      this->Parent->ArrayId, this->Parent->ArrayName, this->Parent->CellFlag);
 
-    result = result && mask->IsLoaded();
-    this->CurrentMask = mask;
+    result = this->CurrentMask->LoadVolume(ren, maskInput, arr,
+      VTK_NEAREST_INTERPOLATION);
+
     this->MaskUpdateTime.Modified();
   }
 
@@ -902,8 +883,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadData(vtkRenderer* ren,
 
     this->ComputeBounds(input);
     this->ComputeCellToPointMatrix();
-    this->LoadMask(ren, input, this->Parent->MaskInput,
-                         this->Extents, vol);
+    this->LoadMask(ren, input, this->Parent->MaskInput, vol);
     this->InputUpdateTime.Modified();
 
     return success;
@@ -2807,21 +2787,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   this->Impl->ReleaseDepthPassGraphicsResources(window);
   this->Impl->ReleaseImageSampleGraphicsResources(window);
 
-  if(this->Impl->MaskTextures != nullptr)
+  if (this->Impl->CurrentMask)
   {
-    if(!this->Impl->MaskTextures->Map.empty())
-    {
-      std::map<vtkImageData*, vtkVolumeMask*>::iterator it =
-        this->Impl->MaskTextures->Map.begin();
-      while(it != this->Impl->MaskTextures->Map.end())
-      {
-        vtkVolumeMask* texture = (*it).second;
-        texture->ReleaseGraphicsResources(window);
-        delete texture;
-        ++it;
-      }
-      this->Impl->MaskTextures->Map.clear();
-    }
+    this->Impl->CurrentMask->ReleaseGraphicsResources(window);
+    this->Impl->CurrentMask = nullptr;
   }
 
   this->Impl->ReleaseGraphicsTransfer1D(window);
@@ -3426,26 +3395,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   }
   else
   {
-    this->Impl->LoadMask(ren, input, this->MaskInput, this->Impl->Extents, vol);
+    this->Impl->LoadMask(ren, input, this->MaskInput, vol);
     this->Impl->UpdateVolume(volumeProperty);
   }
-
-  // Mask
-  vtkVolumeMask* mask = nullptr;
-  if(this->MaskInput != nullptr)
-  {
-    std::map<vtkImageData *,vtkVolumeMask*>::iterator it2 =
-      this->Impl->MaskTextures->Map.find(this->MaskInput);
-    if(it2 == this->Impl->MaskTextures->Map.end())
-    {
-      mask=nullptr;
-    }
-    else
-    {
-      mask=(*it2).second;
-    }
-  }
-  this->Impl->CurrentMask = mask;
 
   this->ComputeReductionFactor(vol->GetAllocatedRenderTime());
   this->Impl->UpdateSamplingDistance(input, ren, vol);
@@ -3647,6 +3599,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   this->VolumeTexture->SortBlocksBackToFront(ren, vol->GetMatrix());
 
   vtkVolumeTexture::VolumeBlock* block = this->VolumeTexture->GetNextBlock();
+  vtkVolumeTexture::VolumeBlock* maskBlock = nullptr;
+  if (this->Impl->CurrentMask)
+  {
+    this->Impl->CurrentMask->SortBlocksBackToFront(ren, vol->GetMatrix());
+    maskBlock = this->Impl->CurrentMask->GetNextBlock();
+  }
 
   while(block != nullptr)
   {
@@ -3733,11 +3691,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
       this->Impl->NoiseTextureObject->GetTextureUnit());
   }
 
-  if (this->Impl->CurrentMask)
+  if (maskBlock)
   {
-    this->Impl->CurrentMask->Activate();
-    prog->SetUniformi(
-      "in_mask", this->Impl->CurrentMask->GetTextureUnit());
+    maskBlock->TextureObject->Activate();
+    prog->SetUniformi("in_mask", maskBlock->TextureObject->GetTextureUnit());
   }
 
   if(noOfComponents == 1 &&
@@ -3985,9 +3942,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
 
   this->Impl->DeactivateTransferFunction(volumeProperty, numberOfSamplers);
 
-  if (this->Impl->CurrentMask)
+  if (maskBlock)
   {
-    this->Impl->CurrentMask->Deactivate();
+    maskBlock->TextureObject->Deactivate();
   }
 
   if(noOfComponents == 1 &&
@@ -4005,6 +3962,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   // Update next block to render
   //---------------------------------------------------------------------------
   block = this->VolumeTexture->GetNextBlock();
+  if (this->Impl->CurrentMask)
+  {
+    maskBlock = this->Impl->CurrentMask->GetNextBlock();
+  }
   }
 }
 

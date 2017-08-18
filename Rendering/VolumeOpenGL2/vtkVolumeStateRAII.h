@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #ifndef vtkVolumeStateRAII_h
 #define vtkVolumeStateRAII_h
+#include "vtkOpenGLRenderWindow.h"
 
 // Only these states can be queries via glIsEnabled:
 // http://www.khronos.org/opengles/sdk/docs/man/

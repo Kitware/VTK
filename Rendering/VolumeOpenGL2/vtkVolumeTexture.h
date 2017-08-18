@@ -114,6 +114,7 @@ public:
    *  Set a number of blocks per axis.
    */
   void SetPartitions(int const x, int const y, int const z);
+  const Size3& GetPartitions();
 
   /**
    * Loads the data array into the texture in the case only a single block is
