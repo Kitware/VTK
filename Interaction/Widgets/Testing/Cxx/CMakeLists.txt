@@ -1,8 +1,8 @@
 set(TestOrientedGlyphContour_ARGS "--PlaybackFile" "DATA{../Data/Input/TestOrientedGlyphContourEventLog.txt}")
 set(TerrainPolylineEditor_ARGS -ProjectionMode 2 -HeightOffset 100)
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  BoxWidget2.cxx
   BoxWidget.cxx
+  BoxWidget2.cxx
   ImagePlaneWidget.cxx
   TerrainPolylineEditor.cxx
   TestAffineWidget.cxx
@@ -20,24 +20,24 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestConstrainedHandleWidget.cxx
   TestContourWidget2.cxx
   TestDijkstraImageGeodesicPath.cxx
-  TestDistanceWidget3D.cxx
   TestDistanceWidget.cxx
+  TestDistanceWidget3D.cxx
   TestFinitePlaneWidget.cxx
   TestFixedSizeHandleRepresentation3D.cxx
   TestFocalPlaneContour.cxx
-  TestHandleWidget2D.cxx
   TestHandleWidget.cxx
+  TestHandleWidget2D.cxx
   TestImageActorContourWidget.cxx
   TestImageTracerWidget.cxx
   TestImplicitCylinderWidget.cxx
   TestImplicitCylinderWidget2.cxx
-  TestImplicitPlaneWidget2b.cxx
-  TestImplicitPlaneWidget2.cxx
-  TestImplicitPlaneWidget3.cxx
-  TestImplicitPlaneWidget2LockNormalToCamera.cxx
   TestImplicitPlaneWidget.cxx
-  TestLogoWidgetAlphaBlending.cxx
+  TestImplicitPlaneWidget2.cxx
+  TestImplicitPlaneWidget2LockNormalToCamera.cxx
+  TestImplicitPlaneWidget2b.cxx
+  TestImplicitPlaneWidget3.cxx
   TestLogoWidget.cxx
+  TestLogoWidgetAlphaBlending.cxx
   TestLogoWidgetDepthPeeling.cxx
   TestMeasurementCubeHandleRepresentation3D.cxx
   TestMultipleViewports.cxx
@@ -55,14 +55,15 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestResliceCursorWidget2.cxx
   TestResliceCursorWidget3.cxx
   TestScalarBarWidget.cxx
-  TestSeedWidget2.cxx
   TestSeedWidget.cxx
+  TestSeedWidget2.cxx
   TestSeedWidgetNonUniformRepresentations.cxx
-  TestSliderWidget2D.cxx
   TestSliderWidget.cxx
-  TestSplineWidget.cxx
-  TestSphereWidgetZoomInOut.cxx
+  TestSliderWidget2D.cxx
+  TestSliderWidgetMultipleViewports.cxx
   TestSphereWidget2CenterCursor.cxx
+  TestSphereWidgetZoomInOut.cxx
+  TestSplineWidget.cxx
   TestTextWidget.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
