@@ -17,10 +17,12 @@
 
 #include "vtkActor.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCylinder.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRandomAttributeGenerator.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -92,30 +94,43 @@ int TestVTKMExternalFaces(int argc, char* argv[])
   transFilter->SetInputConnection(clipSphr->GetOutputPort());
   transFilter->SetTransform(transform.GetPointer());
 
+  vtkNew<vtkRandomAttributeGenerator> cellDataAdder;
+  cellDataAdder->SetInputConnection(transFilter->GetOutputPort());
+  cellDataAdder->SetDataTypeToFloat();
+  cellDataAdder->GenerateCellVectorsOn();
+
   vtkNew<vtkmExternalFaces> externalFaces;
-  externalFaces->SetInputConnection(transFilter->GetOutputPort());
+  externalFaces->SetInputConnection(cellDataAdder->GetOutputPort());
 
   // execute pipeline
   externalFaces->Update();
+  vtkUnstructuredGrid* result = externalFaces->GetOutput();
 
-  vtkIdType numInputPoints = externalFaces->GetOutput()->GetNumberOfPoints();
+  vtkIdType numInputPoints = result->GetNumberOfPoints();
 
   externalFaces->CompactPointsOn();
   externalFaces->Update();
+  result = externalFaces->GetOutput();
 
-  if (externalFaces->GetOutput()->GetNumberOfPoints() >= numInputPoints)
+  if (result->GetNumberOfPoints() >= numInputPoints)
   {
     std::cout << "Expecting the number of points in the output to be less "
               << "than the input ("
-              << externalFaces->GetOutput()->GetNumberOfPoints() << ">="
+              << result->GetNumberOfPoints() << ">="
               << numInputPoints << ")\n";
     return 1;
   }
 
+  if (result->GetCellData()->GetArray("RandomCellVectors")->GetNumberOfTuples() !=
+      result->GetNumberOfCells())
+  {
+    std::cout << "Expecting a cell field with number of entries equal to "
+              << "the number of cells";
+    return 1;
+  }
 
   vtkNew<vtkPolyData> polydata;
-  if (!Convert2DUnstructuredGridToPolyData(externalFaces->GetOutput(),
-                                           polydata.GetPointer()))
+  if (!Convert2DUnstructuredGridToPolyData(result, polydata.GetPointer()))
   {
     std::cout << "Error converting result to polydata\n";
     return 1;
