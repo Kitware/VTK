@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridDepthLimiter.h
+Program:   Visualization Toolkit
+Module:    vtkHyperTreeGridDepthLimiter.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
@@ -47,7 +47,7 @@ class vtkHyperTreeGridCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridDepthLimiter : public vtkHyperTreeGridAlgorithm
 {
-public:
+  public:
   static vtkHyperTreeGridDepthLimiter* New();
   vtkTypeMacro( vtkHyperTreeGridDepthLimiter, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
@@ -60,14 +60,14 @@ public:
   vtkGetMacro(Depth, unsigned int);
   //@}
 
-protected:
+  protected:
   vtkHyperTreeGridDepthLimiter();
   ~vtkHyperTreeGridDepthLimiter();
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to extract hyper tree grid levels
@@ -96,7 +96,7 @@ protected:
    */
   vtkIdType CurrentId;
 
-private:
+  private:
   vtkHyperTreeGridDepthLimiter(const vtkHyperTreeGridDepthLimiter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridDepthLimiter&) VTK_DELETE_FUNCTION;
 };

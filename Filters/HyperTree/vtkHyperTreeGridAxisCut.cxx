@@ -53,7 +53,7 @@ vtkHyperTreeGridAxisCut::~vtkHyperTreeGridAxisCut()
   if( this->MaterialMask )
   {
     this->MaterialMask->Delete();
-    this->MaterialMask = nullptr;
+    this->MaterialMask = 0;
   }
 }
 
@@ -182,10 +182,10 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
 
     // Retrieve geometric features of input cursor
     double* origin = inCursor->GetOrigin();
-    double* _size = inCursor->GetSize();
+    double* size = inCursor->GetSize();
 
     // Check whether root cell is intersected by plane
-    if ( origin[axis] <= inter && ( origin[axis] + _size[axis] >= inter ) )
+    if ( origin[axis] <= inter && ( origin[axis] + size[axis] >= inter ) )
     {
       // Root is intersected by plane, descend into current child
       input->GetLevelZeroCoordinatesFromIndex( inIndex, i, j, k );
@@ -310,7 +310,7 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree( vtkHyperTreeGridCursor* in
 
       // Clean up
       childCursor->Delete();
-      childCursor = nullptr;
+      childCursor = 0;
     } // inChild
   } // if ( ! cursor->IsLeaf() )
 }

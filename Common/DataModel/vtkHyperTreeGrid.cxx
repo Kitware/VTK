@@ -98,7 +98,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
+  virtual vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
   {
     // Call superclass
     vtkGeometricCursor<N>* clone
@@ -116,7 +116,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType index ) VTK_OVERRIDE
+  virtual void Initialize( vtkHyperTreeGrid* grid, vtkIdType index )
   {
     // Call superclass
     this->Superclass::Initialize( grid, index );
@@ -142,7 +142,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToRoot() VTK_OVERRIDE
+  virtual void ToRoot() VTK_OVERRIDE
   {
     // Call superclass
     this->Superclass::ToRoot();
@@ -162,7 +162,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToChild( int child ) VTK_OVERRIDE
+  virtual void ToChild( int child ) VTK_OVERRIDE
   {
     // Call superclass
     this->Superclass::ToChild( child );
@@ -248,19 +248,19 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  double* GetOrigin() VTK_OVERRIDE
+  virtual double* GetOrigin() VTK_OVERRIDE
   {
     return this->Origin;
   }
 
   //---------------------------------------------------------------------------
-  double* GetSize() VTK_OVERRIDE
+  virtual double* GetSize() VTK_OVERRIDE
   {
     return this->Size;
   }
 
   //---------------------------------------------------------------------------
-  void GetBounds( double bnd[6] ) VTK_OVERRIDE
+  virtual void GetBounds( double bnd[6] ) VTK_OVERRIDE
   {
     // Compute bounds
     bnd[0] = this->Origin[0];
@@ -272,7 +272,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void GetPoint( double pt[3] ) VTK_OVERRIDE
+  virtual void GetPoint( double pt[3] ) VTK_OVERRIDE
   {
     // Compute center point coordinates
     pt[0] = this->Origin[0] + this->Size[0] / 2.;
@@ -315,8 +315,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkGeometricCursor(const vtkGeometricCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeometricCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkGeometricCursor(const vtkGeometricCursor<N> &); // Not implemented.
+  void operator=(const vtkGeometricCursor<N> &); // Not implemented.
 }; // class vtkGeometricCursor : public vtkHyperTreeGridCursor
 //-----------------------------------------------------------------------------
 template<int N>
@@ -354,7 +354,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
+  virtual vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
   {
     // Call superclass
     vtkSuperCursor<N>* clone
@@ -369,7 +369,7 @@ public:
   virtual void ResetSuperCursor() = 0;
 
   //---------------------------------------------------------------------------
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType index ) VTK_OVERRIDE
+  virtual void Initialize( vtkHyperTreeGrid* grid, vtkIdType index ) VTK_OVERRIDE
   {
     // Call superclass
     this->Superclass::Initialize( grid, index );
@@ -379,13 +379,13 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  unsigned int GetNumberOfCursors() VTK_OVERRIDE
+  virtual unsigned int GetNumberOfCursors() VTK_OVERRIDE
   {
     return this->NumberOfCursors;
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* GetCursor( unsigned int i ) VTK_OVERRIDE
+  virtual vtkHyperTreeGridCursor* GetCursor( unsigned int i ) VTK_OVERRIDE
   {
     return this->Cursors[i];
   }
@@ -397,13 +397,13 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToChild( int child ) VTK_OVERRIDE
+  virtual void ToChild( int child ) VTK_OVERRIDE
   {
     // Call superclass
     this->Superclass::ToChild( child );
 
     // Store current cursors
-    vtkHyperTreeGridCursor** parentCursors = new vtkHyperTreeGridCursor*[this->NumberOfCursors];
+    vtkHyperTreeGridCursor* parentCursors[this->NumberOfCursors];
     for ( unsigned int i = 0; i < this->NumberOfCursors; ++ i )
     {
       parentCursors[i] = this->Cursors[i];
@@ -434,7 +434,6 @@ public:
     {
       parentCursors[i]->Delete();
     }
-    delete[] parentCursors;
   }
 
   //---------------------------------------------------------------------------
@@ -459,8 +458,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkSuperCursor(const vtkSuperCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSuperCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkSuperCursor(const vtkSuperCursor<N> &); // Not implemented.
+  void operator=(const vtkSuperCursor<N> &); // Not implemented.
 }; // class vtkSuperCursor : public vtkGeometricCursor
 //=============================================================================
 
@@ -539,12 +538,12 @@ static const unsigned int VonNeumannChildCursorToParentCursorTable33[189] = {
   3, 3, 3, 3, 4, 5, 6,
 };
 static const unsigned int* VonNeumannChildCursorToParentCursorTable[3][2] = {
-  {VonNeumannChildCursorToParentCursorTable12,
-   VonNeumannChildCursorToParentCursorTable13},
-  {VonNeumannChildCursorToParentCursorTable22,
-   VonNeumannChildCursorToParentCursorTable23},
-  {VonNeumannChildCursorToParentCursorTable32,
-   VonNeumannChildCursorToParentCursorTable33}
+  VonNeumannChildCursorToParentCursorTable12,
+  VonNeumannChildCursorToParentCursorTable13,
+  VonNeumannChildCursorToParentCursorTable22,
+  VonNeumannChildCursorToParentCursorTable23,
+  VonNeumannChildCursorToParentCursorTable32,
+  VonNeumannChildCursorToParentCursorTable33
 };
 //-----------------------------------------------------------------------------
 // Super cursor traversal table to go retrieve the child index for each cursor
@@ -621,12 +620,12 @@ static const unsigned int VonNeumannChildCursorToChildTable33[189] = {
   17, 23, 25, 26, 24, 20, 8,
 };
 static const unsigned int* VonNeumannChildCursorToChildTable[3][2] = {
-  {VonNeumannChildCursorToChildTable12,
-   VonNeumannChildCursorToChildTable13},
-  {VonNeumannChildCursorToChildTable22,
-   VonNeumannChildCursorToChildTable23},
-  {VonNeumannChildCursorToChildTable32,
-   VonNeumannChildCursorToChildTable33}
+  VonNeumannChildCursorToChildTable12,
+  VonNeumannChildCursorToChildTable13,
+  VonNeumannChildCursorToChildTable22,
+  VonNeumannChildCursorToChildTable23,
+  VonNeumannChildCursorToChildTable32,
+  VonNeumannChildCursorToChildTable33
 };
 //-----------------------------------------------------------------------------
 
@@ -685,7 +684,7 @@ public:
   void ResetSuperCursor() VTK_OVERRIDE
   {
     // Create hyper tree grid cursors for von Neumann neighborhood
-    for ( unsigned int i = 0; i < this->NumberOfCursors; ++ i )
+    for ( int i = 0; i < this->NumberOfCursors; ++ i )
     {
       this->Cursors[i] = vtkHyperTreeGridCursor::New();
     } // i
@@ -705,15 +704,13 @@ public:
         if( i > 0 )
         {
           // Cell has a neighbor to the left
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
           this->Cursors[0]->Initialize( this->Grid, r );
         }
         if( i + 1 < n[0] )
         {
           // Cell has a neighbor to the right
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
           this->Cursors[2]->Initialize( this->Grid, r );
         }
         return;
@@ -724,29 +721,25 @@ public:
         if( i > 0 )
         {
           // Cell has a neighbor to the left
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
           this->Cursors[1]->Initialize( this->Grid, r );
         }
         if( i + 1 < n[0] )
         {
           // Cell has a neighbor to the right
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
           this->Cursors[3]->Initialize( this->Grid, r );
         }
         if( j > 0 )
         {
           // Cell has a neighbor before
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, -1, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, -1, 0 );
           this->Cursors[0]->Initialize( this->Grid, r );
         }
         if( j + 1 < n[1] )
         {
           // Cell has a neighbor after
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 1, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 1, 0 );
           this->Cursors[4]->Initialize( this->Grid, r );
         }
         return;
@@ -757,43 +750,37 @@ public:
         if( i > 0 )
         {
           // Cell has a neighbor to the left
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
           this->Cursors[2]->Initialize( this->Grid, r );
         }
         if( i + 1 < n[0] )
         {
           // Cell has a neighbor to the right
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
           this->Cursors[4]->Initialize( this->Grid, r );
         }
         if( j > 0 )
         {
           // Cell has a neighbor before
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, -1, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, -1, 0 );
           this->Cursors[1]->Initialize( this->Grid, r );
         }
         if( j + 1 < n[1] )
         {
           // Cell has a neighbor after
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 1, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 1, 0 );
           this->Cursors[5]->Initialize( this->Grid, r );
         }
         if ( k > 0 )
         {
           // Cell has a neighbor below
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 0, -1 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 0, -1 );
           this->Cursors[0]->Initialize( this->Grid, r );
         }
         if ( k + 1 < n[2] )
         {
           // Cell has a neighbor above
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 0, 1 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 0, 1 );
           this->Cursors[6]->Initialize( this->Grid, r );
         }
       } // switch ( N )
@@ -865,8 +852,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkVonNeumannSuperCursor(const vtkVonNeumannSuperCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVonNeumannSuperCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkVonNeumannSuperCursor(const vtkVonNeumannSuperCursor<N> &); // Not implemented.
+  void operator=(const vtkVonNeumannSuperCursor<N> &); // Not implemented.
 }; // class vtkVonNeumannSuperCursor : public vtkGeometricCursor
 //-----------------------------------------------------------------------------
 template<int N> vtkStandardNewMacro(vtkVonNeumannSuperCursor<N>);
@@ -905,8 +892,7 @@ static const unsigned int MooreChildCursorToChildTable23[81] = {
   3, 4, 5, 6, 7, 8, 0, 1, 2,
   4, 5, 3, 7, 8, 6, 1, 2, 0,
 };
-
-/*// d = 3 f = 2
+// d = 3 f = 2
 static const unsigned int MooreChildCursorToChildTable32[216] = {
   7, 6, 7, 5, 4, 5, 7, 6, 7, 3, 2, 3, 1, 0, 1, 3, 2, 3, 7, 6, 7, 5, 4, 5, 7, 6, 7,
   6, 7, 6, 4, 5, 4, 6, 7, 6, 2, 3, 2, 0, 1, 0, 2, 3, 2, 6, 7, 6, 4, 5, 4, 6, 7, 6,
@@ -917,7 +903,6 @@ static const unsigned int MooreChildCursorToChildTable32[216] = {
   1, 0, 1, 3, 2, 3, 1, 0, 1, 5, 4, 5, 7, 6, 7, 5, 4, 5, 1, 0, 1, 3, 2, 3, 1, 0, 1,
   0, 1, 0, 2, 3, 2, 0, 1, 0, 4, 5, 4, 6, 7, 6, 4, 5, 4, 0, 1, 0, 2, 3, 2, 0, 1, 0,
 };
-*/
 // d = 3 f = 3
 static const unsigned int MooreChildCursorToChildTable33[729] = {
   26, 24, 25, 20, 18, 19, 23, 21, 22, 8, 6, 7, 2, 0, 1, 5, 3, 4, 17, 15, 16, 11, 9, 10, 14, 12, 13,
@@ -949,12 +934,12 @@ static const unsigned int MooreChildCursorToChildTable33[729] = {
   13, 14, 12, 16, 17, 15, 10, 11, 9, 22, 23, 21, 25, 26, 24, 19, 20, 18, 4, 5, 3, 7, 8, 6, 1, 2, 0,
 };
 static const unsigned int* MooreChildCursorToChildTable[3][2] = {
-  {MooreChildCursorToChildTable12,
-   MooreChildCursorToChildTable13},
-  {MooreChildCursorToChildTable22,
-   MooreChildCursorToChildTable23},
-  {MooreChildCursorToChildTable23,
-   MooreChildCursorToChildTable33}
+  MooreChildCursorToChildTable12,
+  MooreChildCursorToChildTable13,
+  MooreChildCursorToChildTable22,
+  MooreChildCursorToChildTable23,
+  MooreChildCursorToChildTable23,
+  MooreChildCursorToChildTable33
 };
 //-----------------------------------------------------------------------------
 // Super cursor traversal table to go retrieve the child index for each cursor
@@ -990,7 +975,6 @@ static const unsigned int MooreChildCursorToParentCursorTable23[81] = {
   4, 4, 4, 4, 4, 4, 7, 7, 7,
   4, 4, 5, 4, 4, 5, 7, 7, 8,
 };
-/*
 // d = 3 f = 2
 static const unsigned int MooreChildCursorToParentCursorTable32[216] = {
   0, 1, 1, 3, 4, 4, 3, 4, 4, 9, 10, 10, 12, 13, 13, 12, 13, 13, 9, 10, 10, 12, 13, 13, 12, 13, 13,
@@ -1002,7 +986,6 @@ static const unsigned int MooreChildCursorToParentCursorTable32[216] = {
   12, 13, 13, 12, 13, 13, 15, 16, 16, 12, 13, 13, 12, 13, 13, 15, 16, 16, 21, 22, 22, 21, 22, 22, 24, 25, 25,
   13, 13, 14, 13, 13, 14, 16, 16, 17, 13, 13, 14, 13, 13, 14, 16, 16, 17, 22, 22, 23, 22, 22, 23, 25, 25, 26,
 };
-*/
 // d = 3 f = 3
 static const unsigned int MooreChildCursorToParentCursorTable33[729] = {
   0, 1, 1, 3, 4, 4, 3, 4, 4, 9, 10, 10, 12, 13, 13, 12, 13, 13, 9, 10, 10, 12, 13, 13, 12, 13, 13,
@@ -1034,12 +1017,12 @@ static const unsigned int MooreChildCursorToParentCursorTable33[729] = {
   13, 13, 14, 13, 13, 14, 16, 16, 17, 13, 13, 14, 13, 13, 14, 16, 16, 17, 22, 22, 23, 22, 22, 23, 25, 25, 26,
 };
 static const unsigned int* MooreChildCursorToParentCursorTable[3][2] = {
-  {MooreChildCursorToParentCursorTable12,
-   MooreChildCursorToParentCursorTable13},
-  {MooreChildCursorToParentCursorTable22,
-   MooreChildCursorToParentCursorTable23},
-  {MooreChildCursorToParentCursorTable23,
-   MooreChildCursorToParentCursorTable33}
+  MooreChildCursorToParentCursorTable12,
+  MooreChildCursorToParentCursorTable13,
+  MooreChildCursorToParentCursorTable22,
+  MooreChildCursorToParentCursorTable23,
+  MooreChildCursorToParentCursorTable23,
+  MooreChildCursorToParentCursorTable33
 };
 //-----------------------------------------------------------------------------
 // Corner/leaf traversal tables to retrieve the parent cursor indices of all
@@ -1150,14 +1133,14 @@ public:
   void ResetSuperCursor() VTK_OVERRIDE
   {
 #define vtkInitializeAsGeometricCursorMacro( _N_, _c_, _g_, _r_ )  \
-  {                                                                \
+    {                                                              \
   vtkGeometricCursor<_N_>* cursor                                  \
     = vtkGeometricCursor<_N_>::SafeDownCast( this->Cursors[_c_] ); \
   cursor->Initialize( _g_, _r_ );                                  \
   }
 
     // Create hyper tree grid cursors for Moore neighborhood
-    for ( unsigned int i = 0; i < this->NumberOfCursors; ++ i )
+    for ( int i = 0; i < this->NumberOfCursors; ++ i )
     {
       this->Cursors[i] = vtkGeometricCursor<N>::New();
     } // i
@@ -1177,15 +1160,13 @@ public:
         if( i > 0 )
         {
           // Cell has a neighbor to the left
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
           this->Cursors[0]->Initialize( this->Grid, r );
         }
         if( i + 1 < n[0] )
         {
           // Cell has a neighbor to the right
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
           this->Cursors[2]->Initialize( this->Grid, r );
         }
         return;
@@ -1201,56 +1182,48 @@ public:
         if ( toS )
         {
           // Cell has a neighbor to the south
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, -1, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, -1, 0 );
           vtkInitializeAsGeometricCursorMacro( N, 1, this->Grid, r );
           if ( toW )
           {
             // Cell has a neighbor to the southwest
-            r =
-              this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, -1, 0 );
+            r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, -1, 0 );
             vtkInitializeAsGeometricCursorMacro( N, 0, this->Grid, r );
           } // if ( toW )
           if ( toE )
           {
             // Cell has a neighbor to the southeast
-            r =
-              this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, -1, 0 );
+            r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, -1, 0 );
             vtkInitializeAsGeometricCursorMacro( N, 2, this->Grid, r );
           } // if ( toE )
         } // if ( toS )
         if ( toW )
         {
           // Cell has a neighbor to the west
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 0, 0 );
           vtkInitializeAsGeometricCursorMacro( N, 3, this->Grid, r );
         } // if ( toW )
         if ( toE )
         {
           // Cell has a neighbor to the east
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 0, 0 );
           vtkInitializeAsGeometricCursorMacro( N, 5, this->Grid, r );
         } // if ( toE )
         if ( toN )
         {
           // Cell has a neighbor to the north
-          unsigned int r =
-            this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 1, 0 );
+          unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 0, 1, 0 );
           vtkInitializeAsGeometricCursorMacro( N, 7, this->Grid, r );
           if ( toW )
           {
             // Cell has a neighbor to the northwest
-            r =
-              this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 1, 0 );
+            r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, -1, 1, 0 );
             vtkInitializeAsGeometricCursorMacro( N, 6, this->Grid, r );
           } // if ( toW )
           if ( toE )
           {
             // Cell has a neighbor to the northeast
-            r =
-              this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 1, 0 );
+            r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, 1, 1, 0 );
             vtkInitializeAsGeometricCursorMacro( N, 8, this->Grid, r );
           } // if ( toW )
         } // if ( toN )
@@ -1268,19 +1241,18 @@ public:
         int maxK = ( k + 1 < n[2] ) ? 2 : 1;
 
         // Initialize all connectivity cursors
-        for ( int _k = minK; _k < maxK; ++ _k )
+        for ( int k = minK; k < maxK; ++ k )
         {
-          for ( int _j = minJ; _j < maxJ; ++ _j )
+          for ( int j = minJ; j < maxJ; ++ j )
           {
-            for ( int _i = minI; _i < maxI; ++ _i )
+            for ( int i = minI; i < maxI; ++ i )
             {
-              int c = 13 + _i + 3 * _j + 9 * _k;
-                unsigned int r =
-                  this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, _i, _j, _k );
+              int c = 13 + i + 3 * j + 9 * k;
+              unsigned int r = this->Grid->GetShiftedLevelZeroIndex( this->TreeIndex, i, j, k );
               vtkInitializeAsGeometricCursorMacro( N, c, this->Grid, r );
-            } // _i
-          } // _j
-        } // _k
+            } // i
+          } // j
+        } // k
       } // cases 8 and 27
     } // switch ( N )
 
@@ -1290,8 +1262,8 @@ public:
   //---------------------------------------------------------------------------
   bool GetCornerCursors( unsigned int c, unsigned int l, vtkIdList* leaves ) VTK_OVERRIDE
   {
-    unsigned int cursorIdx = 0;
-    unsigned int centerCursorIdx = 0;
+    unsigned int cursorIdx;
+    unsigned int centerCursorIdx;
     switch ( N )
     {
       case 2:
@@ -1311,10 +1283,6 @@ public:
         // dimension == 3
         centerCursorIdx = 13;
         cursorIdx = CornerNeighborCursorsTable3D[c][l];
-        break;
-      default:
-        vtkErrorMacro("unexpected neigborhood");
-        return false;
     } // switch ( N )
 
     // Collect the cursor index for this leaf
@@ -1416,8 +1384,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkMooreSuperCursor(const vtkMooreSuperCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMooreSuperCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkMooreSuperCursor(const vtkMooreSuperCursor<N> &); // Not implemented.
+  void operator=(const vtkMooreSuperCursor<N> &); // Not implemented.
 }; // class vtkMooreSuperCursor : public vtkGeometricCursor
 //-----------------------------------------------------------------------------
 template<int N> vtkStandardNewMacro(vtkMooreSuperCursor<N>);
@@ -1455,8 +1423,8 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   this->HasInterface = false;
 
   // Interface array names
-  this->InterfaceNormalsName = nullptr;
-  this->InterfaceInterceptsName = nullptr;
+  this->InterfaceNormalsName = 0;
+  this->InterfaceInterceptsName = 0;
 
   // Primal grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -1517,8 +1485,8 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
     this->MaterialMaskIndex->Delete();
   }
 
-  this->SetInterfaceNormalsName( nullptr);
-  this->SetInterfaceInterceptsName( nullptr );
+  this->SetInterfaceNormalsName( 0 );
+  this->SetInterfaceInterceptsName( 0 );
 
   if ( this->XCoordinates )
   {
@@ -1538,19 +1506,19 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
   if ( this->Pixel )
   {
     this->Pixel->Delete();
-    this->Pixel = nullptr;
+    this->Pixel = 0;
   }
 
   if ( this->Line )
   {
     this->Line->Delete();
-    this->Line = nullptr;
+    this->Line = 0;
   }
 
   if ( this->Voxel )
   {
     this->Voxel->Delete();
-    this->Voxel = nullptr;
+    this->Voxel = 0;
   }
 
   this->DeleteTrees();
@@ -1614,8 +1582,7 @@ int vtkHyperTreeGrid::GetDataObjectType()
 //----------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkHyperTreeGrid::GetData( vtkInformation* info )
 {
-  return info ?
-    vtkHyperTreeGrid::SafeDownCast( info->Get(DATA_OBJECT() ) ) : nullptr;
+  return info ? vtkHyperTreeGrid::SafeDownCast( info->Get(DATA_OBJECT() ) ) : 0;
 }
 
 //----------------------------------------------------------------------------
@@ -2035,7 +2002,7 @@ vtkHyperTreeCursor* vtkHyperTreeGrid::NewCursor( vtkIdType index,
   }
 
   // Return either found or created tree, or a null pointer
-  return tree ? tree->NewCursor() : nullptr;
+  return tree ? tree->NewCursor() : 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -2111,7 +2078,7 @@ vtkHyperTreeGridCursor* vtkHyperTreeGrid::NewGeometricCursor( vtkIdType index,
 #undef vtkHyperTreeGridNewGeometricCursorMacro
 
   // Return a null pointer if tree neither found nor created
-  return nullptr;
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -2167,7 +2134,7 @@ vtkHyperTreeGridCursor* vtkHyperTreeGrid::NewVonNeumannSuperCursor( vtkIdType in
 #undef vtkHyperTreeGridNewVonNeumannSuperCursorMacro
 
   // Return a null pointer if tree neither found nor created
-  return nullptr;
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -2223,7 +2190,7 @@ vtkHyperTreeGridCursor* vtkHyperTreeGrid::NewMooreSuperCursor( vtkIdType index,
 #undef vtkHyperTreeGridNewMooreSuperCursorMacro
 
   // Return a null pointer if tree neither found nor created
-  return nullptr;
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -2231,7 +2198,8 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType id )
 {
   assert( "pre: leaf_exists" && leaf );
   assert( "pre: is_a_leaf" && leaf->IsLeaf() );
-  vtkHyperTree* tree = GetHyperTreeFromThisMacro( id );
+  vtkHyperTree* tree;
+  tree = GetHyperTreeFromThisMacro( id );
   if ( tree )
   {
     tree->SubdivideLeaf( leaf );
@@ -2478,7 +2446,7 @@ void vtkHyperTreeGrid::GetPoint( vtkIdType ptId, double x[3] )
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::GetCellImplementation( vtkIdType cellId, vtkCell* cell )
+void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkCell* cell )
 {
   assert( "Null cell ptr." && cell != nullptr );
 
@@ -2519,7 +2487,7 @@ vtkCell* vtkHyperTreeGrid::GetCell( vtkIdType cellId )
       return nullptr;          // impossible case
   }
 
-  this->GetCellImplementation( cellId, cell );
+  GetCell( cellId, cell );
   return cell;
 }
 
@@ -2543,7 +2511,7 @@ void vtkHyperTreeGrid::GetCell( vtkIdType cellId, vtkGenericCell* cell )
       return;            // impossible case
   }
 
-  this->GetCellImplementation( cellId, static_cast<vtkCell*>( cell ) );
+  GetCell( cellId, static_cast<vtkCell*>( cell ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -2702,7 +2670,7 @@ bool vtkHyperTreeGrid::RecursivelyInitializePureMaterialMask( vtkHyperTreeGridCu
 {
   // Retrieve mask value at cursor
   int id = cursor->GetGlobalNodeIndex();
-  bool mask = (this->MaterialMask->GetTuple1( id  )!=0);
+  bool mask = this->MaterialMask->GetTuple1( id  );
 
   //  Dot recurse if node is masked or is a leaf
   if( ! mask && ! cursor->IsLeaf() )
@@ -3005,20 +2973,20 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetConnectivity()
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkHyperTreeGrid::GetShiftedLevelZeroIndex( vtkIdType index,
-                                                         int i,
-                                                         int j,
-                                                         int k )
+vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex( vtkIdType index,
+                                                      unsigned int i,
+                                                      unsigned int j,
+                                                      unsigned int k )
 {
   // Distinguish between two cases depending on indexing order
   return this->TransposedRootIndexing ?
-    index + (k +
-             j * static_cast<int>(this->GridSize[2]) +
-             i * static_cast<int>(this->GridSize[2] * this->GridSize[1]))
+    index + k +
+    j * static_cast<int>( this->GridSize[2] ) +
+    i * static_cast<int>( this->GridSize[2] ) * static_cast<int>( this->GridSize[1] )
     :
-    index + (i +
-             j * static_cast<int>(this->GridSize[0]) +
-             k * static_cast<int>(this->GridSize[0] * this->GridSize[1]));
+    index + i +
+    j * static_cast<int>( this->GridSize[0] ) +
+    k * static_cast<int>( this->GridSize[0] ) * static_cast<int>( this->GridSize[1] );
 }
 
 //-----------------------------------------------------------------------------
@@ -3224,14 +3192,14 @@ void vtkHyperTreeGrid::ComputeDualGrid()
   for ( unsigned int d = 0; d < this->Dimension; ++ d )
   {
     // Iterate over all adjustments for current dimension
-    for ( std::map<vtkIdType, double>::const_iterator _it
+    for ( std::map<vtkIdType, double>::const_iterator it
             = this->PointShifts[d].begin();
-          _it != this->PointShifts[d].end(); ++ _it )
+          it != this->PointShifts[d].end(); ++ it )
     {
       double pt[3];
-      this->Points->GetPoint( _it->first, pt );
-      pt[d] += _it->second;
-      this->Points->SetPoint( _it->first, pt );
+      this->Points->GetPoint( it->first, pt );
+      pt[d] += it->second;
+      this->Points->SetPoint( it->first, pt );
     } // it
     this->PointShifts[d].clear();
   } // d
@@ -3244,6 +3212,9 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridCursor* cursor )
   // Create cell corner if cursor is at leaf
   if ( cursor->IsLeaf() )
   {
+    // Cursor is at leaf, retrieve its global index
+    vtkIdType id = cursor->GetGlobalNodeIndex();
+
     // Center is a leaf, create dual items depending on dimension
     switch ( this->Dimension )
     {
@@ -4274,12 +4245,12 @@ static const unsigned int HyperTreeGridMask_3_3[27] = { 0xd8680000, 0x48200000, 
                                                         0x00080600, 0x00000200, 0x00020300,
                                                         0x000986c0, 0x00008240, 0x0002c360 };
 
-static const unsigned int* HyperTreeGridMask[3][2]={ {HyperTreeGridMask_1_2,
-                                                      HyperTreeGridMask_1_3},
-                                                     {HyperTreeGridMask_2_2,
-                                                      HyperTreeGridMask_2_3},
-                                                     {HyperTreeGridMask_3_2,
-                                                      HyperTreeGridMask_3_3} };
+static const unsigned int* HyperTreeGridMask[3][2]={ HyperTreeGridMask_1_2,
+                                                     HyperTreeGridMask_1_3,
+                                                     HyperTreeGridMask_2_2,
+                                                     HyperTreeGridMask_2_3,
+                                                     HyperTreeGridMask_3_2,
+                                                     HyperTreeGridMask_3_3 };
 
 //-----------------------------------------------------------------------------
 unsigned int vtkHyperTreeGrid::GetChildMask( unsigned int child )
@@ -4287,15 +4258,5 @@ unsigned int vtkHyperTreeGrid::GetChildMask( unsigned int child )
   int i = this->GetDimension() - 1;
   int j = this->GetBranchFactor() - 2;
   return HyperTreeGridMask[i][j][child];
-}
-
-//-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::SetOrientation( unsigned int i )
-{
-  if (this->Orientation != (i>2?2:i))
-  {
-    this->Orientation = (i>2?2:i);
-    this->Modified();
-  }
 }
 //=============================================================================

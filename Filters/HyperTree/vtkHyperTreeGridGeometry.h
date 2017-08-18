@@ -40,19 +40,19 @@ class vtkPoints;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeGridAlgorithm
 {
-public:
+  public:
   static vtkHyperTreeGridGeometry* New();
   vtkTypeMacro( vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
-protected:
+  protected:
   vtkHyperTreeGridGeometry();
   ~vtkHyperTreeGridGeometry();
 
   /**
    * For this algorithm the output is a vtkPolyData instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to generate external boundary
@@ -104,7 +104,7 @@ protected:
    */
   vtkCellArray* Cells;
 
-private:
+  private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridGeometry&) VTK_DELETE_FUNCTION;
 };

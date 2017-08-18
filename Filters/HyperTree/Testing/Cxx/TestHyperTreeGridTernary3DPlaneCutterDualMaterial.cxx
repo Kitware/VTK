@@ -129,7 +129,7 @@ int TestHyperTreeGridTernary3DPlaneCutterDualMaterial( int argc, char* argv[] )
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 155 );
+  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

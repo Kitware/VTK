@@ -45,7 +45,7 @@ class vtkUnstructuredGrid;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHyperTreeGridAlgorithm : public vtkAlgorithm
 {
-public:
+  public:
   vtkTypeMacro(vtkHyperTreeGridAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
@@ -109,7 +109,7 @@ public:
   void AddInputData( int, vtkDataObject* );
   //@}
 
-protected:
+  protected:
   vtkHyperTreeGridAlgorithm();
   ~vtkHyperTreeGridAlgorithm();
 
@@ -145,14 +145,14 @@ protected:
   /**
    * Define default input and output port types
    */
-  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  virtual int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
   //@}
 
   vtkDataSetAttributes* InData;
   vtkDataSetAttributes* OutData;
 
-private:
+  private:
   vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridAlgorithm&) VTK_DELETE_FUNCTION;
 };

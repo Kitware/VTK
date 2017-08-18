@@ -35,19 +35,14 @@
 #include "vtkQuadric.h"
 #include "vtkTimerLog.h"
 
-//#define HYPERTREEGRID_GETRUSAGE
-#ifdef HYPERTREEGRID_GETRUSAGE
 #include <sys/resource.h>
-#endif
 
 int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
 {
   // Performance instruments
   vtkNew<vtkTimerLog> timer;
-#ifdef HYPERTREEGRID_GETRUSAGE
   struct rusage usage0;
   getrusage( RUSAGE_SELF, &usage0 );
-#endif
 
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
@@ -67,10 +62,8 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
   timer->StartTimer();
   htGrid->Update();
   timer->StopTimer();
-#ifdef HYPERTREEGRID_GETRUSAGE
   struct rusage usage1;
   getrusage( RUSAGE_SELF, &usage1 );
-#endif
   vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast( htGrid->GetOutput() );
   vtkIdType nV = H->GetNumberOfVertices();
   vtkIdType nL = H->GetNumberOfLeaves();
@@ -84,12 +77,11 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
        << nL
        << " ("
        << (double)nL / (double)nV * 100.00
-       << "%)\n";
-#ifdef HYPERTREEGRID_GETRUSAGE
+       << "\%)\n";
   cerr << "  increase in max. resident set size: "
        << ( usage1.ru_maxrss - usage0.ru_maxrss ) / 1024
        << " kiB\n";
-#endif
+  return 0;
 
   // Axis reflections
   timer->StartTimer();
@@ -123,13 +115,11 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
   reflection7->Update();
   timer->StopTimer();
   cerr << "Time for 7 axis-aligned reflections: " << timer->GetElapsedTime() << endl;
-#ifdef HYPERTREEGRID_GETRUSAGE
- struct rusage usage2;
+  struct rusage usage2;
   getrusage( RUSAGE_SELF, &usage2 );
   cerr << "  increase in max. resident set size: "
        << ( usage2.ru_maxrss - usage1.ru_maxrss ) / 1024
        << " kiB\n";
-#endif
 
   // Geometries
   timer->StartTimer();
@@ -161,13 +151,11 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
   geometry7->Update();
   timer->StopTimer();
   cerr << "Time for 8 geometry filters: " << timer->GetElapsedTime() << endl;
-#ifdef HYPERTREEGRID_GETRUSAGE
   struct rusage usage3;
   getrusage( RUSAGE_SELF, &usage3 );
   cerr << "  increase in max. resident set size: "
        << ( usage3.ru_maxrss - usage2.ru_maxrss ) / 1024
        << " kiB\n";
-#endif
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();

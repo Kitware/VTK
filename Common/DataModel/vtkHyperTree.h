@@ -199,7 +199,6 @@ public:
    * factor and dimension.
    * This is done to hide templates.
    */
-  VTK_NEWINSTANCE
   static vtkHyperTree* CreateInstance( unsigned int branchFactor,
                                        unsigned int dimension );
 
@@ -252,7 +251,7 @@ public:
    */
   virtual vtkIdType GetGlobalIndexFromLocal( vtkIdType local ) = 0;
 
-protected:
+  protected:
   vtkHyperTree()
   {
   }

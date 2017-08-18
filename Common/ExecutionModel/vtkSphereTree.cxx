@@ -316,7 +316,7 @@ namespace {
     }
 
     static void Execute(vtkIdType numCells, vtkDataSet *ds,
-                        double *s, bool vtkNotUsed(computeBoundsAndRadius),
+                        double *s, bool computeBoundsAndRadius,
                         double& aveRadius, double sphereBounds[6])
     {
       if (ds->GetNumberOfCells() > 0 && numCells <= ds->GetNumberOfCells())
@@ -397,8 +397,7 @@ namespace {
     }
 
     static void Execute(vtkIdType numCells, vtkUnstructuredGrid *grid,
-                        double *s, bool vtkNotUsed(computeBoundsAndRadius),
-                        double& aveRadius, double sphereBounds[6])
+                        double *s, bool computeBoundsAndRadius, double& aveRadius, double sphereBounds[6])
     {
       if (grid->GetNumberOfCells() > 0 && numCells <= grid->GetNumberOfCells())
       {

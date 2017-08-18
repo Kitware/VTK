@@ -44,7 +44,7 @@ class vtkQuadric;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisClip : public vtkHyperTreeGridAlgorithm
 {
-public:
+  public:
   static vtkHyperTreeGridAxisClip* New();
   vtkTypeMacro( vtkHyperTreeGridAxisClip, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
@@ -137,7 +137,7 @@ public:
    */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
-protected:
+  protected:
   vtkHyperTreeGridAxisClip();
   ~vtkHyperTreeGridAxisClip() VTK_OVERRIDE;
 
@@ -201,7 +201,7 @@ protected:
    */
   vtkIdType CurrentId;
 
-private:
+  private:
   vtkHyperTreeGridAxisClip(const vtkHyperTreeGridAxisClip&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridAxisClip&) VTK_DELETE_FUNCTION;
 };

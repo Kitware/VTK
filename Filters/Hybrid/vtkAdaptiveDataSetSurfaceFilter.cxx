@@ -35,10 +35,10 @@ vtkStandardNewMacro(vtkAdaptiveDataSetSurfaceFilter);
 //-----------------------------------------------------------------------------
 vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 {
-  this->InData = nullptr;
-  this->OutData = nullptr;
-  this->Points = nullptr;
-  this->Cells = nullptr;
+  this->InData = 0;
+  this->OutData = 0;
+  this->Points = 0;
+  this->Cells = 0;
 
   // Default dimension is 0
   this->Dimension = 0;
@@ -336,7 +336,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree( vtkHyperTreeGridCu
 
         // Clean up
         childCursor->Delete();
-        childCursor = nullptr;
+        childCursor = 0;
       } // child
     } // else
   } // if ( this->Dimension == 3 )
@@ -351,7 +351,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree( vtkHyperTreeGridCu
       insideBB = (
         pow( cursor->GetOrigin()[this->Axis1] + half - this->LastCameraFocalPoint[this->Axis1], 2 ) +
         pow( cursor->GetOrigin()[this->Axis2] + half - this->LastCameraFocalPoint[this->Axis2], 2 ) ) <
-        pow( this->Radius + half * sqrt(2.), 2 );
+        pow( this->Radius + half * M_SQRT2, 2 );
     }
     if( insideBB )
     {
@@ -382,7 +382,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree( vtkHyperTreeGridCu
 
           // Clean up
           childCursor->Delete();
-          childCursor = nullptr;
+          childCursor = 0;
         } // child
       } // else
     } // if( insideBB )
@@ -450,7 +450,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D( vtkHyperTreeGridCursor* sup
   int masked = mask ? mask->GetValue( id ) : 0;
 
   // Iterate over all cursors of Von Neumann neighborhood around center
-  unsigned int nc = superCursor->GetNumberOfCursors() - 1;
+  int nc = superCursor->GetNumberOfCursors() - 1;
   for ( unsigned int c = 0 ; c < nc; ++ c )
   {
     // Retrieve cursor to neighbor across face
@@ -538,7 +538,7 @@ vtkMTimeType vtkAdaptiveDataSetSurfaceFilter::GetMTime()
     if ( cam )
     {
       // Check & Update parallel projection
-      bool para = (cam->GetParallelProjection()!=0);
+      int para = cam->GetParallelProjection();
 
       if ( this->ParallelProjection != para )
       {

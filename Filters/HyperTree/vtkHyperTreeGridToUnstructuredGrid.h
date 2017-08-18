@@ -17,6 +17,7 @@
  * @brief   Convert hyper tree grid to
  * unstructured grid.
  *
+ *
  * Make explicit all leaves of a hyper tree grid by converting them to cells
  * of an unstructured grid.
  * Produces segments in 1D, rectangles in 2D, right hexahedra in 3D.
@@ -48,19 +49,19 @@ class vtkUnstructuredGrid;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtkHyperTreeGridAlgorithm
 {
-public:
+  public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
   vtkTypeMacro( vtkHyperTreeGridToUnstructuredGrid, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
-protected:
+  protected:
   vtkHyperTreeGridToUnstructuredGrid();
   ~vtkHyperTreeGridToUnstructuredGrid();
 
   /**
    * For this algorithm the output is a vtkUnstructuredGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to convert the grid of tree into an unstructured grid
@@ -92,7 +93,7 @@ protected:
    */
   unsigned int Dimension;
 
-private:
+  private:
   vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
 };

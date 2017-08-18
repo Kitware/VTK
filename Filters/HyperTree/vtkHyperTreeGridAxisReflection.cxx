@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridAxisReflection.cxx
+Program:   Visualization Toolkit
+Module:    vtkHyperTreeGridAxisReflection.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGridAxisReflection.h"
@@ -78,7 +78,7 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
   this->OutData->PassData( this->InData );
 
   // Retrieve reflection direction and coordinates to be reflected
-  unsigned int direction = 0;
+  unsigned int direction = -1;
   vtkDataArray* inCoords = 0;
   unsigned int pmod3 = this->Plane % 3;
   if ( ! pmod3 )

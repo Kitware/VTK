@@ -107,7 +107,7 @@ int TestHyperTreeGridTernary3DAxisReflectionYZCenterMaterial( int argc, char* ar
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 55 );
+  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

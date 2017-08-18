@@ -207,6 +207,8 @@ int vtkCellTypeSource::RequestData(
   }
   output->SetPoints(points.GetPointer());
 
+  this->ComputeFields(output);
+
   switch(this->CellType)
   {
   case VTK_LINE:
@@ -1165,7 +1167,7 @@ void vtkCellTypeSource::ComputeFields(vtkUnstructuredGrid* output)
 //----------------------------------------------------------------------------
 double vtkCellTypeSource::GetValueOfOrder(int order, double coords[3])
 {
-  int v = 0;
+  double v = 0;
   for(int i=0;i<=order;i++)
   {
     for(int j=0;j<=order-i;j++)

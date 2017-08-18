@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridPlaneCutter.cxx
+Program:   Visualization Toolkit
+Module:    vtkHyperTreeGridGeometry.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGridPlaneCutter.h"
@@ -55,10 +55,10 @@ vtkHyperTreeGridPlaneCutter::vtkHyperTreeGridPlaneCutter()
   this->Dual = 0;
 
   // By default member variables for dual-based computation are not used
-  this->SelectedCells = nullptr;
-  this->Centers = nullptr;
-  this->Cutter = nullptr;
-  this->Leaves = nullptr;
+  this->SelectedCells = 0;
+  this->Centers = 0;
+  this->Cutter = 0;
+  this->Leaves = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -67,31 +67,31 @@ vtkHyperTreeGridPlaneCutter::~vtkHyperTreeGridPlaneCutter()
   if ( this->Points )
   {
     this->Points->Delete();
-    this->Points = nullptr;
+    this->Points = 0;
   }
 
   if ( this->Cells )
   {
     this->Cells->Delete();
-    this->Cells = nullptr;
+    this->Cells = 0;
   }
 
   if ( this->Leaves )
   {
     this->Leaves->Delete();
-    this->Leaves = nullptr;
+    this->Leaves = 0;
   }
 
   if ( this->Centers )
   {
     this->Centers->Delete();
-    this->Centers = nullptr;
+    this->Centers = 0;
   }
 
   if ( this->Cutter )
   {
     this->Cutter->Delete();
-    this->Cutter = nullptr;
+    this->Cutter = 0;
   }
 }
 
@@ -424,7 +424,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
 
         // Clean up
         childCursor->Delete();
-        childCursor = nullptr;
+        childCursor = 0;
       } // child
     } // else
   } // CheckIntersection
@@ -483,7 +483,7 @@ bool vtkHyperTreeGridPlaneCutter::RecursivelyPreProcessTree( vtkHyperTreeGridCur
 
         // Clean up
         childCursor->Delete();
-        childCursor = nullptr;
+        childCursor = 0;
       } // child
     } // else
   } // if ( this->CheckIntersection )
@@ -522,7 +522,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridCu
         vtkIdType idN = cursor->GetCursor( MooreCursors3D[neighbor] )->GetGlobalNodeIndex();
 
         // Decide whether neighbor was selected
-        selected = (this->SelectedCells->GetTuple1( idN ) != 0.0);
+        selected = this->SelectedCells->GetTuple1( idN );
       } // neighbor
 
       // No dual cell with a corner at cursor center will be intersected
@@ -545,7 +545,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridCu
 
       // Clean up
       childCursor->Delete();
-      childCursor = nullptr;
+      childCursor = 0;
     } // child
   } // if ( ! cursor->IsLeaf() )
   else
@@ -573,22 +573,23 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridCu
 
         // Iterate over cell corners
         double x[3];
-        for ( int _cornerIdx = 0; _cornerIdx < 8; ++ _cornerIdx )
+        vtkIdType ptId;
+        for ( int cornerIdx = 0; cornerIdx < 8; ++ cornerIdx )
         {
           // Get cursor corresponding to this corner
-          vtkIdType cursorId = this->Leaves->GetId( _cornerIdx );
+          vtkIdType cursorId = this->Leaves->GetId( cornerIdx );
           vtkHyperTreeGridCursor* cursorN = cursor->GetCursor( cursorId );
 
           // Retrieve neighbor coordinates and store them
           cursorN->GetPoint( x );
-          this->Centers->SetPoint( _cornerIdx, x );
+          this->Centers->SetPoint( cornerIdx, x );
 
           // Retrieve neighbor index and corresponding input scalar value
           vtkIdType idN = cursorN->GetGlobalNodeIndex();
 
           // Assign scalar value attached to this cell corner
-          dual->GetPointData()->CopyData( this->InData, idN, _cornerIdx );
-        } // _cornerIdx
+          dual->GetPointData()->CopyData( this->InData, idN, cornerIdx );
+        } // cornerIdx
 
         // Assign geometry of dual cell
         dual->SetPoints( this->Centers );
@@ -634,7 +635,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridCu
             } // j
 
             // Insert next cell with offset ids
-            this->Cells->InsertNextCell( n, ids );
+            vtkIdType cellId = this->Cells->InsertNextCell( n, ids );
           } // i
         } // if ( nPoints )
 
@@ -740,7 +741,7 @@ void vtkHyperTreeGridPlaneCutter::ReorderCutPoints( int n, double points[][3] )
   for ( int i = 0; i < n - 2; ++ i )
   {
     // Search the closest point to i in the sense of sharing the most coordinates
-    int index = i+1; //in practice a don't care, set to satisfy -Wuninitialized
+    int index;
     int minDistance = 4;
     for ( int j = i + 1; j < n; ++ j )
     {

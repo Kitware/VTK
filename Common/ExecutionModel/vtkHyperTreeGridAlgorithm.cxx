@@ -33,15 +33,15 @@ vtkHyperTreeGridAlgorithm::vtkHyperTreeGridAlgorithm()
   this->SetNumberOfOutputPorts( 1 );
 
   // Keep references to input and output data
-  this->InData = nullptr; //todo: should be a safer pointer type
-  this->OutData = nullptr;
+  this->InData = 0;
+  this->OutData = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkHyperTreeGridAlgorithm::~vtkHyperTreeGridAlgorithm()
 {
-  this->InData = nullptr;
-  this->OutData = nullptr;
+  this->InData = 0;
+  this->OutData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -191,7 +191,7 @@ int vtkHyperTreeGridAlgorithm::RequestUpdateExtent( vtkInformation*,
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::RequestData( vtkInformation* vtkNotUsed(request),
+int vtkHyperTreeGridAlgorithm::RequestData( vtkInformation* request,
                                             vtkInformationVector** inputVector,
                                             vtkInformationVector* outputVector )
 {
@@ -202,14 +202,14 @@ int vtkHyperTreeGridAlgorithm::RequestData( vtkInformation* vtkNotUsed(request),
   vtkHyperTreeGrid* input = vtkHyperTreeGrid::GetData( inputVector[0], 0 );
   if ( ! input )
   {
-    vtkErrorMacro( "No input available. Cannot proceed with hyper tree grid algorithm." );
-    return 0;
+     vtkErrorMacro( "No input available. Cannot proceed with hyper tree grid algorithm." );
+     return 0;
   }
   vtkDataObject* outputDO = vtkDataObject::GetData( outputVector, 0 );
   if ( ! outputDO )
   {
-    vtkErrorMacro( "No output available. Cannot proceed with hyper tree grid algorithm." );
-    return 0;
+     vtkErrorMacro( "No output available. Cannot proceed with hyper tree grid algorithm." );
+     return 0;
   }
 
   // Process all trees in input grid and generate input data object
