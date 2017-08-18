@@ -176,12 +176,10 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
   // graph size
   vtkIdType num_verts = output->GetNumberOfVertices();
 
-  if(this->KCoreLabelArrayName)
+  if(!this->KCoreLabelArrayName)
   {
-  }
-  else
-  {
-    this->KCoreLabelArrayName = (char*)"kcore";
+    const char * kcore = "kcore";
+    this->KCoreLabelArrayName = strcpy(new char [strlen(kcore)+1], kcore);
   }
 
   // Get the kcore attribute array

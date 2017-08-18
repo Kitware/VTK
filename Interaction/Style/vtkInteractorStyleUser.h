@@ -68,7 +68,7 @@ public:
   //@{
   /**
    * Test whether modifiers were held down when mouse button or key
-   * was pressed
+   * was pressed.
    */
   vtkGetMacro(ShiftKey,int);
   vtkGetMacro(CtrlKey,int);
@@ -83,8 +83,8 @@ public:
 
   //@{
   /**
-   * Get the KeySym (in the same format as Tk KeySyms) for a
-   * KeyPress or KeyRelease method.
+   * Get the KeySym (in the same format as vtkRenderWindowInteractor KeySyms)
+   * for a KeyPress or KeyRelease method.
    */
   vtkGetStringMacro(KeySym);
   //@}
