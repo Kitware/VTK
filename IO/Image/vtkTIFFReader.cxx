@@ -528,11 +528,11 @@ void vtkTIFFReader::ExecuteInformation()
   }
 
   // Figure out the appropriate scalar type for the data.
-  int scalarType = VTK_CHAR;
+  int scalarType = VTK_SIGNED_CHAR;
   short sampleFormat = this->InternalImage->SampleFormat;
   if (this->InternalImage->BitsPerSample <= 8)
   {
-    scalarType = sampleFormat == 2 ? VTK_CHAR : VTK_UNSIGNED_CHAR;
+    scalarType = sampleFormat == 2 ? VTK_SIGNED_CHAR : VTK_UNSIGNED_CHAR;
   }
   else if (this->InternalImage->BitsPerSample <= 16)
   {
