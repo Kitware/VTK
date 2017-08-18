@@ -155,7 +155,26 @@ void vtkOSPRayLightNode::Render(bool prepass)
     {
       double px, py, pz;
       light->GetTransformedPosition(px, py, pz);
-      OSPLight ospLight = ospNewLight(oRenderer, "PointLight");
+      float coneAngle = static_cast<float>(light->GetConeAngle());
+      OSPLight ospLight;
+      if (coneAngle <= 0.0)
+      {
+        ospLight = ospNewLight(oRenderer, "PointLight");
+      }
+      else
+      {
+        ospLight = ospNewLight(oRenderer, "SpotLight");
+        double fx, fy, fz;
+        light->GetTransformedFocalPoint(fx, fy, fz);
+        double direction[3];
+        direction[0] = fx - px;
+        direction[1] = fy - py;
+        direction[2] = fz - pz;
+        ospSet3f(ospLight, "direction",
+                 direction[0], direction[1], direction[2]);
+        ospSet1f(ospLight, "openingAngle", coneAngle);
+        //TODO: penumbraAngle
+      }
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
         (20.0*
