@@ -722,11 +722,19 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   }
     this->Internal->ContextId = nullptr;
 
-  // then close the old window if we own it
-  if (this->OwnWindow && this->DisplayId && this->WindowId)
+  if (this->DisplayId && this->WindowId)
   {
-    XDestroyWindow(this->DisplayId,this->WindowId);
-    this->WindowId = static_cast<Window>(NULL);
+    if (this->OwnWindow)
+    {
+      // close the window if we own it
+      XDestroyWindow(this->DisplayId,this->WindowId);
+      this->WindowId = static_cast<Window>(NULL);
+    }
+    else
+    {
+      // if we don't own it, simply unmap the window
+      XUnmapWindow(this->DisplayId, this->WindowId);
+    }
   }
 
   this->CloseDisplay();
