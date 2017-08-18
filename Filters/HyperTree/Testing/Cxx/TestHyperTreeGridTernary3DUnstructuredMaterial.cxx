@@ -14,8 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This test was revised by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridToUnstructuredGrid.h"
@@ -55,7 +54,7 @@ int TestHyperTreeGridTernary3DUnstructuredMaterial( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridToUnstructuredGrid> htg2ug;
   htg2ug->SetInputConnection( htGrid->GetOutputPort() );
   htg2ug->Update();
-  vtkUnstructuredGrid* pd = htg2ug->GetUnstructuredGridOutput();
+  vtkUnstructuredGrid* pd = htg2ug->GetOutput();
 
   // Shrink filter
   vtkNew<vtkShrinkFilter> shrink;
@@ -80,7 +79,7 @@ int TestHyperTreeGridTernary3DUnstructuredMaterial( int argc, char* argv[] )
   actor2->GetProperty()->SetColor( .7, .7, .7 );
 
   // Camera
-  vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
+  vtkHyperTreeGrid* ht = htGrid->GetOutput();
   double bd[6];
   ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;

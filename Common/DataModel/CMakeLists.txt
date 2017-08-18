@@ -74,7 +74,6 @@ set(Module_SRCS
   vtkHyperTree.cxx
   vtkHyperTreeCursor.cxx
   vtkHyperTreeGrid.cxx
-  vtkHyperTreeGridCursor.cxx
   vtkImageData.cxx
   vtkImageIterator.cxx
   vtkImplicitBoolean.cxx

@@ -14,10 +14,8 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay and Joachim Pouderoux, Kitware 2013
-// This test was revised by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
@@ -128,7 +126,6 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   htGrid->SetGridSize( sx, sy, sz );
   htGrid->SetGridScale( 1., 1., 1. );
   htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( branch );
   htGrid->UseMaterialMaskOn();
   vtkNew<vtkIdTypeArray> zero;
@@ -151,10 +148,9 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   timer->StartTimer();
   htGrid->Update();
   timer->StopTimer();
-  vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
-  vtkIdType nbCells = ht->GetNumberOfCells();
+  vtkIdType nbCells = htGrid->GetOutput()->GetNumberOfCells();
   cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
-  cout << "#pts " << ht->GetNumberOfPoints() << endl;
+  cout << "#pts " << htGrid->GetOutput()->GetNumberOfPoints() << endl;
   timer->StartTimer();
   timer->StopTimer();
   cout << "#cells " << nbCells << endl;
@@ -165,13 +161,13 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   vtkNew<vtkIdTypeArray> idArray;
   idArray->SetName( "Ids" );
   idArray->SetNumberOfComponents( 1 );
-  vtkIdType nbPoints = ht->GetNumberOfPoints();
+  vtkIdType nbPoints = htGrid->GetOutput()->GetNumberOfPoints();
   idArray->SetNumberOfValues( nbPoints );
   for ( vtkIdType i = 0; i < nbPoints; ++ i )
   {
     idArray->SetValue( i, i );
   }
-  ht->GetPointData()->SetScalars( idArray.GetPointer() );
+  htGrid->GetOutput()->GetPointData()->SetScalars( idArray.GetPointer() );
 
   // Geometry
   cout << "Constructing geometry..." << endl;
@@ -179,7 +175,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputData( htGrid->GetOutput() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
+  vtkPolyData* pd = geometry->GetOutput();
   timer->StopTimer();
   cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
 

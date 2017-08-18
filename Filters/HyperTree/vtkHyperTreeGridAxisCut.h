@@ -17,46 +17,42 @@
  * @brief   Axis aligned hyper tree grid cut
  *
  *
- * Cut an hyper tree grid along an axis aligned plane and output a hyper
- * tree grid lower dimensionality. Only works for 3D grids as inputs
- *
- * NB: This new (2014-16) version of the class is not to be confused with
- * earlier (2012-13) version that produced a vtkPolyData output composed of
- * disjoint (no point sharing) quadrilaterals, with possibly superimposed
- * faces when cut plane contained inter-cell boundaries.
+ * Cut along an axis aligned plane. Only works for 3D grids.
+ * Produces disjoint (no point sharing) quads for now.
+ * NB: If cut plane contains inter-cell boundaries, the output will contain
+ * superimposed faces as a result.
  *
  * @sa
- * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
+ * vtkHyperTreeGrid
  *
  * @par Thanks:
- * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
- * This class was modified by Philippe Pebay, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was written by Philippe Pebay and Charles Law, Kitware 2012
+ * This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 */
 
 #ifndef vtkHyperTreeGridAxisCut_h
 #define vtkHyperTreeGridAxisCut_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class vtkBitArray;
-class vtkHyperTreeCursor;
+class vtkCellArray;
+class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
+class vtkPoints;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkPolyDataAlgorithm
 {
-  public:
+public:
   static vtkHyperTreeGridAxisCut* New();
-  vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkHyperTreeGridAlgorithm );
+  vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkPolyDataAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
   //@{
   /**
    * Normal axis: 0=X, 1=Y, 2=Z. Default is 0
    */
-  vtkSetClampMacro(PlaneNormalAxis, int, 0, 2);
+  vtkSetMacro(PlaneNormalAxis, int);
   vtkGetMacro(PlaneNormalAxis, int);
   //@}
 
@@ -68,48 +64,34 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGr
   vtkGetMacro(PlanePosition, double);
   //@}
 
-  protected:
+protected:
   vtkHyperTreeGridAxisCut();
   ~vtkHyperTreeGridAxisCut() VTK_OVERRIDE;
 
-  // For this algorithm the output is a vtkHyperTreeGrid instance
-  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
-  /**
-   * Main routine to generate hyper tree grid cut
-   */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  void ProcessTrees();
+  void RecursiveProcessTree( void* );
+  void ProcessLeaf3D( void* );
+  void AddFace( vtkIdType inId, double* origin, double* size,
+                double offset0, int axis0, int axis1, int axis2 );
 
-  /**
-   * Recursively descend into tree down to leaves
-   */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*,
-                               vtkHyperTreeCursor*,
-                               vtkBitArray* );
-
-  /**
-   * Direction of plane normal
-   */
   int PlaneNormalAxis;
-
-  /**
-   * Intercept of plane along normal
-   */
   double PlanePosition;
 
-  /**
-   * Output material mask constructed by this filter
-   */
-  vtkBitArray* MaterialMask;
+  vtkHyperTreeGrid* Input;
+  vtkPolyData* Output;
 
-  /**
-   * Keep track of current index in output hyper tree grid
-   */
-  vtkIdType CurrentId;
+  vtkDataSetAttributes* InData;
+  vtkDataSetAttributes* OutData;
 
-  private:
+  vtkPoints* Points;
+  vtkCellArray* Cells;
+
+private:
   vtkHyperTreeGridAxisCut(const vtkHyperTreeGridAxisCut&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridAxisCut&) VTK_DELETE_FUNCTION;
 };
 
-#endif /* vtkHyperTreeGridAxisCut_h */
+#endif

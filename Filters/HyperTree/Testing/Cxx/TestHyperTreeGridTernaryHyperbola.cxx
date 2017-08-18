@@ -14,8 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This test was revised by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -45,7 +44,6 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   htGrid->SetGridSize( 8, 12, 1 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 3 );
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOff();
@@ -60,7 +58,7 @@ int TestHyperTreeGridTernaryHyperbola( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
+  vtkPolyData* pd = geometry->GetOutput();
   pd->GetCellData()->SetActiveScalars( "Quadric" );
 
   // Contour

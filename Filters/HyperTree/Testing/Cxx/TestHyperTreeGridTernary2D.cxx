@@ -14,8 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2013
-// This test was revised y Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -41,7 +40,6 @@ int TestHyperTreeGridTernary2D( int argc, char* argv[] )
   htGrid->SetGridSize( 2, 3, 1 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 3 );
   htGrid->SetDescriptor( "RRRRR.|......... ..R...... RRRRRRRRR R........ R........|..R...... ........R ......RRR ......RRR ..R..R..R RRRRRRRRR R..R..R.. ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........R ..R..R..R ......... ......RRR ......R.. ......... RRRRRRRRR R..R..R.. ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ......... RRRRRRRRR ......... ......... ......... ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........." );
 
@@ -49,7 +47,7 @@ int TestHyperTreeGridTernary2D( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
+  vtkPolyData* pd = geometry->GetOutput();
 
   // Contour
   vtkNew<vtkContourFilter> contour;

@@ -14,8 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This test by revised by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -24,7 +23,6 @@
 #include "vtkCellData.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -35,7 +33,7 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetMaximumLevel( 5 );
   htGrid->SetGridSize( 3, 3, 2 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 3 );
@@ -46,7 +44,7 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
+  vtkPolyData* pd = geometry->GetOutput();
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();

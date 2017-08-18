@@ -59,6 +59,8 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkSmartPointer.h" // For SmartPointer
+#include <vector> // For vector
 
 class vtkCellArray;
 class vtkCellData;
@@ -139,7 +141,10 @@ public:
    * but if the input does not change, the computation of all further
    * slice will be much faster. Default is on.
    */
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  vtkSetMacro(BuildTree, bool);
+  vtkGetMacro(BuildTree, bool);
+  vtkBooleanMacro(BuildTree, bool);
+  //@}
 
   //@{
   /**
@@ -148,7 +153,15 @@ public:
    * the input does not change, the computation of all further
    * slice will be faster. Default is on.
    */
-  vtkGetObjectMacro(SphereTree, vtkSphereTree);
+  vtkSetMacro(BuildHierarchy, bool);
+  vtkGetMacro(BuildHierarchy, bool);
+  vtkBooleanMacro(BuildHierarchy, bool);
+  //@}
+
+  /**
+   * See vtkAlgorithm for details.
+   */
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
 protected:
   vtkPlaneCutter();
@@ -158,9 +171,11 @@ protected:
   bool ComputeNormals;
   bool InterpolateAttributes;
   bool GeneratePolygons;
+  bool BuildTree;
+  bool BuildHierarchy;
 
   // Helpers
-  vtkSphereTree* SphereTree;
+  std::vector<vtkSmartPointer<vtkSphereTree>> SphereTrees;
 
   // Pipeline-related methods
   int RequestDataObject(vtkInformation*,
@@ -173,7 +188,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
   int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
-  virtual int ExecuteDataSet(vtkDataSet* input, vtkMultiPieceDataSet* output);
+  virtual int ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output);
 
   static void AddNormalArray(double* planeNormal, vtkDataSet* ds);
   static void InitializeOutput(vtkMultiPieceDataSet* output);

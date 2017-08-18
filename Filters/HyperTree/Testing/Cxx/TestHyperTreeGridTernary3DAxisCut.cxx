@@ -1,3 +1,4 @@
+
 /*==================================================================
 
   Program:   Visualization Toolkit
@@ -14,12 +15,10 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This test was revised by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
-#include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
@@ -55,26 +54,20 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   axisCut1->SetInputConnection( htGrid->GetOutputPort() );
   axisCut1->SetPlaneNormalAxis( 0 );
   axisCut1->SetPlanePosition( 1.99 );
+  axisCut1->Update();
   vtkNew<vtkHyperTreeGridAxisCut> axisCut2;
   axisCut2->SetInputConnection( htGrid->GetOutputPort() );
   axisCut2->SetPlaneNormalAxis( 2 );
   axisCut2->SetPlanePosition( .35 );
-
-  // Geometries
-  vtkNew<vtkHyperTreeGridGeometry> geometry1;
-  geometry1->SetInputConnection( axisCut1->GetOutputPort() );
-  geometry1->Update();
-  vtkNew<vtkHyperTreeGridGeometry> geometry2;
-  geometry2->SetInputConnection( axisCut2->GetOutputPort() );
-  geometry2->Update();
-  vtkPolyData* pd = geometry2->GetPolyDataOutput();
+  axisCut2->Update();
+  vtkPolyData* pd = axisCut2->GetOutput();
 
   // Shrinks
   vtkNew<vtkShrinkFilter> shrink1;
-  shrink1->SetInputConnection( geometry1->GetOutputPort() );
+  shrink1->SetInputConnection( axisCut1->GetOutputPort() );
   shrink1->SetShrinkFactor( .8 );
   vtkNew<vtkShrinkFilter> shrink2;
-  shrink2->SetInputConnection( geometry2->GetOutputPort() );
+  shrink2->SetInputConnection( axisCut2->GetOutputPort() );
   shrink2->SetShrinkFactor( .8 );
 
   // Mappers
@@ -83,7 +76,7 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   mapper1->SetInputConnection( shrink1->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
   vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputConnection( geometry1->GetOutputPort() );
+  mapper2->SetInputConnection( axisCut1->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( outline->GetOutputPort() );
@@ -92,7 +85,7 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   mapper4->SetInputConnection( shrink2->GetOutputPort() );
   mapper4->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
   vtkNew<vtkPolyDataMapper> mapper5;
-  mapper5->SetInputConnection( geometry2->GetOutputPort() );
+  mapper5->SetInputConnection( axisCut2->GetOutputPort() );
   mapper5->ScalarVisibilityOff();
 
   // Actors
@@ -114,7 +107,7 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
   actor5->GetProperty()->SetColor( .7, .7, .7 );
 
   // Camera
-  vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
+  vtkHyperTreeGrid* ht = htGrid->GetOutput();
   double bd[6];
   ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;

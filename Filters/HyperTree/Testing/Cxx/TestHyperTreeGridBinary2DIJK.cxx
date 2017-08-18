@@ -14,8 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This test was revised by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -25,7 +24,6 @@
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -41,9 +39,8 @@ int TestHyperTreeGridBinary2DIJK( int argc, char* argv[] )
   htGrid->SetMaximumLevel( maxLevel );
   htGrid->SetGridSize( 2, 3, 1 );
   htGrid->SetIndexingModeToIJK();
-  htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
+  htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 2 );
   htGrid->SetDescriptor( "RRRRR.|.... RRRR R... .R.. R...|...R ..RR .R.. R... .... .R.. ....|...R ..R. .... .R.. R... ....|.... .... .R.. ....|...." );
 
@@ -51,7 +48,7 @@ int TestHyperTreeGridBinary2DIJK( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
+  vtkPolyData* pd = geometry->GetOutput();
 
   // Contour
   vtkNew<vtkContourFilter> contour;
