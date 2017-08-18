@@ -58,6 +58,13 @@ struct DeepCopyWorker
     std::copy(src->Begin(), src->End(), dst->Begin());
   }
 
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-template"
+  #endif
+#endif
+
   // SoA --> SoA same-type specialization:
   template <typename ValueType>
   void operator()(vtkSOADataArrayTemplate<ValueType> *src,
@@ -73,6 +80,13 @@ struct DeepCopyWorker
       std::copy(srcBegin, srcEnd, dstBegin);
     }
   }
+
+// Undo warning suppression.
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic pop
+  #endif
+#endif
 
   // Generic implementations:
   template <typename Array1DerivedT, typename Array1ValueT,

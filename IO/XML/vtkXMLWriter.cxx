@@ -162,6 +162,13 @@ struct WriteBinaryDataBlockWorker
     vtkXMLWriterHelper::SetProgressPartial(this->Writer, 1);
   }
 
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-template"
+  #endif
+#endif
+
   //----------------------------------------------------------------------------
   // Specialize for non-AoS generic arrays:
   template <class DerivedType, typename ValueType>
@@ -223,6 +230,13 @@ struct WriteBinaryDataBlockWorker
 
     vtkXMLWriterHelper::SetProgressPartial(this->Writer, 1);
   }
+
+// Undo warning suppression.
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic pop
+  #endif
+#endif
 
 }; // End WriteBinaryDataBlockWorker
 
