@@ -100,7 +100,7 @@ protected:
   vtkSmartPointer<vtkDataArray> ReadPointDataArray(int ncFD, int varId) VTK_OVERRIDE;
 
   class vtkInternal;
-  vtkInternal *Internal;
+  vtkInternal *PInternal;
 
   //@{
   /**

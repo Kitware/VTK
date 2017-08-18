@@ -232,7 +232,7 @@ protected:
   int ElementIdsListed;
   int Fortran;
 
-  ifstream *IFile;
+  ifstream *GoldIFile;
   // The size of the file could be used to choose byte order.
   vtkTypeUInt64 FileSize;
 
