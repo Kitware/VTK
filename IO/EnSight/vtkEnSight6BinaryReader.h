@@ -184,7 +184,7 @@ protected:
   // The size of the file is used to choose byte order.
   vtkTypeUInt64 FileSize;
 
-  ifstream *IFile;
+  ifstream *BinaryIFile;
 private:
   vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEnSight6BinaryReader&) VTK_DELETE_FUNCTION;
