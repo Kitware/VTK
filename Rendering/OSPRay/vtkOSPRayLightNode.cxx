@@ -126,7 +126,16 @@ void vtkOSPRayLightNode::Render(bool prepass)
     OSPRenderer oRenderer = orn->GetORenderer();
 
     vtkLight *light = vtkLight::SafeDownCast(this->GetRenderable());
-
+    int lt = light->GetLightType();
+    /*
+    std::string lts = "ambient";
+    if (lt == 1)
+      { lts = "HEADLIGHT"; }
+    if (lt == 2)
+      { lts = "CAMERA"; }
+    if (lt == 3)
+      { lts = "SCENE"; }
+    */
     float color[3] = {0.0,0.0,0.0};
     if (light->GetSwitch())
     {
@@ -155,6 +164,14 @@ void vtkOSPRayLightNode::Render(bool prepass)
     {
       double px, py, pz;
       light->GetTransformedPosition(px, py, pz);
+      if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT) //todo: hacky and doesn't fix GL
+        {
+        double *p = light->GetPosition();
+        px = p[0];
+        py = p[1];
+        pz = p[2];
+        }
+      //cerr << this << lts << " POS "<< " P" << px << "," << py << "," << pz << endl;
       float coneAngle = static_cast<float>(light->GetConeAngle());
       OSPLight ospLight;
       if (coneAngle <= 0.0)
@@ -166,6 +183,13 @@ void vtkOSPRayLightNode::Render(bool prepass)
         ospLight = ospNewLight(oRenderer, "SpotLight");
         double fx, fy, fz;
         light->GetTransformedFocalPoint(fx, fy, fz);
+        if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
+        {
+          double *p = light->GetFocalPoint();
+          fx = p[0];
+          fy = p[1];
+          fz = p[2];
+        }
         double direction[3];
         direction[0] = fx - px;
         direction[1] = fy - py;
@@ -196,6 +220,18 @@ void vtkOSPRayLightNode::Render(bool prepass)
       double fx, fy, fz;
       light->GetTransformedPosition(px, py, pz);
       light->GetTransformedFocalPoint(fx, fy, fz);
+      if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
+      {
+        double *p = light->GetPosition();
+        px = p[0];
+        py = p[1];
+        pz = p[2];
+        p = light->GetFocalPoint();
+        fx = p[0];
+        fy = p[1];
+        fz = p[2];
+      }
+      //cerr << this << lts << " DIR "<< " P" << px << "," << py << "," << pz << " F" << fx << "," << fy << "," << fz << endl;
       double direction[3];
       direction[0] = fx - px;
       direction[1] = fy - py;
