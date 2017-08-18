@@ -263,7 +263,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( vtkHyperTreeGridCursor* cursor,
   }
 
   // In 2D all unmasked faces are generated
-  if ( ! mask  || ( mask && ! mask->GetValue( id ) ) )
+  if ( ! mask  || ! mask->GetValue( id ) )
   {
     // Insert face into 2D geometry depending on orientation
     this->AddFace( id, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );

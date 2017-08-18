@@ -81,7 +81,7 @@ public:
   //---------------------------------------------------------------------------
   unsigned int GetLevel() VTK_OVERRIDE
   {
-    return static_cast<vtkIdType>( this->ChildHistory.size() );
+    return static_cast<unsigned int>( this->ChildHistory.size() );
   }
 
   //---------------------------------------------------------------------------

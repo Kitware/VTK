@@ -176,6 +176,7 @@ public:
         unsigned int axis = this->Grid->GetOrientation();
         this->Size[axis] /= 2.;
         this->Origin[axis] += ( child & 1 ) * this->Size[axis];
+        break;
       } // case 2
       case 4:
       {
@@ -213,6 +214,7 @@ public:
         unsigned int axis = this->Grid->GetOrientation();
         this->Size[axis] /= 3.;
         this->Origin[axis] += ( child % 3 ) * this->Size[axis];
+        break;
       } // case 3
       case 9:
       {
@@ -3853,10 +3855,10 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf3D( vtkHyperTreeGridCursor* cur
   // Only when point was not moved to face, check edge neighbors
   if ( ! shifted )
   {
-     unsigned int i = 1;
+     int i = 1;
      for ( unsigned int axis1 = 0; axis1 < 2; ++ axis1, i *= 3 )
      {
-       unsigned int j = 3 * i;
+       int j = 3 * i;
        for ( unsigned int axis2 = axis1 + 1; axis2 < 3; ++ axis2, j *= 3 )
        {
          for ( int o2 = -1; o2 < 2; o2 += 2 )
@@ -4111,7 +4113,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGridCursor* 
   unsigned int level = cursor->GetLevel();
 
   // Check whether dual points across face neighbors must be adjusted
-  unsigned int offset = 1;
+  int offset = 1;
   for ( unsigned int axis = 0; axis < 3; ++ axis, offset *= 3 )
   {
     vtkHyperTreeGridCursor* cursorM = cursor->GetCursor( 13 - offset );
