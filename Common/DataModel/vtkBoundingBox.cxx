@@ -196,7 +196,7 @@ void vtkBoundingBox::Inflate()
   double w, max=0.0;
   for (int i=0; i<3; ++i)
   {
-    if ( (w = (this->MaxPnt - this->MinPnt)) > max )
+    if ( (w = (this->MaxPnt[i] - this->MinPnt[i])) > max )
     {
       max = w;
       maxIdx = i;
