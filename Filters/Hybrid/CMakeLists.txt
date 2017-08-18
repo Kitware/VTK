@@ -1,5 +1,4 @@
 set(Module_SRCS
-  vtkAdaptiveDataSetSurfaceFilter.cxx
   vtkBSplineTransform.cxx
   vtkDepthSortPolyData.cxx
   vtkDSPFilterDefinition.cxx

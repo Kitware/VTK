@@ -20,320 +20,273 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkExtentTranslator.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridCursor.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-
-static const unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
-static const unsigned int VonNeumannOrientations3D[]  = { 2, 1, 0, 0, 1, 2 };
-static const unsigned int VonNeumannOffsets3D[]  = { 0, 0, 0, 1, 1, 1 };
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 {
-  // Create storage for corners of leaf cells
-  this->Points = vtkPoints::New();
+  this->Input = nullptr;
+  this->Output = nullptr;
 
-  // Create storage for untructured leaf cells
-  this->Cells = vtkCellArray::New();
+  this->InData = nullptr;
+  this->OutData = nullptr;
 
-  // Default dimension is 0
-  this->Dimension = 0;
-
-  // Default orientation is 0
-  this->Orientation = 0;
+  this->Points = nullptr;
+  this->Cells = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::~vtkHyperTreeGridGeometry()
 {
-  if ( this->Points )
-  {
-    this->Points->Delete();
-    this->Points = nullptr;
-  }
-
-  if ( this->Cells )
-  {
-    this->Cells->Delete();
-    this->Cells = nullptr;
-  }
 }
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+}
 
-  if( this->Points )
-  {
-    os << indent << "Points:\n";
-    this->Points->PrintSelf( os, indent.GetNextIndent() );
-  }
-  else
-  {
-    os << indent << "Points: ( none )\n";
-  }
-
-  if( this->Cells )
-  {
-    os << indent << "Cells:\n";
-    this->Cells->PrintSelf( os, indent.GetNextIndent() );
-  }
-  else
-  {
-    os << indent << "Cells: ( none )\n";
-  }
-
-  os << indent << "Dimension: " << this->Dimension << endl;
-  os << indent << "Orientation: " << this->Orientation << endl;
+//-----------------------------------------------------------------------------
+int vtkHyperTreeGridGeometry::FillInputPortInformation( int, vtkInformation *info )
+{
+  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::FillOutputPortInformation( int,
-                                                         vtkInformation* info )
+int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
+                                           vtkInformationVector** inputVector,
+                                           vtkInformationVector* outputVector )
 {
-  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData" );
+  // Get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject( 0 );
+  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
+
+  // Retrieve input and output
+  this->Input =
+    vtkHyperTreeGrid::SafeDownCast( inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+  this->Output =
+    vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+
+  // Initialize output cell data
+  this->InData =
+    static_cast<vtkDataSetAttributes*>( this->Input->GetPointData() );
+  this->OutData =
+    static_cast<vtkDataSetAttributes*>( this->Output->GetCellData() );
+  this->OutData->CopyAllocate( this->InData );
+
+  // Extract geometry from hyper tree grid
+  this->ProcessTrees();
+
+  // Clean up
+  this->Input = nullptr;
+  this->Output = nullptr;
+  this->InData = nullptr;
+  this->OutData = nullptr;
+
+  this->UpdateProgress( 1. );
+
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
-                                            vtkDataObject* outputDO )
+void vtkHyperTreeGridGeometry::ProcessTrees()
 {
-  // Downcast output data object to polygonal data set
-  vtkPolyData* output = vtkPolyData::SafeDownCast( outputDO );
-  if ( ! output )
-  {
-    vtkErrorMacro( "Incorrect type of output: "
-                   << outputDO->GetClassName() );
-    return 0;
-  }
+  // TODO: MTime on generation of this table.
+  this->Input->GenerateSuperCursorTraversalTable();
 
-  // Retrieve useful grid parameters for speed of access
-  this->Dimension = input->GetDimension();
-  this->Orientation = input->GetOrientation();
-
-  // Initialize output cell data
-  this->InData = input->GetPointData();
-  this->OutData = output->GetCellData();
-  this->OutData->CopyAllocate( this->InData );
-
-  // Retrieve material mask
-  vtkBitArray* mask
-    = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
+  // Primal corner points
+  this->Points = vtkPoints::New();
+  this->Cells = vtkCellArray::New();
 
   // Iterate over all hyper trees
   vtkIdType index;
-  vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
-  input->InitializeTreeIterator( it );
+  vtkHyperTreeGrid::vtkHyperTreeIterator it;
+  this->Input->InitializeTreeIterator( it );
   while ( it.GetNextTree( index ) )
   {
-    // Initialize new cursor at root of current tree
-    vtkHyperTreeGridCursor* cursor;
-    if ( this->Dimension == 3 )
-    {
-      // In 3 dimensions, von Neumann neighborhood information is needed
-      cursor = input->NewVonNeumannSuperCursor( index );
+    // Storage for super cursors
+    vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
 
-      // Build geometry recursively
-      this->RecursivelyProcessTree( cursor, mask );
-    } // if ( this->Dimension == 3 )
-    else
-    {
-      // Otherwise, geometric properties of the cells suffice
-      cursor = input->NewGeometricCursor( index );
+    // Initialize center cursor
+    this->Input->InitializeSuperCursor( &superCursor, index );
 
-      // Build geometry recursively
-      this->RecursivelyProcessTree( cursor, mask );
-    } // else
-
-    // Clean up
-    cursor->Delete();
+    // Traverse and populate dual recursively
+    this->RecursiveProcessTree( &superCursor );
   } // it
 
   // Set output geometry and topology
-  output->SetPoints( this->Points );
-  if ( this->Dimension == 1  )
+  this->Output->SetPoints( this->Points );
+  if ( this->Input->GetDimension() == 1  )
   {
-    output->SetLines( this->Cells );
+    this->Output->SetLines( this->Cells );
   }
   else
   {
-    output->SetPolys( this->Cells );
+    this->Output->SetPolys( this->Cells );
   }
 
-  return 1;
+  this->Points->UnRegister( this );
+  this->Points = nullptr;
+  this->Cells->UnRegister( this );
+  this->Cells = nullptr;
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::RecursivelyProcessTree( vtkHyperTreeGridCursor* cursor,
-                                                       vtkBitArray* mask )
+void vtkHyperTreeGridGeometry::RecursiveProcessTree( void* sc )
 {
-  // Retrieve input grid
-  vtkHyperTreeGrid* input = cursor->GetGrid();
-
-  // Create geometry output if cursor is at leaf
-  if ( cursor->IsLeaf() )
+  // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
+  vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
+  if ( cursor0->IsLeaf() )
   {
-    // Cursor is at leaf, process it depending on its dimension
-    switch ( this->Dimension )
+    switch ( this->Input->GetDimension() )
     {
       case 1:
-        this->ProcessLeaf1D( cursor );
+        ProcessLeaf1D( sc );
         break;
       case 2:
-        this->ProcessLeaf2D( cursor, mask );
+        ProcessLeaf2D( sc );
         break;
       case 3:
-        this->ProcessLeaf3D( cursor, mask );
+        ProcessLeaf3D( sc );
         break;
-      default:
-        return;
-    } // switch ( this->Dimension )
-  } // if ( cursor->IsLeaf() )
+    }
+  }
   else
   {
-    // Cursor is not at leaf, recurse to all children
-    int numChildren = input->GetNumberOfChildren();
+    // If cursor 0 is not at leaf, recurse to all children
+    int numChildren = this->Input->GetNumberOfChildren();
     for ( int child = 0; child < numChildren; ++ child )
     {
-      // Create child cursor from parent
-      vtkHyperTreeGridCursor* childCursor = cursor->Clone();
-      childCursor->ToChild( child );
-
-      // Recurse
-      this->RecursivelyProcessTree( childCursor, mask );
-
-      // Clean up
-      childCursor->Delete();
-      childCursor = nullptr;
-    } // child
-  } // else
-}
-
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::ProcessLeaf1D( vtkHyperTreeGridCursor* cursor )
-{
-  // In 1D the geometry is composed of edges, create storage for endpoint IDs
-  vtkIdType id[2];
-
-  // First endpoint is at origin of cursor
-  double* origin = cursor->GetOrigin();
-  id[0] = this->Points->InsertNextPoint( origin );
-
-  // Second endpoint is at origin of cursor plus its length
-  double pt[3];
-  memcpy( pt, origin, 3 * sizeof( double ) );
-  switch ( this->Orientation )
-  {
-    case 3: // 1 + 2
-      pt[2] += cursor->GetSize()[2];
-      break;
-    case 5: // 1 + 4
-      pt[1] += cursor->GetSize()[1];
-      break;
-    case 6: // 2 + 4
-      pt[0] += cursor->GetSize()[0];
-      break;
-  } // switch
-  id[1] = this->Points->InsertNextPoint( pt );
-
-  // Insert edge into 1D geometry
-  this->Cells->InsertNextCell( 2, id );
-}
-
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::ProcessLeaf2D( vtkHyperTreeGridCursor* cursor,
-                                              vtkBitArray* mask )
-
-{
-  // Cell at cursor center is a leaf, retrieve its global index
-  vtkIdType id = cursor->GetGlobalNodeIndex();
-  if ( id < 0 )
-  {
-    return;
-  }
-
-  // In 2D all unmasked faces are generated
-  if ( ! mask  || ( mask && ! mask->GetValue( id ) ) )
-  {
-    // Insert face into 2D geometry depending on orientation
-    this->AddFace( id, cursor->GetOrigin(), cursor->GetSize(), 0, this->Orientation );
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::ProcessLeaf3D( vtkHyperTreeGridCursor* superCursor,
-                                              vtkBitArray* mask )
-{
-  // Cell at super cursor center is a leaf, retrieve its global index, level, and mask
-  vtkIdType id = superCursor->GetGlobalNodeIndex();
-  unsigned level = superCursor->GetLevel();
-  int masked = mask ? mask->GetValue( id ) : 0;
-
-  // Iterate over all cursors of Von Neumann neighborhood around center
-  unsigned int nc = superCursor->GetNumberOfCursors() - 1;
-  for ( unsigned int c = 0 ; c < nc; ++ c )
-  {
-    // Retrieve cursor to neighbor across face
-    vtkHyperTreeGridCursor* cursorN = superCursor->GetCursor( VonNeumannCursors3D[c] );
-
-    // Retrieve tree, leaf flag, and mask of neighbor cursor
-    vtkHyperTree* treeN = cursorN->GetTree();
-    bool leafN = cursorN->IsLeaf();
-    vtkIdType idN = cursorN->GetGlobalNodeIndex();
-    int maskedN  = mask ? mask->GetValue( idN ) : 0;
-
-    // In 3D masked and unmasked cells are handled differently:
-    // . If cell is unmasked, and face neighbor is a masked leaf, or no such neighbor
-    //   exists, then generate face.
-    // . If cell is masked, and face neighbor exists and is an unmasked leaf, then
-    //   generate face, breaking ties at same level. This ensures that faces between
-    //   unmasked and masked cells will be generated once and only once.
-    if ( ( ! masked && ( ! treeN || ( leafN && maskedN ) ) )
-         ||
-         ( masked && treeN && leafN && cursorN->GetLevel() < level && ! maskedN ) )
-    {
-      // Generate face with corresponding normal and offset
-      this->AddFace( id, superCursor->GetOrigin(), superCursor->GetSize(),
-                     VonNeumannOffsets3D[c], VonNeumannOrientations3D[c] );
+      vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor newSuperCursor;
+      this->Input->InitializeSuperCursorChild( superCursor, &newSuperCursor, child );
+      this->RecursiveProcessTree( &newSuperCursor );
     }
-  } // c
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::ProcessLeaf1D( void* sc )
+{
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
+
+  // In 1D the geometry is composed of edges
+  vtkIdType ids[2];
+  ids[0] = this->Points->InsertNextPoint( superCursor->Origin );
+  double pt[3];
+  pt[0] = superCursor->Origin[0] + superCursor->Size[0];
+  pt[1] = superCursor->Origin[1];
+  pt[2] = superCursor->Origin[2];
+  ids[1] = this->Points->InsertNextPoint( pt );
+  this->Cells->InsertNextCell( 2, ids );
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::ProcessLeaf2D( void* sc )
+{
+  // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
+  vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
+
+  // Cell at cursor 0 is a leaf, retrieve its global index
+  vtkIdType id0 = cursor0->GetGlobalNodeIndex();
+  // In 2D all unmasked faces are generated
+  if ( id0 >= 0 && ! this->Input->GetMaterialMask()->GetValue( id0 ) )
+  {
+    this->AddFace( id0, superCursor->Origin, superCursor->Size, 0, 2 );
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridGeometry::ProcessLeaf3D( void* sc )
+{
+  // Get cursor at super cursor center
+  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
+    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>( sc );
+  vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor0 = superCursor->GetCursor( 0 );
+
+  vtkBitArray* matMask = this->Input->GetMaterialMask();
+
+  // Cell at cursor 0 is a leaf, retrieve its global index
+  vtkIdType id0 = cursor0->GetGlobalNodeIndex();
+
+  int neighborIdx = -1;
+  int masked = matMask->GetValue( id0 );
+  // In 3D masked and unmasked cells are handles differently
+  for ( unsigned int f = 0; f < 3; ++ f, neighborIdx *= 3 )
+  {
+    // For each plane, check both orientations
+    for ( unsigned int o = 0; o < 2; ++ o, neighborIdx *= -1 )
+    {
+      // Retrieve face neighbor cursor
+      vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor =
+        superCursor->GetCursor( neighborIdx );
+      vtkIdType id = cursor->GetGlobalNodeIndex();
+
+      // Cell is masked, check if any of the face neighbors are unmasked
+      if ( masked )
+      {
+        // Generate faces shared by an unmasked cell, break ties at same level
+        if ( cursor->GetTree()
+          && cursor->IsLeaf()
+          && cursor->GetLevel() < cursor0->GetLevel() )
+        {
+
+          if ( id >=0 && ! matMask->GetValue( id ) )
+          {
+            this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
+          }
+        }
+      }
+      else
+      {
+        // Boundary faces, or faces shared by a masked cell, must be created
+        if ( ! cursor->GetTree()
+          ||
+          ( cursor->IsLeaf() && matMask->GetValue( id ) ) )
+        {
+          this->AddFace( id0, superCursor->Origin, superCursor->Size, o, f );
+        }
+      }
+    } // o
+  } // f
 }
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
-                                        double* origin,
-                                        double* size,
-                                        int offset,
-                                        unsigned int orientation )
+                                        double* origin, double* size,
+                                        int offset, int orientation )
 {
-  // Storage for point coordinates
-  double pt[] = { 0., 0., 0. };
+  // Initialize point
+  double pt[3];
+  memcpy( pt, origin, 3 * sizeof(double) );
 
-  // Storage for face vertex IDs
-  vtkIdType ids[4];
-
-  // First cell vertex is always at origin of cursor
-  memcpy( pt, origin, 3 * sizeof( double ) );
   if ( offset )
   {
-    // Offset point coordinate as needed
     pt[orientation] += size[orientation];
   }
+
+  // Storage for face vertices
+  vtkIdType ids[4];
+
+  // Create origin vertex
   ids[0] = this->Points->InsertNextPoint( pt );
 
   // Create other face vertices depending on orientation
-  unsigned int axis1 = orientation ? 0 : 1;
-  unsigned int axis2 = orientation == 2 ? 1 : 2;
+  int axis1 = ( orientation == 0 ) ? 1 : 0;
+  int axis2 = ( orientation == 2 ) ? 1 : 2;
+
   pt[axis1] += size[axis1];
   ids[1] = this->Points->InsertNextPoint( pt );
   pt[axis2] += size[axis2];
@@ -341,7 +294,7 @@ void vtkHyperTreeGridGeometry::AddFace( vtkIdType inId,
   pt[axis1] = origin[axis1];
   ids[3] = this->Points->InsertNextPoint( pt );
 
-  // Insert next face
+  // Insert face
   vtkIdType outId = this->Cells->InsertNextCell( 4, ids );
 
   // Copy face data from that of the cell from which it comes

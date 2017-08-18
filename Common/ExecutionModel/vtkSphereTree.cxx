@@ -316,7 +316,7 @@ namespace {
     }
 
     static void Execute(vtkIdType numCells, vtkDataSet *ds,
-                        double *s, bool vtkNotUsed(computeBoundsAndRadius),
+                        double *s, bool computeBoundsAndRadius,
                         double& aveRadius, double sphereBounds[6])
     {
       if (ds->GetNumberOfCells() > 0 && numCells <= ds->GetNumberOfCells())
@@ -326,9 +326,13 @@ namespace {
         ds->GetCellBounds(0, dummy);
 
         DataSetSpheres spheres(ds, s);
+        spheres.ComputeBoundsAndRadius = computeBoundsAndRadius;
         vtkSMPTools::For(0, numCells, spheres);
-        aveRadius = spheres.AverageRadius;
-        spheres.GetBounds(sphereBounds);
+        if (computeBoundsAndRadius)
+        {
+          aveRadius = spheres.AverageRadius;
+          spheres.GetBounds(sphereBounds);
+        }
       }
     }
 
@@ -397,8 +401,7 @@ namespace {
     }
 
     static void Execute(vtkIdType numCells, vtkUnstructuredGrid *grid,
-                        double *s, bool vtkNotUsed(computeBoundsAndRadius),
-                        double& aveRadius, double sphereBounds[6])
+                        double *s, bool computeBoundsAndRadius, double& aveRadius, double sphereBounds[6])
     {
       if (grid->GetNumberOfCells() > 0 && numCells <= grid->GetNumberOfCells())
       {
@@ -407,9 +410,13 @@ namespace {
         grid->GetCellPoints(0, dummy.Get());
 
         UnstructuredSpheres spheres(grid, s);
+        spheres.ComputeBoundsAndRadius = computeBoundsAndRadius;
         vtkSMPTools::For(0, numCells, spheres);
-        aveRadius = spheres.AverageRadius;
-        spheres.GetBounds(sphereBounds);
+        if (computeBoundsAndRadius)
+        {
+          aveRadius = spheres.AverageRadius;
+          spheres.GetBounds(sphereBounds);
+        }
       }
     }
 
@@ -1122,12 +1129,7 @@ void vtkSphereTree::Build(vtkDataSet *input)
 // Compute the sphere tree leafs (i.e., spheres around each cell)
 void vtkSphereTree::BuildTreeSpheres(vtkDataSet *input)
 {
-  // See if anything has to be done
-  if ( this->Tree != nullptr && this->BuildTime > this->MTime )
-  {
-    return;
-  }
-  else if(this->Tree != nullptr)
+  if (this->Tree != nullptr)
   {
     this->Tree->Delete();
     delete[] this->Selected;

@@ -14,8 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay and Joachim Pouderoux, Kitware 2013
-// This test was revised by Philippe Pebay, 2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -25,7 +24,6 @@
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -46,32 +44,31 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   htGrid->SetGridSize( 2, 3, 1 );
   htGrid->SetGridScale( 1.5, 1., .7 );
   htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 3 );
   const std::string descriptor = "_RRRR.|" // Level 0 refinement
     "..R...... RRRRRRRRR R........ R........|..R...... ........R ......RRR ......RRR ..R..R..R RRRRRRRRR R..R..R.. ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........R ..R..R..R ......... ......RRR ......R.. ......... RRRRRRRRR R..R..R.. ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ......... RRRRRRRRR ......... ......... ......... ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........." ;
   const std::string materialMask = // Level 0 materials are not needed, visible cells are described with LevelZeroMaterialIndex
     "111111111 111111111 111111111 111111111|111111111 000000001 000000111 011011111 001001001 111111111 100100100 001001001 111111111 111111111 111111111 001111111|111111111 001001001 111111111 111111111 111111111 111111111 111111111 111111111 001001111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111|111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111|111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111";
   vtkNew<vtkIdTypeArray> zero;
-  zero->InsertNextValue( 1 );
-  zero->InsertNextValue( 2 );
-  zero->InsertNextValue( 3 );
-  zero->InsertNextValue( 4 );
-  zero->InsertNextValue( 5 );
+  zero->InsertNextValue(1);
+  zero->InsertNextValue(2);
+  zero->InsertNextValue(3);
+  zero->InsertNextValue(4);
+  zero->InsertNextValue(5);
   htGrid->UseMaterialMaskOn();
   htGrid->SetLevelZeroMaterialIndex( zero.GetPointer() );
   vtkBitArray* desc = htGrid->ConvertDescriptorStringToBitArray( descriptor );
   vtkBitArray* mat = htGrid->ConvertMaterialMaskStringToBitArray( materialMask );
-  htGrid->SetDescriptorBits( desc );
+  htGrid->SetDescriptorBits(desc);
   desc->Delete();
-  htGrid->SetMaterialMaskBits( mat );
+  htGrid->SetMaterialMaskBits(mat);
   mat->Delete();
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
+  vtkPolyData* pd = geometry->GetOutput();
 
   // Contour
   vtkNew<vtkContourFilter> contour;

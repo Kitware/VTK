@@ -14,8 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This test was revised by Philippe Pebay,2016
-// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -25,7 +24,6 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
@@ -59,7 +57,7 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] 
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
+  vtkPolyData* pd = geometry->GetOutput();
   pd->GetCellData()->SetActiveScalars( "Quadric" );
 
   //  Color transfer function

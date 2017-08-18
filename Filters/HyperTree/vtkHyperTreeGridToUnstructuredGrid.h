@@ -17,6 +17,7 @@
  * @brief   Convert hyper tree grid to
  * unstructured grid.
  *
+ *
  * Make explicit all leaves of a hyper tree grid by converting them to cells
  * of an unstructured grid.
  * Produces segments in 1D, rectangles in 2D, right hexahedra in 3D.
@@ -24,77 +25,58 @@
  * nodes as a result of T-junctions.
  *
  * @sa
- * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
+ * vtkHyperTreeGrid vtkUnstructuredGrid
  *
  * @par Thanks:
- * This class was written by Philippe Pebay, Joachim Pouderoux, and Charles Law, Kitware 2012
- * This class was modified by Guénolé Harel and Jacques-Bernard Lekien, 2014
- * This class was rewritten by Philippe Pebay, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was written by Philippe Pebay and Charles Law, Kitware 2012
+ * This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 */
 
 #ifndef vtkHyperTreeGridToUnstructuredGrid_h
 #define vtkHyperTreeGridToUnstructuredGrid_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
-class vtkBitArray;
 class vtkCellArray;
+class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
 class vtkPoints;
-class vtkUnstructuredGrid;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
-  vtkTypeMacro( vtkHyperTreeGridToUnstructuredGrid, vtkHyperTreeGridAlgorithm );
+  vtkTypeMacro( vtkHyperTreeGridToUnstructuredGrid, vtkUnstructuredGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();
-  ~vtkHyperTreeGridToUnstructuredGrid();
+  ~vtkHyperTreeGridToUnstructuredGrid() VTK_OVERRIDE;
 
-  /**
-   * For this algorithm the output is a vtkUnstructuredGrid instance
-   */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
-
-  /**
-   * Main routine to convert the grid of tree into an unstructured grid
-   */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
-
-  /**
-   * Recursively descend into tree down to leaves
-   */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*, vtkBitArray* );
-
-  /**
-   * Helper method to generate a 2D or 3D cell
-   */
-  void AddCell( vtkIdType, double*, double* );
-
-  /**
-   * Storage for points of output unstructured mesh
-   */
-  vtkPoints* Points;
-
-  /**
-   * Storage for cells of output unstructured mesh
-   */
-  vtkCellArray* Cells;
-
-  /**
-   * Storage for dimension of underlying tree
-   */
   unsigned int Dimension;
+  unsigned int CellSize;
+  unsigned int* Coefficients;
+
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+
+  void ProcessTrees();
+  void RecursiveProcessTree( void* );
+  void AddCell( vtkIdType inId, double* origin, double* size );
+
+  vtkHyperTreeGrid* Input;
+  vtkUnstructuredGrid* Output;
+
+  vtkDataSetAttributes* InData;
+  vtkDataSetAttributes* OutData;
+
+  vtkPoints* Points;
+  vtkCellArray* Cells;
 
 private:
   vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
-#endif /* vtkHyperTreeGridToUnstructuredGrid_h */
+#endif
