@@ -612,7 +612,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
 {
-  if ( ! dbName || strlen( dbName ) <= 0 )
+  if ( ! dbName || strlen( dbName ) == 0 )
   {
     vtkErrorMacro( "DropDatabase called with an empty database name" );
     return false;

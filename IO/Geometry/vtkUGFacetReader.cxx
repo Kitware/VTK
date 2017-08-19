@@ -113,9 +113,9 @@ int vtkUGFacetReader::RequestData(
   }
 
   // read the header stuff
-  if ( fread (header, 1, 2, fp) <= 0 ||
-  fread (&numFacetSets, 4, 1, fp) <= 0 ||
-  fread (header, 1, 36, fp) <= 0 )
+  if ( fread (header, 1, 2, fp) == 0 ||
+       fread (&numFacetSets, 4, 1, fp) == 0 ||
+       fread (header, 1, 36, fp) == 0 )
   {
     vtkErrorMacro(<<"File ended prematurely");
     fclose(fp);
@@ -155,9 +155,9 @@ int vtkUGFacetReader::RequestData(
   for (setNumber=0; setNumber < numFacetSets; setNumber++)
   {
 
-    if ( fread (&ugiiColor, 2, 1, fp) <= 0 ||
-    fread (&direction, 2, 1, fp) <= 0 ||
-    fread (&numberTris, 4, 1, fp) <= 0 )
+    if ( fread (&ugiiColor, 2, 1, fp) == 0 ||
+         fread (&direction, 2, 1, fp) == 0 ||
+         fread (&numberTris, 4, 1, fp) == 0 )
     {
       vtkErrorMacro(<<"File ended prematurely");
       break;
@@ -172,7 +172,7 @@ int vtkUGFacetReader::RequestData(
 
     for (facetNumber=0; facetNumber < numberTris; facetNumber++)
     {
-      if ( fread(&facet,72,1,fp) <= 0 )
+      if ( fread(&facet,72,1,fp) == 0 )
       {
         vtkErrorMacro(<<"File ended prematurely");
         break;
@@ -302,9 +302,9 @@ int vtkUGFacetReader::GetNumberOfParts()
   }
 
   // read the header stuff
-  if ( fread (header, 1, 2, fp) <= 0 ||
-  fread (&numberOfParts, 4, 1, fp) <= 0 ||
-  fread (header, 1, 36, fp) <= 0 )
+  if ( fread (header, 1, 2, fp) == 0 ||
+       fread (&numberOfParts, 4, 1, fp) == 0 ||
+       fread (header, 1, 36, fp) == 0 )
   {
     vtkErrorMacro(<<"File ended prematurely");
     fclose(fp);

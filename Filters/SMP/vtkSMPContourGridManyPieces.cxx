@@ -268,7 +268,7 @@ public:
       {
         mp->SetPiece(count++, *iter);
         (*iter)->Delete();
-        iter++;
+        ++iter;
       }
       ++outIter;
     }
