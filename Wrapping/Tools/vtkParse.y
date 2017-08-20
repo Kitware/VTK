@@ -2530,8 +2530,8 @@ conversion_function:
       currentFunction->IsExplicit = ((getType() & VTK_PARSE_EXPLICIT) != 0);
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
-    { postSig(")"); } function_trailer_clause opt_trailing_return_type
+    parameter_declaration_clause ')' { postSig(")"); }
+    function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2546,8 +2546,7 @@ conversion_function_id:
     { $<str>$ = copySig(); }
 
 operator_function_nr:
-    operator_function_sig { postSig(")"); }
-    function_trailer_clause opt_trailing_return_type
+    operator_function_sig function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2563,7 +2562,7 @@ operator_function_sig:
       currentFunction->IsOperator = 1;
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
+    parameter_declaration_clause ')' { postSig(")"); }
 
 operator_function_id:
     operator_sig operator_id
@@ -2573,7 +2572,7 @@ operator_sig:
     OPERATOR { markSig(); postSig("operator "); }
 
 function_nr:
-    function_sig function_trailer_clause opt_trailing_return_type
+    function_sig function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2583,32 +2582,48 @@ function_nr:
     }
 
 function_trailer_clause:
-  | function_trailer_clause function_trailer
+    func_cv_qualifier_seq opt_noexcept_specifier opt_ref_qualifier
+    func_attribute_specifier_seq opt_trailing_return_type
+    virt_specifier_seq opt_body_as_trailer
 
-function_trailer:
-    THROW { postSig(" throw "); } parentheses_sig { chopSig(); }
-  | CONST { postSig(" const"); currentFunction->IsConst = 1; }
+func_cv_qualifier_seq:
+  | func_cv_qualifier
+
+func_cv_qualifier:
+    CONST { postSig(" const"); currentFunction->IsConst = 1; }
+  | VOLATILE { postSig(" volatile"); }
+
+opt_noexcept_specifier:
+  | noexcept_sig parentheses_sig { chopSig(); }
+  | noexcept_sig
+
+noexcept_sig:
+    NOEXCEPT { postSig(" noexcept"); }
+  | THROW { postSig(" throw"); }
+
+opt_ref_qualifier:
+  | '&' { postSig("&"); }
+  | OP_LOGIC_AND { postSig("&&"); }
+
+virt_specifier_seq:
+  | virt_specifier_seq virt_specifier
+
+virt_specifier:
+    ID
+    {
+      postSig(" "); postSig($<str>1);
+      if (strcmp($<str>1, "final") == 0) { currentFunction->IsFinal = 1; }
+    }
+
+opt_body_as_trailer:
+  | '=' DELETE { currentFunction->IsDeleted = 1; }
+  | '=' DEFAULT
   | '=' ZERO
     {
       postSig(" = 0");
       currentFunction->IsPureVirtual = 1;
       if (currentClass) { currentClass->IsAbstract = 1; }
     }
-  | ID
-    {
-      postSig(" "); postSig($<str>1);
-      if (strcmp($<str>1, "final") == 0) { currentFunction->IsFinal = 1; }
-    }
-  | noexcept_sig parentheses_sig { chopSig(); }
-  | noexcept_sig
-  | function_body_as_trailer
-
-noexcept_sig:
-    NOEXCEPT { postSig(" noexcept"); }
-
-function_body_as_trailer:
-    '=' DELETE { currentFunction->IsDeleted = 1; }
-  | '=' DEFAULT
 
 opt_trailing_return_type:
   | trailing_return_type
@@ -2638,8 +2653,7 @@ function_sig:
       postSig("(");
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
-    { postSig(")"); }
+    parameter_declaration_clause ')' { postSig(")"); }
 
 
 /*
@@ -2649,7 +2663,7 @@ function_sig:
 structor_declaration:
     structor_sig { closeSig(); }
     opt_ctor_initializer { openSig(); }
-    function_trailer_clause opt_trailing_return_type
+    function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2668,8 +2682,7 @@ structor_declaration:
 
 structor_sig:
     unqualified_id '(' { pushType(); postSig("("); }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
-    { popType(); postSig(")"); }
+    parameter_declaration_clause ')' { postSig(")"); popType(); }
 
 opt_ctor_initializer:
   | ':' mem_initializer_list
@@ -2892,7 +2905,7 @@ lp_or_la:
 opt_array_or_parameters:
     { $<integer>$ = 0; }
   | '(' { pushFunction(); postSig("("); } parameter_declaration_clause ')'
-    func_attribute_specifier_seq { postSig(")"); } function_qualifiers
+    { postSig(")"); } function_qualifiers func_attribute_specifier_seq
     {
       $<integer>$ = VTK_PARSE_FUNCTION;
       popFunction();
