@@ -32,6 +32,14 @@
 static void vtkWrapPython_GetAllParameters(
   FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
 
+/* Write code for execution after the method parameters are evaluated */
+static void vtkWrapPython_SubstituteCode(
+  FILE *fp, ClassInfo *data, FunctionInfo *func, const char *code);
+
+/* Check any "expects" preconditions prior to calling the function */
+static void vtkWrapPython_CheckPreconds(
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
+
 /* save the contents of all arrays prior to calling the function */
 static void vtkWrapPython_SaveArrayArgs(
   FILE *fp, FunctionInfo *currentFunction);
@@ -402,6 +410,147 @@ static void vtkWrapPython_GetAllParameters(
     {
       break;
     }
+  }
+}
+
+
+/* -------------------------------------------------------------------- */
+/* Write code for execution after the method parameters are evaluated */
+static void vtkWrapPython_SubstituteCode(
+  FILE *fp, ClassInfo *data, FunctionInfo *func, const char *code)
+{
+  StringTokenizer t;
+  int qualified = 0;
+  int matched;
+  int j;
+
+  /* tokenize the code according to C/C++ rules */
+  vtkParse_InitTokenizer(&t, code, WS_DEFAULT);
+  do
+  {
+    /* check whether we have found an unqualified identifier */
+    matched = 0;
+    if (t.tok == TOK_ID && !qualified)
+    {
+      /* check for "this" */
+      if (t.len == 4 && strncmp(t.text, "this", 4) == 0)
+      {
+        fprintf(fp, "op");
+        matched = 1;
+      }
+
+      if (!matched) /* check for parameters */
+      {
+        for (j = 0; j < func->NumberOfParameters; j++)
+        {
+          ValueInfo *arg = func->Parameters[j];
+          const char *name = arg->Name;
+          if (name && strlen(name) == t.len &&
+              strncmp(name, t.text, t.len) == 0)
+          {
+            if (vtkWrap_IsSpecialObject(arg) && !vtkWrap_IsPointer(arg))
+            {
+              fprintf(fp, "(*temp%d)", j);
+            }
+            else
+            {
+              fprintf(fp, "temp%d", j);
+            }
+            matched = 1;
+            break;
+          }
+        }
+      }
+
+      if (!matched) /* check for class members */
+      {
+        for (j = 0; j < data->NumberOfItems; j++)
+        {
+          ItemInfo *item = &data->Items[j];
+          const char *name = NULL;
+          int is_static = 0;
+
+          if (item->Type == VTK_FUNCTION_INFO)
+          {
+            /* methods */
+            name = data->Functions[item->Index]->Name;
+            is_static = data->Functions[item->Index]->IsStatic;
+          }
+          else if (item->Type == VTK_VARIABLE_INFO)
+          {
+            /* member variables */
+            name = data->Variables[item->Index]->Name;
+            is_static = data->Variables[item->Index]->IsStatic;
+          }
+          else if (item->Type == VTK_CONSTANT_INFO)
+          {
+            /* enum values and other constants */
+            name = data->Constants[item->Index]->Name;
+            is_static = 1;
+          }
+
+          if (name && strlen(name) == t.len &&
+              strncmp(name, t.text, t.len) == 0)
+          {
+            if (is_static)
+            {
+              fprintf(fp, "%s::%s", data->Name, name);
+            }
+            else
+            {
+              fprintf(fp, "op->%s", name);
+            }
+            matched = 1;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!matched)
+    {
+      fprintf(fp, "%*.*s", (int)t.len, (int)t.len, t.text);
+    }
+
+    /* if next character is whitespace, add a space */
+    if (vtkParse_CharType(t.text[t.len], CPRE_WHITE))
+    {
+      fprintf(fp, " ");
+    }
+
+    /* check whether the next identifier is qualified */
+    qualified = (t.tok == TOK_SCOPE ||
+                 t.tok == TOK_ARROW ||
+                 t.tok == '.');
+  }
+  while (vtkParse_NextToken(&t));
+}
+
+
+/* -------------------------------------------------------------------- */
+/* Check "expects" preconditions prior to calling the function */
+static void vtkWrapPython_CheckPreconds(
+  FILE *fp, ClassInfo *data, FunctionInfo *func)
+{
+  int i;
+
+  /* parse the preconditions */
+  for (i = 0; i < func->NumberOfPreconds; i++)
+  {
+    const char *precond = func->Preconds[i];
+
+    /* write out the start of the check for the precondition */
+    fprintf(fp, " &&\n"
+            "      ap.CheckPrecond((");
+
+    /* write out the code that checks the condition */
+    vtkWrapPython_SubstituteCode(fp, data, func, precond);
+
+    /* write out the end of the check for the precondition */
+    fprintf(fp,
+            "),%s\"%s\")",
+            (strlen(precond) < 24 ? " " : "\n                      "),
+            vtkWrapText_QuoteString(precond, 200));
   }
 }
 
@@ -1081,6 +1230,12 @@ void vtkWrapPython_GenerateOneMethod(
 
       /* get all the arguments */
       vtkWrapPython_GetAllParameters(fp, data, theOccurrence);
+
+      /* check preconditions */
+      if (theOccurrence->NumberOfPreconds > 0)
+      {
+        vtkWrapPython_CheckPreconds(fp, data, theOccurrence);
+      }
 
       /* finished getting all the arguments */
       fprintf(fp, ")\n"

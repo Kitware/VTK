@@ -102,6 +102,11 @@ public:
   bool CheckArgCount(int n);
 
   /**
+   * Verify preconditions.  Sets a python exception on failure.
+   */
+  bool CheckPrecond(bool c, const char *text);
+
+  /**
    * Returns true if self is an object, false if self is a class.
    */
   bool IsBound() { return (this->M == 0); }
@@ -608,6 +613,11 @@ public:
   static bool ArgCountError(int n, const char *name);
 
   /**
+   * Raise an error that says that a precondition failed.
+   */
+  static bool PrecondError(const char *name);
+
+  /**
    * A simple RAII array class that stores small arrays on the stack.
    */
   template<class T>
@@ -771,6 +781,19 @@ bool vtkPythonArgs::CheckArgCount(int n)
   }
   this->ArgCountError(n, n);
   return false;
+}
+
+//--------------------------------------------------------------------
+// Inline method for checking generic preconditions.
+
+inline
+bool vtkPythonArgs::CheckPrecond(bool c, const char *text)
+{
+  if (!c)
+  {
+    this->PrecondError(text);
+  }
+  return c;
 }
 
 //--------------------------------------------------------------------

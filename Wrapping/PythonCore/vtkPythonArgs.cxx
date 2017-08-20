@@ -1333,6 +1333,17 @@ bool vtkPythonArgs::ArgCountError(int n, const char *name)
 }
 
 //--------------------------------------------------------------------
+// Static method to raise an exception on a failed precondition.
+bool vtkPythonArgs::PrecondError(const char *ctext)
+{
+  char text[256];
+
+  snprintf(text, sizeof(text), "expects %.200s", ctext);
+  PyErr_SetString(PyExc_ValueError, text);
+  return false;
+}
+
+//--------------------------------------------------------------------
 // Raise an exception about pure virtual method call
 bool vtkPythonArgs::PureVirtualError()
 {
