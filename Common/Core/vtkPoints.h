@@ -142,7 +142,8 @@ public:
   /**
    * Insert point into object. No range checking performed (fast!).
    * Make sure you use SetNumberOfPoints() to allocate memory prior
-   * to using SetPoint().
+   * to using SetPoint(). You should call Modified() finally after
+   * changing points using this method as it will not do it itself.
    */
   void SetPoint(vtkIdType id, const float x[3]) { this->Data->SetTuple(id,x); }
   void SetPoint(vtkIdType id, const double x[3]) { this->Data->SetTuple(id,x); }
@@ -223,6 +224,13 @@ public:
    * The modified time of the points.
    */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
+
+  /**
+   * Update the modification time for this object and its Data.
+   * As this object acts as a shell around a DataArray and
+   * forwards Set methods it needs to forward Modifed as well.
+   */
+  void Modified() VTK_OVERRIDE;
 
 protected:
   vtkPoints(int dataType = VTK_FLOAT);

@@ -127,6 +127,15 @@ void vtkPoints::Initialize()
   this->Modified();
 }
 
+void vtkPoints::Modified()
+{
+  this->Superclass::Modified();
+  if (this->Data)
+  {
+    this->Data->Modified();
+  }
+}
+
 int vtkPoints::GetDataType()
 {
   return this->Data->GetDataType();
