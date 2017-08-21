@@ -819,6 +819,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 
     tc->InsertComponent(3, 0, tcXMax);
     tc->InsertComponent(3, 1, 0.0);
+    tc->Modified();
   }
 
   double xo = 0.0, yo = 0.0;
