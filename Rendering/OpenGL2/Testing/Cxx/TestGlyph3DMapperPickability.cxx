@@ -107,8 +107,12 @@ int checkSelection(T seln, const U& expected, int& tt)
   for (int nn = 0; nn < numNodes; ++nn)
   {
     auto sn = seln->GetNode(nn);
-    auto ci = sn->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX());
-    actual.insert(ci);
+    auto actor = vtkActor::SafeDownCast(sn->GetProperties()->Get(vtkSelectionNode::PROP()));
+    if (actor)
+    {
+      auto ci = sn->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX());
+      actual.insert(ci);
+    }
   }
 
   std::cout << "  Expected:";
