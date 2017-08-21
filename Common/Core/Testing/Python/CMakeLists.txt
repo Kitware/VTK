@@ -8,6 +8,7 @@ vtk_add_test_python(
   TestEmptyInput.py
   TestEnums.py
   TestExecuteMethodFinalizeCrash.py
+  TestExpects.py
   TestGhost.py
   TestIterateCollection.py
   TestMutable.py
