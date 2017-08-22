@@ -471,6 +471,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
 
       tc->InsertNextValue(tcXMax);
       tc->InsertNextValue(tcYMin);
+      tc->Modified();
 
       this->TCoordsTime.Modified();
     }
@@ -514,6 +515,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     this->Points->InsertNextPoint(x - shiftPixel, y + h - shiftPixel, 0.);
     this->Points->InsertNextPoint(x + w - shiftPixel, y + h - shiftPixel, 0.);
     this->Points->InsertNextPoint(x + w - shiftPixel, y - shiftPixel, 0.);
+    this->Points->Modified();
     this->CoordsTime.Modified();
   }
 }
