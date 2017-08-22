@@ -88,8 +88,8 @@ vtkOpenVRMenuWidget::~vtkOpenVRMenuWidget()
 }
 
 void vtkOpenVRMenuWidget::PushFrontMenuItem(
-  std::string name,
-  std::string text,
+  const char *name,
+  const char *text,
   vtkCommand *cmd)
 {
   vtkOpenVRMenuWidget::InternalElement *el =
@@ -100,7 +100,7 @@ void vtkOpenVRMenuWidget::PushFrontMenuItem(
   this->Menus.push_front(el);
 
   static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->PushFrontMenuItem(
-        el->Name.c_str(), el->Text.c_str(), this->EventCommand);
+        name, text, this->EventCommand);
 
   this->Modified();
 }

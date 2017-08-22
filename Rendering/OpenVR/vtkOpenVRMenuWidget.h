@@ -77,7 +77,7 @@ public:
   void AddTooltip(vtkProp *prop, vtkStdString* str);
   void AddTooltip(vtkProp *prop, const char* str);
 
-  void PushFrontMenuItem(std::string name, std::string text, vtkCommand *cmd);
+  void PushFrontMenuItem(const char * name, const char *text, vtkCommand *cmd);
 
   void Show(vtkEventData *ed);
   void ShowSubMenu(vtkOpenVRMenuWidget *);
