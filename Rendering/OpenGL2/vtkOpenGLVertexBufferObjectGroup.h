@@ -16,12 +16,42 @@
  * @class   vtkOpenGLVertexBufferObjectGroup
  * @brief   manage vertex buffer objects shared within a mapper
  *
+ * This class holds onto the VBOs that a mapper is using.
+ * The basic operation is that during the render process
+ * the mapper may cache a number of dataArrays as VBOs
+ * associated with attributes. This class keep track of
+ * freeing VBOs no longer used by the mapper and uploading
+ * new data as needed.
+ *
+ * When using CacheCataArray the same array can be set
+ * each time and this class will not rebuild or upload
+ * unless needed.
+ *
+ * When using the AppendDataArray API no caching is done
+ * and the VBOs will be rebuilt and uploaded each time.
+ * So when appending th emapper need to handle checking
+ * if the VBO should be updated.
  *
  * Use case:
  *   make this an ivar of your mapper
- *   vbg->SetDataArray("vertexMC", vtkDataArray);
+ *   vbg->CacheDataArray("vertexMC", vtkDataArray);
  *   vbg->BuildAllVBOs();
- *   vbg->AddAllAttributesToVAO(...);
+ *   if (vbg->GetMTime() > your VAO update time)
+ *   {
+ *     vbg->AddAllAttributesToVAO(...);
+ *   }
+ *
+ * Appended Use case:
+ *   make this an ivar of your mapper
+ *   if (you need to update your VBOs)
+ *   {
+ *     vbg->ClearAllVBOs();
+ *     vbg->AppendDataArray("vertexMC", vtkDataArray1);
+ *     vbg->AppendDataArray("vertexMC", vtkDataArray2);
+ *     vbg->AppendDataArray("vertexMC", vtkDataArray3);
+ *     vbg->BuildAllVBOs();
+ *     vbg->AddAllAttributesToVAO(...);
+ *   }
  *
  * use VAO
  *
@@ -83,6 +113,13 @@ public:
     vtkOpenGLVertexArrayObject *vao);
 
   /**
+   * used to remove a no longer needed attribute
+   * Calling CacheDataArray with a nullptr
+   * attribute will also work.
+   */
+  void RemoveAttribute(const char *attribute);
+
+  /**
    * Set the data array for an attribute in the VBO Group
    * registers the data array until build is called
    * once this is called a valid VBO will exist
@@ -109,8 +146,24 @@ public:
   void BuildAllVBOs(vtkOpenGLVertexBufferObjectCache *);
   void BuildAllVBOs(vtkViewport *);
 
-  void ClearAllDataArrays();
+  /**
+   * Force all the VBOs to be freed from this group.
+   * Call this prior to starting appending operations.
+   * Not needed for single array caching.
+   */
   void ClearAllVBOs();
+
+  /**
+   * Clear all the data arrays. Typically an internal method.
+   * Automatically called at the end of BuildAllVBOs to prepare
+   * for the next set of attributes.
+   */
+  void ClearAllDataArrays();
+
+  /**
+   * Get the mtime of this groups VBOs
+   */
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkOpenGLVertexBufferObjectGroup();

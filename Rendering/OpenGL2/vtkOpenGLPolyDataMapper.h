@@ -237,6 +237,33 @@ public:
                               vtkCellArray **prims, int representation,
                               vtkPoints *points);
 
+  /**
+   * Select a data array from the point/cell data
+   * and map it to a generic vertex attribute.
+   * vertexAttributeName is the name of the vertex attribute.
+   * dataArrayName is the name of the data array.
+   * fieldAssociation indicates when the data array is a point data array or
+   * cell data array (vtkDataObject::FIELD_ASSOCIATION_POINTS or
+   * (vtkDataObject::FIELD_ASSOCIATION_CELLS).
+   * componentno indicates which component from the data array must be passed as
+   * the attribute. If -1, then all components are passed.
+   */
+  void MapDataArrayToVertexAttribute(
+    const char* vertexAttributeName,
+    const char* dataArrayName,
+    int fieldAssociation,
+    int componentno = -1) VTK_OVERRIDE;
+
+  /**
+   * Remove a vertex attribute mapping.
+   */
+  void RemoveVertexAttributeMapping(const char* vertexAttributeName) VTK_OVERRIDE;
+
+  /**
+   * Remove all vertex attributes.
+   */
+  void RemoveAllVertexAttributeMappings() VTK_OVERRIDE;
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper() VTK_OVERRIDE;
@@ -502,6 +529,15 @@ protected:
 
   std::map<const ReplacementSpec,ReplacementValue> UserShaderReplacements;
 
+  class ExtraAttributeValue
+  {
+    public:
+      std::string DataArrayName;
+      int FieldAssociation;
+      int ComponentNumber;
+  };
+  std::map<std::string,ExtraAttributeValue> ExtraAttributes;
+
   char *VertexShaderCode;
   char *FragmentShaderCode;
   char *GeometryShaderCode;
@@ -512,7 +548,7 @@ protected:
   bool DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor);
   bool DrawingTubesOrSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor);
 
-  // get why opengl mode to use to draw the primitive
+  // get which opengl mode to use to draw the primitive
   int GetOpenGLMode(int representation, int primType);
 
   // get how big to make the points when doing point picking

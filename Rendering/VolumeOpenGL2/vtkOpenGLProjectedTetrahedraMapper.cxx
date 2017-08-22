@@ -695,7 +695,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
   // build the VBO and IBOs,  we so these in chuncks as based on
   // the settings of the VisibilitySort tclass
-  this->VBO->Stride = 6*sizeof(float);
+  this->VBO->SetStride(6*sizeof(float));
 
   // Establish vertex arrays.
   // tets have 4 points, 5th point here is used
@@ -1051,27 +1051,27 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     {
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "vertexDC", 0,
-                                      this->VBO->Stride, VTK_FLOAT, 3, false))
+                                      this->VBO->GetStride(), VTK_FLOAT, 3, false))
       {
         vtkErrorMacro(<< "Error setting 'vertexDC' in shader VAO.");
       }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "scalarColor", 3*sizeof(float),
-                                      this->VBO->Stride, VTK_UNSIGNED_CHAR,
+                                      this->VBO->GetStride(), VTK_UNSIGNED_CHAR,
                                       3, true))
       {
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
       }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "attenuationArray", 4*sizeof(float),
-                                      this->VBO->Stride, VTK_FLOAT,
+                                      this->VBO->GetStride(), VTK_FLOAT,
                                       1, false))
       {
         vtkErrorMacro(<< "Error setting attenuation in shader VAO.");
       }
       if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "depthArray", 5*sizeof(float),
-                                      this->VBO->Stride, VTK_FLOAT,
+                                      this->VBO->GetStride(), VTK_FLOAT,
                                       1, false))
       {
         vtkErrorMacro(<< "Error setting depth in shader VAO.");

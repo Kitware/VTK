@@ -57,7 +57,7 @@ int vtkOpenGLVertexBufferObjectGroup::GetNumberOfComponents(
   vboIter i = this->UsedVBOs.find(attribute);
   if (i != this->UsedVBOs.end())
   {
-    return i->second->NumberOfComponents;
+    return i->second->GetNumberOfComponents();
   }
   return 0;
 }
@@ -68,7 +68,7 @@ int vtkOpenGLVertexBufferObjectGroup::GetNumberOfTuples(
   vboIter i = this->UsedVBOs.find(attribute);
   if (i != this->UsedVBOs.end())
   {
-    return i->second->NumberOfTuples;
+    return i->second->GetNumberOfTuples();
   }
   return 0;
 }
@@ -82,6 +82,34 @@ vtkOpenGLVertexBufferObject *vtkOpenGLVertexBufferObjectGroup::GetVBO(
     return i->second;
   }
   return nullptr;
+}
+
+void vtkOpenGLVertexBufferObjectGroup::RemoveAttribute(
+  const char *attribute)
+{
+  // empty array, means delete any existing entries
+  arrayIter diter = this->UsedDataArrays.find(attribute);
+  if (diter != this->UsedDataArrays.end())
+  {
+    vboIter viter = this->UsedVBOs.find(attribute);
+    if (viter != this->UsedVBOs.end())
+    {
+      viter->second->UnRegister(this);
+      this->UsedVBOs.erase(viter);
+      this->Modified();
+    }
+    std::vector<vtkDataArray *> &vec = diter->second;
+    for (size_t j = 0; j < vec.size(); j++)
+    {
+      if (vec[j])
+      {
+        vec[j]->Delete();
+      }
+    }
+    diter->second.clear();
+    this->UsedDataArrays.erase(diter);
+  }
+  return;
 }
 
 void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
@@ -102,66 +130,63 @@ void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
   vtkOpenGLVertexBufferObjectCache *cache,
   int destType)
 {
-  // empty array, clear out entry if needed
-  arrayIter diter = this->UsedDataArrays.find(attribute);
+  // empty array, means delete any existing entries
   if (!da || da->GetNumberOfTuples() == 0)
   {
-    if (diter != this->UsedDataArrays.end())
-    {
-      vboIter viter = this->UsedVBOs.find(attribute);
-      if (viter != this->UsedVBOs.end())
-      {
-        viter->second->UnRegister(this);
-        this->UsedVBOs.erase(viter);
-      }
-      std::vector<vtkDataArray *> &vec = diter->second;
-      for (size_t j = 0; j < vec.size(); j++)
-      {
-        if (vec[j])
-        {
-          vec[j]->Delete();
-        }
-      }
-      diter->second.clear();
-      this->UsedDataArrays.erase(diter);
-    }
+    this->RemoveAttribute(attribute);
     return;
   }
 
-  // non null data array
-  // if anything changed in VBO shape then recreate
-  std::vector<vtkDataArray *> &arrays = this->UsedDataArrays[attribute];
-  vboIter viter = this->UsedVBOs.find(attribute);
-  if (arrays.size() != 1 || arrays[0] != da
-      || viter == this->UsedVBOs.end()
-      || viter->second->NumberOfComponents !=
-        static_cast<unsigned int>(da->GetNumberOfComponents())
-      || viter->second->DataType != destType
-      || viter->second->NumberOfTuples !=
-        static_cast<unsigned int>(da->GetNumberOfTuples()))
+  // OK we have a data array
+  arrayIter diter = this->UsedDataArrays.find(attribute);
+
+  // if a different array is already setup for this attribute
+  // clear it out. Remember that UsedArrays is cleared
+  // after upload. So if there is another array here
+  // it means the same attrribute has been set twice.
+  // so we delete the prior setting, last one wins.
+  if (diter != this->UsedDataArrays.end() &&
+      (diter->second.size() != 1 || diter->second[0] != da))
   {
-    if (viter != this->UsedVBOs.end())
+    for (size_t j = 0; j < diter->second.size(); j++)
     {
-      viter->second->UnRegister(this);
-      this->UsedVBOs.erase(viter);
-    }
-    for (size_t j = 0; j < arrays.size(); j++)
-    {
-      if (arrays[j])
+      if (diter->second[j])
       {
-        arrays[j]->Delete();
+        diter->second[j]->Delete();
       }
     }
-    arrays.clear();
-    da->Register(this);
-    arrays.push_back(da);
-
-    // Get VBO for used array
-    vtkOpenGLVertexBufferObject* vbo = cache->GetVBO(da, destType);
-
-    // Unregister former VBO
-    this->UsedVBOs[attribute] = vbo;
+    diter->second.clear();
   }
+
+  // make sure we add this DA to our list of arrays
+  da->Register(this);
+  std::vector<vtkDataArray *> &vec = this->UsedDataArrays[attribute];
+  vec.push_back(da);
+
+  // get the VBO for this DA
+  vtkOpenGLVertexBufferObject* vbo = cache->GetVBO(da, destType);
+  vboIter viter = this->UsedVBOs.find(attribute);
+
+  // if this VBO is the same as previous for this attribute
+  // then just return
+  if (viter != this->UsedVBOs.end() && viter->second == vbo)
+  {
+    vbo->UnRegister(this); // GetVBO increments the ref count
+    return;
+  }
+
+  this->Modified();
+
+  // if this VBO is different from the prior VBO for this
+  // attribute then free the prior VBO
+  if (viter != this->UsedVBOs.end())
+  {
+    viter->second->UnRegister(this);
+    this->UsedVBOs.erase(viter);
+  }
+
+  // store the VBO and upload
+  this->UsedVBOs[attribute] = vbo;
 }
 
 void vtkOpenGLVertexBufferObjectGroup::AppendDataArray(
@@ -181,10 +206,11 @@ void vtkOpenGLVertexBufferObjectGroup::AppendDataArray(
     arrays.push_back(da);
 
     // make sure we have a VBO for this array
+    // we do not use the cache when appending
     if (this->UsedVBOs.find(attribute) == this->UsedVBOs.end())
     {
       vtkOpenGLVertexBufferObject* vbo = vtkOpenGLVertexBufferObject::New();
-      vbo->InitVBO(da, destType);
+      vbo->SetDataType(destType);
       this->UsedVBOs[attribute] = vbo;
     }
   }
@@ -212,7 +238,7 @@ void vtkOpenGLVertexBufferObjectGroup::AddAllAttributesToVAO(
       if (!vao->AddAttributeArray(
         program, vbo, dataShaderName,
         0, // offset see assert later in this file
-        (vbo->DataType == VTK_UNSIGNED_CHAR))) //TODO: fix tweak. true for colors.
+        (vbo->GetDataType() == VTK_UNSIGNED_CHAR))) //TODO: fix tweak. true for colors.
       {
         vtkErrorMacro(<< "Error setting '" << dataShaderName << "' in shader VAO.");
       }
@@ -275,7 +301,7 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
     }
   }
 
-  // now push data to VBOs as needed
+  // we always upload appended data :-(
   for (arrayIter i = this->UsedDataArrays.begin();
        i != this->UsedDataArrays.end(); ++i)
   {
@@ -283,22 +309,29 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
     std::vector<vtkDataArray *> &vec = i->second;
     vtkOpenGLVertexBufferObject *vbo = this->UsedVBOs[attribute];
 
-    // append arrays if vbo empty
-    if (vbo->NumberOfTuples == 0)
+    if (vec.size() > 1)
     {
-      if (vec.size() == 1)
+      for (size_t j = 0; j < vec.size(); j++)
       {
-        vbo->UploadDataArray(vec[0]);
+        // only append if needed?
+        vbo->AppendDataArray(vec[j]);
       }
-      else
-      {
-        for (size_t j = 0; j < vec.size(); j++)
-        {
-          // only append if needed?
-          vbo->AppendDataArray(vec[j]);
-        }
-        vbo->UploadVBO();
-      }
+      vbo->UploadVBO();
+    }
+  }
+
+  // for everything else we upload based on mtimes
+  for (arrayIter i = this->UsedDataArrays.begin();
+       i != this->UsedDataArrays.end(); ++i)
+  {
+    std::string attribute = i->first;
+    std::vector<vtkDataArray *> &vec = i->second;
+    vtkOpenGLVertexBufferObject *vbo = this->UsedVBOs[attribute];
+
+    if (vec.size() == 1 &&
+        vec[0]->GetMTime() > vbo->GetUploadTime())
+    {
+      vbo->UploadDataArray(vec[0]);
     }
   }
 
@@ -313,6 +346,23 @@ void vtkOpenGLVertexBufferObjectGroup::BuildAllVBOs(
   }
 
   this->ClearAllDataArrays();
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkOpenGLVertexBufferObjectGroup::GetMTime()
+{
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+
+  for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
+  {
+    vtkMTimeType time = i->second->GetMTime();
+    if (time > mTime)
+    {
+      mTime = time;
+    }
+  }
+
+  return mTime;
 }
 
 // ----------------------------------------------------------------------------
