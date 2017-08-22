@@ -91,6 +91,7 @@ int TestCompositePolyDataMapper2CellScalars(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -130,7 +131,6 @@ int TestCompositePolyDataMapper2CellScalars(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
   }
 
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
   mapper->SetScalarModeToUseCellData();
 
   vtkSmartPointer<vtkActor> actor =

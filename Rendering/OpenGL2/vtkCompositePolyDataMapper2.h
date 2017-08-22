@@ -70,7 +70,7 @@ public:
    * Set/get the visibility for a block given its flat index.
    */
   void SetBlockVisibility(unsigned int index, bool visible);
-  bool GetBlockVisibility(unsigned int index) const;
+  bool GetBlockVisibility(unsigned int index);
   void RemoveBlockVisibility(unsigned int index);
   void RemoveBlockVisibilities();
   // This method is deprecated and will be removed in VTK 8.2. It is misspelled.

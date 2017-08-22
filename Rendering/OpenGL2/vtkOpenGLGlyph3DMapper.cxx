@@ -322,13 +322,14 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       iter->GoToNextItem())
     {
       auto curIndex = iter->GetCurrentFlatIndex();
+      auto currentObj = iter->GetCurrentDataObject();
       // Skip invisible blocks and unpickable ones when performing selection:
       bool blockVis =
-        (this->BlockAttributes && this->BlockAttributes->HasBlockVisibility(curIndex)) ?
-        this->BlockAttributes->GetBlockVisibility(curIndex) : true;
+        (this->BlockAttributes && this->BlockAttributes->HasBlockVisibility(currentObj)) ?
+        this->BlockAttributes->GetBlockVisibility(currentObj) : true;
       bool blockPick =
-        (this->BlockAttributes && this->BlockAttributes->HasBlockPickability(curIndex)) ?
-        this->BlockAttributes->GetBlockPickability(curIndex) : true;
+        (this->BlockAttributes && this->BlockAttributes->HasBlockPickability(currentObj)) ?
+        this->BlockAttributes->GetBlockPickability(currentObj) : true;
       if (!blockVis || (selector && !blockPick))
       {
         continue;
@@ -340,10 +341,10 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
         {
           selector->RenderCompositeIndex(curIndex);
         }
-        else if (this->BlockAttributes && this->BlockAttributes->HasBlockColor(curIndex))
+        else if (this->BlockAttributes && this->BlockAttributes->HasBlockColor(currentObj))
         {
           double color[3];
-          this->BlockAttributes->GetBlockColor(curIndex, color);
+          this->BlockAttributes->GetBlockColor(currentObj, color);
           blockProp->SetColor(color);
         }
         else

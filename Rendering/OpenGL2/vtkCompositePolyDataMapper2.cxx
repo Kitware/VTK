@@ -1088,22 +1088,32 @@ void vtkCompositePolyDataMapper2::SetBlockVisibility(unsigned int index, bool vi
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->SetBlockVisibility(index, visible);
-    this->Modified();
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      this->CompositeAttributes->SetBlockVisibility(dataObj, visible);
+      this->Modified();
+    }
   }
 }
 
 //----------------------------------------------------------------------------
-bool vtkCompositePolyDataMapper2::GetBlockVisibility(unsigned int index) const
+bool vtkCompositePolyDataMapper2::GetBlockVisibility(unsigned int index)
 {
   if(this->CompositeAttributes)
   {
-    return this->CompositeAttributes->GetBlockVisibility(index);
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      return this->CompositeAttributes->GetBlockVisibility(dataObj);
+    }
   }
-  else
-  {
-    return true;
-  }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -1111,8 +1121,14 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->RemoveBlockVisibility(index);
-    this->Modified();
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      this->CompositeAttributes->RemoveBlockVisibility(dataObj);
+      this->Modified();
+    }
   }
 }
 
@@ -1138,8 +1154,15 @@ void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->SetBlockColor(index, color);
-    this->Modified();
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+
+    if (dataObj)
+    {
+      this->CompositeAttributes->SetBlockColor(dataObj, color);
+      this->Modified();
+    }
   }
 }
 
@@ -1150,7 +1173,14 @@ double* vtkCompositePolyDataMapper2::GetBlockColor(unsigned int index)
 
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->GetBlockColor(index, this->ColorResult);
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      this->CompositeAttributes->GetBlockColor(dataObj, this->ColorResult);
+    }
+
     return this->ColorResult;
   }
   else
@@ -1164,8 +1194,14 @@ void vtkCompositePolyDataMapper2::RemoveBlockColor(unsigned int index)
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->RemoveBlockColor(index);
-    this->Modified();
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      this->CompositeAttributes->RemoveBlockColor(dataObj);
+      this->Modified();
+    }
   }
 }
 
@@ -1184,8 +1220,14 @@ void vtkCompositePolyDataMapper2::SetBlockOpacity(unsigned int index, double opa
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->SetBlockOpacity(index, opacity);
-    this->Modified();
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      this->CompositeAttributes->SetBlockOpacity(dataObj, opacity);
+      this->Modified();
+    }
   }
 }
 
@@ -1194,7 +1236,13 @@ double vtkCompositePolyDataMapper2::GetBlockOpacity(unsigned int index)
 {
   if(this->CompositeAttributes)
   {
-    return this->CompositeAttributes->GetBlockOpacity(index);
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      return this->CompositeAttributes->GetBlockOpacity(dataObj);
+    }
   }
   return 1.;
 }
@@ -1204,8 +1252,14 @@ void vtkCompositePolyDataMapper2::RemoveBlockOpacity(unsigned int index)
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->RemoveBlockOpacity(index);
-    this->Modified();
+    unsigned int start_index = 0;
+    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index,
+      this->GetInputDataObject(0, 0), start_index);
+    if (dataObj)
+    {
+      this->CompositeAttributes->RemoveBlockOpacity(dataObj);
+      this->Modified();
+    }
   }
 }
 
@@ -1476,27 +1530,27 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   unsigned int &flat_index)
 {
   vtkCompositeDataDisplayAttributes* cda = this->GetCompositeDataDisplayAttributes();
-  bool overrides_visibility = (cda && cda->HasBlockVisibility(flat_index));
+  bool overrides_visibility = (cda && cda->HasBlockVisibility(dobj));
   if (overrides_visibility)
   {
-    this->BlockState.Visibility.push(cda->GetBlockVisibility(flat_index));
+    this->BlockState.Visibility.push(cda->GetBlockVisibility(dobj));
   }
-  bool overrides_pickability = (cda && cda->HasBlockPickability(flat_index));
+  bool overrides_pickability = (cda && cda->HasBlockPickability(dobj));
   if (overrides_pickability)
   {
-    this->BlockState.Pickability.push(cda->GetBlockPickability(flat_index));
+    this->BlockState.Pickability.push(cda->GetBlockPickability(dobj));
   }
 
-  bool overrides_opacity = (cda && cda->HasBlockOpacity(flat_index));
+  bool overrides_opacity = (cda && cda->HasBlockOpacity(dobj));
   if (overrides_opacity)
   {
-    this->BlockState.Opacity.push(cda->GetBlockOpacity(flat_index));
+    this->BlockState.Opacity.push(cda->GetBlockOpacity(dobj));
   }
 
-  bool overrides_color = (cda && cda->HasBlockColor(flat_index));
+  bool overrides_color = (cda && cda->HasBlockColor(dobj));
   if (overrides_color)
   {
-    vtkColor3d color = cda->GetBlockColor(flat_index);
+    vtkColor3d color = cda->GetBlockColor(dobj);
     this->BlockState.AmbientColor.push(color);
     this->BlockState.DiffuseColor.push(color);
     this->BlockState.SpecularColor.push(color);

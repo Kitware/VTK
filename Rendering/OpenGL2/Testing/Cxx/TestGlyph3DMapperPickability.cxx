@@ -56,9 +56,10 @@ void prepareDisplayAttribute(
     auto cfg = config(ii);
     bool visible = cfg.first;
     bool pickable = cfg.second;
+    auto dataObj = bit->GetCurrentDataObject();
     if (visible && pickable)
     {
-      auto pd = vtkPolyData::SafeDownCast(bit->GetCurrentDataObject());
+      auto pd = vtkPolyData::SafeDownCast(dataObj);
       if (pd)
       {
         auto cid = pd->GetCellData()->GetArray("vtkCompositeIndex");
@@ -66,8 +67,8 @@ void prepareDisplayAttribute(
         expected.insert(idx);
       }
     }
-    attr->SetBlockVisibility(ii, visible);
-    attr->SetBlockPickability(ii, pickable);
+    attr->SetBlockVisibility(dataObj, visible);
+    attr->SetBlockPickability(dataObj, pickable);
   }
   bit->Delete();
 }
@@ -179,11 +180,15 @@ int TestGlyph3DMapperPickability(int argc, char* argv[])
     { 1., 1., 0. },
     { 1., 0., 1. }
   };
-  for (int ii = 0; ii < 4; ++ii)
+
+  auto it = mb->NewIterator();
+  int ii = 0;
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
   {
-    // ii + 1 because iterator flat index starts at 1:
-    da->SetBlockColor(ii + 1, rgb[ii]);
+    auto dataObj = it->GetCurrentDataObject();
+    da->SetBlockColor(dataObj, rgb[ii++]);
   }
+  it->Delete();
 
   vtkNew<vtkHardwareSelector> hw;
   hw->SetArea(0, 0, 400, 400);
@@ -236,10 +241,12 @@ int TestGlyph3DMapperPickability(int argc, char* argv[])
   retVal &= checkSelection(sel, expected, testNum);
   sel->Delete();
 
-  retVal &= vtkRegressionTestImage(rw);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retTestImage = vtkRegressionTestImage(rw);
+  retVal &= retTestImage;
+  if (retTestImage == vtkRegressionTester::DO_INTERACTOR)
   {
     ri->Start();
   }
+
   return !retVal;
 }

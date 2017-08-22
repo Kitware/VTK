@@ -79,6 +79,7 @@ int TestCompositePolyDataMapper2Vertices(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -117,8 +118,6 @@ int TestCompositePolyDataMapper2Vertices(int argc, char* argv[])
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
   }
-
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
