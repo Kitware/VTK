@@ -922,9 +922,17 @@ virtual double *Get##name() \
 
 // Use "VTK_FALLTHROUGH;" to annotate deliberate fall-through in switches,
 // use it analogously to "break;".  The trailing semi-colon is required.
-#if __cplusplus >= 201103L && defined(__has_warning)
-# if __has_feature(cxx_attributes) && __has_warning("-Wimplicit-fallthrough")
-#  define VTK_FALLTHROUGH [[clang::fallthrough]]
+#if __cplusplus >= 201103L
+# if !defined(VTK_FALLTHROUGH) && defined(__has_cpp_attribute)
+#  if __has_cpp_attribute(fallthrough)
+#   define VTK_FALLTHROUGH [[fallthrough]]
+#  endif
+# endif
+# if !defined(VTK_FALLTHROUGH) && \
+      defined(__has_feature) && defined(__has_warning)
+#  if __has_feature(cxx_attributes) && __has_warning("-Wimplicit-fallthrough")
+#   define VTK_FALLTHROUGH [[clang::fallthrough]]
+#  endif
 # endif
 #endif
 
