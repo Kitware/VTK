@@ -2483,6 +2483,33 @@ namespace vtkvolume
     \n  castRay(-1.0, -1.0);\
     \n  finalizeRayCast();");
   }
+
+  //---------------------------------------------------------------------------
+  std::string ImageSampleDeclarationFrag(const std::vector<std::string>& varNames,
+    const size_t usedNames)
+  {
+    std::string shader = "\n";
+    for (size_t i = 0; i < usedNames; i++)
+    {
+      shader += "uniform sampler2D " + varNames[i] + ";\n";
+    }
+    return shader;
+  }
+
+  //---------------------------------------------------------------------------
+  std::string ImageSampleImplementationFrag(const std::vector<std::string>& varNames,
+    const size_t usedNames)
+  {
+    std::string shader = "\n";
+    for (size_t i = 0; i < usedNames; i++)
+    {
+      std::stringstream ss;  ss << i;
+      shader += " gl_FragData[" + ss.str() + "] = texture2D("+ varNames[i] +
+        ", texCoord);\n";
+    }
+    shader += " return;\n";
+    return shader;
+  }
 }
 
 #endif // vtkVolumeShaderComposer_h
