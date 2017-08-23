@@ -30,7 +30,6 @@ vtkAnimationScene::vtkAnimationScene()
   this->Loop = 0;
   this->InPlay = 0;
   this->StopPlay = 0;
-  this->AnimationTime = 0.0;
 
   this->AnimationCues = vtkCollection::New();
   this->AnimationCuesIterator = this->AnimationCues->NewIterator();
@@ -298,5 +297,4 @@ void vtkAnimationScene::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Loop: " << this->Loop << endl;
   os << indent << "InPlay: " << this->InPlay << endl;
   os << indent << "StopPlay: " << this->StopPlay << endl;
-  os << indent << "AnimationTime: " << this->AnimationTime << endl;
 }
