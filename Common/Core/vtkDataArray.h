@@ -98,14 +98,16 @@ public:
    * Note: this method is not thread-safe, and the pointer is only valid
    * as long as another method invocation to a vtk object is not performed.
    */
-  virtual double *GetTuple(vtkIdType tupleIdx) = 0;
+  virtual double *GetTuple(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) = 0;
 
   /**
    * Get the data tuple at tupleIdx by filling in a user-provided array,
    * Make sure that your array is large enough to hold the NumberOfComponents
    * amount of data being returned.
    */
-  virtual void GetTuple(vtkIdType tupleIdx, double * tuple) = 0;
+  virtual void GetTuple(vtkIdType tupleIdx, double * tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) = 0;
 
   //@{
   /**
@@ -113,12 +115,18 @@ public:
    * GetTuple() and SetTuple() which return/take arrays can not be
    * used from wrapped languages. These methods can be used instead.
    */
-  double GetTuple1(vtkIdType tupleIdx);
-  double* GetTuple2(vtkIdType tupleIdx);
-  double* GetTuple3(vtkIdType tupleIdx);
-  double* GetTuple4(vtkIdType tupleIdx);
-  double* GetTuple6(vtkIdType tupleIdx);
-  double* GetTuple9(vtkIdType tupleIdx);
+  double GetTuple1(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  double* GetTuple2(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  double* GetTuple3(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  double* GetTuple4(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  double* GetTuple6(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  double* GetTuple9(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   //@}
 
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
@@ -130,8 +138,10 @@ public:
    * memory allocation is not performed; use this method in conjunction
    * with SetNumberOfTuples() to allocate space.
    */
-  virtual void SetTuple(vtkIdType tupleIdx, const float * tuple);
-  virtual void SetTuple(vtkIdType tupleIdx, const double * tuple);
+  virtual void SetTuple(vtkIdType tupleIdx, const float * tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  virtual void SetTuple(vtkIdType tupleIdx, const double * tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   //@}
 
   //@{
@@ -140,16 +150,22 @@ public:
    * GetTuple() and SetTuple() which return/take arrays can not be
    * used from wrapped languages. These methods can be used instead.
    */
-  void SetTuple1(vtkIdType tupleIdx, double value);
-  void SetTuple2(vtkIdType tupleIdx, double val0, double val1);
-  void SetTuple3(vtkIdType tupleIdx, double val0, double val1, double val2);
+  void SetTuple1(vtkIdType tupleIdx, double value)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  void SetTuple2(vtkIdType tupleIdx, double val0, double val1)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  void SetTuple3(vtkIdType tupleIdx, double val0, double val1, double val2)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   void SetTuple4(vtkIdType tupleIdx, double val0, double val1, double val2,
-                 double val3);
+                 double val3)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   void SetTuple6(vtkIdType tupleIdx, double val0, double val1, double val2,
-                 double val3, double val4, double val5);
+                 double val3, double val4, double val5)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   void SetTuple9(vtkIdType tupleIdx, double val0, double val1, double val2,
                  double val3, double val4, double val5, double val6,
-                 double val7, double val8);
+                 double val7, double val8)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   //@}
 
   //@{
@@ -157,8 +173,10 @@ public:
    * Insert the data tuple at tupleIdx. Note that memory allocation
    * is performed as necessary to hold the data.
    */
-  virtual void InsertTuple(vtkIdType tupleIdx, const float * tuple) = 0;
-  virtual void InsertTuple(vtkIdType tupleIdx, const double * tuple) = 0;
+  virtual void InsertTuple(vtkIdType tupleIdx, const float * tuple)
+    VTK_EXPECTS(0 <= tupleIdx) = 0;
+  virtual void InsertTuple(vtkIdType tupleIdx, const double * tuple)
+    VTK_EXPECTS(0 <= tupleIdx) = 0;
   //@}
 
   //@{
@@ -167,16 +185,22 @@ public:
    * InsertTuple() which takes arrays can not be
    * used from wrapped languages. These methods can be used instead.
    */
-  void InsertTuple1(vtkIdType tupleIdx, double value);
-  void InsertTuple2(vtkIdType tupleIdx, double val0, double val1);
-  void InsertTuple3(vtkIdType tupleIdx, double val0, double val1, double val2);
+  void InsertTuple1(vtkIdType tupleIdx, double value)
+    VTK_EXPECTS(0 <= tupleIdx);
+  void InsertTuple2(vtkIdType tupleIdx, double val0, double val1)
+    VTK_EXPECTS(0 <= tupleIdx);
+  void InsertTuple3(vtkIdType tupleIdx, double val0, double val1, double val2)
+    VTK_EXPECTS(0 <= tupleIdx);
   void InsertTuple4(vtkIdType tupleIdx, double val0, double val1, double val2,
-                    double val3);
+                    double val3)
+    VTK_EXPECTS(0 <= tupleIdx);
   void InsertTuple6(vtkIdType tupleIdx, double val0, double val1, double val2,
-                    double val3, double val4, double val5);
+                    double val3, double val4, double val5)
+    VTK_EXPECTS(0 <= tupleIdx);
   void InsertTuple9(vtkIdType tupleIdx, double val0, double val1, double val2,
                     double val3, double val4, double val5, double val6,
-                    double val7, double val8);
+                    double val7, double val8)
+    VTK_EXPECTS(0 <= tupleIdx);
   //@}
 
   //@{
@@ -213,7 +237,8 @@ public:
    * resize array, so the data array is still valid after this operation. Note,
    * this operation is fairly slow.
    */
-  virtual void RemoveTuple(vtkIdType tupleIdx) = 0;
+  virtual void RemoveTuple(vtkIdType tupleIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) = 0;
   virtual void RemoveFirstTuple() { this->RemoveTuple(0); }
   virtual void RemoveLastTuple();
   //@}
@@ -222,7 +247,9 @@ public:
    * Return the data component at the location specified by tupleIdx and
    * compIdx.
    */
-  virtual double GetComponent(vtkIdType tupleIdx, int compIdx);
+  virtual double GetComponent(vtkIdType tupleIdx, int compIdx)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents());
 
   /**
    * Set the data component at the location specified by tupleIdx and compIdx
@@ -231,13 +258,17 @@ public:
    * NumberOfComponents. Make sure enough memory has been allocated
    * (use SetNumberOfTuples() and SetNumberOfComponents()).
    */
-  virtual void SetComponent(vtkIdType tupleIdx, int compIdx, double value);
+  virtual void SetComponent(vtkIdType tupleIdx, int compIdx, double value)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents());
 
   /**
    * Insert value at the location specified by tupleIdx and compIdx.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  virtual void InsertComponent(vtkIdType tupleIdx, int compIdx, double value);
+  virtual void InsertComponent(vtkIdType tupleIdx, int compIdx, double value)
+    VTK_EXPECTS(0 <= tupleIdx)
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents());
 
   /**
    * Get the data as a double array in the range (tupleMin,tupleMax) and
@@ -276,7 +307,8 @@ public:
    * data array.  This methods can be used to initialize or reinitialize a
    * single component of a multi-component array.
    */
-  virtual void FillComponent(int compIdx, double value);
+  virtual void FillComponent(int compIdx, double value)
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents());
 
   /**
    * Fill all values of a data array with a specified value.

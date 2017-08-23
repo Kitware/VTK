@@ -435,19 +435,22 @@ public:
   /**
    * Retrieve value from the array as a variant.
    */
-  virtual vtkVariant GetVariantValue(vtkIdType valueIdx);
+  virtual vtkVariant GetVariantValue(vtkIdType valueIdx)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues());
 
   /**
    * Insert a value into the array from a variant.  This method does
    * bounds checking.
    */
-  virtual void InsertVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
+  virtual void InsertVariantValue(vtkIdType valueIdx, vtkVariant value)
+    VTK_EXPECTS(0 <= valueIdx) = 0;
 
   /**
    * Set a value in the array from a variant.  This method does NOT do
    * bounds checking.
    */
-  virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
+  virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues()) = 0;
 
   /**
    * Tell the array explicitly that the data has changed.

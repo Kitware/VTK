@@ -163,16 +163,20 @@ public:
   /**
    * Get the data at a particular index.
    */
-  vtkStdString &GetValue(vtkIdType id);
+  vtkStdString &GetValue(vtkIdType id)
+    VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues());
 
   /**
    * Set the data at a particular index. Does not do range checking. Make sure
    * you use the method SetNumberOfValues() before inserting data.
    */
   void SetValue(vtkIdType id, vtkStdString value)
+    VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues())
     { this->Array[id] = value; this->DataChanged(); }
 
-  void SetValue(vtkIdType id, const char *value);
+  void SetValue(vtkIdType id, const char *value)
+    VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues())
+    VTK_EXPECTS(value != nullptr);
 
   /**
    * Set the number of tuples (a component group) in the array. Note that
@@ -196,9 +200,10 @@ public:
   /**
    * Insert data at a specified position in the array.
    */
-  void InsertValue(vtkIdType id, vtkStdString f);
-
-  void InsertValue(vtkIdType id, const char *val);
+  void InsertValue(vtkIdType id, vtkStdString f)
+    VTK_EXPECTS(0 <= id);
+  void InsertValue(vtkIdType id, const char *val)
+    VTK_EXPECTS(0 <= id) VTK_EXPECTS(val != nullptr);
 
   /**
    * Set a value in the array form a variant.
@@ -216,8 +221,8 @@ public:
    * Insert data at the end of the array. Return its location in the array.
    */
   vtkIdType InsertNextValue(vtkStdString f);
-
-  vtkIdType InsertNextValue(const char *f);
+  vtkIdType InsertNextValue(const char *f)
+    VTK_EXPECTS(f != nullptr);
 
   /**
    * Get the address of a particular data index. Make sure data is allocated

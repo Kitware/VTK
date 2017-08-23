@@ -229,14 +229,16 @@ public:
    * Set the data at a particular index. Does not do range checking. Make sure
    * you use the method SetNumberOfValues() before inserting data.
    */
-  void SetValue(vtkIdType id, vtkVariant value);
+  void SetValue(vtkIdType id, vtkVariant value)
+    VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues());
 
   /**
    * If id < GetNumberOfValues(), overwrite the array at that index.
    * If id >= GetNumberOfValues(), expand the array size to id+1
    * and set the final value to the specified value.
    */
-  void InsertValue(vtkIdType id, vtkVariant value);
+  void InsertValue(vtkIdType id, vtkVariant value)
+    VTK_EXPECTS(0 <= id);
 
   /**
    * Insert a value into the array from a variant.

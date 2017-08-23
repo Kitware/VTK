@@ -110,7 +110,8 @@ public:
    * NumberOfComponents is known to the compiler (See vtkAssume.h).
    * @ingroup vtkGDAConceptMethods
    */
-  inline void SetValue(vtkIdType valueIdx, ValueType value)
+  void SetValue(vtkIdType valueIdx, ValueType value)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     static_cast<DerivedT*>(this)->SetValue(valueIdx, value);
   }
@@ -123,7 +124,8 @@ public:
    * access.
    * @ingroup vtkGDAConceptMethods
    */
-  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     static_cast<const DerivedT*>(this)->GetTypedTuple(tupleIdx, tuple);
   }
@@ -136,7 +138,8 @@ public:
    * access.
    * @ingroup vtkGDAConceptMethods
    */
-  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     static_cast<DerivedT*>(this)->SetTypedTuple(tupleIdx, tuple);
   }
@@ -146,7 +149,9 @@ public:
    * the fastest way to access array data.
    * @ingroup vtkGDAConceptMethods
    */
-  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents())
   {
     return static_cast<const DerivedT*>(this)->GetTypedComponent(tupleIdx,
                                                                  compIdx);
@@ -157,8 +162,9 @@ public:
    * typically the fastest way to set array data.
    * @ingroup vtkGDAConceptMethods
    */
-  inline void SetTypedComponent(vtkIdType tupleIdx, int compIdx,
-                                ValueType value)
+  void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents())
   {
     static_cast<DerivedT*>(this)->SetTypedComponent(tupleIdx, compIdx, value);
   }
