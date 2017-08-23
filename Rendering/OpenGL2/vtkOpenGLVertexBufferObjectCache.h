@@ -16,7 +16,12 @@
  * @class   vtkOpenGLVertexBufferObjectCache
  * @brief   manage vertex buffer objects shared within a context
  *
- * vtkOpenGLVertexBufferObjectCache is awesome
+ * This class allows mappers to share VBOs. Specifically it
+ * is used by the V..B..O..Group to see if a VBO already exists
+ * for a given vtkDataArray.
+ *
+ *
+ *
 */
 
 #ifndef vtkOpenGLVertexBufferObjectCache_h

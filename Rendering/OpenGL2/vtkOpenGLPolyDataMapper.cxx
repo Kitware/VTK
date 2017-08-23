@@ -1848,8 +1848,9 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
   cellBO.Program->SetUniformi("PrimitiveIDOffset",
     this->PrimitiveIDOffset);
 
-  if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
+  if (cellBO.IBO->IndexCount &&
+      (this->VBOs->GetMTime() > cellBO.AttributeUpdateTime ||
+       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
   {
     cellBO.VAO->Bind();
 
@@ -2486,9 +2487,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
     this->InternalColorTexture->Load(ren);
   }
 
-  // Bind the OpenGL, this is shared between the different primitive/cell types.
-  //this->VBOs->Bind();
-
   this->LastBoundBO = nullptr;
 }
 
@@ -2575,8 +2573,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
   {
     this->LastBoundBO->VAO->Release();
   }
-
-  // this->VBOs->Release();
 
   vtkProperty *prop = actor->GetProperty();
   bool surface_offset =
@@ -3261,49 +3257,39 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     }
   }
 
-  // rebuild the VBO if the data has changed we create a string for the VBO what
-  // can change the VBO? points normals tcoords colors so what can change those?
-  // the input data is clearly one as it can change all four items tcoords may
-  // haveTextures or not colors may change based on quite a few mapping
-  // parameters in the mapper
-  toString.str("");
-  toString.clear();
-  toString << poly->GetMTime() <<
-    'A' << (c ? c->GetMTime() : 1) <<
-    'B' << (n ? n->GetMTime() : 1) <<
-    'C' << (tcoords ? tcoords->GetMTime() : 1);
-  if (this->VBOBuildString != toString.str())
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
+
+  // rebuild VBO if needed
+  for (auto &itr : this->ExtraAttributes)
   {
-    vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-    vtkOpenGLVertexBufferObjectCache *cache = renWin->GetVBOCache();
+    vtkDataArray *da = poly->GetPointData()->GetArray(itr.second.DataArrayName.c_str());
+    this->VBOs->CacheDataArray(itr.first.c_str(), da, cache, VTK_FLOAT);
+  }
 
-    this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), cache, VTK_FLOAT);
-    vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
-    if (posVBO)
-    {
-      posVBO->SetCoordShiftAndScaleMethod(
-        static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
-    }
+  this->VBOs->CacheDataArray("vertexMC", poly->GetPoints()->GetData(), cache, VTK_FLOAT);
+  vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
+  if (posVBO)
+  {
+    posVBO->SetCoordShiftAndScaleMethod(
+      static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
+  }
 
-    this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
-    this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
-    this->VBOs->CacheDataArray("tcoordMC", tcoords, cache, VTK_FLOAT);
-    this->VBOs->BuildAllVBOs(cache);
+  this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
+  this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
+  this->VBOs->CacheDataArray("tcoordMC", tcoords, cache, VTK_FLOAT);
+  this->VBOs->BuildAllVBOs(cache);
 
-    // get it again as it may have been freed
-    posVBO = this->VBOs->GetVBO("vertexMC");
-    if (posVBO && posVBO->GetCoordShiftAndScaleEnabled())
-    {
-      std::vector<double> shift = posVBO->GetShift();
-      std::vector<double> scale = posVBO->GetScale();
-      this->VBOInverseTransform->Identity();
-      this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
-      this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
-      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
-    }
-
-    this->VBOBuildTime.Modified(); // need to call all the time or GetNeedToRebuild will always return true;
-    this->VBOBuildString = toString.str();
+  // get it again as it may have been freed
+  posVBO = this->VBOs->GetVBO("vertexMC");
+  if (posVBO && posVBO->GetCoordShiftAndScaleEnabled())
+  {
+    std::vector<double> shift = posVBO->GetShift();
+    std::vector<double> scale = posVBO->GetScale();
+    this->VBOInverseTransform->Identity();
+    this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+    this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+    this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
   }
 
   // now create the IBOs
@@ -3316,6 +3302,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   }
 
   vtkOpenGLCheckErrorMacro("failed after BuildBufferObjects");
+
+  this->VBOBuildTime.Modified(); // need to call all the time or GetNeedToRebuild will always return true;
 }
 
 //-------------------------------------------------------------------------
@@ -3444,6 +3432,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
     this->IBOBuildString = toString.str();
   }
 }
+
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetIsOpaque()
 {
@@ -3544,6 +3533,60 @@ int vtkOpenGLPolyDataMapper::GetPointPickingPrimitiveSize(int primType)
   return 6;
 }
 
+//----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::MapDataArrayToVertexAttribute(
+    const char* vertexAttributeName,
+    const char* dataArrayName,
+    int fieldAssociation,
+    int componentno
+    )
+{
+  if (!vertexAttributeName)
+  {
+    return;
+  }
+
+  // store the mapping in the map
+  this->RemoveVertexAttributeMapping(vertexAttributeName);
+  if (!dataArrayName)
+  {
+    return;
+  }
+
+  vtkOpenGLPolyDataMapper::ExtraAttributeValue aval;
+  aval.DataArrayName = dataArrayName;
+  aval.FieldAssociation = fieldAssociation;
+  aval.ComponentNumber = componentno;
+
+  this->ExtraAttributes.insert(
+    std::make_pair(vertexAttributeName, aval));
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::RemoveVertexAttributeMapping(
+  const char* vertexAttributeName)
+{
+  auto itr = this->ExtraAttributes.find(vertexAttributeName);
+  if (itr != this->ExtraAttributes.end())
+  {
+    this->VBOs->RemoveAttribute(vertexAttributeName);
+    this->ExtraAttributes.erase(itr);
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::RemoveAllVertexAttributeMappings()
+{
+  for (auto itr = this->ExtraAttributes.begin();
+    itr != this->ExtraAttributes.end();
+    itr = this->ExtraAttributes.begin())
+  {
+    this->RemoveVertexAttributeMapping(itr->first.c_str());
+  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
