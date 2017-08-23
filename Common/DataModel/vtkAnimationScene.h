@@ -143,7 +143,6 @@ protected:
   int Loop;
   int InPlay;
   int StopPlay;
-  double AnimationTime;
 
   vtkCollection* AnimationCues;
   vtkCollectionIterator* AnimationCuesIterator;
