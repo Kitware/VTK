@@ -57,6 +57,14 @@ public:
    */
   vtkSetMacro(DepthFormat, int);
 
+  /**
+   *  Set the format to use for the color texture
+   *  vtkTextureObject::Float16 vtkTextureObject::Float32
+   *  and vtkTextureObject::Fixed8 are supported. Fixed8
+   *  is the default.
+   */
+  vtkSetMacro(ColorFormat, int);
+
   // Get the depth texture object
   vtkGetObjectMacro(DepthTexture, vtkTextureObject);
 
@@ -92,6 +100,7 @@ public:
   //@}
 
   int DepthFormat;
+  int ColorFormat;
 
  private:
   vtkFramebufferPass(const vtkFramebufferPass&) VTK_DELETE_FUNCTION;
