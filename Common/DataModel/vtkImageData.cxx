@@ -1513,9 +1513,10 @@ void *vtkImageData::GetScalarPointer()
 {
   if (this->PointData->GetScalars() == nullptr)
   {
-    vtkDebugMacro("Allocating scalars in ImageData");
-    abort();
+    //vtkDebugMacro("Allocating scalars in ImageData");
+    //abort();
     //this->AllocateScalars();
+    return nullptr;
   }
   return this->PointData->GetScalars()->GetVoidPointer(0);
 }
