@@ -1415,7 +1415,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
   // the intersection of T1 and Pi2 and the intersection of T2 and Pi1 overlap.
   // This is done by checking the following predicate:
   // Determinant(p1,q1,p2,q2) <= 0. ^ Determinant(p1,r1,r2,p2) <= 0.
-  if ((Determinant( p1, q1, p2, q2 ) <= 0.) *
+  if ((Determinant( p1, q1, p2, q2 ) <= 0.) &&
       (Determinant( p1, r1, r2, p2 ) <= 0.))
   {
     return 1;
