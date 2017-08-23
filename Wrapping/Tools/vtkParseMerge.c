@@ -208,11 +208,83 @@ void vtkParseMerge_FreeMergeInfo(MergeInfo *info)
 }
 
 /* merge a function */
-static void merge_function(FunctionInfo *merge, const FunctionInfo *func)
+static void merge_function(
+  FileInfo *finfo, FunctionInfo *merge, const FunctionInfo *func)
 {
+  /* virtuality is inherited */
   if (func->IsVirtual)
   {
     merge->IsVirtual = 1;
+  }
+
+  /* contracts are inherited */
+  if (merge->NumberOfPreconds == 0)
+  {
+    int i, j;
+    for (i = 0; i < func->NumberOfPreconds; i++)
+    {
+      StringTokenizer t;
+      int qualified = 0;
+      char text[512];
+      size_t l = 0;
+
+      /* tokenize the contract code according to C/C++ rules */
+      vtkParse_InitTokenizer(&t, func->Preconds[i], WS_DEFAULT);
+      do
+      {
+        int matched = 0;
+
+        /* check for unqualified identifiers */
+        if (t.tok == TOK_ID && !qualified)
+        {
+          /* check if the unqualified identifier is a parameter name */
+          for (j = 0; j < func->NumberOfParameters; j++)
+          {
+            ValueInfo *arg = func->Parameters[j];
+            const char *name = arg->Name;
+            if (name && strlen(name) == t.len &&
+                strncmp(name, t.text, t.len) == 0)
+            {
+              matched = 1;
+              name = merge->Parameters[j]->Name;
+              if (name)
+              {
+                /* change it to the new parameter name */
+                l += sprintf(&text[l], "%s", name);
+              }
+              else
+              {
+                /* parameter has no name, use a number */
+                l += sprintf(&text[l], "(#%d)", j);
+              }
+              break;
+            }
+          }
+        }
+
+        if (!matched)
+        {
+          strncpy(&text[l], t.text, t.len);
+          l += t.len;
+        }
+
+        /* if next character is whitespace, add a space */
+        if (vtkParse_CharType(t.text[t.len], CPRE_WHITE))
+        {
+          text[l++] = ' ';
+        }
+
+        /* check whether the next identifier is qualified */
+        qualified = (t.tok == TOK_SCOPE ||
+                     t.tok == TOK_ARROW ||
+                     t.tok == '.');
+      }
+      while (vtkParse_NextToken(&t));
+
+      vtkParse_AddStringToArray(
+        &merge->Preconds, &merge->NumberOfPreconds,
+        vtkParse_CacheString(finfo->Strings, text, l));
+    }
   }
 
   if (func->Comment && !merge->Comment)
@@ -481,7 +553,7 @@ int vtkParseMerge_Merge(
             {
               if (vtkParse_CompareFunctionSignature(f1, f2) != 0)
               {
-                merge_function(f2, func);
+                merge_function(finfo, f2, func);
                 vtkParseMerge_PushOverride(info, j, depth);
               }
             }

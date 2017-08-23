@@ -430,7 +430,7 @@ static void vtkWrapPython_SubstituteCode(
   {
     /* check whether we have found an unqualified identifier */
     matched = 0;
-    if (t.tok == TOK_ID && !qualified)
+    if ((t.tok == TOK_ID || t.tok == '#') && !qualified)
     {
       /* check for "this" */
       if (t.len == 4 && strncmp(t.text, "this", 4) == 0)
@@ -441,23 +441,40 @@ static void vtkWrapPython_SubstituteCode(
 
       if (!matched) /* check for parameters */
       {
-        for (j = 0; j < func->NumberOfParameters; j++)
+        ValueInfo *arg = NULL;
+
+        /* check for positional parameter "#n" */
+        if (t.tok == '#' && vtkParse_NextToken(&t) && t.tok == TOK_NUMBER)
         {
-          ValueInfo *arg = func->Parameters[j];
-          const char *name = arg->Name;
-          if (name && strlen(name) == t.len &&
-              strncmp(name, t.text, t.len) == 0)
+          j = (int)atol(t.text);
+          arg = func->Parameters[j];
+        }
+        else
+        {
+          for (j = 0; j < func->NumberOfParameters; j++)
           {
-            if (vtkWrap_IsSpecialObject(arg) && !vtkWrap_IsPointer(arg))
+            const char *name;
+            arg = func->Parameters[j];
+            name = arg->Name;
+            if (name && strlen(name) == t.len &&
+                strncmp(name, t.text, t.len) == 0)
             {
-              fprintf(fp, "(*temp%d)", j);
+              break;
             }
-            else
-            {
-              fprintf(fp, "temp%d", j);
-            }
-            matched = 1;
-            break;
+            arg = NULL;
+          }
+        }
+
+        if (arg)
+        {
+          matched = 1;
+          if (vtkWrap_IsSpecialObject(arg) && !vtkWrap_IsPointer(arg))
+          {
+            fprintf(fp, "(*temp%d)", j);
+          }
+          else
+          {
+            fprintf(fp, "temp%d", j);
           }
         }
       }

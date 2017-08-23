@@ -376,6 +376,27 @@ int vtkWrap_IsDestructor(ClassInfo *c, FunctionInfo *f)
   return 0;
 }
 
+int vtkWrap_IsInheritedMethod(ClassInfo *c, FunctionInfo *f)
+{
+  size_t l;
+  for (l = 0; c->Name[l]; l++)
+  {
+    /* ignore template args */
+    if (c->Name[l] == '<')
+    {
+      break;
+    }
+  }
+
+  if (f->Class &&
+      (strlen(f->Class) != l || strncmp(f->Class, c->Name, l) != 0))
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
 int vtkWrap_IsSetVectorMethod(FunctionInfo *f)
 {
   if (f->Macro && strncmp(f->Macro, "vtkSetVector", 12) == 0)
@@ -902,6 +923,32 @@ void vtkWrap_ApplyUsingDeclarations(
         0, NULL, NULL, data);
     }
   }
+}
+
+/* -------------------------------------------------------------------- */
+/* Merge superclass methods */
+void vtkWrap_MergeSuperClasses(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
+{
+  int n = data->NumberOfSuperClasses;
+  int i;
+  MergeInfo *info;
+
+  if (n == 0)
+  {
+    return;
+  }
+
+  info = vtkParseMerge_CreateMergeInfo(data);
+
+  for (i = 0; i < n; i++)
+  {
+    vtkParseMerge_MergeHelper(
+      finfo, finfo->Contents, hinfo, data->SuperClasses[i],
+      0, NULL, info, data);
+  }
+
+  vtkParseMerge_FreeMergeInfo(info);
 }
 
 /* -------------------------------------------------------------------- */
