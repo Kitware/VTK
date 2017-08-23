@@ -737,7 +737,6 @@ protected:
   bool Log;
   int AxisType;
   int AxisPosition;
-  double Bounds[6];
 
   // coordinate system for axisAxtor, relative to world coordinates
   double AxisBaseForX[3];
