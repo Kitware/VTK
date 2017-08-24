@@ -1654,7 +1654,7 @@ struct ScalarRangeDispatchWrapper
   void operator()(ArrayT *array)
   {
     this->Success = vtkDataArrayPrivate::DoComputeScalarRange(array,
-                                                              this->Range);
+                                                              this->Range, vtkDataArrayPrivate::AllValues());
   }
 
 };
@@ -1670,7 +1670,7 @@ struct VectorRangeDispatchWrapper
   void operator()(ArrayT *array)
   {
     this->Success = vtkDataArrayPrivate::DoComputeVectorRange(array,
-                                                              this->Range);
+                                                              this->Range, vtkDataArrayPrivate::AllValues());
   }
 
 };
@@ -1685,8 +1685,7 @@ struct FiniteScalarRangeDispatchWrapper {
   template <typename ArrayT>
   void operator()(ArrayT *array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeScalarFiniteRange(array,
-                                                              this->Range);
+    this->Success = vtkDataArrayPrivate::DoComputeScalarRange(array, this->Range, vtkDataArrayPrivate::FiniteValues());
   }
 };
 
@@ -1698,8 +1697,7 @@ struct FiniteVectorRangeDispatchWrapper {
 
   template <typename ArrayT> void operator()(ArrayT *array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeVectorFiniteRange(array,
-                                                              this->Range);
+    this->Success = vtkDataArrayPrivate::DoComputeVectorRange(array, this->Range, vtkDataArrayPrivate::FiniteValues());
   }
 };
 
