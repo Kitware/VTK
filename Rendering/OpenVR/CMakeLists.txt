@@ -2,8 +2,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
 
 find_package(OpenVR REQUIRED)
 
-find_package(SDL2 REQUIRED)
-
 set(Module_SRCS
   vtkOpenVRCamera.cxx
   vtkOpenVRControlsHelper.cxx
@@ -95,11 +93,12 @@ if (VTK_OPENVR_OBJECT_FACTORY)
     )
 endif()
 
-list(APPEND ${vtk-module}_SYSTEM_INCLUDE_DIRS ${OPENVR_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
+list(APPEND ${vtk-module}_SYSTEM_INCLUDE_DIRS ${OPENVR_INCLUDE_DIRS})
+
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${OPENVR_LIBRARY})
 
-vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${OPENVR_LIBRARY} ${SDL2_LIBRARY})
 
 include(vtkOpenGL)
 vtk_opengl_link(${vtk-module})
