@@ -237,8 +237,8 @@ protected:
   vtkActor           *ZPlusFaceActor;
   vtkActor           *ZMinusFaceActor;
 
-  vtkTransformFilter *TransformFilter;
-  vtkTransform       *Transform;
+  vtkTransformFilter *InternalTransformFilter;
+  vtkTransform       *InternalTransform;
 
   vtkAssembly        *Assembly;
 
