@@ -40,6 +40,7 @@ vtkFramebufferPass::vtkFramebufferPass()
   this->ColorTexture = vtkTextureObject::New();
   this->DepthTexture = vtkTextureObject::New();
   this->DepthFormat = vtkTextureObject::Float32;
+  this->ColorFormat = vtkTextureObject::Fixed8;
 }
 
 // ----------------------------------------------------------------------------
@@ -108,6 +109,16 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
   this->ColorTexture->SetContext(renWin);
   if (!this->ColorTexture->GetHandle())
   {
+    if (this->ColorFormat == vtkTextureObject::Float16)
+    {
+      this->ColorTexture->SetInternalFormat(GL_RGBA16F);
+      this->ColorTexture->SetDataType(GL_FLOAT);
+    }
+    if (this->ColorFormat == vtkTextureObject::Float32)
+    {
+      this->ColorTexture->SetInternalFormat(GL_RGBA32F);
+      this->ColorTexture->SetDataType(GL_FLOAT);
+    }
     this->ColorTexture->Create2D(
       this->ViewportWidth, this->ViewportHeight, 4,
       VTK_UNSIGNED_CHAR, false);

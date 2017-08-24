@@ -95,16 +95,6 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     "ClampToBorder"
   };
 
-  //----------------------------------------------------------------------------
-  static GLenum OpenGLAlphaInternalFormat[5]=
-  {
-    GL_R8,
-    GL_R8,
-    GL_R16,
-    GL_R16F,
-    GL_R32F
-  };
-
 #else
   //--------------------------------------------------------------------------
   static GLint OpenGLWrap[3]=
@@ -120,17 +110,6 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     "ClampToEdge",
     "Repeat",
     "MirroredRepeat"
-  };
-
-  //----------------------------------------------------------------------------
-  // Should be GL_RED but that requires an extension for ES 2.0
-  static GLenum OpenGLAlphaInternalFormat[5]=
-  {
-    GL_LUMINANCE,
-    GL_LUMINANCE,
-    GL_LUMINANCE,
-    GL_LUMINANCE,
-    GL_LUMINANCE
   };
 
 #endif
@@ -167,51 +146,46 @@ static const char *MinMagFilterAsString[6]=
 };
 
 //----------------------------------------------------------------------------
-static GLenum OpenGLDepthInternalFormat[5]=
+static GLenum OpenGLDepthInternalFormat[7]=
 {
-  GL_DEPTH_COMPONENT,
-  GL_DEPTH_COMPONENT16,
+  GL_DEPTH_COMPONENT, // native
+  GL_DEPTH_COMPONENT, // fixed8
+  GL_DEPTH_COMPONENT16, //fixed16
 #ifdef GL_DEPTH_COMPONENT24
-  GL_DEPTH_COMPONENT24,
+  GL_DEPTH_COMPONENT24, //fixed24
 #else
   GL_DEPTH_COMPONENT16,
 #endif
 #ifdef GL_DEPTH_COMPONENT32
-  GL_DEPTH_COMPONENT32,
+  GL_DEPTH_COMPONENT32, // fixed32
 #else
   GL_DEPTH_COMPONENT16,
 #endif
 #ifdef GL_DEPTH_COMPONENT32F
-  GL_DEPTH_COMPONENT32F
+  GL_DEPTH_COMPONENT32F, // float16
+  GL_DEPTH_COMPONENT32F  // float32
 #else
+  GL_DEPTH_COMPONENT16,
   GL_DEPTH_COMPONENT16
 #endif
 };
 
 //----------------------------------------------------------------------------
-static GLenum OpenGLDepthInternalFormatType[5]=
+static GLenum OpenGLDepthInternalFormatType[7]=
 {
+  GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
 #ifdef GL_DEPTH_COMPONENT32F
+  GL_FLOAT,
   GL_FLOAT
 #else
+  GL_UNSIGNED_INT,
   GL_UNSIGNED_INT
 #endif
 };
-
-/*
-static const char *DepthInternalFormatFilterAsString[6]=
-{
-  "Native",
-  "Fixed16",
-  "Fixed24",
-  "Fixed32",
-  "Float32"
-};
-*/
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTextureObject);
@@ -1158,57 +1132,6 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
 
-  this->Deactivate();
-  return true;
-}
-
-// ----------------------------------------------------------------------------
-// Description:
-// Create a 1D alpha texture using a raw pointer.
-// This is a blocking call. If you can, use PBO instead.
-bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
-                                          int internalFormat,
-                                          int rawType,
-                                          void* raw)
-{
-  assert("pre: context_exists" && this->GetContext()!=nullptr);
-  assert("pre: raw_exists" && raw!=nullptr);
-
-  assert("pre: valid_internalFormat" && internalFormat>=0
-         && internalFormat<NumberOfAlphaFormats);
-
-  // Now, detemine texture parameters using the arguments.
-  this->GetDataType(rawType);
-
-  if (!this->InternalFormat)
-  {
-    this->InternalFormat
-      = OpenGLAlphaInternalFormat[internalFormat];
-  }
-
-  if (!this->InternalFormat || !this->Type)
-  {
-    vtkErrorMacro("Failed to detemine texture parameters.");
-    return false;
-  }
-
-  this->Target = GL_TEXTURE_1D;
-  this->Format = GL_RED;
-  this->Width = width;
-  this->Height = 1;
-  this->Depth = 1;
-  this->NumberOfDimensions = 1;
-  this->Components = 1;
-
-  this->Context->ActivateTexture(this);
-  this->CreateTexture();
-  this->Bind();
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
-               static_cast<GLsizei>(this->Width), 0,
-               this->Format, this->Type, raw);
-  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
   this->Deactivate();
   return true;
 }
@@ -2260,6 +2183,10 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "NumberOfDimensions: " << this->NumberOfDimensions << endl;
+
+  os << indent << "Format: " << this->Format << endl;
+  os << indent << "InternalFormat: " << this->InternalFormat << endl;
+  os << indent << "Type: " << this->Type << endl;
 
   os << indent << "WrapS: " << WrapAsString[this->WrapS] << endl;
   os << indent << "WrapT: " << WrapAsString[this->WrapT] << endl;

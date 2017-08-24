@@ -89,35 +89,17 @@ public:
     NumberOfMinificationModes
   };
 
-  // Internal depth format
+  // depth/color format
   enum
   {
     Native=0, // will try to match with the depth buffer format.
+    Fixed8,
     Fixed16,
     Fixed24,
     Fixed32,
+    Float16,
     Float32,
     NumberOfDepthFormats
-  };
-
-  // Internal alpha format
-  enum
-  {
-    alpha=0,
-    alpha8,
-    alpha16,
-    alpha16f,
-    alpha32f,
-    NumberOfAlphaFormats
-  };
-
-  // Depth mode formats
-  enum
-  {
-    DepthAlpha=0,
-    DepthLuminance,
-    DepthIntensity,
-    NumberOfDepthModeFormats
   };
 
   static vtkTextureObject* New();
@@ -270,14 +252,6 @@ public:
    */
   bool Create1DFromRaw(unsigned int width, int numComps,
                        int dataType, void *data);
-  /**
-   * Create a 1D alpha texture using a raw pointer.
-   * This is a blocking call. If you can, use PBO instead.
-   */
-  bool CreateAlphaFromRaw(unsigned int width,
-                          int internalFormat,
-                          int rawType,
-                          void *raw);
 #endif
 
   /**
