@@ -204,6 +204,7 @@ void vtkTexturedButtonRepresentation2D::PlaceWidget(double anchor[3], int size[2
 int vtkTexturedButtonRepresentation2D
 ::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
+  this->Balloon->SetRenderer(this->GetRenderer());
   if ( this->Balloon->ComputeInteractionState(X,Y) == vtkBalloonRepresentation::OnImage )
   {
     this->InteractionState = vtkButtonRepresentation::Inside;

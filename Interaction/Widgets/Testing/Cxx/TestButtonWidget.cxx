@@ -13,39 +13,34 @@
 
 =========================================================================*/
 #include "vtkActor.h"
+#include "vtkAppendPolyData.h"
+#include "vtkButtonWidget.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
+#include "vtkEllipticalButtonSource.h"
 #include "vtkGlyph3D.h"
-#include "vtkAppendPolyData.h"
-#include "vtkSphereSource.h"
-#include "vtkButtonWidget.h"
-#include "vtkTexturedButtonRepresentation.h"
-#include "vtkTexturedButtonRepresentation2D.h"
-#include "vtkProp3DButtonRepresentation.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
 #include "vtkLookupTable.h"
+#include "vtkOutlineSource.h"
+#include "vtkPNGReader.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPlatonicSolidSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProp3DButtonRepresentation.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkEllipticalButtonSource.h"
-#include "vtkTIFFReader.h"
-#include "vtkPNGReader.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolumeRayCastCompositeFunction.h"
-#include "vtkVolumeRayCastMapper.h"
-#include "vtkVolumeTextureMapper2D.h"
-#include "vtkVolume.h"
-#include "vtkOutlineSource.h"
-#include "vtkPlatonicSolidSource.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkStructuredPointsReader.h"
+#include "vtkTIFFReader.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexturedButtonRepresentation.h"
+#include "vtkTexturedButtonRepresentation2D.h"
 
-#define VTK_CREATE(type, name) \
+#define VTK_CREATE(type, name)                                                 \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 static char ButtonWidgetEventLog[] =
@@ -456,8 +451,7 @@ static char ButtonWidgetEventLog[] =
   "RenderEvent 66 147 0 0 0 0 t\n"
   "MouseMoveEvent 66 147 0 0 0 0 t\n"
   "MouseMoveEvent 66 148 0 0 0 0 t\n"
-  "MouseMoveEvent 65 148 0 0 0 0 t\n"
-  ;
+  "MouseMoveEvent 65 148 0 0 0 0 t\n";
 
 // This does the actual work: updates the vtkPlane implicit function.
 // This in turn causes the pipeline to update and clip the object.
@@ -465,39 +459,45 @@ static char ButtonWidgetEventLog[] =
 class vtkButtonCallback : public vtkCommand
 {
 public:
-  static vtkButtonCallback *New()
-    { return new vtkButtonCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  static vtkButtonCallback* New()
   {
-      vtkButtonWidget *buttonWidget =
-        reinterpret_cast<vtkButtonWidget*>(caller);
-      vtkTexturedButtonRepresentation *rep =
-        reinterpret_cast<vtkTexturedButtonRepresentation*>
-        (buttonWidget->GetRepresentation());
-      int state = rep->GetState();
-      cout << "State: " << state << "\n";
-      this->Glyph->SetScaleFactor(0.05*(1+state));
+    return new vtkButtonCallback;
   }
-  vtkButtonCallback():Glyph(0) {}
-  vtkGlyph3D *Glyph;
+  virtual void Execute(vtkObject* caller, unsigned long, void*)
+  {
+    vtkButtonWidget* buttonWidget = reinterpret_cast<vtkButtonWidget*>(caller);
+    vtkTexturedButtonRepresentation* rep =
+      reinterpret_cast<vtkTexturedButtonRepresentation*>(
+        buttonWidget->GetRepresentation());
+    int state = rep->GetState();
+    cout << "State: " << state << "\n";
+    this->Glyph->SetScaleFactor(0.05 * (1 + state));
+  }
+  vtkButtonCallback()
+    : Glyph(0)
+  {
+  }
+  vtkGlyph3D* Glyph;
 };
 
-int TestButtonWidget(int argc, char *argv[] )
+int TestButtonWidget(int argc, char* argv[])
 {
   // Create an image for the button
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
   VTK_CREATE(vtkTIFFReader, image1);
   image1->SetFileName(fname);
-  image1->SetOrientationType( 4 );
+  image1->SetOrientationType(4);
   image1->Update();
-  delete [] fname;
+  delete[] fname;
 
   // Create an image for the button
-  char* fname2 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fran_cut.png");
+  char* fname2 =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fran_cut.png");
   VTK_CREATE(vtkPNGReader, image2);
   image2->SetFileName(fname2);
   image2->Update();
-  delete [] fname2;
+  delete[] fname2;
 
   // Create a mace out of filters.
   //
@@ -546,19 +546,24 @@ int TestButtonWidget(int argc, char *argv[] )
 
   VTK_CREATE(vtkTexturedButtonRepresentation, rep);
   rep->SetNumberOfStates(2);
-  rep->SetButtonTexture(0,image1->GetOutput());
-  rep->SetButtonTexture(1,image2->GetOutput());
+  rep->SetButtonTexture(0, image1->GetOutput());
+  rep->SetButtonTexture(1, image2->GetOutput());
   rep->SetButtonGeometryConnection(button->GetOutputPort());
   rep->SetPlaceFactor(1);
   double bds[6];
-  bds[0] = 0.6; bds[1] = 0.75; bds[2] = 0.6; bds[3] = 0.75; bds[4] = 0.6; bds[5] = 0.75;
+  bds[0] = 0.6;
+  bds[1] = 0.75;
+  bds[2] = 0.6;
+  bds[3] = 0.75;
+  bds[4] = 0.6;
+  bds[5] = 0.75;
   rep->PlaceWidget(bds);
   rep->FollowCameraOn();
 
   VTK_CREATE(vtkButtonWidget, buttonWidget);
   buttonWidget->SetInteractor(iren);
   buttonWidget->SetRepresentation(rep);
-  buttonWidget->AddObserver(vtkCommand::StateChangedEvent,myCallback);
+  buttonWidget->AddObserver(vtkCommand::StateChangedEvent, myCallback);
 
   // Another 3D button widget, this time use alternative PlaceWidget() method
   VTK_CREATE(vtkEllipticalButtonSource, button2);
@@ -572,50 +577,62 @@ int TestButtonWidget(int argc, char *argv[] )
 
   VTK_CREATE(vtkTexturedButtonRepresentation, rep2);
   rep2->SetNumberOfStates(2);
-  rep2->SetButtonTexture(0,image1->GetOutput());
-  rep2->SetButtonTexture(1,image2->GetOutput());
+  rep2->SetButtonTexture(0, image1->GetOutput());
+  rep2->SetButtonTexture(1, image2->GetOutput());
   rep2->SetButtonGeometryConnection(button2->GetOutputPort());
   rep2->SetPlaceFactor(1);
-  bds[0] = 0.0; bds[1] = 0.0; bds[2] = 0.65; bds[3] = 0.0; bds[4] = 0.0; bds[5] = 1;
-  rep2->PlaceWidget(0.5, bds, bds+3);
+  bds[0] = 0.0;
+  bds[1] = 0.0;
+  bds[2] = 0.65;
+  bds[3] = 0.0;
+  bds[4] = 0.0;
+  bds[5] = 1;
+  rep2->PlaceWidget(0.5, bds, bds + 3);
   rep2->FollowCameraOff();
 
   VTK_CREATE(vtkButtonWidget, buttonWidget2);
   buttonWidget2->SetInteractor(iren);
   buttonWidget2->SetRepresentation(rep2);
-  buttonWidget2->AddObserver(vtkCommand::StateChangedEvent,myCallback);
+  buttonWidget2->AddObserver(vtkCommand::StateChangedEvent, myCallback);
 
   // Okay now for the 2D version of the widget (in display space)
   VTK_CREATE(vtkTexturedButtonRepresentation2D, rep3);
   rep3->SetNumberOfStates(2);
-  rep3->SetButtonTexture(0,image1->GetOutput());
-  rep3->SetButtonTexture(1,image2->GetOutput());
+  rep3->SetButtonTexture(0, image1->GetOutput());
+  rep3->SetButtonTexture(1, image2->GetOutput());
   rep3->SetPlaceFactor(1);
-  bds[0] = 25; bds[1] = 65; bds[2] = 50; bds[3] = 200;
+  bds[0] = 25;
+  bds[1] = 65;
+  bds[2] = 50;
+  bds[3] = 200;
   rep3->PlaceWidget(bds);
 
   VTK_CREATE(vtkButtonWidget, buttonWidget3);
   buttonWidget3->SetInteractor(iren);
   buttonWidget3->SetRepresentation(rep3);
-  buttonWidget3->AddObserver(vtkCommand::StateChangedEvent,myCallback);
+  buttonWidget3->AddObserver(vtkCommand::StateChangedEvent, myCallback);
 
   // Okay now for the 2D version of the widget (in world space)
   VTK_CREATE(vtkTexturedButtonRepresentation2D, rep4);
   rep4->SetNumberOfStates(2);
-  rep4->SetButtonTexture(0,image1->GetOutput());
-  rep4->SetButtonTexture(1,image2->GetOutput());
+  rep4->SetButtonTexture(0, image1->GetOutput());
+  rep4->SetButtonTexture(1, image2->GetOutput());
   rep4->SetPlaceFactor(1);
-  bds[0] = 0.75; bds[1] = 0; bds[2] = 0;
-  int size[2]; size[0] = 25; size[1] = 45;
-  rep4->PlaceWidget(bds,size);
+  bds[0] = 0.75;
+  bds[1] = 0;
+  bds[2] = 0;
+  int size[2];
+  size[0] = 25;
+  size[1] = 45;
+  rep4->PlaceWidget(bds, size);
 
   VTK_CREATE(vtkButtonWidget, buttonWidget4);
   buttonWidget4->SetInteractor(iren);
   buttonWidget4->SetRepresentation(rep4);
-  buttonWidget4->AddObserver(vtkCommand::StateChangedEvent,myCallback);
+  buttonWidget4->AddObserver(vtkCommand::StateChangedEvent, myCallback);
 
   // Finally now a set of vtkProp3D's to define a vtkProp3DButtonRepresentation
-  VTK_CREATE(vtkLookupTable,lut);
+  VTK_CREATE(vtkLookupTable, lut);
   lut->SetNumberOfColors(20);
   lut->Build();
   lut->SetTableValue(0, 1, 0, 0, 1);
@@ -640,141 +657,72 @@ int TestButtonWidget(int argc, char *argv[] )
   lut->SetTableValue(19, 0.8667, 0.6275, 0.8667, 1.0);
   lut->SetTableRange(0, 19);
 
-  VTK_CREATE(vtkPlatonicSolidSource,tet);
+  VTK_CREATE(vtkPlatonicSolidSource, tet);
   tet->SetSolidTypeToTetrahedron();
-  VTK_CREATE(vtkPolyDataMapper,tetMapper);
+  VTK_CREATE(vtkPolyDataMapper, tetMapper);
   tetMapper->SetInputConnection(tet->GetOutputPort());
   tetMapper->SetLookupTable(lut);
-  tetMapper->SetScalarRange(0,19);
-  VTK_CREATE(vtkActor,tetActor);
+  tetMapper->SetScalarRange(0, 19);
+  VTK_CREATE(vtkActor, tetActor);
   tetActor->SetMapper(tetMapper);
 
-  VTK_CREATE(vtkPlatonicSolidSource,cube);
+  VTK_CREATE(vtkPlatonicSolidSource, cube);
   cube->SetSolidTypeToCube();
-  VTK_CREATE(vtkPolyDataMapper,cubeMapper);
+  VTK_CREATE(vtkPolyDataMapper, cubeMapper);
   cubeMapper->SetInputConnection(cube->GetOutputPort());
   cubeMapper->SetLookupTable(lut);
-  cubeMapper->SetScalarRange(0,19);
-  VTK_CREATE(vtkActor,cubeActor);
+  cubeMapper->SetScalarRange(0, 19);
+  VTK_CREATE(vtkActor, cubeActor);
   cubeActor->SetMapper(cubeMapper);
 
-  VTK_CREATE(vtkPlatonicSolidSource,oct);
+  VTK_CREATE(vtkPlatonicSolidSource, oct);
   oct->SetSolidTypeToOctahedron();
-  VTK_CREATE(vtkPolyDataMapper,octMapper);
+  VTK_CREATE(vtkPolyDataMapper, octMapper);
   octMapper->SetInputConnection(oct->GetOutputPort());
   octMapper->SetLookupTable(lut);
-  octMapper->SetScalarRange(0,19);
-  VTK_CREATE(vtkActor,octActor);
+  octMapper->SetScalarRange(0, 19);
+  VTK_CREATE(vtkActor, octActor);
   octActor->SetMapper(octMapper);
 
-  VTK_CREATE(vtkPlatonicSolidSource,ico);
+  VTK_CREATE(vtkPlatonicSolidSource, ico);
   ico->SetSolidTypeToIcosahedron();
-  VTK_CREATE(vtkPolyDataMapper,icoMapper);
+  VTK_CREATE(vtkPolyDataMapper, icoMapper);
   icoMapper->SetInputConnection(ico->GetOutputPort());
   icoMapper->SetLookupTable(lut);
-  icoMapper->SetScalarRange(0,19);
-  VTK_CREATE(vtkActor,icoActor);
+  icoMapper->SetScalarRange(0, 19);
+  VTK_CREATE(vtkActor, icoActor);
   icoActor->SetMapper(icoMapper);
 
-  VTK_CREATE(vtkPlatonicSolidSource,dode);
+  VTK_CREATE(vtkPlatonicSolidSource, dode);
   dode->SetSolidTypeToDodecahedron();
-  VTK_CREATE(vtkPolyDataMapper,dodeMapper);
+  VTK_CREATE(vtkPolyDataMapper, dodeMapper);
   dodeMapper->SetInputConnection(dode->GetOutputPort());
   dodeMapper->SetLookupTable(lut);
-  dodeMapper->SetScalarRange(0,19);
-  VTK_CREATE(vtkActor,dodeActor);
+  dodeMapper->SetScalarRange(0, 19);
+  VTK_CREATE(vtkActor, dodeActor);
   dodeActor->SetMapper(dodeMapper);
 
   VTK_CREATE(vtkProp3DButtonRepresentation, rep5);
   rep5->SetNumberOfStates(5);
-  rep5->SetButtonProp(0,tetActor);
-  rep5->SetButtonProp(1,cubeActor);
-  rep5->SetButtonProp(2,octActor);
-  rep5->SetButtonProp(3,icoActor);
-  rep5->SetButtonProp(4,dodeActor);
+  rep5->SetButtonProp(0, tetActor);
+  rep5->SetButtonProp(1, cubeActor);
+  rep5->SetButtonProp(2, octActor);
+  rep5->SetButtonProp(3, icoActor);
+  rep5->SetButtonProp(4, dodeActor);
   rep5->SetPlaceFactor(1);
-  bds[0] = 0.65; bds[1] = 0.75; bds[2] = -0.75; bds[3] = -0.65; bds[4] = 0.65; bds[5] = 0.75;
+  bds[0] = 0.65;
+  bds[1] = 0.75;
+  bds[2] = -0.75;
+  bds[3] = -0.65;
+  bds[4] = 0.65;
+  bds[5] = 0.75;
   rep5->PlaceWidget(bds);
   rep5->FollowCameraOn();
 
   VTK_CREATE(vtkButtonWidget, buttonWidget5);
   buttonWidget5->SetInteractor(iren);
   buttonWidget5->SetRepresentation(rep5);
-  buttonWidget5->AddObserver(vtkCommand::StateChangedEvent,myCallback);
-
-  // A volume rendered button!
-  // Create the reader for the data
-  char* fname3 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
-  VTK_CREATE(vtkStructuredPointsReader, reader);
-  reader->SetFileName(fname3);
-  delete [] fname3;
-
-  // Create transfer mapping scalar value to opacity
-  VTK_CREATE(vtkPiecewiseFunction, opacityTransferFunction);
-  opacityTransferFunction->AddPoint(20,0);
-  opacityTransferFunction->AddPoint(255,1);
-
-  // Create transfer mapping scalar value to color
-  VTK_CREATE(vtkColorTransferFunction, colorTransferFunction);
-  colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
-  colorTransferFunction->AddRGBPoint(64.0, 1.0, 0.0, 0.0);
-  colorTransferFunction->AddRGBPoint(128.0, 0.0, 0.0, 1.0);
-  colorTransferFunction->AddRGBPoint(192.0, 0.0, 1.0, 0.0);
-  colorTransferFunction->AddRGBPoint(255.0, 0.0, 0.2, 0.0);
-
-  // The property describes how the data will look
-  VTK_CREATE(vtkVolumeProperty, volumeProperty);
-  volumeProperty->SetColor(colorTransferFunction);
-  volumeProperty->SetScalarOpacity(opacityTransferFunction);
-  volumeProperty->ShadeOn();
-  volumeProperty->SetInterpolationTypeToLinear();
-
-  // The mapper / ray cast function know how to render the data
-  VTK_CREATE(vtkVolumeTextureMapper2D, volumeMapper);
-  volumeMapper->SetInputConnection(reader->GetOutputPort());
-
-  // The volume holds the mapper and the property and
-  // can be used to position/orient the volume
-  VTK_CREATE(vtkVolume, volume);
-  volume->SetMapper(volumeMapper);
-  volume->SetProperty(volumeProperty);
-
-  // Create transfer mapping scalar value to color
-  VTK_CREATE(vtkColorTransferFunction, colorTransferFunction2);
-  colorTransferFunction2->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
-  colorTransferFunction2->AddRGBPoint(64.0, 0.0, 0.0, 1.0);
-  colorTransferFunction2->AddRGBPoint(128.0, 1.0, 0.0, 1.0);
-  colorTransferFunction2->AddRGBPoint(192.0, 0.5, 0.0, 0.5);
-  colorTransferFunction2->AddRGBPoint(255.0, 0.2, 0.0, 0.2);
-
-  // The property describes how the data will look
-  VTK_CREATE(vtkVolumeProperty, volumeProperty2);
-  volumeProperty2->SetColor(colorTransferFunction2);
-  volumeProperty2->SetScalarOpacity(opacityTransferFunction);
-  volumeProperty2->ShadeOn();
-  volumeProperty2->SetInterpolationTypeToLinear();
-
-  // The mapper / ray cast function know how to render the data
-  VTK_CREATE(vtkVolumeTextureMapper2D, volumeMapper2);
-  volumeMapper2->SetInputConnection(reader->GetOutputPort());
-
-  VTK_CREATE(vtkVolume, volume2);
-  volume2->SetMapper(volumeMapper2);
-  volume2->SetProperty(volumeProperty2);
-
-  VTK_CREATE(vtkProp3DButtonRepresentation, rep6);
-  rep6->SetNumberOfStates(2);
-  rep6->SetButtonProp(0,volume);
-  rep6->SetButtonProp(1,volume2);
-  rep6->SetPlaceFactor(1);
-  bds[0] = -0.75; bds[1] = -0.35; bds[2] = 0.6; bds[3] = 1; bds[4] = -1; bds[5] = -0.6;
-  rep6->PlaceWidget(bds);
-  rep6->FollowCameraOn();
-
-  VTK_CREATE(vtkButtonWidget, buttonWidget6);
-  buttonWidget6->SetInteractor(iren);
-  buttonWidget6->SetRepresentation(rep6);
-  buttonWidget6->AddObserver(vtkCommand::StateChangedEvent,myCallback);
+  buttonWidget5->AddObserver(vtkCommand::StateChangedEvent, myCallback);
 
   // Outline is for debugging
   VTK_CREATE(vtkOutlineSource, outline);
@@ -787,7 +735,7 @@ int TestButtonWidget(int argc, char *argv[] )
   outlineActor->SetMapper(outlineMapper);
 
   ren1->AddActor(maceActor);
-//  ren1->AddActor(outlineActor); //used for debugging
+  //  ren1->AddActor(outlineActor); //used for debugging
 
   // Add the actors to the renderer, set the background and size
   //
@@ -798,8 +746,8 @@ int TestButtonWidget(int argc, char *argv[] )
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
-//  recorder->SetFileName("record.log");
-//  recorder->Record();
+  //  recorder->SetFileName("record.log");
+  //  recorder->Record();
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(ButtonWidgetEventLog);
   recorder->EnabledOn();
@@ -813,7 +761,6 @@ int TestButtonWidget(int argc, char *argv[] )
   buttonWidget3->EnabledOn();
   buttonWidget4->EnabledOn();
   buttonWidget5->EnabledOn();
-  buttonWidget6->EnabledOn();
   recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
