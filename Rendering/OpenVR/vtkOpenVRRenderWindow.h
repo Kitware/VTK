@@ -42,8 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
 
-#define SDL_MAIN_HANDLED
-#include <SDL.h> // for ivars
 #include <openvr.h> // for ivars
 #include <vector> // ivars
 #include "vtkOpenGLHelper.h" // used for ivars
@@ -236,11 +234,6 @@ public:
   virtual  int GetEventPending() { return 0;};
 
   /**
-   * Clean up device contexts, rendering contexts, etc.
-   */
-  void Clean();
-
-  /**
    * Get the current size of the screen in pixels.
    */
   virtual int *GetScreenSize();
@@ -265,11 +258,11 @@ public:
   void SetWindowInfo(char *) {};
   void SetNextWindowInfo(char *) {};
   void SetParentInfo(char *) {};
-  virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
-  virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
+  virtual void *GetGenericDisplayId() {return (void *)this->HelperWindow->GetGenericDisplayId();};
+  virtual void *GetGenericWindowId()  {return (void *)this->HelperWindow->GetGenericWindowId();};
   virtual void *GetGenericParentId()  {return (void *)nullptr;};
-  virtual void *GetGenericContext()   {return (void *)this->ContextId;};
-  virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
+  virtual void *GetGenericContext() { return (void *)this->HelperWindow->GetGenericContext(); };
+  virtual void *GetGenericDrawable()  {return (void *)this->HelperWindow->GetGenericDrawable();};
   virtual void SetDisplayId(void *) {};
   void  SetWindowId(void *) {};
   void  SetParentId(void *) {};
@@ -303,8 +296,6 @@ protected:
   virtual void CreateAWindow() {};
   virtual void DestroyWindow() {};
 
-  SDL_Window *WindowId;
-  SDL_GLContext ContextId;
   std::string m_strDriver;
   std::string m_strDisplay;
   vr::IVRSystem *HMD;
@@ -349,6 +340,9 @@ protected:
   vtkOpenVROverlay *DashboardOverlay;
 
   bool TrackHMD;
+
+  vtkOpenGLRenderWindow *HelperWindow;
+
 
 private:
   vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) VTK_DELETE_FUNCTION;

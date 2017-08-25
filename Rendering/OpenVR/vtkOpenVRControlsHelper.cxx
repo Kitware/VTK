@@ -439,7 +439,7 @@ void vtkOpenVRControlsHelper::BuildRepresentation()
   double PPI = 450;//Screen resolution in pixels per inch
   double FontSizeFactor = 1.0 / PPI;//Map font size to world coordinates
 
-  double textSize[2] = {(bbox[1] - bbox[0]), (bbox[3] - bbox[2])};
+  double textSize[2] = {static_cast<double>(bbox[1] - bbox[0]), static_cast<double>(bbox[3] - bbox[2])};
 
   double textFrameWidth = this->TextActor->GetTextProperty()->GetFrameWidth();
 
