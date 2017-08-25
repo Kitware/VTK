@@ -152,7 +152,6 @@ protected:
   int StartPosition[2];
   int EndPosition[2];
   int DraggingRubberBandBoxState;
-  double MotionFactor;
   vtkUnsignedCharArray *PixelArray;
   int PixelDims[2];
   bool LockHeading;
