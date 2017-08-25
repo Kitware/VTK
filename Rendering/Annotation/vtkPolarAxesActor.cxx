@@ -49,11 +49,6 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Bounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
-
   os << indent << "ScreenSize: " << this->ScreenSize << "\n";
 
   os << indent << "Number Of Radial Axes: " << this->NumberOfRadialAxes << endl;
