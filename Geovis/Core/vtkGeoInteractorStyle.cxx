@@ -85,7 +85,6 @@ vtkGeoInteractorStyle::vtkGeoInteractorStyle()
   this->EndPosition[0] = this->EndPosition[1] = 0;
   this->PixelArray = vtkUnsignedCharArray::New();
   this->PixelDims[0] = this->PixelDims[1] = 0;
-  this->MotionFactor   = 10.0;
 
   // Rubberband zoom has a verification stage.
   this->RubberBandExtent[0] = this->RubberBandExtent[1] = 0;
