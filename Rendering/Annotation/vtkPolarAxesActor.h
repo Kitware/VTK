@@ -905,11 +905,6 @@ protected:
    */
   double SmallestVisiblePolarAngle;
 
-  /**
-   * Explicit actor bounds
-   */
-  double Bounds[6];
-
   // Structures for principal polar arc
   vtkPolyData* PolarArcs;
   vtkPolyDataMapper* PolarArcsMapper;
