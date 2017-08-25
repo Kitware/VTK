@@ -598,6 +598,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA8;
         }
       }
+      break;
 
     case VTK_UNSIGNED_CHAR:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
@@ -628,6 +629,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA8;
         }
       }
+      break;
 
     case VTK_SHORT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
@@ -676,6 +678,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA16;
         }
       }
+      break;
 
     case VTK_UNSIGNED_SHORT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
@@ -724,6 +727,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA16;
         }
       }
+      break;
 
     case VTK_INT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
@@ -768,6 +772,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           return 0;
         }
       }
+      break;
 
     case VTK_UNSIGNED_INT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
@@ -812,6 +817,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           return 0;
         }
       }
+      break;
 
     case VTK_FLOAT:
       if(this->SupportsTextureFloat)
@@ -836,8 +842,11 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
         vtkGenericWarningMacro("Unsupported type!");
         return 0;
       }
+      break;
+
     case VTK_DOUBLE:
       vtkGenericWarningMacro("Unsupported type double!");
+      break;
   }
   return 0;
 }
