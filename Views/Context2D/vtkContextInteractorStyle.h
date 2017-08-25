@@ -166,7 +166,7 @@ protected:
   int                 ProcessingEvents;
   vtkMTimeType        LastSceneRepaintMTime;
 
-  int                 TimerId;
+  int                 SceneTimerId;
   bool                TimerCallbackInitialized;
 
 private:
