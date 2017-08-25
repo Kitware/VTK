@@ -376,11 +376,6 @@ protected:
                                float stopAngle);
 
   /**
-   * Store the width and height of the display devicen (in pixels).
-   */
-  int Geometry[2];
-
-  /**
    * We need to store a pointer to the renderer for the text rendering
    */
   vtkRenderer *Renderer;
