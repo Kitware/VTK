@@ -80,14 +80,11 @@ vtkAxisFollower::vtkAxisFollower() : vtkFollower()
 
   this->TextUpsideDown          = -1;
   this->VisibleAtCurrentViewAngle = -1;
-
-  this->InternalMatrix = vtkMatrix4x4::New();
 }
 
 //----------------------------------------------------------------------
 vtkAxisFollower::~vtkAxisFollower()
 {
-  this->InternalMatrix->Delete();
 }
 
 //----------------------------------------------------------------------
