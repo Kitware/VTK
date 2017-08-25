@@ -25,6 +25,7 @@ set(Module_SRCS
   vtkXMLPRectilinearGridReader.cxx
   vtkXMLPStructuredDataReader.cxx
   vtkXMLPStructuredGridReader.cxx
+  vtkXMLPTableReader.cxx
   vtkXMLPUnstructuredDataReader.cxx
   vtkXMLPUnstructuredGridReader.cxx
   vtkXMLReader.cxx

@@ -6,6 +6,7 @@ set(Module_SRCS
   vtkXMLPRectilinearGridWriter.cxx
   vtkXMLPStructuredDataWriter.cxx
   vtkXMLPStructuredGridWriter.cxx
+  vtkXMLPTableWriter.cxx
   vtkXMLPUnstructuredDataWriter.cxx
   vtkXMLPUnstructuredGridWriter.cxx
   vtkXMLPHierarchicalBoxDataWriter.cxx
