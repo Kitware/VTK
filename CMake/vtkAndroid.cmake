@@ -142,9 +142,12 @@ macro(crosscompile target api abi out_build_dir)
 endmacro()
 crosscompile(vtk-android "${ANDROID_NATIVE_API_LEVEL}" "${ANDROID_ARCH_ABI}" vtk_android_build_dir)
 
-add_test(NAME AndroidNative
-    WORKING_DIRECTORY ${vtk_android_build_dir}/Examples/Android/NativeVTK/bin
-    COMMAND ${CMAKE_COMMAND}
-    -DWORKINGDIR=${vtk_android_build_dir}/Examples/Android/NativeVTK/bin
-    -P ${CMAKE_CURRENT_SOURCE_DIR}/Examples/Android/NativeVTK/runtest.cmake
-  )
+# Having issues getting the test to run after some
+# changes on the device we use for testing
+#
+# add_test(NAME AndroidNative
+#     WORKING_DIRECTORY ${vtk_android_build_dir}/Examples/Android/NativeVTK/bin
+#     COMMAND ${CMAKE_COMMAND}
+#     -DWORKINGDIR=${vtk_android_build_dir}/Examples/Android/NativeVTK/bin
+#     -P ${CMAKE_CURRENT_SOURCE_DIR}/Examples/Android/NativeVTK/runtest.cmake
+#   )
