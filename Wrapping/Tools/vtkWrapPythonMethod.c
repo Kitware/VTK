@@ -402,8 +402,14 @@ static void vtkWrapPython_GetAllParameters(
     if (arg->CountHint)
     {
       fprintf(fp, " &&\n"
-              "      ap.CheckSizeHint(%d, size%d, op->%s)",
-              i, i, arg->CountHint);
+              "      ap.CheckSizeHint(%d, size%d, ",
+              i, i);
+
+      /* write out the code that gives the size */
+      vtkWrapPython_SubstituteCode(fp, data, currentFunction,
+                                   arg->CountHint);
+
+      fprintf(fp, ")");
     }
 
     if (vtkWrap_IsFunction(arg))
@@ -1262,8 +1268,10 @@ void vtkWrapPython_GenerateOneMethod(
       if (theOccurrence->ReturnValue && theOccurrence->ReturnValue->CountHint)
       {
         fprintf(fp,
-            "    int sizer = op->%s;\n",
-            theOccurrence->ReturnValue->CountHint);
+            "    int sizer = ");
+        vtkWrapPython_SubstituteCode(fp, data, theOccurrence,
+                                     theOccurrence->ReturnValue->CountHint);
+        fprintf(fp, ";\n");
       }
 
       /* save a copy of all non-const array arguments */

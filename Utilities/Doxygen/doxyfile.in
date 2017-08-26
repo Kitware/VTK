@@ -188,4 +188,5 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_DELETE=delete" \
                "VTK_NEWINSTANCE=" \
                "VTK_ZEROCOPY=" \
-               "VTK_EXPECTS(x)="
+               "VTK_EXPECTS(x)=" \
+               "VTK_SIZEHINT(...)="

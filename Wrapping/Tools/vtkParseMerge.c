@@ -211,6 +211,8 @@ void vtkParseMerge_FreeMergeInfo(MergeInfo *info)
 static void merge_function(
   FileInfo *finfo, FunctionInfo *merge, const FunctionInfo *func)
 {
+  int i, j;
+
   /* virtuality is inherited */
   if (func->IsVirtual)
   {
@@ -220,7 +222,6 @@ static void merge_function(
   /* contracts are inherited */
   if (merge->NumberOfPreconds == 0)
   {
-    int i, j;
     for (i = 0; i < func->NumberOfPreconds; i++)
     {
       StringTokenizer t;
@@ -287,6 +288,41 @@ static void merge_function(
     }
   }
 
+  /* hints are inherited */
+  j = func->NumberOfParameters;
+  for (i = -1; i < j; i++)
+  {
+    ValueInfo *arg = merge->ReturnValue;
+    ValueInfo *arg2 = func->ReturnValue;
+    if (i >= 0)
+    {
+      arg = merge->Parameters[i];
+      arg2 = func->Parameters[i];
+    }
+    if (arg && arg2)
+    {
+      if (arg2->CountHint && !arg->CountHint)
+      {
+        arg->CountHint = arg2->CountHint;
+      }
+      else if (arg2->Count && !arg->Count)
+      {
+        arg->Count = arg2->Count;
+      }
+      /* attribute flags */
+      arg->Type |= (arg2->Type & VTK_PARSE_ATTRIBUTES);
+    }
+  }
+
+#ifndef VTK_PARSE_LEGACY_REMOVE
+  if (func->HaveHint && !merge->HaveHint)
+  {
+    merge->HaveHint = func->HaveHint;
+    merge->HintSize = func->HintSize;
+  }
+#endif
+
+  /* comments are inherited */
   if (func->Comment && !merge->Comment)
   {
     merge->Comment = func->Comment;

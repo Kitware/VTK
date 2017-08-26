@@ -1118,7 +1118,7 @@ void vtkWrap_DeclareVariable(
         !vtkWrap_IsPODPointer(val) &&
         !(vtkWrap_IsArray(val) && val->Value))
     {
-      if (val->NumberOfDimensions == 1 && val->Count > 0)
+      if (val->NumberOfDimensions <= 1 && val->Count > 0)
       {
         fprintf(fp, "[%d]", val->Count);
       }
