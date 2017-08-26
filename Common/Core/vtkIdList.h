@@ -52,7 +52,9 @@ public:
   /**
    * Return the id at location i.
    */
-  vtkIdType GetId(const vtkIdType i) {return this->Ids[i];};
+  vtkIdType GetId(const vtkIdType i)
+    VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
+    {return this->Ids[i];}
 
   /**
    * Specify the number of ids for this object to hold. Does an
@@ -65,13 +67,16 @@ public:
    * faster than InsertId. Make sure you use SetNumberOfIds() to allocate
    * memory prior to using SetId().
    */
-  void SetId(const vtkIdType i, const vtkIdType vtkid) {this->Ids[i] = vtkid;};
+  void SetId(const vtkIdType i, const vtkIdType vtkid)
+    VTK_EXPECTS(0 <= i && i < GetNumberOfIds())
+    {this->Ids[i] = vtkid;}
 
   /**
    * Set the id at location i. Does range checking and allocates memory
    * as necessary.
    */
-  void InsertId(const vtkIdType i, const vtkIdType vtkid);
+  void InsertId(const vtkIdType i, const vtkIdType vtkid)
+    VTK_EXPECTS(0 <= i);
 
   /**
    * Add the id specified to the end of the list. Range checking is performed.
