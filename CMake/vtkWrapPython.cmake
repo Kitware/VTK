@@ -125,6 +125,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
                 ${TMP_INPUT}
                 ${_args_file}
                 ${KIT_HIERARCHY_FILE}
+        IMPLICIT_DEPENDS CXX ${TMP_INPUT}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
                 @${_args_file}
                 -o ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
