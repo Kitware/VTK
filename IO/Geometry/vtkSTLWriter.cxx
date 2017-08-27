@@ -108,7 +108,7 @@ void vtkSTLWriter::WriteAsciiSTL(
 //  Write header
 //
   vtkDebugMacro("Writing ASCII sla file");
-  fprintf (fp, "solid ascii\n");
+  fprintf(fp, "solid ascii\n");
 
 //
 // Decompose any triangle strips into triangles
@@ -134,12 +134,12 @@ void vtkSTLWriter::WriteAsciiSTL(
 
     vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-    fprintf (fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
+    fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
              n[0], n[1], n[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
-    fprintf (fp, "  endloop\n endfacet\n");
+    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
+    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
+    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
+    fprintf(fp, "  endloop\n endfacet\n");
   }
 
   //  Write out triangle polygons.  If not a triangle polygon, report
@@ -161,22 +161,22 @@ void vtkSTLWriter::WriteAsciiSTL(
 
     vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-    fprintf (fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
+    fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
              n[0], n[1], n[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
-    fprintf (fp, "  endloop\n endfacet\n");
+    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
+    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
+    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
+    fprintf(fp, "  endloop\n endfacet\n");
   }
 
-  fprintf (fp, "endsolid\n");
+  fprintf(fp, "endsolid\n");
   if(fflush(fp))
   {
     fclose(fp);
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return;
   }
-  fclose (fp);
+  fclose(fp);
 }
 
 void vtkSTLWriter::WriteBinarySTL(
@@ -217,11 +217,11 @@ void vtkSTLWriter::WriteBinarySTL(
     snprintf(szHeader, sizeof(szHeader), "%s", this->Header);
   }
 
-  fwrite (szHeader, 1, 80, fp);
+  fwrite(szHeader, 1, 80, fp);
 
   ulint = (unsigned long int) polys->GetNumberOfCells();
   vtkByteSwap::Swap4LE(&ulint);
-  fwrite (&ulint, 1, 4, fp);
+  fwrite(&ulint, 1, 4, fp);
 
 //
 // Decompose any triangle strips into triangles
@@ -253,27 +253,27 @@ void vtkSTLWriter::WriteBinarySTL(
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    fwrite(n, 4, 3, fp);
 
     n[0] = (float)v1[0];  n[1] = (float)v1[1];  n[2] = (float)v1[2];
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    fwrite(n, 4, 3, fp);
 
     n[0] = (float)v2[0];  n[1] = (float)v2[1];  n[2] = (float)v2[2];
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    fwrite(n, 4, 3, fp);
 
     n[0] = (float)v3[0];  n[1] = (float)v3[1];  n[2] = (float)v3[2];
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    fwrite(n, 4, 3, fp);
 
-    fwrite (&ibuff2, 2, 1, fp);
+    fwrite(&ibuff2, 2, 1, fp);
   }
 
   //  Write out triangle polygons.  In not a triangle polygon, report
@@ -301,26 +301,26 @@ void vtkSTLWriter::WriteBinarySTL(
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    fwrite(n, 4, 3, fp);
 
     n[0] = (float)v1[0];  n[1] = (float)v1[1];  n[2] = (float)v1[2];
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    fwrite(n, 4, 3, fp);
 
     n[0] = (float)v2[0];  n[1] = (float)v2[1];  n[2] = (float)v2[2];
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    fwrite(n, 4, 3, fp);
 
     n[0] = (float)v3[0];  n[1] = (float)v3[1];  n[2] = (float)v3[2];
     vtkByteSwap::Swap4LE(n);
     vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
-    fwrite (&ibuff2, 2, 1, fp);
+    fwrite(n, 4, 3, fp);
+    fwrite(&ibuff2, 2, 1, fp);
   }
   if(fflush(fp))
   {
@@ -328,7 +328,7 @@ void vtkSTLWriter::WriteBinarySTL(
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return;
   }
-  fclose (fp);
+  fclose(fp);
 }
 
 //----------------------------------------------------------------------------
