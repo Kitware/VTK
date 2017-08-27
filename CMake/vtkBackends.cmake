@@ -56,6 +56,16 @@ if(VTK_RENDERING_BACKEND STREQUAL "None" AND VTK_Group_Rendering)
   message(FATAL_ERROR "VTK_Group_Rendering is on when the rendering backend is set to None. Please either turn off the rendering group or set the rendering backend to a different value")
 endif()
 
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  if(NOT VTK_LEGACY_SILENT)
+    message(WARNING "
+=====================================================================
+VTK_RENDERING_BACKEND is set to `OpenGL`. `OpenGL` rendering backend is deprecated and will not be available in subsequent VTK versions. Please switch to using `OpenGL2` rendering backend.
+=====================================================================
+")
+  endif()
+endif()
+
 if (VTK_RENDERING_BACKEND STREQUAL "None")
   # with no backend make a dummy None modules
   vtk_module(vtkRenderingNone )
