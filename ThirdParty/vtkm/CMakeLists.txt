@@ -1,3 +1,8 @@
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vtk-m/CMakeLists.txt")
+  message(FATAL_ERROR "VTKm requested, but the VTKm submodule is not initialized.\n"
+    "Please run 'git submodule update --init --recursive' in the source directory.")
+endif()
+
 set(vtk_using_tbb OFF)
 set(vtkm_components_to_find Serial)
 if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
