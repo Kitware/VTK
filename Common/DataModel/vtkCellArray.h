@@ -101,7 +101,8 @@ public:
    * is encountered, 0 is returned. A value of 1 is returned whenever
    * npts and pts have been updated without error.
    */
-  int GetNextCell(vtkIdType& npts, vtkIdType* &pts);
+  int GetNextCell(vtkIdType& npts, vtkIdType* &pts)
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * A cell traversal methods that is more efficient than vtkDataSet traversal
@@ -129,7 +130,8 @@ public:
    * the internal array.
    */
   void GetCell(vtkIdType loc, vtkIdType &npts, vtkIdType* &pts)
-    VTK_EXPECTS(0 <= loc && loc < GetSize());
+    VTK_EXPECTS(0 <= loc && loc < GetSize())
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * Internal method used to retrieve a cell given an offset into
@@ -147,7 +149,8 @@ public:
    * Create a cell by specifying the number of points and an array of point
    * id's.  Return the cell id of the cell.
    */
-  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts);
+  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts)
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * Create a cell by specifying a list of point ids. Return the cell id of
@@ -211,7 +214,8 @@ public:
    * ReplaceCell.
    */
   void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts)
-    VTK_EXPECTS(0 <= loc && loc < GetSize());
+    VTK_EXPECTS(0 <= loc && loc < GetSize())
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * Returns the size of the largest cell. The size is the number of points
