@@ -80,21 +80,22 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints *points)
 // convert a vtkPoints array into a coordinate system
 vtkm::cont::CoordinateSystem Convert(vtkPoints *points)
 {
-  if (points->GetDataType() == VTK_FLOAT)
+  if (points)
   {
-    return deduce_container<vtkm::Float32>(points);
+    if (points->GetDataType() == VTK_FLOAT)
+    {
+      return deduce_container<vtkm::Float32>(points);
+    }
+    else if (points->GetDataType() == VTK_DOUBLE)
+    {
+      return deduce_container<vtkm::Float64>(points);
+    }
   }
-  else if (points->GetDataType() == VTK_DOUBLE)
-  {
-    return deduce_container<vtkm::Float64>(points);
-  }
-  else
-  {
-    // unsupported point set
-    typedef vtkm::Vec<vtkm::Float32, 3> Vec3;
-    Vec3 *xyz = NULL;
-    return vtkm::cont::CoordinateSystem("coords", xyz, 0);
-  }
+
+  // unsupported/null point set
+  typedef vtkm::Vec<vtkm::Float32, 3> Vec3;
+  Vec3 *xyz = NULL;
+  return vtkm::cont::CoordinateSystem("coords", xyz, 0);
 }
 
 //------------------------------------------------------------------------------
