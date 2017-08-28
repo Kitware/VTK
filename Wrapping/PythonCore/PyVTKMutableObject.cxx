@@ -41,59 +41,99 @@ static const char *PyVTKMutableObject_Doc =
 
 //--------------------------------------------------------------------
 // helper method: make sure than an object is usable
-static PyObject *PyVTKMutableObject_CompatibleObject(PyObject *opn)
+static PyObject *PyVTKMutableObject_CompatibleObject(
+  PyObject *self, PyObject *opn)
 {
-  PyNumberMethods *nb = Py_TYPE(opn)->tp_as_number;
-
-  if (PyFloat_Check(opn) ||
-      PyLong_Check(opn) ||
-#ifndef VTK_PY3K
-      PyInt_Check(opn) ||
-#endif
-#ifdef Py_USING_UNICODE
-      PyUnicode_Check(opn) ||
-#endif
-      PyBytes_Check(opn))
+  if (PyVTKMutableObject_Check(opn))
   {
-    Py_INCREF(opn);
-  }
-  else if (PyVTKMutableObject_Check(opn))
-  {
+    if (self == nullptr || Py_TYPE(opn) == Py_TYPE(self))
+    {
+      // correct type, so return it
+      opn = ((PyVTKMutableObject *)opn)->value;
+      Py_INCREF(opn);
+      return opn;
+    }
+    // get contents, do further compatibility checks
     opn = ((PyVTKMutableObject *)opn)->value;
-    Py_INCREF(opn);
-  }
-  else if (nb && nb->nb_index)
-  {
-    opn = nb->nb_index(opn);
-    if (opn == nullptr || (!PyLong_Check(opn)
-#ifndef VTK_PY3K
-        && !PyInt_Check(opn)
-#endif
-        ))
-    {
-      PyErr_SetString(PyExc_TypeError,
-                      "nb_index should return integer object");
-      return nullptr;
-    }
-  }
-  else if (nb && nb->nb_float)
-  {
-    opn = nb->nb_float(opn);
-    if (opn == nullptr || !PyFloat_Check(opn))
-    {
-      PyErr_SetString(PyExc_TypeError,
-                      "nb_float should return float object");
-      return nullptr;
-    }
-  }
-  else
-  {
-    PyErr_SetString(PyExc_TypeError,
-                    "a numeric or string object is required");
-    return nullptr;
   }
 
-  return opn;
+  // check if it is a string
+  if (self == nullptr || Py_TYPE(self) == &PyVTKMutableString_Type)
+  {
+    if (
+#ifdef Py_USING_UNICODE
+        PyUnicode_Check(opn) ||
+#endif
+        PyBytes_Check(opn))
+    {
+      Py_INCREF(opn);
+      return opn;
+    }
+  }
+
+  // check if it is a number
+  if (self == nullptr || Py_TYPE(self) == &PyVTKMutableNumber_Type)
+  {
+    if (PyFloat_Check(opn) ||
+#ifndef VTK_PY3K
+        PyInt_Check(opn) ||
+#endif
+        PyLong_Check(opn))
+    {
+      Py_INCREF(opn);
+      return opn;
+    }
+
+    // check if it has number protocol and suitable methods
+    PyNumberMethods *nb = Py_TYPE(opn)->tp_as_number;
+    if (nb)
+    {
+      if (nb->nb_index)
+      {
+        opn = nb->nb_index(opn);
+        if (opn == nullptr || (!PyLong_Check(opn)
+#ifndef VTK_PY3K
+            && !PyInt_Check(opn)
+#endif
+            ))
+        {
+          PyErr_SetString(PyExc_TypeError,
+                          "nb_index should return integer object");
+          return nullptr;
+        }
+        return opn;
+      }
+      else if (nb->nb_float)
+      {
+        opn = nb->nb_float(opn);
+        if (opn == nullptr || !PyFloat_Check(opn))
+        {
+          PyErr_SetString(PyExc_TypeError,
+                          "nb_float should return float object");
+          return nullptr;
+        }
+        return opn;
+      }
+    }
+  }
+
+  // set error message according to required type
+  const char *errmsg = "bad type";
+  if (self == nullptr)
+  {
+    errmsg = "a numeric or string object is required";
+  }
+  else if (Py_TYPE(self) == &PyVTKMutableString_Type)
+  {
+    errmsg = "a string object is required";
+  }
+  else if (Py_TYPE(self) == &PyVTKMutableNumber_Type)
+  {
+    errmsg = "a numeric object is required";
+  }
+
+  PyErr_SetString(PyExc_TypeError, errmsg);
+  return nullptr;
 }
 
 //--------------------------------------------------------------------
@@ -119,48 +159,12 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
   {
     PyObject **op = &((PyVTKMutableObject *)self)->value;
 
-    if (PyFloat_Check(val) ||
-#ifndef VTK_PY3K
-        PyInt_Check(val) ||
-#endif
-        PyLong_Check(val))
+    PyObject *result = PyVTKMutableObject_CompatibleObject(self, val);
+    if (result)
     {
-      if (PyFloat_Check(*op) ||
-#ifndef VTK_PY3K
-          PyInt_Check(*op) ||
-#endif
-          PyLong_Check(*op))
-      {
-        Py_DECREF(*op);
-        *op = val;
-        return 0;
-      }
-      PyErr_SetString(PyExc_TypeError,
-                      "cannot set a string mutable to a numeric value");
-    }
-    else if (
-#ifdef Py_USING_UNICODE
-        PyUnicode_Check(val) ||
-#endif
-        PyBytes_Check(val))
-    {
-      if (
-#ifdef Py_USING_UNICODE
-          PyUnicode_Check(*op) ||
-#endif
-          PyBytes_Check(*op))
-      {
-        Py_DECREF(*op);
-        *op = val;
-        return 0;
-      }
-      PyErr_SetString(PyExc_TypeError,
-                      "cannot set a numeric mutable to a string value");
-    }
-    else
-    {
-      PyErr_SetString(PyExc_TypeError,
-                      "a float, long, int, or string is required");
+      Py_DECREF(*op);
+      *op = result;
+      return 0;
     }
   }
   else
@@ -192,7 +196,7 @@ static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 
   if (PyArg_ParseTuple(args, "O:set", &opn))
   {
-    opn = PyVTKMutableObject_CompatibleObject(opn);
+    opn = PyVTKMutableObject_CompatibleObject(self, opn);
 
     if (opn)
     {
@@ -290,6 +294,13 @@ static int PyVTKMutableObject_##op(PyObject *ob) \
 { \
   ob = ((PyVTKMutableObject *)ob)->value; \
   return Py##prot##_##op(ob); \
+}
+
+#define REFOBJECT_INTFUNC2(prot, op) \
+static int PyVTKMutableObject_##op(PyObject *ob, PyObject *o) \
+{ \
+  ob = ((PyVTKMutableObject *)ob)->value; \
+  return Py##prot##_##op(ob, o); \
 }
 
 #define REFOBJECT_SIZEFUNC(prot, op) \
@@ -594,8 +605,65 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
 };
 
 
-// Disable sequence and mapping protocols until a subtype is made
-#if 0
+//--------------------------------------------------------------------
+static PyNumberMethods PyVTKMutableString_AsNumber = {
+  nullptr,               // nb_add
+  nullptr,               // nb_subtract
+  nullptr,               // nb_multiply
+#ifndef VTK_PY3K
+  nullptr,               // nb_divide
+#endif
+  PyVTKMutableObject_Remainder,              // nb_remainder
+  nullptr,               // nb_divmod
+  nullptr,               // nb_power
+  nullptr,               // nb_negative
+  nullptr,               // nb_positive
+  nullptr,               // nb_absolute
+  nullptr,               // nb_nonzero
+  nullptr,               // nb_invert
+  nullptr,               // nb_lshift
+  nullptr,               // nb_rshift
+  nullptr,               // nb_and
+  nullptr,               // nb_xor
+  nullptr,               // nb_or
+#ifndef VTK_PY3K
+  nullptr,               // nb_coerce
+  nullptr,               // nb_int
+  nullptr,               // nb_long
+#else
+  nullptr,               // nb_int
+  nullptr,               // nb_reserved
+#endif
+  nullptr,               // nb_float
+#ifndef VTK_PY3K
+  nullptr,               // nb_oct
+  nullptr,               // nb_hex
+#endif
+  nullptr,               // nb_inplace_add
+  nullptr,               // nb_inplace_subtract
+  nullptr,               // nb_inplace_multiply
+#ifndef VTK_PY3K
+  nullptr,               // nb_inplace_divide
+#endif
+  nullptr,               // nb_inplace_remainder
+  nullptr,               // nb_inplace_power
+  nullptr,               // nb_inplace_lshift
+  nullptr,               // nb_inplace_rshift
+  nullptr,               // nb_inplace_and
+  nullptr,               // nb_inplace_xor
+  nullptr,               // nb_inplace_or
+  nullptr,               // nb_floor_divide
+  nullptr,               // nb_true_divide
+  nullptr,               // nb_inplace_floor_divide
+  nullptr,               // nb_inplace_true_divide
+  nullptr,               // nb_index
+#if PY_VERSION_HEX >= 0x03050000
+  nullptr,               // nb_matrix_multiply
+  nullptr,               // nb_inplace_matrix_multiply
+#endif
+};
+
+
 //--------------------------------------------------------------------
 // Sequence protocol
 
@@ -603,12 +671,10 @@ REFOBJECT_SIZEFUNC(Sequence,Size)
 REFOBJECT_BINARYFUNC(Sequence,Concat)
 REFOBJECT_INDEXFUNC(Sequence,Repeat)
 REFOBJECT_INDEXFUNC(Sequence,GetItem)
+#ifndef VTK_PY3K
 REFOBJECT_SLICEFUNC(Sequence,GetSlice)
-REFOBJECT_INDEXSETFUNC(Sequence,SetItem)
-REFOBJECT_SLICESETFUNC(Sequence,SetSlice)
-
-REFOBJECT_INPLACEFUNC(Sequence,Concat)
-REFOBJECT_INPLACEIFUNC(Sequence,Repeat)
+#endif
+REFOBJECT_INTFUNC2(Sequence,Contains)
 
 //--------------------------------------------------------------------
 static PySequenceMethods PyVTKMutableObject_AsSequence = {
@@ -616,12 +682,16 @@ static PySequenceMethods PyVTKMutableObject_AsSequence = {
   PyVTKMutableObject_Concat,                 // sq_concat
   PyVTKMutableObject_Repeat,                 // sq_repeat
   PyVTKMutableObject_GetItem,                // sq_item
+#ifndef VTK_PY3K
   PyVTKMutableObject_GetSlice,               // sq_slice
-  PyVTKMutableObject_SetItem,                // sq_ass_item
-  PyVTKMutableObject_SetSlice,               // sq_ass_slice
-  0,                                         // sq_contains
-  PyVTKMutableObject_InPlaceConcat,          // sq_inplace_concat
-  PyVTKMutableObject_InPlaceRepeat,          // sq_inplace_repeat
+#else
+  nullptr,                                   // sq_slice
+#endif
+  nullptr,                                   // sq_ass_item
+  nullptr,                                   // sq_ass_slice
+  PyVTKMutableObject_Contains,               // sq_contains
+  nullptr,                                   // sq_inplace_concat
+  nullptr,                                   // sq_inplace_repeat
 };
 
 //--------------------------------------------------------------------
@@ -634,20 +704,12 @@ PyVTKMutableObject_GetMapItem(PyObject *ob, PyObject *key)
   return PyObject_GetItem(ob, key);
 }
 
-static int
-PyVTKMutableObject_SetMapItem(PyObject *ob, PyObject *key, PyObject *o)
-{
-  ob = ((PyVTKMutableObject *)ob)->value;
-  return PyObject_SetItem(ob, key, o);
-}
-
 //--------------------------------------------------------------------
 static PyMappingMethods PyVTKMutableObject_AsMapping = {
   PyVTKMutableObject_Size,                   // mp_length
   PyVTKMutableObject_GetMapItem,             // mp_subscript
-  PyVTKMutableObject_SetMapItem,             // mp_ass_subscript
+  nullptr,                                   // mp_ass_subscript
 };
-#endif
 
 //--------------------------------------------------------------------
 // Buffer protocol
@@ -826,6 +888,11 @@ static PyObject *PyVTKMutableObject_RichCompare(
   return PyObject_RichCompare(ob1, ob2, opid);
 }
 
+static PyObject *PyVTKMutableObject_GetIter(PyObject *ob)
+{
+  return PyObject_GetIter(((PyVTKMutableObject *)ob)->value);
+}
+
 static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
 {
   PyObject *a = PyObject_GenericGetAttr(self, attr);
@@ -888,11 +955,25 @@ static PyObject *PyVTKMutableObject_New(
 
   if (PyArg_ParseTuple(args, "O:mutable", &o))
   {
-    o = PyVTKMutableObject_CompatibleObject(o);
+    o = PyVTKMutableObject_CompatibleObject(nullptr, o);
 
     if (o)
     {
-      PyVTKMutableObject *self = PyObject_New(PyVTKMutableObject, &PyVTKMutableObject_Type);
+      PyVTKMutableObject *self;
+      if (
+#ifdef Py_USING_UNICODE
+        PyUnicode_Check(o) ||
+#endif
+        PyBytes_Check(o))
+      {
+        self = PyObject_New(PyVTKMutableObject,
+                            &PyVTKMutableString_Type);
+      }
+      else
+      {
+        self = PyObject_New(PyVTKMutableObject,
+                            &PyVTKMutableNumber_Type);
+      }
       self->value = o;
       return (PyObject *)self;
     }
@@ -913,9 +994,123 @@ PyTypeObject PyVTKMutableObject_Type = {
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
   PyVTKMutableObject_Repr,               // tp_repr
+  nullptr,                               // tp_as_number
+  nullptr,                               // tp_as_sequence
+  nullptr,                               // tp_as_mapping
+#if PY_VERSION_HEX >= 0x02060000
+  PyObject_HashNotImplemented,           // tp_hash
+#else
+  nullptr,                               // tp_hash
+#endif
+  nullptr,                               // tp_call
+  PyVTKMutableObject_Str,                // tp_string
+  PyVTKMutableObject_GetAttr,            // tp_getattro
+  nullptr,                               // tp_setattro
+  nullptr,                               // tp_as_buffer
+#ifndef VTK_PY3K
+  Py_TPFLAGS_CHECKTYPES |
+#endif
+  Py_TPFLAGS_DEFAULT,                    // tp_flags
+  PyVTKMutableObject_Doc,                // tp_doc
+  nullptr,                               // tp_traverse
+  nullptr,                               // tp_clear
+  PyVTKMutableObject_RichCompare,        // tp_richcompare
+  0,                                     // tp_weaklistoffset
+  nullptr,                               // tp_iter
+  nullptr,                               // tp_iternext
+  PyVTKMutableObject_Methods,            // tp_methods
+  nullptr,                               // tp_members
+  nullptr,                               // tp_getset
+  nullptr,                               // tp_base
+  nullptr,                               // tp_dict
+  nullptr,                               // tp_descr_get
+  nullptr,                               // tp_descr_set
+  0,                                     // tp_dictoffset
+  nullptr,                               // tp_init
+  nullptr,                               // tp_alloc
+  PyVTKMutableObject_New,                // tp_new
+  PyObject_Del,                          // tp_free
+  nullptr,                               // tp_is_gc
+  nullptr,                               // tp_bases
+  nullptr,                               // tp_mro
+  nullptr,                               // tp_cache
+  nullptr,                               // tp_subclasses
+  nullptr,                               // tp_weaklist
+  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
+};
+
+//--------------------------------------------------------------------
+PyTypeObject PyVTKMutableNumber_Type = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "vtkCommonCorePython.mutable_number",  // tp_name
+  sizeof(PyVTKMutableObject),            // tp_basicsize
+  0,                                     // tp_itemsize
+  PyVTKMutableObject_Delete,             // tp_dealloc
+  nullptr,                               // tp_print
+  nullptr,                               // tp_getattr
+  nullptr,                               // tp_setattr
+  nullptr,                               // tp_compare
+  PyVTKMutableObject_Repr,               // tp_repr
   &PyVTKMutableObject_AsNumber,          // tp_as_number
   nullptr,                               // tp_as_sequence
   nullptr,                               // tp_as_mapping
+#if PY_VERSION_HEX >= 0x02060000
+  PyObject_HashNotImplemented,           // tp_hash
+#else
+  nullptr,                               // tp_hash
+#endif
+  nullptr,                               // tp_call
+  PyVTKMutableObject_Str,                // tp_string
+  PyVTKMutableObject_GetAttr,            // tp_getattro
+  nullptr,                               // tp_setattro
+  nullptr,                               // tp_as_buffer
+#ifndef VTK_PY3K
+  Py_TPFLAGS_CHECKTYPES |
+#endif
+  Py_TPFLAGS_DEFAULT,                    // tp_flags
+  PyVTKMutableObject_Doc,                // tp_doc
+  nullptr,                               // tp_traverse
+  nullptr,                               // tp_clear
+  PyVTKMutableObject_RichCompare,        // tp_richcompare
+  0,                                     // tp_weaklistoffset
+  nullptr,                               // tp_iter
+  nullptr,                               // tp_iternext
+  PyVTKMutableObject_Methods,            // tp_methods
+  nullptr,                               // tp_members
+  nullptr,                               // tp_getset
+  (PyTypeObject *)&PyVTKMutableObject_Type, // tp_base
+  nullptr,                               // tp_dict
+  nullptr,                               // tp_descr_get
+  nullptr,                               // tp_descr_set
+  0,                                     // tp_dictoffset
+  nullptr,                               // tp_init
+  nullptr,                               // tp_alloc
+  PyVTKMutableObject_New,                // tp_new
+  PyObject_Del,                          // tp_free
+  nullptr,                               // tp_is_gc
+  nullptr,                               // tp_bases
+  nullptr,                               // tp_mro
+  nullptr,                               // tp_cache
+  nullptr,                               // tp_subclasses
+  nullptr,                               // tp_weaklist
+  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
+};
+
+//--------------------------------------------------------------------
+PyTypeObject PyVTKMutableString_Type = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "vtkCommonCorePython.mutable_string",  // tp_name
+  sizeof(PyVTKMutableObject),            // tp_basicsize
+  0,                                     // tp_itemsize
+  PyVTKMutableObject_Delete,             // tp_dealloc
+  nullptr,                               // tp_print
+  nullptr,                               // tp_getattr
+  nullptr,                               // tp_setattr
+  nullptr,                               // tp_compare
+  PyVTKMutableObject_Repr,               // tp_repr
+  &PyVTKMutableString_AsNumber,          // tp_as_number
+  &PyVTKMutableObject_AsSequence,        // tp_as_sequence
+  &PyVTKMutableObject_AsMapping,         // tp_as_mapping
 #if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented,           // tp_hash
 #else
@@ -935,12 +1130,12 @@ PyTypeObject PyVTKMutableObject_Type = {
   nullptr,                               // tp_clear
   PyVTKMutableObject_RichCompare,        // tp_richcompare
   0,                                     // tp_weaklistoffset
-  nullptr,                               // tp_iter
+  PyVTKMutableObject_GetIter,            // tp_iter
   nullptr,                               // tp_iternext
   PyVTKMutableObject_Methods,            // tp_methods
   nullptr,                               // tp_members
   nullptr,                               // tp_getset
-  nullptr,                               // tp_base
+  (PyTypeObject *)&PyVTKMutableObject_Type, // tp_base
   nullptr,                               // tp_dict
   nullptr,                               // tp_descr_get
   nullptr,                               // tp_descr_set

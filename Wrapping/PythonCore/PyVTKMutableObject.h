@@ -34,9 +34,11 @@ struct PyVTKMutableObject {
 };
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableObject_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableNumber_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableString_Type;
 
 #define PyVTKMutableObject_Check(obj) \
-  (Py_TYPE(obj) == &PyVTKMutableObject_Type)
+  PyObject_TypeCheck(obj, &PyVTKMutableObject_Type)
 
 extern "C"
 {

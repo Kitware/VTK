@@ -132,12 +132,13 @@ static PyMethodDef PyVTKExtras_Methods[] = {
 // Exported method called by vtkCommonCorePythonInit
 void PyVTKAddFile_PyVTKExtras(PyObject *dict)
 {
-  PyObject *o = (PyObject *)&PyVTKMutableObject_Type;
+  // It is necessary to call PyType_Ready() on all subclasses
+  PyType_Ready(&PyVTKMutableNumber_Type);
+  PyType_Ready(&PyVTKMutableString_Type);
 
-  if (o && PyDict_SetItemString(dict, "mutable", o) != 0)
-  {
-    Py_DECREF(o);
-  }
+  // Add the "mutable" object (used for C++ pass-by-reference)
+  PyObject *o = (PyObject *)&PyVTKMutableObject_Type;
+  PyDict_SetItemString(dict, "mutable", o);
 
   for (PyMethodDef *meth = PyVTKExtras_Methods;
        meth->ml_name != nullptr;
