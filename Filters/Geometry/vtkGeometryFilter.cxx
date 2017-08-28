@@ -63,6 +63,7 @@ vtkGeometryFilter::vtkGeometryFilter()
 
   this->Merging = 1;
   this->Locator = nullptr;
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
@@ -109,6 +110,20 @@ void vtkGeometryFilter::SetExtent(double extent[6])
       this->Extent[2*i+1] = extent[2*i+1];
     }
   }
+}
+
+void vtkGeometryFilter::SetOutputPointsPrecision(int precision)
+{
+  if (this->OutputPointsPrecision != precision)
+  {
+    this->OutputPointsPrecision = precision;
+    this->Modified();
+  }
+}
+
+int vtkGeometryFilter::GetOutputPointsPrecision() const
+{
+  return this->OutputPointsPrecision;
 }
 
 //----------------------------------------------------------------------------
@@ -243,6 +258,18 @@ int vtkGeometryFilter::RequestData(
   // Allocate
   //
   newPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION ||
+      this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_FLOAT);
+  }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_DOUBLE);
+  }
+
   newPts->Allocate(numPts,numPts/2);
   output->Allocate(4*numCells,numCells/2);
   outputPD->CopyGlobalIdsOn();
@@ -395,6 +422,9 @@ int vtkGeometryFilter::FillInputPortInformation(int, vtkInformation *info)
 void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 
   os << indent << "Point Minimum : " << this->PointMinimum << "\n";
   os << indent << "Point Maximum : " << this->PointMaximum << "\n";
