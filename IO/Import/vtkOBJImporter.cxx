@@ -799,6 +799,9 @@ int vtkOBJPolyDataProcessor::RequestData(
       vtkDebugMacro("strLine = " << strLine);
       int idxNewLine = strLine.find_first_of("\r\n");
       std::string mtl_name = strLine.substr(0, idxNewLine);
+      // trim trailing whitespace
+      size_t last = mtl_name.find_last_not_of(' ');
+      mtl_name = mtl_name.substr(0, last + 1);
       vtkDebugMacro("'Use Material' command, usemtl with name: " << mtl_name);
 
       if (! mtlName_to_mtlData.count(mtl_name))

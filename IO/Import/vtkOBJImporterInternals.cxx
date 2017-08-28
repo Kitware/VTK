@@ -104,7 +104,15 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
 
   while( fgets(current_line, OBJ_LINE_SIZE, mtl_file_stream) )
   {
-    current_token = strtok( current_line, " \t\n\r");
+    // watch out for BOM
+    if (current_line[0] == -17 && current_line[1] == -69 && current_line[2] == -65)
+    {
+      current_token = strtok( current_line + 3, " \t\n\r");
+    }
+    else
+    {
+      current_token = strtok( current_line, " \t\n\r");
+    }
     line_number++;
 
     //skip comments
@@ -130,6 +138,14 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
         current_mtl->name[MATERIAL_NAME_SIZE-1] = '\0';
         vtkErrorMacro("material name too long, truncated");
       }
+      // trim trailing spaces
+      char *end = current_mtl->name + strlen(current_mtl->name) - 1;
+      while(end > current_mtl->name && isspace((unsigned char)*end))
+      {
+        end--;
+      }
+      // Write new null terminator
+      *(end+1) = 0;
     }
 
     //ambient
