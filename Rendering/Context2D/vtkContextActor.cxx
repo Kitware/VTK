@@ -85,7 +85,7 @@ namespace
   };
 
   template <class T>
-    ostream& operator << (ostream& str, const vtkViewportSpecification<T>& other)
+    static ostream& operator << (ostream& str, const vtkViewportSpecification<T>& other)
   {
       str << other.data()[0] << ", "
         << other.data()[1] << ", "

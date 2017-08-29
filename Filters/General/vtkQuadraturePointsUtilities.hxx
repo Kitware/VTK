@@ -32,7 +32,7 @@ namespace {
 // values from each cell start as well. In the case of
 // an error the return is 0.
 template<class TV, class TI>
-int Interpolate(
+static int Interpolate(
         vtkUnstructuredGrid *usg,
         const vtkIdType nCellsUsg,
         TV *pV,
@@ -95,7 +95,7 @@ int Interpolate(
 // Description:
 // Dispatch helper, descides what type of indices we are working with
 template<class TV>
-int Interpolate(
+static int Interpolate(
         vtkUnstructuredGrid *usg,
         const vtkIdType nCellsUsg,
         TV *pV,
@@ -116,7 +116,7 @@ int Interpolate(
 
 //------------------------------------------------------------------------------
 template <class T>
-void ApplyShapeFunction(double *r,double N_j,T *A,int nComps)
+static void ApplyShapeFunction(double *r,double N_j,T *A,int nComps)
 {
   for (int q=0; q<nComps; ++q)
   {
@@ -125,5 +125,6 @@ void ApplyShapeFunction(double *r,double N_j,T *A,int nComps)
 }
 
 };
+
 
 #endif
