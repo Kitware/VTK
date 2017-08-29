@@ -1215,6 +1215,24 @@ bool vtkPythonArgs::SetArgValue(int i, T a) \
   return true; \
 }
 
+#define VTK_PYTHON_SET_ARGN(T) \
+bool vtkPythonArgs::SetArgValue(int i, const T *a, int n) \
+{ \
+  if (this->M + i < this->N) \
+  { \
+    PyObject *m = PyTuple_GET_ITEM(this->Args, this->M + i); \
+    PyObject *o = vtkPythonArgs::BuildTuple(a, n); \
+    int r = PyVTKMutableObject_SetValue(m, o); \
+    if (r == 0) \
+    { \
+      return true; \
+    } \
+    this->RefineArgTypeError(i); \
+    return false; \
+  } \
+  return true; \
+}
+
 VTK_PYTHON_SET_ARG(const std::string &)
 VTK_PYTHON_SET_ARG(const vtkUnicodeString &)
 VTK_PYTHON_SET_ARG(char)
@@ -1231,6 +1249,19 @@ VTK_PYTHON_SET_ARG(long)
 VTK_PYTHON_SET_ARG(unsigned long)
 VTK_PYTHON_SET_ARG(long long)
 VTK_PYTHON_SET_ARG(unsigned long long)
+VTK_PYTHON_SET_ARGN(bool)
+VTK_PYTHON_SET_ARGN(float)
+VTK_PYTHON_SET_ARGN(double)
+VTK_PYTHON_SET_ARGN(signed char)
+VTK_PYTHON_SET_ARGN(unsigned char)
+VTK_PYTHON_SET_ARGN(short)
+VTK_PYTHON_SET_ARGN(unsigned short)
+VTK_PYTHON_SET_ARGN(int)
+VTK_PYTHON_SET_ARGN(unsigned int)
+VTK_PYTHON_SET_ARGN(long)
+VTK_PYTHON_SET_ARGN(unsigned long)
+VTK_PYTHON_SET_ARGN(long long)
+VTK_PYTHON_SET_ARGN(unsigned long long)
 
 //--------------------------------------------------------------------
 // Define all the SetArgValue methods for setting array args

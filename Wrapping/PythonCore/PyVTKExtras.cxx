@@ -135,6 +135,7 @@ void PyVTKAddFile_PyVTKExtras(PyObject *dict)
   // It is necessary to call PyType_Ready() on all subclasses
   PyType_Ready(&PyVTKMutableNumber_Type);
   PyType_Ready(&PyVTKMutableString_Type);
+  PyType_Ready(&PyVTKMutableTuple_Type);
 
   // Add the "mutable" object (used for C++ pass-by-reference)
   PyObject *o = (PyObject *)&PyVTKMutableObject_Type;

@@ -36,6 +36,7 @@ struct PyVTKMutableObject {
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableObject_Type;
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableNumber_Type;
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableString_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableTuple_Type;
 
 #define PyVTKMutableObject_Check(obj) \
   PyObject_TypeCheck(obj, &PyVTKMutableObject_Type)

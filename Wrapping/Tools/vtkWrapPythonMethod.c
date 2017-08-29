@@ -51,7 +51,7 @@ static void vtkWrapPython_GenerateMethodCall(
 
 /* Write back to all the reference arguments and array arguments */
 static void vtkWrapPython_WriteBackToArgs(
-  FILE *fp, FunctionInfo *currentFunction);
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
 
 /* Free any arrays, object, or buffers that were allocated */
 static void vtkWrapPython_FreeTemporaries(
@@ -120,7 +120,8 @@ void vtkWrapPython_DeclareVariables(
               i, i,
               vtkWrap_GetTypeName(arg), i, mtwo, i,
               vtkWrap_GetTypeName(arg), i, i);
-        if (!vtkWrap_IsConst(arg))
+        if (!vtkWrap_IsConst(arg) &&
+            !vtkWrap_IsRef(arg))
         {
           fprintf(fp,
               "  %s *save%d = (size%d == 0 ? nullptr : temp%d + size%d);\n",
@@ -399,7 +400,7 @@ static void vtkWrapPython_GetAllParameters(
   {
     arg = currentFunction->Parameters[i];
 
-    if (arg->CountHint)
+    if (arg->CountHint && !vtkWrap_IsRef(arg))
     {
       fprintf(fp, " &&\n"
               "      ap.CheckSizeHint(%d, size%d, ",
@@ -787,7 +788,8 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
 
     if ((vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
          vtkWrap_IsPODPointer(arg)) &&
-        (arg->Type & VTK_PARSE_CONST) == 0)
+        (arg->Type & VTK_PARSE_CONST) == 0 &&
+        !vtkWrap_IsRef(arg))
     {
       noneDone = 0;
 
@@ -1015,7 +1017,7 @@ static void vtkWrapPython_GenerateMethodCall(
  * were passed, but only write to arrays if the array has changed and
  * the array arg was non-const */
 static void vtkWrapPython_WriteBackToArgs(
-  FILE *fp, FunctionInfo *currentFunction)
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction)
 {
   const char *asterisks = "**********";
   ValueInfo *arg;
@@ -1044,12 +1046,34 @@ static void vtkWrapPython_WriteBackToArgs(
     {
       fprintf(fp,
               "    if (!ap.ErrorOccurred())\n"
-              "    {\n"
-              "      ap.SetArgValue(%d, temp%d);\n"
-              "    }\n",
-              i, i);
-    }
+              "    {\n");
 
+      if (vtkWrap_IsArray(arg) ||
+          vtkWrap_IsPODPointer(arg))
+      {
+        fprintf(fp,
+              "      ap.SetArgValue(%d, temp%d, ",
+              i, i);
+        if (arg->CountHint)
+        {
+          vtkWrapPython_SubstituteCode(fp, data, currentFunction,
+                                       arg->CountHint);
+        }
+        else
+        {
+          fprintf(fp, "size%d", i);
+        }
+        fprintf(fp, ");\n");
+      }
+      else
+      {
+        fprintf(fp,
+              "      ap.SetArgValue(%d, temp%d);\n",
+              i, i);
+      }
+      fprintf(fp,
+              "    }\n");
+    }
     else if ((vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
               vtkWrap_IsPODPointer(arg)) &&
              !vtkWrap_IsConst(arg) &&
@@ -1282,7 +1306,7 @@ void vtkWrapPython_GenerateOneMethod(
                                        is_vtkobject);
 
       /* write back to all array args */
-      vtkWrapPython_WriteBackToArgs(fp, theOccurrence);
+      vtkWrapPython_WriteBackToArgs(fp, data, theOccurrence);
 
       /* generate the code that builds the return value */
       if (do_constructors && !is_vtkobject)

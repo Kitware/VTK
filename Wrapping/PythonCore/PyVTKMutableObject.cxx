@@ -71,6 +71,17 @@ static PyObject *PyVTKMutableObject_CompatibleObject(
     }
   }
 
+  // check if it is a tuple or list
+  if (self == nullptr || Py_TYPE(self) == &PyVTKMutableTuple_Type)
+  {
+    if (PyTuple_Check(opn) ||
+        PyList_Check(opn))
+    {
+      Py_INCREF(opn);
+      return opn;
+    }
+  }
+
   // check if it is a number
   if (self == nullptr || Py_TYPE(self) == &PyVTKMutableNumber_Type)
   {
@@ -121,11 +132,15 @@ static PyObject *PyVTKMutableObject_CompatibleObject(
   const char *errmsg = "bad type";
   if (self == nullptr)
   {
-    errmsg = "a numeric or string object is required";
+    errmsg = "a numeric, string, or tuple object is required";
   }
   else if (Py_TYPE(self) == &PyVTKMutableString_Type)
   {
     errmsg = "a string object is required";
+  }
+  else if (Py_TYPE(self) == &PyVTKMutableTuple_Type)
+  {
+    errmsg = "a tuple object is required";
   }
   else if (Py_TYPE(self) == &PyVTKMutableNumber_Type)
   {
@@ -969,6 +984,12 @@ static PyObject *PyVTKMutableObject_New(
         self = PyObject_New(PyVTKMutableObject,
                             &PyVTKMutableString_Type);
       }
+      else if (PyTuple_Check(o) ||
+               PyList_Check(o))
+      {
+        self = PyObject_New(PyVTKMutableObject,
+                            &PyVTKMutableTuple_Type);
+      }
       else
       {
         self = PyObject_New(PyVTKMutableObject,
@@ -1121,6 +1142,63 @@ PyTypeObject PyVTKMutableString_Type = {
   PyVTKMutableObject_GetAttr,            // tp_getattro
   nullptr,                               // tp_setattro
   &PyVTKMutableObject_AsBuffer,          // tp_as_buffer
+#ifndef VTK_PY3K
+  Py_TPFLAGS_CHECKTYPES |
+#endif
+  Py_TPFLAGS_DEFAULT,                    // tp_flags
+  PyVTKMutableObject_Doc,                // tp_doc
+  nullptr,                               // tp_traverse
+  nullptr,                               // tp_clear
+  PyVTKMutableObject_RichCompare,        // tp_richcompare
+  0,                                     // tp_weaklistoffset
+  PyVTKMutableObject_GetIter,            // tp_iter
+  nullptr,                               // tp_iternext
+  PyVTKMutableObject_Methods,            // tp_methods
+  nullptr,                               // tp_members
+  nullptr,                               // tp_getset
+  (PyTypeObject *)&PyVTKMutableObject_Type, // tp_base
+  nullptr,                               // tp_dict
+  nullptr,                               // tp_descr_get
+  nullptr,                               // tp_descr_set
+  0,                                     // tp_dictoffset
+  nullptr,                               // tp_init
+  nullptr,                               // tp_alloc
+  PyVTKMutableObject_New,                // tp_new
+  PyObject_Del,                          // tp_free
+  nullptr,                               // tp_is_gc
+  nullptr,                               // tp_bases
+  nullptr,                               // tp_mro
+  nullptr,                               // tp_cache
+  nullptr,                               // tp_subclasses
+  nullptr,                               // tp_weaklist
+  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
+};
+
+//--------------------------------------------------------------------
+PyTypeObject PyVTKMutableTuple_Type = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "vtkCommonCorePython.mutable_tuple",  // tp_name
+  sizeof(PyVTKMutableObject),            // tp_basicsize
+  0,                                     // tp_itemsize
+  PyVTKMutableObject_Delete,             // tp_dealloc
+  nullptr,                               // tp_print
+  nullptr,                               // tp_getattr
+  nullptr,                               // tp_setattr
+  nullptr,                               // tp_compare
+  PyVTKMutableObject_Repr,               // tp_repr
+  nullptr,                               // tp_as_number
+  &PyVTKMutableObject_AsSequence,        // tp_as_sequence
+  &PyVTKMutableObject_AsMapping,         // tp_as_mapping
+#if PY_VERSION_HEX >= 0x02060000
+  PyObject_HashNotImplemented,           // tp_hash
+#else
+  nullptr,                               // tp_hash
+#endif
+  nullptr,                               // tp_call
+  PyVTKMutableObject_Str,                // tp_string
+  PyVTKMutableObject_GetAttr,            // tp_getattro
+  nullptr,                               // tp_setattro
+  nullptr,                               // tp_as_buffer
 #ifndef VTK_PY3K
   Py_TPFLAGS_CHECKTYPES |
 #endif

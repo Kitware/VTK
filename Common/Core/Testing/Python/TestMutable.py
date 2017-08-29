@@ -29,6 +29,12 @@ class TestMutable(Testing.vtkTest):
         m %= ("hello", "world")
         self.assertEqual(m, "hello world!")
 
+    def testTupleMutable(self):
+        m = vtk.mutable((0,))
+        self.assertEqual(m, (0,))
+        self.assertEqual(len(m), 1)
+        self.assertEqual(m[0], 0)
+
     def testPassByReference(self):
         t = vtk.mutable(0.0)
         p0 = (0.5, 0.0, 0.0)
@@ -60,6 +66,15 @@ class TestMutable(Testing.vtkTest):
         self.assertEqual(round(x[0],6), 0.5)
         self.assertEqual(round(x[1],6), 0.5)
         self.assertEqual(round(x[2],6), 0.5)
+
+    def testPassTupleByReference(self):
+        n = vtk.mutable(0)
+        t = vtk.mutable((0,))
+        ca = vtk.vtkCellArray()
+        ca.InsertNextCell(3, (1, 3, 0))
+        ca.GetCell(0, n, t)
+        self.assertEqual(n, 3)
+        self.assertEqual(tuple(t), (1, 3, 0))
 
 if __name__ == "__main__":
     Testing.main([(TestMutable, 'test')])

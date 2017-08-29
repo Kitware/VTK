@@ -493,7 +493,10 @@ static int vtkWrapPython_IsValueWrappable(
     return 0;
   }
 
-  if (vtkWrap_IsRef(val) && !vtkWrap_IsScalar(val))
+  if (vtkWrap_IsRef(val) &&
+      !vtkWrap_IsScalar(val) &&
+      !vtkWrap_IsArray(val) &&
+      !vtkWrap_IsPODPointer(val))
   {
     return 0;
   }
