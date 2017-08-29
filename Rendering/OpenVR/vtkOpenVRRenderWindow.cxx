@@ -301,7 +301,10 @@ void vtkOpenVRRenderWindow::RenderModels()
 // ----------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::MakeCurrent()
 {
-  this->HelperWindow->MakeCurrent();
+  if (this->HelperWindow)
+  {
+    this->HelperWindow->MakeCurrent();
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -309,7 +312,7 @@ void vtkOpenVRRenderWindow::MakeCurrent()
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkOpenVRRenderWindow::IsCurrent()
 {
-  return this->HelperWindow->IsCurrent();
+  return this->HelperWindow ? this->HelperWindow->IsCurrent() : false;
 }
 
 
@@ -650,7 +653,7 @@ void vtkOpenVRRenderWindow::Finalize (void)
   }
   this->VTKRenderModels.clear();
 
-  if(this->HelperWindow->GetGenericContext())
+  if (this->HelperWindow && this->HelperWindow->GetGenericContext())
   {
     this->HelperWindow->Finalize();
   }
@@ -668,7 +671,7 @@ void vtkOpenVRRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOpenVRRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
-  if (!this->HelperWindow->GetGenericContext())
+  if (this->HelperWindow && !this->HMD)
   {
     this->Initialize();
   }
