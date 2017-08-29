@@ -34,6 +34,7 @@
 class vtkXdmf3ArraySelection;
 class vtkXdmf3ArrayKeeper;
 class XdmfArray;
+class XdmfAttribute;
 class vtkDataArray;
 class XdmfGrid;
 class vtkDataObject;
@@ -277,6 +278,33 @@ public:
     vtkUnstructuredGrid *subSet,
     vtkXdmf3ArrayKeeper *keeper=nullptr);
 
+  /**
+   * Converts XDMF topology type, finite element family and degree
+   * into an equivalent (or approximative) representation via VTK cell
+   * type.
+   */
+  static int GetVTKFiniteElementCellType(
+    unsigned int element_degree,
+    std::string element_family,
+    shared_ptr<const XdmfTopologyType> topologyType);
+
+  /**
+   * Parses finite element function defined in Attribute.
+   *
+   * This method changes geometry stored in vtkDataObject
+   * and adds Point/Cell data field.
+   *
+   * XdmfAttribute must contain 2 arrays - one is the XdmfAttribute itself and
+   * remaining one the auxiliary array. Interpretation of the arrays is
+   * described in XDMF wiki page http://www.xdmf.org/index.php/XDMF_Model_and_Format#Attribute
+   *
+   */
+  static void ParseFiniteElementFunction(
+    vtkDataObject *dObject,
+    shared_ptr <XdmfAttribute> xmfAttribute,
+    vtkDataArray *array,
+    XdmfGrid *grid,
+    vtkXdmf3ArrayKeeper *keeper=NULL);
 };
 
 #endif
