@@ -13,13 +13,21 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
+/**
+ * @class   vtkmCleanGrid
+ * @brief   removes redundant or unused cells and/or points
+ *
+ * vtkmCleanGrid is a filter that takes vtkDataSet data as input and
+ * generates vtkUnstructuredGrid as output. vtkmCleanGrid will convert all cells
+ * to an explicit representation, and if enabled, will remove unused points.
+ *
+*/
 
 #ifndef vtkmCleanGrid_h
 #define vtkmCleanGrid_h
 
 #include "vtkUnstructuredGridAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
-
 
 class vtkDataSet;
 class vtkUnstructuredGrid;

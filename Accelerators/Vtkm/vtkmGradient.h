@@ -13,6 +13,22 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
+/**
+ * @class   vtkmGradient
+ * @brief   A general filter for gradient estimation.
+ *
+ * Estimates the gradient of a field in a data set.  The gradient calculation
+ * is dependent on the input dataset type.  The created gradient array
+ * is of the same type as the array it is calculated from (e.g. point data
+ * or cell data) as well as data type (e.g. float, double). The output array has
+ * 3*number of components of the input data array.  The ordering for the
+ * output tuple will be {du/dx, du/dy, du/dz, dv/dx, dv/dy, dv/dz, dw/dx,
+ * dw/dy, dw/dz} for an input array {u, v, w}.
+ *
+ * Also options to additionally compute the divergence, vorticity and
+ * Q criterion of input vector fields.
+ *
+*/
 
 #ifndef vtkmGradient_h
 #define vtkmGradient_h

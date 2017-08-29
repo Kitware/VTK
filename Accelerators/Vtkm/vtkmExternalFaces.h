@@ -13,13 +13,23 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
+/**
+ * @class   vtkmExternalFaces
+ * @brief   generate External Faces of a DataSet
+ *
+ * vtkmExternalFaces is a filter that extracts all external faces from a
+ * data set. An external face is defined is defined as a face/side of a cell
+ * that belongs only to one cell in the entire mesh.
+ * @warning
+ * This filter is currently only supports propagation of point properties
+ *
+*/
 
 #ifndef vtkmExternalFaces_h
 #define vtkmExternalFaces_h
 
 #include "vtkAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
-
 
 class vtkUnstructuredGrid;
 

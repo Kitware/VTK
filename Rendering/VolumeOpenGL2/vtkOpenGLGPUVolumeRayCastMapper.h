@@ -196,6 +196,7 @@ protected:
    *  Update parameters from RenderPass
    */
   void SetShaderParametersRenderPass(vtkVolume* vol);
+
   /**
    *  Caches the vtkOpenGLRenderPass::RenderPasses() information.
    *  Note: Do not dereference the pointers held by this object. There is no

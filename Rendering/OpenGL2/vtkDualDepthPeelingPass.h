@@ -54,6 +54,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthPeelingPass.h"
 
+#include <array> // For std::array!
+
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexArrayObject;
@@ -95,7 +97,7 @@ public:
   bool SetShaderParameters(vtkShaderProgram *program,
                            vtkAbstractMapper *mapper,
                            vtkProp *prop,
-                           vtkOpenGLVertexArrayObject *VAO = NULL) VTK_OVERRIDE;
+                           vtkOpenGLVertexArrayObject *VAO = nullptr) VTK_OVERRIDE;
   virtual vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
 
 protected:
@@ -189,6 +191,18 @@ protected:
   //@}
 
   /**
+   * Bind and activate draw buffers.
+   * @{
+   */
+  void ActivateDrawBuffer(TextureName id)
+    { this->ActivateDrawBuffers(&id, 1); }
+  template <size_t NumTextures>
+  void ActivateDrawBuffers(const std::array<TextureName, NumTextures> &a)
+    { this->ActivateDrawBuffers(a.data(), a.size()); }
+  void ActivateDrawBuffers(const TextureName *ids, size_t numTextures);
+  /**@}*/
+
+  /**
    * Fill textures with initial values, bind the framebuffer.
    */
   void Prepare();
@@ -259,7 +273,6 @@ protected:
   vtkOpenGLVertexArrayObject *BlendVAO;
   vtkOpenGLBufferObject *BlendVBO;
 
-  vtkOpenGLFramebufferObject *Framebuffer;
   vtkTextureObject *Textures[NumberOfTextures];
 
   TextureName FrontSource; // The current front source buffer
@@ -286,6 +299,7 @@ protected:
   bool SaveScissorTestState;
   int CullFaceMode;
   bool CullFaceEnabled;
+  bool DepthTestEnabled;
 
 private:
   vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
