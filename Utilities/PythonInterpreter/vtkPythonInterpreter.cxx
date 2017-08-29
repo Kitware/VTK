@@ -358,12 +358,14 @@ int vtkPythonInterpreter::RunSimpleString(const char* script)
   vtkPythonInterpreter::ConsoleBuffering = false;
   if (! vtkPythonInterpreter::StdErrBuffer.empty())
     {
+    vtkOutputWindowDisplayErrorText(vtkPythonInterpreter::StdErrBuffer.c_str());
     NotifyInterpreters(vtkCommand::ErrorEvent, const_cast<char*>(
                          vtkPythonInterpreter::StdErrBuffer.c_str()));
     vtkPythonInterpreter::StdErrBuffer.clear();
     }
   if (! vtkPythonInterpreter::StdOutBuffer.empty())
     {
+    vtkOutputWindowDisplayText(vtkPythonInterpreter::StdOutBuffer.c_str());
     NotifyInterpreters(vtkCommand::SetOutputEvent, const_cast<char*>(
                          vtkPythonInterpreter::StdOutBuffer.c_str()));
     vtkPythonInterpreter::StdOutBuffer.clear();
@@ -387,13 +389,13 @@ bool vtkPythonInterpreter::GetCaptureStdin()
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::WriteStdOut(const char* txt)
 {
-  cout << txt;
   if (vtkPythonInterpreter::ConsoleBuffering)
     {
     vtkPythonInterpreter::StdOutBuffer += std::string(txt);
     }
   else
     {
+    vtkOutputWindowDisplayText(txt);
     NotifyInterpreters(vtkCommand::SetOutputEvent, const_cast<char*>(txt));
     }
 }
@@ -401,19 +403,18 @@ void vtkPythonInterpreter::WriteStdOut(const char* txt)
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::FlushStdOut()
 {
-    cout.flush();
 }
 
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::WriteStdErr(const char* txt)
 {
-  cerr << txt;
   if (vtkPythonInterpreter::ConsoleBuffering)
     {
     vtkPythonInterpreter::StdErrBuffer += std::string(txt);
     }
   else
     {
+    vtkOutputWindowDisplayErrorText(txt);
     NotifyInterpreters(vtkCommand::ErrorEvent, const_cast<char*>(txt));
     }
 }
@@ -421,7 +422,6 @@ void vtkPythonInterpreter::WriteStdErr(const char* txt)
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::FlushStdErr()
 {
-    cerr.flush();
 }
 
 //----------------------------------------------------------------------------
