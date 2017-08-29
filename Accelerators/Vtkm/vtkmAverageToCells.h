@@ -13,6 +13,17 @@
 //  the U.S. Government retains certain rights in this software.
 //
 //=============================================================================
+/**
+ * @class   vtkmAverageToPoints
+ * @brief   Accelerated point to cell interpolation filter.
+ *
+ * vtkmAverageToPoints is a filter that transforms point data (i.e., data
+ * specified at cell points) into cell data (i.e., data specified per cell).
+ * The method of transformation is based on averaging the data
+ * values of all points used by particular cell. This filter will also
+ * pass through any existing point and cell arrays.
+ *
+*/
 
 #ifndef vtkmAverageToCells_h
 #define vtkmAverageToCells_h
