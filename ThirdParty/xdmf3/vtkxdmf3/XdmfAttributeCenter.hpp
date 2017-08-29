@@ -81,6 +81,7 @@ public:
   static shared_ptr<const XdmfAttributeCenter> Face();
   static shared_ptr<const XdmfAttributeCenter> Edge();
   static shared_ptr<const XdmfAttributeCenter> Node();
+  static shared_ptr<const XdmfAttributeCenter> Other();
 
   void
   getProperties(std::map<std::string, std::string> & collectedProperties) const;
@@ -127,12 +128,14 @@ extern "C" {
 #define XDMF_ATTRIBUTE_CENTER_FACE 102
 #define XDMF_ATTRIBUTE_CENTER_EDGE 103
 #define XDMF_ATTRIBUTE_CENTER_NODE 104
+#define XDMF_ATTRIBUTE_CENTER_OTHER 105
 
 XDMF_EXPORT int XdmfAttributeCenterGrid();
 XDMF_EXPORT int XdmfAttributeCenterCell();
 XDMF_EXPORT int XdmfAttributeCenterFace();
 XDMF_EXPORT int XdmfAttributeCenterEdge();
 XDMF_EXPORT int XdmfAttributeCenterNode();
+XDMF_EXPORT int XdmfAttributeCenterOther();
 
 #ifdef __cplusplus
 }

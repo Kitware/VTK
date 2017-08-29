@@ -68,6 +68,14 @@ XdmfAttributeCenter::Node()
   return p;
 }
 
+shared_ptr<const XdmfAttributeCenter>
+XdmfAttributeCenter::Other()
+{
+  static shared_ptr<const XdmfAttributeCenter>
+    p(new XdmfAttributeCenter("Other"));
+  return p;
+}
+
 void
 XdmfAttributeCenter::InitTypes()
 {
@@ -76,6 +84,7 @@ XdmfAttributeCenter::InitTypes()
   mAttributeCenterDefinitions["FACE"] = Face;
   mAttributeCenterDefinitions["EDGE"] = Edge;
   mAttributeCenterDefinitions["NODE"] = Node;
+  mAttributeCenterDefinitions["OTHER"] = Other;
 }
 
 XdmfAttributeCenter::XdmfAttributeCenter(const std::string & name) :
@@ -105,16 +114,16 @@ XdmfAttributeCenter::New(const std::map<std::string, std::string> & itemProperti
 
   if (returnType == mAttributeCenterDefinitions.end()) {
     XdmfError::message(XdmfError::FATAL,
-                       "Center not of 'Grid','Cell','Face','Edge','Node' "
-                       "in XdmfAttributeCenter::New");
+                       "Center not of 'Grid','Cell','Face','Edge','Node',"
+                       "'Other' in XdmfAttributeCenter::New");
   }
   else {
     return (*(returnType->second))();
   }
 
   XdmfError::message(XdmfError::FATAL, 
-                     "Center not of 'Grid','Cell','Face','Edge','Node' "
-                     "in XdmfAttributeCenter::New");
+                     "Center not of 'Grid','Cell','Face','Edge','Node',"
+                     "'Other' in XdmfAttributeCenter::New");
 
   // unreachable
   return shared_ptr<const XdmfAttributeCenter>();
@@ -152,3 +161,9 @@ int XdmfAttributeCenterNode()
 {
   return XDMF_ATTRIBUTE_CENTER_NODE;
 }
+
+int XdmfAttributeCenterOther()
+{
+  return XDMF_ATTRIBUTE_CENTER_OTHER;
+}
+

@@ -55,14 +55,18 @@
 	Format (XML | HDF | Binary | TIFF) "XML"
 >
 <!--Describes the values on the mesh-->
-<!ELEMENT Attribute (Information*, DataItem)>
+<!ELEMENT Attribute (Information*, DataItem*)>
 <!ATTLIST Attribute
 	Name CDATA #IMPLIED
-	Center (Node | Cell | Grid | Face | Edge) "Node"
+	Center (Node | Cell | Grid | Face | Edge | Other) "Node"
 	AttributeType (Scalar | Vector | Tensor | Tensor6 | Matrix) "Scalar"
+	ItemType (FiniteElementFunction) #IMPLIED
+	ElementFamily (CG | DG | RT | BDM | CR | N1curl | N2curl) #IMPLIED
+	ElementDegree CDATA #IMPLIED
+	ElementCell CDATA #IMPLIED
 >
 <!--Describes subsections of a grid-->
-<!ELEMENT Set (Information*, DataItem)>
+<!ELEMENT Set (Information*, DataItem*, Attribute)>
 <!ATTLIST Set
         Name CDATA #IMPLIED
         Type (NoSetType | Node | Cell | Face | Edge) "Node"

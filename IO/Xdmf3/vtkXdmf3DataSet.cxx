@@ -501,6 +501,18 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
       fieldData = dataSet->GetPointData();
       ncomp = nvals/numPoints;
     }
+    else if (attrCenter == XdmfAttributeCenter::Other()
+      and xmfAttribute->getItemType() == "FiniteElementFunction")
+    {
+      if (!pselection->ArrayIsEnabled(attrName.c_str()))
+      {
+        continue;
+      }
+      if (numPoints == 0)
+      {
+        continue;
+      }
+    }
     else
     {
       cerr << "skipping " << attrName << " unrecognized association" << endl;
@@ -516,7 +528,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
     {
       atype = SCALAR;
     }
-    else if (attrType == XdmfAttributeType::Vector() && ncomp==1)
+    else if (attrType == XdmfAttributeType::Vector() && ncomp==3)
     {
       atype = VECTOR;
     }
@@ -539,9 +551,15 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 
     vtkDataArray *array = XdmfToVTKArray(xmfAttribute.get(), attrName,
                                          ncomp, keeper);
-    if (array)
+
+    if(xmfAttribute->getItemType() == "FiniteElementFunction")
     {
+      ParseFiniteElementFunction(dObject, xmfAttribute, array, grid);
+    } else if (array)
+    {
+
       fieldData->AddArray(array);
+
       if (fdAsDSA)
       {
         switch (atype)
@@ -990,7 +1008,100 @@ int vtkXdmf3DataSet::GetVTKCellType(
 
   return VTK_EMPTY_CELL;
 }
+//==========================================================================
+int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
+  unsigned int element_degree,
+  std::string element_family,
+  shared_ptr<const XdmfTopologyType> topologyType
+)
+{
+  // Linear geometry and linear or constant function
+  // isoparametric element
+  if (topologyType == XdmfTopologyType::Triangle()
+      and (element_degree == 1 or element_degree == 0)
+      and (element_family == "CG" or element_family == "DG"))
+  {
+    return VTK_TRIANGLE;
+  }
 
+  // Linear or quadratic geometry and quadratic function
+  // isoparametric and superparametric element
+  if ((topologyType == XdmfTopologyType::Triangle()
+        or topologyType == XdmfTopologyType::Triangle_6())
+      and element_degree == 2
+      and (element_family == "CG" or element_family == "DG"))
+  {
+    return VTK_QUADRATIC_TRIANGLE;
+  }
+
+  // Quadratic geometry and linear or const function
+  // subparametric element
+  if (topologyType == XdmfTopologyType::Triangle_6()
+    and (element_degree == 1 or element_degree == 0)
+    and (element_family == "CG" or element_family == "DG"))
+  {
+    return VTK_QUADRATIC_TRIANGLE;
+  }
+
+  // Linear geometry and linear or constant function
+  // isoparametric element
+  if (topologyType == XdmfTopologyType::Tetrahedron()
+    and (element_degree == 1 or element_degree == 0)
+    and (element_family == "CG" or element_family == "DG"))
+  {
+    return VTK_TETRA;
+  }
+
+  // Linear or quadratic geometry and quadratic function
+  // isoparametric and superparametric element
+  if ((topologyType == XdmfTopologyType::Tetrahedron()
+         or topologyType == XdmfTopologyType::Tetrahedron_10())
+    and element_degree == 2
+    and (element_family == "CG" or element_family == "DG"))
+  {
+    return VTK_QUADRATIC_TETRA;
+  }
+
+  // Linear geometry and linear or const function
+  // isoparametric element
+  if (topologyType == XdmfTopologyType::Quadrilateral()
+      and (element_degree == 1 or element_degree == 0)
+      and (element_family == "Q" or element_family == "DQ"))
+  {
+    return VTK_QUAD;
+  }
+
+  // Linear geometry and quadratic function
+  // superparametric element
+  if (topologyType == XdmfTopologyType::Quadrilateral()
+    and (element_degree == 2)
+    and (element_family == "Q" or element_family == "DQ"))
+  {
+    return VTK_BIQUADRATIC_QUAD;
+  }
+
+  // Linear geometry and Raviart-Thomas
+  if (topologyType == XdmfTopologyType::Triangle()
+      and element_degree == 1
+      and element_family == "RT")
+  {
+    return VTK_TRIANGLE;
+  }
+
+  // Linear geometry and higher order function
+  if (topologyType == XdmfTopologyType::Triangle()
+    and element_degree >= 3
+    and (element_family == "CG" or element_family == "DG"))
+  {
+    return VTK_TRIANGLE;
+  }
+
+  cerr << "Finite element function of family " << element_family << " and "
+    "degree " << std::to_string(element_degree) << " on " <<
+    topologyType->getName() << " is not supported." << endl;
+  return 0;
+
+}
 //==========================================================================
 void vtkXdmf3DataSet::SetTime(XdmfGrid *grid, double hasTime, double time)
 {
@@ -2307,4 +2418,557 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(
 
   vtkXdmf3DataSet_ReleaseIfNeeded(set.get(), releaseMe);
   return;
+}
+//------------------------------------------------------------------------------
+void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
+  shared_ptr <XdmfAttribute> xmfAttribute, vtkDataArray *array,
+  XdmfGrid *grid, vtkXdmf3ArrayKeeper *keeper)
+{
+
+  vtkDataSet *dataSet_original = vtkDataSet::SafeDownCast(dObject);
+  vtkUnstructuredGrid *dataSet_finite_element = vtkUnstructuredGrid::New();
+  vtkUnstructuredGrid *dataSet = vtkUnstructuredGrid::SafeDownCast(dObject);
+
+  // Mapping of dofs per component to the correct VTK order
+  std::vector<unsigned int> triangle_map = {0, 1, 2};
+  std::vector<unsigned int> quadratic_triangle_map =
+    {0, 1, 2, 5, 3, 4};
+  std::vector<unsigned int> tetrahedron_map = {0, 1, 2, 3, 4};
+  std::vector<unsigned int> quadratic_tetrahedron_map =
+    {0, 1, 2, 3, 9, 6, 8, 7, 5, 4};
+  std::vector<unsigned int> quadrilateral_map = {0, 1, 3, 2};
+  std::vector<unsigned int> quadratic_quadrilateral_map =
+    {0, 1, 4, 3, 2, 7, 5, 6, 8};
+  std::vector<unsigned int> single_value_map = {0};
+  std::vector<unsigned int> dof_to_vtk_map;
+
+  // One array is xmfAttribute and other array is the first auxiliary array
+  if (xmfAttribute->getNumberAuxiliaryArrays() < 1)
+  {
+    cerr << "There must be at least 2 children DataItems under "
+      "FiniteElementFunction item type." << endl;
+    return;
+  }
+
+  // First aux array are values of degrees of freedom
+  shared_ptr <XdmfArray> dof_values = xmfAttribute->getAuxiliaryArray(0);
+  bool freeMe = vtkXdmf3DataSet_ReadIfNeeded(dof_values.get());
+  if (keeper && freeMe)
+  {
+    keeper->Insert(dof_values.get());
+  }
+
+  // Where new geometry will be stored
+  vtkPoints *p_new = vtkPoints::New();
+  unsigned long points_added = 0;
+
+  // Where new data values will be stored
+  vtkDataArray *new_array;
+  new_array = vtkDataArray::CreateDataArray(VTK_DOUBLE);
+  new_array->SetName(array->GetName());
+
+  shared_ptr<const XdmfTopology> xTopology = grid->getTopology();
+  shared_ptr<const XdmfTopologyType> xCellType = xTopology->getType();
+
+  // Index iterates through dofs in cells
+  unsigned long index = 0;
+  // Ncomp iterates through nontrivial (nonpadded) components
+  unsigned int ncomp = 0;
+  // Data_rank is int type for VTK typedef
+  int data_rank = -1;
+
+  // Get number of dofs per cell
+  unsigned int number_dofs_per_cell = xmfAttribute->getSize() /
+    xTopology->getNumberElements();
+
+  // For each cell/element
+  for (unsigned int i = 0; i < xTopology->getNumberElements(); ++i)
+  {
+    // Get original already built cell
+    // This cell was prepared in "copyshape" method before
+    vtkCell *cell = dataSet->GetCell(i);
+
+    // Retrieve new VTK cell type, i.e. VTK representation of xdmf finite
+    // element function
+    int new_cell_type = GetVTKFiniteElementCellType(
+      xmfAttribute->getElementDegree(),
+      xmfAttribute->getElementFamily(),
+      xCellType
+    );
+
+    // Get number of points for the new cell
+    bool failed;
+    unsigned int number_points_per_new_cell =
+      GetNumberOfPointsPerCell(new_cell_type, failed);
+
+    if (failed)
+    {
+      cerr << "Unable to get number of points for cell type "
+           << new_cell_type << endl;
+      return;
+    }
+
+    // Global indices to points in cell
+    vtkIdType ptIds[number_points_per_new_cell];
+
+    // Get original cell points
+    vtkPoints *cell_points = cell->GetPoints();
+
+    // Store element degree
+    unsigned int d = xmfAttribute->getElementDegree();
+
+    // Prepare space for normal vectors
+    double normal[number_points_per_new_cell][3];
+
+    // Determine number of components after embedding
+    // the scalar/vector/tesor into 3D world
+    unsigned int ncomp_padded = 0;
+    if (xmfAttribute->getType() == XdmfAttributeType::Scalar())
+    {
+      ncomp_padded = 1;
+      data_rank = vtkDataSetAttributes::SCALARS;
+    }
+
+    if (xmfAttribute->getType() == XdmfAttributeType::Vector())
+    {
+      ncomp_padded = 3;
+      data_rank = vtkDataSetAttributes::VECTORS;
+    }
+
+    if (xmfAttribute->getType() == XdmfAttributeType::Tensor() or
+      xmfAttribute->getType() == XdmfAttributeType::Tensor6())
+    {
+      ncomp_padded = 9;
+      data_rank = vtkDataSetAttributes::TENSORS;
+    }
+
+    new_array->SetNumberOfComponents(ncomp_padded);
+
+    // For each new point in the cell
+    for (unsigned int ix = 0; ix < number_points_per_new_cell; ++ix)
+    {
+
+      ptIds[ix] = static_cast<vtkIdType>(points_added);
+      double coord[3];
+      double coord_begin[3];
+      double coord_end[3];
+      unsigned int dim;
+
+      // Prepare zero filled values
+      double tuple[ncomp_padded] = {0.0};
+
+      if ((xmfAttribute->getElementFamily() == "CG" or
+        xmfAttribute->getElementFamily() == "DG")
+        and xmfAttribute->getElementCell() == "triangle")
+      {
+        //
+        // CG and DG on triangles
+        // ---------------------------------------------------------------------
+        // Original points, i.e. vertices are unchanged for arbitrary degree
+        //
+        // For degree=2 VTK_QUADRATIC_TRIANGLE with
+        // degrees of freedom in midpoints is prepared
+
+        // For original points
+        if (ix < cell->GetNumberOfPoints())
+        {
+          cell_points->GetPoint(ix, coord);
+        } else if (d == 2 and ix >= cell->GetNumberOfPoints())
+        {
+          // They are just tuples (i, i+i) but when i+1 = last point then
+          // i+1 is in fact 0
+          cell_points->GetPoint(
+            static_cast<vtkIdType>(ix - 3),
+            coord_begin);
+          cell_points->GetPoint(
+            static_cast<vtkIdType>(
+              (ix - 3 + 1) % 3
+            ), coord_end);
+
+          // Additional points for CG2, DG2 are on midways
+          for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
+          {
+            coord[space_dim] = (coord_begin[space_dim]
+              + coord_end[space_dim]) * 0.5;
+          }
+        }
+
+        if (d == 0)
+        {
+          dof_to_vtk_map = single_value_map;
+        } else if (d == 1)
+        {
+          dof_to_vtk_map = triangle_map;
+        } else if (d == 2)
+        {
+          dof_to_vtk_map = quadratic_triangle_map;
+        } else {
+          dof_to_vtk_map = triangle_map;
+        }
+
+        dim = (d + 1) * (d + 2) / 2;
+        ncomp = number_dofs_per_cell / dim;
+
+        //
+        // Fill data values
+        //
+        if (!(d == 0 and ix > 0))
+        {
+          for (unsigned int comp = 0; comp < ncomp; ++comp)
+          {
+            // If I am on point which doesn't have a corresponding value in dof
+            // values I must compute it, this is subparametric element
+            //
+            // These values are in midpoints of referential cell and are
+            // averages of values on nodes
+            if (ix + 1 > dim)
+            {
+              unsigned long dof_index_begin =
+                xmfAttribute->getValue<unsigned long>(index +
+                dof_to_vtk_map[ix % 3] + comp * dim);
+              unsigned long dof_index_end =
+              xmfAttribute->getValue<unsigned long>(index +
+                dof_to_vtk_map[(ix + 1) % 3] + comp * dim);
+
+              tuple[comp] = (dof_values->getValue<double>(dof_index_begin) +
+                dof_values->getValue<double>(dof_index_end)) / 2.0;
+            } else {
+              // For points having corresponding values just insert them
+              unsigned long dof_index =
+                xmfAttribute->getValue < unsigned
+              long > (index +
+                dof_to_vtk_map[ix] + comp * dim);
+
+              tuple[comp] = dof_values->getValue<double>(dof_index);
+            }
+          }
+        }
+
+      }
+      else if ((xmfAttribute->getElementFamily() == "CG" or
+        xmfAttribute->getElementFamily() == "DG")
+        and xmfAttribute->getElementCell() == "tetrahedron")
+      {
+        //
+        // CG and DG on tetrahedra
+        // ---------------------------------------------------------------------
+        //
+        // Original points, i.e. vertices are unchanged for arbitrary degree
+        //
+        // For degree=2 VTK_QUADRATIC_TETRA is prepared with degrees of
+        // freedom in midpoints
+
+        // For original points
+        if (ix < cell->GetNumberOfPoints())
+        {
+          cell_points->GetPoint(ix, coord);
+        }
+        else if (d == 2 and ix >= cell->GetNumberOfPoints())
+        {
+          cell_points->GetPoint(
+            static_cast<vtkIdType>((ix - 1) % 3),
+            coord_begin);
+
+          if (ix > 6)
+          {
+            cell_points->GetPoint(static_cast<vtkIdType>(3), coord_end);
+          }
+          else
+          {
+            cell_points->GetPoint(static_cast<vtkIdType>(ix % 3),
+              coord_end);
+          }
+
+          // Additional points for CG2, DG2 are on midways
+          for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
+          {
+            coord[space_dim] = (coord_begin[space_dim]
+              + coord_end[space_dim]) * 0.5;
+          }
+        }
+
+        if (d == 0)
+        {
+          dof_to_vtk_map = single_value_map;
+        } else if (d == 1)
+        {
+          dof_to_vtk_map = tetrahedron_map;
+        } else if (d == 2)
+        {
+          dof_to_vtk_map = quadratic_tetrahedron_map;
+        } else {
+          dof_to_vtk_map = tetrahedron_map;
+        }
+
+        dim = (d + 1) * (d + 2) * (d + 3) / 6;
+        ncomp = number_dofs_per_cell / dim;
+
+        //
+        // Fill data values
+        //
+
+        if (!(d == 0 and ix > 0))
+        {
+          for (unsigned int comp = 0; comp < ncomp; ++comp)
+          {
+            unsigned long dof_index =
+              xmfAttribute->getValue < unsigned
+            long > (index +
+              dof_to_vtk_map[ix] + comp * dim);
+
+            tuple[comp] = dof_values->getValue<double>(dof_index);
+          }
+        }
+
+      }
+      else if ((xmfAttribute->getElementFamily() == "Q" or
+        xmfAttribute->getElementFamily() == "DQ")
+        and xmfAttribute->getElementCell() == "quadrilateral")
+      {
+        //
+        // Q and DQ on quadrilaterals
+        // ---------------------------------------------------------------------
+        //
+        // "Q" element family
+        //
+        // For degree=2 VTK_BIQUADRATIC_QUAD with degrees of freedom on
+        // midpoints of edges and in centroid is prepared
+
+        double coord_orig[4][3];
+
+        // For original points
+        if (ix < cell->GetNumberOfPoints())
+        {
+          cell_points->GetPoint(ix, coord_orig[ix]);
+          cell_points->GetPoint(ix, coord);
+        }
+        else if (ix <= 7)
+        {
+          cell_points->GetPoint(
+            static_cast<vtkIdType>(ix % 4),
+            coord_begin);
+
+          cell_points->GetPoint(static_cast<vtkIdType>((ix + 1) % 4),
+            coord_end);
+
+          // Additional points for Q2, DQ2 are on midways
+          for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
+          {
+            coord[space_dim] = (coord_begin[space_dim]
+              + coord_end[space_dim]) * 0.5;
+          }
+        }
+        else if (ix == 8)
+        {
+          // The last point is in centroid of the quad
+          for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
+          {
+            coord[space_dim] =
+              (coord_orig[0][space_dim] +
+                coord_orig[1][space_dim] +
+                coord_orig[2][space_dim] +
+                coord_orig[3][space_dim]) / 4;
+          }
+        }
+
+        if (d == 0)
+        {
+          dof_to_vtk_map = single_value_map;
+        } else if (d == 1)
+        {
+          dof_to_vtk_map = quadrilateral_map;
+        } else if (d == 2)
+        {
+          dof_to_vtk_map = quadratic_quadrilateral_map;
+        } else {
+          dof_to_vtk_map = quadrilateral_map;
+        }
+
+        dim = pow(d + 1, 2);
+        ncomp = number_dofs_per_cell / dim;
+
+        //
+        // Fill data values
+        //
+
+        if (!(d == 0 and ix > 0))
+        {
+          for (unsigned int comp = 0; comp < ncomp; ++comp)
+          {
+            unsigned long dof_index =
+              xmfAttribute->getValue < unsigned
+            long > (index +
+              dof_to_vtk_map[ix] + comp * dim);
+
+            tuple[comp] = dof_values->getValue<double>(dof_index);
+          }
+        }
+
+      }
+      else if (xmfAttribute->getElementFamily() == "RT" and
+        xmfAttribute->getElementCell() == "triangle")
+      {
+        //
+        // RT (Raviart-Thomas) on triangles
+        // ---------------------------------------------------------------------
+        //
+        // Degrees of freedom for degree=1 are on midpoints of edges
+        // They represent normal component of vector field which is constant
+        // on the whole edge. Therefore, in each vertex normal components
+        // for both adjacent edges are known. These two components determine
+        // the actual vector value.
+        //
+        // Higher order functions are not implemented.
+
+
+        // For original points
+        if (ix < cell->GetNumberOfPoints())
+        {
+          cell_points->GetPoint(ix, coord);
+        }
+
+        if (d == 1)
+        {
+          dof_to_vtk_map = triangle_map;
+        }
+
+        ncomp = 3;
+
+        // This indices are used to choose normal vectors
+        std::vector<unsigned int> normal_ixs = {ix, (ix + 2) % 3};
+
+        for (auto normal_ix : normal_ixs)
+        {
+          // Normals are computed from points on line (i, i+1) and when i+1
+          // is the last point then (i, 0)
+          cell_points->GetPoint(normal_ix, coord_begin);
+          cell_points->GetPoint((normal_ix + 1) % 3, coord_end);
+
+          // Orthogonal vector in 2D is computed just by switching coordinates
+          // and multiplying -1 the second one
+          normal[normal_ix][0] = coord_end[1] - coord_begin[1];
+          normal[normal_ix][1] = -(coord_end[0] - coord_begin[0]);
+          normal[normal_ix][2] = 0.0;
+
+          // Compute euclidean norm
+          double norm = sqrt(pow(normal[normal_ix][0], 2) +
+            pow(normal[normal_ix][1], 2));
+
+          // Normalize "normals"
+          for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
+          {
+            normal[normal_ix][space_dim] = normal[normal_ix][space_dim] / norm;
+            if (normal_ix > ((normal_ix + 1) % 3))
+              normal[normal_ix][space_dim] = -1 * normal[normal_ix][space_dim];
+          }
+        }
+
+        // This index is used to choose the value of degree of freedom
+        unsigned int ix1 = (ix + 2) % 3;
+        unsigned int ix2 = (ix + 1) % 3;
+
+        dof_to_vtk_map = triangle_map;
+
+        // Get dof values
+        double adjacent_dof1 =
+          dof_values->getValue<double>(
+        xmfAttribute->getValue<unsigned long>(
+          index + dof_to_vtk_map[ix1]));
+        double adjacent_dof2 =
+          dof_values->getValue<double>(
+        xmfAttribute->getValue<unsigned long>(
+          index + dof_to_vtk_map[ix2]));
+
+        // Dofs are scaled with the volume of corresponding facet
+        adjacent_dof1 = adjacent_dof1 / sqrt(cell->GetEdge(ix)
+          ->GetLength2());
+        adjacent_dof2 =
+          adjacent_dof2 / sqrt(cell->GetEdge((ix + 2) % 3)
+            ->GetLength2());
+
+        // Scalar product of the normals
+        double normal_product = normal[normal_ixs[0]][0] *
+          normal[normal_ixs[1] % 3][0] + normal[normal_ixs[0]][1] *
+          normal[normal_ixs[1] % 3][1];
+
+        // These coefficients are used to compute values at nodes
+        // from values in midways
+        double a = (adjacent_dof1 - adjacent_dof2 * normal_product) /
+          (1.0 - pow(normal_product, 2));
+
+        double b = (adjacent_dof2 - adjacent_dof1 * normal_product) /
+          (1.0 - pow(normal_product, 2));
+
+        tuple[0] = normal[normal_ixs[0]][0] * a +
+          normal[normal_ixs[1] % 3][0] * b;
+
+        tuple[1] = normal[normal_ixs[0]][1] * a +
+          normal[normal_ixs[1] % 3][1] * b;
+
+        tuple[2] = 0.0;
+      }
+      // Insert prepared point
+      p_new->InsertNextPoint(coord);
+      ++points_added;
+
+      // If degree == 0 we want to add only first tuple because we store data as
+      // CellData
+      if (d == 0 and ix > 0)
+        continue;
+
+      // At this point, tuple is padded from the end, i.e. (1,0,0)
+      // for one-component vector in 3D, but 2D tensor in 3D is padded
+      // incorrectly as (1,1,1,1,0,0,0,0,0) and should be (1,1,0,1,1,0,0,0,0)
+      // We need to rearrange values
+      if (ncomp_padded == 9 and ncomp == 4)
+      {
+        tuple[4] = tuple[3];
+        tuple[3] = tuple[2];
+        tuple[2] = 0.0;
+      }
+
+      // Insert data value
+      new_array->InsertNextTuple(tuple);
+    }
+
+    //
+    // Add cell
+    //
+
+    dataSet_finite_element->InsertNextCell(new_cell_type,
+      number_points_per_new_cell, ptIds);
+    index = index + number_dofs_per_cell;
+  }
+
+  //
+  // Add all points
+  //
+
+  dataSet_finite_element->SetPoints(p_new);
+  p_new->Delete();
+
+  // Copy prepared structure to the dataset
+  dataSet->CopyStructure(dataSet_finite_element);
+
+  vtkFieldData *fieldData = NULL;
+
+  // Insert values array to Cell/Point data
+  if (xmfAttribute->getElementDegree() == 0)
+  {
+    fieldData = dataSet_original->GetCellData();
+  } else {
+    fieldData = dataSet_original->GetPointData();
+  }
+
+  fieldData->AddArray(new_array);
+
+  vtkDataSetAttributes *dataSet_attributes =
+    vtkDataSetAttributes::SafeDownCast(fieldData);
+
+  if (data_rank >= 0)
+    dataSet_attributes->SetAttribute(new_array, data_rank);
+
+  new_array->Delete();
+  array->Delete();
+
 }
