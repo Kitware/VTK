@@ -129,6 +129,12 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output =
       vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (!input || input->GetNumberOfPoints() == 0)
+  {
+    // Fail gracefully on empty inputs
+    return 1;
+  }
+
   // convert the input dataset to a vtkm::cont::DataSet
   vtkm::cont::DataSet in = tovtkm::Convert(input,
                                            tovtkm::FieldsFlag::PointsAndCells);
