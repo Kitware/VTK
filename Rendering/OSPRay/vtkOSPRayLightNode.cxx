@@ -126,7 +126,16 @@ void vtkOSPRayLightNode::Render(bool prepass)
     OSPRenderer oRenderer = orn->GetORenderer();
 
     vtkLight *light = vtkLight::SafeDownCast(this->GetRenderable());
-
+    int lt = light->GetLightType();
+    /*
+    std::string lts = "ambient";
+    if (lt == 1)
+      { lts = "HEADLIGHT"; }
+    if (lt == 2)
+      { lts = "CAMERA"; }
+    if (lt == 3)
+      { lts = "SCENE"; }
+    */
     float color[3] = {0.0,0.0,0.0};
     if (light->GetSwitch())
     {
@@ -142,9 +151,10 @@ void vtkOSPRayLightNode::Render(bool prepass)
       color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
-        (vtkOSPRayLightNode::LightScale*
+        (0.13f*
+         vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
-         vtkMath::Pi() //since OSP 0.10.0
+         vtkMath::Pi()
          );
       ospSet1f(ospLight, "intensity", fI);
       ospCommit(ospLight);
@@ -154,12 +164,47 @@ void vtkOSPRayLightNode::Render(bool prepass)
     {
       double px, py, pz;
       light->GetTransformedPosition(px, py, pz);
-      OSPLight ospLight = ospNewLight(oRenderer, "PointLight");
+      if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT) //todo: hacky and doesn't fix GL
+        {
+        double *p = light->GetPosition();
+        px = p[0];
+        py = p[1];
+        pz = p[2];
+        }
+      //cerr << this << lts << " POS "<< " P" << px << "," << py << "," << pz << endl;
+      float coneAngle = static_cast<float>(light->GetConeAngle());
+      OSPLight ospLight;
+      if (coneAngle <= 0.0)
+      {
+        ospLight = ospNewLight(oRenderer, "PointLight");
+      }
+      else
+      {
+        ospLight = ospNewLight(oRenderer, "SpotLight");
+        double fx, fy, fz;
+        light->GetTransformedFocalPoint(fx, fy, fz);
+        if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
+        {
+          double *p = light->GetFocalPoint();
+          fx = p[0];
+          fy = p[1];
+          fz = p[2];
+        }
+        double direction[3];
+        direction[0] = fx - px;
+        direction[1] = fy - py;
+        direction[2] = fz - pz;
+        ospSet3f(ospLight, "direction",
+                 direction[0], direction[1], direction[2]);
+        ospSet1f(ospLight, "openingAngle", coneAngle);
+        //TODO: penumbraAngle
+      }
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
-        (vtkOSPRayLightNode::LightScale*
+        (20.0*
+         vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
-         vtkMath::Pi() //since OSP 0.10.0
+         vtkMath::Pi()
          );
       ospSet1i(ospLight, "isVisible", 0);
       ospSet1f(ospLight, "intensity", fI);
@@ -175,6 +220,18 @@ void vtkOSPRayLightNode::Render(bool prepass)
       double fx, fy, fz;
       light->GetTransformedPosition(px, py, pz);
       light->GetTransformedFocalPoint(fx, fy, fz);
+      if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
+      {
+        double *p = light->GetPosition();
+        px = p[0];
+        py = p[1];
+        pz = p[2];
+        p = light->GetFocalPoint();
+        fx = p[0];
+        fy = p[1];
+        fz = p[2];
+      }
+      //cerr << this << lts << " DIR "<< " P" << px << "," << py << "," << pz << " F" << fx << "," << fy << "," << fz << endl;
       double direction[3];
       direction[0] = fx - px;
       direction[1] = fy - py;
@@ -184,13 +241,13 @@ void vtkOSPRayLightNode::Render(bool prepass)
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
-         vtkMath::Pi()); //since OSP 0.10.0
+         vtkMath::Pi());
       ospSet1f(ospLight, "intensity", fI);
       vtkMath::Normalize(direction);
       ospSet3f(ospLight, "direction",
                direction[0], direction[1], direction[2]);
       float r = static_cast<float>(vtkOSPRayLightNode::GetRadius(light));
-      ospSet1f(ospLight, "radius", r);
+      ospSet1f(ospLight, "angularDiameter", r);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
     }
