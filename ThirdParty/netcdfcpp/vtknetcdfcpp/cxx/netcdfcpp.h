@@ -218,17 +218,17 @@ class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
 {
   public:
     virtual ~NcVar( void );
-    NcToken name( void ) const;
-    NcType type( void ) const;
-    NcBool is_valid( void ) const;
+    NcToken name( void ) const override;
+    NcType type( void ) const override;
+    NcBool is_valid( void ) const override;
     int num_dims( void ) const;         // dimensionality of variable
     NcDim* get_dim( int ) const;        // n-th dimension
     size_t* edges( void ) const;          // dimension sizes
     int num_atts( void ) const;         // number of attributes
     NcAtt* get_att( NcToken ) const;    // attribute by name
     NcAtt* get_att( int ) const;        // n-th attribute
-    long num_vals( void ) const;        // product of dimension sizes
-    NcValues* values( void ) const;     // all values
+    long num_vals( void ) const override;     // product of dimension sizes
+    NcValues* values( void ) const override;  // all values
     
     // Put scalar or 1, ..., 5 dimensional arrays by providing enough
     // arguments.  Arguments are edge lengths, and their number must not
@@ -310,7 +310,7 @@ class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
     NcBool add_att( NcToken, int, const float* );
     NcBool add_att( NcToken, int, const double* );
 
-    NcBool rename( NcToken newname );
+    NcBool rename( NcToken newname ) override;
 
     long rec_size ( void );             // number of values per record
     long rec_size ( NcDim* );           // number of values per dimension slice
@@ -416,12 +416,12 @@ class VTKNETCDFCPP_EXPORT NcAtt : public NcTypedComponent
 {
   public:          
     virtual ~NcAtt( void );
-    NcToken name( void ) const;
-    NcType type( void ) const;
-    NcBool is_valid( void ) const;
-    long num_vals( void ) const; 
-    NcValues* values( void ) const;
-    NcBool rename( NcToken newname );
+    NcToken name( void ) const override;
+    NcType type( void ) const override;
+    NcBool is_valid( void ) const override;
+    long num_vals( void ) const override;
+    NcValues* values( void ) const override;
+    NcBool rename( NcToken newname ) override;
     NcBool remove( void );
 
   private:
