@@ -283,6 +283,12 @@ public:
    */
   void Render();
 
+  /**
+   * Set/Get the window to use for the openGL context
+   */
+  vtkGetObjectMacro(HelperWindow, vtkOpenGLRenderWindow);
+  void SetHelperWindow(vtkOpenGLRenderWindow *val);
+
 protected:
   vtkOpenVRRenderWindow();
   ~vtkOpenVRRenderWindow();
