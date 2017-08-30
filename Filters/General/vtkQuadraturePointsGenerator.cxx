@@ -253,7 +253,7 @@ int vtkQuadraturePointsGenerator::Generate(
   switch (X_type)
   {
     vtkTemplateMacro(
-      if (!Interpolate(
+      if (!vtkQuadraturePointsUtilities::Interpolate(
               usgIn,
               nCells,
               (VTK_TT*)pX,

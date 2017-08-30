@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkUnstructuredGrid.h"
 
-namespace {
+namespace vtkQuadraturePointsUtilities {
 
 
 // Description:
@@ -32,7 +32,7 @@ namespace {
 // values from each cell start as well. In the case of
 // an error the return is 0.
 template<class TV, class TI>
-static int Interpolate(
+int Interpolate(
         vtkUnstructuredGrid *usg,
         const vtkIdType nCellsUsg,
         TV *pV,
@@ -95,7 +95,7 @@ static int Interpolate(
 // Description:
 // Dispatch helper, descides what type of indices we are working with
 template<class TV>
-static int Interpolate(
+int Interpolate(
         vtkUnstructuredGrid *usg,
         const vtkIdType nCellsUsg,
         TV *pV,
@@ -116,7 +116,7 @@ static int Interpolate(
 
 //------------------------------------------------------------------------------
 template <class T>
-static void ApplyShapeFunction(double *r,double N_j,T *A,int nComps)
+void ApplyShapeFunction(double *r,double N_j,T *A,int nComps)
 {
   for (int q=0; q<nComps; ++q)
   {
