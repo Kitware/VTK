@@ -251,6 +251,17 @@ void vtkLight::DeepCopy(vtkLight *light)
   this->SetAttenuationValues(light->GetAttenuationValues());
 }
 
+void vtkLight::SetLightType(int type)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting LightType to " << type);
+  if (this->LightType != type)
+  {
+    this->SetTransformMatrix(nullptr);
+    this->LightType = type;
+    this->Modified();
+  }
+}
+
 void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -303,48 +314,3 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "ShadowAttenuation: " << this->ShadowAttenuation << "\n";
 }
-
-void vtkLight::WriteSelf(ostream& os)
-{
-  os << this->FocalPoint[0] << " " << this->FocalPoint[1] << " "
-     << this->FocalPoint[2] << " ";
-  os << this->Position[0] << " " << this->Position[1] << " "
-     << this->Position[2] << " ";
-  os << this->Intensity << " ";
-  os << this->AmbientColor[0] << " " << this->AmbientColor[1] << " "
-     << this->AmbientColor[2] << " ";
-  os << this->DiffuseColor[0] << " " << this->DiffuseColor[1] << " "
-     << this->DiffuseColor[2] << " ";
-  os << this->SpecularColor[0] << " " << this->SpecularColor[1] << " "
-     << this->SpecularColor[2] << " ";
-  os << this->Switch << " ";
-  os << this->Switch << " ";
-  os << this->Positional << " ";
-  os << this->Exponent << " ";
-  os << this->ConeAngle << " ";
-  os << this->AttenuationValues[0] << " " << this->AttenuationValues[1] << " "
-     << this->AttenuationValues[2] << " ";
-  os << this->ShadowAttenuation << " ";
-  // XXX - LightType, TransformMatrix ???
-}
-
-void vtkLight::ReadSelf(istream& is)
-{
-  is >> this->FocalPoint[0] >> this->FocalPoint[1] >> this->FocalPoint[2] ;
-  is >> this->Position[0] >> this->Position[1] >> this->Position[2];
-  is >> this->Intensity;
-  is >> this->AmbientColor[0] >> this->AmbientColor[1] >> this->AmbientColor[2];
-  is >> this->DiffuseColor[0] >> this->DiffuseColor[1] >> this->DiffuseColor[2];
-  is >> this->SpecularColor[0] >> this->SpecularColor[1] >> this->SpecularColor[2];
-  is >> this->Switch;
-  is >> this->Positional;
-  is >> this->Exponent;
-  is >> this->ConeAngle;
-  is >> this->AttenuationValues[0] >> this->AttenuationValues[1]
-     >> this->AttenuationValues[2];
-  is >> this->ShadowAttenuation;
-  // XXX - LightType, TransformMatrix ???
-}
-
-
-

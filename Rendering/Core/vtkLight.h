@@ -244,21 +244,20 @@ public:
    * located at the camera's position.  CameraLights are defined in a
    * coordinate space where the camera is located at (0, 0, 1), looking
    * towards (0, 0, 0) at a distance of 1, with up being (0, 1, 0).
+   * CameraLight uses the transform matrix to establish this space.
 
-   * Note: Use SetLightTypeToSceneLight, rather than SetLightType(3), since
-   * the former clears the light's transform matrix.
+   * Note: All SetLightType(), and SetLightTypeTo*() calls clear the
+   * light's transform matrix.
    */
-  vtkSetMacro(LightType, int);
+  virtual void SetLightType(int);
   vtkGetMacro(LightType, int);
+
   void SetLightTypeToHeadlight()
-    {this->SetLightType(VTK_LIGHT_TYPE_HEADLIGHT);}
+    { this->SetLightType(VTK_LIGHT_TYPE_HEADLIGHT); }
   void SetLightTypeToSceneLight()
-  {
-    this->SetTransformMatrix(nullptr);
-    this->SetLightType(VTK_LIGHT_TYPE_SCENE_LIGHT);
-  }
+    { this->SetLightType(VTK_LIGHT_TYPE_SCENE_LIGHT); }
   void SetLightTypeToCameraLight()
-    {this->SetLightType(VTK_LIGHT_TYPE_CAMERA_LIGHT);}
+    { this->SetLightType(VTK_LIGHT_TYPE_CAMERA_LIGHT); }
   //@}
 
   //@{
@@ -269,9 +268,6 @@ public:
   int LightTypeIsSceneLight();
   int LightTypeIsCameraLight();
   //@}
-
-  void ReadSelf(istream& is);
-  void WriteSelf(ostream& os);
 
   //@{
   /**

@@ -19,7 +19,6 @@
 #include "vtkExternalLight.h"
 #include "vtkExternalOpenGLCamera.h"
 #include "vtkLightCollection.h"
-#include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
