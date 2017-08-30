@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkStructuredGridLIC2D();
-  ~vtkStructuredGridLIC2D();
+  ~vtkStructuredGridLIC2D() VTK_OVERRIDE;
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -125,8 +125,8 @@ protected:
    * port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port,
+                               vtkInformation *info) VTK_OVERRIDE;
 
   /**
    * Fill the output port information objects for this algorithm.
@@ -134,10 +134,10 @@ protected:
    * each port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillOutputPortInformation(int port,
-                                        vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port,
+                                vtkInformation *info) VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
          vtkInformationVector **inputVector,
          vtkInformationVector *outputVector) VTK_OVERRIDE;
 
@@ -160,7 +160,7 @@ protected:
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector) VTK_OVERRIDE;
 

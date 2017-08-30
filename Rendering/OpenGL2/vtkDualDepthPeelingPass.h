@@ -99,7 +99,7 @@ public:
                            vtkAbstractMapper *mapper,
                            vtkProp *prop,
                            vtkOpenGLVertexArrayObject *VAO = nullptr) VTK_OVERRIDE;
-  virtual vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
+  vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
 
 protected:
 

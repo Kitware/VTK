@@ -104,7 +104,7 @@ public:
 
 protected:
   QVTKOpenGLWidgetObserver() {}
-  ~QVTKOpenGLWidgetObserver() {}
+  ~QVTKOpenGLWidgetObserver() VTK_OVERRIDE {}
   QPointer<QVTKOpenGLWidget> Target;
 };
 

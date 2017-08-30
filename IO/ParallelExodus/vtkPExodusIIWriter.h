@@ -90,14 +90,14 @@ public:
 
 protected:
   vtkPExodusIIWriter ();
-  ~vtkPExodusIIWriter ();
-  virtual int CheckParameters () VTK_OVERRIDE;
-  virtual void CheckBlockInfoMap() VTK_OVERRIDE;
+  ~vtkPExodusIIWriter () VTK_OVERRIDE;
+  int CheckParameters () VTK_OVERRIDE;
+  void CheckBlockInfoMap() VTK_OVERRIDE;
 
-  virtual int RequestUpdateExtent (vtkInformation* request,
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector) VTK_OVERRIDE;
-  virtual int GlobalContinueExecuting(int localContinue) VTK_OVERRIDE;
+  int RequestUpdateExtent (vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector) VTK_OVERRIDE;
+  int GlobalContinueExecuting(int localContinue) VTK_OVERRIDE;
 
   /**
    * Get the maximum length name in the input data set. If it is smaller

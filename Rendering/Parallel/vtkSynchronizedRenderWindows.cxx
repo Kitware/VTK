@@ -34,7 +34,7 @@ public:
     return obs;
   }
 
-  virtual void Execute(vtkObject *, unsigned long eventId, void *)
+  void Execute(vtkObject *, unsigned long eventId, void *) VTK_OVERRIDE
   {
     if (this->Target)
     {

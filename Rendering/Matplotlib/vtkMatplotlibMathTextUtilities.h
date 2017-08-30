@@ -47,7 +47,7 @@ public:
 
   static vtkMatplotlibMathTextUtilities *New();
 
-  virtual bool IsAvailable() VTK_OVERRIDE;
+  bool IsAvailable() VTK_OVERRIDE;
 
   /**
    * Given a text property and a string, get the bounding box {xmin, xmax,
@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkMatplotlibMathTextUtilities();
-  virtual ~vtkMatplotlibMathTextUtilities();
+  ~vtkMatplotlibMathTextUtilities() VTK_OVERRIDE;
 
   bool InitializeMaskParser();
   bool InitializePathParser();

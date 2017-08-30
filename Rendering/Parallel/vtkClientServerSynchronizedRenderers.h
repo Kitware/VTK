@@ -35,10 +35,10 @@ public:
 
 protected:
   vtkClientServerSynchronizedRenderers();
-  ~vtkClientServerSynchronizedRenderers();
+  ~vtkClientServerSynchronizedRenderers() VTK_OVERRIDE;
 
-  virtual void MasterEndRender() VTK_OVERRIDE;
-  virtual void SlaveEndRender() VTK_OVERRIDE;
+  void MasterEndRender() VTK_OVERRIDE;
+  void SlaveEndRender() VTK_OVERRIDE;
 
 private:
   vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;

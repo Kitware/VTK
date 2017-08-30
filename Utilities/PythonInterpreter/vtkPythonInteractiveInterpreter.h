@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkPythonInteractiveInterpreter();
-  ~vtkPythonInteractiveInterpreter();
+  ~vtkPythonInteractiveInterpreter() VTK_OVERRIDE;
 
   void HandleEvents(vtkObject* caller, unsigned long eventid, void* calldata);
 

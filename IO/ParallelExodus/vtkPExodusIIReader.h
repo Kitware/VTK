@@ -98,7 +98,7 @@ public:
    */
   void SetFileNames( int nfiles, const char** names );
 
-  virtual void SetFileName( const char* name ) VTK_OVERRIDE;
+  void SetFileName( const char* name ) VTK_OVERRIDE;
 
   /**
    * Return pointer to list of file names set in SetFileNames
@@ -117,8 +117,8 @@ public:
   vtkGetMacro(NumberOfFiles,int);
   //@}
 
-  virtual vtkIdType GetTotalNumberOfElements() VTK_OVERRIDE;
-  virtual vtkIdType GetTotalNumberOfNodes() VTK_OVERRIDE;
+  vtkIdType GetTotalNumberOfElements() VTK_OVERRIDE;
+  vtkIdType GetTotalNumberOfNodes() VTK_OVERRIDE;
 
   /**
    * Sends metadata (that read from the input file, not settings modified
@@ -143,7 +143,7 @@ public:
 
 protected:
   vtkPExodusIIReader();
-  ~vtkPExodusIIReader();
+  ~vtkPExodusIIReader() VTK_OVERRIDE;
 
   //@{
   /**

@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkPythonInterpreter();
-  ~vtkPythonInterpreter();
+  ~vtkPythonInterpreter() VTK_OVERRIDE;
 
   friend struct vtkPythonStdStreamCaptureHelper;
 

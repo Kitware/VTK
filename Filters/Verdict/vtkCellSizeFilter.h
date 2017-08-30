@@ -127,7 +127,7 @@ protected:
   vtkCellSizeFilter();
   ~vtkCellSizeFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) VTK_OVERRIDE;
   bool ComputeDataSet(vtkDataSet* input, vtkDataSet* output, vtkDoubleArray* sum);
 

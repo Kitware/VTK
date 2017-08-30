@@ -126,7 +126,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QOpenGLWidget
   typedef QOpenGLWidget Superclass;
 public:
   QVTKOpenGLWidget(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
-  virtual ~QVTKOpenGLWidget();
+  ~QVTKOpenGLWidget() VTK_OVERRIDE;
 
   //@{
   /**

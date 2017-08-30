@@ -41,10 +41,10 @@ class VTKIOGDAL_EXPORT vtkGDALRasterReader : public vtkImageReader2
 public:
   static vtkGDALRasterReader* New();
   vtkTypeMacro(vtkGDALRasterReader, vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkGDALRasterReader();
-  virtual ~vtkGDALRasterReader();
+  ~vtkGDALRasterReader() VTK_OVERRIDE;
 
   //@{
   /**
@@ -108,16 +108,16 @@ public:
 
 protected:
 
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+  int RequestInformation(vtkInformation* request,
+                         vtkInformationVector** inputVector,
+                         vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation(int port,
-                                        vtkInformation* info);
+  int FillOutputPortInformation(int port,
+                                vtkInformation* info) VTK_OVERRIDE;
 
 protected:
   int TargetDimensions[2];

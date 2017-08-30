@@ -105,18 +105,18 @@ public:
 
 protected:
   vtkTRUCHASReader();
-  ~vtkTRUCHASReader();
+  ~vtkTRUCHASReader() VTK_OVERRIDE;
 
   /**
    * Overridden to announce timesteps we can produce
    */
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                         vtkInformationVector *) VTK_OVERRIDE;
   /**
    * Overridden to read the file and parse into an output
    */
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
 
   char *FileName;
 

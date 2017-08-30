@@ -55,14 +55,14 @@ public:
 
 protected:
   vtkCompositeSurfaceLICMapper();
-  ~vtkCompositeSurfaceLICMapper();
+  ~vtkCompositeSurfaceLICMapper() VTK_OVERRIDE;
 
   vtkNew<vtkSurfaceLICInterface> LICInterface;
 
-  virtual vtkCompositeMapperHelper2 *CreateHelper() VTK_OVERRIDE;
+  vtkCompositeMapperHelper2 *CreateHelper() VTK_OVERRIDE;
 
   // copy values to the helpers
-  virtual void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper) VTK_OVERRIDE;
+  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper) VTK_OVERRIDE;
 
 private:
   vtkCompositeSurfaceLICMapper(

@@ -57,13 +57,13 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
+  void Learn( vtkTable* inData,
+              vtkTable* inParameters,
+              vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
 
 protected:
   vtkPDescriptiveStatistics();
-  ~vtkPDescriptiveStatistics();
+  ~vtkPDescriptiveStatistics() VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 private:

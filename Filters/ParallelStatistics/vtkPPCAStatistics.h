@@ -57,24 +57,24 @@ public:
 
 protected:
   vtkPPCAStatistics();
-  ~vtkPPCAStatistics();
+  ~vtkPPCAStatistics() VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 
   // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
+  void Learn( vtkTable* inData,
+              vtkTable* inParameters,
+              vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
 
   /**
    * Execute the calculations required by the Test option.
    * NB: Not implemented for more than 1 processor
    */
-  virtual void Test( vtkTable*,
-                     vtkMultiBlockDataSet*,
-                     vtkTable* ) VTK_OVERRIDE;
+  void Test( vtkTable*,
+             vtkMultiBlockDataSet*,
+             vtkTable* ) VTK_OVERRIDE;
 
-  virtual vtkOrderStatistics* CreateOrderStatisticsInstance() VTK_OVERRIDE;
+  vtkOrderStatistics* CreateOrderStatisticsInstance() VTK_OVERRIDE;
 
 private:
   vtkPPCAStatistics(const vtkPPCAStatistics&) VTK_DELETE_FUNCTION;

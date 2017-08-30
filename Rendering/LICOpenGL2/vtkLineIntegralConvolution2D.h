@@ -371,7 +371,7 @@ public:
 
 protected:
   vtkLineIntegralConvolution2D();
-  virtual ~vtkLineIntegralConvolution2D();
+  ~vtkLineIntegralConvolution2D() VTK_OVERRIDE;
 
   vtkPainterCommunicator *Comm;
 

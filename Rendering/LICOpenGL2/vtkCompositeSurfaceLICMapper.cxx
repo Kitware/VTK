@@ -85,12 +85,12 @@ public:
 
 protected:
   vtkCompositeLICHelper();
-  ~vtkCompositeLICHelper();
+  ~vtkCompositeLICHelper() VTK_OVERRIDE;
 
   /**
    * Build the VBO/IBO, called by UpdateBufferObjects
    */
-  virtual void AppendOneBufferObject(vtkRenderer *ren,
+  void AppendOneBufferObject(vtkRenderer *ren,
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
     unsigned int &flat_index,
     std::vector<unsigned char> &colors,
@@ -100,12 +100,12 @@ protected:
   /**
    * Set the shader parameteres related to the mapper/input data, called by UpdateShader
    */
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Perform string replacments on the shader templates
    */
-  virtual void ReplaceShaderValues(
+  void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 

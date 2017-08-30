@@ -205,11 +205,11 @@ protected:
   vtkContinuousScatterplot();
 
   // Configure input port to accept only vtkUnstructuredGrid.
-  virtual int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   // Configure out port to be a vtkImageData data set.
-  virtual int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  virtual int RequestData(
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int RequestData(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
 
   // Set the tolerance used when comparing floating numbers for equality.

@@ -185,17 +185,17 @@ public:
 
 protected:
   vtkXdmfReader();
-  ~vtkXdmfReader();
+  ~vtkXdmfReader() VTK_OVERRIDE;
 
-  virtual int ProcessRequest(vtkInformation *request,
+  int ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector) VTK_OVERRIDE;
   virtual int RequestDataObject(vtkInformationVector *outputVector);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+  int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) VTK_OVERRIDE;
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) VTK_OVERRIDE;
-  virtual int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   vtkXdmfArraySelection* GetPointArraySelection();
   vtkXdmfArraySelection* GetCellArraySelection();

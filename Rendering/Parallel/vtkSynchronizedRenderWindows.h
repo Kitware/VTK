@@ -114,7 +114,7 @@ public:
   };
 protected:
   vtkSynchronizedRenderWindows();
-  ~vtkSynchronizedRenderWindows();
+  ~vtkSynchronizedRenderWindows() VTK_OVERRIDE;
 
   struct RenderWindowInfo
   {

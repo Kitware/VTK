@@ -149,26 +149,26 @@ public:
 
 protected:
   vtkXdmfWriter();
-  ~vtkXdmfWriter();
+  ~vtkXdmfWriter() VTK_OVERRIDE;
 
   //Choose composite executive by default for time.
-  virtual vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
 
   //Can take any one data object
-  virtual int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
   //Overridden to ...
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation*,
+                         vtkInformationVector**,
+                         vtkInformationVector*) VTK_OVERRIDE;
   //Overridden to ...
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
-  //Overridden to ...
-  virtual int RequestData(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*) VTK_OVERRIDE;
+  //Overridden to ...
+  int RequestData(vtkInformation*,
+                  vtkInformationVector**,
+                  vtkInformationVector*) VTK_OVERRIDE;
 
   //These do the work: recursively parse down input's structure all the way to arrays,
   //use XDMF lib to dump everything to file.

@@ -82,7 +82,7 @@ public:
   /**
    * Reset ActivePlotSet flag and call superclass method
    */
-  virtual void SetSize(const vtkVector2i& size) VTK_OVERRIDE;
+  void SetSize(const vtkVector2i& size) VTK_OVERRIDE;
 
   /**
    * Get the position of the active plot.

@@ -48,11 +48,11 @@ public:
   /**
    * Set the input data
    */
-  virtual void SetInputData( vtkImageData* ) VTK_OVERRIDE;
-  virtual void SetInputData( vtkDataSet* ) VTK_OVERRIDE;
+  void SetInputData( vtkImageData* ) VTK_OVERRIDE;
+  void SetInputData( vtkDataSet* ) VTK_OVERRIDE;
   virtual void SetInputData( vtkOverlappingAMR* );
-  virtual void SetInputConnection (int port, vtkAlgorithmOutput *input) VTK_OVERRIDE;
-  virtual void SetInputConnection (vtkAlgorithmOutput *input) VTK_OVERRIDE
+  void SetInputConnection (int port, vtkAlgorithmOutput *input) VTK_OVERRIDE;
+  void SetInputConnection (vtkAlgorithmOutput *input) VTK_OVERRIDE
   {this->SetInputConnection(0, input);}
   //@}
 
@@ -61,8 +61,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  virtual double *GetBounds() VTK_OVERRIDE;
-  virtual void GetBounds(double bounds[6]) VTK_OVERRIDE
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) VTK_OVERRIDE
     {this->vtkVolumeMapper::GetBounds(bounds); };
   //@}
 
@@ -77,7 +77,7 @@ public:
    * (ScalarModeToUseCellFieldData).  If scalars are coming from a field
    * data array, you must call SelectScalarArray.
    */
-  virtual void SetScalarMode(int mode) VTK_OVERRIDE;
+  void SetScalarMode(int mode) VTK_OVERRIDE;
 
   //@{
   /**
@@ -89,8 +89,8 @@ public:
    * Additive blend mode adds scalars along the ray and multiply them by
    * their opacity mapping value.
    */
-  virtual void SetBlendMode(int mode) VTK_OVERRIDE;
-  virtual int GetBlendMode() VTK_OVERRIDE;
+  void SetBlendMode(int mode) VTK_OVERRIDE;
+  int GetBlendMode() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -100,17 +100,17 @@ public:
    * The transfer function in the vtkVolumeProperty (attached to the calling
    * vtkVolume) will decide how to convert vectors to colors.
    */
-  virtual void SelectScalarArray(int arrayNum) VTK_OVERRIDE;
-  virtual void SelectScalarArray(const char* arrayName) VTK_OVERRIDE;
+  void SelectScalarArray(int arrayNum) VTK_OVERRIDE;
+  void SelectScalarArray(const char* arrayName) VTK_OVERRIDE;
   //@}
 
   //@{
   /**
    * Get the array name or number and component to use for rendering.
    */
-  virtual char* GetArrayName() VTK_OVERRIDE;
-  virtual int GetArrayId() VTK_OVERRIDE;
-  virtual int GetArrayAccessMode() VTK_OVERRIDE;
+  char* GetArrayName() VTK_OVERRIDE;
+  int GetArrayId() VTK_OVERRIDE;
+  int GetArrayAccessMode() VTK_OVERRIDE;
   //@}
 
   /**
@@ -122,8 +122,8 @@ public:
    * Turn On/Off orthogonal cropping. (Clipping planes are
    * perpendicular to the coordinate axes.)
    */
-  virtual void SetCropping(int mode) VTK_OVERRIDE;
-  virtual int GetCropping() VTK_OVERRIDE;
+  void SetCropping(int mode) VTK_OVERRIDE;
+  int GetCropping() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -132,14 +132,14 @@ public:
    * These planes are defined in volume coordinates - spacing and origin are
    * considered.
    */
-  virtual void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
-                                       double arg4, double arg5, double arg6) VTK_OVERRIDE;
-  virtual void SetCroppingRegionPlanes(double *planes) VTK_OVERRIDE
+  void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
+                               double arg4, double arg5, double arg6) VTK_OVERRIDE;
+  void SetCroppingRegionPlanes(double *planes) VTK_OVERRIDE
     {this->SetCroppingRegionPlanes(
         planes[0],planes[1],planes[2],
         planes[3],planes[4],planes[5]);}
-  virtual void GetCroppingRegionPlanes(double *planes) VTK_OVERRIDE;
-  virtual double *GetCroppingRegionPlanes() VTK_OVERRIDE;
+  void GetCroppingRegionPlanes(double *planes) VTK_OVERRIDE;
+  double *GetCroppingRegionPlanes() VTK_OVERRIDE;
   //@}
   //@{
   /**
@@ -153,8 +153,8 @@ public:
    * clip plane pairs), inverted fence, cross (between any two of the
    * clip plane pairs) and inverted cross.
    */
-  virtual void SetCroppingRegionFlags(int mode) VTK_OVERRIDE;
-  virtual int GetCroppingRegionFlags() VTK_OVERRIDE;
+  void SetCroppingRegionFlags(int mode) VTK_OVERRIDE;
+  int GetCroppingRegionFlags() VTK_OVERRIDE;
   //@}
 
 // The possible values for the default and current render mode ivars
@@ -253,7 +253,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -261,7 +261,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
 
   void ProcessUpdateExtentRequest(vtkRenderer *renderer, vtkInformation*info,
                                   vtkInformationVector **inputVector,
@@ -311,10 +311,10 @@ public:
 
 protected:
   vtkAMRVolumeMapper();
-  ~vtkAMRVolumeMapper();
+  ~vtkAMRVolumeMapper() VTK_OVERRIDE;
 
   // see algorithm for more info
-  virtual int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
   void UpdateGrid();
 
   vtkSmartVolumeMapper *InternalMapper;

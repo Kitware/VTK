@@ -61,16 +61,16 @@ public:
 
 protected:
   vtkPMultiCorrelativeStatistics();
-  ~vtkPMultiCorrelativeStatistics();
+  ~vtkPMultiCorrelativeStatistics() VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 
   // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
+  void Learn( vtkTable* inData,
+              vtkTable* inParameters,
+              vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
 
-  virtual vtkOrderStatistics* CreateOrderStatisticsInstance() VTK_OVERRIDE;
+  vtkOrderStatistics* CreateOrderStatisticsInstance() VTK_OVERRIDE;
 
 private:
   vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
