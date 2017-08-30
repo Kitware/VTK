@@ -30,54 +30,42 @@
 #define vtkXMLPTableReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
-#include "vtkXMLReader.h"
+#include "vtkXMLPDataObjectReader.h"
 
-//class vtkDataArray;
 class vtkTable;
 class vtkXMLTableReader;
 
-class VTKIOXML_EXPORT vtkXMLPTableReader : public vtkXMLReader
+class VTKIOXML_EXPORT vtkXMLPTableReader : public vtkXMLPDataObjectReader
 {
 public:
-  vtkTypeMacro(vtkXMLPTableReader,vtkXMLReader);
+  vtkTypeMacro(vtkXMLPTableReader, vtkXMLPDataObjectReader);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
-  static vtkXMLPTableReader *New();
+  static vtkXMLPTableReader* New();
 
   //@{
   /**
    * Get the reader's output.
    */
-  vtkTable *GetOutput();
-  vtkTable *GetOutput(int idx);
+  vtkTable* GetOutput();
+  vtkTable* GetOutput(int idx);
   //@}
 
   /**
   * For the specified port, copy the information this reader sets up in
   * SetupOutputInformation to outInfo
   */
-  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
+  void CopyOutputInformation(vtkInformation* outInfo, int port) VTK_OVERRIDE;
 
-  //@{
-  /**
-   * Get the number of pieces from the summary file being read.
-   */
-  vtkGetMacro(NumberOfPieces, int);
-  //@}
-
-  //@{
   /**
    * Get the number of columns arrays available in the input.
    */
   int GetNumberOfColumnArrays();
-  //@}
 
-  //@{
   /**
    * Get the name of the column with the given index in
    * the input.
    */
   const char* GetColumnArrayName(int index);
-  //@}
 
   //@{
   /**
@@ -88,57 +76,135 @@ public:
   void SetColumnArrayStatus(const char* name, int status);
   //@}
 
-  //@{
   /**
    * Get the data array selection tables used to configure which data
    * arrays are loaded by the reader.
    */
   vtkGetObjectMacro(ColumnSelection, vtkDataArraySelection);
-  //@}
 
 protected:
   vtkXMLPTableReader();
   ~vtkXMLPTableReader() VTK_OVERRIDE;
 
+  /**
+   * Return hte type of the dataset being read
+   */
   const char* GetDataSetName() VTK_OVERRIDE;
-  void GetOutputUpdateExtent(int& piece, int& numberOfPieces);
-  void SetupOutputTotals();
 
-  void SetupOutputData() VTK_OVERRIDE;
-  void SetupNextPiece();
-  int ReadPieceData();
-
-  vtkXMLTableReader *CreatePieceReader();
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-
-  int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
-
-
-  vtkTable* GetOutputAsTable();
-  vtkTable* GetPieceInputAsTable(int piece);
+  /**
+   * Get the number of rows of the table
+   */
   vtkIdType GetNumberOfRows();
-
-  void SetupEmptyOutput() VTK_OVERRIDE;
-
-  /**
-  * Setup the output's information.
-  */
-  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
-
-  /**
-  * Pipeline execute data driver.  Called by vtkXMLReader.
-  */
-  void ReadXMLData() VTK_OVERRIDE;
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
-  void SetupUpdateExtent(int piece, int numberOfPieces);
 
   /**
   * Get the number of rows in the given piece.  Valid after
   * UpdateInformation.
   */
   virtual vtkIdType GetNumberOfRowsInPiece(int piece);
+
+  vtkTable* GetOutputAsTable();
+
+  vtkTable* GetPieceInputAsTable(int piece);
+
+  /**
+   * Get the current piece index and the total number of piece in the dataset
+   */
+  void GetOutputUpdateExtent(int& piece, int& numberOfPieces);
+
+  /**
+   * Initialize current output
+   */
+  void SetupEmptyOutput() VTK_OVERRIDE;
+
+  /**
+   * Initialize current output data: allocate arrays for RowData
+   */
+  void SetupOutputData() VTK_OVERRIDE;
+
+  /**
+   * Setup the output's information.
+   */
+  void SetupOutputInformation(vtkInformation* outInfo) VTK_OVERRIDE;
+
+  /**
+   * Initialize the total number of rows to be read.
+   */
+  void SetupOutputTotals();
+
+  /**
+   * Initialize the index of the first row to be read in the next piece
+   */
+  void SetupNextPiece();
+
+  /**
+   * Setup the number of pieces to be read and allocate space accordingly
+   */
+  void SetupPieces(int numPieces) VTK_OVERRIDE;
+
+  /**
+   * Setup the extent for the parallel reader and the piece readers.
+   */
+  void SetupUpdateExtent(int piece, int numberOfPieces);
+
+  /**
+   * Setup the readers and then read the input data
+   */
+  void ReadXMLData() VTK_OVERRIDE;
+
+  /**
+   * Whether or not the current reader can read the current piece
+   */
+  int CanReadPiece(int index) VTK_OVERRIDE;
+
+  /**
+   * Pipeline execute data driver. Called by vtkXMLReader.
+   */
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
+
+  /**
+   * Delete all piece readers and related information
+   */
+  void DestroyPieces() VTK_OVERRIDE;
+
+  using vtkXMLPDataObjectReader::ReadPiece;
+
+  /**
+   * Setup the current piece reader.
+   */
+  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
+
+  /**
+   * Read piece at the given index RowData
+   */
+  int ReadPieceData(int index);
+
+  /**
+   * Actually read the current piece data
+   */
+  int ReadPieceData();
+
+  /**
+   * Create a reader according to the data to read
+   */
+  vtkXMLTableReader* CreatePieceReader();
+
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
+
+  /**
+  * Callback registered with the PieceProgressObserver.
+  */
+  void PieceProgressCallback() VTK_OVERRIDE;
+
+  /**
+  * Check whether the given array element is an enabled array.
+  */
+  int ColumnIsEnabled(vtkXMLDataElement* elementRowData);
+
+  int GetNumberOfRowArrays();
+  const char* GetRowArrayName(int index);
 
   /**
   * The update request.
@@ -154,69 +220,12 @@ protected:
   vtkIdType TotalNumberOfRows;
   vtkIdType StartRow;
 
-  /**
-  * Pipeline execute information driver.  Called by vtkXMLReader.
-  */
-  int ReadXMLInformation() VTK_OVERRIDE;
-
-  virtual void SetupPieces(int numPieces);
-  virtual void DestroyPieces();
-  int ReadPiece(vtkXMLDataElement* ePiece, int index);
-  virtual int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadPieceData(int index);
-  int CanReadPiece(int index);
-
-  char* CreatePieceFileName(const char* fileName);
-  void SplitFileName();
-
-  /**
-  * Callback registered with the PieceProgressObserver.
-  */
-  static void PieceProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                           void*);
-  virtual void PieceProgressCallback();
-
-  /**
-  * Pieces from the input summary file.
-  */
-  int NumberOfPieces;
-
-  /**
-  * The piece currently being read.
-  */
-  int Piece;
-
-  /**
-  * The path to the input file without the file name.
-  */
-  char* PathName;
-
-  /**
-  * Information per-piece.
-  */
-  vtkXMLDataElement** PieceElements;
   vtkXMLTableReader** PieceReaders;
-  int* CanReadPieceFlag;
 
   /**
   * The PRowData element representations.
   */
   vtkXMLDataElement* PRowElement;
-
-  /**
-  * The observer to report progress from reading serial data in each
-  * piece.
-  */
-  vtkCallbackCommand* PieceProgressObserver;
-
-  /**
-  * Check whether the given array element is an enabled array.
-  */
-  int ColumnIsEnabled(vtkXMLDataElement* elementRowData);
-
-  int GetNumberOfRowArrays();
-  const char* GetRowArrayName(int index);
-
 
   vtkDataArraySelection* ColumnSelection;
 

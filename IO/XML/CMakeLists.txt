@@ -18,6 +18,7 @@ set(Module_SRCS
   vtkXMLMultiBlockDataWriter.cxx
   vtkXMLMultiGroupDataReader.cxx
   vtkXMLPDataReader.cxx
+  vtkXMLPDataObjectReader.cxx
   vtkXMLPImageDataReader.cxx
   vtkXMLPolyDataReader.cxx
   vtkXMLPolyDataWriter.cxx

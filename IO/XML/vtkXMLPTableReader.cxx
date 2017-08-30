@@ -18,13 +18,13 @@
 #include "vtkCellArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkXMLDataElement.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
+#include "vtkXMLDataElement.h"
 #include "vtkXMLTableReader.h"
 
 #include <cassert>
@@ -35,21 +35,9 @@ vtkStandardNewMacro(vtkXMLPTableReader);
 //----------------------------------------------------------------------------
 vtkXMLPTableReader::vtkXMLPTableReader()
 {
-  this->NumberOfPieces = 0;
-
-  this->PieceElements = nullptr;
   this->PieceReaders = nullptr;
-  this->CanReadPieceFlag = nullptr;
-
-  this->PathName = nullptr;
 
   this->TotalNumberOfRows = 0;
-
-  // Setup a callback for the internal serial readers to report
-  // progress.
-  this->PieceProgressObserver = vtkCallbackCommand::New();
-  this->PieceProgressObserver->SetCallback(&vtkXMLPTableReader::PieceProgressCallbackFunction);
-  this->PieceProgressObserver->SetClientData(this);
 
   this->ColumnSelection = vtkDataArraySelection::New();
   this->ColumnSelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
@@ -62,8 +50,6 @@ vtkXMLPTableReader::~vtkXMLPTableReader()
   {
     this->DestroyPieces();
   }
-  delete[] this->PathName;
-  this->PieceProgressObserver->Delete();
 
   this->ColumnSelection->RemoveObserver(this->SelectionObserver);
   this->ColumnSelection->Delete();
@@ -85,7 +71,8 @@ void vtkXMLPTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ColumnSelection: " << this->ColumnSelection << "\n";
+  os << indent << "Column Selection: " << this->ColumnSelection << "\n";
+  os << indent << "Total Number Of Rows: " << this->TotalNumberOfRows << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -181,10 +168,7 @@ int vtkXMLPTableReader::ReadPieceData(int index)
 
   // Actually read the data.
   this->PieceReaders[this->Piece]->SetAbortExecute(0);
-  vtkDataArraySelection* pds = this->PieceReaders[this->Piece]->GetPointDataArraySelection();
-  vtkDataArraySelection* cds = this->PieceReaders[this->Piece]->GetCellDataArraySelection();
-  pds->CopySelections(this->PointDataArraySelection);
-  cds->CopySelections(this->CellDataArraySelection);
+
   return this->ReadPieceData();
 }
 
@@ -211,87 +195,6 @@ int vtkXMLPTableReader::CanReadPiece(int index)
   }
 
   return (this->PieceReaders[index] ? 1 : 0);
-}
-
-//----------------------------------------------------------------------------
-char* vtkXMLPTableReader::CreatePieceFileName(const char* fileName)
-{
-  assert(fileName);
-
-  std::ostringstream fn_with_warning_C4701;
-
-  // only prepend the path if the given file name is not
-  // absolute (i.e. doesn't start with '/')
-  if (this->PathName && fileName[0] != '/')
-  {
-    fn_with_warning_C4701 << this->PathName;
-  }
-  fn_with_warning_C4701 << fileName;
-
-  size_t len = fn_with_warning_C4701.str().length();
-  char* buffer = new char[len + 1];
-  strncpy(buffer, fn_with_warning_C4701.str().c_str(), len);
-  buffer[len] = '\0';
-
-  return buffer;
-}
-//----------------------------------------------------------------------------
-void vtkXMLPTableReader::SplitFileName()
-{
-  if (!this->FileName)
-  {
-    vtkErrorMacro(<< "Need to specify a filename");
-    return;
-  }
-
-  // Pull the PathName component out of the FileName.
-  size_t length = strlen(this->FileName);
-  char* fileName = new char[length + 1];
-  strcpy(fileName, this->FileName);
-  char* begin = fileName;
-  char* end = fileName + length;
-  char* s;
-
-#if defined(_WIN32)
-  // Convert to UNIX-style slashes.
-  for (s = begin; s != end; ++s)
-  {
-    if (*s == '\\')
-    {
-      *s = '/';
-    }
-  }
-#endif
-
-  // Extract the path name up to the last '/'.
-  delete[] this->PathName;
-  this->PathName = nullptr;
-  char* rbegin = end - 1;
-  char* rend = begin - 1;
-  for (s = rbegin; s != rend; --s)
-  {
-    if (*s == '/')
-    {
-      break;
-    }
-  }
-  if (s >= begin)
-  {
-    length = (s - begin) + 1;
-    this->PathName = new char[length + 1];
-    strncpy(this->PathName, this->FileName, length);
-    this->PathName[length] = '\0';
-  }
-
-  // Cleanup temporary name.
-  delete[] fileName;
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLPTableReader::PieceProgressCallbackFunction(
-  vtkObject*, unsigned long, void* clientdata, void*)
-{
-  reinterpret_cast<vtkXMLPTableReader*>(clientdata)->PieceProgressCallback();
 }
 
 //----------------------------------------------------------------------------
@@ -323,9 +226,16 @@ int vtkXMLPTableReader::ReadPieceData()
   this->PieceReaders[this->Piece]->UpdatePiece(0, 1, 0);
 
   vtkTable* input = this->GetPieceInputAsTable(this->Piece);
+
+  if (!input)
+  {
+    vtkErrorMacro("No input piece found for the current piece index.");
+    return 0;
+  }
+
   vtkTable* output = vtkTable::SafeDownCast(this->GetCurrentOutput());
 
-  // If there are some points, but no PPoints element, report the
+  // If there are some rows, but no PRows element, report the
   // error.
   if (!this->PRowElement && (this->GetNumberOfRows() > 0))
   {
@@ -341,8 +251,7 @@ int vtkXMLPTableReader::ReadPieceData()
   // copy any row data
   if (input->GetRowData())
   {
-    int i;
-    for (i = 0; i < input->GetRowData()->GetNumberOfArrays(); i++)
+    for (int i = 0; i < input->GetRowData()->GetNumberOfArrays(); i++)
     {
       if (this->ColumnSelection->ArrayIsEnabled(input->GetRowData()->GetArrayName(i)))
       {
@@ -354,8 +263,7 @@ int vtkXMLPTableReader::ReadPieceData()
   // copy any field data
   if (input->GetFieldData())
   {
-    int i;
-    for (i = 0; i < input->GetFieldData()->GetNumberOfArrays(); i++)
+    for (int i = 0; i < input->GetFieldData()->GetNumberOfArrays(); i++)
     {
       output->GetFieldData()->AddArray(input->GetFieldData()->GetArray(i));
     }
@@ -422,7 +330,7 @@ void vtkXMLPTableReader::SetupOutputInformation(vtkInformation* outInfo)
   {
     vtkErrorMacro("Should not still be processing output information if have set InformationError");
     return;
-  }
+  };
 
   // Initialize DataArraySelections to enable all that are present
   this->SetDataArraySelections(this->PRowElement, this->ColumnSelection);
@@ -519,10 +427,9 @@ int vtkXMLPTableReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 
   // Read information about the pieces.
   this->PRowElement = nullptr;
-  int i;
   int numNested = ePrimary->GetNumberOfNestedElements();
   int numPieces = 0;
-  for (i = 0; i < numNested; ++i)
+  for (int i = 0; i < numNested; ++i)
   {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
     if (strcmp(eNested->GetName(), "Piece") == 0)
@@ -536,7 +443,7 @@ int vtkXMLPTableReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   }
   this->SetupPieces(numPieces);
   int piece = 0;
-  for (i = 0; i < numNested; ++i)
+  for (int i = 0; i < numNested; ++i)
   {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
     if (strcmp(eNested->GetName(), "Piece") == 0)
@@ -551,13 +458,14 @@ int vtkXMLPTableReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
 {
   this->UpdatePiece = piece;
   this->UpdateNumberOfPieces = numberOfPieces;
 
   // If more pieces are requested than available, just return empty
-  // pieces for the extra ones.s
+  // pieces for the extra ones
   if (this->UpdateNumberOfPieces > this->NumberOfPieces)
   {
     this->UpdateNumberOfPieces = this->NumberOfPieces;
@@ -566,9 +474,8 @@ void vtkXMLPTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
   // Find the range of pieces to read.
   if (this->UpdatePiece < this->UpdateNumberOfPieces)
   {
-    this->StartPiece = ((this->UpdatePiece * this->NumberOfPieces) / this->UpdateNumberOfPieces);
-    this->EndPiece =
-      (((this->UpdatePiece + 1) * this->NumberOfPieces) / this->UpdateNumberOfPieces);
+    this->StartPiece = (this->UpdatePiece * this->NumberOfPieces) / this->UpdateNumberOfPieces;
+    this->EndPiece = ((this->UpdatePiece + 1) * this->NumberOfPieces) / this->UpdateNumberOfPieces;
   }
   else
   {
@@ -598,40 +505,22 @@ vtkIdType vtkXMLPTableReader::GetNumberOfRowsInPiece(int piece)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPTableReader::ReadXMLInformation()
-{
-  // First setup the filename components.
-  this->SplitFileName();
-
-  // Now proceed with reading the information.
-  return this->Superclass::ReadXMLInformation();
-}
-
-//----------------------------------------------------------------------------
 void vtkXMLPTableReader::SetupPieces(int numPieces)
 {
-  if (this->NumberOfPieces)
-  {
-    this->DestroyPieces();
-  }
-  this->NumberOfPieces = numPieces;
-  this->PieceElements = new vtkXMLDataElement*[this->NumberOfPieces];
+  this->Superclass::SetupPieces(numPieces);
+
   this->PieceReaders = new vtkXMLTableReader*[this->NumberOfPieces];
-  this->CanReadPieceFlag = new int[this->NumberOfPieces];
-  int i;
-  for (i = 0; i < this->NumberOfPieces; ++i)
+
+  for (int i = 0; i < this->NumberOfPieces; ++i)
   {
-    this->PieceElements[i] = nullptr;
     this->PieceReaders[i] = nullptr;
-    this->CanReadPieceFlag[i] = 0;
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPTableReader::DestroyPieces()
 {
-  int i;
-  for (i = 0; i < this->NumberOfPieces; ++i)
+  for (int i = 0; i < this->NumberOfPieces; ++i)
   {
     if (this->PieceReaders[i])
     {
@@ -639,20 +528,13 @@ void vtkXMLPTableReader::DestroyPieces()
       this->PieceReaders[i]->Delete();
     }
   }
-  delete[] this->PieceElements;
-  delete[] this->CanReadPieceFlag;
+
   delete[] this->PieceReaders;
-  this->PieceElements = nullptr;
   this->PieceReaders = nullptr;
-  this->NumberOfPieces = 0;
+
+  this->Superclass::DestroyPieces();
 }
 
-//----------------------------------------------------------------------------
-int vtkXMLPTableReader::ReadPiece(vtkXMLDataElement* ePiece, int index)
-{
-  this->Piece = index;
-  return this->ReadPiece(ePiece);
-}
 //----------------------------------------------------------------------------
 int vtkXMLPTableReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
