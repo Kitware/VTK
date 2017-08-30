@@ -46,15 +46,6 @@ public:
   vtkGDALRasterReader();
   ~vtkGDALRasterReader() VTK_OVERRIDE;
 
-  //@{
-  /**
-   * Set input file name
-   */
-  vtkSetStringMacro(FileName);
-  // Get input file name
-  vtkGetStringMacro(FileName);
-  //@}
-
   /**
    * Return proj4 spatial reference
    */
