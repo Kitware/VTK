@@ -559,7 +559,7 @@ void vtkGraphMapper::Render(vtkRenderer *ren, vtkActor * vtkNotUsed(act))
       this->IconActor->GetVisibility())
   {
     this->IconTransform->SetViewport(ren);
-    this->IconActor->GetTexture()->MapColorScalarsThroughLookupTableOff();
+    this->IconActor->GetTexture()->SetColorMode(VTK_COLOR_MODE_DEFAULT);
     this->IconActor->GetTexture()->GetInputAlgorithm()->Update();
     int *dim = this->IconActor->GetTexture()->GetInput()->GetDimensions();
     this->IconGlyph->SetIconSheetSize(dim);

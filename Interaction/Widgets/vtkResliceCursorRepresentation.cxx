@@ -107,7 +107,7 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   texturePlaneMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   this->Texture->SetQualityTo32Bit();
-  this->Texture->MapColorScalarsThroughLookupTableOff();
+  this->Texture->SetColorMode(VTK_COLOR_MODE_DEFAULT);
   this->Texture->SetInterpolate(1);
   this->Texture->RepeatOff();
   this->Texture->SetLookupTable(this->LookupTable);

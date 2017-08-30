@@ -588,7 +588,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
     }
 
     // make sure using unsigned char data of color scalars type
-    if (aTexture->GetMapColorScalarsThroughLookupTable () ||
+    if (aTexture->GetColorMode() == VTK_COLOR_MODE_MAP_SCALARS ||
         (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
     {
       mappedScalars = aTexture->GetMappedScalars ();
