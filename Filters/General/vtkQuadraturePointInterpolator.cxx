@@ -193,7 +193,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
     switch (V_type)
     {
       vtkTemplateMacro(
-        if (!Interpolate(
+        if (!vtkQuadraturePointsUtilities::Interpolate(
                 usgOut,
                 nCells,
                 static_cast<VTK_TT*>(pV),

@@ -84,15 +84,17 @@ namespace
       T Data[4];
   };
 
-  template <class T>
-    static ostream& operator << (ostream& str, const vtkViewportSpecification<T>& other)
-  {
-      str << other.data()[0] << ", "
-        << other.data()[1] << ", "
-        << other.data()[2] << ", "
-        << other.data()[3];
-      return str;
-  }
+  // Uncomment for debugging if desired
+  //
+  // template <class T>
+  //   ostream& operator << (ostream& str, const vtkViewportSpecification<T>& other)
+  // {
+  //     str << other.data()[0] << ", "
+  //       << other.data()[1] << ", "
+  //       << other.data()[2] << ", "
+  //       << other.data()[3];
+  //     return str;
+  // }
 
   // use this method to convert from normalized-to-display space i.e. [0.0, 1.0]
   // to screen pixels.
