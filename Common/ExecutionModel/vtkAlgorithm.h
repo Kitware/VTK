@@ -61,7 +61,8 @@ public:
    * Values used for setting the desired output precision for various
    * algorithms. Currently, the following algorithms support changing their
    * output precision: vtkAppendFilter, vtkAppendPoints, vtkContourFilter,
-   * vtkContourGrid, vtkCutter, vtkGlyph3D, vtkGridSynchronizedTemplates3D,
+   * vtkContourGrid, vtkCutter, vtkGlyph3D, vtkGeometryFilter,
+   * vtkGridSynchronizedTemplates3D,
    * vtkPolyDataNormals, vtkSynchronizedTemplatesCutter3D,
    * vtkTableBasedClipDataSet, vtkThreshold, vtkTransformFilter, and
    * vtkTransformPolyData.

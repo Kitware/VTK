@@ -168,6 +168,17 @@ public:
    */
   vtkMTimeType GetMTime() VTK_OVERRIDE;
 
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings. This only applies for data types where
+   * we create points as opposed to pass them, such as rectilinear grid.
+   */
+  void SetOutputPointsPrecision(int precision);
+  int GetOutputPointsPrecision() const;
+  //@}
+
 protected:
   vtkGeometryFilter();
   ~vtkGeometryFilter() VTK_OVERRIDE;
@@ -189,6 +200,7 @@ protected:
   int PointClipping;
   int CellClipping;
   int ExtentClipping;
+  int OutputPointsPrecision;
 
   int Merging;
   vtkIncrementalPointLocator *Locator;

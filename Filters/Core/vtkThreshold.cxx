@@ -406,8 +406,11 @@ int vtkThreshold::GetPointsDataType()
 
 void vtkThreshold::SetOutputPointsPrecision(int precision)
 {
-  this->OutputPointsPrecision = precision;
-  this->Modified();
+  if (this->OutputPointsPrecision != precision)
+  {
+    this->OutputPointsPrecision = precision;
+    this->Modified();
+  }
 }
 
 int vtkThreshold::GetOutputPointsPrecision() const
