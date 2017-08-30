@@ -76,7 +76,7 @@ validate_MD5() {
 download_object() {
   algo="$1" ; hash="$2" ; path="$3"
   mkdir -p $(dirname "$path") &&
-  if wget "http://www.vtk.org/files/ExternalData/$algo/$hash" -O "$path.tmp$$" 1>&2; then
+  if curl -o "$path.tmp$$" "http://www.vtk.org/files/ExternalData/$algo/$hash" 1>&2; then
     mv "$path.tmp$$" "$path"
   else
     rm -f "$path.tmp$$"
