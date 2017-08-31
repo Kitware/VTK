@@ -552,6 +552,17 @@ PyObject *PyVTKObject_FromPointer(
           "no concrete implementation exists for this class");
         return nullptr;
       }
+
+      // Check if the VTK object already has a Python object
+      // (e.g. vtk_new() might return a singleton instance)
+      PyObject *obj = vtkPythonUtil::FindObject(ptr);
+      if (obj)
+      {
+        ptr->Delete();
+        return obj;
+      }
+
+      // flag to indicate that the VTK object is a new instance
       created = true;
 
       // Check the type of the newly-created object

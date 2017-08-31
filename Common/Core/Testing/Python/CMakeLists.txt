@@ -19,6 +19,7 @@ vtk_add_test_python(
   TestOverloads.py
   TestPointers.py
   TestSetGet.py
+  TestSingleton.py
   TestSOADataArrays.py
   TestStrings.py
   TestSubClass.py

@@ -433,7 +433,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
 }
 
 //--------------------------------------------------------------------
-PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
+PyObject *vtkPythonUtil::FindObject(vtkObjectBase *ptr)
 {
   PyObject *obj = nullptr;
 
@@ -471,6 +471,14 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
     Py_DECREF(j->second.vtk_dict);
     vtkPythonMap->GhostMap->erase(j);
   }
+
+  return obj;
+}
+
+//--------------------------------------------------------------------
+PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
+{
+  PyObject *obj = vtkPythonUtil::FindObject(ptr);
 
   if (obj == nullptr)
   {

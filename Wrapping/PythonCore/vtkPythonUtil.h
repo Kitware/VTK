@@ -128,6 +128,13 @@ public:
   static void RemoveObjectFromMap(PyObject *obj);
 
   /**
+   * Find the PyObject for a VTK object, return nullptr if not found.
+   * If the object is found, then it is returned as a new reference.
+   * Special behavior: If "ptr" is nullptr, then Py_None is returned.
+   */
+  static PyObject *FindObject(vtkObjectBase *ptr);
+
+  /**
    * Add a special VTK type to the type lookup table, this allows us to
    * later create object given only the class name.
    */
