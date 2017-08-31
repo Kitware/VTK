@@ -46,7 +46,7 @@ vtkTexture::vtkTexture()
 
   this->LookupTable = nullptr;
   this->MappedScalars = nullptr;
-  this->MapColorScalarsThroughLookupTable = 0;
+  this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->Transform = nullptr;
 
   this->SelfAdjustingTableRange = 0;
@@ -82,6 +82,53 @@ vtkTexture::~vtkTexture()
   }
 }
 
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------------
+void vtkTexture::SetMapColorScalarsThroughLookupTable(int val)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkTexture::SetMapColorScalarsThroughLookupTable, "VTK 8.1",
+    vtkTexture::SetColorMode);
+  int newMode = val ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DEFAULT;
+  if (newMode != this->ColorMode)
+  {
+    this->ColorMode = newMode;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkTexture::GetMapColorScalarsThroughLookupTable()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkTexture::GetMapColorScalarsThroughLookupTable, "VTK 8.1",
+    vtkTexture::GetColorMode);
+  return (this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ? 1 : 0);
+}
+
+//----------------------------------------------------------------------------
+void vtkTexture::MapColorScalarsThroughLookupTableOn()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkTexture::MapColorScalarsThroughLookupTableOn, "VTK 8.1",
+    vtkTexture::SetColorMode);
+  if (this->ColorMode != VTK_COLOR_MODE_MAP_SCALARS)
+  {
+    this->ColorMode = VTK_COLOR_MODE_MAP_SCALARS;
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkTexture::MapColorScalarsThroughLookupTableOff()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkTexture::MapColorScalarsThroughLookupTableOff, "VTK 8.1",
+    vtkTexture::SetColorMode);
+  if (this->ColorMode != VTK_COLOR_MODE_DEFAULT)
+  {
+    this->ColorMode = VTK_COLOR_MODE_DEFAULT;
+    this->Modified();
+  }
+}
+#endif
+
 //----------------------------------------------------------------------------
 vtkImageData *vtkTexture::GetInput()
 {
@@ -92,6 +139,7 @@ vtkImageData *vtkTexture::GetInput()
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
+//----------------------------------------------------------------------------
 void vtkTexture::SetCubeMap(bool val)
 {
   if (val == this->CubeMap)
@@ -163,8 +211,22 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
       os << "32Bit\n";
       break;
   }
-  os << indent << "MapColorScalarsThroughLookupTable: " <<
-    (this->MapColorScalarsThroughLookupTable  ? "On\n" : "Off\n");
+  os << indent << "ColorMode: ";
+  switch (this->ColorMode)
+  {
+    case VTK_COLOR_MODE_DEFAULT:
+      os << "VTK_COLOR_MODE_DEFAULT";
+      break;
+    case VTK_COLOR_MODE_MAP_SCALARS:
+      os << "VTK_COLOR_MODE_MAP_SCALARS";
+      break;
+    case VTK_COLOR_MODE_DIRECT_SCALARS:
+    default:
+      os << "VTK_COLOR_MODE_DIRECT_SCALARS";
+      break;
+  }
+  os << "\n";
+
   os << indent << "PremultipliedAlpha: " << (this->PremultipliedAlpha ? "On\n" : "Off\n");
 
   if ( this->GetInput() )
@@ -261,9 +323,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
   }
 
   // map the scalars to colors
-  this->MappedScalars = this->LookupTable->MapScalars(scalars,
-    this->MapColorScalarsThroughLookupTable?
-    VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DEFAULT, -1);
+  this->MappedScalars = this->LookupTable->MapScalars(scalars, this->ColorMode, -1);
 
   return this->MappedScalars? reinterpret_cast<unsigned char*>(
     this->MappedScalars->GetVoidPointer(0)): nullptr;

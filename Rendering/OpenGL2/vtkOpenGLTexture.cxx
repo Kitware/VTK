@@ -249,7 +249,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
         // make sure using unsigned char data of color scalars type
         if (this->IsDepthTexture != 1 &&
-          (this->MapColorScalarsThroughLookupTable ||
+          (this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ||
            inscalars->GetDataType() != VTK_UNSIGNED_CHAR ))
         {
           dataPtr[i] = this->MapScalarsToColors (inscalars);

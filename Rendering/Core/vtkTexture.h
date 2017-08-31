@@ -150,6 +150,7 @@ public:
     { this->SetQuality(VTK_TEXTURE_QUALITY_32BIT); }
   //@}
 
+#ifndef VTK_LEGACY_REMOVE
   //@{
   /**
    * Turn on/off the mapping of color scalars through the lookup table.
@@ -158,10 +159,36 @@ public:
    * lookup table to generate 4-component unsigned char scalars.
    * This ivar does not affect other scalars like unsigned short, float,
    * etc. These scalars are always mapped through lookup tables.
+   *
+   * @deprecated Use SetColorMode, SetColorModeToDefault,
+   * SetColorModeToMapScalars, and SetColorModeToDirectScalars instead.
    */
-  vtkGetMacro(MapColorScalarsThroughLookupTable, int);
-  vtkSetMacro(MapColorScalarsThroughLookupTable, int);
-  vtkBooleanMacro(MapColorScalarsThroughLookupTable, int);
+  VTK_LEGACY(void SetMapColorScalarsThroughLookupTable(int val);)
+  VTK_LEGACY(int GetMapColorScalarsThroughLookupTable();)
+  VTK_LEGACY(void MapColorScalarsThroughLookupTableOn();)
+  VTK_LEGACY(void MapColorScalarsThroughLookupTableOff();)
+  //@}
+#endif
+
+  //@{
+  /**
+   * Default: ColorModeToDefault. unsigned char scalars are treated
+   * as colors, and NOT mapped through the lookup table (set with SetLookupTable),
+   * while other kinds of scalars are. ColorModeToDirectScalar extends
+   * ColorModeToDefault such that all integer types are treated as
+   * colors with values in the range 0-255 and floating types are
+   * treated as colors with values in the range 0.0-1.0. Setting
+   * ColorModeToMapScalars means that all scalar data will be mapped
+   * through the lookup table.
+   */
+  vtkSetMacro(ColorMode, int);
+  vtkGetMacro(ColorMode, int);
+  void SetColorModeToDefault()
+    { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
+  void SetColorModeToMapScalars()
+    { this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS); }
+  void SetColorModeToDirectScalars()
+  { this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS); }
   //@}
 
   /**
@@ -298,7 +325,7 @@ protected:
   int EdgeClamp;
   int Interpolate;
   int Quality;
-  int MapColorScalarsThroughLookupTable;
+  int ColorMode;
   vtkScalarsToColors* LookupTable;
   vtkUnsignedCharArray* MappedScalars;
   vtkTransform * Transform;
