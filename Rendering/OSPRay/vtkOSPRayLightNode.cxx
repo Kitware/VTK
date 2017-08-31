@@ -196,7 +196,8 @@ void vtkOSPRayLightNode::Render(bool prepass)
         direction[2] = fz - pz;
         ospSet3f(ospLight, "direction",
                  direction[0], direction[1], direction[2]);
-        ospSet1f(ospLight, "openingAngle", coneAngle);
+        // OpenGL interprets this as a half-angle. Mult by 2 for consistency.
+        ospSet1f(ospLight, "openingAngle", 2 * coneAngle);
         //TODO: penumbraAngle
       }
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
