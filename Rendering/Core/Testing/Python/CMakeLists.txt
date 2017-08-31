@@ -44,12 +44,15 @@ vtk_add_test_python(
   TestTransformCoordinateSystems.py
   TestWindowToImageTransparency.py
   TexturedSphere.py
-  TestScalarMaterialMode.py
   cells.py,NO_RT
   ${glsl_tests}
   )
 
-if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+vtk_add_test_python(
+  TestScalarMaterialMode.py
+)
+else()
 vtk_add_test_python(
   # pass triangle cell scalars into a strip as field data
   # have the renderer render the triangle strip using the
