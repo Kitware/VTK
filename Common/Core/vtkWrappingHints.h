@@ -28,9 +28,12 @@
 #define VTK_NEWINSTANCE [[vtk::newinstance]]
 // The parameter is a pointer to a zerocopy buffer.
 #define VTK_ZEROCOPY [[vtk::zerocopy]]
+// Set preconditions for a function
+#define VTK_EXPECTS(x) [[vtk::expects(x)]]
 #else
 #define VTK_NEWINSTANCE
 #define VTK_ZEROCOPY
+#define VTK_EXPECTS(x)
 #endif
 
 #endif

@@ -154,7 +154,9 @@ public:
   /**
    * For cell point i, return the actual point id.
    */
-  vtkIdType GetPointId(int ptId) {return this->PointIds->GetId(ptId);}
+  vtkIdType GetPointId(int ptId)
+    VTK_EXPECTS(0 <= ptId && ptId < GetPointIds()->GetNumberOfIds())
+    {return this->PointIds->GetId(ptId);}
 
   /**
    * Return the edge cell from the edgeId of the cell.

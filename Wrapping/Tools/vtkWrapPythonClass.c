@@ -640,10 +640,13 @@ int vtkWrapPython_WrapOneClass(
   /* check for New() function */
   for (i = 0; i < data->NumberOfFunctions; i++)
   {
-    if (data->Functions[i]->Name &&
-        data->Functions[i]->Access == VTK_ACCESS_PUBLIC &&
-        strcmp("New",data->Functions[i]->Name) == 0 &&
-        data->Functions[i]->NumberOfParameters == 0)
+    FunctionInfo *func = data->Functions[i];
+
+    if (func->Name &&
+        func->Access == VTK_ACCESS_PUBLIC &&
+        strcmp("New", func->Name) == 0 &&
+        func->NumberOfParameters == 0 &&
+        !vtkWrap_IsInheritedMethod(data, func))
     {
       class_has_new = 1;
     }

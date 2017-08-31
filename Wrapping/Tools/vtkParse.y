@@ -1246,7 +1246,7 @@ void swapSig()
 }
 
 /* chop the last space from the signature */
-void chopSig(void)
+void chopSig()
 {
   if (signature)
   {
@@ -1257,6 +1257,39 @@ void chopSig(void)
       sigLength--;
     }
   }
+}
+
+/* chop the last space from the signature unless the preceding token
+   is an operator (used to remove spaces before argument lists) */
+void postSigLeftBracket(const char *s)
+{
+  if (signature)
+  {
+    size_t n = sigLength;
+    if (n > 1 && signature[n-1] == ' ')
+    {
+      const char *ops = "%*/-+!~&|^<>=.,:;{}";
+      char c = signature[n-2];
+      const char *cp;
+      for (cp = ops; *cp != '\0'; cp++)
+      {
+        if (*cp == c) { break; }
+      }
+      if (*cp == '\0')
+      {
+        signature[n-1] = '\0';
+        sigLength--;
+      }
+    }
+  }
+  postSig(s);
+}
+
+/* chop trailing space and add a right bracket */
+void postSigRightBracket(const char *s)
+{
+  chopSig();
+  postSig(s);
 }
 
 /*----------------------------------------------------------------
@@ -1619,6 +1652,7 @@ FunctionInfo *getFunction()
  */
 
 int attributeRole = 0;
+const char *attributePrefix = NULL;
 
 /* Set kind of attributes to collect in attribute_specifier_seq */
 void setAttributeRole(int x)
@@ -1636,6 +1670,18 @@ int getAttributeRole()
 void clearAttributeRole()
 {
   attributeRole = 0;
+}
+
+/* Set the "using" prefix for attributes */
+void setAttributePrefix(const char *x)
+{
+  attributePrefix = x;
+}
+
+/* Get the "using" prefix for attributes */
+const char *getAttributePrefix()
+{
+  return attributePrefix;
 }
 
 /*----------------------------------------------------------------
@@ -2497,8 +2543,8 @@ conversion_function:
       currentFunction->IsExplicit = ((getType() & VTK_PARSE_EXPLICIT) != 0);
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
-    { postSig(")"); } function_trailer_clause opt_trailing_return_type
+    parameter_declaration_clause ')' { postSig(")"); }
+    function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2513,8 +2559,7 @@ conversion_function_id:
     { $<str>$ = copySig(); }
 
 operator_function_nr:
-    operator_function_sig { postSig(")"); }
-    function_trailer_clause opt_trailing_return_type
+    operator_function_sig function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2530,7 +2575,7 @@ operator_function_sig:
       currentFunction->IsOperator = 1;
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
+    parameter_declaration_clause ')' { postSig(")"); }
 
 operator_function_id:
     operator_sig operator_id
@@ -2540,7 +2585,7 @@ operator_sig:
     OPERATOR { markSig(); postSig("operator "); }
 
 function_nr:
-    function_sig function_trailer_clause opt_trailing_return_type
+    function_sig function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2550,32 +2595,48 @@ function_nr:
     }
 
 function_trailer_clause:
-  | function_trailer_clause function_trailer
+    func_cv_qualifier_seq opt_noexcept_specifier opt_ref_qualifier
+    func_attribute_specifier_seq opt_trailing_return_type
+    virt_specifier_seq opt_body_as_trailer
 
-function_trailer:
-    THROW { postSig(" throw "); } parentheses_sig { chopSig(); }
-  | CONST { postSig(" const"); currentFunction->IsConst = 1; }
+func_cv_qualifier_seq:
+  | func_cv_qualifier
+
+func_cv_qualifier:
+    CONST { postSig(" const"); currentFunction->IsConst = 1; }
+  | VOLATILE { postSig(" volatile"); }
+
+opt_noexcept_specifier:
+  | noexcept_sig parentheses_sig { chopSig(); }
+  | noexcept_sig
+
+noexcept_sig:
+    NOEXCEPT { postSig(" noexcept"); }
+  | THROW { postSig(" throw"); }
+
+opt_ref_qualifier:
+  | '&' { postSig("&"); }
+  | OP_LOGIC_AND { postSig("&&"); }
+
+virt_specifier_seq:
+  | virt_specifier_seq virt_specifier
+
+virt_specifier:
+    ID
+    {
+      postSig(" "); postSig($<str>1);
+      if (strcmp($<str>1, "final") == 0) { currentFunction->IsFinal = 1; }
+    }
+
+opt_body_as_trailer:
+  | '=' DELETE { currentFunction->IsDeleted = 1; }
+  | '=' DEFAULT
   | '=' ZERO
     {
       postSig(" = 0");
       currentFunction->IsPureVirtual = 1;
       if (currentClass) { currentClass->IsAbstract = 1; }
     }
-  | ID
-    {
-      postSig(" "); postSig($<str>1);
-      if (strcmp($<str>1, "final") == 0) { currentFunction->IsFinal = 1; }
-    }
-  | noexcept_sig parentheses_sig { chopSig(); }
-  | noexcept_sig
-  | function_body_as_trailer
-
-noexcept_sig:
-    NOEXCEPT { postSig(" noexcept"); }
-
-function_body_as_trailer:
-    '=' DELETE { currentFunction->IsDeleted = 1; }
-  | '=' DEFAULT
 
 opt_trailing_return_type:
   | trailing_return_type
@@ -2605,8 +2666,7 @@ function_sig:
       postSig("(");
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
-    { postSig(")"); }
+    parameter_declaration_clause ')' { postSig(")"); }
 
 
 /*
@@ -2616,7 +2676,7 @@ function_sig:
 structor_declaration:
     structor_sig { closeSig(); }
     opt_ctor_initializer { openSig(); }
-    function_trailer_clause opt_trailing_return_type
+    function_trailer_clause
     {
       postSig(";");
       closeSig();
@@ -2635,8 +2695,7 @@ structor_declaration:
 
 structor_sig:
     unqualified_id '(' { pushType(); postSig("("); }
-    parameter_declaration_clause ')' func_attribute_specifier_seq
-    { popType(); postSig(")"); }
+    parameter_declaration_clause ')' { postSig(")"); popType(); }
 
 opt_ctor_initializer:
   | ':' mem_initializer_list
@@ -2859,7 +2918,7 @@ lp_or_la:
 opt_array_or_parameters:
     { $<integer>$ = 0; }
   | '(' { pushFunction(); postSig("("); } parameter_declaration_clause ')'
-    func_attribute_specifier_seq { postSig(")"); } function_qualifiers
+    { postSig(")"); } function_qualifiers func_attribute_specifier_seq
     {
       $<integer>$ = VTK_PARSE_FUNCTION;
       popFunction();
@@ -3279,7 +3338,16 @@ attribute_specifier_seq:
   | attribute_specifier_seq attribute_specifier
 
 attribute_specifier:
-    BEGIN_ATTRIB attribute_list ']' ']'
+    BEGIN_ATTRIB attribute_specifier_contents ']' ']'
+    { setAttributePrefix(NULL); }
+
+attribute_specifier_contents:
+    attribute_using_prefix attribute_list
+  | attribute_list
+
+attribute_using_prefix:
+    USING using_id ':'
+    { setAttributePrefix(vtkstrcat($<str>2, "::")); }
 
 attribute_list:
   | attribute
@@ -3577,9 +3645,9 @@ common_bracket_item_no_scope_operator:
   | braces_sig
   | operator_id_no_delim
     {
-      if ((($<str>1)[0] == '+' || ($<str>1)[0] == '-' ||
-           ($<str>1)[0] == '*' || ($<str>1)[0] == '&') &&
-          ($<str>1)[1] == '\0')
+      const char *op = $<str>1;
+      if ((op[0] == '+' || op[0] == '-' || op[0] == '*' || op[0] == '&') &&
+          op[1] == '\0')
       {
         int c1 = 0;
         size_t l;
@@ -3587,23 +3655,28 @@ common_bracket_item_no_scope_operator:
         chopSig();
         cp = getSig();
         l = getSigLength();
-        if (l != 0) { c1 = cp[l-1]; }
+        if (l > 0) { c1 = cp[l-1]; }
         if (c1 != 0 && c1 != '(' && c1 != '[' && c1 != '=')
         {
           postSig(" ");
         }
-        postSig($<str>1);
+        postSig(op);
         if (vtkParse_CharType(c1, (CPRE_XID|CPRE_QUOTE)) ||
             c1 == ')' || c1 == ']')
         {
           postSig(" ");
         }
       }
-       else
-       {
-        postSig($<str>1);
+      else if ((op[0] == '-' && op[1] == '>') || op[0] == '.')
+      {
+        chopSig();
+        postSig(op);
+      }
+      else
+      {
+        postSig(op);
         postSig(" ");
-       }
+      }
     }
   | ':' { postSig(":"); postSig(" "); } | '.' { postSig("."); }
   | keyword { postSig($<str>1); postSig(" "); }
@@ -3684,18 +3757,18 @@ right_angle_bracket:
   | OP_RSHIFT_A
 
 brackets_sig:
-    '[' { postSig("["); } any_bracket_contents ']'
-    { chopSig(); postSig("] "); }
+    '[' { postSigLeftBracket("["); } any_bracket_contents ']'
+    { postSigRightBracket("] "); }
   | BEGIN_ATTRIB { postSig("[["); } any_bracket_contents ']' ']'
     { chopSig(); postSig("]] "); }
 
 parentheses_sig:
-    '(' { postSig("("); } any_bracket_contents ')'
-    { chopSig(); postSig(") "); }
-  | LP { postSig("("); postSig($<str>1); postSig("*"); }
-    any_bracket_contents ')' { chopSig(); postSig(") "); }
-  | LA { postSig("("); postSig($<str>1); postSig("&"); }
-    any_bracket_contents ')' { chopSig(); postSig(") "); }
+    '(' { postSigLeftBracket("("); } any_bracket_contents ')'
+    { postSigRightBracket(") "); }
+  | LP { postSigLeftBracket("("); postSig($<str>1); postSig("*"); }
+    any_bracket_contents ')' { postSigRightBracket(") "); }
+  | LA { postSigLeftBracket("("); postSig($<str>1); postSig("&"); }
+    any_bracket_contents ')' { postSigRightBracket(") "); }
 
 braces_sig:
     '{' { postSig("{ "); } braces_contents '}' { postSig("} "); }
@@ -4605,11 +4678,18 @@ void handle_attribute(const char *att, int pack)
   int role = getAttributeRole();
 
   size_t l = 0;
+  size_t la = 0;
   const char *args = NULL;
 
   if (!att)
   {
     return;
+  }
+
+  /* append the prefix from the "using" statement */
+  if (getAttributePrefix())
+  {
+    att = vtkstrcat(getAttributePrefix(), att);
   }
 
   /* search for arguments */
@@ -4621,33 +4701,41 @@ void handle_attribute(const char *att, int pack)
   }
   if (att[l] == '(')
   {
-    args = &att[l];
+    /* strip the parentheses and whitespace from the args */
+    args = &att[l+1];
+    while (*args == ' ') { args++; }
+    la = strlen(args);
+    while (la > 0 && args[la-1] == ' ') { la--; }
+    if (la > 0 && args[la-1] == ')') { la--; }
+    while (la > 0 && args[la-1] == ' ') { la--; }
   }
 
   /* check for namespace */
   if (strncmp(att, "vtk::", 5) == 0)
   {
-    if (args)
-    {
-      /* no current vtk attributes use arguments */
-      print_parser_error("attribute takes no args", att, l);
-      exit(1);
-    }
-    else if (pack)
+    if (pack)
     {
       /* no current vtk attributes use '...' */
       print_parser_error("attribute takes no ...", att, l);
       exit(1);
     }
-    else if (strcmp(att, "vtk::newinstance") == 0 &&
-             role == VTK_PARSE_ATTRIB_DECL)
+    else if (l == 16 && strncmp(att, "vtk::newinstance", l) == 0 &&
+             !args && role == VTK_PARSE_ATTRIB_DECL)
     {
       setTypeMod(VTK_PARSE_NEWINSTANCE);
     }
-    else if (strcmp(att, "vtk::zerocopy") == 0 &&
-             role == VTK_PARSE_ATTRIB_DECL)
+    else if (l == 13 && strncmp(att, "vtk::zerocopy", l) == 0 &&
+             !args && role == VTK_PARSE_ATTRIB_DECL)
     {
       setTypeMod(VTK_PARSE_ZEROCOPY);
+    }
+    else if (l == 12 && strncmp(att, "vtk::expects", l) == 0 &&
+             args && role == VTK_PARSE_ATTRIB_FUNC)
+    {
+      /* add to the preconditions */
+      vtkParse_AddStringToArray(&currentFunction->Preconds,
+                                &currentFunction->NumberOfPreconds,
+                                vtkstrndup(args, la));
     }
     else
     {

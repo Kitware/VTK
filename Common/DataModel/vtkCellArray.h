@@ -128,13 +128,15 @@ public:
    * Internal method used to retrieve a cell given an offset into
    * the internal array.
    */
-  void GetCell(vtkIdType loc, vtkIdType &npts, vtkIdType* &pts);
+  void GetCell(vtkIdType loc, vtkIdType &npts, vtkIdType* &pts)
+    VTK_EXPECTS(0 <= loc && loc < GetSize());
 
   /**
    * Internal method used to retrieve a cell given an offset into
    * the internal array.
    */
-  void GetCell(vtkIdType loc, vtkIdList* pts);
+  void GetCell(vtkIdType loc, vtkIdList* pts)
+    VTK_EXPECTS(0 <= loc && loc < GetSize());
 
   /**
    * Insert a cell object. Return the cell id of the cell.
@@ -199,7 +201,8 @@ public:
    * Special method inverts ordering of current cell. Must be called
    * carefully or the cell topology may be corrupted.
    */
-  void ReverseCell(vtkIdType loc);
+  void ReverseCell(vtkIdType loc)
+    VTK_EXPECTS(0 <= loc && loc < GetSize());
 
   /**
    * Replace the point ids of the cell with a different list of point ids.
@@ -207,7 +210,8 @@ public:
    * the responsibility of the caller and may be done after multiple calls to
    * ReplaceCell.
    */
-  void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts);
+  void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts)
+    VTK_EXPECTS(0 <= loc && loc < GetSize());
 
   /**
    * Returns the size of the largest cell. The size is the number of points

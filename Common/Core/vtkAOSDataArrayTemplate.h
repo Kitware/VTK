@@ -60,7 +60,8 @@ public:
   /**
    * Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
    */
-  inline ValueType GetValue(vtkIdType valueIdx) const
+  ValueType GetValue(vtkIdType valueIdx) const
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     return this->Buffer->GetBuffer()[valueIdx];
   }
@@ -68,7 +69,8 @@ public:
   /**
    * Set the value at @a valueIdx to @a value. @a valueIdx assumes AOS ordering.
    */
-  inline void SetValue(vtkIdType valueIdx, ValueType value)
+  void SetValue(vtkIdType valueIdx, ValueType value)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     this->Buffer->GetBuffer()[valueIdx] = value;
   }
@@ -77,7 +79,8 @@ public:
   /**
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
-  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(this->Buffer->GetBuffer() + valueIdx,
@@ -90,7 +93,8 @@ public:
   /**
    * Set this array's tuple at @a tupleIdx to the values in @a tuple.
    */
-  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(tuple, tuple + this->NumberOfComponents,
@@ -101,7 +105,9 @@ public:
   /**
    * Get component @a comp of the tuple at @a tupleIdx.
    */
-  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     return this->Buffer->GetBuffer()[this->NumberOfComponents*tupleIdx + comp];
   }
@@ -110,7 +116,9 @@ public:
   /**
    * Set component @a comp of the tuple at @a tupleIdx to @a value.
    */
-  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+  void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
     this->SetValue(valueIdx, value);
@@ -311,14 +319,20 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
 // can see them. The wrappers ignore vtkAOSDataArrayTemplate.
 #define vtkCreateWrappedArrayInterface(T) \
   int GetDataType(); \
-  void GetTypedTuple(vtkIdType i, T* tuple); \
-  void SetTypedTuple(vtkIdType i, const T* tuple); \
-  void InsertTypedTuple(vtkIdType i, const T* tuple); \
+  void GetTypedTuple(vtkIdType i, T* tuple) \
+    VTK_EXPECTS(0 <= i && i < GetNumberOfTuples()); \
+  void SetTypedTuple(vtkIdType i, const T* tuple) \
+    VTK_EXPECTS(0 <= i && i < GetNumberOfTuples()); \
+  void InsertTypedTuple(vtkIdType i, const T* tuple) \
+    VTK_EXPECTS(0 <= i); \
   vtkIdType InsertNextTypedTuple(const T* tuple); \
-  T GetValue(vtkIdType id); \
-  void SetValue(vtkIdType id, T value); \
+  T GetValue(vtkIdType id) \
+    VTK_EXPECTS(0 <= id && id < GetNumberOfValues()); \
+  void SetValue(vtkIdType id, T value) \
+    VTK_EXPECTS(0 <= id && id < GetNumberOfValues()); \
   void SetNumberOfValues(vtkIdType number); \
-  void InsertValue(vtkIdType id, T f); \
+  void InsertValue(vtkIdType id, T f) \
+    VTK_EXPECTS(0 <= id); \
   vtkIdType InsertNextValue(T f); \
   T *GetValueRange(int comp); \
   T *GetValueRange(); \

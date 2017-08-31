@@ -179,7 +179,8 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     for (i = 0; i < n; i++)
     {
       currentFunction = data->Functions[i];
-      if (currentFunction->Access == VTK_ACCESS_PUBLIC)
+      if (currentFunction->Access == VTK_ACCESS_PUBLIC &&
+          strcmp(currentFunction->Class, data->Name) == 0)
       {
         classname = "void";
         aType = VTK_PARSE_VOID;
@@ -361,12 +362,12 @@ int main(int argc, char *argv[])
   /* get the global namespace */
   contents = file_info->Contents;
 
-  /* use the hierarchy file to expand typedefs */
+  /* use the hierarchy file to find super classes and expand typedefs */
   if (hinfo)
   {
     for (i = 0; i < contents->NumberOfClasses; i++)
     {
-      vtkWrap_ApplyUsingDeclarations(contents->Classes[i], file_info, hinfo);
+      vtkWrap_MergeSuperClasses(contents->Classes[i], file_info, hinfo);
     }
     for (i = 0; i < contents->NumberOfClasses; i++)
     {

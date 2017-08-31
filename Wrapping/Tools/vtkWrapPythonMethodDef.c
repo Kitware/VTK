@@ -560,7 +560,8 @@ int vtkWrapPython_MethodCheck(
   int i, n;
 
   /* some functions will not get wrapped no matter what */
-  if (currentFunction->Access != VTK_ACCESS_PUBLIC)
+  if (currentFunction->Access != VTK_ACCESS_PUBLIC ||
+      vtkWrap_IsInheritedMethod(data, currentFunction))
   {
     return 0;
   }

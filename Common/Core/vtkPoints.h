@@ -131,13 +131,17 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
-  double *GetPoint(vtkIdType id) { return this->Data->GetTuple(id); }
+  double *GetPoint(vtkIdType id)
+    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+    { return this->Data->GetTuple(id); }
 
   /**
    * Copy point components into user provided array v[3] for specified
    * id.
    */
-  void GetPoint(vtkIdType id, double x[3]) { this->Data->GetTuple(id,x); }
+  void GetPoint(vtkIdType id, double x[3])
+    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+    { this->Data->GetTuple(id,x); }
 
   /**
    * Insert point into object. No range checking performed (fast!).
@@ -145,9 +149,14 @@ public:
    * to using SetPoint(). You should call Modified() finally after
    * changing points using this method as it will not do it itself.
    */
-  void SetPoint(vtkIdType id, const float x[3]) { this->Data->SetTuple(id,x); }
-  void SetPoint(vtkIdType id, const double x[3]) { this->Data->SetTuple(id,x); }
-  void SetPoint(vtkIdType id, double x, double y, double z);
+  void SetPoint(vtkIdType id, const float x[3])
+    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+    { this->Data->SetTuple(id,x); }
+  void SetPoint(vtkIdType id, const double x[3])
+    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
+    { this->Data->SetTuple(id,x); }
+  void SetPoint(vtkIdType id, double x, double y, double z)
+    VTK_EXPECTS(0 <= id && id < GetNumberOfPoints());
 
   //@{
   /**
@@ -155,10 +164,13 @@ public:
    * allocated as necessary.
    */
   void InsertPoint(vtkIdType id, const float x[3])
+    VTK_EXPECTS(0 <= id)
     { this->Data->InsertTuple(id,x);};
   void InsertPoint(vtkIdType id, const double x[3])
+    VTK_EXPECTS(0 <= id)
     {this->Data->InsertTuple(id,x);};
-  void InsertPoint(vtkIdType id, double x, double y, double z);
+  void InsertPoint(vtkIdType id, double x, double y, double z)
+    VTK_EXPECTS(0 <= id);
   //@}
 
   /**

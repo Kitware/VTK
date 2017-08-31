@@ -175,6 +175,13 @@ void vtkWrap_ApplyUsingDeclarations(
   ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 /**
+ * Merge members of all superclasses into the data structure.
+ * The superclass header files will be read and parsed.
+ */
+void vtkWrap_MergeSuperClasses(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
+
+/**
  * Apply any hints about array sizes, e.g. hint that the
  * GetNumberOfComponents() method gives the tuple size.
  */
@@ -208,6 +215,11 @@ int vtkWrap_IsConstructor(ClassInfo *c, FunctionInfo *f);
  * True if the method a destructor of the class.
  */
 int vtkWrap_IsDestructor(ClassInfo *c, FunctionInfo *f);
+
+/**
+ * True if the method is inherited from a base class.
+ */
+int vtkWrap_IsInheritedMethod(ClassInfo *c, FunctionInfo *f);
 
 /**
  * Check if a method is from a SetVector method.
