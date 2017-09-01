@@ -254,35 +254,25 @@ void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
 }
 
 //--------------------------------------------------------------------
-PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
+PyTypeObject *vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
   vtkcopyfunc copyfunc)
 {
   const char *classname = vtkPythonUtil::StripModule(pytype->tp_name);
   vtkPythonUtilCreateIfNeeded();
 
-#ifdef VTKPYTHONDEBUG
-  //  vtkGenericWarningMacro("Adding an type " << type << " to map ptr");
-#endif
-
   // lets make sure it isn't already there
   vtkPythonSpecialTypeMap::iterator i =
     vtkPythonMap->SpecialTypeMap->find(classname);
-  if (i != vtkPythonMap->SpecialTypeMap->end())
+  if (i == vtkPythonMap->SpecialTypeMap->end())
   {
-    return nullptr;
+    i = vtkPythonMap->SpecialTypeMap->insert(i,
+      vtkPythonSpecialTypeMap::value_type(
+        classname,
+        PyVTKSpecialType(pytype, methods, constructors, copyfunc)));
   }
 
-  i = vtkPythonMap->SpecialTypeMap->insert(i,
-    vtkPythonSpecialTypeMap::value_type(
-      classname,
-      PyVTKSpecialType(pytype, methods, constructors, copyfunc)));
-
-#ifdef VTKPYTHONDEBUG
-  //  vtkGenericWarningMacro("Added type to map type = " << typeObject);
-#endif
-
-  return &i->second;
+  return i->second.py_type;
 }
 
 //--------------------------------------------------------------------
@@ -477,10 +467,10 @@ const char *vtkPythonUtil::PythonicClassName(const char *classname)
   if (*cp != '\0')
   {
     /* look up class and get its pythonic name */
-    PyVTKClass *o = vtkPythonUtil::FindClass(classname);
-    if (o)
+    PyTypeObject *pytype = vtkPythonUtil::FindClassTypeObject(classname);
+    if (pytype)
     {
-      classname = vtkPythonUtil::StripModule(o->py_type->tp_name);
+      classname = vtkPythonUtil::StripModule(pytype->tp_name);
     }
   }
 
@@ -503,7 +493,7 @@ const char *vtkPythonUtil::StripModule(const char *tpname)
 }
 
 //--------------------------------------------------------------------
-PyVTKClass *vtkPythonUtil::AddClassToMap(
+PyTypeObject *vtkPythonUtil::AddClassToMap(
   PyTypeObject *pytype, PyMethodDef *methods,
   const char *classname, vtknewfunc constructor)
 {
@@ -512,17 +502,15 @@ PyVTKClass *vtkPythonUtil::AddClassToMap(
   // lets make sure it isn't already there
   vtkPythonClassMap::iterator i =
     vtkPythonMap->ClassMap->find(classname);
-  if (i != vtkPythonMap->ClassMap->end())
+  if (i == vtkPythonMap->ClassMap->end())
   {
-    return nullptr;
+    i = vtkPythonMap->ClassMap->insert(i,
+      vtkPythonClassMap::value_type(
+        classname,
+        PyVTKClass(pytype, methods, classname, constructor)));
   }
 
-  i = vtkPythonMap->ClassMap->insert(i,
-    vtkPythonClassMap::value_type(
-      classname,
-      PyVTKClass(pytype, methods, classname, constructor)));
-
-  return &i->second;
+  return i->second.py_type;
 }
 
 //--------------------------------------------------------------------

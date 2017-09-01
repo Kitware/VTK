@@ -68,7 +68,7 @@ extern VTKWRAPPINGPYTHONCORE_EXPORT PyBufferProcs PyVTKObject_AsBuffer;
 extern "C"
 {
 VTKWRAPPINGPYTHONCORE_EXPORT
-PyVTKClass *PyVTKClass_Add(
+PyTypeObject *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods, const char *classname,
   vtknewfunc constructor);
 

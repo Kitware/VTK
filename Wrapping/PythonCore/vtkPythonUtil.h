@@ -66,7 +66,7 @@ public:
    * Add a PyVTKClass to the type lookup table, this allows us to later
    * create object given only the class name.
    */
-  static PyVTKClass *AddClassToMap(
+  static PyTypeObject *AddClassToMap(
     PyTypeObject *pytype, PyMethodDef *methods,
     const char *classname, vtknewfunc constructor);
 
@@ -134,7 +134,7 @@ public:
    * Add a special VTK type to the type lookup table, this allows us to
    * later create object given only the class name.
    */
-  static PyVTKSpecialType *AddSpecialTypeToMap(
+  static PyTypeObject *AddSpecialTypeToMap(
     PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
     vtkcopyfunc copyfunc);
 

@@ -421,7 +421,7 @@ static void vtkWrapPython_GenerateObjectNew(
   fprintf(fp,
           "PyObject *Py%s_ClassNew()\n"
           "{\n"
-          "  PyVTKClass_Add(\n"
+          "  PyTypeObject *pytype = PyVTKClass_Add(\n"
           "    &Py%s_Type, Py%s_Methods,\n",
           classname, classname, classname);
 
@@ -450,10 +450,6 @@ static void vtkWrapPython_GenerateObjectNew(
     fprintf(fp,
             " nullptr);\n\n");
   }
-
-  fprintf(fp,
-          "  PyTypeObject *pytype = &Py%s_Type;\n\n",
-          classname);
 
   /* if type is already ready, then return */
   fprintf(fp,

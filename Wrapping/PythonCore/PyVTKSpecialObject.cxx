@@ -238,26 +238,23 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 //--------------------------------------------------------------------
 // Add a special type, add methods and members to its type object.
 // A return value of nullptr signifies that it was already added.
-PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
+PyTypeObject *PyVTKSpecialType_Add(PyTypeObject *pytype,
   PyMethodDef *methods, PyMethodDef *constructors,
   vtkcopyfunc copyfunc)
 {
-  // Add this type to the special type map
-  PyVTKSpecialType *info =
-    vtkPythonUtil::AddSpecialTypeToMap(
+  // Check whether the type is already in the map (use classname as key),
+  // and return it if so.  If not, then add it to the map.
+  pytype = vtkPythonUtil::AddSpecialTypeToMap(
       pytype, methods, constructors, copyfunc);
 
-  if (info == nullptr)
+  // If type object already has a dict, we're done
+  if (pytype->tp_dict)
   {
-    // The type was already in the map, so do nothing
-    return info;
+    return pytype;
   }
 
   // Create the dict
-  if (pytype->tp_dict == nullptr)
-  {
-    pytype->tp_dict = PyDict_New();
-  }
+  pytype->tp_dict = PyDict_New();
 
   // Add all of the methods
   for (PyMethodDef *meth = methods; meth && meth->ml_name; meth++)
@@ -267,5 +264,5 @@ PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
     Py_DECREF(func);
   }
 
-  return info;
+  return pytype;
 }

@@ -866,7 +866,7 @@ void vtkWrapPython_GenerateSpecialType(
   if (has_copycons)
   {
     fprintf(fp,
-    "  PyVTKSpecialType_Add(\n"
+    "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
@@ -879,7 +879,7 @@ void vtkWrapPython_GenerateSpecialType(
   else if (constructor)
   {
     fprintf(fp,
-    "  PyVTKSpecialType_Add(\n"
+    "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
@@ -891,7 +891,7 @@ void vtkWrapPython_GenerateSpecialType(
   else
   {
     fprintf(fp,
-    "  PyVTKSpecialType_Add(\n"
+    "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    nullptr,\n"
@@ -899,10 +899,6 @@ void vtkWrapPython_GenerateSpecialType(
     "\n",
     classname, classname);
   }
-
-  fprintf(fp,
-    "  PyTypeObject *pytype = &Py%s_Type;\n\n",
-    classname);
 
   /* if type is already ready, then return */
   fprintf(fp,
