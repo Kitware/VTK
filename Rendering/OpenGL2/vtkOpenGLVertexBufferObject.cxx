@@ -316,6 +316,49 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
   this->Stride = (this->NumberOfComponents + extraComponents) * this->DataTypeSize;
 
   // Can we use the fast path?
+  // have to compute auto shift scale first to know if we can use
+  // the fast path
+  if (this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+  {
+    std::vector<double> shift;
+    std::vector<double> scale;
+    bool useSS = false;
+    for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+    {
+      double range[2];
+      array->GetRange(range, i);
+      double dshift = 0.5 * (range[1] + range[0]);
+      double delta = range[1] - range[0];
+      if (delta > 0 && (
+        fabs(dshift) / delta > 1.0e3 || fabs(log10(delta)) > 3.0))
+      {
+        useSS = true;
+        break;
+      }
+    }
+    if (useSS)
+    {
+      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+      {
+        double range[2];
+        array->GetRange(range, i);
+        shift.push_back(0.5 * (range[1] + range[0]));
+        double delta = range[1] - range[0];
+        if (delta > 0)
+        {
+          scale.push_back(1.0 / delta);
+        }
+        else
+        {
+          scale.push_back(1.0);
+        }
+      }
+      this->SetShift(shift);
+      this->SetScale(scale);
+    }
+  }
+
+  // can we use the fast path and just upload the raw array?
   if (!this->GetCoordShiftAndScaleEnabled() &&
       this->DataType == array->GetDataType() &&
       extraComponents == 0)
@@ -327,10 +370,39 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
       vtkOpenGLBufferObject::ArrayBuffer);
     this->UploadTime.Modified();
   }
+  // otherwise use a worker to build the array to upload
   else
   {
-    this->NumberOfTuples = 0;
-    this->AppendDataArray(array);
+    this->NumberOfTuples = array->GetNumberOfTuples();
+
+    // Resize VBO to fit new array
+    this->PackedVBO.resize(this->NumberOfTuples * this->Stride/sizeof(float));
+
+    // Dispatch based on the array data type
+    typedef vtkArrayDispatch::DispatchByValueType <vtkArrayDispatch::AllTypes> Dispatcher;
+    bool result = false;
+    switch (this->DataType)
+    {
+      case VTK_FLOAT:
+      {
+        vtkAppendVBOWorker<float> worker(this, 0, this->GetShift(), this->GetScale());
+        result = Dispatcher::Execute(array, worker);
+        break;
+      }
+      case VTK_UNSIGNED_CHAR:
+      {
+        vtkAppendVBOWorker<unsigned char> worker(this, 0, this->GetShift(), this->GetScale());
+        result = Dispatcher::Execute(array, worker);
+        break;
+      }
+    }
+
+    if(!result)
+    {
+      vtkErrorMacro( << "Error filling VBO.");
+    }
+
+    this->Modified();
     this->UploadVBO();
   }
 }

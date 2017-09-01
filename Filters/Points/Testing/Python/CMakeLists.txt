@@ -26,7 +26,7 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
     TestPointDensityFilter.py
     TestPointDensityGradient.py
     TestRadiusOutlierRemoval.py
-    TestSignedDistanceFilter.py
+#    TestSignedDistanceFilter.py   the filter produces uninitialized memory Will is working on a fix 2017-09-01
     TestStatisticalOutlierRemoval.py
     TestUnsignedDistanceFilter.py
     TestVoxelGridFilter.py
