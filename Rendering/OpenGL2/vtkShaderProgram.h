@@ -187,6 +187,7 @@ public:
   bool SetUniform2i(const char *name, const int v[2]);
   bool SetUniform2f(const char *name, const float v[2]);
   bool SetUniform3f(const char *name, const float v[3]);
+  bool SetUniform3f(const char *name, const double v[3]);
   bool SetUniform4f(const char *name, const float v[4]);
   bool SetUniform3uc(const char *name, const unsigned char v[3]); // maybe remove
   bool SetUniform4uc(const char *name, const unsigned char v[4]); // maybe remove

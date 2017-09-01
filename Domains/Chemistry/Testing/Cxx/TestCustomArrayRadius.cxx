@@ -82,7 +82,7 @@ int TestCustomArrayRadius(int, char *[])
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper.GetPointer());
   actor->GetProperty()->SetAmbient(0.0);
-  actor->GetProperty()->SetDiffuse(0.0);
+  actor->GetProperty()->SetDiffuse(1.0);
   actor->GetProperty()->SetSpecular(0.0);
   actor->GetProperty()->SetSpecularPower(40);
 
