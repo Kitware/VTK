@@ -15,6 +15,11 @@ set(VTKm_ENABLE_TESTING OFF CACHE BOOL "Disabled when building as part of VTK" F
 set(VTKm_ENABLE_RENDERING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_USE_64BIT_IDS ${VTK_USE_64BIT_IDS} CACHE BOOL "Set to match VTK" FORCE)
 
+if (WIN32)
+  # Force the dlls to be in the bin folder with VTK's so that running tests
+  # don't need to set path on Windows
+  set(VTKm_EXECUTABLE_OUTPUT_PATH "bin" CACHE PATH "Set to match VTK" FORCE)
+endif()
 set(VTKm_INSTALL_INCLUDE_DIR "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 set(VTKm_INSTALL_CMAKE_MODULE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}/vtkm")
 
