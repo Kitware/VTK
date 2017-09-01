@@ -45,15 +45,18 @@ public:
 
   void CleanupPythonObjects()
     {
-    vtkPythonScopeGilEnsurer gilEnsurer;  
-    Py_XDECREF(this->InteractiveConsoleLocals);
-    Py_XDECREF(this->InteractiveConsole);
-    this->InteractiveConsole = NULL;
-    this->InteractiveConsoleLocals = NULL;
-    if (vtkPythonInterpreter::IsInitialized())
+    if (this->InteractiveConsole)
       {
-      const char* code = "import gc; gc.collect()\n";
-      vtkPythonInterpreter::RunSimpleString(code);
+      vtkPythonScopeGilEnsurer gilEnsurer;
+      Py_XDECREF(this->InteractiveConsoleLocals);
+      Py_XDECREF(this->InteractiveConsole);
+      this->InteractiveConsole = NULL;
+      this->InteractiveConsoleLocals = NULL;
+      if (vtkPythonInterpreter::IsInitialized())
+        {
+        const char* code = "import gc; gc.collect()\n";
+        vtkPythonInterpreter::RunSimpleString(code);
+        }
       }
     }
 
