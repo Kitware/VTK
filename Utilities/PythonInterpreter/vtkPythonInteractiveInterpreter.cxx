@@ -34,8 +34,8 @@ public:
   vtkSmartPointer<vtkPythonInterpreter> Interpreter;
 
   vtkInternals()
-    : InteractiveConsole(0)
-    , InteractiveConsoleLocals(0)
+    : InteractiveConsole(nullptr)
+    , InteractiveConsoleLocals(nullptr)
   {
   }
   ~vtkInternals() { this->CleanupPythonObjects(); }
@@ -50,8 +50,8 @@ public:
       vtkPythonScopeGilEnsurer gilEnsurer;
       Py_XDECREF(this->InteractiveConsoleLocals);
       Py_XDECREF(this->InteractiveConsole);
-      this->InteractiveConsole = NULL;
-      this->InteractiveConsoleLocals = NULL;
+      this->InteractiveConsole = nullptr;
+      this->InteractiveConsoleLocals = nullptr;
       if (vtkPythonInterpreter::IsInitialized())
       {
         const char* code = "import gc; gc.collect()\n";
@@ -87,7 +87,7 @@ public:
     {
       vtkGenericWarningMacro(
         "Failed to locate the InteractiveConsole/InteractiveConsoleLocals object.");
-      return NULL;
+      return nullptr;
     }
     Py_INCREF(this->InteractiveConsole);
     Py_INCREF(this->InteractiveConsoleLocals);
@@ -142,7 +142,7 @@ vtkPythonInteractiveInterpreter::vtkPythonInteractiveInterpreter()
 vtkPythonInteractiveInterpreter::~vtkPythonInteractiveInterpreter()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -215,7 +215,7 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
   // The const_cast can be removed for Python 3.3 or later.
   PyObject* result = PyRun_String(const_cast<char*>(script), Py_file_input, context, context);
 
-  if (result == NULL)
+  if (result == nullptr)
   {
     PyErr_Print();
     return -1;
