@@ -293,9 +293,6 @@ private:
   vtkPlotPoints(const vtkPlotPoints &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotPoints &) VTK_DELETE_FUNCTION;
 
-// #define  VTK_COLOR_MODE_DEFAULT   0
-// #define  VTK_COLOR_MODE_MAP_SCALARS   1
-
 };
 
 #endif //vtkPlotPoints_h
