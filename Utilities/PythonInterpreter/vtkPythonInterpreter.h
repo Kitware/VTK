@@ -59,7 +59,7 @@
 
 #include "vtkObject.h"
 #include "vtkPythonInterpreterModule.h" // For export macro
-#include "vtkStdString.h" // needed for vtkStdString.
+#include "vtkStdString.h"               // needed for vtkStdString.
 
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
 {
@@ -77,7 +77,7 @@ public:
    * initialization routine is called more than once; this can happen if an
    * application calls Py_InitializeEx() and Py_Finalize() more than once."
    */
-  static bool Initialize(int initsigs=1);
+  static bool Initialize(int initsigs = 1);
 
   /**
    * Call this method to finalize Python. This has no effect if Python hasn't
@@ -166,7 +166,6 @@ private:
   static std::string StdErrBuffer;
   static std::string StdOutBuffer;
   //@}
-
 };
 
 #endif
