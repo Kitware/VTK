@@ -48,6 +48,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_*
 
 class vtkImageData;
 class vtkScalarsToColors;
@@ -150,7 +151,6 @@ public:
     { this->SetQuality(VTK_TEXTURE_QUALITY_32BIT); }
   //@}
 
-#ifndef VTK_LEGACY_REMOVE
   //@{
   /**
    * Turn on/off the mapping of color scalars through the lookup table.
@@ -163,12 +163,11 @@ public:
    * @deprecated Use SetColorMode, SetColorModeToDefault,
    * SetColorModeToMapScalars, and SetColorModeToDirectScalars instead.
    */
-  VTK_LEGACY(void SetMapColorScalarsThroughLookupTable(int val);)
-  VTK_LEGACY(int GetMapColorScalarsThroughLookupTable();)
-  VTK_LEGACY(void MapColorScalarsThroughLookupTableOn();)
-  VTK_LEGACY(void MapColorScalarsThroughLookupTableOff();)
+  VTK_LEGACY(void SetMapColorScalarsThroughLookupTable(int val));
+  VTK_LEGACY(int GetMapColorScalarsThroughLookupTable());
+  VTK_LEGACY(void MapColorScalarsThroughLookupTableOn());
+  VTK_LEGACY(void MapColorScalarsThroughLookupTableOff());
   //@}
-#endif
 
   //@{
   /**
