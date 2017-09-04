@@ -502,7 +502,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
       ncomp = nvals/numPoints;
     }
     else if (attrCenter == XdmfAttributeCenter::Other()
-      and xmfAttribute->getItemType() == "FiniteElementFunction")
+      && xmfAttribute->getItemType() == "FiniteElementFunction")
     {
       if (!pselection->ArrayIsEnabled(attrName.c_str()))
       {
@@ -1018,8 +1018,8 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   // Linear geometry and linear or constant function
   // isoparametric element
   if (topologyType == XdmfTopologyType::Triangle()
-      and (element_degree == 1 or element_degree == 0)
-      and (element_family == "CG" or element_family == "DG"))
+      && (element_degree == 1 || element_degree == 0)
+      && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_TRIANGLE;
   }
@@ -1027,9 +1027,9 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   // Linear or quadratic geometry and quadratic function
   // isoparametric and superparametric element
   if ((topologyType == XdmfTopologyType::Triangle()
-        or topologyType == XdmfTopologyType::Triangle_6())
-      and element_degree == 2
-      and (element_family == "CG" or element_family == "DG"))
+        || topologyType == XdmfTopologyType::Triangle_6())
+      && element_degree == 2
+      && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_QUADRATIC_TRIANGLE;
   }
@@ -1037,8 +1037,8 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   // Quadratic geometry and linear or const function
   // subparametric element
   if (topologyType == XdmfTopologyType::Triangle_6()
-    and (element_degree == 1 or element_degree == 0)
-    and (element_family == "CG" or element_family == "DG"))
+    && (element_degree == 1 || element_degree == 0)
+    && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_QUADRATIC_TRIANGLE;
   }
@@ -1046,8 +1046,8 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   // Linear geometry and linear or constant function
   // isoparametric element
   if (topologyType == XdmfTopologyType::Tetrahedron()
-    and (element_degree == 1 or element_degree == 0)
-    and (element_family == "CG" or element_family == "DG"))
+    && (element_degree == 1 || element_degree == 0)
+    && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_TETRA;
   }
@@ -1055,9 +1055,9 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   // Linear or quadratic geometry and quadratic function
   // isoparametric and superparametric element
   if ((topologyType == XdmfTopologyType::Tetrahedron()
-         or topologyType == XdmfTopologyType::Tetrahedron_10())
-    and element_degree == 2
-    and (element_family == "CG" or element_family == "DG"))
+         || topologyType == XdmfTopologyType::Tetrahedron_10())
+    && element_degree == 2
+    && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_QUADRATIC_TETRA;
   }
@@ -1065,8 +1065,8 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   // Linear geometry and linear or const function
   // isoparametric element
   if (topologyType == XdmfTopologyType::Quadrilateral()
-      and (element_degree == 1 or element_degree == 0)
-      and (element_family == "Q" or element_family == "DQ"))
+      && (element_degree == 1 || element_degree == 0)
+      && (element_family == "Q" || element_family == "DQ"))
   {
     return VTK_QUAD;
   }
@@ -1074,24 +1074,24 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   // Linear geometry and quadratic function
   // superparametric element
   if (topologyType == XdmfTopologyType::Quadrilateral()
-    and (element_degree == 2)
-    and (element_family == "Q" or element_family == "DQ"))
+    && (element_degree == 2)
+    && (element_family == "Q" || element_family == "DQ"))
   {
     return VTK_BIQUADRATIC_QUAD;
   }
 
   // Linear geometry and Raviart-Thomas
   if (topologyType == XdmfTopologyType::Triangle()
-      and element_degree == 1
-      and element_family == "RT")
+      && element_degree == 1
+      && element_family == "RT")
   {
     return VTK_TRIANGLE;
   }
 
   // Linear geometry and higher order function
   if (topologyType == XdmfTopologyType::Triangle()
-    and element_degree >= 3
-    and (element_family == "CG" or element_family == "DG"))
+    && element_degree >= 3
+    && (element_family == "CG" || element_family == "DG"))
   {
     return VTK_TRIANGLE;
   }
@@ -2509,7 +2509,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
     }
 
     // Global indices to points in cell
-    vtkIdType ptIds[number_points_per_new_cell];
+    vtkIdType *ptIds = new vtkIdType[number_points_per_new_cell];
 
     // Get original cell points
     vtkPoints *cell_points = cell->GetPoints();
@@ -2518,7 +2518,11 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
     unsigned int d = xmfAttribute->getElementDegree();
 
     // Prepare space for normal vectors
-    double normal[number_points_per_new_cell][3];
+    double **normal = new double*[number_points_per_new_cell];
+    for (unsigned int q = 0; q<number_points_per_new_cell; ++q)
+    {
+      normal[q] = new double[3];
+    }
 
     // Determine number of components after embedding
     // the scalar/vector/tesor into 3D world
@@ -2535,7 +2539,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
       data_rank = vtkDataSetAttributes::VECTORS;
     }
 
-    if (xmfAttribute->getType() == XdmfAttributeType::Tensor() or
+    if (xmfAttribute->getType() == XdmfAttributeType::Tensor() ||
       xmfAttribute->getType() == XdmfAttributeType::Tensor6())
     {
       ncomp_padded = 9;
@@ -2555,11 +2559,14 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
       unsigned int dim;
 
       // Prepare zero filled values
-      double tuple[ncomp_padded] = {0.0};
-
-      if ((xmfAttribute->getElementFamily() == "CG" or
+      double *tuple = new double[ncomp_padded];
+      for (unsigned int q = 0; q <ncomp_padded; ++q)
+      {
+        tuple[q] = 0.0;
+      }
+      if ((xmfAttribute->getElementFamily() == "CG" ||
         xmfAttribute->getElementFamily() == "DG")
-        and xmfAttribute->getElementCell() == "triangle")
+        && xmfAttribute->getElementCell() == "triangle")
       {
         //
         // CG and DG on triangles
@@ -2573,7 +2580,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         if (ix < cell->GetNumberOfPoints())
         {
           cell_points->GetPoint(ix, coord);
-        } else if (d == 2 and ix >= cell->GetNumberOfPoints())
+        } else if (d == 2 && ix >= cell->GetNumberOfPoints())
         {
           // They are just tuples (i, i+i) but when i+1 = last point then
           // i+1 is in fact 0
@@ -2612,7 +2619,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         //
         // Fill data values
         //
-        if (!(d == 0 and ix > 0))
+        if (!(d == 0 && ix > 0))
         {
           for (unsigned int comp = 0; comp < ncomp; ++comp)
           {
@@ -2645,9 +2652,9 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         }
 
       }
-      else if ((xmfAttribute->getElementFamily() == "CG" or
+      else if ((xmfAttribute->getElementFamily() == "CG" ||
         xmfAttribute->getElementFamily() == "DG")
-        and xmfAttribute->getElementCell() == "tetrahedron")
+        && xmfAttribute->getElementCell() == "tetrahedron")
       {
         //
         // CG and DG on tetrahedra
@@ -2663,7 +2670,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         {
           cell_points->GetPoint(ix, coord);
         }
-        else if (d == 2 and ix >= cell->GetNumberOfPoints())
+        else if (d == 2 && ix >= cell->GetNumberOfPoints())
         {
           cell_points->GetPoint(
             static_cast<vtkIdType>((ix - 1) % 3),
@@ -2707,7 +2714,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         // Fill data values
         //
 
-        if (!(d == 0 and ix > 0))
+        if (!(d == 0 && ix > 0))
         {
           for (unsigned int comp = 0; comp < ncomp; ++comp)
           {
@@ -2721,9 +2728,9 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         }
 
       }
-      else if ((xmfAttribute->getElementFamily() == "Q" or
+      else if ((xmfAttribute->getElementFamily() == "Q" ||
         xmfAttribute->getElementFamily() == "DQ")
-        and xmfAttribute->getElementCell() == "quadrilateral")
+        && xmfAttribute->getElementCell() == "quadrilateral")
       {
         //
         // Q and DQ on quadrilaterals
@@ -2791,7 +2798,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         // Fill data values
         //
 
-        if (!(d == 0 and ix > 0))
+        if (!(d == 0 && ix > 0))
         {
           for (unsigned int comp = 0; comp < ncomp; ++comp)
           {
@@ -2805,7 +2812,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         }
 
       }
-      else if (xmfAttribute->getElementFamily() == "RT" and
+      else if (xmfAttribute->getElementFamily() == "RT" &&
         xmfAttribute->getElementCell() == "triangle")
       {
         //
@@ -2851,8 +2858,8 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
           normal[normal_ix][2] = 0.0;
 
           // Compute euclidean norm
-          double norm = sqrt(pow(normal[normal_ix][0], 2) +
-            pow(normal[normal_ix][1], 2));
+          double norm = sqrt(pow(normal[normal_ix][0], 2.) +
+            pow(normal[normal_ix][1], 2.));
 
           // Normalize "normals"
           for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
@@ -2894,10 +2901,10 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
         // These coefficients are used to compute values at nodes
         // from values in midways
         double a = (adjacent_dof1 - adjacent_dof2 * normal_product) /
-          (1.0 - pow(normal_product, 2));
+          (1.0 - pow(normal_product, 2.));
 
         double b = (adjacent_dof2 - adjacent_dof1 * normal_product) /
-          (1.0 - pow(normal_product, 2));
+          (1.0 - pow(normal_product, 2.));
 
         tuple[0] = normal[normal_ixs[0]][0] * a +
           normal[normal_ixs[1] % 3][0] * b;
@@ -2913,14 +2920,16 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
 
       // If degree == 0 we want to add only first tuple because we store data as
       // CellData
-      if (d == 0 and ix > 0)
+      if (d == 0 && ix > 0)
+      {
+        delete[] tuple;
         continue;
-
+      }
       // At this point, tuple is padded from the end, i.e. (1,0,0)
       // for one-component vector in 3D, but 2D tensor in 3D is padded
       // incorrectly as (1,1,1,1,0,0,0,0,0) and should be (1,1,0,1,1,0,0,0,0)
       // We need to rearrange values
-      if (ncomp_padded == 9 and ncomp == 4)
+      if (ncomp_padded == 9 && ncomp == 4)
       {
         tuple[4] = tuple[3];
         tuple[3] = tuple[2];
@@ -2929,6 +2938,8 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
 
       // Insert data value
       new_array->InsertNextTuple(tuple);
+
+      delete[] tuple;
     }
 
     //
@@ -2938,6 +2949,13 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
     dataSet_finite_element->InsertNextCell(new_cell_type,
       number_points_per_new_cell, ptIds);
     index = index + number_dofs_per_cell;
+
+    delete[] ptIds;
+    for (unsigned int q = 0; q<number_points_per_new_cell; ++q)
+    {
+      delete[] normal[q];
+    }
+    delete[] normal;
   }
 
   //
