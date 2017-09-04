@@ -264,7 +264,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
       shared_ptr<const XdmfAttributeCenter> attrCenter =
         xmfAttribute->getCenter();
       if (attrCenter == XdmfAttributeCenter::Grid()
-          or
+          ||
           attrCenter == XdmfAttributeCenter::Other())
       {
         if (!this->FieldArrays->HasArray(attrName.c_str()))
