@@ -1011,7 +1011,7 @@ int vtkXdmf3DataSet::GetVTKCellType(
 //==========================================================================
 int vtkXdmf3DataSet::GetVTKFiniteElementCellType(
   unsigned int element_degree,
-  std::string element_family,
+  std::string &element_family,
   shared_ptr<const XdmfTopologyType> topologyType
 )
 {
