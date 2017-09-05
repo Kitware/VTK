@@ -67,6 +67,8 @@ dist.SetBounds(-1,1, -1,1, -1,1)
 dist.SetDimensions(50,50,50)
 
 # Extract the surface with modified flying edges
+#fe = vtk.vtkFlyingEdges3D()
+#fe.SetValue(0,0.0)
 fe = vtk.vtkExtractSurface()
 fe.SetInputConnection(dist.GetOutputPort())
 fe.SetRadius(0.1) # this should match the signed distance radius
@@ -79,6 +81,7 @@ timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Points processed: {0}".format(NPts))
 print("   Time to generate and extract distance function: {0}".format(time))
+print("   Resulting bounds: {}".format(fe.GetOutput().GetBounds()))
 
 feMapper = vtk.vtkPolyDataMapper()
 feMapper.SetInputConnection(fe.GetOutputPort())

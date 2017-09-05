@@ -57,12 +57,12 @@ struct SignedDistance
                  double radius, vtkAbstractPointLocator *loc, float *scalars) :
     Pts(pts), Normals(normals), Radius(radius), Locator(loc), Scalars(scalars)
   {
-      for (int i=0; i < 3; ++i)
-      {
-        this->Dims[i] = static_cast<vtkIdType>(dims[i]);
-        this->Origin[i] = origin[i];
-        this->Spacing[i] = spacing[i];
-      }
+    for (int i=0; i < 3; ++i)
+    {
+      this->Dims[i] = static_cast<vtkIdType>(dims[i]);
+      this->Origin[i] = origin[i];
+      this->Spacing[i] = spacing[i];
+    }
   }
 
   // Just allocate a little bit of memory to get started.
@@ -75,48 +75,49 @@ struct SignedDistance
   // Threaded interpolation method
   void operator() (vtkIdType slice, vtkIdType sliceEnd)
   {
-      T *p;
-      float *n;
-      double x[3], dist;
-      vtkIdType numPts;
-      double *origin=this->Origin;
-      double *spacing=this->Spacing;
-      int ii;
-      vtkIdType *dims=this->Dims;
-      vtkIdType ptId, jOffset, kOffset, sliceSize=dims[0]*dims[1];
-      vtkIdList*& pIds = this->PIds.Local();
+    T *p;
+    float *n;
+    double x[3], dist;
+    vtkIdType numPts;
+    double *origin=this->Origin;
+    double *spacing=this->Spacing;
+    int ii;
+    vtkIdType *dims=this->Dims;
+    vtkIdType ptId, jOffset, kOffset, sliceSize=dims[0]*dims[1];
+    vtkIdList*& pIds = this->PIds.Local();
 
-      for ( ; slice < sliceEnd; ++slice)
+    for ( ; slice < sliceEnd; ++slice)
+    {
+      x[2] = origin[2] + slice*spacing[2];
+      kOffset = slice*sliceSize;
+
+      for ( vtkIdType j=0;  j < dims[1]; ++j)
       {
-        x[2] = origin[2] + slice*spacing[2];
-        kOffset = slice*sliceSize;
+        x[1] = origin[1] + j*spacing[1];
+        jOffset = j*dims[0];
 
-        for ( vtkIdType j=0;  j < dims[1]; ++j)
+        for ( vtkIdType i=0; i < dims[0]; ++i)
         {
-          x[1] = origin[1] + j*spacing[1];
-          jOffset = j*dims[0];
+          x[0] = origin[0] + i*spacing[0];
+          ptId = i + jOffset + kOffset;
 
-          for ( vtkIdType i=0; i < dims[0]; ++i)
+          // Compute signed distance at voxel from surrounding points. Use average
+          // distance of neighboring points.
+          this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
+          numPts = pIds->GetNumberOfIds();
+          if ( numPts > 0 )
           {
-            x[0] = origin[0] + i*spacing[0];
-            ptId = i + jOffset + kOffset;
-
-            // Compute signed distance from surrounding points
-            this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
-            numPts = pIds->GetNumberOfIds();
-            if ( numPts > 0 )
+            for (dist=0.0, ii=0; ii < numPts; ++ii)
             {
-              for (dist=0.0, ii=0; ii < numPts; ++ii)
-              {
-                p = this->Pts + 3*pIds->GetId(ii);
-                n = this->Normals + 3*pIds->GetId(ii);
-                dist += n[0]*(p[0]-x[0]) + n[1]*(p[1]-x[1]) + n[2]*(p[2]-x[2]);
-              }
-              this->Scalars[ptId] = dist / static_cast<double>(numPts);
-            }//if nearby points
-          }//over i
-        }//over j
-      }//over slices
+              p = this->Pts + 3*pIds->GetId(ii);
+              n = this->Normals + 3*pIds->GetId(ii);
+              dist += n[0]*(p[0]-x[0]) + n[1]*(p[1]-x[1]) + n[2]*(p[2]-x[2]);
+            }
+            this->Scalars[ptId] = dist / static_cast<double>(numPts);
+          }//if nearby points
+        }//over i
+      }//over j
+    }//over slices
   }
 
   void Reduce()
@@ -126,9 +127,9 @@ struct SignedDistance
   static void Execute(vtkSignedDistance *self, T *pts, float *normals, int dims[3],
                       double origin[3], double spacing[3], float *scalars)
   {
-      SignedDistance dist(pts, normals, dims, origin, spacing, self->GetRadius(),
-                          self->GetLocator(), scalars);
-      vtkSMPTools::For(0, dims[2], dist);
+    SignedDistance dist(pts, normals, dims, origin, spacing, self->GetRadius(),
+                        self->GetLocator(), scalars);
+    vtkSMPTools::For(0, dims[2], dist);
   }
 
 }; //SignedDistance
@@ -185,10 +186,10 @@ void vtkSignedDistance::StartAppend()
     static_cast<vtkIdType>(this->Dimensions[1]) *
     static_cast<vtkIdType>(this->Dimensions[2]);
 
-  // initialize output to initial unseen value at each location
+  // initialize output to initial empty value at each location
   float *newScalars = static_cast<float*>(
     this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-  std::fill_n(newScalars, numPts, this->Radius);
+  std::fill_n(newScalars, numPts, -(this->Radius));
 
   // Compute the initial bounds
   double bounds[6];

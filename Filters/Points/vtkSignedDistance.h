@@ -20,8 +20,8 @@
  * from an input point cloud. The input point cloud must have point normals
  * defined, as well as an optional weighting function (e.g., probabilities
  * that the point measurements are accurate). Once the signed distance
- * function is computed, then the output volume may be isocontoured to
- * extract a approximating surface to the point cloud.
+ * function is computed, then the output volume may be isocontoured to with
+ * vtkExtractSurface to extract a approximating surface to the point cloud.
  *
  * To use this filter, specify the input vtkPolyData (which represents the
  * point cloud); define the sampling volume; specify a radius (which limits
@@ -48,15 +48,19 @@
  * Images." As described in this paper it may produce a signed distance
  * volume that may contain the three data states for each voxel: near
  * surface, empty, or unseen (see vtkExtractSurface for additional
- * information). However, this algorithm has been extended to support
- * different interpolation kernels as follows.
- *
- * (Kernel description TODO including supplied weights.)
+ * information). Note in this implementation the initial values of the volume
+ * are set to < this->Radius. This indicates that these voxels are
+ * "empty". Of course voxels with value -this->Radius <= d <= this->Radius
+ * are "near" the surface. (Voxels with values > this->Radius are "unseen" --
+ * this filter does not produce such values.)
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+ *
+ * @warning
+ * Empty voxel values are set to -this->Radius.
  *
  * @sa
  * vtkExtractSurface vtkImplicitModeller
@@ -106,7 +110,9 @@ public:
   //@{
   /**
    * Set / get the radius of influence of each point. Smaller values
-   * generally improve performance markedly.
+   * generally improve performance markedly. Note that after the signed
+   * distance function is computed, any voxel taking on the value >= Radius
+   * is presumed to be "unseen" or uninitialized.
    */
   vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Radius,double);
