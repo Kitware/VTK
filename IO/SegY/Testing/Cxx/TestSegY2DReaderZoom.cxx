@@ -81,21 +81,21 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
   // Test some scalar values
   vtkFloatArray* scalars =
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
-  float scalar = scalars->GetVariantValue(390 * 39).ToFloat();
+  float scalar = scalars->GetVariantValue(390 * (1001 - 40)).ToFloat();
   if (!vtkMathUtilities::FuzzyCompare<float>(scalar, 0.0676235f))
   {
     std::cerr << "Error: Trace value for 39th sample is wrong." << std::endl
-              << "trace[390*39] = " << std::setprecision(10) << scalar
+              << "trace[390*(1001-40)] = " << std::setprecision(10) << scalar
               << std::endl
               << "Expected trace[390*39] = 0.0676235f" << std::endl;
     retVal++;
   }
 
-  scalar = scalars->GetVariantValue(390 * 390).ToFloat();
+  scalar = scalars->GetVariantValue(390 * (1001 - 391)).ToFloat();
   if (!vtkMathUtilities::FuzzyCompare<float>(scalar, 0.6201947331f))
   {
     std::cerr << "Error: Trace value for 390th sample is wrong." << std::endl
-              << "trace[390*390] = " << std::setprecision(10) << scalar
+              << "trace[390*(1001-391)] = " << std::setprecision(10) << scalar
               << std::endl
               << "Expected trace[390*390] = 0.620195f" << std::endl;
     retVal++;
