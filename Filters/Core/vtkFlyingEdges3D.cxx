@@ -139,7 +139,7 @@ public:
   // The three main passes of the algorithm.
   void ProcessXEdge(double value, T const * const inPtr, vtkIdType row, vtkIdType slice); //PASS 1
   void ProcessYZEdges(vtkIdType row, vtkIdType slice); //PASS 2
-  void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);//PASS 3
+  void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);//PASS 4
 
   // Place holder for now in case fancy bit fiddling is needed later.
   void SetXEdge(unsigned char *ePtr, unsigned char edgeCase)
@@ -172,16 +172,16 @@ public:
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType *eIds,
                     vtkIdType &triId)
   {
-      vtkIdType *tri;
-      const unsigned char *edges = this->EdgeCases[eCase] + 1;
-      for (int i=0; i < numTris; ++i, edges+=3)
-      {
-        tri = this->NewTris + 4*triId++;
-        tri[0] = 3;
-        tri[1] = eIds[edges[0]];
-        tri[2] = eIds[edges[1]];
-        tri[3] = eIds[edges[2]];
-      }
+    vtkIdType *tri;
+    const unsigned char *edges = this->EdgeCases[eCase] + 1;
+    for (int i=0; i < numTris; ++i, edges+=3)
+    {
+      tri = this->NewTris + 4*triId++;
+      tri[0] = 3;
+      tri[1] = eIds[edges[0]];
+      tri[2] = eIds[edges[1]];
+      tri[3] = eIds[edges[2]];
+    }
   }
 
   // Compute gradient on interior point.
@@ -191,20 +191,20 @@ public:
                        T const * const s2_start, T const * const s2_end,
                        float g[3])
   {
-      if ( loc == Interior )
-      {
-        g[0] = 0.5*( (*s0_start - *s0_end) / this->Spacing[0] );
-        g[1] = 0.5*( (*s1_start - *s1_end) / this->Spacing[1] );
-        g[2] = 0.5*( (*s2_start - *s2_end) / this->Spacing[2] );
-      }
-      else
-      {
-        this->ComputeBoundaryGradient(ijk,
-                                      s0_start, s0_end,
-                                      s1_start, s1_end,
-                                      s2_start, s2_end,
-                                      g);
-      }
+    if ( loc == Interior )
+    {
+      g[0] = 0.5*( (*s0_start - *s0_end) / this->Spacing[0] );
+      g[1] = 0.5*( (*s1_start - *s1_end) / this->Spacing[1] );
+      g[2] = 0.5*( (*s2_start - *s2_end) / this->Spacing[2] );
+    }
+    else
+    {
+      this->ComputeBoundaryGradient(ijk,
+                                    s0_start, s0_end,
+                                    s1_start, s1_end,
+                                    s2_start, s2_end,
+                                    g);
+    }
   }
 
 
@@ -219,48 +219,47 @@ public:
                            vtkIdType ijk1[3],
                            float g0[3])
   {
+    float *x = this->NewPoints + 3*vId;
+    x[0] = x0[0] + t*(x1[0]-x0[0]);
+    x[1] = x0[1] + t*(x1[1]-x0[1]);
+    x[2] = x0[2] + t*(x1[2]-x0[2]);
 
-      float *x = this->NewPoints + 3*vId;
-      x[0] = x0[0] + t*(x1[0]-x0[0]);
-      x[1] = x0[1] + t*(x1[1]-x0[1]);
-      x[2] = x0[2] + t*(x1[2]-x0[2]);
+    if ( this->NeedGradients )
+    {
+      float g1[3];
+      this->ComputeGradient(loc, ijk1,
+                            s + incs[0], s - incs[0],
+                            s + incs[1], s - incs[1],
+                            s + incs[2], s - incs[2],
+                            g1);
 
-      if ( this->NeedGradients )
+      float gTmp0 = g0[0] + t*(g1[0]-g0[0]);
+      float gTmp1 = g0[1] + t*(g1[1]-g0[1]);
+      float gTmp2 = g0[2] + t*(g1[2]-g0[2]);
+      if ( this->NewGradients )
       {
-        float g1[3];
-        this->ComputeGradient(loc, ijk1,
-                              s + incs[0], s - incs[0],
-                              s + incs[1], s - incs[1],
-                              s + incs[2], s - incs[2],
-                              g1);
-
-        float gTmp0 = g0[0] + t*(g1[0]-g0[0]);
-        float gTmp1 = g0[1] + t*(g1[1]-g0[1]);
-        float gTmp2 = g0[2] + t*(g1[2]-g0[2]);
-        if ( this->NewGradients )
-        {
-          float *g = this->NewGradients + 3*vId;
-          g[0] = gTmp0;
-          g[1] = gTmp1;
-          g[2] = gTmp2;
-        }
-
-        if ( this->NewNormals )
-        {
-          float *n = this->NewNormals + 3*vId;
-          n[0] = -gTmp0;
-          n[1] = -gTmp1;
-          n[2] = -gTmp2;
-          vtkMath::Normalize(n);
-        }
-      }//if normals or gradients required
-
-      if ( this->InterpolateAttributes )
-      {
-        vtkIdType v0=ijk0[0] + ijk0[1]*incs[1] + ijk0[2]*incs[2];
-        vtkIdType v1=ijk1[0] + ijk1[1]*incs[1] + ijk1[2]*incs[2];;
-        this->Arrays.InterpolateEdge(v0,v1,t,vId);
+        float *g = this->NewGradients + 3*vId;
+        g[0] = gTmp0;
+        g[1] = gTmp1;
+        g[2] = gTmp2;
       }
+
+      if ( this->NewNormals )
+      {
+        float *n = this->NewNormals + 3*vId;
+        n[0] = -gTmp0;
+        n[1] = -gTmp1;
+        n[2] = -gTmp2;
+        vtkMath::Normalize(n);
+      }
+    }//if normals or gradients required
+
+    if ( this->InterpolateAttributes )
+    {
+      vtkIdType v0=ijk0[0] + ijk0[1]*incs[1] + ijk0[2]*incs[2];
+      vtkIdType v1=ijk1[0] + ijk1[1]*incs[1] + ijk1[2]*incs[2];;
+      this->Arrays.InterpolateEdge(v0,v1,t,vId);
+    }
   }
 
   // Compute the gradient on a point which may be on the boundary of the volume.
@@ -290,37 +289,37 @@ public:
   unsigned char InitVoxelIds(unsigned char *ePtr[4], vtkIdType *eMD[4],
                              vtkIdType *eIds)
   {
-      unsigned char eCase = GetEdgeCase(ePtr);
-      eIds[0] = eMD[0][0]; //x-edges
-      eIds[1] = eMD[1][0];
-      eIds[2] = eMD[2][0];
-      eIds[3] = eMD[3][0];
-      eIds[4] = eMD[0][1]; //y-edges
-      eIds[5] = eIds[4] + this->EdgeUses[eCase][4];
-      eIds[6] = eMD[2][1];
-      eIds[7] = eIds[6] + this->EdgeUses[eCase][6];
-      eIds[8] = eMD[0][2]; //z-edges
-      eIds[9] = eIds[8] + this->EdgeUses[eCase][8];
-      eIds[10] = eMD[1][2];
-      eIds[11] = eIds[10] + this->EdgeUses[eCase][10];
-      return eCase;
+    unsigned char eCase = GetEdgeCase(ePtr);
+    eIds[0] = eMD[0][0]; //x-edges
+    eIds[1] = eMD[1][0];
+    eIds[2] = eMD[2][0];
+    eIds[3] = eMD[3][0];
+    eIds[4] = eMD[0][1]; //y-edges
+    eIds[5] = eIds[4] + this->EdgeUses[eCase][4];
+    eIds[6] = eMD[2][1];
+    eIds[7] = eIds[6] + this->EdgeUses[eCase][6];
+    eIds[8] = eMD[0][2]; //z-edges
+    eIds[9] = eIds[8] + this->EdgeUses[eCase][8];
+    eIds[10] = eMD[1][2];
+    eIds[11] = eIds[10] + this->EdgeUses[eCase][10];
+    return eCase;
   }
 
   // Helper function to advance the point ids along voxel rows.
   void AdvanceVoxelIds(unsigned char eCase, vtkIdType *eIds)
   {
-      eIds[0] += this->EdgeUses[eCase][0]; //x-edges
-      eIds[1] += this->EdgeUses[eCase][1];
-      eIds[2] += this->EdgeUses[eCase][2];
-      eIds[3] += this->EdgeUses[eCase][3];
-      eIds[4] += this->EdgeUses[eCase][4]; //y-edges
-      eIds[5] = eIds[4] + this->EdgeUses[eCase][5];
-      eIds[6] += this->EdgeUses[eCase][6];
-      eIds[7] = eIds[6] + this->EdgeUses[eCase][7];
-      eIds[8] += this->EdgeUses[eCase][8]; //z-edges
-      eIds[9] = eIds[8] + this->EdgeUses[eCase][9];
-      eIds[10] += this->EdgeUses[eCase][10];
-      eIds[11] = eIds[10] + this->EdgeUses[eCase][11];
+    eIds[0] += this->EdgeUses[eCase][0]; //x-edges
+    eIds[1] += this->EdgeUses[eCase][1];
+    eIds[2] += this->EdgeUses[eCase][2];
+    eIds[3] += this->EdgeUses[eCase][3];
+    eIds[4] += this->EdgeUses[eCase][4]; //y-edges
+    eIds[5] = eIds[4] + this->EdgeUses[eCase][5];
+    eIds[6] += this->EdgeUses[eCase][6];
+    eIds[7] = eIds[6] + this->EdgeUses[eCase][7];
+    eIds[8] += this->EdgeUses[eCase][8]; //z-edges
+    eIds[9] = eIds[8] + this->EdgeUses[eCase][9];
+    eIds[10] += this->EdgeUses[eCase][10];
+    eIds[11] = eIds[10] + this->EdgeUses[eCase][11];
   }
 
   // Threading integration via SMPTools

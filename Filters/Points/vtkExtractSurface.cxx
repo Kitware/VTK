@@ -29,6 +29,7 @@
 #include "vtkSMPTools.h"
 
 #include <cmath>
+#include <cfloat>
 
 vtkStandardNewMacro(vtkExtractSurface);
 
@@ -45,12 +46,14 @@ public:
   // Edge case table values.
   enum EdgeClass {
     Below = 0, //below isovalue
-    Above = 1, //above isovalue
     LeftAbove = 1, //left vertex is above isovalue
     RightAbove = 2, //right vertex is above isovalue
     BothAbove = 3, //entire edge is above isovalue
-    Empty = 4 //undefined edges should not be processed
+    Invalid = 4 //undefined edges should not be processed
   };
+
+  // For masking out contribution to invalid edge classification
+  static const unsigned char InvalidMask = 0x03;
 
   // Dealing with boundary situations when processing volumes.
   enum CellClass {
@@ -102,6 +105,7 @@ public:
   // image data in a form more convenient to the algorithm.
   T        *Scalars;
   double    Radius;
+  int       HoleFilling;
   vtkIdType Dims[3];
   double    Origin[3];
   double    Spacing[3];
@@ -138,14 +142,15 @@ public:
   // The three main passes of the algorithm.
   void ProcessXEdge(double value, T const * const inPtr, vtkIdType row, vtkIdType slice); //PASS 1
   void ProcessYZEdges(vtkIdType row, vtkIdType slice); //PASS 2
-  void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);//PASS 3
+  void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);//PASS 4
 
-  // Used to extract the edge case separate from the state of the edge. The state is
-  // one of three values: NEAR, EMPTY, or UNSEEN. The state refers to the relationship
-  // of the edge to the signed distance function.
-  unsigned char EdgeCase(unsigned char eCase)
+  // Used to extract the edge case separate from the region information about
+  // the edge. The state is one of three values: NEAR, EMPTY, or INVALID. The
+  // region state refers to the relationship of the edge to the signed
+  // distance function.
+  unsigned char MaskedEdgeCase(unsigned char eCase)
   {
-      return (eCase & vtkExtractSurfaceAlgorithm::BothAbove);
+    return (eCase & this->InvalidMask);
   }
 
   // Place holder for now in case fancy bit fiddling is needed later.
@@ -153,22 +158,25 @@ public:
     {*ePtr = edgeCase;}
 
   // Given the four x-edge cases defining this voxel, return the voxel case
-  // number.
+  // number. Note that additional masking is required since the edge may be marked
+  // as invalid.
   unsigned char GetEdgeCase(unsigned char *ePtr[4])
   {
-      return ( this->EdgeCase(*(ePtr[0])) | (this->EdgeCase(*(ePtr[1]))<<2) |
-               (this->EdgeCase(*(ePtr[2]))<<4) | (this->EdgeCase(*(ePtr[3]))<<6) );
+    return (  ((*(ePtr[0])) & this->InvalidMask) |
+             (((*(ePtr[1])) & this->InvalidMask) <<2) |
+             (((*(ePtr[2])) & this->InvalidMask) <<4) |
+             (((*(ePtr[3])) & this->InvalidMask) <<6) );
   }
 
-  // Given the four x-edge cases defining this voxel, indicate whether the voxel is
-  // valid and primitives are to be generated. This method needs to refer to the
-  // state of the edge.
+  // Given the four x-edge cases defining this voxel, indicate whether the
+  // voxel is valid and triangle primitives are to be generated. This method
+  // needs to refer to the state of the edge.
   bool GeneratePrimitives(unsigned char *ePtr[4])
   {
-    if ( *ePtr[0] >= vtkExtractSurfaceAlgorithm::Empty ||
-         *ePtr[1] >= vtkExtractSurfaceAlgorithm::Empty ||
-         *ePtr[2] >= vtkExtractSurfaceAlgorithm::Empty ||
-         *ePtr[3] >= vtkExtractSurfaceAlgorithm::Empty )
+    if ( *ePtr[0] >= vtkExtractSurfaceAlgorithm::Invalid ||
+         *ePtr[1] >= vtkExtractSurfaceAlgorithm::Invalid ||
+         *ePtr[2] >= vtkExtractSurfaceAlgorithm::Invalid ||
+         *ePtr[3] >= vtkExtractSurfaceAlgorithm::Invalid )
     {
       return false;
     }
@@ -198,16 +206,16 @@ public:
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType *eIds,
                     vtkIdType &triId)
   {
-      vtkIdType *tri;
-      const unsigned char *edges = this->EdgeCases[eCase] + 1;
-      for (int i=0; i < numTris; ++i, edges+=3)
-      {
-        tri = this->NewTris + 4*triId++;
-        tri[0] = 3;
-        tri[1] = eIds[edges[0]];
-        tri[2] = eIds[edges[1]];
-        tri[3] = eIds[edges[2]];
-      }
+    vtkIdType *tri;
+    const unsigned char *edges = this->EdgeCases[eCase] + 1;
+    for (int i=0; i < numTris; ++i, edges+=3)
+    {
+      tri = this->NewTris + 4*triId++;
+      tri[0] = 3;
+      tri[1] = eIds[edges[0]];
+      tri[2] = eIds[edges[1]];
+      tri[3] = eIds[edges[2]];
+    }
   }
 
   // Compute gradient on interior point.
@@ -217,20 +225,20 @@ public:
                        T const * const s2_start, T const * const s2_end,
                        float g[3])
   {
-      if ( loc == Interior )
-      {
-        g[0] = 0.5*( (*s0_start - *s0_end) / this->Spacing[0] );
-        g[1] = 0.5*( (*s1_start - *s1_end) / this->Spacing[1] );
-        g[2] = 0.5*( (*s2_start - *s2_end) / this->Spacing[2] );
-      }
-      else
-      {
-        this->ComputeBoundaryGradient(ijk,
-                                      s0_start, s0_end,
-                                      s1_start, s1_end,
-                                      s2_start, s2_end,
-                                      g);
-      }
+    if ( loc == Interior )
+    {
+      g[0] = 0.5*( (*s0_start - *s0_end) / this->Spacing[0] );
+      g[1] = 0.5*( (*s1_start - *s1_end) / this->Spacing[1] );
+      g[2] = 0.5*( (*s2_start - *s2_end) / this->Spacing[2] );
+    }
+    else
+    {
+      this->ComputeBoundaryGradient(ijk,
+                                    s0_start, s0_end,
+                                    s1_start, s1_end,
+                                    s2_start, s2_end,
+                                    g);
+    }
   }
 
 
@@ -245,35 +253,35 @@ public:
                            float g0[3])
   {
 
-      float *x = this->NewPoints + 3*vId;
-      x[0] = x0[0] + t*(x1[0]-x0[0]);
-      x[1] = x0[1] + t*(x1[1]-x0[1]);
-      x[2] = x0[2] + t*(x1[2]-x0[2]);
+    float *x = this->NewPoints + 3*vId;
+    x[0] = x0[0] + t*(x1[0]-x0[0]);
+    x[1] = x0[1] + t*(x1[1]-x0[1]);
+    x[2] = x0[2] + t*(x1[2]-x0[2]);
 
-      if ( this->NeedGradients )
+    if ( this->NeedGradients )
+    {
+      //some brain dead compilers issue warnings without {} initialization
+      float gTmp[3]={}, g1[3];
+      this->ComputeGradient(loc,ijk,
+                            s + incs[0], s - incs[0],
+                            s + incs[1], s - incs[1],
+                            s + incs[2], s - incs[2],
+                            g1);
+
+      float *g = ( this->NewGradients ? this->NewGradients + 3*vId : gTmp );
+      g[0] = g0[0] + t*(g1[0]-g0[0]);
+      g[1] = g0[1] + t*(g1[1]-g0[1]);
+      g[2] = g0[2] + t*(g1[2]-g0[2]);
+
+      if ( this->NewNormals )
       {
-        //some brain dead compilers issue warnings without {} initialization
-        float gTmp[3]={}, g1[3];
-        this->ComputeGradient(loc,ijk,
-                              s + incs[0], s - incs[0],
-                              s + incs[1], s - incs[1],
-                              s + incs[2], s - incs[2],
-                              g1);
-
-        float *g = ( this->NewGradients ? this->NewGradients + 3*vId : gTmp );
-        g[0] = g0[0] + t*(g1[0]-g0[0]);
-        g[1] = g0[1] + t*(g1[1]-g0[1]);
-        g[2] = g0[2] + t*(g1[2]-g0[2]);
-
-        if ( this->NewNormals )
-        {
-          float *n = this->NewNormals + 3*vId;
-          n[0] = -g[0];
-          n[1] = -g[1];
-          n[2] = -g[2];
-          vtkMath::Normalize(n);
-        }
-      }//if normals or gradients required
+        float *n = this->NewNormals + 3*vId;
+        n[0] = -g[0];
+        n[1] = -g[1];
+        n[2] = -g[2];
+        vtkMath::Normalize(n);
+      }
+    }//if normals or gradients required
   }
 
   // Compute the gradient on a point which may be on the boundary of the volume.
@@ -303,37 +311,37 @@ public:
   unsigned char InitVoxelIds(unsigned char *ePtr[4], vtkIdType *eMD[4],
                              vtkIdType *eIds)
   {
-      unsigned char eCase = this->GetEdgeCase(ePtr);
-      eIds[0] = eMD[0][0]; //x-edges
-      eIds[1] = eMD[1][0];
-      eIds[2] = eMD[2][0];
-      eIds[3] = eMD[3][0];
-      eIds[4] = eMD[0][1]; //y-edges
-      eIds[5] = eIds[4] + this->EdgeUses[eCase][4];
-      eIds[6] = eMD[2][1];
-      eIds[7] = eIds[6] + this->EdgeUses[eCase][6];
-      eIds[8] = eMD[0][2]; //z-edges
-      eIds[9] = eIds[8] + this->EdgeUses[eCase][8];
-      eIds[10] = eMD[1][2];
-      eIds[11] = eIds[10] + this->EdgeUses[eCase][10];
-      return eCase;
+    unsigned char eCase = this->GetEdgeCase(ePtr);
+    eIds[0] = eMD[0][0]; //x-edges
+    eIds[1] = eMD[1][0];
+    eIds[2] = eMD[2][0];
+    eIds[3] = eMD[3][0];
+    eIds[4] = eMD[0][1]; //y-edges
+    eIds[5] = eIds[4] + this->EdgeUses[eCase][4];
+    eIds[6] = eMD[2][1];
+    eIds[7] = eIds[6] + this->EdgeUses[eCase][6];
+    eIds[8] = eMD[0][2]; //z-edges
+    eIds[9] = eIds[8] + this->EdgeUses[eCase][8];
+    eIds[10] = eMD[1][2];
+    eIds[11] = eIds[10] + this->EdgeUses[eCase][10];
+    return eCase;
   }
 
   // Helper function to advance the point ids along voxel rows.
   void AdvanceVoxelIds(unsigned char eCase, vtkIdType *eIds)
   {
-      eIds[0] += this->EdgeUses[eCase][0]; //x-edges
-      eIds[1] += this->EdgeUses[eCase][1];
-      eIds[2] += this->EdgeUses[eCase][2];
-      eIds[3] += this->EdgeUses[eCase][3];
-      eIds[4] += this->EdgeUses[eCase][4]; //y-edges
-      eIds[5] = eIds[4] + this->EdgeUses[eCase][5];
-      eIds[6] += this->EdgeUses[eCase][6];
-      eIds[7] = eIds[6] + this->EdgeUses[eCase][7];
-      eIds[8] += this->EdgeUses[eCase][8]; //z-edges
-      eIds[9] = eIds[8] + this->EdgeUses[eCase][9];
-      eIds[10] += this->EdgeUses[eCase][10];
-      eIds[11] = eIds[10] + this->EdgeUses[eCase][11];
+    eIds[0] += this->EdgeUses[eCase][0]; //x-edges
+    eIds[1] += this->EdgeUses[eCase][1];
+    eIds[2] += this->EdgeUses[eCase][2];
+    eIds[3] += this->EdgeUses[eCase][3];
+    eIds[4] += this->EdgeUses[eCase][4]; //y-edges
+    eIds[5] = eIds[4] + this->EdgeUses[eCase][5];
+    eIds[6] += this->EdgeUses[eCase][6];
+    eIds[7] = eIds[6] + this->EdgeUses[eCase][7];
+    eIds[8] += this->EdgeUses[eCase][8]; //z-edges
+    eIds[9] = eIds[8] + this->EdgeUses[eCase][9];
+    eIds[10] += this->EdgeUses[eCase][10];
+    eIds[11] = eIds[10] + this->EdgeUses[eCase][11];
   }
 
   // Threading integration via SMPTools
@@ -392,7 +400,8 @@ public:
         for ( ; slice < end; ++slice )
         {
           // It's possible to skip entire slices if there is nothing to generate
-          if ( eMD1[3] > eMD0[3] ) //there are triangle primitives!
+          if ( 1 )
+            //          if ( eMD1[3] > eMD0[3] ) //there are triangle primitives!
           {
             for (row=0, rowPtr=slicePtr; row < this->Algo->Dims[1]-1; ++row)
             {
@@ -823,6 +832,7 @@ ProcessXEdge(double value, T const* const inPtr, vtkIdType row, vtkIdType slice)
   vtkIdType nxcells=this->Dims[0]-1;
   vtkIdType minInt=nxcells, maxInt = 0;
   vtkIdType *edgeMetaData;
+  unsigned char edgeCase;
   unsigned char *ePtr = this->XCases + slice*this->SliceOffset + row*nxcells;
   double s0, s1 = static_cast<double>(*inPtr);
   double radius=this->Radius;
@@ -841,10 +851,13 @@ ProcessXEdge(double value, T const* const inPtr, vtkIdType row, vtkIdType slice)
     s0 = s1;
     s1 = static_cast<double>(*(inPtr + (i+1)*inc0));
 
-    unsigned char edgeCase = vtkExtractSurfaceAlgorithm::Below;
     if (s0 >= value)
     {
       edgeCase = vtkExtractSurfaceAlgorithm::LeftAbove;
+    }
+    else
+    {
+      edgeCase = vtkExtractSurfaceAlgorithm::Below;
     }
     if( s1 >= value)
     {
@@ -860,9 +873,10 @@ ProcessXEdge(double value, T const* const inPtr, vtkIdType row, vtkIdType slice)
       maxInt = i + 1;
     }//if contour interacts with this x-edge
 
-    if ( s0 >= radius || s1 >= radius )
+    // Mark as in boundary region
+    if ( fabs(s0) >= radius || fabs(s1) >= radius )
     {
-      edgeCase |= vtkExtractSurfaceAlgorithm::Empty;
+      edgeCase |= vtkExtractSurfaceAlgorithm::Invalid;
     }
     this->SetXEdge(ePtr, edgeCase);
   }//for all x-cell edges along this x-edge
@@ -904,10 +918,10 @@ ProcessYZEdges(vtkIdType row, vtkIdType slice)
   // same, then there is no need for processing.
   if ( (eMD[0][0] | eMD[1][0] | eMD[2][0] | eMD[3][0]) == 0 ) //any x-ints?
   {
-    unsigned char eCase0 = this->EdgeCase(*ePtr[0]);
-    unsigned char eCase1 = this->EdgeCase(*ePtr[1]);
-    unsigned char eCase2 = this->EdgeCase(*ePtr[2]);
-    unsigned char eCase3 = this->EdgeCase(*ePtr[3]);
+    unsigned char eCase0 = this->MaskedEdgeCase(*ePtr[0]);
+    unsigned char eCase1 = this->MaskedEdgeCase(*ePtr[1]);
+    unsigned char eCase2 = this->MaskedEdgeCase(*ePtr[2]);
+    unsigned char eCase3 = this->MaskedEdgeCase(*ePtr[3]);
     if ( eCase0 == eCase1 &&  eCase1 == eCase2 && eCase2 == eCase3 )
     {
       return; //there are no y- or z-ints, thus no contour, skip voxel row
@@ -942,8 +956,10 @@ ProcessYZEdges(vtkIdType row, vtkIdType slice)
 
     if ( xL > 0 ) //if trimmed in the -x direction
     {
-      ec0 = *(ePtr[0]+xL); ec1 = *(ePtr[1]+xL);
-      ec2 = *(ePtr[2]+xL); ec3 = *(ePtr[3]+xL);
+      ec0 = this->MaskedEdgeCase(*(ePtr[0]+xL));
+      ec1 = this->MaskedEdgeCase(*(ePtr[1]+xL));
+      ec2 = this->MaskedEdgeCase(*(ePtr[2]+xL));
+      ec3 = this->MaskedEdgeCase(*(ePtr[3]+xL));
       if ( (ec0 & 0x1) != (ec1 & 0x1) || (ec1 & 0x1) != (ec2 & 0x1) ||
            (ec2 & 0x1) != (ec3 & 0x1) )
       {
@@ -953,8 +969,10 @@ ProcessYZEdges(vtkIdType row, vtkIdType slice)
 
     if ( xR < (this->Dims[0]-1) ) //if trimmed in the +x direction
     {
-      ec0 = *(ePtr[0]+xR); ec1 = *(ePtr[1]+xR);
-      ec2 = *(ePtr[2]+xR); ec3 = *(ePtr[3]+xR);
+      ec0 = this->MaskedEdgeCase(*(ePtr[0]+xR));
+      ec1 = this->MaskedEdgeCase(*(ePtr[1]+xR));
+      ec2 = this->MaskedEdgeCase(*(ePtr[2]+xR));
+      ec3 = this->MaskedEdgeCase(*(ePtr[3]+xR));
       if ( (ec0 & 0x2) != (ec1 & 0x2) || (ec1 & 0x2) != (ec2 & 0x2) ||
            (ec2 & 0x2) != (ec3 & 0x2) )
       {
@@ -1017,8 +1035,9 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
   eMD[2] = eMD[0] + this->Dims[1]*6; //x-edge in +z direction
   eMD[3] = eMD[2] + 6; //x-edge in +y+z direction
 
-  // Return if there is nothing to do (i.e., no triangles to generate)
-  if ( eMD[0][3] == eMD[1][3] )
+  // If no points or triangles generated then skip
+  if ( (eMD[0][3] == eMD[1][3]) &&
+       (eMD[0][0]+eMD[0][1]+eMD[0][2]) == (eMD[1][0]+eMD[1][1]+eMD[1][2]) )
   {
     return;
   }
@@ -1129,6 +1148,7 @@ Contour(vtkExtractSurface *self, vtkImageData *input, int extent[6],
   vtkExtractSurfaceAlgorithm<T> algo;
   algo.Scalars = scalars;
   algo.Radius = self->GetRadius();
+  algo.HoleFilling = self->GetHoleFilling();
   input->GetOrigin(algo.Origin);
   input->GetSpacing(algo.Spacing);
   algo.Min0 = extent[0];

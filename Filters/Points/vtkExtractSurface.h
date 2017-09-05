@@ -20,7 +20,7 @@
  *
  * This filter extracts the zero-crossing isosurface from a truncated signed
  * distance function TSDF. The TSDF is sampled across a volume, and is
- * extracted using a modified version of the Flying Edges algorithm for
+ * extracted using a modified version of the Flying Edges (FE) algorithm for
  * increased speed, and to support multithreading. To use the filter, an
  * input volume should be assigned, which may have special values indicating
  * empty and/or unseen portions of the volume. These values are equal to +/-
@@ -33,7 +33,7 @@
  * function typically is not computed throughout the volume, rather the
  * special data values "unseen" and/or "empty" maybe assigned to distant or
  * bordering voxels. The implications of this are that this implementation
- * may produce non-closed, non-manifold surfaces, which is what is needed
+ * may produce non-closed, non-manifold surfaces, which is what is required
  * to extract surfaces.
  *
  * More specifically, voxels may exist in one of three states: 1) within the
@@ -54,12 +54,18 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @warning
+ * Empty regions are expected to have a data value
+ * -(this->Radius+FLT_EPSILON). Unseen regions are expected to have a data
+ * value (this->Radius+FLT_EPSILON). Near regions have data values d such that:
+ * -(this->Radius+FLT_EPSILON) < d (this->Radius+FLT_EPSILON).
+ *
+ * @warning
  * <pre>
  * Notes on the implementation:
  * 1. This is a lightly modified version of vtkFlyingEdges3D. Some design goals
  *    included minimizing the impact on the FE algorithm, and not adding extra
  *    memory requirements.
- * 2. It presumes an isocontour value=0.0  (the zero crossing of a signed
+ * 2. It presumes an isocontour value=0.0 (the zero crossing of a signed
  *    distance function).
  * 3. The major modifications are to the edge cases. In Flying Edges, a single
  *    byte represents the case of an edge, and within that byte only 2 bits
@@ -67,13 +73,13 @@
  *    are repurposed to represent the "state" of the edge, whether it is
  *    1) near to the TSDF; 2) in an empty state; or 3) unseen state.
  * 4. Since these now-used bits encode extra state information, masking and
- *    related methods are used to tease apart the edge cases from the edge
- *    state.
+ *    related methods are modified from FE to tease apart the edge cases from
+ *    the edge state.
  * 5. Voxels with edges marked "empty" are not processed, i.e., no output
  *    triangle primitives are generated. Depending on whether hole filling is
  *    enabled, voxels with edges marked "unseen" may not be processed either.
  * 6. As a result of #1 and #5, and the desire to keep the implementation simple,
- *    it is possible to produce output points which are not attached to any output
+ *    it is possible to produce output points which are not used by any output
  *    triangle.
  *</pre>
  *
@@ -81,6 +87,12 @@
  * This algorithm loosely follows the most excellent paper by Curless and
  * Levoy: "A Volumetric Method for Building Complex Models from Range
  * Images."
+ *
+ * @warning
+ * This algorithm differs from the paper cited above in an important way. The
+ * Curless & Levoy algorithm is designed to create watertight surfaces, while this
+ * modified algorithm may not do so as the generating surface is not assumed to be
+ * closed.
  *
  * @sa
  * vtkSignedDistance vtkFlyingEdges3D
@@ -111,9 +123,9 @@ public:
   //@{
   /**
    * Specify the radius of influence of the signed distance function. Data
-   * values (which are distances) that are greater than or equal to the
-   * radius (i.e., d >= Radius) are considered unseen voxels; those voxel
-   * data values d <= -Radius are considered empty voxels.
+   * values (which are distances) that are greater than the radius (i.e., d >
+   * Radius) are considered empty voxels; those voxel data values d < -Radius
+   * are considered unseen voxels.
    */
   vtkSetClampMacro(Radius,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Radius,double);
