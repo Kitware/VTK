@@ -493,7 +493,7 @@ int vtkMaskPoints::RequestData(
     }
     else if(this->RandomModeType == 2)
     {
-      // need to copy the entire data to sort it, to leave original in tact
+      // need to copy the entire data to sort it, to leave original intact
       vtkPoints* pointCopy = vtkPoints::New();
 
       // Set the desired precision for the points.
@@ -522,6 +522,7 @@ int vtkMaskPoints::RequestData(
       vtkPointData* tempData = vtkPointData::New();
 
       pointCopy->Allocate(numPts);
+      dataCopy->CopyAllOn();
       dataCopy->CopyAllocate(pd, numPts);
       for(vtkIdType i = 0; i < numPts; i = i + 1)
       {
@@ -529,6 +530,7 @@ int vtkMaskPoints::RequestData(
         id = pointCopy->InsertNextPoint(x);
         dataCopy->CopyData(pd, i, id);
       }
+      tempData->CopyAllOn();
       tempData->CopyAllocate(dataCopy, 1);
 
       // Woodring's spatially stratified random sampling: O(N log N)
