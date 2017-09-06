@@ -886,20 +886,52 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   {
     if (cellFlag==2 && mapper->GetFieldDataTupleId() > -1)
     {
-      int numComp = vColors->GetNumberOfComponents();
-      unsigned char *colorPtr = vColors->GetPointer(0);
-      colorPtr = colorPtr + mapper->GetFieldDataTupleId()*numComp;
-      // this setting (and all the other scalar colors)
-      // really depends on mapper->ScalarMaterialMode
-      // but I'm not sure Ka is working currently so leaving it on Kd
-      float fdiffusef[] =
+      //color comes from field data entry
+      bool use_material = false;
+      //check if the field data content says to use a material lookup
+      vtkScalarsToColors *s2c = mapper->GetLookupTable();
+      bool try_mats =
+        s2c->GetIndexedLookup() &&
+        s2c->GetNumberOfAnnotatedValues() &&
+        mats.size()>0;
+      if (try_mats)
+      {
+        int cflag2 =-1;
+        vtkAbstractArray *scalars = mapper->GetAbstractScalars
+          (poly, mapper->GetScalarMode(), mapper->GetArrayAccessMode(),
+           mapper->GetArrayId(), mapper->GetArrayName(), cflag2);
+        vtkVariant v = scalars->GetVariantValue(mapper->GetFieldDataTupleId());
+        vtkIdType idx = s2c->GetAnnotatedValueIndex(v);
+        if (idx > -1)
+        {
+          std::string name(s2c->GetAnnotation(idx));
+          if (mats.find(name) != mats.end())
+          {
+            //yes it does!
+            oMaterial = mats[name];
+            ospCommit(oMaterial);
+            use_material = true;
+          }
+        }
+      }
+      if (!use_material)
+      {
+        //just use the color for the field data value
+        int numComp = vColors->GetNumberOfComponents();
+        unsigned char *colorPtr = vColors->GetPointer(0);
+        colorPtr = colorPtr + mapper->GetFieldDataTupleId()*numComp;
+        // this setting (and all the other scalar colors)
+        // really depends on mapper->ScalarMaterialMode
+        // but I'm not sure Ka is working currently so leaving it on Kd
+        float fdiffusef[] =
         {
           static_cast<float>(colorPtr[0]*property->GetDiffuse()/255.0f),
           static_cast<float>(colorPtr[1]*property->GetDiffuse()/255.0f),
           static_cast<float>(colorPtr[2]*property->GetDiffuse()/255.0f)
         };
-      ospSet3fv(oMaterial,"Kd",fdiffusef);
-      ospCommit(oMaterial);
+        ospSet3fv(oMaterial,"Kd",fdiffusef);
+        ospCommit(oMaterial);
+      }
     }
     else if (cellFlag==1)
     {
