@@ -1431,6 +1431,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
   {
     points->SetPoint(k, &coords[3*k]);
   }
+  points->Modified();
 }
 
 //----------------------------------------------------------------------------
