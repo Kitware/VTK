@@ -624,7 +624,7 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
   out << "grestore" << endl;
 
   glRasterPos3dv(rasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
@@ -776,7 +776,7 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
   colorRgba[2] = rgba[2]/255.0;
   colorRgba[3] = rgba[3]/255.0;
 
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), colorRgba);
+  gl2psSpecialColor(gl2psGetFileFormat(), out.str().c_str(), colorRgba);
 }
 
 void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
@@ -937,7 +937,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
       << "</g>" << endl;
 
   glRasterPos3dv(rasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 

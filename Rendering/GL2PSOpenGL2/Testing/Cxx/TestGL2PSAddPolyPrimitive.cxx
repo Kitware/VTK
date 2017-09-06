@@ -96,21 +96,21 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
   // Point:
   setVertex(vertices[0], 200, 307.5, 0, 0.f, 0.f, 1.f, 1.f);
   gl2psAddPolyPrimitive(GL2PS_POINT, 1, vertices, offset, ofactor, ounits,
-                        pattern, factor, /*width=*/15, boundary);
+                        pattern, factor, /*width=*/15, 0, 0, boundary);
 
   // Line:
   // Note that the first vertex's color is used for the entire line.
   setVertex(vertices[0], 100, 50, 0, 1.f, 0.f, 0.f, 1.f);
   setVertex(vertices[1], 300, 50, 0, 0.f, 0.f, 1.f, 1.f);
   gl2psAddPolyPrimitive(GL2PS_LINE, 2, vertices, offset, ofactor, ounits,
-                        pattern, factor, width, boundary);
+                        pattern, factor, width, 0, 0, boundary);
 
   // Triangle:
   setVertex(vertices[0], 100, 100, 0, 1.f, 0.f, 0.f, 1.f);
   setVertex(vertices[1], 300, 100, 0, 0.f, 1.f, 0.f, 1.f);
   setVertex(vertices[2], 200, 300, 0, 0.f, 0.f, 1.f, 1.f);
   gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, vertices, offset, ofactor, ounits,
-                        pattern, factor, width, boundary);
+                        pattern, factor, width, 0, 0, boundary);
 
   // Text:
   setVertex(vertices[0], 200, 325, 0, 0.f, 0.f, 0.f, 1.f);
