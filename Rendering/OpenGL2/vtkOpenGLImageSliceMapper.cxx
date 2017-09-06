@@ -414,6 +414,11 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
         polyTCoords->SetTuple(i,&tcoords[2*i]);
       }
     }
+    polyPoints->Modified();
+    if (textured)
+    {
+      polyTCoords->Modified();
+    }
   }
   else if (points->GetNumberOfPoints())
   {
@@ -455,6 +460,10 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
       }
     }
     tris->Modified();
+    if (textured)
+    {
+      polyTCoords->Modified();
+    }
   }
 
   if (textured)
