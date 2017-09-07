@@ -133,7 +133,7 @@ int TestCategoricalMaterials(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkCamera *cam = renderer->GetActiveCamera();
   iren->AddObserver(vtkCommand::KeyPressEvent, looper);
   cam->AddObserver(vtkCommand::ModifiedEvent, looper);
-  int timerId = iren->CreateRepeatingTimer(10); //every 10 msec we'll rerender if needed
+  iren->CreateRepeatingTimer(10); //every 10 msec we'll rerender if needed
   iren->AddObserver(vtkCommand::TimerEvent, looper);
 
   //todo: use standard vtk testing conventions

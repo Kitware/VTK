@@ -83,7 +83,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
   style->SetCurrentRenderer(renderer);
 
   //make some predictable data to test with
-  //anything will do, but should have normals and textures for materials to work with
+  //anything will do, but should have normals and textures coordinates
+  //for materials to work with
   vtkSmartPointer<vtkSuperquadricSource> polysource =
     vtkSmartPointer<vtkSuperquadricSource>::New();
   polysource->ToroidalOn(); //mmmmm ... daddy's soul donut
@@ -95,9 +96,49 @@ int TestPathTracerMaterials(int argc, char* argv[])
   double xo = bds[0];
   double xr = bds[1]-bds[0];
   double yo = bds[2];
-  double yr = bds[1]-bds[0];
+  //double yr = bds[1]-bds[0];
   double zo = bds[4];
   double zr = bds[1]-bds[0];
+
+  //make a predictable texture too
+  int maxi = 100;
+  int maxj = 100;
+  vtkSmartPointer<vtkImageData> texin = vtkSmartPointer<vtkImageData>::New();
+  texin->SetExtent(0,maxi,0,maxj,0,0);
+  texin->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
+  vtkUnsignedCharArray *aa =
+  vtkArrayDownCast<vtkUnsignedCharArray>(texin->GetPointData()->GetScalars());
+  int idx = 0;
+  for (int _i = 0; _i<=maxi; _i++)
+  {
+    for (int _j = 0; _j<=maxj; _j++)
+    {
+      bool ival = (_i/10)%2==1;
+      bool jval = (_j/10)%2==1;
+      unsigned char val = (ival^jval) ? 255 : 0;
+      aa->SetTuple3(idx, val, val, val);
+      if (val == 255)
+      {
+        aa->SetTuple3(idx, val, 0, 0);
+      }
+      else
+      {
+        aa->SetTuple3(idx, 0, val, 0);
+      }
+      if (_j <= 3 || _j >= maxj-3)
+      {
+        aa->SetTuple3(idx, 127, 127, 0);
+      }
+      if (_i <= 20 || _i >= maxi-20)
+      {
+        aa->SetTuple3(idx, 0, 127, 127);
+      }
+      idx = idx + 1;
+    }
+  }
+  vtkSmartPointer<vtkTexture> texture =
+  vtkSmartPointer<vtkTexture>::New();
+  texture->SetInputData(texin);
 
   //now what we actually want to test.
   //draw the data at different places
@@ -140,9 +181,9 @@ int TestPathTracerMaterials(int argc, char* argv[])
     vtkSmartPointer<vtkDoubleArray> da = vtkSmartPointer<vtkDoubleArray>::New();
     da->SetNumberOfComponents(0);
     da->SetName("test_array");
-    for (int i = 0; i < copy->GetNumberOfCells(); i++)
+    for (int c = 0; c < copy->GetNumberOfCells(); ++c)
     {
-      da->InsertNextValue(i/(double)copy->GetNumberOfCells());
+      da->InsertNextValue(c/(double)copy->GetNumberOfCells());
     }
     copy->GetCellData()->SetScalars(da);
     actor->SetMapper(mapper);
@@ -503,44 +544,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
     style->AddName("bump map objmaterial");
 
     ml->AddMaterial("OBJMaterial 7", "OBJMaterial");
-    int maxi = 100;
-    int maxj = 100;
-    vtkSmartPointer<vtkImageData> texin = vtkSmartPointer<vtkImageData>::New();
-    texin->SetExtent(0,maxi,0,maxj,0,0);
-    texin->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-    vtkUnsignedCharArray *aa =
-    vtkArrayDownCast<vtkUnsignedCharArray>(texin->GetPointData()->GetScalars());
-    int idx = 0;
-    for (int i = 0; i<=maxi; i++)
-    {
-      for (int j = 0; j<=maxj; j++)
-      {
-        bool ival = (i/10)%2==1;
-        bool jval = (j/10)%2==1;
-        unsigned char val = (ival^jval) ? 255 : 0;
-        aa->SetTuple3(idx, val, val, val);
-        if (val == 255)
-        {
-          aa->SetTuple3(idx, val, 0, 0);
-        }
-        else
-        {
-          aa->SetTuple3(idx, 0, val, 0);
-        }
-        if (j <= 3 || j >= maxj-3)
-        {
-          aa->SetTuple3(idx, 127, 127, 0);
-        }
-        if (i <= 20 || i >= maxi-20)
-        {
-          aa->SetTuple3(idx, 0, 127, 127);
-        }
-        idx = idx + 1;
-      }
-    }
-    vtkSmartPointer<vtkTexture> texture =
-    vtkSmartPointer<vtkTexture>::New();
-    texture->SetInputData(texin);
     ml->AddTexture("OBJMaterial 7", "map_bump", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -558,44 +561,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
     style->AddName("opacity map objmaterial");
 
     ml->AddMaterial("OBJMaterial 8", "OBJMaterial");
-    int maxi = 100;
-    int maxj = 100;
-    vtkSmartPointer<vtkImageData> texin = vtkSmartPointer<vtkImageData>::New();
-    texin->SetExtent(0,maxi,0,maxj,0,0);
-    texin->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-    vtkUnsignedCharArray *aa =
-    vtkArrayDownCast<vtkUnsignedCharArray>(texin->GetPointData()->GetScalars());
-    int idx = 0;
-    for (int i = 0; i<=maxi; i++)
-    {
-      for (int j = 0; j<=maxj; j++)
-      {
-        bool ival = (i/10)%2==1;
-        bool jval = (j/10)%2==1;
-        unsigned char val = (ival^jval) ? 255 : 0;
-        aa->SetTuple3(idx, val, val, val);
-        if (val == 255)
-        {
-          aa->SetTuple3(idx, val, 0, 0);
-        }
-        else
-        {
-          aa->SetTuple3(idx, 0, val, 0);
-        }
-        if (j <= 3 || j >= maxj-3)
-        {
-          aa->SetTuple3(idx, 127, 127, 0);
-        }
-        if (i <= 20 || i >= maxi-20)
-        {
-          aa->SetTuple3(idx, 0, 127, 127);
-        }
-        idx = idx + 1;
-      }
-    }
-    vtkSmartPointer<vtkTexture> texture =
-    vtkSmartPointer<vtkTexture>::New();
-    texture->SetInputData(texin);
     ml->AddTexture("OBJMaterial 8", "map_d", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -613,44 +578,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
     style->AddName("kd map objmaterial");
 
     ml->AddMaterial("OBJMaterial 9", "OBJMaterial");
-    int maxi = 100;
-    int maxj = 100;
-    vtkSmartPointer<vtkImageData> texin = vtkSmartPointer<vtkImageData>::New();
-    texin->SetExtent(0,maxi,0,maxj,0,0);
-    texin->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-    vtkUnsignedCharArray *aa =
-    vtkArrayDownCast<vtkUnsignedCharArray>(texin->GetPointData()->GetScalars());
-    int idx = 0;
-    for (int i = 0; i<=maxi; i++)
-    {
-      for (int j = 0; j<=maxj; j++)
-      {
-        bool ival = (i/10)%2==1;
-        bool jval = (j/10)%2==1;
-        unsigned char val = (ival^jval) ? 255 : 0;
-        aa->SetTuple3(idx, val, val, val);
-        if (val == 255)
-        {
-          aa->SetTuple3(idx, val, 0, 0);
-        }
-        else
-        {
-          aa->SetTuple3(idx, 0, val, 0);
-        }
-        if (j <= 3 || j >= maxj-3)
-        {
-          aa->SetTuple3(idx, 127, 127, 0);
-        }
-        if (i <= 20 || i >= maxi-20)
-        {
-          aa->SetTuple3(idx, 0, 127, 127);
-        }
-        idx = idx + 1;
-      }
-    }
-    vtkSmartPointer<vtkTexture> texture =
-    vtkSmartPointer<vtkTexture>::New();
-    texture->SetInputData(texin);
     ml->AddTexture("OBJMaterial 9", "map_kd", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -669,44 +596,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
     style->AddName("ks map objmaterial");
 
     ml->AddMaterial("OBJMaterial 10", "OBJMaterial");
-    int maxi = 100;
-    int maxj = 100;
-    vtkSmartPointer<vtkImageData> texin = vtkSmartPointer<vtkImageData>::New();
-    texin->SetExtent(0,maxi,0,maxj,0,0);
-    texin->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-    vtkUnsignedCharArray *aa =
-    vtkArrayDownCast<vtkUnsignedCharArray>(texin->GetPointData()->GetScalars());
-    int idx = 0;
-    for (int i = 0; i<=maxi; i++)
-    {
-      for (int j = 0; j<=maxj; j++)
-      {
-        bool ival = (i/10)%2==1;
-        bool jval = (j/10)%2==1;
-        unsigned char val = (ival^jval) ? 255 : 0;
-        aa->SetTuple3(idx, val, val, val);
-        if (val == 255)
-        {
-          aa->SetTuple3(idx, val, 0, 0);
-        }
-        else
-        {
-          aa->SetTuple3(idx, 0, val, 0);
-        }
-        if (j <= 3 || j >= maxj-3)
-        {
-          aa->SetTuple3(idx, 127, 127, 0);
-        }
-        if (i <= 20 || i >= maxi-20)
-        {
-          aa->SetTuple3(idx, 0, 127, 127);
-        }
-        idx = idx + 1;
-      }
-    }
-    vtkSmartPointer<vtkTexture> texture =
-    vtkSmartPointer<vtkTexture>::New();
-    texture->SetInputData(texin);
     ml->AddTexture("OBJMaterial 10", "map_ks", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -726,44 +615,6 @@ int TestPathTracerMaterials(int argc, char* argv[])
     style->AddName("ns map objmaterial");
 
     ml->AddMaterial("OBJMaterial 11", "OBJMaterial");
-    int maxi = 100;
-    int maxj = 100;
-    vtkSmartPointer<vtkImageData> texin = vtkSmartPointer<vtkImageData>::New();
-    texin->SetExtent(0,maxi,0,maxj,0,0);
-    texin->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-    vtkUnsignedCharArray *aa =
-    vtkArrayDownCast<vtkUnsignedCharArray>(texin->GetPointData()->GetScalars());
-    int idx = 0;
-    for (int i = 0; i<=maxi; i++)
-    {
-      for (int j = 0; j<=maxj; j++)
-      {
-        bool ival = (i/10)%2==1;
-        bool jval = (j/10)%2==1;
-        unsigned char val = (ival^jval) ? 255 : 0;
-        aa->SetTuple3(idx, val, val, val);
-        if (val == 255)
-        {
-          aa->SetTuple3(idx, val, 0, 0);
-        }
-        else
-        {
-          aa->SetTuple3(idx, 0, val, 0);
-        }
-        if (j <= 3 || j >= maxj-3)
-        {
-          aa->SetTuple3(idx, 127, 127, 0);
-        }
-        if (i <= 20 || i >= maxi-20)
-        {
-          aa->SetTuple3(idx, 0, 127, 127);
-        }
-        idx = idx + 1;
-      }
-    }
-    vtkSmartPointer<vtkTexture> texture =
-    vtkSmartPointer<vtkTexture>::New();
-    texture->SetInputData(texin);
     ml->AddTexture("OBJMaterial 11", "map_ns", texture);
 
     actor = vtkSmartPointer<vtkActor>::New();
@@ -1011,7 +862,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   vtkCamera *cam = renderer->GetActiveCamera();
   iren->AddObserver(vtkCommand::KeyPressEvent, looper);
   cam->AddObserver(vtkCommand::ModifiedEvent, looper);
-  int timerId = iren->CreateRepeatingTimer(10); //every 10 msec we'll rerender if needed
+  iren->CreateRepeatingTimer(10); //every 10 msec we'll rerender if needed
   iren->AddObserver(vtkCommand::TimerEvent, looper);
 
   //todo: use standard vtk testing conventions
