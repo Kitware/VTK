@@ -54,7 +54,8 @@ protected:
                    vtkOSPRayActorNode *aNode, vtkPolyData * poly,
                    double *ambientColor,
                    double *diffuseColor,
-                   double opacity);
+                   double opacity,
+                   std::string material);
 
   void *OSPMeshes;
   void CreateNewMeshes();

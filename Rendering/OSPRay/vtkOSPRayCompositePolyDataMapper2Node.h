@@ -61,6 +61,7 @@ protected:
       std::stack<vtkColor3d> AmbientColor;
       std::stack<vtkColor3d> DiffuseColor;
       std::stack<vtkColor3d> SpecularColor;
+      std::stack<std::string> Material;
     };
 
   RenderBlockState BlockState;

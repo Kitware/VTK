@@ -346,6 +346,7 @@ public:
   /**
    * Returns the name of the material currently loaded, if any.
    */
+  vtkSetStringMacro(MaterialName);
   vtkGetStringMacro(MaterialName);
   //@}
 
@@ -531,7 +532,6 @@ protected:
   int Shading;
 
   char* MaterialName;
-  vtkSetStringMacro(MaterialName);
 
   // FIXME:
   // Don't use these methods. They will be removed. They are provided only

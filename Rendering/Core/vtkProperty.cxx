@@ -20,7 +20,6 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
-#include "vtkStdString.h"
 #include "vtkTexture.h"
 
 #include <cstdlib>
@@ -37,7 +36,7 @@ public:
   MapOfTextures Textures;
 
   // key==texture name, value==texture-unit.
-  typedef std::map<vtkStdString, int> MapOfTextureNames;
+  typedef std::map<std::string, int> MapOfTextureNames;
   MapOfTextureNames TextureNames;
 };
 
@@ -254,7 +253,7 @@ void vtkProperty::GetColor(double &r, double &g, double &b)
 void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 {
   vtkPropertyInternals::MapOfTextureNames::iterator iter =
-    this->Internals->TextureNames.find(vtkStdString(name));
+    this->Internals->TextureNames.find(std::string(name));
   if (iter != this->Internals->TextureNames.end())
   {
     vtkWarningMacro("Texture with name " << name
@@ -280,10 +279,9 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 vtkTexture* vtkProperty::GetTexture(const char* name)
 {
   vtkPropertyInternals::MapOfTextureNames::iterator iter =
-    this->Internals->TextureNames.find(vtkStdString(name));
+    this->Internals->TextureNames.find(std::string(name));
   if (iter == this->Internals->TextureNames.end())
   {
-    vtkErrorMacro("No texture with name " << name << " exists.");
     return nullptr;
   }
 
@@ -325,7 +323,7 @@ int vtkProperty::GetNumberOfTextures()
 void vtkProperty::RemoveTexture(const char* name)
 {
   vtkPropertyInternals::MapOfTextureNames::iterator iter =
-    this->Internals->TextureNames.find(vtkStdString(name));
+    this->Internals->TextureNames.find(std::string(name));
   if (iter != this->Internals->TextureNames.end())
   {
     this->RemoveTexture(iter->second);

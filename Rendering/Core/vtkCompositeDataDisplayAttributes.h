@@ -127,6 +127,35 @@ public:
    */
   void RemoveBlockOpacities();
 
+  //@{
+  /**
+   * Set/get the material for the block with flat_index.
+   * Only rendering backends that support advanced materials need to respect these.
+   */
+  void SetBlockMaterial(unsigned int flat_index, std::string material);
+  std::string GetBlockMaterial(unsigned int flat_index) const;
+  //@}
+
+  /**
+   * Returns true if any block has an material set.
+   */
+  bool HasBlockMaterials() const;
+
+  /**
+   * Returns true if the block with flat_index has an material set.
+   */
+  bool HasBlockMaterial(unsigned int flat_index) const;
+
+  /**
+   * Removes the set material for the block with flat_index.
+   */
+  void RemoveBlockMaterial(unsigned int flat_index);
+
+  /**
+   * Removes all block materialss.
+   */
+  void RemoveBlockMaterials();
+
   // If the input \a dobj is a vtkCompositeDataSet, we will loop over the
   // hierarchy recursively starting from initial index 0 and use only visible
   // blocks, which is specified in the vtkCompositeDataDisplayAttributes \a cda,
@@ -163,6 +192,7 @@ private:
   std::map<unsigned int, bool> BlockVisibilities;
   std::map<unsigned int, vtkColor3d> BlockColors;
   std::map<unsigned int, double> BlockOpacities;
+  std::map<unsigned int, std::string> BlockMaterials;
 
 };
 

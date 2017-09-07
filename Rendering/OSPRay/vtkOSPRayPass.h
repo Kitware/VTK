@@ -97,7 +97,6 @@ public:
   vtkOSPRayPass(const vtkOSPRayPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOSPRayPass&) VTK_DELETE_FUNCTION;
 
-  class Internals;
   vtkOSPRayPassInternals *Internal;
 };
 
