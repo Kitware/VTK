@@ -55,7 +55,6 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper.GetPointer());
-  molmapper->SetScalarMaterialModeToAmbientAndDiffuse();
   actor->GetProperty()->SetAmbient(0.3);
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetSpecular(0.4);

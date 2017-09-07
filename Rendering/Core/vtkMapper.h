@@ -520,22 +520,18 @@ public:
   /**
    * Set/Get the light-model color mode.
    */
-  vtkSetMacro(ScalarMaterialMode,int);
-  vtkGetMacro(ScalarMaterialMode,int);
-  void SetScalarMaterialModeToDefault()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_DEFAULT); }
-  void SetScalarMaterialModeToAmbient()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT); }
-  void SetScalarMaterialModeToDiffuse()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_DIFFUSE); }
-  void SetScalarMaterialModeToAmbientAndDiffuse()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE); }
+  VTK_LEGACY(void SetScalarMaterialMode(int val));
+  VTK_LEGACY(int GetScalarMaterialMode());
+  VTK_LEGACY(void SetScalarMaterialModeToDefault());
+  VTK_LEGACY(void SetScalarMaterialModeToAmbient());
+  VTK_LEGACY(void SetScalarMaterialModeToDiffuse());
+  VTK_LEGACY(void SetScalarMaterialModeToAmbientAndDiffuse());
   //@}
 
   /**
    * Return the light-model color mode.
    */
-  const char *GetScalarMaterialModeAsString();
+  VTK_LEGACY(const char *GetScalarMaterialModeAsString());
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -610,7 +606,6 @@ protected:
   int ImmediateModeRendering;
   int ColorMode;
   int ScalarMode;
-  int ScalarMaterialMode;
 
   double RenderTime;
 

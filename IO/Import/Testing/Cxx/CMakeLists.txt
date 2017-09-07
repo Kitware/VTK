@@ -1,8 +1,13 @@
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  TestVRMLNormals.cxx
   TestVRMLImporter.cxx,NO_VALID
   )
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestVRMLNormals.cxx
+  )
+endif()
 
 list(APPEND tests TestOBJImporter.cxx)
 

@@ -157,32 +157,11 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   // now handle scalar coloring
   if(!this->DrawingEdgesOrVertices)
   {
-    if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
-        (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
-          actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
-    {
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-        "//VTK::Color::Impl\n"
-        "  ambientColor = vertexColorVSOutput.rgb;\n"
-        "  opacity = opacity*vertexColorVSOutput.a;", false);
-    }
-    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
-        (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
-          actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
-    {
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-        "//VTK::Color::Impl\n"
-        "  diffuseColor = vertexColorVSOutput.rgb;\n"
-        "  opacity = opacity*vertexColorVSOutput.a;");
-    }
-    else
-    {
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-        "//VTK::Color::Impl\n"
-        "  diffuseColor = vertexColorVSOutput.rgb;\n"
-        "  ambientColor = vertexColorVSOutput.rgb;\n"
-        "  opacity = opacity*vertexColorVSOutput.a;");
-    }
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+      "//VTK::Color::Impl\n"
+      "  diffuseColor = diffuseIntensity * vertexColorVSOutput.rgb;\n"
+      "  ambientColor = ambientIntensity * vertexColorVSOutput.rgb;\n"
+      "  opacity = opacity * vertexColorVSOutput.a;");
   }
 
   if (this->UsingInstancing)

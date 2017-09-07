@@ -739,7 +739,7 @@ vtkDataSetMapper QLWedgeContourMapper
   QLWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper QLWedgeMapper
   QLWedgeMapper SetInputData QLWedgeGrid
-  aWedgeMapper ScalarVisibilityOff
+  QLWedgeMapper ScalarVisibilityOff
 vtkActor QLWedgeActor
   QLWedgeActor SetMapper QLWedgeMapper
   [QLWedgeActor GetProperty] SetRepresentationToWireframe
@@ -822,10 +822,10 @@ vtkContourFilter BQwedgeContours
   BQwedgeContours SetValue 0 0.5
 vtkDataSetMapper BQWedgeContourMapper
   BQWedgeContourMapper SetInputConnection [BQwedgeContours GetOutputPort]
-  #BQWedgeContourMapper ScalarVisibilityOff
+  BQWedgeContourMapper ScalarVisibilityOff
 vtkDataSetMapper BQWedgeMapper
   BQWedgeMapper SetInputData BQWedgeGrid
-  #BQWedgeMapper ScalarVisibilityOff
+  BQWedgeMapper ScalarVisibilityOff
 vtkActor BQWedgeActor
   BQWedgeActor SetMapper BQWedgeMapper
   [BQWedgeActor GetProperty] SetRepresentationToWireframe

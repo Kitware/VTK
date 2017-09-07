@@ -101,7 +101,6 @@ void vtkOpenGLMoleculeMapper::UpdateAtomGlyphPolyData()
   this->Superclass::UpdateAtomGlyphPolyData();
   this->FastAtomMapper->SetLookupTable(this->AtomGlyphMapper->GetLookupTable());
   this->FastAtomMapper->SetScaleArray("Scale Factors");
-  this->FastAtomMapper->SetScalarMaterialMode(this->GetScalarMaterialMode());
 
   // Copy the color array info:
   this->FastAtomMapper->SelectColorArray(this->AtomGlyphMapper->GetArrayId());
@@ -126,7 +125,6 @@ void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
       this->FastBondMapper->SetScalarRange
         (0, this->PeriodicTable->GetNumberOfElements());
       this->FastBondMapper->SetScalarModeToUsePointData();
-      this->FastBondMapper->SetScalarMaterialMode(this->GetScalarMaterialMode());
       break;
   }
 
