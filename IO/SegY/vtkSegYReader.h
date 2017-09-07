@@ -39,6 +39,7 @@ public:
   bool LoadFromFile(std::string path);
   void ExportData2D(vtkStructuredGrid*);
   void AddScalars(vtkStructuredGrid*);
+  void SetXYCoordBytePositions(int x, int y);
 
 private:
   bool ReadHeader(std::ifstream& in);

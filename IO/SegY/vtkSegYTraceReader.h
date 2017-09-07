@@ -44,7 +44,13 @@ class vtkSegYTraceReader
 private:
   vtkSegYTraceHeaderBytesPositions traceHeaderBytesPos;
 
+  int XCoordinate;
+  int YCoordinate;
+
 public:
+  vtkSegYTraceReader();
+
+  void SetXYCoordBytePositions(int x, int y);
   void PrintTraceHeader(std::ifstream& in, int startPos);
   bool ReadTrace(int& startPos,
     std::ifstream& in,

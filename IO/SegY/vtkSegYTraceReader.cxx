@@ -19,6 +19,20 @@
 #include <iostream>
 
 //-----------------------------------------------------------------------------
+vtkSegYTraceReader::vtkSegYTraceReader()
+{
+  this->XCoordinate = 72;
+  this->YCoordinate = 76;
+}
+
+//-----------------------------------------------------------------------------
+void vtkSegYTraceReader::SetXYCoordBytePositions(int x, int y)
+{
+  this->XCoordinate = x;
+  this->YCoordinate = y;
+}
+
+//-----------------------------------------------------------------------------
 void vtkSegYTraceReader::PrintTraceHeader(std::ifstream& in, int startPos)
 {
   int traceSequenceNumberInLine = vtkSegYIOUtils::Instance()->readLongInteger(
@@ -61,12 +75,12 @@ void vtkSegYTraceReader::PrintTraceHeader(std::ifstream& in, int startPos)
   std::cout << "coordinate multiplier : " << coordinateMultiplier << std::endl;
 
   int xCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
-    startPos + traceHeaderBytesPos.XCoordinate, in);
+    startPos + this->XCoordinate, in);
   std::cout << "X coordinate for ensemble position of the trace : "
             << xCoordinate << std::endl;
 
   int yCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
-    startPos + traceHeaderBytesPos.YCoordinate, in);
+    startPos + this->YCoordinate, in);
   std::cout << "Y coordinate for ensemble position of the trace : "
             << yCoordinate << std::endl;
 
@@ -96,9 +110,9 @@ bool vtkSegYTraceReader::ReadTrace(int& startPos,
   int numSamples = vtkSegYIOUtils::Instance()->readShortInteger(
     startPos + traceHeaderBytesPos.NumberSamples, in);
   trace->xCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
-    startPos + traceHeaderBytesPos.XCoordinate, in);
+    startPos + this->XCoordinate, in);
   trace->yCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
-    startPos + traceHeaderBytesPos.YCoordinate, in);
+    startPos + this->YCoordinate, in);
   trace->CoordinateMultiplier = vtkSegYIOUtils::Instance()->readShortInteger(
     startPos + traceHeaderBytesPos.CoordinateMultiplier, in);
   trace->SampleInterval = vtkSegYIOUtils::Instance()->readShortInteger(

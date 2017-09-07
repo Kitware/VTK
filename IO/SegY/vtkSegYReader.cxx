@@ -48,6 +48,12 @@ vtkSegYReader::~vtkSegYReader()
 }
 
 //-----------------------------------------------------------------------------
+void vtkSegYReader::SetXYCoordBytePositions(int x, int y)
+{
+  this->TraceReader->SetXYCoordBytePositions(x, y);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkSegYReader::LoadFromFile(std::string path)
 {
   std::ifstream in(path, std::ifstream::binary);
