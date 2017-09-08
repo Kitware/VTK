@@ -5,6 +5,6 @@
 vtk_fetch_module(PoissonReconstruction
   "Poisson Surface reconstruction from unorganized points"
   GIT_REPOSITORY https://github.com/lorensen/PoissonReconstruction
-  # July 5, 2015 - first working as a remote module
-  GIT_TAG a3fdb529774d48329a2e807e542f2fe589060ccb
+  # September 7, 2017 - refactored remote module
+  GIT_TAG 137d751c218ffbd946e9b9de6c108666af54c2d3
   )
