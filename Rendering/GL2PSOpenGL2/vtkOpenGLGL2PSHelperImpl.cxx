@@ -270,7 +270,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
     {
       case GL_POINTS:
         gl2psAddPolyPrimitive(GL2PS_POINT, 1, verts, 0, 0.f, 0.f, 0xffff, 1,
-                              pointSize, 0);
+                              pointSize, 0, 0, 0);
         break;
 
       case GL_LINES:
@@ -278,7 +278,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
         if (curVert == 0)
         {
           gl2psAddPolyPrimitive(GL2PS_LINE, 2, verts, 0, 0.f, 0.f,
-                                this->LineStipple, 1, lineWidth, 0);
+                                this->LineStipple, 1, lineWidth, 0, 0, 0);
         }
         break;
 
@@ -287,7 +287,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
         if (curVert == 0)
         {
           gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, verts, 0, 0.f, 0.f, 0xffff,
-                                1, 1, 0);
+                                1, 1, 0, 0, 0);
         }
         break;
 
@@ -357,9 +357,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
       bgVerts[4].xyz[2] = bgVerts[0].xyz[2];
 
       gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts,     0, 0, 0, 0xffff, 0,
-                            0, 0);
+                            0, 0, 0, 0);
       gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts + 2, 0, 0, 0, 0xffff, 0,
-                            0, 0);
+                            0, 0, 0, 0);
     }
   }
 
@@ -983,7 +983,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), nullptr);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -1140,7 +1140,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), nullptr);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -1300,5 +1300,5 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), nullptr);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
