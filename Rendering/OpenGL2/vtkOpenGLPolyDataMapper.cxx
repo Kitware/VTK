@@ -528,47 +528,32 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-  // create the material/color property declarations, and VS implementation
   // these are always defined
   std::string colorDec =
-    "uniform float ambientMaterialFactor; // how scalars are mapped to colors\n"
-    "uniform float diffuseMaterialFactor; // how scalars are mapped to colors\n"
-    "uniform float opacityUniform; // the fragment opacity\n"
     "uniform float ambientIntensity; // the material ambient\n"
     "uniform float diffuseIntensity; // the material diffuse\n"
+    "uniform float opacityUniform; // the fragment opacity\n"
     "uniform vec3 ambientColorUniform; // ambient color\n"
     "uniform vec3 diffuseColorUniform; // diffuse color\n";
-  // add some if we have a backface property
-  if (actor->GetBackfaceProperty() && !this->DrawingEdgesOrVertices)
-  {
-    colorDec +=
-      "uniform float opacityUniformBF; // the fragment opacity\n"
-      "uniform float ambientIntensityBF; // the material ambient\n"
-      "uniform float diffuseIntensityBF; // the material diffuse\n"
-      "uniform vec3 ambientColorUniformBF; // ambient material color\n"
-      "uniform vec3 diffuseColorUniformBF; // diffuse material color\n";
-  }
-  // add more for specular
+
+  std::string colorImpl;
+
+  // specular lighting?
   if (this->LastLightComplexity[this->LastBoundBO])
   {
     colorDec +=
       "uniform float specularIntensity; // the material specular intensity\n"
       "uniform vec3 specularColorUniform; // intensity weighted color\n"
       "uniform float specularPowerUniform;\n";
-    if (actor->GetBackfaceProperty())
-    {
-      colorDec +=
-        "uniform float specularIntensityBF; // the material specular intensity\n"
-        "uniform vec3 specularColorUniformBF; // intensity weighted color\n"
-        "uniform float specularPowerUniformBF;\n";
-    }
+    colorImpl +=
+      "  vec3 specularColor = specularIntensity * specularColorUniform;\n"
+      "  float specularPower = specularPowerUniform;\n";
   }
 
-  // add scalar vertex coloring
+  // handle color point attributes
   if (this->VBOs->GetNumberOfComponents("scalarColor") != 0 &&
       !this->DrawingEdgesOrVertices)
   {
-    colorDec += "varying vec4 vertexColorVSOutput;\n";
     vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Dec",
                         "attribute vec4 scalarColor;\n"
                         "varying vec4 vertexColorVSOutput;");
@@ -581,115 +566,81 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     vtkShaderProgram::Substitute(GSSource,
       "//VTK::Color::Impl",
       "vertexColorGSOutput = vertexColorVSOutput[i];");
+
+    colorDec += "varying vec4 vertexColorVSOutput;\n";
+    colorImpl +=
+      "  vec3 ambientColor = ambientIntensity * vertexColorVSOutput.rgb;\n"
+      "  vec3 diffuseColor = diffuseIntensity * vertexColorVSOutput.rgb;\n"
+      "  float opacity = opacityUniform * vertexColorVSOutput.a;";
   }
+  // handle point color texture map coloring
+  else if (this->InterpolateScalarsBeforeMapping &&
+      this->ColorCoordinates &&
+      !this->DrawingEdgesOrVertices)
+  {
+    colorImpl +=
+      "  vec4 texColor = texture(texture_0, tcoordVCVSOutput.st);\n"
+      "  vec3 ambientColor = ambientIntensity * texColor.rgb;\n"
+      "  vec3 diffuseColor = diffuseIntensity * texColor.rgb;\n"
+      "  float opacity = opacityUniform * texColor.a;";
+  }
+  // are we doing cell scalar coloring by texture?
+  else if (this->HaveCellScalars && !this->DrawingEdgesOrVertices)
+  {
+    colorImpl +=
+      "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
+      "  vec3 ambientColor = ambientIntensity * texColor.rgb;\n"
+      "  vec3 diffuseColor = diffuseIntensity * texColor.rgb;\n"
+      "  float opacity = opacityUniform * texColor.a;";
+  }
+  // just material but handle backfaceproperties
+  else
+  {
+    colorImpl +=
+      "  vec3 ambientColor = ambientIntensity * ambientColorUniform;\n"
+      "  vec3 diffuseColor = diffuseIntensity * diffuseColorUniform;\n"
+      "  float opacity = opacityUniform;\n";
+
+    if (actor->GetBackfaceProperty() && !this->DrawingEdgesOrVertices)
+    {
+      colorDec +=
+        "uniform float opacityUniformBF; // the fragment opacity\n"
+        "uniform float ambientIntensityBF; // the material ambient\n"
+        "uniform float diffuseIntensityBF; // the material diffuse\n"
+        "uniform vec3 ambientColorUniformBF; // ambient material color\n"
+        "uniform vec3 diffuseColorUniformBF; // diffuse material color\n";
+      if (this->LastLightComplexity[this->LastBoundBO])
+      {
+        colorDec +=
+          "uniform float specularIntensityBF; // the material specular intensity\n"
+          "uniform vec3 specularColorUniformBF; // intensity weighted color\n"
+          "uniform float specularPowerUniformBF;\n";
+        colorImpl +=
+          "  if (gl_FrontFacing == false) {\n"
+          "    ambientColor = ambientIntensityBF * ambientColorUniformBF;\n"
+          "    diffuseColor = diffuseIntensityBF * diffuseColorUniformBF;\n"
+          "    specularColor = specularIntensityBF * specularColorUniformBF;\n"
+          "    specularPower = specularPowerUniformBF;\n"
+          "    opacity = opacityUniformBF; }\n";
+      }
+      else
+      {
+        colorImpl +=
+          "  if (gl_FrontFacing == false) {\n"
+          "    ambientColor = ambientIntensityBF * ambientColorUniformBF;\n"
+          "    diffuseColor = diffuseIntensityBF * diffuseColorUniformBF;\n"
+          "    opacity = opacityUniformBF; }\n";
+      }
+    }
+  }
+
   if (this->HaveCellScalars && !this->HavePickScalars && !this->DrawingEdgesOrVertices)
   {
     colorDec += "uniform samplerBuffer textureC;\n";
   }
 
   vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec", colorDec);
-
-  // now handle the more complex fragment shader implementation
-  // the following are always defined variables.  We start
-  // by assiging a default value from the uniform
-  std::string colorImpl =
-    "  vec3 ambientColor;\n"
-    "  vec3 diffuseColor;\n"
-    "  float opacity;\n";
-
-  if (this->LastLightComplexity[this->LastBoundBO])
-  {
-    colorImpl +=
-      "  vec3 specularColor;\n"
-      "  float specularPower;\n";
-  }
-  if (actor->GetBackfaceProperty() && !this->DrawingEdgesOrVertices)
-  {
-    if (this->LastLightComplexity[this->LastBoundBO])
-    {
-      colorImpl +=
-        "  if (gl_FrontFacing == false) {\n"
-        "    ambientColor = ambientIntensityBF * ambientColorUniformBF;\n"
-        "    diffuseColor = diffuseIntensityBF * diffuseColorUniformBF;\n"
-        "    specularColor = specularIntensityBF * specularColorUniformBF;\n"
-        "    specularPower = specularPowerUniformBF;\n"
-        "    opacity = opacityUniformBF; }\n"
-        "  else {\n"
-        "    ambientColor = ambientIntensity * ambientColorUniform;\n"
-        "    diffuseColor = diffuseIntensity * diffuseColorUniform;\n"
-        "    specularColor = specularIntensity * specularColorUniform;\n"
-        "    specularPower = specularPowerUniform;\n"
-        "    opacity = opacityUniform; }\n";
-    }
-    else
-    {
-      colorImpl +=
-        "  if (gl_FrontFacing == false) {\n"
-        "    ambientColor = ambientIntensityBF * ambientColorUniformBF;\n"
-        "    diffuseColor = diffuseIntensityBF * diffuseColorUniformBF;\n"
-        "    opacity = opacityUniformBF; }\n"
-        "  else {\n"
-        "    ambientColor = ambientIntensity * ambientColorUniform;\n"
-        "    diffuseColor = diffuseIntensity * diffuseColorUniform;\n"
-        "    opacity = opacityUniform; }\n";
-    }
-  }
-  else
-  {
-    colorImpl +=
-      "  ambientColor = ambientIntensity * ambientColorUniform;\n"
-      "  diffuseColor = diffuseIntensity * diffuseColorUniform;\n"
-      "  opacity = opacityUniform;\n";
-    if (this->LastLightComplexity[this->LastBoundBO])
-    {
-      colorImpl +=
-        "  specularColor = specularIntensity * specularColorUniform;\n"
-        "  specularPower = specularPowerUniform;\n";
-    }
-  }
-
-  // now handle scalar coloring
-  if(this->VBOs->GetNumberOfComponents("scalarColor") != 0 &&
-     !this->DrawingEdgesOrVertices)
-  {
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-      colorImpl +
-      "  ambientColor = mix(ambientColor, ambientIntensity * vertexColorVSOutput.rgb, ambientMaterialFactor);\n"
-      "  diffuseColor = mix(diffuseColor, diffuseIntensity * vertexColorVSOutput.rgb, diffuseMaterialFactor);\n"
-      "  opacity = opacity*vertexColorVSOutput.a;");
-  }
-  else
-  {
-    // are we doing scalar coloring by texture?
-    if (this->InterpolateScalarsBeforeMapping &&
-        this->ColorCoordinates &&
-        !this->DrawingEdgesOrVertices)
-    {
-      vtkShaderProgram::Substitute(FSSource,
-        "//VTK::Color::Impl", colorImpl +
-        "  vec4 texColor = texture(texture_0, tcoordVCVSOutput.st);\n"
-        "  ambientColor = mix(ambientColor, ambientIntensity * texColor.rgb, ambientMaterialFactor);\n"
-        "  diffuseColor = mix(diffuseColor, diffuseIntensity * texColor.rgb, diffuseMaterialFactor);\n"
-        "  opacity = opacity*texColor.a;");
-    }
-    else
-    {
-      if (this->HaveCellScalars && !this->DrawingEdgesOrVertices)
-      {
-        vtkShaderProgram::Substitute(FSSource,
-          "//VTK::Color::Impl", colorImpl +
-          "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
-          "  ambientColor = mix(ambientColor, ambientIntensity * texColor.rgb, ambientMaterialFactor);\n"
-          "  diffuseColor = mix(diffuseColor, diffuseIntensity * texColor.rgb, diffuseMaterialFactor);\n"
-          "  opacity = opacity*texColor.a;"
-          );
-      }
-      else
-      {
-        vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl);
-      }
-    }
-  }
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl);
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Geometry]->SetSource(GSSource);
@@ -1956,36 +1907,6 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       cellBO.Program->SetUniform2f("lineWidthNVC",lineWidth);
   }
 
-  // handle scalar material mode
-  float ambientMF = 0.0;
-  float diffuseMF = 0.0;
-  switch (this->ScalarMaterialMode)
-  {
-    case VTK_MATERIALMODE_DEFAULT:
-      if (actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse())
-      {
-        ambientMF = 1.0;
-      }
-      else
-      {
-        diffuseMF = 1.0;
-      }
-      break;
-    case VTK_MATERIALMODE_AMBIENT:
-      ambientMF = 1.0;
-      break;
-    case VTK_MATERIALMODE_DIFFUSE:
-      diffuseMF = 1.0;
-      break;
-      default:
-    case VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE:
-      ambientMF = 1.0;
-      diffuseMF = 1.0;
-      break;
-    }
-  cellBO.Program->SetUniformf("ambientMaterialFactor", ambientMF);
-  cellBO.Program->SetUniformf("diffuseMaterialFactor", diffuseMF);
-
   // handle coincident
   if (cellBO.Program->IsUniformUsed("coffset"))
   {
@@ -2261,23 +2182,24 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
     ? 0.0 : ppty->GetSpecular();
   double specularPower = ppty->GetSpecularPower();
 
+  // these are always set
   program->SetUniformf("opacityUniform", opacity);
   program->SetUniformf("ambientIntensity", aIntensity);
   program->SetUniformf("diffuseIntensity", dIntensity);
   program->SetUniform3f("ambientColorUniform", aColor);
   program->SetUniform3f("diffuseColorUniform", dColor);
-  // we are done unless we have lighting
-  if (this->LastLightComplexity[&cellBO] < 1)
+
+  // handle specular
+  if (this->LastLightComplexity[&cellBO])
   {
-    return;
-  }
-  program->SetUniformf("specularIntensity", sIntensity);
-  program->SetUniform3f("specularColorUniform", sColor);
-  program->SetUniformf("specularPowerUniform", specularPower);
+    program->SetUniformf("specularIntensity", sIntensity);
+    program->SetUniform3f("specularColorUniform", sColor);
+    program->SetUniformf("specularPowerUniform", specularPower);
+    }
   }
 
   // now set the backface properties if we have them
-  if (actor->GetBackfaceProperty() && !this->DrawingEdgesOrVertices)
+  if (program->IsUniformUsed("ambientIntensityBF"))
   {
     ppty = actor->GetBackfaceProperty();
 
@@ -2295,14 +2217,14 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
     program->SetUniformf("opacityUniformBF", opacity);
     program->SetUniform3f("ambientColorUniformBF", aColor);
     program->SetUniform3f("diffuseColorUniformBF", dColor);
-    // we are done unless we have lighting
-    if (this->LastLightComplexity[&cellBO] < 1)
+
+    // handle specular
+    if (this->LastLightComplexity[&cellBO])
     {
-      return;
+      program->SetUniformf("specularIntensityBF", sIntensity);
+      program->SetUniform3f("specularColorUniformBF", sColor);
+      program->SetUniformf("specularPowerUniformBF", specularPower);
     }
-    program->SetUniformf("specularIntensityBF", sIntensity);
-    program->SetUniform3f("specularColorUniformBF", sColor);
-    program->SetUniformf("specularPowerUniformBF", specularPower);
   }
 
 }

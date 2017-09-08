@@ -116,11 +116,6 @@ public:
   //@}
 
   /**
-   * Set the light-model color mode.
-   */
-  static vtkInformationIntegerKey* SCALAR_MATERIAL_MODE();
-
-  /**
    * For alpha blending, we sometime premultiply the colors
    * with alpha and change the alpha blending function.
    * This call returns whether we are premultiplying or using
@@ -213,7 +208,6 @@ protected:
   vtkSetMacro(ColorMode, int);
   vtkSetMacro(InterpolateScalarsBeforeMapping, int);
   vtkSetMacro(ScalarVisibility, int);
-  vtkSetMacro(ScalarMaterialMode, int);
   vtkSetMacro(ArrayAccessMode, int);
   vtkSetMacro(ArrayComponent, int);
   vtkSetMacro(ArrayId, int);
@@ -236,7 +230,6 @@ protected:
   int ColorMode;
   int InterpolateScalarsBeforeMapping;
   int ScalarMode;
-  int ScalarMaterialMode;
   double LastUsedAlpha; // Essential to ensure alpha changes work correctly
                         // for composite datasets.
   int LastUsedMultiplyWithAlpha;

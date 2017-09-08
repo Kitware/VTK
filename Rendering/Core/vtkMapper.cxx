@@ -62,7 +62,6 @@ vtkMapper::vtkMapper()
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
-  this->ScalarMaterialMode = VTK_MATERIALMODE_DEFAULT;
 
   vtkMath::UninitializeBounds(this->Bounds);
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
@@ -366,7 +365,6 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetScalarRange(m->GetScalarRange());
     this->SetColorMode(m->GetColorMode());
     this->SetScalarMode(m->GetScalarMode());
-    this->SetScalarMaterialMode(m->GetScalarMaterialMode());
     this->SetImmediateModeRendering(m->GetImmediateModeRendering());
     this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
     this->SetInterpolateScalarsBeforeMapping(
@@ -736,25 +734,39 @@ const char *vtkMapper::GetScalarModeAsString(void)
   }
 }
 
+#ifndef VTK_LEGACY_REMOVE
+
+void vtkMapper::SetScalarMaterialMode(int)
+{
+  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialMode, "VTK 8.1");
+}
+int vtkMapper::GetScalarMaterialMode()
+{
+  VTK_LEGACY_BODY(vtkMapper::GetScalarMaterialMode, "VTK 8.1");
+  return VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE;
+}
+void vtkMapper::SetScalarMaterialModeToDefault()
+{
+  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToDefault, "VTK 8.1");
+}
+void vtkMapper::SetScalarMaterialModeToAmbient()
+{
+  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToambient, "VTK 8.1");
+}
+void vtkMapper::SetScalarMaterialModeToDiffuse()
+{
+  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToDiffuse, "VTK 8.1");
+}
+void vtkMapper::SetScalarMaterialModeToAmbientAndDiffuse()
+{
+  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToAmbientAndDiffuse, "VTK 8.1");
+}
 const char *vtkMapper::GetScalarMaterialModeAsString(void)
 {
-  if ( this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT )
-  {
-    return "Ambient";
-  }
-  else if ( this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE )
-  {
-    return "Diffuse";
-  }
-  else if ( this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE )
-  {
-    return "Ambient and Diffuse";
-  }
-  else
-  {
-    return "Default";
-  }
+  VTK_LEGACY_BODY(vtkMapper::GetScalarMaterialModeAsString, "VTK 8.1");
+  return "Ambient and Diffuse";
 }
+#endif
 
 //-----------------------------------------------------------------------------
 bool vtkMapper::GetIsOpaque()
@@ -1061,9 +1073,6 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
      << (this->InterpolateScalarsBeforeMapping ? "On\n" : "Off\n");
 
   os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << endl;
-
-  os << indent << "LM Color Mode: "
-     << this->GetScalarMaterialModeAsString() << endl;
 
   os << indent << "RenderTime: " << this->RenderTime << endl;
 

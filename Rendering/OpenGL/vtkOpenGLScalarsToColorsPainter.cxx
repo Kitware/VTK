@@ -175,25 +175,11 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
 
   if (this->UsingScalarColoring)
   {
-    GLenum lmcolorMode;
-    if (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT)
-    {
-      lmcolorMode = (prop->GetAmbient() > prop->GetDiffuse()) ?
-        GL_AMBIENT : GL_DIFFUSE;
-    }
-    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE)
-    {
-      lmcolorMode = GL_AMBIENT_AND_DIFFUSE;
-    }
-    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT)
+    GLenum lmcolorMode = GL_DIFFUSE;
+    if (prop->GetAmbient() > prop->GetDiffuse())
     {
       lmcolorMode = GL_AMBIENT;
     }
-    else // if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE)
-    {
-      lmcolorMode = GL_DIFFUSE;
-    }
-
     glColorMaterial(GL_FRONT_AND_BACK, lmcolorMode);
     glEnable(GL_COLOR_MATERIAL);
 

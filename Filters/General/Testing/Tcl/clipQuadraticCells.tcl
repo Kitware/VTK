@@ -738,7 +738,7 @@ vtkDataSetMapper QLWedgeclipMapper
   QLWedgeclipMapper ScalarVisibilityOff
 vtkDataSetMapper QLWedgeMapper
   QLWedgeMapper SetInputData QLWedgeGrid
-  aWedgeMapper ScalarVisibilityOff
+  QLWedgeMapper ScalarVisibilityOff
 vtkActor QLWedgeActor
   QLWedgeActor SetMapper QLWedgeMapper
   [QLWedgeActor GetProperty] SetRepresentationToWireframe

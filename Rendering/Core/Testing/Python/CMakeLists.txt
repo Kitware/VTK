@@ -49,9 +49,9 @@ vtk_add_test_python(
   )
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-vtk_add_test_python(
-  TestScalarMaterialMode.py
-)
+#vtk_add_test_python(
+#  TestScalarMaterialMode.py
+#)
 else()
 vtk_add_test_python(
   # pass triangle cell scalars into a strip as field data
