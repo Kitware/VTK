@@ -66,7 +66,7 @@ dsClosest.SetNumberOfIds(numProbes)
 genCell = vtk.vtkGenericCell()
 pc = [0,0,0]
 weights = [0,0,0,0,0,0,0,0,0,0,0,0]
-subId = 0
+subId = vtk.reference(0)
 
 # Print initial statistics
 print("Processing NumCells: {0}".format(numCells))
@@ -231,7 +231,8 @@ print("\n")
 #############################################################
 # For comparison purposes compare to FindCell()
 timer.StartTimer()
-output.FindCell(ProbeCells.GetPoint(0),genCell,-1,0.001,vtk.mutable(subId),pc,weights)
+
+output.FindCell(ProbeCells.GetPoint(0),genCell,-1,0.001,subId,pc,weights)
 timer.StopTimer()
 time = timer.GetElapsedTime()
 print("Point Locator: {0}".format(time))
@@ -239,7 +240,7 @@ print("Point Locator: {0}".format(time))
 # Probe the dataset with FindClosestPoint() and time it
 timer.StartTimer()
 for i in range (0,numProbes):
-    dsClosest.SetId(i, output.FindCell(ProbeCells.GetPoint(0),genCell,-1,0.001,vtk.mutable(subId),pc,weights))
+    dsClosest.SetId(i, output.FindCell(ProbeCells.GetPoint(0),genCell,-1,0.001,subId,pc,weights))
 timer.StopTimer()
 opTime = timer.GetElapsedTime()
 print("    Find cell probing: {0}".format(opTime))

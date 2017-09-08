@@ -22,7 +22,7 @@
 
 #include "vtkPython.h"
 #include "vtkPythonCompatibility.h"
-#include "PyVTKMutableObject.h"
+#include "PyVTKReference.h"
 #include "PyVTKNamespace.h"
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"

@@ -289,10 +289,10 @@ Pass-by-reference
 
 Pass-by-reference of values that are mutable in C++ but not in
 Python (such as string, int, and float) is only possible by
-using vtk.mutable(), which is in the vtk module:
+using vtk.reference(), which is in the vtkCommonCore Python module:
 
-    >>> plane = vtkPlane()
-    >>> t = mutable(0.0)
+    >>> plane = vtk.vtkPlane()
+    >>> t = vtk.reference(0.0)
     >>> x = [0.0, 0.0, 0.0]
     >>> plane.InsersectWithLine([0, 0, -1], [0, 0, 1], t, x)
     >>> print t

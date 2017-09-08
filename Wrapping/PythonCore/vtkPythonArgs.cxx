@@ -1010,9 +1010,9 @@ int vtkPythonArgs::GetArgAsSIPEnum(
 bool vtkPythonArgs::GetValue(T &a) \
 { \
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
-  if (PyVTKMutableObject_Check(o)) \
+  if (PyVTKReference_Check(o)) \
   { \
-    o = PyVTKMutableObject_GetValue(o); \
+    o = PyVTKReference_GetValue(o); \
   } \
   if (vtkPythonGetValue(o, a)) \
   { \
@@ -1204,7 +1204,7 @@ bool vtkPythonArgs::SetArgValue(int i, T a) \
   { \
     PyObject *m = PyTuple_GET_ITEM(this->Args, this->M + i); \
     PyObject *o = vtkPythonArgs::BuildValue(a); \
-    int r = PyVTKMutableObject_SetValue(m, o); \
+    int r = PyVTKReference_SetValue(m, o); \
     if (r == 0) \
     { \
       return true; \
@@ -1222,7 +1222,7 @@ bool vtkPythonArgs::SetArgValue(int i, const T *a, int n) \
   { \
     PyObject *m = PyTuple_GET_ITEM(this->Args, this->M + i); \
     PyObject *o = vtkPythonArgs::BuildTuple(a, n); \
-    int r = PyVTKMutableObject_SetValue(m, o); \
+    int r = PyVTKReference_SetValue(m, o); \
     if (r == 0) \
     { \
       return true; \

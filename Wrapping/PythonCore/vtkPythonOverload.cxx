@@ -280,9 +280,9 @@ int vtkPythonOverload::CheckArg(
   const char *classname = classtext;
 
   // If mutable object, check the type of the value inside
-  if (PyVTKMutableObject_Check(arg))
+  if (PyVTKReference_Check(arg))
   {
-    arg = PyVTKMutableObject_GetValue(arg);
+    arg = PyVTKReference_GetValue(arg);
   }
 
   switch (*format)

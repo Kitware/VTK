@@ -11,7 +11,7 @@ vtk_add_test_python(
   TestExpects.py
   TestGhost.py
   TestIterateCollection.py
-  TestMutable.py
+  TestPassByReference.py
   TestNumpySupport.py
   TestNumpyInterface.py
   TestNumpyWeakReference.py

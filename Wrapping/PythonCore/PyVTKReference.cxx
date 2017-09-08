@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    PyVTKMutableObject.cxx
+  Module:    PyVTKReference.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,14 +13,14 @@
 
 =========================================================================*/
 /*-----------------------------------------------------------------------
-  The PyVTKMutableObject was created in Sep 2010 by David Gobbi.
+  The PyVTKReference was created in Sep 2010 by David Gobbi.
 
   This class is a proxy for immutable python objects like int, float,
   and string.  It allows these objects to be passed to VTK methods that
-  require a ref.
+  require a reference.
 -----------------------------------------------------------------------*/
 
-#include "PyVTKMutableObject.h"
+#include "PyVTKReference.h"
 #include "vtkPythonUtil.h"
 
 // Silence warning like
@@ -32,33 +32,33 @@
 
 //--------------------------------------------------------------------
 
-static const char *PyVTKMutableObject_Doc =
-  "A mutable wrapper for immutable objects.\n\n"
+static const char *PyVTKReference_Doc =
+  "A simple container that acts as a reference to its contents.\n\n"
   "This wrapper class is needed when a VTK method returns a value\n"
   "in an argument that has been passed by reference.  By calling\n"
-  "\"m = vtk.mutable(a)\" on a value, you can create a mutable proxy\n"
-  "to that value.  The value can be changed by calling \"m.set(b)\".\n";
+  "\"m = vtk.reference(a)\" on a value, you can create a proxy to\n"
+  "that value.  The value can be changed by calling \"m.set(b)\".\n";
 
 //--------------------------------------------------------------------
 // helper method: make sure than an object is usable
-static PyObject *PyVTKMutableObject_CompatibleObject(
+static PyObject *PyVTKReference_CompatibleObject(
   PyObject *self, PyObject *opn)
 {
-  if (PyVTKMutableObject_Check(opn))
+  if (PyVTKReference_Check(opn))
   {
     if (self == nullptr || Py_TYPE(opn) == Py_TYPE(self))
     {
       // correct type, so return it
-      opn = ((PyVTKMutableObject *)opn)->value;
+      opn = ((PyVTKReference *)opn)->value;
       Py_INCREF(opn);
       return opn;
     }
     // get contents, do further compatibility checks
-    opn = ((PyVTKMutableObject *)opn)->value;
+    opn = ((PyVTKReference *)opn)->value;
   }
 
   // check if it is a string
-  if (self == nullptr || Py_TYPE(self) == &PyVTKMutableString_Type)
+  if (self == nullptr || Py_TYPE(self) == &PyVTKStringReference_Type)
   {
     if (
 #ifdef Py_USING_UNICODE
@@ -72,7 +72,7 @@ static PyObject *PyVTKMutableObject_CompatibleObject(
   }
 
   // check if it is a tuple or list
-  if (self == nullptr || Py_TYPE(self) == &PyVTKMutableTuple_Type)
+  if (self == nullptr || Py_TYPE(self) == &PyVTKTupleReference_Type)
   {
     if (PyTuple_Check(opn) ||
         PyList_Check(opn))
@@ -83,7 +83,7 @@ static PyObject *PyVTKMutableObject_CompatibleObject(
   }
 
   // check if it is a number
-  if (self == nullptr || Py_TYPE(self) == &PyVTKMutableNumber_Type)
+  if (self == nullptr || Py_TYPE(self) == &PyVTKNumberReference_Type)
   {
     if (PyFloat_Check(opn) ||
 #ifndef VTK_PY3K
@@ -134,15 +134,15 @@ static PyObject *PyVTKMutableObject_CompatibleObject(
   {
     errmsg = "a numeric, string, or tuple object is required";
   }
-  else if (Py_TYPE(self) == &PyVTKMutableString_Type)
+  else if (Py_TYPE(self) == &PyVTKStringReference_Type)
   {
     errmsg = "a string object is required";
   }
-  else if (Py_TYPE(self) == &PyVTKMutableTuple_Type)
+  else if (Py_TYPE(self) == &PyVTKTupleReference_Type)
   {
     errmsg = "a tuple object is required";
   }
-  else if (Py_TYPE(self) == &PyVTKMutableNumber_Type)
+  else if (Py_TYPE(self) == &PyVTKNumberReference_Type)
   {
     errmsg = "a numeric object is required";
   }
@@ -154,27 +154,27 @@ static PyObject *PyVTKMutableObject_CompatibleObject(
 //--------------------------------------------------------------------
 // methods from C
 
-PyObject *PyVTKMutableObject_GetValue(PyObject *self)
+PyObject *PyVTKReference_GetValue(PyObject *self)
 {
-  if (PyVTKMutableObject_Check(self))
+  if (PyVTKReference_Check(self))
   {
-    return ((PyVTKMutableObject *)self)->value;
+    return ((PyVTKReference *)self)->value;
   }
   else
   {
-    PyErr_SetString(PyExc_TypeError, "a vtk.mutable() object is required");
+    PyErr_SetString(PyExc_TypeError, "a vtk.reference() object is required");
   }
 
   return nullptr;
 }
 
-int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
+int PyVTKReference_SetValue(PyObject *self, PyObject *val)
 {
-  if (PyVTKMutableObject_Check(self))
+  if (PyVTKReference_Check(self))
   {
-    PyObject **op = &((PyVTKMutableObject *)self)->value;
+    PyObject **op = &((PyVTKReference *)self)->value;
 
-    PyObject *result = PyVTKMutableObject_CompatibleObject(self, val);
+    PyObject *result = PyVTKReference_CompatibleObject(self, val);
     if (result)
     {
       Py_DECREF(*op);
@@ -184,7 +184,7 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
   }
   else
   {
-    PyErr_SetString(PyExc_TypeError, "a vtk.mutable() object is required");
+    PyErr_SetString(PyExc_TypeError, "a vtk.reference() object is required");
   }
 
   return -1;
@@ -193,11 +193,11 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
 //--------------------------------------------------------------------
 // methods from python
 
-static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
+static PyObject *PyVTKReference_Get(PyObject *self, PyObject *args)
 {
   if (PyArg_ParseTuple(args, ":get"))
   {
-    PyObject *ob = PyVTKMutableObject_GetValue(self);
+    PyObject *ob = PyVTKReference_GetValue(self);
     Py_INCREF(ob);
     return ob;
   }
@@ -205,17 +205,17 @@ static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
   return nullptr;
 }
 
-static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
+static PyObject *PyVTKReference_Set(PyObject *self, PyObject *args)
 {
   PyObject *opn;
 
   if (PyArg_ParseTuple(args, "O:set", &opn))
   {
-    opn = PyVTKMutableObject_CompatibleObject(self, opn);
+    opn = PyVTKReference_CompatibleObject(self, opn);
 
     if (opn)
     {
-      if (PyVTKMutableObject_SetValue(self, opn) == 0)
+      if (PyVTKReference_SetValue(self, opn) == 0)
       {
         Py_INCREF(Py_None);
         return Py_None;
@@ -227,14 +227,14 @@ static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 }
 
 #ifdef VTK_PY3K
-static PyObject *PyVTKMutableObject_Trunc(PyObject *self, PyObject *args)
+static PyObject *PyVTKReference_Trunc(PyObject *self, PyObject *args)
 {
   PyObject *opn;
 
   if (PyArg_ParseTuple(args, ":__trunc__", &opn))
   {
     PyObject *attr = PyUnicode_InternFromString("__trunc__");
-    PyObject *ob = PyVTKMutableObject_GetValue(self);
+    PyObject *ob = PyVTKReference_GetValue(self);
     PyObject *meth = _PyType_Lookup(Py_TYPE(ob), attr);
     if (meth == nullptr)
     {
@@ -253,14 +253,14 @@ static PyObject *PyVTKMutableObject_Trunc(PyObject *self, PyObject *args)
   return nullptr;
 }
 
-static PyObject *PyVTKMutableObject_Round(PyObject *self, PyObject *args)
+static PyObject *PyVTKReference_Round(PyObject *self, PyObject *args)
 {
   PyObject *opn;
 
   if (PyArg_ParseTuple(args, "|O:__round__", &opn))
   {
     PyObject *attr = PyUnicode_InternFromString("__round__");
-    PyObject *ob = PyVTKMutableObject_GetValue(self);
+    PyObject *ob = PyVTKReference_GetValue(self);
     PyObject *meth = _PyType_Lookup(Py_TYPE(ob), attr);
     if (meth == nullptr)
     {
@@ -288,13 +288,13 @@ static PyObject *PyVTKMutableObject_Round(PyObject *self, PyObject *args)
 }
 #endif
 
-static PyMethodDef PyVTKMutableObject_Methods[] = {
-  {"get", PyVTKMutableObject_Get, METH_VARARGS, "Get the stored value."},
-  {"set", PyVTKMutableObject_Set, METH_VARARGS, "Set the stored value."},
+static PyMethodDef PyVTKReference_Methods[] = {
+  {"get", PyVTKReference_Get, METH_VARARGS, "Get the stored value."},
+  {"set", PyVTKReference_Set, METH_VARARGS, "Set the stored value."},
 #ifdef VTK_PY3K
-  {"__trunc__", PyVTKMutableObject_Trunc, METH_VARARGS,
+  {"__trunc__", PyVTKReference_Trunc, METH_VARARGS,
    "Returns the Integral closest to x between 0 and x."},
-  {"__round__", PyVTKMutableObject_Round, METH_VARARGS,
+  {"__round__", PyVTKReference_Round, METH_VARARGS,
    "Returns the Integral closest to x, rounding half toward even.\n"},
 #endif
   { nullptr, nullptr, 0, nullptr }
@@ -305,84 +305,84 @@ static PyMethodDef PyVTKMutableObject_Methods[] = {
 // Macros used for defining protocol methods
 
 #define REFOBJECT_INTFUNC(prot, op) \
-static int PyVTKMutableObject_##op(PyObject *ob) \
+static int PyVTKReference_##op(PyObject *ob) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob); \
 }
 
 #define REFOBJECT_INTFUNC2(prot, op) \
-static int PyVTKMutableObject_##op(PyObject *ob, PyObject *o) \
+static int PyVTKReference_##op(PyObject *ob, PyObject *o) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob, o); \
 }
 
 #define REFOBJECT_SIZEFUNC(prot, op) \
-static Py_ssize_t PyVTKMutableObject_##op(PyObject *ob) \
+static Py_ssize_t PyVTKReference_##op(PyObject *ob) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob); \
 }
 
 #define REFOBJECT_INDEXFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i) \
+static PyObject *PyVTKReference_##op(PyObject *ob, Py_ssize_t i) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob, i); \
 }
 
 #define REFOBJECT_INDEXSETFUNC(prot, op) \
-static int PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i, PyObject *o) \
+static int PyVTKReference_##op(PyObject *ob, Py_ssize_t i, PyObject *o) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob, i, o); \
 }
 
 #define REFOBJECT_SLICEFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i, Py_ssize_t j) \
+static PyObject *PyVTKReference_##op(PyObject *ob, Py_ssize_t i, Py_ssize_t j) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob, i, j); \
 }
 
 #define REFOBJECT_SLICESETFUNC(prot, op) \
-static int PyVTKMutableObject_##op(PyObject *ob, Py_ssize_t i, Py_ssize_t j, PyObject *o) \
+static int PyVTKReference_##op(PyObject *ob, Py_ssize_t i, Py_ssize_t j, PyObject *o) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob, i, j, o); \
 }
 
 #define REFOBJECT_UNARYFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob) \
+static PyObject *PyVTKReference_##op(PyObject *ob) \
 { \
-  ob = ((PyVTKMutableObject *)ob)->value; \
+  ob = ((PyVTKReference *)ob)->value; \
   return Py##prot##_##op(ob); \
 }
 
 #define REFOBJECT_BINARYFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob1, PyObject *ob2) \
+static PyObject *PyVTKReference_##op(PyObject *ob1, PyObject *ob2) \
 { \
-  if (PyVTKMutableObject_Check(ob1)) \
+  if (PyVTKReference_Check(ob1)) \
   { \
-    ob1 = ((PyVTKMutableObject *)ob1)->value; \
+    ob1 = ((PyVTKReference *)ob1)->value; \
   } \
-  if (PyVTKMutableObject_Check(ob2)) \
+  if (PyVTKReference_Check(ob2)) \
   { \
-    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    ob2 = ((PyVTKReference *)ob2)->value; \
   } \
   return Py##prot##_##op(ob1, ob2); \
 }
 
 #define REFOBJECT_INPLACEFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2) \
+static PyObject *PyVTKReference_InPlace##op(PyObject *ob1, PyObject *ob2) \
 { \
-  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
+  PyVTKReference *ob = (PyVTKReference *)ob1; \
   PyObject *obn;\
   ob1 = ob->value; \
-  if (PyVTKMutableObject_Check(ob2)) \
+  if (PyVTKReference_Check(ob2)) \
   { \
-    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    ob2 = ((PyVTKReference *)ob2)->value; \
   } \
   obn = Py##prot##_##op(ob1, ob2); \
   if (obn) \
@@ -396,9 +396,9 @@ static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2) \
 }
 
 #define REFOBJECT_INPLACEIFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, Py_ssize_t i) \
+static PyObject *PyVTKReference_InPlace##op(PyObject *ob1, Py_ssize_t i) \
 { \
-  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
+  PyVTKReference *ob = (PyVTKReference *)ob1; \
   PyObject *obn;\
   ob1 = ob->value; \
   obn = Py##prot##_##op(ob1, i); \
@@ -414,36 +414,36 @@ static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, Py_ssize_t i) \
 
 
 #define REFOBJECT_TERNARYFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
+static PyObject *PyVTKReference_##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
 { \
-  if (PyVTKMutableObject_Check(ob1)) \
+  if (PyVTKReference_Check(ob1)) \
   { \
-    ob1 = ((PyVTKMutableObject *)ob1)->value; \
+    ob1 = ((PyVTKReference *)ob1)->value; \
   } \
-  if (PyVTKMutableObject_Check(ob2)) \
+  if (PyVTKReference_Check(ob2)) \
   { \
-    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    ob2 = ((PyVTKReference *)ob2)->value; \
   } \
-  if (PyVTKMutableObject_Check(ob2)) \
+  if (PyVTKReference_Check(ob2)) \
   { \
-    ob3 = ((PyVTKMutableObject *)ob3)->value; \
+    ob3 = ((PyVTKReference *)ob3)->value; \
   } \
   return Py##prot##_##op(ob1, ob2, ob3); \
 }
 
 #define REFOBJECT_INPLACETFUNC(prot, op) \
-static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
+static PyObject *PyVTKReference_InPlace##op(PyObject *ob1, PyObject *ob2, PyObject *ob3) \
 { \
-  PyVTKMutableObject *ob = (PyVTKMutableObject *)ob1; \
+  PyVTKReference *ob = (PyVTKReference *)ob1; \
   PyObject *obn; \
   ob1 = ob->value; \
-  if (PyVTKMutableObject_Check(ob2)) \
+  if (PyVTKReference_Check(ob2)) \
   { \
-    ob2 = ((PyVTKMutableObject *)ob2)->value; \
+    ob2 = ((PyVTKReference *)ob2)->value; \
   } \
-  if (PyVTKMutableObject_Check(ob3)) \
+  if (PyVTKReference_Check(ob3)) \
   { \
-    ob3 = ((PyVTKMutableObject *)ob3)->value; \
+    ob3 = ((PyVTKReference *)ob3)->value; \
   } \
   obn = Py##prot##_##op(ob1, ob2, ob3); \
   if (obn) \
@@ -459,26 +459,26 @@ static PyObject *PyVTKMutableObject_InPlace##op(PyObject *ob1, PyObject *ob2, Py
 //--------------------------------------------------------------------
 // Number protocol
 
-static int PyVTKMutableObject_NonZero(PyObject *ob)
+static int PyVTKReference_NonZero(PyObject *ob)
 {
-  ob = ((PyVTKMutableObject *)ob)->value;
+  ob = ((PyVTKReference *)ob)->value;
   return PyObject_IsTrue(ob);
 }
 
 #ifndef VTK_PY3K
-static int PyVTKMutableObject_Coerce(PyObject **ob1, PyObject **ob2)
+static int PyVTKReference_Coerce(PyObject **ob1, PyObject **ob2)
 {
-  *ob1 = ((PyVTKMutableObject *)*ob1)->value;
-  if (PyVTKMutableObject_Check(*ob2))
+  *ob1 = ((PyVTKReference *)*ob1)->value;
+  if (PyVTKReference_Check(*ob2))
   {
-    *ob2 = ((PyVTKMutableObject *)*ob2)->value;
+    *ob2 = ((PyVTKReference *)*ob2)->value;
   }
   return PyNumber_CoerceEx(ob1, ob2);
 }
 
-static PyObject *PyVTKMutableObject_Hex(PyObject *ob)
+static PyObject *PyVTKReference_Hex(PyObject *ob)
 {
-  ob = ((PyVTKMutableObject *)ob)->value;
+  ob = ((PyVTKReference *)ob)->value;
 #if PY_VERSION_HEX >= 0x02060000
   return PyNumber_ToBase(ob, 16);
 #else
@@ -494,9 +494,9 @@ static PyObject *PyVTKMutableObject_Hex(PyObject *ob)
 #endif
 }
 
-static PyObject *PyVTKMutableObject_Oct(PyObject *ob)
+static PyObject *PyVTKReference_Oct(PyObject *ob)
 {
-  ob = ((PyVTKMutableObject *)ob)->value;
+  ob = ((PyVTKReference *)ob)->value;
 #if PY_VERSION_HEX >= 0x02060000
   return PyNumber_ToBase(ob, 8);
 #else
@@ -562,57 +562,57 @@ REFOBJECT_INPLACEFUNC(Number,TrueDivide)
 REFOBJECT_UNARYFUNC(Number,Index)
 
 //--------------------------------------------------------------------
-static PyNumberMethods PyVTKMutableObject_AsNumber = {
-  PyVTKMutableObject_Add,                    // nb_add
-  PyVTKMutableObject_Subtract,               // nb_subtract
-  PyVTKMutableObject_Multiply,               // nb_multiply
+static PyNumberMethods PyVTKReference_AsNumber = {
+  PyVTKReference_Add,                        // nb_add
+  PyVTKReference_Subtract,                   // nb_subtract
+  PyVTKReference_Multiply,                   // nb_multiply
 #ifndef VTK_PY3K
-  PyVTKMutableObject_Divide,                 // nb_divide
+  PyVTKReference_Divide,                     // nb_divide
 #endif
-  PyVTKMutableObject_Remainder,              // nb_remainder
-  PyVTKMutableObject_Divmod,                 // nb_divmod
-  PyVTKMutableObject_Power,                  // nb_power
-  PyVTKMutableObject_Negative,               // nb_negative
-  PyVTKMutableObject_Positive,               // nb_positive
-  PyVTKMutableObject_Absolute,               // nb_absolute
-  PyVTKMutableObject_NonZero,                // nb_nonzero
-  PyVTKMutableObject_Invert,                 // nb_invert
-  PyVTKMutableObject_Lshift,                 // nb_lshift
-  PyVTKMutableObject_Rshift,                 // nb_rshift
-  PyVTKMutableObject_And,                    // nb_and
-  PyVTKMutableObject_Xor,                    // nb_xor
-  PyVTKMutableObject_Or,                     // nb_or
+  PyVTKReference_Remainder,                  // nb_remainder
+  PyVTKReference_Divmod,                     // nb_divmod
+  PyVTKReference_Power,                      // nb_power
+  PyVTKReference_Negative,                   // nb_negative
+  PyVTKReference_Positive,                   // nb_positive
+  PyVTKReference_Absolute,                   // nb_absolute
+  PyVTKReference_NonZero,                    // nb_nonzero
+  PyVTKReference_Invert,                     // nb_invert
+  PyVTKReference_Lshift,                     // nb_lshift
+  PyVTKReference_Rshift,                     // nb_rshift
+  PyVTKReference_And,                        // nb_and
+  PyVTKReference_Xor,                        // nb_xor
+  PyVTKReference_Or,                         // nb_or
 #ifndef VTK_PY3K
-  PyVTKMutableObject_Coerce,                 // nb_coerce
-  PyVTKMutableObject_Int,                    // nb_int
-  PyVTKMutableObject_Long,                   // nb_long
+  PyVTKReference_Coerce,                     // nb_coerce
+  PyVTKReference_Int,                        // nb_int
+  PyVTKReference_Long,                       // nb_long
 #else
-  PyVTKMutableObject_Long,                   // nb_int
+  PyVTKReference_Long,                       // nb_int
   nullptr,                                   // nb_reserved
 #endif
-  PyVTKMutableObject_Float,                  // nb_float
+  PyVTKReference_Float,                      // nb_float
 #ifndef VTK_PY3K
-  PyVTKMutableObject_Oct,                    // nb_oct
-  PyVTKMutableObject_Hex,                    // nb_hex
+  PyVTKReference_Oct,                        // nb_oct
+  PyVTKReference_Hex,                        // nb_hex
 #endif
-  PyVTKMutableObject_InPlaceAdd,             // nb_inplace_add
-  PyVTKMutableObject_InPlaceSubtract,        // nb_inplace_subtract
-  PyVTKMutableObject_InPlaceMultiply,        // nb_inplace_multiply
+  PyVTKReference_InPlaceAdd,                 // nb_inplace_add
+  PyVTKReference_InPlaceSubtract,            // nb_inplace_subtract
+  PyVTKReference_InPlaceMultiply,            // nb_inplace_multiply
 #ifndef VTK_PY3K
-  PyVTKMutableObject_InPlaceDivide,          // nb_inplace_divide
+  PyVTKReference_InPlaceDivide,              // nb_inplace_divide
 #endif
-  PyVTKMutableObject_InPlaceRemainder,       // nb_inplace_remainder
-  PyVTKMutableObject_InPlacePower,           // nb_inplace_power
-  PyVTKMutableObject_InPlaceLshift,          // nb_inplace_lshift
-  PyVTKMutableObject_InPlaceRshift,          // nb_inplace_rshift
-  PyVTKMutableObject_InPlaceAnd,             // nb_inplace_and
-  PyVTKMutableObject_InPlaceXor,             // nb_inplace_xor
-  PyVTKMutableObject_InPlaceOr,              // nb_inplace_or
-  PyVTKMutableObject_FloorDivide,            // nb_floor_divide
-  PyVTKMutableObject_TrueDivide,             // nb_true_divide
-  PyVTKMutableObject_InPlaceFloorDivide,     // nb_inplace_floor_divide
-  PyVTKMutableObject_InPlaceTrueDivide,      // nb_inplace_true_divide
-  PyVTKMutableObject_Index,                  // nb_index
+  PyVTKReference_InPlaceRemainder,           // nb_inplace_remainder
+  PyVTKReference_InPlacePower,               // nb_inplace_power
+  PyVTKReference_InPlaceLshift,              // nb_inplace_lshift
+  PyVTKReference_InPlaceRshift,              // nb_inplace_rshift
+  PyVTKReference_InPlaceAnd,                 // nb_inplace_and
+  PyVTKReference_InPlaceXor,                 // nb_inplace_xor
+  PyVTKReference_InPlaceOr,                  // nb_inplace_or
+  PyVTKReference_FloorDivide,                // nb_floor_divide
+  PyVTKReference_TrueDivide,                 // nb_true_divide
+  PyVTKReference_InPlaceFloorDivide,         // nb_inplace_floor_divide
+  PyVTKReference_InPlaceTrueDivide,          // nb_inplace_true_divide
+  PyVTKReference_Index,                      // nb_index
 #if PY_VERSION_HEX >= 0x03050000
   nullptr,                                   // nb_matrix_multiply
   nullptr,                                   // nb_inplace_matrix_multiply
@@ -621,14 +621,14 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
 
 
 //--------------------------------------------------------------------
-static PyNumberMethods PyVTKMutableString_AsNumber = {
+static PyNumberMethods PyVTKStringReference_AsNumber = {
   nullptr,               // nb_add
   nullptr,               // nb_subtract
   nullptr,               // nb_multiply
 #ifndef VTK_PY3K
   nullptr,               // nb_divide
 #endif
-  PyVTKMutableObject_Remainder,              // nb_remainder
+  PyVTKReference_Remainder,              // nb_remainder
   nullptr,               // nb_divmod
   nullptr,               // nb_power
   nullptr,               // nb_negative
@@ -692,19 +692,19 @@ REFOBJECT_SLICEFUNC(Sequence,GetSlice)
 REFOBJECT_INTFUNC2(Sequence,Contains)
 
 //--------------------------------------------------------------------
-static PySequenceMethods PyVTKMutableObject_AsSequence = {
-  PyVTKMutableObject_Size,                   // sq_length
-  PyVTKMutableObject_Concat,                 // sq_concat
-  PyVTKMutableObject_Repeat,                 // sq_repeat
-  PyVTKMutableObject_GetItem,                // sq_item
+static PySequenceMethods PyVTKReference_AsSequence = {
+  PyVTKReference_Size,                       // sq_length
+  PyVTKReference_Concat,                     // sq_concat
+  PyVTKReference_Repeat,                     // sq_repeat
+  PyVTKReference_GetItem,                    // sq_item
 #ifndef VTK_PY3K
-  PyVTKMutableObject_GetSlice,               // sq_slice
+  PyVTKReference_GetSlice,                   // sq_slice
 #else
   nullptr,                                   // sq_slice
 #endif
   nullptr,                                   // sq_ass_item
   nullptr,                                   // sq_ass_slice
-  PyVTKMutableObject_Contains,               // sq_contains
+  PyVTKReference_Contains,                   // sq_contains
   nullptr,                                   // sq_inplace_concat
   nullptr,                                   // sq_inplace_repeat
 };
@@ -713,16 +713,16 @@ static PySequenceMethods PyVTKMutableObject_AsSequence = {
 // Mapping protocol
 
 static PyObject *
-PyVTKMutableObject_GetMapItem(PyObject *ob, PyObject *key)
+PyVTKReference_GetMapItem(PyObject *ob, PyObject *key)
 {
-  ob = ((PyVTKMutableObject *)ob)->value;
+  ob = ((PyVTKReference *)ob)->value;
   return PyObject_GetItem(ob, key);
 }
 
 //--------------------------------------------------------------------
-static PyMappingMethods PyVTKMutableObject_AsMapping = {
-  PyVTKMutableObject_Size,                   // mp_length
-  PyVTKMutableObject_GetMapItem,             // mp_subscript
+static PyMappingMethods PyVTKReference_AsMapping = {
+  PyVTKReference_Size,                       // mp_length
+  PyVTKReference_GetMapItem,                 // mp_subscript
   nullptr,                                   // mp_ass_subscript
 };
 
@@ -731,12 +731,12 @@ static PyMappingMethods PyVTKMutableObject_AsMapping = {
 
 #ifndef VTK_PY3K
 // old buffer protocol
-static Py_ssize_t PyVTKMutableObject_GetReadBuf(
+static Py_ssize_t PyVTKReference_GetReadBuf(
   PyObject *op, Py_ssize_t segment, void **ptrptr)
 {
   char text[80];
   PyBufferProcs *pb;
-  op = ((PyVTKMutableObject *)op)->value;
+  op = ((PyVTKReference *)op)->value;
   pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getreadbuffer)
@@ -752,12 +752,12 @@ static Py_ssize_t PyVTKMutableObject_GetReadBuf(
   return -1;
 }
 
-static Py_ssize_t PyVTKMutableObject_GetWriteBuf(
+static Py_ssize_t PyVTKReference_GetWriteBuf(
   PyObject *op, Py_ssize_t segment, void **ptrptr)
 {
   char text[80];
   PyBufferProcs *pb;
-  op = ((PyVTKMutableObject *)op)->value;
+  op = ((PyVTKReference *)op)->value;
   pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getwritebuffer)
@@ -774,11 +774,11 @@ static Py_ssize_t PyVTKMutableObject_GetWriteBuf(
 }
 
 static Py_ssize_t
-PyVTKMutableObject_GetSegCount(PyObject *op, Py_ssize_t *lenp)
+PyVTKReference_GetSegCount(PyObject *op, Py_ssize_t *lenp)
 {
   char text[80];
   PyBufferProcs *pb;
-  op = ((PyVTKMutableObject *)op)->value;
+  op = ((PyVTKReference *)op)->value;
   pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getsegcount)
@@ -793,12 +793,12 @@ PyVTKMutableObject_GetSegCount(PyObject *op, Py_ssize_t *lenp)
   return -1;
 }
 
-static Py_ssize_t PyVTKMutableObject_GetCharBuf(
+static Py_ssize_t PyVTKReference_GetCharBuf(
   PyObject *op, Py_ssize_t segment, char **ptrptr)
 {
   char text[80];
   PyBufferProcs *pb;
-  op = ((PyVTKMutableObject *)op)->value;
+  op = ((PyVTKReference *)op)->value;
   pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getcharbuffer)
@@ -817,47 +817,47 @@ static Py_ssize_t PyVTKMutableObject_GetCharBuf(
 
 #if PY_VERSION_HEX >= 0x02060000
 // new buffer protocol
-static int PyVTKMutableObject_GetBuffer(
+static int PyVTKReference_GetBuffer(
   PyObject *self, Py_buffer *view, int flags)
 {
-  PyObject *obj = ((PyVTKMutableObject *)self)->value;
+  PyObject *obj = ((PyVTKReference *)self)->value;
   return PyObject_GetBuffer(obj, view, flags);
 }
 
-static void PyVTKMutableObject_ReleaseBuffer(
+static void PyVTKReference_ReleaseBuffer(
   PyObject *, Py_buffer *view)
 {
   PyBuffer_Release(view);
 }
 #endif
 
-static PyBufferProcs PyVTKMutableObject_AsBuffer = {
+static PyBufferProcs PyVTKReference_AsBuffer = {
 #ifndef VTK_PY3K
-  PyVTKMutableObject_GetReadBuf,       // bf_getreadbuffer
-  PyVTKMutableObject_GetWriteBuf,      // bf_getwritebuffer
-  PyVTKMutableObject_GetSegCount,      // bf_getsegcount
-  PyVTKMutableObject_GetCharBuf,       // bf_getcharbuffer
+  PyVTKReference_GetReadBuf,           // bf_getreadbuffer
+  PyVTKReference_GetWriteBuf,          // bf_getwritebuffer
+  PyVTKReference_GetSegCount,          // bf_getsegcount
+  PyVTKReference_GetCharBuf,           // bf_getcharbuffer
 #endif
 #if PY_VERSION_HEX >= 0x02060000
-  PyVTKMutableObject_GetBuffer,        // bf_getbuffer
-  PyVTKMutableObject_ReleaseBuffer     // bf_releasebuffer
+  PyVTKReference_GetBuffer,            // bf_getbuffer
+  PyVTKReference_ReleaseBuffer         // bf_releasebuffer
 #endif
 };
 
 //--------------------------------------------------------------------
 // Object protocol
 
-static void PyVTKMutableObject_Delete(PyObject *ob)
+static void PyVTKReference_Delete(PyObject *ob)
 {
-  Py_DECREF(((PyVTKMutableObject *)ob)->value);
+  Py_DECREF(((PyVTKReference *)ob)->value);
   PyObject_Del(ob);
 }
 
-static PyObject *PyVTKMutableObject_Repr(PyObject *ob)
+static PyObject *PyVTKReference_Repr(PyObject *ob)
 {
   PyObject *r = nullptr;
   const char *name = Py_TYPE(ob)->tp_name;
-  PyObject *s = PyObject_Repr(((PyVTKMutableObject *)ob)->value);
+  PyObject *s = PyObject_Repr(((PyVTKReference *)ob)->value);
   if (s)
   {
 #ifdef VTK_PY3K
@@ -884,31 +884,31 @@ static PyObject *PyVTKMutableObject_Repr(PyObject *ob)
   return r;
 }
 
-static PyObject *PyVTKMutableObject_Str(PyObject *ob)
+static PyObject *PyVTKReference_Str(PyObject *ob)
 {
-  return PyObject_Str(((PyVTKMutableObject *)ob)->value);
+  return PyObject_Str(((PyVTKReference *)ob)->value);
 }
 
-static PyObject *PyVTKMutableObject_RichCompare(
+static PyObject *PyVTKReference_RichCompare(
   PyObject *ob1, PyObject *ob2, int opid)
 {
-  if (PyVTKMutableObject_Check(ob1))
+  if (PyVTKReference_Check(ob1))
   {
-    ob1 = ((PyVTKMutableObject *)ob1)->value;
+    ob1 = ((PyVTKReference *)ob1)->value;
   }
-  if (PyVTKMutableObject_Check(ob2))
+  if (PyVTKReference_Check(ob2))
   {
-    ob2 = ((PyVTKMutableObject *)ob2)->value;
+    ob2 = ((PyVTKReference *)ob2)->value;
   }
   return PyObject_RichCompare(ob1, ob2, opid);
 }
 
-static PyObject *PyVTKMutableObject_GetIter(PyObject *ob)
+static PyObject *PyVTKReference_GetIter(PyObject *ob)
 {
-  return PyObject_GetIter(((PyVTKMutableObject *)ob)->value);
+  return PyObject_GetIter(((PyVTKReference *)ob)->value);
 }
 
-static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
+static PyObject *PyVTKReference_GetAttr(PyObject *self, PyObject *attr)
 {
   PyObject *a = PyObject_GenericGetAttr(self, attr);
   if (a || !PyErr_ExceptionMatches(PyExc_AttributeError))
@@ -935,7 +935,7 @@ static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
 #endif
   if (firstchar != '_')
   {
-    a = PyObject_GetAttr(((PyVTKMutableObject *)self)->value, attr);
+    a = PyObject_GetAttr(((PyVTKReference *)self)->value, attr);
 
     if (a || !PyErr_ExceptionMatches(PyExc_AttributeError))
     {
@@ -956,7 +956,7 @@ static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
   return nullptr;
 }
 
-static PyObject *PyVTKMutableObject_New(
+static PyObject *PyVTKReference_New(
   PyTypeObject *, PyObject *args, PyObject *kwds)
 {
   PyObject *o;
@@ -964,36 +964,36 @@ static PyObject *PyVTKMutableObject_New(
   if (kwds && PyDict_Size(kwds))
   {
     PyErr_SetString(PyExc_TypeError,
-                    "mutable() does not take keyword arguments");
+                    "refrence() does not take keyword arguments");
     return nullptr;
   }
 
-  if (PyArg_ParseTuple(args, "O:mutable", &o))
+  if (PyArg_ParseTuple(args, "O:reference", &o))
   {
-    o = PyVTKMutableObject_CompatibleObject(nullptr, o);
+    o = PyVTKReference_CompatibleObject(nullptr, o);
 
     if (o)
     {
-      PyVTKMutableObject *self;
+      PyVTKReference *self;
       if (
 #ifdef Py_USING_UNICODE
         PyUnicode_Check(o) ||
 #endif
         PyBytes_Check(o))
       {
-        self = PyObject_New(PyVTKMutableObject,
-                            &PyVTKMutableString_Type);
+        self = PyObject_New(PyVTKReference,
+                            &PyVTKStringReference_Type);
       }
       else if (PyTuple_Check(o) ||
                PyList_Check(o))
       {
-        self = PyObject_New(PyVTKMutableObject,
-                            &PyVTKMutableTuple_Type);
+        self = PyObject_New(PyVTKReference,
+                            &PyVTKTupleReference_Type);
       }
       else
       {
-        self = PyObject_New(PyVTKMutableObject,
-                            &PyVTKMutableNumber_Type);
+        self = PyObject_New(PyVTKReference,
+                            &PyVTKNumberReference_Type);
       }
       self->value = o;
       return (PyObject *)self;
@@ -1004,17 +1004,17 @@ static PyObject *PyVTKMutableObject_New(
 }
 
 //--------------------------------------------------------------------
-PyTypeObject PyVTKMutableObject_Type = {
+PyTypeObject PyVTKReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "vtkCommonCorePython.mutable",         // tp_name
-  sizeof(PyVTKMutableObject),            // tp_basicsize
+  "vtkCommonCorePython.reference",       // tp_name
+  sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
-  PyVTKMutableObject_Delete,             // tp_dealloc
+  PyVTKReference_Delete,                 // tp_dealloc
   nullptr,                               // tp_print
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
-  PyVTKMutableObject_Repr,               // tp_repr
+  PyVTKReference_Repr,                   // tp_repr
   nullptr,                               // tp_as_number
   nullptr,                               // tp_as_sequence
   nullptr,                               // tp_as_mapping
@@ -1024,22 +1024,22 @@ PyTypeObject PyVTKMutableObject_Type = {
   nullptr,                               // tp_hash
 #endif
   nullptr,                               // tp_call
-  PyVTKMutableObject_Str,                // tp_string
-  PyVTKMutableObject_GetAttr,            // tp_getattro
+  PyVTKReference_Str,                    // tp_string
+  PyVTKReference_GetAttr,                // tp_getattro
   nullptr,                               // tp_setattro
   nullptr,                               // tp_as_buffer
 #ifndef VTK_PY3K
   Py_TPFLAGS_CHECKTYPES |
 #endif
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  PyVTKMutableObject_Doc,                // tp_doc
+  PyVTKReference_Doc,                    // tp_doc
   nullptr,                               // tp_traverse
   nullptr,                               // tp_clear
-  PyVTKMutableObject_RichCompare,        // tp_richcompare
+  PyVTKReference_RichCompare,            // tp_richcompare
   0,                                     // tp_weaklistoffset
   nullptr,                               // tp_iter
   nullptr,                               // tp_iternext
-  PyVTKMutableObject_Methods,            // tp_methods
+  PyVTKReference_Methods,                // tp_methods
   nullptr,                               // tp_members
   nullptr,                               // tp_getset
   nullptr,                               // tp_base
@@ -1049,7 +1049,7 @@ PyTypeObject PyVTKMutableObject_Type = {
   0,                                     // tp_dictoffset
   nullptr,                               // tp_init
   nullptr,                               // tp_alloc
-  PyVTKMutableObject_New,                // tp_new
+  PyVTKReference_New,                    // tp_new
   PyObject_Del,                          // tp_free
   nullptr,                               // tp_is_gc
   nullptr,                               // tp_bases
@@ -1061,18 +1061,18 @@ PyTypeObject PyVTKMutableObject_Type = {
 };
 
 //--------------------------------------------------------------------
-PyTypeObject PyVTKMutableNumber_Type = {
+PyTypeObject PyVTKNumberReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "vtkCommonCorePython.mutable_number",  // tp_name
-  sizeof(PyVTKMutableObject),            // tp_basicsize
+  "vtkCommonCorePython.number_reference",// tp_name
+  sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
-  PyVTKMutableObject_Delete,             // tp_dealloc
+  PyVTKReference_Delete,                 // tp_dealloc
   nullptr,                               // tp_print
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
-  PyVTKMutableObject_Repr,               // tp_repr
-  &PyVTKMutableObject_AsNumber,          // tp_as_number
+  PyVTKReference_Repr,                   // tp_repr
+  &PyVTKReference_AsNumber,              // tp_as_number
   nullptr,                               // tp_as_sequence
   nullptr,                               // tp_as_mapping
 #if PY_VERSION_HEX >= 0x02060000
@@ -1081,32 +1081,32 @@ PyTypeObject PyVTKMutableNumber_Type = {
   nullptr,                               // tp_hash
 #endif
   nullptr,                               // tp_call
-  PyVTKMutableObject_Str,                // tp_string
-  PyVTKMutableObject_GetAttr,            // tp_getattro
+  PyVTKReference_Str,                    // tp_string
+  PyVTKReference_GetAttr,                // tp_getattro
   nullptr,                               // tp_setattro
   nullptr,                               // tp_as_buffer
 #ifndef VTK_PY3K
   Py_TPFLAGS_CHECKTYPES |
 #endif
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  PyVTKMutableObject_Doc,                // tp_doc
+  PyVTKReference_Doc,                    // tp_doc
   nullptr,                               // tp_traverse
   nullptr,                               // tp_clear
-  PyVTKMutableObject_RichCompare,        // tp_richcompare
+  PyVTKReference_RichCompare,            // tp_richcompare
   0,                                     // tp_weaklistoffset
   nullptr,                               // tp_iter
   nullptr,                               // tp_iternext
-  PyVTKMutableObject_Methods,            // tp_methods
+  PyVTKReference_Methods,                // tp_methods
   nullptr,                               // tp_members
   nullptr,                               // tp_getset
-  (PyTypeObject *)&PyVTKMutableObject_Type, // tp_base
+  (PyTypeObject *)&PyVTKReference_Type,  // tp_base
   nullptr,                               // tp_dict
   nullptr,                               // tp_descr_get
   nullptr,                               // tp_descr_set
   0,                                     // tp_dictoffset
   nullptr,                               // tp_init
   nullptr,                               // tp_alloc
-  PyVTKMutableObject_New,                // tp_new
+  PyVTKReference_New,                    // tp_new
   PyObject_Del,                          // tp_free
   nullptr,                               // tp_is_gc
   nullptr,                               // tp_bases
@@ -1118,52 +1118,52 @@ PyTypeObject PyVTKMutableNumber_Type = {
 };
 
 //--------------------------------------------------------------------
-PyTypeObject PyVTKMutableString_Type = {
+PyTypeObject PyVTKStringReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "vtkCommonCorePython.mutable_string",  // tp_name
-  sizeof(PyVTKMutableObject),            // tp_basicsize
+  "vtkCommonCorePython.string_reference", // tp_name
+  sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
-  PyVTKMutableObject_Delete,             // tp_dealloc
+  PyVTKReference_Delete,                 // tp_dealloc
   nullptr,                               // tp_print
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
-  PyVTKMutableObject_Repr,               // tp_repr
-  &PyVTKMutableString_AsNumber,          // tp_as_number
-  &PyVTKMutableObject_AsSequence,        // tp_as_sequence
-  &PyVTKMutableObject_AsMapping,         // tp_as_mapping
+  PyVTKReference_Repr,                   // tp_repr
+  &PyVTKStringReference_AsNumber,          // tp_as_number
+  &PyVTKReference_AsSequence,            // tp_as_sequence
+  &PyVTKReference_AsMapping,             // tp_as_mapping
 #if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented,           // tp_hash
 #else
   nullptr,                               // tp_hash
 #endif
   nullptr,                               // tp_call
-  PyVTKMutableObject_Str,                // tp_string
-  PyVTKMutableObject_GetAttr,            // tp_getattro
+  PyVTKReference_Str,                    // tp_string
+  PyVTKReference_GetAttr,                // tp_getattro
   nullptr,                               // tp_setattro
-  &PyVTKMutableObject_AsBuffer,          // tp_as_buffer
+  &PyVTKReference_AsBuffer,              // tp_as_buffer
 #ifndef VTK_PY3K
   Py_TPFLAGS_CHECKTYPES |
 #endif
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  PyVTKMutableObject_Doc,                // tp_doc
+  PyVTKReference_Doc,                    // tp_doc
   nullptr,                               // tp_traverse
   nullptr,                               // tp_clear
-  PyVTKMutableObject_RichCompare,        // tp_richcompare
+  PyVTKReference_RichCompare,            // tp_richcompare
   0,                                     // tp_weaklistoffset
-  PyVTKMutableObject_GetIter,            // tp_iter
+  PyVTKReference_GetIter,                // tp_iter
   nullptr,                               // tp_iternext
-  PyVTKMutableObject_Methods,            // tp_methods
+  PyVTKReference_Methods,                // tp_methods
   nullptr,                               // tp_members
   nullptr,                               // tp_getset
-  (PyTypeObject *)&PyVTKMutableObject_Type, // tp_base
+  (PyTypeObject *)&PyVTKReference_Type,  // tp_base
   nullptr,                               // tp_dict
   nullptr,                               // tp_descr_get
   nullptr,                               // tp_descr_set
   0,                                     // tp_dictoffset
   nullptr,                               // tp_init
   nullptr,                               // tp_alloc
-  PyVTKMutableObject_New,                // tp_new
+  PyVTKReference_New,                    // tp_new
   PyObject_Del,                          // tp_free
   nullptr,                               // tp_is_gc
   nullptr,                               // tp_bases
@@ -1175,52 +1175,52 @@ PyTypeObject PyVTKMutableString_Type = {
 };
 
 //--------------------------------------------------------------------
-PyTypeObject PyVTKMutableTuple_Type = {
+PyTypeObject PyVTKTupleReference_Type = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "vtkCommonCorePython.mutable_tuple",  // tp_name
-  sizeof(PyVTKMutableObject),            // tp_basicsize
+  "vtkCommonCorePython.tuple_reference", // tp_name
+  sizeof(PyVTKReference),                // tp_basicsize
   0,                                     // tp_itemsize
-  PyVTKMutableObject_Delete,             // tp_dealloc
+  PyVTKReference_Delete,                 // tp_dealloc
   nullptr,                               // tp_print
   nullptr,                               // tp_getattr
   nullptr,                               // tp_setattr
   nullptr,                               // tp_compare
-  PyVTKMutableObject_Repr,               // tp_repr
+  PyVTKReference_Repr,                   // tp_repr
   nullptr,                               // tp_as_number
-  &PyVTKMutableObject_AsSequence,        // tp_as_sequence
-  &PyVTKMutableObject_AsMapping,         // tp_as_mapping
+  &PyVTKReference_AsSequence,            // tp_as_sequence
+  &PyVTKReference_AsMapping,             // tp_as_mapping
 #if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented,           // tp_hash
 #else
   nullptr,                               // tp_hash
 #endif
   nullptr,                               // tp_call
-  PyVTKMutableObject_Str,                // tp_string
-  PyVTKMutableObject_GetAttr,            // tp_getattro
+  PyVTKReference_Str,                    // tp_string
+  PyVTKReference_GetAttr,                // tp_getattro
   nullptr,                               // tp_setattro
   nullptr,                               // tp_as_buffer
 #ifndef VTK_PY3K
   Py_TPFLAGS_CHECKTYPES |
 #endif
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  PyVTKMutableObject_Doc,                // tp_doc
+  PyVTKReference_Doc,                    // tp_doc
   nullptr,                               // tp_traverse
   nullptr,                               // tp_clear
-  PyVTKMutableObject_RichCompare,        // tp_richcompare
+  PyVTKReference_RichCompare,            // tp_richcompare
   0,                                     // tp_weaklistoffset
-  PyVTKMutableObject_GetIter,            // tp_iter
+  PyVTKReference_GetIter,                // tp_iter
   nullptr,                               // tp_iternext
-  PyVTKMutableObject_Methods,            // tp_methods
+  PyVTKReference_Methods,                // tp_methods
   nullptr,                               // tp_members
   nullptr,                               // tp_getset
-  (PyTypeObject *)&PyVTKMutableObject_Type, // tp_base
+  (PyTypeObject *)&PyVTKReference_Type,  // tp_base
   nullptr,                               // tp_dict
   nullptr,                               // tp_descr_get
   nullptr,                               // tp_descr_set
   0,                                     // tp_dictoffset
   nullptr,                               // tp_init
   nullptr,                               // tp_alloc
-  PyVTKMutableObject_New,                // tp_new
+  PyVTKReference_New,                    // tp_new
   PyObject_Del,                          // tp_free
   nullptr,                               // tp_is_gc
   nullptr,                               // tp_bases
