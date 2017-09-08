@@ -2192,6 +2192,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   cursorPts->SetPoint(1,b);
   cursorPts->SetPoint(2,c);
   cursorPts->SetPoint(3,d);
+  cursorPts->GetData()->Modified();
 
   this->CursorPolyData->Modified();
 }
@@ -2910,6 +2911,7 @@ void vtkImagePlaneWidget::UpdateMargins()
   marginPts->SetPoint(5,b);
   marginPts->SetPoint(6,c);
   marginPts->SetPoint(7,d);
+  marginPts->GetData()->Modified();
 
   this->MarginPolyData->Modified();
 }
