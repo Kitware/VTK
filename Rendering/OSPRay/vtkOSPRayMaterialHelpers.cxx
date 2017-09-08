@@ -16,6 +16,7 @@
 #include "vtkOSPRayMaterialHelpers.h"
 #include "vtkImageData.h"
 #include "vtkOSPRayMaterialLibrary.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 
@@ -54,22 +55,24 @@ osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
 
 //------------------------------------------------------------------------------
 void vtkOSPRayMaterialHelpers::MakeMaterials
-  (OSPRenderer oRenderer,
+  (vtkOSPRayRendererNode *orn,
+   OSPRenderer oRenderer,
    std::map<std::string, OSPMaterial> &mats)
 {
-  std::set<std::string > nicknames = vtkOSPRayMaterialLibrary::GetInstance()->GetMaterialNames();
+  vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
+  std::set<std::string > nicknames = ml->GetMaterialNames();
   std::set<std::string >::iterator it = nicknames.begin();
   while (it != nicknames.end())
   {
     OSPMaterial newmat = vtkOSPRayMaterialHelpers::MakeMaterial
-      (oRenderer, *it);
+      (orn, oRenderer, *it);
     mats[*it] = newmat;
     ++it;
   }
 }
 
 #define OSPSET3F(attname) \
-  std::vector<double> attname = vtkOSPRayMaterialLibrary::GetInstance()->GetDoubleShaderVariable \
+  std::vector<double> attname = ml->GetDoubleShaderVariable \
       (nickname, #attname); \
   if (attname.size() == 3) \
   { \
@@ -80,7 +83,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   } \
 
 #define OSPSET1F(attname) \
-  std::vector<double> attname = vtkOSPRayMaterialLibrary::GetInstance()->GetDoubleShaderVariable \
+  std::vector<double> attname = ml->GetDoubleShaderVariable \
       (nickname, #attname); \
   if (attname.size() == 1) \
   { \
@@ -88,7 +91,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   } \
 
 #define OSPSETTEXTURE(texname) \
-  vtkTexture *texname = vtkOSPRayMaterialLibrary::GetInstance()->GetTexture(nickname, #texname); \
+  vtkTexture *texname = ml->GetTexture(nickname, #texname); \
   if (texname) \
   { \
     vtkImageData* vColorTextureMap = vtkImageData::SafeDownCast(texname->GetInput()); \
@@ -99,11 +102,13 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
 
 //------------------------------------------------------------------------------
 OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
-  (OSPRenderer oRenderer, std::string nickname)
+  (vtkOSPRayRendererNode *orn,
+  OSPRenderer oRenderer, std::string nickname)
 {
+  vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   //todo: add a level of indirection and/or versioning so we aren't stuck with
   //these names forever
-  std::string implname = vtkOSPRayMaterialLibrary::GetInstance()->LookupImplName(nickname);
+  std::string implname = ml->LookupImplName(nickname);
   OSPMaterial oMaterial;
   if (implname == "Glass")
   {

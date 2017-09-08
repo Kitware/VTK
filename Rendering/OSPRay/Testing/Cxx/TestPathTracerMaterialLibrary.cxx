@@ -27,7 +27,8 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
 {
   const char* materialFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/ospray_mats.json");
-  vtkSmartPointer<vtkOSPRayMaterialLibrary> lib = vtkOSPRayMaterialLibrary::GetInstance();
+  vtkSmartPointer<vtkOSPRayMaterialLibrary> lib =
+    vtkSmartPointer<vtkOSPRayMaterialLibrary>::New();
   cout << "Open " << materialFile << endl;
   lib->ReadFile(materialFile);
   cout << "Parsed file OK, now check for expected contents." << endl;
@@ -58,5 +59,13 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
   cout << "We read in a texture too." << endl;
 
   cout << "We're all clear kid." << endl;
+
+
+  cout << "Serialize" << endl;
+  const char *buf = lib->WriteBuffer();
+
+  cout << "Deserialize" << endl;
+  lib->ReadBuffer(buf);
+
   return 0;
 }

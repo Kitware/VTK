@@ -27,6 +27,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkLight.h"
 #include "vtkMapper.h"
@@ -37,6 +38,7 @@
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayVolumeNode.h"
+#include "vtkOSPRayMaterialLibrary.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTexture.h"
@@ -185,6 +187,7 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, COMPOSITE_ON_GL, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, RENDERER_TYPE, String);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, NORTH_POLE, DoubleVector);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, EAST_POLE, DoubleVector);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, MATERIAL_LIBRARY, ObjectBase);
 
 
 class vtkOSPRayRendererNodeInternals
@@ -476,6 +479,33 @@ int vtkOSPRayRendererNode::GetSamplesPerPixel(vtkRenderer *renderer)
     return (info->Get(vtkOSPRayRendererNode::SAMPLES_PER_PIXEL()));
   }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetMaterialLibrary(vtkOSPRayMaterialLibrary *value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::MATERIAL_LIBRARY(), value);
+}
+
+//----------------------------------------------------------------------------
+vtkOSPRayMaterialLibrary *vtkOSPRayRendererNode::GetMaterialLibrary(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return nullptr;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::MATERIAL_LIBRARY()))
+  {
+    vtkObjectBase *obj = info->Get(vtkOSPRayRendererNode::MATERIAL_LIBRARY());
+    return (vtkOSPRayMaterialLibrary::SafeDownCast(obj));
+  }
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1204,4 +1234,10 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
       }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkRenderer *vtkOSPRayRendererNode::GetRenderer()
+{
+  return vtkRenderer::SafeDownCast(this->GetRenderable());
 }

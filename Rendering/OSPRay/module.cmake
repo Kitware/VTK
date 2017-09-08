@@ -10,7 +10,6 @@ vtk_module(vtkRenderingOSPRay
     vtkInteractionStyle
     vtkIOGeometry
     vtkIOPLY
-    vtkIOXML
     vtkRenderingAnnotation
     vtkTestingCore
     vtkTestingRendering
@@ -37,6 +36,7 @@ vtk_module(vtkRenderingOSPRay
     vtkCommonCore
     vtkIOImage
     vtkIOLegacy
+    vtkIOXML
     vtkjsoncpp
     vtksys
   )

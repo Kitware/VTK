@@ -35,6 +35,7 @@
 #include <map>
 
 class vtkImageData;
+class vtkOSPRayRendererNode;
 
 namespace vtkOSPRayMaterialHelpers {
 
@@ -46,7 +47,8 @@ namespace vtkOSPRayMaterialHelpers {
   /**
    * Construct a set of ospray materials for all of the material names.
    */
-  void MakeMaterials(OSPRenderer oRenderer,
+  void MakeMaterials(vtkOSPRayRendererNode *orn,
+                     OSPRenderer oRenderer,
                      std::map<std::string, OSPMaterial> &mats);
 
   /**
@@ -54,7 +56,8 @@ namespace vtkOSPRayMaterialHelpers {
    * corresponds to the visual characteristics set out in the named
    * material in the material library.
    */
-  OSPMaterial MakeMaterial(OSPRenderer oRenderer,
+  OSPMaterial MakeMaterial(vtkOSPRayRendererNode *orn,
+                           OSPRenderer oRenderer,
                            std::string nickname);
 
 }
