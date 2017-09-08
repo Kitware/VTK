@@ -64,36 +64,36 @@ public:
   /**
    * Return an implementation name for the given material nickname.
    */
-  std::string LookupImplName(std::string nickname);
+  std::string LookupImplName(const std::string& nickname);
 
   /**
    * Returns a unform variable, the name format is nickname:varname.
    */
-  std::vector<double> GetDoubleShaderVariable(std::string nickname, std::string varname);
+  std::vector<double> GetDoubleShaderVariable(const std::string& nickname, const std::string& varname);
 
   /**
    * Returns a texture, the name format is nickname:varname.
    */
-  vtkTexture* GetTexture(std::string nickname, std::string varname);
+  vtkTexture* GetTexture(const std::string& nickname, const std::string& varname);
 
   /**
     * Add Material
     * Adds a new material nickname to the set of known materials.
     * If the name is a repeat, we replace the old one.
     **/
-  void AddMaterial(std::string nickname, std::string implname);
+  void AddMaterial(const std::string& nickname, const std::string& implname);
 
   /**
     * Add Texture
     * Adds a new texture. Replaces any previous content.
     **/
-  void AddTexture(std::string nickname, std::string texturename, vtkTexture* tex);
+  void AddTexture(const std::string& nickname, const std::string& texturename, vtkTexture* tex);
 
   /**
     * Add control variable
     * Adds a new control variable. Replaces any previous content.
     **/
-  void AddShaderVariable(std::string nickname, std::string variablename, int numVars, double *x);
+  void AddShaderVariable(const std::string& nickname, const std::string& variablename, int numVars, double *x);
 
 
 protected:
