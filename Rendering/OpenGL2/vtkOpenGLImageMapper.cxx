@@ -674,6 +674,7 @@ void vtkOpenGLImageMapper::DrawPixels(vtkViewport *viewport, int width, int heig
   points->SetPoint(1, width*xscale, 0.0, 0);
   points->SetPoint(2, width*xscale, height*yscale, 0);
   points->SetPoint(3, 0.0, height*yscale, 0);
+  points->GetData()->Modified();
 
   vtkDataArray *tcoords = pd->GetPointData()->GetTCoords();
   float tmp[2];
@@ -686,6 +687,7 @@ void vtkOpenGLImageMapper::DrawPixels(vtkViewport *viewport, int width, int heig
   tcoords->SetTuple(2,tmp);
   tmp[0] = 0.0;
   tcoords->SetTuple(3,tmp);
+  tcoords->Modified();
 
   vtkImageData *id = vtkImageData::New();
   id->SetExtent(0,width-1, 0,height-1, 0,0);
