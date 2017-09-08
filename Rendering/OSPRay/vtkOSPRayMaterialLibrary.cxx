@@ -91,21 +91,21 @@ void vtkOSPRayMaterialLibrary::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayMaterialLibrary::AddMaterial(std::string nickname, std::string implname)
+void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const std::string& implname)
 {
   this->Internal->NickNames.insert(nickname);
   this->Internal->ImplNames[nickname] = implname;
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayMaterialLibrary::AddTexture(std::string nickname, std::string texname, vtkTexture* tex)
+void vtkOSPRayMaterialLibrary::AddTexture(const std::string& nickname, const std::string& texname, vtkTexture* tex)
 {
   NamedTextures &tsForNickname = this->Internal->TexturesFor[nickname];
   tsForNickname[texname] = tex;
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayMaterialLibrary::AddShaderVariable(std::string nickname, std::string varname, int numVars, double *x)
+void vtkOSPRayMaterialLibrary::AddShaderVariable(const std::string& nickname, const std::string& varname, int numVars, double *x)
 {
   std::vector<double> w;
   w.assign(x, x+numVars);
@@ -232,13 +232,13 @@ std::set<std::string> vtkOSPRayMaterialLibrary::GetMaterialNames()
 }
 
 //-----------------------------------------------------------------------------
-std::string vtkOSPRayMaterialLibrary::LookupImplName(std::string nickname)
+std::string vtkOSPRayMaterialLibrary::LookupImplName(const std::string& nickname)
 {
   return this->Internal->ImplNames[nickname];
 }
 
 //-----------------------------------------------------------------------------
-vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(std::string nickname, std::string texturename)
+vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(const std::string& nickname, const std::string& texturename)
 {
   NamedTextures tsForNickname;
   if (this->Internal->TexturesFor.find(nickname) != this->Internal->TexturesFor.end())
@@ -250,7 +250,7 @@ vtkTexture* vtkOSPRayMaterialLibrary::GetTexture(std::string nickname, std::stri
 }
 
 //-----------------------------------------------------------------------------
-std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(std::string nickname, std::string varname)
+std::vector<double> vtkOSPRayMaterialLibrary::GetDoubleShaderVariable(const std::string& nickname, const std::string& varname)
 {
   if (this->Internal->VariablesFor.find(nickname) != this->Internal->VariablesFor.end())
   {
