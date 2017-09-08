@@ -597,6 +597,8 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
     }
   }
 
+  polyPoints->GetData()->Modified();
+  tris->Modified();
   actor->GetMapper()->SetClippingPlanes(this->GetClippingPlanes());
   actor->GetMapper()->Render(ren, actor);
 
