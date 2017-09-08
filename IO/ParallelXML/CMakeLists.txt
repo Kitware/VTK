@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkXMLPDataSetWriter.cxx
+  vtkXMLPDataObjectWriter.cxx
   vtkXMLPDataWriter.cxx
   vtkXMLPImageDataWriter.cxx
   vtkXMLPPolyDataWriter.cxx
