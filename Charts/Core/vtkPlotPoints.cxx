@@ -195,33 +195,27 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
     {
       vtkIdType lastGood = 0;
+      vtkIdType bpIdx = 0;
+      vtkIdType nPoints = this->Points->GetNumberOfPoints();
+      vtkIdType nBadPoints = this->BadPoints->GetNumberOfTuples();
 
-      for (vtkIdType i = 0; i < this->BadPoints->GetNumberOfTuples(); i++)
+      while (lastGood < nPoints)
       {
-        vtkIdType id = this->BadPoints->GetValue(i);
+        vtkIdType id = bpIdx < nBadPoints ?
+          this->BadPoints->GetValue(bpIdx) : this->Points->GetNumberOfPoints();
 
         // render from last good point to one before this bad point
-        if (id - lastGood > 2)
+        if (id - lastGood > 0)
         {
           painter->DrawMarkers(this->MarkerStyle, false,
-                               points + 2 * (lastGood + 1),
-                               id - lastGood - 1,
-                               colors ? colors + 4 * (lastGood + 1) : nullptr,
+                               points + 2 * (lastGood),
+                               id - lastGood,
+                               colors ? colors + 4 * (lastGood) : nullptr,
                                nColorComponents);
         }
-
-        lastGood = id;
+        lastGood = id + 1;
+        bpIdx++;
       }
-
-        // render any trailing good points
-        if (this->Points->GetNumberOfPoints() - lastGood > 2)
-        {
-          painter->DrawMarkers(this->MarkerStyle, false,
-                               points + 2 * (lastGood + 1),
-                               this->Points->GetNumberOfPoints() - lastGood - 1,
-                               colors ? colors + 4 * (lastGood + 1) : nullptr,
-                               nColorComponents);
-        }
     }
     else
     {
