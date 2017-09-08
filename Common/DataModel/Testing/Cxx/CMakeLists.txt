@@ -71,6 +71,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestCellLocator.cxx,NO_DATA
   TestMeanValueCoordinatesInterpolation1.cxx
   TestMeanValueCoordinatesInterpolation2.cxx
+  TestPolyhedron4.cxx,NO_VALID,NO_OUTPUT
   TestSmoothErrorMetric.cxx
   TestQuadraticPolygonFilters.cxx
   )
