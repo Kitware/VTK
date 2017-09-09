@@ -374,7 +374,7 @@ vtkTableBasedClipperEdgeHashTable::~vtkTableBasedClipperEdgeHashTable()
 
 int vtkTableBasedClipperEdgeHashTable::GetKey( int p1, int p2 )
 {
-  int rv = (  ( p1 * 18457 + p2 * 234749 ) % nHashes  );
+  int rv = ( int )( ( unsigned int )p1 * 18457U + ( unsigned int )p2 * 234749U ) % nHashes;
 
   // In case of overflows and modulo with negative numbers.
   if ( rv < 0 )
