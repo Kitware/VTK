@@ -1,4 +1,4 @@
-"""Test the vtk.mutable() type and test pass-by-reference.
+"""Test the vtk.reference() type and test pass-by-reference.
 
 Created on Sept 19, 2010 by David Gobbi
 """
@@ -7,30 +7,36 @@ import sys
 import vtk
 from vtk.test import Testing
 
-class TestMutable(Testing.vtkTest):
-    def testFloatMutable(self):
-        m = vtk.mutable(3.0)
-        n = vtk.mutable(4.0)
+class TestPassByReference(Testing.vtkTest):
+    def testFloatReference(self):
+        m = vtk.reference(3.0)
+        n = vtk.reference(4.0)
         m *= 2
         self.assertEqual(m, 6.0)
         self.assertEqual(str(m), str(m.get()))
         o = n + m
         self.assertEqual(o, 10.0)
 
-    def testIntMutable(self):
-        m = vtk.mutable(3)
-        n = vtk.mutable(4)
+    def testIntReference(self):
+        m = vtk.reference(3)
+        n = vtk.reference(4)
         m |= n
         self.assertEqual(m, 7.0)
         self.assertEqual(str(m), str(m.get()))
 
-    def testStringMutable(self):
-        m = vtk.mutable("%s %s!")
+    def testStringReference(self):
+        m = vtk.reference("%s %s!")
         m %= ("hello", "world")
         self.assertEqual(m, "hello world!")
 
-    def testPassByReference(self):
-        t = vtk.mutable(0.0)
+    def testTupleReference(self):
+        m = vtk.reference((0,))
+        self.assertEqual(m, (0,))
+        self.assertEqual(len(m), 1)
+        self.assertEqual(m[0], 0)
+
+    def testPassByReferenceerence(self):
+        t = vtk.reference(0.0)
         p0 = (0.5, 0.0, 0.0)
         n = (1.0, 0.0, 0.0)
         p1 = (0.0, 0.0, 0.0)
@@ -61,5 +67,14 @@ class TestMutable(Testing.vtkTest):
         self.assertEqual(round(x[1],6), 0.5)
         self.assertEqual(round(x[2],6), 0.5)
 
+    def testPassTupleByReference(self):
+        n = vtk.reference(0)
+        t = vtk.reference((0,))
+        ca = vtk.vtkCellArray()
+        ca.InsertNextCell(3, (1, 3, 0))
+        ca.GetCell(0, n, t)
+        self.assertEqual(n, 3)
+        self.assertEqual(tuple(t), (1, 3, 0))
+
 if __name__ == "__main__":
-    Testing.main([(TestMutable, 'test')])
+    Testing.main([(TestPassByReference, 'test')])

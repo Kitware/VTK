@@ -32,11 +32,11 @@ bounds = output.GetBounds()
 
 # Support subsequent method calls
 genCell = vtk.vtkGenericCell()
-t = vtk.mutable(0.0)
+t = vtk.reference(0.0)
 x = [0,0,0]
 pc = [0,0,0]
-subId = vtk.mutable(0)
-cellId = vtk.mutable(0)
+subId = vtk.reference(0)
+cellId = vtk.reference(0)
 
 # Build the locator
 locator = vtk.vtkStaticCellLocator()

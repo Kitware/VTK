@@ -71,9 +71,9 @@ def CheckWedge(success, x, pcoords):
 
 def CheckCell(cell, checkCellFunction):
     closestPoint = [0., 0., 0.]
-    subId = mutable(0)
+    subId = reference(0)
     pcoords = [0., 0., 0.]
-    dist2 = mutable(0.)
+    dist2 = reference(0.)
     weights = [0.]*30
     x = [.25, .25, .25]
     for i in range(21):

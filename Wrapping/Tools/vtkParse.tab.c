@@ -11842,6 +11842,60 @@ void handle_attribute(const char *att, int pack)
                                 &currentFunction->NumberOfPreconds,
                                 vtkstrndup(args, la));
     }
+    else if (l == 13 && strncmp(att, "vtk::sizehint", l) == 0 &&
+             args && role == VTK_PARSE_ATTRIB_FUNC)
+    {
+      /* first arg is parameter name, unless return value hint */
+      ValueInfo *arg = currentFunction->ReturnValue;
+      size_t n = vtkParse_SkipId(args);
+      preproc_int_t count;
+      int is_unsigned;
+      int i;
+
+      l = n;
+      while (args[n] == ' ') { n++; }
+      if (l > 0 && args[n] == ',')
+      {
+        do { n++; } while (args[n] == ' ');
+        /* find the named parameter */
+        for (i = 0; i < currentFunction->NumberOfParameters; i++)
+        {
+          arg = currentFunction->Parameters[i];
+          if (arg->Name && strlen(arg->Name) == l &&
+              strncmp(arg->Name, args, l) == 0)
+          {
+            break;
+          }
+        }
+        if (i == currentFunction->NumberOfParameters)
+        {
+          print_parser_error("unrecognized parameter name", args, l);
+          exit(1);
+        }
+        /* advance args to second attribute arg */
+        args += n;
+        la -= n;
+      }
+      /* set the size hint */
+      arg->CountHint = vtkstrndup(args, la);
+      /* see if hint is an integer */
+      if (VTK_PARSE_OK == vtkParsePreprocess_EvaluateExpression(
+          preprocessor, arg->CountHint, &count, &is_unsigned))
+      {
+        if (count > 0 && count < 127)
+        {
+          arg->CountHint = NULL;
+          arg->Count = (int)count;
+#ifndef VTK_PARSE_LEGACY_REMOVE
+          if (arg == currentFunction->ReturnValue)
+          {
+            currentFunction->HaveHint = 1;
+            currentFunction->HintSize = arg->Count;
+          }
+#endif
+        }
+      }
+    }
     else
     {
       print_parser_error("attribute cannot be used here", att, l);

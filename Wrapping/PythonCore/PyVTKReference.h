@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    PyVTKMutableObject.h
+  Module:    PyVTKReference.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,30 +13,33 @@
 
 =========================================================================*/
 /*-----------------------------------------------------------------------
-  The PyVTKMutableObject was created in Sep 2010 by David Gobbi.
+  The PyVTKReference was created in Sep 2010 by David Gobbi.
 
   This class is a proxy for python int and float, it allows these objects
   to be passed to VTK methods that require a ref to a numeric type.
 -----------------------------------------------------------------------*/
 
-#ifndef PyVTKMutableObject_h
-#define PyVTKMutableObject_h
+#ifndef PyVTKReference_h
+#define PyVTKReference_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 
-// The PyVTKMutableObject is a wrapper around a PyObject of
+// The PyVTKReference is a wrapper around a PyObject of
 // type int or float.
-struct PyVTKMutableObject {
+struct PyVTKReference {
   PyObject_HEAD
   PyObject *value;
 };
 
-extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMutableObject_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKReference_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKNumberReference_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKStringReference_Type;
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTupleReference_Type;
 
-#define PyVTKMutableObject_Check(obj) \
-  (Py_TYPE(obj) == &PyVTKMutableObject_Type)
+#define PyVTKReference_Check(obj) \
+  PyObject_TypeCheck(obj, &PyVTKReference_Type)
 
 extern "C"
 {
@@ -44,12 +47,12 @@ extern "C"
 // of the provided value.  Only float, long, and int are allowed.
 // A return value of -1 indicates than an error occurred.
 VTKWRAPPINGPYTHONCORE_EXPORT
-int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val);
+int PyVTKReference_SetValue(PyObject *self, PyObject *val);
 
 // Get the value held by a mutable object.  A borrowed reference
 // is returned.
 VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKMutableObject_GetValue(PyObject *self);
+PyObject *PyVTKReference_GetValue(PyObject *self);
 }
 
 #endif

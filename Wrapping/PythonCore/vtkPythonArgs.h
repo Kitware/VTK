@@ -425,7 +425,7 @@ public:
 
   //@{
   /**
-   * Set the value of an argument if it is an assignable type.
+   * Set the value of an argument that was passed by reference.
    */
   bool SetArgValue(int i, const std::string &v);
   bool SetArgValue(int i, const vtkUnicodeString &v);
@@ -443,6 +443,19 @@ public:
   bool SetArgValue(int i, unsigned long v);
   bool SetArgValue(int i, long long v);
   bool SetArgValue(int i, unsigned long long v);
+  bool SetArgValue(int i, const float *v, int n);
+  bool SetArgValue(int i, const double *v, int n);
+  bool SetArgValue(int i, const bool *v, int n);
+  bool SetArgValue(int i, const signed char *v, int n);
+  bool SetArgValue(int i, const unsigned char *v, int n);
+  bool SetArgValue(int i, const short *v, int n);
+  bool SetArgValue(int i, const unsigned short *v, int n);
+  bool SetArgValue(int i, const int *v, int n);
+  bool SetArgValue(int i, const unsigned int *v, int n);
+  bool SetArgValue(int i, const long *v, int n);
+  bool SetArgValue(int i, const unsigned long *v, int n);
+  bool SetArgValue(int i, const long long *v, int n);
+  bool SetArgValue(int i, const unsigned long long *v, int n);
   //@}
 
   //@{
