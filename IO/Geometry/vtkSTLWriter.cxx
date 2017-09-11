@@ -19,8 +19,10 @@
 #include "vtkCellArray.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkPolygon.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 #include <vtksys/SystemTools.hxx>
@@ -142,31 +144,61 @@ void vtkSTLWriter::WriteAsciiSTL(
     fprintf(fp, "  endloop\n endfacet\n");
   }
 
-  //  Write out triangle polygons.  If not a triangle polygon, report
-  //  an error
+  // Write out triangle polygons. If not a triangle polygon, triangulate it
+  // and write out the results.
   //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
   {
-    if (npts > 3)
+    if (npts == 3)
     {
-      fclose(fp);
-      vtkErrorMacro(<<"STL file only supports triangles");
-      this->SetErrorCode(vtkErrorCode::FileFormatError);
-      return;
+      pts->GetPoint(indx[0],v1);
+      pts->GetPoint(indx[1],v2);
+      pts->GetPoint(indx[2],v3);
+
+      vtkTriangle::ComputeNormal(pts, npts, indx, n);
+
+      fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
+               n[0], n[1], n[2]);
+      fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
+      fprintf(fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
+      fprintf(fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
+      fprintf(fp, "  endloop\n endfacet\n");
     }
+    else if (npts > 3)
+    {
+      // Initialize the polygon.
+      vtkNew<vtkPolygon> poly;
+      poly->PointIds->SetNumberOfIds(npts);
+      poly->Points->SetNumberOfPoints(npts);
+      for (vtkIdType i = 0; i < npts; ++i)
+      {
+        poly->PointIds->SetId(i, indx[i]);
+        poly->Points->SetPoint(i, pts->GetPoint(indx[i]));
+      }
 
-    pts->GetPoint(indx[0],v1);
-    pts->GetPoint(indx[1],v2);
-    pts->GetPoint(indx[2],v3);
+      // Do the triangulation
+      vtkNew<vtkIdList> ptIds;
+      ptIds->Allocate(VTK_CELL_SIZE);
+      poly->Triangulate(ptIds);
 
-    vtkTriangle::ComputeNormal(pts, npts, indx, n);
+      vtkIdType numPts = ptIds->GetNumberOfIds();
+      vtkIdType numSimplices = numPts / 3;
+      for (vtkIdType i = 0; i < numSimplices; ++i)
+      {
+        vtkTriangle::ComputeNormal(pts, 3, ptIds->GetPointer(3*i), n);
 
-    fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
-             n[0], n[1], n[2]);
-    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
-    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
-    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
-    fprintf(fp, "  endloop\n endfacet\n");
+        fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
+                n[0], n[1], n[2]);
+
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          vtkIdType ptId = ptIds->GetId(3*i + j);
+          poly->GetPoints()->GetPoint(ptId, v1);
+          fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
+        }
+        fprintf(fp, "  endloop\n endfacet\n");
+      }
+    }
   }
 
   fprintf(fp, "endsolid\n");
@@ -276,51 +308,94 @@ void vtkSTLWriter::WriteBinarySTL(
     fwrite(&ibuff2, 2, 1, fp);
   }
 
-  //  Write out triangle polygons.  In not a triangle polygon, report
-  //  an error
+  // Write out triangle polygons. If not a triangle polygon, triangulate it
+  // and write out the results.
   //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
   {
-    if (npts > 3)
+    if (npts == 3)
     {
-      fclose(fp);
-      vtkErrorMacro(<<"STL file only supports triangles");
-      this->SetErrorCode(vtkErrorCode::FileFormatError);
-      return;
+      pts->GetPoint(indx[0],v1);
+      pts->GetPoint(indx[1],v2);
+      pts->GetPoint(indx[2],v3);
+
+      vtkTriangle::ComputeNormal(pts, npts, indx, dn);
+      float n[3];
+      n[0] = (float)dn[0];
+      n[1] = (float)dn[1];
+      n[2] = (float)dn[2];
+      vtkByteSwap::Swap4LE(n);
+      vtkByteSwap::Swap4LE(n+1);
+      vtkByteSwap::Swap4LE(n+2);
+      fwrite(n, 4, 3, fp);
+
+      n[0] = (float)v1[0];  n[1] = (float)v1[1];  n[2] = (float)v1[2];
+      vtkByteSwap::Swap4LE(n);
+      vtkByteSwap::Swap4LE(n+1);
+      vtkByteSwap::Swap4LE(n+2);
+      fwrite(n, 4, 3, fp);
+
+      n[0] = (float)v2[0];  n[1] = (float)v2[1];  n[2] = (float)v2[2];
+      vtkByteSwap::Swap4LE(n);
+      vtkByteSwap::Swap4LE(n+1);
+      vtkByteSwap::Swap4LE(n+2);
+      fwrite(n, 4, 3, fp);
+
+      n[0] = (float)v3[0];  n[1] = (float)v3[1];  n[2] = (float)v3[2];
+      vtkByteSwap::Swap4LE(n);
+      vtkByteSwap::Swap4LE(n+1);
+      vtkByteSwap::Swap4LE(n+2);
+      fwrite(n, 4, 3, fp);
+      fwrite(&ibuff2, 2, 1, fp);
     }
+    else if (npts > 3)
+    {
+      // Initialize the polygon.
+      vtkNew<vtkPolygon> poly;
+      poly->PointIds->SetNumberOfIds(npts);
+      poly->Points->SetNumberOfPoints(npts);
+      for (vtkIdType i = 0; i < npts; ++i)
+      {
+        poly->PointIds->SetId(i, indx[i]);
+        poly->Points->SetPoint(i, pts->GetPoint(indx[i]));
+      }
 
-    pts->GetPoint(indx[0],v1);
-    pts->GetPoint(indx[1],v2);
-    pts->GetPoint(indx[2],v3);
+      // Do the triangulation
+      vtkNew<vtkIdList> ptIds;
+      ptIds->Allocate(VTK_CELL_SIZE);
+      poly->Triangulate(ptIds);
 
-    vtkTriangle::ComputeNormal(pts, npts, indx, dn);
-    float n[3];
-    n[0] = (float)dn[0];
-    n[1] = (float)dn[1];
-    n[2] = (float)dn[2];
-    vtkByteSwap::Swap4LE(n);
-    vtkByteSwap::Swap4LE(n+1);
-    vtkByteSwap::Swap4LE(n+2);
-    fwrite(n, 4, 3, fp);
+      vtkIdType numPts = ptIds->GetNumberOfIds();
+      vtkIdType numSimplices = numPts / 3;
+      for (vtkIdType i = 0; i < numSimplices; ++i)
+      {
+        vtkTriangle::ComputeNormal(poly->GetPoints(), 3, ptIds->GetPointer(3*i), dn);
 
-    n[0] = (float)v1[0];  n[1] = (float)v1[1];  n[2] = (float)v1[2];
-    vtkByteSwap::Swap4LE(n);
-    vtkByteSwap::Swap4LE(n+1);
-    vtkByteSwap::Swap4LE(n+2);
-    fwrite(n, 4, 3, fp);
+        float n[3];
+        n[0] = (float)dn[0];
+        n[1] = (float)dn[1];
+        n[2] = (float)dn[2];
+        vtkByteSwap::Swap4LE(n);
+        vtkByteSwap::Swap4LE(n+1);
+        vtkByteSwap::Swap4LE(n+2);
+        fwrite(n, 4, 3, fp);
 
-    n[0] = (float)v2[0];  n[1] = (float)v2[1];  n[2] = (float)v2[2];
-    vtkByteSwap::Swap4LE(n);
-    vtkByteSwap::Swap4LE(n+1);
-    vtkByteSwap::Swap4LE(n+2);
-    fwrite(n, 4, 3, fp);
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          vtkIdType ptId = ptIds->GetId(3*i + j);
+          poly->GetPoints()->GetPoint(ptId, v1);
 
-    n[0] = (float)v3[0];  n[1] = (float)v3[1];  n[2] = (float)v3[2];
-    vtkByteSwap::Swap4LE(n);
-    vtkByteSwap::Swap4LE(n+1);
-    vtkByteSwap::Swap4LE(n+2);
-    fwrite(n, 4, 3, fp);
-    fwrite(&ibuff2, 2, 1, fp);
+          n[0] = (float)v1[0];
+          n[1] = (float)v1[1];
+          n[2] = (float)v1[2];
+          vtkByteSwap::Swap4LE(n);
+          vtkByteSwap::Swap4LE(n+1);
+          vtkByteSwap::Swap4LE(n+2);
+          fwrite(n, 4, 3, fp);
+        }
+        fwrite(&ibuff2, 2, 1, fp);
+      }
+    }
   }
   if(fflush(fp))
   {
