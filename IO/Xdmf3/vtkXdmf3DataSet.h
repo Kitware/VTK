@@ -285,7 +285,7 @@ public:
    */
   static int GetVTKFiniteElementCellType(
     unsigned int element_degree,
-    std::string element_family,
+    const std::string& element_family,
     shared_ptr<const XdmfTopologyType> topologyType);
 
   /**
