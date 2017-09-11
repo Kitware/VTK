@@ -26,5 +26,7 @@ set(VTKm_INSTALL_CMAKE_MODULE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINO
 add_subdirectory(vtk-m)
 
 set(vtkm_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include)
-set(vtkm_LIBRARIES vtkm vtkm_cont)
+set(vtkm_LIBRARIES vtkm_cont)
 vtk_module_export_info()
+
+set_target_properties(vtkm PROPERTIES INTERFACE_LINK_LIBRARIES vtkm_cont)
