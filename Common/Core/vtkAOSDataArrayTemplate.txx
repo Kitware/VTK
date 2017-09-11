@@ -372,8 +372,9 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::FillTypedComponent(int compIdx,
 template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>::FillValue(ValueType value)
 {
+  ptrdiff_t offset = this->MaxId + 1;
   std::fill(this->Buffer->GetBuffer(),
-            this->Buffer->GetBuffer() + this->MaxId + 1,
+            this->Buffer->GetBuffer() + offset,
             value);
 }
 
