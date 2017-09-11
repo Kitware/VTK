@@ -1104,7 +1104,7 @@ public:
   //@}
 
   /**
-   * Clamp a value against a range and then normalized it between 0 and 1.
+   * Clamp a value against a range and then normalize it between 0 and 1.
    * If range[0]==range[1], the result is 0.
    * \pre valid_range: range[0]<=range[1]
    * \post valid_result: result>=0.0 && result<=1.0

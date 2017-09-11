@@ -103,7 +103,7 @@ public:
   /**
    * Return the number of objects in the list.
    */
-  int  GetNumberOfItems() { return this->NumberOfItems; }
+  int GetNumberOfItems() { return this->NumberOfItems; }
 
   /**
    * Initialize the traversal of the collection. This means the data pointer
