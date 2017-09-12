@@ -3853,17 +3853,17 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf3D( vtkHyperTreeGridCursor* cur
   if ( ! shifted )
   {
      int i = 1;
-     for ( unsigned int axis1 = 0; axis1 < 2; ++ axis1, i *= 3 )
+     for ( int axis1 = 0; axis1 < 2; ++ axis1, i *= 3 )
      {
        int j = 3 * i;
-       for ( unsigned int axis2 = axis1 + 1; axis2 < 3; ++ axis2, j *= 3 )
+       for ( int axis2 = axis1 + 1; axis2 < 3; ++ axis2, j *= 3 )
        {
          for ( int o2 = -1; o2 < 2; o2 += 2 )
          {
            for ( int o1 = -1; o1 < 2; o1 += 2 )
            {
              int index = 13 + o1 * ( i * o2 + j );
-             vtkHyperTreeGridCursor* cursorE = cursor->GetCursor( index );
+             vtkHyperTreeGridCursor* cursorE = cursor->GetCursor(static_cast<unsigned int>(index) );
              vtkIdType idE = cursorE->GetGlobalNodeIndex();
              if ( ! cursorE->GetTree() || ( cursorE->IsLeaf() && mask->GetValue( idE ) ) )
              {
@@ -3890,7 +3890,7 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf3D( vtkHyperTreeGridCursor* cur
         for ( int o1 = -1; o1 < 2; o1 += 2 )
         {
           int index = 13 + o1 * offset;
-          vtkHyperTreeGridCursor* cursorC = cursor->GetCursor( index );
+          vtkHyperTreeGridCursor* cursorC = cursor->GetCursor( static_cast<unsigned int>(index) );
           vtkIdType idC = cursorC->GetGlobalNodeIndex();
           if ( ! cursorC->GetTree() || ( cursorC->IsLeaf() && mask->GetValue( idC ) ) )
           {
@@ -4136,18 +4136,18 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGridCursor* 
   } // axis
 
   // Check whether dual points across edge neighbors must be adjusted
-  unsigned int i = 1;
-  for ( unsigned int axis1 = 0; axis1 < 2; ++ axis1, i *= 3 )
+  int i = 1;
+  for ( int axis1 = 0; axis1 < 2; ++ axis1, i *= 3 )
   {
-    unsigned int j = 3 * i;
-    for ( unsigned int axis2 = axis1 + 1; axis2 < 3; ++ axis2, j *= 3 )
+    int j = 3 * i;
+    for ( int axis2 = axis1 + 1; axis2 < 3; ++ axis2, j *= 3 )
     {
       for ( int o2 = -1; o2 < 2; o2 += 2 )
       {
         for ( int o1 = -1; o1 < 2; o1 += 2 )
         {
           int index = 13 + o1 * ( i * o2 + j );
-          vtkHyperTreeGridCursor* cursorE = cursor->GetCursor( index );
+          vtkHyperTreeGridCursor* cursorE = cursor->GetCursor( static_cast<unsigned int>(index) );
           vtkIdType idE = cursorE->GetGlobalNodeIndex();
           if ( cursorE->GetTree() && cursorE->IsLeaf()
                && cursorE->GetLevel() < level && ! mask->GetValue( idE )
