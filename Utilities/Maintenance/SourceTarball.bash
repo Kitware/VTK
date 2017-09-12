@@ -107,6 +107,9 @@ find_data_objects () {
     local revision="$1"
     readonly revision
     shift
+    local largedata="$1"
+    readonly largedata
+    shift
 
     # Find all .md5 files in the tree.
     git ls-tree --full-tree -r "$revision" | \
@@ -114,8 +117,16 @@ find_data_objects () {
         while read mode type obj path; do
             case "$path" in
                 *.md5)
-                    # Build the path to the object.
-                    echo "MD5/$( git cat-file blob $obj )"
+                    # Include large data iff we are making the large data archive
+                    # Include the normal data iff we are making the normal data archive
+                    if git check-attr vtk-is-large-data -- $path | grep -q -v -e " set$"; then
+                        if test "$largedata" != "VTK_USE_LARGE_DATA"; then
+                            # Build the path to the object.
+                            echo "MD5/$( git cat-file blob $obj )"
+                        fi
+                    elif test "$largedata" = "VTK_USE_LARGE_DATA"; then
+                        echo "MD5/$( git cat-file blob $obj )"
+                    fi
                     ;;
                 *)
                     die "unknown ExternalData content link: $path"
@@ -355,15 +366,28 @@ for format in $formats; do
         result=1
 done
 
-info "Loading data for $commit..."
+info "Loading normal data for $commit..."
 rm -f "$GIT_INDEX_FILE"
-load_data_objects "$commit"
+load_data_objects "$commit" ""
 load_data_files "$commit"
 tree="$( git write-tree )"
 
-info "Generating data archive(s)..."
+info "Generating normal data archive(s)..."
 for format in $formats; do
     git_archive "$format" "$tree" "VTKData-$version" "VTK-$version" || \
+        result=1
+done
+
+
+info "Loading large data for $commit..."
+rm -f "$GIT_INDEX_FILE"
+load_data_objects "$commit" VTK_USE_LARGE_DATA
+load_data_files "$commit"
+tree="$( git write-tree )"
+
+info "Generating large data archive(s)..."
+for format in $formats; do
+    git_archive "$format" "$tree" "VTKLargeData-$version" "VTK-$version" || \
         result=1
 done
 

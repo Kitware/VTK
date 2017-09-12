@@ -1,0 +1,8 @@
+WT_topo1.dat.md5 vtk-is-large-data
+field/comp.out.10.md5 vtk-is-large-data
+field/comp.out.5500.md5 vtk-is-large-data
+test1_topo.wind.md5 vtk-is-large-data
+turbine/WT_list.md5 vtk-is-large-data
+turbine/WT_rist.md5 vtk-is-large-data
+turbine/wtbl.10.md5 vtk-is-large-data
+turbine/wtbl.5500.md5 vtk-is-large-data
