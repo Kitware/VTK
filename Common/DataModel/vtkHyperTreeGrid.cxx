@@ -303,9 +303,6 @@ protected:
     this->TreeIndex = 0;
   }
 
-  // Hyper tree grid to which the cursor is attached
-  vtkHyperTreeGrid* Grid;
-
   // Index of tree to which the cursor is attached in the hyper tree grid
   vtkIdType TreeIndex;
 
