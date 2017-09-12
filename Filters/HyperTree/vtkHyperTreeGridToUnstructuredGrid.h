@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();
-  ~vtkHyperTreeGridToUnstructuredGrid();
+  ~vtkHyperTreeGridToUnstructuredGrid() VTK_OVERRIDE;
 
   /**
    * For this algorithm the output is a vtkUnstructuredGrid instance

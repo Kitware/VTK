@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkHyperTreeGridDepthLimiter();
-  ~vtkHyperTreeGridDepthLimiter();
+  ~vtkHyperTreeGridDepthLimiter() VTK_OVERRIDE;
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance

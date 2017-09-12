@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkHyperTreeGridGeometry();
-  ~vtkHyperTreeGridGeometry();
+  ~vtkHyperTreeGridGeometry() VTK_OVERRIDE;
 
   /**
    * For this algorithm the output is a vtkPolyData instance

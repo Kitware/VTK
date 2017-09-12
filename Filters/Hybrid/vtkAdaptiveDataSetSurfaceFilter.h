@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkAdaptiveDataSetSurfaceFilter();
-  ~vtkAdaptiveDataSetSurfaceFilter();
+  ~vtkAdaptiveDataSetSurfaceFilter() VTK_OVERRIDE;
 
   int RequestData( vtkInformation* vtkNotUsed(request),
                    vtkInformationVector** inputVector,

@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkHyperTreeGridAlgorithm();
-  ~vtkHyperTreeGridAlgorithm();
+  ~vtkHyperTreeGridAlgorithm() VTK_OVERRIDE;
 
   // convenience method
   virtual int RequestInformation( vtkInformation*,

@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkHyperTreeGridAxisReflection();
-  ~vtkHyperTreeGridAxisReflection();
+  ~vtkHyperTreeGridAxisReflection() VTK_OVERRIDE;
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance

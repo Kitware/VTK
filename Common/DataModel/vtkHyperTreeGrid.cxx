@@ -643,7 +643,7 @@ public:
   static vtkVonNeumannSuperCursor<N>* New();
 
   //---------------------------------------------------------------------------
-  virtual ~vtkVonNeumannSuperCursor()
+  ~vtkVonNeumannSuperCursor() VTK_OVERRIDE
   {
     if ( this->Cursors )
     {
@@ -1108,7 +1108,7 @@ public:
   static vtkMooreSuperCursor<N>* New();
 
   //---------------------------------------------------------------------------
-  virtual ~vtkMooreSuperCursor()
+  ~vtkMooreSuperCursor() VTK_OVERRIDE
   {
     if ( this->Cursors )
     {

@@ -224,7 +224,7 @@ protected:
   /**
    * Destructor
    */
-  virtual ~vtkHyperTreeGridCursor();
+  ~vtkHyperTreeGridCursor() VTK_OVERRIDE;
 
   // Hyper tree grid to which the cursor is attached
   vtkHyperTreeGrid* Grid;

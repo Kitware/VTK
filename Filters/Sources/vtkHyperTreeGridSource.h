@@ -242,7 +242,7 @@ public:
 
 protected:
   vtkHyperTreeGridSource();
-  ~vtkHyperTreeGridSource();
+  ~vtkHyperTreeGridSource() VTK_OVERRIDE;
 
   int RequestInformation( vtkInformation*,
                           vtkInformationVector**,

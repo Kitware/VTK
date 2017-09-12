@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkHyperTreeGridContour();
-  ~vtkHyperTreeGridContour();
+  ~vtkHyperTreeGridContour() VTK_OVERRIDE;
 
   /**
    * For this algorithm the output is a vtkPolyData instance
