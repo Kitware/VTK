@@ -2586,7 +2586,8 @@ void vtkHyperTreeGrid::GetCellPoints( vtkIdType cellId,
   vtkIdTypeArray* cornerLeafIds = this->GetConnectivity();
   assert( "Index out of bounds." &&
           cellId >= 0 && cellId < cornerLeafIds->GetNumberOfTuples() );
-  npts = static_cast<vtkIdType>( 1 << this->Dimension );
+  unsigned int i_npts = 1 << this->Dimension; //avoid a 32/64 shift warning, dims is always < 4, so safe
+  npts = static_cast<vtkIdType>( i_npts );
   pts = cornerLeafIds->GetPointer( 0 ) + cellId * npts;
 }
 
