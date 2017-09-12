@@ -2,6 +2,7 @@ if(ANDROID OR APPLE_IOS) # No GL2PS on mobile
   return()
 endif()
 vtk_module(vtkIOExportOpenGL
+  LEGACY 8.1 "Please switch to using `OpenGL2` VTK_RENDERING_BACKEND to replace this module."
   IMPLEMENTS
     vtkIOExport
   BACKEND

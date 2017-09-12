@@ -32,6 +32,8 @@ endif()
 #            IMPLEMENTS only)
 #  GROUPS = Module groups this module should be included in
 #  TEST_LABELS = Add labels to the tests for the module
+#  LEGACY version message = This module was deprecated in VTK `version`.
+#                   `message` is a custom message printed if this module is used.
 #
 # The following options take no arguments:
 #  EXCLUDE_FROM_ALL = Exclude this module from the build all modules flag
@@ -41,6 +43,16 @@ endif()
 # This macro will ensure the module name is compliant, and set the appropriate
 # module variables as declared in the module.cmake file.
 macro(vtk_module _name)
+  # do not include module if it is LEGACY and we have VTK_LEGACY_REMOVE
+  set(VTK_${_name}_LEGACY_REMOVE FALSE)
+  if (VTK_LEGACY_REMOVE)
+    foreach(arg ${ARGN})
+      if("${arg}" MATCHES "^LEGACY$")
+        set(VTK_${_name}_LEGACY_REMOVE TRUE)
+      endif()
+    endforeach()
+  endif()
+  if(NOT VTK_${_name}_LEGACY_REMOVE)
   vtk_module_check_name(${_name})
   set(vtk-module ${_name})
   set(vtk-module-test ${_name}-Test)
@@ -65,7 +77,7 @@ macro(vtk_module _name)
   foreach(arg ${ARGN})
     # XXX: Adding a new keyword? Update Utilities/Maintenance/WhatModulesVTK.py
     # and Utilities/Maintenance/VisualizeModuleDependencies.py as well.
-    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT)$")
+    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT|LEGACY)$")
       set(_doing "${arg}")
     elseif("${arg}" STREQUAL "EXCLUDE_FROM_ALL")
       set(_doing "")
@@ -129,6 +141,13 @@ macro(vtk_module _name)
       list(APPEND VTK_GROUP_${arg}_MODULES ${vtk-module})
     elseif("${_doing}" STREQUAL "KIT")
       set(${vtk-module}_KIT "${arg}")
+    elseif("${_doing}" STREQUAL "LEGACY")
+      if (NOT ${vtk-module}_LEGACY)
+        set(${vtk-module}_LEGACY TRUE)
+        set(${vtk-module}_LEGACY_VERSION ${arg})
+      else()
+        set(${vtk-module}_LEGACY_MESSAGE ${arg})
+      endif()
     else()
       set(_doing "")
       message(AUTHOR_WARNING "Unknown argument [${arg}]")
@@ -151,6 +170,7 @@ macro(vtk_module _name)
       "${${vtk-module}_TCL_NAME}" MATCHES "[0-9]")
     message(AUTHOR_WARNING "Specify a TCL_NAME with no digits.")
   endif()
+  endif()
 endmacro()
 
 # vtk_module_check_name(<name>)
@@ -161,6 +181,21 @@ function(vtk_module_check_name _name)
     message(FATAL_ERROR "Invalid module name: ${_name}")
   endif()
 endfunction()
+
+function(vtk_module_compile_warning _warning)
+  set(include_warning "\n\
+#if ! defined(VTK_LEGACY_SILENT) && ! defined(VTK_IN_VTK)\n\
+   /* We are using this module */\n\
+#  pragma message \"${_warning}\"\n\
+#endif\n\
+")
+  string(LENGTH "${${vtk-module}_EXPORT_CODE}" export_code_length)
+  if (${export_code_length})
+    string(CONCAT include_warning ${${vtk-module}_EXPORT_CODE} ${include_warning})
+  endif()
+  set(${vtk-module}_EXPORT_CODE ${include_warning} PARENT_SCOPE)
+endfunction()
+
 
 # vtk_module_impl()
 #
@@ -690,6 +725,25 @@ function(vtk_module_library name)
     endif()
     vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${${dep}_LIBRARIES})
   endforeach()
+
+  if(${vtk-module}_LEGACY)
+    set(legacy_message "")
+    string(APPEND legacy_message ${vtk-module} " module was deprecated for VTK "
+      ${${vtk-module}_LEGACY_VERSION} " and will be removed in a future version.")
+    if(${vtk-module}_LEGACY_MESSAGE)
+      string(APPEND legacy_message " " ${${vtk-module}_LEGACY_MESSAGE})
+    endif()
+    if(NOT VTK_LEGACY_SILENT)
+      message(WARNING "
+=====================================================================
+${legacy_message}
+=====================================================================
+")
+    endif()
+    # issue a warning if one compiles against our module
+    # this is for users of VTK
+    vtk_module_compile_warning(${legacy_message})
+  endif()
 
   set(sep "")
   if(${vtk-module}_EXPORT_CODE)
