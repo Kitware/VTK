@@ -1337,8 +1337,8 @@ public:
         // If neighbor cell is masked, that leaf does not own the corner
         owner = false;
       }
-      else if ( cursor->GetLevel() == this->Cursors[centerCursorIdx]->GetLevel()
-                && centerCursorIdx < cursorIdx )
+      else if ( centerCursorIdx < cursorIdx &&
+                cursor->GetLevel() == this->Cursors[centerCursorIdx]->GetLevel() )
       {
         // A level tie is broken in favor of the largest index
         owner = false;
