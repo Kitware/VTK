@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkVPICReader();
-  ~vtkVPICReader();
+  ~vtkVPICReader() VTK_OVERRIDE;
 
   char *FileName;                       // First field part file giving path
 

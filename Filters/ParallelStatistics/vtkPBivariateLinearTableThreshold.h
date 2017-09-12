@@ -54,9 +54,9 @@ public:
 
 protected:
   vtkPBivariateLinearTableThreshold();
-  virtual ~vtkPBivariateLinearTableThreshold();
+  ~vtkPBivariateLinearTableThreshold() VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
     vtkInformationVector*) VTK_OVERRIDE;

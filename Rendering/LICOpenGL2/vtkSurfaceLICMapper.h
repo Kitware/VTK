@@ -74,12 +74,12 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release. In this case, releases the display lists.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow * win) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow * win) VTK_OVERRIDE;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Shallow copy of an actor.
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkSurfaceLICMapper();
-  ~vtkSurfaceLICMapper();
+  ~vtkSurfaceLICMapper() VTK_OVERRIDE;
 
   /**
    * Methods used for parallel benchmarks. Use cmake to define
@@ -109,18 +109,18 @@ protected:
   /**
    * Build the VBO/IBO, called by UpdateBufferObjects
    */
-  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
 protected:
   /**
    * Set the shader parameteres related to the mapper/input data, called by UpdateShader
    */
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   /**
    * Perform string replacments on the shader templates
    */
-  virtual void ReplaceShaderValues(
+  void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 

@@ -35,7 +35,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter :
 public:
   static vtkTemporalArrayOperatorFilter* New();
   vtkTypeMacro(vtkTemporalArrayOperatorFilter, vtkMultiTimeStepAlgorithm);
-  virtual void PrintSelf(ostream &OS, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &OS, vtkIndent indent) VTK_OVERRIDE;
 
   enum OperatorType
   {
@@ -81,19 +81,19 @@ public:
 
 protected:
   vtkTemporalArrayOperatorFilter();
-  virtual ~vtkTemporalArrayOperatorFilter() VTK_OVERRIDE;
+  ~vtkTemporalArrayOperatorFilter() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-  virtual int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
-  virtual int RequestDataObject(vtkInformation*, vtkInformationVector**,
-                                vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestInformation(vtkInformation*, vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
+  int RequestDataObject(vtkInformation*, vtkInformationVector**,
+                        vtkInformationVector*) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation*, vtkInformationVector**,
+                         vtkInformationVector*) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,
                           vtkInformationVector*) VTK_OVERRIDE;
+  int RequestData(vtkInformation*, vtkInformationVector**,
+                  vtkInformationVector*) VTK_OVERRIDE;
 
   int GetInputArrayAssociation();
   virtual vtkDataObject* Process(vtkDataObject*, vtkDataObject*);

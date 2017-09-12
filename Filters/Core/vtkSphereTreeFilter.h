@@ -166,10 +166,10 @@ protected:
   double Ray[3];
   double Normal[3];
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int port,
+                               vtkInformation *info) VTK_OVERRIDE;
 
 private:
   vtkSphereTreeFilter(const vtkSphereTreeFilter&) VTK_DELETE_FUNCTION;

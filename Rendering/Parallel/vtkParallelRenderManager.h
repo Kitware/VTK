@@ -60,7 +60,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkParallelRenderManager : public vtkObject
 {
 public:
   vtkTypeMacro(vtkParallelRenderManager, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Builds a vtkRenderWindow compatible with this render manager.  The
@@ -458,7 +458,7 @@ public:
 
 protected:
   vtkParallelRenderManager();
-  ~vtkParallelRenderManager();
+  ~vtkParallelRenderManager() VTK_OVERRIDE;
 
 
   //@{

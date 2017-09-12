@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkCompositer();
-  ~vtkCompositer();
+  ~vtkCompositer() VTK_OVERRIDE;
 
   vtkMultiProcessController *Controller;
   int NumberOfProcesses;

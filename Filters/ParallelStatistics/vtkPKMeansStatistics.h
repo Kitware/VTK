@@ -57,33 +57,33 @@ public:
   /**
    * Subroutine to update new cluster centers from the old centers.
    */
-  virtual void UpdateClusterCenters( vtkTable* newClusterElements,
-                                     vtkTable* curClusterElements,
-                                     vtkIdTypeArray* numMembershipChanges,
-                                     vtkIdTypeArray* numElementsInCluster,
-                                     vtkDoubleArray* error,
-                                     vtkIdTypeArray* startRunID,
-                                     vtkIdTypeArray* endRunID,
-                                     vtkIntArray *computeRun ) VTK_OVERRIDE;
+  void UpdateClusterCenters( vtkTable* newClusterElements,
+                             vtkTable* curClusterElements,
+                             vtkIdTypeArray* numMembershipChanges,
+                             vtkIdTypeArray* numElementsInCluster,
+                             vtkDoubleArray* error,
+                             vtkIdTypeArray* startRunID,
+                             vtkIdTypeArray* endRunID,
+                             vtkIntArray *computeRun ) VTK_OVERRIDE;
 
   /**
    * Subroutine to get the total number of data objects.
    */
-  virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations ) VTK_OVERRIDE;
+  vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations ) VTK_OVERRIDE;
 
   /**
    * Subroutine to initialize cluster centerss if not provided by the user.
    */
-  virtual void CreateInitialClusterCenters(vtkIdType numToAllocate,
-                                           vtkIdTypeArray* numberOfClusters,
-                                           vtkTable* inData,
-                                           vtkTable* curClusterElements,
-                                           vtkTable* newClusterElements) VTK_OVERRIDE;
+  void CreateInitialClusterCenters(vtkIdType numToAllocate,
+                                   vtkIdTypeArray* numberOfClusters,
+                                   vtkTable* inData,
+                                   vtkTable* curClusterElements,
+                                   vtkTable* newClusterElements) VTK_OVERRIDE;
 
 
 protected:
   vtkPKMeansStatistics();
-  ~vtkPKMeansStatistics();
+  ~vtkPKMeansStatistics() VTK_OVERRIDE;
 
   vtkMultiProcessController* Controller;
 

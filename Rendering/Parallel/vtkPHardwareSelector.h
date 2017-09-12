@@ -57,11 +57,11 @@ public:
    * vtkHardwareSelector as the capturing of buffers progresses is done as a
    * slave to the master render.
    */
-  virtual bool CaptureBuffers() VTK_OVERRIDE;
+  bool CaptureBuffers() VTK_OVERRIDE;
 
 protected:
   vtkPHardwareSelector();
-  ~vtkPHardwareSelector();
+  ~vtkPHardwareSelector() VTK_OVERRIDE;
 
   void StartRender();
   void EndRender();

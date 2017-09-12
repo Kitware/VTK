@@ -222,7 +222,7 @@ public:
 
 protected:
   vtkSynchronizedRenderers();
-  ~vtkSynchronizedRenderers();
+  ~vtkSynchronizedRenderers() VTK_OVERRIDE;
 
   struct RendererInfo
   {

@@ -68,13 +68,13 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable*,
-                      vtkTable*,
-                      vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Learn( vtkTable*,
+              vtkTable*,
+              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
  protected:
   vtkPOrderStatistics();
-  ~vtkPOrderStatistics();
+  ~vtkPOrderStatistics() VTK_OVERRIDE;
 
   /**
    * Reduce the collection of local histograms to the global one for data inputs

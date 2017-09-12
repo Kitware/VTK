@@ -56,7 +56,7 @@ public:
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  virtual void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) VTK_OVERRIDE;
 
   /**
    * Release graphics resources and ask components to release their own
@@ -89,7 +89,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~vtkCompositeZPass();
+  ~vtkCompositeZPass() VTK_OVERRIDE;
 
   /**
    * Create program for texture mapping.

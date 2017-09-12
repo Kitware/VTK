@@ -45,10 +45,10 @@ public:
 
 protected:
   vtkCompositedSynchronizedRenderers();
-  ~vtkCompositedSynchronizedRenderers();
+  ~vtkCompositedSynchronizedRenderers() VTK_OVERRIDE;
 
-  virtual void MasterEndRender() VTK_OVERRIDE;
-  virtual void SlaveEndRender() VTK_OVERRIDE;
+  void MasterEndRender() VTK_OVERRIDE;
+  void SlaveEndRender() VTK_OVERRIDE;
   void CaptureRenderedDepthBuffer(vtkFloatArray* depth_buffer);
 
   vtkCompositer* Compositer;

@@ -67,13 +67,13 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable*,
-                      vtkTable*,
-                      vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Learn( vtkTable*,
+              vtkTable*,
+              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
 
 protected:
   vtkPContingencyStatistics();
-  ~vtkPContingencyStatistics();
+  ~vtkPContingencyStatistics() VTK_OVERRIDE;
 
   /**
    * Reduce the collection of local contingency tables to the global one

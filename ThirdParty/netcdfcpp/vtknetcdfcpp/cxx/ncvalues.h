@@ -77,21 +77,21 @@ class NcVal(TYPE) : public NcValues					      \
     NcVal(TYPE)(const NcVal(TYPE)&);					      \
     virtual NcVal(TYPE)& operator=(const NcVal(TYPE)&);			      \
     virtual ~NcVal(TYPE)( void );					      \
-    virtual void* base( void ) const;					      \
-    virtual int bytes_for_one( void ) const;				      \
-    virtual ncbyte as_ncbyte( long n ) const;				      \
-    virtual char as_char( long n ) const;				      \
-    virtual short as_short( long n ) const;				      \
-    virtual int as_int( long n ) const;					      \
-    virtual int as_nclong( long n ) const;				      \
-    virtual long as_long( long n ) const;				      \
-    virtual float as_float( long n ) const;				      \
-    virtual double as_double( long n ) const;				      \
-    virtual char* as_string( long n ) const;				      \
+    void* base( void ) const override;					      \
+    int bytes_for_one( void ) const override;				      \
+    ncbyte as_ncbyte( long n ) const override;				      \
+    char as_char( long n ) const override;				      \
+    short as_short( long n ) const override;				      \
+    int as_int( long n ) const override;				      \
+    int as_nclong( long n ) const override;				      \
+    long as_long( long n ) const override;				      \
+    float as_float( long n ) const override;				      \
+    double as_double( long n ) const override;				      \
+    char* as_string( long n ) const override;				      \
     virtual int invalid( void ) const;					      \
   private:								      \
     TYPE* the_values;							      \
-    std::ostream& print(std::ostream&) const;				      \
+    std::ostream& print(std::ostream&) const override;			      \
 };
 
 #define NcTypeEnum(TYPE) makename2(_nc__,TYPE)

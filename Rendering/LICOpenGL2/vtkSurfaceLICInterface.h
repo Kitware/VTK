@@ -528,7 +528,7 @@ public:
 
 protected:
   vtkSurfaceLICInterface();
-  ~vtkSurfaceLICInterface();
+  ~vtkSurfaceLICInterface() VTK_OVERRIDE;
 
   /**
    * Updates the noise texture, downsampling by the requested sample rate.

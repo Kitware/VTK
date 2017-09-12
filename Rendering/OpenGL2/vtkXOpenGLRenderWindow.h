@@ -74,7 +74,7 @@ public:
   /**
    * Change the window to fill the entire screen.
    */
-  virtual void SetFullScreen(int) VTK_OVERRIDE;
+  void SetFullScreen(int) VTK_OVERRIDE;
 
   /**
    * Resize the window.

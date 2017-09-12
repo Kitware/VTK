@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkUnsignedDistance();
-  ~vtkUnsignedDistance() override;
+  ~vtkUnsignedDistance() VTK_OVERRIDE;
 
   int Dimensions[3];
   double Bounds[6];
@@ -221,12 +221,12 @@ protected:
   // Flag tracks whether process needs initialization
   int Initialized;
 
-  virtual int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
-  virtual int RequestData (vtkInformation *,
-                           vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  virtual int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData (vtkInformation *,
+                   vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 
 private:
   vtkUnsignedDistance(const vtkUnsignedDistance&) VTK_DELETE_FUNCTION;

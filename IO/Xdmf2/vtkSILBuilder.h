@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkSILBuilder();
-  ~vtkSILBuilder();
+  ~vtkSILBuilder() VTK_OVERRIDE;
 
   vtkStringArray* NamesArray;
   vtkUnsignedCharArray* CrossEdgesArray;
