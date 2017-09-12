@@ -17,60 +17,96 @@
  * @brief   Hyper tree grid outer surface
  *
  * @sa
- * vtkHyperTreeGrid
+ * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
  *
  * @par Thanks:
- * This class was written by Philippe Pebay, Joachim Pouderoux and Charles Law,
- * Kitware 2013
- * This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was written by Philippe Pebay, Joachim Pouderoux, and Charles Law, Kitware 2013
+ * This class was modified by Guénolé Harel and Jacques-Bernard Lekien, 2014
+ * This class was rewritten by Philippe Pebay, 2016
+ * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 */
 
 #ifndef vtkHyperTreeGridGeometry_h
 #define vtkHyperTreeGridGeometry_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkHyperTreeGridAlgorithm.h"
 
+class vtkBitArray;
 class vtkCellArray;
-class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
+class vtkHyperTreeGridCursor;
 class vtkPoints;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkPolyDataAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeGridAlgorithm
 {
-public:
+  public:
   static vtkHyperTreeGridGeometry* New();
-  vtkTypeMacro( vtkHyperTreeGridGeometry, vtkPolyDataAlgorithm );
+  vtkTypeMacro( vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
-protected:
+  protected:
   vtkHyperTreeGridGeometry();
-  ~vtkHyperTreeGridGeometry() VTK_OVERRIDE;
+  ~vtkHyperTreeGridGeometry();
 
-  int RequestData( vtkInformation*,
-    vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
-  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  /**
+   * For this algorithm the output is a vtkPolyData instance
+   */
+  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
-  void ProcessTrees();
-  void RecursiveProcessTree( void* );
-  void ProcessLeaf1D( void* );
-  void ProcessLeaf2D( void* );
-  void ProcessLeaf3D( void* );
-  void AddFace( vtkIdType inId, double* origin, double* size,
-                int offset, int orientation );
+  /**
+   * Main routine to generate external boundary
+   */
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
 
-  vtkHyperTreeGrid* Input;
-  vtkPolyData* Output;
+  /**
+   * Recursively descend into tree down to leaves
+   */
+  void RecursivelyProcessTree( vtkHyperTreeGridCursor*, vtkBitArray* );
 
-  vtkDataSetAttributes* InData;
-  vtkDataSetAttributes* OutData;
+  /**
+   * Process 1D leaves and issue corresponding edges (lines)
+   */
+  void ProcessLeaf1D( vtkHyperTreeGridCursor* );
 
+  /**
+   * Process 2D leaves and issue corresponding faces (quads)
+   */
+  void ProcessLeaf2D( vtkHyperTreeGridCursor*, vtkBitArray* );
+
+  /**
+   * Process 3D leaves and issue corresponding cells (voxels)
+   */
+  void ProcessLeaf3D( vtkHyperTreeGridCursor*, vtkBitArray* );
+
+  /**
+   * Helper method to generate a face based on its normal and offset from cursor origin
+   */
+  void AddFace( vtkIdType, double*, double*, int, unsigned int );
+
+  /**
+   * Dimension of input grid
+   */
+  unsigned int Dimension;
+
+  /**
+   * Orientation of input grid when dimension < 3
+   */
+  unsigned int Orientation;
+
+  /**
+   * Storage for points of output unstructured mesh
+   */
   vtkPoints* Points;
+
+  /**
+   * Storage for cells of output unstructured mesh
+   */
   vtkCellArray* Cells;
 
-private:
+  private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridGeometry&) VTK_DELETE_FUNCTION;
 };
 
-#endif
+#endif /* vtkHyperTreeGridGeometry_h */

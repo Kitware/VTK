@@ -14,7 +14,8 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2013
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test was revised by Philippe Pebay, 2016
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -23,6 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -40,6 +42,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   htGrid1->SetGridSize( 2, 1, 1 );
   htGrid1->SetGridScale( 1., 1., 1. );
   htGrid1->SetDimension( 2 );
+  htGrid1->SetOrientation( 2 ); // in xy plane
   htGrid1->SetBranchFactor( 3 );
   htGrid1->UseMaterialMaskOn();
   htGrid1->SetDescriptor( ".R|.R..R..R.|......... ......... ........." );
@@ -50,6 +53,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   htGrid2->SetGridSize( 2, 1, 1 );
   htGrid2->SetGridScale( 1., 1., 1. );
   htGrid2->SetDimension( 2 );
+  htGrid2->SetOrientation( 2 ); // in xy plane
   htGrid2->SetBranchFactor( 3 );
   htGrid2->UseMaterialMaskOn();
   htGrid2->SetDescriptor( "R.|.R..R..R.|......... ......... ........." );
@@ -68,9 +72,9 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
 
   // Mappers
   geometry1->Update();
-  vtkPolyData* pd1 = geometry1->GetOutput();
+  vtkPolyData* pd1 = geometry1->GetPolyDataOutput();
   geometry2->Update();
-  vtkPolyData* pd2 = geometry2->GetOutput();
+  vtkPolyData* pd2 = geometry2->GetPolyDataOutput();
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection( shrink1->GetOutputPort() );

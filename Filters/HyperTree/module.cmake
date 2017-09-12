@@ -5,6 +5,7 @@ vtk_module(vtkFiltersHyperTree
     vtkFiltersModeling
     vtkIOXML
     vtkIOLegacy
+    vtkImagingHybrid
     vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
@@ -20,4 +21,4 @@ vtk_module(vtkFiltersHyperTree
     vtkCommonCore
     vtkCommonSystem
     vtkFiltersGeneral
-)
+  )

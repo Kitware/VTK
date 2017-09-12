@@ -14,9 +14,7 @@
 =========================================================================*/
 #include "vtkHyperTreeCursor.h"
 
-
 //-----------------------------------------------------------------------------
-// Constructor.
 vtkHyperTreeCursor::vtkHyperTreeCursor()
 {
 }
@@ -25,6 +23,7 @@ vtkHyperTreeCursor::vtkHyperTreeCursor()
 vtkHyperTreeCursor::~vtkHyperTreeCursor()
 {
 }
+
 //-----------------------------------------------------------------------------
 void vtkHyperTreeCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
