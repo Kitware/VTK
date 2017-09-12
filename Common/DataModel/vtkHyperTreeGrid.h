@@ -136,7 +136,7 @@ public:
    * . in 2D: 0, 1, 2 = normal to X, Y, Z axis
    * NB: Not used in 3D
    */
-  vtkSetClampMacro(Orientation, unsigned int, 0, 2);
+  virtual void SetOrientation(unsigned int);
   vtkGetMacro(Orientation, unsigned int);
   //@}
 
@@ -232,9 +232,9 @@ public:
   /**
    * Set/Get presence or absence of interface
    */
-  vtkSetMacro( HasInterface, int );
-  vtkGetMacro( HasInterface, int );
-  vtkBooleanMacro( HasInterface, int );
+  vtkSetMacro( HasInterface, bool );
+  vtkGetMacro( HasInterface, bool );
+  vtkBooleanMacro( HasInterface, bool );
   //@}
 
   //@{
@@ -341,6 +341,14 @@ public:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   vtkCell* GetCell( vtkIdType ) VTK_OVERRIDE;
+
+  /**
+   * Overridden so as no not unintentionally hide parent class.
+   * See -Woverloaded-virtual
+   */
+  vtkCell* GetCell( int i, int j, int k) VTK_OVERRIDE {
+    return this->Superclass::GetCell(i,j,k);
+  };
 
   /**
    * This method should be avoided in favor of cell/point iterators.
@@ -580,10 +588,10 @@ public:
    * by a Cartesian vector in the grid.
    * NB: No boundary checks are performed.
    */
-  vtkIdType GetShiftedLevelZeroIndex( vtkIdType,
-                                      unsigned int,
-                                      unsigned int,
-                                      unsigned int );
+  unsigned int GetShiftedLevelZeroIndex( vtkIdType,
+                                         int,
+                                         int,
+                                         int );
 
   //@{
   /**
@@ -602,48 +610,12 @@ public:
      * Methods that belong to the vtkHyperTreeCursor API.
      */
     vtkHyperTree* GetTree() { return this->Tree; }
-    bool IsLeaf();
-    void ToRoot();
-    void ToChild( int );
-    void ToSameNode( vtkHyperTreeCursor* );
-    bool IsEqual( vtkHyperTreeCursor* );
-    vtkHyperTreeCursor* Clone();
-    int SameTree( vtkHyperTreeCursor* );
-    int GetIndex( int );
-    int GetNumberOfChildren();
-    int GetDimension();
-    void MoveToNode( int*, int );
-    bool Found();
     //@}
-
-    /**
-     * Set the state back to the initial constructed state.
-     */
-    void Clear();
-
-    //@{
-    /**
-     * Initialize cursor.
-     */
-    void Initialize( vtkHyperTreeGrid*, vtkIdType, int[3] );
-    virtual void Initialize( vtkHyperTreeGrid*, vtkIdType );
-    //@}
-
-    /**
-     * Clone from existing cursor.
-     */
-    virtual void Clone( vtkHyperTreeSimpleCursor* );
 
     /**
      * Only valid for leaves.
      */
     vtkIdType GetLeafIndex() { return this->Index; }
-
-    /**
-     * Get the global index (relative to grid) of the cell at which the
-     * cursor is positioned.
-     */
-    vtkIdType GetGlobalNodeIndex();
 
     /**
      * Return level at which cursor is positioned.
@@ -654,10 +626,8 @@ public:
     vtkHyperTree* Tree;
     vtkIdType Index;
     unsigned short Level;
-    bool Leaf;
   };
 
-  //@{
   /**
    * Public structure used by filters to move around the hyper
    * tree grid and easily access neighbors to leaves.
@@ -673,7 +643,6 @@ public:
     vtkHyperTreeSimpleCursor Cursors[3*3*3];
     vtkHyperTreeSimpleCursor* GetCursor( int );
   };
-  //@}
 
   /**
    * An iterator object to iteratively access trees in the grid.
@@ -713,7 +682,7 @@ public:
   static vtkHyperTreeGrid* GetData( vtkInformationVector* v, int i=0);
   //@}
 
-  protected:
+protected:
   /**
    * Constructor with default bounds (0,1, 0,1, 0,1).
    */
@@ -722,11 +691,9 @@ public:
   /**
    * Destructor
    */
-  ~vtkHyperTreeGrid();
+  ~vtkHyperTreeGrid() VTK_OVERRIDE;
 
   void ComputeBounds() VTK_OVERRIDE;
-
-  void GetCell( vtkIdType, vtkCell* );
 
   /**
    * Traverse tree with 3x3x3 super cursor. Center cursor generates dual point.
@@ -854,7 +821,7 @@ public:
                                   double*,
                                   double* );
 
-#if !defined(__WRAP__) && !defined(__WRAP_GCCXML__)
+#if !defined(__VTK_WRAP__) && !defined(__WRAP_GCCXML__)
   void EvaluateDualCorner( vtkHyperTreeSimpleCursor* );
 #endif
 
@@ -875,9 +842,11 @@ public:
   void BuildLinks();
   //@}
 
-  private:
+private:
   vtkHyperTreeGrid(const vtkHyperTreeGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGrid&) VTK_DELETE_FUNCTION;
+
+  void GetCellImplementation( vtkIdType, vtkCell* );
 };
 
 #endif

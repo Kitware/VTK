@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridAxisCut.h
+  Module:    vtkHyperTreeGridCellCenters.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -62,8 +62,8 @@ protected:
   vtkHyperTreeGridCellCenters();
   ~vtkHyperTreeGridCellCenters();
 
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
-  virtual int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to process individual trees in the grid

@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridAxisClip.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkHyperTreeGridAxisClip.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkHyperTreeGridAxisClip.h"
@@ -78,13 +78,13 @@ vtkHyperTreeGridAxisClip::~vtkHyperTreeGridAxisClip()
   if( this->MaterialMask )
   {
     this->MaterialMask->Delete();
-    this->MaterialMask = 0;
+    this->MaterialMask = nullptr;
   }
 
   if ( this->Quadric )
   {
     this->Quadric->UnRegister( this );
-    this->Quadric = 0;
+    this->Quadric = nullptr;
   }
 }
 
@@ -313,22 +313,20 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   unsigned int dimension = input->GetDimension();
 
   // This filter works only with 3D grids
-  if ( dimension == 2 && this->PlaneNormalAxis == input->GetOrientation() )
+  if ( dimension == 2 &&
+       static_cast<unsigned int>(this->PlaneNormalAxis) == input->GetOrientation() )
   {
     vtkErrorMacro (<< "In 2D axis clip direction cannot be normal to grid plane:"
                    << input->GetOrientation( ));
     return 0;
   }
-  else if ( dimension == 1 && this->PlaneNormalAxis == input->GetOrientation() )
+  else if ( dimension == 1 &&
+            static_cast<unsigned int>(this->PlaneNormalAxis) == input->GetOrientation() )
   {
     vtkErrorMacro (<< "In 1D axis clip direction cannot be that of grid axis:"
                    << input->GetOrientation( ));
     return 0;
   }
-
-  // Retrieve normal axis and intercept of clip plane
-  int axis = this->PlaneNormalAxis;
-  double inter = this->PlanePosition;
 
   // Set identical grid parameters
   output->SetDimension( dimension );

@@ -115,7 +115,7 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve material mask
   vtkBitArray* mask
-    = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+    = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
 
   // Iterate over all hyper trees
   vtkIdType index;
@@ -193,7 +193,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree( vtkHyperTreeGri
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // child
   } // else
 }

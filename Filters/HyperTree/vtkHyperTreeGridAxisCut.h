@@ -47,7 +47,7 @@ class vtkHyperTreeGridCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGridAlgorithm
 {
-  public:
+public:
   static vtkHyperTreeGridAxisCut* New();
   vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
@@ -68,12 +68,12 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGr
   vtkGetMacro(PlanePosition, double);
   //@}
 
-  protected:
+protected:
   vtkHyperTreeGridAxisCut();
   ~vtkHyperTreeGridAxisCut() VTK_OVERRIDE;
 
   // For this algorithm the output is a vtkHyperTreeGrid instance
-  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to generate hyper tree grid cut
@@ -107,7 +107,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGr
    */
   vtkIdType CurrentId;
 
-  private:
+private:
   vtkHyperTreeGridAxisCut(const vtkHyperTreeGridAxisCut&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridAxisCut&) VTK_DELETE_FUNCTION;
 };

@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkHyperTreeGridContour.h
+  Program:   Visualization Toolkit
+  Module:    vtkHyperTreeGridContour.h
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
@@ -57,7 +57,7 @@ class vtkVoxel;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridContour : public vtkHyperTreeGridAlgorithm
 {
-  public:
+public:
   static vtkHyperTreeGridContour* New();
   vtkTypeMacro( vtkHyperTreeGridContour, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
@@ -96,14 +96,14 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridContour : public vtkHyperTreeGr
   void GenerateValues( int, double, double);
   //@}
 
-  protected:
+protected:
   vtkHyperTreeGridContour();
   ~vtkHyperTreeGridContour();
 
   /**
    * For this algorithm the output is a vtkPolyData instance
    */
-  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to generate isocontours of hyper tree grid.
@@ -167,7 +167,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridContour : public vtkHyperTreeGr
    */
  vtkDataArray* InScalars;
 
-  private:
+private:
   vtkHyperTreeGridContour(const vtkHyperTreeGridContour&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridContour&) VTK_DELETE_FUNCTION;
 };

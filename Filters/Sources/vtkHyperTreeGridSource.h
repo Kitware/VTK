@@ -26,7 +26,7 @@
  * For this tree:
  *  HTG:       .
  *           /   \
- *  L0:     .     ./
+ *  L0:     .     .
  *         /|\   /|\
  *  L1:   c . c c c c
  *         /|\
@@ -61,7 +61,7 @@ class vtkQuadric;
 
 class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
 {
-  public:
+public:
   vtkTypeMacro(vtkHyperTreeGridSource,vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
@@ -128,7 +128,7 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridA
   /**
    * Set/Get the orientation of the grid (in 1D and 2D)
    */
-  vtkSetClampMacro(Orientation, unsigned int, 0, 2);
+  virtual void SetOrientation(unsigned int);
   vtkGetMacro(Orientation, unsigned int);
   //@}
 
@@ -230,7 +230,7 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridA
   /**
    * Override GetMTime because we delegate to a vtkQuadric.
    */
-  unsigned long GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   //@{
   /**
@@ -240,7 +240,7 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridA
   vtkBitArray* ConvertMaterialMaskStringToBitArray( const std::string& );
   //@}
 
-  protected:
+protected:
   vtkHyperTreeGridSource();
   ~vtkHyperTreeGridSource();
 
@@ -248,11 +248,11 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridA
                           vtkInformationVector**,
                           vtkInformationVector* ) VTK_OVERRIDE;
 
-  virtual int RequestData( vtkInformation*,
-                           vtkInformationVector**,
-                           vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestData( vtkInformation*,
+                   vtkInformationVector**,
+                   vtkInformationVector* ) VTK_OVERRIDE;
 
-  virtual int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
 
   /**
    * Main routine to process individual trees in the grid
@@ -352,7 +352,7 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridA
 
   vtkHyperTreeGrid* OutputHTG;
 
-  private:
+private:
   vtkHyperTreeGridSource(const vtkHyperTreeGridSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridSource&) VTK_DELETE_FUNCTION;
 };

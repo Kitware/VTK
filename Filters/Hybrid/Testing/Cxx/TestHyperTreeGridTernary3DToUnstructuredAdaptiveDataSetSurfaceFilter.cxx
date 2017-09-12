@@ -98,7 +98,7 @@ int TestHyperTreeGridTernary3DToUnstructuredAdaptiveDataSetSurfaceFilter( int ar
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
+  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 90 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();
