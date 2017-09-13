@@ -331,7 +331,9 @@ void vtkSegYReader::ExportData2D(vtkStructuredGrid* grid)
       float x = trace->xCoordinate * coordinateMultiplier;
       float y = trace->yCoordinate * coordinateMultiplier;
 
-      float z = k * trace->SampleInterval / (this->SampleCountPerTrace - 1);
+      // The samples are uniformly placed at sample interval depths
+      // Dividing by 1000.0 to convert from microseconds to milliseconds.
+      float z = k * (trace->SampleInterval / 1000.0);
       points->InsertNextPoint(x, y, z);
     }
   }
