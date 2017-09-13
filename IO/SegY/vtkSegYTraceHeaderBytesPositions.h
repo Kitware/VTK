@@ -24,14 +24,15 @@ public:
   int CrosslineNumber;
   int TraceNumberWithinEnsemble;
   int CoordinateMultiplier;
-  int XCoordinate;
-  int YCoordinate;
   int CoordinateUnits;
   int NumberSamples;
   int SampleInterval;
 
 public:
-  vtkSegYTraceHeaderBytesPositions() { initDefaultValues(); }
+  vtkSegYTraceHeaderBytesPositions()
+  {
+    initDefaultValues();
+  }
 
 private:
   void initDefaultValues()
@@ -41,8 +42,6 @@ private:
     CrosslineNumber = 20;
     TraceNumberWithinEnsemble = 24;
     CoordinateMultiplier = 70;
-    XCoordinate = 72;
-    YCoordinate = 76;
     CoordinateUnits = 88;
     NumberSamples = 114;
     SampleInterval = 116;

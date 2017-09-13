@@ -30,6 +30,10 @@ vtkSegY2DReader::vtkSegY2DReader()
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
   this->Reader = new vtkSegYReader();
+
+  this->XYCoordMode = VTK_SEGY_SOURCE;
+  this->XCoordByte = 73;
+  this->YCoordByte = 77;
 }
 
 //-----------------------------------------------------------------------------
@@ -38,6 +42,24 @@ vtkSegY2DReader::~vtkSegY2DReader()
   this->SetFileName(nullptr);
   delete this->Reader;
   this->Reader = nullptr;
+}
+
+//-----------------------------------------------------------------------------
+void vtkSegY2DReader::SetXYCoordModeToSource()
+{
+  this->SetXYCoordMode(VTK_SEGY_SOURCE);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSegY2DReader::SetXYCoordModeToCDP()
+{
+  this->SetXYCoordMode(VTK_SEGY_CDP);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSegY2DReader::SetXYCoordModeToCustom()
+{
+  this->SetXYCoordMode(VTK_SEGY_CUSTOM);
 }
 
 //-----------------------------------------------------------------------------
@@ -53,6 +75,31 @@ int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkErrorMacro(<< "A File Name must be specified.");
     return 0;
+  }
+
+  switch(this->XYCoordMode)
+  {
+    case VTK_SEGY_SOURCE:
+    {
+      this->Reader->SetXYCoordBytePositions(72, 76);
+      break;
+    }
+    case VTK_SEGY_CDP:
+    {
+      this->Reader->SetXYCoordBytePositions(180, 184);
+      break;
+    }
+    case VTK_SEGY_CUSTOM:
+    {
+      this->Reader->SetXYCoordBytePositions(this->XCoordByte - 1,
+                                            this->YCoordByte - 1);
+      break;
+    }
+    default:
+    {
+      vtkErrorMacro(<< "Unknown value for XYCoordMode " << this->XYCoordMode);
+      return 1;
+    }
   }
 
   this->Reader->LoadFromFile(FileName);
