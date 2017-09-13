@@ -298,7 +298,7 @@ void vtkSegYReader::AddScalars(vtkStructuredGrid* grid)
   outScalars->Allocate(crossLineCount * this->SampleCountPerTrace);
 
   int j = 0;
-  for (int k = this->SampleCountPerTrace - 1; k >= 0; k--)
+  for (int k = 0; k < this->SampleCountPerTrace; k++)
   {
     for (unsigned int i = 0; i < this->Traces.size(); i++)
     {
