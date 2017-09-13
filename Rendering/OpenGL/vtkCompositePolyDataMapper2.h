@@ -29,7 +29,7 @@
 #include "vtkPainterPolyDataMapper.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
-class vtkCompositeDataDisplayAttributes;
+class vtkCompositeDataDisplayAttributesLegacy;
 
 class VTKRENDERINGOPENGL_EXPORT vtkCompositePolyDataMapper2 : public vtkPainterPolyDataMapper
 {
@@ -54,8 +54,8 @@ public:
   /**
    * Set/get the composite data set attributes.
    */
-  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
-  vtkCompositeDataDisplayAttributes* GetCompositeDataDisplayAttributes();
+  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributesLegacy *attributes);
+  vtkCompositeDataDisplayAttributesLegacy* GetCompositeDataDisplayAttributes();
   //@}
 
   //@{
@@ -129,7 +129,7 @@ protected:
   /**
    * Composite data set attributes.
    */
-  vtkSmartPointer<vtkCompositeDataDisplayAttributes> CompositeAttributes;
+  vtkSmartPointer<vtkCompositeDataDisplayAttributesLegacy> CompositeAttributes;
 
   vtkPainter* SelectionCompositePainter;
 

@@ -1,5 +1,6 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
+    TestBlockOpacity.cxx
     TestCompositePolyDataMapper2.cxx,NO_DATA
     TestCompositePolyDataMapper2Picking.cxx,NO_DATA
     TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
@@ -44,7 +45,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAssemblyBounds.cxx,NO_VALID
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
-  TestBlockOpacity.cxx
   TestColorByCellDataStringArray.cxx
   TestColorByPointDataStringArray.cxx
   TestColorByStringArrayDefaultLookupTable.cxx

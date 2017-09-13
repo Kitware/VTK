@@ -17,6 +17,7 @@ set(Module_SRCS
   vtkCIEDE2000.cxx
   vtkColorTransferFunction.cxx
   vtkCompositeDataDisplayAttributes.cxx
+  vtkCompositeDataDisplayAttributesLegacy.cxx
   vtkCompositePolyDataMapper.cxx
   vtkCoordinate.cxx
   vtkCullerCollection.cxx
