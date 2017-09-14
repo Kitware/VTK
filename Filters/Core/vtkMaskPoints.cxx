@@ -317,7 +317,7 @@ int vtkMaskPoints::RequestData(
 
   if(numPts < 1)
   {
-    vtkErrorMacro(<<"No points to mask");
+    vtkDebugMacro(<<"No points to mask");
     return 1;
   }
 
