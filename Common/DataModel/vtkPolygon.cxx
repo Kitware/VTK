@@ -1014,6 +1014,56 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList *outTris)
 }
 
 //----------------------------------------------------------------------------
+// Triangulate polygon and enforce that the ratio of the smallest triangle area
+// to the polygon area is greater than a user-defined tolerance.
+int vtkPolygon::BoundedTriangulate(vtkIdList *outTris, double tolerance)
+{
+  int i, j, k, success = 0, numPts = this->PointIds->GetNumberOfIds();
+  double totalArea, area[VTK_CELL_SIZE];
+  double p[3][3];
+
+  for (i = 0; i < numPts; i++)
+  {
+    this->Tris->Reset();
+
+    success = this->UnbiasedEarCutTriangulation(i);
+
+    if (!success)
+    {
+      continue;
+    }
+
+    totalArea = 0.;
+    for (j = 0; j < numPts - 2; j++)
+    {
+      for (k = 0; k < 3; k++)
+      {
+        this->Points->GetPoint(this->Tris->GetId(3*j + k), p[k]);
+      }
+      area[j] = vtkTriangle::TriangleArea(p[0], p[1], p[2]);
+      totalArea += area[j];
+    }
+
+    for (j = 0; j < numPts - 2; j++)
+    {
+      if (area[j] / totalArea < tolerance)
+      {
+        success = 0;
+        break;
+      }
+    }
+
+    if (success == 1)
+    {
+      break;
+    }
+  }
+
+  outTris->DeepCopy(this->Tris);
+  return success;
+}
+
+//----------------------------------------------------------------------------
 // Special structures for building loops. This is a double-linked list.
 typedef struct _vtkPolyVertex
 {
@@ -1031,7 +1081,10 @@ public:
 
   int ComputeNormal();
   double ComputeMeasure(vtkLocalPolyVertex *vtx);
-  void RemoveVertex(int i, vtkIdList *, vtkPriorityQueue *);
+  void RemoveVertex(vtkLocalPolyVertex *vtx, vtkIdList *ids,
+                    vtkPriorityQueue *queue = nullptr);
+  void RemoveVertex(int i, vtkIdList *ids, vtkPriorityQueue *queue = nullptr);
+  int CanRemoveVertex(vtkLocalPolyVertex *vtx, double tol);
   int CanRemoveVertex(int id, double tol);
 
   int NumberOfVerts;
@@ -1105,41 +1158,54 @@ vtkPolyVertexList::~vtkPolyVertexList()
 // Remove the vertex from the polygon (forming a triangle with
 // its previous and next neighbors, and reinsert the neighbors
 // into the priority queue.
-void vtkPolyVertexList::RemoveVertex(int i, vtkIdList *tris,
+void vtkPolyVertexList::RemoveVertex(vtkLocalPolyVertex *vtx, vtkIdList *tris,
                                      vtkPriorityQueue *queue)
 {
   // Create triangle
-  tris->InsertNextId(this->Array[i].id);
-  tris->InsertNextId(this->Array[i].next->id);
-  tris->InsertNextId(this->Array[i].previous->id);
+  tris->InsertNextId(vtx->id);
+  tris->InsertNextId(vtx->next->id);
+  tris->InsertNextId(vtx->previous->id);
 
   // remove vertex; special case if single triangle left
   if ( --this->NumberOfVerts < 3 )
   {
     return;
   }
-  if ( (this->Array + i) == this->Head )
+  if ( vtx == this->Head )
   {
-    this->Head = this->Array[i].next;
+    this->Head = vtx->next;
   }
-  this->Array[i].previous->next = this->Array[i].next;
-  this->Array[i].next->previous = this->Array[i].previous;
+  vtx->previous->next = vtx->next;
+  vtx->next->previous = vtx->previous;
 
   // recompute measure, reinsert into queue
   // note that id may have been previously deleted (with Pop()) if we
   // are dealing with a concave polygon and vertex couldn't be split.
-  queue->DeleteId(this->Array[i].previous->id);
-  queue->DeleteId(this->Array[i].next->id);
-  if ( this->ComputeMeasure(this->Array[i].previous) > 0.0 )
+  if (queue)
   {
-    queue->Insert(this->Array[i].previous->measure,
-                  this->Array[i].previous->id);
+    queue->DeleteId(vtx->previous->id);
+    queue->DeleteId(vtx->next->id);
+    if ( this->ComputeMeasure(vtx->previous) > 0.0 )
+    {
+      queue->Insert(vtx->previous->measure,
+                    vtx->previous->id);
+    }
+    if ( this->ComputeMeasure(vtx->next) > 0.0 )
+    {
+      queue->Insert(vtx->next->measure,
+                    vtx->next->id);
+    }
   }
-  if ( this->ComputeMeasure(this->Array[i].next) > 0.0 )
-  {
-    queue->Insert(this->Array[i].next->measure,
-                  this->Array[i].next->id);
-  }
+}
+
+//----------------------------------------------------------------------------
+// Remove the vertex from the polygon (forming a triangle with
+// its previous and next neighbors, and reinsert the neighbors
+// into the priority queue.
+void vtkPolyVertexList::RemoveVertex(int i, vtkIdList *tris,
+                                     vtkPriorityQueue *queue)
+{
+  return this->RemoveVertex(this->Array + i, tris, queue);
 }
 
 //----------------------------------------------------------------------------
@@ -1209,11 +1275,12 @@ double vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex *vtx)
 // comparison to determine whether ear-cut is valid, and may
 // resort to line-plane intersections to resolve possible
 // instersections with ear-cut.
-int vtkPolyVertexList::CanRemoveVertex(int id, double tolerance)
+int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex *currentVtx,
+                                       double tolerance)
 {
   int i, sign, currentSign;
   double v[3], sN[3], *sPt, val, s, t;
-  vtkLocalPolyVertex *currentVtx, *previous, *next, *vtx;
+  vtkLocalPolyVertex *previous, *next, *vtx;
 
   // Check for simple case
   if ( this->NumberOfVerts <= 3 )
@@ -1223,7 +1290,6 @@ int vtkPolyVertexList::CanRemoveVertex(int id, double tolerance)
 
   // Compute split plane, the point to be cut off
   // is always on the positive side of the plane.
-  currentVtx = this->Array + id;
   previous = currentVtx->previous;
   next = currentVtx->next;
 
@@ -1277,6 +1343,16 @@ int vtkPolyVertexList::CanRemoveVertex(int id, double tolerance)
   {
     return 1;
   }
+}
+
+//----------------------------------------------------------------------------
+// returns != 0 if vertex can be removed. Uses half-space
+// comparison to determine whether ear-cut is valid, and may
+// resort to line-plane intersections to resolve possible
+// instersections with ear-cut.
+int vtkPolyVertexList::CanRemoveVertex(int id, double tolerance)
+{
+  return this->CanRemoveVertex(this->Array + id, tolerance);
 }
 
 //----------------------------------------------------------------------------
@@ -1352,6 +1428,52 @@ int vtkPolygon::EarCutTriangulation ()
   return (this->SuccessfulTriangulation=1);
 }
 
+//----------------------------------------------------------------------------
+// Triangulation method based on ear-cutting. Triangles, or ears, are
+// cut off from the polygon. This implementation does not bias the
+// selection of ears; it sequentially progresses through each vertex
+// starting at a user-defined seed value.
+int vtkPolygon::UnbiasedEarCutTriangulation(int seed)
+{
+  vtkPolyVertexList poly(this->PointIds, this->Points,
+                         this->Tolerance*this->Tolerance);
+
+  // First compute the polygon normal the correct way
+  //
+  if ( ! poly.ComputeNormal() )
+  {
+    return (this->SuccessfulTriangulation=0);
+  }
+
+  seed = abs(seed) % poly.NumberOfVerts;
+  vtkLocalPolyVertex *vtx = poly.Array + seed;
+
+  int marker = -1;
+
+  while ( poly.NumberOfVerts > 2 )
+  {
+    if ( poly.CanRemoveVertex(vtx, this->Tolerance) )
+    {
+      poly.RemoveVertex(vtx, this->Tris);
+    }
+    vtx = vtx->next;
+
+    if (vtx == poly.Head)
+    {
+      if (poly.NumberOfVerts == marker)
+      {
+        break;
+      }
+      marker = poly.NumberOfVerts;
+    }
+  }
+
+  if ( poly.NumberOfVerts > 2 ) //couldn't triangulate
+  {
+    return (this->SuccessfulTriangulation=0);
+  }
+  return (this->SuccessfulTriangulation=1);
+}
 
 //----------------------------------------------------------------------------
 int vtkPolygon::CellBoundary(int vtkNotUsed(subId), double pcoords[3],

@@ -187,6 +187,15 @@ public:
   int NonDegenerateTriangulate(vtkIdList *outTris);
 
   /**
+   * Triangulate polygon and enforce that the ratio of the smallest triangle
+   * area to the polygon area is greater than a user-defined tolerance. The user
+   * must provide the vtkIdList outTris. On output, the outTris list contains
+   * the ids of the points defining the triangulation. The ids are ordered into
+   * groups of three: each three-group defines one triangle.
+   */
+  int BoundedTriangulate(vtkIdList *outTris, double tol);
+
+  /**
    * Compute the distance of a point to a polygon. The closest point on
    * the polygon is also returned. The bounds should be provided to
    * accelerate the computation.
@@ -261,6 +270,15 @@ protected:
    * Points and PointIds).
    */
   int EarCutTriangulation();
+
+  /**
+   * A fast triangulation method. Uses recursive divide and
+   * conquer based on plane splitting  to reduce loop into triangles.
+   * The cell (e.g., triangle) is presumed properly initialized (i.e.,
+   * Points and PointIds). Unlike EarCutTriangulation(), vertices are visited
+   * sequentially without preference to angle.
+   */
+  int UnbiasedEarCutTriangulation(int seed);
 
 private:
   vtkPolygon(const vtkPolygon&) VTK_DELETE_FUNCTION;
