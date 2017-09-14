@@ -36,7 +36,7 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
-#include "vtkXMLDataSetWriter.h"
+#include "vtkXMLDataObjectWriter.h"
 
 #include <vtksys/SystemTools.hxx>
 #include <map>
@@ -68,7 +68,7 @@ public:
     if (iter == this->TmpWriters.end())
     {
       vtkSmartPointer<vtkXMLWriter> writer;
-      writer.TakeReference(vtkXMLDataSetWriter::NewWriter(dataset_type));
+      writer.TakeReference(vtkXMLDataObjectWriter::NewWriter(dataset_type));
       if (writer)
       {
         std::pair<int, vtkSmartPointer<vtkXMLWriter> > pair(dataset_type, writer);
@@ -470,9 +470,9 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
     }
 
     // Create a writer based on the type of this input. We just instantiate
-    // vtkXMLDataSetWriter. That internally creates the write type of writer
+    // vtkXMLDataObjectWriter. That internally creates the write type of writer
     // based on the data type.
-    writer.TakeReference(vtkXMLDataSetWriter::NewWriter(this->Internal->DataTypes[i]));
+    writer.TakeReference(vtkXMLDataObjectWriter::NewWriter(this->Internal->DataTypes[i]));
     if (writer)
     {
       // Copy settings to the writer.

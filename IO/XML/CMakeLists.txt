@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkXMLCompositeDataWriter.cxx
   vtkXMLDataReader.cxx
   vtkXMLDataSetWriter.cxx
+  vtkXMLDataObjectWriter.cxx
   vtkXMLFileReadTester.cxx
   vtkXMLGenericDataObjectReader.cxx
   vtkXMLHierarchicalBoxDataFileConverter.cxx

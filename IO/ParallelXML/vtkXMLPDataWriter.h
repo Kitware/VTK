@@ -43,11 +43,11 @@ protected:
 
   virtual vtkXMLWriter* CreatePieceWriter(int index) = 0;
 
-  virtual void WritePData(vtkIndent indent) VTK_OVERRIDE;
+  void WritePData(vtkIndent indent) VTK_OVERRIDE;
 
-  virtual int WritePieceInternal() VTK_OVERRIDE;
+  int WritePieceInternal() VTK_OVERRIDE;
 
-  virtual int WritePiece(int index) VTK_OVERRIDE;
+  int WritePiece(int index) VTK_OVERRIDE;
 
   void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
