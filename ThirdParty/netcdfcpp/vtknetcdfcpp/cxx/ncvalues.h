@@ -76,7 +76,7 @@ class NcVal(TYPE) : public NcValues					      \
     NcVal(TYPE)(long num, const TYPE* vals);				      \
     NcVal(TYPE)(const NcVal(TYPE)&);					      \
     virtual NcVal(TYPE)& operator=(const NcVal(TYPE)&);			      \
-    virtual ~NcVal(TYPE)( void );					      \
+    virtual ~NcVal(TYPE)( void ) override;				      \
     void* base( void ) const override;					      \
     int bytes_for_one( void ) const override;				      \
     ncbyte as_ncbyte( long n ) const override;				      \
