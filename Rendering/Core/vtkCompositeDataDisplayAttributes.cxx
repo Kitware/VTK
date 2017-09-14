@@ -165,12 +165,12 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
   this->BlockOpacities.clear();
 }
 
-void vtkCompositeDataDisplayAttributes::SetBlockMaterial(unsigned int flat_index, std::string material)
+void vtkCompositeDataDisplayAttributes::SetBlockMaterial(unsigned int flat_index, const std::string& material)
 {
   this->BlockMaterials[flat_index] = material;
 }
 
-std::string vtkCompositeDataDisplayAttributes::GetBlockMaterial(unsigned int flat_index) const
+const std::string& vtkCompositeDataDisplayAttributes::GetBlockMaterial(unsigned int flat_index) const
 {
   std::map<unsigned int, std::string>::const_iterator iter = this->BlockMaterials.find(flat_index);
 
@@ -179,7 +179,8 @@ std::string vtkCompositeDataDisplayAttributes::GetBlockMaterial(unsigned int fla
     return iter->second;
   }
 
-  return "";
+  static const std::string nomat = "";
+  return nomat;
 }
 
 bool vtkCompositeDataDisplayAttributes::HasBlockMaterials() const

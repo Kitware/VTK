@@ -132,8 +132,8 @@ public:
    * Set/get the material for the block with flat_index.
    * Only rendering backends that support advanced materials need to respect these.
    */
-  void SetBlockMaterial(unsigned int flat_index, std::string material);
-  std::string GetBlockMaterial(unsigned int flat_index) const;
+  void SetBlockMaterial(unsigned int flat_index, const std::string& material);
+  const std::string& GetBlockMaterial(unsigned int flat_index) const;
   //@}
 
   /**
