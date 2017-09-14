@@ -1203,10 +1203,28 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   // the chains and replace them with the new triangulation.
   //
   success = 1;
-  success &= (rightPoly->Triangulate(0, rightPtIds, rightTriPts));
+  success &= (rightPoly->BoundedTriangulate(rightPtIds, this->Tolerance));
+  {
+    vtkIdList *ids = vtkIdList::New(); ids->Allocate(64);
+    for (i = 0; i < rightPtIds->GetNumberOfIds(); i++)
+    {
+      ids->InsertId(i,rightPoly->PointIds->GetId(rightPtIds->GetId(i)));
+    }
+    rightPtIds->Delete();
+    rightPtIds = ids;
+  }
   numRightTris = rightPtIds->GetNumberOfIds() / 3;
 
-  success &= (leftPoly->Triangulate(0, leftPtIds, leftTriPts));
+  success &= (leftPoly->BoundedTriangulate(leftPtIds, this->Tolerance));
+  {
+    vtkIdList *ids = vtkIdList::New(); ids->Allocate(64);
+    for (i = 0; i < leftPtIds->GetNumberOfIds(); i++)
+    {
+      ids->InsertId(i,leftPoly->PointIds->GetId(leftPtIds->GetId(i)));
+    }
+    leftPtIds->Delete();
+    leftPtIds = ids;
+  }
   numLeftTris = leftPtIds->GetNumberOfIds() / 3;
 
   if ( ! success )
