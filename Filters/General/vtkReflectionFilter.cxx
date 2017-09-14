@@ -446,12 +446,12 @@ int vtkReflectionFilter::RequestDataInternal(
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2)};
       if (this->CopyInput)
       {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < 6; j++)
         {
           newCellPts[j] += numPts;
         }
       }
-      outputCellId = output->InsertNextCell(cellType, 4, newCellPts);
+      outputCellId = output->InsertNextCell(cellType, 6, newCellPts);
       break;
     }
     case VTK_PYRAMID:
