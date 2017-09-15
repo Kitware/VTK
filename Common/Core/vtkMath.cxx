@@ -377,7 +377,7 @@ void vtkMath::Perpendiculars(const float v1[3], float v2[3], float v3[3],
 // Solve linear equations Ax = b using Crout's method. Input is square matrix A
 // and load vector x. Solution x is written over load vector. The dimension of
 // the matrix is specified in size. If error is found, method returns a 0.
-int vtkMath::SolveLinearSystem(double **A, double *x, int size)
+vtkTypeBool vtkMath::SolveLinearSystem(double **A, double *x, int size)
 {
   // if we solving something simple, just solve it
   //
@@ -442,7 +442,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 // Invert input square matrix A into matrix AI. Note that A is modified during
 // the inversion. The size variable is the dimension of the matrix. Returns 0
 // if inverse not computed.
-int vtkMath::InvertMatrix(double **A, double **AI, int size)
+vtkTypeBool vtkMath::InvertMatrix(double **A, double **AI, int size)
 {
   int *index, iScratch[10];
   double *column, dScratch[10];
@@ -460,7 +460,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
     column = new double[size];
   }
 
-  int retVal = vtkMath::InvertMatrix(A, AI, size, index, column);
+  vtkTypeBool retVal = vtkMath::InvertMatrix(A, AI, size, index, column);
 
   if ( size > 10 )
   {
@@ -477,7 +477,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 // square matrix A, integer array of pivot indices index[0->n-1], and size
 // of square matrix n. Output factorization LU is in matrix A. If error is
 // found, method returns 0.
-int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
+vtkTypeBool vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 {
   double scratch[10];
   double *scale = (size<10 ? scratch : new double[size]);
@@ -648,7 +648,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
 // normalized.
 // It assumes a is symmetric and uses only its upper right triangular part.
 template<class T>
-int vtkJacobiN(T **a, int n, T *w, T **v)
+vtkTypeBool vtkJacobiN(T **a, int n, T *w, T **v)
 {
   int i, j, k, iq, ip, numPos;
   T tresh, theta, tau, t, sm, s, h, g, c, tmp;
@@ -840,13 +840,13 @@ int vtkJacobiN(T **a, int n, T *w, T **v)
 #undef VTK_MAX_ROTATIONS
 
 //----------------------------------------------------------------------------
-int vtkMath::JacobiN(float **a, int n, float *w, float **v)
+vtkTypeBool vtkMath::JacobiN(float **a, int n, float *w, float **v)
 {
   return vtkJacobiN(a,n,w,v);
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::JacobiN(double **a, int n, double *w, double **v)
+vtkTypeBool vtkMath::JacobiN(double **a, int n, double *w, double **v)
 {
   return vtkJacobiN(a,n,w,v);
 }
@@ -857,13 +857,13 @@ int vtkMath::JacobiN(double **a, int n, double *w, double **v)
 // real symmetric matrix. Square 3x3 matrix a; output eigenvalues in w;
 // and output eigenvectors in v. Resulting eigenvalues/vectors are sorted
 // in decreasing order; eigenvectors are normalized.
-int vtkMath::Jacobi(float **a, float *w, float **v)
+vtkTypeBool vtkMath::Jacobi(float **a, float *w, float **v)
 {
   return vtkMath::JacobiN(a, 3, w, v);
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::Jacobi(double **a, double *w, double **v)
+vtkTypeBool vtkMath::Jacobi(double **a, double *w, double **v)
 {
   return vtkMath::JacobiN(a, 3, w, v);
 }
@@ -923,8 +923,9 @@ double vtkMath::EstimateMatrixCondition(const double *const *A, int size)
 //                M' dimension is xOrder by 1.
 // M' should be pre-allocated. All matrices are row major. The resultant
 // matrix M' should be pre-multiplied to X' to get 0', or transposed and
-// then post multiplied to X to get 0
-int vtkMath::SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int xOrder,
+// then post multiplied to X to get 0.
+// Returns success/fail.
+vtkTypeBool vtkMath::SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int xOrder,
                                 double **mt)
 {
   // check dimensional consistency
@@ -1013,8 +1014,9 @@ static const double VTK_SMALL_NUMBER = 1.0e-12;
 // By default, this method checks for the homogeneous condition where Y==0, and
 // if so, invokes SolveHomogeneousLeastSquares. For better performance when
 // the system is known not to be homogeneous, invoke with checkHomogeneous=0.
-int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
-                               double **yt, int yOrder, double **mt, int checkHomogeneous)
+// Returns success/fail.
+vtkTypeBool vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
+                                       double **yt, int yOrder, double **mt, int checkHomogeneous)
 {
   // check dimensional consistency
   if ((numberOfSamples < xOrder) || (numberOfSamples < yOrder))
@@ -1025,12 +1027,12 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 
   int i, j, k;
 
-  int someHomogeneous = 0;
-  int allHomogeneous = 1;
+  bool someHomogeneous = 0;
+  bool allHomogeneous = 1;
   double **hmt = nullptr;
-  int homogRC = 0;
+  vtkTypeBool homogRC = 0;
   int *homogenFlags = new int[yOrder];
-  int successFlag;
+  vtkTypeBool successFlag;
 
   // Ok, first init some flags check and see if all the systems are homogeneous
   if (checkHomogeneous)
@@ -1232,8 +1234,8 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 // -----------------------
 // For thread safe behavior, temporary arrays tmp1SIze and tmp2Size
 // of length size must be passsed in.
-int vtkMath::InvertMatrix(double **A, double **AI, int size,
-                          int *tmp1Size, double *tmp2Size)
+vtkTypeBool vtkMath::InvertMatrix(double **A, double **AI, int size,
+                                  int *tmp1Size, double *tmp2Size)
 {
   int i, j;
 
@@ -1277,8 +1279,8 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size,
 //------------------------------------------------------------------
 // For thread safe, temporary memory array tmpSize of length size
 // must be passed in.
-int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
-                                  double *tmpSize)
+vtkTypeBool vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
+                                          double *tmpSize)
 {
   int i, j, k;
   int maxI = 0;
@@ -2075,7 +2077,7 @@ inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
   // A quaternion can only describe a pure rotation, not
   // a rotation with a flip, therefore the flip must be
   // removed before the matrix is converted to a quaternion.
-  int flip = 0;
+  bool flip = 0;
   if (vtkDeterminant3x3(B) < 0)
   {
     flip = 1;
@@ -2999,7 +3001,7 @@ int vtkMath::GetScalarTypeFittingRange(
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::GetAdjustedScalarRange(
+vtkTypeBool vtkMath::GetAdjustedScalarRange(
   vtkDataArray *array, int comp, double range[2])
 {
   if (!array || comp < 0 || comp >= array->GetNumberOfComponents())

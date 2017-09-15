@@ -859,7 +859,7 @@ public:
    * dimension of the matrix is specified in size. If error is found, method
    * returns a 0.
    */
-  static int SolveLinearSystem(double **A, double *x, int size);
+  static vtkTypeBool SolveLinearSystem(double **A, double *x, int size);
 
   /**
    * Invert input square matrix A into matrix AI.
@@ -867,15 +867,15 @@ public:
    * the inversion. The size variable is the dimension of the matrix. Returns 0
    * if inverse not computed.
    */
-  static int InvertMatrix(double **A, double **AI, int size);
+  static vtkTypeBool InvertMatrix(double **A, double **AI, int size);
 
   /**
    * Thread safe version of InvertMatrix method.
    * Working memory arrays tmp1SIze and tmp2Size
    * of length size must be passed in.
    */
-  static int InvertMatrix(double **A, double **AI, int size,
-                          int *tmp1Size, double *tmp2Size);
+  static vtkTypeBool InvertMatrix(double **A, double **AI, int size,
+                                  int *tmp1Size, double *tmp2Size);
 
   /**
    * Factor linear equations Ax = b using LU decomposition into the form
@@ -899,15 +899,15 @@ public:
    * of L is all 1's).
    * If an error is found, the function returns 0.
    */
-  static int LUFactorLinearSystem(double **A, int *index, int size);
+  static vtkTypeBool LUFactorLinearSystem(double **A, int *index, int size);
 
   /**
    * Thread safe version of LUFactorLinearSystem method.
    * Working memory array tmpSize of length size
    * must be passed in.
    */
-  static int LUFactorLinearSystem(double **A, int *index, int size,
-                                  double *tmpSize);
+  static vtkTypeBool LUFactorLinearSystem(double **A, int *index, int size,
+                                          double *tmpSize);
 
   /**
    * Solve linear equations Ax = b using LU decomposition A = LU where L is
@@ -939,8 +939,8 @@ public:
    * eigenvectors are selected for consistency; eigenvectors are normalized.
    * NOTE: the input matrix a is modified during the solution
    */
-  static int Jacobi(float **a, float *w, float **v);
-  static int Jacobi(double **a, double *w, double **v);
+  static vtkTypeBool Jacobi(float **a, float *w, float **v);
+  static vtkTypeBool Jacobi(double **a, double *w, double **v);
   //@}
 
   //@{
@@ -953,8 +953,8 @@ public:
    * normalized. w and v need to be allocated previously.
    * NOTE: the input matrix a is modified during the solution
    */
-  static int JacobiN(float **a, int n, float *w, float **v);
-  static int JacobiN(double **a, int n, double *w, double **v);
+  static vtkTypeBool JacobiN(float **a, int n, float *w, float **v);
+  static vtkTypeBool JacobiN(double **a, int n, double *w, double **v);
   //@}
 
   /**
@@ -970,8 +970,8 @@ public:
    * matrix M' should be pre-multiplied to X' to get 0', or transposed and
    * then post multiplied to X to get 0
    */
-  static int SolveHomogeneousLeastSquares(int numberOfSamples, double **xt, int xOrder,
-                                double **mt);
+  static vtkTypeBool SolveHomogeneousLeastSquares(int numberOfSamples, double **xt,
+                                                  int xOrder, double **mt);
 
   /**
    * Solves for the least squares best fit matrix for the equation X'M' = Y'.
@@ -987,8 +987,8 @@ public:
    * if so, invokes SolveHomogeneousLeastSquares. For better performance when
    * the system is known not to be homogeneous, invoke with checkHomogeneous=0.
    */
-  static int SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
-                               double **yt, int yOrder, double **mt, int checkHomogeneous=1);
+  static vtkTypeBool SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
+                                       double **yt, int yOrder, double **mt, int checkHomogeneous=1);
 
   //@{
   /**
@@ -1195,7 +1195,7 @@ public:
    * is also adjusted down to 4095.0 if was between ]255, 4095.0].
    * Return 1 on success, 0 otherwise.
    */
-  static int GetAdjustedScalarRange(
+  static vtkTypeBool GetAdjustedScalarRange(
     vtkDataArray *array, int comp, double range[2]);
 
   /**
