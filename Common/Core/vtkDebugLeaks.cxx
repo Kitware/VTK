@@ -332,14 +332,13 @@ int vtkDebugLeaks::PrintCurrentLeaks()
     return 0;
   }
 
-  // we must not use stringstream ior strstream due to problems with
-  // finalizers in MSVC
   std::string leaks;
+  std::string msg = "vtkDebugLeaks has detected LEAKS!\n";
   vtkDebugLeaks::MemoryTable->PrintTable(leaks);
+  cerr << msg;
+  cerr << leaks << endl << std::flush;
+
 #ifdef _WIN32
-  fprintf(stderr,"%s",leaks.c_str());
-  fflush(stderr);
-  int cancel=0;
   if(getenv("DASHBOARD_TEST_FROM_CTEST") ||
      getenv("DART_TEST_FROM_DART"))
   {
@@ -347,9 +346,8 @@ int vtkDebugLeaks::PrintCurrentLeaks()
     return 1;
   }
   std::string::size_type myPos = 0;
+  int cancel = 0;
   int count = 0;
-  std::string msg;
-  msg = "vtkDebugLeaks has detected LEAKS!\n";
   while(!cancel && myPos != leaks.npos)
   {
     std::string::size_type newPos = leaks.find('\n',myPos);
@@ -376,9 +374,6 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   {
     vtkDebugLeaks::DisplayMessageBox(msg.c_str());
   }
-#else
-  cout << "vtkDebugLeaks has detected LEAKS!\n";
-  cout << leaks.c_str() << endl;
 #endif
 #endif
   return 1;
