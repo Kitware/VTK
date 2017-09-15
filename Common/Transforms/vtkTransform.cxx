@@ -366,6 +366,20 @@ void vtkTransform::GetOrientation(double orientation[3],
     vtkMath::Orthogonalize3x3(ortho, ortho);
   }
 
+  // compute the max scale as we need that for the epsilon test
+  double scale0 = vtkMath::Norm(ortho[0]);
+  double scale1 = vtkMath::Norm(ortho[1]);
+  double maxScale = vtkMath::Norm(ortho[2]);
+  maxScale = maxScale >= scale0 ? maxScale : scale0;
+  maxScale = maxScale >= scale1 ? maxScale : scale1;
+  if (maxScale == 0.0)
+  {
+    orientation[0] = 0.0;
+    orientation[1] = 0.0;
+    orientation[2] = 0.0;
+    return;
+  }
+
   // first rotate about y axis
   double x2 = ortho[2][0];
   double y2 = ortho[2][1];
@@ -378,7 +392,7 @@ void vtkTransform::GetOrientation(double orientation[3],
   double d1 = sqrt(x2*x2 + z2*z2);
 
   double cosTheta, sinTheta;
-  if (d1 < VTK_AXIS_EPSILON)
+  if (d1 < VTK_AXIS_EPSILON*maxScale)
   {
     cosTheta = 1.0;
     sinTheta = 0.0;
@@ -396,12 +410,12 @@ void vtkTransform::GetOrientation(double orientation[3],
   double d = sqrt(x2*x2 + y2*y2 + z2*z2);
 
   double sinPhi, cosPhi;
-  if (d < VTK_AXIS_EPSILON)
+  if (d < VTK_AXIS_EPSILON * maxScale)
   {
     sinPhi = 0.0;
     cosPhi = 1.0;
   }
-  else if (d1 < VTK_AXIS_EPSILON)
+  else if (d1 < VTK_AXIS_EPSILON * maxScale)
   {
     sinPhi = y2/d;
     cosPhi = z2/d;
@@ -421,7 +435,7 @@ void vtkTransform::GetOrientation(double orientation[3],
   double d2 = sqrt(x3p*x3p + y3p*y3p);
 
   double cosAlpha, sinAlpha;
-  if (d2 < VTK_AXIS_EPSILON)
+  if (d2 < VTK_AXIS_EPSILON * maxScale)
   {
     cosAlpha = 1.0;
     sinAlpha = 0.0;
