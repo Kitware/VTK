@@ -240,16 +240,18 @@ if(NOT ${_name}_DIR)
   set(${_name}_DIR \"${_dir}\")
 endif()")
     endif()
-    set(${vtk-module}_EXPORT_CODE_INSTALL "${${vtk-module}_EXPORT_CODE_INSTALL}
-find_package(${_name} REQUIRED QUIET ${_argn})
-")
     set(${vtk-module}_EXPORT_CODE_BUILD "${${vtk-module}_EXPORT_CODE_BUILD}
 if(NOT ${_name}_DIR)
   set(${_name}_DIR \"${${_name}_DIR}\")
 endif()
-find_package(${_name} REQUIRED QUIET ${_argn})
 ")
   endif()
+  set(${vtk-module}_EXPORT_CODE_INSTALL "${${vtk-module}_EXPORT_CODE_INSTALL}
+find_package(${_name} REQUIRED QUIET ${_argn})
+")
+  set(${vtk-module}_EXPORT_CODE_BUILD "${${vtk-module}_EXPORT_CODE_BUILD}
+find_package(${_name} REQUIRED QUIET ${_argn})
+")
 endmacro()
 
 # vtk_module_export_info()
