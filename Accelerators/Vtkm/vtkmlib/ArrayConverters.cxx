@@ -257,7 +257,7 @@ template <int Components> struct CopyArrayContents
     for (vtkIdType i = 0; i < numValues; ++i, ++iter)
     {
       T t = *iter;
-      for (vtkIdType j = 0; j < Components; ++j, ++index)
+      for (vtkm::IdComponent j = 0; j < Components; ++j, ++index)
       {
         array->SetValue(index, t[j]);
       }
