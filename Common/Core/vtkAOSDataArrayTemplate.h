@@ -166,14 +166,15 @@ public:
   /**
    * This method lets the user specify data to be held by the array.  The
    * array argument is a pointer to the data.  size is the size of the
-   * array supplied by the user.  Set save to 1 to keep the class from
+   * array supplied by the user (as number of values, not in bytes).
+   * Set save to 1 to prevent the class from
    * deleting the array when it cleans up or reallocates memory.  The class
    * uses the actual array provided; it does not copy the data from the
    * suppled array. If specified, the delete method determines how the data
    * array will be deallocated. If the delete method is
    * VTK_DATA_ARRAY_FREE, free() will be used. If the delete method is
    * VTK_DATA_ARRAY_DELETE, delete[] will be used. If the delete method is
-   * VTK_DATA_ARRAY_ALIGNED_FREE _aligned_free() will be used on windows, while
+   * VTK_DATA_ARRAY_ALIGNED_FREE _aligned_free() will be used on Windows, while
    * free() will be used everywhere else. The default is FREE.
    */
   void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save,
