@@ -23,11 +23,12 @@
 int TestPolyhedron4(int argc, char *argv[])
 {
   // Test that a nonwatertight polyhedron does no make vtkPolyhedron segfault
-  std::string filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
+  char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
     "Data/nonWatertightPolyhedron.vtu");
 
   vtkNew<vtkXMLUnstructuredGridReader> reader;
-  reader->SetFileName(filename.c_str());
+  reader->SetFileName(filename);
+  delete[] filename;
 
   vtkNew<vtkCutter> cutter;
   vtkNew<vtkPlane> p;
