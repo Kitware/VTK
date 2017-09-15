@@ -208,6 +208,8 @@ public:
     this->least[0] = 0.;
     this->least[1] = 1.;
     this->least[2] = 0.;
+    this->LastViewPort[0] = 0.;
+    this->LastViewPort[1] = 0.;
   };
 
   ~vtkOSPRayRendererNodeInternals() {};
@@ -402,6 +404,7 @@ public:
   double lbgcolor2[3];
   double lup[3];
   double least[3];
+  double LastViewPort[2];
 
   OSPLight BGLight;
 };
@@ -927,9 +930,19 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       if (rwin && rwin->GetStereoRender())
-        {
+      {
         canReuse = false;
-        }
+      }
+
+      //check for tiling, ie typically putting together large images to save high res pictures
+      double *vp = rwin->GetTileViewport();
+      if (this->Internal->LastViewPort[0] != vp[0] ||
+          this->Internal->LastViewPort[1] != vp[1])
+      {
+        canReuse = false;
+        this->Internal->LastViewPort[0] = vp[0];
+        this->Internal->LastViewPort[1] = vp[1];
+      }
 
       //check actors (and time)
       vtkMTimeType m = 0;
