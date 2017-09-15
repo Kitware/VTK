@@ -731,8 +731,8 @@ public:
   /**
    * Return the determinant of a 3x3 matrix.
    */
-  static double Determinant3x3(float A[3][3]);
-  static double Determinant3x3(double A[3][3]);
+  static double Determinant3x3(const float A[3][3]);
+  static double Determinant3x3(const double A[3][3]);
   //@}
 
   /**
@@ -1165,7 +1165,7 @@ public:
    * Symmetric tensor is expected to have the following order : XX, YY, ZZ, XY, YZ, XZ
    */
   template<class T1, class T2>
-  static void TensorFromSymmetricTensor(T1 symmTensor[6], T2 tensor[9]);
+  static void TensorFromSymmetricTensor(const T1 symmTensor[6], T2 tensor[9]);
 
     /**
    * Convert a 6-Component symmetric tensor into a 9-Component tensor, overwriting
@@ -1227,8 +1227,10 @@ public:
    * the plane intersects the box.  -2 is returned if any of the arguments is
    * invalid.
    */
-  static int PlaneIntersectsAABB(double const bounds[6], double const normal[3],
-    double const point[3]);
+  static int PlaneIntersectsAABB(
+    const double bounds[6],
+    const double normal[3],
+    const double point[3]);
 
   /**
    * In Euclidean space, there is a unique circle passing through any given
@@ -1239,7 +1241,11 @@ public:
    * specifically the section Barycentric coordinates from cross- and
    * dot-products
    */
-  static double Solve3PointCircle(const double p1[3], const double p2[3], const double p3[3], double center[3]);
+  static double Solve3PointCircle(
+    const double p1[3],
+    const double p2[3],
+    const double p3[3],
+    double center[3]);
 
   /**
    * Special IEEE-754 number used to represent positive infinity.
@@ -1479,7 +1485,7 @@ inline void vtkMath::Cross(const double a[3], const double b[3], double c[3])
 
 //----------------------------------------------------------------------------
 template<class T>
-inline double vtkDeterminant3x3(T A[3][3])
+inline double vtkDeterminant3x3(const T A[3][3])
 {
   return A[0][0] * A[1][1] * A[2][2] + A[1][0] * A[2][1] * A[0][2] +
          A[2][0] * A[0][1] * A[1][2] - A[0][0] * A[2][1] * A[1][2] -
@@ -1487,13 +1493,13 @@ inline double vtkDeterminant3x3(T A[3][3])
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Determinant3x3(float A[3][3])
+inline double vtkMath::Determinant3x3(const float A[3][3])
 {
   return vtkDeterminant3x3( A );
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Determinant3x3(double A[3][3])
+inline double vtkMath::Determinant3x3(const double A[3][3])
 {
   return vtkDeterminant3x3( A );
 }
@@ -1599,7 +1605,7 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 
 //-----------------------------------------------------------------------------
 template<class T1, class T2>
-inline void vtkMath::TensorFromSymmetricTensor(T1 symmTensor[9], T2 tensor[9])
+inline void vtkMath::TensorFromSymmetricTensor(const T1 symmTensor[9], T2 tensor[9])
 {
   for (int i = 0; i < 3; ++i)
   {

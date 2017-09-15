@@ -1768,7 +1768,7 @@ void vtkMath::Identity3x3(double A[3][3])
 
 //----------------------------------------------------------------------------
 template<class T1, class T2>
- inline void vtkQuaternionToMatrix3x3(T1 quat[4], T2 A[3][3])
+ inline void vtkQuaternionToMatrix3x3(const T1 quat[4], T2 A[3][3])
 {
   T2 ww = quat[0]*quat[0];
   T2 wx = quat[0]*quat[1];
@@ -3096,8 +3096,10 @@ vtkTypeBool vtkMath::PointIsWithinBounds(const double point[3], const double bou
 }
 
 //-----------------------------------------------------------------------------
-int vtkMath::PlaneIntersectsAABB(double const bounds[6],
-    double const normal[3], double const point[3])
+int vtkMath::PlaneIntersectsAABB(
+  const double bounds[6],
+  const double normal[3],
+  const double point[3])
 {
   if (!bounds || !point || !normal)
   {
