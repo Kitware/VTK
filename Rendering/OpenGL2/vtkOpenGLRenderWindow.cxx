@@ -461,10 +461,10 @@ void vtkOpenGLRenderWindow::SetSize(int x, int y)
 
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
-  OpenGLInitContext();
+  this->OpenGLInitContext();
   if (this->Initialized)
   {
-    OpenGLInitState();
+    this->OpenGLInitState();
 
     // This is required for some reason when using vtkSynchronizedRenderers.
     // Without it, the initial render of an offscreen context will always be
@@ -1738,6 +1738,8 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
   {
     ;
   }
+
+  FrameBufferHelper helper(FrameBufferHelper::READ, this, 0, 0);
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
