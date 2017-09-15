@@ -73,19 +73,19 @@ int vtkmThreshold::RequestData(vtkInformation* request,
   // we need to map the given property to the data set
   int association = this->GetInputArrayAssociation(0, inputVector);
   vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
-  vtkm::cont::Field field = tovtkm::Convert(inputArray, association);
+  vtkm::cont::Field inField = tovtkm::Convert(inputArray, association);
 
   const bool dataSetValid =
       in.GetNumberOfCoordinateSystems() > 0 && in.GetNumberOfCellSets() > 0;
   const bool fieldValid =
-      (field.GetAssociation() != vtkm::cont::Field::ASSOC_ANY);
+      (inField.GetAssociation() != vtkm::cont::Field::ASSOC_ANY);
 
   vtkm::filter::Result result;
   bool convertedDataSet = false;
   if (dataSetValid && fieldValid)
   {
     vtkmInputFilterPolicy policy;
-    result = filter.Execute(in, field, policy);
+    result = filter.Execute(in, inField, policy);
 
     // convert other scalar arrays
     if (result.IsDataSetValid())

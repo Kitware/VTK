@@ -214,7 +214,7 @@ struct CellInfoCopyWorklet : public vtkm::worklet::WorkletMapPointToCell
 {
   CellInfoCopyWorklet(vtkm::Id* size, vtkIdTypeArray* conn,
                       vtkUnsignedCharArray* types, vtkIdTypeArray* locations)
-    : ConnIndex(size), ConnArray(conn), Shapes(types), Locations(locations)
+    : ConnIndex(size), ConnArray(conn), Locations(locations), Shapes(types)
   {
   }
 

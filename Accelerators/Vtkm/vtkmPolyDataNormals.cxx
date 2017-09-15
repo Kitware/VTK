@@ -88,9 +88,9 @@ int vtkmPolyDataNormals::RequestData(
   if (!unsupported)
   {
     vtkm::filter::SurfaceNormals filter;
-    filter.SetGenerateCellNormals(this->ComputeCellNormals);
+    filter.SetGenerateCellNormals((this->ComputeCellNormals != 0));
     filter.SetCellNormalsName("Normals");
-    filter.SetGeneratePointNormals(this->ComputePointNormals);
+    filter.SetGeneratePointNormals((this->ComputePointNormals != 0));
     filter.SetPointNormalsName("Normals");
     auto result = filter.Execute(in, policy);
 

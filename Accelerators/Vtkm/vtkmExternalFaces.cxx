@@ -103,7 +103,7 @@ int vtkmExternalFaces::ProcessRequest(vtkInformation* request,
 }
 
 //------------------------------------------------------------------------------
-int vtkmExternalFaces::RequestData(vtkInformation* request,
+int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector)
 {
