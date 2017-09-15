@@ -30,14 +30,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
-#include "vtkStdString.h"
+#include <string> // for ivar
 
-class vtkActor;
-class vtkProperty;
-class vtkPolyData;
-class vtkPolyDataMapper;
-class vtkCellArray;
-class vtkPoints;
+class vtkPicker;
 class vtkTextActor3D;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRPanelRepresentation : public vtkWidgetRepresentation
@@ -56,14 +51,60 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   //@}
 
+  // Enums define the state of the representation relative to the mouse pointer
+  // position. Used by ComputeInteractionState() to communicate with the
+  // widget. Note that ComputeInteractionState() and several other methods
+  // must be implemented by subclasses.
+  enum _InteractionState { Outside=0, Moving };
+
   //@{
   /**
   * Methods to interface with the vtkOpenVRPanelWidget.
   */
   void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[3]) VTK_OVERRIDE;
-  void EndWidgetInteraction(double newEventPos[3]) VTK_OVERRIDE;
+  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void StartComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) VTK_OVERRIDE;
+  void ComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) VTK_OVERRIDE;
+  int ComputeComplexInteractionState(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata, int modify = 0) VTK_OVERRIDE;
+  void EndComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) VTK_OVERRIDE;
   //@}
+
+  // Place the widget with a few more options
+  // This method allows you to place the panel
+  // and provides more options so that you can get
+  // the exact positioning you want.
+  // Bounds are the bounds that you want the panel to
+  // fit within. For World coordinates they should be in
+  // world coordinates. For all others they should be in
+  // physical meters relative to the HMD or controller origin.
+  // The normal is the direction the planel should face.
+  // The coordinate system for the controller is X right
+  // Y up and Z towards the handle. Upvec specifies the
+  // vector to use as up for the panel. Note that upvec
+  // has priority over normal, if they are not orthogonal
+  // normal will be modified to be orthogonal to upvec.
+  // Scale is the physical scale from the RenderWindow
+  // and is used to position/scale the panel correctly.
+  //
+  // Note that you should set the Text on the panel
+  // before calling this method as the positioning
+  // and scaling is done based on the current text.
+  //
+  // All vectors will be normalized prior to use.
+  void PlaceWidgetExtended(const double *bounds,
+    const double *normal, const double *upvec, double scale);
 
   //@{
   /**
@@ -77,37 +118,60 @@ public:
 
   //@{
   /**
-  * Set Tooltip text (used by TextActor)
-  */  void SetText(vtkStdString* str);
+  * Set panel text
+  */
+  void SetText(const char* str);
   //@}
+
+  // allow acces to the underlying text actor
+  // so that properties can be set
+  vtkGetObjectMacro(TextActor, vtkTextActor3D);
+
+  // Set the coordinate system to use for this prop
+  void SetCoordinateSystemToWorld();
+  void SetCoordinateSystemToHMD();
+  void SetCoordinateSystemToLeftController();
+  void SetCoordinateSystemToRightController();
 
   //@{
   /**
-  * Set the vtkProp that is being hovered over
-  */
-  void SetHoveredProp(vtkProp* prop)
-  {
-    if (!prop)
-    {
-      return;
-    }
-    this->HoveredProp = prop;
-  };
+   * Can the panel be relocated by the user
+   */
+  vtkSetMacro(AllowAdjustment, bool);
+  vtkGetMacro(AllowAdjustment, bool);
+  vtkBooleanMacro(AllowAdjustment, bool);
   //@}
-
-  vtkGetMacro(PhysicalScale, double);
 
 protected:
   vtkOpenVRPanelRepresentation();
   ~vtkOpenVRPanelRepresentation() VTK_OVERRIDE;
 
+  // Keep track of event positions
+  double LastEventPosition[3];
+  double LastEventOrientation[4];
+  double StartEventOrientation[4];
+
+  double LastScale;
+
+  bool AllowAdjustment;
+
+  void UpdatePose(double *p1, double *d1, double *p2, double *d2);
+
+
+  void ComputeMatrix(vtkRenderer *ren);
+
+  enum CoordinateSystems {
+    World = 0,
+    HMD = 1,
+    LeftController = 2,
+    RightController = 3,
+  };
+
+  CoordinateSystems CoordinateSystem;
+
   // The text
   vtkTextActor3D *TextActor;
-  vtkStdString Text;
-
-  vtkProp* HoveredProp;
-
-  double PhysicalScale;
+  std::string Text;
 
 private:
   vtkOpenVRPanelRepresentation(const vtkOpenVRPanelRepresentation&) VTK_DELETE_FUNCTION;

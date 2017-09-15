@@ -86,7 +86,6 @@ vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
   this->HMD = nullptr;
   this->HMDTransform = vtkTransform::New();
   memset(this->TrackedDeviceToRenderModel, 0, sizeof(this->TrackedDeviceToRenderModel));
-  this->DashboardOverlay = vtkOpenVRDefaultOverlay::New();
 
 #ifdef WIN32
   this->HelperWindow = vtkWin32OpenGLRenderWindow::New();
@@ -97,6 +96,8 @@ vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
 #ifdef VTK_USE_COCOA
   this->HelperWindow = vtkCocoaOpenGLRenderWindow::New();
 #endif
+
+  this->DashboardOverlay = vtkOpenVRDefaultOverlay::New();
 }
 
 vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
@@ -135,6 +136,29 @@ void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   {
     (*i)->ReleaseGraphicsResources(renWin);
   }
+}
+
+void vtkOpenVRRenderWindow::SetHelperWindow(vtkOpenGLRenderWindow *win)
+{
+  if (this->HelperWindow == win)
+  {
+    return;
+  }
+
+  if (this->HelperWindow)
+  {
+    this->ReleaseGraphicsResources(this);
+    this->HelperWindow->Delete();
+    this->HelperWindow = nullptr;
+  }
+
+  this->HelperWindow = win;
+  if (win)
+  {
+    win->Register(this);
+  }
+
+  this->Modified();
 }
 
 void vtkOpenVRRenderWindow::InitializeViewFromCamera(vtkCamera *srccam)

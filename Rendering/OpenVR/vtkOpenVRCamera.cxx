@@ -192,6 +192,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
   }
 
   glViewport(0, 0, renSize[0], renSize[1] );
+  glScissor(0, 0, renSize[0], renSize[1] );
     ren->Clear();
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())

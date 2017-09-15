@@ -14,140 +14,52 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenVRPanelWidget.h"
 #include "vtkOpenVRPanelRepresentation.h"
+
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkCamera.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include "vtkOpenVRInteractorStyle.h"
-#include "vtkPropPicker.h"
-#include "vtkAssemblyPath.h"
-
-#include <map>
-
-class vtkPropMap : public std::map<vtkProp*, vtkStdString> {};
-typedef std::map<vtkProp*, vtkStdString>::iterator vtkPropMapIterator;
 
 vtkStandardNewMacro(vtkOpenVRPanelWidget);
 
 //----------------------------------------------------------------------
 vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
 {
-  vtkNew<vtkEventDataMove3D> edR;
-  edR->SetDevice(vtkEventDataDevice::RightController);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
-    edR.Get(), vtkWidgetEvent::Move3D,
-    this, vtkOpenVRPanelWidget::Update);
+  this->WidgetState = vtkOpenVRPanelWidget::Start;
 
-  vtkNew<vtkEventDataMove3D> edL;
-  edL->SetDevice(vtkEventDataDevice::LeftController);
-  this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
-    edL.Get(), vtkWidgetEvent::Move3D,
-    this, vtkOpenVRPanelWidget::Update);
-
-  this->PropMap = new vtkPropMap;
-
-  for (int i = 0; i < vtkEventDataNumberOfDevices; i++)
   {
-    this->HoveringDevice[i] = 0;
+    vtkNew<vtkEventDataButton3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    ed->SetAction(vtkEventDataAction::Press);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
+      ed.Get(), vtkWidgetEvent::Select3D,
+      this, vtkOpenVRPanelWidget::SelectAction3D);
+  }
+
+  {
+    vtkNew<vtkEventDataButton3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    ed->SetAction(vtkEventDataAction::Release);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
+      ed.Get(), vtkWidgetEvent::EndSelect3D,
+      this, vtkOpenVRPanelWidget::EndSelectAction3D);
+  }
+
+  {
+    vtkNew<vtkEventDataMove3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
+      ed.Get(), vtkWidgetEvent::Move3D,
+      this, vtkOpenVRPanelWidget::MoveAction3D);
   }
 }
 
 //----------------------------------------------------------------------
 vtkOpenVRPanelWidget::~vtkOpenVRPanelWidget()
 {
-  this->PropMap->clear();
-  delete this->PropMap;
-}
-
-//----------------------------------------------------------------------
-void vtkOpenVRPanelWidget::Update(vtkAbstractWidget *w)
-{
-  vtkOpenVRPanelWidget *self = reinterpret_cast<vtkOpenVRPanelWidget*>(w);
-  vtkEventData *edata = static_cast<vtkEventData *>(self->CallData);
-  vtkEventDataDevice3D *ed = edata->GetAsEventDataDevice3D();
-
-  if (!ed)
-  {
-    return;
-  }
-
-  if (!self->GetInteractor() ||
-    !self->GetInteractor()->GetInteractorStyle())
-  {
-    return;
-  }
-
-  vtkOpenVRInteractorStyle *is = reinterpret_cast<vtkOpenVRInteractorStyle*>
-    (self->GetInteractor()->GetInteractorStyle());
-  if (!is)
-  {
-    return;
-  }
-
-  double e[3]; //dummy event
-  e[0] = static_cast<double>(self->Interactor->GetEventPosition()[0]);
-  e[1] = static_cast<double>(self->Interactor->GetEventPosition()[1]);
-  e[2] = static_cast<double>(self->Interactor->GetEventPosition()[2]);
-
-  int dev = static_cast<int>(ed->GetDevice());
-
-  //Compute interaction state
-  if (is->GetInteractionPicker()->GetPath())
-  {
-    vtkProp* prop =
-      is->GetInteractionPicker()->GetPath()->GetFirstNode()->GetViewProp();
-
-    vtkPropMapIterator iter =
-      self->PropMap->find(prop);
-
-    if (iter != self->PropMap->end())
-    {
-      //Current device is hovering
-      self->HoveringDevice[dev] = 1;
-
-      //Set representation text and hovered prop
-      reinterpret_cast<vtkOpenVRPanelRepresentation*>(self->WidgetRep)->
-        SetText(&(*iter).second);
-      reinterpret_cast<vtkOpenVRPanelRepresentation*>(self->WidgetRep)->
-        SetHoveredProp((*iter).first);
-    }
-    else
-    {
-      //Current device is not hovering
-      self->HoveringDevice[dev] = 0;
-    }
-  }
-  else
-  {
-    //Current device is not hovering
-    self->HoveringDevice[dev] = 0;
-  }
-
-
-  int hovering = 0;
-  //Do we have a device hovering a prop?
-  for (int i = 0; i < vtkEventDataNumberOfDevices; i++)
-  {
-    hovering += self->HoveringDevice[i];
-
-    // End interaction if a device is active
-    if (is->GetInteractionState(static_cast<vtkEventDataDevice>(i)))
-    {
-      self->WidgetRep->EndWidgetInteraction(e);
-      return;
-    }
-  }
-  //Start interaction if a prop is hovered by any device
-  if (hovering > 0)
-  {
-    self->WidgetRep->StartWidgetInteraction(e);
-  }
-  else
-  {
-    self->WidgetRep->EndWidgetInteraction(e);
-  }
 }
 
 //----------------------------------------------------------------------
@@ -173,29 +85,78 @@ void vtkOpenVRPanelWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------
-void vtkOpenVRPanelWidget::AddTooltip(vtkProp *prop, vtkStdString* str)
+//-------------------------------------------------------------------------
+void vtkOpenVRPanelWidget::SelectAction3D(vtkAbstractWidget *w)
 {
-  assert(prop);
-  vtkPropMapIterator iter = this->PropMap->find(prop);
-  if (iter == this->PropMap->end())
+  vtkOpenVRPanelWidget *self = reinterpret_cast<vtkOpenVRPanelWidget *>(w);
+
+  // We want to compute an orthogonal vector to the plane that has been selected
+  int interactionState = self->WidgetRep->ComputeComplexInteractionState(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  if ( interactionState == vtkOpenVRPanelRepresentation::Outside )
   {
-    (*this->PropMap)[prop] = *str;
-    this->Modified();
+    return;
   }
-  else
+
+  // We are definitely selected
+  if ( ! self->Parent )
   {
-    (*iter).second = *str;
+    self->GrabFocus(self->EventCallbackCommand);
   }
+
+  self->WidgetState = vtkOpenVRPanelWidget::Active;
+  self->WidgetRep->StartComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->StartInteraction();
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
-void vtkOpenVRPanelWidget::AddTooltip(vtkProp *prop, const char* str)
+void vtkOpenVRPanelWidget::MoveAction3D(vtkAbstractWidget *w)
 {
-  vtkStdString s;
-  if (str)
+  vtkOpenVRPanelWidget *self = reinterpret_cast<vtkOpenVRPanelWidget *>(w);
+
+  // See whether we're active
+  if ( self->WidgetState == vtkOpenVRPanelWidget::Start )
   {
-    s = vtkStdString(str);
+    return;
   }
-  this->AddTooltip(prop, &s);
+
+  // Okay, adjust the representation
+  self->WidgetRep->ComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Move3D, self->CallData);
+
+  // moving something
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+}
+
+//----------------------------------------------------------------------
+void vtkOpenVRPanelWidget::EndSelectAction3D(vtkAbstractWidget *w)
+{
+  vtkOpenVRPanelWidget *self = reinterpret_cast<vtkOpenVRPanelWidget *>(w);
+
+  // See whether we're active
+  if ( self->WidgetState != vtkOpenVRPanelWidget::Active ||
+       self->WidgetRep->GetInteractionState() == vtkOpenVRPanelRepresentation::Outside )
+  {
+    return;
+  }
+
+  // Return state to not selected
+  self->WidgetRep->EndComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::EndSelect3D, self->CallData);
+
+  self->WidgetState = vtkOpenVRPanelWidget::Start;
+  if ( ! self->Parent )
+  {
+    self->ReleaseFocus();
+  }
+
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->EndInteraction();
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
 }

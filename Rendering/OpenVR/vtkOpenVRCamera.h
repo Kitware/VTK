@@ -58,6 +58,10 @@ public:
   // 1.0 to add or -1.0 to subtract
   void ApplyEyePose(vtkOpenVRRenderWindow *, bool left, double factor);
 
+  // Get the OpenVR Physical Space to World coordinate matrix
+  vtkTransform *GetPhysicalToWorldTransform() {
+    return this->PoseTransform.Get(); }
+
 protected:
   vtkOpenVRCamera();
   ~vtkOpenVRCamera();

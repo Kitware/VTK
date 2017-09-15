@@ -78,15 +78,16 @@ protected:
   vtkOpenVRPanelWidget();
   ~vtkOpenVRPanelWidget() VTK_OVERRIDE;
 
+  // Manage the state of the widget
+  int WidgetState;
+  enum _WidgetState {Start=0,Active};
+
   /**
-  * Update callback to check for the hovered prop
+  * callback
   */
-  static void Update(vtkAbstractWidget*);
-
-  vtkPropMap *PropMap; //PIMPL'd map of (vtkProp,char*)
-
-  //Indicates if a device is hovering a prop
-  int HoveringDevice[vtkEventDataNumberOfDevices];
+  static void SelectAction3D(vtkAbstractWidget*);
+  static void EndSelectAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
 
 private:
   vtkOpenVRPanelWidget(const vtkOpenVRPanelWidget&) VTK_DELETE_FUNCTION;
