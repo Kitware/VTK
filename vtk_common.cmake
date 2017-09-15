@@ -36,6 +36,7 @@
 #   dashboard_do_coverage     = True to enable coverage (ex: gcov)
 #   dashboard_do_memcheck     = True to enable memcheck (ex: valgrind)
 #   dashboard_do_superbuild   = True to do a superbuild dashboard.
+#   dashboard_no_test         = True to not run the tests
 #   CTEST_UPDATE_COMMAND      = path to svn command-line client
 #   CTEST_BUILD_FLAGS         = build tool arguments (ex: -j2)
 #   CTEST_DASHBOARD_ROOT      = Where to put source and build trees
@@ -432,8 +433,10 @@ while(NOT dashboard_done)
     if(COMMAND dashboard_hook_test)
       dashboard_hook_test()
     endif()
-    ctest_test(${CTEST_TEST_ARGS} APPEND)
-    ctest_submit(PARTS Test)
+    if(NOT dashboard_no_test)
+      ctest_test(${CTEST_TEST_ARGS} APPEND)
+      ctest_submit(PARTS Test)
+    endif()
     set(safe_message_skip 1) # Block further messages
 
     if(dashboard_do_coverage)
