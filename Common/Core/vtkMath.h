@@ -91,7 +91,7 @@ public:
   /**
    * A mathematical constant. This version is atan(1.0) * 4.0
    */
-  static double Pi() { return 3.141592653589793; };
+  static double Pi() { return 3.141592653589793; }
 
   //@{
   /**
@@ -306,19 +306,23 @@ public:
   static double Gaussian( double mean, double std );
 
   /**
-   * Addition of two 3-vectors (float version). Result is stored in c.
+   * Addition of two 3-vectors (float version). Result is stored in c according to c = a + b.
    */
   static void Add(const float a[3], const float b[3], float c[3]) {
     for (int i = 0; i < 3; ++i)
+    {
       c[i] = a[i] + b[i];
+    }
   }
 
   /**
-   * Addition of two 3-vectors (double version). Result is stored in c.
+   * Addition of two 3-vectors (double version). Result is stored in c according to c = a + b.
    */
   static void Add(const double a[3], const double b[3], double c[3]) {
     for (int i = 0; i < 3; ++i)
+    {
       c[i] = a[i] + b[i];
+    }
   }
 
   /**
@@ -326,7 +330,9 @@ public:
    */
   static void Subtract(const float a[3], const float b[3], float c[3]) {
     for (int i = 0; i < 3; ++i)
+    {
       c[i] = a[i] - b[i];
+    }
   }
 
   /**
@@ -334,7 +340,9 @@ public:
    */
   static void Subtract(const double a[3], const double b[3], double c[3]) {
     for (int i = 0; i < 3; ++i)
+    {
       c[i] = a[i] - b[i];
+    }
   }
 
   /**
@@ -343,7 +351,9 @@ public:
    */
   static void MultiplyScalar(float a[3], float s) {
     for (int i = 0; i < 3; ++i)
+    {
       a[i] *= s;
+    }
   }
 
   /**
@@ -352,7 +362,9 @@ public:
    */
   static void MultiplyScalar2D(float a[2], float s) {
     for (int i = 0; i < 2; ++i)
+    {
       a[i] *= s;
+    }
   }
 
   /**
@@ -361,7 +373,9 @@ public:
    */
   static void MultiplyScalar(double a[3], double s) {
     for (int i = 0; i < 3; ++i)
+    {
       a[i] *= s;
+    }
   }
 
   /**
@@ -370,46 +384,60 @@ public:
    */
   static void MultiplyScalar2D(double a[2], double s) {
     for (int i = 0; i < 2; ++i)
+    {
       a[i] *= s;
+    }
   }
 
   /**
    * Dot product of two 3-vectors (float version).
    */
   static float Dot(const float a[3], const float b[3]) {
-    return ( a[0] * b[0] + a[1] * b[1] + a[2] * b[2] );};
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  }
 
   /**
-   * Dot product of two 3-vectors (double-precision version).
+   * Dot product of two 3-vectors (double version).
    */
   static double Dot(const double a[3], const double b[3]) {
-    return ( a[0] * b[0] + a[1] * b[1] + a[2] * b[2] );};
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  }
 
   /**
    * Outer product of two 3-vectors (float version).
    */
-  static void Outer(const float a[3], const float b[3], float C[3][3]) {
-    for (int i=0; i < 3; i++)
-      for (int j=0; j < 3; j++)
-        C[i][j] = a[i] * b[j];
+  static void Outer(const float a[3], const float b[3], float c[3][3]) {
+    for (int i = 0; i < 3; ++i)
+    {
+      for (int j = 0; j < 3; ++j)
+      {
+        c[i][j] = a[i] * b[j];
+      }
+    }
   }
+
   /**
-   * Outer product of two 3-vectors (double-precision version).
+   * Outer product of two 3-vectors (double version).
    */
-  static void Outer(const double a[3], const double b[3], double C[3][3]) {
-    for (int i=0; i < 3; i++)
-      for (int j=0; j < 3; j++)
-        C[i][j] = a[i] * b[j];
+  static void Outer(const double a[3], const double b[3], double c[3][3]) {
+    for (int i = 0; i < 3; ++i)
+    {
+      for (int j = 0; j < 3; ++j)
+      {
+        c[i][j] = a[i] * b[j];
+      }
+    }
   }
 
   /**
    * Cross product of two 3-vectors. Result (a x b) is stored in c.
+   * (float version)
    */
   static void Cross(const float a[3], const float b[3], float c[3]);
 
   /**
    * Cross product of two 3-vectors. Result (a x b) is stored in c.
-   * (double-precision version)
+   * (double version)
    */
   static void Cross(const double a[3], const double b[3], double c[3]);
 
@@ -422,25 +450,28 @@ public:
   //@}
 
   /**
-   * Compute the norm of 3-vector.
+   * Compute the norm of 3-vector (float version).
    */
   static float Norm(const float v[3]) {
-    return static_cast<float> (sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] ) );};
+    return static_cast<float> (sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] ) );
+  }
 
   /**
-   * Compute the norm of 3-vector (double-precision version).
+   * Compute the norm of 3-vector (double version).
    */
   static double Norm(const double v[3]) {
-    return sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );};
+    return sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );
+  }
 
   /**
    * Normalize (in place) a 3-vector. Returns norm of vector.
+   * (float version)
    */
   static float Normalize(float v[3]);
 
   /**
    * Normalize (in place) a 3-vector. Returns norm of vector
-   * (double-precision version).
+   * (double version).
    */
   static double Normalize(double v[3]);
 
@@ -481,12 +512,13 @@ public:
 
   /**
    * Compute distance squared between two points p1 and p2.
+   * (float version).
    */
   static float Distance2BetweenPoints(const float p1[3], const float p2[3]);
 
   /**
-   * Compute distance squared between two points p1 and p2
-   * (double precision version).
+   * Compute distance squared between two points p1 and p2.
+   * (double version).
    */
   static double Distance2BetweenPoints(const double p1[3], const double p2[3]);
 
@@ -522,38 +554,41 @@ public:
   static double GaussianWeight(const double mean, const double variance, const double position);
 
   /**
-   * Dot product of two 2-vectors.
+   * Dot product of two 2-vectors. (float version).
    */
   static float Dot2D(const float x[2], const float y[2]) {
-    return ( x[0] * y[0] + x[1] * y[1] );};
+    return x[0] * y[0] + x[1] * y[1];
+  }
 
   /**
-   * Dot product of two 2-vectors. (double-precision version).
+   * Dot product of two 2-vectors. (double version).
    */
   static double Dot2D(const double x[2], const double y[2]) {
-    return ( x[0] * y[0] + x[1] * y[1] );};
+    return x[0] * y[0] + x[1] * y[1];
+  }
 
   /**
    * Outer product of two 2-vectors (float version).
    */
   static void Outer2D(const float x[2], const float y[2], float A[2][2])
   {
-    for (int i=0; i < 2; i++)
+    for (int i=0; i < 2; ++i)
     {
-      for (int j=0; j < 2; j++)
+      for (int j=0; j < 2; ++j)
       {
         A[i][j] = x[i] * y[j];
       }
     }
   }
+
   /**
-   * Outer product of two 2-vectors (float version).
+   * Outer product of two 2-vectors (double version).
    */
   static void Outer2D(const double x[2], const double y[2], double A[2][2])
   {
-    for (int i=0; i < 2; i++)
+    for (int i=0; i < 2; ++i)
     {
-      for (int j=0; j < 2; j++)
+      for (int j=0; j < 2; ++j)
       {
         A[i][j] = x[i] * y[j];
       }
@@ -562,25 +597,29 @@ public:
 
   /**
    * Compute the norm of a 2-vector.
+   * (float version).
    */
   static float Norm2D(const float x[2]) {
-    return static_cast<float> (sqrt( x[0] * x[0] + x[1] * x[1] ) );};
+    return static_cast<float> (sqrt( x[0] * x[0] + x[1] * x[1] ) );
+  }
 
   /**
    * Compute the norm of a 2-vector.
-   * (double-precision version).
+   * (double version).
    */
   static double Norm2D(const double x[2]) {
-    return sqrt( x[0] * x[0] + x[1] * x[1] );};
+    return sqrt( x[0] * x[0] + x[1] * x[1] );
+  }
 
   /**
    * Normalize (in place) a 2-vector. Returns norm of vector.
+   * (float version).
    */
   static float Normalize2D(float v[2]);
 
   /**
    * Normalize (in place) a 2-vector. Returns norm of vector.
-   * (double-precision version).
+   * (double version).
    */
   static double Normalize2D(double v[2]);
 
@@ -588,16 +627,19 @@ public:
    * Compute determinant of 2x2 matrix. Two columns of matrix are input.
    */
   static float Determinant2x2(const float c1[2], const float c2[2]) {
-    return (c1[0] * c2[1] - c2[0] * c1[1] );};
+    return c1[0] * c2[1] - c2[0] * c1[1];
+  }
 
   //@{
   /**
    * Calculate the determinant of a 2x2 matrix: | a b | | c d |
    */
   static double Determinant2x2(double a, double b, double c, double d) {
-    return (a * d - b * c);};
+    return a * d - b * c;
+  }
   static double Determinant2x2(const double c1[2], const double c2[2]) {
-    return (c1[0] * c2[1] - c2[0] * c1[1] );};
+    return c1[0] * c2[1] - c2[0] * c1[1];
+  }
   //@}
 
   //@{
@@ -735,6 +777,7 @@ public:
    * best possible answer even if the matrix is not a pure rotation matrix.
    * The quaternion is in the form [w, x, y, z].
    * The method used is that of B.K.P. Horn.
+   * See: https://people.csail.mit.edu/bkph/articles/Quaternions.pdf
    * @sa QuaternionToMatrix3x3() MultiplyQuaternion()
    * @sa vtkQuaternion
    */
@@ -951,17 +994,19 @@ public:
   /**
    * Convert color in RGB format (Red, Green, Blue) to HSV format
    * (Hue, Saturation, Value). The input color is not modified.
-   * The input RGB must be float values in the range [0,1].
+   * The input RGB must be float values in the range [0, 1].
    * The output ranges are hue [0, 1], saturation [0, 1], and
    * value [0, 1].
    */
-  static void RGBToHSV(const float rgb[3], float hsv[3])
-    { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
+  static void RGBToHSV(const float rgb[3], float hsv[3]) {
+    RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2);
+  }
   static void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
   static double* RGBToHSV(const double rgb[3]) VTK_SIZEHINT(3);
   static double* RGBToHSV(double r, double g, double b) VTK_SIZEHINT(3);
-  static void RGBToHSV(const double rgb[3], double hsv[3])
-    { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
+  static void RGBToHSV(const double rgb[3], double hsv[3]) {
+    RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2);
+  }
   static void RGBToHSV(double r, double g, double b, double *h, double *s, double *v);
   //@}
 
@@ -969,12 +1014,13 @@ public:
   /**
    * Convert color in HSV format (Hue, Saturation, Value) to RGB
    * format (Red, Green, Blue). The input color is not modified.
-   * The input 'hsv' must be float values in the range [0,1].
+   * The input 'hsv' must be float values in the range [0, 1].
    * The elements of each component of the output 'rgb' are in
    * the range [0, 1].
    */
-  static void HSVToRGB(const float hsv[3], float rgb[3])
-    { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
+  static void HSVToRGB(const float hsv[3], float rgb[3]) {
+    HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2);
+  }
   static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
   static double* HSVToRGB(const double hsv[3]) VTK_SIZEHINT(3);
   static double* HSVToRGB(double h, double s, double v) VTK_SIZEHINT(3);
@@ -1034,7 +1080,7 @@ public:
   //@{
   /**
    * Convert color from the RGB system to CIE-L*ab.
-   * The input RGB must be values in the range [0,1].
+   * The input RGB must be values in the range [0, 1].
    * The output ranges of 'L' is [0, 100]. The output
    * range of 'a' and 'b' are approximately [-110, 110].
    */
@@ -1062,7 +1108,7 @@ public:
   /**
    * Set the bounds to an uninitialized state
    */
-  static void UninitializeBounds(double bounds[6]){
+  static void UninitializeBounds(double bounds[6]) {
     bounds[0] = 1.0;
     bounds[1] = -1.0;
     bounds[2] = 1.0;
@@ -1076,8 +1122,8 @@ public:
   /**
    * Are the bounds initialized?
    */
-  static vtkTypeBool AreBoundsInitialized(const double bounds[6]){
-    if ( bounds[1]-bounds[0]<0.0 )
+  static vtkTypeBool AreBoundsInitialized(const double bounds[6]) {
+    if ( bounds[1] - bounds[0] < 0.0 )
     {
       return 0;
     }
@@ -1315,7 +1361,7 @@ inline float vtkMath::Normalize(float v[3])
   float den = vtkMath::Norm( v );
   if ( den != 0.0 )
   {
-    for (int i=0; i < 3; i++)
+    for (int i=0; i < 3; ++i)
     {
       v[i] /= den;
     }
@@ -1329,7 +1375,7 @@ inline double vtkMath::Normalize(double v[3])
   double den = vtkMath::Norm( v );
   if ( den != 0.0 )
   {
-    for (int i=0; i < 3; i++)
+    for (int i=0; i < 3; ++i)
     {
       v[i] /= den;
     }
@@ -1343,7 +1389,7 @@ inline float vtkMath::Normalize2D(float v[3])
   float den = vtkMath::Norm2D( v );
   if ( den != 0.0 )
   {
-    for (int i=0; i < 2; i++)
+    for (int i=0; i < 2; ++i)
     {
       v[i] /= den;
     }
@@ -1357,7 +1403,7 @@ inline double vtkMath::Normalize2D(double v[3])
   double den = vtkMath::Norm2D( v );
   if ( den != 0.0 )
   {
-    for (int i=0; i < 2; i++)
+    for (int i=0; i < 2; ++i)
     {
       v[i] /= den;
     }
@@ -1398,8 +1444,8 @@ inline float vtkMath::Distance2BetweenPoints(const float p1[3],
                                              const float p2[3])
 {
   return ( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] )
-           + ( p1[1] - p2[1] ) * ( p1[1] - p2[1] )
-           + ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) );
+         + ( p1[1] - p2[1] ) * ( p1[1] - p2[1] )
+         + ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) );
 }
 
 //----------------------------------------------------------------------------
@@ -1407,8 +1453,8 @@ inline double vtkMath::Distance2BetweenPoints(const double p1[3],
                                               const double p2[3])
 {
   return ( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] )
-           + ( p1[1] - p2[1] ) * ( p1[1] - p2[1] )
-           + ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) );
+         + ( p1[1] - p2[1] ) * ( p1[1] - p2[1] )
+         + ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) );
 }
 
 //----------------------------------------------------------------------------
@@ -1519,9 +1565,9 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
   assert("pre: valid_range" && range[0]<=range[1]);
 
   double result;
-  if(range[0]==range[1])
+  if (range[0] == range[1])
   {
-      result=0.0;
+      result = 0.0;
   }
   else
   {
@@ -1555,7 +1601,7 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 template<class T1, class T2>
 inline void vtkMath::TensorFromSymmetricTensor(T1 symmTensor[9], T2 tensor[9])
 {
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < 3; ++i)
   {
     tensor[4*i] = symmTensor[i];
   }
