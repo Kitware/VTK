@@ -30,9 +30,9 @@ osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
   unsigned char *ochars = new unsigned char[(xsize+1)*(ysize+1)*3]; //LEAK?
   unsigned char *oc = ochars;
   int comps = vColorTextureMap->GetNumberOfScalarComponents();
-  for (int i = 0; i <= xsize; i++)
+  for (int i = 0; i <= xsize; ++i)
   {
-    for (int j = 0; j <= ysize; j++)
+    for (int j = 0; j <= ysize; ++j)
     {
       oc[0] = ichars[0];
       oc[1] = ichars[1];
@@ -64,7 +64,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
     OSPMaterial newmat = vtkOSPRayMaterialHelpers::MakeMaterial
       (oRenderer, *it);
     mats[*it] = newmat;
-    it++;
+    ++it;
   }
 }
 

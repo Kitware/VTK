@@ -627,7 +627,7 @@ namespace vtkosp {
                                 bool pt_avail,
                                 bool &useCustomMaterial,
                                 std::map<std::string, OSPMaterial> &mats,
-                                std::string materialName)
+                                const std::string& materialName)
   {
     useCustomMaterial = false;
     OSPMaterial oMaterial;
@@ -640,13 +640,13 @@ namespace vtkosp {
         std::string requested_mat_name = materialName;
         if (requested_mat_name != "" && requested_mat_name != "MasterMaterial")
         {
-            oMaterial = vtkOSPRayMaterialHelpers::MakeMaterial
-              (oRenderer,
-               requested_mat_name.c_str());
-            useCustomMaterial = true;
+          oMaterial = vtkOSPRayMaterialHelpers::MakeMaterial
+            (oRenderer, requested_mat_name.c_str());
+          useCustomMaterial = true;
         }
       } else {
-        oMaterial = vtkOSPRayMaterialHelpers::MakeMaterial(oRenderer, property->GetMaterialName());
+        oMaterial = vtkOSPRayMaterialHelpers::MakeMaterial
+          (oRenderer, property->GetMaterialName());
         useCustomMaterial = true;
       }
     }
@@ -832,7 +832,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                                     useCustomMaterial,
                                                     mats,
                                                     materialName
-                                                   );
+                                                    );
   ospCommit(oMaterial);
 
   //texture
