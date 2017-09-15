@@ -26,7 +26,7 @@
 #
 #   dashboard_model           = Nightly | Experimental | Continuous
 #   dashboard_track           = Optional track to submit dashboard to
-#   dashboard_branch_type     = master (default) | release | 5.10
+#   dashboard_branch_type     = master (default) | release
 #   dashboard_disable_loop    = For continuous dashboards, disable loop.
 #   dashboard_root_name       = Change name of "My Tests" directory
 #   dashboard_source_name     = Name of source directory (VTK)
@@ -48,13 +48,6 @@
 # Applicable when dashboard_branch == master
 #   dashboard_store_name      = Name of ExternalData store (ExternalData)
 #   VTK_USE_LARGE_DATA        = True to enable tests using "large" data
-# Applicable when dashboard_branch == 5.10
-#   dashboard_data_name       = Name of data directory (VTKData)
-#   dashboard_large_data_name = Name of data directory (VTKLargeData)
-#   VTK_DATA_ROOT             = Where to put data tree
-#   VTK_LARGE_DATA_ROOT       = Where to put large data tree
-#   NO_DATA                   = Don't insist on checking out data trees
-
 #
 # Options to configure builds from experimental git repository:
 #   dashboard_git_url      = Custom git clone url
@@ -113,7 +106,6 @@ if (NOT DEFINED dashboard_branch_type)
   set(dashboard_branch_type "master")
 endif()
 if (dashboard_branch_type STREQUAL "master")
-  set(branch_needs_data_repo FALSE)
   if(NOT DEFINED dashboard_git_branch)
     if("${dashboard_model}" STREQUAL "Nightly")
       set(dashboard_git_branch nightly-master )
@@ -123,21 +115,12 @@ if (dashboard_branch_type STREQUAL "master")
   endif()
 endif()
 if (dashboard_branch_type STREQUAL "release")
-  set(branch_needs_data_repo FALSE)
   set (dashboard_branch_type "release")
   if(NOT DEFINED dashboard_git_branch)
     set (dashboard_git_branch "release")
   endif()
 endif()
-if (dashboard_branch_type STREQUAL "5.10")
-  set(branch_needs_data_repo TRUE)
-  set (dashboard_branch_type "release-5.10")
-  if(NOT DEFINED dashboard_git_branch)
-    set (dashboard_git_branch "release-5.10")
-  endif()
-endif()
 if(dashboard_do_superbuild)
-  set(branch_needs_data_repo FALSE)
   set(dashboard_git_branch unified)
 endif()
 
@@ -192,18 +175,6 @@ if(NOT DEFINED dashboard_git_url)
   endif()
 endif()
 
-if (branch_needs_data_repo)
-  # Select Git source to use.
-  if(NOT DEFINED dashboard_git_data_url)
-    set(dashboard_git_data_url "git://vtk.org/VTKData.git")
-  endif()
-
-  # Select Git source to use.
-  if(NOT DEFINED dashboard_git_large_data_url)
-    set(dashboard_git_large_data_url "git://vtk.org/VTKLargeData.git")
-  endif()
-endif()
-
 if(NOT DEFINED dashboard_git_crlf)
   if(UNIX)
     set(dashboard_git_crlf false)
@@ -242,69 +213,18 @@ if(NOT DEFINED CTEST_BINARY_DIRECTORY)
 endif()
 
 # Select a regression test data location
-if (NOT branch_needs_data_repo)
-  # Select a data store.
-  if(NOT DEFINED ExternalData_OBJECT_STORES)
-    if(DEFINED dashboard_store_name)
-      set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/${dashboard_store_name})
-    else()
-      set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/ExternalData)
-    endif()
+# Select a data store.
+if(NOT DEFINED ExternalData_OBJECT_STORES)
+  if(DEFINED dashboard_store_name)
+    set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/${dashboard_store_name})
+  else()
+    set(ExternalData_OBJECT_STORES ${CTEST_DASHBOARD_ROOT}/ExternalData)
   endif()
+endif()
 
-  if(NOT DEFINED VTK_USE_LARGE_DATA)
-    set(VTK_USE_LARGE_DATA ON)
-  endif()
-
-else (NOT branch_needs_data_repo)
-  # find/checkout data repositories
-  if (DEFINED NO_DATA)
-
-    set(VTK_DATA_ROOT "VTK_DATA_ROOT-NOTFOUND")
-    set(VTK_LARGE_DATA_ROOT "VTK_DATA_ROOT-NOTFOUND")
-
-  else(DEFINED NO_DATA)
-
-    # VTK data
-    if(NOT DEFINED VTK_DATA_ROOT)
-      if(DEFINED dashboard_data_name)
-        set(VTK_DATA_ROOT ${CTEST_DASHBOARD_ROOT}/${dashboard_data_name})
-      else()
-        set(VTK_DATA_ROOT ${CTEST_SOURCE_DIRECTORY}Data)
-      endif()
-    endif()
-    # Do initial checkout if doesn't exist yet
-    if(DEFINED VTK_DATA_ROOT AND NOT EXISTS "${VTK_DATA_ROOT}")
-      get_filename_component(_name "${VTK_DATA_ROOT}" NAME)
-      execute_process(
-        COMMAND "${CTEST_GIT_COMMAND}" clone "${dashboard_git_data_url}" "${VTK_DATA_ROOT}")
-      execute_process(
-        COMMAND "${CTEST_GIT_COMMAND}" checkout -b
-	"${dashboard_branch_type}" "origin/${dashboard_branch_type}"
-        WORKING_DIRECTORY "${VTK_DATA_ROOT}")
-    endif()
-
-    # Large Data
-    if(NOT DEFINED VTK_LARGE_DATA_ROOT AND NOT DEFINED NO_DATA)
-      if(DEFINED dashboard_data_name)
-        set(VTK_LARGE_DATA_ROOT ${CTEST_DASHBOARD_ROOT}/${dashboard_large_data_name})
-      else()
-        set(VTK_LARGE_DATA_ROOT ${CTEST_SOURCE_DIRECTORY}LargeData)
-      endif()
-    endif()
-    # Do initial checkout if doesn't exist yet
-    if(DEFINED VTK_LARGE_DATA_ROOT AND NOT EXISTS "${VTK_LARGE_DATA_ROOT}")
-      get_filename_component(_name "${VTK_LARGE_DATA_ROOT}" NAME)
-      execute_process(
-        COMMAND "${CTEST_GIT_COMMAND}" clone "${dashboard_git_large_data_url}" "${VTK_LARGE_DATA_ROOT}")
-      execute_process(
-        COMMAND "${CTEST_GIT_COMMAND}" checkout -b
-	"${dashboard_branch_type}" "origin/${dashboard_branch_type}"
-        WORKING_DIRECTORY "${VTK_LARGE_DATA_ROOT}")
-    endif()
-  endif(DEFINED NO_DATA)
-
-endif (NOT branch_needs_data_repo)
+if(NOT DEFINED VTK_USE_LARGE_DATA)
+  set(VTK_USE_LARGE_DATA ON)
+endif()
 
 # Delete source tree if it is incompatible with current VCS.
 if(EXISTS ${CTEST_SOURCE_DIRECTORY})
@@ -405,9 +325,6 @@ foreach(v
     CTEST_SCRIPT_DIRECTORY
     CTEST_USE_LAUNCHERS
     ExternalData_OBJECT_STORES
-    VTK_DATA_ROOT
-    VTK_LARGE_DATA_ROOT
-    NO_DATA
     )
   if (DEFINED ${v})
     set(vars "${vars}  ${v}=[${${v}}]\n")
@@ -422,17 +339,10 @@ set(ENV{LC_ALL} C)
 macro(write_cache)
   set(cache_build_type "")
   set(cache_make_program "")
-  if (NOT branch_needs_data_repo)
-    set(data_options "
+  set(data_options "
 ExternalData_OBJECT_STORES:STRING=${ExternalData_OBJECT_STORES}
 VTK_USE_LARGE_DATA:BOOL=${VTK_USE_LARGE_DATA}
 ")
-  else()
-    set(data_options "
-VTK_DATA_ROOT:PATH=${VTK_DATA_ROOT}
-VTK_LARGE_DATA_ROOT:PATH=${VTK_LARGE_DATA_ROOT}
-")
-  endif()
   if(CTEST_CMAKE_GENERATOR MATCHES "Make")
     set(cache_build_type CMAKE_BUILD_TYPE:STRING=${CTEST_CONFIGURATION_TYPE})
     if(CMAKE_MAKE_PROGRAM)
@@ -500,16 +410,6 @@ while(NOT dashboard_done)
     set(dashboard_fresh 1)
     safe_message("Starting fresh build...")
     write_cache()
-  endif()
-
-  # Look for updates.
-  if(branch_needs_data_repo AND NOT DEFINED NO_DATA)
-    if(DEFINED VTK_DATA_ROOT)
-      ctest_update(SOURCE "${VTK_DATA_ROOT}")
-    endif()
-    if(DEFINED VTK_LARGE_DATA_ROOT)
-      ctest_update(SOURCE "${VTK_LARGE_DATA_ROOT}")
-    endif()
   endif()
 
   ctest_update(RETURN_VALUE count)
