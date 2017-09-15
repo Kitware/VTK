@@ -160,6 +160,9 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void MovePlaneAction(vtkAbstractWidget*);
+  static void SelectAction3D(vtkAbstractWidget*);
+  static void EndSelectAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
 
   /**
    * Update the cursor shape based on the interaction state. Returns 1

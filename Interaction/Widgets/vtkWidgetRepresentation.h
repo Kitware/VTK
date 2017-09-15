@@ -45,12 +45,16 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
+#include "vtkNew.h" // for ivars
 
 class vtkAbstractPropPicker;
 class vtkAbstractWidget;
+class vtkMatrix4x4;
 class vtkPickingManager;
+class vtkProp3D;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
+class vtkTransform;
 
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetRepresentation : public vtkProp
@@ -299,6 +303,14 @@ protected:
   // This is the time that the representation was built. This data member
   // can be used to reduce the time spent building the widget.
   vtkTimeStamp  BuildTime;
+
+  // update the pose of a prop based on two sets of
+  // position, orientation vectors
+  void UpdatePropPose(vtkProp3D *prop,
+    const double *pos1, const double *orient1,
+    const double *pos2, const double *orient2);
+  vtkNew<vtkTransform> TempTransform;
+  vtkNew<vtkMatrix4x4> TempMatrix;
 
 private:
   vtkWidgetRepresentation(const vtkWidgetRepresentation&) VTK_DELETE_FUNCTION;
