@@ -355,7 +355,8 @@ void vtkCamera::ComputeViewTransform()
     this->Transform->Concatenate(this->UserViewTransform);
   }
   this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
-  this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
+  this->ViewTransform->Identity();
+  this->ViewTransform->Concatenate(this->Transform->GetMatrix());
 }
 
 //----------------------------------------------------------------------------
