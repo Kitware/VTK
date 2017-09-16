@@ -2531,18 +2531,22 @@ void vtkMath::RGBToHSV(float r, float g, float b,
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double* vtkMath::RGBToHSV(const double rgb[3])
 {
+  VTK_LEGACY_BODY(vtkMath::RGBToHSV, "VTK 9.0");
   return vtkMath::RGBToHSV(rgb[0], rgb[1], rgb[2]);
 }
 
 //----------------------------------------------------------------------------
 double* vtkMath::RGBToHSV(double r, double g, double b)
 {
+  VTK_LEGACY_BODY(vtkMath::RGBToHSV, "VTK 9.0");
   static double hsv[3];
   vtkMath::RGBToHSV(r, g, b, hsv, hsv + 1, hsv + 2);
   return hsv;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkMath::RGBToHSV(double r, double g, double b,
@@ -2617,18 +2621,22 @@ void vtkMath::HSVToRGB(float h, float s, float v,
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double* vtkMath::HSVToRGB(const double hsv[3])
 {
+  VTK_LEGACY_BODY(vtkMath::HSVToRGB, "VTK 9.0");
   return vtkMath::HSVToRGB(hsv[0], hsv[1], hsv[2]);
 }
 
 //----------------------------------------------------------------------------
 double* vtkMath::HSVToRGB(double h, double s, double v)
 {
+  VTK_LEGACY_BODY(vtkMath::HSVToRGB, "VTK 9.0");
   static double rgb[3];
   vtkMath::HSVToRGB(h, s, v, rgb, rgb + 1, rgb + 2);
   return rgb;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkMath::HSVToRGB(double h, double s, double v,
@@ -2713,12 +2721,15 @@ void vtkMath::LabToXYZ(double L, double a, double b,
 }
 
 //-----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double *vtkMath::LabToXYZ(const double lab[3])
 {
+  VTK_LEGACY_BODY(vtkMath::LabToXYZ, "VTK 9.0");
   static double xyz[3];
   vtkMath::LabToXYZ(lab[0], lab[1], lab[2], xyz+0, xyz+1, xyz+2);
   return xyz;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void vtkMath::XYZToLab(double x, double y, double z,
@@ -2744,12 +2755,15 @@ void vtkMath::XYZToLab(double x, double y, double z,
 }
 
 //-----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double *vtkMath::XYZToLab(const double xyz[3])
 {
+  VTK_LEGACY_BODY(vtkMath::XYZToLab, "VTK 9.0");
   static double lab[3];
   vtkMath::XYZToLab(xyz[0], xyz[1], xyz[2], lab+0, lab+1, lab+2);
   return lab;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkMath::XYZToRGB(double x, double y, double z,
@@ -2797,12 +2811,15 @@ void vtkMath::XYZToRGB(double x, double y, double z,
 }
 
 //-----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double *vtkMath::XYZToRGB(const double xyz[3])
 {
+  VTK_LEGACY_BODY(vtkMath::XYZToRGB, "VTK 9.0");
   static double rgb[3];
   vtkMath::XYZToRGB(xyz[0], xyz[1], xyz[2], rgb+0, rgb+1, rgb+2);
   return rgb;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void vtkMath::RGBToXYZ(double r, double g, double b,
@@ -2830,12 +2847,15 @@ void vtkMath::RGBToXYZ(double r, double g, double b,
 }
 
 //-----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double *vtkMath::RGBToXYZ(const double rgb[3])
 {
+  VTK_LEGACY_BODY(vtkMath::RGBToXYZ, "VTK 9.0");
   static double xyz[3];
   vtkMath::RGBToXYZ(rgb[0], rgb[1], rgb[2], xyz+0, xyz+1, xyz+2);
   return xyz;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void vtkMath::RGBToLab(double red, double green, double blue,
@@ -2847,10 +2867,20 @@ void vtkMath::RGBToLab(double red, double green, double blue,
 }
 
 //-----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double *vtkMath::RGBToLab(const double rgb[3])
 {
-  return vtkMath::XYZToLab(vtkMath::RGBToXYZ(rgb));
+  VTK_LEGACY_BODY(vtkMath::RGBToLab, "VTK 9.0");
+
+  double x, y, z;
+  vtkMath::RGBToXYZ(rgb[0], rgb[1], rgb[2], &x, &y, &z);
+
+  static double lab[3];
+  vtkMath::XYZToLab(x, y, z, lab+0, lab+1, lab+2);
+
+  return lab;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void vtkMath::LabToRGB(double L, double a, double b,
@@ -2862,10 +2892,20 @@ void vtkMath::LabToRGB(double L, double a, double b,
 }
 
 //-----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 double *vtkMath::LabToRGB(const double lab[3])
 {
-  return vtkMath::XYZToRGB(vtkMath::LabToXYZ(lab));
+  VTK_LEGACY_BODY(vtkMath::LabToRGB, "VTK 9.0");
+
+  double x, y, z;
+  vtkMath::LabToXYZ(lab[0], lab[1], lab[2], &x, &y, &z);
+
+  static double rgb[3];
+  vtkMath::XYZToRGB(x, y, z, rgb+0, rgb+1, rgb+2);
+
+  return rgb;
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkMath::ClampValues(double *values,
