@@ -2880,14 +2880,7 @@ void vtkMath::ClampValues(double *values,
   const double *values_end = values + nb_values;
   while (values < values_end)
   {
-    if (*values < range[0])
-    {
-      *values = range[0];
-    }
-    else if (*values > range[1])
-    {
-      *values = range[1];
-    }
+    *values = vtkMath::ClampValue(*values, range[0], range[1]);
     ++values;
   }
 }
@@ -2906,18 +2899,7 @@ void vtkMath::ClampValues(const double *values,
   const double *values_end = values + nb_values;
   while (values < values_end)
   {
-    if (*values < range[0])
-    {
-      *clamped_values = range[0];
-    }
-    else if (*values > range[1])
-    {
-      *clamped_values = range[1];
-    }
-    else
-    {
-      *clamped_values = *values;
-    }
+    *clamped_values = vtkMath::ClampValue(*values, range[0], range[1]);
     ++values;
     ++clamped_values;
   }

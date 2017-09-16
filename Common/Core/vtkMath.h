@@ -1133,7 +1133,7 @@ public:
 
   /**
    * Clamp some value against a range, return the result.
-   * min must be less than or equal to max.
+   * min must be less than or equal to max. Semantics the same as std::clamp.
    */
   template<class T>
   static T ClampValue(const T & value, const T & min, const T & max);
@@ -1510,17 +1510,21 @@ inline T vtkMath::ClampValue(const T & value, const T & min, const T & max)
 {
   assert("pre: valid_range" && min<=max);
 
+#if __cplusplus >= 201703L
+  return std::clamp(value, min, max);
+#else
   if (value < min)
   {
     return min;
   }
 
-  if (value > max)
+  if (max < value)
   {
     return max;
   }
 
   return value;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1530,14 +1534,7 @@ inline void vtkMath::ClampValue(double *value, const double range[2])
   {
     assert("pre: valid_range" && range[0]<=range[1]);
 
-    if (*value < range[0])
-    {
-      *value = range[0];
-    }
-    else if (*value > range[1])
-    {
-      *value = range[1];
-    }
+    *value = vtkMath::ClampValue(*value, range[0], range[1]);
   }
 }
 
@@ -1549,18 +1546,7 @@ inline void vtkMath::ClampValue(
   {
     assert("pre: valid_range" && range[0]<=range[1]);
 
-    if (value < range[0])
-    {
-      *clamped_value = range[0];
-    }
-    else if (value > range[1])
-    {
-      *clamped_value = range[1];
-    }
-    else
-    {
-      *clamped_value = value;
-    }
+    *clamped_value = vtkMath::ClampValue(value, range[0], range[1]);
   }
 }
 
@@ -1578,21 +1564,7 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
   else
   {
       // clamp
-      if(value<range[0])
-      {
-          result=range[0];
-      }
-      else
-      {
-          if(value>range[1])
-          {
-              result=range[1];
-          }
-          else
-          {
-              result=value;
-          }
-      }
+      result=vtkMath::ClampValue(value, range[0], range[1]);
 
       // normalize
       result=( result - range[0] ) / ( range[1] - range[0] );
@@ -1635,8 +1607,9 @@ namespace vtk_detail
 template <typename OutT>
 void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
 { // OutT is integral -- clamp and round
-  val = vtkMath::Max(val, static_cast<double>(vtkTypeTraits<OutT>::Min()));
-  val = vtkMath::Min(val, static_cast<double>(vtkTypeTraits<OutT>::Max()));
+  double min = static_cast<double>(vtkTypeTraits<OutT>::Min());
+  double max = static_cast<double>(vtkTypeTraits<OutT>::Max());
+  val = vtkMath::ClampValue(val, min, max);
   *ret = static_cast<OutT>((val >= 0.0) ? (val + 0.5) : (val - 0.5));
 }
 template <>
@@ -1646,9 +1619,10 @@ inline void RoundDoubleToIntegralIfNecessary(double val, double* retVal)
 }
 template <>
 inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
-{ // OutT is float -- just clamp
-  val = vtkMath::Max(val, static_cast<double>(vtkTypeTraits<float>::Min()));
-  val = vtkMath::Min(val, static_cast<double>(vtkTypeTraits<float>::Max()));
+{ // OutT is float -- just clamp (as doubles, then the cast to float is well-defined.)
+  double min = static_cast<double>(vtkTypeTraits<float>::Min());
+  double max = static_cast<double>(vtkTypeTraits<float>::Max());
+  val = vtkMath::ClampValue(val, min, max);
   *retVal = static_cast<float>(val);
 }
 } // end namespace vtk_detail
