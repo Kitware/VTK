@@ -13,51 +13,53 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkOpenVRPanelRepresentation.h"
-#include "vtkActor.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkCellArray.h"
-#include "vtkPoints.h"
+
+#include "vtkCamera.h"
+#include "vtkEventData.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenVRRenderWindow.h"
+#include "vtkQuaternion.h"
+#include "vtkRenderer.h"
 #include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor3D.h"
-#include "vtkRenderer.h"
-#include "vtkWindow.h"
-#include "vtkCamera.h"
-#include "vtkPickingManager.h"
-#include "vtkAssemblyPath.h"
+#include "vtkTransform.h"
+#include "vtkVectorOperators.h"
 
-#include "vtkSmartPointer.h"
+#include "vtkOpenVRRenderWindowInteractor.h"
+
+
+
+// todo
+// - use text bounds for position/scale (done)
+// - fix bearing to be correct (done)
+// - make sure adjustment of the panel works for controllers (done)
+// - add option to remove crop planes
 
 vtkStandardNewMacro(vtkOpenVRPanelRepresentation);
 
 //----------------------------------------------------------------------------
 vtkOpenVRPanelRepresentation::vtkOpenVRPanelRepresentation()
 {
-  // The text
-  this->Text = vtkStdString();
-
   this->TextActor = vtkTextActor3D::New();
   this->TextActor->GetTextProperty()->SetFontSize(17);
+  this->Text = "This is a Panel Widget";
   this->TextActor->SetInput(this->Text.c_str());
 
   vtkTextProperty *prop = this->TextActor->GetTextProperty();
   this->TextActor->ForceOpaqueOn();
-
+  this->TextActor->SetUserMatrix(vtkMatrix4x4::New());
+  this->TextActor->GetUserMatrix()->Delete();;
   prop->SetFontFamilyToTimes();
   prop->SetFrame(1);
   prop->SetFrameWidth(12);
   prop->SetFrameColor(0.0, 0.0, 0.0);
-  prop->SetBackgroundOpacity(1.0);
+  prop->SetBackgroundOpacity(0.5);
   prop->SetBackgroundColor(0.0, 0.0, 0.0);
   prop->SetFontSize(25);
 
-  // Keep track of the hovered/picked prop
-  this->HoveredProp = nullptr;
-
-  this->VisibilityOff();
+  this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
+  this->CoordinateSystem = World;
+  this->AllowAdjustment = true;
 }
 
 //----------------------------------------------------------------------------
@@ -66,33 +68,368 @@ vtkOpenVRPanelRepresentation::~vtkOpenVRPanelRepresentation()
   this->TextActor->Delete();
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::StartWidgetInteraction(double*)
+void vtkOpenVRPanelRepresentation::SetCoordinateSystemToWorld()
 {
-  if (!this->HoveredProp || this->GetVisibility() )
-  {
-    return;
-  }
-  this->BuildRepresentation();
-  this->VisibilityOn();
+  if (this->CoordinateSystem == World)
+    {
+      return;
+    }
+  this->TextActor->GetUserMatrix()->Identity();
+  this->CoordinateSystem = World;
+  this->Modified();
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::EndWidgetInteraction(double*)
+void vtkOpenVRPanelRepresentation::SetCoordinateSystemToHMD()
 {
-  if (!this->GetVisibility())
+  if (this->CoordinateSystem == HMD)
+    {
+      return;
+    }
+  this->CoordinateSystem = HMD;
+  this->Modified();
+}
+
+void vtkOpenVRPanelRepresentation::SetCoordinateSystemToLeftController()
+{
+  if (this->CoordinateSystem == LeftController)
+    {
+      return;
+    }
+  this->CoordinateSystem = LeftController;
+  this->Modified();
+}
+
+void vtkOpenVRPanelRepresentation::SetCoordinateSystemToRightController()
+{
+  if (this->CoordinateSystem == RightController)
+    {
+      return;
+    }
+  this->CoordinateSystem = RightController;
+  this->Modified();
+}
+
+int vtkOpenVRPanelRepresentation::ComputeComplexInteractionState(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long , void *calldata, int )
+{
+  if (!this->AllowAdjustment ||
+      this->InteractionState == vtkOpenVRPanelRepresentation::Moving)
   {
+    return this->InteractionState;
+  }
+
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    double pos[4];
+    edd->GetWorldPosition(pos);
+    pos[3] = 1.0;
+
+    const double *bds = this->TextActor->GetBounds();
+    double length = sqrt((bds[1]-bds[0])*(bds[1]-bds[0]) +
+                         (bds[3]-bds[2])*(bds[3]-bds[2]) +
+                         (bds[5]-bds[4])*(bds[5]-bds[4]));
+    double tolerance = length*0.05;
+    if (pos[0] > bds[0] - tolerance &&
+        pos[0] < bds[1] + tolerance &&
+        pos[1] > bds[2] - tolerance &&
+        pos[1] < bds[3] + tolerance &&
+        pos[2] > bds[4] - tolerance &&
+        pos[2] < bds[5] + tolerance)
+    {
+      this->InteractionState = vtkOpenVRPanelRepresentation::Moving;
+    }
+    else
+    {
+      this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
+    }
+  }
+
+  return this->InteractionState;
+}
+
+void vtkOpenVRPanelRepresentation::StartComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *calldata)
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    edd->GetWorldPosition(this->StartEventPosition);
+    this->LastEventPosition[0] = this->StartEventPosition[0];
+    this->LastEventPosition[1] = this->StartEventPosition[1];
+    this->LastEventPosition[2] = this->StartEventPosition[2];
+    edd->GetWorldOrientation(this->StartEventOrientation);
+    std::copy(this->StartEventOrientation, this->StartEventOrientation + 4,
+      this->LastEventOrientation);
+  }
+}
+
+void vtkOpenVRPanelRepresentation::ComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *calldata )
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    double eventPos[3];
+    edd->GetWorldPosition(eventPos);
+    double eventDir[4];
+    edd->GetWorldOrientation(eventDir);
+
+    // Process the motion
+    if ( this->InteractionState == vtkOpenVRPanelRepresentation::Moving )
+    {
+      // this->TranslateOutline(this->LastEventPosition, eventPos);
+      this->UpdatePose(this->LastEventPosition, this->LastEventOrientation, eventPos, eventDir);
+    }
+
+    // Book keeping
+    this->LastEventPosition[0] = eventPos[0];
+    this->LastEventPosition[1] = eventPos[1];
+    this->LastEventPosition[2] = eventPos[2];
+    std::copy(eventDir, eventDir + 4, this->LastEventOrientation);
+    this->Modified();
+  }
+}
+
+void vtkOpenVRPanelRepresentation::EndComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *)
+{
+  this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
+}
+
+
+//----------------------------------------------------------------------------
+// Loop through all points and translate and rotate them
+void vtkOpenVRPanelRepresentation::UpdatePose(
+  double *p1, double *orient1,
+  double *p2, double *orient2
+  )
+{
+  if (this->CoordinateSystem == World)
+  {
+    this->UpdatePropPose(this->TextActor, p1, orient1, p2, orient2);
     return;
   }
-  this->HoveredProp = nullptr;
-  this->VisibilityOff();
-  this->Modified();
+
+  if (this->CoordinateSystem == HMD)
+  {
+    vtkMatrix4x4 *mat = this->TextActor->GetUserMatrix();
+    mat->Register(this);
+    this->TextActor->SetUserMatrix(nullptr);
+
+    this->TempMatrix->DeepCopy(mat);
+    this->TempMatrix->Invert();
+    double p14[4];
+    std::copy(p1,p1+3,p14);
+    p14[3] = 1.0;
+    double p24[4];
+    std::copy(p2,p2+3,p24);
+    p24[3] = 1.0;
+    this->TempMatrix->MultiplyPoint(p14, p14);
+    this->TempMatrix->MultiplyPoint(p24, p24);
+
+    double trans[3];
+    for (int i = 0; i < 3; i++)
+    {
+      trans[i] = p24[i] - p14[i];
+    }
+
+    vtkTransform *newTransform = this->TempTransform.Get();
+
+    // changes in Z adjust the scale
+    double ratio = (0.5+trans[2]/this->LastScale)/0.5;
+    double *scale = this->TextActor->GetScale();
+    this->TextActor->SetScale(scale[0]*ratio,scale[1]*ratio, scale[2]*ratio);
+    this->TextActor->AddPosition(trans[0], trans[1], 0.0);
+
+    // compute the net rotation
+    vtkQuaternion<double> q1;
+    q1.SetRotationAngleAndAxis(
+      vtkMath::RadiansFromDegrees(orient1[0]), orient1[1], orient1[2], orient1[3]);
+    vtkQuaternion<double> q2;
+    q2.SetRotationAngleAndAxis(
+      vtkMath::RadiansFromDegrees(orient2[0]), orient2[1], orient2[2], orient2[3]);
+    q1.Conjugate();
+    q2 = q2*q1;
+    double axis[4];
+    axis[0] = vtkMath::DegreesFromRadians(q2.GetRotationAngleAndAxis(axis+1));
+
+    newTransform->Identity();
+    newTransform->PostMultiply();
+    newTransform->Concatenate(this->TempMatrix);
+    newTransform->TransformNormal(axis+1,axis+1);
+
+    vtkMatrix4x4 *oldMatrix = this->TempMatrix;
+    this->TextActor->GetMatrix(oldMatrix);
+
+    newTransform->Identity();
+    newTransform->PostMultiply();
+    newTransform->Concatenate(oldMatrix);
+    newTransform->Translate(-(p14[0]), -(p14[1]), -(p14[2]));
+    newTransform->RotateWXYZ(axis[0], axis[1], axis[2], axis[3]);
+    newTransform->Translate(p14[0], p14[1], p14[2]);
+
+    this->TextActor->SetPosition(newTransform->GetPosition());
+    this->TextActor->SetOrientation(newTransform->GetOrientation());
+    this->TextActor->SetUserMatrix(mat);
+    mat->UnRegister(this);
+  }
+
+
+  if (this->CoordinateSystem == LeftController ||
+      this->CoordinateSystem == RightController)
+  {
+    vtkMatrix4x4 *mat = this->TextActor->GetUserMatrix();
+    mat->Register(this);
+    this->TextActor->SetUserMatrix(nullptr);
+
+    this->TempMatrix->DeepCopy(mat);
+    this->TempMatrix->Invert();
+    double p14[4];
+    std::copy(p1,p1+3,p14);
+    p14[3] = 1.0;
+    double p24[4];
+    std::copy(p2,p2+3,p24);
+    p24[3] = 1.0;
+    this->TempMatrix->MultiplyPoint(p14, p14);
+    this->TempMatrix->MultiplyPoint(p24, p24);
+
+    double trans[3];
+    for (int i = 0; i < 3; i++)
+    {
+      trans[i] = p24[i] - p14[i];
+    }
+    this->TextActor->AddPosition(trans[0], trans[1], trans[2]);
+
+    vtkTransform *newTransform = this->TempTransform.Get();
+
+    // compute the net rotation
+    vtkQuaternion<double> q1;
+    q1.SetRotationAngleAndAxis(
+      vtkMath::RadiansFromDegrees(orient1[0]), orient1[1], orient1[2], orient1[3]);
+    vtkQuaternion<double> q2;
+    q2.SetRotationAngleAndAxis(
+      vtkMath::RadiansFromDegrees(orient2[0]), orient2[1], orient2[2], orient2[3]);
+    q1.Conjugate();
+    q2 = q2*q1;
+    double axis[4];
+    axis[0] = vtkMath::DegreesFromRadians(q2.GetRotationAngleAndAxis(axis+1));
+
+    newTransform->Identity();
+    newTransform->PostMultiply();
+    newTransform->Concatenate(this->TempMatrix);
+    newTransform->TransformNormal(axis+1,axis+1);
+
+    vtkMatrix4x4 *oldMatrix = this->TempMatrix;
+    this->TextActor->GetMatrix(oldMatrix);
+
+    newTransform->Identity();
+    newTransform->PostMultiply();
+    newTransform->Concatenate(oldMatrix);
+    newTransform->Translate(-(p14[0]), -(p14[1]), -(p14[2]));
+    newTransform->RotateWXYZ(axis[0], axis[1], axis[2], axis[3]);
+    newTransform->Translate(p14[0], p14[1], p14[2]);
+
+    this->TextActor->SetPosition(newTransform->GetPosition());
+    this->TextActor->SetOrientation(newTransform->GetOrientation());
+    this->TextActor->SetUserMatrix(mat);
+    mat->UnRegister(this);
+  }
+
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->TextActor->ReleaseGraphicsResources(w);
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer *ren)
+{
+  // check whether or not need to rebuild the matrix
+  // only rebuild on left eye otherwise we get two different
+  // poses for two eyes
+  vtkCamera *cam = ren->GetActiveCamera();
+  if (this->CoordinateSystem != World && cam->GetLeftEye())
+  {
+    vtkOpenVRRenderWindow *rw =
+      static_cast<vtkOpenVRRenderWindow*>(ren->GetVTKWindow());
+
+    if (this->CoordinateSystem == HMD)
+    {
+      vtkTransform *vt = cam->GetViewTransformObject();
+      vt->GetInverse(this->TextActor->GetUserMatrix());
+
+      if (rw->GetPhysicalScale() != this->LastScale)
+      {
+        double ratio = rw->GetPhysicalScale()/this->LastScale;
+        double *scale = this->TextActor->GetScale();
+        this->TextActor->SetScale(scale[0]*ratio,scale[1]*ratio, scale[2]*ratio);
+        double *pos = this->TextActor->GetPosition();
+        this->TextActor->SetPosition(pos[0]*ratio,pos[1]*ratio, -0.5*rw->GetPhysicalScale());
+        this->LastScale = rw->GetPhysicalScale();
+      }
+      else
+      {
+        double *pos = this->TextActor->GetPosition();
+        this->TextActor->SetPosition(pos[0], pos[1], -0.5*rw->GetPhysicalScale());
+      }
+    }
+
+    if (this->CoordinateSystem == LeftController)
+    {
+      vr::TrackedDevicePose_t &tdPose =
+        rw->GetTrackedDevicePose(vtkEventDataDevice::LeftController);
+      double pos[3];
+      double ppos[3];
+      double wxyz[4];
+      double wdir[3];
+      static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
+        ->ConvertPoseToWorldCoordinates(tdPose, pos, wxyz, ppos, wdir);
+
+      double scale = rw->GetPhysicalScale();
+
+      this->TempTransform->Identity();
+      this->TempTransform->PreMultiply();
+      this->TempTransform->Translate(pos[0], pos[1], pos[2]);
+      this->TempTransform->Scale(scale, scale, scale);
+      this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
+      this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+    }
+
+    if (this->CoordinateSystem == RightController)
+    {
+      vr::TrackedDevicePose_t &tdPose =
+        rw->GetTrackedDevicePose(vtkEventDataDevice::RightController);
+      double pos[3];
+      double ppos[3];
+      double wxyz[4];
+      double wdir[3];
+      static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
+        ->ConvertPoseToWorldCoordinates(tdPose, pos, wxyz, ppos, wdir);
+
+      double scale = rw->GetPhysicalScale();
+
+      this->TempTransform->Identity();
+      this->TempTransform->PreMultiply();
+      this->TempTransform->Translate(pos[0], pos[1], pos[2]);
+      this->TempTransform->Scale(scale, scale, scale);
+      this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
+      this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -103,10 +440,14 @@ int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport *v)
     return 0;
   }
 
-  int count = 0;
+  // make sure the device has the same matrix
+  if (true /* HMD coords */)
+  {
+    vtkRenderer *ren = static_cast<vtkRenderer *>(v);
+    this->ComputeMatrix(ren);
+  }
 
-  count += this->TextActor->RenderOpaqueGeometry(v);
-
+  int count = this->TextActor->RenderOpaqueGeometry(v);
   return count;
 }
 
@@ -119,9 +460,7 @@ int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(
     return 0;
   }
 
-  int count = 0;
-
-  count += this->TextActor->RenderTranslucentPolygonalGeometry(v);
+  int count = this->TextActor->RenderTranslucentPolygonalGeometry(v);
 
   return count;
 }
@@ -142,119 +481,136 @@ int vtkOpenVRPanelRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenVRPanelRepresentation::PlaceWidget(double bds[6])
+{
+  this->TextActor->GetUserMatrix()->Identity();
+  if (this->CoordinateSystem == World)
+  {
+    // center the planel
+    this->TextActor->SetPosition(
+      0.5*(bds[0] + bds[1]),
+      0.5*(bds[2] + bds[3]),
+      0.5*(bds[4] + bds[5]));
+
+    double length = sqrt((bds[1]-bds[0])*(bds[1]-bds[0]) +
+                         (bds[3]-bds[2])*(bds[3]-bds[2]) +
+                         (bds[5]-bds[4])*(bds[5]-bds[4]));
+    this->TextActor->SetScale(length/700.0, length/700.0, length/700.0);
+    this->LastScale = length;
+  }
+
+  if (this->CoordinateSystem != World)
+  {
+    double scale = sqrt((bds[1]-bds[0])*(bds[1]-bds[0]) +
+                         (bds[3]-bds[2])*(bds[3]-bds[2]) +
+                         (bds[5]-bds[4])*(bds[5]-bds[4]));
+    this->TextActor->SetScale(scale/700.0, scale/700.0, scale/700.0);
+    this->LastScale = scale;
+    this->TextActor->SetPosition(0.0,0.0,-0.5*scale);
+  }
+}
+
+void vtkOpenVRPanelRepresentation::PlaceWidgetExtended(
+  const double *bds, const double *normal,
+  const double *upvec, double scale)
+{
+  this->TextActor->GetUserMatrix()->Identity();
+  this->TextActor->SetOrientation(0,0,0);
+  this->LastScale = scale;
+
+  // grab the bounding box of the text
+  // so we can position and scale to that
+  int tbounds[4];
+  this->TextActor->GetBoundingBox(tbounds);
+  int maxdim = tbounds[1] - tbounds[0];
+  if (tbounds[3] - tbounds[2] > maxdim)
+  {
+    maxdim = tbounds[3] - tbounds[2];
+  }
+  // should always be at least 50 pixels
+  // for any reasonable string.
+  maxdim = maxdim > 50 ? maxdim : 50.0;
+
+  // make the normal ortho to upvec
+  vtkVector3d nup(upvec);
+  nup.Normalize();
+  vtkVector3d nvpn(normal);
+  nvpn.Normalize();
+  vtkVector3d nvright = nup.Cross(nvpn);
+  nvright.Normalize();
+  nvpn = nvright.Cross(nup);
+
+  vtkVector3d xaxis(1.0, 0.0, 0.0);
+  vtkVector3d yaxis(0.0, 1.0, 0.0);
+
+  // rotate about vright so that Y is along VUP
+  double theta = acos(nup[1]);
+  if (nup.Cross(yaxis)[0] > 0.0)
+  {
+    theta = -theta;
+  }
+  this->TextActor->RotateX(vtkMath::DegreesFromRadians(theta));
+
+  // rotate about up so that Y is along vright
+  theta = acos(nvright[0]);
+  if (nup.Dot(nvright.Cross(xaxis)) > 0.0)
+  {
+    theta = -theta;
+  }
+  this->TextActor->RotateWXYZ(vtkMath::DegreesFromRadians(theta),
+    nup[0], nup[1], nup[2]);
+
+  if (this->CoordinateSystem == World)
+  {
+    // center the planel and default size to 400cm
+    this->TextActor->SetScale(
+      0.4*scale/maxdim, 0.4*scale/maxdim, 0.4*scale/maxdim);
+    this->TextActor->SetPosition(
+      0.5*(bds[0] + bds[1]),
+      0.5*(bds[2] + bds[3]),
+      0.5*(bds[4] + bds[5]));
+  }
+
+  if (this->CoordinateSystem == LeftController
+      || this->CoordinateSystem == RightController)
+  {
+    // position the planel and default size to 400cm
+    this->TextActor->SetScale(0.4/maxdim, 0.4/maxdim, 0.4/maxdim);
+    this->TextActor->SetPosition(
+      0.5*(bds[0] + bds[1]) - 0.2*(tbounds[1] - tbounds[0])/maxdim,
+      0.5*(bds[2] + bds[3]),
+      0.5*(bds[4] + bds[5]));
+  }
+
+  if (this->CoordinateSystem == HMD)
+  {
+    // center the planel and default size to 400cm
+    this->TextActor->SetScale(0.4*scale/maxdim, 0.4*scale/maxdim, 0.4*scale/maxdim);
+    this->TextActor->SetPosition(
+      -0.2*(tbounds[1] - tbounds[0])*scale/maxdim,
+      -0.2*(tbounds[3] - tbounds[2])*scale/maxdim,
+      -0.5*scale);
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkOpenVRPanelRepresentation::BuildRepresentation()
 {
-  if (this->GetMTime() > this->BuildTime)
-  {
-    //Set Physical Scale
-    if (this->Renderer && this->Renderer->GetRenderWindow() &&
-      this->Renderer->GetRenderWindow()->GetInteractor())
-    {
-      vtkRenderWindowInteractor3D* iren =
-        static_cast<vtkRenderWindowInteractor3D*>(
-          this->Renderer->GetRenderWindow()->GetInteractor());
-      if (iren)
-      {
-        this->PhysicalScale = iren->GetPhysicalScale();
-      }
-    }
+  // if (this->GetMTime() > this->BuildTime)
+  // {
+  //   this->TextActor3D->SetPosition(tpos);
 
-    //Compute camera position and orientation
-    vtkCamera* cam = this->Renderer->GetActiveCamera();
-    double* pos = cam->GetPosition();
-    double* dop = cam->GetDirectionOfProjection();
-    vtkMath::Normalize(dop);
+  //   // scale should cover 10% of FOV
+  //   double fov = ren->GetActiveCamera()->GetViewAngle();
+  //   double tsize = 0.1*2.0*atan(fov*0.5); // 10% of fov
+  //   tsize /= 200.0;  // about 200 pixel texture map
+  //   scale *= tsize;
+  //   this->TextActor3D->SetScale(scale, scale, scale);
+  //   this->TextActor3D->SetInput(text.c_str());
 
-    //Compute text size in world coordinates
-    int bbox[4] = {0, 0, 0, 0};
-    this->TextActor->GetBoundingBox(bbox);
 
-    double offset = 0.05 * this->GetPhysicalScale();
-    double PPI = 450;//Screen resolution in pixels per inch
-    double FontSizeFactor = 1.0 / PPI;//Map font size to world coordinates
-
-    double textSize[2] = {
-      (bbox[1] - bbox[0]) * FontSizeFactor * this->GetPhysicalScale(),
-      (bbox[3] - bbox[2]) * FontSizeFactor * this->GetPhysicalScale()};
-
-    //Max frame distance to camera
-    double frameDistance = 1.5 * this->GetPhysicalScale();
-    //Min frame distance to camera
-    double minFrameDistance = 0.3 *this->GetPhysicalScale();
-
-    double frameSize[2] = {textSize[0] + offset, textSize[1] + offset};
-
-    //Reduce frame distance if the prop is on the way
-    if (this->HoveredProp)
-    {
-      double* bnds = this->HoveredProp->GetBounds();
-      if (bnds)
-      {
-        double propCenter[3] = {
-          0.5*(bnds[1] + bnds[0]),
-          0.5*(bnds[3] + bnds[2]),
-          0.5*(bnds[5] + bnds[4])};
-        double propExtent[3] = {
-          (bnds[1] - bnds[0]),
-          (bnds[3] - bnds[2]),
-          (bnds[5] - bnds[4])};
-
-        double length = propExtent[0] > propExtent[2] ?
-          0.5 * propExtent[0] : 0.5 * propExtent[2];
-
-        double camToPropDistance =
-          sqrt(vtkMath::Distance2BetweenPoints(pos, propCenter)) - length;
-
-        if (camToPropDistance < frameDistance)
-        {
-          frameDistance = camToPropDistance;
-        }
-      }
-    }
-
-    //Clamp distance value
-    if (frameDistance < minFrameDistance)
-    {
-      frameDistance = minFrameDistance;
-    }
-
-    //Frame position
-    double frameCenter[3];
-    frameCenter[0] = pos[0] + frameDistance * dop[0];
-    frameCenter[1] = pos[1] + frameDistance * dop[1];
-    frameCenter[2] = pos[2] + frameDistance * dop[2];
-
-    //Frame main directions
-    double frameUp[3] = {0, 1, 0};
-    double frameRight[3];
-    vtkMath::Cross(dop, frameUp, frameRight);
-    vtkMath::Normalize(frameRight);
-
-    double * ori = cam->GetOrientation();
-    ori[0] *= 0;
-    ori[1] *= -1;
-    ori[2] *= 0;
-
-    //Update Text
-    this->TextActor->SetOrigin(
-      0,
-      -textSize[1] + 0.5 * (frameSize[1] - offset),
-      0);
-
-    double textPosition[3];
-    textPosition[0] = frameCenter[0] - (frameSize[0] - offset) * 0.5 * frameRight[0];
-    textPosition[1] = frameCenter[1] - (frameSize[0] - offset) * 0.5 * frameRight[1];
-    textPosition[2] = frameCenter[2] - (frameSize[0] - offset) * 0.5 * frameRight[2];
-
-    this->TextActor->SetPosition(textPosition);
-    this->TextActor->SetScale(
-      FontSizeFactor*this->GetPhysicalScale(),
-      FontSizeFactor*this->GetPhysicalScale(),
-      1.0);
-    this->TextActor->SetOrientation(ori);
-
-    this->BuildTime.Modified();
-  }
+  //   this->BuildTime.Modified();
+  // }
 }
 
 //----------------------------------------------------------------------------
@@ -264,14 +620,14 @@ void vtkOpenVRPanelRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::SetText(vtkStdString* _text)
+void vtkOpenVRPanelRepresentation::SetText(const char *text)
 {
-  if (this->Text == *_text)
+  if (this->Text == text)
   {
     return;
   }
-  this->Text = *_text;
+  this->Text = text;
 
-  this->TextActor->SetInput(this->Text);
+  this->TextActor->SetInput(this->Text.c_str());
   this->Modified();
 }
