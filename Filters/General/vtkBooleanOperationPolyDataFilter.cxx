@@ -112,6 +112,11 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation*        vtkNot
   PolyDataIntersection->SplitSecondOutputOn();
   PolyDataIntersection->Update();
 
+  if (PolyDataIntersection->GetStatus() != 1)
+  {
+    return 0;
+  }
+
   outputIntersection->CopyStructure(PolyDataIntersection->GetOutput());
   outputIntersection->GetPointData()->PassData(PolyDataIntersection->GetOutput()->GetPointData());
   outputIntersection->GetCellData()->PassData(PolyDataIntersection->GetOutput()->GetCellData());
