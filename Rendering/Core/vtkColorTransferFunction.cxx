@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkColorTransferFunction.h"
 
+#include "vtkCIEDE2000.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
@@ -1098,6 +1099,63 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         }
         // Now convert this back to RGB
         vtkMath::LabToRGB(labTmp, tptr);
+      }
+      else if (this->ColorSpace == VTK_CTF_LAB_CIEDE2000)
+      {
+        // Create and remember a color transfer function representing the
+        // shortest color path from rgb1 to rgb2
+        static auto pathCTF = vtkSmartPointer<vtkColorTransferFunction>::New();
+        {
+          // Interpolate between two successive nodes of the path by Lab
+          pathCTF->SetColorSpaceToLab();
+
+          static double lastRGB1[3] = { -1.0, -1.0, -1.0 };
+          static double lastRGB2[3] = { -1.0, -1.0, -1.0 };
+
+          // If something changed, update the path and its color transfer
+          // function.
+          // We might also need to check for a change of the midpoint, sharpness
+          // or the use of log-scale.
+          if ((rgb1[0] != lastRGB1[0]) || (rgb1[1] != lastRGB1[1]) || (rgb1[2] != lastRGB1[2]) ||
+            (rgb2[0] != lastRGB2[0]) || (rgb2[1] != lastRGB2[1]) || (rgb2[2] != lastRGB2[2]))
+          {
+            // Remember the colors used for the path
+            lastRGB1[0] = rgb1[0];
+            lastRGB1[1] = rgb1[1];
+            lastRGB1[2] = rgb1[2];
+
+            lastRGB2[0] = rgb2[0];
+            lastRGB2[1] = rgb2[1];
+            lastRGB2[2] = rgb2[2];
+
+            // Get the shortest color path and its overall length
+            std::vector<CIEDE2000::Node> path;
+            double pathDistance = CIEDE2000::GetColorPath(rgb1, rgb2, path);
+
+            // Remove the old nodes from the path's color transfer function
+            pathCTF->RemoveAllPoints();
+
+            // Add the nodes of the new path to the path's color transfer
+            // function
+            for (const auto& node : path)
+            {
+              double fraction = node.distance / pathDistance;
+
+              pathCTF->AddRGBPoint(fraction, node.rgb[0], node.rgb[1], node.rgb[2]);
+            }
+          }
+        }
+
+        // Apply the hermite transformation to the current position
+        double x = h2 + (1.0 - sharpness) * (h3 + h4);
+
+        // Evaluate the color of the path at the current position
+        unsigned char* color = pathCTF->MapValue(x);
+
+        // Set the final interpolated color
+        tptr[0] = color[0] / 255.0;
+        tptr[1] = color[1] / 255.0;
+        tptr[2] = color[2] / 255.0;
       }
       else if (this->ColorSpace == VTK_CTF_DIVERGING)
       {

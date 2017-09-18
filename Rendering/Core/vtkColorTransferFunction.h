@@ -45,6 +45,7 @@ class vtkColorTransferFunctionInternals;
 #define VTK_CTF_HSV           1
 #define VTK_CTF_LAB           2
 #define VTK_CTF_DIVERGING     3
+#define VTK_CTF_LAB_CIEDE2000 4
 
 #define VTK_CTF_LINEAR        0
 #define VTK_CTF_LOG10         1
@@ -196,14 +197,17 @@ public:
    * Diverging.  In HSV mode, if HSVWrap is on, it will take the shortest path
    * in Hue (going back through 0 if that is the shortest way around the hue
    * circle) whereas if HSVWrap is off it will not go through 0 (in order the
-   * match the current functionality of vtkLookupTable).  Diverging is a special
+   * match the current functionality of vtkLookupTable).  In Lab/CIEDE2000 mode,
+   * it will take the shortest path in the Lab color space with respect to the
+   * CIE Delta E 2000 color distance measure. Diverging is a special
    * mode where colors will pass through white when interpolating between two
    * saturated colors.
    */
-  vtkSetClampMacro( ColorSpace, int, VTK_CTF_RGB, VTK_CTF_DIVERGING );
+  vtkSetClampMacro(ColorSpace, int, VTK_CTF_RGB, VTK_CTF_LAB_CIEDE2000);
   void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);};
   void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);};
   void SetColorSpaceToLab(){this->SetColorSpace(VTK_CTF_LAB);};
+  void SetColorSpaceToLabCIEDE2000() { this->SetColorSpace(VTK_CTF_LAB_CIEDE2000); };
   void SetColorSpaceToDiverging(){this->SetColorSpace(VTK_CTF_DIVERGING);}
   vtkGetMacro( ColorSpace, int );
   vtkSetMacro(HSVWrap, int);
