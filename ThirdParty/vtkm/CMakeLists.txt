@@ -31,7 +31,12 @@ if (NOT GLEW_INCLUDE_DIR)
   set(GLEW_needs_unset ON)
 endif()
 
+set(vtkm_LIBRARIES vtkm vtkm_cont)
+vtk_module_export_info()
 add_subdirectory(vtk-m)
+
+vtk_target_export(vtkm)
+vtk_target_export(vtkm_cont)
 
 if (GLEW_needs_unset)
   unset(GLEW_INCLUDE_DIR CACHE)
@@ -40,7 +45,7 @@ if (GLEW_needs_unset)
 endif()
 
 set(vtkm_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include)
-set(vtkm_LIBRARIES vtkm_cont)
-vtk_module_export_info()
+
+
 
 set_target_properties(vtkm PROPERTIES INTERFACE_LINK_LIBRARIES vtkm_cont)
