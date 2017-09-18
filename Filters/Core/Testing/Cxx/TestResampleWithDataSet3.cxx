@@ -44,17 +44,17 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   dataset->SetNumberOfBlocks(numberOfBlocks);
 
   vtkNew<vtkExtentTranslator> extentTranslator;
-  extentTranslator->SetWholeExtent(-16, 16, -16, 16, -16, 16);
+  extentTranslator->SetWholeExtent(-11, 11, -11, 11, -11, 11);
   extentTranslator->SetNumberOfPieces(numberOfBlocks);
   extentTranslator->SetSplitModeToBlock();
 
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-16, 16, -16, 16, -16, 16);
+  wavelet->SetWholeExtent(-11, 11, -11, 11, -11, 11);
   wavelet->SetCenter(0, 0, 0);
 
   vtkNew<vtkCylinder> cylinder;
   cylinder->SetCenter(0, 0, 0);
-  cylinder->SetRadius(15);
+  cylinder->SetRadius(10);
   cylinder->SetAxis(0, 1, 0);
   vtkNew<vtkTableBasedClipDataSet> clipCyl;
   clipCyl->SetClipFunction(cylinder.GetPointer());
@@ -62,7 +62,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
   vtkNew<vtkSphere> sphere;
   sphere->SetCenter(0, 0, 4);
-  sphere->SetRadius(12);
+  sphere->SetRadius(7);
   vtkNew<vtkTableBasedClipDataSet> clipSphr;
   clipSphr->SetInputConnection(clipCyl->GetOutputPort());
   clipSphr->SetClipFunction(sphere.GetPointer());
@@ -103,12 +103,12 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   dataset->SetNumberOfBlocks(numberOfBlocks);
 
   vtkNew<vtkExtentTranslator> extentTranslator;
-  extentTranslator->SetWholeExtent(-22, 22, -22, 22, -16, 16);
+  extentTranslator->SetWholeExtent(-17, 17, -17, 17, -11, 11);
   extentTranslator->SetNumberOfPieces(numberOfBlocks);
   extentTranslator->SetSplitModeToBlock();
 
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-22, 22, -22, 22, -16, 16);
+  wavelet->SetWholeExtent(-17, 17, -17, 17, -11, 11);
   wavelet->SetCenter(0, 0, 0);
 
   vtkNew<vtkThreshold> threshold;
@@ -142,7 +142,7 @@ int TestResampleWithDataSet3(int argc, char *argv[])
   CreateInputDataSet(input.GetPointer(), 3);
 
   vtkNew<vtkMultiBlockDataSet> source;
-  CreateSourceDataSet(source.GetPointer(), 5);
+  CreateSourceDataSet(source.GetPointer(), 4);
 
   vtkNew<vtkResampleWithDataSet> resample;
   resample->SetInputData(input.GetPointer());
@@ -193,6 +193,7 @@ int TestResampleWithDataSet3(int argc, char *argv[])
   renderer->ResetCamera();
 
   vtkNew<vtkRenderWindow> renWin;
+  renWin->SetMultiSamples(0);
   renWin->AddRenderer(renderer.GetPointer());
 
   vtkNew<vtkRenderWindowInteractor> iren;
