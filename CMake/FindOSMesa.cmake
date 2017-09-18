@@ -28,13 +28,13 @@ endif()
 if(NOT OSMESA_LIBRARY)
   # If we have a root defined look there first
   if(OSMESA_ROOT)
-    find_library(OSMESA_LIBRARY OSMesa PATHS ${OSMESA_ROOT}/lib
+    find_library(OSMESA_LIBRARY NAMES OSMesa OSMesa16 OSMesa32 PATHS ${OSMESA_ROOT}/lib
       NO_DEFAULT_PATH
     )
   endif()
 
   if(NOT OSMESA_LIBRARY)
-    find_library(OSMESA_LIBRARY OSMesa PATHS
+    find_library(OSMESA_LIBRARY NAMES OSMesa OSMesa16 OSMesa32 PATHS
       /opt/graphics/OpenGL/lib
       /usr/openwin/lib
     )
