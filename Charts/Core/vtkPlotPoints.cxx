@@ -486,6 +486,7 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon &polygon)
       this->Selection->InsertNextValue(pointId);
     }
   }
+  this->Selection->Modified();
 
   // return true if we selected any points
   return this->Selection->GetNumberOfTuples() > 0;

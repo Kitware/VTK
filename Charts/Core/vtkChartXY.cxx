@@ -180,6 +180,10 @@ vtkChartXY::vtkChartXY()
   this->ForceAxesToBounds = false;
   this->ZoomWithMouseWheel = true;
   this->AdjustLowerBoundForLogPlot = false;
+
+  this->DragPoint = false;
+  this->DragPointAlongX = true;
+  this->DragPointAlongY = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -816,6 +820,23 @@ void vtkChartXY::RecalculatePlotBounds()
   }
 
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::ReleasePlotSelections()
+{
+  std::vector<vtkPlot*>::iterator it = this->ChartPrivate->plots.begin();
+  for (; it != this->ChartPrivate->plots.end(); ++it)
+  {
+    vtkPlot* plot = *it;
+    if (!plot)
+      {
+      continue;
+      }
+    vtkNew<vtkIdTypeArray> emptySelectionArray;
+    emptySelectionArray->Initialize();
+    plot->SetSelection(emptySelectionArray.GetPointer());
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1608,6 +1629,62 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       this->Scene->SetDirty(true);
     }
   }
+  else if (mouse.GetButton() == this->Actions.ClickAndDrag() &&
+           this->DragPoint && (this->DragPointAlongX || this->DragPointAlongY))
+  {
+    // Iterate through each corner, and check for a nearby point
+    std::vector<vtkContextTransform*>::iterator it = this->ChartPrivate->PlotCorners.begin();
+    for (; it != this->ChartPrivate->PlotCorners.end(); ++it)
+    {
+      vtkContextTransform* plotCorner = *it;
+      if (!plotCorner)
+      {
+        continue;
+      }
+
+      int items = static_cast<int>(plotCorner->GetNumberOfItems());
+      if (items == 0)
+      {
+        continue;
+      }
+
+      vtkVector2f position;
+      vtkTransform2D* transform = plotCorner->GetTransform();
+      transform->InverseTransformPoints(mouse.GetPos().GetData(),
+                                        position.GetData(), 1);
+      for (int j = 0; j < items; ++j)
+      {
+        vtkPlot* plot = vtkPlot::SafeDownCast(plotCorner->GetItem(j));
+        if (!plot || plot->IsA("vtkPlotBar"))
+        {
+          continue;
+        }
+        vtkIdTypeArray* selectionArray = plot->GetSelection();
+        if (!selectionArray || selectionArray->GetNumberOfValues() < 1)
+        {
+          continue;
+        }
+        if (selectionArray->GetNumberOfValues() > 1)
+        {
+          vtkDebugMacro("Move event (Click and Drag) found more than one point to update.");
+        }
+        vtkIdType index = selectionArray->GetValue(0);
+        if (this->DragPointAlongX)
+        {
+          vtkDataArray* xArray = plot->GetData()->GetInputArrayToProcess(0, plot->GetInput());
+          xArray->SetVariantValue(index, position.GetX());
+        }
+        if (this->DragPointAlongY)
+        {
+          vtkDataArray* yArray = plot->GetData()->GetInputArrayToProcess(1, plot->GetInput());
+          yArray->SetVariantValue(index, position.GetY());
+        }
+        plot->GetSelection()->Modified();
+        plot->GetInput()->Modified();
+        this->Scene->SetDirty(true);
+      }
+    }
+  }
   else if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
   {
     this->Scene->SetDirty(true);
@@ -1778,6 +1855,12 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
     this->SelectionPolygon.Clear();
     this->SelectionPolygon.AddPoint(mouse.GetPos());
     this->DrawSelectionPolygon = true;
+    return true;
+  }
+  else if (mouse.GetButton() == this->Actions.ClickAndDrag())
+  {
+    this->ReleasePlotSelections();
+    this->DragPoint = this->LocatePointInPlots(mouse, vtkCommand::SelectionChangedEvent);
     return true;
   }
   else if (mouse.GetButton() == this->ActionsClick.Select() ||
@@ -2065,6 +2148,12 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
   }
   else if (mouse.GetButton() == this->Actions.ZoomAxis())
   {
+    return true;
+  }
+  else if (mouse.GetButton() == this->Actions.ClickAndDrag())
+  {
+    this->ReleasePlotSelections();
+    this->DragPoint = false;
     return true;
   }
   return false;
