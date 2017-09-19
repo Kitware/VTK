@@ -36,6 +36,7 @@ vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
 vtkTextActor3D::vtkTextActor3D()
 {
   this->Input        = nullptr;
+  this->LastInputString = "";
   this->ImageActor   = vtkImageActor::New();
   this->ImageData    = nullptr;
   this->TextProperty = nullptr;
@@ -278,9 +279,6 @@ int vtkTextActor3D::UpdateImageActor()
       this->TextProperty->GetMTime() > this->BuildTime ||
       !this->ImageData)
   {
-
-    this->BuildTime.Modified();
-
     // we have to give vtkFTU::RenderString something to work with
     if (!this->ImageData)
     {
@@ -296,22 +294,28 @@ int vtkTextActor3D::UpdateImageActor()
       return 0;
     }
 
-    if (!tRend->RenderString(this->TextProperty, this->Input, this->ImageData,
-                             nullptr, vtkTextActor3D::GetRenderedDPI()))
+    if (this->TextProperty->GetMTime() > this->BuildTime ||
+        this->LastInputString != this->Input)
     {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      this->ImageActor->SetInputData(nullptr);
-      return 0;
+      if (!tRend->RenderString(this->TextProperty, this->Input, this->ImageData,
+                               nullptr, vtkTextActor3D::GetRenderedDPI()))
+      {
+        vtkErrorMacro(<<"Failed rendering text to buffer");
+        this->ImageActor->SetInputData(nullptr);
+        return 0;
+      }
+
+      // Associate the image data (should be up to date now) to the image actor
+      this->ImageActor->SetInputData(this->ImageData);
+
+      // Only render the visible portions of the texture.
+      int bbox[6] = {0, 0, 0, 0, 0, 0};
+      this->GetBoundingBox(bbox);
+      this->ImageActor->SetDisplayExtent(bbox);
+      this->LastInputString = this->Input;
     }
 
-    // Associate the image data (should be up to date now) to the image actor
-    this->ImageActor->SetInputData(this->ImageData);
-
-    // Only render the visible portions of the texture.
-    int bbox[6] = {0, 0, 0, 0, 0, 0};
-    this->GetBoundingBox(bbox);
-    this->ImageActor->SetDisplayExtent(bbox);
-
+    this->BuildTime.Modified();
   } // if (this->GetMTime() ...
 
   // Position the actor
