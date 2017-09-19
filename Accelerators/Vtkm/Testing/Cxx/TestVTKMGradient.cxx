@@ -88,7 +88,7 @@ namespace
         gradients->GetTypedTuple(i, values.data());
         correct->GetTypedTuple(i, expected.data());
 
-        std::cout << "Gradient[ i ] should look like: " << std::endl;
+        std::cout << "Gradient[ " << i << " ] should look like: " << std::endl;
         std::cout << expected[0] << ", " << expected[1] << ", " <<  expected[2] << std::endl;
         if(numberOfComponents > 3)
         {
@@ -96,7 +96,7 @@ namespace
           std::cout << expected[6] << ", " <<  expected[7] << ", " <<  expected[8] << std::endl;
         }
 
-        std::cout << "Gradient[ i ] actually looks like: " << std::endl;
+        std::cout << "Gradient[ " << i << " ] actually looks like: " << std::endl;
         std::cout << values[0] << ", " << values[1] << ", " <<  values[2] << std::endl;
         if(numberOfComponents > 3)
         {
@@ -306,14 +306,14 @@ namespace
 //-----------------------------------------------------------------------------
 int TestVTKMGradient(int argc, char *argv[])
 {
+  vtkDataSet* grid = nullptr;
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
   wavelet->SetCenter(0, 0, 0);
   wavelet->Update();
 
-  vtkDataSet* grid = vtkDataSet::SafeDownCast(
-    wavelet->GetOutput());
+  grid = vtkDataSet::SafeDownCast(wavelet->GetOutput());
 
   if(PerformTest(grid))
   {
@@ -326,5 +326,30 @@ int TestVTKMGradient(int argc, char *argv[])
   ug->Update();
 
   grid = vtkDataSet::SafeDownCast(ug->GetOutput());
-  return PerformTest(grid);
+  if(PerformTest(grid))
+  {
+    return EXIT_FAILURE;
+  }
+
+  //now try with 2D wavelets
+  wavelet->SetWholeExtent(-10, 10, -10, 10, 0, 0);
+  wavelet->SetCenter(0, 0, 0);
+  wavelet->Update();
+
+  grid = vtkDataSet::SafeDownCast(wavelet->GetOutput());
+  if(PerformTest(grid))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // convert the 2D structured grid to an unstructured grid
+  ug->Update();
+
+  grid = vtkDataSet::SafeDownCast(ug->GetOutput());
+  if(PerformTest(grid))
+  {
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }
