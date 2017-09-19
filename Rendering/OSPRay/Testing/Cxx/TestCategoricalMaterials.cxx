@@ -100,7 +100,8 @@ int TestCategoricalMaterials(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   lut->SetIndexedLookup(1);
 
   //get a hold of the material library
-  vtkSmartPointer<vtkOSPRayMaterialLibrary> ml = vtkOSPRayMaterialLibrary::GetInstance();
+  vtkSmartPointer<vtkOSPRayMaterialLibrary> ml = vtkSmartPointer<vtkOSPRayMaterialLibrary>::New();
+  vtkOSPRayRendererNode::SetMaterialLibrary(ml, renderer);
   //add materials to it
   ml->AddMaterial("Five", "Metal");
   ml->AddMaterial("One", "Glass");

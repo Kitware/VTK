@@ -37,13 +37,9 @@ class vtkTexture;
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayMaterialLibrary : public vtkObject
 {
 public:
+  static vtkOSPRayMaterialLibrary *New();
   vtkTypeMacro(vtkOSPRayMaterialLibrary,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
-
-  /**
-   * Access the singleton.
-   */
-  static vtkOSPRayMaterialLibrary* GetInstance();
 
   /**
    * Called to kick off events in all followers.
@@ -51,10 +47,23 @@ public:
   void Fire();
 
   /**
-   * Reads the given file of materials and creates the set of vtk data structure
-   * structures needed to display objects with them.
+   * Reads the given file of materials and creates the in memory data
+   * structures needed to display objects with them. Returns false only if
+   * file could not be meaningfully interpretted.
    */
-  void ReadFile(const char*FileName);
+  bool ReadFile(const char*FileName);
+
+  /**
+   * Serialize contents to an in memory buffer.
+   */
+  const char *WriteBuffer();
+
+  /**
+   * DeSerialize contents from an in memory buffer as ReadFile does from a
+   * file or set of files. Returns false only if buffer could not be
+   * meaningfully interpretted.
+   */
+  bool ReadBuffer(const char*Buffer);
 
   /**
    * Returns the set of material nicknames.
@@ -99,9 +108,10 @@ public:
 protected:
   vtkOSPRayMaterialLibrary();
   virtual ~vtkOSPRayMaterialLibrary();
-  static vtkOSPRayMaterialLibrary *New();
 
- private:
+  bool InternalParse(const char *name, bool IsFile);
+
+private:
   vtkOSPRayMaterialLibrary(const vtkOSPRayMaterialLibrary&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOSPRayMaterialLibrary&) VTK_DELETE_FUNCTION;
 

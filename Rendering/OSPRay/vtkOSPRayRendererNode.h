@@ -28,9 +28,11 @@
 
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
+class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkMatrix4x4;
 class vtkOSPRayRendererNodeInternals;
+class vtkOSPRayMaterialLibrary;
 class vtkRenderer;
 
 // ospray forward decs so that someone does not need to include ospray.h
@@ -167,6 +169,19 @@ public:
   //@}
 
   /**
+   * Material Library attached to the renderer.
+   */
+  static vtkInformationObjectBaseKey* MATERIAL_LIBRARY();
+
+  //@{
+  /**
+   * Convenience method to set/get Material library on a renderer.
+   */
+  static void SetMaterialLibrary(vtkOSPRayMaterialLibrary *, vtkRenderer *renderer);
+  static vtkOSPRayMaterialLibrary* GetMaterialLibrary(vtkRenderer *renderer);
+  //@}
+
+  /**
    * Methods for other nodes to access
    */
   OSPModel GetOModel() { return this->OModel; }
@@ -189,6 +204,11 @@ public:
   // if you want to traverse your children in a specific order
   // or way override this method
   virtual void Traverse(int operation) VTK_OVERRIDE;
+
+  /**
+   * Convenience method to get and downcast renderable.
+   */
+  vtkRenderer *GetRenderer();
 
 protected:
   vtkOSPRayRendererNode();

@@ -150,7 +150,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
   vtkSmartPointer<vtkPolyDataMapper> mapper;
 
   //get a hold of the material library
-  vtkSmartPointer<vtkOSPRayMaterialLibrary> ml = vtkOSPRayMaterialLibrary::GetInstance();
+  vtkSmartPointer<vtkOSPRayMaterialLibrary> ml = vtkSmartPointer<vtkOSPRayMaterialLibrary>::New();
+  vtkOSPRayRendererNode::SetMaterialLibrary(ml, renderer);
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //plain old color, no fancy shmancy material here by gum

@@ -619,7 +619,8 @@ namespace vtkosp {
   }
 
   //------------------------------------------------------------------------------
-  OSPMaterial MakeActorMaterial(OSPRenderer oRenderer, vtkProperty *property,
+  OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode *orn,
+                                OSPRenderer oRenderer, vtkProperty *property,
                                 double *ambientColor,
                                 double *diffuseColor,
                                 float *specularf,
@@ -636,17 +637,19 @@ namespace vtkosp {
       if (std::string("MasterMaterial") == property->GetMaterialName())
       {
         oMaterial = ospNewMaterial(oRenderer, "OBJMaterial");
-        vtkOSPRayMaterialHelpers::MakeMaterials(oRenderer, mats);
+        vtkOSPRayMaterialHelpers::MakeMaterials(orn, oRenderer, mats);
         std::string requested_mat_name = materialName;
         if (requested_mat_name != "" && requested_mat_name != "MasterMaterial")
         {
           oMaterial = vtkOSPRayMaterialHelpers::MakeMaterial
-            (oRenderer, requested_mat_name.c_str());
+            (orn, oRenderer, requested_mat_name.c_str());
           useCustomMaterial = true;
         }
-      } else {
+      }
+      else
+      {
         oMaterial = vtkOSPRayMaterialHelpers::MakeMaterial
-          (oRenderer, property->GetMaterialName());
+          (orn, oRenderer, property->GetMaterialName());
         useCustomMaterial = true;
       }
     }
@@ -706,7 +709,8 @@ namespace vtkosp {
   }
 
   //------------------------------------------------------------------------------
-  OSPMaterial MakeActorMaterial(OSPRenderer oRenderer, vtkProperty *property,
+  OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode *orn,
+                                OSPRenderer oRenderer, vtkProperty *property,
                                 double *ambientColor,
                                 double *diffuseColor,
                                 float *specularf,
@@ -714,7 +718,8 @@ namespace vtkosp {
   {
     bool dontcare1;
     std::map<std::string, OSPMaterial> dontcare2;
-    return MakeActorMaterial(oRenderer, property,
+    return MakeActorMaterial(orn,
+                             oRenderer, property,
                              ambientColor,
                              diffuseColor,
                              specularf,
@@ -757,6 +762,11 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   double opacity,
   std::string materialName)
 {
+  //todo: this is ugly {
+  vtkOSPRayRendererNode *orn =
+    static_cast<vtkOSPRayRendererNode *>(
+      this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+
   OSPRenderer oRenderer = static_cast<OSPRenderer>(renderer);
   OSPModel oModel = static_cast<OSPModel>(model);
   vtkActor *act = vtkActor::SafeDownCast(aNode->GetRenderable());
@@ -813,17 +823,13 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   float specularf[3];
   bool useCustomMaterial = false;
   std::map<std::string, OSPMaterial > mats;
-  //todo: this is ugly {
-  vtkOSPRayRendererNode *orn =
-    static_cast<vtkOSPRayRendererNode *>(
-      this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
   bool pt_avail =
     orn->GetRendererType(
       vtkRenderer::SafeDownCast(orn->GetRenderable()))
     ==
     std::string("pathtracer");
   //}
-  OSPMaterial oMaterial = vtkosp::MakeActorMaterial(oRenderer, property,
+  OSPMaterial oMaterial = vtkosp::MakeActorMaterial(orn, oRenderer, property,
                                                     ambientColor,
                                                     diffuseColor,
                                                     specularf,
@@ -1087,7 +1093,8 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
 
           //edge material
           double *eColor = property->GetEdgeColor();
-          OSPMaterial oMaterial2 = vtkosp::MakeActorMaterial(oRenderer,
+          OSPMaterial oMaterial2 = vtkosp::MakeActorMaterial(orn,
+                                                             oRenderer,
                                                              property,
                                                              eColor,
                                                              eColor,
@@ -1191,7 +1198,8 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
 
           //edge material
           double *eColor = property->GetEdgeColor();
-          OSPMaterial oMaterial2 = vtkosp::MakeActorMaterial(oRenderer,
+          OSPMaterial oMaterial2 = vtkosp::MakeActorMaterial(orn,
+                                                             oRenderer,
                                                              property,
                                                              eColor,
                                                              eColor,

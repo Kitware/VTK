@@ -22,12 +22,17 @@
 #include "vtkOSPRayMaterialLibrary.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
+#include "vtkXMLImageDataReader.h"
+#include "vtkXMLImageDataWriter.h"
 #include "vtk_jsoncpp.h"
 #include <vtksys/SystemTools.hxx>
 
 #include <fstream>
 #include <vector>
 #include <string>
+
+#include <sys/types.h>
+#include <unistd.h>
 
 typedef std::map<std::string, std::vector<double> > NamedVariables;
 typedef std::map<std::string, vtkSmartPointer<vtkTexture> > NamedTextures;
@@ -48,29 +53,8 @@ public:
   std::map<std::string, NamedTextures > TexturesFor;
 };
 
-//----------------------------------------------------------------------------
-vtkOSPRayMaterialLibrary* vtkOSPRayMaterialLibrary::New()
-{
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOSPRayMaterialLibrary");
-  if (ret)
-  {
-    return static_cast<vtkOSPRayMaterialLibrary*>(ret);
-  }
-  vtkOSPRayMaterialLibrary* o = new vtkOSPRayMaterialLibrary;
-  o->InitializeObjectBase();
-  return o;
-}
-
-//----------------------------------------------------------------------------
-vtkOSPRayMaterialLibrary* vtkOSPRayMaterialLibrary::GetInstance()
-{
-  static vtkSmartPointer<vtkOSPRayMaterialLibrary> Singleton;
-  if (Singleton.GetPointer() == nullptr)
-  {
-    Singleton.TakeReference(vtkOSPRayMaterialLibrary::New());
-  }
-  return Singleton.GetPointer();
-}
+// ----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkOSPRayMaterialLibrary);
 
 // ----------------------------------------------------------------------------
 vtkOSPRayMaterialLibrary::vtkOSPRayMaterialLibrary()
@@ -115,40 +99,71 @@ void vtkOSPRayMaterialLibrary::AddShaderVariable(const std::string& nickname, co
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayMaterialLibrary::ReadFile
+bool vtkOSPRayMaterialLibrary::ReadFile
  (const char *filename)
 {
+  return this->InternalParse(filename, true);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOSPRayMaterialLibrary::ReadBuffer
+  (const char *filename)
+{
+  return this->InternalParse(filename, false);
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOSPRayMaterialLibrary::InternalParse
+  (const char *filename, bool fromfile)
+{
+  if (!filename)
+  {
+    return false;
+  }
+  if (fromfile && !vtksys::SystemTools::FileExists(filename, true))
+  {
+    return false;
+  }
+
   //todo: this reader is a lot more fragile then I'ld like, need to make it robust
-  std::ifstream doc(filename, std::ifstream::binary);
+  std::istream *doc;
+  if (fromfile)
+  {
+    doc = new std::ifstream(filename, std::ifstream::binary);
+  } else {
+    doc = new std::istringstream(filename);
+  }
+
   Json::Value root;
-  doc >> root;
+  *doc >> root;
+  delete doc;
 
   if (!root.isMember("family"))
   {
     vtkErrorMacro("Not a materials file. Must have \"family\"=\"...\" entry.");
-    return;
+    return false;
   }
   const Json::Value family = root["family"];
   if (family.asString() != "OSPRay")
   {
     vtkErrorMacro("Unsupported materials file. Family is not \"OSPRay\".");
-    return;
+    return false;
   }
   if (!root.isMember("version"))
   {
     vtkErrorMacro("Not a materials file. Must have \"version\"=\"...\" entry.");
-    return;
+    return false;
   }
   const Json::Value version = root["version"];
   if (version.asString() != "0.0")
   {
     vtkErrorMacro("Unsupported materials file. Version is not \"0.0\".");
-    return;
+    return false;
    }
   if (!root.isMember("materials"))
   {
     vtkErrorMacro("Not a materials file. Must have \"materials\"={...} entry.");
-    return;
+    return false;
   }
 
   const Json::Value materials = root["materials"];
@@ -178,23 +193,36 @@ void vtkOSPRayMaterialLibrary::ReadFile
       {
         const std::string &tname = jkeys[j];
         const Json::Value nexttext = textures[tname];
+        const char *tfname = nexttext.asCString();
         vtkSmartPointer<vtkTexture> textr = vtkSmartPointer<vtkTexture>::New();
         vtkSmartPointer<vtkJPEGReader> jpgReader = vtkSmartPointer<vtkJPEGReader>::New();
         vtkSmartPointer<vtkPNGReader> pngReader = vtkSmartPointer<vtkPNGReader>::New();
-        const char *tfname = nexttext.asCString();
-        std::string tfullname = parentDir + "/" + tfname;
-        if (tfullname.substr( tfullname.length() - 3 ) == "png")
+        if (fromfile)
         {
-          pngReader->SetFileName(tfullname.c_str());
-          pngReader->Update();
-          textr->SetInputConnection(pngReader->GetOutputPort(0));
+          std::string tfullname = parentDir + "/" + tfname;
+          if (!vtksys::SystemTools::FileExists(tfullname.c_str(), true))
+          {
+            cerr << "No such texture file " << tfullname << " skipping" << endl;
+            continue;
+          }
+          if (tfullname.substr( tfullname.length() - 3 ) == "png")
+          {
+            pngReader->SetFileName(tfullname.c_str());
+            pngReader->Update();
+            textr->SetInputConnection(pngReader->GetOutputPort(0));
+          } else {
+            jpgReader->SetFileName(tfullname.c_str());
+            jpgReader->Update();
+            textr->SetInputConnection(jpgReader->GetOutputPort(0));
+          }
+        } else {
+          vtkSmartPointer<vtkXMLImageDataReader> reader =
+            vtkSmartPointer<vtkXMLImageDataReader>::New();
+          reader->ReadFromInputStringOn();
+          reader->SetInputString(tfname);
+          textr->SetInputConnection(reader->GetOutputPort(0));
         }
-        else
-        {
-          jpgReader->SetFileName(tfullname.c_str());
-          jpgReader->Update();
-          textr->SetInputConnection(jpgReader->GetOutputPort(0));
-        }
+        textr->Update();
         this->AddTexture(nickname, tname, textr);
       }
     }
@@ -217,6 +245,83 @@ void vtkOSPRayMaterialLibrary::ReadFile
       }
     }
   }
+
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+const char * vtkOSPRayMaterialLibrary::WriteBuffer()
+{
+  Json::Value root;
+  root["family"] = "OSPRay";
+  root["version"] = "0.0";
+  Json::Value materials;
+
+  vtkSmartPointer<vtkXMLImageDataWriter> idwriter =
+    vtkSmartPointer<vtkXMLImageDataWriter>::New();
+  idwriter->WriteToOutputStringOn();
+
+  std::set<std::string>::iterator it = this->Internal->NickNames.begin();
+  while (it != this->Internal->NickNames.end())
+  {
+    std::string nickname = *it;
+    Json::Value jnickname;
+    std::string implname = this->LookupImplName(nickname);
+    jnickname["type"] = implname;
+
+    if (this->Internal->VariablesFor.find(nickname)
+        != this->Internal->VariablesFor.end())
+    {
+      Json::Value variables;
+      NamedVariables::iterator vit = this->Internal->VariablesFor[nickname].begin();
+      while (vit != this->Internal->VariablesFor[nickname].end())
+      {
+        std::string vname = vit->first;
+        std::vector<double> vvals = vit->second;
+        Json::Value jvvals;
+        for (int i = 0; i < vvals.size(); i++)
+        {
+          jvvals.append(vvals[i]);
+        }
+        variables[vname] = jvvals;
+        ++vit;
+      }
+
+      jnickname["doubles"] = variables;
+    }
+
+    if (this->Internal->TexturesFor.find(nickname)
+        != this->Internal->TexturesFor.end())
+    {
+      Json::Value textures;
+      NamedTextures::iterator vit = this->Internal->TexturesFor[nickname].begin();
+      while (vit != this->Internal->TexturesFor[nickname].end())
+      {
+        std::string vname = vit->first;
+        vtkSmartPointer<vtkTexture> vvals = vit->second;
+        idwriter->SetInputData(vvals->GetInput());
+        idwriter->Write();
+        std::string os = idwriter->GetOutputString();
+        Json::Value jvvals = os;
+        textures[vname] = jvvals;
+        ++vit;
+      }
+
+      jnickname["textures"] = textures;
+    }
+
+    materials[nickname] = jnickname;
+    ++it;
+  }
+
+  root["materials"] = materials;
+  Json::FastWriter fast;
+  std::string sFast = fast.write(root);
+
+  char *buf = new char[sFast.length()+1];
+  memcpy(buf, sFast.c_str(), sFast.length());
+  buf[sFast.length()] =0;
+  return buf;
 }
 
 //-----------------------------------------------------------------------------
