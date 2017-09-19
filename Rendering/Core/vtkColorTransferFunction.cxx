@@ -221,6 +221,53 @@ inline void vtkColorTransferFunctionInterpolateDiverging(double s,
   vtkMath::LabToRGB(labTmp, result);
 }
 
+// Interpolate a LAB/CIEDE2000 color map.
+inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s, const double rgb1[3],
+  const double rgb2[3], double result[3], vtkSmartPointer<vtkColorTransferFunction>& cachedPathCTF)
+{
+  // Create and remember a color transfer function representing the
+  // shortest color path from rgb1 to rgb2
+  double val[6];
+  if (cachedPathCTF == nullptr || cachedPathCTF->GetSize() < 2 ||
+    cachedPathCTF->GetNodeValue(0, val) == -1 ||
+    (val[1] != rgb1[0] || val[2] != rgb1[1] || val[3] != rgb1[2]) ||
+    cachedPathCTF->GetNodeValue(cachedPathCTF->GetSize() - 1, val) == -1 ||
+    (val[1] != rgb2[0] || val[2] != rgb2[1] || val[3] != rgb2[2]))
+  {
+    // If something changed, update the path and its color transfer
+    // function.
+    if (cachedPathCTF == nullptr)
+    {
+      cachedPathCTF = vtkSmartPointer<vtkColorTransferFunction>::New();
+    }
+    else
+    {
+      // Remove the old nodes from the path's color transfer function
+      cachedPathCTF->RemoveAllPoints();
+    }
+    cachedPathCTF->SetColorSpaceToLab();
+
+    // Get the shortest color path and its overall length
+    std::vector<CIEDE2000::Node> path;
+    double pathDistance = CIEDE2000::GetColorPath(rgb1, rgb2, path);
+
+    // Add the nodes of the new path to the path's color transfer function
+    for (const auto& node : path)
+    {
+      double fraction = node.distance / pathDistance;
+      cachedPathCTF->AddRGBPoint(fraction, node.rgb[0], node.rgb[1], node.rgb[2]);
+    }
+  }
+
+  // Evaluate the color of the path at the current position
+  const unsigned char* color = cachedPathCTF->MapValue(s);
+
+  // Set the final interpolated color
+  result[0] = color[0] / 255.0;
+  result[1] = color[1] / 255.0;
+  result[2] = color[2] / 255.0;
+}
+
 //----------------------------------------------------------------------------
 // Construct a new vtkColorTransferFunction with default values
 vtkColorTransferFunction::vtkColorTransferFunction()
@@ -742,6 +789,8 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
     logEnd = log10(xEnd);
   }
 
+  vtkSmartPointer<vtkColorTransferFunction> ciede2000Helper = nullptr;
+
   // For each table entry
   for ( i = 0; i < size; i++ )
   {
@@ -996,6 +1045,10 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         {
           vtkColorTransferFunctionInterpolateDiverging(s, rgb1, rgb2, tptr);
         }
+        else if (this->ColorSpace == VTK_CTF_LAB_CIEDE2000)
+        {
+          vtkColorTransferFunctionInterpolateLABCIEDE2000(s, rgb1, rgb2, tptr, ciede2000Helper);
+        }
         else
         {
           vtkErrorMacro("ColorSpace set to invalid value.");
@@ -1102,60 +1155,9 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
       }
       else if (this->ColorSpace == VTK_CTF_LAB_CIEDE2000)
       {
-        // Create and remember a color transfer function representing the
-        // shortest color path from rgb1 to rgb2
-        static auto pathCTF = vtkSmartPointer<vtkColorTransferFunction>::New();
-        {
-          // Interpolate between two successive nodes of the path by Lab
-          pathCTF->SetColorSpaceToLab();
-
-          static double lastRGB1[3] = { -1.0, -1.0, -1.0 };
-          static double lastRGB2[3] = { -1.0, -1.0, -1.0 };
-
-          // If something changed, update the path and its color transfer
-          // function.
-          // We might also need to check for a change of the midpoint, sharpness
-          // or the use of log-scale.
-          if ((rgb1[0] != lastRGB1[0]) || (rgb1[1] != lastRGB1[1]) || (rgb1[2] != lastRGB1[2]) ||
-            (rgb2[0] != lastRGB2[0]) || (rgb2[1] != lastRGB2[1]) || (rgb2[2] != lastRGB2[2]))
-          {
-            // Remember the colors used for the path
-            lastRGB1[0] = rgb1[0];
-            lastRGB1[1] = rgb1[1];
-            lastRGB1[2] = rgb1[2];
-
-            lastRGB2[0] = rgb2[0];
-            lastRGB2[1] = rgb2[1];
-            lastRGB2[2] = rgb2[2];
-
-            // Get the shortest color path and its overall length
-            std::vector<CIEDE2000::Node> path;
-            double pathDistance = CIEDE2000::GetColorPath(rgb1, rgb2, path);
-
-            // Remove the old nodes from the path's color transfer function
-            pathCTF->RemoveAllPoints();
-
-            // Add the nodes of the new path to the path's color transfer
-            // function
-            for (const auto& node : path)
-            {
-              double fraction = node.distance / pathDistance;
-
-              pathCTF->AddRGBPoint(fraction, node.rgb[0], node.rgb[1], node.rgb[2]);
-            }
-          }
-        }
-
         // Apply the hermite transformation to the current position
-        double x = h2 + (1.0 - sharpness) * (h3 + h4);
-
-        // Evaluate the color of the path at the current position
-        unsigned char* color = pathCTF->MapValue(x);
-
-        // Set the final interpolated color
-        tptr[0] = color[0] / 255.0;
-        tptr[1] = color[1] / 255.0;
-        tptr[2] = color[2] / 255.0;
+        double val = h2 + (1.0 - sharpness) * (h3 + h4);
+        vtkColorTransferFunctionInterpolateLABCIEDE2000(val, rgb1, rgb2, tptr, ciede2000Helper);
       }
       else if (this->ColorSpace == VTK_CTF_DIVERGING)
       {
