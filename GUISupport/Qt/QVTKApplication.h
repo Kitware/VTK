@@ -39,7 +39,7 @@
 
 #ifdef VTK_USE_TDX
 class vtkTDxDevice;
-#ifdef Q_OS_LINUX
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX)
 class vtkTDxQtUnixDevices;
  #endif
 #endif
@@ -56,7 +56,7 @@ public:
   // Destructor.
   ~QVTKApplication() override;
 
-#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   // Description:
   // Intercept X11 events.
   // Redefined from QApplication.
@@ -68,7 +68,7 @@ public Q_SLOTS:
 // Description:
 // Slot to receive signal CreateDevice coming from vtkTDxQtUnixDevices.
 // It re-emit signal CreateDevice (to QVTKWidget slots)
-  // No-op if not X11 (ie Q_OS_LINUX is not defined).
+  // No-op if not X11 (ie Q_OS_LINUX and Q_WS_X11 is not defined).
   void setDevice(vtkTDxDevice *device);
 
 Q_SIGNALS:
@@ -78,7 +78,7 @@ Q_SIGNALS:
 #endif
 
 protected:
-#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   vtkTDxQtUnixDevices *Devices;
 #endif
 };

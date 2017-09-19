@@ -14,6 +14,7 @@
 
 #include "QVTKWin32Header.h"
 #include <QPaintEngine>
+#include <vtkSetGet.h>
 class QVTKWidget;
 class QVTKPaintEngineInternal;
 
@@ -28,8 +29,8 @@ class QVTKPaintEngineInternal;
 class QVTKPaintEngine : public QPaintEngine
 {
 public:
-  QVTKPaintEngine();
-  ~QVTKPaintEngine() override;
+  VTK_LEGACY(QVTKPaintEngine());
+  ~QVTKPaintEngine() VTK_OVERRIDE;
 
   // Description:
   // begin painting on device (QVTKWidget)

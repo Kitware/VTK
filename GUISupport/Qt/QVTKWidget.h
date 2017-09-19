@@ -261,6 +261,10 @@ protected:
   // the paint engine
   QPaintEngine* mPaintEngine;
 
+  // set up an X11 window based on a visual and colormap
+  // that VTK chooses
+  void x11_setup_window();
+
 #if defined(Q_OS_WIN)
   bool winEvent(MSG* msg, long* result);
 

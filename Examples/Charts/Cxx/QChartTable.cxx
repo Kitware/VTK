@@ -45,7 +45,6 @@ int main( int argc, char * argv [] )
   QMainWindow mainWindow;
   mainWindow.setGeometry(0, 0, 1150, 600);
 
-  // QVTK set up and initialization
   QVTKOpenGLWidget *qvtkWidget = new QVTKOpenGLWidget(&mainWindow);
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
@@ -54,7 +53,7 @@ int main( int argc, char * argv [] )
   // Set up my 2D world...
   vtkNew<vtkContextView> view; // This contains a chart object
   view->SetRenderWindow(renderWindow);
-  view->SetInteractor(qvtkWidget->GetInteractor());
+  view->SetInteractor(renderWindow->GetInteractor());
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;

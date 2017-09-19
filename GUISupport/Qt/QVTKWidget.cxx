@@ -44,8 +44,9 @@
 #include "qsignalmapper.h"
 #include "qtimer.h"
 #include "vtkRenderingOpenGLConfigure.h"
-
-#if defined(Q_OS_LINUX)
+#if defined(Q_WS_X11) // aka Qt4
+# include "qx11info_x11.h"
+#elif defined(Q_OS_LINUX) // aka Qt5
 # include <QX11Info>
 #endif
 
@@ -67,7 +68,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
-#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 # include "vtkTDxUnixDevice.h"
 #endif
 
@@ -79,6 +80,7 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
     mDeferRenderInPaintEvent(false),
     renderEventCallbackObserverId(0)
 {
+  VTK_LEGACY_BODY(QVTKWidget, "VTK 8.1");
   this->UseTDx=false;
   // no background
   this->setAttribute(Qt::WA_NoBackground);
@@ -131,9 +133,9 @@ void QVTKWidget::SetUseTDx(bool useTDx)
 
     if(this->UseTDx)
     {
-#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
-      QByteArray theSignal =
-          QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
+       QByteArray theSignal=
+         QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
       if(QApplication::instance()->metaObject()->indexOfSignal(theSignal)!=-1)
       {
         QObject::connect(QApplication::instance(),
@@ -196,7 +198,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     {
       this->mRenWin->Finalize();
     }
-#if defined(Q_OS_LINUX)
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX)
     this->mRenWin->SetDisplayId(nullptr);
 #endif
     this->mRenWin->SetWindowId(nullptr);
@@ -217,10 +219,13 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       this->mRenWin->Finalize();
     }
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX)
     // give the qt display id to the vtk window
     this->mRenWin->SetDisplayId(QX11Info::display());
 #endif
+
+    // special x11 setup
+    x11_setup_window();
 
     // give the qt window id to the vtk window
     this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
@@ -371,6 +376,7 @@ bool QVTKWidget::event(QEvent* e)
   {
     if(this->mRenWin)
     {
+      x11_setup_window();
       // connect to new window
       this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
 #if QT_VERSION < 0x050000
@@ -675,7 +681,7 @@ QPaintEngine* QVTKWidget::paintEngine() const
 // X11 stuff near the bottom of the file
 // to prevent namespace collisions with Qt headers
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_WS_X11) || defined (Q_OS_LINUX)
 #if defined(VTK_USE_OPENGL_LIBRARY)
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -686,7 +692,7 @@ QPaintEngine* QVTKWidget::paintEngine() const
 // Receive notification of the creation of the TDxDevice
 void QVTKWidget::setDevice(vtkTDxDevice *device)
 {
-#if defined(Q_OS_LINUX)
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX)
   if(this->GetInteractor()->GetDevice()!=device)
   {
     this->GetInteractor()->SetDevice(device);
@@ -696,6 +702,129 @@ void QVTKWidget::setDevice(vtkTDxDevice *device)
 #endif
 }
 #endif
+
+void QVTKWidget::x11_setup_window()
+{
+#if defined(Q_WS_X11)
+  // NOTE: deliberately not executing this code for Qt5. It caused issues with
+  // glewInit() when I did that. Just letting the Qt create the visual/colormap
+  // seems to work better.
+
+  // this whole function is to allow this window to have a
+  // different colormap and visual than the rest of the Qt application
+  // this is very important if Qt's default visual and colormap is
+  // not enough to get a decent graphics window
+
+
+  // save widget states
+  bool tracking = this->hasMouseTracking();
+  Qt::FocusPolicy focus_policy = focusPolicy();
+  bool visible = isVisible();
+  if(visible)
+  {
+    hide();
+  }
+
+
+  // get visual and colormap from VTK
+  XVisualInfo* vi = 0;
+  Colormap cmap = 0;
+  Display* display = reinterpret_cast<Display*>(mRenWin->GetGenericDisplayId());
+
+  // check ogl and mesa and get information we need to create a decent window
+#if defined(VTK_USE_OPENGL_LIBRARY)
+  vtkXOpenGLRenderWindow* ogl_win = vtkXOpenGLRenderWindow::SafeDownCast(mRenWin);
+  if(ogl_win)
+  {
+    vi = ogl_win->GetDesiredVisualInfo();
+    cmap = ogl_win->GetDesiredColormap();
+  }
+#endif
+
+  // can't get visual, oh well.
+  // continue with Qt's default visual as it usually works
+  if(!vi)
+  {
+    if(visible)
+    {
+      show();
+    }
+    return;
+  }
+
+  // create the X window based on information VTK gave us
+  XSetWindowAttributes attrib;
+  attrib.colormap = cmap;
+  attrib.border_pixel = 0;
+  attrib.background_pixel = 0;
+
+  Window p = RootWindow(display, DefaultScreen(display));
+  if(parentWidget())
+  {
+    p = parentWidget()->winId();
+  }
+
+  XWindowAttributes a;
+  XGetWindowAttributes(display, this->winId(), &a);
+
+  Window win = XCreateWindow(display, p, a.x, a.y, a.width, a.height,
+                             0, vi->depth, InputOutput, vi->visual,
+                             CWBackPixel|CWBorderPixel|CWColormap, &attrib);
+
+  // backup colormap stuff
+  Window *cmw;
+  Window *cmwret;
+  int count;
+  if ( XGetWMColormapWindows(display, topLevelWidget()->winId(), &cmwret, &count) )
+  {
+    cmw = new Window[count+1];
+    memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
+    XFree( (char *)cmwret );
+    int i;
+    for ( i=0; i<count; i++ )
+    {
+      if ( cmw[i] == winId() )
+      {
+        cmw[i] = win;
+        break;
+      }
+    }
+    if ( i >= count )
+    {
+      cmw[count++] = win;
+    }
+  }
+  else
+  {
+    count = 1;
+    cmw = new Window[count];
+    cmw[0] = win;
+  }
+
+
+  // tell Qt to initialize anything it needs to for this window
+  create(win);
+
+  // restore colormaps
+  XSetWMColormapWindows( display, topLevelWidget()->winId(), cmw, count );
+
+  delete [] cmw;
+  XFree(vi);
+
+  XFlush(display);
+
+  // restore widget states
+  this->setMouseTracking(tracking);
+  this->setAttribute(Qt::WA_NoBackground);
+  this->setAttribute(Qt::WA_PaintOnScreen);
+  this->setFocusPolicy(focus_policy);
+  if(visible)
+  {
+    show();
+  }
+
+#endif
+}
 
 #if defined(Q_OS_WIN)
 bool QVTKWidget::winEvent(MSG* msg, long*)

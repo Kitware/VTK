@@ -123,6 +123,7 @@ public:
    * Get the internal objects
    */
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
+  void SetRenderWindow(vtkRenderWindow* renWin);
   vtkGetObjectMacro(Renderer, vtkRenderer);
   vtkGetObjectMacro(ImageMapper,vtkImageMapper);
   vtkGetObjectMacro(Actor2D,vtkActor2D);

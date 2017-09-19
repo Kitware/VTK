@@ -21,8 +21,10 @@
 
 #include "vtkGUISupportQtOpenGLModule.h" // For export macro
 #include <QtOpenGL/QGLWidget>
+#include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "QVTKWin32Header.h"
+
 
 class vtkGenericOpenGLRenderWindow;
 class vtkEventQtSlotConnect;
@@ -51,10 +53,10 @@ class VTKGUISUPPORTQTOPENGL_EXPORT QVTKWidget2 : public QGLWidget
   typedef QGLWidget Superclass;
 public:
   //! constructor
-  QVTKWidget2(QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
-  QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
-  QVTKWidget2(QGLContext* ctx, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
-  QVTKWidget2(const QGLFormat& fmt, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
+  VTK_LEGACY(QVTKWidget2(QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
+  VTK_LEGACY(QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
+  VTK_LEGACY(QVTKWidget2(QGLContext* ctx, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
+  VTK_LEGACY(QVTKWidget2(const QGLFormat& fmt, QWidget* parent = nullptr, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0));
   //! destructor
   virtual ~QVTKWidget2();
 

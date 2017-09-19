@@ -105,7 +105,7 @@
  *  - Rendering/vtkInteractorStyleImage returns a pointer to itself
  * - vtkCommand::CharEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QKeyEvent *
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QKeyEvent *
  * - vtkCommand::TimerEvent
  *  - most of the objects return a to an int representing a timer id
  *  - Rendering/vtkXRenderWindowTclInteractor returns nullptr
@@ -122,37 +122,37 @@
  * representing a pedigree id
  * - vtkCommand::KeyPressEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QKeyEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QKeyEvent*
  * - vtkCommand::KeyReleaseEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QKeyEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QKeyEvent*
  * - vtkCommand::LeftButtonPressEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QMouseEvent*
  * - vtkCommand::LeftButtonReleaseEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QMouseEvent*
  * - vtkCommand::MouseMoveEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QMouseEvent*
  * - vtkCommand::MouseWheelForwardEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QWheelEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QWheelEvent*
  * - vtkCommand::MouseWheelBackwardEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QWheelEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QWheelEvent*
  * - vtkCommand::RightButtonPressEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QMouseEvent*
  * - vtkCommand::RightButtonReleaseEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QMouseEvent*
  * - vtkCommand::MiddleButtonPressEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QMouseEvent*
  * - vtkCommand::MiddleButtonReleaseEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QMouseEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QMouseEvent*
  * - vtkCommand::CursorChangedEvent
  *  - most of the objects return a pointer to an int representing a shape
  *  - Rendering/vtkInteractorObserver returns nullptr
@@ -166,24 +166,24 @@
  *  - Rendering/vtkRenderer returns a pointer to the created camera
  * - vtkCommand::EnterEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QEvent*
  * - vtkCommand::LeaveEvent
  *  - most of the objects return nullptr
- *  - GUISupport/Qt/QVTKWidget returns a QEvent*
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QEvent*
  * - vtkCommand::RenderWindowMessageEvent
  *  - Rendering/vtkWin32OpenGLRenderWindow return a pointer to a UINT message
  * - vtkCommand::ComputeVisiblePropBoundsEvent
  *  - Rendering/vtkRenderer returns a pointer to itself
- * - QVTKWidget::ContextMenuEvent
- *  - GUISupport/Qt/QVTKWidget returns a QContextMenuEvent*
- * - QVTKWidget::DragEnterEvent
- *  - GUISupport/Qt/QVTKWidget returns a QDragEnterEvent*
- * - QVTKWidget::DragMoveEvent
- *  - GUISupport/Qt/QVTKWidget returns a QDragMoveEvent*
- * - QVTKWidget::DragLeaveEvent
- *  - GUISupport/Qt/QVTKWidget returns a QDragLeaveEvent*
- * - QVTKWidget::DropEvent
- *  - GUISupport/Qt/QVTKWidget returns a QDropEvent*
+ * - QVTKOpenGLWidget::ContextMenuEvent
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QContextMenuEvent*
+ * - QVTKOpenGLWidget::DragEnterEvent
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QDragEnterEvent*
+ * - QVTKOpenGLWidget::DragMoveEvent
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QDragMoveEvent*
+ * - QVTKOpenGLWidget::DragLeaveEvent
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QDragLeaveEvent*
+ * - QVTKOpenGLWidget::DropEvent
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QDropEvent*
  * - vtkCommand::ViewProgressEvent
  *  - View/vtkView returns a ViewProgressEventCallData*
  * - vtkCommand::VolumeMapperRenderProgressEvent
