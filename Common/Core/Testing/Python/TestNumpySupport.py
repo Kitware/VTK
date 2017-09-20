@@ -124,6 +124,19 @@ class TestNumpySupport(Testing.vtkTest):
         self.assertEqual(vtk_array.GetTuple3(0), (1., 3., 5.))
         self.assertEqual(vtk_array.GetTuple3(1), (13., 15., 17.))
 
+    def testNumpyReferenceWhenDelete(self):
+        "Test if the vtk array keeps the numpy reference in memory"
+        np_array = numpy.array([[1., 3., 5.], [13., 15., 17.]], 'd')
+        vtk_array = numpy_to_vtk(np_array)
+        del np_array
+        np_array = numpy.array([])
+
+        import gc
+        gc.collect()
+
+        self.assertEqual(vtk_array.GetTuple3(0), (1., 3., 5.))
+        self.assertEqual(vtk_array.GetTuple3(1), (13., 15., 17.))
+
     def testNumpyReduce(self):
         "Test that reducing methods return scalars."
         vtk_array = vtk.vtkLongArray()

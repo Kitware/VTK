@@ -179,6 +179,8 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
         copy = result_array.NewInstance()
         copy.DeepCopy(result_array)
         result_array = copy
+    else:
+        result_array._numpy_reference = z
     return result_array
 
 def numpy_to_vtkIdTypeArray(num_array, deep=0):
