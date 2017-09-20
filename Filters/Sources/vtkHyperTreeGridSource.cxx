@@ -964,6 +964,10 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor( vtkHyperTreeGrid* ou
     // Increment current level counter
     ++ this->LevelCounters.at( level );
 
+    if( this->UseMaterialMask )
+    {
+      output->GetMaterialMask()->InsertTuple1( id, 0 );
+    }
   } // if ( subdivide )
 
   else if ( this->UseMaterialMask )
@@ -1087,7 +1091,6 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeGrid* outp
 
   // Initialize global index of tree
   cursor->GetTree()->SetGlobalIndexFromLocal( cursor->GetVertexId(), id );
-
   bool refine = false;
 
   if ( this->LevelZeroMaterialIndex && level == 0 )
