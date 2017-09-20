@@ -9,6 +9,7 @@ vtk_module(vtkFiltersHybrid
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOLegacy
+    vtkFiltersHyperTree
   DEPENDS
     vtkCommonCore
     vtkCommonDataModel
@@ -19,6 +20,7 @@ vtk_module(vtkFiltersHybrid
     vtkCommonMisc
     vtkFiltersCore
     vtkFiltersGeneral
+    vtkFiltersGeometry
     vtkImagingCore
     vtkImagingSources
     vtkRenderingCore

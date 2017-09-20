@@ -1,7 +1,14 @@
 set(Module_SRCS
   vtkClipHyperOctree.cxx
+  vtkHyperTreeGridAxisClip.cxx
   vtkHyperTreeGridAxisCut.cxx
+  vtkHyperTreeGridAxisReflection.cxx
+  vtkHyperTreeGridCellCenters.cxx
+  vtkHyperTreeGridContour.cxx
+  vtkHyperTreeGridDepthLimiter.cxx
   vtkHyperTreeGridGeometry.cxx
+  vtkHyperTreeGridPlaneCutter.cxx
+  vtkHyperTreeGridThreshold.cxx
   vtkHyperTreeGridToUnstructuredGrid.cxx
   vtkHyperOctreeClipCutPointsGrabber.cxx
   vtkHyperOctreeContourFilter.cxx

@@ -1,5 +1,10 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TemporalStatistics.cxx
+  TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilter.cxx
+  TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilterMaterial.cxx
+  TestHyperTreeGridTernary3DAdaptiveDataSetSurfaceFilter.cxx
+  TestHyperTreeGridTernary3DToUnstructuredAdaptiveDataSetSurfaceFilter.cxx
+  TestHyperTreeGridTernary3DAdaptiveDataSetSurfaceFilterMaterial.cxx
   TestBSplineTransform.cxx
   TestDepthSortPolyData.cxx
   TestForceTime.cxx
