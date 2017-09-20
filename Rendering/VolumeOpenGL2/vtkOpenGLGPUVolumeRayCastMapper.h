@@ -16,9 +16,14 @@
 #ifndef vtkOpenGLGPUVolumeRayCastMapper_h
 #define vtkOpenGLGPUVolumeRayCastMapper_h
 
+// VTK includes
 #include "vtkNew.h"                          // For vtkNew
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkShader.h"                       // For methods
+
+// STL includes
+#include <map>
 
 // Forward declarations
 class vtkGenericOpenGLResourceFreeCallback;
@@ -102,6 +107,39 @@ public:
    *  whether loading will succeed  or not.
    */
   bool PreLoadData(vtkRenderer* ren, vtkVolume* vol);
+
+  //@{
+  /**
+   * This function enables you to apply your own substitutions
+   * to the shader creation process. The shader code in this class
+   * is created by applying a bunch of string replacements to a
+   * shader template. Using this function you can apply your
+   * own string replacements to add features you desire.
+   */
+  void AddShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    const std::string& originalValue,
+    bool replaceFirst,  // do this replacement before the default
+    const std::string& replacementValue,
+    bool replaceAll);
+  void ClearShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    const std::string& originalValue,
+    bool replaceFirst);
+  //@}
+
+  //@{
+  /**
+   * Allow the program to set the shader codes used directly
+   * instead of using the built in templates. Be aware, if
+   * set, this template will be used for all cases,
+   * primitive types, picking etc.
+   */
+  vtkSetStringMacro(VertexShaderCode);
+  vtkGetStringMacro(VertexShaderCode);
+  vtkSetStringMacro(FragmentShaderCode);
+  vtkGetStringMacro(FragmentShaderCode);
+  //@}
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
@@ -207,6 +245,10 @@ protected:
 
   double ReductionFactor;
   int    CurrentPass;
+  char *VertexShaderCode;
+  char *FragmentShaderCode;
+  std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue>
+    UserShaderReplacements;
 
 private:
   class vtkInternal;

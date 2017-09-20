@@ -68,7 +68,6 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
-#include <vtkShader.h>
 #include <vtkShaderProgram.h>
 #include <vtkSmartPointer.h>
 #include <vtkTessellatedBoxSource.h>
@@ -2767,6 +2766,8 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   this->CurrentPass = RenderPass;
   this->NoiseTextureSize[0] = this->NoiseTextureSize[1] = -1;
   this->NoiseGenerator = nullptr;
+  this->VertexShaderCode = nullptr;
+  this->FragmentShaderCode = nullptr;
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLGPUVolumeRayCastMapper>(this,
     &vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources);
@@ -2881,6 +2882,46 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   this->Impl->DeleteTransfer2D();
 
   this->Impl->ReleaseResourcesTime.Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::AddShaderReplacement(
+  vtkShader::Type shaderType, // vertex, fragment, etc
+  const std::string& originalValue,
+  bool replaceFirst, // do this replacement before the default
+  const std::string& replacementValue,
+  bool replaceAll)
+{
+  vtkShader::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  vtkShader::ReplacementValue values;
+  values.Replacement = replacementValue;
+  values.ReplaceAll = replaceAll;
+
+  this->UserShaderReplacements[spec] = values;
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ClearShaderReplacement(
+  vtkShader::Type shaderType, // vertex, fragment, etc
+  const std::string& originalValue,
+  bool replaceFirst)
+{
+  vtkShader::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::iterator RIter;
+  RIter found = this->UserShaderReplacements.find(spec);
+  if (found == this->UserShaderReplacements.end())
+  {
+    this->UserShaderReplacements.erase(found);
+  }
 }
 
 //----------------------------------------------------------------------------
