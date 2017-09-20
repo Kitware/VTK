@@ -1,4 +1,5 @@
 vtk_module(vtkRenderingOpenGL
+  LEGACY 8.1 "Please switch to using `OpenGL2` VTK_RENDERING_BACKEND to replace this module."
   IMPLEMENTS
     vtkRenderingCore
   BACKEND

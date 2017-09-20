@@ -8,6 +8,7 @@ elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(gl2ps_test_depends vtkIOExportOpenGL2)
 endif()
 vtk_module(vtkRenderingGL2PS
+  LEGACY 8.1 "Please switch to using `OpenGL2` VTK_RENDERING_BACKEND to replace this module."
   TCL_NAME vtkRenderingGLtoPS
   BACKEND
     OpenGL

@@ -1,5 +1,6 @@
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set(_imp_backend OpenGL2)
+set(_imp_backend OpenGL2)
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  set(_imp_backend "")
 endif()
 vtk_module(vtkRenderingParallelLIC
   IMPLEMENTS

@@ -1462,3 +1462,48 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
       return "";
   }
 }
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+int vtkRenderWindow::GetAAFrames()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetAAFrames, "VTK 8.1");
+  return this->AAFrames;
+}
+
+void vtkRenderWindow::SetAAFrames(int val)
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::SetAAFrames, "VTK 8.1");
+  if (this->AAFrames != val)
+  {
+    this->AAFrames = val;
+    this->Modified();
+  }
+}
+int vtkRenderWindow::GetFDFrames()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetFDFrames, "VTK 8.1");
+  return this->FDFrames;
+}
+
+int vtkRenderWindow::GetUseConstantFDOffsets()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetUseConstantFDOffsets, "VTK 8.1");
+  return this->UseConstantFDOffsets;
+}
+
+void vtkRenderWindow::SetUseConstantFDOffsets(int val)
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::SetUseConstantFDOffsets, "VTK 8.1");
+  if (this->UseConstantFDOffsets != val)
+  {
+    this->UseConstantFDOffsets = val;
+    this->Modified();
+  }
+}
+int vtkRenderWindow::GetSubFrames()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetSubFrames, "VTK 8.1");
+  return this->SubFrames;
+}
+#endif
