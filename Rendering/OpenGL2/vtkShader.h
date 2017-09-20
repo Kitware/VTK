@@ -21,8 +21,8 @@
 #ifndef vtkShader_h
 #define vtkShader_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
 #include <string> // For member variables.
 #include <vector> // For member variables.
@@ -30,24 +30,24 @@
 /**
  * @brief Vertex or Fragment shader, combined into a ShaderProgram.
  *
- * This class creates a Vertex, Fragment or Geometry shader, that can be attached to a
- * ShaderProgram in order to render geometry etc.
+ * This class creates a Vertex, Fragment or Geometry shader, that can be
+ * attached to a ShaderProgram in order to render geometry etc.
  */
 
 class VTKRENDERINGOPENGL2_EXPORT vtkShader : public vtkObject
 {
 public:
-  static vtkShader *New();
+  static vtkShader* New();
   vtkTypeMacro(vtkShader, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-
   /** Available shader types. */
-  enum Type {
-    Vertex,    /**< Vertex shader */
-    Fragment,  /**< Fragment shader */
-    Geometry,  /**< Geometry shader */
-    Unknown    /**< Unknown (default) */
+  enum Type
+  {
+    Vertex,   /**< Vertex shader */
+    Fragment, /**< Fragment shader */
+    Geometry, /**< Geometry shader */
+    Unknown   /**< Unknown (default) */
   };
 
   /** Set the shader type. */
@@ -57,7 +57,7 @@ public:
   Type GetType() const { return this->ShaderType; }
 
   /** Set the shader source to the supplied string. */
-  void SetSource(const std::string &source);
+  void SetSource(const std::string& source);
 
   /** Get the source for the shader. */
   std::string GetSource() const { return this->Source; }
@@ -79,12 +79,50 @@ public:
    */
   void Cleanup();
 
+  class ReplacementSpec
+  {
+  public:
+    std::string OriginalValue;
+    vtkShader::Type ShaderType;
+    bool ReplaceFirst;
+    bool operator<(const ReplacementSpec& v1) const
+    {
+      if (this->OriginalValue != v1.OriginalValue)
+      {
+        return this->OriginalValue < v1.OriginalValue;
+      }
+      if (this->ShaderType != v1.ShaderType)
+      {
+        return this->ShaderType < v1.ShaderType;
+      }
+      return (this->ReplaceFirst < v1.ReplaceFirst);
+    }
+    bool operator>(const ReplacementSpec& v1) const
+    {
+      if (this->OriginalValue != v1.OriginalValue)
+      {
+        return this->OriginalValue > v1.OriginalValue;
+      }
+      if (this->ShaderType != v1.ShaderType)
+      {
+        return this->ShaderType > v1.ShaderType;
+      }
+      return (this->ReplaceFirst > v1.ReplaceFirst);
+    }
+  };
+  class ReplacementValue
+  {
+  public:
+    std::string Replacement;
+    bool ReplaceAll;
+  };
+
 protected:
   vtkShader();
   ~vtkShader() override;
 
   Type ShaderType;
-  int  Handle;
+  int Handle;
   bool Dirty;
 
   std::string Source;
@@ -94,6 +132,5 @@ private:
   vtkShader(const vtkShader&) = delete;
   void operator=(const vtkShader&) = delete;
 };
-
 
 #endif
