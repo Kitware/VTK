@@ -35,6 +35,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include <string> // for ivar
 
 class vtkImageActor;
 class vtkImageData;
@@ -140,6 +141,7 @@ protected:
   vtkTextProperty *TextProperty;
 
   vtkTimeStamp    BuildTime;
+  std::string LastInputString;
 
   virtual int UpdateImageActor();
 
