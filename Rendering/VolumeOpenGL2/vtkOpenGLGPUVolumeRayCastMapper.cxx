@@ -2925,6 +2925,40 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearShaderReplacement(
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::GetShaderTemplate(
+  std::map<vtkShader::Type, vtkShader*>& shaders)
+{
+  if (shaders[vtkShader::Vertex])
+  {
+    if (this->VertexShaderCode && strcmp(this->VertexShaderCode,"") != 0)
+    {
+      shaders[vtkShader::Vertex]->SetSource(this->VertexShaderCode);
+    }
+    else
+    {
+      shaders[vtkShader::Vertex]->SetSource(raycastervs);
+    }
+  }
+
+  if (shaders[vtkShader::Fragment])
+  {
+    if (this->FragmentShaderCode && strcmp(this->FragmentShaderCode,"") != 0)
+    {
+      shaders[vtkShader::Fragment]->SetSource(this->FragmentShaderCode);
+    }
+    else
+    {
+      shaders[vtkShader::Fragment]->SetSource(raycasterfs);
+    }
+  }
+
+  if (shaders[vtkShader::Geometry])
+    {
+    shaders[vtkShader::Geometry]->SetSource("");
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderBase(
   std::map<vtkShader::Type, vtkShader*>& shaders, vtkRenderer* ren,
   vtkVolume* vol, int numComps)
@@ -3405,19 +3439,51 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 {
   std::map<vtkShader::Type, vtkShader*> shaders;
   vtkShader* vertexShader = vtkShader::New();
-  vertexShader->SetSource(raycastervs);
   vertexShader->SetType(vtkShader::Vertex);
   shaders[vtkShader::Vertex] = vertexShader;
   vtkShader* fragmentShader = vtkShader::New();
-  fragmentShader->SetSource(raycasterfs);
   fragmentShader->SetType(vtkShader::Fragment);
   shaders[vtkShader::Fragment] = fragmentShader;
   vtkShader* geometryShader = vtkShader::New();
-  geometryShader->SetSource("");
   geometryShader->SetType(vtkShader::Geometry);
   shaders[vtkShader::Geometry] = geometryShader;
 
+  this->GetShaderTemplate(shaders);
+
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::const_iterator RIter;
+
+  // user specified pre replacements
+  for (RIter i = this->UserShaderReplacements.begin();
+       i != this->UserShaderReplacements.end(); ++i)
+  {
+    if (i->first.ReplaceFirst)
+    {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+    }
+  }
+
   this->ReplaceShaderValues(shaders, ren, vol, noOfComponents);
+
+  // user specified post replacements
+  for (RIter i = this->UserShaderReplacements.begin();
+    i != this->UserShaderReplacements.end(); ++i)
+  {
+    if (!i->first.ReplaceFirst)
+    {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+    }
+  }
 
   // Now compile the shader
   //--------------------------------------------------------------------------

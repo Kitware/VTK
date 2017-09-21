@@ -225,6 +225,11 @@ protected:
   vtkMTimeType GetRenderPassStageMTime(vtkVolume* vol);
 
   /**
+   * Create the basic shader template strings before substitutions
+   */
+  void GetShaderTemplate(std::map<vtkShader::Type, vtkShader*>& shaders);
+
+  /**
    * Perform string replacements on the shader templates
    */
   void ReplaceShaderValues(std::map<vtkShader::Type, vtkShader*>& shaders,
