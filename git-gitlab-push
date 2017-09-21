@@ -35,7 +35,7 @@ OPTIONS_SPEC=
 SUBDIRECTORY_OK=Yes
 . "$(git --exec-path)/git-sh-setup"
 
-egrep-q() {
+egrep_q() {
 	egrep "$@" >/dev/null 2>/dev/null
 }
 
@@ -60,6 +60,8 @@ gitlab_configured=1
 remote=''
 refspecs=''
 force=''
+lease=false
+lease_flag=''
 no_topic=''
 no_default=''
 dry_run=''
@@ -67,7 +69,7 @@ dry_run=''
 # Parse the command line options.
 while test $# != 0; do
 	case "$1" in
-		-f|--force)   force='+' ;;
+		-f|--force)   force='+'; lease=true ;;
 		--no-topic)   no_topic=1 ;;
 		--dry-run)    dry_run=--dry-run ;;
 		--no-default) no_default=1 ;;
@@ -89,6 +91,36 @@ if test -z "$no_topic"; then
 		die 'Please name your topic:
 		git checkout -b descriptive-name'
 	fi
+
+	if $lease; then
+		have_ref=false
+		remoteref="refs/remotes/$remote/$topic"
+		if git rev-parse --verify -q "$remoteref" > /dev/null; then
+			have_ref=true
+		else
+			die "It seems that a local ref for the branch is
+missing; forcing a push is dangerous and may overwrite
+previous work.  Fetch from the $remote remote first or
+push without '-f' or '--force'."
+		fi
+
+		have_lease_flag=false
+		# Note: on Windows 'git push --help' will open a browser, and
+		# the check will fail, so use the flag by default.
+		if git --version | egrep_q -e 'windows'; then
+			have_lease_flag=true
+		elif git push --help | egrep_q -e '--force-with-lease'; then
+			have_lease_flag=true
+		fi
+
+		if $have_lease_flag && $have_ref; then
+			# Set the lease flag.
+			lease_flag="--force-with-lease=$topic:$remoteref"
+			# Clear the force string.
+			force=''
+		fi
+	fi
+
 	# The topic branch will be pushed by name.
 	refspecs="${force}HEAD:refs/heads/$topic $refspecs"
 fi
@@ -126,34 +158,23 @@ fi
 # Push.  Save output and exit code.
 echo "Pushing to $remote"
 push_config='-c advice.pushUpdateRejected=false'
-push_stdout=$(git $push_config push --porcelain $dry_run "$remote" $refspecs); push_exit=$?
+push_stdout=$(git $push_config push $lease_flag --porcelain $dry_run "$remote" $refspecs); push_exit=$?
 echo "$push_stdout"
 
-# Advise the user to force-push if needed.
-if test "$push_exit" -ne 0 && test -z "$force" &&
-   echo "$push_stdout" | egrep-q 'non-fast-forward'; then
-	echo '
+if test "$push_exit" -ne 0 && test -z "$force"; then
+	# Advise the user to fetch if needed.
+	if echo "$push_stdout" | egrep_q 'stale info'; then
+		echo "
+You have pushed to your branch from another machine; you may be overwriting
+commits unintentionally.  Fetch from the $remote remote and check that you are
+not pushing an outdated branch."
+	fi
+
+	# Advise the user to force-push if needed.
+	if echo "$push_stdout" | egrep_q 'non-fast-forward'; then
+		echo '
 Add "-f" or "--force" to push a rewritten topic.'
-fi
-
-# Tell the user what to do next with the topic in GitLab.
-if test -z "$no_topic" &&
-   test "$push_exit" -eq 0 &&
-   test "$remote" = "gitlab" &&
-   test -n "$gitlab_configured" &&
-   echo "$gitlab_pushurl" | egrep-q "$host[^/:]*[/:][^/]*/$project_path\\.git$"; then
-	userpath="${gitlab_pushurl%/*.git}" &&
-	username="${userpath##*[/:]}" &&
-	echo '
-The topic has been pushed to your fork in GitLab.  Visit
-
-  '"$site/$username/$project_path/tree/$topic"'
-
-to see the files.  Visit
-
-  '"$site/$username/$project_path/merge_requests/new?merge_request[source_branch]=$topic"'
-
-to create a Merge Request if there is not one already.'
+	fi
 fi
 
 # Reproduce the push exit code.
