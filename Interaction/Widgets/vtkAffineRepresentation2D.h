@@ -186,7 +186,6 @@ protected:
   // The internal transformation matrix
   vtkTransform *CurrentTransform;
   vtkTransform *TotalTransform;
-  vtkTransform *TempTransform;
   double Origin[4]; //the current origin in world coordinates
   double DisplayOrigin[3]; //the current origin in display coordinates
   double CurrentTranslation[3]; //translation this movement
