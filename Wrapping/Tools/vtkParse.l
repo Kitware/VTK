@@ -360,6 +360,10 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "_Noreturn"  /* C11 */
 
+"_Pragma"  get_macro_arguments(); /* C99 */
+
+"__pragma"  get_macro_arguments(); /* MSVC */
+
 "__attribute__"  get_macro_arguments(); /* gcc attributes */
 
 "__declspec"  get_macro_arguments(); /* Windows linkage */
