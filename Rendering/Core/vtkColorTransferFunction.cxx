@@ -260,12 +260,12 @@ inline void vtkColorTransferFunctionInterpolateLABCIEDE2000(double s, const doub
   }
 
   // Evaluate the color of the path at the current position
-  const unsigned char* color = cachedPathCTF->MapValue(s);
+  const unsigned char* rgba = cachedPathCTF->MapValue(s);
 
   // Set the final interpolated color
-  result[0] = color[0] / 255.0;
-  result[1] = color[1] / 255.0;
-  result[2] = color[2] / 255.0;
+  result[0] = rgba[0] / 255.0;
+  result[1] = rgba[1] / 255.0;
+  result[2] = rgba[2] / 255.0;
 }
 
 //----------------------------------------------------------------------------

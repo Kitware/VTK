@@ -63,40 +63,40 @@ typedef std::array<PositionComponent, 3> Position;
 typedef double Distance;
 
 //----------------------------------------------------------------------------
-inline static void getPosition(const double _rgb[3], Position& _pos)
+inline static void getPosition(const double rgb[3], Position& pos)
 {
   static const double EPSILON = 0.000001;
 
-  _pos[0] = static_cast<PositionComponent>(_rgb[0] * (COLORSPACE_SIZE_X - EPSILON));
-  _pos[1] = static_cast<PositionComponent>(_rgb[1] * (COLORSPACE_SIZE_Y - EPSILON));
-  _pos[2] = static_cast<PositionComponent>(_rgb[2] * (COLORSPACE_SIZE_Z - EPSILON));
+  pos[0] = static_cast<PositionComponent>(rgb[0] * (COLORSPACE_SIZE_X - EPSILON));
+  pos[1] = static_cast<PositionComponent>(rgb[1] * (COLORSPACE_SIZE_Y - EPSILON));
+  pos[2] = static_cast<PositionComponent>(rgb[2] * (COLORSPACE_SIZE_Z - EPSILON));
 }
 
 //----------------------------------------------------------------------------
-inline static void getRGBColor(const Position& _pos, double _rgb[3])
+inline static void getRGBColor(const Position& pos, double rgb[3])
 {
-  _rgb[0] = _pos[0] / static_cast<double>(COLORSPACE_SIZE_X - 1);
-  _rgb[1] = _pos[1] / static_cast<double>(COLORSPACE_SIZE_Y - 1);
-  _rgb[2] = _pos[2] / static_cast<double>(COLORSPACE_SIZE_Z - 1);
+  rgb[0] = pos[0] / static_cast<double>(COLORSPACE_SIZE_X - 1);
+  rgb[1] = pos[1] / static_cast<double>(COLORSPACE_SIZE_Y - 1);
+  rgb[2] = pos[2] / static_cast<double>(COLORSPACE_SIZE_Z - 1);
 }
 
 //----------------------------------------------------------------------------
-inline static void getLabColor(const Position& _pos, double _lab[3])
+inline static void getLabColor(const Position& pos, double _lab[3])
 {
   double rgb[3];
-  getRGBColor(_pos, rgb);
+  getRGBColor(pos, rgb);
 
   vtkMath::RGBToLab(rgb, _lab);
 }
 
 //----------------------------------------------------------------------------
-inline static int getIndex(const Position& _pos)
+inline static int getIndex(const Position& pos)
 {
-  return _pos[0] + COLORSPACE_SIZE_X * (_pos[1] + COLORSPACE_SIZE_Y * _pos[2]);
+  return pos[0] + COLORSPACE_SIZE_X * (pos[1] + COLORSPACE_SIZE_Y * pos[2]);
 }
 
 //----------------------------------------------------------------------------
-double GetCIEDeltaE2000(const double _lab1[3], const double _lab2[3])
+double GetCIEDeltaE2000(const double lab1[3], const double lab2[3])
 {
   // The three constants used in the CIEDE2000 measure
   static const double k_L = 1.0;
@@ -105,28 +105,28 @@ double GetCIEDeltaE2000(const double _lab1[3], const double _lab2[3])
 
   // Calculate and return Delta E
 
-  double C1 = std::sqrt((_lab1[1] * _lab1[1]) + (_lab1[2] * _lab1[2]));
-  double C2 = std::sqrt((_lab2[1] * _lab2[1]) + (_lab2[2] * _lab2[2]));
+  double C1 = std::sqrt((lab1[1] * lab1[1]) + (lab1[2] * lab1[2]));
+  double C2 = std::sqrt((lab2[1] * lab2[1]) + (lab2[2] * lab2[2]));
 
   double barC = 0.5 * (C1 + C2);
 
   double G =
     0.5 * (1.0 - std::sqrt(std::pow(barC, 7.0) / (std::pow(barC, 7.0) + std::pow(25.0, 7.0))));
 
-  double a1Prime = (1.0 + G) * _lab1[1];
-  double a2Prime = (1.0 + G) * _lab2[1];
+  double a1Prime = (1.0 + G) * lab1[1];
+  double a2Prime = (1.0 + G) * lab2[1];
 
-  double CPrime1 = std::sqrt((a1Prime * a1Prime) + (_lab1[2] * _lab1[2]));
-  double CPrime2 = std::sqrt((a2Prime * a2Prime) + (_lab2[2] * _lab2[2]));
+  double CPrime1 = std::sqrt((a1Prime * a1Prime) + (lab1[2] * lab1[2]));
+  double CPrime2 = std::sqrt((a2Prime * a2Prime) + (lab2[2] * lab2[2]));
 
   double hPrime1;
-  if ((_lab1[2] == 0.0) && (a1Prime == 0.0))
+  if ((lab1[2] == 0.0) && (a1Prime == 0.0))
   {
     hPrime1 = 0.0;
   }
   else
   {
-    hPrime1 = std::atan2(_lab1[2], a1Prime);
+    hPrime1 = std::atan2(lab1[2], a1Prime);
     if (hPrime1 < 0.0)
     {
       hPrime1 += 2.0 * vtkMath::Pi();
@@ -134,20 +134,20 @@ double GetCIEDeltaE2000(const double _lab1[3], const double _lab2[3])
   }
 
   double hPrime2;
-  if ((_lab2[2] == 0.0) && (a2Prime == 0.0))
+  if ((lab2[2] == 0.0) && (a2Prime == 0.0))
   {
     hPrime2 = 0.0;
   }
   else
   {
-    hPrime2 = std::atan2(_lab2[2], a2Prime);
+    hPrime2 = std::atan2(lab2[2], a2Prime);
     if (hPrime2 < 0.0)
     {
       hPrime2 += 2.0 * vtkMath::Pi();
     }
   }
 
-  double deltaLPrime = _lab2[0] - _lab1[0];
+  double deltaLPrime = lab2[0] - lab1[0];
 
   double deltaCPrime = CPrime2 - CPrime1;
 
@@ -174,7 +174,7 @@ double GetCIEDeltaE2000(const double _lab1[3], const double _lab2[3])
 
   double deltaHPrime = 2.0 * std::sqrt(CPrimeProduct) * std::sin(0.5 * deltahPrime);
 
-  double barLPrime = 0.5 * (_lab1[0] + _lab2[0]);
+  double barLPrime = 0.5 * (lab1[0] + lab2[0]);
 
   double barCPrime = 0.5 * (CPrime1 + CPrime2);
 
@@ -231,11 +231,11 @@ double GetCIEDeltaE2000(const double _lab1[3], const double _lab2[3])
 }
 
 //----------------------------------------------------------------------------
-double GetColorPath(const double _rgb1[3], const double _rgb2[3], std::vector<Node>& _path)
+double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node>& path)
 {
   Position pos1, pos2;
-  getPosition(_rgb1, pos1);
-  getPosition(_rgb2, pos2);
+  getPosition(rgb1, pos1);
+  getPosition(rgb2, pos2);
 
   // Use Dijkstra's algorith backwards to calculate the shortest distances from
   // the second color
@@ -323,7 +323,7 @@ double GetColorPath(const double _rgb1[3], const double _rgb2[3], std::vector<No
   // Since each node was reached shortest from its predecessor, this results in
   // a shortest path from the first to the second color.
 
-  _path.clear();
+  path.clear();
 
   Position currentPos = pos1;
 
@@ -340,7 +340,7 @@ double GetColorPath(const double _rgb1[3], const double _rgb2[3], std::vector<No
     // second color to the node.
     node.distance = pathDistance - distances[currentIdx];
 
-    _path.push_back(node);
+    path.push_back(node);
 
     if (currentPos == pos2)
     {
@@ -349,6 +349,14 @@ double GetColorPath(const double _rgb1[3], const double _rgb2[3], std::vector<No
 
     currentPos = predecessors[currentIdx];
   }
+
+  // Force the first and the last node’s color to be exact
+  path.front().rgb[0] = rgb1[0];
+  path.front().rgb[1] = rgb1[1];
+  path.front().rgb[2] = rgb1[2];
+  path.back().rgb[0] = rgb2[0];
+  path.back().rgb[1] = rgb2[1];
+  path.back().rgb[2] = rgb2[2];
 
   // Return the overall length of the path
   return pathDistance;
