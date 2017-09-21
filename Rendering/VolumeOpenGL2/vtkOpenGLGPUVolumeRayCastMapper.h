@@ -225,9 +225,34 @@ protected:
   vtkMTimeType GetRenderPassStageMTime(vtkVolume* vol);
 
   /**
-   *  RenderPass string replacements on shader templates.
+   * Perform string replacements on the shader templates
    */
-  void ReplaceShaderRenderPass(std::string& vertShader, std::string& fragShader,
+  void ReplaceShaderValues(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+
+  /**
+   *  RenderPass string replacements on shader templates called from
+   *  ReplaceShaderValues.
+   */
+  void ReplaceShaderBase(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderTermination(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderShading(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderCompute(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderCropping(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderClipping(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderMasking(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderPicking(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderRTT(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderRenderPass(std::map<vtkShader::Type, vtkShader*>& shaders,
     vtkVolume* vol, bool prePass);
 
   /**
