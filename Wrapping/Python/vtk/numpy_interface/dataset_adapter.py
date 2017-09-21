@@ -128,12 +128,6 @@ class VTKObjectWrapper(object):
         "Forwards unknown attribute requests to VTK object."
         return getattr(self.VTKObject, name)
 
-def _MakeObserver(numpy_array):
-    "Internal function used to attach a numpy array to a vtk array"
-    def Closure(caller, event):
-        foo = numpy_array
-    return Closure
-
 def vtkDataArrayToVTKArray(array, dataset=None):
     "Given a vtkDataArray and a dataset owning it, returns a VTKArray."
     narray = numpy_support.vtk_to_numpy(array)
@@ -155,8 +149,6 @@ def numpyTovtkDataArray(array, name="numpy_array", array_type=None):
         array = array.copy()
     vtkarray = numpy_support.numpy_to_vtk(array, array_type=array_type)
     vtkarray.SetName(name)
-    # This makes the VTK array carry a reference to the numpy array.
-    vtkarray.AddObserver('DeleteEvent', _MakeObserver(array))
     return vtkarray
 
 def _make_tensor_array_contiguous(array):
