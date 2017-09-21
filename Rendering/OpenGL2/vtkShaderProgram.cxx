@@ -139,6 +139,27 @@ bool vtkShaderProgram::Substitute(std::string &source, const std::string &search
   return replaced;
 }
 
+// Process the string, and return a version with replacements.
+bool vtkShaderProgram::Substitute(vtkShader* shader,
+                                  const std::string &search,
+                                  const std::string &replace,
+                                  bool all)
+{
+  if (!shader)
+    {
+    return false;
+    }
+  std::string source = shader->GetSource();
+  bool replaced = vtkShaderProgram::Substitute(source,
+                                               search,
+                                               replace,
+                                               all);
+  if (!replaced)
+    {
+    return false;
+    }
+  shader->SetSource(source);
+}
 
 
 template <class T> bool vtkShaderProgram::SetAttributeArray(const char *name,

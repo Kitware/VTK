@@ -220,6 +220,18 @@ public:
     bool all = true);
 
   /**
+   * Perform in-place string substitutions on the shader source string and
+   * indicate if a substitution was done. This is useful for building up shader
+   * strings which typically involve a lot of string substitutions. Returns true
+   * if a substitution was done.
+   */
+  static bool Substitute(
+    vtkShader* shader,
+    const std::string &search,
+    const std::string &replace,
+    bool all = true);
+
+  /**
    * methods to inquire as to what uniforms/attributes are used by
    * this shader.  This can save some compute time if the uniforms
    * or attributes are expensive to compute
