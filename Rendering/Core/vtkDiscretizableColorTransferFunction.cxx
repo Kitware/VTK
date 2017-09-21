@@ -376,6 +376,87 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
   return colors;
 }
 
+//----------------------------------------------------------------------------
+// Internal mapping of the opacity value through the lookup table
+template <class T>
+static void vtkDiscretizableColorTransferFunctionMapOpacity(
+  vtkDiscretizableColorTransferFunction* self,
+  T* input,
+  unsigned char* output,
+  int length, int inIncr,
+  int outFormat)
+{
+  double         x;
+  int            i = length;
+  unsigned char *optr = output;
+  T             *iptr = input;
+
+  if (self->GetScalarOpacityFunction()->GetSize() == 0)
+  {
+    vtkGenericWarningMacro("Transfer Function Has No Points!");
+    return;
+  }
+
+  if (outFormat != VTK_RGBA && outFormat != VTK_LUMINANCE_ALPHA)
+  {
+    return;
+  }
+
+  // opacity component stride
+  unsigned int stride = (outFormat == VTK_RGBA ? 4 : 2);
+
+  optr += stride - 1; //Move to first alpha value
+  // Iterate through color components
+  while (--i >= 0)
+  {
+    x = static_cast<double>(*iptr);
+    double alpha = self->GetScalarOpacityFunction()->GetValue(x);
+    *(optr) = static_cast<unsigned char>(alpha * 255.0 + 0.5);
+    optr += stride;
+    iptr += inIncr;
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(void *input,
+  unsigned char *output,
+  int inputDataType,
+  int numberOfValues,
+  int inputIncrement,
+  int outputFormat)
+{
+  // Calculate RGB values
+  if (this->Discretize || this->IndexedLookup)
+  {
+    this->LookupTable->MapScalarsThroughTable2(input, output, inputDataType,
+      numberOfValues, inputIncrement, outputFormat);
+  }
+  else
+  {
+    this->Superclass::MapScalarsThroughTable2(input, output, inputDataType,
+      numberOfValues, inputIncrement, outputFormat);
+  }
+
+  // Calculate alpha values
+  if (this->IndexedLookup == false && //don't change alpha for IndexedLookup.
+    this->EnableOpacityMapping == true &&
+    this->ScalarOpacityFunction.GetPointer() != nullptr)
+  {
+    switch (inputDataType)
+    {
+      vtkTemplateMacro(
+        vtkDiscretizableColorTransferFunctionMapOpacity(this,
+          static_cast<VTK_TT*>(input),
+          output, numberOfValues, inputIncrement,
+          outputFormat)
+      );
+      default:
+        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+        return;
+    }
+  }
+}
+
 template<typename T>
 struct VectorComponentGetter
 {
