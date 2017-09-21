@@ -3890,7 +3890,7 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf3D( vtkHyperTreeGridCursor* cur
         offset = o2 * ( o3 + 3 ) + 9;
         for ( int o1 = -1; o1 < 2; o1 += 2 )
         {
-          int index = 13 + o1 * offset;
+          int index = 13 + o1 * static_cast<int>( offset );
           vtkHyperTreeGridCursor* cursorC = cursor->GetCursor( static_cast<unsigned int>(index) );
           vtkIdType idC = cursorC->GetGlobalNodeIndex();
           if ( ! cursorC->GetTree() || ( cursorC->IsLeaf() && mask->GetValue( idC ) ) )

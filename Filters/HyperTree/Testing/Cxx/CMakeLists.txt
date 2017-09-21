@@ -37,6 +37,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHyperTreeGridTernary3DAxisClipBox.cxx
   TestHyperTreeGridTernary3DAxisClipCylinder.cxx
   TestHyperTreeGridTernary3DAxisClipPlanes.cxx
+  TestHyperTreeGridTernary3DAxisCut.cxx
   TestHyperTreeGridTernary3DAxisCutMaterial.cxx
   TestHyperTreeGridTernary3DAxisReflectionXCenter.cxx
   TestHyperTreeGridTernary3DAxisReflectionXCenterMaterial.cxx
