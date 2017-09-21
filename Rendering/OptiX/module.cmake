@@ -5,7 +5,7 @@ endif()
 vtk_module(vtkRenderingOptiX
   DEPENDS
     vtkRenderingSceneGraph
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   PRIVATE_DEPENDS
     vtkCommonSystem
   TEST_DEPENDS
