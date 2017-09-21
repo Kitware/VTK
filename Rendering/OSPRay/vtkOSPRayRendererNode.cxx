@@ -292,15 +292,16 @@ public:
     return retval;
   }
 
-  void SetupPathTraceBackground(OSPRenderer oRenderer)
+  bool SetupPathTraceBackground(OSPRenderer oRenderer)
   {
     vtkRenderer *ren = vtkRenderer::SafeDownCast
       (this->Owner->GetRenderable());
     if (this->Owner->GetRendererType(ren) != "pathtracer")
     {
-      return;
+      return true;
     }
-    if (!this->CanReuseBG())
+    bool reuseable = this->CanReuseBG();
+    if (!reuseable)
     {
       double *bg1 = ren->GetBackground();
       unsigned char *ochars;
@@ -394,6 +395,7 @@ public:
       this->BGLight = ospLight;
     }
     this->Owner->AddLight(this->BGLight);
+    return reuseable;
   }
 
   std::map<vtkProp3D *, vtkAbstractMapper3D *> LastMapperFor;
@@ -738,8 +740,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   }
 #endif
 
-  this->Internal->SetupPathTraceBackground(oRenderer);
-
+  bool bgreused = this->Internal->SetupPathTraceBackground(oRenderer);
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
     (this->Lights.size()?&this->Lights[0]:NULL), 0);
   ospSetData(oRenderer, "lights", lightArray);
@@ -811,6 +812,11 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   }
   it->Delete();
 
+  if (!bgreused)
+    {
+    //hack to ensure progressive rendering resets when background changes
+    this->AccumulateTime = 0;
+    }
   this->Apply(operation,false);
 }
 

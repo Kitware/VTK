@@ -32,7 +32,6 @@
 #include <string>
 
 #include <sys/types.h>
-#include <unistd.h>
 
 typedef std::map<std::string, std::vector<double> > NamedVariables;
 typedef std::map<std::string, vtkSmartPointer<vtkTexture> > NamedTextures;
@@ -168,7 +167,7 @@ bool vtkOSPRayMaterialLibrary::InternalParse
 
   const Json::Value materials = root["materials"];
   std::vector<std::string> ikeys = materials.getMemberNames();
-  for (int i=0; i<ikeys.size(); ++i )
+  for (size_t i=0; i<ikeys.size(); ++i )
   {
     const std::string& nickname = ikeys[i];
     const Json::Value nextmat = materials[nickname];
@@ -189,7 +188,7 @@ bool vtkOSPRayMaterialLibrary::InternalParse
         = vtksys::SystemTools::GetParentDirectory(filename);
       const Json::Value textures = nextmat["textures"];
       std::vector<std::string> jkeys = textures.getMemberNames();
-      for (int j=0; j<jkeys.size(); ++j )
+      for (size_t j=0; j<jkeys.size(); ++j )
       {
         const std::string &tname = jkeys[j];
         const Json::Value nexttext = textures[tname];
@@ -230,14 +229,14 @@ bool vtkOSPRayMaterialLibrary::InternalParse
     {
       const Json::Value doubles = nextmat["doubles"];
       std::vector<std::string> jkeys = doubles.getMemberNames();
-      for (int j=0; j<jkeys.size(); ++j )
+      for (size_t j=0; j<jkeys.size(); ++j )
       {
         const std::string &vname = jkeys[j];
         const Json::Value nexttext = doubles[vname];
         double *vals = new double[nexttext.size()];
-        for (int k=0; k < nexttext.size(); ++k)
+        for (size_t k=0; k < nexttext.size(); ++k)
         {
-          const Json::Value nv = nexttext[k];
+          const Json::Value nv = nexttext[static_cast<int>(k)];
           vals[k] = nv.asDouble();
         }
         this->AddShaderVariable(nickname, vname, nexttext.size(), vals);
@@ -279,7 +278,7 @@ const char * vtkOSPRayMaterialLibrary::WriteBuffer()
         std::string vname = vit->first;
         std::vector<double> vvals = vit->second;
         Json::Value jvvals;
-        for (int i = 0; i < vvals.size(); i++)
+        for (size_t i = 0; i < vvals.size(); i++)
         {
           jvvals.append(vvals[i]);
         }

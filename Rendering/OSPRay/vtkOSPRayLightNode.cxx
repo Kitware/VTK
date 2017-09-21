@@ -127,15 +127,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
 
     vtkLight *light = vtkLight::SafeDownCast(this->GetRenderable());
     int lt = light->GetLightType();
-    /*
-    std::string lts = "ambient";
-    if (lt == 1)
-      { lts = "HEADLIGHT"; }
-    if (lt == 2)
-      { lts = "CAMERA"; }
-    if (lt == 3)
-      { lts = "SCENE"; }
-    */
     float color[3] = {0.0,0.0,0.0};
     if (light->GetSwitch())
     {
@@ -171,7 +162,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
         py = p[1];
         pz = p[2];
         }
-      //cerr << this << lts << " POS "<< " P" << px << "," << py << "," << pz << endl;
       float coneAngle = static_cast<float>(light->GetConeAngle());
       OSPLight ospLight;
       if (coneAngle <= 0.0)
@@ -202,8 +192,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
       }
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
-        (20.0*
-         vtkOSPRayLightNode::LightScale*
+        (vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
          vtkMath::Pi()
          );
@@ -232,7 +221,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
         fy = p[1];
         fz = p[2];
       }
-      //cerr << this << lts << " DIR "<< " P" << px << "," << py << "," << pz << " F" << fx << "," << fy << "," << fz << endl;
       double direction[3];
       direction[0] = fx - px;
       direction[1] = fy - py;
