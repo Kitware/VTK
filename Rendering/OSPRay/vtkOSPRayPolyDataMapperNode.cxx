@@ -100,7 +100,6 @@ namespace vtkosp {
     vtkPolyData *poly,
     vtkMapper *mapper,
     vtkScalarsToColors *s2c,
-    OSPMaterial defMat,
     std::map<std::string, OSPMaterial > mats,
     OSPRenderer oRenderer,
     std::vector<OSPMaterial> &ospMaterials,
@@ -944,7 +943,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
       //color or material on cell
       vtkScalarsToColors *s2c = mapper->GetLookupTable();
       std::vector<OSPMaterial> cellColors;
-      vtkosp::CellMaterials(poly, mapper, s2c, oMaterial, mats, oRenderer, cellColors,
+      vtkosp::CellMaterials(poly, mapper, s2c, mats, oRenderer, cellColors,
                             vColors, specularf, float(property->GetSpecularPower()), opacity);
       numCellMaterials = static_cast<int>(cellColors.size());
       cellMaterials = ospNewData(cellColors.size(), OSP_OBJECT, &cellColors[0]);
