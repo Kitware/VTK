@@ -238,7 +238,7 @@ XdmfGeometryGetOrigin(XDMFGEOMETRY * geometry)
 {
   shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
   std::vector<double> tempVector = refGeometry->getOrigin();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   double * returnArray = new double[returnSize]();
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];
@@ -250,7 +250,7 @@ int
 XdmfGeometryGetOriginSize(XDMFGEOMETRY * geometry)
 {
   shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
-  return refGeometry->getOrigin().size();
+  return static_cast<int>(refGeometry->getOrigin().size());
 }
 
 int XdmfGeometryGetType(XDMFGEOMETRY * geometry)

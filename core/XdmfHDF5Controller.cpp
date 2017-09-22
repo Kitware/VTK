@@ -88,7 +88,7 @@ XdmfHDF5Controller::XdmfHDF5Controller(const std::string & hdf5FilePath,
       break;
     }
   }
-  unsigned int endOfPrefix = (mDataSetPath.size()) - i;
+  unsigned int endOfPrefix = static_cast<unsigned int>(mDataSetPath.size()) - i;
   mDataSetPrefix = mDataSetPath.substr(0, endOfPrefix);
   if (mDataSetPrefix.compare(mDataSetPath) != 0) {
     mDataSetId = atoi(mDataSetPath.substr(endOfPrefix).c_str());
@@ -209,7 +209,7 @@ XdmfHDF5Controller::read(XdmfArray * const array, const int fapl)
     // description - in this case we cannot properly take a hyperslab
     // selection, so we assume we are reading the entire dataset and
     // check whether that is ok to do
-    const int numberValuesHDF5 = H5Sget_select_npoints(dataspace);
+    const int numberValuesHDF5 = static_cast<int>(H5Sget_select_npoints(dataspace));
     const int numberValuesXdmf = 
       std::accumulate(mDimensions.begin(),
                       mDimensions.end(),
@@ -235,7 +235,7 @@ XdmfHDF5Controller::read(XdmfArray * const array, const int fapl)
   }
 
   const hssize_t numVals = H5Sget_select_npoints(dataspace);
-  hid_t memspace = H5Screate_simple(mDimensions.size(),
+  hid_t memspace = H5Screate_simple(static_cast<int>(mDimensions.size()),
                                     &count[0],
                                     NULL);
 
@@ -304,7 +304,7 @@ XdmfHDF5Controller::read(XdmfArray * const array, const int fapl)
                      H5P_DEFAULT,
                      data);
     for(hssize_t i=0; i<numVals; ++i) {
-      array->insert<std::string>(i, data[i]);
+      array->insert<std::string>(static_cast<unsigned int>(i), data[i]);
     }
     status = H5Dvlen_reclaim(datatype,
                              dataspace,

@@ -234,7 +234,7 @@ XdmfFunction::addFunction(std::string name,
     XdmfError::message(XdmfError::WARNING,
                        "Warning: Function Overwritten");
   }
-  return arrayFunctions.size();
+  return static_cast<int>(arrayFunctions.size());
 }
 
 int
@@ -283,7 +283,7 @@ XdmfFunction::addOperation(char newoperator,
     mSupportedOperations.push_back(newoperator);
     mOperationPriority[newoperator] = priority;
   }
-  return operations.size();
+  return static_cast<int>(operations.size());
 }
 
 shared_ptr<XdmfArray>
@@ -1409,7 +1409,7 @@ class XdmfCFunctionInternalImpl : public XdmfFunction::XdmfFunctionInternal {
       for (unsigned int i = 0; i < valueVector.size(); ++i) {
         valueArray[i] = (XDMFARRAY *)(&valueVector[i]);
       }
-      shared_ptr<XdmfArray> * ptr = (shared_ptr<XdmfArray> *)((*mInternalFunction)(valueArray, valueVector.size()));
+      shared_ptr<XdmfArray> * ptr = (shared_ptr<XdmfArray> *)((*mInternalFunction)(valueArray, static_cast<unsigned int>(valueVector.size())));
       shared_ptr<XdmfArray> ptrCopy = *ptr;
       delete ptr;
       delete [] valueArray;
@@ -1560,7 +1560,7 @@ char * XdmfFunctionGetExpression(XDMFFUNCTION * function)
 unsigned int XdmfFunctionGetNumberVariables(XDMFFUNCTION * function)
 {
   shared_ptr<XdmfFunction> & refFunction = *(shared_ptr<XdmfFunction> *)(function);
-  return refFunction->getVariableList().size();
+  return static_cast<unsigned int>(refFunction->getVariableList().size());
 }
 
 int XdmfFunctionGetOperationPriority(char operation)
@@ -1586,7 +1586,7 @@ char ** XdmfFunctionGetSupportedFunctions()
 
 unsigned int XdmfFunctionGetNumberSupportedFunctions()
 {
-  return XdmfFunction::getSupportedFunctions().size();
+  return static_cast<unsigned int>(XdmfFunction::getSupportedFunctions().size());
 }
 
 char * XdmfFunctionGetValidDigitChars()

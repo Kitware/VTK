@@ -289,7 +289,7 @@ unsigned int * XdmfSubsetGetDimensions(XDMFSUBSET * subset)
 {
   shared_ptr<XdmfSubset> & refSubset = *(shared_ptr<XdmfSubset> *)(subset);
   std::vector<unsigned int> tempVector = refSubset->getDimensions();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];
@@ -300,7 +300,7 @@ unsigned int * XdmfSubsetGetDimensions(XDMFSUBSET * subset)
 unsigned int XdmfSubsetGetNumberDimensions(XDMFSUBSET * subset)
 {
   shared_ptr<XdmfSubset> & refSubset = *(shared_ptr<XdmfSubset> *)(subset);
-  return refSubset->getDimensions().size();
+  return static_cast<unsigned int>(refSubset->getDimensions().size());
 }
 
 XDMFARRAY * XdmfSubsetGetReferenceArray(XDMFSUBSET * subset)
@@ -320,7 +320,7 @@ unsigned int * XdmfSubsetGetStart(XDMFSUBSET * subset)
 {
   shared_ptr<XdmfSubset> & refSubset = *(shared_ptr<XdmfSubset> *)(subset);
   std::vector<unsigned int> tempVector = refSubset->getStart();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = (unsigned int*)malloc(sizeof(unsigned int) * returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];
@@ -332,7 +332,7 @@ unsigned int * XdmfSubsetGetStride(XDMFSUBSET * subset)
 {
   shared_ptr<XdmfSubset> & refSubset = *(shared_ptr<XdmfSubset> *)(subset);
   std::vector<unsigned int> tempVector = refSubset->getStride();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];

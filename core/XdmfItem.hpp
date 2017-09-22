@@ -241,7 +241,7 @@ public :
   unsigned int                                                                \
   ParentClass::getNumber##ChildName##s() const                                \
   {                                                                           \
-    return m##ChildName##s.size();                                            \
+    return static_cast<unsigned int>(m##ChildName##s.size());                 \
   }                                                                           \
                                                                               \
   void                                                                        \
@@ -449,7 +449,7 @@ XDMFCORE_EXPORT char * XdmfItemGetItemTag(XDMFITEM * item);
                                                                                                                       \
 Level##_EXPORT void ClassName##Accept ( CClassName * item, XDMFVISITOR * visitor, int * status);                      \
 Level##_EXPORT CClassName * ClassName##Cast ( XDMFITEM * item);                                                       \
-XDMFCORE_EXPORT void ClassName##Free(void * item);                                                                    \
+Level##_EXPORT void ClassName##Free(void * item);                                                                    \
 Level##_EXPORT XDMFINFORMATION * ClassName##GetInformation( CClassName * item, unsigned int index);                   \
 Level##_EXPORT XDMFINFORMATION * ClassName##GetInformationByKey( CClassName * item, char * key);                      \
 Level##_EXPORT unsigned int ClassName##GetNumberInformations( CClassName * item);                                     \

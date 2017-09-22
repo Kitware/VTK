@@ -281,7 +281,7 @@ XdmfItemFactory::createItem(const std::string & itemTag,
 	XdmfStringUtils::split(dimensionsString, dimensionsVector);
 	dimensionsArray->insert(0,
 				&(dimensionsVector[0]),
-				dimensionsVector.size());
+				static_cast<unsigned int>(dimensionsVector.size()));
         if(typeVal.compare("2DCORECTMESH") == 0 ||
            typeVal.compare("3DCORECTMESH") == 0 ||
            typeVal.compare("CORECTMESH") == 0) {

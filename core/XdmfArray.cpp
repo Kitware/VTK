@@ -229,7 +229,7 @@ public:
   unsigned int
   operator()(const shared_ptr<std::vector<T> > & array) const
   {
-    return array->capacity();
+    return static_cast<unsigned int>(array->capacity());
   }
 
   template<typename T>
@@ -328,7 +328,7 @@ public:
   std::string
   operator()(const shared_ptr<std::vector<T> > & array) const
   {
-    return getValuesString(&(array->operator[](0)), array->size());
+    return getValuesString(&(array->operator[](0)), static_cast<int>(array->size()));
   }
 
   template<typename T>
@@ -540,7 +540,7 @@ public:
   unsigned int
   operator()(const shared_ptr<std::vector<T> > & array) const
   {
-    return array->size();
+    return static_cast<unsigned int>(array->size());
   }
 
   template<typename T>
@@ -655,8 +655,8 @@ std::string
 XdmfArray::getDimensionsString() const
 {
   const std::vector<unsigned int> dimensions = this->getDimensions();
-  return GetValuesString(dimensions.size()).getValuesString(&dimensions[0],
-                                                            dimensions.size());
+  return GetValuesString(static_cast<int>(dimensions.size())).getValuesString(&dimensions[0],
+                                                              static_cast<int>(dimensions.size()));
 }
 
 std::map<std::string, std::string>
@@ -1188,12 +1188,12 @@ XdmfArray::populateItem(const std::map<std::string, std::string> & itemPropertie
           if(arrayType == XdmfArrayType::String()) {
 	    std::vector<std::string> tokens;
 	    XdmfStringUtils::split(contentVals[contentIndex], tokens);
-	    this->insert(0, &(tokens[0]), tokens.size());
+	    this->insert(0, &(tokens[0]), static_cast<unsigned int>(tokens.size()));
           }
           else {
 	    std::vector<double> tokens;
 	    XdmfStringUtils::split(contentVals[contentIndex], tokens);
-	    this->insert(0, &(tokens[0]), tokens.size());
+	    this->insert(0, &(tokens[0]), static_cast<unsigned int>(tokens.size()));
           }
         }
       }
@@ -1479,7 +1479,7 @@ XdmfArrayGetDimensions(XDMFARRAY * array)
 {
   shared_ptr<XdmfArray> & refArray = *(shared_ptr<XdmfArray> *)(array);
   std::vector<unsigned int> tempVector = refArray->getDimensions();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = 
     (unsigned int *) malloc(sizeof(unsigned int) * returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
@@ -1517,7 +1517,7 @@ unsigned int
 XdmfArrayGetNumberDimensions(XDMFARRAY * array)
 {
   shared_ptr<XdmfArray> & refArray = *(shared_ptr<XdmfArray> *)(array);
-  return refArray->getDimensions().size();
+  return static_cast<unsigned int>(refArray->getDimensions().size());
 }
 
 unsigned int

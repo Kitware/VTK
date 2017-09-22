@@ -230,13 +230,13 @@ public:
 		std::string contentString(content);
                 // find first nonwhitespace
                 unsigned int start = 0;
-                int check = contentString.find_first_not_of(" \t\n\r\f\v");
+                int check = static_cast<int>(contentString.find_first_not_of(" \t\n\r\f\v"));
                 if (check >= 0)
                 {
                   start = check;
                 }
-                unsigned int end = contentString.size();
-                check = contentString.find_last_not_of(" \t\n\r\f\v");
+                unsigned int end = static_cast<unsigned int>(contentString.size());
+                check = static_cast<int>(contentString.find_last_not_of(" \t\n\r\f\v"));
                 if (check >= 0)
                 {
                   end = check;

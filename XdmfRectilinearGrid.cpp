@@ -359,7 +359,7 @@ XdmfRectilinearGrid::getDimensions() const
   shared_ptr<XdmfArray> dimensions = XdmfArray::New();
   std::vector<shared_ptr<XdmfArray> > heldCoordinates =
     ((XdmfRectilinearGridImpl*)mImpl)->mCoordinates;
-  dimensions->reserve(heldCoordinates.size());
+  dimensions->reserve(static_cast<unsigned int>(heldCoordinates.size()));
   for (unsigned int i = 0; i < heldCoordinates.size(); ++i)
   {
     dimensions->pushBack(heldCoordinates[i]->getSize());
@@ -423,7 +423,7 @@ XdmfRectilinearGrid::setCoordinates(const unsigned int axisIndex,
   if(mImpl->mCoordinates.size() <= axisIndex) {
     mImpl->mCoordinates.reserve(axisIndex + 1);
     unsigned int numArraysToInsert =
-      axisIndex - mImpl->mCoordinates.size() + 1;
+      axisIndex - static_cast<unsigned int>(mImpl->mCoordinates.size()) + 1;
     for(unsigned int i=0; i<numArraysToInsert; ++i) {
       mImpl->mCoordinates.push_back(XdmfArray::New());
     }
@@ -507,7 +507,7 @@ int XdmfRectilinearGridGetNumberCoordinates(XDMFRECTILINEARGRID * grid, int * st
   XDMF_ERROR_WRAP_START(status)
   shared_ptr<XdmfRectilinearGrid> & refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(grid);
   std::vector<shared_ptr<XdmfArray> > heldCoordinates = refGrid->getCoordinates();
-  return heldCoordinates.size();
+  return static_cast<int>(heldCoordinates.size());
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
