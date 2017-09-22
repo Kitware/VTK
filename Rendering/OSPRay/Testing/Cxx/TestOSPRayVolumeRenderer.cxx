@@ -118,7 +118,7 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 50.0 );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
