@@ -14,6 +14,7 @@ set(Module_SRCS
   vtkCamera.cxx
   vtkCameraInterpolator.cxx
   vtkCellCenterDepthSort.cxx
+  vtkCIEDE2000.cxx
   vtkColorTransferFunction.cxx
   vtkCompositeDataDisplayAttributes.cxx
   vtkCompositePolyDataMapper.cxx
@@ -200,6 +201,7 @@ set_source_files_properties(
 set_source_files_properties(
   vtkAbstractInteractionDevice
   vtkAbstractRenderDevice
+  vtkCIEDE2000
   vtkRenderState
   vtkRenderWidget
   WRAP_EXCLUDE
