@@ -24,11 +24,13 @@
 #include <cctype>
 #include <cmath>
 #include <sstream>
+#include <string.h>
 #include <utility>
 #include <vector>
-#include "string.h"
+
 #include "XdmfError.hpp"
 #include "XdmfTopologyType.hpp"
+#include "XdmfStringUtils.hpp"
 
 std::map<std::string, shared_ptr<const XdmfTopologyType>(*)()> XdmfTopologyType::mTopologyDefinitions;
 
@@ -695,7 +697,7 @@ XdmfTopologyType::New(const std::map<std::string, std::string> & itemProperties)
                        "Neither 'Type' nor 'TopologyType' found in "
                        "itemProperties in XdmfTopologyType::New");
   }
-  std::string typeVal = ConvertToUpper(type->second);
+  const std::string typeVal = XdmfStringUtils::toUpper(type->second);
 
   std::map<std::string, std::string>::const_iterator nodesPerElement =
     itemProperties.find("NodesPerElement");

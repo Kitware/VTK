@@ -40,13 +40,6 @@ XdmfGraph::XdmfGraph(const unsigned int numberNodes) :
 {
 }
 
-XdmfGraph::XdmfGraph(XdmfGraph & refGraph) :
-  XdmfSparseMatrix(refGraph),
-  mAttributes(refGraph.mAttributes),
-  mTime(refGraph.mTime)
-{
-}
-
 XdmfGraph::~XdmfGraph()
 {
 }
@@ -62,7 +55,7 @@ XdmfGraph::getItemTag() const
 shared_ptr<XdmfTime>
 XdmfGraph::getTime()
 {
-  return boost::const_pointer_cast<XdmfTime>
+  return const_pointer_cast<XdmfTime>
     (static_cast<const XdmfGraph &>(*this).getTime());
 }
 
@@ -119,56 +112,54 @@ XdmfGraph::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 XDMFGRAPH * XdmfGraphNew(unsigned int numberNodes)
 {
-  try
-  {
-    shared_ptr<XdmfGraph> generatedGraph = XdmfGraph::New(numberNodes);
-    return (XDMFGRAPH *)((void *)(new XdmfGraph(*generatedGraph.get())));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfGraph> generatedGraph = XdmfGraph::New(numberNodes);
-    return (XDMFGRAPH *)((void *)(new XdmfGraph(*generatedGraph.get())));
-  }
+  shared_ptr<XdmfGraph> * p = 
+    new shared_ptr<XdmfGraph>(XdmfGraph::New(numberNodes));
+  return (XDMFGRAPH *) p;
 }
 
 XDMFATTRIBUTE * XdmfGraphGetAttribute(XDMFGRAPH * graph, unsigned int index)
 {
-  return (XDMFATTRIBUTE *)((void *)(((XdmfGraph *)(graph))->getAttribute(index).get()));
+  shared_ptr<XdmfGraph> & refGraph = *(shared_ptr<XdmfGraph> *)(graph);
+  shared_ptr<XdmfAttribute> * p =  new shared_ptr<XdmfAttribute>(refGraph->getAttribute(index));
+  return (XDMFATTRIBUTE *) p;
 }
 
 XDMFATTRIBUTE * XdmfGraphGetAttributeByName(XDMFGRAPH * graph, char * Name)
 {
-  return (XDMFATTRIBUTE *)((void *)(((XdmfGraph *)(graph))->getAttribute(std::string(Name)).get()));
+  shared_ptr<XdmfGraph> & refGraph = *(shared_ptr<XdmfGraph> *)(graph);
+  shared_ptr<XdmfAttribute> * p =  new shared_ptr<XdmfAttribute>(refGraph->getAttribute(Name));
+  return (XDMFATTRIBUTE *) p;
 }
 
 unsigned int XdmfGraphGetNumberAttributes(XDMFGRAPH * graph)
 {
-  return ((XdmfGraph *)graph)->getNumberAttributes();
+  shared_ptr<XdmfGraph> & refGraph = *(shared_ptr<XdmfGraph> *)(graph);
+  return refGraph->getNumberAttributes();
 }
 
 void XdmfGraphInsertAttribute(XDMFGRAPH * graph, XDMFATTRIBUTE * Attribute, int passControl)
 {
-  if (passControl) {
-    ((XdmfGraph *)(graph))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute));
-  }
-  else {
-    ((XdmfGraph *)(graph))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfGraph> & refGraph = *(shared_ptr<XdmfGraph> *)(graph);
+  shared_ptr<XdmfAttribute> & refAttribute = *(shared_ptr<XdmfAttribute> *)(Attribute);
+  refGraph->insert(refAttribute);
 }
 
 void XdmfGraphRemoveAttribute(XDMFGRAPH * graph, unsigned int index)
 {
-  ((XdmfGraph *)graph)->removeAttribute(index);
+  shared_ptr<XdmfGraph> & refGraph = *(shared_ptr<XdmfGraph> *)(graph);
+  refGraph->removeAttribute(index);
 }
 
 void XdmfGraphRemoveAttributeByName(XDMFGRAPH * graph, char * Name)
 {
-  ((XdmfGraph *)graph)->removeAttribute(std::string(Name));
+  shared_ptr<XdmfGraph> & refGraph = *(shared_ptr<XdmfGraph> *)(graph);
+  refGraph->removeAttribute(Name);
 }
 
 unsigned int XdmfGraphGetNumberNodes(XDMFGRAPH * graph)
 {
-  return ((XdmfGraph *)graph)->getNumberNodes();
+  shared_ptr<XdmfGraph> & refGraph = *(shared_ptr<XdmfGraph> *)(graph);
+  return refGraph->getNumberNodes();
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfGraph, XDMFGRAPH)

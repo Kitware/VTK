@@ -26,35 +26,18 @@
 
 #ifdef __cplusplus
 
+#include <memory>
+
 #include "XdmfCoreConfig.hpp"
-#include <boost/shared_ptr.hpp>
 
-using boost::shared_ptr;
-
-#ifdef HAVE_BOOST_SHARED_DYNAMIC_CAST
-
-using boost::shared_dynamic_cast;
-
-#else
+using std::shared_ptr;
+using std::const_pointer_cast;
 
 template <typename T, typename U>
 shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r) 
 {
-  typedef typename shared_ptr<T>::element_type E;
-  E * p = dynamic_cast< E* >( r.get() );
-  return p? shared_ptr<T>( r, p ): shared_ptr<T>();
+  return std::dynamic_pointer_cast<T>(r);
 }
-
-#endif /* HAVE_BOOST_SHARED_DYNAMIC_CAST */
-
-// Used by C wrappers to prevent shared pointers from prematurely deleting objects
-// Normally this would be completely against the point of shared pointers,
-// but the  C wrapping requires that objects be seperated from the shared pointers.
-struct XdmfNullDeleter
-{
-template<typename T>
-void operator()(T*) {}
-};
 
 #endif
 

@@ -404,8 +404,6 @@ public:
    */
   virtual void read(XdmfArray * const array) = 0;
 
-  XdmfHeavyDataController(const XdmfHeavyDataController&);
-
 protected:
 
   XdmfHeavyDataController(const std::string & filePath,
@@ -425,6 +423,7 @@ protected:
 
 private:
 
+  XdmfHeavyDataController(const XdmfHeavyDataController&);  // Not implemented.
   void operator=(const XdmfHeavyDataController &);  // Not implemented.
 
 };

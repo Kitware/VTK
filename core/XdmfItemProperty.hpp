@@ -76,10 +76,6 @@ protected:
 
   XdmfItemProperty();
 
-  static std::string ConvertToUpper(const std::string & converted);
-
-  static const std::map<const char, const char> UpperConversionMap;
-
 private:
 
   XdmfItemProperty(const XdmfItemProperty &);  // Not implemented.

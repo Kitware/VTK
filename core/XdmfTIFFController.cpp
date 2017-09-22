@@ -77,11 +77,6 @@ XdmfTIFFController::XdmfTIFFController(const std::string & filePath,
 {
 }
 
-XdmfTIFFController::XdmfTIFFController(const XdmfTIFFController& refController):
-  XdmfHeavyDataController(refController)
-{
-}
-
 XdmfTIFFController::~XdmfTIFFController()
 {
 }
@@ -195,8 +190,7 @@ XdmfTIFFController::read(XdmfArray * const array)
   unsigned int currentRowStart = mStart[0];
   unsigned int scanlineIndex = 0;
 
-  if (mDimensions.size() > 1)
-  {
+  if (mDimensions.size() > 1) {
     scanlineIndex = mStart[1];
   }
 
@@ -206,8 +200,9 @@ XdmfTIFFController::read(XdmfArray * const array)
       // Directories are handled by the third dimension
       // If no directories are specified, progress as far
       // as needed to fill the dimensions provided.
-      unsigned int imagelength, bitsPerSample;
-      tdata_t buf;
+      unsigned int imagelength;
+      unsigned int bitsPerSample = 1;
+      tdata_t buf = NULL;
       unsigned int row;
       unsigned int scanlinesize = TIFFScanlineSize(tif);
 
@@ -235,8 +230,7 @@ XdmfTIFFController::read(XdmfArray * const array)
 
         scanlinesize /= array->getArrayType()->getElementSize();
 
-        if (mDimensions.size() == 1)
-        {
+        if (mDimensions.size() == 1) {
           if (sizeLeft == 0) {
             break;
           }
@@ -410,6 +404,9 @@ XdmfTIFFController::read(XdmfArray * const array)
       }
 
       validDir = TIFFSetDirectory(tif, currentDirectory);
+
+      _TIFFfree(buf);
+      
     }
   }
   else {
@@ -428,86 +425,46 @@ XDMFTIFFCONTROLLER * XdmfTIFFControllerNew(char * filePath,
                                            int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  try
-  {
-    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
-    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
-    switch (type) {
-      case XDMF_ARRAY_TYPE_UINT8:
-        buildType = XdmfArrayType::UInt8();
-        break;
-      case XDMF_ARRAY_TYPE_UINT16:
-        buildType = XdmfArrayType::UInt16();
-        break;
-      case XDMF_ARRAY_TYPE_UINT32:
-        buildType = XdmfArrayType::UInt32();
-        break;
-      case XDMF_ARRAY_TYPE_INT8:
-        buildType = XdmfArrayType::Int8();
-        break;
-      case XDMF_ARRAY_TYPE_INT16:
-        buildType = XdmfArrayType::Int16();
-        break;
-      case XDMF_ARRAY_TYPE_INT32:
-        buildType = XdmfArrayType::Int32();
-        break;
-      case XDMF_ARRAY_TYPE_INT64:
-        buildType = XdmfArrayType::Int64();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT32:
-        buildType = XdmfArrayType::Float32();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT64:
-        buildType = XdmfArrayType::Float64();
-        break;
-      default:
-        XdmfError::message(XdmfError::FATAL,
-                           "Error: Invalid ArrayType.");
-        break;
-    }
-    shared_ptr<XdmfTIFFController> generatedController = XdmfTIFFController::New(std::string(filePath), buildType, dimVector);
-    return (XDMFTIFFCONTROLLER *)((void *)(new XdmfTIFFController(*generatedController.get())));
+  std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+  shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+  switch (type) {
+  case XDMF_ARRAY_TYPE_UINT8:
+    buildType = XdmfArrayType::UInt8();
+    break;
+  case XDMF_ARRAY_TYPE_UINT16:
+    buildType = XdmfArrayType::UInt16();
+    break;
+  case XDMF_ARRAY_TYPE_UINT32:
+    buildType = XdmfArrayType::UInt32();
+    break;
+  case XDMF_ARRAY_TYPE_INT8:
+    buildType = XdmfArrayType::Int8();
+    break;
+  case XDMF_ARRAY_TYPE_INT16:
+    buildType = XdmfArrayType::Int16();
+    break;
+  case XDMF_ARRAY_TYPE_INT32:
+    buildType = XdmfArrayType::Int32();
+    break;
+  case XDMF_ARRAY_TYPE_INT64:
+    buildType = XdmfArrayType::Int64();
+    break;
+  case XDMF_ARRAY_TYPE_FLOAT32:
+    buildType = XdmfArrayType::Float32();
+    break;
+  case XDMF_ARRAY_TYPE_FLOAT64:
+    buildType = XdmfArrayType::Float64();
+    break;
+  default:
+    XdmfError::message(XdmfError::FATAL,
+		       "Error: Invalid ArrayType.");
+    break;
   }
-  catch (...)
-  {
-    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
-    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
-    switch (type) {
-      case XDMF_ARRAY_TYPE_UINT8:
-        buildType = XdmfArrayType::UInt8();
-        break;
-      case XDMF_ARRAY_TYPE_UINT16:
-        buildType = XdmfArrayType::UInt16();
-        break;
-      case XDMF_ARRAY_TYPE_UINT32:
-        buildType = XdmfArrayType::UInt32();
-        break;
-      case XDMF_ARRAY_TYPE_INT8:
-        buildType = XdmfArrayType::Int8();
-        break;
-      case XDMF_ARRAY_TYPE_INT16:
-        buildType = XdmfArrayType::Int16();
-        break;
-      case XDMF_ARRAY_TYPE_INT32:
-        buildType = XdmfArrayType::Int32();
-        break;
-      case XDMF_ARRAY_TYPE_INT64:
-        buildType = XdmfArrayType::Int64();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT32:
-        buildType = XdmfArrayType::Float32();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT64:
-        buildType = XdmfArrayType::Float64();
-        break;
-      default:
-        XdmfError::message(XdmfError::FATAL,
-                           "Error: Invalid ArrayType.");
-        break;
-    }
-    shared_ptr<XdmfTIFFController> generatedController = XdmfTIFFController::New(std::string(filePath), buildType, dimVector);
-    return (XDMFTIFFCONTROLLER *)((void *)(new XdmfTIFFController(*generatedController.get())));
-  }
+  shared_ptr<XdmfTIFFController> * generatedController = 
+    new shared_ptr<XdmfTIFFController>(XdmfTIFFController::New(filePath, 
+							       buildType, 
+							       dimVector));
+  return (XDMFTIFFCONTROLLER *) generatedController;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -522,92 +479,52 @@ XDMFTIFFCONTROLLER * XdmfTIFFControllerNewHyperslab(char * filePath,
                                                     int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  try
-  {
-    std::vector<unsigned int> startVector(start, start + numDims);
-    std::vector<unsigned int> strideVector(stride, stride + numDims);
-    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
-    std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
-    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
-    switch (type) {
-      case XDMF_ARRAY_TYPE_UINT8:
-        buildType = XdmfArrayType::UInt8();
-        break;
-      case XDMF_ARRAY_TYPE_UINT16:
-        buildType = XdmfArrayType::UInt16();
-        break;
-      case XDMF_ARRAY_TYPE_UINT32:
-        buildType = XdmfArrayType::UInt32();
-        break;
-     case XDMF_ARRAY_TYPE_INT8:
-        buildType = XdmfArrayType::Int8();
-        break;
-      case XDMF_ARRAY_TYPE_INT16:
-        buildType = XdmfArrayType::Int16();
-        break;
-      case XDMF_ARRAY_TYPE_INT32:
-        buildType = XdmfArrayType::Int32();
-        break;
-      case XDMF_ARRAY_TYPE_INT64:
-        buildType = XdmfArrayType::Int64();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT32:
-        buildType = XdmfArrayType::Float32();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT64:
-        buildType = XdmfArrayType::Float64();
-        break;
-      default:
-        XdmfError::message(XdmfError::FATAL,
-                           "Error: Invalid ArrayType.");
-        break;
-    }
-    shared_ptr<XdmfTIFFController> generatedController = XdmfTIFFController::New(std::string(filePath), buildType, startVector, strideVector, dimVector, dataspaceVector);
-    return (XDMFTIFFCONTROLLER *)((void *)(new XdmfTIFFController(*generatedController.get())));
+  std::vector<unsigned int> startVector(start, start + numDims);
+  std::vector<unsigned int> strideVector(stride, stride + numDims);
+  std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+  std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
+  shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+  switch (type) {
+  case XDMF_ARRAY_TYPE_UINT8:
+    buildType = XdmfArrayType::UInt8();
+    break;
+  case XDMF_ARRAY_TYPE_UINT16:
+    buildType = XdmfArrayType::UInt16();
+    break;
+  case XDMF_ARRAY_TYPE_UINT32:
+    buildType = XdmfArrayType::UInt32();
+    break;
+  case XDMF_ARRAY_TYPE_INT8:
+    buildType = XdmfArrayType::Int8();
+    break;
+  case XDMF_ARRAY_TYPE_INT16:
+    buildType = XdmfArrayType::Int16();
+    break;
+  case XDMF_ARRAY_TYPE_INT32:
+    buildType = XdmfArrayType::Int32();
+    break;
+  case XDMF_ARRAY_TYPE_INT64:
+    buildType = XdmfArrayType::Int64();
+    break;
+  case XDMF_ARRAY_TYPE_FLOAT32:
+    buildType = XdmfArrayType::Float32();
+    break;
+  case XDMF_ARRAY_TYPE_FLOAT64:
+    buildType = XdmfArrayType::Float64();
+    break;
+  default:
+    XdmfError::message(XdmfError::FATAL,
+		       "Error: Invalid ArrayType.");
+    break;
   }
-  catch (...)
-  {
-    std::vector<unsigned int> startVector(start, start + numDims);
-    std::vector<unsigned int> strideVector(stride, stride + numDims);
-    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
-    std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
-    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
-    switch (type) {
-      case XDMF_ARRAY_TYPE_UINT8:
-        buildType = XdmfArrayType::UInt8();
-        break;
-      case XDMF_ARRAY_TYPE_UINT16:
-        buildType = XdmfArrayType::UInt16();
-        break;
-      case XDMF_ARRAY_TYPE_UINT32:
-        buildType = XdmfArrayType::UInt32();
-        break;
-     case XDMF_ARRAY_TYPE_INT8:
-        buildType = XdmfArrayType::Int8();
-        break;
-      case XDMF_ARRAY_TYPE_INT16:
-        buildType = XdmfArrayType::Int16();
-        break;
-      case XDMF_ARRAY_TYPE_INT32:
-        buildType = XdmfArrayType::Int32();
-        break;
-      case XDMF_ARRAY_TYPE_INT64:
-        buildType = XdmfArrayType::Int64();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT32:
-        buildType = XdmfArrayType::Float32();
-        break;
-      case XDMF_ARRAY_TYPE_FLOAT64:
-        buildType = XdmfArrayType::Float64();
-        break;
-      default:
-        XdmfError::message(XdmfError::FATAL,
-                           "Error: Invalid ArrayType.");
-        break;
-    }
-    shared_ptr<XdmfTIFFController> generatedController = XdmfTIFFController::New(std::string(filePath), buildType, startVector, strideVector, dimVector, dataspaceVector);
-    return (XDMFTIFFCONTROLLER *)((void *)(new XdmfTIFFController(*generatedController.get())));
-  }
+  shared_ptr<XdmfTIFFController> * generatedController = 
+    new shared_ptr<XdmfTIFFController>(XdmfTIFFController::New(filePath, 
+							       buildType, 
+							       startVector, 
+							       strideVector, 
+							       dimVector, 
+							       dataspaceVector));
+  return (XDMFTIFFCONTROLLER *) generatedController;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }

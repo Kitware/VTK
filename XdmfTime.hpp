@@ -120,8 +120,6 @@ public:
    */
   void setValue(const double & time);
 
-  XdmfTime(XdmfTime &);
-
 protected:
 
   XdmfTime(const double & value);

@@ -45,17 +45,6 @@ XdmfHeavyDataController::XdmfHeavyDataController(const std::string & filePath,
 {
 }
 
-XdmfHeavyDataController::XdmfHeavyDataController(const XdmfHeavyDataController& refController):
-  mStart(refController.getStart()),
-  mStride(refController.getStride()),
-  mDimensions(refController.getDimensions()),
-  mDataspaceDimensions(refController.getDataspaceDimensions()),
-  mFilePath(refController.getFilePath()),
-  mArrayStartOffset(refController.getArrayOffset()),
-  mType(refController.getType())
-{
-}
-
 XdmfHeavyDataController::~XdmfHeavyDataController()
 {
 }
@@ -172,159 +161,102 @@ XdmfHeavyDataController::setArrayOffset(unsigned int newOffset)
 void XdmfHeavyDataControllerFree(XDMFHEAVYDATACONTROLLER * item)
 {
   if (item != NULL) {
-    delete ((XdmfHeavyDataController *)item);
+    delete (shared_ptr<XdmfHeavyDataController> *)item;
     item = NULL;
   }
 }
 
 unsigned int * XdmfHeavyDataControllerGetDataspaceDimensions(XDMFHEAVYDATACONTROLLER * controller)
 {
-  try
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getDataspaceDimensions();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  std::vector<unsigned int> tempVector = refController->getDataspaceDimensions();
+  unsigned int returnSize = tempVector.size();
+  unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
+  for (unsigned int i = 0; i < returnSize; ++i) {
+    returnArray[i] = tempVector[i];
   }
-  catch (...)
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getDataspaceDimensions();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
-  }
+  return returnArray;
 }
 
 unsigned int * XdmfHeavyDataControllerGetDimensions(XDMFHEAVYDATACONTROLLER * controller)
 {
-  try
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getDimensions();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  std::vector<unsigned int> tempVector = refController->getDimensions();
+  unsigned int returnSize = tempVector.size();
+  unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
+  for (unsigned int i = 0; i < returnSize; ++i) {
+    returnArray[i] = tempVector[i];
   }
-  catch (...)
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getDimensions();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
-  }
+  return returnArray;
 }
 
 char * XdmfHeavyDataControllerGetFilePath(XDMFHEAVYDATACONTROLLER * controller)
 {
-  try
-  {
-    char * returnPointer = strdup(((XdmfHeavyDataController *)(controller))->getFilePath().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  {
-    char * returnPointer = strdup(((XdmfHeavyDataController *)(controller))->getFilePath().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  char * returnPointer = strdup(refController->getFilePath().c_str());
+  return returnPointer;
 }
 
 char * XdmfHeavyDataControllerGetName(XDMFHEAVYDATACONTROLLER * controller)
 {
-  try
-  {
-    char * returnPointer = strdup(((XdmfHeavyDataController *)(controller))->getName().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  {
-    char * returnPointer = strdup(((XdmfHeavyDataController *)(controller))->getName().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  char * returnPointer = strdup(refController->getName().c_str());
+  return returnPointer;
 }
 
 unsigned int XdmfHeavyDataControllerGetNumberDimensions(XDMFHEAVYDATACONTROLLER * controller)
 {
-  return ((XdmfHeavyDataController *)(controller))->getDimensions().size();
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  return refController->getDimensions().size();
 }
 
 unsigned int XdmfHeavyDataControllerGetSize(XDMFHEAVYDATACONTROLLER * controller)
 {
-  return ((XdmfHeavyDataController *)(controller))->getSize();
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  return refController->getSize();
 }
 
 unsigned int * XdmfHeavyDataControllerGetStart(XDMFHEAVYDATACONTROLLER * controller)
 {
-  try
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getStart();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  std::vector<unsigned int> tempVector = refController->getStart();
+  unsigned int returnSize = tempVector.size();
+  unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) *returnSize);
+  for (unsigned int i = 0; i < returnSize; ++i) {
+    returnArray[i] = tempVector[i];
   }
-  catch (...)
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getStart();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
-  }
+  return returnArray;
 }
 
 unsigned int * XdmfHeavyDataControllerGetStride(XDMFHEAVYDATACONTROLLER * controller)
 {
-  try
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getStride();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  std::vector<unsigned int> tempVector = refController->getStride();
+  unsigned int returnSize = tempVector.size();
+  unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
+  for (unsigned int i = 0; i < returnSize; ++i) {
+    returnArray[i] = tempVector[i];
   }
-  catch (...)
-  {
-    std::vector<unsigned int> tempVector = ((XdmfHeavyDataController *)(controller))->getStride();
-    unsigned int returnSize = tempVector.size();
-    unsigned int * returnArray = new unsigned int[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
-  }
+  return returnArray;
 }
 
 void XdmfHeavyDataControllerSetArrayOffset(XDMFHEAVYDATACONTROLLER * controller, unsigned int newOffset)
 {
-  ((XdmfHeavyDataController *)(controller))->setArrayOffset(newOffset);
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  refController->setArrayOffset(newOffset);
 }
 
 unsigned int XdmfHeavyDataControllerGetArrayOffset(XDMFHEAVYDATACONTROLLER * controller)
 {
-  return ((XdmfHeavyDataController *)(controller))->getArrayOffset();
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  return refController->getArrayOffset();
 }
 
 int XdmfHeavyDataControllerGetType(XDMFHEAVYDATACONTROLLER * controller, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<const XdmfArrayType> compareType = ((XdmfHeavyDataController *)(controller))->getType();
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  shared_ptr<const XdmfArrayType> compareType = refController->getType();
   std::string typeName = compareType->getName();
   unsigned int typePrecision = compareType->getElementSize();
   if (typeName == XdmfArrayType::UInt8()->getName())
@@ -393,6 +325,8 @@ int XdmfHeavyDataControllerGetType(XDMFHEAVYDATACONTROLLER * controller, int * s
 void XdmfHeavyDataControllerRead(XDMFHEAVYDATACONTROLLER * controller, void * array, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfHeavyDataController *)(controller))->read((XdmfArray *)array);
+  shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
+  shared_ptr<XdmfArray> & refArray = *(shared_ptr<XdmfArray> *)(array);
+  refController->read(refArray.get());
   XDMF_ERROR_WRAP_END(status)
 }

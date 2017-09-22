@@ -1,8 +1,10 @@
-project(XdmfCore)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 if (POLICY CMP0015)
   cmake_policy(SET CMP0015 NEW)
 endif ()
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CheckCXXSourceCompiles)
 include(SetUpVersion)
@@ -36,13 +38,6 @@ mark_as_advanced(XDMF_BUILD_DSM)
 
 if(XDMF_BUILD_DSM)
   option(XDMF_BUILD_DSM_THREADS ON)
-endif()
-
-mark_as_advanced(CLEAR Boost_INCLUDE_DIR)
-find_package(Boost REQUIRED)
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-  mark_as_advanced(FORCE Boost_INCLUDE_DIR)
 endif()
 
 # Find HDF5_ROOT if not set
@@ -116,22 +111,6 @@ endif()
 
 TEST_BIG_ENDIAN(XDMF_BIG_ENDIAN)
 
-unset(HAVE_BOOST_SHARED_DYNAMIC_CAST CACHE)
-set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${Boost_INCLUDE_DIRS})
-check_cxx_source_compiles("
-#include <boost/shared_ptr.hpp>
-
-struct Base { virtual ~Base(){} };
-struct Derived : public Base {};
-
-int main(int ac, char * av[])
-{
-  boost::shared_ptr<Base> ptr(new Base());
-  boost::shared_dynamic_cast<Derived>(ptr);
-}
-"
-HAVE_BOOST_SHARED_DYNAMIC_CAST)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/XdmfCoreConfig.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/XdmfCoreConfig.hpp)
 
@@ -155,6 +134,7 @@ set(XdmfCoreSources
   XdmfPlaceholder
   XdmfSparseMatrix
   XdmfSubset
+  XdmfStringUtils
   XdmfSystemUtils
   ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/XdmfVersion
   XdmfVisitor
@@ -279,11 +259,12 @@ if(APPLE)
         PARENT_SCOPE)
 endif()
 
-file(GLOB_RECURSE
+file(GLOB
   XdmfCoreHeaders
   "*.hpp" "*.tpp" "*.i"
   "../CMake/VersionSuite/*.hpp")
 file(GLOB LokiHeaders loki/*.h)
+file(GLOB MapboxHeaders mapbox/*.hpp)
 
 set(XdmfCoreHeaders
       ${XdmfCoreHeaders}
@@ -291,6 +272,7 @@ set(XdmfCoreHeaders
 if (NOT XDMF_INSTALL_NO_DEVELOPMENT)
   install(FILES ${XdmfCoreHeaders} DESTINATION include)
   install(FILES ${LokiHeaders} DESTINATION include/loki)
+  install(FILES ${MapboxHeaders} DESTINATION include/mapbox)
 endif()
 install(TARGETS XdmfCore
   RUNTIME DESTINATION bin
@@ -303,21 +285,7 @@ if (XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
     ARCHIVE DESTINATION lib)
 endif ()
 
-if (Boost_FOUND)
-  set(FOUND_BOOST_INCLUDES ${Boost_INCLUDE_DIRS})
-  set(XdmfCore_INCLUDE_DIRS
-    ${Boost_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${HDF5_INCLUDE_DIR}
-    ${LIBXML2_INCLUDE_DIR}
-    ${PYTHON_INCLUDE_DIRS}
-    CACHE INTERNAL "")
-else ()
-  set(FOUND_BOOST_INCLUDES "")
-endif ()
 set(XdmfCore_INCLUDE_DIRS
-  ${FOUND_BOOST_INCLUDES}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${HDF5_INCLUDE_DIR}

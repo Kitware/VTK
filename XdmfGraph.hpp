@@ -85,8 +85,6 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
-  XdmfGraph(XdmfGraph &);
-
 protected:
 
   XdmfGraph(const unsigned int numberNodes);

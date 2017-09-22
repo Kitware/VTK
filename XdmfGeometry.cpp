@@ -21,11 +21,11 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include "XdmfGeometry.hpp"
-#include "XdmfGeometryType.hpp"
 #include "XdmfError.hpp"
 #include "XdmfFunction.hpp"
-#include <boost/tokenizer.hpp>
+#include "XdmfGeometry.hpp"
+#include "XdmfGeometryType.hpp"
+#include "XdmfStringUtils.hpp"
 
 shared_ptr<XdmfGeometry> XdmfGeometry::New()
 {
@@ -37,13 +37,6 @@ XdmfGeometry::XdmfGeometry() :
   XdmfArray(),
   mNumberPoints(0),
   mType(XdmfGeometryType::NoGeometryType())
-{
-}
-
-XdmfGeometry::XdmfGeometry(XdmfGeometry & refGeometry) :
-  XdmfArray(refGeometry),
-  mType(refGeometry.mType),
-  mOrigin(refGeometry.mOrigin)
 {
 }
 
@@ -195,12 +188,7 @@ XdmfGeometry::populateItem(const std::map<std::string, std::string> & itemProper
   std::map<std::string, std::string>::const_iterator origin =
     itemProperties.find("Origin");
   if (origin != itemProperties.end()) {
-    boost::tokenizer<> tokens(origin->second);
-    for(boost::tokenizer<>::const_iterator iter = tokens.begin();
-        iter != tokens.end();
-        ++iter) {
-      mOrigin.push_back(atof((*iter).c_str()));
-    }
+    XdmfStringUtils::split(origin->second, mOrigin);
   }
 }
 
@@ -235,69 +223,53 @@ XdmfGeometry::setType(const shared_ptr<const XdmfGeometryType> type)
 
 XDMFGEOMETRY * XdmfGeometryNew()
 {
-  try
-  {
-    shared_ptr<XdmfGeometry> generatedGeometry = XdmfGeometry::New();
-    return (XDMFGEOMETRY *)((void *)(new XdmfGeometry(*generatedGeometry.get())));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfGeometry> generatedGeometry = XdmfGeometry::New();
-    return (XDMFGEOMETRY *)((void *)(new XdmfGeometry(*generatedGeometry.get())));
-  }
+  shared_ptr<XdmfGeometry> * p = new shared_ptr<XdmfGeometry>(XdmfGeometry::New());
+  return (XDMFGEOMETRY *) p;
 }
 
 unsigned int XdmfGeometryGetNumberPoints(XDMFGEOMETRY * geometry)
 {
-  return ((XdmfGeometry *) geometry)->getNumberPoints();
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
+  return refGeometry->getNumberPoints();
 }
 
 double *
 XdmfGeometryGetOrigin(XDMFGEOMETRY * geometry)
 {
-  try
-  {
-    std::vector<double> tempVector = ((XdmfGeometry *)(geometry))->getOrigin();
-    unsigned int returnSize = tempVector.size();
-    double * returnArray = new double[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
+  std::vector<double> tempVector = refGeometry->getOrigin();
+  unsigned int returnSize = tempVector.size();
+  double * returnArray = new double[returnSize]();
+  for (unsigned int i = 0; i < returnSize; ++i) {
+    returnArray[i] = tempVector[i];
   }
-  catch (...)
-  {
-    std::vector<double> tempVector = ((XdmfGeometry *)(geometry))->getOrigin();
-    unsigned int returnSize = tempVector.size();
-    double * returnArray = new double[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = tempVector[i];
-    }
-    return returnArray;
-  }
+  return returnArray;
 }
 
 int
 XdmfGeometryGetOriginSize(XDMFGEOMETRY * geometry)
 {
-  return ((XdmfGeometry *) geometry)->getOrigin().size();
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
+  return refGeometry->getOrigin().size();
 }
 
 int XdmfGeometryGetType(XDMFGEOMETRY * geometry)
 {
-  if (((XdmfGeometry *) geometry)->getType() == XdmfGeometryType::NoGeometryType()) {
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
+  const shared_ptr<const XdmfGeometryType> geometryType = refGeometry->getType();
+  if (geometryType == XdmfGeometryType::NoGeometryType()) {
     return XDMF_GEOMETRY_TYPE_NO_GEOMETRY_TYPE;
   }
-  else if (((XdmfGeometry *) geometry)->getType() == XdmfGeometryType::XYZ()) {
+  else if (geometryType == XdmfGeometryType::XYZ()) {
     return XDMF_GEOMETRY_TYPE_XYZ;
   }
-  else if (((XdmfGeometry *) geometry)->getType() == XdmfGeometryType::XY()) {
+  else if (geometryType == XdmfGeometryType::XY()) {
     return XDMF_GEOMETRY_TYPE_XY;
   }
-  else if (((XdmfGeometry *) geometry)->getType() == XdmfGeometryType::Polar()) {
+  else if (geometryType == XdmfGeometryType::Polar()) {
     return XDMF_GEOMETRY_TYPE_POLAR;
   }
-  else if (((XdmfGeometry *) geometry)->getType() == XdmfGeometryType::Spherical()) {
+  else if (geometryType == XdmfGeometryType::Spherical()) {
     return XDMF_GEOMETRY_TYPE_SPHERICAL;
   }
   else {
@@ -308,38 +280,40 @@ int XdmfGeometryGetType(XDMFGEOMETRY * geometry)
 void
 XdmfGeometrySetOrigin(XDMFGEOMETRY * geometry, double newX, double newY, double newZ)
 {
-  ((XdmfGeometry *) geometry)->setOrigin(newX, newY, newZ);
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
+  refGeometry->setOrigin(newX, newY, newZ);
 }
 
 void
 XdmfGeometrySetOriginArray(XDMFGEOMETRY * geometry, double * originVals, unsigned int numDims)
 {
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
   std::vector<double> originVector;
-  for (unsigned int i = 0; i < numDims; ++i)
-  {
+  for (unsigned int i = 0; i < numDims; ++i) {
     originVector.push_back(originVals[i]);
   }
-  ((XdmfGeometry *) geometry)->setOrigin(originVector);
+  refGeometry->setOrigin(originVector);
 }
 
 void XdmfGeometrySetType(XDMFGEOMETRY * geometry, int type, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
   switch (type) {
     case XDMF_GEOMETRY_TYPE_NO_GEOMETRY_TYPE:
-      ((XdmfGeometry *) geometry)->setType(XdmfGeometryType::NoGeometryType());
+      refGeometry->setType(XdmfGeometryType::NoGeometryType());
       break;
     case XDMF_GEOMETRY_TYPE_XYZ:
-      ((XdmfGeometry *) geometry)->setType(XdmfGeometryType::XYZ());
+      refGeometry->setType(XdmfGeometryType::XYZ());
       break;
     case XDMF_GEOMETRY_TYPE_XY:
-      ((XdmfGeometry *) geometry)->setType(XdmfGeometryType::XY());
+      refGeometry->setType(XdmfGeometryType::XY());
       break;
     case XDMF_GEOMETRY_TYPE_POLAR:
-      ((XdmfGeometry *) geometry)->setType(XdmfGeometryType::Polar());
+      refGeometry->setType(XdmfGeometryType::Polar());
       break;
     case XDMF_GEOMETRY_TYPE_SPHERICAL:
-      ((XdmfGeometry *) geometry)->setType(XdmfGeometryType::Spherical());
+      refGeometry->setType(XdmfGeometryType::Spherical());
       break;
     default:
       XdmfError::message(XdmfError::FATAL,

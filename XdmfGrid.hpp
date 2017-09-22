@@ -356,8 +356,6 @@ public:
 
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
-  XdmfGrid(XdmfGrid &);
-
 protected:
 
   XdmfGrid(const shared_ptr<XdmfGeometry> geometry,
@@ -374,29 +372,6 @@ protected:
 
   shared_ptr<XdmfGeometry> mGeometry;
   shared_ptr<XdmfTopology> mTopology;
-
-  class XdmfGridImpl
-  {
-    public:
-    XdmfGridImpl()
-    {
-    }
-
-    ~XdmfGridImpl()
-    {
-    }
-
-    virtual XdmfGridImpl * duplicate() = 0;
-
-    std::string getGridType() const
-    {
-      return mGridType;
-    }
-
-    std::string mGridType;
-  };
-
-  XdmfGridImpl * mImpl;
 
   shared_ptr<XdmfGridController> mGridController;
 
@@ -510,136 +485,163 @@ Level##_EXPORT void ClassName##SetTime(CClassName * grid, XDMFTIME * time, int p
 
 
 #define XDMF_GRID_C_CHILD_WRAPPER(ClassName, CClassName)                                                       \
+                                                                                                               \
 XDMFATTRIBUTE * ClassName##GetAttribute(CClassName * grid, unsigned int index)                                 \
 {                                                                                                              \
-  return XdmfGridGetAttribute((XDMFGRID *)((void *)grid), index);                                              \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetAttribute((XDMFGRID *)((void *)&baseGrid), index);                                         \
 }                                                                                                              \
                                                                                                                \
 XDMFATTRIBUTE * ClassName##GetAttributeByName(CClassName * grid, char * Name)                                  \
 {                                                                                                              \
-  return XdmfGridGetAttributeByName((XDMFGRID *)((void *)grid), Name);                                         \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetAttributeByName((XDMFGRID *)((void *)&baseGrid), Name);                                         \
 }                                                                                                              \
                                                                                                                \
 unsigned int ClassName##GetNumberAttributes(CClassName * grid)                                                 \
 {                                                                                                              \
-  return XdmfGridGetNumberAttributes((XDMFGRID *)((void *)grid));                                              \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetNumberAttributes((XDMFGRID *)((void *)&baseGrid));                                              \
 }                                                                                                              \
                                                                                                                \
 void ClassName##InsertAttribute(CClassName * grid, XDMFATTRIBUTE * Attribute, int passControl)                 \
 {                                                                                                              \
-  XdmfGridInsertAttribute((XDMFGRID *)((void *)grid), Attribute, passControl);                                 \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridInsertAttribute((XDMFGRID *)((void *)&baseGrid), Attribute, passControl);                                 \
 }                                                                                                              \
                                                                                                                \
 void ClassName##RemoveAttribute(CClassName * grid, unsigned int index)                                         \
 {                                                                                                              \
-  XdmfGridRemoveAttribute((XDMFGRID *)((void *)grid), index);                                                  \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRemoveAttribute((XDMFGRID *)((void *)&baseGrid), index);                                                  \
 }                                                                                                              \
                                                                                                                \
 void ClassName##RemoveAttributeByName(CClassName * grid, char * Name)                                          \
 {                                                                                                              \
-  XdmfGridRemoveAttributeByName((XDMFGRID *)((void *)grid), Name);                                             \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRemoveAttributeByName((XDMFGRID *)((void *)&baseGrid), Name);                                             \
 }                                                                                                              \
                                                                                                                \
 XDMFSET * ClassName##GetSet(CClassName * grid, unsigned int index)                                             \
 {                                                                                                              \
-  return XdmfGridGetSet((XDMFGRID *)((void *)grid), index);                                                    \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetSet((XDMFGRID *)((void *)&baseGrid), index);                                                    \
 }                                                                                                              \
                                                                                                                \
 XDMFSET * ClassName##GetSetByName(CClassName * grid, char * Name)                                              \
 {                                                                                                              \
-  return XdmfGridGetSetByName((XDMFGRID *)((void *)grid), Name);                                               \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetSetByName((XDMFGRID *)((void *)&baseGrid), Name);                                               \
 }                                                                                                              \
                                                                                                                \
 unsigned int ClassName##GetNumberSets(CClassName * grid)                                                       \
 {                                                                                                              \
-  return XdmfGridGetNumberSets((XDMFGRID *)((void *)grid));                                                    \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetNumberSets((XDMFGRID *)((void *)&baseGrid));                                                    \
 }                                                                                                              \
                                                                                                                \
 void ClassName##InsertSet(CClassName * grid, XDMFSET * Set, int passControl)                                   \
 {                                                                                                              \
-  XdmfGridInsertSet((XDMFGRID *)((void *)grid), Set, passControl);                                             \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridInsertSet((XDMFGRID *)((void *)&baseGrid), Set, passControl);                                             \
 }                                                                                                              \
                                                                                                                \
 void ClassName##RemoveSet(CClassName * grid, unsigned int index)                                               \
 {                                                                                                              \
-  XdmfGridRemoveSet((XDMFGRID *)((void *)grid), index);                                                        \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRemoveSet((XDMFGRID *)((void *)&baseGrid), index);                                                        \
 }                                                                                                              \
                                                                                                                \
 void ClassName##RemoveSetByName(CClassName * grid, char * Name)                                                \
 {                                                                                                              \
-  XdmfGridRemoveSetByName((XDMFGRID *)((void *)grid), Name);                                                   \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRemoveSetByName((XDMFGRID *)((void *)&baseGrid), Name);                                                   \
 }                                                                                                              \
                                                                                                                \
 XDMFMAP * ClassName##GetMap(CClassName * grid, unsigned int index)                                             \
 {                                                                                                              \
-  return XdmfGridGetMap((XDMFGRID *)((void *)grid), index);                                                    \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetMap((XDMFGRID *)((void *)&baseGrid), index);                                                    \
 }                                                                                                              \
                                                                                                                \
 XDMFMAP * ClassName##GetMapByName(CClassName * grid, char * Name)                                              \
 {                                                                                                              \
-  return XdmfGridGetMapByName((XDMFGRID *)((void *)grid), Name);                                               \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetMapByName((XDMFGRID *)((void *)&baseGrid), Name);                                               \
 }                                                                                                              \
                                                                                                                \
 unsigned int ClassName##GetNumberMaps(CClassName * grid)                                                       \
 {                                                                                                              \
-  return XdmfGridGetNumberMaps((XDMFGRID *)((void *)grid));                                                    \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetNumberMaps((XDMFGRID *)((void *)&baseGrid));                                                    \
 }                                                                                                              \
                                                                                                                \
 void ClassName##InsertMap(CClassName * grid, XDMFMAP * Map, int passControl)                                   \
 {                                                                                                              \
-  XdmfGridInsertMap((XDMFGRID *)((void *)grid), Map, passControl);                                             \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridInsertMap((XDMFGRID *)((void *)&baseGrid), Map, passControl);                                             \
 }                                                                                                              \
                                                                                                                \
 void ClassName##RemoveMap(CClassName * grid, unsigned int index)                                               \
 {                                                                                                              \
-  XdmfGridRemoveMap((XDMFGRID *)((void *)grid), index);                                                        \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRemoveMap((XDMFGRID *)((void *)&baseGrid), index);                                                        \
 }                                                                                                              \
                                                                                                                \
 void ClassName##RemoveMapByName(CClassName * grid, char * Name)                                                \
 {                                                                                                              \
-  XdmfGridRemoveMapByName((XDMFGRID *)((void *)grid), Name);                                                   \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRemoveMapByName((XDMFGRID *)((void *)&baseGrid), Name);                                                   \
 }                                                                                                              \
                                                                                                                \
 XDMFGRIDCONTROLLER * ClassName##GetGridController(CClassName * grid)                                           \
 {                                                                                                              \
-  return XdmfGridGetGridController((XDMFGRID *)((void *)grid));                                                \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetGridController((XDMFGRID *)((void *)&baseGrid));                                                \
 }                                                                                                              \
                                                                                                                \
 char * ClassName##GetName(CClassName * grid)                                                                   \
 {                                                                                                              \
-  return XdmfGridGetName((XDMFGRID *)((void *)grid));                                                          \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetName((XDMFGRID *)((void *)&baseGrid));                                                          \
 }                                                                                                              \
                                                                                                                \
 XDMFTIME * ClassName##GetTime(CClassName * grid)                                                               \
 {                                                                                                              \
-  return XdmfGridGetTime((XDMFGRID *)((void *)grid));                                                          \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  return XdmfGridGetTime((XDMFGRID *)((void *)&baseGrid));                                                          \
 }                                                                                                              \
                                                                                                                \
 void                                                                                                           \
 ClassName##Read( CClassName * grid, int * status)                                                              \
 {                                                                                                              \
-  XdmfGridRead((XDMFGRID *)((void *)grid), status);                                                            \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRead((XDMFGRID *)((void *)&baseGrid), status);                                                            \
 }                                                                                                              \
                                                                                                                \
 void                                                                                                           \
 ClassName##Release( CClassName * grid)                                                                         \
 {                                                                                                              \
-  XdmfGridRelease((XDMFGRID *)((void *)grid));                                                                 \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridRelease((XDMFGRID *)((void *)&baseGrid));                                                                 \
 }                                                                                                              \
                                                                                                                \
 void ClassName##SetGridController(CClassName * grid, XDMFGRIDCONTROLLER * controller, int passControl)         \
 {                                                                                                              \
-  XdmfGridSetGridController((XDMFGRID *)((void *)grid), controller, passControl);                              \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridSetGridController((XDMFGRID *)((void *)&baseGrid), controller, passControl);                              \
 }                                                                                                              \
                                                                                                                \
 void ClassName##SetName(CClassName * grid, char * name, int * status)                                          \
 {                                                                                                              \
-  XdmfGridSetName((XDMFGRID *)((void *)grid), name, status);                                                   \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridSetName((XDMFGRID *)((void *)&baseGrid), name, status);                                                   \
 }                                                                                                              \
                                                                                                                \
 void ClassName##SetTime(CClassName * grid, XDMFTIME * time, int passControl)                                   \
 {                                                                                                              \
-  XdmfGridSetTime((XDMFGRID *)((void *)grid), time, passControl);                                              \
+  shared_ptr< XdmfGrid > baseGrid = *(shared_ptr< ClassName > *) grid;                                         \
+  XdmfGridSetTime((XDMFGRID *)((void *)&baseGrid), time, passControl);                                              \
 }
 
 #ifdef __cplusplus

@@ -48,17 +48,6 @@ XdmfSparseMatrix::XdmfSparseMatrix(const unsigned int numberRows,
   mRowPointer->resize<unsigned int>(mNumberRows + 1, 0);
 }
 
-XdmfSparseMatrix::XdmfSparseMatrix(XdmfSparseMatrix & matrixRef) :
-  XdmfItem(matrixRef),
-  mColumnIndex(matrixRef.getColumnIndex()),
-  mName(matrixRef.getName()),
-  mNumberColumns(matrixRef.getNumberColumns()),
-  mNumberRows(matrixRef.getNumberRows()),
-  mRowPointer(matrixRef.getRowPointer()),
-  mValues(matrixRef.getValues())
-{
-}
-
 XdmfSparseMatrix::~XdmfSparseMatrix()
 {
 }
@@ -262,54 +251,47 @@ XdmfSparseMatrix::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 XDMFSPARSEMATRIX * XdmfSparseMatrixNew(unsigned int numberRows, unsigned int numberColumns)
 {
-  try
-  {
-    shared_ptr<XdmfSparseMatrix> generatedMatrix = XdmfSparseMatrix::New(numberRows, numberColumns);
-    return (XDMFSPARSEMATRIX *)((void *)(new XdmfSparseMatrix(*generatedMatrix.get())));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfSparseMatrix> generatedMatrix = XdmfSparseMatrix::New(numberRows, numberColumns);
-    return (XDMFSPARSEMATRIX *)((void *)(new XdmfSparseMatrix(*generatedMatrix.get())));
-  }
+  shared_ptr<XdmfSparseMatrix> * p = 
+    new shared_ptr<XdmfSparseMatrix>(XdmfSparseMatrix::New(numberRows,
+							   numberColumns));
+  return (XDMFSPARSEMATRIX *) p;
 }
 
 XDMFARRAY * XdmfSparseMatrixGetColumnIndex(XDMFSPARSEMATRIX * matrix, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  return (XDMFARRAY *)((void *)(((XdmfSparseMatrix *)(matrix))->getColumnIndex().get()));
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  shared_ptr<XdmfArray> * array = new shared_ptr<XdmfArray>(refMatrix->getColumnIndex());
+  return (XDMFARRAY *) array;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
 
 char * XdmfSparseMatrixGetName(XDMFSPARSEMATRIX * matrix)
 {
-  try
-  {
-    char * returnPointer= strdup(((XdmfSparseMatrix *)(matrix))->getName().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  {
-    char * returnPointer= strdup(((XdmfSparseMatrix *)(matrix))->getName().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  char * returnPointer= strdup(refMatrix->getName().c_str());
+  return returnPointer;
 }
 
 unsigned int XdmfSparseMatrixGetNumberColumns(XDMFSPARSEMATRIX * matrix)
 {
-  return ((XdmfSparseMatrix *)matrix)->getNumberColumns();
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  return refMatrix->getNumberColumns();
 }
 
 unsigned int XdmfSparseMatrixGetNumberRows(XDMFSPARSEMATRIX * matrix)
 {
-  return ((XdmfSparseMatrix *)matrix)->getNumberRows();
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  return refMatrix->getNumberRows();
 }
 
 XDMFARRAY * XdmfSparseMatrixGetRowPointer(XDMFSPARSEMATRIX * matrix, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  return (XDMFARRAY *)((void *)(((XdmfSparseMatrix *)(matrix))->getRowPointer().get()));
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  shared_ptr<XdmfArray> * array = new shared_ptr<XdmfArray>(refMatrix->getRowPointer());
+  return (XDMFARRAY *) array;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -317,7 +299,9 @@ XDMFARRAY * XdmfSparseMatrixGetRowPointer(XDMFSPARSEMATRIX * matrix, int * statu
 XDMFARRAY * XdmfSparseMatrixGetValues(XDMFSPARSEMATRIX * matrix, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  return (XDMFARRAY *)((void *)(((XdmfSparseMatrix *)(matrix))->getValues().get()));
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  shared_ptr<XdmfArray> * array = new shared_ptr<XdmfArray>(refMatrix->getValues());
+  return (XDMFARRAY *) array;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -325,16 +309,9 @@ XDMFARRAY * XdmfSparseMatrixGetValues(XDMFSPARSEMATRIX * matrix, int * status)
 char * XdmfSparseMatrixGetValuesString(XDMFSPARSEMATRIX * matrix, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  try
-  {
-    char * returnPointer = strdup(((XdmfSparseMatrix *)(matrix))->getValuesString().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  {
-    char * returnPointer = strdup(((XdmfSparseMatrix *)(matrix))->getValuesString().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  char * returnPointer = strdup(refMatrix->getValuesString().c_str());
+  return returnPointer;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -342,43 +319,35 @@ char * XdmfSparseMatrixGetValuesString(XDMFSPARSEMATRIX * matrix, int * status)
 void XdmfSparseMatrixSetColumnIndex(XDMFSPARSEMATRIX * matrix, XDMFARRAY * columnIndex, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  if (passControl) {
-    ((XdmfSparseMatrix *)(matrix))->setColumnIndex(shared_ptr<XdmfArray>((XdmfArray *)columnIndex));
-  }
-  else {
-    ((XdmfSparseMatrix *)(matrix))->setColumnIndex(shared_ptr<XdmfArray>((XdmfArray *)columnIndex, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  shared_ptr<XdmfArray> & refColumnIndex = *(shared_ptr<XdmfArray> *)(columnIndex);
+  refMatrix->setColumnIndex(refColumnIndex);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfSparseMatrixSetName(XDMFSPARSEMATRIX * matrix, char * name, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfSparseMatrix *)matrix)->setName(std::string(name));
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  refMatrix->setName(name);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfSparseMatrixSetRowPointer(XDMFSPARSEMATRIX * matrix, XDMFARRAY * rowPointer, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  if (passControl) {
-    ((XdmfSparseMatrix *)(matrix))->setRowPointer(shared_ptr<XdmfArray>((XdmfArray *)rowPointer));
-  }
-  else {
-    ((XdmfSparseMatrix *)(matrix))->setRowPointer(shared_ptr<XdmfArray>((XdmfArray *)rowPointer, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  shared_ptr<XdmfArray> & refRowPointer = *(shared_ptr<XdmfArray> *)(rowPointer);
+  refMatrix->setRowPointer(refRowPointer);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfSparseMatrixSetValues(XDMFSPARSEMATRIX * matrix, XDMFARRAY * values, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  if (passControl) {
-    ((XdmfSparseMatrix *)(matrix))->setValues(shared_ptr<XdmfArray>((XdmfArray *)values));
-  }
-  else {
-    ((XdmfSparseMatrix *)(matrix))->setValues(shared_ptr<XdmfArray>((XdmfArray *)values, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfSparseMatrix> & refMatrix = *(shared_ptr<XdmfSparseMatrix> *)(matrix);
+  shared_ptr<XdmfArray> & refValues = *(shared_ptr<XdmfArray> *)(values);
+  refMatrix->setValues(refValues);
   XDMF_ERROR_WRAP_END(status)
 }
 

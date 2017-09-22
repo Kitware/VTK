@@ -132,15 +132,6 @@ XdmfHDF5Writer::XdmfHDF5Writer(const std::string & filePath) :
 {
 }
 
-//Set mUseDeflate(true), and mDeflateFactor(6) for default compression
-XdmfHDF5Writer::XdmfHDF5Writer(const XdmfHDF5Writer & writerRef) :
-  XdmfHeavyDataWriter(writerRef.getFilePath(), 1, 800),
-  mImpl(new XdmfHDF5WriterImpl()),
-  mUseDeflate(false),
-  mDeflateFactor(0)
-{
-}
-
 XdmfHDF5Writer::~XdmfHDF5Writer()
 {
   delete mImpl;
@@ -990,6 +981,9 @@ XdmfHDF5Writer::getDataSetSize(const std::string & fileName, const std::string &
   checkspace = H5Dget_space(checkset);
   hssize_t checksize = H5Sget_simple_extent_npoints(checkspace);
   herr_t status = H5Dclose(checkset);
+  if(status < 0) {
+    XdmfError::message(XdmfError::FATAL, "Error in H5Dclose");
+  }
   if(checkspace != H5S_ALL) {
     status = H5Sclose(checkspace);
   }
@@ -1657,29 +1651,23 @@ XdmfHDF5Writer::write(XdmfArray & array)
 
 XDMFHDF5WRITER * XdmfHDF5WriterNew(char * fileName, int clobberFile)
 {
-  try
-  {
-    shared_ptr<XdmfHDF5Writer> generatedWriter = XdmfHDF5Writer::New(std::string(fileName), clobberFile);
-    return (XDMFHDF5WRITER *)((void *)(new XdmfHDF5Writer(*generatedWriter.get())));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfHDF5Writer> generatedWriter = XdmfHDF5Writer::New(std::string(fileName), clobberFile);
-    return (XDMFHDF5WRITER *)((void *)(new XdmfHDF5Writer(*generatedWriter.get())));
-  }
+  shared_ptr<XdmfHDF5Writer> * p = new shared_ptr<XdmfHDF5Writer>(XdmfHDF5Writer::New(fileName, clobberFile));
+  return (XDMFHDF5WRITER *) p;
 }
 
 void XdmfHDF5WriterCloseFile(XDMFHDF5WRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfHDF5Writer *)writer)->closeFile();
+  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
+  refWriter->closeFile();
   XDMF_ERROR_WRAP_END(status)
 }
 
 unsigned int XdmfHDF5WriterGetChunkSize(XDMFHDF5WRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  return ((XdmfHDF5Writer *)writer)->getChunkSize();
+  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
+  return refWriter->getChunkSize();
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
@@ -1687,14 +1675,16 @@ unsigned int XdmfHDF5WriterGetChunkSize(XDMFHDF5WRITER * writer, int * status)
 void XdmfHDF5WriterOpenFile(XDMFHDF5WRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfHDF5Writer *)writer)->openFile();
+  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
+  refWriter->openFile();
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfHDF5WriterSetChunkSize(XDMFHDF5WRITER * writer, unsigned int chunkSize, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfHDF5Writer *)writer)->setChunkSize(chunkSize);
+  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
+  refWriter->setChunkSize(chunkSize);
   XDMF_ERROR_WRAP_END(status)
 }
 

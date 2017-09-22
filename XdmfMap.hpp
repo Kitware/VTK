@@ -398,8 +398,6 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
-  XdmfMap(XdmfMap & map);
-
 protected:
 
   XdmfMap();
