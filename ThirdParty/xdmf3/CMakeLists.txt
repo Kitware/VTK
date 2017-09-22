@@ -1,8 +1,3 @@
-find_package(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-set(${vtk-module}_SYSTEM_INCLUDE_DIRS
-    ${Boost_INCLUDE_DIRS})
-
 vtk_module_third_party(xdmf3
   LIBRARIES vtkxdmf3
   INCLUDE_DIRS

@@ -71,17 +71,6 @@ XdmfDomain::XdmfDomain()
 {
 }
 
-XdmfDomain::XdmfDomain(XdmfDomain & refDomain) :
-  XdmfItem(refDomain),
-  mGridCollections(refDomain.mGridCollections),
-  mGraphs(refDomain.mGraphs),
-  mCurvilinearGrids(refDomain.mCurvilinearGrids),
-  mRectilinearGrids(refDomain.mRectilinearGrids),
-  mRegularGrids(refDomain.mRegularGrids),
-  mUnstructuredGrids(refDomain.mUnstructuredGrids)
-{
-}
-
 XdmfDomain::~XdmfDomain()
 {
 }
@@ -186,298 +175,254 @@ XdmfDomain::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 XDMFDOMAIN * XdmfDomainNew()
 {
-  try
-  {
-    shared_ptr<XdmfDomain> generatedDomain = XdmfDomain::New();
-    return (XDMFDOMAIN *)((void *)((XdmfItem *)(new XdmfDomain(*generatedDomain.get()))));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfDomain> generatedDomain = XdmfDomain::New();
-    return (XDMFDOMAIN *)((void *)((XdmfItem *)(new XdmfDomain(*generatedDomain.get()))));
-  }
+  shared_ptr<XdmfDomain> * p = new shared_ptr<XdmfDomain>(XdmfDomain::New());
+  return (XDMFDOMAIN *) p;
 }
 
 XDMFGRIDCOLLECTION * XdmfDomainGetGridCollection(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFGRIDCOLLECTION *)((void *)((XdmfItem *)(domainPointer->getGridCollection(index).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfGridCollection> * gridCollection =
+    new shared_ptr<XdmfGridCollection>(refDomain->getGridCollection(index));
+  return (XDMFGRIDCOLLECTION *) gridCollection;
 }
 
 XDMFGRIDCOLLECTION * XdmfDomainGetGridCollectionByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFGRIDCOLLECTION *)((void *)((XdmfItem *)(domainPointer->getGridCollection(Name).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfGridCollection> * gridCollection =
+    new shared_ptr<XdmfGridCollection>(refDomain->getGridCollection(Name));
+  return (XDMFGRIDCOLLECTION *) gridCollection;
 }
 
 unsigned int XdmfDomainGetNumberGridCollections(XDMFDOMAIN * domain)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return domainPointer->getNumberGridCollections();
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  return refDomain->getNumberGridCollections();
 }
 
 void XdmfDomainInsertGridCollection(XDMFDOMAIN * domain, XDMFGRIDCOLLECTION * GridCollection, int passControl)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  if (passControl) {
-    domainPointer->insert(shared_ptr<XdmfGridCollection>((XdmfGridCollection *)GridCollection));
-  }
-  else {
-    domainPointer->insert(shared_ptr<XdmfGridCollection>((XdmfGridCollection *)GridCollection, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfGridCollection> refGridCollection = *(shared_ptr<XdmfGridCollection> *)(GridCollection);
+  refDomain->insert(refGridCollection);
 }
 
 void XdmfDomainRemoveGridCollection(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeGridCollection(index);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeGridCollection(index);
 }
 
 void XdmfDomainRemoveGridCollectionByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeGridCollection(Name);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeGridCollection(Name);
 }
 
 XDMFGRAPH * XdmfDomainGetGraph(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFGRAPH *)((void *)(domainPointer->getGraph(index).get()));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfGraph> * graph =
+    new shared_ptr<XdmfGraph>(refDomain->getGraph(index));
+  return (XDMFGRAPH *) graph;
 }
 
 XDMFGRAPH * XdmfDomainGetGraphByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFGRAPH *)((void *)(domainPointer->getGraph(Name).get()));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfGraph> * graph =
+    new shared_ptr<XdmfGraph>(refDomain->getGraph(Name));
+  return (XDMFGRAPH *) graph;
 }
 
 unsigned int XdmfDomainGetNumberGraphs(XDMFDOMAIN * domain)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return domainPointer->getNumberGraphs();
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  return refDomain->getNumberGraphs();
 }
 
 void XdmfDomainInsertGraph(XDMFDOMAIN * domain, XDMFGRAPH * Graph, int passControl)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  if (passControl) {
-    domainPointer->insert(shared_ptr<XdmfGraph>((XdmfGraph *)Graph));
-  }
-  else {
-    domainPointer->insert(shared_ptr<XdmfGraph>((XdmfGraph *)Graph, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfGraph> refGraph = *(shared_ptr<XdmfGraph> *)(Graph);
+  refDomain->insert(refGraph);
 }
 
 void XdmfDomainRemoveGraph(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeGraph(index);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeGraph(index);
 }
 
 void XdmfDomainRemoveGraphByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeGraph(Name);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeGraph(Name);
 }
 
 XDMFCURVILINEARGRID * XdmfDomainGetCurvilinearGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(domainPointer->getCurvilinearGrid(index).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfCurvilinearGrid> * grid =
+    new shared_ptr<XdmfCurvilinearGrid>(refDomain->getCurvilinearGrid(index));
+  return (XDMFCURVILINEARGRID *) grid;
 }
 
 XDMFCURVILINEARGRID * XdmfDomainGetCurvilinearGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(domainPointer->getCurvilinearGrid(Name).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfCurvilinearGrid> * grid =
+    new shared_ptr<XdmfCurvilinearGrid>(refDomain->getCurvilinearGrid(Name));
+  return (XDMFCURVILINEARGRID *) grid;
 }
 
 unsigned int XdmfDomainGetNumberCurvilinearGrids(XDMFDOMAIN * domain)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return domainPointer->getNumberCurvilinearGrids();
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  return refDomain->getNumberCurvilinearGrids();
 }
 
 void XdmfDomainInsertCurvilinearGrid(XDMFDOMAIN * domain, XDMFCURVILINEARGRID * CurvilinearGrid, int passControl)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  if (passControl) {
-    domainPointer->insert(shared_ptr<XdmfCurvilinearGrid>((XdmfCurvilinearGrid *)CurvilinearGrid));
-  }
-  else {
-    domainPointer->insert(shared_ptr<XdmfCurvilinearGrid>((XdmfCurvilinearGrid *)CurvilinearGrid, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfCurvilinearGrid> refGrid = *(shared_ptr<XdmfCurvilinearGrid> *)(CurvilinearGrid);
+  refDomain->insert(refGrid);
 }
 
 void XdmfDomainRemoveCurvilinearGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeCurvilinearGrid(index);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeCurvilinearGrid(index);
 }
 
 void XdmfDomainRemoveCurvilinearGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeCurvilinearGrid(Name);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeCurvilinearGrid(Name);
 }
 
 XDMFRECTILINEARGRID * XdmfDomainGetRectilinearGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(domainPointer->getRectilinearGrid(index).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfRectilinearGrid> * grid =
+    new shared_ptr<XdmfRectilinearGrid>(refDomain->getRectilinearGrid(index));
+  return (XDMFRECTILINEARGRID *) grid;
 }
 
 XDMFRECTILINEARGRID * XdmfDomainGetRectilinearGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(domainPointer->getRectilinearGrid(Name).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfRectilinearGrid> * grid =
+    new shared_ptr<XdmfRectilinearGrid>(refDomain->getRectilinearGrid(Name));
+  return (XDMFRECTILINEARGRID *) grid;
 }
 
 unsigned int XdmfDomainGetNumberRectilinearGrids(XDMFDOMAIN * domain)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return domainPointer->getNumberRectilinearGrids();
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  return refDomain->getNumberRectilinearGrids();
 }
 
 void XdmfDomainInsertRectilinearGrid(XDMFDOMAIN * domain, XDMFRECTILINEARGRID * RectilinearGrid, int passControl)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  if (passControl) {
-    domainPointer->insert(shared_ptr<XdmfRectilinearGrid>((XdmfRectilinearGrid *)RectilinearGrid));
-  }
-  else {
-    domainPointer->insert(shared_ptr<XdmfRectilinearGrid>((XdmfRectilinearGrid *)RectilinearGrid, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfRectilinearGrid> refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(RectilinearGrid);
+  refDomain->insert(refGrid);
 }
 
 void XdmfDomainRemoveRectilinearGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeRectilinearGrid(index);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeRectilinearGrid(index);
 }
 
 void XdmfDomainRemoveRectilinearGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeRectilinearGrid(Name);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeRectilinearGrid(Name);
 }
 
 XDMFREGULARGRID * XdmfDomainGetRegularGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFREGULARGRID *)((void *)((XdmfItem *)(domainPointer->getRegularGrid(index).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfRegularGrid> * grid =
+    new shared_ptr<XdmfRegularGrid>(refDomain->getRegularGrid(index));
+  return (XDMFREGULARGRID *) grid;
 }
 
 XDMFREGULARGRID * XdmfDomainGetRegularGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFREGULARGRID *)((void *)((XdmfItem *)(domainPointer->getRegularGrid(Name).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfRegularGrid> * grid =
+    new shared_ptr<XdmfRegularGrid>(refDomain->getRegularGrid(Name));
+  return (XDMFREGULARGRID *) grid;
 }
 
 unsigned int XdmfDomainGetNumberRegularGrids(XDMFDOMAIN * domain)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return domainPointer->getNumberRegularGrids();
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  return refDomain->getNumberRegularGrids();
 }
 
 void XdmfDomainInsertRegularGrid(XDMFDOMAIN * domain, XDMFREGULARGRID * RegularGrid, int passControl)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  if (passControl) {
-    domainPointer->insert(shared_ptr<XdmfRegularGrid>((XdmfRegularGrid *)RegularGrid));
-  }
-  else {
-    domainPointer->insert(shared_ptr<XdmfRegularGrid>((XdmfRegularGrid *)RegularGrid, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfRegularGrid> refGrid = *(shared_ptr<XdmfRegularGrid> *)(RegularGrid);
+  refDomain->insert(refGrid);
 }
 
 void XdmfDomainRemoveRegularGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeRegularGrid(index);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeRegularGrid(index);
 }
 
 void XdmfDomainRemoveRegularGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeRegularGrid(Name);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeRegularGrid(Name);
 }
 
 XDMFUNSTRUCTUREDGRID * XdmfDomainGetUnstructuredGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFUNSTRUCTUREDGRID *)((void *)((XdmfItem *)(domainPointer->getUnstructuredGrid(index).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfUnstructuredGrid> * grid =
+    new shared_ptr<XdmfUnstructuredGrid>(refDomain->getUnstructuredGrid(index));
+  return (XDMFUNSTRUCTUREDGRID *) grid;
 }
 
 XDMFUNSTRUCTUREDGRID * XdmfDomainGetUnstructuredGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return (XDMFUNSTRUCTUREDGRID *)((void *)((XdmfItem *)(domainPointer->getUnstructuredGrid(Name).get())));
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfUnstructuredGrid> * grid =
+    new shared_ptr<XdmfUnstructuredGrid>(refDomain->getUnstructuredGrid(Name));
+  return (XDMFUNSTRUCTUREDGRID *) grid;
 }
 
 unsigned int XdmfDomainGetNumberUnstructuredGrids(XDMFDOMAIN * domain)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  return domainPointer->getNumberUnstructuredGrids();
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  return refDomain->getNumberUnstructuredGrids();
 }
 
 void XdmfDomainInsertUnstructuredGrid(XDMFDOMAIN * domain, XDMFUNSTRUCTUREDGRID * UnstructuredGrid, int passControl)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  if (passControl) {
-    domainPointer->insert(shared_ptr<XdmfUnstructuredGrid>((XdmfUnstructuredGrid *)UnstructuredGrid));
-  }
-  else {
-    domainPointer->insert(shared_ptr<XdmfUnstructuredGrid>((XdmfUnstructuredGrid *)UnstructuredGrid, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  shared_ptr<XdmfUnstructuredGrid> refGrid = *(shared_ptr<XdmfUnstructuredGrid> *)(UnstructuredGrid);
+  refDomain->insert(refGrid);
 }
 
 void XdmfDomainRemoveUnstructuredGrid(XDMFDOMAIN * domain, unsigned int index)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeUnstructuredGrid(index);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeUnstructuredGrid(index);
 }
 
 void XdmfDomainRemoveUnstructuredGridByName(XDMFDOMAIN * domain, char * Name)
 {
-  XdmfItem * classedPointer = (XdmfItem *)domain;
-  XdmfDomain * domainPointer = dynamic_cast<XdmfDomain *>(classedPointer);
-  domainPointer->removeUnstructuredGrid(Name);
+  shared_ptr<XdmfDomain> & refDomain = *(shared_ptr<XdmfDomain> *)(domain);
+  refDomain->removeUnstructuredGrid(Name);
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfDomain, XDMFDOMAIN)

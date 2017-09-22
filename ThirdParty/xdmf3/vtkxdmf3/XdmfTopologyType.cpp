@@ -24,11 +24,13 @@
 #include <cctype>
 #include <cmath>
 #include <sstream>
+#include <string.h>
 #include <utility>
 #include <vector>
-#include "string.h"
+
 #include "XdmfError.hpp"
 #include "XdmfTopologyType.hpp"
+#include "XdmfStringUtils.hpp"
 
 std::map<std::string, shared_ptr<const XdmfTopologyType>(*)()> XdmfTopologyType::mTopologyDefinitions;
 
@@ -519,7 +521,7 @@ XdmfTopologyType::calculateHypercubeNumElements(unsigned int numDims,
     // The calculation has 3 parts
     // First is the 2 taken to the power of
     // the object's dimensionality minus the element's dimensionality.
-    unsigned int part1 = std::pow((double)2, (double)(numDims - elementNumDims));
+    unsigned int part1 = static_cast<unsigned int>(std::pow((double)2, (double)(numDims - elementNumDims)));
     // The second part is numDims!/(numDims-elementdims)!
     unsigned int part2 = 1;
     for (unsigned int i = numDims; i > (numDims - elementNumDims); --i)
@@ -695,7 +697,7 @@ XdmfTopologyType::New(const std::map<std::string, std::string> & itemProperties)
                        "Neither 'Type' nor 'TopologyType' found in "
                        "itemProperties in XdmfTopologyType::New");
   }
-  std::string typeVal = ConvertToUpper(type->second);
+  const std::string typeVal = XdmfStringUtils::toUpper(type->second);
 
   std::map<std::string, std::string>::const_iterator nodesPerElement =
     itemProperties.find("NodesPerElement");

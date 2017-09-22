@@ -1,11 +1,19 @@
 project(Xdmf)
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 3.1)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #Needed to build DSM because relative paths are used to add its libraries
 if (POLICY CMP0015)
 	cmake_policy(SET CMP0015 NEW)
 endif ()
 
+
+if(WIN32)
+  ADD_DEFINITIONS(-D_CRT_NONSTDC_NO_DEPRECATE)
+  ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
+endif()
 if(MSVC10)
 	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})

@@ -22,11 +22,11 @@
 /*****************************************************************************/
 
 #include <sstream>
+#include <string.h>
 #include <utility>
-#include <boost/assign.hpp>
-#include "string.h"
 #include "XdmfArrayType.hpp"
 #include "XdmfError.hpp"
+#include "XdmfStringUtils.hpp"
 
 std::map<std::string, std::map<unsigned int ,shared_ptr<const XdmfArrayType>(*)()> >
   XdmfArrayType::mArrayDefinitions;
@@ -154,7 +154,7 @@ XdmfArrayType::New(const std::map<std::string, std::string> & itemProperties)
     // to support old xdmf defaults, return Float32()
     return Float32();
   }
-  const std::string & typeVal = ConvertToUpper(type->second);
+  const std::string typeVal = XdmfStringUtils::toUpper(type->second);
   std::map<std::string, std::string>::const_iterator precision =
     itemProperties.find("Precision");
   const unsigned int precisionVal =

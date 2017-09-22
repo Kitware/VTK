@@ -24,6 +24,7 @@
 #include <utility>
 #include "XdmfError.hpp"
 #include "XdmfGridCollectionType.hpp"
+#include "XdmfStringUtils.hpp"
 
 std::map<std::string, shared_ptr<const XdmfGridCollectionType>(*)()>
   XdmfGridCollectionType::mGridCollectionDefinitions;
@@ -83,7 +84,7 @@ XdmfGridCollectionType::New(const std::map<std::string, std::string> & itemPrope
                        "XdmfGridCollectionType::New");
   }
 
-  const std::string & typeVal = ConvertToUpper(type->second);
+  const std::string typeVal = XdmfStringUtils::toUpper(type->second);
 
   std::map<std::string, shared_ptr<const XdmfGridCollectionType>(*)()>::const_iterator returnType
     = mGridCollectionDefinitions.find(typeVal);

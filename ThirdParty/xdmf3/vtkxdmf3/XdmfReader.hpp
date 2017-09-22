@@ -65,22 +65,11 @@ public:
 
   virtual ~XdmfReader();
 
-  /**
-   * Uses the internal item factory to create a copy of the internal pointer
-   * of the provided shared pointer. Primarily used for C wrapping.
-   *
-   * @param     original        The source shared pointer that the pointer will be pulled from.
-   * @return                    A duplicate of the object contained in the pointer.
-   */
-  virtual XdmfItem * DuplicatePointer(shared_ptr<XdmfItem> original) const;
-
   shared_ptr<XdmfItem> read(const std::string & filePath) const;
 
   std::vector<shared_ptr<XdmfItem> >
   read(const std::string & filePath,
        const std::string & xPath) const;
-
-  XdmfReader(const XdmfReader &);
 
 protected:
 

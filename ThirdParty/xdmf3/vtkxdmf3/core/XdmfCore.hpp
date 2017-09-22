@@ -60,7 +60,8 @@
 
 /* Compiler Optimizations will result in an 'internal compiler error', so turn them off */
 #pragma optimize("g", off)
-
+#pragma warning( disable : 4297 ) /* __declspec(nothrow), throw(), noexcept(true), or noexcept was specified in the function */
+#pragma warning( disable : 4800 ) /* 'int': forcing value to bool 'true' or 'false' (performance warning) */
 #else /* _WIN32 */
 
 /* We don't need to export/import since there are no dlls */

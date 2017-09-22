@@ -51,14 +51,6 @@ XdmfInformation::XdmfInformation(const std::string & key,
 {
 }
 
-XdmfInformation::XdmfInformation(XdmfInformation & refInfo) :
-  XdmfItem(refInfo),
-  mArrays(refInfo.mArrays)
-{
-  mKey = refInfo.getKey();
-  mValue = refInfo.getValue();
-}
-
 XdmfInformation::~XdmfInformation()
 {
 }
@@ -165,102 +157,77 @@ XdmfInformation::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 XDMFINFORMATION *
 XdmfInformationNew(char * key, char * value)
 {
-  try
-  {
-    std::string createKey(key);
-    std::string createValue(value);
-    shared_ptr<XdmfInformation> generatedInfo = XdmfInformation::New(createKey, createValue);
-    return (XDMFINFORMATION *)((void *)(new XdmfInformation(*generatedInfo.get())));
-  }
-  catch (...)
-  {
-    std::string createKey(key);
-    std::string createValue(value);
-    shared_ptr<XdmfInformation> generatedInfo = XdmfInformation::New(createKey, createValue);
-    return (XDMFINFORMATION *)((void *)(new XdmfInformation(*generatedInfo.get())));
-  }
+  shared_ptr<XdmfInformation> * p = new shared_ptr<XdmfInformation>(XdmfInformation::New(key, value));
+  return (XDMFINFORMATION *) p;
 }
 
 XDMFARRAY *
 XdmfInformationGetArray(XDMFINFORMATION * information, unsigned int index)
 {
-  return (XDMFARRAY *)((void *)(((XdmfInformation *)(information))->getArray(index).get()));
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(refInformation->getArray(index));
+  return (XDMFARRAY *) p;
 }
 
 XDMFARRAY *
 XdmfInformationGetArrayByName(XDMFINFORMATION * information, char * name)
 {
-  return (XDMFARRAY *)((void *)(((XdmfInformation *)(information))->getArray(name).get()));
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(refInformation->getArray(name));
+  return (XDMFARRAY *) p;
 }
 
 char *
 XdmfInformationGetKey(XDMFINFORMATION * information)
 {
-  try
-  {
-    XdmfInformation referenceInfo = *(XdmfInformation *)(information);
-    char * returnPointer = strdup(referenceInfo.getKey().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  {
-    XdmfInformation referenceInfo = *(XdmfInformation *)(information);
-    char * returnPointer = strdup(referenceInfo.getKey().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  char * returnPointer = strdup(refInformation->getKey().c_str());
+  return returnPointer;
 }
 
 unsigned int
 XdmfInformationGetNumberArrays(XDMFINFORMATION * information)
 {
-  return ((XdmfInformation *)(information))->getNumberArrays();
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  return refInformation->getNumberArrays();
 }
 
 char *
 XdmfInformationGetValue(XDMFINFORMATION * information)
 {
-  try
-  {
-    XdmfInformation referenceInfo = *(XdmfInformation *)(information);
-    char * returnPointer = strdup(referenceInfo.getValue().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  { 
-    XdmfInformation referenceInfo = *(XdmfInformation *)(information);
-    char * returnPointer = strdup(referenceInfo.getValue().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  char * returnPointer = strdup(refInformation->getValue().c_str());
+  return returnPointer;
 }
 
 void
 XdmfInformationInsertArray(XDMFINFORMATION * information, XDMFARRAY * array, int transferOwnership)
 {
-  if (transferOwnership) {
-    ((XdmfInformation *)(information))->insert(shared_ptr<XdmfArray>((XdmfArray *)array));
-  }
-  else {
-    ((XdmfInformation *)(information))->insert(shared_ptr<XdmfArray>((XdmfArray *)array, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  shared_ptr<XdmfArray> & refArray = *(shared_ptr<XdmfArray> *)(array);
+  refInformation->insert(refArray);
 }
 
 void
 XdmfInformationRemoveArray(XDMFINFORMATION * information, unsigned int index)
 {
-  ((XdmfInformation *)(information))->removeArray(index);
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  refInformation->removeArray(index);
 }
 
 void
 XdmfInformationRemoveArrayByName(XDMFINFORMATION * information, char * name)
 {
-  ((XdmfInformation *)(information))->removeArray(name);
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  refInformation->removeArray(name);
 }
 
 void
 XdmfInformationSetKey(XDMFINFORMATION * information, char * key, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfInformation *)(information))->setKey(key);
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  refInformation->setKey(key);
   XDMF_ERROR_WRAP_END(status)
 }
 
@@ -268,7 +235,8 @@ void
 XdmfInformationSetValue(XDMFINFORMATION * information, char * value, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfInformation *)(information))->setValue(value);
+  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
+  refInformation->setValue(value);
   XDMF_ERROR_WRAP_END(status)
 }
 

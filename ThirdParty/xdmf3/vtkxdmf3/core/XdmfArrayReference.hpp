@@ -185,8 +185,6 @@ public:
    */
   void setConstructedType(std::string newType);
 
-  XdmfArrayReference(XdmfArrayReference &);
-
 protected:
 
   XdmfArrayReference();

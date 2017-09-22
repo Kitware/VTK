@@ -41,12 +41,6 @@ XdmfTopology::XdmfTopology() :
 {
 }
 
-XdmfTopology::XdmfTopology(XdmfTopology & refTopo) :
-  XdmfArray(refTopo),
-  mType(refTopo.mType)
-{
-}
-
 XdmfTopology::~XdmfTopology()
 {
 }
@@ -205,29 +199,24 @@ XdmfTopology::setType(const shared_ptr<const XdmfTopologyType> type)
 
 XDMFTOPOLOGY * XdmfTopologyNew()
 {
-  try
-  {
-    shared_ptr<XdmfTopology> generatedTopology = XdmfTopology::New();
-    return (XDMFTOPOLOGY *)((void *)(new XdmfTopology(*generatedTopology.get())));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfTopology> generatedTopology = XdmfTopology::New();
-    return (XDMFTOPOLOGY *)((void *)(new XdmfTopology(*generatedTopology.get())));
-  }
+  shared_ptr<XdmfTopology> * p = 
+    new shared_ptr<XdmfTopology>(XdmfTopology::New());
+  return (XDMFTOPOLOGY *) p;
 }
 
 unsigned int XdmfTopologyGetNumberElements(XDMFTOPOLOGY * topology, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  return ((XdmfTopology *)topology)->getNumberElements();
+  shared_ptr<XdmfTopology> & refTopology = *(shared_ptr<XdmfTopology> *)(topology);
+  return refTopology->getNumberElements();
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
 
 int XdmfTopologyGetType(XDMFTOPOLOGY * topology)
 {
-  shared_ptr<const XdmfTopologyType> type = ((XdmfTopology *)topology)->getType();
+  shared_ptr<XdmfTopology> & refTopology = *(shared_ptr<XdmfTopology> *)(topology);
+  shared_ptr<const XdmfTopologyType> type = refTopology->getType();
   int returnType = -1;
 
   if (type->getID() == XdmfTopologyType::Polyvertex()->getID()) {
@@ -351,6 +340,7 @@ int XdmfTopologyGetType(XDMFTOPOLOGY * topology)
 void XdmfTopologySetType(XDMFTOPOLOGY * topology, int type, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
+  shared_ptr<XdmfTopology> & refTopology = *(shared_ptr<XdmfTopology> *)(topology);
   shared_ptr<const XdmfTopologyType> newType = shared_ptr<const XdmfTopologyType>();
 
   switch (type) {
@@ -471,13 +461,14 @@ void XdmfTopologySetType(XDMFTOPOLOGY * topology, int type, int * status)
       break;
   }
 
-  ((XdmfTopology *)topology)->setType(newType);
+  refTopology->setType(newType);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfTopologySetPolyType(XDMFTOPOLOGY * topology, int type, int nodes, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
+  shared_ptr<XdmfTopology> & refTopology = *(shared_ptr<XdmfTopology> *)(topology);
   shared_ptr<const XdmfTopologyType> newType = shared_ptr<const XdmfTopologyType>();
 
   switch (type) {
@@ -597,7 +588,7 @@ void XdmfTopologySetPolyType(XDMFTOPOLOGY * topology, int type, int nodes, int *
                          "Error: Invalid Topology Type: Code " + type);
       break;
   }
-  ((XdmfTopology *)topology)->setType(newType);
+  refTopology->setType(newType);
   XDMF_ERROR_WRAP_END(status)
 }
 

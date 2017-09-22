@@ -174,8 +174,6 @@ public:
    */
   virtual shared_ptr<XdmfGrid> read();
 
-  XdmfGridController(const XdmfGridController&);
-
 protected:
 
   XdmfGridController(const std::string & filePath,
@@ -186,7 +184,7 @@ protected:
 
 private:
 
-//  XdmfGridController(const XdmfGridController&);  // Not implemented.
+  XdmfGridController(const XdmfGridController&);  // Not implemented.
   void operator=(const XdmfGridController &);  // Not implemented.
 
 };

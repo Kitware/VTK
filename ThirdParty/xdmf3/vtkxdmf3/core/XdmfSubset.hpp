@@ -44,7 +44,7 @@ class XdmfArray;
  * This class serves to allow an array to retrieve data that is a subsection
  * of an already existing array.
  */
-class XDMFCORE_EXPORT XdmfSubset: public XdmfArrayReference {
+class XDMFCORE_EXPORT XdmfSubset : public XdmfArrayReference {
 
 public:
 
@@ -75,9 +75,9 @@ public:
    */
   static shared_ptr<XdmfSubset>
   New(shared_ptr<XdmfArray> referenceArray,
-      std::vector<unsigned int> & start,
-      std::vector<unsigned int> & stride,
-      std::vector<unsigned int> & dimensions);
+      const std::vector<unsigned int> & start,
+      const std::vector<unsigned int> & stride,
+      const std::vector<unsigned int> & dimensions);
 
   virtual ~XdmfSubset();
 
@@ -366,19 +366,12 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
-  XdmfSubset(XdmfSubset&);
-
 protected:
 
   XdmfSubset(shared_ptr<XdmfArray> referenceArray,
-             std::vector<unsigned int> & start,
-             std::vector<unsigned int> & stride,
-             std::vector<unsigned int> & dimensions);
-
-  void
-  populateItem(const std::map<std::string, std::string> & itemProperties,
-               const std::vector<shared_ptr<XdmfItem> > & childItems,
-               const XdmfCoreReader * const reader);
+             const std::vector<unsigned int> & start,
+             const std::vector<unsigned int> & stride,
+             const std::vector<unsigned int> & dimensions);
 
   shared_ptr<XdmfArray> mParent;
   std::vector<unsigned int> mDimensions;
@@ -409,7 +402,7 @@ XDMFCORE_EXPORT unsigned int * XdmfSubsetGetDimensions(XDMFSUBSET * subset);
 
 XDMFCORE_EXPORT unsigned int XdmfSubsetGetNumberDimensions(XDMFSUBSET * subset);
 
-XDMFCORE_EXPORT void * XdmfSubsetGetReferenceArray(XDMFSUBSET * subset);
+XDMFCORE_EXPORT XDMFARRAY * XdmfSubsetGetReferenceArray(XDMFSUBSET * subset);
 
 XDMFCORE_EXPORT unsigned int XdmfSubsetGetSize(XDMFSUBSET * subset);
 

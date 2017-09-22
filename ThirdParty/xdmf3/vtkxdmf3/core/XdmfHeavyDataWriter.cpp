@@ -146,48 +146,46 @@ XdmfHeavyDataWriter::setReleaseData(const bool releaseData)
 void XdmfHeavyDataWriterFree(XDMFHEAVYDATAWRITER * item)
 {
   if (item != NULL) {
-    delete ((XdmfHeavyDataWriter *)item);
+    delete (shared_ptr<XdmfHeavyDataWriter> *) item;
     item = NULL;
   }
 }
 
 int XdmfHeavyDataWriterGetAllowSetSplitting(XDMFHEAVYDATAWRITER * writer)
 {
-  return ((XdmfHeavyDataWriter *)writer)->getAllowSetSplitting();
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  return refWriter->getAllowSetSplitting();
 }
 
 int XdmfHeavyDataWriterGetFileIndex(XDMFHEAVYDATAWRITER * writer)
 {
-  return ((XdmfHeavyDataWriter *)writer)->getFileIndex();
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  return refWriter->getFileIndex();
 }
 
 unsigned int XdmfHeavyDataWriterGetFileOverhead(XDMFHEAVYDATAWRITER * writer)
 {
-  return ((XdmfHeavyDataWriter *)writer)->getFileOverhead();
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  return refWriter->getFileOverhead();
 }
 
 char * XdmfHeavyDataWriterGetFilePath(XDMFHEAVYDATAWRITER * writer)
 {
-  try
-  {
-    char * returnPointer = strdup(((XdmfHeavyDataWriter *)writer)->getFilePath().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  {
-    char * returnPointer = strdup(((XdmfHeavyDataWriter *)writer)->getFilePath().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  char * returnPointer = strdup(refWriter->getFilePath().c_str());
+  return returnPointer;
 }
 
 int XdmfHeavyDataWriterGetFileSizeLimit(XDMFHEAVYDATAWRITER * writer)
 {
-  return ((XdmfHeavyDataWriter *)writer)->getFileSizeLimit();
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  return refWriter->getFileSizeLimit();
 }
 
 int XdmfHeavyDataWriterGetMode(XDMFHEAVYDATAWRITER * writer)
 {
-  XdmfHeavyDataWriter::Mode checkMode = ((XdmfHeavyDataWriter *)writer)->getMode();
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  XdmfHeavyDataWriter::Mode checkMode = refWriter->getMode();
   if (checkMode == XdmfHeavyDataWriter::Default) {
     return XDMF_HEAVY_WRITER_MODE_DEFAULT;
   }
@@ -205,26 +203,31 @@ int XdmfHeavyDataWriterGetMode(XDMFHEAVYDATAWRITER * writer)
 
 int XdmfHeavyDataWriterGetReleaseData(XDMFHEAVYDATAWRITER * writer)
 {
-  return ((XdmfHeavyDataWriter *)writer)->getReleaseData();
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  return refWriter->getReleaseData();
 }
 
 void XdmfHeavyDataWriterSetAllowSetSplitting(XDMFHEAVYDATAWRITER * writer, int newAllow)
 {
-  ((XdmfHeavyDataWriter *)writer)->setAllowSetSplitting(newAllow);
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  refWriter->setAllowSetSplitting(newAllow);
 }
 
 void XdmfHeavyDataWriterSetFileIndex(XDMFHEAVYDATAWRITER * writer, int newIndex)
 {
-  ((XdmfHeavyDataWriter *)writer)->setFileIndex(newIndex);
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  refWriter->setFileIndex(newIndex);
 }
 
 void XdmfHeavyDataWriterSetFileSizeLimit(XDMFHEAVYDATAWRITER * writer, int newSize)
 {
-  ((XdmfHeavyDataWriter *)writer)->setFileSizeLimit(newSize);
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  refWriter->setFileSizeLimit(newSize);
 }
 
 void XdmfHeavyDataWriterSetMode(XDMFHEAVYDATAWRITER * writer, int mode, int * status)
 {
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
   XDMF_ERROR_WRAP_START(status)
   XdmfHeavyDataWriter::Mode newMode;
   switch (mode) {
@@ -244,11 +247,12 @@ void XdmfHeavyDataWriterSetMode(XDMFHEAVYDATAWRITER * writer, int mode, int * st
       XdmfError::message(XdmfError::FATAL,
                          "Error: Invalid heavy writer mode.");
   }
-  ((XdmfHeavyDataWriter *)writer)->setMode(newMode);
+  refWriter->setMode(newMode);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfHeavyDataWriterSetReleaseData(XDMFHEAVYDATAWRITER * writer, int releaseData)
 {
-  ((XdmfHeavyDataWriter *)writer)->setReleaseData(releaseData);
+  shared_ptr<XdmfHeavyDataWriter> & refWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(writer);
+  refWriter->setReleaseData(releaseData);
 }

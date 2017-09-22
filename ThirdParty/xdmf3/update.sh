@@ -111,6 +111,8 @@ core/XdmfPlaceholder.hpp
 core/XdmfSharedPtr.hpp
 core/XdmfSparseMatrix.cpp
 core/XdmfSparseMatrix.hpp
+core/XdmfStringUtils.cpp
+core/XdmfStringUtils.hpp
 core/XdmfSubset.cpp
 core/XdmfSubset.hpp
 core/XdmfSystemUtils.cpp
@@ -138,6 +140,16 @@ core/dsm/XdmfHDF5ControllerDSM.cpp
 core/dsm/XdmfHDF5ControllerDSM.hpp
 core/dsm/XdmfHDF5WriterDSM.cpp
 core/dsm/XdmfHDF5WriterDSM.hpp
+core/mapbox/LICENSE
+core/mapbox/LICENSE_1_0.txt
+core/mapbox/README.md
+core/mapbox/optional.hpp
+core/mapbox/package.json
+core/mapbox/recursive_wrapper.hpp
+core/mapbox/variant.hpp
+core/mapbox/variant_cast.hpp
+core/mapbox/variant_io.hpp
+core/mapbox/variant_visitor.hpp
 "
 
 extract_source () {

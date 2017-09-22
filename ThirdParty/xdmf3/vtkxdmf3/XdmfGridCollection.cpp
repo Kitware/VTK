@@ -28,29 +28,6 @@
 #include "XdmfGridCollection.hpp"
 #include "XdmfGridCollectionType.hpp"
 
-class XdmfGridCollection::XdmfGridCollectionImpl : public XdmfGridImpl
-{
-  public:
-  XdmfGridCollectionImpl()
-  {
-    mGridType = "Collection";
-  }
-
-  ~XdmfGridCollectionImpl()
-  {
-  }
-
-  XdmfGridImpl * duplicate()
-  {
-    return new XdmfGridCollectionImpl();
-  }
-
-  std::string getGridType() const
-  {
-    return mGridType;
-  }
-};
-
 shared_ptr<XdmfGridCollection>
 XdmfGridCollection::New()
 {
@@ -63,22 +40,10 @@ XdmfGridCollection::XdmfGridCollection() :
   XdmfGrid(shared_ptr<XdmfGeometry>(), shared_ptr<XdmfTopology>(), "Collection"),
   mType(XdmfGridCollectionType::NoCollectionType())
 {
-    mImpl = new XdmfGridCollectionImpl();
-}
-
-XdmfGridCollection::XdmfGridCollection(XdmfGridCollection & refCollection) :
-  XdmfDomain(refCollection),
-  XdmfGrid(refCollection),
-  mType(refCollection.mType)
-{
 }
 
 XdmfGridCollection::~XdmfGridCollection()
 {
-  if (mImpl) {
-    delete mImpl;
-  }
-  mImpl = NULL;
 }
 
 const std::string XdmfGridCollection::ItemTag = "Grid";
@@ -336,30 +301,16 @@ XdmfGridCollection::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 XDMFGRIDCOLLECTION * XdmfGridCollectionNew()
 {
-  try
-  {
-    XDMFGRIDCOLLECTION * returnCollection = NULL;
-    shared_ptr<XdmfGridCollection> generatedCollection = XdmfGridCollection::New();
-    returnCollection = (XDMFGRIDCOLLECTION *)((void *)((XdmfItem *)(new XdmfGridCollection(*generatedCollection.get()))));
-    generatedCollection.reset();
-    return returnCollection;
-  }
-  catch (...)
-  {
-    XDMFGRIDCOLLECTION * returnCollection = NULL;
-    shared_ptr<XdmfGridCollection> generatedCollection = XdmfGridCollection::New();
-    returnCollection = (XDMFGRIDCOLLECTION *)((void *)((XdmfItem *)(new XdmfGridCollection(*generatedCollection.get()))));
-    generatedCollection.reset();
-    return returnCollection;
-  }
+  shared_ptr<XdmfGridCollection> * p = 
+    new shared_ptr<XdmfGridCollection>(XdmfGridCollection::New());
+  return (XDMFGRIDCOLLECTION *) p;
 }
 
 int XdmfGridCollectionGetType(XDMFGRIDCOLLECTION * collection, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * tempPointer = (XdmfItem *)collection;
-  XdmfGridCollection * tempCollection = dynamic_cast<XdmfGridCollection *>(tempPointer);
-  shared_ptr<const XdmfGridCollectionType> checkType = tempCollection->getType();
+  shared_ptr<XdmfGridCollection> & refCollection = *(shared_ptr<XdmfGridCollection> *)(collection);
+  shared_ptr<const XdmfGridCollectionType> checkType = refCollection->getType();
   if (checkType == XdmfGridCollectionType::NoCollectionType()) {
     return XDMF_GRID_COLLECTION_TYPE_NO_COLLECTION_TYPE;
   }
@@ -380,22 +331,21 @@ int XdmfGridCollectionGetType(XDMFGRIDCOLLECTION * collection, int * status)
 void XdmfGridCollectionSetType(XDMFGRIDCOLLECTION * collection, int type, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * tempPointer = (XdmfItem *)collection;
-  XdmfGridCollection * tempCollection = dynamic_cast<XdmfGridCollection *>(tempPointer);
+  shared_ptr<XdmfGridCollection> & refCollection = *(shared_ptr<XdmfGridCollection> *)(collection);
   switch (type) {
-    case XDMF_GRID_COLLECTION_TYPE_NO_COLLECTION_TYPE:
-      tempCollection->setType(XdmfGridCollectionType::NoCollectionType());
-      break;
-    case XDMF_GRID_COLLECTION_TYPE_SPATIAL:
-      tempCollection->setType(XdmfGridCollectionType::Spatial());
-      break;
-    case XDMF_GRID_COLLECTION_TYPE_TEMPORAL:
-      tempCollection->setType(XdmfGridCollectionType::Temporal());
-      break;
-    default:
-      XdmfError::message(XdmfError::FATAL,
-                         "Error: Invalid ArrayType.");
-      break;
+  case XDMF_GRID_COLLECTION_TYPE_NO_COLLECTION_TYPE:
+    refCollection->setType(XdmfGridCollectionType::NoCollectionType());
+    break;
+  case XDMF_GRID_COLLECTION_TYPE_SPATIAL:
+    refCollection->setType(XdmfGridCollectionType::Spatial());
+    break;
+  case XDMF_GRID_COLLECTION_TYPE_TEMPORAL:
+    refCollection->setType(XdmfGridCollectionType::Temporal());
+    break;
+  default:
+    XdmfError::message(XdmfError::FATAL,
+		       "Error: Invalid ArrayType.");
+    break;
   }
   XDMF_ERROR_WRAP_END(status)
 }

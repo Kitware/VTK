@@ -282,8 +282,6 @@ public:
    */
   void setGeometry(const shared_ptr<XdmfGeometry> geometry);
 
-  XdmfCurvilinearGrid(XdmfCurvilinearGrid &);
-
 protected:
 
   XdmfCurvilinearGrid(const shared_ptr<XdmfArray> numPoints);
@@ -299,11 +297,15 @@ private:
    * PIMPL
    */
   class XdmfCurvilinearGridImpl;
+
   XdmfCurvilinearGrid(const XdmfCurvilinearGrid &); // Not implemented.
   void operator=(const XdmfCurvilinearGrid &);  // Not implemented.
 
   void
   copyGrid(shared_ptr<XdmfGrid> sourceGrid);
+
+  XdmfCurvilinearGridImpl * mImpl;
+
 };
 
 #endif
