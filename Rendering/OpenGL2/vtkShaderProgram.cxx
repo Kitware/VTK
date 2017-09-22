@@ -159,6 +159,7 @@ bool vtkShaderProgram::Substitute(vtkShader* shader,
     return false;
     }
   shader->SetSource(source);
+  return true;
 }
 
 
