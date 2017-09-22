@@ -33,7 +33,7 @@
 /**
  * PIMPL
  */
-class XdmfRegularGrid::XdmfRegularGridImpl : public XdmfGridImpl {
+class XdmfRegularGrid::XdmfRegularGridImpl {
 
 public:
 
@@ -249,17 +249,12 @@ public:
     mDimensions(numPoints),
     mOrigin(origin)
   {
-    mGridType = "Regular";
-  }
-
-  XdmfGridImpl * duplicate()
-  {
-    return new XdmfRegularGridImpl(mBrickSize, mDimensions, mOrigin);
   }
 
   shared_ptr<XdmfArray> mBrickSize;
   shared_ptr<XdmfArray> mDimensions;
   shared_ptr<XdmfArray> mOrigin;
+
 };
 
 shared_ptr<XdmfRegularGrid>
@@ -335,16 +330,9 @@ XdmfRegularGrid::XdmfRegularGrid(const shared_ptr<XdmfArray> brickSize,
                                  const shared_ptr<XdmfArray> numPoints,
                                  const shared_ptr<XdmfArray> origin) :
   XdmfGrid(XdmfRegularGridImpl::XdmfGeometryRegular::New(this),
-           XdmfRegularGridImpl::XdmfTopologyRegular::New(this))
+           XdmfRegularGridImpl::XdmfTopologyRegular::New(this)),
+  mImpl(new XdmfRegularGridImpl(brickSize, numPoints, origin))  
 {
-  mImpl = new XdmfRegularGridImpl(brickSize, numPoints, origin);
-}
-
-XdmfRegularGrid::XdmfRegularGrid(XdmfRegularGrid & refGrid) :
-  XdmfGrid(refGrid)
-{
-  mGeometry = XdmfRegularGridImpl::XdmfGeometryRegular::New(this);
-  mTopology = XdmfRegularGridImpl::XdmfTopologyRegular::New(this);  
 }
 
 XdmfRegularGrid::~XdmfRegularGrid()
@@ -373,40 +361,40 @@ XdmfRegularGrid::copyGrid(shared_ptr<XdmfGrid> sourceGrid)
 shared_ptr<XdmfArray>
 XdmfRegularGrid::getBrickSize()
 {
-  return boost::const_pointer_cast<XdmfArray>
+  return const_pointer_cast<XdmfArray>
     (static_cast<const XdmfRegularGrid &>(*this).getBrickSize());
 }
 
 shared_ptr<const XdmfArray>
 XdmfRegularGrid::getBrickSize() const
 {
-  return ((XdmfRegularGridImpl *)mImpl)->mBrickSize;
+  return mImpl->mBrickSize;
 }
 
 shared_ptr<XdmfArray>
 XdmfRegularGrid::getDimensions()
 {
-  return boost::const_pointer_cast<XdmfArray>
+  return const_pointer_cast<XdmfArray>
     (static_cast<const XdmfRegularGrid &>(*this).getDimensions());
 }
 
 shared_ptr<const XdmfArray>
 XdmfRegularGrid::getDimensions() const
 {
-  return ((XdmfRegularGridImpl *)mImpl)->mDimensions;
+  return mImpl->mDimensions;
 }
 
 shared_ptr<XdmfArray>
 XdmfRegularGrid::getOrigin()
 {
-  return boost::const_pointer_cast<XdmfArray>
+  return const_pointer_cast<XdmfArray>
     (static_cast<const XdmfRegularGrid &>(*this).getOrigin());
 }
 
 shared_ptr<const XdmfArray>
 XdmfRegularGrid::getOrigin() const
 {
-  return ((XdmfRegularGridImpl *)mImpl)->mOrigin;
+  return mImpl->mOrigin;
 }
 
 void
@@ -423,15 +411,15 @@ XdmfRegularGrid::populateItem(const std::map<std::string, std::string> & itemPro
     if(shared_ptr<XdmfRegularGrid> regularGrid =
        shared_dynamic_cast<XdmfRegularGrid>(*iter)) {
       if(regularGrid->getBrickSize()) {
-        ((XdmfRegularGridImpl *)mImpl)->mBrickSize = regularGrid->getBrickSize();
+        mImpl->mBrickSize = regularGrid->getBrickSize();
       }
 
       if(regularGrid->getDimensions()) {
-        ((XdmfRegularGridImpl *)mImpl)->mDimensions = regularGrid->getDimensions();
+        mImpl->mDimensions = regularGrid->getDimensions();
       }
 
       if(regularGrid->getOrigin()) {
-        ((XdmfRegularGridImpl *)mImpl)->mOrigin = regularGrid->getOrigin();
+        mImpl->mOrigin = regularGrid->getOrigin();
       }
     }
   }
@@ -470,21 +458,21 @@ XdmfRegularGrid::release()
 void
 XdmfRegularGrid::setBrickSize(const shared_ptr<XdmfArray> brickSize)
 {
-  ((XdmfRegularGridImpl *)mImpl)->mBrickSize = brickSize;
+  mImpl->mBrickSize = brickSize;
   this->setIsChanged(true);
 }
 
 void
 XdmfRegularGrid::setDimensions(const shared_ptr<XdmfArray> dimensions)
 {
-  ((XdmfRegularGridImpl *)mImpl)->mDimensions = dimensions;
+  mImpl->mDimensions = dimensions;
   this->setIsChanged(true);
 }
 
 void
 XdmfRegularGrid::setOrigin(const shared_ptr<XdmfArray> origin)
 {
-  ((XdmfRegularGridImpl *)mImpl)->mOrigin = origin;
+  mImpl->mOrigin = origin;
   this->setIsChanged(true);
 }
 
@@ -497,26 +485,14 @@ XDMFREGULARGRID * XdmfRegularGridNew2D(double xBrickSize,
                                        double xOrigin,
                                        double yOrigin)
 {
-  try
-  {
-    shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(xBrickSize,
-                                                                     yBrickSize,
-                                                                     xNumPoints,
-                                                                     yNumPoints,
-                                                                     xOrigin,
-                                                                     yOrigin);
-    return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(xBrickSize,
-                                                                     yBrickSize,
-                                                                     xNumPoints,
-                                                                     yNumPoints,
-                                                                     xOrigin,
-                                                                     yOrigin);
-    return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-  }
+  shared_ptr<XdmfRegularGrid> * p = 
+    new shared_ptr<XdmfRegularGrid>(XdmfRegularGrid::New(xBrickSize,
+							 yBrickSize,
+							 xNumPoints,
+							 yNumPoints,
+							 xOrigin,
+							 yOrigin));
+  return (XDMFREGULARGRID *) p;
 }
 
 XDMFREGULARGRID * XdmfRegularGridNew3D(double xBrickSize,
@@ -529,32 +505,17 @@ XDMFREGULARGRID * XdmfRegularGridNew3D(double xBrickSize,
                                        double yOrigin,
                                        double zOrigin)
 {
-  try
-  {
-    shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(xBrickSize,
-                                                                     yBrickSize,
-                                                                     zBrickSize,
-                                                                     xNumPoints,
-                                                                     yNumPoints,
-                                                                     zNumPoints,
-                                                                     xOrigin,
-                                                                     yOrigin,
-                                                                     zOrigin);
-    return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(xBrickSize,
-                                                                     yBrickSize,
-                                                                     zBrickSize,
-                                                                     xNumPoints,
-                                                                     yNumPoints,
-                                                                     zNumPoints,
-                                                                     xOrigin,
-                                                                     yOrigin,
-                                                                     zOrigin);
-    return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-  }
+  shared_ptr<XdmfRegularGrid> * p = 
+    new shared_ptr<XdmfRegularGrid>(XdmfRegularGrid::New(xBrickSize,
+							 yBrickSize,
+							 zBrickSize,
+							 xNumPoints,
+							 yNumPoints,
+							 zNumPoints,
+							 xOrigin,
+							 yOrigin,
+							 zOrigin));
+  return (XDMFREGULARGRID *) p;
 }
 
 XDMFREGULARGRID * XdmfRegularGridNew(XDMFARRAY * brickSize,
@@ -562,45 +523,22 @@ XDMFREGULARGRID * XdmfRegularGridNew(XDMFARRAY * brickSize,
                                      XDMFARRAY * origin,
                                      int passControl)
 {
-  try
-  {
-    if (passControl) {
-      shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(shared_ptr<XdmfArray>((XdmfArray *)brickSize),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)numPoints),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)origin));
-      return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-    }
-    else {
-      shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(shared_ptr<XdmfArray>((XdmfArray *)brickSize, XdmfNullDeleter()),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)numPoints, XdmfNullDeleter()),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)origin, XdmfNullDeleter()));
-      return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-    }
-  }
-  catch (...)
-  {
-    if (passControl) {
-      shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(shared_ptr<XdmfArray>((XdmfArray *)brickSize),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)numPoints),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)origin));
-      return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-    }
-    else {
-      shared_ptr<XdmfRegularGrid> generatedGrid = XdmfRegularGrid::New(shared_ptr<XdmfArray>((XdmfArray *)brickSize, XdmfNullDeleter()),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)numPoints, XdmfNullDeleter()),
-                                                                       shared_ptr<XdmfArray>((XdmfArray *)origin, XdmfNullDeleter()));
-      return (XDMFREGULARGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*generatedGrid.get()))));
-    }
-  }
+  shared_ptr<XdmfArray> & refBrickSize = *(shared_ptr<XdmfArray> *)(brickSize);
+  shared_ptr<XdmfArray> & refNumPoints = *(shared_ptr<XdmfArray> *)(numPoints);
+  shared_ptr<XdmfArray> & refOrigin = *(shared_ptr<XdmfArray> *)(origin);
+  shared_ptr<XdmfRegularGrid> * p = 
+    new shared_ptr<XdmfRegularGrid>(XdmfRegularGrid::New(refBrickSize,
+							 refNumPoints,
+							 refOrigin));
+  return (XDMFREGULARGRID *) p;
 }
 
 XDMFARRAY * XdmfRegularGridGetBrickSize(XDMFREGULARGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * classedPointer = (XdmfItem *)grid;
-  XdmfRegularGrid * gridPointer = dynamic_cast<XdmfRegularGrid *>(classedPointer);
-  shared_ptr<XdmfArray> generatedBrick = gridPointer->getBrickSize();
-  return (XDMFARRAY *)((void *)(generatedBrick.get()));
+  shared_ptr<XdmfRegularGrid> & refGrid = *(shared_ptr<XdmfRegularGrid> *)(grid);
+  shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(refGrid->getBrickSize());
+  return (XDMFARRAY *) p;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -608,10 +546,9 @@ XDMFARRAY * XdmfRegularGridGetBrickSize(XDMFREGULARGRID * grid, int * status)
 XDMFARRAY * XdmfRegularGridGetDimensions(XDMFREGULARGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * classedPointer = (XdmfItem *)grid;
-  XdmfRegularGrid * gridPointer = dynamic_cast<XdmfRegularGrid *>(classedPointer);
-  shared_ptr<XdmfArray> generatedDimensions = gridPointer->getDimensions();
-  return (XDMFARRAY *)((void *)(generatedDimensions.get()));
+  shared_ptr<XdmfRegularGrid> & refGrid = *(shared_ptr<XdmfRegularGrid> *)(grid);
+  shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(refGrid->getDimensions());
+  return (XDMFARRAY *) p;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -619,10 +556,9 @@ XDMFARRAY * XdmfRegularGridGetDimensions(XDMFREGULARGRID * grid, int * status)
 XDMFARRAY * XdmfRegularGridGetOrigin(XDMFREGULARGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * classedPointer = (XdmfItem *)grid;
-  XdmfRegularGrid * gridPointer = dynamic_cast<XdmfRegularGrid *>(classedPointer);
-  shared_ptr<XdmfArray> generatedOrigin = gridPointer->getOrigin();
-  return (XDMFARRAY *)((void *)(generatedOrigin.get()));
+  shared_ptr<XdmfRegularGrid> & refGrid = *(shared_ptr<XdmfRegularGrid> *)(grid);
+  shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(refGrid->getOrigin());
+  return (XDMFARRAY *) p;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -630,42 +566,27 @@ XDMFARRAY * XdmfRegularGridGetOrigin(XDMFREGULARGRID * grid, int * status)
 void XdmfRegularGridSetBrickSize(XDMFREGULARGRID * grid, XDMFARRAY * brickSize, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * classedPointer = (XdmfItem *)grid;
-  XdmfRegularGrid * gridPointer = dynamic_cast<XdmfRegularGrid *>(classedPointer);
-  if (passControl) {
-    gridPointer->setBrickSize(shared_ptr<XdmfArray>((XdmfArray *)brickSize));
-  }
-  else {
-    gridPointer->setBrickSize(shared_ptr<XdmfArray>((XdmfArray *)brickSize, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfRegularGrid> & refGrid = *(shared_ptr<XdmfRegularGrid> *)(grid);
+  shared_ptr<XdmfArray> & refBrickSize = *(shared_ptr<XdmfArray> *)(brickSize);
+  refGrid->setBrickSize(refBrickSize);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfRegularGridSetDimensions(XDMFREGULARGRID * grid, XDMFARRAY * dimensions, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * classedPointer = (XdmfItem *)grid;
-  XdmfRegularGrid * gridPointer = dynamic_cast<XdmfRegularGrid *>(classedPointer);
-  if (passControl) {
-    gridPointer->setDimensions(shared_ptr<XdmfArray>((XdmfArray *)dimensions));
-  }
-  else {
-    gridPointer->setDimensions(shared_ptr<XdmfArray>((XdmfArray *)dimensions, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfRegularGrid> & refGrid = *(shared_ptr<XdmfRegularGrid> *)(grid);
+  shared_ptr<XdmfArray> & refDimensions = *(shared_ptr<XdmfArray> *)(dimensions);
+  refGrid->setDimensions(refDimensions);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfRegularGridSetOrigin(XDMFREGULARGRID * grid, XDMFARRAY * origin, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  XdmfItem * classedPointer = (XdmfItem *)grid;
-  XdmfRegularGrid * gridPointer = dynamic_cast<XdmfRegularGrid *>(classedPointer);
-  if (passControl) {
-    gridPointer->setOrigin(shared_ptr<XdmfArray>((XdmfArray *)origin));
-  }
-  else {
-    gridPointer->setOrigin(shared_ptr<XdmfArray>((XdmfArray *)origin, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfRegularGrid> & refGrid = *(shared_ptr<XdmfRegularGrid> *)(grid);
+  shared_ptr<XdmfArray> & refOrigin = *(shared_ptr<XdmfArray> *)(origin);
+  refGrid->setOrigin(refOrigin);
   XDMF_ERROR_WRAP_END(status)
 }
 

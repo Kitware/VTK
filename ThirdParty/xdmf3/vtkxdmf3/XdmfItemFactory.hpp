@@ -82,9 +82,6 @@ public:
 
   virtual bool isArrayTag(char * tag) const;
 
-  virtual XdmfItem *
-  DuplicatePointer(shared_ptr<XdmfItem> original) const;
-
 protected:
 
   XdmfItemFactory();
@@ -100,3 +97,4 @@ private:
 #endif
 
 #endif /* XDMFITEMFACTORY_HPP_ */
+ 

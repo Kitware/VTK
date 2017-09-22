@@ -94,15 +94,6 @@ XdmfMap::XdmfMap() :
 {
 }
 
-XdmfMap::XdmfMap(XdmfMap & refMap):
-  mLocalNodeIdsControllers(refMap.mLocalNodeIdsControllers),
-  mMap(refMap.mMap),
-  mName(refMap.mName),
-  mRemoteLocalNodeIdsControllers(refMap.mRemoteLocalNodeIdsControllers),
-  mRemoteTaskIdsControllers(refMap.mRemoteTaskIdsControllers)
-{
-}
-
 XdmfMap::~XdmfMap()
 {
 }
@@ -454,205 +445,129 @@ XdmfMap::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 XDMFMAP * XdmfMapNew()
 {
-  try
-  {
-    shared_ptr<XdmfMap> generatedMap = XdmfMap::New();
-    return (XDMFMAP *)((void *)(new XdmfMap(*generatedMap.get())));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfMap> generatedMap = XdmfMap::New();
-    return (XDMFMAP *)((void *)(new XdmfMap(*generatedMap.get())));
-  }
+  shared_ptr<XdmfMap> * p = new shared_ptr<XdmfMap>(XdmfMap::New());
+  return (XDMFMAP *) p;
 }
 
 XDMFMAP ** XdmfMapNewFromIdVector(int ** globalNodeIds, int * numIdsOnNode, int numIds)
 {
-  try
-  {
-    std::vector<shared_ptr<XdmfAttribute> > insertedAttributeVector;
-    for (int i = 0; i < numIds; ++i) {
-      shared_ptr<XdmfAttribute> insertedAttribute = XdmfAttribute::New();
-      insertedAttribute->insert(0, globalNodeIds[i], numIdsOnNode[i], 1, 1);
-      insertedAttributeVector.push_back(insertedAttribute);
-    }
-    std::vector<shared_ptr<XdmfMap> > generatedMaps = XdmfMap::New(insertedAttributeVector);
-    unsigned int returnSize = generatedMaps.size();
-    XDMFMAP ** returnArray = new XDMFMAP *[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = (XDMFMAP *)((void *)(new XdmfMap(*generatedMaps[i].get())));
-    }
-    return returnArray;
+
+  std::vector<shared_ptr<XdmfAttribute> > insertedAttributeVector;
+  for (int i = 0; i < numIds; ++i) {
+    shared_ptr<XdmfAttribute> insertedAttribute = XdmfAttribute::New();
+    insertedAttribute->insert(0, globalNodeIds[i], numIdsOnNode[i], 1, 1);
+    insertedAttributeVector.push_back(insertedAttribute);
   }
-  catch (...)
-  {
-    std::vector<shared_ptr<XdmfAttribute> > insertedAttributeVector;
-    for (int i = 0; i < numIds; ++i) {
-      shared_ptr<XdmfAttribute> insertedAttribute = XdmfAttribute::New();
-      insertedAttribute->insert(0, globalNodeIds[i], numIdsOnNode[i], 1, 1);
-      insertedAttributeVector.push_back(insertedAttribute);
-    }
-    std::vector<shared_ptr<XdmfMap> > generatedMaps = XdmfMap::New(insertedAttributeVector);
-    unsigned int returnSize = generatedMaps.size();
-    XDMFMAP ** returnArray = new XDMFMAP *[returnSize]();
-    for (unsigned int i = 0; i < returnSize; ++i) {
-      returnArray[i] = (XDMFMAP *)((void *)(new XdmfMap(*generatedMaps[i].get())));
-    }
-    return returnArray;
+  std::vector<shared_ptr<XdmfMap> > generatedMaps = XdmfMap::New(insertedAttributeVector);
+  unsigned int returnSize = generatedMaps.size();
+  XDMFMAP ** returnArray = (XDMFMAP **)malloc(sizeof(XDMFMAP *) * (returnSize+1));
+  for (unsigned int i = 0; i < returnSize; ++i) {
+    returnArray[i] = (XDMFMAP *) new shared_ptr<XdmfMap>(generatedMaps[i]);
   }
+  returnArray[returnSize] = NULL;
+  return returnArray;
 }
 
 char * XdmfMapGetName(XDMFMAP * map)
 {
-  try
-  {
-    char * returnPointer = strdup(((XdmfMap *)(map))->getName().c_str());
-    return returnPointer;
-  }
-  catch (...)
-  {
-    char * returnPointer = strdup(((XdmfMap *)(map))->getName().c_str());
-    return returnPointer;
-  }
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  char * returnPointer = strdup(refMap->getName().c_str());
+  return returnPointer;
 }
 
 void XdmfMapInsert(XDMFMAP * map, int remoteTaskId, int localNodeId, int remoteLocalNodeId)
 {
-  ((XdmfMap *)(map))->insert(remoteTaskId, localNodeId, remoteLocalNodeId);
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  refMap->insert(remoteTaskId, localNodeId, remoteLocalNodeId);
 }
 
 int XdmfMapIsInitialized(XDMFMAP * map)
 {
-  return ((XdmfMap *)(map))->isInitialized();
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  return refMap->isInitialized();
 }
 
 void XdmfMapRead(XDMFMAP * map, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  ((XdmfMap *)(map))->read();
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  refMap->read();
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfMapRelease(XDMFMAP * map)
 {
-  ((XdmfMap *)(map))->release();
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  refMap->release();
 }
 
 int * XdmfMapRetrieveLocalNodeIds(XDMFMAP * map, int remoteTaskId)
 {
-  try
-  {
-    int * returnPointer = new int[XdmfMapRetrieveNumberLocalNodeIds(map, remoteTaskId)]();
-    std::map<int, std::map<int, std::set<int> > > testMap = ((XdmfMap *)(map))->getMap();
-    std::map<int, std::map<int, std::set<int> > >::const_iterator iter = testMap.find(remoteTaskId);
-    unsigned int i = 0;
-    for(std::map<int, std::set<int> >::const_iterator
-          iter2 = iter->second.begin();
-        iter2 != iter->second.end();
-        ++iter2) {
-      returnPointer[i] = iter2->first;
-      ++i;
-    }
-    return returnPointer;
+  int * returnPointer = (int *)malloc(sizeof(int) * XdmfMapRetrieveNumberLocalNodeIds(map, remoteTaskId));
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  std::map<int, std::map<int, std::set<int> > > testMap = refMap->getMap();
+  std::map<int, std::map<int, std::set<int> > >::const_iterator iter = testMap.find(remoteTaskId);
+  unsigned int i = 0;
+  for(std::map<int, std::set<int> >::const_iterator
+	iter2 = iter->second.begin();
+      iter2 != iter->second.end();
+      ++iter2) {
+    returnPointer[i] = iter2->first;
+    ++i;
   }
-  catch (...)
-  {
-    int * returnPointer = new int[XdmfMapRetrieveNumberLocalNodeIds(map, remoteTaskId)]();
-    std::map<int, std::map<int, std::set<int> > > testMap = ((XdmfMap *)(map))->getMap();
-    std::map<int, std::map<int, std::set<int> > >::const_iterator iter = testMap.find(remoteTaskId);
-    unsigned int i = 0;
-    for(std::map<int, std::set<int> >::const_iterator
-          iter2 = iter->second.begin();
-        iter2 != iter->second.end();
-        ++iter2) {
-      returnPointer[i] = iter2->first;
-      ++i;
-    }
-    return returnPointer;
-  }
+  return returnPointer;
 }
 
 int XdmfMapRetrieveNumberLocalNodeIds(XDMFMAP * map, int remoteTaskId)
 {
-  return ((XdmfMap *)(map))->getMap()[remoteTaskId].size();
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  return refMap->getMap()[remoteTaskId].size();
 }
 
 int XdmfMapRetrieveNumberRemoteTaskIds(XDMFMAP * map)
 {
-  return ((XdmfMap *)(map))->getMap().size();
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  return refMap->getMap().size();
 }
 
 int XdmfMapRetrieveNumberRemoteNodeIds(XDMFMAP * map, int remoteTaskId, int localNodeId)
 {
-  return ((XdmfMap *)(map))->getMap()[remoteTaskId][localNodeId].size();
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  return refMap->getMap()[remoteTaskId][localNodeId].size();
 }
 
 int * XdmfMapRetrieveRemoteTaskIds(XDMFMAP * map)
 {
-  try
-  {
-    int * returnPointer = new int[((XdmfMap *)(map))->getMap().size()]();
-    std::map<int, std::map<int, std::set<int> > > testMap = ((XdmfMap *)(map))->getMap();
-    unsigned int i = 0;
-    for(std::map<int, std::map<int, std::set<int> > >::const_iterator
-          iter = testMap.begin();
-        iter != testMap.end();
-        ++iter) {
-      returnPointer[i] = iter->first;
-      ++i;
-    }
-    return returnPointer;
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  int * returnPointer = (int *)malloc(sizeof(int) * refMap->getMap().size());
+  std::map<int, std::map<int, std::set<int> > > testMap = refMap->getMap();
+  unsigned int i = 0;
+  for(std::map<int, std::map<int, std::set<int> > >::const_iterator
+	iter = testMap.begin();
+      iter != testMap.end();
+      ++iter) {
+    returnPointer[i] = iter->first;
+    ++i;
   }
-  catch (...)
-  {
-    int * returnPointer = new int[((XdmfMap *)(map))->getMap().size()]();
-    std::map<int, std::map<int, std::set<int> > > testMap = ((XdmfMap *)(map))->getMap();
-    unsigned int i = 0;
-    for(std::map<int, std::map<int, std::set<int> > >::const_iterator
-          iter = testMap.begin();
-        iter != testMap.end();
-        ++iter) {
-      returnPointer[i] = iter->first;
-      ++i;
-    }
-    return returnPointer;
-  }
+  return returnPointer;
 }
 
 int * XdmfMapRetrieveRemoteNodeIds(XDMFMAP * map, int remoteTaskId, int localNodeId)
 {
-  try
-  {
-    int * returnPointer = new int[XdmfMapRetrieveNumberRemoteNodeIds(map, remoteTaskId, localNodeId)]();
-    std::map<int, std::map<int, std::set<int> > > testMap = ((XdmfMap *)(map))->getMap();
-    std::map<int, std::map<int, std::set<int> > >::const_iterator iter = testMap.find(remoteTaskId);
-    std::map<int, std::set<int> >::const_iterator iter2 = iter->second.find(localNodeId);
-    unsigned int i = 0;
-    for(std::map<int, std::set<int> >::mapped_type::const_iterator iter3 =
-          iter2->second.begin();
-        iter3 != iter2->second.end();
-        ++iter3) {
-      returnPointer[i] = *iter3;
-      i++;
-    }
-    return returnPointer;
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  int * returnPointer = (int *)malloc(sizeof(int) * XdmfMapRetrieveNumberRemoteNodeIds(map, remoteTaskId, localNodeId));
+  std::map<int, std::map<int, std::set<int> > > testMap = refMap->getMap();
+  std::map<int, std::map<int, std::set<int> > >::const_iterator iter = testMap.find(remoteTaskId);
+  std::map<int, std::set<int> >::const_iterator iter2 = iter->second.find(localNodeId);
+  unsigned int i = 0;
+  for(std::map<int, std::set<int> >::mapped_type::const_iterator iter3 =
+	iter2->second.begin();
+      iter3 != iter2->second.end();
+      ++iter3) {
+    returnPointer[i] = *iter3;
+    i++;
   }
-  catch (...)
-  {
-    int * returnPointer = new int[XdmfMapRetrieveNumberRemoteNodeIds(map, remoteTaskId, localNodeId)]();
-    std::map<int, std::map<int, std::set<int> > > testMap = ((XdmfMap *)(map))->getMap();
-    std::map<int, std::map<int, std::set<int> > >::const_iterator iter = testMap.find(remoteTaskId);
-    std::map<int, std::set<int> >::const_iterator iter2 = iter->second.find(localNodeId);
-    unsigned int i = 0;
-    for(std::map<int, std::set<int> >::mapped_type::const_iterator iter3 =
-          iter2->second.begin();
-        iter3 != iter2->second.end();
-        ++iter3) {
-      returnPointer[i] = *iter3;
-      i++;
-    }
-    return returnPointer;
-  }
+  return returnPointer;
 }
 
 void XdmfMapSetHeavyDataControllers(XDMFMAP * map,
@@ -666,42 +581,34 @@ void XdmfMapSetHeavyDataControllers(XDMFMAP * map,
                                     int * status)
 {
   XDMF_ERROR_WRAP_START(status)
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+
   std::vector<shared_ptr<XdmfHeavyDataController> > insertRemoteTaskControllers;
   for (int i = 0; i < numRemoteTaskControllers; ++i) {
-    if (passControl) {
-      insertRemoteTaskControllers.push_back(shared_ptr<XdmfHeavyDataController>(((XdmfHeavyDataController *)remoteTaskControllers[i])));
-    }
-    else {
-      insertRemoteTaskControllers.push_back(shared_ptr<XdmfHeavyDataController>(((XdmfHeavyDataController *)remoteTaskControllers[i]), XdmfNullDeleter()));
-    }
+    shared_ptr<XdmfHeavyDataController> & controller = *(shared_ptr<XdmfHeavyDataController> *)remoteTaskControllers[i];
+    insertRemoteTaskControllers.push_back(controller);
   }
 
   std::vector<shared_ptr<XdmfHeavyDataController> > insertLocalNodeControllers;
   for (int i = 0; i < numLocalNodeControllers; ++i) {
-    if (passControl) {
-      insertLocalNodeControllers.push_back(shared_ptr<XdmfHeavyDataController>(((XdmfHeavyDataController *)localNodeControllers[i])));
-    }
-    else {
-      insertLocalNodeControllers.push_back(shared_ptr<XdmfHeavyDataController>(((XdmfHeavyDataController *)localNodeControllers[i]), XdmfNullDeleter()));
-    }
+    shared_ptr<XdmfHeavyDataController> & controller = *(shared_ptr<XdmfHeavyDataController> *)localNodeControllers[i];
+    insertLocalNodeControllers.push_back(controller);
   }
 
   std::vector<shared_ptr<XdmfHeavyDataController> > insertRemoteLocalNodeControllers;
   for (int i = 0; i < numRemoteLocalNodeControllers; ++i) {
-    if (passControl) {
-      insertRemoteLocalNodeControllers.push_back(shared_ptr<XdmfHeavyDataController>(((XdmfHeavyDataController *)remoteLocalNodeControllers[i])));
-    }
-    else {
-      insertRemoteLocalNodeControllers.push_back(shared_ptr<XdmfHeavyDataController>(((XdmfHeavyDataController *)remoteLocalNodeControllers[i]), XdmfNullDeleter()));
-    }
+    shared_ptr<XdmfHeavyDataController> & controller = *(shared_ptr<XdmfHeavyDataController> *)remoteLocalNodeControllers[i];
+    insertRemoteLocalNodeControllers.push_back(controller);
   }
-  ((XdmfMap *)(map))->setHeavyDataControllers(insertRemoteTaskControllers, insertLocalNodeControllers, insertRemoteLocalNodeControllers);
+
+  refMap->setHeavyDataControllers(insertRemoteTaskControllers, insertLocalNodeControllers, insertRemoteLocalNodeControllers);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfMapSetName(XDMFMAP * map, char * newName)
 {
-  ((XdmfMap *)(map))->setName(std::string(newName));
+  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
+  refMap->setName(std::string(newName));
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfMap, XDMFMAP)

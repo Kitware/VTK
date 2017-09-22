@@ -159,8 +159,6 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
-  XdmfAggregate(XdmfAggregate&);
-
 protected:
 
   XdmfAggregate();

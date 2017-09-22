@@ -22,7 +22,6 @@
 /*****************************************************************************/
 
 #include <cctype>
-#include <boost/tokenizer.hpp>
 #include "XdmfAttribute.hpp"
 #include "XdmfCurvilinearGrid.hpp"
 #include "XdmfDomain.hpp"
@@ -41,6 +40,7 @@
 #include "XdmfRegularGrid.hpp"
 #include "XdmfSet.hpp"
 #include "XdmfSparseMatrix.hpp"
+#include "XdmfStringUtils.hpp"
 #include "XdmfTemplate.hpp"
 #include "XdmfTime.hpp"
 #include "XdmfTopology.hpp"
@@ -277,12 +277,11 @@ XdmfItemFactory::createItem(const std::string & itemTag,
         if(dimensions != itemProperties.end()) {
           dimensionsString = dimensions->second;
         }
-        boost::tokenizer<> tokens(dimensionsString);
-        for(boost::tokenizer<>::const_iterator iter = tokens.begin();
-            iter != tokens.end();
-            ++iter) {
-          dimensionsArray->pushBack<unsigned int>(atoi((*iter).c_str()));
-        }
+	std::vector<unsigned int> dimensionsVector;
+	XdmfStringUtils::split(dimensionsString, dimensionsVector);
+	dimensionsArray->insert(0,
+				&(dimensionsVector[0]),
+				dimensionsVector.size());
         if(typeVal.compare("2DCORECTMESH") == 0 ||
            typeVal.compare("3DCORECTMESH") == 0 ||
            typeVal.compare("CORECTMESH") == 0) {
@@ -327,64 +326,4 @@ XdmfItemFactory::isArrayTag(char * tag) const
   else {
     return false;
   }
-}
-
-XdmfItem *
-XdmfItemFactory::DuplicatePointer(shared_ptr<XdmfItem> original) const
-{
-#ifdef XDMF_BUILD_DSM
-  XdmfItem * returnPointer = XdmfDSMItemFactory::DuplicatePointer(original);
-#else
-  XdmfItem * returnPointer = XdmfCoreItemFactory::DuplicatePointer(original);
-#endif
-
-  if (returnPointer) {
-    return returnPointer;
-  }
-  else {
-   if (original->getItemTag().compare(XdmfTime::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfTime(*((XdmfTime *)original.get())));
-   }
-   else if (original->getItemTag().compare(XdmfAttribute::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfAttribute(*((XdmfAttribute *)original.get())));
-   }
-   else if (original->getItemTag().compare(XdmfDomain::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfDomain(*(shared_dynamic_cast<XdmfDomain>(original).get())));
-   }
-   else if (original->getItemTag().compare(XdmfTopology::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfTopology(*((XdmfTopology *)original.get())));
-   }
-   else if (original->getItemTag().compare(XdmfGeometry::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfGeometry(*((XdmfGeometry *)original.get())));
-   }
-   else if (original->getItemTag().compare(XdmfGraph::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfGraph(*((XdmfGraph *)original.get())));
-   }
-   else if (original->getItemTag().compare(XdmfSet::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfSet(*((XdmfSet *)original.get())));
-   }
-   else if (original->getItemTag().compare(XdmfMap::ItemTag) == 0) {
-     return (XdmfItem *)(new XdmfMap(*((XdmfMap *)original.get())));
-   }
-   else if (original->getItemTag().compare(XdmfGrid::ItemTag) == 0) {
-       if (shared_ptr<XdmfGridCollection> collection =
-           shared_dynamic_cast<XdmfGridCollection>(original)) {
-         return (XdmfItem *)(new XdmfGridCollection(*(shared_dynamic_cast<XdmfGridCollection>(original).get())));
-       }
-       else if (shared_ptr<XdmfCurvilinearGrid> curvilinear =
-           shared_dynamic_cast<XdmfCurvilinearGrid>(original)) {
-         return (XdmfItem *)(new XdmfCurvilinearGrid(*(shared_dynamic_cast<XdmfCurvilinearGrid>(original).get())));
-       }
-       else if(shared_ptr<XdmfRegularGrid> regularGrid =
-               shared_dynamic_cast<XdmfRegularGrid>(original)) {
-           return (XdmfItem *)(new XdmfRegularGrid(*(shared_dynamic_cast<XdmfRegularGrid>(original).get())));
-       }
-       else if(shared_ptr<XdmfRectilinearGrid> rectilinearGrid =
-               shared_dynamic_cast<XdmfRectilinearGrid>(original)) {
-         return (XdmfItem *)(new XdmfRectilinearGrid(*(shared_dynamic_cast<XdmfRectilinearGrid>(original).get())));
-       }
-       return (XdmfItem *)(new XdmfUnstructuredGrid(*(shared_dynamic_cast<XdmfUnstructuredGrid>(original).get())));
-   }
-  }
-  return NULL;
 }

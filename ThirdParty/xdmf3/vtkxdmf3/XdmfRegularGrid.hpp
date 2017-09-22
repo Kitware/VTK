@@ -400,8 +400,6 @@ public:
    */
   void setOrigin(const shared_ptr<XdmfArray> origin);
 
-  XdmfRegularGrid(XdmfRegularGrid &);
-
 protected:
 
   XdmfRegularGrid(const shared_ptr<XdmfArray> brickSize,
@@ -424,6 +422,8 @@ private:
 
   XdmfRegularGrid(const XdmfRegularGrid &);  // Not implemented.
   void operator=(const XdmfRegularGrid &);  // Not implemented.
+
+  XdmfRegularGridImpl * mImpl;
 
 };
 

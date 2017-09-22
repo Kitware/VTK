@@ -137,9 +137,11 @@
 # define XDMFCORE_EXPORT
 # define XDMFDSM_EXPORT
 # define XDMF_EXPORT
+# define XDMFUTILS_EXPORT
 # define XDMFCORE_TEMPLATE
 # define XDMFDSM_TEMPLATE
 # define XDMF_TEMPLATE
+# define XDMFUTILS_TEMPLATE
 #else
 /* Used to export/import from the dlls */
 # undef XDMFCORE_EXPORT
@@ -159,6 +161,12 @@
 # define XDMF_EXPORT __declspec(dllimport)
 # define XDMF_TEMPLATE extern
 # endif /* XDMF_EXPORTS */
+
+# undef XDMFUTILS_EXPORT
+# define XDMFUTILS_EXPORT __declspec(dllimport)
+# undef XDMFUTILS_TEMPLATE
+# define XDMFUTILS_TEMPLATE extern
+
 #endif
 
 /* Compiler Warnings */
@@ -178,8 +186,10 @@
 #define XDMFCORE_EXPORT
 #define XDMFDSM_EXPORT
 #define XDMF_EXPORT
+#define XDMFUTILS_EXPORT
 #define XDMFCORE_TEMPLATE
 #define XDMFDSM_TEMPLATE
 #define XDMF_TEMPLATE
+#define XDMFUTILS_TEMPLATE
 #endif /* _WIN32 */
 #endif /* _XDMF_HPP */

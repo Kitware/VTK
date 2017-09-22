@@ -123,8 +123,6 @@ public:
 
   virtual void read(XdmfArray * const array);
 
-  XdmfTIFFController(const XdmfTIFFController &);
-
 protected:
 
   XdmfTIFFController(const std::string & filePath,
@@ -151,7 +149,9 @@ protected:
 
 private:
 
+  XdmfTIFFController(const XdmfTIFFController &);  // Not implemented.
   void operator=(const XdmfTIFFController &);  // Not implemented.
+
 };
 
 #endif

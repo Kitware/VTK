@@ -1301,8 +1301,6 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
-  XdmfFunction(XdmfFunction &);
-
 protected:
 
   XdmfFunction();

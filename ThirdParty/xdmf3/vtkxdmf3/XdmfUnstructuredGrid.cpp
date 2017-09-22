@@ -113,29 +113,6 @@ namespace {
   }      
 }
 
-class XdmfUnstructuredGrid::XdmfUnstructuredGridImpl : public XdmfGridImpl
-{
-  public:
-  XdmfUnstructuredGridImpl()
-  {
-    mGridType = "Unstructured";
-  }
-
-  ~XdmfUnstructuredGridImpl()
-  {
-  }
-
-  XdmfGridImpl * duplicate()
-  {
-    return new XdmfUnstructuredGridImpl();
-  }
-
-  std::string getGridType() const
-  {
-    return mGridType;
-  }
-};
-
 shared_ptr<XdmfUnstructuredGrid>
 XdmfUnstructuredGrid::New()
 {
@@ -153,13 +130,11 @@ XdmfUnstructuredGrid::New(const shared_ptr<XdmfRegularGrid> regularGrid)
 XdmfUnstructuredGrid::XdmfUnstructuredGrid() :
   XdmfGrid(XdmfGeometry::New(), XdmfTopology::New())
 {
-  mImpl = new XdmfUnstructuredGridImpl();
 }
 
 XdmfUnstructuredGrid::XdmfUnstructuredGrid(const shared_ptr<XdmfRegularGrid> regularGrid) :
   XdmfGrid(XdmfGeometry::New(), XdmfTopology::New())
 {
-  mImpl = new XdmfUnstructuredGridImpl();
 
   const shared_ptr<XdmfArray> origin = regularGrid->getOrigin();
 
@@ -230,17 +205,8 @@ XdmfUnstructuredGrid::XdmfUnstructuredGrid(const shared_ptr<XdmfRegularGrid> reg
   }  
 }
 
-XdmfUnstructuredGrid::XdmfUnstructuredGrid(XdmfUnstructuredGrid & refGrid) :
-  XdmfGrid(refGrid)
-{
-}
-
 XdmfUnstructuredGrid::~XdmfUnstructuredGrid()
 {
-  if (mImpl) {
-    delete mImpl;
-  }
-  mImpl = NULL;
 }
 
 const std::string XdmfUnstructuredGrid::ItemTag = "Grid";
@@ -259,7 +225,7 @@ XdmfUnstructuredGrid::copyGrid(shared_ptr<XdmfGrid> sourceGrid)
 shared_ptr<XdmfGeometry>
 XdmfUnstructuredGrid::getGeometry()
 {
-  return boost::const_pointer_cast<XdmfGeometry>
+  return const_pointer_cast<XdmfGeometry>
     (static_cast<const XdmfGrid &>(*this).getGeometry());
 }
 
@@ -272,7 +238,7 @@ XdmfUnstructuredGrid::getItemTag() const
 shared_ptr<XdmfTopology>
 XdmfUnstructuredGrid::getTopology()
 {
-  return boost::const_pointer_cast<XdmfTopology>
+  return const_pointer_cast<XdmfTopology>
     (static_cast<const XdmfGrid &>(*this).getTopology());
 }
 
@@ -320,81 +286,48 @@ XdmfUnstructuredGrid::setTopology(const shared_ptr<XdmfTopology> topology)
 
 XDMFUNSTRUCTUREDGRID * XdmfUnstructuredGridNew()
 {
-  try
-  {
-    shared_ptr<XdmfUnstructuredGrid> generatedGrid = XdmfUnstructuredGrid::New();
-    return (XDMFUNSTRUCTUREDGRID *)((void *)((XdmfItem *)(new XdmfUnstructuredGrid(*generatedGrid.get()))));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfUnstructuredGrid> generatedGrid = XdmfUnstructuredGrid::New();
-    return (XDMFUNSTRUCTUREDGRID *)((void *)((XdmfItem *)(new XdmfUnstructuredGrid(*generatedGrid.get()))));
-  }
+  shared_ptr<XdmfUnstructuredGrid> * p = 
+    new shared_ptr<XdmfUnstructuredGrid>(XdmfUnstructuredGrid::New());
+  return (XDMFUNSTRUCTUREDGRID *) p;
 }
 
 XDMFUNSTRUCTUREDGRID * XdmfUnstructuredGridNewFromRegularGrid(XDMFREGULARGRID * regularGrid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  try
-  {
-    // Here it works when classed directly to the grid type,
-    // in other cases this may not work.
-    XdmfItem * tempPointer = (XdmfItem *)regularGrid;
-    XdmfRegularGrid * classedPointer = dynamic_cast<XdmfRegularGrid *>(tempPointer);
-    shared_ptr<XdmfRegularGrid> originGrid = shared_ptr<XdmfRegularGrid>(classedPointer, XdmfNullDeleter());
-    shared_ptr<XdmfUnstructuredGrid> generatedGrid = XdmfUnstructuredGrid::New(originGrid);
-    return (XDMFUNSTRUCTUREDGRID *)((void *)((XdmfItem *)(new XdmfUnstructuredGrid(*generatedGrid.get()))));
-  }
-  catch (...)
-  {
-    // Here it works when classed directly to the grid type,
-    // in other cases this may not work.
-    XdmfItem * tempPointer = (XdmfItem *)regularGrid;
-    XdmfRegularGrid * classedPointer = dynamic_cast<XdmfRegularGrid *>(tempPointer);
-    shared_ptr<XdmfRegularGrid> originGrid = shared_ptr<XdmfRegularGrid>(classedPointer, XdmfNullDeleter());
-    shared_ptr<XdmfUnstructuredGrid> generatedGrid = XdmfUnstructuredGrid::New(originGrid);
-    return (XDMFUNSTRUCTUREDGRID *)((void *)((XdmfItem *)(new XdmfUnstructuredGrid(*generatedGrid.get()))));
-  }
+  shared_ptr<XdmfRegularGrid> & refGrid = *(shared_ptr<XdmfRegularGrid> *)(regularGrid);
+  shared_ptr<XdmfUnstructuredGrid> * p = 
+    new shared_ptr<XdmfUnstructuredGrid>(XdmfUnstructuredGrid::New(refGrid));
+  return (XDMFUNSTRUCTUREDGRID *) p;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
 
 XDMFGEOMETRY * XdmfUnstructuredGridGetGeometry(XDMFUNSTRUCTUREDGRID * grid)
 {
-  XdmfItem * tempPointer = (XdmfItem *)grid;
-  XdmfUnstructuredGrid * classedPointer = dynamic_cast<XdmfUnstructuredGrid *>(tempPointer);
-  return (XDMFGEOMETRY *)((void *)(classedPointer->getGeometry().get()));
+  shared_ptr<XdmfUnstructuredGrid> & refGrid = *(shared_ptr<XdmfUnstructuredGrid> *)(grid);
+  shared_ptr<XdmfGeometry> * geometry = new shared_ptr<XdmfGeometry>(refGrid->getGeometry());
+  return (XDMFGEOMETRY *) geometry;
 }
 
 XDMFTOPOLOGY * XdmfUnstructuredGridGetTopology(XDMFUNSTRUCTUREDGRID * grid)
 {
-  XdmfItem * tempPointer = (XdmfItem *)grid;
-  XdmfUnstructuredGrid * classedPointer = dynamic_cast<XdmfUnstructuredGrid *>(tempPointer);
-  return (XDMFTOPOLOGY *)((void *)(classedPointer->getTopology().get()));
+  shared_ptr<XdmfUnstructuredGrid> & refGrid = *(shared_ptr<XdmfUnstructuredGrid> *)(grid);
+  shared_ptr<XdmfTopology> * topology = new shared_ptr<XdmfTopology>(refGrid->getTopology());
+  return (XDMFTOPOLOGY *) topology;
 }
 
 void XdmfUnstructuredGridSetGeometry(XDMFUNSTRUCTUREDGRID * grid, XDMFGEOMETRY * geometry, int passControl)
 {
-  XdmfItem * tempPointer = (XdmfItem *)grid;
-  XdmfUnstructuredGrid * classedPointer = dynamic_cast<XdmfUnstructuredGrid *>(tempPointer);
-  if (passControl) {
-    classedPointer->setGeometry(shared_ptr<XdmfGeometry>((XdmfGeometry *)geometry));
-  }
-  else {
-    classedPointer->setGeometry(shared_ptr<XdmfGeometry>((XdmfGeometry *)geometry, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfUnstructuredGrid> & refGrid = *(shared_ptr<XdmfUnstructuredGrid> *)(grid);
+  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
+  refGrid->setGeometry(refGeometry);
 }
 
 void XdmfUnstructuredGridSetTopology(XDMFUNSTRUCTUREDGRID * grid, XDMFTOPOLOGY * topology, int passControl)
 {
-  XdmfItem * tempPointer = (XdmfItem *)grid;
-  XdmfUnstructuredGrid * classedPointer = dynamic_cast<XdmfUnstructuredGrid *>(tempPointer);
-  if (passControl) {
-    classedPointer->setTopology(shared_ptr<XdmfTopology>((XdmfTopology *)topology));
-  }
-  else {
-    classedPointer->setTopology(shared_ptr<XdmfTopology>((XdmfTopology *)topology, XdmfNullDeleter()));
-  }
+  shared_ptr<XdmfUnstructuredGrid> & refGrid = *(shared_ptr<XdmfUnstructuredGrid> *)(grid);
+  shared_ptr<XdmfTopology> & refTopology = *(shared_ptr<XdmfTopology> *)(topology);
+  refGrid->setTopology(refTopology);
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfUnstructuredGrid, XDMFUNSTRUCTUREDGRID)

@@ -93,8 +93,6 @@ public:
 
   virtual void read(XdmfArray * const array);
 
-  XdmfPlaceholder(const XdmfPlaceholder &);
-
 protected:
 
   XdmfPlaceholder(const std::string & filePath,
@@ -116,6 +114,7 @@ protected:
 
 private:
 
+  XdmfPlaceholder(const XdmfPlaceholder &);  // Not implemented.
   void operator=(const XdmfPlaceholder &);  // Not implemented.
 };
 

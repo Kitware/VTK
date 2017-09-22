@@ -49,18 +49,6 @@ XdmfAttribute::XdmfAttribute() :
 {
 }
 //-----------------------------------------------------------------------------
-XdmfAttribute::XdmfAttribute(XdmfAttribute & refAttribute) :
-  XdmfArray(refAttribute),
-  mCenter(refAttribute.mCenter),
-  mName(refAttribute.mName),
-  mType(refAttribute.mType),
-  mItemType(refAttribute.mItemType),
-  mElementDegree(refAttribute.mElementDegree),
-  mElementFamily(refAttribute.mElementFamily),
-  mElementCell(refAttribute.mElementCell)
-{
-}
-//-----------------------------------------------------------------------------
 XdmfAttribute::~XdmfAttribute()
 {
 }
@@ -264,33 +252,27 @@ XdmfAttribute::setElementCell(std::string cell)
 //-----------------------------------------------------------------------------
 XDMFATTRIBUTE * XdmfAttributeNew()
 {
-  try
-  {
-    shared_ptr<XdmfAttribute> generatedAttribute = XdmfAttribute::New();
-    return (XDMFATTRIBUTE *)((void *)(new XdmfAttribute(*generatedAttribute.get())));
-  }
-  catch (...)
-  {
-    shared_ptr<XdmfAttribute> generatedAttribute = XdmfAttribute::New();
-    return (XDMFATTRIBUTE *)((void *)(new XdmfAttribute(*generatedAttribute.get())));
-  }
+  shared_ptr<XdmfAttribute> * p = new shared_ptr<XdmfAttribute>(XdmfAttribute::New());
+  return (XDMFATTRIBUTE *) p;
 }
 //-----------------------------------------------------------------------------
 int XdmfAttributeGetCenter(XDMFATTRIBUTE * attribute)
 {
-  if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Grid()) {
+  shared_ptr<XdmfAttribute> & refAttribute = *(shared_ptr<XdmfAttribute> *)(attribute);
+  const shared_ptr<const XdmfAttributeCenter> attributeCenter = refAttribute->getCenter();
+  if (attributeCenter == XdmfAttributeCenter::Grid()) {
     return XDMF_ATTRIBUTE_CENTER_GRID;
   }
-  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Cell()) {
+  else if (attributeCenter == XdmfAttributeCenter::Cell()) {
     return XDMF_ATTRIBUTE_CENTER_CELL;
   }
-  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Face()) {
+  else if (attributeCenter == XdmfAttributeCenter::Face()) {
     return XDMF_ATTRIBUTE_CENTER_FACE;
   }
-  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Edge()) {
+  else if (attributeCenter == XdmfAttributeCenter::Edge()) {
     return XDMF_ATTRIBUTE_CENTER_EDGE;
   }
-  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Node()) {
+  else if (attributeCenter == XdmfAttributeCenter::Node()) {
     return XDMF_ATTRIBUTE_CENTER_NODE;
   }
   else if (((XdmfAttribute *)attribute)->getCenter() ==
@@ -304,25 +286,27 @@ int XdmfAttributeGetCenter(XDMFATTRIBUTE * attribute)
 //-----------------------------------------------------------------------------
 int XdmfAttributeGetType(XDMFATTRIBUTE * attribute)
 {
-  if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Scalar()) {
+  shared_ptr<XdmfAttribute> & refAttribute = *(shared_ptr<XdmfAttribute> *)(attribute);
+  const shared_ptr<const XdmfAttributeType> attributeType = refAttribute->getType();
+  if (attributeType == XdmfAttributeType::Scalar()) {
     return XDMF_ATTRIBUTE_TYPE_SCALAR;
   }
-  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Vector()) {
+  else if (attributeType == XdmfAttributeType::Vector()) {
     return XDMF_ATTRIBUTE_TYPE_VECTOR;
   }
-  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Tensor()) {
+  else if (attributeType == XdmfAttributeType::Tensor()) {
     return XDMF_ATTRIBUTE_TYPE_TENSOR;
   }
-  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Matrix()) {
+  else if (attributeType == XdmfAttributeType::Matrix()) {
     return XDMF_ATTRIBUTE_TYPE_MATRIX;
   }
-  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Tensor6()) {
+  else if (attributeType == XdmfAttributeType::Tensor6()) {
     return XDMF_ATTRIBUTE_TYPE_TENSOR6;
   }
-  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::GlobalId()) {
+  else if (attributeType == XdmfAttributeType::GlobalId()) {
     return XDMF_ATTRIBUTE_TYPE_GLOBALID;
   }
-  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::NoAttributeType()) {
+  else if (attributeType == XdmfAttributeType::NoAttributeType()) {
     return XDMF_ATTRIBUTE_TYPE_NOTYPE;
   }
   else {
@@ -333,26 +317,27 @@ int XdmfAttributeGetType(XDMFATTRIBUTE * attribute)
 void XdmfAttributeSetCenter(XDMFATTRIBUTE * attribute, int center, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
+  shared_ptr<XdmfAttribute> & refAttribute = *(shared_ptr<XdmfAttribute> *)(attribute);
   switch(center) {
-    case XDMF_ATTRIBUTE_CENTER_GRID:
-      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Grid());
-      break;
-    case XDMF_ATTRIBUTE_CENTER_CELL:
-      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Cell());
-      break;
-    case XDMF_ATTRIBUTE_CENTER_FACE:
-      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Face());
-      break;
-    case XDMF_ATTRIBUTE_CENTER_EDGE:
-      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Edge());
-      break;
-    case XDMF_ATTRIBUTE_CENTER_NODE:
-      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Node());
-      break;
-    default:
-      XdmfError::message(XdmfError::FATAL,
-                         "Error: Invalid Attribute Center: Code " + center);
-      break;
+  case XDMF_ATTRIBUTE_CENTER_GRID:
+    refAttribute->setCenter(XdmfAttributeCenter::Grid());
+    break;
+  case XDMF_ATTRIBUTE_CENTER_CELL:
+    refAttribute->setCenter(XdmfAttributeCenter::Cell());
+    break;
+  case XDMF_ATTRIBUTE_CENTER_FACE:
+    refAttribute->setCenter(XdmfAttributeCenter::Face());
+    break;
+  case XDMF_ATTRIBUTE_CENTER_EDGE:
+    refAttribute->setCenter(XdmfAttributeCenter::Edge());
+    break;
+  case XDMF_ATTRIBUTE_CENTER_NODE:
+    refAttribute->setCenter(XdmfAttributeCenter::Node());
+    break;
+  default:
+    XdmfError::message(XdmfError::FATAL,
+		       "Error: Invalid Attribute Center: Code " + center);
+    break;
   }
   XDMF_ERROR_WRAP_END(status)
 }
@@ -360,32 +345,33 @@ void XdmfAttributeSetCenter(XDMFATTRIBUTE * attribute, int center, int * status)
 void XdmfAttributeSetType(XDMFATTRIBUTE * attribute, int type, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
+    shared_ptr<XdmfAttribute> & refAttribute = *(shared_ptr<XdmfAttribute> *)(attribute);
   switch(type) {
-    case XDMF_ATTRIBUTE_TYPE_SCALAR:
-      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Scalar());
-      break;
-    case XDMF_ATTRIBUTE_TYPE_VECTOR:
-      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Vector());
-      break;
-    case XDMF_ATTRIBUTE_TYPE_TENSOR:
-      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Tensor());
-      break;
-    case XDMF_ATTRIBUTE_TYPE_MATRIX:
-      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Matrix());
-      break;
-    case XDMF_ATTRIBUTE_TYPE_TENSOR6:
-      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Tensor6());
-      break;
-    case XDMF_ATTRIBUTE_TYPE_GLOBALID:
-      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::GlobalId());
-      break;
-    case XDMF_ATTRIBUTE_TYPE_NOTYPE:
-      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::NoAttributeType());
-      break;
-    default:
-      XdmfError::message(XdmfError::FATAL,
-                         "Error: Invalid Attribute Type: Code " + type);
-      break;
+  case XDMF_ATTRIBUTE_TYPE_SCALAR:
+    refAttribute->setType(XdmfAttributeType::Scalar());
+    break;
+  case XDMF_ATTRIBUTE_TYPE_VECTOR:
+    refAttribute->setType(XdmfAttributeType::Vector());
+    break;
+  case XDMF_ATTRIBUTE_TYPE_TENSOR:
+    refAttribute->setType(XdmfAttributeType::Tensor());
+    break;
+  case XDMF_ATTRIBUTE_TYPE_MATRIX:
+    refAttribute->setType(XdmfAttributeType::Matrix());
+    break;
+  case XDMF_ATTRIBUTE_TYPE_TENSOR6:
+    refAttribute->setType(XdmfAttributeType::Tensor6());
+    break;
+  case XDMF_ATTRIBUTE_TYPE_GLOBALID:
+    refAttribute->setType(XdmfAttributeType::GlobalId());
+    break;
+  case XDMF_ATTRIBUTE_TYPE_NOTYPE:
+    refAttribute->setType(XdmfAttributeType::NoAttributeType());
+    break;
+  default:
+    XdmfError::message(XdmfError::FATAL,
+		       "Error: Invalid Attribute Type: Code " + type);
+    break;
   }
   XDMF_ERROR_WRAP_END(status)
 }

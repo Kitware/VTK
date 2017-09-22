@@ -376,8 +376,6 @@ public:
   void
   setCoordinates(const std::vector<shared_ptr<XdmfArray> > axesCoordinates);
 
-  XdmfRectilinearGrid(XdmfRectilinearGrid &);
-
 protected:
 
   XdmfRectilinearGrid(const std::vector<shared_ptr<XdmfArray> > & axesCoordinates);
@@ -397,6 +395,8 @@ private:
 
   XdmfRectilinearGrid(const XdmfRectilinearGrid &);  // Not implemented.
   void operator=(const XdmfRectilinearGrid &);  // Not implemented.
+
+  XdmfRectilinearGridImpl * mImpl;
 
 };
 

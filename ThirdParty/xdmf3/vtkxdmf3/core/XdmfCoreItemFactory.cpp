@@ -21,6 +21,8 @@
 /*                                                                           */
 /*****************************************************************************/
 
+#include <cstdlib>
+#include <string.h>
 #include "XdmfArray.hpp"
 #include "XdmfBinaryController.hpp"
 #include "XdmfCoreItemFactory.hpp"
@@ -29,11 +31,8 @@
 #include "XdmfHDF5Controller.hpp"
 #include "XdmfHDF5Writer.hpp"
 #include "XdmfSubset.hpp"
+#include "XdmfStringUtils.hpp"
 #include "XdmfTIFFController.hpp"
-#include "XdmfInformation.hpp"
-#include "XdmfSparseMatrix.hpp"
-#include <boost/tokenizer.hpp>
-#include <string.h>
 
 std::string
 XdmfCoreItemFactory::getFullHeavyDataPath(const std::string & filePath,
@@ -174,6 +173,7 @@ XdmfCoreItemFactory::createItem(const std::string & itemTag,
     }
   }
   else if(itemTag.compare(XdmfSubset::ItemTag) == 0) {
+
     std::map<std::string, std::string>::const_iterator type =
       itemProperties.find("ConstructedType");
     std::string arraySubType;
@@ -188,48 +188,32 @@ XdmfCoreItemFactory::createItem(const std::string & itemTag,
     std::vector<shared_ptr<XdmfItem> > newArrayChildren;
     shared_ptr<XdmfArray> returnArray = shared_ptr<XdmfArray>();
 
-    returnArray = shared_dynamic_cast<XdmfArray>(createItem(
-                                                   arraySubType,
-                                                   itemProperties,
-                                                   newArrayChildren));
+    returnArray = 
+      shared_dynamic_cast<XdmfArray>(createItem(arraySubType,
+						itemProperties,
+						newArrayChildren));
 
     std::vector<unsigned int> startVector;
     std::vector<unsigned int> strideVector;
     std::vector<unsigned int> dimensionVector;
-    shared_ptr<XdmfArray> referenceArray;
 
+    std::string token;
+    
     std::map<std::string, std::string>::const_iterator starts =
       itemProperties.find("SubsetStarts");
-
-    boost::tokenizer<> tokens(starts->second);
-    for(boost::tokenizer<>::const_iterator iter = tokens.begin();
-        iter != tokens.end();
-        ++iter) {
-      startVector.push_back(atoi((*iter).c_str()));
-    }
+    XdmfStringUtils::split(starts->second, startVector);
 
     std::map<std::string, std::string>::const_iterator strides =
       itemProperties.find("SubsetStrides");
-
-    boost::tokenizer<> stridetokens(strides->second);
-    for(boost::tokenizer<>::const_iterator iter = stridetokens.begin();
-        iter != stridetokens.end();
-        ++iter) {
-      strideVector.push_back(atoi((*iter).c_str()));
-    }
+    XdmfStringUtils::split(strides->second, strideVector);
 
     std::map<std::string, std::string>::const_iterator dimensions =
       itemProperties.find("SubsetDimensions");
-
-    boost::tokenizer<> dimtokens(dimensions->second);
-    for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-        iter != dimtokens.end();
-        ++iter) {
-      dimensionVector.push_back(atoi((*iter).c_str()));
-    }
+    XdmfStringUtils::split(dimensions->second, dimensionVector);
 
     bool foundspacer = false;
 
+    shared_ptr<XdmfArray> referenceArray;
     for(std::vector<shared_ptr<XdmfItem> >::const_iterator iter =
           childItems.begin();
         iter != childItems.end();
@@ -245,14 +229,14 @@ XdmfCoreItemFactory::createItem(const std::string & itemTag,
       }
     }
 
-    shared_ptr<XdmfSubset> newSubset = XdmfSubset::New(referenceArray,
-                                                       startVector,
-                                                       strideVector,
-                                                       dimensionVector);
+    shared_ptr<XdmfSubset> newSubset = 
+      XdmfSubset::New(referenceArray,
+		      startVector,
+		      strideVector,
+		      dimensionVector);
 
     returnArray->setReference(newSubset);
     returnArray->setReadMode(XdmfArray::Reference);
-
     return returnArray;
 
   }
@@ -335,12 +319,8 @@ XdmfCoreItemFactory::generateHeavyDataControllers(const std::map<std::string, st
                          "XdmfCoreItemFactory");
     }
 
-    boost::tokenizer<> tokens(dimensions->second);
-    for(boost::tokenizer<>::const_iterator iter = tokens.begin();
-        iter != tokens.end();
-        ++iter) {
-      dimVector.push_back(atoi((*iter).c_str()));
-    }
+    XdmfStringUtils::split(dimensions->second, dimVector);
+  
   }
 
   shared_ptr<const XdmfArrayType> arrayType;
@@ -415,39 +395,18 @@ XdmfCoreItemFactory::generateHeavyDataControllers(const std::map<std::string, st
         }
 
         // split the description based on tokens
-        boost::tokenizer<> dimtokens(std::string(""));
         if (dataspaceVector.size() == 1) {
-          dimtokens = boost::tokenizer<>(dataspaceDescription);
+	  XdmfStringUtils::split(dataspaceDescription, contentDims);
         }
         else if (dataspaceVector.size() == 5) {
-          dimtokens = boost::tokenizer<>(dataspaceVector[3]);
-        }
-        for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-            iter != dimtokens.end();
-            ++iter) {
-          contentDims.push_back(atoi((*iter).c_str()));
+	  XdmfStringUtils::split(dataspaceVector[3], contentDims);
         }
 
         if (dataspaceVector.size() == 5) {
           seek = atoi(dataspaceVector[0].c_str());
-          dimtokens = boost::tokenizer<>(dataspaceVector[1]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentStarts.push_back(atoi((*iter).c_str()));
-          }
-          dimtokens = boost::tokenizer<>(dataspaceVector[2]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentStrides.push_back(atoi((*iter).c_str()));
-          }
-          dimtokens = boost::tokenizer<>(dataspaceVector[4]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentDataspaces.push_back(atoi((*iter).c_str()));
-          }
+	  XdmfStringUtils::split(dataspaceVector[1], contentStarts);
+	  XdmfStringUtils::split(dataspaceVector[2], contentStrides);
+	  XdmfStringUtils::split(dataspaceVector[4], contentDataspaces);
         }
 
         contentStep = 2;
@@ -529,38 +488,17 @@ XdmfCoreItemFactory::generateHeavyDataControllers(const std::map<std::string, st
         }
 
         // split the description based on tokens
-        boost::tokenizer<> dimtokens(std::string(""));
         if (dataspaceVector.size() == 1) {
-          dimtokens = boost::tokenizer<>(dataspaceDescription);
+	  XdmfStringUtils::split(dataspaceDescription, contentDims);
         }
         else if (dataspaceVector.size() == 4) {
-          dimtokens = boost::tokenizer<>(dataspaceVector[2]);
-        }
-        for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-            iter != dimtokens.end();
-            ++iter) {
-          contentDims.push_back(atoi((*iter).c_str()));
+	  XdmfStringUtils::split(dataspaceVector[2], contentDims);
         }
 
         if (dataspaceVector.size() == 4) {
-          dimtokens = boost::tokenizer<>(dataspaceVector[0]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentStarts.push_back(atoi((*iter).c_str()));
-          }
-          dimtokens = boost::tokenizer<>(dataspaceVector[1]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentStrides.push_back(atoi((*iter).c_str()));
-          }
-          dimtokens = boost::tokenizer<>(dataspaceVector[3]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentDataspaces.push_back(atoi((*iter).c_str()));
-          }
+	  XdmfStringUtils::split(dataspaceVector[0], contentStarts);
+	  XdmfStringUtils::split(dataspaceVector[1], contentStrides);
+	  XdmfStringUtils::split(dataspaceVector[3], contentDataspaces);
         }
 
         contentStep = 2;
@@ -635,38 +573,17 @@ XdmfCoreItemFactory::generateHeavyDataControllers(const std::map<std::string, st
         }
 
         // split the description based on tokens
-        boost::tokenizer<> dimtokens(std::string(""));
         if (dataspaceVector.size() == 1) {
-          dimtokens = boost::tokenizer<>(dataspaceDescription);
+          XdmfStringUtils::split(dataspaceDescription, contentDims);
         }
         else if (dataspaceVector.size() == 4) {
-          dimtokens = boost::tokenizer<>(dataspaceVector[2]);
-        }
-        for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-            iter != dimtokens.end();
-            ++iter) {
-          contentDims.push_back(atoi((*iter).c_str()));
+	  XdmfStringUtils::split(dataspaceVector[2], contentDims);
         }
 
         if (dataspaceVector.size() == 4) {
-          dimtokens = boost::tokenizer<>(dataspaceVector[0]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentStarts.push_back(atoi((*iter).c_str()));
-          }
-          dimtokens = boost::tokenizer<>(dataspaceVector[1]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentStrides.push_back(atoi((*iter).c_str()));
-          }
-          dimtokens = boost::tokenizer<>(dataspaceVector[3]);
-          for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
-              iter != dimtokens.end();
-              ++iter) {
-            contentDataspaces.push_back(atoi((*iter).c_str()));
-          }
+	  XdmfStringUtils::split(dataspaceVector[0], contentStarts);
+	  XdmfStringUtils::split(dataspaceVector[1], contentStrides);
+	  XdmfStringUtils::split(dataspaceVector[3], contentDataspaces);
         }
 
         contentStep = 2;
@@ -730,27 +647,4 @@ XdmfCoreItemFactory::isArrayTag(char * tag) const
     return true;
   }
   return false;
-}
-
-XdmfItem *
-XdmfCoreItemFactory::DuplicatePointer(shared_ptr<XdmfItem> original) const
-{
-  if (original->getItemTag() == XdmfArray::ItemTag) {
-    return (XdmfItem *)(new XdmfArray(*((XdmfArray *)original.get())));
-  }
-  else if (original->getItemTag() == XdmfInformation::ItemTag) {
-    return (XdmfItem *)(new XdmfInformation(*((XdmfInformation *)original.get())));
-  }
-  else if (original->getItemTag() == XdmfFunction::ItemTag) {
-    return (XdmfItem *)(new XdmfFunction(*((XdmfFunction *)original.get())));
-  }
-  else if (original->getItemTag() == XdmfSubset::ItemTag) {
-    return (XdmfItem *)(new XdmfSubset(*((XdmfSubset *)original.get())));
-  }
-  else if (original->getItemTag() == XdmfSparseMatrix::ItemTag) {
-   return (XdmfItem *)(new XdmfSparseMatrix(*((XdmfSparseMatrix *)original.get())));
-  }
-  else {
-    return NULL;
-  }
 }

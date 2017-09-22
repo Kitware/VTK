@@ -56,15 +56,6 @@ public:
 
   virtual ~XdmfCoreReader() = 0;
 
-  /**
-   * Uses the internal item factory to create a copy of the internal pointer
-   * of the provided shared pointer. Primarily used for C wrapping.
-   *
-   * @param     original        The source shared pointer that the pointer will be pulled from.
-   * @return                    A duplicate of the object contained in the pointer.
-   */
-  virtual XdmfItem * DuplicatePointer(shared_ptr<XdmfItem> original) const;
-
   virtual std::vector<shared_ptr<XdmfHeavyDataController> >
   generateHeavyDataControllers(std::map<std::string, std::string> controllerProperties,
                                const std::vector<unsigned int> & passedDimensions = std::vector<unsigned int>(),
