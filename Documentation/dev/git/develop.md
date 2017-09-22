@@ -26,6 +26,7 @@ Before you begin, perform initial setup:
 
         $ git clone https://gitlab.kitware.com/vtk/vtk.git VTK
         $ cd VTK
+        $ git submodule update --init
     The main repository will be configured as your `origin` remote.
 
 4.  Run the [developer setup script][] to prepare your VTK work tree and
