@@ -216,7 +216,7 @@ if (COMMAND vtk_target_install)
 endif()
 
 if(WIN32)
-  add_definitions(-D_HDF5USEDLL_ -D_HDF5USEHLDLL_)
+  #add_definitions(-D_HDF5USEDLL_ -D_HDF5USEHLDLL_)
   if (BUILD_SHARED_LIBS)
     set_target_properties(XdmfCore PROPERTIES
       DEFINE_SYMBOL XdmfCore_EXPORTS)

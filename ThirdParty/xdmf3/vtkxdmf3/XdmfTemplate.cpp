@@ -661,7 +661,7 @@ XdmfTemplate::getNumberSteps() const
 unsigned int
 XdmfTemplate::getNumberTrackedArrays() const
 {
-  return mTrackedArrays.size();
+  return static_cast<unsigned int>(mTrackedArrays.size());
 }
 
 XdmfArray *
@@ -820,7 +820,7 @@ XdmfTemplate::populateItem(const std::map<std::string, std::string> & itemProper
 //    mNumSteps = controllerTotal / mTrackedArrays[0]->getSize();
   }
   else {
-    mNumSteps = mDataControllers.size() / mTrackedArrays.size();
+    mNumSteps = static_cast<unsigned int>(mDataControllers.size() / mTrackedArrays.size());
   }
   this->setStep(0);
 }
@@ -1042,11 +1042,11 @@ XdmfTemplate::setStep(unsigned int stepId)
               arrayIndex = i;
             }
             else {
-              arrayIndex = i+(stepId*mTrackedArrays.size());
+              arrayIndex = i+(stepId*static_cast<unsigned int>(mTrackedArrays.size()));
             }
           }
           else {
-            arrayIndex = i+(stepId*mTrackedArrays.size());
+            arrayIndex = i+(stepId*static_cast<unsigned int>(mTrackedArrays.size()));
         }
         if (mDataControllers[arrayIndex].size() > 0) {
           if(mHeavyWriter) {
@@ -1106,12 +1106,12 @@ XdmfTemplate::setStep(unsigned int stepId)
             if(mTrackedArrayTypes[i] == XdmfArrayType::String()) {
 	      std::vector<std::string> tokens;
 	      XdmfStringUtils::split(content, tokens);
-	      mTrackedArrays[i]->insert(0, &(tokens[0]), tokens.size());
+	      mTrackedArrays[i]->insert(0, &(tokens[0]), static_cast<unsigned int>(tokens.size()));
 	    }
             else {
 	      std::vector<double> tokens;
 	      XdmfStringUtils::split(content, tokens);
-	      mTrackedArrays[i]->insert(0, &(tokens[0]), tokens.size());
+	      mTrackedArrays[i]->insert(0, &(tokens[0]), static_cast<unsigned int>(tokens.size()));
             }
           }
         }
@@ -1210,7 +1210,7 @@ XdmfTemplate::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
     arrayInfo << "\"" << mDataTypes[i] << "\"" << mDataDescriptions[i];
     ++i;
   }
-  dataInfoArray->insert(0, arrayInfo.str().c_str(), arrayInfo.str().length());
+  dataInfoArray->insert(0, arrayInfo.str().c_str(), static_cast<unsigned int>(arrayInfo.str().length()));
   dataInfoArray->insert(dataInfoArray->getSize(), 0);
 
   dataInfoArray->accept(visitor);

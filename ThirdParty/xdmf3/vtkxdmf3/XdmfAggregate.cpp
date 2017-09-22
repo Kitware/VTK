@@ -80,7 +80,7 @@ std::vector<unsigned int> XdmfAggregate::getDimensions() const
 
   if (isSame)
   {
-    testDims.push_back(mArrays.size());
+    testDims.push_back(static_cast<unsigned int>(mArrays.size()));
     return testDims;
   }
   else

@@ -882,7 +882,7 @@ XdmfGridTemplate::populateItem(const std::map<std::string, std::string> & itemPr
     mNumSteps = controllerTotal / mTrackedArrays[0]->getSize();
   }
   else {
-    mNumSteps = mDataControllers.size() / mTrackedArrays.size();
+    mNumSteps = static_cast<unsigned int>(mDataControllers.size() / mTrackedArrays.size());
   }
 }
 

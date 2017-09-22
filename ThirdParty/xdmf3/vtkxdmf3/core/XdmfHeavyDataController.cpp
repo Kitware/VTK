@@ -170,7 +170,7 @@ unsigned int * XdmfHeavyDataControllerGetDataspaceDimensions(XDMFHEAVYDATACONTRO
 {
   shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
   std::vector<unsigned int> tempVector = refController->getDataspaceDimensions();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];
@@ -182,7 +182,7 @@ unsigned int * XdmfHeavyDataControllerGetDimensions(XDMFHEAVYDATACONTROLLER * co
 {
   shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
   std::vector<unsigned int> tempVector = refController->getDimensions();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];
@@ -207,7 +207,7 @@ char * XdmfHeavyDataControllerGetName(XDMFHEAVYDATACONTROLLER * controller)
 unsigned int XdmfHeavyDataControllerGetNumberDimensions(XDMFHEAVYDATACONTROLLER * controller)
 {
   shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
-  return refController->getDimensions().size();
+  return static_cast<unsigned int>(refController->getDimensions().size());
 }
 
 unsigned int XdmfHeavyDataControllerGetSize(XDMFHEAVYDATACONTROLLER * controller)
@@ -220,7 +220,7 @@ unsigned int * XdmfHeavyDataControllerGetStart(XDMFHEAVYDATACONTROLLER * control
 {
   shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
   std::vector<unsigned int> tempVector = refController->getStart();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) *returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];
@@ -232,7 +232,7 @@ unsigned int * XdmfHeavyDataControllerGetStride(XDMFHEAVYDATACONTROLLER * contro
 {
   shared_ptr<XdmfHeavyDataController> & refController = *(shared_ptr<XdmfHeavyDataController> *)(controller);
   std::vector<unsigned int> tempVector = refController->getStride();
-  unsigned int returnSize = tempVector.size();
+  unsigned int returnSize = static_cast<unsigned int>(tempVector.size());
   unsigned int * returnArray = (unsigned int *)malloc(sizeof(unsigned int) * returnSize);
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = tempVector[i];

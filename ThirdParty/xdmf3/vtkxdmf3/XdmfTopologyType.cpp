@@ -521,7 +521,7 @@ XdmfTopologyType::calculateHypercubeNumElements(unsigned int numDims,
     // The calculation has 3 parts
     // First is the 2 taken to the power of
     // the object's dimensionality minus the element's dimensionality.
-    unsigned int part1 = std::pow((double)2, (double)(numDims - elementNumDims));
+    unsigned int part1 = static_cast<unsigned int>(std::pow((double)2, (double)(numDims - elementNumDims)));
     // The second part is numDims!/(numDims-elementdims)!
     unsigned int part2 = 1;
     for (unsigned int i = numDims; i > (numDims - elementNumDims); --i)

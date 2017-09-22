@@ -459,7 +459,7 @@ XDMFMAP ** XdmfMapNewFromIdVector(int ** globalNodeIds, int * numIdsOnNode, int 
     insertedAttributeVector.push_back(insertedAttribute);
   }
   std::vector<shared_ptr<XdmfMap> > generatedMaps = XdmfMap::New(insertedAttributeVector);
-  unsigned int returnSize = generatedMaps.size();
+  unsigned int returnSize = static_cast<unsigned int>(generatedMaps.size());
   XDMFMAP ** returnArray = (XDMFMAP **)malloc(sizeof(XDMFMAP *) * (returnSize+1));
   for (unsigned int i = 0; i < returnSize; ++i) {
     returnArray[i] = (XDMFMAP *) new shared_ptr<XdmfMap>(generatedMaps[i]);
@@ -521,19 +521,19 @@ int * XdmfMapRetrieveLocalNodeIds(XDMFMAP * map, int remoteTaskId)
 int XdmfMapRetrieveNumberLocalNodeIds(XDMFMAP * map, int remoteTaskId)
 {
   shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
-  return refMap->getMap()[remoteTaskId].size();
+  return static_cast<int>(refMap->getMap()[remoteTaskId].size());
 }
 
 int XdmfMapRetrieveNumberRemoteTaskIds(XDMFMAP * map)
 {
   shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
-  return refMap->getMap().size();
+  return static_cast<int>(refMap->getMap().size());
 }
 
 int XdmfMapRetrieveNumberRemoteNodeIds(XDMFMAP * map, int remoteTaskId, int localNodeId)
 {
   shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(map);
-  return refMap->getMap()[remoteTaskId][localNodeId].size();
+  return static_cast<int>(refMap->getMap()[remoteTaskId][localNodeId].size());
 }
 
 int * XdmfMapRetrieveRemoteTaskIds(XDMFMAP * map)
