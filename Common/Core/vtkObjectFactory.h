@@ -65,14 +65,6 @@ public:
                                    bool isAbstract = false);
 
   /**
-   * No longer used. Call vtkObjectBase::InitializeObjectBase() from the
-   * New() implementation instead.
-   * @deprecated because this method relies on taking an arbitrary string,
-   * which may not match the GetClassName() string (especially for templates).
-   */
-  VTK_LEGACY(static void ConstructInstance(const char* vtkclassname));
-
-  /**
    * Create all possible instances of the named vtk object.
    * Each registered vtkObjectFactory will be asked, and the
    * result will be stored in the user allocated vtkCollection

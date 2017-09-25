@@ -106,19 +106,6 @@ public:
    */
   int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
-  /**
-   * @deprecated Replaced by vtkBiQuadraticQuad::InterpolateFunctions as of VTK 5.2
-   */
-  VTK_LEGACY(static void InterpolationFunctions (double pcoords[3], double weights[9]));
-  /**
-   * @deprecated Replaced by vtkBiQuadraticQuad::InterpolateDerivs as of VTK 5.2
-   */
-  VTK_LEGACY(static void InterpolationDerivs (double pcoords[3], double derivs[18]));
-  //@{
-  /**
-   * Compute the interpolation functions/derivatives
-   * (aka shape functions/derivatives)
-   */
   void InterpolateFunctions (double pcoords[3], double weights[9]) VTK_OVERRIDE
   {
     vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords,weights);

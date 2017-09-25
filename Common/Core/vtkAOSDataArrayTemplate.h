@@ -265,17 +265,6 @@ public:
   bool HasStandardMemoryLayout() VTK_OVERRIDE { return true; }
   void ShallowCopy(vtkDataArray *other) VTK_OVERRIDE;
 
-  //@{
-  /**
-   * @deprecated Replace TupleValue with TypedTuple to use the new method
-   * names. Note that the new signatures are also const-correct.
-   */
-  VTK_LEGACY(void GetTupleValue(vtkIdType tupleIdx, ValueType *tuple));
-  VTK_LEGACY(void SetTupleValue(vtkIdType tupleIdx, const ValueType *tuple));
-  VTK_LEGACY(void InsertTupleValue(vtkIdType tupleIdx, const ValueType *tuple));
-  VTK_LEGACY(vtkIdType InsertNextTupleValue(const ValueType *tuple));
-  //@}
-
   // Reimplemented for efficiency:
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
                     vtkAbstractArray* source) VTK_OVERRIDE;

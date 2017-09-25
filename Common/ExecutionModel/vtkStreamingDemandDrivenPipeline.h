@@ -237,22 +237,8 @@ public:
 
   //@{
   /**
-   * If the whole input extent is required to generate the requested output
-   * extent, this method can be called to set the input update extent to the
-   * whole input extent. This method assumes that the whole extent is known
-   * (that UpdateInformation has been called)
-   */
-  VTK_LEGACY(int SetUpdateExtentToWholeExtent(int port));
-  VTK_LEGACY(static int SetUpdateExtentToWholeExtent(vtkInformation *));
-  //@}
-
-  //@{
-  /**
    * Get/Set the update extent for output ports that use 3D extents.
    */
-  VTK_LEGACY(int SetUpdateExtent(int port, int extent[6]));
-  VTK_LEGACY(int SetUpdateExtent(int port, int x0, int x1, int y0, int y1, int z0, int z1));
-  VTK_LEGACY(static int SetUpdateExtent(vtkInformation *, int extent[6]));
   static void GetUpdateExtent(vtkInformation *, int extent[6]);
   static int* GetUpdateExtent(vtkInformation *);
   //@}
@@ -262,24 +248,9 @@ public:
    * number of ghost levels for an output port.  Similar to update
    * extent in 3D.
    */
-  VTK_LEGACY(int SetUpdateExtent(int port,
-                      int piece, int numPieces, int ghostLevel));
-  VTK_LEGACY(static int SetUpdateExtent(vtkInformation *,
-                             int piece, int numPieces, int ghostLevel));
-  VTK_LEGACY(static int SetUpdatePiece(vtkInformation *, int piece));
   static int GetUpdatePiece(vtkInformation *);
-  VTK_LEGACY(static int SetUpdateNumberOfPieces(vtkInformation *, int n));
   static int GetUpdateNumberOfPieces(vtkInformation *);
-  VTK_LEGACY(static int SetUpdateGhostLevel(vtkInformation *, int n));
   static int GetUpdateGhostLevel(vtkInformation *);
-  //@}
-
-  //@{
-  /**
-   * Get/Set the update extent for output ports that use Temporal Extents
-   */
-  VTK_LEGACY(int SetUpdateTimeStep(int port, double time));
-  VTK_LEGACY(static int SetUpdateTimeStep(vtkInformation *, double time));
   //@}
 
 protected:
