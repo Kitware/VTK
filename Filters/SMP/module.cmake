@@ -1,4 +1,5 @@
 vtk_module(vtkFiltersSMP
+  LEGACY 8.1 "The functionality in this module is being replaced with VTK-m integration. Please migrate to that."
   GROUPS
     StandAlone
   TEST_DEPENDS
