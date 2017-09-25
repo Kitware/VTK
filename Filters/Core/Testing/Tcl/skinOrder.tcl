@@ -56,7 +56,6 @@ foreach order $orders {
 
   vtkPolyDataMapper mapper$order
     mapper$order SetInputConnection [iso$order GetOutputPort]
-    mapper$order ImmediateModeRenderingOn
 
   vtkActor actor$order
     actor$order SetMapper mapper$order

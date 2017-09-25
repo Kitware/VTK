@@ -103,7 +103,6 @@ int TestSimple3DCirclesStrategy(int argc, char *argv[])
   vertGlyph->SetInputConnection( edgeLayout->GetOutputPort() );
 
   edgeMapper->ScalarVisibilityOff();
-  edgeMapper->ImmediateModeRenderingOn();
   edgeMapper->SetInputConnection( graphToPoly->GetOutputPort() );
   edgeActor->GetProperty()->SetColor( 0.75, 0.75, 0.75 );
   edgeActor->GetProperty()->SetOpacity(1.0);
@@ -114,7 +113,6 @@ int TestSimple3DCirclesStrategy(int argc, char *argv[])
 
 
   vertMapper->ScalarVisibilityOff();
-  vertMapper->ImmediateModeRenderingOn();
   vertMapper->SetInputConnection( vertGlyph->GetOutputPort() );
   vertActor->GetProperty()->SetColor( 0.5, 0.5, 0.5 );
   vertActor->GetProperty()->SetOpacity(1.0);

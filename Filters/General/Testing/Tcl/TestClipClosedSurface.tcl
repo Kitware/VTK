@@ -57,7 +57,6 @@ vtkClipClosedSurface clip
 vtkPolyDataMapper isoMapper
   isoMapper SetInputConnection [clip GetOutputPort]
   isoMapper ScalarVisibilityOn
-  isoMapper ImmediateModeRenderingOn
 
 vtkActor isoActor
   isoActor SetMapper isoMapper

@@ -50,7 +50,6 @@ isoMapper = vtk.vtkDataSetMapper()
 isoMapper.SetInputConnection(gradient.GetOutputPort())
 isoMapper.ScalarVisibilityOn()
 isoMapper.SetScalarRange(0, 1200)
-isoMapper.ImmediateModeRenderingOn()
 
 isoActor = vtk.vtkActor()
 isoActor.SetMapper(isoMapper)

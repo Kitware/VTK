@@ -41,7 +41,6 @@ foreach vtkType $types {
 
   vtkPolyDataMapper iso${vtkType}Mapper
     iso${vtkType}Mapper SetInputConnection [iso$vtkType GetOutputPort]
-    iso${vtkType}Mapper ImmediateModeRenderingOn
 
   vtkActor iso${vtkType}Actor
     iso${vtkType}Actor SetMapper iso${vtkType}Mapper

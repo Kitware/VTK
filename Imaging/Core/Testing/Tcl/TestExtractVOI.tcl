@@ -6,7 +6,6 @@ vtkSphereSource sphere
   sphere SetRadius 2.0
 vtkPolyDataMapper sphereMapper
   sphereMapper SetInputConnection [sphere GetOutputPort]
-  sphereMapper ImmediateModeRenderingOn
 vtkActor sphereActor
   sphereActor SetMapper sphereMapper
 
@@ -27,7 +26,6 @@ vtkTriangleFilter tris
 
 vtkPolyDataMapper mapper
   mapper SetInputConnection [tris GetOutputPort]
-  mapper ImmediateModeRenderingOn
   mapper SetScalarRange 130 280
 vtkActor actor
   actor SetMapper mapper

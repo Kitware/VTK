@@ -45,7 +45,6 @@ SimpleView::SimpleView()
 
   // Mapper
   VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->ImmediateModeRenderingOn();
   mapper->SetInputConnection(elevation->GetOutputPort());
 
   // Actor in scene

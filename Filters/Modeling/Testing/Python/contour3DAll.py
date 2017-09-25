@@ -108,7 +108,6 @@ class contour3DAll(vtk.test.Testing.vtkTest):
 
             mapper.append(vtk.vtkPolyDataMapper())
             mapper[idx].SetInputConnection(iso[idx].GetOutputPort())
-            mapper[idx].ImmediateModeRenderingOn()
 
             actor.append(vtk.vtkActor())
             actor[idx].SetMapper(mapper[idx])

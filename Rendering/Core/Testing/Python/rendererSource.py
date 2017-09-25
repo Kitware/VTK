@@ -96,7 +96,6 @@ aPlane = vtk.vtkPlaneSource()
 
 aPlaneMapper = vtk.vtkPolyDataMapper()
 aPlaneMapper.SetInputConnection(aPlane.GetOutputPort())
-aPlaneMapper.ImmediateModeRenderingOn()
 
 screen = vtk.vtkActor()
 screen.SetMapper(aPlaneMapper)

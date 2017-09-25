@@ -117,7 +117,6 @@ vtkGlyph3D Glyph
 
 vtkPolyDataMapper AtomsMapper
   AtomsMapper SetInputConnection [Glyph GetOutputPort]
-  AtomsMapper SetImmediateModeRendering 1
   AtomsMapper UseLookupTableScalarRangeOff
   AtomsMapper SetScalarVisibility 1
   AtomsMapper SetScalarModeToDefault
@@ -143,7 +142,6 @@ vtkTubeFilter Tube
 
 vtkPolyDataMapper BondsMapper
   BondsMapper SetInputConnection [Tube GetOutputPort]
-  BondsMapper SetImmediateModeRendering 1
   BondsMapper UseLookupTableScalarRangeOff
   BondsMapper SetScalarVisibility 1
   BondsMapper SetScalarModeToDefault

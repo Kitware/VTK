@@ -35,7 +35,6 @@ int TestVTKMExtractVOI(int argc, char* argv[])
 
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
-  sphereMapper->ImmediateModeRenderingOn();
 
   vtkNew<vtkActor> sphereActor;
   sphereActor->SetMapper(sphereMapper);
@@ -57,7 +56,6 @@ int TestVTKMExtractVOI(int argc, char* argv[])
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(tris->GetOutputPort());
-  mapper->ImmediateModeRenderingOn();
   mapper->SetScalarRange(130, 280);
 
   vtkNew<vtkActor> actor;

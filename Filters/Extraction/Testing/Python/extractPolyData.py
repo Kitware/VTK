@@ -25,7 +25,6 @@ extract.ExtractBoundaryCellsOn()
 extract.PassPointsOn()
 sphereMapper = vtk.vtkPolyDataMapper()
 sphereMapper.SetInputConnection(extract.GetOutputPort())
-sphereMapper.GlobalImmediateModeRenderingOn()
 sphereActor = vtk.vtkActor()
 sphereActor.SetMapper(sphereMapper)
 

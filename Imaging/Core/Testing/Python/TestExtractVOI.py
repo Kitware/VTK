@@ -9,7 +9,6 @@ sphere.SetRadius(2.0)
 
 sphereMapper = vtk.vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
-sphereMapper.ImmediateModeRenderingOn()
 
 sphereActor = vtk.vtkActor()
 sphereActor.SetMapper(sphereMapper)
@@ -31,7 +30,6 @@ tris.SetInputConnection(surf.GetOutputPort())
 
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(tris.GetOutputPort())
-mapper.ImmediateModeRenderingOn()
 mapper.SetScalarRange(130, 280)
 
 actor = vtk.vtkActor()

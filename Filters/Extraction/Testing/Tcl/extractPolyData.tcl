@@ -24,7 +24,6 @@ vtkExtractPolyDataGeometry extract
     extract PassPointsOn
 vtkPolyDataMapper  sphereMapper
     sphereMapper SetInputConnection [extract GetOutputPort]
-    sphereMapper GlobalImmediateModeRenderingOn
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 

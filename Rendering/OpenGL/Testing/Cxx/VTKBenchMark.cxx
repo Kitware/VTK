@@ -181,7 +181,6 @@ double VTKBenchmark::DrawTheFractal()
     this->Stripper->SetInputConnection(this->TriFilter->GetOutputPort());
   }
   mapper->SetInputConnection(this->Stripper->GetOutputPort());
-  mapper->SetImmediateModeRendering(this->ImmediateMode);
   mapper->SetScalarVisibility(this->ScalarColoring);
   mapper->SetScalarRange(5,30);
 

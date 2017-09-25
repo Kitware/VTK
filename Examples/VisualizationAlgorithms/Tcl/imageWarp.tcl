@@ -27,7 +27,6 @@ vtkMergeFilter merge
 vtkDataSetMapper mapper
   mapper SetInputConnection [merge GetOutputPort]
   mapper SetScalarRange 0 255
-  mapper ImmediateModeRenderingOff
 vtkActor actor
   actor SetMapper mapper
 

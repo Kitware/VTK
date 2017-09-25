@@ -180,7 +180,6 @@ class financialField3(vtk.test.Testing.vtkTest):
         popMapper = vtk.vtkPolyDataMapper()
         popMapper.SetInputConnection(popSurface.GetOutputPort())
         popMapper.ScalarVisibilityOff()
-        popMapper.ImmediateModeRenderingOn()
         popActor = vtk.vtkActor()
         popActor.SetMapper(popMapper)
         popActor.GetProperty().SetOpacity(0.3)

@@ -102,7 +102,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   vtkPolyDataMapper* Mapper5 = vtkPolyDataMapper::New();
   Mapper5->SetInputConnection(Geometry5->GetOutputPort());
-  Mapper5->SetImmediateModeRendering(1);
   Mapper5->UseLookupTableScalarRangeOn();
   Mapper5->SetScalarVisibility(0);
   Mapper5->SetScalarModeToDefault();
@@ -151,7 +150,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   vtkPolyDataMapper* Mapper6 = vtkPolyDataMapper::New();
   Mapper6->SetInputConnection(Geometry6->GetOutputPort());
-  Mapper6->SetImmediateModeRendering(1);
   Mapper6->UseLookupTableScalarRangeOn();
   Mapper6->SetScalarVisibility(1);
   Mapper6->SetScalarModeToUsePointFieldData();

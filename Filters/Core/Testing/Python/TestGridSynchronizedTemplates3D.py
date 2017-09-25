@@ -40,7 +40,6 @@ class TestGridSynchronizedTemplates3D(Testing.vtkTest):
 
         # cf ComputeNormalsOff
         cfMapper = vtk.vtkPolyDataMapper()
-        cfMapper.ImmediateModeRenderingOn()
         cfMapper.SetInputConnection(cf.GetOutputPort())
         cfMapper.SetScalarRange(
           pl3d_output.GetPointData().GetScalars().GetRange())

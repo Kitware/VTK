@@ -65,7 +65,6 @@ vtkPolyDataMapper mapper
   mapper ScalarVisibilityOff
   mapper SetPiece 0
   mapper SetNumberOfPieces 2
-  mapper ImmediateModeRenderingOn
 
 vtkActor actor
     actor SetMapper mapper

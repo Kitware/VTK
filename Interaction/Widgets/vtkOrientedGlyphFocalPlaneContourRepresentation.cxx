@@ -149,13 +149,11 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());
   //this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
-  //this->Mapper->ImmediateModeRenderingOn();
 
   this->ActiveMapper = vtkPolyDataMapper2D::New();
   this->ActiveMapper->SetInputConnection(this->ActiveGlypher->GetOutputPort());
   //this->ActiveMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->ActiveMapper->ScalarVisibilityOff();
-  //this->ActiveMapper->ImmediateModeRenderingOn();
 
   // Set up the initial properties
   this->CreateDefaultProperties();

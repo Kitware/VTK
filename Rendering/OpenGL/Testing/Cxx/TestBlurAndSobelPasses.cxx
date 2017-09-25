@@ -167,7 +167,6 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   vtkSmartPointer<vtkPolyDataMapper> coneMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
-  coneMapper->SetImmediateModeRendering(1);
   vtkSmartPointer<vtkActor> coneActor =
     vtkSmartPointer<vtkActor>::New();
   coneActor->SetMapper(coneMapper);

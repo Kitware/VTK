@@ -46,7 +46,9 @@
 #include "vtkNew.h" // For vtkNew
 
 class vtkFloatArray;
+#ifndef VTK_LEGACY_REMOVE
 class vtkPainterDeviceAdapter;
+#endif
 class vtkProp;
 class vtkCollection;
 class vtkRenderTimerLog;
@@ -674,7 +676,7 @@ public:
    * this render window.  Note the old OpenGL backend requires this
    * method.
    */
-  vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
+  VTK_LEGACY(vtkPainterDeviceAdapter *GetPainterDeviceAdapter());
   //@}
 
   //@{
@@ -742,7 +744,9 @@ protected:
   virtual void DoFDRender();
   virtual void DoAARender();
 
+#ifndef VTK_LEGACY_REMOVE
   vtkPainterDeviceAdapter* PainterDeviceAdapter;
+#endif
   vtkRendererCollection *Renderers;
   vtkNew<vtkRenderTimerLog> RenderTimer;
   int Borders;

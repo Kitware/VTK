@@ -32,7 +32,6 @@ vtkPolyDataNormals normalsVx
 vtkPolyDataMapper isoVxMapper
     isoVxMapper SetInputConnection [normalsVx GetOutputPort]
     isoVxMapper ScalarVisibilityOff
-    isoVxMapper ImmediateModeRenderingOn
 vtkActor isoVxActor
     isoVxActor SetMapper isoVxMapper
     eval [isoVxActor GetProperty] SetColor 1 0.7 0.6
@@ -50,7 +49,6 @@ vtkPolyDataNormals normalsVy
 vtkPolyDataMapper isoVyMapper
     isoVyMapper SetInputConnection [normalsVy GetOutputPort]
     isoVyMapper ScalarVisibilityOff
-    isoVyMapper ImmediateModeRenderingOn
 vtkActor isoVyActor
     isoVyActor SetMapper isoVyMapper
     eval [isoVyActor GetProperty] SetColor 0.7 1 0.6
@@ -68,7 +66,6 @@ vtkPolyDataNormals normalsVz
 vtkPolyDataMapper isoVzMapper
     isoVzMapper SetInputConnection [normalsVz GetOutputPort]
     isoVzMapper ScalarVisibilityOff
-    isoVzMapper ImmediateModeRenderingOn
 vtkActor isoVzActor
     isoVzActor SetMapper isoVzMapper
     eval [isoVzActor GetProperty] SetColor 0.4 0.5 1

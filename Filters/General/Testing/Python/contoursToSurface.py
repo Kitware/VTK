@@ -140,7 +140,6 @@ f.SetMemoryLimitInBytes(100000)
 m = vtk.vtkPolyDataMapper()
 m.SetInputConnection(f.GetOutputPort())
 m.ScalarVisibilityOff()
-m.ImmediateModeRenderingOn()
 
 a = vtk.vtkActor()
 a.SetMapper(m)

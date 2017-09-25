@@ -244,7 +244,6 @@ vtkPolyDataMapper demMapper
   demMapper SetInputConnection [normals GetOutputPort]
   eval demMapper SetScalarRange $lo $hi
   demMapper SetLookupTable lut
-  demMapper ImmediateModeRenderingOn
 
 vtkActor demActor
   demActor SetMapper demMapper
