@@ -163,7 +163,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output,
   {
     vtkDataArray* attribute =
         input->GetPointData()->GetAttribute(attributeType);
-    if (attribute == NULL)
+    if (attribute == nullptr)
     {
       continue;
     }

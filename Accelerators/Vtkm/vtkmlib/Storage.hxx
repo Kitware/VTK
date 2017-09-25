@@ -29,18 +29,18 @@ void Storage<ValueType_, tovtkm::vtkAOSArrayContainerTag>::ReleaseResources()
 {
   if (this->NumberOfValues > 0)
   {
-    VTKM_ASSERT(this->Array != NULL);
+    VTKM_ASSERT(this->Array != nullptr);
     if (this->DeallocateOnRelease)
     {
       this->Array->Delete();
     }
-    this->Array = NULL;
+    this->Array = nullptr;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
   }
   else
   {
-    VTKM_ASSERT(this->Array == NULL);
+    VTKM_ASSERT(this->Array == nullptr);
   }
 }
 
@@ -82,7 +82,7 @@ void Storage<ValueType_, tovtkm::vtkAOSArrayContainerTag>::Allocate(
   catch (std::bad_alloc&)
   {
     // Make sure our state is OK.
-    this->Array = NULL;
+    this->Array = nullptr;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
     throw vtkm::cont::ErrorBadAllocation(
@@ -115,18 +115,18 @@ void Storage<ValueType_, tovtkm::vtkSOAArrayContainerTag>::ReleaseResources()
 {
   if (this->NumberOfValues > 0)
   {
-    VTKM_ASSERT(this->Array != NULL);
+    VTKM_ASSERT(this->Array != nullptr);
     if (this->DeallocateOnRelease)
     {
       this->Array->Delete();
     }
-    this->Array = NULL;
+    this->Array = nullptr;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
   }
   else
   {
-    VTKM_ASSERT(this->Array == NULL);
+    VTKM_ASSERT(this->Array == nullptr);
   }
 }
 
@@ -168,7 +168,7 @@ void Storage<ValueType_, tovtkm::vtkSOAArrayContainerTag>::Allocate(
   catch (std::bad_alloc&)
   {
     // Make sure our state is OK.
-    this->Array = NULL;
+    this->Array = nullptr;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
     throw vtkm::cont::ErrorBadAllocation(
@@ -201,18 +201,18 @@ void Storage<ValueType_, tovtkm::vtkCellArrayContainerTag>::ReleaseResources()
 {
   if (this->NumberOfValues > 0)
   {
-    VTKM_ASSERT(this->Array != NULL);
+    VTKM_ASSERT(this->Array != nullptr);
     if (this->DeallocateOnRelease)
     {
       this->Array->Delete();
     }
-    this->Array = NULL;
+    this->Array = nullptr;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
   }
   else
   {
-    VTKM_ASSERT(this->Array == NULL);
+    VTKM_ASSERT(this->Array == nullptr);
   }
 }
 
@@ -252,7 +252,7 @@ void Storage<ValueType_, tovtkm::vtkCellArrayContainerTag>::Allocate(
   catch (std::bad_alloc&)
   {
     // Make sure our state is OK.
-    this->Array = NULL;
+    this->Array = nullptr;
     this->NumberOfValues = 0;
     this->AllocatedSize = 0;
     throw vtkm::cont::ErrorBadAllocation(

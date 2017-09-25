@@ -72,7 +72,7 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints *points)
   }
 
   typedef vtkm::Vec<T, 3> Vec3;
-  Vec3 *xyz = NULL;
+  Vec3 *xyz = nullptr;
   return vtkm::cont::CoordinateSystem("coords", xyz, 0);
 }
 }
@@ -94,7 +94,7 @@ vtkm::cont::CoordinateSystem Convert(vtkPoints *points)
 
   // unsupported/null point set
   typedef vtkm::Vec<vtkm::Float32, 3> Vec3;
-  Vec3 *xyz = NULL;
+  Vec3 *xyz = nullptr;
   return vtkm::cont::CoordinateSystem("coords", xyz, 0);
 }
 

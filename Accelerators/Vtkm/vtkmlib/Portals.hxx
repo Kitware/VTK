@@ -52,7 +52,7 @@ namespace tovtkm {
 //------------------------------------------------------------------------------
 template <typename VType, typename VTKDataArrayType>
 vtkArrayPortal<VType, VTKDataArrayType>::vtkArrayPortal()
-  : VTKData(NULL), Size(0)
+  : VTKData(nullptr), Size(0)
 {
 }
 
@@ -97,7 +97,7 @@ void vtkArrayPortal<VType, VTKDataArrayType>::Set(vtkm::Id index,
 
 //------------------------------------------------------------------------------
 template <typename Type>
-vtkPointsPortal<Type>::vtkPointsPortal() : Points(NULL), Array(NULL), Size(0)
+vtkPointsPortal<Type>::vtkPointsPortal() : Points(nullptr), Array(nullptr), Size(0)
 {
 }
 
