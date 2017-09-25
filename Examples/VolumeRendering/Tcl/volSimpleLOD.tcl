@@ -47,10 +47,9 @@ vtkVolumeProperty volumeProperty2
 # Create a volume ray cast mapper.  The volume is used for levels 1 and 2 of
 # LODProp3D.
 #
-vtkVolumeRayCastCompositeFunction  compositeFunction
-vtkVolumeRayCastMapper volumeMapper
+vtkGPUVolumeRayCastMapper volumeMapper
     volumeMapper SetInputConnection [reader GetOutputPort]
-    volumeMapper SetVolumeRayCastFunction compositeFunction
+    volumeMapper SetBlendModeToComposite
 
 #
 # Set up the color lookup table for the probe planes to be used in levels 3 and
