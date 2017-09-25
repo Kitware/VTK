@@ -31,7 +31,6 @@
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
-#include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
