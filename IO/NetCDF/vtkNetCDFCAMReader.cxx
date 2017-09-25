@@ -152,64 +152,6 @@ vtkNetCDFCAMReader::~vtkNetCDFCAMReader()
 }
 
 //----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkNetCDFCAMReader::SingleLevelOn ()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkNetCDFCAMReader::SingleLevelOn, "VTK 7.1",
-                           vtkNetCDFCAMReader::SetVerticalDimension);
-  this->VerticalDimension = VERTICAL_DIMENSION_SINGLE_LAYER;
-  this->Modified();
-}
-#endif
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkNetCDFCAMReader::SingleLevelOff ()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkNetCDFCAMReader::SingleLevelOn, "VTK 7.1",
-                           vtkNetCDFCAMReader::SetVerticalDimension);
-  this->VerticalDimension = VERTICAL_DIMENSION_MIDPOINT_LAYERS;
-  this->Modified();
-}
-#endif
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkNetCDFCAMReader::SetSingleLevel (int level)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkNetCDFCAMReader::SetSingleLevel, "VTK 7.1",
-                           vtkNetCDFCAMReader::SetVerticalDimension);
-  if (level <= 0)
-  {
-    this->VerticalDimension = VERTICAL_DIMENSION_MIDPOINT_LAYERS;
-  }
-  else
-  {
-    this->VerticalDimension = VERTICAL_DIMENSION_SINGLE_LAYER;
-  }
-  this->Modified();
-}
-#endif
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-int vtkNetCDFCAMReader::GetSingleLevel ()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkNetCDFCAMReader::GetSingleLevel, "VTK 7.1",
-                           vtkNetCDFCAMReader::GetVerticalDimension);
-  if (this->VerticalDimension == VERTICAL_DIMENSION_SINGLE_LAYER)
-  {
-    return 1;
-  }
-  else
-  {
-    return 0;
-  }
-}
-#endif
-
-
-//----------------------------------------------------------------------------
 int vtkNetCDFCAMReader::CanReadFile(const char* fileName)
 {
   NcFile file(fileName, NcFile::ReadOnly);
@@ -1076,23 +1018,6 @@ bool vtkNetCDFCAMReader::GetPartitioning(
   endLevel = beginLevel + numLevels - 1;
   return true;
 }
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkNetCDFCAMReader::SetCellLayerRight(int)
-{
-  VTK_LEGACY_BODY(vtkNetCDFCAMReader::SetCellLayerRight, "VTK 6.3");
-}
-#endif
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-int vtkNetCDFCAMReader::GetCellLayerRight()
-{
-  VTK_LEGACY_BODY(vtkNetCDFCAMReader::GetCellLayerRight, "VTK 6.3");
-  return 0;
-}
-#endif
 
 //----------------------------------------------------------------------------
 void vtkNetCDFCAMReader::SelectionCallback(vtkObject*,
