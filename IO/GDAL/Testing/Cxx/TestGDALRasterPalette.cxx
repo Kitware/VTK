@@ -83,13 +83,13 @@ int TestGDALRasterPalette(int argc, char** argv)
   //actor->GetProperty()->SetInterpolationTypeToNearest();
   actor->GetProperty()->SetLookupTable(colorTable);
   actor->GetProperty()->UseLookupTableScalarRangeOn();
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
 
   // Create a render window, and an interactor
   vtkNew<vtkRenderWindow> renderWindow;
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+  renderWindow->AddRenderer(renderer);
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
   //Add the actor to the scene
   renderer->SetBackground(1.0, 1.0, 1.0);
@@ -98,7 +98,7 @@ int TestGDALRasterPalette(int argc, char** argv)
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

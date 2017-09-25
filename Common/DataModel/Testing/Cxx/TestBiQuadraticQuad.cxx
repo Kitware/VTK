@@ -44,7 +44,7 @@ int TestBiQuadraticQuad(int, char*[])
   }
 
   vtkNew<vtkCellArray> cellArray;
-  cellArray->InsertNextCell(quad.Get());
+  cellArray->InsertNextCell(quad);
 
   vtkNew<vtkDoubleArray> uArray;
   uArray->SetName("u");
@@ -57,20 +57,20 @@ int TestBiQuadraticQuad(int, char*[])
   }
 
   vtkNew<vtkUnstructuredGrid> grid;
-  grid->SetPoints(points.Get());
-  grid->SetCells(VTK_BIQUADRATIC_QUAD, cellArray.Get());
-  grid->GetPointData()->SetScalars(uArray.Get());
+  grid->SetPoints(points);
+  grid->SetCells(VTK_BIQUADRATIC_QUAD, cellArray);
+  grid->GetPointData()->SetScalars(uArray);
 
   double probeX = 2.0 / 3.0;
   double probeY = 0.25;
   vtkNew<vtkPoints> probePoints;
   probePoints->InsertNextPoint(probeX, probeY, 0.0);
   vtkNew<vtkPolyData> probePolyData;
-  probePolyData->SetPoints(probePoints.Get());
+  probePolyData->SetPoints(probePoints);
 
   vtkNew<vtkProbeFilter> prober;
-  prober->SetSourceData(grid.Get());
-  prober->SetInputData(probePolyData.Get());
+  prober->SetSourceData(grid);
+  prober->SetInputData(probePolyData);
   prober->Update();
 
   vtkDataArray* data = prober->GetOutput()->GetPointData()->GetScalars();

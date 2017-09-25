@@ -40,15 +40,15 @@ vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
   vtkNew<vtkEventForwarderCommand> cb;
   cb->SetTarget(this);
 
-  this->FastAtomMapper->AddObserver(vtkCommand::StartEvent, cb.GetPointer());
-  this->FastAtomMapper->AddObserver(vtkCommand::EndEvent, cb.GetPointer());
+  this->FastAtomMapper->AddObserver(vtkCommand::StartEvent, cb);
+  this->FastAtomMapper->AddObserver(vtkCommand::EndEvent, cb);
   this->FastAtomMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb.GetPointer());
+                                     cb);
 
-  this->FastBondMapper->AddObserver(vtkCommand::StartEvent, cb.GetPointer());
-  this->FastBondMapper->AddObserver(vtkCommand::EndEvent, cb.GetPointer());
+  this->FastBondMapper->AddObserver(vtkCommand::StartEvent, cb);
+  this->FastBondMapper->AddObserver(vtkCommand::EndEvent, cb);
   this->FastBondMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb.GetPointer());
+                                     cb);
 
   // Connect the trivial producers to forward the glyph polydata
   this->FastAtomMapper->SetInputConnection

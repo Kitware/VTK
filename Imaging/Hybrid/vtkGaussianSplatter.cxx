@@ -195,7 +195,7 @@ int vtkGaussianSplatter::RequestData(
   {
     tempComposite->SetNumberOfBlocks(1);
     tempComposite->SetBlock(0,inputDS);
-    inputComposite = tempComposite.GetPointer();
+    inputComposite = tempComposite;
   }
 
   vtkDebugMacro(<< "Splatting data");

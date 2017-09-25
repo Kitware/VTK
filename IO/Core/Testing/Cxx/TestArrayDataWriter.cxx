@@ -29,11 +29,11 @@ int TestArrayDataWriter(int, char*[])
   }
 
   vtkNew<vtkArrayData> d;
-  d->AddArray(da.GetPointer());
-  d->AddArray(sa.GetPointer());
+  d->AddArray(da);
+  d->AddArray(sa);
 
   vtkNew<vtkArrayDataWriter> w;
-  w->SetInputData(d.GetPointer());
+  w->SetInputData(d);
   w->WriteToOutputStringOn();
   w->Write();
   vtkStdString s = w->GetOutputString();
@@ -86,8 +86,8 @@ int TestArrayDataWriter(int, char*[])
 
   std::cerr << "Testing sparse first..." << std::endl;
   d->ClearArrays();
-  d->AddArray(sa.GetPointer());
-  d->AddArray(da.GetPointer());
+  d->AddArray(sa);
+  d->AddArray(da);
   w->Update();
   s = w->GetOutputString();
   r->SetInputString(s);

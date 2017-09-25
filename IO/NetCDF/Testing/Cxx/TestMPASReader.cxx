@@ -45,9 +45,9 @@ int TestMPASReader( int argc, char *argv[] )
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // Read file names.
   char* fName = vtkTestUtilities::ExpandDataFileName(
@@ -112,13 +112,13 @@ int TestMPASReader( int argc, char *argv[] )
 
     // Create the actor.
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.GetPointer());
+    actor->SetMapper(mapper);
     if(i == 1)
     {
       actor->SetScale(30000);
       actor->AddPosition(4370000, 0, 0);
     }
-    ren->AddActor(actor.GetPointer());
+    ren->AddActor(actor);
   }
 
   vtkNew<vtkCamera> camera;
@@ -131,7 +131,7 @@ int TestMPASReader( int argc, char *argv[] )
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

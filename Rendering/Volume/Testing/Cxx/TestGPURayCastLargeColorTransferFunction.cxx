@@ -485,7 +485,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   {
     iren->Initialize();
 
-    retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+    retVal = vtkRegressionTestImage(renderWindow);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();

@@ -80,8 +80,8 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
 
   vtkNew<vtkPolyData> polydata;
   polydata->SetPoints(this->Points);
-  polydata->SetLines(lines.Get());
-  polydata->SetPolys(polys.Get());
+  polydata->SetLines(lines);
+  polydata->SetPolys(polys);
 
   // Create cell data to color cells
   this->ProgressBarData = vtkUnsignedCharArray::New();
@@ -94,13 +94,13 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   // and a mapper and actor
   vtkNew<vtkTransformPolyDataFilter> transformFilter;
   transformFilter->SetTransform(this->BWTransform);
-  transformFilter->SetInputData(polydata.Get());
+  transformFilter->SetInputData(polydata);
   vtkNew<vtkPolyDataMapper2D> mapper;
   mapper->SetInputConnection(
     transformFilter->GetOutputPort());
   this->Property = vtkProperty2D::New();
   this->Actor = vtkActor2D::New();
-  this->Actor->SetMapper(mapper.Get());
+  this->Actor->SetMapper(mapper);
   this->Actor->SetProperty(this->Property);
 
   // Background cell
@@ -110,7 +110,7 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   // Background polydata
   vtkNew<vtkPolyData> backgroundPolydata;
   backgroundPolydata->SetPoints(this->Points);
-  backgroundPolydata->SetPolys(background.Get());
+  backgroundPolydata->SetPolys(background);
 
   // first four points of ProgressBarData are the background
   // so we use the same array (which is good as we are using the
@@ -121,12 +121,12 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   // Add transform, mapper and actor
   vtkNew<vtkTransformPolyDataFilter> backgroundTransformFilter;
   backgroundTransformFilter->SetTransform(this->BWTransform);
-  backgroundTransformFilter->SetInputData(backgroundPolydata.Get());
+  backgroundTransformFilter->SetInputData(backgroundPolydata);
   vtkNew<vtkPolyDataMapper2D> backgroundMapper;
   backgroundMapper->SetInputConnection(
     backgroundTransformFilter->GetOutputPort());
   this->BackgroundActor = vtkActor2D::New();
-  this->BackgroundActor->SetMapper(backgroundMapper.Get());
+  this->BackgroundActor->SetMapper(backgroundMapper);
 }
 
 //-------------------------------------------------------------------------

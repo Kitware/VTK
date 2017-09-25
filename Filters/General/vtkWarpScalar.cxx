@@ -100,7 +100,7 @@ int vtkWarpScalar::RequestDataObject(vtkInformation *request,
     {
       vtkNew<vtkStructuredGrid> newOutput;
       outputVector->GetInformationObject(0)->Set(
-        vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
+        vtkDataObject::DATA_OBJECT(), newOutput);
     }
     return 1;
   }

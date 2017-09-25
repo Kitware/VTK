@@ -135,7 +135,7 @@ int TestLinePlotInteraction(int, char * [])
   vtkNew<vtkChartXY> chart;
   chart->GetAxis(vtkAxis::LEFT)->SetTitle("");
   chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("");
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();

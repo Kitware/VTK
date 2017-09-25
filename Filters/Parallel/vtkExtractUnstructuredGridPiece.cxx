@@ -408,12 +408,12 @@ void vtkExtractUnstructuredGridPiece::AddFirstGhostLevel(
   determineMinMax(piece,numPieces,numCells,minCell,maxCell);
   for (vtkIdType idx = minCell; idx < maxCell; ++idx)
   {
-    input->GetCellPoints(idx, cellPointIds.GetPointer());
+    input->GetCellPoints(idx, cellPointIds);
     const vtkIdType numCellPoints = cellPointIds->GetNumberOfIds();
     for (vtkIdType j = 0; j < numCellPoints; j++)
     {
       const vtkIdType pointId = cellPointIds->GetId(j);
-      input->GetPointCells(pointId, neighborIds.GetPointer());
+      input->GetPointCells(pointId, neighborIds);
 
       const vtkIdType numNeighbors = neighborIds->GetNumberOfIds();
       for(vtkIdType k= 0; k < numNeighbors; ++k)
@@ -443,12 +443,12 @@ void vtkExtractUnstructuredGridPiece::AddGhostLevel(vtkUnstructuredGrid *input,
   {
     if(cellTags->GetValue(idx) == level - 1)
     {
-      input->GetCellPoints(idx, cellPointIds.GetPointer());
+      input->GetCellPoints(idx, cellPointIds);
       const vtkIdType numCellPoints = cellPointIds->GetNumberOfIds();
       for (vtkIdType j = 0; j < numCellPoints; j++)
       {
         const vtkIdType pointId = cellPointIds->GetId(j);
-        input->GetPointCells(pointId,neighborIds.GetPointer());
+        input->GetPointCells(pointId,neighborIds);
 
         const vtkIdType numNeighbors= neighborIds->GetNumberOfIds();
         for(vtkIdType k= 0; k < numNeighbors; ++k)

@@ -280,7 +280,7 @@ void vtkWidgetRepresentation::UpdatePropPose(
     trans[i] = pos2[i] - pos1[i];
   }
 
-  vtkTransform *newTransform = this->TempTransform.Get();
+  vtkTransform *newTransform = this->TempTransform;
   if (prop3D->GetUserMatrix() != nullptr)
   {
     vtkTransform *t = newTransform;
@@ -352,7 +352,7 @@ void vtkWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Renderer: " << this->Renderer.GetPointer() << "\n";
+  os << indent << "Renderer: " << this->Renderer << "\n";
   os << indent << "Interaction State: " << this->InteractionState << "\n";
   os << indent << "Handle Size: " << this->HandleSize << "\n";
   os << indent << "Need to Render: " << (this->NeedToRender ? "On\n" : "Off\n");

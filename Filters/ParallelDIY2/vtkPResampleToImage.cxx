@@ -253,9 +253,9 @@ inline vtkIdType ComputeSerializedFieldDataSize(
   const std::vector<FieldMetaData> &fieldMetaData)
 {
   vtkNew<vtkDataSetAttributes> attribs;
-  InitializeFieldData(fieldMetaData, 1, attribs.GetPointer());
+  InitializeFieldData(fieldMetaData, 1, attribs);
   diy::MemoryBuffer bb;
-  SerializeFieldData(attribs.GetPointer(), 0, bb);
+  SerializeFieldData(attribs, 0, bb);
   return static_cast<vtkIdType>(bb.buffer.size());
 }
 
@@ -546,7 +546,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
 
   vtkNew<vtkImageData> mypiece;
   this->PerformResampling(input, samplingBounds, true, localBounds,
-                          mypiece.GetPointer());
+                          mypiece);
 
 
   // Ensure every node has fields' metadata information
@@ -574,7 +574,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   Block *block = master.block<Block>(0);
   std::copy(updateExtent, updateExtent + 6, block->Extent);
   block->Points.DataSize = ComputeSerializedFieldDataSize(pointFieldMetaData);
-  GetPointsFromImage(mypiece.GetPointer(), this->GetMaskArrayName(),
+  GetPointsFromImage(mypiece, this->GetMaskArrayName(),
                      &block->Points);
 
   diy::RegularSwapPartners  partners(decomposer, 2, false);

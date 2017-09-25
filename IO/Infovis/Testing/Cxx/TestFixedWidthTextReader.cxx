@@ -45,7 +45,7 @@ int TestFixedWidthTextReader(int argc, char *argv[])
   reader->SetFieldWidth(10);
   reader->StripWhiteSpaceOff();
   reader->SetFileName(filename);
-  reader->SetTableErrorObserver(errorObserver1.GetPointer());
+  reader->SetTableErrorObserver(errorObserver1);
   reader->Update();
   int status = errorObserver1->CheckErrorMessage("Incorrect number of tuples in SetRow. Expected 4, but got 6");
   std::cout << "Printing reader info..." << std::endl;
@@ -99,7 +99,7 @@ int TestFixedWidthTextReader(int argc, char *argv[])
   reader->SetFieldWidth(10);
   reader->StripWhiteSpaceOn();
   reader->SetFileName(filename);
-  reader->SetTableErrorObserver(errorObserver1.GetPointer());
+  reader->SetTableErrorObserver(errorObserver1);
   reader->Update();
   status += errorObserver1->CheckErrorMessage("Incorrect number of tuples in SetRow. Expected 4, but got 6");
   table = reader->GetOutput();

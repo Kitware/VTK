@@ -201,7 +201,7 @@ int vtkBinCellDataFilter::RequestData(
 
   vtkNew<vtkGenericCell> sourceCell, inputCell;
   vtkIdType cellId = 0;
-  input->GetCell(cellId, inputCell.GetPointer());
+  input->GetCell(cellId, inputCell);
   vtkCellIterator *srcIt = source->NewCellIterator();
   double pcoords[3], coords[3];
   int subId;
@@ -212,12 +212,12 @@ int vtkBinCellDataFilter::RequestData(
     if (this->CellOverlapMethod == vtkBinCellDataFilter::CELL_CENTROID)
     {
       // identify the centroid of the source cell
-      srcIt->GetCell(sourceCell.GetPointer());
+      srcIt->GetCell(sourceCell);
       sourceCell->GetParametricCenter(pcoords);
       sourceCell->EvaluateLocation(subId, pcoords, coords, weights);
 
       // find the cell that contains xyz and get it
-      cellId = this->CellLocator->FindCell(coords, tol2, inputCell.GetPointer(),
+      cellId = this->CellLocator->FindCell(coords, tol2, inputCell,
                                            pcoords, weights);
 
       if (this->ComputeTolerance && cellId >= 0)
@@ -240,7 +240,7 @@ int vtkBinCellDataFilter::RequestData(
       {
         points->GetPoint(i, coords);
         inputIds[i] = this->CellLocator->FindCell(coords, tol2,
-                                                  inputCell.GetPointer(),
+                                                  inputCell,
                                                   pcoords, weights);
       }
       cellId = MostFrequentId(inputIds, points->GetNumberOfPoints());
@@ -260,7 +260,7 @@ int vtkBinCellDataFilter::RequestData(
   srcIt->Delete();
 
   // add binned data to the output mesh
-  output->GetCellData()->AddArray(binnedData.GetPointer());
+  output->GetCellData()->AddArray(binnedData);
 
   if (this->StoreNumberOfNonzeroBins)
   {
@@ -284,7 +284,7 @@ int vtkBinCellDataFilter::RequestData(
           numNonzeroBins->SetTypedComponent(i, 0, nBins);
         }
     }
-    output->GetCellData()->AddArray(numNonzeroBins.GetPointer());
+    output->GetCellData()->AddArray(numNonzeroBins);
   }
 
   return 1;

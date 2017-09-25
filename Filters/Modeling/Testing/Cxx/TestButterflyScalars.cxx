@@ -112,7 +112,7 @@ int TestButterflyScalars(int argc, char * argv[])
   renderWindow->AddRenderer(renderer);
   renderWindow->Render();
 
-  int testStatus = vtkRegressionTestImage(renderWindow.GetPointer());
+  int testStatus = vtkRegressionTestImage(renderWindow);
   if (testStatus == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

@@ -113,9 +113,9 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
   gf->AddPoint(0,   0.0);
   gf->AddPoint(range[1] / 4.0, 1.0);
 
-  volumeProperty->SetScalarOpacity(pf.GetPointer());
-  volumeProperty->SetGradientOpacity(gf.GetPointer());
-  volumeProperty->SetColor(ctf.GetPointer());
+  volumeProperty->SetScalarOpacity(pf);
+  volumeProperty->SetGradientOpacity(gf);
+  volumeProperty->SetColor(ctf);
 
   // Prepare 2D Transfer Functions
   Transfer2DPtr tf2d = Create2DTransfer();
@@ -128,7 +128,7 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   ren->SetBackground(0.0, 0.0, 0.0);
 
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
@@ -136,9 +136,9 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
   mapper->SetUseJittering(1);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
-  ren->AddVolume(volume.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(volumeProperty);
+  ren->AddVolume(volume);
 
   ren->ResetCamera();
   ren->GetActiveCamera()->Elevation(-90.0);
@@ -146,14 +146,14 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render();
 
-  int retVal = vtkTesting::Test(argc, argv, renWin.GetPointer(), 90);
+  int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

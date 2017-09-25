@@ -272,8 +272,8 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
        ++cellId, refCellIter->GoToNextCell(), testCellIter->GoToNextCell())
   {
     // Lookup cells in iterators:
-    refCellIter->GetCell(refCell.GetPointer());
-    testCellIter->GetCell(testCell.GetPointer());
+    refCellIter->GetCell(refCell);
+    testCellIter->GetCell(testCell);
 
     if (refCell->GetCellType() != testCell->GetCellType())
     {
@@ -430,8 +430,8 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray),
                                      numPoints);
 
-  ref->GetPointData()->SetScalars(refScalars.GetPointer());
-  test->GetPointData()->SetScalars(testScalars.GetPointer());
+  ref->GetPointData()->SetScalars(refScalars);
+  test->GetPointData()->SetScalars(testScalars);
 
   // And some fake normals
   vtkNew<vtkFloatArray> refNormals;
@@ -469,8 +469,8 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   testNormalVector.push_back(testNormalArrayZ);
   testNormals->SetExodusScalarArrays(testNormalVector, numPoints);
 
-  ref->GetPointData()->SetNormals(refNormals.GetPointer());
-  test->GetPointData()->SetNormals(testNormals.GetPointer());
+  ref->GetPointData()->SetNormals(refNormals);
+  test->GetPointData()->SetNormals(testNormals);
 }
 
 void testContourFilter(vtkUnstructuredGridBase *input,
@@ -519,7 +519,7 @@ void testCutterFilter(vtkUnstructuredGridBase *input,
   // Cutter (slice, polydata output)
   vtkNew<vtkCutter> cutter;
   cutter->SetInputData(input);
-  cutter->SetCutFunction(slicePlane.GetPointer());
+  cutter->SetCutFunction(slicePlane);
   cutter->SetGenerateTriangles(0);
   timer->StartTimer();
   cutter->Update();
@@ -542,7 +542,7 @@ void testExtractGeometryFilter(vtkUnstructuredGridBase *input,
 
   vtkNew<vtkExtractGeometry> extract;
   extract->SetInputData(input);
-  extract->SetImplicitFunction(slicePlane.GetPointer());
+  extract->SetImplicitFunction(slicePlane);
   extract->SetExtractInside(1);
   extract->SetExtractOnlyBoundaryCells(1);
   extract->SetExtractBoundaryCells(1);
@@ -926,7 +926,7 @@ bool testCopies(vtkUnstructuredGridBase *test)
 
   // Deep copy: test --> vtk
   vtkTarget->DeepCopy(test);
-  if (!compareDataSets(test, vtkTarget.GetPointer()))
+  if (!compareDataSets(test, vtkTarget))
   {
     FAILB("Deep copy insitu --> VTK failed.")
   }
@@ -934,7 +934,7 @@ bool testCopies(vtkUnstructuredGridBase *test)
 
   // Shallow copy: test --> vtk
   vtkTarget->ShallowCopy(test); // Should really deep copy.
-  if (!compareDataSets(test, vtkTarget.GetPointer()))
+  if (!compareDataSets(test, vtkTarget))
   {
     FAILB("Shallow copy insitu --> VTK failed.")
   }
@@ -984,8 +984,8 @@ int TestInSituExodus(int argc, char *argv[])
 
   // Read reference copy
   vtkNew<vtkMultiBlockDataSet> refMBDS;
-  readExodusCopy(fileName, refMBDS.GetPointer());
-  vtkUnstructuredGridBase *refGrid(getConnectivityBlock(refMBDS.GetPointer()));
+  readExodusCopy(fileName, refMBDS);
+  vtkUnstructuredGridBase *refGrid(getConnectivityBlock(refMBDS));
   if (!refGrid)
   {
     FAIL("Error retrieving reference element block container.");

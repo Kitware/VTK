@@ -55,7 +55,7 @@ int TestTanglegramItem(int argc, char* argv[])
   weights->SetValue(graph1->GetEdgeId(internalOne, c), 3.0f);
 
   weights->SetName("weight");
-  graph1->GetEdgeData()->AddArray(weights.GetPointer());
+  graph1->GetEdgeData()->AddArray(weights);
 
   vtkNew<vtkStringArray> names1;
   names1->SetNumberOfTuples(6);
@@ -64,7 +64,7 @@ int TestTanglegramItem(int argc, char* argv[])
   names1->SetValue(c, "human");
 
   names1->SetName("node name");
-  graph1->GetVertexData()->AddArray(names1.GetPointer());
+  graph1->GetVertexData()->AddArray(names1);
 
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(6);
@@ -75,7 +75,7 @@ int TestTanglegramItem(int argc, char* argv[])
   nodeWeights->SetValue(b, 4.0f);
   nodeWeights->SetValue(c, 4.0f);
   nodeWeights->SetName("node weight");
-  graph1->GetVertexData()->AddArray(nodeWeights.GetPointer());
+  graph1->GetVertexData()->AddArray(nodeWeights);
 
   //tree #2
   vtkNew<vtkMutableDirectedGraph> graph2;
@@ -87,7 +87,7 @@ int TestTanglegramItem(int argc, char* argv[])
   c = graph2->AddChild(internalOne);
 
   weights->SetName("weight");
-  graph2->GetEdgeData()->AddArray(weights.GetPointer());
+  graph2->GetEdgeData()->AddArray(weights);
 
   vtkNew<vtkStringArray> names2;
   names2->SetNumberOfTuples(6);
@@ -96,9 +96,9 @@ int TestTanglegramItem(int argc, char* argv[])
   names2->SetValue(c, "steak");
 
   names2->SetName("node name");
-  graph2->GetVertexData()->AddArray(names2.GetPointer());
+  graph2->GetVertexData()->AddArray(names2);
 
-  graph2->GetVertexData()->AddArray(nodeWeights.GetPointer());
+  graph2->GetVertexData()->AddArray(nodeWeights);
 
   // set up correspondence table: who eats what
   vtkNew<vtkTable> table;
@@ -131,53 +131,53 @@ int TestTanglegramItem(int argc, char* argv[])
   hungerForCatFood->SetValue(1, 1.0);
   hungerForCatFood->SetValue(2, 2.0);
 
-  table->AddColumn(eaters.GetPointer());
-  table->AddColumn(hungerForSteak.GetPointer());
-  table->AddColumn(hungerForDogFood.GetPointer());
-  table->AddColumn(hungerForCatFood.GetPointer());
+  table->AddColumn(eaters);
+  table->AddColumn(hungerForSteak);
+  table->AddColumn(hungerForDogFood);
+  table->AddColumn(hungerForCatFood);
 
   vtkNew<vtkContextActor> actor;
 
   vtkNew<vtkTree> tree1;
-  tree1->ShallowCopy(graph1.GetPointer());
+  tree1->ShallowCopy(graph1);
 
   vtkNew<vtkTree> tree2;
-  tree2->ShallowCopy(graph2.GetPointer());
+  tree2->ShallowCopy(graph2);
 
   vtkNew<vtkTanglegramItem> tanglegram;
-  tanglegram->SetTree1(tree1.GetPointer());
-  tanglegram->SetTree2(tree2.GetPointer());
-  tanglegram->SetTable(table.GetPointer());
+  tanglegram->SetTree1(tree1);
+  tanglegram->SetTree2(tree2);
+  tanglegram->SetTable(table);
   tanglegram->SetTree1Label("Diners");
   tanglegram->SetTree2Label("Meals");
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(tanglegram.GetPointer());
+  trans->AddItem(tanglegram);
   // center the item within the render window
   trans->Translate(20, 75);
   trans->Scale(1.25, 1.25);
-  actor->GetScene()->AddItem(trans.GetPointer());
+  actor->GetScene()->AddItem(trans);
 
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(1.0, 1.0, 1.0);
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(400, 200);
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderer->AddActor(actor.GetPointer());
-  actor->GetScene()->SetRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
+  actor->GetScene()->SetRenderer(renderer);
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
   interactorStyle->SetScene(actor->GetScene());
 
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetInteractorStyle(interactorStyle.GetPointer());
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetInteractorStyle(interactorStyle);
+  interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renderWindow.GetPointer(), 100);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 100);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindow->Render();

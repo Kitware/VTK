@@ -171,7 +171,7 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 
   if (this->RenderWindow)
   {
-    this->RenderWindow->RemoveObserver(this->Observer.Get());
+    this->RenderWindow->RemoveObserver(this->Observer);
     this->RenderWindow->SetReadyForRendering(false);
   }
   this->RenderWindow = win;
@@ -187,19 +187,19 @@ void QVTKOpenGLWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
       // create a default interactor
       vtkNew<QVTKInteractor> iren;
       // iren->SetUseTDx(this->UseTDx);
-      this->RenderWindow->SetInteractor(iren.Get());
+      this->RenderWindow->SetInteractor(iren);
       iren->Initialize();
 
       // now set the default style
       vtkNew<vtkInteractorStyleTrackballCamera> style;
-      iren->SetInteractorStyle(style.Get());
+      iren->SetInteractorStyle(style);
     }
 
-    this->RenderWindow->AddObserver(vtkCommand::WindowMakeCurrentEvent, this->Observer.Get());
-    this->RenderWindow->AddObserver(vtkCommand::WindowIsCurrentEvent, this->Observer.Get());
-    this->RenderWindow->AddObserver(vtkCommand::WindowFrameEvent, this->Observer.Get());
-    this->RenderWindow->AddObserver(vtkCommand::StartEvent, this->Observer.Get());
-    this->RenderWindow->AddObserver(vtkCommand::StartPickEvent, this->Observer.Get());
+    this->RenderWindow->AddObserver(vtkCommand::WindowMakeCurrentEvent, this->Observer);
+    this->RenderWindow->AddObserver(vtkCommand::WindowIsCurrentEvent, this->Observer);
+    this->RenderWindow->AddObserver(vtkCommand::WindowFrameEvent, this->Observer);
+    this->RenderWindow->AddObserver(vtkCommand::StartEvent, this->Observer);
+    this->RenderWindow->AddObserver(vtkCommand::StartPickEvent, this->Observer);
 
     if (this->FBO)
     {
@@ -226,7 +226,7 @@ void QVTKOpenGLWidget::startEventCallback()
 //-----------------------------------------------------------------------------
 vtkRenderWindow* QVTKOpenGLWidget::GetRenderWindow()
 {
-  return this->RenderWindow.Get();
+  return this->RenderWindow;
 }
 
 //-----------------------------------------------------------------------------

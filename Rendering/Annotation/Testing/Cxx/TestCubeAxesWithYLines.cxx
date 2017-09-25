@@ -48,7 +48,7 @@ int TestCubeAxesWithYLines( int argc, char * argv [] )
   foheMapper->SetInputConnection(normals->GetOutputPort());
 
   vtkNew<vtkLODActor> foheActor;
-  foheActor->SetMapper(foheMapper.GetPointer());
+  foheActor->SetMapper(foheMapper);
   foheActor->GetProperty()->SetDiffuseColor(0.7, 0.3, 0.0);
 
   vtkNew<vtkOutlineFilter> outline;
@@ -58,7 +58,7 @@ int TestCubeAxesWithYLines( int argc, char * argv [] )
   mapOutline->SetInputConnection(outline->GetOutputPort());
 
   vtkNew<vtkActor> outlineActor;
-  outlineActor->SetMapper(mapOutline.GetPointer());
+  outlineActor->SetMapper(mapOutline);
   outlineActor->GetProperty()->SetColor(0.0 ,0.0 ,0.0);
 
   vtkNew<vtkCamera> camera;
@@ -71,21 +71,21 @@ int TestCubeAxesWithYLines( int argc, char * argv [] )
   light->SetPosition(8.3761, 4.94858, 4.12505);
 
   vtkNew<vtkRenderer> ren2;
-  ren2->SetActiveCamera(camera.GetPointer());
-  ren2->AddLight(light.GetPointer());
+  ren2->SetActiveCamera(camera);
+  ren2->AddLight(light);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  renWin->AddRenderer(ren2.GetPointer());
+  renWin->AddRenderer(ren2);
   renWin->SetWindowName("Cube Axes with Outer Y Grid Lines");
   renWin->SetSize(600, 600);
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  ren2->AddViewProp(foheActor.GetPointer());
-  ren2->AddViewProp(outlineActor.GetPointer());
+  ren2->AddViewProp(foheActor);
+  ren2->AddViewProp(outlineActor);
   ren2->SetGradientBackground( true );
   ren2->SetBackground(.1,.1,.1);
   ren2->SetBackground2(.8,.8,.8);
@@ -113,10 +113,10 @@ int TestCubeAxesWithYLines( int argc, char * argv [] )
   axes2->GetYAxesLinesProperty()->SetColor(0., 1., 0.);
   axes2->GetYAxesGridlinesProperty()->SetColor(0., 1., 0.);
 
-  ren2->AddViewProp(axes2.GetPointer());
+  ren2->AddViewProp(axes2);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

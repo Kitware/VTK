@@ -21,7 +21,7 @@ int TestSimpleBondPerceiver(int , char *[])
   vtkIdType numBonds;
   vtkNew<vtkMolecule> mol;
   vtkNew<vtkSimpleBondPerceiver> bonder;
-  bonder->SetInputData(mol.GetPointer());
+  bonder->SetInputData(mol);
 //  bonder->DebugOn();
 
   // First try out the render test molecule:

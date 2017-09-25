@@ -42,14 +42,14 @@ int TestCubeMap2(int argc, char *argv[])
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(400, 400);
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkLight> light;
   light->SetLightTypeToSceneLight();
   light->SetPosition(1.0,7.0,1.0);
-  renderer->AddLight(light.Get());
+  renderer->AddLight(light);
 
   const char* fileName =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
@@ -104,9 +104,9 @@ int TestCubeMap2(int argc, char *argv[])
   actor->GetProperty()->SetAmbient(0.1);
   actor->GetProperty()->SetDiffuseColor(1.0,0.0,0.4);
   actor->GetProperty()->SetAmbientColor(0.4,0.0,1.0);
-  renderer->AddActor(actor.Get());
-  actor->SetTexture(texture.Get());
-  actor->SetMapper(mapper.Get());
+  renderer->AddActor(actor);
+  actor->SetTexture(texture);
+  actor->SetMapper(mapper);
 
   mapper->AddShaderReplacement(
     vtkShader::Vertex,
@@ -145,8 +145,8 @@ int TestCubeMap2(int argc, char *argv[])
     );
 
   vtkNew<vtkSkybox> world;
-  world->SetTexture(texture.Get());
-  renderer->AddActor(world.Get());
+  world->SetTexture(texture);
+  renderer->AddActor(world);
 
   renderer->GetActiveCamera()->SetPosition(0.0, 0.55, 2.0);
   renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.55, 0.0);
@@ -160,9 +160,9 @@ int TestCubeMap2(int argc, char *argv[])
   renderWindow->Render();
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  renderWindow->GetInteractor()->SetInteractorStyle(style.Get());
+  renderWindow->GetInteractor()->SetInteractorStyle(style);
 
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

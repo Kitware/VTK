@@ -136,12 +136,12 @@ int vtkImageDataToUniformGrid::RequestData(vtkInformation *,
        vtkImageData::SafeDownCast(iter->GetCurrentDataObject()))
     {
       vtkNew<vtkUniformGrid> outUniformGrid;
-      if(this->Process(inImageData, association, arrayName, outUniformGrid.GetPointer()) != VTK_OK)
+      if(this->Process(inImageData, association, arrayName, outUniformGrid) != VTK_OK)
       {
         iter->Delete();
         return VTK_ERROR;
       }
-      outMB->SetDataSetFrom(iter, outUniformGrid.GetPointer());
+      outMB->SetDataSetFrom(iter, outUniformGrid);
     }
     else
     { // not a uniform grid so we just shallow copy from input to output
@@ -257,11 +257,11 @@ int vtkImageDataToUniformGrid::Process(
 
   if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    output->GetPointData()->AddArray(blankingArray.GetPointer());
+    output->GetPointData()->AddArray(blankingArray);
   }
   else
   {
-    output->GetCellData()->AddArray(blankingArray.GetPointer());
+    output->GetCellData()->AddArray(blankingArray);
   }
 
   return VTK_OK;

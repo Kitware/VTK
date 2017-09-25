@@ -244,7 +244,7 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
   {
     vtkNew<vtkMultiBlockDataSet> mb;
     mb->SetBlock(0, inputRG);
-    inputCD = mb.GetPointer();
+    inputCD = mb;
   }
 
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
@@ -282,7 +282,7 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
 
     vtkNew<vtkPolyData> contour;
     vtkGarbageCollector::DeferredCollectionPush();
-    if (this->ExtractContour(contour.GetPointer(), inputCD, iter->c_str()) &&
+    if (this->ExtractContour(contour, inputCD, iter->c_str()) &&
       (contour->GetNumberOfPoints() > 0))
     {
       // Add extra arrays.
@@ -291,12 +291,12 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
       partArray->SetNumberOfComponents(1);
       partArray->SetNumberOfTuples(contour->GetNumberOfPoints());
       partArray->FillComponent(0, static_cast<double>(array_index));
-      contour->GetPointData()->AddArray(partArray.GetPointer());
+      contour->GetPointData()->AddArray(partArray);
 
       // I'm not adding the "Name" array that was added in previous
       // implementation. Don't think that's much of use.
 
-      output->SetBlock(array_index, contour.GetPointer());
+      output->SetBlock(array_index, contour);
     }
     vtkGarbageCollector::DeferredCollectionPop();
   }
@@ -427,7 +427,7 @@ bool vtkExtractCTHPart::ExtractContour(
   vtkNew<vtkAppendPolyData> appender;
   for (size_t cc=0; cc < fragments.size(); cc++)
   {
-    appender->AddInputData(fragments[cc].GetPointer());
+    appender->AddInputData(fragments[cc]);
   }
   appender->Update();
   output->ShallowCopy(appender->GetOutputDataObject(0));
@@ -469,11 +469,11 @@ bool vtkExtractCTHPart::ExtractClippedContourOnBlock(
   // Convert cell-data-2-point-data so we can contour.
   vtkNew<vtkDoubleArray> pointVolumeFractionArray;
   this->ExecuteCellDataToPointData(volumeFractionArray,
-    pointVolumeFractionArray.GetPointer(), inputClone->GetDimensions());
-  inputClone->GetPointData()->SetScalars(pointVolumeFractionArray.GetPointer());
+    pointVolumeFractionArray, inputClone->GetDimensions());
+  inputClone->GetPointData()->SetScalars(pointVolumeFractionArray);
 
   VectorOfFragments blockFragments;
-  if (!this->ExtractContourOnBlock<T>(blockFragments, inputClone.GetPointer(), arrayName))
+  if (!this->ExtractContourOnBlock<T>(blockFragments, inputClone, arrayName))
   {
     return false;
   }
@@ -503,7 +503,7 @@ bool vtkExtractCTHPart::ExtractClippedContourOnBlock(
     vtkNew<vtkCutter> cutter;
     cutter->SetCutFunction(this->ClipPlane);
     cutter->SetGenerateTriangles(this->GenerateTriangles? 1 : 0);
-    cutter->SetInputDataObject(inputClone.GetPointer());
+    cutter->SetInputDataObject(inputClone);
 
     vtkNew<vtkClipPolyData> scalarClipper;
     scalarClipper->SetInputConnection(cutter->GetOutputPort());

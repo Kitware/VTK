@@ -94,7 +94,7 @@ namespace
         std::fill(data.begin(), data.end(), 0);
         T numPointCells[4] = {0, 0, 0, 0};
         // Get all cells touching this point.
-        src->GetPointCells(pid, cellsOnPoint.GetPointer());
+        src->GetPointCells(pid, cellsOnPoint);
         vtkIdType numPatchCells = cellsOnPoint->GetNumberOfIds();
         for (vtkIdType pc = 0; pc  < numPatchCells; pc++)
         {
@@ -148,7 +148,7 @@ namespace
         filter->UpdateProgress(static_cast<double>(ptId)/numPts);
         abort = filter->GetAbortExecute();
       }
-      input->GetPointCells(ptId, allCellIds.GetPointer());
+      input->GetPointCells(ptId, allCellIds);
       cellIds->Reset();
       // Only consider cells that are not masked:
       for (vtkIdType cId = 0; cId < allCellIds->GetNumberOfIds(); ++cId)
@@ -169,7 +169,7 @@ namespace
         {
           weights[cellId] = weight;
         }
-        outPD->InterpolatePoint(inCD, ptId, cellIds.GetPointer(), weights);
+        outPD->InterpolatePoint(inCD, ptId, cellIds, weights);
       }
       else
       {
@@ -312,7 +312,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData
     {
       if (src->GetCell(cid)->GetCellDimension() >= highestCellDimension)
       {
-        src->GetCellPoints(cid, pids.GetPointer());
+        src->GetCellPoints(cid, pids);
         for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
         {
           vtkIdType const pid = pids->GetId(i);
@@ -422,7 +422,7 @@ void vtkCellDataToPointData::InterpolatePointData(vtkDataSet *input, vtkDataSet 
       abort = GetAbortExecute();
     }
 
-    input->GetPointCells(ptId, cellIds.GetPointer());
+    input->GetPointCells(ptId, cellIds);
     vtkIdType numCells = cellIds->GetNumberOfIds();
 
     if ( numCells > 0 && numCells < VTK_MAX_CELLS_PER_POINT )
@@ -432,7 +432,7 @@ void vtkCellDataToPointData::InterpolatePointData(vtkDataSet *input, vtkDataSet 
       {
         weights[cellId] = weight;
       }
-      outPD->InterpolatePoint(inCD, ptId, cellIds.GetPointer(), weights);
+      outPD->InterpolatePoint(inCD, ptId, cellIds, weights);
     }
     else
     {

@@ -307,7 +307,7 @@ vtkTexture* vtkProperty::GetTexture(int unit)
     this->Internals->Textures.find(unit);
   if (iter != this->Internals->Textures.end())
   {
-    return iter->second.GetPointer();
+    return iter->second;
   }
   vtkErrorMacro("No texture assigned to texture unit " << unit << " exists.");
   return nullptr;
@@ -358,7 +358,7 @@ vtkTexture* vtkProperty::GetTextureAtIndex(int index)
   {
     if (id == index)
     {
-      return iter->second.GetPointer();
+      return iter->second;
     }
   }
 

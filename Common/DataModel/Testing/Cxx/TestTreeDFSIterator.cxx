@@ -32,7 +32,7 @@ int TestTreeDFSIterator(int, char *[])
   g->AddEdge(v7, v8);
 
   vtkNew<vtkTree> tree;
-  tree->CheckedShallowCopy(g.GetPointer());
+  tree->CheckedShallowCopy(g);
 
   std::vector<int> correctSequence;
   for(int i = 0; i <= 8; i++)
@@ -41,7 +41,7 @@ int TestTreeDFSIterator(int, char *[])
   }
 
   vtkNew<vtkTreeDFSIterator> dfsIterator;
-  dfsIterator->SetTree(tree.GetPointer());
+  dfsIterator->SetTree(tree);
 
   if(dfsIterator->GetStartVertex() != tree->GetRoot())
   {

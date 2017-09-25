@@ -207,7 +207,7 @@ namespace
         InputMapType::iterator iter;
         for (iter = this->Inputs.begin(); iter != this->Inputs.end(); ++iter)
         {
-          if (iter->second.Image.GetPointer() != nullptr)
+          if (iter->second.Image != nullptr)
           {
             key = iter->first;
             image = iter->second.Image;
@@ -218,13 +218,13 @@ namespace
             break;
           }
         }
-        if (image.GetPointer() == nullptr && !this->IsDone())
+        if (image == nullptr && !this->IsDone())
         {
           // No data is available, let's wait till it becomes available.
           this->InputsAvailable.Wait(this->InputsLock);
         }
 
-      } while (image.GetPointer() == nullptr && !this->IsDone());
+      } while (image == nullptr && !this->IsDone());
 
       this->InputsLock.Unlock();
       return stamp;
@@ -238,7 +238,7 @@ namespace
       assert(dataRef->GetReferenceCount() == 1);
       OutputMapType::iterator iter = this->Outputs.find(key);
       if (iter == this->Outputs.end() ||
-        iter->second.Data.GetPointer() == nullptr ||
+        iter->second.Data == nullptr ||
         iter->second.TimeStamp < timestamp)
       {
         //cout << "Done: " <<
@@ -265,11 +265,11 @@ namespace
       this->OutputsLock.Lock();
       {
         const vtkSharedData::OutputValueType &output = this->Outputs[key];
-        if (output.Data.GetPointer() != nullptr &&
+        if (output.Data != nullptr &&
           (output.Data->GetMTime() > data->GetMTime() ||
            output.Data->GetNumberOfTuples() != data->GetNumberOfTuples()))
         {
-          data->DeepCopy(output.Data.GetPointer());
+          data->DeepCopy(output.Data);
           data->Modified();
         }
         dataTimeStamp = output.TimeStamp;
@@ -323,7 +323,7 @@ namespace
 
       timestamp = sharedData->GetNextInputToProcess(key, image, quality, encoding);
 
-      if (timestamp == 0 || image.GetPointer() == nullptr)
+      if (timestamp == 0 || image == nullptr)
       {
         // end thread.
         break;

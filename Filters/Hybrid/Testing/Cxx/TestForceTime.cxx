@@ -72,7 +72,7 @@ protected:
     vtkNew<vtkDoubleArray> timeArray;
     timeArray->SetName("timeData");
     timeArray->SetNumberOfValues(maxX * maxY * maxZ);
-    data->GetPointData()->SetScalars(timeArray.Get());
+    data->GetPointData()->SetScalars(timeArray);
 
     double t = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     vtkIdType cnt = 0;
@@ -125,15 +125,15 @@ int TestForceTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   mapper->SetScalarRange(0, 30);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   renderer->SetBackground(.3, .6, .3); // Background color green
 
   renderWindow->Render();

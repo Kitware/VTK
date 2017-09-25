@@ -173,7 +173,7 @@ public:
       {
         if (this->Reverse)
         {
-          if (!this->ReverseIter->MetaData.GetPointer())
+          if (!this->ReverseIter->MetaData)
           {
             this->ReverseIter->MetaData.TakeReference(vtkInformation::New());
           }
@@ -181,7 +181,7 @@ public:
         }
         else
         {
-          if (!this->Iter->MetaData.GetPointer())
+          if (!this->Iter->MetaData)
           {
             this->Iter->MetaData.TakeReference(vtkInformation::New());
           }
@@ -201,8 +201,8 @@ public:
       if (this->ChildIterator->PassSelf)
       {
         return this->Reverse?
-          (this->ReverseIter->MetaData.GetPointer() != nullptr):
-          (this->Iter->MetaData.GetPointer() != nullptr);
+          (this->ReverseIter->MetaData != nullptr):
+          (this->Iter->MetaData != nullptr);
       }
 
       return this->ChildIterator->HasCurrentMetaData();

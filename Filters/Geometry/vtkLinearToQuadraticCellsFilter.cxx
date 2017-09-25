@@ -215,7 +215,7 @@ int vtkLinearToQuadraticCellsFilter::RequestData(
   vtkNew<vtkIdTypeArray> outputCellLocations;
   vtkNew<vtkCellArray> outputCellConnectivities;
 
-  output->SetPoints(vtkNew<vtkPoints>().GetPointer());
+  output->SetPoints(vtkNew<vtkPoints>());
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -255,18 +255,16 @@ int vtkLinearToQuadraticCellsFilter::RequestData(
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
     it->GetCell(cell);
-    DegreeElevate(cell, this->Locator, outputCellTypes.GetPointer(),
-                  outputCellLocations.GetPointer(),
-                  outputCellConnectivities.GetPointer(),
+    DegreeElevate(cell, this->Locator, outputCellTypes,
+                  outputCellLocations, outputCellConnectivities,
                   input->GetPointData(), output->GetPointData(),
                   input->GetCellData(), it->GetCellId(), output->GetCellData());
   }
   it->Delete();
   cell->Delete();
 
-  output->SetCells(outputCellTypes.GetPointer(),
-                   outputCellLocations.GetPointer(),
-                   outputCellConnectivities.GetPointer());
+  output->SetCells(outputCellTypes, outputCellLocations,
+                   outputCellConnectivities);
 
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();

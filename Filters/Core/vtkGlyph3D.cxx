@@ -229,7 +229,7 @@ bool vtkGlyph3D::Execute(
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
   {
-    if ( source.Get() == nullptr )
+    if ( source == nullptr )
     {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -249,7 +249,7 @@ bool vtkGlyph3D::Execute(
   outputPD->CopyNormalsOff();
   outputPD->CopyTCoordsOff();
 
-  if ( source.Get() == nullptr )
+  if ( source == nullptr )
   {
     vtkNew<vtkPolyData> defaultSource;
     defaultSource->Allocate();
@@ -260,9 +260,9 @@ bool vtkGlyph3D::Execute(
     vtkIdType defaultPointIds[2];
     defaultPointIds[0] = 0;
     defaultPointIds[1] = 1;
-    defaultSource->SetPoints(defaultPoints.Get());
+    defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    source = defaultSource.Get();
+    source = defaultSource;
   }
 
   if ( this->IndexMode != VTK_INDEXING_OFF )
@@ -509,7 +509,7 @@ bool vtkGlyph3D::Execute(
               (index >= numberOfSources ? (numberOfSources-1) : index));
 
       source = this->GetSource(index, sourceVector);
-      if ( source.Get() != nullptr )
+      if ( source != nullptr )
       {
         sourcePts = source->GetPoints();
         sourceNormals = source->GetPointData()->GetNormals();
@@ -519,7 +519,7 @@ bool vtkGlyph3D::Execute(
     }
 
     // Make sure we're not indexing into empty glyph
-    if ( source.Get() == nullptr )
+    if ( source == nullptr )
     {
       continue;
     }
@@ -551,8 +551,8 @@ bool vtkGlyph3D::Execute(
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
     {
-      source->GetCellPoints(cellId, pointIdList.GetPointer());
-      cellPts = pointIdList.GetPointer();
+      source->GetCellPoints(cellId, pointIdList);
+      cellPts = pointIdList;
       npts = cellPts->GetNumberOfIds();
       for (pts->Reset(), i=0; i < npts; i++)
       {
@@ -679,8 +679,7 @@ bool vtkGlyph3D::Execute(
         srcPointIdList->SetId(i, inPtId);
         dstPointIdList->SetId(i, ptIncr + i);
       }
-      outputPD->CopyData(pd, srcPointIdList.GetPointer(),
-                         dstPointIdList.GetPointer());
+      outputPD->CopyData(pd, srcPointIdList, dstPointIdList);
       if (this->FillCellData)
       {
         for (i = 0; i < numSourceCells; ++i)
@@ -688,8 +687,7 @@ bool vtkGlyph3D::Execute(
           srcCellIdList->SetId(i, inPtId);
           dstCellIdList->SetId(i, cellIncr + i);
         }
-        outputCD->CopyData(pd, srcCellIdList.GetPointer(),
-                           dstCellIdList.GetPointer());
+        outputCD->CopyData(pd, srcCellIdList, dstCellIdList);
       }
     }
 

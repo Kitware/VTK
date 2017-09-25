@@ -52,27 +52,27 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   pwf->AddPoint(37.3531, 0.0);
   pwf->AddPoint(276.829, 1.0);
 
-  volumeProperty->SetColor(ctf.GetPointer());
-  volumeProperty->SetScalarOpacity(pwf.GetPointer());
+  volumeProperty->SetColor(ctf);
+  volumeProperty->SetScalarOpacity(pwf);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(900, 900);
   renderWindow->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddVolume(volume.GetPointer());
+  renderer->AddVolume(volume);
   renderer->ResetCamera();
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.GetPointer());
+  iren->SetRenderWindow(renderWindow);
 
-  int valid = volumeMapper->IsRenderSupported(renderWindow.GetPointer(),
-                                              volumeProperty.GetPointer());
+  int valid = volumeMapper->IsRenderSupported(renderWindow,
+                                              volumeProperty);
   int retVal;
   if (valid)
   {
@@ -115,7 +115,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
     iren->Initialize();
 
-    retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
+    retVal = vtkRegressionTestImage( renderWindow );
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();

@@ -1311,9 +1311,9 @@ void vtkNetCDFCFReader::FakeRectilinearCoordinates(
     }
     switch(dim)
     {
-      case 0: rectilinearOutput->SetXCoordinates(coordinate.GetPointer());break;
-      case 1: rectilinearOutput->SetYCoordinates(coordinate.GetPointer());break;
-      case 2: rectilinearOutput->SetZCoordinates(coordinate.GetPointer());break;
+      case 0: rectilinearOutput->SetXCoordinates(coordinate);break;
+      case 1: rectilinearOutput->SetYCoordinates(coordinate);break;
+      case 2: rectilinearOutput->SetZCoordinates(coordinate);break;
       default: vtkErrorMacro("Sanity check failed!"); break;
     }
   }
@@ -1473,7 +1473,7 @@ void vtkNetCDFCFReader::FakeStructuredCoordinates(
     }
   }
 
-  structuredOutput->SetPoints(points.GetPointer());
+  structuredOutput->SetPoints(points);
 }
 
 //-----------------------------------------------------------------------------

@@ -62,25 +62,25 @@ void MakeInputDataSet(vtkPolyData *ds)
 int TestVTKMPolyDataNormals(int argc, char* argv[])
 {
   vtkNew<vtkPolyData> input;
-  MakeInputDataSet(input.GetPointer());
+  MakeInputDataSet(input);
 
   vtkNew<vtkmPolyDataNormals> normals;
-  normals->SetInputData(input.GetPointer());
+  normals->SetInputData(input);
   normals->ComputePointNormalsOn();
   normals->ComputeCellNormalsOn();
 
 
   // cylinder mapper and actor
   vtkNew<vtkPolyDataMapper> cylinderMapper;
-  cylinderMapper->SetInputData(input.GetPointer());
+  cylinderMapper->SetInputData(input);
 
   vtkNew<vtkActor> cylinderActor;
-  cylinderActor->SetMapper(cylinderMapper.GetPointer());
+  cylinderActor->SetMapper(cylinderMapper);
   vtkSmartPointer<vtkProperty> cylinderProperty;
   cylinderProperty.TakeReference(cylinderActor->MakeProperty());
   cylinderProperty->SetRepresentationToWireframe();
   cylinderProperty->SetColor(0.3, 0.3, 0.3);
-  cylinderActor->SetProperty(cylinderProperty.GetPointer());
+  cylinderActor->SetProperty(cylinderProperty);
 
 
   vtkNew<vtkArrowSource> arrow;
@@ -97,11 +97,11 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   pnMapper->SetInputConnection(pnGlyphs->GetOutputPort());
 
   vtkNew<vtkActor> pnActor;
-  pnActor->SetMapper(pnMapper.GetPointer());
+  pnActor->SetMapper(pnMapper);
 
   vtkNew<vtkRenderer> pnRenderer;
-  pnRenderer->AddActor(cylinderActor.GetPointer());
-  pnRenderer->AddActor(pnActor.GetPointer());
+  pnRenderer->AddActor(cylinderActor);
+  pnRenderer->AddActor(pnActor);
   pnRenderer->ResetCamera();
   pnRenderer->GetActiveCamera()->SetPosition(0.0, 4.5, 7.5);
 
@@ -121,11 +121,11 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   cnMapper->SetInputConnection(cnGlyphs->GetOutputPort());
 
   vtkNew<vtkActor> cnActor;
-  cnActor->SetMapper(cnMapper.GetPointer());
+  cnActor->SetMapper(cnMapper);
 
   vtkNew<vtkRenderer> cnRenderer;
-  cnRenderer->AddActor(cylinderActor.GetPointer());
-  cnRenderer->AddActor(cnActor.GetPointer());
+  cnRenderer->AddActor(cylinderActor);
+  cnRenderer->AddActor(cnActor);
   cnRenderer->ResetCamera();
   cnRenderer->GetActiveCamera()->SetPosition(0.0, 8.0, 0.1);
 
@@ -134,16 +134,16 @@ int TestVTKMPolyDataNormals(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 300);
   pnRenderer->SetViewport(0.0, 0.0, 0.5, 1.0);
-  renWin->AddRenderer(pnRenderer.GetPointer());
+  renWin->AddRenderer(pnRenderer);
   cnRenderer->SetViewport(0.5, 0.0, 1.0, 1.0);
-  renWin->AddRenderer(cnRenderer.GetPointer());
+  renWin->AddRenderer(cnRenderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   iren->Initialize();
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

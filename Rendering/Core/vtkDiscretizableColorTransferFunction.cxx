@@ -360,7 +360,7 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
      (direct_scalar_mapping == false) &&
      (this->IndexedLookup == false) && //  we don't change alpha for IndexedLookup.
      (this->EnableOpacityMapping == true) &&
-     (this->ScalarOpacityFunction.GetPointer() != nullptr))
+     (this->ScalarOpacityFunction != nullptr))
   {
     // extract from docs from vtkScalarsToColors.h:
     // "... When the component argument is -1,

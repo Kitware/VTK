@@ -36,32 +36,32 @@ int TestAreaPlot( int, char * [] )
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkFloatArray> arrS2;
   arrS2->SetName("Sine2");
-  table->AddColumn(arrS2.GetPointer());
+  table->AddColumn(arrS2);
   vtkNew<vtkFloatArray> arrS3;
   arrS3->SetName("Sine3");
-  table->AddColumn(arrS3.GetPointer());
+  table->AddColumn(arrS3);
   vtkNew<vtkFloatArray> arr1;
   arr1->SetName("One");
-  table->AddColumn(arr1.GetPointer());
+  table->AddColumn(arr1);
 
   vtkNew<vtkCharArray> validMask;
   validMask->SetName("ValidMask");
-  table->AddColumn(validMask.GetPointer());
+  table->AddColumn(validMask);
 
   // Test charting with a few more points...
   int numPoints = 69;
@@ -81,7 +81,7 @@ int TestAreaPlot( int, char * [] )
 
   // Add multiple line plots, setting the colors etc
   vtkPlotArea* area = vtkPlotArea::SafeDownCast(chart->AddPlot(vtkChart::AREA));
-  area->SetInputData(table.GetPointer());
+  area->SetInputData(table);
   area->SetInputArray(0, "X Axis");
   area->SetInputArray(1, "Sine");
   area->SetInputArray(2, "Sine2");

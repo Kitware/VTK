@@ -120,7 +120,7 @@ public:
       newPts->SetDataType(VTK_DOUBLE);
     }
 
-    output->SetPoints(newPts.GetPointer());
+    output->SetPoints(newPts);
 
     vtkIdType numCells = this->Input->GetNumberOfCells();
 
@@ -135,15 +135,15 @@ public:
     newPts->Allocate(estimatedSize, estimatedSize);
 
     // vtkNew<vtkNonMergingPointLocator> locator;
-    // locator->SetPoints(newPts.GetPointer());
+    // locator->SetPoints(newPts);
 
     vtkNew<vtkMergePoints> locator;
-    locator->InitPointInsertion (newPts.GetPointer(),
+    locator->InitPointInsertion (newPts,
                                  this->Input->GetBounds(),
                                  this->Input->GetNumberOfPoints());
 
     // vtkNew<vtkPointLocator> locator;
-    // locator->InitPointInsertion (newPts.GetPointer(),
+    // locator->InitPointInsertion (newPts,
     //                              this->Input->GetBounds(),
     //                              this->Input->GetNumberOfPoints());
 
@@ -178,9 +178,9 @@ public:
 
     for (vtkIdType cellid=begin; cellid<end; cellid++)
     {
-      this->Input->GetCellPoints(cellid, pids.GetPointer());
+      this->Input->GetCellPoints(cellid, pids);
       cellScalars->SetNumberOfTuples(pids->GetNumberOfIds());
-      this->InScalars->GetTuples(pids.GetPointer(), cellScalars);
+      this->InScalars->GetTuples(pids, cellScalars);
       int numCellScalars = cellScalars->GetNumberOfComponents()
         * cellScalars->GetNumberOfTuples();
       T* cellScalarPtr = static_cast<T*>(cellScalars->GetVoidPointer(0));
@@ -213,7 +213,7 @@ public:
 
       if (needCell)
       {
-          this->Input->GetCell(cellid, cell.GetPointer());
+          this->Input->GetCell(cellid, cell);
 
           for (int i=0; i < numValues; i++)
           {
@@ -221,10 +221,10 @@ public:
             {
               cell->Contour(values[i],
                             cellScalars,
-                            locator.GetPointer(),
-                            newVerts.GetPointer(),
-                            newLines.GetPointer(),
-                            newPolys.GetPointer(),
+                            locator,
+                            newVerts,
+                            newLines,
+                            newPolys,
                             inPd,
                             outPd,
                             inCd,
@@ -237,23 +237,23 @@ public:
 
     if (newVerts->GetNumberOfCells())
     {
-      output->SetVerts(newVerts.GetPointer());
+      output->SetVerts(newVerts);
     }
 
     if (newLines->GetNumberOfCells())
     {
-      output->SetLines(newLines.GetPointer());
+      output->SetLines(newLines);
     }
 
     if (newPolys->GetNumberOfCells())
     {
-      output->SetPolys(newPolys.GetPointer());
+      output->SetPolys(newPolys);
     }
 
     output->Squeeze();
 
     output->Register(nullptr);
-    this->Outputs.Local().push_back(output.GetPointer());
+    this->Outputs.Local().push_back(output);
   }
 
   void Reduce()
@@ -276,7 +276,7 @@ public:
       ++outIter;
     }
 
-    this->Output->SetBlock(0, mp.GetPointer());
+    this->Output->SetBlock(0, mp);
   }
 };
 

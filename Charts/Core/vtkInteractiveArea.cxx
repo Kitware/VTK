@@ -124,10 +124,10 @@ bool vtkInteractiveArea::MouseWheelEvent(const vtkContextMouseEvent& vtkNotUsed(
   int delta)
 {
   // Adjust the grid (delta stands for the number of wheel clicks)
-  this->RecalculateTickSpacing(this->TopAxis.GetPointer(), delta);
-  this->RecalculateTickSpacing(this->BottomAxis.GetPointer(), delta);
-  this->RecalculateTickSpacing(this->LeftAxis.GetPointer(), delta);
-  this->RecalculateTickSpacing(this->RightAxis.GetPointer(), delta);
+  this->RecalculateTickSpacing(this->TopAxis, delta);
+  this->RecalculateTickSpacing(this->BottomAxis, delta);
+  this->RecalculateTickSpacing(this->LeftAxis, delta);
+  this->RecalculateTickSpacing(this->RightAxis, delta);
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
@@ -149,8 +149,8 @@ bool vtkInteractiveArea::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     vtkVector2d last(0.0, 0.0);
 
     // Go from screen to scene coordinates to work out the delta
-    vtkAxis* xAxis = this->BottomAxis.GetPointer();
-    vtkAxis* yAxis = this->LeftAxis.GetPointer();
+    vtkAxis* xAxis = this->BottomAxis;
+    vtkAxis* yAxis = this->LeftAxis;
     vtkTransform2D* transform = this->Transform->GetTransform();
     transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
     transform->InverseTransformPoints(lastScreenPos.GetData(), last.GetData(), 1);

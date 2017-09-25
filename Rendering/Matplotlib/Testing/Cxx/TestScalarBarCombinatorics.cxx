@@ -77,8 +77,8 @@ static vtkSmartPointer<vtkScalarBarActor> CreateScalarBar(
   sba->SetPosition(cond.Position[0], cond.Position[1]);
   sba->SetPosition2(cond.Position2[0], cond.Position2[1]);
   sba->SetVerticalTitleSeparation(cond.VTitleSeparation);
-  ren->AddActor(sba.GetPointer());
-  return sba.GetPointer();
+  ren->AddActor(sba);
+  return sba;
 }
 
 int TestScalarBarCombinatorics(int argc, char* argv[])
@@ -97,10 +97,10 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
 
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1.GetPointer());
+  renWin->AddRenderer(ren1);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkLookupTable> lutA;
   vtkNew<vtkLookupTable> lutB;
@@ -110,7 +110,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   actors.reserve(numBars);
   for (int c = 0; c < numBars; ++c)
   {
-    actors.push_back(CreateScalarBar(conditions[c], lutA.GetPointer(), lutB.GetPointer(), ren1.GetPointer()));
+    actors.push_back(CreateScalarBar(conditions[c], lutA, lutB, ren1));
   }
 
   // Add the actors to the renderer, set the background and size
@@ -120,7 +120,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
 
   vtkNew<vtkColorSeries> pal;
   pal->SetColorSchemeByName("Brewer Sequential Blue-Green (5)");
-  pal->BuildLookupTable(lutB.GetPointer());
+  pal->BuildLookupTable(lutB);
   lutB->IndexedLookupOff();
   lutB->Build();
   lutB->SetAnnotation(5.00, "Just Wow");
@@ -134,7 +134,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   // Now make a second set of annotations with an even number of entries (10).
   // This tests another branch of the annotation label positioning code.
   pal->SetColorSchemeByName("Brewer Diverging Purple-Orange (10)");
-  pal->BuildLookupTable(lutA.GetPointer());
+  pal->BuildLookupTable(lutA);
   lutA->SetAnnotation(5.00, "A");
   lutA->SetAnnotation(4.00, "B");
   lutA->SetAnnotation(3.00, "C");
@@ -149,7 +149,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   // render the image
   iren->Initialize();
   renWin->Render();
-  t->SetRenderWindow(renWin.GetPointer());
+  t->SetRenderWindow(renWin);
   int res = t->RegressionTest(threshold);
   t->Delete();
 

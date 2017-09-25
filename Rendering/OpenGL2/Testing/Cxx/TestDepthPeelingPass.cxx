@@ -31,9 +31,9 @@ int TestDepthPeelingPass(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkRenderer> renderer;
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkPolyDataMapper> mapper;
   const char* fileName =
@@ -48,7 +48,7 @@ int TestDepthPeelingPass(int argc, char* argv[])
   // create three dragons
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.8, 0.3);
   actor->GetProperty()->SetSpecular(0.0);
@@ -56,12 +56,12 @@ int TestDepthPeelingPass(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.3);
   actor->GetProperty()->SetOpacity(0.35);
   actor->SetPosition(-0.1, 0.0, -0.1);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(0.2, 1.0, 0.8);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
@@ -70,12 +70,12 @@ int TestDepthPeelingPass(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.1);
   actor->GetProperty()->SetSpecularPower(10.0);
   actor->GetProperty()->SetOpacity(0.20);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(0.5, 0.65, 1.0);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
   actor->GetProperty()->SetSpecular(0.7);
@@ -83,7 +83,7 @@ int TestDepthPeelingPass(int argc, char* argv[])
   actor->GetProperty()->SetSpecularPower(60.0);
   actor->GetProperty()->SetOpacity(0.35);
   actor->SetPosition(0.1, 0.0, 0.1);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   renderer->SetUseDepthPeeling(1);

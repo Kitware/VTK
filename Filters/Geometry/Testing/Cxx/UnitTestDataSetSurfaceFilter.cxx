@@ -367,7 +367,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   vtkSmartPointer<vtkDataSetSurfaceFilter> filter =
     vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
   vtkSmartPointer<vtkDataSet> input = CreateStructuredGrid(true);
-  filter->SetInputData(input.GetPointer());
+  filter->SetInputData(input);
   filter->PassThroughCellIdsOn();
   filter->PassThroughPointIdsOn();
   filter->Update();

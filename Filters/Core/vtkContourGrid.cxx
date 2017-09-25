@@ -302,13 +302,13 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
 
         if (needCell)
         {
-          cellIter->GetCell(cell.GetPointer());
+          cellIter->GetCell(cell);
 
           for (i=0; i < numContours; i++)
           {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
             {
-              helper.Contour(cell.GetPointer(), values[i], cellScalars,
+              helper.Contour(cell, values[i], cellScalars,
                              cellIter->GetCellId());
             } // if contour value in range of values for this cell
           } // for all contour values
@@ -446,7 +446,7 @@ int vtkContourGrid::RequestData(
     normalsFilter->SetOutputPointsPrecision(this->OutputPointsPrecision);
     vtkNew<vtkPolyData> tempInput;
     tempInput->ShallowCopy(output);
-    normalsFilter->SetInputData(tempInput.GetPointer());
+    normalsFilter->SetInputData(tempInput);
     normalsFilter->SetFeatureAngle(180.);
     normalsFilter->UpdatePiece(
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),

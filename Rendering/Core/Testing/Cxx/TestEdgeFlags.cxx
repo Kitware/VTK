@@ -96,18 +96,18 @@ int TestEdgeFlags(int argc, char *argv[])
   }
 
   vtkNew<vtkPolyData> pd;
-  pd->SetPoints(pts.Get());
-  pd->SetPolys(cells.Get());
+  pd->SetPoints(pts);
+  pd->SetPolys(cells);
   vtkPointData* pointData = pd->GetPointData();
-  pointData->AddArray(edgeflags.Get());
+  pointData->AddArray(edgeflags);
   pointData->SetActiveAttribute(
     edgeflags->GetName(), vtkDataSetAttributes::EDGEFLAG);
 
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputData(pd.Get());
+  mapper->SetInputData(pd);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->SetPosition(-0.75,0,0);
   actor->RotateZ(45.0);
 
@@ -123,18 +123,18 @@ int TestEdgeFlags(int argc, char *argv[])
   cells2->InsertNextCell(5, polys);
 
   vtkNew<vtkPolyData> pd2;
-  pd2->SetPoints(pts.Get());
-  pd2->SetPolys(cells2.Get());
+  pd2->SetPoints(pts);
+  pd2->SetPolys(cells2);
   pointData = pd2->GetPointData();
-  pointData->AddArray(edgeflags.Get());
+  pointData->AddArray(edgeflags);
   pointData->SetActiveAttribute(
     edgeflags->GetName(), vtkDataSetAttributes::EDGEFLAG);
 
   vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputData(pd2.Get());
+  mapper2->SetInputData(pd2);
 
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper(mapper2.Get());
+  actor2->SetMapper(mapper2);
   actor2->SetPosition(0.75,0,0);
   vtkProperty* property2 = actor2->GetProperty();
   property2->SetColor(0.0, 1.0, 0.0);
@@ -143,8 +143,8 @@ int TestEdgeFlags(int argc, char *argv[])
 
   // Render image
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.Get());
-  renderer->AddActor(actor2.Get());
+  renderer->AddActor(actor);
+  renderer->AddActor(actor2);
   renderer->SetBackground(1.0, 1.0, 1.0);
   renderer->SetBackground2(0.0, 0.0, 0.0);
   renderer->GradientBackgroundOn();
@@ -152,17 +152,17 @@ int TestEdgeFlags(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(1);
   renWin->SetSize(600, 300);
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
 
   renWin->Render();
 
 // on the old OpenGL this test fails on Mesa
 // so we just return true in that case
 #ifndef VTK_OPENGL2
-  if (IsDriverMesa(renWin.Get()))
+  if (IsDriverMesa(renWin))
   {
     // Mesa support for edge flags is buggy.
     std::cout << "Mesa detected. Skip the test." << std::endl;
@@ -171,7 +171,7 @@ int TestEdgeFlags(int argc, char *argv[])
 #endif
 
   // Compare image
-  int retVal = vtkRegressionTestImage(renWin.Get());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

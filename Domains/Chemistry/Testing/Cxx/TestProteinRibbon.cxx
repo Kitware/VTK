@@ -50,20 +50,20 @@ int TestProteinRibbon(int argc, char *argv[])
 
   // setup actor
   vtkNew<vtkActor> actor;
-  actor->SetMapper(polyDataMapper.GetPointer());
+  actor->SetMapper(polyDataMapper);
 
   // setup render window
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
   vtkInteractorStyleSwitch* is = vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle());
   if (is)
   {
     is->SetCurrentStyleToTrackballCamera();
   }
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->SetBackground(0,0,0);
   win->SetSize(450, 450);
   ren->ResetCamera();

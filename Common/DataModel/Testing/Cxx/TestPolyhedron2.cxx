@@ -40,7 +40,7 @@ int TestPolyhedron2( int argc, char* argv[] )
   p->SetOrigin(pGrid->GetCenter());
   p->SetNormal(1,0,0);
 
-  cutter->SetCutFunction(p.GetPointer());
+  cutter->SetCutFunction(p);
   cutter->SetGenerateTriangles(0);
 
   cutter->SetInputConnection(0, reader->GetOutputPort());

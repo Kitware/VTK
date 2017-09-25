@@ -68,17 +68,17 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
 
   this->CategoryLegend->SetVisible(false);
   this->CategoryLegend->CacheBoundsOff();
-  this->AddItem(this->CategoryLegend.GetPointer());
+  this->AddItem(this->CategoryLegend);
 
   this->ColorLegend->SetVisible(false);
   this->ColorLegend->DrawBorderOn();
   this->ColorLegend->CacheBoundsOff();
-  this->AddItem(this->ColorLegend.GetPointer());
+  this->AddItem(this->ColorLegend);
 
   this->LegendPositionSet = false;
 
   this->Tooltip->SetVisible(false);
-  this->AddItem(this->Tooltip.GetPointer());
+  this->AddItem(this->Tooltip);
 }
 
 //-----------------------------------------------------------------------------
@@ -259,9 +259,9 @@ void vtkHeatmapItem::GenerateContinuousDataLookupTable()
   }
 
   this->ColorLegendLookupTable->DeepCopy(
-    this->ContinuousDataLookupTable.GetPointer());
+    this->ContinuousDataLookupTable);
   this->ColorLegend->SetTransferFunction(
-    this->ColorLegendLookupTable.GetPointer());
+    this->ColorLegendLookupTable);
 }
 
 //-----------------------------------------------------------------------------
@@ -314,10 +314,10 @@ void vtkHeatmapItem::GenerateCategoricalDataLookupTable()
 
   vtkNew<vtkColorSeries> colorSeries;
   colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_SET3);
-  colorSeries->BuildLookupTable(this->CategoricalDataLookupTable.GetPointer());
+  colorSeries->BuildLookupTable(this->CategoricalDataLookupTable);
 
   this->CategoryLegend->SetScalarsToColors(
-    this->CategoricalDataLookupTable.GetPointer());
+    this->CategoricalDataLookupTable);
 }
 
 //-----------------------------------------------------------------------------
@@ -725,7 +725,7 @@ void vtkHeatmapItem::UpdateVisibleSceneExtent(vtkContext2D *painter)
     static_cast<double>(this->GetScene()->GetSceneHeight() - position[1]);
   this->SceneTopRight[2] = 0.0;
   vtkNew<vtkMatrix3x3> inverse;
-  painter->GetTransform()->GetInverse(inverse.GetPointer());
+  painter->GetTransform()->GetInverse(inverse);
   inverse->MultiplyPoint(this->SceneBottomLeft, this->SceneBottomLeft);
   inverse->MultiplyPoint(this->SceneTopRight, this->SceneTopRight);
 }
@@ -804,7 +804,7 @@ bool vtkHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent &event)
     pos[0] = event.GetPos().GetX();
     pos[1] = event.GetPos().GetY();
     pos[2] = 0;
-    this->GetScene()->GetTransform()->GetInverse(inverse.GetPointer());
+    this->GetScene()->GetTransform()->GetInverse(inverse);
     inverse->MultiplyPoint(pos, pos);
     if (pos[0] <= this->MaxX && pos[0] >= this->MinX &&
         pos[1] <= this->MaxY && pos[1] >= this->MinY)
@@ -1132,7 +1132,7 @@ bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
   pos[0] = event.GetPos().GetX();
   pos[1] = event.GetPos().GetY();
   pos[2] = 0;
-  this->GetScene()->GetTransform()->GetInverse(inverse.GetPointer());
+  this->GetScene()->GetTransform()->GetInverse(inverse);
   inverse->MultiplyPoint(pos, pos);
   if (pos[0] <= this->MaxX && pos[0] >= this->MinX &&
       pos[1] <= this->MaxY && pos[1] >= this->MinY)
@@ -1165,11 +1165,11 @@ bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
       this->CategoryLegendValues->Squeeze();
       stringColumn->SetMaxDiscreteValues(stringColumn->GetNumberOfTuples() - 1);
       stringColumn->GetProminentComponentValues(
-        0, this->CategoryLegendValues.GetPointer());
+        0, this->CategoryLegendValues);
       this->CategoryLegendValues->Modified();
 
       // these distinct values become the the input to our categorical legend
-      this->CategoryLegend->SetValues(this->CategoryLegendValues.GetPointer());
+      this->CategoryLegend->SetValues(this->CategoryLegendValues);
       this->CategoryLegend->SetTitle(this->Table->GetColumn(column)->GetName());
       this->CategoryLegend->SetVisible(true);
       this->ColorLegend->SetVisible(false);

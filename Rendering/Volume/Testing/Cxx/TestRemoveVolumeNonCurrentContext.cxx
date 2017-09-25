@@ -591,8 +591,8 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   opacityTransferFunction->AddPoint(255, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->SetColor(colorTransferFunction.GetPointer());
-  volumeProperty->SetScalarOpacity(opacityTransferFunction.GetPointer());
+  volumeProperty->SetColor(colorTransferFunction);
+  volumeProperty->SetScalarOpacity(opacityTransferFunction);
 
   // Create the first renderwindow/renderer/mapper.
   // This is the renderer that will experience problems later on.
@@ -600,23 +600,23 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   smartMapper1->SetInputConnection(pointsReader->GetOutputPort());
 
   vtkNew<vtkVolume> volume1;
-  volume1->SetMapper(smartMapper1.GetPointer());
-  volume1->SetProperty(volumeProperty.GetPointer());
+  volume1->SetMapper(smartMapper1);
+  volume1->SetProperty(volumeProperty);
 
   vtkNew<vtkRenderer> renderer1;
   vtkNew<vtkRenderWindow> renderWindow1;
   vtkNew<vtkRenderWindowInteractor> interactor1;
   vtkNew<vtkInteractorStyleTrackballCamera> interactorStyle;
-  interactor1->SetInteractorStyle(interactorStyle.GetPointer());
+  interactor1->SetInteractorStyle(interactorStyle);
 
   renderWindow1->SetParentId(nullptr);
-  renderWindow1->AddRenderer(renderer1.GetPointer());
+  renderWindow1->AddRenderer(renderer1);
   renderWindow1->SetWindowName("Victim");
   renderWindow1->SetSize(500, 300);
   renderWindow1->SetPosition(100, 100);
-  interactor1->SetRenderWindow(renderWindow1.GetPointer());
+  interactor1->SetRenderWindow(renderWindow1);
 
-  renderer1->AddVolume(volume1.GetPointer());
+  renderer1->AddVolume(volume1);
   renderer1->SetBackground(1.0, 1.0, 1.0);
 
   // Create the second renderwindow/renderer/mapper.
@@ -626,30 +626,30 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   smartMapper2->SetInputConnection(pointsReader->GetOutputPort());
 
   vtkNew<vtkVolume> volume2;
-  volume2->SetMapper(smartMapper2.GetPointer());
-  volume2->SetProperty(volumeProperty.GetPointer());
+  volume2->SetMapper(smartMapper2);
+  volume2->SetProperty(volumeProperty);
 
   vtkNew<vtkRenderer> renderer2;
   vtkNew<vtkRenderWindow> renderWindow2;
   vtkNew<vtkRenderWindowInteractor> interactor2;
 
   renderWindow2->SetParentId(nullptr);
-  renderWindow2->AddRenderer(renderer2.GetPointer());
+  renderWindow2->AddRenderer(renderer2);
   renderWindow2->SetWindowName("Villain");
   renderWindow2->SetSize(300, 300);
   renderWindow2->SetPosition(650, 100);
-  interactor2->SetRenderWindow(renderWindow2.GetPointer());
+  interactor2->SetRenderWindow(renderWindow2);
 
-  renderer2->AddVolume(volume2.GetPointer());
+  renderer2->AddVolume(volume2);
   renderer2->SetBackground(1.0, 1.0, 1.0);
 
   // Create callback so we can trigger the problem
   vtkNew<TestRemoveVolumeNonCurrentContextCallback> callback;
-  callback->renderer1 = renderer1.GetPointer();
-  callback->renderer2	= renderer2.GetPointer();
-  callback->renderWindow1 = renderWindow1.GetPointer();
-  callback->renderWindow2 = renderWindow2.GetPointer();
-  interactor1->AddObserver("KeyPressEvent", callback.GetPointer());
+  callback->renderer1 = renderer1;
+  callback->renderer2	= renderer2;
+  callback->renderWindow1 = renderWindow1;
+  callback->renderWindow2 = renderWindow2;
+  interactor1->AddObserver("KeyPressEvent", callback);
 
   // Let's go
   interactor1->Initialize();
@@ -658,13 +658,13 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   renderWindow1->MakeCurrent();
 //  interactor1->SetKeyEventInformation(0, 0, 0, 0, "9");
 //  interactor1->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-//  int retval = vtkTesting::Test(argc, argv, renderWindow1.GetPointer(), 15);
+//  int retval = vtkTesting::Test(argc, argv, renderWindow1, 15);
 //  if (retval == vtkRegressionTester::DO_INTERACTOR)
 //    {
 //    interactor1->Start();
 //    }
 //  return !retval;
   return vtkTesting::InteractorEventLoop(argc, argv,
-                                         interactor1.GetPointer(),
+                                         interactor1,
                                          TestRemoveVolumeNonCurrentContextLog);
 }

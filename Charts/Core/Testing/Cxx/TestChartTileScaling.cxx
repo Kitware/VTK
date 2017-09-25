@@ -46,19 +46,19 @@ int TestChartTileScaling( int, char *[])
   view->GetRenderWindow()->SetTileScale(2);
 
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkFloatArray> arr1;
   arr1->SetName("One");
-  table->AddColumn(arr1.GetPointer());
+  table->AddColumn(arr1);
 
   // Test charting with a few more points...
   int numPoints = 69;
@@ -73,11 +73,11 @@ int TestChartTileScaling( int, char *[])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 2);
+  line->SetInputData(table, 0, 2);
   line->SetColor(255, 0, 0, 255);
   line->SetWidth(5.0);
 

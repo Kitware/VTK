@@ -31,22 +31,22 @@ int TestLinePlotDouble(int, char *[])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkDoubleArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkDoubleArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkDoubleArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkDoubleArray> arrS2;
   arrS2->SetName("Sine2");
-  table->AddColumn(arrS2.GetPointer());
+  table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 69;
   float inc = 7.5 / (numPoints - 1);
@@ -63,15 +63,15 @@ int TestLinePlotDouble(int, char *[])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
   line->SetWidth(1.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 2);
+  line->SetInputData(table, 0, 2);
   line->SetColor(255, 0, 0, 255);
   line->SetWidth(5.0);
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 3);
+  line->SetInputData(table, 0, 3);
   line->SetColor(0, 0, 255, 255);
   line->SetWidth(4.0);
   chart->SetPlotCorner(line, 1);

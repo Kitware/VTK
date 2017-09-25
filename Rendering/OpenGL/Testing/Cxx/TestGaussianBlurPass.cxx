@@ -70,7 +70,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
 
   vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+      vtkOpenGLRenderer::SafeDownCast(renderer);
 
   vtkSmartPointer<vtkCameraPass> cameraP=
     vtkSmartPointer<vtkCameraPass>::New();

@@ -58,7 +58,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetInput(vtkEventDataDeviceInput::ApplicationMenu);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::Select,
+      ed, vtkWidgetEvent::Select,
       this, vtkOpenVRMenuWidget::StartMenuAction);
   }
 
@@ -68,7 +68,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetInput(vtkEventDataDeviceInput::Trigger);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::Select3D,
+      ed, vtkWidgetEvent::Select3D,
       this, vtkOpenVRMenuWidget::SelectMenuAction);
   }
 
@@ -76,7 +76,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     vtkNew<vtkEventDataMove3D> ed;
     ed->SetDevice(vtkEventDataDevice::RightController);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
-      ed.Get(), vtkWidgetEvent::Move3D,
+      ed, vtkWidgetEvent::Move3D,
       this, vtkOpenVRMenuWidget::MoveAction);
   }
 }

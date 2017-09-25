@@ -300,7 +300,7 @@ void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet *dataset)
   // GetCellPoints needs to be called once from a single thread for safe
   // multi-threaded calls
   vtkNew<vtkIdList> cpts;
-  dataset->GetCellPoints(0, cpts.GetPointer());
+  dataset->GetCellPoints(0, cpts);
 
   MarkHiddenCells cellWorklet(dataset, mask, cellGhostArray);
   vtkSMPTools::For(0, numCells, cellWorklet);
@@ -359,7 +359,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         {
           this->SetBlankPointsAndCells(block);
         }
-        output->SetDataSet(iter.GetPointer(), block);
+        output->SetDataSet(iter, block);
         block->Delete();
       }
     }

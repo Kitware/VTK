@@ -408,7 +408,7 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(reader->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetSampleDistance(0.1);
@@ -420,21 +420,21 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   renWin->SetSize(400, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(0.2, 0.2, 0.5);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
   {
-    ren->SetPass(osprayPass.GetPointer());
+    ren->SetPass(osprayPass);
   }
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
@@ -444,16 +444,16 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
-  volumeProperty->SetColor(colorTransferFunction.GetPointer());
+  volumeProperty->SetColor(colorTransferFunction);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   /// Add sphere in the center of volume
   int dims[3];
@@ -468,12 +468,12 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   center[1] = origin[1] + spacing[1]*dims[1]/2.0;
   center[2] = origin[2] + spacing[2]*dims[2]/2.0;
 
-  ren->AddVolume(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+  ren->AddVolume(volume);
+  ren->AddActor(outlineActor);
   ren->ResetCamera();
 
-  int valid = volumeMapper->IsRenderSupported(renWin.GetPointer(),
-                                              volumeProperty.GetPointer());
+  int valid = volumeMapper->IsRenderSupported(renWin,
+                                              volumeProperty);
 
   int retVal;
   if (valid)
@@ -492,7 +492,7 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
 
     iren->Initialize();
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
-                                                iren.GetPointer(),
+                                                iren,
                                                 TestGPURayCastVolumeUpdateLog));
   }
   else

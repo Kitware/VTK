@@ -324,7 +324,7 @@ bool vtkChartParallelCoordinates::GetColumnVisibility(const vtkStdString& name)
 //-----------------------------------------------------------------------------
 vtkStringArray* vtkChartParallelCoordinates::GetVisibleColumns()
 {
-  return this->VisibleColumns.GetPointer();
+  return this->VisibleColumns;
 }
 
 //-----------------------------------------------------------------------------

@@ -860,8 +860,7 @@ namespace {
       double pointcoords[3];
       structure->GetPoint(point, pointcoords);
       // Get all cells touching this point.
-      structure->GetCellNeighbors(-1, currentPoint.GetPointer(),
-                                  cellsOnPoint.GetPointer());
+      structure->GetCellNeighbors(-1, currentPoint, cellsOnPoint);
       vtkIdType numCellNeighbors = cellsOnPoint->GetNumberOfIds();
 
       for(int i=0;i<numberOfOutputComponents;i++)

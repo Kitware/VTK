@@ -32,11 +32,11 @@ vtkStandardNewMacro(vtkPath)
 vtkPath::vtkPath()
 {
   vtkNew<vtkPoints> points;
-  this->SetPoints(points.GetPointer());
+  this->SetPoints(points);
 
   vtkNew<vtkIntArray> controlPointCodes;
   controlPointCodes->SetNumberOfComponents(1);
-  this->PointData->SetScalars(controlPointCodes.GetPointer());
+  this->PointData->SetScalars(controlPointCodes);
 }
 
 //----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ int TestGPURayCastCellData(int argc, char *argv[])
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(pointToCell->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetSampleDistance(0.1);
@@ -84,15 +84,15 @@ int TestGPURayCastCellData(int argc, char *argv[])
   renWin->SetSize(400, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(0.2, 0.2, 0.5);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -101,25 +101,25 @@ int TestGPURayCastCellData(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
-  volumeProperty->SetColor(colorTransferFunction.GetPointer());
+  volumeProperty->SetColor(colorTransferFunction);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
-  ren->AddVolume(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+  ren->AddVolume(volume);
+  ren->AddActor(outlineActor);
   ren->ResetCamera();
 
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
   {
-    ren->SetPass(osprayPass.GetPointer());
+    ren->SetPass(osprayPass);
   }
 
 
@@ -128,7 +128,7 @@ int TestGPURayCastCellData(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -203,7 +203,7 @@ int TestPDFExporterContextPolyData( int argc, char * argv [] )
 
   // Turn off the color buffer
   view->GetScene()->SetUseBufferId(false);
-  view->GetScene()->AddItem(area.GetPointer());
+  view->GetScene()->AddItem(area);
   view->Render();
 
   std::string filename =

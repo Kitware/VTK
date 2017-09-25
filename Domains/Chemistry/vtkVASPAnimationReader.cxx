@@ -359,8 +359,8 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
   }
 
   vtkDataSetAttributes *atomData = molecule->GetVertexData();
-  atomData->AddArray(radii.Get());
-  atomData->AddArray(kineticEnergies.Get());
+  atomData->AddArray(radii);
+  atomData->AddArray(kineticEnergies);
 
   return true;
 }

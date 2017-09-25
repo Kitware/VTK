@@ -473,7 +473,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   } // it
 
   // Set material mask index
-  output->SetMaterialMaskIndex( position.GetPointer() );
+  output->SetMaterialMaskIndex( position );
 
   // Squeeze and set output material mask if necessary
   if( this->MaterialMask )

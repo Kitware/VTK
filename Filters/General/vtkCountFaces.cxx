@@ -70,7 +70,7 @@ int vtkCountFaces::RequestData(vtkInformation *,
   vtkNew<vtkIdTypeArray> faceCount;
   faceCount->Allocate(input->GetNumberOfCells());
   faceCount->SetName(this->OutputArrayName);
-  output->GetCellData()->AddArray(faceCount.Get());
+  output->GetCellData()->AddArray(faceCount);
 
   vtkCellIterator *it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())

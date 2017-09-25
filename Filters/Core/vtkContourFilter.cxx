@@ -663,7 +663,7 @@ int vtkContourFilter::RequestData(
       normalsFilter->SetOutputPointsPrecision(this->OutputPointsPrecision);
       vtkNew<vtkPolyData> tempInput;
       tempInput->ShallowCopy(output);
-      normalsFilter->SetInputData(tempInput.GetPointer());
+      normalsFilter->SetInputData(tempInput);
       normalsFilter->SetFeatureAngle(180.);
       normalsFilter->UpdatePiece(
         info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),

@@ -101,13 +101,13 @@ int SLACMultipleModes(int argc, char *argv[])
 
   vtkNew<vtkLookupTable> lut;
   lut->SetHueRange(0.66667, 0.0);
-  mapper->SetLookupTable(lut.GetPointer());
+  mapper->SetLookupTable(lut);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->SetPosition(-0.75, 0.0, 0.0);
   camera->SetFocalPoint(0.0, 0.0, 0.0);
@@ -115,9 +115,9 @@ int SLACMultipleModes(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renwin;
   renwin->SetSize(600, 150);
-  renwin->AddRenderer(renderer.GetPointer());
+  renwin->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renwin.GetPointer());
+  iren->SetRenderWindow(renwin);
   renwin->Render();
 
   // Change the time to offset the phase.
@@ -127,7 +127,7 @@ int SLACMultipleModes(int argc, char *argv[])
     0.5*period);
 
   // Do the test comparison.
-  int retVal = vtkRegressionTestImage(renwin.GetPointer());
+  int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

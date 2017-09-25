@@ -2356,7 +2356,7 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
   vtkOutputWindow *oldOW = vtkOutputWindow::GetInstance();
   oldOW->Register(this);
   vtkNew<vtkStringOutputWindow> sow;
-  vtkOutputWindow::SetInstance(sow.Get());
+  vtkOutputWindow::SetInstance(sow);
 
   vtkOpenGLRenderWindow *rw = this->NewInstance();
   rw->SetDisplayId(this->GetGenericDisplayId());

@@ -450,7 +450,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
           {
             amr->SetDataSet(
               static_cast<unsigned int>(level), static_cast<unsigned int>(index),
-              vtkUniformGrid::SafeDownCast(ds.GetPointer()));
+              vtkUniformGrid::SafeDownCast(ds));
           }
         }
       }

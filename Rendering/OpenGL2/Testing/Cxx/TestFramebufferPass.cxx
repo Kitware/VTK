@@ -41,9 +41,9 @@ int TestFramebufferPass(int argc, char *argv[])
   renderer->SetBackground(0.3, 0.4, 0.6);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(500, 500);
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor>  iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   const char* fileName =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
@@ -57,7 +57,7 @@ int TestFramebufferPass(int argc, char *argv[])
   // create three dragons
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.8, 0.3);
   actor->GetProperty()->SetSpecular(0.0);
@@ -65,12 +65,12 @@ int TestFramebufferPass(int argc, char *argv[])
   actor->GetProperty()->SetAmbient(0.3);
   actor->GetProperty()->SetOpacity(0.35);
   actor->SetPosition(-0.1, 0.0, -0.1);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(0.2, 1.0, 0.8);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
@@ -78,12 +78,12 @@ int TestFramebufferPass(int argc, char *argv[])
   actor->GetProperty()->SetDiffuse(0.9);
   actor->GetProperty()->SetAmbient(0.1);
   actor->GetProperty()->SetSpecularPower(10.0);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(0.5, 0.65, 1.0);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
   actor->GetProperty()->SetSpecular(0.7);
@@ -91,7 +91,7 @@ int TestFramebufferPass(int argc, char *argv[])
   actor->GetProperty()->SetSpecularPower(60.0);
   actor->GetProperty()->SetOpacity(0.35);
   actor->SetPosition(0.1, 0.0, 0.1);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   renderWindow->SetMultiSamples(0);
@@ -105,18 +105,18 @@ int TestFramebufferPass(int argc, char *argv[])
   peeling->SetMaximumNumberOfPeels(5); // 4 + alpha blend
   peeling->SetOcclusionRatio(0.0);
   peeling->SetTranslucentPass(basicPasses->GetTranslucentPass());
-  basicPasses->SetTranslucentPass(peeling.Get());
+  basicPasses->SetTranslucentPass(peeling);
 
   vtkNew<vtkFramebufferPass> fop;
-  fop->SetDelegatePass(basicPasses.Get());
+  fop->SetDelegatePass(basicPasses);
   fop->SetDepthFormat(vtkTextureObject::Fixed24);
   peeling->SetOpaqueZTexture(fop->GetDepthTexture());
   peeling->SetOpaqueRGBATexture(fop->GetColorTexture());
 
   // tell the renderer to use our render pass pipeline
   vtkOpenGLRenderer *glrenderer =
-    vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
-  glrenderer->SetPass(fop.Get());
+    vtkOpenGLRenderer::SafeDownCast(renderer);
+  glrenderer->SetPass(fop);
 
 //  renderer->SetViewport(0.1,0.1,0.3,0.3);
 
@@ -142,8 +142,8 @@ int TestFramebufferPass(int argc, char *argv[])
   cerr << "number of triangles: " <<  numTris << endl;
   cerr << "triangles per second: " <<  numTris*(numRenders/elapsed) << endl;
 
-//  renderWindow->RemoveRenderer(renderer.Get());
-//  renderWindow->AddRenderer(renderer.Get());
+//  renderWindow->RemoveRenderer(renderer);
+//  renderWindow->AddRenderer(renderer);
 
 //  renderer->SetViewport(0.0,0.0,0.9,0.9);
 
@@ -155,7 +155,7 @@ int TestFramebufferPass(int argc, char *argv[])
   renderer->GetActiveCamera()->Zoom(1.8);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

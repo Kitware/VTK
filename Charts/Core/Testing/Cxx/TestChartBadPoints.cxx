@@ -31,16 +31,16 @@ int TestChartBadPoints(int, char* [])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with polyline points
   vtkNew<vtkTable> table;
   vtkNew<vtkDoubleArray> arrX;
   arrX->SetName("X");
-  table->AddColumn(arrX.Get());
+  table->AddColumn(arrX);
   vtkNew<vtkDoubleArray> arrC;
   arrC->SetName("f1");
-  table->AddColumn(arrC.Get());
+  table->AddColumn(arrC);
   table->SetNumberOfRows(7);
   table->SetValue(0, 0, 0);
   table->SetValue(1, 0, 1);
@@ -61,10 +61,10 @@ int TestChartBadPoints(int, char* [])
   vtkNew<vtkTable> table2;
   vtkNew<vtkDoubleArray> arrX2;
   arrX2->SetName("X");
-  table2->AddColumn(arrX2.Get());
+  table2->AddColumn(arrX2);
   vtkNew<vtkDoubleArray> arrC2;
   arrC2->SetName("f1");
-  table2->AddColumn(arrC2.Get());
+  table2->AddColumn(arrC2);
   table2->SetNumberOfRows(12);
   table2->SetValue(0, 0, 0);
   table2->SetValue(1, 0, 1);
@@ -93,16 +93,16 @@ int TestChartBadPoints(int, char* [])
 
   // Add multiple line and point plots
   vtkNew<vtkPlotPoints> points;
-  chart->AddPlot(points.Get());
-  points->SetInputData(table.Get(), 0, 1);
+  chart->AddPlot(points);
+  points->SetInputData(table, 0, 1);
   points->SetMarkerSize(10.0);
   vtkNew<vtkPlotLine> line;
-  chart->AddPlot(line.Get());
-  line->SetInputData(table.Get(), 0, 1);
+  chart->AddPlot(line);
+  line->SetInputData(table, 0, 1);
   vtkNew<vtkPlotLine> line2;
   line2->SetPolyLine(false);
-  chart->AddPlot(line2.Get());
-  line2->SetInputData(table2.Get(), 0, 1);
+  chart->AddPlot(line2);
+  line2->SetInputData(table2, 0, 1);
 
   // Render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

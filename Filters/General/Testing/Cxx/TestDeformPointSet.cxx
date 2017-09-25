@@ -37,9 +37,9 @@ int TestDeformPointSet( int argc, char *argv[] )
 {
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renWin;
-    renWin->AddRenderer(renderer.GetPointer());
+    renWin->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> iren;
-    iren->SetRenderWindow(renWin.GetPointer());
+    iren->SetRenderWindow(renWin);
 
   // Create a sphere to warp
   vtkNew<vtkSphereSource> sphere;
@@ -97,21 +97,21 @@ int TestDeformPointSet( int argc, char *argv[] )
     tris->InsertCellPoint(5);
 
   vtkNew<vtkPolyData> pd;
-    pd->SetPoints(pts.GetPointer());
-    pd->SetPolys(tris.GetPointer());
+    pd->SetPoints(pts);
+    pd->SetPolys(tris);
 
   // Display the control mesh
   vtkNew<vtkPolyDataMapper> meshMapper;
-    meshMapper->SetInputData(pd.GetPointer());
+    meshMapper->SetInputData(pd);
   vtkNew<vtkActor> meshActor;
-    meshActor->SetMapper(meshMapper.GetPointer());
+    meshActor->SetMapper(meshMapper);
     meshActor->GetProperty()->SetRepresentationToWireframe();
     meshActor->GetProperty()->SetColor(0,0,0);
 
   // Okay now let's do the intitial weight generation
   vtkNew<vtkDeformPointSet> deform;
     deform->SetInputConnection(ele->GetOutputPort());
-    deform->SetControlMeshData(pd.GetPointer());
+    deform->SetControlMeshData(pd);
     deform->Update(); //this creates the initial weights
 
   // Now move one point and deform
@@ -123,10 +123,10 @@ int TestDeformPointSet( int argc, char *argv[] )
   vtkNew<vtkPolyDataMapper> sphereMapper;
     sphereMapper->SetInputConnection(deform->GetOutputPort());
   vtkNew<vtkActor> sphereActor;
-    sphereActor->SetMapper(sphereMapper.GetPointer());
+    sphereActor->SetMapper(sphereMapper);
 
-  renderer->AddActor(sphereActor.GetPointer());
-  renderer->AddActor(meshActor.GetPointer());
+  renderer->AddActor(sphereActor);
+  renderer->AddActor(meshActor);
   renderer->GetActiveCamera()->SetPosition(1,1,1);
   renderer->ResetCamera();
 
@@ -134,7 +134,7 @@ int TestDeformPointSet( int argc, char *argv[] )
   renWin->SetSize(300,300);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

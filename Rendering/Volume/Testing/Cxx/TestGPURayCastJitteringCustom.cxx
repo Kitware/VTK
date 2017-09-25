@@ -72,29 +72,29 @@ int TestGPURayCastJitteringCustom(int argc, char* argv[])
   opacity->AddPoint(255.0, 1.0);
 
   vtkNew<vtkVolumeProperty> property;
-  property->SetColor(color.GetPointer());
-  property->SetScalarOpacity(opacity.GetPointer());
+  property->SetColor(color);
+  property->SetScalarOpacity(opacity);
   property->SetInterpolationTypeToLinear();
   property->ShadeOff();
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(property.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(property);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(400, 400);
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
 
-  ren->AddVolume(volume.GetPointer());
+  ren->AddVolume(volume);
   ren->ResetCamera();
   ren->GetActiveCamera()->SetPosition(79.1817, 14.6622, 62.9264);
   ren->GetActiveCamera()->SetFocalPoint(32.0598, 26.5308, 28.0257);
@@ -104,7 +104,7 @@ int TestGPURayCastJitteringCustom(int argc, char* argv[])
 
   // Customize the noise function and texture size
   vtkOpenGLGPUVolumeRayCastMapper* glMapper =
-  vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper.GetPointer());
+  vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
 
   int texSize[2] = {600, 600};
   glMapper->SetNoiseTextureSize(texSize);
@@ -117,7 +117,7 @@ int TestGPURayCastJitteringCustom(int argc, char* argv[])
 
   renWin->Render();
 
-  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
+  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren,
     TestGPURayCastJitteringCustomLog);
 
   return rv;

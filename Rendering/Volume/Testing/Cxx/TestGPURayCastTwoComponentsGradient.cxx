@@ -69,10 +69,10 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   renWin->Render();
 
@@ -80,7 +80,7 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->AutoAdjustSampleDistancesOff();
   mapper->SetSampleDistance(0.9);
-  mapper->SetInputData(image.GetPointer());
+  mapper->SetInputData(image);
 
   // Color transfer function
   vtkNew<vtkColorTransferFunction> ctf1;
@@ -114,24 +114,24 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
   property->IndependentComponentsOn();
 
   // Set color and opacity functions
-  property->SetColor(0, ctf1.GetPointer());
-  property->SetColor(1, ctf2.GetPointer());
-  property->SetScalarOpacity(0, pf1.GetPointer());
-  property->SetScalarOpacity(1, pf2.GetPointer());
-  property->SetGradientOpacity(0, pf3.GetPointer());
-  property->SetGradientOpacity(1, pf4.GetPointer());
+  property->SetColor(0, ctf1);
+  property->SetColor(1, ctf2);
+  property->SetScalarOpacity(0, pf1);
+  property->SetScalarOpacity(1, pf2);
+  property->SetGradientOpacity(0, pf3);
+  property->SetGradientOpacity(1, pf4);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(property.GetPointer());
-  ren->AddVolume(volume.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(property);
+  ren->AddVolume(volume);
 
   ren->ResetCamera();
   renWin->Render();
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -40,7 +40,7 @@ int TestHistogram2D(int, char * [])
 
   // Define a chart
   vtkNew<vtkChartHistogram2D> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
@@ -104,7 +104,7 @@ int TestHistogram2D(int, char * [])
           cos(vtkMath::RadiansFromDegrees(double(j)));
     }
   }
-  chart->SetInputData(data.GetPointer());
+  chart->SetInputData(data);
 
   vtkNew<vtkColorTransferFunction> transferFunction;
   transferFunction->AddHSVSegment(0.0, 0.0, 1.0, 1.0,
@@ -114,7 +114,7 @@ int TestHistogram2D(int, char * [])
   transferFunction->AddHSVSegment(0.6666, 0.6666, 1.0, 1.0,
                                   1.0, 0.2, 1.0, 0.3);
   transferFunction->Build();
-  chart->SetTransferFunction(transferFunction.GetPointer());
+  chart->SetTransferFunction(transferFunction);
 
   view->GetInteractor()->Start();
 

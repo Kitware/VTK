@@ -141,8 +141,8 @@ int WhitespaceAndEmptyCellsTest()
   doubleColumn->SetValue(0, " ");
   doubleColumn->SetValue(1, " 1.1 ");
 
-  inputTable->AddColumn(integerColumn.GetPointer());
-  inputTable->AddColumn(doubleColumn.GetPointer());
+  inputTable->AddColumn(integerColumn);
+  inputTable->AddColumn(doubleColumn);
 
   // Setup the vtkStringToNumeric which is under test
   vtkNew<vtkStringToNumeric> numeric;
@@ -150,7 +150,7 @@ int WhitespaceAndEmptyCellsTest()
   numeric->SetDefaultIntegerValue(defaultIntValue);
   numeric->SetDefaultDoubleValue(vtkMath::Nan());
   numeric->SetTrimWhitespacePriorToNumericConversion(true);
-  numeric->SetInputData(inputTable.GetPointer());
+  numeric->SetInputData(inputTable);
   numeric->Update();
   vtkTable* table = vtkTable::SafeDownCast(numeric->GetOutput());
   table->Dump();

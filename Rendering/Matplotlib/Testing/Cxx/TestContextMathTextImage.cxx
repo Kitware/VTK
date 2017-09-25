@@ -44,7 +44,7 @@ int TestContextMathTextImage(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(325, 150);
   vtkNew<ContextMathTextImageTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

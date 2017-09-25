@@ -78,7 +78,7 @@ vtkGraphItem::vtkGraphItem()
   this->Internal->LayoutAlphaStop = 0.005f;
   this->Internal->GravityPointSet = false;
   this->Tooltip->SetVisible(false);
-  this->AddItem(this->Tooltip.GetPointer());
+  this->AddItem(this->Tooltip);
 }
 
 vtkGraphItem::~vtkGraphItem()
@@ -89,7 +89,7 @@ vtkGraphItem::~vtkGraphItem()
   }
   if (this->Internal->AnimationCallbackInitialized)
   {
-    this->Internal->Interactor->RemoveObserver(this->Internal->AnimationCallback.GetPointer());
+    this->Internal->Interactor->RemoveObserver(this->Internal->AnimationCallback);
   }
   delete this->Internal;
   if (this->Graph)
@@ -100,7 +100,7 @@ vtkGraphItem::~vtkGraphItem()
 
 vtkIncrementalForceLayout *vtkGraphItem::GetLayout()
 {
-  return this->Layout.GetPointer();
+  return this->Layout;
 }
 
 vtkColor4ub vtkGraphItem::VertexColor(vtkIdType vtkNotUsed(item))
@@ -183,7 +183,7 @@ void vtkGraphItem::RebuildBuffers()
   this->Internal->VertexColors = std::vector<vtkColor4ub>(numVertices);
   this->Internal->VertexSizes = std::vector<float>(numVertices);
   this->Internal->VertexMarkers = std::vector<int>(numVertices);
-  vtkMarkerUtilities::GenerateMarker(this->Sprite.GetPointer(), this->VertexMarker(0), static_cast<int>(this->VertexSize(0)));
+  vtkMarkerUtilities::GenerateMarker(this->Sprite, this->VertexMarker(0), static_cast<int>(this->VertexSize(0)));
   for (vtkIdType vertexIdx = 0; vertexIdx < numVertices; ++vertexIdx)
   {
     this->Internal->VertexPositions[vertexIdx] = this->VertexPosition(vertexIdx);
@@ -219,7 +219,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
   }
   painter->GetPen()->SetWidth(this->Internal->VertexSizes[0]);
   painter->GetBrush()->SetTextureProperties(vtkBrush::Linear);
-  painter->DrawPointSprites(this->Sprite.GetPointer(),
+  painter->DrawPointSprites(this->Sprite,
                             this->Internal->VertexPositions[0].GetData(),
                             static_cast<int>(this->Internal->VertexPositions.size()),
                             this->Internal->VertexColors[0].GetData(), 4);
@@ -318,7 +318,7 @@ void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
       this->Internal->AnimationCallback->SetClientData(this);
       this->Internal->AnimationCallback->SetCallback(vtkGraphItem::ProcessEvents);
       interactor->AddObserver(vtkCommand::TimerEvent,
-                              this->Internal->AnimationCallback.GetPointer(),
+                              this->Internal->AnimationCallback,
                               0);
       this->Internal->Interactor = interactor;
       this->Internal->AnimationCallbackInitialized = true;

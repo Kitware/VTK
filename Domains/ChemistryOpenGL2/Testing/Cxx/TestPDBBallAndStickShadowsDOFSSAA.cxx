@@ -68,7 +68,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   // more pleasing
   vtkNew<vtkPeriodicTable> pt;
   vtkNew<vtkLookupTable> lut;
-  pt->GetDefaultLUT(lut.Get());
+  pt->GetDefaultLUT(lut);
   const unsigned short numColors = lut->GetNumberOfColors();
   double rgb[4];
   for (vtkIdType i = 0; static_cast<unsigned int>(i) < numColors; ++i)
@@ -77,11 +77,11 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
     lut->SetTableValue(i, 0.45 + rgb[0]*0.55,
       0.45 + rgb[1]*0.55, 0.45 + rgb[2]*0.55);
   }
-  molmapper->SetLookupTable(lut.Get());
+  molmapper->SetLookupTable(lut);
 
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(molmapper.GetPointer());
+  actor->SetMapper(molmapper);
   actor->GetProperty()->SetAmbient(0.3);
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetSpecular(0.4);
@@ -100,11 +100,11 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.7);
   ren->GetActiveCamera()->SetFocalDisk(ren->GetActiveCamera()->GetDistance()*0.05);
@@ -122,55 +122,55 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> planeMapper;
   planeMapper->SetInputConnection(plane->GetOutputPort());
   vtkNew<vtkActor> planeActor;
-  planeActor->SetMapper(planeMapper.Get());
-  ren->AddActor(planeActor.Get());
+  planeActor->SetMapper(planeMapper);
+  ren->AddActor(planeActor);
 
   vtkNew<vtkLight> light1;
   light1->SetFocalPoint(0,0,0);
   light1->SetPosition(-0.3, 0.9, 0.3);
   light1->SetIntensity(0.5);
   light1->SetShadowAttenuation(0.6);
-  ren->AddLight(light1.Get());
+  ren->AddLight(light1);
 
   vtkNew<vtkLight> light2;
   light2->SetFocalPoint(0,0,0);
   light2->SetPosition(0.3,0.9,0.3);
   light2->SetIntensity(0.5);
   light2->SetShadowAttenuation(0.6);
-  ren->AddLight(light2.Get());
+  ren->AddLight(light2);
 
   vtkNew<vtkShadowMapPass> shadows;
 
   vtkNew<vtkSequencePass> seq;
   vtkNew<vtkRenderPassCollection> passes;
   passes->AddItem(shadows->GetShadowMapBakerPass());
-  passes->AddItem(shadows.Get());
-  seq->SetPasses(passes.Get());
+  passes->AddItem(shadows);
+  seq->SetPasses(passes);
 
   vtkNew<vtkCameraPass> cameraP;
-  cameraP->SetDelegatePass(seq.Get());
+  cameraP->SetDelegatePass(seq);
 
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
 
   vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(ren.GetPointer());
+      vtkOpenGLRenderer::SafeDownCast(ren);
 
   // finally add the DOF passs
   vtkNew<vtkDepthOfFieldPass> dofp;
   //dofp->AutomaticFocalDistanceOff();
-  dofp->SetDelegatePass(cameraP.Get());
+  dofp->SetDelegatePass(cameraP);
 
   // finally blur the resulting image
   // The blur delegates rendering the unblured image
   // to the basicPasses
   vtkNew<vtkSSAAPass> ssaa;
-  ssaa->SetDelegatePass(dofp.Get());
+  ssaa->SetDelegatePass(dofp);
 
   // tell the renderer to use our render pass pipeline
-  glrenderer->SetPass(ssaa.Get());
-//  glrenderer->SetPass(dofp.Get());
-//  glrenderer->SetPass(cameraP.Get());
+  glrenderer->SetPass(ssaa);
+//  glrenderer->SetPass(dofp);
+//  glrenderer->SetPass(cameraP);
 
   // tell the renderer to use our render pass pipeline
   vtkNew<vtkTimerLog> timer;
@@ -214,7 +214,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
 
-  int retVal = vtkRegressionTestImage( win.Get() );
+  int retVal = vtkRegressionTestImage( win );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

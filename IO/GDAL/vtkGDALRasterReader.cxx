@@ -462,7 +462,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       this->TargetDataType, pixelSpace, lineSpace);
     assert(err == CE_None);
 
-    this->ReadColorTable(paletteBand, colorTable.GetPointer());
+    this->ReadColorTable(paletteBand, colorTable);
   }
   else
   {

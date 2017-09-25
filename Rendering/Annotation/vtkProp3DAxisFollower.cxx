@@ -106,7 +106,7 @@ void vtkProp3DAxisFollower::SetAxis(vtkAxisActor *axis)
 //----------------------------------------------------------------------
 vtkAxisActor* vtkProp3DAxisFollower::GetAxis()
 {
-  return this->Axis.GetPointer();
+  return this->Axis;
 }
 
 //----------------------------------------------------------------------
@@ -124,7 +124,7 @@ void vtkProp3DAxisFollower::SetViewport(vtkViewport* vp)
 //----------------------------------------------------------------------
 vtkViewport* vtkProp3DAxisFollower::GetViewport()
 {
-  return this->Viewport.GetPointer();
+  return this->Viewport;
 }
 
 //----------------------------------------------------------------------------

@@ -381,10 +381,10 @@ int TestFinitePlaneWidget(int, char *[])
   ren->SetBackground(0.1, 0.2, 0.4);
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(300, 300);
-  renWin->AddRenderer(ren.Get());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkFinitePlaneRepresentation> fpr;
   fpr->SetTubing(true);
@@ -395,8 +395,8 @@ int TestFinitePlaneWidget(int, char *[])
   fpr->PlaceWidget(bounds);
 
   vtkNew<vtkFinitePlaneWidget> finitePlaneWidget;
-  finitePlaneWidget->SetInteractor(iren.Get());
-  finitePlaneWidget->SetRepresentation(fpr.Get());
+  finitePlaneWidget->SetInteractor(iren);
+  finitePlaneWidget->SetRepresentation(fpr);
   finitePlaneWidget->On();
 
   vtkNew<vtkFinitePlaneRepresentation> fpr2;
@@ -408,8 +408,8 @@ int TestFinitePlaneWidget(int, char *[])
   fpr2->PlaceWidget(bounds2);
 
   vtkNew<vtkFinitePlaneWidget> finitePlaneWidget2;
-  finitePlaneWidget2->SetInteractor(iren.Get());
-  finitePlaneWidget2->SetRepresentation(fpr2.Get());
+  finitePlaneWidget2->SetInteractor(iren);
+  finitePlaneWidget2->SetRepresentation(fpr2);
   finitePlaneWidget2->On();
 
   renWin->SetMultiSamples(0);
@@ -419,10 +419,10 @@ int TestFinitePlaneWidget(int, char *[])
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   iren->Initialize();
-  iren->SetInteractorStyle(style.Get());
+  iren->SetInteractorStyle(style);
 
   vtkNew<vtkInteractorEventRecorder> recorder;
-  recorder->SetInteractor(iren.Get());
+  recorder->SetInteractor(iren);
 #if 0
   recorder->SetFileName("./record.log");
   recorder->Record();

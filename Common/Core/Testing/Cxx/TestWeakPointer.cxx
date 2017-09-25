@@ -97,28 +97,28 @@ int TestWeakPointer(int,char *[])
   }
   cout << "IntArray: " << da2 << "\n";
 
-  if (da1.GetPointer() == nullptr)
+  if (da1 == nullptr)
   {
-    cerr << "da1.GetPointer() is nullptr\n";
+    cerr << "da1 is nullptr\n";
     rval = 1;
   }
-  if (da2.GetPointer() == nullptr)
+  if (da2 == nullptr)
   {
-    cerr << "da2.GetPointer() is nullptr\n";
+    cerr << "da2 is nullptr\n";
     rval = 1;
   }
-  if (da3.Get() != nullptr)
+  if (da3 != nullptr)
   {
-    cerr << "da3.GetPointer() is not nullptr\n";
+    cerr << "da3 is not nullptr\n";
     rval = 1;
   }
 
   da2 = nullptr;
   ia->Delete();
 
-  if (da1.GetPointer() != nullptr)
+  if (da1 != nullptr)
   {
-    cerr << "da1.GetPointer() is not nullptr\n";
+    cerr << "da1 is not nullptr\n";
     rval = 1;
   }
 

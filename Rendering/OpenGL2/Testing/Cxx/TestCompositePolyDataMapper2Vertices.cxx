@@ -54,7 +54,7 @@ int TestCompositePolyDataMapper2Vertices(int argc, char* argv[])
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
-  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+  mapper->SetCompositeDataDisplayAttributes(cdsa);
 
   int resolution = 10;
   vtkNew<vtkCylinderSource> cyl;
@@ -110,7 +110,7 @@ int TestCompositePolyDataMapper2Vertices(int argc, char* argv[])
         else
         {
           vtkNew<vtkMultiBlockDataSet> child;
-          blocks[parent]->SetBlock(block, child.GetPointer());
+          blocks[parent]->SetBlock(block, child);
           blocks.push_back(child.GetPointer());
         }
       }
@@ -169,7 +169,7 @@ int TestCompositePolyDataMapper2Vertices(int argc, char* argv[])
     double t =  timer->GetElapsedTime();
     cout << "Avg Frame time: " << t/numFrames << " Frame Rate: " << numFrames / t << "\n";
   }
-  int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
+  int retVal = vtkRegressionTestImageThreshold( win,15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

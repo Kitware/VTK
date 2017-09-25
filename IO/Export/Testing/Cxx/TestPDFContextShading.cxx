@@ -61,7 +61,7 @@ int TestPDFContextShading(int, char*[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(300, 300);
   vtkNew<ContextPDFTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();

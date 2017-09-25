@@ -37,12 +37,12 @@ int TestProgressBarWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1.Get());
+  renWin->AddRenderer(ren1);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.Get());
-  iren->SetInteractorStyle(style.Get());
+  iren->SetRenderWindow(renWin);
+  iren->SetInteractorStyle(style);
 
   // Create a test pipeline
   //
@@ -50,40 +50,40 @@ int TestProgressBarWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(ss->GetOutputPort());
   vtkNew<vtkActor> sph;
-  sph->SetMapper(mapper.Get());
+  sph->SetMapper(mapper);
 
   vtkNew<vtkCylinderSource> cs;
   vtkNew<vtkPolyDataMapper> csMapper;
   csMapper->SetInputConnection(cs->GetOutputPort());
   vtkNew<vtkActor> cyl;
-  cyl->SetMapper(csMapper.Get());
+  cyl->SetMapper(csMapper);
   cyl->AddPosition(5, 0, 0);
 
   vtkNew<vtkConeSource> coneSource;
   vtkNew<vtkPolyDataMapper> coneMapper;
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
   vtkNew<vtkActor> cone;
-  cone->SetMapper(coneMapper.Get());
+  cone->SetMapper(coneMapper);
   cone->AddPosition(0, 5, 0);
 
   // Create the widget
   vtkNew<vtkProgressBarRepresentation> rep;
 
   vtkNew<vtkProgressBarWidget> widget;
-  widget->SetInteractor(iren.Get());
-  widget->SetRepresentation(rep.Get());
+  widget->SetInteractor(iren);
+  widget->SetRepresentation(rep);
 
   // Create the widget
   vtkNew<vtkProgressBarWidget> widget2;
-  widget2->SetInteractor(iren.Get());
+  widget2->SetInteractor(iren);
   widget2->CreateDefaultRepresentation();
   vtkProgressBarRepresentation* rep2 = vtkProgressBarRepresentation::SafeDownCast(widget2->GetRepresentation());
 
   // Add the actors to the renderer, set the background and size
   //
-  ren1->AddActor(sph.Get());
-  ren1->AddActor(cyl.Get());
-  ren1->AddActor(cone.Get());
+  ren1->AddActor(sph);
+  ren1->AddActor(cyl);
+  ren1->AddActor(cone);
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300, 300);
 

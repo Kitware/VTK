@@ -37,8 +37,8 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  renWin->AddRenderer(ren.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkmContour> cubes;
 
@@ -58,13 +58,13 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   mapper->SetScalarRange(0.0, 1.0);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

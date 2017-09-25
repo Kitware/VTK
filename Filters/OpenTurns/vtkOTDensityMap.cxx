@@ -138,7 +138,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkDataArrayCollection> arrays;
   arrays->AddItem(xArray);
   arrays->AddItem(yArray);
-  Sample* input = vtkOTUtilities::SingleDimArraysToSample(arrays.Get());
+  Sample* input = vtkOTUtilities::SingleDimArraysToSample(arrays);
 
   // Create the PDF Grid
   OT::Indices pointNumber(2, this->GridSubdivisions);
@@ -213,7 +213,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Create contour and set contour values
   vtkNew<vtkContourFilter> contour;
-  contour->SetInputData(image.Get());
+  contour->SetInputData(image);
   int numContours = this->ContourValues->GetNumberOfContours();
   contour->SetNumberOfContours(numContours);
   double* contourValues = this->ContourValues->GetValues();
@@ -265,14 +265,14 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
          it2 != range.second;
          ++it2)
     {
-      block->SetBlock(nChildBlock, it2->second.GetPointer());
+      block->SetBlock(nChildBlock, it2->second);
       block->GetMetaData(nChildBlock)->Set(vtkOTDensityMap::DENSITY(), it2->first);
       nChildBlock++;
     }
 
     // Store block in output
     block->SetNumberOfBlocks(nChildBlock);
-    output->SetBlock(nBlock, block.Get());
+    output->SetBlock(nBlock, block);
     std::ostringstream strs;
     strs << it->first;
     output->GetMetaData(nBlock)->Set(vtkCompositeDataSet::NAME(), strs.str().c_str());
@@ -313,8 +313,8 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
     vtkNew<vtkDoubleArray> x;
     vtkNew<vtkDoubleArray> y;
     vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
-    table->AddColumn(x.Get());
-    table->AddColumn(y.Get());
+    table->AddColumn(x);
+    table->AddColumn(y);
 
     // Using neighbor, try to find a cell wich is the begining of the line,
     // or go full circle
@@ -338,7 +338,7 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
       // Find the next cell and recover current cell point indices
       pointIndices->Reset();
       nextCellId = this->FindNextCellId(
-        contourPd, alongCellId, previousCellId, inverted, false, pointIndices.Get());
+        contourPd, alongCellId, previousCellId, inverted, false, pointIndices);
       vtkIdType nPoints = pointIndices->GetNumberOfIds();
 
       // If this is the first or final cell, store all points
@@ -442,7 +442,7 @@ vtkIdType vtkOTDensityMap::FindNextCellId(vtkPolyData* pd,
     edgePt->InsertNextId(localCellPoints->GetId(localPtIndex));
 
     // Recover cell neighbors at this extremity
-    pd->GetCellNeighbors(cellId, edgePt.Get(), edgeCells.Get());
+    pd->GetCellNeighbors(cellId, edgePt, edgeCells);
     edgePt->Reset();
     nCells = edgeCells->GetNumberOfIds();
 

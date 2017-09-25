@@ -528,7 +528,7 @@ int vtkDistributedDataFilter::RequestData(
   {
     vtkSmartPointer<vtkDataSet> ds;
     ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds.GetPointer() == nullptr)
+    if (ds == nullptr)
     {
       if (leafTypes[cc] == -1)
       {

@@ -244,7 +244,7 @@ void vtkCompositeSurfaceLICMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkCompositeSurfaceLICMapper::CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper)
 {
   this->Superclass::CopyMapperValuesToHelper(helper);
-  // static_cast<vtkCompositeLICHelper *>(helper)->SetLICInterface(this->LICInterface.Get());
+  // static_cast<vtkCompositeLICHelper *>(helper)->SetLICInterface(this->LICInterface);
   helper->SetInputArrayToProcess(0,
      this->GetInputArrayInformation(0));
 }

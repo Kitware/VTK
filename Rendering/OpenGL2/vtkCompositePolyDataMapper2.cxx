@@ -558,7 +558,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
       this->VBOInverseTransform->Identity();
       this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
       this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
-      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
+      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale);
     }
   }
 

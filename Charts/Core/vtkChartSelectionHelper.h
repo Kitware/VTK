@@ -85,11 +85,11 @@ static void MakeSelection(vtkAnnotationLink *link, vtkIdTypeArray *selectionIds,
     // Use a simple single selection node layout, remove previous selections.
     vtkNew<vtkSelection> selection;
     vtkNew<vtkSelectionNode> node;
-    selection->AddNode(node.GetPointer());
+    selection->AddNode(node);
     node->SetContentType(vtkSelectionNode::INDICES);
     node->SetFieldType(vtkSelectionNode::POINT);
     node->SetSelectionList(selectionIds);
-    link->SetCurrentSelection(selection.GetPointer());
+    link->SetCurrentSelection(selection);
   }
 }
 

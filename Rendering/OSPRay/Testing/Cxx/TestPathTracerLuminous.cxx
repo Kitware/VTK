@@ -106,7 +106,7 @@ int TestPathTracerLuminous(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer.Get(), ospray,
+  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, ospray,
                                   NULL);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

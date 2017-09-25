@@ -245,7 +245,7 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
       trans[i] = p24[i] - p14[i];
     }
 
-    vtkTransform *newTransform = this->TempTransform.Get();
+    vtkTransform *newTransform = this->TempTransform;
 
     // changes in Z adjust the scale
     double ratio = (0.5+trans[2]/this->LastScale)/0.5;
@@ -312,7 +312,7 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
     }
     this->TextActor->AddPosition(trans[0], trans[1], trans[2]);
 
-    vtkTransform *newTransform = this->TempTransform.Get();
+    vtkTransform *newTransform = this->TempTransform;
 
     // compute the net rotation
     vtkQuaternion<double> q1;

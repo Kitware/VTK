@@ -68,28 +68,28 @@ int TestMultiBlockMapper(int argc, char *argv[])
   opacity->AddPoint(641.0, 1.0);
 
   vtkNew<vtkVolumeProperty> property;
-  property->SetColor(color.GetPointer());
-  property->SetScalarOpacity(opacity.GetPointer());
+  property->SetColor(color);
+  property->SetScalarOpacity(opacity);
   property->SetInterpolationTypeToLinear();
   property->ShadeOn();
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(property.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(property);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(401, 400);
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
-  ren->AddVolume(volume.GetPointer());
+  ren->AddVolume(volume);
   ren->ResetCamera();
   ren->GetActiveCamera()->Azimuth(0);
   ren->GetActiveCamera()->Roll(-65);
@@ -98,7 +98,7 @@ int TestMultiBlockMapper(int argc, char *argv[])
   renWin->Render();
 
   // initialize render loop
-  int const retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int const retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Initialize();

@@ -41,7 +41,7 @@ int TestTreeDifferenceFilter(int, char*[])
   weights1->SetValue(graph1->GetEdgeId(internalTwo, b), 1.0f);
   weights1->SetValue(graph1->GetEdgeId(internalOne, c), 3.0f);
   weights1->SetName("weight");
-  graph1->GetEdgeData()->AddArray(weights1.GetPointer());
+  graph1->GetEdgeData()->AddArray(weights1);
 
   vtkNew<vtkStringArray> names1;
   names1->SetNumberOfTuples(6);
@@ -49,10 +49,10 @@ int TestTreeDifferenceFilter(int, char*[])
   names1->SetValue(b, "b");
   names1->SetValue(c, "c");
   names1->SetName("node name");
-  graph1->GetVertexData()->AddArray(names1.GetPointer());
+  graph1->GetVertexData()->AddArray(names1);
 
   vtkNew<vtkTree> tree1;
-  tree1->ShallowCopy(graph1.GetPointer());
+  tree1->ShallowCopy(graph1);
 
   // create tree 2.  Same topology as tree 1, but its vertices are created in
   // a different order.  Also, its edge weights are different.
@@ -70,7 +70,7 @@ int TestTreeDifferenceFilter(int, char*[])
   names2->SetValue(b, "b");
   names2->SetValue(c, "c");
   names2->SetName("node name");
-  graph2->GetVertexData()->AddArray(names2.GetPointer());
+  graph2->GetVertexData()->AddArray(names2);
 
   vtkNew<vtkDoubleArray> weights2;
   weights2->SetNumberOfTuples(5);
@@ -80,15 +80,15 @@ int TestTreeDifferenceFilter(int, char*[])
   weights2->SetValue(graph2->GetEdgeId(internalTwo, b), 5.0f);
   weights2->SetValue(graph2->GetEdgeId(internalOne, c), 8.0f);
   weights2->SetName("weight");
-  graph2->GetEdgeData()->AddArray(weights2.GetPointer());
+  graph2->GetEdgeData()->AddArray(weights2);
 
   vtkNew<vtkTree> tree2;
-  tree2->ShallowCopy(graph2.GetPointer());
+  tree2->ShallowCopy(graph2);
 
   vtkNew<vtkTreeDifferenceFilter> filter;
   filter->Print(std::cout);
-  filter->SetInputDataObject(0, tree1.GetPointer());
-  filter->SetInputDataObject(1, tree2.GetPointer());
+  filter->SetInputDataObject(0, tree1);
+  filter->SetInputDataObject(1, tree2);
   filter->SetIdArrayName("node name");
   filter->SetComparisonArrayIsVertexData(false);
   filter->SetComparisonArrayName("weight");

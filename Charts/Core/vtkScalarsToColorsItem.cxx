@@ -190,7 +190,7 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
       transformedShape->SetPoint(i, point);
     }
     painter->ApplyPen(this->PolyLinePen);
-    painter->DrawPoly(transformedShape.GetPointer());
+    painter->DrawPoly(transformedShape);
   }
 
   return true;

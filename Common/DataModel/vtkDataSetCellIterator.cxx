@@ -118,7 +118,7 @@ namespace
 void vtkDataSetCellIterator::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "DataSet: " << this->DataSet.GetPointer() << endl;
+  os << indent << "DataSet: " << this->DataSet << endl;
 
 }
 
@@ -147,7 +147,7 @@ void vtkDataSetCellIterator::SetDataSet(vtkDataSet *ds)
 //------------------------------------------------------------------------------
 bool vtkDataSetCellIterator::IsDoneWithTraversal()
 {
-  return this->DataSet.GetPointer() == nullptr
+  return this->DataSet == nullptr
       || this->CellId >= this->DataSet->GetNumberOfCells();
 }
 

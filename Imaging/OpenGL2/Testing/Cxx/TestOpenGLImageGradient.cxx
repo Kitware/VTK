@@ -37,8 +37,8 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   vtkNew<vtkInteractorStyleImage> style;
   style->SetInteractionModeToImageSlicing();
   vtkNew<vtkRenderWindow> renWin;
-  iren->SetRenderWindow(renWin.Get());
-  iren->SetInteractorStyle(style.Get());
+  iren->SetRenderWindow(renWin);
+  iren->SetInteractorStyle(style);
 
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
@@ -63,7 +63,7 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   imageMapper->SliceAtFocalPointOn();
 
   vtkNew<vtkImageSlice> image;
-  image->SetMapper(imageMapper.Get());
+  image->SetMapper(imageMapper);
 
   double range[2] = { -100, 100 };
 
@@ -72,9 +72,9 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   image->GetProperty()->SetInterpolationTypeToNearest();
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddViewProp(image.Get());
+  renderer->AddViewProp(image);
   renderer->SetBackground(0.2,0.3,0.4);
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
 
   const double *bounds = imageMapper->GetBounds();
   double point[3];
@@ -101,7 +101,7 @@ int TestOpenGLImageGradient(int argc, char *argv[])
   iren->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.Get() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

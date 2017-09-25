@@ -92,7 +92,7 @@ void vtkOBJImporter::ReadData()
   this->Impl->Update();
   if (Impl->GetSuccessParsingFiles())
   {
-    bindTexturedPolydataToRenderWindow(this->RenderWindow,this->Renderer,Impl.Get());
+    bindTexturedPolydataToRenderWindow(this->RenderWindow,this->Renderer,Impl);
   }
 }
 

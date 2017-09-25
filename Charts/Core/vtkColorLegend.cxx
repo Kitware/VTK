@@ -126,8 +126,8 @@ bool vtkColorLegend::Paint(vtkContext2D* painter)
   if (this->DrawBorder)
   {
     // Draw a box around the legend.
-    painter->ApplyPen(this->Pen.GetPointer());
-    painter->ApplyBrush(this->Brush.GetPointer());
+    painter->ApplyPen(this->Pen);
+    painter->ApplyBrush(this->Brush);
     painter->DrawRect(this->Rect.GetX(), this->Rect.GetY(),
                       this->Rect.GetWidth(), this->Rect.GetHeight());
   }

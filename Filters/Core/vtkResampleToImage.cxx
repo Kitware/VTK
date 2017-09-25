@@ -237,7 +237,7 @@ void vtkResampleToImage::PerformResampling(vtkDataObject *input,
   structure->SetSpacing(spacing);
   structure->SetExtent(probingExtent);
 
-  this->Prober->SetInputData(structure.GetPointer());
+  this->Prober->SetInputData(structure);
   this->Prober->SetSourceData(input);
   this->Prober->Update();
 

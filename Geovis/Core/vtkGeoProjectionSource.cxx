@@ -480,7 +480,7 @@ void vtkGeoProjectionSource::SetProjection(int projection)
   vtkSmartPointer<vtkGeoProjection> proj = vtkSmartPointer<vtkGeoProjection>::New();
   proj->SetName(vtkGeoProjection::GetProjectionName(projection));
   trans->SetDestinationProjection(proj);
-  this->SetTransform(trans.GetPointer());
+  this->SetTransform(trans);
 }
 
 //----------------------------------------------------------------------------

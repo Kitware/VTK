@@ -199,7 +199,7 @@ int vtkLagrangianParticleTracker::RequestDataObject(
   // Create a polydata output
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkNew<vtkPolyData> particlePathsOutput;
-  info->Set(vtkDataObject::DATA_OBJECT(), particlePathsOutput.Get());
+  info->Set(vtkDataObject::DATA_OBJECT(), particlePathsOutput);
 
   // Create a surface interaction output
   // First check for composite
@@ -223,7 +223,7 @@ int vtkLagrangianParticleTracker::RequestDataObject(
   }
   // In any other case, create a polydata
   vtkNew<vtkPolyData> interactionOutput;
-  info->Set(vtkDataObject::DATA_OBJECT(), interactionOutput.Get());
+  info->Set(vtkDataObject::DATA_OBJECT(), interactionOutput);
   return 1;
 }
 
@@ -248,7 +248,7 @@ int vtkLagrangianParticleTracker::RequestData(
 
   vtkNew<vtkPointData> seedData;
   if (!this->InitializeInputs(inputVector, flow, seeds, surfaces,
-    particlesQueue, seedData.Get()))
+    particlesQueue, seedData))
   {
     vtkErrorMacro(<< "Cannot initialize inputs");
     return 0;
@@ -257,7 +257,7 @@ int vtkLagrangianParticleTracker::RequestData(
   // Initialize outputs
   vtkPolyData* particlePathsOutput;
   vtkDataObject* interactionOutput;
-  if (!this->InitializeOutputs(outputVector, seedData.Get(),
+  if (!this->InitializeOutputs(outputVector, seedData,
     static_cast<vtkIdType>(particlesQueue.size()), surfaces,
     particlePathsOutput, interactionOutput))
   {
@@ -299,7 +299,7 @@ int vtkLagrangianParticleTracker::RequestData(
     if (particlePath->GetPointIds()->GetNumberOfIds() > 0)
     {
       // Add particle path or vertex to cell array
-      particlePathsOutput->GetLines()->InsertNextCell(particlePath.Get());
+      particlePathsOutput->GetLines()->InsertNextCell(particlePath);
       this->InsertPathData(particle, particlePathsOutput->GetCellData());
 
       // Insert data from seed data only on not yet written arrays
@@ -447,9 +447,9 @@ bool vtkLagrangianParticleTracker::InitializePathsOutput(vtkInformationVector *o
   vtkNew<vtkPoints> particlePathsPoints;
   vtkNew<vtkCellArray> particlePaths;
   vtkNew<vtkCellArray> particleVerts;
-  particlePathsOutput->SetPoints(particlePathsPoints.Get());
-  particlePathsOutput->SetLines(particlePaths.Get());
-  particlePathsOutput->SetVerts(particleVerts.Get());
+  particlePathsOutput->SetPoints(particlePathsPoints);
+  particlePathsOutput->SetLines(particlePaths);
+  particlePathsOutput->SetVerts(particleVerts);
 
   // Prepare particle paths output point data
   vtkCellData* particlePathsCellData = particlePathsOutput->GetCellData();
@@ -514,14 +514,14 @@ bool vtkLagrangianParticleTracker::InitializeInteractionOutput(
       vtkNew<vtkPolyData> pd;
       vtkNew<vtkCellArray> cells;
       vtkNew<vtkPoints> points;
-      pd->SetPoints(points.Get());
+      pd->SetPoints(points);
       pd->GetPointData()->CopyStructure(seedData);
       this->InitializePathData(pd->GetPointData());
       this->InitializeInteractionData(pd->GetPointData());
       this->InitializeParticleData(pd->GetPointData());
       this->IntegrationModel->
         InitializeVariablesParticleData(pd->GetPointData());
-      hdOutput->SetDataSet(iter, pd.Get());
+      hdOutput->SetDataSet(iter, pd);
     }
   }
   else if (dsInput)
@@ -535,7 +535,7 @@ bool vtkLagrangianParticleTracker::InitializeInteractionOutput(
 
     vtkNew<vtkPoints> points;
     vtkNew<vtkCellArray> cells;
-    pd->SetPoints(points.Get());
+    pd->SetPoints(points);
     pd->GetPointData()->CopyStructure(seedData);
     this->InitializePathData(pd->GetPointData());
     this->InitializeInteractionData(pd->GetPointData());
@@ -553,19 +553,19 @@ void vtkLagrangianParticleTracker::InitializeParticleData(vtkFieldData* particle
   particleStepNumArray->SetName("StepNumber");
   particleStepNumArray->SetNumberOfComponents(1);
   particleStepNumArray->Allocate(maxTuple);
-  particleData->AddArray(particleStepNumArray.Get());
+  particleData->AddArray(particleStepNumArray);
 
   vtkNew<vtkDoubleArray> particleVelArray;
   particleVelArray->SetName("ParticleVelocity");
   particleVelArray->SetNumberOfComponents(3);
   particleVelArray->Allocate(maxTuple*3);
-  particleData->AddArray(particleVelArray.Get());
+  particleData->AddArray(particleVelArray);
 
   vtkNew<vtkDoubleArray> particleIntegrationTimeArray;
   particleIntegrationTimeArray->SetName("IntegrationTime");
   particleIntegrationTimeArray->SetNumberOfComponents(1);
   particleIntegrationTimeArray->Allocate(maxTuple);
-  particleData->AddArray(particleIntegrationTimeArray.Get());
+  particleData->AddArray(particleIntegrationTimeArray);
 }
 
 //---------------------------------------------------------------------------
@@ -574,22 +574,22 @@ void vtkLagrangianParticleTracker::InitializePathData(vtkFieldData* data)
   vtkNew<vtkLongLongArray> particleIdArray;
   particleIdArray->SetName("Id");
   particleIdArray->SetNumberOfComponents(1);
-  data->AddArray(particleIdArray.Get());
+  data->AddArray(particleIdArray);
 
   vtkNew<vtkLongLongArray> particleParentIdArray;
   particleParentIdArray->SetName("ParentId");
   particleParentIdArray->SetNumberOfComponents(1);
-  data->AddArray(particleParentIdArray.Get());
+  data->AddArray(particleParentIdArray);
 
   vtkNew<vtkLongLongArray> particleSeedIdArray;
   particleSeedIdArray->SetName("SeedId");
   particleSeedIdArray->SetNumberOfComponents(1);
-  data->AddArray(particleSeedIdArray.Get());
+  data->AddArray(particleSeedIdArray);
 
   vtkNew<vtkIntArray> particleTerminationArray;
   particleTerminationArray->SetName("Termination");
   particleTerminationArray->SetNumberOfComponents(1);
-  data->AddArray(particleTerminationArray.Get());
+  data->AddArray(particleTerminationArray);
 }
 
 //---------------------------------------------------------------------------
@@ -598,7 +598,7 @@ void vtkLagrangianParticleTracker::InitializeInteractionData(vtkFieldData* data)
   vtkNew<vtkIntArray> interactionArray;
   interactionArray->SetName("Interaction");
   interactionArray->SetNumberOfComponents(1);
-  data->AddArray(interactionArray.Get());
+  data->AddArray(interactionArray);
 }
 
 //---------------------------------------------------------------------------
@@ -666,7 +666,7 @@ void vtkLagrangianParticleTracker::InsertPolyVertexCell(vtkPolyData* polydata)
     {
       polyVertex->InsertCellPoint(i);
     }
-    polydata->SetVerts(polyVertex.Get());
+    polydata->SetVerts(polyVertex);
   }
 }
 

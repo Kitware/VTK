@@ -56,7 +56,7 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
   plane->SetNormal( -.2, -.6, 1. );
   vtkNew<vtkClipDataSet> clip;
   clip->SetInputConnection( htGrid->GetOutputPort() );
-  clip->SetClipFunction( plane.GetPointer() );
+  clip->SetClipFunction( plane );
 
   // Shrink
   vtkNew<vtkShrinkFilter> shrink;
@@ -76,11 +76,11 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   actor1->GetProperty()->SetRepresentationToWireframe();
   actor1->GetProperty()->SetColor( .8, .8, .8 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
 
   // Camera
   vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
@@ -93,25 +93,25 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 40 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 40 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

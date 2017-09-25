@@ -139,7 +139,7 @@ int vtkDataObjectTree::HasChildMetaData(unsigned int index)
   if (index < this->Internals->Children.size())
   {
     vtkDataObjectTreeItem& item = this->Internals->Children[index];
-    return (item.MetaData.GetPointer() != nullptr)? 1 : 0;
+    return (item.MetaData != nullptr)? 1 : 0;
   }
 
   return 0;

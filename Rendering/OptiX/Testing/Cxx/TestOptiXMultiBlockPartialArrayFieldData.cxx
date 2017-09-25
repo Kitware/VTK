@@ -117,7 +117,7 @@ int TestOptiXMultiBlockPartialArrayFieldData(int argc, char* argv[])
   mapper->SetInputDataObject(data);
 
   // Tell mapper to use field data for rendering
-  mapper->SetLookupTable(lookupTable.GetPointer());
+  mapper->SetLookupTable(lookupTable);
   mapper->SetFieldDataTupleId(0);
   mapper->SelectColorArray("mydata");
   mapper->SetScalarModeToUseFieldData();
@@ -142,7 +142,7 @@ int TestOptiXMultiBlockPartialArrayFieldData(int argc, char* argv[])
 
   win->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
+  int retVal = vtkRegressionTestImageThreshold( win,15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

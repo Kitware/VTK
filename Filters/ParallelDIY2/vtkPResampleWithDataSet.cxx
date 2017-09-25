@@ -852,9 +852,9 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
         pts->InsertNextPoint(points[j].Position);
       }
       vtkNew<vtkUnstructuredGrid> ds;
-      ds->SetPoints(pts.GetPointer());
+      ds->SetPoints(pts);
 
-      prober->SetInputData(ds.GetPointer());
+      prober->SetInputData(ds);
       prober->Update();
       vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
       if (numberOfValidPoints == 0)
@@ -916,7 +916,7 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
         ds->SetOrigin(points.Origin);
         ds->SetSpacing(points.Spacing);
 
-        prober->SetInputData(ds.GetPointer());
+        prober->SetInputData(ds);
         prober->Update();
         vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
         if (numberOfValidPoints == 0)

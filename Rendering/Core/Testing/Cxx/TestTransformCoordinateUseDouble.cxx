@@ -55,8 +55,8 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
   cells->InsertCellPoint(3);
   cells->InsertCellPoint(0);
 
-  poly->SetPoints(points.GetPointer());
-  poly->SetLines(cells.GetPointer());
+  poly->SetPoints(points);
+  poly->SetLines(cells);
 
   int i = 6;
   double x = 0.;
@@ -66,7 +66,7 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
 
   vtkNew<vtkRenderer> emptyRenderer;
   emptyRenderer->SetViewport(0 , 0 , width, height);
-  renderWindow->AddRenderer(emptyRenderer.GetPointer());
+  renderWindow->AddRenderer(emptyRenderer);
 
   while (--i)
   {
@@ -75,19 +75,19 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
 
     vtkNew<vtkCoordinate> boxCoordinate;
     boxCoordinate->SetCoordinateSystemToNormalizedViewport();
-    boxCoordinate->SetViewport(renderer.GetPointer());
+    boxCoordinate->SetViewport(renderer);
 
     vtkNew<vtkPolyDataMapper2D> polyDataMapper;
-    polyDataMapper->SetInputData(poly.GetPointer());
-    polyDataMapper->SetTransformCoordinate(boxCoordinate.GetPointer());
+    polyDataMapper->SetInputData(poly);
+    polyDataMapper->SetTransformCoordinate(boxCoordinate);
     polyDataMapper->SetTransformCoordinateUseDouble(true);
 
     vtkNew<vtkActor2D> boxActor;
-    boxActor->SetMapper(polyDataMapper.GetPointer());
+    boxActor->SetMapper(polyDataMapper);
 
-    renderer->AddActor2D(boxActor.GetPointer());
+    renderer->AddActor2D(boxActor);
 
-    renderWindow->AddRenderer(renderer.GetPointer());
+    renderWindow->AddRenderer(renderer);
 
     if ( i % 2 )
     {
@@ -105,12 +105,12 @@ int TestTransformCoordinateUseDouble(int argc, char *argv[])
 
   //Render and interact
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetRenderWindow(renderWindow);
 
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor->Start();

@@ -40,7 +40,7 @@ int TestScatterPlotMatrixVehicles(int argc, char *argv[])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<vtkScatterPlotMatrix> matrix;
-  view->GetScene()->AddItem(matrix.GetPointer());
+  view->GetScene()->AddItem(matrix);
 
   // Set the scatter plot matrix up to analyze all columns in the table.
   matrix->SetInput(reader->GetOutput());

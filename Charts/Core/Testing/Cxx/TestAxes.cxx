@@ -52,7 +52,7 @@ int TestAxes(int , char * [])
   for (size_t i = 0; i < axesVertical.size(); ++i)
   {
     axesVertical[i] = vtkSmartPointer<vtkAxis>::New();
-    vtkAxis *axis = axesVertical[i].GetPointer();
+    vtkAxis *axis = axesVertical[i];
     axis->SetPoint1(vtkVector2f(i * 69 + 30, 10));
     axis->SetPoint2(vtkVector2f(i * 69 + 30, 290));
     axis->SetPosition((i % 2) ? vtkAxis::LEFT : vtkAxis::RIGHT);
@@ -78,8 +78,8 @@ int TestAxes(int , char * [])
   axesVertical[2]->SetRangeLabelFormat("%3.1f");
 
   axesVertical[3]->SetTitle("Custom vertical labels");
-  axesVertical[3]->SetCustomTickPositions(positions.GetPointer(),
-                                          labels.GetPointer());
+  axesVertical[3]->SetCustomTickPositions(positions,
+                                          labels);
   axesVertical[3]->SetPoint1(vtkVector2f(3 * 69 + 80, 10));
   axesVertical[3]->SetPoint2(vtkVector2f(3 * 69 + 80, 290));
   axesVertical[3]->AutoScale();
@@ -95,7 +95,7 @@ int TestAxes(int , char * [])
   for (size_t i = 0; i < axesHorizontal.size(); ++i)
   {
     axesHorizontal[i] = vtkSmartPointer<vtkAxis>::New();
-    vtkAxis *axis = axesHorizontal[i].GetPointer();
+    vtkAxis *axis = axesHorizontal[i];
     axis->SetPoint1(vtkVector2f(310, i * 50 + 30));
     axis->SetPoint2(vtkVector2f(490, i * 50 + 30));
     axis->SetPosition((i % 2) ? vtkAxis::TOP : vtkAxis::BOTTOM);
@@ -153,8 +153,8 @@ int TestAxes(int , char * [])
   axesHorizontal[4]->SetNumberOfTicks(5);
 
   axesHorizontal[5]->SetTitle("Custom horizontal labels");
-  axesHorizontal[5]->SetCustomTickPositions(positions.GetPointer(),
-                                            labels.GetPointer());
+  axesHorizontal[5]->SetCustomTickPositions(positions,
+                                            labels);
   axesHorizontal[5]->SetPosition(vtkAxis::BOTTOM);
 
   for (size_t i = 0; i < axesHorizontal.size(); ++i)

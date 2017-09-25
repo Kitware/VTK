@@ -600,22 +600,22 @@ int TestSmartVolumeMapperWindowLevel(int argc,
 
   vtkNew<vtkRenderer> ren1;
   ren1->SetViewport(0.0, 0.0, 0.33, 1.0);
-  renWin->AddRenderer(ren1.GetPointer());
+  renWin->AddRenderer(ren1);
   vtkNew<vtkRenderer> ren2;
   ren2->SetViewport(0.33, 0.0, 0.66, 1.0);
-  renWin->AddRenderer(ren2.GetPointer());
+  renWin->AddRenderer(ren2);
   ren2->SetActiveCamera(ren1->GetActiveCamera());
   vtkNew<vtkRenderer> ren3;
   ren3->SetViewport(0.66, 0.0, 1.0, 1.0);
-  renWin->AddRenderer(ren3.GetPointer());
+  renWin->AddRenderer(ren3);
   ren3->SetActiveCamera(ren1->GetActiveCamera());
 
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                      "Data/HeadMRVolume.mhd");
@@ -654,8 +654,8 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   pwf->AddPoint(255.0, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->SetScalarOpacity(pwf.GetPointer());
-  volumeProperty->SetColor(ctf.GetPointer());
+  volumeProperty->SetScalarOpacity(pwf);
+  volumeProperty->SetColor(ctf);
 
   // Make sure a context exists
   renWin->Render();
@@ -669,23 +669,23 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   mapper3->SetFinalColorLevel(0.75);
 
   vtkNew<vtkVolume> volume1;
-  volume1->SetMapper(mapper1.GetPointer());
-  volume1->SetProperty(volumeProperty.GetPointer());
-  ren1->AddVolume(volume1.GetPointer());
+  volume1->SetMapper(mapper1);
+  volume1->SetProperty(volumeProperty);
+  ren1->AddVolume(volume1);
   vtkNew<vtkVolume> volume2;
-  volume2->SetMapper(mapper2.GetPointer());
-  volume2->SetProperty(volumeProperty.GetPointer());
-  ren2->AddVolume(volume2.GetPointer());
+  volume2->SetMapper(mapper2);
+  volume2->SetProperty(volumeProperty);
+  ren2->AddVolume(volume2);
   vtkNew<vtkVolume> volume3;
-  volume3->SetMapper(mapper3.GetPointer());
-  volume3->SetProperty(volumeProperty.GetPointer());
-  ren3->AddVolume(volume3.GetPointer());
+  volume3->SetMapper(mapper3);
+  volume3->SetProperty(volumeProperty);
+  ren3->AddVolume(volume3);
 
   ren1->ResetCamera();
   ren2->ResetCamera();
   ren3->ResetCamera();
   renWin->Render();
 
-  return vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
+  return vtkTesting::InteractorEventLoop(argc, argv, iren,
                                          TestSmartVolumeMapperWindowLevelLog);
 }

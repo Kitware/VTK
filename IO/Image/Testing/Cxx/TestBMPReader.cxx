@@ -65,7 +65,7 @@ int TestBMPReader(int argc, char *argv[])
   cout << "descriptiveName: " << *descriptiveName << endl;
 
   vtkSmartPointer<vtkLookupTable> lookupTable = BMPReader->GetLookupTable();
-  lookupTable.Get()->Print(cout);
+  lookupTable->Print(cout);
 
   const unsigned char* colors = BMPReader->GetColors();
   unsigned char const * first = reinterpret_cast<unsigned char *>(&colors);

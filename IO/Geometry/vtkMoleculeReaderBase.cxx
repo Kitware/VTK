@@ -430,7 +430,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   ds->SetPoints(newPts);
 
   vtkNew<vtkPointLocator> locator;
-  locator->SetDataSet(ds.GetPointer());
+  locator->SetDataSet(ds);
 
   vtkNew<vtkIdList> result;
 
@@ -457,7 +457,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
     radius =
       (vtkMoleculeReaderBaseCovRadius[atype->GetValue(i)] + 2.0 + 0.56) *
       std::max(BScale, HBScale);
-    locator->FindPointsWithinRadius(radius, X, result.GetPointer());
+    locator->FindPointsWithinRadius(radius, X, result);
     for (k = result->GetNumberOfIds()-1; k >= 0; k--)
     {
       j = result->GetId(k);

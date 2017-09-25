@@ -39,9 +39,9 @@ int TestCubeMap(int argc, char *argv[])
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(400, 400);
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
   vtkNew<vtkTexture> texture;
   texture->CubeMapOn();
 
@@ -78,9 +78,9 @@ int TestCubeMap(int argc, char *argv[])
   mapper->SetInputConnection(norms->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  renderer->AddActor(actor.Get());
-  actor->SetTexture(texture.Get());
-  actor->SetMapper(mapper.Get());
+  renderer->AddActor(actor);
+  actor->SetTexture(texture);
+  actor->SetMapper(mapper);
 
    // Add new code in default VTK vertex shader
   mapper->AddShaderReplacement(
@@ -117,9 +117,9 @@ int TestCubeMap(int argc, char *argv[])
   renderWindow->Render();
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  renderWindow->GetInteractor()->SetInteractorStyle(style.Get());
+  renderWindow->GetInteractor()->SetInteractorStyle(style);
 
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -62,7 +62,7 @@ struct QVTKWidgetInsideQWidgets
     renderer->SetBackground(1.0,0.0,0.8);
     renderer->SetBackground2(0.5,0.5,0.5);
     renderer->SetGradientBackground(true);
-    glwin->AddRenderer(renderer.Get());
+    glwin->AddRenderer(renderer);
   }
 
   ~QVTKWidgetInsideQWidgets()
@@ -117,7 +117,7 @@ struct QVTKWidgetInsideQWidgets
     initializeWidget(widget1);
     QVTKWidget* qvtk   = spawnSubwidget( widget1 );
 
-    qvtk->SetRenderWindow(glwin.Get());
+    qvtk->SetRenderWindow(glwin);
 
     PRINT_AND_EVAL("BEFORE RENDER:" << glwin->ReportCapabilities());
     glwin->Render();

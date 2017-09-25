@@ -85,14 +85,14 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   cylXform->RotateWXYZ(90, 0.0, 0.0, 1.0);
   vtkNew<vtkTransformPolyDataFilter> cylXformFilter;
   cylXformFilter->SetInputConnection(cylinder->GetOutputPort());
-  cylXformFilter->SetTransform(cylXform.GetPointer());
+  cylXformFilter->SetTransform(cylXform);
   cylXformFilter->Update();
   this->BondGlyphMapper->SetSourceConnection(cylXformFilter->GetOutputPort());
 
   // Configure default LookupTable
   vtkNew<vtkLookupTable> lut;
-  this->PeriodicTable->GetDefaultLUT(lut.Get());
-  this->SetLookupTable(lut.Get());
+  this->PeriodicTable->GetDefaultLUT(lut);
+  this->SetLookupTable(lut);
 
   // Setup glyph mappers
   this->AtomGlyphMapper->SetScalarRange
@@ -107,26 +107,26 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   vtkNew<vtkEventForwarderCommand> cb;
   cb->SetTarget(this);
 
-  this->AtomGlyphMapper->AddObserver(vtkCommand::StartEvent, cb.GetPointer());
-  this->AtomGlyphMapper->AddObserver(vtkCommand::EndEvent, cb.GetPointer());
+  this->AtomGlyphMapper->AddObserver(vtkCommand::StartEvent, cb);
+  this->AtomGlyphMapper->AddObserver(vtkCommand::EndEvent, cb);
   this->AtomGlyphMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb.GetPointer());
+                                     cb);
 
-  this->BondGlyphMapper->AddObserver(vtkCommand::StartEvent, cb.GetPointer());
-  this->BondGlyphMapper->AddObserver(vtkCommand::EndEvent, cb.GetPointer());
+  this->BondGlyphMapper->AddObserver(vtkCommand::StartEvent, cb);
+  this->BondGlyphMapper->AddObserver(vtkCommand::EndEvent, cb);
   this->BondGlyphMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb.GetPointer());
+                                     cb);
 
   // Connect the trivial producers to forward the glyph polydata
-  this->AtomGlyphPointOutput->SetOutput(this->AtomGlyphPolyData.GetPointer());
+  this->AtomGlyphPointOutput->SetOutput(this->AtomGlyphPolyData);
   this->AtomGlyphMapper->SetInputConnection
     (this->AtomGlyphPointOutput->GetOutputPort());
 
-  this->BondGlyphPointOutput->SetOutput(this->BondGlyphPolyData.GetPointer());
+  this->BondGlyphPointOutput->SetOutput(this->BondGlyphPolyData);
   this->BondGlyphMapper->SetInputConnection
     (this->BondGlyphPointOutput->GetOutputPort());
 
-  this->LatticeMapper->SetInputData(this->LatticePolyData.Get());
+  this->LatticeMapper->SetInputData(this->LatticePolyData);
   this->LatticeMapper->SetColorModeToDefault();
 
   // Force the glyph data to be generated on the next render:
@@ -447,7 +447,7 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
     }
   }
 
-  this->AtomGlyphPolyData->GetPointData()->AddArray(scaleFactors.GetPointer());
+  this->AtomGlyphPolyData->GetPointData()->AddArray(scaleFactors);
   this->AtomGlyphMapper->SetScaleArray("Scale Factors");
 }
 
@@ -506,12 +506,12 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   selectionIds->Allocate(numCylinders);
 
   // Add arrays to BondGlyphPolyData
-  this->BondGlyphPolyData->SetPoints(cylCenters.GetPointer());
-  this->BondGlyphPolyData->GetPointData()->AddArray(cylScales.GetPointer());
+  this->BondGlyphPolyData->SetPoints(cylCenters);
+  this->BondGlyphPolyData->GetPointData()->AddArray(cylScales);
   this->BondGlyphPolyData->GetPointData()->AddArray(
-    orientationVectors.GetPointer());
+    orientationVectors);
   this->BondGlyphPolyData->GetPointData()->AddArray(
-        selectionIds.GetPointer());
+        selectionIds);
 
   // Set up coloring mode
   vtkDataArray *cylColors = nullptr;
@@ -775,7 +775,7 @@ void vtkMoleculeMapper::UpdateLatticePolyData()
   points->SetPoint(5, (origin + a + c).GetData());
   points->SetPoint(6, (origin + b + c).GetData());
   points->SetPoint(7, (origin + a + b + c).GetData());
-  this->LatticePolyData->SetPoints(points.Get());
+  this->LatticePolyData->SetPoints(points);
 
   vtkNew<vtkUnsignedCharArray> latticeColors;
   latticeColors->SetNumberOfComponents(3);
@@ -784,7 +784,7 @@ void vtkMoleculeMapper::UpdateLatticePolyData()
   {
     latticeColors->SetTypedTuple(i, this->LatticeColor);
   }
-  this->LatticePolyData->GetPointData()->SetScalars(latticeColors.Get());
+  this->LatticePolyData->GetPointData()->SetScalars(latticeColors);
 
   vtkNew<vtkCellArray> lines;
   vtkIdType line[2];
@@ -826,7 +826,7 @@ void vtkMoleculeMapper::UpdateLatticePolyData()
   line[1] = 7;
   lines->InsertNextCell(2, line);
 
-  this->LatticePolyData->SetLines(lines.Get());
+  this->LatticePolyData->SetLines(lines);
 }
 
 //----------------------------------------------------------------------------

@@ -131,7 +131,7 @@ int TestContext2D(int, char*[])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(300, 300);
   vtkNew<ContextItem> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())

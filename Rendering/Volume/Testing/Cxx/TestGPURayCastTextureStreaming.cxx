@@ -83,9 +83,9 @@ int TestGPURayCastTextureStreaming(int argc, char* argv[])
   gf->AddPoint(100, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->SetScalarOpacity(pf.GetPointer());
-  volumeProperty->SetGradientOpacity(gf.GetPointer());
-  volumeProperty->SetColor(ctf.GetPointer());
+  volumeProperty->SetScalarOpacity(pf);
+  volumeProperty->SetGradientOpacity(gf);
+  volumeProperty->SetColor(ctf);
   volumeProperty->ShadeOn();
 
   // Setup rendering context
@@ -94,7 +94,7 @@ int TestGPURayCastTextureStreaming(int argc, char* argv[])
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   ren->SetBackground(0.1, 0.1, 0.1);
 
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
@@ -103,27 +103,27 @@ int TestGPURayCastTextureStreaming(int argc, char* argv[])
 
   // Force a number of partition blocks
   vtkOpenGLGPUVolumeRayCastMapper* mappergl =
-    vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper.GetPointer());
+    vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   mappergl->SetPartitions(2, 1, 2);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
-  ren->AddVolume(volume.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(volumeProperty);
+  ren->AddVolume(volume);
 
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.4);
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render();
 
-  int retVal = vtkTesting::Test(argc, argv, renWin.GetPointer(), 90);
+  int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

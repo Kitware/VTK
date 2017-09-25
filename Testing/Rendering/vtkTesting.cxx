@@ -404,14 +404,14 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
   rtW2if->ReadFrontBufferOff();
   rtW2if->Update();
   this->RenderWindow->SetSwapBuffers(swapBuffers); // restore swap state.
-  int res = this->RegressionTest(rtW2if.Get(), thresh, out1);
+  int res = this->RegressionTest(rtW2if, thresh, out1);
   if (res == FAILED)
   {
       std::ostringstream out2;
       // tell it to read front buffer
       rtW2if->ReadFrontBufferOn();
       rtW2if->Update();
-      res = this->RegressionTest(rtW2if.Get(), thresh, out2);
+      res = this->RegressionTest(rtW2if, thresh, out2);
       // If both tests fail, rerun the backbuffer tests to recreate the test
       // image. Otherwise an incorrect image will be uploaded to CDash.
       if (res == PASSED)
@@ -428,7 +428,7 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
         }
         rtW2if->ReadFrontBufferOff();
         rtW2if->Update();
-        return this->RegressionTest(rtW2if.Get(), thresh, os);
+        return this->RegressionTest(rtW2if, thresh, os);
       }
   }
   else
@@ -450,7 +450,7 @@ int vtkTesting::RegressionTest(const string &pngFileName, double thresh,
   inputReader->SetFileName(pngFileName.c_str());
   inputReader->Update();
 
-  vtkAlgorithm *src = inputReader.Get();
+  vtkAlgorithm *src = inputReader;
 
   vtkSmartPointer<vtkImageExtractComponents> extract;
   // Convert rgba to rgb if needed
@@ -461,7 +461,7 @@ int vtkTesting::RegressionTest(const string &pngFileName, double thresh,
     extract->SetInputConnection(src->GetOutputPort());
     extract->SetComponents(0, 1, 2);
     extract->Update();
-    src = extract.Get();
+    src = extract;
   }
 
   return this->RegressionTest(src, thresh, os);

@@ -62,13 +62,13 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, vtkD
   values->SetName(this->ArrayName);
   values->SetNumberOfTuples(numCells);
   double value;
-  output->GetCellData()->AddArray(values.GetPointer());
+  output->GetCellData()->AddArray(values);
   vtkNew<vtkGenericCell> cell;
   vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input);
   int highestDimension = -1;
   for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
   {
-    input->GetCell(cellId, cell.GetPointer());
+    input->GetCell(cellId, cell);
     int cellDimension = cell->GetCellDimension();
     highestDimension = std::max(cellDimension, highestDimension);
     if (highestDimension == 3)
@@ -139,8 +139,8 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, vtkD
       if ( (this->ComputeHighestDimension && highestDimension == 2) ||
            (!this->ComputeHighestDimension && this->ComputeArea) )
       {
-        input->GetCell(cellId, cell.GetPointer());
-        value = vtkMeshQuality::TriangleArea(cell.GetPointer());
+        input->GetCell(cellId, cell);
+        value = vtkMeshQuality::TriangleArea(cell);
       }
       else
       {
@@ -203,8 +203,8 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, vtkD
       if ( (this->ComputeHighestDimension && highestDimension == 2) ||
            (!this->ComputeHighestDimension && this->ComputeArea) )
       {
-        input->GetCell(cellId, cell.GetPointer());
-        value = vtkMeshQuality::QuadArea(cell.GetPointer());
+        input->GetCell(cellId, cell);
+        value = vtkMeshQuality::QuadArea(cell);
       }
       else
       {
@@ -233,8 +233,8 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, vtkD
     {
       if (this->ComputeVolume || this->ComputeHighestDimension)
       {
-        input->GetCell(cellId, cell.GetPointer());
-        value = vtkMeshQuality::TetVolume(cell.GetPointer());
+        input->GetCell(cellId, cell);
+        value = vtkMeshQuality::TetVolume(cell);
       }
       else
       {
@@ -247,7 +247,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, vtkD
     default:
     {
       // We need to explicitly get the cell
-      input->GetCell(cellId, cell.GetPointer());
+      input->GetCell(cellId, cell);
       cellDimension = cell->GetCellDimension();
       switch (cellDimension)
       {
@@ -457,7 +457,7 @@ void vtkCellSizeFilter::IntegrateImageData(
   outArray->SetName(this->ArrayName);
   outArray->SetNumberOfTuples(input->GetNumberOfCells());
   outArray->Fill(val);
-  output->GetCellData()->AddArray(outArray.GetPointer());
+  output->GetCellData()->AddArray(outArray);
   if (sum)
   {
     if (vtkUnsignedCharArray* ghosts = input->GetCellGhostArray())
@@ -670,7 +670,7 @@ double vtkCellSizeFilter::IntegrateGeneral3DCell(
     tetPtIds[3] = ptIds->GetId(tetIdx++);
     vtkNew<vtkTetra> tet;
     tet->Initialize(4, tetPtIds, input->GetPoints());
-    sum += vtkMeshQuality::TetVolume(tet.GetPointer());
+    sum += vtkMeshQuality::TetVolume(tet);
   }
   return sum;
 }

@@ -288,7 +288,7 @@ public:
       {
         points->SetNumberOfPoints(1);
       }
-        Tail->SetPoints(points.GetPointer());
+        Tail->SetPoints(points);
     }
 
 
@@ -583,7 +583,7 @@ public:
       vtkSmartPointer<PStreamTracerPoint> point = NewPoint(i,seed,integrationDirections->GetValue(i));
       if(this->InBound(point))
       {
-        out.push_back(point.GetPointer());
+        out.push_back(point);
       }
     }
     if(seeds)
@@ -685,7 +685,7 @@ protected:
       protoPD->AddArray(normals);
     }
     AssertEq(this->Proto->GetTail(),nullptr);
-    this->Proto->AllocateTail(protoPD.GetPointer());
+    this->Proto->AllocateTail(protoPD);
   }
 
   vtkPStreamTracer* Tracer;
@@ -1119,7 +1119,7 @@ namespace
         {
           vtkNew<Task> task;
           task->Point = seeds[i];
-          NTasks.push_back(task.GetPointer());
+          NTasks.push_back(task);
         }
       }
       ALLPRINT(NTasks.size()<<" initial seeds out of "<<totalNumTasks);
@@ -1650,7 +1650,7 @@ int vtkPStreamTracer::RequestData(
   for (traceOutputsType::iterator it = traceOutputs.begin();
        it != traceOutputs.end(); ++it)
   {
-    vtkPolyData* inp = it->GetPointer();
+    vtkPolyData* inp = it-;
     if ( inp->GetNumberOfCells() > 0 )
     {
       append->AddInputData(inp);
@@ -1687,8 +1687,8 @@ int vtkPStreamTracer::RequestData(
     {
       lines->InitTraversal();
       vtkNew<vtkIdList> trace;
-      lines->GetNextCell(trace.GetPointer());
-      length= ComputeLength(trace.GetPointer(),poly->GetPoints());
+      lines->GetNextCell(trace);
+      length= ComputeLength(trace,poly->GetPoints());
     }
     lengths[id] += length;
   }
@@ -1757,8 +1757,8 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
   vtkStreamTracer::Integrate(input->GetPointData(),
                     traceOut,
                     seeds,
-                    seedIds.GetPointer(),
-                    integrationDirections.GetPointer(),
+                    seedIds,
+                    integrationDirections,
                     lastPoint,
                     func,
                     maxCellSize,
@@ -1789,21 +1789,21 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
       vtkIdType cell;
       cell = 0;
       newCells->InsertNextCell(1,&cell);
-      traceOut->SetLines(newCells.GetPointer());
+      traceOut->SetLines(newCells);
 
       // Don't forget to add the ReasonForTermination cell array.
       vtkNew<vtkIntArray> retVals;
       retVals->SetName("ReasonForTermination");
       retVals->SetNumberOfTuples(1);
       retVals->SetValue(0, vtkStreamTracer::OUT_OF_DOMAIN);
-      traceOut->GetCellData()->AddArray(retVals.GetPointer());
+      traceOut->GetCellData()->AddArray(retVals);
     }
 
     vtkNew<vtkIntArray> ids;
     ids->SetName("SeedIds");
     ids->SetNumberOfTuples(1);
     ids->SetValue(0, point->GetId());
-    traceOut->GetCellData()->AddArray(ids.GetPointer());
+    traceOut->GetCellData()->AddArray(ids);
   }
   Assert(SameShape(traceOut->GetPointData(),this->Utils->GetProto()->GetTail()->GetPointData()),"trace data does not match prototype");
 
@@ -1823,7 +1823,7 @@ bool vtkPStreamTracer::TraceOneStep(vtkPolyData* traceOut,  vtkAbstractInterpola
   ivp->Register(this);
 
   vtkNew<vtkRungeKutta2> tmpSolver;
-  this->SetIntegrator(tmpSolver.GetPointer());
+  this->SetIntegrator(tmpSolver);
 
   memcpy(outPoint,lastPoint,sizeof(double)*3);
 
@@ -1888,7 +1888,7 @@ void vtkPStreamTracer::Prepend(vtkPolyData* pathPoly, vtkPolyData* headPoly)
   }
 
   pathCells->Reset();
-  pathCells->InsertNextCell(newPath.GetPointer());
+  pathCells->InsertNextCell(newPath);
   AssertEq(pathCells->GetNumberOfCells(),1);
   vtkIdType newNumPoints(0);
   pathCells->GetNextCell(newNumPoints,path);

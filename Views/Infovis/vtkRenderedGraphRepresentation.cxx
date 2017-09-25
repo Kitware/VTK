@@ -677,12 +677,12 @@ bool vtkRenderedGraphRepresentation::GetEdgeScalarBarVisibility()
 
 vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetVertexScalarBar()
 {
-  return this->VertexScalarBar.GetPointer();
+  return this->VertexScalarBar;
 }
 
 vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetEdgeScalarBar()
 {
-  return this->EdgeScalarBar.GetPointer();
+  return this->EdgeScalarBar;
 }
 
 bool vtkRenderedGraphRepresentation::IsLayoutComplete()

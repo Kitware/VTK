@@ -2080,12 +2080,12 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
       vtkMatrix4x4* mcwc;
       vtkMatrix3x3* anorms;
       ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc,anorms);
-      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), mcwc, this->TempMatrix4);
+      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale, mcwc, this->TempMatrix4);
       vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcdc, this->TempMatrix4);
       program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
       if (program->IsUniformUsed("MCVCMatrix"))
       {
-        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), mcwc, this->TempMatrix4);
+        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale, mcwc, this->TempMatrix4);
         vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcvc, this->TempMatrix4);
         program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
       }
@@ -2097,11 +2097,11 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
     }
     else
     {
-      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), wcdc, this->TempMatrix4);
+      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale, wcdc, this->TempMatrix4);
       program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
       if (program->IsUniformUsed("MCVCMatrix"))
       {
-        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), wcvc, this->TempMatrix4);
+        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale, wcvc, this->TempMatrix4);
         program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
       }
       if (program->IsUniformUsed("normalMatrix"))
@@ -3172,7 +3172,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     this->VBOInverseTransform->Identity();
     this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
     this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
-    this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
+    this->VBOInverseTransform->GetTranspose(this->VBOShiftScale);
   }
 
   // now create the IBOs

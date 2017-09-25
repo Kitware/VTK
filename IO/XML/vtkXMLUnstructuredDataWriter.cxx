@@ -576,7 +576,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(
     types->InsertNextValue(static_cast<unsigned char>(cellIter->GetCellType()));
   }
 
-  this->WriteCellsInlineWorker(name, types.GetPointer(), indent);
+  this->WriteCellsInlineWorker(name, types, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -752,7 +752,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(
     types->InsertNextValue(static_cast<unsigned char>(cellIter->GetCellType()));
   }
 
-  this->WriteCellsAppended(name, types.GetPointer(), nullptr, nullptr, indent, cellsManager);
+  this->WriteCellsAppended(name, types, nullptr, nullptr, indent, cellsManager);
 }
 
 //----------------------------------------------------------------------------
@@ -785,7 +785,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(
     types->InsertNextValue(static_cast<unsigned char>(cellIter->GetCellType()));
   }
 
-  this->WriteCellsAppendedDataWorker(types.GetPointer(), timestep,
+  this->WriteCellsAppendedDataWorker(types, timestep,
                                      cellsManager);
 }
 

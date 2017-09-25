@@ -124,11 +124,11 @@ int vtkmPolyDataNormals::RequestData(
 
   if (pointNormals)
   {
-    output->GetPointData()->SetNormals(pointNormals.GetPointer());
+    output->GetPointData()->SetNormals(pointNormals);
   }
   if (cellNormals)
   {
-    output->GetCellData()->SetNormals(cellNormals.GetPointer());
+    output->GetCellData()->SetNormals(cellNormals);
   }
 
   return 1;

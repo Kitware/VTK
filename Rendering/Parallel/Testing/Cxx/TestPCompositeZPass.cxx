@@ -163,7 +163,7 @@ void MyProcess::Execute()
 
   vtkCompositeZPass *compositeZPass=vtkCompositeZPass::New();
   compositeZPass->SetController(this->Controller);
-  compositeZPass->AddObserver(vtkCommand::ErrorEvent, errorObserver.GetPointer());
+  compositeZPass->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();

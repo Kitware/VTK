@@ -647,7 +647,7 @@ void vtkOpenGLProjectedAAHexahedraMapper::ProjectHexahedra(
     for (vtkIdType i = 0; i < num_cell_ids; i++)
     {
       vtkIdType cell = cell_ids[i];
-      input->GetCellPoints(cell, cellPtIds.GetPointer());
+      input->GetCellPoints(cell, cellPtIds);
 
       float corner_scalars[8];
 

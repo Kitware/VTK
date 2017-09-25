@@ -2881,7 +2881,7 @@ vtkIdType vtkHyperTreeGrid::FindCell( double x[3],
 
   vtkNew<vtkIdList> cellIds;
   cellIds->Allocate( 8, 100 );
-  this->GetPointCells( ptId, cellIds.GetPointer() );
+  this->GetPointCells( ptId, cellIds );
   if ( cellIds->GetNumberOfIds() <= 0 )
   {
     return -1;

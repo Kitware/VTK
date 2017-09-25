@@ -45,7 +45,7 @@ void vtkUnstructuredGridCellIterator::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "FacesLocsPtr: " << this->FacesLocsPtr << endl;
   os << indent << "SkippedCells: " << this->SkippedCells << endl;
   os << indent << "UnstructuredGridPoints: " <<
-        this->UnstructuredGridPoints.GetPointer() << endl;
+        this->UnstructuredGridPoints << endl;
 }
 
 //------------------------------------------------------------------------------

@@ -119,21 +119,21 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
   {
     case 0:
       // Cut along yz-plane
-      output->SetXCoordinates( zeros.GetPointer() );
+      output->SetXCoordinates( zeros );
       output->SetYCoordinates( input->GetYCoordinates() );
       output->SetZCoordinates( input->GetZCoordinates());
       break;
     case 1:
       // Cut along xz-plane
       output->SetXCoordinates( input->GetXCoordinates() );
-      output->SetYCoordinates( zeros.GetPointer() );
+      output->SetYCoordinates( zeros );
       output->SetZCoordinates( input->GetZCoordinates());
       break;
     case 2:
       // Cut along xz-plane
       output->SetXCoordinates( input->GetXCoordinates() );
       output->SetYCoordinates( input->GetYCoordinates() );
-      output->SetZCoordinates( zeros.GetPointer() );
+      output->SetZCoordinates( zeros );
       break;
     default:
       return 0;
@@ -228,7 +228,7 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
   } // it
 
   // Set material mask index
-  output->SetMaterialMaskIndex( position.GetPointer() );
+  output->SetMaterialMaskIndex( position );
 
   // Squeeze and set output material mask if necessary
   if( this->MaterialMask )

@@ -1823,9 +1823,9 @@ void vtkScalarBarActor::ConfigureAboveBelowRangeSwatch(bool above)
   colors->SetNumberOfTuples(1);
 
   swatch->Initialize();
-  swatch->SetPoints(pts.Get());
-  swatch->SetPolys(polys.Get());
-  swatch->GetCellData()->SetScalars(colors.Get());
+  swatch->SetPoints(pts);
+  swatch->SetPolys(polys);
+  swatch->GetCellData()->SetScalars(colors);
   double x[3];
   x[2] = 0.;
 

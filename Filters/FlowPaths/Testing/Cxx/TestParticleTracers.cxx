@@ -255,12 +255,12 @@ int TestParticlePathFilter()
   points->InsertNextPoint(0.4,0,0);
 
   vtkNew<vtkPolyData> ps;
-  ps->SetPoints(points.GetPointer());
+  ps->SetPoints(points);
 
   vtkNew<vtkParticlePathFilter> filter;
 
   filter->SetInputConnection(0,imageSource->GetOutputPort());
-  filter->SetInputData(1,ps.GetPointer());
+  filter->SetInputData(1,ps);
 
   filter->SetTerminationTime(3.3);
   filter->Update();
@@ -276,7 +276,7 @@ int TestParticlePathFilter()
   int lineIndex(0);
 
   lines->InitTraversal();
-  while(lines->GetNextCell(polyLine.GetPointer()))
+  while(lines->GetNextCell(polyLine))
   {
     double s = 0;
     for(int j=1; j<polyLine->GetNumberOfIds();j++)
@@ -308,7 +308,7 @@ int TestParticlePathFilter()
   lines = out->GetLines();
   lines->InitTraversal();
   lineIndex = 0;
-  while(lines->GetNextCell(polyLine.GetPointer()))
+  while(lines->GetNextCell(polyLine))
   {
     double s = 0;
     for(int j=1; j<polyLine->GetNumberOfIds();j++)
@@ -341,12 +341,12 @@ int TestParticlePathFilterStartTime()
   points->InsertNextPoint(0.5,0,0);
 
   vtkNew<vtkPolyData> ps;
-  ps->SetPoints(points.GetPointer());
+  ps->SetPoints(points);
 
   vtkNew<vtkParticlePathFilter> filter;
   filter->SetStartTime(2.0);
   filter->SetInputConnection(0,imageSource->GetOutputPort());
-  filter->SetInputData(1,ps.GetPointer());
+  filter->SetInputData(1,ps);
 
   filter->SetTerminationTime(5.3);
   filter->Update();
@@ -374,11 +374,11 @@ int TestStreaklineFilter()
   points->InsertNextPoint(0.5,0,0);
   points->InsertNextPoint(0.4,0,0);
   vtkNew<vtkPolyData> pointsSource;
-  pointsSource->SetPoints(points.GetPointer());
+  pointsSource->SetPoints(points);
 
   vtkNew<vtkStreaklineFilter> filter;
   filter->SetInputConnection(0,imageSource->GetOutputPort());
-  filter->SetInputData(1,pointsSource.GetPointer());
+  filter->SetInputData(1,pointsSource);
 
   filter->SetStartTime(0.0);
   filter->SetTerminationTime(3.0);
@@ -392,7 +392,7 @@ int TestStreaklineFilter()
   vtkFloatArray* particleAge = vtkArrayDownCast<vtkFloatArray>(out->GetPointData()->GetArray("ParticleAge"));
 
   lines->InitTraversal();
-  while(lines->GetNextCell(polyLine.GetPointer()))
+  while(lines->GetNextCell(polyLine))
   {
     for(int j=1; j<polyLine->GetNumberOfIds();j++)
     {

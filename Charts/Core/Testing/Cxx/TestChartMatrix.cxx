@@ -31,7 +31,7 @@ int TestChartMatrix( int, char * [] )
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartMatrix> matrix;
-  view->GetScene()->AddItem(matrix.GetPointer());
+  view->GetScene()->AddItem(matrix);
   matrix->SetSize(vtkVector2i(2, 2));
   matrix->SetGutter(vtkVector2f(30.0, 30.0));
 
@@ -41,19 +41,19 @@ int TestChartMatrix( int, char * [] )
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkFloatArray> arrS2;
   arrS2->SetName("Sine2");
-  table->AddColumn(arrS2.GetPointer());
+  table->AddColumn(arrS2);
   vtkNew<vtkFloatArray> tangent;
   tangent->SetName("Tangent");
-  table->AddColumn(tangent.GetPointer());
+  table->AddColumn(tangent);
   // Test charting with a few more points...
   int numPoints = 42;
   float inc = 7.5 / (numPoints-1);
@@ -69,22 +69,22 @@ int TestChartMatrix( int, char * [] )
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInputData(table.GetPointer(), 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(0, 255, 0, 255);
 
   chart = matrix->GetChart(vtkVector2i(0, 1));
   line = chart->AddPlot(vtkChart::POINTS);
-  line->SetInputData(table.GetPointer(), 0, 2);
+  line->SetInputData(table, 0, 2);
   line->SetColor(255, 0, 0, 255);
 
   chart = matrix->GetChart(vtkVector2i(1, 0));
   line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 3);
+  line->SetInputData(table, 0, 3);
   line->SetColor(0, 0, 255, 255);
 
   chart = matrix->GetChart(vtkVector2i(1, 1));
   line = chart->AddPlot(vtkChart::BAR);
-  line->SetInputData(table.GetPointer(), 0, 4);
+  line->SetInputData(table, 0, 4);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

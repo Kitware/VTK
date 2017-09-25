@@ -85,7 +85,7 @@ int vtkBoostBiconnectedComponents::RequestData(
   {
     edgeCompArr->SetName("biconnected component");
   }
-  vtkGraphEdgePropertyMapHelper<vtkIntArray*> helper(edgeCompArr.GetPointer());
+  vtkGraphEdgePropertyMapHelper<vtkIntArray*> helper(edgeCompArr);
 
   // Create vector of articulation points and set it up for insertion
   // by the algorithm.

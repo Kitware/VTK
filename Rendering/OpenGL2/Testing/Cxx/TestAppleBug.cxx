@@ -59,7 +59,7 @@ int TestAppleBug(int argc, char* argv[])
   }
 
   vtkCellData* cd = polydata->GetCellData();
-  cd->AddArray(sArray.Get());
+  cd->AddArray(sArray);
 
   // Set up transfer function
   vtkNew<vtkDiscretizableColorTransferFunction> tfer;
@@ -83,27 +83,27 @@ int TestAppleBug(int argc, char* argv[])
   tfer->SetAnnotation(cyan, cyan);
 
   vtkNew<vtkOpenGLPolyDataMapper> mapper;
-  mapper->SetInputDataObject(polydata.Get());
-  mapper->SetLookupTable(tfer.Get());
+  mapper->SetInputDataObject(polydata);
+  mapper->SetLookupTable(tfer);
   mapper->ScalarVisibilityOn();
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray("color");
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
 
   cerr << renderWindow->ReportCapabilities();
 
@@ -113,7 +113,7 @@ int TestAppleBug(int argc, char* argv[])
   {
     mapper->ForceHaveAppleBugOff();
     renderWindow->Render();
-    int offRetVal = vtkRegressionTestImage(renderWindow.Get());
+    int offRetVal = vtkRegressionTestImage(renderWindow);
     if (offRetVal == vtkRegressionTester::PASSED)
     {
       cerr << "FIX!!!! This system is using the AppleBug (rdar://20747550) code but does not need it\n\n";
@@ -127,7 +127,7 @@ int TestAppleBug(int argc, char* argv[])
     {
       mapper->ForceHaveAppleBugOn();
       renderWindow->Render();
-      retVal = vtkRegressionTestImage(renderWindow.Get());
+      retVal = vtkRegressionTestImage(renderWindow);
       if (retVal == vtkRegressionTester::PASSED)
       {
         cerr << "FIX!!! This system needs the AppleBug (rdar://20747550) code but doesn't have it\n\n";

@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkPointSetCellIterator)
 void vtkPointSetCellIterator::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "PointSet: " << this->PointSet.GetPointer() << endl;
+  os << indent << "PointSet: " << this->PointSet << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ void vtkPointSetCellIterator::SetPointSet(vtkPointSet *ds)
 //------------------------------------------------------------------------------
 bool vtkPointSetCellIterator::IsDoneWithTraversal()
 {
-  return this->PointSet.GetPointer() == nullptr
+  return this->PointSet == nullptr
       || this->CellId >= this->PointSet->GetNumberOfCells();
 }
 

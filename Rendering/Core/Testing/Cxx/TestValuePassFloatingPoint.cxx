@@ -236,7 +236,7 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
   cameraPass->SetDelegatePass(sequence);
 
   vtkOpenGLRenderer *glRenderer =
-    vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+    vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // Render the value pass
   glRenderer->SetPass(cameraPass);
@@ -304,7 +304,7 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
   }
 
   // initialize render loop
-  int retVal = vtkRegressionTestImage(window.GetPointer());
+  int retVal = vtkRegressionTestImage(window);
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor->Start();

@@ -166,7 +166,7 @@ void vtkSVGExporter::PrepareDocument()
     title->SetName("title");
     title->SetCharacterData(this->Title,
                             static_cast<int>(std::strlen(this->Title)));
-    this->RootNode->AddNestedElement(title.Get());
+    this->RootNode->AddNestedElement(title);
   }
 
   if (this->Description && this->Description[0])
@@ -175,7 +175,7 @@ void vtkSVGExporter::PrepareDocument()
     desc->SetName("desc");
     desc->SetCharacterData(this->Description,
                            static_cast<int>(std::strlen(this->Description)));
-    this->RootNode->AddNestedElement(desc.Get());
+    this->RootNode->AddNestedElement(desc);
   }
 
   this->DefinitionNode = vtkXMLDataElement::New();
@@ -281,7 +281,7 @@ void vtkSVGExporter::RenderBackground(vtkRenderer *ren)
     const float canvasHeight = ren->GetVTKWindow()->GetSize()[1];
 
     vtkNew<vtkXMLDataElement> gradient;
-    this->DefinitionNode->AddNestedElement(gradient.Get());
+    this->DefinitionNode->AddNestedElement(gradient);
     gradient->SetName("linearGradient");
     gradient->SetAttribute("id", gradId.c_str());
     gradient->SetAttribute("gradientUnits", "objectBoundingBox");
@@ -291,19 +291,19 @@ void vtkSVGExporter::RenderBackground(vtkRenderer *ren)
     gradient->SetIntAttribute("y2", 0);
 
     vtkNew<vtkXMLDataElement> stop1;
-    gradient->AddNestedElement(stop1.Get());
+    gradient->AddNestedElement(stop1);
     stop1->SetName("stop");
     stop1->SetAttribute("offset", "0%");
     stop1->SetAttribute("stop-color", ColorToString(rgb1.data()).c_str());
 
     vtkNew<vtkXMLDataElement> stop2;
-    gradient->AddNestedElement(stop2.Get());
+    gradient->AddNestedElement(stop2);
     stop2->SetName("stop");
     stop2->SetAttribute("offset", "100%");
     stop2->SetAttribute("stop-color", ColorToString(rgb2.data()).c_str());
 
     vtkNew<vtkXMLDataElement> rect;
-    this->PageNode->AddNestedElement(rect.Get());
+    this->PageNode->AddNestedElement(rect);
     rect->SetName("rect");
     rect->SetAttribute("fill", (std::string("url(#") + gradId + ")").c_str());
     rect->SetFloatAttribute("fill-opacity", static_cast<float>(a));

@@ -36,7 +36,7 @@ int TestTreeBFSIterator(int, char *[])
   g->AddEdge(v5, v8);
 
   vtkNew<vtkTree> tree;
-  tree->CheckedShallowCopy(g.GetPointer());
+  tree->CheckedShallowCopy(g);
 
   std::vector<int> correctSequence;
   for(int i = 0; i <= 8; i++)
@@ -45,7 +45,7 @@ int TestTreeBFSIterator(int, char *[])
   }
 
   vtkNew<vtkTreeBFSIterator> bfsIterator;
-  bfsIterator->SetTree(tree.GetPointer());
+  bfsIterator->SetTree(tree);
 
   if(bfsIterator->GetStartVertex() != tree->GetRoot())
   {

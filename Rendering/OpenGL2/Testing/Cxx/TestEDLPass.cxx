@@ -41,9 +41,9 @@ int TestEDLPass(int argc, char *argv[])
   renderer->SetBackground(0.3, 0.4, 0.6);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(600, 600);
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor>  iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   const char* fileName =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
@@ -55,13 +55,13 @@ int TestEDLPass(int argc, char *argv[])
   mapper->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.135, 0.2225, 0.3);
   actor->GetProperty()->SetDiffuseColor(0.54, 0.89, 0.63);
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetAmbient(0.7);
   actor->GetProperty()->LightingOff();
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   //actor->GetProperty()->SetRepresentationToWireframe();
 
   renderWindow->SetMultiSamples(0);
@@ -73,12 +73,12 @@ int TestEDLPass(int argc, char *argv[])
   // The blur delegates rendering the unblured image
   // to the basicPasses
   vtkNew<vtkEDLShading> edl;
-  edl->SetDelegatePass(basicPasses.Get());
+  edl->SetDelegatePass(basicPasses);
 
   // tell the renderer to use our render pass pipeline
   vtkOpenGLRenderer *glrenderer =
-    vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
-  glrenderer->SetPass(edl.Get());
+    vtkOpenGLRenderer::SafeDownCast(renderer);
+  glrenderer->SetPass(edl);
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -109,7 +109,7 @@ int TestEDLPass(int argc, char *argv[])
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -32,7 +32,7 @@ vtkPMaskPoints::vtkPMaskPoints()
   {
     controller = vtkSmartPointer<vtkDummyController>::New();
   }
-  this->SetController(controller.GetPointer());
+  this->SetController(controller);
 }
 
 vtkPMaskPoints::~vtkPMaskPoints()

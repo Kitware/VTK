@@ -74,7 +74,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
     destinPnt[2] = sourcePnt[2] - rayLen * normalVec[2];
 
     if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t,
-                                    intersect, paraCoord, sub_id, cell_id, cell.GetPointer()) )
+                                    intersect, paraCoord, sub_id, cell_id, cell) )
     {
       numIntersected ++;
     }

@@ -768,7 +768,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
       hDim[0] = ds->GetNumberOfCells();
       hDim[1] = ppCell;
       di->SetShape(2, hDim);
-      vtkIdList* il = cellTypes[*ct].GetPointer();
+      vtkIdList* il = cellTypes[*ct];
       vtkIdList* cellPoints = vtkIdList::New();
       vtkIdType cvnt=0;
       for(vtkIdType i = 0 ; i < ds->GetNumberOfCells(); i++ )

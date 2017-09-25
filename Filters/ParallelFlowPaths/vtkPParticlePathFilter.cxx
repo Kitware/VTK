@@ -100,7 +100,7 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
     }
   }
 
-  this->It.OutputParticles(tailPoly.GetPointer());
+  this->It.OutputParticles(tailPoly);
 
   return this->It.OutputParticles(particles); // we've already cleared cache in the first call
 }

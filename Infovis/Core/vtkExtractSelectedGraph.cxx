@@ -195,7 +195,7 @@ int vtkExtractSelectedGraph::RequestData(
   // Convert the selection to an INDICES selection
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToIndexSelection(selection, input));
-  if (!converted.GetPointer())
+  if (!converted)
   {
     vtkErrorMacro("Selection conversion to INDICES failed.");
     return 0;

@@ -141,13 +141,13 @@ int TestPlane(int,char *[])
 
     std::cout << "Testing FunctionValue:\n";
     // calcuate function values with the vtkDataArray interface
-    plane->FunctionValue(input, arrayOutput.GetPointer());
+    plane->FunctionValue(input, arrayOutput);
 
     //Calculate the same points using a loop over points.
     vtkNew<vtkFloatArray> loopOutput;
     loopOutput->SetNumberOfComponents(1);
     loopOutput->SetNumberOfTuples(nPoints);
-    vtkDataArrayAccessor<vtkFloatArray> output(loopOutput.GetPointer());
+    vtkDataArrayAccessor<vtkFloatArray> output(loopOutput);
     vtkDataArrayAccessor<vtkFloatArray> pts(vtkFloatArray::SafeDownCast(input));
 
     for(vtkIdType pt = 0; pt < nPoints; ++pt)

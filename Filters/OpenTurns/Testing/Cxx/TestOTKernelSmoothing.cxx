@@ -30,7 +30,7 @@ int TestOTKernelSmoothing(int, char* [])
   arrFirstVariable->SetName("Math");
 
   vtkNew<vtkTable> table;
-  table->AddColumn(arrFirstVariable.GetPointer());
+  table->AddColumn(arrFirstVariable);
 
   const int numNotes = 20;
   table->SetNumberOfRows(numNotes);
@@ -49,12 +49,12 @@ int TestOTKernelSmoothing(int, char* [])
 
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
   // First verify that absence of input does not cause trouble
-  kernel->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1.GetPointer());
+  kernel->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
   kernel->Update();
   errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkOTKernelSmoothing");
 
   // Now set the real input table
-  kernel->SetInputData(table.GetPointer());
+  kernel->SetInputData(table);
   kernel->SetPointNumber(100);
   kernel->SetBoundaryCorrection(true);
   kernel->SetTriangularPDF(true);

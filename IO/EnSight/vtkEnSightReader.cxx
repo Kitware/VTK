@@ -2191,7 +2191,7 @@ vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
   }
 
   // Make sure this vtkIdList exists.
-  if(!(*this->CellIds)[cellIdsIndex].GetPointer())
+  if(!(*this->CellIds)[cellIdsIndex])
   {
     vtkIdList* nl = vtkIdList::New();
     (*this->CellIds)[cellIdsIndex] = nl;
@@ -2199,7 +2199,7 @@ vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
   }
 
   // Return the requested vtkIdList.
-  return (*this->CellIds)[cellIdsIndex].GetPointer();
+  return (*this->CellIds)[cellIdsIndex];
 }
 
 //----------------------------------------------------------------------------

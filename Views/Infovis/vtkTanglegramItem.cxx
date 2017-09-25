@@ -570,7 +570,7 @@ void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree)
     newChildOrder->InsertNextValue(wv.ID);
   }
 
-  tree->ReorderChildren(parent, newChildOrder.GetPointer());
+  tree->ReorderChildren(parent, newChildOrder);
 }
 
 //-----------------------------------------------------------------------------

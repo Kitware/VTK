@@ -91,13 +91,13 @@ int TestSMPTransform(int argc, char* argv[])
   func.pts = (float*)pts->GetVoidPointer(0);
   //func.pts = (vtkFloatArray*)pts->GetData();
 
-  sg->SetPoints(pts.GetPointer());
+  sg->SetPoints(pts);
 
   vtkNew<vtkFloatArray> disp;
   disp->SetNumberOfComponents(3);
   disp->SetNumberOfTuples(sg->GetNumberOfPoints());
   disp->SetName("Disp");
-  sg->GetPointData()->AddArray(disp.GetPointer());
+  sg->GetPointData()->AddArray(disp);
   func.disp = (float*)disp->GetVoidPointer(0);
 
   tl->StartTimer();
@@ -106,11 +106,11 @@ int TestSMPTransform(int argc, char* argv[])
   cout << "Initialize: " << tl->GetElapsedTime() << endl;
 
   vtkNew<vtkTransformFilter> tr;
-  tr->SetInputData(sg.GetPointer());
+  tr->SetInputData(sg);
 
   vtkNew<vtkTransform> serialTr;
   serialTr->Identity();
-  tr->SetTransform(serialTr.GetPointer());
+  tr->SetTransform(serialTr);
 
   tl->StartTimer();
   tr->Update();
@@ -121,11 +121,11 @@ int TestSMPTransform(int argc, char* argv[])
   tr->GetOutput()->Initialize();
 
   vtkNew<vtkTransformFilter> tr2;
-  tr2->SetInputData(sg.GetPointer());
+  tr2->SetInputData(sg);
 
   vtkNew<vtkSMPTransform> parallelTr;
   parallelTr->Identity();
-  tr2->SetTransform(parallelTr.GetPointer());
+  tr2->SetTransform(parallelTr);
 
   tl->StartTimer();
   tr2->Update();

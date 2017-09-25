@@ -41,9 +41,9 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
   renWin->SetMultiSamples(0);
   renWin->SetSize(300, 300);
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // Read file name.
   char* fname =
@@ -110,11 +110,11 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
 
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->SetColorModeToMapScalars();
-  mapper->SetLookupTable(lut.GetPointer());
+  mapper->SetLookupTable(lut);
 
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
 
   ren->GetActiveCamera()->Azimuth(90);

@@ -431,9 +431,9 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
 
         if( inpnts != nullptr )
         {
-          outpnts->InsertPoints(dstIds.GetPointer(), srcIds.GetPointer(), inpnts);
+          outpnts->InsertPoints(dstIds, srcIds, inpnts);
         } // END if
-        outPD->CopyData(pd, srcIds.GetPointer(), dstIds.GetPointer());
+        outPD->CopyData(pd, srcIds, dstIds);
         srcIds->Reset();
         dstIds->Reset();
 
@@ -562,7 +562,7 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
           dstIds->InsertNextId(targetIdx);
         } // END for all i
 
-        outCD->CopyData(cd, srcIds.GetPointer(), dstIds.GetPointer());
+        outCD->CopyData(cd, srcIds, dstIds);
         srcIds->Reset();
         dstIds->Reset();
 

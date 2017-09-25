@@ -172,11 +172,11 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     j1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
 
     vtkNew<vtkArrayData> j1d;
-    j1d->AddArray(j1.GetPointer());
+    j1d->AddArray(j1);
 
     vtkNew<vtkArrayWriter> jw;
     jw->WriteToOutputStringOn();
-    jw->SetInputData(j1d.GetPointer());
+    jw->SetInputData(j1d);
     jw->Write();
     vtkStdString js = jw->GetOutputString();
 

@@ -257,7 +257,7 @@ int TestOptiXImplicits(int argc, char* argv[])
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)renderer.Get(), optix, NULL);
+    SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, NULL);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

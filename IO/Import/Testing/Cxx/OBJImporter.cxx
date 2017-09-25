@@ -63,9 +63,9 @@ int main( int argc, char * argv [] )
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  renWin->AddRenderer(ren.Get());
-  iren->SetRenderWindow(renWin.Get());
-  importer->SetRenderWindow(renWin.Get());
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
+  importer->SetRenderWindow(renWin);
   importer->Update();
 
   ren->ResetCamera();

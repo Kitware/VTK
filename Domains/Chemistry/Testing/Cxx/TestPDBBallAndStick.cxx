@@ -52,7 +52,7 @@ int TestPDBBallAndStick(int argc, char *argv[])
   molmapper->UseBallAndStickSettings();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(molmapper.GetPointer());
+  actor->SetMapper(molmapper);
   actor->GetProperty()->SetAmbient(0.0);
   actor->GetProperty()->SetDiffuse(1.0);
   actor->GetProperty()->SetSpecular(0.0);
@@ -64,11 +64,11 @@ int TestPDBBallAndStick(int argc, char *argv[])
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.7);
   ren->SetBackground(0.0, 0.0, 0.0);

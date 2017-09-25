@@ -94,7 +94,7 @@ int vtkCPExodusIIInSituReader::RequestData(vtkInformation *,
   //   - Block 0: this->ElementBlocks   vtkMultiBlockDataSet
   //     - Block N: Element blocks      vtkCPExodusIIElementBlock
   output->SetNumberOfBlocks(1);
-  output->SetBlock(0, this->ElementBlocks.GetPointer());
+  output->SetBlock(0, this->ElementBlocks);
 
   bool success = false;
 
@@ -320,7 +320,7 @@ bool vtkCPExodusIIInSituReader::ExGetCoords()
 
   // NodalCoordinates takes ownership of the arrays.
   nodeCoords->SetExodusScalarArrays(x, y, z, this->NumberOfNodes);
-  this->Points->SetData(nodeCoords.GetPointer());
+  this->Points->SetData(nodeCoords);
   return true;
 }
 
@@ -347,7 +347,7 @@ bool vtkCPExodusIIInSituReader::ExGetNodalVars()
       return false;
     }
 
-    this->PointData->AddArray(nodalVarArray.GetPointer());
+    this->PointData->AddArray(nodalVarArray);
   }
   return true;
 }
@@ -400,10 +400,10 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
     }
 
     // Use the mapped point container for the block points
-    block->SetPoints(this->Points.GetPointer());
+    block->SetPoints(this->Points);
 
     // Add the point data arrays
-    block->GetPointData()->ShallowCopy(this->PointData.GetPointer());
+    block->GetPointData()->ShallowCopy(this->PointData);
 
     // Read the element variables (cell data)
     for (int elemVarIndex = 0; elemVarIndex < numElemVars; ++elemVarIndex)
@@ -424,11 +424,11 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
         return false;
       }
 
-      block->GetCellData()->AddArray(elemVarArray.GetPointer());
+      block->GetCellData()->AddArray(elemVarArray);
     }
 
     // Add this element block to the multi-block data set
-    this->ElementBlocks->SetBlock(blockInd, block.GetPointer());
+    this->ElementBlocks->SetBlock(blockInd, block);
   }
 
   return true;

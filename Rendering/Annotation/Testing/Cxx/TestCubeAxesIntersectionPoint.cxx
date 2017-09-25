@@ -44,17 +44,17 @@ int TestCubeAxesIntersectionPoint( int argc, char * argv [] )
   light->SetPosition(8.3761, 4.94858, 4.12505);
 
   vtkNew<vtkRenderer> ren2;
-  ren2->SetActiveCamera(camera.GetPointer());
-  ren2->AddLight(light.GetPointer());
+  ren2->SetActiveCamera(camera);
+  ren2->AddLight(light);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  renWin->AddRenderer(ren2.GetPointer());
+  renWin->AddRenderer(ren2);
   renWin->SetWindowName("Cube Axes");
   renWin->SetSize(600, 600);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   ren2->SetBackground(0.1, 0.2, 0.4);
 
@@ -92,10 +92,10 @@ int TestCubeAxesIntersectionPoint( int argc, char * argv [] )
   axes->GetTitleTextProperty(1)->SetColor( 0., 1., 0. );
   axes->GetLabelTextProperty(1)->SetColor( 0., .8, 0. );
 
-  ren2->AddViewProp( axes.GetPointer()) ;
+  ren2->AddViewProp( axes) ;
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

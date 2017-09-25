@@ -101,7 +101,7 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
     ed->SetInput(vtkEventDataDeviceInput::Trigger);
     ed->SetAction(vtkEventDataAction::Press);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::Select3D,
+      ed, vtkWidgetEvent::Select3D,
       this, vtkImplicitPlaneWidget2::SelectAction3D);
   }
 
@@ -111,7 +111,7 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
     ed->SetInput(vtkEventDataDeviceInput::Trigger);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::EndSelect3D,
+      ed, vtkWidgetEvent::EndSelect3D,
       this, vtkImplicitPlaneWidget2::EndSelectAction3D);
   }
 
@@ -119,7 +119,7 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
     vtkNew<vtkEventDataMove3D> ed;
     ed->SetDevice(vtkEventDataDevice::RightController);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
-      ed.Get(), vtkWidgetEvent::Move3D,
+      ed, vtkWidgetEvent::Move3D,
       this, vtkImplicitPlaneWidget2::MoveAction3D);
   }
 

@@ -52,7 +52,7 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(reader->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetSampleDistance(0.1);
@@ -64,15 +64,15 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
   renWin->SetSize(400, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(0.2, 0.2, 0.5);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -81,34 +81,34 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
-  volumeProperty->SetColor(colorTransferFunction.GetPointer());
+  volumeProperty->SetColor(colorTransferFunction);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   // Set a transform that doesn't preserve orientation
   volume->SetScale(1.0, -1.0, 1.0);
   outlineActor->SetScale(1.0, -1.0, 1.0);
 
-  ren->AddViewProp(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+  ren->AddViewProp(volume);
+  ren->AddActor(outlineActor);
   ren->ResetCamera();
 
-  int valid = volumeMapper->IsRenderSupported(renWin.GetPointer(),
-                                              volumeProperty.GetPointer());
+  int valid = volumeMapper->IsRenderSupported(renWin,
+                                              volumeProperty);
   int retVal;
   if (valid)
   {
     renWin->Render();
 
     iren->Initialize();
-    retVal = vtkRegressionTestImage(renWin.GetPointer());
+    retVal = vtkRegressionTestImage(renWin);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();

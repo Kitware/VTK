@@ -230,7 +230,7 @@ int TestValuePass2(int argc, char* argv[])
   cameraPass->SetDelegatePass(sequence);
 
   vtkOpenGLRenderer *glRenderer =
-    vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+    vtkOpenGLRenderer::SafeDownCast(renderer);
   glRenderer->SetPass(cameraPass);
 
 

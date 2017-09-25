@@ -152,7 +152,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
       {
         if (this->IsInCache(this->UpdateTimeSteps[i], idx))
         {
-          this->MDataSet->SetBlock(static_cast<unsigned int>(i), this->Cache[idx].Data.GetPointer());
+          this->MDataSet->SetBlock(static_cast<unsigned int>(i), this->Cache[idx].Data);
         }
         else
         {

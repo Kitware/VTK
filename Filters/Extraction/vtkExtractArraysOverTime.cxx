@@ -173,7 +173,7 @@ public:
     for (iter = this->OutputGrids.begin();
       iter != this->OutputGrids.end(); ++iter)
     {
-      if (iter->second.Output.GetPointer())
+      if (iter->second.Output)
       {
         vtkValue& value = iter->second;
 
@@ -209,7 +209,7 @@ public:
 
         this->RemoveInvalidPoints(value.ValidMaskArray,
           value.Output->GetRowData());
-        output->SetBlock(cc, value.Output.GetPointer());
+        output->SetBlock(cc, value.Output);
         output->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(),
           value.Label.c_str());
         cc++;
@@ -446,9 +446,9 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
       }
     }
     vtkExtractArraysAssignUniqueCoordNames(
-      statInDSA, pX[0].GetPointer(), pX[1].GetPointer(), pX[2].GetPointer());
+      statInDSA, pX[0], pX[1], pX[2]);
   }
-  splitColumns->SetInputDataObject(0, statInput.GetPointer());
+  splitColumns->SetInputDataObject(0, statInput);
   splitColumns->SetCalculateMagnitudes(1);
   splitColumns->Update();
   vtkTable* splits = splitColumns->GetOutput();
@@ -457,7 +457,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
   // Add a column holding the number of points/cells/rows
   // in the selection at this timestep.
   vtkExtractArraysAddColumnValue(
-    statSummary.GetPointer(), "N", VTK_DOUBLE, numIDs);
+    statSummary, "N", VTK_DOUBLE, numIDs);
   // Compute statistics 1 column at a time to save space (esp. for order stats)
   for (int i = 0; i < splits->GetNumberOfColumns(); ++i)
   {
@@ -483,15 +483,15 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
       q3Name  <<  "q3(" << cname << ")";
       maxName << "max(" << cname << ")";
       vtkExtractArraysAddColumnValue(
-        statSummary.GetPointer(), minName.str(), cType, model->GetValue(0, 1));
+        statSummary, minName.str(), cType, model->GetValue(0, 1));
       vtkExtractArraysAddColumnValue(
-        statSummary.GetPointer(),  q1Name.str(), cType, model->GetValue(1, 1));
+        statSummary,  q1Name.str(), cType, model->GetValue(1, 1));
       vtkExtractArraysAddColumnValue(
-        statSummary.GetPointer(), medName.str(), cType, model->GetValue(2, 1));
+        statSummary, medName.str(), cType, model->GetValue(2, 1));
       vtkExtractArraysAddColumnValue(
-        statSummary.GetPointer(),  q3Name.str(), cType, model->GetValue(3, 1));
+        statSummary,  q3Name.str(), cType, model->GetValue(3, 1));
       vtkExtractArraysAddColumnValue(
-        statSummary.GetPointer(), maxName.str(), cType, model->GetValue(4, 1));
+        statSummary, maxName.str(), cType, model->GetValue(4, 1));
     }
     if (vtkArrayDownCast<vtkDataArray>(col))
     {
@@ -509,10 +509,10 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
         avgName << "avg(" << cname << ")";
         stdName << "std(" << cname << ")";
         vtkExtractArraysAddColumnValue(
-          statSummary.GetPointer(), avgName.str(), VTK_DOUBLE,
+          statSummary, avgName.str(), VTK_DOUBLE,
           rawModel->GetValueByName(0, "Mean"));
         vtkExtractArraysAddColumnValue(
-          statSummary.GetPointer(), stdName.str(), VTK_DOUBLE,
+          statSummary, stdName.str(), VTK_DOUBLE,
           drvModel->GetValueByName(0, "Standard Deviation"));
       }
     }
@@ -965,8 +965,8 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
   if (!filter)
   {
     vtkNew<vtkExtractSelection> extractor;
-    this->SetSelectionExtractor(extractor.GetPointer());
-    filter = extractor.GetPointer();
+    this->SetSelectionExtractor(extractor);
+    filter = extractor;
   }
   filter->SetPreserveTopology(0);
   filter->SetUseProbeForLocations(1);

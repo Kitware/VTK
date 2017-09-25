@@ -65,32 +65,32 @@ int TestLabeledContourMapper(int argc, char *argv[])
   tprop1->SetBackgroundColor(0.5, 0.5, 0.5);
   tprop1->SetBackgroundOpacity(0.25);
   tprop1->SetColor(1., 1., 1.);
-  tprops->AddItem(tprop1.GetPointer());
+  tprops->AddItem(tprop1);
 
   vtkNew<vtkTextProperty> tprop2;
-  tprop2->ShallowCopy(tprop1.GetPointer());
+  tprop2->ShallowCopy(tprop1);
   tprop2->SetColor(.8, .2, .3);
-  tprops->AddItem(tprop2.GetPointer());
+  tprops->AddItem(tprop2);
 
   vtkNew<vtkTextProperty> tprop3;
-  tprop3->ShallowCopy(tprop1.GetPointer());
+  tprop3->ShallowCopy(tprop1);
   tprop3->SetColor(.3, .8, .2);
-  tprops->AddItem(tprop3.GetPointer());
+  tprops->AddItem(tprop3);
 
   vtkNew<vtkTextProperty> tprop4;
-  tprop4->ShallowCopy(tprop1.GetPointer());
+  tprop4->ShallowCopy(tprop1);
   tprop4->SetColor(.6, .0, .8);
-  tprops->AddItem(tprop4.GetPointer());
+  tprops->AddItem(tprop4);
 
   vtkNew<vtkTextProperty> tprop5;
-  tprop5->ShallowCopy(tprop1.GetPointer());
+  tprop5->ShallowCopy(tprop1);
   tprop5->SetColor(.0, .0, .9);
-  tprops->AddItem(tprop5.GetPointer());
+  tprops->AddItem(tprop5);
 
   vtkNew<vtkTextProperty> tprop6;
-  tprop6->ShallowCopy(tprop1.GetPointer());
+  tprop6->ShallowCopy(tprop1);
   tprop6->SetColor(.7, .8, .2);
-  tprops->AddItem(tprop6.GetPointer());
+  tprops->AddItem(tprop6);
 
   // Create a text propery mapping that will reverse the coloring:
   double *values = contours->GetValues();
@@ -102,20 +102,20 @@ int TestLabeledContourMapper(int argc, char *argv[])
 
   vtkNew<vtkLabeledContourMapper> mapper;
   mapper->GetPolyDataMapper()->ScalarVisibilityOff();
-  mapper->SetTextProperties(tprops.GetPointer());
-  mapper->SetTextPropertyMapping(tpropMapping.GetPointer());
+  mapper->SetTextProperties(tprops);
+  mapper->SetTextPropertyMapping(tpropMapping);
   mapper->SetInputConnection(contourStripper->GetOutputPort());
   mapper->SetSkipDistance(100);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
 
   vtkNew<vtkRenderWindow> win;
   win->SetStencilCapable(1); // Needed for vtkLabeledContourMapper
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
 
   double bounds[6];
   contourStripper->GetOutput()->GetBounds(bounds);
@@ -136,9 +136,9 @@ int TestLabeledContourMapper(int argc, char *argv[])
   win->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  int retVal = vtkRegressionTestImage(win.GetPointer());
+  int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

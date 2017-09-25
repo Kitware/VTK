@@ -464,7 +464,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   vtkNew<vtkPointLocator> locator;
   vtkNew<vtkPoints> tessPoints;
   tessPoints->SetDataTypeToFloat();
-  voronoi->SetPoints(tessPoints.Get());
+  voronoi->SetPoints(tessPoints);
   voronoi->Allocate(nAtoms);
 
   // Cell attributes for the voronoi tesselation:
@@ -476,7 +476,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   tessAtomIds->Allocate(nAtoms);
 
   // Estimate 10 unique points per atom:
-  locator->InitPointInsertion(tessPoints.Get(), bounds, nAtoms * 10);
+  locator->InitPointInsertion(tessPoints, bounds, nAtoms * 10);
 
   // Storage for parsing the tessellation points/faces info
   std::vector<vtkIdType> faceStream;
@@ -624,9 +624,9 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     tessAtomIds->InsertNextValue(atom.GetId());
   }
 
-  molecule->GetVertexData()->AddArray(radii.Get());
-  voronoi->GetCellData()->SetScalars(tessAtomicNumbers.Get());
-  voronoi->GetCellData()->AddArray(tessAtomIds.Get());
+  molecule->GetVertexData()->AddArray(radii);
+  voronoi->GetCellData()->SetScalars(tessAtomicNumbers);
+  voronoi->GetCellData()->AddArray(tessAtomIds);
 
   return true;
 }

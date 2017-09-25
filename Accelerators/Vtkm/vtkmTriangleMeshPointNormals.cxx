@@ -119,7 +119,7 @@ int vtkmTriangleMeshPointNormals::RequestData(
 
   if (pointNormals)
   {
-    output->GetPointData()->SetNormals(pointNormals.GetPointer());
+    output->GetPointData()->SetNormals(pointNormals);
   }
 
   return 1;

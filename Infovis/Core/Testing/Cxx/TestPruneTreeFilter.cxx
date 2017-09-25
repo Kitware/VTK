@@ -33,10 +33,10 @@ int TestPruneTreeFilter(int, char*[])
   graph->AddChild(a);
 
   vtkNew<vtkTree> tree;
-  tree->ShallowCopy(graph.GetPointer());
+  tree->ShallowCopy(graph);
 
   vtkNew<vtkPruneTreeFilter> filter;
-  filter->SetInputData(tree.GetPointer());
+  filter->SetInputData(tree);
   filter->SetParentVertex(internalTwo);
   vtkTree *prunedTree = filter->GetOutput();
   filter->Update();

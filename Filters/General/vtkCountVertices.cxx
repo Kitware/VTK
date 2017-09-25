@@ -70,7 +70,7 @@ int vtkCountVertices::RequestData(vtkInformation *,
   vtkNew<vtkIdTypeArray> vertCount;
   vertCount->Allocate(input->GetNumberOfCells());
   vertCount->SetName(this->OutputArrayName);
-  output->GetCellData()->AddArray(vertCount.Get());
+  output->GetCellData()->AddArray(vertCount);
 
   vtkCellIterator *it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())

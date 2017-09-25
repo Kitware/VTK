@@ -24,7 +24,7 @@ int TestPolygonBuilder3(int, char* [])
   vtkPolygonBuilder builder;
   builder.InsertTriangle(nullptr);
   vtkNew<vtkIdListCollection> polys;
-  builder.GetPolygons(polys.GetPointer());
+  builder.GetPolygons(polys);
   if (polys->GetNumberOfItems() != 0)
   {
     return EXIT_FAILURE;

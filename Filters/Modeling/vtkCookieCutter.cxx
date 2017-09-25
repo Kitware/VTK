@@ -880,8 +880,8 @@ namespace {
     pDataPts->SetNumberOfPoints(numPts);
     vtkNew<vtkCellArray> pDataLines;
     vtkNew<vtkPolyData> pData;
-    pData->SetPoints(pDataPts.GetPointer());
-    pData->SetLines(pDataLines.GetPointer());
+    pData->SetPoints(pDataPts);
+    pData->SetLines(pDataLines);
 
     SortedPointsType *loops[2];
     loops[0] = &polyPoints;
@@ -921,7 +921,7 @@ namespace {
     // Check the topology of the edges and ensure that it is valid.  If there
     // are "ON" classifications, may need to remove potential non-manifold
     // edges. Bail out if can't fix any problems.
-    if ( ! ResolveTopology(pData.GetPointer()) )
+    if ( ! ResolveTopology(pData) )
     {
       return;
     }

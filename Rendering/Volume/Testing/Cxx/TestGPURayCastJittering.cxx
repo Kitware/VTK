@@ -55,12 +55,12 @@ int TestGPURayCastJittering(int argc, char* argv[])
   // If the current system only supports the legacy peeler, skip this test:
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   renWin->Render(); // Create the context
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
+  renWin->AddRenderer(ren);
+  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
   oglRen->SetDebug(1);
@@ -99,14 +99,14 @@ int TestGPURayCastJittering(int argc, char* argv[])
   opacity->AddPoint(255.0, 1.0);
 
   vtkNew<vtkVolumeProperty> property;
-  property->SetColor(color.GetPointer());
-  property->SetScalarOpacity(opacity.GetPointer());
+  property->SetColor(color);
+  property->SetScalarOpacity(opacity);
   property->SetInterpolationTypeToLinear();
   property->ShadeOff();
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(property.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(property);
 
   // Translucent Spheres
   vtkNew<vtkSphereSource> sphereSource;
@@ -120,7 +120,7 @@ int TestGPURayCastJittering(int argc, char* argv[])
 
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
-  sphereActor->SetMapper(sphereMapper.GetPointer());
+  sphereActor->SetMapper(sphereMapper);
 
   vtkNew<vtkSphereSource> sphereSource2;
   sphereSource2->SetCenter(30.f, 30.f, 30.f);
@@ -133,7 +133,7 @@ int TestGPURayCastJittering(int argc, char* argv[])
 
   vtkNew<vtkPolyDataMapper> sphereMapper2;
   sphereMapper2->SetInputConnection(sphereSource2->GetOutputPort());
-  sphereActor2->SetMapper(sphereMapper2.GetPointer());
+  sphereActor2->SetMapper(sphereMapper2);
 
   // Render window
   renWin->SetSize(800, 400);
@@ -142,7 +142,7 @@ int TestGPURayCastJittering(int argc, char* argv[])
   // Renderer 1
   ren->SetViewport(0.0, 0.0, 0.5, 1.0);
 
-  ren->AddVolume(volume.GetPointer());
+  ren->AddVolume(volume);
   ren->ResetCamera();
   ren->GetActiveCamera()->SetPosition(115.539, 5.50485, 89.8544);
   ren->GetActiveCamera()->SetFocalPoint(32.0598, 26.5308, 28.0257);
@@ -150,25 +150,25 @@ int TestGPURayCastJittering(int argc, char* argv[])
   // Renderer 2 (translucent geometry)
   vtkNew<vtkRenderer> ren2;
   ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
-  renWin->AddRenderer(ren2.GetPointer());
+  renWin->AddRenderer(ren2);
 
   ren2->SetUseDepthPeeling(1);
   ren2->SetOcclusionRatio(0.0);
   ren2->SetMaximumNumberOfPeels(5);
   ren2->SetUseDepthPeelingForVolumes(true);
 
-  ren2->AddVolume(volume.GetPointer());
-  ren2->AddActor(sphereActor.GetPointer());
-  ren2->AddActor(sphereActor2.GetPointer());
+  ren2->AddVolume(volume);
+  ren2->AddActor(sphereActor);
+  ren2->AddActor(sphereActor2);
   ren2->SetActiveCamera(ren->GetActiveCamera());
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render();
   iren->Initialize();
 
-  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
+  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren,
     TestGPURayCastJitteringLog);
 
   return rv;

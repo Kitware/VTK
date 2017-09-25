@@ -89,7 +89,7 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
     return 0;
   }
 
-  if (!tren->StringToPath(this->TextProperty, input, textPath.GetPointer(),
+  if (!tren->StringToPath(this->TextProperty, input, textPath,
                           vtkTextActor3D::GetRenderedDPI()))
   {
     vtkWarningMacro(<<"Failed to generate path data from 3D text string '"
@@ -160,7 +160,7 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
       std::ostringstream bgLabel;
       bgLabel << "vtkOpenGLTextActor3D::RenderGL2PS background for string: '"
               << input << "'.";
-      gl2ps->Draw3DPath(bgPath.GetPointer(), actorMatrix, bgPos, bgColor, ren,
+      gl2ps->Draw3DPath(bgPath, actorMatrix, bgPos, bgColor, ren,
                         bgLabel.str().c_str());
     }
   }
@@ -169,7 +169,7 @@ int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,
   std::ostringstream label;
   label << "vtkOpenGLTextActor3D::RenderGL2PS path for string: '"
         << input << "'.";
-  gl2ps->Draw3DPath(textPath.GetPointer(), actorMatrix, textPos, fgColor, ren,
+  gl2ps->Draw3DPath(textPath, actorMatrix, textPos, fgColor, ren,
                     label.str().c_str());
 
   return 1;

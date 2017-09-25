@@ -121,7 +121,7 @@ int TestLightingMapNormalsPass(int argc, char *argv[])
   cameraPass->SetDelegatePass(sequence);
 
   vtkOpenGLRenderer *glRenderer =
-    vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+    vtkOpenGLRenderer::SafeDownCast(renderer);
   glRenderer->SetPass(cameraPass);
 
   // 3. Render image and compare against baseline

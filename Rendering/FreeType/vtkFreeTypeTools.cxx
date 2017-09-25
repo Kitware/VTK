@@ -301,7 +301,7 @@ vtkFreeTypeTools::GetUnscaledGlyphOutline(vtkTextProperty *tprop,
     FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
     result.HorizAdvance = (glyph->advance.x + 0x8000) >> 16;
     result.Path = vtkSmartPointer<vtkPath>::New();
-    this->OutlineToPath(0, 0, &outlineGlyph->outline, result.Path.Get());
+    this->OutlineToPath(0, 0, &outlineGlyph->outline, result.Path);
   }
 
   return result;
@@ -1307,7 +1307,7 @@ inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty *tprop, int dpi,
     vtkNew<vtkTextProperty> unrotatedTProp;
     unrotatedTProp->ShallowCopy(tprop);
     unrotatedTProp->SetOrientation(0);
-    this->MapTextPropertyToId(unrotatedTProp.GetPointer(),
+    this->MapTextPropertyToId(unrotatedTProp,
                               &metaData.unrotatedTextPropertyCacheId);
 
     metaData.unrotatedScaler.face_id =

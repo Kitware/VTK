@@ -127,7 +127,7 @@ void Revolve<VTK_POLY_VERTEX>(vtkIdList* pointIds, vtkIdType n2DPoints,
   for (vtkIdType i=0; i<pointIds->GetNumberOfIds(); i++)
   {
     pointId->SetId(0,pointIds->GetId(i));
-    Revolve<VTK_VERTEX>(pointId.GetPointer(), n2DPoints, resolution,
+    Revolve<VTK_VERTEX>(pointId, n2DPoints, resolution,
                         connectivity, types, locations, inCd, cellId, outCd,
                         partialSweep);
   }
@@ -180,7 +180,7 @@ void Revolve<VTK_POLY_LINE>(vtkIdList* pointIds, vtkIdType n2DPoints,
   for (vtkIdType i=1; i<pointIds->GetNumberOfIds(); i++)
   {
     newPointIds->SetId(1,pointIds->GetId(i));
-    Revolve<VTK_LINE>(newPointIds.GetPointer(), n2DPoints, resolution,
+    Revolve<VTK_LINE>(newPointIds, n2DPoints, resolution,
                       connectivity, types, locations, inCd, cellId, outCd,
                       partialSweep);
     newPointIds->SetId(0,pointIds->GetId(i));
@@ -237,7 +237,7 @@ void Revolve<VTK_TRIANGLE_STRIP>(vtkIdList* pointIds, vtkIdType n2DPoints,
   for (vtkIdType i=2; i<pointIds->GetNumberOfIds(); i++)
   {
     newPointIds->SetId(2,pointIds->GetId(i));
-    Revolve<VTK_TRIANGLE>(newPointIds.GetPointer(), n2DPoints, resolution,
+    Revolve<VTK_TRIANGLE>(newPointIds, n2DPoints, resolution,
                       connectivity, types, locations, inCd, cellId, outCd,
                           partialSweep);
     newPointIds->SetId(0,pointIds->GetId(i));
@@ -510,7 +510,7 @@ int vtkVolumeOfRevolutionFilter::RequestData(
     axis.Direction[i] = this->AxisDirection[i];
   }
 
-  RevolvePoints(input, outPts.GetPointer(), &axis, this->SweepAngle,
+  RevolvePoints(input, outPts, &axis, this->SweepAngle,
                 this->Resolution, outPd, partialSweep);
 
   it = input->NewCellIterator();
@@ -518,8 +518,7 @@ int vtkVolumeOfRevolutionFilter::RequestData(
   {
     if (RevolveCell(it->GetCellType(), it->GetPointIds(),
                     input->GetNumberOfPoints(), this->Resolution,
-                    outCells.GetPointer(), outTypes.GetPointer(),
-                    outLocations.GetPointer(), inCd, it->GetCellId(), outCd,
+                    outCells, outTypes, outLocations, inCd, it->GetCellId(), outCd,
                     partialSweep) == 1)
     {
       vtkWarningMacro(<<"No method for revolving cell type "
@@ -528,9 +527,8 @@ int vtkVolumeOfRevolutionFilter::RequestData(
   }
   it->Delete();
 
-  output->SetPoints(outPts.GetPointer());
-  output->SetCells(outTypes.GetPointer(), outLocations.GetPointer(),
-                   outCells.GetPointer());
+  output->SetPoints(outPts);
+  output->SetCells(outTypes, outLocations, outCells);
 
   return 1;
 }

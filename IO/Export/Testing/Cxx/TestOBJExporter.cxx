@@ -45,14 +45,14 @@ int TestOBJExporter(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   vtkNew<vtkRenderWindow> window;
-  window->AddRenderer(renderer.Get());
+  window->AddRenderer(renderer);
 
   vtkNew<vtkOBJExporter> exporter;
-  exporter->SetRenderWindow(window.Get());
+  exporter->SetRenderWindow(window);
   exporter->SetFilePrefix(filename.c_str());
   exporter->Write();
 
@@ -94,7 +94,7 @@ int TestOBJExporter(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   mapper->RemoveAllInputConnections(0);
   exporter->Write();
   size = fileSize(filename);

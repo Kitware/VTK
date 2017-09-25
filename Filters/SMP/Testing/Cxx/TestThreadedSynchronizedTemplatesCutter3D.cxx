@@ -62,7 +62,7 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
 
   vtkNew<vtkSynchronizedTemplatesCutter3D> sc;
   sc->SetInputData(source->GetOutput());
-  sc->SetCutFunction(impfunc.GetPointer());
+  sc->SetCutFunction(impfunc);
   tl->StartTimer();
   sc->Update();
   tl->StopTimer();
@@ -72,7 +72,7 @@ int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
 
   vtkNew<vtkThreadedSynchronizedTemplatesCutter3D> pc;
   pc->SetInputData(source->GetOutput());
-  pc->SetCutFunction(impfunc.GetPointer());
+  pc->SetCutFunction(impfunc);
   tl->StartTimer();
   pc->Update();
   tl->StopTimer();

@@ -55,7 +55,7 @@ void vtkCellLocatorInterpolatedVelocityField::SetLastCellId
 {
   this->LastCellId       = c;
   this->LastDataSet      = ( *this->DataSets )[dataindex];
-  this->LastCellLocator  = ( *this->CellLocators )[dataindex].GetPointer();
+  this->LastCellLocator  = ( *this->CellLocators )[dataindex];
   this->LastDataSetIndex = dataindex;
 
   // If the dataset changes, then the cached cell is invalidated. We might as
@@ -76,7 +76,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
   if( !this->LastDataSet && !this->DataSets->empty() )
   {
     vds = ( *this->DataSets )[0];
-    loc = ( *this->CellLocators )[0].GetPointer();
+    loc = ( *this->CellLocators )[0];
     this->LastDataSet      = vds;
     this->LastCellLocator  = loc;
     this->LastDataSetIndex = 0;
@@ -106,7 +106,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
          this->LastDataSetIndex ++ )
     {
       vds = this->DataSets->operator[]( this->LastDataSetIndex );
-      loc = this->CellLocators->operator[]( this->LastDataSetIndex ).GetPointer();
+      loc = this->CellLocators->operator[]( this->LastDataSetIndex );
       if( vds && vds != this->LastDataSet )
       {
         this->ClearLastCellId();
@@ -135,7 +135,7 @@ int vtkCellLocatorInterpolatedVelocityField::FunctionValues
 
     this->LastCellId       = -1;
     this->LastDataSet      = ( *this->DataSets )[0];
-    this->LastCellLocator  = ( *this->CellLocators )[0].GetPointer();
+    this->LastCellLocator  = ( *this->CellLocators )[0];
     this->LastDataSetIndex = 0;
     vds = nullptr;
     loc = nullptr;

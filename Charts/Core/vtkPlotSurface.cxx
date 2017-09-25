@@ -73,7 +73,7 @@ bool vtkPlotSurface::Paint(vtkContext2D *painter)
     return false;
   }
 
-  context->ApplyPen(this->Pen.GetPointer());
+  context->ApplyPen(this->Pen);
 
   // draw the surface
   if (!this->Surface.empty())

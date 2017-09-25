@@ -21,6 +21,8 @@
 #include "vtkIntArray.h"
 #include "vtkSmartPointer.h"
 
+#include <vector>
+
 int TestSmartPointer(int,char *[])
 {
   int rval = 0;
@@ -102,6 +104,18 @@ int TestSmartPointer(int,char *[])
     vtkSmartPointer<vtkIntArray>::Take(vtkIntArray::New());
   (void)da4;
   ia->Delete();
+
+  std::vector<vtkSmartPointer<vtkIntArray> > intarrays;
+  { // local scope for vtkNew object
+    vtkNew<vtkIntArray> vtknew;
+    vtkSmartPointer<vtkIntArray> aa(vtknew);
+    intarrays.push_back(vtknew);
+  }
+  if(intarrays[0]->GetReferenceCount() != 1)
+  {
+    cerr << "Didn't properly add vtkNew object to stl vector of smart pointers\n";
+    rval = 1;
+  }
 
   return rval;
 }

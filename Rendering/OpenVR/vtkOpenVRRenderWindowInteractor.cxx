@@ -44,7 +44,7 @@ void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (voi
 vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 {
     vtkNew<vtkOpenVRInteractorStyle> style;
-    this->SetInteractorStyle(style.Get());
+    this->SetInteractorStyle(style);
 
     for (int i = 0; i < VTKI_MAX_POINTERS; i++)
     {
@@ -348,7 +348,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
 
         if (this->Enabled)
         {
-          this->InvokeEvent(vtkCommand::Button3DEvent, ed.Get());
+          this->InvokeEvent(vtkCommand::Button3DEvent, ed);
           //----------------------------------------------------------------------------
           //Handle Multitouch
           if (this->RecognizeGestures)
@@ -370,7 +370,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
                 this->DeviceInputDownCount[pointerIndex]--;
               }
             }
-            this->RecognizeComplexGesture(ed.Get());
+            this->RecognizeComplexGesture(ed);
           }
           //----------------------------------------------------------------------------
         }
@@ -434,10 +434,10 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
       ed->SetWorldDirection(wdir);
       if (this->Enabled)
       {
-        this->InvokeEvent(vtkCommand::Move3DEvent, ed.Get());
+        this->InvokeEvent(vtkCommand::Move3DEvent, ed);
         if (this->RecognizeGestures)
         {
-          this->RecognizeComplexGesture(ed.Get());
+          this->RecognizeComplexGesture(ed);
         }
       }
     }

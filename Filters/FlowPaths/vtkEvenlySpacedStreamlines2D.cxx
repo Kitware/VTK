@@ -508,16 +508,16 @@ void vtkEvenlySpacedStreamlines2D::SetInterpolatorType( int interpType )
     // specify the type of the cell locator attached to the interpolator
     vtkSmartPointer< vtkModifiedBSPTree > cellLocType =
     vtkSmartPointer< vtkModifiedBSPTree >::New();
-    cellLoc->SetCellLocatorPrototype( cellLocType.GetPointer() );
+    cellLoc->SetCellLocatorPrototype( cellLocType );
 
-    this->SetInterpolatorPrototype( cellLoc.GetPointer() );
+    this->SetInterpolatorPrototype( cellLoc );
   }
   else
   {
     // create an interpolator equipped with a point locator (by default)
     vtkSmartPointer< vtkInterpolatedVelocityField > pntLoc =
     vtkSmartPointer< vtkInterpolatedVelocityField >::New();
-    this->SetInterpolatorPrototype( pntLoc.GetPointer() );
+    this->SetInterpolatorPrototype( pntLoc );
   }
 }
 

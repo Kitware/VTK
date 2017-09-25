@@ -41,26 +41,26 @@ int TestQVTKOpenGLWidget(int argc, char* argv[])
 
   {
     vtkNew<vtkGenericOpenGLRenderWindow> window0;
-    widget.SetRenderWindow(window0.Get());
+    widget.SetRenderWindow(window0);
     widget.show();
     app.processEvents();
   }
 
   // make sure rendering works correctly after switching to a new render window
   vtkNew<vtkGenericOpenGLRenderWindow> window;
-  widget.SetRenderWindow(window.Get());
+  widget.SetRenderWindow(window);
 
   vtkNew<vtkRenderer> ren;
   ren->SetGradientBackground(1);
   ren->SetBackground2(0.7, 0.7, 0.7);
-  window->AddRenderer(ren.Get());
+  window->AddRenderer(ren);
 
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
-  ren->AddActor(actor.Get());
+  actor->SetMapper(mapper);
+  ren->AddActor(actor);
 
   int* windowSize = window->GetSize();
   int* screenSize = window->GetScreenSize();
@@ -72,7 +72,7 @@ int TestQVTKOpenGLWidget(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtktesting->SetRenderWindow(window.Get());
+  vtktesting->SetRenderWindow(window);
   widget.update();
   app.processEvents();
 

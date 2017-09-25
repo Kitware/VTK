@@ -62,7 +62,7 @@ inline double ComputeLength(vtkIdList* poly, vtkPoints* pts)
 int TestPStreamGeometry( int argc, char* argv[] )
 {
   vtkNew<vtkMPIController> c;
-  vtkMultiProcessController::SetGlobalController(c.GetPointer());
+  vtkMultiProcessController::SetGlobalController(c);
   c->Initialize(&argc,&argv);
   int numProcs = c->GetNumberOfProcesses();
   int myRank = c->GetLocalProcessId();
@@ -96,9 +96,9 @@ int TestPStreamGeometry( int argc, char* argv[] )
     for(int i=0; i<numTraces;i++)
       seedPoints->InsertNextPoint(start[0],numTraces==1? 0: -0.9+dt*i,start[1]);
     seedPoints->InsertNextPoint(-2,-2,-2); //out of bound point
-    seeds->SetPoints(seedPoints.GetPointer());
+    seeds->SetPoints(seedPoints);
   }
-  tracer->SetInputData(1,seeds.GetPointer());
+  tracer->SetInputData(1,seeds);
   tracer->SetMaximumPropagation(maximumPropagation);
 
   vtkSmartPointer<vtkPolyDataMapper> traceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -113,9 +113,9 @@ int TestPStreamGeometry( int argc, char* argv[] )
   vtkCellArray* lines = out->GetLines();
   double totalLength(0);
   lines->InitTraversal();
-  while(lines->GetNextCell(polyLine.GetPointer()))
+  while(lines->GetNextCell(polyLine))
   {
-    double d = ComputeLength(polyLine.GetPointer(),out->GetPoints());
+    double d = ComputeLength(polyLine,out->GetPoints());
     totalLength+=d;
   }
 
@@ -138,9 +138,9 @@ int TestPStreamGeometry( int argc, char* argv[] )
   {
     vtkNew<vtkPoints> seedPoints;
     seedPoints->InsertNextPoint(.1, .1, 0);
-    singleSeed->SetPoints(seedPoints.GetPointer());
+    singleSeed->SetPoints(seedPoints);
   }
-  tracer->SetInputData(1,singleSeed.GetPointer());
+  tracer->SetInputData(1,singleSeed);
   tracer->SetIntegrationDirectionToBoth();
   traceMapper->Update();
   out = tracer->GetOutput();

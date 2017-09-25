@@ -205,7 +205,7 @@ int vtkCellTypeSource::RequestData(
       }
     }
   }
-  output->SetPoints(points.GetPointer());
+  output->SetPoints(points);
 
   switch(this->CellType)
   {

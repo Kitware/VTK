@@ -41,32 +41,32 @@ int TestGL2PSExporterMultipleRenderers( int, char *[] )
   vtkNew<vtkTextMapper> textMap3;
   textMap3->SetInput("String3");
   vtkNew<vtkActor2D> text3;
-  text3->SetMapper(textMap3.GetPointer());
+  text3->SetMapper(textMap3);
   text3->SetPosition(75, 200);
 
   vtkNew<vtkRenderer> ren1;
-  ren1->AddActor(text1.GetPointer());
+  ren1->AddActor(text1);
   ren1->SetBackground(0.2, 0.2, 0.4);
   ren1->SetViewport(.5, 0, 1, 1);
 
   vtkNew<vtkRenderer> ren2;
-  ren2->AddActor(text2.GetPointer());
-  ren2->AddActor(text3.GetPointer());
+  ren2->AddActor(text2);
+  ren2->AddActor(text3);
   ren2->SetBackground(0.2, 0.2, 0.4);
   ren2->SetViewport(0, 0, .5, 1);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1.GetPointer());
-  renWin->AddRenderer(ren2.GetPointer());
+  renWin->AddRenderer(ren1);
+  renWin->AddRenderer(ren2);
   renWin->SetSize(500, 500);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   renWin->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(renWin.GetPointer());
+  exp->SetRenderWindow(renWin);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToSimple();

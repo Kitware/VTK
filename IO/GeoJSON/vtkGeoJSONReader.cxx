@@ -88,13 +88,13 @@ GeoJSONReaderInternal::ParseRoot(
   // Initialize geometry containers
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
-  output->SetPoints(points.GetPointer());
+  output->SetPoints(points);
   vtkNew<vtkCellArray> verts;
-  output->SetVerts(verts.GetPointer());
+  output->SetVerts(verts);
   vtkNew<vtkCellArray> lines;
-  output->SetLines(lines.GetPointer());
+  output->SetLines(lines);
   vtkNew<vtkCellArray> polys;
-  output->SetPolys(polys.GetPointer());
+  output->SetPolys(polys);
 
   // Initialize feature-id array
   vtkStringArray *featureIdArray = vtkStringArray::New();

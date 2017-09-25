@@ -113,7 +113,7 @@ vtkDistanceWidget::vtkDistanceWidget()
     ed->SetInput(vtkEventDataDeviceInput::Trigger);
     ed->SetAction(vtkEventDataAction::Press);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::AddPoint3D,
+      ed, vtkWidgetEvent::AddPoint3D,
       this, vtkDistanceWidget::AddPointAction3D);
   }
 
@@ -123,7 +123,7 @@ vtkDistanceWidget::vtkDistanceWidget()
     ed->SetInput(vtkEventDataDeviceInput::Trigger);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::EndSelect3D,
+      ed, vtkWidgetEvent::EndSelect3D,
       this, vtkDistanceWidget::EndSelectAction3D);
   }
 
@@ -131,7 +131,7 @@ vtkDistanceWidget::vtkDistanceWidget()
     vtkNew<vtkEventDataMove3D> ed;
     ed->SetDevice(vtkEventDataDevice::RightController);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
-      ed.Get(), vtkWidgetEvent::Move3D,
+      ed, vtkWidgetEvent::Move3D,
       this, vtkDistanceWidget::MoveAction3D);
   }
 }

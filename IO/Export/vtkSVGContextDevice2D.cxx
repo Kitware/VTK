@@ -587,8 +587,8 @@ void vtkSVGContextDevice2D::DrawPoly(float *points, int n,
   {
     vtkNew<vtkXMLDataElement> polyLine;
     polyLine->SetName("polyline");
-    this->ActiveNode->AddNestedElement(polyLine.Get());
-    this->ApplyPenStateToNode(polyLine.Get());
+    this->ActiveNode->AddNestedElement(polyLine);
+    this->ApplyPenStateToNode(polyLine);
 
     YConverter y(this->CanvasHeight);
 
@@ -634,8 +634,8 @@ void vtkSVGContextDevice2D::DrawLines(float *points, int n,
     // Use path instead of lines for a more efficient/compact representation:
     vtkNew<vtkXMLDataElement> path;
     path->SetName("path");
-    this->ActiveNode->AddNestedElement(path.Get());
-    this->ApplyPenStateToNode(path.Get());
+    this->ActiveNode->AddNestedElement(path);
+    this->ApplyPenStateToNode(path);
 
     YConverter y(this->CanvasHeight);
 
@@ -686,10 +686,10 @@ void vtkSVGContextDevice2D::DrawPoints(float *points, int n,
     // Use path instead of rects for a more efficient/compact representation.
     vtkNew<vtkXMLDataElement> path;
     path->SetName("path");
-    this->ActiveNode->AddNestedElement(path.Get());
+    this->ActiveNode->AddNestedElement(path);
 
-    this->ApplyPenAsFillColorToNode(path.Get());
-    this->ApplyPenAsFillOpacityToNode(path.Get());
+    this->ApplyPenAsFillColorToNode(path);
+    this->ApplyPenAsFillOpacityToNode(path);
 
     YConverter y(this->CanvasHeight);
 
@@ -731,7 +731,7 @@ void vtkSVGContextDevice2D::DrawPoints(float *points, int n,
       const unsigned char *c = colors + i * nc_comps;
 
       vtkNew<vtkXMLDataElement> point;
-      this->ActiveNode->AddNestedElement(point.Get());
+      this->ActiveNode->AddNestedElement(point);
 
       point->SetName("rect");
       point->SetFloatAttribute("x", p[0] - halfWidth);
@@ -847,9 +847,9 @@ void vtkSVGContextDevice2D::DrawPointSprites(vtkImageData *spriteIn,
 
       vtkNew<vtkImageData> spriteImage;
       spriteImage->ShallowCopy(rgba);
-      spriteImage->GetPointData()->SetScalars(spriteColor.Get());
+      spriteImage->GetPointData()->SetScalars(spriteColor);
 
-      const ImageInfo &info = this->Impl->GetImageInfo(spriteImage.Get());
+      const ImageInfo &info = this->Impl->GetImageInfo(spriteImage);
       sprite = info.Id;
 
       spriteMap.insert(std::make_pair(color, sprite));
@@ -879,7 +879,7 @@ void vtkSVGContextDevice2D::DrawPointSprites(vtkImageData *spriteIn,
           << anchorY - (yScale * anchorY + spriteHeight) << ")";
 
     vtkNew<vtkXMLDataElement> use;
-    this->ActiveNode->AddNestedElement(use.Get());
+    this->ActiveNode->AddNestedElement(use);
     use->SetName("use");
     use->SetFloatAttribute("x", anchorX);
     use->SetFloatAttribute("y", anchorY); // YConverter already applied
@@ -966,7 +966,7 @@ void vtkSVGContextDevice2D::DrawMarkers(int shape, bool highlight,
       const float *p = points + i * 2;
 
       vtkNew<vtkXMLDataElement> node;
-      this->ActiveNode->AddNestedElement(node.Get());
+      this->ActiveNode->AddNestedElement(node);
       node->SetName("use");
       node->SetFloatAttribute("x", p[0] - halfWidth);
       node->SetFloatAttribute("y", y(p[1]) - halfWidth);
@@ -1001,7 +1001,7 @@ void vtkSVGContextDevice2D::DrawMarkers(int shape, bool highlight,
       const std::string colStr = ColorToString(c);
 
       vtkNew<vtkXMLDataElement> node;
-      this->ActiveNode->AddNestedElement(node.Get());
+      this->ActiveNode->AddNestedElement(node);
       node->SetName("use");
       node->SetFloatAttribute("x", p[0] - halfWidth);
       node->SetFloatAttribute("y", y(p[1]) - halfWidth);
@@ -1056,9 +1056,9 @@ void vtkSVGContextDevice2D::DrawQuadStrip(float *points, int n)
   // odd verts on the other):
   vtkNew<vtkXMLDataElement> path;
   path->SetName("path");
-  this->ActiveNode->AddNestedElement(path.Get());
+  this->ActiveNode->AddNestedElement(path);
 
-  this->ApplyBrushStateToNode(path.Get());
+  this->ApplyBrushStateToNode(path);
 
   YConverter y(this->CanvasHeight);
   std::ostringstream d;
@@ -1082,9 +1082,9 @@ void vtkSVGContextDevice2D::DrawPolygon(float *points, int n)
 {
   vtkNew<vtkXMLDataElement> path;
   path->SetName("path");
-  this->ActiveNode->AddNestedElement(path.Get());
+  this->ActiveNode->AddNestedElement(path);
 
-  this->ApplyBrushStateToNode(path.Get());
+  this->ApplyBrushStateToNode(path);
 
   YConverter y(this->CanvasHeight);
   std::ostringstream d;
@@ -1186,8 +1186,8 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy,
       if (isCircle)
       {
         vtkNew<vtkXMLDataElement> circle;
-        this->ActiveNode->AddNestedElement(circle.Get());
-        this->ApplyBrushStateToNode(circle.Get());
+        this->ActiveNode->AddNestedElement(circle);
+        this->ApplyBrushStateToNode(circle);
         circle->SetName("circle");
         circle->SetFloatAttribute("cx", cx);
         circle->SetFloatAttribute("cy", y(cy));
@@ -1196,8 +1196,8 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy,
       else // !isCircle
       {
         vtkNew<vtkXMLDataElement> ellipse;
-        this->ActiveNode->AddNestedElement(ellipse.Get());
-        this->ApplyBrushStateToNode(ellipse.Get());
+        this->ActiveNode->AddNestedElement(ellipse);
+        this->ApplyBrushStateToNode(ellipse);
         ellipse->SetName("ellipse");
         ellipse->SetFloatAttribute("cx", cx);
         ellipse->SetFloatAttribute("cy", y(cy));
@@ -1208,8 +1208,8 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy,
     else // !isFilled
     {
       vtkNew<vtkXMLDataElement> path;
-      this->ActiveNode->AddNestedElement(path.Get());
-      this->ApplyBrushStateToNode(path.Get());
+      this->ActiveNode->AddNestedElement(path);
+      this->ApplyBrushStateToNode(path);
       path->SetName("path");
       path->SetAttribute("fill-rule", "evenodd");
 
@@ -1245,8 +1245,8 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy,
     if (isFilled)
     {
       vtkNew<vtkXMLDataElement> path;
-      this->ActiveNode->AddNestedElement(path.Get());
-      this->ApplyBrushStateToNode(path.Get());
+      this->ActiveNode->AddNestedElement(path);
+      this->ApplyBrushStateToNode(path);
       path->SetName("path");
 
       std::ostringstream d;
@@ -1264,8 +1264,8 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy,
     else // !isFilled
     {
       vtkNew<vtkXMLDataElement> path;
-      this->ActiveNode->AddNestedElement(path.Get());
-      this->ApplyBrushStateToNode(path.Get());
+      this->ActiveNode->AddNestedElement(path);
+      this->ApplyBrushStateToNode(path);
       path->SetName("path");
       path->SetAttribute("fill-rule", "evenodd");
 
@@ -1318,9 +1318,9 @@ void vtkSVGContextDevice2D::DrawEllipticArc(float cx, float cy,
     if (isCircle)
     {
       vtkNew<vtkXMLDataElement> circle;
-      this->ActiveNode->AddNestedElement(circle.Get());
-      this->ApplyPenStateToNode(circle.Get());
-      this->ApplyBrushStateToNode(circle.Get());
+      this->ActiveNode->AddNestedElement(circle);
+      this->ApplyPenStateToNode(circle);
+      this->ApplyBrushStateToNode(circle);
       circle->SetName("circle");
       circle->SetFloatAttribute("cx", cx);
       circle->SetFloatAttribute("cy", y(cy));
@@ -1329,9 +1329,9 @@ void vtkSVGContextDevice2D::DrawEllipticArc(float cx, float cy,
     else // !isCircle
     {
       vtkNew<vtkXMLDataElement> ellipse;
-      this->ActiveNode->AddNestedElement(ellipse.Get());
-      this->ApplyPenStateToNode(ellipse.Get());
-      this->ApplyBrushStateToNode(ellipse.Get());
+      this->ActiveNode->AddNestedElement(ellipse);
+      this->ApplyPenStateToNode(ellipse);
+      this->ApplyBrushStateToNode(ellipse);
       ellipse->SetName("ellipse");
       ellipse->SetFloatAttribute("cx", cx);
       ellipse->SetFloatAttribute("cy", y(cy));
@@ -1342,9 +1342,9 @@ void vtkSVGContextDevice2D::DrawEllipticArc(float cx, float cy,
   else // isArc
   {
     vtkNew<vtkXMLDataElement> path;
-    this->ActiveNode->AddNestedElement(path.Get());
-    this->ApplyPenStateToNode(path.Get());
-    this->ApplyBrushStateToNode(path.Get());
+    this->ActiveNode->AddNestedElement(path);
+    this->ApplyPenStateToNode(path);
+    this->ApplyBrushStateToNode(path);
     path->SetName("path");
 
     std::ostringstream d;
@@ -1394,9 +1394,9 @@ void vtkSVGContextDevice2D::DrawString(float *point,
     info.ProcessString(string);
 
     vtkNew<vtkXMLDataElement> text;
-    this->ActiveNode->AddNestedElement(text.Get());
+    this->ActiveNode->AddNestedElement(text);
     text->SetName("text");
-    this->ApplyTextPropertyStateToNode(text.Get(), point[0], point[1]);
+    this->ApplyTextPropertyStateToNode(text, point[0], point[1]);
     // Position is encoded in the transform:
     text->SetFloatAttribute("x", 0.f);
     text->SetFloatAttribute("y", 0.f);
@@ -1409,7 +1409,7 @@ void vtkSVGContextDevice2D::DrawString(float *point,
     // Export other text (e.g. MathText) as a path:
     vtkNew<vtkPath> tPath;
     int dpi = this->Viewport->GetVTKWindow()->GetDPI();
-    if (!tren->StringToPath(this->TextProp, string, tPath.Get(), dpi, backend))
+    if (!tren->StringToPath(this->TextProp, string, tPath, dpi, backend))
     {
       vtkErrorMacro("Error generating path for MathText string '"
                     << string << "'.");
@@ -1417,12 +1417,12 @@ void vtkSVGContextDevice2D::DrawString(float *point,
     }
 
     vtkNew<vtkXMLDataElement> path;
-    this->ActiveNode->AddNestedElement(path.Get());
+    this->ActiveNode->AddNestedElement(path);
     path->SetName("path");
-    this->ApplyTextPropertyStateToNodeForPath(path.Get(), point[0], point[1]);
+    this->ApplyTextPropertyStateToNodeForPath(path, point[0], point[1]);
 
     std::ostringstream d;
-    this->DrawPath(tPath.Get(), d);
+    this->DrawPath(tPath, d);
     path->SetAttribute("d", d.str().c_str());
   }
 }
@@ -1508,7 +1508,7 @@ void vtkSVGContextDevice2D::DrawImage(const vtkRectf &pos, vtkImageData *image)
         << y(pos.GetY()) - (yScale * y(pos.GetY()) + pos.GetHeight()) << ")";
 
   vtkNew<vtkXMLDataElement> use;
-  this->ActiveNode->AddNestedElement(use.Get());
+  this->ActiveNode->AddNestedElement(use);
   use->SetName("use");
   use->SetFloatAttribute("x", pos.GetX());
   use->SetFloatAttribute("y", y(pos.GetY()));
@@ -1655,8 +1655,8 @@ void vtkSVGContextDevice2D::PushGraphicsState()
 {
   vtkNew<vtkXMLDataElement> newGState;
   newGState->SetName("g");
-  this->ActiveNode->AddNestedElement(newGState.Get());
-  this->ActiveNode = newGState.Get();
+  this->ActiveNode->AddNestedElement(newGState);
+  this->ActiveNode = newGState;
 }
 
 //------------------------------------------------------------------------------
@@ -2012,7 +2012,7 @@ std::string vtkSVGContextDevice2D::AddCrossSymbol(bool)
                                                             id.c_str()))
   {
     vtkNew<vtkXMLDataElement> symbol;
-    this->DefinitionNode->AddNestedElement(symbol.Get());
+    this->DefinitionNode->AddNestedElement(symbol);
 
     symbol->SetName("symbol");
     symbol->SetId(id.c_str());
@@ -2020,7 +2020,7 @@ std::string vtkSVGContextDevice2D::AddCrossSymbol(bool)
     symbol->SetAttribute("viewBox", "0,0 1,1");
 
     vtkNew<vtkXMLDataElement> path;
-    symbol->AddNestedElement(path.Get());
+    symbol->AddNestedElement(path);
 
     path->SetName("path");
     path->SetAttribute("d", "M0,0L1,1M0,1L1,0");
@@ -2041,7 +2041,7 @@ std::string vtkSVGContextDevice2D::AddPlusSymbol(bool)
                                                             id.c_str()))
   {
     vtkNew<vtkXMLDataElement> symbol;
-    this->DefinitionNode->AddNestedElement(symbol.Get());
+    this->DefinitionNode->AddNestedElement(symbol);
 
     symbol->SetName("symbol");
     symbol->SetId(id.c_str());
@@ -2049,7 +2049,7 @@ std::string vtkSVGContextDevice2D::AddPlusSymbol(bool)
     symbol->SetAttribute("viewBox", "0,0 1,1");
 
     vtkNew<vtkXMLDataElement> path;
-    symbol->AddNestedElement(path.Get());
+    symbol->AddNestedElement(path);
 
     path->SetName("path");
     path->SetAttribute("d", "M0.5,0L0.5,1M0,0.5L1,0.5");
@@ -2070,7 +2070,7 @@ std::string vtkSVGContextDevice2D::AddSquareSymbol(bool)
                                                             id.c_str()))
   {
     vtkNew<vtkXMLDataElement> symbol;
-    this->DefinitionNode->AddNestedElement(symbol.Get());
+    this->DefinitionNode->AddNestedElement(symbol);
 
     symbol->SetName("symbol");
     symbol->SetId(id.c_str());
@@ -2078,7 +2078,7 @@ std::string vtkSVGContextDevice2D::AddSquareSymbol(bool)
     symbol->SetAttribute("viewBox", "0,0 1,1");
 
     vtkNew<vtkXMLDataElement> rect;
-    symbol->AddNestedElement(rect.Get());
+    symbol->AddNestedElement(rect);
 
     rect->SetName("rect");
     rect->SetFloatAttribute("x", 0.f);
@@ -2102,7 +2102,7 @@ std::string vtkSVGContextDevice2D::AddCircleSymbol(bool)
                                                             id.c_str()))
   {
     vtkNew<vtkXMLDataElement> symbol;
-    this->DefinitionNode->AddNestedElement(symbol.Get());
+    this->DefinitionNode->AddNestedElement(symbol);
 
     symbol->SetName("symbol");
     symbol->SetId(id.c_str());
@@ -2110,7 +2110,7 @@ std::string vtkSVGContextDevice2D::AddCircleSymbol(bool)
     symbol->SetAttribute("viewBox", "0,0 1,1");
 
     vtkNew<vtkXMLDataElement> circle;
-    symbol->AddNestedElement(circle.Get());
+    symbol->AddNestedElement(circle);
 
     circle->SetName("circle");
     circle->SetFloatAttribute("cx", 0.5f);
@@ -2133,7 +2133,7 @@ std::string vtkSVGContextDevice2D::AddDiamondSymbol(bool)
                                                             id.c_str()))
   {
     vtkNew<vtkXMLDataElement> symbol;
-    this->DefinitionNode->AddNestedElement(symbol.Get());
+    this->DefinitionNode->AddNestedElement(symbol);
 
     symbol->SetName("symbol");
     symbol->SetId(id.c_str());
@@ -2141,7 +2141,7 @@ std::string vtkSVGContextDevice2D::AddDiamondSymbol(bool)
     symbol->SetAttribute("viewBox", "0,0 1,1");
 
     vtkNew<vtkXMLDataElement> path;
-    symbol->AddNestedElement(path.Get());
+    symbol->AddNestedElement(path);
 
     path->SetName("path");
     path->SetAttribute("d", "M0,.5L.5,1 1,.5 .5,0z");
@@ -2284,13 +2284,13 @@ void vtkSVGContextDevice2D::DrawLineGradient(
   {
     YConverter y(this->CanvasHeight);
     vtkNew<vtkXMLDataElement> line;
-    this->ActiveNode->AddNestedElement(line.Get());
+    this->ActiveNode->AddNestedElement(line);
     line->SetName("line");
     line->SetFloatAttribute("x1", p1[0]);
     line->SetFloatAttribute("y1", y(p1[1]));
     line->SetFloatAttribute("x2", p2[0]);
     line->SetFloatAttribute("y2", y(p2[1]));
-    this->ApplyPenWidthToNode(line.Get());
+    this->ApplyPenWidthToNode(line);
     line->SetAttribute("stroke", ColorToString(aveColor.GetData()).c_str());
     if (useAlpha && aveColor[3] != 255)
     {
@@ -2328,7 +2328,7 @@ void vtkSVGContextDevice2D::DrawTriangleGradient(
       static_cast<unsigned char>(static_cast<int>(c1[3] + c2[3] + c3[3]) / 3)
     };
     vtkNew<vtkXMLDataElement> polygon;
-    this->ActiveNode->AddNestedElement(polygon.Get());
+    this->ActiveNode->AddNestedElement(polygon);
     polygon->SetName("polygon");
     polygon->SetAttribute("fill", ColorToString(aveColor.GetData()).c_str());
     if (useAlpha && aveColor[3] != 255)
@@ -2465,13 +2465,13 @@ void vtkSVGContextDevice2D::WriteFonts()
     }
 
     vtkNew<vtkXMLDataElement> font;
-    this->DefinitionNode->AddNestedElement(font.Get());
+    this->DefinitionNode->AddNestedElement(font);
     font->SetName("font");
     font->SetAttribute("id", info->SVGId.c_str());
     font->SetIntAttribute("horiz-adv-x", faceMetrics.HorizAdvance);
 
     vtkNew<vtkXMLDataElement> face;
-    font->AddNestedElement(face.Get());
+    font->AddNestedElement(face);
     face->SetName("font-face");
     face->SetAttribute("font-family", faceMetrics.FamilyName.c_str());
     face->SetAttribute("font-style", faceMetrics.Italic ? "italic" : "normal");
@@ -2490,14 +2490,14 @@ void vtkSVGContextDevice2D::WriteFonts()
       vtkUnicodeString unicode(1, charId);
 
       vtkNew<vtkXMLDataElement> glyph;
-      face->AddNestedElement(glyph.Get());
+      face->AddNestedElement(glyph);
       glyph->SetName("glyph");
       glyph->SetAttributeEncoding(VTK_ENCODING_UTF_8);
       glyph->SetAttribute("unicode", unicode.utf8_str());
       glyph->SetIntAttribute("horiz-adv-x", glyphInfo.HorizAdvance);
 
       std::ostringstream d;
-      this->DrawPath(glyphInfo.Path.Get(), d);
+      this->DrawPath(glyphInfo.Path, d);
       glyph->SetAttribute("d", d.str().c_str());
     }
 
@@ -2506,7 +2506,7 @@ void vtkSVGContextDevice2D::WriteFonts()
       const vtkUnicodeString unicode1(1, charPair.first);
       const vtkUnicodeString unicode2(1, charPair.second);
       std::array<int, 2> kerning =
-          ftt->GetUnscaledKerning(key.TextProperty.Get(),
+          ftt->GetUnscaledKerning(key.TextProperty,
                                   charPair.first, charPair.second);
 
       if (std::abs(kerning[0]) == 0)
@@ -2515,7 +2515,7 @@ void vtkSVGContextDevice2D::WriteFonts()
       }
 
       vtkNew<vtkXMLDataElement> hkern;
-      font->AddNestedElement(hkern.Get());
+      font->AddNestedElement(hkern);
       hkern->SetName("hkern");
       hkern->SetAttributeEncoding(VTK_ENCODING_UTF_8);
       hkern->SetAttribute("u1", unicode1.utf8_str());
@@ -2531,7 +2531,7 @@ void vtkSVGContextDevice2D::WriteImages()
   for (const ImageInfo &info : this->Impl->ImageSet)
   {
     vtkNew<vtkXMLDataElement> image;
-    this->DefinitionNode->AddNestedElement(image.Get());
+    this->DefinitionNode->AddNestedElement(image);
     image->SetName("image");
     image->SetAttribute("id", info.Id.c_str());
     image->SetIntAttribute("width", info.Size[0]);
@@ -2546,7 +2546,7 @@ void vtkSVGContextDevice2D::WritePatterns()
   for (const PatternInfo &info : this->Impl->PatternSet)
   {
     vtkNew<vtkXMLDataElement> pattern;
-    this->DefinitionNode->AddNestedElement(pattern.Get());
+    this->DefinitionNode->AddNestedElement(pattern);
     pattern->SetName("pattern");
     pattern->SetAttribute("id", info.PatternId.c_str());
 
@@ -2570,7 +2570,7 @@ void vtkSVGContextDevice2D::WritePatterns()
     }
 
     vtkNew<vtkXMLDataElement> use;
-    pattern->AddNestedElement(use.Get());
+    pattern->AddNestedElement(use);
     use->SetName("use");
     use->SetFloatAttribute("x", 0);
     use->SetFloatAttribute("y", 0);
@@ -2586,13 +2586,13 @@ void vtkSVGContextDevice2D::WriteClipRects()
   for (const auto &info : this->Impl->ClipRectSet)
   {
     vtkNew<vtkXMLDataElement> clipPath;
-    this->DefinitionNode->AddNestedElement(clipPath.Get());
+    this->DefinitionNode->AddNestedElement(clipPath);
     clipPath->SetName("clipPath");
     clipPath->SetAttribute("id", info.Id.c_str());
 
     // Get rect
     vtkNew<vtkXMLDataElement> rect;
-    clipPath->AddNestedElement(rect.Get());
+    clipPath->AddNestedElement(rect);
     rect->SetName("rect");
     rect->SetAttribute("fill", "#000");
     rect->SetIntAttribute("x", info.Rect[0]);
@@ -2788,10 +2788,10 @@ vtkImageData *vtkSVGContextDevice2D::PreparePointSprite(vtkImageData *in)
       newData->SetTypedComponent(t, 2, data->GetTypedComponent(t, 2));
       newData->SetTypedComponent(t, 3, 255);
     }
-    rgba->GetPointData()->SetScalars(newData.Get());
+    rgba->GetPointData()->SetScalars(newData);
 
     in->UnRegister(this);
-    in = rgba.Get();
+    in = rgba;
     in->Register(this);
   }
 

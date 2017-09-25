@@ -97,13 +97,13 @@ static bool CheckStencilExtents(
   int imageExt[6], int stencilExt[6], int extent[6])
 {
   vtkNew<vtkImageData> image;
-  GenerateImage(image.Get(), imageExt);
+  GenerateImage(image, imageExt);
 
   vtkNew<vtkImageStencilData> stencil;
-  GenerateStencil(stencil.Get(), stencilExt);
+  GenerateStencil(stencil, stencilExt);
 
   vtkImageStencilIterator<unsigned char> iter;
-  iter.Initialize(image.Get(), stencil.Get(), extent);
+  iter.Initialize(image, stencil, extent);
 
   bool match = true;
   int i = extent[0];

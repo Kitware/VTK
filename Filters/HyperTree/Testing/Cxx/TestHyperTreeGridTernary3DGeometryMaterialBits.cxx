@@ -52,7 +52,7 @@ int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
   vtkIdType zeroArray[] = { 0, 1, 2, 4, 5, 7, 8, 9, 10, 11, 13, 14, 15, 16 };
   vtkNew<vtkIdTypeArray> zero;
   zero->SetArray( zeroArray, sizeof(zeroArray) / sizeof(vtkIdType), 1, 0 );
-  htGrid->SetLevelZeroMaterialIndex( zero.GetPointer() );
+  htGrid->SetLevelZeroMaterialIndex( zero );
   vtkBitArray* desc = htGrid->ConvertDescriptorStringToBitArray( descriptor );
   htGrid->SetDescriptorBits(desc);
   desc->Delete();
@@ -78,9 +78,9 @@ int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
 
@@ -94,25 +94,25 @@ int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 110 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 110 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

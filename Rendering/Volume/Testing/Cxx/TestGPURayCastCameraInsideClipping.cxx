@@ -49,10 +49,10 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren1;
-  renWin->AddRenderer(ren1.GetPointer());
+  renWin->AddRenderer(ren1);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                      "Data/HeadMRVolume.mhd");
@@ -81,15 +81,15 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   gf->AddPoint(70, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty1;
-  volumeProperty1->SetScalarOpacity(pwf.GetPointer());
-  volumeProperty1->SetColor(ctf.GetPointer());
+  volumeProperty1->SetScalarOpacity(pwf);
+  volumeProperty1->SetColor(ctf);
   volumeProperty1->SetDisableGradientOpacity(1);
   volumeProperty1->SetInterpolationTypeToLinear();
   volumeProperty1->ShadeOn();
 
   vtkNew<vtkVolume> volume1;
-  volume1->SetMapper(mapper1.GetPointer());
-  volume1->SetProperty(volumeProperty1.GetPointer());
+  volume1->SetMapper(mapper1);
+  volume1->SetProperty(volumeProperty1);
 
   // Sphere
   vtkNew<vtkSphereSource> sphere;
@@ -101,7 +101,7 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   vtkNew<vtkPolyDataMapper> pMapper;
   pMapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> sphereAct;
-  sphereAct->SetMapper(pMapper.GetPointer());
+  sphereAct->SetMapper(pMapper);
 
   // Outline
   vtkNew<vtkActor> outlineActor;
@@ -109,11 +109,11 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(reader->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
 
-  ren1->AddVolume(volume1.GetPointer());
-  ren1->AddActor(sphereAct.GetPointer());
-  ren1->AddActor(outlineActor.GetPointer());
+  ren1->AddVolume(volume1);
+  ren1->AddActor(sphereAct);
+  ren1->AddActor(outlineActor);
 
   ren1->GetActiveCamera()->SetFocalPoint(94,142,35);
   ren1->GetActiveCamera()->SetPosition(94,142,200);
@@ -122,7 +122,7 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   renWin->Render();
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  renWin->GetInteractor()->SetInteractorStyle(style.GetPointer());
+  renWin->GetInteractor()->SetInteractorStyle(style);
 
   ren1->GetActiveCamera()->Elevation(-45);
   ren1->GetActiveCamera()->OrthogonalizeViewUp();
@@ -131,7 +131,7 @@ int TestGPURayCastCameraInsideClipping(int argc, char* argv[])
   ren1->GetActiveCamera()->OrthogonalizeViewUp();
   renWin->Render();
 
-  int retVal = vtkTesting::Test(argc, argv, renWin.GetPointer(), 90);
+  int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

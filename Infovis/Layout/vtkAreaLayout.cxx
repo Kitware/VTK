@@ -106,7 +106,7 @@ int vtkAreaLayout::RequestData(
 
   vtkSmartPointer<vtkDataArray> sizeArray =
     this->GetInputArrayToProcess(0, inputTree);
-  if (!sizeArray.GetPointer())
+  if (!sizeArray)
   {
     vtkSmartPointer<vtkTreeFieldAggregator> agg =
       vtkSmartPointer<vtkTreeFieldAggregator>::New();

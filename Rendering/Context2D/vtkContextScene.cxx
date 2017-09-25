@@ -456,9 +456,9 @@ bool vtkContextScene::MouseMoveEvent(const vtkContextMouseEvent &e)
     cerr << "picked nothing" << endl;
   }
 #endif
-  if (this->Storage->itemPicked.GetPointer() != newItemPicked)
+  if (this->Storage->itemPicked != newItemPicked)
   {
-    if (this->Storage->itemPicked.GetPointer())
+    if (this->Storage->itemPicked)
     {
       // Make sure last picked object is still part of this scene.
       if (this->Storage->itemPicked->GetScene() == this)
@@ -479,13 +479,13 @@ bool vtkContextScene::MouseMoveEvent(const vtkContextMouseEvent &e)
   // Fire mouse move event regardless of where it occurred.
 
   // Check if there is a selected item that needs to receive a move event
-  if (this->Storage->itemMousePressCurrent.GetPointer() &&
+  if (this->Storage->itemMousePressCurrent &&
       this->Storage->itemMousePressCurrent->GetScene() == this)
   {
     vtkAbstractContextItem* cur = this->Storage->itemMousePressCurrent;
     res = this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseMoveEvent) || res;
   }
-  else if (this->Storage->itemPicked.GetPointer())
+  else if (this->Storage->itemPicked)
   {
     vtkAbstractContextItem* cur = this->Storage->itemPicked;
     res = this->ProcessItem(cur, event, &vtkAbstractContextItem::MouseMoveEvent) || res;
@@ -554,7 +554,7 @@ bool vtkContextScene::ButtonReleaseEvent(const vtkContextMouseEvent &e)
   }
 
   bool res = false;
-  if (this->Storage->itemMousePressCurrent.GetPointer())
+  if (this->Storage->itemMousePressCurrent)
   {
     vtkContextMouseEvent &event = this->Storage->Event;
     this->EventCopy(e);

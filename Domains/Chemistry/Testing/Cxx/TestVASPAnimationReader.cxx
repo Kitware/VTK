@@ -67,20 +67,20 @@ int TestVASPAnimationReader(int argc, char *argv[])
     reader->UpdateTimeStep(times[2 * i]);
     vtkNew<vtkMolecule> mol;
     mol->ShallowCopy(reader->GetOutput());
-    mappers[i]->SetInputData(mol.Get());
+    mappers[i]->SetInputData(mol);
 
     // Rendering setup:
     mappers[i]->UseBallAndStickSettings();
     mappers[i]->SetAtomicRadiusTypeToCustomArrayRadius();
     mappers[i]->RenderLatticeOn();
-    actors[i]->SetMapper(mappers[i].Get());
+    actors[i]->SetMapper(mappers[i]);
     rens[i]->SetBackground(0.0, 0.0, 0.0);
-    rens[i]->AddActor(actors[i].Get());
-    win->AddRenderer(rens[i].Get());
+    rens[i]->AddActor(actors[i]);
+    win->AddRenderer(rens[i]);
   }
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   win->SetSize(450,450);
   win->Render();

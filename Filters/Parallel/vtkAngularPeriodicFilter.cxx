@@ -180,16 +180,16 @@ void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
     firstDataSet->ShallowCopy(inputNode);
     multiPiece->SetPiece(0, firstDataSet);
     firstDataSet->Delete();
-    this->GeneratePieceName(input, loc, multiPiece.Get(), 0);
+    this->GeneratePieceName(input, loc, multiPiece, 0);
 
     for (vtkIdType iPiece = 1; iPiece < periodsNb; iPiece++)
     {
-      this->AppendPeriodicPiece(angle, iPiece, inputNode, multiPiece.Get());
-      this->GeneratePieceName(input, loc, multiPiece.Get(), iPiece);
+      this->AppendPeriodicPiece(angle, iPiece, inputNode, multiPiece);
+      this->GeneratePieceName(input, loc, multiPiece, iPiece);
     }
   }
   this->PeriodNumbers.push_back(periodsNb);
-  output->SetDataSet(loc, multiPiece.Get());
+  output->SetDataSet(loc, multiPiece);
 }
 
 //----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(double angle,
 
     vtkNew<vtkTransformFilter> transformFilter;
     transformFilter->SetInputData(inputNode);
-    transformFilter->SetTransform(transform.Get());
+    transformFilter->SetTransform(transform);
     transformFilter->Update();
 
     multiPiece->SetPiece(iPiece, transformFilter->GetOutput());
@@ -373,7 +373,7 @@ void vtkAngularPeriodicFilter::ComputePeriodicMesh(vtkPointSet* dataset,
     rotatedPoints->SetData(transformedArray);
     transformedArray->Delete();
     // Set the points
-    transformedDataset->SetPoints(rotatedPoints.Get());
+    transformedDataset->SetPoints(rotatedPoints);
   }
 
   // Transform point data

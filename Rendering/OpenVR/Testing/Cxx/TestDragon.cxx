@@ -58,10 +58,10 @@ int TestDragon(int argc, char *argv[])
 
   vtkNew<vtkActor> actor;
   renderer->SetBackground(0.2, 0.3, 0.4);
-  renderWindow->AddRenderer(renderer.Get());
-  renderer->AddActor(actor.Get());
-  iren->SetRenderWindow(renderWindow.Get());
-  renderer->SetActiveCamera(cam.Get());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
+  iren->SetRenderWindow(renderWindow);
+  renderer->SetActiveCamera(cam);
 
   //renderer->UseShadowsOn();
 
@@ -76,7 +76,7 @@ int TestDragon(int argc, char *argv[])
   vtkNew<vtkLight> light;
   light->SetLightTypeToSceneLight();
   light->SetPosition(1.0, 1.0, 1.0);
-  renderer->AddLight(light.Get());
+  renderer->AddLight(light);
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                                "Data/dragon.ply");
@@ -87,13 +87,13 @@ int TestDragon(int argc, char *argv[])
   trans->Translate(10.0,20.0,30.0);
   //trans->Scale(10.0,10.0,10.0);
   vtkNew<vtkTransformPolyDataFilter> tf;
-  tf->SetTransform(trans.Get());
+  tf->SetTransform(trans);
   tf->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkOpenGLPolyDataMapper> mapper;
   mapper->SetInputConnection(tf->GetOutputPort());
   mapper->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE);
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
