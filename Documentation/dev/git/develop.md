@@ -26,6 +26,7 @@ Before you begin, perform initial setup:
 
         $ git clone https://gitlab.kitware.com/vtk/vtk.git VTK
         $ cd VTK
+        $ git submodule update --init
     The main repository will be configured as your `origin` remote.
 
 4.  Run the [developer setup script][] to prepare your VTK work tree and
@@ -35,7 +36,7 @@ Before you begin, perform initial setup:
     This will prompt for your GitLab user name and configure a remote
     called `gitlab` to refer to it.
 
-5.  (Optional but highly recommended.)
+5.  (Optional, but highly recommended.)
     [Register](https://open.cdash.org/register.php) with the VTK project
     on Kitware's CDash instance to better know how your code performs in
     regression tests.  After registering and signing in, click on
