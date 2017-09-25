@@ -145,25 +145,6 @@ public:
   double GetElement(int i, int j) const
     {return this->Element[i][j];}
 
-  //@{
-  /**
-   * Legacy methods. Do not use.
-   */
-  VTK_LEGACY(double *operator[](const unsigned int i));
-  VTK_LEGACY(const double *operator[](unsigned int i) const);
-  VTK_LEGACY(bool operator==(const vtkMatrix3x3&));
-  VTK_LEGACY(bool operator!=(const vtkMatrix3x3&));
-  VTK_LEGACY(void Adjoint(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
-  VTK_LEGACY(double Determinant(vtkMatrix3x3 &in));
-  VTK_LEGACY(double Determinant(vtkMatrix3x3 *));
-  VTK_LEGACY(void Invert(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
-  VTK_LEGACY(void Transpose(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
-  VTK_LEGACY(static void PointMultiply(const double [9],
-                                       const float [3], float [3]));
-  VTK_LEGACY(static void PointMultiply(const double [9],
-                                       const double [3], double [3]));
-  //@}
-
   // Descption:
   // Returns true if this matrix is equal to the identity matrix.
   bool IsIdentity();

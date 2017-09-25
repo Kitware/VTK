@@ -170,23 +170,6 @@ public:
    */
   double *GetData() { return *this->Element; }
 
-  //@{
-  /**
-   * Legacy methods. Do not use.
-   */
-  VTK_LEGACY(double *operator[](const unsigned int i));
-  VTK_LEGACY(const double *operator[](unsigned int i) const);
-  VTK_LEGACY(void Adjoint(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
-  VTK_LEGACY(double Determinant(vtkMatrix4x4 &in));
-  VTK_LEGACY(double Determinant(vtkMatrix4x4 *));
-  VTK_LEGACY(void Invert(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
-  VTK_LEGACY(void Transpose(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
-  VTK_LEGACY(static void PointMultiply(const double [16],
-                                       const float [4], float [4]));
-  VTK_LEGACY(static void PointMultiply(const double [16],
-                                       const double [4], double [4]));
-  //@}
-
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
   ~vtkMatrix4x4() VTK_OVERRIDE {}
