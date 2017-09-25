@@ -28,15 +28,10 @@
  * threads > 1. The differences may be subtle. Applications should decide
  * if the trade-off in performance is worth the lack of consistency.
  *
- * This mapper is a good replacement for vtkVolumeRayCastMapper EXCEPT:
+ * Other limitations of this ray caster include that:
  *   - it does not do isosurface ray casting
  *   - it does only interpolate before classify compositing
  *   - it does only maximum scalar value MIP
- *
- * The vtkVolumeRayCastMapper CANNOT be used in these instances when a
- * vtkFixedPointVolumeRayCastMapper can be used:
- *   - if the data is not unsigned char or unsigned short
- *   - if the data has more than one component
  *
  * This mapper handles all data type from unsigned char through double.
  * However, some of the internal calcultions are performed in float and

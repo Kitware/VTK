@@ -20,9 +20,6 @@
  * vtkVolumeMapper is the abstract definition of a volume mapper for regular
  * rectilinear data (vtkImageData).  Several  basic types of volume mappers
  * are supported.
- *
- * @sa
- * vtkVolumeRayCastMapper vtkVolumeTextureMapper2D
 */
 
 #ifndef vtkVolumeMapper_h
