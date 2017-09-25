@@ -32,6 +32,7 @@
 
 class vtkImplicitFunction;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkThreadedSynchronizedTemplatesCutter3D : public vtkThreadedSynchronizedTemplates3D
 {
 public:
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkThreadedSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

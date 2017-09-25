@@ -26,6 +26,13 @@
 
 vtkStandardNewMacro(vtkSMPTransform);
 
+vtkSMPTransform::vtkSMPTransform()
+{
+  VTK_LEGACY_BODY(
+    vtkSMPTransform::vtkSMPTransform,
+    "VTK 8.1");
+}
+
 //----------------------------------------------------------------------------
 void vtkSMPTransform::PrintSelf(ostream& os, vtkIndent indent)
 {

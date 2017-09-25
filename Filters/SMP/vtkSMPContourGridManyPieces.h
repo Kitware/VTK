@@ -31,6 +31,7 @@
 
 class vtkPolyData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkSMPContourGridManyPieces : public vtkContourGrid
 {
 public:
@@ -54,5 +55,5 @@ private:
   vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
 };
-
+#endif //VTK_LEGACY_REMOVE
 #endif
