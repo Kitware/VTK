@@ -9,13 +9,6 @@ set (GenericVolumePythonTests
      VolumePickerCrop.py
     )
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND GenericVolumePythonTests
-    volRCClipPlanes.py
-    volRCCropRegions.py
-    volRCRotateClip.py)
-endif()
-
 # These tests are only built when the rendering backend is OpenGL
 set (VolumeOpenGLPythonTests
      TestBunykRayCastFunction.py
@@ -24,15 +17,6 @@ set (VolumeOpenGLPythonTests
      VolumeOutlineSourceClipped.py
      VolumeOutlineSource.py
 )
-
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND VolumeOpenGLPythonTests
-    volTM2DRotateClip.py
-    volTM2DCropRegions.py
-    volTM3DCropRegions.py
-    volTM3DCompressedCropRegions.py
-    volTM3DRotateClip.py)
-endif()
 
 # These tests are only built when the rendering backend is OpenGL2
 set (VolumeOpenGL2PythonTests
@@ -51,12 +35,4 @@ else ()
     ${GenericVolumePythonTests}
     ${VolumeOpenGLPythonTests}
     )
-  if (NOT VTK_LEGACY_REMOVE)
-    set_tests_properties(vtkRenderingVolumePython-volTM3DCompressedCropRegions
-      PROPERTIES TIMEOUT 250)
-    set_tests_properties(vtkRenderingVolumePython-volTM3DCropRegions
-      PROPERTIES TIMEOUT 250)
-    set_tests_properties(vtkRenderingVolumePython-volTM3DRotateClip
-      PROPERTIES TIMEOUT 80)
-  endif()
 endif ()
