@@ -14,9 +14,6 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkDataObjectTypes.h"
 
-#ifndef VTK_LEGACY_REMOVE
-#include "vtkInstantiator.h"
-#endif
 #include "vtkObjectFactory.h"
 
 #include  "vtkAnnotation.h"
@@ -167,7 +164,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     return nullptr;
   }
 
-  // Check for some standard types and then try the instantiator.
+  // Check for some standard types.
   if(strcmp(type, "vtkImageData") == 0)
   {
     return vtkImageData::New();
@@ -276,23 +273,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   {
     return vtkPath::New();
   }
-#ifndef VTK_LEGACY_REMOVE
-  else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
-  {
-    vtkDataObject* data = vtkDataObject::SafeDownCast(obj);
-    if(!data)
-    {
-      obj->Delete();
-    }
-
-    if(data == nullptr)
-    {
-      vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
-                 << "\" which does not exist.");
-    }
-    return data;
-  }
-#endif
 
   vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
              << "\" which does not exist.");

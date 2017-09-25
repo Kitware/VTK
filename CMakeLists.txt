@@ -485,10 +485,6 @@ if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
   set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
 endif()
 
-# This is not normally necessary, but could be desirable in some circumstances.
-option(VTK_MAKE_INSTANTIATORS "Should all modules build instantiators" OFF)
-mark_as_advanced(VTK_MAKE_INSTANTIATORS)
-
 # Kits bundle multiple modules together into a single library, this
 # is used to dramatically reduce the number of generated libraries.
 option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)

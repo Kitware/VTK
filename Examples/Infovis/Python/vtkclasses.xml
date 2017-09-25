@@ -286,8 +286,6 @@
          <class id="vtkRungeKutta45" library="Common">
          </class>
       </class>
-      <class id="vtkInstantiator" library="Common">
-      </class>
       <class id="vtkMath" library="Common">
       </class>
       <class id="vtkMatrix4x4" library="Common">

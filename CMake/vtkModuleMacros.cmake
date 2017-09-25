@@ -6,9 +6,6 @@ include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
 include(VTKGenerateExportHeader)
 include(vtkWrapping)
 include(vtkTargetLinkLibrariesWithDynamicLookup)
-if(VTK_MAKE_INSTANTIATORS)
-  include(vtkMakeInstantiator)
-endif()
 if(UNIX AND VTK_BUILD_FORWARDING_EXECUTABLES)
   include(vtkForwardingExecutable)
 endif()
@@ -678,15 +675,6 @@ function(vtk_module_library name)
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
 
-  # The instantiators are off by default, and only work on wrapped modules.
-  if(VTK_MAKE_INSTANTIATORS AND NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
-    string(TOUPPER "${vtk-module}_EXPORT" _export_macro)
-    vtk_make_instantiator3(${vtk-module}Instantiator _instantiator_SRCS
-      "${ARGN}" ${_export_macro} ${CMAKE_CURRENT_BINARY_DIR}
-      ${vtk-module}Module.h)
-    list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Instantiator.h")
-  endif()
-
   # Add the vtkWrapHierarchy custom command output to the target, if any.
   # TODO: Re-order things so we do not need to duplicate this condition.
   if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
@@ -709,7 +697,7 @@ function(vtk_module_library name)
     # OBJECT libraries don't like this variable being set; clear it.
     unset(${vtk-module}_LIB_DEPENDS CACHE)
   endif()
-  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
+  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_hierarchy})
   if(_vtk_build_as_kit)
     # Make an interface library to link with for libraries.
     add_library(${vtk-module} INTERFACE)
