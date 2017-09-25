@@ -2392,18 +2392,6 @@
     </node>
     <node id="vtkVolumeProMapper">
     </node>
-    <node id="vtkVolumeRayCastMapper">
-    </node>
-    <node id="vtkVolumeTextureMapper">
-    </node>
-    <node id="vtkVolumeTextureMapper2D">
-    </node>
-    <node id="vtkOpenGLVolumeTextureMapper2D">
-    </node>
-    <node id="vtkVolumeTextureMapper3D">
-    </node>
-    <node id="vtkOpenGLVolumeTextureMapper3D">
-    </node>
     <node id="vtkDirectionEncoder">
     </node>
     <node id="vtkRecursiveSphereDirectionEncoder">
@@ -2449,14 +2437,6 @@
     <node id="vtkUnstructuredGridPartialPreIntegration">
     </node>
     <node id="vtkUnstructuredGridPreIntegration">
-    </node>
-    <node id="vtkVolumeRayCastFunction">
-    </node>
-    <node id="vtkVolumeRayCastCompositeFunction">
-    </node>
-    <node id="vtkVolumeRayCastIsosurfaceFunction">
-    </node>
-    <node id="vtkVolumeRayCastMIPFunction">
     </node>
     <node id="vtkVolumeRenderingFactory">
     </node>
