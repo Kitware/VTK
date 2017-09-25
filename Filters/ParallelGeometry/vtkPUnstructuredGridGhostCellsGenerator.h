@@ -32,7 +32,7 @@
  *  </ul>
  *
  * @sa
- * vtkDistributedDataFilter vtkPUnstructuredGridGhostDataGenerator
+ * vtkDistributedDataFilter
  *
  * @par Thanks:
  * This filter has been developed by Joachim Pouderoux, Kitware SAS 2015.
