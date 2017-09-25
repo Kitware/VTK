@@ -175,7 +175,7 @@ protected:
 
 private:
   vtkOpenVRPanelRepresentation(const vtkOpenVRPanelRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRPanelRepresentation&)VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRPanelRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

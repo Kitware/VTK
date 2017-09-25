@@ -185,7 +185,7 @@ protected:
 
 private:
   vtkOpenVRInteractorStyle(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
-  void operator=(const vtkOpenVRInteractorStyle&)VTK_DELETE_FUNCTION;  // Not implemented.
+  void operator=(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
 };
 
 #endif

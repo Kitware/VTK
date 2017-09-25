@@ -30,9 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
-#include "vtkStdString.h"
-
-#include <deque>
+#include <deque> // for ivar
 
 class vtkActor;
 class vtkProperty;
@@ -111,7 +109,7 @@ protected:
 
 private:
   vtkOpenVRMenuRepresentation(const vtkOpenVRMenuRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRMenuRepresentation&)VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRMenuRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -16,6 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRPanelRepresentation.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkEventData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetCallbackMapper.h"
