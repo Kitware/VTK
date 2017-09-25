@@ -175,7 +175,6 @@ int TestGlyph3DMapperCellPicking(int argc, char* argv[])
   squad->SetThetaResolution(6);
 
   vtkGlyph3DMapper *glypher=vtkGlyph3DMapper::New();
-  //  glypher->SetNestedDisplayLists(0);
   glypher->SetInputConnection(colors->GetOutputPort());
   colors->Delete();
   glypher->SetScaleFactor(1.5);
