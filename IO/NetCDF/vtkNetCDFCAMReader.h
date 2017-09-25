@@ -59,24 +59,6 @@ public:
 
   //@{
   /**
-   * Set whether or not to read a single level.  A
-   * value of one indicates that only a single level will be read in.
-   * The NetCDF variables loaded will then be ones with dimensions
-   * of (time, ncol).  This will result in a surface grid. Otherwise
-   * a volumetric grid will be created (if lev > 1) and the variables
-   * with dimensions of (time, lev, ncol) will be read in.
-   * By default, SingleLevel = 0.
-   * @deprecated in VTK 7.1 use SetVerticalDimension or
-   *             GetVerticalDimension instead.
-   */
-  VTK_LEGACY(virtual void SingleLevelOn ());
-  VTK_LEGACY(virtual void SingleLevelOff ());
-  VTK_LEGACY(virtual void SetSingleLevel (int level));
-  VTK_LEGACY(virtual int GetSingleLevel ());
-  //@}
-
-  //@{
-  /**
    * Set whether to read a single layer, midpoint layers or interface layers.
    * VERTICAL_DIMENSION_SINGLE_LAYER (0) indicates that only a single
    * layer will be read in. The NetCDF variables loaded will be the
@@ -132,19 +114,6 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
-  //@}
-
-
-  //@{
-  /**
-   * Specify which "side" of the domain to add the connecting
-   * cells at.  0 indicates left side and 1 indicates right side.
-   * The default is the right side.
-   * @deprecated This method is no longer supported. The reader automatically
-   * decides which side to pad cells on. Using this method has no effect.
-   */
-  VTK_LEGACY(void SetCellLayerRight(int));
-  VTK_LEGACY(int GetCellLayerRight());
   //@}
 
 protected:
