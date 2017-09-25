@@ -654,43 +654,6 @@ public:
    */
   static void SetDefaultExecutivePrototype(vtkExecutive* proto);
 
-  /**
-   * If the whole output extent is required, this method can be called to set
-   * the output update extent to the whole extent. This method assumes that
-   * the whole extent is known (that UpdateInformation has been called).
-   */
-  VTK_LEGACY(int SetUpdateExtentToWholeExtent(int port));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtentToWholeExtent(0)
-   * This method assumes that the whole extent is known (that UpdateInformation
-   * has been called).
-   */
-  VTK_LEGACY(int SetUpdateExtentToWholeExtent());
-
-  /**
-   * Set the output update extent in terms of piece and ghost levels.
-   */
-  VTK_LEGACY(void SetUpdateExtent(int port,
-                       int piece,int numPieces, int ghostLevel));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtent(0, piece,
-   * numPieces, ghostLevel)
-   */
-  VTK_LEGACY(void SetUpdateExtent(
-    int piece,int numPieces, int ghostLevel));
-
-  /**
-   * Set the output update extent for data objects that use 3D extents
-   */
-  VTK_LEGACY(void SetUpdateExtent(int port, int extent[6]));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtent(0, extent)
-   */
-  VTK_LEGACY(void SetUpdateExtent(int extent[6]));
-
   //@{
   /**
    * These functions return the update extent for output ports that
