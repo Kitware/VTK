@@ -349,7 +349,7 @@ struct ArrayConverter
   {
     // we can grab the already allocated vtk memory
     this->Data = handle.Internals->ControlArray.VTKArray();
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
 
   template <typename T>
@@ -359,7 +359,7 @@ struct ArrayConverter
   {
     // we can grab the already allocated vtk memory
     this->Data = handle.Internals->ControlArray.VTKArray();
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
 };
 }

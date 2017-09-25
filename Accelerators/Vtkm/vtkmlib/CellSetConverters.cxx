@@ -300,8 +300,8 @@ struct CellSetConverter
 
   ~CellSetConverter()
   {
-    this->Cells = NULL;
-    this->Valid = NULL;
+    this->Cells = nullptr;
+    this->Valid = nullptr;
   }
 
   template <typename T> void operator()(const T& cells) const

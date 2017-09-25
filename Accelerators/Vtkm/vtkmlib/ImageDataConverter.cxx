@@ -97,7 +97,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, int extents[6], vtkImageData* o
   {
     vtkDataArray* attribute =
         input->GetPointData()->GetAttribute(attributeType);
-    if (attribute == NULL)
+    if (attribute == nullptr)
     {
       continue;
     }
