@@ -281,7 +281,6 @@ SET(Module_SRCS
   vtkDenseArray.txx
   vtkSparseArray.txx
   vtkTypedArray.txx
-  vtkTypeTemplate.h
   vtkType.h
   vtkSystemIncludes.h
   vtkWrappingHints.h
@@ -663,7 +662,6 @@ set_source_files_properties(
   vtkConfigure.h
   vtkMathConfigure.h
   vtkVersionMacros.h
-  vtkTypeTemplate.h
   vtkWrappingHints.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
@@ -704,7 +702,6 @@ set_source_files_properties(
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
-  vtkTypeTemplate.h
   "${VTK_TYPELISTMACROS_HEADER}"
   HEADER_FILE_ONLY
   )

@@ -431,52 +431,6 @@ void* vtkAOSDataArrayTemplate<ValueTypeT>::GetVoidPointer(vtkIdType valueIdx)
   return this->GetPointer(valueIdx);
 }
 
-// Deprecated API:
-#ifndef VTK_LEGACY_REMOVE
-
-//------------------------------------------------------------------------------
-template <typename ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::GetTupleValue(vtkIdType tupleIdx,
-                                                        ValueType *tuple)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAOSDataArrayTemplate::GetTupleValue, "VTK 7.1",
-                           vtkGenericDataArray::GetTypedTuple);
-  this->GetTypedTuple(tupleIdx, tuple);
-}
-
-//------------------------------------------------------------------------------
-template <typename ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::SetTupleValue(vtkIdType tupleIdx,
-                                                        const ValueType *tuple)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAOSDataArrayTemplate::SetTupleValue, "VTK 7.1",
-                           vtkGenericDataArray::SetTypedTuple);
-  this->SetTypedTuple(tupleIdx, tuple);
-}
-
-//------------------------------------------------------------------------------
-template <typename ValueTypeT>
-void vtkAOSDataArrayTemplate<ValueTypeT>::
-InsertTupleValue(vtkIdType tupleIdx, const ValueType *tuple)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAOSDataArrayTemplate::InsertTupleValue, "VTK 7.1",
-                           vtkGenericDataArray::InsertTypedTuple);
-  this->InsertTypedTuple(tupleIdx, tuple);
-}
-
-//------------------------------------------------------------------------------
-template <typename ValueTypeT>
-vtkIdType vtkAOSDataArrayTemplate<ValueTypeT>::
-InsertNextTupleValue(const ValueType *tuple)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAOSDataArrayTemplate::InsertNextTupleValue,
-                           "VTK 7.1",
-                           vtkGenericDataArray::InsertNextTypedTuple);
-  return this->InsertNextTypedTuple(tuple);
-}
-
-#endif // VTK_LEGACY_REMOVE
-
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
 bool vtkAOSDataArrayTemplate<ValueTypeT>::AllocateTuples(vtkIdType numTuples)
