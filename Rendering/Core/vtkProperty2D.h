@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkProperty2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty2D,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a vtkProperty2D with the following default values:
@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkProperty2D();
-  ~vtkProperty2D() VTK_OVERRIDE;
+  ~vtkProperty2D() override;
 
   double Color[3];
   double Opacity;

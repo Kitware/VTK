@@ -39,7 +39,7 @@ public:
   static vtkPoints2D *New();
 
   vtkTypeMacro(vtkPoints2D, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate initial memory size. ext is no longer used.
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkPoints2D(int dataType = VTK_FLOAT);
-  ~vtkPoints2D() VTK_OVERRIDE;
+  ~vtkPoints2D() override;
 
   double Bounds[4];
   vtkTimeStamp ComputeTime; // Time at which bounds computed

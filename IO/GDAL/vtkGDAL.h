@@ -37,7 +37,7 @@ class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 
  private:
   vtkGDAL();  // Static class
-  ~vtkGDAL() VTK_OVERRIDE;
+  ~vtkGDAL() override;
   vtkGDAL(const vtkGDAL&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGDAL&) VTK_DELETE_FUNCTION;
 };

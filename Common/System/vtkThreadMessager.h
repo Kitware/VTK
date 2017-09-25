@@ -36,7 +36,7 @@ public:
   static vtkThreadMessager *New();
 
   vtkTypeMacro(vtkThreadMessager,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Wait (block, non-busy) until another thread sends a
@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkThreadMessager();
-  ~vtkThreadMessager() VTK_OVERRIDE;
+  ~vtkThreadMessager() override;
 
 #ifdef VTK_USE_PTHREADS
   pthread_mutex_t Mutex;

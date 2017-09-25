@@ -61,13 +61,13 @@ public:
    */
   static vtkStaticCellLinks *New();
   vtkTypeMacro(vtkStaticCellLinks,vtkAbstractCellLinks);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Build the link list array. Satisfy the superclass API.
    */
-  void BuildLinks(vtkDataSet *ds) VTK_OVERRIDE
+  void BuildLinks(vtkDataSet *ds) override
     {this->Impl->BuildLinks(ds);}
 
   /**
@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkStaticCellLinks();
-  ~vtkStaticCellLinks() VTK_OVERRIDE;
+  ~vtkStaticCellLinks() override;
 
   vtkStaticCellLinksTemplate<vtkIdType> *Impl;
 

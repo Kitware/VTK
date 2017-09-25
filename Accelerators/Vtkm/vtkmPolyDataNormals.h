@@ -49,7 +49,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmPolyDataNormals : public vtkPolyDataNormals
 {
 public:
   vtkTypeMacro(vtkmPolyDataNormals, vtkPolyDataNormals)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmPolyDataNormals* New();
 
 protected:
@@ -57,7 +57,7 @@ protected:
   ~vtkmPolyDataNormals();
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
 private:
   vtkmPolyDataNormals(const vtkmPolyDataNormals&) VTK_DELETE_FUNCTION;

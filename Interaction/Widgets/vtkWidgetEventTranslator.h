@@ -58,7 +58,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkWidgetEventTranslator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -120,7 +120,7 @@ public:
 protected:
   // Constructors/destructors made public for widgets to use
   vtkWidgetEventTranslator();
-  ~vtkWidgetEventTranslator() VTK_OVERRIDE;
+  ~vtkWidgetEventTranslator() override;
 
   // Map VTK events to widget events
   vtkEventMap *EventMap;

@@ -62,12 +62,12 @@ public:
   {
   };
 
-  ~VolumePickingCommand() VTK_OVERRIDE
+  ~VolumePickingCommand() override
   {
   };
 
   void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
-    void* vtkNotUsed(callData)) VTK_OVERRIDE
+    void* vtkNotUsed(callData)) override
   {
     assert(this->Renderer != nullptr);
 

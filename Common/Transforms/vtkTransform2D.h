@@ -47,7 +47,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
  public:
   static vtkTransform2D *New();
   vtkTypeMacro(vtkTransform2D,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the transformation to the identity transformation.
@@ -140,7 +140,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
   /**
    * Override GetMTime to account for input and concatenation.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Apply the transformation to a series of points, and append the
@@ -196,7 +196,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
 
 protected:
   vtkTransform2D ();
-  ~vtkTransform2D () VTK_OVERRIDE;
+  ~vtkTransform2D () override;
 
   void InternalDeepCopy(vtkTransform2D *t);
 

@@ -39,7 +39,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVROverlay : public vtkObject
 public:
   static vtkOpenVROverlay *New();
   vtkTypeMacro(vtkOpenVROverlay, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Render the overlay

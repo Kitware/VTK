@@ -539,7 +539,7 @@ public:
 
   void Execute(vtkObject* caller,
                unsigned long eventId,
-               void* vtkNotUsed(callData)) VTK_OVERRIDE
+               void* vtkNotUsed(callData)) override
   {
     if (eventId != vtkCommand::KeyPressEvent)
     {

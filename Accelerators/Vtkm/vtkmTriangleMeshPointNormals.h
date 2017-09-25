@@ -55,7 +55,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmTriangleMeshPointNormals
 {
 public:
   vtkTypeMacro(vtkmTriangleMeshPointNormals, vtkTriangleMeshPointNormals)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmTriangleMeshPointNormals* New();
 
 protected:
@@ -63,7 +63,7 @@ protected:
   ~vtkmTriangleMeshPointNormals();
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
 private:
   vtkmTriangleMeshPointNormals(const vtkmTriangleMeshPointNormals&) VTK_DELETE_FUNCTION;

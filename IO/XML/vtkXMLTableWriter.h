@@ -32,7 +32,7 @@ class VTKIOXML_EXPORT vtkXMLTableWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLTableWriter, vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLTableWriter* New();
 
   //@{
@@ -56,22 +56,22 @@ public:
   /**
   * See the vtkAlgorithm for a desciption of what these do
   */
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkXMLTableWriter();
-  ~vtkXMLTableWriter() VTK_OVERRIDE;
+  ~vtkXMLTableWriter() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkTable* GetInputAsTable();
   const char* GetDataSetName()
-    VTK_OVERRIDE; // vtkTable isn't a DataSet but it's used by vtkXMLWriter
+    override; // vtkTable isn't a DataSet but it's used by vtkXMLWriter
 
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() override;
 
   void SetInputUpdateExtent(int piece, int numPieces);
 

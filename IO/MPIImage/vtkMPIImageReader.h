@@ -59,7 +59,7 @@ class VTKIOMPIIMAGE_EXPORT vtkMPIImageReader : public vtkImageReader
 public:
   vtkTypeMacro(vtkMPIImageReader, vtkImageReader);
   static vtkMPIImageReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -126,7 +126,7 @@ protected:
   //@}
 
   virtual void ExecuteDataWithInformation(vtkDataObject *data,
-                                          vtkInformation *outInfo) VTK_OVERRIDE;
+                                          vtkInformation *outInfo) override;
 
 private:
   vtkMPIImageReader(const vtkMPIImageReader &) VTK_DELETE_FUNCTION;

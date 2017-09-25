@@ -47,7 +47,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisClip : public vtkHyperTreeG
 public:
   static vtkHyperTreeGridAxisClip* New();
   vtkTypeMacro( vtkHyperTreeGridAxisClip, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   /**
    * Methods by which the hyper tree grid input may be clipped:
@@ -135,14 +135,14 @@ public:
   /**
    * Override GetMTime because we delegate to a vtkQuadric.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkHyperTreeGridAxisClip();
-  ~vtkHyperTreeGridAxisClip() VTK_OVERRIDE;
+  ~vtkHyperTreeGridAxisClip() override;
 
   // For this algorithm the output is a vtkHyperTreeGrid instance
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Decide whether the cell is clipped out
@@ -152,7 +152,7 @@ protected:
   /**
    * Main routine to generate hyper tree grid clip
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves

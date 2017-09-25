@@ -40,7 +40,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkSampleFunction : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkSampleFunction,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -158,7 +158,7 @@ public:
   /**
    * Return the MTime also considering the implicit function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   /**
@@ -170,14 +170,14 @@ protected:
    */
   vtkSampleFunction();
 
-  ~vtkSampleFunction() VTK_OVERRIDE;
+  ~vtkSampleFunction() override;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
-  void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *) override;
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   void Cap(vtkDataArray *s);
 
   int OutputScalarType;

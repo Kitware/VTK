@@ -57,7 +57,7 @@ public:
   vtkTypeMacro(vtkGeoSource,vtkObject);
 
   vtkGeoSource();
-  ~vtkGeoSource() VTK_OVERRIDE;
+  ~vtkGeoSource() override;
 
   //@{
   /**

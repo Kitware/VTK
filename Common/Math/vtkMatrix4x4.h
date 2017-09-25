@@ -44,7 +44,7 @@ public:
   static vtkMatrix4x4 *New();
 
   vtkTypeMacro(vtkMatrix4x4,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the elements of the matrix to the same values as the elements
@@ -172,7 +172,7 @@ public:
 
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
-  ~vtkMatrix4x4() VTK_OVERRIDE {}
+  ~vtkMatrix4x4() override {}
 
   float FloatPoint[4];
   double DoublePoint[4];

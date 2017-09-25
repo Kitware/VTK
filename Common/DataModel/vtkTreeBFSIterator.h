@@ -42,14 +42,14 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTreeBFSIterator : public vtkTreeIterator
 public:
   static vtkTreeBFSIterator* New();
   vtkTypeMacro(vtkTreeBFSIterator, vtkTreeIterator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTreeBFSIterator();
-  ~vtkTreeBFSIterator() VTK_OVERRIDE;
+  ~vtkTreeBFSIterator() override;
 
-  void Initialize() VTK_OVERRIDE;
-  vtkIdType NextInternal() VTK_OVERRIDE;
+  void Initialize() override;
+  vtkIdType NextInternal() override;
 
   vtkTreeBFSIteratorInternals* Internals;
   vtkIntArray* Color;

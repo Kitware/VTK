@@ -34,14 +34,14 @@ class VTKIOIMAGE_EXPORT vtkBMPWriter : public vtkImageWriter
 public:
   static vtkBMPWriter *New();
   vtkTypeMacro(vtkBMPWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBMPWriter();
-  ~vtkBMPWriter() VTK_OVERRIDE {}
+  ~vtkBMPWriter() override {}
 
-  void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]) VTK_OVERRIDE;
-  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) VTK_OVERRIDE;
+  void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]) override;
+  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) override;
 private:
   vtkBMPWriter(const vtkBMPWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBMPWriter&) VTK_DELETE_FUNCTION;

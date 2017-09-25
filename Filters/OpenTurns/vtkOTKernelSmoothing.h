@@ -35,7 +35,7 @@ class VTKFILTERSOPENTURNS_EXPORT vtkOTKernelSmoothing : public vtkOTFilter
 public:
   static vtkOTKernelSmoothing* New();
   vtkTypeMacro(vtkOTKernelSmoothing, vtkOTFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -87,7 +87,7 @@ protected:
   /**
    * Do the actual computation and store it in output
    */
-  virtual int Process(OT::Sample* input) VTK_OVERRIDE;
+  virtual int Process(OT::Sample* input) override;
 
   void ComputePDF(OT::Sample* input,
     OT::KernelSmoothing* ks,

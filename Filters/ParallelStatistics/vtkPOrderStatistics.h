@@ -54,7 +54,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
  public:
   static vtkPOrderStatistics* New();
   vtkTypeMacro(vtkPOrderStatistics, vtkOrderStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -70,11 +70,11 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
    */
   void Learn( vtkTable*,
               vtkTable*,
-              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* ) override;
 
  protected:
   vtkPOrderStatistics();
-  ~vtkPOrderStatistics() VTK_OVERRIDE;
+  ~vtkPOrderStatistics() override;
 
   /**
    * Reduce the collection of local histograms to the global one for data inputs

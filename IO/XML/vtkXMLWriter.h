@@ -54,7 +54,7 @@ class VTKIOXML_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkXMLWriter, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Enumerate big and little endian byte order settings.
@@ -231,7 +231,7 @@ public:
   // See the vtkAlgorithm for a description of what these do
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 
   //@{
@@ -253,7 +253,7 @@ public:
 
 protected:
   vtkXMLWriter();
-  ~vtkXMLWriter() VTK_OVERRIDE;
+  ~vtkXMLWriter() override;
 
   virtual int RequestInformation(
                           vtkInformation* request,

@@ -51,7 +51,7 @@ class VTKFILTERSGENERAL_EXPORT vtkGradientFilter : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkGradientFilter, vtkDataSetAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /// Options to choose what cells contribute to the gradient calculation
   enum ContributingCellEnum {
@@ -206,13 +206,13 @@ public:
 
 protected:
   vtkGradientFilter();
-  ~vtkGradientFilter() VTK_OVERRIDE;
+  ~vtkGradientFilter() override;
 
   int RequestUpdateExtent(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   /**
    * Compute the gradients for grids that are not a vtkImageData,

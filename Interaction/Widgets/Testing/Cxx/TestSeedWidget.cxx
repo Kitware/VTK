@@ -412,7 +412,7 @@ class vtkSeedCallback : public vtkCommand
 public:
   static vtkSeedCallback *New()
   { return new vtkSeedCallback; }
-  void Execute(vtkObject*, unsigned long event, void *calldata) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long event, void *calldata) override
   {
     if (event == vtkCommand::PlacePointEvent)
     {

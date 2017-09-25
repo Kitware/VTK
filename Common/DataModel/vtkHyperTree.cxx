@@ -48,44 +48,44 @@ public:
   static vtkCompactHyperTreeCursor<N>* New();
 
   //---------------------------------------------------------------------------
-  void SetTree( vtkHyperTree* tree ) VTK_OVERRIDE
+  void SetTree( vtkHyperTree* tree ) override
   {
     this->Tree = vtkCompactHyperTree<N>::SafeDownCast( tree );
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTree* GetTree() VTK_OVERRIDE
+  vtkHyperTree* GetTree() override
   {
     return this->Tree;
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetVertexId() VTK_OVERRIDE
+  vtkIdType GetVertexId() override
   {
     return this->Index;
   }
 
   //---------------------------------------------------------------------------
-  bool IsLeaf() VTK_OVERRIDE
+  bool IsLeaf() override
   {
     return this->Leaf;
   }
 
   //---------------------------------------------------------------------------
-  bool IsRoot() VTK_OVERRIDE
+  bool IsRoot() override
   {
     // No special null cursor exists with this object
     return ( this->Index == 0 );
   }
 
   //---------------------------------------------------------------------------
-  unsigned int GetLevel() VTK_OVERRIDE
+  unsigned int GetLevel() override
   {
     return static_cast<unsigned int>( this->ChildHistory.size() );
   }
 
   //---------------------------------------------------------------------------
-  int GetChildIndex() VTK_OVERRIDE
+  int GetChildIndex() override
   {
     assert( "post: valid_range" && this->ChildIndex >= 0 &&
       this->ChildIndex < GetNumberOfChildren() );
@@ -93,7 +93,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToRoot() VTK_OVERRIDE
+  void ToRoot() override
   {
     // No special null cursor exists with this object
     this->Index = 0;
@@ -106,7 +106,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToParent() VTK_OVERRIDE
+  void ToParent() override
   {
     assert( "pre: not_root" && ! IsRoot() );
 
@@ -125,7 +125,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToChild( int child ) VTK_OVERRIDE
+  void ToChild( int child ) override
   {
     assert( "pre: not_leaf" && ! this->IsLeaf() );
     assert( "pre: valid_child" && child >= 0
@@ -151,7 +151,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToSameVertex( vtkHyperTreeCursor* other ) VTK_OVERRIDE
+  void ToSameVertex( vtkHyperTreeCursor* other ) override
   {
     assert( "pre: other_exists" && other != nullptr );
     assert( "pre: same_hyperTree" && this->SameTree( other ) );
@@ -169,7 +169,7 @@ public:
   }
 
   //--------------------------------------------------------------------------
-  bool IsEqual( vtkHyperTreeCursor* other ) VTK_OVERRIDE
+  bool IsEqual( vtkHyperTreeCursor* other ) override
   {
     assert( "pre: other_exists" && other != nullptr );
     assert( "pre: same_hyperTree" && this->SameTree(other) );
@@ -190,7 +190,7 @@ public:
   }
 
   //--------------------------------------------------------------------------
-  vtkHyperTreeCursor* Clone() VTK_OVERRIDE
+  vtkHyperTreeCursor* Clone() override
   {
     vtkCompactHyperTreeCursor<N>* result = this->NewInstance();
     assert( "post: results_exists" && result != nullptr );
@@ -200,7 +200,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  int SameTree( vtkHyperTreeCursor* other ) VTK_OVERRIDE
+  int SameTree( vtkHyperTreeCursor* other ) override
   {
     assert( "pre: other_exists" && other != nullptr );
     vtkCompactHyperTreeCursor<N> *o =
@@ -209,13 +209,13 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  int GetNumberOfChildren() VTK_OVERRIDE
+  int GetNumberOfChildren() override
   {
     return N;
   }
 
   //---------------------------------------------------------------------------
-  int GetDimension() VTK_OVERRIDE
+  int GetDimension() override
   {
     assert( "post: positive_result " && this->Dimension > 0 );
     assert( "post: up_to_3 " && this->Dimension <= 3 ); // and then
@@ -248,7 +248,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE
+  void PrintSelf( ostream& os, vtkIndent indent ) override
   {
     this->Superclass::PrintSelf( os, indent );
 
@@ -509,7 +509,7 @@ public:
   static vtkCompactHyperTree<N>* New();
 
   //---------------------------------------------------------------------------
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE
+  void PrintSelf( ostream& os, vtkIndent indent ) override
   {
     this->Superclass::PrintSelf( os, indent );
 
@@ -547,7 +547,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void Initialize() VTK_OVERRIDE
+  void Initialize() override
   {
     this->Nodes.resize( 1 );
     this->Nodes[0].SetParent( 0 );
@@ -568,7 +568,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeCursor* NewCursor() VTK_OVERRIDE
+  vtkHyperTreeCursor* NewCursor() override
   {
     vtkCompactHyperTreeCursor<N>* result = vtkCompactHyperTreeCursor<N>::New();
     result->SetTree( this );
@@ -577,78 +577,78 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  ~vtkCompactHyperTree() VTK_OVERRIDE
+  ~vtkCompactHyperTree() override
   {
   }
 
   //---------------------------------------------------------------------------
-  int GetBranchFactor() VTK_OVERRIDE
+  int GetBranchFactor() override
   {
     return this->BranchFactor;
   }
 
   //---------------------------------------------------------------------------
-  int GetDimension() VTK_OVERRIDE
+  int GetDimension() override
   {
     return this->Dimension;
   }
 
   //---------------------------------------------------------------------------
-  void SetScale( double s[3] ) VTK_OVERRIDE
+  void SetScale( double s[3] ) override
   {
     memcpy( this->Scale, s, 3 * sizeof( double ) );
   }
 
   //---------------------------------------------------------------------------
-  void GetScale( double s[3] ) VTK_OVERRIDE
+  void GetScale( double s[3] ) override
   {
     memcpy( s, this->Scale, 3 * sizeof( double ) );
   }
 
   //---------------------------------------------------------------------------
-  double GetScale( unsigned int d ) VTK_OVERRIDE
+  double GetScale( unsigned int d ) override
   {
     return this->Scale[d];
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetNumberOfLevels() VTK_OVERRIDE
+  vtkIdType GetNumberOfLevels() override
   {
     return this->NumberOfLevels;
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetNumberOfChildren() VTK_OVERRIDE
+  vtkIdType GetNumberOfChildren() override
   {
     return N;
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetNumberOfVertices() VTK_OVERRIDE
+  vtkIdType GetNumberOfVertices() override
   {
     return static_cast<vtkIdType>( this->ParentIndex.size() );
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetNumberOfNodes() VTK_OVERRIDE
+  vtkIdType GetNumberOfNodes() override
   {
     return this->NumberOfNodes;
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetNumberOfLeaves() VTK_OVERRIDE
+  vtkIdType GetNumberOfLeaves() override
   {
     return static_cast<vtkIdType>( this->ParentIndex.size() ) - this->NumberOfNodes;
   }
 
   //---------------------------------------------------------------------------
-  void SetGlobalIndexStart( vtkIdType start ) VTK_OVERRIDE
+  void SetGlobalIndexStart( vtkIdType start ) override
   {
     this->GlobalIndexStart = start;
   }
 
   //---------------------------------------------------------------------------
-  void SetGlobalIndexFromLocal( vtkIdType local, vtkIdType global ) VTK_OVERRIDE
+  void SetGlobalIndexFromLocal( vtkIdType local, vtkIdType global ) override
   {
     // If local index outside map range, resize the latter
     if ( static_cast<vtkIdType>( this->GlobalIndexTable.size() ) <= local )
@@ -668,7 +668,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetGlobalIndexFromLocal( vtkIdType local ) VTK_OVERRIDE
+  vtkIdType GetGlobalIndexFromLocal( vtkIdType local ) override
   {
     // If local index outside map range, return global index start + local
     return ( local < static_cast<vtkIdType>( this->GlobalIndexTable.size() ) ) ?
@@ -703,7 +703,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void SubdivideLeaf( vtkHyperTreeCursor* leafCursor ) VTK_OVERRIDE
+  void SubdivideLeaf( vtkHyperTreeCursor* leafCursor ) override
   {
     assert( "pre: leaf_exists" && leafCursor != nullptr );
     assert( "pre: is_a_leaf" && leafCursor->IsLeaf() );
@@ -759,7 +759,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  unsigned int GetActualMemorySize() VTK_OVERRIDE
+  unsigned int GetActualMemorySize() override
   {
     size_t size = sizeof( vtkIdType ) * this->GetNumberOfVertices()
       + sizeof( vtkCompactHyperTreeNode<N> ) * this->GetNumberOfNodes()

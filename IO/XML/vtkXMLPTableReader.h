@@ -39,7 +39,7 @@ class VTKIOXML_EXPORT vtkXMLPTableReader : public vtkXMLPDataObjectReader
 {
 public:
   vtkTypeMacro(vtkXMLPTableReader, vtkXMLPDataObjectReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPTableReader* New();
 
   //@{
@@ -54,7 +54,7 @@ public:
   * For the specified port, copy the information this reader sets up in
   * SetupOutputInformation to outInfo
   */
-  void CopyOutputInformation(vtkInformation* outInfo, int port) VTK_OVERRIDE;
+  void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
   /**
    * Get the number of columns arrays available in the input.
@@ -84,12 +84,12 @@ public:
 
 protected:
   vtkXMLPTableReader();
-  ~vtkXMLPTableReader() VTK_OVERRIDE;
+  ~vtkXMLPTableReader() override;
 
   /**
    * Return hte type of the dataset being read
    */
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
   /**
    * Get the number of rows of the table
@@ -114,17 +114,17 @@ protected:
   /**
    * Initialize current output
    */
-  void SetupEmptyOutput() VTK_OVERRIDE;
+  void SetupEmptyOutput() override;
 
   /**
    * Initialize current output data: allocate arrays for RowData
    */
-  void SetupOutputData() VTK_OVERRIDE;
+  void SetupOutputData() override;
 
   /**
    * Setup the output's information.
    */
-  void SetupOutputInformation(vtkInformation* outInfo) VTK_OVERRIDE;
+  void SetupOutputInformation(vtkInformation* outInfo) override;
 
   /**
    * Initialize the total number of rows to be read.
@@ -139,7 +139,7 @@ protected:
   /**
    * Setup the number of pieces to be read and allocate space accordingly
    */
-  void SetupPieces(int numPieces) VTK_OVERRIDE;
+  void SetupPieces(int numPieces) override;
 
   /**
    * Setup the extent for the parallel reader and the piece readers.
@@ -149,29 +149,29 @@ protected:
   /**
    * Setup the readers and then read the input data
    */
-  void ReadXMLData() VTK_OVERRIDE;
+  void ReadXMLData() override;
 
   /**
    * Whether or not the current reader can read the current piece
    */
-  int CanReadPiece(int index) VTK_OVERRIDE;
+  int CanReadPiece(int index) override;
 
   /**
    * Pipeline execute data driver. Called by vtkXMLReader.
    */
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
   /**
    * Delete all piece readers and related information
    */
-  void DestroyPieces() VTK_OVERRIDE;
+  void DestroyPieces() override;
 
   using vtkXMLPDataObjectReader::ReadPiece;
 
   /**
    * Setup the current piece reader.
    */
-  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
 
   /**
    * Read piece at the given index RowData
@@ -188,15 +188,15 @@ protected:
    */
   vtkXMLTableReader* CreatePieceReader();
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   /**
   * Callback registered with the PieceProgressObserver.
   */
-  void PieceProgressCallback() VTK_OVERRIDE;
+  void PieceProgressCallback() override;
 
   /**
   * Check whether the given array element is an enabled array.

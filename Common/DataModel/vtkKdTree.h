@@ -76,7 +76,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkKdTree : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkKdTree, vtkLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkKdTree *New();
 
@@ -191,7 +191,7 @@ public:
    * Clear out all data sets and replace with single data set.  For backward
    * compatibility with superclass.
    */
-  void SetDataSet(vtkDataSet *set) VTK_OVERRIDE;
+  void SetDataSet(vtkDataSet *set) override;
 
   /**
    * This class can compute a spatial decomposition based on the cells in a list
@@ -228,7 +228,7 @@ public:
    * Return the 0'th data set.  For compatibility with the superclass'
    * interface.
    */
-  vtkDataSet *GetDataSet() VTK_OVERRIDE { return this->GetDataSet(0); }
+  vtkDataSet *GetDataSet() override { return this->GetDataSet(0); }
 
   //@{
   /**
@@ -405,7 +405,7 @@ public:
    * or data sets.  Cells are assigned to k-d tree spatial regions
    * based on the location of their centroids.
    */
-  void BuildLocator() VTK_OVERRIDE;
+  void BuildLocator() override;
 
   /**
    * Given a list of region IDs, determine the decomposition of
@@ -568,14 +568,14 @@ public:
    * Delete the k-d tree data structure. Also delete any
    * cell lists that were computed with CreateCellLists().
    */
-  void FreeSearchStructure() VTK_OVERRIDE;
+  void FreeSearchStructure() override;
 
   /**
    * Create a polydata representation of the boundaries of
    * the k-d tree regions.  If level equals GetLevel(), the
    * leaf nodes are represented.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
 
   /**
    * Generate a polygonal representation of a list of regions.
@@ -638,7 +638,7 @@ public:
 protected:
 
   vtkKdTree();
-  ~vtkKdTree() VTK_OVERRIDE;
+  ~vtkKdTree() override;
 
   vtkBSPIntersections *BSPCalculator;
   int UserDefinedCuts;

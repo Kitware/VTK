@@ -44,7 +44,7 @@ public:
    * Standard VTK construction and type macros.
    */
   vtkTypeMacro(vtkGenericPointIterator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -89,7 +89,7 @@ protected:
    * Destructor.
    */
   vtkGenericPointIterator();
-  ~vtkGenericPointIterator() VTK_OVERRIDE;
+  ~vtkGenericPointIterator() override;
   //@}
 
 private:

@@ -48,7 +48,7 @@
 class VTKFILTERSCORE_EXPORT vtkAttributeDataToFieldDataFilter : public vtkDataSetAlgorithm
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkAttributeDataToFieldDataFilter,vtkDataSetAlgorithm);
 
   /**
@@ -68,9 +68,9 @@ public:
 
 protected:
   vtkAttributeDataToFieldDataFilter();
-  ~vtkAttributeDataToFieldDataFilter() VTK_OVERRIDE {}
+  ~vtkAttributeDataToFieldDataFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE; //generate output data
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //generate output data
 
   int PassAttributeData;
 private:

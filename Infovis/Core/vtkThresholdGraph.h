@@ -34,7 +34,7 @@ public:
   static vtkThresholdGraph* New();
   vtkTypeMacro(vtkThresholdGraph, vtkGraphAlgorithm);
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -57,11 +57,11 @@ public:
 protected:
 
   vtkThresholdGraph();
- ~vtkThresholdGraph() VTK_OVERRIDE;
+ ~vtkThresholdGraph() override;
 
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
 
 private:

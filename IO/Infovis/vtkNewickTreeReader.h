@@ -44,7 +44,7 @@ class VTKIOINFOVIS_EXPORT vtkNewickTreeReader : public vtkDataReader
 public:
   static vtkNewickTreeReader *New();
   vtkTypeMacro(vtkNewickTreeReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -58,18 +58,18 @@ public:
 
 protected:
   vtkNewickTreeReader();
-  ~vtkNewickTreeReader() VTK_OVERRIDE;
+  ~vtkNewickTreeReader() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
   void CountNodes(const char * buffer, vtkIdType *numNodes);
   vtkIdType BuildTree(char *buffer, vtkMutableDirectedGraph *g,
     vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);

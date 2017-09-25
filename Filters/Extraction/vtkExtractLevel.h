@@ -33,7 +33,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractLevel :
 public:
   static vtkExtractLevel* New();
   vtkTypeMacro(vtkExtractLevel, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
   //@{
@@ -48,17 +48,17 @@ public:
 
 protected:
   vtkExtractLevel();
-  ~vtkExtractLevel() VTK_OVERRIDE;
+  ~vtkExtractLevel() override;
 
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,vtkInformationVector* ) override;
 
   /// Implementation of the algorithm.
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port,vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port,vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port,vtkInformation *info) override;
+  int FillOutputPortInformation(int port,vtkInformation *info) override;
 
 private:
   vtkExtractLevel(const vtkExtractLevel&) VTK_DELETE_FUNCTION;

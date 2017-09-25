@@ -40,7 +40,7 @@ class VTKIMAGINGCOLOR_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMap
 public:
   static vtkImageMapToWindowLevelColors *New();
   vtkTypeMacro(vtkImageMapToWindowLevelColors,vtkImageMapToColors);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -64,17 +64,17 @@ public:
 
 protected:
   vtkImageMapToWindowLevelColors();
-  ~vtkImageMapToWindowLevelColors() VTK_OVERRIDE;
+  ~vtkImageMapToWindowLevelColors() override;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) VTK_OVERRIDE;
+                           int extent[6], int id) override;
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   double Window;
   double Level;

@@ -35,13 +35,13 @@ class VTKRENDERINGOPENGL2_EXPORT vtkClearZPass : public vtkRenderPass
 public:
   static vtkClearZPass *New();
   vtkTypeMacro(vtkClearZPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   //@{
   /**
@@ -60,7 +60,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkClearZPass() VTK_OVERRIDE;
+  ~vtkClearZPass() override;
 
   double Depth;
 

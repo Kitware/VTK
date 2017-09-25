@@ -37,7 +37,7 @@ class VTKCOMMONMATH_EXPORT vtkAmoebaMinimizer : public vtkObject
 public:
   static vtkAmoebaMinimizer *New();
   vtkTypeMacro(vtkAmoebaMinimizer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify the function to be minimized.  When this function
@@ -196,7 +196,7 @@ public:
 
 protected:
   vtkAmoebaMinimizer();
-  ~vtkAmoebaMinimizer() VTK_OVERRIDE;
+  ~vtkAmoebaMinimizer() override;
 
   void (*Function)(void *);
   void (*FunctionArgDelete)(void *);

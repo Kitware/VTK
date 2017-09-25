@@ -38,7 +38,7 @@ class VTKFILTERSOPENTURNS_EXPORT vtkOTScatterPlotMatrix : public vtkScatterPlotM
 {
 public:
   vtkTypeMacro(vtkOTScatterPlotMatrix, vtkScatterPlotMatrix);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a new object.
@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkOTScatterPlotMatrix();
-  ~vtkOTScatterPlotMatrix() VTK_OVERRIDE;
+  ~vtkOTScatterPlotMatrix() override;
 
   /**
    * Add a density map as a supplementary plot,
@@ -73,7 +73,7 @@ protected:
     int plotType,
     vtkStdString row,
     vtkStdString column,
-    int plotCorner = 0) VTK_OVERRIDE;
+    int plotCorner = 0) override;
 
 private:
   vtkOTScatterPlotMatrix(const vtkOTScatterPlotMatrix&) VTK_DELETE_FUNCTION;

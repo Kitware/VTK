@@ -55,9 +55,9 @@ class VTKTESTINGRENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFacto
 public:
   static vtkTestingObjectFactory* New();
   vtkTypeMacro(vtkTestingObjectFactory,vtkObjectFactory);
-  const char* GetVTKSourceVersion() VTK_OVERRIDE;
-  const char* GetDescription() VTK_OVERRIDE { return "Factory for overrides during testing"; }
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  const char* GetVTKSourceVersion() override;
+  const char* GetDescription() override { return "Factory for overrides during testing"; }
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   /**

@@ -38,7 +38,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkCompositeSurfaceLICMapper
 public:
   static vtkCompositeSurfaceLICMapper* New();
   vtkTypeMacro(vtkCompositeSurfaceLICMapper, vtkCompositePolyDataMapper2);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -51,18 +51,18 @@ public:
   /**
    * Lots of LIC setup code
    */
-  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *act) override;
 
 protected:
   vtkCompositeSurfaceLICMapper();
-  ~vtkCompositeSurfaceLICMapper() VTK_OVERRIDE;
+  ~vtkCompositeSurfaceLICMapper() override;
 
   vtkNew<vtkSurfaceLICInterface> LICInterface;
 
-  vtkCompositeMapperHelper2 *CreateHelper() VTK_OVERRIDE;
+  vtkCompositeMapperHelper2 *CreateHelper() override;
 
   // copy values to the helpers
-  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper) VTK_OVERRIDE;
+  void CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper) override;
 
 private:
   vtkCompositeSurfaceLICMapper(

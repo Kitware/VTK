@@ -59,10 +59,10 @@ public:
   {
     this->Tessellator = tf;
   }
-  ~vtkProgressCommand() VTK_OVERRIDE
+  ~vtkProgressCommand() override
   {
   }
-  void Execute( vtkObject*, unsigned long, void* callData ) VTK_OVERRIDE
+  void Execute( vtkObject*, unsigned long, void* callData ) override
   {
     double subprogress = *( static_cast<double*>( callData ) );
     cout << "  ++ <" << ( (subprogress / 2. + 0.5) * 100. ) << ">\n";

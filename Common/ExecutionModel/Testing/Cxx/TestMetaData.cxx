@@ -56,7 +56,7 @@ protected:
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector* outputVector) VTK_OVERRIDE
+                                 vtkInformationVector* outputVector) override
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     vtkPolyData* pd = vtkPolyData::New();
@@ -66,7 +66,7 @@ protected:
   }
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE
+                          vtkInformationVector* outputVector) override
   {
     // Here we verify that a request set at the end of the pipeline
     // made it to here properly.

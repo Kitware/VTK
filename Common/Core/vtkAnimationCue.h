@@ -45,7 +45,7 @@ class VTKCOMMONCORE_EXPORT vtkAnimationCue: public vtkObject
 {
 public:
   vtkTypeMacro(vtkAnimationCue,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkAnimationCue* New();
 
@@ -179,7 +179,7 @@ public:
 
 protected:
   vtkAnimationCue();
-  ~vtkAnimationCue() VTK_OVERRIDE;
+  ~vtkAnimationCue() override;
 
   enum {
     UNINITIALIZED=0,

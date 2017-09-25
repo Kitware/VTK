@@ -37,17 +37,17 @@ public:
   vtkTypeMacro(vtkInteractiveArea, vtkContextArea)
 
   static vtkInteractiveArea* New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   ///@{
   /**
    * \brief vtkAbstractContextItem API
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
-  bool Hit(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
-  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) VTK_OVERRIDE;
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
   ///@}
 
 protected:
@@ -58,7 +58,7 @@ protected:
   /**
    * \brief vtkContextArea API
    */
-  void SetAxisRange(vtkRectd const& data) VTK_OVERRIDE;
+  void SetAxisRange(vtkRectd const& data) override;
 
 private:
   /**
@@ -69,7 +69,7 @@ private:
   /**
    * Re-computes the transformation expressing the current zoom, panning, etc.
    */
-  void ComputeViewTransform() VTK_OVERRIDE;
+  void ComputeViewTransform() override;
 
   void ComputeZoom(vtkVector2d const& origin, vtkVector2d & scale,
     vtkVector2d& shift, vtkVector2d& factor);

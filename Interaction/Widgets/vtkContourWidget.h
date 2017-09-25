@@ -143,7 +143,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkContourWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -151,7 +151,7 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -170,7 +170,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   /**
    * Convenient method to close the contour loop.
@@ -248,7 +248,7 @@ public:
 
 protected:
   vtkContourWidget();
-  ~vtkContourWidget() VTK_OVERRIDE;
+  ~vtkContourWidget() override;
 
   int WidgetState;
   int CurrentHandle;

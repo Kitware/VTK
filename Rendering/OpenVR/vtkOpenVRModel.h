@@ -41,7 +41,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRModel : public vtkObject
 public:
   static vtkOpenVRModel *New();
   vtkTypeMacro(vtkOpenVRModel, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   bool Build(vtkOpenVRRenderWindow *win);
   void Render(vtkOpenVRRenderWindow *win,
@@ -75,7 +75,7 @@ public:
 
 protected:
   vtkOpenVRModel();
-  ~vtkOpenVRModel()  VTK_OVERRIDE;
+  ~vtkOpenVRModel()  override;
 
   std::string ModelName;
 

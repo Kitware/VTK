@@ -43,21 +43,21 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeG
 public:
   static vtkHyperTreeGridGeometry* New();
   vtkTypeMacro( vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
 protected:
   vtkHyperTreeGridGeometry();
-  ~vtkHyperTreeGridGeometry() VTK_OVERRIDE;
+  ~vtkHyperTreeGridGeometry() override;
 
   /**
    * For this algorithm the output is a vtkPolyData instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to generate external boundary
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves

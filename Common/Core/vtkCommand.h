@@ -364,7 +364,7 @@ public:
    * count by 1).
    */
   void UnRegister();
-  void UnRegister(vtkObjectBase *) VTK_OVERRIDE
+  void UnRegister(vtkObjectBase *) override
     { this->UnRegister(); }
 
   /**
@@ -439,7 +439,7 @@ protected:
   int PassiveObserver;
 
   vtkCommand();
-  ~vtkCommand() VTK_OVERRIDE {}
+  ~vtkCommand() override {}
 
   friend class vtkSubjectHelper;
 

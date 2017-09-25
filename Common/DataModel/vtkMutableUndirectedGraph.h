@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMutableUndirectedGraph : public vtkUndirected
 public:
   static vtkMutableUndirectedGraph *New();
   vtkTypeMacro(vtkMutableUndirectedGraph, vtkUndirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocates space for the specified number of vertices in the graph's
@@ -323,7 +323,7 @@ public:
 
 protected:
   vtkMutableUndirectedGraph();
-  ~vtkMutableUndirectedGraph() VTK_OVERRIDE;
+  ~vtkMutableUndirectedGraph() override;
 
   /**
    * Graph edge that is reused of AddGraphEdge calls.

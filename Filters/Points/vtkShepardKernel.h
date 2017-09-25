@@ -51,7 +51,7 @@ public:
    */
   static vtkShepardKernel *New();
   vtkTypeMacro(vtkShepardKernel,vtkGeneralizedKernel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Re-use any superclass signatures that we don't override.
@@ -72,7 +72,7 @@ public:
    * which all probabilities are considered =1.
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) VTK_OVERRIDE;
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
 
   //@{
   /**
@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkShepardKernel();
-  ~vtkShepardKernel() VTK_OVERRIDE;
+  ~vtkShepardKernel() override;
 
   // The exponent of the weights, =2 by default (l2 norm)
   double PowerParameter;

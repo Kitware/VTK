@@ -52,12 +52,12 @@ public:
 
 protected:
   vtkLinearSubdivisionFilter () {}
-  ~vtkLinearSubdivisionFilter () VTK_OVERRIDE {}
+  ~vtkLinearSubdivisionFilter () override {}
 
   int GenerateSubdivisionPoints (vtkPolyData *inputDS,
                                  vtkIntArray *edgeData,
                                  vtkPoints *outputPts,
-                                 vtkPointData *outputPD) VTK_OVERRIDE;
+                                 vtkPointData *outputPD) override;
 
 private:
   vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&) VTK_DELETE_FUNCTION;

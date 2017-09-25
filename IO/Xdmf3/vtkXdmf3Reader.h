@@ -40,12 +40,12 @@ class VTKIOXDMF3_EXPORT vtkXdmf3Reader : public vtkDataReader
 public:
   static vtkXdmf3Reader* New();
   vtkTypeMacro(vtkXdmf3Reader, vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set tells the reader the name of a single top level xml file to read.
    */
-  void SetFileName(const char* filename) VTK_OVERRIDE;
+  void SetFileName(const char* filename) override;
 
   //@{
   /**
@@ -167,11 +167,11 @@ protected:
   ~vtkXdmf3Reader();
 
   //Overridden to announce that we make general DataObjects.
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   //Overridden to handle RDO requests the way we need to
   int ProcessRequest(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   //Overridden to create the correct vtkDataObject subclass for the file.
   virtual int RequestDataObject(
@@ -180,11 +180,11 @@ protected:
   //Overridden to announce temporal information and to participate in
   //structured extent splitting.
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   //Read the XDMF and HDF input files and fill in vtk data objects.
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   vtkXdmf3ArraySelection* GetFieldArraySelection();
   vtkXdmf3ArraySelection* GetCellArraySelection();

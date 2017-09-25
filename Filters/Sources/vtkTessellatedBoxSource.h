@@ -43,7 +43,7 @@ class VTKFILTERSSOURCES_EXPORT vtkTessellatedBoxSource : public vtkPolyDataAlgor
 public:
   static vtkTessellatedBoxSource *New();
   vtkTypeMacro(vtkTessellatedBoxSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -114,7 +114,7 @@ public:
 
 protected:
    vtkTessellatedBoxSource();
-  ~vtkTessellatedBoxSource() VTK_OVERRIDE;
+  ~vtkTessellatedBoxSource() override;
 
   /**
    * Called by the superclass. Actual creation of the points and cells
@@ -122,7 +122,7 @@ protected:
    */
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outpuVector) VTK_OVERRIDE;
+                          vtkInformationVector *outpuVector) override;
 
 
   void DuplicateSharedPointsMethod(double *bounds,

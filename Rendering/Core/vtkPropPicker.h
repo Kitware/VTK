@@ -42,7 +42,7 @@ public:
   static vtkPropPicker *New();
 
   vtkTypeMacro(vtkPropPicker, vtkAbstractPropPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform the pick and set the PickedProp ivar. If something is picked, a
@@ -63,7 +63,7 @@ public:
    * override superclasses' Pick() method.
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
-           vtkRenderer *renderer) VTK_OVERRIDE;
+           vtkRenderer *renderer) override;
   int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->Pick( selectionPt[0],
                          selectionPt[1], selectionPt[2], renderer); }
@@ -73,7 +73,7 @@ public:
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) VTK_OVERRIDE;
+  int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) override;
 
   /**
    * Perform the pick and set the PickedProp ivar. If something is picked, a
@@ -92,9 +92,9 @@ public:
 
 protected:
   vtkPropPicker();
-  ~vtkPropPicker() VTK_OVERRIDE;
+  ~vtkPropPicker() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   vtkPropCollection* PickFromProps;
 

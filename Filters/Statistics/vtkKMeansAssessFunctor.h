@@ -10,8 +10,8 @@ class vtkKMeansAssessFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 public:
   static vtkKMeansAssessFunctor* New();
   vtkKMeansAssessFunctor() { }
-  ~vtkKMeansAssessFunctor() VTK_OVERRIDE;
-  void operator () ( vtkDoubleArray* result, vtkIdType row ) VTK_OVERRIDE;
+  ~vtkKMeansAssessFunctor() override;
+  void operator () ( vtkDoubleArray* result, vtkIdType row ) override;
   bool Initialize( vtkTable *inData, vtkTable *reqModel, vtkKMeansDistanceFunctor *distFunc );
   int GetNumberOfRuns() { return NumRuns; }
 };

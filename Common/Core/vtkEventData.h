@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkEventData() {};
-  ~vtkEventData() VTK_OVERRIDE {}
+  ~vtkEventData() override {}
 
   // subclasses override this to define their
   // definition of equivalent
@@ -103,14 +103,14 @@ public:
   void SetInput(vtkEventDataDeviceInput v) { this->Input = v; }
   void SetAction(vtkEventDataAction v) { this->Action = v; }
 
-  vtkEventDataForDevice *GetAsEventDataForDevice() VTK_OVERRIDE { return this; }
+  vtkEventDataForDevice *GetAsEventDataForDevice() override { return this; }
 
 protected:
   vtkEventDataDevice Device;
   vtkEventDataDeviceInput Input;
   vtkEventDataAction Action;
 
-  bool Equivalent(const vtkEventData *e) const VTK_OVERRIDE {
+  bool Equivalent(const vtkEventData *e) const override {
     const vtkEventDataForDevice *edd = static_cast<const vtkEventDataForDevice *>(e);
     return this->Device == edd->Device && this->Input == edd->Input && this->Action == edd->Action;
   };
@@ -119,7 +119,7 @@ protected:
     this->Device = vtkEventDataDevice::Unknown;
     this->Input = vtkEventDataDeviceInput::Unknown;
     this->Action = vtkEventDataAction::Unknown; }
-  ~vtkEventDataForDevice() VTK_OVERRIDE {}
+  ~vtkEventDataForDevice() override {}
 
 private:
   vtkEventDataForDevice(const vtkEventData& c) VTK_DELETE_FUNCTION;
@@ -133,7 +133,7 @@ class vtkEventDataDevice3D : public vtkEventDataForDevice
 public:
   vtkTypeMacro(vtkEventDataDevice3D,vtkEventDataForDevice);
 
-  vtkEventDataDevice3D *GetAsEventDataDevice3D() VTK_OVERRIDE { return this; }
+  vtkEventDataDevice3D *GetAsEventDataDevice3D() override { return this; }
 
   void GetWorldPosition(double v[3]) const {
     std::copy(this->WorldPosition, this->WorldPosition + 3, v);
@@ -181,7 +181,7 @@ protected:
   double WorldDirection[3];
 
   vtkEventDataDevice3D() {}
-  ~vtkEventDataDevice3D() VTK_OVERRIDE {}
+  ~vtkEventDataDevice3D() override {}
 
 private:
   vtkEventDataDevice3D(const vtkEventDataDevice3D& c) VTK_DELETE_FUNCTION;
@@ -201,7 +201,7 @@ public:
 
 protected:
   vtkEventDataButton3D() { this->Type = vtkCommand::Button3DEvent; }
-  ~vtkEventDataButton3D() VTK_OVERRIDE {}
+  ~vtkEventDataButton3D() override {}
 
 private:
   vtkEventDataButton3D(const vtkEventDataButton3D& c) VTK_DELETE_FUNCTION;
@@ -221,7 +221,7 @@ public:
 
 protected:
   vtkEventDataMove3D() { this->Type = vtkCommand::Move3DEvent; }
-  ~vtkEventDataMove3D() VTK_OVERRIDE {}
+  ~vtkEventDataMove3D() override {}
 
 private:
   vtkEventDataMove3D(const vtkEventDataMove3D& c) VTK_DELETE_FUNCTION;

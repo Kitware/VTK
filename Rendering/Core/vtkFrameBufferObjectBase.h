@@ -33,7 +33,7 @@ class VTKRENDERINGCORE_EXPORT vtkFrameBufferObjectBase : public vtkObject
 {
  public:
   vtkTypeMacro(vtkFrameBufferObjectBase, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -46,7 +46,7 @@ class VTKRENDERINGCORE_EXPORT vtkFrameBufferObjectBase : public vtkObject
 
 protected:
   vtkFrameBufferObjectBase(); // no default constructor.
-  ~vtkFrameBufferObjectBase() VTK_OVERRIDE;
+  ~vtkFrameBufferObjectBase() override;
 
 private:
   vtkFrameBufferObjectBase(const vtkFrameBufferObjectBase &) VTK_DELETE_FUNCTION;

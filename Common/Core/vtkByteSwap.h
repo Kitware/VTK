@@ -134,7 +134,7 @@ public:
 
 protected:
   vtkByteSwap();
-  ~vtkByteSwap() VTK_OVERRIDE;
+  ~vtkByteSwap() override;
 
 private:
   vtkByteSwap(const vtkByteSwap&) VTK_DELETE_FUNCTION;

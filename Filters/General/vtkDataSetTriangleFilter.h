@@ -44,7 +44,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetTriangleFilter : public vtkUnstructured
 public:
   static vtkDataSetTriangleFilter *New();
   vtkTypeMacro(vtkDataSetTriangleFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -58,12 +58,12 @@ public:
 
 protected:
   vtkDataSetTriangleFilter();
-  ~vtkDataSetTriangleFilter() VTK_OVERRIDE;
+  ~vtkDataSetTriangleFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   // Used to triangulate 3D cells
   vtkOrderedTriangulator *Triangulator;

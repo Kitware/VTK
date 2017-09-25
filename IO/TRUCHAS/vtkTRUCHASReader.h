@@ -34,7 +34,7 @@ class VTKIOTRUCHAS_EXPORT vtkTRUCHASReader
 public:
   static vtkTRUCHASReader *New();
   vtkTypeMacro(vtkTRUCHASReader,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -105,18 +105,18 @@ public:
 
 protected:
   vtkTRUCHASReader();
-  ~vtkTRUCHASReader() VTK_OVERRIDE;
+  ~vtkTRUCHASReader() override;
 
   /**
    * Overridden to announce timesteps we can produce
    */
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) VTK_OVERRIDE;
+                         vtkInformationVector *) override;
   /**
    * Overridden to read the file and parse into an output
    */
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   char *FileName;
 

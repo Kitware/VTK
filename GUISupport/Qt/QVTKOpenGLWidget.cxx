@@ -56,7 +56,7 @@ public:
 
   void SetTarget(QVTKOpenGLWidget* target) { this->Target = target; }
 
-  void Execute(vtkObject*, unsigned long eventId, void* callData) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eventId, void* callData) override
   {
     if (this->Target)
     {
@@ -104,7 +104,7 @@ public:
 
 protected:
   QVTKOpenGLWidgetObserver() {}
-  ~QVTKOpenGLWidgetObserver() VTK_OVERRIDE {}
+  ~QVTKOpenGLWidgetObserver() override {}
   QPointer<QVTKOpenGLWidget> Target;
 };
 

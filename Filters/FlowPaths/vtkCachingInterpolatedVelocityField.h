@@ -66,7 +66,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkCachingInterpolatedVelocityField : public vt
 {
 public:
   vtkTypeMacro(vtkCachingInterpolatedVelocityField,vtkFunctionSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkCachingInterpolatedVelocityField with no initial data set.
@@ -79,7 +79,7 @@ public:
    * Evaluate the velocity field, f={u,v,w}, at {x, y, z}.
    * returns 1 if valid, 0 if test failed
    */
-  int FunctionValues(double* x, double* f) VTK_OVERRIDE;
+  int FunctionValues(double* x, double* f) override;
   virtual int InsideTest(double* x);
   //@}
 
@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkCachingInterpolatedVelocityField();
- ~vtkCachingInterpolatedVelocityField() VTK_OVERRIDE;
+ ~vtkCachingInterpolatedVelocityField() override;
 
   vtkGenericCell          *TempCell;
   int                      CellCacheHit;

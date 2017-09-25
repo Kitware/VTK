@@ -41,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkImageSliceMapper : public vtkImageMapper3D
 public:
   static vtkImageSliceMapper *New();
   vtkTypeMacro(vtkImageSliceMapper,vtkImageMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -95,27 +95,27 @@ public:
   /**
    * This should only be called by the renderer.
    */
-  void Render(vtkRenderer *renderer, vtkImageSlice *prop) VTK_OVERRIDE;
+  void Render(vtkRenderer *renderer, vtkImageSlice *prop) override;
 
   /**
    * Release any graphics resources that are being consumed by
    * this mapper.  The parameter window is used to determine
    * which graphic resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Get the mtime for the mapper.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
    * The bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double bounds[6]) VTK_OVERRIDE {
+  double *GetBounds() override;
+  void GetBounds(double bounds[6]) override {
     this->vtkAbstractMapper3D::GetBounds(bounds); };
   //@}
 
@@ -125,18 +125,18 @@ public:
    * and SliceNumber, the propMatrix is unused and can be zero.
    */
   void GetSlicePlaneInDataCoords(vtkMatrix4x4 *propMatrix,
-                                         double plane[4]) VTK_OVERRIDE;
+                                         double plane[4]) override;
 
   /**
    * Handle requests from the pipeline executive.
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo) VTK_OVERRIDE;
+                             vtkInformationVector* outInfo) override;
 
 protected:
   vtkImageSliceMapper();
-  ~vtkImageSliceMapper() VTK_OVERRIDE;
+  ~vtkImageSliceMapper() override;
 
   /**
    * Set points that describe a polygon on which the slice will

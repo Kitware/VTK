@@ -42,13 +42,13 @@ public:
 
 protected:
   vtkPCellSizeFilter();
-  ~vtkPCellSizeFilter() VTK_OVERRIDE;
+  ~vtkPCellSizeFilter() override;
 
   //@{
   /**
    * Method to compute the global sum information.
    */
-  virtual void ComputeGlobalSum(vtkDoubleArray*) VTK_OVERRIDE;
+  virtual void ComputeGlobalSum(vtkDoubleArray*) override;
   //@}
 
 private:

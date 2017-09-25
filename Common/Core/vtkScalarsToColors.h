@@ -61,7 +61,7 @@ class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkScalarsToColors *New();
 
   /**
@@ -388,7 +388,7 @@ public:
 
 protected:
   vtkScalarsToColors();
-  ~vtkScalarsToColors() VTK_OVERRIDE;
+  ~vtkScalarsToColors() override;
 
   /**
    * An internal method that assumes that the input already has the right

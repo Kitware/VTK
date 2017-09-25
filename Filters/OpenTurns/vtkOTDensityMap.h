@@ -44,12 +44,12 @@ class VTKFILTERSOPENTURNS_EXPORT vtkOTDensityMap : public vtkMultiBlockDataSetAl
 public:
   static vtkOTDensityMap* New();
   vtkTypeMacro(vtkOTDensityMap, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Check contour values to return actual mtime
    */
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  virtual vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -120,11 +120,11 @@ public:
   virtual void SetContourApproximationNumberOfPoints(int val);
   //@}
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
 
   virtual int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Key to recover density in output metadata

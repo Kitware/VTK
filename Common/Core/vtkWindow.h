@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkWindow : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWindow,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -198,7 +198,7 @@ public:
 protected:
   int OffScreenRendering;
   vtkWindow();
-  ~vtkWindow() VTK_OVERRIDE;
+  ~vtkWindow() override;
 
   char *WindowName;
   int Size[2];

@@ -86,7 +86,7 @@ class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
 public:
   static vtkMath *New();
   vtkTypeMacro(vtkMath,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * A mathematical constant. This version is atan(1.0) * 4.0
@@ -1224,7 +1224,7 @@ public:
   static bool IsFinite(double x);
 protected:
   vtkMath() {}
-  ~vtkMath() VTK_OVERRIDE {}
+  ~vtkMath() override {}
 
   static vtkSmartPointer<vtkMathInternal> Internal;
 private:

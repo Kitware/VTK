@@ -38,7 +38,7 @@ class vtkDistanceWidgetCallback : public vtkCommand
 public:
   static vtkDistanceWidgetCallback *New()
     { return new vtkDistanceWidgetCallback; }
-  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
       switch (eventId)
       {

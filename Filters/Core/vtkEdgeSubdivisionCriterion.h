@@ -43,7 +43,7 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
 {
   public:
     vtkTypeMacro(vtkEdgeSubdivisionCriterion,vtkObject);
-    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf( ostream& os, vtkIndent indent ) override;
 
     /**
      * You must implement this member function in a subclass.
@@ -105,7 +105,7 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
 
   protected:
     vtkEdgeSubdivisionCriterion();
-    ~vtkEdgeSubdivisionCriterion() VTK_OVERRIDE;
+    ~vtkEdgeSubdivisionCriterion() override;
 
     int* FieldIds;
     int* FieldOffsets;

@@ -48,7 +48,7 @@ public:
   * Standard methods for the class.
   */
   vtkTypeMacro(vtkOpenVRPanelRepresentation, vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Enums define the state of the representation relative to the mouse pointer
@@ -61,24 +61,24 @@ public:
   /**
   * Methods to interface with the vtkOpenVRPanelWidget.
   */
-  void BuildRepresentation() VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  void PlaceWidget(double bounds[6]) override;
   void StartComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   void ComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   int ComputeComplexInteractionState(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) VTK_OVERRIDE;
+    unsigned long event, void *calldata, int modify = 0) override;
   void EndComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   //@}
 
   // Place the widget with a few more options
@@ -110,10 +110,10 @@ public:
   /**
   * Methods supporting the rendering process.
   */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   //@{
@@ -144,7 +144,7 @@ public:
 
 protected:
   vtkOpenVRPanelRepresentation();
-  ~vtkOpenVRPanelRepresentation() VTK_OVERRIDE;
+  ~vtkOpenVRPanelRepresentation() override;
 
   // Keep track of event positions
   double LastEventPosition[3];

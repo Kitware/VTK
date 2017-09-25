@@ -33,7 +33,7 @@ class VTKIOEXPORT_EXPORT vtkPDFExporter: public vtkExporter
 public:
   static vtkPDFExporter* New();
   vtkTypeMacro(vtkPDFExporter, vtkExporter)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /** The title of the exported document. @{ */
   vtkSetStringMacro(Title)
@@ -47,9 +47,9 @@ public:
 
 protected:
   vtkPDFExporter();
-  ~vtkPDFExporter() VTK_OVERRIDE;
+  ~vtkPDFExporter() override;
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   void WritePDF();
   void PrepareDocument();

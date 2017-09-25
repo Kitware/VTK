@@ -32,15 +32,15 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageInPlaceFilter : public vtkImageAlgo
 {
 public:
   vtkTypeMacro(vtkImageInPlaceFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageInPlaceFilter();
-  ~vtkImageInPlaceFilter() VTK_OVERRIDE;
+  ~vtkImageInPlaceFilter() override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   void CopyData(vtkImageData *in, vtkImageData *out, int* outExt);
 

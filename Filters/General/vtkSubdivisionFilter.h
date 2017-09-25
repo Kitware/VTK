@@ -38,7 +38,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSubdivisionFilter : public vtkPolyDataAlgorith
 {
 public:
   vtkTypeMacro(vtkSubdivisionFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,9 +62,9 @@ public:
 
 protected:
   vtkSubdivisionFilter();
-  ~vtkSubdivisionFilter() VTK_OVERRIDE {}
+  ~vtkSubdivisionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int NumberOfSubdivisions;
   int CheckForTriangles;

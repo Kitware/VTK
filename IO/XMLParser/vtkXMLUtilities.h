@@ -137,7 +137,7 @@ public:
 
 protected:
   vtkXMLUtilities() {}
-  ~vtkXMLUtilities() VTK_OVERRIDE {}
+  ~vtkXMLUtilities() override {}
 
   static int FactorElementsInternal(vtkXMLDataElement *tree,
                                     vtkXMLDataElement *root,

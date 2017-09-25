@@ -36,7 +36,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeFactory :
 public:
   static vtkViewNodeFactory* New();
   vtkTypeMacro(vtkViewNodeFactory, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Give a functin pointer to a class that will manufacture a

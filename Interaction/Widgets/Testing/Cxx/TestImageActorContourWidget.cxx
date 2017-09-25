@@ -803,7 +803,7 @@ public:
     { return new vtkSliderCallback2; }
   void SetImageViewer(vtkImageViewer2 *viewer)
     { this->Viewer =  viewer; }
-  void Execute(vtkObject *caller, unsigned long , void* ) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long , void* ) override
   {
       vtkSliderWidget *slider = static_cast<vtkSliderWidget *>(caller);
       vtkSliderRepresentation *sliderRepres = static_cast<vtkSliderRepresentation *>(slider->GetRepresentation());

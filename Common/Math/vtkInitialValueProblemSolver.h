@@ -41,7 +41,7 @@ class VTKCOMMONMATH_EXPORT vtkInitialValueProblemSolver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInitialValueProblemSolver,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -122,7 +122,7 @@ public:
 
 protected:
   vtkInitialValueProblemSolver();
-  ~vtkInitialValueProblemSolver() VTK_OVERRIDE;
+  ~vtkInitialValueProblemSolver() override;
 
   virtual void Initialize();
 

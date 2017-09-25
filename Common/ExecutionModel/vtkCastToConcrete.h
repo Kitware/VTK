@@ -50,14 +50,14 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCastToConcrete : public vtkDataSetAlgori
 public:
   static vtkCastToConcrete *New();
   vtkTypeMacro(vtkCastToConcrete,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkCastToConcrete() {}
-  ~vtkCastToConcrete() VTK_OVERRIDE {}
+  ~vtkCastToConcrete() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE; //insures compatibility; satisfies abstract api in vtkFilter
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //insures compatibility; satisfies abstract api in vtkFilter
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
   vtkCastToConcrete(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;

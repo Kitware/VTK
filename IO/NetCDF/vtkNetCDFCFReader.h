@@ -49,7 +49,7 @@ class VTKIONETCDF_EXPORT vtkNetCDFCFReader : public vtkNetCDFReader
 public:
   vtkTypeMacro(vtkNetCDFCFReader, vtkNetCDFReader);
   static vtkNetCDFCFReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkNetCDFCFReader();
-  ~vtkNetCDFCFReader() VTK_OVERRIDE;
+  ~vtkNetCDFCFReader() override;
 
   int SphericalCoordinates;
 
@@ -117,23 +117,23 @@ protected:
 
   int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                vtkInformationVector *outputVector) override;
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   //@{
   /**
    * Interprets the special conventions of COARDS.
    */
-  int ReadMetaData(int ncFD) VTK_OVERRIDE;
-  int IsTimeDimension(int ncFD, int dimId) VTK_OVERRIDE;
-  vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId) VTK_OVERRIDE;
+  int ReadMetaData(int ncFD) override;
+  int IsTimeDimension(int ncFD, int dimId) override;
+  vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId) override;
   //@}
 
   class vtkDimensionInfo {
@@ -247,7 +247,7 @@ protected:
   /**
    * Returns false for spherical dimensions, which should use cell data.
    */
-  bool DimensionsAreForPointData(vtkIntArray *dimensions) VTK_OVERRIDE;
+  bool DimensionsAreForPointData(vtkIntArray *dimensions) override;
 
   /**
    * Convenience function that takes piece information and then returns a set of
@@ -262,7 +262,7 @@ protected:
   /**
    * Overridden to retrieve stored extent for unstructured data.
    */
-  void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]) VTK_OVERRIDE;
+  void GetUpdateExtentForOutput(vtkDataSet *output, int extent[6]) override;
 
   //@{
   /**

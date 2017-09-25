@@ -101,7 +101,7 @@ public:
   /**
    * String representing database type (e.g. "psql").
    */
-  const char* GetDatabaseType() VTK_OVERRIDE
+  const char* GetDatabaseType() override
   {
     return this->DatabaseType;
   }

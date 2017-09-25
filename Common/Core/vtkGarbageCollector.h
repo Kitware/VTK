@@ -31,18 +31,18 @@
  * \code
  *
  *  public:
- *   void Register(vtkObjectBase* o) VTK_OVERRIDE
+ *   void Register(vtkObjectBase* o) override
  *     {
  *     this->RegisterInternal(o, true);
  *     }
- *   void UnRegister(vtkObjectBase* o) VTK_OVERRIDE
+ *   void UnRegister(vtkObjectBase* o) override
  *     {
  *     this->UnRegisterInternal(o, true);
  *     }
  *
  *  protected:
  *
- *   void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE
+ *   void ReportReferences(vtkGarbageCollector* collector) override
  *     {
  *     // Report references held by this object that may be in a loop.
  *     this->Superclass::ReportReferences(collector);
@@ -97,7 +97,7 @@ class VTKCOMMONCORE_EXPORT vtkGarbageCollector : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGarbageCollector,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkGarbageCollector* New();
 
   /**
@@ -149,7 +149,7 @@ public:
 
 protected:
   vtkGarbageCollector();
-  ~vtkGarbageCollector() VTK_OVERRIDE;
+  ~vtkGarbageCollector() override;
 
 private:
 

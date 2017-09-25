@@ -61,7 +61,7 @@ class vtkCommunicator##name##Class \
   : public vtkCommunicator::Operation \
 { \
 public: \
-  void Function(const void *A, void *B, vtkIdType length, int datatype) VTK_OVERRIDE { \
+  void Function(const void *A, void *B, vtkIdType length, int datatype) override { \
     switch (datatype) \
     { \
       vtkTemplateMacro(vtkCommunicator##name##Func \
@@ -70,7 +70,7 @@ public: \
                                           length)); \
     } \
   } \
-  int Commutative() VTK_OVERRIDE { return 1; } \
+  int Commutative() override { return 1; } \
 };
 
 #define STANDARD_OPERATION_FLOAT_OVERRIDE(name) \

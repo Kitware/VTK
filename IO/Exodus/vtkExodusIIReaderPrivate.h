@@ -492,7 +492,7 @@ public:
 
 protected:
   vtkExodusIIReaderPrivate();
-  ~vtkExodusIIReaderPrivate() VTK_OVERRIDE;
+  ~vtkExodusIIReaderPrivate() override;
 
   /// Build SIL. This must be called only after RequestInformation().
   void BuildSIL();

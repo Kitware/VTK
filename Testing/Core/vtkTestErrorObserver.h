@@ -51,7 +51,7 @@ public:
   }
   void Execute(vtkObject *vtkNotUsed(caller),
                unsigned long event,
-               void *calldata) VTK_OVERRIDE
+               void *calldata) override
   {
   switch(event)
   {

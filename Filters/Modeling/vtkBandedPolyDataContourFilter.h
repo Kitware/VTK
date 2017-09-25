@@ -60,7 +60,7 @@ class VTKFILTERSMODELING_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyD
 {
 public:
   vtkTypeMacro(vtkBandedPolyDataContourFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with no contours defined.
@@ -153,13 +153,13 @@ public:
    * Overload GetMTime because we delegate to vtkContourValues so its
    * modified time must be taken into account.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkBandedPolyDataContourFilter();
-  ~vtkBandedPolyDataContourFilter() VTK_OVERRIDE;
+  ~vtkBandedPolyDataContourFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int ComputeScalarIndex(double);
   int IsContourValue(double val);

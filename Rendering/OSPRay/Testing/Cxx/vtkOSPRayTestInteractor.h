@@ -57,7 +57,7 @@ public:
   void SetPipelineControlPoints(vtkOpenGLRenderer *g,
                                 vtkRenderPass *_O,
                                 vtkRenderPass *_G);
-  virtual void OnKeyPress() VTK_OVERRIDE;
+  virtual void OnKeyPress() override;
 
   static void AddName(const char *name);
 

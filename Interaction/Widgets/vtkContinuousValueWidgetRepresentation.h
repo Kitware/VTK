@@ -43,7 +43,7 @@ public:
    */
   vtkTypeMacro(vtkContinuousValueWidgetRepresentation,
                        vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -52,10 +52,10 @@ public:
    * assumes that the parameter bounds[6] specifies the location in display
    * space where the widget should be placed.
    */
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE {}
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE = 0;
-  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE = 0;
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override {}
+  void StartWidgetInteraction(double eventPos[2]) override = 0;
+  void WidgetInteraction(double eventPos[2]) override = 0;
 //  virtual void Highlight(int);
   //@}
 
@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkContinuousValueWidgetRepresentation();
-  ~vtkContinuousValueWidgetRepresentation() VTK_OVERRIDE;
+  ~vtkContinuousValueWidgetRepresentation() override;
 
   double Value;
 

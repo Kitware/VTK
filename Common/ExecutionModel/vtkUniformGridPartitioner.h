@@ -41,7 +41,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
   public:
       static vtkUniformGridPartitioner *New();
       vtkTypeMacro(vtkUniformGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-      void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
+      void PrintSelf(ostream &oss, vtkIndent indent ) override;
 
       //@{
       /**
@@ -67,13 +67,13 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
 
   protected:
     vtkUniformGridPartitioner();
-    ~vtkUniformGridPartitioner() VTK_OVERRIDE;
+    ~vtkUniformGridPartitioner() override;
 
     // Standard Pipeline methods
     int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
-    int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-    int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+       vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+    int FillInputPortInformation(int port, vtkInformation *info) override;
+    int FillOutputPortInformation(int port, vtkInformation *info) override;
 
     int NumberOfPartitions;
     int NumberOfGhostLayers;

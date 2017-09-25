@@ -42,7 +42,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTreeNodeCache : public vtkObject
 public:
   static vtkGeoTreeNodeCache *New();
   vtkTypeMacro(vtkGeoTreeNodeCache,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkGeoTreeNodeCache();
-  ~vtkGeoTreeNodeCache() VTK_OVERRIDE;
+  ~vtkGeoTreeNodeCache() override;
 
   /**
    * Removes data from the oldest nodes and removes them from

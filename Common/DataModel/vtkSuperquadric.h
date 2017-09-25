@@ -57,12 +57,12 @@ public:
   static vtkSuperquadric *New();
 
   vtkTypeMacro(vtkSuperquadric,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // ImplicitFunction interface
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
-  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
+  void EvaluateGradient(double x[3], double g[3]) override;
 
   //@{
   /**
@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkSuperquadric();
-  ~vtkSuperquadric() VTK_OVERRIDE {}
+  ~vtkSuperquadric() override {}
 
   int Toroidal;
   double Thickness;

@@ -54,11 +54,11 @@ public:
    * replace &, <, > with &amp, &lt, and &gt.
    * Each display method outputs a different XML tag.
    */
-  void DisplayText(const char*) VTK_OVERRIDE;
-  void DisplayErrorText(const char*) VTK_OVERRIDE;
-  void DisplayWarningText(const char*) VTK_OVERRIDE;
-  void DisplayGenericWarningText(const char*) VTK_OVERRIDE;
-  void DisplayDebugText(const char*) VTK_OVERRIDE;
+  void DisplayText(const char*) override;
+  void DisplayErrorText(const char*) override;
+  void DisplayWarningText(const char*) override;
+  void DisplayGenericWarningText(const char*) override;
+  void DisplayDebugText(const char*) override;
   //@}
 
   /**
@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkXMLFileOutputWindow() {}
-  ~vtkXMLFileOutputWindow() VTK_OVERRIDE {}
+  ~vtkXMLFileOutputWindow() override {}
 
   void Initialize();
   virtual void DisplayXML(const char*, const char*);

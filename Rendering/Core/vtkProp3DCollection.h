@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DCollection : public vtkPropCollection
 public:
   static vtkProp3DCollection *New();
   vtkTypeMacro(vtkProp3DCollection,vtkPropCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an actor to the bottom of the list.
@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkProp3DCollection() {}
-  ~vtkProp3DCollection() VTK_OVERRIDE {}
+  ~vtkProp3DCollection() override {}
 
 
 private:

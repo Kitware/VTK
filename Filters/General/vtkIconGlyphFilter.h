@@ -65,7 +65,7 @@ public:
    */
   static vtkIconGlyphFilter *New();
   vtkTypeMacro(vtkIconGlyphFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -161,11 +161,11 @@ public:
 
 protected:
   vtkIconGlyphFilter();
-  ~vtkIconGlyphFilter() VTK_OVERRIDE;
+  ~vtkIconGlyphFilter() override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   int IconSize[2]; // Size in pixels of an icon in an icon sheet
   int IconSheetSize[2]; // Size in pixels of the icon sheet

@@ -40,21 +40,21 @@ class VTKRENDERINGCORE_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
 public:
   static vtkWorldPointPicker *New();
   vtkTypeMacro(vtkWorldPointPicker,vtkAbstractPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Perform the pick. (This method overload's the superclass.)
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
-           vtkRenderer *renderer) VTK_OVERRIDE;
+           vtkRenderer *renderer) override;
   int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->vtkAbstractPicker::Pick( selectionPt, renderer); };
   //@}
 
 protected:
   vtkWorldPointPicker ();
-  ~vtkWorldPointPicker() VTK_OVERRIDE {}
+  ~vtkWorldPointPicker() override {}
 
 private:
   vtkWorldPointPicker(const vtkWorldPointPicker&) VTK_DELETE_FUNCTION;

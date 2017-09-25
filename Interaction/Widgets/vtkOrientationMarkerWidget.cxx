@@ -43,7 +43,7 @@ public:
     this->OrientationMarkerWidget = nullptr;
   }
 
-  void Execute(vtkObject* wdg, unsigned long event, void *calldata) VTK_OVERRIDE
+  void Execute(vtkObject* wdg, unsigned long event, void *calldata) override
   {
       if (this->OrientationMarkerWidget)
       {

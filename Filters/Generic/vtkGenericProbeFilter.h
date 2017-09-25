@@ -53,7 +53,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericProbeFilter : public vtkDataSetAlgorith
 public:
   static vtkGenericProbeFilter *New();
   vtkTypeMacro(vtkGenericProbeFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -74,12 +74,12 @@ public:
 
 protected:
   vtkGenericProbeFilter();
-  ~vtkGenericProbeFilter() VTK_OVERRIDE;
+  ~vtkGenericProbeFilter() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   vtkIdTypeArray *ValidPoints;
 

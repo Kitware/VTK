@@ -44,7 +44,7 @@ public:
   typedef vtkContourValues vtkBinValues;
 
   vtkTypeMacro(vtkBinCellDataFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with initial range (VTK_DOUBLE_MIN, VTK_DOUBLE_MAX) and
@@ -177,7 +177,7 @@ public:
 
 protected:
   vtkBinCellDataFilter();
-  ~vtkBinCellDataFilter() VTK_OVERRIDE;
+  ~vtkBinCellDataFilter() override;
 
   int SpatialMatch;
 
@@ -191,11 +191,11 @@ protected:
   vtkCellLocator *CellLocator;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) VTK_OVERRIDE;
+                         vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   virtual void CreateDefaultLocator();
 

@@ -63,7 +63,7 @@ class VTKIOCORE_EXPORT vtkArrayDataWriter :
 public:
   static vtkArrayDataWriter *New();
   vtkTypeMacro(vtkArrayDataWriter, vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -97,7 +97,7 @@ public:
   vtkBooleanMacro(WriteToOutputString, bool);
   //@}
 
-  int Write() VTK_OVERRIDE; // This is necessary to get Write() wrapped for scripting languages.
+  int Write() override; // This is necessary to get Write() wrapped for scripting languages.
 
   /**
    * Writes input port 0 data to a file, using an arbitrary filename and binary flag.
@@ -134,10 +134,10 @@ public:
 
 protected:
   vtkArrayDataWriter();
-  ~vtkArrayDataWriter() VTK_OVERRIDE;
+  ~vtkArrayDataWriter() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  void WriteData() VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  void WriteData() override;
 
   char* FileName;
   int Binary;

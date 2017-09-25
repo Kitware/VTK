@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkInteractorStyle3D : public vtkInteractorStyle
 public:
   static vtkInteractorStyle3D *New();
   vtkTypeMacro(vtkInteractorStyle3D,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This method handles updating the prop based on changes in the devices
   // pose. We use rotate as the state to mean adjusting-the-actor-pose
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkInteractorStyle3D();
-  ~vtkInteractorStyle3D() VTK_OVERRIDE;
+  ~vtkInteractorStyle3D() override;
 
   void FindPickedActor(double pos[3], double orient[4]);
 

@@ -38,7 +38,7 @@ public:
   static ContextItem *New();
   vtkTypeMacro(ContextItem, vtkContextItem);
 
-  bool Paint(vtkContext2D* painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D* painter) override;
 
   bool Succeeded;
 };

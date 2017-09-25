@@ -81,7 +81,7 @@ public:
   vtkTypeMacro(vtkMNITagPointReader,vtkPolyDataAlgorithm);
 
   static vtkMNITagPointReader *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -159,7 +159,7 @@ public:
 
 protected:
   vtkMNITagPointReader();
-  ~vtkMNITagPointReader() VTK_OVERRIDE;
+  ~vtkMNITagPointReader() override;
 
   char *FileName;
   int NumberOfVolumes;
@@ -190,7 +190,7 @@ protected:
 
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inInfo,
-                          vtkInformationVector* outInfo) VTK_OVERRIDE;
+                          vtkInformationVector* outInfo) override;
 
 private:
   vtkMNITagPointReader(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;

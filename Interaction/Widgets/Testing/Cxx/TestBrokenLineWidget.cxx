@@ -32,7 +32,7 @@ class vtkBLWCallback : public vtkCommand
 public:
   static vtkBLWCallback *New()
   { return new vtkBLWCallback; }
-  void Execute( vtkObject *caller, unsigned long, void* ) VTK_OVERRIDE
+  void Execute( vtkObject *caller, unsigned long, void* ) override
   {
     // Retrieve polydata line
     vtkBrokenLineWidget *line = reinterpret_cast<vtkBrokenLineWidget*>( caller );

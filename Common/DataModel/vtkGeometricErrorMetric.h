@@ -47,7 +47,7 @@ public:
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkGeometricErrorMetric,vtkGenericSubdivisionErrorMetric);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -98,7 +98,7 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
-                              double alpha) VTK_OVERRIDE;
+                              double alpha) override;
 
   /**
    * Return the error at the mid-point. It will return an error relative to
@@ -114,7 +114,7 @@ public:
    * \post positive_result: result>=0
    */
   double GetError(double *leftPoint, double *midPoint,
-                  double *rightPoint, double alpha) VTK_OVERRIDE;
+                  double *rightPoint, double alpha) override;
 
   /**
    * Return the type of output of GetError()
@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkGeometricErrorMetric();
-  ~vtkGeometricErrorMetric() VTK_OVERRIDE;
+  ~vtkGeometricErrorMetric() override;
 
   /**
    * Square distance between a straight line (defined by points x and y)

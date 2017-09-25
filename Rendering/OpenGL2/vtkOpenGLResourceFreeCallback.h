@@ -54,9 +54,9 @@ public:
     this->Method = method;
   }
 
-  ~vtkOpenGLResourceFreeCallback() VTK_OVERRIDE { }
+  ~vtkOpenGLResourceFreeCallback() override { }
 
-  void RegisterGraphicsResources(vtkOpenGLRenderWindow *rw) VTK_OVERRIDE {
+  void RegisterGraphicsResources(vtkOpenGLRenderWindow *rw) override {
     if (this->VTKWindow == rw)
     {
       return;
@@ -73,7 +73,7 @@ public:
   }
 
   // Called when the event is invoked
-  void Release() VTK_OVERRIDE
+  void Release() override
   {
     if (this->VTKWindow && this->Handler && !this->Releasing)
     {

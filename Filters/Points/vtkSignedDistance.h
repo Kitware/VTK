@@ -86,7 +86,7 @@ public:
    */
   static vtkSignedDistance *New();
   vtkTypeMacro(vtkSignedDistance,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -153,11 +153,11 @@ public:
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*) VTK_OVERRIDE;
+                     vtkInformationVector*) override;
 
 protected:
   vtkSignedDistance();
-  ~vtkSignedDistance() VTK_OVERRIDE;
+  ~vtkSignedDistance() override;
 
   int Dimensions[3];
   double Bounds[6];
@@ -169,10 +169,10 @@ protected:
 
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   int RequestData (vtkInformation *,
-                           vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+                           vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkSignedDistance(const vtkSignedDistance&) VTK_DELETE_FUNCTION;

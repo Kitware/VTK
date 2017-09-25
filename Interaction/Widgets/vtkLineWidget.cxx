@@ -48,7 +48,7 @@ class vtkPWCallback : public vtkCommand
 public:
   static vtkPWCallback *New()
     { return new vtkPWCallback; }
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       double x[3];
       this->PointWidget->GetPosition(x);
@@ -67,7 +67,7 @@ class vtkPW1Callback : public vtkCommand
 public:
   static vtkPW1Callback *New()
     { return new vtkPW1Callback; }
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       double x[3];
       this->PointWidget->GetPosition(x);
@@ -86,7 +86,7 @@ class vtkPW2Callback : public vtkCommand
 public:
   static vtkPW2Callback *New()
     { return new vtkPW2Callback; }
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       double x[3];
       this->PointWidget->GetPosition(x);

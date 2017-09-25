@@ -77,7 +77,7 @@ public:
   vtkTypeMacro(vtkMNITransformReader,vtkAlgorithm);
 
   static vtkMNITransformReader *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -128,7 +128,7 @@ public:
 
 protected:
   vtkMNITransformReader();
-  ~vtkMNITransformReader() VTK_OVERRIDE;
+  ~vtkMNITransformReader() override;
 
   char *FileName;
   vtkAbstractTransform *Transform;
@@ -161,7 +161,7 @@ protected:
 
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo) VTK_OVERRIDE;
+                             vtkInformationVector* outInfo) override;
 
 private:
   vtkMNITransformReader(const vtkMNITransformReader&) VTK_DELETE_FUNCTION;

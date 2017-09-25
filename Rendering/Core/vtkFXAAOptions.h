@@ -48,7 +48,7 @@ public:
 
   static vtkFXAAOptions* New();
   vtkTypeMacro(vtkFXAAOptions, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -179,7 +179,7 @@ public:
 
 protected:
   vtkFXAAOptions();
-  ~vtkFXAAOptions() VTK_OVERRIDE;
+  ~vtkFXAAOptions() override;
 
   float RelativeContrastThreshold;
   float HardContrastThreshold;

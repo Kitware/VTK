@@ -73,9 +73,9 @@ public:
     this->DataX = vtkArrayDownCast<vtkDataArray>(valsX);
     this->DataY = vtkArrayDownCast<vtkDataArray>(valsY);
   }
-  ~BivariateContingenciesAndInformationFunctor() VTK_OVERRIDE { }
+  ~BivariateContingenciesAndInformationFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     Tuple x (this->DataX->GetNumberOfComponents ());
     Tuple y (this->DataX->GetNumberOfComponents ());
@@ -125,9 +125,9 @@ public:
     this->DataX = valsX;
     this->DataY = valsY;
   }
-  ~BivariateContingenciesAndInformationFunctor() VTK_OVERRIDE { }
+  ~BivariateContingenciesAndInformationFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     TypeSpec x = this->DataX->GetVariantValue( id ).ToString ();
     TypeSpec y = this->DataY->GetVariantValue( id ).ToString ();

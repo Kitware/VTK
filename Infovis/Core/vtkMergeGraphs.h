@@ -60,7 +60,7 @@ class VTKINFOVISCORE_EXPORT vtkMergeGraphs : public vtkGraphAlgorithm
 public:
   static vtkMergeGraphs* New();
   vtkTypeMacro(vtkMergeGraphs,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This is the core functionality of the algorithm. Adds edges
@@ -99,14 +99,14 @@ public:
 
 protected:
   vtkMergeGraphs();
-  ~vtkMergeGraphs() VTK_OVERRIDE;
+  ~vtkMergeGraphs() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   bool UseEdgeWindow;
   char* EdgeWindowArrayName;

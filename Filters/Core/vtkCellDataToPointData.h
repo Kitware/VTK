@@ -51,7 +51,7 @@ class VTKFILTERSCORE_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
 public:
   static vtkCellDataToPointData *New();
   vtkTypeMacro(vtkCellDataToPointData,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Options to choose what cells contribute to the calculation
   enum ContributingCellEnum {
@@ -82,11 +82,11 @@ public:
 
 protected:
   vtkCellDataToPointData();
-  ~vtkCellDataToPointData() VTK_OVERRIDE {}
+  ~vtkCellDataToPointData() override {}
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
 
   //@{
   /**

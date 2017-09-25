@@ -107,7 +107,7 @@ public:
    * Standard class methods for type information and printing.
    */
   vtkTypeMacro(vtkSphereWidget2,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -135,11 +135,11 @@ public:
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkSphereRepresentation class.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkSphereWidget2();
-  ~vtkSphereWidget2() VTK_OVERRIDE;
+  ~vtkSphereWidget2() override;
 
   // Manage the state of the widget
   int WidgetState;

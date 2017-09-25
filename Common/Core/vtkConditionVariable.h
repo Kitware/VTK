@@ -150,7 +150,7 @@ class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject
 public:
   static vtkConditionVariable* New();
   vtkTypeMacro(vtkConditionVariable,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Wake one thread waiting for the condition to change.

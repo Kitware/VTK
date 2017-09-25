@@ -149,18 +149,18 @@ public:
   static vtkHyperOctree *New();
 
   vtkTypeMacro(vtkHyperOctree,vtkDataSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE;
+  int GetDataObjectType() override;
 
   /**
    * Copy the geometric and topological structure of an input rectilinear grid
    * object.
    */
-  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
+  void CopyStructure(vtkDataSet *ds) override;
 
   // Return the node describes by the path from the root.
   // Path is a sequence of number between 0 and 7.
@@ -197,7 +197,7 @@ public:
    * Return the number of cells in the dual grid.
    * \post positive_result: result>=0
    */
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfCells() override;
 
   /**
    * Get the number of leaves in the tree.
@@ -208,7 +208,7 @@ public:
    * Return the number of points in the dual grid.
    * \post positive_result: result>=0
    */
-  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints() override;
 
   /**
    * Return the number of points corresponding to an hyperoctree starting at
@@ -301,7 +301,7 @@ public:
    * Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE;
+  double *GetPoint(vtkIdType ptId) override;
 
   /**
    * Copy point coordinates into user provided array x[3] for specified
@@ -309,14 +309,14 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  void GetPoint(vtkIdType id, double x[3]) VTK_OVERRIDE;
+  void GetPoint(vtkIdType id, double x[3]) override;
 
   /**
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.
    * THIS METHOD IS NOT THREAD SAFE.
    */
   using vtkDataSet::GetCell;
-  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  vtkCell *GetCell(vtkIdType cellId) override;
 
   /**
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.
@@ -325,7 +325,7 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
 
 
   /**
@@ -333,7 +333,7 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
+  int GetCellType(vtkIdType cellId) override;
 
   //@{
   /**
@@ -341,7 +341,7 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override;
   virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
                              vtkIdType* &pts);
   //@}
@@ -351,7 +351,7 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
 
 
   /**
@@ -362,9 +362,9 @@ public:
    * THE DATASET IS NOT MODIFIED
    */
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                        vtkIdList *cellIds) VTK_OVERRIDE;
+                        vtkIdList *cellIds) override;
 
-  vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
+  vtkIdType FindPoint(double x[3]) override;
 
   /**
    * Locate cell based on global coordinate x and tolerance
@@ -379,7 +379,7 @@ public:
    */
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
                      double tol2, int& subId, double pcoords[3],
-                     double *weights) VTK_OVERRIDE;
+                     double *weights) override;
 
   /**
    * This is a version of the above method that can be used with
@@ -391,13 +391,13 @@ public:
   vtkIdType FindCell(double x[3], vtkCell *cell,
                      vtkGenericCell *gencell, vtkIdType cellId,
                      double tol2, int& subId, double pcoords[3],
-                     double *weights) VTK_OVERRIDE;
+                     double *weights) override;
 
   /**
    * Restore data object to initial state,
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Convenience method returns largest cell size in dataset. This is generally
@@ -405,14 +405,14 @@ public:
    * This is the number of points of a cell.
    * THIS METHOD IS THREAD SAFE
    */
-  int GetMaxCellSize() VTK_OVERRIDE;
+  int GetMaxCellSize() override;
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
   /**
@@ -531,7 +531,7 @@ public:
    * arrays, etc. are not included in the return value). THIS METHOD
    * IS THREAD SAFE.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   //@{
   /**
@@ -544,9 +544,9 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctree();
-  ~vtkHyperOctree() VTK_OVERRIDE;
+  ~vtkHyperOctree() override;
 
-  void ComputeBounds() VTK_OVERRIDE;
+  void ComputeBounds() override;
 
   int Dimension; // 1, 2 or 3.
 

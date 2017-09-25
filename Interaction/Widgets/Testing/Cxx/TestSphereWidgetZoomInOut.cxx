@@ -28,7 +28,7 @@ class vtkSphWCallback : public vtkCommand
   public:
     static vtkSphWCallback *New()
     { return new vtkSphWCallback; }
-    void Execute(vtkObject*, unsigned long, void*) VTK_OVERRIDE
+    void Execute(vtkObject*, unsigned long, void*) override
     {
     }
     vtkSphWCallback() {}

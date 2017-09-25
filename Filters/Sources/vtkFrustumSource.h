@@ -41,7 +41,7 @@ class VTKFILTERSSOURCES_EXPORT vtkFrustumSource : public vtkPolyDataAlgorithm
 public:
   static vtkFrustumSource *New();
   vtkTypeMacro(vtkFrustumSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -80,7 +80,7 @@ public:
   /**
    * Modified GetMTime because of Planes.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -98,11 +98,11 @@ protected:
    */
   vtkFrustumSource();
 
-  ~vtkFrustumSource() VTK_OVERRIDE;
+  ~vtkFrustumSource() override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   /**
    * Compute the intersection of 3 planes.

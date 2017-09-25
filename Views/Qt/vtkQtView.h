@@ -34,7 +34,7 @@ Q_OBJECT
 public:
 
   vtkTypeMacro(vtkQtView, vtkView);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkQtView();
-  ~vtkQtView() VTK_OVERRIDE;
+  ~vtkQtView() override;
 
 private:
   vtkQtView(const vtkQtView&) VTK_DELETE_FUNCTION;

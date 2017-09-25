@@ -36,7 +36,7 @@ class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLVolumeTextureMapper2D
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeTextureMapper2D,vtkVolumeTextureMapper2D);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   static vtkOpenGLVolumeTextureMapper2D *New();
 
@@ -45,14 +45,14 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkVolume *vol) override;
 
   void RenderQuads( int count, float *v, float *t,
-                    unsigned char *texture, int size[2], int reverseFlag) VTK_OVERRIDE;
+                    unsigned char *texture, int size[2], int reverseFlag) override;
 
 protected:
   vtkOpenGLVolumeTextureMapper2D();
-  ~vtkOpenGLVolumeTextureMapper2D() VTK_OVERRIDE;
+  ~vtkOpenGLVolumeTextureMapper2D() override;
 
 private:
   vtkOpenGLVolumeTextureMapper2D(const vtkOpenGLVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;

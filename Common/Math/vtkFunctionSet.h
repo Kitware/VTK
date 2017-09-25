@@ -36,7 +36,7 @@ class VTKCOMMONMATH_EXPORT vtkFunctionSet : public vtkObject
 {
 public:
   vtkTypeMacro(vtkFunctionSet,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Evaluate functions at x_j.
@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkFunctionSet();
-  ~vtkFunctionSet() VTK_OVERRIDE {}
+  ~vtkFunctionSet() override {}
 
   int NumFuncs;
   int NumIndepVars;

@@ -143,7 +143,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTree : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTree, vtkObject);
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   /**
    * Restore the initial state: only one node and one leaf: the root.

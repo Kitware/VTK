@@ -39,7 +39,7 @@ public:
 
   // the execute
   void Execute(vtkObject *caller,
-                       unsigned long event, void* vtkNotUsed(v)) VTK_OVERRIDE
+                       unsigned long event, void* vtkNotUsed(v)) override
   {
       vtkAlgorithm *alg = vtkAlgorithm::SafeDownCast(caller);
       if (event == vtkCommand::ProgressEvent && alg)

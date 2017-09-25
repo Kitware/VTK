@@ -42,7 +42,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractGrid: public vtkExtractGrid
 public:
     static vtkPExtractGrid* New();
     vtkTypeMacro(vtkPExtractGrid,vtkExtractGrid);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
     vtkPExtractGrid();
@@ -50,11 +50,11 @@ protected:
 
     // Standard VTK Pipeline methods
     virtual int RequestData(
-        vtkInformation*, vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
+        vtkInformation*, vtkInformationVector**,vtkInformationVector*) override;
     virtual int RequestInformation(
-        vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+        vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
     virtual int RequestUpdateExtent(
-        vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+        vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
     vtkMPIController* Controller;
 

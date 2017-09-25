@@ -1346,7 +1346,7 @@ class vtkSeedCallback2 : public vtkCommand
 public:
   static vtkSeedCallback2 *New()
     { return new vtkSeedCallback2; }
-  void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eid, void*) override
   {
       if ( eid == vtkCommand::CursorChangedEvent )
       {

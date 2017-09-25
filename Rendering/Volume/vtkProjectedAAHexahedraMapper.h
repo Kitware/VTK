@@ -48,7 +48,7 @@ public:
   vtkTypeMacro(vtkProjectedAAHexahedraMapper,
                vtkUnstructuredGridVolumeMapper);
   static vtkProjectedAAHexahedraMapper *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -67,13 +67,13 @@ public:
 
 protected:
   vtkProjectedAAHexahedraMapper();
-  ~vtkProjectedAAHexahedraMapper() VTK_OVERRIDE;
+  ~vtkProjectedAAHexahedraMapper() override;
 
   /**
    * The visibility sort will probably make a reference loop by holding a
    * reference to the input.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   vtkVisibilitySort *VisibilitySort;
 

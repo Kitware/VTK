@@ -48,7 +48,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellTypes : public vtkObject
 public:
   static vtkCellTypes *New();
   vtkTypeMacro(vtkCellTypes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
@@ -148,7 +148,7 @@ public:
 
 protected:
   vtkCellTypes();
-  ~vtkCellTypes() VTK_OVERRIDE;
+  ~vtkCellTypes() override;
 
   vtkUnsignedCharArray *TypeArray; // pointer to types array
   vtkIntArray *LocationArray;   // pointer to array of offsets

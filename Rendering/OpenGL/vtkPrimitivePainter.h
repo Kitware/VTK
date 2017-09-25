@@ -40,7 +40,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkPrimitivePainter : public vtkPolyDataPainter
 {
 public:
   vtkTypeMacro(vtkPrimitivePainter, vtkPolyDataPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkPrimitivePainter();
-  ~vtkPrimitivePainter() VTK_OVERRIDE;
+  ~vtkPrimitivePainter() override;
 
   enum {
     VTK_PDM_NORMALS = 0x001,
@@ -75,18 +75,18 @@ protected:
    * This method is overridden to update the output data
    * as per the input.
    */
-  void PrepareForRendering(vtkRenderer*, vtkActor*) VTK_OVERRIDE;
+  void PrepareForRendering(vtkRenderer*, vtkActor*) override;
 
   /**
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
+  void ProcessInformation(vtkInformation*) override;
 
   /**
    * Subclasses need to override this to return the output of the pipeline.
    */
-  vtkDataObject* GetOutput() VTK_OVERRIDE;
+  vtkDataObject* GetOutput() override;
 
   /**
    * The actual rendering happens here. This method is called only when
@@ -111,12 +111,12 @@ protected:
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags,
-                              bool forceCompileOnly) VTK_OVERRIDE;
+                              bool forceCompileOnly) override;
 
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   int SupportedPrimitive; // must be set by subclasses.
   vtkSetMacro(SupportedPrimitive, int);

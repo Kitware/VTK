@@ -86,13 +86,13 @@ public:
   static vtkLookupTable *New();
 
   vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return true if all of the values defining the mapping have an opacity
    * equal to 1.
    */
-  int IsOpaque() VTK_OVERRIDE;
+  int IsOpaque() override;
 
   /**
    * Allocate a color table of specified size.
@@ -103,7 +103,7 @@ public:
    * Generate lookup table from hue, saturation, value, alpha min/max values.
    * Table is built from linear ramp of each value.
    */
-  void Build() VTK_OVERRIDE;
+  void Build() override;
 
   /**
    * Force the lookup table to regenerate from hue, saturation, value,
@@ -259,19 +259,19 @@ public:
   /**
    * Map one value through the lookup table.
    */
-  unsigned char* MapValue(double v) VTK_OVERRIDE;
+  unsigned char* MapValue(double v) override;
 
   /**
    * Map one value through the lookup table and return the color as
    * an RGB array of doubles between 0 and 1.
    */
-  void GetColor(double x, double rgb[3]) VTK_OVERRIDE;
+  void GetColor(double x, double rgb[3]) override;
 
   /**
    * Map one value through the lookup table and return the alpha value
    * (the opacity) as a double between 0 and 1.
    */
-  double GetOpacity(double v) VTK_OVERRIDE;
+  double GetOpacity(double v) override;
 
   /**
    * Return the table index associated with a particular value.
@@ -343,9 +343,9 @@ public:
    * Sets/Gets the range of scalars which will be mapped.  This is a duplicate
    * of Get/SetTableRange.
    */
-  double *GetRange() VTK_OVERRIDE
+  double *GetRange() override
     { return this->GetTableRange(); };
-  void SetRange(double min, double max) VTK_OVERRIDE
+  void SetRange(double min, double max) override
     { this->SetTableRange(min, max); };
   void SetRange(double rng[2]) { this->SetRange(rng[0], rng[1]); };
   //@}
@@ -395,18 +395,18 @@ public:
                                int inputDataType,
                                int numberOfValues,
                                int inputIncrement,
-                               int outputIncrement) VTK_OVERRIDE;
+                               int outputIncrement) override;
 
   /**
    * Copy the contents from another LookupTable
    */
-  void DeepCopy(vtkScalarsToColors *lut) VTK_OVERRIDE;
+  void DeepCopy(vtkScalarsToColors *lut) override;
 
   /**
    * This should return 1 is the subclass is using log scale for mapping scalars
    * to colors. Returns 1 is scale == VTK_SCALE_LOG10.
    */
-  int UsingLogScale() VTK_OVERRIDE
+  int UsingLogScale() override
   {
     return (this->GetScale() == VTK_SCALE_LOG10)? 1 : 0;
   }
@@ -414,7 +414,7 @@ public:
   /**
    * Get the number of available colors for mapping to.
    */
-  vtkIdType GetNumberOfAvailableColors() VTK_OVERRIDE;
+  vtkIdType GetNumberOfAvailableColors() override;
 
   /**
    * Return a color given an integer index.
@@ -423,11 +423,11 @@ public:
    * list of annotations).
    * If the table is empty or \a idx < 0, then NanColor is returned.
    */
-  void GetIndexedColor(vtkIdType idx, double rgba[4]) VTK_OVERRIDE;
+  void GetIndexedColor(vtkIdType idx, double rgba[4]) override;
 
 protected:
   vtkLookupTable(int sze=256, int ext=256);
-  ~vtkLookupTable() VTK_OVERRIDE;
+  ~vtkLookupTable() override;
 
   vtkIdType NumberOfColors;
   vtkUnsignedCharArray *Table;

@@ -177,7 +177,7 @@ protected:
   }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLTransferFunction2D() VTK_OVERRIDE
+  ~vtkOpenGLTransferFunction2D() override
   {
     if (this->TextureObject)
     {

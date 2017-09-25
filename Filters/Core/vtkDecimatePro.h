@@ -92,7 +92,7 @@ class VTKFILTERSCORE_EXPORT vtkDecimatePro : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDecimatePro,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create object with specified reduction of 90% and feature angle of
@@ -288,9 +288,9 @@ public:
 
 protected:
   vtkDecimatePro();
-  ~vtkDecimatePro() VTK_OVERRIDE;
+  ~vtkDecimatePro() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double TargetReduction;
   double FeatureAngle;

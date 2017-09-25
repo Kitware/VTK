@@ -39,7 +39,7 @@ class VTKIOGDAL_EXPORT vtkGDALVectorReader : public vtkMultiBlockDataSetAlgorith
 {
 public:
   static vtkGDALVectorReader* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGDALVectorReader,vtkMultiBlockDataSetAlgorithm);
 
   vtkSetStringMacro(FileName);
@@ -120,10 +120,10 @@ public:
 
 protected:
   vtkGDALVectorReader();
-  ~vtkGDALVectorReader() VTK_OVERRIDE;
+  ~vtkGDALVectorReader() override;
 
-  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
   int InitializeInternal();
 

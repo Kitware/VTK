@@ -41,7 +41,7 @@ class VTKRENDERINGLIC_EXPORT vtkSurfaceLICDefaultPainter
 public:
   static vtkSurfaceLICDefaultPainter* New();
   vtkTypeMacro(vtkSurfaceLICDefaultPainter, vtkDefaultPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -53,22 +53,22 @@ public:
 
 protected:
   vtkSurfaceLICDefaultPainter();
-  ~vtkSurfaceLICDefaultPainter() VTK_OVERRIDE;
+  ~vtkSurfaceLICDefaultPainter() override;
 
   /**
    * Setup the the painter chain.
    */
-  void BuildPainterChain() VTK_OVERRIDE;
+  void BuildPainterChain() override;
 
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   /**
    * Override.
    */
-  void UpdateBounds(double bounds[6]) VTK_OVERRIDE;
+  void UpdateBounds(double bounds[6]) override;
 
 protected:
   vtkSurfaceLICPainter* SurfaceLICPainter;

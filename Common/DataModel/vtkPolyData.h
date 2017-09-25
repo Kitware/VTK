@@ -82,30 +82,30 @@ public:
   static vtkPolyData *New();
 
   vtkTypeMacro(vtkPolyData,vtkPointSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_POLY_DATA;}
+  int GetDataObjectType() override {return VTK_POLY_DATA;}
 
   /**
    * Copy the geometric and topological structure of an input poly data object.
    */
-  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
+  void CopyStructure(vtkDataSet *ds) override;
 
   //@{
   /**
    * Standard vtkDataSet interface.
    */
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfCells() override;
   using vtkDataSet::GetCell;
-  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
-  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
+  vtkCell *GetCell(vtkIdType cellId) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
+  int GetCellType(vtkIdType cellId) override;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                        vtkIdList *cellIds) VTK_OVERRIDE;
+                        vtkIdList *cellIds) override;
   //@}
 
   /**
@@ -120,18 +120,18 @@ public:
   /**
    * Copy a cells point ids into list provided. (Less efficient.)
    */
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override;
 
   /**
    * Efficient method to obtain cells using a particular point. Make sure that
    * routine BuildLinks() has been called.
    */
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
 
   /**
    * Compute the (X, Y, Z)  bounds of the data.
    */
-  void ComputeBounds() VTK_OVERRIDE;
+  void ComputeBounds() override;
 
   /**
    * Recover extra allocated memory when creating data whose initial size
@@ -139,12 +139,12 @@ public:
    * when using the CellArray::EstimateSize() method to create vertices,
    * lines, polygons, or triangle strips.
    */
-  void Squeeze() VTK_OVERRIDE;
+  void Squeeze() override;
 
   /**
    * Return the maximum cell size in this poly data.
    */
-  int GetMaxCellSize() VTK_OVERRIDE;
+  int GetMaxCellSize() override;
 
   /**
    * Set the cell array defining vertices.
@@ -439,7 +439,7 @@ public:
   /**
    * Restore object to initial state. Release memory back to system.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   //@{
   /**
@@ -462,14 +462,14 @@ public:
    * arrays, etc. are not included in the return value). THIS METHOD
    * IS THREAD SAFE.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
   /**
@@ -532,7 +532,7 @@ public:
 
 protected:
   vtkPolyData();
-  ~vtkPolyData() VTK_OVERRIDE;
+  ~vtkPolyData() override;
 
   // constant cell objects returned by GetCell called.
   vtkVertex *Vertex;

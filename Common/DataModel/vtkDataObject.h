@@ -61,7 +61,7 @@ public:
   static vtkDataObject *New();
 
   vtkTypeMacro(vtkDataObject,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -75,7 +75,7 @@ public:
    * Data objects are composite objects and need to check each part for MTime.
    * The information object also needs to be considered.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Restore data object to initial state,
@@ -404,7 +404,7 @@ public:
 protected:
 
   vtkDataObject();
-  ~vtkDataObject() VTK_OVERRIDE;
+  ~vtkDataObject() override;
 
   // General field data associated with data object
   vtkFieldData  *FieldData;

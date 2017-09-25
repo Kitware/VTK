@@ -58,7 +58,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
 {
 public:
   vtkTypeMacro(vtkRenderer,vtkViewport);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a vtkRenderer with a black background, a white ambient light,
@@ -412,7 +412,7 @@ public:
    */
   void SetRenderWindow(vtkRenderWindow *);
   vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;};
-  vtkWindow *GetVTKWindow() VTK_OVERRIDE;
+  vtkWindow *GetVTKWindow() override;
   //@}
 
   //@{
@@ -489,20 +489,20 @@ public:
   /**
    * Convert world point coordinates to view coordinates.
    */
-  void WorldToView() VTK_OVERRIDE;
+  void WorldToView() override;
 
   //@{
   /**
    * Convert view point coordinates to world coordinates.
    */
-  void ViewToWorld() VTK_OVERRIDE;
-  void ViewToWorld(double &wx, double &wy, double &wz) VTK_OVERRIDE;
+  void ViewToWorld() override;
+  void ViewToWorld(double &wx, double &wy, double &wz) override;
   //@}
 
   /**
    * Convert world point coordinates to view coordinates.
    */
-  void WorldToView(double &wx, double &wy, double &wz) VTK_OVERRIDE;
+  void WorldToView(double &wx, double &wy, double &wz) override;
 
   /**
    * Given a pixel location, return the Z value. The z value is
@@ -513,7 +513,7 @@ public:
   /**
    * Return the MTime of the renderer also considering its ivars.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -540,12 +540,12 @@ public:
    * If nothing was picked then NULL is returned.  This method selects from
    * the renderers Prop list.
    */
-  vtkAssemblyPath* PickProp(double selectionX, double selectionY) VTK_OVERRIDE
+  vtkAssemblyPath* PickProp(double selectionX, double selectionY) override
   {
     return this->PickProp(selectionX, selectionY, selectionX, selectionY);
   }
   vtkAssemblyPath* PickProp(double selectionX1, double selectionY1,
-                            double selectionX2, double selectionY2) VTK_OVERRIDE;
+                            double selectionX2, double selectionY2) override;
   //@}
 
   /**
@@ -724,7 +724,7 @@ public:
 
 protected:
   vtkRenderer();
-  ~vtkRenderer() VTK_OVERRIDE;
+  ~vtkRenderer() override;
 
   // internal method for doing a render for picking purposes
   virtual void PickRender(vtkPropCollection *props);

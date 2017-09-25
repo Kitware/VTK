@@ -38,16 +38,16 @@ public:
 
 protected:
   vtkImageDivergence();
-  ~vtkImageDivergence() VTK_OVERRIDE {}
+  ~vtkImageDivergence() override {}
 
   int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
   int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) VTK_OVERRIDE;
+                       int ext[6], int id) override;
 
 private:
   vtkImageDivergence(const vtkImageDivergence&) VTK_DELETE_FUNCTION;

@@ -86,7 +86,7 @@ class VTKIOEXODUS_EXPORT vtkExodusIIWriter : public vtkWriter
 public:
   static vtkExodusIIWriter *New ();
   vtkTypeMacro(vtkExodusIIWriter,vtkWriter);
-  void PrintSelf (ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf (ostream& os, vtkIndent indent) override;
 
   /**
    * Specify the vtkModelMetadata object which contains the Exodus file
@@ -182,7 +182,7 @@ public:
 
 protected:
   vtkExodusIIWriter ();
-  ~vtkExodusIIWriter () VTK_OVERRIDE;
+  ~vtkExodusIIWriter () override;
 
   vtkModelMetadata* ModelMetadata;
 
@@ -285,7 +285,7 @@ protected:
 
   int ProcessRequest (vtkInformation* request,
                       vtkInformationVector** inputVector,
-                      vtkInformationVector* outputVector) VTK_OVERRIDE;
+                      vtkInformationVector* outputVector) override;
 
   int RequestInformation (vtkInformation* request,
                           vtkInformationVector** inputVector,
@@ -295,13 +295,13 @@ protected:
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector);
 
-  int FillInputPortInformation (int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation (int port, vtkInformation* info) override;
 
   int RequestData (vtkInformation* request,
                    vtkInformationVector** inputVector,
-                   vtkInformationVector* outputVector) VTK_OVERRIDE;
+                   vtkInformationVector* outputVector) override;
 
-  void WriteData () VTK_OVERRIDE;
+  void WriteData () override;
 
   int FlattenHierarchy (vtkDataObject* input, const char *name, bool& changed);
 

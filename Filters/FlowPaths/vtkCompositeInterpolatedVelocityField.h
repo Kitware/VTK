@@ -84,7 +84,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField : public 
 {
 public:
   vtkTypeMacro( vtkCompositeInterpolatedVelocityField, vtkAbstractInterpolatedVelocityField);
-  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkCompositeInterpolatedVelocityField();
-  ~vtkCompositeInterpolatedVelocityField() VTK_OVERRIDE;
+  ~vtkCompositeInterpolatedVelocityField() override;
 
   int       LastDataSetIndex;
   vtkCompositeInterpolatedVelocityFieldDataSetsType * DataSets;

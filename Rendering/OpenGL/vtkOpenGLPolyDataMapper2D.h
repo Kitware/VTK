@@ -35,16 +35,16 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMa
 public:
   vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);
   static vtkOpenGLPolyDataMapper2D *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Actually draw the poly data.
    */
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
 
 protected:
   vtkOpenGLPolyDataMapper2D() {}
-  ~vtkOpenGLPolyDataMapper2D() VTK_OVERRIDE {}
+  ~vtkOpenGLPolyDataMapper2D() override {}
 
 private:
   vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&) VTK_DELETE_FUNCTION;

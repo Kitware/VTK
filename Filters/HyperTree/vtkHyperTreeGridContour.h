@@ -60,7 +60,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridContour : public vtkHyperTreeGr
 public:
   static vtkHyperTreeGridContour* New();
   vtkTypeMacro( vtkHyperTreeGridContour, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   //@{
   /**
@@ -80,7 +80,7 @@ public:
   /**
    * Modified GetMTime Because we delegate to vtkContourValues.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -98,17 +98,17 @@ public:
 
 protected:
   vtkHyperTreeGridContour();
-  ~vtkHyperTreeGridContour() VTK_OVERRIDE;
+  ~vtkHyperTreeGridContour() override;
 
   /**
    * For this algorithm the output is a vtkPolyData instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to generate isocontours of hyper tree grid.
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively decide whether a cell is intersected by a contour

@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBSPCuts : public vtkDataObject
 public:
   static vtkBSPCuts *New();
   vtkTypeMacro(vtkBSPCuts, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the cuts with arrays of information.  This type of
@@ -118,21 +118,21 @@ public:
   /**
    * Restore data object to initial state,
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   //@{
   /**
    * Shallow copy.  These copy the data, but not any of the
    * pipeline connections.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
 protected:
 
   vtkBSPCuts();
-  ~vtkBSPCuts() VTK_OVERRIDE;
+  ~vtkBSPCuts() override;
 
   static void DeleteAllDescendants(vtkKdNode *kd);
 

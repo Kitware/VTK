@@ -114,9 +114,9 @@ protected:
     Reader = nullptr;
     Index = 0;
   }
-  ~vtkPExodusIIReaderUpdateProgress() VTK_OVERRIDE{}
+  ~vtkPExodusIIReaderUpdateProgress() override{}
 
-  void Execute(vtkObject*, unsigned long event, void* callData) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long event, void* callData) override
   {
     if(event == vtkCommand::ProgressEvent)
     {

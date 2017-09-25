@@ -44,7 +44,7 @@ public:
    * Get the name of this class
    */
   vtkTypeMacro(vtkDirectionEncoder,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkDirectionEncoder() {}
-  ~vtkDirectionEncoder()VTK_OVERRIDE {}
+  ~vtkDirectionEncoder() override {}
 private:
   vtkDirectionEncoder(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;

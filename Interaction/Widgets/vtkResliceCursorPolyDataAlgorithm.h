@@ -46,7 +46,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorPolyDataAlgorithm : public vt
 {
 public:
   vtkTypeMacro(vtkResliceCursorPolyDataAlgorithm,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkResliceCursorPolyDataAlgorithm *New();
 
@@ -119,15 +119,15 @@ public:
    * Get the MTime. Check the MTime of the internal ResliceCursor as well, if
    * one has been set
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkResliceCursorPolyDataAlgorithm();
-  ~vtkResliceCursorPolyDataAlgorithm() VTK_OVERRIDE;
+  ~vtkResliceCursorPolyDataAlgorithm() override;
 
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
   void GetSlabPolyData( int axis, int planeAxis, vtkPolyData *pd );
 

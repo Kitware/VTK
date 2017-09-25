@@ -50,7 +50,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
    * Standard VTK methods for type and printing.
    */
   vtkTypeMacro(vtkProp3DAxisFollower,vtkProp3DFollower);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
  //@{
@@ -133,12 +133,12 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
    * Generate the matrix based on ivars. This method overloads its superclasses
    * ComputeMatrix() method due to the special vtkProp3DAxisFollower matrix operations.
    */
-  void ComputeMatrix() VTK_OVERRIDE;
+  void ComputeMatrix() override;
 
   /**
    * Shallow copy of a follower. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
  /**
   * Calculate scale factor to maintain same size of a object
@@ -153,9 +153,9 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
    * property, texture map and then mapper. If a property hasn't been
    * assigned, then the actor will create one automatically.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderVolumetricGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  int RenderVolumetricGeometry(vtkViewport *viewport) override;
   //@}
 
   virtual void SetViewport(vtkViewport* viewport);
@@ -163,7 +163,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
 
 protected:
   vtkProp3DAxisFollower();
-  ~vtkProp3DAxisFollower() VTK_OVERRIDE;
+  ~vtkProp3DAxisFollower() override;
 
  void CalculateOrthogonalVectors(double Rx[3], double Ry[3], double Rz[3],
                                  vtkAxisActor *axis1, double *dop,

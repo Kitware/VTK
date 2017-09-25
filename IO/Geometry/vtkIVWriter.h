@@ -36,7 +36,7 @@ class VTKIOGEOMETRY_EXPORT vtkIVWriter : public vtkWriter
 public:
   static vtkIVWriter *New();
   vtkTypeMacro(vtkIVWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -60,17 +60,17 @@ protected:
     this->FileName = nullptr;
   }
 
-  ~vtkIVWriter() VTK_OVERRIDE
+  ~vtkIVWriter() override
   {
     delete[] this->FileName;
   }
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
   void WritePolyData(vtkPolyData *polyData, FILE *fp);
 
   char *FileName;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
   vtkIVWriter(const vtkIVWriter&) VTK_DELETE_FUNCTION;

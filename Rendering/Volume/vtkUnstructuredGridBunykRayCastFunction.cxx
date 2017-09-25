@@ -346,20 +346,20 @@ public:
                        vtkUnstructuredGridVolumeRayCastIterator);
   static vtkUnstructuredGridBunykRayCastIterator *New();
 
-  void Initialize(int x, int y) VTK_OVERRIDE;
+  void Initialize(int x, int y) override;
 
   vtkIdType GetNextIntersections(vtkIdList *intersectedCells,
                                  vtkDoubleArray *intersectionLengths,
                                  vtkDataArray *scalars,
                                  vtkDataArray *nearIntersections,
-                                 vtkDataArray *farIntersections) VTK_OVERRIDE;
+                                 vtkDataArray *farIntersections) override;
 
   vtkSetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
   vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
 
 protected:
   vtkUnstructuredGridBunykRayCastIterator();
-  ~vtkUnstructuredGridBunykRayCastIterator() VTK_OVERRIDE;
+  ~vtkUnstructuredGridBunykRayCastIterator() override;
 
   int RayPosition[2];
 

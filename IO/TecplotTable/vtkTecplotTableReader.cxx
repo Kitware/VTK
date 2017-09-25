@@ -98,7 +98,7 @@ public:
     Whitespace.insert('\t');
   }
 
-  ~DelimitedTextIterator() VTK_OVERRIDE
+  ~DelimitedTextIterator() override
   {
     // Ensure that all table columns have the same length ...
     for(vtkIdType i = 0; i != this->OutputTable->GetNumberOfColumns(); ++i)
@@ -112,12 +112,12 @@ public:
     }
   }
 
-  DelimitedTextIterator& operator++(int) VTK_OVERRIDE
+  DelimitedTextIterator& operator++(int) override
   {
     return *this;
   }
 
-  DelimitedTextIterator& operator*() VTK_OVERRIDE
+  DelimitedTextIterator& operator*() override
   {
     return *this;
   }
@@ -137,7 +137,7 @@ public:
     }
   }
 
-  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value) VTK_OVERRIDE
+  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value) override
   {
     // If we've already read our maximum number of records, we're done ...
     if(this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)

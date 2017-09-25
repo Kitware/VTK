@@ -57,7 +57,7 @@ public:
   static vtkImageBSplineCoefficients *New();
   vtkTypeMacro(vtkImageBSplineCoefficients,vtkThreadedImageAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -141,22 +141,22 @@ public:
 
 protected:
   vtkImageBSplineCoefficients();
-  ~vtkImageBSplineCoefficients() VTK_OVERRIDE;
+  ~vtkImageBSplineCoefficients() override;
 
   void AllocateOutputData(
-    vtkImageData *out, vtkInformation *outInfo, int *uExtent) VTK_OVERRIDE;
+    vtkImageData *out, vtkInformation *outInfo, int *uExtent) override;
   vtkImageData *AllocateOutputData(
-    vtkDataObject *out, vtkInformation* outInfo) VTK_OVERRIDE;
+    vtkDataObject *out, vtkInformation* outInfo) override;
 
   int RequestData(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                               int outExt[6], int threadId) VTK_OVERRIDE;
+                               int outExt[6], int threadId) override;
 
   int SplineDegree;
   int BorderMode;

@@ -54,7 +54,7 @@ public:
    */
   vtkTypeMacro(vtkDijkstraImageContourLineInterpolator,
                               vtkContourLineInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   static vtkDijkstraImageContourLineInterpolator *New();
@@ -66,7 +66,7 @@ public:
    */
   int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) VTK_OVERRIDE;
+                               int idx1, int idx2 ) override;
 
   //@{
   /**
@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkDijkstraImageContourLineInterpolator();
-  ~vtkDijkstraImageContourLineInterpolator() VTK_OVERRIDE;
+  ~vtkDijkstraImageContourLineInterpolator() override;
 
   vtkImageData *CostImage;
   vtkDijkstraImageGeodesicPath *DijkstraImageGeodesicPath;

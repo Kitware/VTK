@@ -129,15 +129,15 @@ public:
   /**
    * Set component @a comp of all tuples to @a value.
    */
-  void FillTypedComponent(int compIdx, ValueType value) VTK_OVERRIDE;
+  void FillTypedComponent(int compIdx, ValueType value) override;
   //@}
 
   //@{
   /**
    * Set all the values in array to @a value.
    */
-  void FillValue(ValueType value) VTK_OVERRIDE;
-  void Fill(double value) VTK_OVERRIDE;
+  void FillValue(ValueType value) override;
+  void Fill(double value) override;
   //@}
 
   //@{
@@ -147,7 +147,7 @@ public:
    * data values requested.
    */
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
-  void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) VTK_OVERRIDE;
+  void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
   //@}
 
   //@{
@@ -159,7 +159,7 @@ public:
    * for a safer alternative for fast data access.
    */
   ValueType* GetPointer(vtkIdType valueIdx);
-  void* GetVoidPointer(vtkIdType valueIdx) VTK_OVERRIDE;
+  void* GetVoidPointer(vtkIdType valueIdx) override;
   //@}
 
   //@{
@@ -180,37 +180,37 @@ public:
   void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save,
                 int deleteMethod);
   void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save);
-  void SetVoidArray(void* array, vtkIdType size, int save) VTK_OVERRIDE;
+  void SetVoidArray(void* array, vtkIdType size, int save) override;
   void SetVoidArray(void* array, vtkIdType size, int save,
-                    int deleteMethod) VTK_OVERRIDE;
+                    int deleteMethod) override;
   //@}
 
   // Overridden for optimized implementations:
-  void SetTuple(vtkIdType tupleIdx, const float *tuple) VTK_OVERRIDE;
-  void SetTuple(vtkIdType tupleIdx, const double *tuple) VTK_OVERRIDE;
+  void SetTuple(vtkIdType tupleIdx, const float *tuple) override;
+  void SetTuple(vtkIdType tupleIdx, const double *tuple) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
   // using Superclass::SetTuple;
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                vtkAbstractArray *source) VTK_OVERRIDE
+                vtkAbstractArray *source) override
   { this->Superclass::SetTuple(dstTupleIdx, srcTupleIdx, source); }
-  void InsertTuple(vtkIdType tupleIdx, const float *source) VTK_OVERRIDE;
-  void InsertTuple(vtkIdType tupleIdx, const double *source) VTK_OVERRIDE;
+  void InsertTuple(vtkIdType tupleIdx, const float *source) override;
+  void InsertTuple(vtkIdType tupleIdx, const double *source) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
   // using Superclass::InsertTuple;
   void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                   vtkAbstractArray *source) VTK_OVERRIDE
+                   vtkAbstractArray *source) override
   { this->Superclass::InsertTuple(dstTupleIdx, srcTupleIdx, source); }
   void InsertComponent(vtkIdType tupleIdx, int compIdx,
-                       double value) VTK_OVERRIDE;
-  vtkIdType InsertNextTuple(const float *tuple) VTK_OVERRIDE;
-  vtkIdType InsertNextTuple(const double *tuple) VTK_OVERRIDE;
+                       double value) override;
+  vtkIdType InsertNextTuple(const float *tuple) override;
+  vtkIdType InsertNextTuple(const double *tuple) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
   // using Superclass::InsertNextTuple;
   vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
-                            vtkAbstractArray *source) VTK_OVERRIDE
+                            vtkAbstractArray *source) override
   { return this->Superclass::InsertNextTuple(srcTupleIdx, source); }
-  void GetTuple(vtkIdType tupleIdx, double * tuple) VTK_OVERRIDE;
-  double *GetTuple(vtkIdType tupleIdx) VTK_OVERRIDE;
+  void GetTuple(vtkIdType tupleIdx, double * tuple) override;
+  double *GetTuple(vtkIdType tupleIdx) override;
 
   /**
    * Tell the array explicitly that a single data element has
@@ -260,23 +260,23 @@ public:
   }
   //@}
 
-  int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::AoSDataArrayTemplate; }
-  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() VTK_OVERRIDE;
-  bool HasStandardMemoryLayout() VTK_OVERRIDE { return true; }
-  void ShallowCopy(vtkDataArray *other) VTK_OVERRIDE;
+  int GetArrayType() override { return vtkAbstractArray::AoSDataArrayTemplate; }
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() override;
+  bool HasStandardMemoryLayout() override { return true; }
+  void ShallowCopy(vtkDataArray *other) override;
 
   // Reimplemented for efficiency:
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) VTK_OVERRIDE;
+                    vtkAbstractArray* source) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
   // using Superclass::InsertTuples;
   void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) VTK_OVERRIDE
+                    vtkAbstractArray *source) override
   { this->Superclass::InsertTuples(dstIds, srcIds, source); }
 
 protected:
   vtkAOSDataArrayTemplate();
-  ~vtkAOSDataArrayTemplate() VTK_OVERRIDE;
+  ~vtkAOSDataArrayTemplate() override;
 
   /**
    * Allocate space for numTuples. Old data is not preserved. If numTuples == 0,

@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
  public:
   static vtkRenderWindowCollection *New();
   vtkTypeMacro(vtkRenderWindowCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a RenderWindow to the bottom of the list.
@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
 
 protected:
   vtkRenderWindowCollection() {}
-  ~vtkRenderWindowCollection() VTK_OVERRIDE {}
+  ~vtkRenderWindowCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

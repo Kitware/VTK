@@ -119,7 +119,7 @@ public:
 
   void Execute(vtkObject *vtkNotUsed(caller),
                        unsigned long event,
-                       void *calldata) VTK_OVERRIDE
+                       void *calldata) override
   {
       if(this->Animator!=nullptr && this->Renderer!=nullptr)
       {

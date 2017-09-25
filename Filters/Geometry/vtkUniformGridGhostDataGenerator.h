@@ -63,11 +63,11 @@ class VTKFILTERSGEOMETRY_EXPORT vtkUniformGridGhostDataGenerator :
 public:
   static vtkUniformGridGhostDataGenerator* New();
   vtkTypeMacro(vtkUniformGridGhostDataGenerator,vtkDataSetGhostGenerator);
-  void PrintSelf(ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent ) override;
 
 protected:
   vtkUniformGridGhostDataGenerator();
-  ~vtkUniformGridGhostDataGenerator() VTK_OVERRIDE;
+  ~vtkUniformGridGhostDataGenerator() override;
 
   /**
    * Computes the global origin
@@ -95,7 +95,7 @@ protected:
    * Generates ghost layers.
    */
   void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) VTK_OVERRIDE;
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) override;
 
   double GlobalSpacing[3];
   double GlobalOrigin[3];

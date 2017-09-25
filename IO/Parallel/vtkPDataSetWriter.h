@@ -37,14 +37,14 @@ class vtkMultiProcessController;
 class VTKIOPARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkPDataSetWriter,vtkDataSetWriter);
   static vtkPDataSetWriter *New();
 
   /**
    * Write the pvtk file and cooresponding vtk files.
    */
-  int Write() VTK_OVERRIDE;
+  int Write() override;
 
   //@{
   /**
@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkPDataSetWriter();
-  ~vtkPDataSetWriter() VTK_OVERRIDE;
+  ~vtkPDataSetWriter() override;
 
   ostream *OpenFile();
   int WriteUnstructuredMetaData(vtkDataSet *input,

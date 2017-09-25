@@ -2505,9 +2505,9 @@ class vtkTestTessellatorSubdivision
   public:
     vtkTypeMacro(vtkTestTessellatorSubdivision,vtkEdgeSubdivisionCriterion);
     static vtkTestTessellatorSubdivision* New();
-    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf( ostream& os, vtkIndent indent ) override;
 
-    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) VTK_OVERRIDE;
+    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) override;
 
     static double*  TestPoints;
     static double*  TestPointsCanAmbig;
@@ -2542,7 +2542,7 @@ class vtkTestTessellatorSubdivision
 
  protected:
     vtkTestTessellatorSubdivision();
-    ~vtkTestTessellatorSubdivision() VTK_OVERRIDE;
+    ~vtkTestTessellatorSubdivision() override;
 
     int AmbiguousTests;
     int CurrentTest;
@@ -3119,7 +3119,7 @@ public:
   vtkTessellatorScreenShot() { this->RenderWindow = nullptr; this->FileName = nullptr; }
   vtkRenderWindow* RenderWindow;
   char* FileName;
-  void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) ) VTK_OVERRIDE
+  void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) ) override
   {
     if ( (! this->RenderWindow) || (! this->FileName) )
       return;

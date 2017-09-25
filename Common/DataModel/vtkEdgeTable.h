@@ -46,7 +46,7 @@ public:
   static vtkEdgeTable *New();
 
   vtkTypeMacro(vtkEdgeTable,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Free memory and return to the initially instantiated state.
@@ -166,7 +166,7 @@ public:
 
 protected:
   vtkEdgeTable();
-  ~vtkEdgeTable() VTK_OVERRIDE;
+  ~vtkEdgeTable() override;
 
   vtkIdList **Table;
   vtkIdType TableMaxId; //maximum point id inserted

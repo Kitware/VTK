@@ -46,7 +46,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkSimpleBondPerceiver :
 public:
   static vtkSimpleBondPerceiver *New();
   vtkTypeMacro(vtkSimpleBondPerceiver,vtkMoleculeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkSimpleBondPerceiver();
-  ~vtkSimpleBondPerceiver() VTK_OVERRIDE;
+  ~vtkSimpleBondPerceiver() override;
 
   /**
    * This is called by the superclass.
@@ -66,7 +66,7 @@ protected:
    */
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   float Tolerance;
 

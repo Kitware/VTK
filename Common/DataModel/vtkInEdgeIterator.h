@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkInEdgeIterator : public vtkObject
 public:
   static vtkInEdgeIterator *New();
   vtkTypeMacro(vtkInEdgeIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the iterator with a graph and vertex.
@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkInEdgeIterator();
-  ~vtkInEdgeIterator() VTK_OVERRIDE;
+  ~vtkInEdgeIterator() override;
 
   /**
    * Protected method for setting the graph used

@@ -33,7 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPointsCollection : public vtkCollec
 public:
   static vtkStructuredPointsCollection *New();
   vtkTypeMacro(vtkStructuredPointsCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a pointer to a vtkStructuredPoints to the bottom of the list.
@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkStructuredPointsCollection() {}
-  ~vtkStructuredPointsCollection() VTK_OVERRIDE {}
+  ~vtkStructuredPointsCollection() override {}
 
 
 

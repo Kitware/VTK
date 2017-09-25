@@ -33,19 +33,19 @@ class VTKCOMMONCORE_EXPORT vtkBoxMuellerRandomSequence: public vtkGaussianRandom
 {
 public:
   vtkTypeMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkBoxMuellerRandomSequence* New();
 
   /**
    * Current value.
    */
-  double GetValue() VTK_OVERRIDE;
+  double GetValue() override;
 
   /**
    * Move to the next number in the random sequence.
    */
-  void Next() VTK_OVERRIDE;
+  void Next() override;
 
   /**
    * Return the uniformly distributed sequence of random numbers.
@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkBoxMuellerRandomSequence();
-  ~vtkBoxMuellerRandomSequence() VTK_OVERRIDE;
+  ~vtkBoxMuellerRandomSequence() override;
 
   vtkRandomSequence *UniformSequence;
   double Value;

@@ -49,7 +49,7 @@ class VTKCOMMONCORE_EXPORT vtkCollection : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCollection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with empty list.
@@ -145,13 +145,13 @@ public:
   /**
    * Participate in garbage collection.
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
 protected:
   vtkCollection();
-  ~vtkCollection() VTK_OVERRIDE;
+  ~vtkCollection() override;
 
   virtual void RemoveElement(vtkCollectionElement *element,
                              vtkCollectionElement *previous);
@@ -164,7 +164,7 @@ protected:
   friend class vtkCollectionIterator;
 
   // See vtkGarbageCollector.h:
-  void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector* collector) override;
 private:
   vtkCollection(const vtkCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCollection&) VTK_DELETE_FUNCTION;

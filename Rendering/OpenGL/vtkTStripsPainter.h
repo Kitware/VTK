@@ -28,18 +28,18 @@ class VTKRENDERINGOPENGL_EXPORT vtkTStripsPainter : public vtkPrimitivePainter
 public:
   static vtkTStripsPainter* New();
   vtkTypeMacro(vtkTStripsPainter, vtkPrimitivePainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTStripsPainter();
-  ~vtkTStripsPainter() VTK_OVERRIDE;
+  ~vtkTStripsPainter() override;
 
   /**
    * The actual rendering happens here. This method is called only when
    * SupportedPrimitive is present in typeflags when Render() is invoked.
    */
   int RenderPrimitive(unsigned long flags, vtkDataArray* n,
-    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) VTK_OVERRIDE;
+    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) override;
 
 private:
   vtkTStripsPainter(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;

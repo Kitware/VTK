@@ -45,15 +45,15 @@ public:
   /**
    * Return class name of data type (see vtkType.h for definitions).
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_OVERLAPPING_AMR;}
+  int GetDataObjectType() override {return VTK_OVERLAPPING_AMR;}
 
   vtkTypeMacro(vtkOverlappingAMR,vtkUniformGridAMR);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return a new iterator (the iterator has to be deleted by the user).
    */
-  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() VTK_OVERRIDE;
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
   //@{
   /**
@@ -170,9 +170,9 @@ public:
   /**
    * Get/Set the internal representation of amr meta meta data
    */
-  vtkAMRInformation* GetAMRInfo() VTK_OVERRIDE
+  vtkAMRInformation* GetAMRInfo() override
     { return Superclass::GetAMRInfo();}
-  void SetAMRInfo(vtkAMRInformation* info) VTK_OVERRIDE
+  void SetAMRInfo(vtkAMRInformation* info) override
     { return Superclass::SetAMRInfo(info);}
 
   //@{
@@ -184,7 +184,7 @@ public:
   void Audit();
  protected:
   vtkOverlappingAMR();
-  ~vtkOverlappingAMR() VTK_OVERRIDE;
+  ~vtkOverlappingAMR() override;
   //@}
 
 private:

@@ -55,14 +55,14 @@ public:
   vtkTypeMacro(vtkUnstructuredGridPartialPreIntegration,
                        vtkUnstructuredGridVolumeRayIntegrator);
   static vtkUnstructuredGridPartialPreIntegration *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  void Initialize(vtkVolume *volume, vtkDataArray *scalars) VTK_OVERRIDE;
+  void Initialize(vtkVolume *volume, vtkDataArray *scalars) override;
 
   void Integrate(vtkDoubleArray *intersectionLengths,
                          vtkDataArray *nearIntersections,
                          vtkDataArray *farIntersections,
-                         float color[4]) VTK_OVERRIDE;
+                         float color[4]) override;
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkUnstructuredGridPartialPreIntegration();
-  ~vtkUnstructuredGridPartialPreIntegration() VTK_OVERRIDE;
+  ~vtkUnstructuredGridPartialPreIntegration() override;
 
   vtkVolumeProperty *Property;
 

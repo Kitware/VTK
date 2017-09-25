@@ -31,12 +31,12 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayWindowNode :
 public:
   static vtkOSPRayWindowNode* New();
   vtkTypeMacro(vtkOSPRayWindowNode, vtkWindowNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
 protected:
   vtkOSPRayWindowNode();

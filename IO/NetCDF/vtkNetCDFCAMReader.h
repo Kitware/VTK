@@ -41,7 +41,7 @@ class VTKIONETCDF_EXPORT vtkNetCDFCAMReader : public vtkUnstructuredGridAlgorith
 public:
   static vtkNetCDFCAMReader *New();
   vtkTypeMacro(vtkNetCDFCAMReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns 1 if this file can be read and 0 if the file cannot be read.
@@ -118,16 +118,16 @@ public:
 
 protected:
   vtkNetCDFCAMReader();
-  ~vtkNetCDFCAMReader() VTK_OVERRIDE;
+  ~vtkNetCDFCAMReader() override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**,
-                         vtkInformationVector*) VTK_OVERRIDE;
+                         vtkInformationVector*) override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   /**
    * Returns true for success.  Based on the piece, number of pieces,

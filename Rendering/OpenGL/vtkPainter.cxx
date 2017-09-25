@@ -50,7 +50,7 @@ public:
     { return new vtkPainterObserver; }
 
   void Execute(vtkObject *caller,
-    unsigned long event, void* vtkNotUsed(v)) VTK_OVERRIDE
+    unsigned long event, void* vtkNotUsed(v)) override
   {
     vtkPainter* delegate = vtkPainter::SafeDownCast(caller);
     if (delegate && event == vtkCommand::ProgressEvent && this->Self)

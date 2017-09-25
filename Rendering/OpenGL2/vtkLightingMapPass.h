@@ -41,7 +41,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkLightingMapPass : public vtkDefaultPass
 public:
   static vtkLightingMapPass *New();
   vtkTypeMacro(vtkLightingMapPass, vtkDefaultPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -70,7 +70,7 @@ public:
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
  protected:
   /**
@@ -81,13 +81,13 @@ public:
   /**
    * Destructor.
    */
-  ~vtkLightingMapPass() VTK_OVERRIDE;
+  ~vtkLightingMapPass() override;
 
   /**
    * Opaque pass with key checking.
    * \pre s_exists: s!=0
    */
-  void RenderOpaqueGeometry(const vtkRenderState *s) VTK_OVERRIDE;
+  void RenderOpaqueGeometry(const vtkRenderState *s) override;
 
  private:
   vtkLightingMapPass(const vtkLightingMapPass&) VTK_DELETE_FUNCTION;

@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkObjectFactoryCollection() {}
-  ~vtkObjectFactoryCollection() VTK_OVERRIDE {}
+  ~vtkObjectFactoryCollection() override {}
 
 
 private:

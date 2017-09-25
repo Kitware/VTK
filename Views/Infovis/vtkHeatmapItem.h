@@ -51,7 +51,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkHeatmapItem : public vtkContextItem
 public:
   static vtkHeatmapItem *New();
   vtkTypeMacro(vtkHeatmapItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Set the table that this item draws.  The first column of the table
@@ -146,7 +146,7 @@ public:
   /**
    * Paints the table as a heatmap.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   //@{
   /**
@@ -171,21 +171,21 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Display a tooltip when the user mouses over a cell in the heatmap.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &event) override;
 
   /**
    * Display a legend for a column of data.
    */
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) override;
 
 protected:
   vtkHeatmapItem();
-  ~vtkHeatmapItem() VTK_OVERRIDE;
+  ~vtkHeatmapItem() override;
 
   vtkVector2f PositionVector;
   float* Position;

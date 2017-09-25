@@ -39,14 +39,14 @@ class VTKIOXML_EXPORT vtkXMLHierarchicalDataReader : public vtkXMLMultiGroupData
 public:
   static vtkXMLHierarchicalDataReader* New();
   vtkTypeMacro(vtkXMLHierarchicalDataReader,vtkXMLMultiGroupDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLHierarchicalDataReader();
-  ~vtkXMLHierarchicalDataReader() VTK_OVERRIDE;
+  ~vtkXMLHierarchicalDataReader() override;
 
   // Get the name of the data set being read.
-  const char* GetDataSetName() VTK_OVERRIDE
+  const char* GetDataSetName() override
   {
     return "vtkHierarchicalDataSet";
   }

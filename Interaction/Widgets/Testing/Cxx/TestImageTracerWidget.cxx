@@ -256,7 +256,7 @@ class vtkITWCallback : public vtkCommand
 public:
   static vtkITWCallback *New()
   { return new vtkITWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImageTracerWidget *tracerWidget =
       reinterpret_cast<vtkImageTracerWidget*>(caller);
@@ -306,7 +306,7 @@ class vtkSW2Callback : public vtkCommand
 public:
   static vtkSW2Callback *New()
   { return new vtkSW2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkSplineWidget *splineWidget =
       reinterpret_cast<vtkSplineWidget*>(caller);

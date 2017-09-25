@@ -42,7 +42,7 @@ class VTKIOGEOMETRY_EXPORT vtkSTLWriter : public vtkWriter
 public:
   static vtkSTLWriter *New();
   vtkTypeMacro(vtkSTLWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -80,13 +80,13 @@ public:
 
 protected:
   vtkSTLWriter();
-  ~vtkSTLWriter() VTK_OVERRIDE
+  ~vtkSTLWriter() override
   {
     delete[] this->FileName;
     delete[] this->Header;
   }
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   void WriteBinarySTL(
     vtkPoints *pts, vtkCellArray *polys, vtkCellArray *strips);
@@ -97,7 +97,7 @@ protected:
   char *Header;
   int   FileType;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
   vtkSTLWriter(const vtkSTLWriter&) VTK_DELETE_FUNCTION;

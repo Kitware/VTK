@@ -67,7 +67,7 @@ class VTKRENDERINGCORE_EXPORT vtkTexture : public vtkImageAlgorithm
 public:
   static vtkTexture* New();
   vtkTypeMacro(vtkTexture, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Renders a texture map. It first checks the object's modified time
@@ -311,11 +311,11 @@ public:
 
 protected:
   vtkTexture();
-  ~vtkTexture() VTK_OVERRIDE;
+  ~vtkTexture() override;
 
   // A texture is a sink, so there is no need to do anything.
   // This definition avoids a warning when doing Update() on a vtkTexture object.
-  void ExecuteData(vtkDataObject *) VTK_OVERRIDE
+  void ExecuteData(vtkDataObject *) override
   {
   }
 

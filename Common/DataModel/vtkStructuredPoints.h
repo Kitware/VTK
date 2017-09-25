@@ -42,11 +42,11 @@ public:
   /**
    * To simplify filter superclasses,
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_STRUCTURED_POINTS;}
+  int GetDataObjectType() override {return VTK_STRUCTURED_POINTS;}
 
 protected:
   vtkStructuredPoints();
-  ~vtkStructuredPoints() VTK_OVERRIDE {}
+  ~vtkStructuredPoints() override {}
 private:
   vtkStructuredPoints(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;

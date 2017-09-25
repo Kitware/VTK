@@ -40,9 +40,9 @@ public:
 
 protected:
   vtkCMLParser();
-  ~vtkCMLParser() VTK_OVERRIDE;
-  void StartElement(const char *name, const char **attr) VTK_OVERRIDE;
-  void EndElement(const char *name) VTK_OVERRIDE;
+  ~vtkCMLParser() override;
+  void StartElement(const char *name, const char **attr) override;
+  void EndElement(const char *name) override;
 
   std::vector<std::string> AtomNames;
 

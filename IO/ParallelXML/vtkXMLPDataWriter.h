@@ -35,21 +35,21 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPDataWriter : public vtkXMLPDataObjectWriter
 {
 public:
   vtkTypeMacro(vtkXMLPDataWriter, vtkXMLPDataObjectWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLPDataWriter();
-  ~vtkXMLPDataWriter() VTK_OVERRIDE;
+  ~vtkXMLPDataWriter() override;
 
   virtual vtkXMLWriter* CreatePieceWriter(int index) = 0;
 
-  void WritePData(vtkIndent indent) VTK_OVERRIDE;
+  void WritePData(vtkIndent indent) override;
 
-  int WritePieceInternal() VTK_OVERRIDE;
+  int WritePieceInternal() override;
 
-  int WritePiece(int index) VTK_OVERRIDE;
+  int WritePiece(int index) override;
 
-  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
 
 private:
   vtkXMLPDataWriter(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
@@ -58,7 +58,7 @@ private:
   /**
    * Initializes PieceFileNameExtension.
    */
-  void SetupPieceFileNameExtension() VTK_OVERRIDE;
+  void SetupPieceFileNameExtension() override;
 };
 
 #endif

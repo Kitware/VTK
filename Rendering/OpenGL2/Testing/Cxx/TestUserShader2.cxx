@@ -42,7 +42,7 @@ public:
   static vtkShaderCallback *New()
     { return new vtkShaderCallback; }
   vtkRenderer *Renderer;
-  void Execute(vtkObject *, unsigned long, void*cbo) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long, void*cbo) override
   {
     vtkOpenGLHelper *cellBO = reinterpret_cast<vtkOpenGLHelper*>(cbo);
 

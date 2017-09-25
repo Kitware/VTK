@@ -59,13 +59,13 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation3D,vtkDistanceRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Satisfy the superclasses API.
    */
-  double GetDistance() VTK_OVERRIDE
+  double GetDistance() override
     {return this->Distance;}
 
   //@{
@@ -122,34 +122,34 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
-  double* GetPoint1WorldPosition() VTK_OVERRIDE;
-  double* GetPoint2WorldPosition() VTK_OVERRIDE;
-  void GetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
-  void SetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
-  void SetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
+  double* GetPoint1WorldPosition() override;
+  double* GetPoint2WorldPosition() override;
+  void GetPoint1WorldPosition(double pos[3]) override;
+  void GetPoint2WorldPosition(double pos[3]) override;
+  void SetPoint1WorldPosition(double pos[3]) override;
+  void SetPoint2WorldPosition(double pos[3]) override;
   //@}
 
-  void SetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void SetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint1DisplayPosition(double pos[3]) override;
+  void SetPoint2DisplayPosition(double pos[3]) override;
+  void GetPoint1DisplayPosition(double pos[3]) override;
+  void GetPoint2DisplayPosition(double pos[3]) override;
 
   //@{
   /**
    * Method to satisfy superclasses' API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  double *GetBounds() VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  double *GetBounds() override;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
   //@}
 
   //@{
@@ -176,7 +176,7 @@ public:
 
 protected:
   vtkDistanceRepresentation3D();
-  ~vtkDistanceRepresentation3D() VTK_OVERRIDE;
+  ~vtkDistanceRepresentation3D() override;
 
   // The line
   vtkPoints         *LinePoints;

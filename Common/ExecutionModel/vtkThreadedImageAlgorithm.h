@@ -38,7 +38,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedImageAlgorithm : public vtkImage
 {
 public:
   vtkTypeMacro(vtkThreadedImageAlgorithm,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * If the subclass does not define an Execute method, then the task
@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkThreadedImageAlgorithm();
-  ~vtkThreadedImageAlgorithm() VTK_OVERRIDE;
+  ~vtkThreadedImageAlgorithm() override;
 
   vtkMultiThreader *Threader;
   int NumberOfThreads;
@@ -153,7 +153,7 @@ protected:
    */
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   /**
    * Execute ThreadedRequestData for the given set of pieces.

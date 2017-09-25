@@ -96,7 +96,7 @@ class VTKIOGEOMETRY_EXPORT vtkTecplotReader : public vtkMultiBlockDataSetAlgorit
 public:
   static vtkTecplotReader * New();
   vtkTypeMacro( vtkTecplotReader, vtkMultiBlockDataSetAlgorithm );
-  void  PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void  PrintSelf( ostream & os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -175,14 +175,14 @@ public:
 
 protected:
   vtkTecplotReader();
-  ~vtkTecplotReader() VTK_OVERRIDE;
+  ~vtkTecplotReader() override;
 
-  int FillOutputPortInformation( int port, vtkInformation * info ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int port, vtkInformation * info ) override;
   int RequestInformation( vtkInformation * request,
                                   vtkInformationVector ** inputVector,
-                                  vtkInformationVector  * outputVector ) VTK_OVERRIDE;
+                                  vtkInformationVector  * outputVector ) override;
   int RequestData
-          ( vtkInformation *, vtkInformationVector **, vtkInformationVector * ) VTK_OVERRIDE;
+          ( vtkInformation *, vtkInformationVector **, vtkInformationVector * ) override;
 
   /**
    * A callback function registered with the selection observer.

@@ -41,13 +41,13 @@ class VTKFILTERSGENERAL_EXPORT vtkApproximatingSubdivisionFilter : public vtkSub
 {
 public:
   vtkTypeMacro(vtkApproximatingSubdivisionFilter, vtkSubdivisionFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkApproximatingSubdivisionFilter();
-  ~vtkApproximatingSubdivisionFilter() VTK_OVERRIDE {}
+  ~vtkApproximatingSubdivisionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   virtual int GenerateSubdivisionPoints (vtkPolyData *inputDS,
                                           vtkIntArray *edgeData,
                                           vtkPoints *outputPts,

@@ -25,7 +25,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkKMeansDistanceFunctor : public vtkObject
 public:
   static vtkKMeansDistanceFunctor* New();
   vtkTypeMacro(vtkKMeansDistanceFunctor,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Return an empty tuple. These values are used as cluster center coordinates
@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkKMeansDistanceFunctor();
-  ~vtkKMeansDistanceFunctor() VTK_OVERRIDE;
+  ~vtkKMeansDistanceFunctor() override;
 
   vtkVariantArray* EmptyTuple; // Used to quickly initialize Tuple for each datum
   vtkTable* CenterUpdates; // Used to hold online computation of next iteration's cluster center coords.

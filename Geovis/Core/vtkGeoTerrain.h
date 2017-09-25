@@ -50,7 +50,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTerrain : public vtkObject
 public:
   static vtkGeoTerrain *New();
   vtkTypeMacro(vtkGeoTerrain,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The source used to obtain geometry patches.
@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkGeoTerrain();
-  ~vtkGeoTerrain() VTK_OVERRIDE;
+  ~vtkGeoTerrain() override;
 
   virtual void SetGeoSource(vtkGeoSource* source);
   vtkGeoSource* GeoSource;

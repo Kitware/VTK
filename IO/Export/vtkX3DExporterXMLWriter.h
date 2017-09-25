@@ -33,43 +33,43 @@ class VTKIOEXPORT_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
 public:
   static vtkX3DExporterXMLWriter *New();
   vtkTypeMacro(vtkX3DExporterXMLWriter, vtkX3DExporterWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void CloseFile() VTK_OVERRIDE;
-  int OpenFile(const char* file) VTK_OVERRIDE;
-  void Flush() VTK_OVERRIDE;
+  void CloseFile() override;
+  int OpenFile(const char* file) override;
+  void Flush() override;
 
-  int OpenStream() VTK_OVERRIDE;
+  int OpenStream() override;
 
-  void StartDocument() VTK_OVERRIDE;
-  void EndDocument() VTK_OVERRIDE;
+  void StartDocument() override;
+  void EndDocument() override;
 
   // Elements
-  void StartNode(int elementID) VTK_OVERRIDE;
-  void EndNode() VTK_OVERRIDE;
+  void StartNode(int elementID) override;
+  void EndNode() override;
 
   // Attributes
   // SFString / MFString
-  void SetField(int attributeID, const char*, bool mfstring = true) VTK_OVERRIDE;
+  void SetField(int attributeID, const char*, bool mfstring = true) override;
   // SFInt32
-  void SetField(int attributeID, int) VTK_OVERRIDE;
+  void SetField(int attributeID, int) override;
   // SFFloat
-  void SetField(int attributeID, float) VTK_OVERRIDE;
+  void SetField(int attributeID, float) override;
   // SFDouble
-  void SetField(int attributeID, double) VTK_OVERRIDE;
+  void SetField(int attributeID, double) override;
   // SFBool
-  void SetField(int attributeID, bool) VTK_OVERRIDE;
+  void SetField(int attributeID, bool) override;
 
   // For MFxxx attributes
-  void SetField(int attributeID, int type, const double* a) VTK_OVERRIDE;
-  void SetField(int attributeID, int type, vtkDataArray* a) VTK_OVERRIDE;
-  void SetField(int attributeID, const double* values, size_t size) VTK_OVERRIDE;
+  void SetField(int attributeID, int type, const double* a) override;
+  void SetField(int attributeID, int type, vtkDataArray* a) override;
+  void SetField(int attributeID, const double* values, size_t size) override;
   // MFInt32, SFIMAGE
-  void SetField(int attributeID, const int* values, size_t size, bool image = false) VTK_OVERRIDE;
+  void SetField(int attributeID, const int* values, size_t size, bool image = false) override;
 
 protected:
   vtkX3DExporterXMLWriter();
-  ~vtkX3DExporterXMLWriter() VTK_OVERRIDE;
+  ~vtkX3DExporterXMLWriter() override;
 
 private:
 

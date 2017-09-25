@@ -35,12 +35,12 @@ class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractDataSets :
 {
 public:
   vtkTypeMacro(vtkHierarchicalDataExtractDataSets,vtkExtractDataSets);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHierarchicalDataExtractDataSets *New();
 
 protected:
   vtkHierarchicalDataExtractDataSets();
-  ~vtkHierarchicalDataExtractDataSets() VTK_OVERRIDE;
+  ~vtkHierarchicalDataExtractDataSets() override;
 
 private:
   vtkHierarchicalDataExtractDataSets(const vtkHierarchicalDataExtractDataSets&) VTK_DELETE_FUNCTION;

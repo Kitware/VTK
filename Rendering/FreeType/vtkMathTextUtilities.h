@@ -52,7 +52,7 @@ class VTKRENDERINGFREETYPE_EXPORT vtkMathTextUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMathTextUtilities, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns true if mathtext rendering is available.
@@ -134,7 +134,7 @@ public:
 
 protected:
   vtkMathTextUtilities();
-  ~vtkMathTextUtilities() VTK_OVERRIDE;
+  ~vtkMathTextUtilities() override;
 
 private:
   vtkMathTextUtilities(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;

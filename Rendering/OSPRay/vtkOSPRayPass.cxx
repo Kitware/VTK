@@ -48,7 +48,7 @@ public:
   {
     this->Factory->Delete();
   }
-  void Render(const vtkRenderState *s) VTK_OVERRIDE
+  void Render(const vtkRenderState *s) override
   {
     this->Parent->RenderInternal(s);
   }

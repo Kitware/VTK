@@ -41,7 +41,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointRayCastImage : public vtkObject
 public:
   static vtkFixedPointRayCastImage *New();
   vtkTypeMacro(vtkFixedPointRayCastImage,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the internal storage for the image. It is a pointer to
@@ -177,7 +177,7 @@ public:
 
 protected:
   vtkFixedPointRayCastImage();
-  ~vtkFixedPointRayCastImage() VTK_OVERRIDE;
+  ~vtkFixedPointRayCastImage() override;
 
   // This is how big the image would be if it covered the entire viewport
   int             ImageViewportSize[2];

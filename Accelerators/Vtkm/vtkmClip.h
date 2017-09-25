@@ -38,7 +38,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmClip : public vtkUnstructuredGridAlgorithm
 public:
   static vtkmClip* New();
   vtkTypeMacro(vtkmClip, vtkUnstructuredGridAlgorithm)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * The scalar value to use when clipping the dataset. Values greater than
@@ -62,16 +62,16 @@ public:
   void SetClipFunction(vtkImplicitFunction *);
   vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
 
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkmClip();
   ~vtkmClip();
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   double ClipValue;
   bool ComputeScalars;

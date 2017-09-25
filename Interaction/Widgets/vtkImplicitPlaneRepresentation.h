@@ -74,7 +74,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitPlaneRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -319,40 +319,40 @@ public:
   /**
    * Methods to interface with the vtkImplicitPlaneWidget2.
    */
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
-  void EndWidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double newEventPos[2]) override;
+  void EndWidgetInteraction(double newEventPos[2]) override;
   void StartComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   void ComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   int ComputeComplexInteractionState(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) VTK_OVERRIDE;
+    unsigned long event, void *calldata, int modify = 0) override;
   void EndComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  double *GetBounds() override;
+  void GetActors(vtkPropCollection *pc) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   // Manage the state of the widget
@@ -407,7 +407,7 @@ public:
 
 protected:
   vtkImplicitPlaneRepresentation();
-  ~vtkImplicitPlaneRepresentation() VTK_OVERRIDE;
+  ~vtkImplicitPlaneRepresentation() override;
 
   int RepresentationState;
 
@@ -488,7 +488,7 @@ protected:
   vtkCellPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Transform the normal (used for rotation)
   vtkTransform *Transform;

@@ -39,7 +39,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkVolumeMapperNode :
 public:
   static vtkVolumeMapperNode* New();
   vtkTypeMacro(vtkVolumeMapperNode, vtkMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkVolumeMapperNode();

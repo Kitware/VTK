@@ -52,7 +52,7 @@ public:
    * to create it
    */
   virtual const char* Name();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   virtual bool CanHandle(const char* NameString);
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkTextCodec();
-  ~vtkTextCodec() VTK_OVERRIDE;
+  ~vtkTextCodec() override;
 
 private:
   vtkTextCodec(const vtkTextCodec &) VTK_DELETE_FUNCTION;

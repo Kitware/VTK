@@ -55,7 +55,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkHierarchicalGraphPipeline : public vtkObject
 public:
   static vtkHierarchicalGraphPipeline* New();
   vtkTypeMacro(vtkHierarchicalGraphPipeline, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -178,7 +178,7 @@ public:
 
 protected:
   vtkHierarchicalGraphPipeline();
-  ~vtkHierarchicalGraphPipeline() VTK_OVERRIDE;
+  ~vtkHierarchicalGraphPipeline() override;
 
   vtkApplyColors*                  ApplyColors;
   vtkGraphHierarchicalBundleEdges* Bundle;

@@ -74,7 +74,7 @@ class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 public:
   static vtkDelimitedTextReader* New();
   vtkTypeMacro(vtkDelimitedTextReader, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -319,12 +319,12 @@ public:
 
 protected:
   vtkDelimitedTextReader();
-  ~vtkDelimitedTextReader() VTK_OVERRIDE;
+  ~vtkDelimitedTextReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   char* FileName;
   int ReadFromInputString;

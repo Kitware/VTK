@@ -34,7 +34,7 @@ class VTKIOENSIGHT_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
 public:
   vtkTypeMacro(vtkEnSightReader, vtkGenericEnSightReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ElementTypesList
   {
@@ -99,16 +99,16 @@ public:
 
 protected:
   vtkEnSightReader();
-  ~vtkEnSightReader() VTK_OVERRIDE;
+  ~vtkEnSightReader() override;
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
-  void ClearForNewCaseFileName() VTK_OVERRIDE;
+  void ClearForNewCaseFileName() override;
 
   //@{
   /**

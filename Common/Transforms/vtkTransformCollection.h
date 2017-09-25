@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkTransformCollection() {}
-  ~vtkTransformCollection() VTK_OVERRIDE {}
+  ~vtkTransformCollection() override {}
 
 
 private:

@@ -416,7 +416,7 @@ class vtkTIPW2Callback : public vtkCommand
 public:
   static vtkTIPW2Callback *New()
   { return new vtkTIPW2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImplicitPlaneWidget2 *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -441,7 +441,7 @@ public:
   {
     return new vtkEnableSlaveCallback;
   }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);

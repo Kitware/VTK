@@ -58,7 +58,7 @@ public:
 
   static vtkDataReader *New();
   vtkTypeMacro(vtkDataReader,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -447,7 +447,7 @@ public:
 
 protected:
   vtkDataReader();
-  ~vtkDataReader() VTK_OVERRIDE;
+  ~vtkDataReader() override;
 
   char *FileName;
   int FileType;
@@ -536,7 +536,7 @@ protected:
   int DecodeString(char *resname, const char* name);
 
   int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *) VTK_OVERRIDE;
+                             vtkInformationVector *) override;
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *)
     { return 1; }

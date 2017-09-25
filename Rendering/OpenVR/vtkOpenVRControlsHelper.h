@@ -57,7 +57,7 @@ public:
   * Standard methods for the class.
   */
   vtkTypeMacro(vtkOpenVRControlsHelper, vtkProp);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   enum ButtonSides {
@@ -82,10 +82,10 @@ public:
   /**
   * Methods supporting the rendering process.
   */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   //@{
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkOpenVRControlsHelper();
-  ~vtkOpenVRControlsHelper() VTK_OVERRIDE;
+  ~vtkOpenVRControlsHelper() override;
 
 
   double FrameSize[2];

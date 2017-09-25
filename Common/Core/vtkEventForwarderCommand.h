@@ -47,7 +47,7 @@ public:
    */
   void Execute(vtkObject *caller,
                unsigned long eid,
-               void *callData) VTK_OVERRIDE;
+               void *callData) override;
 
   /**
    * Methods to set and get client and callback information, and the callback
@@ -63,7 +63,7 @@ protected:
   vtkObject *Target;
 
   vtkEventForwarderCommand();
-  ~vtkEventForwarderCommand() VTK_OVERRIDE {}
+  ~vtkEventForwarderCommand() override {}
 };
 
 #endif /* vtkEventForwarderCommand_h */

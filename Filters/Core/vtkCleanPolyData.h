@@ -74,7 +74,7 @@ class VTKFILTERSCORE_EXPORT vtkCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCleanPolyData *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCleanPolyData,vtkPolyDataAlgorithm);
 
   //@{
@@ -166,7 +166,7 @@ public:
   /**
    * Get the MTime of this object also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Perform operation on a point
@@ -199,11 +199,11 @@ public:
 
 protected:
   vtkCleanPolyData();
- ~vtkCleanPolyData() VTK_OVERRIDE;
+ ~vtkCleanPolyData() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int   PointMerging;
   double Tolerance;

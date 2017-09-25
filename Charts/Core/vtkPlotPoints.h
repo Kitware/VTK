@@ -51,7 +51,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotPoints : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotPoints, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Chart object.
@@ -63,12 +63,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -77,17 +77,17 @@ public:
    * and 3). The plot can choose how to fill the space supplied.
    */
   bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) VTK_OVERRIDE;
+                           int legendIndex) override;
 
   /**
    * Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
    */
-  void GetBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetBounds(double bounds[4]) override;
 
   /**
    * Get the non-log-scaled bounds on chart inputs for this plot as (Xmin, Xmax, Ymin, Ymax).
    */
-  void GetUnscaledInputBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetUnscaledInputBounds(double bounds[4]) override;
 
   //@{
   /**
@@ -134,17 +134,17 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location) VTK_OVERRIDE;
+                                    vtkVector2f* location) override;
 
   /**
    * Select all points in the specified rectangle.
    */
-  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) VTK_OVERRIDE;
+  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) override;
 
   /**
    * Select all points in the specified polygon.
    */
-  bool SelectPointsInPolygon(const vtkContextPolygon &polygon) VTK_OVERRIDE;
+  bool SelectPointsInPolygon(const vtkContextPolygon &polygon) override;
 
   /**
    * Enum containing various marker styles that can be used in a plot.
@@ -186,7 +186,7 @@ public:
 
 protected:
   vtkPlotPoints();
-  ~vtkPlotPoints() VTK_OVERRIDE;
+  ~vtkPlotPoints() override;
 
   /**
    * Populate the data arrays ready to operate on input data.

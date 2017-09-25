@@ -48,7 +48,7 @@ class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
 public:
   static vtkWarpScalar *New();
   vtkTypeMacro(vtkWarpScalar,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -88,18 +88,18 @@ public:
   vtkBooleanMacro(XYPlane,int);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 protected:
   vtkWarpScalar();
-  ~vtkWarpScalar() VTK_OVERRIDE;
+  ~vtkWarpScalar() override;
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector) VTK_OVERRIDE;
+                        vtkInformationVector *outputVector) override;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   double ScaleFactor;
   int UseNormal;

@@ -87,10 +87,10 @@ public:
 
 protected:
   vtkDiscreteMarchingCubes();
-  ~vtkDiscreteMarchingCubes() VTK_OVERRIDE;
+  ~vtkDiscreteMarchingCubes() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   int ComputeAdjacentScalars;
 
 private:

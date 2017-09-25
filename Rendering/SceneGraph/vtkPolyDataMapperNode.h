@@ -39,7 +39,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkPolyDataMapperNode :
 public:
   static vtkPolyDataMapperNode* New();
   vtkTypeMacro(vtkPolyDataMapperNode, vtkMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef struct {
     std::vector<unsigned int> vertex_index;

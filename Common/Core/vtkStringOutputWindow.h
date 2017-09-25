@@ -35,13 +35,13 @@ public:
 
   static vtkStringOutputWindow* New();
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Put the text into the log file.
    * New lines are converted to carriage return new lines.
    */
-  void DisplayText(const char*) VTK_OVERRIDE;
+  void DisplayText(const char*) override;
 
   /**
    * Get the current output as a string
@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkStringOutputWindow();
-  ~vtkStringOutputWindow() VTK_OVERRIDE;
+  ~vtkStringOutputWindow() override;
   void Initialize();
 
   std::ostringstream OStream;

@@ -32,10 +32,10 @@ class VTKCOMMONCORE_EXPORT vtkInformationUnsignedLongKey : public vtkInformation
 {
 public:
   vtkTypeMacro(vtkInformationUnsignedLongKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationUnsignedLongKey(const char* name, const char* location);
-  ~vtkInformationUnsignedLongKey() VTK_OVERRIDE;
+  ~vtkInformationUnsignedLongKey() override;
 
   /**
    * This method simply returns a new vtkInformationUnsignedLongKey, given a
@@ -61,12 +61,12 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
 protected:
   /**

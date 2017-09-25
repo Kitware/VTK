@@ -42,7 +42,7 @@ public:
   /**
    * Destructor frees all used memory.
    */
-  ~vtkOStrStreamWrapper() VTK_OVERRIDE;
+  ~vtkOStrStreamWrapper() override;
 
   /**
    * Get the string that has been written.  This call transfers

@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCompositeDataIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkCompositeDataIterator();
-  ~vtkCompositeDataIterator() VTK_OVERRIDE;
+  ~vtkCompositeDataIterator() override;
   int SkipEmptyNodes;
   int Reverse;
   vtkCompositeDataSet* DataSet;

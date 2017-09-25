@@ -63,7 +63,7 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridA
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridSource,vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkHyperTreeGridSource* New();
 
@@ -230,7 +230,7 @@ public:
   /**
    * Override GetMTime because we delegate to a vtkQuadric.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -242,23 +242,23 @@ public:
 
 protected:
   vtkHyperTreeGridSource();
-  ~vtkHyperTreeGridSource() VTK_OVERRIDE;
+  ~vtkHyperTreeGridSource() override;
 
   int RequestInformation( vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector* ) VTK_OVERRIDE;
+                          vtkInformationVector* ) override;
 
   int RequestData( vtkInformation*,
                    vtkInformationVector**,
-                   vtkInformationVector* ) VTK_OVERRIDE;
+                   vtkInformationVector* ) override;
 
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to process individual trees in the grid
    */
   int ProcessTrees( vtkHyperTreeGrid*,
-                    vtkDataObject* ) VTK_OVERRIDE;
+                    vtkDataObject* ) override;
 
   /**
    * Initialize grid from descriptor string when it is to be used

@@ -39,17 +39,17 @@ class VTKCOMMONCORE_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkInformationKey,vtkObjectBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Prevent normal vtkObject reference counting behavior.
    */
-  void Register(vtkObjectBase*) VTK_OVERRIDE;
+  void Register(vtkObjectBase*) override;
 
   /**
    * Prevent normal vtkObject reference counting behavior.
    */
-  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase*) override;
 
   /**
    * Get the name of the key.  This is not the type of the key, but
@@ -72,7 +72,7 @@ public:
    * literals because the strings are not copied.
    */
   vtkInformationKey(const char* name, const char* location);
-  ~vtkInformationKey() VTK_OVERRIDE;
+  ~vtkInformationKey() override;
   //@}
 
   /**

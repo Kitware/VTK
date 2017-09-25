@@ -36,7 +36,7 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
 {
   // Description:
   // Performs a "B.AddBounds(A)" operation.
-  void Function(const void *A, void *B, vtkIdType length, int datatype) VTK_OVERRIDE
+  void Function(const void *A, void *B, vtkIdType length, int datatype) override
   {
     (void)datatype;
     assert((datatype == VTK_DOUBLE) && (length%6==0));
@@ -55,7 +55,7 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
 
   // Description:
   // Sets Commutative to true for this operation
-  int Commutative() VTK_OVERRIDE { return 1; }
+  int Commutative() override { return 1; }
 };
 
 // ----------------------------------------------------------------------------

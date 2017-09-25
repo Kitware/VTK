@@ -65,7 +65,7 @@ public:
    */
   static vtkEllipsoidalGaussianKernel *New();
   vtkTypeMacro(vtkEllipsoidalGaussianKernel,vtkGeneralizedKernel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -73,7 +73,7 @@ public:
    * vectors.
    */
   void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) VTK_OVERRIDE;
+                          vtkPointData *pd) override;
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -93,7 +93,7 @@ public:
    * which all probabilities are considered =1.
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) VTK_OVERRIDE;
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
 
   //@{
   /**
@@ -170,7 +170,7 @@ public:
 
 protected:
   vtkEllipsoidalGaussianKernel();
-  ~vtkEllipsoidalGaussianKernel() VTK_OVERRIDE;
+  ~vtkEllipsoidalGaussianKernel() override;
 
   bool UseNormals;
   bool UseScalars;
@@ -187,7 +187,7 @@ protected:
   vtkDataArray *NormalsArray;
   vtkDataArray *ScalarsArray;
 
-  void FreeStructures() VTK_OVERRIDE;
+  void FreeStructures() override;
 
 private:
   vtkEllipsoidalGaussianKernel(const vtkEllipsoidalGaussianKernel&) VTK_DELETE_FUNCTION;

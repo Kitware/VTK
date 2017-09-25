@@ -45,7 +45,7 @@ class VTKIOEXPORT_EXPORT vtkX3DExporter : public vtkExporter
 public:
   static vtkX3DExporter *New();
   vtkTypeMacro(vtkX3DExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -113,7 +113,7 @@ public:
 
 protected:
   vtkX3DExporter();
-  ~vtkX3DExporter() VTK_OVERRIDE;
+  ~vtkX3DExporter() override;
 
   // Stream management
   int WriteToOutputString;
@@ -123,7 +123,7 @@ protected:
   /**
    * Write data to output.
    */
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   void WriteALight(vtkLight *aLight, vtkX3DExporterWriter* writer);
   void WriteAnActor(vtkActor *anActor, vtkX3DExporterWriter* writer,

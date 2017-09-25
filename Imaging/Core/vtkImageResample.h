@@ -34,15 +34,15 @@ class VTKIMAGINGCORE_EXPORT vtkImageResample : public vtkImageReslice
 public:
   static vtkImageResample *New();
   vtkTypeMacro(vtkImageResample,vtkImageReslice);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set desired spacing.
    * Zero is a reserved value indicating spacing has not been set.
    */
-  void SetOutputSpacing(double sx, double sy, double sz) VTK_OVERRIDE;
-  void SetOutputSpacing(const double spacing[3]) VTK_OVERRIDE {
+  void SetOutputSpacing(double sx, double sy, double sz) override;
+  void SetOutputSpacing(const double spacing[3]) override {
     this->SetOutputSpacing(spacing[0], spacing[1], spacing[2]); }
   void SetAxisOutputSpacing(int axis, double spacing);
   //@}
@@ -78,14 +78,14 @@ public:
 
 protected:
   vtkImageResample();
-  ~vtkImageResample() VTK_OVERRIDE {}
+  ~vtkImageResample() override {}
 
   double MagnificationFactors[3];
   int Dimensionality;
 
   int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
 
 private:
   vtkImageResample(const vtkImageResample&) VTK_DELETE_FUNCTION;

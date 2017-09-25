@@ -42,19 +42,19 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapp
 public:
   static vtkOpenGLPolyDataMapper *New();
   vtkTypeMacro(vtkOpenGLPolyDataMapper,vtkPolyDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement superclass render method.
    */
-  void RenderPiece(vtkRenderer *ren, vtkActor *a) VTK_OVERRIDE;
+  void RenderPiece(vtkRenderer *ren, vtkActor *a) override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Draw method for OpenGL.
@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkOpenGLPolyDataMapper();
-  ~vtkOpenGLPolyDataMapper() VTK_OVERRIDE;
+  ~vtkOpenGLPolyDataMapper() override;
 
   void DrawPoints(int idx,
                   vtkPoints *p,

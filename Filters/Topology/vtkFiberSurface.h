@@ -324,7 +324,7 @@ class VTKFILTERSTOPOLOGY_EXPORT vtkFiberSurface : public vtkPolyDataAlgorithm
 public:
   static vtkFiberSurface* New();
   vtkTypeMacro(vtkFiberSurface, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
   * Specify the first field name to be used in this filter.
@@ -387,8 +387,8 @@ public:
 
 protected:
   vtkFiberSurface();
-  virtual int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // name of the input array names.
   char* Fields[2];

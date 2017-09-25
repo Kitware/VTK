@@ -83,7 +83,7 @@ public:
   //! constructor
   QVTKWidget(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
   //! destructor
-  ~QVTKWidget() VTK_OVERRIDE;
+  ~QVTKWidget() override;
 
   // Description:
   // Set the vtk render window, if you wish to use your own vtkRenderWindow
@@ -133,9 +133,9 @@ public:
 
   // Description:
   // Handle showing of the Widget
-  void showEvent(QShowEvent*) VTK_OVERRIDE;
+  void showEvent(QShowEvent*) override;
 
-  QPaintEngine* paintEngine() const VTK_OVERRIDE;
+  QPaintEngine* paintEngine() const override;
 
   // Description:
   // Use a 3DConnexion device. Initial value is false.
@@ -209,47 +209,47 @@ protected Q_SLOTS:
 
 protected:
   // overloaded resize handler
-  void resizeEvent(QResizeEvent* event) VTK_OVERRIDE;
+  void resizeEvent(QResizeEvent* event) override;
   // overloaded move handler
-  void moveEvent(QMoveEvent* event) VTK_OVERRIDE;
+  void moveEvent(QMoveEvent* event) override;
   // overloaded paint handler
-  void paintEvent(QPaintEvent* event) VTK_OVERRIDE;
+  void paintEvent(QPaintEvent* event) override;
 
   // overloaded mouse press handler
-  void mousePressEvent(QMouseEvent* event) VTK_OVERRIDE;
+  void mousePressEvent(QMouseEvent* event) override;
   // overloaded mouse move handler
-  void mouseMoveEvent(QMouseEvent* event) VTK_OVERRIDE;
+  void mouseMoveEvent(QMouseEvent* event) override;
   // overloaded mouse release handler
-  void mouseReleaseEvent(QMouseEvent* event) VTK_OVERRIDE;
+  void mouseReleaseEvent(QMouseEvent* event) override;
   // overloaded key press handler
-  void keyPressEvent(QKeyEvent* event) VTK_OVERRIDE;
+  void keyPressEvent(QKeyEvent* event) override;
   // overloaded key release handler
-  void keyReleaseEvent(QKeyEvent* event) VTK_OVERRIDE;
+  void keyReleaseEvent(QKeyEvent* event) override;
   // overloaded enter event
-  void enterEvent(QEvent*) VTK_OVERRIDE;
+  void enterEvent(QEvent*) override;
   // overloaded leave event
-  void leaveEvent(QEvent*) VTK_OVERRIDE;
+  void leaveEvent(QEvent*) override;
 #ifndef QT_NO_WHEELEVENT
   // overload wheel mouse event
-  void wheelEvent(QWheelEvent*) VTK_OVERRIDE;
+  void wheelEvent(QWheelEvent*) override;
 #endif
   // overload focus event
-  void focusInEvent(QFocusEvent*) VTK_OVERRIDE;
+  void focusInEvent(QFocusEvent*) override;
   // overload focus event
-  void focusOutEvent(QFocusEvent*) VTK_OVERRIDE;
+  void focusOutEvent(QFocusEvent*) override;
   // overload Qt's event() to capture more keys
-  bool event( QEvent* e ) VTK_OVERRIDE;
+  bool event( QEvent* e ) override;
 
   // overload context menu event
-  void contextMenuEvent(QContextMenuEvent*) VTK_OVERRIDE;
+  void contextMenuEvent(QContextMenuEvent*) override;
   // overload drag enter event
-  void dragEnterEvent(QDragEnterEvent*) VTK_OVERRIDE;
+  void dragEnterEvent(QDragEnterEvent*) override;
   // overload drag move event
-  void dragMoveEvent(QDragMoveEvent*) VTK_OVERRIDE;
+  void dragMoveEvent(QDragMoveEvent*) override;
   // overload drag leave event
-  void dragLeaveEvent(QDragLeaveEvent*) VTK_OVERRIDE;
+  void dragLeaveEvent(QDragLeaveEvent*) override;
   // overload drop event
-  void dropEvent(QDropEvent*) VTK_OVERRIDE;
+  void dropEvent(QDropEvent*) override;
 
   // method called in paintEvent() to render the image cache on to the device.
   // return false, if cache couldn;t be used for painting. In that case, the

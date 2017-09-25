@@ -57,14 +57,14 @@ public:
     this->DataSet=nullptr;
   }
 
-  ~MyEndPickCommand() VTK_OVERRIDE
+  ~MyEndPickCommand() override
   {
     // empty
   }
 
   void Execute(vtkObject *vtkNotUsed(caller),
     unsigned long vtkNotUsed(eventId),
-    void *vtkNotUsed(callData)) VTK_OVERRIDE
+    void *vtkNotUsed(callData)) override
   {
     assert("pre: renderer_exists" && this->Renderer!=nullptr);
 

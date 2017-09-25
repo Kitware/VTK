@@ -63,7 +63,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricFunction : public vtkOb
 {
 public:
   vtkTypeMacro(vtkParametricFunction, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the dimension of parametric space. Depending on the dimension,
@@ -239,7 +239,7 @@ public:
 
 protected:
   vtkParametricFunction();
-  ~vtkParametricFunction() VTK_OVERRIDE;
+  ~vtkParametricFunction() override;
 
   // Variables
   double MinimumU;

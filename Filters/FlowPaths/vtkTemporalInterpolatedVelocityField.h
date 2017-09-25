@@ -69,7 +69,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalInterpolatedVelocityField : public v
 {
 public:
   vtkTypeMacro(vtkTemporalInterpolatedVelocityField,vtkFunctionSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkTemporalInterpolatedVelocityField with no initial data set.
@@ -82,7 +82,7 @@ public:
    * Evaluate the velocity field, f, at (x, y, z, t).
    * For now, t is ignored.
    */
-  int FunctionValues(double* x, double* u) VTK_OVERRIDE;
+  int FunctionValues(double* x, double* u) override;
   int FunctionValuesAtT(int T, double* x, double* u);
   //@}
 
@@ -157,7 +157,7 @@ public:
 
 protected:
   vtkTemporalInterpolatedVelocityField();
-  ~vtkTemporalInterpolatedVelocityField() VTK_OVERRIDE;
+  ~vtkTemporalInterpolatedVelocityField() override;
 
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
   virtual void SetVectorsSelection(const char *v);

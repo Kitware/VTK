@@ -56,22 +56,22 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayRendererNode :
 public:
   static vtkOSPRayRendererNode* New();
   vtkTypeMacro(vtkOSPRayRendererNode, vtkRendererNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Builds myself.
    */
-  virtual void Build(bool prepass) VTK_OVERRIDE;
+  virtual void Build(bool prepass) override;
 
   /**
    * Traverse graph in ospray's preferred order and render
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) VTK_OVERRIDE;
+  virtual void Invalidate(bool prepass) override;
 
   /**
    * Put my results into the correct place in the provided pixel buffer.
@@ -203,7 +203,7 @@ public:
 
   // if you want to traverse your children in a specific order
   // or way override this method
-  virtual void Traverse(int operation) VTK_OVERRIDE;
+  virtual void Traverse(int operation) override;
 
   /**
    * Convenience method to get and downcast renderable.

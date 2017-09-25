@@ -39,7 +39,7 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayMaterialLibrary : public vtkObject
 public:
   static vtkOSPRayMaterialLibrary *New();
   vtkTypeMacro(vtkOSPRayMaterialLibrary,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Called to kick off events in all followers.

@@ -69,7 +69,7 @@ class VTKFILTERSCORE_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkRearrangeFields,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkRearrangeFields with an empty operation list.
@@ -168,9 +168,9 @@ public:
 protected:
 
   vtkRearrangeFields();
-  ~vtkRearrangeFields() VTK_OVERRIDE;
+  ~vtkRearrangeFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 
   // Operations are stored as a linked list.

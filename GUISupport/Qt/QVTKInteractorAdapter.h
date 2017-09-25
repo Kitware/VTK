@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Destructor
-  ~QVTKInteractorAdapter() VTK_OVERRIDE;
+  ~QVTKInteractorAdapter() override;
 
   // Description:
   // Set the device pixel ration, this defaults to 1, but in Qt 5 can be 2.

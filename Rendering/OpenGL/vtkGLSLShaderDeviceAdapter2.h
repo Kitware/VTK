@@ -34,13 +34,13 @@ class VTKRENDERINGOPENGL_EXPORT vtkGLSLShaderDeviceAdapter2
 public:
   vtkTypeMacro(vtkGLSLShaderDeviceAdapter2, vtkShaderDeviceAdapter2);
   static vtkGLSLShaderDeviceAdapter2 *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   // Descrition:
   // This method is called before rendering. This gives the shader device
   // adapter an opportunity to collect information, such as attribute indices
   // that it will need while rendering.
-  void PrepareForRender() VTK_OVERRIDE;
+  void PrepareForRender() override;
 
   /**
    * Sends a single attribute to the graphics card.
@@ -61,11 +61,11 @@ public:
                              int components,
                              int type,
                              const void *attribute,
-                             unsigned long offset=0) VTK_OVERRIDE;
+                             unsigned long offset=0) override;
 
 protected:
   vtkGLSLShaderDeviceAdapter2();
-  ~vtkGLSLShaderDeviceAdapter2() VTK_OVERRIDE;
+  ~vtkGLSLShaderDeviceAdapter2() override;
 
   int GetAttributeLocation(const char* attrName);
 

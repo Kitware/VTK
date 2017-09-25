@@ -50,7 +50,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkCirclePackLayoutStrategy : public vtkObject
 {
 public:
     vtkTypeMacro(vtkCirclePackLayoutStrategy,vtkObject);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Perform the layout of the input tree, and store the circle
@@ -65,7 +65,7 @@ public:
 
 protected:
     vtkCirclePackLayoutStrategy();
-    ~vtkCirclePackLayoutStrategy() VTK_OVERRIDE;
+    ~vtkCirclePackLayoutStrategy() override;
 
 private:
     vtkCirclePackLayoutStrategy(const vtkCirclePackLayoutStrategy&) VTK_DELETE_FUNCTION;

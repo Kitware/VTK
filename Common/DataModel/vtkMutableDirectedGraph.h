@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMutableDirectedGraph : public vtkDirectedGrap
 public:
   static vtkMutableDirectedGraph *New();
   vtkTypeMacro(vtkMutableDirectedGraph, vtkDirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocates space for the specified number of vertices in the graph's
@@ -330,7 +330,7 @@ public:
 
 protected:
   vtkMutableDirectedGraph();
-  ~vtkMutableDirectedGraph() VTK_OVERRIDE;
+  ~vtkMutableDirectedGraph() override;
 
   /**
    * Graph edge that is reused of \p AddGraphEdge calls.

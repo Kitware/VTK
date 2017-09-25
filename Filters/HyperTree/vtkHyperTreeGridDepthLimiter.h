@@ -50,7 +50,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridDepthLimiter : public vtkHyperT
 public:
   static vtkHyperTreeGridDepthLimiter* New();
   vtkTypeMacro( vtkHyperTreeGridDepthLimiter, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   //@{
   /**
@@ -62,17 +62,17 @@ public:
 
 protected:
   vtkHyperTreeGridDepthLimiter();
-  ~vtkHyperTreeGridDepthLimiter() VTK_OVERRIDE;
+  ~vtkHyperTreeGridDepthLimiter() override;
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to extract hyper tree grid levels
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves

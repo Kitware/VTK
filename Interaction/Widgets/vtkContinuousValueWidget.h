@@ -78,7 +78,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkContinuousValueWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkContinuousValueWidget();
-  ~vtkContinuousValueWidget() VTK_OVERRIDE {}
+  ~vtkContinuousValueWidget() override {}
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);

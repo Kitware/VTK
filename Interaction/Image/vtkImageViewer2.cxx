@@ -471,7 +471,7 @@ public:
 
   void Execute(vtkObject *caller,
                unsigned long event,
-               void *vtkNotUsed(callData)) VTK_OVERRIDE
+               void *vtkNotUsed(callData)) override
   {
       if (this->IV->GetInput() == nullptr)
       {

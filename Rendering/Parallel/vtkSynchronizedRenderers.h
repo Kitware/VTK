@@ -47,7 +47,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkSynchronizedRenderers : public vtkObject
 public:
   static vtkSynchronizedRenderers* New();
   vtkTypeMacro(vtkSynchronizedRenderers, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -222,7 +222,7 @@ public:
 
 protected:
   vtkSynchronizedRenderers();
-  ~vtkSynchronizedRenderers() VTK_OVERRIDE;
+  ~vtkSynchronizedRenderers() override;
 
   struct RendererInfo
   {

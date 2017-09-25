@@ -38,7 +38,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
 public:
   static vtkGeoEdgeStrategy *New();
   vtkTypeMacro(vtkGeoEdgeStrategy,vtkEdgeLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -74,11 +74,11 @@ public:
   /**
    * Perform the layout.
    */
-  void Layout() VTK_OVERRIDE;
+  void Layout() override;
 
 protected:
   vtkGeoEdgeStrategy();
-  ~vtkGeoEdgeStrategy() VTK_OVERRIDE {}
+  ~vtkGeoEdgeStrategy() override {}
 
   double GlobeRadius;
   double ExplodeFactor;

@@ -39,7 +39,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkVASPTessellationReader
 public:
   static vtkVASPTessellationReader* New();
   vtkTypeMacro(vtkVASPTessellationReader, vtkMoleculeAlgorithm)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -51,15 +51,15 @@ public:
 
 protected:
   vtkVASPTessellationReader();
-  ~vtkVASPTessellationReader() VTK_OVERRIDE;
+  ~vtkVASPTessellationReader() override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inInfoVecs,
-                          vtkInformationVector *outInfoVec) VTK_OVERRIDE;
+                          vtkInformationVector *outInfoVec) override;
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inInfoVecs,
-                                 vtkInformationVector *outInfoVec) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                                 vtkInformationVector *outInfoVec) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   /**
    * Advance @a in to the start of the data for the next timestep. Parses the

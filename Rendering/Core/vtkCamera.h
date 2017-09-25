@@ -45,7 +45,7 @@ class VTKRENDERINGCORE_EXPORT vtkCamera : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCamera, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct camera instance with its focal point at the origin,
@@ -683,7 +683,7 @@ public:
 
 protected:
   vtkCamera();
-  ~vtkCamera() VTK_OVERRIDE;
+  ~vtkCamera() override;
 
   //@{
   /**

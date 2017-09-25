@@ -51,23 +51,23 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataM
 public:
   vtkTypeMacro(vtkOpenGLPolyDataMapper2D, vtkPolyDataMapper2D);
   static vtkOpenGLPolyDataMapper2D *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Actually draw the poly data.
    */
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkOpenGLPolyDataMapper2D();
-  ~vtkOpenGLPolyDataMapper2D() VTK_OVERRIDE;
+  ~vtkOpenGLPolyDataMapper2D() override;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 

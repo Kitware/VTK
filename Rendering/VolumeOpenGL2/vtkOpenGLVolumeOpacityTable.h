@@ -229,7 +229,7 @@ protected:
   }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLVolumeOpacityTable() VTK_OVERRIDE
+  ~vtkOpenGLVolumeOpacityTable() override
   {
       if (this->TextureObject)
       {

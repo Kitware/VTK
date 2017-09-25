@@ -34,11 +34,11 @@ class VTKCOMMONCORE_EXPORT vtkInformationObjectBaseKey : public vtkInformationKe
 {
 public:
   vtkTypeMacro(vtkInformationObjectBaseKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationObjectBaseKey(const char* name, const char* location,
                               const char* requiredClass=nullptr);
-  ~vtkInformationObjectBaseKey() VTK_OVERRIDE;
+  ~vtkInformationObjectBaseKey() override;
 
   /**
    * This method simply returns a new vtkInformationObjectBaseKey, given a
@@ -66,12 +66,12 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Report a reference this key has in the given information object.
    */
-  void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
+  void Report(vtkInformation* info, vtkGarbageCollector* collector) override;
 
 protected:
   // The type required of all objects stored with this key.

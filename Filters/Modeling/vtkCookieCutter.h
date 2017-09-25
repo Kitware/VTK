@@ -45,7 +45,7 @@ public:
    */
   static vtkCookieCutter *New();
   vtkTypeMacro(vtkCookieCutter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -73,10 +73,10 @@ protected:
   ~vtkCookieCutter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
 private:
   vtkCookieCutter(const vtkCookieCutter&) VTK_DELETE_FUNCTION;

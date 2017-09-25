@@ -42,7 +42,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkScalarsToColorsPainter : public vtkPainter
 public:
   static vtkScalarsToColorsPainter* New();
   vtkTypeMacro(vtkScalarsToColorsPainter, vtkPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Control whether the mapper sets the lookuptable range based on its
@@ -132,7 +132,7 @@ public:
   /**
    * Subclasses need to override this to return the output of the pipeline.
    */
-  vtkDataObject *GetOutput() VTK_OVERRIDE;
+  vtkDataObject *GetOutput() override;
 
   /**
    * Return the texture size limit. Subclasses need to override this
@@ -143,7 +143,7 @@ public:
 
 protected:
   vtkScalarsToColorsPainter();
-  ~vtkScalarsToColorsPainter() VTK_OVERRIDE;
+  ~vtkScalarsToColorsPainter() override;
 
   /**
    * Create a new shallow-copied clone for data with no scalars.
@@ -161,7 +161,7 @@ protected:
   /**
    * Called just before RenderInternal(). We build the Color array here.
    */
-  void PrepareForRendering(vtkRenderer* renderer, vtkActor* actor) VTK_OVERRIDE;
+  void PrepareForRendering(vtkRenderer* renderer, vtkActor* actor) override;
 
   /**
    * Generates the colors, if needed.
@@ -176,12 +176,12 @@ protected:
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
+  void ProcessInformation(vtkInformation*) override;
 
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   /**
    * Returns if we can use texture maps for scalar coloring. Note this doesn't

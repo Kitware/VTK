@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPolyDataCollection : public vtkCollection
 public:
   static vtkPolyDataCollection *New();
   vtkTypeMacro(vtkPolyDataCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a poly data to the bottom of the list.
@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkPolyDataCollection() {}
-  ~vtkPolyDataCollection() VTK_OVERRIDE {}
+  ~vtkPolyDataCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

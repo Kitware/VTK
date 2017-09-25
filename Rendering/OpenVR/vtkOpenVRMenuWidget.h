@@ -44,7 +44,7 @@ public:
   * Standard vtkObject methods
   */
   vtkTypeMacro(vtkOpenVRMenuWidget, vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -57,7 +57,7 @@ public:
   /**
   * Create the default widget representation if one is not set.
   */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   //@{
   /**
@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkOpenVRMenuWidget();
-  ~vtkOpenVRMenuWidget() VTK_OVERRIDE;
+  ~vtkOpenVRMenuWidget() override;
 
   int WidgetState;
 

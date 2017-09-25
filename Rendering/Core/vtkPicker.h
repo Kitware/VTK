@@ -57,7 +57,7 @@ class VTKRENDERINGCORE_EXPORT vtkPicker : public vtkAbstractPropPicker
 public:
   static vtkPicker *New();
   vtkTypeMacro(vtkPicker, vtkAbstractPropPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -138,7 +138,7 @@ public:
    * picked.
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
-                   vtkRenderer *renderer) VTK_OVERRIDE;
+                   vtkRenderer *renderer) override;
 
   /**
    * Perform pick operation with selection point provided. Normally the first
@@ -153,18 +153,18 @@ public:
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) VTK_OVERRIDE;
+  int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) override;
 
   /**
    * Perform pick operation with selection point and orientaion provided.
    * The selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) VTK_OVERRIDE;
+  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) override;
 
 protected:
   vtkPicker();
-  ~vtkPicker() VTK_OVERRIDE;
+  ~vtkPicker() override;
 
   // shared code for picking
   virtual int Pick3DInternal(vtkRenderer *ren, double p1World[4], double p2World[4]);
@@ -177,7 +177,7 @@ protected:
   virtual double IntersectWithLine(double p1[3], double p2[3], double tol,
                                   vtkAssemblyPath *path, vtkProp3D *p,
                                   vtkAbstractMapper3D *m);
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
   static bool CalculateRay(double p1[3], double p2[3],
                            double ray[3], double &rayFactor);
 

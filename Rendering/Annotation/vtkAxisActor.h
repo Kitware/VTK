@@ -72,7 +72,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkAxisActor, vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object.
@@ -114,7 +114,7 @@ public:
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  double* GetBounds(void) VTK_OVERRIDE;
+  double* GetBounds(void) override;
   void GetBounds(double bounds[6]);
   //@}
 
@@ -470,11 +470,11 @@ public:
   /**
    * Draw the axis.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
   virtual int RenderTranslucentGeometry(vtkViewport* viewport);
-  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  int RenderOverlay(vtkViewport* viewport) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   /**
@@ -482,7 +482,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   double ComputeMaxLabelLength(const double[3]);
   double ComputeTitleLength(const double[3]);
@@ -680,7 +680,7 @@ public:
 
 protected:
   vtkAxisActor();
-  ~vtkAxisActor() VTK_OVERRIDE;
+  ~vtkAxisActor() override;
 
   char* Title;
   char* Exponent;

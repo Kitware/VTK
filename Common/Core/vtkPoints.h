@@ -39,7 +39,7 @@ public:
   static vtkPoints *New();
 
   vtkTypeMacro(vtkPoints,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate initial memory size. ext is no longer used.
@@ -235,18 +235,18 @@ public:
   /**
    * The modified time of the points.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Update the modification time for this object and its Data.
    * As this object acts as a shell around a DataArray and
    * forwards Set methods it needs to forward Modifed as well.
    */
-  void Modified() VTK_OVERRIDE;
+  void Modified() override;
 
 protected:
   vtkPoints(int dataType = VTK_FLOAT);
-  ~vtkPoints() VTK_OVERRIDE;
+  ~vtkPoints() override;
 
   double Bounds[6];
   vtkTimeStamp ComputeTime; // Time at which bounds computed

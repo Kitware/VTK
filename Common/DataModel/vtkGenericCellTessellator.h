@@ -59,7 +59,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericCellTessellator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGenericCellTessellator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Tessellate a face of a 3D `cell'. The face is specified by the
@@ -150,7 +150,7 @@ public:
 
 protected:
   vtkGenericCellTessellator();
-  ~vtkGenericCellTessellator() VTK_OVERRIDE;
+  ~vtkGenericCellTessellator() override;
 
   /**
    * Does the edge need to be subdivided according to at least one error

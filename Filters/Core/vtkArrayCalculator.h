@@ -80,7 +80,7 @@ class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkPassInputTypeAlgorith
 {
 public:
   vtkTypeMacro(vtkArrayCalculator,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkArrayCalculator *New();
 
@@ -306,11 +306,11 @@ public:
 
 protected:
   vtkArrayCalculator();
-  ~vtkArrayCalculator() VTK_OVERRIDE;
+  ~vtkArrayCalculator() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char  * Function;
   char  * ResultArrayName;

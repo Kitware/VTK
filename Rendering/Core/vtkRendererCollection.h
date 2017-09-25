@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
 public:
   static vtkRendererCollection *New();
   vtkTypeMacro(vtkRendererCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a Renderer to the bottom of the list.
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkRendererCollection() {}
-  ~vtkRendererCollection() VTK_OVERRIDE {}
+  ~vtkRendererCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

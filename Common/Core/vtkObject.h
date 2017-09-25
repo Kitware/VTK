@@ -112,7 +112,7 @@ public:
    * Print() instead) but used in the hierarchical print process to
    * combine the output of several classes.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -240,11 +240,11 @@ public:
 
 protected:
   vtkObject();
-  ~vtkObject() VTK_OVERRIDE;
+  ~vtkObject() override;
 
   // See vtkObjectBase.h.
-  void RegisterInternal(vtkObjectBase*, vtkTypeBool check) VTK_OVERRIDE;
-  void UnRegisterInternal(vtkObjectBase*, vtkTypeBool check) VTK_OVERRIDE;
+  void RegisterInternal(vtkObjectBase*, vtkTypeBool check) override;
+  void UnRegisterInternal(vtkObjectBase*, vtkTypeBool check) override;
 
   bool     Debug;      // Enable debug messages
   vtkTimeStamp      MTime;      // Keep track of modification time
@@ -367,11 +367,11 @@ private:
         this->Method2 = nullptr;
         this->Method3 = method;
       }
-      ~vtkClassMemberCallback() VTK_OVERRIDE { }
+      ~vtkClassMemberCallback() override { }
 
       // Called when the event is invoked
       bool operator()(
-        vtkObject* caller, unsigned long event, void* calldata) VTK_OVERRIDE
+        vtkObject* caller, unsigned long event, void* calldata) override
       {
         T *handler = this->Handler.GetPointer();
         if (handler)

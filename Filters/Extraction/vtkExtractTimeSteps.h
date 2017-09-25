@@ -45,7 +45,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractTimeSteps : public vtkPassInputTypeA
 {
 public:
   vtkTypeMacro(vtkExtractTimeSteps, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkExtractTimeSteps *New();
 
@@ -136,14 +136,14 @@ public:
 
 protected:
   vtkExtractTimeSteps();
-  ~vtkExtractTimeSteps()VTK_OVERRIDE {};
+  ~vtkExtractTimeSteps() override {};
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
 
   std::set<int> TimeStepIndices;
   bool UseRange;

@@ -30,7 +30,7 @@
 class VTKRENDERINGCONTEXTOPENGL_EXPORT vtkOpenGLContextActor : public vtkContextActor
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkOpenGLContextActor, vtkContextActor);
 
   static vtkOpenGLContextActor* New();
@@ -40,16 +40,16 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
 protected:
   vtkOpenGLContextActor();
-  ~vtkOpenGLContextActor() VTK_OVERRIDE;
+  ~vtkOpenGLContextActor() override;
 
   /**
    * Initialize the actor - right now we just decide which device to initialize.
    */
-  void Initialize(vtkViewport* viewport) VTK_OVERRIDE;
+  void Initialize(vtkViewport* viewport) override;
 
 private:
   vtkOpenGLContextActor(const vtkOpenGLContextActor&) VTK_DELETE_FUNCTION;

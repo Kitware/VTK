@@ -40,7 +40,7 @@ class VTKDOMAINSMICROSCOPY_EXPORT vtkOpenSlideReader : public vtkImageReader2
 public:
   static vtkOpenSlideReader *New();
   vtkTypeMacro(vtkOpenSlideReader,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Is the given file supported ?

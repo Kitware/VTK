@@ -41,7 +41,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisReflection : public vtkHype
 public:
   static vtkHyperTreeGridAxisReflection* New();
   vtkTypeMacro( vtkHyperTreeGridAxisReflection, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   /**
    * Specify unique identifiers of vailable reflection planes.
@@ -87,17 +87,17 @@ public:
 
 protected:
   vtkHyperTreeGridAxisReflection();
-  ~vtkHyperTreeGridAxisReflection() VTK_OVERRIDE;
+  ~vtkHyperTreeGridAxisReflection() override;
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to extract cells based on reflectioned value
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Required type of plane reflection

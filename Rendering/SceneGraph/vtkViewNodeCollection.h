@@ -33,7 +33,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeCollection :
 public:
   static vtkViewNodeCollection* New();
   vtkTypeMacro(vtkViewNodeCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a ViewNode to the list.

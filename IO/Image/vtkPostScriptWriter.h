@@ -33,16 +33,16 @@ class VTKIOIMAGE_EXPORT vtkPostScriptWriter : public vtkImageWriter
 public:
   static vtkPostScriptWriter *New();
   vtkTypeMacro(vtkPostScriptWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPostScriptWriter() {}
-  ~vtkPostScriptWriter() VTK_OVERRIDE {}
+  ~vtkPostScriptWriter() override {}
 
   void WriteFile(
-    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) VTK_OVERRIDE;
-  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) VTK_OVERRIDE;
-  void WriteFileTrailer(ofstream *, vtkImageData *) VTK_OVERRIDE;
+    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) override;
+  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) override;
+  void WriteFileTrailer(ofstream *, vtkImageData *) override;
 private:
   vtkPostScriptWriter(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;

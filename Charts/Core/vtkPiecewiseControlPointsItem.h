@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkPiecewiseControlPointsItem: public vtkControlPoint
 {
 public:
   vtkTypeMacro(vtkPiecewiseControlPointsItem, vtkControlPointsItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a piecewise control points object
@@ -60,14 +60,14 @@ public:
    * or -1 on error.
    * Subclasses should reimplement this function to do the actual work.
    */
-  vtkIdType AddPoint(double* newPos) VTK_OVERRIDE;
+  vtkIdType AddPoint(double* newPos) override;
 
   /**
    * Remove a point of the function. Returns the index of the point (0 based),
    * or -1 on error.
    * Subclasses should reimplement this function to do the actual work.
    */
-  vtkIdType RemovePoint(double* pos) VTK_OVERRIDE;
+  vtkIdType RemovePoint(double* pos) override;
 
   //@{
   /**
@@ -80,16 +80,16 @@ public:
 
 protected:
   vtkPiecewiseControlPointsItem();
-  ~vtkPiecewiseControlPointsItem() VTK_OVERRIDE;
+  ~vtkPiecewiseControlPointsItem() override;
 
-  void emitEvent(unsigned long event, void* params = nullptr) VTK_OVERRIDE;
+  void emitEvent(unsigned long event, void* params = nullptr) override;
 
-  vtkMTimeType GetControlPointsMTime() VTK_OVERRIDE;
+  vtkMTimeType GetControlPointsMTime() override;
 
-  vtkIdType GetNumberOfPoints()const VTK_OVERRIDE;
-  void GetControlPoint(vtkIdType index, double *point)const VTK_OVERRIDE;
-  void SetControlPoint(vtkIdType index, double *point) VTK_OVERRIDE;
-  void EditPoint(float tX, float tY) VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints()const override;
+  void GetControlPoint(vtkIdType index, double *point)const override;
+  void SetControlPoint(vtkIdType index, double *point) override;
+  void EditPoint(float tX, float tY) override;
 
   vtkPiecewiseFunction* PiecewiseFunction;
 

@@ -57,7 +57,7 @@ public:
   { return new vtkResliceCursorCallback; }
 
   void Execute( vtkObject *caller, unsigned long /*ev*/,
-                void *callData ) VTK_OVERRIDE
+                void *callData ) override
   {
     vtkImagePlaneWidget* ipw =
       dynamic_cast< vtkImagePlaneWidget* >( caller );

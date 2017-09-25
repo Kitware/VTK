@@ -42,14 +42,14 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRInteractorStyle : public vtkInteractorS
 public:
   static vtkOpenVRInteractorStyle *New();
   vtkTypeMacro(vtkOpenVRInteractorStyle, vtkInteractorStyle3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
   * Override generic event bindings to call the corresponding action.
   */
-  void OnButton3D(vtkEventData *edata) VTK_OVERRIDE;
-  void OnMove3D(vtkEventData *edata) VTK_OVERRIDE;
+  void OnButton3D(vtkEventData *edata) override;
+  void OnMove3D(vtkEventData *edata) override;
   //@}
 
   //@{
@@ -72,9 +72,9 @@ public:
   /**
   * Multitouch events binding.
   */
-  void OnPan() VTK_OVERRIDE;
-  void OnPinch() VTK_OVERRIDE;
-  void OnRotate() VTK_OVERRIDE;
+  void OnPan() override;
+  void OnPinch() override;
+  void OnRotate() override;
   //@}
 
   //@{
@@ -124,7 +124,7 @@ public:
 
   void ToggleDrawControls();
 
-  void SetInteractor(vtkRenderWindowInteractor* iren) VTK_OVERRIDE;
+  void SetInteractor(vtkRenderWindowInteractor* iren) override;
 
   // allow the user to add options to the menu
   vtkOpenVRMenuWidget *GetMenu() {
@@ -132,7 +132,7 @@ public:
 
 protected:
   vtkOpenVRInteractorStyle();
-  ~vtkOpenVRInteractorStyle() VTK_OVERRIDE;
+  ~vtkOpenVRInteractorStyle() override;
 
   void EndPickCallback(vtkSelection *sel);
 

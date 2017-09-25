@@ -32,7 +32,7 @@ public:
   static vtkLSDynaPartCollection *New();
 
   vtkTypeMacro(vtkLSDynaPartCollection,vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //Description:
   //Pass in the metadata to setup this collection.
@@ -129,7 +129,7 @@ public:
 
 protected:
   vtkLSDynaPartCollection();
-  ~vtkLSDynaPartCollection() VTK_OVERRIDE;
+  ~vtkLSDynaPartCollection() override;
 
   vtkIdType* MinIds;
   vtkIdType* MaxIds;

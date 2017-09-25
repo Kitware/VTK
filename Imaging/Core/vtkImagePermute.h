@@ -36,7 +36,7 @@ public:
   static vtkImagePermute *New();
   vtkTypeMacro(vtkImagePermute,vtkImageReslice);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkImagePermute();
-  ~vtkImagePermute()VTK_OVERRIDE {}
+  ~vtkImagePermute() override {}
 
   int FilteredAxes[3];
 

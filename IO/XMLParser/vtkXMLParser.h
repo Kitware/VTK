@@ -40,7 +40,7 @@ class VTKIOXMLPARSER_EXPORT vtkXMLParser : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLParser,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkXMLParser* New();
 
@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkXMLParser();
-  ~vtkXMLParser() VTK_OVERRIDE;
+  ~vtkXMLParser() override;
 
   // Input stream.  Set by user.
   istream* Stream;

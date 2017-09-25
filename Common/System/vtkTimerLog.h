@@ -88,7 +88,7 @@ public:
   static vtkTimerLog *New();
 
   vtkTypeMacro(vtkTimerLog,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This flag will turn logging of events off or on.
@@ -208,7 +208,7 @@ public:
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
-  ~vtkTimerLog() VTK_OVERRIDE { };
+  ~vtkTimerLog() override { };
 
   static int               Logging;
   static int               Indent;

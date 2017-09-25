@@ -24,7 +24,7 @@ class vtkPHardwareSelector::vtkObserver : public vtkCommand
 public:
   static vtkObserver* New() { return new vtkObserver(); }
   void Execute(vtkObject *, unsigned long eventId,
-               void *) VTK_OVERRIDE
+               void *) override
   {
     if (eventId == vtkCommand::StartEvent)
     {

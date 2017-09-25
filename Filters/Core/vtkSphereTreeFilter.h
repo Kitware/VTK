@@ -65,7 +65,7 @@ public:
    * Standard type related macros and PrintSelf() method.
    */
   vtkTypeMacro(vtkSphereTreeFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -152,11 +152,11 @@ public:
   /**
    * Modified GetMTime because the sphere tree may have changed.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkSphereTreeFilter();
-  ~vtkSphereTreeFilter() VTK_OVERRIDE;
+  ~vtkSphereTreeFilter() override;
 
   vtkSphereTree *SphereTree;
   bool TreeHierarchy;
@@ -167,9 +167,9 @@ protected:
   double Normal[3];
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int FillInputPortInformation(int port,
-                               vtkInformation *info) VTK_OVERRIDE;
+                               vtkInformation *info) override;
 
 private:
   vtkSphereTreeFilter(const vtkSphereTreeFilter&) VTK_DELETE_FUNCTION;

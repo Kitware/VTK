@@ -58,7 +58,7 @@ public:
    */
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       double minStep = delT;
       double maxStep = delT;
@@ -68,7 +68,7 @@ public:
   }
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       double minStep = delT;
       double maxStep = delT;
@@ -79,7 +79,7 @@ public:
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
@@ -87,12 +87,12 @@ public:
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) VTK_OVERRIDE;
+                      double maxError, double& error) override;
   //@}
 
 protected:
   vtkRungeKutta2();
-  ~vtkRungeKutta2() VTK_OVERRIDE;
+  ~vtkRungeKutta2() override;
 private:
   vtkRungeKutta2(const vtkRungeKutta2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRungeKutta2&) VTK_DELETE_FUNCTION;

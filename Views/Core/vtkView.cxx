@@ -43,7 +43,7 @@ class vtkView::Command : public vtkCommand
 public:
   static Command* New() {  return new Command(); }
   void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData) VTK_OVERRIDE
+                       void *callData) override
   {
     if (this->Target)
     {

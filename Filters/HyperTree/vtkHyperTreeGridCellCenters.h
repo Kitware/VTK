@@ -56,14 +56,14 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkCellCen
 public:
   static vtkHyperTreeGridCellCenters* New();
   vtkTypeMacro( vtkHyperTreeGridCellCenters, vtkCellCenters );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
 protected:
   vtkHyperTreeGridCellCenters();
-  ~vtkHyperTreeGridCellCenters() VTK_OVERRIDE;
+  ~vtkHyperTreeGridCellCenters() override;
 
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
-  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int FillInputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to process individual trees in the grid

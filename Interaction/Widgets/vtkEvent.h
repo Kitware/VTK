@@ -41,7 +41,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkEvent,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkEvent();
-  ~vtkEvent() VTK_OVERRIDE;
+  ~vtkEvent() override;
 
   unsigned long EventId;
   int           Modifier;

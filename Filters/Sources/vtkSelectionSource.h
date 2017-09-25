@@ -36,7 +36,7 @@ class VTKFILTERSSOURCES_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
 public:
   static vtkSelectionSource *New();
   vtkTypeMacro(vtkSelectionSource,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -175,14 +175,14 @@ public:
 
 protected:
   vtkSelectionSource();
-  ~vtkSelectionSource() VTK_OVERRIDE;
+  ~vtkSelectionSource() override;
 
   int RequestInformation(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   vtkSelectionSourceInternals* Internal;
 

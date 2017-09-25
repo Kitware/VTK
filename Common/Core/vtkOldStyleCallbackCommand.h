@@ -51,7 +51,7 @@ public:
    */
   void Execute(vtkObject *invoker,
                unsigned long eid,
-               void *calldata) VTK_OVERRIDE;
+               void *calldata) override;
 
   //@{
   /**
@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkOldStyleCallbackCommand();
-  ~vtkOldStyleCallbackCommand() VTK_OVERRIDE;
+  ~vtkOldStyleCallbackCommand() override;
 };
 
 

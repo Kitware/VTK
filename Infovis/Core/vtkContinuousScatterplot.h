@@ -177,7 +177,7 @@ class VTKINFOVISCORE_EXPORT vtkContinuousScatterplot : public vtkImageAlgorithm
 public:
   static vtkContinuousScatterplot* New();
   vtkTypeMacro(vtkContinuousScatterplot, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
   * Get the tolerance used when comparing floating point numbers for equality.
@@ -205,12 +205,12 @@ protected:
   vtkContinuousScatterplot();
 
   // Configure input port to accept only vtkUnstructuredGrid.
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Configure out port to be a vtkImageData data set.
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestData(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Set the tolerance used when comparing floating numbers for equality.
   double Epsilon;

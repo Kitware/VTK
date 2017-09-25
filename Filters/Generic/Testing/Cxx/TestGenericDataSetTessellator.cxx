@@ -87,7 +87,7 @@ public:
       this->RenWin=aRenWin;
   }
 
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
       {

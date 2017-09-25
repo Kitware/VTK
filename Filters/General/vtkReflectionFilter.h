@@ -37,7 +37,7 @@ public:
   static vtkReflectionFilter *New();
 
   vtkTypeMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   enum ReflectionPlane
   {
@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkReflectionFilter();
-  ~vtkReflectionFilter() VTK_OVERRIDE;
+  ~vtkReflectionFilter() override;
 
   /**
    * This is called by the superclass.
@@ -112,7 +112,7 @@ protected:
    */
   int RequestDataObject(vtkInformation*,
                         vtkInformationVector**,
-                        vtkInformationVector*) VTK_OVERRIDE;
+                        vtkInformationVector*) override;
 
   /**
    * Actual implementation for reflection.
@@ -131,8 +131,8 @@ protected:
   virtual vtkIdType ReflectNon3DCell(vtkDataSet* input, vtkUnstructuredGrid* output,
                                      vtkIdType cellId,  vtkIdType numInputPoints);
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   void FlipTuple(double* tuple, int* mirrorDir, int nComp);
 

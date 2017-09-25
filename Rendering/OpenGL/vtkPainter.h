@@ -62,7 +62,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkPainter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPainter, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Keys used to specify control the behaviour of the painter.
@@ -107,8 +107,8 @@ public:
   /**
    * Take part in garbage collection.
    */
-  void Register(vtkObjectBase *o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
+  void Register(vtkObjectBase *o) override;
+  void UnRegister(vtkObjectBase *o) override;
   //@}
 
   enum {
@@ -176,12 +176,12 @@ public:
 
 protected:
   vtkPainter();
-  ~vtkPainter() VTK_OVERRIDE;
+  ~vtkPainter() override;
 
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   /**
    * Updates the delegate painter. This method is called just before

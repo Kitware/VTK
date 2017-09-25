@@ -43,7 +43,7 @@ public:
     { return new vtkProgressObserver(); }
 
   void Execute(vtkObject *, unsigned long eventId,
-    void *callData) VTK_OVERRIDE
+    void *callData) override
   {
     if (eventId == vtkCommand::ProgressEvent)
     {

@@ -74,7 +74,7 @@ public:
    * Standard methods for instances of the class.
    */
   vtkTypeMacro(vtkTexturedButtonRepresentation,vtkButtonRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -144,28 +144,28 @@ public:
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  void Highlight(int state) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override;
+  void Highlight(int state) override;
   //@}
 
   //@{
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
-  double *GetBounds() VTK_OVERRIDE;
-  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
+  double *GetBounds() override;
+  void GetActors(vtkPropCollection *pc) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:
   vtkTexturedButtonRepresentation();
-  ~vtkTexturedButtonRepresentation() VTK_OVERRIDE;
+  ~vtkTexturedButtonRepresentation() override;
 
   // Representing the button
   vtkActor          *Actor;
@@ -190,7 +190,7 @@ protected:
   vtkCellPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
 private:
   vtkTexturedButtonRepresentation(const vtkTexturedButtonRepresentation&) VTK_DELETE_FUNCTION;

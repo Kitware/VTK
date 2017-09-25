@@ -184,7 +184,7 @@ protected:
   }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLVolumeGradientOpacityTable() VTK_OVERRIDE
+  ~vtkOpenGLVolumeGradientOpacityTable() override
   {
       if (this->TextureObject)
       {

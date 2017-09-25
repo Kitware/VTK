@@ -65,7 +65,7 @@ public:
    * Override the standard GetMTime() to check for the modified times
    * of the paths.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkAssemblyPaths() {}
-  ~vtkAssemblyPaths() VTK_OVERRIDE {}
+  ~vtkAssemblyPaths() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

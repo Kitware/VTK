@@ -36,38 +36,38 @@ class VTKRENDERINGOPENGL2_EXPORT vtkGenericOpenGLRenderWindow :
 public:
   static vtkGenericOpenGLRenderWindow* New();
   vtkTypeMacro(vtkGenericOpenGLRenderWindow, vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 protected:
   vtkGenericOpenGLRenderWindow();
-  ~vtkGenericOpenGLRenderWindow() VTK_OVERRIDE;
+  ~vtkGenericOpenGLRenderWindow() override;
 
 public:
 
   //! Cleans up graphics resources allocated in the context for this VTK scene.
-  void Finalize() VTK_OVERRIDE;
+  void Finalize() override;
 
   //! flush the pending drawing operations
   //! Class user may to watch for WindowFrameEvent and act on it
-  void Frame() VTK_OVERRIDE;
+  void Frame() override;
 
   //! Makes the context current.  It is the class user's
   //! responsibility to watch for WindowMakeCurrentEvent and set it current.
-  void MakeCurrent() VTK_OVERRIDE;
+  void MakeCurrent() override;
 
   //! Returns if the context is current.  It is the class user's
   //! responsibility to watch for WindowIsCurrentEvent and set the bool* flag
   //! passed through the call data parameter.
-  bool IsCurrent() VTK_OVERRIDE;
+  bool IsCurrent() override;
 
   //! Returns if OpenGL is supported.  It is the class user's
   //! responsibility to watch for WindowSupportsOpenGLEvent and set the int* flag
   //! passed through the call data parameter.
-  int SupportsOpenGL() VTK_OVERRIDE;
+  int SupportsOpenGL() override;
 
   //! Returns if the context is direct.  It is the class user's
   //! responsibility to watch for WindowIsDirectEvent and set the int* flag
   //! passed through the call data parameter.
-  int IsDirect() VTK_OVERRIDE;
+  int IsDirect() override;
 
   // {@
   //! set the drawing buffers to use
@@ -86,27 +86,27 @@ public:
 
   // {@
   //! does nothing
-  void SetWindowId(void*) VTK_OVERRIDE;
-  void* GetGenericWindowId() VTK_OVERRIDE;
-  void SetDisplayId(void*) VTK_OVERRIDE;
-  void SetParentId(void*) VTK_OVERRIDE;
-  void* GetGenericDisplayId() VTK_OVERRIDE;
-  void* GetGenericParentId() VTK_OVERRIDE;
-  void* GetGenericContext() VTK_OVERRIDE;
-  void* GetGenericDrawable() VTK_OVERRIDE;
-  void SetWindowInfo(char*) VTK_OVERRIDE;
-  void SetParentInfo(char*) VTK_OVERRIDE;
-  int* GetScreenSize() VTK_OVERRIDE;
-  void Start() VTK_OVERRIDE;
-  void HideCursor() VTK_OVERRIDE;
-  void ShowCursor() VTK_OVERRIDE;
-  void SetFullScreen(int) VTK_OVERRIDE;
-  void WindowRemap() VTK_OVERRIDE;
-  int  GetEventPending() VTK_OVERRIDE;
-  void SetNextWindowId(void*) VTK_OVERRIDE;
-  void SetNextWindowInfo(char*) VTK_OVERRIDE;
-  void CreateAWindow() VTK_OVERRIDE;
-  void DestroyWindow() VTK_OVERRIDE;
+  void SetWindowId(void*) override;
+  void* GetGenericWindowId() override;
+  void SetDisplayId(void*) override;
+  void SetParentId(void*) override;
+  void* GetGenericDisplayId() override;
+  void* GetGenericParentId() override;
+  void* GetGenericContext() override;
+  void* GetGenericDrawable() override;
+  void SetWindowInfo(char*) override;
+  void SetParentInfo(char*) override;
+  int* GetScreenSize() override;
+  void Start() override;
+  void HideCursor() override;
+  void ShowCursor() override;
+  void SetFullScreen(int) override;
+  void WindowRemap() override;
+  int  GetEventPending() override;
+  void SetNextWindowId(void*) override;
+  void SetNextWindowInfo(char*) override;
+  void CreateAWindow() override;
+  void DestroyWindow() override;
   // }@
 
   //@{
@@ -126,12 +126,12 @@ public:
    * \sa vtkOpenGLRenderWindow::SaveGLState()
    * \sa vtkOpenGLRenderWindow::RestoreGLState()
    */
-  void Render() VTK_OVERRIDE;
+  void Render() override;
 
   /**
    * Overridden to pass explicitly specified MaximumHardwareLineWidth, if any.
    */
-  float GetMaximumHardwareLineWidth() VTK_OVERRIDE;
+  float GetMaximumHardwareLineWidth() override;
 
   //@{
   /**
@@ -160,7 +160,7 @@ public:
   * Overridden to invoke vtkCommand::StartPickEvent and
   * vtkCommand::EndPickEvent.
   */
-  void SetIsPicking(int isPicking) VTK_OVERRIDE;
+  void SetIsPicking(int isPicking) override;
 
 protected:
   int DirectStatus;

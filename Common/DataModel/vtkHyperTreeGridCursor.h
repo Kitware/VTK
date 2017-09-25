@@ -46,14 +46,14 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridCursor : public vtkHyperTreeCurs
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridCursor, vtkHyperTreeCursor);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   static vtkHyperTreeGridCursor* New();
 
   /**
    * Create a copy of `this'.
    * \post results_exists:result!=0
    */
-  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE;
+  vtkHyperTreeGridCursor* Clone() override;
 
   /**
    * Initialize cursor at root of given tree index in grid.
@@ -72,15 +72,15 @@ public:
   /**
    * Set the hyper tree to which the cursor is pointing.
    */
-  void SetTree( vtkHyperTree* ) VTK_OVERRIDE;
-  vtkHyperTree* GetTree() VTK_OVERRIDE {return this->Tree;};
+  void SetTree( vtkHyperTree* ) override;
+  vtkHyperTree* GetTree() override {return this->Tree;};
   //vtkGetObjectMacro(Tree,vtkHyperTree);
   //@}
 
   /**
    * Return the index of the current vertex in the tree.
    */
-  vtkIdType GetVertexId() VTK_OVERRIDE;
+  vtkIdType GetVertexId() override;
 
   /**
    * Return the global index (relative to the grid) of the
@@ -91,44 +91,44 @@ public:
   /**
    * Is the cursor pointing to a leaf?
    */
-  bool IsLeaf() VTK_OVERRIDE;
+  bool IsLeaf() override;
 
   /**
    * Is the cursor at tree root?
    */
-  bool IsRoot() VTK_OVERRIDE;
+  bool IsRoot() override;
 
   /**
    * Get the level of the tree vertex pointed by the cursor.
    */
-  unsigned int GetLevel() VTK_OVERRIDE {return this->Level;};
+  unsigned int GetLevel() override {return this->Level;};
 
   /**
    * Return the child number of the current vertex relative to its parent.
    * \pre not_root: !IsRoot().
    * \post valid_range: result>=0 && result<GetNumberOfChildren()
    */
-  int GetChildIndex() VTK_OVERRIDE;
+  int GetChildIndex() override;
 
   /**
    * Move the cursor to the root vertex.
    * \pre can be root
    * \post is_root: IsRoot()
    */
-  void ToRoot() VTK_OVERRIDE;
+  void ToRoot() override;
 
   /**
    * Move the cursor to the parent of the current vertex.
    * \pre not_root: !IsRoot()
    */
-  void ToParent() VTK_OVERRIDE;
+  void ToParent() override;
 
   /**
    * Move the cursor to child `child' of the current vertex.
    * \pre not_leaf: !IsLeaf()
    * \pre valid_child: child>=0 && child<this->GetNumberOfChildren()
    */
-  void ToChild( int child ) VTK_OVERRIDE;
+  void ToChild( int child ) override;
 
   /**
    * Move the cursor to the same vertex pointed by `other'.
@@ -137,7 +137,7 @@ public:
    * \post equal: this->IsEqual(other)
    * NB: not implemented
    */
-  void ToSameVertex( vtkHyperTreeCursor* vtkNotUsed(other) ) VTK_OVERRIDE { return; }
+  void ToSameVertex( vtkHyperTreeCursor* vtkNotUsed(other) ) override { return; }
 
   /**
    * Is `this' equal to `other'?
@@ -145,26 +145,26 @@ public:
    * \pre same_hypertree: this->SameTree(other);
    * NB: not implemented
    */
-  bool IsEqual( vtkHyperTreeCursor* vtkNotUsed(other) ) VTK_OVERRIDE { return false; }
+  bool IsEqual( vtkHyperTreeCursor* vtkNotUsed(other) ) override { return false; }
 
   /**
    * Are `this' and `other' pointing on the same hypertree?
    * \pre other_exists: other!=0
    * NB: not implemented
    */
-  int SameTree( vtkHyperTreeCursor* vtkNotUsed(other) ) VTK_OVERRIDE { return 0; }
+  int SameTree( vtkHyperTreeCursor* vtkNotUsed(other) ) override { return 0; }
 
   /**
    * Return the number of children for each node (non-vertex leaf) of the tree.
    * \post positive_number: result>0
    */
-  int GetNumberOfChildren() VTK_OVERRIDE;
+  int GetNumberOfChildren() override;
 
   /**
    * Return the dimension of the tree.
    * \post positive_result: result>0
    */
-  int GetDimension() VTK_OVERRIDE;
+  int GetDimension() override;
 
   /**
    * Compute the origin of the cursor.
@@ -224,7 +224,7 @@ protected:
   /**
    * Destructor
    */
-  ~vtkHyperTreeGridCursor() VTK_OVERRIDE;
+  ~vtkHyperTreeGridCursor() override;
 
   // Hyper tree grid to which the cursor is attached
   vtkHyperTreeGrid* Grid;

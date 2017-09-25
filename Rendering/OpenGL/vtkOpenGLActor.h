@@ -33,16 +33,16 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLActor : public vtkActor
 public:
   static vtkOpenGLActor *New();
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Actual actor render method.
    */
-  void Render(vtkRenderer *ren, vtkMapper *mapper) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
 protected:
   vtkOpenGLActor() {}
-  ~vtkOpenGLActor() VTK_OVERRIDE {}
+  ~vtkOpenGLActor() override {}
 
 private:
   vtkOpenGLActor(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;

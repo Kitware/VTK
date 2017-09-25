@@ -49,7 +49,7 @@ class VTKCOMMONCORE_EXPORT vtkDataArray : public vtkAbstractArray
 {
 public:
   vtkTypeMacro(vtkDataArray,vtkAbstractArray);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
@@ -65,7 +65,7 @@ public:
    * All vtkDataArray subclasses contain numeric data, hence this method
    * always returns 1(true).
    */
-  int IsNumeric() VTK_OVERRIDE
+  int IsNumeric() override
     { return 1; }
 
   /**
@@ -73,25 +73,25 @@ public:
    * array.  For vtkDataArray and subclasses this is the size of the
    * data type.
    */
-  int GetElementComponentSize() VTK_OVERRIDE
+  int GetElementComponentSize() override
     { return this->GetDataTypeSize(); }
 
   // Reimplemented virtuals (doc strings are inherited from superclass):
   void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                   vtkAbstractArray* source) VTK_OVERRIDE;
+                   vtkAbstractArray* source) override;
   vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
-                                    vtkAbstractArray* source) VTK_OVERRIDE;
+                                    vtkAbstractArray* source) override;
   void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source) VTK_OVERRIDE;
+                            vtkAbstractArray *source) override;
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source) VTK_OVERRIDE;
-  void GetTuples(vtkIdList *tupleIds, vtkAbstractArray *output) VTK_OVERRIDE;
-  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) VTK_OVERRIDE;
+                            vtkAbstractArray* source) override;
+  void GetTuples(vtkIdList *tupleIds, vtkAbstractArray *output) override;
+  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) override;
   void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
-                                vtkAbstractArray* source,  double* weights) VTK_OVERRIDE;
+                                vtkAbstractArray* source,  double* weights) override;
   void InterpolateTuple(vtkIdType dstTupleIdx,
     vtkIdType srcTupleIdx1, vtkAbstractArray* source1,
-    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t) VTK_OVERRIDE;
+    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t) override;
 
   /**
    * Get the data tuple at tupleIdx. Return it as a pointer to an array.
@@ -130,7 +130,7 @@ public:
   //@}
 
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                        vtkAbstractArray* source) VTK_OVERRIDE;
+                        vtkAbstractArray* source) override;
 
   //@{
   /**
@@ -286,7 +286,7 @@ public:
    * Deep copy of data. Copies data from different data arrays even if
    * they are different types (using doubleing-point exchange).
    */
-  void DeepCopy(vtkAbstractArray *aa) VTK_OVERRIDE;
+  void DeepCopy(vtkAbstractArray *aa) override;
   virtual void DeepCopy(vtkDataArray *da);
   //@}
 
@@ -341,7 +341,7 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   /**
    * Create default lookup table. Generally used to create one when none
@@ -528,7 +528,7 @@ public:
   /**
    * Removes out-of-date L2_NORM_RANGE() and L2_NORM_FINITE_RANGE() values.
    */
-  void Modified() VTK_OVERRIDE;
+  void Modified() override;
 
   /**
    * A human-readable string indicating the units for the array data.
@@ -542,12 +542,12 @@ public:
    * others must be. NOTE: Up to the implmenter to make sure that
    * keys not inteneded to be coppied are excluded here.
    */
-  int CopyInformation(vtkInformation *infoFrom, int deep=1) VTK_OVERRIDE;
+  int CopyInformation(vtkInformation *infoFrom, int deep=1) override;
 
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() VTK_OVERRIDE { return DataArray; }
+  int GetArrayType() override { return DataArray; }
 
 protected:
 
@@ -597,7 +597,7 @@ protected:
 
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray();
-  ~vtkDataArray() VTK_OVERRIDE;
+  ~vtkDataArray() override;
 
   vtkLookupTable *LookupTable;
   double Range[2];

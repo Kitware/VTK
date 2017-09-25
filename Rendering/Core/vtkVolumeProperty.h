@@ -68,14 +68,14 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeProperty : public vtkObject
 public:
   static vtkVolumeProperty *New();
   vtkTypeMacro(vtkVolumeProperty, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   void DeepCopy(vtkVolumeProperty *p);
 
   /**
    * Get the modified time for this object (or the properties registered
    * with this object).
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -429,7 +429,7 @@ public:
 
 protected:
   vtkVolumeProperty();
-  ~vtkVolumeProperty() VTK_OVERRIDE;
+  ~vtkVolumeProperty() override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
