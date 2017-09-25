@@ -673,25 +673,6 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToOSPRay()
 }
 
 // ----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkSmartVolumeMapper::SetRequestedRenderModeToTexture()
-{
-  this->SetRequestedRenderMode(vtkSmartVolumeMapper::TextureRenderMode);
-  VTK_LEGACY_BODY(vtkSmartVolumeMapper::SetRequestedRenderModeToTexture,"VTK 7.0");
-}
-#endif // VTK_LEGACY_REMOVE
-
-// ----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCastAndTexture()
-{
-  this->SetRequestedRenderMode(
-    vtkSmartVolumeMapper::RayCastAndTextureRenderMode );
-  VTK_LEGACY_BODY(vtkSmartVolumeMapper::SetRequestedRenderModeToRayCastAndTexture,"VTK 7.0");
-}
-#endif // VTK_LEGACY_REMOVE
-
-// ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::RayCastRenderMode);

@@ -198,25 +198,6 @@ public:
   void SetRequestedRenderModeToGPU();
 
   /**
-   * Set the requested render mode to
-   * vtkSmartVolumeMapper::TextureRenderMode.
-   */
-#if !defined(VTK_LEGACY_REMOVE)
-  void SetRequestedRenderModeToTexture();
-#endif // VTK_LEGACY_REMOVE
-
-  /**
-   * Set the requested render mode to
-   * vtkSmartVolumeMapper::RayCastAndTextureRenderMode.
-   * This is a good option if you want to avoid using advanced OpenGL
-   * functionality, but would still like to used 3D texture mapping, if
-   * available, for interactive rendering.
-   */
-#if !defined(VTK_LEGACY_REMOVE)
-  void SetRequestedRenderModeToRayCastAndTexture();
-#endif // VTK_LEGACY_REMOVE
-
-  /**
    * Set the requested render mode to vtkSmartVolumeMapper::RayCastRenderMode.
    * This option will use software rendering exclusively. This is a good option
    * if you know there is no hardware acceleration.

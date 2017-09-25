@@ -129,12 +129,6 @@ int TestSmartVolumeMapper(int argc,
   volumeMapper->SetRequestedRenderMode(2);
   renWin->Render();
 
-  // 3D texture mode. For coverage.
-#if !defined(VTK_LEGACY_REMOVE) && !defined(VTK_OPENGL2)
-  volumeMapper->SetRequestedRenderModeToRayCastAndTexture();
-  renWin->Render();
-#endif // VTK_LEGACY_REMOVE
-
   // Software mode, for coverage. It also makes sure we will get the same
   // regression image on all platforms.
   volumeMapper->SetRequestedRenderModeToRayCast();
