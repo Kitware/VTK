@@ -38,7 +38,6 @@ set_source_files_properties(
   vtkDirectionEncoder
   vtkEncodedGradientEstimator
   vtkVolumeMapper
-  vtkVolumeTextureMapper
   vtkUnstructuredGridVolumeMapper
   vtkUnstructuredGridVolumeRayCastFunction
   vtkUnstructuredGridVolumeRayCastIterator
@@ -58,7 +57,6 @@ if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(Module_SRCS ${Module_SRCS}
     vtkHAVSVolumeMapper.cxx
     vtkProjectedAAHexahedraMapper.cxx
-    vtkVolumeTextureMapper.cxx
     )
 endif()
 
