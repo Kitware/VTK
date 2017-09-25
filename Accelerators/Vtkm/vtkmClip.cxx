@@ -133,10 +133,10 @@ int vtkmClip::RequestData(vtkInformation *,
   // Convert inputs to vtkm objects:
   vtkm::cont::DataSet in = tovtkm::Convert(input,
                                            tovtkm::FieldsFlag::PointsAndCells);
-  vtkm::cont::Field field = tovtkm::Convert(scalars, assoc);
+  vtkm::cont::Field inField = tovtkm::Convert(scalars, assoc);
 
-  if (field.GetAssociation() != vtkm::cont::Field::ASSOC_POINTS ||
-      field.GetName() == std::string())
+  if (inField.GetAssociation() != vtkm::cont::Field::ASSOC_POINTS ||
+      inField.GetName() == std::string())
   {
     vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
     return 1;
@@ -161,7 +161,7 @@ int vtkmClip::RequestData(vtkInformation *,
   else
   {
     fieldFilter.SetClipValue(this->ClipValue);
-    result = fieldFilter.Execute(in, field, policy);
+    result = fieldFilter.Execute(in, inField, policy);
   }
 
   if (!result.IsDataSetValid())

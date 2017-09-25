@@ -64,7 +64,7 @@ int vtkmCleanGrid::FillInputPortInformation(int, vtkInformation* info)
 }
 
 //------------------------------------------------------------------------------
-int vtkmCleanGrid::RequestData(vtkInformation* request,
+int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector)
 {

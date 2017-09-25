@@ -94,7 +94,7 @@ int vtkmExtractVOI::RequestData(
   vtkm::filter::ExtractStructured filter;
   filter.SetVOI(voi[0], voi[1], voi[2], voi[3], voi[4], voi[5]);
   filter.SetSampleRate(this->SampleRate[0], this->SampleRate[1], this->SampleRate[2]);
-  filter.SetIncludeBoundary(this->IncludeBoundary);
+  filter.SetIncludeBoundary( (this->IncludeBoundary != 0 ) );
 
   vtkm::filter::Result result = filter.Execute(in, policy);
   if (!result.IsDataSetValid())

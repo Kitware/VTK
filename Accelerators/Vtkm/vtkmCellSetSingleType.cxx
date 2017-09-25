@@ -125,7 +125,6 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
   if(!this->ReverseConnectivityBuilt)
   {
     const vtkm::Id numberOfCells = this->GetNumberOfCells();
-    const vtkm::Id connectivityLength = this->Connectivity.GetNumberOfValues();
     const vtkm::Id numberOfPointsPerCell = this->DetermineNumberOfPoints();
     const vtkm::Id rconnSize = numberOfCells*numberOfPointsPerCell;
 

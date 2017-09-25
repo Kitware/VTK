@@ -88,8 +88,8 @@ void vtkmGradient::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 int vtkmGradient::RequestData(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector)
+                              vtkInformationVector** inputVector,
+                              vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);

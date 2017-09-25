@@ -210,11 +210,21 @@ target_include_directories(vtkAcceleratorsVTKm PUBLIC ${VTKm_INCLUDE_DIRS})
 vtk_module_link_libraries(vtkAcceleratorsVTKm LINK_PRIVATE ${VTKm_LIBRARIES})
 target_compile_options(vtkAcceleratorsVTKm PRIVATE ${VTKm_COMPILE_OPTIONS})
 
-# MSVC has limits on obj size that are exceeded by this module so we need
-# a flag to ignore those limits
-if (WIN32)
+if (MSVC)
+  # MSVC has limits on obj size that are exceeded by this module so we need
+  # a flag to ignore those limits
   target_compile_options(vtkAcceleratorsVTKm PRIVATE /bigobj)
+
+  #C4702 Generates numerous false positives with template code about
+  #      unreachable code
+  #C4512 Generates numerous warning that implicit assignment operators can't
+  #      be constructed. This is understood and we don't care.
+  #C4510 Generates numerous warning that implicit constructors can't
+  #      be constructed. This is understood and we don't care.
+  target_compile_options(vtkAcceleratorsVTKm PRIVATE -wd4702 -wd4512 -wd4510)
 endif()
+
+
 
 #install the required headers to make your own vtkm-vtk filter
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)

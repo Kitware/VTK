@@ -17,6 +17,7 @@
 #define vtkmlib_ImplicitFunctionConverter_h
 
 #include "vtkAcceleratorsVTKmModule.h"
+#include "vtkmConfig.h" //required for general vtkm setup
 #include "vtkType.h" // For vtkMTimeType
 
 #include <memory> // For std::shared_ptr
@@ -47,6 +48,10 @@ private:
   mutable vtkMTimeType MTime;
 };
 
+#ifdef VTKM_MSVC
+extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+    std::shared_ptr<vtkm::cont::ImplicitFunction>;
+#endif
 }
 
 #endif // vtkmlib_ImplicitFunctionConverter_h
