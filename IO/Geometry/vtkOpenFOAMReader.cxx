@@ -3841,6 +3841,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
       this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(
           this->UpperEntryPtr));
+      this->Superclass::EntryValuePtrs->back()->SetLabelType(this->LabelType);
       this->Superclass::EntryValuePtrs->back()->ReadList(io);
       this->Superclass::Type = ENTRYVALUELIST;
     }
@@ -3924,6 +3925,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
     this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(
         this->UpperEntryPtr));
+    this->Superclass::EntryValuePtrs->back()->SetLabelType(this->LabelType);
     if(currToken == '(')
     {
       this->Superclass::EntryValuePtrs->back()->ReadList(io);
@@ -4022,6 +4024,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
                                "supports nested lists that precede all "
                                "scalars. Discarding nested list data.");
         vtkFoamEntryValue tmp(this->UpperEntryPtr);
+        tmp.SetLabelType(this->LabelType);
         tmp.ReadList(io);
       }
       else
