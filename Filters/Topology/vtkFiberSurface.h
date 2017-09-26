@@ -67,7 +67,7 @@
 *      with respect to the line segment. Therefore, we compute the parameter t for each
 *      vertex and use it to classify the vertex as:
 *           0: t < 0        Vertex is below the clipping range [0,1] and will be removed
-*           1: 0 ≤ t ≤ 1    Vertex is inside the clipping range [0,1] and is retained
+*           1: 0 <= t <= 1    Vertex is inside the clipping range [0,1] and is retained
 *           2: 1 < t        Vertex is above the clipping  range [0,1] and will be removed
 *      Based on the classification, we can further clip the triangle to obtain the final
 *      surface.
