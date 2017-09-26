@@ -221,7 +221,6 @@ SET(Module_SRCS
   vtkInformationVariantKey.cxx
   vtkInformationVariantVectorKey.cxx
   vtkInformationVector.cxx
-  vtkInstantiator.cxx
   vtkIntArray.cxx
   vtkLargeInteger.cxx
   vtkLongArray.cxx
@@ -290,6 +289,11 @@ SET(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkInstantiator.cxx)
+endif ()
 
 set(${vtk-module}_HDRS
   vtkABI.h

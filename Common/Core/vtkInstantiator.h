@@ -59,6 +59,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 // The vtkDebugLeaks singleton must be initialized before and
 // destroyed after the vtkInstantiator singleton.
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
@@ -135,4 +137,5 @@ private:
 // before it is used.
 static vtkInstantiatorInitialize vtkInstantiatorInitializer;
 
+#endif
 #endif

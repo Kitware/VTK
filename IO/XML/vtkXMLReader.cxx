@@ -32,7 +32,9 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
+#ifndef VTK_LEGACY_REMOVE
 #include "vtkInstantiator.h"
+#endif
 #include "vtkLZ4DataCompressor.h"
 #include "vtkObjectFactory.h"
 #include "vtkQuadratureSchemeDefinition.h"
@@ -402,7 +404,11 @@ void vtkXMLReader::SetupCompressor(const char* type)
     vtkErrorMacro("Compressor has no type.");
     return;
   }
+#ifndef VTK_LEGACY_REMOVE
   vtkObject* object = vtkInstantiator::CreateInstance(type);
+#else
+  vtkObject* object = nullptr;
+#endif
   vtkDataCompressor* compressor = vtkDataCompressor::SafeDownCast(object);
 
   // In static builds, the vtkZLibDataCompressor may not have been

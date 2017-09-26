@@ -262,6 +262,7 @@ void vtkInstantiator::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkObject* vtkInstantiator::CreateInstance(const char* className)
 {
+  VTK_LEGACY_BODY(vtkInstantiator::CreateInstance, "VTK 8.1");
   CreateFunction function = vtkInstantiator::CreatorTable->Find(className);
   if(function) { return function(); }
   return nullptr;

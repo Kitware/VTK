@@ -24,7 +24,9 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
+#ifndef VTK_LEGACY_REMOVE
 #include "vtkInstantiator.h"
+#endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -192,11 +194,13 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
   {
     reader = vtkXMLStructuredGridReader::New();
   }
+#ifndef VTK_LEGACY_REMOVE
   if (!reader)
   {
     // If all fails, Use the instantiator to create the reader.
     reader = vtkXMLReader::SafeDownCast(vtkInstantiator::CreateInstance(type));
   }
+#endif
   if (reader)
   {
     if (this->GetParserErrorObserver())
