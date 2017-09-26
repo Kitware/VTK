@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastUserShader.cxx
+  Module:    TestGPURayCastUserShader2.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -35,7 +35,10 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastUserShader(int argc, char* argv[])
+#include <TestGPURayCastUserShader2_FS.h>
+//#include <raycasterfs.h>
+
+int TestGPURayCastUserShader2(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -77,51 +80,7 @@ int TestGPURayCastUserShader(int argc, char* argv[])
   mapper->SetUseJittering(1);
 
   // Modify the shader to color based on the depth of the translucent voxel
-  mapper->AddShaderReplacement(vtkShader::Fragment,
-    "//VTK::Base::Dec",
-    true,              // before the standard replacements
-    "//VTK::Base::Dec" // We still want the default
-    "\n bool l_updateDepth;"
-    "\n vec3 l_opaqueFragPos;",
-    false // only do it once
-  );
-  mapper->AddShaderReplacement(vtkShader::Fragment,
-    "//VTK::Base::Init",
-    true,
-    "//VTK::Base::Init\n"
-    "\n l_updateDepth = true;"
-    "\n l_opaqueFragPos = vec3(0.0);",
-    false);
-  mapper->AddShaderReplacement(
-    vtkShader::Fragment,
-    "//VTK::Base::Impl",
-    true,
-    "//VTK::Base::Impl"
-    "\n    if(!g_skip && g_srcColor.a > 0.0 && l_updateDepth)"
-    "\n      {"
-    "\n      l_opaqueFragPos = g_dataPos;"
-    "\n      l_updateDepth = false;"
-    "\n      }",
-    false);
-  mapper->AddShaderReplacement(vtkShader::Fragment,
-    "//VTK::RenderToImage::Exit",
-    true,
-    "//VTK::RenderToImage::Exit"
-    "\n  if (l_opaqueFragPos == vec3(0.0))"
-    "\n    {"
-    "\n    fragOutput0 = vec4(0.0);"
-    "\n    }"
-    "\n  else"
-    "\n    {"
-    "\n    vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *"
-    "\n                      in_volumeMatrix * in_textureDatasetMatrix *"
-    "\n                      vec4(l_opaqueFragPos, 1.0);"
-    "\n    depthValue /= depthValue.w;"
-    "\n    fragOutput0 = vec4(vec3(0.5 * (gl_DepthRange.far -"
-    "\n                       gl_DepthRange.near) * depthValue.z + 0.5 *"
-    "\n                      (gl_DepthRange.far + gl_DepthRange.near)), 1.0);"
-    "\n    }",
-    false);
+  mapper->SetFragmentShaderCode(TestGPURayCastUserShader2_FS);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper.GetPointer());
