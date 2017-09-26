@@ -24,6 +24,8 @@
 #ifndef vtkUGFacetReader_h
 #define vtkUGFacetReader_h
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -115,5 +117,7 @@ private:
   vtkUGFacetReader(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
 };
+
+#endif //VTK_LEGACY_REMOVE
 
 #endif

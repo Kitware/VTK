@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkUGFacetReader.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
@@ -40,6 +42,8 @@ vtkUGFacetReader::vtkUGFacetReader()
   this->Locator = nullptr;
 
   this->SetNumberOfInputPorts(0);
+
+  VTK_LEGACY_BODY(vtkUGFacetReader::vtkUGFacetReader, "VTK 8.1");
 }
 
 vtkUGFacetReader::~vtkUGFacetReader()
@@ -385,3 +389,5 @@ void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+
+#endif //VTK_LEGACY_REMOVE
