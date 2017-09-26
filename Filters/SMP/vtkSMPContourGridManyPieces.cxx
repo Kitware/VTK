@@ -45,6 +45,9 @@ vtkStandardNewMacro(vtkSMPContourGridManyPieces);
 // of 0.0.
 vtkSMPContourGridManyPieces::vtkSMPContourGridManyPieces()
 {
+  VTK_LEGACY_BODY(
+    vtkSMPContourGridManyPieces::vtkSMPContourGridManyPieces,
+    "VTK 8.1");
 }
 
 vtkSMPContourGridManyPieces::~vtkSMPContourGridManyPieces()

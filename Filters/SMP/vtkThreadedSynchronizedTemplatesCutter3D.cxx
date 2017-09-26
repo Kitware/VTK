@@ -58,6 +58,10 @@ vtkCxxSetObjectMacro(vtkThreadedSynchronizedTemplatesCutter3D,CutFunction,vtkImp
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkThreadedSynchronizedTemplatesCutter3D::vtkThreadedSynchronizedTemplatesCutter3D()
 {
+  VTK_LEGACY_BODY(
+    vtkThreadedSynchronizedTemplatesCutter3D::vtkThreadedSynchronizedTemplatesCutter3D,
+    "VTK 8.1");
+
   this->CutFunction = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }

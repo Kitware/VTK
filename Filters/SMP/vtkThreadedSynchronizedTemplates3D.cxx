@@ -54,6 +54,10 @@ vtkStandardNewMacro(vtkThreadedSynchronizedTemplates3D);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkThreadedSynchronizedTemplates3D::vtkThreadedSynchronizedTemplates3D()
 {
+  VTK_LEGACY_BODY(
+    vtkThreadedSynchronizedTemplates3D::vtkThreadedSynchronizedTemplates3D,
+    "VTK 8.1");
+
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;

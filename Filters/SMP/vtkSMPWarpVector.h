@@ -28,6 +28,7 @@
 class vtkInformation;
 class vtkInformationVector;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkSMPWarpVector : public vtkWarpVector
 {
 public :
@@ -53,4 +54,5 @@ private :
 
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif //vtkSMPWarpVector_h

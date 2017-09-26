@@ -30,6 +30,7 @@
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkTransform.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkSMPTransform : public vtkTransform
 {
  public:
@@ -67,7 +68,7 @@ class VTKFILTERSSMP_EXPORT vtkSMPTransform : public vtkTransform
                                      vtkDataArray *outVrs) VTK_OVERRIDE;
 
 protected:
-  vtkSMPTransform () {}
+  vtkSMPTransform ();
   ~vtkSMPTransform () VTK_OVERRIDE {}
 
 private:
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkSMPTransform&) VTK_DELETE_FUNCTION;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

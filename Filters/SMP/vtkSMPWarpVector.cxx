@@ -37,6 +37,10 @@ vtkSMPWarpVector::vtkSMPWarpVector()
   // by default process active point vectors
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::VECTORS);
+
+  VTK_LEGACY_BODY(
+    vtkSMPWarpVector::vtkSMPWarpVector,
+    "VTK 8.1");
 }
 
 //----------------------------------------------------------------------------

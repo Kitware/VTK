@@ -17,7 +17,9 @@
 #include "vtkPolyData.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkSMPContourGrid.h"
-#include "vtkSMPContourGridManyPieces.h"
+#if !defined(VTK_LEGACY_REMOVE)
+# include "vtkSMPContourGridManyPieces.h"
+#endif
 #include "vtkContourGrid.h"
 #include "vtkContourFilter.h"
 #include "vtkUnstructuredGrid.h"
@@ -162,6 +164,7 @@ int TestSMPContour(int, char *[])
     return EXIT_FAILURE;
   }
 
+#if !defined(VTK_LEGACY_REMOVE)
   vtkNew<vtkSMPContourGridManyPieces> cg3;
   cg3->SetInputData(tetraFilter->GetOutput());
   cg3->SetInputArrayToProcess(0, 0, 0, 0, "RTData");
@@ -202,7 +205,7 @@ int TestSMPContour(int, char *[])
     return EXIT_FAILURE;
   }
 
-#if WRITE_DEBUG
+# if WRITE_DEBUG
   vtkNew<vtkXMLMultiBlockDataWriter> writer;
   writer->SetInputData(cg2->GetOutputDataObject(0));
   writer->SetFileName("contour1.vtm");
@@ -214,6 +217,8 @@ int TestSMPContour(int, char *[])
   writer2->SetFileName("contour2.vtm");
   writer2->SetDataModeToAscii();
   writer2->Write();
+# endif
+
 #endif
 
   return EXIT_SUCCESS;

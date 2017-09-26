@@ -37,6 +37,7 @@
 
 class vtkImageData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkThreadedSynchronizedTemplates3D : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -199,4 +200,5 @@ private:
 extern int VTKFILTERSSMP_EXPORT VTK_TSYNCHRONIZED_TEMPLATES_3D_TABLE_1[];
 extern int VTKFILTERSSMP_EXPORT VTK_TSYNCHRONIZED_TEMPLATES_3D_TABLE_2[];
 
+#endif //VTK_LEGACY_REMOVE
 #endif
