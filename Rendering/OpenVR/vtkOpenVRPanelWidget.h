@@ -30,7 +30,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAbstractWidget.h"
-#include "vtkEventData.h"
 
 class vtkOpenVRPanelRepresentation;
 class vtkPropMap;
@@ -91,7 +90,7 @@ protected:
 
 private:
   vtkOpenVRPanelWidget(const vtkOpenVRPanelWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRPanelWidget&)VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRPanelWidget&) VTK_DELETE_FUNCTION;
 
 };
 #endif

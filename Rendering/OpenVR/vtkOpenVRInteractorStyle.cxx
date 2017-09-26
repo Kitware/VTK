@@ -86,12 +86,12 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
   this->MapInputToAction(vtkEventDataDevice::RightController,
     vtkEventDataDeviceInput::TrackPad, VTKIS_DOLLY);
   this->MapInputToAction(vtkEventDataDevice::RightController,
-    vtkEventDataDeviceInput::Grip, VTKIS_LOAD_CAMERA_POSE);
-  this->MapInputToAction(vtkEventDataDevice::RightController,
     vtkEventDataDeviceInput::ApplicationMenu, VTKIS_MENU);
 
   this->MapInputToAction(vtkEventDataDevice::LeftController,
     vtkEventDataDeviceInput::ApplicationMenu, VTKIS_TOGGLE_DRAW_CONTROLS);
+  this->MapInputToAction(vtkEventDataDevice::LeftController,
+    vtkEventDataDeviceInput::Trigger, VTKIS_LOAD_CAMERA_POSE);
 
   this->AddTooltipForInput(
     vtkEventDataDevice::RightController,
@@ -545,72 +545,6 @@ void vtkOpenVRInteractorStyle::EndPickCallback(vtkSelection *sel)
     return;
   }
   this->ShowPickSphere(prop->GetCenter(), prop->GetLength()/2.0, nullptr);
-
-#if 0
-
-
-
-
-  int *size = this->CurrentRenderer->GetSize();
-  unsigned int startPos[2] = {size[0]/2, size[1]/2 };
-  unsigned int pickPos[2];
-  vtkHardwareSelector::PixelInformation info = sel->GetPixelInformation(startPos, 3, pickPos);
-
-      // get the picked cell
-      vtkCell *cell = pd->GetCell(info.AttributeID);
-      double p1[3];
-      oldcam->GetFocalPoint(p1);
-      if (cell)
-      {
-        // have to convert the ray to the prop's coordinate system
-        double p0Mapper[3];
-        double p1Mapper[3];
-        vtkMatrix4x4 *lastMatrix = prop->GetMatrix();
-        if (lastMatrix == nullptr)
-        {
-          std::copy(p0, p0+3, p0Mapper);
-          std::copy(p1, p1+3, p1Mapper);
-        }
-        else
-        {
-          vtkNew<vtkTransform> trans;
-          trans->SetMatrix(lastMatrix);
-          trans->Push();
-          trans->Inverse();
-          trans->TransformPoint(p0, p0Mapper);
-          trans->TransformPoint(p1, p1Mapper);
-        }
-
-        /**
-         * Intersect with a ray. Return parametric coordinates (both line and cell)
-         * and global intersection coordinates, given ray definition p1[3], p2[3] and tolerance tol.
-         * The method returns non-zero value if intersection occurs. A parametric distance t
-         * between 0 and 1 along the ray representing the intersection point, the point coordinates
-         * x[3] in data coordinates and also pcoords[3] in parametric coordinates. subId is the index
-         * within the cell if a composed cell like a triangle strip.
-         */
-        double pcoords[3];
-        double mintpt[3];
-        double t;
-        int subId = 0;
-        int result = cell->IntersectWithLine(
-          p0Mapper, p1Mapper,
-          0.01*sqrt(cell->GetLength2()), t, mintpt, pcoords, subId);
-
-        for (int i = 0; i < 3; i++)
-        {
-          p1[i] = p0[i] + t*(p1[i] - p0[i]);
-        }
-        // update the billboard with information about this data
-        std::ostringstream toString;
-        toString <<
-          "\n Loc: " << p1[0] << ", " << p1[1] << ", " << p1[2] << " \n";
-
-      }
-    }
-  }
-
-#endif
 }
 
 //----------------------------------------------------------------------------

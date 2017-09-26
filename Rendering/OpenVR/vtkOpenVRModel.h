@@ -25,8 +25,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkOpenGLHelper.h"
-#include "vtkNew.h"
+#include "vtkOpenGLHelper.h" // ivar
+#include "vtkNew.h" // for ivar
 #include <openvr.h> // for ivars
 
 class vtkOpenVRRenderWindow;
@@ -41,6 +41,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRModel : public vtkObject
 public:
   static vtkOpenVRModel *New();
   vtkTypeMacro(vtkOpenVRModel, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   bool Build(vtkOpenVRRenderWindow *win);
   void Render(vtkOpenVRRenderWindow *win,
@@ -74,7 +75,7 @@ public:
 
 protected:
   vtkOpenVRModel();
-  ~vtkOpenVRModel();
+  ~vtkOpenVRModel()  VTK_OVERRIDE;
 
   std::string ModelName;
 
@@ -90,6 +91,10 @@ protected:
 
   //Controller ray
   vtkNew<vtkOpenVRRay> Ray;
+
+private:
+  vtkOpenVRModel(const vtkOpenVRModel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRModel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

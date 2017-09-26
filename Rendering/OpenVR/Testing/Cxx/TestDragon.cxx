@@ -104,14 +104,19 @@ int TestDragon(int argc, char *argv[])
   actor->GetProperty()->SetOpacity(1.0);
   //  actor->GetProperty()->SetRepresentationToWireframe();
 
-  renderer->ResetCamera();
-  renderWindow->Render();
-
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  // the HMD may not be turned on/etc
+  renderWindow->Initialize();
+  if (renderWindow->GetHMD())
   {
-    iren->Start();
-  }
+    renderer->ResetCamera();
+    renderWindow->Render();
 
-  return !retVal;
+    int retVal = vtkRegressionTestImage( renderWindow.Get() );
+    if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+      iren->Start();
+    }
+    return !retVal;
+  }
+  return VTK_SUCCESS;
 }

@@ -23,13 +23,13 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include <deque> // for ivar
 
 class vtkEventData;
 class vtkOpenVRMenuRepresentation;
 class vtkPropMap;
 class vtkProp;
 
-#include <deque>
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRMenuWidget : public vtkAbstractWidget
 {
@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkOpenVRMenuWidget(const vtkOpenVRMenuWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRMenuWidget&)VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenVRMenuWidget&) VTK_DELETE_FUNCTION;
 
 };
 #endif
