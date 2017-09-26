@@ -920,12 +920,18 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
   for (i=0; i<(edge[0]-1); i++)
   {
     assert(i < 6 && "The point index is out-of-range.");
-    for (allDifferent=1, j=i+1; j<edge[0] && allDifferent; j++)
+    for (allDifferent=1, j=i+1; j<edge[0] && allDifferent && j<6; j++)
     {
       assert(j < 6 && "The point index is out-of-range.");
-      if (pts[i] == pts[j]) allDifferent = 0;
+      if (pts[i] == pts[j])
+      {
+        allDifferent = 0;
+      }
     }
-    if (allDifferent) numUnique++;
+    if (allDifferent)
+    {
+      numUnique++;
+    }
   }
 
   if ( edge[0] == 4 && numUnique == 4 ) // check for degenerate tetra
