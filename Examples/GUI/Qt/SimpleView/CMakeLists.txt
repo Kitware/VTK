@@ -9,14 +9,30 @@ endforeach()
 
 project(SimpleView)
 
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+# List of VTK_Modules required from VTK
+# for all examples in this directory and its subdirectories to work.
+set(VTK_Modules
   vtkCommonCore
   vtkFiltersCore
   vtkInfovisCore
   vtkInteractionStyle
-  vtkViewsQt
+)
+if(TARGET vtkViewsQt)
+  set(VTK_Modules ${VTK_Modules}
+    vtkViewsQt
+  )
+endif()
+
+vtk_module_config(VTK
+  ${VTK_Modules}
 )
 include(${VTK_USE_FILE})
+
+# Do not build if vtkViewQt is not loaded
+if(NOT vtkViewsQt_LOADED)
+  return()
+endif()
 
 if("${VTK_QT_VERSION}" STREQUAL "")
   message(FATAL_ERROR "VTK was not built with Qt")
