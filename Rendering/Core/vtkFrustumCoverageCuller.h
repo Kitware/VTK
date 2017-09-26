@@ -105,8 +105,8 @@ protected:
   double       MaximumCoverage;
   int          SortingStyle;
 private:
-  vtkFrustumCoverageCuller(const vtkFrustumCoverageCuller&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrustumCoverageCuller&) VTK_DELETE_FUNCTION;
+  vtkFrustumCoverageCuller(const vtkFrustumCoverageCuller&) = delete;
+  void operator=(const vtkFrustumCoverageCuller&) = delete;
 };
 
 

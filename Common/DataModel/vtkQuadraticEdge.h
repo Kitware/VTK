@@ -124,8 +124,8 @@ protected:
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkQuadraticEdge(const vtkQuadraticEdge&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadraticEdge&) VTK_DELETE_FUNCTION;
+  vtkQuadraticEdge(const vtkQuadraticEdge&) = delete;
+  void operator=(const vtkQuadraticEdge&) = delete;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuadraticEdge::GetParametricCenter(double pcoords[3])

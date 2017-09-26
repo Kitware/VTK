@@ -65,8 +65,8 @@ protected:
   ~vtkObjectIdMap() override;
 
 private:
-  vtkObjectIdMap(const vtkObjectIdMap&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkObjectIdMap&) VTK_DELETE_FUNCTION;
+  vtkObjectIdMap(const vtkObjectIdMap&) = delete;
+  void operator=(const vtkObjectIdMap&) = delete;
 
   struct vtkInternals;
   vtkInternals* Internals;

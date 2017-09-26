@@ -128,8 +128,8 @@ protected:
   vtkMersenneTwisterInternals* Internal;
 
 private:
-  vtkMersenneTwister(const vtkMersenneTwister&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMersenneTwister&) VTK_DELETE_FUNCTION;
+  vtkMersenneTwister(const vtkMersenneTwister&) = delete;
+  void operator=(const vtkMersenneTwister&) = delete;
 };
 
 #endif // #ifndef vtkMersenneTwister_h

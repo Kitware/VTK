@@ -178,8 +178,8 @@ protected:
   int Offset[2];
 
 private:
-  vtkIconGlyphFilter(const vtkIconGlyphFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIconGlyphFilter&) VTK_DELETE_FUNCTION;
+  vtkIconGlyphFilter(const vtkIconGlyphFilter&) = delete;
+  void operator=(const vtkIconGlyphFilter&) = delete;
 
   void IconConvertIndex(int id, int & j, int & k);
 };

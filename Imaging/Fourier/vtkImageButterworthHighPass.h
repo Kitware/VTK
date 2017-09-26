@@ -80,8 +80,8 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id) override;
 private:
-  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageButterworthHighPass&) VTK_DELETE_FUNCTION;
+  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&) = delete;
+  void operator=(const vtkImageButterworthHighPass&) = delete;
 };
 
 #endif

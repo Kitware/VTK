@@ -153,8 +153,8 @@ private :
   double ComputeSmoothGaussianKernel(int dimension, double khx, double khy);
 
 private:
-  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
-  void operator = (const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
+  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) = delete;
+  void operator = (const vtkHighestDensityRegionsStatistics&) = delete;
 };
 
 #endif

@@ -104,8 +104,8 @@ protected:
 
 
 private:
-  vtkQtRecordView(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
+  vtkQtRecordView(const vtkQtRecordView&) = delete;
+  void operator=(const vtkQtRecordView&) = delete;
 
   vtkMTimeType CurrentSelectionMTime;
   vtkMTimeType LastInputMTime;

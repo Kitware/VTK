@@ -577,8 +577,8 @@ protected:
     return this->OptimizedTransform; };
 
 private:
-  vtkImageReslice(const vtkImageReslice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReslice&) VTK_DELETE_FUNCTION;
+  vtkImageReslice(const vtkImageReslice&) = delete;
+  void operator=(const vtkImageReslice&) = delete;
 };
 
 #endif

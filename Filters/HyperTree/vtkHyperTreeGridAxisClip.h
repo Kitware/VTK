@@ -202,8 +202,8 @@ protected:
   vtkIdType CurrentId;
 
 private:
-  vtkHyperTreeGridAxisClip(const vtkHyperTreeGridAxisClip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridAxisClip&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridAxisClip(const vtkHyperTreeGridAxisClip&) = delete;
+  void operator=(const vtkHyperTreeGridAxisClip&) = delete;
 };
 
 #endif /* vtkHyperTreeGridAxisClip_h */

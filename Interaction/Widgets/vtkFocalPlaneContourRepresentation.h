@@ -100,8 +100,8 @@ protected:
   ~vtkFocalPlaneContourRepresentation() override;
 
 private:
-  vtkFocalPlaneContourRepresentation(const vtkFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
+  vtkFocalPlaneContourRepresentation(const vtkFocalPlaneContourRepresentation&) = delete;
+  void operator=(const vtkFocalPlaneContourRepresentation&) = delete;
 };
 
 #endif

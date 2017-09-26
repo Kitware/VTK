@@ -146,8 +146,8 @@ protected:
   std::map<int, std::string> LayersProjection;
 
 private:
-  vtkGDALVectorReader(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
+  vtkGDALVectorReader(const vtkGDALVectorReader&) = delete;
+  void operator=(const vtkGDALVectorReader&) = delete;
 };
 
 #endif // vtkGDALVectorReader_h

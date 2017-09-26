@@ -185,8 +185,8 @@ protected:
                             vtkRectilinearGrid *input);
 
 private:
-  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
+  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&) = delete;
+  void operator=(const vtkRectilinearSynchronizedTemplates&) = delete;
 };
 
 // template table.

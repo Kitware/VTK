@@ -75,8 +75,8 @@ protected:
   //@}
 
 private:
-  vtkPlotGrid(const vtkPlotGrid &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotGrid &) VTK_DELETE_FUNCTION;
+  vtkPlotGrid(const vtkPlotGrid &) = delete;
+  void operator=(const vtkPlotGrid &) = delete;
 
 };
 

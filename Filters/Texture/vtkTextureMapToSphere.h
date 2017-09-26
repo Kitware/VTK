@@ -100,8 +100,8 @@ protected:
   int PreventSeam;
 
 private:
-  vtkTextureMapToSphere(const vtkTextureMapToSphere&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextureMapToSphere&) VTK_DELETE_FUNCTION;
+  vtkTextureMapToSphere(const vtkTextureMapToSphere&) = delete;
+  void operator=(const vtkTextureMapToSphere&) = delete;
 };
 
 #endif

@@ -396,8 +396,8 @@ private:
   vtkInformation* CurrentOutputInformation;
 
 private:
-  vtkXMLReader(const vtkXMLReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLReader&) VTK_DELETE_FUNCTION;
+  vtkXMLReader(const vtkXMLReader&) = delete;
+  void operator=(const vtkXMLReader&) = delete;
 
   vtkCommand *ReaderErrorObserver;
   vtkCommand *ParserErrorObserver;

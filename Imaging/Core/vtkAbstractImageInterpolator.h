@@ -327,8 +327,8 @@ protected:
 
 private:
 
-  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
+  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&) = delete;
+  void operator=(const vtkAbstractImageInterpolator&) = delete;
 };
 
 inline void vtkAbstractImageInterpolator::InterpolateIJK(

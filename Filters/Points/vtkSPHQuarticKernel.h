@@ -97,8 +97,8 @@ protected:
   ~vtkSPHQuarticKernel() override;
 
 private:
-  vtkSPHQuarticKernel(const vtkSPHQuarticKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHQuarticKernel&) VTK_DELETE_FUNCTION;
+  vtkSPHQuarticKernel(const vtkSPHQuarticKernel&) = delete;
+  void operator=(const vtkSPHQuarticKernel&) = delete;
 };
 
 #endif

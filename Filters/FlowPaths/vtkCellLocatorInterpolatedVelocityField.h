@@ -145,8 +145,8 @@ private:
   vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType * CellLocators;
 
   vtkCellLocatorInterpolatedVelocityField
-    ( const vtkCellLocatorInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkCellLocatorInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+    ( const vtkCellLocatorInterpolatedVelocityField & ) = delete;
+  void operator = ( const vtkCellLocatorInterpolatedVelocityField & ) = delete;
 };
 
 #endif

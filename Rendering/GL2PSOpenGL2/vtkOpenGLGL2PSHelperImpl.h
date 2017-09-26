@@ -120,8 +120,8 @@ protected:
                    float strokeWidth, const std::string &label);
 
 private:
-  vtkOpenGLGL2PSHelperImpl(const vtkOpenGLGL2PSHelperImpl &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGL2PSHelperImpl &) VTK_DELETE_FUNCTION;
+  vtkOpenGLGL2PSHelperImpl(const vtkOpenGLGL2PSHelperImpl &) = delete;
+  void operator=(const vtkOpenGLGL2PSHelperImpl &) = delete;
 };
 
 #endif // vtkOpenGLGL2PSHelperImpl_h

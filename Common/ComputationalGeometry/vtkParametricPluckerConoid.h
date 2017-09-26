@@ -92,8 +92,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPluckerConoid :
     int N;
 
   private:
-    vtkParametricPluckerConoid(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
+    vtkParametricPluckerConoid(const vtkParametricPluckerConoid&) = delete;
+    void operator=(const vtkParametricPluckerConoid&) = delete;
 };
 
 #endif

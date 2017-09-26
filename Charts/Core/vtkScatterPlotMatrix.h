@@ -489,8 +489,8 @@ protected:
   bool Animating;
 
 private:
-  vtkScatterPlotMatrix(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
+  vtkScatterPlotMatrix(const vtkScatterPlotMatrix &) = delete;
+  void operator=(const vtkScatterPlotMatrix &) = delete;
 
   class PIMPL;
   PIMPL *Private;

@@ -479,8 +479,8 @@ protected:
   bool LegendVisibility;
 
 private:
-  vtkPlot(const vtkPlot &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlot &) VTK_DELETE_FUNCTION;
+  vtkPlot(const vtkPlot &) = delete;
+  void operator=(const vtkPlot &) = delete;
 
 };
 

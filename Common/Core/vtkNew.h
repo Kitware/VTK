@@ -120,8 +120,8 @@ public:
   }
 
 private:
-  vtkNew(vtkNew<T> const&) VTK_DELETE_FUNCTION;
-  void operator=(vtkNew<T> const&) VTK_DELETE_FUNCTION;
+  vtkNew(vtkNew<T> const&) = delete;
+  void operator=(vtkNew<T> const&) = delete;
   T* Object;
 };
 

@@ -58,8 +58,8 @@ protected:
   ~vtkDummyCommunicator() override;
 
 private:
-  vtkDummyCommunicator(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
+  vtkDummyCommunicator(const vtkDummyCommunicator &) = delete;
+  void operator=(const vtkDummyCommunicator &) = delete;
 };
 
 #endif //vtkDummyCommunicator_h

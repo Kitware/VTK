@@ -80,8 +80,8 @@ protected:
 
 private:
   vtkPolyDataContourLineInterpolator(
-      const vtkPolyDataContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataContourLineInterpolator&) VTK_DELETE_FUNCTION;
+      const vtkPolyDataContourLineInterpolator&) = delete;
+  void operator=(const vtkPolyDataContourLineInterpolator&) = delete;
 };
 
 #endif

@@ -216,8 +216,8 @@ protected:
   //@}
 
 private:
-  vtkAnimationCue(const vtkAnimationCue&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnimationCue&) VTK_DELETE_FUNCTION;
+  vtkAnimationCue(const vtkAnimationCue&) = delete;
+  void operator=(const vtkAnimationCue&) = delete;
 };
 
 #endif

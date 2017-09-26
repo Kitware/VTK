@@ -136,8 +136,8 @@ public:
   ~vtkCompositeDataSet() override;
  private:
 
-  vtkCompositeDataSet(const vtkCompositeDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataSet&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataSet(const vtkCompositeDataSet&) = delete;
+  void operator=(const vtkCompositeDataSet&) = delete;
 
 };
 

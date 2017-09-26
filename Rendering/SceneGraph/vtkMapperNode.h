@@ -43,8 +43,8 @@ protected:
   ~vtkMapperNode();
 
  private:
-  vtkMapperNode(const vtkMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMapperNode&) VTK_DELETE_FUNCTION;
+  vtkMapperNode(const vtkMapperNode&) = delete;
+  void operator=(const vtkMapperNode&) = delete;
 };
 
 #endif

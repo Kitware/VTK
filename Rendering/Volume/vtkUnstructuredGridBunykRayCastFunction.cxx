@@ -80,7 +80,7 @@ struct TemplateCastRayWorker
       NumIntersections(0)
   {}
 
-  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &) VTK_DELETE_FUNCTION;
+  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &) = delete;
 
   // Execute the algorithm with all arrays set to NULL.
   void operator()()
@@ -370,8 +370,8 @@ protected:
   vtkIdType                                              CurrentTetra;
 
 private:
-  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&) = delete;
+  void operator=(const vtkUnstructuredGridBunykRayCastIterator&) = delete;
 };
 
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);

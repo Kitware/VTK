@@ -44,8 +44,8 @@ protected:
   ~vtkSkybox() override;
 
 private:
-  vtkSkybox(const vtkSkybox&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSkybox&) VTK_DELETE_FUNCTION;
+  vtkSkybox(const vtkSkybox&) = delete;
+  void operator=(const vtkSkybox&) = delete;
 };
 
 #endif // vtkSkybox_h

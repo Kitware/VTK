@@ -180,8 +180,8 @@ protected:
   int                                 Orientation;
 
 private:
-  vtkColorLegend(const vtkColorLegend &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkColorLegend &) VTK_DELETE_FUNCTION;
+  vtkColorLegend(const vtkColorLegend &) = delete;
+  void operator=(const vtkColorLegend &) = delete;
 };
 
 #endif

@@ -121,8 +121,8 @@ protected:
   vtkNew<vtkCompositeDataProbeFilter> Prober;
 
 private:
-  vtkResampleToImage(const vtkResampleToImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResampleToImage&) VTK_DELETE_FUNCTION;
+  vtkResampleToImage(const vtkResampleToImage&) = delete;
+  void operator=(const vtkResampleToImage&) = delete;
 };
 
 #endif

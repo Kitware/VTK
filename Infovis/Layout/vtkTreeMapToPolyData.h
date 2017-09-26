@@ -85,8 +85,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkTreeMapToPolyData(const vtkTreeMapToPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeMapToPolyData&) VTK_DELETE_FUNCTION;
+  vtkTreeMapToPolyData(const vtkTreeMapToPolyData&) = delete;
+  void operator=(const vtkTreeMapToPolyData&) = delete;
 };
 
 #endif

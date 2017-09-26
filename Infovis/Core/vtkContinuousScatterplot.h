@@ -222,7 +222,7 @@ protected:
   vtkIdType ResX, ResY;
 
 private:
-  vtkContinuousScatterplot(const vtkContinuousScatterplot&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContinuousScatterplot&) VTK_DELETE_FUNCTION;
+  vtkContinuousScatterplot(const vtkContinuousScatterplot&) = delete;
+  void operator=(const vtkContinuousScatterplot&) = delete;
 };
 #endif

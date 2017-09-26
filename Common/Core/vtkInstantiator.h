@@ -114,8 +114,8 @@ protected:
   friend class vtkInstantiatorInitialize;
 
 private:
-  vtkInstantiator(const vtkInstantiator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInstantiator&) VTK_DELETE_FUNCTION;
+  vtkInstantiator(const vtkInstantiator&) = delete;
+  void operator=(const vtkInstantiator&) = delete;
 };
 
 // Utility class to make sure vtkInstantiator is initialized before it
@@ -128,8 +128,8 @@ public:
 private:
   static unsigned int Count;
 private:
-  vtkInstantiatorInitialize(const vtkInstantiatorInitialize& other) VTK_DELETE_FUNCTION;
-  vtkInstantiatorInitialize& operator=(const vtkInstantiatorInitialize& rhs) VTK_DELETE_FUNCTION;
+  vtkInstantiatorInitialize(const vtkInstantiatorInitialize& other) = delete;
+  vtkInstantiatorInitialize& operator=(const vtkInstantiatorInitialize& rhs) = delete;
 };
 
 // This instance will show up in any translation unit that uses

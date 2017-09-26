@@ -176,8 +176,8 @@ protected:
                                            vtkVolumeRayCastMapper *mapper )=0;
 
 private:
-  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&) = delete;
+  void operator=(const vtkVolumeRayCastFunction&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

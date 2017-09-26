@@ -85,8 +85,8 @@ protected:
   char *CategoryArrayName;
 
 private:
-  vtkStringToCategory(const vtkStringToCategory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStringToCategory&) VTK_DELETE_FUNCTION;
+  vtkStringToCategory(const vtkStringToCategory&) = delete;
+  void operator=(const vtkStringToCategory&) = delete;
 };
 
 #endif

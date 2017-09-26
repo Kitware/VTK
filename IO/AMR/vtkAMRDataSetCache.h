@@ -105,8 +105,8 @@ protected:
   AMRCacheType Cache;
 
 private:
-  vtkAMRDataSetCache( const vtkAMRDataSetCache& ) VTK_DELETE_FUNCTION;
-  void operator=( const vtkAMRDataSetCache& ) VTK_DELETE_FUNCTION;
+  vtkAMRDataSetCache( const vtkAMRDataSetCache& ) = delete;
+  void operator=( const vtkAMRDataSetCache& ) = delete;
 };
 
 #endif /* vtkAMRDataSetCache_h */

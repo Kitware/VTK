@@ -66,8 +66,8 @@ protected:
                           unsigned char* uncompressedData,
                           size_t uncompressedSize) override;
 private:
-  vtkZLibDataCompressor(const vtkZLibDataCompressor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkZLibDataCompressor&) VTK_DELETE_FUNCTION;
+  vtkZLibDataCompressor(const vtkZLibDataCompressor&) = delete;
+  void operator=(const vtkZLibDataCompressor&) = delete;
 };
 
 #endif

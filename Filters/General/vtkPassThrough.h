@@ -78,8 +78,8 @@ protected:
   bool AllowNullInput;
 
 private:
-  vtkPassThrough(const vtkPassThrough&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPassThrough&) VTK_DELETE_FUNCTION;
+  vtkPassThrough(const vtkPassThrough&) = delete;
+  void operator=(const vtkPassThrough&) = delete;
 };
 
 #endif

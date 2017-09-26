@@ -316,8 +316,8 @@ protected:
 
 
 private:
-  vtkBoxRepresentation(const vtkBoxRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoxRepresentation&) VTK_DELETE_FUNCTION;
+  vtkBoxRepresentation(const vtkBoxRepresentation&) = delete;
+  void operator=(const vtkBoxRepresentation&) = delete;
 };
 
 #endif

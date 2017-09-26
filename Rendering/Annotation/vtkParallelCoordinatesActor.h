@@ -222,8 +222,8 @@ private:
   int PlaceAxes(vtkViewport *viewport, int *size);
 
 private:
-  vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelCoordinatesActor&) VTK_DELETE_FUNCTION;
+  vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&) = delete;
+  void operator=(const vtkParallelCoordinatesActor&) = delete;
 };
 
 

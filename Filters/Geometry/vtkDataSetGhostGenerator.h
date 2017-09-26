@@ -76,8 +76,8 @@ protected:
   int NumberOfGhostLayers;
 
 private:
-  vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetGhostGenerator&) VTK_DELETE_FUNCTION;
+  vtkDataSetGhostGenerator(const vtkDataSetGhostGenerator&) = delete;
+  void operator=(const vtkDataSetGhostGenerator&) = delete;
 
 };
 

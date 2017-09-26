@@ -103,8 +103,8 @@ protected:
   double Center[3];
 
 private:
-  vtkAbstractMapper3D(const vtkAbstractMapper3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractMapper3D&) VTK_DELETE_FUNCTION;
+  vtkAbstractMapper3D(const vtkAbstractMapper3D&) = delete;
+  void operator=(const vtkAbstractMapper3D&) = delete;
 };
 
 #endif

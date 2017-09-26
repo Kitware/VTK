@@ -71,8 +71,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkDataArrayCollection(const vtkDataArrayCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataArrayCollection&) VTK_DELETE_FUNCTION;
+  vtkDataArrayCollection(const vtkDataArrayCollection&) = delete;
+  void operator=(const vtkDataArrayCollection&) = delete;
 };
 
 

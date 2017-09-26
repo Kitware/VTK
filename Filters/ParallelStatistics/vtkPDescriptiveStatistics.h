@@ -67,8 +67,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDescriptiveStatistics&) VTK_DELETE_FUNCTION;
+  vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) = delete;
+  void operator=(const vtkPDescriptiveStatistics&) = delete;
 };
 
 #endif

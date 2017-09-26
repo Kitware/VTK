@@ -252,7 +252,7 @@ private:
         UseLog(useLog)
     {}
 
-    CopyToPoints& operator=(const CopyToPoints &) VTK_DELETE_FUNCTION;
+    CopyToPoints& operator=(const CopyToPoints &) = delete;
 
     // Use input array:
     template <class ArrayT>

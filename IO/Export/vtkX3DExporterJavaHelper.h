@@ -50,8 +50,8 @@ protected:
   static char* FastInfosetJarLocation;
 
 private:
-  vtkX3DExporterJavaHelper(const vtkX3DExporterJavaHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporterJavaHelper&) VTK_DELETE_FUNCTION;
+  vtkX3DExporterJavaHelper(const vtkX3DExporterJavaHelper&) = delete;
+  void operator=(const vtkX3DExporterJavaHelper&) = delete;
 };
 
 

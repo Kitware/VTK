@@ -92,8 +92,8 @@ protected:
   double ShrinkPercentage;
 
 private:
-  vtkAreaLayoutStrategy(const vtkAreaLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAreaLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkAreaLayoutStrategy(const vtkAreaLayoutStrategy&) = delete;
+  void operator=(const vtkAreaLayoutStrategy&) = delete;
 };
 
 #endif

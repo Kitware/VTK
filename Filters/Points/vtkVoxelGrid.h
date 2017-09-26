@@ -156,8 +156,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkVoxelGrid(const vtkVoxelGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVoxelGrid&) VTK_DELETE_FUNCTION;
+  vtkVoxelGrid(const vtkVoxelGrid&) = delete;
+  void operator=(const vtkVoxelGrid&) = delete;
 
 };
 

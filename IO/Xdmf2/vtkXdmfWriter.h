@@ -216,8 +216,8 @@ protected:
   std::vector<xdmf2::XdmfGeometry*> GeometryAtT0;
 
 private:
-  vtkXdmfWriter(const vtkXdmfWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmfWriter&) VTK_DELETE_FUNCTION;
+  vtkXdmfWriter(const vtkXdmfWriter&) = delete;
+  void operator=(const vtkXdmfWriter&) = delete;
 };
 
 #endif /* vtkXdmfWriter_h */

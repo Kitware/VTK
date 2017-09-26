@@ -45,8 +45,8 @@ protected:
   ~vtkActorNode();
 
  private:
-  vtkActorNode(const vtkActorNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkActorNode&) VTK_DELETE_FUNCTION;
+  vtkActorNode(const vtkActorNode&) = delete;
+  void operator=(const vtkActorNode&) = delete;
 };
 
 #endif

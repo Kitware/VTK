@@ -45,8 +45,8 @@ protected:
   ~vtkVolumeNode();
 
 private:
-  vtkVolumeNode(const vtkVolumeNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeNode&) VTK_DELETE_FUNCTION;
+  vtkVolumeNode(const vtkVolumeNode&) = delete;
+  void operator=(const vtkVolumeNode&) = delete;
 };
 
 #endif

@@ -75,8 +75,8 @@ protected:
   vtkShaderProgram2* ShaderProgram;
 
 private:
-  vtkShaderDeviceAdapter2(const vtkShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
+  vtkShaderDeviceAdapter2(const vtkShaderDeviceAdapter2&) = delete;
+  void operator=(const vtkShaderDeviceAdapter2&) = delete;
 
 };
 

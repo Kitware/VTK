@@ -115,8 +115,8 @@ protected:
 
 private:
 
-  vtkAreaLayout(const vtkAreaLayout&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAreaLayout&) VTK_DELETE_FUNCTION;
+  vtkAreaLayout(const vtkAreaLayout&) = delete;
+  void operator=(const vtkAreaLayout&) = delete;
 };
 
 #endif

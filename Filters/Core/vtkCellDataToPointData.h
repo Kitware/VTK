@@ -115,8 +115,8 @@ protected:
   //@}
 
 private:
-  vtkCellDataToPointData(const vtkCellDataToPointData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellDataToPointData&) VTK_DELETE_FUNCTION;
+  vtkCellDataToPointData(const vtkCellDataToPointData&) = delete;
+  void operator=(const vtkCellDataToPointData&) = delete;
 };
 
 #endif

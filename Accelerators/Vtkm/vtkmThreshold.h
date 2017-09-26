@@ -50,8 +50,8 @@ protected:
                           vtkInformationVector*) override;
 
 private:
-  vtkmThreshold(const vtkmThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmThreshold&) VTK_DELETE_FUNCTION;
+  vtkmThreshold(const vtkmThreshold&) = delete;
+  void operator=(const vtkmThreshold&) = delete;
 };
 
 #endif // vtkmThreshold_h

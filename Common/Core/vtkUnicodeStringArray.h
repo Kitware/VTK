@@ -97,8 +97,8 @@ protected:
   ~vtkUnicodeStringArray() override;
 
 private:
-  vtkUnicodeStringArray(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;
+  vtkUnicodeStringArray(const vtkUnicodeStringArray&) = delete;
+  void operator=(const vtkUnicodeStringArray&) = delete;
 
   class Implementation;
   Implementation* Internal;

@@ -166,8 +166,8 @@ protected:
   // See vtkGarbageCollector.h:
   void ReportReferences(vtkGarbageCollector* collector) override;
 private:
-  vtkCollection(const vtkCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollection&) VTK_DELETE_FUNCTION;
+  vtkCollection(const vtkCollection&) = delete;
+  void operator=(const vtkCollection&) = delete;
 };
 
 

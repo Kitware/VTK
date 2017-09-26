@@ -78,8 +78,8 @@ protected:
   ~vtkDynamicLoader() override {}
 
 private:
-  vtkDynamicLoader(const vtkDynamicLoader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDynamicLoader&) VTK_DELETE_FUNCTION;
+  vtkDynamicLoader(const vtkDynamicLoader&) = delete;
+  void operator=(const vtkDynamicLoader&) = delete;
 };
 
 #endif

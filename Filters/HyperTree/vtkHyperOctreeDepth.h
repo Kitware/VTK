@@ -56,8 +56,8 @@ protected:
   int NumChildren;
 
 private:
-  vtkHyperOctreeDepth(const vtkHyperOctreeDepth&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeDepth&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeDepth(const vtkHyperOctreeDepth&) = delete;
+  void operator=(const vtkHyperOctreeDepth&) = delete;
 };
 
 #endif

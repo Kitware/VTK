@@ -95,8 +95,8 @@ protected:
   bool IsReady;
 
 private:
-  vtkAMRFlashReader( const vtkAMRFlashReader& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRFlashReader& ) VTK_DELETE_FUNCTION;
+  vtkAMRFlashReader( const vtkAMRFlashReader& ) = delete;
+  void operator=(const vtkAMRFlashReader& ) = delete;
 
   void ComputeStats(vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3]);
   vtkFlashReaderInternal *Internal;

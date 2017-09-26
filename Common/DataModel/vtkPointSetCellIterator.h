@@ -56,8 +56,8 @@ protected:
   vtkIdType CellId;
 
 private:
-  vtkPointSetCellIterator(const vtkPointSetCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointSetCellIterator &) VTK_DELETE_FUNCTION;
+  vtkPointSetCellIterator(const vtkPointSetCellIterator &) = delete;
+  void operator=(const vtkPointSetCellIterator &) = delete;
 };
 
 #endif //vtkPointSetCellIterator_h

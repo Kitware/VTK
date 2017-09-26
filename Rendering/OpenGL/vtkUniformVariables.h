@@ -180,8 +180,8 @@ protected:
   ~vtkUniformVariables() override;
 
 private:
-  vtkUniformVariables(const vtkUniformVariables&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUniformVariables&) VTK_DELETE_FUNCTION;
+  vtkUniformVariables(const vtkUniformVariables&) = delete;
+  void operator=(const vtkUniformVariables&) = delete;
 
   vtkUniformVariablesMap *Map;
 };

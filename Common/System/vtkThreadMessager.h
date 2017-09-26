@@ -85,8 +85,8 @@ protected:
 #endif
 
 private:
-  vtkThreadMessager(const vtkThreadMessager&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreadMessager&) VTK_DELETE_FUNCTION;
+  vtkThreadMessager(const vtkThreadMessager&) = delete;
+  void operator=(const vtkThreadMessager&) = delete;
 };
 
 #endif

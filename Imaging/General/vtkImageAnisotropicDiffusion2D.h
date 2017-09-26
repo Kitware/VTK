@@ -133,8 +133,8 @@ protected:
   void Iterate(vtkImageData *in, vtkImageData *out,
                double ar0, double ar1, int *coreExtent, int count);
 private:
-  vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAnisotropicDiffusion2D&) VTK_DELETE_FUNCTION;
+  vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&) = delete;
+  void operator=(const vtkImageAnisotropicDiffusion2D&) = delete;
 };
 
 #endif

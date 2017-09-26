@@ -69,8 +69,8 @@ protected:
   int NumberOfSubdivisions;
   int CheckForTriangles;
 private:
-  vtkSubdivisionFilter(const vtkSubdivisionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  vtkSubdivisionFilter(const vtkSubdivisionFilter&) = delete;
+  void operator=(const vtkSubdivisionFilter&) = delete;
 };
 
 #endif

@@ -98,8 +98,8 @@ private:
 
   int Fastest;
 
-  vtkX3DExporterFIWriter(const vtkX3DExporterFIWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporterFIWriter&) VTK_DELETE_FUNCTION;
+  vtkX3DExporterFIWriter(const vtkX3DExporterFIWriter&) = delete;
+  void operator=(const vtkX3DExporterFIWriter&) = delete;
 
 };
 

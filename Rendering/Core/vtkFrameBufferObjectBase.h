@@ -49,8 +49,8 @@ protected:
   ~vtkFrameBufferObjectBase() override;
 
 private:
-  vtkFrameBufferObjectBase(const vtkFrameBufferObjectBase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrameBufferObjectBase &) VTK_DELETE_FUNCTION;
+  vtkFrameBufferObjectBase(const vtkFrameBufferObjectBase &) = delete;
+  void operator=(const vtkFrameBufferObjectBase &) = delete;
 };
 
 #endif

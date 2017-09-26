@@ -120,8 +120,8 @@ protected:
   int VectorMode;
   int TensorMode;
 private:
-  vtkCellDerivatives(const vtkCellDerivatives&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellDerivatives&) VTK_DELETE_FUNCTION;
+  vtkCellDerivatives(const vtkCellDerivatives&) = delete;
+  void operator=(const vtkCellDerivatives&) = delete;
 };
 
 #endif

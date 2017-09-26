@@ -79,8 +79,8 @@ protected:
   ~vtkDummyController() override;
 
 private:
-  vtkDummyController(const vtkDummyController&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDummyController&) VTK_DELETE_FUNCTION;
+  vtkDummyController(const vtkDummyController&) = delete;
+  void operator=(const vtkDummyController&) = delete;
 };
 
 #endif

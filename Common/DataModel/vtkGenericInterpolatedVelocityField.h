@@ -164,8 +164,8 @@ protected:
   static const double TOLERANCE_SCALE;
 
 private:
-  vtkGenericInterpolatedVelocityField(const vtkGenericInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
+  vtkGenericInterpolatedVelocityField(const vtkGenericInterpolatedVelocityField&) = delete;
+  void operator=(const vtkGenericInterpolatedVelocityField&) = delete;
 };
 
 #endif

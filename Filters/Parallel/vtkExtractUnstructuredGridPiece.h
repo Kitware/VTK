@@ -63,8 +63,8 @@ private:
   void AddFirstGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,
                          int piece, int numPieces);
 
-  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&) = delete;
+  void operator=(const vtkExtractUnstructuredGridPiece&) = delete;
 };
 
 #endif

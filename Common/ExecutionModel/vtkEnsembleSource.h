@@ -109,8 +109,8 @@ protected:
   vtkTable* MetaData;
 
 private:
-  vtkEnsembleSource(const vtkEnsembleSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnsembleSource&) VTK_DELETE_FUNCTION;
+  vtkEnsembleSource(const vtkEnsembleSource&) = delete;
+  void operator=(const vtkEnsembleSource&) = delete;
 };
 
 #endif

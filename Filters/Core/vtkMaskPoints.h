@@ -178,8 +178,8 @@ protected:
   unsigned long GetLocalSampleSize(vtkIdType, int);
 
 private:
-  vtkMaskPoints(const vtkMaskPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMaskPoints&) VTK_DELETE_FUNCTION;
+  vtkMaskPoints(const vtkMaskPoints&) = delete;
+  void operator=(const vtkMaskPoints&) = delete;
 };
 
 #endif

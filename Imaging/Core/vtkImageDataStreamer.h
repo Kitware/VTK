@@ -67,8 +67,8 @@ protected:
   int            NumberOfStreamDivisions;
   int            CurrentDivision;
 private:
-  vtkImageDataStreamer(const vtkImageDataStreamer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataStreamer&) VTK_DELETE_FUNCTION;
+  vtkImageDataStreamer(const vtkImageDataStreamer&) = delete;
+  void operator=(const vtkImageDataStreamer&) = delete;
 };
 
 #endif

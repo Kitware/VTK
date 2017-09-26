@@ -191,8 +191,8 @@ protected:
                            vtkInformationVector *) override;
 
 private:
-  vtkImageCanvasSource2D(const vtkImageCanvasSource2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageCanvasSource2D&) VTK_DELETE_FUNCTION;
+  vtkImageCanvasSource2D(const vtkImageCanvasSource2D&) = delete;
+  void operator=(const vtkImageCanvasSource2D&) = delete;
 };
 
 

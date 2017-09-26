@@ -43,8 +43,8 @@ protected:
   ~vtkOSPRayCameraNode();
 
 private:
-  vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayCameraNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) = delete;
+  void operator=(const vtkOSPRayCameraNode&) = delete;
 };
 
 #endif

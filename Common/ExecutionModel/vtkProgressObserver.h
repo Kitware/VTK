@@ -60,8 +60,8 @@ protected:
   double Progress;
 
 private:
-  vtkProgressObserver(const vtkProgressObserver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgressObserver&) VTK_DELETE_FUNCTION;
+  vtkProgressObserver(const vtkProgressObserver&) = delete;
+  void operator=(const vtkProgressObserver&) = delete;
 };
 
 #endif

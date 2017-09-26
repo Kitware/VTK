@@ -68,8 +68,8 @@ protected:
   int ImmediateModeRendering;
 
 private:
-  vtkDisplayListPainter(const vtkDisplayListPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDisplayListPainter&) VTK_DELETE_FUNCTION;
+  vtkDisplayListPainter(const vtkDisplayListPainter&) = delete;
+  void operator=(const vtkDisplayListPainter&) = delete;
 };
 
 #endif

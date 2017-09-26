@@ -58,8 +58,8 @@ protected:
                   vtkInformationVector *) override;
 
 private:
-  vtkMultiBlockFromTimeSeriesFilter(const vtkMultiBlockFromTimeSeriesFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockFromTimeSeriesFilter&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockFromTimeSeriesFilter(const vtkMultiBlockFromTimeSeriesFilter&) = delete;
+  void operator=(const vtkMultiBlockFromTimeSeriesFilter&) = delete;
 
   int UpdateTimeIndex;
   std::vector<double> TimeSteps;

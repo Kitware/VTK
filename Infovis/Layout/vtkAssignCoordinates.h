@@ -87,8 +87,8 @@ private:
   char* ZCoordArrayName;
   bool Jitter;
 
-  vtkAssignCoordinates(const vtkAssignCoordinates&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssignCoordinates&) VTK_DELETE_FUNCTION;
+  vtkAssignCoordinates(const vtkAssignCoordinates&) = delete;
+  void operator=(const vtkAssignCoordinates&) = delete;
 };
 
 #endif

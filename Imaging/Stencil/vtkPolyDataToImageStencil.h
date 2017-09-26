@@ -121,8 +121,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataToImageStencil&) VTK_DELETE_FUNCTION;
+  vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&) = delete;
+  void operator=(const vtkPolyDataToImageStencil&) = delete;
 };
 
 #endif

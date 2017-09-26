@@ -185,8 +185,8 @@ protected:
   Link *Resize(vtkIdType sz);  // function to resize data
 
 private:
-  vtkCellLinks(const vtkCellLinks&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellLinks&) VTK_DELETE_FUNCTION;
+  vtkCellLinks(const vtkCellLinks&) = delete;
+  void operator=(const vtkCellLinks&) = delete;
 };
 
 //----------------------------------------------------------------------------

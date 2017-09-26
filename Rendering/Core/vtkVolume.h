@@ -262,8 +262,8 @@ protected:
   double ComputeScreenCoverage(vtkViewport *vp);
 
 private:
-  vtkVolume(const vtkVolume&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolume&) VTK_DELETE_FUNCTION;
+  vtkVolume(const vtkVolume&) = delete;
+  void operator=(const vtkVolume&) = delete;
 };
 
 #endif

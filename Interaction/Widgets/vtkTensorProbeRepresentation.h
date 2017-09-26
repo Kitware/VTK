@@ -113,8 +113,8 @@ protected:
 
 private:
   vtkTensorProbeRepresentation(
-      const vtkTensorProbeRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTensorProbeRepresentation&) VTK_DELETE_FUNCTION;
+      const vtkTensorProbeRepresentation&) = delete;
+  void operator=(const vtkTensorProbeRepresentation&) = delete;
 
 };
 

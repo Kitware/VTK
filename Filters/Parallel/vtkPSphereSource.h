@@ -48,8 +48,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkPSphereSource(const vtkPSphereSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSphereSource&) VTK_DELETE_FUNCTION;
+  vtkPSphereSource(const vtkPSphereSource&) = delete;
+  void operator=(const vtkPSphereSource&) = delete;
 };
 
 #endif

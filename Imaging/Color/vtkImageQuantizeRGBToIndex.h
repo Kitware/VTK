@@ -100,8 +100,8 @@ protected:
                           vtkInformationVector *) override;
 
 private:
-  vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageQuantizeRGBToIndex&) VTK_DELETE_FUNCTION;
+  vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&) = delete;
+  void operator=(const vtkImageQuantizeRGBToIndex&) = delete;
 };
 
 #endif

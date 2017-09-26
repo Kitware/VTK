@@ -166,8 +166,8 @@ protected:
   char *LabelFormat;
 
 private:
-  vtkAngleRepresentation(const vtkAngleRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAngleRepresentation&) VTK_DELETE_FUNCTION;
+  vtkAngleRepresentation(const vtkAngleRepresentation&) = delete;
+  void operator=(const vtkAngleRepresentation&) = delete;
 };
 
 #endif

@@ -65,7 +65,7 @@ protected:
 
 private:
 
-  vtkOptiXPolyDataMapperNode(const vtkOptiXPolyDataMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXPolyDataMapperNode&) VTK_DELETE_FUNCTION;
+  vtkOptiXPolyDataMapperNode(const vtkOptiXPolyDataMapperNode&) = delete;
+  void operator=(const vtkOptiXPolyDataMapperNode&) = delete;
 };
 #endif

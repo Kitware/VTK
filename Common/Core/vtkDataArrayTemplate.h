@@ -42,8 +42,8 @@ protected:
   ~vtkDataArrayTemplate() override {}
 
 private:
-  vtkDataArrayTemplate(const vtkDataArrayTemplate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataArrayTemplate&) VTK_DELETE_FUNCTION;
+  vtkDataArrayTemplate(const vtkDataArrayTemplate&) = delete;
+  void operator=(const vtkDataArrayTemplate&) = delete;
 };
 
 #endif // VTK_LEGACY_REMOVE

@@ -126,8 +126,8 @@ protected:
 
   bool ColorFill;
 private:
-  vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkColorTransferControlPointsItem &) VTK_DELETE_FUNCTION;
+  vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem &) = delete;
+  void operator=(const vtkColorTransferControlPointsItem &) = delete;
 };
 
 #endif

@@ -210,8 +210,8 @@ protected:
   int TCoordComponents[6];
 
 private:
-  vtkExtractTensorComponents(const vtkExtractTensorComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractTensorComponents&) VTK_DELETE_FUNCTION;
+  vtkExtractTensorComponents(const vtkExtractTensorComponents&) = delete;
+  void operator=(const vtkExtractTensorComponents&) = delete;
 };
 
 #endif

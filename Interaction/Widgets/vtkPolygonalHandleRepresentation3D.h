@@ -70,8 +70,8 @@ protected:
   double Offset[3];
 
 private:
-  vtkPolygonalHandleRepresentation3D(const vtkPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  vtkPolygonalHandleRepresentation3D(const vtkPolygonalHandleRepresentation3D&) = delete;
+  void operator=(const vtkPolygonalHandleRepresentation3D&) = delete;
 };
 
 #endif

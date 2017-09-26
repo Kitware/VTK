@@ -108,8 +108,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSeedConnectivity&) VTK_DELETE_FUNCTION;
+  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&) = delete;
+  void operator=(const vtkImageSeedConnectivity&) = delete;
 };
 
 

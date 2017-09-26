@@ -122,8 +122,8 @@ protected:
   vtkAnnotation* CurrentAnnotation;
 
 private:
-  vtkAnnotationLayers(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
+  vtkAnnotationLayers(const vtkAnnotationLayers&) = delete;
+  void operator=(const vtkAnnotationLayers&) = delete;
 
 };
 

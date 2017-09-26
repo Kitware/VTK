@@ -195,8 +195,8 @@ protected:
   bool SupportGeometryShader;
 
 private:
-  vtkShader2(const vtkShader2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShader2&) VTK_DELETE_FUNCTION;
+  vtkShader2(const vtkShader2&) = delete;
+  void operator=(const vtkShader2&) = delete;
 };
 
 #endif

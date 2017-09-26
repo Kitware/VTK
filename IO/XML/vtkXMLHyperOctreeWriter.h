@@ -91,8 +91,8 @@ protected:
   OffsetsManagerGroup * CellDataOM;
 
 private:
-  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&) = delete;
+  void operator=(const vtkXMLHyperOctreeWriter&) = delete;
 };
 
 #endif

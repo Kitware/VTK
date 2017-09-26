@@ -194,8 +194,8 @@ protected:
   vtkTriangle *Triangle;
 
 private:
-  vtkTetra(const vtkTetra&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTetra&) VTK_DELETE_FUNCTION;
+  vtkTetra(const vtkTetra&) = delete;
+  void operator=(const vtkTetra&) = delete;
 };
 
 inline int vtkTetra::GetParametricCenter(double pcoords[3])

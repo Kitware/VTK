@@ -116,8 +116,8 @@ protected:
                                    int outExt[6],
                                    int threadId) override;
 private:
-  vtkImageShiftScale(const vtkImageShiftScale&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageShiftScale&) VTK_DELETE_FUNCTION;
+  vtkImageShiftScale(const vtkImageShiftScale&) = delete;
+  void operator=(const vtkImageShiftScale&) = delete;
 };
 
 #endif

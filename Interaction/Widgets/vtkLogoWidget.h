@@ -69,8 +69,8 @@ protected:
   ~vtkLogoWidget() override;
 
 private:
-  vtkLogoWidget(const vtkLogoWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLogoWidget&) VTK_DELETE_FUNCTION;
+  vtkLogoWidget(const vtkLogoWidget&) = delete;
+  void operator=(const vtkLogoWidget&) = delete;
 };
 
 #endif

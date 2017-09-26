@@ -269,8 +269,8 @@ protected:
   double Theta;
 
 private:
-  vtkTubeFilter(const vtkTubeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTubeFilter&) VTK_DELETE_FUNCTION;
+  vtkTubeFilter(const vtkTubeFilter&) = delete;
+  void operator=(const vtkTubeFilter&) = delete;
 };
 
 #endif

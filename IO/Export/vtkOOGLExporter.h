@@ -58,8 +58,8 @@ protected:
   char *FileName;
 
 private:
-  vtkOOGLExporter(const vtkOOGLExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOOGLExporter&) VTK_DELETE_FUNCTION;
+  vtkOOGLExporter(const vtkOOGLExporter&) = delete;
+  void operator=(const vtkOOGLExporter&) = delete;
 };
 
 #endif

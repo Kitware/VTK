@@ -78,8 +78,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkHedgeHog(const vtkHedgeHog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHedgeHog&) VTK_DELETE_FUNCTION;
+  vtkHedgeHog(const vtkHedgeHog&) = delete;
+  void operator=(const vtkHedgeHog&) = delete;
 };
 
 //@{

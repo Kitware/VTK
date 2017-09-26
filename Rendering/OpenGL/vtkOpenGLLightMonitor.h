@@ -105,8 +105,8 @@ private:
   long long UpTime;
 
 private:
-  vtkOpenGLLightMonitor(const vtkOpenGLLightMonitor &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLLightMonitor &) VTK_DELETE_FUNCTION;
+  vtkOpenGLLightMonitor(const vtkOpenGLLightMonitor &) = delete;
+  void operator=(const vtkOpenGLLightMonitor &) = delete;
 };
 
 #endif

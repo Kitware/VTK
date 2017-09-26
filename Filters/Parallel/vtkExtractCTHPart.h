@@ -192,8 +192,8 @@ protected:
   vtkPlane *ClipPlane;
   vtkMultiProcessController *Controller;
 private:
-  vtkExtractCTHPart(const vtkExtractCTHPart&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractCTHPart&) VTK_DELETE_FUNCTION;
+  vtkExtractCTHPart(const vtkExtractCTHPart&) = delete;
+  void operator=(const vtkExtractCTHPart&) = delete;
 
   class VectorOfFragments;
 

@@ -109,8 +109,8 @@ private:
   char* Description;
   vtkObjectFactory* ObjectFactory;
 private:
-  vtkOverrideInformation(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
+  vtkOverrideInformation(const vtkOverrideInformation&) = delete;
+  void operator=(const vtkOverrideInformation&) = delete;
 };
 
 #endif

@@ -237,8 +237,8 @@ protected:
   void                       *MultipleData[VTK_MAX_THREADS];
 
 private:
-  vtkMultiThreader(const vtkMultiThreader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiThreader&) VTK_DELETE_FUNCTION;
+  vtkMultiThreader(const vtkMultiThreader&) = delete;
+  void operator=(const vtkMultiThreader&) = delete;
 };
 
 #endif

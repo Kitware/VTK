@@ -78,8 +78,8 @@ protected:
   int PassPointData;
   int CategoricalData;
 private:
-  vtkPointDataToCellData(const vtkPointDataToCellData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointDataToCellData&) VTK_DELETE_FUNCTION;
+  vtkPointDataToCellData(const vtkPointDataToCellData&) = delete;
+  void operator=(const vtkPointDataToCellData&) = delete;
 };
 
 #endif

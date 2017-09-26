@@ -68,8 +68,8 @@ protected:
   static int OffScreenOnlyMode;
 
 private:
-  vtkGraphicsFactory(const vtkGraphicsFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphicsFactory&) VTK_DELETE_FUNCTION;
+  vtkGraphicsFactory(const vtkGraphicsFactory&) = delete;
+  void operator=(const vtkGraphicsFactory&) = delete;
 };
 
 #endif

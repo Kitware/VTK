@@ -112,8 +112,8 @@ protected:
   bool InternalParse(const char *name, bool IsFile);
 
 private:
-  vtkOSPRayMaterialLibrary(const vtkOSPRayMaterialLibrary&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayMaterialLibrary&) VTK_DELETE_FUNCTION;
+  vtkOSPRayMaterialLibrary(const vtkOSPRayMaterialLibrary&) = delete;
+  void operator=(const vtkOSPRayMaterialLibrary&) = delete;
 
   vtkOSPRayMaterialLibraryInternals *Internal;
 };

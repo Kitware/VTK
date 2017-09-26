@@ -108,8 +108,8 @@ protected:
   int FilterPoints(vtkPointSet *input) override;
 
 private:
-  vtkFitImplicitFunction(const vtkFitImplicitFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFitImplicitFunction&) VTK_DELETE_FUNCTION;
+  vtkFitImplicitFunction(const vtkFitImplicitFunction&) = delete;
+  void operator=(const vtkFitImplicitFunction&) = delete;
 
 };
 

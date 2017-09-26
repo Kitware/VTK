@@ -340,8 +340,8 @@ protected:
   int ValidateAttributes;
 
 private:
-  vtkMINCImageAttributes(const vtkMINCImageAttributes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMINCImageAttributes&) VTK_DELETE_FUNCTION;
+  vtkMINCImageAttributes(const vtkMINCImageAttributes&) = delete;
+  void operator=(const vtkMINCImageAttributes&) = delete;
 
 };
 

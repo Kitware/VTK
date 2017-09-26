@@ -159,8 +159,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkSphereSource(const vtkSphereSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereSource&) VTK_DELETE_FUNCTION;
+  vtkSphereSource(const vtkSphereSource&) = delete;
+  void operator=(const vtkSphereSource&) = delete;
 };
 
 #endif

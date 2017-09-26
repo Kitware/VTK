@@ -72,8 +72,8 @@ protected:
   ~vtkEmptyCell() override {}
 
 private:
-  vtkEmptyCell(const vtkEmptyCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEmptyCell&) VTK_DELETE_FUNCTION;
+  vtkEmptyCell(const vtkEmptyCell&) = delete;
+  void operator=(const vtkEmptyCell&) = delete;
 };
 
 #endif

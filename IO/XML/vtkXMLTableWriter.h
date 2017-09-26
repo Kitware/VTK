@@ -122,8 +122,8 @@ protected:
   int CurrentPiece;
 
 private:
-  vtkXMLTableWriter(const vtkXMLTableWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLTableWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLTableWriter(const vtkXMLTableWriter&) = delete;
+  void operator=(const vtkXMLTableWriter&) = delete;
 };
 
 #endif

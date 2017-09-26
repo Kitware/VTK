@@ -52,8 +52,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
+  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) = delete;
+  void operator=(const vtkSMPContourGridManyPieces&) = delete;
 };
 #endif //VTK_LEGACY_REMOVE
 #endif

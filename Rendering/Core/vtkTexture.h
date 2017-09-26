@@ -342,8 +342,8 @@ protected:
   int TranslucentCachedResult;
 
 private:
-  vtkTexture(const vtkTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTexture&) VTK_DELETE_FUNCTION;
+  vtkTexture(const vtkTexture&) = delete;
+  void operator=(const vtkTexture&) = delete;
 };
 
 #endif

@@ -52,8 +52,8 @@ protected:
                           vtkInformationVector*) override;
 
 private:
-  vtkmGradient(const vtkmGradient&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmGradient&) VTK_DELETE_FUNCTION;
+  vtkmGradient(const vtkmGradient&) = delete;
+  void operator=(const vtkmGradient&) = delete;
 };
 
 #endif // vtkmGradient_h

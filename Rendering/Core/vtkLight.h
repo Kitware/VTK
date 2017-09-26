@@ -313,8 +313,8 @@ protected:
   vtkInformation* Information;
 
 private:
-  vtkLight(const vtkLight&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLight&) VTK_DELETE_FUNCTION;
+  vtkLight(const vtkLight&) = delete;
+  void operator=(const vtkLight&) = delete;
 };
 
 #endif

@@ -35,8 +35,8 @@ protected:
   vtkBar() {}
   ~vtkBar() override {}
 private:
-  vtkBar(const vtkBar&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBar&) VTK_DELETE_FUNCTION;
+  vtkBar(const vtkBar&) = delete;
+  void operator=(const vtkBar&) = delete;
 };
 
 #endif

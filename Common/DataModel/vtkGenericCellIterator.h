@@ -93,8 +93,8 @@ protected:
   ~vtkGenericCellIterator() override;
 
 private:
-  vtkGenericCellIterator(const vtkGenericCellIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericCellIterator&) VTK_DELETE_FUNCTION;
+  vtkGenericCellIterator(const vtkGenericCellIterator&) = delete;
+  void operator=(const vtkGenericCellIterator&) = delete;
 };
 
 #endif

@@ -128,8 +128,8 @@ protected:
   void           RenderSavedTexture();
 
 private:
-  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
+  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&) = delete;
+  void operator=(const vtkVolumeTextureMapper2D&) = delete;
 };
 
 #endif // VTK_LEGACY_REMOVE

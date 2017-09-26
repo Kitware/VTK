@@ -381,8 +381,8 @@ protected:
 
 
 private:
-  vtkRandomAttributeGenerator(const vtkRandomAttributeGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRandomAttributeGenerator&) VTK_DELETE_FUNCTION;
+  vtkRandomAttributeGenerator(const vtkRandomAttributeGenerator&) = delete;
+  void operator=(const vtkRandomAttributeGenerator&) = delete;
 };
 
 #endif

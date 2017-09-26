@@ -244,8 +244,8 @@ protected:
   int UsingScalarColoring;
 
 private:
-  vtkScalarsToColorsPainter(const vtkScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
+  vtkScalarsToColorsPainter(const vtkScalarsToColorsPainter&) = delete;
+  void operator=(const vtkScalarsToColorsPainter&) = delete;
 
 };
 

@@ -129,8 +129,8 @@ protected:
   void InsertHandleOnLine(double* pos) override;
 
 private:
-  vtkSplineRepresentation(const vtkSplineRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplineRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSplineRepresentation(const vtkSplineRepresentation&) = delete;
+  void operator=(const vtkSplineRepresentation&) = delete;
 
 };
 

@@ -166,8 +166,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkImageAccumulate(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;
+  vtkImageAccumulate(const vtkImageAccumulate&) = delete;
+  void operator=(const vtkImageAccumulate&) = delete;
 };
 
 #endif

@@ -153,8 +153,8 @@ protected:
   vtkHandleWidget *SelectionWidget; //used when selecting any one of the axes
 
 private:
-  vtkAxesTransformWidget(const vtkAxesTransformWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxesTransformWidget&) VTK_DELETE_FUNCTION;
+  vtkAxesTransformWidget(const vtkAxesTransformWidget&) = delete;
+  void operator=(const vtkAxesTransformWidget&) = delete;
 };
 
 #endif

@@ -59,8 +59,8 @@ protected:
   ~vtkViewNodeFactory();
 
 private:
-  vtkViewNodeFactory(const vtkViewNodeFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewNodeFactory&) VTK_DELETE_FUNCTION;
+  vtkViewNodeFactory(const vtkViewNodeFactory&) = delete;
+  void operator=(const vtkViewNodeFactory&) = delete;
 
   class vtkInternals;
   vtkInternals *Internals;

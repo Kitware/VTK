@@ -129,8 +129,8 @@ protected:
   vtkQuad *Quad;
 
 private:
-  vtkHexahedron(const vtkHexahedron&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHexahedron&) VTK_DELETE_FUNCTION;
+  vtkHexahedron(const vtkHexahedron&) = delete;
+  void operator=(const vtkHexahedron&) = delete;
 };
 
 #endif

@@ -82,8 +82,8 @@ private:
   bool        InvertEdgeWeightArray;
   char*       EdgeWeightArrayName;
 
-  vtkBoostBrandesCentrality(const vtkBoostBrandesCentrality&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostBrandesCentrality&) VTK_DELETE_FUNCTION;
+  vtkBoostBrandesCentrality(const vtkBoostBrandesCentrality&) = delete;
+  void operator=(const vtkBoostBrandesCentrality&) = delete;
 };
 
 #endif

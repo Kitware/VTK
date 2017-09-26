@@ -83,8 +83,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkSynchronizeTimeFilter(const vtkSynchronizeTimeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizeTimeFilter&) VTK_DELETE_FUNCTION;
+  vtkSynchronizeTimeFilter(const vtkSynchronizeTimeFilter&) = delete;
+  void operator=(const vtkSynchronizeTimeFilter&) = delete;
 
   /**
    * Copies of the time steps for both the input and

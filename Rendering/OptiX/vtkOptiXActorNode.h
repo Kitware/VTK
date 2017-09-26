@@ -92,8 +92,8 @@ protected:
   ~vtkOptiXActorNode();
 
 private:
-  vtkOptiXActorNode(const vtkOptiXActorNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXActorNode&) VTK_DELETE_FUNCTION;
+  vtkOptiXActorNode(const vtkOptiXActorNode&) = delete;
+  void operator=(const vtkOptiXActorNode&) = delete;
 
   vtkMapper* LastUsedMapper;
 };

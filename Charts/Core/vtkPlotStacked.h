@@ -170,8 +170,8 @@ protected:
   vtkSmartPointer<vtkColorSeries> ColorSeries;
 
 private:
-  vtkPlotStacked(const vtkPlotStacked &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotStacked &) VTK_DELETE_FUNCTION;
+  vtkPlotStacked(const vtkPlotStacked &) = delete;
+  void operator=(const vtkPlotStacked &) = delete;
 
   vtkPlotStackedPrivate *Private;
 

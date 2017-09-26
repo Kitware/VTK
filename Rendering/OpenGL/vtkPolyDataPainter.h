@@ -113,8 +113,8 @@ protected:
   void ProcessInformation(vtkInformation*) override;
 
 private:
-  vtkPolyDataPainter(const vtkPolyDataPainter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataPainter &) VTK_DELETE_FUNCTION;
+  vtkPolyDataPainter(const vtkPolyDataPainter &) = delete;
+  void operator=(const vtkPolyDataPainter &) = delete;
 };
 
 #endif //_vtkPolyDataPainter_h

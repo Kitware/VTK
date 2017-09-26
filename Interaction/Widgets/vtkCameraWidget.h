@@ -79,8 +79,8 @@ protected:
   void SelectRegion(double eventPos[2]) override;
 
 private:
-  vtkCameraWidget(const vtkCameraWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraWidget&) VTK_DELETE_FUNCTION;
+  vtkCameraWidget(const vtkCameraWidget&) = delete;
+  void operator=(const vtkCameraWidget&) = delete;
 };
 
 #endif

@@ -154,8 +154,8 @@ private:
 
   void Cleanup();
 
-  vtkPointSet(const vtkPointSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointSet&) VTK_DELETE_FUNCTION;
+  vtkPointSet(const vtkPointSet&) = delete;
+  void operator=(const vtkPointSet&) = delete;
 };
 
 inline vtkIdType vtkPointSet::GetNumberOfPoints()

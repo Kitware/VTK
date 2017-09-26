@@ -95,8 +95,8 @@ private:
   bool LeafVertexUnitSize;
   bool LogScale;
   double MinValue;
-  vtkTreeFieldAggregator(const vtkTreeFieldAggregator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeFieldAggregator&) VTK_DELETE_FUNCTION;
+  vtkTreeFieldAggregator(const vtkTreeFieldAggregator&) = delete;
+  void operator=(const vtkTreeFieldAggregator&) = delete;
   double GetDoubleValue(vtkAbstractArray* arr, vtkIdType id);
   static void SetDoubleValue(vtkAbstractArray* arr, vtkIdType id, double value);
 };

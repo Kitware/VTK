@@ -93,8 +93,8 @@ protected:
   vtkClipConvexPolyDataInternals *Internal;
 
 private:
-  vtkClipConvexPolyData(const vtkClipConvexPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClipConvexPolyData&) VTK_DELETE_FUNCTION;
+  vtkClipConvexPolyData(const vtkClipConvexPolyData&) = delete;
+  void operator=(const vtkClipConvexPolyData&) = delete;
 };
 
 #endif

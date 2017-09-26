@@ -72,8 +72,8 @@ protected:
   std::string MD5;
 
 private:
-  vtkWebGLDataSet(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
+  vtkWebGLDataSet(const vtkWebGLDataSet&) = delete;
+  void operator=(const vtkWebGLDataSet&) = delete;
 };
 
 #endif

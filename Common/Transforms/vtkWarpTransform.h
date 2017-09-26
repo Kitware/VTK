@@ -172,8 +172,8 @@ protected:
   int InverseIterations;
   double InverseTolerance;
 private:
-  vtkWarpTransform(const vtkWarpTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWarpTransform&) VTK_DELETE_FUNCTION;
+  vtkWarpTransform(const vtkWarpTransform&) = delete;
+  void operator=(const vtkWarpTransform&) = delete;
 };
 
 #endif

@@ -169,8 +169,8 @@ protected:
   int NonNumericalReductionMethod;
 
 private:
-  vtkReduceTable(const vtkReduceTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReduceTable&) VTK_DELETE_FUNCTION;
+  vtkReduceTable(const vtkReduceTable&) = delete;
+  void operator=(const vtkReduceTable&) = delete;
 };
 
 #endif

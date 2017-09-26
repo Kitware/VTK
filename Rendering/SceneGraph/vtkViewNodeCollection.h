@@ -66,8 +66,8 @@ private:
   void AddItem(vtkObject *o)
     { this->vtkCollection::AddItem(o); }
 
-  vtkViewNodeCollection(const vtkViewNodeCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewNodeCollection&) VTK_DELETE_FUNCTION;
+  vtkViewNodeCollection(const vtkViewNodeCollection&) = delete;
+  void operator=(const vtkViewNodeCollection&) = delete;
 };
 
 #endif

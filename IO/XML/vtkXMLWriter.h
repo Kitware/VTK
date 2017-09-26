@@ -506,8 +506,8 @@ protected:
   friend class vtkXMLWriterHelper;
 
 private:
-  vtkXMLWriter(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLWriter(const vtkXMLWriter&) = delete;
+  void operator=(const vtkXMLWriter&) = delete;
 };
 
 #endif

@@ -132,8 +132,8 @@ protected:
   vtkQuad *Quad;
 
 private:
-  vtkPyramid(const vtkPyramid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPyramid&) VTK_DELETE_FUNCTION;
+  vtkPyramid(const vtkPyramid&) = delete;
+  void operator=(const vtkPyramid&) = delete;
 };
 
 //----------------------------------------------------------------------------

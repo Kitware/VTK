@@ -168,8 +168,8 @@ protected:
   vtkOpenGLVertexBufferObjectCache *Cache;
 
 private:
-  vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) = delete;
+  void operator=(const vtkOpenGLVertexBufferObject&) = delete;
 };
 
 #endif

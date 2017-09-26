@@ -96,8 +96,8 @@ protected:
   ~vtkCoincidentPoints() override;
 
 private:
-  vtkCoincidentPoints( const vtkCoincidentPoints& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkCoincidentPoints& ) VTK_DELETE_FUNCTION;
+  vtkCoincidentPoints( const vtkCoincidentPoints& ) = delete;
+  void operator = ( const vtkCoincidentPoints& ) = delete;
 
   implementation* Implementation;
 

@@ -292,8 +292,8 @@ protected:
 
 private:
 
-  vtkTecplotReader( const vtkTecplotReader & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkTecplotReader & ) VTK_DELETE_FUNCTION;
+  vtkTecplotReader( const vtkTecplotReader & ) = delete;
+  void operator = ( const vtkTecplotReader & ) = delete;
 };
 
 #endif

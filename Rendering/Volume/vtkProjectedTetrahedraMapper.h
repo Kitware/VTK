@@ -91,8 +91,8 @@ protected:
   void ReportReferences(vtkGarbageCollector *collector) override;
 
 private:
-  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &) = delete;
+  void operator=(const vtkProjectedTetrahedraMapper &) = delete;
 };
 
 #endif

@@ -199,8 +199,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkXMLTreeReader(const vtkXMLTreeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLTreeReader&) VTK_DELETE_FUNCTION;
+  vtkXMLTreeReader(const vtkXMLTreeReader&) = delete;
+  void operator=(const vtkXMLTreeReader&) = delete;
 };
 
 #endif

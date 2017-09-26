@@ -91,8 +91,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkDiskSource(const vtkDiskSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDiskSource&) VTK_DELETE_FUNCTION;
+  vtkDiskSource(const vtkDiskSource&) = delete;
+  void operator=(const vtkDiskSource&) = delete;
 };
 
 #endif

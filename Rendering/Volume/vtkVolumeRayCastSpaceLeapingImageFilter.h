@@ -274,8 +274,8 @@ protected:
   //@}
 
 private:
-  vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&) = delete;
+  void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&) = delete;
 };
 
 #endif

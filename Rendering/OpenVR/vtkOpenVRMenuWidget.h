@@ -108,8 +108,7 @@ protected:
   static void Update(vtkAbstractWidget*);
 
 private:
-  vtkOpenVRMenuWidget(const vtkOpenVRMenuWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRMenuWidget&) VTK_DELETE_FUNCTION;
-
+  vtkOpenVRMenuWidget(const vtkOpenVRMenuWidget&) = delete;
+  void operator=(const vtkOpenVRMenuWidget&) = delete;
 };
 #endif

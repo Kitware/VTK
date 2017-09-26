@@ -156,8 +156,8 @@ protected:
   void InitControlPosition();
 
 private:
-  vtkOpenVRControlsHelper(const vtkOpenVRControlsHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRControlsHelper&) VTK_DELETE_FUNCTION;
+  vtkOpenVRControlsHelper(const vtkOpenVRControlsHelper&) = delete;
+  void operator=(const vtkOpenVRControlsHelper&) = delete;
 };
 
 #endif

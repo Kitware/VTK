@@ -101,8 +101,8 @@ protected:
   // Used to get x-y-z pick position
   vtkWorldPointPicker *WorldPointPicker;
 private:
-  vtkPropPicker(const vtkPropPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPropPicker&) VTK_DELETE_FUNCTION;
+  vtkPropPicker(const vtkPropPicker&) = delete;
+  void operator=(const vtkPropPicker&) = delete;
 };
 
 #endif

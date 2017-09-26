@@ -48,8 +48,8 @@ protected:
   ~vtkMapper2D() override {}
 
 private:
-  vtkMapper2D(const vtkMapper2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMapper2D&) VTK_DELETE_FUNCTION;
+  vtkMapper2D(const vtkMapper2D&) = delete;
+  void operator=(const vtkMapper2D&) = delete;
 };
 
 #endif

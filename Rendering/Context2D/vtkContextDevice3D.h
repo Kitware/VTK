@@ -141,8 +141,8 @@ protected:
   ~vtkContextDevice3D() override;
 
 private:
-  vtkContextDevice3D(const vtkContextDevice3D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextDevice3D &) VTK_DELETE_FUNCTION;
+  vtkContextDevice3D(const vtkContextDevice3D &) = delete;
+  void operator=(const vtkContextDevice3D &) = delete;
 };
 
 #endif

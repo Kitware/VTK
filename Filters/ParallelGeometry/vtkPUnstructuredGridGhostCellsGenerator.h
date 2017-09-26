@@ -206,8 +206,8 @@ private:
   struct vtkInternals;
   vtkInternals *Internals;
 
-  vtkPUnstructuredGridGhostCellsGenerator(const vtkPUnstructuredGridGhostCellsGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPUnstructuredGridGhostCellsGenerator&) VTK_DELETE_FUNCTION;
+  vtkPUnstructuredGridGhostCellsGenerator(const vtkPUnstructuredGridGhostCellsGenerator&) = delete;
+  void operator=(const vtkPUnstructuredGridGhostCellsGenerator&) = delete;
 };
 
 #endif

@@ -175,8 +175,8 @@ protected:
   ~vtkCompositeDataDisplayAttributesLegacy() override;
 
 private:
-  vtkCompositeDataDisplayAttributesLegacy(const vtkCompositeDataDisplayAttributesLegacy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataDisplayAttributesLegacy&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataDisplayAttributesLegacy(const vtkCompositeDataDisplayAttributesLegacy&) = delete;
+  void operator=(const vtkCompositeDataDisplayAttributesLegacy&) = delete;
 
   /**
    * If the input data \a dobj is a vtkCompositeDataSet, we will

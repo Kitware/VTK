@@ -75,8 +75,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkRowQueryToTable(const vtkRowQueryToTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRowQueryToTable&) VTK_DELETE_FUNCTION;
+  vtkRowQueryToTable(const vtkRowQueryToTable&) = delete;
+  void operator=(const vtkRowQueryToTable&) = delete;
 };
 
 #endif

@@ -71,8 +71,8 @@ protected:
   vtkSmartPointer<vtkContext2D> Context;
 
 private:
-  vtkContextView(const vtkContextView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextView&) VTK_DELETE_FUNCTION;
+  vtkContextView(const vtkContextView&) = delete;
+  void operator=(const vtkContextView&) = delete;
 };
 
 #endif

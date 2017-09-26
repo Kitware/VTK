@@ -97,8 +97,8 @@ protected:
   virtual void ReadSpecificMolecule(FILE* fp) = 0;
 
 private:
-  vtkMoleculeReaderBase(const vtkMoleculeReaderBase&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMoleculeReaderBase&) VTK_DELETE_FUNCTION;
+  vtkMoleculeReaderBase(const vtkMoleculeReaderBase&) = delete;
+  void operator=(const vtkMoleculeReaderBase&) = delete;
 };
 
 #endif

@@ -286,8 +286,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkLegendBoxActor(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
+  vtkLegendBoxActor(const vtkLegendBoxActor&) = delete;
+  void operator=(const vtkLegendBoxActor&) = delete;
 };
 
 

@@ -187,8 +187,8 @@ protected:
   double ComputedUserDefinedValue[3];
 
 private:
-  vtkCoordinate(const vtkCoordinate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCoordinate&) VTK_DELETE_FUNCTION;
+  vtkCoordinate(const vtkCoordinate&) = delete;
+  void operator=(const vtkCoordinate&) = delete;
 };
 
 #endif

@@ -182,8 +182,8 @@ protected:
   //@}
 
 private:
-  vtkQuadraticPyramid(const vtkQuadraticPyramid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadraticPyramid&) VTK_DELETE_FUNCTION;
+  vtkQuadraticPyramid(const vtkQuadraticPyramid&) = delete;
+  void operator=(const vtkQuadraticPyramid&) = delete;
 };
 //----------------------------------------------------------------------------
 // Return the center of the quadratic pyramid in parametric coordinates.

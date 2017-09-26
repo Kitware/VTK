@@ -232,8 +232,8 @@ protected:
   //@}
 
 private:
-  vtkImageStencilData(const vtkImageStencilData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageStencilData&) VTK_DELETE_FUNCTION;
+  vtkImageStencilData(const vtkImageStencilData&) = delete;
+  void operator=(const vtkImageStencilData&) = delete;
 
   friend class vtkImageStencilIteratorFriendship;
 };
@@ -305,8 +305,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkImageStencilRaster(const vtkImageStencilRaster&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageStencilRaster&) VTK_DELETE_FUNCTION;
+  vtkImageStencilRaster(const vtkImageStencilRaster&) = delete;
+  void operator=(const vtkImageStencilRaster&) = delete;
 };
 
 #endif

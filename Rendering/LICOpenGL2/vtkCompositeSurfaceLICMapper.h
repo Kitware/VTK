@@ -66,8 +66,8 @@ protected:
 
 private:
   vtkCompositeSurfaceLICMapper(
-    const vtkCompositeSurfaceLICMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeSurfaceLICMapper&) VTK_DELETE_FUNCTION;
+    const vtkCompositeSurfaceLICMapper&) = delete;
+  void operator=(const vtkCompositeSurfaceLICMapper&) = delete;
 };
 
 #endif

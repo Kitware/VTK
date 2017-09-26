@@ -100,8 +100,8 @@ protected:
 private:
   char* FileName;
 
-  vtkTulipReader(const vtkTulipReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTulipReader&) VTK_DELETE_FUNCTION;
+  vtkTulipReader(const vtkTulipReader&) = delete;
+  void operator=(const vtkTulipReader&) = delete;
 };
 
 #endif // vtkTulipReader_h

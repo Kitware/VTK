@@ -73,8 +73,8 @@ protected:
                                    vtkUnstructuredGrid *input);
 
 private:
-  vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractUserDefinedPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&) = delete;
+  void operator=(const vtkExtractUserDefinedPiece&) = delete;
 
   void *ConstantData;
   int ConstantDataLen;

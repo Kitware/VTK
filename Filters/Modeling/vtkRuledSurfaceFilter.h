@@ -196,8 +196,8 @@ private:
                   int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
 
 private:
-  vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRuledSurfaceFilter&) VTK_DELETE_FUNCTION;
+  vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&) = delete;
+  void operator=(const vtkRuledSurfaceFilter&) = delete;
 };
 
 #endif

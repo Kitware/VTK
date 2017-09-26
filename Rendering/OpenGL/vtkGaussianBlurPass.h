@@ -102,8 +102,8 @@ public:
   bool SupportProbed;
 
  private:
-  vtkGaussianBlurPass(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;
+  vtkGaussianBlurPass(const vtkGaussianBlurPass&) = delete;
+  void operator=(const vtkGaussianBlurPass&) = delete;
 };
 
 #endif

@@ -113,8 +113,8 @@ protected:
   char *CompressorFourCC;
 
 private:
-  vtkAVIWriter(const vtkAVIWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAVIWriter&) VTK_DELETE_FUNCTION;
+  vtkAVIWriter(const vtkAVIWriter&) = delete;
+  void operator=(const vtkAVIWriter&) = delete;
 };
 
 #endif

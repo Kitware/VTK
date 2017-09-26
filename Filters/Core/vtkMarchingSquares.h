@@ -107,8 +107,8 @@ protected:
   vtkIncrementalPointLocator *Locator;
 
 private:
-  vtkMarchingSquares(const vtkMarchingSquares&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMarchingSquares&) VTK_DELETE_FUNCTION;
+  vtkMarchingSquares(const vtkMarchingSquares&) = delete;
+  void operator=(const vtkMarchingSquares&) = delete;
 };
 
 /**

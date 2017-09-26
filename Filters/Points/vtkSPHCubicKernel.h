@@ -94,8 +94,8 @@ protected:
   ~vtkSPHCubicKernel() override;
 
 private:
-  vtkSPHCubicKernel(const vtkSPHCubicKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHCubicKernel&) VTK_DELETE_FUNCTION;
+  vtkSPHCubicKernel(const vtkSPHCubicKernel&) = delete;
+  void operator=(const vtkSPHCubicKernel&) = delete;
 };
 
 #endif

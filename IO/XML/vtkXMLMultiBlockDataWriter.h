@@ -51,8 +51,8 @@ protected:
     vtkXMLDataElement* parent, int &writerIdx) override;
 
 private:
-  vtkXMLMultiBlockDataWriter(const vtkXMLMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLMultiBlockDataWriter(const vtkXMLMultiBlockDataWriter&) = delete;
+  void operator=(const vtkXMLMultiBlockDataWriter&) = delete;
 
 };
 

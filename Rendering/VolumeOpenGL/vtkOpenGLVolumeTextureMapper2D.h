@@ -55,8 +55,8 @@ protected:
   ~vtkOpenGLVolumeTextureMapper2D() override;
 
 private:
-  vtkOpenGLVolumeTextureMapper2D(const vtkOpenGLVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeTextureMapper2D(const vtkOpenGLVolumeTextureMapper2D&) = delete;
+  void operator=(const vtkOpenGLVolumeTextureMapper2D&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

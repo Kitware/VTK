@@ -175,8 +175,8 @@ protected:
   vtkCoordinate *Anchor;
 
 private:
-  vtkTexturedButtonRepresentation2D(const vtkTexturedButtonRepresentation2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTexturedButtonRepresentation2D&) VTK_DELETE_FUNCTION;
+  vtkTexturedButtonRepresentation2D(const vtkTexturedButtonRepresentation2D&) = delete;
+  void operator=(const vtkTexturedButtonRepresentation2D&) = delete;
 };
 
 #endif

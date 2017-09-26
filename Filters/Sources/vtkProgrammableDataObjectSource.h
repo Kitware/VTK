@@ -79,8 +79,8 @@ protected:
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
 private:
-  vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableDataObjectSource&) VTK_DELETE_FUNCTION;
+  vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&) = delete;
+  void operator=(const vtkProgrammableDataObjectSource&) = delete;
 };
 
 #endif

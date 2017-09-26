@@ -90,8 +90,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkVectorDot(const vtkVectorDot&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVectorDot&) VTK_DELETE_FUNCTION;
+  vtkVectorDot(const vtkVectorDot&) = delete;
+  void operator=(const vtkVectorDot&) = delete;
 };
 
 #endif

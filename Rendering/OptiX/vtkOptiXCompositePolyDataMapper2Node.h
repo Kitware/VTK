@@ -67,7 +67,7 @@ protected:
   RenderBlockState BlockState;
 
 private:
-  vtkOptiXCompositePolyDataMapper2Node(const vtkOptiXCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
+  vtkOptiXCompositePolyDataMapper2Node(const vtkOptiXCompositePolyDataMapper2Node&) = delete;
+  void operator=(const vtkOptiXCompositePolyDataMapper2Node&) = delete;
 };
 #endif

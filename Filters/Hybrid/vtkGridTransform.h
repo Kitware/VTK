@@ -158,8 +158,8 @@ protected:
   vtkIdType GridIncrements[3];
 
 private:
-  vtkGridTransform(const vtkGridTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGridTransform&) VTK_DELETE_FUNCTION;
+  vtkGridTransform(const vtkGridTransform&) = delete;
+  void operator=(const vtkGridTransform&) = delete;
 
   vtkGridTransformConnectionHolder* ConnectionHolder;
 };

@@ -145,8 +145,8 @@ protected:
   //@}
 
 private:
-  vtkXMLPMultiBlockDataWriter(const vtkXMLPMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPMultiBlockDataWriter(const vtkXMLPMultiBlockDataWriter&) = delete;
+  void operator=(const vtkXMLPMultiBlockDataWriter&) = delete;
 
   class vtkInternal;
   vtkInternal* XMLPMultiBlockDataWriterInternal;

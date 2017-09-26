@@ -62,8 +62,8 @@ protected:
   ~vtkTreeMapLayoutStrategy() override;
   void AddBorder( float *boxInfo);
 private:
-  vtkTreeMapLayoutStrategy(const vtkTreeMapLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeMapLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkTreeMapLayoutStrategy(const vtkTreeMapLayoutStrategy&) = delete;
+  void operator=(const vtkTreeMapLayoutStrategy&) = delete;
 };
 
 #endif

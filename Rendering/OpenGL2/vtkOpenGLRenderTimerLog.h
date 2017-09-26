@@ -124,8 +124,8 @@ protected:
   void ForceCloseEvent(OGLEvent &event);
 
 private:
-  vtkOpenGLRenderTimerLog(const vtkOpenGLRenderTimerLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderTimerLog&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderTimerLog(const vtkOpenGLRenderTimerLog&) = delete;
+  void operator=(const vtkOpenGLRenderTimerLog&) = delete;
 };
 
 #endif // vtkOpenGLRenderTimerLog_h

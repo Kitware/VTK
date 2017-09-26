@@ -73,8 +73,8 @@ protected:
   double Angle;
 
 private:
-  vtkCone(const vtkCone&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCone&) VTK_DELETE_FUNCTION;
+  vtkCone(const vtkCone&) = delete;
+  void operator=(const vtkCone&) = delete;
 };
 
 #endif

@@ -223,8 +223,8 @@ protected:
   int Orientation;
 
 private:
-  vtkTreeHeatmapItem(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
+  vtkTreeHeatmapItem(const vtkTreeHeatmapItem&) = delete;
+  void operator=(const vtkTreeHeatmapItem&) = delete;
 
   vtkMTimeType TreeHeatmapBuildTime;
 };

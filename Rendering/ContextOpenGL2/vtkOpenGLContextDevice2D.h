@@ -485,8 +485,8 @@ protected:
   void TransformSize(float &dx, float &dy) const;
 
 private:
-  vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
+  vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &) = delete;
+  void operator=(const vtkOpenGLContextDevice2D &) = delete;
 
   /**
    * Retrieve a point sprite image for a given marker shape and size. The

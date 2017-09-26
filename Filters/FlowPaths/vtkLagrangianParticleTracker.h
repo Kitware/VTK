@@ -394,8 +394,8 @@ protected:
   vtkMTimeType SurfacesTime;
 
 private:
-  vtkLagrangianParticleTracker(const vtkLagrangianParticleTracker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangianParticleTracker&) VTK_DELETE_FUNCTION;
+  vtkLagrangianParticleTracker(const vtkLagrangianParticleTracker&) = delete;
+  void operator=(const vtkLagrangianParticleTracker&) = delete;
 };
 
 #endif

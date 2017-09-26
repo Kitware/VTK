@@ -147,8 +147,8 @@ public:
 private:
   vector<double> TimeSteps;
   bool HasTimeDependentData;
-  TestTimeSource(const TestTimeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const TestTimeSource&) VTK_DELETE_FUNCTION;
+  TestTimeSource(const TestTimeSource&) = delete;
+  void operator=(const TestTimeSource&) = delete;
 };
 vtkStandardNewMacro(TestTimeSource);
 
@@ -213,8 +213,8 @@ private:
   double StartTime;
   int TimeIndex;
   int TimeIterations;
-  TestTimeFilter(const TestTimeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const TestTimeFilter&) VTK_DELETE_FUNCTION;
+  TestTimeFilter(const TestTimeFilter&) = delete;
+  void operator=(const TestTimeFilter&) = delete;
 };
 vtkStandardNewMacro(TestTimeFilter);
 

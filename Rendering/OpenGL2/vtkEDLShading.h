@@ -167,8 +167,8 @@ public:
   float Zf;  // far clipping plane
 
  private:
-  vtkEDLShading(const vtkEDLShading&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEDLShading&) VTK_DELETE_FUNCTION;
+  vtkEDLShading(const vtkEDLShading&) = delete;
+  void operator=(const vtkEDLShading&) = delete;
 };
 
 #endif

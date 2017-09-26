@@ -91,8 +91,8 @@ protected:
                          vtkInformationVector *) override;
 
 private:
-  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCPExodusIIInSituReader &) VTK_DELETE_FUNCTION;
+  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &) = delete;
+  void operator=(const vtkCPExodusIIInSituReader &) = delete;
 
   bool ExOpen();
   char *FileName;

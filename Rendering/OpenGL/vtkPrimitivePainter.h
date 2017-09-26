@@ -129,8 +129,8 @@ protected:
   bool MultiTextureAttributes;
 
 private:
-  vtkPrimitivePainter(const vtkPrimitivePainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPrimitivePainter&) VTK_DELETE_FUNCTION;
+  vtkPrimitivePainter(const vtkPrimitivePainter&) = delete;
+  void operator=(const vtkPrimitivePainter&) = delete;
 };
 
 #endif

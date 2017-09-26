@@ -60,8 +60,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBlankStructuredGridWithImage&) VTK_DELETE_FUNCTION;
+  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&) = delete;
+  void operator=(const vtkBlankStructuredGridWithImage&) = delete;
 };
 
 #endif

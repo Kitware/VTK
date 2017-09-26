@@ -67,8 +67,8 @@ protected:
   ~vtkPNMReader() override {}
   void ExecuteInformation() override;
 private:
-  vtkPNMReader(const vtkPNMReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNMReader&) VTK_DELETE_FUNCTION;
+  vtkPNMReader(const vtkPNMReader&) = delete;
+  void operator=(const vtkPNMReader&) = delete;
 };
 
 #endif

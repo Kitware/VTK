@@ -63,8 +63,8 @@ protected:
   ~vtkMergePoints() override {}
 
 private:
-  vtkMergePoints(const vtkMergePoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergePoints&) VTK_DELETE_FUNCTION;
+  vtkMergePoints(const vtkMergePoints&) = delete;
+  void operator=(const vtkMergePoints&) = delete;
 };
 
 #endif

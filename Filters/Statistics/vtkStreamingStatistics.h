@@ -84,8 +84,8 @@ protected:
     vtkInformationVector* ) override;
 
 private:
-  vtkStreamingStatistics( const vtkStreamingStatistics& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkStreamingStatistics& ) VTK_DELETE_FUNCTION;
+  vtkStreamingStatistics( const vtkStreamingStatistics& ) = delete;
+  void operator = ( const vtkStreamingStatistics& ) = delete;
 
   // Internal statistics algorithm to care for and feed
   vtkStatisticsAlgorithm* StatisticsAlgorithm;

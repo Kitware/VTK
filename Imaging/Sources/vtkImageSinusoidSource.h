@@ -86,8 +86,8 @@ protected:
   int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
   void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) override;
 private:
-  vtkImageSinusoidSource(const vtkImageSinusoidSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSinusoidSource&) VTK_DELETE_FUNCTION;
+  vtkImageSinusoidSource(const vtkImageSinusoidSource&) = delete;
+  void operator=(const vtkImageSinusoidSource&) = delete;
 };
 
 

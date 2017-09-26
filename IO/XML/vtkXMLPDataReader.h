@@ -137,8 +137,8 @@ protected:
   vtkXMLDataElement* PCellDataElement;
 
 private:
-  vtkXMLPDataReader(const vtkXMLPDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPDataReader(const vtkXMLPDataReader&) = delete;
+  void operator=(const vtkXMLPDataReader&) = delete;
 };
 
 #endif

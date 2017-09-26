@@ -48,8 +48,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkXMLDataSetWriter(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLDataSetWriter(const vtkXMLDataSetWriter&) = delete;
+  void operator=(const vtkXMLDataSetWriter&) = delete;
 };
 
 #endif

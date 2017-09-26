@@ -101,8 +101,8 @@ public:
   bool AutomaticFocalDistance;
 
  private:
-  vtkDepthOfFieldPass(const vtkDepthOfFieldPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthOfFieldPass&) VTK_DELETE_FUNCTION;
+  vtkDepthOfFieldPass(const vtkDepthOfFieldPass&) = delete;
+  void operator=(const vtkDepthOfFieldPass&) = delete;
 };
 
 #endif

@@ -82,8 +82,8 @@ protected:
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectTable(const vtkCollectTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollectTable&) VTK_DELETE_FUNCTION;
+  vtkCollectTable(const vtkCollectTable&) = delete;
+  void operator=(const vtkCollectTable&) = delete;
 };
 
 #endif

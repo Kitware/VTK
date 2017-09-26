@@ -78,8 +78,8 @@ protected:
   int Encoding;
 
 private:
-  vtkNrrdReader(const vtkNrrdReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNrrdReader &) VTK_DELETE_FUNCTION;
+  vtkNrrdReader(const vtkNrrdReader &) = delete;
+  void operator=(const vtkNrrdReader &) = delete;
 };
 
 #endif //vtkNrrdReader_h

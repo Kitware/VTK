@@ -82,8 +82,8 @@ protected:
   int NumberOfSides;
 
 private:
-  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
+  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&) = delete;
+  void operator=(const vtkUncertaintyTubeFilter&) = delete;
 };
 
 #endif

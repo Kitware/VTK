@@ -96,8 +96,8 @@ protected:
   ~vtkDataEncoder() override;
 
 private:
-  vtkDataEncoder(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
+  vtkDataEncoder(const vtkDataEncoder&) = delete;
+  void operator=(const vtkDataEncoder&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

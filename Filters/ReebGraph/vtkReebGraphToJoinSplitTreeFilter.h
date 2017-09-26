@@ -84,8 +84,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphToJoinSplitTreeFilter(const vtkReebGraphToJoinSplitTreeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReebGraphToJoinSplitTreeFilter&) VTK_DELETE_FUNCTION;
+  vtkReebGraphToJoinSplitTreeFilter(const vtkReebGraphToJoinSplitTreeFilter&) = delete;
+  void operator=(const vtkReebGraphToJoinSplitTreeFilter&) = delete;
 };
 
 #endif

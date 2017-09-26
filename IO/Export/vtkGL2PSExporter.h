@@ -377,8 +377,8 @@ protected:
   float LineWidthFactor;
 
 private:
-  vtkGL2PSExporter(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
+  vtkGL2PSExporter(const vtkGL2PSExporter&) = delete;
+  void operator=(const vtkGL2PSExporter&) = delete;
 };
 
 inline const char *vtkGL2PSExporter::GetSortAsString(void)

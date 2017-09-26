@@ -79,8 +79,8 @@ private:
 
   typedef vtkAOSDataArrayTemplate<long long> RealSuperclass;
 
-  vtkLongLongArray(const vtkLongLongArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLongLongArray&) VTK_DELETE_FUNCTION;
+  vtkLongLongArray(const vtkLongLongArray&) = delete;
+  void operator=(const vtkLongLongArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

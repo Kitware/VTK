@@ -243,8 +243,8 @@ protected:
   vtkAssembly        *Assembly;
 
 private:
-  vtkAnnotatedCubeActor(const vtkAnnotatedCubeActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotatedCubeActor&) VTK_DELETE_FUNCTION;
+  vtkAnnotatedCubeActor(const vtkAnnotatedCubeActor&) = delete;
+  void operator=(const vtkAnnotatedCubeActor&) = delete;
 };
 
 #endif

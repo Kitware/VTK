@@ -129,8 +129,8 @@ protected:
   vtkEvent *Event;
 
 private:
-  vtkWidgetEventTranslator(const vtkWidgetEventTranslator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWidgetEventTranslator&) VTK_DELETE_FUNCTION;
+  vtkWidgetEventTranslator(const vtkWidgetEventTranslator&) = delete;
+  void operator=(const vtkWidgetEventTranslator&) = delete;
 
 };
 

@@ -59,8 +59,8 @@ protected:
   //@}
 
 private:
-  vtkPCellSizeFilter(const vtkPCellSizeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCellSizeFilter&) VTK_DELETE_FUNCTION;
+  vtkPCellSizeFilter(const vtkPCellSizeFilter&) = delete;
+  void operator=(const vtkPCellSizeFilter&) = delete;
 };
 
 #endif

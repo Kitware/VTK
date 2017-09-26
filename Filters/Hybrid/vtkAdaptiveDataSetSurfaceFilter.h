@@ -179,8 +179,8 @@ protected:
   double Scale;
 
 private:
-  vtkAdaptiveDataSetSurfaceFilter( const vtkAdaptiveDataSetSurfaceFilter& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkAdaptiveDataSetSurfaceFilter& ) VTK_DELETE_FUNCTION;
+  vtkAdaptiveDataSetSurfaceFilter( const vtkAdaptiveDataSetSurfaceFilter& ) = delete;
+  void operator = ( const vtkAdaptiveDataSetSurfaceFilter& ) = delete;
 };
 
 #endif

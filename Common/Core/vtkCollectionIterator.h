@@ -88,8 +88,8 @@ protected:
 
   vtkObject* GetObjectInternal();
 private:
-  vtkCollectionIterator(const vtkCollectionIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollectionIterator&) VTK_DELETE_FUNCTION;
+  vtkCollectionIterator(const vtkCollectionIterator&) = delete;
+  void operator=(const vtkCollectionIterator&) = delete;
 };
 
 #endif

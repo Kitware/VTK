@@ -123,8 +123,8 @@ protected:
   int PedigreeID;
 
 private:
-  vtkGenerateIndexArray(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
+  vtkGenerateIndexArray(const vtkGenerateIndexArray&) = delete;
+  void operator=(const vtkGenerateIndexArray&) = delete;
 };
 
 #endif

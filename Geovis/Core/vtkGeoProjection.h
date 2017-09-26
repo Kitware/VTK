@@ -152,8 +152,8 @@ protected:
   vtkMTimeType ProjectionMTime;
 
 private:
-  vtkGeoProjection( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;
+  vtkGeoProjection( const vtkGeoProjection& ) = delete;
+  void operator = ( const vtkGeoProjection& ) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

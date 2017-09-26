@@ -255,8 +255,8 @@ protected:
                            vtkDataSet *output);
 
 private:
-  vtkNetCDFReader(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
+  vtkNetCDFReader(const vtkNetCDFReader &) = delete;
+  void operator=(const vtkNetCDFReader &) = delete;
 
   int UpdateExtent[6];
   char *TimeUnits;

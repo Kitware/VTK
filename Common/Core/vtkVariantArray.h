@@ -330,8 +330,8 @@ protected:
   int SaveUserArray;
 
 private:
-  vtkVariantArray(const vtkVariantArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVariantArray&) VTK_DELETE_FUNCTION;
+  vtkVariantArray(const vtkVariantArray&) = delete;
+  void operator=(const vtkVariantArray&) = delete;
 
   vtkVariantArrayLookup* Lookup;
   void UpdateLookup();

@@ -48,8 +48,8 @@ protected:
   void PostRenderProcessing() override;
 
 private:
-  vtkImageRenderManager(const vtkImageRenderManager &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRenderManager &) VTK_DELETE_FUNCTION;
+  vtkImageRenderManager(const vtkImageRenderManager &) = delete;
+  void operator=(const vtkImageRenderManager &) = delete;
 };
 
 #endif //vtkImageRenderManager_h

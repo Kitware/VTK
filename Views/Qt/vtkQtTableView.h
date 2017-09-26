@@ -246,8 +246,8 @@ private:
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
-  vtkQtTableView(const vtkQtTableView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTableView&) VTK_DELETE_FUNCTION;
+  vtkQtTableView(const vtkQtTableView&) = delete;
+  void operator=(const vtkQtTableView&) = delete;
 
 };
 

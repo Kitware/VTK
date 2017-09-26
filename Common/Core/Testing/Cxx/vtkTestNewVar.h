@@ -61,8 +61,8 @@ protected:
   vtkNew<vtkPoints2D> Points;
 
 private:
-  vtkTestNewVar(const vtkTestNewVar&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTestNewVar&) VTK_DELETE_FUNCTION;
+  vtkTestNewVar(const vtkTestNewVar&) = delete;
+  void operator=(const vtkTestNewVar&) = delete;
 };
 
 #endif

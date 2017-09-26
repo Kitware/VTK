@@ -156,8 +156,8 @@ protected:
   char* NodeSizeArrayName;
 
 private:
-  vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkCosmicTreeLayoutStrategy& ) VTK_DELETE_FUNCTION;
+  vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ) = delete;
+  void operator = ( const vtkCosmicTreeLayoutStrategy& ) = delete;
 };
 
 #endif // vtkCosmicTreeLayoutStrategy_h

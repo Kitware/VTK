@@ -169,8 +169,8 @@ protected:
   ~vtkTimePointUtility() override {}
 
 private:
-  vtkTimePointUtility(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;
+  vtkTimePointUtility(const vtkTimePointUtility&) = delete;
+  void operator=(const vtkTimePointUtility&) = delete;
 };
 
 #endif

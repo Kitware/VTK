@@ -104,8 +104,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBoy : public
     double ZScale;
 
   private:
-    vtkParametricBoy(const vtkParametricBoy&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricBoy&) VTK_DELETE_FUNCTION;
+    vtkParametricBoy(const vtkParametricBoy&) = delete;
+    void operator=(const vtkParametricBoy&) = delete;
 };
 
 #endif

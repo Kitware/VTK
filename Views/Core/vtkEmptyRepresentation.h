@@ -55,8 +55,8 @@ protected:
   ~vtkEmptyRepresentation() override;
 
 private:
-  vtkEmptyRepresentation(const vtkEmptyRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEmptyRepresentation&) VTK_DELETE_FUNCTION;
+  vtkEmptyRepresentation(const vtkEmptyRepresentation&) = delete;
+  void operator=(const vtkEmptyRepresentation&) = delete;
 
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;
 

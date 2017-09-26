@@ -56,8 +56,8 @@ protected:
   char* FileName;
 
 private:
-  vtkHoudiniPolyDataWriter(const vtkHoudiniPolyDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHoudiniPolyDataWriter&) VTK_DELETE_FUNCTION;
+  vtkHoudiniPolyDataWriter(const vtkHoudiniPolyDataWriter&) = delete;
+  void operator=(const vtkHoudiniPolyDataWriter&) = delete;
 
 };
 

@@ -150,8 +150,8 @@ protected:
 
 private:
 
-  vtkX3DExporter(const vtkX3DExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporter&) VTK_DELETE_FUNCTION;
+  vtkX3DExporter(const vtkX3DExporter&) = delete;
+  void operator=(const vtkX3DExporter&) = delete;
 };
 
 

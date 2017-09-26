@@ -163,8 +163,8 @@ protected:
   vtkCutter* Cutter;
 
 private:
-  vtkHyperTreeGridPlaneCutter(const vtkHyperTreeGridPlaneCutter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridPlaneCutter&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridPlaneCutter(const vtkHyperTreeGridPlaneCutter&) = delete;
+  void operator=(const vtkHyperTreeGridPlaneCutter&) = delete;
 };
 
 #endif /* vtkHyperTreeGridPlaneCutter_h */

@@ -113,8 +113,8 @@ protected:
   int FilterPoints(vtkPointSet *input) override;
 
 private:
-  vtkExtractHierarchicalBins(const vtkExtractHierarchicalBins&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractHierarchicalBins&) VTK_DELETE_FUNCTION;
+  vtkExtractHierarchicalBins(const vtkExtractHierarchicalBins&) = delete;
+  void operator=(const vtkExtractHierarchicalBins&) = delete;
 
 };
 

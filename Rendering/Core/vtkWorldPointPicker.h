@@ -57,8 +57,8 @@ protected:
   ~vtkWorldPointPicker() override {}
 
 private:
-  vtkWorldPointPicker(const vtkWorldPointPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWorldPointPicker&) VTK_DELETE_FUNCTION;
+  vtkWorldPointPicker(const vtkWorldPointPicker&) = delete;
+  void operator=(const vtkWorldPointPicker&) = delete;
 };
 
 #endif

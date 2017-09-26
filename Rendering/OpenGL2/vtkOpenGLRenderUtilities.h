@@ -115,8 +115,8 @@ protected:
   ~vtkOpenGLRenderUtilities() override;
 
 private:
-  vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&) = delete;
+  void operator=(const vtkOpenGLRenderUtilities&) = delete;
 };
 
 #endif

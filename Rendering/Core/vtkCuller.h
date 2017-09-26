@@ -51,8 +51,8 @@ protected:
   ~vtkCuller() override;
 
 private:
-  vtkCuller(const vtkCuller&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCuller&) VTK_DELETE_FUNCTION;
+  vtkCuller(const vtkCuller&) = delete;
+  void operator=(const vtkCuller&) = delete;
 };
 
 #endif

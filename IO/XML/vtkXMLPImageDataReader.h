@@ -75,8 +75,8 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkXMLPImageDataReader(const vtkXMLPImageDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPImageDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPImageDataReader(const vtkXMLPImageDataReader&) = delete;
+  void operator=(const vtkXMLPImageDataReader&) = delete;
 };
 
 #endif

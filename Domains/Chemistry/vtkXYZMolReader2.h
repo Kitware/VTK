@@ -75,8 +75,8 @@ protected:
   int NumberOfAtoms;
 
 private:
-  vtkXYZMolReader2(const vtkXYZMolReader2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXYZMolReader2&) VTK_DELETE_FUNCTION;
+  vtkXYZMolReader2(const vtkXYZMolReader2&) = delete;
+  void operator=(const vtkXYZMolReader2&) = delete;
 };
 
 #endif

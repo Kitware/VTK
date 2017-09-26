@@ -178,8 +178,8 @@ protected:
   vtkIdTypeArray* FaceOffsets;
 
 private:
-  vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&) = delete;
+  void operator=(const vtkXMLUnstructuredDataWriter&) = delete;
 };
 
 #endif

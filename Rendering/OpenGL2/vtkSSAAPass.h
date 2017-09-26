@@ -99,8 +99,8 @@ public:
   vtkRenderPass *DelegatePass;
 
  private:
-  vtkSSAAPass(const vtkSSAAPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSSAAPass&) VTK_DELETE_FUNCTION;
+  vtkSSAAPass(const vtkSSAAPass&) = delete;
+  void operator=(const vtkSSAAPass&) = delete;
 };
 
 #endif

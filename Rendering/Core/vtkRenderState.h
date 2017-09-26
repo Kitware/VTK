@@ -157,8 +157,8 @@ class VTKRENDERINGCORE_EXPORT vtkRenderState
 
 private:
   vtkRenderState(); // no default constructor.
-  vtkRenderState(const vtkRenderState &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderState &) VTK_DELETE_FUNCTION;
+  vtkRenderState(const vtkRenderState &) = delete;
+  void operator=(const vtkRenderState &) = delete;
 };
 
 #endif

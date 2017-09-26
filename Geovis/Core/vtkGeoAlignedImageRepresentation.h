@@ -98,8 +98,8 @@ protected:
   vtkGeoTreeNodeCache* Cache;
 
 private:
-  vtkGeoAlignedImageRepresentation(const vtkGeoAlignedImageRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoAlignedImageRepresentation&) VTK_DELETE_FUNCTION;
+  vtkGeoAlignedImageRepresentation(const vtkGeoAlignedImageRepresentation&) = delete;
+  void operator=(const vtkGeoAlignedImageRepresentation&) = delete;
 };
 
 #endif

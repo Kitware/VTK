@@ -63,8 +63,8 @@ protected:
   bool ModuloOrdering;
 
 private:
-  vtkExtractPointCloudPiece(const vtkExtractPointCloudPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractPointCloudPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractPointCloudPiece(const vtkExtractPointCloudPiece&) = delete;
+  void operator=(const vtkExtractPointCloudPiece&) = delete;
 };
 
 #endif

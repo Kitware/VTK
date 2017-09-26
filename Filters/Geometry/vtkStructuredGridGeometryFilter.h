@@ -82,8 +82,8 @@ protected:
 
   int Extent[6];
 private:
-  vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&) = delete;
+  void operator=(const vtkStructuredGridGeometryFilter&) = delete;
 };
 
 #endif

@@ -180,8 +180,8 @@ protected:
   ~vtkDenseArray() override;
 
 private:
-  vtkDenseArray(const vtkDenseArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDenseArray&) VTK_DELETE_FUNCTION;
+  vtkDenseArray(const vtkDenseArray&) = delete;
+  void operator=(const vtkDenseArray&) = delete;
 
   void InternalResize(const vtkArrayExtents& extents) override;
   void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) override;

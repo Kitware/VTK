@@ -361,8 +361,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkGlyph3D(const vtkGlyph3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGlyph3D&) VTK_DELETE_FUNCTION;
+  vtkGlyph3D(const vtkGlyph3D&) = delete;
+  void operator=(const vtkGlyph3D&) = delete;
 };
 
 //@{

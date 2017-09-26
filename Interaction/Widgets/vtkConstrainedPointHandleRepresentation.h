@@ -283,8 +283,8 @@ protected:
   double InteractionOffset[2];
 
 private:
-  vtkConstrainedPointHandleRepresentation(const vtkConstrainedPointHandleRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConstrainedPointHandleRepresentation&) VTK_DELETE_FUNCTION;
+  vtkConstrainedPointHandleRepresentation(const vtkConstrainedPointHandleRepresentation&) = delete;
+  void operator=(const vtkConstrainedPointHandleRepresentation&) = delete;
 };
 
 #endif

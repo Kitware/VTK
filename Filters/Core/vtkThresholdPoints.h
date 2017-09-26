@@ -99,8 +99,8 @@ protected:
   int Between(double s) {return ( s >= this->LowerThreshold ?
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
-  vtkThresholdPoints(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
+  vtkThresholdPoints(const vtkThresholdPoints&) = delete;
+  void operator=(const vtkThresholdPoints&) = delete;
 };
 
 #endif

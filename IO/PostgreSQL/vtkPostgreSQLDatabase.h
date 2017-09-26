@@ -255,8 +255,8 @@ protected:
   char* LastErrorText;
 
 private:
-  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
+  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ) = delete;
+  void operator = ( const vtkPostgreSQLDatabase& ) = delete;
 };
 
 // This is basically the body of the SetStringMacro but with a

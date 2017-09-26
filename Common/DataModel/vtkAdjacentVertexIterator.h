@@ -97,8 +97,8 @@ protected:
   vtkIdType             Vertex;
 
 private:
-  vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAdjacentVertexIterator&) VTK_DELETE_FUNCTION;
+  vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&) = delete;
+  void operator=(const vtkAdjacentVertexIterator&) = delete;
 };
 
 #endif

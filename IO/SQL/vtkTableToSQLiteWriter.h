@@ -51,8 +51,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkTableToSQLiteWriter(const vtkTableToSQLiteWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToSQLiteWriter&) VTK_DELETE_FUNCTION;
+  vtkTableToSQLiteWriter(const vtkTableToSQLiteWriter&) = delete;
+  void operator=(const vtkTableToSQLiteWriter&) = delete;
 };
 
 #endif

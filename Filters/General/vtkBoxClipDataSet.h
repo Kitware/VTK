@@ -270,8 +270,8 @@ protected:
   double PlanePoint[6][3]; //point on the plane
 
 private:
-  vtkBoxClipDataSet(const vtkBoxClipDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoxClipDataSet&) VTK_DELETE_FUNCTION;
+  vtkBoxClipDataSet(const vtkBoxClipDataSet&) = delete;
+  void operator=(const vtkBoxClipDataSet&) = delete;
 };
 
 #endif

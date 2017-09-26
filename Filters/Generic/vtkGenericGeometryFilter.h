@@ -205,8 +205,8 @@ protected:
   int PassThroughCellIds;
 
 private:
-  vtkGenericGeometryFilter(const vtkGenericGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkGenericGeometryFilter(const vtkGenericGeometryFilter&) = delete;
+  void operator=(const vtkGenericGeometryFilter&) = delete;
 };
 
 #endif

@@ -74,8 +74,8 @@ protected:
   //@}
 
 private:
-  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRToMultiBlockFilter& ) VTK_DELETE_FUNCTION;
+  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ) = delete;
+  void operator=(const vtkAMRToMultiBlockFilter& ) = delete;
 };
 
 #endif /* vtkAMRToMultiBlockFilter_h */

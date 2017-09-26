@@ -87,8 +87,8 @@ protected:
                   vtkInformationVector *) override;
 
 private:
-  vtkStructuredGridClip(const vtkStructuredGridClip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridClip&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridClip(const vtkStructuredGridClip&) = delete;
+  void operator=(const vtkStructuredGridClip&) = delete;
 };
 
 

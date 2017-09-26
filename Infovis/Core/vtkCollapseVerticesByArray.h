@@ -141,8 +141,8 @@ protected:
 
 private:
   //@{
-  vtkCollapseVerticesByArray(const vtkCollapseVerticesByArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollapseVerticesByArray&) VTK_DELETE_FUNCTION;
+  vtkCollapseVerticesByArray(const vtkCollapseVerticesByArray&) = delete;
+  void operator=(const vtkCollapseVerticesByArray&) = delete;
   //@}
 
 

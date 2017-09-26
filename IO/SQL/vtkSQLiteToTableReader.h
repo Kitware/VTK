@@ -42,8 +42,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *) override;
 private:
-  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLiteToTableReader&) VTK_DELETE_FUNCTION;
+  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&) = delete;
+  void operator=(const vtkSQLiteToTableReader&) = delete;
 };
 
 #endif

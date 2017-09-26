@@ -191,8 +191,8 @@ protected:
 
   //
 private:
-  vtkTemporalPathLineFilter(const vtkTemporalPathLineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalPathLineFilter&) VTK_DELETE_FUNCTION;
+  vtkTemporalPathLineFilter(const vtkTemporalPathLineFilter&) = delete;
+  void operator=(const vtkTemporalPathLineFilter&) = delete;
 };
 
 #endif

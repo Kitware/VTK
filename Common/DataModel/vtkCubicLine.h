@@ -134,8 +134,8 @@ protected:
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkCubicLine(const vtkCubicLine&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCubicLine&) VTK_DELETE_FUNCTION;
+  vtkCubicLine(const vtkCubicLine&) = delete;
+  void operator=(const vtkCubicLine&) = delete;
 };
 
 //----------------------------------------------------------------------------

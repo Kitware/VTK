@@ -314,8 +314,8 @@ protected:
                            vtkDataArray *inScalars);
 
 private:
-  vtkPolyhedron(const vtkPolyhedron&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyhedron&) VTK_DELETE_FUNCTION;
+  vtkPolyhedron(const vtkPolyhedron&) = delete;
+  void operator=(const vtkPolyhedron&) = delete;
 
   class vtkInternal;
   vtkInternal * Internal;

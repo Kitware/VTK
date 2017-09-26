@@ -92,8 +92,8 @@ protected:
 
   void ReportReferences(vtkGarbageCollector*) override;
 private:
-  vtkTrivialProducer(const vtkTrivialProducer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTrivialProducer&) VTK_DELETE_FUNCTION;
+  vtkTrivialProducer(const vtkTrivialProducer&) = delete;
+  void operator=(const vtkTrivialProducer&) = delete;
 };
 
 #endif

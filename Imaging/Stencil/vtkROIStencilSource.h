@@ -83,8 +83,8 @@ protected:
   double Bounds[6];
 
 private:
-  vtkROIStencilSource(const vtkROIStencilSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkROIStencilSource&) VTK_DELETE_FUNCTION;
+  vtkROIStencilSource(const vtkROIStencilSource&) = delete;
+  void operator=(const vtkROIStencilSource&) = delete;
 };
 
 #endif

@@ -119,8 +119,8 @@ protected:
   char*         KeySym;
 
 private:
-  vtkEvent(const vtkEvent&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEvent&) VTK_DELETE_FUNCTION;
+  vtkEvent(const vtkEvent&) = delete;
+  void operator=(const vtkEvent&) = delete;
 
 };
 

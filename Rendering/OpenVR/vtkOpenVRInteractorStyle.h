@@ -184,8 +184,8 @@ protected:
   void AddTooltipForInput(vtkEventDataDevice device, vtkEventDataDeviceInput input);
 
 private:
-  vtkOpenVRInteractorStyle(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
-  void operator=(const vtkOpenVRInteractorStyle&) VTK_DELETE_FUNCTION;  // Not implemented.
+  vtkOpenVRInteractorStyle(const vtkOpenVRInteractorStyle&) = delete;  // Not implemented.
+  void operator=(const vtkOpenVRInteractorStyle&) = delete;  // Not implemented.
 };
 
 #endif

@@ -202,8 +202,8 @@ protected:
   char* LabelArrayNameInternal;
 
 private:
-  vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalGraphPipeline&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&) = delete;
+  void operator=(const vtkHierarchicalGraphPipeline&) = delete;
 };
 
 #endif

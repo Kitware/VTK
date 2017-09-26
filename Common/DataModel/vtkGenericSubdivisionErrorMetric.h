@@ -117,8 +117,8 @@ protected:
   vtkGenericDataSet *DataSet;
 
 private:
-  vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericSubdivisionErrorMetric&) VTK_DELETE_FUNCTION;
+  vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&) = delete;
+  void operator=(const vtkGenericSubdivisionErrorMetric&) = delete;
 };
 
 #endif

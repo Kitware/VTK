@@ -216,8 +216,8 @@ protected:
   virtual void PlaceTooltip(vtkIdType v);
 
 private:
-  vtkGraphItem(const vtkGraphItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphItem&) VTK_DELETE_FUNCTION;
+  vtkGraphItem(const vtkGraphItem&) = delete;
+  void operator=(const vtkGraphItem&) = delete;
 
   struct Internals;
   Internals *Internal;

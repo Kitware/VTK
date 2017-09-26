@@ -195,8 +195,8 @@ protected:
   vtkWeakPointer<vtkAxisActor> Axis;
   vtkWeakPointer<vtkViewport> Viewport;
 private:
-  vtkProp3DAxisFollower(const vtkProp3DAxisFollower&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProp3DAxisFollower&) VTK_DELETE_FUNCTION;
+  vtkProp3DAxisFollower(const vtkProp3DAxisFollower&) = delete;
+  void operator=(const vtkProp3DAxisFollower&) = delete;
 
   int TextUpsideDown;
   int VisibleAtCurrentViewAngle;

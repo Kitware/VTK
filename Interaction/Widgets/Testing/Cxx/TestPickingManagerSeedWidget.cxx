@@ -612,8 +612,8 @@ public:
   vtkTimerLog* logTime;
 
 private:
-  vtkPMSRecordPerfCallback(const vtkPMSRecordPerfCallback&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPMSRecordPerfCallback&) VTK_DELETE_FUNCTION;
+  vtkPMSRecordPerfCallback(const vtkPMSRecordPerfCallback&) = delete;
+  void operator=(const vtkPMSRecordPerfCallback&) = delete;
 };
 
 //------------------------------------------------------------------------------

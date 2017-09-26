@@ -76,8 +76,8 @@ protected:
                   vtkInformationVector *) override;
 
 private:
-  vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&) = delete;
+  void operator=(const vtkSynchronizedTemplatesCutter3D&) = delete;
 };
 
 #endif

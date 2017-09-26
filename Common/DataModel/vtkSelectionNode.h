@@ -298,8 +298,8 @@ protected:
   char* QueryString;
 
 private:
-  vtkSelectionNode(const vtkSelectionNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelectionNode&) VTK_DELETE_FUNCTION;
+  vtkSelectionNode(const vtkSelectionNode&) = delete;
+  void operator=(const vtkSelectionNode&) = delete;
 
 };
 

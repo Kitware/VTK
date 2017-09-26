@@ -62,8 +62,8 @@ protected:
                           vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageRange3D(const vtkImageRange3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRange3D&) VTK_DELETE_FUNCTION;
+  vtkImageRange3D(const vtkImageRange3D&) = delete;
+  void operator=(const vtkImageRange3D&) = delete;
 };
 
 #endif

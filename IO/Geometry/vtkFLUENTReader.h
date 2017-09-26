@@ -250,7 +250,7 @@ protected:
   int NumberOfVectors;
 
 private:
-  vtkFLUENTReader(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
+  vtkFLUENTReader(const vtkFLUENTReader&) = delete;
+  void operator=(const vtkFLUENTReader&) = delete;
 };
 #endif

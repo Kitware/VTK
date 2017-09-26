@@ -401,8 +401,8 @@ protected:
   float PropColorValue[3];
 
 private:
-  vtkHardwareSelector(const vtkHardwareSelector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHardwareSelector&) VTK_DELETE_FUNCTION;
+  vtkHardwareSelector(const vtkHardwareSelector&) = delete;
+  void operator=(const vtkHardwareSelector&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

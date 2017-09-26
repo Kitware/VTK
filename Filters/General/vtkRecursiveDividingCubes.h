@@ -93,8 +93,8 @@ protected:
   // to replace a static
   vtkVoxel *Voxel;
 private:
-  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRecursiveDividingCubes&) VTK_DELETE_FUNCTION;
+  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&) = delete;
+  void operator=(const vtkRecursiveDividingCubes&) = delete;
 };
 
 #endif

@@ -104,8 +104,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkPCACurvatureEstimation(const vtkPCACurvatureEstimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCACurvatureEstimation&) VTK_DELETE_FUNCTION;
+  vtkPCACurvatureEstimation(const vtkPCACurvatureEstimation&) = delete;
+  void operator=(const vtkPCACurvatureEstimation&) = delete;
 
 };
 

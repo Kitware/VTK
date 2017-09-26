@@ -231,8 +231,8 @@ protected:
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;
 private:
-  vtkProbeFilter(const vtkProbeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProbeFilter&) VTK_DELETE_FUNCTION;
+  vtkProbeFilter(const vtkProbeFilter&) = delete;
+  void operator=(const vtkProbeFilter&) = delete;
 
   // Probe only those points that are marked as not-probed by the MaskPoints
   // array.

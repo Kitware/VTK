@@ -154,8 +154,8 @@ protected:
   int OutputPointsPrecision;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkFeatureEdges(const vtkFeatureEdges&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFeatureEdges&) VTK_DELETE_FUNCTION;
+  vtkFeatureEdges(const vtkFeatureEdges&) = delete;
+  void operator=(const vtkFeatureEdges&) = delete;
 };
 
 #endif

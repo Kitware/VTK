@@ -111,8 +111,8 @@ protected:
 
 
 private:
-  vtkPNGWriter(const vtkPNGWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNGWriter&) VTK_DELETE_FUNCTION;
+  vtkPNGWriter(const vtkPNGWriter&) = delete;
+  void operator=(const vtkPNGWriter&) = delete;
 };
 
 #endif

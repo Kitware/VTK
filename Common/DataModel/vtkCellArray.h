@@ -289,8 +289,8 @@ protected:
   vtkIdTypeArray *Ia;
 
 private:
-  vtkCellArray(const vtkCellArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellArray&) VTK_DELETE_FUNCTION;
+  vtkCellArray(const vtkCellArray&) = delete;
+  void operator=(const vtkCellArray&) = delete;
 };
 
 

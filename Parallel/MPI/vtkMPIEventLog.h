@@ -90,8 +90,8 @@ protected:
   int BeginId;
   int EndId;
 private:
-  vtkMPIEventLog(const vtkMPIEventLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPIEventLog&) VTK_DELETE_FUNCTION;
+  vtkMPIEventLog(const vtkMPIEventLog&) = delete;
+  void operator=(const vtkMPIEventLog&) = delete;
 };
 
 #endif

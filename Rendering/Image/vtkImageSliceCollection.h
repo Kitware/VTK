@@ -81,8 +81,8 @@ private:
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
 
 private:
-  vtkImageSliceCollection(const vtkImageSliceCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSliceCollection&) VTK_DELETE_FUNCTION;
+  vtkImageSliceCollection(const vtkImageSliceCollection&) = delete;
+  void operator=(const vtkImageSliceCollection&) = delete;
 };
 
 inline vtkImageSlice *vtkImageSliceCollection::GetNextImage()

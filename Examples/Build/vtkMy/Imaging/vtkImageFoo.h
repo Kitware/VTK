@@ -89,8 +89,8 @@ protected:
                            vtkImageData*** inData, vtkImageData** outData,
                            int outExt[6], int id) override;
 private:
-  vtkImageFoo(const vtkImageFoo&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageFoo&) VTK_DELETE_FUNCTION;
+  vtkImageFoo(const vtkImageFoo&) = delete;
+  void operator=(const vtkImageFoo&) = delete;
 };
 
 #endif

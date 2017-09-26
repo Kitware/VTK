@@ -205,10 +205,10 @@ protected:
   double LastRange[2];
 
 private:
-  vtkOpenGLVolumeGradientOpacityTable(const vtkOpenGLVolumeGradientOpacityTable&)
-    VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeGradientOpacityTable(
+      const vtkOpenGLVolumeGradientOpacityTable &) = delete;
   vtkOpenGLVolumeGradientOpacityTable& operator=(
-    const vtkOpenGLVolumeGradientOpacityTable&) VTK_DELETE_FUNCTION;
+    const vtkOpenGLVolumeGradientOpacityTable&) = delete;
 };
 
 vtkStandardNewMacro(vtkOpenGLVolumeGradientOpacityTable);
@@ -271,11 +271,11 @@ public:
 private:
   std::vector<vtkOpenGLVolumeGradientOpacityTable*> Tables;
 
-  vtkOpenGLVolumeGradientOpacityTables() VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeGradientOpacityTables() = delete;
 
-  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other) = delete;
 
-  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other) = delete;
 };
 
 #endif // vtkOpenGLVolumeGradientOpacityTable_h

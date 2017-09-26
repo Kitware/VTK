@@ -113,8 +113,8 @@ protected:
   ~vtkInteractorStyleAreaSelectHover() override;
 
 private:
-  vtkInteractorStyleAreaSelectHover(const vtkInteractorStyleAreaSelectHover&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleAreaSelectHover&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleAreaSelectHover(const vtkInteractorStyleAreaSelectHover&) = delete;
+  void operator=(const vtkInteractorStyleAreaSelectHover&) = delete;
 
   // These methods are used internally
   void GetBoundingAreaForItem(vtkIdType id, float *sinfo);

@@ -53,8 +53,8 @@ protected:
   ~vtkFixedPointVolumeRayCastCompositeShadeHelper() override;
 
 private:
-  vtkFixedPointVolumeRayCastCompositeShadeHelper(const vtkFixedPointVolumeRayCastCompositeShadeHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedPointVolumeRayCastCompositeShadeHelper&) VTK_DELETE_FUNCTION;
+  vtkFixedPointVolumeRayCastCompositeShadeHelper(const vtkFixedPointVolumeRayCastCompositeShadeHelper&) = delete;
+  void operator=(const vtkFixedPointVolumeRayCastCompositeShadeHelper&) = delete;
 };
 
 #endif

@@ -144,8 +144,8 @@ protected:
 
 private:
 
-  vtkTreeLayoutStrategy(const vtkTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkTreeLayoutStrategy(const vtkTreeLayoutStrategy&) = delete;
+  void operator=(const vtkTreeLayoutStrategy&) = delete;
 };
 
 #endif

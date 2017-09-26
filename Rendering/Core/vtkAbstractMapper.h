@@ -144,8 +144,8 @@ protected:
   vtkPlaneCollection *ClippingPlanes;
 
 private:
-  vtkAbstractMapper(const vtkAbstractMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractMapper&) VTK_DELETE_FUNCTION;
+  vtkAbstractMapper(const vtkAbstractMapper&) = delete;
+  void operator=(const vtkAbstractMapper&) = delete;
 };
 
 #endif

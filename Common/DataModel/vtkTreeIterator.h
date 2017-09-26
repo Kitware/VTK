@@ -87,8 +87,8 @@ protected:
   vtkIdType NextId;
 
 private:
-  vtkTreeIterator(const vtkTreeIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeIterator &) VTK_DELETE_FUNCTION;
+  vtkTreeIterator(const vtkTreeIterator &) = delete;
+  void operator=(const vtkTreeIterator &) = delete;
 };
 
 #endif

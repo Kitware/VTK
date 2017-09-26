@@ -161,8 +161,8 @@ protected:
                              vtkInformationVector* outInfo) override;
 
 private:
-  vtkMNITransformWriter(const vtkMNITransformWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMNITransformWriter&) VTK_DELETE_FUNCTION;
+  vtkMNITransformWriter(const vtkMNITransformWriter&) = delete;
+  void operator=(const vtkMNITransformWriter&) = delete;
 
 };
 

@@ -110,8 +110,8 @@ private:
   bool CoordinatesInArrays;
   vtkAbstractTransform* Transform;
 
-  vtkGeoAssignCoordinates(const vtkGeoAssignCoordinates&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoAssignCoordinates&) VTK_DELETE_FUNCTION;
+  vtkGeoAssignCoordinates(const vtkGeoAssignCoordinates&) = delete;
+  void operator=(const vtkGeoAssignCoordinates&) = delete;
 };
 
 #endif

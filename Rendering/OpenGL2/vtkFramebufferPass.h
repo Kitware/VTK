@@ -103,8 +103,8 @@ public:
   int ColorFormat;
 
  private:
-  vtkFramebufferPass(const vtkFramebufferPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFramebufferPass&) VTK_DELETE_FUNCTION;
+  vtkFramebufferPass(const vtkFramebufferPass&) = delete;
+  void operator=(const vtkFramebufferPass&) = delete;
 };
 
 #endif

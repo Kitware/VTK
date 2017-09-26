@@ -86,8 +86,8 @@ protected:
                                    vtkVolumeRayCastMapper *mapper ) override;
 
 private:
-  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&) = delete;
+  void operator=(const vtkVolumeRayCastIsosurfaceFunction&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

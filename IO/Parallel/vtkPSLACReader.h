@@ -144,8 +144,8 @@ protected:
   //@}
 
 private:
-  vtkPSLACReader(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
+  vtkPSLACReader(const vtkPSLACReader &) = delete;
+  void operator=(const vtkPSLACReader &) = delete;
 };
 
 #endif //vtkPSLACReader_h

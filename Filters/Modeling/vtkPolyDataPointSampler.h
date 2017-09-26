@@ -133,8 +133,8 @@ protected:
                       vtkIdType npts, vtkIdType *pts);
 
 private:
-  vtkPolyDataPointSampler(const vtkPolyDataPointSampler&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataPointSampler&) VTK_DELETE_FUNCTION;
+  vtkPolyDataPointSampler(const vtkPolyDataPointSampler&) = delete;
+  void operator=(const vtkPolyDataPointSampler&) = delete;
 };
 
 #endif

@@ -193,8 +193,8 @@ private:
    */
   void ClearBlocks();
 
-  vtkVolumeTexture(const vtkVolumeTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTexture&) VTK_DELETE_FUNCTION;
+  vtkVolumeTexture(const vtkVolumeTexture&) = delete;
+  void operator=(const vtkVolumeTexture&) = delete;
 
   //@{
   /**

@@ -114,8 +114,8 @@ protected:
   vtkIdList *PointIds;
 
 private:
-  vtkImplicitVolume(const vtkImplicitVolume&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitVolume&) VTK_DELETE_FUNCTION;
+  vtkImplicitVolume(const vtkImplicitVolume&) = delete;
+  void operator=(const vtkImplicitVolume&) = delete;
 };
 
 #endif

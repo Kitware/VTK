@@ -119,8 +119,8 @@ protected:
   void MakeValues(vtkDataSet *ds);
 
 private:
-  vtkDataObjectGenerator(const vtkDataObjectGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectGenerator&) VTK_DELETE_FUNCTION;
+  vtkDataObjectGenerator(const vtkDataObjectGenerator&) = delete;
+  void operator=(const vtkDataObjectGenerator&) = delete;
 };
 
 #endif

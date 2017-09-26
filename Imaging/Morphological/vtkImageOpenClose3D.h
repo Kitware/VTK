@@ -129,8 +129,8 @@ protected:
 
   void ReportReferences(vtkGarbageCollector*) override;
 private:
-  vtkImageOpenClose3D(const vtkImageOpenClose3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageOpenClose3D&) VTK_DELETE_FUNCTION;
+  vtkImageOpenClose3D(const vtkImageOpenClose3D&) = delete;
+  void operator=(const vtkImageOpenClose3D&) = delete;
 };
 
 #endif

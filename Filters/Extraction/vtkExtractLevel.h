@@ -61,8 +61,8 @@ protected:
   int FillOutputPortInformation(int port,vtkInformation *info) override;
 
 private:
-  vtkExtractLevel(const vtkExtractLevel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractLevel&) VTK_DELETE_FUNCTION;
+  vtkExtractLevel(const vtkExtractLevel&) = delete;
+  void operator=(const vtkExtractLevel&) = delete;
 
   class vtkSet;
   vtkSet* Levels;

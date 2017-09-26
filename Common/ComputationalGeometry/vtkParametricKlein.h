@@ -98,8 +98,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKlein : public
     ~vtkParametricKlein() override;
 
   private:
-    vtkParametricKlein(const vtkParametricKlein&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricKlein&) VTK_DELETE_FUNCTION;
+    vtkParametricKlein(const vtkParametricKlein&) = delete;
+    void operator=(const vtkParametricKlein&) = delete;
 };
 
 #endif

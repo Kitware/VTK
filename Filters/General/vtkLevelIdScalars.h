@@ -38,8 +38,8 @@ class VTKFILTERSGENERAL_EXPORT vtkLevelIdScalars :
     ~vtkLevelIdScalars() override;
 
   private:
-    vtkLevelIdScalars(const vtkLevelIdScalars&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkLevelIdScalars&) VTK_DELETE_FUNCTION;
+    vtkLevelIdScalars(const vtkLevelIdScalars&) = delete;
+    void operator=(const vtkLevelIdScalars&) = delete;
 };
 
 #endif /* VTKLEVELIDSCALARS_H_ */

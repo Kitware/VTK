@@ -78,8 +78,8 @@ public:
   acolor *Colors;
 
 private:
-  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearRayIntegratorTransferFunction &) VTK_DELETE_FUNCTION;
+  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&) = delete;
+  void operator=(const vtkLinearRayIntegratorTransferFunction &) = delete;
 };
 
 vtkLinearRayIntegratorTransferFunction::vtkLinearRayIntegratorTransferFunction()

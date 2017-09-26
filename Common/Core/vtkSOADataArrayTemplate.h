@@ -223,8 +223,8 @@ protected:
   double NumberOfComponentsReciprocal;
 
 private:
-  vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSOADataArrayTemplate&) VTK_DELETE_FUNCTION;
+  vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&) = delete;
+  void operator=(const vtkSOADataArrayTemplate&) = delete;
 
   inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
                                           vtkIdType& tupleIdx, int& comp) const

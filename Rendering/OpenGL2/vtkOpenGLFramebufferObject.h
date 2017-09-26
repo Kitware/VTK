@@ -601,8 +601,8 @@ protected:
   std::map<unsigned int, vtkFOInfo *> ReadColorBuffers;
 
 private:
-  vtkOpenGLFramebufferObject(const vtkOpenGLFramebufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLFramebufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLFramebufferObject(const vtkOpenGLFramebufferObject&) = delete;
+  void operator=(const vtkOpenGLFramebufferObject&) = delete;
 };
 
 #endif

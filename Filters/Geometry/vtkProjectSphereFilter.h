@@ -110,8 +110,8 @@ protected:
     vtkUnstructuredGrid* output, vtkCell* cell, vtkIdType numberOfNewCells);
 
 private:
-  vtkProjectSphereFilter(const vtkProjectSphereFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProjectSphereFilter &) VTK_DELETE_FUNCTION;
+  vtkProjectSphereFilter(const vtkProjectSphereFilter &) = delete;
+  void operator=(const vtkProjectSphereFilter &) = delete;
 
   double Center[3];
   const double SplitLongitude;

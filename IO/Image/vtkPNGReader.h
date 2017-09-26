@@ -105,8 +105,8 @@ protected:
 
 
 private:
-  vtkPNGReader(const vtkPNGReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNGReader&) VTK_DELETE_FUNCTION;
+  vtkPNGReader(const vtkPNGReader&) = delete;
+  void operator=(const vtkPNGReader&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

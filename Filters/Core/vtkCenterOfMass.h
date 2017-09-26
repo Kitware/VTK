@@ -78,8 +78,8 @@ protected:
 
 private:
 
-  vtkCenterOfMass(const vtkCenterOfMass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCenterOfMass&) VTK_DELETE_FUNCTION;
+  vtkCenterOfMass(const vtkCenterOfMass&) = delete;
+  void operator=(const vtkCenterOfMass&) = delete;
 
   bool UseScalarsAsWeights;
   double Center[3];

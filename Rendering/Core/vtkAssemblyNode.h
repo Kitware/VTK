@@ -98,8 +98,8 @@ private:
   vtkMatrix4x4 *Matrix; //associated matrix
 
 private:
-  void operator=(const vtkAssemblyNode&) VTK_DELETE_FUNCTION;
-  vtkAssemblyNode(const vtkAssemblyNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAssemblyNode&) = delete;
+  vtkAssemblyNode(const vtkAssemblyNode&) = delete;
 };
 
 #endif

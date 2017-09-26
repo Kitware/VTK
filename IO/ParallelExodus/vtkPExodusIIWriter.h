@@ -106,8 +106,8 @@ protected:
   virtual unsigned int GetMaxNameLength() override;
 
 private:
-  vtkPExodusIIWriter (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
-  void operator= (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
+  vtkPExodusIIWriter (const vtkPExodusIIWriter&) = delete;
+  void operator= (const vtkPExodusIIWriter&) = delete;
 };
 
 #endif

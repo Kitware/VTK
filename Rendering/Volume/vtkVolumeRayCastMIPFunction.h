@@ -86,8 +86,8 @@ protected:
                                    vtkVolumeRayCastMapper *mapper ) override;
 
 private:
-  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&) = delete;
+  void operator=(const vtkVolumeRayCastMIPFunction&) = delete;
 };
 
 

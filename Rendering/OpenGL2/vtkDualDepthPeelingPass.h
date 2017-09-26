@@ -304,8 +304,8 @@ protected:
   bool DepthTestEnabled;
 
 private:
-  vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
+  vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&) = delete;
+  void operator=(const vtkDualDepthPeelingPass&) = delete;
 };
 
 #endif // vtkDualDepthPeelingPass_h

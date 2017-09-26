@@ -89,8 +89,8 @@ protected:
   }
 
 private:
-  vtkTimeRTAnalyticSource(const vtkTimeRTAnalyticSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimeRTAnalyticSource&) VTK_DELETE_FUNCTION;
+  vtkTimeRTAnalyticSource(const vtkTimeRTAnalyticSource&) = delete;
+  void operator=(const vtkTimeRTAnalyticSource&) = delete;
 };
 
 vtkStandardNewMacro(vtkTimeRTAnalyticSource);

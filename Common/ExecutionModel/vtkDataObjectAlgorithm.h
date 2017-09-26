@@ -131,8 +131,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkDataObjectAlgorithm(const vtkDataObjectAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkDataObjectAlgorithm(const vtkDataObjectAlgorithm&) = delete;
+  void operator=(const vtkDataObjectAlgorithm&) = delete;
 };
 
 #endif

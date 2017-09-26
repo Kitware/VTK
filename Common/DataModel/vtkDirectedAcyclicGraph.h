@@ -82,8 +82,8 @@ protected:
   bool IsStructureValid(vtkGraph *g) override;
 
 private:
-  vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;
+  vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&) = delete;
+  void operator=(const vtkDirectedAcyclicGraph&) = delete;
 };
 
 #endif

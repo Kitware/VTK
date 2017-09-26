@@ -125,8 +125,8 @@ protected:
   std::vector< vtkIdType > EdgeMap;
 
 private:
-  vtkTreeDifferenceFilter(const vtkTreeDifferenceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeDifferenceFilter&) VTK_DELETE_FUNCTION;
+  vtkTreeDifferenceFilter(const vtkTreeDifferenceFilter&) = delete;
+  void operator=(const vtkTreeDifferenceFilter&) = delete;
 };
 
 #endif

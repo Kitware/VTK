@@ -430,8 +430,8 @@ protected:
     vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
 
 private:
-  vtkSPHInterpolator(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
+  vtkSPHInterpolator(const vtkSPHInterpolator&) = delete;
+  void operator=(const vtkSPHInterpolator&) = delete;
 
 };
 

@@ -189,8 +189,8 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkDataSetAlgorithm(const vtkDataSetAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkDataSetAlgorithm(const vtkDataSetAlgorithm&) = delete;
+  void operator=(const vtkDataSetAlgorithm&) = delete;
 };
 
 #endif

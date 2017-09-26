@@ -267,8 +267,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataConnectivityFilter&) VTK_DELETE_FUNCTION;
+  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&) = delete;
+  void operator=(const vtkPolyDataConnectivityFilter&) = delete;
 };
 
 //@{

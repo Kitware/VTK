@@ -69,8 +69,8 @@ protected:
   int PassVerts;
   int PassLines;
 private:
-  vtkTriangleFilter(const vtkTriangleFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTriangleFilter&) VTK_DELETE_FUNCTION;
+  vtkTriangleFilter(const vtkTriangleFilter&) = delete;
+  void operator=(const vtkTriangleFilter&) = delete;
 };
 
 #endif

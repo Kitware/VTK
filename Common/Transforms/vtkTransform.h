@@ -400,8 +400,8 @@ protected:
   double DoublePoint[4];
   double ReturnValue[4];
 private:
-  vtkTransform (const vtkTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransform&) VTK_DELETE_FUNCTION;
+  vtkTransform (const vtkTransform&) = delete;
+  void operator=(const vtkTransform&) = delete;
 };
 
 #endif

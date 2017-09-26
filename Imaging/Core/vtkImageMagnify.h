@@ -79,8 +79,8 @@ protected:
   void InternalRequestUpdateExtent(int *inExt, int *outExt);
 
 private:
-  vtkImageMagnify(const vtkImageMagnify&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMagnify&) VTK_DELETE_FUNCTION;
+  vtkImageMagnify(const vtkImageMagnify&) = delete;
+  void operator=(const vtkImageMagnify&) = delete;
 };
 
 #endif

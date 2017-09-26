@@ -1228,8 +1228,8 @@ protected:
 
   static vtkSmartPointer<vtkMathInternal> Internal;
 private:
-  vtkMath(const vtkMath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMath&) VTK_DELETE_FUNCTION;
+  vtkMath(const vtkMath&) = delete;
+  void operator=(const vtkMath&) = delete;
 };
 
 //----------------------------------------------------------------------------

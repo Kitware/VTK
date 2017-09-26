@@ -91,8 +91,8 @@ protected:
   int DuplicateNodes;
 
 private:
-  vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridPartitioner &) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &) = delete;
+  void operator=(const vtkRectilinearGridPartitioner &) = delete;
 };
 
 #endif /* vtkRectilinearGridPartitioner_h */

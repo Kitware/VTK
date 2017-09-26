@@ -44,8 +44,8 @@ public:
 protected:
    vtkScaledTextActor();
 private:
-  vtkScaledTextActor(const vtkScaledTextActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScaledTextActor&) VTK_DELETE_FUNCTION;
+  vtkScaledTextActor(const vtkScaledTextActor&) = delete;
+  void operator=(const vtkScaledTextActor&) = delete;
 };
 
 

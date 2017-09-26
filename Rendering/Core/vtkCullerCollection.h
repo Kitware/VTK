@@ -80,8 +80,8 @@ private:
   }
 
 private:
-  vtkCullerCollection(const vtkCullerCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCullerCollection&) VTK_DELETE_FUNCTION;
+  vtkCullerCollection(const vtkCullerCollection&) = delete;
+  void operator=(const vtkCullerCollection&) = delete;
 };
 
 

@@ -189,7 +189,7 @@ public:
     this->Group = in.Group;
     this->GroupId = in.GroupId;
   }
-  vtkOpenVROverlaySpot& operator=(const vtkOpenVROverlaySpot&) VTK_DELETE_FUNCTION;
+  vtkOpenVROverlaySpot& operator=(const vtkOpenVROverlaySpot&) = delete;
 };
 
 //****************************************************************************

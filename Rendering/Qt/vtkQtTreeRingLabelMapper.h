@@ -155,8 +155,8 @@ protected:
   int WindowSize[2];
 
 private:
-  vtkQtTreeRingLabelMapper(const vtkQtTreeRingLabelMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTreeRingLabelMapper&) VTK_DELETE_FUNCTION;
+  vtkQtTreeRingLabelMapper(const vtkQtTreeRingLabelMapper&) = delete;
+  void operator=(const vtkQtTreeRingLabelMapper&) = delete;
 };
 
 

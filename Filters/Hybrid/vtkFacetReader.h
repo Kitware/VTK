@@ -68,8 +68,8 @@ protected:
   char *FileName;
 
 private:
-  vtkFacetReader(const vtkFacetReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFacetReader&) VTK_DELETE_FUNCTION;
+  vtkFacetReader(const vtkFacetReader&) = delete;
+  void operator=(const vtkFacetReader&) = delete;
 };
 
 #endif

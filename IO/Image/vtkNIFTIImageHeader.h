@@ -439,8 +439,8 @@ protected:
   void SetStringValue(char *x, const char *y, size_t n);
 
 private:
-  vtkNIFTIImageHeader(const vtkNIFTIImageHeader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNIFTIImageHeader&) VTK_DELETE_FUNCTION;
+  vtkNIFTIImageHeader(const vtkNIFTIImageHeader&) = delete;
+  void operator=(const vtkNIFTIImageHeader&) = delete;
 };
 
 #endif // vtkNIFTIImageHeader_h

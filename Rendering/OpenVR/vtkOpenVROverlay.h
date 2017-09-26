@@ -147,8 +147,8 @@ protected:
   double ActiveSpotIntensity;
 
 private:
-  vtkOpenVROverlay(const vtkOpenVROverlay&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVROverlay&) VTK_DELETE_FUNCTION;
+  vtkOpenVROverlay(const vtkOpenVROverlay&) = delete;
+  void operator=(const vtkOpenVROverlay&) = delete;
 };
 
 #endif

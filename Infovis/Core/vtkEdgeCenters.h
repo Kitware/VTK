@@ -67,8 +67,8 @@ protected:
 
   int VertexCells;
 private:
-  vtkEdgeCenters(const vtkEdgeCenters&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEdgeCenters&) VTK_DELETE_FUNCTION;
+  vtkEdgeCenters(const vtkEdgeCenters&) = delete;
+  void operator=(const vtkEdgeCenters&) = delete;
 };
 
 #endif

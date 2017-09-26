@@ -341,8 +341,8 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     int BestTets( int*, double**, int, int ) const;
 
   private:
-    vtkStreamingTessellator( const vtkStreamingTessellator& ) VTK_DELETE_FUNCTION;
-    void operator = ( const vtkStreamingTessellator& ) VTK_DELETE_FUNCTION;
+    vtkStreamingTessellator( const vtkStreamingTessellator& ) = delete;
+    void operator = ( const vtkStreamingTessellator& ) = delete;
 };
 
 inline void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, double* v2, double* v3 ) const

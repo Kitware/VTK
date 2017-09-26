@@ -192,8 +192,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkApplyIcons(const vtkApplyIcons&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkApplyIcons&) VTK_DELETE_FUNCTION;
+  vtkApplyIcons(const vtkApplyIcons&) = delete;
+  void operator=(const vtkApplyIcons&) = delete;
 };
 
 #endif

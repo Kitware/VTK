@@ -381,8 +381,8 @@ protected:
   int  ProcessEvents;
 
 private:
-  vtkSplineWidget(const vtkSplineWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplineWidget&) VTK_DELETE_FUNCTION;
+  vtkSplineWidget(const vtkSplineWidget&) = delete;
+  void operator=(const vtkSplineWidget&) = delete;
 };
 
 #endif

@@ -281,8 +281,8 @@ protected:
   bool TextAsPath;
 
 private:
-  vtkSVGContextDevice2D(const vtkSVGContextDevice2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSVGContextDevice2D&) VTK_DELETE_FUNCTION;
+  vtkSVGContextDevice2D(const vtkSVGContextDevice2D&) = delete;
+  void operator=(const vtkSVGContextDevice2D&) = delete;
 };
 
 #endif // vtkSVGContextDevice2D_h

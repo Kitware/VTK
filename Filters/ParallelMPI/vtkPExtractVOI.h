@@ -61,8 +61,8 @@ protected:
   vtkMPIController* Controller;
 
 private:
-  vtkPExtractVOI(const vtkPExtractVOI&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPExtractVOI&) VTK_DELETE_FUNCTION;
+  vtkPExtractVOI(const vtkPExtractVOI&) = delete;
+  void operator=(const vtkPExtractVOI&) = delete;
 };
 
 #endif

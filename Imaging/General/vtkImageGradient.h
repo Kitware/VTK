@@ -81,8 +81,8 @@ protected:
                            int outExt[6],
                            int threadId) override;
 private:
-  vtkImageGradient(const vtkImageGradient&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageGradient&) VTK_DELETE_FUNCTION;
+  vtkImageGradient(const vtkImageGradient&) = delete;
+  void operator=(const vtkImageGradient&) = delete;
 };
 
 #endif

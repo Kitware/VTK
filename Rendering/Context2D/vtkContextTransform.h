@@ -224,8 +224,8 @@ protected:
   vtkVector2f ZoomAnchor;
 
 private:
-  vtkContextTransform(const vtkContextTransform &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextTransform &) VTK_DELETE_FUNCTION;
+  vtkContextTransform(const vtkContextTransform &) = delete;
+  void operator=(const vtkContextTransform &) = delete;
 
 };
 

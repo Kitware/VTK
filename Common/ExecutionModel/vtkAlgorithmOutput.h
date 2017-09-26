@@ -54,8 +54,8 @@ protected:
   vtkAlgorithm* Producer;
 
 private:
-  vtkAlgorithmOutput(const vtkAlgorithmOutput&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAlgorithmOutput&) VTK_DELETE_FUNCTION;
+  vtkAlgorithmOutput(const vtkAlgorithmOutput&) = delete;
+  void operator=(const vtkAlgorithmOutput&) = delete;
 };
 
 #endif

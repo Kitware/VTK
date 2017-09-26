@@ -53,8 +53,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRemoveGhosts(const vtkRemoveGhosts &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRemoveGhosts &) VTK_DELETE_FUNCTION;
+  vtkRemoveGhosts(const vtkRemoveGhosts &) = delete;
+  void operator=(const vtkRemoveGhosts &) = delete;
 };
 
 #endif //_vtkRemoveGhosts_h

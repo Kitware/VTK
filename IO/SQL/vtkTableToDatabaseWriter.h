@@ -77,8 +77,8 @@ protected:
   std::string TableName;
 
 private:
-  vtkTableToDatabaseWriter(const vtkTableToDatabaseWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToDatabaseWriter&) VTK_DELETE_FUNCTION;
+  vtkTableToDatabaseWriter(const vtkTableToDatabaseWriter&) = delete;
+  void operator=(const vtkTableToDatabaseWriter&) = delete;
 };
 
 #endif

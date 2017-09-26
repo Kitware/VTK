@@ -114,8 +114,8 @@ protected:
   int UserManagedInputs;
   int AppendByUnion;
 private:
-  vtkAppendSelection(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
+  vtkAppendSelection(const vtkAppendSelection&) = delete;
+  void operator=(const vtkAppendSelection&) = delete;
 };
 
 #endif

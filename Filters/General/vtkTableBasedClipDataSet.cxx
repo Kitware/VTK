@@ -182,8 +182,8 @@ protected:
 
   private:
   vtkTableBasedClipperEdgeHashTable
-                  ( const vtkTableBasedClipperEdgeHashTable & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkTableBasedClipperEdgeHashTable & ) VTK_DELETE_FUNCTION;
+                  ( const vtkTableBasedClipperEdgeHashTable & ) = delete;
+  void operator = ( const vtkTableBasedClipperEdgeHashTable & ) = delete;
 };
 // ---- vtkTableBasedClipperEdgeHashTable (end)
 
@@ -205,9 +205,9 @@ class  vtkTableBasedClipperDataSetFromVolume
 
   private:
   vtkTableBasedClipperDataSetFromVolume
-    ( const vtkTableBasedClipperDataSetFromVolume & ) VTK_DELETE_FUNCTION;
+    ( const vtkTableBasedClipperDataSetFromVolume & ) = delete;
   void operator =
-    ( const vtkTableBasedClipperDataSetFromVolume & ) VTK_DELETE_FUNCTION;
+    ( const vtkTableBasedClipperDataSetFromVolume & ) = delete;
 };
 
 vtkTableBasedClipperPointList::vtkTableBasedClipperPointList()

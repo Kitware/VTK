@@ -59,8 +59,8 @@ public:
   ~vtkOverlayPass() override;
 
  private:
-  vtkOverlayPass(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
+  vtkOverlayPass(const vtkOverlayPass&) = delete;
+  void operator=(const vtkOverlayPass&) = delete;
 };
 
 #endif

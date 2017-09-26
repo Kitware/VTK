@@ -89,8 +89,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
     ~vtkParametricKuen() override;
 
   private:
-    vtkParametricKuen(const vtkParametricKuen&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricKuen&) VTK_DELETE_FUNCTION;
+    vtkParametricKuen(const vtkParametricKuen&) = delete;
+    void operator=(const vtkParametricKuen&) = delete;
 
     double DeltaV0;
 };

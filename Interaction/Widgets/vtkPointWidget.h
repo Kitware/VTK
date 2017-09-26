@@ -285,8 +285,8 @@ protected:
   int WaitCount;
 
 private:
-  vtkPointWidget(const vtkPointWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointWidget&) VTK_DELETE_FUNCTION;
+  vtkPointWidget(const vtkPointWidget&) = delete;
+  void operator=(const vtkPointWidget&) = delete;
 };
 
 #endif

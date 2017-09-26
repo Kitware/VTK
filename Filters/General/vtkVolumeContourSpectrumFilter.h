@@ -101,8 +101,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
 
 private:
-  vtkVolumeContourSpectrumFilter(const vtkVolumeContourSpectrumFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeContourSpectrumFilter&) VTK_DELETE_FUNCTION;
+  vtkVolumeContourSpectrumFilter(const vtkVolumeContourSpectrumFilter&) = delete;
+  void operator=(const vtkVolumeContourSpectrumFilter&) = delete;
 };
 
 #endif

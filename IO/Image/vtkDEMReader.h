@@ -215,8 +215,8 @@ protected:
                             vtkInformationVector* outputVector) override;
 
 private:
-  vtkDEMReader(const vtkDEMReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDEMReader&) VTK_DELETE_FUNCTION;
+  vtkDEMReader(const vtkDEMReader&) = delete;
+  void operator=(const vtkDEMReader&) = delete;
 };
 
 #endif

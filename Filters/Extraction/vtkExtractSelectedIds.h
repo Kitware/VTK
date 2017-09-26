@@ -63,8 +63,8 @@ protected:
                     vtkDataSet *output);
 
 private:
-  vtkExtractSelectedIds(const vtkExtractSelectedIds&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedIds&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedIds(const vtkExtractSelectedIds&) = delete;
+  void operator=(const vtkExtractSelectedIds&) = delete;
 };
 
 #endif

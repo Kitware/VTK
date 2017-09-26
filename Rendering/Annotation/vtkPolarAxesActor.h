@@ -1160,8 +1160,8 @@ protected:
   double ScreenSize;
 
 private:
-  vtkPolarAxesActor(const vtkPolarAxesActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolarAxesActor&) VTK_DELETE_FUNCTION;
+  vtkPolarAxesActor(const vtkPolarAxesActor&) = delete;
+  void operator=(const vtkPolarAxesActor&) = delete;
 };
 
 #endif

@@ -64,8 +64,8 @@ protected:
   std::string TableName;
 
 private:
-  vtkDatabaseToTableReader(const vtkDatabaseToTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDatabaseToTableReader&) VTK_DELETE_FUNCTION;
+  vtkDatabaseToTableReader(const vtkDatabaseToTableReader&) = delete;
+  void operator=(const vtkDatabaseToTableReader&) = delete;
 };
 
 #endif

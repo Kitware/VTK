@@ -141,8 +141,8 @@ protected:
   vtkConditionType   ConditionVariable;
 
 private:
-  vtkSimpleConditionVariable(const vtkSimpleConditionVariable& other) VTK_DELETE_FUNCTION;
-  vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs) VTK_DELETE_FUNCTION;
+  vtkSimpleConditionVariable(const vtkSimpleConditionVariable& other) = delete;
+  vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs) = delete;
 };
 
 class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject
@@ -179,8 +179,8 @@ protected:
   vtkSimpleConditionVariable SimpleConditionVariable;
 
 private:
-  vtkConditionVariable( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
+  vtkConditionVariable( const vtkConditionVariable& ) = delete;
+  void operator = ( const vtkConditionVariable& ) = delete;
 };
 
 inline void vtkConditionVariable::Signal()

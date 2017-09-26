@@ -73,8 +73,8 @@ protected:
   // Whether the caller of str() owns the memory.
   int Frozen;
 private:
-  vtkOStrStreamWrapper(const vtkOStrStreamWrapper& r) VTK_DELETE_FUNCTION;
-  vtkOStrStreamWrapper& operator=(const vtkOStrStreamWrapper&) VTK_DELETE_FUNCTION;
+  vtkOStrStreamWrapper(const vtkOStrStreamWrapper& r) = delete;
+  vtkOStrStreamWrapper& operator=(const vtkOStrStreamWrapper&) = delete;
 };
 
 #endif

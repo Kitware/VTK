@@ -144,8 +144,8 @@ protected:
   vtkTriangle      *Triangle;
 
 private:
-  vtkPentagonalPrism(const vtkPentagonalPrism&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPentagonalPrism&) VTK_DELETE_FUNCTION;
+  vtkPentagonalPrism(const vtkPentagonalPrism&) = delete;
+  void operator=(const vtkPentagonalPrism&) = delete;
 };
 
 //----------------------------------------------------------------------------

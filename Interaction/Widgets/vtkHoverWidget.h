@@ -144,8 +144,8 @@ protected:
   //@}
 
 private:
-  vtkHoverWidget(const vtkHoverWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHoverWidget&) VTK_DELETE_FUNCTION;
+  vtkHoverWidget(const vtkHoverWidget&) = delete;
+  void operator=(const vtkHoverWidget&) = delete;
 };
 
 #endif

@@ -56,8 +56,8 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkStreaklineFilter: public vtkParticleTracerBa
  protected:
   vtkStreaklineFilter();
   ~vtkStreaklineFilter() override{}
-  vtkStreaklineFilter(const vtkStreaklineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStreaklineFilter&) VTK_DELETE_FUNCTION;
+  vtkStreaklineFilter(const vtkStreaklineFilter&) = delete;
+  void operator=(const vtkStreaklineFilter&) = delete;
   int OutputParticles(vtkPolyData* poly) override;
   void Finalize() override;
 

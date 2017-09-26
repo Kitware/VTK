@@ -61,8 +61,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkExtractDataSets(const vtkExtractDataSets&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractDataSets&) VTK_DELETE_FUNCTION;
+  vtkExtractDataSets(const vtkExtractDataSets&) = delete;
+  void operator=(const vtkExtractDataSets&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

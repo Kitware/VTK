@@ -73,7 +73,7 @@ protected:
 
 
 private:
-  vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
+  vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
+  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
 };
 #endif

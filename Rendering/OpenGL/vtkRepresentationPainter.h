@@ -39,8 +39,8 @@ protected:
   ~vtkRepresentationPainter() override;
 
 private:
-  vtkRepresentationPainter(const vtkRepresentationPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRepresentationPainter&) VTK_DELETE_FUNCTION;
+  vtkRepresentationPainter(const vtkRepresentationPainter&) = delete;
+  void operator=(const vtkRepresentationPainter&) = delete;
 };
 
 #endif

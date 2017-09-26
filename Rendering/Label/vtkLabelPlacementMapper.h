@@ -255,8 +255,8 @@ protected:
   double BackgroundColor[3];
 
 private:
-  vtkLabelPlacementMapper(const vtkLabelPlacementMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLabelPlacementMapper&) VTK_DELETE_FUNCTION;
+  vtkLabelPlacementMapper(const vtkLabelPlacementMapper&) = delete;
+  void operator=(const vtkLabelPlacementMapper&) = delete;
 };
 
 #endif

@@ -124,8 +124,8 @@ protected:
   static void EventRelay(vtkObject* caller, unsigned long eventId, void* clientData, void* callData);
 
 private:
-  vtkExecutionTimer(const vtkExecutionTimer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExecutionTimer&) VTK_DELETE_FUNCTION;
+  vtkExecutionTimer(const vtkExecutionTimer&) = delete;
+  void operator=(const vtkExecutionTimer&) = delete;
 
 };
 

@@ -151,8 +151,8 @@ public:
   protected:
     ScopedEventLogger(vtkRenderTimerLog *log) : Log(log) {}
   private:
-    void operator=(const ScopedEventLogger&) VTK_DELETE_FUNCTION;
-    ScopedEventLogger(const ScopedEventLogger &other) VTK_DELETE_FUNCTION;
+    void operator=(const ScopedEventLogger&) = delete;
+    ScopedEventLogger(const ScopedEventLogger &other) = delete;
     vtkRenderTimerLog *Log;
   };
 
@@ -223,8 +223,8 @@ protected:
   unsigned int FrameLimit;
 
 private:
-  vtkRenderTimerLog(const vtkRenderTimerLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderTimerLog&) VTK_DELETE_FUNCTION;
+  vtkRenderTimerLog(const vtkRenderTimerLog&) = delete;
+  void operator=(const vtkRenderTimerLog&) = delete;
 };
 
 #endif // vtkRenderTimerLog_h

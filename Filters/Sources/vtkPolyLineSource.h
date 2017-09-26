@@ -81,8 +81,8 @@ protected:
   int Closed;
 
 private:
-  vtkPolyLineSource(const vtkPolyLineSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyLineSource&) VTK_DELETE_FUNCTION;
+  vtkPolyLineSource(const vtkPolyLineSource&) = delete;
+  void operator=(const vtkPolyLineSource&) = delete;
 };
 
 #endif

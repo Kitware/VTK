@@ -56,8 +56,8 @@ protected:
   double Opacity;
 
 private:
-  vtkContextItem(const vtkContextItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextItem &) VTK_DELETE_FUNCTION;
+  vtkContextItem(const vtkContextItem &) = delete;
+  void operator=(const vtkContextItem &) = delete;
 
 };
 

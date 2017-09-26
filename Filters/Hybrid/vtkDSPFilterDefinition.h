@@ -81,8 +81,8 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
 protected:
 
 private:
-  vtkDSPFilterDefinition(const vtkDSPFilterDefinition&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDSPFilterDefinition&) VTK_DELETE_FUNCTION;
+  vtkDSPFilterDefinition(const vtkDSPFilterDefinition&) = delete;
+  void operator=(const vtkDSPFilterDefinition&) = delete;
 };
 
 

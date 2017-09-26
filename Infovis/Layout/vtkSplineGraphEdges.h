@@ -100,8 +100,8 @@ protected:
   vtkIdType NumberOfSubdivisions;
 
 private:
-  vtkSplineGraphEdges(const vtkSplineGraphEdges&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplineGraphEdges&) VTK_DELETE_FUNCTION;
+  vtkSplineGraphEdges(const vtkSplineGraphEdges&) = delete;
+  void operator=(const vtkSplineGraphEdges&) = delete;
 };
 
 #endif

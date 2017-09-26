@@ -70,8 +70,8 @@ protected:
   bool WriteExtent;
 
 private:
-  vtkStructuredGridWriter(const vtkStructuredGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridWriter&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridWriter(const vtkStructuredGridWriter&) = delete;
+  void operator=(const vtkStructuredGridWriter&) = delete;
 };
 
 #endif

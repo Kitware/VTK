@@ -118,8 +118,8 @@ private:
   vtkAbstractTransform* Transform;
   bool UseTransform;
 
-  vtkGraphLayout(const vtkGraphLayout&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphLayout&) VTK_DELETE_FUNCTION;
+  vtkGraphLayout(const vtkGraphLayout&) = delete;
+  void operator=(const vtkGraphLayout&) = delete;
 };
 
 #endif

@@ -190,8 +190,8 @@ protected:
   DebugOption DebugOptionValue;
 
 private:
-  vtkFXAAOptions(const vtkFXAAOptions&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFXAAOptions&) VTK_DELETE_FUNCTION;
+  vtkFXAAOptions(const vtkFXAAOptions&) = delete;
+  void operator=(const vtkFXAAOptions&) = delete;
 };
 
 #endif // vtkFXAAOptions_h

@@ -78,8 +78,8 @@ protected:
   ~vtkUTF8TextCodec() override;
 
 private:
-  vtkUTF8TextCodec(const vtkUTF8TextCodec &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUTF8TextCodec &) VTK_DELETE_FUNCTION;
+  vtkUTF8TextCodec(const vtkUTF8TextCodec &) = delete;
+  void operator=(const vtkUTF8TextCodec &) = delete;
 
 };
 

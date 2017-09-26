@@ -180,8 +180,8 @@ protected:
                          vtkInformationVector * outputVector) override;
 
 private:
-  vtkMetaImageReader(const vtkMetaImageReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMetaImageReader&) VTK_DELETE_FUNCTION;
+  vtkMetaImageReader(const vtkMetaImageReader&) = delete;
+  void operator=(const vtkMetaImageReader&) = delete;
 
   vtkmetaio::MetaImage *MetaImagePtr;
 

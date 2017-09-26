@@ -236,8 +236,8 @@ public:
 
   void PopulateCellCellMap(const vtkRenderState *s);
 
-  vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkValuePass&) VTK_DELETE_FUNCTION;
+  vtkValuePass(const vtkValuePass&) = delete;
+  void operator=(const vtkValuePass&) = delete;
 };
 
 #endif

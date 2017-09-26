@@ -50,8 +50,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkTransposeMatrix(const vtkTransposeMatrix&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransposeMatrix&) VTK_DELETE_FUNCTION;
+  vtkTransposeMatrix(const vtkTransposeMatrix&) = delete;
+  void operator=(const vtkTransposeMatrix&) = delete;
 };
 
 #endif

@@ -509,8 +509,8 @@ private:
   friend class vtkInformationIterator;
 
 private:
-  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&) VTK_DELETE_FUNCTION;
-  VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&) VTK_DELETE_FUNCTION;
+  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&) = delete;
+  VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&) = delete;
   vtkInformationRequestKey *Request;
 };
 

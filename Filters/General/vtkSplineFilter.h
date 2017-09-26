@@ -181,8 +181,8 @@ protected:
   vtkFloatArray *TCoordMap;
 
 private:
-  vtkSplineFilter(const vtkSplineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplineFilter&) VTK_DELETE_FUNCTION;
+  vtkSplineFilter(const vtkSplineFilter&) = delete;
+  void operator=(const vtkSplineFilter&) = delete;
 };
 
 #endif

@@ -129,8 +129,8 @@ protected:
   OffsetsManagerArray *CellDataOM;
 
 private:
-  vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLStructuredDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&) = delete;
+  void operator=(const vtkXMLStructuredDataWriter&) = delete;
 };
 
 #endif

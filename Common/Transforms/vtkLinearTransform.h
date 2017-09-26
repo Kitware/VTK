@@ -222,8 +222,8 @@ protected:
   vtkLinearTransform() {}
   ~vtkLinearTransform() override {}
 private:
-  vtkLinearTransform(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
+  vtkLinearTransform(const vtkLinearTransform&) = delete;
+  void operator=(const vtkLinearTransform&) = delete;
 };
 
 #endif

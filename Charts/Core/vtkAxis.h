@@ -767,8 +767,8 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkAxis(const vtkAxis &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxis &) VTK_DELETE_FUNCTION;
+  vtkAxis(const vtkAxis &) = delete;
+  void operator=(const vtkAxis &) = delete;
 
   /**
    * Return true if the value is in range, false otherwise.

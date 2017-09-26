@@ -95,8 +95,8 @@ protected:
   int TriangulationErrorDisplay;
 
 private:
-  vtkContourTriangulator(const vtkContourTriangulator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourTriangulator&) VTK_DELETE_FUNCTION;
+  vtkContourTriangulator(const vtkContourTriangulator&) = delete;
+  void operator=(const vtkContourTriangulator&) = delete;
 };
 
 #endif

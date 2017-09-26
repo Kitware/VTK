@@ -376,8 +376,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void LoadTimeFieldData(vtkUnstructuredGrid *dataset);
 
  private:
-  vtkMPASReader(const vtkMPASReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPASReader&) VTK_DELETE_FUNCTION;
+  vtkMPASReader(const vtkMPASReader&) = delete;
+  void operator=(const vtkMPASReader&) = delete;
 
   class Internal;
   Internal *Internals;

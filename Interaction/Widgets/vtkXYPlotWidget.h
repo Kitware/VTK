@@ -103,8 +103,8 @@ protected:
   void SetCursor(int State);
 
 private:
-  vtkXYPlotWidget(const vtkXYPlotWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXYPlotWidget&) VTK_DELETE_FUNCTION;
+  vtkXYPlotWidget(const vtkXYPlotWidget&) = delete;
+  void operator=(const vtkXYPlotWidget&) = delete;
 };
 
 #endif

@@ -107,8 +107,8 @@ protected:
 
 private:
 
-  vtkTreeMapLayout(const vtkTreeMapLayout&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeMapLayout&) VTK_DELETE_FUNCTION;
+  vtkTreeMapLayout(const vtkTreeMapLayout&) = delete;
+  void operator=(const vtkTreeMapLayout&) = delete;
 };
 
 #endif

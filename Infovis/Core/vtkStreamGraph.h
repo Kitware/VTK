@@ -98,8 +98,8 @@ protected:
   char* EdgeWindowArrayName;
 
 private:
-  vtkStreamGraph(const vtkStreamGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStreamGraph&) VTK_DELETE_FUNCTION;
+  vtkStreamGraph(const vtkStreamGraph&) = delete;
+  void operator=(const vtkStreamGraph&) = delete;
 };
 
 #endif

@@ -60,8 +60,8 @@ protected:
   vtkXMLWriter* CreatePieceWriter(int index) override;
 
 private:
-  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&) = delete;
+  void operator=(const vtkXMLPDataSetWriter&) = delete;
 };
 
 #endif

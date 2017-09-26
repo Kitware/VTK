@@ -61,8 +61,8 @@ protected:
   char *Text;
 
 private:
-  vtkVectorText(const vtkVectorText&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVectorText&) VTK_DELETE_FUNCTION;
+  vtkVectorText(const vtkVectorText&) = delete;
+  void operator=(const vtkVectorText&) = delete;
 };
 
 #endif

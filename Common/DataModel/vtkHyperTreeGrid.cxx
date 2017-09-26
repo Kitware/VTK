@@ -314,8 +314,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkGeometricCursor(const vtkGeometricCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeometricCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkGeometricCursor(const vtkGeometricCursor<N> &) = delete;
+  void operator=(const vtkGeometricCursor<N> &) = delete;
 }; // class vtkGeometricCursor : public vtkHyperTreeGridCursor
 //-----------------------------------------------------------------------------
 template<int N>
@@ -458,8 +458,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkSuperCursor(const vtkSuperCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSuperCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkSuperCursor(const vtkSuperCursor<N> &) = delete;
+  void operator=(const vtkSuperCursor<N> &) = delete;
 }; // class vtkSuperCursor : public vtkGeometricCursor
 //=============================================================================
 
@@ -864,8 +864,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkVonNeumannSuperCursor(const vtkVonNeumannSuperCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVonNeumannSuperCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkVonNeumannSuperCursor(const vtkVonNeumannSuperCursor<N> &) = delete;
+  void operator=(const vtkVonNeumannSuperCursor<N> &) = delete;
 }; // class vtkVonNeumannSuperCursor : public vtkGeometricCursor
 //-----------------------------------------------------------------------------
 template<int N> vtkStandardNewMacro(vtkVonNeumannSuperCursor<N>);
@@ -1415,8 +1415,8 @@ protected:
 
   //---------------------------------------------------------------------------
 private:
-  vtkMooreSuperCursor(const vtkMooreSuperCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMooreSuperCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkMooreSuperCursor(const vtkMooreSuperCursor<N> &) = delete;
+  void operator=(const vtkMooreSuperCursor<N> &) = delete;
 }; // class vtkMooreSuperCursor : public vtkGeometricCursor
 //-----------------------------------------------------------------------------
 template<int N> vtkStandardNewMacro(vtkMooreSuperCursor<N>);

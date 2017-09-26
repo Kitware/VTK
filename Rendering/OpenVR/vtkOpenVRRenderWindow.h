@@ -351,8 +351,8 @@ protected:
 
 
 private:
-  vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) = delete;
+  void operator=(const vtkOpenVRRenderWindow&) = delete;
 };
 
 

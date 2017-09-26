@@ -651,8 +651,8 @@ protected:
   double Bounds[6];
 
 private:
-  vtkGenericAdaptorCell(const vtkGenericAdaptorCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericAdaptorCell&) VTK_DELETE_FUNCTION;
+  vtkGenericAdaptorCell(const vtkGenericAdaptorCell&) = delete;
+  void operator=(const vtkGenericAdaptorCell&) = delete;
 };
 
 #endif

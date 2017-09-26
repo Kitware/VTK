@@ -43,8 +43,8 @@ protected:
                         int outExt[6], int id) override;
 
 private:
-  vtkImageLuminance(const vtkImageLuminance&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageLuminance&) VTK_DELETE_FUNCTION;
+  vtkImageLuminance(const vtkImageLuminance&) = delete;
+  void operator=(const vtkImageLuminance&) = delete;
 };
 
 #endif

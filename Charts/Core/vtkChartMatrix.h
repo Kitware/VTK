@@ -161,8 +161,8 @@ protected:
   bool LayoutIsDirty;
 
 private:
-  vtkChartMatrix(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
+  vtkChartMatrix(const vtkChartMatrix &) = delete;
+  void operator=(const vtkChartMatrix &) = delete;
 
   class PIMPL;
   PIMPL *Private;

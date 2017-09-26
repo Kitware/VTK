@@ -138,8 +138,8 @@ protected:
   bool CopyArrays;
 
 private:
-  vtkProgrammableFilter(const vtkProgrammableFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableFilter&) VTK_DELETE_FUNCTION;
+  vtkProgrammableFilter(const vtkProgrammableFilter&) = delete;
+  void operator=(const vtkProgrammableFilter&) = delete;
 };
 
 #endif

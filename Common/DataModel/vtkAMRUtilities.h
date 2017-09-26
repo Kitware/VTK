@@ -102,8 +102,8 @@ protected:
                           std::vector<std::vector<unsigned int> >& children,
                           const std::vector<int>& processMap);
 private:
-  vtkAMRUtilities(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
+  vtkAMRUtilities(const vtkAMRUtilities&) = delete;
+  void operator=(const vtkAMRUtilities&) = delete;
 };
 
 #endif /* vtkAMRUtilities_h */

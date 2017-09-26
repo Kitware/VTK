@@ -145,8 +145,8 @@ protected:
   int OrthoAxis;
 
 private:
-  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
+  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&) = delete;
+  void operator=(const vtkCheckerboardRepresentation&) = delete;
 };
 
 #endif

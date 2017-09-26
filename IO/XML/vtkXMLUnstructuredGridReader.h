@@ -87,8 +87,8 @@ protected:
   unsigned long CellsOffset;
 
 private:
-  vtkXMLUnstructuredGridReader(const vtkXMLUnstructuredGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUnstructuredGridReader&) VTK_DELETE_FUNCTION;
+  vtkXMLUnstructuredGridReader(const vtkXMLUnstructuredGridReader&) = delete;
+  void operator=(const vtkXMLUnstructuredGridReader&) = delete;
 };
 
 #endif

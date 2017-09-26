@@ -114,8 +114,8 @@ protected:
   int HighlightState;
 
 private:
-  vtkButtonRepresentation(const vtkButtonRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkButtonRepresentation&) VTK_DELETE_FUNCTION;
+  vtkButtonRepresentation(const vtkButtonRepresentation&) = delete;
+  void operator=(const vtkButtonRepresentation&) = delete;
 };
 
 #endif

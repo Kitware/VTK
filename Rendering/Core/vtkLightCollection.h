@@ -66,8 +66,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkLightCollection(const vtkLightCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightCollection&) VTK_DELETE_FUNCTION;
+  vtkLightCollection(const vtkLightCollection&) = delete;
+  void operator=(const vtkLightCollection&) = delete;
 };
 
 #endif

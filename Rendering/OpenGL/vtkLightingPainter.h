@@ -36,8 +36,8 @@ protected:
   ~vtkLightingPainter() override;
 
 private:
-  vtkLightingPainter(const vtkLightingPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightingPainter&) VTK_DELETE_FUNCTION;
+  vtkLightingPainter(const vtkLightingPainter&) = delete;
+  void operator=(const vtkLightingPainter&) = delete;
 };
 
 #endif

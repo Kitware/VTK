@@ -62,8 +62,8 @@ public:
   ~vtkValuePass() override;
 
  private:
-  vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkValuePass&) VTK_DELETE_FUNCTION;
+  vtkValuePass(const vtkValuePass&) = delete;
+  void operator=(const vtkValuePass&) = delete;
 
   class vtkInternals;
   vtkInternals *Internals;

@@ -149,8 +149,8 @@ protected:
   vtkPainter* SelectionPainter;
   vtkPainterPolyDataMapperObserver* Observer;
 private:
-  vtkPainterPolyDataMapper(const vtkPainterPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPainterPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkPainterPolyDataMapper(const vtkPainterPolyDataMapper&) = delete;
+  void operator=(const vtkPainterPolyDataMapper&) = delete;
 };
 
 #endif

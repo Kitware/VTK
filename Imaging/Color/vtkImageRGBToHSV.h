@@ -51,8 +51,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id) override;
 private:
-  vtkImageRGBToHSV(const vtkImageRGBToHSV&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRGBToHSV&) VTK_DELETE_FUNCTION;
+  vtkImageRGBToHSV(const vtkImageRGBToHSV&) = delete;
+  void operator=(const vtkImageRGBToHSV&) = delete;
 };
 
 #endif

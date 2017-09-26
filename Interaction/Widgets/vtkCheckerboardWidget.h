@@ -113,8 +113,8 @@ protected:
   friend class vtkCWCallback;
 
 private:
-  vtkCheckerboardWidget(const vtkCheckerboardWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCheckerboardWidget&) VTK_DELETE_FUNCTION;
+  vtkCheckerboardWidget(const vtkCheckerboardWidget&) = delete;
+  void operator=(const vtkCheckerboardWidget&) = delete;
 };
 
 #endif

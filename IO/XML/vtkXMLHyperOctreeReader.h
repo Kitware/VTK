@@ -89,8 +89,8 @@ protected:
   int ArrayIndex;
 
 private:
-  vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHyperOctreeReader&) VTK_DELETE_FUNCTION;
+  vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&) = delete;
+  void operator=(const vtkXMLHyperOctreeReader&) = delete;
 };
 
 #endif

@@ -44,8 +44,8 @@ protected:
   ~vtkImageImportExecutive() override {}
 
 private:
-  vtkImageImportExecutive(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
+  vtkImageImportExecutive(const vtkImageImportExecutive&) = delete;
+  void operator=(const vtkImageImportExecutive&) = delete;
 };
 
 #endif

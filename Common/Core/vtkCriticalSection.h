@@ -64,8 +64,8 @@ protected:
   ~vtkCriticalSection() override {}
 
 private:
-  vtkCriticalSection(const vtkCriticalSection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCriticalSection&) VTK_DELETE_FUNCTION;
+  vtkCriticalSection(const vtkCriticalSection&) = delete;
+  void operator=(const vtkCriticalSection&) = delete;
 };
 
 

@@ -113,8 +113,8 @@ public:
   int FieldWidth;
 
 private:
-  vtkFixedWidthTextReader(const vtkFixedWidthTextReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedWidthTextReader&) VTK_DELETE_FUNCTION;
+  vtkFixedWidthTextReader(const vtkFixedWidthTextReader&) = delete;
+  void operator=(const vtkFixedWidthTextReader&) = delete;
   vtkCommand *TableErrorObserver;
 };
 

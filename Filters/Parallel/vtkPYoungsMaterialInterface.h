@@ -66,8 +66,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPYoungsMaterialInterface(const vtkPYoungsMaterialInterface&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPYoungsMaterialInterface&) VTK_DELETE_FUNCTION;
+  vtkPYoungsMaterialInterface(const vtkPYoungsMaterialInterface&) = delete;
+  void operator=(const vtkPYoungsMaterialInterface&) = delete;
 };
 
 #endif /* VTK_PYOUNGS_MATERIAL_INTERFACE_H */

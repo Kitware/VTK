@@ -118,8 +118,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkUnstructuredGridBaseAlgorithm(const vtkUnstructuredGridBaseAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridBaseAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridBaseAlgorithm(const vtkUnstructuredGridBaseAlgorithm&) = delete;
+  void operator=(const vtkUnstructuredGridBaseAlgorithm&) = delete;
 };
 
 #endif

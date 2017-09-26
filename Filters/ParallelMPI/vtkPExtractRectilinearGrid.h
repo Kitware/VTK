@@ -62,8 +62,8 @@ protected:
   vtkMPIController* Controller;
 
 private:
-  vtkPExtractRectilinearGrid(const vtkPExtractRectilinearGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPExtractRectilinearGrid&) VTK_DELETE_FUNCTION;
+  vtkPExtractRectilinearGrid(const vtkPExtractRectilinearGrid&) = delete;
+  void operator=(const vtkPExtractRectilinearGrid&) = delete;
 };
 
 #endif /* VTKPEXTRACTRECTILINEARGRID_H_ */

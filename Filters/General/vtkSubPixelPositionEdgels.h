@@ -88,8 +88,8 @@ protected:
   int TargetFlag;
   double TargetValue;
 private:
-  vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSubPixelPositionEdgels&) VTK_DELETE_FUNCTION;
+  vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&) = delete;
+  void operator=(const vtkSubPixelPositionEdgels&) = delete;
 };
 
 #endif

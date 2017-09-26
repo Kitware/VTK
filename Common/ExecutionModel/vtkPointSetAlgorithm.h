@@ -151,8 +151,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkPointSetAlgorithm(const vtkPointSetAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointSetAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPointSetAlgorithm(const vtkPointSetAlgorithm&) = delete;
+  void operator=(const vtkPointSetAlgorithm&) = delete;
 };
 
 #endif

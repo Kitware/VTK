@@ -49,8 +49,8 @@ protected:
   ~vtkQtInitialization() override;
 
 private:
-  vtkQtInitialization(const vtkQtInitialization &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtInitialization &) VTK_DELETE_FUNCTION;
+  vtkQtInitialization(const vtkQtInitialization &) = delete;
+  void operator=(const vtkQtInitialization &) = delete;
 
   QApplication *Application;
 

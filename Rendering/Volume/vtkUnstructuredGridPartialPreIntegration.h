@@ -109,8 +109,8 @@ protected:
   static int PsiTableBuilt;
 
 private:
-  vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridPartialPreIntegration&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&) = delete;
+  void operator=(const vtkUnstructuredGridPartialPreIntegration&) = delete;
 };
 
 inline float vtkUnstructuredGridPartialPreIntegration::Psi(float taufD,

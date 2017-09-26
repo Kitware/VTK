@@ -164,8 +164,8 @@ protected:
   //@}
 
 private:
-  vtkCellSizeFilter(const vtkCellSizeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellSizeFilter&) VTK_DELETE_FUNCTION;
+  vtkCellSizeFilter(const vtkCellSizeFilter&) = delete;
+  void operator=(const vtkCellSizeFilter&) = delete;
 
   bool ComputeVertexCount;
   bool ComputeLength;

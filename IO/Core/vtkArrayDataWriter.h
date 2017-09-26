@@ -145,8 +145,8 @@ protected:
   vtkStdString OutputString;
 
 private:
-  vtkArrayDataWriter(const vtkArrayDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayDataWriter&) VTK_DELETE_FUNCTION;
+  vtkArrayDataWriter(const vtkArrayDataWriter&) = delete;
+  void operator=(const vtkArrayDataWriter&) = delete;
 };
 
 #endif

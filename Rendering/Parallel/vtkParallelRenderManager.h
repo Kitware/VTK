@@ -681,8 +681,8 @@ protected:
   static bool DefaultRenderEventPropagation;
 
 private:
-  vtkParallelRenderManager(const vtkParallelRenderManager &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelRenderManager &) VTK_DELETE_FUNCTION;
+  vtkParallelRenderManager(const vtkParallelRenderManager &) = delete;
+  void operator=(const vtkParallelRenderManager &) = delete;
 
 };
 

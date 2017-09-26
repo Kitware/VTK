@@ -196,8 +196,8 @@ protected:
   void CloseFile(ostream *fp);
 
 private:
-  vtkMNITagPointWriter(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
+  vtkMNITagPointWriter(const vtkMNITagPointWriter&) = delete;
+  void operator=(const vtkMNITagPointWriter&) = delete;
 
 };
 

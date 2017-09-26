@@ -90,8 +90,8 @@ protected:
   };
 
 private:
-  vtkTreeDFSIterator(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;
+  vtkTreeDFSIterator(const vtkTreeDFSIterator &) = delete;
+  void operator=(const vtkTreeDFSIterator &) = delete;
 };
 
 

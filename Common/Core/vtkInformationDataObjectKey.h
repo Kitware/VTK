@@ -71,8 +71,8 @@ public:
   void Report(vtkInformation* info, vtkGarbageCollector* collector) override;
 
 private:
-  vtkInformationDataObjectKey(const vtkInformationDataObjectKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationDataObjectKey&) VTK_DELETE_FUNCTION;
+  vtkInformationDataObjectKey(const vtkInformationDataObjectKey&) = delete;
+  void operator=(const vtkInformationDataObjectKey&) = delete;
 };
 
 #endif

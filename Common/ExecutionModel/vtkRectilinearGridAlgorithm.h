@@ -124,8 +124,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRectilinearGridAlgorithm(const vtkRectilinearGridAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridAlgorithm(const vtkRectilinearGridAlgorithm&) = delete;
+  void operator=(const vtkRectilinearGridAlgorithm&) = delete;
 };
 
 #endif

@@ -83,8 +83,8 @@ protected:
   eMaterialParamater Mode;
 
 private:
-  vtkColorMaterialHelper(const vtkColorMaterialHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkColorMaterialHelper&) VTK_DELETE_FUNCTION;
+  vtkColorMaterialHelper(const vtkColorMaterialHelper&) = delete;
+  void operator=(const vtkColorMaterialHelper&) = delete;
 
 };
 

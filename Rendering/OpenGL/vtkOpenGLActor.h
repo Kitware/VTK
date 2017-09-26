@@ -45,8 +45,8 @@ protected:
   ~vtkOpenGLActor() override {}
 
 private:
-  vtkOpenGLActor(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;
+  vtkOpenGLActor(const vtkOpenGLActor&) = delete;
+  void operator=(const vtkOpenGLActor&) = delete;
 };
 
 #endif

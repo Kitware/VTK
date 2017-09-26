@@ -106,8 +106,8 @@ protected:
                            int outExt[6], int id) override;
 
 private:
-  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageGaussianSmooth&) VTK_DELETE_FUNCTION;
+  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&) = delete;
+  void operator=(const vtkImageGaussianSmooth&) = delete;
 };
 
 #endif

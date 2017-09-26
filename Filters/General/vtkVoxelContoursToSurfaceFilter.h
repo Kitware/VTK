@@ -99,8 +99,8 @@ protected:
 
   void    PushDistances( float *ptr, int gridSize[3], int chunkSize );
 private:
-  vtkVoxelContoursToSurfaceFilter(const vtkVoxelContoursToSurfaceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVoxelContoursToSurfaceFilter&) VTK_DELETE_FUNCTION;
+  vtkVoxelContoursToSurfaceFilter(const vtkVoxelContoursToSurfaceFilter&) = delete;
+  void operator=(const vtkVoxelContoursToSurfaceFilter&) = delete;
 };
 
 #endif

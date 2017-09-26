@@ -167,8 +167,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRendererSource(const vtkRendererSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRendererSource&) VTK_DELETE_FUNCTION;
+  vtkRendererSource(const vtkRendererSource&) = delete;
+  void operator=(const vtkRendererSource&) = delete;
 };
 
 #endif

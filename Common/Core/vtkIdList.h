@@ -159,8 +159,8 @@ protected:
   vtkIdType *Ids;
 
 private:
-  vtkIdList(const vtkIdList&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIdList&) VTK_DELETE_FUNCTION;
+  vtkIdList(const vtkIdList&) = delete;
+  void operator=(const vtkIdList&) = delete;
 };
 
 // In-lined for performance

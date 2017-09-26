@@ -69,8 +69,8 @@ protected:
     int port, vtkInformation* info) override;
 
 private:
-  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
+  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&) = delete;
+  void operator=(const vtkConvertSelectionDomain&) = delete;
 };
 
 #endif

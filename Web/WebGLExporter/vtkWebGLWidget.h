@@ -58,8 +58,8 @@ protected:
     std::vector <double*>colors;      //x, r, g, b
 
 private:
-  vtkWebGLWidget(const vtkWebGLWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLWidget&) VTK_DELETE_FUNCTION;
+  vtkWebGLWidget(const vtkWebGLWidget&) = delete;
+  void operator=(const vtkWebGLWidget&) = delete;
 
 };
 

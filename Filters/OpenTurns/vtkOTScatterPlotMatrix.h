@@ -76,8 +76,8 @@ protected:
     int plotCorner = 0) override;
 
 private:
-  vtkOTScatterPlotMatrix(const vtkOTScatterPlotMatrix&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOTScatterPlotMatrix&) VTK_DELETE_FUNCTION;
+  vtkOTScatterPlotMatrix(const vtkOTScatterPlotMatrix&) = delete;
+  void operator=(const vtkOTScatterPlotMatrix&) = delete;
 
   class DensityMapSettings;
   std::map<int, DensityMapSettings*> DensityMapsSettings;

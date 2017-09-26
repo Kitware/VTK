@@ -56,8 +56,8 @@ protected:
   ~vtkServerSocket() override;
 
 private:
-  vtkServerSocket(const vtkServerSocket&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkServerSocket&) VTK_DELETE_FUNCTION;
+  vtkServerSocket(const vtkServerSocket&) = delete;
+  void operator=(const vtkServerSocket&) = delete;
 };
 
 

@@ -161,8 +161,8 @@ protected:
   double Element[3][3]; // The elements of the 3x3 matrix
 
 private:
-  vtkMatrix3x3(const vtkMatrix3x3&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMatrix3x3&) VTK_DELETE_FUNCTION;
+  vtkMatrix3x3(const vtkMatrix3x3&) = delete;
+  void operator=(const vtkMatrix3x3&) = delete;
 };
 
 inline void vtkMatrix3x3::SetElement(int i, int j, double value)

@@ -107,8 +107,8 @@ protected:
   vtkMutableUndirectedGraph* UndirectedGraph;
 
 private:
-  vtkMutableGraphHelper(const vtkMutableGraphHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMutableGraphHelper&) VTK_DELETE_FUNCTION;
+  vtkMutableGraphHelper(const vtkMutableGraphHelper&) = delete;
+  void operator=(const vtkMutableGraphHelper&) = delete;
 };
 
 #endif

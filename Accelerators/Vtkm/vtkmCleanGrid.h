@@ -62,8 +62,8 @@ protected:
   bool CompactPoints;
 
 private:
-  vtkmCleanGrid(const vtkmCleanGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmCleanGrid&) VTK_DELETE_FUNCTION;
+  vtkmCleanGrid(const vtkmCleanGrid&) = delete;
+  void operator=(const vtkmCleanGrid&) = delete;
 };
 
 #endif // vtkmCleanGrid_h

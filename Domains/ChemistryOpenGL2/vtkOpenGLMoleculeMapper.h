@@ -65,8 +65,8 @@ protected:
   //@}
 
 private:
-  vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLMoleculeMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&) = delete;
+  void operator=(const vtkOpenGLMoleculeMapper&) = delete;
 };
 
 #endif

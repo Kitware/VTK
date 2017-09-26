@@ -141,7 +141,7 @@ protected:
   std::vector<vtkPolyData*> RenderedList;
 
 private:
-  vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
+  vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) = delete;
+  void operator=(const vtkCompositeMapperHelper2&) = delete;
 };
 // VTK-HeaderTest-Exclude: vtkCompositePolyDataMapper2Internal.h

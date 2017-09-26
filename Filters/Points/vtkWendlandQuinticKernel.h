@@ -109,8 +109,8 @@ protected:
   ~vtkWendlandQuinticKernel() override;
 
 private:
-  vtkWendlandQuinticKernel(const vtkWendlandQuinticKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWendlandQuinticKernel&) VTK_DELETE_FUNCTION;
+  vtkWendlandQuinticKernel(const vtkWendlandQuinticKernel&) = delete;
+  void operator=(const vtkWendlandQuinticKernel&) = delete;
 };
 
 #endif

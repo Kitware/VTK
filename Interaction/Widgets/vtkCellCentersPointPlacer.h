@@ -150,8 +150,8 @@ protected:
   int                 Mode;
 
 private:
-  vtkCellCentersPointPlacer(const vtkCellCentersPointPlacer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellCentersPointPlacer&) VTK_DELETE_FUNCTION;
+  vtkCellCentersPointPlacer(const vtkCellCentersPointPlacer&) = delete;
+  void operator=(const vtkCellCentersPointPlacer&) = delete;
 };
 
 #endif

@@ -107,8 +107,8 @@ protected:
   double         DistanceOffset;
 
 private:
-  vtkPolygonalSurfaceContourLineInterpolator(const vtkPolygonalSurfaceContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolygonalSurfaceContourLineInterpolator&) VTK_DELETE_FUNCTION;
+  vtkPolygonalSurfaceContourLineInterpolator(const vtkPolygonalSurfaceContourLineInterpolator&) = delete;
+  void operator=(const vtkPolygonalSurfaceContourLineInterpolator&) = delete;
 
   // Cache the last used vertex id's (start and end).
   // If they are the same, don't recompute.

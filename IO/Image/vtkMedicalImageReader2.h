@@ -76,8 +76,8 @@ protected:
   vtkMedicalImageProperties *MedicalImageProperties;
 
 private:
-  vtkMedicalImageReader2(const vtkMedicalImageReader2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMedicalImageReader2&) VTK_DELETE_FUNCTION;
+  vtkMedicalImageReader2(const vtkMedicalImageReader2&) = delete;
+  void operator=(const vtkMedicalImageReader2&) = delete;
 };
 
 #endif

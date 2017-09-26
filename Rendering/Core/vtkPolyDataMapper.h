@@ -156,8 +156,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkPolyDataMapper(const vtkPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkPolyDataMapper(const vtkPolyDataMapper&) = delete;
+  void operator=(const vtkPolyDataMapper&) = delete;
 };
 
 #endif

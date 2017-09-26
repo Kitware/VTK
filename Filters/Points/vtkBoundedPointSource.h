@@ -115,8 +115,8 @@ protected:
   double ScalarRange[2];
 
 private:
-  vtkBoundedPointSource(const vtkBoundedPointSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoundedPointSource&) VTK_DELETE_FUNCTION;
+  vtkBoundedPointSource(const vtkBoundedPointSource&) = delete;
+  void operator=(const vtkBoundedPointSource&) = delete;
 };
 
 #endif

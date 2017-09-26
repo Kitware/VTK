@@ -99,8 +99,8 @@ protected:
   double *Steps;
   double *Values;
 private:
-  vtkTimeSourceExample(const vtkTimeSourceExample&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimeSourceExample&) VTK_DELETE_FUNCTION;
+  vtkTimeSourceExample(const vtkTimeSourceExample&) = delete;
+  void operator=(const vtkTimeSourceExample&) = delete;
 };
 
 #endif

@@ -231,8 +231,8 @@ protected:
                                                void *callData);
 
 private:
-  vtkContourFilter(const vtkContourFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourFilter&) VTK_DELETE_FUNCTION;
+  vtkContourFilter(const vtkContourFilter&) = delete;
+  void operator=(const vtkContourFilter&) = delete;
 };
 
 /**

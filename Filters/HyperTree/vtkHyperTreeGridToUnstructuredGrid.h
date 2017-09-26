@@ -93,8 +93,8 @@ protected:
   unsigned int Dimension;
 
 private:
-  vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) = delete;
+  void operator=(const vtkHyperTreeGridToUnstructuredGrid&) = delete;
 };
 
 #endif /* vtkHyperTreeGridToUnstructuredGrid_h */

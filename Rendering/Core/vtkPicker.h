@@ -196,8 +196,8 @@ protected:
   vtkPoints *PickedPositions; // candidate positions
 
 private:
-  vtkPicker(const vtkPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPicker&) VTK_DELETE_FUNCTION;
+  vtkPicker(const vtkPicker&) = delete;
+  void operator=(const vtkPicker&) = delete;
 };
 
 #endif

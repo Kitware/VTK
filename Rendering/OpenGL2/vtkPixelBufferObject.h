@@ -381,8 +381,8 @@ protected:
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
 private:
-  vtkPixelBufferObject(const vtkPixelBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPixelBufferObject&) VTK_DELETE_FUNCTION;
+  vtkPixelBufferObject(const vtkPixelBufferObject&) = delete;
+  void operator=(const vtkPixelBufferObject&) = delete;
 };
 
 #endif

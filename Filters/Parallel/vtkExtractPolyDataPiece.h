@@ -59,8 +59,8 @@ protected:
 
   int CreateGhostCells;
 private:
-  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractPolyDataPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&) = delete;
+  void operator=(const vtkExtractPolyDataPiece&) = delete;
 };
 
 #endif

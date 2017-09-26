@@ -100,8 +100,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricMobius : public
     double Radius;
 
   private:
-    vtkParametricMobius(const vtkParametricMobius&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricMobius&) VTK_DELETE_FUNCTION;
+    vtkParametricMobius(const vtkParametricMobius&) = delete;
+    void operator=(const vtkParametricMobius&) = delete;
 };
 
 #endif

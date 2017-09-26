@@ -102,8 +102,8 @@ protected:
   void InternalRequestUpdateExtent(int *inExt, int *outExt);
 
 private:
-  vtkImageShrink3D(const vtkImageShrink3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageShrink3D&) VTK_DELETE_FUNCTION;
+  vtkImageShrink3D(const vtkImageShrink3D&) = delete;
+  void operator=(const vtkImageShrink3D&) = delete;
 };
 
 #endif

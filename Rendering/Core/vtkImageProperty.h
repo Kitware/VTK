@@ -212,8 +212,8 @@ protected:
   double BackingColor[3];
 
 private:
-  vtkImageProperty(const vtkImageProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageProperty&) VTK_DELETE_FUNCTION;
+  vtkImageProperty(const vtkImageProperty&) = delete;
+  void operator=(const vtkImageProperty&) = delete;
 };
 
 #endif

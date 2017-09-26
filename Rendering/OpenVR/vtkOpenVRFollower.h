@@ -46,8 +46,8 @@ protected:
   double LastViewUp[3];
 
 private:
-  vtkOpenVRFollower(const vtkOpenVRFollower&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRFollower&) VTK_DELETE_FUNCTION;
+  vtkOpenVRFollower(const vtkOpenVRFollower&) = delete;
+  void operator=(const vtkOpenVRFollower&) = delete;
 };
 
 #endif

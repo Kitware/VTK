@@ -252,8 +252,8 @@ public:
  private:
   vtkAMRInformation();
   ~vtkAMRInformation() override;
-  vtkAMRInformation(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
+  vtkAMRInformation(const vtkAMRInformation&) = delete;
+  void operator=(const vtkAMRInformation&) = delete;
 
   bool HasValidOrigin();
   bool HasValidBounds();

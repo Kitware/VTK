@@ -80,8 +80,8 @@ public:
     OutputIterator() {}    virtual ~OutputIterator() {}
 
   private:
-    OutputIterator(const OutputIterator&) VTK_DELETE_FUNCTION;
-    const OutputIterator& operator=(const OutputIterator&) VTK_DELETE_FUNCTION;
+    OutputIterator(const OutputIterator&) = delete;
+    const OutputIterator& operator=(const OutputIterator&) = delete;
   };
 
   /**
@@ -110,8 +110,8 @@ protected:
   ~vtkTextCodec() override;
 
 private:
-  vtkTextCodec(const vtkTextCodec &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextCodec &) VTK_DELETE_FUNCTION;
+  vtkTextCodec(const vtkTextCodec &) = delete;
+  void operator=(const vtkTextCodec &) = delete;
 
 };
 

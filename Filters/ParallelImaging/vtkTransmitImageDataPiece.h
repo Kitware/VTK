@@ -46,8 +46,8 @@ protected:
   ~vtkTransmitImageDataPiece() override;
 
 private:
-  vtkTransmitImageDataPiece(const vtkTransmitImageDataPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransmitImageDataPiece&) VTK_DELETE_FUNCTION;
+  vtkTransmitImageDataPiece(const vtkTransmitImageDataPiece&) = delete;
+  void operator=(const vtkTransmitImageDataPiece&) = delete;
 };
 
 #endif

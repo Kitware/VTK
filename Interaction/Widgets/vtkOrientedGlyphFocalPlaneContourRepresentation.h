@@ -200,8 +200,8 @@ protected:
   void BuildLines() override;
 
 private:
-  vtkOrientedGlyphFocalPlaneContourRepresentation(const vtkOrientedGlyphFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOrientedGlyphFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
+  vtkOrientedGlyphFocalPlaneContourRepresentation(const vtkOrientedGlyphFocalPlaneContourRepresentation&) = delete;
+  void operator=(const vtkOrientedGlyphFocalPlaneContourRepresentation&) = delete;
 };
 
 #endif

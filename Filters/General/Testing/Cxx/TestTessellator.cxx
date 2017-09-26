@@ -2552,8 +2552,8 @@ class vtkTestTessellatorSubdivision
     static int* TestListCanAmbig;
 
   private:
-    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ) VTK_DELETE_FUNCTION;
-    void operator = ( const vtkTestTessellatorSubdivision& ) VTK_DELETE_FUNCTION;
+    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ) = delete;
+    void operator = ( const vtkTestTessellatorSubdivision& ) = delete;
 
 };
 

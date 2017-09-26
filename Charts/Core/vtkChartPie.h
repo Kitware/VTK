@@ -151,8 +151,8 @@ protected:
   bool PlotTransformValid;
 
 private:
-  vtkChartPie(const vtkChartPie &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartPie &) VTK_DELETE_FUNCTION;
+  vtkChartPie(const vtkChartPie &) = delete;
+  void operator=(const vtkChartPie &) = delete;
 
   /**
    * Try to locate a point within the plots to display in a tooltip

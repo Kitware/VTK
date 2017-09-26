@@ -148,8 +148,8 @@ protected:
   int Button;
 
 private:
-  vtkInteractorStyleUser(const vtkInteractorStyleUser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleUser&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleUser(const vtkInteractorStyleUser&) = delete;
+  void operator=(const vtkInteractorStyleUser&) = delete;
 };
 
 #endif

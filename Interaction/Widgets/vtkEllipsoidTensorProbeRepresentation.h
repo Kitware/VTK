@@ -85,9 +85,9 @@ protected:
 
 private:
   vtkEllipsoidTensorProbeRepresentation(const
-      vtkEllipsoidTensorProbeRepresentation&) VTK_DELETE_FUNCTION;
+      vtkEllipsoidTensorProbeRepresentation&) = delete;
   void operator=(const
-      vtkEllipsoidTensorProbeRepresentation&) VTK_DELETE_FUNCTION;
+      vtkEllipsoidTensorProbeRepresentation&) = delete;
 
 };
 

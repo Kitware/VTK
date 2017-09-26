@@ -154,9 +154,9 @@ public:
 protected:
   int fd;
 private:
-  vtkSLACParticleReaderAutoCloseNetCDF() VTK_DELETE_FUNCTION;
-  vtkSLACParticleReaderAutoCloseNetCDF(const vtkSLACParticleReaderAutoCloseNetCDF &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &) VTK_DELETE_FUNCTION;
+  vtkSLACParticleReaderAutoCloseNetCDF() = delete;
+  vtkSLACParticleReaderAutoCloseNetCDF(const vtkSLACParticleReaderAutoCloseNetCDF &) = delete;
+  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &) = delete;
 };
 
 //=============================================================================

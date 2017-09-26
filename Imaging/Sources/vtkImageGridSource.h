@@ -131,8 +131,8 @@ protected:
   void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) override;
 
 private:
-  vtkImageGridSource(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
+  vtkImageGridSource(const vtkImageGridSource&) = delete;
+  void operator=(const vtkImageGridSource&) = delete;
 };
 
 

@@ -136,8 +136,8 @@ protected:
   int FilterPoints(vtkPointSet *input) override;
 
 private:
-  vtkStatisticalOutlierRemoval(const vtkStatisticalOutlierRemoval&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStatisticalOutlierRemoval&) VTK_DELETE_FUNCTION;
+  vtkStatisticalOutlierRemoval(const vtkStatisticalOutlierRemoval&) = delete;
+  void operator=(const vtkStatisticalOutlierRemoval&) = delete;
 
 };
 

@@ -922,7 +922,7 @@ protected:
   vtkBSPCuts *Cuts;
   double Progress;
 
-  vtkKdTree(const vtkKdTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKdTree&) VTK_DELETE_FUNCTION;
+  vtkKdTree(const vtkKdTree&) = delete;
+  void operator=(const vtkKdTree&) = delete;
 };
 #endif

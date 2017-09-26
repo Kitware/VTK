@@ -85,8 +85,8 @@ protected:
   double LowerThreshold;
   double Threshold;
 private:
-  vtkImageToImageStencil(const vtkImageToImageStencil&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageToImageStencil&) VTK_DELETE_FUNCTION;
+  vtkImageToImageStencil(const vtkImageToImageStencil&) = delete;
+  void operator=(const vtkImageToImageStencil&) = delete;
 };
 
 #endif

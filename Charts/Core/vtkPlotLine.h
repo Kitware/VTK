@@ -76,8 +76,8 @@ protected:
   bool PolyLine;
 
 private:
-  vtkPlotLine(const vtkPlotLine &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotLine &) VTK_DELETE_FUNCTION;
+  vtkPlotLine(const vtkPlotLine &) = delete;
+  void operator=(const vtkPlotLine &) = delete;
 
 };
 

@@ -181,8 +181,8 @@ protected:
   double Theta;
 
 private:
-  vtkRibbonFilter(const vtkRibbonFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRibbonFilter&) VTK_DELETE_FUNCTION;
+  vtkRibbonFilter(const vtkRibbonFilter&) = delete;
+  void operator=(const vtkRibbonFilter&) = delete;
 };
 
 #endif

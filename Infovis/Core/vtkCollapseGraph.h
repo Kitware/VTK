@@ -70,8 +70,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkCollapseGraph(const vtkCollapseGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollapseGraph&) VTK_DELETE_FUNCTION;
+  vtkCollapseGraph(const vtkCollapseGraph&) = delete;
+  void operator=(const vtkCollapseGraph&) = delete;
 };
 
 #endif

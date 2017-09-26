@@ -79,8 +79,8 @@ protected:
 
   bool AddOriginalRowIdsArray;
 private:
-  vtkExtractSelectedRows(const vtkExtractSelectedRows&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedRows&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedRows(const vtkExtractSelectedRows&) = delete;
+  void operator=(const vtkExtractSelectedRows&) = delete;
 };
 
 #endif

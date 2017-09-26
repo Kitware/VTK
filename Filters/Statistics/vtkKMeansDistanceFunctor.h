@@ -104,8 +104,8 @@ protected:
   vtkTable* CenterUpdates; // Used to hold online computation of next iteration's cluster center coords.
 
 private:
-  vtkKMeansDistanceFunctor( const vtkKMeansDistanceFunctor& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkKMeansDistanceFunctor& ) VTK_DELETE_FUNCTION;
+  vtkKMeansDistanceFunctor( const vtkKMeansDistanceFunctor& ) = delete;
+  void operator = ( const vtkKMeansDistanceFunctor& ) = delete;
 };
 
 #endif // vtkKMeansDistanceFunctor_h

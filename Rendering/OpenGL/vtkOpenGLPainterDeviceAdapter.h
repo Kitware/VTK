@@ -145,8 +145,8 @@ protected:
   int MaxStencil;
   bool Initialized;
 private:
-  vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
+  vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &) = delete;
+  void operator=(const vtkOpenGLPainterDeviceAdapter &) = delete;
 };
 
 #if defined(_MSC_VER)

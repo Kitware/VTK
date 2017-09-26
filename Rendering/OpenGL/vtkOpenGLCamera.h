@@ -46,8 +46,8 @@ protected:
   vtkOpenGLCamera() {}
   ~vtkOpenGLCamera() override {}
 private:
-  vtkOpenGLCamera(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
+  vtkOpenGLCamera(const vtkOpenGLCamera&) = delete;
+  void operator=(const vtkOpenGLCamera&) = delete;
 };
 
 #endif

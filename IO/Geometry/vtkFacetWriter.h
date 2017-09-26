@@ -84,8 +84,8 @@ protected:
   ostream *OutputStream;
 
 private:
-  vtkFacetWriter(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
+  vtkFacetWriter(const vtkFacetWriter&) = delete;
+  void operator=(const vtkFacetWriter&) = delete;
 };
 
 #endif

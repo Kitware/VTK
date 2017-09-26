@@ -56,8 +56,8 @@ protected:
   ~vtkGeoGlobeSource() override;
 
 private:
-  vtkGeoGlobeSource(const vtkGeoGlobeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoGlobeSource&) VTK_DELETE_FUNCTION;
+  vtkGeoGlobeSource(const vtkGeoGlobeSource&) = delete;
+  void operator=(const vtkGeoGlobeSource&) = delete;
 };
 
 #endif

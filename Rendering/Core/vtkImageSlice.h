@@ -170,8 +170,8 @@ protected:
   bool ForceTranslucent;
 
 private:
-  vtkImageSlice(const vtkImageSlice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSlice&) VTK_DELETE_FUNCTION;
+  vtkImageSlice(const vtkImageSlice&) = delete;
+  void operator=(const vtkImageSlice&) = delete;
 };
 
 #endif

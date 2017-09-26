@@ -65,8 +65,8 @@ protected:
                   vtkInformationVector*);
 
 private:
-  vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridToReebGraphFilter&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&) = delete;
+  void operator=(const vtkUnstructuredGridToReebGraphFilter&) = delete;
 };
 
 #endif

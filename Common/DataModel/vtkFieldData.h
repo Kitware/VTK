@@ -391,8 +391,8 @@ protected:
 
 
 private:
-  vtkFieldData(const vtkFieldData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFieldData&) VTK_DELETE_FUNCTION;
+  vtkFieldData(const vtkFieldData&) = delete;
+  void operator=(const vtkFieldData&) = delete;
 
 public:
 

@@ -85,8 +85,8 @@ protected:
   int Symmetric;
   int ComputeNormals;
 private:
-  vtkAxes(const vtkAxes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxes&) VTK_DELETE_FUNCTION;
+  vtkAxes(const vtkAxes&) = delete;
+  void operator=(const vtkAxes&) = delete;
 };
 
 #endif

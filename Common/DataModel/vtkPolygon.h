@@ -281,8 +281,8 @@ protected:
   int UnbiasedEarCutTriangulation(int seed);
 
 private:
-  vtkPolygon(const vtkPolygon&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolygon&) VTK_DELETE_FUNCTION;
+  vtkPolygon(const vtkPolygon&) = delete;
+  void operator=(const vtkPolygon&) = delete;
 };
 
 #endif

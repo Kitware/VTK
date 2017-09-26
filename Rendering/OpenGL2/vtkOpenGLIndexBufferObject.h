@@ -132,8 +132,8 @@ protected:
   ~vtkOpenGLIndexBufferObject() override;
 
 private:
-  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&) = delete;
+  void operator=(const vtkOpenGLIndexBufferObject&) = delete;
 };
 
 #endif

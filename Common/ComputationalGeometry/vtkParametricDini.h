@@ -116,8 +116,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricDini : public
     double B;
 
   private:
-    vtkParametricDini(const vtkParametricDini&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricDini&) VTK_DELETE_FUNCTION;
+    vtkParametricDini(const vtkParametricDini&) = delete;
+    void operator=(const vtkParametricDini&) = delete;
 };
 
 #endif

@@ -62,8 +62,8 @@ protected:
                       FILE *fp);
   char *FileName;
 private:
-  vtkIVExporter(const vtkIVExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIVExporter&) VTK_DELETE_FUNCTION;
+  vtkIVExporter(const vtkIVExporter&) = delete;
+  void operator=(const vtkIVExporter&) = delete;
 };
 
 #endif

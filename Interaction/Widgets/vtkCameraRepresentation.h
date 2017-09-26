@@ -149,8 +149,8 @@ protected:
   vtkActor2D                 *Actor;
 
 private:
-  vtkCameraRepresentation(const vtkCameraRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraRepresentation&) VTK_DELETE_FUNCTION;
+  vtkCameraRepresentation(const vtkCameraRepresentation&) = delete;
+  void operator=(const vtkCameraRepresentation&) = delete;
 };
 
 #endif

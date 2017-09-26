@@ -77,8 +77,8 @@ protected:
   int* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationIntegerKey(const vtkInformationIntegerKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationIntegerKey&) VTK_DELETE_FUNCTION;
+  vtkInformationIntegerKey(const vtkInformationIntegerKey&) = delete;
+  void operator=(const vtkInformationIntegerKey&) = delete;
 };
 
 #endif

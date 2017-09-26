@@ -76,8 +76,8 @@ protected:
 
 
 private:
-  vtkXMLImageDataReader(const vtkXMLImageDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLImageDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLImageDataReader(const vtkXMLImageDataReader&) = delete;
+  void operator=(const vtkXMLImageDataReader&) = delete;
 };
 
 #endif

@@ -190,8 +190,8 @@ protected:
   void FreeStructures() override;
 
 private:
-  vtkEllipsoidalGaussianKernel(const vtkEllipsoidalGaussianKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEllipsoidalGaussianKernel&) VTK_DELETE_FUNCTION;
+  vtkEllipsoidalGaussianKernel(const vtkEllipsoidalGaussianKernel&) = delete;
+  void operator=(const vtkEllipsoidalGaussianKernel&) = delete;
 };
 
 #endif

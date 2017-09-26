@@ -379,8 +379,8 @@ public:
   vtkVector3d LatticeOrigin;
 
 private:
-  vtkMolecule(const vtkMolecule&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMolecule&) VTK_DELETE_FUNCTION;
+  vtkMolecule(const vtkMolecule&) = delete;
+  void operator=(const vtkMolecule&) = delete;
 };
 
 #endif

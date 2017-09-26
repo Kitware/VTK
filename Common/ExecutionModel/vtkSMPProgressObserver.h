@@ -60,8 +60,8 @@ protected:
   vtkSMPThreadLocalObject<vtkProgressObserver> Observers;
 
 private:
-  vtkSMPProgressObserver(const vtkSMPProgressObserver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPProgressObserver&) VTK_DELETE_FUNCTION;
+  vtkSMPProgressObserver(const vtkSMPProgressObserver&) = delete;
+  void operator=(const vtkSMPProgressObserver&) = delete;
 };
 
 #endif

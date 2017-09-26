@@ -107,8 +107,8 @@ protected:
 
 
 private:
-  vtkArrowSource(const vtkArrowSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrowSource&) VTK_DELETE_FUNCTION;
+  vtkArrowSource(const vtkArrowSource&) = delete;
+  void operator=(const vtkArrowSource&) = delete;
 };
 
 #endif

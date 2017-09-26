@@ -75,8 +75,8 @@ protected:
   float Dims[4];
 
 private:
-  vtkContextClip(const vtkContextClip &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextClip &) VTK_DELETE_FUNCTION;
+  vtkContextClip(const vtkContextClip &) = delete;
+  void operator=(const vtkContextClip &) = delete;
 
 };
 

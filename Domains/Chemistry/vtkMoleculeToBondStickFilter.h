@@ -43,8 +43,8 @@ protected:
                   vtkInformationVector *) override;
 
 private:
-  vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMoleculeToBondStickFilter&) VTK_DELETE_FUNCTION;
+  vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&) = delete;
+  void operator=(const vtkMoleculeToBondStickFilter&) = delete;
 };
 
 #endif

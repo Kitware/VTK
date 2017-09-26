@@ -71,8 +71,8 @@ protected:
   ~vtkAbstractCellLinks() override;
 
 private:
-  vtkAbstractCellLinks(const vtkAbstractCellLinks&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractCellLinks&) VTK_DELETE_FUNCTION;
+  vtkAbstractCellLinks(const vtkAbstractCellLinks&) = delete;
+  void operator=(const vtkAbstractCellLinks&) = delete;
 };
 
 #endif

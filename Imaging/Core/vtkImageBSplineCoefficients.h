@@ -166,8 +166,8 @@ protected:
   int Iteration;
 
 private:
-  vtkImageBSplineCoefficients(const vtkImageBSplineCoefficients&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageBSplineCoefficients&) VTK_DELETE_FUNCTION;
+  vtkImageBSplineCoefficients(const vtkImageBSplineCoefficients&) = delete;
+  void operator=(const vtkImageBSplineCoefficients&) = delete;
 };
 
 #endif

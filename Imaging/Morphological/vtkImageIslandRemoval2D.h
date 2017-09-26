@@ -95,8 +95,8 @@ protected:
                           vtkInformationVector *) override;
 
 private:
-  vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageIslandRemoval2D&) VTK_DELETE_FUNCTION;
+  vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&) = delete;
+  void operator=(const vtkImageIslandRemoval2D&) = delete;
 };
 
 #endif

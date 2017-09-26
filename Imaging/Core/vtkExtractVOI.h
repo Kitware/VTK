@@ -120,8 +120,8 @@ protected:
 
   vtkExtractStructuredGridHelper* Internal;
 private:
-  vtkExtractVOI(const vtkExtractVOI&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractVOI&) VTK_DELETE_FUNCTION;
+  vtkExtractVOI(const vtkExtractVOI&) = delete;
+  void operator=(const vtkExtractVOI&) = delete;
 };
 
 #endif

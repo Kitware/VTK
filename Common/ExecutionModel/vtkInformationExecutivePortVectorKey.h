@@ -99,8 +99,8 @@ protected:
   //@}
 
 private:
-  vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationExecutivePortVectorKey&) VTK_DELETE_FUNCTION;
+  vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&) = delete;
+  void operator=(const vtkInformationExecutivePortVectorKey&) = delete;
 };
 
 #endif

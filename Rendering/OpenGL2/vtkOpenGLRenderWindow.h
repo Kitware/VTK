@@ -538,8 +538,8 @@ protected:
   char *Capabilities;
 
 private:
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;
+  void operator=(const vtkOpenGLRenderWindow&) = delete;
 };
 
 #endif

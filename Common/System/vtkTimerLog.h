@@ -251,8 +251,8 @@ protected:
                         int tick, int deltatick, const char *event);
 
 private:
-  vtkTimerLog(const vtkTimerLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimerLog&) VTK_DELETE_FUNCTION;
+  vtkTimerLog(const vtkTimerLog&) = delete;
+  void operator=(const vtkTimerLog&) = delete;
 };
 
 /**
@@ -278,8 +278,8 @@ public:
 protected:
   std::string EventString;
 private:
-  vtkTimerLogScope(const vtkTimerLogScope&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimerLogScope&) VTK_DELETE_FUNCTION;
+  vtkTimerLogScope(const vtkTimerLogScope&) = delete;
+  void operator=(const vtkTimerLogScope&) = delete;
 };
 
 //

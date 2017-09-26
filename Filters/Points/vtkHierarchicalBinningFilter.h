@@ -206,8 +206,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkHierarchicalBinningFilter(const vtkHierarchicalBinningFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalBinningFilter&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalBinningFilter(const vtkHierarchicalBinningFilter&) = delete;
+  void operator=(const vtkHierarchicalBinningFilter&) = delete;
 
 };
 

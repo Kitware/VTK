@@ -780,8 +780,8 @@ protected:
   //@}
 
 private:
-  vtkScalarBarActor(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
+  vtkScalarBarActor(const vtkScalarBarActor&) = delete;
+  void operator=(const vtkScalarBarActor&) = delete;
 };
 
 #endif

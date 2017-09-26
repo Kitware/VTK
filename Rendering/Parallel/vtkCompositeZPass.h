@@ -112,8 +112,8 @@ public:
   size_t RawZBufferSize;
 
  private:
-  vtkCompositeZPass(const vtkCompositeZPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeZPass&) VTK_DELETE_FUNCTION;
+  vtkCompositeZPass(const vtkCompositeZPass&) = delete;
+  void operator=(const vtkCompositeZPass&) = delete;
 };
 
 #endif

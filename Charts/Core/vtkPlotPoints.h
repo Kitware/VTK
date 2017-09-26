@@ -290,8 +290,8 @@ protected:
   double UnscaledInputBounds[4];
 
 private:
-  vtkPlotPoints(const vtkPlotPoints &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotPoints &) VTK_DELETE_FUNCTION;
+  vtkPlotPoints(const vtkPlotPoints &) = delete;
+  void operator=(const vtkPlotPoints &) = delete;
 
 };
 

@@ -68,8 +68,8 @@ protected:
 
   int PreserveTopology;
 private:
-  vtkExtractSelectionBase(const vtkExtractSelectionBase&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectionBase&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectionBase(const vtkExtractSelectionBase&) = delete;
+  void operator=(const vtkExtractSelectionBase&) = delete;
 
 };
 

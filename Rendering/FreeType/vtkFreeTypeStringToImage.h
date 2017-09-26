@@ -93,8 +93,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkFreeTypeStringToImage(const vtkFreeTypeStringToImage &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFreeTypeStringToImage &) VTK_DELETE_FUNCTION;
+  vtkFreeTypeStringToImage(const vtkFreeTypeStringToImage &) = delete;
+  void operator=(const vtkFreeTypeStringToImage &) = delete;
 };
 
 #endif //vtkFreeTypeStringToImage_h

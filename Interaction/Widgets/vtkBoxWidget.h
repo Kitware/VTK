@@ -353,8 +353,8 @@ protected:
   int RotationEnabled;
 
 private:
-  vtkBoxWidget(const vtkBoxWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoxWidget&) VTK_DELETE_FUNCTION;
+  vtkBoxWidget(const vtkBoxWidget&) = delete;
+  void operator=(const vtkBoxWidget&) = delete;
 };
 
 #endif

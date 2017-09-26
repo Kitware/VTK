@@ -61,8 +61,8 @@ protected:
   char *FileName;
 
 private:
-  vtkCMLMoleculeReader(const vtkCMLMoleculeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCMLMoleculeReader&) VTK_DELETE_FUNCTION;
+  vtkCMLMoleculeReader(const vtkCMLMoleculeReader&) = delete;
+  void operator=(const vtkCMLMoleculeReader&) = delete;
 };
 
 #endif

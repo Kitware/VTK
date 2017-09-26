@@ -174,8 +174,8 @@ protected:
 
 
 private:
-  vtkTupleInterpolator(const vtkTupleInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTupleInterpolator&) VTK_DELETE_FUNCTION;
+  vtkTupleInterpolator(const vtkTupleInterpolator&) = delete;
+  void operator=(const vtkTupleInterpolator&) = delete;
 
 };
 

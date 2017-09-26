@@ -59,8 +59,8 @@ public:
   ~vtkOpaquePass() override;
 
  private:
-  vtkOpaquePass(const vtkOpaquePass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpaquePass&) VTK_DELETE_FUNCTION;
+  vtkOpaquePass(const vtkOpaquePass&) = delete;
+  void operator=(const vtkOpaquePass&) = delete;
 };
 
 #endif

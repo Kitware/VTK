@@ -77,8 +77,8 @@ protected:
   ~vtkVoronoiKernel() override;
 
 private:
-  vtkVoronoiKernel(const vtkVoronoiKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVoronoiKernel&) VTK_DELETE_FUNCTION;
+  vtkVoronoiKernel(const vtkVoronoiKernel&) = delete;
+  void operator=(const vtkVoronoiKernel&) = delete;
 };
 
 #endif

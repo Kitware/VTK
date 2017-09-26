@@ -223,8 +223,8 @@ protected:
   double MeanDistance;
   vtkLandmarkTransform *LandmarkTransform;
 private:
-  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIterativeClosestPointTransform&) VTK_DELETE_FUNCTION;
+  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&) = delete;
+  void operator=(const vtkIterativeClosestPointTransform&) = delete;
 };
 
 #endif

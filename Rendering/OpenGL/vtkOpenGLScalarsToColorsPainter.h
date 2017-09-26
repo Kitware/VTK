@@ -71,8 +71,8 @@ protected:
                               unsigned long typeflags, bool forceCompileOnly) override;
 
 private:
-  vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&) = delete;
+  void operator=(const vtkOpenGLScalarsToColorsPainter&) = delete;
 };
 
 #endif

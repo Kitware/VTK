@@ -41,8 +41,8 @@ protected:
   ~vtkHierarchicalPolyDataMapper() override;
 
 private:
-  vtkHierarchicalPolyDataMapper(const vtkHierarchicalPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalPolyDataMapper(const vtkHierarchicalPolyDataMapper&) = delete;
+  void operator=(const vtkHierarchicalPolyDataMapper&) = delete;
 };
 
 #endif

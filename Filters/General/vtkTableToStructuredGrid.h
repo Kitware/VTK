@@ -134,8 +134,8 @@ protected:
   int WholeExtent[6];
 
 private:
-  vtkTableToStructuredGrid(const vtkTableToStructuredGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToStructuredGrid&) VTK_DELETE_FUNCTION;
+  vtkTableToStructuredGrid(const vtkTableToStructuredGrid&) = delete;
+  void operator=(const vtkTableToStructuredGrid&) = delete;
 
 };
 

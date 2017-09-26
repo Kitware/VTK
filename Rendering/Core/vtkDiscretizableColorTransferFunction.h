@@ -271,8 +271,8 @@ protected:
     vtkDataArray *scalars, int component, vtkUnsignedCharArray* colors);
 
 private:
-  vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDiscretizableColorTransferFunction&) VTK_DELETE_FUNCTION;
+  vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&) = delete;
+  void operator=(const vtkDiscretizableColorTransferFunction&) = delete;
 
   template<typename T, typename VectorGetter>
     void MapVectorToOpacity (

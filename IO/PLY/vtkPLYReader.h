@@ -58,8 +58,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkPLYReader(const vtkPLYReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPLYReader&) VTK_DELETE_FUNCTION;
+  vtkPLYReader(const vtkPLYReader&) = delete;
+  void operator=(const vtkPLYReader&) = delete;
 };
 
 #endif

@@ -233,8 +233,8 @@ protected:
   void Invalidate();
 
 private:
-  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
+  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&) = delete;
+  void operator=(const vtkExtractStructuredGridHelper&) = delete;
 };
 
 #endif /* VTKEXTRACTSTRUCTUREDGRIDHELPER_H_ */

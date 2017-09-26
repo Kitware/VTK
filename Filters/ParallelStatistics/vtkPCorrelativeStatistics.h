@@ -75,8 +75,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPCorrelativeStatistics(const vtkPCorrelativeStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  vtkPCorrelativeStatistics(const vtkPCorrelativeStatistics&) = delete;
+  void operator=(const vtkPCorrelativeStatistics&) = delete;
 };
 
 #endif

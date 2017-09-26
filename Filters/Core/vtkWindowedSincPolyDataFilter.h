@@ -268,8 +268,8 @@ public:
   int GenerateErrorVectors;
   int NormalizeCoordinates;
 private:
-  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindowedSincPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&) = delete;
+  void operator=(const vtkWindowedSincPolyDataFilter&) = delete;
 };
 
 #endif

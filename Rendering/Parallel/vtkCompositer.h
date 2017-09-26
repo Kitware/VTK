@@ -87,8 +87,8 @@ protected:
   int NumberOfProcesses;
 
 private:
-  vtkCompositer(const vtkCompositer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositer&) VTK_DELETE_FUNCTION;
+  vtkCompositer(const vtkCompositer&) = delete;
+  void operator=(const vtkCompositer&) = delete;
 };
 
 #endif

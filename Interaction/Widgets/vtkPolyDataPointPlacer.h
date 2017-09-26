@@ -127,8 +127,8 @@ protected:
   vtkPropPicker      *PropPicker;
 
 private:
-  vtkPolyDataPointPlacer(const vtkPolyDataPointPlacer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataPointPlacer&) VTK_DELETE_FUNCTION;
+  vtkPolyDataPointPlacer(const vtkPolyDataPointPlacer&) = delete;
+  void operator=(const vtkPolyDataPointPlacer&) = delete;
 };
 
 #endif

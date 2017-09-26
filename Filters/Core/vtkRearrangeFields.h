@@ -214,8 +214,8 @@ protected:
   void PrintAllOperations(ostream& os, vtkIndent indent);
   void PrintOperation(Operation* op, ostream& os, vtkIndent indent);
 private:
-  vtkRearrangeFields(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
+  vtkRearrangeFields(const vtkRearrangeFields&) = delete;
+  void operator=(const vtkRearrangeFields&) = delete;
 };
 
 #endif

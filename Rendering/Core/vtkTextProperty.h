@@ -280,8 +280,8 @@ protected:
   double LineSpacing;
 
 private:
-  vtkTextProperty(const vtkTextProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextProperty&) VTK_DELETE_FUNCTION;
+  vtkTextProperty(const vtkTextProperty&) = delete;
+  void operator=(const vtkTextProperty&) = delete;
 };
 
 inline const char *vtkTextProperty::GetFontFamilyAsString( int f )

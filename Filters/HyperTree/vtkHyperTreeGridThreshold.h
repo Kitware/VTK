@@ -118,8 +118,8 @@ protected:
   vtkDataArray* InScalars;
 
 private:
-  vtkHyperTreeGridThreshold(const vtkHyperTreeGridThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridThreshold&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridThreshold(const vtkHyperTreeGridThreshold&) = delete;
+  void operator=(const vtkHyperTreeGridThreshold&) = delete;
 };
 
 

@@ -93,8 +93,8 @@ protected:
   //@}
 
 private:
-  vtkGenericPointIterator(const vtkGenericPointIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericPointIterator&) VTK_DELETE_FUNCTION;
+  vtkGenericPointIterator(const vtkGenericPointIterator&) = delete;
+  void operator=(const vtkGenericPointIterator&) = delete;
 };
 
 #endif

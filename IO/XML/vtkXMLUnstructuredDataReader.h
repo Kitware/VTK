@@ -134,8 +134,8 @@ protected:
 
 
 private:
-  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUnstructuredDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&) = delete;
+  void operator=(const vtkXMLUnstructuredDataReader&) = delete;
 };
 
 #endif

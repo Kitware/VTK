@@ -193,8 +193,8 @@ protected:
   double ClosedLength;
 
 private:
-  vtkParametricSpline(const vtkParametricSpline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParametricSpline&) VTK_DELETE_FUNCTION;
+  vtkParametricSpline(const vtkParametricSpline&) = delete;
+  void operator=(const vtkParametricSpline&) = delete;
 };
 
 #endif

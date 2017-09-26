@@ -108,8 +108,8 @@ protected:
   int CopyInput;
 
 private:
-  vtkRotationFilter(const vtkRotationFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRotationFilter&) VTK_DELETE_FUNCTION;
+  vtkRotationFilter(const vtkRotationFilter&) = delete;
+  void operator=(const vtkRotationFilter&) = delete;
 };
 
 #endif

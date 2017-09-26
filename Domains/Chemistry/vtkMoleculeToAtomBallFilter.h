@@ -75,8 +75,8 @@ protected:
   int RadiusSource;
 
 private:
-  vtkMoleculeToAtomBallFilter(const vtkMoleculeToAtomBallFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMoleculeToAtomBallFilter&) VTK_DELETE_FUNCTION;
+  vtkMoleculeToAtomBallFilter(const vtkMoleculeToAtomBallFilter&) = delete;
+  void operator=(const vtkMoleculeToAtomBallFilter&) = delete;
 };
 
 #endif

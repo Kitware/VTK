@@ -193,8 +193,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;
+  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) = delete;
+  void operator=(const vtkWeightedTransformFilter&) = delete;
 };
 
 #endif

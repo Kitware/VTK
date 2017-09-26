@@ -111,8 +111,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
+  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&) = delete;
+  void operator=(const vtkDiagonalMatrixSource&) = delete;
 
   vtkArray* GenerateDenseArray();
   vtkArray* GenerateSparseArray();

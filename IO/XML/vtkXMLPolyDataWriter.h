@@ -86,8 +86,8 @@ protected:
   OffsetsManagerArray *PolysOM;
 
 private:
-  vtkXMLPolyDataWriter(const vtkXMLPolyDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPolyDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPolyDataWriter(const vtkXMLPolyDataWriter&) = delete;
+  void operator=(const vtkXMLPolyDataWriter&) = delete;
 };
 
 #endif

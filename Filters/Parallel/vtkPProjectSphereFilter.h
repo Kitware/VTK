@@ -53,8 +53,8 @@ protected:
   double GetZTranslation(vtkPointSet* input) override;
 
 private:
-  vtkPProjectSphereFilter(const vtkPProjectSphereFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPProjectSphereFilter &) VTK_DELETE_FUNCTION;
+  vtkPProjectSphereFilter(const vtkPProjectSphereFilter &) = delete;
+  void operator=(const vtkPProjectSphereFilter &) = delete;
 };
 
 #endif // vtkPProjectSphereFilter_h

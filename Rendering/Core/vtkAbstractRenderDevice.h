@@ -64,8 +64,8 @@ protected:
   int GLMinor;
 
 private:
-  vtkAbstractRenderDevice(const vtkAbstractRenderDevice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractRenderDevice&) VTK_DELETE_FUNCTION;
+  vtkAbstractRenderDevice(const vtkAbstractRenderDevice&) = delete;
+  void operator=(const vtkAbstractRenderDevice&) = delete;
 };
 
 #endif

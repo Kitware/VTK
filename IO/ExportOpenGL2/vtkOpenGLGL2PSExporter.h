@@ -46,8 +46,8 @@ protected:
   bool CaptureVectorProps();
 
 private:
-  vtkOpenGLGL2PSExporter(const vtkOpenGLGL2PSExporter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGL2PSExporter &) VTK_DELETE_FUNCTION;
+  vtkOpenGLGL2PSExporter(const vtkOpenGLGL2PSExporter &) = delete;
+  void operator=(const vtkOpenGLGL2PSExporter &) = delete;
 };
 
 #endif // vtkOpenGLGL2PSExporter_h

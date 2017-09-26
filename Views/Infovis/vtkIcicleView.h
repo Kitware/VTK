@@ -80,8 +80,8 @@ protected:
   ~vtkIcicleView() override;
 
 private:
-  vtkIcicleView(const vtkIcicleView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIcicleView&) VTK_DELETE_FUNCTION;
+  vtkIcicleView(const vtkIcicleView&) = delete;
+  void operator=(const vtkIcicleView&) = delete;
 };
 
 #endif

@@ -107,8 +107,8 @@ protected:
   char* OutputArrayNameSuffix;
 
 private:
-  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalArrayOperatorFilter &) VTK_DELETE_FUNCTION;
+  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter &) = delete;
+  void operator=(const vtkTemporalArrayOperatorFilter &) = delete;
 };
 
 #endif

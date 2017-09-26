@@ -74,8 +74,8 @@ protected:
   char* InputIdArrayName;
   int OutputPointsPrecision;
 private:
-  vtkAppendPoints(const vtkAppendPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAppendPoints&) VTK_DELETE_FUNCTION;
+  vtkAppendPoints(const vtkAppendPoints&) = delete;
+  void operator=(const vtkAppendPoints&) = delete;
 };
 
 #endif

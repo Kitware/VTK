@@ -170,8 +170,8 @@ protected:
   int ShowBounds;
 
 private:
-  vtkExtractSelectedFrustum(const vtkExtractSelectedFrustum&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedFrustum&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedFrustum(const vtkExtractSelectedFrustum&) = delete;
+  void operator=(const vtkExtractSelectedFrustum&) = delete;
 
 };
 

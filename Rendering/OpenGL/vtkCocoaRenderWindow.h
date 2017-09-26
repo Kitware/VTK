@@ -390,8 +390,8 @@ protected:
   void *GetCocoaServer();
 
 private:
-  vtkCocoaRenderWindow(const vtkCocoaRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCocoaRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkCocoaRenderWindow(const vtkCocoaRenderWindow&) = delete;
+  void operator=(const vtkCocoaRenderWindow&) = delete;
 
 private:
   // Important: this class cannot contain Objective-C instance

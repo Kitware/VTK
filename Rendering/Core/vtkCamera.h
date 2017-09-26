@@ -797,8 +797,8 @@ protected:
 
 
 private:
-  vtkCamera(const vtkCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCamera&) VTK_DELETE_FUNCTION;
+  vtkCamera(const vtkCamera&) = delete;
+  void operator=(const vtkCamera&) = delete;
 };
 
 #endif

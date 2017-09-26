@@ -39,8 +39,8 @@ protected:
   char *FileName;
 
 private:
-  vtkPVWebGLExporter(const vtkPVWebGLExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPVWebGLExporter&) VTK_DELETE_FUNCTION;
+  vtkPVWebGLExporter(const vtkPVWebGLExporter&) = delete;
+  void operator=(const vtkPVWebGLExporter&) = delete;
 };
 
 #endif

@@ -238,8 +238,8 @@ private:
   int BuildPlot(vtkViewport*);
 
 private:
-  vtkPieChartActor(const vtkPieChartActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPieChartActor&) VTK_DELETE_FUNCTION;
+  vtkPieChartActor(const vtkPieChartActor&) = delete;
+  void operator=(const vtkPieChartActor&) = delete;
 };
 
 

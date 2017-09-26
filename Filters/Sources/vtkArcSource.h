@@ -170,8 +170,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkArcSource(const vtkArcSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArcSource&) VTK_DELETE_FUNCTION;
+  vtkArcSource(const vtkArcSource&) = delete;
+  void operator=(const vtkArcSource&) = delete;
 };
 
 #endif

@@ -323,8 +323,8 @@ protected:
     vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkImageConnectivityFilter(const vtkImageConnectivityFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageConnectivityFilter&) VTK_DELETE_FUNCTION;
+  vtkImageConnectivityFilter(const vtkImageConnectivityFilter&) = delete;
+  void operator=(const vtkImageConnectivityFilter&) = delete;
 };
 
 #endif

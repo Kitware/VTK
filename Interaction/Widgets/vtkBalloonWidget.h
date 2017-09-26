@@ -194,8 +194,8 @@ protected:
   vtkProp *CurrentProp;
 
 private:
-  vtkBalloonWidget(const vtkBalloonWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBalloonWidget&) VTK_DELETE_FUNCTION;
+  vtkBalloonWidget(const vtkBalloonWidget&) = delete;
+  void operator=(const vtkBalloonWidget&) = delete;
 };
 
 #endif

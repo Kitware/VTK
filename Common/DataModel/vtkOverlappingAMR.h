@@ -188,8 +188,8 @@ public:
   //@}
 
 private:
-  vtkOverlappingAMR(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
+  vtkOverlappingAMR(const vtkOverlappingAMR&) = delete;
+  void operator=(const vtkOverlappingAMR&) = delete;
 };
 
 #endif

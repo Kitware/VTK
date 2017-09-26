@@ -59,8 +59,8 @@ public:
   ~vtkVolumetricPass() override;
 
  private:
-  vtkVolumetricPass(const vtkVolumetricPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumetricPass&) VTK_DELETE_FUNCTION;
+  vtkVolumetricPass(const vtkVolumetricPass&) = delete;
+  void operator=(const vtkVolumetricPass&) = delete;
 };
 
 #endif

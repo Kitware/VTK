@@ -112,8 +112,8 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&) = delete;
+  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) = delete;
 
 };
 

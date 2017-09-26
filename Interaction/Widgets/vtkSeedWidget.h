@@ -215,8 +215,8 @@ protected:
   int Defining;
 
 private:
-  vtkSeedWidget(const vtkSeedWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSeedWidget&) VTK_DELETE_FUNCTION;
+  vtkSeedWidget(const vtkSeedWidget&) = delete;
+  void operator=(const vtkSeedWidget&) = delete;
 };
 
 #endif

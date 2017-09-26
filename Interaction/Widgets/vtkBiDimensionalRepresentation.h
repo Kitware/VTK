@@ -248,8 +248,8 @@ protected:
   int ShowLabelAboveWidget;
 
 private:
-  vtkBiDimensionalRepresentation(const vtkBiDimensionalRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBiDimensionalRepresentation&) VTK_DELETE_FUNCTION;
+  vtkBiDimensionalRepresentation(const vtkBiDimensionalRepresentation&) = delete;
+  void operator=(const vtkBiDimensionalRepresentation&) = delete;
 };
 
 #endif

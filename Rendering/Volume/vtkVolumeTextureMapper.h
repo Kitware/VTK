@@ -140,8 +140,8 @@ protected:
 
   vtkRenderWindow *RenderWindow;
 private:
-  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
+  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&) = delete;
+  void operator=(const vtkVolumeTextureMapper&) = delete;
 };
 
 

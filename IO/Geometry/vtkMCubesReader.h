@@ -181,8 +181,8 @@ protected:
   int Normals;
 
 private:
-  vtkMCubesReader(const vtkMCubesReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMCubesReader&) VTK_DELETE_FUNCTION;
+  vtkMCubesReader(const vtkMCubesReader&) = delete;
+  void operator=(const vtkMCubesReader&) = delete;
 };
 
 #endif

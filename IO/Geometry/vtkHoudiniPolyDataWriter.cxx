@@ -219,7 +219,7 @@ namespace
     {
       friend class Attributes;
       Header(Attributes* atts) : Atts(atts) {}
-      void operator=(const Attributes::Header&) VTK_DELETE_FUNCTION;
+      void operator=(const Attributes::Header&) = delete;
 
       friend ostream& operator<<(ostream& out, const Attributes::Header& header)
       {

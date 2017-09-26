@@ -230,8 +230,8 @@ protected:
   vtkDataArraySelection* ColumnSelection;
 
 private:
-  vtkXMLPTableReader(const vtkXMLPTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPTableReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPTableReader(const vtkXMLPTableReader&) = delete;
+  void operator=(const vtkXMLPTableReader&) = delete;
 };
 
 #endif

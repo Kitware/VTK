@@ -184,8 +184,8 @@ protected:
   vtkCell *Cell;
 
 private:
-  vtkGenericCell(const vtkGenericCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericCell&) VTK_DELETE_FUNCTION;
+  vtkGenericCell(const vtkGenericCell&) = delete;
+  void operator=(const vtkGenericCell&) = delete;
 };
 
 #endif

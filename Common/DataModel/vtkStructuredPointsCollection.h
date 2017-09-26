@@ -70,8 +70,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredPointsCollection&) VTK_DELETE_FUNCTION;
+  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&) = delete;
+  void operator=(const vtkStructuredPointsCollection&) = delete;
 };
 
 

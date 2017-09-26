@@ -110,8 +110,8 @@ protected:
   char *LimitsFileName;
 
 private:
-  vtkSliceCubes(const vtkSliceCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSliceCubes&) VTK_DELETE_FUNCTION;
+  vtkSliceCubes(const vtkSliceCubes&) = delete;
+  void operator=(const vtkSliceCubes&) = delete;
 };
 
 #endif

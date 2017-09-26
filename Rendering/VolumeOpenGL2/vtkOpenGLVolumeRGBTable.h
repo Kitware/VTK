@@ -205,9 +205,9 @@ protected:
 
 private:
   vtkOpenGLVolumeRGBTable(const vtkOpenGLVolumeRGBTable&)
-    VTK_DELETE_FUNCTION;
+    = delete;
   vtkOpenGLVolumeRGBTable& operator=(const vtkOpenGLVolumeRGBTable&)
-    VTK_DELETE_FUNCTION;
+    = delete;
 };
 
 vtkStandardNewMacro(vtkOpenGLVolumeRGBTable);
@@ -270,11 +270,11 @@ public:
 private:
   std::vector<vtkOpenGLVolumeRGBTable*> Tables;
 
-  vtkOpenGLVolumeRGBTables() VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeRGBTables() = delete;
 
-  vtkOpenGLVolumeRGBTables(const vtkOpenGLVolumeRGBTables &other) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeRGBTables(const vtkOpenGLVolumeRGBTables &other) = delete;
 
-  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other) = delete;
 };
 
 #endif // vtkOpenGLVolumeRGBTable_h

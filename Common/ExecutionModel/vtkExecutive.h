@@ -284,8 +284,8 @@ private:
   friend class vtkAlgorithmToExecutiveFriendship;
 
 private:
-  vtkExecutive(const vtkExecutive&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExecutive&) VTK_DELETE_FUNCTION;
+  vtkExecutive(const vtkExecutive&) = delete;
+  void operator=(const vtkExecutive&) = delete;
 };
 
 #endif

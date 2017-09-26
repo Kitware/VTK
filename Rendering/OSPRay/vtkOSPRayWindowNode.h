@@ -43,8 +43,8 @@ protected:
   ~vtkOSPRayWindowNode();
 
 private:
-  vtkOSPRayWindowNode(const vtkOSPRayWindowNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayWindowNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayWindowNode(const vtkOSPRayWindowNode&) = delete;
+  void operator=(const vtkOSPRayWindowNode&) = delete;
 };
 
 #endif

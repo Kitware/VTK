@@ -138,8 +138,8 @@ protected:
   double              HeightOffset;
 
 private:
-  vtkTerrainDataPointPlacer(const vtkTerrainDataPointPlacer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTerrainDataPointPlacer&) VTK_DELETE_FUNCTION;
+  vtkTerrainDataPointPlacer(const vtkTerrainDataPointPlacer&) = delete;
+  void operator=(const vtkTerrainDataPointPlacer&) = delete;
 };
 
 #endif

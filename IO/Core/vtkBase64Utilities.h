@@ -110,8 +110,8 @@ protected:
   ~vtkBase64Utilities() override {}
 
 private:
-  vtkBase64Utilities(const vtkBase64Utilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBase64Utilities&) VTK_DELETE_FUNCTION;
+  vtkBase64Utilities(const vtkBase64Utilities&) = delete;
+  void operator=(const vtkBase64Utilities&) = delete;
 };
 
 #endif

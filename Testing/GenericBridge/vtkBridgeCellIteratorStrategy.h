@@ -53,8 +53,8 @@ protected:
   ~vtkBridgeCellIteratorStrategy() override {}
 
 private:
-  vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBridgeCellIteratorStrategy&) VTK_DELETE_FUNCTION;
+  vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&) = delete;
+  void operator=(const vtkBridgeCellIteratorStrategy&) = delete;
 };
 
 #endif

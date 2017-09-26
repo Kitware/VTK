@@ -80,8 +80,8 @@ protected:
   bool UseBalancedPartitionForPointsLookup;
 
 private:
-  vtkPResampleWithDataSet(const vtkPResampleWithDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPResampleWithDataSet&) VTK_DELETE_FUNCTION;
+  vtkPResampleWithDataSet(const vtkPResampleWithDataSet&) = delete;
+  void operator=(const vtkPResampleWithDataSet&) = delete;
 };
 
 #endif // vtkPResampleWithDataSet_h

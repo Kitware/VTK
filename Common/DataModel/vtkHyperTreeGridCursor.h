@@ -242,7 +242,7 @@ protected:
   bool Leaf;
 
 private:
-  vtkHyperTreeGridCursor(const vtkHyperTreeGridCursor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridCursor&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridCursor(const vtkHyperTreeGridCursor&) = delete;
+  void operator=(const vtkHyperTreeGridCursor&) = delete;
 };
 #endif

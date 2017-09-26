@@ -168,8 +168,8 @@ protected:
   vtkTextProperty* TitleProperties;
 
 private:
-  vtkPlotBox(const vtkPlotBox &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotBox &) VTK_DELETE_FUNCTION;
+  vtkPlotBox(const vtkPlotBox &) = delete;
+  void operator=(const vtkPlotBox &) = delete;
 
 };
 

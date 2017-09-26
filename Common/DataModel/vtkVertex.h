@@ -136,8 +136,8 @@ protected:
   ~vtkVertex() override {}
 
 private:
-  vtkVertex(const vtkVertex&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVertex&) VTK_DELETE_FUNCTION;
+  vtkVertex(const vtkVertex&) = delete;
+  void operator=(const vtkVertex&) = delete;
 };
 
 //----------------------------------------------------------------------------

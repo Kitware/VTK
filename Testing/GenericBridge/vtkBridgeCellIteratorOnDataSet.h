@@ -90,8 +90,8 @@ protected:
   vtkBridgeCell *Cell; // cell at current position.
 
 private:
-  vtkBridgeCellIteratorOnDataSet(const vtkBridgeCellIteratorOnDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBridgeCellIteratorOnDataSet&) VTK_DELETE_FUNCTION;
+  vtkBridgeCellIteratorOnDataSet(const vtkBridgeCellIteratorOnDataSet&) = delete;
+  void operator=(const vtkBridgeCellIteratorOnDataSet&) = delete;
 };
 
 #endif

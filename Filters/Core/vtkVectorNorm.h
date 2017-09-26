@@ -94,8 +94,8 @@ protected:
   int AttributeMode; //control whether to use point or cell data, or both
 
 private:
-  vtkVectorNorm(const vtkVectorNorm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVectorNorm&) VTK_DELETE_FUNCTION;
+  vtkVectorNorm(const vtkVectorNorm&) = delete;
+  void operator=(const vtkVectorNorm&) = delete;
 
   // Helper function
   void GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s);

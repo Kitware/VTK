@@ -61,8 +61,8 @@ protected:
                               bool forceCompileOnly) override;
 
 private:
-  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&) = delete;
+  void operator=(const vtkOpenGLLightingPainter&) = delete;
 };
 
 #endif

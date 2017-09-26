@@ -150,8 +150,8 @@ protected:
     vtkInformationVector *) override;
 
 private:
-  vtkConvexHull2D(const vtkConvexHull2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConvexHull2D&) VTK_DELETE_FUNCTION;
+  vtkConvexHull2D(const vtkConvexHull2D&) = delete;
+  void operator=(const vtkConvexHull2D&) = delete;
 
   void ResizeHullToMinimumInDisplay(vtkPolyData* hullPolyData);
 

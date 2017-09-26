@@ -50,8 +50,8 @@ protected:
                                   vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageSobel3D(const vtkImageSobel3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSobel3D&) VTK_DELETE_FUNCTION;
+  vtkImageSobel3D(const vtkImageSobel3D&) = delete;
+  void operator=(const vtkImageSobel3D&) = delete;
 };
 
 #endif

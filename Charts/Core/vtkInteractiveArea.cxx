@@ -50,8 +50,8 @@ public:
   vtkRectf MouseBox;
 
 private:
-  MouseActions(MouseActions const&) VTK_DELETE_FUNCTION;
-  void operator=(MouseActions const*) VTK_DELETE_FUNCTION;
+  MouseActions(MouseActions const&) = delete;
+  void operator=(MouseActions const*) = delete;
 
   short Data[MaxAction];
 };

@@ -75,8 +75,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBour : public
     ~vtkParametricBour() override;
 
   private:
-    vtkParametricBour(const vtkParametricBour&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricBour&) VTK_DELETE_FUNCTION;
+    vtkParametricBour(const vtkParametricBour&) = delete;
+    void operator=(const vtkParametricBour&) = delete;
 };
 
 #endif

@@ -295,8 +295,8 @@ protected:
   int RequestCursorShape(int requestedShape);
 
 private:
-  vtkInteractorObserver(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
+  vtkInteractorObserver(const vtkInteractorObserver&) = delete;
+  void operator=(const vtkInteractorObserver&) = delete;
 
 };
 

@@ -75,8 +75,8 @@ protected:
   int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkImageGaussianSource(const vtkImageGaussianSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageGaussianSource&) VTK_DELETE_FUNCTION;
+  vtkImageGaussianSource(const vtkImageGaussianSource&) = delete;
+  void operator=(const vtkImageGaussianSource&) = delete;
 };
 
 

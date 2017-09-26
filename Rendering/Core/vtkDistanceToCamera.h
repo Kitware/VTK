@@ -104,8 +104,8 @@ protected:
   char*  DistanceArrayName;
 
 private:
-  vtkDistanceToCamera(const vtkDistanceToCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceToCamera&) VTK_DELETE_FUNCTION;
+  vtkDistanceToCamera(const vtkDistanceToCamera&) = delete;
+  void operator=(const vtkDistanceToCamera&) = delete;
 };
 
 #endif

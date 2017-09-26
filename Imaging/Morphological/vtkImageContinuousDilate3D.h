@@ -66,8 +66,8 @@ protected:
                           vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageContinuousDilate3D&) VTK_DELETE_FUNCTION;
+  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) = delete;
+  void operator=(const vtkImageContinuousDilate3D&) = delete;
 };
 
 #endif

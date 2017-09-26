@@ -477,8 +477,8 @@ protected:
   double SpecularPower[VTK_MAX_VRCOMP];
 
 private:
-  vtkVolumeProperty(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
+  vtkVolumeProperty(const vtkVolumeProperty&) = delete;
+  void operator=(const vtkVolumeProperty&) = delete;
 };
 
 //@{

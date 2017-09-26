@@ -133,8 +133,8 @@ protected:
   virtual void FreeStructures();
 
 private:
-  vtkInterpolationKernel(const vtkInterpolationKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInterpolationKernel&) VTK_DELETE_FUNCTION;
+  vtkInterpolationKernel(const vtkInterpolationKernel&) = delete;
+  void operator=(const vtkInterpolationKernel&) = delete;
 };
 
 #endif

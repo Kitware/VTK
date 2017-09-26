@@ -73,8 +73,8 @@ protected:
   ~vtkSequencePass() override;
 
 private:
-  vtkSequencePass(const vtkSequencePass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSequencePass&) VTK_DELETE_FUNCTION;
+  vtkSequencePass(const vtkSequencePass&) = delete;
+  void operator=(const vtkSequencePass&) = delete;
 };
 
 #endif

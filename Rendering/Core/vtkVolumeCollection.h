@@ -80,8 +80,8 @@ private:
     { this->vtkPropCollection::AddItem(o); }
 
 private:
-  vtkVolumeCollection(const vtkVolumeCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeCollection&) VTK_DELETE_FUNCTION;
+  vtkVolumeCollection(const vtkVolumeCollection&) = delete;
+  void operator=(const vtkVolumeCollection&) = delete;
 };
 
 #endif

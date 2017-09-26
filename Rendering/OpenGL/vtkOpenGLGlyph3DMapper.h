@@ -95,8 +95,8 @@ protected:
   vtkTimeStamp PainterUpdateTime;
 
 private:
-  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) = delete;
+  void operator=(const vtkOpenGLGlyph3DMapper&) = delete;
 
   virtual void Render(vtkRenderer*, vtkActor*, vtkDataSet*);
 

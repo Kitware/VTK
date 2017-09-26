@@ -94,8 +94,8 @@ protected:
                        int ext[6], int id) override;
 
 private:
-  vtkImageCast(const vtkImageCast&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageCast&) VTK_DELETE_FUNCTION;
+  vtkImageCast(const vtkImageCast&) = delete;
+  void operator=(const vtkImageCast&) = delete;
 };
 
 #endif

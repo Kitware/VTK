@@ -295,8 +295,8 @@ protected:
   double (*CellBounds)[6];
 
 private:
-  vtkAbstractCellLocator(const vtkAbstractCellLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractCellLocator&) VTK_DELETE_FUNCTION;
+  vtkAbstractCellLocator(const vtkAbstractCellLocator&) = delete;
+  void operator=(const vtkAbstractCellLocator&) = delete;
 };
 
 #endif

@@ -292,8 +292,8 @@ protected:
   void CalculateCentroid();
 
 private:
-  vtkCurveRepresentation(const vtkCurveRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCurveRepresentation&) VTK_DELETE_FUNCTION;
+  vtkCurveRepresentation(const vtkCurveRepresentation&) = delete;
+  void operator=(const vtkCurveRepresentation&) = delete;
 
 };
 

@@ -51,8 +51,8 @@ protected:
                            int extent[6], int id);
 
 private:
-  vtkOpenGLImageGradient(const vtkOpenGLImageGradient&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLImageGradient&) VTK_DELETE_FUNCTION;
+  vtkOpenGLImageGradient(const vtkOpenGLImageGradient&) = delete;
+  void operator=(const vtkOpenGLImageGradient&) = delete;
 };
 
 #endif

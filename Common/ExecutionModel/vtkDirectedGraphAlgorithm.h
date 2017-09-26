@@ -107,8 +107,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkDirectedGraphAlgorithm(const vtkDirectedGraphAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDirectedGraphAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkDirectedGraphAlgorithm(const vtkDirectedGraphAlgorithm&) = delete;
+  void operator=(const vtkDirectedGraphAlgorithm&) = delete;
 };
 
 #endif

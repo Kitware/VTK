@@ -135,8 +135,8 @@ protected:
   void InsertFeatureProperties(vtkPolyData *outputData);
 
 private:
-  vtkGeoJSONFeature(const vtkGeoJSONFeature&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoJSONFeature&) VTK_DELETE_FUNCTION;
+  vtkGeoJSONFeature(const vtkGeoJSONFeature&) = delete;
+  void operator=(const vtkGeoJSONFeature&) = delete;
 };
 
 #endif // vtkGeoJSONFeature_h

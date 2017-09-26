@@ -74,8 +74,8 @@ protected:
   vtkDirectionEncoder() {}
   ~vtkDirectionEncoder() override {}
 private:
-  vtkDirectionEncoder(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
+  vtkDirectionEncoder(const vtkDirectionEncoder&) = delete;
+  void operator=(const vtkDirectionEncoder&) = delete;
 };
 
 

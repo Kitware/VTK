@@ -52,8 +52,8 @@ protected:
   void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
 
 private:
-  vtkXMLPDataWriter(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPDataWriter(const vtkXMLPDataWriter&) = delete;
+  void operator=(const vtkXMLPDataWriter&) = delete;
 
   /**
    * Initializes PieceFileNameExtension.

@@ -129,8 +129,8 @@ protected:
   vtkSequencePass *SequencePass;
 
 private:
-  vtkRenderStepsPass(const vtkRenderStepsPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderStepsPass&) VTK_DELETE_FUNCTION;
+  vtkRenderStepsPass(const vtkRenderStepsPass&) = delete;
+  void operator=(const vtkRenderStepsPass&) = delete;
 };
 
 #endif

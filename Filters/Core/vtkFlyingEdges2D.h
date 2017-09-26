@@ -164,8 +164,8 @@ protected:
   int ArrayComponent;
 
 private:
-  vtkFlyingEdges2D(const vtkFlyingEdges2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFlyingEdges2D&) VTK_DELETE_FUNCTION;
+  vtkFlyingEdges2D(const vtkFlyingEdges2D&) = delete;
+  void operator=(const vtkFlyingEdges2D&) = delete;
 };
 
 

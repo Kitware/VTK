@@ -120,8 +120,8 @@ protected:
   vtkBoundingBox *BoundingBox;
 
 private:
-  vtkLightActor(const vtkLightActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightActor&) VTK_DELETE_FUNCTION;
+  vtkLightActor(const vtkLightActor&) = delete;
+  void operator=(const vtkLightActor&) = delete;
 };
 
 #endif

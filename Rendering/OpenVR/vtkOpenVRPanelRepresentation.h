@@ -174,8 +174,8 @@ protected:
   std::string Text;
 
 private:
-  vtkOpenVRPanelRepresentation(const vtkOpenVRPanelRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRPanelRepresentation&) VTK_DELETE_FUNCTION;
+  vtkOpenVRPanelRepresentation(const vtkOpenVRPanelRepresentation&) = delete;
+  void operator=(const vtkOpenVRPanelRepresentation&) = delete;
 };
 
 #endif

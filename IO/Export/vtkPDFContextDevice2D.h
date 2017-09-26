@@ -183,8 +183,8 @@ protected:
   float TextureBounds[4]; // xmin, xmax, ymin, ymax; used for placing textures
 
 private:
-  vtkPDFContextDevice2D(const vtkPDFContextDevice2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDFContextDevice2D&) VTK_DELETE_FUNCTION;
+  vtkPDFContextDevice2D(const vtkPDFContextDevice2D&) = delete;
+  void operator=(const vtkPDFContextDevice2D&) = delete;
 };
 
 #endif // vtkPDFContextDevice2D_h

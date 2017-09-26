@@ -126,8 +126,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid :
     double N2;
 
   private:
-    vtkParametricEllipsoid(const vtkParametricEllipsoid&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricEllipsoid&) VTK_DELETE_FUNCTION;
+    vtkParametricEllipsoid(const vtkParametricEllipsoid&) = delete;
+    void operator=(const vtkParametricEllipsoid&) = delete;
 
 };
 

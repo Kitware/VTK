@@ -243,8 +243,8 @@ private:
   int ChooseTimeStep(vtkInformation* outInfo);
 
 private:
-  vtkXdmfReader(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
+  vtkXdmfReader(const vtkXdmfReader&) = delete;
+  void operator=(const vtkXdmfReader&) = delete;
 
 };
 

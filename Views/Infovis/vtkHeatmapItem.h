@@ -279,8 +279,8 @@ protected:
   vtkStdString NameColumn;
 
 private:
-  vtkHeatmapItem(const vtkHeatmapItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHeatmapItem&) VTK_DELETE_FUNCTION;
+  vtkHeatmapItem(const vtkHeatmapItem&) = delete;
+  void operator=(const vtkHeatmapItem&) = delete;
 
   unsigned long HeatmapBuildTime;
   vtkNew<vtkCategoryLegend> CategoryLegend;

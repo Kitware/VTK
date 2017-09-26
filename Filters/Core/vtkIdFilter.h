@@ -95,8 +95,8 @@ protected:
   char *IdsArrayName;
 
 private:
-  vtkIdFilter(const vtkIdFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIdFilter&) VTK_DELETE_FUNCTION;
+  vtkIdFilter(const vtkIdFilter&) = delete;
+  void operator=(const vtkIdFilter&) = delete;
 };
 
 #endif

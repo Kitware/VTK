@@ -184,8 +184,8 @@ protected:
   void ReportReferences(vtkGarbageCollector*) override;
 
 private:
-  vtkLocator(const vtkLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLocator&) VTK_DELETE_FUNCTION;
+  vtkLocator(const vtkLocator&) = delete;
+  void operator=(const vtkLocator&) = delete;
 };
 
 #endif

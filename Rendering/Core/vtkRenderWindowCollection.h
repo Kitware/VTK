@@ -76,7 +76,7 @@ private:
   }
 
 private:
-  vtkRenderWindowCollection(const vtkRenderWindowCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderWindowCollection&) VTK_DELETE_FUNCTION;
+  vtkRenderWindowCollection(const vtkRenderWindowCollection&) = delete;
+  void operator=(const vtkRenderWindowCollection&) = delete;
 };
 #endif

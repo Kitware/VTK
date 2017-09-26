@@ -58,8 +58,8 @@ protected:
                              vtkInformation* outInfo);
 
 private:
-  vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageCityBlockDistance&) VTK_DELETE_FUNCTION;
+  vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) = delete;
+  void operator=(const vtkImageCityBlockDistance&) = delete;
 };
 
 #endif

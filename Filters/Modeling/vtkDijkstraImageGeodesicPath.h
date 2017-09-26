@@ -130,8 +130,8 @@ protected:
   bool RebuildStaticCosts;
 
 private:
-  vtkDijkstraImageGeodesicPath(const vtkDijkstraImageGeodesicPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDijkstraImageGeodesicPath&) VTK_DELETE_FUNCTION;
+  vtkDijkstraImageGeodesicPath(const vtkDijkstraImageGeodesicPath&) = delete;
+  void operator=(const vtkDijkstraImageGeodesicPath&) = delete;
 
 };
 

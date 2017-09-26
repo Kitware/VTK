@@ -124,8 +124,8 @@ protected:
   bool CurrentStatus;
 
 private:
-  vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&) = delete;
+  void operator=(const vtkGenericOpenGLRenderWindow&) = delete;
 };
 
 #endif

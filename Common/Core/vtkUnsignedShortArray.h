@@ -80,8 +80,8 @@ private:
 
   typedef vtkAOSDataArrayTemplate<unsigned short> RealSuperclass;
 
-  vtkUnsignedShortArray(const vtkUnsignedShortArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnsignedShortArray&) VTK_DELETE_FUNCTION;
+  vtkUnsignedShortArray(const vtkUnsignedShortArray&) = delete;
+  void operator=(const vtkUnsignedShortArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

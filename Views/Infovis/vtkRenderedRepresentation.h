@@ -96,8 +96,8 @@ protected:
   int LabelRenderMode;
 
 private:
-  vtkRenderedRepresentation(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
+  vtkRenderedRepresentation(const vtkRenderedRepresentation&) = delete;
+  void operator=(const vtkRenderedRepresentation&) = delete;
 
   class Internals;
   Internals* Implementation;

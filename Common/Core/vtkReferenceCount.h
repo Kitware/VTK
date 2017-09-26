@@ -40,8 +40,8 @@ protected:
   ~vtkReferenceCount() override;
 
 private:
-  vtkReferenceCount(const vtkReferenceCount&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReferenceCount&) VTK_DELETE_FUNCTION;
+  vtkReferenceCount(const vtkReferenceCount&) = delete;
+  void operator=(const vtkReferenceCount&) = delete;
 };
 
 

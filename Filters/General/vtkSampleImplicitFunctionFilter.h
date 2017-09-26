@@ -110,8 +110,8 @@ protected:
 
 
 private:
-  vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSampleImplicitFunctionFilter&) VTK_DELETE_FUNCTION;
+  vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&) = delete;
+  void operator=(const vtkSampleImplicitFunctionFilter&) = delete;
 };
 
 #endif

@@ -63,8 +63,8 @@ protected:
                                    int extent[6], int threadId) override;
   int NumberOfDivisions[3];
 private:
-  vtkImageCheckerboard(const vtkImageCheckerboard&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageCheckerboard&) VTK_DELETE_FUNCTION;
+  vtkImageCheckerboard(const vtkImageCheckerboard&) = delete;
+  void operator=(const vtkImageCheckerboard&) = delete;
 };
 
 #endif

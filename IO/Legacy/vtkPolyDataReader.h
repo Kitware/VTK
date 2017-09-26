@@ -68,8 +68,8 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkPolyDataReader(const vtkPolyDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataReader&) VTK_DELETE_FUNCTION;
+  vtkPolyDataReader(const vtkPolyDataReader&) = delete;
+  void operator=(const vtkPolyDataReader&) = delete;
 };
 
 #endif

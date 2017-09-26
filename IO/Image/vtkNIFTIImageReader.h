@@ -259,8 +259,8 @@ protected:
   bool PlanarRGB;
 
 private:
-  vtkNIFTIImageReader(const vtkNIFTIImageReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNIFTIImageReader&) VTK_DELETE_FUNCTION;
+  vtkNIFTIImageReader(const vtkNIFTIImageReader&) = delete;
+  void operator=(const vtkNIFTIImageReader&) = delete;
 };
 
 #endif // vtkNIFTIImageReader_h

@@ -52,8 +52,8 @@ protected:
 
   int PieceInvariant;
 private:
-  vtkPPolyDataNormals(const vtkPPolyDataNormals&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPPolyDataNormals&) VTK_DELETE_FUNCTION;
+  vtkPPolyDataNormals(const vtkPPolyDataNormals&) = delete;
+  void operator=(const vtkPPolyDataNormals&) = delete;
 };
 
 #endif

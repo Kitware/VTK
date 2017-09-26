@@ -118,8 +118,8 @@ protected:
   void (*EndWriteArgDelete)(void *);
   void *EndWriteArg;
 private:
-  vtkExporter(const vtkExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExporter&) VTK_DELETE_FUNCTION;
+  vtkExporter(const vtkExporter&) = delete;
+  void operator=(const vtkExporter&) = delete;
 };
 
 #endif

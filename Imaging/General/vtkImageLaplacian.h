@@ -61,8 +61,8 @@ protected:
                            int outExt[6], int id) override;
 
 private:
-  vtkImageLaplacian(const vtkImageLaplacian&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageLaplacian&) VTK_DELETE_FUNCTION;
+  vtkImageLaplacian(const vtkImageLaplacian&) = delete;
+  void operator=(const vtkImageLaplacian&) = delete;
 };
 
 #endif

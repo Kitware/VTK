@@ -108,8 +108,8 @@ protected:
                                  vtkInformationVector *) override;
 
 private:
-  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
+  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) = delete;
+  void operator=(const vtkGenericDataObjectReader&) = delete;
 
   template<typename ReaderT, typename DataT>
     void ReadData(const char* dataClass, vtkDataObject* output);

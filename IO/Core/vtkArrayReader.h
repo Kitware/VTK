@@ -102,8 +102,8 @@ protected:
   bool ReadFromInputString;
 
 private:
-  vtkArrayReader(const vtkArrayReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayReader&) VTK_DELETE_FUNCTION;
+  vtkArrayReader(const vtkArrayReader&) = delete;
+  void operator=(const vtkArrayReader&) = delete;
 };
 
 #endif

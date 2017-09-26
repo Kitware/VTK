@@ -128,8 +128,8 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o);
 
-  vtkShader2Collection(const vtkShader2Collection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShader2Collection&) VTK_DELETE_FUNCTION;
+  vtkShader2Collection(const vtkShader2Collection&) = delete;
+  void operator=(const vtkShader2Collection&) = delete;
 };
 
 #endif

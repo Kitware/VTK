@@ -56,8 +56,8 @@ protected:
   ~vtkCocoaTkUtilities() override {}
 
 private:
-  vtkCocoaTkUtilities(const vtkCocoaTkUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCocoaTkUtilities&) VTK_DELETE_FUNCTION;
+  vtkCocoaTkUtilities(const vtkCocoaTkUtilities&) = delete;
+  void operator=(const vtkCocoaTkUtilities&) = delete;
 };
 
 #endif

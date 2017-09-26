@@ -63,8 +63,8 @@ protected:
     int outExt[6],
     int threadId) override;
 private:
-  vtkImageRFFT(const vtkImageRFFT&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRFFT&) VTK_DELETE_FUNCTION;
+  vtkImageRFFT(const vtkImageRFFT&) = delete;
+  void operator=(const vtkImageRFFT&) = delete;
 };
 
 #endif

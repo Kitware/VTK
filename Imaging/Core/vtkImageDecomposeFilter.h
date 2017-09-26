@@ -69,8 +69,8 @@ protected:
 
 
 private:
-  vtkImageDecomposeFilter(const vtkImageDecomposeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDecomposeFilter&) VTK_DELETE_FUNCTION;
+  vtkImageDecomposeFilter(const vtkImageDecomposeFilter&) = delete;
+  void operator=(const vtkImageDecomposeFilter&) = delete;
 };
 
 #endif

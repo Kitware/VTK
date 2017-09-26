@@ -294,8 +294,8 @@ protected:
   bool AutomaticEventHandling;
 
 private:
-  vtkSynchronizedRenderers(const vtkSynchronizedRenderers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedRenderers(const vtkSynchronizedRenderers&) = delete;
+  void operator=(const vtkSynchronizedRenderers&) = delete;
 
   class vtkObserver;
   vtkObserver* Observer;

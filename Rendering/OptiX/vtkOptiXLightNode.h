@@ -52,8 +52,8 @@ protected:
   ~vtkOptiXLightNode();
 
 private:
-  vtkOptiXLightNode(const vtkOptiXLightNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXLightNode&) VTK_DELETE_FUNCTION;
+  vtkOptiXLightNode(const vtkOptiXLightNode&) = delete;
+  void operator=(const vtkOptiXLightNode&) = delete;
 
   static double LightScale;
 };

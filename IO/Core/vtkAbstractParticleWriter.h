@@ -95,8 +95,8 @@ protected:
   char        *FileName;
 
 private:
-  vtkAbstractParticleWriter(const vtkAbstractParticleWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractParticleWriter&) VTK_DELETE_FUNCTION;
+  vtkAbstractParticleWriter(const vtkAbstractParticleWriter&) = delete;
+  void operator=(const vtkAbstractParticleWriter&) = delete;
 };
 
 #endif

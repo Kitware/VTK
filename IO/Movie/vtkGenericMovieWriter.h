@@ -86,8 +86,8 @@ protected:
   int Error;
 
 private:
-  vtkGenericMovieWriter(const vtkGenericMovieWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericMovieWriter&) VTK_DELETE_FUNCTION;
+  vtkGenericMovieWriter(const vtkGenericMovieWriter&) = delete;
+  void operator=(const vtkGenericMovieWriter&) = delete;
 };
 
 #endif

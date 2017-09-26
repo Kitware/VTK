@@ -126,9 +126,9 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
  private:
-  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&) = delete;
 
-  void operator=(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGridToTetrahedra&) = delete;
 
   /**
    * Determine how to Divide each cell (voxel) in the RectilinearGrid

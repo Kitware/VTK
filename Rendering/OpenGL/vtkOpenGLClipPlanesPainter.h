@@ -49,8 +49,8 @@ protected:
                               unsigned long typeflags, bool forceCompileOnly) override;
 
 private:
-  vtkOpenGLClipPlanesPainter(const vtkOpenGLClipPlanesPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLClipPlanesPainter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLClipPlanesPainter(const vtkOpenGLClipPlanesPainter&) = delete;
+  void operator=(const vtkOpenGLClipPlanesPainter&) = delete;
 };
 
 #endif

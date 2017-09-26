@@ -53,8 +53,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkTableWriter(const vtkTableWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableWriter&) VTK_DELETE_FUNCTION;
+  vtkTableWriter(const vtkTableWriter&) = delete;
+  void operator=(const vtkTableWriter&) = delete;
 };
 
 #endif

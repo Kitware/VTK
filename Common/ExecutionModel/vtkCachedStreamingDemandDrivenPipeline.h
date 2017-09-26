@@ -62,8 +62,8 @@ protected:
   vtkMTimeType *Times;
 
 private:
-  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
+  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) = delete;
+  void operator=(const vtkCachedStreamingDemandDrivenPipeline&) = delete;
 };
 
 #endif

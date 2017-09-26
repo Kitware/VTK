@@ -90,8 +90,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkMCubesWriter(const vtkMCubesWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMCubesWriter&) VTK_DELETE_FUNCTION;
+  vtkMCubesWriter(const vtkMCubesWriter&) = delete;
+  void operator=(const vtkMCubesWriter&) = delete;
 };
 
 #endif

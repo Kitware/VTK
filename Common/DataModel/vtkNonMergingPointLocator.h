@@ -70,8 +70,8 @@ protected:
   ~vtkNonMergingPointLocator() override { };
 
 private:
-  vtkNonMergingPointLocator( const vtkNonMergingPointLocator & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkNonMergingPointLocator & ) VTK_DELETE_FUNCTION;
+  vtkNonMergingPointLocator( const vtkNonMergingPointLocator & ) = delete;
+  void operator = ( const vtkNonMergingPointLocator & ) = delete;
 };
 
 #endif

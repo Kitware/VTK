@@ -112,8 +112,8 @@ protected:
                             AssessFunctor*& dfunc ) override;
 
 private:
-  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&) = delete;
+  void operator=(const vtkCorrelativeStatistics&) = delete;
 };
 
 #endif

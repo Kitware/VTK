@@ -343,8 +343,8 @@ protected:
   vtkNew<vtkPeriodicTable> PeriodicTable;
 
 private:
-  vtkMoleculeMapper(const vtkMoleculeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMoleculeMapper&) VTK_DELETE_FUNCTION;
+  vtkMoleculeMapper(const vtkMoleculeMapper&) = delete;
+  void operator=(const vtkMoleculeMapper&) = delete;
 };
 
 #endif

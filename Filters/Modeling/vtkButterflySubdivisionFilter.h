@@ -78,8 +78,8 @@ private:
                                vtkIdList *stencilIds, double *weights);
 
 private:
-  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkButterflySubdivisionFilter&) VTK_DELETE_FUNCTION;
+  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&) = delete;
+  void operator=(const vtkButterflySubdivisionFilter&) = delete;
 };
 
 #endif

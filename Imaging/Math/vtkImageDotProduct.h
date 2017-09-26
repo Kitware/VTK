@@ -56,8 +56,8 @@ protected:
                                    int extent[6], int threadId) override;
 
 private:
-  vtkImageDotProduct(const vtkImageDotProduct&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDotProduct&) VTK_DELETE_FUNCTION;
+  vtkImageDotProduct(const vtkImageDotProduct&) = delete;
+  void operator=(const vtkImageDotProduct&) = delete;
 };
 
 #endif

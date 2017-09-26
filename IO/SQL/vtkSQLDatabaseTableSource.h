@@ -80,8 +80,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;
+  vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&) = delete;
+  void operator=(const vtkSQLDatabaseTableSource&) = delete;
 
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;

@@ -56,8 +56,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkGraphToPoints(const vtkGraphToPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphToPoints&) VTK_DELETE_FUNCTION;
+  vtkGraphToPoints(const vtkGraphToPoints&) = delete;
+  void operator=(const vtkGraphToPoints&) = delete;
 };
 
 #endif

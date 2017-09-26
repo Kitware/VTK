@@ -573,8 +573,8 @@ protected:
   std::vector< int > RefinementRatios;
 
 private:
-   vtkStructuredAMRGridConnectivity(const vtkStructuredAMRGridConnectivity&) VTK_DELETE_FUNCTION;
-   void operator=(const vtkStructuredAMRGridConnectivity&) VTK_DELETE_FUNCTION;
+   vtkStructuredAMRGridConnectivity(const vtkStructuredAMRGridConnectivity&) = delete;
+   void operator=(const vtkStructuredAMRGridConnectivity&) = delete;
 };
 
 //=============================================================================

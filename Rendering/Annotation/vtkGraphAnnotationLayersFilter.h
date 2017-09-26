@@ -127,8 +127,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;
+  vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&) = delete;
+  void operator=(const vtkGraphAnnotationLayersFilter&) = delete;
 
   vtkSmartPointer<vtkAppendPolyData> HullAppend;
   vtkSmartPointer<vtkAppendPolyData> OutlineAppend;

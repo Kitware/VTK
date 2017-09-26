@@ -82,8 +82,8 @@ private:
   ostream *OutputStream;
   vtkX3DExporterXMLNodeInfoStack* InfoStack;
 
-  vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporterXMLWriter&) VTK_DELETE_FUNCTION;
+  vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&) = delete;
+  void operator=(const vtkX3DExporterXMLWriter&) = delete;
 
 };
 

@@ -65,8 +65,8 @@ protected:
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkMultiNewickTreeReader(const vtkMultiNewickTreeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiNewickTreeReader&) VTK_DELETE_FUNCTION;
+  vtkMultiNewickTreeReader(const vtkMultiNewickTreeReader&) = delete;
+  void operator=(const vtkMultiNewickTreeReader&) = delete;
 };
 
 #endif

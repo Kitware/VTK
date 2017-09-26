@@ -113,8 +113,8 @@ protected:
   vtkVariantArray*                    Values;
 
 private:
-  vtkCategoryLegend(const vtkCategoryLegend &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCategoryLegend &) VTK_DELETE_FUNCTION;
+  vtkCategoryLegend(const vtkCategoryLegend &) = delete;
+  void operator=(const vtkCategoryLegend &) = delete;
 };
 
 #endif

@@ -171,8 +171,8 @@ protected:
   int Wrap;
 
 private:
-  vtkCursor3D(const vtkCursor3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCursor3D&) VTK_DELETE_FUNCTION;
+  vtkCursor3D(const vtkCursor3D&) = delete;
+  void operator=(const vtkCursor3D&) = delete;
 };
 
 #endif

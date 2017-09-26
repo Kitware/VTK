@@ -90,8 +90,8 @@ protected:
   int Subsampling;
 
 private:
-  vtkOggTheoraWriter(const vtkOggTheoraWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOggTheoraWriter&) VTK_DELETE_FUNCTION;
+  vtkOggTheoraWriter(const vtkOggTheoraWriter&) = delete;
+  void operator=(const vtkOggTheoraWriter&) = delete;
 };
 
 #endif

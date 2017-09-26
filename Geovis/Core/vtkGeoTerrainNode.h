@@ -158,8 +158,8 @@ protected:
   float  Coverage;
 
 private:
-  vtkGeoTerrainNode(const vtkGeoTerrainNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoTerrainNode&) VTK_DELETE_FUNCTION;
+  vtkGeoTerrainNode(const vtkGeoTerrainNode&) = delete;
+  void operator=(const vtkGeoTerrainNode&) = delete;
 };
 
 #endif

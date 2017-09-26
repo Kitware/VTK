@@ -64,8 +64,8 @@ protected:
 private:
   bool UserProvidedViewTransform;
 
-  vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
+  vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&) = delete;
+  void operator=(const vtkExternalOpenGLCamera&) = delete;
 };
 
 #endif

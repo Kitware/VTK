@@ -76,8 +76,8 @@ protected:
   bool CompactPoints;
 
 private:
-  vtkmExternalFaces(const vtkmExternalFaces&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmExternalFaces&) VTK_DELETE_FUNCTION;
+  vtkmExternalFaces(const vtkmExternalFaces&) = delete;
+  void operator=(const vtkmExternalFaces&) = delete;
 };
 
 #endif // vtkmExternalFaces_h

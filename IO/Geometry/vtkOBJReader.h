@@ -41,8 +41,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkOBJReader(const vtkOBJReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOBJReader&) VTK_DELETE_FUNCTION;
+  vtkOBJReader(const vtkOBJReader&) = delete;
+  void operator=(const vtkOBJReader&) = delete;
 };
 
 #endif

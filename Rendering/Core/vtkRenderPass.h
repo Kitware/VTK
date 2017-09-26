@@ -133,8 +133,8 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
   int NumberOfRenderedProps;
 
  private:
-  vtkRenderPass(const vtkRenderPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderPass&) VTK_DELETE_FUNCTION;
+  vtkRenderPass(const vtkRenderPass&) = delete;
+  void operator=(const vtkRenderPass&) = delete;
 };
 
 #endif

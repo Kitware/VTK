@@ -42,8 +42,8 @@ protected:
     vtkRenderWindow* window, vtkProperty* property, RenderBlockState& state) override;
 
 private:
-  vtkOpenGLCompositePainter(const vtkOpenGLCompositePainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLCompositePainter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLCompositePainter(const vtkOpenGLCompositePainter&) = delete;
+  void operator=(const vtkOpenGLCompositePainter&) = delete;
 
   bool PushedOpenGLAttribs;
 };

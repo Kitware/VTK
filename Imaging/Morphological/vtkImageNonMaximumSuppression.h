@@ -90,8 +90,8 @@ protected:
                                    int extent[6], int threadId) override;
 
 private:
-  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;
+  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&) = delete;
+  void operator=(const vtkImageNonMaximumSuppression&) = delete;
 };
 
 #endif

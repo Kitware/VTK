@@ -198,8 +198,8 @@ protected:
   friend class vtkDataObjectTreeIterator;
 
 private:
-  vtkDataObjectTree(const vtkDataObjectTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectTree&) VTK_DELETE_FUNCTION;
+  vtkDataObjectTree(const vtkDataObjectTree&) = delete;
+  void operator=(const vtkDataObjectTree&) = delete;
 
 };
 

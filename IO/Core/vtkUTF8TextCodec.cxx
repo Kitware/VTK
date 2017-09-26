@@ -55,8 +55,8 @@ namespace
     ~testIterator() override {}
 
   private:
-    testIterator(const testIterator&) VTK_DELETE_FUNCTION;
-    const testIterator& operator=(const testIterator&) VTK_DELETE_FUNCTION;
+    testIterator(const testIterator&) = delete;
+    const testIterator& operator=(const testIterator&) = delete;
   };
 
 

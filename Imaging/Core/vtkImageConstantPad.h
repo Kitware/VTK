@@ -60,8 +60,8 @@ protected:
                             vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id) override;
 private:
-  vtkImageConstantPad(const vtkImageConstantPad&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageConstantPad&) VTK_DELETE_FUNCTION;
+  vtkImageConstantPad(const vtkImageConstantPad&) = delete;
+  void operator=(const vtkImageConstantPad&) = delete;
 };
 
 #endif

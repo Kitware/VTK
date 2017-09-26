@@ -120,8 +120,8 @@ protected:
   double (*scalarFunction)(double, double);
 
 private:
-  vtkBlockItem(const vtkBlockItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBlockItem &) VTK_DELETE_FUNCTION;
+  vtkBlockItem(const vtkBlockItem &) = delete;
+  void operator=(const vtkBlockItem &) = delete;
 
 };
 

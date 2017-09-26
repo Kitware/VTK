@@ -156,8 +156,8 @@ protected:
   vtkGLSLShaderDeviceAdapter2 *ShaderDeviceAdapter2;
 
 private:
-  vtkOpenGLProperty(const vtkOpenGLProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLProperty&) VTK_DELETE_FUNCTION;
+  vtkOpenGLProperty(const vtkOpenGLProperty&) = delete;
+  void operator=(const vtkOpenGLProperty&) = delete;
 };
 
 #endif

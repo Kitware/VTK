@@ -172,8 +172,8 @@ protected:
   char *QueryText;
 
 private:
-  vtkODBCQuery(const vtkODBCQuery &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkODBCQuery &) VTK_DELETE_FUNCTION;
+  vtkODBCQuery(const vtkODBCQuery &) = delete;
+  void operator=(const vtkODBCQuery &) = delete;
 
   void ClearCurrentRow();
   bool CacheCurrentRow();

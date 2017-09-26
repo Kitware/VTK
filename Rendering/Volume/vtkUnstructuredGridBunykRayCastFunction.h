@@ -270,8 +270,8 @@ protected:
   void          ComputePixelIntersections();
 
 private:
-  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&) = delete;
+  void operator=(const vtkUnstructuredGridBunykRayCastFunction&) = delete;
 };
 
 #endif

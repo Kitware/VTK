@@ -215,8 +215,8 @@ protected:
   ~vtkSparseArray() override;
 
 private:
-  vtkSparseArray(const vtkSparseArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSparseArray&) VTK_DELETE_FUNCTION;
+  vtkSparseArray(const vtkSparseArray&) = delete;
+  void operator=(const vtkSparseArray&) = delete;
 
   void InternalResize(const vtkArrayExtents& extents) override;
   void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) override;

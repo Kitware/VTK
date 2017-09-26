@@ -185,8 +185,8 @@ protected:
   double PowerParameter;
 
 private:
-  vtkShepardMethod(const vtkShepardMethod&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShepardMethod&) VTK_DELETE_FUNCTION;
+  vtkShepardMethod(const vtkShepardMethod&) = delete;
+  void operator=(const vtkShepardMethod&) = delete;
 };
 
 #endif

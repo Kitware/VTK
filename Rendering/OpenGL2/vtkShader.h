@@ -91,8 +91,8 @@ protected:
   std::string Error;
 
 private:
-  vtkShader(const vtkShader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShader&) VTK_DELETE_FUNCTION;
+  vtkShader(const vtkShader&) = delete;
+  void operator=(const vtkShader&) = delete;
 };
 
 

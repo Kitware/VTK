@@ -239,8 +239,8 @@ protected:
   //@}
 
 private:
-  vtkCornerAnnotation(const vtkCornerAnnotation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCornerAnnotation&) VTK_DELETE_FUNCTION;
+  vtkCornerAnnotation(const vtkCornerAnnotation&) = delete;
+  void operator=(const vtkCornerAnnotation&) = delete;
 };
 
 

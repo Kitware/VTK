@@ -68,8 +68,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id) override;
 private:
-  vtkImageExtractComponents(const vtkImageExtractComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageExtractComponents&) VTK_DELETE_FUNCTION;
+  vtkImageExtractComponents(const vtkImageExtractComponents&) = delete;
+  void operator=(const vtkImageExtractComponents&) = delete;
 };
 
 #endif

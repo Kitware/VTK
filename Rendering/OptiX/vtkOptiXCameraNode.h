@@ -43,8 +43,8 @@ protected:
   ~vtkOptiXCameraNode();
 
 private:
-  vtkOptiXCameraNode(const vtkOptiXCameraNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXCameraNode&) VTK_DELETE_FUNCTION;
+  vtkOptiXCameraNode(const vtkOptiXCameraNode&) = delete;
+  void operator=(const vtkOptiXCameraNode&) = delete;
 };
 
 #endif

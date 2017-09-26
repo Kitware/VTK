@@ -52,8 +52,8 @@ protected:
   int WritePiece(int index) override;
 
 private:
-  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&) = delete;
+  void operator=(const vtkXMLPStructuredDataWriter&) = delete;
 
   typedef std::map<int, std::vector<int> > ExtentsType;
   ExtentsType Extents;

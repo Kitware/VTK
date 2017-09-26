@@ -177,8 +177,8 @@ protected:
 
   vtkFieldList* FieldList;
 private:
-  vtkMergeFilter(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
+  vtkMergeFilter(const vtkMergeFilter&) = delete;
+  void operator=(const vtkMergeFilter&) = delete;
 };
 
 #endif

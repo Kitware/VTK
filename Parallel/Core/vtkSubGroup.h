@@ -138,7 +138,7 @@ private:
 
   vtkCommunicator *comm;
 
-  vtkSubGroup(const vtkSubGroup&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSubGroup&) VTK_DELETE_FUNCTION;
+  vtkSubGroup(const vtkSubGroup&) = delete;
+  void operator=(const vtkSubGroup&) = delete;
 };
 #endif

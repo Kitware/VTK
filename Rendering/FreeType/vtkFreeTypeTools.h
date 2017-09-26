@@ -452,8 +452,8 @@ protected:
   void ReleaseCacheManager();
 
 private:
-  vtkFreeTypeTools(const vtkFreeTypeTools&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFreeTypeTools&) VTK_DELETE_FUNCTION;
+  vtkFreeTypeTools(const vtkFreeTypeTools&) = delete;
+  void operator=(const vtkFreeTypeTools&) = delete;
 
   /**
    * Internal helper called by RenderString methods

@@ -670,8 +670,8 @@ protected:
   vtkTimeStamp SendParametersTime;
 
 private:
-  vtkTextureObject(const vtkTextureObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextureObject&) VTK_DELETE_FUNCTION;
+  vtkTextureObject(const vtkTextureObject&) = delete;
+  void operator=(const vtkTextureObject&) = delete;
 
 };
 

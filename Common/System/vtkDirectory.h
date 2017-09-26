@@ -117,8 +117,8 @@ private:
   static int CreateDirectoryInternal(const char* dir);
 
 private:
-  vtkDirectory(const vtkDirectory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDirectory&) VTK_DELETE_FUNCTION;
+  vtkDirectory(const vtkDirectory&) = delete;
+  void operator=(const vtkDirectory&) = delete;
 };
 
 #endif

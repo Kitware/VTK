@@ -103,8 +103,8 @@ protected:
   long *ObserverTags;
 
 private:
-  vtkImageOrthoPlanes(const vtkImageOrthoPlanes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageOrthoPlanes&) VTK_DELETE_FUNCTION;
+  vtkImageOrthoPlanes(const vtkImageOrthoPlanes&) = delete;
+  void operator=(const vtkImageOrthoPlanes&) = delete;
 };
 
 #endif

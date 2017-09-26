@@ -102,8 +102,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRoman : public
     double Radius;
 
   private:
-    vtkParametricRoman(const vtkParametricRoman&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricRoman&) VTK_DELETE_FUNCTION;
+    vtkParametricRoman(const vtkParametricRoman&) = delete;
+    void operator=(const vtkParametricRoman&) = delete;
 };
 
 #endif

@@ -53,8 +53,8 @@ protected:
     vtkInformationVector *) override;
 
 private:
-  vtkProbeSelectedLocations(const vtkProbeSelectedLocations&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProbeSelectedLocations&) VTK_DELETE_FUNCTION;
+  vtkProbeSelectedLocations(const vtkProbeSelectedLocations&) = delete;
+  void operator=(const vtkProbeSelectedLocations&) = delete;
 
 };
 

@@ -229,8 +229,8 @@ protected:
   vtkTypeInt64* RowDataOffset;
 
 private:
-  vtkXMLTableReader(const vtkXMLTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLTableReader&) VTK_DELETE_FUNCTION;
+  vtkXMLTableReader(const vtkXMLTableReader&) = delete;
+  void operator=(const vtkXMLTableReader&) = delete;
 };
 
 #endif

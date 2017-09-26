@@ -78,8 +78,8 @@ private:
   int NumProcesses;
   int ProcessId;
 
-  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPOpenFOAMReader &) VTK_DELETE_FUNCTION;
+  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &) = delete;
+  void operator=(const vtkPOpenFOAMReader &) = delete;
 
   void GatherMetaData();
   void BroadcastStatus(int &);

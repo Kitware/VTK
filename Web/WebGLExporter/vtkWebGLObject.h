@@ -95,8 +95,8 @@ protected:
     bool interactAtServer;
 
 private:
-  vtkWebGLObject(const vtkWebGLObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLObject&) VTK_DELETE_FUNCTION;
+  vtkWebGLObject(const vtkWebGLObject&) = delete;
+  void operator=(const vtkWebGLObject&) = delete;
 };
 
 #endif

@@ -53,8 +53,8 @@ protected:
   ~vtkFixedPointVolumeRayCastCompositeHelper() override;
 
 private:
-  vtkFixedPointVolumeRayCastCompositeHelper(const vtkFixedPointVolumeRayCastCompositeHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedPointVolumeRayCastCompositeHelper&) VTK_DELETE_FUNCTION;
+  vtkFixedPointVolumeRayCastCompositeHelper(const vtkFixedPointVolumeRayCastCompositeHelper&) = delete;
+  void operator=(const vtkFixedPointVolumeRayCastCompositeHelper&) = delete;
 };
 
 #endif

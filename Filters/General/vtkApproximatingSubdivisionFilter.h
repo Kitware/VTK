@@ -60,8 +60,8 @@ protected:
   vtkIdType InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts,
                                  vtkIdList *stencil, double *weights);
 private:
-  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&) = delete;
+  void operator=(const vtkApproximatingSubdivisionFilter&) = delete;
 };
 
 #endif

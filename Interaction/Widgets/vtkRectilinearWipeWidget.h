@@ -139,8 +139,8 @@ protected:
   };
 
 private:
-  vtkRectilinearWipeWidget(const vtkRectilinearWipeWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearWipeWidget&) VTK_DELETE_FUNCTION;
+  vtkRectilinearWipeWidget(const vtkRectilinearWipeWidget&) = delete;
+  void operator=(const vtkRectilinearWipeWidget&) = delete;
 };
 
 #endif

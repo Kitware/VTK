@@ -144,8 +144,8 @@ protected:
 
 
 private:
-  vtkImageAppend(const vtkImageAppend&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAppend&) VTK_DELETE_FUNCTION;
+  vtkImageAppend(const vtkImageAppend&) = delete;
+  void operator=(const vtkImageAppend&) = delete;
 };
 
 #endif

@@ -149,8 +149,8 @@ protected:
 #endif
 
 private:
-  vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCocoaRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&) = delete;
+  void operator=(const vtkCocoaRenderWindowInteractor&) = delete;
 
   // Important: this class cannot contain Objective-C instance
   // variables for 2 reasons:

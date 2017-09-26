@@ -634,8 +634,8 @@ protected:
   vtkInternals* Internals;
 
 private:
-  vtkSurfaceLICPainter(const vtkSurfaceLICPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSurfaceLICPainter&) VTK_DELETE_FUNCTION;
+  vtkSurfaceLICPainter(const vtkSurfaceLICPainter&) = delete;
+  void operator=(const vtkSurfaceLICPainter&) = delete;
 };
 
 #endif

@@ -129,8 +129,8 @@ protected:
   vtkDataArraySelection* CellArrayChoices;
 
 private:
-  vtkTRUCHASReader(const vtkTRUCHASReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTRUCHASReader&) VTK_DELETE_FUNCTION;
+  vtkTRUCHASReader(const vtkTRUCHASReader&) = delete;
+  void operator=(const vtkTRUCHASReader&) = delete;
 
 };
 

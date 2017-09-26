@@ -74,8 +74,8 @@ protected:
   vtkSurfaceLICPainter* SurfaceLICPainter;
 
 private:
-  vtkSurfaceLICDefaultPainter(const vtkSurfaceLICDefaultPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSurfaceLICDefaultPainter&) VTK_DELETE_FUNCTION;
+  vtkSurfaceLICDefaultPainter(const vtkSurfaceLICDefaultPainter&) = delete;
+  void operator=(const vtkSurfaceLICDefaultPainter&) = delete;
 
 };
 

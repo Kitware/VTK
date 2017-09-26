@@ -78,8 +78,8 @@ protected:
   vtkVisibilitySort *VisibilitySort;
 
 private:
-  vtkProjectedAAHexahedraMapper(const vtkProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkProjectedAAHexahedraMapper(const vtkProjectedAAHexahedraMapper &) = delete;
+  void operator=(const vtkProjectedAAHexahedraMapper &) = delete;
 };
 
 #endif

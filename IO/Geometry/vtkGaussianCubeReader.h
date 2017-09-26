@@ -56,8 +56,8 @@ protected:
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkGaussianCubeReader(const vtkGaussianCubeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianCubeReader&) VTK_DELETE_FUNCTION;
+  vtkGaussianCubeReader(const vtkGaussianCubeReader&) = delete;
+  void operator=(const vtkGaussianCubeReader&) = delete;
 };
 
 #endif

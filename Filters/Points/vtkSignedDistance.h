@@ -175,8 +175,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkSignedDistance(const vtkSignedDistance&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSignedDistance&) VTK_DELETE_FUNCTION;
+  vtkSignedDistance(const vtkSignedDistance&) = delete;
+  void operator=(const vtkSignedDistance&) = delete;
 
 };
 

@@ -120,8 +120,8 @@ protected:
   Internal* Implementation;
 
 private:
-  vtkLabelHierarchyCompositeIterator( const vtkLabelHierarchyCompositeIterator& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLabelHierarchyCompositeIterator& ) VTK_DELETE_FUNCTION;
+  vtkLabelHierarchyCompositeIterator( const vtkLabelHierarchyCompositeIterator& ) = delete;
+  void operator = ( const vtkLabelHierarchyCompositeIterator& ) = delete;
 };
 
 #endif // vtkLabelHierarchyCompositeIterator_h

@@ -84,8 +84,8 @@ protected:
   vtkTypeInt64 StreamStartPosition;
 
 private:
-  vtkInputStream(const vtkInputStream&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInputStream&) VTK_DELETE_FUNCTION;
+  vtkInputStream(const vtkInputStream&) = delete;
+  void operator=(const vtkInputStream&) = delete;
 };
 
 #endif

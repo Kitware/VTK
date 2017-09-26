@@ -69,8 +69,8 @@ private:
   }
 
 private:
-  vtkTransformCollection(const vtkTransformCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformCollection&) VTK_DELETE_FUNCTION;
+  vtkTransformCollection(const vtkTransformCollection&) = delete;
+  void operator=(const vtkTransformCollection&) = delete;
 };
 
 //----------------------------------------------------------------------------

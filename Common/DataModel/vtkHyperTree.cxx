@@ -322,8 +322,8 @@ protected:
   int Indices[3];
 
 private:
-  vtkCompactHyperTreeCursor(const vtkCompactHyperTreeCursor<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompactHyperTreeCursor<N> &) VTK_DELETE_FUNCTION;
+  vtkCompactHyperTreeCursor(const vtkCompactHyperTreeCursor<N> &) = delete;
+  void operator=(const vtkCompactHyperTreeCursor<N> &) = delete;
 };
 //-----------------------------------------------------------------------------
 template<int N>
@@ -844,8 +844,8 @@ protected:
   std::vector<vtkIdType> GlobalIndexTable;
 
 private:
-  vtkCompactHyperTree(const vtkCompactHyperTree<N> &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompactHyperTree<N> &) VTK_DELETE_FUNCTION;
+  vtkCompactHyperTree(const vtkCompactHyperTree<N> &) = delete;
+  void operator=(const vtkCompactHyperTree<N> &) = delete;
 };
 //-----------------------------------------------------------------------------
 template<int N>

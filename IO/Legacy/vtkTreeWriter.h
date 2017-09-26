@@ -54,8 +54,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkTreeWriter(const vtkTreeWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeWriter&) VTK_DELETE_FUNCTION;
+  vtkTreeWriter(const vtkTreeWriter&) = delete;
+  void operator=(const vtkTreeWriter&) = delete;
 
   void WriteEdges(ostream& Stream, vtkTree* Tree);
 };

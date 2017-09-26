@@ -353,8 +353,8 @@ protected:
   vtkHyperTreeGrid* OutputHTG;
 
 private:
-  vtkHyperTreeGridSource(const vtkHyperTreeGridSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridSource&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridSource(const vtkHyperTreeGridSource&) = delete;
+  void operator=(const vtkHyperTreeGridSource&) = delete;
 };
 
 #endif

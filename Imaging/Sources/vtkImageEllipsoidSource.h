@@ -124,8 +124,8 @@ protected:
                           vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageEllipsoidSource&) VTK_DELETE_FUNCTION;
+  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&) = delete;
+  void operator=(const vtkImageEllipsoidSource&) = delete;
 };
 
 

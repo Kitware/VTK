@@ -84,8 +84,8 @@ protected:
   vtkDSPFilterGroupVectorVectorIntSTLCloak * /*std::vector< std::vector<int> >*/ CachedOutputTimesteps;
 
 private:
-  vtkDSPFilterGroup(const vtkDSPFilterGroup&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDSPFilterGroup&) VTK_DELETE_FUNCTION;
+  vtkDSPFilterGroup(const vtkDSPFilterGroup&) = delete;
+  void operator=(const vtkDSPFilterGroup&) = delete;
 };
 
 #endif

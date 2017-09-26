@@ -175,8 +175,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkDensifyPointCloudFilter(const vtkDensifyPointCloudFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDensifyPointCloudFilter&) VTK_DELETE_FUNCTION;
+  vtkDensifyPointCloudFilter(const vtkDensifyPointCloudFilter&) = delete;
+  void operator=(const vtkDensifyPointCloudFilter&) = delete;
 
 };
 

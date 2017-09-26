@@ -40,8 +40,8 @@ protected:
   ~vtkOSPRayViewNodeFactory();
 
 private:
-  vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayViewNodeFactory&) VTK_DELETE_FUNCTION;
+  vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&) = delete;
+  void operator=(const vtkOSPRayViewNodeFactory&) = delete;
 };
 
 #endif

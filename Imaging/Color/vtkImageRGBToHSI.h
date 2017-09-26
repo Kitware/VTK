@@ -54,8 +54,8 @@ protected:
                        int ext[6], int id) override;
 
 private:
-  vtkImageRGBToHSI(const vtkImageRGBToHSI&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRGBToHSI&) VTK_DELETE_FUNCTION;
+  vtkImageRGBToHSI(const vtkImageRGBToHSI&) = delete;
+  void operator=(const vtkImageRGBToHSI&) = delete;
 };
 
 #endif

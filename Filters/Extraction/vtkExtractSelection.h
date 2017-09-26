@@ -118,8 +118,8 @@ protected:
   int UseProbeForLocations;
   int ShowBounds;
 private:
-  vtkExtractSelection(const vtkExtractSelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelection&) VTK_DELETE_FUNCTION;
+  vtkExtractSelection(const vtkExtractSelection&) = delete;
+  void operator=(const vtkExtractSelection&) = delete;
 };
 
 #endif

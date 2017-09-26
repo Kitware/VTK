@@ -61,8 +61,8 @@ protected:
   int NumberOfSubdivisions;
 
 private:
-  vtkArcParallelEdgeStrategy(const vtkArcParallelEdgeStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArcParallelEdgeStrategy&) VTK_DELETE_FUNCTION;
+  vtkArcParallelEdgeStrategy(const vtkArcParallelEdgeStrategy&) = delete;
+  void operator=(const vtkArcParallelEdgeStrategy&) = delete;
 };
 
 #endif

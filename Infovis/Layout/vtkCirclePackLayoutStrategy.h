@@ -68,8 +68,8 @@ protected:
     ~vtkCirclePackLayoutStrategy() override;
 
 private:
-    vtkCirclePackLayoutStrategy(const vtkCirclePackLayoutStrategy&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkCirclePackLayoutStrategy&) VTK_DELETE_FUNCTION;
+    vtkCirclePackLayoutStrategy(const vtkCirclePackLayoutStrategy&) = delete;
+    void operator=(const vtkCirclePackLayoutStrategy&) = delete;
 };
 
 #endif

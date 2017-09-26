@@ -183,8 +183,8 @@ protected:
   float TriangleScale;
 
 private:
-  vtkPointGaussianMapper(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
+  vtkPointGaussianMapper(const vtkPointGaussianMapper&) = delete;
+  void operator=(const vtkPointGaussianMapper&) = delete;
 };
 
 #endif

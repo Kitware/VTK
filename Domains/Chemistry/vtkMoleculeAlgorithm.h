@@ -123,8 +123,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkMoleculeAlgorithm(const vtkMoleculeAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMoleculeAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkMoleculeAlgorithm(const vtkMoleculeAlgorithm&) = delete;
+  void operator=(const vtkMoleculeAlgorithm&) = delete;
 };
 
 #endif

@@ -53,8 +53,8 @@ protected:
   ~vtkQuadratureSchemeDictionaryGenerator() override;
 
 private:
-  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadratureSchemeDictionaryGenerator &) VTK_DELETE_FUNCTION;
+  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
+  void operator=(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
 
   //@{
   /**

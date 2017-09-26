@@ -73,8 +73,8 @@ protected:
   vtkOrderStatistics* CreateOrderStatisticsInstance() override;
 
 private:
-  vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&) = delete;
+  void operator=(const vtkPMultiCorrelativeStatistics&) = delete;
 };
 
 #endif

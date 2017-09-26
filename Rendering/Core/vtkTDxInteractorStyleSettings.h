@@ -130,7 +130,7 @@ protected:
   double TranslationZSensitivity;
 
 private:
-  vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxInteractorStyleSettings&) VTK_DELETE_FUNCTION;
+  vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&) = delete;
+  void operator=(const vtkTDxInteractorStyleSettings&) = delete;
 };
 #endif

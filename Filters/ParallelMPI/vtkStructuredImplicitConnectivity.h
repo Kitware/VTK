@@ -225,7 +225,7 @@ protected:
   void ExchangeExtents();
 
 private:
-  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
+  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) = delete;
+  void operator=(const vtkStructuredImplicitConnectivity&) = delete;
 };
 #endif

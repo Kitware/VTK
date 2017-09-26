@@ -275,7 +275,7 @@ protected:
   void ComputeNumbers();
 
 private:
-  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericAttributeCollection &) VTK_DELETE_FUNCTION;
+  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &) = delete;
+  void operator=(const vtkGenericAttributeCollection &) = delete;
 };
 #endif

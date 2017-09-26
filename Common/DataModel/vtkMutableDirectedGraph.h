@@ -338,8 +338,8 @@ protected:
   vtkGraphEdge *GraphEdge;
 
 private:
-  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
+  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&) = delete;
+  void operator=(const vtkMutableDirectedGraph&) = delete;
 };
 
 #endif

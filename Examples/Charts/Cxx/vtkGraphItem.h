@@ -94,8 +94,8 @@ protected:
   Implementation* Impl;
 
 private:
-  vtkGraphItem(const vtkGraphItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphItem &) VTK_DELETE_FUNCTION;
+  vtkGraphItem(const vtkGraphItem &) = delete;
+  void operator=(const vtkGraphItem &) = delete;
 
 };
 

@@ -62,8 +62,8 @@ protected:
   int NumberOfTargetProcesses;
 
 private:
-  vtkAggregateDataSetFilter(const vtkAggregateDataSetFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAggregateDataSetFilter&) VTK_DELETE_FUNCTION;
+  vtkAggregateDataSetFilter(const vtkAggregateDataSetFilter&) = delete;
+  void operator=(const vtkAggregateDataSetFilter&) = delete;
 };
 
 #endif

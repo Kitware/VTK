@@ -158,8 +158,8 @@ protected:
   double Y1;
 
 private:
-  vtkAreaPicker(const vtkAreaPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAreaPicker&) VTK_DELETE_FUNCTION;
+  vtkAreaPicker(const vtkAreaPicker&) = delete;
+  void operator=(const vtkAreaPicker&) = delete;
 };
 
 #endif

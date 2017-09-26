@@ -105,8 +105,8 @@ protected:
   char* CompositeIdArrayName;
 
 private:
-  vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHardwareSelectionPolyDataPainter&) VTK_DELETE_FUNCTION;
+  vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&) = delete;
+  void operator=(const vtkHardwareSelectionPolyDataPainter&) = delete;
 
 };
 

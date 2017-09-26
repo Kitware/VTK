@@ -60,8 +60,8 @@ protected:
   ~vtkOpenGLImageMapper() override;
 
 private:
-  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLImageMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&) = delete;
+  void operator=(const vtkOpenGLImageMapper&) = delete;
 };
 
 #endif

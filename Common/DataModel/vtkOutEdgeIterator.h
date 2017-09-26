@@ -108,8 +108,8 @@ protected:
   vtkGraphEdge        *GraphEdge;
 
 private:
-  vtkOutEdgeIterator(const vtkOutEdgeIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOutEdgeIterator&) VTK_DELETE_FUNCTION;
+  vtkOutEdgeIterator(const vtkOutEdgeIterator&) = delete;
+  void operator=(const vtkOutEdgeIterator&) = delete;
 };
 
 #endif

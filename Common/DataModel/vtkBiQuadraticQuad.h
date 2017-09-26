@@ -126,8 +126,8 @@ protected:
   vtkDoubleArray   *Scalars;
 
 private:
-  vtkBiQuadraticQuad(const vtkBiQuadraticQuad&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBiQuadraticQuad&) VTK_DELETE_FUNCTION;
+  vtkBiQuadraticQuad(const vtkBiQuadraticQuad&) = delete;
+  void operator=(const vtkBiQuadraticQuad&) = delete;
 
   static void InterpolationFunctionsPrivate (double pcoords[3], double weights[9]);
   static void InterpolationDerivsPrivate (double pcoords[3], double derivs[18]);

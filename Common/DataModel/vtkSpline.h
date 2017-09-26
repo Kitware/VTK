@@ -197,8 +197,8 @@ protected:
   int FindIndex(int size, double t);
 
 private:
-  vtkSpline(const vtkSpline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpline&) VTK_DELETE_FUNCTION;
+  vtkSpline(const vtkSpline&) = delete;
+  void operator=(const vtkSpline&) = delete;
 };
 
 #endif

@@ -159,8 +159,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkDotProductSimilarity(const vtkDotProductSimilarity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDotProductSimilarity&) VTK_DELETE_FUNCTION;
+  vtkDotProductSimilarity(const vtkDotProductSimilarity&) = delete;
+  void operator=(const vtkDotProductSimilarity&) = delete;
 
   vtkIdType VectorDimension;
   double MinimumThreshold;

@@ -123,8 +123,8 @@ protected:
   ~vtkMultiBlockDataSet() override;
 
 private:
-  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) = delete;
+  void operator=(const vtkMultiBlockDataSet&) = delete;
 
 };
 

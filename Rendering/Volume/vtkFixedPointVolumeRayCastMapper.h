@@ -548,8 +548,8 @@ protected:
   void ApplyFinalColorWindowLevel();
 
 private:
-  vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedPointVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&) = delete;
+  void operator=(const vtkFixedPointVolumeRayCastMapper&) = delete;
 
   bool ThreadWarning;
 };

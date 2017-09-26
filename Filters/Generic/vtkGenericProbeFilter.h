@@ -84,8 +84,8 @@ protected:
   vtkIdTypeArray *ValidPoints;
 
 private:
-  vtkGenericProbeFilter(const vtkGenericProbeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericProbeFilter&) VTK_DELETE_FUNCTION;
+  vtkGenericProbeFilter(const vtkGenericProbeFilter&) = delete;
+  void operator=(const vtkGenericProbeFilter&) = delete;
 };
 
 #endif

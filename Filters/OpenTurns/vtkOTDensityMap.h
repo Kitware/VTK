@@ -181,7 +181,7 @@ protected:
   int ContourApproximationNumberOfPoints;
 
 private:
-  void operator=(const vtkOTDensityMap&) VTK_DELETE_FUNCTION;
-  vtkOTDensityMap(const vtkOTDensityMap&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOTDensityMap&) = delete;
+  vtkOTDensityMap(const vtkOTDensityMap&) = delete;
 };
 #endif

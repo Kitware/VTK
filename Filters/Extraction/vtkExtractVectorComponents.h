@@ -95,8 +95,8 @@ protected:
   int ExtractToFieldData;
   int OutputsInitialized;
 private:
-  vtkExtractVectorComponents(const vtkExtractVectorComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractVectorComponents&) VTK_DELETE_FUNCTION;
+  vtkExtractVectorComponents(const vtkExtractVectorComponents&) = delete;
+  void operator=(const vtkExtractVectorComponents&) = delete;
 };
 
 #endif

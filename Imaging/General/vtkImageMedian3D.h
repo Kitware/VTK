@@ -63,8 +63,8 @@ protected:
                            int extent[6], int id) override;
 
 private:
-  vtkImageMedian3D(const vtkImageMedian3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMedian3D&) VTK_DELETE_FUNCTION;
+  vtkImageMedian3D(const vtkImageMedian3D&) = delete;
+  void operator=(const vtkImageMedian3D&) = delete;
 };
 
 #endif

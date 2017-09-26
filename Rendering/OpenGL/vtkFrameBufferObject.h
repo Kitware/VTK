@@ -290,8 +290,8 @@ protected:
   bool DepthBufferDirty;
 
 private:
-  vtkFrameBufferObject(const vtkFrameBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrameBufferObject&) VTK_DELETE_FUNCTION;
+  vtkFrameBufferObject(const vtkFrameBufferObject&) = delete;
+  void operator=(const vtkFrameBufferObject&) = delete;
 
 };
 

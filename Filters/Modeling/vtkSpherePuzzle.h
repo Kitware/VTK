@@ -98,8 +98,8 @@ protected:
   int Section;
 
 private:
-  vtkSpherePuzzle(const vtkSpherePuzzle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpherePuzzle&) VTK_DELETE_FUNCTION;
+  vtkSpherePuzzle(const vtkSpherePuzzle&) = delete;
+  void operator=(const vtkSpherePuzzle&) = delete;
 };
 
 #endif

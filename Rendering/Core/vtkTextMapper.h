@@ -135,8 +135,8 @@ protected:
   vtkTextProperty *TextProperty;
 
 private:
-  vtkTextMapper(const vtkTextMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextMapper&) VTK_DELETE_FUNCTION;
+  vtkTextMapper(const vtkTextMapper&) = delete;
+  void operator=(const vtkTextMapper&) = delete;
 
   void UpdateQuad(vtkActor2D *actor, int dpi);
   void UpdateImage(int dpi);

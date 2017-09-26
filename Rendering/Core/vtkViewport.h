@@ -384,8 +384,8 @@ protected:
 
 
 private:
-  vtkViewport(const vtkViewport&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewport&) VTK_DELETE_FUNCTION;
+  vtkViewport(const vtkViewport&) = delete;
+  void operator=(const vtkViewport&) = delete;
 };
 
 

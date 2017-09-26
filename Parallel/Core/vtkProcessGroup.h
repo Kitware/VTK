@@ -147,8 +147,8 @@ protected:
   vtkCommunicator *Communicator;
 
 private:
-  vtkProcessGroup(const vtkProcessGroup &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProcessGroup &) VTK_DELETE_FUNCTION;
+  vtkProcessGroup(const vtkProcessGroup &) = delete;
+  void operator=(const vtkProcessGroup &) = delete;
 };
 
 #endif //vtkProcessGroup_h

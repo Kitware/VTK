@@ -60,8 +60,8 @@ protected:
                           vtkInformationVector *) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkDataObjectReader(const vtkDataObjectReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectReader&) VTK_DELETE_FUNCTION;
+  vtkDataObjectReader(const vtkDataObjectReader&) = delete;
+  void operator=(const vtkDataObjectReader&) = delete;
 };
 
 #endif

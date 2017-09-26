@@ -52,8 +52,8 @@ protected:
     int outExt[6],
     int threadId) override;
 private:
-  vtkImageFourierCenter(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;
+  vtkImageFourierCenter(const vtkImageFourierCenter&) = delete;
+  void operator=(const vtkImageFourierCenter&) = delete;
 };
 
 #endif

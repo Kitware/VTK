@@ -160,8 +160,8 @@ protected:
   bool Create2DPoints;
   bool PreserveCoordinateColumnsAsDataArrays;
 private:
-  vtkTableToPolyData(const vtkTableToPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToPolyData&) VTK_DELETE_FUNCTION;
+  vtkTableToPolyData(const vtkTableToPolyData&) = delete;
+  void operator=(const vtkTableToPolyData&) = delete;
 
 };
 

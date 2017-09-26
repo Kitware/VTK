@@ -102,8 +102,8 @@ protected:
   bool AntialiasText; // Should the text be antialiased, inherited from render window.
 
 private:
-  vtkQtLabelRenderStrategy(const vtkQtLabelRenderStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtLabelRenderStrategy&) VTK_DELETE_FUNCTION;
+  vtkQtLabelRenderStrategy(const vtkQtLabelRenderStrategy&) = delete;
+  void operator=(const vtkQtLabelRenderStrategy&) = delete;
 };
 
 #endif

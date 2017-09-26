@@ -75,7 +75,7 @@ protected:
     (vtkDataSet* input, int& association);
 
 private:
-  vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;
+  void operator=(const vtkOSPRayVolumeMapperNode&) = delete;
 };
 #endif

@@ -83,8 +83,8 @@ protected:
   vtkProcessGroup *Group;
 
 private:
-  vtkSubCommunicator(const vtkSubCommunicator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSubCommunicator &) VTK_DELETE_FUNCTION;
+  vtkSubCommunicator(const vtkSubCommunicator &) = delete;
+  void operator=(const vtkSubCommunicator &) = delete;
 };
 
 #endif //vtkSubCommunicator_h

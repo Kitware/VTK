@@ -202,8 +202,8 @@ protected:
   char* NumberOfNonzeroBinsArrayName;
 
 private:
-  vtkBinCellDataFilter(const vtkBinCellDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBinCellDataFilter&) VTK_DELETE_FUNCTION;
+  vtkBinCellDataFilter(const vtkBinCellDataFilter&) = delete;
+  void operator=(const vtkBinCellDataFilter&) = delete;
 };
 
 /**

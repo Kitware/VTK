@@ -129,8 +129,8 @@ protected:
   int FilesDeleted;
 
 private:
-  vtkImageWriter(const vtkImageWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageWriter&) VTK_DELETE_FUNCTION;
+  vtkImageWriter(const vtkImageWriter&) = delete;
+  void operator=(const vtkImageWriter&) = delete;
 };
 
 #endif

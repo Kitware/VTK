@@ -70,8 +70,8 @@ protected:
 private:
   bool SendToStdErr;
 
-  vtkWin32OutputWindow(const vtkWin32OutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWin32OutputWindow&) VTK_DELETE_FUNCTION;
+  vtkWin32OutputWindow(const vtkWin32OutputWindow&) = delete;
+  void operator=(const vtkWin32OutputWindow&) = delete;
 };
 
 

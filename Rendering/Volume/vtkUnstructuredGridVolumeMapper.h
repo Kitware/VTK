@@ -89,8 +89,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&) = delete;
+  void operator=(const vtkUnstructuredGridVolumeMapper&) = delete;
 };
 
 

@@ -104,8 +104,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkCylinderSource(const vtkCylinderSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCylinderSource&) VTK_DELETE_FUNCTION;
+  vtkCylinderSource(const vtkCylinderSource&) = delete;
+  void operator=(const vtkCylinderSource&) = delete;
 };
 
 #endif

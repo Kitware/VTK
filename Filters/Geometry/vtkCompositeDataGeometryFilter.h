@@ -58,8 +58,8 @@ protected:
                                    vtkInformationVector*);
 
 private:
-  vtkCompositeDataGeometryFilter(const vtkCompositeDataGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataGeometryFilter(const vtkCompositeDataGeometryFilter&) = delete;
+  void operator=(const vtkCompositeDataGeometryFilter&) = delete;
 };
 
 #endif

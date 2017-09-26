@@ -99,8 +99,8 @@ protected:
   vtkLine *Line;
 
 private:
-  vtkPolyLine(const vtkPolyLine&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyLine&) VTK_DELETE_FUNCTION;
+  vtkPolyLine(const vtkPolyLine&) = delete;
+  void operator=(const vtkPolyLine&) = delete;
 };
 
 #endif

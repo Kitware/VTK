@@ -149,7 +149,7 @@ protected:
   ~vtkHyperTreeCursor() override;
 
 private:
-  vtkHyperTreeCursor(const vtkHyperTreeCursor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeCursor&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeCursor(const vtkHyperTreeCursor&) = delete;
+  void operator=(const vtkHyperTreeCursor&) = delete;
 };
 #endif

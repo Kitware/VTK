@@ -344,8 +344,8 @@ protected:
   vtkGenericDataArrayLookupHelper<SelfType> Lookup;
 
 private:
-  vtkGenericDataArray(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
+  vtkGenericDataArray(const vtkGenericDataArray&) = delete;
+  void operator=(const vtkGenericDataArray&) = delete;
 
 };
 

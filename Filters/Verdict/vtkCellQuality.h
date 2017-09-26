@@ -384,8 +384,8 @@ private:
   vtkIdList* PointIds;
   vtkPoints* Points;
 
-  vtkCellQuality(const vtkCellQuality&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellQuality&) VTK_DELETE_FUNCTION;
+  vtkCellQuality(const vtkCellQuality&) = delete;
+  void operator=(const vtkCellQuality&) = delete;
 };
 
 #endif // vtkCellQuality_h

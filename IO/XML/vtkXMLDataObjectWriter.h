@@ -78,8 +78,8 @@ protected:
   vtkCallbackCommand* InternalProgressObserver;
 
 private:
-  vtkXMLDataObjectWriter(const vtkXMLDataObjectWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLDataObjectWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLDataObjectWriter(const vtkXMLDataObjectWriter&) = delete;
+  void operator=(const vtkXMLDataObjectWriter&) = delete;
 };
 
 #endif

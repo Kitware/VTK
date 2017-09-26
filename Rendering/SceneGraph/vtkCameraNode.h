@@ -38,8 +38,8 @@ protected:
   ~vtkCameraNode();
 
 private:
-  vtkCameraNode(const vtkCameraNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraNode&) VTK_DELETE_FUNCTION;
+  vtkCameraNode(const vtkCameraNode&) = delete;
+  void operator=(const vtkCameraNode&) = delete;
 };
 
 #endif

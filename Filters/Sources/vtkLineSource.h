@@ -102,8 +102,8 @@ protected:
   vtkPoints* Points;
 
 private:
-  vtkLineSource(const vtkLineSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLineSource&) VTK_DELETE_FUNCTION;
+  vtkLineSource(const vtkLineSource&) = delete;
+  void operator=(const vtkLineSource&) = delete;
 };
 
 #endif

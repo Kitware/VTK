@@ -61,8 +61,8 @@ protected:
   char *FileName;
 
 private:
-  vtkPDFExporter(const vtkPDFExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDFExporter&) VTK_DELETE_FUNCTION;
+  vtkPDFExporter(const vtkPDFExporter&) = delete;
+  void operator=(const vtkPDFExporter&) = delete;
 
   struct Details;
   Details *Impl;

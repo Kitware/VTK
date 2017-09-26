@@ -55,8 +55,8 @@ protected:
                   vtkInformationVector**,
                   vtkInformationVector*) override;
 private:
-  vtkSimplePointsReader(const vtkSimplePointsReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimplePointsReader&) VTK_DELETE_FUNCTION;
+  vtkSimplePointsReader(const vtkSimplePointsReader&) = delete;
+  void operator=(const vtkSimplePointsReader&) = delete;
 };
 
 #endif

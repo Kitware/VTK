@@ -65,8 +65,8 @@ protected:
   virtual bool CheckRequirements(vtkGraph* const graph) const;
 
 private:
-  vtkGraphWeightFilter(const vtkGraphWeightFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphWeightFilter&) VTK_DELETE_FUNCTION;
+  vtkGraphWeightFilter(const vtkGraphWeightFilter&) = delete;
+  void operator=(const vtkGraphWeightFilter&) = delete;
 };
 
 #endif

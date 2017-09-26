@@ -63,8 +63,8 @@ protected:
   const char* GetDataSetName() override;
 
 private:
-  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&) = delete;
+  void operator=(const vtkXMLImageDataWriter&) = delete;
 };
 
 #endif

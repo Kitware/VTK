@@ -57,8 +57,8 @@ protected:
     int vtkNotUsed(port), vtkInformation* info) override;
 
 private:
-  vtkTableToTreeFilter(const vtkTableToTreeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToTreeFilter&) VTK_DELETE_FUNCTION;
+  vtkTableToTreeFilter(const vtkTableToTreeFilter&) = delete;
+  void operator=(const vtkTableToTreeFilter&) = delete;
 };
 
 #endif

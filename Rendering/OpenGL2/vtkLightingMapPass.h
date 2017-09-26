@@ -90,8 +90,8 @@ public:
   void RenderOpaqueGeometry(const vtkRenderState *s) override;
 
  private:
-  vtkLightingMapPass(const vtkLightingMapPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightingMapPass&) VTK_DELETE_FUNCTION;
+  vtkLightingMapPass(const vtkLightingMapPass&) = delete;
+  void operator=(const vtkLightingMapPass&) = delete;
 
   RenderMode RenderType;
 };

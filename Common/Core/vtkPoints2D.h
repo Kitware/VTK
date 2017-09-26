@@ -213,8 +213,8 @@ protected:
   vtkDataArray *Data;  // Array which represents data
 
 private:
-  vtkPoints2D(const vtkPoints2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPoints2D&) VTK_DELETE_FUNCTION;
+  vtkPoints2D(const vtkPoints2D&) = delete;
+  void operator=(const vtkPoints2D&) = delete;
 };
 
 inline void vtkPoints2D::Reset()

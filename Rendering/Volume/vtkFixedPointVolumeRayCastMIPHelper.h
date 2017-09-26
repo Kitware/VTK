@@ -51,8 +51,8 @@ protected:
   ~vtkFixedPointVolumeRayCastMIPHelper() override;
 
 private:
-  vtkFixedPointVolumeRayCastMIPHelper(const vtkFixedPointVolumeRayCastMIPHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedPointVolumeRayCastMIPHelper&) VTK_DELETE_FUNCTION;
+  vtkFixedPointVolumeRayCastMIPHelper(const vtkFixedPointVolumeRayCastMIPHelper&) = delete;
+  void operator=(const vtkFixedPointVolumeRayCastMIPHelper&) = delete;
 };
 
 #endif

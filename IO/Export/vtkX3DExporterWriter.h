@@ -196,8 +196,8 @@ protected:
   int WriteToOutputString;
 
 private:
-  vtkX3DExporterWriter(const vtkX3DExporterWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporterWriter&) VTK_DELETE_FUNCTION;
+  vtkX3DExporterWriter(const vtkX3DExporterWriter&) = delete;
+  void operator=(const vtkX3DExporterWriter&) = delete;
 };
 #endif
 

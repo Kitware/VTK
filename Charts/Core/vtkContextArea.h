@@ -295,8 +295,8 @@ protected:
   vtkNew<vtkAxis> RightAxis;
 
 private:
-  vtkContextArea(const vtkContextArea &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextArea &) VTK_DELETE_FUNCTION;
+  vtkContextArea(const vtkContextArea &) = delete;
+  void operator=(const vtkContextArea &) = delete;
 };
 
 #endif //vtkContextArea_h

@@ -84,8 +84,8 @@ protected:
   int Append;
 
 private:
-  vtkFileOutputWindow(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkFileOutputWindow(const vtkFileOutputWindow&) = delete;
+  void operator=(const vtkFileOutputWindow&) = delete;
 };
 
 

@@ -227,8 +227,8 @@ protected:
   int SphereTreeType; //keep track of the type of tree hierarchy generated
 
 private:
-  vtkSphereTree(const vtkSphereTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereTree&) VTK_DELETE_FUNCTION;
+  vtkSphereTree(const vtkSphereTree&) = delete;
+  void operator=(const vtkSphereTree&) = delete;
 
 };
 

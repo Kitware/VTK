@@ -111,8 +111,8 @@ protected:
   double Center;
 
 private:
-  vtkHyperTreeGridAxisReflection(const vtkHyperTreeGridAxisReflection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridAxisReflection&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridAxisReflection(const vtkHyperTreeGridAxisReflection&) = delete;
+  void operator=(const vtkHyperTreeGridAxisReflection&) = delete;
 };
 
 

@@ -632,8 +632,8 @@ private:
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd, int ctype);
 
 private:
-  vtkDataSetAttributes(const vtkDataSetAttributes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetAttributes&) VTK_DELETE_FUNCTION;
+  vtkDataSetAttributes(const vtkDataSetAttributes&) = delete;
+  void operator=(const vtkDataSetAttributes&) = delete;
 
 public:
   // This public class is used to perform set operations, other misc.
@@ -675,8 +675,8 @@ public:
     void SetFieldIndex(int i, int index)
       { this->FieldIndices[i] = index; }
   private:
-    FieldList(const FieldList&) VTK_DELETE_FUNCTION;
-    void operator=(const FieldList&) VTK_DELETE_FUNCTION;
+    FieldList(const FieldList&) = delete;
+    void operator=(const FieldList&) = delete;
 
     void SetField(int index, vtkAbstractArray *da);
     void RemoveField(const char *name);

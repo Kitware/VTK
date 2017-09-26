@@ -47,8 +47,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkGeodesicPath(const vtkGeodesicPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeodesicPath&) VTK_DELETE_FUNCTION;
+  vtkGeodesicPath(const vtkGeodesicPath&) = delete;
+  void operator=(const vtkGeodesicPath&) = delete;
 };
 
 #endif

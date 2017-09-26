@@ -120,8 +120,8 @@ protected:
   vtkTriangle *Triangle;
 
 private:
-  vtkQuad(const vtkQuad&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuad&) VTK_DELETE_FUNCTION;
+  vtkQuad(const vtkQuad&) = delete;
+  void operator=(const vtkQuad&) = delete;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuad::GetParametricCenter(double pcoords[3])

@@ -87,8 +87,8 @@ protected:
   vtkPointData* OutPointData;
 
 private:
-  vtkHyperTreeGridCellCenters(const vtkHyperTreeGridCellCenters&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridCellCenters&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridCellCenters(const vtkHyperTreeGridCellCenters&) = delete;
+  void operator=(const vtkHyperTreeGridCellCenters&) = delete;
 };
 
 

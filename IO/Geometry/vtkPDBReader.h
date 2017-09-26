@@ -45,8 +45,8 @@ protected:
   void ReadSpecificMolecule(FILE* fp) override;
 
 private:
-  vtkPDBReader(const vtkPDBReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDBReader&) VTK_DELETE_FUNCTION;
+  vtkPDBReader(const vtkPDBReader&) = delete;
+  void operator=(const vtkPDBReader&) = delete;
 };
 
 #endif

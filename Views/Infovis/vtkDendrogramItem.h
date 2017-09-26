@@ -386,8 +386,8 @@ protected:
   vtkSmartPointer<vtkTree> LayoutTree;
 
 private:
-  vtkDendrogramItem(const vtkDendrogramItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDendrogramItem&) VTK_DELETE_FUNCTION;
+  vtkDendrogramItem(const vtkDendrogramItem&) = delete;
+  void operator=(const vtkDendrogramItem&) = delete;
 
   vtkSmartPointer<vtkTree> PrunedTree;
   vtkMTimeType DendrogramBuildTime;

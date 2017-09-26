@@ -134,8 +134,8 @@ protected:
   double SumOfRadii;
 
 private:
-  vtkConeLayoutStrategy(const vtkConeLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkConeLayoutStrategy(const vtkConeLayoutStrategy&) = delete;
+  void operator=(const vtkConeLayoutStrategy&) = delete;
 };
 
 #endif

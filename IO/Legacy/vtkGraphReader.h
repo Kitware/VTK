@@ -87,8 +87,8 @@ protected:
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkGraphReader(const vtkGraphReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphReader&) VTK_DELETE_FUNCTION;
+  vtkGraphReader(const vtkGraphReader&) = delete;
+  void operator=(const vtkGraphReader&) = delete;
 };
 
 #endif

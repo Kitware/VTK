@@ -136,8 +136,8 @@ protected:
   int ComputeLineLevel( int ticId, int baseLevel, const double* levelIncrements );
 
 private:
-  vtkGeoGraticule( const vtkGeoGraticule& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkGeoGraticule& ) VTK_DELETE_FUNCTION;
+  vtkGeoGraticule( const vtkGeoGraticule& ) = delete;
+  void operator = ( const vtkGeoGraticule& ) = delete;
 };
 
 #endif // vtkGeoGraticule_h

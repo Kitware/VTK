@@ -115,8 +115,8 @@ protected:
   vtkImageData *Mask; //just a placeholder during execution
 
 private:
-  vtkMaskPointsFilter(const vtkMaskPointsFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMaskPointsFilter&) VTK_DELETE_FUNCTION;
+  vtkMaskPointsFilter(const vtkMaskPointsFilter&) = delete;
+  void operator=(const vtkMaskPointsFilter&) = delete;
 
 };
 

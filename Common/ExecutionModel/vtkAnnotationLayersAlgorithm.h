@@ -97,8 +97,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkAnnotationLayersAlgorithm(const vtkAnnotationLayersAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotationLayersAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkAnnotationLayersAlgorithm(const vtkAnnotationLayersAlgorithm&) = delete;
+  void operator=(const vtkAnnotationLayersAlgorithm&) = delete;
 };
 
 #endif

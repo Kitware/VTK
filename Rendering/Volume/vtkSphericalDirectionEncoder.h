@@ -85,8 +85,8 @@ protected:
   //@}
 
 private:
-  vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphericalDirectionEncoder&) VTK_DELETE_FUNCTION;
+  vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&) = delete;
+  void operator=(const vtkSphericalDirectionEncoder&) = delete;
 };
 
 

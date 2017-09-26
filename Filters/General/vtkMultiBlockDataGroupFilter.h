@@ -68,8 +68,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkMultiBlockDataGroupFilter(const vtkMultiBlockDataGroupFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockDataGroupFilter&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockDataGroupFilter(const vtkMultiBlockDataGroupFilter&) = delete;
+  void operator=(const vtkMultiBlockDataGroupFilter&) = delete;
 };
 
 #endif

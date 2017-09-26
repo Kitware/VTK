@@ -127,8 +127,8 @@ protected:
   virtual vtkFastGeomQuad *GetNextVisibleQuadFromHash();
 
 private:
-  vtkDataSetRegionSurfaceFilter(const vtkDataSetRegionSurfaceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetRegionSurfaceFilter&) VTK_DELETE_FUNCTION;
+  vtkDataSetRegionSurfaceFilter(const vtkDataSetRegionSurfaceFilter&) = delete;
+  void operator=(const vtkDataSetRegionSurfaceFilter&) = delete;
 
   char *RegionArrayName;
   vtkIntArray    *RegionArray;

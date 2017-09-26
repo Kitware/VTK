@@ -223,8 +223,8 @@ protected:
                         vtkPlot *plot, vtkIdType &segmentIndex);
 
 private:
-  vtkChartBox(const vtkChartBox &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartBox &) VTK_DELETE_FUNCTION;
+  vtkChartBox(const vtkChartBox &) = delete;
+  void operator=(const vtkChartBox &) = delete;
 
 };
 

@@ -95,8 +95,8 @@ protected:
                                  vtkInformationVector *) override;
 
 private:
-  vtkDataSetReader(const vtkDataSetReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetReader&) VTK_DELETE_FUNCTION;
+  vtkDataSetReader(const vtkDataSetReader&) = delete;
+  void operator=(const vtkDataSetReader&) = delete;
 };
 
 #endif

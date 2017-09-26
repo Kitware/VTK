@@ -96,8 +96,8 @@ protected:
   int Size; // size of the structure.
 
 private:
-  vtkBridgePointIteratorOnDataSet(const vtkBridgePointIteratorOnDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBridgePointIteratorOnDataSet&) VTK_DELETE_FUNCTION;
+  vtkBridgePointIteratorOnDataSet(const vtkBridgePointIteratorOnDataSet&) = delete;
+  void operator=(const vtkBridgePointIteratorOnDataSet&) = delete;
 };
 
 #endif

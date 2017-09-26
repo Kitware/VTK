@@ -174,8 +174,8 @@ protected:
   void *GlyphMethodArg;
 
 private:
-  vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableGlyphFilter&) VTK_DELETE_FUNCTION;
+  vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&) = delete;
+  void operator=(const vtkProgrammableGlyphFilter&) = delete;
 };
 
 #endif

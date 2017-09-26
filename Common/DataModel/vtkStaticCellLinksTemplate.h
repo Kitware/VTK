@@ -116,8 +116,8 @@ protected:
   TIds *Offsets; //offsets for each point into the link array
 
 private:
-  vtkStaticCellLinksTemplate(const vtkStaticCellLinksTemplate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStaticCellLinksTemplate&) VTK_DELETE_FUNCTION;
+  vtkStaticCellLinksTemplate(const vtkStaticCellLinksTemplate&) = delete;
+  void operator=(const vtkStaticCellLinksTemplate&) = delete;
 
 };
 

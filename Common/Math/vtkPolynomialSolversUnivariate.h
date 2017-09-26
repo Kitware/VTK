@@ -291,8 +291,8 @@ protected:
   static double DivisionTolerance;
 
 private:
-  vtkPolynomialSolversUnivariate(const vtkPolynomialSolversUnivariate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolynomialSolversUnivariate&) VTK_DELETE_FUNCTION;
+  vtkPolynomialSolversUnivariate(const vtkPolynomialSolversUnivariate&) = delete;
+  void operator=(const vtkPolynomialSolversUnivariate&) = delete;
 };
 
 #endif

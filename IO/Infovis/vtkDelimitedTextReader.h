@@ -355,8 +355,8 @@ protected:
   vtkTypeUInt32 ReplacementCharacter;
 
 private:
-  vtkDelimitedTextReader(const vtkDelimitedTextReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDelimitedTextReader&) VTK_DELETE_FUNCTION;
+  vtkDelimitedTextReader(const vtkDelimitedTextReader&) = delete;
+  void operator=(const vtkDelimitedTextReader&) = delete;
 
 };
 

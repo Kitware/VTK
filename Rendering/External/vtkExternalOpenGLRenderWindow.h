@@ -87,7 +87,7 @@ protected:
   int AutomaticWindowPositionAndResize;
 
 private:
-  vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExternalOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) = delete;
+  void operator=(const vtkExternalOpenGLRenderWindow&) = delete;
 };
 #endif //vtkExternalOpenGLRenderWindow_h

@@ -744,8 +744,8 @@ protected:
   double AxisBaseForZ[3];
 
 private:
-  vtkAxisActor(const vtkAxisActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxisActor&) VTK_DELETE_FUNCTION;
+  vtkAxisActor(const vtkAxisActor&) = delete;
+  void operator=(const vtkAxisActor&) = delete;
 
   void TransformBounds(vtkViewport*, double bnds[6]);
 

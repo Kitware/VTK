@@ -186,8 +186,8 @@ protected:
   int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
 private:
-  vtkPExodusIIReader( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
+  vtkPExodusIIReader( const vtkPExodusIIReader& ) = delete;
+  void operator = ( const vtkPExodusIIReader& ) = delete;
 };
 
 #endif

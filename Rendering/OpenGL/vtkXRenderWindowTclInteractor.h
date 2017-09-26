@@ -89,8 +89,8 @@ protected:
 private:
   vtkXRenderWindowTclInteractorInternals* Internal;
 
-  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXRenderWindowTclInteractor&) VTK_DELETE_FUNCTION;
+  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&) = delete;
+  void operator=(const vtkXRenderWindowTclInteractor&) = delete;
 };
 
 #endif

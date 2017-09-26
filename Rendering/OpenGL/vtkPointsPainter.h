@@ -49,8 +49,8 @@ protected:
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) override;
 
 private:
-  vtkPointsPainter(const vtkPointsPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointsPainter&) VTK_DELETE_FUNCTION;
+  vtkPointsPainter(const vtkPointsPainter&) = delete;
+  void operator=(const vtkPointsPainter&) = delete;
 };
 
 #endif

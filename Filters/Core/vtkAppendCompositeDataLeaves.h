@@ -123,8 +123,8 @@ protected:
   int AppendFieldData;
 
 private:
-  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
+  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) = delete;
+  void operator = ( const vtkAppendCompositeDataLeaves& ) = delete;
 };
 
 #endif // vtkAppendCompositeDataLeaves_h

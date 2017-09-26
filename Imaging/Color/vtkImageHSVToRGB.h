@@ -59,8 +59,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id) override;
 private:
-  vtkImageHSVToRGB(const vtkImageHSVToRGB&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageHSVToRGB&) VTK_DELETE_FUNCTION;
+  vtkImageHSVToRGB(const vtkImageHSVToRGB&) = delete;
+  void operator=(const vtkImageHSVToRGB&) = delete;
 };
 
 #endif

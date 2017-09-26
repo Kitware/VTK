@@ -85,8 +85,8 @@ protected:
   vtkInformationIntegerKey* DataKey;
 
 private:
-  vtkInformationIntegerRequestKey(const vtkInformationIntegerRequestKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationIntegerRequestKey&) VTK_DELETE_FUNCTION;
+  vtkInformationIntegerRequestKey(const vtkInformationIntegerRequestKey&) = delete;
+  void operator=(const vtkInformationIntegerRequestKey&) = delete;
 
 };
 

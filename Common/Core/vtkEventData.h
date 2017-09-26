@@ -85,7 +85,7 @@ protected:
   int Type;
 
 private:
-  vtkEventData(const vtkEventData& c) VTK_DELETE_FUNCTION;
+  vtkEventData(const vtkEventData& c) = delete;
 };
 
 // a subclass for events that may have one or more of
@@ -122,8 +122,8 @@ protected:
   ~vtkEventDataForDevice() override {}
 
 private:
-  vtkEventDataForDevice(const vtkEventData& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataForDevice&) VTK_DELETE_FUNCTION;
+  vtkEventDataForDevice(const vtkEventData& c) = delete;
+  void operator=(const vtkEventDataForDevice&) = delete;
 };
 
 // a subclass for events that have a 3D world position
@@ -184,8 +184,8 @@ protected:
   ~vtkEventDataDevice3D() override {}
 
 private:
-  vtkEventDataDevice3D(const vtkEventDataDevice3D& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataDevice3D&) VTK_DELETE_FUNCTION;
+  vtkEventDataDevice3D(const vtkEventDataDevice3D& c) = delete;
+  void operator=(const vtkEventDataDevice3D&) = delete;
 };
 
 // subclass for button event 3d
@@ -204,8 +204,8 @@ protected:
   ~vtkEventDataButton3D() override {}
 
 private:
-  vtkEventDataButton3D(const vtkEventDataButton3D& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataButton3D&) VTK_DELETE_FUNCTION;
+  vtkEventDataButton3D(const vtkEventDataButton3D& c) = delete;
+  void operator=(const vtkEventDataButton3D&) = delete;
 };
 
 // subclass for move event 3d
@@ -224,8 +224,8 @@ protected:
   ~vtkEventDataMove3D() override {}
 
 private:
-  vtkEventDataMove3D(const vtkEventDataMove3D& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataMove3D&) VTK_DELETE_FUNCTION;
+  vtkEventDataMove3D(const vtkEventDataMove3D& c) = delete;
+  void operator=(const vtkEventDataMove3D&) = delete;
 };
 
 #endif

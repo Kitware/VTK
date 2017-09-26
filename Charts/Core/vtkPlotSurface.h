@@ -164,8 +164,8 @@ protected:
   bool DataHasBeenRescaled;
 
 private:
-  vtkPlotSurface(const vtkPlotSurface &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotSurface &) VTK_DELETE_FUNCTION;
+  vtkPlotSurface(const vtkPlotSurface &) = delete;
+  void operator=(const vtkPlotSurface &) = delete;
 
 };
 

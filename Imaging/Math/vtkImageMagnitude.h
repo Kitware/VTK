@@ -43,8 +43,8 @@ protected:
                         int outExt[6], int id) override;
 
 private:
-  vtkImageMagnitude(const vtkImageMagnitude&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMagnitude&) VTK_DELETE_FUNCTION;
+  vtkImageMagnitude(const vtkImageMagnitude&) = delete;
+  void operator=(const vtkImageMagnitude&) = delete;
 };
 
 #endif

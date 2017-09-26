@@ -74,8 +74,8 @@ protected:
   vtkPUnstructuredGridConnectivity* GhostZoneBuilder;
   vtkMultiProcessController* Controller;
 private:
-  vtkPUnstructuredGridGhostDataGenerator(const vtkPUnstructuredGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPUnstructuredGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
+  vtkPUnstructuredGridGhostDataGenerator(const vtkPUnstructuredGridGhostDataGenerator&) = delete;
+  void operator=(const vtkPUnstructuredGridGhostDataGenerator&) = delete;
 };
 
 #endif //VTK_LEGACY_REMOVE

@@ -142,8 +142,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPDataSetWriter(const vtkPDataSetWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDataSetWriter&) VTK_DELETE_FUNCTION;
+  vtkPDataSetWriter(const vtkPDataSetWriter&) = delete;
+  void operator=(const vtkPDataSetWriter&) = delete;
 };
 
 #endif

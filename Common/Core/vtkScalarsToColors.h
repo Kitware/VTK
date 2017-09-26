@@ -460,8 +460,8 @@ private:
   double RGB[3];
   double InputRange[2];
 
-  vtkScalarsToColors(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
+  vtkScalarsToColors(const vtkScalarsToColors&) = delete;
+  void operator=(const vtkScalarsToColors&) = delete;
 };
 
 //@{

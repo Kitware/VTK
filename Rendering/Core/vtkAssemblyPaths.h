@@ -89,8 +89,8 @@ private:
   int  IsItemPresent(vtkObject *o)
     { return this->vtkCollection::IsItemPresent(o); }
 private:
-  vtkAssemblyPaths(const vtkAssemblyPaths&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssemblyPaths&) VTK_DELETE_FUNCTION;
+  vtkAssemblyPaths(const vtkAssemblyPaths&) = delete;
+  void operator=(const vtkAssemblyPaths&) = delete;
 };
 
 inline void vtkAssemblyPaths::AddItem(vtkAssemblyPath *p)

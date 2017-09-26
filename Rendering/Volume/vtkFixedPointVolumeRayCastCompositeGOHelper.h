@@ -53,8 +53,8 @@ protected:
   ~vtkFixedPointVolumeRayCastCompositeGOHelper() override;
 
 private:
-  vtkFixedPointVolumeRayCastCompositeGOHelper(const vtkFixedPointVolumeRayCastCompositeGOHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedPointVolumeRayCastCompositeGOHelper&) VTK_DELETE_FUNCTION;
+  vtkFixedPointVolumeRayCastCompositeGOHelper(const vtkFixedPointVolumeRayCastCompositeGOHelper&) = delete;
+  void operator=(const vtkFixedPointVolumeRayCastCompositeGOHelper&) = delete;
 };
 
 #endif

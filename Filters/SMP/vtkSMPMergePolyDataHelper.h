@@ -83,8 +83,8 @@ protected:
   ~vtkSMPMergePolyDataHelper();
 
 private:
-  vtkSMPMergePolyDataHelper(const vtkSMPMergePolyDataHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPMergePolyDataHelper&) VTK_DELETE_FUNCTION;
+  vtkSMPMergePolyDataHelper(const vtkSMPMergePolyDataHelper&) = delete;
+  void operator=(const vtkSMPMergePolyDataHelper&) = delete;
 };
 
 #endif

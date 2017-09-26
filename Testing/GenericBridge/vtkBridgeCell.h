@@ -541,8 +541,8 @@ protected:
   int WeightsCapacity;
 
 private:
-  vtkBridgeCell(const vtkBridgeCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBridgeCell&) VTK_DELETE_FUNCTION;
+  vtkBridgeCell(const vtkBridgeCell&) = delete;
+  void operator=(const vtkBridgeCell&) = delete;
 };
 
 #endif

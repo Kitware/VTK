@@ -148,8 +148,8 @@ protected:
   vtkMultiProcessController* ParallelController;
 
 private:
-  vtkSynchronizedRenderWindows(const vtkSynchronizedRenderWindows&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedRenderWindows&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedRenderWindows(const vtkSynchronizedRenderWindows&) = delete;
+  void operator=(const vtkSynchronizedRenderWindows&) = delete;
 
   class vtkObserver;
   vtkObserver* Observer;

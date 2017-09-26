@@ -810,8 +810,8 @@ protected:
   double AxisBaseForZ[3];
 
 private:
-  vtkCubeAxesActor(const vtkCubeAxesActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCubeAxesActor&) VTK_DELETE_FUNCTION;
+  vtkCubeAxesActor(const vtkCubeAxesActor&) = delete;
+  void operator=(const vtkCubeAxesActor&) = delete;
 
   vtkSetStringMacro(ActualXLabel);
   vtkSetStringMacro(ActualYLabel);

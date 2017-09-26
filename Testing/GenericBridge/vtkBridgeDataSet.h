@@ -181,8 +181,8 @@ protected:
   vtkTimeStamp ComputeNumberOfCellsTime; // for number of cells and cell types
 
 private:
-  vtkBridgeDataSet(const vtkBridgeDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBridgeDataSet&) VTK_DELETE_FUNCTION;
+  vtkBridgeDataSet(const vtkBridgeDataSet&) = delete;
+  void operator=(const vtkBridgeDataSet&) = delete;
 };
 
 #endif

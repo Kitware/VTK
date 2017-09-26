@@ -74,8 +74,8 @@ protected:
   virtual void DisplayXML(const char*, const char*);
 
 private:
-  vtkXMLFileOutputWindow(const vtkXMLFileOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLFileOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkXMLFileOutputWindow(const vtkXMLFileOutputWindow&) = delete;
+  void operator=(const vtkXMLFileOutputWindow&) = delete;
 };
 
 

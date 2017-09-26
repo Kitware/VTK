@@ -100,8 +100,8 @@ protected:
   vtkTransform *Transform;
 
 private:
-  vtkAffineRepresentation(const vtkAffineRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAffineRepresentation&) VTK_DELETE_FUNCTION;
+  vtkAffineRepresentation(const vtkAffineRepresentation&) = delete;
+  void operator=(const vtkAffineRepresentation&) = delete;
 };
 
 #endif

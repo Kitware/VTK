@@ -78,8 +78,8 @@ protected:
                                int piece, int numberOfPieces, int ghostLevel,
                                vtkCompositeDataIterator* iter);
 private:
-  vtkExtractPiece(const vtkExtractPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractPiece(const vtkExtractPiece&) = delete;
+  void operator=(const vtkExtractPiece&) = delete;
 };
 
 #endif

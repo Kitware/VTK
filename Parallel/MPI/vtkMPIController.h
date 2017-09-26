@@ -343,8 +343,8 @@ protected:
   static int UseSsendForRMI;
 
 private:
-  vtkMPIController(const vtkMPIController&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPIController&) VTK_DELETE_FUNCTION;
+  vtkMPIController(const vtkMPIController&) = delete;
+  void operator=(const vtkMPIController&) = delete;
 
 };
 

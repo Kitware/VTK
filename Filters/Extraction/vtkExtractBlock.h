@@ -101,8 +101,8 @@ protected:
   int PruneOutput;
   int MaintainStructure;
 private:
-  vtkExtractBlock(const vtkExtractBlock&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractBlock&) VTK_DELETE_FUNCTION;
+  vtkExtractBlock(const vtkExtractBlock&) = delete;
+  void operator=(const vtkExtractBlock&) = delete;
 
   class vtkSet;
   vtkSet *Indices;

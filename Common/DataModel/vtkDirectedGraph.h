@@ -73,8 +73,8 @@ protected:
   ~vtkDirectedGraph() override;
 
 private:
-  vtkDirectedGraph(const vtkDirectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDirectedGraph&) VTK_DELETE_FUNCTION;
+  vtkDirectedGraph(const vtkDirectedGraph&) = delete;
+  void operator=(const vtkDirectedGraph&) = delete;
 };
 
 #endif

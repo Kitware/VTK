@@ -148,8 +148,8 @@ protected:
   double AnchorDC[3];
 
 private:
-  vtkBillboardTextActor3D(const vtkBillboardTextActor3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBillboardTextActor3D&) VTK_DELETE_FUNCTION;
+  vtkBillboardTextActor3D(const vtkBillboardTextActor3D&) = delete;
+  void operator=(const vtkBillboardTextActor3D&) = delete;
 };
 
 #endif // vtkBillboardTextActor3D_h

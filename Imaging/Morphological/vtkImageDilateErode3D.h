@@ -80,8 +80,8 @@ protected:
                           vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageDilateErode3D(const vtkImageDilateErode3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDilateErode3D&) VTK_DELETE_FUNCTION;
+  vtkImageDilateErode3D(const vtkImageDilateErode3D&) = delete;
+  void operator=(const vtkImageDilateErode3D&) = delete;
 };
 
 #endif

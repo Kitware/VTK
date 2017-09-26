@@ -58,8 +58,8 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
   char* ResultArrayName;
 
  private:
-  vtkDataSetGradient(const vtkDataSetGradient&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetGradient&) VTK_DELETE_FUNCTION;
+  vtkDataSetGradient(const vtkDataSetGradient&) = delete;
+  void operator=(const vtkDataSetGradient&) = delete;
 };
 
 #endif /* VTK_DATA_SET_GRADIENT_H */

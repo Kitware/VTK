@@ -58,8 +58,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkImageDataToPointSet(const vtkImageDataToPointSet &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataToPointSet &) VTK_DELETE_FUNCTION;
+  vtkImageDataToPointSet(const vtkImageDataToPointSet &) = delete;
+  void operator=(const vtkImageDataToPointSet &) = delete;
 
   int CopyStructure(vtkStructuredGrid *outData, vtkImageData *inData);
 };

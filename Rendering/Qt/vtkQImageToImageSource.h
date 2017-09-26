@@ -53,8 +53,8 @@ protected:
                            vtkInformationVector ** vtkNotUsed( inputVector ),
                            vtkInformationVector *outputVector) override;
 private:
-  vtkQImageToImageSource(const vtkQImageToImageSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQImageToImageSource&) VTK_DELETE_FUNCTION;
+  vtkQImageToImageSource(const vtkQImageToImageSource&) = delete;
+  void operator=(const vtkQImageToImageSource&) = delete;
 };
 
 

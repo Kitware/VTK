@@ -99,8 +99,8 @@ protected:
   vtkXMLDataElement* PPointsElement;
 
 private:
-  vtkXMLPUnstructuredDataReader(const vtkXMLPUnstructuredDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPUnstructuredDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPUnstructuredDataReader(const vtkXMLPUnstructuredDataReader&) = delete;
+  void operator=(const vtkXMLPUnstructuredDataReader&) = delete;
 };
 
 #endif

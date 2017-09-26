@@ -93,8 +93,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkImageLogic(const vtkImageLogic&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageLogic&) VTK_DELETE_FUNCTION;
+  vtkImageLogic(const vtkImageLogic&) = delete;
+  void operator=(const vtkImageLogic&) = delete;
 };
 
 #endif

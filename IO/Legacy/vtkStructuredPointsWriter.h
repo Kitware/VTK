@@ -69,8 +69,8 @@ protected:
   bool WriteExtent;
 
 private:
-  vtkStructuredPointsWriter(const vtkStructuredPointsWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredPointsWriter&) VTK_DELETE_FUNCTION;
+  vtkStructuredPointsWriter(const vtkStructuredPointsWriter&) = delete;
+  void operator=(const vtkStructuredPointsWriter&) = delete;
 };
 
 #endif

@@ -127,8 +127,8 @@ protected:
                   vtkInformationVector* outputVector) override;
 
 private:
-  vtkImageFourierFilter(const vtkImageFourierFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageFourierFilter&) VTK_DELETE_FUNCTION;
+  vtkImageFourierFilter(const vtkImageFourierFilter&) = delete;
+  void operator=(const vtkImageFourierFilter&) = delete;
 };
 
 

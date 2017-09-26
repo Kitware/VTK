@@ -194,8 +194,8 @@ protected:
   // The method that does it all...
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkHull(const vtkHull&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHull&) VTK_DELETE_FUNCTION;
+  vtkHull(const vtkHull&) = delete;
+  void operator=(const vtkHull&) = delete;
 };
 
 #endif

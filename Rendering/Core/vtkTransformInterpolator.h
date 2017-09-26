@@ -209,8 +209,8 @@ protected:
   vtkTransformList *TransformList;
 
 private:
-  vtkTransformInterpolator(const vtkTransformInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformInterpolator&) VTK_DELETE_FUNCTION;
+  vtkTransformInterpolator(const vtkTransformInterpolator&) = delete;
+  void operator=(const vtkTransformInterpolator&) = delete;
 
 };
 

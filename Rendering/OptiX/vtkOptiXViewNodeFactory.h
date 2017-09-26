@@ -40,8 +40,8 @@ protected:
   ~vtkOptiXViewNodeFactory();
 
 private:
-  vtkOptiXViewNodeFactory(const vtkOptiXViewNodeFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXViewNodeFactory&) VTK_DELETE_FUNCTION;
+  vtkOptiXViewNodeFactory(const vtkOptiXViewNodeFactory&) = delete;
+  void operator=(const vtkOptiXViewNodeFactory&) = delete;
 };
 
 #endif

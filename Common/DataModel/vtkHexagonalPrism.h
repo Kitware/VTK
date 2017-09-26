@@ -135,8 +135,8 @@ protected:
   vtkPolygon       *Polygon;
 
 private:
-  vtkHexagonalPrism(const vtkHexagonalPrism&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHexagonalPrism&) VTK_DELETE_FUNCTION;
+  vtkHexagonalPrism(const vtkHexagonalPrism&) = delete;
+  void operator=(const vtkHexagonalPrism&) = delete;
 };
 
 //----------------------------------------------------------------------------

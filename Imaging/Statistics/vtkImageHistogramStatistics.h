@@ -132,8 +132,8 @@ protected:
   double AutoRangeExpansionFactors[2];
 
 private:
-  vtkImageHistogramStatistics(const vtkImageHistogramStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageHistogramStatistics&) VTK_DELETE_FUNCTION;
+  vtkImageHistogramStatistics(const vtkImageHistogramStatistics&) = delete;
+  void operator=(const vtkImageHistogramStatistics&) = delete;
 };
 
 #endif

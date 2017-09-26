@@ -107,8 +107,8 @@ protected:
   vtkDoubleArray* InputLongitude;
 
 private:
-  vtkGeoAdaptiveArcs(const vtkGeoAdaptiveArcs&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoAdaptiveArcs&) VTK_DELETE_FUNCTION;
+  vtkGeoAdaptiveArcs(const vtkGeoAdaptiveArcs&) = delete;
+  void operator=(const vtkGeoAdaptiveArcs&) = delete;
 };
 
 #endif

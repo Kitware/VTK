@@ -94,8 +94,8 @@ protected:
 
   bool HandleCompositeDataBlocksIndividually;
 private:
-  vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractTemporalFieldData&) VTK_DELETE_FUNCTION;
+  vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&) = delete;
+  void operator=(const vtkExtractTemporalFieldData&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

@@ -146,8 +146,8 @@ protected:
   ~vtkRowQuery() override;
   bool CaseSensitiveFieldNames;
 private:
-  vtkRowQuery(const vtkRowQuery &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRowQuery &) VTK_DELETE_FUNCTION;
+  vtkRowQuery(const vtkRowQuery &) = delete;
+  void operator=(const vtkRowQuery &) = delete;
 };
 
 #endif // vtkRowQuery_h

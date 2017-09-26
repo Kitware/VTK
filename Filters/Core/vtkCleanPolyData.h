@@ -217,8 +217,8 @@ protected:
   int PieceInvariant;
   int OutputPointsPrecision;
 private:
-  vtkCleanPolyData(const vtkCleanPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCleanPolyData&) VTK_DELETE_FUNCTION;
+  vtkCleanPolyData(const vtkCleanPolyData&) = delete;
+  void operator=(const vtkCleanPolyData&) = delete;
 };
 
 #endif

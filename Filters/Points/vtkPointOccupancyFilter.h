@@ -113,8 +113,8 @@ protected:
                           vtkInformation *outInfo);
 
 private:
-  vtkPointOccupancyFilter(const vtkPointOccupancyFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointOccupancyFilter&) VTK_DELETE_FUNCTION;
+  vtkPointOccupancyFilter(const vtkPointOccupancyFilter&) = delete;
+  void operator=(const vtkPointOccupancyFilter&) = delete;
 };
 
 #endif

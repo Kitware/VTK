@@ -105,8 +105,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLabelSizeCalculator& ) VTK_DELETE_FUNCTION;
+  vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ) = delete;
+  void operator = ( const vtkLabelSizeCalculator& ) = delete;
 };
 
 #endif // vtkLabelSizeCalculator_h

@@ -89,8 +89,8 @@ protected:
   vtkIdType  End;
 
 private:
-  vtkVertexListIterator(const vtkVertexListIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVertexListIterator&) VTK_DELETE_FUNCTION;
+  vtkVertexListIterator(const vtkVertexListIterator&) = delete;
+  void operator=(const vtkVertexListIterator&) = delete;
 };
 
 #endif

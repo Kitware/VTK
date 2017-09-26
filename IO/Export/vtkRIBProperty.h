@@ -134,8 +134,8 @@ protected:
   bool SurfaceShaderUsesDefaultParameters;
 
 private:
-  vtkRIBProperty(const vtkRIBProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRIBProperty&) VTK_DELETE_FUNCTION;
+  vtkRIBProperty(const vtkRIBProperty&) = delete;
+  void operator=(const vtkRIBProperty&) = delete;
 };
 
 #endif

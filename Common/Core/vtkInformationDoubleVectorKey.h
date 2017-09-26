@@ -79,8 +79,8 @@ protected:
   int RequiredLength;
 
 private:
-  vtkInformationDoubleVectorKey(const vtkInformationDoubleVectorKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationDoubleVectorKey&) VTK_DELETE_FUNCTION;
+  vtkInformationDoubleVectorKey(const vtkInformationDoubleVectorKey&) = delete;
+  void operator=(const vtkInformationDoubleVectorKey&) = delete;
 };
 
 #endif

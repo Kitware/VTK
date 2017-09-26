@@ -69,8 +69,8 @@ protected:
   bool ProcessIsRoot;
 
 private:
-  vtkPHardwareSelector(const vtkPHardwareSelector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPHardwareSelector&) VTK_DELETE_FUNCTION;
+  vtkPHardwareSelector(const vtkPHardwareSelector&) = delete;
+  void operator=(const vtkPHardwareSelector&) = delete;
 
   class vtkObserver;
   friend class vtkObserver;

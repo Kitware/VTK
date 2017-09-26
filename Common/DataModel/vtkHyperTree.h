@@ -258,8 +258,8 @@ protected:
   }
 
 private:
-  vtkHyperTree(const vtkHyperTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTree&) VTK_DELETE_FUNCTION;
+  vtkHyperTree(const vtkHyperTree&) = delete;
+  void operator=(const vtkHyperTree&) = delete;
 };
 
 #endif

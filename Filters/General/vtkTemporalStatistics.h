@@ -161,8 +161,8 @@ protected:
                                  const char *nameSuffix);
 
 private:
-  vtkTemporalStatistics(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
+  vtkTemporalStatistics(const vtkTemporalStatistics &) = delete;
+  void operator=(const vtkTemporalStatistics &) = delete;
 
   //@{
   /**

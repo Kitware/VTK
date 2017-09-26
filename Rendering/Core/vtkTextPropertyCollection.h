@@ -72,8 +72,8 @@ private:
   void AddItem(vtkObject *o);
 
 private:
-  vtkTextPropertyCollection(const vtkTextPropertyCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextPropertyCollection&) VTK_DELETE_FUNCTION;
+  vtkTextPropertyCollection(const vtkTextPropertyCollection&) = delete;
+  void operator=(const vtkTextPropertyCollection&) = delete;
 };
 
 inline void vtkTextPropertyCollection::AddItem(vtkTextProperty *a)

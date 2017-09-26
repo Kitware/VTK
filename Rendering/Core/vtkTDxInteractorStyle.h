@@ -92,7 +92,7 @@ protected:
   vtkRenderer *Renderer;
 
 private:
-  vtkTDxInteractorStyle(const vtkTDxInteractorStyle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxInteractorStyle&) VTK_DELETE_FUNCTION;
+  vtkTDxInteractorStyle(const vtkTDxInteractorStyle&) = delete;
+  void operator=(const vtkTDxInteractorStyle&) = delete;
 };
 #endif

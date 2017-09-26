@@ -150,8 +150,8 @@ protected:
   vtkFloatArray *ConvertedScalars;
 
 private:
-  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &) = delete;
+  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &) = delete;
 };
 
 #endif

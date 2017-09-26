@@ -116,8 +116,8 @@ protected:
   double Padding;
 
 private:
-  vtkAbstractElectronicData(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
+  vtkAbstractElectronicData(const vtkAbstractElectronicData&) = delete;
+  void operator=(const vtkAbstractElectronicData&) = delete;
 };
 
 #endif

@@ -212,8 +212,8 @@ private:
 
   double T[3][3];
 
-  vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
+  vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&) = delete;
+  void operator=(const vtkSimple3DCirclesStrategy&) = delete;
 };
 
 #endif

@@ -131,8 +131,8 @@ protected:
   int ModifierActive;
 
 private:
-  vtkAffineWidget(const vtkAffineWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAffineWidget&) VTK_DELETE_FUNCTION;
+  vtkAffineWidget(const vtkAffineWidget&) = delete;
+  void operator=(const vtkAffineWidget&) = delete;
 };
 
 #endif

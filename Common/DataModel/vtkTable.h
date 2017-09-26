@@ -256,8 +256,8 @@ protected:
   vtkVariantArray* RowArray;
 
 private:
-  vtkTable(const vtkTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTable&) VTK_DELETE_FUNCTION;
+  vtkTable(const vtkTable&) = delete;
+  void operator=(const vtkTable&) = delete;
 };
 
 #endif

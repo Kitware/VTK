@@ -113,8 +113,8 @@ protected:
   double EdgeWindow;
 
 private:
-  vtkMergeGraphs(const vtkMergeGraphs&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeGraphs&) VTK_DELETE_FUNCTION;
+  vtkMergeGraphs(const vtkMergeGraphs&) = delete;
+  void operator=(const vtkMergeGraphs&) = delete;
 };
 
 #endif

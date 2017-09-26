@@ -221,8 +221,8 @@ public:
 private:
   vtkPythonUtil();
   ~vtkPythonUtil();
-  vtkPythonUtil(const vtkPythonUtil&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPythonUtil&) VTK_DELETE_FUNCTION;
+  vtkPythonUtil(const vtkPythonUtil&) = delete;
+  void operator=(const vtkPythonUtil&) = delete;
 
   vtkPythonObjectMap *ObjectMap;
   vtkPythonGhostMap *GhostMap;

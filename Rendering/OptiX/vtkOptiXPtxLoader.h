@@ -81,7 +81,7 @@ protected:
 
 private:
 
-  vtkOptiXPtxLoader(const vtkOptiXPtxLoader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXPtxLoader&) VTK_DELETE_FUNCTION;
+  vtkOptiXPtxLoader(const vtkOptiXPtxLoader&) = delete;
+  void operator=(const vtkOptiXPtxLoader&) = delete;
 };
 #endif

@@ -52,8 +52,8 @@ protected:
   }
 
 private:
-  vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHierarchicalDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&) = delete;
+  void operator=(const vtkXMLHierarchicalDataReader&) = delete;
 };
 
 #endif

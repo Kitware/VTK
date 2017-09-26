@@ -55,8 +55,8 @@ private:
   vtkNew<vtkCamera> CameraCache;
   vtkContext2D *Painter;
 
-  vtkOpenGLPropItem(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
+  vtkOpenGLPropItem(const vtkOpenGLPropItem &) = delete;
+  void operator=(const vtkOpenGLPropItem &) = delete;
 };
 
 #endif //vtkOpenGLPropItem_h

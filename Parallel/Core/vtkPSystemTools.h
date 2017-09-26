@@ -112,8 +112,8 @@ protected:
   ~vtkPSystemTools() override {}
 
 private:
-  vtkPSystemTools(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
+  vtkPSystemTools(const vtkPSystemTools&) = delete;
+  void operator=(const vtkPSystemTools&) = delete;
 };
 
 #endif

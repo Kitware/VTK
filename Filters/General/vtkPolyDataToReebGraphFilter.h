@@ -63,8 +63,8 @@ protected:
                   vtkInformationVector*) override;
 
 private:
-  vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataToReebGraphFilter&) VTK_DELETE_FUNCTION;
+  vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&) = delete;
+  void operator=(const vtkPolyDataToReebGraphFilter&) = delete;
 };
 
 #endif

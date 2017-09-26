@@ -398,8 +398,8 @@ public:
 
 private:
 
-  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
+  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & ) = delete;
+  void operator = ( const vtkTecplotReaderInternal & ) = delete;
 };
 // ==========================================================================//
 

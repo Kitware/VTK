@@ -69,8 +69,8 @@ protected:
     double flowDensity);
 
 private:
-  vtkLagrangianMatidaIntegrationModel(const vtkLagrangianMatidaIntegrationModel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangianMatidaIntegrationModel&) VTK_DELETE_FUNCTION;
+  vtkLagrangianMatidaIntegrationModel(const vtkLagrangianMatidaIntegrationModel&) = delete;
+  void operator=(const vtkLagrangianMatidaIntegrationModel&) = delete;
 };
 
 #endif

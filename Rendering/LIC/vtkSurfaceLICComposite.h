@@ -282,8 +282,8 @@ protected:
   int NumberOfAAGuardPixels;                   // n antialias passes
 
 private:
-  vtkSurfaceLICComposite(const vtkSurfaceLICComposite&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSurfaceLICComposite&) VTK_DELETE_FUNCTION;
+  vtkSurfaceLICComposite(const vtkSurfaceLICComposite&) = delete;
+  void operator=(const vtkSurfaceLICComposite&) = delete;
 
   friend
   ostream &operator<<(ostream &os, vtkSurfaceLICComposite &ss);

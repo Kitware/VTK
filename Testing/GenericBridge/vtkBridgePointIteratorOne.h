@@ -95,8 +95,8 @@ protected:
   int cIsAtEnd;
 
 private:
-  vtkBridgePointIteratorOne(const vtkBridgePointIteratorOne&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBridgePointIteratorOne&) VTK_DELETE_FUNCTION;
+  vtkBridgePointIteratorOne(const vtkBridgePointIteratorOne&) = delete;
+  void operator=(const vtkBridgePointIteratorOne&) = delete;
 };
 
 #endif

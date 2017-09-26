@@ -271,8 +271,8 @@ protected:
   vtkTransformConcatenation *Concatenation;
   vtkTransformConcatenationStack *Stack;
 private:
-  vtkGeneralTransform(const vtkGeneralTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeneralTransform&) VTK_DELETE_FUNCTION;
+  vtkGeneralTransform(const vtkGeneralTransform&) = delete;
+  void operator=(const vtkGeneralTransform&) = delete;
 };
 
 

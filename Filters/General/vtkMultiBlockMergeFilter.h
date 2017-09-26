@@ -69,8 +69,8 @@ protected:
     vtkMultiBlockDataSet* output,
     vtkMultiBlockDataSet* input);
 private:
-  vtkMultiBlockMergeFilter(const vtkMultiBlockMergeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockMergeFilter&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockMergeFilter(const vtkMultiBlockMergeFilter&) = delete;
+  void operator=(const vtkMultiBlockMergeFilter&) = delete;
 };
 
 #endif

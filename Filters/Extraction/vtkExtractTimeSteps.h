@@ -152,8 +152,8 @@ protected:
   int TimeEstimationMode;
 
 private:
-  vtkExtractTimeSteps(const vtkExtractTimeSteps&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractTimeSteps&) VTK_DELETE_FUNCTION;
+  vtkExtractTimeSteps(const vtkExtractTimeSteps&) = delete;
+  void operator=(const vtkExtractTimeSteps&) = delete;
 };
 
 #endif // vtkExtractTimeSteps_h

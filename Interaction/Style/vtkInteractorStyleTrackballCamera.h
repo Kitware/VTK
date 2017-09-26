@@ -87,8 +87,8 @@ protected:
   virtual void Dolly(double factor);
 
 private:
-  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleTrackballCamera&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&) = delete;
+  void operator=(const vtkInteractorStyleTrackballCamera&) = delete;
 };
 
 #endif

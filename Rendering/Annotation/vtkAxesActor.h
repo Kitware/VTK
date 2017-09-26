@@ -348,8 +348,8 @@ protected:
   double             CylinderRadius;
 
 private:
-  vtkAxesActor(const vtkAxesActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxesActor&) VTK_DELETE_FUNCTION;
+  vtkAxesActor(const vtkAxesActor&) = delete;
+  void operator=(const vtkAxesActor&) = delete;
 };
 
 #endif

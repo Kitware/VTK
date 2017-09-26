@@ -68,8 +68,8 @@ protected:
   float MetaPadding;
 
 private:
-  OQEDImageData(const OQEDImageData&) VTK_DELETE_FUNCTION;
-  void operator=(const OQEDImageData&) VTK_DELETE_FUNCTION;
+  OQEDImageData(const OQEDImageData&) = delete;
+  void operator=(const OQEDImageData&) = delete;
 };
 vtkStandardNewMacro(OQEDImageData);
 

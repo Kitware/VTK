@@ -80,8 +80,8 @@ protected:
   double Level;
 
 private:
-  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
+  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&) = delete;
+  void operator=(const vtkImageMapToWindowLevelColors&) = delete;
 };
 
 #endif

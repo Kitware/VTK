@@ -133,8 +133,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkProcrustesAlignmentFilter(const vtkProcrustesAlignmentFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProcrustesAlignmentFilter&) VTK_DELETE_FUNCTION;
+  vtkProcrustesAlignmentFilter(const vtkProcrustesAlignmentFilter&) = delete;
+  void operator=(const vtkProcrustesAlignmentFilter&) = delete;
 };
 
 #endif

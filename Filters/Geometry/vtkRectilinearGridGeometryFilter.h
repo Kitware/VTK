@@ -79,8 +79,8 @@ protected:
 
   int Extent[6];
 private:
-  vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&) = delete;
+  void operator=(const vtkRectilinearGridGeometryFilter&) = delete;
 };
 
 #endif

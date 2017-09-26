@@ -685,8 +685,8 @@ private:
   template<typename T>
   int FillPartSizes();
 
-  vtkLSDynaReader( const vtkLSDynaReader& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLSDynaReader& ) VTK_DELETE_FUNCTION;
+  vtkLSDynaReader( const vtkLSDynaReader& ) = delete;
+  void operator = ( const vtkLSDynaReader& ) = delete;
 };
 
 inline void vtkLSDynaReader::SetPointArrayStatus( const char* arrName, int status )

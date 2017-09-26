@@ -91,8 +91,8 @@ protected:
 
 private:
   vtkTensorProbeWidget(
-      const vtkTensorProbeWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTensorProbeWidget&) VTK_DELETE_FUNCTION;
+      const vtkTensorProbeWidget&) = delete;
+  void operator=(const vtkTensorProbeWidget&) = delete;
 
 };
 

@@ -128,8 +128,8 @@ protected:
   ~vtkInteractorStyleTreeMapHover() override;
 
 private:
-  vtkInteractorStyleTreeMapHover(const vtkInteractorStyleTreeMapHover&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleTreeMapHover&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleTreeMapHover(const vtkInteractorStyleTreeMapHover&) = delete;
+  void operator=(const vtkInteractorStyleTreeMapHover&) = delete;
 
   // These methods are used internally
   vtkIdType GetTreeMapIdAtPos(int x, int y);

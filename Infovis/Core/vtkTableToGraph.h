@@ -165,8 +165,8 @@ protected:
   vtkStringArray* VertexTableDomains;
 
 private:
-  vtkTableToGraph(const vtkTableToGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToGraph&) VTK_DELETE_FUNCTION;
+  vtkTableToGraph(const vtkTableToGraph&) = delete;
+  void operator=(const vtkTableToGraph&) = delete;
 };
 
 #endif

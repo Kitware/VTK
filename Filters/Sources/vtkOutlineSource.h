@@ -104,8 +104,8 @@ protected:
   double Corners[24];
 
 private:
-  vtkOutlineSource(const vtkOutlineSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOutlineSource&) VTK_DELETE_FUNCTION;
+  vtkOutlineSource(const vtkOutlineSource&) = delete;
+  void operator=(const vtkOutlineSource&) = delete;
 };
 
 #endif

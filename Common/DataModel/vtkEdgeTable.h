@@ -183,8 +183,8 @@ protected:
   vtkIdList **Resize(vtkIdType size);
 
 private:
-  vtkEdgeTable(const vtkEdgeTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEdgeTable&) VTK_DELETE_FUNCTION;
+  vtkEdgeTable(const vtkEdgeTable&) = delete;
+  void operator=(const vtkEdgeTable&) = delete;
 };
 
 #endif

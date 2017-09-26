@@ -423,8 +423,8 @@ private:
   void InternalDataObjectCopy(vtkDataObject *src);
 
 private:
-  vtkDataObject(const vtkDataObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObject&) VTK_DELETE_FUNCTION;
+  vtkDataObject(const vtkDataObject&) = delete;
+  void operator=(const vtkDataObject&) = delete;
 };
 
 #endif

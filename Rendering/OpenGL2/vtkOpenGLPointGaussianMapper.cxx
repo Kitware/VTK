@@ -107,8 +107,8 @@ protected:
     vtkRenderer *ren, vtkActor *act) override;
 
 private:
-  vtkOpenGLPointGaussianMapperHelper(const vtkOpenGLPointGaussianMapperHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPointGaussianMapperHelper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLPointGaussianMapperHelper(const vtkOpenGLPointGaussianMapperHelper&) = delete;
+  void operator=(const vtkOpenGLPointGaussianMapperHelper&) = delete;
 };
 
 //-----------------------------------------------------------------------------

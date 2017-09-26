@@ -94,8 +94,8 @@ protected:
   ~vtkArrayData() override;
 
 private:
-  vtkArrayData(const vtkArrayData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayData&) VTK_DELETE_FUNCTION;
+  vtkArrayData(const vtkArrayData&) = delete;
+  void operator=(const vtkArrayData&) = delete;
 
   class implementation;
   implementation* const Implementation;

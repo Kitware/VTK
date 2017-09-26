@@ -91,8 +91,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEnneper :
     ~vtkParametricEnneper() override;
 
   private:
-    vtkParametricEnneper(const vtkParametricEnneper&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricEnneper&) VTK_DELETE_FUNCTION;
+    vtkParametricEnneper(const vtkParametricEnneper&) = delete;
+    void operator=(const vtkParametricEnneper&) = delete;
 };
 
 #endif

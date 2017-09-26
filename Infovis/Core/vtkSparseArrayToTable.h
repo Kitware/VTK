@@ -74,8 +74,8 @@ protected:
   char* ValueColumn;
 
 private:
-  vtkSparseArrayToTable(const vtkSparseArrayToTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSparseArrayToTable&) VTK_DELETE_FUNCTION;
+  vtkSparseArrayToTable(const vtkSparseArrayToTable&) = delete;
+  void operator=(const vtkSparseArrayToTable&) = delete;
 };
 
 #endif

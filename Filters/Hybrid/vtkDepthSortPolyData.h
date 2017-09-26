@@ -171,8 +171,8 @@ protected:
   int SortScalars;
 
 private:
-  vtkDepthSortPolyData(const vtkDepthSortPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthSortPolyData&) VTK_DELETE_FUNCTION;
+  vtkDepthSortPolyData(const vtkDepthSortPolyData&) = delete;
+  void operator=(const vtkDepthSortPolyData&) = delete;
 };
 
 #endif

@@ -79,8 +79,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation *) override;
 
 private:
-  vtkCookieCutter(const vtkCookieCutter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCookieCutter&) VTK_DELETE_FUNCTION;
+  vtkCookieCutter(const vtkCookieCutter&) = delete;
+  void operator=(const vtkCookieCutter&) = delete;
 };
 
 

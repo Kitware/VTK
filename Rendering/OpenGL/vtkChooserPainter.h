@@ -116,8 +116,8 @@ protected:
   vtkTimeStamp PaintersChoiceTime;
 
 private:
-  vtkChooserPainter(const vtkChooserPainter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChooserPainter &) VTK_DELETE_FUNCTION;
+  vtkChooserPainter(const vtkChooserPainter &) = delete;
+  void operator=(const vtkChooserPainter &) = delete;
 };
 
 #endif //_vtkChooserPainter_h

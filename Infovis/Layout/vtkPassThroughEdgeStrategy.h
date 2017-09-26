@@ -49,8 +49,8 @@ protected:
   ~vtkPassThroughEdgeStrategy() override;
 
 private:
-  vtkPassThroughEdgeStrategy(const vtkPassThroughEdgeStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPassThroughEdgeStrategy&) VTK_DELETE_FUNCTION;
+  vtkPassThroughEdgeStrategy(const vtkPassThroughEdgeStrategy&) = delete;
+  void operator=(const vtkPassThroughEdgeStrategy&) = delete;
 };
 
 #endif

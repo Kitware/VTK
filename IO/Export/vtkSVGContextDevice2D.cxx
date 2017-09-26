@@ -221,8 +221,8 @@ struct FontInfo
   std::set<KerningPairType> KerningPairs;
 
 private:
-  FontInfo(const FontInfo&) VTK_DELETE_FUNCTION;
-  void operator=(const FontInfo&) VTK_DELETE_FUNCTION;
+  FontInfo(const FontInfo&) = delete;
+  void operator=(const FontInfo&) = delete;
 };
 
 struct ImageInfo
@@ -300,8 +300,8 @@ struct ImageInfo
   std::string PNGBase64;
 
 private:
-  ImageInfo(const ImageInfo&) VTK_DELETE_FUNCTION;
-  void operator=(const ImageInfo&) VTK_DELETE_FUNCTION;
+  ImageInfo(const ImageInfo&) = delete;
+  void operator=(const ImageInfo&) = delete;
 };
 
 struct PatternInfo
@@ -348,8 +348,8 @@ struct PatternInfo
   std::string PatternId;
 
 private:
-  PatternInfo(const PatternInfo&) VTK_DELETE_FUNCTION;
-  void operator=(const PatternInfo&) VTK_DELETE_FUNCTION;
+  PatternInfo(const PatternInfo&) = delete;
+  void operator=(const PatternInfo&) = delete;
 };
 
 struct ClipRectInfo
@@ -384,8 +384,8 @@ struct ClipRectInfo
   std::string Id;
 
 private:
-  ClipRectInfo(const ClipRectInfo&) VTK_DELETE_FUNCTION;
-  void operator=(const ClipRectInfo&) VTK_DELETE_FUNCTION;
+  ClipRectInfo(const ClipRectInfo&) = delete;
+  void operator=(const ClipRectInfo&) = delete;
 };
 
 // SVG's y axis is inverted compared to VTK's:

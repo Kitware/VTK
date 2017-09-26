@@ -129,8 +129,8 @@ protected:
   int CursorLastPosition[2];
 
 private:
-  vtkParallelCoordinatesInteractorStyle(const vtkParallelCoordinatesInteractorStyle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelCoordinatesInteractorStyle&) VTK_DELETE_FUNCTION;
+  vtkParallelCoordinatesInteractorStyle(const vtkParallelCoordinatesInteractorStyle&) = delete;
+  void operator=(const vtkParallelCoordinatesInteractorStyle&) = delete;
 };
 
 #endif

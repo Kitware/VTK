@@ -99,8 +99,8 @@ protected:
   int RepeatCount;
 
 private:
-  vtkWebInteractionEvent(const vtkWebInteractionEvent&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebInteractionEvent&) VTK_DELETE_FUNCTION;
+  vtkWebInteractionEvent(const vtkWebInteractionEvent&) = delete;
+  void operator=(const vtkWebInteractionEvent&) = delete;
 
 };
 

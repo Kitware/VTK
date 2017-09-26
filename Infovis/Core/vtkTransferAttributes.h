@@ -134,8 +134,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkTransferAttributes(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;
+  vtkTransferAttributes(const vtkTransferAttributes&) = delete;
+  void operator=(const vtkTransferAttributes&) = delete;
 };
 
 #endif

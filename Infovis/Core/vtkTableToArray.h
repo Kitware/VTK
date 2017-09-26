@@ -83,8 +83,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkTableToArray(const vtkTableToArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToArray&) VTK_DELETE_FUNCTION;
+  vtkTableToArray(const vtkTableToArray&) = delete;
+  void operator=(const vtkTableToArray&) = delete;
 
   class implementation;
   implementation* const Implementation;

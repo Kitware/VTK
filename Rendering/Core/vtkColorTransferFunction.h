@@ -440,8 +440,8 @@ protected:
   double FindMinimumXDistance();
 
 private:
-  vtkColorTransferFunction(const vtkColorTransferFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkColorTransferFunction&) VTK_DELETE_FUNCTION;
+  vtkColorTransferFunction(const vtkColorTransferFunction&) = delete;
+  void operator=(const vtkColorTransferFunction&) = delete;
 };
 
 #endif

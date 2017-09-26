@@ -78,8 +78,8 @@ protected:
 private:
   char* FileName;
 
-  vtkChacoGraphReader(const vtkChacoGraphReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChacoGraphReader&) VTK_DELETE_FUNCTION;
+  vtkChacoGraphReader(const vtkChacoGraphReader&) = delete;
+  void operator=(const vtkChacoGraphReader&) = delete;
 };
 
 #endif // vtkChacoGraphReader_h

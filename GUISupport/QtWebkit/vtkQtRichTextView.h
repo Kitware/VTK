@@ -138,8 +138,8 @@ protected:
   ~vtkQtRichTextView();
 
 private:
-  vtkQtRichTextView(const vtkQtRichTextView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtRichTextView&) VTK_DELETE_FUNCTION;
+  vtkQtRichTextView(const vtkQtRichTextView&) = delete;
+  void operator=(const vtkQtRichTextView&) = delete;
 
   char* ContentColumnName;
   char* PreviewColumnName;

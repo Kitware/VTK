@@ -72,8 +72,8 @@ protected:
                                          int wExt[6]);
 
 private:
-  vtkImagePadFilter(const vtkImagePadFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImagePadFilter&) VTK_DELETE_FUNCTION;
+  vtkImagePadFilter(const vtkImagePadFilter&) = delete;
+  void operator=(const vtkImagePadFilter&) = delete;
 };
 
 #endif

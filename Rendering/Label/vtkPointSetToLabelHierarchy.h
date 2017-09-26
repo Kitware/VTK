@@ -143,8 +143,8 @@ protected:
   vtkTextProperty* TextProperty;
 
 private:
-  vtkPointSetToLabelHierarchy( const vtkPointSetToLabelHierarchy& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPointSetToLabelHierarchy& ) VTK_DELETE_FUNCTION;
+  vtkPointSetToLabelHierarchy( const vtkPointSetToLabelHierarchy& ) = delete;
+  void operator = ( const vtkPointSetToLabelHierarchy& ) = delete;
 };
 
 #endif // vtkPointSetToLabelHierarchy_h

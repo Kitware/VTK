@@ -105,8 +105,8 @@ protected:
                       int idX, int idY, int idZ, int threadId) override;
 
 private:
-  vtkImageResliceToColors(const vtkImageResliceToColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageResliceToColors&) VTK_DELETE_FUNCTION;
+  vtkImageResliceToColors(const vtkImageResliceToColors&) = delete;
+  void operator=(const vtkImageResliceToColors&) = delete;
 };
 
 #endif

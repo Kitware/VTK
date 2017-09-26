@@ -217,8 +217,8 @@ protected:
   void TraverseAndMark(vtkPoints *pts);
 
 private:
-  vtkEuclideanClusterExtraction(const vtkEuclideanClusterExtraction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEuclideanClusterExtraction&) VTK_DELETE_FUNCTION;
+  vtkEuclideanClusterExtraction(const vtkEuclideanClusterExtraction&) = delete;
+  void operator=(const vtkEuclideanClusterExtraction&) = delete;
 
   // used to support algorithm execution
   vtkFloatArray *NeighborScalars;

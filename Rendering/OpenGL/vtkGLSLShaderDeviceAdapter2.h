@@ -70,8 +70,8 @@ protected:
   int GetAttributeLocation(const char* attrName);
 
 private:
-  vtkGLSLShaderDeviceAdapter2(const vtkGLSLShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGLSLShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
+  vtkGLSLShaderDeviceAdapter2(const vtkGLSLShaderDeviceAdapter2&) = delete;
+  void operator=(const vtkGLSLShaderDeviceAdapter2&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

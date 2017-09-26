@@ -130,8 +130,8 @@ protected:
   void GLSafeUpdateProgress(double value, vtkOpenGLRenderWindow* context);
 
 private:
-  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
+  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
 
   class vtkInternals;
   vtkInternals *Internals;

@@ -93,8 +93,8 @@ protected:
 private:
   int NumberOfDivisions[3];
 
-  vtkmLevelOfDetail(const vtkmLevelOfDetail&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmLevelOfDetail&) VTK_DELETE_FUNCTION;
+  vtkmLevelOfDetail(const vtkmLevelOfDetail&) = delete;
+  void operator=(const vtkmLevelOfDetail&) = delete;
 };
 
 #endif // vtkmLevelOfDetail_h

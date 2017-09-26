@@ -206,8 +206,8 @@ protected:
                           const double* );
 
 private:
-  vtkTessellatorFilter( const vtkTessellatorFilter& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkTessellatorFilter& ) VTK_DELETE_FUNCTION;
+  vtkTessellatorFilter( const vtkTessellatorFilter& ) = delete;
+  void operator = ( const vtkTessellatorFilter& ) = delete;
 };
 
 inline int vtkTessellatorFilter::GetOutputDimension() const

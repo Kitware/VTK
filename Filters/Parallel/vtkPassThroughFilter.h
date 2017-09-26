@@ -49,8 +49,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkPassThroughFilter(const vtkPassThroughFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPassThroughFilter&) VTK_DELETE_FUNCTION;
+  vtkPassThroughFilter(const vtkPassThroughFilter&) = delete;
+  void operator=(const vtkPassThroughFilter&) = delete;
 };
 
 #endif

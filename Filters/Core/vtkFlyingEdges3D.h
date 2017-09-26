@@ -205,8 +205,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkFlyingEdges3D(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
+  vtkFlyingEdges3D(const vtkFlyingEdges3D&) = delete;
+  void operator=(const vtkFlyingEdges3D&) = delete;
 };
 
 #endif

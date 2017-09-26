@@ -144,8 +144,8 @@ protected:
   int InvertMeanCurvature;
 
 private:
-  vtkCurvatures(const vtkCurvatures&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCurvatures&) VTK_DELETE_FUNCTION;
+  vtkCurvatures(const vtkCurvatures&) = delete;
+  void operator=(const vtkCurvatures&) = delete;
 
 };
 

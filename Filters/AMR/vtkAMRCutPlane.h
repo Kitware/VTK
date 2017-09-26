@@ -200,8 +200,8 @@ protected:
   std::vector<int> BlocksToLoad;
 
 private:
-  vtkAMRCutPlane(const vtkAMRCutPlane& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRCutPlane& ) VTK_DELETE_FUNCTION;
+  vtkAMRCutPlane(const vtkAMRCutPlane& ) = delete;
+  void operator=(const vtkAMRCutPlane& ) = delete;
 };
 
 #endif /* vtkAMRCutPlane_h */

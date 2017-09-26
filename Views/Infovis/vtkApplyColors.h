@@ -295,8 +295,8 @@ protected:
   bool UseCurrentAnnotationColor;
 
 private:
-  vtkApplyColors(const vtkApplyColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkApplyColors&) VTK_DELETE_FUNCTION;
+  vtkApplyColors(const vtkApplyColors&) = delete;
+  void operator=(const vtkApplyColors&) = delete;
 };
 
 #endif

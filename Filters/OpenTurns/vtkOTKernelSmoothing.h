@@ -101,8 +101,8 @@ protected:
   bool BoundaryCorrection;
 
 private:
-  void operator=(const vtkOTKernelSmoothing&) VTK_DELETE_FUNCTION;
-  vtkOTKernelSmoothing(const vtkOTKernelSmoothing&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOTKernelSmoothing&) = delete;
+  vtkOTKernelSmoothing(const vtkOTKernelSmoothing&) = delete;
 };
 
 #endif

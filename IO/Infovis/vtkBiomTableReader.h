@@ -79,8 +79,8 @@ private:
   int NumberOfColumns;
   int DataType;
   bool Sparse;
-  vtkBiomTableReader(const vtkBiomTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBiomTableReader&) VTK_DELETE_FUNCTION;
+  vtkBiomTableReader(const vtkBiomTableReader&) = delete;
+  void operator=(const vtkBiomTableReader&) = delete;
 };
 
 #endif

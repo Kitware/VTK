@@ -54,8 +54,8 @@ protected:
   ~vtkViewUpdater() override;
 
 private:
-  vtkViewUpdater(const vtkViewUpdater&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewUpdater&) VTK_DELETE_FUNCTION;
+  vtkViewUpdater(const vtkViewUpdater&) = delete;
+  void operator=(const vtkViewUpdater&) = delete;
 
   class vtkViewUpdaterInternals;
   vtkViewUpdaterInternals* Internals;

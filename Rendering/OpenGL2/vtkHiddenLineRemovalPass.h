@@ -56,8 +56,8 @@ protected:
   int RenderProps(std::vector<vtkProp*> &props, vtkViewport *vp);
 
 private:
-  vtkHiddenLineRemovalPass(const vtkHiddenLineRemovalPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHiddenLineRemovalPass&) VTK_DELETE_FUNCTION;
+  vtkHiddenLineRemovalPass(const vtkHiddenLineRemovalPass&) = delete;
+  void operator=(const vtkHiddenLineRemovalPass&) = delete;
 };
 
 #endif // vtkHiddenLineRemovalPass_h

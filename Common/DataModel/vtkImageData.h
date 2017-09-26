@@ -487,8 +487,8 @@ private:
 
   int DataDescription;
 
-  vtkImageData(const vtkImageData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageData&) VTK_DELETE_FUNCTION;
+  vtkImageData(const vtkImageData&) = delete;
+  void operator=(const vtkImageData&) = delete;
 };
 
 

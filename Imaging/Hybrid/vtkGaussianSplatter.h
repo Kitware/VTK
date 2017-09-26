@@ -329,8 +329,8 @@ private:
   double NullValue;
 
 private:
-  vtkGaussianSplatter(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
+  vtkGaussianSplatter(const vtkGaussianSplatter&) = delete;
+  void operator=(const vtkGaussianSplatter&) = delete;
 };
 
 #endif

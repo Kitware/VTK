@@ -148,8 +148,8 @@ protected:
   vtkWidgetSet* WidgetSet;
 
 private:
-  vtkParallelopipedWidget(const vtkParallelopipedWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelopipedWidget&) VTK_DELETE_FUNCTION;
+  vtkParallelopipedWidget(const vtkParallelopipedWidget&) = delete;
+  void operator=(const vtkParallelopipedWidget&) = delete;
 };
 
 #endif

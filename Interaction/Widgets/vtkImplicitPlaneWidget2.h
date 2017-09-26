@@ -179,8 +179,8 @@ protected:
   //@}
 
 private:
-  vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitPlaneWidget2&) VTK_DELETE_FUNCTION;
+  vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&) = delete;
+  void operator=(const vtkImplicitPlaneWidget2&) = delete;
 };
 
 #endif

@@ -335,8 +335,8 @@ protected:
   void                      GenerateText();
 
 private:
-  vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceCursorRepresentation&) VTK_DELETE_FUNCTION;
+  vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&) = delete;
+  void operator=(const vtkResliceCursorRepresentation&) = delete;
 };
 
 #endif

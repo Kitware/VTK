@@ -205,7 +205,7 @@ private:
 
   int nextGrid;
 
-  vtkMergeCells(const vtkMergeCells&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeCells&) VTK_DELETE_FUNCTION;
+  vtkMergeCells(const vtkMergeCells&) = delete;
+  void operator=(const vtkMergeCells&) = delete;
 };
 #endif

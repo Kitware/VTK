@@ -69,8 +69,8 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransmitPolyDataPiece&) VTK_DELETE_FUNCTION;
+  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&) = delete;
+  void operator=(const vtkTransmitPolyDataPiece&) = delete;
 };
 
 #endif
