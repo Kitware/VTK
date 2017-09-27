@@ -84,6 +84,8 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data.GetPointer());
+  mapper2->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -126,8 +128,6 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
   }
 
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
-
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
@@ -138,7 +138,6 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
 //  actor->GetProperty()->SetRepresentationToWireframe();
   ren->AddActor(actor);
 
-  mapper2->SetInputData((vtkPolyData *)(data.GetPointer()));
   vtkSmartPointer<vtkActor> actor2 =
     vtkSmartPointer<vtkActor>::New();
   actor2->SetMapper(mapper2);

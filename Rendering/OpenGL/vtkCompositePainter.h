@@ -30,7 +30,7 @@
 #include "vtkColor.h" // needed for vtkColor3d
 #include <stack> //  needed for RenderBlockState.
 
-class vtkCompositeDataDisplayAttributes;
+class vtkCompositeDataDisplayAttributesLegacy;
 class vtkInformationObjectBaseKey;
 class vtkProperty;
 class vtkRenderWindow;
@@ -49,7 +49,7 @@ public:
   vtkDataObject* GetOutput() VTK_OVERRIDE;
 
   /**
-   * Key used to pass a vtkCompositeDataDisplayAttributes instance doing the
+   * Key used to pass a vtkCompositeDataDisplayAttributesLegacy instance doing the
    * painter pipeline.
    */
   static vtkInformationObjectBaseKey* DISPLAY_ATTRIBUTES();
@@ -59,8 +59,8 @@ public:
    * can be used by the painter to control specific rendering attributes on a
    * per-block basis for a multi-block dataset.
    */
-  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
-  vtkGetObjectMacro(CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributes)
+  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributesLegacy *attributes);
+  vtkGetObjectMacro(CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributesLegacy)
 
 protected:
   vtkCompositePainter();
@@ -117,7 +117,7 @@ protected:
     vtkRenderWindow*, vtkProperty*, RenderBlockState&) {}
 
   vtkDataObject* OutputData;
-  vtkCompositeDataDisplayAttributes *CompositeDataDisplayAttributes;
+  vtkCompositeDataDisplayAttributesLegacy *CompositeDataDisplayAttributes;
 private:
   vtkCompositePainter(const vtkCompositePainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositePainter&) VTK_DELETE_FUNCTION;

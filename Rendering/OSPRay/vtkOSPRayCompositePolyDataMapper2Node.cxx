@@ -140,31 +140,31 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
   //   (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
   vtkColor3d ecolor(prop->GetEdgeColor());
 
-  bool overrides_visibility = (cda && cda->HasBlockVisibility(flat_index));
+  bool overrides_visibility = (cda && cda->HasBlockVisibility(dobj));
   if (overrides_visibility)
   {
-    this->BlockState.Visibility.push(cda->GetBlockVisibility(flat_index));
+    this->BlockState.Visibility.push(cda->GetBlockVisibility(dobj));
   }
 
-  bool overrides_opacity = (cda && cda->HasBlockOpacity(flat_index));
+  bool overrides_opacity = (cda && cda->HasBlockOpacity(dobj));
   if (overrides_opacity)
   {
-    this->BlockState.Opacity.push(cda->GetBlockOpacity(flat_index));
+    this->BlockState.Opacity.push(cda->GetBlockOpacity(dobj));
   }
 
-  bool overrides_color = (cda && cda->HasBlockColor(flat_index));
+  bool overrides_color = (cda && cda->HasBlockColor(dobj));
   if (overrides_color)
   {
-    vtkColor3d color = cda->GetBlockColor(flat_index);
+    vtkColor3d color = cda->GetBlockColor(dobj);
     this->BlockState.AmbientColor.push(color);
     this->BlockState.DiffuseColor.push(color);
     this->BlockState.SpecularColor.push(color);
   }
 
-  bool overrides_material = (cda && cda->HasBlockMaterial(flat_index));
+  bool overrides_material = (cda && cda->HasBlockMaterial(dobj));
   if (overrides_material)
   {
-    std::string material = cda->GetBlockMaterial(flat_index);
+    std::string material = cda->GetBlockMaterial(dobj);
     this->BlockState.Material.push(material);
   }
 

@@ -70,9 +70,11 @@ public:
    * Set/get the visibility for a block given its flat index.
    */
   void SetBlockVisibility(unsigned int index, bool visible);
-  bool GetBlockVisibility(unsigned int index) const;
+  bool GetBlockVisibility(unsigned int index);
   void RemoveBlockVisibility(unsigned int index);
-  void RemoveBlockVisibilites();
+  void RemoveBlockVisibilities();
+  // This method is deprecated and will be removed in VTK 8.2. It is misspelled.
+  VTK_LEGACY(void RemoveBlockVisibilites());
   //@}
 
   //@{
@@ -172,6 +174,7 @@ protected:
   {
     public:
       std::stack<bool> Visibility;
+      std::stack<bool> Pickability;
       std::stack<double> Opacity;
       std::stack<vtkColor3d> AmbientColor;
       std::stack<vtkColor3d> DiffuseColor;

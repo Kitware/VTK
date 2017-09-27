@@ -17,6 +17,7 @@
 #include "vtkActor.h"
 #include "vtkBitArray.h"
 #include "vtkBoundingBox.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
@@ -61,7 +62,8 @@ int getNumberOfChildren(vtkDataObjectTree *tree)
 }
 
 // Return NULL if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper)
+vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper);
+vtkCxxSetObjectMacro(vtkGlyph3DMapper, BlockAttributes, vtkCompositeDataDisplayAttributes);
 
 // ---------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -72,6 +74,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
 {
   this->SetNumberOfInputPorts(2);
 
+  this->BlockAttributes = nullptr;
   this->Scaling = true;
   this->ScaleMode = SCALE_BY_MAGNITUDE;
   this->ScaleFactor = 1.0;
@@ -99,6 +102,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
 // ---------------------------------------------------------------------------
 vtkGlyph3DMapper::~vtkGlyph3DMapper()
 {
+  this->SetBlockAttributes(nullptr);
 }
 
 // ---------------------------------------------------------------------------
@@ -416,8 +420,13 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseSelectionIds: "
      << (this->UseSelectionIds? "On" : "Off") << endl;
   os << indent << "SelectionColorId: " << this->SelectionColorId << endl;
-  os << "Masking: " << (this->Masking? "On" : "Off") << endl;
-  os << "NestedDisplayLists: " << (this->NestedDisplayLists? "On" : "Off") << endl;
+  os << indent << "Masking: " << (this->Masking? "On" : "Off") << endl;
+  os << indent << "NestedDisplayLists: " << (this->NestedDisplayLists? "On" : "Off") << endl;
+  os << indent << "BlockAttributes: (" << this->BlockAttributes << ")" << endl;
+  if (this->BlockAttributes)
+  {
+    this->BlockAttributes->PrintSelf(os, indent.GetNextIndent());
+  }
 }
 
 // ---------------------------------------------------------------------------

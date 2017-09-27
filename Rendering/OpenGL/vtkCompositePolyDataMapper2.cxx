@@ -19,7 +19,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositeDataDisplayAttributesLegacy.h"
 #include "vtkCompositePainter.h"
 #include "vtkDefaultPainter.h"
 #include "vtkDisplayListPainter.h"
@@ -94,7 +94,7 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
   }
 
   // computing bounds with only visible blocks
-  vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
+  vtkCompositeDataDisplayAttributesLegacy::ComputeVisibleBounds(
     this->CompositeAttributes, input, this->Bounds);
   this->BoundsMTime.Modified();
 }
@@ -196,14 +196,21 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
+void vtkCompositePolyDataMapper2::RemoveBlockVisibilities()
 {
   if(this->CompositeAttributes)
   {
-    this->CompositeAttributes->RemoveBlockVisibilites();
+    this->CompositeAttributes->RemoveBlockVisibilities();
     this->Modified();
   }
 }
+
+#ifndef VTK_LEGACY_REMOVE
+void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
+{
+  this->RemoveBlockVisibilities();
+}
+#endif
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color[3])
@@ -285,7 +292,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockOpacities()
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
-  vtkCompositeDataDisplayAttributes *attributes)
+  vtkCompositeDataDisplayAttributesLegacy *attributes)
 {
   if(this->CompositeAttributes != attributes)
   {
@@ -295,7 +302,7 @@ void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataDisplayAttributes*
+vtkCompositeDataDisplayAttributesLegacy*
 vtkCompositePolyDataMapper2::GetCompositeDataDisplayAttributes()
 {
   return this->CompositeAttributes;

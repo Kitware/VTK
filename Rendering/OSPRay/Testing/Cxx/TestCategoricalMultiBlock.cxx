@@ -142,8 +142,11 @@ int TestCategoricalMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //override one of the block's with a different material
   vtkSmartPointer<vtkCompositeDataDisplayAttributes> cda =
     vtkSmartPointer<vtkCompositeDataDisplayAttributes>::New();
-  cda->SetBlockMaterial(12, "Five");
   mapper->SetCompositeDataDisplayAttributes(cda);
+
+  unsigned int top_index = 0;
+  auto dobj = cda->DataObjectFromIndex(12, mbds, top_index);
+  cda->SetBlockMaterial(dobj, "Five");
 
   //set up progressive rendering
   vtkCommand *looper = style->GetLooper(renWin);

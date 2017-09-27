@@ -28,7 +28,6 @@ vtk_add_test_python(
   distanceToCamera.py
   pickCells.py
   compositePolyDataMapperBounds.py,NO_RT
-  pickCompositeData.py,NO_RT
   pickImageData.py,NO_RT
   propAssembly.py
   rendererSource.py
@@ -49,9 +48,10 @@ vtk_add_test_python(
   )
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-#vtk_add_test_python(
+vtk_add_test_python(
 #  TestScalarMaterialMode.py
-#)
+  pickCompositeData.py,NO_RT
+)
 else()
 vtk_add_test_python(
   # pass triangle cell scalars into a strip as field data
