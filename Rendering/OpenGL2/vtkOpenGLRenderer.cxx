@@ -603,6 +603,7 @@ void vtkOpenGLRenderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
   this->PickInfo->NumPicked = 0;
   this->PickInfo->PickedId = 0;
 
+  this->UpdateCamera();
   this->Clear();
 
   vtkOpenGLCheckErrorMacro("failed after StartPick");
