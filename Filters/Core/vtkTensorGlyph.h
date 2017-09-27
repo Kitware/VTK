@@ -14,15 +14,19 @@
 =========================================================================*/
 /**
  * @class   vtkTensorGlyph
- * @brief   scale and orient glyph(s) according to tensor eigenvalues and eigenvectors
+ * @brief   scale and orient glyph(s) according to eigenvalues and eigenvectors of symmetrical part of tensor
  *
  * vtkTensorGlyph is a filter that copies a geometric representation
  * (specified as polygonal data) to every input point. The geometric
  * representation, or glyph, can be scaled and/or rotated according to
  * the tensor at the input point. Scaling and rotation is controlled
- * by the eigenvalues/eigenvectors of the tensor as follows. For each
- * tensor, the eigenvalues (and associated eigenvectors) are sorted to
- * determine the major, medium, and minor eigenvalues/eigenvectors.
+ * by the eigenvalues/eigenvectors of the symmetrical part of the tensor
+ * as follows:
+ * For each tensor, the eigenvalues (and associated eigenvectors) are sorted
+ * to determine the major, medium, and minor eigenvalues/eigenvectors.
+ * The eigenvalue decomposition only makes sense for symmetric tensors,
+ * hence the need to only consider the symmetric part of the tensor, which is
+ * 1/2 (T + T.transposed()).
  *
  * If the boolean variable ThreeGlyphs is not set the major eigenvalue
  * scales the glyph in the x-direction, the medium in the y-direction,

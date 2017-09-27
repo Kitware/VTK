@@ -279,11 +279,13 @@ int vtkTensorGlyph::RequestData(
     // compute orientation vectors and scale factors from tensor
     if ( this->ExtractEigenvalues ) // extract appropriate eigenfunctions
     {
+      // We are interested in the symmetrical part of the tensor only, since
+      // eigenvalues are real if and only if the matrice of reals is symmetrical
       for (j=0; j<3; j++)
       {
         for (i=0; i<3; i++)
         {
-          m[i][j] = tensor[i+3*j];
+          m[i][j] = 0.5 * (tensor[i + 3 * j] + tensor[j + 3 * i]);
         }
       }
       vtkMath::Jacobi(m, w, v);
