@@ -100,7 +100,7 @@ static void StringHistoToBuffers( const std::map<vtkStdString,vtkIdType>& histo,
 {
   buffer.clear();
 
-  card->SetNumberOfTuples( histo.size() );
+  card->SetNumberOfTuples( static_cast<vtkIdType>(histo.size()) );
 
   vtkIdType r = 0;
   for( std::map<vtkStdString,vtkIdType>::const_iterator it = histo.begin();
@@ -281,7 +281,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
       StringArrayToStringBuffer( sVals, sPack_l );
 
       // (All) gather all string sizes
-      vtkIdType nc_l = sPack_l.size();
+      vtkIdType nc_l = static_cast<vtkIdType>(sPack_l.size());
       vtkIdType* nc_g = new vtkIdType[np];
       com->AllGather( &nc_l, nc_g, 1 );
 
@@ -475,7 +475,7 @@ bool vtkPOrderStatistics::Broadcast( std::map<vtkStdString,vtkIdType>& histogram
   StringHistoToBuffers( histogram, sPack, card );
 
   // Broadcast size of string buffer
-  vtkIdType nc = sPack.size();
+  vtkIdType nc = static_cast<vtkIdType>(sPack.size());
   if ( ! com->Broadcast( &nc, 1, rProc ) )
   {
     vtkErrorMacro("Process "
@@ -513,7 +513,7 @@ bool vtkPOrderStatistics::Broadcast( std::map<vtkStdString,vtkIdType>& histogram
   }
 
   // Now resize global histogram arrays to reduced size
-  sVals->SetNumberOfValues( sVect.size() );
+  sVals->SetNumberOfValues( static_cast<vtkIdType>(sVect.size()) );
 
   // Then store reduced histogram into array
   vtkIdType r = 0;

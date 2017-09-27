@@ -132,7 +132,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
       M_l[r - 1] = sparseCov->GetValueByName( r, "Entries" ).ToDouble();
     }
   }
-  vtkIdType nMeans = meanIndex.size();
+  vtkIdType nMeans = static_cast<vtkIdType>(meanIndex.size());
 
   // Second, load all MXYs and create an index-to-index-pair lookup table
   std::map<vtkIdType, std::pair<vtkIdType, vtkIdType> > covToMeans;
