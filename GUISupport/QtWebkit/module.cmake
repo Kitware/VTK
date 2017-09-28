@@ -3,6 +3,7 @@ vtk_module(vtkGUISupportQtWebkit
   TEST_DEPENDS
     vtkTestingCore
   EXCLUDE_FROM_WRAPPING
+  EXCLUDE_FROM_ALL
   DEPENDS
     vtkViewsQt
   PRIVATE_DEPENDS

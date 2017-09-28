@@ -5,6 +5,7 @@ vtk_module(vtkViewsQt
   TEST_DEPENDS
     vtkTestingCore
   EXCLUDE_FROM_WRAPPING
+  EXCLUDE_FROM_ALL
   DEPENDS
     vtkCommonCore
     vtkGUISupportQt
