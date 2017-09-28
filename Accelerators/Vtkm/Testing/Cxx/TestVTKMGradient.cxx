@@ -304,7 +304,7 @@ namespace
 } // end local namespace
 
 //-----------------------------------------------------------------------------
-int TestVTKMGradient(int argc, char *argv[])
+int TestVTKMGradient(int /* argc */, char * /* argv */ [])
 {
   vtkDataSet* grid = nullptr;
 
