@@ -22,6 +22,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestLightingMapNormalsPass.cxx
   TestOffscreenRenderingResize.cxx
   TestPointFillPass.cxx
+  TestPropPicker2Renderers.cxx,NO_DATA
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperOpacity.cxx
   TestRemoveActorNonCurrentContext.cxx
