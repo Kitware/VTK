@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include <vtkCell.h>
 #include <vtkCellData.h>
 #include <vtkCellSizeFilter.h>
 #include <vtkCellType.h>
@@ -84,13 +85,26 @@ int CheckCells(int cellType, int blocksDimensions[3], int precision,
 
   if(expectedSizeRange)
   {
-    std::string arrayName = "size";
     vtkNew<vtkCellSizeFilter> cellSize;
     cellSize->SetInputConnection(cellSource->GetOutputPort());
     cellSize->ComputeVolumeOn();
-    cellSize->SetArrayName(arrayName.c_str());
     cellSize->Update();
     output = vtkUnstructuredGrid::SafeDownCast(cellSize->GetOutput());
+    std::string arrayName;
+    switch(output->GetCell(0)->GetCellDimension())
+    {
+    case 0:
+      arrayName = "VertexCount";
+      break;
+    case 1:
+      arrayName = "Length";
+      break;
+    case 2:
+      arrayName = "Area";
+      break;
+    default:
+      arrayName = "Volume";
+    }
     double sizeRange[2];
     output->GetCellData()->GetArray(arrayName.c_str())->GetRange(sizeRange);
     if(std::abs(sizeRange[0]-expectedSizeRange[0]) > .0001 ||
