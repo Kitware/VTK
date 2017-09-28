@@ -30,6 +30,7 @@
 #include "vtkTable.h"
 
 #include "vtkOTConfig.h"
+#include "vtkOTDistributionImplementationWrapper.h"
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 
