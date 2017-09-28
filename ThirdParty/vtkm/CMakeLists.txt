@@ -23,26 +23,12 @@ endif()
 set(VTKm_INSTALL_INCLUDE_DIR "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 set(VTKm_INSTALL_CMAKE_MODULE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}/vtkm")
 
-# If VTK is not using system GLEW, force vtk-m to use the one in vtk
-# (GLEW_INCLUDE_DIR should only be set if VTK is using system GLEW)
-if (NOT GLEW_INCLUDE_DIR)
-  set(GLEW_INCLUDE_DIR ${VTK_SOURCE_DIR}/ThirdParty/glew/vtkglew/include CACHE PATH "Set to VTKs internal GLEW" FORCE)
-  set(GLEW_LIBRARY vtkglew CACHE STRING "Set to VTKs internal GLEW" FORCE)
-  set(GLEW_needs_unset ON)
-endif()
-
 set(vtkm_LIBRARIES vtkm vtkm_cont)
 vtk_module_export_info()
 add_subdirectory(vtk-m)
 
 vtk_target_export(vtkm)
 vtk_target_export(vtkm_cont)
-
-if (GLEW_needs_unset)
-  unset(GLEW_INCLUDE_DIR CACHE)
-  unset(GLEW_LIBRARY CACHE)
-  unset(GLEW_needs_unset)
-endif()
 
 set(vtkm_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include)
 
