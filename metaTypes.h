@@ -219,6 +219,12 @@ typedef struct
                                   //   meta data
    } MET_FieldRecordType;
 
+#if __cplusplus >= 201103L
+#define MET_OVERRIDE override
+#else
+#define MET_OVERRIDE
+#endif
+
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
