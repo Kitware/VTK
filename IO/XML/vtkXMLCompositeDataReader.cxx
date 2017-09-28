@@ -38,6 +38,7 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
 #include "vtkXMLStructuredGridReader.h"
+#include "vtkXMLTableReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <map>
@@ -194,6 +195,10 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
   {
     reader = vtkXMLStructuredGridReader::New();
   }
+  else if (strcmp(type,"vtkXMLTableReader") == 0)
+  {
+    reader = vtkXMLTableReader::New();
+  }
 #ifndef VTK_LEGACY_REMOVE
   if (!reader)
   {
@@ -346,9 +351,8 @@ int vtkXMLCompositeDataReader::ShouldReadDataSet(unsigned int dataSetIndex)
   }
   return shouldRead;
 }
-
 //----------------------------------------------------------------------------
-vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
+vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(vtkXMLDataElement* xmlElem,
   const char* filePath)
 {
   // Construct the name of the internal file.
@@ -400,15 +404,23 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   reader->GetPointDataArraySelection()->RemoveAllArrays();
   reader->GetCellDataArraySelection()->RemoveAllArrays();
   reader->Update();
-  vtkDataSet* output = reader->GetOutputAsDataSet();
+  vtkDataObject* output = reader->GetOutputDataObject(0);
   if (!output)
   {
     return nullptr;
   }
 
-  vtkDataSet* outputCopy = output->NewInstance();
+  vtkDataObject* outputCopy = output->NewInstance();
   outputCopy->ShallowCopy(output);
   return outputCopy;
+}
+
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
+  const char* filePath)
+{
+  return vtkDataSet::SafeDownCast(ReadDataObject(xmlElem, filePath));
 }
 
 //----------------------------------------------------------------------------
@@ -435,5 +447,6 @@ const vtkXMLCompositeDataReaderEntry
   {"vti", "vtkXMLImageDataReader"},
   {"vtr", "vtkXMLRectilinearGridReader"},
   {"vts", "vtkXMLStructuredGridReader"},
+  {"vtt", "vtkXMLTableReader"},
   {nullptr, nullptr}
 };

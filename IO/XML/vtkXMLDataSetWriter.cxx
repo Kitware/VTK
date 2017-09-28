@@ -31,6 +31,7 @@
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLRectilinearGridWriter.h"
 #include "vtkXMLStructuredGridWriter.h"
+#include "vtkXMLTableWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
 vtkStandardNewMacro(vtkXMLDataSetWriter);
@@ -82,6 +83,8 @@ vtkXMLWriter* vtkXMLDataSetWriter::NewWriter(int dataset_type)
       return vtkXMLPolyDataWriter::New();
     case VTK_HYPER_OCTREE:
       return vtkXMLHyperOctreeWriter::New();
+    case VTK_TABLE:
+      return vtkXMLTableWriter::New();
   }
   return nullptr;
 }
@@ -165,6 +168,6 @@ void vtkXMLDataSetWriter::ProgressCallback(vtkAlgorithm* w)
 int vtkXMLDataSetWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }

@@ -33,6 +33,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataSetWriter.h"
@@ -267,7 +268,8 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   }
 
   vtkDataSet* curDS = vtkDataSet::SafeDownCast(dObj);
-  if (!curDS)
+  vtkTable* curTable = vtkTable::SafeDownCast(dObj);
+  if (!curDS && !curTable)
   {
     if (dObj)
     {
@@ -417,12 +419,17 @@ void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   this->Internal->DataTypes.clear();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    vtkDataObject* dataObject = iter->GetCurrentDataObject();
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(dataObject);
     // BUG #0015942: Datasets with no cells or points are considered empty and
     // we'll skip then in our serialization code.
     if (ds && (ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0))
     {
       this->Internal->DataTypes.push_back(ds->GetDataObjectType());
+    }
+    else if (!ds && dataObject)
+    {
+      this->Internal->DataTypes.push_back(dataObject->GetDataObjectType());
     }
     else
     {
@@ -455,7 +462,8 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
   {
     vtkSmartPointer<vtkXMLWriter>& writer = this->Internal->Writers[i];
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds == nullptr)
+    vtkTable* table = vtkTable::SafeDownCast(iter->GetCurrentDataObject());
+    if (ds == nullptr && table == nullptr)
     {
       writer = nullptr;
       continue;
@@ -478,7 +486,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
       writer->SetIdType(this->GetIdType());
 
       // Pass input.
-      writer->SetInputDataObject(ds);
+      writer->SetInputDataObject(iter->GetCurrentDataObject());
     }
   }
 }

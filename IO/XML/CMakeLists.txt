@@ -34,6 +34,8 @@ set(Module_SRCS
   vtkXMLStructuredDataWriter.cxx
   vtkXMLStructuredGridReader.cxx
   vtkXMLStructuredGridWriter.cxx
+  vtkXMLTableReader.cxx
+  vtkXMLTableWriter.cxx
   vtkXMLUniformGridAMRReader.cxx
   vtkXMLUniformGridAMRWriter.cxx
   vtkXMLUnstructuredDataReader.cxx

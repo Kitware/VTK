@@ -5,5 +5,6 @@ vtk_add_test_python(
   TestXMLPolyDataIO.py
   TestXMLRectilinearGridIO.py
   TestXMLStructuredGridIO.py
+  TestXMLTableIO.py,NO_VALID
   TestXMLUnstructuredGridIO.py
   )
