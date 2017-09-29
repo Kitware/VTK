@@ -13,11 +13,11 @@
 
 =========================================================================*/
 /**
- * @class   vtkResampleWithDataset
+ * @class   vtkResampleWithDataSet
  * @brief   sample point and cell data of a dataset on
  * points from another dataset.
  *
- * Similar to vtkCompositeDataProbeFilter, vtkResampleWithDataset takes two
+ * Similar to vtkCompositeDataProbeFilter, vtkResampleWithDataSet takes two
  * inputs - Input and Source, and samples the point and cell values of Source
  * on to the point locations of Input. The output has the same structure as
  * Input but its point data have the resampled values from Source. Unlike
