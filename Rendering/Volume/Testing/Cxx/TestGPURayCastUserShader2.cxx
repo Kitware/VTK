@@ -50,6 +50,14 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
   reader->Update();
   delete[] fname;
 
+  vtkImageData* im = reader->GetOutput();
+  double * bounds = im->GetBounds();
+  double depthRange[2];
+  depthRange[0] = vtkMath::Min(bounds[0], bounds[2]);
+  depthRange[0] = vtkMath::Min(depthRange[0], bounds[4]);
+  depthRange[1] = vtkMath::Max(bounds[1], bounds[3]);
+  depthRange[1] = vtkMath::Max(depthRange[1], bounds[5]);
+
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
@@ -60,16 +68,15 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
 
   // Prepare 1D Transfer Functions
   vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddRGBPoint(0, 0.0, 0.0, 0.0);
-  ctf->AddRGBPoint(510, 0.4, 0.4, 1.0);
-  ctf->AddRGBPoint(640, 1.0, 1.0, 1.0);
-  ctf->AddRGBPoint(range[1], 0.9, 0.1, 0.1);
+  ctf->AddRGBPoint(depthRange[0], 1.0, 0.0, 0.0);
+  ctf->AddRGBPoint(0.5*(depthRange[0]+depthRange[1]), 0.0, 1.0, 0.5);
+  ctf->AddRGBPoint(depthRange[1], 0.0, 0.0, 1.0);
 
   vtkNew<vtkPiecewiseFunction> pf;
   pf->AddPoint(0, 0.00);
   pf->AddPoint(510, 0.00);
   pf->AddPoint(640, 0.5);
-  pf->AddPoint(range[1], 0.4);
+  pf->AddPoint(range[1], 0.5);
 
   volumeProperty->SetScalarOpacity(pf.GetPointer());
   volumeProperty->SetColor(ctf.GetPointer());
@@ -77,7 +84,7 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
 
   vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
-  mapper->SetUseJittering(1);
+  mapper->SetUseJittering(0);
 
   // Modify the shader to color based on the depth of the translucent voxel
   mapper->SetFragmentShaderCode(TestGPURayCastUserShader2_FS);

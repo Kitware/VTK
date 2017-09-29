@@ -46,6 +46,7 @@ bool g_exit;
 bool g_skip;
 float g_currentT;
 float g_terminatePointMax;
+vec4 g_scalar;
 
 uniform vec4 in_volume_scale;
 uniform vec4 in_volume_bias;
@@ -349,7 +350,7 @@ void initializeRayCast()
   g_zvec = vec3(0.0, 0.0, in_cellStep[2]);
 
   l_updateDepth = true;
-  l_opaqueFragPos = vec3(-1.0);
+  l_opaqueFragPos = vec3(0.0);
 
   // Flag to indicate if the raymarch loop should terminate
   bool stop = false;
@@ -426,6 +427,7 @@ vec4 castRay(const float zStart, const float zEnd)
       vec4 scalar = texture3D(in_volume, g_dataPos);
       scalar.r = scalar.r * in_volume_scale.r + in_volume_bias.r;
       scalar = vec4(scalar.r, scalar.r, scalar.r, scalar.r);
+      g_scalar = scalar;
       g_srcColor = vec4(0.0);
       g_srcColor.a = computeOpacity(scalar);
       if (g_srcColor.a > 0.0)
@@ -488,19 +490,40 @@ void finalizeRayCast()
   fragOutput0 = g_fragColor;
 
   //VTK::RenderToImage::Exit
-  if (l_opaqueFragPos == vec3(-1.0))
+  if (l_opaqueFragPos == vec3(0.0))
   {
     fragOutput0 = vec4(0.0);
   }
   else
   {
-    vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *
+    /*vec4 depthValue = in_projectionMatrix * in_modelViewMatrix **/
+      /*in_volumeMatrix * in_textureDatasetMatrix * vec4(l_opaqueFragPos, 1.0);*/
+    vec4 depthValue = /*in_projectionMatrix * in_modelViewMatrix **/
       in_volumeMatrix * in_textureDatasetMatrix * vec4(l_opaqueFragPos, 1.0);
-    depthValue /= depthValue.w;
-    fragOutput0 =
-      vec4(vec3(0.5 * (gl_DepthRange.far - gl_DepthRange.near) * depthValue.z +
-             0.5 * (gl_DepthRange.far + gl_DepthRange.near)),
-        1.0);
+    /*depthValue /= depthValue.w;*/
+//    fragOutput0 = vec4(vec3(0.5 * (gl_DepthRange.far - gl_DepthRange.near) *
+//                            depthValue.z + 0.5 * (gl_DepthRange.far + gl_DepthRange.near)), 1.0);
+
+    float depth_gl = 0.5*(gl_DepthRange.far - gl_DepthRange.near) * depthValue.z +
+      0.5 * (gl_DepthRange.far + gl_DepthRange.near);
+
+    /*vec4 linearDepth = vec4( 0.5 * (l_opaqueFragPos.z + 1) );*/
+    vec4 mipcolor = computeColor(vec4(l_opaqueFragPos.z) ,1.0);
+    vec4 color = texture2D(in_colorTransferFunc, vec2(l_opaqueFragPos.y, 0.0)).xyzw;
+    fragOutput0 = color;
+    /*fragOutput0 = vec4(vec3(l_opaqueFragPos.z), 1.0); //vec4(g_scalar.rgb, 1.0); /vec4(vec3(l_opa.z), 1.0);// * (1 - 0.15) + 2*0.15*(1-depth_gl);*/
+    //fragOp = computeOpacity(depthValue);
+    //vec4 src_color = computeColor(depthValue, 1.0);
+    //g_fragColor.rgb = src_color.rgb * fragOp;
+    //g_fragColor.a = fragOp;
+    //g_fragColor.r = g_fragColor.r * in_scale + in_bias * g_fragColor.a;
+    //g_fragColor.g = g_fragColor.g * in_scale + in_bias * g_fragColor.a;
+    //g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
+    //fragOutput0 = g_fragColor;
+
+    //  vec4(vec3(0.5 * (gl_DepthRange.far - gl_DepthRange.near) * depthValue.z +
+    //         0.5 * (gl_DepthRange.far + gl_DepthRange.near)),
+    //    1.0);
   }
 
   //VTK::DepthPass::Exit
