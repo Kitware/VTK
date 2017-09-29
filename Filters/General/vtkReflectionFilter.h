@@ -25,8 +25,9 @@
 #ifndef vtkReflectionFilter_h
 #define vtkReflectionFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
+
 class vtkUnstructuredGrid;
 class vtkDataSet;
 
@@ -87,6 +88,19 @@ public:
   vtkBooleanMacro(CopyInput, int);
   //@}
 
+  //@{
+  /**
+   * If off (the default), only Vectors, Normals and Tensors will be flipped.
+   * If on, all 3-component data arrays ( considered as 3D vectors),
+   * 6-component data arrays (considered as symmetric tensors),
+   * 9-component data arrays (considered as tensors ) of signed type will be flipped.
+   * All other won't be flipped and will only be copied.
+   */
+  vtkSetMacro(FlipAllInputArrays, bool);
+  vtkGetMacro(FlipAllInputArrays, bool);
+  vtkBooleanMacro(FlipAllInputArrays, bool);
+  //@}
+
 protected:
   vtkReflectionFilter();
   ~vtkReflectionFilter() VTK_OVERRIDE;
@@ -120,11 +134,12 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
   int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
 
+  void FlipTuple(double* tuple, int* mirrorDir, int nComp);
+
   int Plane;
   double Center;
   int CopyInput;
-
-  void FlipVector(double tuple[3], int mirrorDir[3]);
+  bool FlipAllInputArrays;
 
 private:
   vtkReflectionFilter(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
@@ -132,5 +147,3 @@ private:
 };
 
 #endif
-
-

@@ -22,12 +22,55 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
+
+namespace
+{
+  /**
+   * method to determine which arrays from a field data can be flipped.
+   * Only 3/6/9 component signed data array are considered flippable.
+   */
+  static void FindFlippableArrays(vtkFieldData* fd,
+    std::vector<std::pair<vtkIdType, int> >& flippableArrays)
+  {
+    // Find all flippable arrays
+    for (int iArr = 0; iArr < fd->GetNumberOfArrays(); iArr++)
+    {
+      vtkDataArray* array =
+        vtkDataArray::SafeDownCast(fd->GetAbstractArray(iArr));
+      if(!array)
+      {
+        continue;
+      }
+
+      // Only signed arrays are flippable
+      int dataType = array->GetDataType();
+      if ((dataType == VTK_CHAR && VTK_TYPE_CHAR_IS_SIGNED) ||
+          dataType == VTK_SIGNED_CHAR ||
+          dataType == VTK_SHORT ||
+          dataType == VTK_INT ||
+          dataType == VTK_LONG ||
+          dataType == VTK_FLOAT ||
+          dataType == VTK_DOUBLE ||
+          dataType == VTK_ID_TYPE)
+      {
+        // Only vectors and tensors are flippable
+        int nComp = array->GetNumberOfComponents();
+        if (nComp == 3 || nComp == 6 || nComp == 9)
+        {
+          flippableArrays.push_back(std::make_pair(iArr, nComp));
+        }
+      }
+    }
+  }
+}
+
 
 vtkStandardNewMacro(vtkReflectionFilter);
 
@@ -37,6 +80,7 @@ vtkReflectionFilter::vtkReflectionFilter()
   this->Plane = USE_X_MIN;
   this->Center = 0.0;
   this->CopyInput = 1;
+  this->FlipAllInputArrays = false;
 }
 
 //---------------------------------------------------------------------------
@@ -45,9 +89,9 @@ vtkReflectionFilter::~vtkReflectionFilter()
 }
 
 //---------------------------------------------------------------------------
-void vtkReflectionFilter::FlipVector(double tuple[3], int mirrorDir[3])
+void vtkReflectionFilter::FlipTuple(double* tuple, int* mirrorDir, int nComp)
 {
-  for(int j=0; j<3; j++)
+  for(int j = 0; j < nComp; j++)
   {
     tuple[j] *= mirrorDir[j];
   }
@@ -239,10 +283,12 @@ int vtkReflectionFilter::RequestDataInternal(
   vtkCellData *outCD = output->GetCellData();
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  double tuple[3];
+  double tuple[9];
   double point[3];
   double constant[3] = {0.0, 0.0, 0.0};
   int mirrorDir[3] = { 1, 1, 1};
+  int mirrorSymmetricTensorDir[6] = {1, 1, 1, 1, 1, 1};
+  int mirrorTensorDir[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
   vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
   vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
 
@@ -259,19 +305,6 @@ int vtkReflectionFilter::RequestDataInternal(
   outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
 
-  vtkDataArray *inPtVectors, *outPtVectors, *inPtNormals, *outPtNormals;
-  vtkDataArray *inCellVectors, *outCellVectors, *inCellNormals;
-  vtkDataArray *outCellNormals;
-
-  inPtVectors = inPD->GetVectors();
-  outPtVectors = outPD->GetVectors();
-  inPtNormals = inPD->GetNormals();
-  outPtNormals = outPD->GetNormals();
-  inCellVectors = inCD->GetVectors();
-  outCellVectors = outCD->GetVectors();
-  inCellNormals = inCD->GetNormals();
-  outCellNormals = outCD->GetNormals();
-
   // Copy first points.
   if (this->CopyInput)
   {
@@ -282,47 +315,126 @@ int vtkReflectionFilter::RequestDataInternal(
     }
   }
 
-  // Copy reflected points.
+  // Compture transformation
   switch (this->Plane)
   {
     case USE_X_MIN:
       constant[0] = 2*bounds[0];
-      mirrorDir[0] = -1;
       break;
     case USE_X_MAX:
       constant[0] = 2*bounds[1];
-      mirrorDir[0] = -1;
       break;
     case USE_X:
       constant[0] = 2*this->Center;
-      mirrorDir[0] = -1;
       break;
     case USE_Y_MIN:
       constant[1] = 2*bounds[2];
-      mirrorDir[1] = -1;
       break;
     case USE_Y_MAX:
       constant[1] = 2*bounds[3];
-      mirrorDir[1] = -1;
       break;
     case USE_Y:
       constant[1] = 2*this->Center;
-      mirrorDir[1] = -1;
       break;
     case USE_Z_MIN:
       constant[2] = 2*bounds[4];
-      mirrorDir[2] = -1;
       break;
     case USE_Z_MAX:
       constant[2] = 2*bounds[5];
-      mirrorDir[2] = -1;
       break;
     case USE_Z:
       constant[2] = 2*this->Center;
-      mirrorDir[2] = -1;
       break;
   }
 
+  // Compute the element-wise multiplication needed for
+  // vectors/sym tensors/tensors depending on the flipping axis
+  //
+  // For vectors it is as following
+  // X axis
+  // -1  1  1
+  // Y axis
+  //  1 -1  1
+  // Z axis
+  //  1  1 -1
+  //
+  // For symmetric tensor it is as following
+  // X axis
+  //  1 -1 -1
+  //     1  1
+  //        1
+  // Y axis
+  //  1 -1  1
+  //     1 -1
+  //        1
+  // Z axis
+  //  1  1 -1
+  //     1 -1
+  //        1
+  //
+  // For tensors it is as following :
+  // X axis
+  //  1 -1 -1
+  // -1  1  1
+  // -1  1  1
+  // Y axis
+  //  1 -1  1
+  // -1  1 -1
+  //  1 -1  1
+  // Z axis
+  //  1  1 -1
+  //  1  1 -1
+  // -1 -1  1
+  //
+  switch (this->Plane)
+  {
+    case USE_X_MIN:
+    case USE_X_MAX:
+    case USE_X:
+      mirrorDir[0] = -1;
+      mirrorSymmetricTensorDir[3] = -1;
+      mirrorSymmetricTensorDir[5] = -1;
+      break;
+    case USE_Y_MIN:
+    case USE_Y_MAX:
+    case USE_Y:
+      mirrorDir[1] = -1;
+      mirrorSymmetricTensorDir[3] = -1;
+      mirrorSymmetricTensorDir[4] = -1;
+      break;
+    case USE_Z_MIN:
+    case USE_Z_MAX:
+    case USE_Z:
+      mirrorDir[2] = -1;
+      mirrorSymmetricTensorDir[4] = -1;
+      mirrorSymmetricTensorDir[5] = -1;
+      break;
+  }
+  vtkMath::TensorFromSymmetricTensor(mirrorSymmetricTensorDir, mirrorTensorDir);
+
+  // Find all flippable arrays
+  std::vector<std::pair<vtkIdType, int> > flippableArrays;
+  if (this->FlipAllInputArrays)
+  {
+    FindFlippableArrays(inPD, flippableArrays);
+  }
+  else
+  {
+    // Flip only vectors, normals and tensors
+    vtkDataArray* vectors = inPD->GetVectors();
+    vtkDataArray* normals = inPD->GetNormals();
+    vtkDataArray* tensors = inPD->GetTensors();
+    for (int iArr = 0; iArr < inPD->GetNumberOfArrays(); iArr++)
+    {
+      vtkAbstractArray* array = inPD->GetAbstractArray(iArr);
+      if (array == vectors || array == normals || array == tensors)
+      {
+        flippableArrays.push_back(std::make_pair(iArr, array->GetNumberOfComponents()));
+      }
+    }
+  }
+
+  // Copy reflected points.
   for (vtkIdType i = 0; i < numPts; i++)
   {
     input->GetPoint(i, point);
@@ -331,17 +443,29 @@ int vtkReflectionFilter::RequestDataInternal(
                                   mirrorDir[1]*point[1] + constant[1],
                                   mirrorDir[2]*point[2] + constant[2] );
     outPD->CopyData(inPD, i, ptId);
-    if (inPtVectors)
+
+    // Flip flippable arrays
+    for (size_t iFlip = 0; iFlip < flippableArrays.size(); iFlip++)
     {
-      inPtVectors->GetTuple(i, tuple);
-      this->FlipVector(tuple, mirrorDir);
-      outPtVectors->SetTuple(ptId, tuple);
-    }
-    if (inPtNormals)
-    {
-      inPtNormals->GetTuple(i, tuple);
-      this->FlipVector(tuple, mirrorDir);
-      outPtNormals->SetTuple(ptId, tuple);
+      vtkDataArray* inArray = vtkDataArray::SafeDownCast(inPD->GetAbstractArray(flippableArrays[iFlip].first));
+      vtkDataArray* outArray = vtkDataArray::SafeDownCast(outPD->GetAbstractArray(flippableArrays[iFlip].first));
+      inArray->GetTuple(i, tuple);
+      int nComp = flippableArrays[iFlip].second;
+      switch(nComp)
+      {
+        case 3:
+          this->FlipTuple(tuple, mirrorDir, nComp);
+          break;
+        case 6:
+          this->FlipTuple(tuple, mirrorSymmetricTensorDir, nComp);
+          break;
+        case 9:
+          this->FlipTuple(tuple, mirrorTensorDir, nComp);
+          break;
+        default:
+          break;
+      }
+      outArray->SetTuple(ptId, tuple);
     }
   }
 
@@ -365,6 +489,28 @@ int vtkReflectionFilter::RequestDataInternal(
         output->InsertNextCell(input->GetCellType(i), ptIds);
       }
       outCD->CopyData(inCD, i, i);
+    }
+  }
+
+  // Find all flippable arrays
+  flippableArrays.clear();
+  if (this->FlipAllInputArrays)
+  {
+    FindFlippableArrays(inCD, flippableArrays);
+  }
+  else
+  {
+    // Flip only vectors, normals and tensors
+    vtkDataArray* vectors = inCD->GetVectors();
+    vtkDataArray* normals = inCD->GetNormals();
+    vtkDataArray* tensors = inCD->GetTensors();
+    for (int iArr = 0; iArr < inCD->GetNumberOfArrays(); iArr++)
+    {
+      vtkAbstractArray* array = inCD->GetAbstractArray(iArr);
+      if (array == vectors || array == normals || array == tensors)
+      {
+        flippableArrays.push_back(std::make_pair(iArr, array->GetNumberOfComponents()));
+      }
     }
   }
 
@@ -695,17 +841,29 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     }
     outCD->CopyData(inCD, i, outputCellId);
-    if (inCellVectors)
+
+    // Flip flippable arrays
+    for (size_t iFlip = 0; iFlip < flippableArrays.size(); iFlip++)
     {
-      inCellVectors->GetTuple(i, tuple);
-      this->FlipVector(tuple, mirrorDir);
-      outCellVectors->SetTuple(outputCellId, tuple);
-    }
-    if (inCellNormals)
-    {
-      inCellNormals->GetTuple(i, tuple);
-      this->FlipVector(tuple, mirrorDir);
-      outCellNormals->SetTuple(outputCellId, tuple);
+      vtkDataArray* inArray = vtkDataArray::SafeDownCast(inCD->GetAbstractArray(flippableArrays[iFlip].first));
+      vtkDataArray* outArray = vtkDataArray::SafeDownCast(outCD->GetAbstractArray(flippableArrays[iFlip].first));
+      inArray->GetTuple(i, tuple);
+      int nComp = flippableArrays[iFlip].second;
+      switch(nComp)
+      {
+        case 3:
+          this->FlipTuple(tuple, mirrorDir, nComp);
+          break;
+        case 6:
+          this->FlipTuple(tuple, mirrorSymmetricTensorDir, nComp);
+          break;
+        case 9:
+          this->FlipTuple(tuple, mirrorTensorDir, nComp);
+          break;
+        default:
+          break;
+      }
+      outArray->SetTuple(outputCellId, tuple);
     }
   }
 
