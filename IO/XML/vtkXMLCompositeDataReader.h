@@ -95,6 +95,9 @@ protected:
   // Read the vtkDataSet (a leaf) in the composite dataset.
   virtual vtkDataSet* ReadDataset(vtkXMLDataElement* xmlElem, const char* filePath);
 
+  // Read the vtkDataObject (a leaf) in the composite dataset.
+  virtual vtkDataObject* ReadDataObject(vtkXMLDataElement* xmlElem, const char* filePath);
+
   // Counts "DataSet" elements in the subtree.
   unsigned int CountLeaves(vtkXMLDataElement* elem);
 

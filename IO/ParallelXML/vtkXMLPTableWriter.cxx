@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkXMLPDataWriter.cxx
+  Module:    vtkXMLPTableWriter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,54 +12,86 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkXMLPDataWriter.h"
+#include "vtkXMLPTableWriter.h"
 
 #include "vtkCallbackCommand.h"
-#include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkErrorCode.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkTable.h"
+#include "vtkXMLTableWriter.h"
 
 #include <vtksys/SystemTools.hxx>
 
+#include <cassert>
+
+vtkStandardNewMacro(vtkXMLPTableWriter);
+
 //----------------------------------------------------------------------------
-vtkXMLPDataWriter::vtkXMLPDataWriter()
+vtkXMLPTableWriter::vtkXMLPTableWriter()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkXMLPDataWriter::~vtkXMLPDataWriter()
+vtkXMLPTableWriter::~vtkXMLPTableWriter()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPDataWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkXMLPTableWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPDataWriter::WritePData(vtkIndent indent)
+vtkTable* vtkXMLPTableWriter::GetInput()
 {
-  vtkDataSet* input = this->GetInputAsDataSet();
-  this->WritePPointData(input->GetPointData(), indent);
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-  {
-    return;
-  }
-  this->WritePCellData(input->GetCellData(), indent);
+  return vtkTable::SafeDownCast(this->Superclass::GetInput());
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPDataWriter::WritePieceInternal()
+const char* vtkXMLPTableWriter::GetDataSetName()
+{
+  return "PTable";
+}
+
+//----------------------------------------------------------------------------
+const char* vtkXMLPTableWriter::GetDefaultFileExtension()
+{
+  return "pvtt";
+}
+
+//----------------------------------------------------------------------------
+vtkXMLWriter* vtkXMLPTableWriter::CreatePieceWriter(int index)
+{
+  // Create the writer for the piece.
+  vtkXMLTableWriter* pWriter = vtkXMLTableWriter::New();
+  pWriter->SetInputConnection(this->GetInputConnection(0, 0));
+  pWriter->SetNumberOfPieces(this->NumberOfPieces);
+  pWriter->SetWritePiece(index);
+
+  return pWriter;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPTableWriter::WritePData(vtkIndent indent)
+{
+  vtkTable* input = this->GetInput();
+  this->WritePRowData(input->GetRowData(), indent);
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPTableWriter::WritePieceInternal()
 {
   int piece = this->GetCurrentPiece();
-
-  vtkDataSet* inputDS = this->GetInputAsDataSet();
-  if (inputDS && (inputDS->GetNumberOfPoints() > 0 || inputDS->GetNumberOfCells() > 0))
+  vtkTable* inputTable = this->GetInput();
+  if (inputTable && inputTable->GetNumberOfRows() > 0)
   {
     if (!this->WritePiece(piece))
     {
-      vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+      vtkErrorMacro("Could not write the current piece.");
       this->DeleteFiles();
       return 0;
     }
@@ -70,7 +102,7 @@ int vtkXMLPDataWriter::WritePieceInternal()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPDataWriter::WritePiece(int index)
+int vtkXMLPTableWriter::WritePiece(int index)
 {
   // Create the writer for the piece.  Its configuration should match
   // our own writer.
@@ -107,13 +139,46 @@ int vtkXMLPDataWriter::WritePiece(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPDataWriter::WritePrimaryElementAttributes(std::ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
+void vtkXMLPTableWriter::WritePRowData(vtkDataSetAttributes* ds, vtkIndent indent)
 {
-  this->WriteScalarAttribute("GhostLevel", this->GhostLevel);
+  if (ds->GetNumberOfArrays() == 0)
+  {
+    return;
+  }
+  ostream& os = *this->Stream;
+  char** names = this->CreateStringArray(ds->GetNumberOfArrays());
+
+  os << indent << "<PRowData";
+  this->WriteAttributeIndices(ds, names);
+  if (this->ErrorCode != vtkErrorCode::NoError)
+  {
+    this->DestroyStringArray(ds->GetNumberOfArrays(), names);
+    return;
+  }
+  os << ">\n";
+
+  for (int i = 0; i < ds->GetNumberOfArrays(); ++i)
+  {
+    this->WritePArray(ds->GetAbstractArray(i), indent.GetNextIndent(), names[i]);
+    if (this->ErrorCode != vtkErrorCode::NoError)
+    {
+      this->DestroyStringArray(ds->GetNumberOfArrays(), names);
+      return;
+    }
+  }
+
+  os << indent << "</PRowData>\n";
+  os.flush();
+  if (os.fail())
+  {
+    this->SetErrorCode(vtkErrorCode::GetLastSystemError());
+  }
+
+  this->DestroyStringArray(ds->GetNumberOfArrays(), names);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPDataWriter::SetupPieceFileNameExtension()
+void vtkXMLPTableWriter::SetupPieceFileNameExtension()
 {
   this->Superclass::SetupPieceFileNameExtension();
 
@@ -124,4 +189,11 @@ void vtkXMLPDataWriter::SetupPieceFileNameExtension()
   this->PieceFileNameExtension[0] = '.';
   strcpy(this->PieceFileNameExtension + 1, ext);
   writer->Delete();
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPTableWriter::FillInputPortInformation(int, vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
+  return 1;
 }

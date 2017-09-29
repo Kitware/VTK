@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkXMLCompositeDataWriter.cxx
   vtkXMLDataReader.cxx
   vtkXMLDataSetWriter.cxx
+  vtkXMLDataObjectWriter.cxx
   vtkXMLFileReadTester.cxx
   vtkXMLGenericDataObjectReader.cxx
   vtkXMLHierarchicalBoxDataFileConverter.cxx
@@ -18,6 +19,7 @@ set(Module_SRCS
   vtkXMLMultiBlockDataWriter.cxx
   vtkXMLMultiGroupDataReader.cxx
   vtkXMLPDataReader.cxx
+  vtkXMLPDataObjectReader.cxx
   vtkXMLPImageDataReader.cxx
   vtkXMLPolyDataReader.cxx
   vtkXMLPolyDataWriter.cxx
@@ -25,6 +27,7 @@ set(Module_SRCS
   vtkXMLPRectilinearGridReader.cxx
   vtkXMLPStructuredDataReader.cxx
   vtkXMLPStructuredGridReader.cxx
+  vtkXMLPTableReader.cxx
   vtkXMLPUnstructuredDataReader.cxx
   vtkXMLPUnstructuredGridReader.cxx
   vtkXMLReader.cxx
@@ -34,6 +37,8 @@ set(Module_SRCS
   vtkXMLStructuredDataWriter.cxx
   vtkXMLStructuredGridReader.cxx
   vtkXMLStructuredGridWriter.cxx
+  vtkXMLTableReader.cxx
+  vtkXMLTableWriter.cxx
   vtkXMLUniformGridAMRReader.cxx
   vtkXMLUniformGridAMRWriter.cxx
   vtkXMLUnstructuredDataReader.cxx
