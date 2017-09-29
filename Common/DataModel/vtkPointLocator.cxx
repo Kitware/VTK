@@ -295,8 +295,15 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
   radius2 = radius*radius;
   minDist2 = 1.01*radius2;   // something slightly bigger....
 
-  vtkDataArray *pointData =
-    static_cast<vtkPointSet *>(this->DataSet)->GetPoints()->GetData();
+  vtkPointSet *pointSet = static_cast<vtkPointSet*>(this->DataSet);
+  if (!pointSet) {
+    return closest;
+  }
+  vtkPoints *points = pointSet->GetPoints();
+  if (!points) {
+    return closest;
+  }
+  vtkDataArray *pointData = points->GetData();
   int flag = 1;
 
   //
